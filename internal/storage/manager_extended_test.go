@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// TestNewManager 测试创建存储管理器
+// TestNewManager 测试创建存储管理器.
 func TestNewManager_WithEmptyMountBase(t *testing.T) {
 	// 创建临时目录用于测试
 	mgr, err := NewManager("/tmp/test-nas-storage")
@@ -20,7 +20,7 @@ func TestNewManager_WithEmptyMountBase(t *testing.T) {
 	}
 }
 
-// TestNewManager_WithDefaultMountBase 测试默认挂载基础目录
+// TestNewManager_WithDefaultMountBase 测试默认挂载基础目录.
 func TestNewManager_WithDefaultMountBase(t *testing.T) {
 	// 测试空字符串使用默认值
 	mgr := &Manager{
@@ -35,7 +35,7 @@ func TestNewManager_WithDefaultMountBase(t *testing.T) {
 	}
 }
 
-// TestManager_ListVolumesEmpty 测试空卷列表
+// TestManager_ListVolumesEmpty 测试空卷列表.
 func TestManager_ListVolumesEmpty(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -48,7 +48,7 @@ func TestManager_ListVolumesEmpty(t *testing.T) {
 	}
 }
 
-// TestManager_ListVolumes 测试卷列表
+// TestManager_ListVolumes 测试卷列表.
 func TestManager_ListVolumes(t *testing.T) {
 	mgr := &Manager{
 		volumes: map[string]*Volume{
@@ -65,7 +65,7 @@ func TestManager_ListVolumes(t *testing.T) {
 	}
 }
 
-// TestManager_GetVolume 测试获取卷
+// TestManager_GetVolume 测试获取卷.
 func TestManager_GetVolume(t *testing.T) {
 	mgr := &Manager{
 		volumes: map[string]*Volume{
@@ -83,7 +83,7 @@ func TestManager_GetVolume(t *testing.T) {
 	}
 }
 
-// TestManager_GetVolumeNotFound 测试获取不存在的卷
+// TestManager_GetVolumeNotFound 测试获取不存在的卷.
 func TestManager_GetVolumeNotFound(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -96,7 +96,7 @@ func TestManager_GetVolumeNotFound(t *testing.T) {
 	}
 }
 
-// TestManager_CreateVolumeValidation 测试创建卷验证
+// TestManager_CreateVolumeValidation 测试创建卷验证.
 func TestManager_CreateVolumeValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -120,7 +120,7 @@ func TestManager_CreateVolumeValidation(t *testing.T) {
 	}
 }
 
-// TestManager_DeleteVolumeValidation 测试删除卷验证
+// TestManager_DeleteVolumeValidation 测试删除卷验证.
 func TestManager_DeleteVolumeValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -134,7 +134,7 @@ func TestManager_DeleteVolumeValidation(t *testing.T) {
 	}
 }
 
-// TestManager_DeleteVolumeWithSubvolumes 测试删除包含子卷的卷
+// TestManager_DeleteVolumeWithSubvolumes 测试删除包含子卷的卷.
 func TestManager_DeleteVolumeWithSubvolumes(t *testing.T) {
 	mgr := &Manager{
 		volumes: map[string]*Volume{
@@ -157,7 +157,7 @@ func TestManager_DeleteVolumeWithSubvolumes(t *testing.T) {
 	}
 }
 
-// TestManager_MountVolumeValidation 测试挂载卷验证
+// TestManager_MountVolumeValidation 测试挂载卷验证.
 func TestManager_MountVolumeValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -171,7 +171,7 @@ func TestManager_MountVolumeValidation(t *testing.T) {
 	}
 }
 
-// TestManager_UnmountVolumeValidation 测试卸载卷验证
+// TestManager_UnmountVolumeValidation 测试卸载卷验证.
 func TestManager_UnmountVolumeValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -185,7 +185,7 @@ func TestManager_UnmountVolumeValidation(t *testing.T) {
 	}
 }
 
-// TestManager_GetUsageValidation 测试获取使用情况验证
+// TestManager_GetUsageValidation 测试获取使用情况验证.
 func TestManager_GetUsageValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -199,7 +199,7 @@ func TestManager_GetUsageValidation(t *testing.T) {
 	}
 }
 
-// TestManager_ListSubVolumesValidation 测试列出子卷验证
+// TestManager_ListSubVolumesValidation 测试列出子卷验证.
 func TestManager_ListSubVolumesValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -213,7 +213,7 @@ func TestManager_ListSubVolumesValidation(t *testing.T) {
 	}
 }
 
-// TestManager_CreateSubVolumeValidation 测试创建子卷验证
+// TestManager_CreateSubVolumeValidation 测试创建子卷验证.
 func TestManager_CreateSubVolumeValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -227,7 +227,7 @@ func TestManager_CreateSubVolumeValidation(t *testing.T) {
 	}
 }
 
-// TestManager_DeleteSubVolumeValidation 测试删除子卷验证
+// TestManager_DeleteSubVolumeValidation 测试删除子卷验证.
 func TestManager_DeleteSubVolumeValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -241,7 +241,7 @@ func TestManager_DeleteSubVolumeValidation(t *testing.T) {
 	}
 }
 
-// TestManager_GetSubVolumeValidation 测试获取子卷验证
+// TestManager_GetSubVolumeValidation 测试获取子卷验证.
 func TestManager_GetSubVolumeValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes: map[string]*Volume{
@@ -257,7 +257,7 @@ func TestManager_GetSubVolumeValidation(t *testing.T) {
 	}
 }
 
-// TestManager_CreateSnapshotValidation 测试创建快照验证
+// TestManager_CreateSnapshotValidation 测试创建快照验证.
 func TestManager_CreateSnapshotValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -271,7 +271,7 @@ func TestManager_CreateSnapshotValidation(t *testing.T) {
 	}
 }
 
-// TestManager_ListSnapshotsValidation 测试列出快照验证
+// TestManager_ListSnapshotsValidation 测试列出快照验证.
 func TestManager_ListSnapshotsValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -285,7 +285,7 @@ func TestManager_ListSnapshotsValidation(t *testing.T) {
 	}
 }
 
-// TestManager_DeleteSnapshotValidation 测试删除快照验证
+// TestManager_DeleteSnapshotValidation 测试删除快照验证.
 func TestManager_DeleteSnapshotValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -299,7 +299,7 @@ func TestManager_DeleteSnapshotValidation(t *testing.T) {
 	}
 }
 
-// TestManager_BalanceValidation 测试平衡验证
+// TestManager_BalanceValidation 测试平衡验证.
 func TestManager_BalanceValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -313,7 +313,7 @@ func TestManager_BalanceValidation(t *testing.T) {
 	}
 }
 
-// TestManager_ScrubValidation 测试校验验证
+// TestManager_ScrubValidation 测试校验验证.
 func TestManager_ScrubValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -327,7 +327,7 @@ func TestManager_ScrubValidation(t *testing.T) {
 	}
 }
 
-// TestManager_ConvertRAIDValidation 测试RAID转换验证
+// TestManager_ConvertRAIDValidation 测试RAID转换验证.
 func TestManager_ConvertRAIDValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -341,7 +341,7 @@ func TestManager_ConvertRAIDValidation(t *testing.T) {
 	}
 }
 
-// TestManager_AddDeviceValidation 测试添加设备验证
+// TestManager_AddDeviceValidation 测试添加设备验证.
 func TestManager_AddDeviceValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -355,7 +355,7 @@ func TestManager_AddDeviceValidation(t *testing.T) {
 	}
 }
 
-// TestManager_RemoveDeviceValidation 测试移除设备验证
+// TestManager_RemoveDeviceValidation 测试移除设备验证.
 func TestManager_RemoveDeviceValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -369,7 +369,7 @@ func TestManager_RemoveDeviceValidation(t *testing.T) {
 	}
 }
 
-// TestVolume_StatusHealth 测试卷健康状态
+// TestVolume_StatusHealth 测试卷健康状态.
 func TestVolume_StatusHealth(t *testing.T) {
 	vol := &Volume{
 		Name: "data",
@@ -386,7 +386,7 @@ func TestVolume_StatusHealth(t *testing.T) {
 	}
 }
 
-// TestVolume_StatusUnhealthy 测试卷不健康状态
+// TestVolume_StatusUnhealthy 测试卷不健康状态.
 func TestVolume_StatusUnhealthy(t *testing.T) {
 	vol := &Volume{
 		Name: "data",
@@ -401,7 +401,7 @@ func TestVolume_StatusUnhealthy(t *testing.T) {
 	}
 }
 
-// TestVolume_UsageCalculation 测试卷使用计算
+// TestVolume_UsageCalculation 测试卷使用计算.
 func TestVolume_UsageCalculation(t *testing.T) {
 	vol := &Volume{
 		Name: "data",
@@ -415,7 +415,7 @@ func TestVolume_UsageCalculation(t *testing.T) {
 	}
 }
 
-// TestSubVolume_ReadOnly 测试子卷只读属性
+// TestSubVolume_ReadOnly 测试子卷只读属性.
 func TestSubVolume_ReadOnly(t *testing.T) {
 	subvol := &SubVolume{
 		Name:     "readonly-data",
@@ -427,7 +427,7 @@ func TestSubVolume_ReadOnly(t *testing.T) {
 	}
 }
 
-// TestSubVolume_SnapshotCount 测试子卷快照数量
+// TestSubVolume_SnapshotCount 测试子卷快照数量.
 func TestSubVolume_SnapshotCount(t *testing.T) {
 	subvol := &SubVolume{
 		Name: "documents",
@@ -443,7 +443,7 @@ func TestSubVolume_SnapshotCount(t *testing.T) {
 	}
 }
 
-// TestSnapshot_ReadOnlyDefault 测试快照默认只读
+// TestSnapshot_ReadOnlyDefault 测试快照默认只读.
 func TestSnapshot_ReadOnlyDefault(t *testing.T) {
 	snap := &Snapshot{
 		Name:     "backup-snap",
@@ -455,7 +455,7 @@ func TestSnapshot_ReadOnlyDefault(t *testing.T) {
 	}
 }
 
-// TestRAIDConfig_MinDevices 测试RAID配置最小设备数
+// TestRAIDConfig_MinDevices 测试RAID配置最小设备数.
 func TestRAIDConfig_MinDevices(t *testing.T) {
 	tests := []struct {
 		profile    string
@@ -482,7 +482,7 @@ func TestRAIDConfig_MinDevices(t *testing.T) {
 	}
 }
 
-// TestRAIDConfig_FaultTolerance 测试RAID容错能力
+// TestRAIDConfig_FaultTolerance 测试RAID容错能力.
 func TestRAIDConfig_FaultTolerance(t *testing.T) {
 	tests := []struct {
 		profile        string
@@ -509,7 +509,7 @@ func TestRAIDConfig_FaultTolerance(t *testing.T) {
 	}
 }
 
-// TestSnapshotConfig_Defaults 测试快照配置默认值
+// TestSnapshotConfig_Defaults 测试快照配置默认值.
 func TestSnapshotConfig_Defaults(t *testing.T) {
 	config := DefaultSnapshotConfig
 
@@ -527,7 +527,7 @@ func TestSnapshotConfig_Defaults(t *testing.T) {
 	}
 }
 
-// TestManager_MountSubVolumeValidation 测试子卷挂载验证
+// TestManager_MountSubVolumeValidation 测试子卷挂载验证.
 func TestManager_MountSubVolumeValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -541,7 +541,7 @@ func TestManager_MountSubVolumeValidation(t *testing.T) {
 	}
 }
 
-// TestManager_SetSubVolumeReadOnlyValidation 测试设置子卷只读验证
+// TestManager_SetSubVolumeReadOnlyValidation 测试设置子卷只读验证.
 func TestManager_SetSubVolumeReadOnlyValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -555,7 +555,7 @@ func TestManager_SetSubVolumeReadOnlyValidation(t *testing.T) {
 	}
 }
 
-// TestManager_GetDefaultSubVolumeValidation 测试获取默认子卷验证
+// TestManager_GetDefaultSubVolumeValidation 测试获取默认子卷验证.
 func TestManager_GetDefaultSubVolumeValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -569,7 +569,7 @@ func TestManager_GetDefaultSubVolumeValidation(t *testing.T) {
 	}
 }
 
-// TestManager_SetDefaultSubVolumeValidation 测试设置默认子卷验证
+// TestManager_SetDefaultSubVolumeValidation 测试设置默认子卷验证.
 func TestManager_SetDefaultSubVolumeValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -583,7 +583,7 @@ func TestManager_SetDefaultSubVolumeValidation(t *testing.T) {
 	}
 }
 
-// TestManager_GetDeviceStatsValidation 测试获取设备统计验证
+// TestManager_GetDeviceStatsValidation 测试获取设备统计验证.
 func TestManager_GetDeviceStatsValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -597,7 +597,7 @@ func TestManager_GetDeviceStatsValidation(t *testing.T) {
 	}
 }
 
-// TestManager_GetBalanceStatusValidation 测试获取平衡状态验证
+// TestManager_GetBalanceStatusValidation 测试获取平衡状态验证.
 func TestManager_GetBalanceStatusValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -611,7 +611,7 @@ func TestManager_GetBalanceStatusValidation(t *testing.T) {
 	}
 }
 
-// TestManager_GetScrubStatusValidation 测试获取校验状态验证
+// TestManager_GetScrubStatusValidation 测试获取校验状态验证.
 func TestManager_GetScrubStatusValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -625,7 +625,7 @@ func TestManager_GetScrubStatusValidation(t *testing.T) {
 	}
 }
 
-// TestVolumeStatus_BalanceProgress 测试平衡进度
+// TestVolumeStatus_BalanceProgress 测试平衡进度.
 func TestVolumeStatus_BalanceProgress(t *testing.T) {
 	status := VolumeStatus{
 		BalanceRunning:  true,
@@ -640,7 +640,7 @@ func TestVolumeStatus_BalanceProgress(t *testing.T) {
 	}
 }
 
-// TestVolumeStatus_ScrubProgress 测试校验进度
+// TestVolumeStatus_ScrubProgress 测试校验进度.
 func TestVolumeStatus_ScrubProgress(t *testing.T) {
 	status := VolumeStatus{
 		ScrubRunning:  true,
@@ -656,7 +656,7 @@ func TestVolumeStatus_ScrubProgress(t *testing.T) {
 	}
 }
 
-// TestManager_RestoreSnapshotValidation 测试恢复快照验证
+// TestManager_RestoreSnapshotValidation 测试恢复快照验证.
 func TestManager_RestoreSnapshotValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -670,7 +670,7 @@ func TestManager_RestoreSnapshotValidation(t *testing.T) {
 	}
 }
 
-// TestManager_ListSubVolumeSnapshotsValidation 测试列出子卷快照验证
+// TestManager_ListSubVolumeSnapshotsValidation 测试列出子卷快照验证.
 func TestManager_ListSubVolumeSnapshotsValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -684,7 +684,7 @@ func TestManager_ListSubVolumeSnapshotsValidation(t *testing.T) {
 	}
 }
 
-// TestManager_GetSnapshotValidation 测试获取快照验证
+// TestManager_GetSnapshotValidation 测试获取快照验证.
 func TestManager_GetSnapshotValidation(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -698,7 +698,7 @@ func TestManager_GetSnapshotValidation(t *testing.T) {
 	}
 }
 
-// TestVolume_MultipleDevices 测试多设备卷
+// TestVolume_MultipleDevices 测试多设备卷.
 func TestVolume_MultipleDevices(t *testing.T) {
 	vol := &Volume{
 		Name:        "raid-volume",
@@ -717,7 +717,7 @@ func TestVolume_MultipleDevices(t *testing.T) {
 	}
 }
 
-// TestVolume_SubvolumeCount 测试子卷数量
+// TestVolume_SubvolumeCount 测试子卷数量.
 func TestVolume_SubvolumeCount(t *testing.T) {
 	vol := &Volume{
 		Name: "data",
@@ -734,7 +734,7 @@ func TestVolume_SubvolumeCount(t *testing.T) {
 	}
 }
 
-// TestErrorWrap 测试错误包装
+// TestErrorWrap 测试错误包装.
 func TestErrorWrap(t *testing.T) {
 	originalErr := errors.New("original error")
 	wrappedErr := wrapError("operation failed", originalErr)
@@ -747,7 +747,7 @@ func TestErrorWrap(t *testing.T) {
 	}
 }
 
-// TestManager_ConcurrentAccess 测试并发访问
+// TestManager_ConcurrentAccess 测试并发访问.
 func TestManager_ConcurrentAccess(t *testing.T) {
 	mgr := &Manager{
 		volumes:   make(map[string]*Volume),
@@ -777,7 +777,7 @@ func TestManager_ConcurrentAccess(t *testing.T) {
 	}
 }
 
-// TestBtrfsClient_Interface 测试 btrfs 客户端接口（使用已定义的 MockBtrfsClient）
+// TestBtrfsClient_Interface 测试 btrfs 客户端接口（使用已定义的 MockBtrfsClient）.
 func TestBtrfsClient_Interface(t *testing.T) {
 	// 确保 MockBtrfsClient 实现了 btrfs.Client 接口
 	// MockBtrfsClient 已在 manager_test.go 中定义

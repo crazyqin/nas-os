@@ -8,7 +8,7 @@ import (
 
 // ========== 存储使用报表 v2.56.0 ==========
 
-// StorageUsageReport 存储使用报表
+// StorageUsageReport 存储使用报表.
 type StorageUsageReport struct {
 	// 报告ID
 	ID string `json:"id"`
@@ -47,7 +47,7 @@ type StorageUsageReport struct {
 	Forecast *StorageForecast `json:"forecast,omitempty"`
 }
 
-// StorageUsageSummary 存储使用摘要
+// StorageUsageSummary 存储使用摘要.
 type StorageUsageSummary struct {
 	// 总容量（字节）
 	TotalCapacity uint64 `json:"total_capacity"`
@@ -92,7 +92,7 @@ type StorageUsageSummary struct {
 	EfficiencyScore float64 `json:"efficiency_score"` // 0-100
 }
 
-// VolumeUsageDetail 卷使用详情
+// VolumeUsageDetail 卷使用详情.
 type VolumeUsageDetail struct {
 	// 卷名称
 	Name string `json:"name"`
@@ -155,7 +155,7 @@ type VolumeUsageDetail struct {
 	AvailableCapacityHR string `json:"available_capacity_hr"`
 }
 
-// FileTypeStats 文件类型统计
+// FileTypeStats 文件类型统计.
 type FileTypeStats struct {
 	// 文件类型/扩展名
 	Type string `json:"type"`
@@ -176,7 +176,7 @@ type FileTypeStats struct {
 	Category string `json:"category"` // document, media, archive, code, other
 }
 
-// StorageTrendData 存储趋势数据
+// StorageTrendData 存储趋势数据.
 type StorageTrendData struct {
 	// 历史数据点
 	History []StorageTrendPoint `json:"history"`
@@ -200,7 +200,7 @@ type StorageTrendData struct {
 	GrowthAcceleration float64 `json:"growth_acceleration"`
 }
 
-// StorageAlert 存储告警
+// StorageAlert 存储告警.
 type StorageAlert struct {
 	// 告警ID
 	ID string `json:"id"`
@@ -239,7 +239,7 @@ type StorageAlert struct {
 	SuggestedAction string `json:"suggested_action"`
 }
 
-// StorageRecommendation 存储建议
+// StorageRecommendation 存储建议.
 type StorageRecommendation struct {
 	// ID
 	ID string `json:"id"`
@@ -275,7 +275,7 @@ type StorageRecommendation struct {
 	Steps []string `json:"steps,omitempty"`
 }
 
-// StorageForecast 存储预测
+// StorageForecast 存储预测.
 type StorageForecast struct {
 	// 预测时间范围
 	ForecastDays int `json:"forecast_days"`
@@ -302,7 +302,7 @@ type StorageForecast struct {
 	RecommendedExpansion uint64 `json:"recommended_expansion"`
 }
 
-// StorageForecastPoint 存储预测数据点
+// StorageForecastPoint 存储预测数据点.
 type StorageForecastPoint struct {
 	Date                  time.Time `json:"date"`
 	PredictedUsed         uint64    `json:"predicted_used"`
@@ -311,12 +311,12 @@ type StorageForecastPoint struct {
 	UpperBound            uint64    `json:"upper_bound"`
 }
 
-// StorageUsageReporter 存储使用报告生成器
+// StorageUsageReporter 存储使用报告生成器.
 type StorageUsageReporter struct {
 	config StorageReportConfig
 }
 
-// StorageReportConfig 存储报告配置
+// StorageReportConfig 存储报告配置.
 type StorageReportConfig struct {
 	// 高使用率阈值（%）
 	HighUsageThreshold float64 `json:"high_usage_threshold"`
@@ -340,7 +340,7 @@ type StorageReportConfig struct {
 	EnableForecast bool `json:"enable_forecast"`
 }
 
-// DefaultStorageReportConfig 默认存储报告配置
+// DefaultStorageReportConfig 默认存储报告配置.
 func DefaultStorageReportConfig() StorageReportConfig {
 	return StorageReportConfig{
 		HighUsageThreshold:     80.0,
@@ -353,12 +353,12 @@ func DefaultStorageReportConfig() StorageReportConfig {
 	}
 }
 
-// NewStorageUsageReporter 创建存储使用报告生成器
+// NewStorageUsageReporter 创建存储使用报告生成器.
 func NewStorageUsageReporter(config StorageReportConfig) *StorageUsageReporter {
 	return &StorageUsageReporter{config: config}
 }
 
-// GenerateReport 生成存储使用报告
+// GenerateReport 生成存储使用报告.
 func (r *StorageUsageReporter) GenerateReport(
 	volumes []VolumeUsageDetail,
 	topUsers []UserStorageUsage,
@@ -399,7 +399,7 @@ func (r *StorageUsageReporter) GenerateReport(
 	return report
 }
 
-// calculateSummary 计算摘要
+// calculateSummary 计算摘要.
 func (r *StorageUsageReporter) calculateSummary(
 	volumes []VolumeUsageDetail,
 	users []UserStorageUsage,
@@ -455,7 +455,7 @@ func (r *StorageUsageReporter) calculateSummary(
 	return summary
 }
 
-// calculateTrend 计算趋势
+// calculateTrend 计算趋势.
 func (r *StorageUsageReporter) calculateTrend(history []StorageTrendPoint) StorageTrendData {
 	trend := StorageTrendData{
 		History: history,
@@ -526,7 +526,7 @@ func (r *StorageUsageReporter) calculateTrend(history []StorageTrendPoint) Stora
 	return trend
 }
 
-// generateAlerts 生成告警
+// generateAlerts 生成告警.
 func (r *StorageUsageReporter) generateAlerts(
 	volumes []VolumeUsageDetail,
 	users []UserStorageUsage,
@@ -605,7 +605,7 @@ func (r *StorageUsageReporter) generateAlerts(
 	return alerts
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (r *StorageUsageReporter) generateRecommendations(report *StorageUsageReport) []StorageRecommendation {
 	recs := make([]StorageRecommendation, 0)
 
@@ -685,7 +685,7 @@ func (r *StorageUsageReporter) generateRecommendations(report *StorageUsageRepor
 	return recs
 }
 
-// generateForecast 生成预测
+// generateForecast 生成预测.
 func (r *StorageUsageReporter) generateForecast(history []StorageTrendPoint, volumes []VolumeUsageDetail) *StorageForecast {
 	if len(history) < 7 {
 		return nil
@@ -752,7 +752,7 @@ func (r *StorageUsageReporter) generateForecast(history []StorageTrendPoint, vol
 	return forecast
 }
 
-// calculateEfficiencyScore 计算效率评分
+// calculateEfficiencyScore 计算效率评分.
 func (r *StorageUsageReporter) calculateEfficiencyScore(usagePercent float64) float64 {
 	// 使用率在 60-80% 之间效率最高
 	if usagePercent >= 60 && usagePercent <= 80 {

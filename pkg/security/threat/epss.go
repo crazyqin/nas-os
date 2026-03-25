@@ -15,7 +15,7 @@ import (
 
 // ========== EPSS 评分系统 ==========
 
-// EPSSData EPSS 数据结构
+// EPSSData EPSS 数据结构.
 type EPSSData struct {
 	CVEID      string    `json:"cve"`
 	Score      float64   `json:"epss"`       // 0-1 概率评分
@@ -23,7 +23,7 @@ type EPSSData struct {
 	Date       time.Time `json:"date"`
 }
 
-// EPSSResponse EPSS API 响应结构
+// EPSSResponse EPSS API 响应结构.
 type EPSSResponse struct {
 	Status     string `json:"status"`
 	StatusCode int    `json:"status-code"`
@@ -40,7 +40,7 @@ type EPSSResponse struct {
 	} `json:"data"`
 }
 
-// EPSSDatabase EPSS 数据库管理器
+// EPSSDatabase EPSS 数据库管理器.
 type EPSSDatabase struct {
 	cache      map[string]*EPSSData
 	cachePath  string
@@ -50,14 +50,14 @@ type EPSSDatabase struct {
 	mu         sync.RWMutex
 }
 
-// EPSSConfig EPSS 配置
+// EPSSConfig EPSS 配置.
 type EPSSConfig struct {
 	SourceURL   string `json:"source_url"`
 	CachePath   string `json:"cache_path"`
 	OfflineMode bool   `json:"offline_mode"`
 }
 
-// DefaultEPSSConfig 默认 EPSS 配置
+// DefaultEPSSConfig 默认 EPSS 配置.
 func DefaultEPSSConfig() EPSSConfig {
 	return EPSSConfig{
 		SourceURL:   "https://api.first.org/data/v1/epss",
@@ -66,7 +66,7 @@ func DefaultEPSSConfig() EPSSConfig {
 	}
 }
 
-// NewEPSSDatabase 创建 EPSS 数据库
+// NewEPSSDatabase 创建 EPSS 数据库.
 func NewEPSSDatabase(config EPSSConfig) *EPSSDatabase {
 	// 确保缓存目录存在
 	cacheDir := filepath.Dir(config.CachePath)
@@ -87,7 +87,7 @@ func NewEPSSDatabase(config EPSSConfig) *EPSSDatabase {
 	return edb
 }
 
-// loadCache 加载本地缓存
+// loadCache 加载本地缓存.
 func (edb *EPSSDatabase) loadCache() error {
 	data, err := os.ReadFile(edb.cachePath)
 	if err != nil {
@@ -106,7 +106,7 @@ func (edb *EPSSDatabase) loadCache() error {
 	return nil
 }
 
-// saveCache 保存缓存
+// saveCache 保存缓存.
 func (edb *EPSSDatabase) saveCache() error {
 	edb.mu.RLock()
 	data, err := json.MarshalIndent(edb.cache, "", "  ")
@@ -119,7 +119,7 @@ func (edb *EPSSDatabase) saveCache() error {
 	return os.WriteFile(edb.cachePath, data, 0600)
 }
 
-// FetchEPSS 批量获取 EPSS 数据
+// FetchEPSS 批量获取 EPSS 数据.
 func (edb *EPSSDatabase) FetchEPSS(ctx context.Context, cveIDs []string) (map[string]*EPSSData, error) {
 	if len(cveIDs) == 0 {
 		return make(map[string]*EPSSData), nil
@@ -192,7 +192,7 @@ func (edb *EPSSDatabase) FetchEPSS(ctx context.Context, cveIDs []string) (map[st
 	return results, nil
 }
 
-// GetEPSS 获取单个 CVE 的 EPSS 数据
+// GetEPSS 获取单个 CVE 的 EPSS 数据.
 func (edb *EPSSDatabase) GetEPSS(cveID string) *EPSSData {
 	edb.mu.RLock()
 	defer edb.mu.RUnlock()
@@ -200,7 +200,7 @@ func (edb *EPSSDatabase) GetEPSS(cveID string) *EPSSData {
 	return edb.cache[cveID]
 }
 
-// GetEPSSBatch 批量获取缓存中的 EPSS 数据
+// GetEPSSBatch 批量获取缓存中的 EPSS 数据.
 func (edb *EPSSDatabase) GetEPSSBatch(cveIDs []string) map[string]*EPSSData {
 	edb.mu.RLock()
 	defer edb.mu.RUnlock()
@@ -214,7 +214,7 @@ func (edb *EPSSDatabase) GetEPSSBatch(cveIDs []string) map[string]*EPSSData {
 	return results
 }
 
-// GetHighEPSS 获取高 EPSS 评分的漏洞
+// GetHighEPSS 获取高 EPSS 评分的漏洞.
 func (edb *EPSSDatabase) GetHighEPSS(threshold float64) []*EPSSData {
 	edb.mu.RLock()
 	defer edb.mu.RUnlock()
@@ -228,7 +228,7 @@ func (edb *EPSSDatabase) GetHighEPSS(threshold float64) []*EPSSData {
 	return results
 }
 
-// GetHighPercentile 获取高百分位的漏洞
+// GetHighPercentile 获取高百分位的漏洞.
 func (edb *EPSSDatabase) GetHighPercentile(threshold float64) []*EPSSData {
 	edb.mu.RLock()
 	defer edb.mu.RUnlock()
@@ -244,21 +244,21 @@ func (edb *EPSSDatabase) GetHighPercentile(threshold float64) []*EPSSData {
 
 // ========== EPSS 风险等级计算 ==========
 
-// EPSSRiskLevel EPSS 风险等级
+// EPSSRiskLevel EPSS 风险等级.
 type EPSSRiskLevel string
 
 const (
-	// EPSSRiskLow indicates low EPSS risk (score < 0.01)
+	// EPSSRiskLow indicates low EPSS risk (score < 0.01).
 	EPSSRiskLow EPSSRiskLevel = "low" // < 0.01
-	// EPSSRiskMedium indicates medium EPSS risk (score 0.01 - 0.1)
+	// EPSSRiskMedium indicates medium EPSS risk (score 0.01 - 0.1).
 	EPSSRiskMedium EPSSRiskLevel = "medium" // 0.01 - 0.1
-	// EPSSRiskHigh indicates high EPSS risk (score 0.1 - 0.5)
+	// EPSSRiskHigh indicates high EPSS risk (score 0.1 - 0.5).
 	EPSSRiskHigh EPSSRiskLevel = "high" // 0.1 - 0.5
-	// EPSSRiskCritical indicates critical EPSS risk (score > 0.5)
+	// EPSSRiskCritical indicates critical EPSS risk (score > 0.5).
 	EPSSRiskCritical EPSSRiskLevel = "critical" // > 0.5
 )
 
-// GetEPSSRiskLevel 获取 EPSS 风险等级
+// GetEPSSRiskLevel 获取 EPSS 风险等级.
 func (edb *EPSSDatabase) GetEPSSRiskLevel(score float64) EPSSRiskLevel {
 	switch {
 	case score >= 0.5:
@@ -272,7 +272,7 @@ func (edb *EPSSDatabase) GetEPSSRiskLevel(score float64) EPSSRiskLevel {
 	}
 }
 
-// ClassifyByRiskLevel 按风险等级分类
+// ClassifyByRiskLevel 按风险等级分类.
 func (edb *EPSSDatabase) ClassifyByRiskLevel() map[EPSSRiskLevel][]*EPSSData {
 	edb.mu.RLock()
 	defer edb.mu.RUnlock()
@@ -292,7 +292,7 @@ func (edb *EPSSDatabase) ClassifyByRiskLevel() map[EPSSRiskLevel][]*EPSSData {
 	return result
 }
 
-// GetStatistics 获取 EPSS 统计信息
+// GetStatistics 获取 EPSS 统计信息.
 func (edb *EPSSDatabase) GetStatistics() map[string]interface{} {
 	edb.mu.RLock()
 	defer edb.mu.RUnlock()

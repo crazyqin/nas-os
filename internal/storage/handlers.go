@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 存储 API 处理器
+// Handlers 存储 API 处理器.
 type Handlers struct {
 	manager          *Manager
 	immutableManager *ImmutableManager
@@ -19,7 +19,7 @@ type Handlers struct {
 	smartRAIDManager *SmartRAIDManager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager, immutableManager *ImmutableManager, hotSpareManager *HotSpareManager, spaceAnalyzer *SpaceAnalyzer) *Handlers {
 	return &Handlers{
 		manager:          manager,
@@ -29,7 +29,7 @@ func NewHandlers(manager *Manager, immutableManager *ImmutableManager, hotSpareM
 	}
 }
 
-// NewHandlersWithFusion 创建带融合池支持的处理器
+// NewHandlersWithFusion 创建带融合池支持的处理器.
 func NewHandlersWithFusion(manager *Manager, immutableManager *ImmutableManager, hotSpareManager *HotSpareManager, spaceAnalyzer *SpaceAnalyzer, fusionManager *FusionPoolManager) *Handlers {
 	return &Handlers{
 		manager:          manager,
@@ -40,7 +40,7 @@ func NewHandlersWithFusion(manager *Manager, immutableManager *ImmutableManager,
 	}
 }
 
-// NewHandlersWithSmartRAID 创建带智能 RAID 支持的处理器
+// NewHandlersWithSmartRAID 创建带智能 RAID 支持的处理器.
 func NewHandlersWithSmartRAID(manager *Manager, immutableManager *ImmutableManager, hotSpareManager *HotSpareManager, spaceAnalyzer *SpaceAnalyzer, fusionManager *FusionPoolManager, smartRAIDManager *SmartRAIDManager) *Handlers {
 	return &Handlers{
 		manager:          manager,
@@ -52,7 +52,7 @@ func NewHandlersWithSmartRAID(manager *Manager, immutableManager *ImmutableManag
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	// 卷管理
 	volumes := r.Group("/volumes")
@@ -193,7 +193,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 卷管理 ==========
 
-// VolumeListResponse 卷列表响应
+// VolumeListResponse 卷列表响应.
 type VolumeListResponse struct {
 	Name        string   `json:"name"`
 	UUID        string   `json:"uuid"`
@@ -213,7 +213,7 @@ type VolumeListResponse struct {
 // @Tags storage
 // @Produce json
 // @Success 200 {object} api.Response{data=[]VolumeListResponse}
-// @Router /volumes [get]
+// @Router /volumes [get].
 func (h *Handlers) listVolumes(c *gin.Context) {
 	volumes := h.manager.ListVolumes()
 
@@ -244,7 +244,7 @@ func (h *Handlers) listVolumes(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} api.Response{data=Volume}
 // @Failure 404 {object} api.Response
-// @Router /volumes/{name} [get]
+// @Router /volumes/{name} [get].
 func (h *Handlers) getVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -257,7 +257,7 @@ func (h *Handlers) getVolume(c *gin.Context) {
 	api.OK(c, vol)
 }
 
-// CreateVolumeRequest 创建卷请求
+// CreateVolumeRequest 创建卷请求.
 type CreateVolumeRequest struct {
 	Name    string   `json:"name" binding:"required"`
 	Devices []string `json:"devices" binding:"required,min=1"`
@@ -273,7 +273,7 @@ type CreateVolumeRequest struct {
 // @Param request body CreateVolumeRequest true "创建请求"
 // @Success 201 {object} api.Response{data=Volume}
 // @Failure 400 {object} api.Response
-// @Router /volumes [post]
+// @Router /volumes [post].
 func (h *Handlers) createVolume(c *gin.Context) {
 	var req CreateVolumeRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -302,7 +302,7 @@ func (h *Handlers) createVolume(c *gin.Context) {
 // @Param force query bool false "强制删除（包含子卷）"
 // @Success 204 "No Content"
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name} [delete]
+// @Router /volumes/{name} [delete].
 func (h *Handlers) deleteVolume(c *gin.Context) {
 	name := c.Param("name")
 	force := c.Query("force") == "true"
@@ -322,7 +322,7 @@ func (h *Handlers) deleteVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/mount [post]
+// @Router /volumes/{name}/mount [post].
 func (h *Handlers) mountVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -341,7 +341,7 @@ func (h *Handlers) mountVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/unmount [post]
+// @Router /volumes/{name}/unmount [post].
 func (h *Handlers) unmountVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -362,7 +362,7 @@ func (h *Handlers) unmountVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/scrub [post]
+// @Router /volumes/{name}/scrub [post].
 func (h *Handlers) startScrub(c *gin.Context) {
 	name := c.Param("name")
 
@@ -381,7 +381,7 @@ func (h *Handlers) startScrub(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/scrub/status [get]
+// @Router /volumes/{name}/scrub/status [get].
 func (h *Handlers) getScrubStatus(c *gin.Context) {
 	name := c.Param("name")
 
@@ -401,7 +401,7 @@ func (h *Handlers) getScrubStatus(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/balance [post]
+// @Router /volumes/{name}/balance [post].
 func (h *Handlers) startBalance(c *gin.Context) {
 	name := c.Param("name")
 
@@ -420,7 +420,7 @@ func (h *Handlers) startBalance(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/balance/status [get]
+// @Router /volumes/{name}/balance/status [get].
 func (h *Handlers) getBalanceStatus(c *gin.Context) {
 	name := c.Param("name")
 
@@ -435,7 +435,7 @@ func (h *Handlers) getBalanceStatus(c *gin.Context) {
 
 // ========== 子卷管理 ==========
 
-// SubvolumeListResponse 子卷列表响应
+// SubvolumeListResponse 子卷列表响应.
 type SubvolumeListResponse struct {
 	Name          string `json:"name"`
 	Volume        string `json:"volume"`
@@ -454,7 +454,7 @@ type SubvolumeListResponse struct {
 // @Param name path string true "卷名称"
 // @Success 200 {object} api.Response{data=[]SubvolumeListResponse}
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/subvolumes [get]
+// @Router /volumes/{name}/subvolumes [get].
 func (h *Handlers) listSubvolumes(c *gin.Context) {
 	name := c.Param("name")
 
@@ -487,7 +487,7 @@ func (h *Handlers) listSubvolumes(c *gin.Context) {
 // @Tags storage
 // @Param volume query string false "过滤卷名称"
 // @Success 200 {object} api.Response{data=[]SubvolumeListResponse}
-// @Router /subvolumes [get]
+// @Router /subvolumes [get].
 func (h *Handlers) listAllSubvolumes(c *gin.Context) {
 	volumeFilter := c.Query("volume")
 
@@ -528,7 +528,7 @@ func (h *Handlers) listAllSubvolumes(c *gin.Context) {
 // @Param subvol path string true "子卷名称"
 // @Success 200 {object} api.Response{data=SubVolume}
 // @Failure 404 {object} api.Response
-// @Router /volumes/{name}/subvolumes/{subvol} [get]
+// @Router /volumes/{name}/subvolumes/{subvol} [get].
 func (h *Handlers) getSubvolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolName := c.Param("subvol")
@@ -542,7 +542,7 @@ func (h *Handlers) getSubvolume(c *gin.Context) {
 	api.OK(c, subvol)
 }
 
-// CreateSubvolumeRequest 创建子卷请求
+// CreateSubvolumeRequest 创建子卷请求.
 type CreateSubvolumeRequest struct {
 	Name string `json:"name" binding:"required"`
 	Path string `json:"path"` // 可选：自定义路径
@@ -558,7 +558,7 @@ type CreateSubvolumeRequest struct {
 // @Param request body CreateSubvolumeRequest true "创建请求"
 // @Success 201 {object} api.Response{data=SubVolume}
 // @Failure 400 {object} api.Response
-// @Router /volumes/{name}/subvolumes [post]
+// @Router /volumes/{name}/subvolumes [post].
 func (h *Handlers) createSubvolume(c *gin.Context) {
 	volumeName := c.Param("name")
 
@@ -585,7 +585,7 @@ func (h *Handlers) createSubvolume(c *gin.Context) {
 // @Param subvol path string true "子卷名称"
 // @Success 204 "No Content"
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/subvolumes/{subvol} [delete]
+// @Router /volumes/{name}/subvolumes/{subvol} [delete].
 func (h *Handlers) deleteSubvolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolName := c.Param("subvol")
@@ -598,7 +598,7 @@ func (h *Handlers) deleteSubvolume(c *gin.Context) {
 	api.NoContent(c)
 }
 
-// MountSubvolumeRequest 挂载子卷请求
+// MountSubvolumeRequest 挂载子卷请求.
 type MountSubvolumeRequest struct {
 	MountPath string `json:"mountPath" binding:"required"`
 }
@@ -613,7 +613,7 @@ type MountSubvolumeRequest struct {
 // @Param request body MountSubvolumeRequest true "挂载请求"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/subvolumes/{subvol}/mount [post]
+// @Router /volumes/{name}/subvolumes/{subvol}/mount [post].
 func (h *Handlers) mountSubvolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolName := c.Param("subvol")
@@ -632,7 +632,7 @@ func (h *Handlers) mountSubvolume(c *gin.Context) {
 	api.OKWithMessage(c, "子卷已挂载", gin.H{"mountPath": req.MountPath})
 }
 
-// SetReadOnlyRequest 设置只读请求
+// SetReadOnlyRequest 设置只读请求.
 type SetReadOnlyRequest struct {
 	ReadOnly bool `json:"readOnly"`
 }
@@ -647,7 +647,7 @@ type SetReadOnlyRequest struct {
 // @Param request body SetReadOnlyRequest true "设置请求"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/subvolumes/{subvol}/readonly [post]
+// @Router /volumes/{name}/subvolumes/{subvol}/readonly [post].
 func (h *Handlers) setSubvolumeReadOnly(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolName := c.Param("subvol")
@@ -668,7 +668,7 @@ func (h *Handlers) setSubvolumeReadOnly(c *gin.Context) {
 
 // ========== 快照管理 ==========
 
-// SnapshotListResponse 快照列表响应
+// SnapshotListResponse 快照列表响应.
 type SnapshotListResponse struct {
 	Name      string `json:"name"`
 	Volume    string `json:"volume"`
@@ -688,7 +688,7 @@ type SnapshotListResponse struct {
 // @Param subvol query string false "过滤子卷名称"
 // @Success 200 {object} api.Response{data=[]SnapshotListResponse}
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/snapshots [get]
+// @Router /volumes/{name}/snapshots [get].
 func (h *Handlers) listSnapshots(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolFilter := c.Query("subvol")
@@ -731,7 +731,7 @@ func (h *Handlers) listSnapshots(c *gin.Context) {
 // @Tags storage
 // @Param volume query string false "过滤卷名称"
 // @Success 200 {object} api.Response{data=[]SnapshotListResponse}
-// @Router /snapshots [get]
+// @Router /snapshots [get].
 func (h *Handlers) listAllSnapshots(c *gin.Context) {
 	volumeFilter := c.Query("volume")
 
@@ -782,7 +782,7 @@ func (h *Handlers) listAllSnapshots(c *gin.Context) {
 // @Param snap path string true "快照名称"
 // @Success 200 {object} api.Response{data=Snapshot}
 // @Failure 404 {object} api.Response
-// @Router /volumes/{name}/snapshots/{snap} [get]
+// @Router /volumes/{name}/snapshots/{snap} [get].
 func (h *Handlers) getSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapName := c.Param("snap")
@@ -796,7 +796,7 @@ func (h *Handlers) getSnapshot(c *gin.Context) {
 	api.OK(c, snap)
 }
 
-// CreateSnapshotRequest 创建快照请求
+// CreateSnapshotRequest 创建快照请求.
 type CreateSnapshotRequest struct {
 	Subvolume string `json:"subvolume" binding:"required"`
 	Name      string `json:"name"`
@@ -813,7 +813,7 @@ type CreateSnapshotRequest struct {
 // @Param request body CreateSnapshotRequest true "创建请求"
 // @Success 201 {object} api.Response{data=Snapshot}
 // @Failure 400 {object} api.Response
-// @Router /volumes/{name}/snapshots [post]
+// @Router /volumes/{name}/snapshots [post].
 func (h *Handlers) createSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
 
@@ -840,7 +840,7 @@ func (h *Handlers) createSnapshot(c *gin.Context) {
 // @Param snap path string true "快照名称"
 // @Success 204 "No Content"
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/snapshots/{snap} [delete]
+// @Router /volumes/{name}/snapshots/{snap} [delete].
 func (h *Handlers) deleteSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapName := c.Param("snap")
@@ -853,7 +853,7 @@ func (h *Handlers) deleteSnapshot(c *gin.Context) {
 	api.NoContent(c)
 }
 
-// RestoreSnapshotRequest 恢复快照请求
+// RestoreSnapshotRequest 恢复快照请求.
 type RestoreSnapshotRequest struct {
 	TargetName string `json:"targetName"` // 恢复后的名称
 }
@@ -868,7 +868,7 @@ type RestoreSnapshotRequest struct {
 // @Param request body RestoreSnapshotRequest true "恢复请求"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/snapshots/{snap}/restore [post]
+// @Router /volumes/{name}/snapshots/{snap}/restore [post].
 func (h *Handlers) restoreSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapName := c.Param("snap")
@@ -892,7 +892,7 @@ func (h *Handlers) restoreSnapshot(c *gin.Context) {
 	api.OKWithMessage(c, "快照已恢复", gin.H{"targetName": targetName})
 }
 
-// RollbackSnapshotRequest 回滚快照请求
+// RollbackSnapshotRequest 回滚快照请求.
 type RollbackSnapshotRequest struct {
 	Subvolume string `json:"subvolume" binding:"required"`
 }
@@ -907,7 +907,7 @@ type RollbackSnapshotRequest struct {
 // @Param request body RollbackSnapshotRequest true "回滚请求"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/snapshots/{snap}/rollback [post]
+// @Router /volumes/{name}/snapshots/{snap}/rollback [post].
 func (h *Handlers) rollbackSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapName := c.Param("snap")
@@ -935,7 +935,7 @@ func (h *Handlers) rollbackSnapshot(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/devices [get]
+// @Router /volumes/{name}/devices [get].
 func (h *Handlers) getDeviceStats(c *gin.Context) {
 	volumeName := c.Param("name")
 
@@ -948,7 +948,7 @@ func (h *Handlers) getDeviceStats(c *gin.Context) {
 	api.OK(c, stats)
 }
 
-// AddDeviceRequest 添加设备请求
+// AddDeviceRequest 添加设备请求.
 type AddDeviceRequest struct {
 	Device string `json:"device" binding:"required"`
 }
@@ -962,7 +962,7 @@ type AddDeviceRequest struct {
 // @Param request body AddDeviceRequest true "添加请求"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/devices [post]
+// @Router /volumes/{name}/devices [post].
 func (h *Handlers) addDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 
@@ -988,7 +988,7 @@ func (h *Handlers) addDevice(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/devices/{device} [delete]
+// @Router /volumes/{name}/devices/{device} [delete].
 func (h *Handlers) removeDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 	device := c.Param("device")
@@ -1003,7 +1003,7 @@ func (h *Handlers) removeDevice(c *gin.Context) {
 
 // ========== RAID 配置 ==========
 
-// ConvertRAIDRequest RAID 转换请求
+// ConvertRAIDRequest RAID 转换请求.
 type ConvertRAIDRequest struct {
 	DataProfile string `json:"dataProfile"`
 	MetaProfile string `json:"metaProfile"`
@@ -1018,7 +1018,7 @@ type ConvertRAIDRequest struct {
 // @Param request body ConvertRAIDRequest true "转换请求"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /volumes/{name}/convert [post]
+// @Router /volumes/{name}/convert [post].
 func (h *Handlers) convertRAID(c *gin.Context) {
 	volumeName := c.Param("name")
 
@@ -1042,7 +1042,7 @@ func (h *Handlers) convertRAID(c *gin.Context) {
 // @Tags storage
 // @Produce json
 // @Success 200 {object} api.Response
-// @Router /raid-configs [get]
+// @Router /raid-configs [get].
 func (h *Handlers) getRAIDConfigs(c *gin.Context) {
 	api.OK(c, RAIDConfigs)
 }
@@ -1055,7 +1055,7 @@ func (h *Handlers) getRAIDConfigs(c *gin.Context) {
 // @Tags storage
 // @Param volume query string false "卷名称过滤"
 // @Success 200 {object} api.Response{data=[]HotSpare}
-// @Router /hot-spare [get]
+// @Router /hot-spare [get].
 func (h *Handlers) listHotSpares(c *gin.Context) {
 	volumeName := c.Query("volume")
 	result := h.hotSpareManager.ListHotSpares(volumeName)
@@ -1067,13 +1067,13 @@ func (h *Handlers) listHotSpares(c *gin.Context) {
 // @Description 获取热备盘系统的整体状态
 // @Tags storage
 // @Success 200 {object} api.Response{data=HotSpareStatus}
-// @Router /hot-spare/status [get]
+// @Router /hot-spare/status [get].
 func (h *Handlers) getHotSpareStatus(c *gin.Context) {
 	status := h.hotSpareManager.GetStatus()
 	api.OK(c, status)
 }
 
-// AddHotSpareRequest 添加热备盘请求
+// AddHotSpareRequest 添加热备盘请求.
 type AddHotSpareRequest struct {
 	Device     string `json:"device" binding:"required"`
 	VolumeName string `json:"volumeName"` // 可选：指定关联的卷
@@ -1087,7 +1087,7 @@ type AddHotSpareRequest struct {
 // @Param request body AddHotSpareRequest true "添加请求"
 // @Success 201 {object} api.Response{data=HotSpare}
 // @Failure 400 {object} api.Response
-// @Router /hot-spare [post]
+// @Router /hot-spare [post].
 func (h *Handlers) addHotSpare(c *gin.Context) {
 	var req AddHotSpareRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -1111,7 +1111,7 @@ func (h *Handlers) addHotSpare(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /hot-spare/{device} [delete]
+// @Router /hot-spare/{device} [delete].
 func (h *Handlers) removeHotSpare(c *gin.Context) {
 	device := c.Param("device")
 
@@ -1130,7 +1130,7 @@ func (h *Handlers) removeHotSpare(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} api.Response{data=HotSpare}
 // @Failure 404 {object} api.Response
-// @Router /hot-spare/{device} [get]
+// @Router /hot-spare/{device} [get].
 func (h *Handlers) getHotSpare(c *gin.Context) {
 	device := c.Param("device")
 
@@ -1143,7 +1143,7 @@ func (h *Handlers) getHotSpare(c *gin.Context) {
 	api.OK(c, hs)
 }
 
-// ActivateHotSpareRequest 激活热备盘请求
+// ActivateHotSpareRequest 激活热备盘请求.
 type ActivateHotSpareRequest struct {
 	VolumeName   string `json:"volumeName" binding:"required"`
 	FailedDevice string `json:"failedDevice" binding:"required"`
@@ -1158,7 +1158,7 @@ type ActivateHotSpareRequest struct {
 // @Param request body ActivateHotSpareRequest true "激活请求"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /hot-spare/{device}/activate [post]
+// @Router /hot-spare/{device}/activate [post].
 func (h *Handlers) activateHotSpare(c *gin.Context) {
 	device := c.Param("device")
 
@@ -1183,7 +1183,7 @@ func (h *Handlers) activateHotSpare(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /hot-spare/{device}/cancel [post]
+// @Router /hot-spare/{device}/cancel [post].
 func (h *Handlers) cancelRebuild(c *gin.Context) {
 	device := c.Param("device")
 
@@ -1202,7 +1202,7 @@ func (h *Handlers) cancelRebuild(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} api.Response{data=RebuildStatus}
 // @Failure 404 {object} api.Response
-// @Router /hot-spare/{device}/rebuild-status [get]
+// @Router /hot-spare/{device}/rebuild-status [get].
 func (h *Handlers) getRebuildStatus(c *gin.Context) {
 	device := c.Param("device")
 
@@ -1220,7 +1220,7 @@ func (h *Handlers) getRebuildStatus(c *gin.Context) {
 // @Description 列出所有正在重建的热备盘
 // @Tags storage
 // @Success 200 {object} api.Response{data=[]RebuildStatus}
-// @Router /hot-spare/rebuilding [get]
+// @Router /hot-spare/rebuilding [get].
 func (h *Handlers) listRebuilding(c *gin.Context) {
 	result := h.hotSpareManager.ListRebuilding()
 	api.OK(c, result)
@@ -1231,7 +1231,7 @@ func (h *Handlers) listRebuilding(c *gin.Context) {
 // @Description 获取热备盘系统的配置
 // @Tags storage
 // @Success 200 {object} api.Response{data=HotSpareConfig}
-// @Router /hot-spare/config [get]
+// @Router /hot-spare/config [get].
 func (h *Handlers) getHotSpareConfig(c *gin.Context) {
 	config := h.hotSpareManager.GetConfig()
 	api.OK(c, config)
@@ -1245,7 +1245,7 @@ func (h *Handlers) getHotSpareConfig(c *gin.Context) {
 // @Param request body HotSpareConfig true "配置请求"
 // @Success 200 {object} api.Response
 // @Failure 400 {object} api.Response
-// @Router /hot-spare/config [put]
+// @Router /hot-spare/config [put].
 func (h *Handlers) updateHotSpareConfig(c *gin.Context) {
 	var config HotSpareConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -1265,7 +1265,7 @@ func (h *Handlers) updateHotSpareConfig(c *gin.Context) {
 // @Tags storage
 // @Produce json
 // @Success 200 {object} api.Response{data=[]FusionPool}
-// @Router /fusion-pools [get]
+// @Router /fusion-pools [get].
 func (h *Handlers) listFusionPools(c *gin.Context) {
 	pools := h.fusionManager.ListPools()
 	api.OK(c, pools)
@@ -1279,7 +1279,7 @@ func (h *Handlers) listFusionPools(c *gin.Context) {
 // @Param name path string true "融合池名称"
 // @Success 200 {object} api.Response{data=FusionPool}
 // @Failure 404 {object} api.Response
-// @Router /fusion-pools/{name} [get]
+// @Router /fusion-pools/{name} [get].
 func (h *Handlers) getFusionPool(c *gin.Context) {
 	name := c.Param("name")
 
@@ -1301,7 +1301,7 @@ func (h *Handlers) getFusionPool(c *gin.Context) {
 // @Param request body CreateFusionPoolRequest true "创建请求"
 // @Success 201 {object} api.Response{data=FusionPool}
 // @Failure 400 {object} api.Response
-// @Router /fusion-pools [post]
+// @Router /fusion-pools [post].
 func (h *Handlers) createFusionPool(c *gin.Context) {
 	var req CreateFusionPoolRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -1326,7 +1326,7 @@ func (h *Handlers) createFusionPool(c *gin.Context) {
 // @Param force query bool false "强制删除（包含子卷）"
 // @Success 204 "No Content"
 // @Failure 400,404 {object} api.Response
-// @Router /fusion-pools/{name} [delete]
+// @Router /fusion-pools/{name} [delete].
 func (h *Handlers) deleteFusionPool(c *gin.Context) {
 	name := c.Param("name")
 	force := c.Query("force") == "true"
@@ -1346,7 +1346,7 @@ func (h *Handlers) deleteFusionPool(c *gin.Context) {
 // @Param name path string true "融合池名称"
 // @Success 200 {object} api.Response{data=[]FusionSubvolume}
 // @Failure 400,404 {object} api.Response
-// @Router /fusion-pools/{name}/subvolumes [get]
+// @Router /fusion-pools/{name}/subvolumes [get].
 func (h *Handlers) listFusionSubvolumes(c *gin.Context) {
 	name := c.Param("name")
 
@@ -1369,7 +1369,7 @@ func (h *Handlers) listFusionSubvolumes(c *gin.Context) {
 // @Param request body map[string]string true "创建请求 {name: \"子卷名称\"}"
 // @Success 201 {object} api.Response{data=FusionSubvolume}
 // @Failure 400 {object} api.Response
-// @Router /fusion-pools/{name}/subvolumes [post]
+// @Router /fusion-pools/{name}/subvolumes [post].
 func (h *Handlers) createFusionSubvolume(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1398,7 +1398,7 @@ func (h *Handlers) createFusionSubvolume(c *gin.Context) {
 // @Param subvol path string true "子卷名称"
 // @Success 200 {object} api.Response{data=FusionSubvolume}
 // @Failure 404 {object} api.Response
-// @Router /fusion-pools/{name}/subvolumes/{subvol} [get]
+// @Router /fusion-pools/{name}/subvolumes/{subvol} [get].
 func (h *Handlers) getFusionSubvolume(c *gin.Context) {
 	poolName := c.Param("name")
 	subvolName := c.Param("subvol")
@@ -1420,7 +1420,7 @@ func (h *Handlers) getFusionSubvolume(c *gin.Context) {
 // @Param subvol path string true "子卷名称"
 // @Success 204 "No Content"
 // @Failure 400,404 {object} api.Response
-// @Router /fusion-pools/{name}/subvolumes/{subvol} [delete]
+// @Router /fusion-pools/{name}/subvolumes/{subvol} [delete].
 func (h *Handlers) deleteFusionSubvolume(c *gin.Context) {
 	poolName := c.Param("name")
 	subvolName := c.Param("subvol")
@@ -1433,7 +1433,7 @@ func (h *Handlers) deleteFusionSubvolume(c *gin.Context) {
 	api.NoContent(c)
 }
 
-// addSSDDeviceRequest 添加 SSD 设备请求
+// addSSDDeviceRequest 添加 SSD 设备请求.
 type addSSDDeviceRequest struct {
 	Device string `json:"device" binding:"required"`
 }
@@ -1447,7 +1447,7 @@ type addSSDDeviceRequest struct {
 // @Param request body addSSDDeviceRequest true "设备信息"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /fusion-pools/{name}/ssd-devices [post]
+// @Router /fusion-pools/{name}/ssd-devices [post].
 func (h *Handlers) addSSDDevice(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1474,7 +1474,7 @@ func (h *Handlers) addSSDDevice(c *gin.Context) {
 // @Param request body addSSDDeviceRequest true "设备信息"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /fusion-pools/{name}/hdd-devices [post]
+// @Router /fusion-pools/{name}/hdd-devices [post].
 func (h *Handlers) addHDDDevice(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1499,7 +1499,7 @@ func (h *Handlers) addHDDDevice(c *gin.Context) {
 // @Param name path string true "融合池名称"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /fusion-pools/{name}/tiering [post]
+// @Router /fusion-pools/{name}/tiering [post].
 func (h *Handlers) runTiering(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1518,7 +1518,7 @@ func (h *Handlers) runTiering(c *gin.Context) {
 // @Param name path string true "融合池名称"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /fusion-pools/{name}/optimize [post]
+// @Router /fusion-pools/{name}/optimize [post].
 func (h *Handlers) optimizeMetadataAccess(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1537,7 +1537,7 @@ func (h *Handlers) optimizeMetadataAccess(c *gin.Context) {
 // @Param name path string true "融合池名称"
 // @Success 200 {object} api.Response{data=FusionPoolStats}
 // @Failure 400,404 {object} api.Response
-// @Router /fusion-pools/{name}/stats [get]
+// @Router /fusion-pools/{name}/stats [get].
 func (h *Handlers) getFusionPoolStats(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1552,7 +1552,7 @@ func (h *Handlers) getFusionPoolStats(c *gin.Context) {
 
 // ========== 空间分析 ==========
 
-// AnalyzeSpaceRequest 空间分析请求
+// AnalyzeSpaceRequest 空间分析请求.
 type AnalyzeSpaceRequest struct {
 	Path               string `json:"path"`               // 分析路径（可选）
 	IncludeHidden      bool   `json:"includeHidden"`      // 包含隐藏文件
@@ -1572,7 +1572,7 @@ type AnalyzeSpaceRequest struct {
 // @Param request body AnalyzeSpaceRequest false "分析选项"
 // @Success 200 {object} api.Response{data=AnalyzeResult}
 // @Failure 400,404 {object} api.Response
-// @Router /space/analyze/{volume} [get]
+// @Router /space/analyze/{volume} [get].
 func (h *Handlers) analyzeSpace(c *gin.Context) {
 	volumeName := c.Param("volume")
 
@@ -1619,7 +1619,7 @@ func (h *Handlers) analyzeSpace(c *gin.Context) {
 // @Param days query int false "查询天数" default(30)
 // @Success 200 {object} api.Response{data=[]SpaceRecord}
 // @Failure 400,404 {object} api.Response
-// @Router /space/history/{volume} [get]
+// @Router /space/history/{volume} [get].
 func (h *Handlers) getSpaceHistory(c *gin.Context) {
 	volumeName := c.Param("volume")
 
@@ -1644,7 +1644,7 @@ func (h *Handlers) getSpaceHistory(c *gin.Context) {
 // @Param volume path string true "卷名称"
 // @Success 200 {object} api.Response{data=SpaceTrend}
 // @Failure 400,404 {object} api.Response
-// @Router /space/trend/{volume} [get]
+// @Router /space/trend/{volume} [get].
 func (h *Handlers) getSpaceTrend(c *gin.Context) {
 	volumeName := c.Param("volume")
 
@@ -1666,7 +1666,7 @@ func (h *Handlers) getSpaceTrend(c *gin.Context) {
 // @Description 获取所有智能存储池列表
 // @Tags storage
 // @Success 200 {object} api.Response{data=[]SmartPool}
-// @Router /smart-pools [get]
+// @Router /smart-pools [get].
 func (h *Handlers) listSmartPools(c *gin.Context) {
 	if h.smartRAIDManager == nil {
 		api.BadRequest(c, "智能 RAID 管理器未初始化")
@@ -1684,7 +1684,7 @@ func (h *Handlers) listSmartPools(c *gin.Context) {
 // @Param name path string true "智能池名称"
 // @Success 200 {object} api.Response{data=SmartPool}
 // @Failure 404 {object} api.Response
-// @Router /smart-pools/{name} [get]
+// @Router /smart-pools/{name} [get].
 func (h *Handlers) getSmartPool(c *gin.Context) {
 	name := c.Param("name")
 
@@ -1702,7 +1702,7 @@ func (h *Handlers) getSmartPool(c *gin.Context) {
 	api.OK(c, pool)
 }
 
-// createSmartPoolRequest 创建智能池请求
+// createSmartPoolRequest 创建智能池请求.
 type createSmartPoolRequest struct {
 	Name            string      `json:"name" binding:"required"`
 	Description     string      `json:"description"`
@@ -1720,7 +1720,7 @@ type createSmartPoolRequest struct {
 // @Param request body createSmartPoolRequest true "创建请求"
 // @Success 201 {object} api.Response{data=SmartPool}
 // @Failure 400 {object} api.Response
-// @Router /smart-pools [post]
+// @Router /smart-pools [post].
 func (h *Handlers) createSmartPool(c *gin.Context) {
 	var req createSmartPoolRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -1756,7 +1756,7 @@ func (h *Handlers) createSmartPool(c *gin.Context) {
 // @Param force query bool false "强制删除（包含子卷）"
 // @Success 204 "No Content"
 // @Failure 400,404 {object} api.Response
-// @Router /smart-pools/{name} [delete]
+// @Router /smart-pools/{name} [delete].
 func (h *Handlers) deleteSmartPool(c *gin.Context) {
 	name := c.Param("name")
 	force := c.Query("force") == "true"
@@ -1774,7 +1774,7 @@ func (h *Handlers) deleteSmartPool(c *gin.Context) {
 	api.NoContent(c)
 }
 
-// addDeviceToSmartPoolRequest 添加设备请求
+// addDeviceToSmartPoolRequest 添加设备请求.
 type addDeviceToSmartPoolRequest struct {
 	Device string `json:"device" binding:"required"`
 }
@@ -1788,7 +1788,7 @@ type addDeviceToSmartPoolRequest struct {
 // @Param request body addDeviceToSmartPoolRequest true "设备信息"
 // @Success 200 {object} api.Response{data=SmartPool}
 // @Failure 400,404 {object} api.Response
-// @Router /smart-pools/{name}/devices [post]
+// @Router /smart-pools/{name}/devices [post].
 func (h *Handlers) addDeviceToSmartPool(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1812,7 +1812,7 @@ func (h *Handlers) addDeviceToSmartPool(c *gin.Context) {
 	api.OK(c, pool)
 }
 
-// replaceSmartPoolDeviceRequest 替换设备请求
+// replaceSmartPoolDeviceRequest 替换设备请求.
 type replaceSmartPoolDeviceRequest struct {
 	OldDevice string `json:"oldDevice" binding:"required"`
 	NewDevice string `json:"newDevice" binding:"required"`
@@ -1827,7 +1827,7 @@ type replaceSmartPoolDeviceRequest struct {
 // @Param request body replaceSmartPoolDeviceRequest true "设备信息"
 // @Success 200 {object} api.Response
 // @Failure 400,404 {object} api.Response
-// @Router /smart-pools/{name}/replace [post]
+// @Router /smart-pools/{name}/replace [post].
 func (h *Handlers) replaceSmartPoolDevice(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1857,7 +1857,7 @@ func (h *Handlers) replaceSmartPoolDevice(c *gin.Context) {
 // @Param name path string true "智能池名称"
 // @Success 200 {object} api.Response{data=SmartPoolStats}
 // @Failure 400,404 {object} api.Response
-// @Router /smart-pools/{name}/stats [get]
+// @Router /smart-pools/{name}/stats [get].
 func (h *Handlers) getSmartPoolStats(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1882,7 +1882,7 @@ func (h *Handlers) getSmartPoolStats(c *gin.Context) {
 // @Param name path string true "智能池名称"
 // @Success 200 {object} api.Response{data=ExpansionPlan}
 // @Failure 400,404 {object} api.Response
-// @Router /smart-pools/{name}/expansion-plan [get]
+// @Router /smart-pools/{name}/expansion-plan [get].
 func (h *Handlers) getExpansionPlan(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1907,7 +1907,7 @@ func (h *Handlers) getExpansionPlan(c *gin.Context) {
 // @Param name path string true "智能池名称"
 // @Success 200 {object} api.Response{data=[]SmartSubvolume}
 // @Failure 400,404 {object} api.Response
-// @Router /smart-pools/{name}/subvolumes [get]
+// @Router /smart-pools/{name}/subvolumes [get].
 func (h *Handlers) listSmartPoolSubvolumes(c *gin.Context) {
 	name := c.Param("name")
 
@@ -1925,7 +1925,7 @@ func (h *Handlers) listSmartPoolSubvolumes(c *gin.Context) {
 	api.OK(c, pool.Subvolumes)
 }
 
-// createSmartSubvolumeRequest 创建子卷请求
+// createSmartSubvolumeRequest 创建子卷请求.
 type createSmartSubvolumeRequest struct {
 	Name string `json:"name" binding:"required"`
 }
@@ -1939,7 +1939,7 @@ type createSmartSubvolumeRequest struct {
 // @Param request body createSmartSubvolumeRequest true "创建请求"
 // @Success 201 {object} api.Response{data=SmartSubvolume}
 // @Failure 400 {object} api.Response
-// @Router /smart-pools/{name}/subvolumes [post]
+// @Router /smart-pools/{name}/subvolumes [post].
 func (h *Handlers) createSmartPoolSubvolume(c *gin.Context) {
 	poolName := c.Param("name")
 
@@ -1971,7 +1971,7 @@ func (h *Handlers) createSmartPoolSubvolume(c *gin.Context) {
 // @Param subvol path string true "子卷名称"
 // @Success 204 "No Content"
 // @Failure 400,404 {object} api.Response
-// @Router /smart-pools/{name}/subvolumes/{subvol} [delete]
+// @Router /smart-pools/{name}/subvolumes/{subvol} [delete].
 func (h *Handlers) deleteSmartPoolSubvolume(c *gin.Context) {
 	poolName := c.Param("name")
 	subvolName := c.Param("subvol")

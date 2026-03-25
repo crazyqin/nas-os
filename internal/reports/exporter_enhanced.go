@@ -14,13 +14,13 @@ import (
 
 // ========== PDF 导出增强 ==========
 
-// PDFGenerator PDF 生成器接口
+// PDFGenerator PDF 生成器接口.
 type PDFGenerator interface {
 	Generate(htmlContent []byte, outputPath string, options PDFOptions) error
 	IsAvailable() bool
 }
 
-// PDFOptions PDF 选项
+// PDFOptions PDF 选项.
 type PDFOptions struct {
 	PageSize    string `json:"page_size"`    // A4, Letter, Legal
 	Orientation string `json:"orientation"`  // portrait, landscape
@@ -31,12 +31,12 @@ type PDFOptions struct {
 	Footer      string `json:"footer"`       // 页脚
 }
 
-// WkhtmltopdfGenerator 使用 wkhtmltopdf 生成 PDF
+// WkhtmltopdfGenerator 使用 wkhtmltopdf 生成 PDF.
 type WkhtmltopdfGenerator struct {
 	binaryPath string
 }
 
-// NewWkhtmltopdfGenerator 创建 wkhtmltopdf 生成器
+// NewWkhtmltopdfGenerator 创建 wkhtmltopdf 生成器.
 func NewWkhtmltopdfGenerator() *WkhtmltopdfGenerator {
 	// 查找 wkhtmltopdf 路径
 	paths := []string{
@@ -59,12 +59,12 @@ func NewWkhtmltopdfGenerator() *WkhtmltopdfGenerator {
 	return &WkhtmltopdfGenerator{binaryPath: ""}
 }
 
-// IsAvailable 检查是否可用
+// IsAvailable 检查是否可用.
 func (g *WkhtmltopdfGenerator) IsAvailable() bool {
 	return g.binaryPath != ""
 }
 
-// Generate 生成 PDF
+// Generate 生成 PDF.
 func (g *WkhtmltopdfGenerator) Generate(htmlContent []byte, outputPath string, options PDFOptions) error {
 	if !g.IsAvailable() {
 		return errors.New("wkhtmltopdf 不可用")
@@ -136,13 +136,13 @@ func (g *WkhtmltopdfGenerator) Generate(htmlContent []byte, outputPath string, o
 	return nil
 }
 
-// ExporterV2 增强版导出器
+// ExporterV2 增强版导出器.
 type ExporterV2 struct {
 	*Exporter
 	pdfGenerator PDFGenerator
 }
 
-// NewExporterV2 创建增强版导出器
+// NewExporterV2 创建增强版导出器.
 func NewExporterV2(dataDir string) *ExporterV2 {
 	return &ExporterV2{
 		Exporter:     NewExporter(dataDir),
@@ -150,12 +150,12 @@ func NewExporterV2(dataDir string) *ExporterV2 {
 	}
 }
 
-// SetPDFGenerator 设置 PDF 生成器
+// SetPDFGenerator 设置 PDF 生成器.
 func (e *ExporterV2) SetPDFGenerator(generator PDFGenerator) {
 	e.pdfGenerator = generator
 }
 
-// ExportPDFWithGenerator 使用生成器导出 PDF
+// ExportPDFWithGenerator 使用生成器导出 PDF.
 func (e *ExporterV2) ExportPDFWithGenerator(report *GeneratedReport, outputPath string, options ExportOptions) error {
 	// 生成 HTML
 	htmlData, err := e.ExportToBytes(report, ExportHTML, options)
@@ -189,14 +189,14 @@ func (e *ExporterV2) ExportPDFWithGenerator(report *GeneratedReport, outputPath 
 
 // ========== CSV 导出增强 ==========
 
-// CSVExporter CSV 导出器
+// CSVExporter CSV 导出器.
 type CSVExporter struct {
 	separator  rune
 	encoding   string
 	withHeader bool
 }
 
-// NewCSVExporter 创建 CSV 导出器
+// NewCSVExporter 创建 CSV 导出器.
 func NewCSVExporter() *CSVExporter {
 	return &CSVExporter{
 		separator:  ',',
@@ -205,17 +205,17 @@ func NewCSVExporter() *CSVExporter {
 	}
 }
 
-// SetSeparator 设置分隔符
+// SetSeparator 设置分隔符.
 func (e *CSVExporter) SetSeparator(sep rune) {
 	e.separator = sep
 }
 
-// SetWithHeader 设置是否包含表头
+// SetWithHeader 设置是否包含表头.
 func (e *CSVExporter) SetWithHeader(withHeader bool) {
 	e.withHeader = withHeader
 }
 
-// Export 导出 CSV
+// Export 导出 CSV.
 func (e *CSVExporter) Export(report *GeneratedReport, outputPath string) error {
 	if len(report.Data) == 0 {
 		return os.WriteFile(outputPath, []byte(""), 0640)
@@ -266,7 +266,7 @@ func (e *CSVExporter) Export(report *GeneratedReport, outputPath string) error {
 	return os.WriteFile(outputPath, output, 0640)
 }
 
-// formatCSVValue 格式化 CSV 值
+// formatCSVValue 格式化 CSV 值.
 func formatCSVValue(val interface{}) string {
 	if val == nil {
 		return ""
@@ -293,17 +293,17 @@ func formatCSVValue(val interface{}) string {
 
 // ========== 批量导出工具 ==========
 
-// BatchExporter 批量导出器
+// BatchExporter 批量导出器.
 type BatchExporter struct {
 	exporter *ExporterV2
 }
 
-// NewBatchExporter 创建批量导出器
+// NewBatchExporter 创建批量导出器.
 func NewBatchExporter(exporter *ExporterV2) *BatchExporter {
 	return &BatchExporter{exporter: exporter}
 }
 
-// ExportReport 导出单个报告（多种格式）
+// ExportReport 导出单个报告（多种格式）.
 func (be *BatchExporter) ExportReport(report *GeneratedReport, formats []ExportFormat, baseDir string, options ExportOptions) ([]*ExportResult, error) {
 	results := make([]*ExportResult, 0, len(formats))
 
@@ -349,7 +349,7 @@ func (be *BatchExporter) ExportReport(report *GeneratedReport, formats []ExportF
 	return results, nil
 }
 
-// ExportMultipleReports 批量导出多个报告
+// ExportMultipleReports 批量导出多个报告.
 func (be *BatchExporter) ExportMultipleReports(reports []*GeneratedReport, format ExportFormat, baseDir string, options ExportOptions) ([]*ExportResult, error) {
 	results := make([]*ExportResult, 0, len(reports))
 
@@ -369,7 +369,7 @@ func (be *BatchExporter) ExportMultipleReports(reports []*GeneratedReport, forma
 	return results, nil
 }
 
-// sanitizeFilename 清理文件名
+// sanitizeFilename 清理文件名.
 func sanitizeFilename(name string) string {
 	replacer := strings.NewReplacer(
 		" ", "_",
@@ -388,7 +388,7 @@ func sanitizeFilename(name string) string {
 
 // ========== 导出辅助函数 ==========
 
-// CreateReportArchive 创建报告压缩包
+// CreateReportArchive 创建报告压缩包.
 func CreateReportArchive(outputPath string, files []string) error {
 	// 使用 tar 或 zip 压缩
 	if strings.HasSuffix(outputPath, ".zip") {
@@ -407,7 +407,7 @@ func createTarArchive(outputPath string, files []string) error {
 	return nil
 }
 
-// GetExportStats 获取导出统计
+// GetExportStats 获取导出统计.
 func GetExportStats(results []*ExportResult) map[string]interface{} {
 	totalSize := int64(0)
 	formatCount := make(map[ExportFormat]int)

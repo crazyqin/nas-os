@@ -24,19 +24,19 @@ import (
 // ========== 核心错误定义 ==========
 
 var (
-	// ErrSensitiveDataFound 发现敏感数据
+	// ErrSensitiveDataFound 发现敏感数据.
 	ErrSensitiveDataFound = errors.New("sensitive data found")
-	// ErrSanitizationFailed 去敏感化失败
+	// ErrSanitizationFailed 去敏感化失败.
 	ErrSanitizationFailed = errors.New("sanitization failed")
-	// ErrInvalidPattern 无效模式
+	// ErrInvalidPattern 无效模式.
 	ErrInvalidPattern = errors.New("invalid pattern")
-	// ErrEncryptionFailed 加密失败
+	// ErrEncryptionFailed 加密失败.
 	ErrEncryptionFailed = errors.New("encryption failed")
-	// ErrDecryptionFailed 解密失败
+	// ErrDecryptionFailed 解密失败.
 	ErrDecryptionFailed = errors.New("decryption failed")
-	// ErrKeyNotFound 密钥未找到
+	// ErrKeyNotFound 密钥未找到.
 	ErrKeyNotFound = errors.New("encryption key not found")
-	// ErrUnauthorizedAccess 未授权访问
+	// ErrUnauthorizedAccess 未授权访问.
 	ErrUnauthorizedAccess = errors.New("unauthorized access")
 )
 
@@ -74,7 +74,7 @@ const (
 	SensitiveTypeCustom SensitiveType = "custom"
 )
 
-// SensitiveData 敏感数据
+// SensitiveData 敏感数据.
 type SensitiveData struct {
 	Type        SensitiveType `json:"type"`
 	Value       string        `json:"value"`
@@ -85,7 +85,7 @@ type SensitiveData struct {
 	Replacement string        `json:"replacement,omitempty"`
 }
 
-// SanitizationResult 去敏感化结果
+// SanitizationResult 去敏感化结果.
 type SanitizationResult struct {
 	OriginalText     string            `json:"original_text,omitempty"`
 	SanitizedText    string            `json:"sanitized_text"`
@@ -95,7 +95,7 @@ type SanitizationResult struct {
 	ProcessingTimeMS int64             `json:"processing_time_ms"`
 }
 
-// SanitizationStats 统计信息
+// SanitizationStats 统计信息.
 type SanitizationStats struct {
 	TotalScanned   int                   `json:"total_scanned"`
 	TotalDetected  int                   `json:"total_detected"`
@@ -105,25 +105,25 @@ type SanitizationStats struct {
 	ByType         map[SensitiveType]int `json:"by_type"`
 }
 
-// SanitizationMode 去敏感化模式
+// SanitizationMode 去敏感化模式.
 type SanitizationMode string
 
 const (
-	// ModeRedact 完全移除敏感信息
+	// ModeRedact 完全移除敏感信息.
 	ModeRedact SanitizationMode = "redact"
-	// ModeMask 部分遮蔽
+	// ModeMask 部分遮蔽.
 	ModeMask SanitizationMode = "mask"
-	// ModeReplace 替换为占位符
+	// ModeReplace 替换为占位符.
 	ModeReplace SanitizationMode = "replace"
-	// ModeEncrypt 加密存储
+	// ModeEncrypt 加密存储.
 	ModeEncrypt SanitizationMode = "encrypt"
-	// ModeHash 哈希替换
+	// ModeHash 哈希替换.
 	ModeHash SanitizationMode = "hash"
-	// ModeTokenize 令牌化
+	// ModeTokenize 令牌化.
 	ModeTokenize SanitizationMode = "tokenize"
 )
 
-// SanitizationConfig 去敏感化配置
+// SanitizationConfig 去敏感化配置.
 type SanitizationConfig struct {
 	// 默认模式
 	DefaultMode SanitizationMode `json:"default_mode"`
@@ -168,7 +168,7 @@ type SanitizationConfig struct {
 	ExcludePatterns []string `json:"exclude_patterns"`
 }
 
-// DefaultSanitizationConfig 默认配置
+// DefaultSanitizationConfig 默认配置.
 func DefaultSanitizationConfig() *SanitizationConfig {
 	return &SanitizationConfig{
 		DefaultMode:         ModeMask,
@@ -187,7 +187,7 @@ func DefaultSanitizationConfig() *SanitizationConfig {
 	}
 }
 
-// AISanitizer AI去敏感化器
+// AISanitizer AI去敏感化器.
 type AISanitizer struct {
 	config     *SanitizationConfig
 	patterns   map[SensitiveType]*regexp.Regexp
@@ -196,7 +196,7 @@ type AISanitizer struct {
 	mu         sync.RWMutex
 }
 
-// NewAISanitizer 创建AI去敏感化器
+// NewAISanitizer 创建AI去敏感化器.
 func NewAISanitizer(config *SanitizationConfig) (*AISanitizer, error) {
 	if config == nil {
 		config = DefaultSanitizationConfig()
@@ -221,7 +221,7 @@ func NewAISanitizer(config *SanitizationConfig) (*AISanitizer, error) {
 	return s, nil
 }
 
-// initPatterns 初始化内置模式
+// initPatterns 初始化内置模式.
 func (s *AISanitizer) initPatterns() {
 	// 信用卡号
 	s.patterns[SensitiveTypeCreditCard] = regexp.MustCompile(`\b(?:\d{4}[-\s]?){3}\d{4}\b`)
@@ -254,7 +254,7 @@ func (s *AISanitizer) initPatterns() {
 	s.patterns[SensitiveTypeIDCard] = regexp.MustCompile(`\b\d{17}[\dXx]\b`)
 }
 
-// loadEncryptionKey 加载加密密钥
+// loadEncryptionKey 加载加密密钥.
 func (s *AISanitizer) loadEncryptionKey(keyPath string) error {
 	data, err := os.ReadFile(keyPath)
 	if err != nil {
@@ -279,7 +279,7 @@ func (s *AISanitizer) loadEncryptionKey(keyPath string) error {
 	return nil
 }
 
-// Sanitize 执行去敏感化
+// Sanitize 执行去敏感化.
 func (s *AISanitizer) Sanitize(ctx context.Context, text string) (*SanitizationResult, error) {
 	startTime := time.Now()
 
@@ -349,7 +349,7 @@ func (s *AISanitizer) Sanitize(ctx context.Context, text string) (*SanitizationR
 	return result, nil
 }
 
-// detect 检测敏感信息
+// detect 检测敏感信息.
 func (s *AISanitizer) detect(text string) []SensitiveData {
 	var results []SensitiveData
 
@@ -432,7 +432,7 @@ func (s *AISanitizer) detect(text string) []SensitiveData {
 	return filtered
 }
 
-// getMode 获取处理模式
+// getMode 获取处理模式.
 func (s *AISanitizer) getMode(t SensitiveType) SanitizationMode {
 	if mode, ok := s.config.TypeModes[t]; ok {
 		return mode
@@ -440,7 +440,7 @@ func (s *AISanitizer) getMode(t SensitiveType) SanitizationMode {
 	return s.config.DefaultMode
 }
 
-// processItem 处理单个敏感项
+// processItem 处理单个敏感项.
 func (s *AISanitizer) processItem(item SensitiveData, mode SanitizationMode) (string, error) {
 	switch mode {
 	case ModeRedact:
@@ -460,12 +460,12 @@ func (s *AISanitizer) processItem(item SensitiveData, mode SanitizationMode) (st
 	}
 }
 
-// redact 完全移除
+// redact 完全移除.
 func (s *AISanitizer) redact(item SensitiveData) (string, error) {
 	return "", nil
 }
 
-// mask 部分遮蔽
+// mask 部分遮蔽.
 func (s *AISanitizer) mask(item SensitiveData) (string, error) {
 	value := item.Value
 	length := len(value)
@@ -488,7 +488,7 @@ func (s *AISanitizer) mask(item SensitiveData) (string, error) {
 	return start + middle + end, nil
 }
 
-// replace 替换为占位符
+// replace 替换为占位符.
 func (s *AISanitizer) replace(item SensitiveData) (string, error) {
 	template := s.config.ReplaceTemplate
 	if template == "" {
@@ -497,7 +497,7 @@ func (s *AISanitizer) replace(item SensitiveData) (string, error) {
 	return fmt.Sprintf(template, strings.ToUpper(string(item.Type))), nil
 }
 
-// encrypt 加密
+// encrypt 加密.
 func (s *AISanitizer) encrypt(item SensitiveData) (string, error) {
 	if s.encryptKey == nil {
 		return "", ErrKeyNotFound
@@ -522,20 +522,20 @@ func (s *AISanitizer) encrypt(item SensitiveData) (string, error) {
 	return base64.StdEncoding.EncodeToString(encrypted), nil
 }
 
-// hash 哈希替换
+// hash 哈希替换.
 func (s *AISanitizer) hash(item SensitiveData) (string, error) {
 	h := sha256.New()
 	h.Write([]byte(item.Value))
 	return fmt.Sprintf("HASH_%x", h.Sum(nil)[:8]), nil
 }
 
-// tokenize 令牌化
+// tokenize 令牌化.
 func (s *AISanitizer) tokenize(item SensitiveData) (string, error) {
 	token := s.tokenStore.CreateToken(item.Value, item.Type)
 	return token, nil
 }
 
-// Detokenize 反令牌化
+// Detokenize 反令牌化.
 func (s *AISanitizer) Detokenize(token string) (string, error) {
 	value, ok := s.tokenStore.GetValue(token)
 	if !ok {
@@ -544,7 +544,7 @@ func (s *AISanitizer) Detokenize(token string) (string, error) {
 	return value, nil
 }
 
-// Decrypt 解密
+// Decrypt 解密.
 func (s *AISanitizer) Decrypt(encryptedBase64 string) (string, error) {
 	if s.encryptKey == nil {
 		return "", ErrKeyNotFound
@@ -579,7 +579,7 @@ func (s *AISanitizer) Decrypt(encryptedBase64 string) (string, error) {
 	return string(plaintext), nil
 }
 
-// getContext 获取上下文
+// getContext 获取上下文.
 func (s *AISanitizer) getContext(text string, start, end int) string {
 	if !s.config.PreserveContext {
 		return ""
@@ -600,7 +600,7 @@ func (s *AISanitizer) getContext(text string, start, end int) string {
 	return text[contextStart:contextEnd]
 }
 
-// calculateConfidence 计算置信度
+// calculateConfidence 计算置信度.
 func (s *AISanitizer) calculateConfidence(t SensitiveType, value string) float64 {
 	// 基于类型和值计算置信度
 	switch t {
@@ -646,7 +646,7 @@ func (s *AISanitizer) calculateConfidence(t SensitiveType, value string) float64
 	}
 }
 
-// luhnCheck Luhn 算法校验信用卡号
+// luhnCheck Luhn 算法校验信用卡号.
 func (s *AISanitizer) luhnCheck(number string) bool {
 	// 移除非数字字符
 	digits := strings.Map(func(r rune) rune {
@@ -680,7 +680,7 @@ func (s *AISanitizer) luhnCheck(number string) bool {
 	return sum%10 == 0
 }
 
-// idCardCheck 身份证校验
+// idCardCheck 身份证校验.
 func (s *AISanitizer) idCardCheck(id string) bool {
 	if len(id) != 18 {
 		return false
@@ -700,7 +700,7 @@ func (s *AISanitizer) idCardCheck(id string) bool {
 	return strings.ToUpper(string(id[17])) == string(expectedCheck)
 }
 
-// isExcluded 检查是否在排除列表
+// isExcluded 检查是否在排除列表.
 func (s *AISanitizer) isExcluded(value string) bool {
 	for _, pattern := range s.config.ExcludePatterns {
 		if matched, _ := regexp.MatchString(pattern, value); matched {
@@ -710,35 +710,35 @@ func (s *AISanitizer) isExcluded(value string) bool {
 	return false
 }
 
-// AddCustomPattern 添加自定义模式
+// AddCustomPattern 添加自定义模式.
 func (s *AISanitizer) AddCustomPattern(name string, pattern *regexp.Regexp) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.config.CustomPatterns[name] = pattern
 }
 
-// RemoveCustomPattern 移除自定义模式
+// RemoveCustomPattern 移除自定义模式.
 func (s *AISanitizer) RemoveCustomPattern(name string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.config.CustomPatterns, name)
 }
 
-// AddSensitiveWord 添加敏感词
+// AddSensitiveWord 添加敏感词.
 func (s *AISanitizer) AddSensitiveWord(word string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.config.SensitiveWords = append(s.config.SensitiveWords, word)
 }
 
-// SetTypeMode 设置特定类型的处理模式
+// SetTypeMode 设置特定类型的处理模式.
 func (s *AISanitizer) SetTypeMode(t SensitiveType, mode SanitizationMode) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.config.TypeModes[t] = mode
 }
 
-// GenerateReport 生成报告
+// GenerateReport 生成报告.
 func (s *AISanitizer) GenerateReport(result *SanitizationResult) string {
 	var sb strings.Builder
 
@@ -772,13 +772,13 @@ func (s *AISanitizer) GenerateReport(result *SanitizationResult) string {
 
 // ========== TokenStore 令牌存储 ==========
 
-// TokenStore 令牌存储
+// TokenStore 令牌存储.
 type TokenStore struct {
 	tokens map[string]*TokenInfo
 	mu     sync.RWMutex
 }
 
-// TokenInfo 令牌信息
+// TokenInfo 令牌信息.
 type TokenInfo struct {
 	Token     string        `json:"token"`
 	Value     string        `json:"value"`
@@ -787,14 +787,14 @@ type TokenInfo struct {
 	ExpiresAt *time.Time    `json:"expires_at,omitempty"`
 }
 
-// NewTokenStore 创建令牌存储
+// NewTokenStore 创建令牌存储.
 func NewTokenStore() *TokenStore {
 	return &TokenStore{
 		tokens: make(map[string]*TokenInfo),
 	}
 }
 
-// CreateToken 创建令牌
+// CreateToken 创建令牌.
 func (ts *TokenStore) CreateToken(value string, t SensitiveType) string {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
@@ -814,7 +814,7 @@ func (ts *TokenStore) CreateToken(value string, t SensitiveType) string {
 	return token
 }
 
-// GetValue 获取值
+// GetValue 获取值.
 func (ts *TokenStore) GetValue(token string) (string, bool) {
 	ts.mu.RLock()
 	defer ts.mu.RUnlock()
@@ -832,7 +832,7 @@ func (ts *TokenStore) GetValue(token string) (string, bool) {
 	return info.Value, true
 }
 
-// SetExpiry 设置过期时间
+// SetExpiry 设置过期时间.
 func (ts *TokenStore) SetExpiry(token string, expiry time.Time) bool {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
@@ -846,14 +846,14 @@ func (ts *TokenStore) SetExpiry(token string, expiry time.Time) bool {
 	return true
 }
 
-// DeleteToken 删除令牌
+// DeleteToken 删除令牌.
 func (ts *TokenStore) DeleteToken(token string) {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
 	delete(ts.tokens, token)
 }
 
-// SaveToFile 保存到文件
+// SaveToFile 保存到文件.
 func (ts *TokenStore) SaveToFile(path string) error {
 	ts.mu.RLock()
 	defer ts.mu.RUnlock()
@@ -870,7 +870,7 @@ func (ts *TokenStore) SaveToFile(path string) error {
 	return os.WriteFile(path, data, 0600)
 }
 
-// LoadFromFile 从文件加载
+// LoadFromFile 从文件加载.
 func (ts *TokenStore) LoadFromFile(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -882,7 +882,7 @@ func (ts *TokenStore) LoadFromFile(path string) error {
 
 // ========== 批量处理 ==========
 
-// BatchSanitize 批量去敏感化
+// BatchSanitize 批量去敏感化.
 func (s *AISanitizer) BatchSanitize(ctx context.Context, texts []string) ([]*SanitizationResult, error) {
 	results := make([]*SanitizationResult, len(texts))
 
@@ -902,7 +902,7 @@ func (s *AISanitizer) BatchSanitize(ctx context.Context, texts []string) ([]*San
 	return results, nil
 }
 
-// SanitizeFile 文件去敏感化
+// SanitizeFile 文件去敏感化.
 func (s *AISanitizer) SanitizeFile(ctx context.Context, inputPath, outputPath string) (*SanitizationResult, error) {
 	data, err := os.ReadFile(inputPath)
 	if err != nil {
@@ -926,7 +926,7 @@ func (s *AISanitizer) SanitizeFile(ctx context.Context, inputPath, outputPath st
 
 // ========== 辅助函数 ==========
 
-// ValidateConfig 验证配置
+// ValidateConfig 验证配置.
 func ValidateConfig(config *SanitizationConfig) error {
 	if config.MaskRatio < 0 || config.MaskRatio > 1 {
 		return fmt.Errorf("mask_ratio must be between 0 and 1, got %f", config.MaskRatio)

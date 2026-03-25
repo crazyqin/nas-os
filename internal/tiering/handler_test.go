@@ -515,7 +515,7 @@ func TestHandler_GetTierStats_NotFound(t *testing.T) {
 	}
 }
 
-// Test types
+// Test types.
 func TestTierType_Constants(t *testing.T) {
 	tests := []struct {
 		name     string

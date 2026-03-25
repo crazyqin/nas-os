@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Report 合规报告
+// Report 合规报告.
 type Report struct {
 	ID              string        `json:"id"`
 	Timestamp       time.Time     `json:"timestamp"`
@@ -22,13 +22,13 @@ type Report struct {
 	Recommendations []string      `json:"recommendations,omitempty"`
 }
 
-// ReportGenerator 报告生成器
+// ReportGenerator 报告生成器.
 type ReportGenerator struct {
 	outputDir string
 	checker   *Checker
 }
 
-// NewReportGenerator 创建报告生成器
+// NewReportGenerator 创建报告生成器.
 func NewReportGenerator(outputDir string, checker *Checker) (*ReportGenerator, error) {
 	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建输出目录失败: %w", err)
@@ -39,7 +39,7 @@ func NewReportGenerator(outputDir string, checker *Checker) (*ReportGenerator, e
 	}, nil
 }
 
-// GenerateReport 生成合规报告
+// GenerateReport 生成合规报告.
 func (g *ReportGenerator) GenerateReport(ctx context.Context) (*Report, error) {
 	report, err := g.checker.RunChecks(ctx)
 	if err != nil {
@@ -60,7 +60,7 @@ func (g *ReportGenerator) GenerateReport(ctx context.Context) (*Report, error) {
 	return report, nil
 }
 
-// GenerateReportByType 按类型生成报告
+// GenerateReportByType 按类型生成报告.
 func (g *ReportGenerator) GenerateReportByType(ctx context.Context, checkType CheckType) (*Report, error) {
 	report, err := g.checker.RunChecksByType(ctx, checkType)
 	if err != nil {
@@ -77,7 +77,7 @@ func (g *ReportGenerator) GenerateReportByType(ctx context.Context, checkType Ch
 	return report, nil
 }
 
-// generateSummary 生成摘要
+// generateSummary 生成摘要.
 func (g *ReportGenerator) generateSummary(report *Report) string {
 	total := len(report.Results)
 	passRate := 0.0
@@ -89,7 +89,7 @@ func (g *ReportGenerator) generateSummary(report *Report) string {
 		total, report.PassedCount, report.FailedCount, passRate, report.OverallLevel)
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (g *ReportGenerator) generateRecommendations(report *Report) []string {
 	var recommendations []string
 
@@ -103,7 +103,7 @@ func (g *ReportGenerator) generateRecommendations(report *Report) []string {
 	return recommendations
 }
 
-// saveReport 保存报告
+// saveReport 保存报告.
 func (g *ReportGenerator) saveReport(report *Report) error {
 	filename := filepath.Join(g.outputDir, fmt.Sprintf("compliance_%s.json", report.Timestamp.Format("2006-01-02_150405")))
 
@@ -115,7 +115,7 @@ func (g *ReportGenerator) saveReport(report *Report) error {
 	return os.WriteFile(filename, data, 0640)
 }
 
-// LoadReport 加载报告
+// LoadReport 加载报告.
 func (g *ReportGenerator) LoadReport(filename string) (*Report, error) {
 	data, err := os.ReadFile(filepath.Join(g.outputDir, filename))
 	if err != nil {
@@ -130,7 +130,7 @@ func (g *ReportGenerator) LoadReport(filename string) (*Report, error) {
 	return &report, nil
 }
 
-// ListReports 列出所有报告
+// ListReports 列出所有报告.
 func (g *ReportGenerator) ListReports() ([]string, error) {
 	entries, err := os.ReadDir(g.outputDir)
 	if err != nil {
@@ -147,7 +147,7 @@ func (g *ReportGenerator) ListReports() ([]string, error) {
 	return reports, nil
 }
 
-// GetLatestReport 获取最新报告
+// GetLatestReport 获取最新报告.
 func (g *ReportGenerator) GetLatestReport() (*Report, error) {
 	reports, err := g.ListReports()
 	if err != nil {
@@ -163,7 +163,7 @@ func (g *ReportGenerator) GetLatestReport() (*Report, error) {
 	return g.LoadReport(latest)
 }
 
-// ExportToText 导出为文本格式
+// ExportToText 导出为文本格式.
 func (g *ReportGenerator) ExportToText(report *Report) string {
 	var text string
 	text += "=== NAS-OS 合规检查报告 ===\n"

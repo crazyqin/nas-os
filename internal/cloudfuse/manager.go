@@ -17,7 +17,7 @@ import (
 	"bazil.org/fuse/fs"
 )
 
-// Manager 挂载管理器
+// Manager 挂载管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	mounts     map[string]*MountInstance // id -> mount instance
@@ -29,7 +29,7 @@ type Manager struct {
 	configDir  string
 }
 
-// MountInstance 挂载实例
+// MountInstance 挂载实例.
 type MountInstance struct {
 	ID           string
 	Config       *MountConfig
@@ -44,14 +44,14 @@ type MountInstance struct {
 	Stats        *MountStats
 }
 
-// Config cloudfuse 配置
+// Config cloudfuse 配置.
 type Config struct {
 	Version    string        `json:"version"`
 	Mounts     []MountConfig `json:"mounts"`
 	ProviderID string        `json:"providerId,omitempty"`
 }
 
-// NewManager 创建挂载管理器
+// NewManager 创建挂载管理器.
 func NewManager(configPath string) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -78,7 +78,7 @@ func NewManager(configPath string) *Manager {
 	return m
 }
 
-// Initialize 初始化管理器
+// Initialize 初始化管理器.
 func (m *Manager) Initialize() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -112,7 +112,7 @@ func (m *Manager) Initialize() error {
 	return nil
 }
 
-// loadConfig 加载配置文件
+// loadConfig 加载配置文件.
 func (m *Manager) loadConfig() error {
 	data, err := os.ReadFile(m.configPath)
 	if err != nil {
@@ -122,7 +122,7 @@ func (m *Manager) loadConfig() error {
 	return json.Unmarshal(data, m.config)
 }
 
-// saveConfig 保存配置文件
+// saveConfig 保存配置文件.
 func (m *Manager) saveConfig() error {
 	data, err := json.MarshalIndent(m.config, "", "  ")
 	if err != nil {
@@ -132,14 +132,14 @@ func (m *Manager) saveConfig() error {
 	return os.WriteFile(m.configPath, data, 0600)
 }
 
-// RegisterProvider 注册云存储提供商
+// RegisterProvider 注册云存储提供商.
 func (m *Manager) RegisterProvider(providerID string, provider cloudsync.Provider) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.providers[providerID] = provider
 }
 
-// CreateProvider 从配置创建提供商
+// CreateProvider 从配置创建提供商.
 func (m *Manager) CreateProvider(mountConfig *MountConfig) (cloudsync.Provider, error) {
 	providerConfig := &cloudsync.ProviderConfig{
 		Type:         cloudsync.ProviderType(mountConfig.Type),
@@ -162,7 +162,7 @@ func (m *Manager) CreateProvider(mountConfig *MountConfig) (cloudsync.Provider, 
 	return cloudsync.NewProvider(m.ctx, providerConfig)
 }
 
-// Mount 创建挂载
+// Mount 创建挂载.
 func (m *Manager) Mount(cfg *MountConfig) (*MountInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -273,7 +273,7 @@ func (m *Manager) Mount(cfg *MountConfig) (*MountInfo, error) {
 	return m.getInstanceInfo(instance), nil
 }
 
-// serveFuse 服务 FUSE 连接
+// serveFuse 服务 FUSE 连接.
 func (m *Manager) serveFuse(instance *MountInstance) {
 	err := fs.Serve(instance.FuseConn, instance.FileSystem)
 	if err != nil {
@@ -284,7 +284,7 @@ func (m *Manager) serveFuse(instance *MountInstance) {
 	}
 }
 
-// Unmount 卸载挂载
+// Unmount 卸载挂载.
 func (m *Manager) Unmount(mountID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -324,7 +324,7 @@ func (m *Manager) Unmount(mountID string) error {
 	return nil
 }
 
-// GetMount 获取挂载信息
+// GetMount 获取挂载信息.
 func (m *Manager) GetMount(mountID string) (*MountInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -337,7 +337,7 @@ func (m *Manager) GetMount(mountID string) (*MountInfo, error) {
 	return m.getInstanceInfo(instance), nil
 }
 
-// ListMounts 列出所有挂载
+// ListMounts 列出所有挂载.
 func (m *Manager) ListMounts() []MountInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -350,7 +350,7 @@ func (m *Manager) ListMounts() []MountInfo {
 	return list
 }
 
-// getInstanceInfo 从实例获取信息
+// getInstanceInfo 从实例获取信息.
 func (m *Manager) getInstanceInfo(instance *MountInstance) *MountInfo {
 	info := &MountInfo{
 		ID:         instance.ID,
@@ -378,7 +378,7 @@ func (m *Manager) getInstanceInfo(instance *MountInstance) *MountInfo {
 	return info
 }
 
-// validateMountConfig 验证挂载配置
+// validateMountConfig 验证挂载配置.
 func (m *Manager) validateMountConfig(cfg *MountConfig) error {
 	if cfg.ID == "" {
 		cfg.ID = fmt.Sprintf("mount-%d", time.Now().Unix())
@@ -402,14 +402,14 @@ func (m *Manager) validateMountConfig(cfg *MountConfig) error {
 	return nil
 }
 
-// AddMountConfig 添加挂载配置（公开方法）
+// AddMountConfig 添加挂载配置（公开方法）.
 func (m *Manager) AddMountConfig(cfg *MountConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.addMountConfigInternal(cfg)
 }
 
-// addMountConfigInternal 内部方法：添加挂载配置
+// addMountConfigInternal 内部方法：添加挂载配置.
 func (m *Manager) addMountConfigInternal(cfg *MountConfig) {
 	// 检查是否已存在
 	for i, c := range m.config.Mounts {
@@ -424,7 +424,7 @@ func (m *Manager) addMountConfigInternal(cfg *MountConfig) {
 	_ = m.saveConfig()
 }
 
-// RemoveMountConfig 删除挂载配置
+// RemoveMountConfig 删除挂载配置.
 func (m *Manager) RemoveMountConfig(mountID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -439,7 +439,7 @@ func (m *Manager) RemoveMountConfig(mountID string) error {
 	return nil
 }
 
-// UpdateMountConfig 更新挂载配置
+// UpdateMountConfig 更新挂载配置.
 func (m *Manager) UpdateMountConfig(mountID string, cfg *MountConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -456,7 +456,7 @@ func (m *Manager) UpdateMountConfig(mountID string, cfg *MountConfig) error {
 	return fmt.Errorf("挂载点 %s 不存在", mountID)
 }
 
-// GetStats 获取挂载统计
+// GetStats 获取挂载统计.
 func (m *Manager) GetStats(mountID string) (*MountStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -475,7 +475,7 @@ func (m *Manager) GetStats(mountID string) (*MountStats, error) {
 	return stats, nil
 }
 
-// TestMountConfig 测试挂载配置
+// TestMountConfig 测试挂载配置.
 func (m *Manager) TestMountConfig(cfg *MountConfig) (*cloudsync.ConnectionTestResult, error) {
 	provider, err := m.CreateProvider(cfg)
 	if err != nil {
@@ -486,7 +486,7 @@ func (m *Manager) TestMountConfig(cfg *MountConfig) (*cloudsync.ConnectionTestRe
 	return provider.TestConnection(m.ctx)
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() error {
 	m.cancel()
 

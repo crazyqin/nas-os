@@ -13,7 +13,7 @@ import (
 )
 
 // FusionPool 表示一个融合存储池
-// 元数据存储在 SSD 上以加速访问，数据存储在 HDD 上以提供大容量
+// 元数据存储在 SSD 上以加速访问，数据存储在 HDD 上以提供大容量.
 type FusionPool struct {
 	// 基本信息
 	Name        string    `json:"name"`        // 池名称
@@ -51,7 +51,7 @@ type FusionPool struct {
 	cacheMu       sync.RWMutex
 }
 
-// TieringPolicy 分层策略
+// TieringPolicy 分层策略.
 type TieringPolicy struct {
 	// 热数据阈值（访问频率）
 	HotDataThreshold int `json:"hotDataThreshold"` // 多少次访问视为热数据
@@ -69,7 +69,7 @@ type TieringPolicy struct {
 	SSDCachePercent int `json:"ssdCachePercent"` // SSD 用于缓存的比例（0-100）
 }
 
-// CacheConfig 缓存配置
+// CacheConfig 缓存配置.
 type CacheConfig struct {
 	// 是否启用元数据缓存
 	EnableMetadataCache bool `json:"enableMetadataCache"`
@@ -84,7 +84,7 @@ type CacheConfig struct {
 	ReadAheadKB int `json:"readAheadKB"`
 }
 
-// MetadataCacheEntry 元数据缓存条目
+// MetadataCacheEntry 元数据缓存条目.
 type MetadataCacheEntry struct {
 	Path      string
 	Info      *btrfs.SubVolumeInfo
@@ -92,7 +92,7 @@ type MetadataCacheEntry struct {
 	AccessCnt int
 }
 
-// FusionPoolStatus 融合池状态
+// FusionPoolStatus 融合池状态.
 type FusionPoolStatus struct {
 	// 健康状态
 	Healthy bool `json:"healthy"`
@@ -113,7 +113,7 @@ type FusionPoolStatus struct {
 	AvgWriteLatencyMs float64 `json:"avgWriteLatencyMs"` // 平均写延迟（毫秒）
 }
 
-// FusionSubvolume 融合子卷
+// FusionSubvolume 融合子卷.
 type FusionSubvolume struct {
 	ID       uint64 `json:"id"`
 	Name     string `json:"name"`
@@ -132,7 +132,7 @@ type FusionSubvolume struct {
 	LastAccess  time.Time `json:"lastAccess"`
 }
 
-// CreateFusionPoolRequest 创建融合池请求
+// CreateFusionPoolRequest 创建融合池请求.
 type CreateFusionPoolRequest struct {
 	Name        string         `json:"name" binding:"required"`
 	Description string         `json:"description"`
@@ -142,7 +142,7 @@ type CreateFusionPoolRequest struct {
 	CacheConfig *CacheConfig   `json:"cacheConfig"`
 }
 
-// FusionPoolManager 融合池管理器
+// FusionPoolManager 融合池管理器.
 type FusionPoolManager struct {
 	client    *btrfs.Client
 	pools     map[string]*FusionPool
@@ -150,7 +150,7 @@ type FusionPoolManager struct {
 	mountBase string
 }
 
-// NewFusionPoolManager 创建融合池管理器
+// NewFusionPoolManager 创建融合池管理器.
 func NewFusionPoolManager(mountBase string) (*FusionPoolManager, error) {
 	if mountBase == "" {
 		mountBase = "/mnt/fusion"
@@ -175,7 +175,7 @@ func NewFusionPoolManager(mountBase string) (*FusionPoolManager, error) {
 	return m, nil
 }
 
-// DefaultTieringPolicy 默认分层策略
+// DefaultTieringPolicy 默认分层策略.
 var DefaultTieringPolicy = TieringPolicy{
 	HotDataThreshold:  100,
 	ColdDataThreshold: 30,
@@ -184,7 +184,7 @@ var DefaultTieringPolicy = TieringPolicy{
 	SSDCachePercent:   20,
 }
 
-// DefaultCacheConfig 默认缓存配置
+// DefaultCacheConfig 默认缓存配置.
 var DefaultCacheConfig = CacheConfig{
 	EnableMetadataCache: true,
 	CacheSizeMB:         512,
@@ -193,7 +193,7 @@ var DefaultCacheConfig = CacheConfig{
 }
 
 // CreateFusionPool 创建融合池
-// 核心逻辑：使用 btrfs 的多设备特性，将元数据配置为 RAID1 放在 SSD，数据配置为 single/raid 放在 HDD
+// 核心逻辑：使用 btrfs 的多设备特性，将元数据配置为 RAID1 放在 SSD，数据配置为 single/raid 放在 HDD.
 func (m *FusionPoolManager) CreateFusionPool(req *CreateFusionPoolRequest) (*FusionPool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -314,7 +314,7 @@ func (m *FusionPoolManager) CreateFusionPool(req *CreateFusionPoolRequest) (*Fus
 	return pool, nil
 }
 
-// getDeviceUsage 获取设备使用情况
+// getDeviceUsage 获取设备使用情况.
 func (m *FusionPoolManager) getDeviceUsage(mountPoint string, ssdDevices, hddDevices []string) (ssdSize, ssdUsed, hddSize, hddUsed uint64, err error) {
 	stats, err := m.client.GetDeviceStats(mountPoint)
 	if err != nil {
@@ -343,7 +343,7 @@ func (m *FusionPoolManager) getDeviceUsage(mountPoint string, ssdDevices, hddDev
 	return ssdSize, ssdUsed, hddSize, hddUsed, nil
 }
 
-// scanSubvolumes 扫描融合池的子卷
+// scanSubvolumes 扫描融合池的子卷.
 func (m *FusionPoolManager) scanSubvolumes(pool *FusionPool) error {
 	if pool.MountPoint == "" {
 		return fmt.Errorf("融合池未挂载")
@@ -372,14 +372,14 @@ func (m *FusionPoolManager) scanSubvolumes(pool *FusionPool) error {
 	return nil
 }
 
-// scanPools 扫描现有的融合池
+// scanPools 扫描现有的融合池.
 func (m *FusionPoolManager) scanPools() error {
 	// 读取配置文件或数据库
 	// 这里简化实现，实际应从持久化存储加载
 	return nil
 }
 
-// ListPools 列出所有融合池
+// ListPools 列出所有融合池.
 func (m *FusionPoolManager) ListPools() []*FusionPool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -391,14 +391,14 @@ func (m *FusionPoolManager) ListPools() []*FusionPool {
 	return result
 }
 
-// GetPool 获取指定融合池
+// GetPool 获取指定融合池.
 func (m *FusionPoolManager) GetPool(name string) *FusionPool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.pools[name]
 }
 
-// DeletePool 删除融合池
+// DeletePool 删除融合池.
 func (m *FusionPoolManager) DeletePool(name string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -433,7 +433,7 @@ func (m *FusionPoolManager) DeletePool(name string, force bool) error {
 	return nil
 }
 
-// CreateSubvolume 在融合池中创建子卷
+// CreateSubvolume 在融合池中创建子卷.
 func (m *FusionPoolManager) CreateSubvolume(poolName, subvolName string) (*FusionSubvolume, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -488,7 +488,7 @@ func (m *FusionPoolManager) CreateSubvolume(poolName, subvolName string) (*Fusio
 	return subvol, nil
 }
 
-// DeleteSubvolume 删除子卷
+// DeleteSubvolume 删除子卷.
 func (m *FusionPoolManager) DeleteSubvolume(poolName, subvolName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -525,7 +525,7 @@ func (m *FusionPoolManager) DeleteSubvolume(poolName, subvolName string) error {
 	return nil
 }
 
-// GetSubvolume 获取子卷详情（带元数据缓存优化）
+// GetSubvolume 获取子卷详情（带元数据缓存优化）.
 func (m *FusionPoolManager) GetSubvolume(poolName, subvolName string) (*FusionSubvolume, error) {
 	m.mu.RLock()
 	pool, exists := m.pools[poolName]
@@ -559,7 +559,7 @@ func (m *FusionPoolManager) GetSubvolume(poolName, subvolName string) (*FusionSu
 	return nil, fmt.Errorf("子卷 %s 不存在", subvolName)
 }
 
-// updateMetadataCache 更新元数据缓存
+// updateMetadataCache 更新元数据缓存.
 func (m *FusionPoolManager) updateMetadataCache(pool *FusionPool, path string, info *btrfs.SubVolumeInfo) {
 	pool.cacheMu.Lock()
 	defer pool.cacheMu.Unlock()
@@ -571,7 +571,7 @@ func (m *FusionPoolManager) updateMetadataCache(pool *FusionPool, path string, i
 	}
 }
 
-// getFromMetadataCache 从缓存获取元数据
+// getFromMetadataCache 从缓存获取元数据.
 func (m *FusionPoolManager) getFromMetadataCache(pool *FusionPool, subvolName string) *FusionSubvolume {
 	pool.cacheMu.RLock()
 	defer pool.cacheMu.RUnlock()
@@ -594,7 +594,7 @@ func (m *FusionPoolManager) getFromMetadataCache(pool *FusionPool, subvolName st
 	return nil
 }
 
-// invalidateMetadataCache 使缓存失效
+// invalidateMetadataCache 使缓存失效.
 func (m *FusionPoolManager) invalidateMetadataCache(pool *FusionPool, path string) {
 	pool.cacheMu.Lock()
 	defer pool.cacheMu.Unlock()
@@ -602,7 +602,7 @@ func (m *FusionPoolManager) invalidateMetadataCache(pool *FusionPool, path strin
 	delete(pool.metadataCache, path)
 }
 
-// GetPoolStats 获取融合池统计信息
+// GetPoolStats 获取融合池统计信息.
 func (m *FusionPoolManager) GetPoolStats(poolName string) (*FusionPoolStats, error) {
 	m.mu.RLock()
 	pool, exists := m.pools[poolName]
@@ -665,7 +665,7 @@ func (m *FusionPoolManager) GetPoolStats(poolName string) (*FusionPoolStats, err
 	return stats, nil
 }
 
-// FusionPoolStats 融合池统计信息
+// FusionPoolStats 融合池统计信息.
 type FusionPoolStats struct {
 	PoolName     string  `json:"poolName"`
 	TotalSize    uint64  `json:"totalSize"`
@@ -678,7 +678,7 @@ type FusionPoolStats struct {
 	CacheHitRate float64 `json:"cacheHitRate"`
 }
 
-// RunTiering 执行分层任务
+// RunTiering 执行分层任务.
 func (m *FusionPoolManager) RunTiering(poolName string) error {
 	m.mu.RLock()
 	pool, exists := m.pools[poolName]
@@ -720,7 +720,7 @@ func (m *FusionPoolManager) RunTiering(poolName string) error {
 }
 
 // OptimizeMetadataAccess 优化元数据访问
-// 通过预读和缓存策略加速元数据操作
+// 通过预读和缓存策略加速元数据操作.
 func (m *FusionPoolManager) OptimizeMetadataAccess(poolName string) error {
 	m.mu.RLock()
 	pool, exists := m.pools[poolName]
@@ -743,7 +743,7 @@ func (m *FusionPoolManager) OptimizeMetadataAccess(poolName string) error {
 	return nil
 }
 
-// AddSSDDevice 添加 SSD 设备到融合池
+// AddSSDDevice 添加 SSD 设备到融合池.
 func (m *FusionPoolManager) AddSSDDevice(poolName, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -765,7 +765,7 @@ func (m *FusionPoolManager) AddSSDDevice(poolName, device string) error {
 	return nil
 }
 
-// AddHDDDevice 添加 HDD 设备到融合池
+// AddHDDDevice 添加 HDD 设备到融合池.
 func (m *FusionPoolManager) AddHDDDevice(poolName, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -787,7 +787,7 @@ func (m *FusionPoolManager) AddHDDDevice(poolName, device string) error {
 	return nil
 }
 
-// generateUUID 生成 UUID
+// generateUUID 生成 UUID.
 func generateUUID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }

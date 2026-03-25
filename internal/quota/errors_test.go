@@ -13,7 +13,7 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
-// TestQuotaError_Error 测试错误消息
+// TestQuotaError_Error 测试错误消息.
 func TestQuotaError_Error(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -76,7 +76,7 @@ func TestQuotaError_Error(t *testing.T) {
 	}
 }
 
-// TestQuotaError_Code 测试错误码
+// TestQuotaError_Code 测试错误码.
 func TestQuotaError_Code(t *testing.T) {
 	tests := []struct {
 		name         string
@@ -103,7 +103,7 @@ func TestQuotaError_Code(t *testing.T) {
 	}
 }
 
-// TestQuotaError_Details 测试错误详情
+// TestQuotaError_Details 测试错误详情.
 func TestQuotaError_Details(t *testing.T) {
 	details := map[string]interface{}{
 		"volume": "test-volume",
@@ -125,7 +125,7 @@ func TestQuotaError_Details(t *testing.T) {
 	}
 }
 
-// TestQuotaError_WithDetails 测试添加详情
+// TestQuotaError_WithDetails 测试添加详情.
 func TestQuotaError_WithDetails(t *testing.T) {
 	err := ErrQuotaNotFoundAPI.WithDetails(map[string]interface{}{
 		"path": "/data/test",
@@ -139,7 +139,7 @@ func TestQuotaError_WithDetails(t *testing.T) {
 	}
 }
 
-// TestQuotaError_NotFound 测试 NotFound 接口
+// TestQuotaError_NotFound 测试 NotFound 接口.
 func TestQuotaError_NotFound(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -161,7 +161,7 @@ func TestQuotaError_NotFound(t *testing.T) {
 	}
 }
 
-// TestQuotaError_BadRequest 测试 BadRequest 接口
+// TestQuotaError_BadRequest 测试 BadRequest 接口.
 func TestQuotaError_BadRequest(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -183,7 +183,7 @@ func TestQuotaError_BadRequest(t *testing.T) {
 	}
 }
 
-// TestQuotaError_Conflict 测试 Conflict 接口
+// TestQuotaError_Conflict 测试 Conflict 接口.
 func TestQuotaError_Conflict(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -204,7 +204,7 @@ func TestQuotaError_Conflict(t *testing.T) {
 	}
 }
 
-// TestNewQuotaError 测试创建错误
+// TestNewQuotaError 测试创建错误.
 func TestNewQuotaError(t *testing.T) {
 	// 无详情
 	err := NewQuotaError(ErrCodeQuotaNotFound, "test error")
@@ -226,7 +226,7 @@ func TestNewQuotaError(t *testing.T) {
 	}
 }
 
-// TestToAPIError 测试错误转换
+// TestToAPIError 测试错误转换.
 func TestToAPIError(t *testing.T) {
 	tests := []struct {
 		name         string
@@ -268,7 +268,7 @@ func TestToAPIError(t *testing.T) {
 	}
 }
 
-// TestErrorResponse 测试错误响应
+// TestErrorResponse 测试错误响应.
 func TestErrorResponse(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -295,7 +295,7 @@ func TestErrorResponse(t *testing.T) {
 	}
 }
 
-// TestValidateQuotaInput 测试配额输入验证
+// TestValidateQuotaInput 测试配额输入验证.
 func TestValidateQuotaInput(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -388,7 +388,7 @@ func TestValidateQuotaInput(t *testing.T) {
 	}
 }
 
-// TestValidateCleanupPolicyInput 测试清理策略输入验证
+// TestValidateCleanupPolicyInput 测试清理策略输入验证.
 func TestValidateCleanupPolicyInput(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -542,7 +542,7 @@ func TestValidateCleanupPolicyInput(t *testing.T) {
 	}
 }
 
-// TestValidateID 测试 ID 验证
+// TestValidateID 测试 ID 验证.
 func TestValidateID(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -565,7 +565,7 @@ func TestValidateID(t *testing.T) {
 	}
 }
 
-// TestValidatePath 测试路径验证
+// TestValidatePath 测试路径验证.
 func TestValidatePath(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -587,7 +587,7 @@ func TestValidatePath(t *testing.T) {
 	}
 }
 
-// TestValidateVolumeName 测试卷名验证
+// TestValidateVolumeName 测试卷名验证.
 func TestValidateVolumeName(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -610,7 +610,7 @@ func TestValidateVolumeName(t *testing.T) {
 	}
 }
 
-// TestErrorCodeConstants 测试错误码常量
+// TestErrorCodeConstants 测试错误码常量.
 func TestErrorCodeConstants(t *testing.T) {
 	codes := map[string]int{
 		"ErrCodeQuotaNotFound":  ErrCodeQuotaNotFound,
@@ -632,7 +632,7 @@ func TestErrorCodeConstants(t *testing.T) {
 	}
 }
 
-// BenchmarkQuotaError_Error 基准测试
+// BenchmarkQuotaError_Error 基准测试.
 func BenchmarkQuotaError_Error(b *testing.B) {
 	err := ErrQuotaNotFoundAPI
 	for i := 0; i < b.N; i++ {
@@ -640,14 +640,14 @@ func BenchmarkQuotaError_Error(b *testing.B) {
 	}
 }
 
-// BenchmarkToAPIError 基准测试
+// BenchmarkToAPIError 基准测试.
 func BenchmarkToAPIError(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_ = ToAPIError(ErrQuotaNotFound)
 	}
 }
 
-// BenchmarkValidateQuotaInput 基准测试
+// BenchmarkValidateQuotaInput 基准测试.
 func BenchmarkValidateQuotaInput(b *testing.B) {
 	input := QuotaInput{
 		Type:      QuotaTypeUser,

@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-// Manager 网络管理器
+// Manager 网络管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -28,7 +28,7 @@ type Manager struct {
 	configPath string
 }
 
-// Interface 网络接口
+// Interface 网络接口.
 type Interface struct {
 	Name    string `json:"name"`
 	MAC     string `json:"mac,omitempty"`
@@ -44,7 +44,7 @@ type Interface struct {
 	Mtu     int    `json:"mtu"`
 }
 
-// InterfaceConfig 接口配置
+// InterfaceConfig 接口配置.
 type InterfaceConfig struct {
 	IP      string `json:"ip"`
 	Netmask string `json:"netmask"`
@@ -53,7 +53,7 @@ type InterfaceConfig struct {
 	DHCP    bool   `json:"dhcp"`
 }
 
-// DDNSConfig DDNS 配置
+// DDNSConfig DDNS 配置.
 type DDNSConfig struct {
 	Provider   string `json:"provider"` // alidns, cloudflare, duckdns, noip
 	Domain     string `json:"domain"`
@@ -67,7 +67,7 @@ type DDNSConfig struct {
 	Interval   int    `json:"interval"`   // 更新间隔（秒）
 }
 
-// PortForward 端口转发规则
+// PortForward 端口转发规则.
 type PortForward struct {
 	Name         string `json:"name"`
 	ExternalPort int    `json:"externalPort"`
@@ -78,7 +78,7 @@ type PortForward struct {
 	Comment      string `json:"comment,omitempty"`
 }
 
-// FirewallRule 防火墙规则
+// FirewallRule 防火墙规则.
 type FirewallRule struct {
 	Name      string `json:"name"`
 	Action    string `json:"action"`    // accept, drop, reject
@@ -91,14 +91,14 @@ type FirewallRule struct {
 	Comment   string `json:"comment,omitempty"`
 }
 
-// Stats 网络统计
+// Stats 网络统计.
 type Stats struct {
 	Interfaces   []InterfaceStats `json:"interfaces"`
 	TotalRxBytes int64            `json:"totalRxBytes"`
 	TotalTxBytes int64            `json:"totalTxBytes"`
 }
 
-// InterfaceStats 接口统计
+// InterfaceStats 接口统计.
 type InterfaceStats struct {
 	Name      string `json:"name"`
 	RxBytes   int64  `json:"rxBytes"`
@@ -107,7 +107,7 @@ type InterfaceStats struct {
 	TxPackets int64  `json:"txPackets"`
 }
 
-// NewManager 创建网络管理器
+// NewManager 创建网络管理器.
 func NewManager(configPath string) *Manager {
 	return &Manager{
 		ddnsConfigs:   make(map[string]*DDNSConfig),
@@ -117,7 +117,7 @@ func NewManager(configPath string) *Manager {
 	}
 }
 
-// Initialize 初始化网络管理器
+// Initialize 初始化网络管理器.
 func (m *Manager) Initialize() error {
 	// 加载配置
 	if err := m.loadConfig(); err != nil {
@@ -134,7 +134,7 @@ func (m *Manager) Initialize() error {
 	return nil
 }
 
-// loadConfig 加载配置文件
+// loadConfig 加载配置文件.
 func (m *Manager) loadConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -175,7 +175,7 @@ func (m *Manager) loadConfig() error {
 }
 
 // saveConfig 保存配置文件
-// 注意：调用者必须持有锁（读锁或写锁）
+// 注意：调用者必须持有锁（读锁或写锁）.
 func (m *Manager) saveConfig() error {
 	if m.configPath == "" {
 		return nil

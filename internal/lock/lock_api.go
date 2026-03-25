@@ -8,13 +8,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers 锁API处理器
+// Handlers 锁API处理器.
 type Handlers struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandlers 创建API处理器
+// NewHandlers 创建API处理器.
 func NewHandlers(manager *Manager, logger *zap.Logger) *Handlers {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -25,7 +25,7 @@ func NewHandlers(manager *Manager, logger *zap.Logger) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	locks := rg.Group("/locks")
 	{
@@ -53,7 +53,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// acquireLockRequest 获取锁请求
+// acquireLockRequest 获取锁请求.
 type acquireLockRequest struct {
 	FilePath  string            `json:"filePath" binding:"required"`
 	LockType  string            `json:"lockType"` // "shared" or "exclusive"
@@ -65,7 +65,7 @@ type acquireLockRequest struct {
 	Metadata  map[string]string `json:"metadata"`
 }
 
-// extendLockRequest 延长锁请求
+// extendLockRequest 延长锁请求.
 type extendLockRequest struct {
 	Duration int `json:"duration"` // 秒
 }
@@ -80,7 +80,7 @@ type extendLockRequest struct {
 // @Success 200 {object} LockResponse "成功获取锁"
 // @Failure 400 {object} ErrorResponse "请求参数错误"
 // @Failure 409 {object} LockConflictResponse "锁冲突"
-// @Router /locks [post]
+// @Router /locks [post].
 func (h *Handlers) acquireLock(c *gin.Context) {
 	var req acquireLockRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -154,7 +154,7 @@ func (h *Handlers) acquireLock(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse "请求参数错误"
 // @Failure 404 {object} ErrorResponse "锁不存在"
 // @Failure 403 {object} ErrorResponse "非锁持有者"
-// @Router /locks/{id} [delete]
+// @Router /locks/{id} [delete].
 func (h *Handlers) releaseLock(c *gin.Context) {
 	lockID := c.Param("id")
 	owner := c.Query("owner")
@@ -204,7 +204,7 @@ func (h *Handlers) releaseLock(c *gin.Context) {
 // @Param id path string true "锁ID"
 // @Success 200 {object} SuccessResponse "成功释放锁"
 // @Failure 404 {object} ErrorResponse "锁不存在"
-// @Router /locks/{id}/force [delete]
+// @Router /locks/{id}/force [delete].
 func (h *Handlers) forceReleaseLock(c *gin.Context) {
 	lockID := c.Param("id")
 
@@ -242,7 +242,7 @@ func (h *Handlers) forceReleaseLock(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse "请求参数错误"
 // @Failure 404 {object} ErrorResponse "锁不存在"
 // @Failure 403 {object} ErrorResponse "非锁持有者"
-// @Router /locks/{id}/extend [put]
+// @Router /locks/{id}/extend [put].
 func (h *Handlers) extendLock(c *gin.Context) {
 	lockID := c.Param("id")
 	owner := c.Query("owner")
@@ -312,7 +312,7 @@ func (h *Handlers) extendLock(c *gin.Context) {
 // @Param id path string true "锁ID"
 // @Success 200 {object} LockResponse "锁详情"
 // @Failure 404 {object} ErrorResponse "锁不存在"
-// @Router /locks/{id} [get]
+// @Router /locks/{id} [get].
 func (h *Handlers) getLock(c *gin.Context) {
 	lockID := c.Param("id")
 
@@ -348,7 +348,7 @@ func (h *Handlers) getLock(c *gin.Context) {
 // @Param path path string true "文件路径"
 // @Success 200 {object} LockResponse "锁详情"
 // @Failure 404 {object} ErrorResponse "锁不存在"
-// @Router /locks/path/{path} [get]
+// @Router /locks/path/{path} [get].
 func (h *Handlers) getLockByPath(c *gin.Context) {
 	filePath := c.Param("path")
 
@@ -390,7 +390,7 @@ func (h *Handlers) getLockByPath(c *gin.Context) {
 // @Param type query string false "按锁类型过滤 (shared/exclusive)"
 // @Param protocol query string false "按协议过滤"
 // @Success 200 {object} LockListResponse "锁列表"
-// @Router /locks [get]
+// @Router /locks [get].
 func (h *Handlers) listLocks(c *gin.Context) {
 	filter := &LockFilter{
 		Owner:    c.Query("owner"),
@@ -425,7 +425,7 @@ func (h *Handlers) listLocks(c *gin.Context) {
 // @Produce json
 // @Param path path string true "文件路径"
 // @Success 200 {object} LockStatusResponse "锁定状态"
-// @Router /locks/check/{path} [get]
+// @Router /locks/check/{path} [get].
 func (h *Handlers) checkLock(c *gin.Context) {
 	filePath := c.Param("path")
 
@@ -464,7 +464,7 @@ func (h *Handlers) checkLock(c *gin.Context) {
 // @Produce json
 // @Param owner path string true "用户标识"
 // @Success 200 {object} LockListResponse "锁列表"
-// @Router /locks/owner/{owner} [get]
+// @Router /locks/owner/{owner} [get].
 func (h *Handlers) listLocksByOwner(c *gin.Context) {
 	owner := c.Param("owner")
 
@@ -485,7 +485,7 @@ func (h *Handlers) listLocksByOwner(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} StatsResponse "统计信息"
-// @Router /locks/stats [get]
+// @Router /locks/stats [get].
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.Stats()
 
@@ -498,26 +498,26 @@ func (h *Handlers) getStats(c *gin.Context) {
 
 // 响应类型定义
 
-// ErrorResponse 错误响应
+// ErrorResponse 错误响应.
 type ErrorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
-// SuccessResponse 成功响应
+// SuccessResponse 成功响应.
 type SuccessResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
-// LockResponse 锁响应
+// LockResponse 锁响应.
 type LockResponse struct {
 	Code    int       `json:"code"`
 	Message string    `json:"message"`
 	Data    *LockInfo `json:"data,omitempty"`
 }
 
-// LockListResponse 锁列表响应
+// LockListResponse 锁列表响应.
 type LockListResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -525,28 +525,28 @@ type LockListResponse struct {
 	Total   int         `json:"total"`
 }
 
-// LockConflictResponse 锁冲突响应
+// LockConflictResponse 锁冲突响应.
 type LockConflictResponse struct {
 	Code    int       `json:"code"`
 	Message string    `json:"message"`
 	Data    *LockInfo `json:"data"`
 }
 
-// LockStatusResponse 锁状态响应
+// LockStatusResponse 锁状态响应.
 type LockStatusResponse struct {
 	Code    int            `json:"code"`
 	Message string         `json:"message"`
 	Data    LockStatusData `json:"data"`
 }
 
-// LockStatusData 锁状态数据
+// LockStatusData 锁状态数据.
 type LockStatusData struct {
 	FilePath string    `json:"filePath"`
 	IsLocked bool      `json:"isLocked"`
 	Lock     *LockInfo `json:"lock,omitempty"`
 }
 
-// StatsResponse 统计响应
+// StatsResponse 统计响应.
 type StatsResponse struct {
 	Code    int          `json:"code"`
 	Message string       `json:"message"`

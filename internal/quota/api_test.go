@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// setupTestAPI 设置测试 API
+// setupTestAPI 设置测试 API.
 func setupTestAPI(t *testing.T) (*API, *Manager, *gin.Engine) {
 	gin.SetMode(gin.TestMode)
 
@@ -44,7 +44,7 @@ func setupTestAPI(t *testing.T) (*API, *Manager, *gin.Engine) {
 	return api, mgr, router
 }
 
-// TestAPI_SetQuota 测试设置配额 API
+// TestAPI_SetQuota 测试设置配额 API.
 func TestAPI_SetQuota(t *testing.T) {
 	_, _, router := setupTestAPI(t)
 
@@ -123,7 +123,7 @@ func TestAPI_SetQuota(t *testing.T) {
 	}
 }
 
-// TestAPI_GetQuota 测试获取配额 API
+// TestAPI_GetQuota 测试获取配额 API.
 func TestAPI_GetQuota(t *testing.T) {
 	_, mgr, router := setupTestAPI(t)
 
@@ -169,7 +169,7 @@ func TestAPI_GetQuota(t *testing.T) {
 	}
 }
 
-// TestAPI_ListQuotas 测试列出配额 API
+// TestAPI_ListQuotas 测试列出配额 API.
 func TestAPI_ListQuotas(t *testing.T) {
 	_, mgr, router := setupTestAPI(t)
 
@@ -255,7 +255,7 @@ func TestAPI_ListQuotas(t *testing.T) {
 	}
 }
 
-// TestAPI_AdjustQuota 测试调整配额 API
+// TestAPI_AdjustQuota 测试调整配额 API.
 func TestAPI_AdjustQuota(t *testing.T) {
 	_, mgr, router := setupTestAPI(t)
 
@@ -320,7 +320,7 @@ func TestAPI_AdjustQuota(t *testing.T) {
 	}
 }
 
-// TestAPI_DeleteQuota 测试删除配额 API
+// TestAPI_DeleteQuota 测试删除配额 API.
 func TestAPI_DeleteQuota(t *testing.T) {
 	_, mgr, router := setupTestAPI(t)
 
@@ -365,7 +365,7 @@ func TestAPI_DeleteQuota(t *testing.T) {
 	}
 }
 
-// TestAPI_SetLimits 测试设置限制 API
+// TestAPI_SetLimits 测试设置限制 API.
 func TestAPI_SetLimits(t *testing.T) {
 	_, mgr, router := setupTestAPI(t)
 
@@ -422,7 +422,7 @@ func TestAPI_SetLimits(t *testing.T) {
 	}
 }
 
-// TestAPI_GetQuotaStatus 测试获取配额状态 API
+// TestAPI_GetQuotaStatus 测试获取配额状态 API.
 func TestAPI_GetQuotaStatus(t *testing.T) {
 	_, mgr, router := setupTestAPI(t)
 
@@ -463,7 +463,7 @@ func TestAPI_GetQuotaStatus(t *testing.T) {
 	}
 }
 
-// TestGracePeriodManager 测试宽限期管理器
+// TestGracePeriodManager 测试宽限期管理器.
 func TestGracePeriodManager(t *testing.T) {
 	gpm := NewGracePeriodManager()
 
@@ -494,7 +494,7 @@ func TestGracePeriodManager(t *testing.T) {
 	}
 }
 
-// TestAPI_BatchSetQuota 测试批量设置配额 API
+// TestAPI_BatchSetQuota 测试批量设置配额 API.
 func TestAPI_BatchSetQuota(t *testing.T) {
 	_, _, router := setupTestAPI(t)
 
@@ -556,7 +556,7 @@ func TestAPI_BatchSetQuota(t *testing.T) {
 	}
 }
 
-// TestAPI_GetViolations 测试获取违规列表 API
+// TestAPI_GetViolations 测试获取违规列表 API.
 func TestAPI_GetViolations(t *testing.T) {
 	_, mgr, router := setupTestAPI(t)
 

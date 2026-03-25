@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ResourceMonitor provides real-time resource monitoring
+// ResourceMonitor provides real-time resource monitoring.
 type ResourceMonitor struct {
 	interval    time.Duration
 	historySize int
@@ -35,7 +35,7 @@ type ResourceMonitor struct {
 	logger *zap.Logger
 }
 
-// CPUStats holds CPU statistics
+// CPUStats holds CPU statistics.
 type CPUStats struct {
 	UsagePercent  float64   `json:"usage_percent"`
 	UserPercent   float64   `json:"user_percent"`
@@ -49,7 +49,7 @@ type CPUStats struct {
 	Timestamp     time.Time `json:"timestamp"`
 }
 
-// MemoryStats holds memory statistics
+// MemoryStats holds memory statistics.
 type MemoryStats struct {
 	Total        uint64    `json:"total"`
 	Used         uint64    `json:"used"`
@@ -65,7 +65,7 @@ type MemoryStats struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
-// DiskIOStats holds disk I/O statistics
+// DiskIOStats holds disk I/O statistics.
 type DiskIOStats struct {
 	Device     string    `json:"device"`
 	ReadBytes  uint64    `json:"read_bytes"`
@@ -77,7 +77,7 @@ type DiskIOStats struct {
 	Timestamp  time.Time `json:"timestamp"`
 }
 
-// NetIOStats holds network I/O statistics
+// NetIOStats holds network I/O statistics.
 type NetIOStats struct {
 	Interface string    `json:"interface"`
 	RXBytes   uint64    `json:"rx_bytes"`
@@ -91,7 +91,7 @@ type NetIOStats struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// ProcessStats holds process statistics
+// ProcessStats holds process statistics.
 type ProcessStats struct {
 	PID           int       `json:"pid"`
 	Name          string    `json:"name"`
@@ -103,7 +103,7 @@ type ProcessStats struct {
 	Timestamp     time.Time `json:"timestamp"`
 }
 
-// SystemHealth holds overall system health
+// SystemHealth holds overall system health.
 type SystemHealth struct {
 	CPUHealthy     bool     `json:"cpu_healthy"`
 	MemoryHealthy  bool     `json:"memory_healthy"`
@@ -113,7 +113,7 @@ type SystemHealth struct {
 	Issues         []string `json:"issues,omitempty"`
 }
 
-// NewResourceMonitor creates a new resource monitor
+// NewResourceMonitor creates a new resource monitor.
 func NewResourceMonitor(interval time.Duration, historySize int, logger *zap.Logger) *ResourceMonitor {
 	return &ResourceMonitor{
 		interval:      interval,
@@ -126,7 +126,7 @@ func NewResourceMonitor(interval time.Duration, historySize int, logger *zap.Log
 	}
 }
 
-// Start starts the monitoring loop
+// Start starts the monitoring loop.
 func (m *ResourceMonitor) Start() {
 	if m.running {
 		return
@@ -139,7 +139,7 @@ func (m *ResourceMonitor) Start() {
 	m.logger.Info("Resource monitor started")
 }
 
-// Stop stops the monitoring loop
+// Stop stops the monitoring loop.
 func (m *ResourceMonitor) Stop() {
 	if !m.running {
 		return
@@ -150,7 +150,7 @@ func (m *ResourceMonitor) Stop() {
 	m.logger.Info("Resource monitor stopped")
 }
 
-// monitorLoop is the main monitoring loop
+// monitorLoop is the main monitoring loop.
 func (m *ResourceMonitor) monitorLoop() {
 	ticker := time.NewTicker(m.interval)
 	defer ticker.Stop()
@@ -188,7 +188,7 @@ func (m *ResourceMonitor) monitorLoop() {
 	}
 }
 
-// addHistory adds stats to history
+// addHistory adds stats to history.
 func (m *ResourceMonitor) addHistory(cpu, mem float64, diskIO []DiskIOStats, netIO []NetIOStats) {
 	m.cpuHistory = append(m.cpuHistory, cpu)
 	m.memHistory = append(m.memHistory, mem)
@@ -211,7 +211,7 @@ func (m *ResourceMonitor) addHistory(cpu, mem float64, diskIO []DiskIOStats, net
 	}
 }
 
-// checkThresholds checks resource thresholds and triggers callbacks
+// checkThresholds checks resource thresholds and triggers callbacks.
 func (m *ResourceMonitor) checkThresholds(cpu CPUStats, mem MemoryStats) {
 	if cpu.UsagePercent > 90 && m.onHighCPU != nil {
 		m.onHighCPU(cpu.UsagePercent)
@@ -222,27 +222,27 @@ func (m *ResourceMonitor) checkThresholds(cpu CPUStats, mem MemoryStats) {
 	}
 }
 
-// SetHighCPUCallback sets callback for high CPU usage
+// SetHighCPUCallback sets callback for high CPU usage.
 func (m *ResourceMonitor) SetHighCPUCallback(callback func(float64)) {
 	m.onHighCPU = callback
 }
 
-// SetHighMemoryCallback sets callback for high memory usage
+// SetHighMemoryCallback sets callback for high memory usage.
 func (m *ResourceMonitor) SetHighMemoryCallback(callback func(float64)) {
 	m.onHighMemory = callback
 }
 
-// GetCPUStats returns current CPU stats
+// GetCPUStats returns current CPU stats.
 func (m *ResourceMonitor) GetCPUStats() CPUStats {
 	return m.getCPUStats()
 }
 
-// GetMemoryStats returns current memory stats
+// GetMemoryStats returns current memory stats.
 func (m *ResourceMonitor) GetMemoryStats() MemoryStats {
 	return m.getMemoryStats()
 }
 
-// GetDiskIOStats returns current disk I/O stats
+// GetDiskIOStats returns current disk I/O stats.
 func (m *ResourceMonitor) GetDiskIOStats() []DiskIOStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -253,7 +253,7 @@ func (m *ResourceMonitor) GetDiskIOStats() []DiskIOStats {
 	return []DiskIOStats{m.diskIOHistory[len(m.diskIOHistory)-1]}
 }
 
-// GetNetIOStats returns current network I/O stats
+// GetNetIOStats returns current network I/O stats.
 func (m *ResourceMonitor) GetNetIOStats() []NetIOStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -264,7 +264,7 @@ func (m *ResourceMonitor) GetNetIOStats() []NetIOStats {
 	return []NetIOStats{m.netIOHistory[len(m.netIOHistory)-1]}
 }
 
-// GetHistory returns historical data
+// GetHistory returns historical data.
 func (m *ResourceMonitor) GetHistory() (cpu, mem []float64, diskIO []DiskIOStats, netIO []NetIOStats) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -284,7 +284,7 @@ func (m *ResourceMonitor) GetHistory() (cpu, mem []float64, diskIO []DiskIOStats
 	return
 }
 
-// GetHealth returns system health status
+// GetHealth returns system health status.
 func (m *ResourceMonitor) GetHealth() SystemHealth {
 	cpu := m.getCPUStats()
 	mem := m.getMemoryStats()
@@ -315,7 +315,7 @@ func (m *ResourceMonitor) GetHealth() SystemHealth {
 	return health
 }
 
-// getCPUStats collects CPU statistics
+// getCPUStats collects CPU statistics.
 func (m *ResourceMonitor) getCPUStats() CPUStats {
 	stats := CPUStats{
 		Cores:     runtime.NumCPU(),
@@ -370,7 +370,7 @@ func (m *ResourceMonitor) getCPUStats() CPUStats {
 	return stats
 }
 
-// getMemoryStats collects memory statistics
+// getMemoryStats collects memory statistics.
 func (m *ResourceMonitor) getMemoryStats() MemoryStats {
 	stats := MemoryStats{
 		Timestamp: time.Now(),
@@ -423,7 +423,7 @@ func (m *ResourceMonitor) getMemoryStats() MemoryStats {
 	return stats
 }
 
-// getDiskIOStats collects disk I/O statistics
+// getDiskIOStats collects disk I/O statistics.
 func (m *ResourceMonitor) getDiskIOStats(prev map[string]DiskIOStats) []DiskIOStats {
 	var stats []DiskIOStats
 
@@ -480,7 +480,7 @@ func (m *ResourceMonitor) getDiskIOStats(prev map[string]DiskIOStats) []DiskIOSt
 	return stats
 }
 
-// getNetIOStats collects network I/O statistics
+// getNetIOStats collects network I/O statistics.
 func (m *ResourceMonitor) getNetIOStats(prev map[string]NetIOStats) []NetIOStats {
 	var stats []NetIOStats
 
@@ -544,7 +544,7 @@ func (m *ResourceMonitor) getNetIOStats(prev map[string]NetIOStats) []NetIOStats
 	return stats
 }
 
-// getCPUTemperature tries to read CPU temperature
+// getCPUTemperature tries to read CPU temperature.
 func (m *ResourceMonitor) getCPUTemperature() (int, error) {
 	// Try thermal zones
 	if content, err := os.ReadFile("/sys/class/thermal/thermal_zone0/temp"); err == nil {
@@ -561,7 +561,7 @@ func (m *ResourceMonitor) getCPUTemperature() (int, error) {
 	return 0, fmt.Errorf("temperature not available")
 }
 
-// GetTopProcesses returns top processes by CPU/memory usage
+// GetTopProcesses returns top processes by CPU/memory usage.
 func (m *ResourceMonitor) GetTopProcesses(n int) []ProcessStats {
 	cmd := exec.Command("ps", "aux", "--sort=-%cpu")
 	output, err := cmd.Output()

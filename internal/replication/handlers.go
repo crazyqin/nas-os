@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 复制 HTTP 处理器
+// Handlers 复制 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	repl := api.Group("/replications")
 	{
@@ -39,7 +39,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// APIResponse 通用响应
+// APIResponse 通用响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -54,7 +54,7 @@ func apiError(code int, message string) APIResponse {
 	return APIResponse{Code: code, Message: message}
 }
 
-// CreateTaskRequest 创建任务请求
+// CreateTaskRequest 创建任务请求.
 type CreateTaskRequest struct {
 	Name             string `json:"name" binding:"required"`
 	SourcePath       string `json:"source_path" binding:"required"`
@@ -67,7 +67,7 @@ type CreateTaskRequest struct {
 	DeleteExtraneous bool   `json:"delete_extraneous"`
 }
 
-// create 创建复制任务
+// create 创建复制任务.
 func (h *Handlers) create(c *gin.Context) {
 	var req CreateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -95,13 +95,13 @@ func (h *Handlers) create(c *gin.Context) {
 	c.JSON(http.StatusCreated, success(task))
 }
 
-// list 列出所有任务
+// list 列出所有任务.
 func (h *Handlers) list(c *gin.Context) {
 	tasks := h.manager.ListTasks()
 	c.JSON(http.StatusOK, success(tasks))
 }
 
-// get 获取任务详情
+// get 获取任务详情.
 func (h *Handlers) get(c *gin.Context) {
 	id := c.Param("id")
 
@@ -114,7 +114,7 @@ func (h *Handlers) get(c *gin.Context) {
 	c.JSON(http.StatusOK, success(task))
 }
 
-// UpdateTaskRequest 更新任务请求
+// UpdateTaskRequest 更新任务请求.
 type UpdateTaskRequest struct {
 	Name             *string `json:"name"`
 	Schedule         *string `json:"schedule"`
@@ -123,7 +123,7 @@ type UpdateTaskRequest struct {
 	DeleteExtraneous *bool   `json:"delete_extraneous"`
 }
 
-// update 更新任务
+// update 更新任务.
 func (h *Handlers) update(c *gin.Context) {
 	id := c.Param("id")
 
@@ -158,7 +158,7 @@ func (h *Handlers) update(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
-// delete 删除任务
+// delete 删除任务.
 func (h *Handlers) delete(c *gin.Context) {
 	id := c.Param("id")
 
@@ -170,7 +170,7 @@ func (h *Handlers) delete(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
-// startSync 手动触发同步
+// startSync 手动触发同步.
 func (h *Handlers) startSync(c *gin.Context) {
 	id := c.Param("id")
 
@@ -184,7 +184,7 @@ func (h *Handlers) startSync(c *gin.Context) {
 	}))
 }
 
-// pause 暂停任务
+// pause 暂停任务.
 func (h *Handlers) pause(c *gin.Context) {
 	id := c.Param("id")
 
@@ -196,7 +196,7 @@ func (h *Handlers) pause(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
-// resume 恢复任务
+// resume 恢复任务.
 func (h *Handlers) resume(c *gin.Context) {
 	id := c.Param("id")
 
@@ -208,31 +208,31 @@ func (h *Handlers) resume(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
-// getStats 获取统计信息
+// getStats 获取统计信息.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, success(stats))
 }
 
-// listConflicts 列出所有冲突
+// listConflicts 列出所有冲突.
 func (h *Handlers) listConflicts(c *gin.Context) {
 	conflicts := h.manager.GetConflicts("")
 	c.JSON(http.StatusOK, success(conflicts))
 }
 
-// listTaskConflicts 列出指定任务的冲突
+// listTaskConflicts 列出指定任务的冲突.
 func (h *Handlers) listTaskConflicts(c *gin.Context) {
 	taskID := c.Param("id")
 	conflicts := h.manager.GetConflicts(taskID)
 	c.JSON(http.StatusOK, success(conflicts))
 }
 
-// ResolveConflictRequest 解决冲突请求
+// ResolveConflictRequest 解决冲突请求.
 type ResolveConflictRequest struct {
 	Strategy string `json:"strategy" binding:"required"`
 }
 
-// resolveConflict 解决冲突
+// resolveConflict 解决冲突.
 func (h *Handlers) resolveConflict(c *gin.Context) {
 	conflictID := c.Param("conflictId")
 
@@ -256,7 +256,7 @@ func (h *Handlers) resolveConflict(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
-// TaskResponse 任务响应
+// TaskResponse 任务响应.
 type TaskResponse struct {
 	ID               string    `json:"id"`
 	Name             string    `json:"name"`

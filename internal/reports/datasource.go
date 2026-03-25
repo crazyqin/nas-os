@@ -9,7 +9,7 @@ import (
 
 // ========== 配额数据源适配器 ==========
 
-// QuotaDataSource 配额数据源
+// QuotaDataSource 配额数据源.
 type QuotaDataSource struct {
 	quotaManager interface {
 		GetAllUsage() ([]interface{}, error)
@@ -18,7 +18,7 @@ type QuotaDataSource struct {
 	}
 }
 
-// NewQuotaDataSource 创建配额数据源
+// NewQuotaDataSource 创建配额数据源.
 func NewQuotaDataSource(manager interface{}) *QuotaDataSource {
 	quotaManager, ok := manager.(interface {
 		GetAllUsage() ([]interface{}, error)
@@ -33,12 +33,12 @@ func NewQuotaDataSource(manager interface{}) *QuotaDataSource {
 	}
 }
 
-// Name 数据源名称
+// Name 数据源名称.
 func (ds *QuotaDataSource) Name() string {
 	return "quota"
 }
 
-// Query 查询数据
+// Query 查询数据.
 func (ds *QuotaDataSource) Query(
 	query map[string]interface{},
 	fields []TemplateField,
@@ -98,7 +98,7 @@ func (ds *QuotaDataSource) Query(
 	return result, nil
 }
 
-// GetSummary 获取摘要
+// GetSummary 获取摘要.
 func (ds *QuotaDataSource) GetSummary(query map[string]interface{}) (map[string]interface{}, error) {
 	usages, err := ds.quotaManager.GetAllUsage()
 	if err != nil {
@@ -154,7 +154,7 @@ func (ds *QuotaDataSource) GetSummary(query map[string]interface{}) (map[string]
 	return summary, nil
 }
 
-// GetAvailableFields 获取可用字段
+// GetAvailableFields 获取可用字段.
 func (ds *QuotaDataSource) GetAvailableFields() []TemplateField {
 	return []TemplateField{
 		{Name: "quota_id", Label: "配额ID", Type: FieldTypeString, Source: "quota.id", Sortable: true},
@@ -174,7 +174,7 @@ func (ds *QuotaDataSource) GetAvailableFields() []TemplateField {
 	}
 }
 
-// convertToMap 转换为 map
+// convertToMap 转换为 map.
 func (ds *QuotaDataSource) convertToMap(usage interface{}) map[string]interface{} {
 	// 简化实现，实际应使用反射或具体类型断言
 	return map[string]interface{}{
@@ -199,7 +199,7 @@ func (ds *QuotaDataSource) convertToMap(usage interface{}) map[string]interface{
 	}
 }
 
-// getNestedValue 获取嵌套值
+// getNestedValue 获取嵌套值.
 func (ds *QuotaDataSource) getNestedValue(data map[string]interface{}, path string) (interface{}, bool) {
 	keys := splitPath(path)
 	current := data
@@ -220,7 +220,7 @@ func (ds *QuotaDataSource) getNestedValue(data map[string]interface{}, path stri
 	return nil, false
 }
 
-// matchFilters 匹配过滤器
+// matchFilters 匹配过滤器.
 func (ds *QuotaDataSource) matchFilters(row map[string]interface{}, filters []TemplateFilter) bool {
 	for _, filter := range filters {
 		val, ok := row[filter.Field]
@@ -235,7 +235,7 @@ func (ds *QuotaDataSource) matchFilters(row map[string]interface{}, filters []Te
 	return true
 }
 
-// matchFilter 匹配单个过滤器
+// matchFilter 匹配单个过滤器.
 func (ds *QuotaDataSource) matchFilter(val interface{}, op string, expected interface{}) bool {
 	switch op {
 	case "eq":
@@ -253,7 +253,7 @@ func (ds *QuotaDataSource) matchFilter(val interface{}, op string, expected inte
 	}
 }
 
-// applySorts 应用排序
+// applySorts 应用排序.
 func (ds *QuotaDataSource) applySorts(data []map[string]interface{}, sorts []TemplateSort) []map[string]interface{} {
 	if len(sorts) == 0 {
 		return data
@@ -280,7 +280,7 @@ func (ds *QuotaDataSource) applySorts(data []map[string]interface{}, sorts []Tem
 
 // ========== 存储数据源适配器 ==========
 
-// StorageDataSource 存储数据源
+// StorageDataSource 存储数据源.
 type StorageDataSource struct {
 	storageManager interface {
 		ListVolumes() []interface{}
@@ -288,7 +288,7 @@ type StorageDataSource struct {
 	}
 }
 
-// NewStorageDataSource 创建存储数据源
+// NewStorageDataSource 创建存储数据源.
 func NewStorageDataSource(manager interface{}) *StorageDataSource {
 	storageManager, ok := manager.(interface {
 		ListVolumes() []interface{}
@@ -302,12 +302,12 @@ func NewStorageDataSource(manager interface{}) *StorageDataSource {
 	}
 }
 
-// Name 数据源名称
+// Name 数据源名称.
 func (ds *StorageDataSource) Name() string {
 	return "storage"
 }
 
-// Query 查询数据
+// Query 查询数据.
 func (ds *StorageDataSource) Query(
 	query map[string]interface{},
 	fields []TemplateField,
@@ -343,7 +343,7 @@ func (ds *StorageDataSource) Query(
 	return result, nil
 }
 
-// GetSummary 获取摘要
+// GetSummary 获取摘要.
 func (ds *StorageDataSource) GetSummary(query map[string]interface{}) (map[string]interface{}, error) {
 	volumes := ds.storageManager.ListVolumes()
 
@@ -390,7 +390,7 @@ func (ds *StorageDataSource) GetSummary(query map[string]interface{}) (map[strin
 	return summary, nil
 }
 
-// GetAvailableFields 获取可用字段
+// GetAvailableFields 获取可用字段.
 func (ds *StorageDataSource) GetAvailableFields() []TemplateField {
 	return []TemplateField{
 		{Name: "volume_name", Label: "卷名", Type: FieldTypeString, Source: "volume.name", Sortable: true, Filterable: true},
@@ -404,7 +404,7 @@ func (ds *StorageDataSource) GetAvailableFields() []TemplateField {
 	}
 }
 
-// convertVolumeToMap 转换卷信息为 map
+// convertVolumeToMap 转换卷信息为 map.
 func (ds *StorageDataSource) convertVolumeToMap(vol interface{}) map[string]interface{} {
 	return map[string]interface{}{
 		"volume": map[string]interface{}{
@@ -420,7 +420,7 @@ func (ds *StorageDataSource) convertVolumeToMap(vol interface{}) map[string]inte
 	}
 }
 
-// matchFilters 匹配过滤器
+// matchFilters 匹配过滤器.
 func (ds *StorageDataSource) matchFilters(row map[string]interface{}, filters []TemplateFilter) bool {
 	for _, filter := range filters {
 		val, ok := row[filter.Field]
@@ -435,7 +435,7 @@ func (ds *StorageDataSource) matchFilters(row map[string]interface{}, filters []
 	return true
 }
 
-// getNestedValue 获取嵌套值
+// getNestedValue 获取嵌套值.
 func (ds *StorageDataSource) getNestedValue(data map[string]interface{}, path string) (interface{}, bool) {
 	keys := splitPath(path)
 	current := data

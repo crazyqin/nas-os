@@ -738,7 +738,7 @@ func TestManager_IgnoreDevice(t *testing.T) {
 	assert.False(t, m.isDeviceIgnored(&Device{UUID: "other-uuid"}))
 }
 
-// 辅助方法：检查设备是否被忽略
+// 辅助方法：检查设备是否被忽略.
 func (m *Manager) isDeviceIgnored(device *Device) bool {
 	for _, ignore := range m.config.IgnoreDevices {
 		if device.UUID == ignore || device.Label == ignore {

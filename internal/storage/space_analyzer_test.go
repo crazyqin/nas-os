@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// 测试辅助函数：创建测试目录结构
+// 测试辅助函数：创建测试目录结构.
 func createTestDir(t *testing.T) string {
 	tmpDir, err := os.MkdirTemp("", "space_analyzer_test_*")
 	if err != nil {
@@ -63,7 +63,7 @@ func createTestDir(t *testing.T) string {
 	return tmpDir
 }
 
-// TestAnalyzeFileTypes 测试文件类型分析
+// TestAnalyzeFileTypes 测试文件类型分析.
 func TestAnalyzeFileTypes(t *testing.T) {
 	tmpDir := createTestDir(t)
 	defer os.RemoveAll(tmpDir)
@@ -108,7 +108,7 @@ func TestAnalyzeFileTypes(t *testing.T) {
 	}
 }
 
-// TestFindLargeFiles 测试大文件检测
+// TestFindLargeFiles 测试大文件检测.
 func TestFindLargeFiles(t *testing.T) {
 	tmpDir := createTestDir(t)
 	defer os.RemoveAll(tmpDir)
@@ -144,7 +144,7 @@ func TestFindLargeFiles(t *testing.T) {
 	}
 }
 
-// TestRankDirectories 测试目录排行
+// TestRankDirectories 测试目录排行.
 func TestRankDirectories(t *testing.T) {
 	tmpDir := createTestDir(t)
 	defer os.RemoveAll(tmpDir)
@@ -175,7 +175,7 @@ func TestRankDirectories(t *testing.T) {
 	}
 }
 
-// TestPredictTrend 测试趋势预测
+// TestPredictTrend 测试趋势预测.
 func TestPredictTrend(t *testing.T) {
 	manager := &Manager{}
 	sa := NewSpaceAnalyzer(manager, t.TempDir())
@@ -233,7 +233,7 @@ func TestPredictTrend(t *testing.T) {
 	}
 }
 
-// TestFormatBytes 测试字节格式化
+// TestFormatBytes 测试字节格式化.
 func TestFormatBytes(t *testing.T) {
 	tests := []struct {
 		bytes    uint64
@@ -256,7 +256,7 @@ func TestFormatBytes(t *testing.T) {
 	}
 }
 
-// TestGetFileTypeCategory 测试文件类型分类
+// TestGetFileTypeCategory 测试文件类型分类.
 func TestGetFileTypeCategory(t *testing.T) {
 	tests := []struct {
 		ext      string
@@ -284,7 +284,7 @@ func TestGetFileTypeCategory(t *testing.T) {
 	}
 }
 
-// TestExcludeHiddenFiles 测试排除隐藏文件
+// TestExcludeHiddenFiles 测试排除隐藏文件.
 func TestExcludeHiddenFiles(t *testing.T) {
 	tmpDir := createTestDir(t)
 	defer os.RemoveAll(tmpDir)
@@ -315,7 +315,7 @@ func TestExcludeHiddenFiles(t *testing.T) {
 	}
 }
 
-// TestSpaceHistory 测试历史记录
+// TestSpaceHistory 测试历史记录.
 func TestSpaceHistory(t *testing.T) {
 	tmpDir := t.TempDir()
 	manager := &Manager{}
@@ -353,7 +353,7 @@ func TestSpaceHistory(t *testing.T) {
 	}
 }
 
-// TestLargeFileSorting 测试大文件排序
+// TestLargeFileSorting 测试大文件排序.
 func TestLargeFileSorting(t *testing.T) {
 	tmpDir := t.TempDir()
 
@@ -405,7 +405,7 @@ func TestLargeFileSorting(t *testing.T) {
 	}
 }
 
-// TestEmptyDirectory 测试空目录
+// TestEmptyDirectory 测试空目录.
 func TestEmptyDirectory(t *testing.T) {
 	tmpDir := t.TempDir()
 

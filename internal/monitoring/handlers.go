@@ -9,19 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SSDHandlers SSD 健康监控处理器
+// SSDHandlers SSD 健康监控处理器.
 type SSDHandlers struct {
 	monitor *SSDHealthMonitor
 }
 
-// NewSSDHandlers 创建 SSD 健康监控处理器
+// NewSSDHandlers 创建 SSD 健康监控处理器.
 func NewSSDHandlers(monitor *SSDHealthMonitor) *SSDHandlers {
 	return &SSDHandlers{
 		monitor: monitor,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *SSDHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	ssd := r.Group("/ssd")
 	{
@@ -58,7 +58,7 @@ func (h *SSDHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /ssd [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) listSSDs(c *gin.Context) {
 	ssds := h.monitor.GetAllSSDs()
 
@@ -111,7 +111,7 @@ func (h *SSDHandlers) listSSDs(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "成功"
 // @Failure 404 {object} map[string]interface{} "SSD 不存在"
 // @Router /ssd/{device} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) getSSDHealth(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -148,7 +148,7 @@ func (h *SSDHandlers) getSSDHealth(c *gin.Context) {
 // @Param days query int false "天数" default(7)
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /ssd/{device}/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) getSSDHistory(c *gin.Context) {
 	device := c.Param("device")
 	days := 7
@@ -180,7 +180,7 @@ func (h *SSDHandlers) getSSDHistory(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /ssd/scan [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) scanSSDs(c *gin.Context) {
 	if err := h.monitor.ScanSSDs(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -205,7 +205,7 @@ func (h *SSDHandlers) scanSSDs(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /ssd/check [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) checkAllSSDs(c *gin.Context) {
 	if err := h.monitor.CheckAllSSDs(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -231,7 +231,7 @@ func (h *SSDHandlers) checkAllSSDs(c *gin.Context) {
 // @Param device query string false "过滤设备"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /ssd/alerts [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) getSSDAlerts(c *gin.Context) {
 	// 返回当前有告警的 SSD 列表
 	ssds := h.monitor.GetAllSSDs()
@@ -265,7 +265,7 @@ func (h *SSDHandlers) getSSDAlerts(c *gin.Context) {
 // @Param request body map[string]string true "回调配置 {\"url\": \"https://...\"}"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /ssd/alerts/callback [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) registerAlertCallback(c *gin.Context) {
 	var req struct {
 		URL string `json:"url" binding:"required"`
@@ -301,7 +301,7 @@ func (h *SSDHandlers) registerAlertCallback(c *gin.Context) {
 // @Param request body SSDMonitorConfig true "配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /ssd/config [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) updateConfig(c *gin.Context) {
 	var config SSDMonitorConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -347,7 +347,7 @@ func (h *SSDHandlers) updateConfig(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /ssd/config [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) getConfig(c *gin.Context) {
 	h.monitor.mu.RLock()
 	config := h.monitor.config
@@ -368,7 +368,7 @@ func (h *SSDHandlers) getConfig(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /ssd/summary [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) getSummary(c *gin.Context) {
 	ssds := h.monitor.GetAllSSDs()
 
@@ -434,7 +434,7 @@ func (h *SSDHandlers) getSummary(c *gin.Context) {
 // @Param device path string true "SSD 设备路径"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /ssd/{device}/prediction [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *SSDHandlers) getLifePrediction(c *gin.Context) {
 	device := c.Param("device")
 
@@ -474,7 +474,7 @@ func (h *SSDHandlers) getLifePrediction(c *gin.Context) {
 	})
 }
 
-// parseInt 解析整数
+// parseInt 解析整数.
 func parseInt(s string) (int, error) {
 	var result int
 	for i := 0; i < len(s); i++ {
@@ -485,7 +485,7 @@ func parseInt(s string) (int, error) {
 	return result, nil
 }
 
-// formatBytes 格式化字节数
+// formatBytes 格式化字节数.
 func formatBytes(bytes uint64) string {
 	const unit = 1024
 	if bytes < unit {

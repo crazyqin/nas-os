@@ -17,7 +17,7 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
-// 测试配置
+// 测试配置.
 func testConfig() FileLockConfig {
 	return FileLockConfig{
 		DefaultTimeout:      5 * time.Minute,
@@ -29,7 +29,7 @@ func testConfig() FileLockConfig {
 	}
 }
 
-// TestFileLock_IsExpired 测试锁过期检查
+// TestFileLock_IsExpired 测试锁过期检查.
 func TestFileLock_IsExpired(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -66,7 +66,7 @@ func TestFileLock_IsExpired(t *testing.T) {
 	}
 }
 
-// TestFileLock_IsOwnedBy 测试锁持有者检查
+// TestFileLock_IsOwnedBy 测试锁持有者检查.
 func TestFileLock_IsOwnedBy(t *testing.T) {
 	lock := &FileLock{
 		Owner:     "user1",
@@ -77,7 +77,7 @@ func TestFileLock_IsOwnedBy(t *testing.T) {
 	assert.False(t, lock.IsOwnedBy("user2"))
 }
 
-// TestFileLock_Extend 测试锁延期
+// TestFileLock_Extend 测试锁延期.
 func TestFileLock_Extend(t *testing.T) {
 	lock := &FileLock{
 		ExpiresAt:    time.Now().Add(1 * time.Minute),
@@ -92,20 +92,20 @@ func TestFileLock_Extend(t *testing.T) {
 	assert.True(t, lock.LastAccessed.After(originalLastAccessed))
 }
 
-// TestLockType_String 测试锁类型字符串
+// TestLockType_String 测试锁类型字符串.
 func TestLockType_String(t *testing.T) {
 	assert.Equal(t, "shared", LockTypeShared.String())
 	assert.Equal(t, "exclusive", LockTypeExclusive.String())
 }
 
-// TestLockStatus_String 测试锁状态字符串
+// TestLockStatus_String 测试锁状态字符串.
 func TestLockStatus_String(t *testing.T) {
 	assert.Equal(t, "active", LockStatusActive.String())
 	assert.Equal(t, "expired", LockStatusExpired.String())
 	assert.Equal(t, "released", LockStatusReleased.String())
 }
 
-// TestManager_Lock 测试获取锁
+// TestManager_Lock 测试获取锁.
 func TestManager_Lock(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -164,7 +164,7 @@ func TestManager_Lock(t *testing.T) {
 	}
 }
 
-// TestManager_LockConflict 测试锁冲突
+// TestManager_LockConflict 测试锁冲突.
 func TestManager_LockConflict(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -191,7 +191,7 @@ func TestManager_LockConflict(t *testing.T) {
 	assert.Equal(t, "user1", conflict.ExistingLock.Owner)
 }
 
-// TestManager_SharedLocks 测试多个共享锁
+// TestManager_SharedLocks 测试多个共享锁.
 func TestManager_SharedLocks(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -211,7 +211,7 @@ func TestManager_SharedLocks(t *testing.T) {
 	assert.True(t, manager.IsLocked("/test/shared.txt"))
 }
 
-// TestManager_Unlock 测试释放锁
+// TestManager_Unlock 测试释放锁.
 func TestManager_Unlock(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -232,7 +232,7 @@ func TestManager_Unlock(t *testing.T) {
 	assert.False(t, manager.IsLocked("/test/file.txt"))
 }
 
-// TestManager_UnlockWrongOwner 测试错误持有者释放锁
+// TestManager_UnlockWrongOwner 测试错误持有者释放锁.
 func TestManager_UnlockWrongOwner(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -253,7 +253,7 @@ func TestManager_UnlockWrongOwner(t *testing.T) {
 	assert.True(t, manager.IsLocked("/test/file.txt"))
 }
 
-// TestManager_ForceUnlock 测试强制释放锁
+// TestManager_ForceUnlock 测试强制释放锁.
 func TestManager_ForceUnlock(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -274,7 +274,7 @@ func TestManager_ForceUnlock(t *testing.T) {
 	assert.False(t, manager.IsLocked("/test/file.txt"))
 }
 
-// TestManager_ExtendLock 测试延长锁
+// TestManager_ExtendLock 测试延长锁.
 func TestManager_ExtendLock(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -298,7 +298,7 @@ func TestManager_ExtendLock(t *testing.T) {
 	assert.True(t, lock.ExpiresAt.After(originalExpiry))
 }
 
-// TestManager_LockExpiration 测试锁过期
+// TestManager_LockExpiration 测试锁过期.
 func TestManager_LockExpiration(t *testing.T) {
 	config := testConfig()
 	config.CleanupInterval = 100 * time.Millisecond // 快速清理
@@ -323,7 +323,7 @@ func TestManager_LockExpiration(t *testing.T) {
 	assert.True(t, lock.IsExpired())
 }
 
-// TestManager_ListLocks 测试列出锁
+// TestManager_ListLocks 测试列出锁.
 func TestManager_ListLocks(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -348,7 +348,7 @@ func TestManager_ListLocks(t *testing.T) {
 	assert.Len(t, locks, 3)
 }
 
-// TestManager_Stats 测试统计
+// TestManager_Stats 测试统计.
 func TestManager_Stats(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -371,7 +371,7 @@ func TestManager_Stats(t *testing.T) {
 	assert.Equal(t, int64(1), stats.ActiveLocks)
 }
 
-// TestSMBLockAdapter 测试SMB适配器
+// TestSMBLockAdapter 测试SMB适配器.
 func TestSMBLockAdapter(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -398,7 +398,7 @@ func TestSMBLockAdapter(t *testing.T) {
 	assert.False(t, adapter.IsLocked("/test/smb/file.txt"))
 }
 
-// TestNFSLockAdapter 测试NFS适配器
+// TestNFSLockAdapter 测试NFS适配器.
 func TestNFSLockAdapter(t *testing.T) {
 	manager := NewManager(testConfig(), zap.NewNop())
 	defer manager.Close()
@@ -430,7 +430,7 @@ func setupTestAPI(t *testing.T) (*gin.Engine, *Manager, *Handlers) {
 	return router, manager, handlers
 }
 
-// TestAPI_AcquireLock 测试API获取锁
+// TestAPI_AcquireLock 测试API获取锁.
 func TestAPI_AcquireLock(t *testing.T) {
 	router, manager, _ := setupTestAPI(t)
 	defer manager.Close()
@@ -453,7 +453,7 @@ func TestAPI_AcquireLock(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "lock acquired")
 }
 
-// TestAPI_ReleaseLock 测试API释放锁
+// TestAPI_ReleaseLock 测试API释放锁.
 func TestAPI_ReleaseLock(t *testing.T) {
 	router, manager, _ := setupTestAPI(t)
 	defer manager.Close()
@@ -475,7 +475,7 @@ func TestAPI_ReleaseLock(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "lock released")
 }
 
-// TestAPI_GetLock 测试API获取锁详情
+// TestAPI_GetLock 测试API获取锁详情.
 func TestAPI_GetLock(t *testing.T) {
 	router, manager, _ := setupTestAPI(t)
 	defer manager.Close()
@@ -497,7 +497,7 @@ func TestAPI_GetLock(t *testing.T) {
 	assert.Contains(t, w.Body.String(), lock.ID)
 }
 
-// TestAPI_ListLocks 测试API列出锁
+// TestAPI_ListLocks 测试API列出锁.
 func TestAPI_ListLocks(t *testing.T) {
 	router, manager, _ := setupTestAPI(t)
 	defer manager.Close()
@@ -521,7 +521,7 @@ func TestAPI_ListLocks(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "total")
 }
 
-// TestAPI_CheckLock 测试API检查锁状态
+// TestAPI_CheckLock 测试API检查锁状态.
 func TestAPI_CheckLock(t *testing.T) {
 	router, manager, _ := setupTestAPI(t)
 	defer manager.Close()
@@ -544,7 +544,7 @@ func TestAPI_CheckLock(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "true")
 }
 
-// TestAPI_GetStats 测试API获取统计
+// TestAPI_GetStats 测试API获取统计.
 func TestAPI_GetStats(t *testing.T) {
 	router, manager, _ := setupTestAPI(t)
 	defer manager.Close()
@@ -566,7 +566,7 @@ func TestAPI_GetStats(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "totalLocks")
 }
 
-// TestAPI_LockConflict 测试API锁冲突响应
+// TestAPI_LockConflict 测试API锁冲突响应.
 func TestAPI_LockConflict(t *testing.T) {
 	router, manager, _ := setupTestAPI(t)
 	defer manager.Close()
@@ -599,7 +599,7 @@ func TestAPI_LockConflict(t *testing.T) {
 	assert.Contains(t, w2.Body.String(), "user1")
 }
 
-// TestAPI_ForceReleaseLock 测试API强制释放锁
+// TestAPI_ForceReleaseLock 测试API强制释放锁.
 func TestAPI_ForceReleaseLock(t *testing.T) {
 	router, manager, _ := setupTestAPI(t)
 	defer manager.Close()
@@ -621,7 +621,7 @@ func TestAPI_ForceReleaseLock(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "force released")
 }
 
-// TestAPI_ExtendLock 测试API延长锁
+// TestAPI_ExtendLock 测试API延长锁.
 func TestAPI_ExtendLock(t *testing.T) {
 	router, manager, _ := setupTestAPI(t)
 	defer manager.Close()

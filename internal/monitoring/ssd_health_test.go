@@ -52,7 +52,7 @@ func TestDefaultSSDMonitorConfig(t *testing.T) {
 	}
 }
 
-// testConfig 返回测试用配置（禁用定期检查）
+// testConfig 返回测试用配置（禁用定期检查）.
 func testConfig() *SSDMonitorConfig {
 	return &SSDMonitorConfig{
 		CheckInterval:      0, // 禁用定期检查
@@ -631,7 +631,7 @@ func TestSSDStatusValues(t *testing.T) {
 	}
 }
 
-// 基准测试
+// 基准测试.
 func BenchmarkEvaluateAlertLevel(b *testing.B) {
 	monitor := NewSSDHealthMonitor(testConfig())
 	defer monitor.Stop()

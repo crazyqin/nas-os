@@ -8,20 +8,20 @@ import (
 	"sync"
 )
 
-// Masker handles sensitive data masking operations
+// Masker handles sensitive data masking operations.
 type Masker struct {
 	config MaskerConfig
 	mu     sync.RWMutex
 }
 
-// NewMasker creates a new masker with the given configuration
+// NewMasker creates a new masker with the given configuration.
 func NewMasker(config MaskerConfig) *Masker {
 	return &Masker{
 		config: config,
 	}
 }
 
-// Mask masks sensitive data based on the configured strategy
+// Mask masks sensitive data based on the configured strategy.
 func (m *Masker) Mask(ctx context.Context, text string, matches []SensitiveMatch) (string, error) {
 	if len(matches) == 0 {
 		return text, nil
@@ -46,7 +46,7 @@ func (m *Masker) Mask(ctx context.Context, text string, matches []SensitiveMatch
 	return result, nil
 }
 
-// maskValue masks a single value based on its type
+// maskValue masks a single value based on its type.
 func (m *Masker) maskValue(value string, sType SensitiveType) string {
 	strategy, ok := m.config.Strategies[sType]
 	if !ok {
@@ -74,7 +74,7 @@ func (m *Masker) maskValue(value string, sType SensitiveType) string {
 	}
 }
 
-// maskPartial performs partial masking, keeping some characters visible
+// maskPartial performs partial masking, keeping some characters visible.
 func (m *Masker) maskPartial(value string, sType SensitiveType) string {
 	keepLen, ok := m.config.PartialKeepLen[sType]
 	if !ok {
@@ -143,12 +143,12 @@ func (m *Masker) maskPartial(value string, sType SensitiveType) string {
 	}
 }
 
-// maskFull performs full masking
+// maskFull performs full masking.
 func (m *Masker) maskFull(value string) string {
 	return strings.Repeat(m.config.DefaultMask, len(value))
 }
 
-// maskHash performs hash-based masking for verification purposes
+// maskHash performs hash-based masking for verification purposes.
 func (m *Masker) maskHash(value string) string {
 	h := sha256.New()
 	h.Write([]byte(value))
@@ -157,7 +157,7 @@ func (m *Masker) maskHash(value string) string {
 	return "HASH:" + hash[:16]
 }
 
-// MaskWithType masks using a specific strategy
+// MaskWithType masks using a specific strategy.
 func (m *Masker) MaskWithType(value string, sType SensitiveType, strategy MaskStrategy) string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -169,35 +169,35 @@ func (m *Masker) MaskWithType(value string, sType SensitiveType, strategy MaskSt
 	return result
 }
 
-// UpdateConfig updates the masker configuration
+// UpdateConfig updates the masker configuration.
 func (m *Masker) UpdateConfig(config MaskerConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// GetConfig returns current configuration
+// GetConfig returns current configuration.
 func (m *Masker) GetConfig() MaskerConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// SetStrategy sets the masking strategy for a specific type
+// SetStrategy sets the masking strategy for a specific type.
 func (m *Masker) SetStrategy(sType SensitiveType, strategy MaskStrategy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config.Strategies[sType] = strategy
 }
 
-// SetDefaultMask sets the default masking character
+// SetDefaultMask sets the default masking character.
 func (m *Masker) SetDefaultMask(maskChar string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config.DefaultMask = maskChar
 }
 
-// QuickMask provides a quick one-liner for masking sensitive data
+// QuickMask provides a quick one-liner for masking sensitive data.
 func QuickMask(text string) (string, []SensitiveMatch) {
 	detector := NewDetector(DefaultDetectorConfig)
 	masker := NewMasker(DefaultMaskerConfig)
@@ -211,14 +211,14 @@ func QuickMask(text string) (string, []SensitiveMatch) {
 	return masked, result.Matches
 }
 
-// QuickDetect provides a quick one-liner for detecting sensitive data
+// QuickDetect provides a quick one-liner for detecting sensitive data.
 func QuickDetect(text string) []SensitiveMatch {
 	detector := NewDetector(DefaultDetectorConfig)
 	result, _ := detector.Detect(context.Background(), text)
 	return result.Matches
 }
 
-// HasSensitive checks if text contains any sensitive information
+// HasSensitive checks if text contains any sensitive information.
 func HasSensitive(text string) bool {
 	detector := NewDetector(DefaultDetectorConfig)
 	result, _ := detector.Detect(context.Background(), text)

@@ -9,30 +9,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Response 通用响应
+// Response 通用响应.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Success 返回成功响应
+// Success 返回成功响应.
 func Success(data interface{}) Response {
 	return Response{Code: 0, Message: "success", Data: data}
 }
 
-// Error 返回错误响应
+// Error 返回错误响应.
 func Error(code int, message string) Response {
 	return Response{Code: code, Message: message}
 }
 
-// Handlers 共享管理处理器（整合 SMB 和 NFS）
+// Handlers 共享管理处理器（整合 SMB 和 NFS）.
 type Handlers struct {
 	smbManager SMBManager
 	nfsManager NFSManager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(smbMgr SMBManager, nfsMgr NFSManager) *Handlers {
 	return &Handlers{
 		smbManager: smbMgr,
@@ -40,7 +40,7 @@ func NewHandlers(smbMgr SMBManager, nfsMgr NFSManager) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	// 统一的共享管理路由
 	shares := api.Group("/shares")
@@ -87,7 +87,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 // ========== 统一共享管理 ==========
 
-// ShareOverview 共享概览
+// ShareOverview 共享概览.
 type ShareOverview struct {
 	Type   string      `json:"type"` // "smb" or "nfs"
 	Name   string      `json:"name"`
@@ -103,7 +103,7 @@ type ShareOverview struct {
 // @Produce json
 // @Success 200 {object} Response{data=[]ShareOverview} "成功"
 // @Router /shares [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listAllShares(c *gin.Context) {
 	var result []ShareOverview
 
@@ -140,7 +140,7 @@ func (h *Handlers) listAllShares(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} Response "成功"
 // @Router /shares/status [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getStatus(c *gin.Context) {
 	smbRunning, _ := h.smbManager.GetStatus()
 	nfsStatus, _ := h.nfsManager.Status()
@@ -193,7 +193,7 @@ func (h *Handlers) applyAllConfig(c *gin.Context) {
 // @Success 200 {object} Response "成功"
 // @Failure 500 {object} Response "服务器内部错误"
 // @Router /shares/smb [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listSMBShares(c *gin.Context) {
 	shares, err := h.smbManager.ListShares()
 	if err != nil {
@@ -215,7 +215,7 @@ func (h *Handlers) listSMBShares(c *gin.Context) {
 // @Failure 409 {object} Response "共享已存在"
 // @Failure 500 {object} Response "服务器内部错误"
 // @Router /shares/smb [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createSMBShare(c *gin.Context) {
 	var req smb.ShareInput
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -393,7 +393,7 @@ func (h *Handlers) testSMBConfig(c *gin.Context) {
 // @Success 200 {object} Response "成功"
 // @Failure 500 {object} Response "服务器内部错误"
 // @Router /shares/nfs [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listNFSExports(c *gin.Context) {
 	exports, err := h.nfsManager.ListExports()
 	if err != nil {
@@ -415,7 +415,7 @@ func (h *Handlers) listNFSExports(c *gin.Context) {
 // @Failure 409 {object} Response "导出已存在"
 // @Failure 500 {object} Response "服务器内部错误"
 // @Router /shares/nfs [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createNFSExport(c *gin.Context) {
 	var req nfs.ExportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

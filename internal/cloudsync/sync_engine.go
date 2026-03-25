@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// SyncEngine 同步引擎
+// SyncEngine 同步引擎.
 type SyncEngine struct {
 	mu         sync.RWMutex
 	provider   Provider
@@ -30,7 +30,7 @@ type SyncEngine struct {
 	onConflict func(conflict *ConflictInfo) ConflictStrategy
 }
 
-// NewSyncEngine 创建同步引擎
+// NewSyncEngine 创建同步引擎.
 func NewSyncEngine(provider Provider, task *SyncTask) *SyncEngine {
 	return &SyncEngine{
 		provider:   provider,
@@ -44,7 +44,7 @@ func NewSyncEngine(provider Provider, task *SyncTask) *SyncEngine {
 	}
 }
 
-// SetCallbacks 设置回调函数
+// SetCallbacks 设置回调函数.
 func (e *SyncEngine) SetCallbacks(
 	onProgress func(status *SyncStatus),
 	onComplete func(status *SyncStatus),
@@ -57,7 +57,7 @@ func (e *SyncEngine) SetCallbacks(
 	e.onConflict = onConflict
 }
 
-// Run 执行同步
+// Run 执行同步.
 func (e *SyncEngine) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	e.cancelFunc = cancel
@@ -102,7 +102,7 @@ func (e *SyncEngine) Run(ctx context.Context) error {
 	}
 }
 
-// syncUpload 上传同步（本地 → 云端）
+// syncUpload 上传同步（本地 → 云端）.
 func (e *SyncEngine) syncUpload(ctx context.Context) error {
 	// 收集本地文件
 	localFiles, err := e.collectLocalFiles(e.task.LocalPath)
@@ -257,7 +257,7 @@ func (e *SyncEngine) syncUpload(ctx context.Context) error {
 	return nil
 }
 
-// syncDownload 下载同步（云端 → 本地）
+// syncDownload 下载同步（云端 → 本地）.
 func (e *SyncEngine) syncDownload(ctx context.Context) error {
 	// 收集远程文件
 	remoteFiles, err := e.provider.List(ctx, e.task.RemotePath, true)
@@ -416,7 +416,7 @@ func (e *SyncEngine) syncDownload(ctx context.Context) error {
 	return nil
 }
 
-// syncBidirectional 双向同步
+// syncBidirectional 双向同步.
 func (e *SyncEngine) syncBidirectional(ctx context.Context) error {
 	// 收集本地文件
 	localFiles, err := e.collectLocalFiles(e.task.LocalPath)
@@ -681,31 +681,31 @@ func (e *SyncEngine) syncBidirectional(ctx context.Context) error {
 	return nil
 }
 
-// Pause 暂停同步
+// Pause 暂停同步.
 func (e *SyncEngine) Pause() {
 	e.pauseChan <- struct{}{}
 }
 
-// Resume 恢复同步
+// Resume 恢复同步.
 func (e *SyncEngine) Resume() {
 	e.resumeChan <- struct{}{}
 }
 
-// Cancel 取消同步
+// Cancel 取消同步.
 func (e *SyncEngine) Cancel() {
 	if e.cancelFunc != nil {
 		e.cancelFunc()
 	}
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (e *SyncEngine) GetStatus() *SyncStatus {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.status
 }
 
-// checkPause 检查暂停状态
+// checkPause 检查暂停状态.
 func (e *SyncEngine) checkPause(ctx context.Context) error {
 	select {
 	case <-e.pauseChan:
@@ -728,7 +728,7 @@ func (e *SyncEngine) checkPause(ctx context.Context) error {
 	return nil
 }
 
-// collectLocalFiles 收集本地文件
+// collectLocalFiles 收集本地文件.
 func (e *SyncEngine) collectLocalFiles(rootPath string) ([]FileInfo, error) {
 	var files []FileInfo
 
@@ -759,7 +759,7 @@ func (e *SyncEngine) collectLocalFiles(rootPath string) ([]FileInfo, error) {
 	return files, err
 }
 
-// shouldSync 检查文件是否应该同步
+// shouldSync 检查文件是否应该同步.
 func (e *SyncEngine) shouldSync(relPath string) bool {
 	// 检查排除规则
 	for _, pattern := range e.task.ExcludePatterns {
@@ -789,7 +789,7 @@ func (e *SyncEngine) shouldSync(relPath string) bool {
 	return true
 }
 
-// calculateFileHash 计算文件哈希（使用 SHA256）
+// calculateFileHash 计算文件哈希（使用 SHA256）.
 func (e *SyncEngine) calculateFileHash(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {

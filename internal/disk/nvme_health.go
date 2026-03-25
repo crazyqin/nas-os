@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// NVMeHealthInfo NVMe健康信息
+// NVMeHealthInfo NVMe健康信息.
 type NVMeHealthInfo struct {
 	// 设备信息
 	Device     string `json:"device"`
@@ -61,7 +61,7 @@ type NVMeHealthInfo struct {
 	LastCheck time.Time `json:"lastCheck"`
 }
 
-// NVMeTempInfo NVMe温度信息
+// NVMeTempInfo NVMe温度信息.
 type NVMeTempInfo struct {
 	Current        uint8  `json:"current"`        // 当前温度
 	Warning        uint8  `json:"warning"`        // 警告阈值
@@ -72,7 +72,7 @@ type NVMeTempInfo struct {
 	OverTempEvents uint64 `json:"overTempEvents"` // 过热事件次数
 }
 
-// NVMeUsageInfo NVMe使用情况信息
+// NVMeUsageInfo NVMe使用情况信息.
 type NVMeUsageInfo struct {
 	PercentageUsed   uint8   `json:"percentageUsed"`   // 已使用百分比 (0-100)
 	DataUnitsWritten uint64  `json:"dataUnitsWritten"` // 写入数据单位
@@ -83,19 +83,19 @@ type NVMeUsageInfo struct {
 	EstimatedLife    string  `json:"estimatedLife"`    // 预估剩余寿命
 }
 
-// NVMeSpareInfo NVMe备用空间信息
+// NVMeSpareInfo NVMe备用空间信息.
 type NVMeSpareInfo struct {
 	Available  uint8 `json:"available"`  // 可用备用空间百分比
 	Threshold  uint8 `json:"threshold"`  // 阈值
 	Percentage uint8 `json:"percentage"` // 当前百分比
 }
 
-// NVMeTestType NVMe测试类型
+// NVMeTestType NVMe测试类型.
 type NVMeTestType string
 
-// NVMe测试类型常量
+// NVMe测试类型常量.
 const (
-	// NVMeTestShort 短测试 (~2分钟)
+	// NVMeTestShort 短测试 (~2分钟).
 	NVMeTestShort     NVMeTestType = "short"     // 短测试 (~2分钟)
 	NVMeTestLong      NVMeTestType = "long"      // 长测试 (扩展测试)
 	NVMeTestVendor    NVMeTestType = "vendor"    // 厂商特定测试
@@ -103,7 +103,7 @@ const (
 	NVMeTestReadWrite NVMeTestType = "readwrite" // 读写测试
 )
 
-// NVMeTestResult NVMe测试结果
+// NVMeTestResult NVMe测试结果.
 type NVMeTestResult struct {
 	TestType     NVMeTestType  `json:"testType"`
 	Device       string        `json:"device"`
@@ -118,14 +118,14 @@ type NVMeTestResult struct {
 	NumErrors    uint8         `json:"numErrors"` // 测试发现的错误数
 }
 
-// NVMeMonitor NVMe监控器
+// NVMeMonitor NVMe监控器.
 type NVMeMonitor struct {
 	devices   map[string]*NVMeHealthInfo
 	testQueue map[string]*NVMeTestResult // 正在运行的测试
 	mu        sync.RWMutex
 }
 
-// NewNVMeMonitor 创建NVMe监控器
+// NewNVMeMonitor 创建NVMe监控器.
 func NewNVMeMonitor() *NVMeMonitor {
 	return &NVMeMonitor{
 		devices:   make(map[string]*NVMeHealthInfo),
@@ -133,7 +133,7 @@ func NewNVMeMonitor() *NVMeMonitor {
 	}
 }
 
-// ScanNVMeDevices 扫描NVMe设备
+// ScanNVMeDevices 扫描NVMe设备.
 func (m *NVMeMonitor) ScanNVMeDevices() ([]string, error) {
 	cmd := exec.Command("nvme", "list", "-o", "json")
 	output, err := cmd.Output()
@@ -161,7 +161,7 @@ func (m *NVMeMonitor) ScanNVMeDevices() ([]string, error) {
 	return devices, nil
 }
 
-// scanWithSmartctl 使用smartctl扫描NVMe设备
+// scanWithSmartctl 使用smartctl扫描NVMe设备.
 func (m *NVMeMonitor) scanWithSmartctl() ([]string, error) {
 	cmd := exec.Command("lsblk", "-d", "-n", "-o", "NAME")
 	output, err := cmd.Output()
@@ -181,7 +181,7 @@ func (m *NVMeMonitor) scanWithSmartctl() ([]string, error) {
 	return devices, nil
 }
 
-// GetNVMeHealth 获取NVMe设备健康信息
+// GetNVMeHealth 获取NVMe设备健康信息.
 func (m *NVMeMonitor) GetNVMeHealth(device string) (*NVMeHealthInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -202,7 +202,7 @@ func (m *NVMeMonitor) GetNVMeHealth(device string) (*NVMeHealthInfo, error) {
 	return info, nil
 }
 
-// collectNVMeHealth 收集NVMe健康数据
+// collectNVMeHealth 收集NVMe健康数据.
 func (m *NVMeMonitor) collectNVMeHealth(device string) (*NVMeHealthInfo, error) {
 	info := &NVMeHealthInfo{
 		Device:    device,
@@ -225,7 +225,7 @@ func (m *NVMeMonitor) collectNVMeHealth(device string) (*NVMeHealthInfo, error) 
 	return info, nil
 }
 
-// getNVMeSmartLog 使用nvme-cli获取SMART日志
+// getNVMeSmartLog 使用nvme-cli获取SMART日志.
 func (m *NVMeMonitor) getNVMeSmartLog(device string, info *NVMeHealthInfo) error {
 	// 获取设备信息
 	cmd := exec.Command("nvme", "id-ctrl", device, "-o", "json")
@@ -359,7 +359,7 @@ func (m *NVMeMonitor) getNVMeSmartLog(device string, info *NVMeHealthInfo) error
 	return nil
 }
 
-// getNVMeSmartctl 使用smartctl获取NVMe数据（回退方案）
+// getNVMeSmartctl 使用smartctl获取NVMe数据（回退方案）.
 func (m *NVMeMonitor) getNVMeSmartctl(device string, info *NVMeHealthInfo) error {
 	cmd := exec.Command("smartctl", "-a", device)
 	output, err := cmd.Output()
@@ -370,7 +370,7 @@ func (m *NVMeMonitor) getNVMeSmartctl(device string, info *NVMeHealthInfo) error
 	return m.parseSmartctlOutput(string(output), info)
 }
 
-// parseSmartctlOutput 解析smartctl输出
+// parseSmartctlOutput 解析smartctl输出.
 func (m *NVMeMonitor) parseSmartctlOutput(output string, info *NVMeHealthInfo) error {
 	scanner := bufio.NewScanner(strings.NewReader(output))
 
@@ -501,7 +501,7 @@ func (m *NVMeMonitor) parseSmartctlOutput(output string, info *NVMeHealthInfo) e
 	return nil
 }
 
-// calculateNVMeHealthScore 计算NVMe健康评分
+// calculateNVMeHealthScore 计算NVMe健康评分.
 func (m *NVMeMonitor) calculateNVMeHealthScore(info *NVMeHealthInfo) {
 	components := &ScoreComponents{}
 
@@ -557,7 +557,7 @@ func (m *NVMeMonitor) calculateNVMeHealthScore(info *NVMeHealthInfo) {
 	info.Status = status
 }
 
-// calculateNVMeTempScore 计算NVMe温度评分
+// calculateNVMeTempScore 计算NVMe温度评分.
 func (m *NVMeMonitor) calculateNVMeTempScore(info *NVMeHealthInfo) ComponentScore {
 	if info.Temperature == nil {
 		return ComponentScore{Score: 100, Weight: 0.20, Status: "ok", Message: "无温度数据"}
@@ -595,7 +595,7 @@ func (m *NVMeMonitor) calculateNVMeTempScore(info *NVMeHealthInfo) ComponentScor
 	return score
 }
 
-// calculateNVMeWearScore 计算NVMe磨损评分
+// calculateNVMeWearScore 计算NVMe磨损评分.
 func (m *NVMeMonitor) calculateNVMeWearScore(info *NVMeHealthInfo) ComponentScore {
 	if info.Usage == nil {
 		return ComponentScore{Score: 100, Weight: 0.15, Status: "ok", Message: "无使用数据"}
@@ -637,7 +637,7 @@ func (m *NVMeMonitor) calculateNVMeWearScore(info *NVMeHealthInfo) ComponentScor
 	return score
 }
 
-// calculateNVMeErrorScore 计算NVMe错误评分
+// calculateNVMeErrorScore 计算NVMe错误评分.
 func (m *NVMeMonitor) calculateNVMeErrorScore(info *NVMeHealthInfo) ComponentScore {
 	var totalErrors uint64
 	var errorTypes []string
@@ -686,7 +686,7 @@ func (m *NVMeMonitor) calculateNVMeErrorScore(info *NVMeHealthInfo) ComponentSco
 	return score
 }
 
-// calculateNVMeSpareScore 计算NVMe备用空间评分
+// calculateNVMeSpareScore 计算NVMe备用空间评分.
 func (m *NVMeMonitor) calculateNVMeSpareScore(info *NVMeHealthInfo) ComponentScore {
 	if info.AvailableSpare == nil {
 		return ComponentScore{Score: 100, Weight: 0.10, Status: "ok", Message: "无备用空间数据"}
@@ -725,7 +725,7 @@ func (m *NVMeMonitor) calculateNVMeSpareScore(info *NVMeHealthInfo) ComponentSco
 	return score
 }
 
-// getNVMeGradeAndStatus 获取NVMe等级和状态
+// getNVMeGradeAndStatus 获取NVMe等级和状态.
 func (m *NVMeMonitor) getNVMeGradeAndStatus(score int, info *NVMeHealthInfo) (string, DiskStatus) {
 	// 如果有关键警告，直接标记为严重
 	if info.CriticalWarnings > 0 {
@@ -746,7 +746,7 @@ func (m *NVMeMonitor) getNVMeGradeAndStatus(score int, info *NVMeHealthInfo) (st
 	}
 }
 
-// generateNVMeRecommendations 生成NVMe建议
+// generateNVMeRecommendations 生成NVMe建议.
 func (m *NVMeMonitor) generateNVMeRecommendations(info *NVMeHealthInfo, components *ScoreComponents) []string {
 	var recommendations []string
 
@@ -792,7 +792,7 @@ func (m *NVMeMonitor) generateNVMeRecommendations(info *NVMeHealthInfo, componen
 	return recommendations
 }
 
-// RunNVMeTest 运行NVMe测试
+// RunNVMeTest 运行NVMe测试.
 func (m *NVMeMonitor) RunNVMeTest(device string, testType NVMeTestType) (*NVMeTestResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -817,7 +817,7 @@ func (m *NVMeMonitor) RunNVMeTest(device string, testType NVMeTestType) (*NVMeTe
 	return result, nil
 }
 
-// executeNVMeTest 执行NVMe测试
+// executeNVMeTest 执行NVMe测试.
 func (m *NVMeMonitor) executeNVMeTest(device string, testType NVMeTestType, result *NVMeTestResult) {
 	defer func() {
 		m.mu.Lock()
@@ -862,7 +862,7 @@ func (m *NVMeMonitor) executeNVMeTest(device string, testType NVMeTestType, resu
 	}
 }
 
-// getNVMeTestResult 获取NVMe测试结果
+// getNVMeTestResult 获取NVMe测试结果.
 func (m *NVMeMonitor) getNVMeTestResult(device string) *NVMeTestResult {
 	cmd := exec.Command("nvme", "self-test-log", device, "-o", "json")
 	output, err := cmd.Output()
@@ -920,7 +920,7 @@ func (m *NVMeMonitor) getNVMeTestResult(device string) *NVMeTestResult {
 	return result
 }
 
-// GetTestStatus 获取测试状态
+// GetTestStatus 获取测试状态.
 func (m *NVMeMonitor) GetTestStatus(device string) (*NVMeTestResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -938,7 +938,7 @@ func (m *NVMeMonitor) GetTestStatus(device string) (*NVMeTestResult, error) {
 	return nil, fmt.Errorf("设备 %s 无测试结果", device)
 }
 
-// AbortTest 中止测试
+// AbortTest 中止测试.
 func (m *NVMeMonitor) AbortTest(device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -952,7 +952,7 @@ func (m *NVMeMonitor) AbortTest(device string) error {
 	return fmt.Errorf("设备 %s 无正在运行的测试", device)
 }
 
-// GetAllNVMeDevices 获取所有NVMe设备信息
+// GetAllNVMeDevices 获取所有NVMe设备信息.
 func (m *NVMeMonitor) GetAllNVMeDevices() ([]*NVMeHealthInfo, error) {
 	devices, err := m.ScanNVMeDevices()
 	if err != nil {
@@ -971,7 +971,7 @@ func (m *NVMeMonitor) GetAllNVMeDevices() ([]*NVMeHealthInfo, error) {
 	return infos, nil
 }
 
-// ClearCache 清除缓存
+// ClearCache 清除缓存.
 func (m *NVMeMonitor) ClearCache(device string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// createTestMonitor 创建测试监控器
+// createTestMonitor 创建测试监控器.
 func createTestMonitor(t *testing.T) *Monitor {
 	mgr, err := NewManager(ManagerConfig{
 		PluginDir: "/tmp/test-plugins-monitor",
@@ -300,7 +300,7 @@ func TestAlertSeverities(t *testing.T) {
 	assert.Equal(t, AlertSeverity("critical"), SeverityCritical)
 }
 
-// MockHealthChecker 模拟健康检查器
+// MockHealthChecker 模拟健康检查器.
 type MockHealthChecker struct {
 	healthy bool
 	err     error
@@ -313,7 +313,7 @@ func (m *MockHealthChecker) HealthCheck() error {
 	return m.err
 }
 
-// MockMetricsCollector 模拟指标收集器
+// MockMetricsCollector 模拟指标收集器.
 type MockMetricsCollector struct {
 	metrics map[string]interface{}
 }

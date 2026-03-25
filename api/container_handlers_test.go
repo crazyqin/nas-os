@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -81,7 +82,7 @@ func TestContainerHandlers_GetDockerStatus_NilManager(t *testing.T) {
 	router := gin.New()
 	router.GET("/status", h.getDockerStatus)
 
-	req := httptest.NewRequest("GET", "/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/status", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -98,7 +99,7 @@ func TestContainerHandlers_ListContainers_NilManager(t *testing.T) {
 	router := gin.New()
 	router.GET("/containers", h.listContainers)
 
-	req := httptest.NewRequest("GET", "/containers", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/containers", nil)
 	w := httptest.NewRecorder()
 
 	// Use recover to handle potential panic from nil manager
@@ -118,7 +119,7 @@ func TestContainerHandlers_ListImages_NilManager(t *testing.T) {
 	router := gin.New()
 	router.GET("/images", h.listImages)
 
-	req := httptest.NewRequest("GET", "/images", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/images", nil)
 	w := httptest.NewRecorder()
 
 	defer func() {
@@ -137,7 +138,7 @@ func TestContainerHandlers_ListNetworks_NilManager(t *testing.T) {
 	router := gin.New()
 	router.GET("/networks", h.listNetworks)
 
-	req := httptest.NewRequest("GET", "/networks", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/networks", nil)
 	w := httptest.NewRecorder()
 
 	defer func() {
@@ -156,7 +157,7 @@ func TestContainerHandlers_ListVolumes_NilManager(t *testing.T) {
 	router := gin.New()
 	router.GET("/volumes", h.listVolumes)
 
-	req := httptest.NewRequest("GET", "/volumes", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/volumes", nil)
 	w := httptest.NewRecorder()
 
 	defer func() {

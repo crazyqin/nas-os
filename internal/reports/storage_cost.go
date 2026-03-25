@@ -19,7 +19,7 @@ import (
 
 // ========== 基础类型定义 ==========
 
-// StorageCostConfig 存储成本配置
+// StorageCostConfig 存储成本配置.
 type StorageCostConfig struct {
 	CostPerGB               float64 `json:"cost_per_gb"`
 	CostPerGBMonthly        float64 `json:"cost_per_gb_monthly"`
@@ -36,12 +36,12 @@ type StorageCostConfig struct {
 	EnableOptimization      bool    `json:"enable_optimization"`
 }
 
-// StorageCostCalculator 存储成本计算器
+// StorageCostCalculator 存储成本计算器.
 type StorageCostCalculator struct {
 	config StorageCostConfig
 }
 
-// CostCalculationResult 成本计算结果
+// CostCalculationResult 成本计算结果.
 type CostCalculationResult struct {
 	UsagePercent        float64 `json:"usage_percent"`
 	CapacityCostMonthly float64 `json:"capacity_cost_monthly"`
@@ -51,12 +51,12 @@ type CostCalculationResult struct {
 	PotentialSavings    float64 `json:"potential_savings"`
 }
 
-// NewStorageCostCalculator 创建存储成本计算器
+// NewStorageCostCalculator 创建存储成本计算器.
 func NewStorageCostCalculator(config StorageCostConfig) *StorageCostCalculator {
 	return &StorageCostCalculator{config: config}
 }
 
-// Calculate 计算存储成本（v2.86.0 增强：完整成本模型）
+// Calculate 计算存储成本（v2.86.0 增强：完整成本模型）.
 func (c *StorageCostCalculator) Calculate(metrics StorageMetrics) CostCalculationResult {
 	totalGB := float64(metrics.TotalCapacityBytes) / (1024 * 1024 * 1024)
 	usedGB := float64(metrics.UsedCapacityBytes) / (1024 * 1024 * 1024)
@@ -143,17 +143,17 @@ func (c *StorageCostCalculator) Calculate(metrics StorageMetrics) CostCalculatio
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (c *StorageCostCalculator) GetConfig() StorageCostConfig {
 	return c.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (c *StorageCostCalculator) UpdateConfig(config StorageCostConfig) {
 	c.config = config
 }
 
-// CalculateAll 计算所有存储成本
+// CalculateAll 计算所有存储成本.
 func (c *StorageCostCalculator) CalculateAll(metrics []StorageMetrics) []CostCalculationResult {
 	results := make([]CostCalculationResult, len(metrics))
 	for i, m := range metrics {
@@ -162,7 +162,7 @@ func (c *StorageCostCalculator) CalculateAll(metrics []StorageMetrics) []CostCal
 	return results
 }
 
-// CostTrendPoint 成本趋势点
+// CostTrendPoint 成本趋势点.
 type CostTrendPoint struct {
 	Date   time.Time `json:"date"`
 	Cost   float64   `json:"cost"`
@@ -170,7 +170,7 @@ type CostTrendPoint struct {
 	Trend  string    `json:"trend"` // up, down, stable
 }
 
-// GenerateReport 生成成本报告（v2.86.0 增强：完整成本分析）
+// GenerateReport 生成成本报告（v2.86.0 增强：完整成本分析）.
 func (c *StorageCostCalculator) GenerateReport(metrics []StorageMetrics, period ReportPeriod) *StorageCostReport {
 	now := time.Now()
 	report := &StorageCostReport{
@@ -297,7 +297,7 @@ func (c *StorageCostCalculator) GenerateReport(metrics []StorageMetrics, period 
 	return report
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (c *StorageCostCalculator) calculateHealthScore(report *StorageCostReport) int {
 	score := 100.0
 
@@ -327,7 +327,7 @@ func (c *StorageCostCalculator) calculateHealthScore(report *StorageCostReport) 
 	return int(score)
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (c *StorageCostCalculator) generateRecommendations(report *StorageCostReport) []string {
 	recs := make([]string, 0)
 
@@ -351,14 +351,14 @@ func (c *StorageCostCalculator) generateRecommendations(report *StorageCostRepor
 	return recs
 }
 
-// AnalyzeTrend 分析成本趋势
+// AnalyzeTrend 分析成本趋势.
 func (c *StorageCostCalculator) AnalyzeTrend(trendData []CostTrendPoint) []CostTrendPoint {
 	return trendData
 }
 
 // round 辅助函数 (定义在 bandwidth_report.go 中)
 
-// StorageMetrics 存储指标（用于报告）
+// StorageMetrics 存储指标（用于报告）.
 type StorageMetrics struct {
 	VolumeName             string    `json:"volume_name"`
 	TotalCapacityBytes     uint64    `json:"total_capacity_bytes"`
@@ -379,7 +379,7 @@ type StorageMetrics struct {
 	Timestamp              time.Time `json:"timestamp"`
 }
 
-// StorageCostResult 存储成本结果
+// StorageCostResult 存储成本结果.
 type StorageCostResult struct {
 	VolumeName              string    `json:"volume_name"`
 	TotalGB                 float64   `json:"total_gb"`
@@ -399,7 +399,7 @@ type StorageCostResult struct {
 	CalculatedAt            time.Time `json:"calculated_at"`
 }
 
-// StorageCostReportSummary 存储成本报告摘要
+// StorageCostReportSummary 存储成本报告摘要.
 type StorageCostReportSummary struct {
 	TotalCostMonthly float64 `json:"total_cost_monthly"`
 	TotalCapacityGB  float64 `json:"total_capacity_gb"`
@@ -410,7 +410,7 @@ type StorageCostReportSummary struct {
 	VolumeCount      int     `json:"volume_count"`
 }
 
-// StorageCostReport 存储成本报告
+// StorageCostReport 存储成本报告.
 type StorageCostReport struct {
 	ID              string                   `json:"id"`
 	Name            string                   `json:"name"`
@@ -424,17 +424,17 @@ type StorageCostReport struct {
 
 // ========== 存储空间利用率分析 v2.45.0 ==========
 
-// StorageUtilizationAnalyzer 存储空间利用率分析器
+// StorageUtilizationAnalyzer 存储空间利用率分析器.
 type StorageUtilizationAnalyzer struct {
 	config StorageCostConfig
 }
 
-// NewStorageUtilizationAnalyzer 创建存储利用率分析器
+// NewStorageUtilizationAnalyzer 创建存储利用率分析器.
 func NewStorageUtilizationAnalyzer(config StorageCostConfig) *StorageUtilizationAnalyzer {
 	return &StorageUtilizationAnalyzer{config: config}
 }
 
-// UtilizationAnalysis 利用率分析结果
+// UtilizationAnalysis 利用率分析结果.
 type UtilizationAnalysis struct {
 	// 分析ID
 	ID string `json:"id"`
@@ -458,7 +458,7 @@ type UtilizationAnalysis struct {
 	Recommendations []UtilizationRecommendation `json:"recommendations"`
 }
 
-// VolumeUtilization 卷利用率详情
+// VolumeUtilization 卷利用率详情.
 type VolumeUtilization struct {
 	// 卷名
 	VolumeName string `json:"volume_name"`
@@ -506,7 +506,7 @@ type VolumeUtilization struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// UtilizationSummary 利用率汇总
+// UtilizationSummary 利用率汇总.
 type UtilizationSummary struct {
 	// 总容量（GB）
 	TotalCapacityGB float64 `json:"total_capacity_gb"`
@@ -548,7 +548,7 @@ type UtilizationSummary struct {
 	VolumeCount int `json:"volume_count"`
 }
 
-// UsageDistribution 使用率分布
+// UsageDistribution 使用率分布.
 type UsageDistribution struct {
 	// 极低（0-20%）
 	VeryLow int `json:"very_low"`
@@ -566,7 +566,7 @@ type UsageDistribution struct {
 	VeryHigh int `json:"very_high"`
 }
 
-// UtilizationAlert 利用率告警
+// UtilizationAlert 利用率告警.
 type UtilizationAlert struct {
 	// 告警ID
 	ID string `json:"id"`
@@ -596,7 +596,7 @@ type UtilizationAlert struct {
 	TriggeredAt time.Time `json:"triggered_at"`
 }
 
-// UtilizationRecommendation 利用率优化建议
+// UtilizationRecommendation 利用率优化建议.
 type UtilizationRecommendation struct {
 	// 建议ID
 	ID string `json:"id"`
@@ -629,7 +629,7 @@ type UtilizationRecommendation struct {
 	Steps []string `json:"steps"`
 }
 
-// AnalyzeUtilization 分析存储利用率
+// AnalyzeUtilization 分析存储利用率.
 func (a *StorageUtilizationAnalyzer) AnalyzeUtilization(metrics []StorageMetrics, period ReportPeriod) *UtilizationAnalysis {
 	now := time.Now()
 	analysis := &UtilizationAnalysis{
@@ -669,7 +669,7 @@ func (a *StorageUtilizationAnalyzer) AnalyzeUtilization(metrics []StorageMetrics
 	return analysis
 }
 
-// analyzeVolumeUtilization 分析单个卷利用率
+// analyzeVolumeUtilization 分析单个卷利用率.
 func (a *StorageUtilizationAnalyzer) analyzeVolumeUtilization(m StorageMetrics) VolumeUtilization {
 	vol := VolumeUtilization{
 		VolumeName:         m.VolumeName,
@@ -716,7 +716,7 @@ func (a *StorageUtilizationAnalyzer) analyzeVolumeUtilization(m StorageMetrics) 
 	return vol
 }
 
-// getUtilizationRating 获取利用率评级
+// getUtilizationRating 获取利用率评级.
 func (a *StorageUtilizationAnalyzer) getUtilizationRating(usagePercent float64) string {
 	switch {
 	case usagePercent >= 90:
@@ -730,7 +730,7 @@ func (a *StorageUtilizationAnalyzer) getUtilizationRating(usagePercent float64) 
 	}
 }
 
-// generateUtilizationAlerts 生成利用率告警
+// generateUtilizationAlerts 生成利用率告警.
 func (a *StorageUtilizationAnalyzer) generateUtilizationAlerts(vol VolumeUtilization) []UtilizationAlert {
 	alerts := make([]UtilizationAlert, 0)
 	now := time.Now()
@@ -780,7 +780,7 @@ func (a *StorageUtilizationAnalyzer) generateUtilizationAlerts(vol VolumeUtiliza
 	return alerts
 }
 
-// generateUtilizationRecommendations 生成利用率优化建议
+// generateUtilizationRecommendations 生成利用率优化建议.
 func (a *StorageUtilizationAnalyzer) generateUtilizationRecommendations(vol VolumeUtilization) []UtilizationRecommendation {
 	recs := make([]UtilizationRecommendation, 0)
 	now := time.Now()
@@ -860,7 +860,7 @@ func (a *StorageUtilizationAnalyzer) generateUtilizationRecommendations(vol Volu
 	return recs
 }
 
-// generateCrossVolumeRecommendations 生成跨卷优化建议
+// generateCrossVolumeRecommendations 生成跨卷优化建议.
 func (a *StorageUtilizationAnalyzer) generateCrossVolumeRecommendations(analysis *UtilizationAnalysis) []UtilizationRecommendation {
 	recs := make([]UtilizationRecommendation, 0)
 	now := time.Now()
@@ -898,7 +898,7 @@ func (a *StorageUtilizationAnalyzer) generateCrossVolumeRecommendations(analysis
 	return recs
 }
 
-// calculateUtilizationSummary 计算利用率汇总
+// calculateUtilizationSummary 计算利用率汇总.
 func (a *StorageUtilizationAnalyzer) calculateUtilizationSummary(vols []VolumeUtilization) UtilizationSummary {
 	summary := UtilizationSummary{
 		VolumeCount: len(vols),
@@ -972,7 +972,7 @@ func (a *StorageUtilizationAnalyzer) calculateUtilizationSummary(vols []VolumeUt
 	return summary
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (a *StorageUtilizationAnalyzer) calculateHealthScore(summary *UtilizationSummary) float64 {
 	score := 100.0
 
@@ -1006,17 +1006,17 @@ func (a *StorageUtilizationAnalyzer) calculateHealthScore(summary *UtilizationSu
 
 // ========== 冗余数据识别 v2.45.0 ==========
 
-// RedundantDataScanner 冗余数据扫描器
+// RedundantDataScanner 冗余数据扫描器.
 type RedundantDataScanner struct {
 	config StorageCostConfig
 }
 
-// NewRedundantDataScanner 创建冗余数据扫描器
+// NewRedundantDataScanner 创建冗余数据扫描器.
 func NewRedundantDataScanner(config StorageCostConfig) *RedundantDataScanner {
 	return &RedundantDataScanner{config: config}
 }
 
-// RedundantDataScanResult 冗余数据扫描结果
+// RedundantDataScanResult 冗余数据扫描结果.
 type RedundantDataScanResult struct {
 	// 扫描ID
 	ID string `json:"id"`
@@ -1040,7 +1040,7 @@ type RedundantDataScanResult struct {
 	Duration time.Duration `json:"duration"`
 }
 
-// RedundantDataItem 冗余数据项
+// RedundantDataItem 冗余数据项.
 type RedundantDataItem struct {
 	// 类型
 	Type string `json:"type"` // duplicate, old_version, orphan, temp, expired
@@ -1076,7 +1076,7 @@ type RedundantDataItem struct {
 	RelatedPath string `json:"related_path,omitempty"`
 }
 
-// RedundantDataSummary 冗余数据汇总
+// RedundantDataSummary 冗余数据汇总.
 type RedundantDataSummary struct {
 	// 总冗余数据量（字节）
 	TotalRedundantBytes uint64 `json:"total_redundant_bytes"`
@@ -1106,7 +1106,7 @@ type RedundantDataSummary struct {
 	ScannedBytes uint64 `json:"scanned_bytes"`
 }
 
-// ScanRedundantData 扫描冗余数据
+// ScanRedundantData 扫描冗余数据.
 func (s *RedundantDataScanner) ScanRedundantData(
 	duplicates []DuplicateFileInfo,
 	orphanFiles []OrphanFileInfo,
@@ -1254,7 +1254,7 @@ func (s *RedundantDataScanner) ScanRedundantData(
 	return result
 }
 
-// DuplicateFileInfo 重复文件信息
+// DuplicateFileInfo 重复文件信息.
 type DuplicateFileInfo struct {
 	Path         string    `json:"path"`
 	Name         string    `json:"name"`
@@ -1265,7 +1265,7 @@ type DuplicateFileInfo struct {
 	Hash         string    `json:"hash"`
 }
 
-// OrphanFileInfo 孤立文件信息
+// OrphanFileInfo 孤立文件信息.
 type OrphanFileInfo struct {
 	Path           string     `json:"path"`
 	Name           string     `json:"name"`
@@ -1278,7 +1278,7 @@ type OrphanFileInfo struct {
 	Risk           string     `json:"risk"`
 }
 
-// TempFileInfo 临时文件信息
+// TempFileInfo 临时文件信息.
 type TempFileInfo struct {
 	Path       string    `json:"path"`
 	Name       string    `json:"name"`
@@ -1288,7 +1288,7 @@ type TempFileInfo struct {
 	MaxAgeDays int       `json:"max_age_days"`
 }
 
-// ExpiredFileInfo 过期文件信息
+// ExpiredFileInfo 过期文件信息.
 type ExpiredFileInfo struct {
 	Path            string     `json:"path"`
 	Name            string     `json:"name"`
@@ -1301,7 +1301,7 @@ type ExpiredFileInfo struct {
 	Risk            string     `json:"risk"`
 }
 
-// OldVersionFileInfo 旧版本文件信息
+// OldVersionFileInfo 旧版本文件信息.
 type OldVersionFileInfo struct {
 	Path          string    `json:"path"`
 	Name          string    `json:"name"`
@@ -1315,17 +1315,17 @@ type OldVersionFileInfo struct {
 
 // ========== 成本节省建议生成 v2.45.0 ==========
 
-// CostSavingsGenerator 成本节省建议生成器
+// CostSavingsGenerator 成本节省建议生成器.
 type CostSavingsGenerator struct {
 	config StorageCostConfig
 }
 
-// NewCostSavingsGenerator 创建成本节省建议生成器
+// NewCostSavingsGenerator 创建成本节省建议生成器.
 func NewCostSavingsGenerator(config StorageCostConfig) *CostSavingsGenerator {
 	return &CostSavingsGenerator{config: config}
 }
 
-// CostSavingsReport 成本节省报告
+// CostSavingsReport 成本节省报告.
 type CostSavingsReport struct {
 	// 报告ID
 	ID string `json:"id"`
@@ -1352,7 +1352,7 @@ type CostSavingsReport struct {
 	LongTermProjects []SavingsOpportunity `json:"long_term_projects"`
 }
 
-// SavingsOpportunity 节省机会
+// SavingsOpportunity 节省机会.
 type SavingsOpportunity struct {
 	// ID
 	ID string `json:"id"`
@@ -1418,7 +1418,7 @@ type SavingsOpportunity struct {
 	PotentialRisks []string `json:"potential_risks"`
 }
 
-// CostSavingsSummary 成本节省汇总
+// CostSavingsSummary 成本节省汇总.
 type CostSavingsSummary struct {
 	// 总机会数
 	TotalOpportunities int `json:"total_opportunities"`
@@ -1454,14 +1454,14 @@ type CostSavingsSummary struct {
 	OverallSavingsPercent float64 `json:"overall_savings_percent"`
 }
 
-// SavingsTypeStats 节省类型统计
+// SavingsTypeStats 节省类型统计.
 type SavingsTypeStats struct {
 	Count          int     `json:"count"`
 	SavingsMonthly float64 `json:"savings_monthly"`
 	SavingsGB      float64 `json:"savings_gb"`
 }
 
-// GenerateCostSavingsReport 生成成本节省报告
+// GenerateCostSavingsReport 生成成本节省报告.
 func (g *CostSavingsGenerator) GenerateCostSavingsReport(
 	utilization *UtilizationAnalysis,
 	redundantScan *RedundantDataScanResult,
@@ -1526,7 +1526,7 @@ func (g *CostSavingsGenerator) GenerateCostSavingsReport(
 	return report
 }
 
-// convertRecommendationToOpportunity 转换建议为节省机会
+// convertRecommendationToOpportunity 转换建议为节省机会.
 func (g *CostSavingsGenerator) convertRecommendationToOpportunity(rec UtilizationRecommendation) SavingsOpportunity {
 	opp := SavingsOpportunity{
 		ID:               rec.ID,
@@ -1578,7 +1578,7 @@ func (g *CostSavingsGenerator) convertRecommendationToOpportunity(rec Utilizatio
 	return opp
 }
 
-// generateRedundancySavingsOpportunity 生成冗余数据节省机会
+// generateRedundancySavingsOpportunity 生成冗余数据节省机会.
 func (g *CostSavingsGenerator) generateRedundancySavingsOpportunity(scan *RedundantDataScanResult) *SavingsOpportunity {
 	if scan.Summary.TotalRedundantBytes == 0 {
 		return nil
@@ -1605,7 +1605,7 @@ func (g *CostSavingsGenerator) generateRedundancySavingsOpportunity(scan *Redund
 	}
 }
 
-// generateHighUsageOpportunity 生成高使用率优化机会
+// generateHighUsageOpportunity 生成高使用率优化机会.
 func (g *CostSavingsGenerator) generateHighUsageOpportunity(cost StorageCostResult) SavingsOpportunity {
 	now := time.Now()
 	return SavingsOpportunity{
@@ -1634,7 +1634,7 @@ func (g *CostSavingsGenerator) generateHighUsageOpportunity(cost StorageCostResu
 	}
 }
 
-// generateLowUsageOpportunity 生成低使用率优化机会
+// generateLowUsageOpportunity 生成低使用率优化机会.
 func (g *CostSavingsGenerator) generateLowUsageOpportunity(cost StorageCostResult) SavingsOpportunity {
 	now := time.Now()
 	// 假设收缩50%的空间
@@ -1669,7 +1669,7 @@ func (g *CostSavingsGenerator) generateLowUsageOpportunity(cost StorageCostResul
 	}
 }
 
-// deduplicateOpportunities 去重机会列表
+// deduplicateOpportunities 去重机会列表.
 func (g *CostSavingsGenerator) deduplicateOpportunities(opps []SavingsOpportunity) []SavingsOpportunity {
 	seen := make(map[string]bool)
 	result := make([]SavingsOpportunity, 0)
@@ -1685,7 +1685,7 @@ func (g *CostSavingsGenerator) deduplicateOpportunities(opps []SavingsOpportunit
 	return result
 }
 
-// calculateSavingsSummary 计算节省汇总
+// calculateSavingsSummary 计算节省汇总.
 func (g *CostSavingsGenerator) calculateSavingsSummary(opps []SavingsOpportunity) CostSavingsSummary {
 	summary := CostSavingsSummary{
 		TotalOpportunities: len(opps),
@@ -1734,18 +1734,18 @@ func (g *CostSavingsGenerator) calculateSavingsSummary(opps []SavingsOpportunity
 
 // ========== 导出功能 v2.45.0 ==========
 
-// StorageCostReportExporter 存储成本报告导出器
+// StorageCostReportExporter 存储成本报告导出器.
 type StorageCostReportExporter struct {
 	outputDir string
 }
 
-// NewStorageCostReportExporter 创建导出器
+// NewStorageCostReportExporter 创建导出器.
 func NewStorageCostReportExporter(outputDir string) *StorageCostReportExporter {
 	_ = os.MkdirAll(outputDir, 0750)
 	return &StorageCostReportExporter{outputDir: outputDir}
 }
 
-// ExportReport 导出报告
+// ExportReport 导出报告.
 func (e *StorageCostReportExporter) ExportReport(report interface{}, format string, filename string) (string, error) {
 	outputPath := filepath.Join(e.outputDir, filename)
 
@@ -1759,7 +1759,7 @@ func (e *StorageCostReportExporter) ExportReport(report interface{}, format stri
 	}
 }
 
-// exportJSON 导出为JSON
+// exportJSON 导出为JSON.
 func (e *StorageCostReportExporter) exportJSON(data interface{}, outputPath string) (string, error) {
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
@@ -1773,7 +1773,7 @@ func (e *StorageCostReportExporter) exportJSON(data interface{}, outputPath stri
 	return outputPath, nil
 }
 
-// exportCSV 导出为CSV
+// exportCSV 导出为CSV.
 func (e *StorageCostReportExporter) exportCSV(data interface{}, outputPath string) (string, error) {
 	var buf bytes.Buffer
 	writer := csv.NewWriter(&buf)
@@ -1811,7 +1811,7 @@ func (e *StorageCostReportExporter) exportCSV(data interface{}, outputPath strin
 	return outputPath, nil
 }
 
-// writeStorageCostReportCSV 写入存储成本报告CSV
+// writeStorageCostReportCSV 写入存储成本报告CSV.
 func (e *StorageCostReportExporter) writeStorageCostReportCSV(writer *csv.Writer, report *StorageCostReport) error {
 	// 写入标题
 	if err := writer.Write([]string{"存储成本报告"}); err != nil {
@@ -1872,7 +1872,7 @@ func (e *StorageCostReportExporter) writeStorageCostReportCSV(writer *csv.Writer
 	return nil
 }
 
-// writeUtilizationAnalysisCSV 写入利用率分析CSV
+// writeUtilizationAnalysisCSV 写入利用率分析CSV.
 func (e *StorageCostReportExporter) writeUtilizationAnalysisCSV(writer *csv.Writer, report *UtilizationAnalysis) error {
 	// 写入标题
 	if err := writer.Write([]string{"存储利用率分析报告"}); err != nil {
@@ -1931,7 +1931,7 @@ func (e *StorageCostReportExporter) writeUtilizationAnalysisCSV(writer *csv.Writ
 	return nil
 }
 
-// writeRedundantDataScanCSV 写入冗余数据扫描CSV
+// writeRedundantDataScanCSV 写入冗余数据扫描CSV.
 func (e *StorageCostReportExporter) writeRedundantDataScanCSV(writer *csv.Writer, report *RedundantDataScanResult) error {
 	// 写入标题
 	if err := writer.Write([]string{"冗余数据扫描报告"}); err != nil {
@@ -1986,7 +1986,7 @@ func (e *StorageCostReportExporter) writeRedundantDataScanCSV(writer *csv.Writer
 	return nil
 }
 
-// writeCostSavingsReportCSV 写入成本节省报告CSV
+// writeCostSavingsReportCSV 写入成本节省报告CSV.
 func (e *StorageCostReportExporter) writeCostSavingsReportCSV(writer *csv.Writer, report *CostSavingsReport) error {
 	// 写入标题
 	_ = writer.Write([]string{"成本节省建议报告"})
@@ -2026,7 +2026,7 @@ func (e *StorageCostReportExporter) writeCostSavingsReportCSV(writer *csv.Writer
 
 // ========== 综合报告生成器 v2.45.0 ==========
 
-// StorageCostReportGenerator 存储成本综合报告生成器
+// StorageCostReportGenerator 存储成本综合报告生成器.
 type StorageCostReportGenerator struct {
 	costCalculator      *StorageCostCalculator
 	utilizationAnalyzer *StorageUtilizationAnalyzer
@@ -2035,7 +2035,7 @@ type StorageCostReportGenerator struct {
 	exporter            *StorageCostReportExporter
 }
 
-// NewStorageCostReportGenerator 创建综合报告生成器
+// NewStorageCostReportGenerator 创建综合报告生成器.
 func NewStorageCostReportGenerator(config StorageCostConfig, outputDir string) *StorageCostReportGenerator {
 	return &StorageCostReportGenerator{
 		costCalculator:      NewStorageCostCalculator(config),
@@ -2046,7 +2046,7 @@ func NewStorageCostReportGenerator(config StorageCostConfig, outputDir string) *
 	}
 }
 
-// ComprehensiveStorageReport 综合存储成本报告
+// ComprehensiveStorageReport 综合存储成本报告.
 type ComprehensiveStorageReport struct {
 	// 报告ID
 	ID string `json:"id"`
@@ -2076,7 +2076,7 @@ type ComprehensiveStorageReport struct {
 	ExecutiveSummary ExecutiveSummary `json:"executive_summary"`
 }
 
-// ExecutiveSummary 执行摘要
+// ExecutiveSummary 执行摘要.
 type ExecutiveSummary struct {
 	// 总存储容量（GB）
 	TotalCapacityGB float64 `json:"total_capacity_gb"`
@@ -2109,7 +2109,7 @@ type ExecutiveSummary struct {
 	AlertCount int `json:"alert_count"`
 }
 
-// GenerateComprehensiveReport 生成综合报告
+// GenerateComprehensiveReport 生成综合报告.
 func (g *StorageCostReportGenerator) GenerateComprehensiveReport(
 	metrics []StorageMetrics,
 	duplicates []DuplicateFileInfo,
@@ -2159,7 +2159,7 @@ func (g *StorageCostReportGenerator) GenerateComprehensiveReport(
 	return report
 }
 
-// generateExecutiveSummary 生成执行摘要
+// generateExecutiveSummary 生成执行摘要.
 func (g *StorageCostReportGenerator) generateExecutiveSummary(report *ComprehensiveStorageReport) ExecutiveSummary {
 	summary := ExecutiveSummary{
 		KeyFindings:        make([]string, 0),
@@ -2216,32 +2216,32 @@ func (g *StorageCostReportGenerator) generateExecutiveSummary(report *Comprehens
 	return summary
 }
 
-// ExportComprehensiveReport 导出综合报告
+// ExportComprehensiveReport 导出综合报告.
 func (g *StorageCostReportGenerator) ExportComprehensiveReport(report *ComprehensiveStorageReport, format string) (string, error) {
 	filename := fmt.Sprintf("storage_cost_report_%s.%s", report.ID, format)
 	return g.exporter.ExportReport(report, format, filename)
 }
 
-// ExportToJSON 导出为JSON
+// ExportToJSON 导出为JSON.
 func (g *StorageCostReportGenerator) ExportToJSON(report *ComprehensiveStorageReport) (string, error) {
 	return g.ExportComprehensiveReport(report, "json")
 }
 
-// ExportToCSV 导出为CSV
+// ExportToCSV 导出为CSV.
 func (g *StorageCostReportGenerator) ExportToCSV(report *ComprehensiveStorageReport) (string, error) {
 	return g.ExportComprehensiveReport(report, "csv")
 }
 
 // ========== v2.86.0 增强功能：并发报告生成与缓存 ==========
 
-// CachedReport 缓存的报告
+// CachedReport 缓存的报告.
 type CachedReport struct {
 	Report      interface{}
 	GeneratedAt time.Time
 	ExpiresAt   time.Time
 }
 
-// ReportCache 报告缓存
+// ReportCache 报告缓存.
 type ReportCache struct {
 	mu      sync.RWMutex
 	reports map[string]*CachedReport
@@ -2249,7 +2249,7 @@ type ReportCache struct {
 	maxSize int
 }
 
-// NewReportCache 创建报告缓存
+// NewReportCache 创建报告缓存.
 func NewReportCache(ttl time.Duration, maxSize int) *ReportCache {
 	cache := &ReportCache{
 		reports: make(map[string]*CachedReport),
@@ -2263,7 +2263,7 @@ func NewReportCache(ttl time.Duration, maxSize int) *ReportCache {
 	return cache
 }
 
-// Get 获取缓存的报告
+// Get 获取缓存的报告.
 func (c *ReportCache) Get(key string) (interface{}, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -2280,7 +2280,7 @@ func (c *ReportCache) Get(key string) (interface{}, bool) {
 	return cached.Report, true
 }
 
-// Set 设置缓存的报告
+// Set 设置缓存的报告.
 func (c *ReportCache) Set(key string, report interface{}) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -2298,21 +2298,21 @@ func (c *ReportCache) Set(key string, report interface{}) {
 	}
 }
 
-// Delete 删除缓存的报告
+// Delete 删除缓存的报告.
 func (c *ReportCache) Delete(key string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	delete(c.reports, key)
 }
 
-// Clear 清空缓存
+// Clear 清空缓存.
 func (c *ReportCache) Clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.reports = make(map[string]*CachedReport)
 }
 
-// evictOldest 清理最旧的缓存
+// evictOldest 清理最旧的缓存.
 func (c *ReportCache) evictOldest() {
 	var oldestKey string
 	var oldestTime time.Time
@@ -2329,7 +2329,7 @@ func (c *ReportCache) evictOldest() {
 	}
 }
 
-// cleanupExpired 定期清理过期缓存
+// cleanupExpired 定期清理过期缓存.
 func (c *ReportCache) cleanupExpired() {
 	ticker := time.NewTicker(time.Minute * 5)
 	defer ticker.Stop()
@@ -2346,7 +2346,7 @@ func (c *ReportCache) cleanupExpired() {
 	}
 }
 
-// ConcurrentReportGenerator 并发报告生成器
+// ConcurrentReportGenerator 并发报告生成器.
 type ConcurrentReportGenerator struct {
 	costCalculator      *StorageCostCalculator
 	utilizationAnalyzer *StorageUtilizationAnalyzer
@@ -2357,7 +2357,7 @@ type ConcurrentReportGenerator struct {
 	workerCount         int
 }
 
-// NewConcurrentReportGenerator 创建并发报告生成器
+// NewConcurrentReportGenerator 创建并发报告生成器.
 func NewConcurrentReportGenerator(config StorageCostConfig, outputDir string, workerCount int) *ConcurrentReportGenerator {
 	if workerCount <= 0 {
 		workerCount = 4
@@ -2374,7 +2374,7 @@ func NewConcurrentReportGenerator(config StorageCostConfig, outputDir string, wo
 	}
 }
 
-// GenerateReportConcurrent 并发生成报告
+// GenerateReportConcurrent 并发生成报告.
 func (g *ConcurrentReportGenerator) GenerateReportConcurrent(
 	ctx context.Context,
 	metrics []StorageMetrics,
@@ -2467,7 +2467,7 @@ func (g *ConcurrentReportGenerator) GenerateReportConcurrent(
 	return report
 }
 
-// GenerateReportsBatch 批量并发生成报告
+// GenerateReportsBatch 批量并发生成报告.
 func (g *ConcurrentReportGenerator) GenerateReportsBatch(
 	ctx context.Context,
 	requests []ReportRequest,
@@ -2513,7 +2513,7 @@ func (g *ConcurrentReportGenerator) GenerateReportsBatch(
 	return results
 }
 
-// ReportRequest 报告请求
+// ReportRequest 报告请求.
 type ReportRequest struct {
 	Metrics      []StorageMetrics
 	Duplicates   []DuplicateFileInfo
@@ -2524,7 +2524,7 @@ type ReportRequest struct {
 	Period       ReportPeriod
 }
 
-// GetCacheStats 获取缓存统计
+// GetCacheStats 获取缓存统计.
 func (g *ConcurrentReportGenerator) GetCacheStats() map[string]interface{} {
 	g.cache.mu.RLock()
 	defer g.cache.mu.RUnlock()
@@ -2537,12 +2537,12 @@ func (g *ConcurrentReportGenerator) GetCacheStats() map[string]interface{} {
 	}
 }
 
-// ClearCache 清空缓存
+// ClearCache 清空缓存.
 func (g *ConcurrentReportGenerator) ClearCache() {
 	g.cache.Clear()
 }
 
-// generateExecutiveSummary 生成执行摘要
+// generateExecutiveSummary 生成执行摘要.
 func (g *ConcurrentReportGenerator) generateExecutiveSummary(report *ComprehensiveStorageReport) ExecutiveSummary {
 	summary := ExecutiveSummary{
 		KeyFindings:        make([]string, 0),

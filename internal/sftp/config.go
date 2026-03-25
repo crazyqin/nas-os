@@ -1,6 +1,6 @@
 package sftp
 
-// Config SFTP 服务器配置
+// Config SFTP 服务器配置.
 type Config struct {
 	Enabled        bool              `json:"enabled"`
 	Port           int               `json:"port"`            // SFTP 端口 (默认 22)
@@ -13,7 +13,7 @@ type Config struct {
 	UserChroots    map[string]string `json:"user_chroots"`    // 用户 chroot 目录: username -> path
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:        false,

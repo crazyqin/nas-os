@@ -19,12 +19,12 @@ import (
 	"time"
 )
 
-// SMSProvider 短信服务提供商接口
+// SMSProvider 短信服务提供商接口.
 type SMSProvider interface {
 	Send(phone, code string) error
 }
 
-// SMSManager 短信验证码管理器
+// SMSManager 短信验证码管理器.
 type SMSManager struct {
 	mu          sync.RWMutex
 	codes       map[string]*SMSCode // phone -> SMSCode
@@ -34,7 +34,7 @@ type SMSManager struct {
 	maxAttempts int
 }
 
-// NewSMSManager 创建短信管理器
+// NewSMSManager 创建短信管理器.
 func NewSMSManager(provider SMSProvider) *SMSManager {
 	return &SMSManager{
 		codes:       make(map[string]*SMSCode),
@@ -45,7 +45,7 @@ func NewSMSManager(provider SMSProvider) *SMSManager {
 	}
 }
 
-// generateCode 生成随机验证码
+// generateCode 生成随机验证码.
 func (m *SMSManager) generateCode() (string, error) {
 	const digits = "0123456789"
 	code := make([]byte, m.codeLen)
@@ -59,7 +59,7 @@ func (m *SMSManager) generateCode() (string, error) {
 	return string(code), nil
 }
 
-// SendCode 发送短信验证码
+// SendCode 发送短信验证码.
 func (m *SMSManager) SendCode(phone string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -104,7 +104,7 @@ func (m *SMSManager) SendCode(phone string) error {
 	return nil
 }
 
-// VerifyCode 验证短信验证码
+// VerifyCode 验证短信验证码.
 func (m *SMSManager) VerifyCode(phone, code string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -137,7 +137,7 @@ func (m *SMSManager) VerifyCode(phone, code string) error {
 	return nil
 }
 
-// cleanupExpired 清理过期的验证码
+// cleanupExpired 清理过期的验证码.
 func (m *SMSManager) cleanupExpired() {
 	time.Sleep(10 * time.Minute)
 	m.mu.Lock()
@@ -151,12 +151,12 @@ func (m *SMSManager) cleanupExpired() {
 	}
 }
 
-// MockSMSProvider 模拟短信提供商（用于测试）
+// MockSMSProvider 模拟短信提供商（用于测试）.
 type MockSMSProvider struct {
 	Codes map[string]string // phone -> code
 }
 
-// Send 发送短信（模拟）
+// Send 发送短信（模拟）.
 func (p *MockSMSProvider) Send(phone, code string) error {
 	if p.Codes == nil {
 		p.Codes = make(map[string]string)
@@ -166,7 +166,7 @@ func (p *MockSMSProvider) Send(phone, code string) error {
 	return nil
 }
 
-// AliyunSMSProvider 阿里云短信提供商
+// AliyunSMSProvider 阿里云短信提供商.
 type AliyunSMSProvider struct {
 	AccessKeyID     string
 	AccessKeySecret string
@@ -175,7 +175,7 @@ type AliyunSMSProvider struct {
 	RegionID        string // 区域 ID，如 cn-hangzhou
 }
 
-// AliyunSMSResponse 阿里云短信响应
+// AliyunSMSResponse 阿里云短信响应.
 type AliyunSMSResponse struct {
 	Message   string `json:"Message"`
 	RequestID string `json:"RequestId"`
@@ -183,7 +183,7 @@ type AliyunSMSResponse struct {
 	BizID     string `json:"BizId"`
 }
 
-// NewAliyunSMSProvider 创建阿里云短信提供商
+// NewAliyunSMSProvider 创建阿里云短信提供商.
 func NewAliyunSMSProvider(accessKeyID, accessKeySecret, signName, templateCode string) *AliyunSMSProvider {
 	return &AliyunSMSProvider{
 		AccessKeyID:     accessKeyID,
@@ -194,12 +194,12 @@ func NewAliyunSMSProvider(accessKeyID, accessKeySecret, signName, templateCode s
 	}
 }
 
-// SetRegion 设置区域
+// SetRegion 设置区域.
 func (p *AliyunSMSProvider) SetRegion(regionID string) {
 	p.RegionID = regionID
 }
 
-// Send 发送阿里云短信
+// Send 发送阿里云短信.
 func (p *AliyunSMSProvider) Send(phone, code string) error {
 	if p.AccessKeyID == "" || p.AccessKeySecret == "" {
 		return fmt.Errorf("阿里云短信配置不完整：缺少 AccessKeyID 或 AccessKeySecret")
@@ -256,7 +256,7 @@ func (p *AliyunSMSProvider) Send(phone, code string) error {
 	return nil
 }
 
-// calculateSignature 计算阿里云 API 签名
+// calculateSignature 计算阿里云 API 签名.
 func (p *AliyunSMSProvider) calculateSignature(params map[string]string) string {
 	// 构造规范化的请求字符串
 	var keys []string
@@ -282,7 +282,7 @@ func (p *AliyunSMSProvider) calculateSignature(params map[string]string) string 
 	return signature
 }
 
-// encodeParams 编码请求参数
+// encodeParams 编码请求参数.
 func (p *AliyunSMSProvider) encodeParams(params map[string]string) string {
 	var keys []string
 	for k := range params {
@@ -298,7 +298,7 @@ func (p *AliyunSMSProvider) encodeParams(params map[string]string) string {
 	return strings.Join(pairs, "&")
 }
 
-// percentEncode URL 编码（阿里云特殊规则）
+// percentEncode URL 编码（阿里云特殊规则）.
 func percentEncode(s string) string {
 	s = url.QueryEscape(s)
 	s = strings.ReplaceAll(s, "+", "%20")
@@ -307,7 +307,7 @@ func percentEncode(s string) string {
 	return s
 }
 
-// generateNonce 生成随机字符串
+// generateNonce 生成随机字符串.
 func generateNonce() string {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
@@ -316,7 +316,7 @@ func generateNonce() string {
 	return hex.EncodeToString(b)
 }
 
-// TencentSMSProvider 腾讯云短信提供商
+// TencentSMSProvider 腾讯云短信提供商.
 type TencentSMSProvider struct {
 	SecretID   string
 	SecretKey  string
@@ -327,7 +327,7 @@ type TencentSMSProvider struct {
 	SdkAppID   string // 短信应用 ID
 }
 
-// TencentSMSResponse 腾讯云短信响应
+// TencentSMSResponse 腾讯云短信响应.
 type TencentSMSResponse struct {
 	Response struct {
 		SendStatusSet []struct {
@@ -343,7 +343,7 @@ type TencentSMSResponse struct {
 	} `json:"Response"`
 }
 
-// NewTencentSMSProvider 创建腾讯云短信提供商
+// NewTencentSMSProvider 创建腾讯云短信提供商.
 func NewTencentSMSProvider(secretID, secretKey, sdkAppID, signName, templateID string) *TencentSMSProvider {
 	return &TencentSMSProvider{
 		SecretID:   secretID,
@@ -356,12 +356,12 @@ func NewTencentSMSProvider(secretID, secretKey, sdkAppID, signName, templateID s
 }
 
 // SetRegion 设置区域
-// SetRegion 设置区域
+// SetRegion 设置区域.
 func (p *TencentSMSProvider) SetRegion(region string) {
 	p.Region = region
 }
 
-// Send 发送腾讯云短信
+// Send 发送腾讯云短信.
 func (p *TencentSMSProvider) Send(phone, code string) error {
 	if p.SecretID == "" || p.SecretKey == "" {
 		return fmt.Errorf("腾讯云短信配置不完整：缺少 SecretID 或 SecretKey")
@@ -450,7 +450,7 @@ func (p *TencentSMSProvider) Send(phone, code string) error {
 	return nil
 }
 
-// calculateTencentSignature 计算腾讯云 API 签名
+// calculateTencentSignature 计算腾讯云 API 签名.
 func (p *TencentSMSProvider) calculateTencentSignature(host, method, uri, payload string, timestamp int64) string {
 	// 步骤1：拼接规范请求串
 	httpRequestMethod := method
@@ -509,7 +509,7 @@ func (p *TencentSMSProvider) calculateTencentSignature(host, method, uri, payloa
 	return authorization
 }
 
-// hmacSha256 HMAC-SHA256 辅助函数
+// hmacSha256 HMAC-SHA256 辅助函数.
 func hmacSha256(key []byte, data string) []byte {
 	h := hmac.New(sha256.New, key)
 	h.Write([]byte(data))

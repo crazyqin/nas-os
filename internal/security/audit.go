@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// AuditManager 审计日志管理器
+// AuditManager 审计日志管理器.
 type AuditManager struct {
 	config    AuditConfig
 	logs      []*AuditLogEntry
@@ -23,7 +23,7 @@ type AuditManager struct {
 	// maxLogs     int // 最大保留日志数 - 保留用于未来配置化
 }
 
-// AuditConfig 审计配置
+// AuditConfig 审计配置.
 type AuditConfig struct {
 	Enabled        bool          `json:"enabled"`
 	LogPath        string        `json:"log_path"`
@@ -35,7 +35,7 @@ type AuditConfig struct {
 	AlertThreshold int           `json:"alert_threshold"` // 告警阈值
 }
 
-// NewAuditManager 创建审计日志管理器
+// NewAuditManager 创建审计日志管理器.
 func NewAuditManager() *AuditManager {
 	return &AuditManager{
 		config: AuditConfig{
@@ -54,21 +54,21 @@ func NewAuditManager() *AuditManager {
 	}
 }
 
-// SetConfig 设置审计配置
+// SetConfig 设置审计配置.
 func (am *AuditManager) SetConfig(config AuditConfig) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
 	am.config = config
 }
 
-// GetConfig 获取审计配置
+// GetConfig 获取审计配置.
 func (am *AuditManager) GetConfig() AuditConfig {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
 	return am.config
 }
 
-// Log 记录审计日志
+// Log 记录审计日志.
 func (am *AuditManager) Log(entry AuditLogEntry) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -98,7 +98,7 @@ func (am *AuditManager) Log(entry AuditLogEntry) {
 	}
 }
 
-// checkAlertCondition 检查是否需要生成告警
+// checkAlertCondition 检查是否需要生成告警.
 func (am *AuditManager) checkAlertCondition(entry *AuditLogEntry) {
 	// 根据日志级别和类型判断是否需要告警
 	shouldAlert := false
@@ -139,7 +139,7 @@ func (am *AuditManager) checkAlertCondition(entry *AuditLogEntry) {
 	}
 }
 
-// Message 生成日志消息
+// Message 生成日志消息.
 func (e *AuditLogEntry) Message() string {
 	msg := fmt.Sprintf("[%s] %s", e.Category, e.Event)
 	if e.Username != "" {
@@ -154,7 +154,7 @@ func (e *AuditLogEntry) Message() string {
 	return msg
 }
 
-// LogLogin 记录登录日志
+// LogLogin 记录登录日志.
 func (am *AuditManager) LogLogin(entry LoginLogEntry) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -207,7 +207,7 @@ func (am *AuditManager) LogLogin(entry LoginLogEntry) {
 	}
 }
 
-// LogAction 记录操作日志
+// LogAction 记录操作日志.
 func (am *AuditManager) LogAction(userID, username, ip, resource, action string, details map[string]interface{}, status string) {
 	level := "info"
 	if status == "failure" {
@@ -230,7 +230,7 @@ func (am *AuditManager) LogAction(userID, username, ip, resource, action string,
 	am.Log(entry)
 }
 
-// GetAuditLogs 获取审计日志
+// GetAuditLogs 获取审计日志.
 func (am *AuditManager) GetAuditLogs(limit, offset int, filters map[string]string) []*AuditLogEntry {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -263,7 +263,7 @@ func (am *AuditManager) GetAuditLogs(limit, offset int, filters map[string]strin
 	return result[start:end]
 }
 
-// GetLoginLogs 获取登录日志
+// GetLoginLogs 获取登录日志.
 func (am *AuditManager) GetLoginLogs(limit, offset int, filters map[string]string) []*LoginLogEntry {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -295,7 +295,7 @@ func (am *AuditManager) GetLoginLogs(limit, offset int, filters map[string]strin
 	return result[start:end]
 }
 
-// matchesFilters 检查日志是否匹配筛选条件
+// matchesFilters 检查日志是否匹配筛选条件.
 func (am *AuditManager) matchesFilters(entry *AuditLogEntry, filters map[string]string) bool {
 	for key, value := range filters {
 		switch key {
@@ -328,7 +328,7 @@ func (am *AuditManager) matchesFilters(entry *AuditLogEntry, filters map[string]
 	return true
 }
 
-// matchesLoginFilters 检查登录日志是否匹配筛选条件
+// matchesLoginFilters 检查登录日志是否匹配筛选条件.
 func (am *AuditManager) matchesLoginFilters(entry *LoginLogEntry, filters map[string]string) bool {
 	for key, value := range filters {
 		switch key {
@@ -349,7 +349,7 @@ func (am *AuditManager) matchesLoginFilters(entry *LoginLogEntry, filters map[st
 	return true
 }
 
-// GetAlerts 获取安全告警
+// GetAlerts 获取安全告警.
 func (am *AuditManager) GetAlerts(limit, offset int, acknowledged *bool) []*Alert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -384,7 +384,7 @@ func (am *AuditManager) GetAlerts(limit, offset int, acknowledged *bool) []*Aler
 	return result[start:end]
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (am *AuditManager) AcknowledgeAlert(alertID, ackedBy string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -402,7 +402,7 @@ func (am *AuditManager) AcknowledgeAlert(alertID, ackedBy string) error {
 	return fmt.Errorf("告警不存在")
 }
 
-// GetAlertStats 获取告警统计
+// GetAlertStats 获取告警统计.
 func (am *AuditManager) GetAlertStats() map[string]interface{} {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -429,7 +429,7 @@ func (am *AuditManager) GetAlertStats() map[string]interface{} {
 	}
 }
 
-// saveLogs 保存日志到文件
+// saveLogs 保存日志到文件.
 func (am *AuditManager) saveLogs() {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -453,7 +453,7 @@ func (am *AuditManager) saveLogs() {
 	am.writeLogsToFile(loginLogFile, am.loginLogs)
 }
 
-// writeLogsToFile 写入日志到文件
+// writeLogsToFile 写入日志到文件.
 func (am *AuditManager) writeLogsToFile(filename string, logs interface{}) {
 	data, err := json.MarshalIndent(logs, "", "  ")
 	if err != nil {
@@ -471,7 +471,7 @@ func (am *AuditManager) writeLogsToFile(filename string, logs interface{}) {
 	_, _ = f.Write([]byte("\n"))
 }
 
-// LoadLogs 从文件加载日志
+// LoadLogs 从文件加载日志.
 func (am *AuditManager) LoadLogs(date string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -498,7 +498,7 @@ func (am *AuditManager) LoadLogs(date string) error {
 	return nil
 }
 
-// CleanupOldLogs 清理旧日志
+// CleanupOldLogs 清理旧日志.
 func (am *AuditManager) CleanupOldLogs() {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -533,7 +533,7 @@ func (am *AuditManager) CleanupOldLogs() {
 	am.alerts = cleanedAlerts
 }
 
-// StartCleanupRoutine 启动定期清理例程
+// StartCleanupRoutine 启动定期清理例程.
 func (am *AuditManager) StartCleanupRoutine(interval time.Duration) {
 	go func() {
 		ticker := time.NewTicker(interval)
@@ -544,7 +544,7 @@ func (am *AuditManager) StartCleanupRoutine(interval time.Duration) {
 	}()
 }
 
-// ExportLogs 导出日志
+// ExportLogs 导出日志.
 func (am *AuditManager) ExportLogs(startTime, endTime time.Time, format string) ([]byte, error) {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -567,7 +567,7 @@ func (am *AuditManager) ExportLogs(startTime, endTime time.Time, format string) 
 	}
 }
 
-// exportToCSV 导出为 CSV 格式
+// exportToCSV 导出为 CSV 格式.
 func (am *AuditManager) exportToCSV(logs []*AuditLogEntry) ([]byte, error) {
 	var csv string
 	csv += "Timestamp,Level,Category,Event,Username,IP,Status\n"
@@ -587,7 +587,7 @@ func (am *AuditManager) exportToCSV(logs []*AuditLogEntry) ([]byte, error) {
 	return []byte(csv), nil
 }
 
-// GetLoginStats 获取登录统计
+// GetLoginStats 获取登录统计.
 func (am *AuditManager) GetLoginStats(startTime, endTime time.Time) map[string]interface{} {
 	am.mu.RLock()
 	defer am.mu.RUnlock()

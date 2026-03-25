@@ -9,19 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers HTTP处理器
+// Handlers HTTP处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	budgets := r.Group("/budgets")
 	{
@@ -74,7 +74,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Success 201 {object} Budget
 // @Failure 400 {object} ErrorResponse
 // @Failure 409 {object} ErrorResponse
-// @Router /budgets [post]
+// @Router /budgets [post].
 func (h *Handlers) CreateBudget(c *gin.Context) {
 	var input Input
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -107,7 +107,7 @@ func (h *Handlers) CreateBudget(c *gin.Context) {
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Success 200 {object} ListResponse
-// @Router /budgets [get]
+// @Router /budgets [get].
 func (h *Handlers) ListBudgets(c *gin.Context) {
 	query := BudgetQuery{
 		Types:     parseTypes(c.QueryArray("type")),
@@ -147,7 +147,7 @@ func (h *Handlers) ListBudgets(c *gin.Context) {
 // @Param id path string true "预算ID"
 // @Success 200 {object} Budget
 // @Failure 404 {object} ErrorResponse
-// @Router /budgets/{id} [get]
+// @Router /budgets/{id} [get].
 func (h *Handlers) GetBudget(c *gin.Context) {
 	id := c.Param("id")
 
@@ -170,7 +170,7 @@ func (h *Handlers) GetBudget(c *gin.Context) {
 // @Success 200 {object} Budget
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
-// @Router /budgets/{id} [put]
+// @Router /budgets/{id} [put].
 func (h *Handlers) UpdateBudget(c *gin.Context) {
 	id := c.Param("id")
 
@@ -199,7 +199,7 @@ func (h *Handlers) UpdateBudget(c *gin.Context) {
 // @Param id path string true "预算ID"
 // @Success 204
 // @Failure 404 {object} ErrorResponse
-// @Router /budgets/{id} [delete]
+// @Router /budgets/{id} [delete].
 func (h *Handlers) DeleteBudget(c *gin.Context) {
 	id := c.Param("id")
 
@@ -218,7 +218,7 @@ func (h *Handlers) DeleteBudget(c *gin.Context) {
 // @Param id path string true "预算ID"
 // @Success 200 {object} Budget
 // @Failure 404 {object} ErrorResponse
-// @Router /budgets/{id}/reset [post]
+// @Router /budgets/{id}/reset [post].
 func (h *Handlers) ResetBudget(c *gin.Context) {
 	id := c.Param("id")
 
@@ -243,7 +243,7 @@ func (h *Handlers) ResetBudget(c *gin.Context) {
 // @Success 201 {object} BudgetUsage
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
-// @Router /budgets/{id}/usage [post]
+// @Router /budgets/{id}/usage [post].
 func (h *Handlers) RecordUsage(c *gin.Context) {
 	id := c.Param("id")
 
@@ -278,7 +278,7 @@ func (h *Handlers) RecordUsage(c *gin.Context) {
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Success 200 {object} ListResponse
-// @Router /budgets/{id}/usage [get]
+// @Router /budgets/{id}/usage [get].
 func (h *Handlers) GetUsageHistory(c *gin.Context) {
 	id := c.Param("id")
 
@@ -322,7 +322,7 @@ func (h *Handlers) GetUsageHistory(c *gin.Context) {
 // @Param end_time query string false "结束时间"
 // @Success 200 {object} UsageStatsResult
 // @Failure 404 {object} ErrorResponse
-// @Router /budgets/{id}/usage/stats [get]
+// @Router /budgets/{id}/usage/stats [get].
 func (h *Handlers) GetUsageStats(c *gin.Context) {
 	id := c.Param("id")
 
@@ -358,7 +358,7 @@ func (h *Handlers) GetUsageStats(c *gin.Context) {
 // @Produce json
 // @Param id path string true "预算ID"
 // @Success 200 {array} BudgetAlert
-// @Router /budgets/{id}/alerts [get]
+// @Router /budgets/{id}/alerts [get].
 func (h *Handlers) GetBudgetAlerts(c *gin.Context) {
 	id := c.Param("id")
 
@@ -379,7 +379,7 @@ func (h *Handlers) GetBudgetAlerts(c *gin.Context) {
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Success 200 {object} ListResponse
-// @Router /budgets/{id}/alerts/history [get]
+// @Router /budgets/{id}/alerts/history [get].
 func (h *Handlers) GetAlertHistory(c *gin.Context) {
 	id := c.Param("id")
 
@@ -411,7 +411,7 @@ func (h *Handlers) GetAlertHistory(c *gin.Context) {
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Success 200 {object} ListResponse
-// @Router /alerts [get]
+// @Router /alerts [get].
 func (h *Handlers) GetActiveAlerts(c *gin.Context) {
 	query := AlertQuery{
 		Levels:   parseLevels(c.QueryArray("level")),
@@ -440,7 +440,7 @@ func (h *Handlers) GetActiveAlerts(c *gin.Context) {
 // @Param id path string true "预警ID"
 // @Success 200 {object} BudgetAlert
 // @Failure 404 {object} ErrorResponse
-// @Router /alerts/{id}/acknowledge [post]
+// @Router /alerts/{id}/acknowledge [post].
 func (h *Handlers) AcknowledgeAlert(c *gin.Context) {
 	id := c.Param("id")
 	acknowledgedBy := getStringFromContext(c, "user_id")
@@ -459,7 +459,7 @@ func (h *Handlers) AcknowledgeAlert(c *gin.Context) {
 // @Param id path string true "预警ID"
 // @Success 200 {object} BudgetAlert
 // @Failure 404 {object} ErrorResponse
-// @Router /alerts/{id}/resolve [post]
+// @Router /alerts/{id}/resolve [post].
 func (h *Handlers) ResolveAlert(c *gin.Context) {
 	id := c.Param("id")
 
@@ -480,7 +480,7 @@ func (h *Handlers) ResolveAlert(c *gin.Context) {
 // @Produce json
 // @Param request body ReportRequest true "报告请求"
 // @Success 200 {object} BudgetReport
-// @Router /reports/budget [post]
+// @Router /reports/budget [post].
 func (h *Handlers) GenerateReport(c *gin.Context) {
 	var request ReportRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -502,7 +502,7 @@ func (h *Handlers) GenerateReport(c *gin.Context) {
 // @Tags budget
 // @Produce json
 // @Success 200 {object} BudgetStats
-// @Router /stats [get]
+// @Router /stats [get].
 func (h *Handlers) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
@@ -510,12 +510,12 @@ func (h *Handlers) GetStats(c *gin.Context) {
 
 // ========== 辅助类型 ==========
 
-// ErrorResponse 错误响应
+// ErrorResponse 错误响应.
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// ListResponse 列表响应
+// ListResponse 列表响应.
 type ListResponse struct {
 	Data     interface{} `json:"data"`
 	Total    int64       `json:"total"`
@@ -568,7 +568,7 @@ func parseLevels(levels []string) []Level {
 	return result
 }
 
-// parseAlertStatuses 解析警报状态
+// parseAlertStatuses 解析警报状态.
 func parseAlertStatuses(statuses []string) []AlertStatus {
 	var result []AlertStatus
 	for _, s := range statuses {

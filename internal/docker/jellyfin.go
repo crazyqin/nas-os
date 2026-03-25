@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// JellyfinConfig Jellyfin 配置
+// JellyfinConfig Jellyfin 配置.
 type JellyfinConfig struct {
 	ServerURL       string `json:"serverUrl"`
 	APIKey          string `json:"apiKey"`
@@ -22,13 +22,13 @@ type JellyfinConfig struct {
 	ChinesePriority int    `json:"chinesePriority"` // 中文元数据优先级 1-5
 }
 
-// JellyfinManager Jellyfin 管理器
+// JellyfinManager Jellyfin 管理器.
 type JellyfinManager struct {
 	config     *JellyfinConfig
 	httpClient *http.Client
 }
 
-// NewJellyfinManager 创建 Jellyfin 管理器
+// NewJellyfinManager 创建 Jellyfin 管理器.
 func NewJellyfinManager(configPath string) *JellyfinManager {
 	config := &JellyfinConfig{
 		ServerURL:     "http://localhost:8096",
@@ -51,7 +51,7 @@ func NewJellyfinManager(configPath string) *JellyfinManager {
 	}
 }
 
-// load 加载配置
+// load 加载配置.
 func (c *JellyfinConfig) load() error {
 	data, err := os.ReadFile(c.ConfigPath)
 	if err != nil {
@@ -64,7 +64,7 @@ func (c *JellyfinConfig) load() error {
 	return json.Unmarshal(data, c)
 }
 
-// save 保存配置
+// save 保存配置.
 func (c *JellyfinConfig) save() error {
 	dir := filepath.Dir(c.ConfigPath)
 	if err := os.MkdirAll(dir, 0750); err != nil {
@@ -79,13 +79,13 @@ func (c *JellyfinConfig) save() error {
 	return os.WriteFile(c.ConfigPath, data, 0640)
 }
 
-// SetAPIKey 设置 API 密钥
+// SetAPIKey 设置 API 密钥.
 func (jm *JellyfinManager) SetAPIKey(apiKey string) error {
 	jm.config.APIKey = apiKey
 	return jm.config.save()
 }
 
-// GetSystemInfo 获取系统信息
+// GetSystemInfo 获取系统信息.
 func (jm *JellyfinManager) GetSystemInfo() (map[string]interface{}, error) {
 	url := fmt.Sprintf("%s/System/Info/Public", jm.config.ServerURL)
 
@@ -113,7 +113,7 @@ func (jm *JellyfinManager) GetSystemInfo() (map[string]interface{}, error) {
 	return info, nil
 }
 
-// GetLibraries 获取媒体库列表
+// GetLibraries 获取媒体库列表.
 func (jm *JellyfinManager) GetLibraries() ([]map[string]interface{}, error) {
 	url := fmt.Sprintf("%s/Library/VirtualFolders", jm.config.ServerURL)
 
@@ -145,7 +145,7 @@ func (jm *JellyfinManager) GetLibraries() ([]map[string]interface{}, error) {
 	return libraries, nil
 }
 
-// CreateLibrary 创建媒体库
+// CreateLibrary 创建媒体库.
 func (jm *JellyfinManager) CreateLibrary(name, libraryType string, paths []string) error {
 	url := fmt.Sprintf("%s/Library/VirtualFolders", jm.config.ServerURL)
 
@@ -186,7 +186,7 @@ func (jm *JellyfinManager) CreateLibrary(name, libraryType string, paths []strin
 	return nil
 }
 
-// ConfigureMetadata 配置元数据提供商
+// ConfigureMetadata 配置元数据提供商.
 func (jm *JellyfinManager) ConfigureMetadata(libraryID string, enableChinese bool) error {
 	// Jellyfin 原生支持 TMDB，中文元数据通过插件实现
 	// 这里提供配置接口，实际配置需要通过 Jellyfin Web UI 完成
@@ -207,7 +207,7 @@ func (jm *JellyfinManager) ConfigureMetadata(libraryID string, enableChinese boo
 	return nil
 }
 
-// ScanLibrary 扫描媒体库
+// ScanLibrary 扫描媒体库.
 func (jm *JellyfinManager) ScanLibrary(libraryID string) error {
 	url := fmt.Sprintf("%s/Library/Media/Updated", jm.config.ServerURL)
 
@@ -244,7 +244,7 @@ func (jm *JellyfinManager) ScanLibrary(libraryID string) error {
 	return nil
 }
 
-// GetRecommendedConfig 获取推荐配置
+// GetRecommendedConfig 获取推荐配置.
 func (jm *JellyfinManager) GetRecommendedConfig() map[string]interface{} {
 	return map[string]interface{}{
 		"enableChinese":     true,
@@ -281,19 +281,19 @@ func (jm *JellyfinManager) GetRecommendedConfig() map[string]interface{} {
 	}
 }
 
-// EnableChineseMetadata 启用中文元数据
+// EnableChineseMetadata 启用中文元数据.
 func (jm *JellyfinManager) EnableChineseMetadata() error {
 	jm.config.EnableChinese = true
 	jm.config.TMDBEnabled = true
 	return jm.config.save()
 }
 
-// GetConfig 获取当前配置
+// GetConfig 获取当前配置.
 func (jm *JellyfinManager) GetConfig() *JellyfinConfig {
 	return jm.config
 }
 
-// TestConnection 测试连接
+// TestConnection 测试连接.
 func (jm *JellyfinManager) TestConnection() error {
 	url := fmt.Sprintf("%s/System/Info/Public", jm.config.ServerURL)
 

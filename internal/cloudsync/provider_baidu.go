@@ -31,7 +31,7 @@ type ProviderBaiduPanImpl struct {
 	tokenExpiry  time.Time
 }
 
-// NewBaiduPanProvider 创建百度网盘提供商
+// NewBaiduPanProvider 创建百度网盘提供商.
 func NewBaiduPanProvider(cfg *ProviderConfig) (*ProviderBaiduPanImpl, error) {
 	client := &http.Client{
 		Timeout: 60 * time.Second,
@@ -52,7 +52,7 @@ func NewBaiduPanProvider(cfg *ProviderConfig) (*ProviderBaiduPanImpl, error) {
 
 // baiduAPIResponse 已移除 - 使用内联结构体
 
-// refreshTokenIfNeeded 刷新访问令牌
+// refreshTokenIfNeeded 刷新访问令牌.
 func (p *ProviderBaiduPanImpl) refreshTokenIfNeeded(ctx context.Context) error {
 	// 如果token未过期，直接返回
 	if p.accessToken != "" && time.Now().Before(p.tokenExpiry.Add(-5*time.Minute)) {
@@ -113,7 +113,7 @@ func (p *ProviderBaiduPanImpl) refreshTokenIfNeeded(ctx context.Context) error {
 }
 
 // Upload 上传文件到百度网盘
-// 百度网盘支持秒传功能，会先尝试秒传，失败后走普通上传流程
+// 百度网盘支持秒传功能，会先尝试秒传，失败后走普通上传流程.
 func (p *ProviderBaiduPanImpl) Upload(ctx context.Context, localPath, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -161,7 +161,7 @@ func (p *ProviderBaiduPanImpl) Upload(ctx context.Context, localPath, remotePath
 	return p.mergeFile(ctx, remotePath, preUploadInfo.UploadID, stat.Size(), md5Hash)
 }
 
-// baiduPreUploadInfo 预上传信息
+// baiduPreUploadInfo 预上传信息.
 type baiduPreUploadInfo struct {
 	UploadID   string `json:"uploadid"`
 	ReturnType int    `json:"return_type"` // 1=秒传成功, 2=需要上传
@@ -169,7 +169,7 @@ type baiduPreUploadInfo struct {
 	Errno      int    `json:"errno"`
 }
 
-// preUpload 预上传
+// preUpload 预上传.
 func (p *ProviderBaiduPanImpl) preUpload(ctx context.Context, remotePath string, fileSize int64, md5Hash string) (*baiduPreUploadInfo, error) {
 	// 百度网盘分片大小为 4MB
 	blockSize := int64(4 * 1024 * 1024)
@@ -219,7 +219,7 @@ func (p *ProviderBaiduPanImpl) preUpload(ctx context.Context, remotePath string,
 	return &result, nil
 }
 
-// uploadParts 上传分片
+// uploadParts 上传分片.
 func (p *ProviderBaiduPanImpl) uploadParts(ctx context.Context, info *baiduPreUploadInfo, file *os.File, fileSize int64) error {
 	blockSize := int64(4 * 1024 * 1024)
 
@@ -259,7 +259,7 @@ func (p *ProviderBaiduPanImpl) uploadParts(ctx context.Context, info *baiduPreUp
 	return nil
 }
 
-// uploadSinglePart 上传单个分片
+// uploadSinglePart 上传单个分片.
 func (p *ProviderBaiduPanImpl) uploadSinglePart(ctx context.Context, uploadID string, partIndex int, data []byte) error {
 	apiURL := fmt.Sprintf("https://d.pcs.baidu.com/rest/2.0/pcs/superfile2?method=upload&access_token=%s&type=tmpfile&uploadid=%s&partseq=%d",
 		p.accessToken, uploadID, partIndex)
@@ -296,7 +296,7 @@ func (p *ProviderBaiduPanImpl) uploadSinglePart(ctx context.Context, uploadID st
 	return nil
 }
 
-// mergeFile 合并文件
+// mergeFile 合并文件.
 func (p *ProviderBaiduPanImpl) mergeFile(ctx context.Context, remotePath, uploadID string, fileSize int64, md5Hash string) error {
 	apiURL := fmt.Sprintf("%s/file?method=create&access_token=%s", p.baseURL, p.accessToken)
 
@@ -338,7 +338,7 @@ func (p *ProviderBaiduPanImpl) mergeFile(ctx context.Context, remotePath, upload
 	return nil
 }
 
-// Download 从百度网盘下载文件
+// Download 从百度网盘下载文件.
 func (p *ProviderBaiduPanImpl) Download(ctx context.Context, remotePath, localPath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -427,7 +427,7 @@ func (p *ProviderBaiduPanImpl) Download(ctx context.Context, remotePath, localPa
 	return nil
 }
 
-// Delete 删除百度网盘文件
+// Delete 删除百度网盘文件.
 func (p *ProviderBaiduPanImpl) Delete(ctx context.Context, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -472,7 +472,7 @@ func (p *ProviderBaiduPanImpl) Delete(ctx context.Context, remotePath string) er
 	return nil
 }
 
-// List 列出百度网盘目录
+// List 列出百度网盘目录.
 func (p *ProviderBaiduPanImpl) List(ctx context.Context, prefix string, recursive bool) ([]FileInfo, error) {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return nil, err
@@ -531,7 +531,7 @@ func (p *ProviderBaiduPanImpl) List(ctx context.Context, prefix string, recursiv
 	return files, nil
 }
 
-// Stat 获取文件信息
+// Stat 获取文件信息.
 func (p *ProviderBaiduPanImpl) Stat(ctx context.Context, remotePath string) (*FileInfo, error) {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return nil, err
@@ -588,7 +588,7 @@ func (p *ProviderBaiduPanImpl) Stat(ctx context.Context, remotePath string) (*Fi
 	}, nil
 }
 
-// CreateDir 创建目录
+// CreateDir 创建目录.
 func (p *ProviderBaiduPanImpl) CreateDir(ctx context.Context, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -634,12 +634,12 @@ func (p *ProviderBaiduPanImpl) CreateDir(ctx context.Context, remotePath string)
 	return nil
 }
 
-// DeleteDir 删除目录
+// DeleteDir 删除目录.
 func (p *ProviderBaiduPanImpl) DeleteDir(ctx context.Context, remotePath string) error {
 	return p.Delete(ctx, remotePath)
 }
 
-// TestConnection 测试连接
+// TestConnection 测试连接.
 func (p *ProviderBaiduPanImpl) TestConnection(ctx context.Context) (*ConnectionTestResult, error) {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return &ConnectionTestResult{
@@ -701,22 +701,22 @@ func (p *ProviderBaiduPanImpl) TestConnection(ctx context.Context) (*ConnectionT
 	}, nil
 }
 
-// Close 关闭连接
+// Close 关闭连接.
 func (p *ProviderBaiduPanImpl) Close() error {
 	return nil
 }
 
-// GetType 获取类型
+// GetType 获取类型.
 func (p *ProviderBaiduPanImpl) GetType() ProviderType {
 	return ProviderBaiduPan
 }
 
-// GetCapabilities 获取功能
+// GetCapabilities 获取功能.
 func (p *ProviderBaiduPanImpl) GetCapabilities() []string {
 	return []string{"upload", "download", "delete", "list", "instant_upload", "share"}
 }
 
-// calculateFileMD5 计算文件MD5
+// calculateFileMD5 计算文件MD5.
 func (p *ProviderBaiduPanImpl) calculateFileMD5(file *os.File) (string, error) {
 	if _, err := file.Seek(0, 0); err != nil {
 		return "", err

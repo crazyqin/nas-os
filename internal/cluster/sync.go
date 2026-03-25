@@ -18,14 +18,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// 同步模式
+// 同步模式.
 const (
 	SyncModeAsync    = "async"    // 异步同步
 	SyncModeSync     = "sync"     // 同步同步
 	SyncModeRealtime = "realtime" // 实时同步
 )
 
-// 同步状态
+// 同步状态.
 const (
 	SyncStatusPending   = "pending"
 	SyncStatusRunning   = "running"
@@ -33,7 +33,7 @@ const (
 	SyncStatusFailed    = "failed"
 )
 
-// SyncRule 同步规则
+// SyncRule 同步规则.
 type SyncRule struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -51,7 +51,7 @@ type SyncRule struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// SyncJob 同步任务
+// SyncJob 同步任务.
 type SyncJob struct {
 	RuleID      string
 	Source      string
@@ -65,7 +65,7 @@ type SyncJob struct {
 	BytesSynced int64
 }
 
-// SyncStatus 同步状态
+// SyncStatus 同步状态.
 type SyncStatus struct {
 	TotalRules   int       `json:"total_rules"`
 	ActiveRules  int       `json:"active_rules"`
@@ -75,7 +75,7 @@ type SyncStatus struct {
 	LastSyncTime time.Time `json:"last_sync_time"`
 }
 
-// StorageSync 存储同步管理器
+// StorageSync 存储同步管理器.
 type StorageSync struct {
 	rules      map[string]*SyncRule
 	rulesMutex sync.RWMutex
@@ -89,7 +89,7 @@ type StorageSync struct {
 	cluster    *Manager
 }
 
-// SyncConfig 同步配置
+// SyncConfig 同步配置.
 type SyncConfig struct {
 	DataDir      string `json:"data_dir"`
 	MaxRetries   int    `json:"max_retries"`
@@ -99,7 +99,7 @@ type SyncConfig struct {
 	ParallelJobs int    `json:"parallel_jobs"`
 }
 
-// NewStorageSync 创建存储同步管理器
+// NewStorageSync 创建存储同步管理器.
 func NewStorageSync(config SyncConfig, logger *zap.Logger, cluster *Manager) (*StorageSync, error) {
 	if config.DataDir == "" {
 		config.DataDir = "/var/lib/nas-os/sync"
@@ -147,7 +147,7 @@ func NewStorageSync(config SyncConfig, logger *zap.Logger, cluster *Manager) (*S
 	return ss, nil
 }
 
-// Initialize 初始化同步管理器
+// Initialize 初始化同步管理器.
 func (ss *StorageSync) Initialize() error {
 	ss.logger.Info("初始化存储同步管理器")
 
@@ -169,7 +169,7 @@ func (ss *StorageSync) Initialize() error {
 	return nil
 }
 
-// CreateRule 创建同步规则
+// CreateRule 创建同步规则.
 func (ss *StorageSync) CreateRule(rule *SyncRule) error {
 	// 安全校验：验证规则字段
 	if err := ValidateSyncRule(rule); err != nil {
@@ -198,7 +198,7 @@ func (ss *StorageSync) CreateRule(rule *SyncRule) error {
 	return ss.saveRules()
 }
 
-// UpdateRule 更新同步规则
+// UpdateRule 更新同步规则.
 func (ss *StorageSync) UpdateRule(ruleID string, updates map[string]interface{}) error {
 	// 安全校验：验证规则ID
 	if err := ValidateNodeID(ruleID); err != nil {
@@ -297,7 +297,7 @@ func (ss *StorageSync) UpdateRule(ruleID string, updates map[string]interface{})
 	return ss.saveRules()
 }
 
-// DeleteRule 删除同步规则
+// DeleteRule 删除同步规则.
 func (ss *StorageSync) DeleteRule(ruleID string) error {
 	ss.rulesMutex.Lock()
 	defer ss.rulesMutex.Unlock()
@@ -314,7 +314,7 @@ func (ss *StorageSync) DeleteRule(ruleID string) error {
 	return ss.saveRules()
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (ss *StorageSync) GetRules() []*SyncRule {
 	ss.rulesMutex.RLock()
 	defer ss.rulesMutex.RUnlock()
@@ -326,7 +326,7 @@ func (ss *StorageSync) GetRules() []*SyncRule {
 	return rules
 }
 
-// GetRule 获取指定规则
+// GetRule 获取指定规则.
 func (ss *StorageSync) GetRule(ruleID string) (*SyncRule, bool) {
 	ss.rulesMutex.RLock()
 	defer ss.rulesMutex.RUnlock()
@@ -335,7 +335,7 @@ func (ss *StorageSync) GetRule(ruleID string) (*SyncRule, bool) {
 	return rule, exists
 }
 
-// TriggerSync 手动触发同步
+// TriggerSync 手动触发同步.
 func (ss *StorageSync) TriggerSync(ruleID string) error {
 	rule, exists := ss.GetRule(ruleID)
 	if !exists {
@@ -352,7 +352,7 @@ func (ss *StorageSync) TriggerSync(ruleID string) error {
 	return nil
 }
 
-// scheduleRule 调度规则
+// scheduleRule 调度规则.
 func (ss *StorageSync) scheduleRule(rule *SyncRule) error {
 	if rule.Schedule == "" {
 		return nil
@@ -373,14 +373,14 @@ func (ss *StorageSync) scheduleRule(rule *SyncRule) error {
 	return nil
 }
 
-// unscheduleRule 取消调度规则
+// unscheduleRule 取消调度规则.
 func (ss *StorageSync) unscheduleRule(rule *SyncRule) {
 	// cron 库不直接支持移除任务，这里简化处理
 	// 实际实现需要使用 cron.EntryID 来移除
 	rule.NextSync = time.Time{}
 }
 
-// executeSync 执行同步任务
+// executeSync 执行同步任务.
 func (ss *StorageSync) executeSync(rule *SyncRule) {
 	ss.logger.Info("执行同步任务", zap.String("rule_id", rule.ID))
 
@@ -432,7 +432,7 @@ func (ss *StorageSync) executeSync(rule *SyncRule) {
 	}
 }
 
-// syncToNode 同步到指定节点
+// syncToNode 同步到指定节点.
 func (ss *StorageSync) syncToNode(rule *SyncRule, targetNodeID string, job *SyncJob) error {
 	// 安全校验：验证目标节点ID
 	if err := ValidateNodeID(targetNodeID); err != nil {
@@ -510,7 +510,7 @@ func (ss *StorageSync) syncToNode(rule *SyncRule, targetNodeID string, job *Sync
 	return nil
 }
 
-// GetStatus 获取同步状态
+// GetStatus 获取同步状态.
 func (ss *StorageSync) GetStatus() SyncStatus {
 	ss.rulesMutex.RLock()
 	ss.jobsMutex.RLock()
@@ -548,7 +548,7 @@ func (ss *StorageSync) GetStatus() SyncStatus {
 	return status
 }
 
-// GetJobs 获取同步任务历史
+// GetJobs 获取同步任务历史.
 func (ss *StorageSync) GetJobs(limit int) []*SyncJob {
 	ss.jobsMutex.RLock()
 	defer ss.jobsMutex.RUnlock()
@@ -568,7 +568,7 @@ func (ss *StorageSync) GetJobs(limit int) []*SyncJob {
 	return result
 }
 
-// Shutdown 关闭同步管理器
+// Shutdown 关闭同步管理器.
 func (ss *StorageSync) Shutdown() error {
 	ss.cancel()
 	ss.cron.Stop()
@@ -612,13 +612,13 @@ func generateRuleID() string {
 
 // ========== 安全验证函数 ==========
 
-// 安全验证正则
+// 安全验证正则.
 var (
-	// 路径注入检测正则：检测 .. 路径遍历和危险字符
+	// 路径注入检测正则：检测 .. 路径遍历和危险字符.
 	pathTraversalPattern = regexp.MustCompile(`\.\.[\\/]|[\x00\n\r]`)
 )
 
-// 安全验证错误
+// 安全验证错误.
 var (
 	ErrInvalidPath       = errors.New("无效的路径：包含非法字符或路径遍历")
 	ErrInvalidIP         = errors.New("无效的IP地址")
@@ -630,7 +630,7 @@ var (
 )
 
 // ValidatePath 验证路径安全性
-// 检查路径遍历攻击和非法字符
+// 检查路径遍历攻击和非法字符.
 func ValidatePath(path string) error {
 	if path == "" {
 		return errors.New("路径不能为空")
@@ -657,7 +657,7 @@ func ValidatePath(path string) error {
 	return nil
 }
 
-// ValidatePathInAllowedDirs 验证路径是否在允许的目录范围内
+// ValidatePathInAllowedDirs 验证路径是否在允许的目录范围内.
 func ValidatePathInAllowedDirs(path string, allowedDirs []string) error {
 	if err := ValidatePath(path); err != nil {
 		return err
@@ -686,7 +686,7 @@ func ValidatePathInAllowedDirs(path string, allowedDirs []string) error {
 	return ErrPathNotAllowed
 }
 
-// ValidateIP 验证IP地址格式
+// ValidateIP 验证IP地址格式.
 func ValidateIP(ip string) error {
 	if ip == "" {
 		return errors.New("IP地址不能为空")
@@ -701,7 +701,7 @@ func ValidateIP(ip string) error {
 	return nil
 }
 
-// ValidateNodeID 验证节点ID格式
+// ValidateNodeID 验证节点ID格式.
 func ValidateNodeID(nodeID string) error {
 	if nodeID == "" {
 		return errors.New("节点ID不能为空")
@@ -718,7 +718,7 @@ func ValidateNodeID(nodeID string) error {
 	return nil
 }
 
-// ValidateCronExpression 验证cron表达式
+// ValidateCronExpression 验证cron表达式.
 func ValidateCronExpression(expr string) error {
 	if expr == "" {
 		return nil // 空表达式是允许的（手动触发）
@@ -734,7 +734,7 @@ func ValidateCronExpression(expr string) error {
 }
 
 // ValidateRsyncPath 验证rsync可执行文件路径
-// 确保路径在允许的白名单内
+// 确保路径在允许的白名单内.
 func ValidateRsyncPath(rsyncPath string, allowedPaths []string) error {
 	if rsyncPath == "" {
 		return errors.New("rsync路径不能为空")
@@ -781,7 +781,7 @@ func ValidateRsyncPath(rsyncPath string, allowedPaths []string) error {
 	return nil
 }
 
-// ValidateSyncRule 验证同步规则的所有字段
+// ValidateSyncRule 验证同步规则的所有字段.
 func ValidateSyncRule(rule *SyncRule) error {
 	if rule == nil {
 		return errors.New("规则不能为空")

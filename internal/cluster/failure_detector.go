@@ -9,7 +9,7 @@ import (
 )
 
 // FailureDetector Phi Accrual 故障检测器
-// 使用 Phi Accrual 算法进行更精确的故障检测
+// 使用 Phi Accrual 算法进行更精确的故障检测.
 type FailureDetector struct {
 	threshold  float64
 	samples    map[string]*SampleWindow
@@ -22,7 +22,7 @@ type FailureDetector struct {
 	acceptableHBTime time.Duration
 }
 
-// SampleWindow 心跳样本窗口
+// SampleWindow 心跳样本窗口.
 type SampleWindow struct {
 	intervals     []time.Duration
 	lastHeartbeat time.Time
@@ -30,7 +30,7 @@ type SampleWindow struct {
 	variance      float64
 }
 
-// NewFailureDetector 创建故障检测器
+// NewFailureDetector 创建故障检测器.
 func NewFailureDetector(timeout time.Duration, threshold int, logger *zap.Logger) *FailureDetector {
 	return &FailureDetector{
 		threshold:        float64(threshold),
@@ -42,7 +42,7 @@ func NewFailureDetector(timeout time.Duration, threshold int, logger *zap.Logger
 	}
 }
 
-// RecordHeartbeat 记录心跳
+// RecordHeartbeat 记录心跳.
 func (fd *FailureDetector) RecordHeartbeat(nodeID string) {
 	fd.mu.Lock()
 	defer fd.mu.Unlock()
@@ -73,7 +73,7 @@ func (fd *FailureDetector) RecordHeartbeat(nodeID string) {
 	fd.updateStats(sample)
 }
 
-// updateStats 更新样本统计
+// updateStats 更新样本统计.
 func (fd *FailureDetector) updateStats(sample *SampleWindow) {
 	if len(sample.intervals) == 0 {
 		return
@@ -96,7 +96,7 @@ func (fd *FailureDetector) updateStats(sample *SampleWindow) {
 }
 
 // Phi 计算 Phi 值
-// Phi 值表示节点故障的可能性，值越大可能性越高
+// Phi 值表示节点故障的可能性，值越大可能性越高.
 func (fd *FailureDetector) Phi(nodeID string, elapsed time.Duration) float64 {
 	fd.mu.RLock()
 	defer fd.mu.RUnlock()
@@ -139,24 +139,24 @@ func (fd *FailureDetector) Phi(nodeID string, elapsed time.Duration) float64 {
 	return phi
 }
 
-// normalCDF 正态分布累积分布函数近似
+// normalCDF 正态分布累积分布函数近似.
 func normalCDF(x float64) float64 {
 	// 使用近似公式
 	// erfc 是互补误差函数
 	return 0.5 * math.Erfc(-x/math.Sqrt2)
 }
 
-// Threshold 获取阈值
+// Threshold 获取阈值.
 func (fd *FailureDetector) Threshold() float64 {
 	return fd.threshold
 }
 
-// IsFailed 判断节点是否故障
+// IsFailed 判断节点是否故障.
 func (fd *FailureDetector) IsFailed(nodeID string, elapsed time.Duration) bool {
 	return fd.Phi(nodeID, elapsed) > fd.threshold
 }
 
-// GetStats 获取检测器统计
+// GetStats 获取检测器统计.
 func (fd *FailureDetector) GetStats(nodeID string) map[string]interface{} {
 	fd.mu.RLock()
 	defer fd.mu.RUnlock()
@@ -180,7 +180,7 @@ func (fd *FailureDetector) GetStats(nodeID string) map[string]interface{} {
 	}
 }
 
-// Remove 移除节点
+// Remove 移除节点.
 func (fd *FailureDetector) Remove(nodeID string) {
 	fd.mu.Lock()
 	defer fd.mu.Unlock()
@@ -188,7 +188,7 @@ func (fd *FailureDetector) Remove(nodeID string) {
 	delete(fd.samples, nodeID)
 }
 
-// Reset 重置节点状态
+// Reset 重置节点状态.
 func (fd *FailureDetector) Reset(nodeID string) {
 	fd.mu.Lock()
 	defer fd.mu.Unlock()
@@ -196,10 +196,10 @@ func (fd *FailureDetector) Reset(nodeID string) {
 	delete(fd.samples, nodeID)
 }
 
-// AccrualLevel 获取累积级别（用于监控）
+// AccrualLevel 获取累积级别（用于监控）.
 type AccrualLevel int
 
-// 累积级别常量
+// 累积级别常量.
 const (
 	AccrualLevelHealthy  AccrualLevel = iota // 健康
 	AccrualLevelSuspect                      // 可疑
@@ -207,7 +207,7 @@ const (
 	AccrualLevelCritical                     // 严重
 )
 
-// GetAccrualLevel 获取累积级别
+// GetAccrualLevel 获取累积级别.
 func (fd *FailureDetector) GetAccrualLevel(nodeID string, elapsed time.Duration) AccrualLevel {
 	phi := fd.Phi(nodeID, elapsed)
 
@@ -223,7 +223,7 @@ func (fd *FailureDetector) GetAccrualLevel(nodeID string, elapsed time.Duration)
 	}
 }
 
-// FailureDetectorStats 故障检测器统计
+// FailureDetectorStats 故障检测器统计.
 type FailureDetectorStats struct {
 	NodeID        string    `json:"node_id"`
 	Samples       int       `json:"samples"`
@@ -235,7 +235,7 @@ type FailureDetectorStats struct {
 	Threshold     float64   `json:"threshold"`
 }
 
-// GetDetailedStats 获取详细统计
+// GetDetailedStats 获取详细统计.
 func (fd *FailureDetector) GetDetailedStats(nodeID string, elapsed time.Duration) *FailureDetectorStats {
 	fd.mu.RLock()
 	defer fd.mu.RUnlock()

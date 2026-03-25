@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// 打洞相关错误
+// 打洞相关错误.
 var (
 	ErrHolePunchFailed  = errors.New("hole punch failed")
 	ErrNoPublicAddr     = errors.New("no public address discovered")
@@ -23,7 +23,7 @@ var (
 	ErrInvalidPeerInfo  = errors.New("invalid peer info")
 )
 
-// HolePunchConfig 打洞配置
+// HolePunchConfig 打洞配置.
 type HolePunchConfig struct {
 	// LocalPort 本地端口（0表示随机）
 	LocalPort int `json:"localPort"`
@@ -50,7 +50,7 @@ type HolePunchConfig struct {
 	RelayServer string `json:"relayServer"`
 }
 
-// DefaultHolePunchConfig 默认打洞配置
+// DefaultHolePunchConfig 默认打洞配置.
 var DefaultHolePunchConfig = HolePunchConfig{
 	LocalPort:            0,
 	HandshakeTimeout:     10 * time.Second,
@@ -65,7 +65,7 @@ var DefaultHolePunchConfig = HolePunchConfig{
 	},
 }
 
-// PeerInfo 对端信息
+// PeerInfo 对端信息.
 type PeerInfo struct {
 	ID         string    `json:"id"`
 	PublicIP   net.IP    `json:"publicIP"`
@@ -76,7 +76,7 @@ type PeerInfo struct {
 	LastSeen   time.Time `json:"lastSeen"`
 }
 
-// HolePuncher UDP打洞器
+// HolePuncher UDP打洞器.
 type HolePuncher struct {
 	config       HolePunchConfig
 	stunClient   *STUNClient
@@ -93,7 +93,7 @@ type HolePuncher struct {
 	onError      func(peerID string, err error)
 }
 
-// P2PConnection P2P连接
+// P2PConnection P2P连接.
 type P2PConnection struct {
 	PeerID       string
 	LocalAddr    *net.UDPAddr
@@ -106,7 +106,7 @@ type P2PConnection struct {
 	mu           sync.RWMutex
 }
 
-// HolePunchResult 打洞结果
+// HolePunchResult 打洞结果.
 type HolePunchResult struct {
 	Success     bool          `json:"success"`
 	Method      string        `json:"method"` // "direct", "predicted", "relay"
@@ -119,7 +119,7 @@ type HolePunchResult struct {
 	Error       string        `json:"error,omitempty"`
 }
 
-// NewHolePuncher 创建UDP打洞器
+// NewHolePuncher 创建UDP打洞器.
 func NewHolePuncher(config HolePunchConfig) *HolePuncher {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &HolePuncher{
@@ -132,7 +132,7 @@ func NewHolePuncher(config HolePunchConfig) *HolePuncher {
 	}
 }
 
-// Start 启动打洞器
+// Start 启动打洞器.
 func (h *HolePuncher) Start() error {
 	// 创建UDP socket
 	var localAddr *net.UDPAddr
@@ -170,7 +170,7 @@ func (h *HolePuncher) Start() error {
 	return nil
 }
 
-// Stop 停止打洞器
+// Stop 停止打洞器.
 func (h *HolePuncher) Stop() error {
 	h.cancel()
 
@@ -183,21 +183,21 @@ func (h *HolePuncher) Stop() error {
 	return nil
 }
 
-// GetPublicAddr 获取公网地址
+// GetPublicAddr 获取公网地址.
 func (h *HolePuncher) GetPublicAddr() *net.UDPAddr {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return h.publicAddr
 }
 
-// GetLocalAddr 获取本地地址
+// GetLocalAddr 获取本地地址.
 func (h *HolePuncher) GetLocalAddr() *net.UDPAddr {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return h.localAddr
 }
 
-// AddPeer 添加对端信息
+// AddPeer 添加对端信息.
 func (h *HolePuncher) AddPeer(info *PeerInfo) error {
 	if info == nil || info.ID == "" {
 		return ErrInvalidPeerInfo
@@ -211,7 +211,7 @@ func (h *HolePuncher) AddPeer(info *PeerInfo) error {
 	return nil
 }
 
-// RemovePeer 移除对端
+// RemovePeer 移除对端.
 func (h *HolePuncher) RemovePeer(peerID string) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -223,7 +223,7 @@ func (h *HolePuncher) RemovePeer(peerID string) {
 	}
 }
 
-// ConnectToPeer 连接到对端（执行打洞）
+// ConnectToPeer 连接到对端（执行打洞）.
 func (h *HolePuncher) ConnectToPeer(peerID string) (*HolePunchResult, error) {
 	h.mu.RLock()
 	peer, exists := h.peers[peerID]
@@ -268,7 +268,7 @@ func (h *HolePuncher) ConnectToPeer(peerID string) (*HolePunchResult, error) {
 	return result, nil
 }
 
-// punchHole 执行UDP打洞
+// punchHole 执行UDP打洞.
 func (h *HolePuncher) punchHole(peerID string, peerAddr *net.UDPAddr, peer *PeerInfo) (*HolePunchResult, error) {
 	ctx, cancel := context.WithTimeout(h.ctx, h.config.HandshakeTimeout)
 	defer cancel()
@@ -348,7 +348,7 @@ func (h *HolePuncher) punchHole(peerID string, peerAddr *net.UDPAddr, peer *Peer
 	}
 }
 
-// punchWithPrediction 使用端口预测进行打洞
+// punchWithPrediction 使用端口预测进行打洞.
 func (h *HolePuncher) punchWithPrediction(peerID string, peer *PeerInfo) (*HolePunchResult, error) {
 	// 端口预测：假设NAT按顺序分配端口
 	// 尝试预测对端的下一个端口
@@ -416,7 +416,7 @@ func (h *HolePuncher) punchWithPrediction(peerID string, peer *PeerInfo) (*HoleP
 	return nil, ErrHolePunchFailed
 }
 
-// Send 发送数据到对端
+// Send 发送数据到对端.
 func (h *HolePuncher) Send(peerID string, data []byte) (int, error) {
 	h.mu.RLock()
 	conn, exists := h.connections[peerID]
@@ -440,7 +440,7 @@ func (h *HolePuncher) Send(peerID string, data []byte) (int, error) {
 	return n, nil
 }
 
-// Broadcast 广播数据到所有连接的对端
+// Broadcast 广播数据到所有连接的对端.
 func (h *HolePuncher) Broadcast(data []byte) error {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -457,7 +457,7 @@ func (h *HolePuncher) Broadcast(data []byte) error {
 	return nil
 }
 
-// receiveLoop 接收循环
+// receiveLoop 接收循环.
 func (h *HolePuncher) receiveLoop() {
 	buf := make([]byte, 65535)
 
@@ -485,7 +485,7 @@ func (h *HolePuncher) receiveLoop() {
 	}
 }
 
-// handleMessage 处理接收到的消息
+// handleMessage 处理接收到的消息.
 func (h *HolePuncher) handleMessage(data []byte, remoteAddr *net.UDPAddr) {
 	// 尝试解析为握手消息
 	var handshake HandshakeMessage
@@ -509,7 +509,7 @@ func (h *HolePuncher) handleMessage(data []byte, remoteAddr *net.UDPAddr) {
 	}
 }
 
-// handleHandshake 处理握手消息
+// handleHandshake 处理握手消息.
 func (h *HolePuncher) handleHandshake(msg *HandshakeMessage, remoteAddr *net.UDPAddr) {
 	// 更新或创建连接
 	h.mu.Lock()
@@ -544,7 +544,7 @@ func (h *HolePuncher) handleHandshake(msg *HandshakeMessage, remoteAddr *net.UDP
 	}
 }
 
-// handleDataMessage 处理数据消息
+// handleDataMessage 处理数据消息.
 func (h *HolePuncher) handleDataMessage(msg *DataMessage, remoteAddr *net.UDPAddr) {
 	h.mu.Lock()
 	conn, exists := h.connections[msg.PeerID]
@@ -557,7 +557,7 @@ func (h *HolePuncher) handleDataMessage(msg *DataMessage, remoteAddr *net.UDPAdd
 	// TODO: 将数据传递给上层应用
 }
 
-// handlePing 处理心跳
+// handlePing 处理心跳.
 func (h *HolePuncher) handlePing(msg *PingMessage, remoteAddr *net.UDPAddr) {
 	pong := PingMessage{
 		Type:      "pong",
@@ -567,7 +567,7 @@ func (h *HolePuncher) handlePing(msg *PingMessage, remoteAddr *net.UDPAddr) {
 	_, _ = h.conn.WriteToUDP(pongData, remoteAddr)
 }
 
-// keepAliveLoop 保活循环
+// keepAliveLoop 保活循环.
 func (h *HolePuncher) keepAliveLoop() {
 	ticker := time.NewTicker(h.config.KeepAliveInterval)
 	defer ticker.Stop()
@@ -582,7 +582,7 @@ func (h *HolePuncher) keepAliveLoop() {
 	}
 }
 
-// sendKeepAlive 发送保活包
+// sendKeepAlive 发送保活包.
 func (h *HolePuncher) sendKeepAlive() {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -601,22 +601,22 @@ func (h *HolePuncher) sendKeepAlive() {
 	}
 }
 
-// SetOnConnect 设置连接回调
+// SetOnConnect 设置连接回调.
 func (h *HolePuncher) SetOnConnect(callback func(peerID string, conn *P2PConnection)) {
 	h.onConnect = callback
 }
 
-// SetOnDisconnect 设置断开回调
+// SetOnDisconnect 设置断开回调.
 func (h *HolePuncher) SetOnDisconnect(callback func(peerID string, reason error)) {
 	h.onDisconnect = callback
 }
 
-// SetOnError 设置错误回调
+// SetOnError 设置错误回调.
 func (h *HolePuncher) SetOnError(callback func(peerID string, err error)) {
 	h.onError = callback
 }
 
-// GetConnections 获取所有连接
+// GetConnections 获取所有连接.
 func (h *HolePuncher) GetConnections() map[string]*P2PConnection {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -628,7 +628,7 @@ func (h *HolePuncher) GetConnections() map[string]*P2PConnection {
 	return result
 }
 
-// GetConnection 获取指定连接
+// GetConnection 获取指定连接.
 func (h *HolePuncher) GetConnection(peerID string) (*P2PConnection, bool) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -636,7 +636,7 @@ func (h *HolePuncher) GetConnection(peerID string) (*P2PConnection, bool) {
 	return conn, exists
 }
 
-// IsConnected 检查是否已连接
+// IsConnected 检查是否已连接.
 func (h *HolePuncher) IsConnected(peerID string) bool {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -644,7 +644,7 @@ func (h *HolePuncher) IsConnected(peerID string) bool {
 	return exists && !conn.closed
 }
 
-// CloseConnection 关闭指定连接
+// CloseConnection 关闭指定连接.
 func (h *HolePuncher) CloseConnection(peerID string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()

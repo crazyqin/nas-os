@@ -44,7 +44,7 @@ var ErrInvalidKey = errors.New("invalid encryption key")
 
 // ========== 压缩算法 ==========
 
-// CompressionAlgorithm 压缩算法类型
+// CompressionAlgorithm 压缩算法类型.
 type CompressionAlgorithm string
 
 // CompressionNone 表示不压缩。
@@ -65,13 +65,13 @@ const CompressionBzip2 CompressionAlgorithm = "bzip2"
 // CompressionXz 表示使用 XZ 压缩。
 const CompressionXz CompressionAlgorithm = "xz"
 
-// CompressionConfig 压缩配置
+// CompressionConfig 压缩配置.
 type CompressionConfig struct {
 	Algorithm CompressionAlgorithm `json:"algorithm"`
 	Level     int                  `json:"level"` // 1-9, 1=fastest, 9=best compression
 }
 
-// DefaultCompressionConfig 默认压缩配置
+// DefaultCompressionConfig 默认压缩配置.
 func DefaultCompressionConfig() *CompressionConfig {
 	return &CompressionConfig{
 		Algorithm: CompressionGzip,
@@ -81,7 +81,7 @@ func DefaultCompressionConfig() *CompressionConfig {
 
 // ========== 加密配置 ==========
 
-// EncryptionConfig 加密配置
+// EncryptionConfig 加密配置.
 type EncryptionConfig struct {
 	Enabled    bool   `json:"enabled"`
 	Algorithm  string `json:"algorithm"` // AES-256-GCM, AES-256-CBC
@@ -90,7 +90,7 @@ type EncryptionConfig struct {
 	Passphrase string `json:"passphrase,omitempty"`
 }
 
-// DefaultEncryptionConfig 默认加密配置
+// DefaultEncryptionConfig 默认加密配置.
 func DefaultEncryptionConfig() *EncryptionConfig {
 	return &EncryptionConfig{
 		Enabled:   false,
@@ -100,7 +100,7 @@ func DefaultEncryptionConfig() *EncryptionConfig {
 
 // ========== 备份配置 ==========
 
-// BackupConfig 高级备份配置
+// BackupConfig 高级备份配置.
 type BackupConfig struct {
 	ID               string             `json:"id"`
 	Name             string             `json:"name"`
@@ -122,7 +122,7 @@ type BackupConfig struct {
 	UpdatedAt        time.Time          `json:"updatedAt"`
 }
 
-// DefaultBackupConfig 默认备份配置
+// DefaultBackupConfig 默认备份配置.
 func DefaultBackupConfig() *BackupConfig {
 	return &BackupConfig{
 		Retention:    7,
@@ -136,7 +136,7 @@ func DefaultBackupConfig() *BackupConfig {
 
 // ========== 备份状态 ==========
 
-// BackupStatus 备份状态
+// BackupStatus 备份状态.
 type BackupStatus string
 
 // StatusPending 表示待处理状态。
@@ -157,7 +157,7 @@ const StatusCancelled BackupStatus = "cancelled"
 // StatusVerifying 表示验证中状态。
 const StatusVerifying BackupStatus = "verifying"
 
-// BackupType 备份类型
+// BackupType 备份类型.
 type BackupType string
 
 // TypeFull 表示完整备份。
@@ -171,7 +171,7 @@ const TypeDifferential BackupType = "differential"
 
 // ========== 备份记录 ==========
 
-// BackupRecord 备份记录
+// BackupRecord 备份记录.
 type BackupRecord struct {
 	ID               string            `json:"id"`
 	ConfigID         string            `json:"configId"`
@@ -196,7 +196,7 @@ type BackupRecord struct {
 	Metadata         map[string]string `json:"metadata,omitempty"`
 }
 
-// BackupManifest 备份清单
+// BackupManifest 备份清单.
 type BackupManifest struct {
 	ID           string                 `json:"id"`
 	ConfigID     string                 `json:"configId"`
@@ -213,7 +213,7 @@ type BackupManifest struct {
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// FileManifest 文件清单
+// FileManifest 文件清单.
 type FileManifest struct {
 	Path     string      `json:"path"`
 	Size     int64       `json:"size"`
@@ -223,7 +223,7 @@ type FileManifest struct {
 	Chunks   []string    `json:"chunks,omitempty"`
 }
 
-// ChunkManifest 块清单
+// ChunkManifest 块清单.
 type ChunkManifest struct {
 	ID       string `json:"id"`
 	Size     int64  `json:"size"`
@@ -233,7 +233,7 @@ type ChunkManifest struct {
 
 // ========== 验证结果 ==========
 
-// VerificationResult 验证结果
+// VerificationResult 验证结果.
 type VerificationResult struct {
 	BackupID      string             `json:"backupId"`
 	Status        VerificationStatus `json:"status"`
@@ -246,7 +246,7 @@ type VerificationResult struct {
 	Error         string             `json:"error,omitempty"`
 }
 
-// VerificationStatus 验证状态
+// VerificationStatus 验证状态.
 type VerificationStatus string
 
 // VerificationValid 表示验证通过。
@@ -258,7 +258,7 @@ const VerificationInvalid VerificationStatus = "invalid"
 // VerificationPartial 表示部分验证通过。
 const VerificationPartial VerificationStatus = "partial"
 
-// FileError 文件错误
+// FileError 文件错误.
 type FileError struct {
 	Path  string `json:"path"`
 	Error string `json:"error"`
@@ -267,7 +267,7 @@ type FileError struct {
 
 // ========== 增量备份索引 ==========
 
-// IncrementalIndex 增量备份索引
+// IncrementalIndex 增量备份索引.
 type IncrementalIndex struct {
 	mu         sync.RWMutex
 	fileStates map[string]*FileState
@@ -275,7 +275,7 @@ type IncrementalIndex struct {
 	updatedAt  time.Time
 }
 
-// FileState 文件状态
+// FileState 文件状态.
 type FileState struct {
 	Path     string      `json:"path"`
 	Checksum string      `json:"checksum"`
@@ -285,14 +285,14 @@ type FileState struct {
 	Deleted  bool        `json:"deleted"`
 }
 
-// NewIncrementalIndex 创建增量索引
+// NewIncrementalIndex 创建增量索引.
 func NewIncrementalIndex() *IncrementalIndex {
 	return &IncrementalIndex{
 		fileStates: make(map[string]*FileState),
 	}
 }
 
-// Update 更新文件状态
+// Update 更新文件状态.
 func (idx *IncrementalIndex) Update(path string, state *FileState) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -300,7 +300,7 @@ func (idx *IncrementalIndex) Update(path string, state *FileState) {
 	idx.updatedAt = time.Now()
 }
 
-// Get 获取文件状态
+// Get 获取文件状态.
 func (idx *IncrementalIndex) Get(path string) (*FileState, bool) {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -308,7 +308,7 @@ func (idx *IncrementalIndex) Get(path string) (*FileState, bool) {
 	return state, exists
 }
 
-// Delete 标记文件删除
+// Delete 标记文件删除.
 func (idx *IncrementalIndex) Delete(path string) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -318,7 +318,7 @@ func (idx *IncrementalIndex) Delete(path string) {
 	idx.updatedAt = time.Now()
 }
 
-// GetAll 获取所有文件状态
+// GetAll 获取所有文件状态.
 func (idx *IncrementalIndex) GetAll() map[string]*FileState {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -329,14 +329,14 @@ func (idx *IncrementalIndex) GetAll() map[string]*FileState {
 	return result
 }
 
-// SetBaseID 设置基础备份ID
+// SetBaseID 设置基础备份ID.
 func (idx *IncrementalIndex) SetBaseID(id string) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
 	idx.baseID = id
 }
 
-// GetBaseID 获取基础备份ID
+// GetBaseID 获取基础备份ID.
 func (idx *IncrementalIndex) GetBaseID() string {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -345,7 +345,7 @@ func (idx *IncrementalIndex) GetBaseID() string {
 
 // ========== 备份进度 ==========
 
-// BackupProgress 备份进度
+// BackupProgress 备份进度.
 type BackupProgress struct {
 	BackupID       string       `json:"backupId"`
 	Status         BackupStatus `json:"status"`
@@ -363,21 +363,21 @@ type BackupProgress struct {
 
 // ========== 加密器 ==========
 
-// Encryptor 加密器接口
+// Encryptor 加密器接口.
 type Encryptor interface {
 	Encrypt(data []byte) ([]byte, error)
 	Decrypt(data []byte) ([]byte, error)
 	SetKey(key []byte) error
 }
 
-// AES256Encryptor AES-256加密器
+// AES256Encryptor AES-256加密器.
 type AES256Encryptor struct {
 	key []byte
 	gcm cipher.AEAD
 	mu  sync.Mutex
 }
 
-// NewAES256Encryptor 创建AES-256加密器
+// NewAES256Encryptor 创建AES-256加密器.
 func NewAES256Encryptor(key []byte) (*AES256Encryptor, error) {
 	if len(key) != 32 {
 		return nil, ErrInvalidKey
@@ -399,7 +399,7 @@ func NewAES256Encryptor(key []byte) (*AES256Encryptor, error) {
 	}, nil
 }
 
-// Encrypt 加密数据
+// Encrypt 加密数据.
 func (e *AES256Encryptor) Encrypt(data []byte) ([]byte, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -413,7 +413,7 @@ func (e *AES256Encryptor) Encrypt(data []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-// Decrypt 解密数据
+// Decrypt 解密数据.
 func (e *AES256Encryptor) Decrypt(data []byte) ([]byte, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -432,7 +432,7 @@ func (e *AES256Encryptor) Decrypt(data []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
-// SetKey 设置密钥
+// SetKey 设置密钥.
 func (e *AES256Encryptor) SetKey(key []byte) error {
 	if len(key) != 32 {
 		return ErrInvalidKey
@@ -456,13 +456,13 @@ func (e *AES256Encryptor) SetKey(key []byte) error {
 	return nil
 }
 
-// DeriveKey 从密码派生密钥（使用 PBKDF2 进行安全密钥派生）
+// DeriveKey 从密码派生密钥（使用 PBKDF2 进行安全密钥派生）.
 func DeriveKey(password string, salt []byte) []byte {
 	// 使用 PBKDF2，迭代次数 100,000 次，防止暴力破解
 	return pbkdf2.Key([]byte(password), salt, 100000, 32, sha256.New)
 }
 
-// GenerateKey 生成随机密钥
+// GenerateKey 生成随机密钥.
 func GenerateKey() ([]byte, error) {
 	key := make([]byte, 32)
 	if _, err := io.ReadFull(rand.Reader, key); err != nil {
@@ -473,7 +473,7 @@ func GenerateKey() ([]byte, error) {
 
 // ========== 压缩器 ==========
 
-// Compressor 压缩器接口
+// Compressor 压缩器接口.
 type Compressor interface {
 	Compress(data []byte) ([]byte, error)
 	Decompress(data []byte) ([]byte, error)
@@ -482,7 +482,7 @@ type Compressor interface {
 
 // ========== 校验和计算 ==========
 
-// CalculateChecksum 计算文件校验和
+// CalculateChecksum 计算文件校验和.
 func CalculateChecksum(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -498,7 +498,7 @@ func CalculateChecksum(path string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// CalculateChecksumBytes 计算字节校验和
+// CalculateChecksumBytes 计算字节校验和.
 func CalculateChecksumBytes(data []byte) string {
 	hash := sha256.New()
 	hash.Write(data)
@@ -507,7 +507,7 @@ func CalculateChecksumBytes(data []byte) string {
 
 // ========== 高级备份管理器 ==========
 
-// Manager 高级备份管理器
+// Manager 高级备份管理器.
 type Manager struct {
 	config      *BackupConfig
 	encryptor   Encryptor
@@ -522,7 +522,7 @@ type Manager struct {
 	indexPath   string
 }
 
-// NewManager 创建高级备份管理器
+// NewManager 创建高级备份管理器.
 func NewManager(config *BackupConfig, storagePath string) (*Manager, error) {
 	if config == nil {
 		config = DefaultBackupConfig()
@@ -563,7 +563,7 @@ func NewManager(config *BackupConfig, storagePath string) (*Manager, error) {
 	return mgr, nil
 }
 
-// getEncryptionKey 获取加密密钥
+// getEncryptionKey 获取加密密钥.
 func (m *Manager) getEncryptionKey() ([]byte, error) {
 	if m.config.Encryption.Key != "" {
 		key := []byte(m.config.Encryption.Key)
@@ -595,14 +595,14 @@ func (m *Manager) getEncryptionKey() ([]byte, error) {
 	return nil, ErrInvalidKey
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *BackupConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *BackupConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

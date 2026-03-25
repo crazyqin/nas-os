@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Monitor 配额监控器
+// Monitor 配额监控器.
 type Monitor struct {
 	manager     *Manager
 	config      AlertConfig
@@ -22,7 +22,7 @@ type Monitor struct {
 	alertLevels []AlertLevelConfig // 预警级别配置
 }
 
-// NewMonitor 创建监控器
+// NewMonitor 创建监控器.
 func NewMonitor(manager *Manager, config AlertConfig) *Monitor {
 	// 设置默认预警级别
 	alertLevels := DefaultAlertLevels
@@ -47,7 +47,7 @@ func NewMonitor(manager *Manager, config AlertConfig) *Monitor {
 	}
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *Monitor) Start() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -62,7 +62,7 @@ func (m *Monitor) Start() {
 	go m.run()
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *Monitor) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -75,14 +75,14 @@ func (m *Monitor) Stop() {
 	m.running = false
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Monitor) UpdateConfig(config AlertConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// run 监控循环
+// run 监控循环.
 func (m *Monitor) run() {
 	ticker := time.NewTicker(m.config.CheckInterval)
 	defer ticker.Stop()
@@ -104,7 +104,7 @@ func (m *Monitor) run() {
 	}
 }
 
-// checkEscalation 检查告警升级
+// checkEscalation 检查告警升级.
 func (m *Monitor) checkEscalation() {
 	m.manager.mu.Lock()
 	defer m.manager.mu.Unlock()
@@ -135,7 +135,7 @@ func (m *Monitor) checkEscalation() {
 	}
 }
 
-// sendEscalationNotification 发送升级通知
+// sendEscalationNotification 发送升级通知.
 func (m *Monitor) sendEscalationNotification(alert *Alert) {
 	fmt.Printf("[quota] 告警升级：%s -> 级别 %d (已持续 %v)\n",
 		alert.ID, alert.EscalationLevel, time.Since(alert.CreatedAt).Round(time.Minute))
@@ -151,7 +151,7 @@ func (m *Monitor) sendEscalationNotification(alert *Alert) {
 	}
 }
 
-// sendWebhookWithSeverity 发送带严重级别的 Webhook
+// sendWebhookWithSeverity 发送带严重级别的 Webhook.
 func (m *Monitor) sendWebhookWithSeverity(alert *Alert, webhookURL string) {
 	if webhookURL == "" {
 		return
@@ -203,7 +203,7 @@ func (m *Monitor) sendWebhookWithSeverity(alert *Alert, webhookURL string) {
 	fmt.Printf("[quota] 升级 webhook 发送成功，状态：%d\n", resp.StatusCode)
 }
 
-// checkAll 检查所有配额
+// checkAll 检查所有配额.
 func (m *Monitor) checkAll() {
 	if !m.config.Enabled {
 		return
@@ -219,7 +219,7 @@ func (m *Monitor) checkAll() {
 	}
 }
 
-// checkUsage 检查单个配额使用情况
+// checkUsage 检查单个配额使用情况.
 func (m *Monitor) checkUsage(usage *QuotaUsage) {
 	// 记录趋势数据
 	m.recordTrend(usage)
@@ -240,7 +240,7 @@ func (m *Monitor) checkUsage(usage *QuotaUsage) {
 	}
 }
 
-// triggerMultiLevelAlert 触发多级预警
+// triggerMultiLevelAlert 触发多级预警.
 func (m *Monitor) triggerMultiLevelAlert(usage *QuotaUsage, severity AlertSeverity, threshold float64) {
 	m.manager.mu.Lock()
 	defer m.manager.mu.Unlock()
@@ -299,7 +299,7 @@ func (m *Monitor) triggerMultiLevelAlert(usage *QuotaUsage, severity AlertSeveri
 	m.sendNotification(alert)
 }
 
-// findActiveAlert 查找活跃告警
+// findActiveAlert 查找活跃告警.
 func (m *Monitor) findActiveAlert(quotaID string) (*Alert, bool) {
 	for _, alert := range m.manager.alerts {
 		if alert.QuotaID == quotaID && alert.Status == AlertStatusActive {
@@ -309,7 +309,7 @@ func (m *Monitor) findActiveAlert(quotaID string) (*Alert, bool) {
 	return nil, false
 }
 
-// buildAlertMessage 构建告警消息
+// buildAlertMessage 构建告警消息.
 func (m *Monitor) buildAlertMessage(usage *QuotaUsage, severity AlertSeverity) string {
 	severityText := map[AlertSeverity]string{
 		AlertSeverityInfo:      "提示",
@@ -322,7 +322,7 @@ func (m *Monitor) buildAlertMessage(usage *QuotaUsage, severity AlertSeverity) s
 		severityText[severity], usage.TargetName, usage.UsagePercent)
 }
 
-// getSeverityLevel 获取严重级别数值（用于比较）
+// getSeverityLevel 获取严重级别数值（用于比较）.
 func getSeverityLevel(severity AlertSeverity) int {
 	switch severity {
 	case AlertSeverityInfo:
@@ -338,7 +338,7 @@ func getSeverityLevel(severity AlertSeverity) int {
 	}
 }
 
-// sendNotification 发送告警通知
+// sendNotification 发送告警通知.
 func (m *Monitor) sendNotification(alert *Alert) {
 	// 支持 Webhook 通知
 	if m.config.NotifyWebhook && m.config.WebhookURL != "" {
@@ -351,7 +351,7 @@ func (m *Monitor) sendNotification(alert *Alert) {
 	}
 }
 
-// sendEmail 发送邮件通知（预留实现）
+// sendEmail 发送邮件通知（预留实现）.
 func (m *Monitor) sendEmail(alert *Alert) {
 	// 获取配额信息来构建更详细的消息
 	m.manager.mu.RLock()
@@ -370,7 +370,7 @@ func (m *Monitor) sendEmail(alert *Alert) {
 	fmt.Printf("[quota] 邮件告警通知：%s (类型：%s)\n", quotaName, alert.Type)
 }
 
-// sendWebhook 发送 Webhook 通知
+// sendWebhook 发送 Webhook 通知.
 func (m *Monitor) sendWebhook(alert *Alert) {
 	if m.config.WebhookURL == "" {
 		return
@@ -440,7 +440,7 @@ func (m *Monitor) sendWebhook(alert *Alert) {
 	fmt.Printf("[quota] webhook 通知发送成功：%s\n", alert.ID)
 }
 
-// recordTrend 记录趋势数据
+// recordTrend 记录趋势数据.
 func (m *Monitor) recordTrend(usage *QuotaUsage) {
 	m.trendMu.Lock()
 	defer m.trendMu.Unlock()
@@ -463,7 +463,7 @@ func (m *Monitor) recordTrend(usage *QuotaUsage) {
 	m.trendData[usage.QuotaID] = history
 }
 
-// GetTrend 获取配额趋势数据
+// GetTrend 获取配额趋势数据.
 func (m *Monitor) GetTrend(quotaID string, duration time.Duration) []TrendDataPoint {
 	m.trendMu.RLock()
 	defer m.trendMu.RUnlock()
@@ -484,7 +484,7 @@ func (m *Monitor) GetTrend(quotaID string, duration time.Duration) []TrendDataPo
 	return result
 }
 
-// CalculateGrowthRate 计算增长率
+// CalculateGrowthRate 计算增长率.
 func (m *Monitor) CalculateGrowthRate(quotaID string) float64 {
 	m.trendMu.RLock()
 	defer m.trendMu.RUnlock()
@@ -507,7 +507,7 @@ func (m *Monitor) CalculateGrowthRate(quotaID string) float64 {
 	return bytesDiff / timeDiff // 字节/天
 }
 
-// PredictFullTime 预测填满时间
+// PredictFullTime 预测填满时间.
 func (m *Monitor) PredictFullTime(quotaID string, hardLimit uint64) int {
 	growthRate := m.CalculateGrowthRate(quotaID)
 	if growthRate <= 0 {
@@ -534,7 +534,7 @@ func (m *Monitor) PredictFullTime(quotaID string, hardLimit uint64) int {
 	return int(daysToFull)
 }
 
-// GetMonitorStatus 获取监控状态
+// GetMonitorStatus 获取监控状态.
 func (m *Monitor) GetMonitorStatus() map[string]interface{} {
 	m.mu.Lock()
 	running := m.running
@@ -552,7 +552,7 @@ func (m *Monitor) GetMonitorStatus() map[string]interface{} {
 	}
 }
 
-// CleanupOldData 清理过期的趋势数据
+// CleanupOldData 清理过期的趋势数据.
 func (m *Monitor) CleanupOldData(maxAge time.Duration) {
 	m.trendMu.Lock()
 	defer m.trendMu.Unlock()
@@ -577,7 +577,7 @@ func (m *Monitor) CleanupOldData(maxAge time.Duration) {
 
 // ========== 趋势统计增强 ==========
 
-// GetTrendStats 获取趋势统计
+// GetTrendStats 获取趋势统计.
 func (m *Monitor) GetTrendStats(quotaID string, duration time.Duration) *TrendStats {
 	m.trendMu.RLock()
 	history := m.trendData[quotaID]
@@ -672,7 +672,7 @@ func (m *Monitor) GetTrendStats(quotaID string, duration time.Duration) *TrendSt
 	return stats
 }
 
-// GetAllTrendStats 获取所有配额的趋势统计
+// GetAllTrendStats 获取所有配额的趋势统计.
 func (m *Monitor) GetAllTrendStats(duration time.Duration) []*TrendStats {
 	m.trendMu.RLock()
 	quotaIDs := make([]string, 0, len(m.trendData))
@@ -697,7 +697,7 @@ func (m *Monitor) GetAllTrendStats(duration time.Duration) []*TrendStats {
 	return stats
 }
 
-// ExportTrendData 导出趋势数据（用于持久化）
+// ExportTrendData 导出趋势数据（用于持久化）.
 func (m *Monitor) ExportTrendData() map[string][]TrendDataPoint {
 	m.trendMu.RLock()
 	defer m.trendMu.RUnlock()
@@ -709,7 +709,7 @@ func (m *Monitor) ExportTrendData() map[string][]TrendDataPoint {
 	return result
 }
 
-// ImportTrendData 导入趋势数据（用于恢复）
+// ImportTrendData 导入趋势数据（用于恢复）.
 func (m *Monitor) ImportTrendData(data map[string][]TrendDataPoint) {
 	m.trendMu.Lock()
 	defer m.trendMu.Unlock()

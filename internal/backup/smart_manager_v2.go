@@ -25,7 +25,7 @@ import (
 // 智能备份管理器 v2
 // ============================================================================
 
-// SmartManagerV2 智能备份管理器 v2
+// SmartManagerV2 智能备份管理器 v2.
 type SmartManagerV2 struct {
 	mu sync.RWMutex
 
@@ -52,7 +52,7 @@ type SmartManagerV2 struct {
 	cancel context.CancelFunc
 }
 
-// SmartBackupConfigV2 智能备份配置 v2
+// SmartBackupConfigV2 智能备份配置 v2.
 type SmartBackupConfigV2 struct {
 	BackupPath    string `json:"backup_path"`
 	TempPath      string `json:"temp_path"`
@@ -68,14 +68,14 @@ type SmartBackupConfigV2 struct {
 	Verification VerificationConfigV2 `json:"verification"`
 }
 
-// CompressionConfigV2 压缩配置
+// CompressionConfigV2 压缩配置.
 type CompressionConfigV2 struct {
 	Enabled   bool   `json:"enabled"`
 	Algorithm string `json:"algorithm"` // gzip, zstd, lz4
 	Level     int    `json:"level"`
 }
 
-// EncryptionConfigV2 加密配置
+// EncryptionConfigV2 加密配置.
 type EncryptionConfigV2 struct {
 	Enabled   bool   `json:"enabled"`
 	Algorithm string `json:"algorithm"`
@@ -83,7 +83,7 @@ type EncryptionConfigV2 struct {
 	KeyPath   string `json:"key_path"`
 }
 
-// IncrementalConfigV2 增量备份配置
+// IncrementalConfigV2 增量备份配置.
 type IncrementalConfigV2 struct {
 	Enabled        bool  `json:"enabled"`
 	ChunkSize      int64 `json:"chunk_size"`
@@ -92,7 +92,7 @@ type IncrementalConfigV2 struct {
 	Deduplication  bool  `json:"deduplication"`
 }
 
-// VersioningConfigV2 版本管理配置
+// VersioningConfigV2 版本管理配置.
 type VersioningConfigV2 struct {
 	Enabled     bool `json:"enabled"`
 	MaxVersions int  `json:"max_versions"`
@@ -101,7 +101,7 @@ type VersioningConfigV2 struct {
 	KeepMonthly int  `json:"keep_monthly"`
 }
 
-// CleanupConfigV2 清理策略配置
+// CleanupConfigV2 清理策略配置.
 type CleanupConfigV2 struct {
 	Enabled      bool  `json:"enabled"`
 	MaxAge       int   `json:"max_age"`
@@ -109,7 +109,7 @@ type CleanupConfigV2 struct {
 	MinFreeSpace int64 `json:"min_free_space"`
 }
 
-// PerformanceConfigV2 性能配置
+// PerformanceConfigV2 性能配置.
 type PerformanceConfigV2 struct {
 	IOBufferSize  int   `json:"io_buffer_size"`
 	ParallelFiles int   `json:"parallel_files"`
@@ -117,14 +117,14 @@ type PerformanceConfigV2 struct {
 	SpeedLimit    int64 `json:"speed_limit"`
 }
 
-// VerificationConfigV2 验证配置
+// VerificationConfigV2 验证配置.
 type VerificationConfigV2 struct {
 	Enabled       bool   `json:"enabled"`
 	VerifyOnWrite bool   `json:"verify_on_write"`
 	HashAlgorithm string `json:"hash_algorithm"`
 }
 
-// DefaultSmartBackupConfigV2 默认智能备份配置
+// DefaultSmartBackupConfigV2 默认智能备份配置.
 func DefaultSmartBackupConfigV2() *SmartBackupConfigV2 {
 	return &SmartBackupConfigV2{
 		BackupPath:    "/var/lib/nas-os/backups",
@@ -172,16 +172,16 @@ func DefaultSmartBackupConfigV2() *SmartBackupConfigV2 {
 	}
 }
 
-// IndexV2 备份索引
+// IndexV2 备份索引.
 type IndexV2 struct {
 	mu       sync.RWMutex
 	versions map[string]*VersionV2
 }
 
-// BackupIndexV2 备份索引（兼容别名）
+// BackupIndexV2 备份索引（兼容别名）.
 type BackupIndexV2 = IndexV2 //nolint:revive // 向后兼容别名
 
-// VersionV2 备份版本信息
+// VersionV2 备份版本信息.
 type VersionV2 struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -195,13 +195,13 @@ type VersionV2 struct {
 	Tags         []string          `json:"tags,omitempty"`
 }
 
-// BackupVersionV2 备份版本信息（兼容别名）
+// BackupVersionV2 备份版本信息（兼容别名）.
 type BackupVersionV2 = VersionV2 //nolint:revive // 向后兼容别名
 
-// StatusV2 备份状态
+// StatusV2 备份状态.
 type StatusV2 string
 
-// BackupStatusV2 备份状态（兼容别名）
+// BackupStatusV2 备份状态（兼容别名）.
 type BackupStatusV2 = StatusV2 //nolint:revive // 向后兼容别名
 
 const (
@@ -215,7 +215,7 @@ const (
 	BackupStatusV2Failed StatusV2 = "failed"
 )
 
-// ActiveBackupJobV2 活动备份作业
+// ActiveBackupJobV2 活动备份作业.
 type ActiveBackupJobV2 struct {
 	ID         string
 	ConfigID   string
@@ -234,7 +234,7 @@ type ActiveBackupJobV2 struct {
 // 创建与初始化
 // ============================================================================
 
-// NewSmartManagerV2 创建智能备份管理器 v2
+// NewSmartManagerV2 创建智能备份管理器 v2.
 func NewSmartManagerV2(configPath string, logger *zap.Logger) (*SmartManagerV2, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -276,7 +276,7 @@ func NewSmartManagerV2(configPath string, logger *zap.Logger) (*SmartManagerV2, 
 	return sm, nil
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (sm *SmartManagerV2) loadConfig() error {
 	data, err := os.ReadFile(sm.configPath)
 	if err != nil {
@@ -290,7 +290,7 @@ func (sm *SmartManagerV2) loadConfig() error {
 	return json.Unmarshal(data, sm.config)
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (sm *SmartManagerV2) saveConfig() error {
 	data, err := json.MarshalIndent(sm.config, "", "  ")
 	if err != nil {
@@ -299,7 +299,7 @@ func (sm *SmartManagerV2) saveConfig() error {
 	return os.WriteFile(sm.configPath, data, 0600)
 }
 
-// ensureDirectories 确保必要目录存在
+// ensureDirectories 确保必要目录存在.
 func (sm *SmartManagerV2) ensureDirectories() error {
 	dirs := []string{sm.config.BackupPath, sm.config.TempPath}
 	for _, dir := range dirs {
@@ -310,7 +310,7 @@ func (sm *SmartManagerV2) ensureDirectories() error {
 	return nil
 }
 
-// loadBackupIndex 加载备份索引
+// loadBackupIndex 加载备份索引.
 func (sm *SmartManagerV2) loadBackupIndex() error {
 	data, err := os.ReadFile(sm.config.IndexDBPath)
 	if err != nil {
@@ -319,7 +319,7 @@ func (sm *SmartManagerV2) loadBackupIndex() error {
 	return json.Unmarshal(data, &sm.backupIndex.versions)
 }
 
-// saveBackupIndex 保存备份索引
+// saveBackupIndex 保存备份索引.
 func (sm *SmartManagerV2) saveBackupIndex() error {
 	sm.backupIndex.mu.RLock()
 	data, err := json.MarshalIndent(sm.backupIndex.versions, "", "  ")
@@ -330,7 +330,7 @@ func (sm *SmartManagerV2) saveBackupIndex() error {
 	return os.WriteFile(sm.config.IndexDBPath, data, 0600)
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (sm *SmartManagerV2) Close() error {
 	sm.mu.Lock()
 	for _, job := range sm.activeJobs {
@@ -351,7 +351,7 @@ func (sm *SmartManagerV2) Close() error {
 // 备份作业管理
 // ============================================================================
 
-// SmartBackupJobV2 智能备份作业定义 v2
+// SmartBackupJobV2 智能备份作业定义 v2.
 type SmartBackupJobV2 struct {
 	ID          string           `json:"id"`
 	Name        string           `json:"name"`
@@ -369,7 +369,7 @@ type SmartBackupJobV2 struct {
 	Status      BackupStatusV2   `json:"status"`
 }
 
-// SmartJobConfigV2 作业配置
+// SmartJobConfigV2 作业配置.
 type SmartJobConfigV2 struct {
 	Exclude     []string `json:"exclude,omitempty"`
 	PreScript   string   `json:"pre_script,omitempty"`
@@ -377,7 +377,7 @@ type SmartJobConfigV2 struct {
 	VerifyAfter bool     `json:"verify_after"`
 }
 
-// CreateJob 创建备份作业
+// CreateJob 创建备份作业.
 func (sm *SmartManagerV2) CreateJob(job *SmartBackupJobV2) error {
 	if job.ID == "" {
 		job.ID = generateUUIDV2()
@@ -404,7 +404,7 @@ func (sm *SmartManagerV2) CreateJob(job *SmartBackupJobV2) error {
 	return nil
 }
 
-// GetJob 获取备份作业
+// GetJob 获取备份作业.
 func (sm *SmartManagerV2) GetJob(id string) (*SmartBackupJobV2, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -415,7 +415,7 @@ func (sm *SmartManagerV2) GetJob(id string) (*SmartBackupJobV2, error) {
 	return job, nil
 }
 
-// ListJobs 列出备份作业
+// ListJobs 列出备份作业.
 func (sm *SmartManagerV2) ListJobs() []*SmartBackupJobV2 {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -429,7 +429,7 @@ func (sm *SmartManagerV2) ListJobs() []*SmartBackupJobV2 {
 	return jobs
 }
 
-// UpdateJob 更新备份作业
+// UpdateJob 更新备份作业.
 func (sm *SmartManagerV2) UpdateJob(id string, job *SmartBackupJobV2) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -442,7 +442,7 @@ func (sm *SmartManagerV2) UpdateJob(id string, job *SmartBackupJobV2) error {
 	return nil
 }
 
-// DeleteJob 删除备份作业
+// DeleteJob 删除备份作业.
 func (sm *SmartManagerV2) DeleteJob(id string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -457,7 +457,7 @@ func (sm *SmartManagerV2) DeleteJob(id string) error {
 // 备份执行
 // ============================================================================
 
-// RunBackup 执行备份
+// RunBackup 执行备份.
 func (sm *SmartManagerV2) RunBackup(jobID string) (*ActiveBackupJobV2, error) {
 	sm.mu.Lock()
 	job, exists := sm.jobs[jobID]
@@ -489,7 +489,7 @@ func (sm *SmartManagerV2) RunBackup(jobID string) (*ActiveBackupJobV2, error) {
 	return activeJob, nil
 }
 
-// executeBackup 执行备份核心逻辑
+// executeBackup 执行备份核心逻辑.
 func (sm *SmartManagerV2) executeBackup(ctx context.Context, job *SmartBackupJobV2, activeJob *ActiveBackupJobV2) {
 	defer func() {
 		sm.mu.Lock()
@@ -560,7 +560,7 @@ func (sm *SmartManagerV2) executeBackup(ctx context.Context, job *SmartBackupJob
 	sm.logger.Info("备份完成", zap.String("job_id", job.ID), zap.String("backup_id", version.ID))
 }
 
-// calculateChecksumV2 计算校验和
+// calculateChecksumV2 计算校验和.
 func (sm *SmartManagerV2) calculateChecksumV2(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -579,7 +579,7 @@ func (sm *SmartManagerV2) calculateChecksumV2(path string) (string, error) {
 // 恢复操作
 // ============================================================================
 
-// RestoreBackup 恢复备份
+// RestoreBackup 恢复备份.
 func (sm *SmartManagerV2) RestoreBackup(backupID, targetPath string, overwrite bool) (*ActiveBackupJobV2, error) {
 	sm.backupIndex.mu.RLock()
 	version, exists := sm.backupIndex.versions[backupID]
@@ -604,7 +604,7 @@ func (sm *SmartManagerV2) RestoreBackup(backupID, targetPath string, overwrite b
 	return activeJob, nil
 }
 
-// executeRestoreV2 执行恢复
+// executeRestoreV2 执行恢复.
 func (sm *SmartManagerV2) executeRestoreV2(version *BackupVersionV2, targetPath string, activeJob *ActiveBackupJobV2) {
 	defer func() {
 		sm.mu.Lock()
@@ -636,7 +636,7 @@ func (sm *SmartManagerV2) executeRestoreV2(version *BackupVersionV2, targetPath 
 // 版本管理
 // ============================================================================
 
-// ListVersions 列出备份版本
+// ListVersions 列出备份版本.
 func (sm *SmartManagerV2) ListVersions(name string) []*BackupVersionV2 {
 	sm.backupIndex.mu.RLock()
 	defer sm.backupIndex.mu.RUnlock()
@@ -653,7 +653,7 @@ func (sm *SmartManagerV2) ListVersions(name string) []*BackupVersionV2 {
 	return versions
 }
 
-// GetVersion 获取备份版本详情
+// GetVersion 获取备份版本详情.
 func (sm *SmartManagerV2) GetVersion(backupID string) (*BackupVersionV2, error) {
 	sm.backupIndex.mu.RLock()
 	defer sm.backupIndex.mu.RUnlock()
@@ -665,7 +665,7 @@ func (sm *SmartManagerV2) GetVersion(backupID string) (*BackupVersionV2, error) 
 	return version, nil
 }
 
-// DeleteVersion 删除备份版本
+// DeleteVersion 删除备份版本.
 func (sm *SmartManagerV2) DeleteVersion(backupID string) error {
 	sm.backupIndex.mu.Lock()
 	defer sm.backupIndex.mu.Unlock()
@@ -690,7 +690,7 @@ func (sm *SmartManagerV2) DeleteVersion(backupID string) error {
 // 状态与统计
 // ============================================================================
 
-// GetActiveJob 获取活动作业状态
+// GetActiveJob 获取活动作业状态.
 func (sm *SmartManagerV2) GetActiveJob(jobID string) (*ActiveBackupJobV2, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -701,7 +701,7 @@ func (sm *SmartManagerV2) GetActiveJob(jobID string) (*ActiveBackupJobV2, error)
 	return job, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (sm *SmartManagerV2) GetStats() *BackupStats {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -716,7 +716,7 @@ func (sm *SmartManagerV2) GetStats() *BackupStats {
 	return stats
 }
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 func (sm *SmartManagerV2) HealthCheck() (*HealthCheckResult, error) {
 	result := &HealthCheckResult{
 		Status:    "healthy",
@@ -740,7 +740,7 @@ func (sm *SmartManagerV2) HealthCheck() (*HealthCheckResult, error) {
 	return result, nil
 }
 
-// SetScheduler 设置调度器
+// SetScheduler 设置调度器.
 func (sm *SmartManagerV2) SetScheduler(scheduler *BackupScheduler) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -751,7 +751,7 @@ func (sm *SmartManagerV2) SetScheduler(scheduler *BackupScheduler) {
 // 辅助函数
 // ============================================================================
 
-// generateUUIDV2 生成 UUID
+// generateUUIDV2 生成 UUID.
 func generateUUIDV2() string {
 	return fmt.Sprintf("%d-%s", time.Now().UnixNano(), randomString(8))
 }

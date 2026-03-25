@@ -11,23 +11,23 @@ import (
 	"time"
 )
 
-// STUN消息类型
+// STUN消息类型.
 const (
 	STUNBindingRequest  uint16 = 0x0001
 	STUNBindingResponse uint16 = 0x0101
 	STUNBindingError    uint16 = 0x0111
 
-	// STUN Magic Cookie
+	// STUN Magic Cookie.
 	STUNMagicCookie uint32 = 0x2112A442
 
-	// STUN属性类型
+	// STUN属性类型.
 	STUNAttrMappedAddress    uint16 = 0x0001
 	STUNAttrXORMappedAddress uint16 = 0x0020
 	STUNAttrErrorCode        uint16 = 0x0009
 	STUNAttrSoftware         uint16 = 0x0022
 )
 
-// STUN错误码
+// STUN错误码.
 var (
 	ErrSTUNTimeout       = errors.New("STUN request timeout")
 	ErrSTUNResponse      = errors.New("invalid STUN response")
@@ -37,7 +37,7 @@ var (
 	ErrNoValidSTUNServer = errors.New("no valid STUN server available")
 )
 
-// STUNMessage STUN消息结构
+// STUNMessage STUN消息结构.
 type STUNMessage struct {
 	Type          uint16
 	Length        uint16
@@ -46,21 +46,21 @@ type STUNMessage struct {
 	Attributes    []STUNAttribute
 }
 
-// STUNAttribute STUN属性
+// STUNAttribute STUN属性.
 type STUNAttribute struct {
 	Type   uint16
 	Length uint16
 	Value  []byte
 }
 
-// STUNClient STUN客户端
+// STUNClient STUN客户端.
 type STUNClient struct {
 	timeout   time.Duration
 	retries   int
 	localPort int
 }
 
-// STUNResult STUN探测结果
+// STUNResult STUN探测结果.
 type STUNResult struct {
 	PublicIP        net.IP
 	PublicPort      int
@@ -88,7 +88,7 @@ const (
 	NATTypeSymmetric
 )
 
-// String 返回NAT类型描述
+// String 返回NAT类型描述.
 func (n NATType) String() string {
 	switch n {
 	case NATTypeNone:
@@ -106,7 +106,7 @@ func (n NATType) String() string {
 	}
 }
 
-// NewSTUNClient 创建STUN客户端
+// NewSTUNClient 创建STUN客户端.
 func NewSTUNClient() *STUNClient {
 	return &STUNClient{
 		timeout:   5 * time.Second,
@@ -115,25 +115,25 @@ func NewSTUNClient() *STUNClient {
 	}
 }
 
-// WithTimeout 设置超时时间
+// WithTimeout 设置超时时间.
 func (c *STUNClient) WithTimeout(timeout time.Duration) *STUNClient {
 	c.timeout = timeout
 	return c
 }
 
-// WithRetries 设置重试次数
+// WithRetries 设置重试次数.
 func (c *STUNClient) WithRetries(retries int) *STUNClient {
 	c.retries = retries
 	return c
 }
 
-// WithLocalPort 设置本地端口
+// WithLocalPort 设置本地端口.
 func (c *STUNClient) WithLocalPort(port int) *STUNClient {
 	c.localPort = port
 	return c
 }
 
-// Discover 探测公网地址
+// Discover 探测公网地址.
 func (c *STUNClient) Discover(serverAddr string) (*STUNResult, error) {
 	// 解析服务器地址
 	addr, err := net.ResolveUDPAddr("udp", serverAddr)
@@ -178,7 +178,7 @@ func (c *STUNClient) Discover(serverAddr string) (*STUNResult, error) {
 	return result, nil
 }
 
-// DiscoverWithNATType 探测公网地址并检测NAT类型
+// DiscoverWithNATType 探测公网地址并检测NAT类型.
 func (c *STUNClient) DiscoverWithNATType(servers []string) (*STUNResult, error) {
 	if len(servers) < 2 {
 		return nil, errors.New("need at least 2 STUN servers for NAT type detection")
@@ -240,7 +240,7 @@ func (c *STUNClient) DiscoverWithNATType(servers []string) (*STUNResult, error) 
 	return result1, nil
 }
 
-// sendBindingRequest 发送绑定请求
+// sendBindingRequest 发送绑定请求.
 func (c *STUNClient) sendBindingRequest(conn *net.UDPConn) (*STUNMessage, error) {
 	// 创建绑定请求
 	req := createBindingRequest()
@@ -293,7 +293,7 @@ func (c *STUNClient) sendBindingRequest(conn *net.UDPConn) (*STUNMessage, error)
 	return nil, ErrSTUNTimeout
 }
 
-// sendBindingRequestTo 向指定地址发送绑定请求
+// sendBindingRequestTo 向指定地址发送绑定请求.
 func (c *STUNClient) sendBindingRequestTo(conn *net.UDPConn, addr *net.UDPAddr) (*STUNMessage, error) {
 	req := createBindingRequest()
 
@@ -335,7 +335,7 @@ func (c *STUNClient) sendBindingRequestTo(conn *net.UDPConn, addr *net.UDPAddr) 
 	return nil, ErrSTUNTimeout
 }
 
-// createBindingRequest 创建绑定请求
+// createBindingRequest 创建绑定请求.
 func createBindingRequest() *STUNMessage {
 	msg := &STUNMessage{
 		Type:       STUNBindingRequest,
@@ -368,7 +368,7 @@ func createBindingRequest() *STUNMessage {
 	return msg
 }
 
-// Marshal 序列化STUN消息
+// Marshal 序列化STUN消息.
 func (m *STUNMessage) Marshal() []byte {
 	// 计算总长度: 20字节头 + 属性
 	attrLen := 0
@@ -422,7 +422,7 @@ func (m *STUNMessage) Marshal() []byte {
 	return buf
 }
 
-// ParseSTUNMessage 解析STUN消息
+// ParseSTUNMessage 解析STUN消息.
 func ParseSTUNMessage(data []byte) (*STUNMessage, error) {
 	if len(data) < 20 {
 		return nil, ErrSTUNResponse
@@ -484,7 +484,7 @@ func ParseSTUNMessage(data []byte) (*STUNMessage, error) {
 	return msg, nil
 }
 
-// parseMappedAddress 解析映射地址属性
+// parseMappedAddress 解析映射地址属性.
 func parseMappedAddress(msg *STUNMessage) (*net.UDPAddr, error) {
 	for _, attr := range msg.Attributes {
 		if attr.Type == STUNAttrXORMappedAddress {
@@ -497,7 +497,7 @@ func parseMappedAddress(msg *STUNMessage) (*net.UDPAddr, error) {
 	return nil, fmt.Errorf("%w: no mapped address found", ErrSTUNAttr)
 }
 
-// parseMappedAddressValue 解析普通映射地址
+// parseMappedAddressValue 解析普通映射地址.
 func parseMappedAddressValue(data []byte) (*net.UDPAddr, error) {
 	if len(data) < 8 {
 		return nil, ErrSTUNAttr
@@ -531,7 +531,7 @@ func parseMappedAddressValue(data []byte) (*net.UDPAddr, error) {
 	}, nil
 }
 
-// parseXORMappedAddress 解析XOR映射地址
+// parseXORMappedAddress 解析XOR映射地址.
 func parseXORMappedAddress(data []byte, transactionID []byte) (*net.UDPAddr, error) {
 	if len(data) < 4 {
 		return nil, ErrSTUNAttr
@@ -577,7 +577,7 @@ func parseXORMappedAddress(data []byte, transactionID []byte) (*net.UDPAddr, err
 	}, nil
 }
 
-// parseSTUNError 解析STUN错误响应
+// parseSTUNError 解析STUN错误响应.
 func parseSTUNError(msg *STUNMessage) error {
 	for _, attr := range msg.Attributes {
 		if attr.Type == STUNAttrErrorCode {
@@ -608,7 +608,7 @@ func parseSTUNError(msg *STUNMessage) error {
 	return ErrSTUNResponse
 }
 
-// detectNATType 检测NAT类型
+// detectNATType 检测NAT类型.
 func detectNATType(addr1, addr2 *net.UDPAddr) NATType {
 	if addr1 == nil || addr2 == nil {
 		return NATTypeUnknown
@@ -630,7 +630,7 @@ func detectNATType(addr1, addr2 *net.UDPAddr) NATType {
 	return NATTypeSymmetric
 }
 
-// isPublicIP 检查是否公网IP
+// isPublicIP 检查是否公网IP.
 func isPublicIP(ip net.IP) bool {
 	if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() {
 		return false

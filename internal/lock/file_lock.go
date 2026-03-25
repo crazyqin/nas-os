@@ -8,13 +8,13 @@ import (
 	"time"
 )
 
-// LockType defines the type of file lock
+// LockType defines the type of file lock.
 type LockType int
 
 const (
-	// LockTypeShared 共享锁（读锁）- 多个用户可同时持有
+	// LockTypeShared 共享锁（读锁）- 多个用户可同时持有.
 	LockTypeShared LockType = iota
-	// LockTypeExclusive 独占锁（写锁）- 只有一个用户可持有
+	// LockTypeExclusive 独占锁（写锁）- 只有一个用户可持有.
 	LockTypeExclusive
 )
 
@@ -29,15 +29,15 @@ func (lt LockType) String() string {
 	}
 }
 
-// LockStatus 锁状态
+// LockStatus 锁状态.
 type LockStatus int
 
 const (
-	// LockStatusActive 锁活跃状态
+	// LockStatusActive 锁活跃状态.
 	LockStatusActive LockStatus = iota
-	// LockStatusExpired 锁已过期
+	// LockStatusExpired 锁已过期.
 	LockStatusExpired
-	// LockStatusReleased 锁已释放
+	// LockStatusReleased 锁已释放.
 	LockStatusReleased
 )
 
@@ -54,23 +54,23 @@ func (ls LockStatus) String() string {
 	}
 }
 
-// 定义错误
+// 定义错误.
 var (
-	// ErrLockNotFound 锁不存在
+	// ErrLockNotFound 锁不存在.
 	ErrLockNotFound = errors.New("lock not found")
-	// ErrLockConflict 锁冲突
+	// ErrLockConflict 锁冲突.
 	ErrLockConflict = errors.New("lock conflict")
-	// ErrLockExpired 锁已过期
+	// ErrLockExpired 锁已过期.
 	ErrLockExpired = errors.New("lock expired")
-	// ErrNotLockOwner 不是锁的持有者
+	// ErrNotLockOwner 不是锁的持有者.
 	ErrNotLockOwner = errors.New("not lock owner")
-	// ErrInvalidLockType 无效的锁类型
+	// ErrInvalidLockType 无效的锁类型.
 	ErrInvalidLockType = errors.New("invalid lock type")
-	// ErrFileAlreadyLocked 文件已被锁定
+	// ErrFileAlreadyLocked 文件已被锁定.
 	ErrFileAlreadyLocked = errors.New("file already locked")
 )
 
-// FileLock 文件锁
+// FileLock 文件锁.
 type FileLock struct {
 	// ID 锁的唯一标识
 	ID string `json:"id"`
@@ -101,28 +101,28 @@ type FileLock struct {
 	mu sync.RWMutex
 }
 
-// IsExpired 检查锁是否已过期
+// IsExpired 检查锁是否已过期.
 func (fl *FileLock) IsExpired() bool {
 	fl.mu.RLock()
 	defer fl.mu.RUnlock()
 	return time.Now().After(fl.ExpiresAt)
 }
 
-// IsOwnedBy 检查是否由指定用户持有
+// IsOwnedBy 检查是否由指定用户持有.
 func (fl *FileLock) IsOwnedBy(owner string) bool {
 	fl.mu.RLock()
 	defer fl.mu.RUnlock()
 	return fl.Owner == owner
 }
 
-// Refresh 刷新锁的访问时间
+// Refresh 刷新锁的访问时间.
 func (fl *FileLock) Refresh() {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
 	fl.LastAccessed = time.Now()
 }
 
-// Extend 延长锁的有效期
+// Extend 延长锁的有效期.
 func (fl *FileLock) Extend(duration time.Duration) {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
@@ -130,14 +130,14 @@ func (fl *FileLock) Extend(duration time.Duration) {
 	fl.LastAccessed = time.Now()
 }
 
-// Release 释放锁
+// Release 释放锁.
 func (fl *FileLock) Release() {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
 	fl.Status = LockStatusReleased
 }
 
-// LockInfo 锁信息（用于API响应）
+// LockInfo 锁信息（用于API响应）.
 type LockInfo struct {
 	ID        string            `json:"id"`
 	FilePath  string            `json:"filePath"`
@@ -154,7 +154,7 @@ type LockInfo struct {
 	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
-// ToInfo 转换为LockInfo
+// ToInfo 转换为LockInfo.
 func (fl *FileLock) ToInfo() *LockInfo {
 	fl.mu.RLock()
 	defer fl.mu.RUnlock()
@@ -182,7 +182,7 @@ func (fl *FileLock) ToInfo() *LockInfo {
 	}
 }
 
-// LockRequest 锁请求
+// LockRequest 锁请求.
 type LockRequest struct {
 	// FilePath 文件路径
 	FilePath string `json:"filePath" binding:"required"`
@@ -202,7 +202,7 @@ type LockRequest struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// LockConflict 锁冲突信息
+// LockConflict 锁冲突信息.
 type LockConflict struct {
 	// ExistingLock 现有的锁
 	ExistingLock *LockInfo `json:"existingLock"`
@@ -210,7 +210,7 @@ type LockConflict struct {
 	Message string `json:"message"`
 }
 
-// FileLockConfig 锁配置
+// FileLockConfig 锁配置.
 type FileLockConfig struct {
 	// DefaultTimeout 默认锁超时时间
 	DefaultTimeout time.Duration
@@ -226,7 +226,7 @@ type FileLockConfig struct {
 	AutoRenewalInterval time.Duration
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() FileLockConfig {
 	return FileLockConfig{
 		DefaultTimeout:      30 * time.Minute,
@@ -238,7 +238,7 @@ func DefaultConfig() FileLockConfig {
 	}
 }
 
-// ProtocolLockAdapter 协议锁适配器接口（用于与 SMB/NFS 集成）
+// ProtocolLockAdapter 协议锁适配器接口（用于与 SMB/NFS 集成）.
 type ProtocolLockAdapter interface {
 	// Lock 锁定文件
 	Lock(filePath string, owner string, exclusive bool) error

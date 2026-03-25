@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TestNewManager 测试创建 Docker 管理器
+// TestNewManager 测试创建 Docker 管理器.
 func TestNewManager(t *testing.T) {
 	mgr, err := NewManager()
 	if err != nil {
@@ -20,7 +20,7 @@ func TestNewManager(t *testing.T) {
 	}
 }
 
-// TestContainerFields 测试容器字段
+// TestContainerFields 测试容器字段.
 func TestContainerFields(t *testing.T) {
 	container := &Container{
 		ID:     "abc123",
@@ -51,7 +51,7 @@ func TestContainerFields(t *testing.T) {
 	}
 }
 
-// TestPortMapping 测试端口映射
+// TestPortMapping 测试端口映射.
 func TestPortMapping(t *testing.T) {
 	pm := PortMapping{
 		HostIP:        "0.0.0.0",
@@ -68,7 +68,7 @@ func TestPortMapping(t *testing.T) {
 	}
 }
 
-// TestVolumeMount 测试卷挂载
+// TestVolumeMount 测试卷挂载.
 func TestVolumeMount(t *testing.T) {
 	vm := VolumeMount{
 		Source:      "/host/path",
@@ -85,7 +85,7 @@ func TestVolumeMount(t *testing.T) {
 	}
 }
 
-// TestImageFields 测试镜像字段
+// TestImageFields 测试镜像字段.
 func TestImageFields(t *testing.T) {
 	image := &Image{
 		ID:         "sha256:abc123",
@@ -102,7 +102,7 @@ func TestImageFields(t *testing.T) {
 	}
 }
 
-// TestNetworkFields 测试网络字段
+// TestNetworkFields 测试网络字段.
 func TestNetworkFields(t *testing.T) {
 	network := &Network{
 		ID:         "net123",
@@ -122,7 +122,7 @@ func TestNetworkFields(t *testing.T) {
 	}
 }
 
-// TestVolumeFields 测试卷字段
+// TestVolumeFields 测试卷字段.
 func TestVolumeFields(t *testing.T) {
 	volume := &Volume{
 		Name:       "my-volume",
@@ -139,7 +139,7 @@ func TestVolumeFields(t *testing.T) {
 	}
 }
 
-// TestContainerStats 测试容器统计
+// TestContainerStats 测试容器统计.
 func TestContainerStats(t *testing.T) {
 	stats := &ContainerStats{
 		CPUUsage:   2.5,
@@ -159,7 +159,7 @@ func TestContainerStats(t *testing.T) {
 	}
 }
 
-// TestAppCatalog 测试应用目录
+// TestAppCatalog 测试应用目录.
 func TestAppCatalog(t *testing.T) {
 	catalog := &AppCatalog{
 		Name:        "Plex",
@@ -179,7 +179,7 @@ func TestAppCatalog(t *testing.T) {
 	}
 }
 
-// TestParsePorts 测试端口解析
+// TestParsePorts 测试端口解析.
 func TestParsePorts(t *testing.T) {
 	mgr, _ := NewManager()
 
@@ -215,7 +215,7 @@ func TestParsePorts(t *testing.T) {
 	}
 }
 
-// TestParsePortsSingle 测试单个端口解析
+// TestParsePortsSingle 测试单个端口解析.
 func TestParsePortsSingle(t *testing.T) {
 	mgr, _ := NewManager()
 
@@ -238,7 +238,7 @@ func TestParsePortsSingle(t *testing.T) {
 	}
 }
 
-// TestParsePortsUDP 测试 UDP 端口解析
+// TestParsePortsUDP 测试 UDP 端口解析.
 func TestParsePortsUDP(t *testing.T) {
 	mgr, _ := NewManager()
 
@@ -252,7 +252,7 @@ func TestParsePortsUDP(t *testing.T) {
 	}
 }
 
-// TestParseSize 测试大小解析
+// TestParseSize 测试大小解析.
 func TestParseSize(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -282,7 +282,7 @@ func TestParseSize(t *testing.T) {
 	}
 }
 
-// TestParseSizeWithSpaces 测试带空格的大小解析
+// TestParseSizeWithSpaces 测试带空格的大小解析.
 func TestParseSizeWithSpaces(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -303,7 +303,7 @@ func TestParseSizeWithSpaces(t *testing.T) {
 	}
 }
 
-// TestLogOptions 测试日志选项
+// TestLogOptions 测试日志选项.
 func TestLogOptions(t *testing.T) {
 	opts := LogOptions{
 		Tail:       100,
@@ -321,7 +321,7 @@ func TestLogOptions(t *testing.T) {
 	}
 }
 
-// TestLogOptionsDefaults 测试日志选项默认值
+// TestLogOptionsDefaults 测试日志选项默认值.
 func TestLogOptionsDefaults(t *testing.T) {
 	opts := LogOptions{}
 
@@ -333,7 +333,7 @@ func TestLogOptionsDefaults(t *testing.T) {
 	}
 }
 
-// TestGetAppCatalog 测试获取应用目录
+// TestGetAppCatalog 测试获取应用目录.
 func TestGetAppCatalog(t *testing.T) {
 	mgr, _ := NewManager()
 
@@ -363,7 +363,7 @@ func TestGetAppCatalog(t *testing.T) {
 	}
 }
 
-// TestAppCatalogFields 测试应用目录字段
+// TestAppCatalogFields 测试应用目录字段.
 func TestAppCatalogFields(t *testing.T) {
 	mgr, _ := NewManager()
 
@@ -382,7 +382,7 @@ func TestAppCatalogFields(t *testing.T) {
 	}
 }
 
-// TestContainerState 测试容器状态
+// TestContainerState 测试容器状态.
 func TestContainerState(t *testing.T) {
 	states := []string{"running", "exited", "paused", "restarting", "dead"}
 
@@ -396,7 +396,7 @@ func TestContainerState(t *testing.T) {
 	}
 }
 
-// TestContainerMultiplePorts 测试容器多个端口
+// TestContainerMultiplePorts 测试容器多个端口.
 func TestContainerMultiplePorts(t *testing.T) {
 	container := &Container{
 		ID:   "test",
@@ -413,7 +413,7 @@ func TestContainerMultiplePorts(t *testing.T) {
 	}
 }
 
-// TestContainerMultipleVolumes 测试容器多个卷
+// TestContainerMultipleVolumes 测试容器多个卷.
 func TestContainerMultipleVolumes(t *testing.T) {
 	container := &Container{
 		ID:   "test",
@@ -441,7 +441,7 @@ func TestContainerMultipleVolumes(t *testing.T) {
 	}
 }
 
-// TestNetworkDrivers 测试网络驱动
+// TestNetworkDrivers 测试网络驱动.
 func TestNetworkDrivers(t *testing.T) {
 	drivers := []string{"bridge", "host", "overlay", "macvlan", "none"}
 
@@ -455,7 +455,7 @@ func TestNetworkDrivers(t *testing.T) {
 	}
 }
 
-// TestVolumeDrivers 测试卷驱动
+// TestVolumeDrivers 测试卷驱动.
 func TestVolumeDrivers(t *testing.T) {
 	drivers := []string{"local", "nfs", "tmpfs", "cifs"}
 
@@ -469,7 +469,7 @@ func TestVolumeDrivers(t *testing.T) {
 	}
 }
 
-// TestContainerStatsResourceUsage 测试容器资源使用统计
+// TestContainerStatsResourceUsage 测试容器资源使用统计.
 func TestContainerStatsResourceUsage(t *testing.T) {
 	stats := &ContainerStats{
 		CPUUsage:   50.0,               // 50%
@@ -493,7 +493,7 @@ func TestContainerStatsResourceUsage(t *testing.T) {
 	}
 }
 
-// TestImageTags 测试镜像标签
+// TestImageTags 测试镜像标签.
 func TestImageTags(t *testing.T) {
 	tags := []string{"latest", "alpine", "1.0.0", "v2.0.0-beta", "main"}
 
@@ -507,7 +507,7 @@ func TestImageTags(t *testing.T) {
 	}
 }
 
-// TestContainerLabels 测试容器标签
+// TestContainerLabels 测试容器标签.
 func TestContainerLabels(t *testing.T) {
 	container := &Container{
 		ID: "test",
@@ -526,7 +526,7 @@ func TestContainerLabels(t *testing.T) {
 	}
 }
 
-// TestParseSizeEdgeCases 测试大小解析边缘情况
+// TestParseSizeEdgeCases 测试大小解析边缘情况.
 func TestParseSizeEdgeCases(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -547,7 +547,7 @@ func TestParseSizeEdgeCases(t *testing.T) {
 	}
 }
 
-// TestPortMappingAllProtocols 测试所有协议的端口映射
+// TestPortMappingAllProtocols 测试所有协议的端口映射.
 func TestPortMappingAllProtocols(t *testing.T) {
 	protocols := []string{"tcp", "udp", "sctp"}
 
@@ -561,7 +561,7 @@ func TestPortMappingAllProtocols(t *testing.T) {
 	}
 }
 
-// TestContainerNetworks 测试容器网络列表
+// TestContainerNetworks 测试容器网络列表.
 func TestContainerNetworks(t *testing.T) {
 	container := &Container{
 		ID:       "test",
@@ -585,7 +585,7 @@ func TestContainerNetworks(t *testing.T) {
 	}
 }
 
-// BenchmarkParsePorts 基准测试端口解析
+// BenchmarkParsePorts 基准测试端口解析.
 func BenchmarkParsePorts(b *testing.B) {
 	mgr, _ := NewManager()
 	input := "0.0.0.0:8080->80/tcp, 0.0.0.0:8443->443/tcp, 0.0.0.0:9000->9000/tcp"
@@ -596,7 +596,7 @@ func BenchmarkParsePorts(b *testing.B) {
 	}
 }
 
-// BenchmarkParseSize 基准测试大小解析
+// BenchmarkParseSize 基准测试大小解析.
 func BenchmarkParseSize(b *testing.B) {
 	input := "100MB"
 
@@ -606,7 +606,7 @@ func BenchmarkParseSize(b *testing.B) {
 	}
 }
 
-// BenchmarkGetAppCatalog 基准测试获取应用目录
+// BenchmarkGetAppCatalog 基准测试获取应用目录.
 func BenchmarkGetAppCatalog(b *testing.B) {
 	mgr, _ := NewManager()
 
@@ -616,7 +616,7 @@ func BenchmarkGetAppCatalog(b *testing.B) {
 	}
 }
 
-// BenchmarkContainerFields 基准测试容器字段访问
+// BenchmarkContainerFields 基准测试容器字段访问.
 func BenchmarkContainerFields(b *testing.B) {
 	container := &Container{
 		ID:      "abc123",
@@ -638,7 +638,7 @@ func BenchmarkContainerFields(b *testing.B) {
 	}
 }
 
-// TestParsePortsComplex 测试复杂端口解析
+// TestParsePortsComplex 测试复杂端口解析.
 func TestParsePortsComplex(t *testing.T) {
 	mgr, _ := NewManager()
 
@@ -687,7 +687,7 @@ func TestParsePortsComplex(t *testing.T) {
 	}
 }
 
-// TestSizeUnits 测试各种大小单位
+// TestSizeUnits 测试各种大小单位.
 func TestSizeUnits(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -709,7 +709,7 @@ func TestSizeUnits(t *testing.T) {
 	}
 }
 
-// TestContainerStructMethods 测试容器结构体方法
+// TestContainerStructMethods 测试容器结构体方法.
 func TestContainerStructMethods(t *testing.T) {
 	container := &Container{
 		ID:       "abc123def456",
@@ -735,13 +735,13 @@ func TestContainerStructMethods(t *testing.T) {
 	}
 }
 
-// parseTime 辅助函数
+// parseTime 辅助函数.
 func parseTime(s string) time.Time {
 	t, _ := time.Parse(time.RFC3339, s)
 	return t
 }
 
-// TestImageStructComplete 测试镜像结构体完整字段
+// TestImageStructComplete 测试镜像结构体完整字段.
 func TestImageStructComplete(t *testing.T) {
 	now := time.Now()
 	image := &Image{
@@ -760,7 +760,7 @@ func TestImageStructComplete(t *testing.T) {
 	}
 }
 
-// TestNetworkStructComplete 测试网络结构体完整字段
+// TestNetworkStructComplete 测试网络结构体完整字段.
 func TestNetworkStructComplete(t *testing.T) {
 	network := &Network{
 		ID:         "network123",
@@ -782,7 +782,7 @@ func TestNetworkStructComplete(t *testing.T) {
 	}
 }
 
-// TestVolumeStructComplete 测试卷结构体完整字段
+// TestVolumeStructComplete 测试卷结构体完整字段.
 func TestVolumeStructComplete(t *testing.T) {
 	now := time.Now()
 	volume := &Volume{
@@ -801,7 +801,7 @@ func TestVolumeStructComplete(t *testing.T) {
 	}
 }
 
-// TestContainerStatsAllFields 测试容器统计所有字段
+// TestContainerStatsAllFields 测试容器统计所有字段.
 func TestContainerStatsAllFields(t *testing.T) {
 	stats := &ContainerStats{
 		CPUUsage:   75.5,
@@ -829,7 +829,7 @@ func TestContainerStatsAllFields(t *testing.T) {
 	}
 }
 
-// TestAppCatalogComplete 测试应用目录完整结构
+// TestAppCatalogComplete 测试应用目录完整结构.
 func TestAppCatalogComplete(t *testing.T) {
 	catalog := &AppCatalog{
 		Name:        "Nextcloud",
@@ -855,7 +855,7 @@ func TestAppCatalogComplete(t *testing.T) {
 	}
 }
 
-// TestParseSizeBinaryUnits 测试二进制单位解析
+// TestParseSizeBinaryUnits 测试二进制单位解析.
 func TestParseSizeBinaryUnits(t *testing.T) {
 	tests := []struct {
 		input  string
@@ -877,7 +877,7 @@ func TestParseSizeBinaryUnits(t *testing.T) {
 	}
 }
 
-// TestPortMappingWithIPv6 测试 IPv6 端口映射
+// TestPortMappingWithIPv6 测试 IPv6 端口映射.
 func TestPortMappingWithIPv6(t *testing.T) {
 	pm := PortMapping{
 		HostIP:        "::",
@@ -891,7 +891,7 @@ func TestPortMappingWithIPv6(t *testing.T) {
 	}
 }
 
-// TestVolumeMountReadOnly 测试只读卷挂载
+// TestVolumeMountReadOnly 测试只读卷挂载.
 func TestVolumeMountReadOnly(t *testing.T) {
 	vm := VolumeMount{
 		Source:      "/host/config",
@@ -908,7 +908,7 @@ func TestVolumeMountReadOnly(t *testing.T) {
 	}
 }
 
-// TestContainerWithMultipleNetworks 测试多网络容器
+// TestContainerWithMultipleNetworks 测试多网络容器.
 func TestContainerWithMultipleNetworks(t *testing.T) {
 	container := &Container{
 		ID:       "multi-net-container",
@@ -930,7 +930,7 @@ func TestContainerWithMultipleNetworks(t *testing.T) {
 	}
 }
 
-// TestImageWithMultipleTags 测试多标签镜像模拟
+// TestImageWithMultipleTags 测试多标签镜像模拟.
 func TestImageWithMultipleTags(t *testing.T) {
 	// 同一个镜像可能有多个标签
 	images := []*Image{
@@ -947,7 +947,7 @@ func TestImageWithMultipleTags(t *testing.T) {
 	}
 }
 
-// TestLogOptionsComplete 测试完整日志选项
+// TestLogOptionsComplete 测试完整日志选项.
 func TestLogOptionsComplete(t *testing.T) {
 	opts := LogOptions{
 		Tail:       500,
@@ -965,7 +965,7 @@ func TestLogOptionsComplete(t *testing.T) {
 	}
 }
 
-// TestNewManagerWithEnv 测试使用环境变量创建管理器
+// TestNewManagerWithEnv 测试使用环境变量创建管理器.
 func TestNewManagerWithEnv(t *testing.T) {
 	// 保存原始值
 	origEnv := os.Getenv("DOCKER_HOST")

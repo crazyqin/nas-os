@@ -13,7 +13,7 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
-// TestNewManagerBasic 测试创建管理器基本功能
+// TestNewManagerBasic 测试创建管理器基本功能.
 func TestNewManagerBasic(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 	if mgr == nil {
@@ -37,7 +37,7 @@ func TestNewManagerBasic(t *testing.T) {
 	}
 }
 
-// TestDDNSConfig 测试 DDNS 配置
+// TestDDNSConfig 测试 DDNS 配置.
 func TestDDNSConfig(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -113,7 +113,7 @@ func TestDDNSConfig(t *testing.T) {
 	}
 }
 
-// TestDDNSValidation 测试 DDNS 验证
+// TestDDNSValidation 测试 DDNS 验证.
 func TestDDNSValidation(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -148,7 +148,7 @@ func TestDDNSValidation(t *testing.T) {
 	}
 }
 
-// TestPortForward 测试端口转发
+// TestPortForward 测试端口转发.
 func TestPortForward(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -216,7 +216,7 @@ func TestPortForward(t *testing.T) {
 	}
 }
 
-// TestPortForwardValidation 测试端口转发验证
+// TestPortForwardValidation 测试端口转发验证.
 func TestPortForwardValidation(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -258,7 +258,7 @@ func TestPortForwardValidation(t *testing.T) {
 	}
 }
 
-// TestFirewallRule 测试防火墙规则
+// TestFirewallRule 测试防火墙规则.
 func TestFirewallRule(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -326,7 +326,7 @@ func TestFirewallRule(t *testing.T) {
 	}
 }
 
-// TestFirewallValidation 测试防火墙验证
+// TestFirewallValidation 测试防火墙验证.
 func TestFirewallValidation(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -355,7 +355,7 @@ func TestFirewallValidation(t *testing.T) {
 	}
 }
 
-// TestHandlers 测试 HTTP 处理器
+// TestHandlers 测试 HTTP 处理器.
 func TestHandlers(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 	handlers := NewHandlers(mgr)
@@ -448,7 +448,7 @@ func TestHandlers(t *testing.T) {
 	})
 }
 
-// TestDuckDNSProvider 测试 DuckDNS Provider
+// TestDuckDNSProvider 测试 DuckDNS Provider.
 func TestDuckDNSProvider(t *testing.T) {
 	provider := &DuckDNSProvider{Token: "test-token"}
 
@@ -463,7 +463,7 @@ func TestDuckDNSProvider(t *testing.T) {
 	}
 }
 
-// TestDefaultValues 测试默认值设置
+// TestDefaultValues 测试默认值设置.
 func TestDefaultValues(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -514,7 +514,7 @@ func TestDefaultValues(t *testing.T) {
 	}
 }
 
-// BenchmarkListDDNS 测试列出 DDNS 性能
+// BenchmarkListDDNS 测试列出 DDNS 性能.
 func BenchmarkListDDNS(b *testing.B) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -533,7 +533,7 @@ func BenchmarkListDDNS(b *testing.B) {
 	}
 }
 
-// BenchmarkAddPortForward 测试添加端口转发性能
+// BenchmarkAddPortForward 测试添加端口转发性能.
 func BenchmarkAddPortForward(b *testing.B) {
 	mgr := NewManager("/tmp/test-network-config")
 

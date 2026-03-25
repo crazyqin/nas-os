@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// mockConn 模拟网络连接
+// mockConn 模拟网络连接.
 type mockConn struct {
 	buf    bytes.Buffer
 	closed bool
@@ -32,7 +32,7 @@ func (m *mockConn) SetDeadline(t time.Time) error      { return nil }
 func (m *mockConn) SetReadDeadline(t time.Time) error  { return nil }
 func (m *mockConn) SetWriteDeadline(t time.Time) error { return nil }
 
-// TestHandleUSER 测试 USER 命令处理
+// TestHandleUSER 测试 USER 命令处理.
 func TestHandleUSER(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -64,7 +64,7 @@ func TestHandleUSER(t *testing.T) {
 	}
 }
 
-// TestHandlePASS 测试 PASS 命令处理
+// TestHandlePASS 测试 PASS 命令处理.
 func TestHandlePASS(t *testing.T) {
 	t.Run("匿名登录成功", func(t *testing.T) {
 		config := &Config{
@@ -179,7 +179,7 @@ func TestHandlePASS(t *testing.T) {
 	})
 }
 
-// TestHandleFEAT 测试 FEAT 命令处理
+// TestHandleFEAT 测试 FEAT 命令处理.
 func TestHandleFEAT(t *testing.T) {
 	server, _ := NewServer(&Config{Enabled: false, RootPath: t.TempDir()})
 	conn := &mockConn{}
@@ -198,7 +198,7 @@ func TestHandleFEAT(t *testing.T) {
 	assert.Contains(t, output, "UTF8")
 }
 
-// TestHandlePWD 测试 PWD 命令处理
+// TestHandlePWD 测试 PWD 命令处理.
 func TestHandlePWD(t *testing.T) {
 	server, _ := NewServer(&Config{Enabled: false, RootPath: t.TempDir()})
 	conn := &mockConn{}
@@ -217,7 +217,7 @@ func TestHandlePWD(t *testing.T) {
 	assert.Contains(t, output, "/test")
 }
 
-// TestHandleCDUP 测试 CDUP 命令处理
+// TestHandleCDUP 测试 CDUP 命令处理.
 func TestHandleCDUP(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -248,7 +248,7 @@ func TestHandleCDUP(t *testing.T) {
 	}
 }
 
-// TestHandleTYPE 测试 TYPE 命令处理
+// TestHandleTYPE 测试 TYPE 命令处理.
 func TestHandleTYPE(t *testing.T) {
 	tests := []struct {
 		typ        string
@@ -278,7 +278,7 @@ func TestHandleTYPE(t *testing.T) {
 	}
 }
 
-// TestHandleREST 测试 REST 命令处理
+// TestHandleREST 测试 REST 命令处理.
 func TestHandleREST(t *testing.T) {
 	server, _ := NewServer(&Config{Enabled: false, RootPath: t.TempDir()})
 	conn := &mockConn{}
@@ -294,7 +294,7 @@ func TestHandleREST(t *testing.T) {
 	assert.Equal(t, int64(1024), client.restOffset)
 }
 
-// TestHandleABOR 测试 ABOR 命令处理
+// TestHandleABOR 测试 ABOR 命令处理.
 func TestHandleABOR(t *testing.T) {
 	server, _ := NewServer(&Config{Enabled: false, RootPath: t.TempDir()})
 	conn := &mockConn{}
@@ -311,7 +311,7 @@ func TestHandleABOR(t *testing.T) {
 	assert.Equal(t, int64(0), client.restOffset)
 }
 
-// TestHandleCommand 测试命令路由
+// TestHandleCommand 测试命令路由.
 func TestHandleCommand(t *testing.T) {
 	tests := []struct {
 		cmd     string
@@ -345,7 +345,7 @@ func TestHandleCommand(t *testing.T) {
 	}
 }
 
-// TestHandleCommand_Unknown 测试未知命令
+// TestHandleCommand_Unknown 测试未知命令.
 func TestHandleCommand_Unknown(t *testing.T) {
 	server, _ := NewServer(&Config{Enabled: false, RootPath: t.TempDir()})
 	conn := &mockConn{}
@@ -363,7 +363,7 @@ func TestHandleCommand_Unknown(t *testing.T) {
 	assert.Contains(t, output, "500")
 }
 
-// TestHandleCommand_NotLoggedIn 测试未登录时拒绝命令
+// TestHandleCommand_NotLoggedIn 测试未登录时拒绝命令.
 func TestHandleCommand_NotLoggedIn(t *testing.T) {
 	server, _ := NewServer(&Config{Enabled: false, RootPath: t.TempDir()})
 	conn := &mockConn{}
@@ -382,7 +382,7 @@ func TestHandleCommand_NotLoggedIn(t *testing.T) {
 	assert.Contains(t, output, "530")
 }
 
-// TestNormalizePath 测试路径标准化
+// TestNormalizePath 测试路径标准化.
 func TestNormalizePath(t *testing.T) {
 	server, _ := NewServer(&Config{Enabled: false, RootPath: t.TempDir()})
 	conn := &mockConn{}
@@ -411,7 +411,7 @@ func TestNormalizePath(t *testing.T) {
 	}
 }
 
-// TestResolvePath 测试路径解析
+// TestResolvePath 测试路径解析.
 func TestResolvePath(t *testing.T) {
 	tempDir := t.TempDir()
 	server, _ := NewServer(&Config{
@@ -447,7 +447,7 @@ func TestResolvePath(t *testing.T) {
 	}
 }
 
-// TestFormatFileInfo 测试文件信息格式化
+// TestFormatFileInfo 测试文件信息格式化.
 func TestFormatFileInfo(t *testing.T) {
 	server, _ := NewServer(&Config{Enabled: false, RootPath: t.TempDir()})
 	conn := &mockConn{}
@@ -469,12 +469,12 @@ func TestFormatFileInfo(t *testing.T) {
 	assert.Contains(t, fileLine, "testfile.txt")
 }
 
-// 辅助函数：创建目录并返回 FileInfo
+// 辅助函数：创建目录并返回 FileInfo.
 func requireOpenDir(path string) (info os.FileInfo, err error) {
 	return os.Stat(path)
 }
 
-// 辅助函数：创建文件并返回 FileInfo
+// 辅助函数：创建文件并返回 FileInfo.
 func requireCreateFile(path, content string) (info os.FileInfo, err error) {
 	if err = os.WriteFile(path, []byte(content), 0644); err != nil {
 		return
@@ -482,7 +482,7 @@ func requireCreateFile(path, content string) (info os.FileInfo, err error) {
 	return os.Stat(path)
 }
 
-// TestGetStatus_Running 测试运行状态
+// TestGetStatus_Running 测试运行状态.
 func TestGetStatus_Running(t *testing.T) {
 	config := &Config{
 		Enabled:        false,
@@ -502,7 +502,7 @@ func TestGetStatus_Running(t *testing.T) {
 	assert.Equal(t, 0, status["connections"].(int))
 }
 
-// TestErrServerErrors 测试错误定义
+// TestErrServerErrors 测试错误定义.
 func TestErrServerErrors(t *testing.T) {
 	assert.Equal(t, "服务器未运行", ErrServerNotRunning.Error())
 	assert.Equal(t, "服务器已在运行", ErrServerRunning.Error())
@@ -511,7 +511,7 @@ func TestErrServerErrors(t *testing.T) {
 	assert.Equal(t, "权限被拒绝", ErrPermissionDenied.Error())
 }
 
-// TestClientConn_Close 测试客户端连接关闭
+// TestClientConn_Close 测试客户端连接关闭.
 func TestClientConn_Close(t *testing.T) {
 	server, _ := NewServer(&Config{Enabled: false, RootPath: t.TempDir()})
 	conn := &mockConn{}
@@ -529,7 +529,7 @@ func TestClientConn_Close(t *testing.T) {
 	client.close()
 }
 
-// TestWriteResponse 测试响应写入
+// TestWriteResponse 测试响应写入.
 func TestWriteResponse(t *testing.T) {
 	server, _ := NewServer(&Config{Enabled: false, RootPath: t.TempDir()})
 	conn := &mockConn{}
@@ -548,7 +548,7 @@ func TestWriteResponse(t *testing.T) {
 	assert.Contains(t, output, "Welcome")
 }
 
-// TestHandlePORT 测试 PORT 命令处理
+// TestHandlePORT 测试 PORT 命令处理.
 func TestHandlePORT(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -583,7 +583,7 @@ func TestHandlePORT(t *testing.T) {
 	}
 }
 
-// TestHandleSIZE 测试 SIZE 命令处理
+// TestHandleSIZE 测试 SIZE 命令处理.
 func TestHandleSIZE(t *testing.T) {
 	tempDir := t.TempDir()
 	testFile := tempDir + "/test.txt"
@@ -608,7 +608,7 @@ func TestHandleSIZE(t *testing.T) {
 	assert.Contains(t, output, "11") // 文件大小
 }
 
-// TestHandleSIZE_Directory 测试 SIZE 对目录的处理
+// TestHandleSIZE_Directory 测试 SIZE 对目录的处理.
 func TestHandleSIZE_Directory(t *testing.T) {
 	tempDir := t.TempDir()
 
@@ -630,7 +630,7 @@ func TestHandleSIZE_Directory(t *testing.T) {
 	assert.Contains(t, output, "550") // 不是文件
 }
 
-// TestHandleMKD 测试 MKD 命令处理
+// TestHandleMKD 测试 MKD 命令处理.
 func TestHandleMKD(t *testing.T) {
 	tempDir := t.TempDir()
 
@@ -656,7 +656,7 @@ func TestHandleMKD(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// TestHandleRMD 测试 RMD 命令处理
+// TestHandleRMD 测试 RMD 命令处理.
 func TestHandleRMD(t *testing.T) {
 	tempDir := t.TempDir()
 	testDir := tempDir + "/testdir"
@@ -684,7 +684,7 @@ func TestHandleRMD(t *testing.T) {
 	assert.True(t, os.IsNotExist(err))
 }
 
-// TestHandleDELE 测试 DELE 命令处理
+// TestHandleDELE 测试 DELE 命令处理.
 func TestHandleDELE(t *testing.T) {
 	tempDir := t.TempDir()
 	testFile := tempDir + "/testfile.txt"
@@ -712,7 +712,7 @@ func TestHandleDELE(t *testing.T) {
 	assert.True(t, os.IsNotExist(err))
 }
 
-// TestHandleRNFR_RNTO 测试重命名命令
+// TestHandleRNFR_RNTO 测试重命名命令.
 func TestHandleRNFR_RNTO(t *testing.T) {
 	tempDir := t.TempDir()
 	oldFile := tempDir + "/old.txt"

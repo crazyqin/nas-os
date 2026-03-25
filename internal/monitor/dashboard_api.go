@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// DashboardAPI 监控仪表板 API
+// DashboardAPI 监控仪表板 API.
 type DashboardAPI struct {
 	manager           *Manager
 	alertManager      *AlertingManager
@@ -20,7 +20,7 @@ type DashboardAPI struct {
 	promMetrics       *PrometheusMetrics
 }
 
-// NewDashboardAPI 创建监控仪表板 API
+// NewDashboardAPI 创建监控仪表板 API.
 func NewDashboardAPI(
 	manager *Manager,
 	alertManager *AlertingManager,
@@ -39,7 +39,7 @@ func NewDashboardAPI(
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (api *DashboardAPI) RegisterRoutes(r *gin.RouterGroup) {
 	dashboard := r.Group("/dashboard")
 	{
@@ -88,7 +88,7 @@ func (api *DashboardAPI) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// OverviewResponse 概览响应
+// OverviewResponse 概览响应.
 type OverviewResponse struct {
 	System    *SystemOverview  `json:"system"`
 	Storage   *StorageOverview `json:"storage"`
@@ -98,7 +98,7 @@ type OverviewResponse struct {
 	Timestamp time.Time        `json:"timestamp"`
 }
 
-// SystemOverview 系统概览
+// SystemOverview 系统概览.
 type SystemOverview struct {
 	Hostname    string    `json:"hostname"`
 	Uptime      string    `json:"uptime"`
@@ -108,7 +108,7 @@ type SystemOverview struct {
 	Processes   int       `json:"processes"`
 }
 
-// StorageOverview 存储概览
+// StorageOverview 存储概览.
 type StorageOverview struct {
 	TotalDisks   int     `json:"totalDisks"`
 	HealthyDisks int     `json:"healthyDisks"`
@@ -117,7 +117,7 @@ type StorageOverview struct {
 	UsagePercent float64 `json:"usagePercent"`
 }
 
-// AlertOverview 告警概览
+// AlertOverview 告警概览.
 type AlertOverview struct {
 	Total        int `json:"total"`
 	Critical     int `json:"critical"`
@@ -125,14 +125,14 @@ type AlertOverview struct {
 	Acknowledged int `json:"acknowledged"`
 }
 
-// HealthOverview 健康概览
+// HealthOverview 健康概览.
 type HealthOverview struct {
 	OverallScore int      `json:"overallScore"`
 	Status       string   `json:"status"`
 	Issues       []string `json:"issues,omitempty"`
 }
 
-// NetworkOverview 网络概览
+// NetworkOverview 网络概览.
 type NetworkOverview struct {
 	Interfaces   int    `json:"interfaces"`
 	TotalRXBytes uint64 `json:"totalRxBytes"`
@@ -147,7 +147,7 @@ type NetworkOverview struct {
 // @Success 200 {object} map[string]interface{} "成功"
 // @Failure 500 {object} map[string]interface{} "服务器错误"
 // @Router /dashboard/overview [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetOverview(c *gin.Context) {
 	overview := &OverviewResponse{
 		Timestamp: time.Now(),
@@ -256,7 +256,7 @@ func (api *DashboardAPI) GetOverview(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/health [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetHealthStatus(c *gin.Context) {
 	status := map[string]interface{}{
 		"overall":    "healthy",
@@ -344,7 +344,7 @@ func (api *DashboardAPI) GetHealthStatus(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/realtime [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetRealtimeData(c *gin.Context) {
 	data := map[string]interface{}{
 		"timestamp": time.Now(),
@@ -384,7 +384,7 @@ func (api *DashboardAPI) GetRealtimeData(c *gin.Context) {
 // @Produce text/event-stream
 // @Success 200 "SSE 流"
 // @Router /dashboard/realtime/stream [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) StreamRealtimeData(c *gin.Context) {
 	c.Header("Content-Type", "text/event-stream")
 	c.Header("Cache-Control", "no-cache")
@@ -423,7 +423,7 @@ func (api *DashboardAPI) StreamRealtimeData(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/system [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetSystemMetrics(c *gin.Context) {
 	stats, err := api.manager.GetSystemStats()
 	if err != nil {
@@ -449,7 +449,7 @@ func (api *DashboardAPI) GetSystemMetrics(c *gin.Context) {
 // @Param period query string false "时间周期 (1h, 6h, 24h, 7d, 30d)"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/system/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetSystemHistory(c *gin.Context) {
 	period := c.DefaultQuery("period", "1h")
 
@@ -503,7 +503,7 @@ func (api *DashboardAPI) GetSystemHistory(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/disks [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetDiskMetrics(c *gin.Context) {
 	stats, err := api.manager.GetDiskStats()
 	if err != nil {
@@ -562,7 +562,7 @@ func (api *DashboardAPI) GetDiskMetrics(c *gin.Context) {
 // @Param device path string true "磁盘设备名"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/disks/{device} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetDiskDetail(c *gin.Context) {
 	device := c.Param("device")
 
@@ -601,7 +601,7 @@ func (api *DashboardAPI) GetDiskDetail(c *gin.Context) {
 // @Param device path string true "磁盘设备名"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/disks/{device}/smart [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetDiskSMART(c *gin.Context) {
 	device := c.Param("device")
 
@@ -638,7 +638,7 @@ func (api *DashboardAPI) GetDiskSMART(c *gin.Context) {
 // @Param period query string false "时间周期"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/disks/{device}/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetDiskHistory(c *gin.Context) {
 	device := c.Param("device")
 	period := c.DefaultQuery("period", "24h")
@@ -661,7 +661,7 @@ func (api *DashboardAPI) GetDiskHistory(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/network [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetNetworkMetrics(c *gin.Context) {
 	stats, err := api.manager.GetNetworkStats()
 	if err != nil {
@@ -686,7 +686,7 @@ func (api *DashboardAPI) GetNetworkMetrics(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/network/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetNetworkHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -704,7 +704,7 @@ func (api *DashboardAPI) GetNetworkHistory(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/network/interfaces [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetNetworkInterfaces(c *gin.Context) {
 	stats, _ := api.manager.GetNetworkStats()
 
@@ -739,7 +739,7 @@ func (api *DashboardAPI) GetNetworkInterfaces(c *gin.Context) {
 // @Param offset query int false "偏移量" default(0)
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/alerts [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetAlerts(c *gin.Context) {
 	level := c.Query("level")
 	alertType := c.Query("type")
@@ -770,7 +770,7 @@ func (api *DashboardAPI) GetAlerts(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/alerts/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetAlertStats(c *gin.Context) {
 	stats := api.alertManager.GetAlertStats()
 
@@ -789,7 +789,7 @@ func (api *DashboardAPI) GetAlertStats(c *gin.Context) {
 // @Param limit query int false "数量限制" default(50)
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/alerts/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetAlertHistory(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
@@ -810,7 +810,7 @@ func (api *DashboardAPI) GetAlertHistory(c *gin.Context) {
 // @Param id path string true "告警 ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/alerts/{id}/acknowledge [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) AcknowledgeAlert(c *gin.Context) {
 	id := c.Param("id")
 
@@ -843,7 +843,7 @@ func (api *DashboardAPI) AcknowledgeAlert(c *gin.Context) {
 // @Param id path string true "告警 ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/alerts/{id}/resolve [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) ResolveAlert(c *gin.Context) {
 	id := c.Param("id")
 
@@ -868,7 +868,7 @@ func (api *DashboardAPI) ResolveAlert(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/rules [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetAlertRules(c *gin.Context) {
 	rules := api.ruleEngine.GetRules()
 
@@ -888,7 +888,7 @@ func (api *DashboardAPI) GetAlertRules(c *gin.Context) {
 // @Param rule body AlertRuleConfig true "告警规则"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/rules [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) CreateAlertRule(c *gin.Context) {
 	var rule AlertRuleConfig
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -924,7 +924,7 @@ func (api *DashboardAPI) CreateAlertRule(c *gin.Context) {
 // @Param rule body AlertRuleConfig true "告警规则"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/rules/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) UpdateAlertRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -960,7 +960,7 @@ func (api *DashboardAPI) UpdateAlertRule(c *gin.Context) {
 // @Param id path string true "规则 ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/rules/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) DeleteAlertRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -985,7 +985,7 @@ func (api *DashboardAPI) DeleteAlertRule(c *gin.Context) {
 // @Param id path string true "规则 ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/rules/{id}/enable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) EnableAlertRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1010,7 +1010,7 @@ func (api *DashboardAPI) EnableAlertRule(c *gin.Context) {
 // @Param id path string true "规则 ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/rules/{id}/disable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) DisableAlertRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1042,7 +1042,7 @@ func (api *DashboardAPI) DisableAlertRule(c *gin.Context) {
 // @Param offset query int false "偏移量" default(0)
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/logs [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) QueryLogs(c *gin.Context) {
 	if api.logCollector == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -1104,7 +1104,7 @@ func (api *DashboardAPI) QueryLogs(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/logs/sources [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetLogSources(c *gin.Context) {
 	if api.logCollector == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -1130,7 +1130,7 @@ func (api *DashboardAPI) GetLogSources(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /dashboard/logs/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (api *DashboardAPI) GetLogStats(c *gin.Context) {
 	if api.logCollector == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -1149,7 +1149,7 @@ func (api *DashboardAPI) GetLogStats(c *gin.Context) {
 	})
 }
 
-// getHealthStatusFromScore 根据分数获取健康状态
+// getHealthStatusFromScore 根据分数获取健康状态.
 func getHealthStatusFromScore(score int) string {
 	if score >= 90 {
 		return "healthy"

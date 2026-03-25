@@ -6,7 +6,7 @@ import (
 
 // ========== 预定义报告模板 ==========
 
-// SystemHealthTemplate 系统健康报告模板
+// SystemHealthTemplate 系统健康报告模板.
 func SystemHealthTemplate() *ReportTemplate {
 	return &ReportTemplate{
 		ID:          "system-health",
@@ -34,7 +34,7 @@ func SystemHealthTemplate() *ReportTemplate {
 	}
 }
 
-// ResourceUsageTemplate 资源使用报告模板
+// ResourceUsageTemplate 资源使用报告模板.
 func ResourceUsageTemplate() *ReportTemplate {
 	return &ReportTemplate{
 		ID:          "resource-usage",
@@ -65,7 +65,7 @@ func ResourceUsageTemplate() *ReportTemplate {
 	}
 }
 
-// DailyReportTemplate 日报模板
+// DailyReportTemplate 日报模板.
 func DailyReportTemplate() *ReportTemplate {
 	return &ReportTemplate{
 		ID:          "daily-report",
@@ -93,7 +93,7 @@ func DailyReportTemplate() *ReportTemplate {
 	}
 }
 
-// WeeklyReportTemplate 周报模板
+// WeeklyReportTemplate 周报模板.
 func WeeklyReportTemplate() *ReportTemplate {
 	return &ReportTemplate{
 		ID:          "weekly-report",
@@ -123,7 +123,7 @@ func WeeklyReportTemplate() *ReportTemplate {
 	}
 }
 
-// MonthlyReportTemplate 月报模板
+// MonthlyReportTemplate 月报模板.
 func MonthlyReportTemplate() *ReportTemplate {
 	return &ReportTemplate{
 		ID:          "monthly-report",
@@ -170,7 +170,7 @@ func MonthlyReportTemplate() *ReportTemplate {
 	}
 }
 
-// DiskAnalysisTemplate 磁盘分析报告模板
+// DiskAnalysisTemplate 磁盘分析报告模板.
 func DiskAnalysisTemplate() *ReportTemplate {
 	return &ReportTemplate{
 		ID:          "disk-analysis",
@@ -196,7 +196,7 @@ func DiskAnalysisTemplate() *ReportTemplate {
 	}
 }
 
-// TrendReportTemplate 趋势分析报告模板
+// TrendReportTemplate 趋势分析报告模板.
 func TrendReportTemplate() *ReportTemplate {
 	return &ReportTemplate{
 		ID:          "trend-analysis",
@@ -221,7 +221,7 @@ func TrendReportTemplate() *ReportTemplate {
 
 // ========== 预设调度配置 ==========
 
-// DailyScheduleConfig 日报调度配置
+// DailyScheduleConfig 日报调度配置.
 func DailyScheduleConfig() ScheduledReportInput {
 	return ScheduledReportInput{
 		Name:         "系统健康日报",
@@ -235,7 +235,7 @@ func DailyScheduleConfig() ScheduledReportInput {
 	}
 }
 
-// WeeklyScheduleConfig 周报调度配置
+// WeeklyScheduleConfig 周报调度配置.
 func WeeklyScheduleConfig() ScheduledReportInput {
 	return ScheduledReportInput{
 		Name:         "系统健康周报",
@@ -249,7 +249,7 @@ func WeeklyScheduleConfig() ScheduledReportInput {
 	}
 }
 
-// HourlyScheduleConfig 时报调度配置
+// HourlyScheduleConfig 时报调度配置.
 func HourlyScheduleConfig() ScheduledReportInput {
 	return ScheduledReportInput{
 		Name:         "系统状态时报",
@@ -264,12 +264,12 @@ func HourlyScheduleConfig() ScheduledReportInput {
 
 // ========== 报告模板管理 ==========
 
-// TemplateRegistry 模板注册表
+// TemplateRegistry 模板注册表.
 type TemplateRegistry struct {
 	templates map[string]*ReportTemplate
 }
 
-// NewTemplateRegistry 创建模板注册表
+// NewTemplateRegistry 创建模板注册表.
 func NewTemplateRegistry() *TemplateRegistry {
 	registry := &TemplateRegistry{
 		templates: make(map[string]*ReportTemplate),
@@ -281,7 +281,7 @@ func NewTemplateRegistry() *TemplateRegistry {
 	return registry
 }
 
-// RegisterDefaults 注册默认模板
+// RegisterDefaults 注册默认模板.
 func (r *TemplateRegistry) RegisterDefaults() {
 	r.Register(SystemHealthTemplate())
 	r.Register(ResourceUsageTemplate())
@@ -292,20 +292,20 @@ func (r *TemplateRegistry) RegisterDefaults() {
 	r.Register(TrendReportTemplate())
 }
 
-// Register 注册模板
+// Register 注册模板.
 func (r *TemplateRegistry) Register(template *ReportTemplate) {
 	template.CreatedAt = time.Now()
 	template.UpdatedAt = time.Now()
 	r.templates[template.ID] = template
 }
 
-// Get 获取模板
+// Get 获取模板.
 func (r *TemplateRegistry) Get(id string) (*ReportTemplate, bool) {
 	t, ok := r.templates[id]
 	return t, ok
 }
 
-// List 列出所有模板
+// List 列出所有模板.
 func (r *TemplateRegistry) List(templateType TemplateType) []*ReportTemplate {
 	result := make([]*ReportTemplate, 0)
 	for _, t := range r.templates {
@@ -316,12 +316,12 @@ func (r *TemplateRegistry) List(templateType TemplateType) []*ReportTemplate {
 	return result
 }
 
-// Remove 移除模板
+// Remove 移除模板.
 func (r *TemplateRegistry) Remove(id string) {
 	delete(r.templates, id)
 }
 
-// GetDefaultTemplates 获取默认模板列表
+// GetDefaultTemplates 获取默认模板列表.
 func GetDefaultTemplates() []*ReportTemplate {
 	return []*ReportTemplate{
 		SystemHealthTemplate(),
@@ -334,7 +334,7 @@ func GetDefaultTemplates() []*ReportTemplate {
 	}
 }
 
-// MonthlyScheduleConfig 月报调度配置
+// MonthlyScheduleConfig 月报调度配置.
 func MonthlyScheduleConfig() ScheduledReportInput {
 	return ScheduledReportInput{
 		Name:         "系统健康月报",
@@ -348,7 +348,7 @@ func MonthlyScheduleConfig() ScheduledReportInput {
 	}
 }
 
-// GetDefaultScheduleConfigs 获取默认调度配置
+// GetDefaultScheduleConfigs 获取默认调度配置.
 func GetDefaultScheduleConfigs() []ScheduledReportInput {
 	return []ScheduledReportInput{
 		DailyScheduleConfig(),

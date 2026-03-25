@@ -6,17 +6,17 @@ import (
 	"time"
 )
 
-// ComplianceReporter 合规报告生成器
+// ComplianceReporter 合规报告生成器.
 type ComplianceReporter struct {
 	manager *Manager
 }
 
-// NewComplianceReporter 创建合规报告生成器
+// NewComplianceReporter 创建合规报告生成器.
 func NewComplianceReporter(manager *Manager) *ComplianceReporter {
 	return &ComplianceReporter{manager: manager}
 }
 
-// GenerateReport 生成合规报告
+// GenerateReport 生成合规报告.
 func (r *ComplianceReporter) GenerateReport(standard ComplianceStandard, startTime, endTime time.Time) (*ComplianceReport, error) {
 	// 获取时间范围内的所有日志
 	opts := QueryOptions{
@@ -62,7 +62,7 @@ func (r *ComplianceReporter) GenerateReport(standard ComplianceStandard, startTi
 	return report, nil
 }
 
-// calculateSummary 计算摘要统计
+// calculateSummary 计算摘要统计.
 func (r *ComplianceReporter) calculateSummary(entries []*Entry) ComplianceSummary {
 	summary := ComplianceSummary{
 		TotalEvents:      len(entries),
@@ -118,7 +118,7 @@ func (r *ComplianceReporter) calculateSummary(entries []*Entry) ComplianceSummar
 	return summary
 }
 
-// analyzeGDPR GDPR合规分析
+// analyzeGDPR GDPR合规分析.
 func (r *ComplianceReporter) analyzeGDPR(entries []*Entry, report *ComplianceReport) {
 	// GDPR 第32条：安全处理措施
 	// 检查是否有未授权的数据访问
@@ -191,7 +191,7 @@ func (r *ComplianceReporter) analyzeGDPR(entries []*Entry, report *ComplianceRep
 	)
 }
 
-// analyzeMLPS 等级保护合规分析
+// analyzeMLPS 等级保护合规分析.
 func (r *ComplianceReporter) analyzeMLPS(entries []*Entry, report *ComplianceReport) {
 	// 等级保护要求检查
 
@@ -282,7 +282,7 @@ func (r *ComplianceReporter) analyzeMLPS(entries []*Entry, report *ComplianceRep
 	)
 }
 
-// analyzeISO27001 ISO 27001 合规分析
+// analyzeISO27001 ISO 27001 合规分析.
 func (r *ComplianceReporter) analyzeISO27001(entries []*Entry, report *ComplianceReport) {
 	var (
 		securityIncidents []*Entry
@@ -345,7 +345,7 @@ func (r *ComplianceReporter) analyzeISO27001(entries []*Entry, report *Complianc
 	)
 }
 
-// analyzeHIPAA HIPAA 合规分析
+// analyzeHIPAA HIPAA 合规分析.
 func (r *ComplianceReporter) analyzeHIPAA(entries []*Entry, report *ComplianceReport) {
 	var (
 		phiAccess []*Entry
@@ -395,7 +395,7 @@ func (r *ComplianceReporter) analyzeHIPAA(entries []*Entry, report *ComplianceRe
 	)
 }
 
-// analyzePCI PCI DSS 合规分析
+// analyzePCI PCI DSS 合规分析.
 func (r *ComplianceReporter) analyzePCI(entries []*Entry, report *ComplianceReport) {
 	var (
 		cardDataAccess []*Entry
@@ -448,7 +448,7 @@ func (r *ComplianceReporter) analyzePCI(entries []*Entry, report *ComplianceRepo
 	)
 }
 
-// analyzeGeneric 通用合规分析
+// analyzeGeneric 通用合规分析.
 func (r *ComplianceReporter) analyzeGeneric(entries []*Entry, report *ComplianceReport) {
 	// 通用安全分析
 
@@ -495,7 +495,7 @@ func (r *ComplianceReporter) analyzeGeneric(entries []*Entry, report *Compliance
 	)
 }
 
-// GenerateDashboardData 生成仪表板数据
+// GenerateDashboardData 生成仪表板数据.
 func (r *ComplianceReporter) GenerateDashboardData() map[string]interface{} {
 	stats := r.manager.GetStatistics()
 
@@ -540,7 +540,7 @@ func (r *ComplianceReporter) GenerateDashboardData() map[string]interface{} {
 	}
 }
 
-// min 辅助函数
+// min 辅助函数.
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -548,7 +548,7 @@ func min(a, b int) int {
 	return b
 }
 
-// GenerateTimeline 生成事件时间线
+// GenerateTimeline 生成事件时间线.
 func (r *ComplianceReporter) GenerateTimeline(startTime, endTime time.Time, category Category) []*TimelineEvent {
 	opts := QueryOptions{
 		StartTime: &startTime,
@@ -584,7 +584,7 @@ func (r *ComplianceReporter) GenerateTimeline(startTime, endTime time.Time, cate
 	return timeline
 }
 
-// TimelineEvent 时间线事件
+// TimelineEvent 时间线事件.
 type TimelineEvent struct {
 	Timestamp   time.Time `json:"timestamp"`
 	Event       string    `json:"event"`

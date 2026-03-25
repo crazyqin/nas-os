@@ -23,7 +23,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-// Provider 云存储提供商接口
+// Provider 云存储提供商接口.
 type Provider interface {
 	// 基础操作
 	Upload(ctx context.Context, localPath, remotePath string) error
@@ -45,7 +45,7 @@ type Provider interface {
 	GetCapabilities() []string
 }
 
-// ConnectionTestResult 连接测试结果
+// ConnectionTestResult 连接测试结果.
 type ConnectionTestResult struct {
 	Success   bool         `json:"success"`
 	Provider  ProviderType `json:"provider"`
@@ -58,14 +58,14 @@ type ConnectionTestResult struct {
 
 // ==================== S3 兼容存储 ====================
 
-// S3Provider S3 兼容存储提供商
+// S3Provider S3 兼容存储提供商.
 type S3Provider struct {
 	client   *s3.Client
 	config   *ProviderConfig
 	provider ProviderType
 }
 
-// NewS3Provider 创建 S3 兼容存储提供商
+// NewS3Provider 创建 S3 兼容存储提供商.
 func NewS3Provider(ctx context.Context, cfg *ProviderConfig, providerType ProviderType) (*S3Provider, error) {
 	creds := credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretKey, "")
 
@@ -98,7 +98,7 @@ func NewS3Provider(ctx context.Context, cfg *ProviderConfig, providerType Provid
 	}, nil
 }
 
-// Upload 上传本地文件到云端
+// Upload 上传本地文件到云端.
 func (p *S3Provider) Upload(ctx context.Context, localPath, remotePath string) error {
 	file, err := os.Open(localPath)
 	if err != nil {
@@ -296,12 +296,12 @@ func (p *S3Provider) GetCapabilities() []string {
 
 // ==================== 阿里云 OSS ====================
 
-// AliyunOSSProvider 阿里云 OSS 提供商
+// AliyunOSSProvider 阿里云 OSS 提供商.
 type AliyunOSSProvider struct {
 	*S3Provider
 }
 
-// NewAliyunOSSProvider 创建阿里云 OSS 提供商
+// NewAliyunOSSProvider 创建阿里云 OSS 提供商.
 func NewAliyunOSSProvider(ctx context.Context, cfg *ProviderConfig) (*AliyunOSSProvider, error) {
 	// 阿里云 OSS endpoint 格式: oss-cn-hangzhou.aliyuncs.com
 	if cfg.Region == "" && cfg.Endpoint != "" {
@@ -321,12 +321,12 @@ func NewAliyunOSSProvider(ctx context.Context, cfg *ProviderConfig) (*AliyunOSSP
 
 // ==================== 腾讯云 COS ====================
 
-// TencentCOSProvider 腾讯云 COS 提供商
+// TencentCOSProvider 腾讯云 COS 提供商.
 type TencentCOSProvider struct {
 	*S3Provider
 }
 
-// NewTencentCOSProvider 创建腾讯云 COS 提供商
+// NewTencentCOSProvider 创建腾讯云 COS 提供商.
 func NewTencentCOSProvider(ctx context.Context, cfg *ProviderConfig) (*TencentCOSProvider, error) {
 	// 腾讯云 COS endpoint 格式: cos.ap-guangzhou.myqcloud.com
 	if cfg.Region == "" && cfg.Endpoint != "" {
@@ -346,12 +346,12 @@ func NewTencentCOSProvider(ctx context.Context, cfg *ProviderConfig) (*TencentCO
 
 // ==================== AWS S3 ====================
 
-// AWSS3Provider AWS S3 提供商
+// AWSS3Provider AWS S3 提供商.
 type AWSS3Provider struct {
 	*S3Provider
 }
 
-// NewAWSS3Provider 创建 AWS S3 提供商
+// NewAWSS3Provider 创建 AWS S3 提供商.
 func NewAWSS3Provider(ctx context.Context, cfg *ProviderConfig) (*AWSS3Provider, error) {
 	if cfg.Region == "" {
 		cfg.Region = "us-east-1"
@@ -367,12 +367,12 @@ func NewAWSS3Provider(ctx context.Context, cfg *ProviderConfig) (*AWSS3Provider,
 
 // ==================== Backblaze B2 ====================
 
-// BackblazeB2Provider Backblaze B2 提供商
+// BackblazeB2Provider Backblaze B2 提供商.
 type BackblazeB2Provider struct {
 	*S3Provider
 }
 
-// NewBackblazeB2Provider 创建 Backblaze B2 提供商
+// NewBackblazeB2Provider 创建 Backblaze B2 提供商.
 func NewBackblazeB2Provider(ctx context.Context, cfg *ProviderConfig) (*BackblazeB2Provider, error) {
 	// B2 S3 兼容 endpoint 格式: https://s3.us-west-004.backblazeb2.com
 	cfg.PathStyle = true // B2 需要路径风格
@@ -387,14 +387,14 @@ func NewBackblazeB2Provider(ctx context.Context, cfg *ProviderConfig) (*Backblaz
 
 // ==================== WebDAV ====================
 
-// WebDAVProvider WebDAV 提供商
+// WebDAVProvider WebDAV 提供商.
 type WebDAVProvider struct {
 	client  *http.Client
 	config  *ProviderConfig
 	baseURL string
 }
 
-// NewWebDAVProvider 创建 WebDAV 提供商
+// NewWebDAVProvider 创建 WebDAV 提供商.
 func NewWebDAVProvider(cfg *ProviderConfig) (*WebDAVProvider, error) {
 	client := &http.Client{
 		Timeout: time.Duration(cfg.Timeout) * time.Second,
@@ -653,7 +653,7 @@ func (p *WebDAVProvider) GetCapabilities() []string {
 
 // ==================== Google Drive ====================
 
-// GoogleDriveProvider Google Drive 提供商
+// GoogleDriveProvider Google Drive 提供商.
 type GoogleDriveProvider struct {
 	config       *ProviderConfig
 	client       *http.Client
@@ -663,7 +663,7 @@ type GoogleDriveProvider struct {
 	rootFolderID string
 }
 
-// NewGoogleDriveProvider 创建 Google Drive 提供商
+// NewGoogleDriveProvider 创建 Google Drive 提供商.
 func NewGoogleDriveProvider(cfg *ProviderConfig) (*GoogleDriveProvider, error) {
 	client := &http.Client{
 		Timeout: 60 * time.Second,
@@ -682,7 +682,7 @@ func NewGoogleDriveProvider(cfg *ProviderConfig) (*GoogleDriveProvider, error) {
 	}, nil
 }
 
-// refreshTokenIfNeeded 使用 refresh token 获取新的 access token
+// refreshTokenIfNeeded 使用 refresh token 获取新的 access token.
 func (p *GoogleDriveProvider) refreshTokenIfNeeded(ctx context.Context) error {
 	if p.accessToken != "" && time.Now().Before(p.tokenExpiry.Add(-5*time.Minute)) {
 		return nil
@@ -734,7 +734,7 @@ func (p *GoogleDriveProvider) refreshTokenIfNeeded(ctx context.Context) error {
 	return nil
 }
 
-// getFolderID 获取或创建文件夹路径
+// getFolderID 获取或创建文件夹路径.
 func (p *GoogleDriveProvider) getFolderID(ctx context.Context, path string) (string, error) {
 	if path == "" || path == "/" {
 		return p.rootFolderID, nil
@@ -794,7 +794,7 @@ func (p *GoogleDriveProvider) getFolderID(ctx context.Context, path string) (str
 	return parentID, nil
 }
 
-// createFolder 创建文件夹
+// createFolder 创建文件夹.
 func (p *GoogleDriveProvider) createFolder(ctx context.Context, name, parentID string) (string, error) {
 	metadata := map[string]interface{}{
 		"name":     name,
@@ -834,7 +834,7 @@ func (p *GoogleDriveProvider) createFolder(ctx context.Context, name, parentID s
 	return result.ID, nil
 }
 
-// getFileID 通过路径获取文件 ID
+// getFileID 通过路径获取文件 ID.
 func (p *GoogleDriveProvider) getFileID(ctx context.Context, path string) (string, error) {
 	dir := filepath.Dir(path)
 	filename := filepath.Base(path)
@@ -1323,7 +1323,7 @@ func (p *GoogleDriveProvider) GetCapabilities() []string {
 
 // ==================== OneDrive ====================
 
-// OneDriveProvider OneDrive 提供商
+// OneDriveProvider OneDrive 提供商.
 type OneDriveProvider struct {
 	config       *ProviderConfig
 	client       *http.Client
@@ -1332,7 +1332,7 @@ type OneDriveProvider struct {
 	tokenExpiry  time.Time
 }
 
-// NewOneDriveProvider 创建 OneDrive 提供商
+// NewOneDriveProvider 创建 OneDrive 提供商.
 func NewOneDriveProvider(cfg *ProviderConfig) (*OneDriveProvider, error) {
 	client := &http.Client{
 		Timeout: 60 * time.Second,
@@ -1345,7 +1345,7 @@ func NewOneDriveProvider(cfg *ProviderConfig) (*OneDriveProvider, error) {
 	}, nil
 }
 
-// refreshTokenIfNeeded 使用 refresh token 获取新的 access token
+// refreshTokenIfNeeded 使用 refresh token 获取新的 access token.
 func (p *OneDriveProvider) refreshTokenIfNeeded(ctx context.Context) error {
 	if p.accessToken != "" && time.Now().Before(p.tokenExpiry.Add(-5*time.Minute)) {
 		return nil
@@ -1402,7 +1402,7 @@ func (p *OneDriveProvider) refreshTokenIfNeeded(ctx context.Context) error {
 	return nil
 }
 
-// ensureFolder 确保文件夹存在
+// ensureFolder 确保文件夹存在.
 func (p *OneDriveProvider) ensureFolder(ctx context.Context, path string) error {
 	if path == "" || path == "/" {
 		return nil
@@ -1860,7 +1860,7 @@ func (p *OneDriveProvider) GetCapabilities() []string {
 
 // ==================== 工厂函数 ====================
 
-// NewProvider 创建云存储提供商
+// NewProvider 创建云存储提供商.
 func NewProvider(ctx context.Context, cfg *ProviderConfig) (Provider, error) {
 	switch cfg.Type {
 	case ProviderAliyunOSS:

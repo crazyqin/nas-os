@@ -11,7 +11,7 @@ import (
 )
 
 // Version information - can be overridden via ldflags
-// Example: go build -ldflags "-X nas-os/internal/version.Version=1.0.0"
+// Example: go build -ldflags "-X nas-os/internal/version.Version=1.0.0".
 var (
 	Version   = "2.275.0" // Default, may be overridden by ldflags or VERSION file
 	BuildDate = "2026-03-25"
@@ -20,11 +20,11 @@ var (
 	Platform  = fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)
 )
 
-// initialized tracks whether we've loaded from VERSION file
+// initialized tracks whether we've loaded from VERSION file.
 var initialized bool
 var initOnce sync.Once
 
-// initVersion loads version from VERSION file if not set via ldflags
+// initVersion loads version from VERSION file if not set via ldflags.
 func initVersion() {
 	initOnce.Do(func() {
 		initialized = true
@@ -55,7 +55,7 @@ func initVersion() {
 	})
 }
 
-// GetVersion returns the current version, loading from VERSION file if needed
+// GetVersion returns the current version, loading from VERSION file if needed.
 func GetVersion() string {
 	if !initialized {
 		initVersion()
@@ -63,7 +63,7 @@ func GetVersion() string {
 	return Version
 }
 
-// Info returns version information
+// Info returns version information.
 func Info() map[string]string {
 	if !initialized {
 		initVersion()
@@ -77,7 +77,7 @@ func Info() map[string]string {
 	}
 }
 
-// String returns version string
+// String returns version string.
 func String() string {
 	if !initialized {
 		initVersion()

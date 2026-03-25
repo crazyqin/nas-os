@@ -11,14 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// timePtr 辅助函数：将 time.Time 转换为 *time.Time
+// timePtr 辅助函数：将 time.Time 转换为 *time.Time.
 func timePtr(t time.Time) *time.Time {
 	return &t
 }
 
 // ========== 配额管理 API 处理器 ==========
 
-// QuotaAPIHandlers 配额管理 API 处理器
+// QuotaAPIHandlers 配额管理 API 处理器.
 type QuotaAPIHandlers struct {
 	manager      *QuotaManagerAdapter
 	monitor      *QuotaMonitorService
@@ -27,14 +27,14 @@ type QuotaAPIHandlers struct {
 	exporter     *QuotaReportExporter
 }
 
-// QuotaManagerAdapter 配额管理适配器
+// QuotaManagerAdapter 配额管理适配器.
 type QuotaManagerAdapter struct {
 	quotas map[string]*QuotaDefinition
 	usages map[string]*QuotaUsageRecord
 	alerts map[string]*QuotaAlertRecord
 }
 
-// QuotaDefinition 配额定义
+// QuotaDefinition 配额定义.
 type QuotaDefinition struct {
 	ID           string    `json:"id"`
 	Type         string    `json:"type"`          // user, service, directory
@@ -50,7 +50,7 @@ type QuotaDefinition struct {
 	Enabled      bool      `json:"enabled"`
 }
 
-// QuotaUsageRecord 配额使用记录
+// QuotaUsageRecord 配额使用记录.
 type QuotaUsageRecord struct {
 	QuotaID      string    `json:"quota_id"`
 	Type         string    `json:"type"`
@@ -67,7 +67,7 @@ type QuotaUsageRecord struct {
 	LastChecked  time.Time `json:"last_checked"`
 }
 
-// QuotaAlertRecord 配额告警记录
+// QuotaAlertRecord 配额告警记录.
 type QuotaAlertRecord struct {
 	ID           string     `json:"id"`
 	QuotaID      string     `json:"quota_id"`
@@ -86,19 +86,19 @@ type QuotaAlertRecord struct {
 	ResolvedAt   *time.Time `json:"resolved_at,omitempty"`
 }
 
-// QuotaMonitorService 配额监控服务
+// QuotaMonitorService 配额监控服务.
 type QuotaMonitorService struct{}
 
-// QuotaAlertManager 配额告警管理器
+// QuotaAlertManager 配额告警管理器.
 type QuotaAlertManager struct{}
 
-// QuotaUsageStatistics 配额使用统计
+// QuotaUsageStatistics 配额使用统计.
 type QuotaUsageStatistics struct{}
 
-// QuotaReportExporter 配额报告导出器
+// QuotaReportExporter 配额报告导出器.
 type QuotaReportExporter struct{}
 
-// NewQuotaAPIHandlers 创建配额管理 API 处理器
+// NewQuotaAPIHandlers 创建配额管理 API 处理器.
 func NewQuotaAPIHandlers() *QuotaAPIHandlers {
 	return &QuotaAPIHandlers{
 		manager: &QuotaManagerAdapter{
@@ -113,7 +113,7 @@ func NewQuotaAPIHandlers() *QuotaAPIHandlers {
 	}
 }
 
-// RegisterQuotaRoutes 注册配额管理路由
+// RegisterQuotaRoutes 注册配额管理路由.
 func (h *QuotaAPIHandlers) RegisterQuotaRoutes(apiGroup *gin.RouterGroup) {
 	// ========== 配额管理 ==========
 	quota := apiGroup.Group("/quota")
@@ -191,7 +191,7 @@ func (h *QuotaAPIHandlers) RegisterQuotaRoutes(apiGroup *gin.RouterGroup) {
 
 // ========== 配额管理 API ==========
 
-// listQuotas 列出所有配额
+// listQuotas 列出所有配额.
 func (h *QuotaAPIHandlers) listQuotas(c *gin.Context) {
 	// 获取查询参数
 	volumeName := c.Query("volume")
@@ -254,7 +254,7 @@ func (h *QuotaAPIHandlers) listQuotas(c *gin.Context) {
 	})
 }
 
-// getQuota 获取单个配额
+// getQuota 获取单个配额.
 func (h *QuotaAPIHandlers) getQuota(c *gin.Context) {
 	id := c.Param("id")
 
@@ -276,7 +276,7 @@ func (h *QuotaAPIHandlers) getQuota(c *gin.Context) {
 	api.OK(c, quota)
 }
 
-// createQuota 创建配额
+// createQuota 创建配额.
 func (h *QuotaAPIHandlers) createQuota(c *gin.Context) {
 	var req CreateQuotaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -317,7 +317,7 @@ func (h *QuotaAPIHandlers) createQuota(c *gin.Context) {
 	})
 }
 
-// updateQuota 更新配额
+// updateQuota 更新配额.
 func (h *QuotaAPIHandlers) updateQuota(c *gin.Context) {
 	id := c.Param("id")
 
@@ -341,7 +341,7 @@ func (h *QuotaAPIHandlers) updateQuota(c *gin.Context) {
 	})
 }
 
-// deleteQuota 删除配额
+// deleteQuota 删除配额.
 func (h *QuotaAPIHandlers) deleteQuota(c *gin.Context) {
 	id := c.Param("id")
 
@@ -351,7 +351,7 @@ func (h *QuotaAPIHandlers) deleteQuota(c *gin.Context) {
 	})
 }
 
-// getUserQuotas 获取用户配额
+// getUserQuotas 获取用户配额.
 func (h *QuotaAPIHandlers) getUserQuotas(c *gin.Context) {
 	userID := c.Param("user_id")
 
@@ -377,7 +377,7 @@ func (h *QuotaAPIHandlers) getUserQuotas(c *gin.Context) {
 	})
 }
 
-// setUserQuota 设置用户配额
+// setUserQuota 设置用户配额.
 func (h *QuotaAPIHandlers) setUserQuota(c *gin.Context) {
 	userID := c.Param("user_id")
 
@@ -394,7 +394,7 @@ func (h *QuotaAPIHandlers) setUserQuota(c *gin.Context) {
 	})
 }
 
-// deleteUserQuota 删除用户配额
+// deleteUserQuota 删除用户配额.
 func (h *QuotaAPIHandlers) deleteUserQuota(c *gin.Context) {
 	userID := c.Param("user_id")
 
@@ -404,7 +404,7 @@ func (h *QuotaAPIHandlers) deleteUserQuota(c *gin.Context) {
 	})
 }
 
-// getServiceQuotas 获取服务配额
+// getServiceQuotas 获取服务配额.
 func (h *QuotaAPIHandlers) getServiceQuotas(c *gin.Context) {
 	serviceName := c.Param("service_name")
 
@@ -430,7 +430,7 @@ func (h *QuotaAPIHandlers) getServiceQuotas(c *gin.Context) {
 	})
 }
 
-// setServiceQuota 设置服务配额
+// setServiceQuota 设置服务配额.
 func (h *QuotaAPIHandlers) setServiceQuota(c *gin.Context) {
 	serviceName := c.Param("service_name")
 
@@ -447,7 +447,7 @@ func (h *QuotaAPIHandlers) setServiceQuota(c *gin.Context) {
 	})
 }
 
-// deleteServiceQuota 删除服务配额
+// deleteServiceQuota 删除服务配额.
 func (h *QuotaAPIHandlers) deleteServiceQuota(c *gin.Context) {
 	serviceName := c.Param("service_name")
 
@@ -457,7 +457,7 @@ func (h *QuotaAPIHandlers) deleteServiceQuota(c *gin.Context) {
 	})
 }
 
-// getDirectoryQuota 获取目录配额
+// getDirectoryQuota 获取目录配额.
 func (h *QuotaAPIHandlers) getDirectoryQuota(c *gin.Context) {
 	path := c.Param("path")
 
@@ -479,7 +479,7 @@ func (h *QuotaAPIHandlers) getDirectoryQuota(c *gin.Context) {
 	api.OK(c, quota)
 }
 
-// setDirectoryQuota 设置目录配额
+// setDirectoryQuota 设置目录配额.
 func (h *QuotaAPIHandlers) setDirectoryQuota(c *gin.Context) {
 	path := c.Param("path")
 
@@ -496,7 +496,7 @@ func (h *QuotaAPIHandlers) setDirectoryQuota(c *gin.Context) {
 	})
 }
 
-// deleteDirectoryQuota 删除目录配额
+// deleteDirectoryQuota 删除目录配额.
 func (h *QuotaAPIHandlers) deleteDirectoryQuota(c *gin.Context) {
 	path := c.Param("path")
 
@@ -508,7 +508,7 @@ func (h *QuotaAPIHandlers) deleteDirectoryQuota(c *gin.Context) {
 
 // ========== 配额使用统计 API ==========
 
-// getAllUsage 获取所有配额使用情况
+// getAllUsage 获取所有配额使用情况.
 func (h *QuotaAPIHandlers) getAllUsage(c *gin.Context) {
 	usages := []QuotaUsageRecord{
 		{
@@ -549,7 +549,7 @@ func (h *QuotaAPIHandlers) getAllUsage(c *gin.Context) {
 	})
 }
 
-// getUsageSummary 获取使用情况汇总
+// getUsageSummary 获取使用情况汇总.
 func (h *QuotaAPIHandlers) getUsageSummary(c *gin.Context) {
 	summary := QuotaUsageSummary{
 		TotalQuotas:         10,
@@ -577,7 +577,7 @@ func (h *QuotaAPIHandlers) getUsageSummary(c *gin.Context) {
 	api.OK(c, summary)
 }
 
-// getQuotaUsage 获取单个配额使用情况
+// getQuotaUsage 获取单个配额使用情况.
 func (h *QuotaAPIHandlers) getQuotaUsage(c *gin.Context) {
 	quotaID := c.Param("quota_id")
 
@@ -600,7 +600,7 @@ func (h *QuotaAPIHandlers) getQuotaUsage(c *gin.Context) {
 	api.OK(c, usage)
 }
 
-// getUserUsage 获取用户使用情况
+// getUserUsage 获取用户使用情况.
 func (h *QuotaAPIHandlers) getUserUsage(c *gin.Context) {
 	userID := c.Param("user_id")
 
@@ -628,7 +628,7 @@ func (h *QuotaAPIHandlers) getUserUsage(c *gin.Context) {
 	})
 }
 
-// getVolumeUsage 获取卷使用情况
+// getVolumeUsage 获取卷使用情况.
 func (h *QuotaAPIHandlers) getVolumeUsage(c *gin.Context) {
 	volumeName := c.Param("volume_name")
 
@@ -656,7 +656,7 @@ func (h *QuotaAPIHandlers) getVolumeUsage(c *gin.Context) {
 	})
 }
 
-// getTopUsage 获取使用量排行
+// getTopUsage 获取使用量排行.
 func (h *QuotaAPIHandlers) getTopUsage(c *gin.Context) {
 	// 获取参数
 	limit := 10
@@ -687,7 +687,7 @@ func (h *QuotaAPIHandlers) getTopUsage(c *gin.Context) {
 	})
 }
 
-// getUsageHistory 获取使用历史
+// getUsageHistory 获取使用历史.
 func (h *QuotaAPIHandlers) getUsageHistory(c *gin.Context) {
 	quotaID := c.Param("quota_id")
 
@@ -716,7 +716,7 @@ func (h *QuotaAPIHandlers) getUsageHistory(c *gin.Context) {
 	})
 }
 
-// refreshUsage 刷新使用统计
+// refreshUsage 刷新使用统计.
 func (h *QuotaAPIHandlers) refreshUsage(c *gin.Context) {
 	volumeName := c.Query("volume")
 
@@ -729,7 +729,7 @@ func (h *QuotaAPIHandlers) refreshUsage(c *gin.Context) {
 
 // ========== 配额告警 API ==========
 
-// listAlerts 列出所有告警
+// listAlerts 列出所有告警.
 func (h *QuotaAPIHandlers) listAlerts(c *gin.Context) {
 	// 获取过滤参数
 	status := c.Query("status")
@@ -797,7 +797,7 @@ func (h *QuotaAPIHandlers) listAlerts(c *gin.Context) {
 	})
 }
 
-// getActiveAlerts 获取活跃告警
+// getActiveAlerts 获取活跃告警.
 func (h *QuotaAPIHandlers) getActiveAlerts(c *gin.Context) {
 	alerts := []QuotaAlertRecord{
 		{
@@ -825,7 +825,7 @@ func (h *QuotaAPIHandlers) getActiveAlerts(c *gin.Context) {
 	})
 }
 
-// getAlert 获取单个告警
+// getAlert 获取单个告警.
 func (h *QuotaAPIHandlers) getAlert(c *gin.Context) {
 	alertID := c.Param("alert_id")
 
@@ -849,7 +849,7 @@ func (h *QuotaAPIHandlers) getAlert(c *gin.Context) {
 	api.OK(c, alert)
 }
 
-// resolveAlert 解决告警
+// resolveAlert 解决告警.
 func (h *QuotaAPIHandlers) resolveAlert(c *gin.Context) {
 	alertID := c.Param("alert_id")
 
@@ -866,7 +866,7 @@ func (h *QuotaAPIHandlers) resolveAlert(c *gin.Context) {
 	})
 }
 
-// silenceAlert 静默告警
+// silenceAlert 静默告警.
 func (h *QuotaAPIHandlers) silenceAlert(c *gin.Context) {
 	alertID := c.Param("alert_id")
 
@@ -884,7 +884,7 @@ func (h *QuotaAPIHandlers) silenceAlert(c *gin.Context) {
 	})
 }
 
-// testAlert 测试告警
+// testAlert 测试告警.
 func (h *QuotaAPIHandlers) testAlert(c *gin.Context) {
 	var req TestAlertRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -898,7 +898,7 @@ func (h *QuotaAPIHandlers) testAlert(c *gin.Context) {
 	})
 }
 
-// getAlertConfig 获取告警配置
+// getAlertConfig 获取告警配置.
 func (h *QuotaAPIHandlers) getAlertConfig(c *gin.Context) {
 	config := QuotaAlertConfig{
 		Enabled:            true,
@@ -918,7 +918,7 @@ func (h *QuotaAPIHandlers) getAlertConfig(c *gin.Context) {
 	api.OK(c, config)
 }
 
-// updateAlertConfig 更新告警配置
+// updateAlertConfig 更新告警配置.
 func (h *QuotaAPIHandlers) updateAlertConfig(c *gin.Context) {
 	var req QuotaAlertConfig
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -934,7 +934,7 @@ func (h *QuotaAPIHandlers) updateAlertConfig(c *gin.Context) {
 
 // ========== 配额预警 API ==========
 
-// getWarnings 获取预警列表
+// getWarnings 获取预警列表.
 func (h *QuotaAPIHandlers) getWarnings(c *gin.Context) {
 	warnings := []QuotaWarning{
 		{
@@ -968,7 +968,7 @@ func (h *QuotaAPIHandlers) getWarnings(c *gin.Context) {
 	})
 }
 
-// getPredictions 获取使用预测
+// getPredictions 获取使用预测.
 func (h *QuotaAPIHandlers) getPredictions(c *gin.Context) {
 	predictions := []QuotaPredictionOutput{
 		{
@@ -1001,7 +1001,7 @@ func (h *QuotaAPIHandlers) getPredictions(c *gin.Context) {
 	})
 }
 
-// getForecast 获取使用预测详情
+// getForecast 获取使用预测详情.
 func (h *QuotaAPIHandlers) getForecast(c *gin.Context) {
 	quotaID := c.Param("quota_id")
 
@@ -1035,7 +1035,7 @@ func (h *QuotaAPIHandlers) getForecast(c *gin.Context) {
 	})
 }
 
-// setWarningThresholds 设置预警阈值
+// setWarningThresholds 设置预警阈值.
 func (h *QuotaAPIHandlers) setWarningThresholds(c *gin.Context) {
 	var req SetWarningThresholdsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -1057,7 +1057,7 @@ func (h *QuotaAPIHandlers) setWarningThresholds(c *gin.Context) {
 
 // ========== 配额报告 API ==========
 
-// listQuotaReports 列出配额报告
+// listQuotaReports 列出配额报告.
 func (h *QuotaAPIHandlers) listQuotaReports(c *gin.Context) {
 	reports := []QuotaReportMeta{
 		{
@@ -1082,7 +1082,7 @@ func (h *QuotaAPIHandlers) listQuotaReports(c *gin.Context) {
 	})
 }
 
-// generateQuotaReport 生成配额报告
+// generateQuotaReport 生成配额报告.
 func (h *QuotaAPIHandlers) generateQuotaReport(c *gin.Context) {
 	var req GenerateQuotaReportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -1107,7 +1107,7 @@ func (h *QuotaAPIHandlers) generateQuotaReport(c *gin.Context) {
 	})
 }
 
-// getQuotaReport 获取配额报告
+// getQuotaReport 获取配额报告.
 func (h *QuotaAPIHandlers) getQuotaReport(c *gin.Context) {
 	reportID := c.Param("report_id")
 
@@ -1145,7 +1145,7 @@ func (h *QuotaAPIHandlers) getQuotaReport(c *gin.Context) {
 	api.OK(c, report)
 }
 
-// exportQuotaReport 导出配额报告
+// exportQuotaReport 导出配额报告.
 func (h *QuotaAPIHandlers) exportQuotaReport(c *gin.Context) {
 	reportID := c.Param("report_id")
 	format := c.DefaultQuery("format", "json")
@@ -1163,7 +1163,7 @@ func (h *QuotaAPIHandlers) exportQuotaReport(c *gin.Context) {
 	})
 }
 
-// deleteQuotaReport 删除配额报告
+// deleteQuotaReport 删除配额报告.
 func (h *QuotaAPIHandlers) deleteQuotaReport(c *gin.Context) {
 	reportID := c.Param("report_id")
 
@@ -1175,7 +1175,7 @@ func (h *QuotaAPIHandlers) deleteQuotaReport(c *gin.Context) {
 
 // ========== 请求/响应结构体 ==========
 
-// CreateQuotaRequest 创建配额请求
+// CreateQuotaRequest 创建配额请求.
 type CreateQuotaRequest struct {
 	Type         string `json:"type" binding:"required"`        // user, service, directory
 	TargetID     string `json:"target_id" binding:"required"`   // 用户ID/服务名/路径
@@ -1187,7 +1187,7 @@ type CreateQuotaRequest struct {
 	WarningLimit uint64 `json:"warning_limit"`                  // 警告阈值（字节）
 }
 
-// UpdateQuotaRequest 更新配额请求
+// UpdateQuotaRequest 更新配额请求.
 type UpdateQuotaRequest struct {
 	HardLimit    *uint64 `json:"hard_limit"`    // 硬限制（字节）
 	SoftLimit    *uint64 `json:"soft_limit"`    // 软限制（字节）
@@ -1195,7 +1195,7 @@ type UpdateQuotaRequest struct {
 	Enabled      *bool   `json:"enabled"`       // 是否启用
 }
 
-// SetUserQuotaRequest 设置用户配额请求
+// SetUserQuotaRequest 设置用户配额请求.
 type SetUserQuotaRequest struct {
 	VolumeName   string `json:"volume_name" binding:"required"`
 	HardLimit    uint64 `json:"hard_limit" binding:"required"`
@@ -1203,7 +1203,7 @@ type SetUserQuotaRequest struct {
 	WarningLimit uint64 `json:"warning_limit"`
 }
 
-// SetServiceQuotaRequest 设置服务配额请求
+// SetServiceQuotaRequest 设置服务配额请求.
 type SetServiceQuotaRequest struct {
 	VolumeName   string `json:"volume_name" binding:"required"`
 	HardLimit    uint64 `json:"hard_limit" binding:"required"`
@@ -1211,7 +1211,7 @@ type SetServiceQuotaRequest struct {
 	WarningLimit uint64 `json:"warning_limit"`
 }
 
-// SetDirectoryQuotaRequest 设置目录配额请求
+// SetDirectoryQuotaRequest 设置目录配额请求.
 type SetDirectoryQuotaRequest struct {
 	VolumeName   string `json:"volume_name" binding:"required"`
 	HardLimit    uint64 `json:"hard_limit" binding:"required"`
@@ -1219,7 +1219,7 @@ type SetDirectoryQuotaRequest struct {
 	WarningLimit uint64 `json:"warning_limit"`
 }
 
-// QuotaUsageSummary 配额使用汇总
+// QuotaUsageSummary 配额使用汇总.
 type QuotaUsageSummary struct {
 	TotalQuotas         int                       `json:"total_quotas"`
 	TotalHardLimitBytes uint64                    `json:"total_hard_limit_bytes"`
@@ -1235,14 +1235,14 @@ type QuotaUsageSummary struct {
 	GeneratedAt         time.Time                 `json:"generated_at"`
 }
 
-// TypeUsageStats 类型使用统计
+// TypeUsageStats 类型使用统计.
 type TypeUsageStats struct {
 	Count      int    `json:"count"`
 	UsedBytes  uint64 `json:"used_bytes"`
 	LimitBytes uint64 `json:"limit_bytes"`
 }
 
-// TopUsageItem 使用量排行项
+// TopUsageItem 使用量排行项.
 type TopUsageItem struct {
 	TargetName   string  `json:"target_name"`
 	UsedGB       float64 `json:"used_gb"`
@@ -1250,31 +1250,31 @@ type TopUsageItem struct {
 	UsagePercent float64 `json:"usage_percent"`
 }
 
-// UsageHistoryPoint 使用历史数据点
+// UsageHistoryPoint 使用历史数据点.
 type UsageHistoryPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	UsedBytes    uint64    `json:"used_bytes"`
 	UsagePercent float64   `json:"usage_percent"`
 }
 
-// ResolveAlertRequest 解决告警请求
+// ResolveAlertRequest 解决告警请求.
 type ResolveAlertRequest struct {
 	Resolution string `json:"resolution"` // 解决说明
 }
 
-// SilenceAlertRequest 静默告警请求
+// SilenceAlertRequest 静默告警请求.
 type SilenceAlertRequest struct {
 	Duration int    `json:"duration" binding:"required"` // 静默时长（分钟）
 	Reason   string `json:"reason"`                      // 静默原因
 }
 
-// TestAlertRequest 测试告警请求
+// TestAlertRequest 测试告警请求.
 type TestAlertRequest struct {
 	Channels []string `json:"channels" binding:"required"` // email, webhook, sms
 	QuotaID  string   `json:"quota_id"`
 }
 
-// QuotaAlertConfig 配额告警配置
+// QuotaAlertConfig 配额告警配置.
 type QuotaAlertConfig struct {
 	Enabled            bool    `json:"enabled"`
 	WarningThreshold   float64 `json:"warning_threshold"`   // 警告阈值（%）
@@ -1290,7 +1290,7 @@ type QuotaAlertConfig struct {
 	MaxEscalationLevel int     `json:"max_escalation_level"`
 }
 
-// QuotaWarning 配额预警
+// QuotaWarning 配额预警.
 type QuotaWarning struct {
 	ID            string     `json:"id"`
 	QuotaID       string     `json:"quota_id"`
@@ -1305,7 +1305,7 @@ type QuotaWarning struct {
 	ExpiresAt     *time.Time `json:"expires_at,omitempty"`
 }
 
-// QuotaPredictionOutput 配额预测输出
+// QuotaPredictionOutput 配额预测输出.
 type QuotaPredictionOutput struct {
 	QuotaID           string     `json:"quota_id"`
 	TargetName        string     `json:"target_name"`
@@ -1318,14 +1318,14 @@ type QuotaPredictionOutput struct {
 	RiskLevel         string     `json:"risk_level"` // low, medium, high, critical
 }
 
-// SetWarningThresholdsRequest 设置预警阈值请求
+// SetWarningThresholdsRequest 设置预警阈值请求.
 type SetWarningThresholdsRequest struct {
 	WarningThreshold   float64 `json:"warning_threshold" binding:"required"`
 	CriticalThreshold  float64 `json:"critical_threshold" binding:"required"`
 	EmergencyThreshold float64 `json:"emergency_threshold" binding:"required"`
 }
 
-// GenerateQuotaReportRequest 生成配额报告请求
+// GenerateQuotaReportRequest 生成配额报告请求.
 type GenerateQuotaReportRequest struct {
 	Name   string       `json:"name" binding:"required"`
 	Type   string       `json:"type" binding:"required"` // daily, weekly, monthly
@@ -1333,7 +1333,7 @@ type GenerateQuotaReportRequest struct {
 	Format string       `json:"format"` // json, csv
 }
 
-// QuotaReportMeta 配额报告元数据
+// QuotaReportMeta 配额报告元数据.
 type QuotaReportMeta struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -1346,7 +1346,7 @@ type QuotaReportMeta struct {
 	CreatedBy   string       `json:"created_by"`
 }
 
-// DetailedQuotaReport 详细配额报告
+// DetailedQuotaReport 详细配额报告.
 type DetailedQuotaReport struct {
 	ID          string             `json:"id"`
 	Name        string             `json:"name"`

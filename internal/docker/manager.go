@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-// Manager Docker 管理器
+// Manager Docker 管理器.
 type Manager struct {
 	socketPath string
 }
 
-// Container 容器信息
+// Container 容器信息.
 type Container struct {
 	ID       string            `json:"id"`
 	Name     string            `json:"name"`
@@ -33,7 +33,7 @@ type Container struct {
 	Volumes  []VolumeMount     `json:"volumes"`
 }
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	HostIP        string `json:"hostIp"`
 	HostPort      string `json:"hostPort"`
@@ -41,7 +41,7 @@ type PortMapping struct {
 	Protocol      string `json:"protocol"`
 }
 
-// VolumeMount 卷挂载
+// VolumeMount 卷挂载.
 type VolumeMount struct {
 	Source      string `json:"source"`
 	Destination string `json:"destination"`
@@ -49,7 +49,7 @@ type VolumeMount struct {
 	RW          bool   `json:"rw"`
 }
 
-// Image 镜像信息
+// Image 镜像信息.
 type Image struct {
 	ID         string    `json:"id"`
 	Repository string    `json:"repository"`
@@ -58,7 +58,7 @@ type Image struct {
 	Created    time.Time `json:"created"`
 }
 
-// Network 网络信息
+// Network 网络信息.
 type Network struct {
 	ID         string   `json:"id"`
 	Name       string   `json:"name"`
@@ -69,7 +69,7 @@ type Network struct {
 	Containers []string `json:"containers"`
 }
 
-// Volume 卷信息
+// Volume 卷信息.
 type Volume struct {
 	Name       string    `json:"name"`
 	Driver     string    `json:"driver"`
@@ -78,7 +78,7 @@ type Volume struct {
 	Created    time.Time `json:"created"`
 }
 
-// ContainerStats 容器统计信息
+// ContainerStats 容器统计信息.
 type ContainerStats struct {
 	CPUUsage   float64 `json:"cpuUsage"`
 	MemUsage   uint64  `json:"memUsage"`
@@ -89,7 +89,7 @@ type ContainerStats struct {
 	BlockWrite uint64  `json:"blockWrite"`
 }
 
-// AppCatalog 应用目录
+// AppCatalog 应用目录.
 type AppCatalog struct {
 	Name        string            `json:"name"`
 	Image       string            `json:"image"`
@@ -100,7 +100,7 @@ type AppCatalog struct {
 	Environment map[string]string `json:"environment"`
 }
 
-// NewManager 创建 Docker 管理器
+// NewManager 创建 Docker 管理器.
 func NewManager() (*Manager, error) {
 	socketPath := os.Getenv("DOCKER_HOST")
 	if socketPath == "" {
@@ -112,13 +112,13 @@ func NewManager() (*Manager, error) {
 	}, nil
 }
 
-// IsRunning 检查 Docker 是否运行
+// IsRunning 检查 Docker 是否运行.
 func (m *Manager) IsRunning() bool {
 	cmd := exec.Command("docker", "info")
 	return cmd.Run() == nil
 }
 
-// ListContainers 列出容器
+// ListContainers 列出容器.
 func (m *Manager) ListContainers(all bool) ([]*Container, error) {
 	args := []string{"ps", "--format", "{{json .}}"}
 	if all {
@@ -165,7 +165,7 @@ func (m *Manager) ListContainers(all bool) ([]*Container, error) {
 	return containers, nil
 }
 
-// GetContainer 获取容器详情
+// GetContainer 获取容器详情.
 func (m *Manager) GetContainer(id string) (*Container, error) {
 	cmd := exec.Command("docker", "inspect", "--format", "{{json .}}", id)
 	output, err := cmd.Output()
@@ -249,7 +249,7 @@ func (m *Manager) GetContainer(id string) (*Container, error) {
 	return container, nil
 }
 
-// CreateContainer 创建容器
+// CreateContainer 创建容器.
 func (m *Manager) CreateContainer(name, image string, opts map[string]interface{}) (*Container, error) {
 	args := []string{"run", "-d", "--name", name}
 
@@ -297,7 +297,7 @@ func (m *Manager) CreateContainer(name, image string, opts map[string]interface{
 	return m.GetContainer(name)
 }
 
-// StartContainer 启动容器
+// StartContainer 启动容器.
 func (m *Manager) StartContainer(id string) error {
 	cmd := exec.Command("docker", "start", id)
 	output, err := cmd.CombinedOutput()
@@ -307,7 +307,7 @@ func (m *Manager) StartContainer(id string) error {
 	return nil
 }
 
-// StopContainer 停止容器
+// StopContainer 停止容器.
 func (m *Manager) StopContainer(id string, timeout int) error {
 	args := []string{"stop"}
 	if timeout > 0 {
@@ -323,7 +323,7 @@ func (m *Manager) StopContainer(id string, timeout int) error {
 	return nil
 }
 
-// RestartContainer 重启容器
+// RestartContainer 重启容器.
 func (m *Manager) RestartContainer(id string, timeout int) error {
 	args := []string{"restart"}
 	if timeout > 0 {
@@ -339,7 +339,7 @@ func (m *Manager) RestartContainer(id string, timeout int) error {
 	return nil
 }
 
-// RemoveContainer 删除容器
+// RemoveContainer 删除容器.
 func (m *Manager) RemoveContainer(id string, force bool) error {
 	args := []string{"rm"}
 	if force {
@@ -355,7 +355,7 @@ func (m *Manager) RemoveContainer(id string, force bool) error {
 	return nil
 }
 
-// GetContainerStats 获取容器统计
+// GetContainerStats 获取容器统计.
 func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -407,7 +407,7 @@ func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 	return stats, nil
 }
 
-// ListImages 列出镜像
+// ListImages 列出镜像.
 func (m *Manager) ListImages() ([]*Image, error) {
 	cmd := exec.Command("docker", "images", "--format", "{{json .}}")
 	output, err := cmd.Output()
@@ -442,7 +442,7 @@ func (m *Manager) ListImages() ([]*Image, error) {
 	return images, nil
 }
 
-// PullImage 拉取镜像
+// PullImage 拉取镜像.
 func (m *Manager) PullImage(image string) error {
 	cmd := exec.Command("docker", "pull", image)
 	output, err := cmd.CombinedOutput()
@@ -452,7 +452,7 @@ func (m *Manager) PullImage(image string) error {
 	return nil
 }
 
-// RemoveImage 删除镜像
+// RemoveImage 删除镜像.
 func (m *Manager) RemoveImage(id string, force bool) error {
 	args := []string{"rmi"}
 	if force {
@@ -468,7 +468,7 @@ func (m *Manager) RemoveImage(id string, force bool) error {
 	return nil
 }
 
-// ListNetworks 列出网络
+// ListNetworks 列出网络.
 func (m *Manager) ListNetworks() ([]*Network, error) {
 	cmd := exec.Command("docker", "network", "ls", "--format", "{{json .}}")
 	output, err := cmd.Output()
@@ -503,7 +503,7 @@ func (m *Manager) ListNetworks() ([]*Network, error) {
 	return networks, nil
 }
 
-// ListVolumes 列出所有卷
+// ListVolumes 列出所有卷.
 func (m *Manager) ListVolumes() ([]*Volume, error) {
 	cmd := exec.Command("docker", "volume", "ls", "--format", "{{json .}}")
 	output, err := cmd.Output()
@@ -543,7 +543,7 @@ func (m *Manager) ListVolumes() ([]*Volume, error) {
 	return volumes, nil
 }
 
-// CreateVolume 创建卷
+// CreateVolume 创建卷.
 func (m *Manager) CreateVolume(name string, driver string, opts map[string]string) (*Volume, error) {
 	args := []string{"volume", "create"}
 
@@ -571,7 +571,7 @@ func (m *Manager) CreateVolume(name string, driver string, opts map[string]strin
 	return m.GetVolume(volumeName)
 }
 
-// GetVolume 获取卷详情
+// GetVolume 获取卷详情.
 func (m *Manager) GetVolume(name string) (*Volume, error) {
 	cmd := exec.Command("docker", "volume", "inspect", "--format", "{{json .}}", name)
 	output, err := cmd.Output()
@@ -614,7 +614,7 @@ func (m *Manager) GetVolume(name string) (*Volume, error) {
 	return volume, nil
 }
 
-// RemoveVolume 删除卷
+// RemoveVolume 删除卷.
 func (m *Manager) RemoveVolume(name string, force bool) error {
 	args := []string{"volume", "rm"}
 	if force {
@@ -630,7 +630,7 @@ func (m *Manager) RemoveVolume(name string, force bool) error {
 	return nil
 }
 
-// getVolumeSize 获取卷大小
+// getVolumeSize 获取卷大小.
 func (m *Manager) getVolumeSize(name string) (uint64, error) {
 	// 简化实现：使用 du 命令获取目录大小
 	cmd := exec.Command("docker", "volume", "inspect", "--format", "{{.Mountpoint}}", name)
@@ -656,7 +656,7 @@ func (m *Manager) getVolumeSize(name string) (uint64, error) {
 	return size, nil
 }
 
-// GetContainerLogs 获取容器日志
+// GetContainerLogs 获取容器日志.
 func (m *Manager) GetContainerLogs(id string, opts LogOptions) (string, error) {
 	args := []string{"logs"}
 
@@ -687,7 +687,7 @@ func (m *Manager) GetContainerLogs(id string, opts LogOptions) (string, error) {
 	return string(output), nil
 }
 
-// LogOptions 日志选项
+// LogOptions 日志选项.
 type LogOptions struct {
 	Tail       int    // 最后 N 行，0 表示全部
 	Since      string // 开始时间 (如 "2023-01-01", "1h30m")
@@ -696,7 +696,7 @@ type LogOptions struct {
 	Follow     bool   // 实时跟踪（不适用于此方法）
 }
 
-// StreamContainerLogs 实时流式获取容器日志
+// StreamContainerLogs 实时流式获取容器日志.
 func (m *Manager) StreamContainerLogs(id string, opts LogOptions) (<-chan string, error) {
 	args := []string{"logs", "-f"}
 
@@ -742,7 +742,7 @@ func (m *Manager) StreamContainerLogs(id string, opts LogOptions) (<-chan string
 	return logChan, nil
 }
 
-// GetAppCatalog 获取应用目录
+// GetAppCatalog 获取应用目录.
 func (m *Manager) GetAppCatalog() []*AppCatalog {
 	return []*AppCatalog{
 		{
@@ -802,7 +802,7 @@ func (m *Manager) GetAppCatalog() []*AppCatalog {
 	}
 }
 
-// parsePorts 解析端口映射
+// parsePorts 解析端口映射.
 func (m *Manager) parsePorts(ports string) []PortMapping {
 	var result []PortMapping
 	if ports == "" {
@@ -843,7 +843,7 @@ func (m *Manager) parsePorts(ports string) []PortMapping {
 	return result
 }
 
-// parseSize 解析大小字符串
+// parseSize 解析大小字符串.
 func parseSize(s string) uint64 {
 	s = strings.TrimSpace(s)
 	s = strings.ReplaceAll(s, " ", "")

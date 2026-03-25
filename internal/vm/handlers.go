@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler VM HTTP 处理器
+// Handler VM HTTP 处理器.
 type Handler struct {
 	manager         *Manager
 	isoManager      *ISOManager
@@ -15,7 +15,7 @@ type Handler struct {
 	logger          *zap.Logger
 }
 
-// NewHandler 创建 VM 处理器
+// NewHandler 创建 VM 处理器.
 func NewHandler(manager *Manager, isoManager *ISOManager, snapshotManager *SnapshotManager, logger *zap.Logger) *Handler {
 	return &Handler{
 		manager:         manager,
@@ -25,7 +25,7 @@ func NewHandler(manager *Manager, isoManager *ISOManager, snapshotManager *Snaps
 	}
 }
 
-// RegisterRoutes 注册路由（保留用于标准 HTTP ServeMux）
+// RegisterRoutes 注册路由（保留用于标准 HTTP ServeMux）.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/vms", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
@@ -44,52 +44,52 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/vm-pci-devices", h.HandlePCIDevices)
 }
 
-// HandleListVMs 导出方法供 Gin 使用
+// HandleListVMs 导出方法供 Gin 使用.
 func (h *Handler) HandleListVMs(w http.ResponseWriter, r *http.Request) {
 	h.handleListVMs(w, r)
 }
 
-// HandleCreateVM 导出方法供 Gin 使用
+// HandleCreateVM 导出方法供 Gin 使用.
 func (h *Handler) HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 	h.handleCreateVM(w, r)
 }
 
-// HandleVM 导出方法供 Gin 使用
+// HandleVM 导出方法供 Gin 使用.
 func (h *Handler) HandleVM(w http.ResponseWriter, r *http.Request) {
 	h.handleVM(w, r)
 }
 
-// HandleListISOs 导出方法供 Gin 使用
+// HandleListISOs 导出方法供 Gin 使用.
 func (h *Handler) HandleListISOs(w http.ResponseWriter, r *http.Request) {
 	h.handleListISOs(w, r)
 }
 
-// HandleISO 导出方法供 Gin 使用
+// HandleISO 导出方法供 Gin 使用.
 func (h *Handler) HandleISO(w http.ResponseWriter, r *http.Request) {
 	h.handleISO(w, r)
 }
 
-// HandleListSnapshots 导出方法供 Gin 使用
+// HandleListSnapshots 导出方法供 Gin 使用.
 func (h *Handler) HandleListSnapshots(w http.ResponseWriter, r *http.Request) {
 	h.handleListSnapshots(w, r)
 }
 
-// HandleSnapshot 导出方法供 Gin 使用
+// HandleSnapshot 导出方法供 Gin 使用.
 func (h *Handler) HandleSnapshot(w http.ResponseWriter, r *http.Request) {
 	h.handleSnapshot(w, r)
 }
 
-// HandleListTemplates 导出方法供 Gin 使用
+// HandleListTemplates 导出方法供 Gin 使用.
 func (h *Handler) HandleListTemplates(w http.ResponseWriter, r *http.Request) {
 	h.handleListTemplates(w, r)
 }
 
-// HandleUSBDevices 导出方法供 Gin 使用
+// HandleUSBDevices 导出方法供 Gin 使用.
 func (h *Handler) HandleUSBDevices(w http.ResponseWriter, r *http.Request) {
 	h.handleUSBDevices(w, r)
 }
 
-// HandlePCIDevices 导出方法供 Gin 使用
+// HandlePCIDevices 导出方法供 Gin 使用.
 func (h *Handler) HandlePCIDevices(w http.ResponseWriter, r *http.Request) {
 	h.handlePCIDevices(w, r)
 }
@@ -424,7 +424,7 @@ func (h *Handler) jsonResponse(w http.ResponseWriter, data interface{}) {
 	}
 }
 
-// CreateVMRequest 创建 VM 请求
+// CreateVMRequest 创建 VM 请求.
 type CreateVMRequest struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
@@ -440,7 +440,7 @@ type CreateVMRequest struct {
 	Tags        map[string]string `json:"tags"`
 }
 
-// handleCreateVM 创建 VM（单独的处理函数）
+// handleCreateVM 创建 VM（单独的处理函数）.
 func (h *Handler) handleCreateVM(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

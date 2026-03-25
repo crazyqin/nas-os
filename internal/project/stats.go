@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// StatsExtended 扩展项目统计
+// StatsExtended 扩展项目统计.
 type StatsExtended struct {
 	// 基础统计
 	ProjectID   string `json:"project_id"`
@@ -36,7 +36,7 @@ type StatsExtended struct {
 // 注意：已移除 ProjectStatsExtended 别名，请直接使用 StatsExtended 类型
 // 原因：避免 stutter (project.ProjectStatsExtended -> project.StatsExtended)
 
-// TaskStatsDetail 详细任务统计
+// TaskStatsDetail 详细任务统计.
 type TaskStatsDetail struct {
 	Total       int            `json:"total"`
 	ByStatus    map[string]int `json:"by_status"`
@@ -67,7 +67,7 @@ type TaskStatsDetail struct {
 	AverageTasksPerMember float64 `json:"average_tasks_per_member"`
 }
 
-// TimeStats 时间统计
+// TimeStats 时间统计.
 type TimeStats struct {
 	// 工时统计
 	TotalEstimatedHours float64 `json:"total_estimated_hours"`
@@ -85,7 +85,7 @@ type TimeStats struct {
 	HoursTrend []HoursTrendPoint `json:"hours_trend,omitempty"`
 }
 
-// MemberHours 成员工时
+// MemberHours 成员工时.
 type MemberHours struct {
 	UserID          string  `json:"user_id"`
 	EstimatedHours  float64 `json:"estimated_hours"`
@@ -94,14 +94,14 @@ type MemberHours struct {
 	AvgHoursPerTask float64 `json:"avg_hours_per_task"`
 }
 
-// HoursTrendPoint 工时趋势点
+// HoursTrendPoint 工时趋势点.
 type HoursTrendPoint struct {
 	Date    string  `json:"date"`
 	Logged  float64 `json:"logged"`
 	Planned float64 `json:"planned"`
 }
 
-// MilestoneStatsDetail 详细里程碑统计
+// MilestoneStatsDetail 详细里程碑统计.
 type MilestoneStatsDetail struct {
 	Total          int     `json:"total"`
 	Completed      int     `json:"completed"`
@@ -119,7 +119,7 @@ type MilestoneStatsDetail struct {
 	ProgressDistribution ProgressDistribution `json:"progress_distribution"`
 }
 
-// ProgressDistribution 进度分布
+// ProgressDistribution 进度分布.
 type ProgressDistribution struct {
 	ZeroTo25         int `json:"0_to_25"`   // 0-25%
 	TwentyFiveTo50   int `json:"25_to_50"`  // 25-50%
@@ -128,7 +128,7 @@ type ProgressDistribution struct {
 	Completed        int `json:"completed"` // 100%
 }
 
-// TeamStats 团队统计
+// TeamStats 团队统计.
 type TeamStats struct {
 	TeamSize        int                    `json:"team_size"`
 	MemberWorkloads []MemberWorkloadDetail `json:"member_workloads"`
@@ -136,7 +136,7 @@ type TeamStats struct {
 	WorkloadBalance float64                `json:"workload_balance"` // 0-1，1表示完美平衡
 }
 
-// MemberWorkloadDetail 详细成员工作量
+// MemberWorkloadDetail 详细成员工作量.
 type MemberWorkloadDetail struct {
 	UserID          string  `json:"user_id"`
 	TotalTasks      int     `json:"total_tasks"`
@@ -150,7 +150,7 @@ type MemberWorkloadDetail struct {
 	CompletionRate  float64 `json:"completion_rate"`
 }
 
-// TopPerformer 表现最好的成员
+// TopPerformer 表现最好的成员.
 type TopPerformer struct {
 	UserID         string  `json:"user_id"`
 	TasksCompleted int     `json:"tasks_completed"`
@@ -158,7 +158,7 @@ type TopPerformer struct {
 	OnTimeRate     float64 `json:"on_time_rate"`
 }
 
-// ProgressStats 进度统计
+// ProgressStats 进度统计.
 type ProgressStats struct {
 	OverallProgress     int        `json:"overall_progress"`  // 0-100
 	ExpectedProgress    int        `json:"expected_progress"` // 基于时间计算的预期进度
@@ -171,14 +171,14 @@ type ProgressStats struct {
 	BurndownData []BurndownPoint `json:"burndown_data,omitempty"`
 }
 
-// BurndownPoint 燃尽图数据点
+// BurndownPoint 燃尽图数据点.
 type BurndownPoint struct {
 	Date      string `json:"date"`
 	Remaining int    `json:"remaining"`
 	Ideal     int    `json:"ideal"`
 }
 
-// QualityMetrics 质量指标
+// QualityMetrics 质量指标.
 type QualityMetrics struct {
 	// 任务完成质量
 	OnTimeCompletionRate float64 `json:"on_time_completion_rate"` // 按时完成率
@@ -194,7 +194,7 @@ type QualityMetrics struct {
 	AvgLeadTime  float64 `json:"avg_lead_time"`  // 平均交付时间（小时）
 }
 
-// RiskIndicators 风险指标
+// RiskIndicators 风险指标.
 type RiskIndicators struct {
 	OverallRisk            string   `json:"overall_risk"` // low, medium, high, critical
 	RiskScore              int      `json:"risk_score"`   // 0-100
@@ -205,19 +205,19 @@ type RiskIndicators struct {
 	NearDeadlineMilestones int      `json:"near_deadline_milestones"`
 }
 
-// StatsManager 统计管理器
+// StatsManager 统计管理器.
 type StatsManager struct {
 	manager *Manager
 }
 
-// NewStatsManager 创建统计管理器
+// NewStatsManager 创建统计管理器.
 func NewStatsManager(mgr *Manager) *StatsManager {
 	return &StatsManager{
 		manager: mgr,
 	}
 }
 
-// GetExtendedStats 获取扩展统计
+// GetExtendedStats 获取扩展统计.
 func (sm *StatsManager) GetExtendedStats(projectID string) (*StatsExtended, error) {
 	project, err := sm.manager.GetProject(projectID)
 	if err != nil {
@@ -270,7 +270,7 @@ func (sm *StatsManager) GetExtendedStats(projectID string) (*StatsExtended, erro
 	return stats, nil
 }
 
-// calculateTaskStats 计算任务统计
+// calculateTaskStats 计算任务统计.
 func (sm *StatsManager) calculateTaskStats(stats *StatsExtended, projectID string) {
 	now := time.Now()
 	weekAgo := now.AddDate(0, 0, -7)
@@ -364,7 +364,7 @@ func (sm *StatsManager) calculateTaskStats(stats *StatsExtended, projectID strin
 	}
 }
 
-// calculateTimeStats 计算时间统计
+// calculateTimeStats 计算时间统计.
 func (sm *StatsManager) calculateTimeStats(stats *StatsExtended, projectID string) {
 	filter := TaskFilter{ProjectID: projectID, Limit: 10000}
 	tasks := sm.manager.ListTasks(filter)
@@ -406,7 +406,7 @@ func (sm *StatsManager) calculateTimeStats(stats *StatsExtended, projectID strin
 	}
 }
 
-// calculateMilestoneStats 计算里程碑统计
+// calculateMilestoneStats 计算里程碑统计.
 func (sm *StatsManager) calculateMilestoneStats(stats *StatsExtended, projectID string) {
 	now := time.Now()
 	milestones := sm.manager.ListMilestones(projectID)
@@ -462,7 +462,7 @@ func (sm *StatsManager) calculateMilestoneStats(stats *StatsExtended, projectID 
 	}
 }
 
-// calculateTeamStats 计算团队统计
+// calculateTeamStats 计算团队统计.
 func (sm *StatsManager) calculateTeamStats(stats *StatsExtended, projectID string) {
 	memberMap := make(map[string]*MemberWorkloadDetail)
 	now := time.Now()
@@ -537,7 +537,7 @@ func (sm *StatsManager) calculateTeamStats(stats *StatsExtended, projectID strin
 	stats.TeamStats.TopPerformers = sm.findTopPerformers(memberMap)
 }
 
-// findTopPerformers 找出表现最好的成员
+// findTopPerformers 找出表现最好的成员.
 func (sm *StatsManager) findTopPerformers(memberMap map[string]*MemberWorkloadDetail) []TopPerformer {
 	performers := make([]TopPerformer, 0, len(memberMap))
 
@@ -569,7 +569,7 @@ func (sm *StatsManager) findTopPerformers(memberMap map[string]*MemberWorkloadDe
 	return performers
 }
 
-// calculateProgressStats 计算进度统计
+// calculateProgressStats 计算进度统计.
 func (sm *StatsManager) calculateProgressStats(stats *StatsExtended, projectID string, project *Project) {
 	// 整体进度
 	if stats.TaskStats.Total > 0 {
@@ -602,7 +602,7 @@ func (sm *StatsManager) calculateProgressStats(stats *StatsExtended, projectID s
 	stats.ProgressStats.OnTrack = stats.ProgressStats.ProgressDelta >= -10
 }
 
-// calculateQualityMetrics 计算质量指标
+// calculateQualityMetrics 计算质量指标.
 func (sm *StatsManager) calculateQualityMetrics(stats *StatsExtended, projectID string) {
 	filter := TaskFilter{ProjectID: projectID, Limit: 10000}
 	tasks := sm.manager.ListTasks(filter)
@@ -676,7 +676,7 @@ func (sm *StatsManager) calculateQualityMetrics(stats *StatsExtended, projectID 
 	}
 }
 
-// calculateRiskIndicators 计算风险指标
+// calculateRiskIndicators 计算风险指标.
 func (sm *StatsManager) calculateRiskIndicators(stats *StatsExtended, projectID string) {
 	// 过期任务比例
 	if stats.TaskStats.Total > 0 {
@@ -748,7 +748,7 @@ func (sm *StatsManager) calculateRiskIndicators(stats *StatsExtended, projectID 
 	}
 }
 
-// GetGlobalStats 获取全局统计
+// GetGlobalStats 获取全局统计.
 func (sm *StatsManager) GetGlobalStats() GlobalStats {
 	projects := sm.manager.ListProjects("", 1000, 0)
 
@@ -787,7 +787,7 @@ func (sm *StatsManager) GetGlobalStats() GlobalStats {
 	return stats
 }
 
-// GlobalStats 全局统计
+// GlobalStats 全局统计.
 type GlobalStats struct {
 	TotalProjects   int            `json:"total_projects"`
 	TotalTasks      int            `json:"total_tasks"`

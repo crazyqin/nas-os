@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// HandlersEnhanced 增强的配额管理 HTTP 处理器
+// HandlersEnhanced 增强的配额管理 HTTP 处理器.
 type HandlersEnhanced struct {
 	manager         *Manager
 	monitor         *Monitor
@@ -20,7 +20,7 @@ type HandlersEnhanced struct {
 	reportGen       *ReportGenerator
 }
 
-// NewHandlersEnhanced 创建增强处理器
+// NewHandlersEnhanced 创建增强处理器.
 func NewHandlersEnhanced(mgr *Manager) *HandlersEnhanced {
 	monitor := NewMonitor(mgr, mgr.alertConfig)
 	cleanup := NewCleanupManager(mgr)
@@ -40,19 +40,19 @@ func NewHandlersEnhanced(mgr *Manager) *HandlersEnhanced {
 	}
 }
 
-// Start 启动增强功能
+// Start 启动增强功能.
 func (h *HandlersEnhanced) Start() {
 	h.monitor.Start()
 	h.trendManager.Start()
 }
 
-// Stop 停止增强功能
+// Stop 停止增强功能.
 func (h *HandlersEnhanced) Stop() {
 	h.monitor.Stop()
 	h.trendManager.Stop()
 }
 
-// RegisterEnhancedRoutes 注册增强路由
+// RegisterEnhancedRoutes 注册增强路由.
 func (h *HandlersEnhanced) RegisterEnhancedRoutes(api *gin.RouterGroup) {
 	// ========== 预警配置增强 API ==========
 	alertConfig := api.Group("/quota-alert-config")
@@ -566,7 +566,7 @@ func (h *HandlersEnhanced) getAggregatedTrend(c *gin.Context) {
 
 // ========== 仪表盘 API ==========
 
-// DashboardSummary 仪表盘摘要
+// DashboardSummary 仪表盘摘要.
 type DashboardSummary struct {
 	TotalQuotas     int                   `json:"total_quotas"`
 	ActiveAlerts    int                   `json:"active_alerts"`

@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// Manager 配额管理器
+// Manager 配额管理器.
 type Manager struct {
 	mu             sync.RWMutex
 	quotas         map[string]*Quota            // quotaID -> Quota
@@ -34,13 +34,13 @@ type Manager struct {
 	gracePeriodMgr *GracePeriodManager // 宽限期管理器 v2.56.0
 }
 
-// StorageProvider 存储接口（用于获取卷使用情况）
+// StorageProvider 存储接口（用于获取卷使用情况）.
 type StorageProvider interface {
 	GetVolume(name string) *VolumeInfo
 	GetUsage(volumeName string) (total, used, free uint64, err error)
 }
 
-// VolumeInfo 卷信息
+// VolumeInfo 卷信息.
 type VolumeInfo struct {
 	Name       string
 	MountPoint string
@@ -49,14 +49,14 @@ type VolumeInfo struct {
 	Free       uint64
 }
 
-// UserProvider 用户接口（用于验证用户/组存在性）
+// UserProvider 用户接口（用于验证用户/组存在性）.
 type UserProvider interface {
 	UserExists(username string) bool
 	GroupExists(groupName string) bool
 	GetUserHomeDir(username string) string
 }
 
-// NewManager 创建配额管理器
+// NewManager 创建配额管理器.
 func NewManager(configPath string, storage StorageProvider, userProv UserProvider) (*Manager, error) {
 	m := &Manager{
 		quotas:       make(map[string]*Quota),
@@ -94,14 +94,14 @@ func NewManager(configPath string, storage StorageProvider, userProv UserProvide
 	return m, nil
 }
 
-// Start 启动配额管理（监控、清理等）
+// Start 启动配额管理（监控、清理等）.
 func (m *Manager) Start() {
 	if m.monitor != nil {
 		m.monitor.Start()
 	}
 }
 
-// Stop 停止配额管理
+// Stop 停止配额管理.
 func (m *Manager) Stop() {
 	if m.monitor != nil {
 		m.monitor.Stop()
@@ -110,7 +110,7 @@ func (m *Manager) Stop() {
 
 // ========== 配额管理 ==========
 
-// CreateQuota 创建配额
+// CreateQuota 创建配额.
 func (m *Manager) CreateQuota(input QuotaInput) (*Quota, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -188,7 +188,7 @@ func (m *Manager) CreateQuota(input QuotaInput) (*Quota, error) {
 	return quota, nil
 }
 
-// GetQuota 获取配额
+// GetQuota 获取配额.
 func (m *Manager) GetQuota(id string) (*Quota, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -200,7 +200,7 @@ func (m *Manager) GetQuota(id string) (*Quota, error) {
 	return quota, nil
 }
 
-// ListQuotas 列出所有配额
+// ListQuotas 列出所有配额.
 func (m *Manager) ListQuotas() []*Quota {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -212,7 +212,7 @@ func (m *Manager) ListQuotas() []*Quota {
 	return result
 }
 
-// ListUserQuotas 列出用户的配额
+// ListUserQuotas 列出用户的配额.
 func (m *Manager) ListUserQuotas(username string) []*Quota {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -226,7 +226,7 @@ func (m *Manager) ListUserQuotas(username string) []*Quota {
 	return result
 }
 
-// ListGroupQuotas 列出用户组的配额
+// ListGroupQuotas 列出用户组的配额.
 func (m *Manager) ListGroupQuotas(groupName string) []*Quota {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -240,7 +240,7 @@ func (m *Manager) ListGroupQuotas(groupName string) []*Quota {
 	return result
 }
 
-// GetDirectoryQuota 获取目录配额
+// GetDirectoryQuota 获取目录配额.
 func (m *Manager) GetDirectoryQuota(path string) (*Quota, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -252,7 +252,7 @@ func (m *Manager) GetDirectoryQuota(path string) (*Quota, error) {
 	return quota, nil
 }
 
-// ListDirectoryQuotas 列出所有目录配额
+// ListDirectoryQuotas 列出所有目录配额.
 func (m *Manager) ListDirectoryQuotas() []*Quota {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -264,7 +264,7 @@ func (m *Manager) ListDirectoryQuotas() []*Quota {
 	return result
 }
 
-// UpdateQuota 更新配额
+// UpdateQuota 更新配额.
 func (m *Manager) UpdateQuota(id string, input QuotaInput) (*Quota, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -290,7 +290,7 @@ func (m *Manager) UpdateQuota(id string, input QuotaInput) (*Quota, error) {
 	return quota, nil
 }
 
-// DeleteQuota 删除配额
+// DeleteQuota 删除配额.
 func (m *Manager) DeleteQuota(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -316,7 +316,7 @@ func (m *Manager) DeleteQuota(id string) error {
 
 // ========== 配额使用查询 ==========
 
-// GetUsage 获取配额使用情况
+// GetUsage 获取配额使用情况.
 func (m *Manager) GetUsage(quotaID string) (*QuotaUsage, error) {
 	m.mu.RLock()
 	quota, exists := m.quotas[quotaID]
@@ -329,7 +329,7 @@ func (m *Manager) GetUsage(quotaID string) (*QuotaUsage, error) {
 	return m.calculateUsage(quota)
 }
 
-// GetAllUsage 获取所有配额使用情况
+// GetAllUsage 获取所有配额使用情况.
 func (m *Manager) GetAllUsage() ([]*QuotaUsage, error) {
 	m.mu.RLock()
 	quotas := make([]*Quota, 0, len(m.quotas))
@@ -349,7 +349,7 @@ func (m *Manager) GetAllUsage() ([]*QuotaUsage, error) {
 	return result, nil
 }
 
-// GetUserUsage 获取用户所有配额使用情况
+// GetUserUsage 获取用户所有配额使用情况.
 func (m *Manager) GetUserUsage(username string) ([]*QuotaUsage, error) {
 	m.mu.RLock()
 	quotas := m.ListUserQuotas(username)
@@ -366,7 +366,7 @@ func (m *Manager) GetUserUsage(username string) ([]*QuotaUsage, error) {
 	return result, nil
 }
 
-// calculateUsage 计算配额使用情况
+// calculateUsage 计算配额使用情况.
 func (m *Manager) calculateUsage(quota *Quota) (*QuotaUsage, error) {
 	usage := &QuotaUsage{
 		QuotaID:     quota.ID,
@@ -406,7 +406,7 @@ func (m *Manager) calculateUsage(quota *Quota) (*QuotaUsage, error) {
 	return usage, nil
 }
 
-// calculatePathUsage 计算路径使用量
+// calculatePathUsage 计算路径使用量.
 func (m *Manager) calculatePathUsage(quota *Quota) (uint64, error) {
 	// 确定要检查的路径
 	var targetPath string
@@ -431,7 +431,7 @@ func (m *Manager) calculatePathUsage(quota *Quota) (uint64, error) {
 	return m.getDirSize(targetPath)
 }
 
-// getDirSize 获取目录大小
+// getDirSize 获取目录大小.
 func (m *Manager) getDirSize(path string) (uint64, error) {
 	// 检查路径是否存在
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -453,7 +453,7 @@ func (m *Manager) getDirSize(path string) (uint64, error) {
 
 // ========== 告警管理 ==========
 
-// GetAlerts 获取活跃告警
+// GetAlerts 获取活跃告警.
 func (m *Manager) GetAlerts() []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -467,7 +467,7 @@ func (m *Manager) GetAlerts() []*Alert {
 	return result
 }
 
-// GetAlertHistory 获取告警历史
+// GetAlertHistory 获取告警历史.
 func (m *Manager) GetAlertHistory(limit int) []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -481,7 +481,7 @@ func (m *Manager) GetAlertHistory(limit int) []*Alert {
 	return result
 }
 
-// SilenceAlert 静默告警
+// SilenceAlert 静默告警.
 func (m *Manager) SilenceAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -496,7 +496,7 @@ func (m *Manager) SilenceAlert(alertID string) error {
 	return nil
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (m *Manager) ResolveAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -518,7 +518,7 @@ func (m *Manager) ResolveAlert(alertID string) error {
 	return nil
 }
 
-// SetAlertConfig 设置告警配置
+// SetAlertConfig 设置告警配置.
 func (m *Manager) SetAlertConfig(config AlertConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -528,7 +528,7 @@ func (m *Manager) SetAlertConfig(config AlertConfig) {
 	}
 }
 
-// GetAlertConfig 获取告警配置
+// GetAlertConfig 获取告警配置.
 func (m *Manager) GetAlertConfig() AlertConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -649,7 +649,7 @@ func generateID() string {
 	return hex.EncodeToString(b)
 }
 
-// CheckQuota 检查配额（用于写入前验证）
+// CheckQuota 检查配额（用于写入前验证）.
 func (m *Manager) CheckQuota(username, volumeName string, additionalBytes uint64) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -681,21 +681,21 @@ func (m *Manager) CheckQuota(username, volumeName string, additionalBytes uint64
 
 // ========== 宽限期管理 v2.56.0 ==========
 
-// SetGracePeriod 设置配额宽限期
+// SetGracePeriod 设置配额宽限期.
 func (m *Manager) SetGracePeriod(quotaID string, duration time.Duration) {
 	if m.gracePeriodMgr != nil {
 		m.gracePeriodMgr.SetGracePeriod(quotaID, duration)
 	}
 }
 
-// ExtendGracePeriod 延长配额宽限期
+// ExtendGracePeriod 延长配额宽限期.
 func (m *Manager) ExtendGracePeriod(quotaID string, expiry time.Time) {
 	if m.gracePeriodMgr != nil {
 		m.gracePeriodMgr.ExtendGracePeriod(quotaID, expiry)
 	}
 }
 
-// GetGracePeriodInfo 获取宽限期信息
+// GetGracePeriodInfo 获取宽限期信息.
 func (m *Manager) GetGracePeriodInfo(quotaID string) (time.Duration, *time.Time) {
 	if m.gracePeriodMgr != nil {
 		return m.gracePeriodMgr.GetGracePeriodInfo(quotaID)
@@ -703,7 +703,7 @@ func (m *Manager) GetGracePeriodInfo(quotaID string) (time.Duration, *time.Time)
 	return 0, nil
 }
 
-// RecordAdjustment 记录配额调整
+// RecordAdjustment 记录配额调整.
 func (m *Manager) RecordAdjustment(quotaID string, hardDelta, softDelta int64, reason string) {
 	// 记录调整历史（可扩展为持久化）
 	adjustment := Adjustment{

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// TestSMAuditConfig 测试审计配置
+// TestSMAuditConfig 测试审计配置.
 func TestSMAuditConfig(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -47,7 +47,7 @@ func TestSMAuditConfig(t *testing.T) {
 	}
 }
 
-// TestSMAuditManager 测试审计管理器
+// TestSMAuditManager 测试审计管理器.
 func TestSMAuditManager(t *testing.T) {
 	// 创建临时日志目录
 	tmpDir, err := os.MkdirTemp("", "smb-audit-test-*")
@@ -137,7 +137,7 @@ func TestSMAuditManager(t *testing.T) {
 	})
 }
 
-// TestSMAuditHook 测试审计钩子
+// TestSMAuditHook 测试审计钩子.
 func TestSMAuditHook(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "smb-audit-hook-test-*")
 	if err != nil {
@@ -206,7 +206,7 @@ func TestSMAuditHook(t *testing.T) {
 	})
 }
 
-// TestSMAuditExclusion 测试排除规则
+// TestSMAuditExclusion 测试排除规则.
 func TestSMAuditExclusion(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "smb-audit-exclude-test-*")
 	if err != nil {
@@ -267,7 +267,7 @@ func TestSMAuditExclusion(t *testing.T) {
 	})
 }
 
-// TestSMAuditLevelConfig 测试审计级别配置
+// TestSMAuditLevelConfig 测试审计级别配置.
 func TestSMAuditLevelConfig(t *testing.T) {
 	config := SMAuditConfig{
 		Enabled:             true,
@@ -291,7 +291,7 @@ func TestSMAuditLevelConfig(t *testing.T) {
 	}
 }
 
-// TestSMAuditLogRotation 测试日志轮转
+// TestSMAuditLogRotation 测试日志轮转.
 func TestSMAuditLogRotation(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "smb-audit-rotate-test-*")
 	if err != nil {
@@ -351,7 +351,7 @@ func TestSMAuditLogRotation(t *testing.T) {
 	}
 }
 
-// splitLines 分割字符串为行
+// splitLines 分割字符串为行.
 func splitLines(s string) []string {
 	var lines []string
 	start := 0
@@ -367,7 +367,7 @@ func splitLines(s string) []string {
 	return lines
 }
 
-// BenchmarkSMAudit 性能基准测试
+// BenchmarkSMAudit 性能基准测试.
 func BenchmarkSMAudit(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "smb-audit-bench-*")
 	if err != nil {
@@ -388,7 +388,7 @@ func BenchmarkSMAudit(b *testing.B) {
 	}
 }
 
-// BenchmarkSMAuditParallel 并发性能测试
+// BenchmarkSMAuditParallel 并发性能测试.
 func BenchmarkSMAuditParallel(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "smb-audit-bench-*")
 	if err != nil {

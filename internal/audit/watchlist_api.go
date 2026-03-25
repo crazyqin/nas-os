@@ -9,12 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// WatchListHandlers Watch/Ignore List API处理器
+// WatchListHandlers Watch/Ignore List API处理器.
 type WatchListHandlers struct {
 	manager *WatchListManager
 }
 
-// NewWatchListHandlers 创建Watch/Ignore List处理器
+// NewWatchListHandlers 创建Watch/Ignore List处理器.
 func NewWatchListHandlers(manager *WatchListManager) *WatchListHandlers {
 	return &WatchListHandlers{
 		manager: manager,
@@ -22,7 +22,7 @@ func NewWatchListHandlers(manager *WatchListManager) *WatchListHandlers {
 }
 
 // RegisterRoutes 注册路由
-// 注意：调用方应在应用此路由组前添加认证和权限中间件
+// 注意：调用方应在应用此路由组前添加认证和权限中间件.
 func (h *WatchListHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	audit := api.Group("/audit")
 	{
@@ -56,7 +56,7 @@ func (h *WatchListHandlers) RegisterRoutes(api *gin.RouterGroup) {
 
 // ========== Watch List API ==========
 
-// addWatchEntryRequest 添加监控条目请求
+// addWatchEntryRequest 添加监控条目请求.
 type addWatchEntryRequest struct {
 	Path        string           `json:"path" binding:"required"`
 	Pattern     string           `json:"pattern,omitempty"`
@@ -78,7 +78,7 @@ type addWatchEntryRequest struct {
 // @Failure 400 {object} APIResponse
 // @Failure 500 {object} APIResponse
 // @Router /audit/watch [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) addWatchEntry(c *gin.Context) {
 	var req addWatchEntryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -124,7 +124,7 @@ func (h *WatchListHandlers) addWatchEntry(c *gin.Context) {
 // @Param offset query int false "偏移量" default(0)
 // @Success 200 {object} APIResponse
 // @Router /audit/watch [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) listWatchEntries(c *gin.Context) {
 	filter := WatchListFilter{
 		Path:      c.Query("path"),
@@ -159,7 +159,7 @@ func (h *WatchListHandlers) listWatchEntries(c *gin.Context) {
 // @Success 200 {object} APIResponse
 // @Failure 404 {object} APIResponse
 // @Router /audit/watch/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) getWatchEntry(c *gin.Context) {
 	id := c.Param("id")
 
@@ -172,7 +172,7 @@ func (h *WatchListHandlers) getWatchEntry(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(entry))
 }
 
-// updateWatchEntryRequest 更新监控条目请求
+// updateWatchEntryRequest 更新监控条目请求.
 type updateWatchEntryRequest struct {
 	Path        string           `json:"path,omitempty"`
 	Pattern     string           `json:"pattern,omitempty"`
@@ -195,7 +195,7 @@ type updateWatchEntryRequest struct {
 // @Failure 400 {object} APIResponse
 // @Failure 404 {object} APIResponse
 // @Router /audit/watch/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) updateWatchEntry(c *gin.Context) {
 	id := c.Param("id")
 
@@ -255,7 +255,7 @@ func (h *WatchListHandlers) updateWatchEntry(c *gin.Context) {
 // @Success 200 {object} APIResponse
 // @Failure 404 {object} APIResponse
 // @Router /audit/watch/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) deleteWatchEntry(c *gin.Context) {
 	id := c.Param("id")
 
@@ -271,7 +271,7 @@ func (h *WatchListHandlers) deleteWatchEntry(c *gin.Context) {
 
 // ========== Ignore List API ==========
 
-// addIgnoreEntryRequest 添加忽略条目请求
+// addIgnoreEntryRequest 添加忽略条目请求.
 type addIgnoreEntryRequest struct {
 	Path        string     `json:"path" binding:"required"`
 	Pattern     string     `json:"pattern,omitempty"`
@@ -293,7 +293,7 @@ type addIgnoreEntryRequest struct {
 // @Failure 400 {object} APIResponse
 // @Failure 500 {object} APIResponse
 // @Router /audit/ignore [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) addIgnoreEntry(c *gin.Context) {
 	var req addIgnoreEntryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -339,7 +339,7 @@ func (h *WatchListHandlers) addIgnoreEntry(c *gin.Context) {
 // @Param offset query int false "偏移量" default(0)
 // @Success 200 {object} APIResponse
 // @Router /audit/ignore [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) listIgnoreEntries(c *gin.Context) {
 	filter := IgnoreListFilter{
 		Path:      c.Query("path"),
@@ -374,7 +374,7 @@ func (h *WatchListHandlers) listIgnoreEntries(c *gin.Context) {
 // @Success 200 {object} APIResponse
 // @Failure 404 {object} APIResponse
 // @Router /audit/ignore/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) getIgnoreEntry(c *gin.Context) {
 	id := c.Param("id")
 
@@ -387,7 +387,7 @@ func (h *WatchListHandlers) getIgnoreEntry(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(entry))
 }
 
-// updateIgnoreEntryRequest 更新忽略条目请求
+// updateIgnoreEntryRequest 更新忽略条目请求.
 type updateIgnoreEntryRequest struct {
 	Path        string     `json:"path,omitempty"`
 	Pattern     string     `json:"pattern,omitempty"`
@@ -410,7 +410,7 @@ type updateIgnoreEntryRequest struct {
 // @Failure 400 {object} APIResponse
 // @Failure 404 {object} APIResponse
 // @Router /audit/ignore/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) updateIgnoreEntry(c *gin.Context) {
 	id := c.Param("id")
 
@@ -470,7 +470,7 @@ func (h *WatchListHandlers) updateIgnoreEntry(c *gin.Context) {
 // @Success 200 {object} APIResponse
 // @Failure 404 {object} APIResponse
 // @Router /audit/ignore/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) deleteIgnoreEntry(c *gin.Context) {
 	id := c.Param("id")
 
@@ -494,7 +494,7 @@ func (h *WatchListHandlers) deleteIgnoreEntry(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} APIResponse
 // @Router /audit/list [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) getAllLists(c *gin.Context) {
 	watchFilter := WatchListFilter{
 		Limit:  100,
@@ -528,7 +528,7 @@ func (h *WatchListHandlers) getAllLists(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} APIResponse
 // @Router /audit/list/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, SuccessResponse(stats))
@@ -542,7 +542,7 @@ func (h *WatchListHandlers) getStats(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} APIResponse
 // @Router /audit/list/cleanup [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) cleanupExpired(c *gin.Context) {
 	cleaned := h.manager.CleanupExpired()
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{
@@ -551,13 +551,13 @@ func (h *WatchListHandlers) cleanupExpired(c *gin.Context) {
 	}))
 }
 
-// checkPathRequest 检查路径请求
+// checkPathRequest 检查路径请求.
 type checkPathRequest struct {
 	Path      string         `json:"path" binding:"required"`
 	Operation WatchOperation `json:"operation,omitempty"`
 }
 
-// checkPathResponse 检查路径响应
+// checkPathResponse 检查路径响应.
 type checkPathResponse struct {
 	Path      string          `json:"path"`
 	IsWatched bool            `json:"is_watched"`
@@ -574,7 +574,7 @@ type checkPathResponse struct {
 // @Param request body checkPathRequest true "检查请求"
 // @Success 200 {object} APIResponse
 // @Router /audit/list/check [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *WatchListHandlers) checkPath(c *gin.Context) {
 	var req checkPathRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

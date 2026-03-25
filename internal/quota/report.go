@@ -15,7 +15,7 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-// ReportGenerator 报告生成器
+// ReportGenerator 报告生成器.
 type ReportGenerator struct {
 	manager     *Manager
 	monitor     *Monitor
@@ -25,7 +25,7 @@ type ReportGenerator struct {
 	mu          sync.Mutex
 }
 
-// ScheduledReport 定时报告配置
+// ScheduledReport 定时报告配置.
 type ScheduledReport struct {
 	Request    ReportRequest
 	Schedule   string
@@ -35,7 +35,7 @@ type ScheduledReport struct {
 	Enabled    bool
 }
 
-// NewReportGenerator 创建报告生成器
+// NewReportGenerator 创建报告生成器.
 func NewReportGenerator(manager *Manager, monitor *Monitor, cleanup *CleanupManager) *ReportGenerator {
 	cronInstance := cron.New(cron.WithSeconds())
 	cronInstance.Start()
@@ -48,7 +48,7 @@ func NewReportGenerator(manager *Manager, monitor *Monitor, cleanup *CleanupMana
 	}
 }
 
-// Stop 停止定时任务
+// Stop 停止定时任务.
 func (g *ReportGenerator) Stop() {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -59,7 +59,7 @@ func (g *ReportGenerator) Stop() {
 }
 
 // ScheduleReport 定时生成报告
-// schedule 格式：秒 分 时 日 月 周 (例如："0 0 8 * * *" 表示每天早上 8 点)
+// schedule 格式：秒 分 时 日 月 周 (例如："0 0 8 * * *" 表示每天早上 8 点).
 func (g *ReportGenerator) ScheduleReport(req ReportRequest, schedule string, outputPath string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -88,7 +88,7 @@ func (g *ReportGenerator) ScheduleReport(req ReportRequest, schedule string, out
 	return nil
 }
 
-// generateAndExport 生成并导出报告
+// generateAndExport 生成并导出报告.
 func (g *ReportGenerator) generateAndExport(req ReportRequest, outputPath string) {
 	report, err := g.GenerateReport(req)
 	if err != nil {
@@ -112,7 +112,7 @@ func (g *ReportGenerator) generateAndExport(req ReportRequest, outputPath string
 	fmt.Printf("[quota] 定时报告已生成：%s\n", outputPath)
 }
 
-// GenerateReport 生成报告
+// GenerateReport 生成报告.
 func (g *ReportGenerator) GenerateReport(req ReportRequest) (*Report, error) {
 	// 设置默认值
 	if req.Format == "" {
@@ -182,7 +182,7 @@ func (g *ReportGenerator) GenerateReport(req ReportRequest) (*Report, error) {
 	return report, nil
 }
 
-// generateSummary 生成报告摘要
+// generateSummary 生成报告摘要.
 func (g *ReportGenerator) generateSummary(period ReportPeriod) ReportSummary {
 	usages, _ := g.manager.GetAllUsage()
 	alerts := g.manager.GetAlerts()
@@ -222,7 +222,7 @@ func (g *ReportGenerator) generateSummary(period ReportPeriod) ReportSummary {
 	return summary
 }
 
-// generateSummaryDetails 生成汇总报告详情
+// generateSummaryDetails 生成汇总报告详情.
 func (g *ReportGenerator) generateSummaryDetails(period ReportPeriod) interface{} {
 	usages, _ := g.manager.GetAllUsage()
 	alerts := g.manager.GetAlerts()
@@ -241,7 +241,7 @@ func (g *ReportGenerator) generateSummaryDetails(period ReportPeriod) interface{
 	}
 }
 
-// generateUserReport 生成用户配额报告
+// generateUserReport 生成用户配额报告.
 func (g *ReportGenerator) generateUserReport(userID string, period ReportPeriod) ([]UserQuotaReport, error) {
 	var reports []UserQuotaReport
 
@@ -307,7 +307,7 @@ func (g *ReportGenerator) generateUserReport(userID string, period ReportPeriod)
 	return reports, nil
 }
 
-// generateGroupReport 生成用户组配额报告
+// generateGroupReport 生成用户组配额报告.
 func (g *ReportGenerator) generateGroupReport(groupID string, period ReportPeriod) (interface{}, error) {
 	usages, _ := g.manager.GetAllUsage()
 
@@ -333,7 +333,7 @@ func (g *ReportGenerator) generateGroupReport(groupID string, period ReportPerio
 	return groupMap, nil
 }
 
-// generateVolumeReport 生成卷配额报告
+// generateVolumeReport 生成卷配额报告.
 func (g *ReportGenerator) generateVolumeReport(volumeName string, period ReportPeriod) ([]VolumeQuotaReport, error) {
 	usages, _ := g.manager.GetAllUsage()
 	alerts := g.manager.GetAlerts()
@@ -408,7 +408,7 @@ func (g *ReportGenerator) generateVolumeReport(volumeName string, period ReportP
 	return reports, nil
 }
 
-// generateTrendReport 生成趋势报告
+// generateTrendReport 生成趋势报告.
 func (g *ReportGenerator) generateTrendReport(period ReportPeriod) ([]QuotaTrend, error) {
 	usages, _ := g.manager.GetAllUsage()
 	trends := make([]QuotaTrend, 0)
@@ -432,7 +432,7 @@ func (g *ReportGenerator) generateTrendReport(period ReportPeriod) ([]QuotaTrend
 	return trends, nil
 }
 
-// getTopUsers 获取使用量最高的用户
+// getTopUsers 获取使用量最高的用户.
 func (g *ReportGenerator) getTopUsers(usages []*QuotaUsage, limit int) []QuotaUsage {
 	userMap := make(map[string]*QuotaUsage)
 
@@ -466,7 +466,7 @@ func (g *ReportGenerator) getTopUsers(usages []*QuotaUsage, limit int) []QuotaUs
 	return users
 }
 
-// getTopGroups 获取使用量最高的用户组
+// getTopGroups 获取使用量最高的用户组.
 func (g *ReportGenerator) getTopGroups(usages []*QuotaUsage, limit int) []QuotaUsage {
 	groupMap := make(map[string]*QuotaUsage)
 
@@ -501,7 +501,7 @@ func (g *ReportGenerator) getTopGroups(usages []*QuotaUsage, limit int) []QuotaU
 
 // ========== 报告导出 ==========
 
-// ExportReport 导出报告
+// ExportReport 导出报告.
 func (g *ReportGenerator) ExportReport(report *Report, outputPath string) error {
 	switch report.Format {
 	case ReportFormatJSON:
@@ -515,7 +515,7 @@ func (g *ReportGenerator) ExportReport(report *Report, outputPath string) error 
 	}
 }
 
-// exportJSON 导出 JSON 格式
+// exportJSON 导出 JSON 格式.
 func (g *ReportGenerator) exportJSON(report *Report, outputPath string) error {
 	data, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
@@ -524,7 +524,7 @@ func (g *ReportGenerator) exportJSON(report *Report, outputPath string) error {
 	return os.WriteFile(outputPath, data, 0640)
 }
 
-// exportCSV 导出 CSV 格式
+// exportCSV 导出 CSV 格式.
 func (g *ReportGenerator) exportCSV(report *Report, outputPath string) error {
 	file, err := os.Create(outputPath)
 	if err != nil {
@@ -557,7 +557,7 @@ func (g *ReportGenerator) exportCSV(report *Report, outputPath string) error {
 	return nil
 }
 
-// exportHTML 导出 HTML 格式
+// exportHTML 导出 HTML 格式.
 func (g *ReportGenerator) exportHTML(report *Report, outputPath string) error {
 	var sb strings.Builder
 

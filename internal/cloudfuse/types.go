@@ -15,10 +15,10 @@ import (
 	"bazil.org/fuse/fs"
 )
 
-// MountType 挂载类型
+// MountType 挂载类型.
 type MountType string
 
-// 挂载类型常量
+// 挂载类型常量.
 const (
 	MountType115         MountType = "115"          // 115网盘
 	MountTypeQuark       MountType = "quark"        // 夸克网盘
@@ -30,10 +30,10 @@ const (
 	MountTypeS3          MountType = "s3"           // S3 兼容存储
 )
 
-// MountStatus 挂载状态
+// MountStatus 挂载状态.
 type MountStatus string
 
-// 挂载状态常量
+// 挂载状态常量.
 const (
 	MountStatusIdle       MountStatus = "idle"       // 空闲
 	MountStatusMounting   MountStatus = "mounting"   // 挂载中
@@ -42,7 +42,7 @@ const (
 	MountStatusError      MountStatus = "error"      // 错误
 )
 
-// MountConfig 挂载配置
+// MountConfig 挂载配置.
 type MountConfig struct {
 	// 基本信息
 	ID         string    `json:"id"`
@@ -85,7 +85,7 @@ type MountConfig struct {
 	RootFolder string `json:"rootFolder,omitempty"`
 }
 
-// MountInfo 挂载信息（API 返回）
+// MountInfo 挂载信息（API 返回）.
 type MountInfo struct {
 	ID             string      `json:"id"`
 	Name           string      `json:"name"`
@@ -108,7 +108,7 @@ type MountInfo struct {
 	CacheUsedBytes int64       `json:"cacheUsedBytes"`
 }
 
-// MountStats 挂载统计
+// MountStats 挂载统计.
 type MountStats struct {
 	MountID         string    `json:"mountId"`
 	StartTime       time.Time `json:"startTime"`
@@ -121,7 +121,7 @@ type MountStats struct {
 	CacheMisses     int64     `json:"cacheMisses"`
 }
 
-// MountRequest 挂载请求
+// MountRequest 挂载请求.
 type MountRequest struct {
 	Name       string    `json:"name" binding:"required"`
 	Type       MountType `json:"type" binding:"required"`
@@ -159,20 +159,20 @@ type MountRequest struct {
 	RootFolder string `json:"rootFolder,omitempty"`
 }
 
-// MountListResponse 挂载列表响应
+// MountListResponse 挂载列表响应.
 type MountListResponse struct {
 	Total int64       `json:"total"`
 	Items []MountInfo `json:"items"`
 }
 
-// OperationResult 操作结果
+// OperationResult 操作结果.
 type OperationResult struct {
 	Success bool   `json:"success"`
 	Message string `json:"message,omitempty"`
 	Error   string `json:"error,omitempty"`
 }
 
-// ProviderInfo 提供商信息
+// ProviderInfo 提供商信息.
 type ProviderInfo struct {
 	Type        MountType `json:"type"`
 	Name        string    `json:"name"`
@@ -180,7 +180,7 @@ type ProviderInfo struct {
 	Features    []string  `json:"features"`
 }
 
-// SupportedProviders 返回支持的提供商列表
+// SupportedProviders 返回支持的提供商列表.
 func SupportedProviders() []ProviderInfo {
 	return []ProviderInfo{
 		{
@@ -234,7 +234,7 @@ func SupportedProviders() []ProviderInfo {
 	}
 }
 
-// CacheManager 缓存管理器
+// CacheManager 缓存管理器.
 type CacheManager struct {
 	mu       sync.RWMutex
 	cacheDir string
@@ -251,7 +251,7 @@ type cacheEntry struct {
 	createdAt time.Time
 }
 
-// NewCacheManager 创建缓存管理器
+// NewCacheManager 创建缓存管理器.
 func NewCacheManager(cacheDir string, maxSizeMB int64) (*CacheManager, error) {
 	return &CacheManager{
 		cacheDir: cacheDir,
@@ -260,7 +260,7 @@ func NewCacheManager(cacheDir string, maxSizeMB int64) (*CacheManager, error) {
 	}, nil
 }
 
-// Get 获取缓存
+// Get 获取缓存.
 func (c *CacheManager) Get(remotePath string) (string, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -275,7 +275,7 @@ func (c *CacheManager) Get(remotePath string) (string, bool) {
 	return entry.path, true
 }
 
-// Put 添加缓存
+// Put 添加缓存.
 func (c *CacheManager) Put(remotePath, localPath string, size int64) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -290,7 +290,7 @@ func (c *CacheManager) Put(remotePath, localPath string, size int64) error {
 	return nil
 }
 
-// Remove 删除缓存
+// Remove 删除缓存.
 func (c *CacheManager) Remove(remotePath string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -301,7 +301,7 @@ func (c *CacheManager) Remove(remotePath string) {
 	}
 }
 
-// Clear 清空缓存
+// Clear 清空缓存.
 func (c *CacheManager) Clear() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -312,24 +312,24 @@ func (c *CacheManager) Clear() error {
 	return nil
 }
 
-// Close 关闭缓存管理器
+// Close 关闭缓存管理器.
 func (c *CacheManager) Close() error {
 	return nil
 }
 
-// GetCachePath 获取缓存路径
+// GetCachePath 获取缓存路径.
 func (c *CacheManager) GetCachePath(remotePath string) string {
 	return c.cacheDir + remotePath
 }
 
-// UsedSize 已用缓存大小
+// UsedSize 已用缓存大小.
 func (c *CacheManager) UsedSize() int64 {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.usedSize
 }
 
-// HitRate 缓存命中率
+// HitRate 缓存命中率.
 func (c *CacheManager) HitRate() float64 {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -341,14 +341,14 @@ func (c *CacheManager) HitRate() float64 {
 	return float64(c.hits) / float64(total)
 }
 
-// Stats 获取缓存统计
+// Stats 获取缓存统计.
 func (c *CacheManager) Stats() (hits, misses, evictions, usedSize, maxSize int64) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.hits, c.misses, 0, c.usedSize, c.maxSize
 }
 
-// CloudFS FUSE 文件系统
+// CloudFS FUSE 文件系统.
 type CloudFS struct {
 	config   *MountConfig
 	provider cloudsync.Provider
@@ -356,7 +356,7 @@ type CloudFS struct {
 	stats    *MountStats
 }
 
-// NewCloudFS 创建云文件系统
+// NewCloudFS 创建云文件系统.
 func NewCloudFS(config *MountConfig, provider cloudsync.Provider, cache *CacheManager) (*CloudFS, error) {
 	return &CloudFS{
 		config:   config,
@@ -368,7 +368,7 @@ func NewCloudFS(config *MountConfig, provider cloudsync.Provider, cache *CacheMa
 	}, nil
 }
 
-// Root 返回根节点
+// Root 返回根节点.
 func (f *CloudFS) Root() (fs.Node, error) {
 	return &DirNode{
 		fs:   f,
@@ -376,20 +376,20 @@ func (f *CloudFS) Root() (fs.Node, error) {
 	}, nil
 }
 
-// DirNode 目录节点
+// DirNode 目录节点.
 type DirNode struct {
 	fs   *CloudFS
 	path string
 }
 
-// FileNode 文件节点
+// FileNode 文件节点.
 type FileNode struct {
 	fs   *CloudFS
 	path string
 	info *cloudsync.FileInfo
 }
 
-// Attr 实现 fs.Node 接口 - DirNode
+// Attr 实现 fs.Node 接口 - DirNode.
 func (d *DirNode) Attr(ctx context.Context, a *fuse.Attr) error {
 	a.Mode = os.ModeDir | 0755
 	a.Uid = uint32(0)
@@ -397,7 +397,7 @@ func (d *DirNode) Attr(ctx context.Context, a *fuse.Attr) error {
 	return nil
 }
 
-// Attr 实现 fs.Node 接口 - FileNode
+// Attr 实现 fs.Node 接口 - FileNode.
 func (f *FileNode) Attr(ctx context.Context, a *fuse.Attr) error {
 	if f.info != nil {
 		a.Mode = 0644
@@ -411,7 +411,7 @@ func (f *FileNode) Attr(ctx context.Context, a *fuse.Attr) error {
 	return nil
 }
 
-// Lookup 实现 fs.NodeStringLookuper 接口
+// Lookup 实现 fs.NodeStringLookuper 接口.
 func (d *DirNode) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	remotePath := d.path + name
 
@@ -440,7 +440,7 @@ func (d *DirNode) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	return nil, syscall.ENOENT
 }
 
-// ReadDirAll 实现 fs.HandleReadDirAller 接口
+// ReadDirAll 实现 fs.HandleReadDirAller 接口.
 func (d *DirNode) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 	files, err := d.fs.provider.List(ctx, d.path, false)
 	if err != nil {
@@ -477,14 +477,14 @@ func (d *DirNode) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 	return entries, nil
 }
 
-// Read 实现 fs.HandleReader 接口
+// Read 实现 fs.HandleReader 接口.
 func (f *FileNode) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadResponse) error {
 	// TODO: 实现文件读取逻辑
 	// 这需要从 provider 下载文件内容
 	return syscall.ENOSYS
 }
 
-// Write 实现 fs.HandleWriter 接口
+// Write 实现 fs.HandleWriter 接口.
 func (f *FileNode) Write(ctx context.Context, req *fuse.WriteRequest, resp *fuse.WriteResponse) error {
 	// TODO: 实现文件写入逻辑
 	if f.fs.config.ReadOnly {

@@ -9,13 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// FileAuditHandlers 文件审计 API 处理器
+// FileAuditHandlers 文件审计 API 处理器.
 type FileAuditHandlers struct {
 	logger  *FileAuditLogger
 	storage *FileAuditStorage
 }
 
-// NewFileAuditHandlers 创建文件审计处理器
+// NewFileAuditHandlers 创建文件审计处理器.
 func NewFileAuditHandlers(logger *FileAuditLogger) *FileAuditHandlers {
 	return &FileAuditHandlers{
 		logger:  logger,
@@ -24,7 +24,7 @@ func NewFileAuditHandlers(logger *FileAuditLogger) *FileAuditHandlers {
 }
 
 // RegisterRoutes 注册路由
-// 注意：调用方应在应用此路由组前添加认证和权限中间件
+// 注意：调用方应在应用此路由组前添加认证和权限中间件.
 func (h *FileAuditHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	audit := api.Group("/file-audit")
 	{
@@ -85,7 +85,7 @@ func (h *FileAuditHandlers) RegisterRoutes(api *gin.RouterGroup) {
 // @Success 200 {object} FileAuditQueryResult
 // @Failure 500 {object} APIResponse
 // @Router /file-audit/logs [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) getLogs(c *gin.Context) {
 	// 解析查询参数
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
@@ -159,7 +159,7 @@ func (h *FileAuditHandlers) getLogs(c *gin.Context) {
 // @Success 200 {object} FileAuditEntry
 // @Failure 404 {object} APIResponse
 // @Router /file-audit/logs/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) getLogByID(c *gin.Context) {
 	id := c.Param("id")
 
@@ -180,13 +180,13 @@ func (h *FileAuditHandlers) getLogByID(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} FileAuditStatistics
 // @Router /file-audit/statistics [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) getStatistics(c *gin.Context) {
 	stats := h.logger.GetStatistics()
 	c.JSON(http.StatusOK, stats)
 }
 
-// TimelineItem 时间线条目
+// TimelineItem 时间线条目.
 type TimelineItem struct {
 	Time       time.Time      `json:"time"`
 	Count      int            `json:"count"`
@@ -205,7 +205,7 @@ type TimelineItem struct {
 // @Param interval query string false "时间间隔 (hour/day)" default(hour)
 // @Success 200 {object} []TimelineItem
 // @Router /file-audit/timeline [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) getTimeline(c *gin.Context) {
 	// 解析时间范围
 	startTime := time.Now().Add(-24 * time.Hour)
@@ -245,7 +245,7 @@ func (h *FileAuditHandlers) getTimeline(c *gin.Context) {
 	c.JSON(http.StatusOK, timeline)
 }
 
-// generateTimeline 生成时间线
+// generateTimeline 生成时间线.
 func (h *FileAuditHandlers) generateTimeline(entries []*FileAuditEntry, interval string) []TimelineItem {
 	timeline := make(map[string]*TimelineItem)
 
@@ -294,7 +294,7 @@ func (h *FileAuditHandlers) generateTimeline(entries []*FileAuditEntry, interval
 // @Param limit query int false "返回数量限制" default(50)
 // @Success 200 {object} FileAuditQueryResult
 // @Router /file-audit/search [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) searchLogs(c *gin.Context) {
 	keyword := c.Query("q")
 	if keyword == "" {
@@ -334,7 +334,7 @@ func (h *FileAuditHandlers) searchLogs(c *gin.Context) {
 // @Success 200 {file} file
 // @Failure 500 {object} APIResponse
 // @Router /file-audit/export [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) exportLogs(c *gin.Context) {
 	format := c.DefaultQuery("format", "json")
 
@@ -402,7 +402,7 @@ func (h *FileAuditHandlers) exportLogs(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} StorageInfo
 // @Router /file-audit/storage/info [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) getStorageInfo(c *gin.Context) {
 	info, err := h.storage.GetStorageInfo()
 	if err != nil {
@@ -421,7 +421,7 @@ func (h *FileAuditHandlers) getStorageInfo(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} []string
 // @Router /file-audit/storage/dates [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) getAvailableDates(c *gin.Context) {
 	dates, err := h.storage.ListAvailableDates()
 	if err != nil {
@@ -432,7 +432,7 @@ func (h *FileAuditHandlers) getAvailableDates(c *gin.Context) {
 	c.JSON(http.StatusOK, dates)
 }
 
-// archiveRequest 归档请求
+// archiveRequest 归档请求.
 type archiveRequest struct {
 	StartMonth string `json:"start_month" binding:"required"` // 格式: 2026-01
 	EndMonth   string `json:"end_month" binding:"required"`   // 格式: 2026-03
@@ -448,7 +448,7 @@ type archiveRequest struct {
 // @Success 200 {object} APIResponse
 // @Failure 400 {object} APIResponse
 // @Router /file-audit/storage/archive [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) archiveLogs(c *gin.Context) {
 	var req archiveRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -472,7 +472,7 @@ func (h *FileAuditHandlers) archiveLogs(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} APIResponse
 // @Router /file-audit/storage/cleanup [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) cleanupLogs(c *gin.Context) {
 	if err := h.storage.Cleanup(); err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
@@ -492,7 +492,7 @@ func (h *FileAuditHandlers) cleanupLogs(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} FileAuditConfig
 // @Router /file-audit/config [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) getConfig(c *gin.Context) {
 	config := h.logger.GetConfig()
 	c.JSON(http.StatusOK, config)
@@ -507,7 +507,7 @@ func (h *FileAuditHandlers) getConfig(c *gin.Context) {
 // @Param config body FileAuditConfig true "配置"
 // @Success 200 {object} APIResponse
 // @Router /file-audit/config [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) updateConfig(c *gin.Context) {
 	var config FileAuditConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -528,7 +528,7 @@ func (h *FileAuditHandlers) updateConfig(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} APIResponse
 // @Router /file-audit/enable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) enable(c *gin.Context) {
 	h.logger.Enable()
 	c.JSON(http.StatusOK, SuccessResponse(nil))
@@ -542,7 +542,7 @@ func (h *FileAuditHandlers) enable(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} APIResponse
 // @Router /file-audit/disable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) disable(c *gin.Context) {
 	h.logger.Disable()
 	c.JSON(http.StatusOK, SuccessResponse(nil))
@@ -550,7 +550,7 @@ func (h *FileAuditHandlers) disable(c *gin.Context) {
 
 // ========== 操作记录接口 ==========
 
-// smbOperationRequest SMB操作请求
+// smbOperationRequest SMB操作请求.
 type smbOperationRequest struct {
 	ShareName string                 `json:"share_name" binding:"required"`
 	SharePath string                 `json:"share_path" binding:"required"`
@@ -572,7 +572,7 @@ type smbOperationRequest struct {
 // @Param request body smbOperationRequest true "操作信息"
 // @Success 201 {object} APIResponse
 // @Router /file-audit/log/smb [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) logSMBOperation(c *gin.Context) {
 	var req smbOperationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -601,7 +601,7 @@ func (h *FileAuditHandlers) logSMBOperation(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
-// nfsOperationRequest NFS操作请求
+// nfsOperationRequest NFS操作请求.
 type nfsOperationRequest struct {
 	SharePath string                 `json:"share_path" binding:"required"`
 	UserID    string                 `json:"user_id" binding:"required"`
@@ -622,7 +622,7 @@ type nfsOperationRequest struct {
 // @Param request body nfsOperationRequest true "操作信息"
 // @Success 201 {object} APIResponse
 // @Router /file-audit/log/nfs [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) logNFSOperation(c *gin.Context) {
 	var req nfsOperationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -650,7 +650,7 @@ func (h *FileAuditHandlers) logNFSOperation(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
-// fileOperationRequest 文件操作请求
+// fileOperationRequest 文件操作请求.
 type fileOperationRequest struct {
 	Protocol  Protocol `json:"protocol" binding:"required"`
 	ShareName string   `json:"share_name"`
@@ -672,7 +672,7 @@ type fileOperationRequest struct {
 // @Param request body fileOperationRequest true "操作信息"
 // @Success 201 {object} APIResponse
 // @Router /file-audit/log/file/create [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) logFileCreate(c *gin.Context) {
 	var req fileOperationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -710,7 +710,7 @@ func (h *FileAuditHandlers) logFileCreate(c *gin.Context) {
 // @Param request body fileOperationRequest true "操作信息"
 // @Success 201 {object} APIResponse
 // @Router /file-audit/log/file/delete [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) logFileDelete(c *gin.Context) {
 	var req fileOperationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -739,7 +739,7 @@ func (h *FileAuditHandlers) logFileDelete(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
-// fileRenameRequest 文件重命名请求
+// fileRenameRequest 文件重命名请求.
 type fileRenameRequest struct {
 	Protocol  Protocol `json:"protocol" binding:"required"`
 	ShareName string   `json:"share_name"`
@@ -761,7 +761,7 @@ type fileRenameRequest struct {
 // @Param request body fileRenameRequest true "操作信息"
 // @Success 201 {object} APIResponse
 // @Router /file-audit/log/file/rename [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) logFileRename(c *gin.Context) {
 	var req fileRenameRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -790,7 +790,7 @@ func (h *FileAuditHandlers) logFileRename(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
-// fileMoveRequest 文件移动请求
+// fileMoveRequest 文件移动请求.
 type fileMoveRequest struct {
 	Protocol  Protocol `json:"protocol" binding:"required"`
 	ShareName string   `json:"share_name"`
@@ -812,7 +812,7 @@ type fileMoveRequest struct {
 // @Param request body fileMoveRequest true "操作信息"
 // @Success 201 {object} APIResponse
 // @Router /file-audit/log/file/move [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) logFileMove(c *gin.Context) {
 	var req fileMoveRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -841,7 +841,7 @@ func (h *FileAuditHandlers) logFileMove(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
-// fileWriteRequest 文件写入请求
+// fileWriteRequest 文件写入请求.
 type fileWriteRequest struct {
 	Protocol  Protocol `json:"protocol" binding:"required"`
 	ShareName string   `json:"share_name"`
@@ -863,7 +863,7 @@ type fileWriteRequest struct {
 // @Param request body fileWriteRequest true "操作信息"
 // @Success 201 {object} APIResponse
 // @Router /file-audit/log/file/write [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *FileAuditHandlers) logFileWrite(c *gin.Context) {
 	var req fileWriteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

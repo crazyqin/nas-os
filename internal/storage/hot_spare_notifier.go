@@ -22,7 +22,7 @@ import (
 
 // ========== 通知配置 ==========
 
-// NotificationConfig 通知配置
+// NotificationConfig 通知配置.
 type NotificationConfig struct {
 	Enabled bool `json:"enabled"` // 是否启用通知
 
@@ -52,7 +52,7 @@ type NotificationConfig struct {
 	RetryInterval time.Duration `json:"retryInterval"`
 }
 
-// EmailConfig 邮件配置
+// EmailConfig 邮件配置.
 type EmailConfig struct {
 	Enabled     bool     `json:"enabled"`
 	SMTPHost    string   `json:"smtpHost"`
@@ -65,7 +65,7 @@ type EmailConfig struct {
 	UseStartTLS bool     `json:"useStartTLS"`
 }
 
-// WebhookConfig Webhook配置
+// WebhookConfig Webhook配置.
 type WebhookConfig struct {
 	Enabled  bool              `json:"enabled"`
 	URL      string            `json:"url"`
@@ -74,7 +74,7 @@ type WebhookConfig struct {
 	Template string            `json:"template"` // 自定义模板
 }
 
-// TelegramConfig Telegram配置
+// TelegramConfig Telegram配置.
 type TelegramConfig struct {
 	Enabled   bool   `json:"enabled"`
 	BotToken  string `json:"botToken"`
@@ -82,20 +82,20 @@ type TelegramConfig struct {
 	ParseMode string `json:"parseMode"` // HTML, Markdown
 }
 
-// WeChatConfig 企业微信配置
+// WeChatConfig 企业微信配置.
 type WeChatConfig struct {
 	Enabled    bool   `json:"enabled"`
 	WebhookURL string `json:"webhookUrl"`
 }
 
-// DingTalkConfig 钉钉配置
+// DingTalkConfig 钉钉配置.
 type DingTalkConfig struct {
 	Enabled    bool   `json:"enabled"`
 	WebhookURL string `json:"webhookUrl"`
 	Secret     string `json:"secret"` // 加签密钥
 }
 
-// DefaultNotificationConfig 默认配置
+// DefaultNotificationConfig 默认配置.
 var DefaultNotificationConfig = NotificationConfig{
 	Enabled:         true,
 	NotifyLevels:    []string{"warning", "critical"},
@@ -106,7 +106,7 @@ var DefaultNotificationConfig = NotificationConfig{
 
 // ========== 通知管理器 ==========
 
-// NotificationManager 通知管理器
+// NotificationManager 通知管理器.
 type NotificationManager struct {
 	config       NotificationConfig
 	lastNotified map[string]time.Time // 事件类型 -> 最后通知时间
@@ -114,7 +114,7 @@ type NotificationManager struct {
 	httpClient   *http.Client
 }
 
-// NewNotificationManager 创建通知管理器
+// NewNotificationManager 创建通知管理器.
 func NewNotificationManager(config NotificationConfig) *NotificationManager {
 	// 创建HTTP客户端
 	httpClient := &http.Client{
@@ -139,7 +139,7 @@ func NewNotificationManager(config NotificationConfig) *NotificationManager {
 	return nm
 }
 
-// loadTemplates 加载通知模板
+// loadTemplates 加载通知模板.
 func (nm *NotificationManager) loadTemplates() {
 	// 事件通知模板
 	nm.templates["event"] = template.Must(template.New("event").Parse(`
@@ -212,7 +212,7 @@ NAS-OS 存储管理系统
 }`))
 }
 
-// Send 发送通知
+// Send 发送通知.
 func (nm *NotificationManager) Send(event HotSpareEvent) error {
 	if !nm.config.Enabled {
 		return nil
@@ -311,7 +311,7 @@ func (nm *NotificationManager) Send(event HotSpareEvent) error {
 	return nil
 }
 
-// getEventLevel 获取事件级别
+// getEventLevel 获取事件级别.
 func (nm *NotificationManager) getEventLevel(event HotSpareEvent) string {
 	switch event.Type {
 	case "rebuild_start", "rebuild_complete":
@@ -325,7 +325,7 @@ func (nm *NotificationManager) getEventLevel(event HotSpareEvent) string {
 	}
 }
 
-// shouldNotify 检查是否应该发送通知
+// shouldNotify 检查是否应该发送通知.
 func (nm *NotificationManager) shouldNotify(level string) bool {
 	for _, l := range nm.config.NotifyLevels {
 		if l == level || (l == "warning" && level == "critical") {
@@ -335,7 +335,7 @@ func (nm *NotificationManager) shouldNotify(level string) bool {
 	return false
 }
 
-// isSilenced 检查是否在静默期
+// isSilenced 检查是否在静默期.
 func (nm *NotificationManager) isSilenced(event HotSpareEvent) bool {
 	lastTime, exists := nm.lastNotified[event.Type]
 	if !exists {
@@ -597,7 +597,7 @@ func (nm *NotificationManager) sendDingTalk(data interface{}) error {
 	return nil
 }
 
-// signDingTalk 钉钉签名
+// signDingTalk 钉钉签名.
 func (nm *NotificationManager) signDingTalk(timestamp int64, secret string) string {
 	stringToSign := fmt.Sprintf("%d\n%s", timestamp, secret)
 	h := hmac.New(sha256.New, []byte(secret))
@@ -607,7 +607,7 @@ func (nm *NotificationManager) signDingTalk(timestamp int64, secret string) stri
 
 // ========== 测试通知 ==========
 
-// TestNotification 测试通知
+// TestNotification 测试通知.
 func (nm *NotificationManager) TestNotification(channel string) error {
 	event := HotSpareEvent{
 		Type:       "test",
@@ -650,17 +650,17 @@ func (nm *NotificationManager) TestNotification(channel string) error {
 
 // ========== API Handler ==========
 
-// NotificationAPI 通知API处理器
+// NotificationAPI 通知API处理器.
 type NotificationAPI struct {
 	manager *NotificationManager
 }
 
-// NewNotificationAPI 创建通知API
+// NewNotificationAPI 创建通知API.
 func NewNotificationAPI(manager *NotificationManager) *NotificationAPI {
 	return &NotificationAPI{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (api *NotificationAPI) RegisterRoutes(r *gin.RouterGroup) {
 	notify := r.Group("/notification")
 	{
@@ -671,12 +671,12 @@ func (api *NotificationAPI) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (api *NotificationAPI) GetConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, api.manager.config)
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (api *NotificationAPI) UpdateConfig(c *gin.Context) {
 	var config NotificationConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -688,7 +688,7 @@ func (api *NotificationAPI) UpdateConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "配置已更新"})
 }
 
-// TestNotification 测试通知
+// TestNotification 测试通知.
 func (api *NotificationAPI) TestNotification(c *gin.Context) {
 	channel := c.Query("channel")
 	if channel == "" {
@@ -703,7 +703,7 @@ func (api *NotificationAPI) TestNotification(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "测试通知已发送"})
 }
 
-// GetHistory 获取通知历史
+// GetHistory 获取通知历史.
 func (api *NotificationAPI) GetHistory(c *gin.Context) {
 	// 返回最近的通知历史
 	// TODO: 实现持久化存储

@@ -20,21 +20,21 @@ import (
 	"go.uber.org/zap"
 )
 
-// Type 触发器类型
+// Type 触发器类型.
 type Type string
 
 const (
-	// TypeFile 文件触发器
+	// TypeFile 文件触发器.
 	TypeFile Type = "file"
-	// TypeTime 时间触发器
+	// TypeTime 时间触发器.
 	TypeTime Type = "time"
-	// TypeEvent 事件触发器
+	// TypeEvent 事件触发器.
 	TypeEvent Type = "event"
-	// TypeWebhook Webhook 触发器
+	// TypeWebhook Webhook 触发器.
 	TypeWebhook Type = "webhook"
 )
 
-// Trigger 触发器接口
+// Trigger 触发器接口.
 type Trigger interface {
 	// GetType 返回触发器类型
 	GetType() Type
@@ -44,7 +44,7 @@ type Trigger interface {
 	Stop() error
 }
 
-// EventManager 全局事件管理器
+// EventManager 全局事件管理器.
 type EventManager struct {
 	mu          sync.RWMutex
 	subscribers map[string][]chan map[string]interface{}
@@ -56,7 +56,7 @@ var (
 	eventManagerOnce   sync.Once
 )
 
-// GetEventManager 获取全局事件管理器实例
+// GetEventManager 获取全局事件管理器实例.
 func GetEventManager(logger *zap.Logger) *EventManager {
 	eventManagerOnce.Do(func() {
 		globalEventManager = &EventManager{
@@ -67,7 +67,7 @@ func GetEventManager(logger *zap.Logger) *EventManager {
 	return globalEventManager
 }
 
-// Subscribe 订阅事件
+// Subscribe 订阅事件.
 func (em *EventManager) Subscribe(eventType string) <-chan map[string]interface{} {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -80,7 +80,7 @@ func (em *EventManager) Subscribe(eventType string) <-chan map[string]interface{
 	return ch
 }
 
-// Unsubscribe 取消订阅
+// Unsubscribe 取消订阅.
 func (em *EventManager) Unsubscribe(eventType string, ch <-chan map[string]interface{}) {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -99,7 +99,7 @@ func (em *EventManager) Unsubscribe(eventType string, ch <-chan map[string]inter
 	}
 }
 
-// Publish 发布事件
+// Publish 发布事件.
 func (em *EventManager) Publish(eventType string, data map[string]interface{}) {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -120,7 +120,7 @@ func (em *EventManager) Publish(eventType string, data map[string]interface{}) {
 	}
 }
 
-// FileTrigger 文件触发器 - 监控文件变化
+// FileTrigger 文件触发器 - 监控文件变化.
 type FileTrigger struct {
 	Type      Type     `json:"type"`
 	Path      string   `json:"path"`
@@ -133,17 +133,17 @@ type FileTrigger struct {
 	cancel  context.CancelFunc
 }
 
-// SetLogger 设置日志器
+// SetLogger 设置日志器.
 func (t *FileTrigger) SetLogger(logger *zap.Logger) {
 	t.logger = logger
 }
 
-// GetType 返回触发器类型
+// GetType 返回触发器类型.
 func (t *FileTrigger) GetType() Type {
 	return TypeFile
 }
 
-// Start 启动文件触发器
+// Start 启动文件触发器.
 func (t *FileTrigger) Start(ctx context.Context, callback func(map[string]interface{})) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -281,7 +281,7 @@ func (t *FileTrigger) Start(ctx context.Context, callback func(map[string]interf
 	return nil
 }
 
-// Stop 停止文件触发器
+// Stop 停止文件触发器.
 func (t *FileTrigger) Stop() error {
 	if t.cancel != nil {
 		t.cancel()
@@ -292,7 +292,7 @@ func (t *FileTrigger) Stop() error {
 	return nil
 }
 
-// TimeTrigger 时间触发器 - 定时执行
+// TimeTrigger 时间触发器 - 定时执行.
 type TimeTrigger struct {
 	Type     Type   `json:"type"`
 	Schedule string `json:"schedule"` // cron 表达式
@@ -300,12 +300,12 @@ type TimeTrigger struct {
 	Once     bool   `json:"once,omitempty"`
 }
 
-// GetType 返回触发器类型
+// GetType 返回触发器类型.
 func (t *TimeTrigger) GetType() Type {
 	return TypeTime
 }
 
-// Start 启动时间触发器
+// Start 启动时间触发器.
 func (t *TimeTrigger) Start(ctx context.Context, callback func(map[string]interface{})) error {
 	loc := time.Local
 	if t.Timezone != "" {
@@ -338,12 +338,12 @@ func (t *TimeTrigger) Start(ctx context.Context, callback func(map[string]interf
 	return nil
 }
 
-// Stop 停止时间触发器
+// Stop 停止时间触发器.
 func (t *TimeTrigger) Stop() error {
 	return nil
 }
 
-// EventTrigger 事件触发器 - 系统事件
+// EventTrigger 事件触发器 - 系统事件.
 type EventTrigger struct {
 	Type      Type                   `json:"type"`
 	EventType string                 `json:"event_type"` // system.startup, user.login, file.upload, etc.
@@ -354,17 +354,17 @@ type EventTrigger struct {
 	cancel  context.CancelFunc
 }
 
-// SetLogger 设置日志器
+// SetLogger 设置日志器.
 func (t *EventTrigger) SetLogger(logger *zap.Logger) {
 	t.logger = logger
 }
 
-// GetType 返回触发器类型
+// GetType 返回触发器类型.
 func (t *EventTrigger) GetType() Type {
 	return TypeEvent
 }
 
-// Start 启动事件触发器
+// Start 启动事件触发器.
 func (t *EventTrigger) Start(ctx context.Context, callback func(map[string]interface{})) error {
 	em := GetEventManager(t.logger)
 	if em == nil {
@@ -414,7 +414,7 @@ func (t *EventTrigger) Start(ctx context.Context, callback func(map[string]inter
 	return nil
 }
 
-// Stop 停止事件触发器
+// Stop 停止事件触发器.
 func (t *EventTrigger) Stop() error {
 	if t.cancel != nil {
 		t.cancel()
@@ -422,7 +422,7 @@ func (t *EventTrigger) Stop() error {
 	return nil
 }
 
-// matchFilter 检查数据是否匹配过滤条件
+// matchFilter 检查数据是否匹配过滤条件.
 func matchFilter(data map[string]interface{}, filter map[string]interface{}) bool {
 	for key, expected := range filter {
 		actual, exists := data[key]
@@ -436,7 +436,7 @@ func matchFilter(data map[string]interface{}, filter map[string]interface{}) boo
 	return true
 }
 
-// WebhookTrigger Webhook 触发器 - HTTP 回调
+// WebhookTrigger Webhook 触发器 - HTTP 回调.
 type WebhookTrigger struct {
 	Type    Type              `json:"type"`
 	Path    string            `json:"path"`
@@ -450,17 +450,17 @@ type WebhookTrigger struct {
 	callback func(map[string]interface{})
 }
 
-// SetLogger 设置日志器
+// SetLogger 设置日志器.
 func (t *WebhookTrigger) SetLogger(logger *zap.Logger) {
 	t.logger = logger
 }
 
-// GetType 返回触发器类型
+// GetType 返回触发器类型.
 func (t *WebhookTrigger) GetType() Type {
 	return TypeWebhook
 }
 
-// Start 启动 Webhook 触发器
+// Start 启动 Webhook 触发器.
 func (t *WebhookTrigger) Start(ctx context.Context, callback func(map[string]interface{})) error {
 	t.callback = callback
 
@@ -612,7 +612,7 @@ func (t *WebhookTrigger) handleWebhook(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
 
-// verifySignature 验证 webhook 签名
+// verifySignature 验证 webhook 签名.
 func (t *WebhookTrigger) verifySignature(body []byte, signature string) bool {
 	// 移除 "sha256=" 前缀
 	sig := strings.TrimPrefix(signature, "sha256=")
@@ -624,7 +624,7 @@ func (t *WebhookTrigger) verifySignature(body []byte, signature string) bool {
 	return hmac.Equal([]byte(sig), []byte(expectedMAC))
 }
 
-// Stop 停止 Webhook 触发器
+// Stop 停止 Webhook 触发器.
 func (t *WebhookTrigger) Stop() error {
 	if t.cancel != nil {
 		t.cancel()
@@ -637,7 +637,7 @@ func (t *WebhookTrigger) Stop() error {
 	return nil
 }
 
-// WebhookRegistry Webhook 注册表（用于集中管理 webhook 端点）
+// WebhookRegistry Webhook 注册表（用于集中管理 webhook 端点）.
 type WebhookRegistry struct {
 	mu       sync.RWMutex
 	handlers map[string]func(map[string]interface{})
@@ -649,7 +649,7 @@ var (
 	registryOnce          sync.Once
 )
 
-// GetWebhookRegistry 获取全局 webhook 注册表
+// GetWebhookRegistry 获取全局 webhook 注册表.
 func GetWebhookRegistry(logger *zap.Logger) *WebhookRegistry {
 	registryOnce.Do(func() {
 		globalWebhookRegistry = &WebhookRegistry{
@@ -660,7 +660,7 @@ func GetWebhookRegistry(logger *zap.Logger) *WebhookRegistry {
 	return globalWebhookRegistry
 }
 
-// Register 注册 webhook 路径
+// Register 注册 webhook 路径.
 func (r *WebhookRegistry) Register(path string, handler func(map[string]interface{})) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -670,7 +670,7 @@ func (r *WebhookRegistry) Register(path string, handler func(map[string]interfac
 	}
 }
 
-// Unregister 注销 webhook 路径
+// Unregister 注销 webhook 路径.
 func (r *WebhookRegistry) Unregister(path string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -680,7 +680,7 @@ func (r *WebhookRegistry) Unregister(path string) {
 	}
 }
 
-// Handle 处理 webhook 请求
+// Handle 处理 webhook 请求.
 func (r *WebhookRegistry) Handle(path string, data map[string]interface{}) bool {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -694,7 +694,7 @@ func (r *WebhookRegistry) Handle(path string, data map[string]interface{}) bool 
 	return true
 }
 
-// Config 触发器配置（用于 JSON 序列化）
+// Config 触发器配置（用于 JSON 序列化）.
 type Config struct {
 	Type Type `json:"type"`
 
@@ -719,7 +719,7 @@ type Config struct {
 	Headers map[string]string `json:"headers,omitempty"`
 }
 
-// NewTriggerFromConfig 从配置创建触发器
+// NewTriggerFromConfig 从配置创建触发器.
 func NewTriggerFromConfig(config Config) (Trigger, error) {
 	switch config.Type {
 	case TypeFile:

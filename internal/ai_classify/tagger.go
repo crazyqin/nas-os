@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Tagger 标签生成器
+// Tagger 标签生成器.
 type Tagger struct {
 	config     Config
 	tagRules   []TagRule
@@ -17,7 +17,7 @@ type Tagger struct {
 	mu         sync.RWMutex
 }
 
-// TagRule 标签规则
+// TagRule 标签规则.
 type TagRule struct {
 	ID         string      `json:"id"`
 	Name       string      `json:"name"`
@@ -30,7 +30,7 @@ type TagRule struct {
 	CreatedAt  time.Time   `json:"createdAt"`
 }
 
-// NewTagger 创建标签生成器
+// NewTagger 创建标签生成器.
 func NewTagger(config Config) *Tagger {
 	t := &Tagger{
 		config:     config,
@@ -42,7 +42,7 @@ func NewTagger(config Config) *Tagger {
 	return t
 }
 
-// initDefaultRules 初始化默认标签规则
+// initDefaultRules 初始化默认标签规则.
 func (t *Tagger) initDefaultRules() {
 	// 文件名模式规则
 	t.tagRules = []TagRule{
@@ -181,7 +181,7 @@ func (t *Tagger) initDefaultRules() {
 	}
 }
 
-// GenerateTags 为文件生成标签
+// GenerateTags 为文件生成标签.
 func (t *Tagger) GenerateTags(ctx context.Context, path string, features Features, category Category) []Tag {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -240,7 +240,7 @@ func (t *Tagger) GenerateTags(ctx context.Context, path string, features Feature
 	return result
 }
 
-// matchRule 匹配标签规则
+// matchRule 匹配标签规则.
 func (t *Tagger) matchRule(path, fileName, ext string, features Features, rule TagRule) bool {
 	for _, cond := range rule.Conditions {
 		var value interface{}
@@ -269,7 +269,7 @@ func (t *Tagger) matchRule(path, fileName, ext string, features Features, rule T
 	return true
 }
 
-// matchOperator 匹配操作符
+// matchOperator 匹配操作符.
 func (t *Tagger) matchOperator(value interface{}, op string, target interface{}) bool {
 	switch op {
 	case "eq", "==":
@@ -302,7 +302,7 @@ func (t *Tagger) matchOperator(value interface{}, op string, target interface{})
 	return false
 }
 
-// addCategoryTags 基于分类添加标签
+// addCategoryTags 基于分类添加标签.
 func (t *Tagger) addCategoryTags(category Category, tags map[string]Tag) {
 	categoryTags := map[string]string{
 		"documents": "文档",
@@ -323,7 +323,7 @@ func (t *Tagger) addCategoryTags(category Category, tags map[string]Tag) {
 	}
 }
 
-// addFeatureTags 基于特征添加标签
+// addFeatureTags 基于特征添加标签.
 func (t *Tagger) addFeatureTags(features Features, tags map[string]Tag) {
 	// 根据文件大小添加标签
 	if features.Width > 0 && features.Height > 0 {
@@ -354,7 +354,7 @@ func (t *Tagger) addFeatureTags(features Features, tags map[string]Tag) {
 	}
 }
 
-// addPathTags 基于路径添加标签
+// addPathTags 基于路径添加标签.
 func (t *Tagger) addPathTags(path string, tags map[string]Tag) {
 	pathLower := strings.ToLower(path)
 
@@ -406,7 +406,7 @@ func (t *Tagger) addPathTags(path string, tags map[string]Tag) {
 	}
 }
 
-// getExt 获取扩展名
+// getExt 获取扩展名.
 func getExt(path string) string {
 	idx := strings.LastIndex(path, ".")
 	if idx == -1 {
@@ -415,7 +415,7 @@ func getExt(path string) string {
 	return strings.ToLower(path[idx:])
 }
 
-// AddTagRule 添加标签规则
+// AddTagRule 添加标签规则.
 func (t *Tagger) AddTagRule(rule TagRule) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -427,7 +427,7 @@ func (t *Tagger) AddTagRule(rule TagRule) error {
 	return nil
 }
 
-// GetTagRules 获取所有标签规则
+// GetTagRules 获取所有标签规则.
 func (t *Tagger) GetTagRules() []TagRule {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -435,7 +435,7 @@ func (t *Tagger) GetTagRules() []TagRule {
 	return t.tagRules
 }
 
-// AddCustomTag 添加自定义标签
+// AddCustomTag 添加自定义标签.
 func (t *Tagger) AddCustomTag(tag Tag) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -447,7 +447,7 @@ func (t *Tagger) AddCustomTag(tag Tag) {
 	t.customTags[tag.ID] = tag
 }
 
-// GetCustomTags 获取自定义标签
+// GetCustomTags 获取自定义标签.
 func (t *Tagger) GetCustomTags() []Tag {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -459,7 +459,7 @@ func (t *Tagger) GetCustomTags() []Tag {
 	return tags
 }
 
-// ExtractKeywordsFromContent 从内容提取关键词作为标签
+// ExtractKeywordsFromContent 从内容提取关键词作为标签.
 func (t *Tagger) ExtractKeywordsFromContent(content string) []Tag {
 	keywords := extractKeywordsSimple(content)
 	tags := make([]Tag, 0, len(keywords))
@@ -477,7 +477,7 @@ func (t *Tagger) ExtractKeywordsFromContent(content string) []Tag {
 	return tags
 }
 
-// extractKeywordsSimple 简单关键词提取
+// extractKeywordsSimple 简单关键词提取.
 func extractKeywordsSimple(content string) []string {
 	words := strings.Fields(strings.ToLower(content))
 	wordCount := make(map[string]int)

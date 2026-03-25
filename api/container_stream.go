@@ -16,7 +16,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// ContainerStreamHandler handles WebSocket streaming for containers
+// ContainerStreamHandler handles WebSocket streaming for containers.
 type ContainerStreamHandler struct {
 	manager       *container.Manager
 	logStreamer   *container.LogStreamer
@@ -25,7 +25,7 @@ type ContainerStreamHandler struct {
 	hub           *EnhancedWebSocketHub
 }
 
-// NewContainerStreamHandler creates a new container stream handler
+// NewContainerStreamHandler creates a new container stream handler.
 func NewContainerStreamHandler(hub *EnhancedWebSocketHub) (*ContainerStreamHandler, error) {
 	mgr, err := container.NewManager()
 	if err != nil {
@@ -41,7 +41,7 @@ func NewContainerStreamHandler(hub *EnhancedWebSocketHub) (*ContainerStreamHandl
 	}, nil
 }
 
-// RegisterStreamRoutes registers streaming routes
+// RegisterStreamRoutes registers streaming routes.
 func (h *ContainerStreamHandler) RegisterStreamRoutes(r *gin.RouterGroup) {
 	// WebSocket endpoints
 	r.GET("/containers/:id/logs/stream", h.StreamLogs)
@@ -63,7 +63,7 @@ func (h *ContainerStreamHandler) RegisterStreamRoutes(r *gin.RouterGroup) {
 }
 
 // StreamLogs streams container logs via WebSocket
-// GET /api/v1/containers/:id/logs/stream?tail=100&follow=true
+// GET /api/v1/containers/:id/logs/stream?tail=100&follow=true.
 func (h *ContainerStreamHandler) StreamLogs(c *gin.Context) {
 	containerID := c.Param("id")
 	if containerID == "" {
@@ -158,7 +158,7 @@ func (h *ContainerStreamHandler) StreamLogs(c *gin.Context) {
 }
 
 // StreamStats streams container stats via WebSocket
-// GET /api/v1/containers/:id/stats/stream?interval=1s
+// GET /api/v1/containers/:id/stats/stream?interval=1s.
 func (h *ContainerStreamHandler) StreamStats(c *gin.Context) {
 	containerID := c.Param("id")
 	if containerID == "" {
@@ -249,7 +249,7 @@ func (h *ContainerStreamHandler) StreamStats(c *gin.Context) {
 }
 
 // StreamAllStats streams stats for all containers via WebSocket
-// GET /api/v1/containers/stats/stream?interval=2s
+// GET /api/v1/containers/stats/stream?interval=2s.
 func (h *ContainerStreamHandler) StreamAllStats(c *gin.Context) {
 	// Parse interval
 	interval := 2 * time.Second
@@ -331,7 +331,7 @@ func (h *ContainerStreamHandler) StreamAllStats(c *gin.Context) {
 }
 
 // BatchStart starts multiple containers
-// POST /api/v1/containers/batch/start
+// POST /api/v1/containers/batch/start.
 func (h *ContainerStreamHandler) BatchStart(c *gin.Context) {
 	var req struct {
 		ContainerIDs []string `json:"containerIds" binding:"required"`
@@ -362,7 +362,7 @@ func (h *ContainerStreamHandler) BatchStart(c *gin.Context) {
 }
 
 // BatchStop stops multiple containers
-// POST /api/v1/containers/batch/stop
+// POST /api/v1/containers/batch/stop.
 func (h *ContainerStreamHandler) BatchStop(c *gin.Context) {
 	var req struct {
 		ContainerIDs []string `json:"containerIds" binding:"required"`
@@ -394,7 +394,7 @@ func (h *ContainerStreamHandler) BatchStop(c *gin.Context) {
 }
 
 // BatchRestart restarts multiple containers
-// POST /api/v1/containers/batch/restart
+// POST /api/v1/containers/batch/restart.
 func (h *ContainerStreamHandler) BatchRestart(c *gin.Context) {
 	var req struct {
 		ContainerIDs []string `json:"containerIds" binding:"required"`
@@ -426,7 +426,7 @@ func (h *ContainerStreamHandler) BatchRestart(c *gin.Context) {
 }
 
 // BatchRemove removes multiple containers
-// POST /api/v1/containers/batch/remove
+// POST /api/v1/containers/batch/remove.
 func (h *ContainerStreamHandler) BatchRemove(c *gin.Context) {
 	var req struct {
 		ContainerIDs  []string `json:"containerIds" binding:"required"`
@@ -459,7 +459,7 @@ func (h *ContainerStreamHandler) BatchRemove(c *gin.Context) {
 }
 
 // BatchExecute executes a generic batch operation
-// POST /api/v1/containers/batch/execute
+// POST /api/v1/containers/batch/execute.
 func (h *ContainerStreamHandler) BatchExecute(c *gin.Context) {
 	var req container.BatchOperationRequest
 
@@ -488,7 +488,7 @@ func (h *ContainerStreamHandler) BatchExecute(c *gin.Context) {
 }
 
 // PruneContainers removes all stopped containers
-// POST /api/v1/containers/prune
+// POST /api/v1/containers/prune.
 func (h *ContainerStreamHandler) PruneContainers(c *gin.Context) {
 	result, err := h.manager.PruneContainers()
 	if err != nil {
@@ -507,7 +507,7 @@ func (h *ContainerStreamHandler) PruneContainers(c *gin.Context) {
 }
 
 // SelectContainers selects containers matching filter criteria
-// POST /api/v1/containers/select
+// POST /api/v1/containers/select.
 func (h *ContainerStreamHandler) SelectContainers(c *gin.Context) {
 	var filter container.ContainerFilter
 
@@ -539,7 +539,7 @@ func (h *ContainerStreamHandler) SelectContainers(c *gin.Context) {
 }
 
 // BatchOperationWithProgress handles batch operations with WebSocket progress updates
-// WebSocket: /api/v1/containers/batch/ws
+// WebSocket: /api/v1/containers/batch/ws.
 func (h *ContainerStreamHandler) BatchOperationWithProgress(c *gin.Context) {
 	// Upgrade to WebSocket
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -594,7 +594,7 @@ func (h *ContainerStreamHandler) BatchOperationWithProgress(c *gin.Context) {
 	})
 }
 
-// sendWebSocketError sends an error message via WebSocket
+// sendWebSocketError sends an error message via WebSocket.
 func sendWebSocketError(conn *websocket.Conn, errorType string, message string) {
 	_ = conn.WriteJSON(map[string]interface{}{
 		"type":      "error",

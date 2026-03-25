@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// TestNewCostAnalyzer 测试创建成本分析器
+// TestNewCostAnalyzer 测试创建成本分析器.
 func TestNewCostAnalyzer(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -28,7 +28,7 @@ func TestNewCostAnalyzer(t *testing.T) {
 	}
 }
 
-// TestDefaultStorageCostConfigs 测试默认存储成本配置
+// TestDefaultStorageCostConfigs 测试默认存储成本配置.
 func TestDefaultStorageCostConfigs(t *testing.T) {
 	configs := DefaultStorageCostConfigs()
 
@@ -48,7 +48,7 @@ func TestDefaultStorageCostConfigs(t *testing.T) {
 	}
 }
 
-// TestCalculateBackupCost 测试备份成本计算
+// TestCalculateBackupCost 测试备份成本计算.
 func TestCalculateBackupCost(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -96,7 +96,7 @@ func TestCalculateBackupCost(t *testing.T) {
 	}
 }
 
-// TestCalculateBackupCost_S3 测试 S3 备份成本计算
+// TestCalculateBackupCost_S3 测试 S3 备份成本计算.
 func TestCalculateBackupCost_S3(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -143,7 +143,7 @@ func TestCalculateBackupCost_S3(t *testing.T) {
 	}
 }
 
-// TestCalculateRestoreCost 测试恢复成本计算
+// TestCalculateRestoreCost 测试恢复成本计算.
 func TestCalculateRestoreCost(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -180,7 +180,7 @@ func TestCalculateRestoreCost(t *testing.T) {
 	}
 }
 
-// TestGetCostTrend 测试成本趋势分析
+// TestGetCostTrend 测试成本趋势分析.
 func TestGetCostTrend(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -227,7 +227,7 @@ func TestGetCostTrend(t *testing.T) {
 	}
 }
 
-// TestGenerateCostReport 测试成本报告生成
+// TestGenerateCostReport 测试成本报告生成.
 func TestGenerateCostReport(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -276,7 +276,7 @@ func TestGenerateCostReport(t *testing.T) {
 	}
 }
 
-// TestCheckAlerts 测试告警检查
+// TestCheckAlerts 测试告警检查.
 func TestCheckAlerts(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -322,7 +322,7 @@ func TestCheckAlerts(t *testing.T) {
 	}
 }
 
-// TestGetOptimizationSuggestions 测试优化建议
+// TestGetOptimizationSuggestions 测试优化建议.
 func TestGetOptimizationSuggestions(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -367,7 +367,7 @@ func TestGetOptimizationSuggestions(t *testing.T) {
 	}
 }
 
-// TestSetCostConfig 测试设置成本配置
+// TestSetCostConfig 测试设置成本配置.
 func TestSetCostConfig(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -392,7 +392,7 @@ func TestSetCostConfig(t *testing.T) {
 	}
 }
 
-// TestSetAlertThresholds 测试设置告警阈值
+// TestSetAlertThresholds 测试设置告警阈值.
 func TestSetAlertThresholds(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -418,7 +418,7 @@ func TestSetAlertThresholds(t *testing.T) {
 	}
 }
 
-// TestGetRecords 测试获取成本记录
+// TestGetRecords 测试获取成本记录.
 func TestGetRecords(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -450,7 +450,7 @@ func TestGetRecords(t *testing.T) {
 	}
 }
 
-// TestGenerateForecast 测试成本预测
+// TestGenerateForecast 测试成本预测.
 func TestGenerateForecast(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -503,7 +503,7 @@ func TestGenerateForecast(t *testing.T) {
 	}
 }
 
-// TestMultipleProviders 测试多提供商成本计算
+// TestMultipleProviders 测试多提供商成本计算.
 func TestMultipleProviders(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -542,7 +542,7 @@ func TestMultipleProviders(t *testing.T) {
 	}
 }
 
-// TestCompressionRatioCalculation 测试压缩率计算边界情况
+// TestCompressionRatioCalculation 测试压缩率计算边界情况.
 func TestCompressionRatioCalculation(t *testing.T) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -568,7 +568,7 @@ func TestCompressionRatioCalculation(t *testing.T) {
 	}
 }
 
-// BenchmarkCalculateBackupCost 基准测试备份成本计算
+// BenchmarkCalculateBackupCost 基准测试备份成本计算.
 func BenchmarkCalculateBackupCost(b *testing.B) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)
@@ -593,7 +593,7 @@ func BenchmarkCalculateBackupCost(b *testing.B) {
 	}
 }
 
-// BenchmarkGenerateCostReport 基准测试报告生成
+// BenchmarkGenerateCostReport 基准测试报告生成.
 func BenchmarkGenerateCostReport(b *testing.B) {
 	manager := NewManager("", "")
 	analyzer := NewCostAnalyzer(manager)

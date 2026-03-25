@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 性能监控管理器
+// Manager 性能监控管理器.
 type Manager struct {
 	logger *zap.Logger
 	config Config
@@ -25,7 +25,7 @@ type Manager struct {
 	cancel  context.CancelFunc
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	// 采集间隔
 	CollectInterval time.Duration `json:"collect_interval"`
@@ -39,7 +39,7 @@ type Config struct {
 	PrometheusAddr string `json:"prometheus_addr"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() Config {
 	return Config{
 		CollectInterval:     10 * time.Second,
@@ -50,7 +50,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(logger *zap.Logger, config Config) *Manager {
 	m := &Manager{
 		logger: logger,
@@ -68,7 +68,7 @@ func NewManager(logger *zap.Logger, config Config) *Manager {
 	return m
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *Manager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -91,7 +91,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -108,72 +108,72 @@ func (m *Manager) Stop() {
 	m.logger.Info("性能监控管理器已停止")
 }
 
-// Collect 立即采集指标
+// Collect 立即采集指标.
 func (m *Manager) Collect() *SystemMetricsSummary {
 	return m.collector.Collect()
 }
 
-// GetHealth 获取健康状态
+// GetHealth 获取健康状态.
 func (m *Manager) GetHealth() *SystemHealth {
 	return m.health.GetHealth()
 }
 
-// GetAlerts 获取告警
+// GetAlerts 获取告警.
 func (m *Manager) GetAlerts() []*Alert {
 	return m.alerts.GetAlerts()
 }
 
-// GetMetrics 获取性能指标
+// GetMetrics 获取性能指标.
 func (m *Manager) GetMetrics() *Metrics {
 	return m.monitor.GetMetrics()
 }
 
-// GetStorageMetrics 获取存储指标
+// GetStorageMetrics 获取存储指标.
 func (m *Manager) GetStorageMetrics() *StorageMetrics {
 	return m.storage.Collect()
 }
 
-// GetPrometheusHandler 获取 Prometheus 处理器
+// GetPrometheusHandler 获取 Prometheus 处理器.
 func (m *Manager) GetPrometheusHandler() *PrometheusExporter {
 	return m.prometheus
 }
 
-// GetMonitor 获取性能监控器
+// GetMonitor 获取性能监控器.
 func (m *Manager) GetMonitor() *Monitor {
 	return m.monitor
 }
 
-// GetCollector 获取系统收集器
+// GetCollector 获取系统收集器.
 func (m *Manager) GetCollector() *SystemCollector {
 	return m.collector
 }
 
-// GetStorageCollector 获取存储收集器
+// GetStorageCollector 获取存储收集器.
 func (m *Manager) GetStorageCollector() *StorageCollector {
 	return m.storage
 }
 
-// GetHealthChecker 获取健康检查器
+// GetHealthChecker 获取健康检查器.
 func (m *Manager) GetHealthChecker() *HealthChecker {
 	return m.health
 }
 
-// GetAlertManager 获取告警管理器
+// GetAlertManager 获取告警管理器.
 func (m *Manager) GetAlertManager() *AlertManager {
 	return m.alerts
 }
 
-// SetAlertCallback 设置告警回调
+// SetAlertCallback 设置告警回调.
 func (m *Manager) SetAlertCallback(callback func(alert *Alert)) {
 	m.alerts.SetCallbacks(callback, nil)
 }
 
-// RecordAPICall 记录 API 调用
+// RecordAPICall 记录 API 调用.
 func (m *Manager) RecordAPICall(path, method string, duration time.Duration, statusCode int) {
 	m.monitor.RecordAPICall(path, method, duration, statusCode)
 }
 
-// RecordFileOperation 记录文件操作
+// RecordFileOperation 记录文件操作.
 func (m *Manager) RecordFileOperation(opType string, duration time.Duration, bytes int64) {
 	switch opType {
 	case "list":
@@ -187,19 +187,19 @@ func (m *Manager) RecordFileOperation(opType string, duration time.Duration, byt
 	}
 }
 
-// Middleware API 性能监控中间件
+// Middleware API 性能监控中间件.
 func (m *Manager) Middleware() interface{} {
 	return m.monitor.Middleware()
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// GetAPIHandlers 获取 API 处理器
+// GetAPIHandlers 获取 API 处理器.
 func (m *Manager) GetAPIHandlers() *APIHandlers {
 	return NewAPIHandlers(
 		m.logger,

@@ -8,7 +8,7 @@ import (
 	"syscall"
 )
 
-// ApplyResourceLimits applies resource limits to the current process (Linux only)
+// ApplyResourceLimits applies resource limits to the current process (Linux only).
 func ApplyResourceLimits(maxMemoryMB, maxCPUPercent int) error {
 	// Set memory limit using setrlimit
 	if maxMemoryMB > 0 {

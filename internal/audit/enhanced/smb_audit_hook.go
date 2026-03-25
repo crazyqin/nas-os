@@ -6,14 +6,14 @@ import (
 	"time"
 )
 
-// SMAuditHook SMB审计钩子 - 用于集成到SMB管理器
+// SMAuditHook SMB审计钩子 - 用于集成到SMB管理器.
 type SMAuditHook struct {
 	manager  *SMAuditManager
 	sessions map[string]*SMBSessionInfoCache
 	mu       sync.RWMutex
 }
 
-// SMBSessionInfoCache SMB会话信息缓存
+// SMBSessionInfoCache SMB会话信息缓存.
 type SMBSessionInfoCache struct {
 	SessionID    string
 	Username     string
@@ -26,7 +26,7 @@ type SMBSessionInfoCache struct {
 	OpenFiles    map[string]*SMBAuditFileInfo
 }
 
-// SMBAuditFileInfo 打开的文件信息
+// SMBAuditFileInfo 打开的文件信息.
 type SMBAuditFileInfo struct {
 	Path         string
 	OpenTime     time.Time
@@ -35,7 +35,7 @@ type SMBAuditFileInfo struct {
 	BytesWritten int64
 }
 
-// NewSMAuditHook 创建SMB审计钩子
+// NewSMAuditHook 创建SMB审计钩子.
 func NewSMAuditHook(manager *SMAuditManager) *SMAuditHook {
 	return &SMAuditHook{
 		manager:  manager,
@@ -43,7 +43,7 @@ func NewSMAuditHook(manager *SMAuditManager) *SMAuditHook {
 	}
 }
 
-// OnSessionConnect 会话连接钩子
+// OnSessionConnect 会话连接钩子.
 func (h *SMAuditHook) OnSessionConnect(sessionID, username, clientIP, protocolVersion string, computerName string) {
 	if h.manager == nil {
 		return
@@ -72,7 +72,7 @@ func (h *SMAuditHook) OnSessionConnect(sessionID, username, clientIP, protocolVe
 	})
 }
 
-// OnSessionDisconnect 会话断开钩子
+// OnSessionDisconnect 会话断开钩子.
 func (h *SMAuditHook) OnSessionDisconnect(sessionID string) {
 	if h.manager == nil {
 		return
@@ -90,7 +90,7 @@ func (h *SMAuditHook) OnSessionDisconnect(sessionID string) {
 	}
 }
 
-// OnTreeConnect 共享连接钩子
+// OnTreeConnect 共享连接钩子.
 func (h *SMAuditHook) OnTreeConnect(sessionID, shareName, permissions string) {
 	if h.manager == nil {
 		return
@@ -114,7 +114,7 @@ func (h *SMAuditHook) OnTreeConnect(sessionID, shareName, permissions string) {
 	h.manager.LogTreeConnect(sessionID, shareName, username, clientIP, permissions)
 }
 
-// OnTreeDisconnect 共享断开钩子
+// OnTreeDisconnect 共享断开钩子.
 func (h *SMAuditHook) OnTreeDisconnect(sessionID, shareName string) {
 	if h.manager == nil {
 		return
@@ -132,7 +132,7 @@ func (h *SMAuditHook) OnTreeDisconnect(sessionID, shareName string) {
 	h.manager.LogTreeDisconnect(sessionID, shareName, username, clientIP)
 }
 
-// OnFileOpen 文件打开钩子
+// OnFileOpen 文件打开钩子.
 func (h *SMAuditHook) OnFileOpen(sessionID, shareName, filePath, accessMode string, isDirectory bool) {
 	if h.manager == nil {
 		return
@@ -160,7 +160,7 @@ func (h *SMAuditHook) OnFileOpen(sessionID, shareName, filePath, accessMode stri
 	h.manager.LogFileOpen(sessionID, shareName, username, clientIP, filePath, accessMode, isDirectory)
 }
 
-// OnFileClose 文件关闭钩子
+// OnFileClose 文件关闭钩子.
 func (h *SMAuditHook) OnFileClose(sessionID, shareName, filePath string, bytesRead, bytesWritten int64) {
 	if h.manager == nil {
 		return
@@ -189,7 +189,7 @@ func (h *SMAuditHook) OnFileClose(sessionID, shareName, filePath string, bytesRe
 	h.manager.LogFileClose(sessionID, shareName, username, clientIP, filePath, bytesRead, bytesWritten)
 }
 
-// OnFileRead 文件读取钩子
+// OnFileRead 文件读取钩子.
 func (h *SMAuditHook) OnFileRead(sessionID, shareName, filePath string, offset, length int64) {
 	if h.manager == nil {
 		return
@@ -215,7 +215,7 @@ func (h *SMAuditHook) OnFileRead(sessionID, shareName, filePath string, offset, 
 	h.manager.LogFileRead(sessionID, shareName, username, clientIP, filePath, offset, length)
 }
 
-// OnFileWrite 文件写入钩子
+// OnFileWrite 文件写入钩子.
 func (h *SMAuditHook) OnFileWrite(sessionID, shareName, filePath string, offset, length int64, contentDigest string) {
 	if h.manager == nil {
 		return
@@ -241,7 +241,7 @@ func (h *SMAuditHook) OnFileWrite(sessionID, shareName, filePath string, offset,
 	h.manager.LogFileWrite(sessionID, shareName, username, clientIP, filePath, offset, length, contentDigest)
 }
 
-// OnFileDelete 文件删除钩子
+// OnFileDelete 文件删除钩子.
 func (h *SMAuditHook) OnFileDelete(sessionID, shareName, filePath string, isDirectory bool) {
 	if h.manager == nil {
 		return
@@ -264,7 +264,7 @@ func (h *SMAuditHook) OnFileDelete(sessionID, shareName, filePath string, isDire
 	h.manager.LogFileDelete(sessionID, shareName, username, clientIP, filePath, isDirectory)
 }
 
-// OnFileRename 文件重命名钩子
+// OnFileRename 文件重命名钩子.
 func (h *SMAuditHook) OnFileRename(sessionID, shareName, oldPath, newPath string, isDirectory bool) {
 	if h.manager == nil {
 		return
@@ -293,7 +293,7 @@ func (h *SMAuditHook) OnFileRename(sessionID, shareName, oldPath, newPath string
 	h.manager.LogFileRename(sessionID, shareName, username, clientIP, oldPath, newPath, isDirectory)
 }
 
-// OnFileCreate 文件创建钩子
+// OnFileCreate 文件创建钩子.
 func (h *SMAuditHook) OnFileCreate(sessionID, shareName, filePath string, isDirectory bool, permissions string) {
 	if h.manager == nil {
 		return
@@ -316,7 +316,7 @@ func (h *SMAuditHook) OnFileCreate(sessionID, shareName, filePath string, isDire
 	h.manager.LogFileCreate(sessionID, shareName, username, clientIP, filePath, isDirectory, permissions)
 }
 
-// OnPermissionChange 权限变更钩子
+// OnPermissionChange 权限变更钩子.
 func (h *SMAuditHook) OnPermissionChange(sessionID, shareName, filePath, oldPerms, newPerms string) {
 	if h.manager == nil {
 		return
@@ -339,7 +339,7 @@ func (h *SMAuditHook) OnPermissionChange(sessionID, shareName, filePath, oldPerm
 	h.manager.LogPermissionChange(sessionID, shareName, username, clientIP, filePath, oldPerms, newPerms)
 }
 
-// OnOwnershipChange 所有者变更钩子
+// OnOwnershipChange 所有者变更钩子.
 func (h *SMAuditHook) OnOwnershipChange(sessionID, shareName, filePath, oldOwner, newOwner string) {
 	if h.manager == nil {
 		return
@@ -362,7 +362,7 @@ func (h *SMAuditHook) OnOwnershipChange(sessionID, shareName, filePath, oldOwner
 	h.manager.LogOwnershipChange(sessionID, shareName, username, clientIP, filePath, oldOwner, newOwner)
 }
 
-// OnFileLock 文件锁定钩子
+// OnFileLock 文件锁定钩子.
 func (h *SMAuditHook) OnFileLock(sessionID, shareName, filePath, lockType, lockRange string) {
 	if h.manager == nil {
 		return
@@ -385,7 +385,7 @@ func (h *SMAuditHook) OnFileLock(sessionID, shareName, filePath, lockType, lockR
 	h.manager.LogFileLock(sessionID, shareName, username, clientIP, filePath, lockType, lockRange)
 }
 
-// OnFileUnlock 文件解锁钩子
+// OnFileUnlock 文件解锁钩子.
 func (h *SMAuditHook) OnFileUnlock(sessionID, shareName, filePath string) {
 	if h.manager == nil {
 		return
@@ -408,7 +408,7 @@ func (h *SMAuditHook) OnFileUnlock(sessionID, shareName, filePath string) {
 	h.manager.LogFileUnlock(sessionID, shareName, username, clientIP, filePath)
 }
 
-// OnOperationFailure 操作失败钩子
+// OnOperationFailure 操作失败钩子.
 func (h *SMAuditHook) OnOperationFailure(sessionID, shareName, filePath string, operation SMBFileOperation, errorCode int, errorMessage string) {
 	if h.manager == nil {
 		return
@@ -425,7 +425,7 @@ func (h *SMAuditHook) OnOperationFailure(sessionID, shareName, filePath string, 
 	h.manager.LogOperationFailure(sessionID, shareName, username, clientIP, filePath, operation, errorCode, errorMessage)
 }
 
-// OnOperationDenied 操作被拒绝钩子
+// OnOperationDenied 操作被拒绝钩子.
 func (h *SMAuditHook) OnOperationDenied(sessionID, shareName, filePath string, operation SMBFileOperation, reason string) {
 	if h.manager == nil {
 		return
@@ -442,14 +442,14 @@ func (h *SMAuditHook) OnOperationDenied(sessionID, shareName, filePath string, o
 	h.manager.LogOperationDenied(sessionID, shareName, username, clientIP, filePath, operation, reason)
 }
 
-// GetSessionInfo 获取会话信息
+// GetSessionInfo 获取会话信息.
 func (h *SMAuditHook) GetSessionInfo(sessionID string) *SMBSessionInfoCache {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return h.sessions[sessionID]
 }
 
-// GetOpenFiles 获取会话打开的文件
+// GetOpenFiles 获取会话打开的文件.
 func (h *SMAuditHook) GetOpenFiles(sessionID string) map[string]*SMBAuditFileInfo {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -464,7 +464,7 @@ func (h *SMAuditHook) GetOpenFiles(sessionID string) map[string]*SMBAuditFileInf
 	return nil
 }
 
-// GetActiveSessions 获取活跃会话列表
+// GetActiveSessions 获取活跃会话列表.
 func (h *SMAuditHook) GetActiveSessions() []*SMBSessionInfoCache {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -476,7 +476,7 @@ func (h *SMAuditHook) GetActiveSessions() []*SMBSessionInfoCache {
 	return result
 }
 
-// CleanupIdleSessions 清理空闲会话
+// CleanupIdleSessions 清理空闲会话.
 func (h *SMAuditHook) CleanupIdleSessions(idleTimeout time.Duration) int {
 	h.mu.Lock()
 	defer h.mu.Unlock()

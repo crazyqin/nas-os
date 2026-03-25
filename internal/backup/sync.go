@@ -21,7 +21,7 @@ import (
 	"github.com/studio-b12/gowebdav"
 )
 
-// SyncManager 双向同步管理器
+// SyncManager 双向同步管理器.
 type SyncManager struct {
 	mu sync.RWMutex
 
@@ -32,7 +32,7 @@ type SyncManager struct {
 	versionManager *VersionManager
 }
 
-// SyncTask 同步任务
+// SyncTask 同步任务.
 type SyncTask struct {
 	ID          string             `json:"id"`
 	Name        string             `json:"name"`
@@ -58,7 +58,7 @@ type SyncTask struct {
 	SyncedBytes int64 `json:"syncedBytes"`
 }
 
-// SyncMode 同步模式
+// SyncMode 同步模式.
 type SyncMode string
 
 const (
@@ -70,7 +70,7 @@ const (
 	SyncModeOneWay SyncMode = "one-way" // 单向同步
 )
 
-// ConflictResolution 冲突解决策略
+// ConflictResolution 冲突解决策略.
 type ConflictResolution string
 
 const (
@@ -86,7 +86,7 @@ const (
 	ConflictManual ConflictResolution = "manual" // 手动解决
 )
 
-// RemoteType 远程类型
+// RemoteType 远程类型.
 type RemoteType string
 
 const (
@@ -98,7 +98,7 @@ const (
 	RemoteTypeWebDAV RemoteType = "webdav"
 )
 
-// RemoteConfig 远程配置
+// RemoteConfig 远程配置.
 type RemoteConfig struct {
 	// S3 配置
 	Bucket    string `json:"bucket,omitempty"`
@@ -117,12 +117,12 @@ type RemoteConfig struct {
 	Prefix   string `json:"prefix,omitempty"`   // 路径前缀
 }
 
-// VersionManager 版本管理器
+// VersionManager 版本管理器.
 type VersionManager struct {
 	baseDir string
 }
 
-// VersionInfo 版本信息
+// VersionInfo 版本信息.
 type VersionInfo struct {
 	VersionID string    `json:"versionId"`
 	FilePath  string    `json:"filePath"`
@@ -132,7 +132,7 @@ type VersionInfo struct {
 	ParentID  string    `json:"parentId,omitempty"`
 }
 
-// NewSyncManager 创建同步管理器
+// NewSyncManager 创建同步管理器.
 func NewSyncManager(baseDir string) *SyncManager {
 	return &SyncManager{
 		syncTasks:      make(map[string]*SyncTask),
@@ -140,7 +140,7 @@ func NewSyncManager(baseDir string) *SyncManager {
 	}
 }
 
-// NewVersionManager 创建版本管理器
+// NewVersionManager 创建版本管理器.
 func NewVersionManager(baseDir string) *VersionManager {
 	if err := os.MkdirAll(baseDir, 0750); err != nil {
 		log.Printf("创建版本目录失败 [%s]: %v", baseDir, err)
@@ -150,7 +150,7 @@ func NewVersionManager(baseDir string) *VersionManager {
 
 // ========== 同步任务管理 ==========
 
-// CreateSyncTask 创建同步任务
+// CreateSyncTask 创建同步任务.
 func (sm *SyncManager) CreateSyncTask(task SyncTask) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -188,7 +188,7 @@ func (sm *SyncManager) CreateSyncTask(task SyncTask) error {
 	return nil
 }
 
-// ListSyncTasks 列出所有同步任务
+// ListSyncTasks 列出所有同步任务.
 func (sm *SyncManager) ListSyncTasks() []*SyncTask {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -200,7 +200,7 @@ func (sm *SyncManager) ListSyncTasks() []*SyncTask {
 	return tasks
 }
 
-// GetSyncTask 获取同步任务
+// GetSyncTask 获取同步任务.
 func (sm *SyncManager) GetSyncTask(id string) (*SyncTask, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -212,7 +212,7 @@ func (sm *SyncManager) GetSyncTask(id string) (*SyncTask, error) {
 	return task, nil
 }
 
-// DeleteSyncTask 删除同步任务
+// DeleteSyncTask 删除同步任务.
 func (sm *SyncManager) DeleteSyncTask(id string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -225,7 +225,7 @@ func (sm *SyncManager) DeleteSyncTask(id string) error {
 	return nil
 }
 
-// RunSync 执行同步任务
+// RunSync 执行同步任务.
 func (sm *SyncManager) RunSync(taskID string) error {
 	sm.mu.Lock()
 	task, ok := sm.syncTasks[taskID]
@@ -242,7 +242,7 @@ func (sm *SyncManager) RunSync(taskID string) error {
 	return nil
 }
 
-// executeSync 执行同步逻辑
+// executeSync 执行同步逻辑.
 func (sm *SyncManager) executeSync(task *SyncTask) {
 	defer func() {
 		sm.mu.Lock()
@@ -277,7 +277,7 @@ func (sm *SyncManager) executeSync(task *SyncTask) {
 	}
 }
 
-// syncLocal 本地同步（使用 rsync）
+// syncLocal 本地同步（使用 rsync）.
 func (sm *SyncManager) syncLocal(task *SyncTask) error {
 	args := []string{"-avz", "--progress", "--delete"}
 
@@ -328,7 +328,7 @@ func (sm *SyncManager) syncLocal(task *SyncTask) error {
 	return nil
 }
 
-// syncBidirectional 双向同步
+// syncBidirectional 双向同步.
 func (sm *SyncManager) syncBidirectional(task *SyncTask) error {
 	// 1. 扫描两边文件列表
 	sourceFiles, err := sm.scanDirectory(task.Source)
@@ -366,7 +366,7 @@ func (sm *SyncManager) syncBidirectional(task *SyncTask) error {
 	return nil
 }
 
-// FileEntry 文件条目
+// FileEntry 文件条目.
 type FileEntry struct {
 	Path     string
 	Size     int64
@@ -374,7 +374,7 @@ type FileEntry struct {
 	Checksum string
 }
 
-// scanDirectory 扫描目录
+// scanDirectory 扫描目录.
 func (sm *SyncManager) scanDirectory(dir string) (map[string]FileEntry, error) {
 	files := make(map[string]FileEntry)
 
@@ -411,7 +411,7 @@ func (sm *SyncManager) scanDirectory(dir string) (map[string]FileEntry, error) {
 	return files, err
 }
 
-// calculateFileChecksum 计算文件 checksum（使用 SHA256）
+// calculateFileChecksum 计算文件 checksum（使用 SHA256）.
 func (sm *SyncManager) calculateFileChecksum(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -427,7 +427,7 @@ func (sm *SyncManager) calculateFileChecksum(path string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// FileChange 文件变更
+// FileChange 文件变更.
 type FileChange struct {
 	Path   string
 	Type   string // new, modified, deleted, conflict
@@ -437,7 +437,7 @@ type FileChange struct {
 	Action string // copy-src-to-dest, copy-dest-to-src, keep-both, skip
 }
 
-// compareFiles 比较文件差异
+// compareFiles 比较文件差异.
 func (sm *SyncManager) compareFiles(sourceFiles, destFiles map[string]FileEntry, conflict ConflictResolution) []FileChange {
 	var changes []FileChange
 
@@ -483,7 +483,7 @@ func (sm *SyncManager) compareFiles(sourceFiles, destFiles map[string]FileEntry,
 	return changes
 }
 
-// resolveConflict 解决冲突
+// resolveConflict 解决冲突.
 func (sm *SyncManager) resolveConflict(src, dest FileEntry, conflict ConflictResolution) string {
 	switch conflict {
 	case ConflictLatest:
@@ -502,7 +502,7 @@ func (sm *SyncManager) resolveConflict(src, dest FileEntry, conflict ConflictRes
 	}
 }
 
-// applyChange 应用变更
+// applyChange 应用变更.
 func (sm *SyncManager) applyChange(change FileChange, task *SyncTask) error {
 	switch change.Action {
 	case "copy-src-to-dest":
@@ -556,7 +556,7 @@ func (sm *SyncManager) applyChange(change FileChange, task *SyncTask) error {
 	}
 }
 
-// copyFile 复制文件
+// copyFile 复制文件.
 func (sm *SyncManager) copyFile(src, dst string) error {
 	if err := os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
 		return err
@@ -578,7 +578,7 @@ func (sm *SyncManager) copyFile(src, dst string) error {
 	return err
 }
 
-// syncToS3 同步到 S3
+// syncToS3 同步到 S3.
 func (sm *SyncManager) syncToS3(task *SyncTask) error {
 	cfg := task.RemoteConfig
 	if cfg == nil {
@@ -624,7 +624,7 @@ func (sm *SyncManager) syncToS3(task *SyncTask) error {
 	return nil
 }
 
-// createS3Client 创建 S3 客户端
+// createS3Client 创建 S3 客户端.
 func (sm *SyncManager) createS3Client(cfg *RemoteConfig) (*s3.Client, error) {
 	// 使用静态凭证
 	creds := aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
@@ -649,7 +649,7 @@ func (sm *SyncManager) createS3Client(cfg *RemoteConfig) (*s3.Client, error) {
 	return client, nil
 }
 
-// uploadToS3 上传到 S3
+// uploadToS3 上传到 S3.
 func (sm *SyncManager) uploadToS3(client *s3.Client, bucket, localPath, key string) error {
 	file, err := os.Open(localPath)
 	if err != nil {
@@ -666,7 +666,7 @@ func (sm *SyncManager) uploadToS3(client *s3.Client, bucket, localPath, key stri
 	return err
 }
 
-// syncToWebDAV 同步到 WebDAV
+// syncToWebDAV 同步到 WebDAV.
 func (sm *SyncManager) syncToWebDAV(task *SyncTask) error {
 	cfg := task.RemoteConfig
 	if cfg == nil {
@@ -720,7 +720,7 @@ func (sm *SyncManager) syncToWebDAV(task *SyncTask) error {
 	return nil
 }
 
-// uploadToWebDAV 上传到 WebDAV
+// uploadToWebDAV 上传到 WebDAV.
 func (sm *SyncManager) uploadToWebDAV(client *gowebdav.Client, localPath, remotePath string) error {
 	data, err := os.ReadFile(localPath)
 	if err != nil {
@@ -735,7 +735,7 @@ func (sm *SyncManager) uploadToWebDAV(client *gowebdav.Client, localPath, remote
 	return client.Write(remotePath, data, 0600)
 }
 
-// parseRsyncOutput 解析 rsync 输出
+// parseRsyncOutput 解析 rsync 输出.
 func (sm *SyncManager) parseRsyncOutput(task *SyncTask, output string) {
 	// 简化处理，实际应解析详细统计
 	lines := strings.Split(output, "\n")
@@ -747,7 +747,7 @@ func (sm *SyncManager) parseRsyncOutput(task *SyncTask, output string) {
 	}
 }
 
-// calculateNextSync 计算下次同步时间
+// calculateNextSync 计算下次同步时间.
 func (sm *SyncManager) calculateNextSync(schedule string) time.Time {
 	if schedule == "" {
 		return time.Time{}
@@ -760,7 +760,7 @@ func (sm *SyncManager) calculateNextSync(schedule string) time.Time {
 
 // ========== 版本管理 ==========
 
-// CreateVersion 创建文件版本
+// CreateVersion 创建文件版本.
 func (vm *VersionManager) CreateVersion(filePath, relativePath string) (*VersionInfo, error) {
 	info, err := os.Stat(filePath)
 	if err != nil {
@@ -802,7 +802,7 @@ func (vm *VersionManager) CreateVersion(filePath, relativePath string) (*Version
 	return versionInfo, nil
 }
 
-// ListVersions 列出文件的所有版本
+// ListVersions 列出文件的所有版本.
 func (vm *VersionManager) ListVersions(relativePath string) ([]VersionInfo, error) {
 	versionDir := filepath.Join(vm.baseDir, filepath.Dir(relativePath))
 
@@ -826,7 +826,7 @@ func (vm *VersionManager) ListVersions(relativePath string) ([]VersionInfo, erro
 	return versions, nil
 }
 
-// RestoreVersion 恢复指定版本
+// RestoreVersion 恢复指定版本.
 func (vm *VersionManager) RestoreVersion(versionID, targetPath string) error {
 	versionPath := filepath.Join(vm.baseDir, versionID)
 
@@ -837,7 +837,7 @@ func (vm *VersionManager) RestoreVersion(versionID, targetPath string) error {
 	return copyFile(versionPath, targetPath)
 }
 
-// DeleteOldVersions 删除旧版本（保留最近 N 个）
+// DeleteOldVersions 删除旧版本（保留最近 N 个）.
 func (vm *VersionManager) DeleteOldVersions(relativePath string, keepCount int) error {
 	versions, err := vm.ListVersions(relativePath)
 	if err != nil {
@@ -862,7 +862,7 @@ func (vm *VersionManager) DeleteOldVersions(relativePath string, keepCount int) 
 	return nil
 }
 
-// calculateChecksum 计算文件 checksum（使用 SHA256）
+// calculateChecksum 计算文件 checksum（使用 SHA256）.
 func (vm *VersionManager) calculateChecksum(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -878,7 +878,7 @@ func (vm *VersionManager) calculateChecksum(path string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// saveVersionMetadata 保存版本元数据
+// saveVersionMetadata 保存版本元数据.
 func (vm *VersionManager) saveVersionMetadata(version *VersionInfo) error {
 	metaPath := filepath.Join(vm.baseDir, filepath.Dir(version.FilePath), version.VersionID+".meta")
 
@@ -893,7 +893,7 @@ func (vm *VersionManager) saveVersionMetadata(version *VersionInfo) error {
 	return os.WriteFile(metaPath, []byte(content), 0600)
 }
 
-// loadVersionMetadata 加载版本元数据
+// loadVersionMetadata 加载版本元数据.
 func (vm *VersionManager) loadVersionMetadata(path string) (*VersionInfo, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -916,7 +916,7 @@ func (vm *VersionManager) loadVersionMetadata(path string) (*VersionInfo, error)
 	return version, nil
 }
 
-// copyFile 复制文件（包级辅助函数）
+// copyFile 复制文件（包级辅助函数）.
 func copyFile(src, dst string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
@@ -938,7 +938,7 @@ func copyFile(src, dst string) error {
 	return err
 }
 
-// extractJSONString 提取 JSON 字符串字段（辅助函数）
+// extractJSONString 提取 JSON 字符串字段（辅助函数）.
 func extractJSONString(json, key string) string {
 	searchKey := fmt.Sprintf(`"%s":`, key)
 	idx := strings.Index(json, searchKey)
@@ -963,7 +963,7 @@ func extractJSONString(json, key string) string {
 	return json[start:end]
 }
 
-// extractJSONInt 提取 JSON 整数字段（辅助函数）
+// extractJSONInt 提取 JSON 整数字段（辅助函数）.
 func extractJSONInt(json, key string) int64 {
 	searchKey := fmt.Sprintf(`"%s":`, key)
 	idx := strings.Index(json, searchKey)

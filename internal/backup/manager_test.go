@@ -470,7 +470,7 @@ func getTimeForTest() time.Time {
 
 // ========== Restore 测试 ==========
 
-// createTestTarGz creates a valid tar.gz file for testing
+// createTestTarGz creates a valid tar.gz file for testing.
 func createTestTarGz(t *testing.T, dest string) {
 	t.Helper()
 	f, err := os.Create(dest)

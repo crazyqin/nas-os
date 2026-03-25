@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 锁管理器
+// Manager 锁管理器.
 type Manager struct {
 	config FileLockConfig
 	logger *zap.Logger
@@ -39,7 +39,7 @@ type Manager struct {
 	wg     sync.WaitGroup
 }
 
-// NewManager 创建锁管理器
+// NewManager 创建锁管理器.
 func NewManager(config FileLockConfig, logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -67,7 +67,7 @@ func NewManager(config FileLockConfig, logger *zap.Logger) *Manager {
 	return m
 }
 
-// Lock 尝试获取锁
+// Lock 尝试获取锁.
 func (m *Manager) Lock(req *LockRequest) (*FileLock, *LockConflict, error) {
 	if req == nil {
 		return nil, nil, ErrInvalidLockType
@@ -159,7 +159,7 @@ func (m *Manager) Lock(req *LockRequest) (*FileLock, *LockConflict, error) {
 	return lock, nil, nil
 }
 
-// Unlock 释放锁
+// Unlock 释放锁.
 func (m *Manager) Unlock(lockID string, owner string) error {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -187,7 +187,7 @@ func (m *Manager) Unlock(lockID string, owner string) error {
 	return nil
 }
 
-// UnlockByPath 通过路径释放锁
+// UnlockByPath 通过路径释放锁.
 func (m *Manager) UnlockByPath(filePath string, owner string) error {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {
@@ -209,7 +209,7 @@ func (m *Manager) UnlockByPath(filePath string, owner string) error {
 	return nil
 }
 
-// ForceUnlock 强制释放锁（管理员操作）
+// ForceUnlock 强制释放锁（管理员操作）.
 func (m *Manager) ForceUnlock(lockID string) error {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -231,7 +231,7 @@ func (m *Manager) ForceUnlock(lockID string) error {
 	return nil
 }
 
-// GetLock 获取锁信息
+// GetLock 获取锁信息.
 func (m *Manager) GetLock(lockID string) (*LockInfo, error) {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -252,7 +252,7 @@ func (m *Manager) GetLock(lockID string) (*LockInfo, error) {
 	return lock.ToInfo(), nil
 }
 
-// GetLockByPath 通过路径获取锁信息
+// GetLockByPath 通过路径获取锁信息.
 func (m *Manager) GetLockByPath(filePath string) (*LockInfo, error) {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {
@@ -273,7 +273,7 @@ func (m *Manager) GetLockByPath(filePath string) (*LockInfo, error) {
 	return lock.ToInfo(), nil
 }
 
-// IsLocked 检查文件是否被锁定
+// IsLocked 检查文件是否被锁定.
 func (m *Manager) IsLocked(filePath string) bool {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {
@@ -294,7 +294,7 @@ func (m *Manager) IsLocked(filePath string) bool {
 	return lock.Status == LockStatusActive
 }
 
-// CanAcquire 检查是否可以获取锁
+// CanAcquire 检查是否可以获取锁.
 func (m *Manager) CanAcquire(filePath string, lockType LockType, owner string) (*LockConflict, bool) {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {
@@ -328,7 +328,7 @@ func (m *Manager) CanAcquire(filePath string, lockType LockType, owner string) (
 	return conflict, conflict == nil
 }
 
-// ExtendLock 延长锁有效期
+// ExtendLock 延长锁有效期.
 func (m *Manager) ExtendLock(lockID string, owner string, duration time.Duration) error {
 	if duration > m.config.MaxTimeout {
 		duration = m.config.MaxTimeout
@@ -364,7 +364,7 @@ func (m *Manager) ExtendLock(lockID string, owner string, duration time.Duration
 	return nil
 }
 
-// ListLocks 列出所有锁
+// ListLocks 列出所有锁.
 func (m *Manager) ListLocks(filter *LockFilter) []*LockInfo {
 	var result []*LockInfo
 
@@ -397,7 +397,7 @@ func (m *Manager) ListLocks(filter *LockFilter) []*LockInfo {
 	return result
 }
 
-// ListLocksByOwner 列出指定用户的所有锁
+// ListLocksByOwner 列出指定用户的所有锁.
 func (m *Manager) ListLocksByOwner(owner string) []*LockInfo {
 	var result []*LockInfo
 
@@ -422,7 +422,7 @@ func (m *Manager) ListLocksByOwner(owner string) []*LockInfo {
 	return result
 }
 
-// Stats 获取统计信息
+// Stats 获取统计信息.
 func (m *Manager) Stats() ManagerStats {
 	m.stats.mu.RLock()
 	defer m.stats.mu.RUnlock()
@@ -447,7 +447,7 @@ func (m *Manager) Stats() ManagerStats {
 	}
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() {
 	m.cancel()
 	m.wg.Wait()
@@ -455,7 +455,7 @@ func (m *Manager) Close() {
 	m.logger.Info("lock manager closed")
 }
 
-// LockFilter 锁过滤器
+// LockFilter 锁过滤器.
 type LockFilter struct {
 	Owner    string
 	LockType LockType
@@ -463,7 +463,7 @@ type LockFilter struct {
 	Protocol string
 }
 
-// ManagerStats 管理器统计
+// ManagerStats 管理器统计.
 type ManagerStats struct {
 	TotalLocks    int64 `json:"totalLocks"`
 	ActiveLocks   int64 `json:"activeLocks"`
@@ -620,17 +620,17 @@ func (m *Manager) renewActiveLocks() {
 
 // SMB/NFS 集成适配器
 
-// SMBLockAdapter SMB 锁适配器
+// SMBLockAdapter SMB 锁适配器.
 type SMBLockAdapter struct {
 	manager *Manager
 }
 
-// NewSMBLockAdapter 创建 SMB 锁适配器
+// NewSMBLockAdapter 创建 SMB 锁适配器.
 func NewSMBLockAdapter(manager *Manager) *SMBLockAdapter {
 	return &SMBLockAdapter{manager: manager}
 }
 
-// Lock 锁定文件
+// Lock 锁定文件.
 func (a *SMBLockAdapter) Lock(filePath string, owner string, exclusive bool) error {
 	lockType := LockTypeShared
 	if exclusive {
@@ -648,17 +648,17 @@ func (a *SMBLockAdapter) Lock(filePath string, owner string, exclusive bool) err
 	return err
 }
 
-// Unlock 解锁文件
+// Unlock 解锁文件.
 func (a *SMBLockAdapter) Unlock(filePath string, owner string) error {
 	return a.manager.UnlockByPath(filePath, owner)
 }
 
-// IsLocked 检查文件是否被锁定
+// IsLocked 检查文件是否被锁定.
 func (a *SMBLockAdapter) IsLocked(filePath string) bool {
 	return a.manager.IsLocked(filePath)
 }
 
-// GetLockOwner 获取锁持有者
+// GetLockOwner 获取锁持有者.
 func (a *SMBLockAdapter) GetLockOwner(filePath string) (string, error) {
 	info, err := a.manager.GetLockByPath(filePath)
 	if err != nil {
@@ -667,17 +667,17 @@ func (a *SMBLockAdapter) GetLockOwner(filePath string) (string, error) {
 	return info.Owner, nil
 }
 
-// NFSLockAdapter NFS 锁适配器
+// NFSLockAdapter NFS 锁适配器.
 type NFSLockAdapter struct {
 	manager *Manager
 }
 
-// NewNFSLockAdapter 创建 NFS 锁适配器
+// NewNFSLockAdapter 创建 NFS 锁适配器.
 func NewNFSLockAdapter(manager *Manager) *NFSLockAdapter {
 	return &NFSLockAdapter{manager: manager}
 }
 
-// Lock 锁定文件
+// Lock 锁定文件.
 func (a *NFSLockAdapter) Lock(filePath string, owner string, exclusive bool) error {
 	lockType := LockTypeShared
 	if exclusive {
@@ -695,17 +695,17 @@ func (a *NFSLockAdapter) Lock(filePath string, owner string, exclusive bool) err
 	return err
 }
 
-// Unlock 解锁文件
+// Unlock 解锁文件.
 func (a *NFSLockAdapter) Unlock(filePath string, owner string) error {
 	return a.manager.UnlockByPath(filePath, owner)
 }
 
-// IsLocked 检查文件是否被锁定
+// IsLocked 检查文件是否被锁定.
 func (a *NFSLockAdapter) IsLocked(filePath string) bool {
 	return a.manager.IsLocked(filePath)
 }
 
-// GetLockOwner 获取锁持有者
+// GetLockOwner 获取锁持有者.
 func (a *NFSLockAdapter) GetLockOwner(filePath string) (string, error) {
 	info, err := a.manager.GetLockByPath(filePath)
 	if err != nil {

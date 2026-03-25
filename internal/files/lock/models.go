@@ -8,15 +8,15 @@ import (
 
 // ========== 锁类型定义 ==========
 
-// LockType 锁类型
+// LockType 锁类型.
 type LockType int
 
 const (
 	// LockTypeShared 共享锁（读锁）- 多个用户可同时持有
-	// 适用场景：多人同时阅读文档
+	// 适用场景：多人同时阅读文档.
 	LockTypeShared LockType = iota
 	// LockTypeExclusive 独占锁（写锁）- 只有一个用户可持有
-	// 适用场景：编辑文档时防止冲突
+	// 适用场景：编辑文档时防止冲突.
 	LockTypeExclusive
 )
 
@@ -31,7 +31,7 @@ func (lt LockType) String() string {
 	}
 }
 
-// ParseLockType 解析锁类型字符串
+// ParseLockType 解析锁类型字符串.
 func ParseLockType(s string) LockType {
 	switch s {
 	case "shared", "Shared", "r", "read":
@@ -45,19 +45,19 @@ func ParseLockType(s string) LockType {
 
 // ========== 锁状态定义 ==========
 
-// LockStatus 锁状态
+// LockStatus 锁状态.
 type LockStatus int
 
 const (
-	// LockStatusActive 锁活跃状态
+	// LockStatusActive 锁活跃状态.
 	LockStatusActive LockStatus = iota
-	// LockStatusExpired 锁已过期
+	// LockStatusExpired 锁已过期.
 	LockStatusExpired
-	// LockStatusReleased 锁已释放
+	// LockStatusReleased 锁已释放.
 	LockStatusReleased
-	// LockStatusPending 等待中（锁升级/降级）
+	// LockStatusPending 等待中（锁升级/降级）.
 	LockStatusPending
-	// LockStatusConflict 冲突状态
+	// LockStatusConflict 冲突状态.
 	LockStatusConflict
 )
 
@@ -80,17 +80,17 @@ func (ls LockStatus) String() string {
 
 // ========== 锁模式定义（参考群晖 Drive）==========
 
-// LockMode 锁模式
+// LockMode 锁模式.
 type LockMode int
 
 const (
-	// LockModeManual 手动锁 - 用户显式锁定
+	// LockModeManual 手动锁 - 用户显式锁定.
 	LockModeManual LockMode = iota
-	// LockModeAuto 自动锁 - 打开文件时自动锁定
+	// LockModeAuto 自动锁 - 打开文件时自动锁定.
 	LockModeAuto
-	// LockModeAdvisory 建议锁 - 软锁定，仅提示
+	// LockModeAdvisory 建议锁 - 软锁定，仅提示.
 	LockModeAdvisory
-	// LockModeMandatory 强制锁 - 系统强制锁定
+	// LockModeMandatory 强制锁 - 系统强制锁定.
 	LockModeMandatory
 )
 
@@ -111,19 +111,19 @@ func (lm LockMode) String() string {
 
 // ========== 锁冲突策略 ==========
 
-// ConflictStrategy 冲突解决策略
+// ConflictStrategy 冲突解决策略.
 type ConflictStrategy int
 
 const (
-	// ConflictStrategyReject 拒绝新锁请求
+	// ConflictStrategyReject 拒绝新锁请求.
 	ConflictStrategyReject ConflictStrategy = iota
-	// ConflictStrategyWait 等待现有锁释放
+	// ConflictStrategyWait 等待现有锁释放.
 	ConflictStrategyWait
-	// ConflictStrategyPreempt 抢占（强制释放现有锁）
+	// ConflictStrategyPreempt 抢占（强制释放现有锁）.
 	ConflictStrategyPreempt
-	// ConflictStrategyDowngrade 降级（独占锁降为共享锁）
+	// ConflictStrategyDowngrade 降级（独占锁降为共享锁）.
 	ConflictStrategyDowngrade
-	// ConflictStrategyNotify 通知现有锁持有者
+	// ConflictStrategyNotify 通知现有锁持有者.
 	ConflictStrategyNotify
 )
 
@@ -146,50 +146,50 @@ func (cs ConflictStrategy) String() string {
 
 // ========== 锁优先级 ==========
 
-// LockPriority 锁优先级
+// LockPriority 锁优先级.
 type LockPriority int
 
 const (
-	// PriorityLow 低优先级 - 可被抢占
+	// PriorityLow 低优先级 - 可被抢占.
 	PriorityLow LockPriority = iota
-	// PriorityNormal 正常优先级
+	// PriorityNormal 正常优先级.
 	PriorityNormal
-	// PriorityHigh 高优先级 - 管理员操作
+	// PriorityHigh 高优先级 - 管理员操作.
 	PriorityHigh
-	// PriorityCritical 关键优先级 - 系统操作
+	// PriorityCritical 关键优先级 - 系统操作.
 	PriorityCritical
 )
 
 // ========== 错误定义 ==========
 
 var (
-	// ErrLockNotFound 锁不存在
+	// ErrLockNotFound 锁不存在.
 	ErrLockNotFound = errors.New("lock not found")
-	// ErrLockConflict 锁冲突
+	// ErrLockConflict 锁冲突.
 	ErrLockConflict = errors.New("lock conflict")
-	// ErrLockExpired 锁已过期
+	// ErrLockExpired 锁已过期.
 	ErrLockExpired = errors.New("lock expired")
-	// ErrNotLockOwner 不是锁的持有者
+	// ErrNotLockOwner 不是锁的持有者.
 	ErrNotLockOwner = errors.New("not lock owner")
-	// ErrInvalidLockType 无效的锁类型
+	// ErrInvalidLockType 无效的锁类型.
 	ErrInvalidLockType = errors.New("invalid lock type")
-	// ErrFileAlreadyLocked 文件已被锁定
+	// ErrFileAlreadyLocked 文件已被锁定.
 	ErrFileAlreadyLocked = errors.New("file already locked")
-	// ErrLockUpgradeFailed 锁升级失败
+	// ErrLockUpgradeFailed 锁升级失败.
 	ErrLockUpgradeFailed = errors.New("lock upgrade failed")
-	// ErrLockDowngradeFailed 锁降级失败
+	// ErrLockDowngradeFailed 锁降级失败.
 	ErrLockDowngradeFailed = errors.New("lock downgrade failed")
-	// ErrMaxLocksExceeded 超过最大锁数量
+	// ErrMaxLocksExceeded 超过最大锁数量.
 	ErrMaxLocksExceeded = errors.New("max locks exceeded")
-	// ErrLockTimeout 锁等待超时
+	// ErrLockTimeout 锁等待超时.
 	ErrLockTimeout = errors.New("lock wait timeout")
-	// ErrInvalidOperation 无效操作
+	// ErrInvalidOperation 无效操作.
 	ErrInvalidOperation = errors.New("invalid operation")
 )
 
 // ========== 文件锁模型 ==========
 
-// FileLock 文件锁（参考群晖 DSM Drive 设计）
+// FileLock 文件锁（参考群晖 DSM Drive 设计）.
 type FileLock struct {
 	// ========== 基本信息 ==========
 	// ID 锁的唯一标识（UUID）
@@ -261,35 +261,35 @@ type FileLock struct {
 	mu sync.RWMutex
 }
 
-// IsExpired 检查锁是否已过期
+// IsExpired 检查锁是否已过期.
 func (fl *FileLock) IsExpired() bool {
 	fl.mu.RLock()
 	defer fl.mu.RUnlock()
 	return time.Now().After(fl.ExpiresAt)
 }
 
-// IsOwnedBy 检查是否由指定用户持有
+// IsOwnedBy 检查是否由指定用户持有.
 func (fl *FileLock) IsOwnedBy(owner string) bool {
 	fl.mu.RLock()
 	defer fl.mu.RUnlock()
 	return fl.Owner == owner
 }
 
-// IsOwnedByClient 检查是否由指定客户端持有
+// IsOwnedByClient 检查是否由指定客户端持有.
 func (fl *FileLock) IsOwnedByClient(owner, clientID string) bool {
 	fl.mu.RLock()
 	defer fl.mu.RUnlock()
 	return fl.Owner == owner && fl.ClientID == clientID
 }
 
-// Refresh 刷新锁的访问时间
+// Refresh 刷新锁的访问时间.
 func (fl *FileLock) Refresh() {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
 	fl.LastAccessed = time.Now()
 }
 
-// Extend 延长锁的有效期
+// Extend 延长锁的有效期.
 func (fl *FileLock) Extend(duration time.Duration) {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
@@ -300,7 +300,7 @@ func (fl *FileLock) Extend(duration time.Duration) {
 	fl.Version++ // 版本增加
 }
 
-// Release 释放锁
+// Release 释放锁.
 func (fl *FileLock) Release() {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
@@ -308,7 +308,7 @@ func (fl *FileLock) Release() {
 	fl.Version++
 }
 
-// Upgrade 升级锁（共享锁 -> 独占锁）
+// Upgrade 升级锁（共享锁 -> 独占锁）.
 func (fl *FileLock) Upgrade() error {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
@@ -331,7 +331,7 @@ func (fl *FileLock) Upgrade() error {
 	return nil
 }
 
-// Downgrade 降级锁（独占锁 -> 共享锁）
+// Downgrade 降级锁（独占锁 -> 共享锁）.
 func (fl *FileLock) Downgrade() {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
@@ -344,7 +344,7 @@ func (fl *FileLock) Downgrade() {
 	fl.Version++
 }
 
-// AddSharedOwner 添加共享锁持有者
+// AddSharedOwner 添加共享锁持有者.
 func (fl *FileLock) AddSharedOwner(owner *SharedOwner) {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
@@ -364,7 +364,7 @@ func (fl *FileLock) AddSharedOwner(owner *SharedOwner) {
 	fl.Version++
 }
 
-// RemoveSharedOwner 移除共享锁持有者
+// RemoveSharedOwner 移除共享锁持有者.
 func (fl *FileLock) RemoveSharedOwner(ownerID string) {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
@@ -380,7 +380,7 @@ func (fl *FileLock) RemoveSharedOwner(ownerID string) {
 
 // ========== 共享锁持有者 ==========
 
-// SharedOwner 共享锁持有者信息
+// SharedOwner 共享锁持有者信息.
 type SharedOwner struct {
 	Owner      string    `json:"owner"`
 	OwnerName  string    `json:"ownerName,omitempty"`
@@ -392,7 +392,7 @@ type SharedOwner struct {
 
 // ========== 锁等待请求 ==========
 
-// LockWaitRequest 锁等待请求
+// LockWaitRequest 锁等待请求.
 type LockWaitRequest struct {
 	ID          string         `json:"id"`
 	FilePath    string         `json:"filePath"`
@@ -410,7 +410,7 @@ type LockWaitRequest struct {
 
 // ========== 锁信息（API响应）==========
 
-// LockInfo 锁信息（用于API响应）
+// LockInfo 锁信息（用于API响应）.
 type LockInfo struct {
 	ID            string            `json:"id"`
 	FilePath      string            `json:"filePath"`
@@ -441,7 +441,7 @@ type LockInfo struct {
 	AppName       string            `json:"appName,omitempty"`
 }
 
-// ToInfo 转换为LockInfo
+// ToInfo 转换为LockInfo.
 func (fl *FileLock) ToInfo() *LockInfo {
 	fl.mu.RLock()
 	defer fl.mu.RUnlock()
@@ -505,7 +505,7 @@ func priorityToString(p LockPriority) string {
 
 // ========== 锁请求 ==========
 
-// LockRequest 锁请求
+// LockRequest 锁请求.
 type LockRequest struct {
 	// FilePath 文件路径
 	FilePath string `json:"filePath" binding:"required"`
@@ -547,7 +547,7 @@ type LockRequest struct {
 
 // ========== 锁冲突信息 ==========
 
-// LockConflict 锁冲突信息
+// LockConflict 锁冲突信息.
 type LockConflict struct {
 	// ConflictType 冲突类型
 	ConflictType ConflictType `json:"conflictType"`
@@ -565,25 +565,25 @@ type LockConflict struct {
 	EstimatedWait int64 `json:"estimatedWait,omitempty"`
 }
 
-// ConflictType 冲突类型
+// ConflictType 冲突类型.
 type ConflictType string
 
 const (
-	// ConflictTypeExclusive 独占锁冲突
+	// ConflictTypeExclusive 独占锁冲突.
 	ConflictTypeExclusive ConflictType = "exclusive"
-	// ConflictTypeShared 共享锁冲突
+	// ConflictTypeShared 共享锁冲突.
 	ConflictTypeShared ConflictType = "shared"
-	// ConflictTypeOwner 同一用户冲突
+	// ConflictTypeOwner 同一用户冲突.
 	ConflictTypeOwner ConflictType = "owner"
-	// ConflictTypeTimeout 超时冲突
+	// ConflictTypeTimeout 超时冲突.
 	ConflictTypeTimeout ConflictType = "timeout"
-	// ConflictTypePermission 权限冲突
+	// ConflictTypePermission 权限冲突.
 	ConflictTypePermission ConflictType = "permission"
 )
 
 // ========== 锁配置 ==========
 
-// FileLockConfig 锁配置
+// FileLockConfig 锁配置.
 type FileLockConfig struct {
 	// DefaultTimeout 默认锁超时时间
 	DefaultTimeout time.Duration `json:"defaultTimeout"`
@@ -613,7 +613,7 @@ type FileLockConfig struct {
 	PreemptionTimeout time.Duration `json:"preemptionTimeout"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() FileLockConfig {
 	return FileLockConfig{
 		DefaultTimeout:          30 * time.Minute,
@@ -634,37 +634,37 @@ func DefaultConfig() FileLockConfig {
 
 // ========== 审计事件类型 ==========
 
-// LockAuditEvent 锁审计事件类型
+// LockAuditEvent 锁审计事件类型.
 type LockAuditEvent string
 
 const (
-	// AuditEventLockAcquired 锁获取成功
+	// AuditEventLockAcquired 锁获取成功.
 	AuditEventLockAcquired LockAuditEvent = "lock_acquired"
-	// AuditEventLockReleased 锁释放
+	// AuditEventLockReleased 锁释放.
 	AuditEventLockReleased LockAuditEvent = "lock_released"
-	// AuditEventLockExpired 锁过期
+	// AuditEventLockExpired 锁过期.
 	AuditEventLockExpired LockAuditEvent = "lock_expired"
-	// AuditEventLockExtended 锁续期
+	// AuditEventLockExtended 锁续期.
 	AuditEventLockExtended LockAuditEvent = "lock_extended"
-	// AuditEventLockUpgraded 锁升级
+	// AuditEventLockUpgraded 锁升级.
 	AuditEventLockUpgraded LockAuditEvent = "lock_upgraded"
-	// AuditEventLockDowngraded 锁降级
+	// AuditEventLockDowngraded 锁降级.
 	AuditEventLockDowngraded LockAuditEvent = "lock_downgraded"
-	// AuditEventLockConflict 锁冲突
+	// AuditEventLockConflict 锁冲突.
 	AuditEventLockConflict LockAuditEvent = "lock_conflict"
-	// AuditEventLockPreempted 锁被抢占
+	// AuditEventLockPreempted 锁被抢占.
 	AuditEventLockPreempted LockAuditEvent = "lock_preempted"
-	// AuditEventLockForceReleased 强制释放
+	// AuditEventLockForceReleased 强制释放.
 	AuditEventLockForceReleased LockAuditEvent = "lock_force_released"
-	// AuditEventWaitQueued 加入等待队列
+	// AuditEventWaitQueued 加入等待队列.
 	AuditEventWaitQueued LockAuditEvent = "wait_queued"
-	// AuditEventWaitTimeout 等待超时
+	// AuditEventWaitTimeout 等待超时.
 	AuditEventWaitTimeout LockAuditEvent = "wait_timeout"
 )
 
 // ========== 锁审计日志条目 ==========
 
-// LockAuditEntry 锁审计日志条目
+// LockAuditEntry 锁审计日志条目.
 type LockAuditEntry struct {
 	ID           string                 `json:"id"`
 	Timestamp    time.Time              `json:"timestamp"`
@@ -685,7 +685,7 @@ type LockAuditEntry struct {
 
 // ========== 协议锁适配器接口 ==========
 
-// ProtocolLockAdapter 协议锁适配器接口（用于与 SMB/NFS 集成）
+// ProtocolLockAdapter 协议锁适配器接口（用于与 SMB/NFS 集成）.
 type ProtocolLockAdapter interface {
 	// Lock 锁定文件
 	Lock(filePath string, owner string, exclusive bool) error

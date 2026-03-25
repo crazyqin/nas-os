@@ -12,7 +12,7 @@ import (
 
 // ========== 增强版存储成本分析报告 ==========
 
-// EnhancedStorageReport 增强版存储成本分析报告
+// EnhancedStorageReport 增强版存储成本分析报告.
 type EnhancedStorageReport struct {
 	ID               string               `json:"id"`
 	GeneratedAt      time.Time            `json:"generated_at"`
@@ -29,7 +29,7 @@ type EnhancedStorageReport struct {
 	ExportFormats    []string             `json:"available_export_formats"`
 }
 
-// EnhancedCostSummary 增强版成本摘要
+// EnhancedCostSummary 增强版成本摘要.
 type EnhancedCostSummary struct {
 	TotalCost             float64 `json:"total_cost"`
 	StorageCost           float64 `json:"storage_cost"`
@@ -51,7 +51,7 @@ type EnhancedCostSummary struct {
 	ReportConfidence      float64 `json:"report_confidence"` // 报告置信度 0-1
 }
 
-// CostDistribution 成本分布
+// CostDistribution 成本分布.
 type CostDistribution struct {
 	ByStorageType  []StorageTypeCost `json:"by_storage_type"`
 	ByUser         []UserCostDist    `json:"by_user"`
@@ -61,7 +61,7 @@ type CostDistribution struct {
 	TopCostDrivers []CostDriver      `json:"top_cost_drivers"`
 }
 
-// StorageTypeCost 按存储类型的成本
+// StorageTypeCost 按存储类型的成本.
 type StorageTypeCost struct {
 	StorageType    string  `json:"storage_type"` // ssd, hdd, archive
 	TotalCost      float64 `json:"total_cost"`
@@ -71,7 +71,7 @@ type StorageTypeCost struct {
 	CostEfficiency float64 `json:"cost_efficiency"`
 }
 
-// UserCostDist 用户成本分布
+// UserCostDist 用户成本分布.
 type UserCostDist struct {
 	UserID      string  `json:"user_id"`
 	UserName    string  `json:"user_name"`
@@ -83,7 +83,7 @@ type UserCostDist struct {
 	Trend       string  `json:"trend"` // up, down, stable
 }
 
-// PoolCostDist 存储池成本分布
+// PoolCostDist 存储池成本分布.
 type PoolCostDist struct {
 	PoolID      string  `json:"pool_id"`
 	PoolName    string  `json:"pool_name"`
@@ -95,7 +95,7 @@ type PoolCostDist struct {
 	Health      string  `json:"health"` // good, warning, critical
 }
 
-// HourlyCost 每小时成本
+// HourlyCost 每小时成本.
 type HourlyCost struct {
 	Hour    int     `json:"hour"`
 	AvgCost float64 `json:"avg_cost"`
@@ -103,14 +103,14 @@ type HourlyCost struct {
 	MinCost float64 `json:"min_cost"`
 }
 
-// DailyCost 每日成本
+// DailyCost 每日成本.
 type DailyCost struct {
 	DayOfWeek string  `json:"day_of_week"` // Monday, Tuesday, etc.
 	AvgCost   float64 `json:"avg_cost"`
 	MaxCost   float64 `json:"max_cost"`
 }
 
-// CostDriver 成本驱动因素
+// CostDriver 成本驱动因素.
 type CostDriver struct {
 	Factor        string  `json:"factor"`
 	Description   string  `json:"description"`
@@ -119,7 +119,7 @@ type CostDriver struct {
 	Controllable  bool    `json:"controllable"`
 }
 
-// AnomalyDetection 异常检测
+// AnomalyDetection 异常检测.
 type AnomalyDetection struct {
 	HasAnomalies    bool              `json:"has_anomalies"`
 	AnomalyCount    int               `json:"anomaly_count"`
@@ -130,7 +130,7 @@ type AnomalyDetection struct {
 	Statistics      AnomalyStatistics `json:"statistics"`
 }
 
-// CostAnomaly 成本异常
+// CostAnomaly 成本异常.
 type CostAnomaly struct {
 	ID             string     `json:"id"`
 	DetectedAt     time.Time  `json:"detected_at"`
@@ -149,7 +149,7 @@ type CostAnomaly struct {
 	ResolvedAt     *time.Time `json:"resolved_at,omitempty"`
 }
 
-// AnomalyStatistics 异常统计
+// AnomalyStatistics 异常统计.
 type AnomalyStatistics struct {
 	Mean            float64 `json:"mean"`
 	StdDev          float64 `json:"std_dev"`
@@ -159,7 +159,7 @@ type AnomalyStatistics struct {
 	ZScoreThreshold float64 `json:"z_score_threshold"`
 }
 
-// PeriodComparison 周期对比
+// PeriodComparison 周期对比.
 type PeriodComparison struct {
 	CurrentPeriod  PeriodCostDetail  `json:"current_period"`
 	PreviousPeriod PeriodCostDetail  `json:"previous_period"`
@@ -167,7 +167,7 @@ type PeriodComparison struct {
 	ChangeAnalysis ChangeAnalysis    `json:"change_analysis"`
 }
 
-// PeriodCostDetail 周期成本详情
+// PeriodCostDetail 周期成本详情.
 type PeriodCostDetail struct {
 	PeriodStart     time.Time `json:"period_start"`
 	PeriodEnd       time.Time `json:"period_end"`
@@ -181,7 +181,7 @@ type PeriodCostDetail struct {
 	PoolCount       int       `json:"pool_count"`
 }
 
-// ChangeAnalysis 变化分析
+// ChangeAnalysis 变化分析.
 type ChangeAnalysis struct {
 	TotalCostChange        float64        `json:"total_cost_change"`
 	TotalCostChangePercent float64        `json:"total_cost_change_percent"`
@@ -193,7 +193,7 @@ type ChangeAnalysis struct {
 	KeyFactors             []ChangeFactor `json:"key_factors"`
 }
 
-// ChangeFactor 变化因素
+// ChangeFactor 变化因素.
 type ChangeFactor struct {
 	Factor      string  `json:"factor"`
 	Description string  `json:"description"`
@@ -201,7 +201,7 @@ type ChangeFactor struct {
 	Direction   string  `json:"direction"` // increase, decrease
 }
 
-// TrendAnalysis 趋势分析
+// TrendAnalysis 趋势分析.
 type TrendAnalysis struct {
 	OverallTrend      string            `json:"overall_trend"`  // increasing, decreasing, stable
 	TrendStrength     float64           `json:"trend_strength"` // 0-1
@@ -211,7 +211,7 @@ type TrendAnalysis struct {
 	Seasonality       SeasonalityInfo   `json:"seasonality"`
 }
 
-// DailyTrendData 每日趋势数据
+// DailyTrendData 每日趋势数据.
 type DailyTrendData struct {
 	Date          time.Time `json:"date"`
 	TotalCost     float64   `json:"total_cost"`
@@ -224,7 +224,7 @@ type DailyTrendData struct {
 	IsAnomaly     bool      `json:"is_anomaly"`
 }
 
-// WeeklyPattern 周模式
+// WeeklyPattern 周模式.
 type WeeklyPattern struct {
 	PeakDay      string  `json:"peak_day"`
 	LowDay       string  `json:"low_day"`
@@ -232,7 +232,7 @@ type WeeklyPattern struct {
 	IsConsistent bool    `json:"is_consistent"`
 }
 
-// MonthlyProjection 月度预测
+// MonthlyProjection 月度预测.
 type MonthlyProjection struct {
 	ProjectedCost    float64  `json:"projected_cost"`
 	ConfidenceLevel  float64  `json:"confidence_level"`
@@ -242,7 +242,7 @@ type MonthlyProjection struct {
 	KeyAssumptions   []string `json:"key_assumptions"`
 }
 
-// SeasonalityInfo 季节性信息
+// SeasonalityInfo 季节性信息.
 type SeasonalityInfo struct {
 	HasSeasonality bool     `json:"has_seasonality"`
 	PeakMonths     []string `json:"peak_months,omitempty"`
@@ -250,7 +250,7 @@ type SeasonalityInfo struct {
 	SeasonalFactor float64  `json:"seasonal_factor"`
 }
 
-// PoolCostBreakdown 存储池成本分解
+// PoolCostBreakdown 存储池成本分解.
 type PoolCostBreakdown struct {
 	PoolID          string          `json:"pool_id"`
 	PoolName        string          `json:"pool_name"`
@@ -270,7 +270,7 @@ type PoolCostBreakdown struct {
 	Recommendation  string          `json:"recommendation,omitempty"`
 }
 
-// TopUserInPool 存储池中用量最大的用户
+// TopUserInPool 存储池中用量最大的用户.
 type TopUserInPool struct {
 	UserID     string  `json:"user_id"`
 	UserName   string  `json:"user_name"`
@@ -279,7 +279,7 @@ type TopUserInPool struct {
 	Percentage float64 `json:"percentage"`
 }
 
-// UserCostBreakdown 用户成本分解
+// UserCostBreakdown 用户成本分解.
 type UserCostBreakdown struct {
 	UserID           string          `json:"user_id"`
 	UserName         string          `json:"user_name"`
@@ -298,7 +298,7 @@ type UserCostBreakdown struct {
 	Recommendation   string          `json:"recommendation,omitempty"`
 }
 
-// PoolUsage 存储池使用情况
+// PoolUsage 存储池使用情况.
 type PoolUsage struct {
 	PoolID   string  `json:"pool_id"`
 	PoolName string  `json:"pool_name"`
@@ -306,7 +306,7 @@ type PoolUsage struct {
 	Cost     float64 `json:"cost"`
 }
 
-// DailyUserCost 用户每日成本
+// DailyUserCost 用户每日成本.
 type DailyUserCost struct {
 	Date      time.Time `json:"date"`
 	Cost      float64   `json:"cost"`
@@ -315,7 +315,7 @@ type DailyUserCost struct {
 
 // ========== 增强版成本分析引擎方法 ==========
 
-// GenerateEnhancedStorageReport 生成增强版存储成本分析报告
+// GenerateEnhancedStorageReport 生成增强版存储成本分析报告.
 func (e *CostAnalysisEngine) GenerateEnhancedStorageReport(days int) (*EnhancedStorageReport, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -361,7 +361,7 @@ func (e *CostAnalysisEngine) GenerateEnhancedStorageReport(days int) (*EnhancedS
 	return report, nil
 }
 
-// generateEnhancedSummary 生成增强摘要
+// generateEnhancedSummary 生成增强摘要.
 func (e *CostAnalysisEngine) generateEnhancedSummary(start, end time.Time) EnhancedCostSummary {
 	summary := EnhancedCostSummary{
 		Currency:         e.config.DefaultCurrency,
@@ -407,7 +407,7 @@ func (e *CostAnalysisEngine) generateEnhancedSummary(start, end time.Time) Enhan
 	return summary
 }
 
-// generateCostDistribution 生成成本分布
+// generateCostDistribution 生成成本分布.
 func (e *CostAnalysisEngine) generateCostDistribution(start, end time.Time) CostDistribution {
 	dist := CostDistribution{
 		ByStorageType:  make([]StorageTypeCost, 0),
@@ -501,7 +501,7 @@ func (e *CostAnalysisEngine) generateCostDistribution(start, end time.Time) Cost
 	return dist
 }
 
-// detectAnomalies 检测异常
+// detectAnomalies 检测异常.
 func (e *CostAnalysisEngine) detectAnomalies(start, end time.Time) AnomalyDetection {
 	detection := AnomalyDetection{
 		HasAnomalies:    false,
@@ -548,7 +548,7 @@ func (e *CostAnalysisEngine) detectAnomalies(start, end time.Time) AnomalyDetect
 	return detection
 }
 
-// generatePeriodComparison 生成周期对比
+// generatePeriodComparison 生成周期对比.
 func (e *CostAnalysisEngine) generatePeriodComparison(days int) PeriodComparison {
 	now := time.Now()
 
@@ -606,7 +606,7 @@ func (e *CostAnalysisEngine) generatePeriodComparison(days int) PeriodComparison
 	return comparison
 }
 
-// generateTrendAnalysis 生成趋势分析
+// generateTrendAnalysis 生成趋势分析.
 func (e *CostAnalysisEngine) generateTrendAnalysis(start, end time.Time) TrendAnalysis {
 	analysis := TrendAnalysis{
 		OverallTrend:  "stable",
@@ -659,7 +659,7 @@ func (e *CostAnalysisEngine) generateTrendAnalysis(start, end time.Time) TrendAn
 	return analysis
 }
 
-// generatePoolBreakdown 生成存储池分解
+// generatePoolBreakdown 生成存储池分解.
 func (e *CostAnalysisEngine) generatePoolBreakdown() []PoolCostBreakdown {
 	breakdown := make([]PoolCostBreakdown, 0)
 
@@ -729,7 +729,7 @@ func (e *CostAnalysisEngine) generatePoolBreakdown() []PoolCostBreakdown {
 	return breakdown
 }
 
-// generateUserBreakdown 生成用户分解
+// generateUserBreakdown 生成用户分解.
 func (e *CostAnalysisEngine) generateUserBreakdown() []UserCostBreakdown {
 	breakdown := make([]UserCostBreakdown, 0)
 
@@ -788,7 +788,7 @@ func (e *CostAnalysisEngine) generateUserBreakdown() []UserCostBreakdown {
 	return breakdown
 }
 
-// generateEnhancedRecommendations 生成增强版建议
+// generateEnhancedRecommendations 生成增强版建议.
 func (e *CostAnalysisEngine) generateEnhancedRecommendations(report *EnhancedStorageReport) []CostRecommendation {
 	recommendations := make([]CostRecommendation, 0)
 
@@ -850,7 +850,7 @@ func (e *CostAnalysisEngine) generateEnhancedRecommendations(report *EnhancedSto
 	return recommendations
 }
 
-// calculateOverallEfficiencyScore 计算整体效率评分
+// calculateOverallEfficiencyScore 计算整体效率评分.
 func (e *CostAnalysisEngine) calculateOverallEfficiencyScore(summary EnhancedCostSummary) float64 {
 	score := 100.0
 
@@ -878,7 +878,7 @@ func (e *CostAnalysisEngine) calculateOverallEfficiencyScore(summary EnhancedCos
 
 // ========== 报告持久化 ==========
 
-// SaveReport 保存报告
+// SaveReport 保存报告.
 func (e *CostAnalysisEngine) SaveReport(report *EnhancedStorageReport) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -896,7 +896,7 @@ func (e *CostAnalysisEngine) SaveReport(report *EnhancedStorageReport) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// LoadReport 加载报告
+// LoadReport 加载报告.
 func (e *CostAnalysisEngine) LoadReport(id string) (*EnhancedStorageReport, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -915,7 +915,7 @@ func (e *CostAnalysisEngine) LoadReport(id string) (*EnhancedStorageReport, erro
 	return &report, nil
 }
 
-// ListSavedReports 列出已保存的报告
+// ListSavedReports 列出已保存的报告.
 func (e *CostAnalysisEngine) ListSavedReports() ([]string, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -938,7 +938,7 @@ func (e *CostAnalysisEngine) ListSavedReports() ([]string, error) {
 
 // ========== 异常管理 ==========
 
-// ResolveAnomaly 解决异常
+// ResolveAnomaly 解决异常.
 func (e *CostAnalysisEngine) ResolveAnomaly(reportID, anomalyID, resolution string) error {
 	report, err := e.LoadReport(reportID)
 	if err != nil {
@@ -958,7 +958,7 @@ func (e *CostAnalysisEngine) ResolveAnomaly(reportID, anomalyID, resolution stri
 	return fmt.Errorf("异常不存在: %s", anomalyID)
 }
 
-// IgnoreAnomaly 忽略异常
+// IgnoreAnomaly 忽略异常.
 func (e *CostAnalysisEngine) IgnoreAnomaly(reportID, anomalyID string) error {
 	report, err := e.LoadReport(reportID)
 	if err != nil {

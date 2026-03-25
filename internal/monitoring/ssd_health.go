@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// SSDHealth SSD 健康状态
+// SSDHealth SSD 健康状态.
 type SSDHealth struct {
 	Device             string                `json:"device"`
 	Model              string                `json:"model"`
@@ -37,10 +37,10 @@ type SSDHealth struct {
 	SMARTAttributes    map[string]*SMARTAttr `json:"smartAttributes,omitempty"` // 原始 SMART 属性
 }
 
-// SSDStatus SSD 状态
+// SSDStatus SSD 状态.
 type SSDStatus string
 
-// SSD 状态常量
+// SSD 状态常量.
 const (
 	SSDStatusHealthy   SSDStatus = "healthy"   // 健康
 	SSDStatusWarning   SSDStatus = "warning"   // 警告
@@ -50,10 +50,10 @@ const (
 	SSDStatusOffline   SSDStatus = "offline"   // 离线
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
-// 告警级别常量
+// 告警级别常量.
 const (
 	AlertLevelNone      AlertLevel = "none"      // 无告警
 	AlertLevelWarning   AlertLevel = "warning"   // 80% 预警
@@ -61,7 +61,7 @@ const (
 	AlertLevelEmergency AlertLevel = "emergency" // 95% 紧急
 )
 
-// PredictedLife 预测寿命
+// PredictedLife 预测寿命.
 type PredictedLife struct {
 	RemainingDays    int       `json:"remainingDays"`    // 预计剩余天数
 	EstimatedEndDate time.Time `json:"estimatedEndDate"` // 预计失效日期
@@ -70,7 +70,7 @@ type PredictedLife struct {
 	Method           string    `json:"method"`           // 预测方法
 }
 
-// SMARTAttr SMART 属性
+// SMARTAttr SMART 属性.
 type SMARTAttr struct {
 	ID          uint   `json:"id"`
 	Name        string `json:"name"`
@@ -80,7 +80,7 @@ type SMARTAttr struct {
 	Description string `json:"description"` // 描述
 }
 
-// SSDHealthMonitor SSD 健康监控器
+// SSDHealthMonitor SSD 健康监控器.
 type SSDHealthMonitor struct {
 	ssds           map[string]*SSDHealth
 	history        map[string][]*SSDHealthHistory
@@ -90,7 +90,7 @@ type SSDHealthMonitor struct {
 	stopChan       chan struct{}
 }
 
-// SSDMonitorConfig 监控配置
+// SSDMonitorConfig 监控配置.
 type SSDMonitorConfig struct {
 	CheckInterval      time.Duration `json:"checkInterval"`      // 检查间隔
 	HistoryRetention   int           `json:"historyRetention"`   // 历史保留天数
@@ -100,7 +100,7 @@ type SSDMonitorConfig struct {
 	EmergencyThreshold float64       `json:"emergencyThreshold"` // 紧急阈值 (默认 95%)
 }
 
-// DefaultSSDMonitorConfig 默认配置
+// DefaultSSDMonitorConfig 默认配置.
 var DefaultSSDMonitorConfig = &SSDMonitorConfig{
 	CheckInterval:      30 * time.Minute,
 	HistoryRetention:   30,
@@ -110,7 +110,7 @@ var DefaultSSDMonitorConfig = &SSDMonitorConfig{
 	EmergencyThreshold: 95, // 95% 寿命已用
 }
 
-// SSDHealthHistory 历史数据
+// SSDHealthHistory 历史数据.
 type SSDHealthHistory struct {
 	Timestamp       time.Time `json:"timestamp"`
 	HealthPercent   float64   `json:"healthPercent"`
@@ -119,7 +119,7 @@ type SSDHealthHistory struct {
 	Temperature     int       `json:"temperature"`
 }
 
-// SSDHealthAlert SSD 健康告警
+// SSDHealthAlert SSD 健康告警.
 type SSDHealthAlert struct {
 	Device       string     `json:"device"`
 	AlertLevel   AlertLevel `json:"alertLevel"`
@@ -129,7 +129,7 @@ type SSDHealthAlert struct {
 	Acknowledged bool       `json:"acknowledged"`
 }
 
-// NewSSDHealthMonitor 创建 SSD 健康监控器
+// NewSSDHealthMonitor 创建 SSD 健康监控器.
 func NewSSDHealthMonitor(config *SSDMonitorConfig) *SSDHealthMonitor {
 	if config == nil {
 		config = DefaultSSDMonitorConfig
@@ -152,14 +152,14 @@ func NewSSDHealthMonitor(config *SSDMonitorConfig) *SSDHealthMonitor {
 	return m
 }
 
-// RegisterAlertCallback 注册告警回调
+// RegisterAlertCallback 注册告警回调.
 func (m *SSDHealthMonitor) RegisterAlertCallback(callback func(*SSDHealthAlert)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.alertCallbacks = append(m.alertCallbacks, callback)
 }
 
-// ScanSSDs 扫描 SSD 设备
+// ScanSSDs 扫描 SSD 设备.
 func (m *SSDHealthMonitor) ScanSSDs() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -223,7 +223,7 @@ func (m *SSDHealthMonitor) ScanSSDs() error {
 	return nil
 }
 
-// getSSDHealth 获取 SSD 健康信息
+// getSSDHealth 获取 SSD 健康信息.
 func (m *SSDHealthMonitor) getSSDHealth(device string) (*SSDHealth, error) {
 	// 检查 smartctl
 	if _, err := exec.LookPath("smartctl"); err != nil {
@@ -261,7 +261,7 @@ func (m *SSDHealthMonitor) getSSDHealth(device string) (*SSDHealth, error) {
 	return health, nil
 }
 
-// parseNVMeSMART 解析 NVMe SSD SMART 数据
+// parseNVMeSMART 解析 NVMe SSD SMART 数据.
 func (m *SSDHealthMonitor) parseNVMeSMART(health *SSDHealth) error {
 	cmd := exec.Command("smartctl", "-a", health.Device)
 	output, err := cmd.Output()
@@ -367,7 +367,7 @@ func (m *SSDHealthMonitor) parseNVMeSMART(health *SSDHealth) error {
 	return nil
 }
 
-// parseSATASMART 解析 SATA SSD SMART 数据
+// parseSATASMART 解析 SATA SSD SMART 数据.
 func (m *SSDHealthMonitor) parseSATASMART(health *SSDHealth) error {
 	cmd := exec.Command("smartctl", "-A", "-i", health.Device)
 	output, err := cmd.Output()
@@ -436,7 +436,7 @@ func (m *SSDHealthMonitor) parseSATASMART(health *SSDHealth) error {
 	return nil
 }
 
-// mapSMARTAttribute 映射 SMART 属性到健康信息
+// mapSMARTAttribute 映射 SMART 属性到健康信息.
 func (m *SSDHealthMonitor) mapSMARTAttribute(health *SSDHealth, attr *SMARTAttr) {
 	switch attr.ID {
 	case 5: // Reallocated_Sector_Ct
@@ -538,7 +538,7 @@ func (m *SSDHealthMonitor) mapSMARTAttribute(health *SSDHealth, attr *SMARTAttr)
 	}
 }
 
-// calculateHealthPercent 计算健康百分比
+// calculateHealthPercent 计算健康百分比.
 func (m *SSDHealthMonitor) calculateHealthPercent(health *SSDHealth) {
 	// 如果已经有健康百分比，直接返回
 	if health.HealthPercent > 0 {
@@ -562,7 +562,7 @@ func (m *SSDHealthMonitor) calculateHealthPercent(health *SSDHealth) {
 	}
 }
 
-// evaluateAlertLevel 评估告警级别
+// evaluateAlertLevel 评估告警级别.
 func (m *SSDHealthMonitor) evaluateAlertLevel(health *SSDHealth) {
 	lifeUsed := health.LifeUsedPercent
 
@@ -606,7 +606,7 @@ func (m *SSDHealthMonitor) evaluateAlertLevel(health *SSDHealth) {
 	}
 }
 
-// startPeriodicCheck 启动定期检查
+// startPeriodicCheck 启动定期检查.
 func (m *SSDHealthMonitor) startPeriodicCheck() {
 	if m.config.CheckInterval <= 0 {
 		return
@@ -625,7 +625,7 @@ func (m *SSDHealthMonitor) startPeriodicCheck() {
 	}
 }
 
-// CheckAllSSDs 检查所有 SSD
+// CheckAllSSDs 检查所有 SSD.
 func (m *SSDHealthMonitor) CheckAllSSDs() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -656,7 +656,7 @@ func (m *SSDHealthMonitor) CheckAllSSDs() error {
 	return nil
 }
 
-// saveHistory 保存历史数据
+// saveHistory 保存历史数据.
 func (m *SSDHealthMonitor) saveHistory(health *SSDHealth) {
 	point := &SSDHealthHistory{
 		Timestamp:       time.Now(),
@@ -678,7 +678,7 @@ func (m *SSDHealthMonitor) saveHistory(health *SSDHealth) {
 	m.history[health.Device] = history
 }
 
-// triggerAlert 触发告警
+// triggerAlert 触发告警.
 func (m *SSDHealthMonitor) triggerAlert(health *SSDHealth) {
 	alert := &SSDHealthAlert{
 		Device:     health.Device,
@@ -693,7 +693,7 @@ func (m *SSDHealthMonitor) triggerAlert(health *SSDHealth) {
 	}
 }
 
-// predictLife 预测寿命
+// predictLife 预测寿命.
 func (m *SSDHealthMonitor) predictLife(health *SSDHealth) {
 	m.mu.RLock()
 	history := m.history[health.Device]
@@ -756,7 +756,7 @@ func (m *SSDHealthMonitor) predictLife(health *SSDHealth) {
 	}
 }
 
-// GetSSDHealth 获取单个 SSD 健康信息
+// GetSSDHealth 获取单个 SSD 健康信息.
 func (m *SSDHealthMonitor) GetSSDHealth(device string) (*SSDHealth, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -768,7 +768,7 @@ func (m *SSDHealthMonitor) GetSSDHealth(device string) (*SSDHealth, error) {
 	return health, nil
 }
 
-// GetAllSSDs 获取所有 SSD 健康信息
+// GetAllSSDs 获取所有 SSD 健康信息.
 func (m *SSDHealthMonitor) GetAllSSDs() []*SSDHealth {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -780,7 +780,7 @@ func (m *SSDHealthMonitor) GetAllSSDs() []*SSDHealth {
 	return result
 }
 
-// GetSSDHistory 获取 SSD 历史数据
+// GetSSDHistory 获取 SSD 历史数据.
 func (m *SSDHealthMonitor) GetSSDHistory(device string, days int) []*SSDHealthHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -800,12 +800,12 @@ func (m *SSDHealthMonitor) GetSSDHistory(device string, days int) []*SSDHealthHi
 	return result
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *SSDHealthMonitor) Stop() {
 	close(m.stopChan)
 }
 
-// parseSize 解析大小字符串
+// parseSize 解析大小字符串.
 func parseSize(sizeStr string) uint64 {
 	sizeStr = strings.ToUpper(strings.TrimSpace(sizeStr))
 	multiplier := uint64(1)
@@ -851,7 +851,7 @@ func parseSize(sizeStr string) uint64 {
 }
 
 // parseDataUnits 解析数据单元 (NVMe)
-// 格式: Data Units Written: 1,234,567 [6.33 TB]
+// 格式: Data Units Written: 1,234,567 [6.33 TB].
 func parseDataUnits(line string) uint64 {
 	// 提取方括号中的大小
 	start := strings.Index(line, "[")

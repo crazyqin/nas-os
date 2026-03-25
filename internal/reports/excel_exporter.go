@@ -14,7 +14,7 @@ import (
 
 // ========== Excel 导出器 ==========
 
-// ChartType 图表类型
+// ChartType 图表类型.
 type ChartType string
 
 const (
@@ -32,7 +32,7 @@ const (
 	ChartTypeDoughnut ChartType = "doughnut" // 环形图
 )
 
-// ExcelStyleTemplate Excel 样式模板
+// ExcelStyleTemplate Excel 样式模板.
 type ExcelStyleTemplate struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -47,7 +47,7 @@ type ExcelStyleTemplate struct {
 	NumberFormats map[string]string `json:"number_formats"`
 }
 
-// ExcelCellStyle 单元格样式
+// ExcelCellStyle 单元格样式.
 type ExcelCellStyle struct {
 	Font      *ExcelFontConfig      `json:"font,omitempty"`
 	Fill      *ExcelFillConfig      `json:"fill,omitempty"`
@@ -55,7 +55,7 @@ type ExcelCellStyle struct {
 	Border    *ExcelBorderConfig    `json:"border,omitempty"`
 }
 
-// ExcelFontConfig 字体配置
+// ExcelFontConfig 字体配置.
 type ExcelFontConfig struct {
 	Family string  `json:"family,omitempty"`
 	Size   float64 `json:"size,omitempty"`
@@ -64,28 +64,28 @@ type ExcelFontConfig struct {
 	Color  string  `json:"color,omitempty"`
 }
 
-// ExcelFillConfig 填充配置
+// ExcelFillConfig 填充配置.
 type ExcelFillConfig struct {
 	Type    string   `json:"type,omitempty"` // pattern, gradient
 	Color   []string `json:"color,omitempty"`
 	Pattern int      `json:"pattern,omitempty"`
 }
 
-// ExcelAlignmentConfig 对齐配置
+// ExcelAlignmentConfig 对齐配置.
 type ExcelAlignmentConfig struct {
 	Horizontal string `json:"horizontal,omitempty"`
 	Vertical   string `json:"vertical,omitempty"`
 	WrapText   bool   `json:"wrap_text,omitempty"`
 }
 
-// ExcelBorderConfig 边框配置
+// ExcelBorderConfig 边框配置.
 type ExcelBorderConfig struct {
 	Type  string `json:"type,omitempty"` // left, right, top, bottom
 	Style int    `json:"style,omitempty"`
 	Color string `json:"color,omitempty"`
 }
 
-// ExcelColorScheme 颜色方案
+// ExcelColorScheme 颜色方案.
 type ExcelColorScheme struct {
 	Primary   string `json:"primary"`
 	Secondary string `json:"secondary"`
@@ -96,7 +96,7 @@ type ExcelColorScheme struct {
 	Neutral   string `json:"neutral"`
 }
 
-// ExcelFontScheme 字体方案
+// ExcelFontScheme 字体方案.
 type ExcelFontScheme struct {
 	Title     string  `json:"title"`
 	Body      string  `json:"body"`
@@ -104,14 +104,14 @@ type ExcelFontScheme struct {
 	BodySize  float64 `json:"body_size"`
 }
 
-// ExcelBorderScheme 边框方案
+// ExcelBorderScheme 边框方案.
 type ExcelBorderScheme struct {
 	HeaderStyle int    `json:"header_style"`
 	DataStyle   int    `json:"data_style"`
 	Color       string `json:"color"`
 }
 
-// ChartConfig 图表配置
+// ChartConfig 图表配置.
 type ChartConfig struct {
 	Type           ChartType           `json:"type"`
 	Title          string              `json:"title"`
@@ -127,7 +127,7 @@ type ChartConfig struct {
 	Height         float64             `json:"height"`
 }
 
-// ChartSeriesConfig 图表系列配置
+// ChartSeriesConfig 图表系列配置.
 type ChartSeriesConfig struct {
 	Name      string `json:"name"`
 	DataRange string `json:"data_range"`
@@ -136,7 +136,7 @@ type ChartSeriesConfig struct {
 	Marker    string `json:"marker,omitempty"`     // circle, square, triangle
 }
 
-// SheetConfig 工作表配置
+// SheetConfig 工作表配置.
 type SheetConfig struct {
 	Name        string           `json:"name"`
 	Title       string           `json:"title,omitempty"`
@@ -149,7 +149,7 @@ type SheetConfig struct {
 	AutoWidth   bool             `json:"auto_width"`
 }
 
-// MultiSheetConfig 多工作表配置
+// MultiSheetConfig 多工作表配置.
 type MultiSheetConfig struct {
 	Sheets        []SheetConfig `json:"sheets"`
 	StyleTemplate string        `json:"style_template,omitempty"`
@@ -157,18 +157,18 @@ type MultiSheetConfig struct {
 	CreateSummary bool          `json:"create_summary"`
 }
 
-// ExcelExporter Excel 导出器
+// ExcelExporter Excel 导出器.
 type ExcelExporter struct {
 	dataDir string
 }
 
-// NewExcelExporter 创建 Excel 导出器
+// NewExcelExporter 创建 Excel 导出器.
 func NewExcelExporter(dataDir string) *ExcelExporter {
 	_ = os.MkdirAll(dataDir, 0750)
 	return &ExcelExporter{dataDir: dataDir}
 }
 
-// Export 导出报表到 Excel 文件
+// Export 导出报表到 Excel 文件.
 func (e *ExcelExporter) Export(report *GeneratedReport, outputPath string, options ExportOptions) (*ExportResult, error) {
 	if outputPath == "" {
 		outputPath = e.generateOutputPath()
@@ -209,7 +209,7 @@ func (e *ExcelExporter) Export(report *GeneratedReport, outputPath string, optio
 	}, nil
 }
 
-// ExportToBytes 导出到字节数组
+// ExportToBytes 导出到字节数组.
 func (e *ExcelExporter) ExportToBytes(report *GeneratedReport, options ExportOptions) ([]byte, error) {
 	f, err := e.createExcelFile(report, options)
 	if err != nil {
@@ -225,7 +225,7 @@ func (e *ExcelExporter) ExportToBytes(report *GeneratedReport, options ExportOpt
 	return buf.Bytes(), nil
 }
 
-// createExcelFile 创建 Excel 文件对象
+// createExcelFile 创建 Excel 文件对象.
 func (e *ExcelExporter) createExcelFile(report *GeneratedReport, options ExportOptions) (*excelize.File, error) {
 	f := excelize.NewFile()
 	defer func() {
@@ -266,7 +266,7 @@ func (e *ExcelExporter) createExcelFile(report *GeneratedReport, options ExportO
 	return f, nil
 }
 
-// setDocumentProperties 设置文档属性
+// setDocumentProperties 设置文档属性.
 func (e *ExcelExporter) setDocumentProperties(f *excelize.File, report *GeneratedReport, options ExportOptions) {
 	props := &excelize.DocProperties{
 		Title:          options.Title,
@@ -288,7 +288,7 @@ func (e *ExcelExporter) setDocumentProperties(f *excelize.File, report *Generate
 	_ = f.SetDocProps(props)
 }
 
-// createSummarySheet 创建摘要工作表
+// createSummarySheet 创建摘要工作表.
 func (e *ExcelExporter) createSummarySheet(f *excelize.File, report *GeneratedReport, options ExportOptions) error {
 	sheetName := "摘要"
 	index, err := f.NewSheet(sheetName)
@@ -385,7 +385,7 @@ func (e *ExcelExporter) createSummarySheet(f *excelize.File, report *GeneratedRe
 	return nil
 }
 
-// createDataSheet 创建数据工作表
+// createDataSheet 创建数据工作表.
 func (e *ExcelExporter) createDataSheet(f *excelize.File, report *GeneratedReport, options ExportOptions) error {
 	sheetName := "数据"
 
@@ -496,7 +496,7 @@ func (e *ExcelExporter) createDataSheet(f *excelize.File, report *GeneratedRepor
 	return nil
 }
 
-// createChartSheet 创建图表工作表
+// createChartSheet 创建图表工作表.
 func (e *ExcelExporter) createChartSheet(f *excelize.File, report *GeneratedReport, options ExportOptions) error {
 	sheetName := "图表"
 	index, err := f.NewSheet(sheetName)
@@ -564,7 +564,7 @@ func (e *ExcelExporter) createChartSheet(f *excelize.File, report *GeneratedRepo
 	return nil
 }
 
-// getFieldOrder 获取字段顺序
+// getFieldOrder 获取字段顺序.
 func (e *ExcelExporter) getFieldOrder(row map[string]interface{}) []string {
 	fields := make([]string, 0, len(row))
 	for key := range row {
@@ -573,14 +573,14 @@ func (e *ExcelExporter) getFieldOrder(row map[string]interface{}) []string {
 	return fields
 }
 
-// getFieldLabel 获取字段显示标签
+// getFieldLabel 获取字段显示标签.
 func (e *ExcelExporter) getFieldLabel(field string, options ExportOptions) string {
 	// 可以根据 options 中的字段映射返回对应的标签
 	// 这里简单返回字段名
 	return field
 }
 
-// isNumericField 检查字段是否为数值类型
+// isNumericField 检查字段是否为数值类型.
 func (e *ExcelExporter) isNumericField(data []map[string]interface{}, field string) bool {
 	for _, row := range data {
 		if val, ok := row[field]; ok {
@@ -593,7 +593,7 @@ func (e *ExcelExporter) isNumericField(data []map[string]interface{}, field stri
 	return false
 }
 
-// getColumnLetter 将列号转换为 Excel 列字母
+// getColumnLetter 将列号转换为 Excel 列字母.
 func (e *ExcelExporter) getColumnLetter(col int) string {
 	result := ""
 	for col > 0 {
@@ -604,7 +604,7 @@ func (e *ExcelExporter) getColumnLetter(col int) string {
 	return result
 }
 
-// formatValue 格式化值
+// formatValue 格式化值.
 func (e *ExcelExporter) formatValue(val interface{}) interface{} {
 	if val == nil {
 		return ""
@@ -633,7 +633,7 @@ func (e *ExcelExporter) formatValue(val interface{}) interface{} {
 	}
 }
 
-// generateOutputPath 生成输出路径
+// generateOutputPath 生成输出路径.
 func (e *ExcelExporter) generateOutputPath() string {
 	timestamp := time.Now().Format("20060102_150405")
 	filename := fmt.Sprintf("report_%s.xlsx", timestamp)
@@ -642,7 +642,7 @@ func (e *ExcelExporter) generateOutputPath() string {
 
 // ========== 高级 Excel 功能 ==========
 
-// ExcelReportBuilder Excel 报表构建器
+// ExcelReportBuilder Excel 报表构建器.
 type ExcelReportBuilder struct {
 	exporter    *ExcelExporter
 	report      *GeneratedReport
@@ -651,7 +651,7 @@ type ExcelReportBuilder struct {
 	conditional bool
 }
 
-// NewExcelReportBuilder 创建 Excel 报表构建器
+// NewExcelReportBuilder 创建 Excel 报表构建器.
 func NewExcelReportBuilder(exporter *ExcelExporter, report *GeneratedReport) *ExcelReportBuilder {
 	return &ExcelReportBuilder{
 		exporter: exporter,
@@ -664,36 +664,36 @@ func NewExcelReportBuilder(exporter *ExcelExporter, report *GeneratedReport) *Ex
 	}
 }
 
-// SetOptions 设置导出选项
+// SetOptions 设置导出选项.
 func (b *ExcelReportBuilder) SetOptions(options ExportOptions) *ExcelReportBuilder {
 	b.options = options
 	return b
 }
 
-// EnableConditionalFormatting 启用条件格式
+// EnableConditionalFormatting 启用条件格式.
 func (b *ExcelReportBuilder) EnableConditionalFormatting(enable bool) *ExcelReportBuilder {
 	b.conditional = enable
 	return b
 }
 
-// Build 构建 Excel 文件
+// Build 构建 Excel 文件.
 func (b *ExcelReportBuilder) Build(outputPath string) (*ExportResult, error) {
 	return b.exporter.Export(b.report, outputPath, b.options)
 }
 
 // ========== 多工作表 Excel 导出 ==========
 
-// MultiSheetExporter 多工作表 Excel 导出器
+// MultiSheetExporter 多工作表 Excel 导出器.
 type MultiSheetExporter struct {
 	exporter *ExcelExporter
 }
 
-// NewMultiSheetExporter 创建多工作表导出器
+// NewMultiSheetExporter 创建多工作表导出器.
 func NewMultiSheetExporter(exporter *ExcelExporter) *MultiSheetExporter {
 	return &MultiSheetExporter{exporter: exporter}
 }
 
-// ExportMultiple 导出多个报表到一个 Excel 文件的不同工作表
+// ExportMultiple 导出多个报表到一个 Excel 文件的不同工作表.
 func (m *MultiSheetExporter) ExportMultiple(reports []*GeneratedReport, outputPath string, options ExportOptions) (*ExportResult, error) {
 	if len(reports) == 0 {
 		return nil, fmt.Errorf("没有报表可导出")
@@ -743,7 +743,7 @@ func (m *MultiSheetExporter) ExportMultiple(reports []*GeneratedReport, outputPa
 	}, nil
 }
 
-// createSheetContent 创建工作表内容
+// createSheetContent 创建工作表内容.
 func (m *MultiSheetExporter) createSheetContent(f *excelize.File, sheetName string, report *GeneratedReport, options ExportOptions) error {
 	if len(report.Data) == 0 {
 		_ = f.SetCellValue(sheetName, "A1", "无数据")
@@ -789,7 +789,7 @@ func (m *MultiSheetExporter) createSheetContent(f *excelize.File, sheetName stri
 	return nil
 }
 
-// sanitizeSheetName 清理工作表名称
+// sanitizeSheetName 清理工作表名称.
 func (m *MultiSheetExporter) sanitizeSheetName(name string, index int) string {
 	// Excel 工作表名称限制：31 字符，不能包含 : \ / ? * [ ]
 	name = strings.ReplaceAll(name, ":", "")
@@ -812,7 +812,7 @@ func (m *MultiSheetExporter) sanitizeSheetName(name string, index int) string {
 	return name
 }
 
-// getFieldOrder 获取字段顺序
+// getFieldOrder 获取字段顺序.
 func (m *MultiSheetExporter) getFieldOrder(row map[string]interface{}) []string {
 	fields := make([]string, 0, len(row))
 	for key := range row {
@@ -821,7 +821,7 @@ func (m *MultiSheetExporter) getFieldOrder(row map[string]interface{}) []string 
 	return fields
 }
 
-// getColumnLetter 将列号转换为 Excel 列字母
+// getColumnLetter 将列号转换为 Excel 列字母.
 func (m *MultiSheetExporter) getColumnLetter(col int) string {
 	result := ""
 	for col > 0 {
@@ -832,7 +832,7 @@ func (m *MultiSheetExporter) getColumnLetter(col int) string {
 	return result
 }
 
-// formatValue 格式化值
+// formatValue 格式化值.
 func (m *MultiSheetExporter) formatValue(val interface{}) interface{} {
 	if val == nil {
 		return ""
@@ -856,17 +856,17 @@ func (m *MultiSheetExporter) formatValue(val interface{}) interface{} {
 
 // ========== Excel 模板导出 ==========
 
-// ExcelTemplateExporter Excel 模板导出器
+// ExcelTemplateExporter Excel 模板导出器.
 type ExcelTemplateExporter struct {
 	exporter *ExcelExporter
 }
 
-// NewExcelTemplateExporter 创建 Excel 模板导出器
+// NewExcelTemplateExporter 创建 Excel 模板导出器.
 func NewExcelTemplateExporter(exporter *ExcelExporter) *ExcelTemplateExporter {
 	return &ExcelTemplateExporter{exporter: exporter}
 }
 
-// ExportWithTemplate 使用模板导出
+// ExportWithTemplate 使用模板导出.
 func (t *ExcelTemplateExporter) ExportWithTemplate(report *GeneratedReport, templatePath, outputPath string, options ExportOptions) (*ExportResult, error) {
 	// 打开模板文件
 	f, err := excelize.OpenFile(templatePath)
@@ -901,7 +901,7 @@ func (t *ExcelTemplateExporter) ExportWithTemplate(report *GeneratedReport, temp
 	}, nil
 }
 
-// fillTemplateData 填充模板数据
+// fillTemplateData 填充模板数据.
 func (t *ExcelTemplateExporter) fillTemplateData(f *excelize.File, report *GeneratedReport, options ExportOptions) error {
 	// 遍历所有工作表
 	sheets := f.GetSheetList()
@@ -927,7 +927,7 @@ func (t *ExcelTemplateExporter) fillTemplateData(f *excelize.File, report *Gener
 	return nil
 }
 
-// replacePlaceholders 替换占位符
+// replacePlaceholders 替换占位符.
 func (t *ExcelTemplateExporter) replacePlaceholders(template string, report *GeneratedReport) string {
 	result := template
 
@@ -951,7 +951,7 @@ func (t *ExcelTemplateExporter) replacePlaceholders(template string, report *Gen
 	return result
 }
 
-// getColumnLetter 将列号转换为 Excel 列字母
+// getColumnLetter 将列号转换为 Excel 列字母.
 func (t *ExcelTemplateExporter) getColumnLetter(col int) string {
 	result := ""
 	for col > 0 {
@@ -964,13 +964,13 @@ func (t *ExcelTemplateExporter) getColumnLetter(col int) string {
 
 // ========== v2.35.0 增强功能：多图表支持 ==========
 
-// AdvancedExcelExporter 高级 Excel 导出器
+// AdvancedExcelExporter 高级 Excel 导出器.
 type AdvancedExcelExporter struct {
 	exporter       *ExcelExporter
 	styleTemplates map[string]*ExcelStyleTemplate
 }
 
-// NewAdvancedExcelExporter 创建高级 Excel 导出器
+// NewAdvancedExcelExporter 创建高级 Excel 导出器.
 func NewAdvancedExcelExporter(exporter *ExcelExporter) *AdvancedExcelExporter {
 	adv := &AdvancedExcelExporter{
 		exporter:       exporter,
@@ -981,7 +981,7 @@ func NewAdvancedExcelExporter(exporter *ExcelExporter) *AdvancedExcelExporter {
 	return adv
 }
 
-// registerBuiltinTemplates 注册内置样式模板
+// registerBuiltinTemplates 注册内置样式模板.
 func (a *AdvancedExcelExporter) registerBuiltinTemplates() {
 	// 默认蓝色主题
 	a.styleTemplates["default"] = &ExcelStyleTemplate{
@@ -1035,7 +1035,7 @@ func (a *AdvancedExcelExporter) registerBuiltinTemplates() {
 	}
 }
 
-// ExportWithCharts 导出带图表的报表
+// ExportWithCharts 导出带图表的报表.
 func (a *AdvancedExcelExporter) ExportWithCharts(report *GeneratedReport, outputPath string, charts []ChartConfig, templateID string) (*ExportResult, error) {
 	f := excelize.NewFile()
 
@@ -1101,7 +1101,7 @@ func (a *AdvancedExcelExporter) ExportWithCharts(report *GeneratedReport, output
 	}, nil
 }
 
-// ExportMultiSheet 导出多工作表报表
+// ExportMultiSheet 导出多工作表报表.
 func (a *AdvancedExcelExporter) ExportMultiSheet(report *GeneratedReport, config *MultiSheetConfig, outputPath string) (*ExportResult, error) {
 	f := excelize.NewFile()
 	_ = f.DeleteSheet("Sheet1")
@@ -1184,7 +1184,7 @@ func (a *AdvancedExcelExporter) ExportMultiSheet(report *GeneratedReport, config
 	}, nil
 }
 
-// writeDataWithTemplate 使用模板写入数据
+// writeDataWithTemplate 使用模板写入数据.
 func (a *AdvancedExcelExporter) writeDataWithTemplate(f *excelize.File, sheet string, report *GeneratedReport, tmpl *ExcelStyleTemplate) error {
 	if len(report.Data) == 0 {
 		_ = f.SetCellValue(sheet, "A1", "无数据")
@@ -1231,7 +1231,7 @@ func (a *AdvancedExcelExporter) writeDataWithTemplate(f *excelize.File, sheet st
 	return nil
 }
 
-// writeSheetData 写入工作表数据
+// writeSheetData 写入工作表数据.
 func (a *AdvancedExcelExporter) writeSheetData(f *excelize.File, config SheetConfig, report *GeneratedReport, tmpl *ExcelStyleTemplate) error {
 	// 应用过滤器获取数据
 	data := a.filterData(report.Data, config.Filters)
@@ -1281,7 +1281,7 @@ func (a *AdvancedExcelExporter) writeSheetData(f *excelize.File, config SheetCon
 	return nil
 }
 
-// createSummarySheet 创建汇总表
+// createSummarySheet 创建汇总表.
 func (a *AdvancedExcelExporter) createSummarySheet(f *excelize.File, sheet string, report *GeneratedReport, tmpl *ExcelStyleTemplate) error {
 	titleStyleID, _ := f.NewStyle(&excelize.Style{
 		Font:      &excelize.Font{Bold: true, Size: 16},
@@ -1308,7 +1308,7 @@ func (a *AdvancedExcelExporter) createSummarySheet(f *excelize.File, sheet strin
 	return nil
 }
 
-// createChart 创建图表
+// createChart 创建图表.
 func (a *AdvancedExcelExporter) createChart(f *excelize.File, chartSheet, dataSheet string, config *ChartConfig, index int) error {
 	// 计算图表位置
 	startRow := index*15 + 1
@@ -1373,7 +1373,7 @@ func (a *AdvancedExcelExporter) createChart(f *excelize.File, chartSheet, dataSh
 	return f.AddChart(chartSheet, chartCell, chart)
 }
 
-// convertToExcelizeStyle 转换样式
+// convertToExcelizeStyle 转换样式.
 func (a *AdvancedExcelExporter) convertToExcelizeStyle(style ExcelCellStyle) *excelize.Style {
 	excelStyle := &excelize.Style{}
 
@@ -1406,7 +1406,7 @@ func (a *AdvancedExcelExporter) convertToExcelizeStyle(style ExcelCellStyle) *ex
 	return excelStyle
 }
 
-// filterData 过滤数据
+// filterData 过滤数据.
 func (a *AdvancedExcelExporter) filterData(data []map[string]interface{}, filters []TemplateFilter) []map[string]interface{} {
 	if len(filters) == 0 {
 		return data
@@ -1421,7 +1421,7 @@ func (a *AdvancedExcelExporter) filterData(data []map[string]interface{}, filter
 	return result
 }
 
-// matchesFilters 检查是否匹配过滤器
+// matchesFilters 检查是否匹配过滤器.
 func (a *AdvancedExcelExporter) matchesFilters(row map[string]interface{}, filters []TemplateFilter) bool {
 	for _, f := range filters {
 		val, ok := row[f.Field]
@@ -1468,7 +1468,7 @@ func (a *AdvancedExcelExporter) matchesFilters(row map[string]interface{}, filte
 	return true
 }
 
-// getFieldOrder 获取字段顺序
+// getFieldOrder 获取字段顺序.
 func (a *AdvancedExcelExporter) getFieldOrder(row map[string]interface{}) []string {
 	fields := make([]string, 0, len(row))
 	for key := range row {
@@ -1477,7 +1477,7 @@ func (a *AdvancedExcelExporter) getFieldOrder(row map[string]interface{}) []stri
 	return fields
 }
 
-// getColumnLetter 将列号转换为 Excel 列字母
+// getColumnLetter 将列号转换为 Excel 列字母.
 func (a *AdvancedExcelExporter) getColumnLetter(col int) string {
 	result := ""
 	for col > 0 {
@@ -1488,7 +1488,7 @@ func (a *AdvancedExcelExporter) getColumnLetter(col int) string {
 	return result
 }
 
-// formatValue 格式化值
+// formatValue 格式化值.
 func (a *AdvancedExcelExporter) formatValue(val interface{}) interface{} {
 	if val == nil {
 		return ""
@@ -1510,18 +1510,18 @@ func (a *AdvancedExcelExporter) formatValue(val interface{}) interface{} {
 	}
 }
 
-// RegisterStyleTemplate 注册自定义样式模板
+// RegisterStyleTemplate 注册自定义样式模板.
 func (a *AdvancedExcelExporter) RegisterStyleTemplate(template *ExcelStyleTemplate) {
 	a.styleTemplates[template.ID] = template
 }
 
-// GetStyleTemplate 获取样式模板
+// GetStyleTemplate 获取样式模板.
 func (a *AdvancedExcelExporter) GetStyleTemplate(id string) (*ExcelStyleTemplate, bool) {
 	t, ok := a.styleTemplates[id]
 	return t, ok
 }
 
-// ListStyleTemplates 列出所有样式模板
+// ListStyleTemplates 列出所有样式模板.
 func (a *AdvancedExcelExporter) ListStyleTemplates() []*ExcelStyleTemplate {
 	templates := make([]*ExcelStyleTemplate, 0, len(a.styleTemplates))
 	for _, t := range a.styleTemplates {

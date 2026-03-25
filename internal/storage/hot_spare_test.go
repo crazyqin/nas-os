@@ -12,7 +12,7 @@ import (
 
 // ========== 测试辅助函数 ==========
 
-// mockManager 创建模拟的存储管理器
+// mockManager 创建模拟的存储管理器.
 func mockManager() *Manager {
 	return &Manager{
 		volumes:   make(map[string]*Volume),
@@ -20,7 +20,7 @@ func mockManager() *Manager {
 	}
 }
 
-// mockHotSpareManager 创建模拟的热备盘管理器
+// mockHotSpareManager 创建模拟的热备盘管理器.
 func mockHotSpareManager() *HotSpareManager {
 	m := mockManager()
 	return NewHotSpareManager(m)

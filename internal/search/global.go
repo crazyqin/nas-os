@@ -11,12 +11,12 @@ import (
 	"go.uber.org/zap"
 )
 
-// GlobalSearchResultType 全局搜索结果类型
+// GlobalSearchResultType 全局搜索结果类型.
 type GlobalSearchResultType string
 
-// 搜索结果类型常量
+// 搜索结果类型常量.
 const (
-	// ResultTypeFile 文件类型
+	// ResultTypeFile 文件类型.
 	ResultTypeFile      GlobalSearchResultType = "file"
 	ResultTypeSetting   GlobalSearchResultType = "setting"
 	ResultTypeApp       GlobalSearchResultType = "app"
@@ -24,7 +24,7 @@ const (
 	ResultTypeMetadata  GlobalSearchResultType = "metadata" // 新增：元数据搜索
 )
 
-// GlobalSearchResult 全局搜索结果
+// GlobalSearchResult 全局搜索结果.
 type GlobalSearchResult struct {
 	Type        GlobalSearchResultType `json:"type"`
 	Score       float64                `json:"score"`
@@ -39,7 +39,7 @@ type GlobalSearchResult struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"` // 元数据信息
 }
 
-// GlobalSearchRequest 全局搜索请求
+// GlobalSearchRequest 全局搜索请求.
 type GlobalSearchRequest struct {
 	Query      string                   `json:"query"`                // 搜索查询
 	Types      []GlobalSearchResultType `json:"types,omitempty"`      // 限制结果类型
@@ -51,7 +51,7 @@ type GlobalSearchRequest struct {
 	Locale     string                   `json:"locale,omitempty"`     // 语言环境
 }
 
-// GlobalSearchResponse 全局搜索响应
+// GlobalSearchResponse 全局搜索响应.
 type GlobalSearchResponse struct {
 	Query       string               `json:"query"`
 	Took        time.Duration        `json:"took"` // 搜索耗时
@@ -65,14 +65,14 @@ type GlobalSearchResponse struct {
 	Facets      map[string]int       `json:"facets,omitempty"`      // 分面统计
 }
 
-// SearchHistory 搜索历史记录
+// SearchHistory 搜索历史记录.
 type SearchHistory struct {
 	Query     string    `json:"query"`
 	Timestamp time.Time `json:"timestamp"`
 	Count     int       `json:"count"` // 搜索次数
 }
 
-// GlobalSearchService 全局搜索服务
+// GlobalSearchService 全局搜索服务.
 type GlobalSearchService struct {
 	engine           *Engine
 	settingsRegistry *SettingsRegistry
@@ -90,7 +90,7 @@ type GlobalSearchService struct {
 	statsMu sync.RWMutex
 }
 
-// SearchStats 搜索统计
+// SearchStats 搜索统计.
 type SearchStats struct {
 	TotalSearches  int64         `json:"totalSearches"`
 	AverageLatency time.Duration `json:"averageLatency"`
@@ -99,13 +99,13 @@ type SearchStats struct {
 	LastUpdated    time.Time     `json:"lastUpdated"`
 }
 
-// MetadataIndex 元数据索引
+// MetadataIndex 元数据索引.
 type MetadataIndex struct {
 	items map[string][]MetadataItem
 	mu    sync.RWMutex
 }
 
-// MetadataItem 元数据项
+// MetadataItem 元数据项.
 type MetadataItem struct {
 	ID          string                 `json:"id"`
 	Type        string                 `json:"type"` // photo, video, music, document
@@ -117,7 +117,7 @@ type MetadataItem struct {
 	IndexedAt   time.Time              `json:"indexedAt"`
 }
 
-// NewGlobalSearchService 创建全局搜索服务
+// NewGlobalSearchService 创建全局搜索服务.
 func NewGlobalSearchService(
 	engine *Engine,
 	settingsRegistry *SettingsRegistry,
@@ -139,14 +139,14 @@ func NewGlobalSearchService(
 	}
 }
 
-// NewMetadataIndex 创建元数据索引
+// NewMetadataIndex 创建元数据索引.
 func NewMetadataIndex() *MetadataIndex {
 	return &MetadataIndex{
 		items: make(map[string][]MetadataItem),
 	}
 }
 
-// GlobalSearch 执行全局搜索
+// GlobalSearch 执行全局搜索.
 func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearchRequest) (*GlobalSearchResponse, error) {
 	startTime := time.Now()
 
@@ -264,7 +264,7 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 	return response, nil
 }
 
-// searchMetadata 搜索元数据
+// searchMetadata 搜索元数据.
 func (s *GlobalSearchService) searchMetadata(req GlobalSearchRequest) []GlobalSearchResult {
 	results := make([]GlobalSearchResult, 0)
 
@@ -311,7 +311,7 @@ func (s *GlobalSearchService) searchMetadata(req GlobalSearchRequest) []GlobalSe
 	return results
 }
 
-// calculateMetadataScore 计算元数据匹配分数
+// calculateMetadataScore 计算元数据匹配分数.
 func (s *GlobalSearchService) calculateMetadataScore(item MetadataItem, query string) float64 {
 	score := 0.0
 
@@ -352,7 +352,7 @@ func (s *GlobalSearchService) calculateMetadataScore(item MetadataItem, query st
 	return score
 }
 
-// getMetadataIcon 获取元数据图标
+// getMetadataIcon 获取元数据图标.
 func (s *GlobalSearchService) getMetadataIcon(metaType string) string {
 	iconMap := map[string]string{
 		"photo":    "image",
@@ -366,7 +366,7 @@ func (s *GlobalSearchService) getMetadataIcon(metaType string) string {
 	return "file"
 }
 
-// searchFiles 搜索文件
+// searchFiles 搜索文件.
 func (s *GlobalSearchService) searchFiles(ctx context.Context, req GlobalSearchRequest) []GlobalSearchResult {
 	results := make([]GlobalSearchResult, 0)
 
@@ -413,7 +413,7 @@ func (s *GlobalSearchService) searchFiles(ctx context.Context, req GlobalSearchR
 	return results
 }
 
-// searchSettings 搜索设置
+// searchSettings 搜索设置.
 func (s *GlobalSearchService) searchSettings(req GlobalSearchRequest) []GlobalSearchResult {
 	results := make([]GlobalSearchResult, 0)
 
@@ -450,7 +450,7 @@ func (s *GlobalSearchService) searchSettings(req GlobalSearchRequest) []GlobalSe
 	return results
 }
 
-// searchApps 搜索应用和容器
+// searchApps 搜索应用和容器.
 func (s *GlobalSearchService) searchApps(req GlobalSearchRequest, typeFilter map[GlobalSearchResultType]bool) ([]GlobalSearchResult, []GlobalSearchResult) {
 	appResults := make([]GlobalSearchResult, 0)
 	containerResults := make([]GlobalSearchResult, 0)
@@ -529,7 +529,7 @@ func (s *GlobalSearchService) searchApps(req GlobalSearchRequest, typeFilter map
 	return appResults, containerResults
 }
 
-// getFileIcon 获取文件图标
+// getFileIcon 获取文件图标.
 func (s *GlobalSearchService) getFileIcon(ext string) string {
 	iconMap := map[string]string{
 		".txt":  "file-text",
@@ -569,7 +569,7 @@ func (s *GlobalSearchService) getFileIcon(ext string) string {
 	return "file"
 }
 
-// recordHistory 记录搜索历史
+// recordHistory 记录搜索历史.
 func (s *GlobalSearchService) recordHistory(query string) {
 	s.historyMu.Lock()
 	defer s.historyMu.Unlock()
@@ -596,7 +596,7 @@ func (s *GlobalSearchService) recordHistory(query string) {
 	}
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (s *GlobalSearchService) updateStats(latency time.Duration) {
 	s.statsMu.Lock()
 	defer s.statsMu.Unlock()
@@ -615,14 +615,14 @@ func (s *GlobalSearchService) updateStats(latency time.Duration) {
 	s.stats.LastUpdated = time.Now()
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (s *GlobalSearchService) GetStats() *SearchStats {
 	s.statsMu.RLock()
 	defer s.statsMu.RUnlock()
 	return s.stats
 }
 
-// GenerateSuggestions 生成搜索建议
+// GenerateSuggestions 生成搜索建议.
 func (s *GlobalSearchService) GenerateSuggestions(query string) []string {
 	suggestions := make([]string, 0)
 
@@ -670,7 +670,7 @@ func (s *GlobalSearchService) GenerateSuggestions(query string) []string {
 	return unique
 }
 
-// QuickSearch 快速搜索（用于自动补全）
+// QuickSearch 快速搜索（用于自动补全）.
 func (s *GlobalSearchService) QuickSearch(ctx context.Context, query string, limit int) (*GlobalSearchResponse, error) {
 	if limit <= 0 {
 		limit = 3
@@ -684,7 +684,7 @@ func (s *GlobalSearchService) QuickSearch(ctx context.Context, query string, lim
 	})
 }
 
-// SearchByType 按类型搜索
+// SearchByType 按类型搜索.
 func (s *GlobalSearchService) SearchByType(ctx context.Context, query string, resultType GlobalSearchResultType, limit int) (*GlobalSearchResponse, error) {
 	if limit <= 0 {
 		limit = 20
@@ -697,7 +697,7 @@ func (s *GlobalSearchService) SearchByType(ctx context.Context, query string, re
 	})
 }
 
-// AddMetadata 添加元数据项
+// AddMetadata 添加元数据项.
 func (s *GlobalSearchService) AddMetadata(item MetadataItem) {
 	s.metadataIndex.mu.Lock()
 	defer s.metadataIndex.mu.Unlock()
@@ -706,7 +706,7 @@ func (s *GlobalSearchService) AddMetadata(item MetadataItem) {
 	s.metadataIndex.items[item.Type] = append(s.metadataIndex.items[item.Type], item)
 }
 
-// GetSearchCategories 获取搜索分类
+// GetSearchCategories 获取搜索分类.
 func (s *GlobalSearchService) GetSearchCategories() []map[string]interface{} {
 	return []map[string]interface{}{
 		{
@@ -742,7 +742,7 @@ func (s *GlobalSearchService) GetSearchCategories() []map[string]interface{} {
 	}
 }
 
-// GetPopularSearches 获取热门搜索
+// GetPopularSearches 获取热门搜索.
 func (s *GlobalSearchService) GetPopularSearches() []string {
 	// 基于历史记录排序
 	s.historyMu.RLock()
@@ -798,7 +798,7 @@ func (s *GlobalSearchService) GetPopularSearches() []string {
 	return result
 }
 
-// GetRecentSearches 获取最近搜索
+// GetRecentSearches 获取最近搜索.
 func (s *GlobalSearchService) GetRecentSearches() []string {
 	s.historyMu.RLock()
 	defer s.historyMu.RUnlock()
@@ -810,7 +810,7 @@ func (s *GlobalSearchService) GetRecentSearches() []string {
 	return result
 }
 
-// ClearRecentSearches 清除最近搜索
+// ClearRecentSearches 清除最近搜索.
 func (s *GlobalSearchService) ClearRecentSearches() error {
 	s.historyMu.Lock()
 	defer s.historyMu.Unlock()
@@ -818,14 +818,14 @@ func (s *GlobalSearchService) ClearRecentSearches() error {
 	return nil
 }
 
-// IndexMetadata 批量索引元数据
+// IndexMetadata 批量索引元数据.
 func (s *GlobalSearchService) IndexMetadata(items []MetadataItem) {
 	for _, item := range items {
 		s.AddMetadata(item)
 	}
 }
 
-// GetMetadataByType 按类型获取元数据
+// GetMetadataByType 按类型获取元数据.
 func (s *GlobalSearchService) GetMetadataByType(metaType string) []MetadataItem {
 	s.metadataIndex.mu.RLock()
 	defer s.metadataIndex.mu.RUnlock()

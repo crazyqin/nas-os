@@ -17,17 +17,17 @@ import (
 )
 
 var (
-	// ErrServerNotRunning 服务器未运行时返回的错误
+	// ErrServerNotRunning 服务器未运行时返回的错误.
 	ErrServerNotRunning = errors.New("服务器未运行")
-	// ErrServerRunning 服务器已在运行时返回的错误
+	// ErrServerRunning 服务器已在运行时返回的错误.
 	ErrServerRunning = errors.New("服务器已在运行")
-	// ErrInvalidConfig 配置无效时返回的错误
+	// ErrInvalidConfig 配置无效时返回的错误.
 	ErrInvalidConfig = errors.New("配置无效")
-	// ErrHostKeyRequired 需要主机密钥时返回的错误
+	// ErrHostKeyRequired 需要主机密钥时返回的错误.
 	ErrHostKeyRequired = errors.New("需要主机密钥")
 )
 
-// Server SFTP 服务器
+// Server SFTP 服务器.
 type Server struct {
 	mu          sync.RWMutex
 	config      *Config
@@ -44,7 +44,7 @@ type Server struct {
 	hostKey     ssh.Signer
 }
 
-// NewServer 创建 SFTP 服务器
+// NewServer 创建 SFTP 服务器.
 func NewServer(config *Config) (*Server, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -72,7 +72,7 @@ func NewServer(config *Config) (*Server, error) {
 	return s, nil
 }
 
-// loadOrGenerateHostKey 加载或生成 SSH 主机密钥
+// loadOrGenerateHostKey 加载或生成 SSH 主机密钥.
 func (s *Server) loadOrGenerateHostKey() error {
 	keyPath := s.config.HostKeyPath
 
@@ -98,7 +98,7 @@ func (s *Server) loadOrGenerateHostKey() error {
 	return nil
 }
 
-// generateHostKey 生成新的 SSH 主机密钥
+// generateHostKey 生成新的 SSH 主机密钥.
 func (s *Server) generateHostKey(keyPath string) error {
 	// 确保目录存在
 	if err := os.MkdirAll(filepath.Dir(keyPath), 0700); err != nil {
@@ -110,22 +110,22 @@ func (s *Server) generateHostKey(keyPath string) error {
 	return nil
 }
 
-// SetAuthFunc 设置密码认证函数
+// SetAuthFunc 设置密码认证函数.
 func (s *Server) SetAuthFunc(fn func(username, password string) bool) {
 	s.authFunc = fn
 }
 
-// SetPublicKeyAuth 设置公钥认证函数
+// SetPublicKeyAuth 设置公钥认证函数.
 func (s *Server) SetPublicKeyAuth(fn func(username string, pubKey ssh.PublicKey) bool) {
 	s.pubKeyAuth = fn
 }
 
-// SetGetUserHome 设置获取用户主目录函数
+// SetGetUserHome 设置获取用户主目录函数.
 func (s *Server) SetGetUserHome(fn func(username string) string) {
 	s.getUserHome = fn
 }
 
-// Start 启动 SFTP 服务器
+// Start 启动 SFTP 服务器.
 func (s *Server) Start() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -157,7 +157,7 @@ func (s *Server) Start() error {
 	return nil
 }
 
-// configureSSH 配置 SSH 服务器
+// configureSSH 配置 SSH 服务器.
 func (s *Server) configureSSH() {
 	s.sshConfig = &ssh.ServerConfig{
 		PasswordCallback: func(conn ssh.ConnMetadata, password []byte) (*ssh.Permissions, error) {
@@ -188,7 +188,7 @@ func (s *Server) configureSSH() {
 	s.sshConfig.AddHostKey(s.hostKey)
 }
 
-// Stop 停止 SFTP 服务器
+// Stop 停止 SFTP 服务器.
 func (s *Server) Stop() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -215,21 +215,21 @@ func (s *Server) Stop() error {
 	return nil
 }
 
-// IsRunning 检查服务器是否运行中
+// IsRunning 检查服务器是否运行中.
 func (s *Server) IsRunning() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.running
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (s *Server) GetConfig() *Config {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (s *Server) UpdateConfig(config *Config) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -266,7 +266,7 @@ func (s *Server) UpdateConfig(config *Config) error {
 	return nil
 }
 
-// startInternal 内部启动方法
+// startInternal 内部启动方法.
 func (s *Server) startInternal() error {
 	if s.running {
 		return nil
@@ -293,7 +293,7 @@ func (s *Server) startInternal() error {
 	return nil
 }
 
-// stopInternal 内部停止方法
+// stopInternal 内部停止方法.
 func (s *Server) stopInternal() {
 	if !s.running {
 		return
@@ -314,7 +314,7 @@ func (s *Server) stopInternal() {
 	s.running = false
 }
 
-// acceptLoop 接受连接循环
+// acceptLoop 接受连接循环.
 func (s *Server) acceptLoop() {
 	for {
 		select {
@@ -345,7 +345,7 @@ func (s *Server) acceptLoop() {
 	}
 }
 
-// handleConnection 处理 SSH 连接
+// handleConnection 处理 SSH 连接.
 func (s *Server) handleConnection(conn net.Conn) {
 	defer func() {
 		_ = conn.Close()
@@ -387,7 +387,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 	}
 }
 
-// handleSession 处理会话
+// handleSession 处理会话.
 func (s *Server) handleSession(newChannel ssh.NewChannel, sshConn *ssh.ServerConn) {
 	channel, requests, err := newChannel.Accept()
 	if err != nil {
@@ -440,7 +440,7 @@ func (s *Server) handleSession(newChannel ssh.NewChannel, sshConn *ssh.ServerCon
 	}
 }
 
-// handleSFTP 处理 SFTP 请求
+// handleSFTP 处理 SFTP 请求.
 func (s *Server) handleSFTP(channel ssh.Channel, username, homeDir string) {
 	// 确定 chroot 目录
 	rootDir := homeDir
@@ -468,7 +468,7 @@ func (s *Server) handleSFTP(channel ssh.Channel, username, homeDir string) {
 	s.runSFTPProtocol(channel, handler)
 }
 
-// runSFTPProtocol 运行 SFTP 协议
+// runSFTPProtocol 运行 SFTP 协议.
 func (s *Server) runSFTPProtocol(channel ssh.Channel, handler *sftpHandler) {
 	// 简化的 SFTP 协议实现
 	// 实际生产环境应使用 github.com/pkg/sftp 库
@@ -489,13 +489,13 @@ func (s *Server) runSFTPProtocol(channel ssh.Channel, handler *sftpHandler) {
 	}
 }
 
-// sftpHandler SFTP 文件处理器
+// sftpHandler SFTP 文件处理器.
 type sftpHandler struct {
 	rootDir  string
 	readOnly bool
 }
 
-// resolvePath 解析路径（确保在 chroot 内）
+// resolvePath 解析路径（确保在 chroot 内）.
 func (h *sftpHandler) resolvePath(path string) (string, error) {
 	// 清理路径
 	cleanPath := filepath.Clean(path)
@@ -516,7 +516,7 @@ func (h *sftpHandler) resolvePath(path string) (string, error) {
 	return fullPath, nil
 }
 
-// GetStatus 获取服务器状态
+// GetStatus 获取服务器状态.
 func (s *Server) GetStatus() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -532,7 +532,7 @@ func (s *Server) GetStatus() map[string]interface{} {
 	return status
 }
 
-// RegisterRoutes 注册 HTTP 路由（用于管理 API）
+// RegisterRoutes 注册 HTTP 路由（用于管理 API）.
 func (s *Server) RegisterRoutes(api *gin.RouterGroup) {
 	sftp := api.Group("/sftp")
 	{

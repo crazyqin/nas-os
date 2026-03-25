@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 增强审计模块 HTTP 处理器
+// Handlers 增强审计模块 HTTP 处理器.
 type Handlers struct {
 	loginAuditor     *LoginAuditor
 	operationAuditor *OperationAuditor
@@ -17,7 +17,7 @@ type Handlers struct {
 	reportGenerator  *ReportGenerator
 }
 
-// NewHandlers 创建增强审计处理器
+// NewHandlers 创建增强审计处理器.
 func NewHandlers(
 	loginAuditor *LoginAuditor,
 	operationAuditor *OperationAuditor,
@@ -36,7 +36,7 @@ func NewHandlers(
 	return h
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	audit := api.Group("/audit/enhanced")
 	{
@@ -100,7 +100,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 // ========== 登录审计处理器 ==========
 
-// getLoginEntries 获取登录审计条目
+// getLoginEntries 获取登录审计条目.
 func (h *Handlers) getLoginEntries(c *gin.Context) {
 	if h.loginAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "登录审计未启用"))
@@ -157,7 +157,7 @@ func (h *Handlers) getLoginEntries(c *gin.Context) {
 	}))
 }
 
-// getLoginEntry 获取单个登录审计条目
+// getLoginEntry 获取单个登录审计条目.
 func (h *Handlers) getLoginEntry(c *gin.Context) {
 	if h.loginAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "登录审计未启用"))
@@ -175,7 +175,7 @@ func (h *Handlers) getLoginEntry(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(entry))
 }
 
-// getActiveSessions 获取活跃会话
+// getActiveSessions 获取活跃会话.
 func (h *Handlers) getActiveSessions(c *gin.Context) {
 	if h.loginAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "登录审计未启用"))
@@ -200,7 +200,7 @@ func (h *Handlers) getActiveSessions(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(sessions))
 }
 
-// getSession 获取会话详情
+// getSession 获取会话详情.
 func (h *Handlers) getSession(c *gin.Context) {
 	if h.loginAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "登录审计未启用"))
@@ -218,7 +218,7 @@ func (h *Handlers) getSession(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(session))
 }
 
-// terminateSession 终止会话
+// terminateSession 终止会话.
 func (h *Handlers) terminateSession(c *gin.Context) {
 	if h.loginAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "登录审计未启用"))
@@ -236,7 +236,7 @@ func (h *Handlers) terminateSession(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "会话已终止"}))
 }
 
-// getLoginStatistics 获取登录统计
+// getLoginStatistics 获取登录统计.
 func (h *Handlers) getLoginStatistics(c *gin.Context) {
 	if h.loginAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "登录审计未启用"))
@@ -264,7 +264,7 @@ func (h *Handlers) getLoginStatistics(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(stats))
 }
 
-// getHighRiskLogins 获取高风险登录
+// getHighRiskLogins 获取高风险登录.
 func (h *Handlers) getHighRiskLogins(c *gin.Context) {
 	if h.loginAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "登录审计未启用"))
@@ -289,7 +289,7 @@ func (h *Handlers) getHighRiskLogins(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(entries))
 }
 
-// getLoginPattern 获取用户登录模式
+// getLoginPattern 获取用户登录模式.
 func (h *Handlers) getLoginPattern(c *gin.Context) {
 	if h.loginAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "登录审计未启用"))
@@ -307,7 +307,7 @@ func (h *Handlers) getLoginPattern(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(pattern))
 }
 
-// recordLoginEvent 记录登录事件
+// recordLoginEvent 记录登录事件.
 func (h *Handlers) recordLoginEvent(c *gin.Context) {
 	if h.loginAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "登录审计未启用"))
@@ -342,7 +342,7 @@ func (h *Handlers) recordLoginEvent(c *gin.Context) {
 
 // ========== 操作审计处理器 ==========
 
-// getOperationEntries 获取操作审计条目
+// getOperationEntries 获取操作审计条目.
 func (h *Handlers) getOperationEntries(c *gin.Context) {
 	if h.operationAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "操作审计未启用"))
@@ -407,7 +407,7 @@ func (h *Handlers) getOperationEntries(c *gin.Context) {
 	}))
 }
 
-// getOperationEntry 获取单个操作审计条目
+// getOperationEntry 获取单个操作审计条目.
 func (h *Handlers) getOperationEntry(c *gin.Context) {
 	if h.operationAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "操作审计未启用"))
@@ -425,7 +425,7 @@ func (h *Handlers) getOperationEntry(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(entry))
 }
 
-// getOperationChain 获取操作链
+// getOperationChain 获取操作链.
 func (h *Handlers) getOperationChain(c *gin.Context) {
 	if h.operationAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "操作审计未启用"))
@@ -443,7 +443,7 @@ func (h *Handlers) getOperationChain(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(chain))
 }
 
-// getResourceOperations 获取资源操作历史
+// getResourceOperations 获取资源操作历史.
 func (h *Handlers) getResourceOperations(c *gin.Context) {
 	if h.operationAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "操作审计未启用"))
@@ -466,7 +466,7 @@ func (h *Handlers) getResourceOperations(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(entries))
 }
 
-// getUserOperations 获取用户操作历史
+// getUserOperations 获取用户操作历史.
 func (h *Handlers) getUserOperations(c *gin.Context) {
 	if h.operationAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "操作审计未启用"))
@@ -483,7 +483,7 @@ func (h *Handlers) getUserOperations(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(entries))
 }
 
-// getSensitiveOperations 获取敏感操作
+// getSensitiveOperations 获取敏感操作.
 func (h *Handlers) getSensitiveOperations(c *gin.Context) {
 	if h.operationAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "操作审计未启用"))
@@ -499,7 +499,7 @@ func (h *Handlers) getSensitiveOperations(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(entries))
 }
 
-// getOperationStatistics 获取操作统计
+// getOperationStatistics 获取操作统计.
 func (h *Handlers) getOperationStatistics(c *gin.Context) {
 	if h.operationAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "操作审计未启用"))
@@ -526,7 +526,7 @@ func (h *Handlers) getOperationStatistics(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(stats))
 }
 
-// recordOperation 记录操作
+// recordOperation 记录操作.
 func (h *Handlers) recordOperation(c *gin.Context) {
 	if h.operationAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "操作审计未启用"))
@@ -566,7 +566,7 @@ func (h *Handlers) recordOperation(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(entry))
 }
 
-// startOperationChain 开始操作链
+// startOperationChain 开始操作链.
 func (h *Handlers) startOperationChain(c *gin.Context) {
 	if h.operationAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "操作审计未启用"))
@@ -587,7 +587,7 @@ func (h *Handlers) startOperationChain(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(gin.H{"correlation_id": correlationID}))
 }
 
-// endOperationChain 结束操作链
+// endOperationChain 结束操作链.
 func (h *Handlers) endOperationChain(c *gin.Context) {
 	if h.operationAuditor == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "操作审计未启用"))
@@ -603,7 +603,7 @@ func (h *Handlers) endOperationChain(c *gin.Context) {
 
 // ========== 敏感操作管理处理器 ==========
 
-// listSensitiveOperations 列出敏感操作定义
+// listSensitiveOperations 列出敏感操作定义.
 func (h *Handlers) listSensitiveOperations(c *gin.Context) {
 	if h.sensitiveManager == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "敏感操作管理未启用"))
@@ -614,7 +614,7 @@ func (h *Handlers) listSensitiveOperations(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(operations))
 }
 
-// addSensitiveOperation 添加敏感操作定义
+// addSensitiveOperation 添加敏感操作定义.
 func (h *Handlers) addSensitiveOperation(c *gin.Context) {
 	if h.sensitiveManager == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "敏感操作管理未启用"))
@@ -634,7 +634,7 @@ func (h *Handlers) addSensitiveOperation(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(op))
 }
 
-// updateSensitiveOperation 更新敏感操作定义
+// updateSensitiveOperation 更新敏感操作定义.
 func (h *Handlers) updateSensitiveOperation(c *gin.Context) {
 	if h.sensitiveManager == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "敏感操作管理未启用"))
@@ -656,7 +656,7 @@ func (h *Handlers) updateSensitiveOperation(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(op))
 }
 
-// deleteSensitiveOperation 删除敏感操作定义
+// deleteSensitiveOperation 删除敏感操作定义.
 func (h *Handlers) deleteSensitiveOperation(c *gin.Context) {
 	if h.sensitiveManager == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "敏感操作管理未启用"))
@@ -668,7 +668,7 @@ func (h *Handlers) deleteSensitiveOperation(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "已删除"}))
 }
 
-// getSensitiveEvents 获取敏感操作事件
+// getSensitiveEvents 获取敏感操作事件.
 func (h *Handlers) getSensitiveEvents(c *gin.Context) {
 	if h.sensitiveManager == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "敏感操作管理未启用"))
@@ -701,7 +701,7 @@ func (h *Handlers) getSensitiveEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(events))
 }
 
-// getSensitiveSummary 获取敏感操作摘要
+// getSensitiveSummary 获取敏感操作摘要.
 func (h *Handlers) getSensitiveSummary(c *gin.Context) {
 	if h.sensitiveManager == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "敏感操作管理未启用"))
@@ -728,7 +728,7 @@ func (h *Handlers) getSensitiveSummary(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(summary))
 }
 
-// getPendingApprovals 获取待审批列表
+// getPendingApprovals 获取待审批列表.
 func (h *Handlers) getPendingApprovals(c *gin.Context) {
 	if h.sensitiveManager == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "敏感操作管理未启用"))
@@ -739,7 +739,7 @@ func (h *Handlers) getPendingApprovals(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(approvals))
 }
 
-// getApproval 获取审批详情
+// getApproval 获取审批详情.
 func (h *Handlers) getApproval(c *gin.Context) {
 	if h.sensitiveManager == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "敏感操作管理未启用"))
@@ -757,7 +757,7 @@ func (h *Handlers) getApproval(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(approval))
 }
 
-// approveOperation 批准操作
+// approveOperation 批准操作.
 func (h *Handlers) approveOperation(c *gin.Context) {
 	if h.sensitiveManager == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "敏感操作管理未启用"))
@@ -783,7 +783,7 @@ func (h *Handlers) approveOperation(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "已批准"}))
 }
 
-// rejectOperation 拒绝操作
+// rejectOperation 拒绝操作.
 func (h *Handlers) rejectOperation(c *gin.Context) {
 	if h.sensitiveManager == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "敏感操作管理未启用"))
@@ -814,7 +814,7 @@ func (h *Handlers) rejectOperation(c *gin.Context) {
 
 // ========== 报告处理器 ==========
 
-// listReports 列出报告
+// listReports 列出报告.
 func (h *Handlers) listReports(c *gin.Context) {
 	if h.reportGenerator == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "报告生成未启用"))
@@ -834,7 +834,7 @@ func (h *Handlers) listReports(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(reports))
 }
 
-// generateReport 生成报告
+// generateReport 生成报告.
 func (h *Handlers) generateReport(c *gin.Context) {
 	if h.reportGenerator == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "报告生成未启用"))
@@ -870,7 +870,7 @@ func (h *Handlers) generateReport(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(report))
 }
 
-// getReport 获取报告
+// getReport 获取报告.
 func (h *Handlers) getReport(c *gin.Context) {
 	if h.reportGenerator == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "报告生成未启用"))
@@ -887,7 +887,7 @@ func (h *Handlers) getReport(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(report))
 }
 
-// deleteReport 删除报告
+// deleteReport 删除报告.
 func (h *Handlers) deleteReport(c *gin.Context) {
 	if h.reportGenerator == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "报告生成未启用"))
@@ -907,7 +907,7 @@ func (h *Handlers) deleteReport(c *gin.Context) {
 
 // ========== 仪表板处理器 ==========
 
-// getDashboardData 获取仪表板数据
+// getDashboardData 获取仪表板数据.
 func (h *Handlers) getDashboardData(c *gin.Context) {
 	end := time.Now()
 	start := end.Add(-24 * time.Hour)

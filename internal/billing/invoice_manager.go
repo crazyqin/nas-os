@@ -19,15 +19,15 @@ import (
 // ========== 额外错误定义 ==========
 
 var (
-	// ErrInvoiceNumberExists 发票号码已存在错误
+	// ErrInvoiceNumberExists 发票号码已存在错误.
 	ErrInvoiceNumberExists = errors.New("发票号码已存在")
-	// ErrInvoiceExportFailed 发票导出失败错误
+	// ErrInvoiceExportFailed 发票导出失败错误.
 	ErrInvoiceExportFailed = errors.New("发票导出失败")
 )
 
 // ========== 扩展类型 ==========
 
-// InvoiceManagerInvoice 发票管理器使用的发票结构（扩展版）
+// InvoiceManagerInvoice 发票管理器使用的发票结构（扩展版）.
 type InvoiceManagerInvoice struct {
 	ID          string        `json:"id"`
 	Number      string        `json:"number"`      // 发票号码
@@ -82,7 +82,7 @@ type InvoiceManagerInvoice struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// InvoiceParty 发票相关方
+// InvoiceParty 发票相关方.
 type InvoiceParty struct {
 	Name        string `json:"name"`
 	TaxNumber   string `json:"tax_number"`
@@ -94,7 +94,7 @@ type InvoiceParty struct {
 	Contact     string `json:"contact"`
 }
 
-// InvoiceManagerItem 发票明细项
+// InvoiceManagerItem 发票明细项.
 type InvoiceManagerItem struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`
@@ -111,7 +111,7 @@ type InvoiceManagerItem struct {
 	Code        string  `json:"code"`
 }
 
-// InvoiceManagerInput 发票输入
+// InvoiceManagerInput 发票输入.
 type InvoiceManagerInput struct {
 	Number        string                 `json:"number" binding:"required"`
 	Type          string                 `json:"type"`
@@ -139,7 +139,7 @@ type InvoiceManagerInput struct {
 	Metadata      map[string]interface{} `json:"metadata"`
 }
 
-// InvoiceManagerQuery 发票查询参数
+// InvoiceManagerQuery 发票查询参数.
 type InvoiceManagerQuery struct {
 	IDs        []string        `json:"ids,omitempty"`
 	Numbers    []string        `json:"numbers,omitempty"`
@@ -160,7 +160,7 @@ type InvoiceManagerQuery struct {
 	SortOrder  string          `json:"sort_order"`
 }
 
-// InvoiceExportOptions 发票导出选项
+// InvoiceExportOptions 发票导出选项.
 type InvoiceExportOptions struct {
 	Format       string `json:"format"`
 	Filename     string `json:"filename"`
@@ -170,7 +170,7 @@ type InvoiceExportOptions struct {
 	Summary      bool   `json:"summary"`
 }
 
-// InvoiceManagerStats 发票统计
+// InvoiceManagerStats 发票统计.
 type InvoiceManagerStats struct {
 	TotalCount     int                           `json:"total_count"`
 	TotalAmount    float64                       `json:"total_amount"`
@@ -183,19 +183,19 @@ type InvoiceManagerStats struct {
 	OverdueAmount  float64                       `json:"overdue_amount"`
 }
 
-// StatusStats 状态统计
+// StatusStats 状态统计.
 type StatusStats struct {
 	Count  int     `json:"count"`
 	Amount float64 `json:"amount"`
 }
 
-// TypeStats 类型统计
+// TypeStats 类型统计.
 type TypeStats struct {
 	Count  int     `json:"count"`
 	Amount float64 `json:"amount"`
 }
 
-// MonthlyStats 月度统计
+// MonthlyStats 月度统计.
 type MonthlyStats struct {
 	Month     string  `json:"month"`
 	Count     int     `json:"count"`
@@ -205,7 +205,7 @@ type MonthlyStats struct {
 
 // ========== 发票管理器 ==========
 
-// InvoiceManager 发票管理器
+// InvoiceManager 发票管理器.
 type InvoiceManager struct {
 	mu          sync.RWMutex
 	invoices    map[string]*InvoiceManagerInvoice
@@ -214,7 +214,7 @@ type InvoiceManager struct {
 	config      InvoiceManagerConfig
 }
 
-// InvoiceManagerConfig 发票管理器配置
+// InvoiceManagerConfig 发票管理器配置.
 type InvoiceManagerConfig struct {
 	StoragePath     string  `json:"storage_path"`
 	AutoNumber      bool    `json:"auto_number"`
@@ -224,7 +224,7 @@ type InvoiceManagerConfig struct {
 	DefaultCurrency string  `json:"default_currency"`
 }
 
-// NewInvoiceManager 创建发票管理器
+// NewInvoiceManager 创建发票管理器.
 func NewInvoiceManager(config InvoiceManagerConfig) (*InvoiceManager, error) {
 	if config.StoragePath == "" {
 		config.StoragePath = "./data/invoices"
@@ -280,7 +280,7 @@ func (im *InvoiceManager) loadInvoices() error {
 	return nil
 }
 
-// CreateInvoice 创建发票
+// CreateInvoice 创建发票.
 func (im *InvoiceManager) CreateInvoice(ctx context.Context, input InvoiceManagerInput) (*InvoiceManagerInvoice, error) {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -382,7 +382,7 @@ func (im *InvoiceManager) generateInvoiceNumber() string {
 	return fmt.Sprintf("%s%s%0*d", im.config.NumberPrefix, now.Format("20060102"), im.config.NumberDigits, seq)
 }
 
-// GetInvoice 获取发票
+// GetInvoice 获取发票.
 func (im *InvoiceManager) GetInvoice(ctx context.Context, id string) (*InvoiceManagerInvoice, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -394,7 +394,7 @@ func (im *InvoiceManager) GetInvoice(ctx context.Context, id string) (*InvoiceMa
 	return invoice, nil
 }
 
-// GetInvoiceByNumber 按发票号获取
+// GetInvoiceByNumber 按发票号获取.
 func (im *InvoiceManager) GetInvoiceByNumber(ctx context.Context, number string) (*InvoiceManagerInvoice, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -406,7 +406,7 @@ func (im *InvoiceManager) GetInvoiceByNumber(ctx context.Context, number string)
 	return im.invoices[id], nil
 }
 
-// UpdateInvoice 更新发票
+// UpdateInvoice 更新发票.
 func (im *InvoiceManager) UpdateInvoice(ctx context.Context, id string, input InvoiceManagerInput) (*InvoiceManagerInvoice, error) {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -464,7 +464,7 @@ func (im *InvoiceManager) UpdateInvoice(ctx context.Context, id string, input In
 	return invoice, nil
 }
 
-// UpdateInvoiceStatus 更新发票状态
+// UpdateInvoiceStatus 更新发票状态.
 func (im *InvoiceManager) UpdateInvoiceStatus(ctx context.Context, id string, status InvoiceStatus) (*InvoiceManagerInvoice, error) {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -516,7 +516,7 @@ func isValidStatusTransition(from, to InvoiceStatus) bool {
 	return false
 }
 
-// DeleteInvoice 删除发票
+// DeleteInvoice 删除发票.
 func (im *InvoiceManager) DeleteInvoice(ctx context.Context, id string) error {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -540,7 +540,7 @@ func (im *InvoiceManager) DeleteInvoice(ctx context.Context, id string) error {
 	return nil
 }
 
-// QueryInvoices 查询发票
+// QueryInvoices 查询发票.
 func (im *InvoiceManager) QueryInvoices(ctx context.Context, query InvoiceManagerQuery) ([]*InvoiceManagerInvoice, int, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -693,7 +693,7 @@ func (im *InvoiceManager) sortInvoices(invoices []*InvoiceManagerInvoice, sortBy
 	}
 }
 
-// ExportInvoices 导出发票
+// ExportInvoices 导出发票.
 func (im *InvoiceManager) ExportInvoices(ctx context.Context, query InvoiceManagerQuery, options InvoiceExportOptions) (string, error) {
 	invoices, _, err := im.QueryInvoices(ctx, query)
 	if err != nil {
@@ -831,7 +831,7 @@ func (im *InvoiceManager) exportToExcel(invoices []*InvoiceManagerInvoice, outpu
 	return filePath, nil
 }
 
-// GetInvoiceStats 获取发票统计
+// GetInvoiceStats 获取发票统计.
 func (im *InvoiceManager) GetInvoiceStats(ctx context.Context, query InvoiceManagerQuery) (*InvoiceManagerStats, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -917,7 +917,7 @@ func containsLower(s, substr string) bool {
 
 // ========== 增强功能 ==========
 
-// BatchCreateInvoices 批量创建发票
+// BatchCreateInvoices 批量创建发票.
 func (im *InvoiceManager) BatchCreateInvoices(ctx context.Context, inputs []InvoiceManagerInput) ([]*InvoiceManagerInvoice, []error) {
 	var invoices []*InvoiceManagerInvoice
 	var errors []error
@@ -934,7 +934,7 @@ func (im *InvoiceManager) BatchCreateInvoices(ctx context.Context, inputs []Invo
 	return invoices, errors
 }
 
-// BulkUpdateStatus 批量更新发票状态
+// BulkUpdateStatus 批量更新发票状态.
 func (im *InvoiceManager) BulkUpdateStatus(ctx context.Context, ids []string, status InvoiceStatus) ([]*InvoiceManagerInvoice, []error) {
 	var updated []*InvoiceManagerInvoice
 	var errors []error
@@ -951,7 +951,7 @@ func (im *InvoiceManager) BulkUpdateStatus(ctx context.Context, ids []string, st
 	return updated, errors
 }
 
-// GetInvoicesByUser 获取用户的发票列表
+// GetInvoicesByUser 获取用户的发票列表.
 func (im *InvoiceManager) GetInvoicesByUser(ctx context.Context, userID string, limit int) ([]*InvoiceManagerInvoice, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -979,7 +979,7 @@ func (im *InvoiceManager) GetInvoicesByUser(ctx context.Context, userID string, 
 	return invoices, nil
 }
 
-// GetInvoicesByProject 获取项目的发票列表
+// GetInvoicesByProject 获取项目的发票列表.
 func (im *InvoiceManager) GetInvoicesByProject(ctx context.Context, projectID string) ([]*InvoiceManagerInvoice, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -994,7 +994,7 @@ func (im *InvoiceManager) GetInvoicesByProject(ctx context.Context, projectID st
 	return invoices, nil
 }
 
-// GetInvoicesByOrder 获取订单相关的发票
+// GetInvoicesByOrder 获取订单相关的发票.
 func (im *InvoiceManager) GetInvoicesByOrder(ctx context.Context, orderID string) ([]*InvoiceManagerInvoice, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -1009,7 +1009,7 @@ func (im *InvoiceManager) GetInvoicesByOrder(ctx context.Context, orderID string
 	return invoices, nil
 }
 
-// GetOverdueInvoices 获取逾期发票
+// GetOverdueInvoices 获取逾期发票.
 func (im *InvoiceManager) GetOverdueInvoices(ctx context.Context) ([]*InvoiceManagerInvoice, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -1028,7 +1028,7 @@ func (im *InvoiceManager) GetOverdueInvoices(ctx context.Context) ([]*InvoiceMan
 	return invoices, nil
 }
 
-// GetPendingInvoices 获取待处理发票
+// GetPendingInvoices 获取待处理发票.
 func (im *InvoiceManager) GetPendingInvoices(ctx context.Context) ([]*InvoiceManagerInvoice, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -1043,7 +1043,7 @@ func (im *InvoiceManager) GetPendingInvoices(ctx context.Context) ([]*InvoiceMan
 	return invoices, nil
 }
 
-// CalculateTotals 计算发票总额
+// CalculateTotals 计算发票总额.
 func (im *InvoiceManager) CalculateTotals(ctx context.Context, query InvoiceManagerQuery) (map[string]float64, error) {
 	invoices, _, err := im.QueryInvoices(ctx, query)
 	if err != nil {
@@ -1082,7 +1082,7 @@ func (im *InvoiceManager) CalculateTotals(ctx context.Context, query InvoiceMana
 	return totals, nil
 }
 
-// DuplicateInvoice 复制发票
+// DuplicateInvoice 复制发票.
 func (im *InvoiceManager) DuplicateInvoice(ctx context.Context, id string) (*InvoiceManagerInvoice, error) {
 	original, err := im.GetInvoice(ctx, id)
 	if err != nil {
@@ -1115,7 +1115,7 @@ func (im *InvoiceManager) DuplicateInvoice(ctx context.Context, id string) (*Inv
 	return im.CreateInvoice(ctx, input)
 }
 
-// AddInvoiceItem 添加发票明细项
+// AddInvoiceItem 添加发票明细项.
 func (im *InvoiceManager) AddInvoiceItem(ctx context.Context, invoiceID string, item InvoiceManagerItem) (*InvoiceManagerInvoice, error) {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -1155,7 +1155,7 @@ func (im *InvoiceManager) AddInvoiceItem(ctx context.Context, invoiceID string, 
 	return invoice, nil
 }
 
-// RemoveInvoiceItem 移除发票明细项
+// RemoveInvoiceItem 移除发票明细项.
 func (im *InvoiceManager) RemoveInvoiceItem(ctx context.Context, invoiceID, itemID string) (*InvoiceManagerInvoice, error) {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -1197,7 +1197,7 @@ func (im *InvoiceManager) RemoveInvoiceItem(ctx context.Context, invoiceID, item
 	return invoice, nil
 }
 
-// UpdateInvoiceItem 更新发票明细项
+// UpdateInvoiceItem 更新发票明细项.
 func (im *InvoiceManager) UpdateInvoiceItem(ctx context.Context, invoiceID string, item InvoiceManagerItem) (*InvoiceManagerInvoice, error) {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -1244,7 +1244,7 @@ func (im *InvoiceManager) UpdateInvoiceItem(ctx context.Context, invoiceID strin
 	return invoice, nil
 }
 
-// recalculateInvoiceTotals 重新计算发票总额
+// recalculateInvoiceTotals 重新计算发票总额.
 func (im *InvoiceManager) recalculateInvoiceTotals(invoice *InvoiceManagerInvoice) {
 	var subtotal, taxAmount float64
 	for _, item := range invoice.Items {
@@ -1257,7 +1257,7 @@ func (im *InvoiceManager) recalculateInvoiceTotals(invoice *InvoiceManagerInvoic
 	invoice.TotalAmount = subtotal + taxAmount
 }
 
-// SendInvoice 发送发票
+// SendInvoice 发送发票.
 func (im *InvoiceManager) SendInvoice(ctx context.Context, id string, recipient string) (*InvoiceManagerInvoice, error) {
 	invoice, err := im.UpdateInvoiceStatus(ctx, id, InvoiceStatusSent)
 	if err != nil {
@@ -1280,7 +1280,7 @@ func (im *InvoiceManager) SendInvoice(ctx context.Context, id string, recipient 
 	return invoice, nil
 }
 
-// MarkOverdue 标记发票为逾期
+// MarkOverdue 标记发票为逾期.
 func (im *InvoiceManager) MarkOverdue(ctx context.Context, id string) (*InvoiceManagerInvoice, error) {
 	invoice, err := im.GetInvoice(ctx, id)
 	if err != nil {
@@ -1294,7 +1294,7 @@ func (im *InvoiceManager) MarkOverdue(ctx context.Context, id string) (*InvoiceM
 	return invoice, nil
 }
 
-// ApplyDiscount 应用折扣
+// ApplyDiscount 应用折扣.
 func (im *InvoiceManager) ApplyDiscount(ctx context.Context, id string, discountPercent float64, reason string) (*InvoiceManagerInvoice, error) {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -1334,7 +1334,7 @@ func (im *InvoiceManager) ApplyDiscount(ctx context.Context, id string, discount
 	return invoice, nil
 }
 
-// GetInvoiceHistory 获取发票历史记录
+// GetInvoiceHistory 获取发票历史记录.
 func (im *InvoiceManager) GetInvoiceHistory(ctx context.Context, id string) ([]map[string]interface{}, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -1375,7 +1375,7 @@ func (im *InvoiceManager) GetInvoiceHistory(ctx context.Context, id string) ([]m
 	return history, nil
 }
 
-// ValidateInvoice 验证发票数据
+// ValidateInvoice 验证发票数据.
 func (im *InvoiceManager) ValidateInvoice(invoice *InvoiceManagerInvoice) []string {
 	var errors []string
 

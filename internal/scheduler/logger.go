@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// LogManager 日志管理器
+// LogManager 日志管理器.
 type LogManager struct {
 	executions map[string]*TaskExecution
 	logs       map[string][]*TaskLog // executionID -> logs
@@ -20,7 +20,7 @@ type LogManager struct {
 	retention  time.Duration
 }
 
-// NewLogManager 创建日志管理器
+// NewLogManager 创建日志管理器.
 func NewLogManager(storePath string, maxLogs int, retention time.Duration) (*LogManager, error) {
 	if maxLogs <= 0 {
 		maxLogs = 10000
@@ -47,7 +47,7 @@ func NewLogManager(storePath string, maxLogs int, retention time.Duration) (*Log
 	return lm, nil
 }
 
-// load 加载日志
+// load 加载日志.
 func (lm *LogManager) load() error {
 	if lm.storePath == "" {
 		return nil
@@ -76,7 +76,7 @@ func (lm *LogManager) load() error {
 	return nil
 }
 
-// save 保存日志
+// save 保存日志.
 func (lm *LogManager) save() error {
 	if lm.storePath == "" {
 		return nil
@@ -102,7 +102,7 @@ func (lm *LogManager) save() error {
 	return os.WriteFile(lm.storePath+"/logs.json", logData, 0640)
 }
 
-// RecordExecution 记录执行
+// RecordExecution 记录执行.
 func (lm *LogManager) RecordExecution(execution *TaskExecution) error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -111,7 +111,7 @@ func (lm *LogManager) RecordExecution(execution *TaskExecution) error {
 	return lm.save()
 }
 
-// UpdateExecution 更新执行记录
+// UpdateExecution 更新执行记录.
 func (lm *LogManager) UpdateExecution(execution *TaskExecution) error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -120,7 +120,7 @@ func (lm *LogManager) UpdateExecution(execution *TaskExecution) error {
 	return lm.save()
 }
 
-// GetExecution 获取执行记录
+// GetExecution 获取执行记录.
 func (lm *LogManager) GetExecution(id string) (*TaskExecution, error) {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -132,7 +132,7 @@ func (lm *LogManager) GetExecution(id string) (*TaskExecution, error) {
 	return exec, nil
 }
 
-// GetExecutionsByTaskID 获取任务的所有执行记录
+// GetExecutionsByTaskID 获取任务的所有执行记录.
 func (lm *LogManager) GetExecutionsByTaskID(taskID string) []*TaskExecution {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -152,7 +152,7 @@ func (lm *LogManager) GetExecutionsByTaskID(taskID string) []*TaskExecution {
 	return result
 }
 
-// QueryExecutions 查询执行记录
+// QueryExecutions 查询执行记录.
 func (lm *LogManager) QueryExecutions(filter *ExecutionFilter) []*TaskExecution {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -214,7 +214,7 @@ func (lm *LogManager) matchExecFilter(exec *TaskExecution, filter *ExecutionFilt
 	return true
 }
 
-// AddLog 添加日志
+// AddLog 添加日志.
 func (lm *LogManager) AddLog(log *TaskLog) error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -228,7 +228,7 @@ func (lm *LogManager) AddLog(log *TaskLog) error {
 	return lm.save()
 }
 
-// GetLogs 获取执行日志
+// GetLogs 获取执行日志.
 func (lm *LogManager) GetLogs(executionID string) []*TaskLog {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -243,7 +243,7 @@ func (lm *LogManager) GetLogs(executionID string) []*TaskLog {
 	return result
 }
 
-// GetTaskLogs 获取任务的所有日志
+// GetTaskLogs 获取任务的所有日志.
 func (lm *LogManager) GetTaskLogs(taskID string) []*TaskLog {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -263,7 +263,7 @@ func (lm *LogManager) GetTaskLogs(taskID string) []*TaskLog {
 	return result
 }
 
-// Log 记录日志
+// Log 记录日志.
 func (lm *LogManager) Log(executionID, taskID, level, message string, data map[string]interface{}) error {
 	return lm.AddLog(&TaskLog{
 		ExecutionID: executionID,
@@ -274,7 +274,7 @@ func (lm *LogManager) Log(executionID, taskID, level, message string, data map[s
 	})
 }
 
-// Debug 记录调试日志
+// Debug 记录调试日志.
 func (lm *LogManager) Debug(executionID, taskID, message string, data ...map[string]interface{}) error {
 	var d map[string]interface{}
 	if len(data) > 0 {
@@ -283,7 +283,7 @@ func (lm *LogManager) Debug(executionID, taskID, message string, data ...map[str
 	return lm.Log(executionID, taskID, "debug", message, d)
 }
 
-// Info 记录信息日志
+// Info 记录信息日志.
 func (lm *LogManager) Info(executionID, taskID, message string, data ...map[string]interface{}) error {
 	var d map[string]interface{}
 	if len(data) > 0 {
@@ -292,7 +292,7 @@ func (lm *LogManager) Info(executionID, taskID, message string, data ...map[stri
 	return lm.Log(executionID, taskID, "info", message, d)
 }
 
-// Warn 记录警告日志
+// Warn 记录警告日志.
 func (lm *LogManager) Warn(executionID, taskID, message string, data ...map[string]interface{}) error {
 	var d map[string]interface{}
 	if len(data) > 0 {
@@ -301,7 +301,7 @@ func (lm *LogManager) Warn(executionID, taskID, message string, data ...map[stri
 	return lm.Log(executionID, taskID, "warn", message, d)
 }
 
-// Error 记录错误日志
+// Error 记录错误日志.
 func (lm *LogManager) Error(executionID, taskID, message string, data ...map[string]interface{}) error {
 	var d map[string]interface{}
 	if len(data) > 0 {
@@ -310,7 +310,7 @@ func (lm *LogManager) Error(executionID, taskID, message string, data ...map[str
 	return lm.Log(executionID, taskID, "error", message, d)
 }
 
-// DeleteExecution 删除执行记录
+// DeleteExecution 删除执行记录.
 func (lm *LogManager) DeleteExecution(id string) error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -321,7 +321,7 @@ func (lm *LogManager) DeleteExecution(id string) error {
 	return lm.save()
 }
 
-// Clear 清空所有日志
+// Clear 清空所有日志.
 func (lm *LogManager) Clear() error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -332,7 +332,7 @@ func (lm *LogManager) Clear() error {
 	return lm.save()
 }
 
-// cleanup 清理过期日志
+// cleanup 清理过期日志.
 func (lm *LogManager) cleanup() {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -366,7 +366,7 @@ func (lm *LogManager) cleanup() {
 	}
 }
 
-// periodicCleanup 定期清理
+// periodicCleanup 定期清理.
 func (lm *LogManager) periodicCleanup() {
 	ticker := time.NewTicker(time.Hour)
 	defer ticker.Stop()
@@ -377,7 +377,7 @@ func (lm *LogManager) periodicCleanup() {
 	}
 }
 
-// Stats 获取日志统计
+// Stats 获取日志统计.
 func (lm *LogManager) Stats() *LogStats {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -399,14 +399,14 @@ func (lm *LogManager) Stats() *LogStats {
 	return stats
 }
 
-// LogStats 日志统计
+// LogStats 日志统计.
 type LogStats struct {
 	TotalExecutions int                     `json:"totalExecutions"`
 	TotalLogs       int                     `json:"totalLogs"`
 	StatusCounts    map[ExecutionStatus]int `json:"statusCounts"`
 }
 
-// ExportLogs 导出日志
+// ExportLogs 导出日志.
 func (lm *LogManager) ExportLogs(executionID string, format string) ([]byte, error) {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -431,7 +431,7 @@ func (lm *LogManager) ExportLogs(executionID string, format string) ([]byte, err
 	}
 }
 
-// GetRecentExecutions 获取最近的执行记录
+// GetRecentExecutions 获取最近的执行记录.
 func (lm *LogManager) GetRecentExecutions(limit int) []*TaskExecution {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -452,7 +452,7 @@ func (lm *LogManager) GetRecentExecutions(limit int) []*TaskExecution {
 	return execList
 }
 
-// GetTodayExecutions 获取今日执行记录
+// GetTodayExecutions 获取今日执行记录.
 func (lm *LogManager) GetTodayExecutions() []*TaskExecution {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -469,7 +469,7 @@ func (lm *LogManager) GetTodayExecutions() []*TaskExecution {
 	return result
 }
 
-// WriteExecutionLogFile 写入执行日志文件
+// WriteExecutionLogFile 写入执行日志文件.
 func (lm *LogManager) WriteExecutionLogFile(executionID string) (string, error) {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()

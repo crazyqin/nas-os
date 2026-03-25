@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// StorageMetrics 存储性能指标
+// StorageMetrics 存储性能指标.
 type StorageMetrics struct {
 	// IOPS 指标
 	IOPS struct {
@@ -71,7 +71,7 @@ type StorageMetrics struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// StorageDeviceMetrics 单个存储设备指标
+// StorageDeviceMetrics 单个存储设备指标.
 type StorageDeviceMetrics struct {
 	Device      string `json:"device"`
 	Type        string `json:"type"` // ssd, hdd, nvme
@@ -99,7 +99,7 @@ type StorageDeviceMetrics struct {
 	PendingSectors uint64 `json:"pending_sectors,omitempty"`
 }
 
-// StorageCollector 存储性能收集器
+// StorageCollector 存储性能收集器.
 type StorageCollector struct {
 	logger      *zap.Logger
 	mu          sync.RWMutex
@@ -108,7 +108,7 @@ type StorageCollector struct {
 	collector   *SystemCollector
 }
 
-// NewStorageCollector 创建存储性能收集器
+// NewStorageCollector 创建存储性能收集器.
 func NewStorageCollector(logger *zap.Logger, collector *SystemCollector, historySize int) *StorageCollector {
 	return &StorageCollector{
 		logger:      logger,
@@ -118,7 +118,7 @@ func NewStorageCollector(logger *zap.Logger, collector *SystemCollector, history
 	}
 }
 
-// Collect 收集存储性能指标
+// Collect 收集存储性能指标.
 func (sc *StorageCollector) Collect() *StorageMetrics {
 	metrics := &StorageMetrics{
 		Timestamp: time.Now(),
@@ -183,7 +183,7 @@ func (sc *StorageCollector) Collect() *StorageMetrics {
 	return metrics
 }
 
-// collectCacheMetrics 收集缓存指标
+// collectCacheMetrics 收集缓存指标.
 func (sc *StorageCollector) collectCacheMetrics(metrics *StorageMetrics) {
 	// 读取 /proc/meminfo 获取页面缓存信息
 	if file, err := os.Open("/proc/meminfo"); err == nil {
@@ -236,7 +236,7 @@ func (sc *StorageCollector) collectCacheMetrics(metrics *StorageMetrics) {
 	}
 }
 
-// getDeviceType 获取设备类型
+// getDeviceType 获取设备类型.
 func (sc *StorageCollector) getDeviceType(device string) string {
 	if strings.HasPrefix(device, "nvme") {
 		return "nvme"
@@ -254,7 +254,7 @@ func (sc *StorageCollector) getDeviceType(device string) string {
 	return "unknown"
 }
 
-// getDeviceSize 获取设备大小
+// getDeviceSize 获取设备大小.
 func (sc *StorageCollector) getDeviceSize(device string) uint64 {
 	sizePath := "/sys/block/" + device + "/size"
 	if data, err := os.ReadFile(sizePath); err == nil {
@@ -266,7 +266,7 @@ func (sc *StorageCollector) getDeviceSize(device string) uint64 {
 	return 0
 }
 
-// getDeviceTemperature 获取设备温度
+// getDeviceTemperature 获取设备温度.
 func (sc *StorageCollector) getDeviceTemperature(device string) int {
 	// 尝试通过 smartctl 获取温度
 	cmd := exec.Command("smartctl", "-A", "/dev/"+device, "--json")
@@ -293,7 +293,7 @@ func (sc *StorageCollector) getDeviceTemperature(device string) int {
 	return 0
 }
 
-// GetHistory 获取历史数据
+// GetHistory 获取历史数据.
 func (sc *StorageCollector) GetHistory() []StorageMetrics {
 	sc.mu.RLock()
 	defer sc.mu.RUnlock()
@@ -302,7 +302,7 @@ func (sc *StorageCollector) GetHistory() []StorageMetrics {
 	return result
 }
 
-// GetAverageIOPS 获取平均 IOPS
+// GetAverageIOPS 获取平均 IOPS.
 func (sc *StorageCollector) GetAverageIOPS() (read, write uint64) {
 	sc.mu.RLock()
 	defer sc.mu.RUnlock()
@@ -321,7 +321,7 @@ func (sc *StorageCollector) GetAverageIOPS() (read, write uint64) {
 		totalWrite / uint64(len(sc.history))
 }
 
-// GetAverageLatency 获取平均延迟
+// GetAverageLatency 获取平均延迟.
 func (sc *StorageCollector) GetAverageLatency() (read, write float64) {
 	sc.mu.RLock()
 	defer sc.mu.RUnlock()
@@ -340,7 +340,7 @@ func (sc *StorageCollector) GetAverageLatency() (read, write float64) {
 		totalWrite / float64(len(sc.history))
 }
 
-// CalculatePercentiles 计算延迟百分位
+// CalculatePercentiles 计算延迟百分位.
 func (sc *StorageCollector) CalculatePercentiles() (p50, p95, p99 float64) {
 	sc.mu.RLock()
 	defer sc.mu.RUnlock()

@@ -14,19 +14,19 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Exporter 审计日志导出器
+// Exporter 审计日志导出器.
 type Exporter struct {
 	manager *Manager
 }
 
-// NewExporter 创建导出器
+// NewExporter 创建导出器.
 func NewExporter(manager *Manager) *Exporter {
 	return &Exporter{
 		manager: manager,
 	}
 }
 
-// ExportRequest 导出请求
+// ExportRequest 导出请求.
 type ExportRequest struct {
 	Format            ExportFormat `json:"format"`               // 导出格式
 	StartTime         time.Time    `json:"start_time"`           // 开始时间
@@ -40,7 +40,7 @@ type ExportRequest struct {
 	Timezone          string       `json:"timezone,omitempty"`   // 时区
 }
 
-// ExportResult 导出结果
+// ExportResult 导出结果.
 type ExportResult struct {
 	Data        []byte       `json:"-"`            // 导出数据
 	Format      ExportFormat `json:"format"`       // 导出格式
@@ -50,7 +50,7 @@ type ExportResult struct {
 	ContentType string       `json:"content_type"` // 内容类型
 }
 
-// Export 执行导出
+// Export 执行导出.
 func (e *Exporter) Export(req ExportRequest) (*ExportResult, error) {
 	// 设置默认时间范围
 	if req.StartTime.IsZero() {
@@ -152,7 +152,7 @@ func (e *Exporter) Export(req ExportRequest) (*ExportResult, error) {
 	}, nil
 }
 
-// exportJSON 导出为JSON格式
+// exportJSON 导出为JSON格式.
 func (e *Exporter) exportJSON(entries []*Entry) ([]byte, error) {
 	export := struct {
 		ExportedAt time.Time `json:"exported_at"`
@@ -167,7 +167,7 @@ func (e *Exporter) exportJSON(entries []*Entry) ([]byte, error) {
 	return json.MarshalIndent(export, "", "  ")
 }
 
-// exportCSV 导出为CSV格式
+// exportCSV 导出为CSV格式.
 func (e *Exporter) exportCSV(entries []*Entry) ([]byte, error) {
 	var buf strings.Builder
 
@@ -198,7 +198,7 @@ func (e *Exporter) exportCSV(entries []*Entry) ([]byte, error) {
 	return []byte(buf.String()), nil
 }
 
-// exportYAML 导出为YAML格式
+// exportYAML 导出为YAML格式.
 func (e *Exporter) exportYAML(entries []*Entry) ([]byte, error) {
 	export := struct {
 		ExportedAt time.Time `yaml:"exported_at"`
@@ -213,7 +213,7 @@ func (e *Exporter) exportYAML(entries []*Entry) ([]byte, error) {
 	return yaml.Marshal(export)
 }
 
-// escapeCSVField 转义CSV字段
+// escapeCSVField 转义CSV字段.
 func escapeCSVField(field string) string {
 	if field == "" {
 		return ""
@@ -225,7 +225,7 @@ func escapeCSVField(field string) string {
 	return field
 }
 
-// detailsToString 将Details转换为字符串
+// detailsToString 将Details转换为字符串.
 func detailsToString(details map[string]interface{}) string {
 	if len(details) == 0 {
 		return ""
@@ -238,7 +238,7 @@ func detailsToString(details map[string]interface{}) string {
 	return strings.Join(parts, "; ")
 }
 
-// generateFilename 生成文件名
+// generateFilename 生成文件名.
 func (e *Exporter) generateFilename(format string, start, end time.Time) string {
 	return fmt.Sprintf("audit-export-%s-%s.%s",
 		start.Format("20060102"),
@@ -249,25 +249,25 @@ func (e *Exporter) generateFilename(format string, start, end time.Time) string 
 
 // ========== Watch/Ignore List 导出 ==========
 
-// WatchListExporter Watch/Ignore List导出器
+// WatchListExporter Watch/Ignore List导出器.
 type WatchListExporter struct {
 	manager *WatchListManager
 }
 
-// NewWatchListExporter 创建Watch/Ignore List导出器
+// NewWatchListExporter 创建Watch/Ignore List导出器.
 func NewWatchListExporter(manager *WatchListManager) *WatchListExporter {
 	return &WatchListExporter{
 		manager: manager,
 	}
 }
 
-// WatchListExportRequest Watch/Ignore List导出请求
+// WatchListExportRequest Watch/Ignore List导出请求.
 type WatchListExportRequest struct {
 	Format ExportFormat `json:"format"` // 导出格式
 	Type   ListType     `json:"type"`   // 列表类型 (watch/ignore/all)
 }
 
-// WatchListExportResult 导出结果
+// WatchListExportResult 导出结果.
 type WatchListExportResult struct {
 	Data        []byte       `json:"-"`
 	Format      ExportFormat `json:"format"`
@@ -278,7 +278,7 @@ type WatchListExportResult struct {
 	ContentType string       `json:"content_type"`
 }
 
-// Export 导出Watch/Ignore List
+// Export 导出Watch/Ignore List.
 func (e *WatchListExporter) Export(req WatchListExportRequest) (*WatchListExportResult, error) {
 	watchEntries := e.manager.ListWatchEntries(WatchListFilter{})
 	ignoreEntries := e.manager.ListIgnoreEntries(IgnoreListFilter{})
@@ -321,7 +321,7 @@ func (e *WatchListExporter) Export(req WatchListExportRequest) (*WatchListExport
 	}, nil
 }
 
-// exportJSON 导出为JSON
+// exportJSON 导出为JSON.
 func (e *WatchListExporter) exportJSON(watchEntries []*WatchListEntry, ignoreEntries []*IgnoreListEntry, listType ListType) ([]byte, error) {
 	export := struct {
 		ExportedAt    time.Time          `json:"exported_at"`
@@ -341,7 +341,7 @@ func (e *WatchListExporter) exportJSON(watchEntries []*WatchListEntry, ignoreEnt
 	return json.MarshalIndent(export, "", "  ")
 }
 
-// exportCSV 导出为CSV
+// exportCSV 导出为CSV.
 func (e *WatchListExporter) exportCSV(watchEntries []*WatchListEntry, ignoreEntries []*IgnoreListEntry, listType ListType) ([]byte, error) {
 	var buf strings.Builder
 
@@ -401,7 +401,7 @@ func (e *WatchListExporter) exportCSV(watchEntries []*WatchListEntry, ignoreEntr
 	return []byte(buf.String()), nil
 }
 
-// exportYAML 导出为YAML
+// exportYAML 导出为YAML.
 func (e *WatchListExporter) exportYAML(watchEntries []*WatchListEntry, ignoreEntries []*IgnoreListEntry, listType ListType) ([]byte, error) {
 	export := struct {
 		ExportedAt    time.Time          `yaml:"exported_at"`
@@ -423,13 +423,13 @@ func (e *WatchListExporter) exportYAML(watchEntries []*WatchListEntry, ignoreEnt
 
 // ========== 导出API处理器 ==========
 
-// ExportHandlers 导出API处理器
+// ExportHandlers 导出API处理器.
 type ExportHandlers struct {
 	auditExporter     *Exporter
 	watchListExporter *WatchListExporter
 }
 
-// NewExportHandlers 创建导出处理器
+// NewExportHandlers 创建导出处理器.
 func NewExportHandlers(auditExporter *Exporter, watchListExporter *WatchListExporter) *ExportHandlers {
 	return &ExportHandlers{
 		auditExporter:     auditExporter,
@@ -437,7 +437,7 @@ func NewExportHandlers(auditExporter *Exporter, watchListExporter *WatchListExpo
 	}
 }
 
-// RegisterRoutes 注册导出路由
+// RegisterRoutes 注册导出路由.
 func (h *ExportHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	export := api.Group("/audit/export")
 	{
@@ -446,7 +446,7 @@ func (h *ExportHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// ExportAuditLogsRequest 导出审计日志请求
+// ExportAuditLogsRequest 导出审计日志请求.
 type ExportAuditLogsRequest struct {
 	Format            ExportFormat `json:"format"`
 	StartTime         string       `json:"start_time,omitempty"`
@@ -469,7 +469,7 @@ type ExportAuditLogsRequest struct {
 // @Failure 400 {object} APIResponse
 // @Failure 500 {object} APIResponse
 // @Router /audit/export [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *ExportHandlers) ExportAuditLogs(c *gin.Context) {
 	var req ExportAuditLogsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -523,7 +523,7 @@ func (h *ExportHandlers) ExportAuditLogs(c *gin.Context) {
 	c.Data(http.StatusOK, result.ContentType, result.Data)
 }
 
-// ExportWatchListRequest 导出Watch/Ignore List请求
+// ExportWatchListRequest 导出Watch/Ignore List请求.
 type ExportWatchListRequest struct {
 	Format ExportFormat `json:"format"`
 	Type   ListType     `json:"type"` // watch/ignore/all
@@ -540,7 +540,7 @@ type ExportWatchListRequest struct {
 // @Failure 400 {object} APIResponse
 // @Failure 500 {object} APIResponse
 // @Router /audit/export/list [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *ExportHandlers) ExportWatchList(c *gin.Context) {
 	var req ExportWatchListRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

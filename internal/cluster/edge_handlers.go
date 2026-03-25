@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// EdgeAPI 边缘计算 API 处理器
+// EdgeAPI 边缘计算 API 处理器.
 type EdgeAPI struct {
 	edgeManager   *EdgeNodeManager
 	taskScheduler *TaskScheduler
@@ -18,7 +18,7 @@ type EdgeAPI struct {
 	logger        *zap.Logger
 }
 
-// NewEdgeAPI 创建边缘计算 API 处理器
+// NewEdgeAPI 创建边缘计算 API 处理器.
 func NewEdgeAPI(
 	edgeManager *EdgeNodeManager,
 	taskScheduler *TaskScheduler,
@@ -35,7 +35,7 @@ func NewEdgeAPI(
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (api *EdgeAPI) RegisterRoutes(router *gin.RouterGroup) {
 	// 边缘节点管理
 	edgeNodes := router.Group("/edge/nodes")
@@ -104,7 +104,7 @@ func (api *EdgeAPI) RegisterRoutes(router *gin.RouterGroup) {
 
 // 边缘节点 API
 
-// GetEdgeNodes 获取边缘节点列表
+// GetEdgeNodes 获取边缘节点列表.
 func (api *EdgeAPI) GetEdgeNodes(c *gin.Context) {
 	nodeType := c.Query("type")
 	status := c.Query("status")
@@ -127,7 +127,7 @@ func (api *EdgeAPI) GetEdgeNodes(c *gin.Context) {
 	})
 }
 
-// RegisterEdgeNode 注册边缘节点
+// RegisterEdgeNode 注册边缘节点.
 func (api *EdgeAPI) RegisterEdgeNode(c *gin.Context) {
 	var node EdgeNode
 	if err := c.ShouldBindJSON(&node); err != nil {
@@ -153,7 +153,7 @@ func (api *EdgeAPI) RegisterEdgeNode(c *gin.Context) {
 	})
 }
 
-// GetEdgeNode 获取边缘节点详情
+// GetEdgeNode 获取边缘节点详情.
 func (api *EdgeAPI) GetEdgeNode(c *gin.Context) {
 	nodeID := c.Param("id")
 	node, exists := api.edgeManager.GetNode(nodeID)
@@ -171,7 +171,7 @@ func (api *EdgeAPI) GetEdgeNode(c *gin.Context) {
 	})
 }
 
-// UpdateEdgeNode 更新边缘节点
+// UpdateEdgeNode 更新边缘节点.
 func (api *EdgeAPI) UpdateEdgeNode(c *gin.Context) {
 	nodeID := c.Param("id")
 
@@ -214,7 +214,7 @@ func (api *EdgeAPI) UpdateEdgeNode(c *gin.Context) {
 	})
 }
 
-// UnregisterEdgeNode 注销边缘节点
+// UnregisterEdgeNode 注销边缘节点.
 func (api *EdgeAPI) UnregisterEdgeNode(c *gin.Context) {
 	nodeID := c.Param("id")
 
@@ -232,7 +232,7 @@ func (api *EdgeAPI) UnregisterEdgeNode(c *gin.Context) {
 	})
 }
 
-// GetEdgeNodeStatus 获取边缘节点状态
+// GetEdgeNodeStatus 获取边缘节点状态.
 func (api *EdgeAPI) GetEdgeNodeStatus(c *gin.Context) {
 	nodeID := c.Param("id")
 	node, exists := api.edgeManager.GetNode(nodeID)
@@ -260,7 +260,7 @@ func (api *EdgeAPI) GetEdgeNodeStatus(c *gin.Context) {
 	})
 }
 
-// EdgeNodeHeartbeat 边缘节点心跳
+// EdgeNodeHeartbeat 边缘节点心跳.
 func (api *EdgeAPI) EdgeNodeHeartbeat(c *gin.Context) {
 	nodeID := c.Param("id")
 
@@ -293,7 +293,7 @@ func (api *EdgeAPI) EdgeNodeHeartbeat(c *gin.Context) {
 	})
 }
 
-// DrainEdgeNode 边缘节点下线
+// DrainEdgeNode 边缘节点下线.
 func (api *EdgeAPI) DrainEdgeNode(c *gin.Context) {
 	nodeID := c.Param("id")
 
@@ -318,7 +318,7 @@ func (api *EdgeAPI) DrainEdgeNode(c *gin.Context) {
 	})
 }
 
-// GetEdgeNodeTasks 获取边缘节点上的任务
+// GetEdgeNodeTasks 获取边缘节点上的任务.
 func (api *EdgeAPI) GetEdgeNodeTasks(c *gin.Context) {
 	nodeID := c.Param("id")
 
@@ -333,7 +333,7 @@ func (api *EdgeAPI) GetEdgeNodeTasks(c *gin.Context) {
 
 // 任务 API
 
-// GetTasks 获取任务列表
+// GetTasks 获取任务列表.
 func (api *EdgeAPI) GetTasks(c *gin.Context) {
 	status := c.Query("status")
 	nodeID := c.Query("node_id")
@@ -354,7 +354,7 @@ func (api *EdgeAPI) GetTasks(c *gin.Context) {
 	})
 }
 
-// CreateTask 创建任务
+// CreateTask 创建任务.
 func (api *EdgeAPI) CreateTask(c *gin.Context) {
 	var task Task
 	if err := c.ShouldBindJSON(&task); err != nil {
@@ -380,7 +380,7 @@ func (api *EdgeAPI) CreateTask(c *gin.Context) {
 	})
 }
 
-// GetTask 获取任务详情
+// GetTask 获取任务详情.
 func (api *EdgeAPI) GetTask(c *gin.Context) {
 	taskID := c.Param("id")
 	task, exists := api.taskScheduler.GetTask(taskID)
@@ -398,7 +398,7 @@ func (api *EdgeAPI) GetTask(c *gin.Context) {
 	})
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (api *EdgeAPI) CancelTask(c *gin.Context) {
 	taskID := c.Param("id")
 
@@ -416,7 +416,7 @@ func (api *EdgeAPI) CancelTask(c *gin.Context) {
 	})
 }
 
-// RetryTask 重试任务
+// RetryTask 重试任务.
 func (api *EdgeAPI) RetryTask(c *gin.Context) {
 	taskID := c.Param("id")
 
@@ -434,7 +434,7 @@ func (api *EdgeAPI) RetryTask(c *gin.Context) {
 	})
 }
 
-// GetTaskResult 获取任务结果
+// GetTaskResult 获取任务结果.
 func (api *EdgeAPI) GetTaskResult(c *gin.Context) {
 	taskID := c.Param("id")
 	task, exists := api.taskScheduler.GetTask(taskID)
@@ -461,7 +461,7 @@ func (api *EdgeAPI) GetTaskResult(c *gin.Context) {
 	})
 }
 
-// GetTaskStats 获取任务统计
+// GetTaskStats 获取任务统计.
 func (api *EdgeAPI) GetTaskStats(c *gin.Context) {
 	stats := api.taskScheduler.GetStats()
 
@@ -473,7 +473,7 @@ func (api *EdgeAPI) GetTaskStats(c *gin.Context) {
 
 // 定时任务 API
 
-// GetSchedules 获取定时任务列表
+// GetSchedules 获取定时任务列表.
 func (api *EdgeAPI) GetSchedules(c *gin.Context) {
 	// 从 taskScheduler 获取定时任务
 	c.JSON(http.StatusOK, gin.H{
@@ -483,7 +483,7 @@ func (api *EdgeAPI) GetSchedules(c *gin.Context) {
 	})
 }
 
-// CreateSchedule 创建定时任务
+// CreateSchedule 创建定时任务.
 func (api *EdgeAPI) CreateSchedule(c *gin.Context) {
 	var req struct {
 		Task     Task   `json:"task"`
@@ -512,7 +512,7 @@ func (api *EdgeAPI) CreateSchedule(c *gin.Context) {
 	})
 }
 
-// UpdateSchedule 更新定时任务
+// UpdateSchedule 更新定时任务.
 func (api *EdgeAPI) UpdateSchedule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -520,7 +520,7 @@ func (api *EdgeAPI) UpdateSchedule(c *gin.Context) {
 	})
 }
 
-// DeleteSchedule 删除定时任务
+// DeleteSchedule 删除定时任务.
 func (api *EdgeAPI) DeleteSchedule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -530,7 +530,7 @@ func (api *EdgeAPI) DeleteSchedule(c *gin.Context) {
 
 // 结果聚合 API
 
-// GetAggregations 获取聚合列表
+// GetAggregations 获取聚合列表.
 func (api *EdgeAPI) GetAggregations(c *gin.Context) {
 	aggs := api.resultAgg.GetAggregations()
 
@@ -541,7 +541,7 @@ func (api *EdgeAPI) GetAggregations(c *gin.Context) {
 	})
 }
 
-// CreateAggregation 创建聚合
+// CreateAggregation 创建聚合.
 func (api *EdgeAPI) CreateAggregation(c *gin.Context) {
 	var req struct {
 		TaskID        string `json:"task_id"`
@@ -573,7 +573,7 @@ func (api *EdgeAPI) CreateAggregation(c *gin.Context) {
 	})
 }
 
-// GetAggregation 获取聚合详情
+// GetAggregation 获取聚合详情.
 func (api *EdgeAPI) GetAggregation(c *gin.Context) {
 	aggID := c.Param("id")
 	agg, exists := api.resultAgg.GetAggregation(aggID)
@@ -591,7 +591,7 @@ func (api *EdgeAPI) GetAggregation(c *gin.Context) {
 	})
 }
 
-// SubmitResult 提交结果
+// SubmitResult 提交结果.
 func (api *EdgeAPI) SubmitResult(c *gin.Context) {
 	var result TaskResult
 	if err := c.ShouldBindJSON(&result); err != nil {
@@ -616,7 +616,7 @@ func (api *EdgeAPI) SubmitResult(c *gin.Context) {
 	})
 }
 
-// GetResultStats 获取结果统计
+// GetResultStats 获取结果统计.
 func (api *EdgeAPI) GetResultStats(c *gin.Context) {
 	stats := api.resultAgg.GetStats()
 
@@ -628,7 +628,7 @@ func (api *EdgeAPI) GetResultStats(c *gin.Context) {
 
 // 负载均衡 API
 
-// GetLBConfig 获取负载均衡配置
+// GetLBConfig 获取负载均衡配置.
 func (api *EdgeAPI) GetLBConfig(c *gin.Context) {
 	config := api.edgeLB.GetConfig()
 
@@ -638,7 +638,7 @@ func (api *EdgeAPI) GetLBConfig(c *gin.Context) {
 	})
 }
 
-// UpdateLBConfig 更新负载均衡配置
+// UpdateLBConfig 更新负载均衡配置.
 func (api *EdgeAPI) UpdateLBConfig(c *gin.Context) {
 	var config EdgeLBConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -657,7 +657,7 @@ func (api *EdgeAPI) UpdateLBConfig(c *gin.Context) {
 	})
 }
 
-// GetLBStats 获取负载均衡统计
+// GetLBStats 获取负载均衡统计.
 func (api *EdgeAPI) GetLBStats(c *gin.Context) {
 	stats := api.edgeLB.GetStats()
 
@@ -667,7 +667,7 @@ func (api *EdgeAPI) GetLBStats(c *gin.Context) {
 	})
 }
 
-// SelectNode 选择节点
+// SelectNode 选择节点.
 func (api *EdgeAPI) SelectNode(c *gin.Context) {
 	var req SelectNodeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -693,7 +693,7 @@ func (api *EdgeAPI) SelectNode(c *gin.Context) {
 	})
 }
 
-// ClearSession 清除会话
+// ClearSession 清除会话.
 func (api *EdgeAPI) ClearSession(c *gin.Context) {
 	sessionID := c.Param("id")
 
@@ -707,7 +707,7 @@ func (api *EdgeAPI) ClearSession(c *gin.Context) {
 
 // 统计 API
 
-// GetEdgeStats 获取边缘计算总览统计
+// GetEdgeStats 获取边缘计算总览统计.
 func (api *EdgeAPI) GetEdgeStats(c *gin.Context) {
 	nodeStats := api.edgeManager.GetNodeStats()
 	taskStats := api.taskScheduler.GetStats()
@@ -726,7 +726,7 @@ func (api *EdgeAPI) GetEdgeStats(c *gin.Context) {
 	})
 }
 
-// GetNodeStats 获取节点统计
+// GetNodeStats 获取节点统计.
 func (api *EdgeAPI) GetNodeStats(c *gin.Context) {
 	stats := api.edgeManager.GetNodeStats()
 

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Executor 任务执行器
+// Executor 任务执行器.
 type Executor struct {
 	handlers   map[string]TaskHandler
 	running    map[string]*runningTask
@@ -22,7 +22,7 @@ type runningTask struct {
 	cancel    context.CancelFunc
 }
 
-// NewExecutor 创建执行器
+// NewExecutor 创建执行器.
 func NewExecutor(maxRunning int) *Executor {
 	if maxRunning <= 0 {
 		maxRunning = 10
@@ -36,7 +36,7 @@ func NewExecutor(maxRunning int) *Executor {
 	}
 }
 
-// RegisterHandler 注册处理器
+// RegisterHandler 注册处理器.
 func (e *Executor) RegisterHandler(handler TaskHandler) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -49,14 +49,14 @@ func (e *Executor) RegisterHandler(handler TaskHandler) error {
 	return nil
 }
 
-// UnregisterHandler 注销处理器
+// UnregisterHandler 注销处理器.
 func (e *Executor) UnregisterHandler(name string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	delete(e.handlers, name)
 }
 
-// GetHandler 获取处理器
+// GetHandler 获取处理器.
 func (e *Executor) GetHandler(name string) (TaskHandler, bool) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -64,7 +64,7 @@ func (e *Executor) GetHandler(name string) (TaskHandler, bool) {
 	return handler, exists
 }
 
-// ListHandlers 列出所有处理器
+// ListHandlers 列出所有处理器.
 func (e *Executor) ListHandlers() []string {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -76,7 +76,7 @@ func (e *Executor) ListHandlers() []string {
 	return names
 }
 
-// Execute 执行任务
+// Execute 执行任务.
 func (e *Executor) Execute(ctx context.Context, task *Task) (*TaskExecution, error) {
 	// 检查处理器
 	handler, exists := e.GetHandler(task.Handler)
@@ -166,7 +166,7 @@ func (e *Executor) Execute(ctx context.Context, task *Task) (*TaskExecution, err
 	return execution, nil
 }
 
-// ExecuteSync 同步执行任务
+// ExecuteSync 同步执行任务.
 func (e *Executor) ExecuteSync(ctx context.Context, task *Task) (*TaskExecution, error) {
 	// 检查处理器
 	handler, exists := e.GetHandler(task.Handler)
@@ -247,7 +247,7 @@ func (e *Executor) ExecuteSync(ctx context.Context, task *Task) (*TaskExecution,
 	return execution, nil
 }
 
-// Cancel 取消任务
+// Cancel 取消任务.
 func (e *Executor) Cancel(taskID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -261,7 +261,7 @@ func (e *Executor) Cancel(taskID string) error {
 	return nil
 }
 
-// IsRunning 检查任务是否在运行
+// IsRunning 检查任务是否在运行.
 func (e *Executor) IsRunning(taskID string) bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -269,7 +269,7 @@ func (e *Executor) IsRunning(taskID string) bool {
 	return exists
 }
 
-// GetRunningTasks 获取运行中的任务列表
+// GetRunningTasks 获取运行中的任务列表.
 func (e *Executor) GetRunningTasks() []string {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -281,85 +281,85 @@ func (e *Executor) GetRunningTasks() []string {
 	return ids
 }
 
-// RunningCount 获取运行中的任务数量
+// RunningCount 获取运行中的任务数量.
 func (e *Executor) RunningCount() int {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return len(e.running)
 }
 
-// CanStart 检查是否可以启动新任务
+// CanStart 检查是否可以启动新任务.
 func (e *Executor) CanStart() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return len(e.running) < e.maxRunning
 }
 
-// cleanup 清理运行记录
+// cleanup 清理运行记录.
 func (e *Executor) cleanup(taskID string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	delete(e.running, taskID)
 }
 
-// RegisterTask 注册任务到依赖管理器
+// RegisterTask 注册任务到依赖管理器.
 func (e *Executor) RegisterTask(task *Task) error {
 	return e.depManager.RegisterTask(task)
 }
 
-// UnregisterTask 注销任务
+// UnregisterTask 注销任务.
 func (e *Executor) UnregisterTask(taskID string) {
 	e.depManager.UnregisterTask(taskID)
 }
 
-// GetReadyTasks 获取可以执行的任务
+// GetReadyTasks 获取可以执行的任务.
 func (e *Executor) GetReadyTasks() []string {
 	return e.depManager.GetReadyTasks()
 }
 
-// GetDependencyManager 获取依赖管理器
+// GetDependencyManager 获取依赖管理器.
 func (e *Executor) GetDependencyManager() *DependencyManager {
 	return e.depManager
 }
 
-// GenerateTaskID 生成任务 ID
+// GenerateTaskID 生成任务 ID.
 func GenerateTaskID() string {
 	return fmt.Sprintf("task_%d", time.Now().UnixNano())
 }
 
-// GenerateExecutionID 生成执行 ID
+// GenerateExecutionID 生成执行 ID.
 func GenerateExecutionID() string {
 	return fmt.Sprintf("exec_%d", time.Now().UnixNano())
 }
 
-// BaseHandler 基础处理器（可嵌入）
+// BaseHandler 基础处理器（可嵌入）.
 type BaseHandler struct {
 	name string
 }
 
-// NewBaseHandler 创建基础处理器
+// NewBaseHandler 创建基础处理器.
 func NewBaseHandler(name string) *BaseHandler {
 	return &BaseHandler{name: name}
 }
 
-// Name 返回处理器名称
+// Name 返回处理器名称.
 func (h *BaseHandler) Name() string {
 	return h.name
 }
 
-// CommandHandler 命令处理器
+// CommandHandler 命令处理器.
 type CommandHandler struct {
 	*BaseHandler
 }
 
-// NewCommandHandler 创建命令处理器
+// NewCommandHandler 创建命令处理器.
 func NewCommandHandler() *CommandHandler {
 	return &CommandHandler{
 		BaseHandler: NewBaseHandler("command"),
 	}
 }
 
-// Execute 执行命令
+// Execute 执行命令.
 func (h *CommandHandler) Execute(ctx context.Context, task *Task) (map[string]interface{}, error) {
 	// 这里应该实现实际的命令执行逻辑
 	// 为了避免导入问题，返回占位结果
@@ -369,19 +369,19 @@ func (h *CommandHandler) Execute(ctx context.Context, task *Task) (map[string]in
 	}, nil
 }
 
-// HTTPHandler HTTP 请求处理器
+// HTTPHandler HTTP 请求处理器.
 type HTTPHandler struct {
 	*BaseHandler
 }
 
-// NewHTTPHandler 创建 HTTP 处理器
+// NewHTTPHandler 创建 HTTP 处理器.
 func NewHTTPHandler() *HTTPHandler {
 	return &HTTPHandler{
 		BaseHandler: NewBaseHandler("http"),
 	}
 }
 
-// Execute 执行 HTTP 请求
+// Execute 执行 HTTP 请求.
 func (h *HTTPHandler) Execute(ctx context.Context, task *Task) (map[string]interface{}, error) {
 	// 这里应该实现实际的 HTTP 请求逻辑
 	return map[string]interface{}{
@@ -390,19 +390,19 @@ func (h *HTTPHandler) Execute(ctx context.Context, task *Task) (map[string]inter
 	}, nil
 }
 
-// ScriptHandler 脚本处理器
+// ScriptHandler 脚本处理器.
 type ScriptHandler struct {
 	*BaseHandler
 }
 
-// NewScriptHandler 创建脚本处理器
+// NewScriptHandler 创建脚本处理器.
 func NewScriptHandler() *ScriptHandler {
 	return &ScriptHandler{
 		BaseHandler: NewBaseHandler("script"),
 	}
 }
 
-// Execute 执行脚本
+// Execute 执行脚本.
 func (h *ScriptHandler) Execute(ctx context.Context, task *Task) (map[string]interface{}, error) {
 	// 这里应该实现实际的脚本执行逻辑
 	return map[string]interface{}{

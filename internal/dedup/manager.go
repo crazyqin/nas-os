@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// Manager 去重管理器
+// Manager 去重管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	config      *Config
@@ -32,7 +32,7 @@ type Manager struct {
 	storagePath string // 存储根路径
 }
 
-// UserFileIndex 用户文件索引
+// UserFileIndex 用户文件索引.
 type UserFileIndex struct {
 	User       string            `json:"user"`
 	Files      map[string]string `json:"files"` // path -> checksum
@@ -42,7 +42,7 @@ type UserFileIndex struct {
 	SavedSize  int64             `json:"savedSize"`  // 通过去重节省的空间
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	FilesScanned     int           `json:"filesScanned"`
 	TotalSize        int64         `json:"totalSize"`
@@ -55,7 +55,7 @@ type ScanResult struct {
 	Errors           []ScanError   `json:"errors"`
 }
 
-// AutoDedupTask 自动去重任务
+// AutoDedupTask 自动去重任务.
 type AutoDedupTask struct {
 	ID       string      `json:"id"`
 	Enabled  bool        `json:"enabled"`
@@ -67,12 +67,12 @@ type AutoDedupTask struct {
 	Error    string      `json:"error,omitempty"`
 }
 
-// NewManager 创建去重管理器
+// NewManager 创建去重管理器.
 func NewManager(configPath string, config *Config) (*Manager, error) {
 	return NewManagerWithStorage(configPath, config, "")
 }
 
-// NewManagerWithStorage 创建去重管理器（指定存储路径）
+// NewManagerWithStorage 创建去重管理器（指定存储路径）.
 func NewManagerWithStorage(configPath string, config *Config, storagePath string) (*Manager, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -125,12 +125,12 @@ func NewManagerWithStorage(configPath string, config *Config, storagePath string
 	return m, nil
 }
 
-// Scan 扫描重复文件
+// Scan 扫描重复文件.
 func (m *Manager) Scan(paths []string) (*ScanResult, error) {
 	return m.ScanForUser(paths, "")
 }
 
-// ScanForUser 扫描指定用户的重复文件
+// ScanForUser 扫描指定用户的重复文件.
 func (m *Manager) ScanForUser(paths []string, user string) (*ScanResult, error) {
 	m.mu.Lock()
 	if m.scanning {
@@ -205,7 +205,7 @@ func (m *Manager) ScanForUser(paths []string, user string) (*ScanResult, error) 
 	return result, nil
 }
 
-// scanPath 扫描单个路径
+// scanPath 扫描单个路径.
 func (m *Manager) scanPath(rootPath string, result *ScanResult, currentUser string) {
 	err := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -303,7 +303,7 @@ func (m *Manager) scanPath(rootPath string, result *ScanResult, currentUser stri
 	}
 }
 
-// extractUserFromPath 从路径提取用户信息
+// extractUserFromPath 从路径提取用户信息.
 func (m *Manager) extractUserFromPath(path string) string {
 	// 常见的用户目录模式
 	patterns := []string{
@@ -327,7 +327,7 @@ func (m *Manager) extractUserFromPath(path string) string {
 	return ""
 }
 
-// analyzeDuplicates 分析重复文件
+// analyzeDuplicates 分析重复文件.
 func (m *Manager) analyzeDuplicates() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -381,12 +381,12 @@ func (m *Manager) analyzeDuplicates() {
 	}
 }
 
-// GetDuplicates 获取重复文件列表
+// GetDuplicates 获取重复文件列表.
 func (m *Manager) GetDuplicates() ([]*DuplicateGroup, error) {
 	return m.GetDuplicatesForUser("")
 }
 
-// GetDuplicatesForUser 获取指定用户的重复文件列表
+// GetDuplicatesForUser 获取指定用户的重复文件列表.
 func (m *Manager) GetDuplicatesForUser(user string) ([]*DuplicateGroup, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -416,7 +416,7 @@ func (m *Manager) GetDuplicatesForUser(user string) ([]*DuplicateGroup, error) {
 	return result, nil
 }
 
-// GetCrossUserDuplicates 获取跨用户重复文件
+// GetCrossUserDuplicates 获取跨用户重复文件.
 func (m *Manager) GetCrossUserDuplicates() ([]*DuplicateGroup, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -431,12 +431,12 @@ func (m *Manager) GetCrossUserDuplicates() ([]*DuplicateGroup, error) {
 	return result, nil
 }
 
-// Deduplicate 执行去重操作
+// Deduplicate 执行去重操作.
 func (m *Manager) Deduplicate(checksum string, keepPath string, policy Policy) error {
 	return m.DeduplicateForUser(checksum, keepPath, policy, "")
 }
 
-// DeduplicateForUser 为指定用户执行去重操作
+// DeduplicateForUser 为指定用户执行去重操作.
 func (m *Manager) DeduplicateForUser(checksum string, keepPath string, policy Policy, currentUser string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -517,7 +517,7 @@ func (m *Manager) DeduplicateForUser(checksum string, keepPath string, policy Po
 	return nil
 }
 
-// DeduplicateAll 批量去重
+// DeduplicateAll 批量去重.
 func (m *Manager) DeduplicateAll(policy Policy, dryRun bool) (*Result, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -577,7 +577,7 @@ func (m *Manager) DeduplicateAll(policy Policy, dryRun bool) (*Result, error) {
 	return result, nil
 }
 
-// Result 批量去重结果
+// Result 批量去重结果.
 type Result struct {
 	Groups     []ManagerGroupResult `json:"groups"`
 	TotalSaved int64                `json:"totalSaved"`
@@ -586,7 +586,7 @@ type Result struct {
 	Duration   time.Duration        `json:"duration"`
 }
 
-// ManagerGroupResult 单组去重结果
+// ManagerGroupResult 单组去重结果.
 type ManagerGroupResult struct {
 	Checksum  string `json:"checksum"`
 	Size      int64  `json:"size"`
@@ -596,12 +596,12 @@ type ManagerGroupResult struct {
 	Processed int    `json:"processed"`
 }
 
-// GetReport 获取去重报告
+// GetReport 获取去重报告.
 func (m *Manager) GetReport() (*Report, error) {
 	return m.GetReportForUser("")
 }
 
-// GetReportForUser 获取指定用户的去重报告
+// GetReportForUser 获取指定用户的去重报告.
 func (m *Manager) GetReportForUser(user string) (*Report, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -679,7 +679,7 @@ func (m *Manager) GetReportForUser(user string) (*Report, error) {
 	return report, nil
 }
 
-// generateRecommendations 生成去重建议
+// generateRecommendations 生成去重建议.
 func (m *Manager) generateRecommendations() []Recommendation {
 	var recommendations []Recommendation
 
@@ -716,7 +716,7 @@ func (m *Manager) generateRecommendations() []Recommendation {
 	return recommendations
 }
 
-// Report 去重报告
+// Report 去重报告.
 type Report struct {
 	GeneratedAt     time.Time                   `json:"generatedAt"`
 	Stats           StatsSnapshot               `json:"stats"`
@@ -725,7 +725,7 @@ type Report struct {
 	Recommendations []Recommendation            `json:"recommendations,omitempty"`
 }
 
-// UserDedupReport 用户去重报告
+// UserDedupReport 用户去重报告.
 type UserDedupReport struct {
 	User       string `json:"user"`
 	FileCount  int    `json:"fileCount"`
@@ -734,7 +734,7 @@ type UserDedupReport struct {
 	SavedSize  int64  `json:"savedSize"`
 }
 
-// DuplicateGroupSummary 重复组摘要
+// DuplicateGroupSummary 重复组摘要.
 type DuplicateGroupSummary struct {
 	Checksum     string   `json:"checksum"`
 	Size         int64    `json:"size"`
@@ -744,7 +744,7 @@ type DuplicateGroupSummary struct {
 	Users        []string `json:"users,omitempty"`
 }
 
-// Recommendation 去重建议
+// Recommendation 去重建议.
 type Recommendation struct {
 	Type        string `json:"type"`
 	Priority    string `json:"priority"`
@@ -753,7 +753,7 @@ type Recommendation struct {
 	Action      string `json:"action"`
 }
 
-// GetStats 获取统计信息快照（不含锁）
+// GetStats 获取统计信息快照（不含锁）.
 func (m *Manager) GetStats() StatsSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -772,7 +772,7 @@ func (m *Manager) GetStats() StatsSnapshot {
 	}
 }
 
-// GetUserStats 获取用户统计信息
+// GetUserStats 获取用户统计信息.
 func (m *Manager) GetUserStats(user string) (*UserFileIndex, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -785,7 +785,7 @@ func (m *Manager) GetUserStats(user string) (*UserFileIndex, error) {
 	return index, nil
 }
 
-// CancelScan 取消扫描
+// CancelScan 取消扫描.
 func (m *Manager) CancelScan() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -795,7 +795,7 @@ func (m *Manager) CancelScan() {
 	}
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *Config) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -804,7 +804,7 @@ func (m *Manager) UpdateConfig(config *Config) error {
 	return m.saveConfig()
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -813,14 +813,14 @@ func (m *Manager) GetConfig() *Config {
 
 // ========== 自动去重任务 ==========
 
-// GetAutoTask 获取自动去重任务
+// GetAutoTask 获取自动去重任务.
 func (m *Manager) GetAutoTask() *AutoDedupTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.autoTask
 }
 
-// EnableAutoDedup 启用自动去重
+// EnableAutoDedup 启用自动去重.
 func (m *Manager) EnableAutoDedup(enabled bool, schedule string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -835,7 +835,7 @@ func (m *Manager) EnableAutoDedup(enabled bool, schedule string) error {
 	return m.saveConfig()
 }
 
-// RunAutoDedup 执行自动去重任务
+// RunAutoDedup 执行自动去重任务.
 func (m *Manager) RunAutoDedup() (*Result, error) {
 	m.mu.Lock()
 	if m.autoTask.Status == "running" {
@@ -889,7 +889,7 @@ func (m *Manager) RunAutoDedup() (*Result, error) {
 
 // ========== 块级去重 ==========
 
-// ChunkFile 将文件分块
+// ChunkFile 将文件分块.
 func (m *Manager) ChunkFile(filePath string) ([]*Chunk, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -932,12 +932,12 @@ func (m *Manager) ChunkFile(filePath string) ([]*Chunk, error) {
 	return chunks, nil
 }
 
-// CreateChunk 创建数据块
+// CreateChunk 创建数据块.
 func (m *Manager) CreateChunk(data []byte) (*Chunk, error) {
 	return m.CreateChunkForUser(data, "")
 }
 
-// CreateChunkForUser 为用户创建数据块
+// CreateChunkForUser 为用户创建数据块.
 func (m *Manager) CreateChunkForUser(data []byte, user string) (*Chunk, error) {
 	hash := sha256.Sum256(data)
 	hashStr := hex.EncodeToString(hash[:])
@@ -990,7 +990,7 @@ func (m *Manager) CreateChunkForUser(data []byte, user string) (*Chunk, error) {
 	return chunk, nil
 }
 
-// GetChunk 获取数据块
+// GetChunk 获取数据块.
 func (m *Manager) GetChunk(hash string) (*Chunk, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1003,7 +1003,7 @@ func (m *Manager) GetChunk(hash string) (*Chunk, error) {
 	return chunk, nil
 }
 
-// GetChunkData 获取块数据
+// GetChunkData 获取块数据.
 func (m *Manager) GetChunkData(hash string) ([]byte, error) {
 	m.mu.RLock()
 	chunk, exists := m.chunks[hash]
@@ -1020,7 +1020,7 @@ func (m *Manager) GetChunkData(hash string) ([]byte, error) {
 	return os.ReadFile(chunk.StorePath)
 }
 
-// DeleteChunk 删除数据块
+// DeleteChunk 删除数据块.
 func (m *Manager) DeleteChunk(hash string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1041,7 +1041,7 @@ func (m *Manager) DeleteChunk(hash string) error {
 	return nil
 }
 
-// ForceDeleteChunk 强制删除数据块（无论引用计数）
+// ForceDeleteChunk 强制删除数据块（无论引用计数）.
 func (m *Manager) ForceDeleteChunk(hash string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1062,7 +1062,7 @@ func (m *Manager) ForceDeleteChunk(hash string) error {
 	return nil
 }
 
-// GetSharedChunks 获取共享块列表
+// GetSharedChunks 获取共享块列表.
 func (m *Manager) GetSharedChunks() ([]*Chunk, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

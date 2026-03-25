@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// mockMonitor 模拟监控器（实现 Monitor 接口）
+// mockMonitor 模拟监控器（实现 Monitor 接口）.
 type mockMonitor struct {
 	disks     map[string]*DiskInfo
 	alerts    []*SMARTAlert
@@ -116,7 +116,7 @@ func (m *mockMonitor) ImportJSON(_ []byte) error {
 	return nil
 }
 
-// setupTestRouter 创建测试路由
+// setupTestRouter 创建测试路由.
 func setupTestRouter() (*gin.Engine, *Handlers, *mockMonitor) {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()

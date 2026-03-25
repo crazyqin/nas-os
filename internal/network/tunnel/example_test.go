@@ -13,7 +13,7 @@ import (
 	"nas-os/internal/network/tunnel"
 )
 
-// Example_basicUsage demonstrates basic tunnel usage
+// Example_basicUsage demonstrates basic tunnel usage.
 func Example_basicUsage() {
 	// Create configuration with default values
 	config := tunnel.DefaultConfig()
@@ -57,7 +57,7 @@ func Example_basicUsage() {
 	fmt.Printf("Public Key: %x\n", manager.GetPublicKey())
 }
 
-// Example_connectToPeer demonstrates connecting to a remote peer
+// Example_connectToPeer demonstrates connecting to a remote peer.
 func Example_connectToPeer() {
 	config := tunnel.DefaultConfig()
 	config.SignalingURL = "wss://signal.example.com/ws"
@@ -92,7 +92,7 @@ func Example_connectToPeer() {
 	}
 }
 
-// Example_stunDiscovery demonstrates NAT type detection
+// Example_stunDiscovery demonstrates NAT type detection.
 func Example_stunDiscovery() {
 	config := tunnel.DefaultConfig()
 	stunClient := tunnel.NewSTUNClient(config)
@@ -116,7 +116,7 @@ func Example_stunDiscovery() {
 	}
 }
 
-// Example_turnRelay demonstrates using TURN relay
+// Example_turnRelay demonstrates using TURN relay.
 func Example_turnRelay() {
 	config := tunnel.DefaultConfig()
 
@@ -158,7 +158,7 @@ func Example_turnRelay() {
 	fmt.Printf("Received %d bytes from %s\n", len(data), from)
 }
 
-// Example_encryption demonstrates end-to-end encryption
+// Example_encryption demonstrates end-to-end encryption.
 func Example_encryption() {
 	// Create crypto instance
 	crypto, err := tunnel.NewCrypto(&tunnel.CryptoConfig{
@@ -203,7 +203,7 @@ func Example_encryption() {
 	fmt.Printf("Public Key: %x\n", localPublicKey)
 }
 
-// Example_customConfig demonstrates custom configuration
+// Example_customConfig demonstrates custom configuration.
 func Example_customConfig() {
 	// Build custom configuration
 	config, err := tunnel.NewConfigBuilder().
@@ -238,7 +238,7 @@ func Example_customConfig() {
 	fmt.Printf("Max Peers: %d\n", loadedConfig.MaxPeers)
 }
 
-// Example_signalingServer demonstrates running a signaling server
+// Example_signalingServer demonstrates running a signaling server.
 func Example_signalingServer() {
 	server := tunnel.NewSignalingServer(8080)
 

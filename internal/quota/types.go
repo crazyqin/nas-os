@@ -8,55 +8,55 @@ import (
 
 // ========== 错误定义 ==========
 
-// 配额相关错误
+// 配额相关错误.
 var (
-	// ErrQuotaNotFound 配额不存在
+	// ErrQuotaNotFound 配额不存在.
 	ErrQuotaNotFound = errors.New("配额不存在")
-	// ErrQuotaExists 配额已存在
+	// ErrQuotaExists 配额已存在.
 	ErrQuotaExists = errors.New("配额已存在")
-	// ErrQuotaExceeded 超出配额限制
+	// ErrQuotaExceeded 超出配额限制.
 	ErrQuotaExceeded = errors.New("超出配额限制")
-	// ErrUserNotFound 用户不存在
+	// ErrUserNotFound 用户不存在.
 	ErrUserNotFound = errors.New("用户不存在")
-	// ErrGroupNotFound 用户组不存在
+	// ErrGroupNotFound 用户组不存在.
 	ErrGroupNotFound = errors.New("用户组不存在")
-	// ErrVolumeNotFound 卷不存在
+	// ErrVolumeNotFound 卷不存在.
 	ErrVolumeNotFound = errors.New("卷不存在")
-	// ErrInvalidLimit 无效的配额限制
+	// ErrInvalidLimit 无效的配额限制.
 	ErrInvalidLimit = errors.New("无效的配额限制")
-	// ErrCleanupPolicyNotFound 清理策略不存在
+	// ErrCleanupPolicyNotFound 清理策略不存在.
 	ErrCleanupPolicyNotFound = errors.New("清理策略不存在")
 )
 
 // ========== 配额类型 ==========
 
-// Type 配额类型
+// Type 配额类型.
 type Type string
 
-// 配额类型常量
+// 配额类型常量.
 const (
-	// TypeUser 用户配额
+	// TypeUser 用户配额.
 	TypeUser Type = "user"
-	// TypeGroup 用户组配额
+	// TypeGroup 用户组配额.
 	TypeGroup Type = "group"
-	// TypeDirectory 目录配额
+	// TypeDirectory 目录配额.
 	TypeDirectory Type = "directory"
 )
 
-// 向后兼容的常量别名
+// 向后兼容的常量别名.
 const (
-	// QuotaTypeUser 用户配额（向后兼容）
+	// QuotaTypeUser 用户配额（向后兼容）.
 	QuotaTypeUser = TypeUser
-	// QuotaTypeGroup 用户组配额（向后兼容）
+	// QuotaTypeGroup 用户组配额（向后兼容）.
 	QuotaTypeGroup = TypeGroup
-	// QuotaTypeDirectory 目录配额（向后兼容）
+	// QuotaTypeDirectory 目录配额（向后兼容）.
 	QuotaTypeDirectory = TypeDirectory
 )
 
-// QuotaType 是 Type 的别名，保留用于向后兼容
+// QuotaType 是 Type 的别名，保留用于向后兼容.
 type QuotaType = Type //nolint:revive // 向后兼容别名
 
-// Quota 存储配额定义
+// Quota 存储配额定义.
 type Quota struct {
 	ID         string    `json:"id"`
 	Type       Type      `json:"type"`        // user 或 group
@@ -70,7 +70,7 @@ type Quota struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-// Usage 配额使用情况
+// Usage 配额使用情况.
 type Usage struct {
 	QuotaID      string    `json:"quota_id"`
 	Type         Type      `json:"type"`
@@ -88,53 +88,53 @@ type Usage struct {
 	LastChecked  time.Time `json:"last_checked"`
 }
 
-// QuotaUsage 是 Usage 的别名，保留用于向后兼容
+// QuotaUsage 是 Usage 的别名，保留用于向后兼容.
 type QuotaUsage = Usage //nolint:revive // 向后兼容别名
 
 // ========== 告警类型 ==========
 
-// AlertType 告警类型
+// AlertType 告警类型.
 type AlertType string
 
-// 告警类型常量
+// 告警类型常量.
 const (
-	// AlertTypeSoftLimit 软限制告警
+	// AlertTypeSoftLimit 软限制告警.
 	AlertTypeSoftLimit AlertType = "soft_limit"
-	// AlertTypeHardLimit 硬限制告警
+	// AlertTypeHardLimit 硬限制告警.
 	AlertTypeHardLimit AlertType = "hard_limit"
-	// AlertTypeCleanup 自动清理告警
+	// AlertTypeCleanup 自动清理告警.
 	AlertTypeCleanup AlertType = "cleanup"
 )
 
-// AlertSeverity 告警严重级别
+// AlertSeverity 告警严重级别.
 type AlertSeverity string
 
 const (
-	// AlertSeverityInfo 信息
+	// AlertSeverityInfo 信息.
 	AlertSeverityInfo AlertSeverity = "info"
-	// AlertSeverityWarning 警告
+	// AlertSeverityWarning 警告.
 	AlertSeverityWarning AlertSeverity = "warning"
-	// AlertSeverityCritical 严重
+	// AlertSeverityCritical 严重.
 	AlertSeverityCritical AlertSeverity = "critical"
-	// AlertSeverityEmergency 紧急
+	// AlertSeverityEmergency 紧急.
 	AlertSeverityEmergency AlertSeverity = "emergency"
 )
 
-// AlertStatus 告警状态
+// AlertStatus 告警状态.
 type AlertStatus string
 
 const (
-	// AlertStatusActive 活跃
+	// AlertStatusActive 活跃.
 	AlertStatusActive AlertStatus = "active"
-	// AlertStatusResolved 已解决
+	// AlertStatusResolved 已解决.
 	AlertStatusResolved AlertStatus = "resolved"
-	// AlertStatusSilenced 静默
+	// AlertStatusSilenced 静默.
 	AlertStatusSilenced AlertStatus = "silenced"
-	// AlertStatusEscalated 已升级
+	// AlertStatusEscalated 已升级.
 	AlertStatusEscalated AlertStatus = "escalated"
 )
 
-// Alert 配额告警
+// Alert 配额告警.
 type Alert struct {
 	ID              string        `json:"id"`
 	QuotaID         string        `json:"quota_id"`
@@ -158,35 +158,35 @@ type Alert struct {
 
 // ========== 清理策略 ==========
 
-// CleanupPolicyType 清理策略类型
+// CleanupPolicyType 清理策略类型.
 type CleanupPolicyType string
 
 const (
-	// CleanupPolicyAge 按文件年龄
+	// CleanupPolicyAge 按文件年龄.
 	CleanupPolicyAge CleanupPolicyType = "age"
-	// CleanupPolicySize 按文件大小
+	// CleanupPolicySize 按文件大小.
 	CleanupPolicySize CleanupPolicyType = "size"
-	// CleanupPolicyPattern 按文件名模式
+	// CleanupPolicyPattern 按文件名模式.
 	CleanupPolicyPattern CleanupPolicyType = "pattern"
-	// CleanupPolicyQuota 按配额比例
+	// CleanupPolicyQuota 按配额比例.
 	CleanupPolicyQuota CleanupPolicyType = "quota"
-	// CleanupPolicyAccess 按访问时间
+	// CleanupPolicyAccess 按访问时间.
 	CleanupPolicyAccess CleanupPolicyType = "access"
 )
 
-// CleanupAction 清理动作
+// CleanupAction 清理动作.
 type CleanupAction string
 
 const (
-	// CleanupActionDelete 删除
+	// CleanupActionDelete 删除.
 	CleanupActionDelete CleanupAction = "delete"
-	// CleanupActionArchive 归档
+	// CleanupActionArchive 归档.
 	CleanupActionArchive CleanupAction = "archive"
-	// CleanupActionMove 移动
+	// CleanupActionMove 移动.
 	CleanupActionMove CleanupAction = "move"
 )
 
-// CleanupPolicy 自动清理策略
+// CleanupPolicy 自动清理策略.
 type CleanupPolicy struct {
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
@@ -215,7 +215,7 @@ type CleanupPolicy struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// CleanupTask 清理任务执行记录
+// CleanupTask 清理任务执行记录.
 type CleanupTask struct {
 	ID             string            `json:"id"`
 	PolicyID       string            `json:"policy_id"`
@@ -230,51 +230,51 @@ type CleanupTask struct {
 	Errors         []string          `json:"errors,omitempty"`
 }
 
-// CleanupTaskStatus 清理任务状态
+// CleanupTaskStatus 清理任务状态.
 type CleanupTaskStatus string
 
 const (
-	// CleanupTaskRunning 运行中
+	// CleanupTaskRunning 运行中.
 	CleanupTaskRunning CleanupTaskStatus = "running"
-	// CleanupTaskCompleted 已完成
+	// CleanupTaskCompleted 已完成.
 	CleanupTaskCompleted CleanupTaskStatus = "completed"
-	// CleanupTaskFailed 已失败
+	// CleanupTaskFailed 已失败.
 	CleanupTaskFailed CleanupTaskStatus = "failed"
-	// CleanupTaskCancelled 已取消
+	// CleanupTaskCancelled 已取消.
 	CleanupTaskCancelled CleanupTaskStatus = "cancelled"
 )
 
 // ========== 配额报告 ==========
 
-// ReportType 报告类型
+// ReportType 报告类型.
 type ReportType string
 
 const (
-	// ReportTypeSummary 汇总报告
+	// ReportTypeSummary 汇总报告.
 	ReportTypeSummary ReportType = "summary"
-	// ReportTypeUser 用户配额报告
+	// ReportTypeUser 用户配额报告.
 	ReportTypeUser ReportType = "user"
-	// ReportTypeGroup 用户组配额报告
+	// ReportTypeGroup 用户组配额报告.
 	ReportTypeGroup ReportType = "group"
-	// ReportTypeVolume 卷配额报告
+	// ReportTypeVolume 卷配额报告.
 	ReportTypeVolume ReportType = "volume"
-	// ReportTypeTrend 趋势报告
+	// ReportTypeTrend 趋势报告.
 	ReportTypeTrend ReportType = "trend"
 )
 
-// ReportFormat 报告格式
+// ReportFormat 报告格式.
 type ReportFormat string
 
 const (
-	// ReportFormatJSON JSON 格式
+	// ReportFormatJSON JSON 格式.
 	ReportFormatJSON ReportFormat = "json"
-	// ReportFormatCSV CSV 格式
+	// ReportFormatCSV CSV 格式.
 	ReportFormatCSV ReportFormat = "csv"
-	// ReportFormatHTML HTML 格式
+	// ReportFormatHTML HTML 格式.
 	ReportFormatHTML ReportFormat = "html"
 )
 
-// Report 配额报告
+// Report 配额报告.
 type Report struct {
 	ID          string        `json:"id"`
 	Type        ReportType    `json:"type"`
@@ -285,13 +285,13 @@ type Report struct {
 	Details     interface{}   `json:"details,omitempty"`
 }
 
-// ReportPeriod 报告时间范围
+// ReportPeriod 报告时间范围.
 type ReportPeriod struct {
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
 }
 
-// ReportSummary 报告摘要
+// ReportSummary 报告摘要.
 type ReportSummary struct {
 	TotalQuotas     int     `json:"total_quotas"`
 	TotalLimitBytes uint64  `json:"total_limit_bytes"`
@@ -305,7 +305,7 @@ type ReportSummary struct {
 	BytesCleaned    uint64  `json:"bytes_cleaned"`
 }
 
-// UserQuotaReport 用户配额报告详情
+// UserQuotaReport 用户配额报告详情.
 type UserQuotaReport struct {
 	Username       string  `json:"username"`
 	Quotas         []Usage `json:"quotas"`
@@ -315,7 +315,7 @@ type UserQuotaReport struct {
 	UsagePercent   float64 `json:"usage_percent"`
 }
 
-// VolumeQuotaReport 卷配额报告详情
+// VolumeQuotaReport 卷配额报告详情.
 type VolumeQuotaReport struct {
 	VolumeName   string  `json:"volume_name"`
 	TotalLimit   uint64  `json:"total_limit"`
@@ -326,14 +326,14 @@ type VolumeQuotaReport struct {
 	ActiveAlerts []Alert `json:"active_alerts"`
 }
 
-// TrendDataPoint 趋势数据点
+// TrendDataPoint 趋势数据点.
 type TrendDataPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	UsedBytes    uint64    `json:"used_bytes"`
 	UsagePercent float64   `json:"usage_percent"`
 }
 
-// QuotaTrend 配额趋势
+// QuotaTrend 配额趋势.
 type QuotaTrend struct { //nolint:revive
 	QuotaID             string           `json:"quota_id"`
 	TargetName          string           `json:"target_name"`
@@ -342,7 +342,7 @@ type QuotaTrend struct { //nolint:revive
 	ProjectedDaysToFull int              `json:"projected_days_to_full"` // 预计多少天填满
 }
 
-// TrendStats 趋势统计
+// TrendStats 趋势统计.
 type TrendStats struct {
 	QuotaID    string    `json:"quota_id"`
 	TargetName string    `json:"target_name"`
@@ -376,14 +376,14 @@ type TrendStats struct {
 	DataPointCount int `json:"data_point_count"`
 }
 
-// TrendHistory 趋势历史记录（持久化用）
+// TrendHistory 趋势历史记录（持久化用）.
 type TrendHistory struct {
 	QuotaID    string           `json:"quota_id"`
 	DataPoints []TrendDataPoint `json:"data_points"`
 	LastUpdate time.Time        `json:"last_update"`
 }
 
-// TrendReportRequest 趋势报告请求
+// TrendReportRequest 趋势报告请求.
 type TrendReportRequest struct {
 	QuotaID     string        `json:"quota_id,omitempty"`    // 可选，不指定则返回所有
 	Duration    time.Duration `json:"duration"`              // 统计周期
@@ -392,7 +392,7 @@ type TrendReportRequest struct {
 
 // ========== 输入结构 ==========
 
-// QuotaInput 创建/更新配额输入
+// QuotaInput 创建/更新配额输入.
 type QuotaInput struct { //nolint:revive
 	Type       QuotaType `json:"type" binding:"required"`
 	TargetID   string    `json:"target_id" binding:"required"`
@@ -402,7 +402,7 @@ type QuotaInput struct { //nolint:revive
 	SoftLimit  uint64    `json:"soft_limit"`
 }
 
-// CleanupPolicyInput 创建/更新清理策略输入
+// CleanupPolicyInput 创建/更新清理策略输入.
 type CleanupPolicyInput struct {
 	Name          string            `json:"name" binding:"required"`
 	VolumeName    string            `json:"volume_name" binding:"required"`
@@ -427,7 +427,7 @@ type CleanupPolicyInput struct {
 	DryRun          bool     `json:"dry_run"`          // 预览模式（不实际执行）
 }
 
-// CleanupPreview 清理预览结果
+// CleanupPreview 清理预览结果.
 type CleanupPreview struct {
 	PolicyID      string        `json:"policy_id"`
 	PolicyName    string        `json:"policy_name"`
@@ -439,7 +439,7 @@ type CleanupPreview struct {
 	EstimatedTime time.Duration `json:"estimated_time"`
 }
 
-// CleanupFile 清理文件信息
+// CleanupFile 清理文件信息.
 type CleanupFile struct {
 	Path    string     `json:"path"`
 	Size    uint64     `json:"size"`
@@ -448,7 +448,7 @@ type CleanupFile struct {
 	Reason  string     `json:"reason"`             // 匹配原因
 }
 
-// ReportRequest 报告请求
+// ReportRequest 报告请求.
 type ReportRequest struct {
 	Type       ReportType   `json:"type" binding:"required"`
 	Format     ReportFormat `json:"format"`
@@ -459,7 +459,7 @@ type ReportRequest struct {
 	GroupID    string       `json:"group_id"`
 }
 
-// AlertConfig 告警配置
+// AlertConfig 告警配置.
 type AlertConfig struct {
 	Enabled            bool          `json:"enabled"`
 	SoftLimitThreshold float64       `json:"soft_limit_threshold"` // 软限制告警阈值（百分比）
@@ -483,7 +483,7 @@ type AlertConfig struct {
 	EscalationWebhookURL  string        `json:"escalation_webhook_url"`  // 升级通知 webhook
 }
 
-// AlertLevelConfig 预警级别配置
+// AlertLevelConfig 预警级别配置.
 type AlertLevelConfig struct {
 	Name      string        `json:"name"`      // 级别名称
 	Threshold float64       `json:"threshold"` // 触发阈值（百分比）
@@ -491,7 +491,7 @@ type AlertLevelConfig struct {
 	Message   string        `json:"message"`   // 自定义消息模板
 }
 
-// DefaultAlertLevels 默认预警级别配置
+// DefaultAlertLevels 默认预警级别配置.
 var DefaultAlertLevels = []AlertLevelConfig{
 	{Name: "info", Threshold: 60, Severity: AlertSeverityInfo, Message: "存储使用已达到 %.1f%%"},
 	{Name: "warning", Threshold: 70, Severity: AlertSeverityWarning, Message: "存储使用已达到 %.1f%%，请注意"},

@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ResourceAPIHandlers 资源分析 API 处理器
+// ResourceAPIHandlers 资源分析 API 处理器.
 type ResourceAPIHandlers struct {
 	generator         *ReportGenerator
 	costCalculator    *StorageCostCalculator
@@ -19,7 +19,7 @@ type ResourceAPIHandlers struct {
 	bandwidthReporter *BandwidthReporter
 }
 
-// NewResourceAPIHandlers 创建资源分析 API 处理器
+// NewResourceAPIHandlers 创建资源分析 API 处理器.
 func NewResourceAPIHandlers(gen *ReportGenerator) *ResourceAPIHandlers {
 	// 使用默认配置创建各分析器
 	costConfig := StorageCostConfig{
@@ -60,7 +60,7 @@ func NewResourceAPIHandlers(gen *ReportGenerator) *ResourceAPIHandlers {
 	}
 }
 
-// RegisterResourceRoutes 注册资源分析路由
+// RegisterResourceRoutes 注册资源分析路由.
 func (h *ResourceAPIHandlers) RegisterResourceRoutes(apiGroup *gin.RouterGroup) {
 	// ========== 存储成本分析 ==========
 	cost := apiGroup.Group("/storage-cost")
@@ -616,13 +616,13 @@ func (h *ResourceAPIHandlers) getBandwidthRecommendations(c *gin.Context) {
 
 // ========== v2.35.0 增强功能：导出报告 API ==========
 
-// EnhancedExportAPIHandlers 增强的导出 API 处理器
+// EnhancedExportAPIHandlers 增强的导出 API 处理器.
 type EnhancedExportAPIHandlers struct {
 	exporter         *Exporter
 	advancedExporter *AdvancedExcelExporter
 }
 
-// NewEnhancedExportAPIHandlers 创建增强导出 API 处理器
+// NewEnhancedExportAPIHandlers 创建增强导出 API 处理器.
 func NewEnhancedExportAPIHandlers(exporter *Exporter) *EnhancedExportAPIHandlers {
 	return &EnhancedExportAPIHandlers{
 		exporter:         exporter,
@@ -630,7 +630,7 @@ func NewEnhancedExportAPIHandlers(exporter *Exporter) *EnhancedExportAPIHandlers
 	}
 }
 
-// RegisterEnhancedExportRoutes 注册增强导出路由
+// RegisterEnhancedExportRoutes 注册增强导出路由.
 func (h *EnhancedExportAPIHandlers) RegisterEnhancedExportRoutes(apiGroup *gin.RouterGroup) {
 	export := apiGroup.Group("/enhanced-export")
 	{
@@ -649,7 +649,7 @@ func (h *EnhancedExportAPIHandlers) RegisterEnhancedExportRoutes(apiGroup *gin.R
 	}
 }
 
-// exportWithCharts 带图表导出
+// exportWithCharts 带图表导出.
 func (h *EnhancedExportAPIHandlers) exportWithCharts(c *gin.Context) {
 	var req struct {
 		Report        *GeneratedReport `json:"report" binding:"required"`
@@ -677,7 +677,7 @@ func (h *EnhancedExportAPIHandlers) exportWithCharts(c *gin.Context) {
 	api.OK(c, result)
 }
 
-// exportMultiSheet 多工作表导出
+// exportMultiSheet 多工作表导出.
 func (h *EnhancedExportAPIHandlers) exportMultiSheet(c *gin.Context) {
 	var req struct {
 		Report     *GeneratedReport  `json:"report" binding:"required"`
@@ -704,13 +704,13 @@ func (h *EnhancedExportAPIHandlers) exportMultiSheet(c *gin.Context) {
 	api.OK(c, result)
 }
 
-// listStyleTemplates 列出样式模板
+// listStyleTemplates 列出样式模板.
 func (h *EnhancedExportAPIHandlers) listStyleTemplates(c *gin.Context) {
 	templates := h.advancedExporter.ListStyleTemplates()
 	api.OK(c, templates)
 }
 
-// createStyleTemplate 创建样式模板
+// createStyleTemplate 创建样式模板.
 func (h *EnhancedExportAPIHandlers) createStyleTemplate(c *gin.Context) {
 	var template ExcelStyleTemplate
 	if err := c.ShouldBindJSON(&template); err != nil {
@@ -722,7 +722,7 @@ func (h *EnhancedExportAPIHandlers) createStyleTemplate(c *gin.Context) {
 	api.OK(c, gin.H{"message": "样式模板已注册", "id": template.ID})
 }
 
-// exportBatch 批量导出
+// exportBatch 批量导出.
 func (h *EnhancedExportAPIHandlers) exportBatch(c *gin.Context) {
 	var req struct {
 		Reports   []*GeneratedReport `json:"reports" binding:"required"`
@@ -762,7 +762,7 @@ func (h *EnhancedExportAPIHandlers) exportBatch(c *gin.Context) {
 	})
 }
 
-// previewExport 预览导出
+// previewExport 预览导出.
 func (h *EnhancedExportAPIHandlers) previewExport(c *gin.Context) {
 	var req struct {
 		Report *GeneratedReport `json:"report" binding:"required"`
@@ -802,14 +802,14 @@ func (h *EnhancedExportAPIHandlers) previewExport(c *gin.Context) {
 
 // ========== v2.35.0 增强功能：成本分析 API ==========
 
-// CostAnalysisAPIHandlers 成本分析 API 处理器
+// CostAnalysisAPIHandlers 成本分析 API 处理器.
 type CostAnalysisAPIHandlers struct {
 	enhancedAnalyzer *EnhancedCostAnalyzer
 	capacityAnalyzer *CapacityPlanningAnalyzer
 	trendAnalyzer    *ResourceTrendAnalyzer
 }
 
-// NewCostAnalysisAPIHandlers 创建成本分析 API 处理器
+// NewCostAnalysisAPIHandlers 创建成本分析 API 处理器.
 func NewCostAnalysisAPIHandlers(config StorageCostConfig) *CostAnalysisAPIHandlers {
 	return &CostAnalysisAPIHandlers{
 		enhancedAnalyzer: NewEnhancedCostAnalyzer(config),
@@ -818,7 +818,7 @@ func NewCostAnalysisAPIHandlers(config StorageCostConfig) *CostAnalysisAPIHandle
 	}
 }
 
-// RegisterCostAnalysisRoutes 注册成本分析路由
+// RegisterCostAnalysisRoutes 注册成本分析路由.
 func (h *CostAnalysisAPIHandlers) RegisterCostAnalysisRoutes(apiGroup *gin.RouterGroup) {
 	cost := apiGroup.Group("/cost-analysis")
 	{
@@ -856,7 +856,7 @@ func (h *CostAnalysisAPIHandlers) RegisterCostAnalysisRoutes(apiGroup *gin.Route
 	}
 }
 
-// forecastCost 成本预测
+// forecastCost 成本预测.
 func (h *CostAnalysisAPIHandlers) forecastCost(c *gin.Context) {
 	var req struct {
 		History []CostTrendDataPoint `json:"history" binding:"required"`
@@ -882,7 +882,7 @@ func (h *CostAnalysisAPIHandlers) forecastCost(c *gin.Context) {
 	api.OK(c, forecast)
 }
 
-// analyzeSeasonality 季节性分析
+// analyzeSeasonality 季节性分析.
 func (h *CostAnalysisAPIHandlers) analyzeSeasonality(c *gin.Context) {
 	var req struct {
 		History []CostTrendDataPoint `json:"history" binding:"required"`
@@ -897,7 +897,7 @@ func (h *CostAnalysisAPIHandlers) analyzeSeasonality(c *gin.Context) {
 	api.OK(c, seasonality)
 }
 
-// detectAnomalies 异常检测
+// detectAnomalies 异常检测.
 func (h *CostAnalysisAPIHandlers) detectAnomalies(c *gin.Context) {
 	var req struct {
 		History []CostTrendDataPoint `json:"history" binding:"required"`
@@ -912,7 +912,7 @@ func (h *CostAnalysisAPIHandlers) detectAnomalies(c *gin.Context) {
 	api.OK(c, anomalies)
 }
 
-// multiModelForecast 多模型预测对比
+// multiModelForecast 多模型预测对比.
 func (h *CostAnalysisAPIHandlers) multiModelForecast(c *gin.Context) {
 	var req struct {
 		History []CostTrendDataPoint `json:"history" binding:"required"`
@@ -944,7 +944,7 @@ func (h *CostAnalysisAPIHandlers) multiModelForecast(c *gin.Context) {
 	})
 }
 
-// calculateHealthScore 计算成本健康评分
+// calculateHealthScore 计算成本健康评分.
 func (h *CostAnalysisAPIHandlers) calculateHealthScore(c *gin.Context) {
 	var req struct {
 		VolumeCosts []VolumeCostAnalysis `json:"volume_costs"`
@@ -1013,7 +1013,7 @@ func (h *CostAnalysisAPIHandlers) calculateHealthScore(c *gin.Context) {
 	})
 }
 
-// analyzeCapacityEnhanced 增强容量分析
+// analyzeCapacityEnhanced 增强容量分析.
 func (h *CostAnalysisAPIHandlers) analyzeCapacityEnhanced(c *gin.Context) {
 	var req struct {
 		History         []CapacityHistory `json:"history" binding:"required"`
@@ -1040,7 +1040,7 @@ func (h *CostAnalysisAPIHandlers) analyzeCapacityEnhanced(c *gin.Context) {
 	api.OK(c, plan)
 }
 
-// generateScenarios 生成场景分析
+// generateScenarios 生成场景分析.
 func (h *CostAnalysisAPIHandlers) generateScenarios(c *gin.Context) {
 	var req struct {
 		History []CapacityHistory `json:"history" binding:"required"`
@@ -1061,7 +1061,7 @@ func (h *CostAnalysisAPIHandlers) generateScenarios(c *gin.Context) {
 	api.OK(c, scenarios)
 }
 
-// generateTimeline 生成扩容时间线
+// generateTimeline 生成扩容时间线.
 func (h *CostAnalysisAPIHandlers) generateTimeline(c *gin.Context) {
 	var req struct {
 		History    []CapacityHistory `json:"history" binding:"required"`
@@ -1084,7 +1084,7 @@ func (h *CostAnalysisAPIHandlers) generateTimeline(c *gin.Context) {
 	api.OK(c, timeline)
 }
 
-// assessRisks 风险评估
+// assessRisks 风险评估.
 func (h *CostAnalysisAPIHandlers) assessRisks(c *gin.Context) {
 	var req struct {
 		History    []CapacityHistory `json:"history" binding:"required"`
@@ -1107,7 +1107,7 @@ func (h *CostAnalysisAPIHandlers) assessRisks(c *gin.Context) {
 	api.OK(c, risks)
 }
 
-// getOptimizationPaths 获取优化路径
+// getOptimizationPaths 获取优化路径.
 func (h *CostAnalysisAPIHandlers) getOptimizationPaths(c *gin.Context) {
 	var req struct {
 		History    []CapacityHistory `json:"history" binding:"required"`
@@ -1130,7 +1130,7 @@ func (h *CostAnalysisAPIHandlers) getOptimizationPaths(c *gin.Context) {
 	api.OK(c, paths)
 }
 
-// analyzeResourceTrend 资源趋势分析
+// analyzeResourceTrend 资源趋势分析.
 func (h *CostAnalysisAPIHandlers) analyzeResourceTrend(c *gin.Context) {
 	var req struct {
 		StorageHistory   []CapacityHistory       `json:"storage_history"`
@@ -1168,7 +1168,7 @@ func (h *CostAnalysisAPIHandlers) analyzeResourceTrend(c *gin.Context) {
 	api.OK(c, analysis)
 }
 
-// analyzeStorageTrend 存储趋势分析
+// analyzeStorageTrend 存储趋势分析.
 func (h *CostAnalysisAPIHandlers) analyzeStorageTrend(c *gin.Context) {
 	var req struct {
 		History []CapacityHistory `json:"history" binding:"required"`
@@ -1183,7 +1183,7 @@ func (h *CostAnalysisAPIHandlers) analyzeStorageTrend(c *gin.Context) {
 	api.OK(c, metrics)
 }
 
-// analyzeIOTrend IO 趋势分析
+// analyzeIOTrend IO 趋势分析.
 func (h *CostAnalysisAPIHandlers) analyzeIOTrend(c *gin.Context) {
 	var req struct {
 		History []IOHistoryPoint `json:"history" binding:"required"`
@@ -1198,7 +1198,7 @@ func (h *CostAnalysisAPIHandlers) analyzeIOTrend(c *gin.Context) {
 	api.OK(c, metrics)
 }
 
-// analyzeBandwidthTrendEnhanced 带宽趋势分析增强
+// analyzeBandwidthTrendEnhanced 带宽趋势分析增强.
 func (h *CostAnalysisAPIHandlers) analyzeBandwidthTrendEnhanced(c *gin.Context) {
 	var req struct {
 		History []BandwidthHistoryPoint `json:"history" binding:"required"`
@@ -1213,7 +1213,7 @@ func (h *CostAnalysisAPIHandlers) analyzeBandwidthTrendEnhanced(c *gin.Context) 
 	api.OK(c, metrics)
 }
 
-// analyzeCorrelations 相关性分析
+// analyzeCorrelations 相关性分析.
 func (h *CostAnalysisAPIHandlers) analyzeCorrelations(c *gin.Context) {
 	var req struct {
 		StorageHistory   []CapacityHistory       `json:"storage_history"`
@@ -1235,7 +1235,7 @@ func (h *CostAnalysisAPIHandlers) analyzeCorrelations(c *gin.Context) {
 	api.OK(c, correlations)
 }
 
-// generateTrendAlerts 生成趋势预警
+// generateTrendAlerts 生成趋势预警.
 func (h *CostAnalysisAPIHandlers) generateTrendAlerts(c *gin.Context) {
 	var req struct {
 		StorageHistory []CapacityHistory `json:"storage_history"`

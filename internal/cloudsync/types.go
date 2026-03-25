@@ -4,14 +4,14 @@ import (
 	"time"
 )
 
-// ProviderType 云存储提供商类型
+// ProviderType 云存储提供商类型.
 type ProviderType string
 
-// 云存储提供商类型常量
+// 云存储提供商类型常量.
 const (
-	// ProviderAliyunOSS 阿里云 OSS
+	// ProviderAliyunOSS 阿里云 OSS.
 	ProviderAliyunOSS ProviderType = "aliyun_oss"
-	// ProviderTencentCOS 腾讯云 COS
+	// ProviderTencentCOS 腾讯云 COS.
 	ProviderTencentCOS   ProviderType = "tencent_cos"
 	ProviderAWSS3        ProviderType = "aws_s3"
 	ProviderGoogleDrive  ProviderType = "google_drive"
@@ -21,98 +21,98 @@ const (
 	ProviderS3Compatible ProviderType = "s3_compatible" // 通用 S3 兼容存储
 
 	// 中国网盘提供商
-	// Provider115 115网盘
+	// Provider115 115网盘.
 	Provider115 ProviderType = "115"
-	// ProviderQuark 夸克网盘
+	// ProviderQuark 夸克网盘.
 	ProviderQuark ProviderType = "quark"
-	// ProviderAliyunPan 阿里云盘
+	// ProviderAliyunPan 阿里云盘.
 	ProviderAliyunPan ProviderType = "aliyun_pan"
-	// ProviderBaiduPan 百度网盘
+	// ProviderBaiduPan 百度网盘.
 	ProviderBaiduPan ProviderType = "baidu_pan"
 )
 
-// SyncDirection 同步方向
+// SyncDirection 同步方向.
 type SyncDirection string
 
-// 同步方向常量
+// 同步方向常量.
 const (
-	// SyncDirectionUpload 本地 → 云端
+	// SyncDirectionUpload 本地 → 云端.
 	SyncDirectionUpload SyncDirection = "upload"
-	// SyncDirectionDownload 云端 → 本地
+	// SyncDirectionDownload 云端 → 本地.
 	SyncDirectionDownload SyncDirection = "download"
-	// SyncDirectionBidirect 双向同步
+	// SyncDirectionBidirect 双向同步.
 	SyncDirectionBidirect SyncDirection = "bidirect"
 )
 
-// SyncMode 同步模式
+// SyncMode 同步模式.
 type SyncMode string
 
-// 同步模式常量
+// 同步模式常量.
 const (
-	// SyncModeMirror 镜像模式（本地为主）
+	// SyncModeMirror 镜像模式（本地为主）.
 	SyncModeMirror SyncMode = "mirror"
-	// SyncModeBackup 备份模式（保留历史）
+	// SyncModeBackup 备份模式（保留历史）.
 	SyncModeBackup SyncMode = "backup"
-	// SyncModeSync 同步模式（双向）
+	// SyncModeSync 同步模式（双向）.
 	SyncModeSync SyncMode = "sync"
-	// SyncModeIncrement 增量同步
+	// SyncModeIncrement 增量同步.
 	SyncModeIncrement SyncMode = "increment"
 )
 
-// ScheduleType 调度类型
+// ScheduleType 调度类型.
 type ScheduleType string
 
-// 调度类型常量
+// 调度类型常量.
 const (
-	// ScheduleTypeManual 手动触发
+	// ScheduleTypeManual 手动触发.
 	ScheduleTypeManual ScheduleType = "manual"
-	// ScheduleTypeRealtime 实时监控
+	// ScheduleTypeRealtime 实时监控.
 	ScheduleTypeRealtime ScheduleType = "realtime"
-	// ScheduleTypeInterval 定时执行
+	// ScheduleTypeInterval 定时执行.
 	ScheduleTypeInterval ScheduleType = "interval"
-	// ScheduleTypeCron Cron 表达式
+	// ScheduleTypeCron Cron 表达式.
 	ScheduleTypeCron ScheduleType = "cron"
 )
 
-// ConflictStrategy 冲突解决策略
+// ConflictStrategy 冲突解决策略.
 type ConflictStrategy string
 
-// 冲突解决策略常量
+// 冲突解决策略常量.
 const (
-	// ConflictStrategySkip 跳过冲突文件
+	// ConflictStrategySkip 跳过冲突文件.
 	ConflictStrategySkip ConflictStrategy = "skip"
-	// ConflictStrategyLocal 本地优先
+	// ConflictStrategyLocal 本地优先.
 	ConflictStrategyLocal ConflictStrategy = "local"
-	// ConflictStrategyRemote 远程优先
+	// ConflictStrategyRemote 远程优先.
 	ConflictStrategyRemote ConflictStrategy = "remote"
-	// ConflictStrategyNewer 较新文件优先
+	// ConflictStrategyNewer 较新文件优先.
 	ConflictStrategyNewer ConflictStrategy = "newer"
-	// ConflictStrategyRename 重命名冲突文件
+	// ConflictStrategyRename 重命名冲突文件.
 	ConflictStrategyRename ConflictStrategy = "rename"
-	// ConflictStrategyAsk 询问用户
+	// ConflictStrategyAsk 询问用户.
 	ConflictStrategyAsk ConflictStrategy = "ask"
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
-// 任务状态常量
+// 任务状态常量.
 const (
-	// TaskStatusIdle 空闲状态
+	// TaskStatusIdle 空闲状态.
 	TaskStatusIdle TaskStatus = "idle"
-	// TaskStatusRunning 运行中
+	// TaskStatusRunning 运行中.
 	TaskStatusRunning TaskStatus = "running"
-	// TaskStatusPaused 已暂停
+	// TaskStatusPaused 已暂停.
 	TaskStatusPaused TaskStatus = "paused"
-	// TaskStatusCompleted 已完成
+	// TaskStatusCompleted 已完成.
 	TaskStatusCompleted TaskStatus = "completed"
-	// TaskStatusFailed 已失败
+	// TaskStatusFailed 已失败.
 	TaskStatusFailed TaskStatus = "failed"
-	// TaskStatusCancelled 已取消
+	// TaskStatusCancelled 已取消.
 	TaskStatusCancelled TaskStatus = "cancelled"
 )
 
-// ProviderConfig 云存储提供商配置
+// ProviderConfig 云存储提供商配置.
 type ProviderConfig struct {
 	ID        string       `json:"id"`
 	Name      string       `json:"name"`
@@ -153,7 +153,7 @@ type ProviderConfig struct {
 	RetryCount     int `json:"retryCount,omitempty"`
 }
 
-// SyncTask 同步任务配置
+// SyncTask 同步任务配置.
 type SyncTask struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
@@ -198,7 +198,7 @@ type SyncTask struct {
 	LastError string     `json:"lastError,omitempty"`
 }
 
-// SyncStatus 同步状态
+// SyncStatus 同步状态.
 type SyncStatus struct {
 	TaskID    string     `json:"taskId"`
 	Status    TaskStatus `json:"status"`
@@ -231,7 +231,7 @@ type SyncStatus struct {
 	Errors []SyncError `json:"errors,omitempty"`
 }
 
-// ConflictInfo 冲突信息
+// ConflictInfo 冲突信息.
 type ConflictInfo struct {
 	Path          string           `json:"path"`
 	LocalModTime  time.Time        `json:"localModTime"`
@@ -243,7 +243,7 @@ type ConflictInfo struct {
 	Resolution    ConflictStrategy `json:"resolution,omitempty"`
 }
 
-// SyncError 同步错误
+// SyncError 同步错误.
 type SyncError struct {
 	Time   time.Time `json:"time"`
 	Path   string    `json:"path"`
@@ -251,7 +251,7 @@ type SyncError struct {
 	Error  string    `json:"error"`
 }
 
-// FileInfo 文件信息
+// FileInfo 文件信息.
 type FileInfo struct {
 	Path    string    `json:"path"`
 	Size    int64     `json:"size"`
@@ -261,7 +261,7 @@ type FileInfo struct {
 	Version string    `json:"version,omitempty"`
 }
 
-// SyncOperation 同步操作
+// SyncOperation 同步操作.
 type SyncOperation struct {
 	Type       SyncOpType `json:"type"`
 	LocalPath  string     `json:"localPath"`
@@ -271,25 +271,25 @@ type SyncOperation struct {
 	Hash       string     `json:"hash,omitempty"`
 }
 
-// SyncOpType 同步操作类型
+// SyncOpType 同步操作类型.
 type SyncOpType string
 
 const (
-	// SyncOpUpload 上传操作
+	// SyncOpUpload 上传操作.
 	SyncOpUpload SyncOpType = "upload"
-	// SyncOpDownload 下载操作
+	// SyncOpDownload 下载操作.
 	SyncOpDownload SyncOpType = "download"
-	// SyncOpDeleteLocal 删除本地
+	// SyncOpDeleteLocal 删除本地.
 	SyncOpDeleteLocal SyncOpType = "delete_local"
-	// SyncOpDeleteRemote 删除远程
+	// SyncOpDeleteRemote 删除远程.
 	SyncOpDeleteRemote SyncOpType = "delete_remote"
-	// SyncOpSkip 跳过
+	// SyncOpSkip 跳过.
 	SyncOpSkip SyncOpType = "skip"
-	// SyncOpConflict 冲突
+	// SyncOpConflict 冲突.
 	SyncOpConflict SyncOpType = "conflict"
 )
 
-// ProviderInfo 提供商信息
+// ProviderInfo 提供商信息.
 type ProviderInfo struct {
 	Type        ProviderType `json:"type"`
 	Name        string       `json:"name"`
@@ -297,7 +297,7 @@ type ProviderInfo struct {
 	Features    []string     `json:"features"`
 }
 
-// SyncStats 同步统计
+// SyncStats 同步统计.
 type SyncStats struct {
 	TotalTasks      int64     `json:"totalTasks"`
 	ActiveTasks     int64     `json:"activeTasks"`
@@ -308,7 +308,7 @@ type SyncStats struct {
 	LastSyncTime    time.Time `json:"lastSyncTime,omitempty"`
 }
 
-// SupportedProviders 返回支持的提供商列表
+// SupportedProviders 返回支持的提供商列表.
 func SupportedProviders() []ProviderInfo {
 	return []ProviderInfo{
 		{

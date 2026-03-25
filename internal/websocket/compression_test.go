@@ -734,7 +734,7 @@ func TestDefaultCompressionConfig(t *testing.T) {
 	}
 }
 
-// 基准测试
+// 基准测试.
 func BenchmarkGzipCompressor_Compress(b *testing.B) {
 	compressor := NewGzipCompressor(6)
 	testData := []byte(strings.Repeat("Hello, World! ", 1000))

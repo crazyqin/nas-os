@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RequestLoggerConfig 配置请求日志中间件
+// RequestLoggerConfig 配置请求日志中间件.
 type RequestLoggerConfig struct {
 	// SkipPaths 跳过日志记录的路径
 	SkipPaths []string
@@ -29,12 +29,12 @@ type RequestLoggerConfig struct {
 	Logger RequestLogger
 }
 
-// RequestLogger 日志接口
+// RequestLogger 日志接口.
 type RequestLogger interface {
 	LogRequest(entry *RequestLogEntry)
 }
 
-// RequestLogEntry 请求日志条目
+// RequestLogEntry 请求日志条目.
 type RequestLogEntry struct {
 	Timestamp    time.Time   `json:"timestamp"`
 	Method       string      `json:"method"`
@@ -56,16 +56,16 @@ type RequestLogEntry struct {
 	APIVersion   string      `json:"apiVersion,omitempty"`
 }
 
-// DefaultRequestLogger 默认日志记录器
+// DefaultRequestLogger 默认日志记录器.
 type DefaultRequestLogger struct{}
 
-// LogRequest 记录请求日志
+// LogRequest 记录请求日志.
 func (l *DefaultRequestLogger) LogRequest(entry *RequestLogEntry) {
 	logData, _ := json.Marshal(entry)
 	log.Printf("[API] %s", string(logData))
 }
 
-// DefaultRequestLoggerConfig 默认配置
+// DefaultRequestLoggerConfig 默认配置.
 var DefaultRequestLoggerConfig = RequestLoggerConfig{
 	SkipPaths: []string{
 		"/health",
@@ -89,7 +89,7 @@ var DefaultRequestLoggerConfig = RequestLoggerConfig{
 	Logger: &DefaultRequestLogger{},
 }
 
-// responseWriter 包装 gin.ResponseWriter 以捕获响应体
+// responseWriter 包装 gin.ResponseWriter 以捕获响应体.
 type responseWriter struct {
 	gin.ResponseWriter
 	body *bytes.Buffer
@@ -105,7 +105,7 @@ func (w *responseWriter) WriteString(s string) (int, error) {
 	return w.ResponseWriter.WriteString(s)
 }
 
-// RequestLoggerMiddleware 创建请求日志中间件
+// RequestLoggerMiddleware 创建请求日志中间件.
 func RequestLoggerMiddleware(config RequestLoggerConfig) gin.HandlerFunc {
 	// 设置默认值
 	if config.MaxBodySize == 0 {
@@ -221,7 +221,7 @@ func RequestLoggerMiddleware(config RequestLoggerConfig) gin.HandlerFunc {
 	}
 }
 
-// maskSensitiveFields 脱敏敏感字段
+// maskSensitiveFields 脱敏敏感字段.
 func maskSensitiveFields(data map[string]interface{}, sensitiveFields []string) map[string]interface{} {
 	result := make(map[string]interface{})
 	for k, v := range data {
@@ -239,7 +239,7 @@ func maskSensitiveFields(data map[string]interface{}, sensitiveFields []string) 
 	return result
 }
 
-// isSensitiveField 检查字段是否为敏感字段
+// isSensitiveField 检查字段是否为敏感字段.
 func isSensitiveField(field string, sensitiveFields []string) bool {
 	fieldLower := strings.ToLower(field)
 	for _, sf := range sensitiveFields {
@@ -250,14 +250,14 @@ func isSensitiveField(field string, sensitiveFields []string) bool {
 	return false
 }
 
-// RequestLoggerWithSkip 创建带跳过路径的请求日志中间件
+// RequestLoggerWithSkip 创建带跳过路径的请求日志中间件.
 func RequestLoggerWithSkip(skipPaths ...string) gin.HandlerFunc {
 	config := DefaultRequestLoggerConfig
 	config.SkipPaths = append(config.SkipPaths, skipPaths...)
 	return RequestLoggerMiddleware(config)
 }
 
-// RequestLoggerFull 创建完整请求日志中间件（包含请求和响应体）
+// RequestLoggerFull 创建完整请求日志中间件（包含请求和响应体）.
 func RequestLoggerFull() gin.HandlerFunc {
 	config := DefaultRequestLoggerConfig
 	config.LogRequestBody = true
@@ -265,7 +265,7 @@ func RequestLoggerFull() gin.HandlerFunc {
 	return RequestLoggerMiddleware(config)
 }
 
-// RequestLoggerMinimal 创建最小请求日志中间件
+// RequestLoggerMinimal 创建最小请求日志中间件.
 func RequestLoggerMinimal() gin.HandlerFunc {
 	config := DefaultRequestLoggerConfig
 	config.LogRequestBody = false
@@ -273,7 +273,7 @@ func RequestLoggerMinimal() gin.HandlerFunc {
 	return RequestLoggerMiddleware(config)
 }
 
-// GetRequestLogEntry 从上下文获取请求日志条目（用于扩展）
+// GetRequestLogEntry 从上下文获取请求日志条目（用于扩展）.
 func GetRequestLogEntry(c *gin.Context) *RequestLogEntry {
 	if entry, exists := c.Get("requestLogEntry"); exists {
 		if e, ok := entry.(*RequestLogEntry); ok {
@@ -283,12 +283,12 @@ func GetRequestLogEntry(c *gin.Context) *RequestLogEntry {
 	return nil
 }
 
-// SetRequestLogEntry 设置请求日志条目到上下文（用于扩展）
+// SetRequestLogEntry 设置请求日志条目到上下文（用于扩展）.
 func SetRequestLogEntry(c *gin.Context, entry *RequestLogEntry) {
 	c.Set("requestLogEntry", entry)
 }
 
-// RequestIDMiddleware 请求 ID 中间件
+// RequestIDMiddleware 请求 ID 中间件.
 func RequestIDMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestID := c.GetHeader("X-Request-ID")
@@ -301,7 +301,7 @@ func RequestIDMiddleware() gin.HandlerFunc {
 	}
 }
 
-// generateRequestID 生成请求 ID
+// generateRequestID 生成请求 ID.
 func generateRequestID() string {
 	const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, 16)

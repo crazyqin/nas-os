@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// TestCalculateTiers 测试层级计算算法
+// TestCalculateTiers 测试层级计算算法.
 func TestCalculateTiers(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
@@ -83,7 +83,7 @@ func TestCalculateTiers(t *testing.T) {
 	}
 }
 
-// TestSelectRAIDConfig 测试 RAID 配置选择
+// TestSelectRAIDConfig 测试 RAID 配置选择.
 func TestSelectRAIDConfig(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
@@ -148,7 +148,7 @@ func TestSelectRAIDConfig(t *testing.T) {
 	}
 }
 
-// TestGetRAIDEfficiency 测试 RAID 效率计算
+// TestGetRAIDEfficiency 测试 RAID 效率计算.
 func TestGetRAIDEfficiency(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
@@ -186,7 +186,7 @@ func TestGetRAIDEfficiency(t *testing.T) {
 	}
 }
 
-// TestCalculateCapacity 测试容量计算
+// TestCalculateCapacity 测试容量计算.
 func TestCalculateCapacity(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
@@ -243,7 +243,7 @@ func TestCalculateCapacity(t *testing.T) {
 	}
 }
 
-// TestSmartDeviceTypeDetection 测试设备类型检测
+// TestSmartDeviceTypeDetection 测试设备类型检测.
 func TestSmartDeviceTypeDetection(t *testing.T) {
 	tests := []struct {
 		devicePath   string
@@ -270,7 +270,7 @@ func TestSmartDeviceTypeDetection(t *testing.T) {
 	}
 }
 
-// TestExpansionPlan 测试扩容计划
+// TestExpansionPlan 测试扩容计划.
 func TestExpansionPlan(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
@@ -324,7 +324,7 @@ func TestExpansionPlan(t *testing.T) {
 	}
 }
 
-// TestReplaceDevice 测试设备替换
+// TestReplaceDevice 测试设备替换.
 func TestReplaceDevice(t *testing.T) {
 	// 这个测试验证设备替换的逻辑
 	// 实际替换操作需要真实的 Btrfs 环境
@@ -340,7 +340,7 @@ func TestReplaceDevice(t *testing.T) {
 	})
 }
 
-// BenchmarkCalculateTiers 基准测试层级计算
+// BenchmarkCalculateTiers 基准测试层级计算.
 func BenchmarkCalculateTiers(b *testing.B) {
 	manager, _ := NewSmartRAIDManager("")
 
@@ -361,7 +361,7 @@ func BenchmarkCalculateTiers(b *testing.B) {
 	}
 }
 
-// BenchmarkSelectRAIDConfig 基准测试 RAID 选择
+// BenchmarkSelectRAIDConfig 基准测试 RAID 选择.
 func BenchmarkSelectRAIDConfig(b *testing.B) {
 	manager, _ := NewSmartRAIDManager("")
 	policy := DefaultRAIDPolicy

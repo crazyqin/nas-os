@@ -8,7 +8,7 @@ import (
 	"nas-os/pkg/btrfs"
 )
 
-// MockBtrfsClient 模拟 btrfs 客户端
+// MockBtrfsClient 模拟 btrfs 客户端.
 type MockBtrfsClient struct {
 	volumes    []btrfs.VolumeInfo
 	subvolumes []btrfs.SubVolumeInfo

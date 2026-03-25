@@ -15,7 +15,7 @@ import (
 
 // ========== 文件读写性能基准测试 ==========
 
-// BenchmarkFileWrite 小文件写入性能
+// BenchmarkFileWrite 小文件写入性能.
 func BenchmarkFileWrite_Small(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-write-small")
 	if err != nil {
@@ -35,7 +35,7 @@ func BenchmarkFileWrite_Small(b *testing.B) {
 	b.ReportMetric(float64(len(data)), "bytes/op")
 }
 
-// BenchmarkFileWrite_Medium 中等文件写入性能
+// BenchmarkFileWrite_Medium 中等文件写入性能.
 func BenchmarkFileWrite_Medium(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-write-medium")
 	if err != nil {
@@ -55,7 +55,7 @@ func BenchmarkFileWrite_Medium(b *testing.B) {
 	b.ReportMetric(float64(len(data)), "bytes/op")
 }
 
-// BenchmarkFileWrite_Large 大文件写入性能
+// BenchmarkFileWrite_Large 大文件写入性能.
 func BenchmarkFileWrite_Large(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-write-large")
 	if err != nil {
@@ -75,7 +75,7 @@ func BenchmarkFileWrite_Large(b *testing.B) {
 	b.ReportMetric(float64(len(data)), "bytes/op")
 }
 
-// BenchmarkFileRead_Small 小文件读取性能
+// BenchmarkFileRead_Small 小文件读取性能.
 func BenchmarkFileRead_Small(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-read-small")
 	if err != nil {
@@ -99,7 +99,7 @@ func BenchmarkFileRead_Small(b *testing.B) {
 	b.ReportMetric(float64(len(data)), "bytes/op")
 }
 
-// BenchmarkFileRead_Medium 中等文件读取性能
+// BenchmarkFileRead_Medium 中等文件读取性能.
 func BenchmarkFileRead_Medium(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-read-medium")
 	if err != nil {
@@ -123,7 +123,7 @@ func BenchmarkFileRead_Medium(b *testing.B) {
 	b.ReportMetric(float64(len(data)), "bytes/op")
 }
 
-// BenchmarkFileRead_Large 大文件读取性能
+// BenchmarkFileRead_Large 大文件读取性能.
 func BenchmarkFileRead_Large(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-read-large")
 	if err != nil {
@@ -147,7 +147,7 @@ func BenchmarkFileRead_Large(b *testing.B) {
 	b.ReportMetric(float64(len(data)), "bytes/op")
 }
 
-// BenchmarkFileStat 文件状态查询性能
+// BenchmarkFileStat 文件状态查询性能.
 func BenchmarkFileStat(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-stat")
 	if err != nil {
@@ -169,7 +169,7 @@ func BenchmarkFileStat(b *testing.B) {
 	}
 }
 
-// BenchmarkFileExists 文件存在性检查性能
+// BenchmarkFileExists 文件存在性检查性能.
 func BenchmarkFileExists(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-exists")
 	if err != nil {
@@ -192,7 +192,7 @@ func BenchmarkFileExists(b *testing.B) {
 
 // ========== 并发操作性能基准测试 ==========
 
-// BenchmarkConcurrentFileWrite 并发文件写入
+// BenchmarkConcurrentFileWrite 并发文件写入.
 func BenchmarkConcurrentFileWrite(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-concurrent-write")
 	if err != nil {
@@ -215,7 +215,7 @@ func BenchmarkConcurrentFileWrite(b *testing.B) {
 	})
 }
 
-// BenchmarkConcurrentFileRead 并发文件读取
+// BenchmarkConcurrentFileRead 并发文件读取.
 func BenchmarkConcurrentFileRead(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-concurrent-read")
 	if err != nil {
@@ -246,7 +246,7 @@ func BenchmarkConcurrentFileRead(b *testing.B) {
 	})
 }
 
-// BenchmarkConcurrentFileReadWrite 混合并发读写
+// BenchmarkConcurrentFileReadWrite 混合并发读写.
 func BenchmarkConcurrentFileReadWrite(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-concurrent-rw")
 	if err != nil {
@@ -280,7 +280,7 @@ func BenchmarkConcurrentFileReadWrite(b *testing.B) {
 	})
 }
 
-// BenchmarkConcurrentDirectoryCreate 并发目录创建
+// BenchmarkConcurrentDirectoryCreate 并发目录创建.
 func BenchmarkConcurrentDirectoryCreate(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-concurrent-dir")
 	if err != nil {
@@ -299,7 +299,7 @@ func BenchmarkConcurrentDirectoryCreate(b *testing.B) {
 	})
 }
 
-// BenchmarkConcurrentCacheWithFileIO 缓存+文件IO混合并发
+// BenchmarkConcurrentCacheWithFileIO 缓存+文件IO混合并发.
 func BenchmarkConcurrentCacheWithFileIO(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-cache-fileio")
 	if err != nil {
@@ -340,7 +340,7 @@ func BenchmarkConcurrentCacheWithFileIO(b *testing.B) {
 
 // ========== 缓存命中率测试 ==========
 
-// BenchmarkCacheHitRate_High 高命中率场景 (90%+)
+// BenchmarkCacheHitRate_High 高命中率场景 (90%+).
 func BenchmarkCacheHitRate_High(b *testing.B) {
 	c := cache.NewLRUCache(1000, time.Minute)
 
@@ -374,7 +374,7 @@ func BenchmarkCacheHitRate_High(b *testing.B) {
 	b.ReportMetric(float64(hits)/float64(hits+misses)*100, "hit_rate_%")
 }
 
-// BenchmarkCacheHitRate_Medium 中命中率场景 (50-70%)
+// BenchmarkCacheHitRate_Medium 中命中率场景 (50-70%).
 func BenchmarkCacheHitRate_Medium(b *testing.B) {
 	c := cache.NewLRUCache(500, time.Minute)
 
@@ -410,7 +410,7 @@ func BenchmarkCacheHitRate_Medium(b *testing.B) {
 	b.ReportMetric(float64(hits)/float64(hits+misses)*100, "hit_rate_%")
 }
 
-// BenchmarkCacheHitRate_Low 低命中率场景 (<30%)
+// BenchmarkCacheHitRate_Low 低命中率场景 (<30%).
 func BenchmarkCacheHitRate_Low(b *testing.B) {
 	c := cache.NewLRUCache(100, time.Minute)
 
@@ -441,7 +441,7 @@ func BenchmarkCacheHitRate_Low(b *testing.B) {
 	b.ReportMetric(float64(hits)/float64(hits+misses)*100, "hit_rate_%")
 }
 
-// BenchmarkCacheEviction 缓存驱逐性能
+// BenchmarkCacheEviction 缓存驱逐性能.
 func BenchmarkCacheEviction(b *testing.B) {
 	c := cache.NewLRUCache(100, time.Minute)
 
@@ -451,7 +451,7 @@ func BenchmarkCacheEviction(b *testing.B) {
 	}
 }
 
-// BenchmarkCacheSequential 顺序访问模式
+// BenchmarkCacheSequential 顺序访问模式.
 func BenchmarkCacheSequential(b *testing.B) {
 	c := cache.NewLRUCache(1000, time.Minute)
 
@@ -466,7 +466,7 @@ func BenchmarkCacheSequential(b *testing.B) {
 	}
 }
 
-// BenchmarkCacheRandom 随机访问模式
+// BenchmarkCacheRandom 随机访问模式.
 func BenchmarkCacheRandom(b *testing.B) {
 	c := cache.NewLRUCache(1000, time.Minute)
 
@@ -489,7 +489,7 @@ func BenchmarkCacheRandom(b *testing.B) {
 	}
 }
 
-// BenchmarkCacheZipf Zipf 分布访问模式（模拟真实热点）
+// BenchmarkCacheZipf Zipf 分布访问模式（模拟真实热点）.
 func BenchmarkCacheZipf(b *testing.B) {
 	c := cache.NewLRUCache(1000, time.Minute)
 
@@ -509,7 +509,7 @@ func BenchmarkCacheZipf(b *testing.B) {
 
 // ========== 综合性能测试 ==========
 
-// BenchmarkStorageWorkload_Simulated 模拟存储工作负载
+// BenchmarkStorageWorkload_Simulated 模拟存储工作负载.
 func BenchmarkStorageWorkload_Simulated(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-workload")
 	if err != nil {
@@ -551,7 +551,7 @@ func BenchmarkStorageWorkload_Simulated(b *testing.B) {
 	})
 }
 
-// BenchmarkStorageWorkload_HeavyWrite 重写入工作负载
+// BenchmarkStorageWorkload_HeavyWrite 重写入工作负载.
 func BenchmarkStorageWorkload_HeavyWrite(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-heavy-write")
 	if err != nil {
@@ -574,7 +574,7 @@ func BenchmarkStorageWorkload_HeavyWrite(b *testing.B) {
 	})
 }
 
-// BenchmarkStorageWorkload_HeavyRead 重读取工作负载
+// BenchmarkStorageWorkload_HeavyRead 重读取工作负载.
 func BenchmarkStorageWorkload_HeavyRead(b *testing.B) {
 	tmpDir, err := os.MkdirTemp("", "bench-heavy-read")
 	if err != nil {
@@ -605,7 +605,7 @@ func BenchmarkStorageWorkload_HeavyRead(b *testing.B) {
 	})
 }
 
-// BenchmarkMemoryAllocation 文件路径内存分配
+// BenchmarkMemoryAllocation 文件路径内存分配.
 func BenchmarkMemoryAllocation_FilePath(b *testing.B) {
 	base := "/mnt/data"
 
@@ -616,7 +616,7 @@ func BenchmarkMemoryAllocation_FilePath(b *testing.B) {
 	}
 }
 
-// BenchmarkMemoryAllocation_CacheItem 缓存项内存分配
+// BenchmarkMemoryAllocation_CacheItem 缓存项内存分配.
 func BenchmarkMemoryAllocation_CacheItem(b *testing.B) {
 	c := cache.NewLRUCache(10000, time.Minute)
 

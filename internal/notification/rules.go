@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// RuleEngine 规则引擎
+// RuleEngine 规则引擎.
 type RuleEngine struct {
 	rules     []*Rule
 	ruleMap   map[string]*Rule
@@ -25,7 +25,7 @@ type rateLimitEntry struct {
 	resetTime time.Time
 }
 
-// NewRuleEngine 创建规则引擎
+// NewRuleEngine 创建规则引擎.
 func NewRuleEngine(storePath string) (*RuleEngine, error) {
 	engine := &RuleEngine{
 		rules:     make([]*Rule, 0),
@@ -41,7 +41,7 @@ func NewRuleEngine(storePath string) (*RuleEngine, error) {
 	return engine, nil
 }
 
-// load 加载规则
+// load 加载规则.
 func (e *RuleEngine) load() error {
 	if e.storePath == "" {
 		return nil
@@ -75,7 +75,7 @@ func (e *RuleEngine) load() error {
 	return nil
 }
 
-// save 保存规则
+// save 保存规则.
 func (e *RuleEngine) save() error {
 	if e.storePath == "" {
 		return nil
@@ -94,7 +94,7 @@ func (e *RuleEngine) save() error {
 	return os.WriteFile(e.storePath, data, 0640)
 }
 
-// sortRules 按优先级排序规则
+// sortRules 按优先级排序规则.
 func (e *RuleEngine) sortRules() {
 	// 简单冒泡排序，按优先级降序
 	for i := 0; i < len(e.rules); i++ {
@@ -106,7 +106,7 @@ func (e *RuleEngine) sortRules() {
 	}
 }
 
-// CreateRule 创建规则
+// CreateRule 创建规则.
 func (e *RuleEngine) CreateRule(rule *Rule) error {
 	if rule.ID == "" {
 		return fmt.Errorf("规则 ID 不能为空")
@@ -132,7 +132,7 @@ func (e *RuleEngine) CreateRule(rule *Rule) error {
 	return e.save()
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (e *RuleEngine) UpdateRule(rule *Rule) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -158,7 +158,7 @@ func (e *RuleEngine) UpdateRule(rule *Rule) error {
 	return e.save()
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (e *RuleEngine) DeleteRule(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -180,7 +180,7 @@ func (e *RuleEngine) DeleteRule(id string) error {
 	return e.save()
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (e *RuleEngine) GetRule(id string) (*Rule, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -193,7 +193,7 @@ func (e *RuleEngine) GetRule(id string) (*Rule, error) {
 	return rule, nil
 }
 
-// ListRules 列出规则
+// ListRules 列出规则.
 func (e *RuleEngine) ListRules() []*Rule {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -203,7 +203,7 @@ func (e *RuleEngine) ListRules() []*Rule {
 	return result
 }
 
-// MatchRules 匹配规则
+// MatchRules 匹配规则.
 func (e *RuleEngine) MatchRules(notification *Notification) []*Rule {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -233,7 +233,7 @@ func (e *RuleEngine) MatchRules(notification *Notification) []*Rule {
 	return matched
 }
 
-// evaluateConditions 评估条件组
+// evaluateConditions 评估条件组.
 func (e *RuleEngine) evaluateConditions(group RuleGroup, notification *Notification) bool {
 	switch group.Operator {
 	case OperatorAnd:
@@ -279,7 +279,7 @@ func (e *RuleEngine) evaluateConditions(group RuleGroup, notification *Notificat
 	}
 }
 
-// evaluateCondition 评估单个条件
+// evaluateCondition 评估单个条件.
 func (e *RuleEngine) evaluateCondition(condition RuleConditionItem, notification *Notification) bool {
 	value := e.getFieldValue(notification, condition.Field)
 
@@ -316,7 +316,7 @@ func (e *RuleEngine) evaluateCondition(condition RuleConditionItem, notification
 	}
 }
 
-// getFieldValue 获取字段值
+// getFieldValue 获取字段值.
 func (e *RuleEngine) getFieldValue(notification *Notification, field string) interface{} {
 	parts := strings.Split(field, ".")
 
@@ -355,7 +355,7 @@ func (e *RuleEngine) getFieldValue(notification *Notification, field string) int
 	return current
 }
 
-// compareEquals 比较相等
+// compareEquals 比较相等.
 func (e *RuleEngine) compareEquals(a, b interface{}) bool {
 	if a == nil && b == nil {
 		return true
@@ -366,7 +366,7 @@ func (e *RuleEngine) compareEquals(a, b interface{}) bool {
 	return fmt.Sprintf("%v", a) == fmt.Sprintf("%v", b)
 }
 
-// checkContains 检查包含
+// checkContains 检查包含.
 func (e *RuleEngine) checkContains(a, b interface{}) bool {
 	if a == nil {
 		return false
@@ -378,7 +378,7 @@ func (e *RuleEngine) checkContains(a, b interface{}) bool {
 	return strings.Contains(aStr, bStr)
 }
 
-// compareNumbers 比较数字
+// compareNumbers 比较数字.
 func (e *RuleEngine) compareNumbers(a, b interface{}, op string) (bool, error) {
 	aFloat, err := toFloat64Value(a)
 	if err != nil {
@@ -400,7 +400,7 @@ func (e *RuleEngine) compareNumbers(a, b interface{}, op string) (bool, error) {
 	}
 }
 
-// checkRegex 正则匹配
+// checkRegex 正则匹配.
 func (e *RuleEngine) checkRegex(value, pattern interface{}) (bool, error) {
 	if value == nil {
 		return false, nil
@@ -417,7 +417,7 @@ func (e *RuleEngine) checkRegex(value, pattern interface{}) (bool, error) {
 	return matched, nil
 }
 
-// isQuietHours 检查是否在静默时段
+// isQuietHours 检查是否在静默时段.
 func (e *RuleEngine) isQuietHours(rule *Rule) bool {
 	if rule.QuietHours == nil {
 		return false
@@ -466,7 +466,7 @@ func (e *RuleEngine) isQuietHours(rule *Rule) bool {
 	return currentTime.After(startDateTime) && currentTime.Before(endDateTime)
 }
 
-// checkRateLimit 检查频率限制
+// checkRateLimit 检查频率限制.
 func (e *RuleEngine) checkRateLimit(rule *Rule, notification *Notification) bool {
 	if rule.RateLimit == nil {
 		return true
@@ -497,7 +497,7 @@ func (e *RuleEngine) checkRateLimit(rule *Rule, notification *Notification) bool
 	return true
 }
 
-// EnableRule 启用规则
+// EnableRule 启用规则.
 func (e *RuleEngine) EnableRule(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -513,7 +513,7 @@ func (e *RuleEngine) EnableRule(id string) error {
 	return e.save()
 }
 
-// DisableRule 禁用规则
+// DisableRule 禁用规则.
 func (e *RuleEngine) DisableRule(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -529,7 +529,7 @@ func (e *RuleEngine) DisableRule(id string) error {
 	return e.save()
 }
 
-// TestRule 测试规则
+// TestRule 测试规则.
 func (e *RuleEngine) TestRule(rule *Rule, notification *Notification) *RuleTestResult {
 	result := &RuleTestResult{
 		RuleID:      rule.ID,
@@ -551,7 +551,7 @@ func (e *RuleEngine) TestRule(rule *Rule, notification *Notification) *RuleTestR
 	return result
 }
 
-// RuleTestResult 规则测试结果
+// RuleTestResult 规则测试结果.
 type RuleTestResult struct {
 	RuleID      string                `json:"ruleId"`
 	RuleName    string                `json:"ruleName"`
@@ -560,7 +560,7 @@ type RuleTestResult struct {
 	Evaluations []ConditionEvaluation `json:"evaluations,omitempty"`
 }
 
-// ConditionEvaluation 条件评估结果
+// ConditionEvaluation 条件评估结果.
 type ConditionEvaluation struct {
 	Field     string        `json:"field"`
 	Condition RuleCondition `json:"condition"`

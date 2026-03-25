@@ -19,7 +19,7 @@ import (
 	_ "modernc.org/sqlite" // 纯 Go SQLite 驱动，自动注册 database/sql 驱动
 )
 
-// Monitor 系统监控器
+// Monitor 系统监控器.
 type Monitor struct {
 	hostname       string
 	db             *sql.DB
@@ -31,7 +31,7 @@ type Monitor struct {
 	historyEnabled bool
 }
 
-// Stats 系统统计信息
+// Stats 系统统计信息.
 type Stats struct {
 	CPUUsage      float64   `json:"cpuUsage"`
 	CPUCores      int       `json:"cpuCores"`
@@ -51,10 +51,10 @@ type Stats struct {
 }
 
 // SystemStats 是 Stats 的别名，保持向后兼容
-// Deprecated: Use Stats instead
+// Deprecated: Use Stats instead.
 type SystemStats = Stats //nolint:revive // 向后兼容别名
 
-// DiskStats 磁盘统计信息
+// DiskStats 磁盘统计信息.
 type DiskStats struct {
 	Device       string  `json:"device"`
 	MountPoint   string  `json:"mountPoint"`
@@ -69,7 +69,7 @@ type DiskStats struct {
 	WriteOps     uint64  `json:"writeOps,omitempty"`
 }
 
-// NetworkStats 网络统计信息
+// NetworkStats 网络统计信息.
 type NetworkStats struct {
 	Interface  string    `json:"interface"`
 	RXBytes    uint64    `json:"rxBytes"`
@@ -83,14 +83,14 @@ type NetworkStats struct {
 	LastUpdate time.Time `json:"lastUpdate"`
 }
 
-// NetworkSpeed 网络速度快照
+// NetworkSpeed 网络速度快照.
 type NetworkSpeed struct {
 	RXBytes uint64    `json:"rxBytes"`
 	TXBytes uint64    `json:"txBytes"`
 	Time    time.Time `json:"time"`
 }
 
-// SMARTInfo SMART 信息
+// SMARTInfo SMART 信息.
 type SMARTInfo struct {
 	Device       string `json:"device"`
 	Model        string `json:"model"`
@@ -104,7 +104,7 @@ type SMARTInfo struct {
 	Pending      uint64 `json:"pending"`
 }
 
-// ProcessInfo 进程信息
+// ProcessInfo 进程信息.
 type ProcessInfo struct {
 	PID      int     `json:"pid"`
 	Name     string  `json:"name"`
@@ -116,7 +116,7 @@ type ProcessInfo struct {
 	CPUTime  string  `json:"cpuTime"`
 }
 
-// HistoryData 历史数据点
+// HistoryData 历史数据点.
 type HistoryData struct {
 	Timestamp time.Time `json:"timestamp"`
 	CPU       float64   `json:"cpu"`
@@ -125,7 +125,7 @@ type HistoryData struct {
 	NetTX     uint64    `json:"netTX"`
 }
 
-// Alert 告警信息
+// Alert 告警信息.
 type Alert struct {
 	ID           string    `json:"id"`
 	Type         string    `json:"type"`
@@ -137,7 +137,7 @@ type Alert struct {
 	Resolved     bool      `json:"resolved"`
 }
 
-// RealTimeData 实时数据（WebSocket 推送）
+// RealTimeData 实时数据（WebSocket 推送）.
 type RealTimeData struct {
 	Type      string          `json:"type"`
 	System    *Stats          `json:"system,omitempty"`
@@ -147,7 +147,7 @@ type RealTimeData struct {
 	Timestamp time.Time       `json:"timestamp"`
 }
 
-// NewMonitor 创建监控器
+// NewMonitor 创建监控器.
 func NewMonitor(dbPath string) (*Monitor, error) {
 	hostname, _ := os.Hostname()
 
@@ -170,7 +170,7 @@ func NewMonitor(dbPath string) (*Monitor, error) {
 	return m, nil
 }
 
-// initDB 初始化 SQLite 数据库
+// initDB 初始化 SQLite 数据库.
 func (m *Monitor) initDB(dbPath string) error {
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
@@ -213,21 +213,21 @@ func (m *Monitor) initDB(dbPath string) error {
 	return err
 }
 
-// RegisterClient 注册 WebSocket 客户端
+// RegisterClient 注册 WebSocket 客户端.
 func (m *Monitor) RegisterClient(id string, conn *websocket.Conn) {
 	m.clientsMu.Lock()
 	defer m.clientsMu.Unlock()
 	m.clients[id] = conn
 }
 
-// UnregisterClient 注销 WebSocket 客户端
+// UnregisterClient 注销 WebSocket 客户端.
 func (m *Monitor) UnregisterClient(id string) {
 	m.clientsMu.Lock()
 	defer m.clientsMu.Unlock()
 	delete(m.clients, id)
 }
 
-// Broadcast 广播数据到所有客户端
+// Broadcast 广播数据到所有客户端.
 func (m *Monitor) Broadcast(data *RealTimeData) {
 	m.clientsMu.RLock()
 	defer m.clientsMu.RUnlock()
@@ -250,7 +250,7 @@ func (m *Monitor) Broadcast(data *RealTimeData) {
 	}
 }
 
-// startDataCollection 启动数据采集
+// startDataCollection 启动数据采集.
 func (m *Monitor) startDataCollection() {
 	ticker := time.NewTicker(m.dataInterval)
 	defer ticker.Stop()
@@ -305,7 +305,7 @@ func (m *Monitor) startDataCollection() {
 	}
 }
 
-// calculateDiskIO 计算磁盘 IO 速度
+// calculateDiskIO 计算磁盘 IO 速度.
 func (m *Monitor) calculateDiskIO(disks []*DiskStats, prev map[string]struct {
 	ReadBytes  uint64
 	WriteBytes uint64
@@ -342,7 +342,7 @@ func (m *Monitor) calculateDiskIO(disks []*DiskStats, prev map[string]struct {
 	}
 }
 
-// GetSystemStats 获取系统统计信息
+// GetSystemStats 获取系统统计信息.
 func (m *Monitor) GetSystemStats() (*Stats, error) {
 	stats := &Stats{
 		Timestamp: time.Now(),
@@ -395,7 +395,7 @@ func (m *Monitor) GetSystemStats() (*Stats, error) {
 	return stats, nil
 }
 
-// GetDiskStats 获取磁盘统计信息
+// GetDiskStats 获取磁盘统计信息.
 func (m *Monitor) GetDiskStats() ([]*DiskStats, error) {
 	var stats []*DiskStats
 
@@ -444,7 +444,7 @@ func (m *Monitor) GetDiskStats() ([]*DiskStats, error) {
 	return stats, nil
 }
 
-// GetNetworkStats 获取网络统计信息
+// GetNetworkStats 获取网络统计信息.
 func (m *Monitor) GetNetworkStats(prev map[string]*NetworkSpeed) ([]*NetworkStats, error) {
 	var stats []*NetworkStats
 	now := time.Now()
@@ -512,7 +512,7 @@ func (m *Monitor) GetNetworkStats(prev map[string]*NetworkSpeed) ([]*NetworkStat
 	return stats, nil
 }
 
-// GetSMARTInfo 获取磁盘 SMART 信息
+// GetSMARTInfo 获取磁盘 SMART 信息.
 func (m *Monitor) GetSMARTInfo(device string) (*SMARTInfo, error) {
 	info := &SMARTInfo{
 		Device: device,
@@ -608,7 +608,7 @@ func (m *Monitor) GetSMARTInfo(device string) (*SMARTInfo, error) {
 	return info, nil
 }
 
-// CheckAllDisks 检查所有磁盘
+// CheckAllDisks 检查所有磁盘.
 func (m *Monitor) CheckAllDisks() ([]*SMARTInfo, error) {
 	var results []*SMARTInfo
 
@@ -633,7 +633,7 @@ func (m *Monitor) CheckAllDisks() ([]*SMARTInfo, error) {
 	return results, nil
 }
 
-// GetTopProcesses 获取资源占用 Top10 进程
+// GetTopProcesses 获取资源占用 Top10 进程.
 func (m *Monitor) GetTopProcesses(limit int) ([]*ProcessInfo, error) {
 	if limit <= 0 {
 		limit = 10
@@ -680,7 +680,7 @@ func (m *Monitor) GetTopProcesses(limit int) ([]*ProcessInfo, error) {
 	return processes, nil
 }
 
-// GetHistoryData 获取历史数据
+// GetHistoryData 获取历史数据.
 func (m *Monitor) GetHistoryData(duration string, interval string) ([]*HistoryData, error) {
 	var timeRange string
 	switch duration {
@@ -723,7 +723,7 @@ func (m *Monitor) GetHistoryData(duration string, interval string) ([]*HistoryDa
 	return data, rows.Err()
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *Monitor) GetAlerts() ([]*Alert, error) {
 	query := `SELECT id, type, level, message, source, timestamp, acknowledged, resolved FROM alerts ORDER BY timestamp DESC`
 
@@ -749,7 +749,7 @@ func (m *Monitor) GetAlerts() ([]*Alert, error) {
 	return alerts, rows.Err()
 }
 
-// AddAlert 添加告警
+// AddAlert 添加告警.
 func (m *Monitor) AddAlert(alert *Alert) error {
 	query := `INSERT OR REPLACE INTO alerts (id, type, level, message, source, timestamp, acknowledged, resolved) 
 			  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
@@ -759,14 +759,14 @@ func (m *Monitor) AddAlert(alert *Alert) error {
 	return err
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (m *Monitor) AcknowledgeAlert(id string) error {
 	query := `UPDATE alerts SET acknowledged = 1 WHERE id = ?`
 	_, err := m.db.Exec(query, id)
 	return err
 }
 
-// saveHistoryData 保存历史数据
+// saveHistoryData 保存历史数据.
 func (m *Monitor) saveHistoryData(system *Stats, network []*NetworkStats) {
 	m.historyMu.Lock()
 	defer m.historyMu.Unlock()
@@ -798,7 +798,7 @@ func (m *Monitor) saveHistoryData(system *Stats, network []*NetworkStats) {
 	m.cleanupOldData()
 }
 
-// cleanupOldData 清理旧数据
+// cleanupOldData 清理旧数据.
 func (m *Monitor) cleanupOldData() {
 	_, err := m.db.Exec(`DELETE FROM system_history WHERE timestamp < datetime('now', '-90 days')`)
 	if err != nil {
@@ -806,7 +806,7 @@ func (m *Monitor) cleanupOldData() {
 	}
 }
 
-// 辅助函数
+// 辅助函数.
 func (m *Monitor) getCPUUsage() (float64, error) {
 	data, err := os.ReadFile("/proc/stat")
 	if err != nil {
@@ -967,12 +967,12 @@ func (m *Monitor) getLoadAverage() ([]float64, error) {
 	return loadAvg, nil
 }
 
-// GetHostname 获取主机名
+// GetHostname 获取主机名.
 func (m *Monitor) GetHostname() string {
 	return m.hostname
 }
 
-// Close 关闭监控器
+// Close 关闭监控器.
 func (m *Monitor) Close() {
 	close(m.stopChan)
 	if m.db != nil {

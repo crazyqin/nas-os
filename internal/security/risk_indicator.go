@@ -17,7 +17,7 @@ import (
 
 // ========== 风险指标类型定义 ==========
 
-// RiskIndicator 风险指标
+// RiskIndicator 风险指标.
 type RiskIndicator struct {
 	ID             string     `json:"id"`
 	CVEID          string     `json:"cve_id"`
@@ -37,7 +37,7 @@ type RiskIndicator struct {
 	LastUpdated    time.Time  `json:"last_updated"`
 }
 
-// KEVInfo KEV 漏洞详情
+// KEVInfo KEV 漏洞详情.
 type KEVInfo struct {
 	CVEID                      string     `json:"cve_id"`
 	VendorProject              string     `json:"vendor_project"`
@@ -55,7 +55,7 @@ type KEVInfo struct {
 	ActiveExploitation         bool       `json:"active_exploitation"`
 }
 
-// EPSSData EPSS 数据
+// EPSSData EPSS 数据.
 type EPSSData struct {
 	CVEID      string    `json:"cve"`
 	EPSSScore  float64   `json:"epss"`
@@ -63,7 +63,7 @@ type EPSSData struct {
 	Date       time.Time `json:"date"`
 }
 
-// RiskScoreFactors 风险评分因子
+// RiskScoreFactors 风险评分因子.
 type RiskScoreFactors struct {
 	CVSSWeight       float64 `json:"cvss_weight"`       // CVSS 权重
 	EPSSWeight       float64 `json:"epss_weight"`       // EPSS 权重
@@ -74,7 +74,7 @@ type RiskScoreFactors struct {
 	RansomwareWeight float64 `json:"ransomware_weight"` // 勒索软件权重
 }
 
-// DefaultRiskScoreFactors 默认风险评分因子
+// DefaultRiskScoreFactors 默认风险评分因子.
 func DefaultRiskScoreFactors() RiskScoreFactors {
 	return RiskScoreFactors{
 		CVSSWeight:       0.25,
@@ -87,7 +87,7 @@ func DefaultRiskScoreFactors() RiskScoreFactors {
 	}
 }
 
-// RiskIndicatorConfig 风险指标配置
+// RiskIndicatorConfig 风险指标配置.
 type RiskIndicatorConfig struct {
 	Enabled                 bool             `json:"enabled"`
 	KEVSourceURL            string           `json:"kev_source_url"`
@@ -103,7 +103,7 @@ type RiskIndicatorConfig struct {
 	OfflineMode             bool             `json:"offline_mode"`
 }
 
-// DefaultRiskIndicatorConfig 默认配置
+// DefaultRiskIndicatorConfig 默认配置.
 func DefaultRiskIndicatorConfig() RiskIndicatorConfig {
 	return RiskIndicatorConfig{
 		Enabled:                 true,
@@ -121,7 +121,7 @@ func DefaultRiskIndicatorConfig() RiskIndicatorConfig {
 	}
 }
 
-// RiskIndicatorManager 风险指标管理器
+// RiskIndicatorManager 风险指标管理器.
 type RiskIndicatorManager struct {
 	config       RiskIndicatorConfig
 	kevCatalog   *KEVCatalog
@@ -136,7 +136,7 @@ type RiskIndicatorManager struct {
 	cancel       context.CancelFunc
 }
 
-// KEVCatalog KEV 目录
+// KEVCatalog KEV 目录.
 type KEVCatalog struct {
 	Title           string     `json:"title"`
 	CatalogVersion  string     `json:"catalogVersion"`
@@ -145,7 +145,7 @@ type KEVCatalog struct {
 	Vulnerabilities []KEVEntry `json:"vulnerabilities"`
 }
 
-// KEVEntry KEV 条目
+// KEVEntry KEV 条目.
 type KEVEntry struct {
 	CVEID                      string `json:"cveID"`
 	VendorProject              string `json:"vendorProject"`
@@ -161,7 +161,7 @@ type KEVEntry struct {
 
 // ========== KEV 数据库集成 ==========
 
-// NewRiskIndicatorManager 创建风险指标管理器
+// NewRiskIndicatorManager 创建风险指标管理器.
 func NewRiskIndicatorManager(config RiskIndicatorConfig) *RiskIndicatorManager {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -192,7 +192,7 @@ func NewRiskIndicatorManager(config RiskIndicatorConfig) *RiskIndicatorManager {
 	return rim
 }
 
-// loadCache 加载本地缓存
+// loadCache 加载本地缓存.
 func (rim *RiskIndicatorManager) loadCache() {
 	// 加载 KEV 缓存
 	kevCachePath := filepath.Join(rim.storageDir, "kev_catalog.json")
@@ -213,7 +213,7 @@ func (rim *RiskIndicatorManager) loadCache() {
 	}
 }
 
-// saveCache 保存缓存
+// saveCache 保存缓存.
 func (rim *RiskIndicatorManager) saveCache() error {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
@@ -237,7 +237,7 @@ func (rim *RiskIndicatorManager) saveCache() error {
 	return nil
 }
 
-// FetchKEVCatalog 获取 KEV 目录
+// FetchKEVCatalog 获取 KEV 目录.
 func (rim *RiskIndicatorManager) FetchKEVCatalog(ctx context.Context) error {
 	if rim.config.OfflineMode {
 		return fmt.Errorf("离线模式下无法获取 KEV 目录")
@@ -280,7 +280,7 @@ func (rim *RiskIndicatorManager) FetchKEVCatalog(ctx context.Context) error {
 	return rim.saveCache()
 }
 
-// FetchEPSSData 获取 EPSS 数据
+// FetchEPSSData 获取 EPSS 数据.
 func (rim *RiskIndicatorManager) FetchEPSSData(ctx context.Context, cveIDs []string) (map[string]*EPSSData, error) {
 	if rim.config.OfflineMode {
 		return nil, fmt.Errorf("离线模式下无法获取 EPSS 数据")
@@ -370,7 +370,7 @@ func (rim *RiskIndicatorManager) FetchEPSSData(ctx context.Context, cveIDs []str
 	return results, nil
 }
 
-// GetKEVInfo 获取 KEV 信息
+// GetKEVInfo 获取 KEV 信息.
 func (rim *RiskIndicatorManager) GetKEVInfo(cveID string) *KEVInfo {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
@@ -384,7 +384,7 @@ func (rim *RiskIndicatorManager) GetKEVInfo(cveID string) *KEVInfo {
 	return nil
 }
 
-// parseKEVEntry 解析 KEV 条目
+// parseKEVEntry 解析 KEV 条目.
 func (rim *RiskIndicatorManager) parseKEVEntry(entry KEVEntry) *KEVInfo {
 	dateAdded, _ := time.Parse("2006-01-02", entry.DateAdded)
 
@@ -415,7 +415,7 @@ func (rim *RiskIndicatorManager) parseKEVEntry(entry KEVEntry) *KEVInfo {
 	}
 }
 
-// parseActionsRequired 解析所需行动
+// parseActionsRequired 解析所需行动.
 func (rim *RiskIndicatorManager) parseActionsRequired(requiredAction string) []string {
 	actions := []string{}
 
@@ -446,7 +446,7 @@ func (rim *RiskIndicatorManager) parseActionsRequired(requiredAction string) []s
 	return actions
 }
 
-// parseExploitReferences 解析利用参考
+// parseExploitReferences 解析利用参考.
 func (rim *RiskIndicatorManager) parseExploitReferences(notes string) []string {
 	refs := []string{}
 
@@ -461,7 +461,7 @@ func (rim *RiskIndicatorManager) parseExploitReferences(notes string) []string {
 	return refs
 }
 
-// GetEPSSData 获取 EPSS 数据
+// GetEPSSData 获取 EPSS 数据.
 func (rim *RiskIndicatorManager) GetEPSSData(cveID string) *EPSSData {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
@@ -469,14 +469,14 @@ func (rim *RiskIndicatorManager) GetEPSSData(cveID string) *EPSSData {
 	return rim.epssCache[cveID]
 }
 
-// IsInKEV 检查 CVE 是否在 KEV 目录中
+// IsInKEV 检查 CVE 是否在 KEV 目录中.
 func (rim *RiskIndicatorManager) IsInKEV(cveID string) bool {
 	return rim.GetKEVInfo(cveID) != nil
 }
 
 // ========== 风险评分计算 ==========
 
-// CalculateRiskScore 计算综合风险评分
+// CalculateRiskScore 计算综合风险评分.
 func (rim *RiskIndicatorManager) CalculateRiskScore(
 	cveID string,
 	cvssScore float64,
@@ -535,7 +535,7 @@ func (rim *RiskIndicatorManager) CalculateRiskScore(
 	return indicator
 }
 
-// computeRiskScore 计算风险评分核心逻辑
+// computeRiskScore 计算风险评分核心逻辑.
 func (rim *RiskIndicatorManager) computeRiskScore(
 	cvssScore float64,
 	epssScore float64,
@@ -604,7 +604,7 @@ func (rim *RiskIndicatorManager) computeRiskScore(
 	return totalScore
 }
 
-// scoreToRiskLevel 分数转风险等级
+// scoreToRiskLevel 分数转风险等级.
 func (rim *RiskIndicatorManager) scoreToRiskLevel(score float64) string {
 	switch {
 	case score >= 80:
@@ -618,7 +618,7 @@ func (rim *RiskIndicatorManager) scoreToRiskLevel(score float64) string {
 	}
 }
 
-// determineExploitability 确定可利用性
+// determineExploitability 确定可利用性.
 func (rim *RiskIndicatorManager) determineExploitability(indicator *RiskIndicator) string {
 	if indicator.IsInKEV {
 		if indicator.KEVInfo != nil && indicator.KEVInfo.ActiveExploitation {
@@ -639,7 +639,7 @@ func (rim *RiskIndicatorManager) determineExploitability(indicator *RiskIndicato
 	return "none"
 }
 
-// determinePriority 确定优先级
+// determinePriority 确定优先级.
 func (rim *RiskIndicatorManager) determinePriority(indicator *RiskIndicator) int {
 	switch {
 	case indicator.RiskScore >= 80:
@@ -653,7 +653,7 @@ func (rim *RiskIndicatorManager) determinePriority(indicator *RiskIndicator) int
 	}
 }
 
-// getKEVInfoUnlocked 无锁获取 KEV 信息
+// getKEVInfoUnlocked 无锁获取 KEV 信息.
 func (rim *RiskIndicatorManager) getKEVInfoUnlocked(cveID string) *KEVInfo {
 	for _, entry := range rim.kevCatalog.Vulnerabilities {
 		if entry.CVEID == cveID {
@@ -665,7 +665,7 @@ func (rim *RiskIndicatorManager) getKEVInfoUnlocked(cveID string) *KEVInfo {
 
 // ========== 批量操作 ==========
 
-// GetRiskIndicators 批量获取风险指标
+// GetRiskIndicators 批量获取风险指标.
 func (rim *RiskIndicatorManager) GetRiskIndicators(vulnerabilities []VulnerabilityItem) []*RiskIndicator {
 	indicators := make([]*RiskIndicator, 0, len(vulnerabilities))
 
@@ -710,7 +710,7 @@ func (rim *RiskIndicatorManager) GetRiskIndicators(vulnerabilities []Vulnerabili
 
 // ========== 报告生成 ==========
 
-// RiskIndicatorReport 风险指标报告
+// RiskIndicatorReport 风险指标报告.
 type RiskIndicatorReport struct {
 	GeneratedAt             time.Time             `json:"generated_at"`
 	TotalVulnerabilities    int                   `json:"total_vulnerabilities"`
@@ -729,7 +729,7 @@ type RiskIndicatorReport struct {
 	KEVCatalogInfo          *KEVCatalogInfo       `json:"kev_catalog_info"`
 }
 
-// RiskRemediationItem 风险修复优先级项
+// RiskRemediationItem 风险修复优先级项.
 type RiskRemediationItem struct {
 	CVEID       string     `json:"cve_id"`
 	RiskScore   float64    `json:"risk_score"`
@@ -739,14 +739,14 @@ type RiskRemediationItem struct {
 	IsOverdue   bool       `json:"is_overdue,omitempty"`
 }
 
-// KEVCatalogInfo KEV 目录信息
+// KEVCatalogInfo KEV 目录信息.
 type KEVCatalogInfo struct {
 	Version      string    `json:"version"`
 	LastUpdated  time.Time `json:"last_updated"`
 	TotalEntries int       `json:"total_entries"`
 }
 
-// GenerateRiskReport 生成风险报告
+// GenerateRiskReport 生成风险报告.
 func (rim *RiskIndicatorManager) GenerateRiskReport(vulnerabilities []VulnerabilityItem) *RiskIndicatorReport {
 	indicators := rim.GetRiskIndicators(vulnerabilities)
 
@@ -844,7 +844,7 @@ func (rim *RiskIndicatorManager) GenerateRiskReport(vulnerabilities []Vulnerabil
 
 // ========== 自动更新 ==========
 
-// autoUpdateLoop 自动更新循环
+// autoUpdateLoop 自动更新循环.
 func (rim *RiskIndicatorManager) autoUpdateLoop() {
 	// 初始更新
 	ctx := context.Background()
@@ -873,13 +873,13 @@ func (rim *RiskIndicatorManager) autoUpdateLoop() {
 	}
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (rim *RiskIndicatorManager) Stop() {
 	rim.cancel()
 	_ = rim.saveCache()
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (rim *RiskIndicatorManager) GetStatus() map[string]interface{} {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
@@ -896,14 +896,14 @@ func (rim *RiskIndicatorManager) GetStatus() map[string]interface{} {
 	}
 }
 
-// GetKEVCatalog 获取 KEV 目录
+// GetKEVCatalog 获取 KEV 目录.
 func (rim *RiskIndicatorManager) GetKEVCatalog() *KEVCatalog {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
 	return rim.kevCatalog
 }
 
-// GetAllKEVVulnerabilities 获取所有 KEV 漏洞
+// GetAllKEVVulnerabilities 获取所有 KEV 漏洞.
 func (rim *RiskIndicatorManager) GetAllKEVVulnerabilities() []*KEVInfo {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
@@ -916,7 +916,7 @@ func (rim *RiskIndicatorManager) GetAllKEVVulnerabilities() []*KEVInfo {
 	return result
 }
 
-// SearchKEV 搜索 KEV 目录
+// SearchKEV 搜索 KEV 目录.
 func (rim *RiskIndicatorManager) SearchKEV(query string) []*KEVInfo {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
@@ -938,7 +938,7 @@ func (rim *RiskIndicatorManager) SearchKEV(query string) []*KEVInfo {
 	return result
 }
 
-// FilterKEVByVendor 按厂商过滤 KEV
+// FilterKEVByVendor 按厂商过滤 KEV.
 func (rim *RiskIndicatorManager) FilterKEVByVendor(vendor string) []*KEVInfo {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
@@ -955,7 +955,7 @@ func (rim *RiskIndicatorManager) FilterKEVByVendor(vendor string) []*KEVInfo {
 	return result
 }
 
-// FilterKEVByProduct 按产品过滤 KEV
+// FilterKEVByProduct 按产品过滤 KEV.
 func (rim *RiskIndicatorManager) FilterKEVByProduct(product string) []*KEVInfo {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
@@ -972,7 +972,7 @@ func (rim *RiskIndicatorManager) FilterKEVByProduct(product string) []*KEVInfo {
 	return result
 }
 
-// FilterKEVByRansomware 过滤与勒索软件相关的 KEV
+// FilterKEVByRansomware 过滤与勒索软件相关的 KEV.
 func (rim *RiskIndicatorManager) FilterKEVByRansomware() []*KEVInfo {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
@@ -988,7 +988,7 @@ func (rim *RiskIndicatorManager) FilterKEVByRansomware() []*KEVInfo {
 	return result
 }
 
-// GetOverdueKEVVulnerabilities 获取过期的 KEV 漏洞
+// GetOverdueKEVVulnerabilities 获取过期的 KEV 漏洞.
 func (rim *RiskIndicatorManager) GetOverdueKEVVulnerabilities() []*KEVInfo {
 	rim.mu.RLock()
 	defer rim.mu.RUnlock()
@@ -1011,7 +1011,7 @@ func (rim *RiskIndicatorManager) GetOverdueKEVVulnerabilities() []*KEVInfo {
 
 // ========== 风险指标统计 ==========
 
-// RiskStatistics 风险统计
+// RiskStatistics 风险统计.
 type RiskStatistics struct {
 	TotalIndicators    int               `json:"total_indicators"`
 	ByRiskLevel        map[string]int    `json:"by_risk_level"`
@@ -1024,7 +1024,7 @@ type RiskStatistics struct {
 	TopVendors         []VendorRiskStats `json:"top_vendors"`
 }
 
-// VendorRiskStats 厂商风险统计
+// VendorRiskStats 厂商风险统计.
 type VendorRiskStats struct {
 	Vendor       string  `json:"vendor"`
 	VulnCount    int     `json:"vuln_count"`
@@ -1032,7 +1032,7 @@ type VendorRiskStats struct {
 	KEVCount     int     `json:"kev_count"`
 }
 
-// GetStatistics 获取风险统计
+// GetStatistics 获取风险统计.
 func (rim *RiskIndicatorManager) GetStatistics(indicators []*RiskIndicator) *RiskStatistics {
 	if len(indicators) == 0 {
 		return &RiskStatistics{

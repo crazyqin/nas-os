@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 任务状态
+// 任务状态.
 const (
 	TaskStatusPending   = "pending"
 	TaskStatusScheduled = "scheduled"
@@ -25,7 +25,7 @@ const (
 	TaskStatusRetrying  = "retrying"
 )
 
-// 任务优先级
+// 任务优先级.
 const (
 	TaskPriorityLow      = 1
 	TaskPriorityNormal   = 5
@@ -33,7 +33,7 @@ const (
 	TaskPriorityCritical = 100
 )
 
-// 任务类型
+// 任务类型.
 const (
 	TaskTypeCompute   = "compute"
 	TaskTypeInference = "inference"
@@ -43,7 +43,7 @@ const (
 	TaskTypeStream    = "stream"
 )
 
-// TaskRequirements 任务需求
+// TaskRequirements 任务需求.
 type TaskRequirements struct {
 	CPU          int               `json:"cpu"`          // 最小 CPU 核心数
 	Memory       int64             `json:"memory"`       // 最小内存 (MB)
@@ -56,7 +56,7 @@ type TaskRequirements struct {
 	Labels       map[string]string `json:"labels"`       // 标签选择器
 }
 
-// TaskConfig 任务配置
+// TaskConfig 任务配置.
 type TaskConfig struct {
 	Timeout     int      `json:"timeout"`     // 超时时间（秒）
 	MaxRetries  int      `json:"max_retries"` // 最大重试次数
@@ -66,7 +66,7 @@ type TaskConfig struct {
 	Tags        []string `json:"tags"`        // 标签
 }
 
-// Task 任务定义
+// Task 任务定义.
 type Task struct {
 	ID           string                 `json:"id"`
 	Name         string                 `json:"name"`
@@ -90,7 +90,7 @@ type Task struct {
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// TaskResult 任务结果
+// TaskResult 任务结果.
 type TaskResult struct {
 	TaskID    string                 `json:"task_id"`
 	NodeID    string                 `json:"node_id"`
@@ -103,7 +103,7 @@ type TaskResult struct {
 	Metrics   map[string]interface{} `json:"metrics,omitempty"`
 }
 
-// TaskSchedule 任务调度配置
+// TaskSchedule 任务调度配置.
 type TaskSchedule struct {
 	TaskID   string    `json:"task_id"`
 	Schedule string    `json:"schedule"` // cron 表达式
@@ -113,7 +113,7 @@ type TaskSchedule struct {
 	RunCount int       `json:"run_count"`
 }
 
-// TaskSchedulerConfig 调度器配置
+// TaskSchedulerConfig 调度器配置.
 type TaskSchedulerConfig struct {
 	DataDir          string `json:"data_dir"`
 	MaxConcurrent    int    `json:"max_concurrent"`    // 最大并发任务数
@@ -122,7 +122,7 @@ type TaskSchedulerConfig struct {
 	ScheduleInterval int    `json:"schedule_interval"` // 调度间隔（秒）
 }
 
-// TaskScheduler 任务调度器
+// TaskScheduler 任务调度器.
 type TaskScheduler struct {
 	config         TaskSchedulerConfig
 	tasks          map[string]*Task
@@ -143,7 +143,7 @@ type TaskScheduler struct {
 	callbacks   TaskCallbacks
 }
 
-// TaskCallbacks 任务回调
+// TaskCallbacks 任务回调.
 type TaskCallbacks struct {
 	OnTaskCreated   func(task *Task)
 	OnTaskScheduled func(task *Task, nodeID string)
@@ -152,7 +152,7 @@ type TaskCallbacks struct {
 	OnTaskFailed    func(task *Task, err error)
 }
 
-// NewTaskScheduler 创建任务调度器
+// NewTaskScheduler 创建任务调度器.
 func NewTaskScheduler(config TaskSchedulerConfig, logger *zap.Logger) (*TaskScheduler, error) {
 	if config.DataDir == "" {
 		config.DataDir = "/var/lib/nas-os/edge/tasks"
@@ -199,7 +199,7 @@ func NewTaskScheduler(config TaskSchedulerConfig, logger *zap.Logger) (*TaskSche
 	return ts, nil
 }
 
-// Initialize 初始化任务调度器
+// Initialize 初始化任务调度器.
 func (ts *TaskScheduler) Initialize() error {
 	ts.logger.Info("初始化任务调度器")
 
@@ -221,22 +221,22 @@ func (ts *TaskScheduler) Initialize() error {
 	return nil
 }
 
-// SetEdgeManager 设置边缘节点管理器
+// SetEdgeManager 设置边缘节点管理器.
 func (ts *TaskScheduler) SetEdgeManager(manager *EdgeNodeManager) {
 	ts.edgeManager = manager
 }
 
-// SetResultAggregator 设置结果聚合器
+// SetResultAggregator 设置结果聚合器.
 func (ts *TaskScheduler) SetResultAggregator(agg *ResultAggregator) {
 	ts.resultAgg = agg
 }
 
-// SetCallbacks 设置回调
+// SetCallbacks 设置回调.
 func (ts *TaskScheduler) SetCallbacks(callbacks TaskCallbacks) {
 	ts.callbacks = callbacks
 }
 
-// CreateTask 创建任务
+// CreateTask 创建任务.
 func (ts *TaskScheduler) CreateTask(task *Task) error {
 	ts.tasksMutex.Lock()
 	defer ts.tasksMutex.Unlock()
@@ -281,7 +281,7 @@ func (ts *TaskScheduler) CreateTask(task *Task) error {
 	return ts.saveTasksLocked()
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (ts *TaskScheduler) GetTask(taskID string) (*Task, bool) {
 	ts.tasksMutex.RLock()
 	defer ts.tasksMutex.RUnlock()
@@ -290,7 +290,7 @@ func (ts *TaskScheduler) GetTask(taskID string) (*Task, bool) {
 	return task, exists
 }
 
-// GetTasks 获取所有任务
+// GetTasks 获取所有任务.
 func (ts *TaskScheduler) GetTasks() []*Task {
 	ts.tasksMutex.RLock()
 	defer ts.tasksMutex.RUnlock()
@@ -302,7 +302,7 @@ func (ts *TaskScheduler) GetTasks() []*Task {
 	return tasks
 }
 
-// GetTasksByStatus 按状态获取任务
+// GetTasksByStatus 按状态获取任务.
 func (ts *TaskScheduler) GetTasksByStatus(status string) []*Task {
 	ts.tasksMutex.RLock()
 	defer ts.tasksMutex.RUnlock()
@@ -316,7 +316,7 @@ func (ts *TaskScheduler) GetTasksByStatus(status string) []*Task {
 	return tasks
 }
 
-// GetTasksByNode 获取节点上的任务
+// GetTasksByNode 获取节点上的任务.
 func (ts *TaskScheduler) GetTasksByNode(nodeID string) []*Task {
 	ts.tasksMutex.RLock()
 	defer ts.tasksMutex.RUnlock()
@@ -330,7 +330,7 @@ func (ts *TaskScheduler) GetTasksByNode(nodeID string) []*Task {
 	return tasks
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (ts *TaskScheduler) CancelTask(taskID string) error {
 	ts.tasksMutex.Lock()
 	defer ts.tasksMutex.Unlock()
@@ -350,7 +350,7 @@ func (ts *TaskScheduler) CancelTask(taskID string) error {
 	return ts.saveTasksLocked()
 }
 
-// RetryTask 重试任务
+// RetryTask 重试任务.
 func (ts *TaskScheduler) RetryTask(taskID string) error {
 	ts.tasksMutex.Lock()
 	defer ts.tasksMutex.Unlock()
@@ -375,7 +375,7 @@ func (ts *TaskScheduler) RetryTask(taskID string) error {
 	return ts.saveTasksLocked()
 }
 
-// CreateScheduledTask 创建定时任务
+// CreateScheduledTask 创建定时任务.
 func (ts *TaskScheduler) CreateScheduledTask(task *Task, schedule string) error {
 	if err := ts.CreateTask(task); err != nil {
 		return err
@@ -403,7 +403,7 @@ func (ts *TaskScheduler) CreateScheduledTask(task *Task, schedule string) error 
 	return ts.saveSchedules()
 }
 
-// triggerScheduledTask 触发定时任务
+// triggerScheduledTask 触发定时任务.
 func (ts *TaskScheduler) triggerScheduledTask(taskID string) {
 	ts.schedulesMutex.Lock()
 	if sched, exists := ts.schedules[taskID]; exists {
@@ -431,7 +431,7 @@ func (ts *TaskScheduler) triggerScheduledTask(taskID string) {
 	_ = ts.CreateTask(newTask)
 }
 
-// worker 任务处理工作线程
+// worker 任务处理工作线程.
 func (ts *TaskScheduler) worker(id int) {
 	for {
 		select {
@@ -443,7 +443,7 @@ func (ts *TaskScheduler) worker(id int) {
 	}
 }
 
-// processTask 处理任务
+// processTask 处理任务.
 func (ts *TaskScheduler) processTask(task *Task) {
 	// 选择节点
 	if ts.edgeManager == nil {
@@ -467,7 +467,7 @@ func (ts *TaskScheduler) processTask(task *Task) {
 	ts.scheduleTaskToNode(task, node.ID)
 }
 
-// scheduleTaskToNode 调度任务到节点
+// scheduleTaskToNode 调度任务到节点.
 func (ts *TaskScheduler) scheduleTaskToNode(task *Task, nodeID string) {
 	ts.tasksMutex.Lock()
 	task.Status = TaskStatusScheduled
@@ -496,7 +496,7 @@ func (ts *TaskScheduler) scheduleTaskToNode(task *Task, nodeID string) {
 	go ts.executeTask(task)
 }
 
-// executeTask 执行任务
+// executeTask 执行任务.
 func (ts *TaskScheduler) executeTask(task *Task) {
 	ts.runningMutex.Lock()
 	ts.running[task.ID] = task
@@ -537,7 +537,7 @@ func (ts *TaskScheduler) executeTask(task *Task) {
 	}
 }
 
-// simulateTaskExecution 模拟任务执行
+// simulateTaskExecution 模拟任务执行.
 func (ts *TaskScheduler) simulateTaskExecution(ctx context.Context, task *Task) *TaskResult {
 	// 实际实现中这里会发送 HTTP/gRPC 请求到边缘节点
 	// 这里简化为模拟执行
@@ -572,7 +572,7 @@ func (ts *TaskScheduler) simulateTaskExecution(ctx context.Context, task *Task) 
 	}
 }
 
-// markTaskCompleted 标记任务完成
+// markTaskCompleted 标记任务完成.
 func (ts *TaskScheduler) markTaskCompleted(task *Task, result *TaskResult) {
 	ts.tasksMutex.Lock()
 	defer ts.tasksMutex.Unlock()
@@ -601,7 +601,7 @@ func (ts *TaskScheduler) markTaskCompleted(task *Task, result *TaskResult) {
 	_ = ts.saveTasks()
 }
 
-// handleTaskFailure 处理任务失败
+// handleTaskFailure 处理任务失败.
 func (ts *TaskScheduler) handleTaskFailure(task *Task, result *TaskResult) {
 	ts.tasksMutex.Lock()
 	defer ts.tasksMutex.Unlock()
@@ -645,7 +645,7 @@ func (ts *TaskScheduler) handleTaskFailure(task *Task, result *TaskResult) {
 	_ = ts.saveTasks()
 }
 
-// markTaskFailed 标记任务失败
+// markTaskFailed 标记任务失败.
 func (ts *TaskScheduler) markTaskFailed(task *Task, err error) {
 	ts.tasksMutex.Lock()
 	defer ts.tasksMutex.Unlock()
@@ -659,7 +659,7 @@ func (ts *TaskScheduler) markTaskFailed(task *Task, err error) {
 	}
 }
 
-// scheduleWorker 定时任务调度工作线程
+// scheduleWorker 定时任务调度工作线程.
 func (ts *TaskScheduler) scheduleWorker() {
 	ticker := time.NewTicker(time.Duration(ts.config.ScheduleInterval) * time.Second)
 	defer ticker.Stop()
@@ -674,7 +674,7 @@ func (ts *TaskScheduler) scheduleWorker() {
 	}
 }
 
-// checkSchedules 检查定时任务
+// checkSchedules 检查定时任务.
 func (ts *TaskScheduler) checkSchedules() {
 	ts.schedulesMutex.RLock()
 	defer ts.schedulesMutex.RUnlock()
@@ -691,7 +691,7 @@ func (ts *TaskScheduler) checkSchedules() {
 	}
 }
 
-// recoverTasks 恢复未完成的任务
+// recoverTasks 恢复未完成的任务.
 func (ts *TaskScheduler) recoverTasks() {
 	ts.tasksMutex.RLock()
 	defer ts.tasksMutex.RUnlock()
@@ -704,7 +704,7 @@ func (ts *TaskScheduler) recoverTasks() {
 	}
 }
 
-// GetStats 获取调度统计
+// GetStats 获取调度统计.
 func (ts *TaskScheduler) GetStats() map[string]interface{} {
 	ts.tasksMutex.RLock()
 	ts.runningMutex.RLock()
@@ -730,7 +730,7 @@ func (ts *TaskScheduler) GetStats() map[string]interface{} {
 	return stats
 }
 
-// Shutdown 关闭任务调度器
+// Shutdown 关闭任务调度器.
 func (ts *TaskScheduler) Shutdown() error {
 	ts.cancel()
 	ts.cron.Stop()
@@ -742,7 +742,7 @@ func (ts *TaskScheduler) Shutdown() error {
 
 // 持久化
 
-// saveTasksLocked 保存任务（调用者需持有锁）
+// saveTasksLocked 保存任务（调用者需持有锁）.
 func (ts *TaskScheduler) saveTasksLocked() error {
 	tasksFile := filepath.Join(ts.config.DataDir, "tasks.json")
 

@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager 存储分层管理器
+// Manager 存储分层管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -39,7 +39,7 @@ type Manager struct {
 	onPolicyComplete func(policyID string, task *MigrateTask)
 }
 
-// NewManager 创建存储分层管理器
+// NewManager 创建存储分层管理器.
 func NewManager(configPath string, config PolicyEngineConfig) *Manager {
 	m := &Manager{
 		configPath: configPath,
@@ -58,7 +58,7 @@ func NewManager(configPath string, config PolicyEngineConfig) *Manager {
 	return m
 }
 
-// Initialize 初始化管理器
+// Initialize 初始化管理器.
 func (m *Manager) Initialize() error {
 	// 加载配置
 	if err := m.loadConfig(); err != nil {
@@ -84,7 +84,7 @@ func (m *Manager) Initialize() error {
 	return nil
 }
 
-// initDefaultTiers 初始化默认存储层
+// initDefaultTiers 初始化默认存储层.
 func (m *Manager) initDefaultTiers() {
 	m.tiers = map[TierType]*TierConfig{
 		TierTypeSSD: {
@@ -116,7 +116,7 @@ func (m *Manager) initDefaultTiers() {
 
 // ==================== 存储层管理 ====================
 
-// CreateTier 创建存储层
+// CreateTier 创建存储层.
 func (m *Manager) CreateTier(tierType TierType, config TierConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -131,7 +131,7 @@ func (m *Manager) CreateTier(tierType TierType, config TierConfig) error {
 	return m.saveConfigLocked()
 }
 
-// GetTier 获取存储层配置
+// GetTier 获取存储层配置.
 func (m *Manager) GetTier(tierType TierType) (*TierConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -144,7 +144,7 @@ func (m *Manager) GetTier(tierType TierType) (*TierConfig, error) {
 	return tier, nil
 }
 
-// ListTiers 列出所有存储层
+// ListTiers 列出所有存储层.
 func (m *Manager) ListTiers() []*TierConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -156,7 +156,7 @@ func (m *Manager) ListTiers() []*TierConfig {
 	return list
 }
 
-// UpdateTier 更新存储层配置
+// UpdateTier 更新存储层配置.
 func (m *Manager) UpdateTier(tierType TierType, config TierConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -171,7 +171,7 @@ func (m *Manager) UpdateTier(tierType TierType, config TierConfig) error {
 	return m.saveConfigLocked()
 }
 
-// DeleteTier 删除存储层
+// DeleteTier 删除存储层.
 func (m *Manager) DeleteTier(tierType TierType) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -187,7 +187,7 @@ func (m *Manager) DeleteTier(tierType TierType) error {
 
 // ==================== 策略管理 ====================
 
-// CreatePolicy 创建分层策略
+// CreatePolicy 创建分层策略.
 func (m *Manager) CreatePolicy(policy Policy) (*Policy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -233,7 +233,7 @@ func (m *Manager) CreatePolicy(policy Policy) (*Policy, error) {
 	return &policy, nil
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (m *Manager) GetPolicy(id string) (*Policy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -246,7 +246,7 @@ func (m *Manager) GetPolicy(id string) (*Policy, error) {
 	return policy, nil
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (m *Manager) ListPolicies() []*Policy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -258,7 +258,7 @@ func (m *Manager) ListPolicies() []*Policy {
 	return list
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (m *Manager) UpdatePolicy(id string, policy Policy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -279,7 +279,7 @@ func (m *Manager) UpdatePolicy(id string, policy Policy) error {
 	return m.saveConfigLocked()
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (m *Manager) DeletePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -293,7 +293,7 @@ func (m *Manager) DeletePolicy(id string) error {
 	return m.saveConfigLocked()
 }
 
-// ExecutePolicy 执行策略
+// ExecutePolicy 执行策略.
 func (m *Manager) ExecutePolicy(policyID string) (*MigrateTask, error) {
 	m.mu.RLock()
 	policy, ok := m.policies[policyID]
@@ -335,7 +335,7 @@ func (m *Manager) ExecutePolicy(policyID string) (*MigrateTask, error) {
 	return task, nil
 }
 
-// findFilesForPolicy 查找符合策略的文件
+// findFilesForPolicy 查找符合策略的文件.
 func (m *Manager) findFilesForPolicy(policy *Policy) ([]MigrateFile, error) {
 	// 从访问追踪器获取文件记录
 	records := m.tracker.GetRecordsByTier(policy.SourceTier)
@@ -355,7 +355,7 @@ func (m *Manager) findFilesForPolicy(policy *Policy) ([]MigrateFile, error) {
 	return files, nil
 }
 
-// matchPolicy 检查文件是否匹配策略
+// matchPolicy 检查文件是否匹配策略.
 func (m *Manager) matchPolicy(record *FileAccessRecord, policy *Policy) bool {
 	// 检查访问次数
 	if policy.MinAccessCount > 0 && record.AccessCount < policy.MinAccessCount {
@@ -405,7 +405,7 @@ func (m *Manager) matchPolicy(record *FileAccessRecord, policy *Policy) bool {
 
 // ==================== 手动迁移 ====================
 
-// Migrate 手动迁移
+// Migrate 手动迁移.
 func (m *Manager) Migrate(req MigrateRequest) (*MigrateTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -455,7 +455,7 @@ func (m *Manager) Migrate(req MigrateRequest) (*MigrateTask, error) {
 	return task, nil
 }
 
-// collectFiles 收集文件
+// collectFiles 收集文件.
 func (m *Manager) collectFiles(path string, req MigrateRequest) ([]MigrateFile, error) {
 	var files []MigrateFile
 
@@ -503,7 +503,7 @@ func (m *Manager) collectFiles(path string, req MigrateRequest) ([]MigrateFile, 
 	return files, err
 }
 
-// matchMigrateRequest 检查文件是否匹配迁移请求
+// matchMigrateRequest 检查文件是否匹配迁移请求.
 func (m *Manager) matchMigrateRequest(path string, info os.FileInfo, req MigrateRequest) bool {
 	// 检查文件大小
 	if req.MinSize > 0 && info.Size() < req.MinSize {
@@ -533,7 +533,7 @@ func (m *Manager) matchMigrateRequest(path string, info os.FileInfo, req Migrate
 	return true
 }
 
-// executeMigrateTask 执行迁移任务
+// executeMigrateTask 执行迁移任务.
 func (m *Manager) executeMigrateTask(task *MigrateTask, policy *Policy) {
 	m.mu.Lock()
 	task.Status = MigrateStatusRunning
@@ -589,7 +589,7 @@ func (m *Manager) executeMigrateTask(task *MigrateTask, policy *Policy) {
 
 // ==================== 状态查询 ====================
 
-// GetStatus 获取分层状态
+// GetStatus 获取分层状态.
 func (m *Manager) GetStatus() *Status {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -638,7 +638,7 @@ func (m *Manager) GetStatus() *Status {
 	}
 }
 
-// GetTask 获取迁移任务
+// GetTask 获取迁移任务.
 func (m *Manager) GetTask(id string) (*MigrateTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -651,7 +651,7 @@ func (m *Manager) GetTask(id string) (*MigrateTask, error) {
 	return task, nil
 }
 
-// CancelTask 取消迁移任务
+// CancelTask 取消迁移任务.
 func (m *Manager) CancelTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -670,7 +670,7 @@ func (m *Manager) CancelTask(id string) error {
 	return fmt.Errorf("任务状态不允许取消: %s", task.Status)
 }
 
-// ListTasks 列出迁移任务
+// ListTasks 列出迁移任务.
 func (m *Manager) ListTasks(limit int) []*MigrateTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -685,12 +685,12 @@ func (m *Manager) ListTasks(limit int) []*MigrateTask {
 	return list
 }
 
-// GetAccessStats 获取访问统计
+// GetAccessStats 获取访问统计.
 func (m *Manager) GetAccessStats() *AccessStats {
 	return m.tracker.GetStats()
 }
 
-// GetTierStats 获取存储层统计
+// GetTierStats 获取存储层统计.
 func (m *Manager) GetTierStats(tierType TierType) (*TierStats, error) {
 	m.mu.RLock()
 	tier, ok := m.tiers[tierType]
@@ -706,7 +706,7 @@ func (m *Manager) GetTierStats(tierType TierType) (*TierStats, error) {
 // ==================== v2.4.0 存储分层增强 ====================
 
 // OptimizeSSDCache SSD缓存层优化
-// 根据访问频率和缓存命中率优化SSD缓存内容
+// 根据访问频率和缓存命中率优化SSD缓存内容.
 func (m *Manager) OptimizeSSDCache() (*SSDCacheOptimizeResult, error) {
 	m.mu.RLock()
 	ssdTier, ssdExists := m.tiers[TierTypeSSD]
@@ -787,7 +787,7 @@ func (m *Manager) OptimizeSSDCache() (*SSDCacheOptimizeResult, error) {
 }
 
 // AutoMigrate 自动数据迁移算法
-// 基于访问频率自动迁移数据到合适的存储层
+// 基于访问频率自动迁移数据到合适的存储层.
 func (m *Manager) AutoMigrate() (*AutoMigrateResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -899,7 +899,7 @@ func (m *Manager) AutoMigrate() (*AutoMigrateResult, error) {
 }
 
 // GetAllTierStats 分层统计报告
-// 返回所有存储层的详细统计信息
+// 返回所有存储层的详细统计信息.
 func (m *Manager) GetAllTierStats() (*StatsReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -972,7 +972,7 @@ func (m *Manager) GetAllTierStats() (*StatsReport, error) {
 
 // ==================== 策略引擎 ====================
 
-// runPolicyEngine 运行策略引擎
+// runPolicyEngine 运行策略引擎.
 func (m *Manager) runPolicyEngine() {
 	ticker := time.NewTicker(m.config.CheckInterval)
 	defer ticker.Stop()
@@ -982,7 +982,7 @@ func (m *Manager) runPolicyEngine() {
 	}
 }
 
-// executeAutoPolicies 执行自动策略
+// executeAutoPolicies 执行自动策略.
 func (m *Manager) executeAutoPolicies() {
 	m.mu.RLock()
 	policies := make([]*Policy, 0)
@@ -1010,7 +1010,7 @@ func (m *Manager) executeAutoPolicies() {
 	}
 }
 
-// calculateNextRun 计算下次执行时间
+// calculateNextRun 计算下次执行时间.
 func (m *Manager) calculateNextRun(policy *Policy) time.Time {
 	now := time.Now()
 
@@ -1056,7 +1056,7 @@ func (m *Manager) calculateNextRun(policy *Policy) time.Time {
 
 // parseCronExpression 解析 Cron 表达式并计算下次执行时间
 // 支持 5 字段格式：分 时 日 月 周
-// 例如: "0 2 * * *" 表示每天凌晨 2 点执行
+// 例如: "0 2 * * *" 表示每天凌晨 2 点执行.
 func parseCronExpression(expr string, from time.Time) (time.Time, error) {
 	parts := strings.Fields(expr)
 	if len(parts) != 5 {
@@ -1128,7 +1128,7 @@ func parseCronExpression(expr string, from time.Time) (time.Time, error) {
 }
 
 // parseCronField 解析 cron 字段
-// 支持格式: "*", "1,2,3", "1-5", "*/2"
+// 支持格式: "*", "1,2,3", "1-5", "*/2".
 func parseCronField(field string, min, max int) (map[int]bool, error) {
 	result := make(map[int]bool)
 
@@ -1244,7 +1244,7 @@ func (m *Manager) saveConfigLocked() error {
 	return os.WriteFile(m.configPath, data, 0640)
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.tracker.Stop()
 	m.migrator.Stop()

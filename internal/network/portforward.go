@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// ListPortForwards 列出所有端口转发规则
+// ListPortForwards 列出所有端口转发规则.
 func (m *Manager) ListPortForwards() []*PortForward {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -18,7 +18,7 @@ func (m *Manager) ListPortForwards() []*PortForward {
 	return rules
 }
 
-// GetPortForward 获取单个端口转发规则
+// GetPortForward 获取单个端口转发规则.
 func (m *Manager) GetPortForward(name string) (*PortForward, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -30,7 +30,7 @@ func (m *Manager) GetPortForward(name string) (*PortForward, error) {
 	return rule, nil
 }
 
-// AddPortForward 添加端口转发规则
+// AddPortForward 添加端口转发规则.
 func (m *Manager) AddPortForward(rule PortForward) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -80,7 +80,7 @@ func (m *Manager) AddPortForward(rule PortForward) error {
 	return nil
 }
 
-// UpdatePortForward 更新端口转发规则
+// UpdatePortForward 更新端口转发规则.
 func (m *Manager) UpdatePortForward(name string, rule PortForward) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -115,7 +115,7 @@ func (m *Manager) UpdatePortForward(name string, rule PortForward) error {
 	return nil
 }
 
-// DeletePortForward 删除端口转发规则
+// DeletePortForward 删除端口转发规则.
 func (m *Manager) DeletePortForward(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -138,7 +138,7 @@ func (m *Manager) DeletePortForward(name string) error {
 	return nil
 }
 
-// EnablePortForward 启用/禁用端口转发规则
+// EnablePortForward 启用/禁用端口转发规则.
 func (m *Manager) EnablePortForward(name string, enabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -168,7 +168,7 @@ func (m *Manager) EnablePortForward(name string, enabled bool) error {
 	return nil
 }
 
-// applyPortForwardRule 应用端口转发规则到 iptables
+// applyPortForwardRule 应用端口转发规则到 iptables.
 func (m *Manager) applyPortForwardRule(rule *PortForward) error {
 	// 1. DNAT 规则：将外部流量重定向到内部 IP
 	// iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 192.168.1.100:80
@@ -221,7 +221,7 @@ func (m *Manager) applyPortForwardRule(rule *PortForward) error {
 	return nil
 }
 
-// removePortForwardRule 从 iptables 移除端口转发规则
+// removePortForwardRule 从 iptables 移除端口转发规则.
 func (m *Manager) removePortForwardRule(rule *PortForward) {
 	// 删除 DNAT 规则
 	_ = exec.Command("iptables", "-t", "nat", "-D", "PREROUTING",
@@ -245,7 +245,7 @@ func (m *Manager) removePortForwardRule(rule *PortForward) {
 		"-j", "ACCEPT").Run()
 }
 
-// ListActivePortForwards 列出系统中活跃的端口转发规则
+// ListActivePortForwards 列出系统中活跃的端口转发规则.
 func (m *Manager) ListActivePortForwards() ([]string, error) {
 	// 获取 NAT 表的 PREROUTING 链
 	cmd := exec.Command("iptables", "-t", "nat", "-L", "PREROUTING", "-n")
@@ -265,7 +265,7 @@ func (m *Manager) ListActivePortForwards() ([]string, error) {
 	return rules, nil
 }
 
-// GetPortForwardStatus 获取端口转发规则状态
+// GetPortForwardStatus 获取端口转发规则状态.
 func (m *Manager) GetPortForwardStatus(name string) (string, error) {
 	rule, err := m.GetPortForward(name)
 	if err != nil {

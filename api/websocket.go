@@ -25,38 +25,38 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// MessageType defines WebSocket message types
+// MessageType defines WebSocket message types.
 type MessageType string
 
 const (
-	// MessageTypeSystem represents a system message type
+	// MessageTypeSystem represents a system message type.
 	MessageTypeSystem MessageType = "system"
-	// MessageTypeNotification represents a notification message type
+	// MessageTypeNotification represents a notification message type.
 	MessageTypeNotification MessageType = "notification"
-	// MessageTypeMetric represents a metric message type
+	// MessageTypeMetric represents a metric message type.
 	MessageTypeMetric MessageType = "metric"
-	// MessageTypeAlert represents an alert message type
+	// MessageTypeAlert represents an alert message type.
 	MessageTypeAlert MessageType = "alert"
-	// MessageTypeEvent represents an event message type
+	// MessageTypeEvent represents an event message type.
 	MessageTypeEvent MessageType = "event"
-	// MessageTypeContainer represents a container message type
+	// MessageTypeContainer represents a container message type.
 	MessageTypeContainer MessageType = "container"
-	// MessageTypeStorage represents a storage message type
+	// MessageTypeStorage represents a storage message type.
 	MessageTypeStorage MessageType = "storage"
-	// MessageTypeBackup represents a backup message type
+	// MessageTypeBackup represents a backup message type.
 	MessageTypeBackup MessageType = "backup"
-	// MessageTypeSync represents a sync message type
+	// MessageTypeSync represents a sync message type.
 	MessageTypeSync MessageType = "sync"
 )
 
-// WebSocketMessage represents a WebSocket message
+// WebSocketMessage represents a WebSocket message.
 type WebSocketMessage struct {
 	Type      MessageType     `json:"type"`
 	Timestamp int64           `json:"timestamp"`
 	Data      json.RawMessage `json:"data"`
 }
 
-// Client represents a connected WebSocket client
+// Client represents a connected WebSocket client.
 type Client struct {
 	ID            string
 	Connection    *websocket.Conn
@@ -66,7 +66,7 @@ type Client struct {
 	ConnectedAt   time.Time
 }
 
-// WebSocketHub manages WebSocket connections and broadcasts
+// WebSocketHub manages WebSocket connections and broadcasts.
 type WebSocketHub struct {
 	clients    map[*Client]bool
 	broadcast  chan *WebSocketMessage
@@ -75,7 +75,7 @@ type WebSocketHub struct {
 	mu         sync.RWMutex
 }
 
-// NewWebSocketHub creates a new WebSocket hub
+// NewWebSocketHub creates a new WebSocket hub.
 func NewWebSocketHub() *WebSocketHub {
 	return &WebSocketHub{
 		clients:    make(map[*Client]bool),
@@ -85,7 +85,7 @@ func NewWebSocketHub() *WebSocketHub {
 	}
 }
 
-// Run starts the WebSocket hub
+// Run starts the WebSocket hub.
 func (h *WebSocketHub) Run() {
 	for {
 		select {
@@ -127,7 +127,7 @@ func (h *WebSocketHub) Run() {
 	}
 }
 
-// Broadcast sends a message to all connected clients
+// Broadcast sends a message to all connected clients.
 func (h *WebSocketHub) Broadcast(msgType MessageType, data interface{}) error {
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
@@ -144,7 +144,7 @@ func (h *WebSocketHub) Broadcast(msgType MessageType, data interface{}) error {
 	return nil
 }
 
-// BroadcastToUser sends a message to a specific user's clients
+// BroadcastToUser sends a message to a specific user's clients.
 func (h *WebSocketHub) BroadcastToUser(userID string, msgType MessageType, data interface{}) error {
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
@@ -176,14 +176,14 @@ func (h *WebSocketHub) BroadcastToUser(userID string, msgType MessageType, data 
 	return nil
 }
 
-// GetClientCount returns the number of connected clients
+// GetClientCount returns the number of connected clients.
 func (h *WebSocketHub) GetClientCount() int {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return len(h.clients)
 }
 
-// ReadPump handles incoming messages from a client
+// ReadPump handles incoming messages from a client.
 func (c *Client) ReadPump(h *WebSocketHub) {
 	defer func() {
 		h.unregister <- c
@@ -230,7 +230,7 @@ func (c *Client) ReadPump(h *WebSocketHub) {
 	}
 }
 
-// WritePump handles outgoing messages to a client
+// WritePump handles outgoing messages to a client.
 func (c *Client) WritePump() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer func() {
@@ -279,17 +279,17 @@ func (c *Client) WritePump() {
 	}
 }
 
-// WebSocketHandler handles WebSocket connections
+// WebSocketHandler handles WebSocket connections.
 type WebSocketHandler struct {
 	hub *WebSocketHub
 }
 
-// NewWebSocketHandler creates a new WebSocket handler
+// NewWebSocketHandler creates a new WebSocket handler.
 func NewWebSocketHandler(hub *WebSocketHub) *WebSocketHandler {
 	return &WebSocketHandler{hub: hub}
 }
 
-// HandleWebSocket handles WebSocket upgrade and connection
+// HandleWebSocket handles WebSocket upgrade and connection.
 func (h *WebSocketHandler) HandleWebSocket(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -313,7 +313,7 @@ func (h *WebSocketHandler) HandleWebSocket(c *gin.Context) {
 	go client.ReadPump(h.hub)
 }
 
-// GetStatus returns WebSocket server status
+// GetStatus returns WebSocket server status.
 func (h *WebSocketHandler) GetStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -325,12 +325,12 @@ func (h *WebSocketHandler) GetStatus(c *gin.Context) {
 	})
 }
 
-// generateClientID generates a unique client ID
+// generateClientID generates a unique client ID.
 func generateClientID() string {
 	return fmt.Sprintf("ws-%d-%s", time.Now().UnixNano(), randomString(6))
 }
 
-// randomString generates a random string using crypto/rand
+// randomString generates a random string using crypto/rand.
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, n)
@@ -351,14 +351,14 @@ func randomString(n int) string {
 
 // Notification types for WebSocket
 
-// SystemNotification represents a system notification
+// SystemNotification represents a system notification.
 type SystemNotification struct {
 	Title   string `json:"title"`
 	Message string `json:"message"`
 	Level   string `json:"level"` // info, warning, error, success
 }
 
-// MetricUpdate represents a metric update
+// MetricUpdate represents a metric update.
 type MetricUpdate struct {
 	CPU     float64 `json:"cpu"`
 	Memory  float64 `json:"memory"`
@@ -369,7 +369,7 @@ type MetricUpdate struct {
 	} `json:"network"`
 }
 
-// AlertNotification represents an alert
+// AlertNotification represents an alert.
 type AlertNotification struct {
 	ID           string `json:"id"`
 	Type         string `json:"type"`
@@ -381,7 +381,7 @@ type AlertNotification struct {
 	Acknowledged bool   `json:"acknowledged"`
 }
 
-// ContainerEvent represents a container event
+// ContainerEvent represents a container event.
 type ContainerEvent struct {
 	ContainerID string `json:"containerId"`
 	Name        string `json:"name"`
@@ -390,7 +390,7 @@ type ContainerEvent struct {
 	Timestamp   int64  `json:"timestamp"`
 }
 
-// StorageEvent represents a storage event
+// StorageEvent represents a storage event.
 type StorageEvent struct {
 	VolumeName string `json:"volumeName"`
 	EventType  string `json:"eventType"` // mount, unmount, error, warning
@@ -398,7 +398,7 @@ type StorageEvent struct {
 	Timestamp  int64  `json:"timestamp"`
 }
 
-// BackupEvent represents a backup event
+// BackupEvent represents a backup event.
 type BackupEvent struct {
 	JobID     string `json:"jobId"`
 	Status    string `json:"status"` // started, completed, failed
@@ -407,7 +407,7 @@ type BackupEvent struct {
 	Timestamp int64  `json:"timestamp"`
 }
 
-// RegisterWebSocketRoutes registers WebSocket routes
+// RegisterWebSocketRoutes registers WebSocket routes.
 func RegisterWebSocketRoutes(r *gin.RouterGroup, hub *WebSocketHub) {
 	handler := NewWebSocketHandler(hub)
 

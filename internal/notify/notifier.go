@@ -9,18 +9,18 @@ import (
 	"time"
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
-// 告警级别常量
+// 告警级别常量.
 const (
-	// LevelInfo represents info alert level
+	// LevelInfo represents info alert level.
 	LevelInfo     AlertLevel = "info"
 	LevelWarning  AlertLevel = "warning"
 	LevelCritical AlertLevel = "critical"
 )
 
-// Notification 通知消息
+// Notification 通知消息.
 type Notification struct {
 	Title     string     `json:"title"`
 	Message   string     `json:"message"`
@@ -29,30 +29,30 @@ type Notification struct {
 	Source    string     `json:"source"`
 }
 
-// Notifier 通知接口
+// Notifier 通知接口.
 type Notifier interface {
 	Send(notif *Notification) error
 	Name() string
 }
 
-// Manager 通知管理器
+// Manager 通知管理器.
 type Manager struct {
 	notifiers []Notifier
 }
 
-// NewManager 创建通知管理器
+// NewManager 创建通知管理器.
 func NewManager() *Manager {
 	return &Manager{
 		notifiers: make([]Notifier, 0),
 	}
 }
 
-// AddNotifier 添加通知渠道
+// AddNotifier 添加通知渠道.
 func (m *Manager) AddNotifier(n Notifier) {
 	m.notifiers = append(m.notifiers, n)
 }
 
-// Send 发送通知到所有渠道
+// Send 发送通知到所有渠道.
 func (m *Manager) Send(notif *Notification) error {
 	notif.Timestamp = time.Now()
 
@@ -67,7 +67,7 @@ func (m *Manager) Send(notif *Notification) error {
 
 // ========== 邮件通知 ==========
 
-// EmailNotifier 邮件通知器
+// EmailNotifier 邮件通知器.
 type EmailNotifier struct {
 	SMTPServer string
 	Port       int
@@ -77,7 +77,7 @@ type EmailNotifier struct {
 	To         []string
 }
 
-// NewEmailNotifier 创建邮件通知器
+// NewEmailNotifier 创建邮件通知器.
 func NewEmailNotifier(smtpServer string, port int, username, password, from string, to []string) *EmailNotifier {
 	return &EmailNotifier{
 		SMTPServer: smtpServer,
@@ -89,12 +89,12 @@ func NewEmailNotifier(smtpServer string, port int, username, password, from stri
 	}
 }
 
-// Name 返回通知器名称
+// Name 返回通知器名称.
 func (e *EmailNotifier) Name() string {
 	return "email"
 }
 
-// Send 发送邮件通知
+// Send 发送邮件通知.
 func (e *EmailNotifier) Send(notif *Notification) error {
 	subject := fmt.Sprintf("[%s] NAS-OS 告警：%s", e.getLevelLabel(notif.Level), notif.Title)
 
@@ -189,24 +189,24 @@ func (e *EmailNotifier) joinRecipients() string {
 
 // ========== 微信通知（企业微信） ==========
 
-// WeChatNotifier 企业微信通知器
+// WeChatNotifier 企业微信通知器.
 type WeChatNotifier struct {
 	WebhookURL string
 }
 
-// NewWeChatNotifier 创建企业微信通知器
+// NewWeChatNotifier 创建企业微信通知器.
 func NewWeChatNotifier(webhookURL string) *WeChatNotifier {
 	return &WeChatNotifier{
 		WebhookURL: webhookURL,
 	}
 }
 
-// Name 返回通知器名称
+// Name 返回通知器名称.
 func (w *WeChatNotifier) Name() string {
 	return "wechat"
 }
 
-// Send 发送企业微信通知
+// Send 发送企业微信通知.
 func (w *WeChatNotifier) Send(notif *Notification) error {
 	levelColor := w.getLevelColor(notif.Level)
 	levelLabel := w.getLevelLabel(notif.Level)
@@ -278,24 +278,24 @@ func (w *WeChatNotifier) getLevelLabel(level AlertLevel) string {
 
 // ========== 通用 Webhook 通知 ==========
 
-// WebhookNotifier 通用 Webhook 通知器
+// WebhookNotifier 通用 Webhook 通知器.
 type WebhookNotifier struct {
 	URL string
 }
 
-// NewWebhookNotifier 创建 Webhook 通知器
+// NewWebhookNotifier 创建 Webhook 通知器.
 func NewWebhookNotifier(url string) *WebhookNotifier {
 	return &WebhookNotifier{
 		URL: url,
 	}
 }
 
-// Name 返回通知器名称
+// Name 返回通知器名称.
 func (w *WebhookNotifier) Name() string {
 	return "webhook"
 }
 
-// Send 发送 Webhook 通知
+// Send 发送 Webhook 通知.
 func (w *WebhookNotifier) Send(notif *Notification) error {
 	jsonData, err := json.Marshal(notif)
 	if err != nil {

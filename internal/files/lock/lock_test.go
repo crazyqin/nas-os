@@ -17,7 +17,7 @@ func init() {
 	zap.ReplaceGlobals(zap.NewNop())
 }
 
-// 测试配置
+// 测试配置.
 func testConfig() FileLockConfig {
 	return FileLockConfig{
 		DefaultTimeout:          5 * time.Minute,

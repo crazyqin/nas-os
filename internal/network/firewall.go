@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// ListFirewallRules 列出所有防火墙规则
+// ListFirewallRules 列出所有防火墙规则.
 func (m *Manager) ListFirewallRules() []*FirewallRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -19,7 +19,7 @@ func (m *Manager) ListFirewallRules() []*FirewallRule {
 	return rules
 }
 
-// GetFirewallRule 获取单个防火墙规则
+// GetFirewallRule 获取单个防火墙规则.
 func (m *Manager) GetFirewallRule(name string) (*FirewallRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -31,7 +31,7 @@ func (m *Manager) GetFirewallRule(name string) (*FirewallRule, error) {
 	return rule, nil
 }
 
-// AddFirewallRule 添加防火墙规则
+// AddFirewallRule 添加防火墙规则.
 func (m *Manager) AddFirewallRule(rule FirewallRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -87,7 +87,7 @@ func (m *Manager) AddFirewallRule(rule FirewallRule) error {
 	return nil
 }
 
-// UpdateFirewallRule 更新防火墙规则
+// UpdateFirewallRule 更新防火墙规则.
 func (m *Manager) UpdateFirewallRule(name string, rule FirewallRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -122,7 +122,7 @@ func (m *Manager) UpdateFirewallRule(name string, rule FirewallRule) error {
 	return nil
 }
 
-// DeleteFirewallRule 删除防火墙规则
+// DeleteFirewallRule 删除防火墙规则.
 func (m *Manager) DeleteFirewallRule(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -145,7 +145,7 @@ func (m *Manager) DeleteFirewallRule(name string) error {
 	return nil
 }
 
-// EnableFirewallRule 启用/禁用防火墙规则
+// EnableFirewallRule 启用/禁用防火墙规则.
 func (m *Manager) EnableFirewallRule(name string, enabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -175,7 +175,7 @@ func (m *Manager) EnableFirewallRule(name string, enabled bool) error {
 	return nil
 }
 
-// applyFirewallRule 应用防火墙规则到 iptables
+// applyFirewallRule 应用防火墙规则到 iptables.
 func (m *Manager) applyFirewallRule(rule *FirewallRule) error {
 	// 构建基本命令
 	var chain string
@@ -231,7 +231,7 @@ func (m *Manager) applyFirewallRule(rule *FirewallRule) error {
 	return nil
 }
 
-// removeFirewallRule 从 iptables 移除防火墙规则
+// removeFirewallRule 从 iptables 移除防火墙规则.
 func (m *Manager) removeFirewallRule(rule *FirewallRule) {
 	var chain string
 	switch rule.Direction {
@@ -275,7 +275,7 @@ func (m *Manager) removeFirewallRule(rule *FirewallRule) {
 	_ = exec.Command("iptables", args...).Run()
 }
 
-// ListActiveFirewallRules 列出系统中活跃的防火墙规则
+// ListActiveFirewallRules 列出系统中活跃的防火墙规则.
 func (m *Manager) ListActiveFirewallRules() (map[string][]string, error) {
 	chains := []string{"INPUT", "OUTPUT", "FORWARD"}
 	result := make(map[string][]string)
@@ -301,7 +301,7 @@ func (m *Manager) ListActiveFirewallRules() (map[string][]string, error) {
 	return result, nil
 }
 
-// GetFirewallStatus 获取防火墙状态
+// GetFirewallStatus 获取防火墙状态.
 func (m *Manager) GetFirewallStatus() (*FirewallStatus, error) {
 	status := &FirewallStatus{
 		Enabled: false,
@@ -348,13 +348,13 @@ func (m *Manager) GetFirewallStatus() (*FirewallStatus, error) {
 	return status, nil
 }
 
-// FirewallStatus 防火墙状态
+// FirewallStatus 防火墙状态.
 type FirewallStatus struct {
 	Enabled       bool   `json:"enabled"`
 	DefaultPolicy string `json:"defaultPolicy"`
 }
 
-// SetDefaultPolicy 设置防火墙默认策略
+// SetDefaultPolicy 设置防火墙默认策略.
 func (m *Manager) SetDefaultPolicy(chain, policy string) error {
 	chain = strings.ToUpper(chain)
 	policy = strings.ToUpper(policy)
@@ -375,7 +375,7 @@ func (m *Manager) SetDefaultPolicy(chain, policy string) error {
 	return nil
 }
 
-// FlushRules 清空指定链的所有规则
+// FlushRules 清空指定链的所有规则.
 func (m *Manager) FlushRules(chain string) error {
 	chain = strings.ToUpper(chain)
 
@@ -400,7 +400,7 @@ func (m *Manager) FlushRules(chain string) error {
 	return nil
 }
 
-// SaveFirewallRules 保存防火墙规则到文件
+// SaveFirewallRules 保存防火墙规则到文件.
 func (m *Manager) SaveFirewallRules(path string) error {
 	cmd := exec.Command("iptables-save")
 	output, err := cmd.Output()
@@ -419,7 +419,7 @@ func (m *Manager) SaveFirewallRules(path string) error {
 	return nil
 }
 
-// RestoreFirewallRules 从文件恢复防火墙规则
+// RestoreFirewallRules 从文件恢复防火墙规则.
 func (m *Manager) RestoreFirewallRules(path string) error {
 	if path == "" {
 		path = "/etc/iptables/rules.v4"

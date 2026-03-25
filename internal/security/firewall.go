@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// FirewallManager 防火墙管理器
+// FirewallManager 防火墙管理器.
 type FirewallManager struct {
 	config      FirewallConfig
 	rules       map[string]*FirewallRule
@@ -21,12 +21,12 @@ type FirewallManager struct {
 	geoDB       *GeoIPDB // 地理位置数据库
 }
 
-// GeoIPDB 地理位置数据库（简化版）
+// GeoIPDB 地理位置数据库（简化版）.
 type GeoIPDB struct {
 	// 实际实现会使用 MaxMind GeoIP2 数据库
 }
 
-// NewFirewallManager 创建防火墙管理器
+// NewFirewallManager 创建防火墙管理器.
 func NewFirewallManager() *FirewallManager {
 	return &FirewallManager{
 		config: FirewallConfig{
@@ -42,14 +42,14 @@ func NewFirewallManager() *FirewallManager {
 	}
 }
 
-// GetConfig 获取防火墙配置
+// GetConfig 获取防火墙配置.
 func (fm *FirewallManager) GetConfig() FirewallConfig {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
 	return fm.config
 }
 
-// UpdateConfig 更新防火墙配置
+// UpdateConfig 更新防火墙配置.
 func (fm *FirewallManager) UpdateConfig(config FirewallConfig) error {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -64,7 +64,7 @@ func (fm *FirewallManager) UpdateConfig(config FirewallConfig) error {
 	return nil
 }
 
-// applyConfig 应用配置到系统防火墙（使用 iptables/nftables）
+// applyConfig 应用配置到系统防火墙（使用 iptables/nftables）.
 func (fm *FirewallManager) applyConfig() error {
 	if !fm.config.Enabled {
 		// 禁用防火墙
@@ -86,7 +86,7 @@ func (fm *FirewallManager) applyConfig() error {
 	return nil
 }
 
-// setDefaultPolicy 设置默认策略
+// setDefaultPolicy 设置默认策略.
 func (fm *FirewallManager) setDefaultPolicy(policy string) error {
 	// 使用 iptables 设置默认策略
 	chainPolicy := "ACCEPT"
@@ -108,7 +108,7 @@ func (fm *FirewallManager) setDefaultPolicy(policy string) error {
 	return nil
 }
 
-// enableIPv6Firewall 启用 IPv6 防火墙
+// enableIPv6Firewall 启用 IPv6 防火墙.
 func (fm *FirewallManager) enableIPv6Firewall() error {
 	// 启用 IPv6 防火墙规则
 	cmd := exec.Command("ip6tables", "-L")
@@ -118,7 +118,7 @@ func (fm *FirewallManager) enableIPv6Firewall() error {
 	return nil
 }
 
-// disableFirewall 禁用防火墙
+// disableFirewall 禁用防火墙.
 func (fm *FirewallManager) disableFirewall() error {
 	// 设置默认接受所有流量
 	cmd := exec.Command("iptables", "-P", "INPUT", "ACCEPT")
@@ -130,7 +130,7 @@ func (fm *FirewallManager) disableFirewall() error {
 	return nil
 }
 
-// ListRules 获取所有防火墙规则
+// ListRules 获取所有防火墙规则.
 func (fm *FirewallManager) ListRules() []*FirewallRule {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -145,7 +145,7 @@ func (fm *FirewallManager) ListRules() []*FirewallRule {
 	return rules
 }
 
-// sortRulesByPriority 按优先级排序规则
+// sortRulesByPriority 按优先级排序规则.
 func sortRulesByPriority(rules []*FirewallRule) {
 	for i := 0; i < len(rules)-1; i++ {
 		for j := i + 1; j < len(rules); j++ {
@@ -156,7 +156,7 @@ func sortRulesByPriority(rules []*FirewallRule) {
 	}
 }
 
-// GetRule 获取单条规则
+// GetRule 获取单条规则.
 func (fm *FirewallManager) GetRule(id string) (*FirewallRule, bool) {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -171,7 +171,7 @@ func (fm *FirewallManager) GetRule(id string) (*FirewallRule, bool) {
 	return &ruleCopy, true
 }
 
-// AddRule 添加防火墙规则
+// AddRule 添加防火墙规则.
 func (fm *FirewallManager) AddRule(rule FirewallRule) (*FirewallRule, error) {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -204,7 +204,7 @@ func (fm *FirewallManager) AddRule(rule FirewallRule) (*FirewallRule, error) {
 	return &ruleCopy, nil
 }
 
-// validateRule 验证防火墙规则
+// validateRule 验证防火墙规则.
 func (fm *FirewallManager) validateRule(rule *FirewallRule) error {
 	// 验证动作
 	validActions := map[string]bool{"allow": true, "deny": true, "drop": true}
@@ -257,7 +257,7 @@ func (fm *FirewallManager) validateRule(rule *FirewallRule) error {
 	return nil
 }
 
-// validatePort 验证端口号
+// validatePort 验证端口号.
 func (fm *FirewallManager) validatePort(port string) error {
 	// 支持单个端口、端口范围、端口列表
 	if strings.Contains(port, "-") {
@@ -296,7 +296,7 @@ func (fm *FirewallManager) validatePort(port string) error {
 	return nil
 }
 
-// applyRuleToSystem 应用规则到系统防火墙
+// applyRuleToSystem 应用规则到系统防火墙.
 func (fm *FirewallManager) applyRuleToSystem(rule *FirewallRule) error {
 	if !rule.Enabled {
 		return nil
@@ -353,7 +353,7 @@ func (fm *FirewallManager) applyRuleToSystem(rule *FirewallRule) error {
 	return nil
 }
 
-// UpdateRule 更新防火墙规则
+// UpdateRule 更新防火墙规则.
 func (fm *FirewallManager) UpdateRule(id string, rule FirewallRule) (*FirewallRule, error) {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -391,7 +391,7 @@ func (fm *FirewallManager) UpdateRule(id string, rule FirewallRule) (*FirewallRu
 	return &ruleCopy, nil
 }
 
-// DeleteRule 删除防火墙规则
+// DeleteRule 删除防火墙规则.
 func (fm *FirewallManager) DeleteRule(id string) error {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -412,7 +412,7 @@ func (fm *FirewallManager) DeleteRule(id string) error {
 	return nil
 }
 
-// removeRuleFromSystem 从系统防火墙移除规则
+// removeRuleFromSystem 从系统防火墙移除规则.
 func (fm *FirewallManager) removeRuleFromSystem(rule *FirewallRule) error {
 	// 实际实现需要删除对应的 iptables 规则
 	// 这里简化处理
@@ -421,7 +421,7 @@ func (fm *FirewallManager) removeRuleFromSystem(rule *FirewallRule) error {
 
 // ========== IP 黑名单管理 ==========
 
-// GetBlacklist 获取 IP 黑名单
+// GetBlacklist 获取 IP 黑名单.
 func (fm *FirewallManager) GetBlacklist() []*IPBlacklistEntry {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -433,7 +433,7 @@ func (fm *FirewallManager) GetBlacklist() []*IPBlacklistEntry {
 	return entries
 }
 
-// AddToBlacklist 添加 IP 到黑名单
+// AddToBlacklist 添加 IP 到黑名单.
 func (fm *FirewallManager) AddToBlacklist(ip, reason string, durationMinutes int) error {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -460,7 +460,7 @@ func (fm *FirewallManager) AddToBlacklist(ip, reason string, durationMinutes int
 	return fm.blockIP(ip)
 }
 
-// blockIP 阻止 IP 地址
+// blockIP 阻止 IP 地址.
 func (fm *FirewallManager) blockIP(ip string) error {
 	cmd := exec.Command("iptables", "-A", "INPUT", "-s", ip, "-j", "DROP")
 	if err := cmd.Run(); err != nil {
@@ -475,7 +475,7 @@ func (fm *FirewallManager) blockIP(ip string) error {
 	return nil
 }
 
-// RemoveFromBlacklist 从黑名单移除 IP
+// RemoveFromBlacklist 从黑名单移除 IP.
 func (fm *FirewallManager) RemoveFromBlacklist(ip string) error {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -490,7 +490,7 @@ func (fm *FirewallManager) RemoveFromBlacklist(ip string) error {
 	return fm.unblockIP(ip)
 }
 
-// unblockIP 解除 IP 阻止
+// unblockIP 解除 IP 阻止.
 func (fm *FirewallManager) unblockIP(ip string) error {
 	cmd := exec.Command("iptables", "-D", "INPUT", "-s", ip, "-j", "DROP")
 	_ = cmd.Run()
@@ -503,7 +503,7 @@ func (fm *FirewallManager) unblockIP(ip string) error {
 	return nil
 }
 
-// IsBlacklisted 检查 IP 是否在黑名单中
+// IsBlacklisted 检查 IP 是否在黑名单中.
 func (fm *FirewallManager) IsBlacklisted(ip string) bool {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -523,7 +523,7 @@ func (fm *FirewallManager) IsBlacklisted(ip string) bool {
 
 // ========== IP 白名单管理 ==========
 
-// GetWhitelist 获取 IP 白名单
+// GetWhitelist 获取 IP 白名单.
 func (fm *FirewallManager) GetWhitelist() []*IPWhitelistEntry {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -535,7 +535,7 @@ func (fm *FirewallManager) GetWhitelist() []*IPWhitelistEntry {
 	return entries
 }
 
-// AddToWhitelist 添加 IP 到白名单
+// AddToWhitelist 添加 IP 到白名单.
 func (fm *FirewallManager) AddToWhitelist(ip, reason string) error {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -553,7 +553,7 @@ func (fm *FirewallManager) AddToWhitelist(ip, reason string) error {
 	return nil
 }
 
-// RemoveFromWhitelist 从白名单移除 IP
+// RemoveFromWhitelist 从白名单移除 IP.
 func (fm *FirewallManager) RemoveFromWhitelist(ip string) error {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -566,7 +566,7 @@ func (fm *FirewallManager) RemoveFromWhitelist(ip string) error {
 	return nil
 }
 
-// IsWhitelisted 检查 IP 是否在白名单中
+// IsWhitelisted 检查 IP 是否在白名单中.
 func (fm *FirewallManager) IsWhitelisted(ip string) bool {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -574,7 +574,7 @@ func (fm *FirewallManager) IsWhitelisted(ip string) bool {
 	return exists
 }
 
-// CleanupExpired 清理过期的黑名单条目
+// CleanupExpired 清理过期的黑名单条目.
 func (fm *FirewallManager) CleanupExpired() {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -589,7 +589,7 @@ func (fm *FirewallManager) CleanupExpired() {
 	}
 }
 
-// StartCleanupRoutine 启动定期清理例程
+// StartCleanupRoutine 启动定期清理例程.
 func (fm *FirewallManager) StartCleanupRoutine(interval time.Duration) {
 	go func() {
 		ticker := time.NewTicker(interval)

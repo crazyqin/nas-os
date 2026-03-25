@@ -14,7 +14,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// LoginAuditor 登录审计器
+// LoginAuditor 登录审计器.
 type LoginAuditor struct {
 	entries    []*LoginAuditEntry
 	sessions   map[string]*LoginSession
@@ -25,7 +25,7 @@ type LoginAuditor struct {
 	stopCh     chan struct{}
 }
 
-// LoginAuditConfig 登录审计配置
+// LoginAuditConfig 登录审计配置.
 type LoginAuditConfig struct {
 	Enabled             bool          `json:"enabled"`
 	MaxEntries          int           `json:"max_entries"`
@@ -42,7 +42,7 @@ type LoginAuditConfig struct {
 	AlertOnNewLocation  bool          `json:"alert_on_new_location"`
 }
 
-// DefaultLoginAuditConfig 默认登录审计配置
+// DefaultLoginAuditConfig 默认登录审计配置.
 func DefaultLoginAuditConfig() LoginAuditConfig {
 	return LoginAuditConfig{
 		Enabled:             true,
@@ -60,7 +60,7 @@ func DefaultLoginAuditConfig() LoginAuditConfig {
 	}
 }
 
-// NewLoginAuditor 创建登录审计器
+// NewLoginAuditor 创建登录审计器.
 func NewLoginAuditor(config LoginAuditConfig) *LoginAuditor {
 	storageDir := "/var/log/nas-os/audit/login"
 	if err := os.MkdirAll(storageDir, 0750); err != nil {
@@ -78,7 +78,7 @@ func NewLoginAuditor(config LoginAuditConfig) *LoginAuditor {
 	}
 }
 
-// Stop 停止审计器
+// Stop 停止审计器.
 func (la *LoginAuditor) Stop() {
 	close(la.stopCh)
 	la.save()
@@ -86,7 +86,7 @@ func (la *LoginAuditor) Stop() {
 
 // ========== 登录事件记录 ==========
 
-// RecordLogin 记录登录事件
+// RecordLogin 记录登录事件.
 func (la *LoginAuditor) RecordLogin(
 	userID, username, ip, userAgent string,
 	authMethod AuthMethod,
@@ -165,7 +165,7 @@ func (la *LoginAuditor) RecordLogin(
 	return entry
 }
 
-// RecordLogout 记录登出事件
+// RecordLogout 记录登出事件.
 func (la *LoginAuditor) RecordLogout(userID, sessionID, ip string) *LoginAuditEntry {
 	la.mu.Lock()
 	defer la.mu.Unlock()
@@ -189,7 +189,7 @@ func (la *LoginAuditor) RecordLogout(userID, sessionID, ip string) *LoginAuditEn
 	return entry
 }
 
-// RecordSessionExpired 记录会话过期
+// RecordSessionExpired 记录会话过期.
 func (la *LoginAuditor) RecordSessionExpired(userID, sessionID string) *LoginAuditEntry {
 	la.mu.Lock()
 	defer la.mu.Unlock()
@@ -211,7 +211,7 @@ func (la *LoginAuditor) RecordSessionExpired(userID, sessionID string) *LoginAud
 	return entry
 }
 
-// RecordPasswordChange 记录密码修改
+// RecordPasswordChange 记录密码修改.
 func (la *LoginAuditor) RecordPasswordChange(userID, username, ip string, success bool) *LoginAuditEntry {
 	la.mu.Lock()
 	defer la.mu.Unlock()
@@ -234,7 +234,7 @@ func (la *LoginAuditor) RecordPasswordChange(userID, username, ip string, succes
 	return entry
 }
 
-// RecordMFAChange 记录MFA状态变更
+// RecordMFAChange 记录MFA状态变更.
 func (la *LoginAuditor) RecordMFAChange(userID, username, ip string, enabled bool) *LoginAuditEntry {
 	la.mu.Lock()
 	defer la.mu.Unlock()
@@ -258,7 +258,7 @@ func (la *LoginAuditor) RecordMFAChange(userID, username, ip string, enabled boo
 	return entry
 }
 
-// RecordAccountLock 记录账户锁定
+// RecordAccountLock 记录账户锁定.
 func (la *LoginAuditor) RecordAccountLock(userID, username, ip, reason string) *LoginAuditEntry {
 	la.mu.Lock()
 	defer la.mu.Unlock()
@@ -280,7 +280,7 @@ func (la *LoginAuditor) RecordAccountLock(userID, username, ip, reason string) *
 	return entry
 }
 
-// RecordAccountUnlock 记录账户解锁
+// RecordAccountUnlock 记录账户解锁.
 func (la *LoginAuditor) RecordAccountUnlock(userID, username, operatorID string) *LoginAuditEntry {
 	la.mu.Lock()
 	defer la.mu.Unlock()
@@ -303,7 +303,7 @@ func (la *LoginAuditor) RecordAccountUnlock(userID, username, operatorID string)
 
 // ========== 会话管理 ==========
 
-// createSession 创建会话
+// createSession 创建会话.
 func (la *LoginAuditor) createSession(entry *LoginAuditEntry) *LoginSession {
 	sessionID := uuid.New().String()
 	session := &LoginSession{
@@ -335,7 +335,7 @@ func (la *LoginAuditor) createSession(entry *LoginAuditEntry) *LoginSession {
 	return session
 }
 
-// GetActiveSession 获取活跃会话
+// GetActiveSession 获取活跃会话.
 func (la *LoginAuditor) GetActiveSession(sessionID string) *LoginSession {
 	la.mu.RLock()
 	defer la.mu.RUnlock()
@@ -353,7 +353,7 @@ func (la *LoginAuditor) GetActiveSession(sessionID string) *LoginSession {
 	return session
 }
 
-// GetUserActiveSessions 获取用户的所有活跃会话
+// GetUserActiveSessions 获取用户的所有活跃会话.
 func (la *LoginAuditor) GetUserActiveSessions(userID string) []*LoginSession {
 	la.mu.RLock()
 	defer la.mu.RUnlock()
@@ -367,7 +367,7 @@ func (la *LoginAuditor) GetUserActiveSessions(userID string) []*LoginSession {
 	return sessions
 }
 
-// UpdateSessionActivity 更新会话活动时间
+// UpdateSessionActivity 更新会话活动时间.
 func (la *LoginAuditor) UpdateSessionActivity(sessionID string) {
 	la.mu.Lock()
 	defer la.mu.Unlock()
@@ -378,7 +378,7 @@ func (la *LoginAuditor) UpdateSessionActivity(sessionID string) {
 	}
 }
 
-// TerminateSession 终止会话
+// TerminateSession 终止会话.
 func (la *LoginAuditor) TerminateSession(sessionID string) bool {
 	la.mu.Lock()
 	defer la.mu.Unlock()
@@ -390,7 +390,7 @@ func (la *LoginAuditor) TerminateSession(sessionID string) bool {
 	return false
 }
 
-// TerminateAllUserSessions 终止用户所有会话
+// TerminateAllUserSessions 终止用户所有会话.
 func (la *LoginAuditor) TerminateAllUserSessions(userID string) int {
 	la.mu.Lock()
 	defer la.mu.Unlock()
@@ -405,7 +405,7 @@ func (la *LoginAuditor) TerminateAllUserSessions(userID string) int {
 	return count
 }
 
-// cleanupExpiredSessions 清理过期会话
+// cleanupExpiredSessions 清理过期会话.
 func (la *LoginAuditor) cleanupExpiredSessions() {
 	now := time.Now()
 	for id, session := range la.sessions {
@@ -417,7 +417,7 @@ func (la *LoginAuditor) cleanupExpiredSessions() {
 
 // ========== 模式分析 ==========
 
-// getOrCreatePattern 获取或创建用户登录模式
+// getOrCreatePattern 获取或创建用户登录模式.
 func (la *LoginAuditor) getOrCreatePattern(userID, username string) *LoginPattern {
 	if pattern, exists := la.patterns[userID]; exists {
 		return pattern
@@ -431,7 +431,7 @@ func (la *LoginAuditor) getOrCreatePattern(userID, username string) *LoginPatter
 	return pattern
 }
 
-// updatePattern 更新登录模式
+// updatePattern 更新登录模式.
 func (la *LoginAuditor) updatePattern(entry *LoginAuditEntry, pattern *LoginPattern) {
 	if pattern == nil {
 		return
@@ -451,7 +451,7 @@ func (la *LoginAuditor) updatePattern(entry *LoginAuditEntry, pattern *LoginPatt
 	}
 }
 
-// GetLoginPattern 获取用户登录模式
+// GetLoginPattern 获取用户登录模式.
 func (la *LoginAuditor) GetLoginPattern(userID string) *LoginPattern {
 	la.mu.RLock()
 	defer la.mu.RUnlock()
@@ -460,7 +460,7 @@ func (la *LoginAuditor) GetLoginPattern(userID string) *LoginPattern {
 
 // ========== 风险分析 ==========
 
-// calculateRiskScore 计算风险分数
+// calculateRiskScore 计算风险分数.
 func (la *LoginAuditor) calculateRiskScore(entry *LoginAuditEntry, pattern *LoginPattern) int {
 	score := 0
 
@@ -516,7 +516,7 @@ func (la *LoginAuditor) calculateRiskScore(entry *LoginAuditEntry, pattern *Logi
 	return score
 }
 
-// detectAnomalies 检测异常
+// detectAnomalies 检测异常.
 func (la *LoginAuditor) detectAnomalies(entry *LoginAuditEntry, pattern *LoginPattern) {
 	if pattern == nil {
 		return
@@ -559,7 +559,7 @@ func (la *LoginAuditor) detectAnomalies(entry *LoginAuditEntry, pattern *LoginPa
 
 // ========== 查询功能 ==========
 
-// Query 查询登录审计日志
+// Query 查询登录审计日志.
 func (la *LoginAuditor) Query(opts LoginQueryOptions) ([]*LoginAuditEntry, int) {
 	la.mu.RLock()
 	defer la.mu.RUnlock()
@@ -599,7 +599,7 @@ func (la *LoginAuditor) Query(opts LoginQueryOptions) ([]*LoginAuditEntry, int) 
 	return filtered[start:end], total
 }
 
-// matchesFilter 检查是否匹配筛选条件
+// matchesFilter 检查是否匹配筛选条件.
 func (la *LoginAuditor) matchesFilter(entry *LoginAuditEntry, opts LoginQueryOptions) bool {
 	if opts.StartTime != nil && entry.Timestamp.Before(*opts.StartTime) {
 		return false
@@ -631,7 +631,7 @@ func (la *LoginAuditor) matchesFilter(entry *LoginAuditEntry, opts LoginQueryOpt
 	return true
 }
 
-// GetByID 根据ID获取登录审计条目
+// GetByID 根据ID获取登录审计条目.
 func (la *LoginAuditor) GetByID(id string) *LoginAuditEntry {
 	la.mu.RLock()
 	defer la.mu.RUnlock()
@@ -644,7 +644,7 @@ func (la *LoginAuditor) GetByID(id string) *LoginAuditEntry {
 	return nil
 }
 
-// GetHighRiskLogins 获取高风险登录
+// GetHighRiskLogins 获取高风险登录.
 func (la *LoginAuditor) GetHighRiskLogins(minScore int, limit int) []*LoginAuditEntry {
 	la.mu.RLock()
 	defer la.mu.RUnlock()
@@ -669,7 +669,7 @@ func (la *LoginAuditor) GetHighRiskLogins(minScore int, limit int) []*LoginAudit
 
 // ========== 统计功能 ==========
 
-// GetLoginStatistics 获取登录统计
+// GetLoginStatistics 获取登录统计.
 func (la *LoginAuditor) GetLoginStatistics(start, end time.Time) *LoginAnalysis {
 	la.mu.RLock()
 	defer la.mu.RUnlock()
@@ -793,7 +793,7 @@ func (la *LoginAuditor) GetLoginStatistics(start, end time.Time) *LoginAnalysis 
 
 // ========== 辅助功能 ==========
 
-// getGeoLocation 获取地理位置（简化实现）
+// getGeoLocation 获取地理位置（简化实现）.
 func (la *LoginAuditor) getGeoLocation(ip string) *GeoLocation {
 	// 这里可以集成GeoIP数据库
 	// 简化实现，返回基本信息
@@ -812,7 +812,7 @@ func GenerateDeviceID(userAgent, ip string) string {
 
 // ========== 持久化 ==========
 
-// save 保存数据
+// save 保存数据.
 func (la *LoginAuditor) save() {
 	if len(la.entries) == 0 {
 		return
@@ -830,7 +830,7 @@ func (la *LoginAuditor) save() {
 	_ = os.WriteFile(filename, data, 0600)
 }
 
-// Load 加载数据
+// Load 加载数据.
 func (la *LoginAuditor) Load(date string) error {
 	filename := filepath.Join(la.storageDir, "login-"+date+".log")
 	data, err := os.ReadFile(filename)

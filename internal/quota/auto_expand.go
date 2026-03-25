@@ -12,7 +12,7 @@ import (
 
 // ========== 配额自动扩展策略 ==========
 
-// AutoExpandPolicy 自动扩展策略
+// AutoExpandPolicy 自动扩展策略.
 type AutoExpandPolicy struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
@@ -47,7 +47,7 @@ type AutoExpandPolicy struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TriggerRule 触发规则
+// TriggerRule 触发规则.
 type TriggerRule struct {
 	ID              string        `json:"id"`
 	Type            string        `json:"type"`             // usage_percent, free_space, growth_rate
@@ -58,7 +58,7 @@ type TriggerRule struct {
 	ConsecutiveHits int           `json:"consecutive_hits"` // 连续命中次数
 }
 
-// ExpandAction 扩展动作记录
+// ExpandAction 扩展动作记录.
 type ExpandAction struct {
 	ID             string     `json:"id"`
 	PolicyID       string     `json:"policy_id"`
@@ -80,7 +80,7 @@ type ExpandAction struct {
 	CreatedAt      time.Time  `json:"created_at"`
 }
 
-// ExpandPolicyStats 扩展策略统计
+// ExpandPolicyStats 扩展策略统计.
 type ExpandPolicyStats struct {
 	PolicyID           string     `json:"policy_id"`
 	TotalExpansions    int        `json:"total_expansions"`
@@ -94,7 +94,7 @@ type ExpandPolicyStats struct {
 	NextExpansionAt    *time.Time `json:"next_expansion_at,omitempty"`
 }
 
-// AutoExpandManager 自动扩展管理器
+// AutoExpandManager 自动扩展管理器.
 type AutoExpandManager struct {
 	mu             sync.RWMutex
 	policies       map[string]*AutoExpandPolicy
@@ -111,7 +111,7 @@ type AutoExpandManager struct {
 	running        bool
 }
 
-// NewAutoExpandManager 创建自动扩展管理器
+// NewAutoExpandManager 创建自动扩展管理器.
 func NewAutoExpandManager(quotaMgr *Manager, configPath string) *AutoExpandManager {
 	return &AutoExpandManager{
 		policies:       make(map[string]*AutoExpandPolicy),
@@ -128,7 +128,7 @@ func NewAutoExpandManager(quotaMgr *Manager, configPath string) *AutoExpandManag
 	}
 }
 
-// Start 启动自动扩展管理
+// Start 启动自动扩展管理.
 func (m *AutoExpandManager) Start() {
 	m.mu.Lock()
 	m.running = true
@@ -137,7 +137,7 @@ func (m *AutoExpandManager) Start() {
 	go m.run()
 }
 
-// Stop 停止自动扩展管理
+// Stop 停止自动扩展管理.
 func (m *AutoExpandManager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -153,7 +153,7 @@ func (m *AutoExpandManager) Stop() {
 	}
 }
 
-// run 运行检查循环
+// run 运行检查循环.
 func (m *AutoExpandManager) run() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -171,7 +171,7 @@ func (m *AutoExpandManager) run() {
 
 // ========== 策略管理 ==========
 
-// CreatePolicy 创建扩展策略
+// CreatePolicy 创建扩展策略.
 func (m *AutoExpandManager) CreatePolicy(policy AutoExpandPolicy) (*AutoExpandPolicy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -195,7 +195,7 @@ func (m *AutoExpandManager) CreatePolicy(policy AutoExpandPolicy) (*AutoExpandPo
 	return &policy, nil
 }
 
-// GetPolicy 获取扩展策略
+// GetPolicy 获取扩展策略.
 func (m *AutoExpandManager) GetPolicy(id string) (*AutoExpandPolicy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -207,7 +207,7 @@ func (m *AutoExpandManager) GetPolicy(id string) (*AutoExpandPolicy, error) {
 	return policy, nil
 }
 
-// ListPolicies 列出扩展策略
+// ListPolicies 列出扩展策略.
 func (m *AutoExpandManager) ListPolicies(quotaID string, volumeName string) []*AutoExpandPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -225,7 +225,7 @@ func (m *AutoExpandManager) ListPolicies(quotaID string, volumeName string) []*A
 	return result
 }
 
-// UpdatePolicy 更新扩展策略
+// UpdatePolicy 更新扩展策略.
 func (m *AutoExpandManager) UpdatePolicy(id string, policy AutoExpandPolicy) (*AutoExpandPolicy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -244,7 +244,7 @@ func (m *AutoExpandManager) UpdatePolicy(id string, policy AutoExpandPolicy) (*A
 	return &policy, nil
 }
 
-// DeletePolicy 删除扩展策略
+// DeletePolicy 删除扩展策略.
 func (m *AutoExpandManager) DeletePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -261,7 +261,7 @@ func (m *AutoExpandManager) DeletePolicy(id string) error {
 
 // ========== 触发检查 ==========
 
-// checkAllPolicies 检查所有策略
+// checkAllPolicies 检查所有策略.
 func (m *AutoExpandManager) checkAllPolicies() {
 	m.mu.RLock()
 	policies := make([]*AutoExpandPolicy, 0)
@@ -285,7 +285,7 @@ func (m *AutoExpandManager) checkAllPolicies() {
 	}
 }
 
-// checkPolicy 检查单个策略
+// checkPolicy 检查单个策略.
 func (m *AutoExpandManager) checkPolicy(policy *AutoExpandPolicy) {
 	// 获取关联的配额
 	var quotaIDs []string
@@ -315,7 +315,7 @@ func (m *AutoExpandManager) checkPolicy(policy *AutoExpandPolicy) {
 	}
 }
 
-// checkQuotaPolicy 检查配额是否需要扩展
+// checkQuotaPolicy 检查配额是否需要扩展.
 func (m *AutoExpandManager) checkQuotaPolicy(policy *AutoExpandPolicy, quotaID string) {
 	// 获取配额使用情况
 	usage, err := m.quotaMgr.GetUsage(quotaID)
@@ -372,7 +372,7 @@ func (m *AutoExpandManager) checkQuotaPolicy(policy *AutoExpandPolicy, quotaID s
 	m.executeExpand(policy, quotaID, expandBytes, triggerRule)
 }
 
-// evaluateTriggerRules 评估触发规则
+// evaluateTriggerRules 评估触发规则.
 func (m *AutoExpandManager) evaluateTriggerRules(policy *AutoExpandPolicy, usage *QuotaUsage) (bool, *TriggerRule) {
 	for i := range policy.TriggerRules {
 		rule := &policy.TriggerRules[i]
@@ -412,7 +412,7 @@ func (m *AutoExpandManager) evaluateTriggerRules(policy *AutoExpandPolicy, usage
 	return false, nil
 }
 
-// compareValue 比较值
+// compareValue 比较值.
 func (m *AutoExpandManager) compareValue(actual float64, operator string, threshold float64) bool {
 	switch operator {
 	case "gt":
@@ -430,7 +430,7 @@ func (m *AutoExpandManager) compareValue(actual float64, operator string, thresh
 	}
 }
 
-// calculateExpandAmount 计算扩展量
+// calculateExpandAmount 计算扩展量.
 func (m *AutoExpandManager) calculateExpandAmount(policy *AutoExpandPolicy, usage *QuotaUsage) uint64 {
 	switch policy.ExpandMode {
 	case "fixed":
@@ -457,7 +457,7 @@ func (m *AutoExpandManager) calculateExpandAmount(policy *AutoExpandPolicy, usag
 	}
 }
 
-// executeExpand 执行扩展
+// executeExpand 执行扩展.
 func (m *AutoExpandManager) executeExpand(policy *AutoExpandPolicy, quotaID string, expandBytes uint64, triggerRule *TriggerRule) {
 	// 创建扩展动作
 	action := &ExpandAction{
@@ -507,7 +507,7 @@ func (m *AutoExpandManager) executeExpand(policy *AutoExpandPolicy, quotaID stri
 	m.doExpand(action, policy)
 }
 
-// doExpand 执行实际扩展
+// doExpand 执行实际扩展.
 func (m *AutoExpandManager) doExpand(action *ExpandAction, policy *AutoExpandPolicy) {
 	m.quotaMgr.mu.Lock()
 	quota, exists := m.quotaMgr.quotas[action.QuotaID]
@@ -564,7 +564,7 @@ func (m *AutoExpandManager) doExpand(action *ExpandAction, policy *AutoExpandPol
 	m.recordAction(action)
 }
 
-// recordAction 记录动作
+// recordAction 记录动作.
 func (m *AutoExpandManager) recordAction(action *ExpandAction) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -580,7 +580,7 @@ func (m *AutoExpandManager) recordAction(action *ExpandAction) {
 
 // ========== 审批处理 ==========
 
-// ApproveExpand 审批扩展
+// ApproveExpand 审批扩展.
 func (m *AutoExpandManager) ApproveExpand(actionID string, approver string) error {
 	m.mu.Lock()
 	action, exists := m.actions[actionID]
@@ -611,7 +611,7 @@ func (m *AutoExpandManager) ApproveExpand(actionID string, approver string) erro
 	return nil
 }
 
-// RejectExpand 拒绝扩展
+// RejectExpand 拒绝扩展.
 func (m *AutoExpandManager) RejectExpand(actionID string, reason string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -630,14 +630,14 @@ func (m *AutoExpandManager) RejectExpand(actionID string, reason string) error {
 	return nil
 }
 
-// checkPendingActions 检查待处理动作
+// checkPendingActions 检查待处理动作.
 func (m *AutoExpandManager) checkPendingActions() {
 	// 可以添加超时自动拒绝等逻辑
 }
 
 // ========== 回滚 ==========
 
-// RollbackExpand 回滚扩展
+// RollbackExpand 回滚扩展.
 func (m *AutoExpandManager) RollbackExpand(actionID string, reason string) error {
 	m.mu.Lock()
 	action, exists := m.actions[actionID]
@@ -680,7 +680,7 @@ func (m *AutoExpandManager) RollbackExpand(actionID string, reason string) error
 
 // ========== 查询 ==========
 
-// GetAction 获取扩展动作
+// GetAction 获取扩展动作.
 func (m *AutoExpandManager) GetAction(id string) (*ExpandAction, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -692,7 +692,7 @@ func (m *AutoExpandManager) GetAction(id string) (*ExpandAction, error) {
 	return action, nil
 }
 
-// ListActions 列出扩展动作
+// ListActions 列出扩展动作.
 func (m *AutoExpandManager) ListActions(policyID string, quotaID string, status string, limit int) []*ExpandAction {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -720,7 +720,7 @@ func (m *AutoExpandManager) ListActions(policyID string, quotaID string, status 
 	return result
 }
 
-// GetPolicyStats 获取策略统计
+// GetPolicyStats 获取策略统计.
 func (m *AutoExpandManager) GetPolicyStats(policyID string) (*ExpandPolicyStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -732,14 +732,14 @@ func (m *AutoExpandManager) GetPolicyStats(policyID string) (*ExpandPolicyStats,
 	return stats, nil
 }
 
-// GetQuotaExpansionHistory 获取配额扩展历史
+// GetQuotaExpansionHistory 获取配额扩展历史.
 func (m *AutoExpandManager) GetQuotaExpansionHistory(quotaID string, limit int) []*ExpandAction {
 	return m.ListActions("", quotaID, "", limit)
 }
 
 // ========== 通知 ==========
 
-// sendApprovalRequest 发送审批请求
+// sendApprovalRequest 发送审批请求.
 func (m *AutoExpandManager) sendApprovalRequest(policy *AutoExpandPolicy, action *ExpandAction) {
 	if policy.ApproverEmail == "" {
 		return
@@ -750,7 +750,7 @@ func (m *AutoExpandManager) sendApprovalRequest(policy *AutoExpandPolicy, action
 		action.QuotaID, formatBytesImpl(action.ExpandBytes), policy.ApproverEmail)
 }
 
-// sendExpandNotification 发送扩展通知
+// sendExpandNotification 发送扩展通知.
 func (m *AutoExpandManager) sendExpandNotification(policy *AutoExpandPolicy, action *ExpandAction, completed bool) {
 	// 简化实现
 	if completed {
@@ -764,7 +764,7 @@ func (m *AutoExpandManager) sendExpandNotification(policy *AutoExpandPolicy, act
 
 // ========== 手动扩展 ==========
 
-// ManualExpand 手动扩展配额
+// ManualExpand 手动扩展配额.
 func (m *AutoExpandManager) ManualExpand(quotaID string, expandBytes uint64, reason string) (*ExpandAction, error) {
 	// 获取配额
 	m.quotaMgr.mu.RLock()
@@ -805,7 +805,7 @@ func (m *AutoExpandManager) ManualExpand(quotaID string, expandBytes uint64, rea
 	return action, nil
 }
 
-// ManualShrink 手动缩减配额
+// ManualShrink 手动缩减配额.
 func (m *AutoExpandManager) ManualShrink(quotaID string, shrinkBytes uint64, reason string) (*ExpandAction, error) {
 	// 获取配额和使用情况
 	m.quotaMgr.mu.RLock()
@@ -887,7 +887,7 @@ func (m *AutoExpandManager) saveConfig() error {
 	return os.WriteFile(m.configPath, jsonData, 0600)
 }
 
-// Load 从配置文件加载自动扩容策略和历史记录
+// Load 从配置文件加载自动扩容策略和历史记录.
 func (m *AutoExpandManager) Load() error {
 	if m.configPath == "" {
 		return nil
@@ -926,7 +926,7 @@ func (m *AutoExpandManager) Load() error {
 
 // ========== 预测和建议 ==========
 
-// ExpansionRecommendation 扩展建议
+// ExpansionRecommendation 扩展建议.
 type ExpansionRecommendation struct {
 	QuotaID           string     `json:"quota_id"`
 	TargetName        string     `json:"target_name"`
@@ -940,7 +940,7 @@ type ExpansionRecommendation struct {
 	PredictedFullDate *time.Time `json:"predicted_full_date,omitempty"`
 }
 
-// GetExpansionRecommendations 获取扩展建议
+// GetExpansionRecommendations 获取扩展建议.
 func (m *AutoExpandManager) GetExpansionRecommendations() []*ExpansionRecommendation {
 	usages, err := m.quotaMgr.GetAllUsage()
 	if err != nil {
@@ -985,7 +985,7 @@ func (m *AutoExpandManager) GetExpansionRecommendations() []*ExpansionRecommenda
 	return recommendations
 }
 
-// SimulateExpansion 模拟扩展效果
+// SimulateExpansion 模拟扩展效果.
 func (m *AutoExpandManager) SimulateExpansion(quotaID string, expandBytes uint64) (map[string]interface{}, error) {
 	usage, err := m.quotaMgr.GetUsage(quotaID)
 	if err != nil {

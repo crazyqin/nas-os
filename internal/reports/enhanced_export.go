@@ -18,7 +18,7 @@ import (
 
 // ========== 增强导出功能 v2.56.0 ==========
 
-// EnhancedExporter 增强的报表导出器
+// EnhancedExporter 增强的报表导出器.
 type EnhancedExporter struct {
 	dataDir       string
 	templateCache map[string]*template.Template
@@ -27,13 +27,13 @@ type EnhancedExporter struct {
 	excelExporter *ExcelExporter
 }
 
-// PDFConverter PDF 转换器接口
+// PDFConverter PDF 转换器接口.
 type PDFConverter interface {
 	Convert(htmlPath, pdfPath string) error
 	IsAvailable() bool
 }
 
-// NewEnhancedExporter 创建增强导出器
+// NewEnhancedExporter 创建增强导出器.
 func NewEnhancedExporter(dataDir string) *EnhancedExporter {
 	e := &EnhancedExporter{
 		dataDir:       dataDir,
@@ -55,7 +55,7 @@ func NewEnhancedExporter(dataDir string) *EnhancedExporter {
 	return e
 }
 
-// ExportEnhanced 增强导出
+// ExportEnhanced 增强导出.
 func (e *EnhancedExporter) ExportEnhanced(report *GeneratedReport, format ExportFormat, outputPath string, options EnhancedExportOptions) (*ExportResult, error) {
 	if outputPath == "" {
 		outputPath = e.generateOutputPath(format)
@@ -148,10 +148,10 @@ func (e *EnhancedExporter) exportJSONEnhanced(report *GeneratedReport, path stri
 
 // ========== CSV 增强 ==========
 
-// CSVExporterEnhanced 增强的 CSV 导出器
+// CSVExporterEnhanced 增强的 CSV 导出器.
 type CSVExporterEnhanced struct{}
 
-// NewCSVExporterEnhanced 创建增强 CSV 导出器
+// NewCSVExporterEnhanced 创建增强 CSV 导出器.
 func NewCSVExporterEnhanced() *CSVExporterEnhanced {
 	return &CSVExporterEnhanced{}
 }
@@ -240,7 +240,7 @@ func (e *EnhancedExporter) exportCSVEnhanced(report *GeneratedReport, path strin
 	return os.WriteFile(path, buf.Bytes(), 0640)
 }
 
-// inferColumns 从数据推断列定义
+// inferColumns 从数据推断列定义.
 func (e *EnhancedExporter) inferColumns(row map[string]interface{}) []CSVColumn {
 	columns := make([]CSVColumn, 0, len(row))
 	for key, val := range row {
@@ -266,7 +266,7 @@ func (e *EnhancedExporter) inferColumns(row map[string]interface{}) []CSVColumn 
 	return columns
 }
 
-// formatCSVValue 格式化 CSV 值
+// formatCSVValue 格式化 CSV 值.
 func (e *EnhancedExporter) formatCSVValue(val interface{}, fieldType FieldType) string {
 	if val == nil {
 		return ""
@@ -301,7 +301,7 @@ func (e *EnhancedExporter) formatCSVValue(val interface{}, fieldType FieldType) 
 	}
 }
 
-// formatBytes 格式化字节数
+// formatBytes 格式化字节数.
 func (e *EnhancedExporter) formatBytes(bytes uint64) string {
 	const unit = 1024
 	if bytes < unit {
@@ -332,7 +332,7 @@ func (e *EnhancedExporter) exportHTMLEnhanced(report *GeneratedReport, path stri
 	return os.WriteFile(path, buf.Bytes(), 0640)
 }
 
-// getEnhancedHTMLTemplate 获取增强的 HTML 模板
+// getEnhancedHTMLTemplate 获取增强的 HTML 模板.
 func (e *EnhancedExporter) getEnhancedHTMLTemplate(options EnhancedExportOptions) *template.Template {
 	// 根据主题选择模板（主题由模板数据中的 .Theme 字段决定）
 	_ = options.Theme // 主题由模板数据传入
@@ -637,7 +637,7 @@ func (e *EnhancedExporter) getEnhancedHTMLTemplate(options EnhancedExportOptions
 	return template.Must(template.New("report").Parse(tmplStr))
 }
 
-// prepareHTMLData 准备 HTML 数据
+// prepareHTMLData 准备 HTML 数据.
 func (e *EnhancedExporter) prepareHTMLData(report *GeneratedReport, options EnhancedExportOptions) map[string]interface{} {
 	title := options.Title
 	if title == "" {
@@ -695,7 +695,7 @@ func (e *EnhancedExporter) prepareHTMLData(report *GeneratedReport, options Enha
 	}
 }
 
-// formatHTMLValue 格式化 HTML 值
+// formatHTMLValue 格式化 HTML 值.
 func (e *EnhancedExporter) formatHTMLValue(val interface{}) string {
 	if val == nil {
 		return "-"
@@ -751,7 +751,7 @@ func (e *EnhancedExporter) exportPDFEnhanced(report *GeneratedReport, path strin
 	return os.WriteFile(htmlPath, htmlData, 0640)
 }
 
-// generatePDFHTML 生成适合 PDF 的 HTML
+// generatePDFHTML 生成适合 PDF 的 HTML.
 func (e *EnhancedExporter) generatePDFHTML(report *GeneratedReport, options EnhancedExportOptions) ([]byte, error) {
 	// PDF 专用模板（优化打印样式）
 	tmplStr := `<!DOCTYPE html>
@@ -952,25 +952,25 @@ func (e *EnhancedExporter) getMimeType(format ExportFormat) string {
 
 // ========== WKHTMLToPDF 转换器 ==========
 
-// WKHTMLToPDFConverter WKHTMLToPDF 转换器
+// WKHTMLToPDFConverter WKHTMLToPDF 转换器.
 type WKHTMLToPDFConverter struct {
 	path string
 }
 
-// NewWKHTMLToPDFConverter 创建转换器
+// NewWKHTMLToPDFConverter 创建转换器.
 func NewWKHTMLToPDFConverter() *WKHTMLToPDFConverter {
 	return &WKHTMLToPDFConverter{
 		path: "/usr/bin/wkhtmltopdf",
 	}
 }
 
-// IsAvailable 检查是否可用
+// IsAvailable 检查是否可用.
 func (c *WKHTMLToPDFConverter) IsAvailable() bool {
 	_, err := os.Stat(c.path)
 	return err == nil
 }
 
-// Convert 转换 HTML 到 PDF
+// Convert 转换 HTML 到 PDF.
 func (c *WKHTMLToPDFConverter) Convert(htmlPath, pdfPath string) error {
 	cmd := exec.Command(c.path,
 		"--quiet",
@@ -988,7 +988,7 @@ func (c *WKHTMLToPDFConverter) Convert(htmlPath, pdfPath string) error {
 
 // ========== 类型定义 ==========
 
-// EnhancedExportOptions 增强导出选项
+// EnhancedExportOptions 增强导出选项.
 type EnhancedExportOptions struct {
 	ExportOptions
 
@@ -1012,7 +1012,7 @@ type EnhancedExportOptions struct {
 	IncludePeriod  bool `json:"include_period"`  // 包含周期信息
 }
 
-// CSVColumn CSV 列定义
+// CSVColumn CSV 列定义.
 type CSVColumn struct {
 	Name   string    `json:"name"`   // 字段名
 	Label  string    `json:"label"`  // 显示标签

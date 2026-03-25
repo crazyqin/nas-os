@@ -213,7 +213,7 @@ func TestWebhookTrigger_HandleRequest_WithSignature(t *testing.T) {
 	}
 }
 
-// Helper functions for webhook testing
+// Helper functions for webhook testing.
 func verifyWebhookSignature(secret string, payload []byte, signature string) bool {
 	if secret == "" {
 		return true

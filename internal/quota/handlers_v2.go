@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// safeFilename 安全编码文件名，防止 XSS 和头注入
+// safeFilename 安全编码文件名，防止 XSS 和头注入.
 func safeFilename(name string) string {
 	// 移除危险字符
 	name = strings.Map(func(r rune) rune {
@@ -24,7 +24,7 @@ func safeFilename(name string) string {
 	return url.QueryEscape(name)
 }
 
-// HandlersV2 v2.7.0 新增 API 处理器
+// HandlersV2 v2.7.0 新增 API 处理器.
 type HandlersV2 struct {
 	manager         *Manager
 	monitor         *Monitor
@@ -36,7 +36,7 @@ type HandlersV2 struct {
 	storageStatsMgr *StorageStatsManager
 }
 
-// NewHandlersV2 创建 v2.7.0 处理器
+// NewHandlersV2 创建 v2.7.0 处理器.
 func NewHandlersV2(mgr *Manager) *HandlersV2 {
 	historyConfig := DefaultHistoryConfig()
 	historyMgr := NewHistoryManager(mgr, historyConfig)
@@ -61,19 +61,19 @@ func NewHandlersV2(mgr *Manager) *HandlersV2 {
 	}
 }
 
-// Start 启动服务
+// Start 启动服务.
 func (h *HandlersV2) Start() {
 	h.historyMgr.Start()
 	h.trendMgr.Start()
 }
 
-// Stop 停止服务
+// Stop 停止服务.
 func (h *HandlersV2) Stop() {
 	h.historyMgr.Stop()
 	h.trendMgr.Stop()
 }
 
-// RegisterRoutesV2 注册 v2.7.0 API 路由
+// RegisterRoutesV2 注册 v2.7.0 API 路由.
 func (h *HandlersV2) RegisterRoutesV2(api *gin.RouterGroup) {
 	// ========== 配额历史统计 API ==========
 	history := api.Group("/quota-history")

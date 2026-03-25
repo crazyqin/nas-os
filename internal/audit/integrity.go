@@ -13,14 +13,14 @@ import (
 )
 
 // IntegrityManager 审计日志完整性管理器
-// 负责日志签名、验证和防篡改
+// 负责日志签名、验证和防篡改.
 type IntegrityManager struct {
 	signingKey []byte
 	chainHash  []byte // 区块链式哈希
 	mu         sync.RWMutex
 }
 
-// NewIntegrityManager 创建完整性管理器
+// NewIntegrityManager 创建完整性管理器.
 func NewIntegrityManager() *IntegrityManager {
 	return &IntegrityManager{
 		signingKey: []byte(generateSecureKey()),
@@ -28,14 +28,14 @@ func NewIntegrityManager() *IntegrityManager {
 	}
 }
 
-// SetSigningKey 设置签名密钥
+// SetSigningKey 设置签名密钥.
 func (im *IntegrityManager) SetSigningKey(key []byte) {
 	im.mu.Lock()
 	defer im.mu.Unlock()
 	im.signingKey = key
 }
 
-// SignEntry 对日志条目签名
+// SignEntry 对日志条目签名.
 func (im *IntegrityManager) SignEntry(entry *Entry, previousHash []byte) string {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -49,7 +49,7 @@ func (im *IntegrityManager) SignEntry(entry *Entry, previousHash []byte) string 
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// buildSignData 构建签名数据
+// buildSignData 构建签名数据.
 func (im *IntegrityManager) buildSignData(entry *Entry, previousHash []byte) []byte {
 	data := fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s|%s|%s",
 		entry.ID,
@@ -71,7 +71,7 @@ func (im *IntegrityManager) buildSignData(entry *Entry, previousHash []byte) []b
 	return []byte(data)
 }
 
-// VerifyEntry 验证日志条目
+// VerifyEntry 验证日志条目.
 func (im *IntegrityManager) VerifyEntry(entry *Entry, previousHash []byte) bool {
 	if entry.Signature == "" {
 		return false
@@ -81,7 +81,7 @@ func (im *IntegrityManager) VerifyEntry(entry *Entry, previousHash []byte) bool 
 	return hmac.Equal([]byte(entry.Signature), []byte(expectedSig))
 }
 
-// ComputeChainHash 计算区块链式哈希
+// ComputeChainHash 计算区块链式哈希.
 func (im *IntegrityManager) ComputeChainHash(entries []*Entry) []byte {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -113,7 +113,7 @@ func (im *IntegrityManager) ComputeChainHash(entries []*Entry) []byte {
 	return prevHash
 }
 
-// GenerateMerkleRoot 生成默克尔树根哈希（用于批量验证）
+// GenerateMerkleRoot 生成默克尔树根哈希（用于批量验证）.
 func (im *IntegrityManager) GenerateMerkleRoot(entries []*Entry) string {
 	if len(entries) == 0 {
 		return ""
@@ -149,7 +149,7 @@ func (im *IntegrityManager) GenerateMerkleRoot(entries []*Entry) string {
 	return hex.EncodeToString(hashes[0])
 }
 
-// Proof 审计证明
+// Proof 审计证明.
 type Proof struct {
 	EntryID    string    `json:"entry_id"`
 	Timestamp  time.Time `json:"timestamp"`
@@ -158,7 +158,7 @@ type Proof struct {
 	ProofIndex int       `json:"proof_index"`
 }
 
-// GenerateAuditProof 生成审计证明
+// GenerateAuditProof 生成审计证明.
 func (im *IntegrityManager) GenerateAuditProof(entries []*Entry, entryID string) (*Proof, error) {
 	// 找到目标条目
 	var targetEntry *Entry
@@ -190,7 +190,7 @@ func (im *IntegrityManager) GenerateAuditProof(entries []*Entry, entryID string)
 	}, nil
 }
 
-// buildMerkleProof 构建默克尔证明路径
+// buildMerkleProof 构建默克尔证明路径.
 func (im *IntegrityManager) buildMerkleProof(entries []*Entry, targetIndex int) []string {
 	proofPath := make([]string, 0)
 
@@ -238,7 +238,7 @@ func (im *IntegrityManager) buildMerkleProof(entries []*Entry, targetIndex int) 
 	return proofPath
 }
 
-// VerifyAuditProof 验证审计证明
+// VerifyAuditProof 验证审计证明.
 func (im *IntegrityManager) VerifyAuditProof(proof *Proof, entry *Entry) bool {
 	// 计算条目哈希
 	h := sha256.New()
@@ -271,7 +271,7 @@ func (im *IntegrityManager) VerifyAuditProof(proof *Proof, entry *Entry) bool {
 
 // ========== 日志归档签名 ==========
 
-// ArchiveManifest 归档清单
+// ArchiveManifest 归档清单.
 type ArchiveManifest struct {
 	ArchiveID      string    `json:"archive_id"`
 	CreatedAt      time.Time `json:"created_at"`
@@ -283,7 +283,7 @@ type ArchiveManifest struct {
 	ChecksumSHA256 string    `json:"checksum_sha256"`
 }
 
-// CreateArchiveManifest 创建归档清单
+// CreateArchiveManifest 创建归档清单.
 func (im *IntegrityManager) CreateArchiveManifest(entries []*Entry, archivePath string) (*ArchiveManifest, error) {
 	if len(entries) == 0 {
 		return nil, fmt.Errorf("no entries to archive")
@@ -339,7 +339,7 @@ func (im *IntegrityManager) CreateArchiveManifest(entries []*Entry, archivePath 
 	return manifest, nil
 }
 
-// computeFileChecksum 计算文件校验和
+// computeFileChecksum 计算文件校验和.
 func (im *IntegrityManager) computeFileChecksum(filePath string) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -351,7 +351,7 @@ func (im *IntegrityManager) computeFileChecksum(filePath string) (string, error)
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// VerifyArchiveManifest 验证归档清单
+// VerifyArchiveManifest 验证归档清单.
 func (im *IntegrityManager) VerifyArchiveManifest(manifest *ArchiveManifest) bool {
 	signData := fmt.Sprintf("%s|%s|%s|%d|%s",
 		manifest.ArchiveID,
@@ -368,7 +368,7 @@ func (im *IntegrityManager) VerifyArchiveManifest(manifest *ArchiveManifest) boo
 	return hmac.Equal([]byte(manifest.Signature), []byte(expectedSig))
 }
 
-// SaveManifest 保存清单到文件
+// SaveManifest 保存清单到文件.
 func (im *IntegrityManager) SaveManifest(manifest *ArchiveManifest, dir string) error {
 	data, err := json.MarshalIndent(manifest, "", "  ")
 	if err != nil {
@@ -379,7 +379,7 @@ func (im *IntegrityManager) SaveManifest(manifest *ArchiveManifest, dir string) 
 	return os.WriteFile(filename, data, 0600)
 }
 
-// LoadManifest 从文件加载清单
+// LoadManifest 从文件加载清单.
 func (im *IntegrityManager) LoadManifest(filePath string) (*ArchiveManifest, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -394,7 +394,7 @@ func (im *IntegrityManager) LoadManifest(filePath string) (*ArchiveManifest, err
 	return &manifest, nil
 }
 
-// generateSecureKey 生成安全密钥
+// generateSecureKey 生成安全密钥.
 func generateSecureKey() string {
 	// 使用时间戳和随机数生成
 	h := sha256.New()

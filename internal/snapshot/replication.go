@@ -19,7 +19,7 @@ import (
 
 // ========== 类型定义 ==========
 
-// ReplicationConfig 复制配置
+// ReplicationConfig 复制配置.
 type ReplicationConfig struct {
 	// ID 配置 ID
 	ID string `json:"id"`
@@ -61,19 +61,19 @@ type ReplicationConfig struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// ReplicationMode 复制模式
+// ReplicationMode 复制模式.
 type ReplicationMode string
 
 const (
-	// ReplicationModeFull 全量复制
+	// ReplicationModeFull 全量复制.
 	ReplicationModeFull ReplicationMode = "full"
-	// ReplicationModeIncremental 增量复制
+	// ReplicationModeIncremental 增量复制.
 	ReplicationModeIncremental ReplicationMode = "incremental"
-	// ReplicationModeDifferential 差异复制
+	// ReplicationModeDifferential 差异复制.
 	ReplicationModeDifferential ReplicationMode = "differential"
 )
 
-// ReplicationTarget 复制目标
+// ReplicationTarget 复制目标.
 type ReplicationTarget struct {
 	// NodeID 节点 ID
 	NodeID string `json:"nodeId"`
@@ -100,19 +100,19 @@ type ReplicationTarget struct {
 	LastSync *time.Time `json:"lastSync,omitempty"`
 }
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
-	// NodeStatusOnline 节点在线
+	// NodeStatusOnline 节点在线.
 	NodeStatusOnline NodeStatus = "online"
-	// NodeStatusOffline 节点离线
+	// NodeStatusOffline 节点离线.
 	NodeStatusOffline NodeStatus = "offline"
-	// NodeStatusError 节点错误
+	// NodeStatusError 节点错误.
 	NodeStatusError NodeStatus = "error"
 )
 
-// ReplicationSchedule 复制调度
+// ReplicationSchedule 复制调度.
 type ReplicationSchedule struct {
 	// Type 调度类型
 	Type string `json:"type"` // immediate, interval, cron
@@ -124,7 +124,7 @@ type ReplicationSchedule struct {
 	CronExpression string `json:"cronExpression,omitempty"`
 }
 
-// RemoteRetention 远程保留策略
+// RemoteRetention 远程保留策略.
 type RemoteRetention struct {
 	// MaxSnapshots 最大快照数
 	MaxSnapshots int `json:"maxSnapshots"`
@@ -133,7 +133,7 @@ type RemoteRetention struct {
 	MaxAgeDays int `json:"maxAgeDays,omitempty"`
 }
 
-// ReplicationJob 复制任务
+// ReplicationJob 复制任务.
 type ReplicationJob struct {
 	// ID 任务 ID
 	ID string `json:"id"`
@@ -184,23 +184,23 @@ type ReplicationJob struct {
 	Checksum string `json:"checksum"`
 }
 
-// ReplicationJobStatus 任务状态
+// ReplicationJobStatus 任务状态.
 type ReplicationJobStatus string
 
 const (
-	// ReplicationJobStatusPending 待执行
+	// ReplicationJobStatusPending 待执行.
 	ReplicationJobStatusPending ReplicationJobStatus = "pending"
-	// ReplicationJobStatusRunning 执行中
+	// ReplicationJobStatusRunning 执行中.
 	ReplicationJobStatusRunning ReplicationJobStatus = "running"
-	// ReplicationJobStatusCompleted 已完成
+	// ReplicationJobStatusCompleted 已完成.
 	ReplicationJobStatusCompleted ReplicationJobStatus = "completed"
-	// ReplicationJobStatusFailed 已失败
+	// ReplicationJobStatusFailed 已失败.
 	ReplicationJobStatusFailed ReplicationJobStatus = "failed"
-	// ReplicationJobStatusCancelled 已取消
+	// ReplicationJobStatusCancelled 已取消.
 	ReplicationJobStatusCancelled ReplicationJobStatus = "cancelled"
 )
 
-// IncrementalManifest 增量复制清单
+// IncrementalManifest 增量复制清单.
 type IncrementalManifest struct {
 	// BaseSnapshot 基准快照
 	BaseSnapshot string `json:"baseSnapshot"`
@@ -215,7 +215,7 @@ type IncrementalManifest struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// DataBlock 数据块
+// DataBlock 数据块.
 type DataBlock struct {
 	// Offset 偏移量
 	Offset int64 `json:"offset"`
@@ -230,7 +230,7 @@ type DataBlock struct {
 	Compressed bool `json:"compressed"`
 }
 
-// ReplicationStatus 复制状态
+// ReplicationStatus 复制状态.
 type ReplicationStatus struct {
 	// ConfigID 配置 ID
 	ConfigID string `json:"configId"`
@@ -257,7 +257,7 @@ type ReplicationStatus struct {
 	NodeStatuses map[string]NodeReplicationStatus `json:"nodeStatuses"`
 }
 
-// NodeReplicationStatus 节点复制状态
+// NodeReplicationStatus 节点复制状态.
 type NodeReplicationStatus struct {
 	NodeID     string     `json:"nodeId"`
 	Status     NodeStatus `json:"status"`
@@ -265,7 +265,7 @@ type NodeReplicationStatus struct {
 	LagSeconds int        `json:"lagSeconds"`
 }
 
-// ReplicationManager 复制管理器
+// ReplicationManager 复制管理器.
 type ReplicationManager struct {
 	mu sync.RWMutex
 
@@ -300,7 +300,7 @@ type ReplicationManager struct {
 	hooks ReplicationHooks
 }
 
-// ReplicationHooks 复制事件钩子
+// ReplicationHooks 复制事件钩子.
 type ReplicationHooks struct {
 	// OnJobStart 任务开始回调
 	OnJobStart func(job *ReplicationJob)
@@ -318,7 +318,7 @@ type ReplicationHooks struct {
 	OnNodeOffline func(nodeID string)
 }
 
-// NewReplicationManager 创建复制管理器
+// NewReplicationManager 创建复制管理器.
 func NewReplicationManager(policyMgr *PolicyManager, storageMgr StorageManager, configPath string) *ReplicationManager {
 	return &ReplicationManager{
 		configs:       make(map[string]*ReplicationConfig),
@@ -344,7 +344,7 @@ func NewReplicationManager(policyMgr *PolicyManager, storageMgr StorageManager, 
 	}
 }
 
-// Initialize 初始化复制管理器
+// Initialize 初始化复制管理器.
 func (rm *ReplicationManager) Initialize() error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -363,7 +363,7 @@ func (rm *ReplicationManager) Initialize() error {
 	return nil
 }
 
-// Close 关闭复制管理器
+// Close 关闭复制管理器.
 func (rm *ReplicationManager) Close() {
 	if rm.cancelFunc != nil {
 		rm.cancelFunc()
@@ -372,7 +372,7 @@ func (rm *ReplicationManager) Close() {
 
 // ========== 配置管理 ==========
 
-// CreateConfig 创建复制配置
+// CreateConfig 创建复制配置.
 func (rm *ReplicationManager) CreateConfig(config *ReplicationConfig) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -400,7 +400,7 @@ func (rm *ReplicationManager) CreateConfig(config *ReplicationConfig) error {
 	return nil
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (rm *ReplicationManager) GetConfig(id string) (*ReplicationConfig, error) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -413,7 +413,7 @@ func (rm *ReplicationManager) GetConfig(id string) (*ReplicationConfig, error) {
 	return config, nil
 }
 
-// ListConfigs 列出所有配置
+// ListConfigs 列出所有配置.
 func (rm *ReplicationManager) ListConfigs() []*ReplicationConfig {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -425,7 +425,7 @@ func (rm *ReplicationManager) ListConfigs() []*ReplicationConfig {
 	return result
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (rm *ReplicationManager) UpdateConfig(id string, updates *ReplicationConfig) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -448,7 +448,7 @@ func (rm *ReplicationManager) UpdateConfig(id string, updates *ReplicationConfig
 	return rm.saveConfig()
 }
 
-// DeleteConfig 删除配置
+// DeleteConfig 删除配置.
 func (rm *ReplicationManager) DeleteConfig(id string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -464,7 +464,7 @@ func (rm *ReplicationManager) DeleteConfig(id string) error {
 
 // ========== 复制执行 ==========
 
-// StartReplication 启动复制
+// StartReplication 启动复制.
 func (rm *ReplicationManager) StartReplication(configID string) (string, error) {
 	rm.mu.RLock()
 	config, ok := rm.configs[configID]
@@ -496,7 +496,7 @@ func (rm *ReplicationManager) StartReplication(configID string) (string, error) 
 	return jobIDs[0], nil
 }
 
-// createJob 创建复制任务
+// createJob 创建复制任务.
 func (rm *ReplicationManager) createJob(config *ReplicationConfig, policy *Policy, target ReplicationTarget) (string, error) {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -517,14 +517,14 @@ func (rm *ReplicationManager) createJob(config *ReplicationConfig, policy *Polic
 	return job.ID, nil
 }
 
-// executeJobs 执行任务
+// executeJobs 执行任务.
 func (rm *ReplicationManager) executeJobs(jobIDs []string) {
 	for _, jobID := range jobIDs {
 		go rm.executeJob(jobID)
 	}
 }
 
-// executeJob 执行单个任务
+// executeJob 执行单个任务.
 func (rm *ReplicationManager) executeJob(jobID string) {
 	rm.mu.Lock()
 	job, ok := rm.jobs[jobID]
@@ -571,7 +571,7 @@ func (rm *ReplicationManager) executeJob(jobID string) {
 	delete(rm.jobs, jobID)
 }
 
-// doReplication 执行实际复制
+// doReplication 执行实际复制.
 func (rm *ReplicationManager) doReplication(job *ReplicationJob) error {
 	rm.mu.RLock()
 	config, ok := rm.configs[job.ConfigID]
@@ -623,7 +623,7 @@ func (rm *ReplicationManager) doReplication(job *ReplicationJob) error {
 	}
 }
 
-// doFullReplication 全量复制
+// doFullReplication 全量复制.
 func (rm *ReplicationManager) doFullReplication(job *ReplicationJob, config *ReplicationConfig, target *ReplicationTarget, snapshotPath string) error {
 	// 创建增量清单
 	manifest, err := rm.createManifest(snapshotPath, "")
@@ -635,7 +635,7 @@ func (rm *ReplicationManager) doFullReplication(job *ReplicationJob, config *Rep
 	return rm.transferData(job, config, target, snapshotPath, manifest)
 }
 
-// doIncrementalReplication 增量复制
+// doIncrementalReplication 增量复制.
 func (rm *ReplicationManager) doIncrementalReplication(job *ReplicationJob, config *ReplicationConfig, target *ReplicationTarget, snapshotPath string) error {
 	// 获取上一次成功复制的快照
 	baseSnapshot, err := rm.getLastReplicatedSnapshot(job.TargetNode, job.SourceVolume)
@@ -662,13 +662,13 @@ func (rm *ReplicationManager) doIncrementalReplication(job *ReplicationJob, conf
 	return rm.transferIncremental(job, config, target, snapshotPath, manifest)
 }
 
-// doDifferentialReplication 差异复制
+// doDifferentialReplication 差异复制.
 func (rm *ReplicationManager) doDifferentialReplication(job *ReplicationJob, config *ReplicationConfig, target *ReplicationTarget, snapshotPath string) error {
 	// 差异复制总是与初始基准快照比较
 	return rm.doIncrementalReplication(job, config, target, snapshotPath)
 }
 
-// transferData 传输数据
+// transferData 传输数据.
 func (rm *ReplicationManager) transferData(job *ReplicationJob, config *ReplicationConfig, target *ReplicationTarget, snapshotPath string, manifest *IncrementalManifest) error {
 	// 使用 btrfs send/receive 或 rsync 进行传输
 	// 这里简化实现，使用 HTTP API
@@ -750,7 +750,7 @@ func (rm *ReplicationManager) transferData(job *ReplicationJob, config *Replicat
 	return nil
 }
 
-// transferIncremental 传输增量数据
+// transferIncremental 传输增量数据.
 func (rm *ReplicationManager) transferIncremental(job *ReplicationJob, config *ReplicationConfig, target *ReplicationTarget, snapshotPath string, manifest *IncrementalManifest) error {
 	// 使用 btrfs send -p 进行增量传输
 	ctx := context.Background()
@@ -792,7 +792,7 @@ func (rm *ReplicationManager) transferIncremental(job *ReplicationJob, config *R
 
 // ========== 增量复制优化 ==========
 
-// createManifest 创建数据清单
+// createManifest 创建数据清单.
 func (rm *ReplicationManager) createManifest(snapshotPath, baseSnapshot string) (*IncrementalManifest, error) {
 	manifest := &IncrementalManifest{
 		BaseSnapshot: baseSnapshot,
@@ -822,7 +822,7 @@ func (rm *ReplicationManager) createManifest(snapshotPath, baseSnapshot string) 
 	return manifest, nil
 }
 
-// calculateChecksum 计算校验和
+// calculateChecksum 计算校验和.
 func (rm *ReplicationManager) calculateChecksum(path string) (string, error) {
 	hash := sha256.New()
 
@@ -855,7 +855,7 @@ func (rm *ReplicationManager) calculateChecksum(path string) (string, error) {
 
 // ========== 状态监控 ==========
 
-// monitorNodes 监控节点状态
+// monitorNodes 监控节点状态.
 func (rm *ReplicationManager) monitorNodes(ctx context.Context) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -870,7 +870,7 @@ func (rm *ReplicationManager) monitorNodes(ctx context.Context) {
 	}
 }
 
-// checkNodes 检查节点状态
+// checkNodes 检查节点状态.
 func (rm *ReplicationManager) checkNodes() {
 	rm.mu.RLock()
 	configs := make([]*ReplicationConfig, 0, len(rm.configs))
@@ -897,7 +897,7 @@ func (rm *ReplicationManager) checkNodes() {
 	}
 }
 
-// checkNodeStatus 检查单个节点状态
+// checkNodeStatus 检查单个节点状态.
 func (rm *ReplicationManager) checkNodeStatus(target ReplicationTarget) NodeStatus {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -922,7 +922,7 @@ func (rm *ReplicationManager) checkNodeStatus(target ReplicationTarget) NodeStat
 	return NodeStatusError
 }
 
-// GetStatus 获取复制状态
+// GetStatus 获取复制状态.
 func (rm *ReplicationManager) GetStatus(configID string) (*ReplicationStatus, error) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -969,7 +969,7 @@ func (rm *ReplicationManager) GetStatus(configID string) (*ReplicationStatus, er
 	return status, nil
 }
 
-// GetJobs 获取任务列表
+// GetJobs 获取任务列表.
 func (rm *ReplicationManager) GetJobs(configID string, limit int) []*ReplicationJob {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -994,7 +994,7 @@ func (rm *ReplicationManager) GetJobs(configID string, limit int) []*Replication
 	return result
 }
 
-// CancelJob 取消任务
+// CancelJob 取消任务.
 func (rm *ReplicationManager) CancelJob(jobID string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -1089,7 +1089,7 @@ func (rm *ReplicationManager) getLastReplicatedSnapshot(nodeID, volume string) (
 	return "", fmt.Errorf("没有基准快照")
 }
 
-// SetHooks 设置事件钩子
+// SetHooks 设置事件钩子.
 func (rm *ReplicationManager) SetHooks(hooks ReplicationHooks) {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -1098,7 +1098,7 @@ func (rm *ReplicationManager) SetHooks(hooks ReplicationHooks) {
 
 // ========== API 接收端 ==========
 
-// TransferRequest 快照传输请求结构
+// TransferRequest 快照传输请求结构.
 type TransferRequest struct {
 	SnapshotName string               `json:"snapshotName"`
 	Volume       string               `json:"volume"`
@@ -1108,17 +1108,17 @@ type TransferRequest struct {
 	Encrypt      bool                 `json:"encrypt"`
 }
 
-// ReplicationServer 复制服务端，用于接收远程快照
+// ReplicationServer 复制服务端，用于接收远程快照.
 type ReplicationServer struct {
 	manager *ReplicationManager
 }
 
-// NewReplicationServer 创建复制服务端
+// NewReplicationServer 创建复制服务端.
 func NewReplicationServer(manager *ReplicationManager) *ReplicationServer {
 	return &ReplicationServer{manager: manager}
 }
 
-// ReceiveSnapshot 接收快照
+// ReceiveSnapshot 接收快照.
 func (rs *ReplicationServer) ReceiveSnapshot(req TransferRequest, data io.Reader) error {
 	// 使用 btrfs receive 接收快照
 	targetPath := filepath.Join("/mnt", req.Volume, req.Path)
@@ -1142,7 +1142,7 @@ func (rs *ReplicationServer) ReceiveSnapshot(req TransferRequest, data io.Reader
 	return cmd.Wait()
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	h := sha256.New()
 	h.Write([]byte(time.Now().String()))

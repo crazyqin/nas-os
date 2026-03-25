@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Broadcaster 消息广播器
+// Broadcaster 消息广播器.
 type Broadcaster struct {
 	mu sync.RWMutex
 
@@ -43,7 +43,7 @@ type Broadcaster struct {
 	running  bool
 }
 
-// BroadcasterConfig 广播器配置
+// BroadcasterConfig 广播器配置.
 type BroadcasterConfig struct {
 	QueueSize         int           `json:"queueSize"`         // 消息队列大小
 	MaxRooms          int           `json:"maxRooms"`          // 最大房间数
@@ -54,7 +54,7 @@ type BroadcasterConfig struct {
 	HistorySize       int           `json:"historySize"`       // 历史记录大小
 }
 
-// DefaultBroadcasterConfig 默认广播器配置
+// DefaultBroadcasterConfig 默认广播器配置.
 var DefaultBroadcasterConfig = BroadcasterConfig{
 	QueueSize:         10000,
 	MaxRooms:          1000,
@@ -65,7 +65,7 @@ var DefaultBroadcasterConfig = BroadcasterConfig{
 	HistorySize:       100,
 }
 
-// Room 房间
+// Room 房间.
 type Room struct {
 	ID           string              `json:"id"`
 	Name         string              `json:"name"`
@@ -76,7 +76,7 @@ type Room struct {
 	history      []*BroadcastMessage `json:"-"`
 }
 
-// Topic 主题
+// Topic 主题.
 type Topic struct {
 	Name         string          `json:"name"`
 	Subscribers  map[string]bool `json:"-"` // clientID -> bool
@@ -85,7 +85,7 @@ type Topic struct {
 	MessageCount int64           `json:"messageCount"`
 }
 
-// Client 客户端
+// Client 客户端.
 type Client struct {
 	ID         string    `json:"id"`
 	UserID     string    `json:"userId,omitempty"`
@@ -96,7 +96,7 @@ type Client struct {
 	sendChan   chan *BroadcastMessage
 }
 
-// BroadcastMessage 广播消息
+// BroadcastMessage 广播消息.
 type BroadcastMessage struct {
 	ID        string          `json:"id"`
 	RoomID    string          `json:"roomId,omitempty"`
@@ -109,7 +109,7 @@ type BroadcastMessage struct {
 	Exclude   []string        `json:"exclude,omitempty"` // 排除的客户端
 }
 
-// NewBroadcaster 创建广播器
+// NewBroadcaster 创建广播器.
 func NewBroadcaster(config BroadcasterConfig) *Broadcaster {
 	if config.QueueSize <= 0 {
 		config.QueueSize = DefaultBroadcasterConfig.QueueSize
@@ -133,7 +133,7 @@ func NewBroadcaster(config BroadcasterConfig) *Broadcaster {
 	}
 }
 
-// Start 启动广播器
+// Start 启动广播器.
 func (b *Broadcaster) Start() {
 	b.mu.Lock()
 	if b.running {
@@ -146,7 +146,7 @@ func (b *Broadcaster) Start() {
 	go b.processMessages()
 }
 
-// Stop 停止广播器
+// Stop 停止广播器.
 func (b *Broadcaster) Stop() {
 	b.mu.Lock()
 	if !b.running {
@@ -161,7 +161,7 @@ func (b *Broadcaster) Stop() {
 
 // ========== 房间管理 ==========
 
-// CreateRoom 创建房间
+// CreateRoom 创建房间.
 func (b *Broadcaster) CreateRoom(roomID, name string) (*Room, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -193,7 +193,7 @@ func (b *Broadcaster) CreateRoom(roomID, name string) (*Room, error) {
 	return room, nil
 }
 
-// GetRoom 获取房间
+// GetRoom 获取房间.
 func (b *Broadcaster) GetRoom(roomID string) (*Room, error) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -205,7 +205,7 @@ func (b *Broadcaster) GetRoom(roomID string) (*Room, error) {
 	return room, nil
 }
 
-// DeleteRoom 删除房间
+// DeleteRoom 删除房间.
 func (b *Broadcaster) DeleteRoom(roomID string) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -232,7 +232,7 @@ func (b *Broadcaster) DeleteRoom(roomID string) error {
 	return nil
 }
 
-// ListRooms 列出所有房间
+// ListRooms 列出所有房间.
 func (b *Broadcaster) ListRooms() []*Room {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -246,7 +246,7 @@ func (b *Broadcaster) ListRooms() []*Room {
 
 // ========== 客户端管理 ==========
 
-// JoinRoom 加入房间
+// JoinRoom 加入房间.
 func (b *Broadcaster) JoinRoom(roomID, clientID string, client *Client) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -275,7 +275,7 @@ func (b *Broadcaster) JoinRoom(roomID, clientID string, client *Client) error {
 	return nil
 }
 
-// LeaveRoom 离开房间
+// LeaveRoom 离开房间.
 func (b *Broadcaster) LeaveRoom(roomID, clientID string) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -300,7 +300,7 @@ func (b *Broadcaster) LeaveRoom(roomID, clientID string) error {
 	return nil
 }
 
-// LeaveAllRooms 离开所有房间
+// LeaveAllRooms 离开所有房间.
 func (b *Broadcaster) LeaveAllRooms(clientID string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -322,7 +322,7 @@ func (b *Broadcaster) LeaveAllRooms(clientID string) {
 	delete(b.clientTopics, clientID)
 }
 
-// GetRoomClients 获取房间客户端
+// GetRoomClients 获取房间客户端.
 func (b *Broadcaster) GetRoomClients(roomID string) ([]*Client, error) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -341,7 +341,7 @@ func (b *Broadcaster) GetRoomClients(roomID string) ([]*Client, error) {
 
 // ========== 主题订阅 ==========
 
-// SubscribeTopic 订阅主题
+// SubscribeTopic 订阅主题.
 func (b *Broadcaster) SubscribeTopic(clientID, topicName string) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -378,7 +378,7 @@ func (b *Broadcaster) SubscribeTopic(clientID, topicName string) error {
 	return nil
 }
 
-// UnsubscribeTopic 取消订阅主题
+// UnsubscribeTopic 取消订阅主题.
 func (b *Broadcaster) UnsubscribeTopic(clientID, topicName string) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -401,7 +401,7 @@ func (b *Broadcaster) UnsubscribeTopic(clientID, topicName string) error {
 	return nil
 }
 
-// UnsubscribeAll 取消所有订阅
+// UnsubscribeAll 取消所有订阅.
 func (b *Broadcaster) UnsubscribeAll(clientID string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -420,7 +420,7 @@ func (b *Broadcaster) UnsubscribeAll(clientID string) {
 	delete(b.clientTopics, clientID)
 }
 
-// GetTopicSubscribers 获取主题订阅者
+// GetTopicSubscribers 获取主题订阅者.
 func (b *Broadcaster) GetTopicSubscribers(topicName string) ([]string, error) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -437,7 +437,7 @@ func (b *Broadcaster) GetTopicSubscribers(topicName string) ([]string, error) {
 	return subscribers, nil
 }
 
-// ListTopics 列出所有主题
+// ListTopics 列出所有主题.
 func (b *Broadcaster) ListTopics() []*Topic {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -449,7 +449,7 @@ func (b *Broadcaster) ListTopics() []*Topic {
 	return topics
 }
 
-// GetClientTopics 获取客户端订阅的主题
+// GetClientTopics 获取客户端订阅的主题.
 func (b *Broadcaster) GetClientTopics(clientID string) []string {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -468,7 +468,7 @@ func (b *Broadcaster) GetClientTopics(clientID string) []string {
 
 // ========== 房间-主题映射 ==========
 
-// BindRoomTopic 绑定房间到主题
+// BindRoomTopic 绑定房间到主题.
 func (b *Broadcaster) BindRoomTopic(roomID, topicName string) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -485,7 +485,7 @@ func (b *Broadcaster) BindRoomTopic(roomID, topicName string) error {
 	return nil
 }
 
-// UnbindRoomTopic 解绑房间与主题
+// UnbindRoomTopic 解绑房间与主题.
 func (b *Broadcaster) UnbindRoomTopic(roomID, topicName string) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -497,7 +497,7 @@ func (b *Broadcaster) UnbindRoomTopic(roomID, topicName string) error {
 	return nil
 }
 
-// GetRoomTopics 获取房间绑定的主题
+// GetRoomTopics 获取房间绑定的主题.
 func (b *Broadcaster) GetRoomTopics(roomID string) []string {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -516,7 +516,7 @@ func (b *Broadcaster) GetRoomTopics(roomID string) []string {
 
 // ========== 消息广播 ==========
 
-// BroadcastToRoom 广播到房间
+// BroadcastToRoom 广播到房间.
 func (b *Broadcaster) BroadcastToRoom(roomID string, msg *BroadcastMessage) error {
 	if msg.ID == "" {
 		msg.ID = generateMessageID()
@@ -533,7 +533,7 @@ func (b *Broadcaster) BroadcastToRoom(roomID string, msg *BroadcastMessage) erro
 	}
 }
 
-// BroadcastToTopic 广播到主题
+// BroadcastToTopic 广播到主题.
 func (b *Broadcaster) BroadcastToTopic(topicName string, msg *BroadcastMessage) error {
 	if msg.ID == "" {
 		msg.ID = generateMessageID()
@@ -550,7 +550,7 @@ func (b *Broadcaster) BroadcastToTopic(topicName string, msg *BroadcastMessage) 
 	}
 }
 
-// BroadcastToAll 广播到所有客户端
+// BroadcastToAll 广播到所有客户端.
 func (b *Broadcaster) BroadcastToAll(msg *BroadcastMessage) error {
 	if msg.ID == "" {
 		msg.ID = generateMessageID()
@@ -566,7 +566,7 @@ func (b *Broadcaster) BroadcastToAll(msg *BroadcastMessage) error {
 	}
 }
 
-// BroadcastToClient 发送消息到指定客户端
+// BroadcastToClient 发送消息到指定客户端.
 func (b *Broadcaster) BroadcastToClient(clientID string, msg *BroadcastMessage) error {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -598,7 +598,7 @@ func (b *Broadcaster) BroadcastToClient(clientID string, msg *BroadcastMessage) 
 	return nil
 }
 
-// processMessages 处理消息队列
+// processMessages 处理消息队列.
 func (b *Broadcaster) processMessages() {
 	for {
 		select {
@@ -610,7 +610,7 @@ func (b *Broadcaster) processMessages() {
 	}
 }
 
-// deliverMessage 投递消息
+// deliverMessage 投递消息.
 func (b *Broadcaster) deliverMessage(msg *BroadcastMessage) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -707,7 +707,7 @@ func (b *Broadcaster) deliverMessage(msg *BroadcastMessage) {
 	}
 }
 
-// GetRoomHistory 获取房间历史消息
+// GetRoomHistory 获取房间历史消息.
 func (b *Broadcaster) GetRoomHistory(roomID string, limit int) ([]*BroadcastMessage, error) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -739,7 +739,7 @@ func (b *Broadcaster) GetRoomHistory(roomID string, limit int) ([]*BroadcastMess
 
 // ========== 统计信息 ==========
 
-// BroadcasterStats 广播器统计
+// BroadcasterStats 广播器统计.
 type BroadcasterStats struct {
 	RoomCount    int32 `json:"roomCount"`
 	TopicCount   int32 `json:"topicCount"`
@@ -750,7 +750,7 @@ type BroadcasterStats struct {
 	QueueUsed    int   `json:"queueUsed"`
 }
 
-// Stats 获取统计信息
+// Stats 获取统计信息.
 func (b *Broadcaster) Stats() BroadcasterStats {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -766,7 +766,7 @@ func (b *Broadcaster) Stats() BroadcasterStats {
 	}
 }
 
-// RoomStats 房间统计
+// RoomStats 房间统计.
 type RoomStats struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
@@ -776,7 +776,7 @@ type RoomStats struct {
 	LastActive   time.Time `json:"lastActive"`
 }
 
-// GetRoomStats 获取房间统计
+// GetRoomStats 获取房间统计.
 func (b *Broadcaster) GetRoomStats(roomID string) (*RoomStats, error) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -796,7 +796,7 @@ func (b *Broadcaster) GetRoomStats(roomID string) (*RoomStats, error) {
 	}, nil
 }
 
-// TopicStats 主题统计
+// TopicStats 主题统计.
 type TopicStats struct {
 	Name            string    `json:"name"`
 	SubscriberCount int       `json:"subscriberCount"`
@@ -805,7 +805,7 @@ type TopicStats struct {
 	LastActive      time.Time `json:"lastActive"`
 }
 
-// GetTopicStats 获取主题统计
+// GetTopicStats 获取主题统计.
 func (b *Broadcaster) GetTopicStats(topicName string) (*TopicStats, error) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()

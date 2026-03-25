@@ -19,7 +19,7 @@ import (
 	"golang.org/x/crypto/hkdf"
 )
 
-// Crypto errors
+// Crypto errors.
 var (
 	ErrInvalidKey        = errors.New("invalid encryption key")
 	ErrInvalidNonce      = errors.New("invalid nonce")
@@ -29,37 +29,37 @@ var (
 )
 
 const (
-	// KeySize256 is the AES-256 key size in bytes
+	// KeySize256 is the AES-256 key size in bytes.
 	KeySize256 = 32
-	// NonceSizeAES is the nonce size for AES-GCM
+	// NonceSizeAES is the nonce size for AES-GCM.
 	NonceSizeAES = 12
-	// NonceSizeChaCha is the nonce size for ChaCha20-Poly1305
+	// NonceSizeChaCha is the nonce size for ChaCha20-Poly1305.
 	NonceSizeChaCha = 12
-	// TagSize is the authentication tag size
+	// TagSize is the authentication tag size.
 	TagSize = 16
 
-	// X25519KeySize is the X25519 key size in bytes
+	// X25519KeySize is the X25519 key size in bytes.
 	X25519KeySize = 32
 )
 
-// CipherType defines the encryption algorithm
+// CipherType defines the encryption algorithm.
 type CipherType int
 
 const (
-	// CipherAESGCM represents AES-GCM encryption
+	// CipherAESGCM represents AES-GCM encryption.
 	CipherAESGCM CipherType = iota
-	// CipherChaCha20Poly1305 represents ChaCha20-Poly1305 encryption
+	// CipherChaCha20Poly1305 represents ChaCha20-Poly1305 encryption.
 	CipherChaCha20Poly1305
 )
 
-// CryptoConfig holds crypto configuration
+// CryptoConfig holds crypto configuration.
 type CryptoConfig struct {
 	CipherType   CipherType
 	Key          []byte
 	PreSharedKey []byte
 }
 
-// Crypto handles end-to-end encryption
+// Crypto handles end-to-end encryption.
 type Crypto struct {
 	config     *CryptoConfig
 	gcm        cipher.AEAD
@@ -71,7 +71,7 @@ type Crypto struct {
 	mu          sync.RWMutex
 }
 
-// NewCrypto creates a new crypto instance
+// NewCrypto creates a new crypto instance.
 func NewCrypto(config *CryptoConfig) (*Crypto, error) {
 	c := &Crypto{
 		config:      config,
@@ -88,7 +88,7 @@ func NewCrypto(config *CryptoConfig) (*Crypto, error) {
 	return c, nil
 }
 
-// initCipher initializes the AEAD cipher
+// initCipher initializes the AEAD cipher.
 func (c *Crypto) initCipher(key []byte) error {
 	var err error
 
@@ -116,7 +116,7 @@ func (c *Crypto) initCipher(key []byte) error {
 	return nil
 }
 
-// GenerateKeyPair generates an X25519 key pair for key exchange
+// GenerateKeyPair generates an X25519 key pair for key exchange.
 func (c *Crypto) GenerateKeyPair() error {
 	curve := ecdh.X25519()
 	privateKey, err := curve.GenerateKey(rand.Reader)
@@ -130,7 +130,7 @@ func (c *Crypto) GenerateKeyPair() error {
 	return nil
 }
 
-// GetPublicKey returns the public key
+// GetPublicKey returns the public key.
 func (c *Crypto) GetPublicKey() []byte {
 	if c.publicKey == nil {
 		return nil
@@ -138,7 +138,7 @@ func (c *Crypto) GetPublicKey() []byte {
 	return c.publicKey.Bytes()
 }
 
-// DeriveSharedKey derives a shared key using ECDH
+// DeriveSharedKey derives a shared key using ECDH.
 func (c *Crypto) DeriveSharedKey(peerPublicKey []byte) ([]byte, error) {
 	if c.privateKey == nil {
 		return nil, errors.New("no private key")
@@ -170,7 +170,7 @@ func (c *Crypto) DeriveSharedKey(peerPublicKey []byte) ([]byte, error) {
 	return key, nil
 }
 
-// SetPeerKey sets the session key for a peer
+// SetPeerKey sets the session key for a peer.
 func (c *Crypto) SetPeerKey(peerID string, key []byte) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -179,7 +179,7 @@ func (c *Crypto) SetPeerKey(peerID string, key []byte) error {
 	return nil
 }
 
-// Encrypt encrypts data for a specific peer
+// Encrypt encrypts data for a specific peer.
 func (c *Crypto) Encrypt(plaintext []byte, peerID string) ([]byte, error) {
 	c.mu.RLock()
 	key, ok := c.sessionKeys[peerID]
@@ -196,7 +196,7 @@ func (c *Crypto) Encrypt(plaintext []byte, peerID string) ([]byte, error) {
 	return c.encryptWithKey(plaintext, key)
 }
 
-// encryptWithKey encrypts with a specific key
+// encryptWithKey encrypts with a specific key.
 func (c *Crypto) encryptWithKey(plaintext, key []byte) ([]byte, error) {
 	var aead cipher.AEAD
 	var err error
@@ -243,7 +243,7 @@ func (c *Crypto) encryptWithKey(plaintext, key []byte) ([]byte, error) {
 	return result, nil
 }
 
-// Decrypt decrypts data from a specific peer
+// Decrypt decrypts data from a specific peer.
 func (c *Crypto) Decrypt(ciphertext []byte, peerID string) ([]byte, error) {
 	c.mu.RLock()
 	key, ok := c.sessionKeys[peerID]
@@ -259,7 +259,7 @@ func (c *Crypto) Decrypt(ciphertext []byte, peerID string) ([]byte, error) {
 	return c.decryptWithKey(ciphertext, key)
 }
 
-// decryptWithKey decrypts with a specific key
+// decryptWithKey decrypts with a specific key.
 func (c *Crypto) decryptWithKey(ciphertext, key []byte) ([]byte, error) {
 	var aead cipher.AEAD
 	var err error
@@ -306,14 +306,14 @@ func (c *Crypto) decryptWithKey(ciphertext, key []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
-// GenerateNonce generates a random nonce
+// GenerateNonce generates a random nonce.
 func GenerateNonce(size int) ([]byte, error) {
 	nonce := make([]byte, size)
 	_, err := rand.Read(nonce)
 	return nonce, err
 }
 
-// GenerateKey generates a random encryption key
+// GenerateKey generates a random encryption key.
 func GenerateKey() ([]byte, error) {
 	key := make([]byte, KeySize256)
 	_, err := rand.Read(key)
@@ -321,7 +321,7 @@ func GenerateKey() ([]byte, error) {
 }
 
 // DeriveKeyFromPassword derives a key from a password using HKDF
-// Simplified version using HKDF for now
+// Simplified version using HKDF for now.
 func DeriveKeyFromPassword(password, salt []byte, keyLen int) []byte {
 	hkdf := hkdf.New(sha256.New, password, salt, []byte("nas-os-key-derivation"))
 	key := make([]byte, keyLen)
@@ -331,38 +331,38 @@ func DeriveKeyFromPassword(password, salt []byte, keyLen int) []byte {
 	return key
 }
 
-// ComputeHMAC computes HMAC-SHA256
+// ComputeHMAC computes HMAC-SHA256.
 func ComputeHMAC(key, data []byte) []byte {
 	h := hmac.New(sha256.New, key)
 	h.Write(data)
 	return h.Sum(nil)
 }
 
-// VerifyHMAC verifies HMAC-SHA256
+// VerifyHMAC verifies HMAC-SHA256.
 func VerifyHMAC(key, data, expectedMAC []byte) bool {
 	mac := ComputeHMAC(key, data)
 	return hmac.Equal(mac, expectedMAC)
 }
 
-// Hash computes SHA-256 hash
+// Hash computes SHA-256 hash.
 func Hash(data []byte) []byte {
 	h := sha256.Sum256(data)
 	return h[:]
 }
 
-// Hash512 computes SHA-512 hash
+// Hash512 computes SHA-512 hash.
 func Hash512(data []byte) []byte {
 	h := sha512.Sum512(data)
 	return h[:]
 }
 
-// Signer handles Ed25519 signing operations
+// Signer handles Ed25519 signing operations.
 type Signer struct {
 	privateKey ed25519.PrivateKey
 	publicKey  ed25519.PublicKey
 }
 
-// NewSigner creates a new Ed25519 signer
+// NewSigner creates a new Ed25519 signer.
 func NewSigner() (*Signer, error) {
 	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
@@ -375,27 +375,27 @@ func NewSigner() (*Signer, error) {
 	}, nil
 }
 
-// Sign signs data
+// Sign signs data.
 func (s *Signer) Sign(data []byte) []byte {
 	return ed25519.Sign(s.privateKey, data)
 }
 
-// Verify verifies a signature
+// Verify verifies a signature.
 func (s *Signer) Verify(data, signature []byte) bool {
 	return ed25519.Verify(s.publicKey, data, signature)
 }
 
-// GetPublicKey returns the public key for verification
+// GetPublicKey returns the public key for verification.
 func (s *Signer) GetPublicKey() ed25519.PublicKey {
 	return s.publicKey
 }
 
-// SetPublicKey sets a public key for verification only
+// SetPublicKey sets a public key for verification only.
 func (s *Signer) SetPublicKey(pubKey ed25519.PublicKey) {
 	s.publicKey = pubKey
 }
 
-// SecurePacket represents an encrypted packet with metadata
+// SecurePacket represents an encrypted packet with metadata.
 type SecurePacket struct {
 	Nonce       []byte `json:"nonce"`
 	Ciphertext  []byte `json:"ciphertext"`
@@ -404,7 +404,7 @@ type SecurePacket struct {
 	Timestamp   int64  `json:"timestamp"`
 }
 
-// EncryptPacket creates an encrypted packet
+// EncryptPacket creates an encrypted packet.
 func (c *Crypto) EncryptPacket(plaintext []byte, peerID string, seqNum uint64) (*SecurePacket, error) {
 	ciphertext, err := c.Encrypt(plaintext, peerID)
 	if err != nil {
@@ -425,7 +425,7 @@ func (c *Crypto) EncryptPacket(plaintext []byte, peerID string, seqNum uint64) (
 	}, nil
 }
 
-// DecryptPacket decrypts a secure packet
+// DecryptPacket decrypts a secure packet.
 func (c *Crypto) DecryptPacket(packet *SecurePacket, peerID string) ([]byte, error) {
 	// Reconstruct full ciphertext
 	ciphertext := make([]byte, 0, len(packet.Nonce)+len(packet.Ciphertext)+len(packet.Tag))
@@ -436,7 +436,7 @@ func (c *Crypto) DecryptPacket(packet *SecurePacket, peerID string) ([]byte, err
 	return c.Decrypt(ciphertext, peerID)
 }
 
-// getNonceSize returns the nonce size for the current cipher
+// getNonceSize returns the nonce size for the current cipher.
 func (c *Crypto) getNonceSize() int {
 	if c.gcm != nil {
 		return c.gcm.NonceSize()
@@ -444,29 +444,29 @@ func (c *Crypto) getNonceSize() int {
 	return NonceSizeChaCha
 }
 
-// getCurrentTimestamp returns current Unix timestamp
+// getCurrentTimestamp returns current Unix timestamp.
 func getCurrentTimestamp() int64 {
 	return 0 // Would use time.Now().Unix() in production
 }
 
-// HKDFExpander expands a key using HKDF
+// HKDFExpander expands a key using HKDF.
 type HKDFExpander struct {
 	hkdf io.Reader
 }
 
-// NewHKDFExpander creates a new HKDF expander
+// NewHKDFExpander creates a new HKDF expander.
 func NewHKDFExpander(secret, salt, info []byte) *HKDFExpander {
 	return &HKDFExpander{
 		hkdf: hkdf.New(sha256.New, secret, salt, info),
 	}
 }
 
-// Read reads expanded key material
+// Read reads expanded key material.
 func (h *HKDFExpander) Read(p []byte) (int, error) {
 	return h.hkdf.Read(p)
 }
 
-// PBKDF2 derives a key using PBKDF2 (simplified)
+// PBKDF2 derives a key using PBKDF2 (simplified).
 func PBKDF2(password, salt []byte, iterations, keyLen int) []byte {
 	// Simplified PBKDF2 using multiple HMAC iterations
 	// In production, use golang.org/x/crypto/pbkdf2
@@ -491,7 +491,7 @@ func PBKDF2(password, salt []byte, iterations, keyLen int) []byte {
 	return derivedKey[:keyLen]
 }
 
-// AeadCipher interface for AEAD ciphers
+// AeadCipher interface for AEAD ciphers.
 type AeadCipher interface {
 	Seal(dst, nonce, plaintext, additionalData []byte) []byte
 	Open(dst, nonce, ciphertext, additionalData []byte) ([]byte, error)
@@ -499,7 +499,7 @@ type AeadCipher interface {
 	Overhead() int
 }
 
-// NewAEAD creates a new AEAD cipher
+// NewAEAD creates a new AEAD cipher.
 func NewAEAD(key []byte, cipherType CipherType) (AeadCipher, error) {
 	switch cipherType {
 	case CipherAESGCM:
@@ -515,7 +515,7 @@ func NewAEAD(key []byte, cipherType CipherType) (AeadCipher, error) {
 	}
 }
 
-// Hasher interface for hash functions
+// Hasher interface for hash functions.
 type Hasher interface {
 	Write(p []byte) (n int, err error)
 	Sum(b []byte) []byte
@@ -524,7 +524,7 @@ type Hasher interface {
 	BlockSize() int
 }
 
-// NewHash returns a new hash function
+// NewHash returns a new hash function.
 func NewHash(algorithm string) (hash.Hash, error) {
 	switch algorithm {
 	case "sha256":

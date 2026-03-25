@@ -19,7 +19,7 @@ import (
 // ========== 核心数据结构 ==========
 
 // SmartPool 智能存储池
-// 支持不同容量硬盘混用，智能分配存储空间
+// 支持不同容量硬盘混用，智能分配存储空间.
 type SmartPool struct {
 	// 基本信息
 	Name        string    `json:"name"`        // 池名称
@@ -63,7 +63,7 @@ type SmartPool struct {
 }
 
 // StorageTier 存储层级
-// 按设备容量分组，每个层级独立管理 RAID
+// 按设备容量分组，每个层级独立管理 RAID.
 type StorageTier struct {
 	// 层级标识
 	ID       int    `json:"id"`       // 层级 ID
@@ -88,7 +88,7 @@ type StorageTier struct {
 }
 
 // SmartDevice 智能设备
-// 表示池中的一个设备，包含详细的设备信息
+// 表示池中的一个设备，包含详细的设备信息.
 type SmartDevice struct {
 	// 基本信息
 	ID       string `json:"id"`       // 设备 ID
@@ -118,7 +118,7 @@ type SmartDevice struct {
 	IsReplaced bool      `json:"isReplaced"` // 是否是替换盘
 }
 
-// SmartSubvolume 智能子卷
+// SmartSubvolume 智能子卷.
 type SmartSubvolume struct {
 	ID       uint64 `json:"id"`
 	Name     string `json:"name"`
@@ -132,7 +132,7 @@ type SmartSubvolume struct {
 	PrimaryTier int `json:"primaryTier"` // 主要存储层级
 }
 
-// RAIDPolicy RAID 策略
+// RAIDPolicy RAID 策略.
 type RAIDPolicy struct {
 	// 冗余级别
 	RedundancyLevel int `json:"redundancyLevel"` // 1=单盘冗余，2=双盘冗余
@@ -150,7 +150,7 @@ type RAIDPolicy struct {
 	MixedModeEnabled bool `json:"mixedModeEnabled"` // 允许不同类型设备混用
 }
 
-// SmartPoolStatus 智能池状态
+// SmartPoolStatus 智能池状态.
 type SmartPoolStatus struct {
 	Healthy           bool    `json:"healthy"`
 	BalanceRunning    bool    `json:"balanceRunning"`
@@ -165,7 +165,7 @@ type SmartPoolStatus struct {
 	Warnings []string `json:"warnings"`
 }
 
-// ExpansionState 扩容状态
+// ExpansionState 扩容状态.
 type ExpansionState struct {
 	// 扩容类型
 	Type string `json:"type"` // add_device, replace_device, resize
@@ -190,7 +190,7 @@ type ExpansionState struct {
 
 // ========== SmartRAID Manager ==========
 
-// SmartRAIDManager 智能 RAID 管理器
+// SmartRAIDManager 智能 RAID 管理器.
 type SmartRAIDManager struct {
 	client    *btrfs.Client
 	pools     map[string]*SmartPool
@@ -201,7 +201,7 @@ type SmartRAIDManager struct {
 	running   bool
 }
 
-// NewSmartRAIDManager 创建智能 RAID 管理器
+// NewSmartRAIDManager 创建智能 RAID 管理器.
 func NewSmartRAIDManager(mountBase string) (*SmartRAIDManager, error) {
 	if mountBase == "" {
 		mountBase = "/mnt/smart-raid"
@@ -230,7 +230,7 @@ func NewSmartRAIDManager(mountBase string) (*SmartRAIDManager, error) {
 	return m, nil
 }
 
-// DefaultRAIDPolicy 默认 RAID 策略
+// DefaultRAIDPolicy 默认 RAID 策略.
 var DefaultRAIDPolicy = RAIDPolicy{
 	RedundancyLevel:  1,
 	AutoSelect:       true,
@@ -239,7 +239,7 @@ var DefaultRAIDPolicy = RAIDPolicy{
 
 // ========== 创建智能池 ==========
 
-// CreateSmartPoolRequest 创建智能池请求
+// CreateSmartPoolRequest 创建智能池请求.
 type CreateSmartPoolRequest struct {
 	Name            string      `json:"name" binding:"required"`
 	Description     string      `json:"description"`
@@ -248,7 +248,7 @@ type CreateSmartPoolRequest struct {
 	RedundancyLevel int         `json:"redundancyLevel"` // 1 或 2
 }
 
-// CreateSmartPool 创建智能存储池
+// CreateSmartPool 创建智能存储池.
 func (m *SmartRAIDManager) CreateSmartPool(req *CreateSmartPoolRequest) (*SmartPool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -329,7 +329,7 @@ func (m *SmartRAIDManager) CreateSmartPool(req *CreateSmartPoolRequest) (*SmartP
 }
 
 // calculateTiers 计算存储层级
-// 核心算法：将设备按容量分组，相同容量的设备组成一个层级
+// 核心算法：将设备按容量分组，相同容量的设备组成一个层级.
 func (m *SmartRAIDManager) calculateTiers(devices []*SmartDevice, policy RAIDPolicy) []StorageTier {
 	// 按容量排序
 	sort.Slice(devices, func(i, j int) bool {
@@ -403,7 +403,7 @@ func (m *SmartRAIDManager) calculateTiers(devices []*SmartDevice, policy RAIDPol
 	return tiers
 }
 
-// selectRAIDConfig 选择 RAID 配置
+// selectRAIDConfig 选择 RAID 配置.
 func (m *SmartRAIDManager) selectRAIDConfig(tiers []StorageTier, policy RAIDPolicy) *TierRAIDConfig {
 	config := &TierRAIDConfig{
 		Tiers: make([]TierRAIDInfo, 0, len(tiers)),
@@ -425,7 +425,7 @@ func (m *SmartRAIDManager) selectRAIDConfig(tiers []StorageTier, policy RAIDPoli
 	return config
 }
 
-// selectTierRAID 为单个层级选择 RAID 类型
+// selectTierRAID 为单个层级选择 RAID 类型.
 func (m *SmartRAIDManager) selectTierRAID(deviceCount int, policy RAIDPolicy) string {
 	// 如果强制指定了 RAID 类型
 	if !policy.AutoSelect && policy.ForcedRAIDType != "" {
@@ -454,12 +454,12 @@ func (m *SmartRAIDManager) selectTierRAID(deviceCount int, policy RAIDPolicy) st
 	}
 }
 
-// TierRAIDConfig 层级 RAID 配置
+// TierRAIDConfig 层级 RAID 配置.
 type TierRAIDConfig struct {
 	Tiers []TierRAIDInfo `json:"tiers"`
 }
 
-// TierRAIDInfo 层级 RAID 信息
+// TierRAIDInfo 层级 RAID 信息.
 type TierRAIDInfo struct {
 	TierID      int    `json:"tierId"`
 	RAIDType    string `json:"raidType"`
@@ -467,7 +467,7 @@ type TierRAIDInfo struct {
 	MetaProfile string `json:"metaProfile"`
 }
 
-// getRAIDDataProfile 获取 RAID 数据配置
+// getRAIDDataProfile 获取 RAID 数据配置.
 func (m *SmartRAIDManager) getRAIDDataProfile(raidType string) string {
 	profiles := map[string]string{
 		"single": "single",
@@ -483,7 +483,7 @@ func (m *SmartRAIDManager) getRAIDDataProfile(raidType string) string {
 	return "single"
 }
 
-// getRAIDMetaProfile 获取 RAID 元数据配置
+// getRAIDMetaProfile 获取 RAID 元数据配置.
 func (m *SmartRAIDManager) getRAIDMetaProfile(raidType string) string {
 	// 元数据通常使用更保守的配置
 	switch raidType {
@@ -498,7 +498,7 @@ func (m *SmartRAIDManager) getRAIDMetaProfile(raidType string) string {
 	}
 }
 
-// calculateCapacity 计算容量
+// calculateCapacity 计算容量.
 func (m *SmartRAIDManager) calculateCapacity(tiers []StorageTier, config *TierRAIDConfig) (total, raw, wasted uint64) {
 	for i, tier := range tiers {
 		raw += tier.RawCapacity
@@ -519,7 +519,7 @@ func (m *SmartRAIDManager) calculateCapacity(tiers []StorageTier, config *TierRA
 	return total, raw, wasted
 }
 
-// getRAIDEfficiency 获取 RAID 效率
+// getRAIDEfficiency 获取 RAID 效率.
 func (m *SmartRAIDManager) getRAIDEfficiency(raidType string, deviceCount int) float64 {
 	switch raidType {
 	case "single":
@@ -539,7 +539,7 @@ func (m *SmartRAIDManager) getRAIDEfficiency(raidType string, deviceCount int) f
 	}
 }
 
-// createBtrfsVolume 创建 Btrfs 卷
+// createBtrfsVolume 创建 Btrfs 卷.
 func (m *SmartRAIDManager) createBtrfsVolume(name string, devices []*SmartDevice, tiers []StorageTier, config *TierRAIDConfig, mountPoint string) error {
 	// 收集所有设备路径
 	allDevices := make([]string, 0, len(devices))
@@ -574,7 +574,7 @@ func (m *SmartRAIDManager) createBtrfsVolume(name string, devices []*SmartDevice
 // ========== 设备管理 ==========
 
 // AddDevice 添加设备到智能池
-// 支持在线扩容，自动重新计算存储层级
+// 支持在线扩容，自动重新计算存储层级.
 func (m *SmartRAIDManager) AddDevice(poolName, devicePath string) (*SmartPool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -613,7 +613,7 @@ func (m *SmartRAIDManager) AddDevice(poolName, devicePath string) (*SmartPool, e
 }
 
 // expandPool 扩容池
-// 核心扩容算法
+// 核心扩容算法.
 func (m *SmartRAIDManager) expandPool(pool *SmartPool, newDevice *SmartDevice) {
 	pool.mu.Lock()
 	defer pool.mu.Unlock()
@@ -684,7 +684,7 @@ func (m *SmartRAIDManager) expandPool(pool *SmartPool, newDevice *SmartDevice) {
 	pool.Status.Warnings = m.removeWarning(pool.Status.Warnings, "扩容")
 }
 
-// needRebalanceAfterExpansion 判断扩容后是否需要重平衡
+// needRebalanceAfterExpansion 判断扩容后是否需要重平衡.
 func (m *SmartRAIDManager) needRebalanceAfterExpansion(oldTiers, newTiers []StorageTier, newDevice *SmartDevice) bool {
 	// 如果层级数量变化，需要重平衡
 	if len(oldTiers) != len(newTiers) {
@@ -704,7 +704,7 @@ func (m *SmartRAIDManager) needRebalanceAfterExpansion(oldTiers, newTiers []Stor
 	return true
 }
 
-// monitorBalanceProgress 监控 balance 进度
+// monitorBalanceProgress 监控 balance 进度.
 func (m *SmartRAIDManager) monitorBalanceProgress(pool *SmartPool) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -731,7 +731,7 @@ func (m *SmartRAIDManager) monitorBalanceProgress(pool *SmartPool) {
 }
 
 // ReplaceDevice 替换设备
-// 支持用更大的设备替换现有设备，自动扩展存储空间
+// 支持用更大的设备替换现有设备，自动扩展存储空间.
 func (m *SmartRAIDManager) ReplaceDevice(poolName, oldDevice, newDevice string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -807,7 +807,7 @@ func (m *SmartRAIDManager) ReplaceDevice(poolName, oldDevice, newDevice string) 
 	return nil
 }
 
-// monitorReplaceProgress 监控设备替换进度
+// monitorReplaceProgress 监控设备替换进度.
 func (m *SmartRAIDManager) monitorReplaceProgress(pool *SmartPool, oldDevice string, newDevice *SmartDevice) {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -849,7 +849,7 @@ func (m *SmartRAIDManager) monitorReplaceProgress(pool *SmartPool, oldDevice str
 
 // ========== 查询操作 ==========
 
-// ListPools 列出所有智能池
+// ListPools 列出所有智能池.
 func (m *SmartRAIDManager) ListPools() []*SmartPool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -861,14 +861,14 @@ func (m *SmartRAIDManager) ListPools() []*SmartPool {
 	return result
 }
 
-// GetPool 获取智能池
+// GetPool 获取智能池.
 func (m *SmartRAIDManager) GetPool(name string) *SmartPool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.pools[name]
 }
 
-// GetPoolStats 获取池统计信息
+// GetPoolStats 获取池统计信息.
 func (m *SmartRAIDManager) GetPoolStats(poolName string) (*SmartPoolStats, error) {
 	m.mu.RLock()
 	pool, exists := m.pools[poolName]
@@ -927,7 +927,7 @@ func (m *SmartRAIDManager) GetPoolStats(poolName string) (*SmartPoolStats, error
 	return stats, nil
 }
 
-// SmartPoolStats 智能池统计信息
+// SmartPoolStats 智能池统计信息.
 type SmartPoolStats struct {
 	PoolName        string      `json:"poolName"`
 	TotalCapacity   uint64      `json:"totalCapacity"`
@@ -945,7 +945,7 @@ type SmartPoolStats struct {
 	HDDCount        int         `json:"hddCount"`
 }
 
-// TierStats 层级统计
+// TierStats 层级统计.
 type TierStats struct {
 	TierID      int    `json:"tierId"`
 	DeviceCount int    `json:"deviceCount"`
@@ -954,7 +954,7 @@ type TierStats struct {
 }
 
 // GetExpansionPlan 获取扩容计划
-// 分析当前池状态，提供扩容建议
+// 分析当前池状态，提供扩容建议.
 func (m *SmartRAIDManager) GetExpansionPlan(poolName string) (*ExpansionPlan, error) {
 	m.mu.RLock()
 	pool, exists := m.pools[poolName]
@@ -1018,7 +1018,7 @@ func (m *SmartRAIDManager) GetExpansionPlan(poolName string) (*ExpansionPlan, er
 	return plan, nil
 }
 
-// ExpansionPlan 扩容计划
+// ExpansionPlan 扩容计划.
 type ExpansionPlan struct {
 	PoolName          string                    `json:"poolName"`
 	CurrentState      *SmartPool                `json:"currentState"`
@@ -1026,7 +1026,7 @@ type ExpansionPlan struct {
 	PotentialCapacity uint64                    `json:"potentialCapacity"` // 潜在扩容空间
 }
 
-// ExpansionRecommendation 扩容建议
+// ExpansionRecommendation 扩容建议.
 type ExpansionRecommendation struct {
 	Type        string `json:"type"`     // add_capacity, replace_device, balance_tiers
 	Priority    string `json:"priority"` // high, medium, low
@@ -1036,7 +1036,7 @@ type ExpansionRecommendation struct {
 	MinCapacity uint64 `json:"minCapacity,omitempty"`
 }
 
-// calculatePotentialCapacity 计算潜在容量
+// calculatePotentialCapacity 计算潜在容量.
 func (m *SmartRAIDManager) calculatePotentialCapacity(pool *SmartPool) uint64 {
 	// 如果所有设备都替换为最大容量设备的容量
 	if len(pool.Devices) == 0 {
@@ -1057,7 +1057,7 @@ func (m *SmartRAIDManager) calculatePotentialCapacity(pool *SmartPool) uint64 {
 
 // ========== 子卷管理 ==========
 
-// CreateSubvolume 创建子卷
+// CreateSubvolume 创建子卷.
 func (m *SmartRAIDManager) CreateSubvolume(poolName, subvolName string) (*SmartSubvolume, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1104,7 +1104,7 @@ func (m *SmartRAIDManager) CreateSubvolume(poolName, subvolName string) (*SmartS
 	return subvol, nil
 }
 
-// DeleteSubvolume 删除子卷
+// DeleteSubvolume 删除子卷.
 func (m *SmartRAIDManager) DeleteSubvolume(poolName, subvolName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1138,7 +1138,7 @@ func (m *SmartRAIDManager) DeleteSubvolume(poolName, subvolName string) error {
 
 // ========== 辅助方法 ==========
 
-// getDeviceInfo 获取设备信息
+// getDeviceInfo 获取设备信息.
 func (m *SmartRAIDManager) getDeviceInfo(devicePath string) (*SmartDevice, error) {
 	dev := &SmartDevice{
 		ID:     generateSmartUUID(),
@@ -1196,14 +1196,14 @@ func (m *SmartRAIDManager) getDeviceInfo(devicePath string) (*SmartDevice, error
 	return dev, nil
 }
 
-// scanPools 扫描现有智能池
+// scanPools 扫描现有智能池.
 func (m *SmartRAIDManager) scanPools() error {
 	// 从配置文件或数据库加载
 	// 这里简化实现
 	return nil
 }
 
-// getReplaceStatus 获取设备替换状态
+// getReplaceStatus 获取设备替换状态.
 func (m *SmartRAIDManager) getReplaceStatus(mountPoint string) (*ReplaceStatus, error) {
 	cmd := exec.Command("sudo", "btrfs", "replace", "status", mountPoint)
 	output, err := cmd.Output()
@@ -1235,7 +1235,7 @@ func (m *SmartRAIDManager) getReplaceStatus(mountPoint string) (*ReplaceStatus, 
 	return status, nil
 }
 
-// removeWarning 移除警告
+// removeWarning 移除警告.
 func (m *SmartRAIDManager) removeWarning(warnings []string, keyword string) []string {
 	result := make([]string, 0)
 	for _, w := range warnings {
@@ -1246,19 +1246,19 @@ func (m *SmartRAIDManager) removeWarning(warnings []string, keyword string) []st
 	return result
 }
 
-// parseUint64 解析 uint64
+// parseUint64 解析 uint64.
 func parseUint64(s string) uint64 {
 	var result uint64
 	_, _ = fmt.Sscanf(s, "%d", &result)
 	return result
 }
 
-// generateSmartUUID 生成 UUID
+// generateSmartUUID 生成 UUID.
 func generateSmartUUID() string {
 	return fmt.Sprintf("smart-%d", time.Now().UnixNano())
 }
 
-// DeletePool 删除智能池
+// DeletePool 删除智能池.
 func (m *SmartRAIDManager) DeletePool(name string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1290,7 +1290,7 @@ func (m *SmartRAIDManager) DeletePool(name string, force bool) error {
 	return nil
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *SmartRAIDManager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1303,7 +1303,7 @@ func (m *SmartRAIDManager) Start() error {
 	return nil
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *SmartRAIDManager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()

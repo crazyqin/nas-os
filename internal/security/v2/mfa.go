@@ -21,7 +21,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// generateSecureCode 生成安全的随机验证码
+// generateSecureCode 生成安全的随机验证码.
 func generateSecureCode() (string, error) {
 	n, err := rand.Int(rand.Reader, big.NewInt(1000000))
 	if err != nil {
@@ -30,7 +30,7 @@ func generateSecureCode() (string, error) {
 	return fmt.Sprintf("%06d", n.Int64()), nil
 }
 
-// MFAManager 双因素认证管理器
+// MFAManager 双因素认证管理器.
 type MFAManager struct {
 	config      MFAConfig
 	userSecrets map[string]*MFASecret // UserID -> MFA 密钥
@@ -42,7 +42,7 @@ type MFAManager struct {
 	sendWebhookFunc func(url, event string, data map[string]interface{}) error
 }
 
-// MFAConfig MFA 配置
+// MFAConfig MFA 配置.
 type MFAConfig struct {
 	Enabled        bool     `json:"enabled"`
 	RequiredFor    []string `json:"required_for"` // 哪些角色必须启用 MFA（admin, user, guest）
@@ -57,7 +57,7 @@ type MFAConfig struct {
 	EmailSender    string   `json:"email_sender"`    // 邮件发送地址
 }
 
-// MFASecret 用户 MFA 密钥
+// MFASecret 用户 MFA 密钥.
 type MFASecret struct {
 	UserID          string     `json:"user_id"`
 	Username        string     `json:"username"`
@@ -71,7 +71,7 @@ type MFASecret struct {
 	LastUsed        *time.Time `json:"last_used,omitempty"`
 }
 
-// MFAVerificationResult MFA 验证结果
+// MFAVerificationResult MFA 验证结果.
 type MFAVerificationResult struct {
 	Success        bool   `json:"success"`
 	Method         string `json:"method"`
@@ -80,7 +80,7 @@ type MFAVerificationResult struct {
 	TemporaryToken string `json:"temporary_token,omitempty"` // 临时令牌（用于 MFA 验证期间）
 }
 
-// NewMFAManager 创建 MFA 管理器
+// NewMFAManager 创建 MFA 管理器.
 func NewMFAManager() *MFAManager {
 	// 创建缓存管理器（10000 容量，10 分钟 TTL）
 	logger := zap.NewNop() // 使用空 logger，实际使用时可以注入
@@ -102,7 +102,7 @@ func NewMFAManager() *MFAManager {
 	}
 }
 
-// NewMFAManagerWithCache 创建 MFA 管理器（带自定义缓存）
+// NewMFAManagerWithCache 创建 MFA 管理器（带自定义缓存）.
 func NewMFAManagerWithCache(cacheMgr *cache.Manager) *MFAManager {
 	return &MFAManager{
 		config: MFAConfig{
@@ -120,35 +120,35 @@ func NewMFAManagerWithCache(cacheMgr *cache.Manager) *MFAManager {
 	}
 }
 
-// SetCache 设置缓存管理器
+// SetCache 设置缓存管理器.
 func (mm *MFAManager) SetCache(cacheMgr *cache.Manager) {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
 	mm.cache = cacheMgr
 }
 
-// SetSendEmailFunc 设置邮件发送回调
+// SetSendEmailFunc 设置邮件发送回调.
 func (mm *MFAManager) SetSendEmailFunc(fn func(to, subject, body string) error) {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
 	mm.sendEmailFunc = fn
 }
 
-// SetSendSMSFunc 设置短信发送回调
+// SetSendSMSFunc 设置短信发送回调.
 func (mm *MFAManager) SetSendSMSFunc(fn func(to, message string) error) {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
 	mm.sendSMSFunc = fn
 }
 
-// SetSendWebhookFunc 设置 Webhook 发送回调
+// SetSendWebhookFunc 设置 Webhook 发送回调.
 func (mm *MFAManager) SetSendWebhookFunc(fn func(url, event string, data map[string]interface{}) error) {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
 	mm.sendWebhookFunc = fn
 }
 
-// GenerateTOTPSecret 生成 TOTP 密钥
+// GenerateTOTPSecret 生成 TOTP 密钥.
 func (mm *MFAManager) GenerateTOTPSecret() string {
 	// 生成 20 字节的随机密钥
 	secret := make([]byte, 20)
@@ -160,7 +160,7 @@ func (mm *MFAManager) GenerateTOTPSecret() string {
 	return strings.ToUpper(base32.StdEncoding.EncodeToString(secret))
 }
 
-// GenerateTOTPCode 生成 TOTP 验证码
+// GenerateTOTPCode 生成 TOTP 验证码.
 func (mm *MFAManager) GenerateTOTPCode(secret string, timestamp time.Time) (string, error) {
 	// 解码 Base32 密钥
 	decoded, err := base32.StdEncoding.DecodeString(strings.ToUpper(secret))
@@ -192,7 +192,7 @@ func (mm *MFAManager) GenerateTOTPCode(secret string, timestamp time.Time) (stri
 	return fmt.Sprintf(format, code), nil
 }
 
-// VerifyTOTPCode 验证 TOTP 验证码
+// VerifyTOTPCode 验证 TOTP 验证码.
 func (mm *MFAManager) VerifyTOTPCode(secret, code string) bool {
 	// 允许前后各一个时间窗口的误差（防止时钟不同步）
 	for offset := -1; offset <= 1; offset++ {
@@ -208,7 +208,7 @@ func (mm *MFAManager) VerifyTOTPCode(secret, code string) bool {
 	return false
 }
 
-// GenerateRecoveryCodes 生成恢复码
+// GenerateRecoveryCodes 生成恢复码.
 func (mm *MFAManager) GenerateRecoveryCodes() []string {
 	codes := make([]string, mm.config.RecoveryCodes)
 	for i := 0; i < mm.config.RecoveryCodes; i++ {
@@ -222,7 +222,7 @@ func (mm *MFAManager) GenerateRecoveryCodes() []string {
 	return codes
 }
 
-// HashRecoveryCode 哈希恢复码（存储时使用）
+// HashRecoveryCode 哈希恢复码（存储时使用）.
 func (mm *MFAManager) HashRecoveryCode(code string) string {
 	// 使用 HMAC 哈希恢复码
 	h := hmac.New(sha1.New, []byte("nas-os-recovery-code-salt"))
@@ -230,7 +230,7 @@ func (mm *MFAManager) HashRecoveryCode(code string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// VerifyRecoveryCode 验证恢复码
+// VerifyRecoveryCode 验证恢复码.
 func (mm *MFAManager) VerifyRecoveryCode(storedHashes []string, code string) bool {
 	codeHash := mm.HashRecoveryCode(code)
 	for _, hash := range storedHashes {
@@ -241,7 +241,7 @@ func (mm *MFAManager) VerifyRecoveryCode(storedHashes []string, code string) boo
 	return false
 }
 
-// RemoveUsedRecoveryCode 移除已使用的恢复码
+// RemoveUsedRecoveryCode 移除已使用的恢复码.
 func (mm *MFAManager) RemoveUsedRecoveryCode(userID, code string) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -271,7 +271,7 @@ func (mm *MFAManager) RemoveUsedRecoveryCode(userID, code string) error {
 	return nil
 }
 
-// SetupMFA 为用户设置 MFA
+// SetupMFA 为用户设置 MFA.
 func (mm *MFAManager) SetupMFA(userID, username, phone, email string) (*MFASecret, error) {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -308,7 +308,7 @@ func (mm *MFAManager) SetupMFA(userID, username, phone, email string) (*MFASecre
 	return secret, nil
 }
 
-// saveRecoveryCodes 保存恢复码到文件（仅用于演示，实际应该加密存储）
+// saveRecoveryCodes 保存恢复码到文件（仅用于演示，实际应该加密存储）.
 func (mm *MFAManager) saveRecoveryCodes(userID string, codes []string) error {
 	dir := "/var/lib/nas-os/security/recovery-codes"
 	if err := os.MkdirAll(dir, 0700); err != nil {
@@ -324,7 +324,7 @@ func (mm *MFAManager) saveRecoveryCodes(userID string, codes []string) error {
 	return os.WriteFile(filePath, []byte(content), 0600)
 }
 
-// EnableMFA 启用 MFA
+// EnableMFA 启用 MFA.
 func (mm *MFAManager) EnableMFA(userID, method string) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -342,7 +342,7 @@ func (mm *MFAManager) EnableMFA(userID, method string) error {
 	return nil
 }
 
-// DisableMFA 禁用 MFA
+// DisableMFA 禁用 MFA.
 func (mm *MFAManager) DisableMFA(userID, verificationCode string) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -361,7 +361,7 @@ func (mm *MFAManager) DisableMFA(userID, verificationCode string) error {
 	return nil
 }
 
-// VerifyMFA 验证 MFA（登录时使用）
+// VerifyMFA 验证 MFA（登录时使用）.
 func (mm *MFAManager) VerifyMFA(userID, code, method string) (*MFAVerificationResult, error) {
 	mm.mu.RLock()
 	secret, exists := mm.userSecrets[userID]
@@ -407,7 +407,7 @@ func (mm *MFAManager) VerifyMFA(userID, code, method string) (*MFAVerificationRe
 	}, nil
 }
 
-// verifyCode 验证代码（支持多种方式）
+// verifyCode 验证代码（支持多种方式）.
 func (mm *MFAManager) verifyCode(secret *MFASecret, code string) bool {
 	// 尝试 TOTP
 	if mm.VerifyTOTPCode(secret.TOTPSecret, code) {
@@ -424,7 +424,7 @@ func (mm *MFAManager) verifyCode(secret *MFASecret, code string) bool {
 	return false
 }
 
-// SendSMSCode 发送短信验证码
+// SendSMSCode 发送短信验证码.
 func (mm *MFAManager) SendSMSCode(userID string) (string, error) {
 	mm.mu.RLock()
 	secret, exists := mm.userSecrets[userID]
@@ -466,7 +466,7 @@ func (mm *MFAManager) SendSMSCode(userID string) (string, error) {
 	return code, nil
 }
 
-// SMSVerificationData 短信验证码数据
+// SMSVerificationData 短信验证码数据.
 type SMSVerificationData struct {
 	Code      string    `json:"code"`
 	Phone     string    `json:"phone"`
@@ -474,7 +474,7 @@ type SMSVerificationData struct {
 	ExpiresAt time.Time `json:"expires_at"`
 }
 
-// VerifySMSCode 验证短信验证码
+// VerifySMSCode 验证短信验证码.
 func (mm *MFAManager) VerifySMSCode(userID, code string) bool {
 	if mm.cache == nil {
 		return false
@@ -507,7 +507,7 @@ func (mm *MFAManager) VerifySMSCode(userID, code string) bool {
 	return false
 }
 
-// SendEmailCode 发送邮件验证码
+// SendEmailCode 发送邮件验证码.
 func (mm *MFAManager) SendEmailCode(userID string) (string, error) {
 	mm.mu.RLock()
 	secret, exists := mm.userSecrets[userID]
@@ -548,7 +548,7 @@ func (mm *MFAManager) SendEmailCode(userID string) (string, error) {
 	return code, nil
 }
 
-// GetMFAStatus 获取用户 MFA 状态
+// GetMFAStatus 获取用户 MFA 状态.
 func (mm *MFAManager) GetMFAStatus(userID string) (map[string]interface{}, error) {
 	mm.mu.RLock()
 	secret, exists := mm.userSecrets[userID]
@@ -572,7 +572,7 @@ func (mm *MFAManager) GetMFAStatus(userID string) (map[string]interface{}, error
 	}, nil
 }
 
-// maskPhone 隐藏手机号
+// maskPhone 隐藏手机号.
 func (mm *MFAManager) maskPhone(phone string) string {
 	if len(phone) < 7 {
 		return "***"
@@ -580,7 +580,7 @@ func (mm *MFAManager) maskPhone(phone string) string {
 	return phone[:3] + "****" + phone[len(phone)-4:]
 }
 
-// maskEmail 隐藏邮箱
+// maskEmail 隐藏邮箱.
 func (mm *MFAManager) maskEmail(email string) string {
 	parts := strings.Split(email, "@")
 	if len(parts) != 2 {
@@ -593,14 +593,14 @@ func (mm *MFAManager) maskEmail(email string) string {
 	return username + "@" + parts[1]
 }
 
-// GetConfig 获取 MFA 配置
+// GetConfig 获取 MFA 配置.
 func (mm *MFAManager) GetConfig() MFAConfig {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
 	return mm.config
 }
 
-// UpdateConfig 更新 MFA 配置
+// UpdateConfig 更新 MFA 配置.
 func (mm *MFAManager) UpdateConfig(config MFAConfig) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -608,7 +608,7 @@ func (mm *MFAManager) UpdateConfig(config MFAConfig) error {
 	return nil
 }
 
-// IsRequiredForRole 检查指定角色是否必须启用 MFA
+// IsRequiredForRole 检查指定角色是否必须启用 MFA.
 func (mm *MFAManager) IsRequiredForRole(role string) bool {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
@@ -621,7 +621,7 @@ func (mm *MFAManager) IsRequiredForRole(role string) bool {
 	return false
 }
 
-// RegenerateRecoveryCodes 重新生成恢复码
+// RegenerateRecoveryCodes 重新生成恢复码.
 func (mm *MFAManager) RegenerateRecoveryCodes(userID string) ([]string, error) {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -648,7 +648,7 @@ func (mm *MFAManager) RegenerateRecoveryCodes(userID string) ([]string, error) {
 	return recoveryCodes, nil
 }
 
-// UpdatePhone 更新手机号
+// UpdatePhone 更新手机号.
 func (mm *MFAManager) UpdatePhone(userID, phone string) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -662,7 +662,7 @@ func (mm *MFAManager) UpdatePhone(userID, phone string) error {
 	return nil
 }
 
-// UpdateEmail 更新邮箱
+// UpdateEmail 更新邮箱.
 func (mm *MFAManager) UpdateEmail(userID, email string) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()

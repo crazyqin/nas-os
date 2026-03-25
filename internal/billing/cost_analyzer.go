@@ -13,17 +13,17 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrInvalidCostConfig 无效的成本配置错误
+	// ErrInvalidCostConfig 无效的成本配置错误.
 	ErrInvalidCostConfig = errors.New("无效的成本配置")
-	// ErrInsufficientData 数据不足无法计算成本错误
+	// ErrInsufficientData 数据不足无法计算成本错误.
 	ErrInsufficientData = errors.New("数据不足，无法计算成本")
-	// ErrStoragePoolNotFound 存储池不存在错误
+	// ErrStoragePoolNotFound 存储池不存在错误.
 	ErrStoragePoolNotFound = errors.New("存储池不存在")
 )
 
 // ========== 成本分析配置 ==========
 
-// CostAnalyzerConfig 成本分析器配置
+// CostAnalyzerConfig 成本分析器配置.
 type CostAnalyzerConfig struct {
 	// 存储成本配置
 	Storage StorageCostConfig `json:"storage"`
@@ -41,7 +41,7 @@ type CostAnalyzerConfig struct {
 	DefaultCurrency string `json:"default_currency"`
 }
 
-// StorageCostConfig 存储成本配置
+// StorageCostConfig 存储成本配置.
 type StorageCostConfig struct {
 	// 按容量计费价格（元/GB/月）
 	CapacityPricing CapacityPricingConfig `json:"capacity_pricing"`
@@ -58,7 +58,7 @@ type StorageCostConfig struct {
 	FreeStorageGB float64 `json:"free_storage_gb"`
 }
 
-// CapacityPricingConfig 容量计费配置
+// CapacityPricingConfig 容量计费配置.
 type CapacityPricingConfig struct {
 	// 基础价格
 	BasePricePerGB float64 `json:"base_price_per_gb"`
@@ -70,14 +70,14 @@ type CapacityPricingConfig struct {
 	EnableTieredPricing bool `json:"enable_tiered_pricing"`
 }
 
-// CapacityTier 容量阶梯
+// CapacityTier 容量阶梯.
 type CapacityTier struct {
 	MinGB      float64 `json:"min_gb"`
 	MaxGB      float64 `json:"max_gb"` // -1 表示无限
 	PricePerGB float64 `json:"price_per_gb"`
 }
 
-// AccessFrequencyPricingConfig 访问频率计费配置
+// AccessFrequencyPricingConfig 访问频率计费配置.
 type AccessFrequencyPricingConfig struct {
 	Enabled bool `json:"enabled"`
 
@@ -95,7 +95,7 @@ type AccessFrequencyPricingConfig struct {
 	WarmAccessThreshold float64 `json:"warm_access_threshold"` // 高于此值为温数据
 }
 
-// AccessFrequencyTier 访问频率分层
+// AccessFrequencyTier 访问频率分层.
 type AccessFrequencyTier struct {
 	Name            string  `json:"name"`
 	MinAccessPerDay float64 `json:"min_access_per_day"`
@@ -103,10 +103,10 @@ type AccessFrequencyTier struct {
 	PriceMultiplier float64 `json:"price_multiplier"`   // 价格乘数
 }
 
-// BandwidthBillingModel 带宽计费模式（扩展类型）
+// BandwidthBillingModel 带宽计费模式（扩展类型）.
 type BandwidthBillingModel string
 
-// 带宽计费模式常量
+// 带宽计费模式常量.
 const (
 	BandwidthBillingTraffic BandwidthBillingModel = "traffic" // 按流量计费
 	BandwidthBillingPeak    BandwidthBillingModel = "peak"    // 按峰值带宽计费
@@ -115,7 +115,7 @@ const (
 	BandwidthBillingHybrid  BandwidthBillingModel = "hybrid"  // 混合计费
 )
 
-// BandwidthCostConfig 带宽成本配置
+// BandwidthCostConfig 带宽成本配置.
 type BandwidthCostConfig struct {
 	// 计费模式
 	Model BandwidthBillingModel `json:"model"`
@@ -142,7 +142,7 @@ type BandwidthCostConfig struct {
 
 // ========== 成本分析数据结构 ==========
 
-// StorageCostAnalysis 存储成本分析结果
+// StorageCostAnalysis 存储成本分析结果.
 type StorageCostAnalysis struct {
 	// 分析时间
 	AnalysisTime time.Time `json:"analysis_time"`
@@ -174,7 +174,7 @@ type StorageCostAnalysis struct {
 	Recommendations []CostRecommendation `json:"recommendations"`
 }
 
-// CapacityCostAnalysis 容量成本分析
+// CapacityCostAnalysis 容量成本分析.
 type CapacityCostAnalysis struct {
 	// 总容量
 	TotalCapacityGB float64 `json:"total_capacity_gb"`
@@ -194,7 +194,7 @@ type CapacityCostAnalysis struct {
 	TierBreakdown []CapacityTierCost `json:"tier_breakdown"`
 }
 
-// CapacityTierCost 容量阶梯成本
+// CapacityTierCost 容量阶梯成本.
 type CapacityTierCost struct {
 	TierName   string  `json:"tier_name"`
 	MinGB      float64 `json:"min_gb"`
@@ -204,7 +204,7 @@ type CapacityTierCost struct {
 	Cost       float64 `json:"cost"`
 }
 
-// AccessFrequencyCostAnalysis 访问频率成本分析
+// AccessFrequencyCostAnalysis 访问频率成本分析.
 type AccessFrequencyCostAnalysis struct {
 	Enabled bool `json:"enabled"`
 
@@ -231,7 +231,7 @@ type AccessFrequencyCostAnalysis struct {
 	OptimizationPotential float64 `json:"optimization_potential"` // 潜在节省
 }
 
-// PoolStorageCost 存储池成本
+// PoolStorageCost 存储池成本.
 type PoolStorageCost struct {
 	PoolID      string `json:"pool_id"`
 	PoolName    string `json:"pool_name"`
@@ -254,7 +254,7 @@ type PoolStorageCost struct {
 	OptimizationScore float64 `json:"optimization_score"`
 }
 
-// UserStorageCost 用户存储成本
+// UserStorageCost 用户存储成本.
 type UserStorageCost struct {
 	UserID        string             `json:"user_id"`
 	UserName      string             `json:"user_name"`
@@ -266,7 +266,7 @@ type UserStorageCost struct {
 	PoolBreakdown map[string]float64 `json:"pool_breakdown"` // 各存储池用量
 }
 
-// CostTrendPoint 成本趋势数据点
+// CostTrendPoint 成本趋势数据点.
 type CostTrendPoint struct {
 	Date          time.Time `json:"date"`
 	StorageCost   float64   `json:"storage_cost"`
@@ -276,7 +276,7 @@ type CostTrendPoint struct {
 	TrafficGB     float64   `json:"traffic_gb"`
 }
 
-// BandwidthCostAnalysis 带宽成本分析结果
+// BandwidthCostAnalysis 带宽成本分析结果.
 type BandwidthCostAnalysis struct {
 	// 分析时间
 	AnalysisTime time.Time `json:"analysis_time"`
@@ -314,7 +314,7 @@ type BandwidthCostAnalysis struct {
 	Recommendations []CostRecommendation `json:"recommendations"`
 }
 
-// HourlyBandwidthCost 小时带宽成本
+// HourlyBandwidthCost 小时带宽成本.
 type HourlyBandwidthCost struct {
 	Hour       int     `json:"hour"`
 	InboundGB  float64 `json:"inbound_gb"`
@@ -324,7 +324,7 @@ type HourlyBandwidthCost struct {
 	Cost       float64 `json:"cost"`
 }
 
-// DailyBandwidthCost 日带宽成本
+// DailyBandwidthCost 日带宽成本.
 type DailyBandwidthCost struct {
 	Date        time.Time `json:"date"`
 	InboundGB   float64   `json:"inbound_gb"`
@@ -335,7 +335,7 @@ type DailyBandwidthCost struct {
 	Cost        float64   `json:"cost"`
 }
 
-// CostRecommendation 成本优化建议
+// CostRecommendation 成本优化建议.
 type CostRecommendation struct {
 	ID               string  `json:"id"`
 	Type             string  `json:"type"`     // storage, bandwidth, access_pattern
@@ -352,7 +352,7 @@ type CostRecommendation struct {
 
 // ========== 成本分析器 ==========
 
-// CostAnalyzer 成本分析器
+// CostAnalyzer 成本分析器.
 type CostAnalyzer struct {
 	config *CostAnalyzerConfig
 	mu     sync.RWMutex
@@ -368,7 +368,7 @@ type CostAnalyzer struct {
 	cacheExpiry    time.Duration
 }
 
-// StorageDataProvider 存储数据提供者接口
+// StorageDataProvider 存储数据提供者接口.
 type StorageDataProvider interface {
 	// 获取存储池列表
 	GetPools(ctx context.Context) ([]StoragePoolInfo, error)
@@ -383,7 +383,7 @@ type StorageDataProvider interface {
 	GetUserUsage(ctx context.Context, userID string) (*UserStorageUsage, error)
 }
 
-// StoragePoolInfo 存储池信息
+// StoragePoolInfo 存储池信息.
 type StoragePoolInfo struct {
 	PoolID         string `json:"pool_id"`
 	PoolName       string `json:"pool_name"`
@@ -393,7 +393,7 @@ type StoragePoolInfo struct {
 	AvailableBytes uint64 `json:"available_bytes"`
 }
 
-// StoragePoolUsage 存储池使用情况
+// StoragePoolUsage 存储池使用情况.
 type StoragePoolUsage struct {
 	PoolID       string  `json:"pool_id"`
 	TotalBytes   uint64  `json:"total_bytes"`
@@ -402,7 +402,7 @@ type StoragePoolUsage struct {
 	UserCount    int     `json:"user_count"`
 }
 
-// StorageUsageInfo 存储使用信息
+// StorageUsageInfo 存储使用信息.
 type StorageUsageInfo struct {
 	UserID      string    `json:"user_id"`
 	UserName    string    `json:"user_name"`
@@ -413,7 +413,7 @@ type StorageUsageInfo struct {
 	LastAccess  time.Time `json:"last_access"`
 }
 
-// UserStorageUsage 用户存储使用情况
+// UserStorageUsage 用户存储使用情况.
 type UserStorageUsage struct {
 	UserID      string            `json:"user_id"`
 	UserName    string            `json:"user_name"`
@@ -422,7 +422,7 @@ type UserStorageUsage struct {
 	AccessStats UserAccessStats   `json:"access_stats"`
 }
 
-// UserAccessStats 用户访问统计
+// UserAccessStats 用户访问统计.
 type UserAccessStats struct {
 	DailyAccessCount   float64 `json:"daily_access_count"`
 	WeeklyAccessCount  float64 `json:"weekly_access_count"`
@@ -432,7 +432,7 @@ type UserAccessStats struct {
 	ColdDataGB         float64 `json:"cold_data_gb"`
 }
 
-// BandwidthDataProvider 带宽数据提供者接口
+// BandwidthDataProvider 带宽数据提供者接口.
 type BandwidthDataProvider interface {
 	// 获取带宽数据
 	GetBandwidthData(ctx context.Context, start, end time.Time) (*BandwidthData, error)
@@ -447,7 +447,7 @@ type BandwidthDataProvider interface {
 	GetPeak95Bandwidth(ctx context.Context, start, end time.Time) (float64, error)
 }
 
-// BandwidthData 带宽数据
+// BandwidthData 带宽数据.
 type BandwidthData struct {
 	TotalInboundBytes  uint64  `json:"total_inbound_bytes"`
 	TotalOutboundBytes uint64  `json:"total_outbound_bytes"`
@@ -456,7 +456,7 @@ type BandwidthData struct {
 	Peak95Mbps         float64 `json:"peak_95_mbps"`
 }
 
-// HourlyBandwidth 小时带宽
+// HourlyBandwidth 小时带宽.
 type HourlyBandwidth struct {
 	Hour          int     `json:"hour"`
 	InboundBytes  uint64  `json:"inbound_bytes"`
@@ -464,7 +464,7 @@ type HourlyBandwidth struct {
 	PeakMbps      float64 `json:"peak_mbps"`
 }
 
-// AccessTracker 访问追踪器接口
+// AccessTracker 访问追踪器接口.
 type AccessTracker interface {
 	// 获取访问频率
 	GetAccessFrequency(ctx context.Context, userID, poolID string) (float64, error)
@@ -476,7 +476,7 @@ type AccessTracker interface {
 	RecordAccess(ctx context.Context, userID, poolID string, bytes uint64) error
 }
 
-// AccessDistribution 访问分布
+// AccessDistribution 访问分布.
 type AccessDistribution struct {
 	PoolID     string  `json:"pool_id"`
 	HotDataGB  float64 `json:"hot_data_gb"`
@@ -485,7 +485,7 @@ type AccessDistribution struct {
 	TotalGB    float64 `json:"total_gb"`
 }
 
-// NewCostAnalyzer 创建成本分析器
+// NewCostAnalyzer 创建成本分析器.
 func NewCostAnalyzer(config *CostAnalyzerConfig, storage StorageDataProvider, bandwidth BandwidthDataProvider, access AccessTracker) *CostAnalyzer {
 	if config == nil {
 		config = DefaultCostAnalyzerConfig()
@@ -502,7 +502,7 @@ func NewCostAnalyzer(config *CostAnalyzerConfig, storage StorageDataProvider, ba
 	}
 }
 
-// DefaultCostAnalyzerConfig 默认成本分析器配置
+// DefaultCostAnalyzerConfig 默认成本分析器配置.
 func DefaultCostAnalyzerConfig() *CostAnalyzerConfig {
 	return &CostAnalyzerConfig{
 		Storage: StorageCostConfig{
@@ -549,7 +549,7 @@ func DefaultCostAnalyzerConfig() *CostAnalyzerConfig {
 
 // ========== 存储成本计算 ==========
 
-// AnalyzeStorageCost 分析存储成本
+// AnalyzeStorageCost 分析存储成本.
 func (a *CostAnalyzer) AnalyzeStorageCost(ctx context.Context) (*StorageCostAnalysis, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -704,7 +704,7 @@ func (a *CostAnalyzer) AnalyzeStorageCost(ctx context.Context) (*StorageCostAnal
 	return analysis, nil
 }
 
-// CalculateStorageCostByCapacity 按容量计算存储成本
+// CalculateStorageCostByCapacity 按容量计算存储成本.
 func (a *CostAnalyzer) CalculateStorageCostByCapacity(gb float64) (float64, error) {
 	if gb < 0 {
 		return 0, ErrInvalidCostConfig
@@ -719,7 +719,7 @@ func (a *CostAnalyzer) CalculateStorageCostByCapacity(gb float64) (float64, erro
 	return a.calculateCapacityCost(gb), nil
 }
 
-// CalculateStorageCostByAccessFrequency 按访问频率计算存储成本
+// CalculateStorageCostByAccessFrequency 按访问频率计算存储成本.
 func (a *CostAnalyzer) CalculateStorageCostByAccessFrequency(hotGB, warmGB, coldGB float64) (float64, error) {
 	if !a.config.Storage.AccessFrequencyPricing.Enabled {
 		return 0, nil
@@ -732,7 +732,7 @@ func (a *CostAnalyzer) CalculateStorageCostByAccessFrequency(hotGB, warmGB, cold
 	return cost, nil
 }
 
-// CalculateStorageCost 混合计算存储成本
+// CalculateStorageCost 混合计算存储成本.
 func (a *CostAnalyzer) CalculateStorageCost(ctx context.Context, userID string) (*UserStorageCost, error) {
 	usage, err := a.storageProvider.GetUserUsage(ctx, userID)
 	if err != nil {
@@ -779,7 +779,7 @@ func (a *CostAnalyzer) CalculateStorageCost(ctx context.Context, userID string) 
 
 // ========== 带宽成本计算 ==========
 
-// AnalyzeBandwidthCost 分析带宽成本
+// AnalyzeBandwidthCost 分析带宽成本.
 func (a *CostAnalyzer) AnalyzeBandwidthCost(ctx context.Context, start, end time.Time) (*BandwidthCostAnalysis, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -850,7 +850,7 @@ func (a *CostAnalyzer) AnalyzeBandwidthCost(ctx context.Context, start, end time
 	return analysis, nil
 }
 
-// EstimateBandwidthCost 估算带宽成本
+// EstimateBandwidthCost 估算带宽成本.
 func (a *CostAnalyzer) EstimateBandwidthCost(trafficGB, peakMbps float64) (float64, error) {
 	if trafficGB < 0 || peakMbps < 0 {
 		return 0, ErrInvalidCostConfig
@@ -885,7 +885,7 @@ func (a *CostAnalyzer) EstimateBandwidthCost(trafficGB, peakMbps float64) (float
 
 // ========== 辅助方法 ==========
 
-// calculateCapacityCost 计算容量成本
+// calculateCapacityCost 计算容量成本.
 func (a *CostAnalyzer) calculateCapacityCost(gb float64) float64 {
 	if gb <= 0 {
 		return 0
@@ -905,7 +905,7 @@ func (a *CostAnalyzer) calculateCapacityCost(gb float64) float64 {
 	return gb * a.config.Storage.CapacityPricing.BasePricePerGB
 }
 
-// calculateTieredCapacityCost 阶梯容量成本计算
+// calculateTieredCapacityCost 阶梯容量成本计算.
 func (a *CostAnalyzer) calculateTieredCapacityCost(gb float64, tiers []CapacityTier) float64 {
 	var totalCost float64
 	remaining := gb
@@ -934,7 +934,7 @@ func (a *CostAnalyzer) calculateTieredCapacityCost(gb float64, tiers []CapacityT
 	return totalCost
 }
 
-// calculatePoolCost 计算存储池成本
+// calculatePoolCost 计算存储池成本.
 func (a *CostAnalyzer) calculatePoolCost(p *PoolStorageCost) float64 {
 	baseCost := p.UsedCapacityGB * p.PricePerGB
 
@@ -946,7 +946,7 @@ func (a *CostAnalyzer) calculatePoolCost(p *PoolStorageCost) float64 {
 	return baseCost
 }
 
-// getStoragePrice 获取存储价格
+// getStoragePrice 获取存储价格.
 func (a *CostAnalyzer) getStoragePrice(storageType string) float64 {
 	switch storageType {
 	case "ssd":
@@ -958,12 +958,12 @@ func (a *CostAnalyzer) getStoragePrice(storageType string) float64 {
 	}
 }
 
-// getFreeCapacity 获取免费容量
+// getFreeCapacity 获取免费容量.
 func (a *CostAnalyzer) getFreeCapacity() float64 {
 	return a.config.Storage.FreeStorageGB
 }
 
-// calculateTierBreakdown 计算阶梯成本明细
+// calculateTierBreakdown 计算阶梯成本明细.
 func (a *CostAnalyzer) calculateTierBreakdown(totalGB float64) []CapacityTierCost {
 	breakdown := make([]CapacityTierCost, 0)
 
@@ -1009,7 +1009,7 @@ func (a *CostAnalyzer) calculateTierBreakdown(totalGB float64) []CapacityTierCos
 	return breakdown
 }
 
-// calculateCostEfficiency 计算成本效率
+// calculateCostEfficiency 计算成本效率.
 func (a *CostAnalyzer) calculateCostEfficiency(usagePercent float64) float64 {
 	// 理想利用率 60-80%
 	if usagePercent >= 60 && usagePercent <= 80 {
@@ -1021,7 +1021,7 @@ func (a *CostAnalyzer) calculateCostEfficiency(usagePercent float64) float64 {
 	}
 }
 
-// calculateOptimizationScore 计算优化评分
+// calculateOptimizationScore 计算优化评分.
 func (a *CostAnalyzer) calculateOptimizationScore(p *PoolStorageCost) float64 {
 	score := 100.0
 
@@ -1044,7 +1044,7 @@ func (a *CostAnalyzer) calculateOptimizationScore(p *PoolStorageCost) float64 {
 	return math.Max(0, score)
 }
 
-// calculateAccessOptimizationPotential 计算访问优化潜力
+// calculateAccessOptimizationPotential 计算访问优化潜力.
 func (a *CostAnalyzer) calculateAccessOptimizationPotential(afa *AccessFrequencyCostAnalysis) float64 {
 	// 冷数据如果使用热存储价格，则有优化空间
 	// 假设冷数据使用热存储价格会有30%的浪费
@@ -1052,7 +1052,7 @@ func (a *CostAnalyzer) calculateAccessOptimizationPotential(afa *AccessFrequency
 	return potential
 }
 
-// generateStorageRecommendations 生成存储建议
+// generateStorageRecommendations 生成存储建议.
 func (a *CostAnalyzer) generateStorageRecommendations(analysis *StorageCostAnalysis) []CostRecommendation {
 	recs := make([]CostRecommendation, 0)
 
@@ -1105,7 +1105,7 @@ func (a *CostAnalyzer) generateStorageRecommendations(analysis *StorageCostAnaly
 	return recs
 }
 
-// generateBandwidthRecommendations 生成带宽建议
+// generateBandwidthRecommendations 生成带宽建议.
 func (a *CostAnalyzer) generateBandwidthRecommendations(analysis *BandwidthCostAnalysis) []CostRecommendation {
 	recs := make([]CostRecommendation, 0)
 
@@ -1146,7 +1146,7 @@ func (a *CostAnalyzer) generateBandwidthRecommendations(analysis *BandwidthCostA
 	return recs
 }
 
-// calculateTrafficBasedCost 按流量计费
+// calculateTrafficBasedCost 按流量计费.
 func (a *CostAnalyzer) calculateTrafficBasedCost(analysis *BandwidthCostAnalysis) *BandwidthCostAnalysis {
 	// 计算需要计费的流量
 	var chargedTraffic float64
@@ -1171,7 +1171,7 @@ func (a *CostAnalyzer) calculateTrafficBasedCost(analysis *BandwidthCostAnalysis
 	return analysis
 }
 
-// calculatePeakBasedCost 按峰值带宽计费
+// calculatePeakBasedCost 按峰值带宽计费.
 func (a *CostAnalyzer) calculatePeakBasedCost(analysis *BandwidthCostAnalysis) *BandwidthCostAnalysis {
 	chargedBandwidth := analysis.PeakBandwidthMbps - a.config.Bandwidth.FreeBandwidthMbps
 	if chargedBandwidth < 0 {
@@ -1184,7 +1184,7 @@ func (a *CostAnalyzer) calculatePeakBasedCost(analysis *BandwidthCostAnalysis) *
 	return analysis
 }
 
-// calculatePeak95BasedCost 按95峰值计费
+// calculatePeak95BasedCost 按95峰值计费.
 func (a *CostAnalyzer) calculatePeak95BasedCost(analysis *BandwidthCostAnalysis) *BandwidthCostAnalysis {
 	analysis.BandwidthCost = analysis.Peak95Mbps * a.config.Bandwidth.Peak95PricePerMbps
 	analysis.TotalCost = analysis.BandwidthCost
@@ -1192,7 +1192,7 @@ func (a *CostAnalyzer) calculatePeak95BasedCost(analysis *BandwidthCostAnalysis)
 	return analysis
 }
 
-// calculateMonthlyBasedCost 按月固定带宽计费
+// calculateMonthlyBasedCost 按月固定带宽计费.
 func (a *CostAnalyzer) calculateMonthlyBasedCost(analysis *BandwidthCostAnalysis) *BandwidthCostAnalysis {
 	analysis.BandwidthCost = analysis.PeakBandwidthMbps * a.config.Bandwidth.BandwidthPricePerMbps
 	analysis.TotalCost = analysis.BandwidthCost
@@ -1200,7 +1200,7 @@ func (a *CostAnalyzer) calculateMonthlyBasedCost(analysis *BandwidthCostAnalysis
 	return analysis
 }
 
-// calculateHybridBasedCost 混合计费
+// calculateHybridBasedCost 混合计费.
 func (a *CostAnalyzer) calculateHybridBasedCost(analysis *BandwidthCostAnalysis) *BandwidthCostAnalysis {
 	// 50% 峰值 + 50% 流量
 	peakCost := analysis.PeakBandwidthMbps * a.config.Bandwidth.BandwidthPricePerMbps * 0.5
@@ -1217,19 +1217,19 @@ func (a *CostAnalyzer) calculateHybridBasedCost(analysis *BandwidthCostAnalysis)
 	return analysis
 }
 
-// generateCostRecID 生成成本建议ID
+// generateCostRecID 生成成本建议ID.
 func generateCostRecID() string {
 	return fmt.Sprintf("cost-rec-%d", time.Now().UnixNano())
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (a *CostAnalyzer) GetConfig() *CostAnalyzerConfig {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return a.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (a *CostAnalyzer) UpdateConfig(config *CostAnalyzerConfig) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()

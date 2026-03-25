@@ -19,7 +19,7 @@ type ServiceGuard struct {
 	mu            sync.RWMutex
 }
 
-// ServiceGuardConfig holds configuration for ServiceGuard
+// ServiceGuardConfig holds configuration for ServiceGuard.
 type ServiceGuardConfig struct {
 	PolicyStoragePath string `json:"policy_storage_path"`
 	AuditStoragePath  string `json:"audit_storage_path"`
@@ -27,7 +27,7 @@ type ServiceGuardConfig struct {
 	EnableAudit       bool   `json:"enable_audit"`
 }
 
-// NewServiceGuard creates a new ServiceGuard instance
+// NewServiceGuard creates a new ServiceGuard instance.
 func NewServiceGuard(config ServiceGuardConfig) *ServiceGuard {
 	sg := &ServiceGuard{
 		policyManager: NewPolicyManager(config.PolicyStoragePath),
@@ -45,7 +45,7 @@ func NewServiceGuard(config ServiceGuardConfig) *ServiceGuard {
 	return sg
 }
 
-// createDefaultPolicy creates the default protection policy
+// createDefaultPolicy creates the default protection policy.
 func (sg *ServiceGuard) createDefaultPolicy() {
 	sg.policyManager.mu.Lock()
 	defer sg.policyManager.mu.Unlock()
@@ -73,7 +73,7 @@ func (sg *ServiceGuard) createDefaultPolicy() {
 	sg.policyManager.active = "default"
 }
 
-// RegisterService registers a cloud AI service for protection
+// RegisterService registers a cloud AI service for protection.
 func (sg *ServiceGuard) RegisterService(config ServiceConfig) error {
 	sg.mu.Lock()
 	defer sg.mu.Unlock()
@@ -86,7 +86,7 @@ func (sg *ServiceGuard) RegisterService(config ServiceConfig) error {
 	return nil
 }
 
-// UnregisterService removes a service from protection
+// UnregisterService removes a service from protection.
 func (sg *ServiceGuard) UnregisterService(name string) {
 	sg.mu.Lock()
 	defer sg.mu.Unlock()
@@ -94,7 +94,7 @@ func (sg *ServiceGuard) UnregisterService(name string) {
 }
 
 // ProcessData processes data before sending to a cloud AI service
-// This is the main method to call before any cloud AI interaction
+// This is the main method to call before any cloud AI interaction.
 func (sg *ServiceGuard) ProcessData(ctx context.Context, serviceName string, text string, userID string) (*ProcessingResult, error) {
 	// Get service config
 	sg.mu.RLock()
@@ -206,7 +206,7 @@ func (sg *ServiceGuard) ProcessData(ctx context.Context, serviceName string, tex
 	return result, nil
 }
 
-// ProcessingResult represents the result of data processing
+// ProcessingResult represents the result of data processing.
 type ProcessingResult struct {
 	OriginalText  string           `json:"original_text"`
 	ProcessedText string           `json:"processed_text"`
@@ -218,7 +218,7 @@ type ProcessingResult struct {
 	Protected     bool             `json:"protected"`
 }
 
-// sendHighRiskAlert sends an alert for high-risk detections
+// sendHighRiskAlert sends an alert for high-risk detections.
 func (sg *ServiceGuard) sendHighRiskAlert(serviceName string, result *DetectionResult) {
 	// In production, this would integrate with notification systems
 	// For now, we log it
@@ -226,12 +226,12 @@ func (sg *ServiceGuard) sendHighRiskAlert(serviceName string, result *DetectionR
 		serviceName, result.HighRiskCount)
 }
 
-// CheckData performs a check without masking (for validation/preview)
+// CheckData performs a check without masking (for validation/preview).
 func (sg *ServiceGuard) CheckData(ctx context.Context, text string) (*DetectionResult, error) {
 	return sg.detector.Detect(ctx, text)
 }
 
-// PreviewMasking shows what the masked output would look like
+// PreviewMasking shows what the masked output would look like.
 func (sg *ServiceGuard) PreviewMasking(ctx context.Context, text string) (string, []SensitiveMatch, error) {
 	result, err := sg.detector.Detect(ctx, text)
 	if err != nil {
@@ -250,17 +250,17 @@ func (sg *ServiceGuard) PreviewMasking(ctx context.Context, text string) (string
 	return masked, result.Matches, nil
 }
 
-// GetPolicyManager returns the policy manager for configuration
+// GetPolicyManager returns the policy manager for configuration.
 func (sg *ServiceGuard) GetPolicyManager() *PolicyManager {
 	return sg.policyManager
 }
 
-// GetAuditLogger returns the audit logger for querying logs
+// GetAuditLogger returns the audit logger for querying logs.
 func (sg *ServiceGuard) GetAuditLogger() *AuditLogger {
 	return sg.auditLogger
 }
 
-// UpdateServicePolicy updates the policy for a specific service
+// UpdateServicePolicy updates the policy for a specific service.
 func (sg *ServiceGuard) UpdateServicePolicy(serviceName, policyID string) error {
 	sg.mu.Lock()
 	defer sg.mu.Unlock()
@@ -274,7 +274,7 @@ func (sg *ServiceGuard) UpdateServicePolicy(serviceName, policyID string) error 
 	return nil
 }
 
-// ListServices lists all registered services
+// ListServices lists all registered services.
 func (sg *ServiceGuard) ListServices() []*ServiceConfig {
 	sg.mu.RLock()
 	defer sg.mu.RUnlock()
@@ -287,7 +287,7 @@ func (sg *ServiceGuard) ListServices() []*ServiceConfig {
 }
 
 // QuickProtect is a convenience function for quick data protection
-// Use this for simple use cases where you just need masked output
+// Use this for simple use cases where you just need masked output.
 func QuickProtect(text string) (string, bool, error) {
 	result := QuickDetect(text)
 	if len(result) == 0 {
@@ -298,7 +298,7 @@ func QuickProtect(text string) (string, bool, error) {
 	return masked, true, nil
 }
 
-// IsSafeToSend checks if data is safe to send to cloud AI services
+// IsSafeToSend checks if data is safe to send to cloud AI services.
 func (sg *ServiceGuard) IsSafeToSend(ctx context.Context, text string) (bool, *DetectionResult, error) {
 	result, err := sg.detector.Detect(ctx, text)
 	if err != nil {

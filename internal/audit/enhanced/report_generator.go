@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// ReportGenerator 审计报告生成器
+// ReportGenerator 审计报告生成器.
 type ReportGenerator struct {
 	loginAuditor     *LoginAuditor
 	operationAuditor *OperationAuditor
@@ -18,7 +18,7 @@ type ReportGenerator struct {
 	storageDir       string
 }
 
-// NewReportGenerator 创建报告生成器
+// NewReportGenerator 创建报告生成器.
 func NewReportGenerator(
 	loginAuditor *LoginAuditor,
 	operationAuditor *OperationAuditor,
@@ -38,7 +38,7 @@ func NewReportGenerator(
 	}
 }
 
-// GenerateReport 生成审计报告
+// GenerateReport 生成审计报告.
 func (rg *ReportGenerator) GenerateReport(opts ReportGenerateOptions) (*AuditReport, error) {
 	report := &AuditReport{
 		ReportID:        fmt.Sprintf("RPT-%s", time.Now().Format("20060102150405")),
@@ -99,7 +99,7 @@ func (rg *ReportGenerator) GenerateReport(opts ReportGenerateOptions) (*AuditRep
 
 // ========== 各类报告生成 ==========
 
-// generateLoginAnalysis 生成登录分析
+// generateLoginAnalysis 生成登录分析.
 func (rg *ReportGenerator) generateLoginAnalysis(start, end time.Time) *LoginAnalysis {
 	if rg.loginAuditor == nil {
 		return nil
@@ -107,7 +107,7 @@ func (rg *ReportGenerator) generateLoginAnalysis(start, end time.Time) *LoginAna
 	return rg.loginAuditor.GetLoginStatistics(start, end)
 }
 
-// generateOperationStatistics 生成操作统计
+// generateOperationStatistics 生成操作统计.
 func (rg *ReportGenerator) generateOperationStatistics(start, end time.Time) *OperationStatistics {
 	if rg.operationAuditor == nil {
 		return nil
@@ -115,7 +115,7 @@ func (rg *ReportGenerator) generateOperationStatistics(start, end time.Time) *Op
 	return rg.operationAuditor.GetStatistics(start, end)
 }
 
-// generateSensitiveSummary 生成敏感操作摘要
+// generateSensitiveSummary 生成敏感操作摘要.
 func (rg *ReportGenerator) generateSensitiveSummary(start, end time.Time) *SensitiveOpsSummary {
 	if rg.sensitiveManager == nil {
 		return nil
@@ -123,7 +123,7 @@ func (rg *ReportGenerator) generateSensitiveSummary(start, end time.Time) *Sensi
 	return rg.sensitiveManager.GetSummary(start, end)
 }
 
-// generateRiskAnalysis 生成风险分析
+// generateRiskAnalysis 生成风险分析.
 func (rg *ReportGenerator) generateRiskAnalysis(start, end time.Time) *RiskAnalysis {
 	analysis := &RiskAnalysis{
 		RiskLevel:         "low",
@@ -218,7 +218,7 @@ func (rg *ReportGenerator) generateRiskAnalysis(start, end time.Time) *RiskAnaly
 	return analysis
 }
 
-// detectThreatIndicators 检测威胁指标
+// detectThreatIndicators 检测威胁指标.
 func (rg *ReportGenerator) detectThreatIndicators(start, end time.Time) []ThreatIndicator {
 	indicators := make([]ThreatIndicator, 0)
 
@@ -281,7 +281,7 @@ func (rg *ReportGenerator) detectThreatIndicators(start, end time.Time) []Threat
 	return indicators
 }
 
-// calculateOverallRiskScore 计算整体风险分数
+// calculateOverallRiskScore 计算整体风险分数.
 func (rg *ReportGenerator) calculateOverallRiskScore(analysis *RiskAnalysis) int {
 	score := 0
 
@@ -322,7 +322,7 @@ func (rg *ReportGenerator) calculateOverallRiskScore(analysis *RiskAnalysis) int
 	return score
 }
 
-// generateMitigationActions 生成缓解措施
+// generateMitigationActions 生成缓解措施.
 func (rg *ReportGenerator) generateMitigationActions(analysis *RiskAnalysis) []MitigationAction {
 	actions := make([]MitigationAction, 0)
 
@@ -375,7 +375,7 @@ func (rg *ReportGenerator) generateMitigationActions(analysis *RiskAnalysis) []M
 
 // ========== 摘要生成 ==========
 
-// generateLoginSummary 生成登录摘要
+// generateLoginSummary 生成登录摘要.
 func (rg *ReportGenerator) generateLoginSummary(analysis *LoginAnalysis) *ReportSummary {
 	if analysis == nil {
 		return nil
@@ -404,7 +404,7 @@ func (rg *ReportGenerator) generateLoginSummary(analysis *LoginAnalysis) *Report
 	return summary
 }
 
-// generateOperationSummary 生成操作摘要
+// generateOperationSummary 生成操作摘要.
 func (rg *ReportGenerator) generateOperationSummary(stats *OperationStatistics) *ReportSummary {
 	if stats == nil {
 		return nil
@@ -445,7 +445,7 @@ func (rg *ReportGenerator) generateOperationSummary(stats *OperationStatistics) 
 	return summary
 }
 
-// generateSensitiveReportSummary 生成敏感操作报告摘要
+// generateSensitiveReportSummary 生成敏感操作报告摘要.
 func (rg *ReportGenerator) generateSensitiveReportSummary(summary *SensitiveOpsSummary) *ReportSummary {
 	if summary == nil {
 		return nil
@@ -462,7 +462,7 @@ func (rg *ReportGenerator) generateSensitiveReportSummary(summary *SensitiveOpsS
 	}
 }
 
-// generateSecuritySummary 生成安全报告摘要
+// generateSecuritySummary 生成安全报告摘要.
 func (rg *ReportGenerator) generateSecuritySummary(report *AuditReport) *ReportSummary {
 	summary := &ReportSummary{
 		EventsByCategory: make(map[string]int),
@@ -489,7 +489,7 @@ func (rg *ReportGenerator) generateSecuritySummary(report *AuditReport) *ReportS
 	return summary
 }
 
-// generateUserActivitySummary 生成用户活动摘要
+// generateUserActivitySummary 生成用户活动摘要.
 func (rg *ReportGenerator) generateUserActivitySummary(start, end time.Time, userIDs []string) *ReportSummary {
 	summary := &ReportSummary{
 		EventsByCategory: make(map[string]int),
@@ -515,7 +515,7 @@ func (rg *ReportGenerator) generateUserActivitySummary(start, end time.Time, use
 	return summary
 }
 
-// generateRiskSummary 生成风险摘要
+// generateRiskSummary 生成风险摘要.
 func (rg *ReportGenerator) generateRiskSummary(analysis *RiskAnalysis) *ReportSummary {
 	return &ReportSummary{
 		HighRiskEvents: analysis.HighRiskEvents,
@@ -526,7 +526,7 @@ func (rg *ReportGenerator) generateRiskSummary(analysis *RiskAnalysis) *ReportSu
 	}
 }
 
-// generateExecutiveSummary 生成执行摘要
+// generateExecutiveSummary 生成执行摘要.
 func (rg *ReportGenerator) generateExecutiveSummary(report *AuditReport) *ReportSummary {
 	summary := &ReportSummary{
 		EventsByCategory: make(map[string]int),
@@ -560,7 +560,7 @@ func (rg *ReportGenerator) generateExecutiveSummary(report *AuditReport) *Report
 
 // ========== 建议生成 ==========
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (rg *ReportGenerator) generateRecommendations(report *AuditReport) []string {
 	recommendations := make([]string, 0)
 
@@ -609,7 +609,7 @@ func (rg *ReportGenerator) generateRecommendations(report *AuditReport) []string
 
 // ========== 图表数据生成 ==========
 
-// generateChartData 生成图表数据
+// generateChartData 生成图表数据.
 func (rg *ReportGenerator) generateChartData(report *AuditReport) map[string]interface{} {
 	data := make(map[string]interface{})
 
@@ -656,7 +656,7 @@ func (rg *ReportGenerator) generateChartData(report *AuditReport) map[string]int
 
 // ========== 辅助方法 ==========
 
-// getReportTitle 获取报告标题
+// getReportTitle 获取报告标题.
 func (rg *ReportGenerator) getReportTitle(reportType AuditReportType) string {
 	titles := map[AuditReportType]string{
 		ReportTypeLogin:        "登录审计报告",
@@ -675,7 +675,7 @@ func (rg *ReportGenerator) getReportTitle(reportType AuditReportType) string {
 	return "审计报告"
 }
 
-// getReportDescription 获取报告描述
+// getReportDescription 获取报告描述.
 func (rg *ReportGenerator) getReportDescription(reportType AuditReportType) string {
 	descriptions := map[AuditReportType]string{
 		ReportTypeLogin:        "系统用户登录活动的详细分析报告",
@@ -694,7 +694,7 @@ func (rg *ReportGenerator) getReportDescription(reportType AuditReportType) stri
 	return "审计分析报告"
 }
 
-// generateHourlyDistribution 生成小时分布
+// generateHourlyDistribution 生成小时分布.
 func generateHourlyDistribution() map[int]int {
 	distribution := make(map[int]int)
 	for i := 0; i < 24; i++ {
@@ -703,7 +703,7 @@ func generateHourlyDistribution() map[int]int {
 	return distribution
 }
 
-// uniqueStrings 去重字符串切片
+// uniqueStrings 去重字符串切片.
 func uniqueStrings(strs []string) []string {
 	seen := make(map[string]bool)
 	result := make([]string, 0)
@@ -718,7 +718,7 @@ func uniqueStrings(strs []string) []string {
 
 // ========== 持久化 ==========
 
-// SaveReport 保存报告
+// SaveReport 保存报告.
 func (rg *ReportGenerator) SaveReport(report *AuditReport) error {
 	filename := filepath.Join(rg.storageDir, report.ReportID+".json")
 
@@ -730,7 +730,7 @@ func (rg *ReportGenerator) SaveReport(report *AuditReport) error {
 	return os.WriteFile(filename, data, 0600)
 }
 
-// LoadReport 加载报告
+// LoadReport 加载报告.
 func (rg *ReportGenerator) LoadReport(reportID string) (*AuditReport, error) {
 	filename := filepath.Join(rg.storageDir, reportID+".json")
 
@@ -747,7 +747,7 @@ func (rg *ReportGenerator) LoadReport(reportID string) (*AuditReport, error) {
 	return &report, nil
 }
 
-// ListReports 列出报告
+// ListReports 列出报告.
 func (rg *ReportGenerator) ListReports(limit int) ([]*AuditReport, error) {
 	entries, err := os.ReadDir(rg.storageDir)
 	if err != nil {

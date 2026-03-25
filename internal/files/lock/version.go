@@ -21,19 +21,19 @@ import (
 
 // ========== 版本类型定义 ==========
 
-// VersionType 版本类型
+// VersionType 版本类型.
 type VersionType int
 
 const (
-	// VersionTypeNone 未指定版本类型
+	// VersionTypeNone 未指定版本类型.
 	VersionTypeNone VersionType = iota
-	// VersionTypeManual 手动版本
+	// VersionTypeManual 手动版本.
 	VersionTypeManual
-	// VersionTypeAuto 自动版本
+	// VersionTypeAuto 自动版本.
 	VersionTypeAuto
-	// VersionTypeCheckpoint 检查点版本
+	// VersionTypeCheckpoint 检查点版本.
 	VersionTypeCheckpoint
-	// VersionTypeLocked 锁定关联版本
+	// VersionTypeLocked 锁定关联版本.
 	VersionTypeLocked
 )
 
@@ -54,7 +54,7 @@ func (vt VersionType) String() string {
 	}
 }
 
-// ParseVersionType 解析版本类型
+// ParseVersionType 解析版本类型.
 func ParseVersionType(s string) VersionType {
 	switch s {
 	case "manual":
@@ -72,15 +72,15 @@ func ParseVersionType(s string) VersionType {
 
 // ========== 版本状态 ==========
 
-// VersionStatus 版本状态
+// VersionStatus 版本状态.
 type VersionStatus int
 
 const (
-	// VersionStatusActive 活跃版本
+	// VersionStatusActive 活跃版本.
 	VersionStatusActive VersionStatus = iota
-	// VersionStatusArchived 已归档版本
+	// VersionStatusArchived 已归档版本.
 	VersionStatusArchived
-	// VersionStatusDeleted 已删除版本
+	// VersionStatusDeleted 已删除版本.
 	VersionStatusDeleted
 )
 
@@ -99,7 +99,7 @@ func (vs VersionStatus) String() string {
 
 // ========== 文件版本 ==========
 
-// FileVersion 文件版本
+// FileVersion 文件版本.
 type FileVersion struct {
 	// ID 版本唯一标识
 	ID string `json:"id"`
@@ -147,7 +147,7 @@ type FileVersion struct {
 	mu sync.RWMutex
 }
 
-// NewFileVersion 创建新版本
+// NewFileVersion 创建新版本.
 func NewFileVersion(filePath, fileName string, versionNumber int, createdBy, creatorName string) *FileVersion {
 	return &FileVersion{
 		ID:            uuid.New().String(),
@@ -165,7 +165,7 @@ func NewFileVersion(filePath, fileName string, versionNumber int, createdBy, cre
 
 // ========== 版本差异 ==========
 
-// VersionDiff 版本差异
+// VersionDiff 版本差异.
 type VersionDiff struct {
 	// FromVersionID 源版本ID
 	FromVersionID string `json:"fromVersionId"`
@@ -189,19 +189,19 @@ type VersionDiff struct {
 	GeneratedAt time.Time `json:"generatedAt"`
 }
 
-// DiffType 差异类型
+// DiffType 差异类型.
 type DiffType string
 
 const (
-	// DiffTypeBinary 二进制差异
+	// DiffTypeBinary 二进制差异.
 	DiffTypeBinary DiffType = "binary"
-	// DiffTypeText 文本差异
+	// DiffTypeText 文本差异.
 	DiffTypeText DiffType = "text"
-	// DiffTypeNone 无差异
+	// DiffTypeNone 无差异.
 	DiffTypeNone DiffType = "none"
 )
 
-// VersionChange 版本变更
+// VersionChange 版本变更.
 type VersionChange struct {
 	// Type 变更类型
 	Type ChangeType `json:"type"`
@@ -215,21 +215,21 @@ type VersionChange struct {
 	Context string `json:"context,omitempty"`
 }
 
-// ChangeType 变更类型
+// ChangeType 变更类型.
 type ChangeType string
 
 const (
-	// ChangeTypeAdd 新增
+	// ChangeTypeAdd 新增.
 	ChangeTypeAdd ChangeType = "add"
-	// ChangeTypeDelete 删除
+	// ChangeTypeDelete 删除.
 	ChangeTypeDelete ChangeType = "delete"
-	// ChangeTypeModify 修改
+	// ChangeTypeModify 修改.
 	ChangeTypeModify ChangeType = "modify"
-	// ChangeTypeMove 移动
+	// ChangeTypeMove 移动.
 	ChangeTypeMove ChangeType = "move"
 )
 
-// DiffStats 差异统计
+// DiffStats 差异统计.
 type DiffStats struct {
 	// LinesAdded 新增行数
 	LinesAdded int `json:"linesAdded"`
@@ -247,7 +247,7 @@ type DiffStats struct {
 
 // ========== 版本管理器 ==========
 
-// VersionManager 版本管理器
+// VersionManager 版本管理器.
 type VersionManager struct {
 	config VersionConfig
 
@@ -264,7 +264,7 @@ type VersionManager struct {
 	storagePath string
 }
 
-// VersionConfig 版本配置
+// VersionConfig 版本配置.
 type VersionConfig struct {
 	// MaxVersionsPerFile 每个文件最大版本数
 	MaxVersionsPerFile int `json:"maxVersionsPerFile"`
@@ -278,7 +278,7 @@ type VersionConfig struct {
 	StoragePath string `json:"storagePath"`
 }
 
-// DefaultVersionConfig 默认配置
+// DefaultVersionConfig 默认配置.
 func DefaultVersionConfig() VersionConfig {
 	return VersionConfig{
 		MaxVersionsPerFile: 100,
@@ -289,7 +289,7 @@ func DefaultVersionConfig() VersionConfig {
 	}
 }
 
-// NewVersionManager 创建版本管理器
+// NewVersionManager 创建版本管理器.
 func NewVersionManager(config VersionConfig) (*VersionManager, error) {
 	// 创建存储目录
 	if err := os.MkdirAll(config.StoragePath, 0750); err != nil {
@@ -304,7 +304,7 @@ func NewVersionManager(config VersionConfig) (*VersionManager, error) {
 
 // ========== 版本创建 ==========
 
-// CreateVersion 创建新版本
+// CreateVersion 创建新版本.
 func (vm *VersionManager) CreateVersion(ctx context.Context, filePath string, createdBy, creatorName string, versionType VersionType, description string) (*FileVersion, error) {
 	// 获取当前版本号
 	versionNumber := vm.getNextVersionNumber(filePath)
@@ -359,7 +359,7 @@ func (vm *VersionManager) CreateVersion(ctx context.Context, filePath string, cr
 	return version, nil
 }
 
-// CreateVersionFromLock 从锁创建版本（锁释放时）
+// CreateVersionFromLock 从锁创建版本（锁释放时）.
 func (vm *VersionManager) CreateVersionFromLock(ctx context.Context, filePath, lockID string, createdBy, creatorName string, lockType string) (*FileVersion, error) {
 	version, err := vm.CreateVersion(ctx, filePath, createdBy, creatorName, VersionTypeLocked, fmt.Sprintf("Version created when %s lock released", lockType))
 	if err != nil {
@@ -372,14 +372,14 @@ func (vm *VersionManager) CreateVersionFromLock(ctx context.Context, filePath, l
 	return version, nil
 }
 
-// CreateCheckpoint 创建检查点
+// CreateCheckpoint 创建检查点.
 func (vm *VersionManager) CreateCheckpoint(ctx context.Context, filePath, createdBy, creatorName, description string) (*FileVersion, error) {
 	return vm.CreateVersion(ctx, filePath, createdBy, creatorName, VersionTypeCheckpoint, description)
 }
 
 // ========== 版本查询 ==========
 
-// GetVersion 获取版本
+// GetVersion 获取版本.
 func (vm *VersionManager) GetVersion(versionID string) (*FileVersion, error) {
 	raw, ok := vm.versions.Load(versionID)
 	if !ok {
@@ -392,7 +392,7 @@ func (vm *VersionManager) GetVersion(versionID string) (*FileVersion, error) {
 	return version, nil
 }
 
-// GetLatestVersion 获取最新版本
+// GetLatestVersion 获取最新版本.
 func (vm *VersionManager) GetLatestVersion(filePath string) *FileVersion {
 	raw, ok := vm.latestVersions.Load(filePath)
 	if !ok {
@@ -405,7 +405,7 @@ func (vm *VersionManager) GetLatestVersion(filePath string) *FileVersion {
 	return version
 }
 
-// GetVersionByNumber 按版本号获取版本
+// GetVersionByNumber 按版本号获取版本.
 func (vm *VersionManager) GetVersionByNumber(filePath string, versionNumber int) (*FileVersion, error) {
 	versions := vm.GetFileVersions(filePath)
 	for _, v := range versions {
@@ -416,7 +416,7 @@ func (vm *VersionManager) GetVersionByNumber(filePath string, versionNumber int)
 	return nil, errors.New("version not found")
 }
 
-// GetFileVersions 获取文件的所有版本
+// GetFileVersions 获取文件的所有版本.
 func (vm *VersionManager) GetFileVersions(filePath string) []*FileVersion {
 	raw, ok := vm.fileVersions.Load(filePath)
 	if !ok {
@@ -438,7 +438,7 @@ func (vm *VersionManager) GetFileVersions(filePath string) []*FileVersion {
 	return result
 }
 
-// ListVersions 列出版本
+// ListVersions 列出版本.
 func (vm *VersionManager) ListVersions(filter *VersionFilter) []*FileVersion {
 	var result []*FileVersion
 
@@ -475,7 +475,7 @@ func (vm *VersionManager) ListVersions(filter *VersionFilter) []*FileVersion {
 	return result
 }
 
-// VersionFilter 版本过滤器
+// VersionFilter 版本过滤器.
 type VersionFilter struct {
 	FilePath    string
 	VersionType VersionType
@@ -487,7 +487,7 @@ type VersionFilter struct {
 
 // ========== 版本恢复 ==========
 
-// RestoreVersion 恢复到指定版本
+// RestoreVersion 恢复到指定版本.
 func (vm *VersionManager) RestoreVersion(ctx context.Context, versionID, restoredBy string) error {
 	version, err := vm.GetVersion(versionID)
 	if err != nil {
@@ -516,7 +516,7 @@ func (vm *VersionManager) RestoreVersion(ctx context.Context, versionID, restore
 	return nil
 }
 
-// RestorePartial 部分恢复（增量恢复）
+// RestorePartial 部分恢复（增量恢复）.
 func (vm *VersionManager) RestorePartial(ctx context.Context, versionID string, changes []*VersionChange, restoredBy string) error {
 	version, err := vm.GetVersion(versionID)
 	if err != nil {
@@ -559,7 +559,7 @@ func (vm *VersionManager) RestorePartial(ctx context.Context, versionID string, 
 
 // ========== 版本对比 ==========
 
-// CompareVersions 比较两个版本
+// CompareVersions 比较两个版本.
 func (vm *VersionManager) CompareVersions(ctx context.Context, fromVersionID, toVersionID string) (*VersionDiff, error) {
 	fromVersion, err := vm.GetVersion(fromVersionID)
 	if err != nil {
@@ -625,7 +625,7 @@ func (vm *VersionManager) CompareVersions(ctx context.Context, fromVersionID, to
 	return diff, nil
 }
 
-// CompareWithCurrent 与当前文件比较
+// CompareWithCurrent 与当前文件比较.
 func (vm *VersionManager) CompareWithCurrent(ctx context.Context, versionID string) (*VersionDiff, error) {
 	version, err := vm.GetVersion(versionID)
 	if err != nil {
@@ -682,7 +682,7 @@ func (vm *VersionManager) CompareWithCurrent(ctx context.Context, versionID stri
 
 // ========== 版本删除 ==========
 
-// DeleteVersion 删除版本
+// DeleteVersion 删除版本.
 func (vm *VersionManager) DeleteVersion(versionID, deletedBy string) error {
 	version, err := vm.GetVersion(versionID)
 	if err != nil {
@@ -706,7 +706,7 @@ func (vm *VersionManager) DeleteVersion(versionID, deletedBy string) error {
 	return nil
 }
 
-// ArchiveVersion 归档版本
+// ArchiveVersion 归档版本.
 func (vm *VersionManager) ArchiveVersion(versionID string) error {
 	version, err := vm.GetVersion(versionID)
 	if err != nil {
@@ -908,7 +908,7 @@ func (vm *VersionManager) computeLineDiff(oldLines, newLines []string) []*Versio
 
 // ========== 版本统计 ==========
 
-// VersionStats 版本统计
+// VersionStats 版本统计.
 type VersionStats struct {
 	TotalVersions   int64              `json:"totalVersions"`
 	ByType          map[string]int64   `json:"byType"`
@@ -919,14 +919,14 @@ type VersionStats struct {
 	TopContributors []ContributorCount `json:"topContributors"`
 }
 
-// ContributorCount 贡献者统计
+// ContributorCount 贡献者统计.
 type ContributorCount struct {
 	UserID   string `json:"userId"`
 	UserName string `json:"userName"`
 	Count    int64  `json:"count"`
 }
 
-// GetVersionStats 获取版本统计
+// GetVersionStats 获取版本统计.
 func (vm *VersionManager) GetVersionStats() *VersionStats {
 	stats := &VersionStats{
 		ByType: make(map[string]int64),
@@ -989,7 +989,7 @@ func (vm *VersionManager) GetVersionStats() *VersionStats {
 
 // ========== 版本 API 类型 ==========
 
-// VersionInfo 版本信息（API响应）
+// VersionInfo 版本信息（API响应）.
 type VersionInfo struct {
 	ID            string            `json:"id"`
 	FilePath      string            `json:"filePath"`
@@ -1011,7 +1011,7 @@ type VersionInfo struct {
 	Metadata      map[string]string `json:"metadata,omitempty"`
 }
 
-// ToInfo 转换为VersionInfo
+// ToInfo 转换为VersionInfo.
 func (v *FileVersion) ToInfo() *VersionInfo {
 	v.mu.RLock()
 	defer v.mu.RUnlock()
@@ -1038,7 +1038,7 @@ func (v *FileVersion) ToInfo() *VersionInfo {
 	}
 }
 
-// VersionRequest 版本请求
+// VersionRequest 版本请求.
 type VersionRequest struct {
 	FilePath    string      `json:"filePath" binding:"required"`
 	Description string      `json:"description,omitempty"`
@@ -1046,14 +1046,14 @@ type VersionRequest struct {
 	VersionType VersionType `json:"versionType"`
 }
 
-// RestoreRequest 恢复请求
+// RestoreRequest 恢复请求.
 type RestoreRequest struct {
 	VersionID string           `json:"versionId" binding:"required"`
 	Partial   bool             `json:"partial"`
 	Changes   []*VersionChange `json:"changes,omitempty"`
 }
 
-// CompareRequest 比较请求
+// CompareRequest 比较请求.
 type CompareRequest struct {
 	FromVersionID string `json:"fromVersionId" binding:"required"`
 	ToVersionID   string `json:"toVersionId,omitempty"` // 空表示与当前版本比较
@@ -1061,13 +1061,13 @@ type CompareRequest struct {
 
 // ========== 带锁管理的版本管理器 ==========
 
-// VersionManagerWithLock 带锁管理的版本管理器
+// VersionManagerWithLock 带锁管理的版本管理器.
 type VersionManagerWithLock struct {
 	versionManager *VersionManager
 	lockManager    *Manager
 }
 
-// NewVersionManagerWithLock 创建带锁的版本管理器
+// NewVersionManagerWithLock 创建带锁的版本管理器.
 func NewVersionManagerWithLock(versionManager *VersionManager, lockManager *Manager) *VersionManagerWithLock {
 	return &VersionManagerWithLock{
 		versionManager: versionManager,
@@ -1075,7 +1075,7 @@ func NewVersionManagerWithLock(versionManager *VersionManager, lockManager *Mana
 	}
 }
 
-// CreateVersionSafe 安全地创建版本（带锁检查）
+// CreateVersionSafe 安全地创建版本（带锁检查）.
 func (vm *VersionManagerWithLock) CreateVersionSafe(ctx context.Context, filePath, createdBy, creatorName string, versionType VersionType, description string) (*FileVersion, error) {
 	// 检查文件是否被锁定
 	if vm.lockManager.IsLocked(filePath) {
@@ -1088,7 +1088,7 @@ func (vm *VersionManagerWithLock) CreateVersionSafe(ctx context.Context, filePat
 	return vm.versionManager.CreateVersion(ctx, filePath, createdBy, creatorName, versionType, description)
 }
 
-// RestoreVersionSafe 安全地恢复版本（带锁检查和自动创建锁）
+// RestoreVersionSafe 安全地恢复版本（带锁检查和自动创建锁）.
 func (vm *VersionManagerWithLock) RestoreVersionSafe(ctx context.Context, versionID, restoredBy, restoredByName string) error {
 	version, err := vm.versionManager.GetVersion(versionID)
 	if err != nil {
@@ -1122,7 +1122,7 @@ func (vm *VersionManagerWithLock) RestoreVersionSafe(ctx context.Context, versio
 	return err
 }
 
-// OnLockReleased 锁释放回调（自动创建版本）
+// OnLockReleased 锁释放回调（自动创建版本）.
 func (vm *VersionManagerWithLock) OnLockReleased(lock *FileLock) {
 	if lock == nil {
 		return

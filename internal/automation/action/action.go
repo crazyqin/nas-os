@@ -15,40 +15,40 @@ import (
 	"time"
 )
 
-// Type 动作类型
+// Type 动作类型.
 type Type string
 
-// 定义动作类型常量
+// 定义动作类型常量.
 const (
-	// TypeMove 移动文件/文件夹
+	// TypeMove 移动文件/文件夹.
 	TypeMove Type = "move"
-	// TypeCopy 复制文件/文件夹
+	// TypeCopy 复制文件/文件夹.
 	TypeCopy Type = "copy"
-	// TypeDelete 删除文件/文件夹
+	// TypeDelete 删除文件/文件夹.
 	TypeDelete Type = "delete"
-	// TypeRename 重命名文件/文件夹
+	// TypeRename 重命名文件/文件夹.
 	TypeRename Type = "rename"
-	// TypeConvert 转换文件格式
+	// TypeConvert 转换文件格式.
 	TypeConvert Type = "convert"
-	// TypeNotify 发送通知
+	// TypeNotify 发送通知.
 	TypeNotify Type = "notify"
-	// TypeCommand 执行系统命令
+	// TypeCommand 执行系统命令.
 	TypeCommand Type = "command"
-	// TypeWebhook 发送 Webhook 请求
+	// TypeWebhook 发送 Webhook 请求.
 	TypeWebhook Type = "webhook"
-	// TypeEmail 发送邮件
+	// TypeEmail 发送邮件.
 	TypeEmail Type = "email"
-	// TypeConditional 条件动作
+	// TypeConditional 条件动作.
 	TypeConditional Type = "conditional"
 )
 
-// Action 动作接口
+// Action 动作接口.
 type Action interface {
 	GetType() Type
 	Execute(ctx context.Context, contextData map[string]interface{}) error
 }
 
-// MoveAction 移动文件/文件夹
+// MoveAction 移动文件/文件夹.
 type MoveAction struct {
 	Type        Type   `json:"type"`
 	Source      string `json:"source"`
@@ -56,12 +56,12 @@ type MoveAction struct {
 	Overwrite   bool   `json:"overwrite"`
 }
 
-// GetType 获取动作类型
+// GetType 获取动作类型.
 func (a *MoveAction) GetType() Type {
 	return TypeMove
 }
 
-// Execute 执行移动动作
+// Execute 执行移动动作.
 func (a *MoveAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	source := a.Source
 	dest := a.Destination
@@ -77,7 +77,7 @@ func (a *MoveAction) Execute(ctx context.Context, contextData map[string]interfa
 	return nil
 }
 
-// CopyAction 复制文件/文件夹
+// CopyAction 复制文件/文件夹.
 type CopyAction struct {
 	Type        Type   `json:"type"`
 	Source      string `json:"source"`
@@ -86,12 +86,12 @@ type CopyAction struct {
 	Recursive   bool   `json:"recursive"`
 }
 
-// GetType 获取动作类型
+// GetType 获取动作类型.
 func (a *CopyAction) GetType() Type {
 	return TypeCopy
 }
 
-// Execute 执行复制动作
+// Execute 执行复制动作.
 func (a *CopyAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	source := replaceVariables(a.Source, contextData)
 	dest := replaceVariables(a.Destination, contextData)
@@ -103,19 +103,19 @@ func (a *CopyAction) Execute(ctx context.Context, contextData map[string]interfa
 	return nil
 }
 
-// DeleteAction 删除文件/文件夹
+// DeleteAction 删除文件/文件夹.
 type DeleteAction struct {
 	Type      Type   `json:"type"`
 	Path      string `json:"path"`
 	Recursive bool   `json:"recursive"`
 }
 
-// GetType 获取动作类型
+// GetType 获取动作类型.
 func (a *DeleteAction) GetType() Type {
 	return TypeDelete
 }
 
-// Execute 执行删除动作
+// Execute 执行删除动作.
 func (a *DeleteAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	path := replaceVariables(a.Path, contextData)
 
@@ -126,19 +126,19 @@ func (a *DeleteAction) Execute(ctx context.Context, contextData map[string]inter
 	return nil
 }
 
-// RenameAction 重命名文件/文件夹
+// RenameAction 重命名文件/文件夹.
 type RenameAction struct {
 	Type    Type   `json:"type"`
 	Path    string `json:"path"`
 	NewName string `json:"new_name"`
 }
 
-// GetType 获取动作类型
+// GetType 获取动作类型.
 func (a *RenameAction) GetType() Type {
 	return TypeRename
 }
 
-// Execute 执行重命名动作
+// Execute 执行重命名动作.
 func (a *RenameAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	path := replaceVariables(a.Path, contextData)
 	newName := replaceVariables(a.NewName, contextData)
@@ -153,7 +153,7 @@ func (a *RenameAction) Execute(ctx context.Context, contextData map[string]inter
 	return nil
 }
 
-// ConvertAction 转换文件格式
+// ConvertAction 转换文件格式.
 type ConvertAction struct {
 	Type        Type                   `json:"type"`
 	Source      string                 `json:"source"`
@@ -162,12 +162,12 @@ type ConvertAction struct {
 	Options     map[string]interface{} `json:"options,omitempty"`
 }
 
-// GetType 获取动作类型
+// GetType 获取动作类型.
 func (a *ConvertAction) GetType() Type {
 	return TypeConvert
 }
 
-// Execute 执行格式转换动作
+// Execute 执行格式转换动作.
 func (a *ConvertAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	source := replaceVariables(a.Source, contextData)
 	dest := replaceVariables(a.Destination, contextData)
@@ -201,7 +201,7 @@ func (a *ConvertAction) Execute(ctx context.Context, contextData map[string]inte
 	return nil
 }
 
-// NotifyAction 发送通知
+// NotifyAction 发送通知.
 type NotifyAction struct {
 	Type    Type   `json:"type"`
 	Channel string `json:"channel"` // discord, email, sms, webhook
@@ -210,12 +210,12 @@ type NotifyAction struct {
 	To      string `json:"to,omitempty"`
 }
 
-// GetType 获取动作类型
+// GetType 获取动作类型.
 func (a *NotifyAction) GetType() Type {
 	return TypeNotify
 }
 
-// Execute 执行通知动作
+// Execute 执行通知动作.
 func (a *NotifyAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	message := replaceVariables(a.Message, contextData)
 	title := replaceVariables(a.Title, contextData)
@@ -234,7 +234,7 @@ func (a *NotifyAction) Execute(ctx context.Context, contextData map[string]inter
 	return nil
 }
 
-// sanitizeEmailHeader 安全清理邮件头部，防止 SMTP 注入攻击
+// sanitizeEmailHeader 安全清理邮件头部，防止 SMTP 注入攻击.
 func sanitizeEmailHeader(s string) string {
 	// 移除换行符和其他危险字符
 	s = strings.ReplaceAll(s, "\r", "")
@@ -249,7 +249,7 @@ func sanitizeEmailHeader(s string) string {
 	return s
 }
 
-// sendEmailNotification 发送邮件通知
+// sendEmailNotification 发送邮件通知.
 func sendEmailNotification(to, subject, body string, html bool) error {
 	// 从环境变量获取 SMTP 配置
 	smtpHost := os.Getenv("SMTP_HOST")
@@ -287,7 +287,7 @@ func sendEmailNotification(to, subject, body string, html bool) error {
 	return smtp.SendMail(addr, auth, from, []string{to}, []byte(msg))
 }
 
-// sendWebhookNotification 发送 Webhook 通知
+// sendWebhookNotification 发送 Webhook 通知.
 func sendWebhookNotification(url, title, message string) error {
 	payload := map[string]interface{}{
 		"title":     title,
@@ -313,7 +313,7 @@ func sendWebhookNotification(url, title, message string) error {
 	return nil
 }
 
-// sendDiscordNotification 发送 Discord 通知
+// sendDiscordNotification 发送 Discord 通知.
 func sendDiscordNotification(webhookURL, title, message string) error {
 	payload := map[string]interface{}{
 		"embeds": []map[string]interface{}{
@@ -343,7 +343,7 @@ func sendDiscordNotification(webhookURL, title, message string) error {
 	return nil
 }
 
-// CommandAction 执行系统命令
+// CommandAction 执行系统命令.
 type CommandAction struct {
 	Type    Type     `json:"type"`
 	Command string   `json:"command"`
@@ -352,12 +352,12 @@ type CommandAction struct {
 	Env     []string `json:"env,omitempty"`
 }
 
-// GetType 获取动作类型
+// GetType 获取动作类型.
 func (a *CommandAction) GetType() Type {
 	return TypeCommand
 }
 
-// Execute 执行系统命令动作
+// Execute 执行系统命令动作.
 func (a *CommandAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	cmd := exec.CommandContext(ctx, a.Command, a.Args...)
 
@@ -377,7 +377,7 @@ func (a *CommandAction) Execute(ctx context.Context, contextData map[string]inte
 	return nil
 }
 
-// WebhookAction 发送 Webhook 请求
+// WebhookAction 发送 Webhook 请求.
 type WebhookAction struct {
 	Type    Type              `json:"type"`
 	URL     string            `json:"url"`
@@ -386,12 +386,12 @@ type WebhookAction struct {
 	Body    string            `json:"body,omitempty"`
 }
 
-// GetType 获取动作类型
+// GetType 获取动作类型.
 func (a *WebhookAction) GetType() Type {
 	return TypeWebhook
 }
 
-// Execute 执行 Webhook 请求动作
+// Execute 执行 Webhook 请求动作.
 func (a *WebhookAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	url := replaceVariables(a.URL, contextData)
 	body := replaceVariables(a.Body, contextData)
@@ -436,7 +436,7 @@ func (a *WebhookAction) Execute(ctx context.Context, contextData map[string]inte
 	return nil
 }
 
-// EmailAction 发送邮件
+// EmailAction 发送邮件.
 type EmailAction struct {
 	Type        Type     `json:"type"`
 	To          string   `json:"to"`
@@ -446,12 +446,12 @@ type EmailAction struct {
 	Attachments []string `json:"attachments,omitempty"`
 }
 
-// GetType 获取动作类型
+// GetType 获取动作类型.
 func (a *EmailAction) GetType() Type {
 	return TypeEmail
 }
 
-// Execute 执行邮件发送动作
+// Execute 执行邮件发送动作.
 func (a *EmailAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	to := replaceVariables(a.To, contextData)
 	subject := replaceVariables(a.Subject, contextData)
@@ -460,38 +460,38 @@ func (a *EmailAction) Execute(ctx context.Context, contextData map[string]interf
 	return sendEmailNotification(to, subject, body, a.HTML)
 }
 
-// ConditionOperator 条件运算符
+// ConditionOperator 条件运算符.
 type ConditionOperator string
 
 const (
-	// OperatorEquals 等于
+	// OperatorEquals 等于.
 	OperatorEquals ConditionOperator = "equals"
-	// OperatorNotEquals 不等于
+	// OperatorNotEquals 不等于.
 	OperatorNotEquals ConditionOperator = "not_equals"
-	// OperatorContains 包含
+	// OperatorContains 包含.
 	OperatorContains ConditionOperator = "contains"
-	// OperatorNotContains 不包含
+	// OperatorNotContains 不包含.
 	OperatorNotContains ConditionOperator = "not_contains"
-	// OperatorGreaterThan 大于
+	// OperatorGreaterThan 大于.
 	OperatorGreaterThan ConditionOperator = "greater_than"
-	// OperatorLessThan 小于
+	// OperatorLessThan 小于.
 	OperatorLessThan ConditionOperator = "less_than"
-	// OperatorExists 存在
+	// OperatorExists 存在.
 	OperatorExists ConditionOperator = "exists"
-	// OperatorNotExists 不存在
+	// OperatorNotExists 不存在.
 	OperatorNotExists ConditionOperator = "not_exists"
-	// OperatorMatches 正则匹配
+	// OperatorMatches 正则匹配.
 	OperatorMatches ConditionOperator = "matches"
 )
 
-// Condition 条件
+// Condition 条件.
 type Condition struct {
 	Field    string            `json:"field"`           // 字段路径，如 "event.type" 或 "event.data.size"
 	Operator ConditionOperator `json:"operator"`        // 运算符
 	Value    interface{}       `json:"value,omitempty"` // 比较值
 }
 
-// ConditionalAction 条件动作 - 根据条件决定是否执行
+// ConditionalAction 条件动作 - 根据条件决定是否执行.
 type ConditionalAction struct {
 	Type       Type      `json:"type"`
 	Condition  Condition `json:"condition"`             // 条件
@@ -499,12 +499,12 @@ type ConditionalAction struct {
 	ElseAction Action    `json:"else_action,omitempty"` // 条件为假时执行（可选）
 }
 
-// GetType 获取动作类型
+// GetType 获取动作类型.
 func (a *ConditionalAction) GetType() Type {
 	return TypeConditional
 }
 
-// Execute 执行条件动作
+// Execute 执行条件动作.
 func (a *ConditionalAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	// 评估条件
 	result, err := a.evaluateCondition(contextData)
@@ -526,7 +526,7 @@ func (a *ConditionalAction) Execute(ctx context.Context, contextData map[string]
 	return nil
 }
 
-// evaluateCondition 评估条件
+// evaluateCondition 评估条件.
 func (a *ConditionalAction) evaluateCondition(contextData map[string]interface{}) (bool, error) {
 	// 获取字段值
 	fieldValue := getNestedValue(contextData, a.Condition.Field)
@@ -556,7 +556,7 @@ func (a *ConditionalAction) evaluateCondition(contextData map[string]interface{}
 	}
 }
 
-// compareEquals 比较是否相等
+// compareEquals 比较是否相等.
 func compareEquals(a, b interface{}) bool {
 	if a == nil && b == nil {
 		return true
@@ -567,7 +567,7 @@ func compareEquals(a, b interface{}) bool {
 	return fmt.Sprintf("%v", a) == fmt.Sprintf("%v", b)
 }
 
-// checkContains 检查是否包含
+// checkContains 检查是否包含.
 func checkContains(field, value interface{}) (bool, error) {
 	if field == nil {
 		return false, nil
@@ -579,7 +579,7 @@ func checkContains(field, value interface{}) (bool, error) {
 	return strings.Contains(fieldStr, valueStr), nil
 }
 
-// compareNumbers 比较数字
+// compareNumbers 比较数字.
 func compareNumbers(a, b interface{}, op string) (bool, error) {
 	aFloat, err := toFloat64(a)
 	if err != nil {
@@ -601,7 +601,7 @@ func compareNumbers(a, b interface{}, op string) (bool, error) {
 	}
 }
 
-// toFloat64 将值转换为 float64
+// toFloat64 将值转换为 float64.
 func toFloat64(v interface{}) (float64, error) {
 	switch val := v.(type) {
 	case int:
@@ -621,7 +621,7 @@ func toFloat64(v interface{}) (float64, error) {
 	}
 }
 
-// checkRegex 正则匹配检查
+// checkRegex 正则匹配检查.
 func checkRegex(field, pattern interface{}) (bool, error) {
 	if field == nil {
 		return false, nil
@@ -638,7 +638,7 @@ func checkRegex(field, pattern interface{}) (bool, error) {
 	return matched, nil
 }
 
-// Config 动作配置（用于 JSON 序列化）
+// Config 动作配置（用于 JSON 序列化）.
 type Config struct {
 	Type Type `json:"type"`
 
@@ -686,7 +686,7 @@ type Config struct {
 	ElseAction *Config   `json:"else_action,omitempty"`
 }
 
-// NewActionFromConfig 从配置创建动作
+// NewActionFromConfig 从配置创建动作.
 func NewActionFromConfig(config Config) (Action, error) {
 	switch config.Type {
 	case TypeMove:
@@ -787,7 +787,7 @@ func NewActionFromConfig(config Config) (Action, error) {
 	}
 }
 
-// 辅助函数
+// 辅助函数.
 func replaceVariables(s string, contextData map[string]interface{}) string {
 	if contextData == nil {
 		return s
@@ -841,7 +841,7 @@ func replaceVariables(s string, contextData map[string]interface{}) string {
 	return result
 }
 
-// getNestedValue 从嵌套 map 中获取值
+// getNestedValue 从嵌套 map 中获取值.
 func getNestedValue(data map[string]interface{}, path string) interface{} {
 	parts := strings.Split(path, ".")
 	var current interface{} = data

@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// Classifier AI 文件分类器
+// Classifier AI 文件分类器.
 type Classifier struct {
 	config     Config
 	categories map[string]Category
@@ -26,7 +26,7 @@ type Classifier struct {
 	mu         sync.RWMutex
 }
 
-// NewClassifier 创建分类器
+// NewClassifier 创建分类器.
 func NewClassifier(config Config) (*Classifier, error) {
 	c := &Classifier{
 		config:     config,
@@ -45,7 +45,7 @@ func NewClassifier(config Config) (*Classifier, error) {
 	return c, nil
 }
 
-// initDefaultCategories 初始化默认分类
+// initDefaultCategories 初始化默认分类.
 func (c *Classifier) initDefaultCategories() {
 	defaultCats := []Category{
 		{
@@ -230,7 +230,7 @@ func (c *Classifier) initDefaultCategories() {
 	c.initDefaultTags()
 }
 
-// initDefaultTags 初始化默认标签
+// initDefaultTags 初始化默认标签.
 func (c *Classifier) initDefaultTags() {
 	defaultTags := []Tag{
 		{Name: "重要", Color: "#e74c3c"},
@@ -252,7 +252,7 @@ func (c *Classifier) initDefaultTags() {
 	}
 }
 
-// Classify 分类文件
+// Classify 分类文件.
 func (c *Classifier) Classify(ctx context.Context, path string) (*FileClassification, error) {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -309,7 +309,7 @@ func (c *Classifier) Classify(ctx context.Context, path string) (*FileClassifica
 	}, nil
 }
 
-// classifyByPath 基于路径分类
+// classifyByPath 基于路径分类.
 func (c *Classifier) classifyByPath(path string) (Category, float64) {
 	ext := strings.ToLower(filepath.Ext(path))
 	fileName := strings.ToLower(filepath.Base(path))
@@ -352,7 +352,7 @@ func (c *Classifier) classifyByPath(path string) (Category, float64) {
 	return c.categories["others"], 0.5
 }
 
-// classifyByContent 基于内容分类
+// classifyByContent 基于内容分类.
 func (c *Classifier) classifyByContent(path string, features Features) (Category, float64) {
 	ext := strings.ToLower(filepath.Ext(path))
 	fileName := strings.ToLower(filepath.Base(path))
@@ -404,7 +404,7 @@ func (c *Classifier) classifyByContent(path string, features Features) (Category
 	return c.categories["others"], 0.4
 }
 
-// isImageExt 检查是否是图片扩展名
+// isImageExt 检查是否是图片扩展名.
 func (c *Classifier) isImageExt(ext string) bool {
 	imageExts := map[string]bool{
 		".jpg": true, ".jpeg": true, ".png": true, ".gif": true,
@@ -413,7 +413,7 @@ func (c *Classifier) isImageExt(ext string) bool {
 	return imageExts[ext]
 }
 
-// applyRules 应用分类规则
+// applyRules 应用分类规则.
 func (c *Classifier) applyRules(path string, info os.FileInfo) *FileClassification {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -475,7 +475,7 @@ func (c *Classifier) applyRules(path string, info os.FileInfo) *FileClassificati
 	return nil
 }
 
-// matchConditions 匹配条件
+// matchConditions 匹配条件.
 func (c *Classifier) matchConditions(path string, info os.FileInfo, conditions []Condition) bool {
 	for _, cond := range conditions {
 		var value interface{}
@@ -505,7 +505,7 @@ func (c *Classifier) matchConditions(path string, info os.FileInfo, conditions [
 	return true
 }
 
-// matchOperator 匹配操作符
+// matchOperator 匹配操作符.
 func (c *Classifier) matchOperator(value interface{}, op string, target interface{}) bool {
 	switch op {
 	case "eq", "==":
@@ -546,7 +546,7 @@ func (c *Classifier) matchOperator(value interface{}, op string, target interfac
 	return false
 }
 
-// compareNumbers 比较数字
+// compareNumbers 比较数字.
 func (c *Classifier) compareNumbers(a, b interface{}) int {
 	aFloat := toFloat64(a)
 	bFloat := toFloat64(b)
@@ -558,7 +558,7 @@ func (c *Classifier) compareNumbers(a, b interface{}) int {
 	return 0
 }
 
-// toFloat64 转换为 float64
+// toFloat64 转换为 float64.
 func toFloat64(v interface{}) float64 {
 	switch n := v.(type) {
 	case int:
@@ -573,7 +573,7 @@ func toFloat64(v interface{}) float64 {
 	return 0
 }
 
-// extractFeatures 提取文件特征
+// extractFeatures 提取文件特征.
 func (c *Classifier) extractFeatures(path string) (Features, error) {
 	ext := strings.ToLower(filepath.Ext(path))
 	features := Features{}
@@ -596,7 +596,7 @@ func (c *Classifier) extractFeatures(path string) (Features, error) {
 	return features, nil
 }
 
-// isTextFile 检查是否是文本文件
+// isTextFile 检查是否是文本文件.
 func (c *Classifier) isTextFile(ext string) bool {
 	textExts := map[string]bool{
 		".txt": true, ".md": true, ".json": true, ".xml": true,
@@ -608,7 +608,7 @@ func (c *Classifier) isTextFile(ext string) bool {
 	return textExts[ext]
 }
 
-// extractTextFeatures 提取文本特征
+// extractTextFeatures 提取文本特征.
 func (c *Classifier) extractTextFeatures(path string, info os.FileInfo) (Features, error) {
 	features := Features{}
 
@@ -643,7 +643,7 @@ func (c *Classifier) extractTextFeatures(path string, info os.FileInfo) (Feature
 	return features, nil
 }
 
-// extractKeywords 提取关键词
+// extractKeywords 提取关键词.
 func (c *Classifier) extractKeywords(content string) []string {
 	// 简单的关键词提取（词频统计）
 	words := strings.Fields(strings.ToLower(content))
@@ -703,7 +703,7 @@ func (c *Classifier) extractKeywords(content string) []string {
 	return result
 }
 
-// extractImageFeatures 提取图像特征
+// extractImageFeatures 提取图像特征.
 func (c *Classifier) extractImageFeatures(path string) (Features, error) {
 	features := Features{}
 	// 图像特征提取需要额外的库支持
@@ -711,7 +711,7 @@ func (c *Classifier) extractImageFeatures(path string) (Features, error) {
 	return features, nil
 }
 
-// calculateHash 计算文件哈希
+// calculateHash 计算文件哈希.
 func (c *Classifier) calculateHash(path string) (string, error) {
 	// 检查缓存
 	if c.config.EnableHashCache {
@@ -746,7 +746,7 @@ func (c *Classifier) calculateHash(path string) (string, error) {
 	return hash, nil
 }
 
-// ClassifyBatch 批量分类
+// ClassifyBatch 批量分类.
 func (c *Classifier) ClassifyBatch(ctx context.Context, paths []string, concurrency int) ([]*FileClassification, error) {
 	if concurrency <= 0 {
 		concurrency = 4
@@ -783,7 +783,7 @@ func (c *Classifier) ClassifyBatch(ctx context.Context, paths []string, concurre
 	return results, nil
 }
 
-// load 加载数据
+// load 加载数据.
 func (c *Classifier) load() error {
 	dataDir := c.config.DataDir
 
@@ -821,14 +821,14 @@ func (c *Classifier) load() error {
 	return nil
 }
 
-// Save 保存数据
+// Save 保存数据.
 func (c *Classifier) Save() error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.saveLocked()
 }
 
-// saveLocked 保存数据（调用者已持有锁）
+// saveLocked 保存数据（调用者已持有锁）.
 func (c *Classifier) saveLocked() error {
 	dataDir := c.config.DataDir
 	if err := os.MkdirAll(dataDir, 0750); err != nil {
@@ -873,7 +873,7 @@ func (c *Classifier) saveLocked() error {
 	return nil
 }
 
-// AddCategory 添加分类
+// AddCategory 添加分类.
 func (c *Classifier) AddCategory(category Category) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -886,7 +886,7 @@ func (c *Classifier) AddCategory(category Category) error {
 	return c.saveLocked()
 }
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (c *Classifier) AddRule(rule ClassificationRule) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -899,7 +899,7 @@ func (c *Classifier) AddRule(rule ClassificationRule) error {
 	return c.saveLocked()
 }
 
-// GetCategories 获取所有分类
+// GetCategories 获取所有分类.
 func (c *Classifier) GetCategories() []Category {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -911,7 +911,7 @@ func (c *Classifier) GetCategories() []Category {
 	return result
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (c *Classifier) GetRules() []ClassificationRule {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -919,12 +919,12 @@ func (c *Classifier) GetRules() []ClassificationRule {
 	return c.rules
 }
 
-// generateID 生成 ID
+// generateID 生成 ID.
 func generateID(prefix string) string {
 	return fmt.Sprintf("%s_%d", prefix, time.Now().UnixNano())
 }
 
-// generateTags 生成标签
+// generateTags 生成标签.
 func (c *Classifier) generateTags(path string, features Features, category Category) []Tag {
 	tags := make(map[string]Tag)
 	fileName := strings.ToLower(filepath.Base(path))

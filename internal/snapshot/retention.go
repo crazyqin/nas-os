@@ -8,19 +8,19 @@ import (
 	"time"
 )
 
-// RetentionCleaner 保留策略清理器
+// RetentionCleaner 保留策略清理器.
 type RetentionCleaner struct {
 	storageMgr StorageManager
 }
 
-// NewRetentionCleaner 创建清理器
+// NewRetentionCleaner 创建清理器.
 func NewRetentionCleaner(storageMgr StorageManager) *RetentionCleaner {
 	return &RetentionCleaner{
 		storageMgr: storageMgr,
 	}
 }
 
-// Info 快照信息（用于清理）
+// Info 快照信息（用于清理）.
 type Info struct {
 	Name      string    `json:"name"`
 	Path      string    `json:"path"`
@@ -29,10 +29,10 @@ type Info struct {
 }
 
 // SnapshotInfo 是 Info 的别名，保持向后兼容
-// Deprecated: Use Info instead
+// Deprecated: Use Info instead.
 type SnapshotInfo = Info //nolint:revive // 向后兼容别名
 
-// Clean 执行清理
+// Clean 执行清理.
 func (c *RetentionCleaner) Clean(policy *Policy) ([]string, error) {
 	if policy.Retention == nil {
 		return nil, nil
@@ -73,7 +73,7 @@ func (c *RetentionCleaner) Clean(policy *Policy) ([]string, error) {
 	return deleted, nil
 }
 
-// listPolicySnapshots 获取策略相关的快照列表
+// listPolicySnapshots 获取策略相关的快照列表.
 func (c *RetentionCleaner) listPolicySnapshots(policy *Policy) ([]Info, error) {
 	// 检查存储管理器是否存在
 	if c.storageMgr == nil {
@@ -114,12 +114,12 @@ func (c *RetentionCleaner) listPolicySnapshots(policy *Policy) ([]Info, error) {
 	return result, nil
 }
 
-// hasPrefix 检查名称是否有前缀
+// hasPrefix 检查名称是否有前缀.
 func hasPrefix(name, prefix string) bool {
 	return len(name) >= len(prefix) && name[:len(prefix)] == prefix
 }
 
-// cleanByCount 按数量清理
+// cleanByCount 按数量清理.
 func (c *RetentionCleaner) cleanByCount(snapshots []Info, maxCount int) []Info {
 	if maxCount <= 0 || len(snapshots) <= maxCount {
 		return nil
@@ -129,7 +129,7 @@ func (c *RetentionCleaner) cleanByCount(snapshots []Info, maxCount int) []Info {
 	return snapshots[:len(snapshots)-maxCount]
 }
 
-// cleanByAge 按时间清理
+// cleanByAge 按时间清理.
 func (c *RetentionCleaner) cleanByAge(snapshots []Info, maxAgeDays int) []Info {
 	if maxAgeDays <= 0 {
 		return nil
@@ -147,7 +147,7 @@ func (c *RetentionCleaner) cleanByAge(snapshots []Info, maxAgeDays int) []Info {
 	return toDelete
 }
 
-// cleanBySize 按大小清理
+// cleanBySize 按大小清理.
 func (c *RetentionCleaner) cleanBySize(snapshots []Info, maxSizeBytes int64) []Info {
 	if maxSizeBytes <= 0 {
 		return nil
@@ -178,7 +178,7 @@ func (c *RetentionCleaner) cleanBySize(snapshots []Info, maxSizeBytes int64) []I
 	return toDelete
 }
 
-// cleanCombined 组合清理策略
+// cleanCombined 组合清理策略.
 func (c *RetentionCleaner) cleanCombined(snapshots []Info, policy *RetentionPolicy) []Info {
 	var toDelete []Info
 	deletedSet := make(map[string]bool)
@@ -226,12 +226,12 @@ func (c *RetentionCleaner) cleanCombined(snapshots []Info, policy *RetentionPoli
 	return toDelete
 }
 
-// deleteSnapshot 删除快照
+// deleteSnapshot 删除快照.
 func (c *RetentionCleaner) deleteSnapshot(policy *Policy, snap Info) error {
 	return c.storageMgr.DeleteSnapshot(policy.VolumeName, snap.Name)
 }
 
-// PreviewDryRun 预览清理（不实际删除）
+// PreviewDryRun 预览清理（不实际删除）.
 func (c *RetentionCleaner) PreviewDryRun(policy *Policy) (*CleanupPreview, error) {
 	snapshots, err := c.listPolicySnapshots(policy)
 	if err != nil {
@@ -265,7 +265,7 @@ func (c *RetentionCleaner) PreviewDryRun(policy *Policy) (*CleanupPreview, error
 	return preview, nil
 }
 
-// CleanupPreview 清理预览结果，展示将要删除的快照信息
+// CleanupPreview 清理预览结果，展示将要删除的快照信息.
 type CleanupPreview struct {
 	TotalSnapshots   int    `json:"totalSnapshots"`
 	ToDelete         int    `json:"toDelete"`
@@ -274,7 +274,7 @@ type CleanupPreview struct {
 	Snapshots        []Info `json:"snapshots,omitempty"`
 }
 
-// EstimateRetention 估算保留策略效果
+// EstimateRetention 估算保留策略效果.
 func (c *RetentionCleaner) EstimateRetention(policy *Policy, snapshotCount int, avgSize int64) *RetentionEstimate {
 	estimate := &RetentionEstimate{
 		PolicyType: policy.Retention.Type,
@@ -315,7 +315,7 @@ func (c *RetentionCleaner) EstimateRetention(policy *Policy, snapshotCount int, 
 	return estimate
 }
 
-// RetentionEstimate 保留策略估算结果，预测策略对存储的影响
+// RetentionEstimate 保留策略估算结果，预测策略对存储的影响.
 type RetentionEstimate struct {
 	PolicyType       RetentionPolicyType `json:"policyType"`
 	MaxSnapshots     int                 `json:"maxSnapshots"`

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// TestEfficiencyReportGeneration 测试效率报告生成
+// TestEfficiencyReportGeneration 测试效率报告生成.
 func TestEfficiencyReportGeneration(t *testing.T) {
 	// 创建管理器
 	manager := NewManager("", DefaultPolicyEngineConfig())
@@ -66,7 +66,7 @@ func TestEfficiencyReportGeneration(t *testing.T) {
 	}
 }
 
-// TestDataDistributionReport 测试数据分布报告
+// TestDataDistributionReport 测试数据分布报告.
 func TestDataDistributionReport(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -107,7 +107,7 @@ func TestDataDistributionReport(t *testing.T) {
 	}
 }
 
-// TestMigrationEfficiencyReport 测试迁移效率报告
+// TestMigrationEfficiencyReport 测试迁移效率报告.
 func TestMigrationEfficiencyReport(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -154,7 +154,7 @@ func TestMigrationEfficiencyReport(t *testing.T) {
 	}
 }
 
-// TestCostAnalysisReport 测试成本分析报告
+// TestCostAnalysisReport 测试成本分析报告.
 func TestCostAnalysisReport(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -223,7 +223,7 @@ func TestCostAnalysisReport(t *testing.T) {
 	}
 }
 
-// TestCapacityForecastReport 测试容量预测报告
+// TestCapacityForecastReport 测试容量预测报告.
 func TestCapacityForecastReport(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -269,7 +269,7 @@ func TestCapacityForecastReport(t *testing.T) {
 	// 注意：这取决于具体实现，可能需要调整
 }
 
-// TestHealthScoreCalculation 测试健康评分计算
+// TestHealthScoreCalculation 测试健康评分计算.
 func TestHealthScoreCalculation(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -316,7 +316,7 @@ func TestHealthScoreCalculation(t *testing.T) {
 	}
 }
 
-// TestRecommendationsGeneration 测试建议生成
+// TestRecommendationsGeneration 测试建议生成.
 func TestRecommendationsGeneration(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -343,7 +343,7 @@ func TestRecommendationsGeneration(t *testing.T) {
 	}
 }
 
-// TestDailyStatsRecording 测试每日统计记录
+// TestDailyStatsRecording 测试每日统计记录.
 func TestDailyStatsRecording(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -377,7 +377,7 @@ func TestDailyStatsRecording(t *testing.T) {
 	}
 }
 
-// TestCostSavingsCalculation 测试成本节省计算
+// TestCostSavingsCalculation 测试成本节省计算.
 func TestCostSavingsCalculation(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -421,7 +421,7 @@ func TestCostSavingsCalculation(t *testing.T) {
 	}
 }
 
-// TestGrowthRateCalculation 测试增长率计算
+// TestGrowthRateCalculation 测试增长率计算.
 func TestGrowthRateCalculation(t *testing.T) {
 	metrics := NewMetrics()
 	generator := NewEfficiencyReportGenerator(nil, metrics, nil)
@@ -444,7 +444,7 @@ func TestGrowthRateCalculation(t *testing.T) {
 	}
 }
 
-// TestEfficiencyReportWithEmptyData 测试空数据情况
+// TestEfficiencyReportWithEmptyData 测试空数据情况.
 func TestEfficiencyReportWithEmptyData(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	// 不初始化存储层
@@ -468,7 +468,7 @@ func TestEfficiencyReportWithEmptyData(t *testing.T) {
 	}
 }
 
-// TestAccessPatternAnalysis 测试访问模式分析
+// TestAccessPatternAnalysis 测试访问模式分析.
 func TestAccessPatternAnalysis(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -502,7 +502,7 @@ func TestAccessPatternAnalysis(t *testing.T) {
 	}
 }
 
-// TestChartDataGeneration 测试图表数据生成
+// TestChartDataGeneration 测试图表数据生成.
 func TestChartDataGeneration(t *testing.T) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -549,7 +549,7 @@ func TestChartDataGeneration(t *testing.T) {
 	}
 }
 
-// BenchmarkEfficiencyReportGeneration 基准测试报告生成
+// BenchmarkEfficiencyReportGeneration 基准测试报告生成.
 func BenchmarkEfficiencyReportGeneration(b *testing.B) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()
@@ -563,7 +563,7 @@ func BenchmarkEfficiencyReportGeneration(b *testing.B) {
 	}
 }
 
-// BenchmarkHealthScoreCalculation 基准测试健康评分计算
+// BenchmarkHealthScoreCalculation 基准测试健康评分计算.
 func BenchmarkHealthScoreCalculation(b *testing.B) {
 	manager := NewManager("", DefaultPolicyEngineConfig())
 	manager.initDefaultTiers()

@@ -9,19 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// StorageHandlers 存储管理 API handlers
+// StorageHandlers 存储管理 API handlers.
 type StorageHandlers struct {
 	storageMgr *storage.Manager
 }
 
-// NewStorageHandlers 创建存储管理 handlers
+// NewStorageHandlers 创建存储管理 handlers.
 func NewStorageHandlers(storageMgr *storage.Manager) *StorageHandlers {
 	return &StorageHandlers{
 		storageMgr: storageMgr,
 	}
 }
 
-// RegisterRoutes 注册路由到 /api/storage 组
+// RegisterRoutes 注册路由到 /api/storage 组.
 func (h *StorageHandlers) RegisterRoutes(rg *gin.RouterGroup) {
 	storage := rg.Group("/storage")
 	{
@@ -46,7 +46,7 @@ func (h *StorageHandlers) RegisterRoutes(rg *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} StorageResponse "成功"
-// @Router /api/storage/volumes [get]
+// @Router /api/storage/volumes [get].
 func (h *StorageHandlers) ListVolumes(c *gin.Context) {
 	if h.storageMgr == nil {
 		c.JSON(http.StatusOK, []VolumeResponse{})
@@ -87,7 +87,7 @@ func (h *StorageHandlers) ListVolumes(c *gin.Context) {
 	})
 }
 
-// CreateVolumeRequest 创建卷请求
+// CreateVolumeRequest 创建卷请求.
 type CreateVolumeRequest struct {
 	Name    string   `json:"name" binding:"required" example:"data-vol"`
 	Devices []string `json:"devices" binding:"required" example:"/dev/sda,/dev/sdb"`
@@ -104,7 +104,7 @@ type CreateVolumeRequest struct {
 // @Success 200 {object} StorageResponse "创建成功"
 // @Failure 400 {object} StorageResponse "请求参数错误"
 // @Failure 500 {object} StorageResponse "服务器内部错误"
-// @Router /api/storage/volumes [post]
+// @Router /api/storage/volumes [post].
 func (h *StorageHandlers) CreateVolume(c *gin.Context) {
 	if h.storageMgr == nil {
 		c.JSON(http.StatusInternalServerError, StorageResponse{
@@ -154,7 +154,7 @@ func (h *StorageHandlers) CreateVolume(c *gin.Context) {
 
 // ========== 存储池 API ==========
 
-// PoolResponse 存储池响应
+// PoolResponse 存储池响应.
 type PoolResponse struct {
 	Name        string   `json:"name"`
 	UUID        string   `json:"uuid"`
@@ -176,7 +176,7 @@ type PoolResponse struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} StorageResponse "成功"
-// @Router /api/storage/pools [get]
+// @Router /api/storage/pools [get].
 func (h *StorageHandlers) ListPools(c *gin.Context) {
 	if h.storageMgr == nil {
 		c.JSON(http.StatusOK, []PoolResponse{})
@@ -211,7 +211,7 @@ func (h *StorageHandlers) ListPools(c *gin.Context) {
 
 // ========== 快照 API ==========
 
-// SnapshotResponse 快照响应
+// SnapshotResponse 快照响应.
 type SnapshotResponse struct {
 	Name       string `json:"name"`
 	Path       string `json:"path"`
@@ -231,7 +231,7 @@ type SnapshotResponse struct {
 // @Produce json
 // @Param volume query string false "卷名称过滤"
 // @Success 200 {object} StorageResponse "成功"
-// @Router /api/storage/snapshots [get]
+// @Router /api/storage/snapshots [get].
 func (h *StorageHandlers) ListAllSnapshots(c *gin.Context) {
 	if h.storageMgr == nil {
 		c.JSON(http.StatusOK, StorageResponse{
@@ -281,14 +281,14 @@ func (h *StorageHandlers) ListAllSnapshots(c *gin.Context) {
 
 // ========== 辅助类型 ==========
 
-// StorageResponse 存储 API 通用响应
+// StorageResponse 存储 API 通用响应.
 type StorageResponse struct {
 	Code    int         `json:"code" example:"0"`
 	Message string      `json:"message" example:"success"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// VolumeResponse 卷响应
+// VolumeResponse 卷响应.
 type VolumeResponse struct {
 	Name        string               `json:"name"`
 	UUID        string               `json:"uuid"`
@@ -304,7 +304,7 @@ type VolumeResponse struct {
 	Subvolumes  []SubvolumeResponse  `json:"subvolumes,omitempty"`
 }
 
-// VolumeStatusResponse 卷状态响应
+// VolumeStatusResponse 卷状态响应.
 type VolumeStatusResponse struct {
 	BalanceRunning  bool    `json:"balanceRunning"`
 	BalanceProgress float64 `json:"balanceProgress"`
@@ -314,7 +314,7 @@ type VolumeStatusResponse struct {
 	Healthy         bool    `json:"healthy"`
 }
 
-// SubvolumeResponse 子卷响应
+// SubvolumeResponse 子卷响应.
 type SubvolumeResponse struct {
 	ID        uint64 `json:"id"`
 	Name      string `json:"name"`
@@ -326,7 +326,7 @@ type SubvolumeResponse struct {
 	SnapCount int    `json:"snapCount"`
 }
 
-// convertSubvolumes 转换子卷列表为响应格式
+// convertSubvolumes 转换子卷列表为响应格式.
 func convertSubvolumes(subvolumes []*storage.SubVolume) []SubvolumeResponse {
 	result := make([]SubvolumeResponse, 0, len(subvolumes))
 	for _, sv := range subvolumes {

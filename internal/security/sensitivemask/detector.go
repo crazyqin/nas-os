@@ -9,7 +9,7 @@ import (
 	"unicode"
 )
 
-// Detector detects sensitive information in text
+// Detector detects sensitive information in text.
 type Detector struct {
 	config    DetectorConfig
 	patterns  map[SensitiveType]*regexp.Regexp
@@ -17,7 +17,7 @@ type Detector struct {
 	mu        sync.RWMutex
 }
 
-// NewDetector creates a new sensitive information detector
+// NewDetector creates a new sensitive information detector.
 func NewDetector(config DetectorConfig) *Detector {
 	d := &Detector{
 		config:    config,
@@ -38,7 +38,7 @@ func NewDetector(config DetectorConfig) *Detector {
 	return d
 }
 
-// initPatterns initializes regex patterns for different sensitive types
+// initPatterns initializes regex patterns for different sensitive types.
 func (d *Detector) initPatterns() {
 	// 中国手机号 - 支持 +86、0086 前缀
 	// 注意：0086前缀会匹配到部分，需要在validator中处理
@@ -70,7 +70,7 @@ func (d *Detector) initPatterns() {
 	d.patterns[TypePassword] = regexp.MustCompile(`(?i)(?:password|passwd|pwd|pass)\s*[=:：]\s*\S+`)
 }
 
-// initValidators initializes validators with checksum verification
+// initValidators initializes validators with checksum verification.
 func (d *Detector) initValidators() {
 	// 手机号验证器
 	d.validator[TypePhoneNumber] = func(s string) (bool, float64) {
@@ -200,7 +200,7 @@ func (d *Detector) initValidators() {
 	}
 }
 
-// luhnCheck implements the Luhn algorithm for bank card validation
+// luhnCheck implements the Luhn algorithm for bank card validation.
 func luhnCheck(number string) bool {
 	digits := make([]int, 0, len(number))
 	for _, c := range number {
@@ -228,7 +228,7 @@ func luhnCheck(number string) bool {
 	return sum%10 == 0
 }
 
-// Detect detects all sensitive information in the given text
+// Detect detects all sensitive information in the given text.
 func (d *Detector) Detect(ctx context.Context, text string) (*DetectionResult, error) {
 	start := time.Now()
 	result := &DetectionResult{
@@ -340,7 +340,7 @@ func (d *Detector) Detect(ctx context.Context, text string) (*DetectionResult, e
 	return result, nil
 }
 
-// getRiskLevel determines risk level based on type and confidence
+// getRiskLevel determines risk level based on type and confidence.
 func (d *Detector) getRiskLevel(t SensitiveType, confidence float64) RiskLevel {
 	switch t {
 	case TypeIDCard, TypeCreditCard, TypeAPIKey, TypePassword:
@@ -362,7 +362,7 @@ func (d *Detector) getRiskLevel(t SensitiveType, confidence float64) RiskLevel {
 	}
 }
 
-// DetectWithType detects only specific types of sensitive information
+// DetectWithType detects only specific types of sensitive information.
 func (d *Detector) DetectWithType(ctx context.Context, text string, types []SensitiveType) (*DetectionResult, error) {
 	original := d.config.EnabledTypes
 	d.config.EnabledTypes = make(map[SensitiveType]bool)
@@ -374,7 +374,7 @@ func (d *Detector) DetectWithType(ctx context.Context, text string, types []Sens
 	return result, err
 }
 
-// UpdateConfig updates the detector configuration
+// UpdateConfig updates the detector configuration.
 func (d *Detector) UpdateConfig(config DetectorConfig) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -388,14 +388,14 @@ func (d *Detector) UpdateConfig(config DetectorConfig) {
 	}
 }
 
-// GetConfig returns current configuration
+// GetConfig returns current configuration.
 func (d *Detector) GetConfig() DetectorConfig {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.config
 }
 
-// sortMatches sorts matches by start position
+// sortMatches sorts matches by start position.
 func sortMatches(matches []SensitiveMatch) {
 	for i := 0; i < len(matches)-1; i++ {
 		for j := i + 1; j < len(matches); j++ {
@@ -406,7 +406,7 @@ func sortMatches(matches []SensitiveMatch) {
 	}
 }
 
-// min returns the smaller of two integers
+// min returns the smaller of two integers.
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -414,7 +414,7 @@ func min(a, b int) int {
 	return b
 }
 
-// max returns the larger of two integers
+// max returns the larger of two integers.
 func max(a, b int) int {
 	if a > b {
 		return a

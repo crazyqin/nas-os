@@ -4,7 +4,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Services 集群服务集合
+// Services 集群服务集合.
 type Services struct {
 	Manager *Manager
 	Sync    *StorageSync
@@ -13,7 +13,7 @@ type Services struct {
 	API     *API
 }
 
-// RootConfig 集群总配置
+// RootConfig 集群总配置.
 type RootConfig struct {
 	Enabled      bool                `json:"enabled"`
 	NodeID       string              `json:"node_id"`
@@ -24,7 +24,7 @@ type RootConfig struct {
 	HA           HAConfig            `json:"ha"`
 }
 
-// InitializeCluster 初始化集群服务
+// InitializeCluster 初始化集群服务.
 func InitializeCluster(config RootConfig, logger *zap.Logger) (*Services, error) {
 	if !config.Enabled {
 		logger.Info("集群功能已禁用")
@@ -123,7 +123,7 @@ func InitializeCluster(config RootConfig, logger *zap.Logger) (*Services, error)
 	return services, nil
 }
 
-// ShutdownCluster 关闭集群服务
+// ShutdownCluster 关闭集群服务.
 func ShutdownCluster(services *Services) error {
 	if services == nil {
 		return nil

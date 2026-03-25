@@ -30,7 +30,7 @@ type ProviderQuarkImpl struct {
 	rootDirID   string
 }
 
-// NewQuarkProvider 创建夸克网盘提供商
+// NewQuarkProvider 创建夸克网盘提供商.
 func NewQuarkProvider(cfg *ProviderConfig) (*ProviderQuarkImpl, error) {
 	client := &http.Client{
 		Timeout: 60 * time.Second,
@@ -49,7 +49,7 @@ func NewQuarkProvider(cfg *ProviderConfig) (*ProviderQuarkImpl, error) {
 	}, nil
 }
 
-// 夸克网盘API响应结构
+// 夸克网盘API响应结构.
 type quarkAPIResponse struct {
 	Status   int    `json:"status"`
 	Code     int    `json:"code"`
@@ -58,7 +58,7 @@ type quarkAPIResponse struct {
 	ErrnoMsg string `json:"errno_msg,omitempty"`
 }
 
-// Upload 上传文件到夸克网盘
+// Upload 上传文件到夸克网盘.
 func (p *ProviderQuarkImpl) Upload(ctx context.Context, localPath, remotePath string) error {
 	file, err := os.Open(localPath)
 	if err != nil {
@@ -105,14 +105,14 @@ func (p *ProviderQuarkImpl) Upload(ctx context.Context, localPath, remotePath st
 	return p.completeUpload(ctx, uploadInfo, fileName, parentID)
 }
 
-// quarkUploadInfo 上传信息
+// quarkUploadInfo 上传信息.
 type quarkUploadInfo struct {
 	UploadID  string `json:"upload_id"`
 	UploadURL string `json:"upload_url"`
 	Finish    bool   `json:"finish"` // 秒传成功标志
 }
 
-// calculateFileHash 计算文件哈希
+// calculateFileHash 计算文件哈希.
 func (p *ProviderQuarkImpl) calculateFileHash(file *os.File) (string, error) {
 	if _, err := file.Seek(0, 0); err != nil {
 		return "", err
@@ -130,7 +130,7 @@ func (p *ProviderQuarkImpl) calculateFileHash(file *os.File) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// preUpload 预上传
+// preUpload 预上传.
 func (p *ProviderQuarkImpl) preUpload(ctx context.Context, fileName, parentID string, size int64, hash string) (*quarkUploadInfo, error) {
 	apiURL := fmt.Sprintf("%s/file/upload/pre", p.baseURL)
 
@@ -172,7 +172,7 @@ func (p *ProviderQuarkImpl) preUpload(ctx context.Context, fileName, parentID st
 	return &result.Data, nil
 }
 
-// uploadParts 上传分片
+// uploadParts 上传分片.
 func (p *ProviderQuarkImpl) uploadParts(ctx context.Context, uploadInfo *quarkUploadInfo, file *os.File, size int64) error {
 	chunkSize := int64(4 * 1024 * 1024) // 4MB chunks
 	buf := make([]byte, chunkSize)
@@ -214,7 +214,7 @@ func (p *ProviderQuarkImpl) uploadParts(ctx context.Context, uploadInfo *quarkUp
 	return nil
 }
 
-// completeUpload 完成上传
+// completeUpload 完成上传.
 func (p *ProviderQuarkImpl) completeUpload(ctx context.Context, uploadInfo *quarkUploadInfo, fileName, parentID string) error {
 	apiURL := fmt.Sprintf("%s/file/upload/complete", p.baseURL)
 
@@ -251,7 +251,7 @@ func (p *ProviderQuarkImpl) completeUpload(ctx context.Context, uploadInfo *quar
 	return nil
 }
 
-// Download 从夸克网盘下载文件
+// Download 从夸克网盘下载文件.
 func (p *ProviderQuarkImpl) Download(ctx context.Context, remotePath, localPath string) error {
 	// 获取文件ID
 	fileID, err := p.getFileIDByPath(ctx, remotePath)
@@ -297,7 +297,7 @@ func (p *ProviderQuarkImpl) Download(ctx context.Context, remotePath, localPath 
 	return err
 }
 
-// getDownloadURL 获取下载链接
+// getDownloadURL 获取下载链接.
 func (p *ProviderQuarkImpl) getDownloadURL(ctx context.Context, fileID string) (string, error) {
 	apiURL := fmt.Sprintf("%s/file/download?file_id=%s", p.baseURL, fileID)
 
@@ -332,7 +332,7 @@ func (p *ProviderQuarkImpl) getDownloadURL(ctx context.Context, fileID string) (
 	return result.Data.DownloadURL, nil
 }
 
-// Delete 删除夸克网盘文件
+// Delete 删除夸克网盘文件.
 func (p *ProviderQuarkImpl) Delete(ctx context.Context, remotePath string) error {
 	fileID, err := p.getFileIDByPath(ctx, remotePath)
 	if err != nil {
@@ -372,7 +372,7 @@ func (p *ProviderQuarkImpl) Delete(ctx context.Context, remotePath string) error
 	return nil
 }
 
-// List 列出夸克网盘文件
+// List 列出夸克网盘文件.
 func (p *ProviderQuarkImpl) List(ctx context.Context, prefix string, recursive bool) ([]FileInfo, error) {
 	dirID, err := p.getDirIDByPath(ctx, prefix)
 	if err != nil {
@@ -382,7 +382,7 @@ func (p *ProviderQuarkImpl) List(ctx context.Context, prefix string, recursive b
 	return p.listFiles(ctx, dirID, prefix, recursive)
 }
 
-// listFiles 列出目录下的文件
+// listFiles 列出目录下的文件.
 func (p *ProviderQuarkImpl) listFiles(ctx context.Context, dirID, prefix string, recursive bool) ([]FileInfo, error) {
 	apiURL := fmt.Sprintf("%s/file/list?parent_file_id=%s&limit=1000", p.baseURL, dirID)
 
@@ -440,7 +440,7 @@ func (p *ProviderQuarkImpl) listFiles(ctx context.Context, dirID, prefix string,
 	return files, nil
 }
 
-// Stat 获取夸克网盘文件信息
+// Stat 获取夸克网盘文件信息.
 func (p *ProviderQuarkImpl) Stat(ctx context.Context, remotePath string) (*FileInfo, error) {
 	fileID, err := p.getFileIDByPath(ctx, remotePath)
 	if err != nil {
@@ -488,18 +488,18 @@ func (p *ProviderQuarkImpl) Stat(ctx context.Context, remotePath string) (*FileI
 	}, nil
 }
 
-// CreateDir 在夸克网盘创建目录
+// CreateDir 在夸克网盘创建目录.
 func (p *ProviderQuarkImpl) CreateDir(ctx context.Context, remotePath string) error {
 	_, err := p.getOrCreateDirID(ctx, remotePath)
 	return err
 }
 
-// DeleteDir 删除夸克网盘目录
+// DeleteDir 删除夸克网盘目录.
 func (p *ProviderQuarkImpl) DeleteDir(ctx context.Context, remotePath string) error {
 	return p.Delete(ctx, remotePath)
 }
 
-// TestConnection 测试夸克网盘连接
+// TestConnection 测试夸克网盘连接.
 func (p *ProviderQuarkImpl) TestConnection(ctx context.Context) (*ConnectionTestResult, error) {
 	start := time.Now()
 
@@ -548,30 +548,30 @@ func (p *ProviderQuarkImpl) TestConnection(ctx context.Context) (*ConnectionTest
 	return result, nil
 }
 
-// Close 关闭连接
+// Close 关闭连接.
 func (p *ProviderQuarkImpl) Close() error {
 	return nil
 }
 
-// GetType 返回提供商类型
+// GetType 返回提供商类型.
 func (p *ProviderQuarkImpl) GetType() ProviderType {
 	return ProviderQuark
 }
 
-// GetCapabilities 返回支持的功能
+// GetCapabilities 返回支持的功能.
 func (p *ProviderQuarkImpl) GetCapabilities() []string {
 	return []string{"upload", "download", "delete", "list"}
 }
 
 // ==================== 辅助方法 ====================
 
-// setAuthHeader 设置认证头
+// setAuthHeader 设置认证头.
 func (p *ProviderQuarkImpl) setAuthHeader(req *http.Request) {
 	req.Header.Set("Authorization", "Bearer "+p.accessToken)
 	req.Header.Set("User-Agent", "NAS-OS/1.0")
 }
 
-// getOrCreateDirID 获取或创建目录ID
+// getOrCreateDirID 获取或创建目录ID.
 func (p *ProviderQuarkImpl) getOrCreateDirID(ctx context.Context, path string) (string, error) {
 	if path == "" || path == "/" {
 		return p.rootDirID, nil
@@ -598,12 +598,12 @@ func (p *ProviderQuarkImpl) getOrCreateDirID(ctx context.Context, path string) (
 	return parentID, nil
 }
 
-// getDirIDByPath 通过路径获取目录ID
+// getDirIDByPath 通过路径获取目录ID.
 func (p *ProviderQuarkImpl) getDirIDByPath(ctx context.Context, path string) (string, error) {
 	return p.getOrCreateDirID(ctx, path)
 }
 
-// findDir 查找目录
+// findDir 查找目录.
 func (p *ProviderQuarkImpl) findDir(ctx context.Context, parentID, name string) (string, error) {
 	apiURL := fmt.Sprintf("%s/file/list?parent_file_id=%s&name=%s", p.baseURL, parentID, url.QueryEscape(name))
 
@@ -644,7 +644,7 @@ func (p *ProviderQuarkImpl) findDir(ctx context.Context, parentID, name string) 
 	return "", os.ErrNotExist
 }
 
-// createDir 创建目录
+// createDir 创建目录.
 func (p *ProviderQuarkImpl) createDir(ctx context.Context, parentID, name string) (string, error) {
 	apiURL := fmt.Sprintf("%s/file/create_folder", p.baseURL)
 
@@ -686,7 +686,7 @@ func (p *ProviderQuarkImpl) createDir(ctx context.Context, parentID, name string
 	return result.Data.FileID, nil
 }
 
-// getFileIDByPath 通过路径获取文件ID
+// getFileIDByPath 通过路径获取文件ID.
 func (p *ProviderQuarkImpl) getFileIDByPath(ctx context.Context, path string) (string, error) {
 	dir := filepath.Dir(path)
 	fileName := filepath.Base(path)

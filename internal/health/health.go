@@ -14,37 +14,37 @@ import (
 	"time"
 )
 
-// Status 健康状态
+// Status 健康状态.
 type Status string
 
 const (
-	// StatusHealthy 健康状态
+	// StatusHealthy 健康状态.
 	StatusHealthy Status = "healthy"
-	// StatusUnhealthy 不健康状态
+	// StatusUnhealthy 不健康状态.
 	StatusUnhealthy Status = "unhealthy"
-	// StatusDegraded 降级状态
+	// StatusDegraded 降级状态.
 	StatusDegraded Status = "degraded"
 )
 
-// CheckType 检查类型
+// CheckType 检查类型.
 type CheckType string
 
 const (
-	// CheckTypeDatabase 数据库检查类型
+	// CheckTypeDatabase 数据库检查类型.
 	CheckTypeDatabase CheckType = "database"
-	// CheckTypeStorage 存储检查类型
+	// CheckTypeStorage 存储检查类型.
 	CheckTypeStorage CheckType = "storage"
-	// CheckTypeMemory 内存检查类型
+	// CheckTypeMemory 内存检查类型.
 	CheckTypeMemory CheckType = "memory"
-	// CheckTypeNetwork 网络检查类型
+	// CheckTypeNetwork 网络检查类型.
 	CheckTypeNetwork CheckType = "network"
-	// CheckTypeService 服务检查类型
+	// CheckTypeService 服务检查类型.
 	CheckTypeService CheckType = "service"
-	// CheckTypeCustom 自定义检查类型
+	// CheckTypeCustom 自定义检查类型.
 	CheckTypeCustom CheckType = "custom"
 )
 
-// Checker 健康检查器接口
+// Checker 健康检查器接口.
 type Checker interface {
 	// Name 返回检查器名称
 	Name() string
@@ -54,7 +54,7 @@ type Checker interface {
 	Check(ctx context.Context) *CheckResult
 }
 
-// CheckResult 检查结果
+// CheckResult 检查结果.
 type CheckResult struct {
 	Name      string                 `json:"name"`
 	Type      CheckType              `json:"type"`
@@ -65,7 +65,7 @@ type CheckResult struct {
 	Details   map[string]interface{} `json:"details,omitempty"`
 }
 
-// Manager 健康管理器
+// Manager 健康管理器.
 type Manager struct {
 	checkers map[string]Checker
 	results  map[string]*CheckResult
@@ -73,7 +73,7 @@ type Manager struct {
 	timeout  time.Duration
 }
 
-// Report 健康报告
+// Report 健康报告.
 type Report struct {
 	Status    Status                  `json:"status"`
 	Timestamp time.Time               `json:"timestamp"`
@@ -83,7 +83,7 @@ type Report struct {
 	Version   string                  `json:"version,omitempty"`
 }
 
-// Summary 健康摘要
+// Summary 健康摘要.
 type Summary struct {
 	Total     int `json:"total"`
 	Healthy   int `json:"healthy"`
@@ -91,7 +91,7 @@ type Summary struct {
 	Degraded  int `json:"degraded"`
 }
 
-// Config 健康检查配置
+// Config 健康检查配置.
 type Config struct {
 	Timeout         time.Duration
 	CheckInterval   time.Duration
@@ -99,7 +99,7 @@ type Config struct {
 	Version         string
 }
 
-// NewManager 创建健康管理器
+// NewManager 创建健康管理器.
 func NewManager(timeout time.Duration) *Manager {
 	if timeout == 0 {
 		timeout = 10 * time.Second
@@ -111,7 +111,7 @@ func NewManager(timeout time.Duration) *Manager {
 	}
 }
 
-// NewManagerWithConfig 使用配置创建健康管理器
+// NewManagerWithConfig 使用配置创建健康管理器.
 func NewManagerWithConfig(config *Config) *Manager {
 	if config == nil {
 		config = &Config{}
@@ -126,21 +126,21 @@ func NewManagerWithConfig(config *Config) *Manager {
 	}
 }
 
-// RegisterChecker 注册检查器
+// RegisterChecker 注册检查器.
 func (m *Manager) RegisterChecker(checker Checker) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.checkers[checker.Name()] = checker
 }
 
-// RemoveChecker 移除检查器
+// RemoveChecker 移除检查器.
 func (m *Manager) RemoveChecker(name string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.checkers, name)
 }
 
-// GetChecker 获取检查器
+// GetChecker 获取检查器.
 func (m *Manager) GetChecker(name string) (Checker, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -148,7 +148,7 @@ func (m *Manager) GetChecker(name string) (Checker, bool) {
 	return checker, exists
 }
 
-// ListCheckers 列出所有检查器
+// ListCheckers 列出所有检查器.
 func (m *Manager) ListCheckers() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -159,7 +159,7 @@ func (m *Manager) ListCheckers() []string {
 	return names
 }
 
-// RunCheck 执行单个检查
+// RunCheck 执行单个检查.
 func (m *Manager) RunCheck(ctx context.Context, name string) (*CheckResult, error) {
 	m.mu.RLock()
 	checker, exists := m.checkers[name]
@@ -184,7 +184,7 @@ func (m *Manager) RunCheck(ctx context.Context, name string) (*CheckResult, erro
 	return result, nil
 }
 
-// RunAllChecks 执行所有检查
+// RunAllChecks 执行所有检查.
 func (m *Manager) RunAllChecks(ctx context.Context) *Report {
 	report := &Report{
 		Timestamp: time.Now(),
@@ -238,7 +238,7 @@ func (m *Manager) RunAllChecks(ctx context.Context) *Report {
 	return report
 }
 
-// GetLastResult 获取最近检查结果
+// GetLastResult 获取最近检查结果.
 func (m *Manager) GetLastResult(name string) (*CheckResult, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -246,7 +246,7 @@ func (m *Manager) GetLastResult(name string) (*CheckResult, bool) {
 	return result, exists
 }
 
-// GetAllLastResults 获取所有最近检查结果
+// GetAllLastResults 获取所有最近检查结果.
 func (m *Manager) GetAllLastResults() map[string]*CheckResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -257,13 +257,13 @@ func (m *Manager) GetAllLastResults() map[string]*CheckResult {
 	return results
 }
 
-// IsHealthy 检查是否健康
+// IsHealthy 检查是否健康.
 func (m *Manager) IsHealthy() bool {
 	report := m.RunAllChecks(context.Background())
 	return report.Status == StatusHealthy
 }
 
-// GenerateReport 生成健康报告
+// GenerateReport 生成健康报告.
 func (m *Manager) GenerateReport(ctx context.Context, version string) *Report {
 	report := m.RunAllChecks(ctx)
 	report.Version = version
@@ -271,7 +271,7 @@ func (m *Manager) GenerateReport(ctx context.Context, version string) *Report {
 	return report
 }
 
-// getUptime 获取系统运行时间
+// getUptime 获取系统运行时间.
 func getUptime() time.Duration {
 	// 简化实现，实际应从系统启动时间计算
 	return time.Since(time.Now().Add(-time.Hour))
@@ -279,13 +279,13 @@ func getUptime() time.Duration {
 
 // ========== 内置检查器 ==========
 
-// MemoryChecker 内存检查器
+// MemoryChecker 内存检查器.
 type MemoryChecker struct {
 	name      string
 	threshold float64 // 内存使用阈值百分比
 }
 
-// NewMemoryChecker 创建内存检查器
+// NewMemoryChecker 创建内存检查器.
 func NewMemoryChecker(threshold float64) *MemoryChecker {
 	return &MemoryChecker{
 		name:      "memory",
@@ -293,7 +293,7 @@ func NewMemoryChecker(threshold float64) *MemoryChecker {
 	}
 }
 
-// NewMemoryCheckerWithName 创建带名称的内存检查器
+// NewMemoryCheckerWithName 创建带名称的内存检查器.
 func NewMemoryCheckerWithName(name string, threshold float64) *MemoryChecker {
 	return &MemoryChecker{
 		name:      name,
@@ -301,13 +301,13 @@ func NewMemoryCheckerWithName(name string, threshold float64) *MemoryChecker {
 	}
 }
 
-// Name 返回检查器名称
+// Name 返回检查器名称.
 func (c *MemoryChecker) Name() string { return c.name }
 
-// Type 返回检查类型
+// Type 返回检查类型.
 func (c *MemoryChecker) Type() CheckType { return CheckTypeMemory }
 
-// Check 执行内存检查
+// Check 执行内存检查.
 func (c *MemoryChecker) Check(ctx context.Context) *CheckResult {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
@@ -343,7 +343,7 @@ func (c *MemoryChecker) Check(ctx context.Context) *CheckResult {
 	return result
 }
 
-// HTTPChecker HTTP 服务检查器
+// HTTPChecker HTTP 服务检查器.
 type HTTPChecker struct {
 	name     string
 	url      string
@@ -352,7 +352,7 @@ type HTTPChecker struct {
 	headers  map[string]string
 }
 
-// NewHTTPChecker 创建 HTTP 检查器
+// NewHTTPChecker 创建 HTTP 检查器.
 func NewHTTPChecker(name, url string, timeout time.Duration, expectedStatus int) *HTTPChecker {
 	return &HTTPChecker{
 		name:     name,
@@ -363,18 +363,18 @@ func NewHTTPChecker(name, url string, timeout time.Duration, expectedStatus int)
 	}
 }
 
-// SetHeaders 设置请求头
+// SetHeaders 设置请求头.
 func (c *HTTPChecker) SetHeaders(headers map[string]string) {
 	c.headers = headers
 }
 
-// Name 返回检查器名称
+// Name 返回检查器名称.
 func (c *HTTPChecker) Name() string { return c.name }
 
-// Type 返回检查类型
+// Type 返回检查类型.
 func (c *HTTPChecker) Type() CheckType { return CheckTypeService }
 
-// Check 执行 HTTP 检查
+// Check 执行 HTTP 检查.
 func (c *HTTPChecker) Check(ctx context.Context) *CheckResult {
 	result := &CheckResult{
 		Name:    c.Name(),
@@ -427,14 +427,14 @@ func (c *HTTPChecker) Check(ctx context.Context) *CheckResult {
 	return result
 }
 
-// DiskSpaceChecker 磁盘空间检查器
+// DiskSpaceChecker 磁盘空间检查器.
 type DiskSpaceChecker struct {
 	name      string
 	path      string
 	threshold float64
 }
 
-// NewDiskSpaceChecker 创建磁盘空间检查器
+// NewDiskSpaceChecker 创建磁盘空间检查器.
 func NewDiskSpaceChecker(name string, threshold float64) *DiskSpaceChecker {
 	return &DiskSpaceChecker{
 		name:      name,
@@ -443,7 +443,7 @@ func NewDiskSpaceChecker(name string, threshold float64) *DiskSpaceChecker {
 	}
 }
 
-// NewDiskSpaceCheckerWithPath 创建带路径的磁盘空间检查器
+// NewDiskSpaceCheckerWithPath 创建带路径的磁盘空间检查器.
 func NewDiskSpaceCheckerWithPath(name, path string, threshold float64) *DiskSpaceChecker {
 	return &DiskSpaceChecker{
 		name:      name,
@@ -452,13 +452,13 @@ func NewDiskSpaceCheckerWithPath(name, path string, threshold float64) *DiskSpac
 	}
 }
 
-// Name 返回检查器名称
+// Name 返回检查器名称.
 func (c *DiskSpaceChecker) Name() string { return c.name }
 
-// Type 返回检查类型
+// Type 返回检查类型.
 func (c *DiskSpaceChecker) Type() CheckType { return CheckTypeStorage }
 
-// Check 执行磁盘空间检查
+// Check 执行磁盘空间检查.
 func (c *DiskSpaceChecker) Check(ctx context.Context) *CheckResult {
 	result := &CheckResult{
 		Name:    c.Name(),
@@ -497,7 +497,7 @@ func (c *DiskSpaceChecker) Check(ctx context.Context) *CheckResult {
 	return result
 }
 
-// DatabaseChecker 数据库检查器
+// DatabaseChecker 数据库检查器.
 type DatabaseChecker struct {
 	name    string
 	db      *sql.DB
@@ -505,7 +505,7 @@ type DatabaseChecker struct {
 	query   string
 }
 
-// NewDatabaseChecker 创建数据库检查器
+// NewDatabaseChecker 创建数据库检查器.
 func NewDatabaseChecker(name string, db *sql.DB, timeout time.Duration) *DatabaseChecker {
 	if timeout == 0 {
 		timeout = 5 * time.Second
@@ -518,18 +518,18 @@ func NewDatabaseChecker(name string, db *sql.DB, timeout time.Duration) *Databas
 	}
 }
 
-// SetQuery 设置检查查询
+// SetQuery 设置检查查询.
 func (c *DatabaseChecker) SetQuery(query string) {
 	c.query = query
 }
 
-// Name 返回检查器名称
+// Name 返回检查器名称.
 func (c *DatabaseChecker) Name() string { return c.name }
 
-// Type 返回检查类型
+// Type 返回检查类型.
 func (c *DatabaseChecker) Type() CheckType { return CheckTypeDatabase }
 
-// Check 执行数据库检查
+// Check 执行数据库检查.
 func (c *DatabaseChecker) Check(ctx context.Context) *CheckResult {
 	result := &CheckResult{
 		Name:    c.Name(),
@@ -581,14 +581,14 @@ func (c *DatabaseChecker) Check(ctx context.Context) *CheckResult {
 	return result
 }
 
-// NetworkChecker 网络连接检查器
+// NetworkChecker 网络连接检查器.
 type NetworkChecker struct {
 	name    string
 	target  string
 	timeout time.Duration
 }
 
-// NewNetworkChecker 创建网络检查器
+// NewNetworkChecker 创建网络检查器.
 func NewNetworkChecker(name, target string, timeout time.Duration) *NetworkChecker {
 	if timeout == 0 {
 		timeout = 5 * time.Second
@@ -600,13 +600,13 @@ func NewNetworkChecker(name, target string, timeout time.Duration) *NetworkCheck
 	}
 }
 
-// Name 返回检查器名称
+// Name 返回检查器名称.
 func (c *NetworkChecker) Name() string { return c.name }
 
-// Type 返回检查类型
+// Type 返回检查类型.
 func (c *NetworkChecker) Type() CheckType { return CheckTypeNetwork }
 
-// Check 执行网络检查
+// Check 执行网络检查.
 func (c *NetworkChecker) Check(ctx context.Context) *CheckResult {
 	result := &CheckResult{
 		Name:    c.Name(),
@@ -645,14 +645,14 @@ func (c *NetworkChecker) Check(ctx context.Context) *CheckResult {
 	return result
 }
 
-// DNSChecker DNS 解析检查器
+// DNSChecker DNS 解析检查器.
 type DNSChecker struct {
 	name    string
 	host    string
 	timeout time.Duration
 }
 
-// NewDNSChecker 创建 DNS 检查器
+// NewDNSChecker 创建 DNS 检查器.
 func NewDNSChecker(name, host string, timeout time.Duration) *DNSChecker {
 	if timeout == 0 {
 		timeout = 5 * time.Second
@@ -664,13 +664,13 @@ func NewDNSChecker(name, host string, timeout time.Duration) *DNSChecker {
 	}
 }
 
-// Name 返回检查器名称
+// Name 返回检查器名称.
 func (c *DNSChecker) Name() string { return c.name }
 
-// Type 返回检查类型
+// Type 返回检查类型.
 func (c *DNSChecker) Type() CheckType { return CheckTypeNetwork }
 
-// Check 执行 DNS 检查
+// Check 执行 DNS 检查.
 func (c *DNSChecker) Check(ctx context.Context) *CheckResult {
 	result := &CheckResult{
 		Name:    c.Name(),
@@ -708,13 +708,13 @@ func (c *DNSChecker) Check(ctx context.Context) *CheckResult {
 	return result
 }
 
-// CustomChecker 自定义检查器
+// CustomChecker 自定义检查器.
 type CustomChecker struct {
 	name    string
 	checkFn func(ctx context.Context) (Status, string, map[string]interface{})
 }
 
-// NewCustomChecker 创建自定义检查器
+// NewCustomChecker 创建自定义检查器.
 func NewCustomChecker(name string, checkFn func(ctx context.Context) (Status, string, map[string]interface{})) *CustomChecker {
 	return &CustomChecker{
 		name:    name,
@@ -722,13 +722,13 @@ func NewCustomChecker(name string, checkFn func(ctx context.Context) (Status, st
 	}
 }
 
-// Name 返回检查器名称
+// Name 返回检查器名称.
 func (c *CustomChecker) Name() string { return c.name }
 
-// Type 返回检查类型
+// Type 返回检查类型.
 func (c *CustomChecker) Type() CheckType { return CheckTypeCustom }
 
-// Check 执行自定义检查
+// Check 执行自定义检查.
 func (c *CustomChecker) Check(ctx context.Context) *CheckResult {
 	result := &CheckResult{
 		Name:      c.Name(),
@@ -753,14 +753,14 @@ func (c *CustomChecker) Check(ctx context.Context) *CheckResult {
 	return result
 }
 
-// TCPChecker TCP 端口检查器
+// TCPChecker TCP 端口检查器.
 type TCPChecker struct {
 	name    string
 	address string
 	timeout time.Duration
 }
 
-// NewTCPChecker 创建 TCP 检查器
+// NewTCPChecker 创建 TCP 检查器.
 func NewTCPChecker(name, address string, timeout time.Duration) *TCPChecker {
 	if timeout == 0 {
 		timeout = 5 * time.Second
@@ -772,13 +772,13 @@ func NewTCPChecker(name, address string, timeout time.Duration) *TCPChecker {
 	}
 }
 
-// Name 返回检查器名称
+// Name 返回检查器名称.
 func (c *TCPChecker) Name() string { return c.name }
 
-// Type 返回检查类型
+// Type 返回检查类型.
 func (c *TCPChecker) Type() CheckType { return CheckTypeService }
 
-// Check 执行 TCP 检查
+// Check 执行 TCP 检查.
 func (c *TCPChecker) Check(ctx context.Context) *CheckResult {
 	result := &CheckResult{
 		Name:    c.Name(),
@@ -810,14 +810,14 @@ func (c *TCPChecker) Check(ctx context.Context) *CheckResult {
 	return result
 }
 
-// FileChecker 文件存在检查器
+// FileChecker 文件存在检查器.
 type FileChecker struct {
 	name     string
 	path     string
 	checkDir bool
 }
 
-// NewFileChecker 创建文件检查器
+// NewFileChecker 创建文件检查器.
 func NewFileChecker(name, path string) *FileChecker {
 	return &FileChecker{
 		name:     name,
@@ -826,7 +826,7 @@ func NewFileChecker(name, path string) *FileChecker {
 	}
 }
 
-// NewDirChecker 创建目录检查器
+// NewDirChecker 创建目录检查器.
 func NewDirChecker(name, path string) *FileChecker {
 	return &FileChecker{
 		name:     name,
@@ -835,13 +835,13 @@ func NewDirChecker(name, path string) *FileChecker {
 	}
 }
 
-// Name 返回检查器名称
+// Name 返回检查器名称.
 func (c *FileChecker) Name() string { return c.name }
 
-// Type 返回检查类型
+// Type 返回检查类型.
 func (c *FileChecker) Type() CheckType { return CheckTypeStorage }
 
-// Check 执行文件检查
+// Check 执行文件检查.
 func (c *FileChecker) Check(ctx context.Context) *CheckResult {
 	result := &CheckResult{
 		Name:    c.Name(),
@@ -884,14 +884,14 @@ func (c *FileChecker) Check(ctx context.Context) *CheckResult {
 	return result
 }
 
-// ProcessChecker 进程检查器
+// ProcessChecker 进程检查器.
 type ProcessChecker struct {
 	name       string
 	pid        int
 	checkAlive bool
 }
 
-// NewProcessChecker 创建进程检查器
+// NewProcessChecker 创建进程检查器.
 func NewProcessChecker(name string, pid int) *ProcessChecker {
 	return &ProcessChecker{
 		name:       name,
@@ -900,13 +900,13 @@ func NewProcessChecker(name string, pid int) *ProcessChecker {
 	}
 }
 
-// Name 返回检查器名称
+// Name 返回检查器名称.
 func (c *ProcessChecker) Name() string { return c.name }
 
-// Type 返回检查类型
+// Type 返回检查类型.
 func (c *ProcessChecker) Type() CheckType { return CheckTypeService }
 
-// Check 执行进程检查
+// Check 执行进程检查.
 func (c *ProcessChecker) Check(ctx context.Context) *CheckResult {
 	result := &CheckResult{
 		Name:    c.Name(),

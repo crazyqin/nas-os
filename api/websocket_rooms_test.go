@@ -18,7 +18,7 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
-// TestRoom tests room creation and basic operations
+// TestRoom tests room creation and basic operations.
 func TestRoom(t *testing.T) {
 	room := NewRoom("test-room", "Test Room", "A test room", 10)
 
@@ -39,7 +39,7 @@ func TestRoom(t *testing.T) {
 	}
 }
 
-// TestRoomDefaultMaxClients tests default max clients
+// TestRoomDefaultMaxClients tests default max clients.
 func TestRoomDefaultMaxClients(t *testing.T) {
 	room := NewRoom("test", "Test", "", 0)
 
@@ -48,7 +48,7 @@ func TestRoomDefaultMaxClients(t *testing.T) {
 	}
 }
 
-// TestMessageQueue tests message queue operations
+// TestMessageQueue tests message queue operations.
 func TestMessageQueue(t *testing.T) {
 	queue := NewMessageQueue(MessageQueueConfig{
 		MaxSize: 10,
@@ -86,7 +86,7 @@ func TestMessageQueue(t *testing.T) {
 	}
 }
 
-// TestMessageQueueCapacity tests queue capacity
+// TestMessageQueueCapacity tests queue capacity.
 func TestMessageQueueCapacity(t *testing.T) {
 	queue := NewMessageQueue(MessageQueueConfig{
 		MaxSize: 5,
@@ -107,7 +107,7 @@ func TestMessageQueueCapacity(t *testing.T) {
 	}
 }
 
-// TestMessageQueueGetMessages tests getting messages
+// TestMessageQueueGetMessages tests getting messages.
 func TestMessageQueueGetMessages(t *testing.T) {
 	queue := NewMessageQueue(MessageQueueConfig{MaxSize: 10})
 
@@ -129,7 +129,7 @@ func TestMessageQueueGetMessages(t *testing.T) {
 	}
 }
 
-// TestMessageQueueGetMessagesForUser tests getting user messages
+// TestMessageQueueGetMessagesForUser tests getting user messages.
 func TestMessageQueueGetMessagesForUser(t *testing.T) {
 	queue := NewMessageQueue(MessageQueueConfig{MaxSize: 10})
 
@@ -145,7 +145,7 @@ func TestMessageQueueGetMessagesForUser(t *testing.T) {
 	}
 }
 
-// TestMessageQueueMarkDelivered tests marking delivered
+// TestMessageQueueMarkDelivered tests marking delivered.
 func TestMessageQueueMarkDelivered(t *testing.T) {
 	queue := NewMessageQueue(MessageQueueConfig{MaxSize: 10})
 
@@ -161,7 +161,7 @@ func TestMessageQueueMarkDelivered(t *testing.T) {
 	}
 }
 
-// TestMessageQueueCleanup tests cleanup
+// TestMessageQueueCleanup tests cleanup.
 func TestMessageQueueCleanup(t *testing.T) {
 	queue := NewMessageQueue(MessageQueueConfig{
 		MaxSize: 10,
@@ -193,7 +193,7 @@ func TestMessageQueueCleanup(t *testing.T) {
 	}
 }
 
-// TestEnhancedWebSocketHubRoom tests hub room operations
+// TestEnhancedWebSocketHubRoom tests hub room operations.
 func TestEnhancedWebSocketHubRoom(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -224,7 +224,7 @@ func TestEnhancedWebSocketHubRoom(t *testing.T) {
 	}
 }
 
-// TestEnhancedWebSocketHubDeleteRoom tests room deletion
+// TestEnhancedWebSocketHubDeleteRoom tests room deletion.
 func TestEnhancedWebSocketHubDeleteRoom(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -252,7 +252,7 @@ func TestEnhancedWebSocketHubDeleteRoom(t *testing.T) {
 	}
 }
 
-// TestEnhancedWebSocketHubRoomStats tests room stats
+// TestEnhancedWebSocketHubRoomStats tests room stats.
 func TestEnhancedWebSocketHubRoomStats(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -270,7 +270,7 @@ func TestEnhancedWebSocketHubRoomStats(t *testing.T) {
 	}
 }
 
-// TestEnhancedWebSocketHubQueueStats tests queue stats
+// TestEnhancedWebSocketHubQueueStats tests queue stats.
 func TestEnhancedWebSocketHubQueueStats(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 
@@ -284,7 +284,7 @@ func TestEnhancedWebSocketHubQueueStats(t *testing.T) {
 	}
 }
 
-// TestBroadcastConfig tests broadcast configuration
+// TestBroadcastConfig tests broadcast configuration.
 func TestBroadcastConfig(t *testing.T) {
 	config := BroadcastConfig{
 		BatchSize:    50,
@@ -303,7 +303,7 @@ func TestBroadcastConfig(t *testing.T) {
 	}
 }
 
-// TestNewEnhancedWebSocketHubWithConfig tests hub creation with config
+// TestNewEnhancedWebSocketHubWithConfig tests hub creation with config.
 func TestNewEnhancedWebSocketHubWithConfig(t *testing.T) {
 	heartbeat := HeartbeatConfig{PingInterval: 10 * time.Second}
 	reconnect := ReconnectConfig{MaxAttempts: 3}
@@ -321,7 +321,7 @@ func TestNewEnhancedWebSocketHubWithConfig(t *testing.T) {
 	}
 }
 
-// TestRoomJoinLeave tests client join/leave room
+// TestRoomJoinLeave tests client join/leave room.
 func TestRoomJoinLeave(t *testing.T) {
 	// Create test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -391,7 +391,7 @@ func TestRoomJoinLeave(t *testing.T) {
 	}
 }
 
-// TestRoomBroadcast tests broadcasting to room
+// TestRoomBroadcast tests broadcasting to room.
 func TestRoomBroadcast(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -415,7 +415,7 @@ func TestRoomBroadcast(t *testing.T) {
 	}
 }
 
-// TestEnhancedWebSocketHandlerRoomAPI tests room API endpoints
+// TestEnhancedWebSocketHandlerRoomAPI tests room API endpoints.
 func TestEnhancedWebSocketHandlerRoomAPI(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -475,7 +475,7 @@ func TestEnhancedWebSocketHandlerRoomAPI(t *testing.T) {
 	}
 }
 
-// TestConcurrentRoomOperations tests concurrent room access
+// TestConcurrentRoomOperations tests concurrent room access.
 func TestConcurrentRoomOperations(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -500,7 +500,7 @@ func TestConcurrentRoomOperations(t *testing.T) {
 	}
 }
 
-// BenchmarkRoomOperations benchmarks room operations
+// BenchmarkRoomOperations benchmarks room operations.
 func BenchmarkRoomOperations(b *testing.B) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -512,7 +512,7 @@ func BenchmarkRoomOperations(b *testing.B) {
 	}
 }
 
-// BenchmarkMessageQueue benchmarks message queue
+// BenchmarkMessageQueue benchmarks message queue.
 func BenchmarkMessageQueue(b *testing.B) {
 	queue := NewMessageQueue(MessageQueueConfig{MaxSize: 10000})
 
@@ -527,7 +527,7 @@ func BenchmarkMessageQueue(b *testing.B) {
 	}
 }
 
-// BenchmarkBroadcastToRoom benchmarks room broadcast
+// BenchmarkBroadcastToRoom benchmarks room broadcast.
 func BenchmarkBroadcastToRoom(b *testing.B) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()

@@ -16,7 +16,7 @@ import (
 )
 
 // SecretEncryption 敏感数据加密器
-// 用于加密存储 TOTP Secret、备份码等敏感数据
+// 用于加密存储 TOTP Secret、备份码等敏感数据.
 type SecretEncryption struct {
 	mu          sync.RWMutex
 	key         []byte
@@ -25,15 +25,15 @@ type SecretEncryption struct {
 }
 
 var (
-	// ErrEncryptionNotInitialized indicates the encryption is not initialized
+	// ErrEncryptionNotInitialized indicates the encryption is not initialized.
 	ErrEncryptionNotInitialized = errors.New("加密器未初始化")
-	// ErrEncryptionFailed indicates encryption failed
+	// ErrEncryptionFailed indicates encryption failed.
 	ErrEncryptionFailed = errors.New("加密失败")
-	// ErrDecryptionFailed indicates decryption failed
+	// ErrDecryptionFailed indicates decryption failed.
 	ErrDecryptionFailed = errors.New("解密失败")
 )
 
-// NewSecretEncryption 创建敏感数据加密器
+// NewSecretEncryption 创建敏感数据加密器.
 func NewSecretEncryption(keyPath string) *SecretEncryption {
 	se := &SecretEncryption{
 		keyPath: keyPath,
@@ -48,7 +48,7 @@ func NewSecretEncryption(keyPath string) *SecretEncryption {
 	return se
 }
 
-// Initialize 初始化加密器（生成新密钥或加载已有密钥）
+// Initialize 初始化加密器（生成新密钥或加载已有密钥）.
 func (se *SecretEncryption) Initialize(passphrase string) error {
 	se.mu.Lock()
 	defer se.mu.Unlock()
@@ -83,7 +83,7 @@ func (se *SecretEncryption) Initialize(passphrase string) error {
 	return nil
 }
 
-// loadKey 加载已存储的密钥
+// loadKey 加载已存储的密钥.
 func (se *SecretEncryption) loadKey() ([]byte, error) {
 	if se.keyPath == "" {
 		return nil, errors.New("密钥路径未设置")
@@ -101,7 +101,7 @@ func (se *SecretEncryption) loadKey() ([]byte, error) {
 	return data[16:], nil
 }
 
-// Encrypt 加密数据
+// Encrypt 加密数据.
 func (se *SecretEncryption) Encrypt(plaintext string) (string, error) {
 	se.mu.RLock()
 	defer se.mu.RUnlock()
@@ -135,7 +135,7 @@ func (se *SecretEncryption) Encrypt(plaintext string) (string, error) {
 	return base64.StdEncoding.EncodeToString(result), nil
 }
 
-// Decrypt 解密数据
+// Decrypt 解密数据.
 func (se *SecretEncryption) Decrypt(ciphertext string) (string, error) {
 	se.mu.RLock()
 	defer se.mu.RUnlock()
@@ -175,14 +175,14 @@ func (se *SecretEncryption) Decrypt(ciphertext string) (string, error) {
 	return string(plaintext), nil
 }
 
-// IsInitialized 检查是否已初始化
+// IsInitialized 检查是否已初始化.
 func (se *SecretEncryption) IsInitialized() bool {
 	se.mu.RLock()
 	defer se.mu.RUnlock()
 	return se.initialized
 }
 
-// EncryptBytes 加密字节数据
+// EncryptBytes 加密字节数据.
 func (se *SecretEncryption) EncryptBytes(plaintext []byte) (string, error) {
 	se.mu.RLock()
 	defer se.mu.RUnlock()
@@ -212,7 +212,7 @@ func (se *SecretEncryption) EncryptBytes(plaintext []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(result), nil
 }
 
-// DecryptBytes 解密字节数据
+// DecryptBytes 解密字节数据.
 func (se *SecretEncryption) DecryptBytes(ciphertext string) ([]byte, error) {
 	se.mu.RLock()
 	defer se.mu.RUnlock()

@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus string
 
 // 健康状态常量，表示系统或组件的运行状态。
@@ -24,7 +24,7 @@ const (
 	HealthStatusUnhealthy HealthStatus = "unhealthy"
 )
 
-// HealthCheckResult 健康检查结果
+// HealthCheckResult 健康检查结果.
 type HealthCheckResult struct {
 	Name      string       `json:"name"`
 	Status    HealthStatus `json:"status"`
@@ -34,7 +34,7 @@ type HealthCheckResult struct {
 	Timestamp time.Time    `json:"timestamp"`
 }
 
-// SystemHealth 系统健康状态
+// SystemHealth 系统健康状态.
 type SystemHealth struct {
 	Status      HealthStatus        `json:"status"`
 	Score       int                 `json:"score"` // 0-100
@@ -45,7 +45,7 @@ type SystemHealth struct {
 	Version     string              `json:"version"`
 }
 
-// HealthChecker 健康检查器
+// HealthChecker 健康检查器.
 type HealthChecker struct {
 	logger    *zap.Logger
 	collector *SystemCollector
@@ -61,13 +61,13 @@ type HealthChecker struct {
 	thresholds HealthThresholds
 }
 
-// HealthCheck 健康检查函数
+// HealthCheck 健康检查函数.
 type HealthCheck struct {
 	Name  string
 	Check func() HealthCheckResult
 }
 
-// HealthThresholds 健康检查阈值
+// HealthThresholds 健康检查阈值.
 type HealthThresholds struct {
 	CPUWarningPercent     float64 `json:"cpu_warning_percent"`
 	CPUCriticalPercent    float64 `json:"cpu_critical_percent"`
@@ -78,7 +78,7 @@ type HealthThresholds struct {
 	DiskLatencyMs         float64 `json:"disk_latency_ms"`
 }
 
-// DefaultHealthThresholds 默认阈值
+// DefaultHealthThresholds 默认阈值.
 func DefaultHealthThresholds() HealthThresholds {
 	return HealthThresholds{
 		CPUWarningPercent:     80,
@@ -91,7 +91,7 @@ func DefaultHealthThresholds() HealthThresholds {
 	}
 }
 
-// NewHealthChecker 创建健康检查器
+// NewHealthChecker 创建健康检查器.
 func NewHealthChecker(
 	logger *zap.Logger,
 	collector *SystemCollector,
@@ -111,7 +111,7 @@ func NewHealthChecker(
 	return hc
 }
 
-// registerDefaultChecks 注册默认健康检查项
+// registerDefaultChecks 注册默认健康检查项.
 func (hc *HealthChecker) registerDefaultChecks() {
 	hc.checks = []HealthCheck{
 		{Name: "cpu", Check: hc.checkCPU},
@@ -126,14 +126,14 @@ func (hc *HealthChecker) registerDefaultChecks() {
 	}
 }
 
-// SetThresholds 设置阈值
+// SetThresholds 设置阈值.
 func (hc *HealthChecker) SetThresholds(thresholds HealthThresholds) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
 	hc.thresholds = thresholds
 }
 
-// Run 执行所有健康检查
+// Run 执行所有健康检查.
 func (hc *HealthChecker) Run() *SystemHealth {
 	start := time.Now()
 
@@ -187,7 +187,7 @@ func (hc *HealthChecker) Run() *SystemHealth {
 	return health
 }
 
-// Start 启动定期健康检查
+// Start 启动定期健康检查.
 func (hc *HealthChecker) Start(ctx context.Context) {
 	ticker := time.NewTicker(hc.interval)
 	go func() {
@@ -203,7 +203,7 @@ func (hc *HealthChecker) Start(ctx context.Context) {
 	}()
 }
 
-// GetHealth 获取最新的健康状态
+// GetHealth 获取最新的健康状态.
 func (hc *HealthChecker) GetHealth() *SystemHealth {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -443,7 +443,7 @@ func (hc *HealthChecker) checkUptime() HealthCheckResult {
 	return result
 }
 
-// checkBtrfs 检查 Btrfs 文件系统健康状态
+// checkBtrfs 检查 Btrfs 文件系统健康状态.
 func (hc *HealthChecker) checkBtrfs() HealthCheckResult {
 	start := time.Now()
 
@@ -512,7 +512,7 @@ func (hc *HealthChecker) checkBtrfs() HealthCheckResult {
 	return result
 }
 
-// checkShares 检查共享服务状态
+// checkShares 检查共享服务状态.
 func (hc *HealthChecker) checkShares() HealthCheckResult {
 	start := time.Now()
 
@@ -573,14 +573,14 @@ func (hc *HealthChecker) checkShares() HealthCheckResult {
 	return result
 }
 
-// AddCheck 添加自定义检查
+// AddCheck 添加自定义检查.
 func (hc *HealthChecker) AddCheck(name string, check func() HealthCheckResult) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
 	hc.checks = append(hc.checks, HealthCheck{Name: name, Check: check})
 }
 
-// RemoveCheck 移除检查
+// RemoveCheck 移除检查.
 func (hc *HealthChecker) RemoveCheck(name string) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -593,7 +593,7 @@ func (hc *HealthChecker) RemoveCheck(name string) {
 	}
 }
 
-// formatUptime 格式化运行时间
+// formatUptime 格式化运行时间.
 func formatUptime(seconds uint64) string {
 	days := seconds / 86400
 	hours := (seconds % 86400) / 3600

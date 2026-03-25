@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// AlertingManager 告警管理器
+// AlertingManager 告警管理器.
 type AlertingManager struct {
 	mu           sync.RWMutex
 	alerts       []*Alert
@@ -23,7 +23,7 @@ type AlertingManager struct {
 	sendWebhookFunc func(url string, payload map[string]interface{}) error
 }
 
-// AlertSubscriber 告警订阅者
+// AlertSubscriber 告警订阅者.
 type AlertSubscriber struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -34,7 +34,7 @@ type AlertSubscriber struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// AlertHistoryEntry 告警历史
+// AlertHistoryEntry 告警历史.
 type AlertHistoryEntry struct {
 	AlertID   string    `json:"alert_id"`
 	Action    string    `json:"action"` // triggered, acknowledged, resolved
@@ -42,7 +42,7 @@ type AlertHistoryEntry struct {
 	User      string    `json:"user,omitempty"`
 }
 
-// NewAlertingManager 创建告警管理器
+// NewAlertingManager 创建告警管理器.
 func NewAlertingManager() *AlertingManager {
 	return &AlertingManager{
 		alerts:       make([]*Alert, 0),
@@ -54,17 +54,17 @@ func NewAlertingManager() *AlertingManager {
 	}
 }
 
-// SetSendEmailFunc 设置邮件发送函数
+// SetSendEmailFunc 设置邮件发送函数.
 func (am *AlertingManager) SetSendEmailFunc(fn func(to, subject, body string) error) {
 	am.sendEmailFunc = fn
 }
 
-// SetSendWebhookFunc 设置 Webhook 发送函数
+// SetSendWebhookFunc 设置 Webhook 发送函数.
 func (am *AlertingManager) SetSendWebhookFunc(fn func(url string, payload map[string]interface{}) error) {
 	am.sendWebhookFunc = fn
 }
 
-// CheckThreshold 检查阈值并触发告警
+// CheckThreshold 检查阈值并触发告警.
 func (am *AlertingManager) CheckThreshold(metricType string, value float64, source string) {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -88,7 +88,7 @@ func (am *AlertingManager) CheckThreshold(metricType string, value float64, sour
 	}
 }
 
-// triggerAlert 触发告警
+// triggerAlert 触发告警.
 func (am *AlertingManager) triggerAlert(alertType, level, message, source string, details map[string]interface{}) {
 	alert := &Alert{
 		ID:        generateAlertID(),
@@ -122,7 +122,7 @@ func (am *AlertingManager) triggerAlert(alertType, level, message, source string
 	go am.sendNotifications(alert, details)
 }
 
-// sendNotifications 发送告警通知
+// sendNotifications 发送告警通知.
 func (am *AlertingManager) sendNotifications(alert *Alert, details map[string]interface{}) {
 	am.mu.RLock()
 	subscribers := make([]AlertSubscriber, len(am.subscribers))
@@ -160,7 +160,7 @@ func (am *AlertingManager) sendNotifications(alert *Alert, details map[string]in
 	}
 }
 
-// shouldNotify 检查是否应该通知
+// shouldNotify 检查是否应该通知.
 func shouldNotify(minLevel, alertLevel string) bool {
 	levelPriority := map[string]int{
 		"info":     0,
@@ -181,7 +181,7 @@ func shouldNotify(minLevel, alertLevel string) bool {
 	return alertPriority >= minPriority
 }
 
-// formatEmailBody 格式化邮件正文
+// formatEmailBody 格式化邮件正文.
 func (am *AlertingManager) formatEmailBody(alert *Alert, details map[string]interface{}) string {
 	detailsJSON, _ := json.MarshalIndent(details, "", "  ")
 
@@ -227,7 +227,7 @@ func (am *AlertingManager) formatEmailBody(alert *Alert, details map[string]inte
 	)
 }
 
-// formatWebhookPayload 格式化 Webhook 消息
+// formatWebhookPayload 格式化 Webhook 消息.
 func (am *AlertingManager) formatWebhookPayload(alert *Alert, details map[string]interface{}) map[string]interface{} {
 	return map[string]interface{}{
 		"event":     "nasos.alert",
@@ -241,7 +241,7 @@ func (am *AlertingManager) formatWebhookPayload(alert *Alert, details map[string
 	}
 }
 
-// formatWeComPayload 格式化企业微信消息
+// formatWeComPayload 格式化企业微信消息.
 func (am *AlertingManager) formatWeComPayload(alert *Alert) map[string]interface{} {
 	emoji := map[string]string{
 		"info":     "🔵",
@@ -263,7 +263,7 @@ func (am *AlertingManager) formatWeComPayload(alert *Alert) map[string]interface
 	}
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (am *AlertingManager) AcknowledgeAlert(alertID, user string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -286,7 +286,7 @@ func (am *AlertingManager) AcknowledgeAlert(alertID, user string) error {
 	return fmt.Errorf("告警不存在")
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (am *AlertingManager) ResolveAlert(alertID string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -309,7 +309,7 @@ func (am *AlertingManager) ResolveAlert(alertID string) error {
 	return fmt.Errorf("告警不存在")
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (am *AlertingManager) GetAlerts(limit, offset int, filters map[string]string) []*Alert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -341,7 +341,7 @@ func (am *AlertingManager) GetAlerts(limit, offset int, filters map[string]strin
 	return result[start:end]
 }
 
-// GetActiveAlerts 获取活跃告警列表 (v2.59.0)
+// GetActiveAlerts 获取活跃告警列表 (v2.59.0).
 func (am *AlertingManager) GetActiveAlerts() []*Alert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -376,7 +376,7 @@ func matchesFilters(alert *Alert, filters map[string]string) bool {
 	return true
 }
 
-// GetAlertHistory 获取告警历史
+// GetAlertHistory 获取告警历史.
 func (am *AlertingManager) GetAlertHistory(limit, offset int) []*AlertHistoryEntry {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -401,7 +401,7 @@ func (am *AlertingManager) GetAlertHistory(limit, offset int) []*AlertHistoryEnt
 	return result
 }
 
-// GetAlertStats 获取告警统计
+// GetAlertStats 获取告警统计.
 func (am *AlertingManager) GetAlertStats() map[string]interface{} {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -433,14 +433,14 @@ func (am *AlertingManager) GetAlertStats() map[string]interface{} {
 	}
 }
 
-// AddRule 添加告警规则
+// AddRule 添加告警规则.
 func (am *AlertingManager) AddRule(rule AlertRule) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
 	am.rules = append(am.rules, rule)
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (am *AlertingManager) GetRules() []AlertRule {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -449,7 +449,7 @@ func (am *AlertingManager) GetRules() []AlertRule {
 	return result
 }
 
-// AddSubscriber 添加订阅者
+// AddSubscriber 添加订阅者.
 func (am *AlertingManager) AddSubscriber(sub AlertSubscriber) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -457,7 +457,7 @@ func (am *AlertingManager) AddSubscriber(sub AlertSubscriber) {
 	am.subscribers = append(am.subscribers, sub)
 }
 
-// GetSubscribers 获取订阅者列表
+// GetSubscribers 获取订阅者列表.
 func (am *AlertingManager) GetSubscribers() []AlertSubscriber {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -466,19 +466,19 @@ func (am *AlertingManager) GetSubscribers() []AlertSubscriber {
 	return result
 }
 
-// ClearAlerts 清除所有告警
+// ClearAlerts 清除所有告警.
 func (am *AlertingManager) ClearAlerts() {
 	am.mu.Lock()
 	defer am.mu.Unlock()
 	am.alerts = make([]*Alert, 0)
 }
 
-// generateAlertID 生成告警 ID
+// generateAlertID 生成告警 ID.
 func generateAlertID() string {
 	return fmt.Sprintf("alert-%d", time.Now().UnixNano())
 }
 
-// getLevelColor 获取告警级别颜色
+// getLevelColor 获取告警级别颜色.
 func getLevelColor(level string) string {
 	switch level {
 	case "critical":
@@ -490,7 +490,7 @@ func getLevelColor(level string) string {
 	}
 }
 
-// SendHTTPWebhook 发送 HTTP Webhook
+// SendHTTPWebhook 发送 HTTP Webhook.
 func SendHTTPWebhook(url string, payload map[string]interface{}) error {
 	jsonData, err := json.Marshal(payload)
 	if err != nil {

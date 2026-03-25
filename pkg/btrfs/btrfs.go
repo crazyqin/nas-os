@@ -12,17 +12,17 @@ import (
 	"time"
 )
 
-// 命令参数验证
+// 命令参数验证.
 var (
-	// 安全的设备路径模式：/dev/sdX, /dev/nvmeXnY, /dev/mapper/XXX
+	// 安全的设备路径模式：/dev/sdX, /dev/nvmeXnY, /dev/mapper/XXX.
 	devicePathRegex = regexp.MustCompile(`^/dev/(sd[a-z]+[0-9]*|nvme[0-9]+n[0-9]+|mapper/[a-zA-Z0-9_-]+)$`)
-	// 安全的挂载点/路径模式：绝对路径，不包含特殊字符
+	// 安全的挂载点/路径模式：绝对路径，不包含特殊字符.
 	safePathRegex = regexp.MustCompile(`^/[a-zA-Z0-9/_.-]+$`)
-	// 安全的选项模式：字母、数字、逗号、等号
+	// 安全的选项模式：字母、数字、逗号、等号.
 	safeOptionRegex = regexp.MustCompile(`^[a-zA-Z0-9,=]+$`)
 )
 
-// validateDevicePath 验证设备路径是否安全
+// validateDevicePath 验证设备路径是否安全.
 func validateDevicePath(device string) error {
 	if !devicePathRegex.MatchString(device) {
 		return fmt.Errorf("invalid device path: %s", device)
@@ -30,7 +30,7 @@ func validateDevicePath(device string) error {
 	return nil
 }
 
-// validatePath 验证挂载点/路径是否安全
+// validatePath 验证挂载点/路径是否安全.
 func validatePath(path string) error {
 	if path == "" {
 		return fmt.Errorf("path cannot be empty")
@@ -45,7 +45,7 @@ func validatePath(path string) error {
 	return nil
 }
 
-// validateOptions 验证挂载选项是否安全
+// validateOptions 验证挂载选项是否安全.
 func validateOptions(options []string) error {
 	for _, opt := range options {
 		if !safeOptionRegex.MatchString(opt) {
@@ -55,7 +55,7 @@ func validateOptions(options []string) error {
 	return nil
 }
 
-// VolumeInfo 表示一个 btrfs 卷的信息
+// VolumeInfo 表示一个 btrfs 卷的信息.
 type VolumeInfo struct {
 	Name     string   // 卷标签
 	UUID     string   // 卷 UUID
@@ -66,7 +66,7 @@ type VolumeInfo struct {
 	Metadata string   // 元数据配置
 }
 
-// SubVolumeInfo 表示子卷信息
+// SubVolumeInfo 表示子卷信息.
 type SubVolumeInfo struct {
 	ID        uint64    // 子卷 ID
 	Name      string    // 子卷名称
@@ -78,7 +78,7 @@ type SubVolumeInfo struct {
 	Size      uint64    // 大小（估算）
 }
 
-// SnapshotInfo 表示快照信息
+// SnapshotInfo 表示快照信息.
 type SnapshotInfo struct {
 	Name      string    // 快照名称
 	Path      string    // 快照路径
@@ -87,7 +87,7 @@ type SnapshotInfo struct {
 	CreatedAt time.Time // 创建时间
 }
 
-// DeviceStats 设备统计
+// DeviceStats 设备统计.
 type DeviceStats struct {
 	Device  string // 设备路径
 	Size    uint64 // 设备大小
@@ -95,14 +95,14 @@ type DeviceStats struct {
 	Profile string // 配置类型
 }
 
-// BalanceStatus 平衡状态
+// BalanceStatus 平衡状态.
 type BalanceStatus struct {
 	Running   bool      // 是否正在运行
 	Progress  float64   // 进度百分比
 	StartTime time.Time // 开始时间
 }
 
-// ScrubStatus 校验状态
+// ScrubStatus 校验状态.
 type ScrubStatus struct {
 	Running      bool      // 是否正在运行
 	Progress     float64   // 进度百分比
@@ -111,25 +111,25 @@ type ScrubStatus struct {
 	StartTime    time.Time // 开始时间
 }
 
-// Executer 接口定义 btrfs 命令执行器
+// Executer 接口定义 btrfs 命令执行器.
 type Executer interface {
 	Execute(args ...string) ([]byte, error)
 	ExecuteWithInput(input string, args ...string) ([]byte, error)
 }
 
-// Commander 实现 Executer 接口
+// Commander 实现 Executer 接口.
 type Commander struct {
 	sudo bool // 是否使用 sudo
 }
 
-// NewCommander 创建命令执行器
+// NewCommander 创建命令执行器.
 func NewCommander(sudo bool) *Commander {
 	return &Commander{sudo: sudo}
 }
 
 // Execute 执行 btrfs 命令
 // 注意：此方法为内部方法，调用者必须确保参数安全
-// 参数通常来自内部定义的常量字符串或已验证的用户输入
+// 参数通常来自内部定义的常量字符串或已验证的用户输入.
 func (c *Commander) Execute(args ...string) ([]byte, error) {
 	// 验证参数中不包含危险字符
 	for _, arg := range args {
@@ -150,7 +150,7 @@ func (c *Commander) Execute(args ...string) ([]byte, error) {
 }
 
 // ExecuteWithInput 执行命令并传入输入
-// 注意：此方法为内部方法，调用者必须确保参数安全
+// 注意：此方法为内部方法，调用者必须确保参数安全.
 func (c *Commander) ExecuteWithInput(input string, args ...string) ([]byte, error) {
 	// 验证参数中不包含危险字符
 	for _, arg := range args {
@@ -171,26 +171,26 @@ func (c *Commander) ExecuteWithInput(input string, args ...string) ([]byte, erro
 	return cmd.Output()
 }
 
-// Client btrfs 客户端
+// Client btrfs 客户端.
 type Client struct {
 	exec Executer
 }
 
-// NewClient 创建 btrfs 客户端
+// NewClient 创建 btrfs 客户端.
 func NewClient(sudo bool) *Client {
 	return &Client{
 		exec: NewCommander(sudo),
 	}
 }
 
-// NewClientWithExecuter 使用自定义执行器创建客户端
+// NewClientWithExecuter 使用自定义执行器创建客户端.
 func NewClientWithExecuter(exec Executer) *Client {
 	return &Client{exec: exec}
 }
 
 // ========== 卷管理 ==========
 
-// ListVolumes 列出所有 btrfs 卷
+// ListVolumes 列出所有 btrfs 卷.
 func (c *Client) ListVolumes() ([]VolumeInfo, error) {
 	output, err := c.exec.Execute("filesystem", "show")
 	if err != nil {
@@ -200,7 +200,7 @@ func (c *Client) ListVolumes() ([]VolumeInfo, error) {
 	return parseVolumeList(output)
 }
 
-// parseVolumeList 解析 btrfs filesystem show 输出
+// parseVolumeList 解析 btrfs filesystem show 输出.
 func parseVolumeList(output []byte) ([]VolumeInfo, error) {
 	var volumes []VolumeInfo
 	var current *VolumeInfo
@@ -250,7 +250,7 @@ func parseVolumeList(output []byte) ([]VolumeInfo, error) {
 	return volumes, nil
 }
 
-// GetUsage 获取卷使用情况
+// GetUsage 获取卷使用情况.
 func (c *Client) GetUsage(mountPoint string) (total, used, free uint64, err error) {
 	output, err := c.exec.Execute("filesystem", "usage", "-b", mountPoint)
 	if err != nil {
@@ -260,7 +260,7 @@ func (c *Client) GetUsage(mountPoint string) (total, used, free uint64, err erro
 	return parseUsage(output)
 }
 
-// parseUsage 解析 btrfs filesystem usage 输出
+// parseUsage 解析 btrfs filesystem usage 输出.
 func parseUsage(output []byte) (total, used, free uint64, err error) {
 	scanner := bufio.NewScanner(bytes.NewReader(output))
 	for scanner.Scan() {
@@ -296,7 +296,7 @@ func parseUsage(output []byte) (total, used, free uint64, err error) {
 	return total, used, free, nil
 }
 
-// CreateVolume 创建新的 btrfs 卷
+// CreateVolume 创建新的 btrfs 卷.
 func (c *Client) CreateVolume(label string, devices []string, dataProfile, metadataProfile string) error {
 	// 验证设备路径（防止命令注入）
 	for _, device := range devices {
@@ -335,7 +335,7 @@ func (c *Client) CreateVolume(label string, devices []string, dataProfile, metad
 	return nil
 }
 
-// DeleteVolume 删除卷（危险操作）
+// DeleteVolume 删除卷（危险操作）.
 func (c *Client) DeleteVolume(device string) error {
 	// 验证设备路径（防止命令注入）
 	if err := validateDevicePath(device); err != nil {
@@ -360,7 +360,7 @@ func (c *Client) DeleteVolume(device string) error {
 	return nil
 }
 
-// Mount 挂载卷
+// Mount 挂载卷.
 func (c *Client) Mount(device, mountPoint string, options []string) error {
 	// 验证设备路径（防止命令注入）
 	if err := validateDevicePath(device); err != nil {
@@ -399,7 +399,7 @@ func (c *Client) Mount(device, mountPoint string, options []string) error {
 	return nil
 }
 
-// Unmount 卸载卷
+// Unmount 卸载卷.
 func (c *Client) Unmount(mountPoint string) error {
 	// 验证挂载点（防止命令注入）
 	if err := validatePath(mountPoint); err != nil {
@@ -425,7 +425,7 @@ func (c *Client) Unmount(mountPoint string) error {
 
 // ========== 子卷管理 ==========
 
-// ListSubVolumes 列出卷下的所有子卷
+// ListSubVolumes 列出卷下的所有子卷.
 func (c *Client) ListSubVolumes(mountPoint string) ([]SubVolumeInfo, error) {
 	output, err := c.exec.Execute("subvolume", "list", "-p", "-u", "-q", mountPoint)
 	if err != nil {
@@ -435,7 +435,7 @@ func (c *Client) ListSubVolumes(mountPoint string) ([]SubVolumeInfo, error) {
 	return parseSubVolumeList(output, mountPoint)
 }
 
-// parseSubVolumeList 解析 btrfs subvolume list 输出
+// parseSubVolumeList 解析 btrfs subvolume list 输出.
 func parseSubVolumeList(output []byte, mountPoint string) ([]SubVolumeInfo, error) {
 	var subvols []SubVolumeInfo
 
@@ -484,7 +484,7 @@ func parseSubVolumeList(output []byte, mountPoint string) ([]SubVolumeInfo, erro
 	return subvols, nil
 }
 
-// CreateSubVolume 创建子卷
+// CreateSubVolume 创建子卷.
 func (c *Client) CreateSubVolume(path string) error {
 	// 验证路径（防止命令注入）
 	if err := validatePath(path); err != nil {
@@ -497,7 +497,7 @@ func (c *Client) CreateSubVolume(path string) error {
 	return nil
 }
 
-// DeleteSubVolume 删除子卷
+// DeleteSubVolume 删除子卷.
 func (c *Client) DeleteSubVolume(path string) error {
 	// 验证路径（防止命令注入）
 	if err := validatePath(path); err != nil {
@@ -510,7 +510,7 @@ func (c *Client) DeleteSubVolume(path string) error {
 	return nil
 }
 
-// GetSubVolumeInfo 获取子卷详细信息
+// GetSubVolumeInfo 获取子卷详细信息.
 func (c *Client) GetSubVolumeInfo(path string) (*SubVolumeInfo, error) {
 	// 验证路径（防止命令注入）
 	if err := validatePath(path); err != nil {
@@ -524,7 +524,7 @@ func (c *Client) GetSubVolumeInfo(path string) (*SubVolumeInfo, error) {
 	return parseSubVolumeShow(output, path)
 }
 
-// parseSubVolumeShow 解析 btrfs subvolume show 输出
+// parseSubVolumeShow 解析 btrfs subvolume show 输出.
 func parseSubVolumeShow(output []byte, path string) (*SubVolumeInfo, error) {
 	info := &SubVolumeInfo{Path: path}
 
@@ -552,7 +552,7 @@ func parseSubVolumeShow(output []byte, path string) (*SubVolumeInfo, error) {
 	return info, nil
 }
 
-// SetSubVolumeReadOnly 设置子卷只读属性
+// SetSubVolumeReadOnly 设置子卷只读属性.
 func (c *Client) SetSubVolumeReadOnly(path string, readOnly bool) error {
 	var args []string
 	if readOnly {
@@ -607,7 +607,7 @@ func (c *Client) MountSubVolume(device, subvolPath, mountPoint string) error {
 	return nil
 }
 
-// MountSubVolumeByID 通过子卷 ID 挂载子卷
+// MountSubVolumeByID 通过子卷 ID 挂载子卷.
 func (c *Client) MountSubVolumeByID(device string, subvolID uint64, mountPoint string) error {
 	// 验证设备路径（防止命令注入）
 	if err := validateDevicePath(device); err != nil {
@@ -638,7 +638,7 @@ func (c *Client) MountSubVolumeByID(device string, subvolID uint64, mountPoint s
 	return nil
 }
 
-// GetDefaultSubVolume 获取默认子卷 ID
+// GetDefaultSubVolume 获取默认子卷 ID.
 func (c *Client) GetDefaultSubVolume(mountPoint string) (uint64, error) {
 	output, err := c.exec.Execute("subvolume", "get-default", mountPoint)
 	if err != nil {
@@ -660,7 +660,7 @@ func (c *Client) GetDefaultSubVolume(mountPoint string) (uint64, error) {
 	return 0, fmt.Errorf("无法解析默认子卷 ID: %s", text)
 }
 
-// SetDefaultSubVolume 设置默认子卷
+// SetDefaultSubVolume 设置默认子卷.
 func (c *Client) SetDefaultSubVolume(mountPoint string, subvolID uint64) error {
 	output, err := c.exec.Execute("subvolume", "set-default", fmt.Sprintf("%d", subvolID), mountPoint)
 	if err != nil {
@@ -671,7 +671,7 @@ func (c *Client) SetDefaultSubVolume(mountPoint string, subvolID uint64) error {
 
 // ========== 快照管理 ==========
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (c *Client) CreateSnapshot(source, dest string, readOnly bool) error {
 	args := []string{"subvolume", "snapshot"}
 	if readOnly {
@@ -686,18 +686,18 @@ func (c *Client) CreateSnapshot(source, dest string, readOnly bool) error {
 	return nil
 }
 
-// DeleteSnapshot 删除快照（与删除子卷相同）
+// DeleteSnapshot 删除快照（与删除子卷相同）.
 func (c *Client) DeleteSnapshot(path string) error {
 	return c.DeleteSubVolume(path)
 }
 
-// RestoreSnapshot 恢复快照（实际上是创建一个可写快照）
+// RestoreSnapshot 恢复快照（实际上是创建一个可写快照）.
 func (c *Client) RestoreSnapshot(snapshotPath, targetPath string) error {
 	// 恢复快照就是创建一个可写快照到目标位置
 	return c.CreateSnapshot(snapshotPath, targetPath, false)
 }
 
-// ListSnapshots 列出所有快照（通过检查子卷的只读属性）
+// ListSnapshots 列出所有快照（通过检查子卷的只读属性）.
 func (c *Client) ListSnapshots(mountPoint string) ([]SnapshotInfo, error) {
 	subvols, err := c.ListSubVolumes(mountPoint)
 	if err != nil {
@@ -727,7 +727,7 @@ func (c *Client) ListSnapshots(mountPoint string) ([]SnapshotInfo, error) {
 
 // ========== RAID 管理 ==========
 
-// GetDeviceStats 获取设备统计信息
+// GetDeviceStats 获取设备统计信息.
 func (c *Client) GetDeviceStats(mountPoint string) ([]DeviceStats, error) {
 	output, err := c.exec.Execute("device", "usage", mountPoint)
 	if err != nil {
@@ -737,7 +737,7 @@ func (c *Client) GetDeviceStats(mountPoint string) ([]DeviceStats, error) {
 	return parseDeviceUsage(output)
 }
 
-// parseDeviceUsage 解析 btrfs device usage 输出
+// parseDeviceUsage 解析 btrfs device usage 输出.
 func parseDeviceUsage(output []byte) ([]DeviceStats, error) {
 	var stats []DeviceStats
 	var current *DeviceStats
@@ -785,7 +785,7 @@ func parseDeviceUsage(output []byte) ([]DeviceStats, error) {
 	return stats, nil
 }
 
-// parseSizeStr 解析大小字符串
+// parseSizeStr 解析大小字符串.
 func parseSizeStr(s string) uint64 {
 	s = strings.TrimSpace(s)
 
@@ -815,7 +815,7 @@ func parseSizeStr(s string) uint64 {
 	return uint64(val * float64(multiplier))
 }
 
-// AddDevice 添加设备到卷（扩容）
+// AddDevice 添加设备到卷（扩容）.
 func (c *Client) AddDevice(mountPoint, device string) error {
 	// 验证设备路径（防止命令注入）
 	if err := validateDevicePath(device); err != nil {
@@ -832,7 +832,7 @@ func (c *Client) AddDevice(mountPoint, device string) error {
 	return nil
 }
 
-// RemoveDevice 从卷中移除设备
+// RemoveDevice 从卷中移除设备.
 func (c *Client) RemoveDevice(mountPoint, device string) error {
 	// 验证设备路径（防止命令注入）
 	if err := validateDevicePath(device); err != nil {
@@ -849,7 +849,7 @@ func (c *Client) RemoveDevice(mountPoint, device string) error {
 	return nil
 }
 
-// ConvertProfile 转换 RAID 配置
+// ConvertProfile 转换 RAID 配置.
 func (c *Client) ConvertProfile(mountPoint, dataProfile, metadataProfile string) error {
 	var args []string
 	if dataProfile != "" {
@@ -869,7 +869,7 @@ func (c *Client) ConvertProfile(mountPoint, dataProfile, metadataProfile string)
 
 // ========== 平衡与校验 ==========
 
-// StartBalance 启动数据平衡
+// StartBalance 启动数据平衡.
 func (c *Client) StartBalance(mountPoint string) error {
 	output, err := c.exec.Execute("balance", "start", mountPoint)
 	if err != nil {
@@ -878,7 +878,7 @@ func (c *Client) StartBalance(mountPoint string) error {
 	return nil
 }
 
-// GetBalanceStatus 获取平衡状态
+// GetBalanceStatus 获取平衡状态.
 func (c *Client) GetBalanceStatus(mountPoint string) (*BalanceStatus, error) {
 	output, err := c.exec.Execute("balance", "status", mountPoint)
 	if err != nil {
@@ -889,7 +889,7 @@ func (c *Client) GetBalanceStatus(mountPoint string) (*BalanceStatus, error) {
 	return parseBalanceStatus(output)
 }
 
-// parseBalanceStatus 解析平衡状态
+// parseBalanceStatus 解析平衡状态.
 func parseBalanceStatus(output []byte) (*BalanceStatus, error) {
 	status := &BalanceStatus{}
 	text := string(output)
@@ -921,7 +921,7 @@ func parseBalanceStatus(output []byte) (*BalanceStatus, error) {
 	return status, nil
 }
 
-// CancelBalance 取消平衡操作
+// CancelBalance 取消平衡操作.
 func (c *Client) CancelBalance(mountPoint string) error {
 	output, err := c.exec.Execute("balance", "cancel", mountPoint)
 	if err != nil {
@@ -930,7 +930,7 @@ func (c *Client) CancelBalance(mountPoint string) error {
 	return nil
 }
 
-// StartScrub 启动数据校验
+// StartScrub 启动数据校验.
 func (c *Client) StartScrub(mountPoint string) error {
 	output, err := c.exec.Execute("scrub", "start", mountPoint)
 	if err != nil {
@@ -939,7 +939,7 @@ func (c *Client) StartScrub(mountPoint string) error {
 	return nil
 }
 
-// GetScrubStatus 获取校验状态
+// GetScrubStatus 获取校验状态.
 func (c *Client) GetScrubStatus(mountPoint string) (*ScrubStatus, error) {
 	output, err := c.exec.Execute("scrub", "status", mountPoint)
 	if err != nil {
@@ -949,7 +949,7 @@ func (c *Client) GetScrubStatus(mountPoint string) (*ScrubStatus, error) {
 	return parseScrubStatus(output)
 }
 
-// parseScrubStatus 解析校验状态
+// parseScrubStatus 解析校验状态.
 func parseScrubStatus(output []byte) (*ScrubStatus, error) {
 	status := &ScrubStatus{}
 	text := string(output)
@@ -998,7 +998,7 @@ func parseScrubStatus(output []byte) (*ScrubStatus, error) {
 	return status, nil
 }
 
-// CancelScrub 取消校验操作
+// CancelScrub 取消校验操作.
 func (c *Client) CancelScrub(mountPoint string) error {
 	output, err := c.exec.Execute("scrub", "cancel", mountPoint)
 	if err != nil {

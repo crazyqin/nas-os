@@ -34,7 +34,7 @@ func NewContainerHandlers() (*ContainerHandlers, error) {
 	}, nil
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *ContainerHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	api := r.Group("/api/v1")
 	{
@@ -101,7 +101,7 @@ func (h *ContainerHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// getDockerStatus 获取 Docker 状态
+// getDockerStatus 获取 Docker 状态.
 func (h *ContainerHandlers) getDockerStatus(c *gin.Context) {
 	running := h.manager.IsRunning()
 
@@ -126,7 +126,7 @@ func (h *ContainerHandlers) getDockerStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// listContainers 列出容器
+// listContainers 列出容器.
 func (h *ContainerHandlers) listContainers(c *gin.Context) {
 	all := c.Query("all") == "true"
 
@@ -146,7 +146,7 @@ func (h *ContainerHandlers) listContainers(c *gin.Context) {
 	})
 }
 
-// createContainer 创建容器
+// createContainer 创建容器.
 func (h *ContainerHandlers) createContainer(c *gin.Context) {
 	var config container.Config
 
@@ -174,7 +174,7 @@ func (h *ContainerHandlers) createContainer(c *gin.Context) {
 	})
 }
 
-// getContainer 获取容器详情
+// getContainer 获取容器详情.
 func (h *ContainerHandlers) getContainer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -194,7 +194,7 @@ func (h *ContainerHandlers) getContainer(c *gin.Context) {
 	})
 }
 
-// removeContainer 删除容器
+// removeContainer 删除容器.
 func (h *ContainerHandlers) removeContainer(c *gin.Context) {
 	id := c.Param("id")
 	force := c.Query("force") == "true"
@@ -214,7 +214,7 @@ func (h *ContainerHandlers) removeContainer(c *gin.Context) {
 	})
 }
 
-// startContainer 启动容器
+// startContainer 启动容器.
 func (h *ContainerHandlers) startContainer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -232,7 +232,7 @@ func (h *ContainerHandlers) startContainer(c *gin.Context) {
 	})
 }
 
-// stopContainer 停止容器
+// stopContainer 停止容器.
 func (h *ContainerHandlers) stopContainer(c *gin.Context) {
 	id := c.Param("id")
 	timeout := container.DefaultStopTimeout
@@ -258,7 +258,7 @@ func (h *ContainerHandlers) stopContainer(c *gin.Context) {
 	})
 }
 
-// restartContainer 重启容器
+// restartContainer 重启容器.
 func (h *ContainerHandlers) restartContainer(c *gin.Context) {
 	id := c.Param("id")
 	timeout := container.DefaultStopTimeout
@@ -284,7 +284,7 @@ func (h *ContainerHandlers) restartContainer(c *gin.Context) {
 	})
 }
 
-// getContainerStats 获取容器实时统计
+// getContainerStats 获取容器实时统计.
 func (h *ContainerHandlers) getContainerStats(c *gin.Context) {
 	id := c.Param("id")
 
@@ -304,7 +304,7 @@ func (h *ContainerHandlers) getContainerStats(c *gin.Context) {
 	})
 }
 
-// getContainerLogs 获取容器日志
+// getContainerLogs 获取容器日志.
 func (h *ContainerHandlers) getContainerLogs(c *gin.Context) {
 	id := c.Param("id")
 	tail := container.DefaultLogTail
@@ -333,7 +333,7 @@ func (h *ContainerHandlers) getContainerLogs(c *gin.Context) {
 	})
 }
 
-// listImages 列出镜像
+// listImages 列出镜像.
 func (h *ContainerHandlers) listImages(c *gin.Context) {
 	images, err := h.imageManager.ListImages()
 	if err != nil {
@@ -351,7 +351,7 @@ func (h *ContainerHandlers) listImages(c *gin.Context) {
 	})
 }
 
-// pullImage 拉取镜像
+// pullImage 拉取镜像.
 func (h *ContainerHandlers) pullImage(c *gin.Context) {
 	var config container.ImageConfig
 
@@ -377,7 +377,7 @@ func (h *ContainerHandlers) pullImage(c *gin.Context) {
 	})
 }
 
-// pushImage 推送镜像
+// pushImage 推送镜像.
 func (h *ContainerHandlers) pushImage(c *gin.Context) {
 	var req struct {
 		Image string `json:"image" binding:"required"`
@@ -405,7 +405,7 @@ func (h *ContainerHandlers) pushImage(c *gin.Context) {
 	})
 }
 
-// removeImage 删除镜像
+// removeImage 删除镜像.
 func (h *ContainerHandlers) removeImage(c *gin.Context) {
 	id := c.Param("id")
 	force := c.Query("force") == "true"
@@ -425,7 +425,7 @@ func (h *ContainerHandlers) removeImage(c *gin.Context) {
 	})
 }
 
-// tagImage 标记镜像
+// tagImage 标记镜像.
 func (h *ContainerHandlers) tagImage(c *gin.Context) {
 	var req struct {
 		Source string `json:"source" binding:"required"`
@@ -454,7 +454,7 @@ func (h *ContainerHandlers) tagImage(c *gin.Context) {
 	})
 }
 
-// searchImages 搜索镜像
+// searchImages 搜索镜像.
 func (h *ContainerHandlers) searchImages(c *gin.Context) {
 	term := c.Query("term")
 	limit := 10
@@ -475,7 +475,7 @@ func (h *ContainerHandlers) searchImages(c *gin.Context) {
 	})
 }
 
-// pruneImages 清理镜像
+// pruneImages 清理镜像.
 func (h *ContainerHandlers) pruneImages(c *gin.Context) {
 	var req struct {
 		All bool `json:"all"`
@@ -507,7 +507,7 @@ func (h *ContainerHandlers) pruneImages(c *gin.Context) {
 	})
 }
 
-// listNetworks 列出网络
+// listNetworks 列出网络.
 func (h *ContainerHandlers) listNetworks(c *gin.Context) {
 	networks, err := h.networkManager.ListNetworks()
 	if err != nil {
@@ -525,7 +525,7 @@ func (h *ContainerHandlers) listNetworks(c *gin.Context) {
 	})
 }
 
-// createNetwork 创建网络
+// createNetwork 创建网络.
 func (h *ContainerHandlers) createNetwork(c *gin.Context) {
 	var config container.NetworkConfig
 
@@ -553,7 +553,7 @@ func (h *ContainerHandlers) createNetwork(c *gin.Context) {
 	})
 }
 
-// getNetwork 获取网络详情
+// getNetwork 获取网络详情.
 func (h *ContainerHandlers) getNetwork(c *gin.Context) {
 	id := c.Param("id")
 
@@ -573,7 +573,7 @@ func (h *ContainerHandlers) getNetwork(c *gin.Context) {
 	})
 }
 
-// removeNetwork 删除网络
+// removeNetwork 删除网络.
 func (h *ContainerHandlers) removeNetwork(c *gin.Context) {
 	id := c.Param("id")
 
@@ -591,7 +591,7 @@ func (h *ContainerHandlers) removeNetwork(c *gin.Context) {
 	})
 }
 
-// connectNetwork 连接网络
+// connectNetwork 连接网络.
 func (h *ContainerHandlers) connectNetwork(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -621,7 +621,7 @@ func (h *ContainerHandlers) connectNetwork(c *gin.Context) {
 	})
 }
 
-// disconnectNetwork 断开网络
+// disconnectNetwork 断开网络.
 func (h *ContainerHandlers) disconnectNetwork(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -651,7 +651,7 @@ func (h *ContainerHandlers) disconnectNetwork(c *gin.Context) {
 	})
 }
 
-// pruneNetworks 清理网络
+// pruneNetworks 清理网络.
 func (h *ContainerHandlers) pruneNetworks(c *gin.Context) {
 	reclaimed, err := h.networkManager.PruneNetworks()
 	if err != nil {
@@ -671,7 +671,7 @@ func (h *ContainerHandlers) pruneNetworks(c *gin.Context) {
 	})
 }
 
-// getNetworkTypes 获取网络类型
+// getNetworkTypes 获取网络类型.
 func (h *ContainerHandlers) getNetworkTypes(c *gin.Context) {
 	types := h.networkManager.GetNetworkTypes()
 
@@ -682,7 +682,7 @@ func (h *ContainerHandlers) getNetworkTypes(c *gin.Context) {
 	})
 }
 
-// listVolumes 列出卷
+// listVolumes 列出卷.
 func (h *ContainerHandlers) listVolumes(c *gin.Context) {
 	volumes, err := h.volumeManager.ListVolumes()
 	if err != nil {
@@ -700,7 +700,7 @@ func (h *ContainerHandlers) listVolumes(c *gin.Context) {
 	})
 }
 
-// createVolume 创建卷
+// createVolume 创建卷.
 func (h *ContainerHandlers) createVolume(c *gin.Context) {
 	var config container.VolumeConfig
 
@@ -728,7 +728,7 @@ func (h *ContainerHandlers) createVolume(c *gin.Context) {
 	})
 }
 
-// getVolume 获取卷详情
+// getVolume 获取卷详情.
 func (h *ContainerHandlers) getVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -748,7 +748,7 @@ func (h *ContainerHandlers) getVolume(c *gin.Context) {
 	})
 }
 
-// removeVolume 删除卷
+// removeVolume 删除卷.
 func (h *ContainerHandlers) removeVolume(c *gin.Context) {
 	name := c.Param("name")
 	force := c.Query("force") == "true"
@@ -767,7 +767,7 @@ func (h *ContainerHandlers) removeVolume(c *gin.Context) {
 	})
 }
 
-// backupVolume 备份卷
+// backupVolume 备份卷.
 func (h *ContainerHandlers) backupVolume(c *gin.Context) {
 	name := c.Param("name")
 	var req struct {
@@ -799,7 +799,7 @@ func (h *ContainerHandlers) backupVolume(c *gin.Context) {
 	})
 }
 
-// restoreVolume 恢复卷
+// restoreVolume 恢复卷.
 func (h *ContainerHandlers) restoreVolume(c *gin.Context) {
 	var req struct {
 		BackupPath string `json:"backupPath" binding:"required"`
@@ -828,7 +828,7 @@ func (h *ContainerHandlers) restoreVolume(c *gin.Context) {
 	})
 }
 
-// pruneVolumes 清理卷
+// pruneVolumes 清理卷.
 func (h *ContainerHandlers) pruneVolumes(c *gin.Context) {
 	reclaimed, err := h.volumeManager.PruneVolumes()
 	if err != nil {
@@ -848,7 +848,7 @@ func (h *ContainerHandlers) pruneVolumes(c *gin.Context) {
 	})
 }
 
-// listVolumeBackups 列出卷备份
+// listVolumeBackups 列出卷备份.
 func (h *ContainerHandlers) listVolumeBackups(c *gin.Context) {
 	backupDir := c.Query("dir")
 	if backupDir == "" {
@@ -871,7 +871,7 @@ func (h *ContainerHandlers) listVolumeBackups(c *gin.Context) {
 	})
 }
 
-// deployCompose 部署 Compose 项目
+// deployCompose 部署 Compose 项目.
 func (h *ContainerHandlers) deployCompose(c *gin.Context) {
 	var req struct {
 		ComposePath string `json:"composePath" binding:"required"`
@@ -899,7 +899,7 @@ func (h *ContainerHandlers) deployCompose(c *gin.Context) {
 	})
 }
 
-// stopCompose 停止 Compose 项目
+// stopCompose 停止 Compose 项目.
 func (h *ContainerHandlers) stopCompose(c *gin.Context) {
 	var req struct {
 		ComposePath string `json:"composePath" binding:"required"`
@@ -927,7 +927,7 @@ func (h *ContainerHandlers) stopCompose(c *gin.Context) {
 	})
 }
 
-// restartCompose 重启 Compose 项目
+// restartCompose 重启 Compose 项目.
 func (h *ContainerHandlers) restartCompose(c *gin.Context) {
 	var req struct {
 		ComposePath string `json:"composePath" binding:"required"`
@@ -955,7 +955,7 @@ func (h *ContainerHandlers) restartCompose(c *gin.Context) {
 	})
 }
 
-// removeCompose 删除 Compose 项目
+// removeCompose 删除 Compose 项目.
 func (h *ContainerHandlers) removeCompose(c *gin.Context) {
 	var req struct {
 		ComposePath   string `json:"composePath" binding:"required"`
@@ -984,7 +984,7 @@ func (h *ContainerHandlers) removeCompose(c *gin.Context) {
 	})
 }
 
-// getComposeServices 获取 Compose 服务状态
+// getComposeServices 获取 Compose 服务状态.
 func (h *ContainerHandlers) getComposeServices(c *gin.Context) {
 	composePath := c.Query("composePath")
 	if composePath == "" {
@@ -1011,7 +1011,7 @@ func (h *ContainerHandlers) getComposeServices(c *gin.Context) {
 	})
 }
 
-// getComposeLogs 获取 Compose 日志
+// getComposeLogs 获取 Compose 日志.
 func (h *ContainerHandlers) getComposeLogs(c *gin.Context) {
 	composePath := c.Query("composePath")
 	service := c.Query("service")
@@ -1041,7 +1041,7 @@ func (h *ContainerHandlers) getComposeLogs(c *gin.Context) {
 	})
 }
 
-// validateCompose 验证 Compose 文件
+// validateCompose 验证 Compose 文件.
 func (h *ContainerHandlers) validateCompose(c *gin.Context) {
 	var req struct {
 		ComposePath string `json:"composePath" binding:"required"`
@@ -1071,7 +1071,7 @@ func (h *ContainerHandlers) validateCompose(c *gin.Context) {
 
 // === 批量操作 API ===
 
-// batchStartContainers 批量启动容器
+// batchStartContainers 批量启动容器.
 func (h *ContainerHandlers) batchStartContainers(c *gin.Context) {
 	var req struct {
 		ContainerIDs []string `json:"containerIds" binding:"required"`
@@ -1102,7 +1102,7 @@ func (h *ContainerHandlers) batchStartContainers(c *gin.Context) {
 	})
 }
 
-// batchStopContainers 批量停止容器
+// batchStopContainers 批量停止容器.
 func (h *ContainerHandlers) batchStopContainers(c *gin.Context) {
 	var req struct {
 		ContainerIDs []string `json:"containerIds" binding:"required"`
@@ -1134,7 +1134,7 @@ func (h *ContainerHandlers) batchStopContainers(c *gin.Context) {
 	})
 }
 
-// batchRestartContainers 批量重启容器
+// batchRestartContainers 批量重启容器.
 func (h *ContainerHandlers) batchRestartContainers(c *gin.Context) {
 	var req struct {
 		ContainerIDs []string `json:"containerIds" binding:"required"`
@@ -1166,7 +1166,7 @@ func (h *ContainerHandlers) batchRestartContainers(c *gin.Context) {
 	})
 }
 
-// batchRemoveContainers 批量删除容器
+// batchRemoveContainers 批量删除容器.
 func (h *ContainerHandlers) batchRemoveContainers(c *gin.Context) {
 	var req struct {
 		ContainerIDs  []string `json:"containerIds" binding:"required"`
@@ -1199,7 +1199,7 @@ func (h *ContainerHandlers) batchRemoveContainers(c *gin.Context) {
 	})
 }
 
-// batchExecuteContainers 执行通用批量操作
+// batchExecuteContainers 执行通用批量操作.
 func (h *ContainerHandlers) batchExecuteContainers(c *gin.Context) {
 	var req container.BatchOperationRequest
 
@@ -1228,7 +1228,7 @@ func (h *ContainerHandlers) batchExecuteContainers(c *gin.Context) {
 	})
 }
 
-// pruneContainers 清理停止的容器
+// pruneContainers 清理停止的容器.
 func (h *ContainerHandlers) pruneContainers(c *gin.Context) {
 	result, err := h.manager.PruneContainers()
 	if err != nil {
@@ -1246,7 +1246,7 @@ func (h *ContainerHandlers) pruneContainers(c *gin.Context) {
 	})
 }
 
-// selectContainers 根据条件选择容器
+// selectContainers 根据条件选择容器.
 func (h *ContainerHandlers) selectContainers(c *gin.Context) {
 	var filter container.ContainerFilter
 

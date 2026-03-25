@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// SMARTMonitor SMART 磁盘健康监控器
+// SMARTMonitor SMART 磁盘健康监控器.
 type SMARTMonitor struct {
 	config       *MonitorConfig
 	disks        map[string]*DiskInfo
@@ -27,7 +27,7 @@ type SMARTMonitor struct {
 	scoreWeights *ScoreWeights
 }
 
-// MonitorConfig 监控配置
+// MonitorConfig 监控配置.
 type MonitorConfig struct {
 	// CheckInterval 检查间隔
 	CheckInterval time.Duration `json:"checkInterval"`
@@ -41,7 +41,7 @@ type MonitorConfig struct {
 	EnablePrediction bool `json:"enablePrediction"`
 }
 
-// DefaultMonitorConfig 默认监控配置
+// DefaultMonitorConfig 默认监控配置.
 var DefaultMonitorConfig = &MonitorConfig{
 	CheckInterval:    30 * time.Minute,
 	HistoryRetention: 720, // 30 天
@@ -86,7 +86,7 @@ const (
 	StatusOffline DiskStatus = "offline"
 )
 
-// SMARTData SMART 数据
+// SMARTData SMART 数据.
 type SMARTData struct {
 	// 基本属性
 	OverallHealth string `json:"overallHealth"` // PASSED, FAILED, UNKNOWN
@@ -113,7 +113,7 @@ type SMARTData struct {
 	AllAttributes map[string]*SMARTAttribute `json:"allAttributes"`
 }
 
-// SMARTAttribute SMART 属性
+// SMARTAttribute SMART 属性.
 type SMARTAttribute struct {
 	ID          uint   `json:"id"`
 	Name        string `json:"name"`
@@ -127,7 +127,7 @@ type SMARTAttribute struct {
 	Description string `json:"description"` // 描述
 }
 
-// HealthScore 健康评分
+// HealthScore 健康评分.
 type HealthScore struct {
 	Score           int              `json:"score"`           // 0-100
 	Grade           string           `json:"grade"`           // A/B/C/D/F
@@ -138,7 +138,7 @@ type HealthScore struct {
 	Trend           string           `json:"trend"` // up/down/stable
 }
 
-// ScoreComponents 分项评分
+// ScoreComponents 分项评分.
 type ScoreComponents struct {
 	Temperature  ComponentScore `json:"temperature"`
 	Reallocation ComponentScore `json:"reallocation"`
@@ -148,7 +148,7 @@ type ScoreComponents struct {
 	Stability    ComponentScore `json:"stability"`
 }
 
-// ComponentScore 组件评分
+// ComponentScore 组件评分.
 type ComponentScore struct {
 	Score   int         `json:"score"`   // 0-100
 	Weight  float64     `json:"weight"`  // 权重
@@ -157,7 +157,7 @@ type ComponentScore struct {
 	Value   interface{} `json:"value"`
 }
 
-// ScoreWeights 评分权重
+// ScoreWeights 评分权重.
 type ScoreWeights struct {
 	Temperature  float64 `json:"temperature"`
 	Reallocation float64 `json:"reallocation"`
@@ -167,7 +167,7 @@ type ScoreWeights struct {
 	Stability    float64 `json:"stability"`
 }
 
-// DefaultScoreWeights 默认评分权重
+// DefaultScoreWeights 默认评分权重.
 var DefaultScoreWeights = &ScoreWeights{
 	Temperature:  0.15,
 	Reallocation: 0.25,
@@ -177,7 +177,7 @@ var DefaultScoreWeights = &ScoreWeights{
 	Stability:    0.05,
 }
 
-// AlertRule 告警规则
+// AlertRule 告警规则.
 type AlertRule struct {
 	ID            string               `json:"id"`
 	Name          string               `json:"name"`
@@ -202,7 +202,7 @@ const (
 	AlertCritical AlertSeverity = "critical"
 )
 
-// SMARTAlert SMART 告警
+// SMARTAlert SMART 告警.
 type SMARTAlert struct {
 	ID           string        `json:"id"`
 	Device       string        `json:"device"`
@@ -217,7 +217,7 @@ type SMARTAlert struct {
 	Resolved     bool          `json:"resolved"`
 }
 
-// Prediction 故障预测
+// Prediction 故障预测.
 type Prediction struct {
 	Type        string    `json:"type"`        // temperature, wear, error_rate
 	Probability float64   `json:"probability"` // 0-1
@@ -226,7 +226,7 @@ type Prediction struct {
 	Description string    `json:"description"`
 }
 
-// SMARTHistoryPoint SMART 历史数据点
+// SMARTHistoryPoint SMART 历史数据点.
 type SMARTHistoryPoint struct {
 	Timestamp          time.Time `json:"timestamp"`
 	HealthScore        int       `json:"healthScore"`
@@ -237,7 +237,7 @@ type SMARTHistoryPoint struct {
 	WriteErrors        uint64    `json:"writeErrors"`
 }
 
-// NewSMARTMonitor 创建 SMART 监控器
+// NewSMARTMonitor 创建 SMART 监控器.
 func NewSMARTMonitor(config *MonitorConfig) *SMARTMonitor {
 	if config == nil {
 		config = DefaultMonitorConfig
@@ -264,7 +264,7 @@ func NewSMARTMonitor(config *MonitorConfig) *SMARTMonitor {
 	return m
 }
 
-// getDefaultAlertRules 获取默认告警规则
+// getDefaultAlertRules 获取默认告警规则.
 func getDefaultAlertRules() []*AlertRule {
 	return []*AlertRule{
 		{
@@ -414,12 +414,12 @@ func getDefaultAlertRules() []*AlertRule {
 	}
 }
 
-// SetNotifyFunc 设置通知回调函数
+// SetNotifyFunc 设置通知回调函数.
 func (m *SMARTMonitor) SetNotifyFunc(fn func(alert *SMARTAlert)) {
 	m.notifyFunc = fn
 }
 
-// ScanDisks 扫描系统磁盘
+// ScanDisks 扫描系统磁盘.
 func (m *SMARTMonitor) ScanDisks() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -501,7 +501,7 @@ func (m *SMARTMonitor) ScanDisks() error {
 	return nil
 }
 
-// getSMARTData 获取 SMART 数据
+// getSMARTData 获取 SMART 数据.
 func (m *SMARTMonitor) getSMARTData(device string) (*SMARTData, error) {
 	// 检查 smartctl 是否可用
 	if _, err := exec.LookPath("smartctl"); err != nil {
@@ -523,7 +523,7 @@ func (m *SMARTMonitor) getSMARTData(device string) (*SMARTData, error) {
 	return m.parseSMARTOutput(string(output), device), nil
 }
 
-// parseSMARTOutput 解析 smartctl 输出
+// parseSMARTOutput 解析 smartctl 输出.
 func (m *SMARTMonitor) parseSMARTOutput(output string, _ string) *SMARTData {
 	data := &SMARTData{
 		OverallHealth: "UNKNOWN",
@@ -658,7 +658,7 @@ func (m *SMARTMonitor) parseSMARTOutput(output string, _ string) *SMARTData {
 	return data
 }
 
-// mapToSMARTField 映射属性到结构体字段
+// mapToSMARTField 映射属性到结构体字段.
 func (m *SMARTMonitor) mapToSMARTField(data *SMARTData, attr *SMARTAttribute) {
 	switch attr.ID {
 	case 5: // Reallocated_Sector_Ct
@@ -698,7 +698,7 @@ func (m *SMARTMonitor) mapToSMARTField(data *SMARTData, attr *SMARTAttribute) {
 	}
 }
 
-// isCriticalAttribute 判断是否为关键属性
+// isCriticalAttribute 判断是否为关键属性.
 func isCriticalAttribute(id uint) bool {
 	criticalIDs := []uint{5, 10, 184, 187, 188, 196, 197, 198, 199}
 	for _, cid := range criticalIDs {
@@ -709,7 +709,7 @@ func isCriticalAttribute(id uint) bool {
 	return false
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (m *SMARTMonitor) calculateHealthScore(disk *DiskInfo) {
 	if disk.SmartData == nil {
 		disk.HealthScore = &HealthScore{
@@ -784,7 +784,7 @@ func (m *SMARTMonitor) calculateHealthScore(disk *DiskInfo) {
 	disk.Status = status
 }
 
-// calculateTempScore 计算温度评分
+// calculateTempScore 计算温度评分.
 func (m *SMARTMonitor) calculateTempScore(smartData *SMARTData) ComponentScore {
 	if smartData.Temperature == nil {
 		return ComponentScore{Score: 100, Weight: m.scoreWeights.Temperature, Status: "ok", Message: "无温度数据"}
@@ -823,7 +823,7 @@ func (m *SMARTMonitor) calculateTempScore(smartData *SMARTData) ComponentScore {
 	return score
 }
 
-// calculateReallocationScore 计算重映射扇区评分
+// calculateReallocationScore 计算重映射扇区评分.
 func (m *SMARTMonitor) calculateReallocationScore(smartData *SMARTData) ComponentScore {
 	if smartData.ReallocatedSectors == nil {
 		return ComponentScore{Score: 100, Weight: m.scoreWeights.Reallocation, Status: "ok", Message: "无重映射数据"}
@@ -857,7 +857,7 @@ func (m *SMARTMonitor) calculateReallocationScore(smartData *SMARTData) Componen
 	return score
 }
 
-// calculatePendingScore 计算待映射扇区评分
+// calculatePendingScore 计算待映射扇区评分.
 func (m *SMARTMonitor) calculatePendingScore(smartData *SMARTData) ComponentScore {
 	if smartData.PendingSectors == nil {
 		return ComponentScore{Score: 100, Weight: m.scoreWeights.Pending, Status: "ok", Message: "无待映射数据"}
@@ -891,7 +891,7 @@ func (m *SMARTMonitor) calculatePendingScore(smartData *SMARTData) ComponentScor
 	return score
 }
 
-// calculateErrorScore 计算错误评分
+// calculateErrorScore 计算错误评分.
 func (m *SMARTMonitor) calculateErrorScore(smartData *SMARTData) ComponentScore {
 	var totalErrors uint64
 	var errorTypes []string
@@ -954,7 +954,7 @@ func (m *SMARTMonitor) calculateErrorScore(smartData *SMARTData) ComponentScore 
 	return score
 }
 
-// calculateAgeScore 计算使用年限评分
+// calculateAgeScore 计算使用年限评分.
 func (m *SMARTMonitor) calculateAgeScore(smartData *SMARTData) ComponentScore {
 	if smartData.PowerOnHours == nil {
 		return ComponentScore{Score: 100, Weight: m.scoreWeights.Age, Status: "ok", Message: "无使用时间数据"}
@@ -997,7 +997,7 @@ func (m *SMARTMonitor) calculateAgeScore(smartData *SMARTData) ComponentScore {
 	return score
 }
 
-// calculateStabilityScore 计算稳定性评分
+// calculateStabilityScore 计算稳定性评分.
 func (m *SMARTMonitor) calculateStabilityScore(device string) ComponentScore {
 	m.mu.RLock()
 	history, exists := m.history[device]
@@ -1043,7 +1043,7 @@ func (m *SMARTMonitor) calculateStabilityScore(device string) ComponentScore {
 	return score
 }
 
-// getGradeAndStatus 根据分数获取等级和状态
+// getGradeAndStatus 根据分数获取等级和状态.
 func (m *SMARTMonitor) getGradeAndStatus(score int) (string, DiskStatus) {
 	switch {
 	case score >= 90:
@@ -1059,7 +1059,7 @@ func (m *SMARTMonitor) getGradeAndStatus(score int) (string, DiskStatus) {
 	}
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (m *SMARTMonitor) generateRecommendations(_ *DiskInfo, components *ScoreComponents) []string {
 	var recommendations []string
 
@@ -1105,7 +1105,7 @@ func (m *SMARTMonitor) generateRecommendations(_ *DiskInfo, components *ScoreCom
 	return recommendations
 }
 
-// calculateTrend 计算趋势
+// calculateTrend 计算趋势.
 func (m *SMARTMonitor) calculateTrend(device string, currentScore int) string {
 	m.mu.RLock()
 	history, exists := m.history[device]
@@ -1128,7 +1128,7 @@ func (m *SMARTMonitor) calculateTrend(device string, currentScore int) string {
 	}
 }
 
-// startPeriodicCheck 启动定期检查
+// startPeriodicCheck 启动定期检查.
 func (m *SMARTMonitor) startPeriodicCheck() {
 	// 如果 CheckInterval 为 0 或负数，不启动定时器
 	if m.config.CheckInterval <= 0 {
@@ -1148,7 +1148,7 @@ func (m *SMARTMonitor) startPeriodicCheck() {
 	}
 }
 
-// CheckAllDisks 检查所有磁盘
+// CheckAllDisks 检查所有磁盘.
 func (m *SMARTMonitor) CheckAllDisks() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1179,7 +1179,7 @@ func (m *SMARTMonitor) CheckAllDisks() error {
 	return nil
 }
 
-// saveHistoryPoint 保存历史数据点
+// saveHistoryPoint 保存历史数据点.
 func (m *SMARTMonitor) saveHistoryPoint(disk *DiskInfo) {
 	if disk.SmartData == nil || disk.HealthScore == nil {
 		return
@@ -1210,7 +1210,7 @@ func (m *SMARTMonitor) saveHistoryPoint(disk *DiskInfo) {
 	m.history[disk.Device] = history
 }
 
-// getAttrRaw 安全获取属性原始值
+// getAttrRaw 安全获取属性原始值.
 func getAttrRaw(attr *SMARTAttribute) uint64 {
 	if attr == nil {
 		return 0
@@ -1218,7 +1218,7 @@ func getAttrRaw(attr *SMARTAttribute) uint64 {
 	return attr.Raw
 }
 
-// checkAlertRules 检查告警规则
+// checkAlertRules 检查告警规则.
 func (m *SMARTMonitor) checkAlertRules(disk *DiskInfo) {
 	if disk.SmartData == nil {
 		return
@@ -1274,7 +1274,7 @@ func (m *SMARTMonitor) checkAlertRules(disk *DiskInfo) {
 	}
 }
 
-// getAttributeValue 获取属性值
+// getAttributeValue 获取属性值.
 func (m *SMARTMonitor) getAttributeValue(disk *DiskInfo, attrName string) float64 {
 	switch attrName {
 	case "temperature":
@@ -1319,7 +1319,7 @@ func (m *SMARTMonitor) getAttributeValue(disk *DiskInfo, attrName string) float6
 	return 0
 }
 
-// predictFailures 预测故障
+// predictFailures 预测故障.
 func (m *SMARTMonitor) predictFailures(disk *DiskInfo) {
 	m.mu.RLock()
 	history := m.history[disk.Device]
@@ -1390,7 +1390,7 @@ func (m *SMARTMonitor) predictFailures(disk *DiskInfo) {
 	}
 }
 
-// calculateTrendValue 计算趋势值
+// calculateTrendValue 计算趋势值.
 func (m *SMARTMonitor) calculateTrendValue(history []*SMARTHistoryPoint, getValue func(*SMARTHistoryPoint) float64) float64 {
 	if len(history) < 2 {
 		return 0
@@ -1418,7 +1418,7 @@ func (m *SMARTMonitor) calculateTrendValue(history []*SMARTHistoryPoint, getValu
 	return slope
 }
 
-// GetDiskInfo 获取磁盘信息
+// GetDiskInfo 获取磁盘信息.
 func (m *SMARTMonitor) GetDiskInfo(device string) (*DiskInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1430,7 +1430,7 @@ func (m *SMARTMonitor) GetDiskInfo(device string) (*DiskInfo, error) {
 	return disk, nil
 }
 
-// GetAllDisks 获取所有磁盘信息
+// GetAllDisks 获取所有磁盘信息.
 func (m *SMARTMonitor) GetAllDisks() []*DiskInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1442,7 +1442,7 @@ func (m *SMARTMonitor) GetAllDisks() []*DiskInfo {
 	return disks
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *SMARTMonitor) GetAlerts(device string, includeAcknowledged bool) []*SMARTAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1460,7 +1460,7 @@ func (m *SMARTMonitor) GetAlerts(device string, includeAcknowledged bool) []*SMA
 	return alerts
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (m *SMARTMonitor) AcknowledgeAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1474,14 +1474,14 @@ func (m *SMARTMonitor) AcknowledgeAlert(alertID string) error {
 	return fmt.Errorf("告警不存在: %s", alertID)
 }
 
-// SetAlertRule 设置告警规则
+// SetAlertRule 设置告警规则.
 func (m *SMARTMonitor) SetAlertRule(rule *AlertRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.setAlertRuleLocked(rule)
 }
 
-// setAlertRuleLocked 设置告警规则（调用者必须持有锁）
+// setAlertRuleLocked 设置告警规则（调用者必须持有锁）.
 func (m *SMARTMonitor) setAlertRuleLocked(rule *AlertRule) {
 	// 查找并更新或添加
 	for i, r := range m.alertRules {
@@ -1493,7 +1493,7 @@ func (m *SMARTMonitor) setAlertRuleLocked(rule *AlertRule) {
 	m.alertRules = append(m.alertRules, rule)
 }
 
-// GetAlertRules 获取告警规则
+// GetAlertRules 获取告警规则.
 func (m *SMARTMonitor) GetAlertRules() []*AlertRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1503,7 +1503,7 @@ func (m *SMARTMonitor) GetAlertRules() []*AlertRule {
 	return rules
 }
 
-// SetScoreWeights 设置评分权重
+// SetScoreWeights 设置评分权重.
 func (m *SMARTMonitor) SetScoreWeights(weights *ScoreWeights) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1524,7 +1524,7 @@ func (m *SMARTMonitor) SetScoreWeights(weights *ScoreWeights) {
 	m.scoreWeights = weights
 }
 
-// GetHistory 获取历史数据
+// GetHistory 获取历史数据.
 func (m *SMARTMonitor) GetHistory(device string, duration time.Duration) []*SMARTHistoryPoint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1544,12 +1544,12 @@ func (m *SMARTMonitor) GetHistory(device string, duration time.Duration) []*SMAR
 	return result
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *SMARTMonitor) Stop() {
 	close(m.stopChan)
 }
 
-// parseSize 解析大小字符串
+// parseSize 解析大小字符串.
 func parseSize(sizeStr string) uint64 {
 	sizeStr = strings.ToUpper(sizeStr)
 	multiplier := uint64(1)
@@ -1572,12 +1572,12 @@ func parseSize(sizeStr string) uint64 {
 	return size * multiplier
 }
 
-// generateAlertID 生成告警 ID
+// generateAlertID 生成告警 ID.
 func generateAlertID() string {
 	return fmt.Sprintf("alert-%d", time.Now().UnixNano())
 }
 
-// ExportJSON 导出为 JSON
+// ExportJSON 导出为 JSON.
 func (m *SMARTMonitor) ExportJSON() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1597,7 +1597,7 @@ func (m *SMARTMonitor) ExportJSON() ([]byte, error) {
 	return json.MarshalIndent(export, "", "  ")
 }
 
-// ImportJSON 从 JSON 导入配置
+// ImportJSON 从 JSON 导入配置.
 func (m *SMARTMonitor) ImportJSON(data []byte) error {
 	var importData struct {
 		AlertRules []*AlertRule `json:"alertRules"`
@@ -1621,7 +1621,7 @@ func (m *SMARTMonitor) ImportJSON(data []byte) error {
 	return nil
 }
 
-// RunHealthCheck 执行健康检查（实现 health.HealthChecker 接口）
+// RunHealthCheck 执行健康检查（实现 health.HealthChecker 接口）.
 func (m *SMARTMonitor) RunHealthCheck(_ context.Context) map[string]interface{} {
 	_ = m.CheckAllDisks()
 
@@ -1653,7 +1653,7 @@ func (m *SMARTMonitor) RunHealthCheck(_ context.Context) map[string]interface{} 
 }
 
 // safeUint64ToBoundedInt 安全地将 uint64 转换为有边界的 int
-// 用于温度等已知范围的值
+// 用于温度等已知范围的值.
 func safeUint64ToBoundedInt(v uint64, min, max int) int {
 	if v < uint64(min) {
 		return min

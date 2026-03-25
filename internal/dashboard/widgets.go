@@ -12,28 +12,28 @@ import (
 	"nas-os/internal/monitor"
 )
 
-// WidgetProvider 小组件数据提供者接口
+// WidgetProvider 小组件数据提供者接口.
 type WidgetProvider interface {
 	GetData(widget *Widget) (*WidgetData, error)
 	GetType() WidgetType
 }
 
-// CPUWidgetProvider CPU 小组件提供者
+// CPUWidgetProvider CPU 小组件提供者.
 type CPUWidgetProvider struct {
 	monitorManager *monitor.Manager
 }
 
-// NewCPUWidgetProvider 创建 CPU 小组件提供者
+// NewCPUWidgetProvider 创建 CPU 小组件提供者.
 func NewCPUWidgetProvider(mgr *monitor.Manager) *CPUWidgetProvider {
 	return &CPUWidgetProvider{monitorManager: mgr}
 }
 
-// GetType 获取类型
+// GetType 获取类型.
 func (p *CPUWidgetProvider) GetType() WidgetType {
 	return WidgetTypeCPU
 }
 
-// GetData 获取数据
+// GetData 获取数据.
 func (p *CPUWidgetProvider) GetData(widget *Widget) (*WidgetData, error) {
 	data := &CPUWidgetData{
 		Timestamp: time.Now(),
@@ -68,7 +68,7 @@ func (p *CPUWidgetProvider) GetData(widget *Widget) (*WidgetData, error) {
 	}, nil
 }
 
-// getPerCoreUsage 获取每核心 CPU 使用率
+// getPerCoreUsage 获取每核心 CPU 使用率.
 func (p *CPUWidgetProvider) getPerCoreUsage() ([]float64, error) {
 	data, err := os.ReadFile("/proc/stat")
 	if err != nil {
@@ -103,22 +103,22 @@ func (p *CPUWidgetProvider) getPerCoreUsage() ([]float64, error) {
 	return cores, nil
 }
 
-// MemoryWidgetProvider 内存小组件提供者
+// MemoryWidgetProvider 内存小组件提供者.
 type MemoryWidgetProvider struct {
 	monitorManager *monitor.Manager
 }
 
-// NewMemoryWidgetProvider 创建内存小组件提供者
+// NewMemoryWidgetProvider 创建内存小组件提供者.
 func NewMemoryWidgetProvider(mgr *monitor.Manager) *MemoryWidgetProvider {
 	return &MemoryWidgetProvider{monitorManager: mgr}
 }
 
-// GetType 获取类型
+// GetType 获取类型.
 func (p *MemoryWidgetProvider) GetType() WidgetType {
 	return WidgetTypeMemory
 }
 
-// GetData 获取数据
+// GetData 获取数据.
 func (p *MemoryWidgetProvider) GetData(widget *Widget) (*WidgetData, error) {
 	data := &MemoryWidgetData{
 		Timestamp: time.Now(),
@@ -153,7 +153,7 @@ func (p *MemoryWidgetProvider) GetData(widget *Widget) (*WidgetData, error) {
 	}, nil
 }
 
-// getBufferStats 获取缓冲区统计
+// getBufferStats 获取缓冲区统计.
 func (p *MemoryWidgetProvider) getBufferStats(data *MemoryWidgetData) {
 	memInfo, err := os.ReadFile("/proc/meminfo")
 	if err != nil {
@@ -180,22 +180,22 @@ func (p *MemoryWidgetProvider) getBufferStats(data *MemoryWidgetData) {
 	}
 }
 
-// DiskWidgetProvider 磁盘小组件提供者
+// DiskWidgetProvider 磁盘小组件提供者.
 type DiskWidgetProvider struct {
 	monitorManager *monitor.Manager
 }
 
-// NewDiskWidgetProvider 创建磁盘小组件提供者
+// NewDiskWidgetProvider 创建磁盘小组件提供者.
 func NewDiskWidgetProvider(mgr *monitor.Manager) *DiskWidgetProvider {
 	return &DiskWidgetProvider{monitorManager: mgr}
 }
 
-// GetType 获取类型
+// GetType 获取类型.
 func (p *DiskWidgetProvider) GetType() WidgetType {
 	return WidgetTypeDisk
 }
 
-// GetData 获取数据
+// GetData 获取数据.
 func (p *DiskWidgetProvider) GetData(widget *Widget) (*WidgetData, error) {
 	data := &DiskWidgetData{
 		Timestamp: time.Now(),
@@ -264,7 +264,7 @@ func (p *DiskWidgetProvider) GetData(widget *Widget) (*WidgetData, error) {
 	}, nil
 }
 
-// getDiskIOStats 获取磁盘 IO 统计
+// getDiskIOStats 获取磁盘 IO 统计.
 func (p *DiskWidgetProvider) getDiskIOStats(device string, data *DiskDeviceData) {
 	// 提取设备名
 	devName := strings.TrimPrefix(device, "/dev/")
@@ -298,22 +298,22 @@ func (p *DiskWidgetProvider) getDiskIOStats(device string, data *DiskDeviceData)
 	}
 }
 
-// NetworkWidgetProvider 网络小组件提供者
+// NetworkWidgetProvider 网络小组件提供者.
 type NetworkWidgetProvider struct {
 	monitorManager *monitor.Manager
 }
 
-// NewNetworkWidgetProvider 创建网络小组件提供者
+// NewNetworkWidgetProvider 创建网络小组件提供者.
 func NewNetworkWidgetProvider(mgr *monitor.Manager) *NetworkWidgetProvider {
 	return &NetworkWidgetProvider{monitorManager: mgr}
 }
 
-// GetType 获取类型
+// GetType 获取类型.
 func (p *NetworkWidgetProvider) GetType() WidgetType {
 	return WidgetTypeNetwork
 }
 
-// GetData 获取数据
+// GetData 获取数据.
 func (p *NetworkWidgetProvider) GetData(widget *Widget) (*WidgetData, error) {
 	data := &NetworkWidgetData{
 		Timestamp:  time.Now(),
@@ -387,7 +387,7 @@ func (p *NetworkWidgetProvider) GetData(widget *Widget) (*WidgetData, error) {
 	}, nil
 }
 
-// getInterfaceSpeed 获取接口速度
+// getInterfaceSpeed 获取接口速度.
 func (p *NetworkWidgetProvider) getInterfaceSpeed(iface string) uint64 {
 	speedPath := fmt.Sprintf("/sys/class/net/%s/speed", iface)
 	data, err := os.ReadFile(speedPath)
@@ -403,7 +403,7 @@ func (p *NetworkWidgetProvider) getInterfaceSpeed(iface string) uint64 {
 	return speed
 }
 
-// calculateUsagePercent 计算使用百分比
+// calculateUsagePercent 计算使用百分比.
 func calculateUsagePercent(used, total uint64) float64 {
 	if total == 0 {
 		return 0
@@ -411,30 +411,30 @@ func calculateUsagePercent(used, total uint64) float64 {
 	return float64(used) / float64(total) * 100
 }
 
-// WidgetRegistry 小组件注册表
+// WidgetRegistry 小组件注册表.
 type WidgetRegistry struct {
 	providers map[WidgetType]WidgetProvider
 }
 
-// NewWidgetRegistry 创建小组件注册表
+// NewWidgetRegistry 创建小组件注册表.
 func NewWidgetRegistry() *WidgetRegistry {
 	return &WidgetRegistry{
 		providers: make(map[WidgetType]WidgetProvider),
 	}
 }
 
-// Register 注册小组件提供者
+// Register 注册小组件提供者.
 func (r *WidgetRegistry) Register(provider WidgetProvider) {
 	r.providers[provider.GetType()] = provider
 }
 
-// Get 获取小组件提供者
+// Get 获取小组件提供者.
 func (r *WidgetRegistry) Get(widgetType WidgetType) (WidgetProvider, bool) {
 	provider, ok := r.providers[widgetType]
 	return provider, ok
 }
 
-// GetAvailableTypes 获取可用类型
+// GetAvailableTypes 获取可用类型.
 func (r *WidgetRegistry) GetAvailableTypes() []WidgetType {
 	types := make([]WidgetType, 0, len(r.providers))
 	for t := range r.providers {
@@ -443,7 +443,7 @@ func (r *WidgetRegistry) GetAvailableTypes() []WidgetType {
 	return types
 }
 
-// DefaultWidgetRegistry 默认小组件注册表
+// DefaultWidgetRegistry 默认小组件注册表.
 func DefaultWidgetRegistry(mgr *monitor.Manager) *WidgetRegistry {
 	registry := NewWidgetRegistry()
 	registry.Register(NewCPUWidgetProvider(mgr))
@@ -453,7 +453,7 @@ func DefaultWidgetRegistry(mgr *monitor.Manager) *WidgetRegistry {
 	return registry
 }
 
-// CreateDefaultWidgets 创建默认小组件
+// CreateDefaultWidgets 创建默认小组件.
 func CreateDefaultWidgets() []*Widget {
 	now := time.Now()
 	return []*Widget{
@@ -522,7 +522,7 @@ func CreateDefaultWidgets() []*Widget {
 	}
 }
 
-// GetWidgetStatus 获取小组件状态
+// GetWidgetStatus 获取小组件状态.
 func GetWidgetStatus(data *WidgetData, config WidgetConfig) string {
 	switch d := data.Data.(type) {
 	case *CPUWidgetData:
@@ -553,7 +553,7 @@ func GetWidgetStatus(data *WidgetData, config WidgetConfig) string {
 	}
 }
 
-// FormatBytes 格式化字节数
+// FormatBytes 格式化字节数.
 func FormatBytes(bytes uint64) string {
 	const unit = 1024
 	sizes := []string{"B", "KB", "MB", "GB", "TB", "PB"}
@@ -572,12 +572,12 @@ func FormatBytes(bytes uint64) string {
 	return fmt.Sprintf("%.2f %s", fb, sizes[i])
 }
 
-// FormatRate 格式化速率
+// FormatRate 格式化速率.
 func FormatRate(bytesPerSec uint64) string {
 	return FormatBytes(bytesPerSec) + "/s"
 }
 
-// ExecuteCommand 执行系统命令
+// ExecuteCommand 执行系统命令.
 func ExecuteCommand(name string, args ...string) (string, error) {
 	cmd := exec.Command(name, args...)
 	output, err := cmd.Output()

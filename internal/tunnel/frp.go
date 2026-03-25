@@ -267,37 +267,37 @@ func (m *FRPManager) buildTOMLConfig() string {
 	sb.WriteString("# Auto-generated, do not edit manually\n\n")
 
 	sb.WriteString("[common]\n")
-	sb.WriteString(fmt.Sprintf("serverAddr = \"%s\"\n", m.config.ServerAddr))
-	sb.WriteString(fmt.Sprintf("serverPort = %d\n", m.config.ServerPort))
+	fmt.Fprintf(&sb, "serverAddr = \"%s\"\n", m.config.ServerAddr)
+	fmt.Fprintf(&sb, "serverPort = %d\n", m.config.ServerPort)
 
 	if m.config.Token != "" {
-		sb.WriteString(fmt.Sprintf("auth.token = \"%s\"\n", m.config.Token))
+		fmt.Fprintf(&sb, "auth.token = \"%s\"\n", m.config.Token)
 	}
 
 	if m.config.DeviceID != "" {
-		sb.WriteString(fmt.Sprintf("user = \"%s\"\n", m.config.DeviceID))
+		fmt.Fprintf(&sb, "user = \"%s\"\n", m.config.DeviceID)
 	}
 
-	sb.WriteString(fmt.Sprintf("log.level = \"%s\"\n", m.config.LogLevel))
+	fmt.Fprintf(&sb, "log.level = \"%s\"\n", m.config.LogLevel)
 	sb.WriteString("transport.tls.disableCustomTLSFirstByte = false\n\n")
 
 	// 代理配置
 	for name, proxy := range m.proxyConfigs {
 		sb.WriteString("[[proxies]]\n")
-		sb.WriteString(fmt.Sprintf("name = \"%s\"\n", name))
-		sb.WriteString(fmt.Sprintf("type = \"%s\"\n", proxy.Type))
-		sb.WriteString(fmt.Sprintf("localIP = \"%s\"\n", proxy.LocalIP))
-		sb.WriteString(fmt.Sprintf("localPort = %d\n", proxy.LocalPort))
+		fmt.Fprintf(&sb, "name = \"%s\"\n", name)
+		fmt.Fprintf(&sb, "type = \"%s\"\n", proxy.Type)
+		fmt.Fprintf(&sb, "localIP = \"%s\"\n", proxy.LocalIP)
+		fmt.Fprintf(&sb, "localPort = %d\n", proxy.LocalPort)
 
 		switch proxy.Type {
 		case "tcp", "udp":
-			sb.WriteString(fmt.Sprintf("remotePort = %d\n", proxy.RemotePort))
+			fmt.Fprintf(&sb, "remotePort = %d\n", proxy.RemotePort)
 		case "http", "https":
 			if proxy.Subdomain != "" {
-				sb.WriteString(fmt.Sprintf("subdomain = \"%s\"\n", proxy.Subdomain))
+				fmt.Fprintf(&sb, "subdomain = \"%s\"\n", proxy.Subdomain)
 			}
 			for _, domain := range proxy.CustomDomains {
-				sb.WriteString(fmt.Sprintf("customDomains = [\"%s\"]\n", domain))
+				fmt.Fprintf(&sb, "customDomains = [\"%s\"]\n", domain)
 			}
 			if proxy.EnableTLS {
 				sb.WriteString("transport.tls.enable = true\n")
@@ -306,7 +306,7 @@ func (m *FRPManager) buildTOMLConfig() string {
 
 		// HTTP头
 		for k, v := range proxy.Headers {
-			sb.WriteString(fmt.Sprintf("proxyProtocol.header.%s = \"%s\"\n", k, v))
+			fmt.Fprintf(&sb, "proxyProtocol.header.%s = \"%s\"\n", k, v)
 		}
 
 		sb.WriteString("\n")

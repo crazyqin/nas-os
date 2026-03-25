@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// SettingItem 设置项
+// SettingItem 设置项.
 type SettingItem struct {
 	ID          string   `json:"id"`          // 唯一标识
 	Name        string   `json:"name"`        // 设置名称
@@ -18,13 +18,13 @@ type SettingItem struct {
 	Section     string   `json:"section"`     // 设置区块
 }
 
-// SettingsRegistry 设置注册表
+// SettingsRegistry 设置注册表.
 type SettingsRegistry struct {
 	items []SettingItem
 	mu    sync.RWMutex
 }
 
-// NewSettingsRegistry 创建设置注册表
+// NewSettingsRegistry 创建设置注册表.
 func NewSettingsRegistry() *SettingsRegistry {
 	registry := &SettingsRegistry{
 		items: make([]SettingItem, 0),
@@ -34,7 +34,7 @@ func NewSettingsRegistry() *SettingsRegistry {
 	return registry
 }
 
-// initDefaultSettings 初始化默认设置项
+// initDefaultSettings 初始化默认设置项.
 func (r *SettingsRegistry) initDefaultSettings() {
 	// 存储设置
 	r.Register([]SettingItem{
@@ -524,14 +524,14 @@ func (r *SettingsRegistry) initDefaultSettings() {
 	}...)
 }
 
-// Register 注册设置项
+// Register 注册设置项.
 func (r *SettingsRegistry) Register(items ...SettingItem) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.items = append(r.items, items...)
 }
 
-// GetAll 获取所有设置项
+// GetAll 获取所有设置项.
 func (r *SettingsRegistry) GetAll() []SettingItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -540,7 +540,7 @@ func (r *SettingsRegistry) GetAll() []SettingItem {
 	return result
 }
 
-// SettingsSearchResult 设置搜索结果
+// SettingsSearchResult 设置搜索结果.
 type SettingsSearchResult struct {
 	Setting     SettingItem `json:"setting"`
 	Score       float64     `json:"score"`
@@ -549,7 +549,7 @@ type SettingsSearchResult struct {
 	MatchedText string      `json:"matchedText"`
 }
 
-// SearchSettings 搜索设置
+// SearchSettings 搜索设置.
 func (r *SettingsRegistry) SearchSettings(query string, limit int) []SettingsSearchResult {
 	if query == "" {
 		return nil
@@ -634,7 +634,7 @@ func (r *SettingsRegistry) SearchSettings(query string, limit int) []SettingsSea
 	return results
 }
 
-// GetByCategory 按分类获取设置项
+// GetByCategory 按分类获取设置项.
 func (r *SettingsRegistry) GetByCategory(category string) []SettingItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -648,7 +648,7 @@ func (r *SettingsRegistry) GetByCategory(category string) []SettingItem {
 	return results
 }
 
-// GetByPath 按路径获取设置项
+// GetByPath 按路径获取设置项.
 func (r *SettingsRegistry) GetByPath(path string) *SettingItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -661,7 +661,7 @@ func (r *SettingsRegistry) GetByPath(path string) *SettingItem {
 	return nil
 }
 
-// GetCategories 获取所有分类
+// GetCategories 获取所有分类.
 func (r *SettingsRegistry) GetCategories() []string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -678,7 +678,7 @@ func (r *SettingsRegistry) GetCategories() []string {
 	return categories
 }
 
-// sortSettingsResults 排序设置搜索结果
+// sortSettingsResults 排序设置搜索结果.
 func sortSettingsResults(results []SettingsSearchResult) {
 	for i := 0; i < len(results); i++ {
 		for j := i + 1; j < len(results); j++ {

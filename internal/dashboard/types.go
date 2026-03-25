@@ -34,13 +34,13 @@ const (
 	WidgetSizeLarge WidgetSize = "large"
 )
 
-// WidgetPosition 小组件位置
+// WidgetPosition 小组件位置.
 type WidgetPosition struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
-// Widget 小组件定义
+// Widget 小组件定义.
 type Widget struct {
 	ID          string         `json:"id"`
 	Type        WidgetType     `json:"type"`
@@ -54,7 +54,7 @@ type Widget struct {
 	UpdatedAt   time.Time      `json:"updatedAt"`
 }
 
-// WidgetConfig 小组件配置
+// WidgetConfig 小组件配置.
 type WidgetConfig struct {
 	// CPU 配置
 	ShowPerCore       bool    `json:"showPerCore,omitempty"`
@@ -80,7 +80,7 @@ type WidgetConfig struct {
 	TimeRange     string `json:"timeRange,omitempty"`
 }
 
-// Dashboard 仪表板定义
+// Dashboard 仪表板定义.
 type Dashboard struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -93,14 +93,14 @@ type Dashboard struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-// Layout 仪表板布局
+// Layout 仪表板布局.
 type Layout struct {
 	Columns int `json:"columns"`
 	Rows    int `json:"rows"`
 	Gap     int `json:"gap"`
 }
 
-// WidgetData 小组件数据
+// WidgetData 小组件数据.
 type WidgetData struct {
 	WidgetID  string      `json:"widgetId"`
 	Type      WidgetType  `json:"type"`
@@ -109,7 +109,7 @@ type WidgetData struct {
 	Error     string      `json:"error,omitempty"`
 }
 
-// CPUWidgetData CPU 小组件数据
+// CPUWidgetData CPU 小组件数据.
 type CPUWidgetData struct {
 	Timestamp    time.Time `json:"timestamp"`
 	Usage        float64   `json:"usage"`
@@ -121,7 +121,7 @@ type CPUWidgetData struct {
 	Trend        []float64 `json:"trend,omitempty"`
 }
 
-// MemoryWidgetData 内存小组件数据
+// MemoryWidgetData 内存小组件数据.
 type MemoryWidgetData struct {
 	Timestamp time.Time `json:"timestamp"`
 	Total     uint64    `json:"total"`
@@ -138,14 +138,14 @@ type MemoryWidgetData struct {
 	Trend     []float64 `json:"trend,omitempty"`
 }
 
-// DiskWidgetData 磁盘小组件数据
+// DiskWidgetData 磁盘小组件数据.
 type DiskWidgetData struct {
 	Timestamp time.Time        `json:"timestamp"`
 	Devices   []DiskDeviceData `json:"devices"`
 	Total     DiskSummaryData  `json:"total"`
 }
 
-// DiskDeviceData 磁盘设备数据
+// DiskDeviceData 磁盘设备数据.
 type DiskDeviceData struct {
 	Device       string  `json:"device"`
 	MountPoint   string  `json:"mountPoint"`
@@ -158,7 +158,7 @@ type DiskDeviceData struct {
 	WriteBytes   uint64  `json:"writeBytes,omitempty"`
 }
 
-// DiskSummaryData 磁盘汇总数据
+// DiskSummaryData 磁盘汇总数据.
 type DiskSummaryData struct {
 	Total        uint64  `json:"total"`
 	Used         uint64  `json:"used"`
@@ -166,14 +166,14 @@ type DiskSummaryData struct {
 	UsagePercent float64 `json:"usagePercent"`
 }
 
-// NetworkWidgetData 网络小组件数据
+// NetworkWidgetData 网络小组件数据.
 type NetworkWidgetData struct {
 	Timestamp  time.Time              `json:"timestamp"`
 	Interfaces []NetworkInterfaceData `json:"interfaces"`
 	Total      NetworkSummaryData     `json:"total"`
 }
 
-// NetworkInterfaceData 网络接口数据
+// NetworkInterfaceData 网络接口数据.
 type NetworkInterfaceData struct {
 	Name      string `json:"name"`
 	RXBytes   uint64 `json:"rxBytes"`
@@ -185,7 +185,7 @@ type NetworkInterfaceData struct {
 	Speed     uint64 `json:"speed,omitempty"` // Mbps
 }
 
-// NetworkSummaryData 网络汇总数据
+// NetworkSummaryData 网络汇总数据.
 type NetworkSummaryData struct {
 	RXBytes   uint64 `json:"rxBytes"`
 	TXBytes   uint64 `json:"txBytes"`

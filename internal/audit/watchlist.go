@@ -50,7 +50,7 @@ const (
 	WatchOpAll WatchOperation = "all"
 )
 
-// WatchListEntry 监控列表条目
+// WatchListEntry 监控列表条目.
 type WatchListEntry struct {
 	ID          string           `json:"id"`                    // 唯一标识
 	Path        string           `json:"path"`                  // 文件/目录路径
@@ -65,7 +65,7 @@ type WatchListEntry struct {
 	Tags        []string         `json:"tags,omitempty"`        // 标签
 }
 
-// IgnoreListEntry 忽略列表条目
+// IgnoreListEntry 忽略列表条目.
 type IgnoreListEntry struct {
 	ID          string     `json:"id"`                    // 唯一标识
 	Path        string     `json:"path"`                  // 文件/目录路径
@@ -80,13 +80,13 @@ type IgnoreListEntry struct {
 	Tags        []string   `json:"tags,omitempty"`        // 标签
 }
 
-// WatchListConfig 监控列表配置
+// WatchListConfig 监控列表配置.
 type WatchListConfig struct {
 	MaxWatchEntries  int `json:"max_watch_entries"`  // 最大监控条目数
 	MaxIgnoreEntries int `json:"max_ignore_entries"` // 最大忽略条目数
 }
 
-// DefaultWatchListConfig 默认配置
+// DefaultWatchListConfig 默认配置.
 func DefaultWatchListConfig() WatchListConfig {
 	return WatchListConfig{
 		MaxWatchEntries:  1000,
@@ -94,7 +94,7 @@ func DefaultWatchListConfig() WatchListConfig {
 	}
 }
 
-// WatchListManager 监控列表管理器
+// WatchListManager 监控列表管理器.
 type WatchListManager struct {
 	config        WatchListConfig
 	watchEntries  map[string]*WatchListEntry
@@ -102,7 +102,7 @@ type WatchListManager struct {
 	mu            sync.RWMutex
 }
 
-// NewWatchListManager 创建监控列表管理器
+// NewWatchListManager 创建监控列表管理器.
 func NewWatchListManager(config WatchListConfig) *WatchListManager {
 	return &WatchListManager{
 		config:        config,
@@ -113,7 +113,7 @@ func NewWatchListManager(config WatchListConfig) *WatchListManager {
 
 // ========== Watch List 操作 ==========
 
-// AddWatchEntry 添加监控条目
+// AddWatchEntry 添加监控条目.
 func (m *WatchListManager) AddWatchEntry(entry *WatchListEntry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -149,7 +149,7 @@ func (m *WatchListManager) AddWatchEntry(entry *WatchListEntry) error {
 	return nil
 }
 
-// UpdateWatchEntry 更新监控条目
+// UpdateWatchEntry 更新监控条目.
 func (m *WatchListManager) UpdateWatchEntry(entry *WatchListEntry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -186,7 +186,7 @@ func (m *WatchListManager) UpdateWatchEntry(entry *WatchListEntry) error {
 	return nil
 }
 
-// DeleteWatchEntry 删除监控条目
+// DeleteWatchEntry 删除监控条目.
 func (m *WatchListManager) DeleteWatchEntry(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -199,7 +199,7 @@ func (m *WatchListManager) DeleteWatchEntry(id string) error {
 	return nil
 }
 
-// GetWatchEntry 获取监控条目
+// GetWatchEntry 获取监控条目.
 func (m *WatchListManager) GetWatchEntry(id string) (*WatchListEntry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -212,7 +212,7 @@ func (m *WatchListManager) GetWatchEntry(id string) (*WatchListEntry, error) {
 	return entry, nil
 }
 
-// ListWatchEntries 列出监控条目
+// ListWatchEntries 列出监控条目.
 func (m *WatchListManager) ListWatchEntries(filter WatchListFilter) []*WatchListEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -241,7 +241,7 @@ func (m *WatchListManager) ListWatchEntries(filter WatchListFilter) []*WatchList
 	return result
 }
 
-// WatchListFilter 监控列表筛选条件
+// WatchListFilter 监控列表筛选条件.
 type WatchListFilter struct {
 	Path       string           `json:"path,omitempty"`
 	Operations []WatchOperation `json:"operations,omitempty"`
@@ -252,7 +252,7 @@ type WatchListFilter struct {
 	Offset     int              `json:"offset"`
 }
 
-// matchWatchFilter 检查监控条目是否匹配筛选条件
+// matchWatchFilter 检查监控条目是否匹配筛选条件.
 func (m *WatchListManager) matchWatchFilter(entry *WatchListEntry, filter WatchListFilter) bool {
 	if filter.Path != "" && !strings.Contains(entry.Path, filter.Path) {
 		return false
@@ -299,7 +299,7 @@ func (m *WatchListManager) matchWatchFilter(entry *WatchListEntry, filter WatchL
 
 // ========== Ignore List 操作 ==========
 
-// AddIgnoreEntry 添加忽略条目
+// AddIgnoreEntry 添加忽略条目.
 func (m *WatchListManager) AddIgnoreEntry(entry *IgnoreListEntry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -332,7 +332,7 @@ func (m *WatchListManager) AddIgnoreEntry(entry *IgnoreListEntry) error {
 	return nil
 }
 
-// UpdateIgnoreEntry 更新忽略条目
+// UpdateIgnoreEntry 更新忽略条目.
 func (m *WatchListManager) UpdateIgnoreEntry(entry *IgnoreListEntry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -371,7 +371,7 @@ func (m *WatchListManager) UpdateIgnoreEntry(entry *IgnoreListEntry) error {
 	return nil
 }
 
-// DeleteIgnoreEntry 删除忽略条目
+// DeleteIgnoreEntry 删除忽略条目.
 func (m *WatchListManager) DeleteIgnoreEntry(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -384,7 +384,7 @@ func (m *WatchListManager) DeleteIgnoreEntry(id string) error {
 	return nil
 }
 
-// GetIgnoreEntry 获取忽略条目
+// GetIgnoreEntry 获取忽略条目.
 func (m *WatchListManager) GetIgnoreEntry(id string) (*IgnoreListEntry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -397,7 +397,7 @@ func (m *WatchListManager) GetIgnoreEntry(id string) (*IgnoreListEntry, error) {
 	return entry, nil
 }
 
-// ListIgnoreEntries 列出忽略条目
+// ListIgnoreEntries 列出忽略条目.
 func (m *WatchListManager) ListIgnoreEntries(filter IgnoreListFilter) []*IgnoreListEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -431,7 +431,7 @@ func (m *WatchListManager) ListIgnoreEntries(filter IgnoreListFilter) []*IgnoreL
 	return result
 }
 
-// IgnoreListFilter 忽略列表筛选条件
+// IgnoreListFilter 忽略列表筛选条件.
 type IgnoreListFilter struct {
 	Path      string   `json:"path,omitempty"`
 	Enabled   *bool    `json:"enabled,omitempty"`
@@ -442,7 +442,7 @@ type IgnoreListFilter struct {
 	Offset    int      `json:"offset"`
 }
 
-// matchIgnoreFilter 检查忽略条目是否匹配筛选条件
+// matchIgnoreFilter 检查忽略条目是否匹配筛选条件.
 func (m *WatchListManager) matchIgnoreFilter(entry *IgnoreListEntry, filter IgnoreListFilter) bool {
 	if filter.Path != "" && !strings.Contains(entry.Path, filter.Path) {
 		return false
@@ -473,7 +473,7 @@ func (m *WatchListManager) matchIgnoreFilter(entry *IgnoreListEntry, filter Igno
 // ========== 匹配检查 ==========
 
 // ShouldWatch 检查路径是否应该被监控
-// 返回匹配的监控条目，如果没有匹配则返回nil
+// 返回匹配的监控条目，如果没有匹配则返回nil.
 func (m *WatchListManager) ShouldWatch(path string, operation WatchOperation) *WatchListEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -509,7 +509,7 @@ func (m *WatchListManager) ShouldWatch(path string, operation WatchOperation) *W
 	return nil
 }
 
-// IsIgnored 检查路径是否被忽略
+// IsIgnored 检查路径是否被忽略.
 func (m *WatchListManager) IsIgnored(path string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -529,7 +529,7 @@ func (m *WatchListManager) IsIgnored(path string) bool {
 	return false
 }
 
-// matchPath 检查路径是否匹配
+// matchPath 检查路径是否匹配.
 func (m *WatchListManager) matchPath(targetPath, basePath, pattern string) bool {
 	// 清理路径
 	targetPath = filepath.Clean(targetPath)
@@ -567,7 +567,7 @@ func (m *WatchListManager) matchPath(targetPath, basePath, pattern string) bool 
 
 // ========== 统计功能 ==========
 
-// WatchListStats 监控列表统计
+// WatchListStats 监控列表统计.
 type WatchListStats struct {
 	TotalWatchEntries    int            `json:"total_watch_entries"`
 	TotalIgnoreEntries   int            `json:"total_ignore_entries"`
@@ -577,7 +577,7 @@ type WatchListStats struct {
 	OperationsByType     map[string]int `json:"operations_by_type"`
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *WatchListManager) GetStats() *WatchListStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -612,7 +612,7 @@ func (m *WatchListManager) GetStats() *WatchListStats {
 	return stats
 }
 
-// CleanupExpired 清理过期的忽略条目
+// CleanupExpired 清理过期的忽略条目.
 func (m *WatchListManager) CleanupExpired() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()

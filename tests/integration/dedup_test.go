@@ -98,7 +98,7 @@ func TestDedup_ContextCancellation(t *testing.T) {
 	}
 }
 
-// 性能测试
+// 性能测试.
 func BenchmarkDedup_Scan(b *testing.B) {
 	tmpDir := b.TempDir()
 

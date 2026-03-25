@@ -18,7 +18,7 @@ import (
 	"github.com/studio-b12/gowebdav"
 )
 
-// cloudConfig 存储云端配置（内部使用）
+// cloudConfig 存储云端配置（内部使用）.
 type cloudConfig struct {
 	Provider   CloudProvider
 	Bucket     string
@@ -31,27 +31,27 @@ type cloudConfig struct {
 	Encryption bool
 }
 
-// CloudBackup 云端备份管理器
+// CloudBackup 云端备份管理器.
 type CloudBackup struct {
 	provider CloudProvider
 	client   interface{}
 	config   cloudConfig
 }
 
-// CloudProvider 云存储提供商类型
+// CloudProvider 云存储提供商类型.
 type CloudProvider string
 
-// 云存储提供商常量
+// 云存储提供商常量.
 const (
-	// CloudProviderS3 AWS S3 或兼容 S3 的存储
+	// CloudProviderS3 AWS S3 或兼容 S3 的存储.
 	CloudProviderS3 CloudProvider = "s3"
-	// CloudProviderWebDAV WebDAV 协议存储
+	// CloudProviderWebDAV WebDAV 协议存储.
 	CloudProviderWebDAV CloudProvider = "webdav"
-	// CloudProviderAliyun 阿里云 OSS（S3 兼容）
+	// CloudProviderAliyun 阿里云 OSS（S3 兼容）.
 	CloudProviderAliyun CloudProvider = "aliyun"
 )
 
-// CloudConfig 云端配置
+// CloudConfig 云端配置.
 type CloudConfig struct {
 	Provider   CloudProvider `json:"provider"`
 	Bucket     string        `json:"bucket"`     // S3 bucket 或 WebDAV 根路径
@@ -64,7 +64,7 @@ type CloudConfig struct {
 	Encryption bool          `json:"encryption"` // 上传前加密
 }
 
-// Sanitize 返回脱敏后的配置副本（用于日志和调试）
+// Sanitize 返回脱敏后的配置副本（用于日志和调试）.
 func (cc *CloudConfig) Sanitize() map[string]interface{} {
 	return map[string]interface{}{
 		"provider":       cc.Provider,
@@ -79,7 +79,7 @@ func (cc *CloudConfig) Sanitize() map[string]interface{} {
 	}
 }
 
-// NewCloudBackup 创建云端备份管理器
+// NewCloudBackup 创建云端备份管理器.
 func NewCloudBackup(cfg CloudConfig) (*CloudBackup, error) {
 	cb := &CloudBackup{
 		provider: cfg.Provider,
@@ -106,7 +106,7 @@ func NewCloudBackup(cfg CloudConfig) (*CloudBackup, error) {
 	return cb, nil
 }
 
-// initS3Client 初始化 S3 客户端
+// initS3Client 初始化 S3 客户端.
 func (cb *CloudBackup) initS3Client(cfg CloudConfig) (*s3.Client, error) {
 	creds := credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretKey, "")
 
@@ -130,7 +130,7 @@ func (cb *CloudBackup) initS3Client(cfg CloudConfig) (*s3.Client, error) {
 	return client, nil
 }
 
-// initWebDAVClient 初始化 WebDAV 客户端
+// initWebDAVClient 初始化 WebDAV 客户端.
 func (cb *CloudBackup) initWebDAVClient(cfg CloudConfig) (*gowebdav.Client, error) {
 	client := gowebdav.NewClient(cfg.Endpoint, cfg.AccessKey, cfg.SecretKey)
 
@@ -148,7 +148,7 @@ func (cb *CloudBackup) initWebDAVClient(cfg CloudConfig) (*gowebdav.Client, erro
 	return client, nil
 }
 
-// UploadBackup 上传备份到云端
+// UploadBackup 上传备份到云端.
 func (cb *CloudBackup) UploadBackup(localPath, remotePath string) (*UploadResult, error) {
 	switch cb.provider {
 	case CloudProviderS3, CloudProviderAliyun:
@@ -160,7 +160,7 @@ func (cb *CloudBackup) UploadBackup(localPath, remotePath string) (*UploadResult
 	}
 }
 
-// UploadResult 上传结果
+// UploadResult 上传结果.
 type UploadResult struct {
 	RemotePath string
 	Size       int64
@@ -168,7 +168,7 @@ type UploadResult struct {
 	Checksum   string
 }
 
-// uploadToS3 上传到 S3
+// uploadToS3 上传到 S3.
 func (cb *CloudBackup) uploadToS3(localPath, remotePath string) (*UploadResult, error) {
 	startTime := time.Now()
 	client, ok := cb.client.(*s3.Client)
@@ -210,7 +210,7 @@ func (cb *CloudBackup) uploadToS3(localPath, remotePath string) (*UploadResult, 
 	}, nil
 }
 
-// uploadToWebDAV 上传到 WebDAV
+// uploadToWebDAV 上传到 WebDAV.
 func (cb *CloudBackup) uploadToWebDAV(localPath, remotePath string) (*UploadResult, error) {
 	startTime := time.Now()
 	client, ok := cb.client.(*gowebdav.Client)
@@ -239,7 +239,7 @@ func (cb *CloudBackup) uploadToWebDAV(localPath, remotePath string) (*UploadResu
 	}, nil
 }
 
-// DownloadBackup 从云端下载备份
+// DownloadBackup 从云端下载备份.
 func (cb *CloudBackup) DownloadBackup(remotePath, localPath string) (*DownloadResult, error) {
 	switch cb.provider {
 	case CloudProviderS3, CloudProviderAliyun:
@@ -251,14 +251,14 @@ func (cb *CloudBackup) DownloadBackup(remotePath, localPath string) (*DownloadRe
 	}
 }
 
-// DownloadResult 下载结果
+// DownloadResult 下载结果.
 type DownloadResult struct {
 	LocalPath string
 	Size      int64
 	Duration  time.Duration
 }
 
-// downloadFromS3 从 S3 下载
+// downloadFromS3 从 S3 下载.
 func (cb *CloudBackup) downloadFromS3(remotePath, localPath string) (*DownloadResult, error) {
 	startTime := time.Now()
 	client, ok := cb.client.(*s3.Client)
@@ -309,7 +309,7 @@ func (cb *CloudBackup) downloadFromS3(remotePath, localPath string) (*DownloadRe
 	}, nil
 }
 
-// downloadFromWebDAV 从 WebDAV 下载
+// downloadFromWebDAV 从 WebDAV 下载.
 func (cb *CloudBackup) downloadFromWebDAV(remotePath, localPath string) (*DownloadResult, error) {
 	startTime := time.Now()
 	client, ok := cb.client.(*gowebdav.Client)
@@ -337,7 +337,7 @@ func (cb *CloudBackup) downloadFromWebDAV(remotePath, localPath string) (*Downlo
 	}, nil
 }
 
-// ListBackups 列出云端备份
+// ListBackups 列出云端备份.
 func (cb *CloudBackup) ListBackups(prefix string) ([]CloudBackupInfo, error) {
 	switch cb.provider {
 	case CloudProviderS3, CloudProviderAliyun:
@@ -349,7 +349,7 @@ func (cb *CloudBackup) ListBackups(prefix string) ([]CloudBackupInfo, error) {
 	}
 }
 
-// CloudBackupInfo 云端备份信息
+// CloudBackupInfo 云端备份信息.
 type CloudBackupInfo struct {
 	Name      string
 	Size      int64
@@ -357,7 +357,7 @@ type CloudBackupInfo struct {
 	Path      string
 }
 
-// listS3Backups 列出 S3 备份
+// listS3Backups 列出 S3 备份.
 func (cb *CloudBackup) listS3Backups(prefix string) ([]CloudBackupInfo, error) {
 	client, ok := cb.client.(*s3.Client)
 	if !ok {
@@ -398,7 +398,7 @@ func (cb *CloudBackup) listS3Backups(prefix string) ([]CloudBackupInfo, error) {
 	return backups, nil
 }
 
-// listWebDAVBackups 列出 WebDAV 备份
+// listWebDAVBackups 列出 WebDAV 备份.
 func (cb *CloudBackup) listWebDAVBackups(prefix string) ([]CloudBackupInfo, error) {
 	client, ok := cb.client.(*gowebdav.Client)
 	if !ok {
@@ -426,7 +426,7 @@ func (cb *CloudBackup) listWebDAVBackups(prefix string) ([]CloudBackupInfo, erro
 	return backups, nil
 }
 
-// DeleteBackup 删除云端备份
+// DeleteBackup 删除云端备份.
 func (cb *CloudBackup) DeleteBackup(remotePath string) error {
 	switch cb.provider {
 	case CloudProviderS3, CloudProviderAliyun:
@@ -438,7 +438,7 @@ func (cb *CloudBackup) DeleteBackup(remotePath string) error {
 	}
 }
 
-// deleteS3Backup 删除 S3 备份
+// deleteS3Backup 删除 S3 备份.
 func (cb *CloudBackup) deleteS3Backup(remotePath string) error {
 	client, ok := cb.client.(*s3.Client)
 	if !ok {
@@ -459,7 +459,7 @@ func (cb *CloudBackup) deleteS3Backup(remotePath string) error {
 	return err
 }
 
-// deleteWebDAVBackup 删除 WebDAV 备份
+// deleteWebDAVBackup 删除 WebDAV 备份.
 func (cb *CloudBackup) deleteWebDAVBackup(remotePath string) error {
 	client, ok := cb.client.(*gowebdav.Client)
 	if !ok {
@@ -469,7 +469,7 @@ func (cb *CloudBackup) deleteWebDAVBackup(remotePath string) error {
 	return client.Remove(remotePath)
 }
 
-// getCloudConfig 获取云端配置
+// getCloudConfig 获取云端配置.
 func (cb *CloudBackup) getCloudConfig() CloudConfig {
 	return CloudConfig{
 		Provider:   cb.config.Provider,
@@ -484,7 +484,7 @@ func (cb *CloudBackup) getCloudConfig() CloudConfig {
 	}
 }
 
-// VerifyBackup 验证云端备份完整性
+// VerifyBackup 验证云端备份完整性.
 func (cb *CloudBackup) VerifyBackup(remotePath string) (bool, error) {
 	// 检查文件是否存在
 	switch cb.provider {
@@ -497,7 +497,7 @@ func (cb *CloudBackup) VerifyBackup(remotePath string) (bool, error) {
 	}
 }
 
-// verifyS3Backup 验证 S3 备份
+// verifyS3Backup 验证 S3 备份.
 func (cb *CloudBackup) verifyS3Backup(remotePath string) (bool, error) {
 	client, ok := cb.client.(*s3.Client)
 	if !ok {
@@ -519,7 +519,7 @@ func (cb *CloudBackup) verifyS3Backup(remotePath string) (bool, error) {
 	return err == nil, nil
 }
 
-// verifyWebDAVBackup 验证 WebDAV 备份
+// verifyWebDAVBackup 验证 WebDAV 备份.
 func (cb *CloudBackup) verifyWebDAVBackup(remotePath string) (bool, error) {
 	client, ok := cb.client.(*gowebdav.Client)
 	if !ok {
@@ -530,7 +530,7 @@ func (cb *CloudBackup) verifyWebDAVBackup(remotePath string) (bool, error) {
 	return err == nil, nil
 }
 
-// ConnectionTestResult 连接测试结果
+// ConnectionTestResult 连接测试结果.
 type ConnectionTestResult struct {
 	Success   bool   `json:"success"`
 	Provider  string `json:"provider"`
@@ -540,7 +540,7 @@ type ConnectionTestResult struct {
 	Message   string `json:"message"`
 }
 
-// CheckConnection 检查云端连接状态
+// CheckConnection 检查云端连接状态.
 func (cb *CloudBackup) CheckConnection() (*ConnectionTestResult, error) {
 	switch cb.provider {
 	case CloudProviderS3, CloudProviderAliyun:
@@ -552,7 +552,7 @@ func (cb *CloudBackup) CheckConnection() (*ConnectionTestResult, error) {
 	}
 }
 
-// checkS3Connection 检查 S3 连接
+// checkS3Connection 检查 S3 连接.
 func (cb *CloudBackup) checkS3Connection() (*ConnectionTestResult, error) {
 	startTime := time.Now()
 
@@ -592,7 +592,7 @@ func (cb *CloudBackup) checkS3Connection() (*ConnectionTestResult, error) {
 	}, nil
 }
 
-// checkWebDAVConnection 检查 WebDAV 连接
+// checkWebDAVConnection 检查 WebDAV 连接.
 func (cb *CloudBackup) checkWebDAVConnection() (*ConnectionTestResult, error) {
 	startTime := time.Now()
 

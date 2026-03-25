@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// Manager 插件管理器
+// Manager 插件管理器.
 type Manager struct {
 	loader     *Loader
 	pluginDir  string
@@ -27,14 +27,14 @@ type Manager struct {
 	stateFile  string
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	PluginDir string // 插件目录
 	ConfigDir string // 配置目录
 	DataDir   string // 数据目录
 }
 
-// NewManager 创建插件管理器
+// NewManager 创建插件管理器.
 func NewManager(cfg ManagerConfig) (*Manager, error) {
 	if cfg.PluginDir == "" {
 		cfg.PluginDir = "/opt/nas/plugins"
@@ -81,7 +81,7 @@ func NewManager(cfg ManagerConfig) (*Manager, error) {
 	return m, nil
 }
 
-// initInstalledPlugins 初始化已安装的插件
+// initInstalledPlugins 初始化已安装的插件.
 func (m *Manager) initInstalledPlugins() error {
 	entries, err := os.ReadDir(m.pluginDir)
 	if err != nil {
@@ -124,12 +124,12 @@ func (m *Manager) initInstalledPlugins() error {
 	return nil
 }
 
-// Discover 发现可用插件
+// Discover 发现可用插件.
 func (m *Manager) Discover() ([]Info, error) {
 	return m.loader.Discover()
 }
 
-// List 列出所有插件状态
+// List 列出所有插件状态.
 func (m *Manager) List() []State {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -141,7 +141,7 @@ func (m *Manager) List() []State {
 	return result
 }
 
-// Get 获取插件详情
+// Get 获取插件详情.
 func (m *Manager) Get(pluginID string) (*State, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -153,7 +153,7 @@ func (m *Manager) Get(pluginID string) (*State, error) {
 	return state, nil
 }
 
-// Install 安装插件
+// Install 安装插件.
 func (m *Manager) Install(source string) (*State, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -209,7 +209,7 @@ func (m *Manager) Install(source string) (*State, error) {
 	return state, nil
 }
 
-// Uninstall 卸载插件
+// Uninstall 卸载插件.
 func (m *Manager) Uninstall(pluginID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -256,7 +256,7 @@ func (m *Manager) Uninstall(pluginID string) error {
 	return m.saveStates()
 }
 
-// Enable 启用插件
+// Enable 启用插件.
 func (m *Manager) Enable(pluginID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -309,7 +309,7 @@ func (m *Manager) Enable(pluginID string) error {
 	return nil
 }
 
-// Disable 禁用插件
+// Disable 禁用插件.
 func (m *Manager) Disable(pluginID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -337,17 +337,17 @@ func (m *Manager) Disable(pluginID string) error {
 	return nil
 }
 
-// StartPlugin 启动插件
+// StartPlugin 启动插件.
 func (m *Manager) StartPlugin(pluginID string) error {
 	return m.Enable(pluginID)
 }
 
-// StopPlugin 停止插件
+// StopPlugin 停止插件.
 func (m *Manager) StopPlugin(pluginID string) error {
 	return m.Disable(pluginID)
 }
 
-// stopPlugin 内部停止方法
+// stopPlugin 内部停止方法.
 func (m *Manager) stopPlugin(pluginID string) error {
 	inst, exists := m.loader.GetInstance(pluginID)
 	if !exists {
@@ -370,7 +370,7 @@ func (m *Manager) stopPlugin(pluginID string) error {
 	return nil
 }
 
-// Update 更新插件
+// Update 更新插件.
 func (m *Manager) Update(pluginID string) (*State, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -423,7 +423,7 @@ func (m *Manager) Update(pluginID string) (*State, error) {
 	return state, nil
 }
 
-// Configure 配置插件
+// Configure 配置插件.
 func (m *Manager) Configure(pluginID string, config map[string]interface{}) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -455,7 +455,7 @@ func (m *Manager) Configure(pluginID string, config map[string]interface{}) erro
 	return nil
 }
 
-// RegisterHook 注册钩子
+// RegisterHook 注册钩子.
 func (m *Manager) RegisterHook(hookType HookType, hook Hook) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -463,7 +463,7 @@ func (m *Manager) RegisterHook(hookType HookType, hook Hook) {
 	m.hooks[hookType] = append(m.hooks[hookType], hook)
 }
 
-// ExecuteHooks 执行钩子
+// ExecuteHooks 执行钩子.
 func (m *Manager) ExecuteHooks(hookType HookType, ctx HookContext) error {
 	m.mu.RLock()
 	hooks := m.hooks[hookType]
@@ -477,7 +477,7 @@ func (m *Manager) ExecuteHooks(hookType HookType, ctx HookContext) error {
 	return nil
 }
 
-// RegisterExtension 注册扩展
+// RegisterExtension 注册扩展.
 func (m *Manager) RegisterExtension(ext *Extension) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -496,7 +496,7 @@ func (m *Manager) RegisterExtension(ext *Extension) error {
 	return nil
 }
 
-// GetExtensions 获取扩展点的所有扩展
+// GetExtensions 获取扩展点的所有扩展.
 func (m *Manager) GetExtensions(pointID string) []*Extension {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -507,7 +507,7 @@ func (m *Manager) GetExtensions(pointID string) []*Extension {
 	return nil
 }
 
-// downloadPlugin 从 URL 下载插件
+// downloadPlugin 从 URL 下载插件.
 func (m *Manager) downloadPlugin(url string) (string, error) {
 	// 安全检查：只允许 HTTPS URL（除非在测试环境）
 	if !strings.HasPrefix(url, "https://") {
@@ -573,7 +573,7 @@ func (m *Manager) downloadPlugin(url string) (string, error) {
 	return outPath, nil
 }
 
-// copyPlugin 复制本地插件
+// copyPlugin 复制本地插件.
 func (m *Manager) copyPlugin(source string) (string, error) {
 	info, err := os.Stat(source)
 	if err != nil {
@@ -597,14 +597,14 @@ func (m *Manager) copyPlugin(source string) (string, error) {
 	return targetPath, nil
 }
 
-// installFromMarket 从市场安装插件
+// installFromMarket 从市场安装插件.
 func (m *Manager) installFromMarket(pluginID string) (string, error) {
 	// 这里应该调用市场 API 下载插件
 	// 暂时返回错误，后续实现
 	return "", fmt.Errorf("插件市场暂不可用")
 }
 
-// checkDependencies 检查依赖
+// checkDependencies 检查依赖.
 func (m *Manager) checkDependencies(deps []Dependency) error {
 	for _, dep := range deps {
 		if dep.Optional {
@@ -619,7 +619,7 @@ func (m *Manager) checkDependencies(deps []Dependency) error {
 	return nil
 }
 
-// loadConfig 加载插件配置
+// loadConfig 加载插件配置.
 func (m *Manager) loadConfig(pluginID string) (map[string]interface{}, error) {
 	configPath := filepath.Join(m.configDir, pluginID+".json")
 	data, err := os.ReadFile(configPath)
@@ -635,7 +635,7 @@ func (m *Manager) loadConfig(pluginID string) (map[string]interface{}, error) {
 	return config, nil
 }
 
-// loadStates 加载状态
+// loadStates 加载状态.
 func (m *Manager) loadStates() error {
 	data, err := os.ReadFile(m.stateFile)
 	if err != nil {
@@ -645,7 +645,7 @@ func (m *Manager) loadStates() error {
 	return json.Unmarshal(data, &m.states)
 }
 
-// saveStates 保存状态
+// saveStates 保存状态.
 func (m *Manager) saveStates() error {
 	data, err := json.MarshalIndent(m.states, "", "  ")
 	if err != nil {
@@ -655,7 +655,7 @@ func (m *Manager) saveStates() error {
 	return os.WriteFile(m.stateFile, data, 0640)
 }
 
-// getDependenciesFromState 从状态获取依赖
+// getDependenciesFromState 从状态获取依赖.
 func (m *Manager) getDependenciesFromState(state *State) []Dependency {
 	if state == nil {
 		return nil
@@ -670,7 +670,7 @@ func (m *Manager) getDependenciesFromState(state *State) []Dependency {
 	return inst.Info.Dependencies
 }
 
-// isDir 检查是否是目录
+// isDir 检查是否是目录.
 func isDir(path string) bool {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -679,7 +679,7 @@ func isDir(path string) bool {
 	return info.IsDir()
 }
 
-// copyFile 复制文件
+// copyFile 复制文件.
 func copyFile(src, dst string) error {
 	source, err := os.Open(src)
 	if err != nil {
@@ -697,7 +697,7 @@ func copyFile(src, dst string) error {
 	return err
 }
 
-// copyDir 复制目录
+// copyDir 复制目录.
 func copyDir(src, dst string) error {
 	if err := os.MkdirAll(dst, 0750); err != nil {
 		return err

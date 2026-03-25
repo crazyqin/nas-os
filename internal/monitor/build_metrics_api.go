@@ -13,19 +13,19 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// BuildMetricsHandler 构建指标处理器
+// BuildMetricsHandler 构建指标处理器.
 type BuildMetricsHandler struct {
 	metrics *BuildMetrics
 }
 
-// NewBuildMetricsHandler 创建构建指标处理器
+// NewBuildMetricsHandler 创建构建指标处理器.
 func NewBuildMetricsHandler(metrics *BuildMetrics) *BuildMetricsHandler {
 	return &BuildMetricsHandler{
 		metrics: metrics,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *BuildMetricsHandler) RegisterRoutes(r *gin.RouterGroup) {
 	build := r.Group("/build")
 	{
@@ -39,14 +39,14 @@ func (h *BuildMetricsHandler) RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 }
 
-// BuildMetricsResponse 构建指标响应
+// BuildMetricsResponse 构建指标响应.
 type BuildMetricsResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// BuildStatsResponse 构建统计响应
+// BuildStatsResponse 构建统计响应.
 type BuildStatsResponse struct {
 	TotalBuilds      int64   `json:"totalBuilds"`
 	SuccessfulBuilds int64   `json:"successfulBuilds"`
@@ -60,7 +60,7 @@ type BuildStatsResponse struct {
 	CacheHitRate     float64 `json:"cacheHitRate"`
 }
 
-// BuildHealthResponse 构建健康响应
+// BuildHealthResponse 构建健康响应.
 type BuildHealthResponse struct {
 	HealthScore     float64  `json:"healthScore"`
 	Status          string   `json:"status"`
@@ -71,7 +71,7 @@ type BuildHealthResponse struct {
 	Recommendations []string `json:"recommendations,omitempty"`
 }
 
-// RecordBuildRequest 记录构建请求
+// RecordBuildRequest 记录构建请求.
 type RecordBuildRequest struct {
 	Job      string  `json:"job" binding:"required"`
 	Platform string  `json:"platform"`
@@ -80,7 +80,7 @@ type RecordBuildRequest struct {
 	Success  bool    `json:"success"`
 }
 
-// getMetrics 获取 Prometheus 指标
+// getMetrics 获取 Prometheus 指标.
 func (h *BuildMetricsHandler) getMetrics(c *gin.Context) {
 	// 由 promhttp.Handler() 处理
 	c.JSON(http.StatusOK, BuildMetricsResponse{
@@ -89,7 +89,7 @@ func (h *BuildMetricsHandler) getMetrics(c *gin.Context) {
 	})
 }
 
-// getStats 获取构建统计
+// getStats 获取构建统计.
 func (h *BuildMetricsHandler) getStats(c *gin.Context) {
 	stats := h.metrics.GetStats()
 	successRate := h.metrics.CalculateBuildSuccessRate()
@@ -123,7 +123,7 @@ func (h *BuildMetricsHandler) getStats(c *gin.Context) {
 	})
 }
 
-// getBuildHealth 获取构建健康状态
+// getBuildHealth 获取构建健康状态.
 func (h *BuildMetricsHandler) getBuildHealth(c *gin.Context) {
 	stats := h.metrics.GetStats()
 	successRate := h.metrics.CalculateBuildSuccessRate()
@@ -164,7 +164,7 @@ func (h *BuildMetricsHandler) getBuildHealth(c *gin.Context) {
 	})
 }
 
-// recordBuild 记录构建（供 CI 系统调用）
+// recordBuild 记录构建（供 CI 系统调用）.
 func (h *BuildMetricsHandler) recordBuild(c *gin.Context) {
 	var req RecordBuildRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

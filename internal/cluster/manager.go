@@ -14,25 +14,25 @@ import (
 	"go.uber.org/zap"
 )
 
-// 节点角色定义
+// 节点角色定义.
 const (
-	// RoleMaster 表示主节点角色
+	// RoleMaster 表示主节点角色.
 	RoleMaster = "master"
-	// RoleWorker 表示工作节点角色
+	// RoleWorker 表示工作节点角色.
 	RoleWorker = "worker"
 )
 
-// 节点状态定义
+// 节点状态定义.
 const (
-	// StatusOnline 表示节点在线状态
+	// StatusOnline 表示节点在线状态.
 	StatusOnline = "online"
-	// StatusOffline 表示节点离线状态
+	// StatusOffline 表示节点离线状态.
 	StatusOffline = "offline"
-	// StatusDegraded 表示节点降级状态
+	// StatusDegraded 表示节点降级状态.
 	StatusDegraded = "degraded"
 )
 
-// NodeMetrics 节点性能指标
+// NodeMetrics 节点性能指标.
 type NodeMetrics struct {
 	CPUUsage    float64   `json:"cpu_usage"`
 	MemoryUsage float64   `json:"memory_usage"`
@@ -43,7 +43,7 @@ type NodeMetrics struct {
 	LastUpdate  time.Time `json:"last_update"`
 }
 
-// Member 集群成员信息
+// Member 集群成员信息.
 type Member struct {
 	ID        string      `json:"id"`
 	Hostname  string      `json:"hostname"`
@@ -56,7 +56,7 @@ type Member struct {
 	JoinTime  time.Time   `json:"join_time"`
 }
 
-// SimpleClusterConfig 简化集群配置（用于 mDNS 发现模式）
+// SimpleClusterConfig 简化集群配置（用于 mDNS 发现模式）.
 type SimpleClusterConfig struct {
 	Name              string `json:"name"`
 	NodeID            string `json:"node_id"`
@@ -66,7 +66,7 @@ type SimpleClusterConfig struct {
 	DataDir           string `json:"data_dir"`
 }
 
-// Manager 集群管理器
+// Manager 集群管理器.
 type Manager struct {
 	config     SimpleClusterConfig
 	nodes      map[string]*Member
@@ -80,14 +80,14 @@ type Manager struct {
 	callbacks  Callbacks
 }
 
-// Callbacks 集群事件回调
+// Callbacks 集群事件回调.
 type Callbacks struct {
 	OnNodeJoin     func(node *Member)
 	OnNodeLeave    func(node *Member)
 	OnMasterChange func(oldMaster, newMaster string)
 }
 
-// NewManager 创建集群管理器
+// NewManager 创建集群管理器.
 func NewManager(config SimpleClusterConfig, logger *zap.Logger) (*Manager, error) {
 	if config.NodeID == "" {
 		hostname, _ := os.Hostname()
@@ -130,7 +130,7 @@ func NewManager(config SimpleClusterConfig, logger *zap.Logger) (*Manager, error
 	return cm, nil
 }
 
-// Initialize 初始化集群管理器
+// Initialize 初始化集群管理器.
 func (cm *Manager) Initialize() error {
 	cm.logger.Info("初始化集群管理器", zap.String("node_id", cm.config.NodeID))
 
@@ -154,7 +154,7 @@ func (cm *Manager) Initialize() error {
 	return nil
 }
 
-// startMDNSServer 启动 mDNS 服务广播
+// startMDNSServer 启动 mDNS 服务广播.
 func (cm *Manager) startMDNSServer() error {
 	// 获取本机 IP
 	ip, err := cm.getLocalIP()
@@ -185,7 +185,7 @@ func (cm *Manager) startMDNSServer() error {
 	return nil
 }
 
-// startMDNSDiscovery 启动 mDNS 服务发现
+// startMDNSDiscovery 启动 mDNS 服务发现.
 func (cm *Manager) startMDNSDiscovery() error {
 	resolver, err := zeroconf.NewResolver(nil)
 	if err != nil {
@@ -212,7 +212,7 @@ func (cm *Manager) startMDNSDiscovery() error {
 	return nil
 }
 
-// handleDiscoveredNode 处理发现的节点
+// handleDiscoveredNode 处理发现的节点.
 func (cm *Manager) handleDiscoveredNode(entry *zeroconf.ServiceEntry) {
 	if len(entry.AddrIPv4) == 0 {
 		return
@@ -274,7 +274,7 @@ func (cm *Manager) handleDiscoveredNode(entry *zeroconf.ServiceEntry) {
 	_ = cm.saveState()
 }
 
-// heartbeatWorker 心跳检测工作线程
+// heartbeatWorker 心跳检测工作线程.
 func (cm *Manager) heartbeatWorker() {
 	ticker := time.NewTicker(time.Duration(cm.config.HeartbeatInterval) * time.Second)
 	defer ticker.Stop()
@@ -289,7 +289,7 @@ func (cm *Manager) heartbeatWorker() {
 	}
 }
 
-// broadcastHeartbeat 广播心跳
+// broadcastHeartbeat 广播心跳.
 func (cm *Manager) broadcastHeartbeat() {
 	cm.nodesMutex.RLock()
 	defer cm.nodesMutex.RUnlock()
@@ -304,7 +304,7 @@ func (cm *Manager) broadcastHeartbeat() {
 	}
 }
 
-// sendHeartbeat 发送心跳到指定节点
+// sendHeartbeat 发送心跳到指定节点.
 func (cm *Manager) sendHeartbeat(node *Member) {
 	ctx, cancel := context.WithTimeout(cm.ctx, 5*time.Second)
 	defer cancel()
@@ -334,7 +334,7 @@ func (cm *Manager) sendHeartbeat(node *Member) {
 	}
 }
 
-// monitorWorker 节点状态监控工作线程
+// monitorWorker 节点状态监控工作线程.
 func (cm *Manager) monitorWorker() {
 	ticker := time.NewTicker(time.Duration(cm.config.HeartbeatTimeout) * time.Second / 2)
 	defer ticker.Stop()
@@ -349,7 +349,7 @@ func (cm *Manager) monitorWorker() {
 	}
 }
 
-// checkNodeStatus 检查节点状态
+// checkNodeStatus 检查节点状态.
 func (cm *Manager) checkNodeStatus() {
 	cm.nodesMutex.Lock()
 	defer cm.nodesMutex.Unlock()
@@ -382,7 +382,7 @@ func (cm *Manager) checkNodeStatus() {
 	_ = cm.saveState()
 }
 
-// electNewMaster 选举新主节点
+// electNewMaster 选举新主节点.
 func (cm *Manager) electNewMaster() {
 	cm.logger.Info("开始主节点选举")
 
@@ -421,7 +421,7 @@ func (cm *Manager) electNewMaster() {
 	}
 }
 
-// GetNodes 获取所有节点
+// GetNodes 获取所有节点.
 func (cm *Manager) GetNodes() []*Member {
 	cm.nodesMutex.RLock()
 	defer cm.nodesMutex.RUnlock()
@@ -433,7 +433,7 @@ func (cm *Manager) GetNodes() []*Member {
 	return nodes
 }
 
-// GetNode 获取指定节点
+// GetNode 获取指定节点.
 func (cm *Manager) GetNode(nodeID string) (*Member, bool) {
 	cm.nodesMutex.RLock()
 	defer cm.nodesMutex.RUnlock()
@@ -445,7 +445,7 @@ func (cm *Manager) GetNode(nodeID string) (*Member, bool) {
 	return node, true
 }
 
-// GetMasterNode 获取主节点
+// GetMasterNode 获取主节点.
 func (cm *Manager) GetMasterNode() *Member {
 	cm.nodesMutex.RLock()
 	defer cm.nodesMutex.RUnlock()
@@ -456,7 +456,7 @@ func (cm *Manager) GetMasterNode() *Member {
 	return nil
 }
 
-// GetOnlineNodes 获取在线节点
+// GetOnlineNodes 获取在线节点.
 func (cm *Manager) GetOnlineNodes() []*Member {
 	cm.nodesMutex.RLock()
 	defer cm.nodesMutex.RUnlock()
@@ -470,7 +470,7 @@ func (cm *Manager) GetOnlineNodes() []*Member {
 	return nodes
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (cm *Manager) RemoveNode(nodeID string) error {
 	cm.nodesMutex.Lock()
 	defer cm.nodesMutex.Unlock()
@@ -493,7 +493,7 @@ func (cm *Manager) RemoveNode(nodeID string) error {
 	return nil
 }
 
-// UpdateNodeMetrics 更新节点指标
+// UpdateNodeMetrics 更新节点指标.
 func (cm *Manager) UpdateNodeMetrics(nodeID string, metrics NodeMetrics) error {
 	cm.nodesMutex.Lock()
 	defer cm.nodesMutex.Unlock()
@@ -508,27 +508,27 @@ func (cm *Manager) UpdateNodeMetrics(nodeID string, metrics NodeMetrics) error {
 	return nil
 }
 
-// SetCallbacks 设置事件回调
+// SetCallbacks 设置事件回调.
 func (cm *Manager) SetCallbacks(callbacks Callbacks) {
 	cm.callbacks = callbacks
 }
 
-// GetConfig 获取集群配置
+// GetConfig 获取集群配置.
 func (cm *Manager) GetConfig() SimpleClusterConfig {
 	return cm.config
 }
 
-// IsMaster 检查当前节点是否为主节点
+// IsMaster 检查当前节点是否为主节点.
 func (cm *Manager) IsMaster() bool {
 	return cm.config.NodeID == cm.masterID
 }
 
-// GetMasterID 获取主节点 ID
+// GetMasterID 获取主节点 ID.
 func (cm *Manager) GetMasterID() string {
 	return cm.masterID
 }
 
-// Shutdown 关闭集群管理器
+// Shutdown 关闭集群管理器.
 func (cm *Manager) Shutdown() error {
 	cm.cancel()
 
@@ -542,7 +542,7 @@ func (cm *Manager) Shutdown() error {
 
 // 辅助函数
 
-// getLocalIP 获取本机 IP
+// getLocalIP 获取本机 IP.
 func (cm *Manager) getLocalIP() (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
@@ -560,7 +560,7 @@ func (cm *Manager) getLocalIP() (string, error) {
 	return "", fmt.Errorf("未找到有效的 IPv4 地址")
 }
 
-// saveState 持久化集群状态
+// saveState 持久化集群状态.
 func (cm *Manager) saveState() error {
 	state := map[string]interface{}{
 		"master_id": cm.masterID,
@@ -577,7 +577,7 @@ func (cm *Manager) saveState() error {
 	return os.WriteFile(stateFile, data, 0640)
 }
 
-// loadState 加载集群状态
+// loadState 加载集群状态.
 func (cm *Manager) loadState() error {
 	stateFile := fmt.Sprintf("%s/cluster_state.json", cm.config.DataDir)
 

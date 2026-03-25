@@ -7,12 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 版本控制 API 处理器
+// Handlers 版本控制 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager: manager,
@@ -26,7 +26,7 @@ func NewHandlers(manager *Manager) *Handlers {
 // - GET /api/v1/versions/:id - 获取版本详情
 // - POST /api/v1/versions/:id/restore - 恢复版本
 // - DELETE /api/v1/versions/:id - 删除版本
-// - GET /api/v1/versions/:id/diff - 版本对比
+// - GET /api/v1/versions/:id/diff - 版本对比.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	// 文件版本管理
 	// 使用查询参数方式实现 RESTful 路径语义
@@ -64,7 +64,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Param path path string true "文件路径"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /api/v1/files/{path}/versions [get]
+// @Router /api/v1/files/{path}/versions [get].
 func (h *Handlers) listFileVersions(c *gin.Context) {
 	// 检查是否是版本列表请求
 	if c.Query("versions") != "true" {
@@ -109,7 +109,7 @@ func (h *Handlers) listFileVersions(c *gin.Context) {
 // @Param id path string true "版本 ID"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 404 {object} GenericResponse "版本不存在"
-// @Router /api/v1/versions/{id} [get]
+// @Router /api/v1/versions/{id} [get].
 func (h *Handlers) getVersion(c *gin.Context) {
 	versionID := c.Param("id")
 
@@ -140,7 +140,7 @@ func (h *Handlers) getVersion(c *gin.Context) {
 // @Success 200 {object} GenericResponse "创建成功"
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /api/v1/files/{path}/versions [post]
+// @Router /api/v1/files/{path}/versions [post].
 func (h *Handlers) createVersion(c *gin.Context) {
 	// 从 URL 中提取文件路径
 	// 路由格式: POST /api/v1/files/*path/versions
@@ -196,7 +196,7 @@ func (h *Handlers) createVersion(c *gin.Context) {
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 404 {object} GenericResponse "版本不存在"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /api/v1/versions/{id}/restore [post]
+// @Router /api/v1/versions/{id}/restore [post].
 func (h *Handlers) restoreVersion(c *gin.Context) {
 	versionID := c.Param("id")
 
@@ -229,7 +229,7 @@ func (h *Handlers) restoreVersion(c *gin.Context) {
 // @Success 200 {object} GenericResponse "删除成功"
 // @Failure 404 {object} GenericResponse "版本不存在"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /api/v1/versions/{id} [delete]
+// @Router /api/v1/versions/{id} [delete].
 func (h *Handlers) deleteVersion(c *gin.Context) {
 	versionID := c.Param("id")
 
@@ -257,7 +257,7 @@ func (h *Handlers) deleteVersion(c *gin.Context) {
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 404 {object} GenericResponse "版本不存在"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /api/v1/versions/{id}/diff [get]
+// @Router /api/v1/versions/{id}/diff [get].
 func (h *Handlers) getVersionDiff(c *gin.Context) {
 	versionID := c.Param("id")
 
@@ -284,7 +284,7 @@ func (h *Handlers) getVersionDiff(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GenericResponse "成功"
-// @Router /api/v1/versions/stats [get]
+// @Router /api/v1/versions/stats [get].
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -301,7 +301,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GenericResponse "成功"
-// @Router /api/v1/versions/config [get]
+// @Router /api/v1/versions/config [get].
 func (h *Handlers) getConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -320,7 +320,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 // @Success 200 {object} GenericResponse "更新成功"
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /api/v1/versions/config [put]
+// @Router /api/v1/versions/config [put].
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var config Config
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -347,19 +347,19 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 
 // ========== 请求/响应类型 ==========
 
-// CreateVersionRequest 创建版本请求
+// CreateVersionRequest 创建版本请求.
 type CreateVersionRequest struct {
 	UserID      string `json:"userId"`
 	Description string `json:"description"`
 	TriggerType string `json:"triggerType"`
 }
 
-// RestoreVersionRequest 恢复版本请求
+// RestoreVersionRequest 恢复版本请求.
 type RestoreVersionRequest struct {
 	TargetPath string `json:"targetPath"` // 目标路径，为空则恢复到原始位置
 }
 
-// GenericResponse 通用响应
+// GenericResponse 通用响应.
 type GenericResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`

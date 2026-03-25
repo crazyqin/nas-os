@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Learner 分类规则学习器
+// Learner 分类规则学习器.
 type Learner struct {
 	config       Config
 	classifier   *Classifier
@@ -22,7 +22,7 @@ type Learner struct {
 	mu           sync.RWMutex
 }
 
-// RuleStats 规则统计
+// RuleStats 规则统计.
 type RuleStats struct {
 	RuleID      string    `json:"ruleId"`
 	TotalHits   int       `json:"totalHits"`
@@ -32,7 +32,7 @@ type RuleStats struct {
 	LastUpdated time.Time `json:"lastUpdated"`
 }
 
-// NewLearner 创建学习器
+// NewLearner 创建学习器.
 func NewLearner(config Config, classifier *Classifier, tagger *Tagger) *Learner {
 	return &Learner{
 		config:       config,
@@ -43,7 +43,7 @@ func NewLearner(config Config, classifier *Classifier, tagger *Tagger) *Learner 
 	}
 }
 
-// LearnFromFeedback 从用户反馈学习
+// LearnFromFeedback 从用户反馈学习.
 func (l *Learner) LearnFromFeedback(ctx context.Context, feedback UserFeedback) error {
 	if !l.config.EnableLearning {
 		return nil
@@ -76,7 +76,7 @@ func (l *Learner) LearnFromFeedback(ctx context.Context, feedback UserFeedback) 
 	return l.saveLearningData()
 }
 
-// UserFeedback 用户反馈
+// UserFeedback 用户反馈.
 type UserFeedback struct {
 	FilePath           string   `json:"filePath"`
 	OriginalCategoryID string   `json:"originalCategoryId"`
@@ -87,7 +87,7 @@ type UserFeedback struct {
 	Comment            string   `json:"comment,omitempty"`
 }
 
-// learnFromCorrection 从修正中学习
+// learnFromCorrection 从修正中学习.
 func (l *Learner) learnFromCorrection(ctx context.Context, feedback UserFeedback) error {
 	fileName := filepath.Base(feedback.FilePath)
 	ext := strings.ToLower(filepath.Ext(feedback.FilePath))
@@ -135,7 +135,7 @@ func (l *Learner) learnFromCorrection(ctx context.Context, feedback UserFeedback
 	return nil
 }
 
-// extractPatterns 提取文件名模式
+// extractPatterns 提取文件名模式.
 func (l *Learner) extractPatterns(fileName string) []string {
 	var patterns []string
 
@@ -163,7 +163,7 @@ func (l *Learner) extractPatterns(fileName string) []string {
 	return patterns
 }
 
-// buildConditions 构建规则条件
+// buildConditions 构建规则条件.
 func (l *Learner) buildConditions(patterns []string, ext string) []Condition {
 	var conditions []Condition
 
@@ -196,7 +196,7 @@ func (l *Learner) buildConditions(patterns []string, ext string) []Condition {
 	return conditions
 }
 
-// findSimilarRule 查找相似规则
+// findSimilarRule 查找相似规则.
 func (l *Learner) findSimilarRule(patterns []string, ext string) *ClassificationRule {
 	rules := l.classifier.GetRules()
 
@@ -218,7 +218,7 @@ func (l *Learner) findSimilarRule(patterns []string, ext string) *Classification
 	return nil
 }
 
-// updateRuleStats 更新规则统计
+// updateRuleStats 更新规则统计.
 func (l *Learner) updateRuleStats(ruleID string, correct bool) {
 	stats := l.ruleStats[ruleID]
 	stats.RuleID = ruleID
@@ -233,7 +233,7 @@ func (l *Learner) updateRuleStats(ruleID string, correct bool) {
 	l.ruleStats[ruleID] = stats
 }
 
-// LearnFromDirectory 从目录结构学习
+// LearnFromDirectory 从目录结构学习.
 func (l *Learner) LearnFromDirectory(ctx context.Context, dir string, categoryID string) error {
 	if !l.config.EnableLearning {
 		return nil
@@ -278,7 +278,7 @@ func (l *Learner) LearnFromDirectory(ctx context.Context, dir string, categoryID
 	return l.classifier.AddRule(rule)
 }
 
-// LearnFromBatch 从批量分类学习
+// LearnFromBatch 从批量分类学习.
 func (l *Learner) LearnFromBatch(ctx context.Context, results []*FileClassification, feedbacks []UserFeedback) error {
 	if !l.config.EnableLearning || len(feedbacks) == 0 {
 		return nil
@@ -330,7 +330,7 @@ func (l *Learner) LearnFromBatch(ctx context.Context, results []*FileClassificat
 	return nil
 }
 
-// analyzeCorrectionPatterns 分析修正模式
+// analyzeCorrectionPatterns 分析修正模式.
 func (l *Learner) analyzeCorrectionPatterns(feedbacks []UserFeedback) []string {
 	var patterns []string
 	extCount := make(map[string]int)
@@ -368,7 +368,7 @@ func (l *Learner) analyzeCorrectionPatterns(feedbacks []UserFeedback) []string {
 	return patterns
 }
 
-// buildConditionsFromPatterns 从模式构建条件
+// buildConditionsFromPatterns 从模式构建条件.
 func (l *Learner) buildConditionsFromPatterns(patterns []string) []Condition {
 	var conditions []Condition
 
@@ -391,7 +391,7 @@ func (l *Learner) buildConditionsFromPatterns(patterns []string) []Condition {
 	return conditions
 }
 
-// GetLearningStats 获取学习统计
+// GetLearningStats 获取学习统计.
 func (l *Learner) GetLearningStats() map[string]interface{} {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -437,7 +437,7 @@ func (l *Learner) GetLearningStats() map[string]interface{} {
 	}
 }
 
-// SuggestRules 建议新规则
+// SuggestRules 建议新规则.
 func (l *Learner) SuggestRules(ctx context.Context) ([]ClassificationRuleSuggestion, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -481,7 +481,7 @@ func (l *Learner) SuggestRules(ctx context.Context) ([]ClassificationRuleSuggest
 	return suggestions, nil
 }
 
-// ClassificationRuleSuggestion 分类规则建议
+// ClassificationRuleSuggestion 分类规则建议.
 type ClassificationRuleSuggestion struct {
 	CategoryID  string   `json:"categoryId"`
 	Patterns    []string `json:"patterns"`
@@ -490,7 +490,7 @@ type ClassificationRuleSuggestion struct {
 	Description string   `json:"description"`
 }
 
-// analyzeCorrectionDataPatterns 分析修正数据模式
+// analyzeCorrectionDataPatterns 分析修正数据模式.
 func (l *Learner) analyzeCorrectionDataPatterns(dataList []LearningData) []string {
 	var patterns []string
 	extCount := make(map[string]int)
@@ -525,7 +525,7 @@ func (l *Learner) analyzeCorrectionDataPatterns(dataList []LearningData) []strin
 	return patterns
 }
 
-// saveLearningData 保存学习数据
+// saveLearningData 保存学习数据.
 func (l *Learner) saveLearningData() error {
 	dataDir := l.config.DataDir
 	if err := os.MkdirAll(dataDir, 0750); err != nil {
@@ -557,7 +557,7 @@ func (l *Learner) LoadLearningData() error {
 	return json.Unmarshal(jsonData, &l.learningData)
 }
 
-// OptimizeRules 优化规则
+// OptimizeRules 优化规则.
 func (l *Learner) OptimizeRules(ctx context.Context) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -587,7 +587,7 @@ func (l *Learner) OptimizeRules(ctx context.Context) error {
 	return l.classifier.Save()
 }
 
-// containsDigits 检查是否包含数字
+// containsDigits 检查是否包含数字.
 func containsDigits(s string) bool {
 	for _, c := range s {
 		if c >= '0' && c <= '9' {
@@ -597,7 +597,7 @@ func containsDigits(s string) bool {
 	return false
 }
 
-// isRegexPattern 检查是否是正则模式
+// isRegexPattern 检查是否是正则模式.
 func isRegexPattern(s string) bool {
 	regexChars := []string{`\`, `(`, `)`, `[`, `]`, `{`, `}`, `|`, `^`, `$`, `*`, `+`, `?`}
 	for _, c := range regexChars {

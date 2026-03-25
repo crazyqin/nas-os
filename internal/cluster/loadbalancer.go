@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 负载均衡算法
+// 负载均衡算法.
 const (
 	LBAlgorithmRoundRobin = "round-robin"
 	LBAlgorithmLeastConn  = "least-conn"
@@ -21,7 +21,7 @@ const (
 	LBAlgorithmIPHash     = "ip-hash"
 )
 
-// Backend 后端节点
+// Backend 后端节点.
 type Backend struct {
 	NodeID      string    `json:"node_id"`
 	Address     string    `json:"address"`
@@ -33,7 +33,7 @@ type Backend struct {
 	Failures    int       `json:"failures"`
 }
 
-// LBConfig 负载均衡配置
+// LBConfig 负载均衡配置.
 type LBConfig struct {
 	Algorithm      string `json:"algorithm"`
 	HealthCheckURL string `json:"health_check_url"`
@@ -43,7 +43,7 @@ type LBConfig struct {
 	StickySession  bool   `json:"sticky_session"`
 }
 
-// LBStats 负载均衡统计
+// LBStats 负载均衡统计.
 type LBStats struct {
 	TotalRequests   int64                    `json:"total_requests"`
 	ActiveRequests  int64                    `json:"active_requests"`
@@ -53,7 +53,7 @@ type LBStats struct {
 	BackendStats    map[string]*BackendStats `json:"backend_stats"`
 }
 
-// BackendStats 后端节点统计
+// BackendStats 后端节点统计.
 type BackendStats struct {
 	Requests    int64         `json:"requests"`
 	Failed      int64         `json:"failed"`
@@ -61,7 +61,7 @@ type BackendStats struct {
 	LastRequest time.Time     `json:"last_request"`
 }
 
-// LoadBalancer 负载均衡器
+// LoadBalancer 负载均衡器.
 type LoadBalancer struct {
 	config        LBConfig
 	backends      map[string]*Backend
@@ -78,7 +78,7 @@ type LoadBalancer struct {
 	cluster      *Manager
 }
 
-// NewLoadBalancer 创建负载均衡器
+// NewLoadBalancer 创建负载均衡器.
 func NewLoadBalancer(config LBConfig, logger *zap.Logger, cluster *Manager) (*LoadBalancer, error) {
 	if config.Algorithm == "" {
 		config.Algorithm = LBAlgorithmRoundRobin
@@ -114,7 +114,7 @@ func NewLoadBalancer(config LBConfig, logger *zap.Logger, cluster *Manager) (*Lo
 	return lb, nil
 }
 
-// Initialize 初始化负载均衡器
+// Initialize 初始化负载均衡器.
 func (lb *LoadBalancer) Initialize() error {
 	lb.logger.Info("初始化负载均衡器", zap.String("algorithm", lb.config.Algorithm))
 
@@ -130,7 +130,7 @@ func (lb *LoadBalancer) Initialize() error {
 	return nil
 }
 
-// syncBackendsFromCluster 从集群同步后端节点
+// syncBackendsFromCluster 从集群同步后端节点.
 func (lb *LoadBalancer) syncBackendsFromCluster() error {
 	nodes := lb.cluster.GetOnlineNodes()
 
@@ -158,7 +158,7 @@ func (lb *LoadBalancer) syncBackendsFromCluster() error {
 	return nil
 }
 
-// AddBackend 添加后端节点
+// AddBackend 添加后端节点.
 func (lb *LoadBalancer) AddBackend(nodeID, address string, weight int) error {
 	lb.backendsMutex.Lock()
 	defer lb.backendsMutex.Unlock()
@@ -180,7 +180,7 @@ func (lb *LoadBalancer) AddBackend(nodeID, address string, weight int) error {
 	return nil
 }
 
-// RemoveBackend 移除后端节点
+// RemoveBackend 移除后端节点.
 func (lb *LoadBalancer) RemoveBackend(nodeID string) error {
 	lb.backendsMutex.Lock()
 	defer lb.backendsMutex.Unlock()
@@ -196,7 +196,7 @@ func (lb *LoadBalancer) RemoveBackend(nodeID string) error {
 	return nil
 }
 
-// UpdateBackendWeight 更新后端节点权重
+// UpdateBackendWeight 更新后端节点权重.
 func (lb *LoadBalancer) UpdateBackendWeight(nodeID string, weight int) error {
 	lb.backendsMutex.Lock()
 	defer lb.backendsMutex.Unlock()
@@ -211,7 +211,7 @@ func (lb *LoadBalancer) UpdateBackendWeight(nodeID string, weight int) error {
 	return nil
 }
 
-// GetBackend 获取后端节点
+// GetBackend 获取后端节点.
 func (lb *LoadBalancer) GetBackend(nodeID string) (*Backend, bool) {
 	lb.backendsMutex.RLock()
 	defer lb.backendsMutex.RUnlock()
@@ -220,7 +220,7 @@ func (lb *LoadBalancer) GetBackend(nodeID string) (*Backend, bool) {
 	return backend, exists
 }
 
-// GetBackends 获取所有后端节点
+// GetBackends 获取所有后端节点.
 func (lb *LoadBalancer) GetBackends() []*Backend {
 	lb.backendsMutex.RLock()
 	defer lb.backendsMutex.RUnlock()
@@ -232,7 +232,7 @@ func (lb *LoadBalancer) GetBackends() []*Backend {
 	return backends
 }
 
-// GetHealthyBackends 获取健康的后端节点
+// GetHealthyBackends 获取健康的后端节点.
 func (lb *LoadBalancer) GetHealthyBackends() []*Backend {
 	lb.backendsMutex.RLock()
 	defer lb.backendsMutex.RUnlock()
@@ -246,7 +246,7 @@ func (lb *LoadBalancer) GetHealthyBackends() []*Backend {
 	return backends
 }
 
-// SelectBackend 选择后端节点
+// SelectBackend 选择后端节点.
 func (lb *LoadBalancer) SelectBackend(clientIP string) (*Backend, error) {
 	lb.backendsMutex.RLock()
 	defer lb.backendsMutex.RUnlock()
@@ -285,7 +285,7 @@ func (lb *LoadBalancer) SelectBackend(clientIP string) (*Backend, error) {
 	return selected, nil
 }
 
-// selectRoundRobin 轮询选择
+// selectRoundRobin 轮询选择.
 func (lb *LoadBalancer) selectRoundRobin(backends []*Backend) *Backend {
 	if len(backends) == 0 {
 		return nil
@@ -296,7 +296,7 @@ func (lb *LoadBalancer) selectRoundRobin(backends []*Backend) *Backend {
 	return selected
 }
 
-// selectLeastConn 最少连接选择
+// selectLeastConn 最少连接选择.
 func (lb *LoadBalancer) selectLeastConn(backends []*Backend) *Backend {
 	if len(backends) == 0 {
 		return nil
@@ -311,7 +311,7 @@ func (lb *LoadBalancer) selectLeastConn(backends []*Backend) *Backend {
 	return selected
 }
 
-// selectWeighted 加权选择
+// selectWeighted 加权选择.
 func (lb *LoadBalancer) selectWeighted(backends []*Backend) *Backend {
 	if len(backends) == 0 {
 		return nil
@@ -340,7 +340,7 @@ func (lb *LoadBalancer) selectWeighted(backends []*Backend) *Backend {
 	return backends[len(backends)-1]
 }
 
-// selectIPHash IP 哈希选择
+// selectIPHash IP 哈希选择.
 func (lb *LoadBalancer) selectIPHash(backends []*Backend, clientIP string) *Backend {
 	if len(backends) == 0 {
 		return nil
@@ -377,7 +377,7 @@ func (lb *LoadBalancer) selectIPHash(backends []*Backend, clientIP string) *Back
 	return selected
 }
 
-// ReleaseBackend 释放后端连接
+// ReleaseBackend 释放后端连接.
 func (lb *LoadBalancer) ReleaseBackend(nodeID string) {
 	lb.backendsMutex.Lock()
 	defer lb.backendsMutex.Unlock()
@@ -389,7 +389,7 @@ func (lb *LoadBalancer) ReleaseBackend(nodeID string) {
 	}
 }
 
-// healthCheckWorker 健康检查工作线程
+// healthCheckWorker 健康检查工作线程.
 func (lb *LoadBalancer) healthCheckWorker() {
 	ticker := time.NewTicker(time.Duration(lb.config.HealthInterval) * time.Second)
 	defer ticker.Stop()
@@ -404,7 +404,7 @@ func (lb *LoadBalancer) healthCheckWorker() {
 	}
 }
 
-// checkHealth 检查所有后端健康状态
+// checkHealth 检查所有后端健康状态.
 func (lb *LoadBalancer) checkHealth() {
 	lb.backendsMutex.RLock()
 	backends := make([]*Backend, 0, len(lb.backends))
@@ -418,7 +418,7 @@ func (lb *LoadBalancer) checkHealth() {
 	}
 }
 
-// checkBackendHealth 检查单个后端健康状态
+// checkBackendHealth 检查单个后端健康状态.
 func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 	client := &http.Client{
 		Timeout: time.Duration(lb.config.HealthTimeout) * time.Second,
@@ -449,7 +449,7 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 	backend.LastCheck = time.Now()
 }
 
-// RecordRequest 记录请求统计
+// RecordRequest 记录请求统计.
 func (lb *LoadBalancer) RecordRequest(nodeID string, success bool, duration time.Duration) {
 	lb.statsMutex.Lock()
 	defer lb.statsMutex.Unlock()
@@ -472,7 +472,7 @@ func (lb *LoadBalancer) RecordRequest(nodeID string, success bool, duration time
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (lb *LoadBalancer) GetStats() LBStats {
 	lb.statsMutex.RLock()
 	defer lb.statsMutex.RUnlock()
@@ -480,7 +480,7 @@ func (lb *LoadBalancer) GetStats() LBStats {
 	return lb.stats
 }
 
-// ResetStats 重置统计
+// ResetStats 重置统计.
 func (lb *LoadBalancer) ResetStats() {
 	lb.statsMutex.Lock()
 	defer lb.statsMutex.Unlock()
@@ -490,26 +490,26 @@ func (lb *LoadBalancer) ResetStats() {
 	}
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (lb *LoadBalancer) UpdateConfig(config LBConfig) error {
 	lb.config = config
 	lb.logger.Info("负载均衡配置已更新", zap.String("algorithm", config.Algorithm))
 	return nil
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (lb *LoadBalancer) GetConfig() LBConfig {
 	return lb.config
 }
 
-// Shutdown 关闭负载均衡器
+// Shutdown 关闭负载均衡器.
 func (lb *LoadBalancer) Shutdown() error {
 	lb.cancel()
 	lb.logger.Info("负载均衡器已关闭")
 	return nil
 }
 
-// CreateProxy 创建反向代理
+// CreateProxy 创建反向代理.
 func (lb *LoadBalancer) CreateProxy() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 选择后端

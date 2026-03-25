@@ -10,11 +10,11 @@ import (
 )
 
 // SafeName validates that a string contains only safe characters
-// Safe characters: alphanumeric, underscore, hyphen
+// Safe characters: alphanumeric, underscore, hyphen.
 var safeNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 
 // ValidateSafeName checks if a name contains only safe characters
-// to prevent command injection and path traversal
+// to prevent command injection and path traversal.
 func ValidateSafeName(name string, fieldName string) error {
 	if name == "" {
 		return fmt.Errorf("%s cannot be empty", fieldName)
@@ -29,7 +29,7 @@ func ValidateSafeName(name string, fieldName string) error {
 }
 
 // SanitizePath cleans a file path to prevent path traversal attacks
-// It removes any .. components and ensures the path doesn't escape the base directory
+// It removes any .. components and ensures the path doesn't escape the base directory.
 func SanitizePath(baseDir, userPath string) (string, error) {
 	// Clean the user path to remove .. components
 	cleanPath := filepath.Clean(userPath)
@@ -57,13 +57,13 @@ func SanitizePath(baseDir, userPath string) (string, error) {
 }
 
 // SafeCommandBuilder provides a safe way to build and execute commands
-// by using argument lists instead of shell interpretation
+// by using argument lists instead of shell interpretation.
 type SafeCommandBuilder struct {
 	name string
 	args []string
 }
 
-// NewCommand creates a new safe command builder
+// NewCommand creates a new safe command builder.
 func NewCommand(name string) *SafeCommandBuilder {
 	return &SafeCommandBuilder{
 		name: name,
@@ -71,7 +71,7 @@ func NewCommand(name string) *SafeCommandBuilder {
 	}
 }
 
-// AddArg adds a safe argument (validated as a safe name)
+// AddArg adds a safe argument (validated as a safe name).
 func (b *SafeCommandBuilder) AddArg(arg string, validate bool) *SafeCommandBuilder {
 	if validate {
 		// Only add if valid, otherwise skip (caller should check)
@@ -90,7 +90,7 @@ func (b *SafeCommandBuilder) AddLiteral(arg string) *SafeCommandBuilder {
 	return b
 }
 
-// AddPath adds a path argument after sanitization
+// AddPath adds a path argument after sanitization.
 func (b *SafeCommandBuilder) AddPath(baseDir, userPath string) error {
 	safePath, err := SanitizePath(baseDir, userPath)
 	if err != nil {
@@ -100,17 +100,17 @@ func (b *SafeCommandBuilder) AddPath(baseDir, userPath string) error {
 	return nil
 }
 
-// Build returns the exec.Cmd for the command
+// Build returns the exec.Cmd for the command.
 func (b *SafeCommandBuilder) Build() *exec.Cmd {
 	return exec.Command(b.name, b.args...)
 }
 
-// Args returns the current arguments (for logging/debugging)
+// Args returns the current arguments (for logging/debugging).
 func (b *SafeCommandBuilder) Args() []string {
 	return append([]string{b.name}, b.args...)
 }
 
-// SafeIntConversion safely converts uint64 to int64 with overflow check
+// SafeIntConversion safely converts uint64 to int64 with overflow check.
 func SafeIntConversion(val uint64) (int64, error) {
 	const maxInt64 = ^uint64(0) >> 1
 	if val > maxInt64 {
@@ -119,7 +119,7 @@ func SafeIntConversion(val uint64) (int64, error) {
 	return int64(val), nil
 }
 
-// SafeUintConversion safely converts int64 to uint64 with check
+// SafeUintConversion safely converts int64 to uint64 with check.
 func SafeUintConversion(val int64) (uint64, error) {
 	if val < 0 {
 		return 0, fmt.Errorf("negative value %d cannot be converted to uint64", val)
@@ -127,7 +127,7 @@ func SafeUintConversion(val int64) (uint64, error) {
 	return uint64(val), nil
 }
 
-// ValidateFilePath validates that a file path is safe
+// ValidateFilePath validates that a file path is safe.
 func ValidateFilePath(path string) error {
 	// Check for null bytes
 	if strings.ContainsRune(path, 0) {
@@ -145,7 +145,7 @@ func ValidateFilePath(path string) error {
 	return nil
 }
 
-// IsAllowedCommand checks if a command is in the allowed list
+// IsAllowedCommand checks if a command is in the allowed list.
 var allowedCommands = map[string]bool{
 	"virsh":      true,
 	"qemu-img":   true,
@@ -176,7 +176,7 @@ var allowedCommands = map[string]bool{
 	"mkfs":       true,
 }
 
-// IsCommandAllowed checks if a command is in the allowed list
+// IsCommandAllowed checks if a command is in the allowed list.
 func IsCommandAllowed(cmd string) bool {
 	return allowedCommands[cmd]
 }

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Network Docker 网络
+// Network Docker 网络.
 type Network struct {
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
@@ -25,7 +25,7 @@ type Network struct {
 	Created    time.Time         `json:"created"`
 }
 
-// NetworkConfig 网络创建配置
+// NetworkConfig 网络创建配置.
 type NetworkConfig struct {
 	Name       string            `json:"name"`
 	Driver     string            `json:"driver"`     // "bridge", "overlay", "macvlan", "ipvlan", "none"
@@ -38,19 +38,19 @@ type NetworkConfig struct {
 	Options    map[string]string `json:"options"`
 }
 
-// NetworkManager 网络管理器
+// NetworkManager 网络管理器.
 type NetworkManager struct {
 	manager *Manager
 }
 
-// NewNetworkManager 创建网络管理器
+// NewNetworkManager 创建网络管理器.
 func NewNetworkManager(mgr *Manager) *NetworkManager {
 	return &NetworkManager{
 		manager: mgr,
 	}
 }
 
-// ListNetworks 列出所有网络
+// ListNetworks 列出所有网络.
 func (nm *NetworkManager) ListNetworks() ([]*Network, error) {
 	cmd := exec.Command("docker", "network", "ls", "--format", "{{json .}}")
 	output, err := cmd.Output()
@@ -91,7 +91,7 @@ func (nm *NetworkManager) ListNetworks() ([]*Network, error) {
 	return networks, nil
 }
 
-// GetNetwork 获取网络详情
+// GetNetwork 获取网络详情.
 func (nm *NetworkManager) GetNetwork(id string) (*Network, error) {
 	cmd := exec.Command("docker", "network", "inspect", "--format", "{{json .}}", id)
 	output, err := cmd.Output()
@@ -152,7 +152,7 @@ func (nm *NetworkManager) GetNetwork(id string) (*Network, error) {
 	return network, nil
 }
 
-// CreateNetwork 创建网络
+// CreateNetwork 创建网络.
 func (nm *NetworkManager) CreateNetwork(config *NetworkConfig) (*Network, error) {
 	args := []string{"network", "create"}
 
@@ -210,7 +210,7 @@ func (nm *NetworkManager) CreateNetwork(config *NetworkConfig) (*Network, error)
 	return nm.GetNetwork(networkID)
 }
 
-// RemoveNetwork 删除网络
+// RemoveNetwork 删除网络.
 func (nm *NetworkManager) RemoveNetwork(id string) error {
 	cmd := exec.Command("docker", "network", "rm", id)
 	output, err := cmd.CombinedOutput()
@@ -220,7 +220,7 @@ func (nm *NetworkManager) RemoveNetwork(id string) error {
 	return nil
 }
 
-// ConnectNetwork 连接容器到网络
+// ConnectNetwork 连接容器到网络.
 func (nm *NetworkManager) ConnectNetwork(networkID, containerID string, aliases []string) error {
 	args := []string{"network", "connect"}
 
@@ -239,7 +239,7 @@ func (nm *NetworkManager) ConnectNetwork(networkID, containerID string, aliases 
 	return nil
 }
 
-// DisconnectNetwork 断开容器与网络的连接
+// DisconnectNetwork 断开容器与网络的连接.
 func (nm *NetworkManager) DisconnectNetwork(networkID, containerID string, force bool) error {
 	args := []string{"network", "disconnect"}
 	if force {
@@ -255,7 +255,7 @@ func (nm *NetworkManager) DisconnectNetwork(networkID, containerID string, force
 	return nil
 }
 
-// PruneNetworks 清理未使用的网络
+// PruneNetworks 清理未使用的网络.
 func (nm *NetworkManager) PruneNetworks() (uint64, error) {
 	cmd := exec.Command("docker", "network", "prune", "-f")
 	output, err := cmd.Output()
@@ -277,7 +277,7 @@ func (nm *NetworkManager) PruneNetworks() (uint64, error) {
 	return deleted, nil
 }
 
-// GetNetworkTypes 返回支持的网络类型
+// GetNetworkTypes 返回支持的网络类型.
 func (nm *NetworkManager) GetNetworkTypes() []map[string]string {
 	return []map[string]string{
 		{

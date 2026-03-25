@@ -13,20 +13,20 @@ import (
 	"time"
 )
 
-// Type 复制类型
+// Type 复制类型.
 type Type string
 
-// 复制类型常量
+// 复制类型常量.
 const (
 	TypeRealtime      Type = "realtime"      // 实时同步
 	TypeScheduled     Type = "scheduled"     // 定时复制
 	TypeBidirectional Type = "bidirectional" // 双向复制
 )
 
-// Status 复制状态
+// Status 复制状态.
 type Status string
 
-// 复制状态常量
+// 复制状态常量.
 const (
 	StatusIdle      Status = "idle"      // 空闲
 	StatusSyncing   Status = "syncing"   // 同步中
@@ -35,7 +35,7 @@ const (
 	StatusCompleted Status = "completed" // 已完成
 )
 
-// Task 复制任务
+// Task 复制任务.
 type Task struct {
 	ID               string    `json:"id"`
 	Name             string    `json:"name"`
@@ -58,7 +58,7 @@ type Task struct {
 	DeleteExtraneous bool      `json:"delete_extraneous"` // 删除目标端多余文件
 }
 
-// Config 复制配置
+// Config 复制配置.
 type Config struct {
 	MaxConcurrentTasks int    `json:"max_concurrent"`
 	BandwidthLimit     int    `json:"bandwidth_limit"` // KB/s, 0 表示不限
@@ -67,7 +67,7 @@ type Config struct {
 	Timeout            int    `json:"timeout"` // 秒
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		MaxConcurrentTasks: 2,
@@ -78,7 +78,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Manager 复制管理器
+// Manager 复制管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	config      *Config
@@ -91,7 +91,7 @@ type Manager struct {
 	conflictDet *ConflictDetector         // 冲突检测器
 }
 
-// NewManager 创建复制管理器
+// NewManager 创建复制管理器.
 func NewManager(configPath string, config *Config) (*Manager, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -137,7 +137,7 @@ func NewManager(configPath string, config *Config) (*Manager, error) {
 	return m, nil
 }
 
-// CreateTask 创建复制任务
+// CreateTask 创建复制任务.
 func (m *Manager) CreateTask(task *Task) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -158,7 +158,7 @@ func (m *Manager) CreateTask(task *Task) error {
 	return m.saveConfig()
 }
 
-// UpdateTask 更新复制任务
+// UpdateTask 更新复制任务.
 func (m *Manager) UpdateTask(id string, updates map[string]interface{}) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -200,7 +200,7 @@ func (m *Manager) UpdateTask(id string, updates map[string]interface{}) error {
 	return m.saveConfig()
 }
 
-// DeleteTask 删除复制任务
+// DeleteTask 删除复制任务.
 func (m *Manager) DeleteTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -213,7 +213,7 @@ func (m *Manager) DeleteTask(id string) error {
 	return m.saveConfig()
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (m *Manager) ListTasks() []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -225,7 +225,7 @@ func (m *Manager) ListTasks() []*Task {
 	return tasks
 }
 
-// GetTask 获取任务详情
+// GetTask 获取任务详情.
 func (m *Manager) GetTask(id string) (*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -237,7 +237,7 @@ func (m *Manager) GetTask(id string) (*Task, error) {
 	return task, nil
 }
 
-// StartSync 手动触发同步
+// StartSync 手动触发同步.
 func (m *Manager) StartSync(id string) error {
 	m.mu.Lock()
 	task, exists := m.tasks[id]
@@ -264,7 +264,7 @@ func (m *Manager) StartSync(id string) error {
 	return nil
 }
 
-// PauseTask 暂停任务
+// PauseTask 暂停任务.
 func (m *Manager) PauseTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -279,7 +279,7 @@ func (m *Manager) PauseTask(id string) error {
 	return m.saveConfig()
 }
 
-// ResumeTask 恢复任务
+// ResumeTask 恢复任务.
 func (m *Manager) ResumeTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -294,7 +294,7 @@ func (m *Manager) ResumeTask(id string) error {
 	return m.saveConfig()
 }
 
-// executeSync 执行同步
+// executeSync 执行同步.
 func (m *Manager) executeSync(task *Task) {
 	startTime := time.Now()
 
@@ -358,7 +358,7 @@ func (m *Manager) executeSync(task *Task) {
 	_ = m.saveConfig()
 }
 
-// parseRsyncOutput 解析 rsync 输出获取详细统计
+// parseRsyncOutput 解析 rsync 输出获取详细统计.
 func (m *Manager) parseRsyncOutput(task *Task, output string) {
 	task.FilesCount = 0
 	task.BytesTransferred = 0
@@ -407,7 +407,7 @@ func (m *Manager) parseRsyncOutput(task *Task, output string) {
 	}
 }
 
-// RsyncStats rsync 详细统计信息
+// RsyncStats rsync 详细统计信息.
 type RsyncStats struct {
 	BytesSent        int64   `json:"bytes_sent"`        // 发送字节数
 	BytesReceived    int64   `json:"bytes_received"`    // 接收字节数
@@ -418,14 +418,14 @@ type RsyncStats struct {
 	TotalFiles       int     `json:"total_files"`       // 总文件数
 }
 
-// parseNumber 解析带逗号的数字字符串
+// parseNumber 解析带逗号的数字字符串.
 func parseNumber(s string) (int64, error) {
 	// 移除逗号
 	s = strings.ReplaceAll(s, ",", "")
 	return strconv.ParseInt(s, 10, 64)
 }
 
-// calculateNextSync 计算下次同步时间
+// calculateNextSync 计算下次同步时间.
 func (m *Manager) calculateNextSync(task *Task) error {
 	if task.Schedule == "" {
 		return nil
@@ -447,7 +447,7 @@ func (m *Manager) calculateNextSync(task *Task) error {
 	return nil
 }
 
-// startScheduler 启动调度器
+// startScheduler 启动调度器.
 func (m *Manager) startScheduler() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -462,7 +462,7 @@ func (m *Manager) startScheduler() {
 	}
 }
 
-// checkScheduledTasks 检查定时任务
+// checkScheduledTasks 检查定时任务.
 func (m *Manager) checkScheduledTasks() {
 	m.mu.RLock()
 	var toSync []*Task
@@ -484,7 +484,7 @@ func (m *Manager) checkScheduledTasks() {
 	}
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (m *Manager) loadConfig() error {
 	data, err := os.ReadFile(m.configPath)
 	if err != nil {
@@ -503,7 +503,7 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (m *Manager) saveConfig() error {
 	// 确保目录存在
 	dir := filepath.Dir(m.configPath)
@@ -524,7 +524,7 @@ func (m *Manager) saveConfig() error {
 	return os.WriteFile(m.configPath, data, 0640)
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	close(m.stopChan)
 	m.wg.Wait()
@@ -538,7 +538,7 @@ func (m *Manager) Stop() {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -580,7 +580,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 }
 
-// GetConflicts 获取冲突列表
+// GetConflicts 获取冲突列表.
 func (m *Manager) GetConflicts(taskID string) []*ConflictInfo {
 	if m.conflictDet == nil {
 		return nil
@@ -588,7 +588,7 @@ func (m *Manager) GetConflicts(taskID string) []*ConflictInfo {
 	return m.conflictDet.GetConflicts(taskID)
 }
 
-// ResolveConflict 手动解决冲突
+// ResolveConflict 手动解决冲突.
 func (m *Manager) ResolveConflict(conflictID string, strategy ConflictStrategy) error {
 	if m.conflictDet == nil {
 		return fmt.Errorf("冲突检测器未初始化")
@@ -613,7 +613,7 @@ func (m *Manager) ResolveConflict(conflictID string, strategy ConflictStrategy) 
 	return m.conflictDet.ResolveConflict(conflict)
 }
 
-// generateTaskID 生成任务 ID
+// generateTaskID 生成任务 ID.
 func generateTaskID() string {
 	return fmt.Sprintf("repl-%d", time.Now().UnixNano())
 }

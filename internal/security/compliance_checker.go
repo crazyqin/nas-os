@@ -16,12 +16,12 @@ import (
 
 // ========== 合规标准类型 ==========
 
-// ComplianceStandard 合规标准类型
+// ComplianceStandard 合规标准类型.
 type ComplianceStandard string
 
-// 合规标准常量
+// 合规标准常量.
 const (
-	// StandardGDPR represents GDPR compliance standard
+	// StandardGDPR represents GDPR compliance standard.
 	StandardGDPR     ComplianceStandard = "gdpr"     // 通用数据保护条例
 	StandardSOC2     ComplianceStandard = "soc2"     // SOC 2 Type II
 	StandardISO27001 ComplianceStandard = "iso27001" // ISO/IEC 27001
@@ -34,24 +34,24 @@ const (
 	StandardPIPL     ComplianceStandard = "pipl"     // 中国个人信息保护法
 )
 
-// ComplianceLevel 合规等级
+// ComplianceLevel 合规等级.
 type ComplianceLevel string
 
-// 合规等级常量
+// 合规等级常量.
 const (
-	// LevelFull represents full compliance level
+	// LevelFull represents full compliance level.
 	LevelFull         ComplianceLevel = "full"          // 完全合规
 	LevelPartial      ComplianceLevel = "partial"       // 部分合规
 	LevelNonCompliant ComplianceLevel = "non_compliant" // 不合规
 	LevelUnknown      ComplianceLevel = "unknown"       // 未知
 )
 
-// ComplianceStatus 合规状态
+// ComplianceStatus 合规状态.
 type ComplianceStatus string
 
-// 合规状态常量
+// 合规状态常量.
 const (
-	// StatusPassed represents passed compliance status
+	// StatusPassed represents passed compliance status.
 	StatusPassed        ComplianceStatus = "passed"
 	StatusFailed        ComplianceStatus = "failed"
 	StatusWarning       ComplianceStatus = "warning"
@@ -61,12 +61,12 @@ const (
 
 // ========== 检查项类型 ==========
 
-// ComplianceCategory 合规检查类别
+// ComplianceCategory 合规检查类别.
 type ComplianceCategory string
 
-// 合规检查类别常量
+// 合规检查类别常量.
 const (
-	// CategoryAccessControl represents access control compliance category
+	// CategoryAccessControl represents access control compliance category.
 	CategoryAccessControl      ComplianceCategory = "access_control"
 	CategoryDataProtection     ComplianceCategory = "data_protection"
 	CategoryEncryption         ComplianceCategory = "encryption"
@@ -83,7 +83,7 @@ const (
 	CategoryThirdParty         ComplianceCategory = "third_party"
 )
 
-// ComplianceCheckItem 合规检查项
+// ComplianceCheckItem 合规检查项.
 type ComplianceCheckItem struct {
 	ID              string             `json:"id"`
 	Standard        ComplianceStandard `json:"standard"`
@@ -100,7 +100,7 @@ type ComplianceCheckItem struct {
 	Tags            []string           `json:"tags"`
 }
 
-// ComplianceCheckResult 合规检查结果
+// ComplianceCheckResult 合规检查结果.
 type ComplianceCheckResult struct {
 	ItemID         string                 `json:"item_id"`
 	Standard       ComplianceStandard     `json:"standard"`
@@ -124,7 +124,7 @@ type ComplianceCheckResult struct {
 
 // ========== 合规报告类型 ==========
 
-// ComplianceReport 合规报告
+// ComplianceReport 合规报告.
 type ComplianceReport struct {
 	ReportID        string                   `json:"report_id"`
 	Title           string                   `json:"title"`
@@ -142,7 +142,7 @@ type ComplianceReport struct {
 	Version         string                   `json:"version"`
 }
 
-// ComplianceSummary 合规摘要
+// ComplianceSummary 合规摘要.
 type ComplianceSummary struct {
 	TotalChecks    int `json:"total_checks"`
 	PassedChecks   int `json:"passed_checks"`
@@ -156,7 +156,7 @@ type ComplianceSummary struct {
 	LowIssues      int `json:"low_issues"`
 }
 
-// RemediationItem 整改项
+// RemediationItem 整改项.
 type RemediationItem struct {
 	ID          string     `json:"id"`
 	ItemID      string     `json:"item_id"`
@@ -173,7 +173,7 @@ type RemediationItem struct {
 
 // ========== 合规检查器 ==========
 
-// ComplianceChecker 合规检查器
+// ComplianceChecker 合规检查器.
 type ComplianceChecker struct {
 	config       ComplianceCheckerConfig
 	standards    map[ComplianceStandard]*StandardDefinition
@@ -184,7 +184,7 @@ type ComplianceChecker struct {
 	storageDir   string
 }
 
-// ComplianceCheckerConfig 合规检查器配置
+// ComplianceCheckerConfig 合规检查器配置.
 type ComplianceCheckerConfig struct {
 	Enabled          bool                 `json:"enabled"`
 	AutoCheck        bool                 `json:"auto_check"`
@@ -197,7 +197,7 @@ type ComplianceCheckerConfig struct {
 	CustomChecks     []CustomCheck        `json:"custom_checks"`
 }
 
-// DefaultComplianceCheckerConfig 默认配置
+// DefaultComplianceCheckerConfig 默认配置.
 func DefaultComplianceCheckerConfig() ComplianceCheckerConfig {
 	return ComplianceCheckerConfig{
 		Enabled:          true,
@@ -210,7 +210,7 @@ func DefaultComplianceCheckerConfig() ComplianceCheckerConfig {
 	}
 }
 
-// StandardDefinition 标准定义
+// StandardDefinition 标准定义.
 type StandardDefinition struct {
 	Standard   ComplianceStandard     `json:"standard"`
 	Name       string                 `json:"name"`
@@ -220,7 +220,7 @@ type StandardDefinition struct {
 	Weights    map[string]int         `json:"weights"`
 }
 
-// CustomCheck 自定义检查
+// CustomCheck 自定义检查.
 type CustomCheck struct {
 	ID          string             `json:"id"`
 	Name        string             `json:"name"`
@@ -230,7 +230,7 @@ type CustomCheck struct {
 	CheckFunc   func(ctx context.Context) (ComplianceStatus, string, error)
 }
 
-// NewComplianceChecker 创建合规检查器
+// NewComplianceChecker 创建合规检查器.
 func NewComplianceChecker(config ComplianceCheckerConfig) *ComplianceChecker {
 	storageDir := "/var/lib/nas-os/compliance"
 	_ = os.MkdirAll(storageDir, 0750)
@@ -253,7 +253,7 @@ func NewComplianceChecker(config ComplianceCheckerConfig) *ComplianceChecker {
 	return cc
 }
 
-// initStandards 初始化合规标准
+// initStandards 初始化合规标准.
 func (cc *ComplianceChecker) initStandards() {
 	// GDPR 标准
 	cc.standards[StandardGDPR] = cc.initGDPRStandard()
@@ -269,7 +269,7 @@ func (cc *ComplianceChecker) initStandards() {
 	cc.standards[StandardPIPL] = cc.initPIPLStandard()
 }
 
-// initGDPRStandard 初始化 GDPR 标准
+// initGDPRStandard 初始化 GDPR 标准.
 func (cc *ComplianceChecker) initGDPRStandard() *StandardDefinition {
 	return &StandardDefinition{
 		Standard:  StandardGDPR,
@@ -424,7 +424,7 @@ func (cc *ComplianceChecker) initGDPRStandard() *StandardDefinition {
 	}
 }
 
-// initSOC2Standard 初始化 SOC 2 标准
+// initSOC2Standard 初始化 SOC 2 标准.
 func (cc *ComplianceChecker) initSOC2Standard() *StandardDefinition {
 	return &StandardDefinition{
 		Standard:  StandardSOC2,
@@ -563,7 +563,7 @@ func (cc *ComplianceChecker) initSOC2Standard() *StandardDefinition {
 	}
 }
 
-// initISO27001Standard 初始化 ISO 27001 标准
+// initISO27001Standard 初始化 ISO 27001 标准.
 func (cc *ComplianceChecker) initISO27001Standard() *StandardDefinition {
 	return &StandardDefinition{
 		Standard:  StandardISO27001,
@@ -611,7 +611,7 @@ func (cc *ComplianceChecker) initISO27001Standard() *StandardDefinition {
 	}
 }
 
-// initCSLStandard 初始化网络安全法标准
+// initCSLStandard 初始化网络安全法标准.
 func (cc *ComplianceChecker) initCSLStandard() *StandardDefinition {
 	return &StandardDefinition{
 		Standard:  StandardCSL,
@@ -669,7 +669,7 @@ func (cc *ComplianceChecker) initCSLStandard() *StandardDefinition {
 	}
 }
 
-// initPIPLStandard 初始化个人信息保护法标准
+// initPIPLStandard 初始化个人信息保护法标准.
 func (cc *ComplianceChecker) initPIPLStandard() *StandardDefinition {
 	return &StandardDefinition{
 		Standard:  StandardPIPL,
@@ -729,7 +729,7 @@ func (cc *ComplianceChecker) initPIPLStandard() *StandardDefinition {
 
 // ========== 合规检查执行 ==========
 
-// RunCheck 执行单项检查
+// RunCheck 执行单项检查.
 func (cc *ComplianceChecker) RunCheck(ctx context.Context, itemID string) (*ComplianceCheckResult, error) {
 	item := cc.getCheckItem(itemID)
 	if item == nil {
@@ -771,7 +771,7 @@ func (cc *ComplianceChecker) RunCheck(ctx context.Context, itemID string) (*Comp
 	return result, nil
 }
 
-// RunAllChecks 执行所有检查
+// RunAllChecks 执行所有检查.
 func (cc *ComplianceChecker) RunAllChecks(ctx context.Context, standard ComplianceStandard) (*ComplianceReport, error) {
 	std, exists := cc.standards[standard]
 	if !exists {
@@ -837,7 +837,7 @@ func (cc *ComplianceChecker) RunAllChecks(ctx context.Context, standard Complian
 	return report, nil
 }
 
-// RunChecksByCategory 按类别执行检查
+// RunChecksByCategory 按类别执行检查.
 func (cc *ComplianceChecker) RunChecksByCategory(ctx context.Context, standard ComplianceStandard, category ComplianceCategory) (*ComplianceReport, error) {
 	std, exists := cc.standards[standard]
 	if !exists {
@@ -871,7 +871,7 @@ func (cc *ComplianceChecker) RunChecksByCategory(ctx context.Context, standard C
 	return report, nil
 }
 
-// executeCheck 执行具体检查
+// executeCheck 执行具体检查.
 func (cc *ComplianceChecker) executeCheck(ctx context.Context, item *ComplianceCheckItem) (ComplianceStatus, string, map[string]interface{}) {
 	// 根据检查项类型执行检查
 	// 这里简化实现，实际应该根据具体检查项实现
@@ -900,7 +900,7 @@ func (cc *ComplianceChecker) executeCheck(ctx context.Context, item *ComplianceC
 	}
 }
 
-// checkAccessControl 检查访问控制
+// checkAccessControl 检查访问控制.
 func (cc *ComplianceChecker) checkAccessControl(item *ComplianceCheckItem, details map[string]interface{}) (ComplianceStatus, string, map[string]interface{}) {
 	// 检查是否配置了访问控制策略
 	policyExists := true // 实际应检查系统配置
@@ -912,7 +912,7 @@ func (cc *ComplianceChecker) checkAccessControl(item *ComplianceCheckItem, detai
 	return StatusFailed, "未配置访问控制策略", details
 }
 
-// checkEncryption 检查加密
+// checkEncryption 检查加密.
 func (cc *ComplianceChecker) checkEncryption(item *ComplianceCheckItem, details map[string]interface{}) (ComplianceStatus, string, map[string]interface{}) {
 	// 检查加密配置
 	encryptionEnabled := true // 实际应检查系统配置
@@ -924,7 +924,7 @@ func (cc *ComplianceChecker) checkEncryption(item *ComplianceCheckItem, details 
 	return StatusFailed, "未启用加密", details
 }
 
-// checkAudit 检查审计
+// checkAudit 检查审计.
 func (cc *ComplianceChecker) checkAudit(item *ComplianceCheckItem, details map[string]interface{}) (ComplianceStatus, string, map[string]interface{}) {
 	// 检查审计日志配置
 	auditEnabled := true // 实际应检查系统配置
@@ -936,7 +936,7 @@ func (cc *ComplianceChecker) checkAudit(item *ComplianceCheckItem, details map[s
 	return StatusFailed, "未启用审计", details
 }
 
-// checkDataProtection 检查数据保护
+// checkDataProtection 检查数据保护.
 func (cc *ComplianceChecker) checkDataProtection(item *ComplianceCheckItem, details map[string]interface{}) (ComplianceStatus, string, map[string]interface{}) {
 	// 检查数据保护措施
 	protectionEnabled := true // 实际应检查系统配置
@@ -948,7 +948,7 @@ func (cc *ComplianceChecker) checkDataProtection(item *ComplianceCheckItem, deta
 	return StatusFailed, "未实施必要的数据保护措施", details
 }
 
-// checkVulnerability 检查漏洞管理
+// checkVulnerability 检查漏洞管理.
 func (cc *ComplianceChecker) checkVulnerability(item *ComplianceCheckItem, details map[string]interface{}) (ComplianceStatus, string, map[string]interface{}) {
 	// 检查漏洞管理流程
 	vulnManagementEnabled := true // 实际应检查系统配置
@@ -960,7 +960,7 @@ func (cc *ComplianceChecker) checkVulnerability(item *ComplianceCheckItem, detai
 	return StatusFailed, "未建立漏洞管理流程", details
 }
 
-// checkIncidentResponse 检查事件响应
+// checkIncidentResponse 检查事件响应.
 func (cc *ComplianceChecker) checkIncidentResponse(item *ComplianceCheckItem, details map[string]interface{}) (ComplianceStatus, string, map[string]interface{}) {
 	// 检查事件响应计划
 	planExists := true // 实际应检查系统配置
@@ -972,7 +972,7 @@ func (cc *ComplianceChecker) checkIncidentResponse(item *ComplianceCheckItem, de
 	return StatusFailed, "未制定事件响应计划", details
 }
 
-// checkBreachNotification 检查泄露通知
+// checkBreachNotification 检查泄露通知.
 func (cc *ComplianceChecker) checkBreachNotification(item *ComplianceCheckItem, details map[string]interface{}) (ComplianceStatus, string, map[string]interface{}) {
 	// 检查泄露通知流程
 	processExists := true // 实际应检查系统配置
@@ -984,7 +984,7 @@ func (cc *ComplianceChecker) checkBreachNotification(item *ComplianceCheckItem, 
 	return StatusFailed, "未建立泄露通知流程", details
 }
 
-// checkPrivacy 检查隐私保护
+// checkPrivacy 检查隐私保护.
 func (cc *ComplianceChecker) checkPrivacy(item *ComplianceCheckItem, details map[string]interface{}) (ComplianceStatus, string, map[string]interface{}) {
 	// 检查隐私保护措施
 	privacyProtectionEnabled := true // 实际应检查系统配置
@@ -998,7 +998,7 @@ func (cc *ComplianceChecker) checkPrivacy(item *ComplianceCheckItem, details map
 
 // ========== 报告管理 ==========
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (cc *ComplianceChecker) GetReport(reportID string) (*ComplianceReport, error) {
 	cc.mu.RLock()
 	defer cc.mu.RUnlock()
@@ -1012,7 +1012,7 @@ func (cc *ComplianceChecker) GetReport(reportID string) (*ComplianceReport, erro
 	return nil, fmt.Errorf("报告不存在: %s", reportID)
 }
 
-// GetLatestReport 获取最新报告
+// GetLatestReport 获取最新报告.
 func (cc *ComplianceChecker) GetLatestReport(standard ComplianceStandard) (*ComplianceReport, error) {
 	cc.mu.RLock()
 	defer cc.mu.RUnlock()
@@ -1033,7 +1033,7 @@ func (cc *ComplianceChecker) GetLatestReport(standard ComplianceStandard) (*Comp
 	return latest, nil
 }
 
-// ListReports 列出报告
+// ListReports 列出报告.
 func (cc *ComplianceChecker) ListReports(standard ComplianceStandard, limit int) []*ComplianceReport {
 	cc.mu.RLock()
 	defer cc.mu.RUnlock()
@@ -1055,7 +1055,7 @@ func (cc *ComplianceChecker) ListReports(standard ComplianceStandard, limit int)
 
 // ========== 辅助方法 ==========
 
-// getCheckItem 获取检查项
+// getCheckItem 获取检查项.
 func (cc *ComplianceChecker) getCheckItem(itemID string) *ComplianceCheckItem {
 	for _, std := range cc.standards {
 		for _, item := range std.CheckItems {
@@ -1067,7 +1067,7 @@ func (cc *ComplianceChecker) getCheckItem(itemID string) *ComplianceCheckItem {
 	return nil
 }
 
-// calculateItemScore 计算单项分数
+// calculateItemScore 计算单项分数.
 func (cc *ComplianceChecker) calculateItemScore(item *ComplianceCheckItem, status ComplianceStatus) int {
 	switch status {
 	case StatusPassed:
@@ -1083,7 +1083,7 @@ func (cc *ComplianceChecker) calculateItemScore(item *ComplianceCheckItem, statu
 	}
 }
 
-// determineLevel 确定合规等级
+// determineLevel 确定合规等级.
 func (cc *ComplianceChecker) determineLevel(score int) ComplianceLevel {
 	switch {
 	case score >= 90:
@@ -1095,7 +1095,7 @@ func (cc *ComplianceChecker) determineLevel(score int) ComplianceLevel {
 	}
 }
 
-// calculateSummary 计算摘要
+// calculateSummary 计算摘要.
 func (cc *ComplianceChecker) calculateSummary(results []*ComplianceCheckResult) ComplianceSummary {
 	summary := ComplianceSummary{}
 
@@ -1123,7 +1123,7 @@ func (cc *ComplianceChecker) calculateSummary(results []*ComplianceCheckResult) 
 	return summary
 }
 
-// calculateCategoryScore 计算类别分数
+// calculateCategoryScore 计算类别分数.
 func (cc *ComplianceChecker) calculateCategoryScore(results []*ComplianceCheckResult) int {
 	if len(results) == 0 {
 		return 0
@@ -1146,7 +1146,7 @@ func (cc *ComplianceChecker) calculateCategoryScore(results []*ComplianceCheckRe
 	return totalScore / validCount
 }
 
-// calculateOverallScore 计算总体分数
+// calculateOverallScore 计算总体分数.
 func (cc *ComplianceChecker) calculateOverallScore(results []*ComplianceCheckResult, items []*ComplianceCheckItem) int {
 	if len(results) == 0 {
 		return 0
@@ -1180,7 +1180,7 @@ func (cc *ComplianceChecker) calculateOverallScore(results []*ComplianceCheckRes
 	return int(weightedScore / float64(totalWeight))
 }
 
-// getOverallLevel 获取总体等级
+// getOverallLevel 获取总体等级.
 func (cc *ComplianceChecker) getOverallLevel(score int) ComplianceLevel {
 	switch {
 	case score >= 90:
@@ -1194,7 +1194,7 @@ func (cc *ComplianceChecker) getOverallLevel(score int) ComplianceLevel {
 	}
 }
 
-// generateRemediations 生成整改项
+// generateRemediations 生成整改项.
 func (cc *ComplianceChecker) generateRemediations(results []*ComplianceCheckResult) []RemediationItem {
 	var remediations []RemediationItem
 
@@ -1222,7 +1222,7 @@ func (cc *ComplianceChecker) generateRemediations(results []*ComplianceCheckResu
 	return remediations
 }
 
-// severityToPriority 严重程度转优先级
+// severityToPriority 严重程度转优先级.
 func (cc *ComplianceChecker) severityToPriority(severity string) int {
 	switch severity {
 	case "critical":
@@ -1236,7 +1236,7 @@ func (cc *ComplianceChecker) severityToPriority(severity string) int {
 	}
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (cc *ComplianceChecker) generateRecommendations(results []*ComplianceCheckResult) []string {
 	var recommendations []string
 
@@ -1256,7 +1256,7 @@ func (cc *ComplianceChecker) generateRecommendations(results []*ComplianceCheckR
 	return recommendations
 }
 
-// cleanupOldReports 清理旧报告
+// cleanupOldReports 清理旧报告.
 func (cc *ComplianceChecker) cleanupOldReports() {
 	if len(cc.reports) <= cc.config.MaxReports {
 		return
@@ -1272,7 +1272,7 @@ func (cc *ComplianceChecker) cleanupOldReports() {
 
 // ========== 持久化 ==========
 
-// saveReport 保存报告
+// saveReport 保存报告.
 func (cc *ComplianceChecker) saveReport(report *ComplianceReport) error {
 	filename := filepath.Join(cc.storageDir, fmt.Sprintf("report_%s_%s.json",
 		report.Standard, report.GeneratedAt.Format("2006-01-02_150405")))
@@ -1285,7 +1285,7 @@ func (cc *ComplianceChecker) saveReport(report *ComplianceReport) error {
 	return os.WriteFile(filename, data, 0600)
 }
 
-// loadReports 加载报告
+// loadReports 加载报告.
 func (cc *ComplianceChecker) loadReports() {
 	entries, err := os.ReadDir(cc.storageDir)
 	if err != nil {
@@ -1313,12 +1313,12 @@ func (cc *ComplianceChecker) loadReports() {
 
 // ========== 导出功能 ==========
 
-// ExportReportToJSON 导出报告为 JSON
+// ExportReportToJSON 导出报告为 JSON.
 func (cc *ComplianceChecker) ExportReportToJSON(report *ComplianceReport) ([]byte, error) {
 	return json.MarshalIndent(report, "", "  ")
 }
 
-// ExportReportToHTML 导出报告为 HTML
+// ExportReportToHTML 导出报告为 HTML.
 func (cc *ComplianceChecker) ExportReportToHTML(report *ComplianceReport) ([]byte, error) {
 	var html strings.Builder
 	html.WriteString(`<!DOCTYPE html>
@@ -1381,7 +1381,7 @@ func (cc *ComplianceChecker) ExportReportToHTML(report *ComplianceReport) ([]byt
 	return []byte(html.String()), nil
 }
 
-// GetStandards 获取所有标准
+// GetStandards 获取所有标准.
 func (cc *ComplianceChecker) GetStandards() []ComplianceStandard {
 	standards := make([]ComplianceStandard, 0, len(cc.standards))
 	for std := range cc.standards {
@@ -1390,7 +1390,7 @@ func (cc *ComplianceChecker) GetStandards() []ComplianceStandard {
 	return standards
 }
 
-// GetCheckItems 获取检查项
+// GetCheckItems 获取检查项.
 func (cc *ComplianceChecker) GetCheckItems(standard ComplianceStandard) []*ComplianceCheckItem {
 	std, exists := cc.standards[standard]
 	if !exists {
@@ -1399,7 +1399,7 @@ func (cc *ComplianceChecker) GetCheckItems(standard ComplianceStandard) []*Compl
 	return std.CheckItems
 }
 
-// AcknowledgeResult 确认结果
+// AcknowledgeResult 确认结果.
 func (cc *ComplianceChecker) AcknowledgeResult(itemID, acknowledgedBy string) error {
 	cc.mu.Lock()
 	defer cc.mu.Unlock()

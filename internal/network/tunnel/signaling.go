@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Signaling errors
+// Signaling errors.
 var (
 	ErrNotConnected       = errors.New("not connected to signaling server")
 	ErrPeerNotFound       = errors.New("peer not found")
@@ -21,7 +21,7 @@ var (
 	ErrInvalidMessage     = errors.New("invalid message format")
 )
 
-// SignalingClient handles signaling server communication
+// SignalingClient handles signaling server communication.
 type SignalingClient struct {
 	url    string
 	conn   *websocket.Conn
@@ -41,10 +41,10 @@ type SignalingClient struct {
 	mu     sync.RWMutex
 }
 
-// MessageHandler handles incoming signaling messages
+// MessageHandler handles incoming signaling messages.
 type MessageHandler func(msg *Message) error
 
-// SignalingServer represents a simple signaling server
+// SignalingServer represents a simple signaling server.
 type SignalingServer struct {
 	port     int
 	server   *http.Server
@@ -69,7 +69,7 @@ type peerConnection struct {
 	sendChan chan *Message
 }
 
-// NewSignalingClient creates a new signaling client
+// NewSignalingClient creates a new signaling client.
 func NewSignalingClient(url string) *SignalingClient {
 	return &SignalingClient{
 		url:      url,
@@ -78,7 +78,7 @@ func NewSignalingClient(url string) *SignalingClient {
 	}
 }
 
-// Connect connects to the signaling server
+// Connect connects to the signaling server.
 func (c *SignalingClient) Connect(ctx context.Context, peerID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -115,7 +115,7 @@ func (c *SignalingClient) Connect(ctx context.Context, peerID string) error {
 	return nil
 }
 
-// Register registers the peer with the signaling server
+// Register registers the peer with the signaling server.
 func (c *SignalingClient) Register(ctx context.Context, info *PeerInfo) error {
 	if !c.connected {
 		return ErrNotConnected
@@ -133,7 +133,7 @@ func (c *SignalingClient) Register(ctx context.Context, info *PeerInfo) error {
 	return c.Send(msg)
 }
 
-// Send sends a message through the signaling server
+// Send sends a message through the signaling server.
 func (c *SignalingClient) Send(msg *Message) error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -145,7 +145,7 @@ func (c *SignalingClient) Send(msg *Message) error {
 	return c.conn.WriteJSON(msg)
 }
 
-// SendToPeer sends a message to a specific peer
+// SendToPeer sends a message to a specific peer.
 func (c *SignalingClient) SendToPeer(peerID string, msgType string, payload interface{}) error {
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
@@ -163,7 +163,7 @@ func (c *SignalingClient) SendToPeer(peerID string, msgType string, payload inte
 	return c.Send(msg)
 }
 
-// readLoop reads messages from the WebSocket
+// readLoop reads messages from the WebSocket.
 func (c *SignalingClient) readLoop() {
 	defer c.wg.Done()
 	defer close(c.msgChan)
@@ -192,7 +192,7 @@ func (c *SignalingClient) readLoop() {
 	}
 }
 
-// processLoop processes incoming messages
+// processLoop processes incoming messages.
 func (c *SignalingClient) processLoop() {
 	defer c.wg.Done()
 
@@ -213,14 +213,14 @@ func (c *SignalingClient) processLoop() {
 	}
 }
 
-// OnMessage registers a handler for a message type
+// OnMessage registers a handler for a message type.
 func (c *SignalingClient) OnMessage(msgType string, handler MessageHandler) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.handlers[msgType] = handler
 }
 
-// Close closes the signaling client
+// Close closes the signaling client.
 func (c *SignalingClient) Close() error {
 	c.mu.Lock()
 	if c.cancel != nil {
@@ -237,21 +237,21 @@ func (c *SignalingClient) Close() error {
 	return nil
 }
 
-// IsConnected returns whether the client is connected
+// IsConnected returns whether the client is connected.
 func (c *SignalingClient) IsConnected() bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.connected
 }
 
-// GetPeerID returns the local peer ID
+// GetPeerID returns the local peer ID.
 func (c *SignalingClient) GetPeerID() string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.peerID
 }
 
-// NewSignalingServer creates a new signaling server
+// NewSignalingServer creates a new signaling server.
 func NewSignalingServer(port int) *SignalingServer {
 	return &SignalingServer{
 		port: port,
@@ -267,7 +267,7 @@ func NewSignalingServer(port int) *SignalingServer {
 	}
 }
 
-// Start starts the signaling server
+// Start starts the signaling server.
 func (s *SignalingServer) Start(ctx context.Context) error {
 	s.ctx, s.cancel = context.WithCancel(ctx)
 
@@ -300,7 +300,7 @@ func (s *SignalingServer) Start(ctx context.Context) error {
 	}
 }
 
-// handleWebSocket handles WebSocket connections
+// handleWebSocket handles WebSocket connections.
 func (s *SignalingServer) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := s.upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -359,13 +359,13 @@ func (s *SignalingServer) handleWebSocket(w http.ResponseWriter, r *http.Request
 	}
 }
 
-// handleHealth handles health check requests
+// handleHealth handles health check requests.
 func (s *SignalingServer) handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))
 }
 
-// routeMessage routes a message to a specific peer
+// routeMessage routes a message to a specific peer.
 func (s *SignalingServer) routeMessage(msg *Message) {
 	s.mu.RLock()
 	peer, exists := s.peers[msg.To]
@@ -380,7 +380,7 @@ func (s *SignalingServer) routeMessage(msg *Message) {
 	}
 }
 
-// broadcastLoop handles message broadcasting
+// broadcastLoop handles message broadcasting.
 func (s *SignalingServer) broadcastLoop() {
 	defer s.wg.Done()
 
@@ -403,7 +403,7 @@ func (s *SignalingServer) broadcastLoop() {
 	}
 }
 
-// Stop stops the signaling server
+// Stop stops the signaling server.
 func (s *SignalingServer) Stop() error {
 	if s.cancel != nil {
 		s.cancel()
@@ -419,7 +419,7 @@ func (s *SignalingServer) Stop() error {
 	return nil
 }
 
-// GetPeers returns connected peer IDs
+// GetPeers returns connected peer IDs.
 func (s *SignalingServer) GetPeers() []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -431,12 +431,12 @@ func (s *SignalingServer) GetPeers() []string {
 	return peers
 }
 
-// generatePeerID generates a unique peer ID
+// generatePeerID generates a unique peer ID.
 func generatePeerID() string {
 	return fmt.Sprintf("peer-%d", time.Now().UnixNano())
 }
 
-// PeerDiscoverer discovers peers on the local network via mDNS
+// PeerDiscoverer discovers peers on the local network via mDNS.
 type PeerDiscoverer struct {
 	serviceName string
 	port        int
@@ -444,7 +444,7 @@ type PeerDiscoverer struct {
 	mu          sync.RWMutex
 }
 
-// NewPeerDiscoverer creates a new peer discoverer
+// NewPeerDiscoverer creates a new peer discoverer.
 func NewPeerDiscoverer(serviceName string, port int) *PeerDiscoverer {
 	return &PeerDiscoverer{
 		serviceName: serviceName,
@@ -453,14 +453,14 @@ func NewPeerDiscoverer(serviceName string, port int) *PeerDiscoverer {
 	}
 }
 
-// Start starts peer discovery via mDNS
+// Start starts peer discovery via mDNS.
 func (d *PeerDiscoverer) Start(ctx context.Context) error {
 	// mDNS discovery would be implemented here
 	// Using zeroconf library for mDNS service discovery
 	return nil
 }
 
-// GetPeers returns discovered peers
+// GetPeers returns discovered peers.
 func (d *PeerDiscoverer) GetPeers() []*PeerInfo {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -472,21 +472,21 @@ func (d *PeerDiscoverer) GetPeers() []*PeerInfo {
 	return peers
 }
 
-// OnPeerFound handles peer discovery
+// OnPeerFound handles peer discovery.
 func (d *PeerDiscoverer) OnPeerFound(peer *PeerInfo) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.peers[peer.ID] = peer
 }
 
-// OnPeerLost handles peer loss
+// OnPeerLost handles peer loss.
 func (d *PeerDiscoverer) OnPeerLost(peerID string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	delete(d.peers, peerID)
 }
 
-// BroadcastDiscovery broadcasts peer discovery on local network
+// BroadcastDiscovery broadcasts peer discovery on local network.
 func BroadcastDiscovery(ctx context.Context, port int, info *PeerInfo) error {
 	// Broadcast discovery packet
 	addr, err := net.ResolveUDPAddr("udp", "224.0.0.1:1900")
@@ -509,7 +509,7 @@ func BroadcastDiscovery(ctx context.Context, port int, info *PeerInfo) error {
 	return err
 }
 
-// ListenDiscovery listens for peer discovery broadcasts
+// ListenDiscovery listens for peer discovery broadcasts.
 func ListenDiscovery(ctx context.Context, port int, handler func(*PeerInfo)) error {
 	addr, err := net.ResolveUDPAddr("udp", "224.0.0.1:1900")
 	if err != nil {

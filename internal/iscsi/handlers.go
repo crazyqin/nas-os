@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers for iSCSI API
+// Handlers for iSCSI API.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers creates new iSCSI handlers
+// NewHandlers creates new iSCSI handlers.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
-// RegisterRoutes registers iSCSI API routes
+// RegisterRoutes registers iSCSI API routes.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	iscsi := api.Group("/iscsi")
 	{
@@ -53,7 +53,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// Response types
+// Response types.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -76,7 +76,7 @@ func fail(code int, message string) Response {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
-// @Router /iscsi/targets [get]
+// @Router /iscsi/targets [get].
 func (h *Handlers) listTargets(c *gin.Context) {
 	targets := h.manager.ListTargets()
 	c.JSON(http.StatusOK, success(targets))
@@ -91,7 +91,7 @@ func (h *Handlers) listTargets(c *gin.Context) {
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 409 {object} Response
-// @Router /iscsi/targets [post]
+// @Router /iscsi/targets [post].
 func (h *Handlers) createTarget(c *gin.Context) {
 	var input TargetInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -120,7 +120,7 @@ func (h *Handlers) createTarget(c *gin.Context) {
 // @Param id path string true "Target ID"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id} [get]
+// @Router /iscsi/targets/{id} [get].
 func (h *Handlers) getTarget(c *gin.Context) {
 	id := c.Param("id")
 	target, err := h.manager.GetTarget(id)
@@ -141,7 +141,7 @@ func (h *Handlers) getTarget(c *gin.Context) {
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id} [put]
+// @Router /iscsi/targets/{id} [put].
 func (h *Handlers) updateTarget(c *gin.Context) {
 	id := c.Param("id")
 	var input TargetInput
@@ -171,7 +171,7 @@ func (h *Handlers) updateTarget(c *gin.Context) {
 // @Param id path string true "Target ID"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id} [delete]
+// @Router /iscsi/targets/{id} [delete].
 func (h *Handlers) deleteTarget(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteTarget(id); err != nil {
@@ -189,7 +189,7 @@ func (h *Handlers) deleteTarget(c *gin.Context) {
 // @Param id path string true "Target ID"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/status [get]
+// @Router /iscsi/targets/{id}/status [get].
 func (h *Handlers) getTargetStatus(c *gin.Context) {
 	id := c.Param("id")
 	status, err := h.manager.GetTargetStatus(id)
@@ -208,7 +208,7 @@ func (h *Handlers) getTargetStatus(c *gin.Context) {
 // @Param id path string true "Target ID"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/enable [post]
+// @Router /iscsi/targets/{id}/enable [post].
 func (h *Handlers) enableTarget(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.EnableTarget(id); err != nil {
@@ -226,7 +226,7 @@ func (h *Handlers) enableTarget(c *gin.Context) {
 // @Param id path string true "Target ID"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/disable [post]
+// @Router /iscsi/targets/{id}/disable [post].
 func (h *Handlers) disableTarget(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DisableTarget(id); err != nil {
@@ -246,7 +246,7 @@ func (h *Handlers) disableTarget(c *gin.Context) {
 // @Param id path string true "Target ID"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/luns [get]
+// @Router /iscsi/targets/{id}/luns [get].
 func (h *Handlers) listLUNs(c *gin.Context) {
 	targetID := c.Param("id")
 	target, err := h.manager.GetTarget(targetID)
@@ -267,7 +267,7 @@ func (h *Handlers) listLUNs(c *gin.Context) {
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/luns [post]
+// @Router /iscsi/targets/{id}/luns [post].
 func (h *Handlers) addLUN(c *gin.Context) {
 	targetID := c.Param("id")
 	var input LUNInput
@@ -298,7 +298,7 @@ func (h *Handlers) addLUN(c *gin.Context) {
 // @Param lunId path string true "LUN ID"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/luns/{lunId} [get]
+// @Router /iscsi/targets/{id}/luns/{lunId} [get].
 func (h *Handlers) getLUN(c *gin.Context) {
 	targetID := c.Param("id")
 	lunID := c.Param("lunId")
@@ -320,7 +320,7 @@ func (h *Handlers) getLUN(c *gin.Context) {
 // @Param lunId path string true "LUN ID"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/luns/{lunId} [delete]
+// @Router /iscsi/targets/{id}/luns/{lunId} [delete].
 func (h *Handlers) removeLUN(c *gin.Context) {
 	targetID := c.Param("id")
 	lunID := c.Param("lunId")
@@ -343,7 +343,7 @@ func (h *Handlers) removeLUN(c *gin.Context) {
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/luns/{lunId}/expand [post]
+// @Router /iscsi/targets/{id}/luns/{lunId}/expand [post].
 func (h *Handlers) expandLUN(c *gin.Context) {
 	targetID := c.Param("id")
 	lunID := c.Param("lunId")
@@ -378,7 +378,7 @@ func (h *Handlers) expandLUN(c *gin.Context) {
 // @Param lunId path string true "LUN ID"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/luns/{lunId}/snapshots [get]
+// @Router /iscsi/targets/{id}/luns/{lunId}/snapshots [get].
 func (h *Handlers) listLUNSnapshots(c *gin.Context) {
 	targetID := c.Param("id")
 	lunID := c.Param("lunId")
@@ -403,7 +403,7 @@ func (h *Handlers) listLUNSnapshots(c *gin.Context) {
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/luns/{lunId}/snapshots [post]
+// @Router /iscsi/targets/{id}/luns/{lunId}/snapshots [post].
 func (h *Handlers) createLUNSnapshot(c *gin.Context) {
 	targetID := c.Param("id")
 	lunID := c.Param("lunId")
@@ -437,7 +437,7 @@ func (h *Handlers) createLUNSnapshot(c *gin.Context) {
 // @Param snapId path string true "Snapshot ID"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /iscsi/targets/{id}/luns/{lunId}/snapshots/{snapId} [delete]
+// @Router /iscsi/targets/{id}/luns/{lunId}/snapshots/{snapId} [delete].
 func (h *Handlers) deleteLUNSnapshot(c *gin.Context) {
 	// This would require extending the manager to support snapshot deletion
 	c.JSON(http.StatusOK, success(nil))
@@ -451,7 +451,7 @@ func (h *Handlers) deleteLUNSnapshot(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
-// @Router /iscsi/status [get]
+// @Router /iscsi/status [get].
 func (h *Handlers) getServiceStatus(c *gin.Context) {
 	running, err := h.manager.GetStatus()
 	if err != nil {
@@ -472,7 +472,7 @@ func (h *Handlers) getServiceStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
-// @Router /iscsi/start [post]
+// @Router /iscsi/start [post].
 func (h *Handlers) startService(c *gin.Context) {
 	if err := h.manager.Start(); err != nil {
 		c.JSON(http.StatusInternalServerError, fail(500, err.Error()))
@@ -487,7 +487,7 @@ func (h *Handlers) startService(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
-// @Router /iscsi/stop [post]
+// @Router /iscsi/stop [post].
 func (h *Handlers) stopService(c *gin.Context) {
 	if err := h.manager.Stop(); err != nil {
 		c.JSON(http.StatusInternalServerError, fail(500, err.Error()))
@@ -502,7 +502,7 @@ func (h *Handlers) stopService(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
-// @Router /iscsi/restart [post]
+// @Router /iscsi/restart [post].
 func (h *Handlers) restartService(c *gin.Context) {
 	if err := h.manager.Restart(); err != nil {
 		c.JSON(http.StatusInternalServerError, fail(500, err.Error()))
@@ -517,7 +517,7 @@ func (h *Handlers) restartService(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
-// @Router /iscsi/apply [post]
+// @Router /iscsi/apply [post].
 func (h *Handlers) applyConfig(c *gin.Context) {
 	if err := h.manager.ApplyConfig(); err != nil {
 		c.JSON(http.StatusInternalServerError, fail(500, err.Error()))

@@ -14,14 +14,14 @@ import (
 	"time"
 )
 
-// 默认超时时间
+// 默认超时时间.
 const (
 	DefaultBackupTimeout  = 2 * time.Hour
 	DefaultCommandTimeout = 30 * time.Minute
 	DefaultRestoreTimeout = 1 * time.Hour
 )
 
-// Manager 备份管理器
+// Manager 备份管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -44,7 +44,7 @@ type Manager struct {
 	defaultTimeout time.Duration
 }
 
-// JobConfig 备份作业配置
+// JobConfig 备份作业配置.
 type JobConfig struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -86,16 +86,16 @@ type JobConfig struct {
 	Timeout time.Duration `json:"timeout,omitempty"`
 }
 
-// Type 备份类型
+// Type 备份类型.
 type Type string
 
-// 备份类型常量
+// 备份类型常量.
 const (
-	// TypeLocal 本地备份
+	// TypeLocal 本地备份.
 	TypeLocal Type = "local"
-	// TypeRemote 远程备份
+	// TypeRemote 远程备份.
 	TypeRemote Type = "remote"
-	// TypeRsync rsync 备份
+	// TypeRsync rsync 备份.
 	TypeRsync Type = "rsync"
 )
 
@@ -111,14 +111,14 @@ type BackupStats = Stats //nolint:revive // 向后兼容别名
 // BackupType is an alias for Type for backward compatibility.
 type BackupType = Type //nolint:revive // 向后兼容别名
 
-// 备份类型常量别名（兼容）
+// 备份类型常量别名（兼容）.
 const (
 	BackupTypeLocal  = TypeLocal
 	BackupTypeRemote = TypeRemote
 	BackupTypeRsync  = TypeRsync
 )
 
-// Task 备份任务状态
+// Task 备份任务状态.
 type Task struct {
 	ID         string     `json:"id"`
 	ConfigID   string     `json:"configId"`
@@ -132,27 +132,27 @@ type Task struct {
 	Error      string     `json:"error,omitempty"`
 }
 
-// Status 任务状态
+// Status 任务状态.
 type Status string
 
-// 任务状态常量
+// 任务状态常量.
 const (
-	// StatusPending 待执行
+	// StatusPending 待执行.
 	StatusPending Status = "pending"
-	// StatusRunning 执行中
+	// StatusRunning 执行中.
 	StatusRunning Status = "running"
-	// StatusCompleted 已完成
+	// StatusCompleted 已完成.
 	StatusCompleted Status = "completed"
-	// StatusFailed 失败
+	// StatusFailed 失败.
 	StatusFailed Status = "failed"
-	// StatusCancelled 已取消
+	// StatusCancelled 已取消.
 	StatusCancelled Status = "cancelled"
 )
 
 // TaskStatus is an alias for Status for backward compatibility.
 type TaskStatus = Status
 
-// 任务状态常量别名（兼容）
+// 任务状态常量别名（兼容）.
 const (
 	TaskStatusPending   = StatusPending
 	TaskStatusRunning   = StatusRunning
@@ -161,7 +161,7 @@ const (
 	TaskStatusCancelled = StatusCancelled
 )
 
-// History 备份历史记录
+// History 备份历史记录.
 type History struct {
 	ID        string    `json:"id"`
 	ConfigID  string    `json:"configId"`
@@ -176,7 +176,7 @@ type History struct {
 	Checksum  string    `json:"checksum,omitempty"`
 }
 
-// Stats 备份统计
+// Stats 备份统计.
 type Stats struct {
 	TotalBackups     int           `json:"totalBackups"`
 	TotalSize        int64         `json:"totalSize"`
@@ -191,7 +191,7 @@ type Stats struct {
 	IncrementalRatio float64       `json:"incrementalRatio"`
 }
 
-// RestoreOptions 恢复选项
+// RestoreOptions 恢复选项.
 type RestoreOptions struct {
 	BackupID   string `json:"backupId"`
 	TargetPath string `json:"targetPath"`
@@ -200,7 +200,7 @@ type RestoreOptions struct {
 	Password   string `json:"password,omitempty"`
 }
 
-// NewManager 创建备份管理器
+// NewManager 创建备份管理器.
 func NewManager(configPath, storagePath string) *Manager {
 	return &Manager{
 		configs:        make(map[string]*JobConfig),
@@ -212,7 +212,7 @@ func NewManager(configPath, storagePath string) *Manager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *Manager) Initialize() error {
 	if err := m.loadConfig(); err != nil {
 		// 配置文件不存在是正常的，记录但不返回错误
@@ -285,7 +285,7 @@ func (m *Manager) CreateConfig(config JobConfig) error {
 	return nil
 }
 
-// UpdateConfig 更新备份配置
+// UpdateConfig 更新备份配置.
 func (m *Manager) UpdateConfig(id string, config JobConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -303,7 +303,7 @@ func (m *Manager) UpdateConfig(id string, config JobConfig) error {
 	return nil
 }
 
-// DeleteConfig 删除备份配置
+// DeleteConfig 删除备份配置.
 func (m *Manager) DeleteConfig(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -320,7 +320,7 @@ func (m *Manager) DeleteConfig(id string) error {
 	return nil
 }
 
-// EnableConfig 启用或禁用备份配置
+// EnableConfig 启用或禁用备份配置.
 func (m *Manager) EnableConfig(id string, enabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -341,12 +341,12 @@ func (m *Manager) EnableConfig(id string, enabled bool) error {
 
 // ========== 备份执行 ==========
 
-// RunBackup 执行备份任务
+// RunBackup 执行备份任务.
 func (m *Manager) RunBackup(configID string) (*Task, error) {
 	return m.RunBackupWithContext(context.Background(), configID)
 }
 
-// RunBackupWithContext 带上下文的备份执行
+// RunBackupWithContext 带上下文的备份执行.
 func (m *Manager) RunBackupWithContext(ctx context.Context, configID string) (*Task, error) {
 	m.mu.Lock()
 	cfg, ok := m.configs[configID]
@@ -429,7 +429,7 @@ func (m *Manager) executeBackup(ctx context.Context, cfg *JobConfig, task *Task)
 	m.mu.Unlock()
 }
 
-// runLocalBackup 本地备份（支持增量）
+// runLocalBackup 本地备份（支持增量）.
 func (m *Manager) runLocalBackup(ctx context.Context, cfg *JobConfig, task *Task) (string, error) {
 	destDir := cfg.Destination
 	if destDir == "" {
@@ -646,12 +646,12 @@ func (m *Manager) cleanupOldBackups(dir string, retention int) error {
 
 // ========== 恢复操作 ==========
 
-// Restore 执行恢复操作
+// Restore 执行恢复操作.
 func (m *Manager) Restore(options RestoreOptions) (*Task, error) {
 	return m.RestoreWithContext(context.Background(), options)
 }
 
-// RestoreWithContext 带上下文的恢复操作
+// RestoreWithContext 带上下文的恢复操作.
 func (m *Manager) RestoreWithContext(ctx context.Context, options RestoreOptions) (*Task, error) {
 	task := &Task{
 		ID:        generateID(),
@@ -746,7 +746,7 @@ func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, ta
 
 // ========== 任务管理 ==========
 
-// GetTask 获取任务信息
+// GetTask 获取任务信息.
 func (m *Manager) GetTask(taskID string) (*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -758,7 +758,7 @@ func (m *Manager) GetTask(taskID string) (*Task, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (m *Manager) ListTasks() []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -770,7 +770,7 @@ func (m *Manager) ListTasks() []*Task {
 	return tasks
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (m *Manager) CancelTask(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -793,7 +793,7 @@ func (m *Manager) CancelTask(taskID string) error {
 	return nil
 }
 
-// CleanupCompletedTasks 清理已完成的任务（防止内存泄漏）
+// CleanupCompletedTasks 清理已完成的任务（防止内存泄漏）.
 func (m *Manager) CleanupCompletedTasks() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -811,7 +811,7 @@ func (m *Manager) CleanupCompletedTasks() int {
 	return count
 }
 
-// CleanupOldTasks 清理超过指定时间的任务
+// CleanupOldTasks 清理超过指定时间的任务.
 func (m *Manager) CleanupOldTasks(maxAge time.Duration) int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -830,7 +830,7 @@ func (m *Manager) CleanupOldTasks(maxAge time.Duration) int {
 
 // ========== 备份历史 ==========
 
-// GetHistory 获取备份历史记录
+// GetHistory 获取备份历史记录.
 func (m *Manager) GetHistory(configID string) ([]*History, error) {
 	m.mu.RLock()
 	cfg, ok := m.configs[configID]
@@ -953,7 +953,7 @@ func copyDirectory(src, dst string) error {
 
 // ========== 恢复预览 ==========
 
-// RestorePreview 恢复预览信息
+// RestorePreview 恢复预览信息.
 type RestorePreview struct {
 	BackupPath     string   `json:"backupPath"`
 	TargetPath     string   `json:"targetPath"`
@@ -965,7 +965,7 @@ type RestorePreview struct {
 	EstimatedTime  string   `json:"estimatedTime"`
 }
 
-// PreviewRestore 预览恢复操作（不实际执行）
+// PreviewRestore 预览恢复操作（不实际执行）.
 func (m *Manager) PreviewRestore(options RestoreOptions) (*RestorePreview, error) {
 	// 找到备份文件
 	backupPath := options.BackupID
@@ -1023,7 +1023,7 @@ func (m *Manager) PreviewRestore(options RestoreOptions) (*RestorePreview, error
 
 // ========== 统计信息 ==========
 
-// GetStats 获取备份统计信息
+// GetStats 获取备份统计信息.
 func (m *Manager) GetStats() *Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1102,7 +1102,7 @@ func humanReadableSize(size int64) string {
 	}
 }
 
-// CheckConfigDetailed 详细检查配置
+// CheckConfigDetailed 详细检查配置.
 func (m *Manager) CheckConfigDetailed(id string) (*ConfigCheckResult, error) {
 	config, err := m.GetConfig(id)
 	if err != nil {
@@ -1163,7 +1163,7 @@ func (m *Manager) CheckConfigDetailed(id string) (*ConfigCheckResult, error) {
 	return result, nil
 }
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 func (m *Manager) HealthCheck() (*HealthCheckResult, error) {
 	result := &HealthCheckResult{
 		Status:    "healthy",
@@ -1194,14 +1194,14 @@ func (m *Manager) HealthCheck() (*HealthCheckResult, error) {
 	return result, nil
 }
 
-// HealthCheckResult 健康检查结果
+// HealthCheckResult 健康检查结果.
 type HealthCheckResult struct {
 	Status    string                 `json:"status"`
 	Timestamp time.Time              `json:"timestamp"`
 	Details   map[string]interface{} `json:"details"`
 }
 
-// DefaultRestorePresets 默认恢复预设
+// DefaultRestorePresets 默认恢复预设.
 func DefaultRestorePresets() []RestorePreset {
 	return []RestorePreset{
 		{
@@ -1231,7 +1231,7 @@ func DefaultRestorePresets() []RestorePreset {
 	}
 }
 
-// RestorePreset 恢复预设
+// RestorePreset 恢复预设.
 type RestorePreset struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`

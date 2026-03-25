@@ -1,0 +1,11 @@
+{
+  "lastUpdate": "2026-03-25T00:38:00Z",
+  "stats": {
+    "goSourceFiles": 613,
+    "goSourceLines": 370743,
+    "testFiles": 325,
+    "testLines": 155215,
+    "goPackages": 126,
+    "dependencies": 1198
+  }
+}

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Market 插件市场客户端
+// Market 插件市场客户端.
 type Market struct {
 	baseURL    string
 	apiKey     string
@@ -18,13 +18,13 @@ type Market struct {
 	cacheMu    sync.RWMutex
 }
 
-// MarketConfig 市场配置
+// MarketConfig 市场配置.
 type MarketConfig struct {
 	BaseURL string // 市场服务器地址
 	APIKey  string // API 密钥
 }
 
-// NewMarket 创建市场客户端
+// NewMarket 创建市场客户端.
 func NewMarket(cfg MarketConfig) *Market {
 	return &Market{
 		baseURL: cfg.BaseURL,
@@ -36,13 +36,13 @@ func NewMarket(cfg MarketConfig) *Market {
 	}
 }
 
-// cachedPlugin 缓存的插件信息
+// cachedPlugin 缓存的插件信息.
 type cachedPlugin struct {
 	info      *MarketInfo
 	expiresAt time.Time
 }
 
-// MarketInfo 市场插件信息
+// MarketInfo 市场插件信息.
 type MarketInfo struct {
 	// 基本信息
 	ID          string   `json:"id"`
@@ -91,7 +91,7 @@ type MarketInfo struct {
 	UpdateAvailable  bool   `json:"updateAvailable"`
 }
 
-// Review 插件评论
+// Review 插件评论.
 type Review struct {
 	ID        string    `json:"id"`
 	PluginID  string    `json:"pluginId"`
@@ -104,7 +104,7 @@ type Review struct {
 	Helpful   int       `json:"helpful"` // 有帮助数
 }
 
-// List 获取插件列表
+// List 获取插件列表.
 func (m *Market) List(category, sort string, page, pageSize int) ([]MarketInfo, int, error) {
 	if m.baseURL == "" {
 		// 返回模拟数据
@@ -139,7 +139,7 @@ func (m *Market) List(category, sort string, page, pageSize int) ([]MarketInfo, 
 	return resp.Data, resp.Total, nil
 }
 
-// Search 搜索插件
+// Search 搜索插件.
 func (m *Market) Search(query string, page, pageSize int) ([]MarketInfo, int, error) {
 	if m.baseURL == "" {
 		return m.searchMockPlugins(query), 0, nil
@@ -170,7 +170,7 @@ func (m *Market) Search(query string, page, pageSize int) ([]MarketInfo, int, er
 	return resp.Data, resp.Total, nil
 }
 
-// GetDetail 获取插件详情
+// GetDetail 获取插件详情.
 func (m *Market) GetDetail(pluginID string) (*MarketInfo, error) {
 	// 检查缓存
 	m.cacheMu.RLock()
@@ -205,7 +205,7 @@ func (m *Market) GetDetail(pluginID string) (*MarketInfo, error) {
 	return &resp.Data, nil
 }
 
-// Rate 提交评分
+// Rate 提交评分.
 func (m *Market) Rate(pluginID, userID string, rating int, review string) error {
 	if m.baseURL == "" {
 		return nil // 模拟模式下直接返回成功
@@ -225,7 +225,7 @@ func (m *Market) Rate(pluginID, userID string, rating int, review string) error 
 	return m.request("POST", m.baseURL+"/plugins/"+pluginID+"/rate", data, &resp)
 }
 
-// GetReviews 获取评论列表
+// GetReviews 获取评论列表.
 func (m *Market) GetReviews(pluginID string, page, pageSize int) ([]Review, int, error) {
 	if m.baseURL == "" {
 		return []Review{}, 0, nil
@@ -255,7 +255,7 @@ func (m *Market) GetReviews(pluginID string, page, pageSize int) ([]Review, int,
 	return resp.Data, resp.Total, nil
 }
 
-// Download 下载插件
+// Download 下载插件.
 func (m *Market) Download(pluginID, version string) (string, error) {
 	if m.baseURL == "" {
 		return "", fmt.Errorf("未配置插件市场")
@@ -269,7 +269,7 @@ func (m *Market) Download(pluginID, version string) (string, error) {
 	return downloadURL, nil
 }
 
-// request 发送 HTTP 请求
+// request 发送 HTTP 请求.
 func (m *Market) request(method, url string, data interface{}, result interface{}) error {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {

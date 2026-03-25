@@ -13,10 +13,10 @@ import (
 	"go.uber.org/zap"
 )
 
-// validTableNameRegex validates SQL table names to prevent injection
+// validTableNameRegex validates SQL table names to prevent injection.
 var validTableNameRegex = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
-// validateTableName checks if a table name is safe to use in SQL
+// validateTableName checks if a table name is safe to use in SQL.
 func validateTableName(table string) error {
 	if !validTableNameRegex.MatchString(table) {
 		return fmt.Errorf("invalid table name: %s (must match ^[a-zA-Z_][a-zA-Z0-9_]*$)", table)
@@ -27,7 +27,7 @@ func validateTableName(table string) error {
 	return nil
 }
 
-// Optimizer handles SQLite performance optimizations
+// Optimizer handles SQLite performance optimizations.
 type Optimizer struct {
 	db         *sql.DB
 	queryCache *QueryCache
@@ -47,7 +47,7 @@ type Optimizer struct {
 	logger *zap.Logger
 }
 
-// QueryCacheEntry represents a cached query result
+// QueryCacheEntry represents a cached query result.
 type QueryCacheEntry struct {
 	key       string
 	result    interface{}
@@ -55,7 +55,7 @@ type QueryCacheEntry struct {
 	elem      *list.Element // LRU list element
 }
 
-// QueryCache implements query result caching with LRU eviction
+// QueryCache implements query result caching with LRU eviction.
 type QueryCache struct {
 	cache   map[string]*QueryCacheEntry
 	lru     *list.List // LRU list, front = most recent
@@ -68,7 +68,7 @@ type QueryCache struct {
 	misses int64
 }
 
-// NewQueryCache creates a new query cache with LRU eviction
+// NewQueryCache creates a new query cache with LRU eviction.
 func NewQueryCache(ttl time.Duration, maxSize int) *QueryCache {
 	qc := &QueryCache{
 		cache:   make(map[string]*QueryCacheEntry),
@@ -83,7 +83,7 @@ func NewQueryCache(ttl time.Duration, maxSize int) *QueryCache {
 	return qc
 }
 
-// Get retrieves a cached query result
+// Get retrieves a cached query result.
 func (qc *QueryCache) Get(key string) (interface{}, bool) {
 	qc.mu.Lock()
 	defer qc.mu.Unlock()
@@ -108,7 +108,7 @@ func (qc *QueryCache) Get(key string) (interface{}, bool) {
 	return entry.result, true
 }
 
-// Set stores a query result in cache with LRU eviction
+// Set stores a query result in cache with LRU eviction.
 func (qc *QueryCache) Set(key string, result interface{}) {
 	qc.mu.Lock()
 	defer qc.mu.Unlock()
@@ -139,7 +139,7 @@ func (qc *QueryCache) Set(key string, result interface{}) {
 	qc.cache[key] = entry
 }
 
-// Delete removes a key from cache
+// Delete removes a key from cache.
 func (qc *QueryCache) Delete(key string) {
 	qc.mu.Lock()
 	defer qc.mu.Unlock()
@@ -149,7 +149,7 @@ func (qc *QueryCache) Delete(key string) {
 	}
 }
 
-// Clear clears all cached entries
+// Clear clears all cached entries.
 func (qc *QueryCache) Clear() {
 	qc.mu.Lock()
 	defer qc.mu.Unlock()
@@ -158,14 +158,14 @@ func (qc *QueryCache) Clear() {
 	qc.lru = list.New()
 }
 
-// Len returns the number of cached entries
+// Len returns the number of cached entries.
 func (qc *QueryCache) Len() int {
 	qc.mu.RLock()
 	defer qc.mu.RUnlock()
 	return qc.lru.Len()
 }
 
-// Stats returns cache statistics
+// Stats returns cache statistics.
 func (qc *QueryCache) Stats() CacheStats {
 	qc.mu.RLock()
 	defer qc.mu.RUnlock()
@@ -188,7 +188,7 @@ func (qc *QueryCache) Stats() CacheStats {
 	}
 }
 
-// CacheStats holds cache statistics
+// CacheStats holds cache statistics.
 type CacheStats struct {
 	Size    int           `json:"size"`
 	MaxSize int           `json:"max_size"`
@@ -198,7 +198,7 @@ type CacheStats struct {
 	HitRate float64       `json:"hitRate"`
 }
 
-// removeEntry removes an entry from both the cache and LRU list
+// removeEntry removes an entry from both the cache and LRU list.
 func (qc *QueryCache) removeEntry(entry *QueryCacheEntry) {
 	delete(qc.cache, entry.key)
 	if entry.elem != nil {
@@ -206,7 +206,7 @@ func (qc *QueryCache) removeEntry(entry *QueryCacheEntry) {
 	}
 }
 
-// evictLRU removes the least recently used entry
+// evictLRU removes the least recently used entry.
 func (qc *QueryCache) evictLRU() {
 	elem := qc.lru.Back()
 	if elem == nil {
@@ -221,7 +221,7 @@ func (qc *QueryCache) evictLRU() {
 	}
 }
 
-// startCleanup periodically removes expired entries
+// startCleanup periodically removes expired entries.
 func (qc *QueryCache) startCleanup() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -250,7 +250,7 @@ func (qc *QueryCache) startCleanup() {
 	}
 }
 
-// NewOptimizer creates a new database optimizer
+// NewOptimizer creates a new database optimizer.
 func NewOptimizer(db *sql.DB, logger *zap.Logger) *Optimizer {
 	return &Optimizer{
 		db:            db,
@@ -261,14 +261,14 @@ func NewOptimizer(db *sql.DB, logger *zap.Logger) *Optimizer {
 	}
 }
 
-// SetSlowThreshold sets the slow query threshold
+// SetSlowThreshold sets the slow query threshold.
 func (o *Optimizer) SetSlowThreshold(threshold time.Duration) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 	o.slowThreshold = threshold
 }
 
-// EnableWAL enables Write-Ahead Logging mode
+// EnableWAL enables Write-Ahead Logging mode.
 func (o *Optimizer) EnableWAL() error {
 	o.mu.Lock()
 	defer o.mu.Unlock()
@@ -283,7 +283,7 @@ func (o *Optimizer) EnableWAL() error {
 	return nil
 }
 
-// ConfigurePerformance applies performance-optimized PRAGMAs
+// ConfigurePerformance applies performance-optimized PRAGMAs.
 func (o *Optimizer) ConfigurePerformance() error {
 	pragmas := map[string]interface{}{
 		"synchronous":        "NORMAL",  // Faster than FULL, safe with WAL
@@ -310,7 +310,7 @@ func (o *Optimizer) ConfigurePerformance() error {
 	return nil
 }
 
-// CreateIndex creates an index if it doesn't exist
+// CreateIndex creates an index if it doesn't exist.
 func (o *Optimizer) CreateIndex(table, name, columns string) error {
 	query := fmt.Sprintf(
 		"CREATE INDEX IF NOT EXISTS %s ON %s (%s)",
@@ -330,12 +330,12 @@ func (o *Optimizer) CreateIndex(table, name, columns string) error {
 	return nil
 }
 
-// CreateCompositeIndex creates a composite index
+// CreateCompositeIndex creates a composite index.
 func (o *Optimizer) CreateCompositeIndex(table, name string, columns ...string) error {
 	return o.CreateIndex(table, name, joinColumns(columns))
 }
 
-// AnalyzeTable runs ANALYZE on a table
+// AnalyzeTable runs ANALYZE on a table.
 func (o *Optimizer) AnalyzeTable(table string) error {
 	if err := validateTableName(table); err != nil {
 		return err
@@ -349,7 +349,7 @@ func (o *Optimizer) AnalyzeTable(table string) error {
 	return nil
 }
 
-// AnalyzeAll runs ANALYZE on all tables
+// AnalyzeAll runs ANALYZE on all tables.
 func (o *Optimizer) AnalyzeAll() error {
 	_, err := o.db.Exec("ANALYZE")
 	if err != nil {
@@ -361,7 +361,7 @@ func (o *Optimizer) AnalyzeAll() error {
 }
 
 // QueryWithCache executes a query with caching
-// Note: Returns cached data as slice of maps, not *sql.Rows (which cannot be safely cached)
+// Note: Returns cached data as slice of maps, not *sql.Rows (which cannot be safely cached).
 func (o *Optimizer) QueryWithCache(query string, args ...interface{}) ([]map[string]interface{}, error) {
 	// Generate cache key
 	cacheKey := fmt.Sprintf("%s|%v", query, args)
@@ -429,7 +429,7 @@ func (o *Optimizer) QueryWithCache(query string, args ...interface{}) ([]map[str
 	return results, nil
 }
 
-// ExecWithTiming executes a statement and logs slow queries
+// ExecWithTiming executes a statement and logs slow queries.
 func (o *Optimizer) ExecWithTiming(query string, args ...interface{}) (sql.Result, error) {
 	start := time.Now()
 
@@ -448,7 +448,7 @@ func (o *Optimizer) ExecWithTiming(query string, args ...interface{}) (sql.Resul
 	return result, err
 }
 
-// QueryWithTiming executes a query and logs slow queries
+// QueryWithTiming executes a query and logs slow queries.
 func (o *Optimizer) QueryWithTiming(query string, args ...interface{}) (*sql.Rows, error) {
 	start := time.Now()
 
@@ -467,7 +467,7 @@ func (o *Optimizer) QueryWithTiming(query string, args ...interface{}) (*sql.Row
 	return rows, err
 }
 
-// Stats returns optimizer statistics
+// Stats returns optimizer statistics.
 func (o *Optimizer) Stats() OptimizerStats {
 	cacheStats := o.queryCache.Stats()
 
@@ -482,7 +482,7 @@ func (o *Optimizer) Stats() OptimizerStats {
 	}
 }
 
-// OptimizerStats holds optimizer statistics
+// OptimizerStats holds optimizer statistics.
 type OptimizerStats struct {
 	QueryCount   int64   `json:"query_count"`
 	CacheHits    int64   `json:"cache_hits"`
@@ -493,7 +493,7 @@ type OptimizerStats struct {
 	CacheSize    int     `json:"cache_size"`
 }
 
-// QueryContextWithTiming executes a query with context and logs slow queries
+// QueryContextWithTiming executes a query with context and logs slow queries.
 func (o *Optimizer) QueryContextWithTiming(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
 	start := time.Now()
 
@@ -512,7 +512,7 @@ func (o *Optimizer) QueryContextWithTiming(ctx context.Context, query string, ar
 	return rows, err
 }
 
-// ExecContextWithTiming executes a statement with context and logs slow queries
+// ExecContextWithTiming executes a statement with context and logs slow queries.
 func (o *Optimizer) ExecContextWithTiming(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	start := time.Now()
 
@@ -531,7 +531,7 @@ func (o *Optimizer) ExecContextWithTiming(ctx context.Context, query string, arg
 	return result, err
 }
 
-// Vacuum runs VACUUM to reclaim space
+// Vacuum runs VACUUM to reclaim space.
 func (o *Optimizer) Vacuum() error {
 	_, err := o.db.Exec("VACUUM")
 	if err != nil {
@@ -542,7 +542,7 @@ func (o *Optimizer) Vacuum() error {
 	return nil
 }
 
-// Checkpoint runs a WAL checkpoint
+// Checkpoint runs a WAL checkpoint.
 func (o *Optimizer) Checkpoint() error {
 	if !o.walEnabled {
 		return nil
@@ -557,7 +557,7 @@ func (o *Optimizer) Checkpoint() error {
 	return nil
 }
 
-// GetIndexes returns all indexes in the database
+// GetIndexes returns all indexes in the database.
 func (o *Optimizer) GetIndexes() ([]string, error) {
 	rows, err := o.db.Query(`
 		SELECT name, tbl_name, sql 
@@ -582,7 +582,7 @@ func (o *Optimizer) GetIndexes() ([]string, error) {
 	return indexes, rows.Err()
 }
 
-// Close closes the optimizer
+// Close closes the optimizer.
 func (o *Optimizer) Close() {
 	o.queryCache.Clear()
 }

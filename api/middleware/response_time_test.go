@@ -14,7 +14,7 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
-// TestResponseTimeMiddleware tests the response time middleware
+// TestResponseTimeMiddleware tests the response time middleware.
 func TestResponseTimeMiddleware(t *testing.T) {
 	router := gin.New()
 	router.Use(ResponseTimeMiddleware())
@@ -41,7 +41,7 @@ func TestResponseTimeMiddleware(t *testing.T) {
 	}
 }
 
-// TestResponseTimeMiddlewareSkip tests skip paths
+// TestResponseTimeMiddlewareSkip tests skip paths.
 func TestResponseTimeMiddlewareSkip(t *testing.T) {
 	config := ResponseTimeConfig{
 		HeaderName: "X-Response-Time",
@@ -80,7 +80,7 @@ func TestResponseTimeMiddlewareSkip(t *testing.T) {
 	}
 }
 
-// TestResponseTimePrecise tests precise mode
+// TestResponseTimePrecise tests precise mode.
 func TestResponseTimePrecise(t *testing.T) {
 	config := ResponseTimeConfig{
 		HeaderName: "X-Response-Time",
@@ -105,7 +105,7 @@ func TestResponseTimePrecise(t *testing.T) {
 	// Precise mode should include µs or ns
 }
 
-// TestResponseTimeCollector tests the collector
+// TestResponseTimeCollector tests the collector.
 func TestResponseTimeCollector(t *testing.T) {
 	collector := NewResponseTimeCollector(100)
 
@@ -136,7 +136,7 @@ func TestResponseTimeCollector(t *testing.T) {
 	}
 }
 
-// TestResponseTimeCollectorReset tests reset
+// TestResponseTimeCollectorReset tests reset.
 func TestResponseTimeCollectorReset(t *testing.T) {
 	collector := NewResponseTimeCollector(100)
 
@@ -156,7 +156,7 @@ func TestResponseTimeCollectorReset(t *testing.T) {
 	}
 }
 
-// TestResponseTimeWithCollector tests middleware with collector
+// TestResponseTimeWithCollector tests middleware with collector.
 func TestResponseTimeWithCollector(t *testing.T) {
 	collector := NewResponseTimeCollector(100)
 
@@ -185,7 +185,7 @@ func TestResponseTimeWithCollector(t *testing.T) {
 	}
 }
 
-// TestGetDefaultCollector tests the default collector
+// TestGetDefaultCollector tests the default collector.
 func TestGetDefaultCollector(t *testing.T) {
 	collector := GetDefaultCollector()
 	if collector == nil {
@@ -206,7 +206,7 @@ func TestGetDefaultCollector(t *testing.T) {
 	ResetResponseTimeStats()
 }
 
-// TestPercentile tests percentile calculation
+// TestPercentile tests percentile calculation.
 func TestPercentile(t *testing.T) {
 	tests := []struct {
 		sorted      []int64
@@ -229,7 +229,7 @@ func TestPercentile(t *testing.T) {
 	}
 }
 
-// TestResponseTimeConfigDefaults tests config defaults
+// TestResponseTimeConfigDefaults tests config defaults.
 func TestResponseTimeConfigDefaults(t *testing.T) {
 	config := DefaultResponseTimeConfig
 
@@ -246,7 +246,7 @@ func TestResponseTimeConfigDefaults(t *testing.T) {
 	}
 }
 
-// BenchmarkResponseTimeMiddleware benchmarks the middleware
+// BenchmarkResponseTimeMiddleware benchmarks the middleware.
 func BenchmarkResponseTimeMiddleware(b *testing.B) {
 	router := gin.New()
 	router.Use(ResponseTimeMiddleware())
@@ -263,7 +263,7 @@ func BenchmarkResponseTimeMiddleware(b *testing.B) {
 	}
 }
 
-// BenchmarkResponseTimeCollector benchmarks the collector
+// BenchmarkResponseTimeCollector benchmarks the collector.
 func BenchmarkResponseTimeCollector(b *testing.B) {
 	collector := NewResponseTimeCollector(10000)
 
@@ -273,7 +273,7 @@ func BenchmarkResponseTimeCollector(b *testing.B) {
 	}
 }
 
-// BenchmarkResponseTimeGetStats benchmarks GetStats
+// BenchmarkResponseTimeGetStats benchmarks GetStats.
 func BenchmarkResponseTimeGetStats(b *testing.B) {
 	collector := NewResponseTimeCollector(10000)
 	for i := 0; i < 10000; i++ {

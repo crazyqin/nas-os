@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// Version 表示文件的一个版本
+// Version 表示文件的一个版本.
 type Version struct {
 	ID           string    `json:"id"`
 	FilePath     string    `json:"filePath"`
@@ -31,7 +31,7 @@ type Version struct {
 	IsCompressed bool      `json:"isCompressed"`
 }
 
-// RetentionPolicy 版本保留策略
+// RetentionPolicy 版本保留策略.
 type RetentionPolicy struct {
 	MaxVersions    int   `json:"maxVersions"`    // 最大版本数量，0 表示无限制
 	MaxAge         int   `json:"maxAge"`         // 最大保留天数，0 表示无限制
@@ -40,7 +40,7 @@ type RetentionPolicy struct {
 	SnapshotOnSave bool  `json:"snapshotOnSave"` // 保存时自动创建快照
 }
 
-// SnapshotConfig 快照配置
+// SnapshotConfig 快照配置.
 type SnapshotConfig struct {
 	Enabled       bool   `json:"enabled"`
 	TriggerMode   string `json:"triggerMode"`   // time, change, manual
@@ -48,7 +48,7 @@ type SnapshotConfig struct {
 	MinChangeSize int64  `json:"minChangeSize"` // 最小变更大小触发快照
 }
 
-// Config 版本控制配置
+// Config 版本控制配置.
 type Config struct {
 	Enabled      bool            `json:"enabled"`
 	VersionRoot  string          `json:"versionRoot"`
@@ -58,7 +58,7 @@ type Config struct {
 	MaxFileSize  int64           `json:"maxFileSize"` // 最大支持的文件大小
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:     true,
@@ -80,7 +80,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Manager 版本控制管理器
+// Manager 版本控制管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	config      *Config
@@ -92,7 +92,7 @@ type Manager struct {
 	stopChan    chan struct{}
 }
 
-// NewManager 创建版本控制管理器
+// NewManager 创建版本控制管理器.
 func NewManager(configPath string, config *Config) (*Manager, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -139,7 +139,7 @@ func NewManager(configPath string, config *Config) (*Manager, error) {
 	return m, nil
 }
 
-// CreateVersion 创建新版本
+// CreateVersion 创建新版本.
 func (m *Manager) CreateVersion(filePath, userID, description string, triggerType string) (*Version, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -238,7 +238,7 @@ func (m *Manager) CreateVersion(filePath, userID, description string, triggerTyp
 	return version, nil
 }
 
-// GetVersions 获取文件的所有版本
+// GetVersions 获取文件的所有版本.
 func (m *Manager) GetVersions(filePath string) ([]*Version, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -260,7 +260,7 @@ func (m *Manager) GetVersions(filePath string) ([]*Version, error) {
 	return result, nil
 }
 
-// GetVersion 获取指定版本
+// GetVersion 获取指定版本.
 func (m *Manager) GetVersion(versionID string) (*Version, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -273,7 +273,7 @@ func (m *Manager) GetVersion(versionID string) (*Version, error) {
 	return version, nil
 }
 
-// RestoreVersion 恢复到指定版本
+// RestoreVersion 恢复到指定版本.
 func (m *Manager) RestoreVersion(versionID, targetPath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -309,7 +309,7 @@ func (m *Manager) RestoreVersion(versionID, targetPath string) error {
 	return nil
 }
 
-// DeleteVersion 删除指定版本
+// DeleteVersion 删除指定版本.
 func (m *Manager) DeleteVersion(versionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -345,7 +345,7 @@ func (m *Manager) DeleteVersion(versionID string) error {
 	return m.saveVersions()
 }
 
-// GetDiff 获取版本差异
+// GetDiff 获取版本差异.
 func (m *Manager) GetDiff(versionID string) (*VersionDiff, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -397,7 +397,7 @@ func (m *Manager) GetDiff(versionID string) (*VersionDiff, error) {
 	return diff, nil
 }
 
-// VersionDiff 版本差异
+// VersionDiff 版本差异.
 type VersionDiff struct {
 	VersionID    string    `json:"versionId"`
 	FilePath     string    `json:"filePath"`
@@ -410,7 +410,7 @@ type VersionDiff struct {
 	DiffContent  string    `json:"diffContent,omitempty"`
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -430,7 +430,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *Config) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -439,14 +439,14 @@ func (m *Manager) UpdateConfig(config *Config) error {
 	return m.saveConfig()
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() {
 	close(m.stopChan)
 }
 
 // ========== 自动快照触发功能 ==========
 
-// WatchFile 添加文件监控，当文件变更时自动创建快照
+// WatchFile 添加文件监控，当文件变更时自动创建快照.
 func (m *Manager) WatchFile(filePath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -465,14 +465,14 @@ func (m *Manager) WatchFile(filePath string) error {
 	return nil
 }
 
-// UnwatchFile 移除文件监控
+// UnwatchFile 移除文件监控.
 func (m *Manager) UnwatchFile(filePath string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.watchers, filePath)
 }
 
-// GetWatchedFiles 获取监控的文件列表
+// GetWatchedFiles 获取监控的文件列表.
 func (m *Manager) GetWatchedFiles() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -485,7 +485,7 @@ func (m *Manager) GetWatchedFiles() []string {
 }
 
 // StartAutoSnapshot 启动自动快照服务
-// 根据配置的触发模式启动相应的自动快照功能
+// 根据配置的触发模式启动相应的自动快照功能.
 func (m *Manager) StartAutoSnapshot() {
 	if !m.config.Snapshot.Enabled {
 		return
@@ -499,7 +499,7 @@ func (m *Manager) StartAutoSnapshot() {
 	}
 }
 
-// startTimeBasedSnapshot 基于时间的自动快照
+// startTimeBasedSnapshot 基于时间的自动快照.
 func (m *Manager) startTimeBasedSnapshot() {
 	if m.config.Snapshot.Interval <= 0 {
 		m.config.Snapshot.Interval = 60 // 默认 60 分钟
@@ -518,7 +518,7 @@ func (m *Manager) startTimeBasedSnapshot() {
 	}
 }
 
-// startChangeBasedSnapshot 基于变更的自动快照
+// startChangeBasedSnapshot 基于变更的自动快照.
 func (m *Manager) startChangeBasedSnapshot() {
 	ticker := time.NewTicker(30 * time.Second) // 每 30 秒检查一次变更
 	defer ticker.Stop()
@@ -533,7 +533,7 @@ func (m *Manager) startChangeBasedSnapshot() {
 	}
 }
 
-// snapshotWatchedFiles 为所有监控的文件创建快照
+// snapshotWatchedFiles 为所有监控的文件创建快照.
 func (m *Manager) snapshotWatchedFiles(triggerType string) {
 	m.mu.RLock()
 	files := make([]string, 0, len(m.watchers))
@@ -551,7 +551,7 @@ func (m *Manager) snapshotWatchedFiles(triggerType string) {
 	}
 }
 
-// checkAndSnapshotChanges 检查文件变更并创建快照
+// checkAndSnapshotChanges 检查文件变更并创建快照.
 func (m *Manager) checkAndSnapshotChanges() {
 	// 首先收集需要创建快照的文件
 	m.mu.Lock()

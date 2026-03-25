@@ -9,7 +9,7 @@ import (
 
 // ========== 事件聚合器 ==========
 
-// EventAggregator 事件聚合器
+// EventAggregator 事件聚合器.
 type EventAggregator struct {
 	config       AggregatorConfig
 	eventGroups  map[string]*EventGroup
@@ -17,7 +17,7 @@ type EventAggregator struct {
 	mu           sync.RWMutex
 }
 
-// AggregatorConfig 聚合器配置
+// AggregatorConfig 聚合器配置.
 type AggregatorConfig struct {
 	Enabled              bool          `json:"enabled"`
 	GroupWindow          time.Duration `json:"group_window"`          // 分组时间窗口
@@ -26,7 +26,7 @@ type AggregatorConfig struct {
 	CleanupInterval      time.Duration `json:"cleanup_interval"`      // 清理间隔
 }
 
-// DefaultAggregatorConfig 默认聚合器配置
+// DefaultAggregatorConfig 默认聚合器配置.
 func DefaultAggregatorConfig() AggregatorConfig {
 	return AggregatorConfig{
 		Enabled:              true,
@@ -37,7 +37,7 @@ func DefaultAggregatorConfig() AggregatorConfig {
 	}
 }
 
-// EventGroup 事件组
+// EventGroup 事件组.
 type EventGroup struct {
 	ID         string           `json:"id"`
 	Type       string           `json:"type"`       // 分组类型
@@ -52,7 +52,7 @@ type EventGroup struct {
 	Summary    string           `json:"summary"`    // 事件摘要
 }
 
-// EventCorrelation 事件关联
+// EventCorrelation 事件关联.
 type EventCorrelation struct {
 	ID              string    `json:"id"`
 	GroupIDs        []string  `json:"group_ids"`        // 关联的组ID
@@ -63,7 +63,7 @@ type EventCorrelation struct {
 	Severity        string    `json:"severity"`
 }
 
-// AggregationReport 聚合报告
+// AggregationReport 聚合报告.
 type AggregationReport struct {
 	GeneratedAt       time.Time           `json:"generated_at"`
 	TotalEvents       int                 `json:"total_events"`
@@ -75,14 +75,14 @@ type AggregationReport struct {
 	Timeline          []TimelineEntry     `json:"timeline"`  // 时间线
 }
 
-// TimelineEntry 时间线条目
+// TimelineEntry 时间线条目.
 type TimelineEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	Count     int       `json:"count"`
 	Severity  string    `json:"severity"`
 }
 
-// NewEventAggregator 创建事件聚合器
+// NewEventAggregator 创建事件聚合器.
 func NewEventAggregator(config AggregatorConfig) *EventAggregator {
 	return &EventAggregator{
 		config:       config,
@@ -91,7 +91,7 @@ func NewEventAggregator(config AggregatorConfig) *EventAggregator {
 	}
 }
 
-// Aggregate 聚合事件
+// Aggregate 聚合事件.
 func (a *EventAggregator) Aggregate(events []*AuditLogEntry) *AggregationReport {
 	if !a.config.Enabled {
 		return &AggregationReport{}
@@ -115,7 +115,7 @@ func (a *EventAggregator) Aggregate(events []*AuditLogEntry) *AggregationReport 
 	return a.generateReport()
 }
 
-// groupEvent 将事件分组
+// groupEvent 将事件分组.
 func (a *EventAggregator) groupEvent(event *AuditLogEntry) {
 	// 生成分组键
 	groupKey := a.generateGroupKey(event)
@@ -148,13 +148,13 @@ func (a *EventAggregator) groupEvent(event *AuditLogEntry) {
 	group.RiskScore = a.calculateGroupRiskScore(group)
 }
 
-// generateGroupKey 生成分组键
+// generateGroupKey 生成分组键.
 func (a *EventAggregator) generateGroupKey(event *AuditLogEntry) string {
 	// 基于IP、用户名和事件类型生成键
 	return event.IP + ":" + event.Username + ":" + event.Event
 }
 
-// determineGroupType 确定分组类型
+// determineGroupType 确定分组类型.
 func (a *EventAggregator) determineGroupType(event *AuditLogEntry) string {
 	switch event.Category {
 	case "auth":
@@ -173,7 +173,7 @@ func (a *EventAggregator) determineGroupType(event *AuditLogEntry) string {
 	}
 }
 
-// calculateGroupRiskScore 计算分组风险评分
+// calculateGroupRiskScore 计算分组风险评分.
 func (a *EventAggregator) calculateGroupRiskScore(group *EventGroup) float64 {
 	score := 0.0
 
@@ -206,7 +206,7 @@ func (a *EventAggregator) calculateGroupRiskScore(group *EventGroup) float64 {
 	return score
 }
 
-// detectCorrelations 检测事件关联
+// detectCorrelations 检测事件关联.
 func (a *EventAggregator) detectCorrelations() {
 	groups := make([]*EventGroup, 0)
 	for _, g := range a.eventGroups {
@@ -223,7 +223,7 @@ func (a *EventAggregator) detectCorrelations() {
 	a.detectCausalCorrelations(groups)
 }
 
-// detectIPCorrelations 检测IP关联
+// detectIPCorrelations 检测IP关联.
 func (a *EventAggregator) detectIPCorrelations(groups []*EventGroup) {
 	ipGroups := make(map[string][]*EventGroup)
 
@@ -256,7 +256,7 @@ func (a *EventAggregator) detectIPCorrelations(groups []*EventGroup) {
 	}
 }
 
-// detectTimeCorrelations 检测时间关联
+// detectTimeCorrelations 检测时间关联.
 func (a *EventAggregator) detectTimeCorrelations(groups []*EventGroup) {
 	// 检测短时间内发生的多个事件组
 	window := 10 * time.Minute
@@ -291,7 +291,7 @@ func (a *EventAggregator) detectTimeCorrelations(groups []*EventGroup) {
 	}
 }
 
-// detectCausalCorrelations 检测因果关联
+// detectCausalCorrelations 检测因果关联.
 func (a *EventAggregator) detectCausalCorrelations(groups []*EventGroup) {
 	// 检测可能的因果关系
 	causalPatterns := []struct {
@@ -339,7 +339,7 @@ func (a *EventAggregator) detectCausalCorrelations(groups []*EventGroup) {
 	}
 }
 
-// cleanupOldGroups 清理旧的分组
+// cleanupOldGroups 清理旧的分组.
 func (a *EventAggregator) cleanupOldGroups() {
 	cutoff := time.Now().Add(-a.config.GroupWindow * 10)
 
@@ -359,7 +359,7 @@ func (a *EventAggregator) cleanupOldGroups() {
 	a.correlations = validCorrelations
 }
 
-// generateReport 生成报告
+// generateReport 生成报告.
 func (a *EventAggregator) generateReport() *AggregationReport {
 	report := &AggregationReport{
 		GeneratedAt:       time.Now(),
@@ -386,7 +386,7 @@ func (a *EventAggregator) generateReport() *AggregationReport {
 	return report
 }
 
-// findTopRiskGroups 找出高风险分组
+// findTopRiskGroups 找出高风险分组.
 func (a *EventAggregator) findTopRiskGroups(groups []*EventGroup, limit int) []*EventGroup {
 	// 按风险评分排序
 	sorted := make([]*EventGroup, len(groups))
@@ -408,7 +408,7 @@ func (a *EventAggregator) findTopRiskGroups(groups []*EventGroup, limit int) []*
 	return sorted[:limit]
 }
 
-// generateTimeline 生成时间线
+// generateTimeline 生成时间线.
 func (a *EventAggregator) generateTimeline(groups []*EventGroup) []TimelineEntry {
 	// 按小时聚合
 	hourlyCounts := make(map[int64]map[string]int)
@@ -455,7 +455,7 @@ func (a *EventAggregator) generateTimeline(groups []*EventGroup) []TimelineEntry
 	return timeline
 }
 
-// GetGroupByID 根据ID获取事件组
+// GetGroupByID 根据ID获取事件组.
 func (a *EventAggregator) GetGroupByID(id string) *EventGroup {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -468,7 +468,7 @@ func (a *EventAggregator) GetGroupByID(id string) *EventGroup {
 	return nil
 }
 
-// GetCorrelationsByGroupID 获取与指定分组相关的关联
+// GetCorrelationsByGroupID 获取与指定分组相关的关联.
 func (a *EventAggregator) GetCorrelationsByGroupID(groupID string) []*EventCorrelation {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -487,17 +487,17 @@ func (a *EventAggregator) GetCorrelationsByGroupID(groupID string) []*EventCorre
 
 // ========== 辅助函数 ==========
 
-// generateGroupID 生成分组ID
+// generateGroupID 生成分组ID.
 func generateGroupID() string {
 	return "grp-" + time.Now().Format("20060102150405") + "-" + randomString(6)
 }
 
-// generateCorrelationID 生成关联ID
+// generateCorrelationID 生成关联ID.
 func generateCorrelationID() string {
 	return "corr-" + time.Now().Format("20060102150405") + "-" + randomString(6)
 }
 
-// randomString 生成随机字符串
+// randomString 生成随机字符串.
 func randomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, length)

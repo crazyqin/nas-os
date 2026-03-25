@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-// BaselineManager 安全基线检查管理器
+// BaselineManager 安全基线检查管理器.
 type BaselineManager struct {
 	checks []BaselineCheck
 }
 
-// BaselineCheck 基线检查项
+// BaselineCheck 基线检查项.
 type BaselineCheck struct {
 	ID          string
 	Name        string
@@ -26,7 +26,7 @@ type BaselineCheck struct {
 	CheckFunc   func() BaselineCheckResult
 }
 
-// NewBaselineManager 创建基线检查管理器
+// NewBaselineManager 创建基线检查管理器.
 func NewBaselineManager() *BaselineManager {
 	bm := &BaselineManager{
 		checks: make([]BaselineCheck, 0),
@@ -38,7 +38,7 @@ func NewBaselineManager() *BaselineManager {
 	return bm
 }
 
-// registerChecks 注册所有检查项
+// registerChecks 注册所有检查项.
 func (bm *BaselineManager) registerChecks() {
 	// ========== 认证安全 ==========
 	bm.checks = append(bm.checks, BaselineCheck{
@@ -171,7 +171,7 @@ func (bm *BaselineManager) registerChecks() {
 	})
 }
 
-// RunCheck 运行单个检查
+// RunCheck 运行单个检查.
 func (bm *BaselineManager) RunCheck(checkID string) BaselineCheckResult {
 	for _, check := range bm.checks {
 		if check.ID == checkID {
@@ -186,7 +186,7 @@ func (bm *BaselineManager) RunCheck(checkID string) BaselineCheckResult {
 	}
 }
 
-// RunAllChecks 运行所有检查
+// RunAllChecks 运行所有检查.
 func (bm *BaselineManager) RunAllChecks() BaselineReport {
 	report := BaselineReport{
 		ReportID:  generateReportID(),
@@ -220,7 +220,7 @@ func (bm *BaselineManager) RunAllChecks() BaselineReport {
 	return report
 }
 
-// RunChecksByCategory 按类别运行检查
+// RunChecksByCategory 按类别运行检查.
 func (bm *BaselineManager) RunChecksByCategory(category string) BaselineReport {
 	report := BaselineReport{
 		ReportID:  generateReportID(),
@@ -256,7 +256,7 @@ func (bm *BaselineManager) RunChecksByCategory(category string) BaselineReport {
 
 // ========== 检查实现 ==========
 
-// checkPasswordPolicy 检查密码策略
+// checkPasswordPolicy 检查密码策略.
 func (bm *BaselineManager) checkPasswordPolicy() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "AUTH-001",
@@ -307,7 +307,7 @@ func (bm *BaselineManager) checkPasswordPolicy() BaselineCheckResult {
 	return result
 }
 
-// checkMFAEnabled 检查 MFA 启用状态
+// checkMFAEnabled 检查 MFA 启用状态.
 func (bm *BaselineManager) checkMFAEnabled() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "AUTH-002",
@@ -332,7 +332,7 @@ func (bm *BaselineManager) checkMFAEnabled() BaselineCheckResult {
 	return result
 }
 
-// checkDefaultPasswords 检查默认密码
+// checkDefaultPasswords 检查默认密码.
 func (bm *BaselineManager) checkDefaultPasswords() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "AUTH-003",
@@ -368,7 +368,7 @@ func (bm *BaselineManager) checkDefaultPasswords() BaselineCheckResult {
 	return result
 }
 
-// checkAccountLockoutPolicy 检查账户锁定策略
+// checkAccountLockoutPolicy 检查账户锁定策略.
 func (bm *BaselineManager) checkAccountLockoutPolicy() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "AUTH-004",
@@ -392,7 +392,7 @@ func (bm *BaselineManager) checkAccountLockoutPolicy() BaselineCheckResult {
 	return result
 }
 
-// checkFirewallEnabled 检查防火墙状态
+// checkFirewallEnabled 检查防火墙状态.
 func (bm *BaselineManager) checkFirewallEnabled() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "NET-001",
@@ -425,7 +425,7 @@ func (bm *BaselineManager) checkFirewallEnabled() BaselineCheckResult {
 	return result
 }
 
-// checkSSHConfig 检查 SSH 配置
+// checkSSHConfig 检查 SSH 配置.
 func (bm *BaselineManager) checkSSHConfig() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "NET-002",
@@ -479,7 +479,7 @@ func (bm *BaselineManager) checkSSHConfig() BaselineCheckResult {
 	return result
 }
 
-// checkOpenPorts 检查开放端口
+// checkOpenPorts 检查开放端口.
 func (bm *BaselineManager) checkOpenPorts() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "NET-003",
@@ -549,7 +549,7 @@ func (bm *BaselineManager) checkOpenPorts() BaselineCheckResult {
 	return result
 }
 
-// checkHTTPSRequired 检查 HTTPS 强制
+// checkHTTPSRequired 检查 HTTPS 强制.
 func (bm *BaselineManager) checkHTTPSRequired() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "NET-004",
@@ -586,7 +586,7 @@ func (bm *BaselineManager) checkHTTPSRequired() BaselineCheckResult {
 	return result
 }
 
-// checkSystemUpdates 检查系统更新
+// checkSystemUpdates 检查系统更新.
 func (bm *BaselineManager) checkSystemUpdates() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "SYS-001",
@@ -628,7 +628,7 @@ func (bm *BaselineManager) checkSystemUpdates() BaselineCheckResult {
 	return result
 }
 
-// checkRootLogin 检查 root 登录
+// checkRootLogin 检查 root 登录.
 func (bm *BaselineManager) checkRootLogin() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "SYS-002",
@@ -670,7 +670,7 @@ func (bm *BaselineManager) checkRootLogin() BaselineCheckResult {
 	return result
 }
 
-// checkFilePermissions 检查文件权限
+// checkFilePermissions 检查文件权限.
 func (bm *BaselineManager) checkFilePermissions() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "SYS-003",
@@ -714,7 +714,7 @@ func (bm *BaselineManager) checkFilePermissions() BaselineCheckResult {
 	return result
 }
 
-// checkLoggingEnabled 检查日志记录
+// checkLoggingEnabled 检查日志记录.
 func (bm *BaselineManager) checkLoggingEnabled() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "SYS-004",
@@ -744,7 +744,7 @@ func (bm *BaselineManager) checkLoggingEnabled() BaselineCheckResult {
 	return result
 }
 
-// checkSensitiveFilesEncrypted 检查敏感文件加密
+// checkSensitiveFilesEncrypted 检查敏感文件加密.
 func (bm *BaselineManager) checkSensitiveFilesEncrypted() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "FILE-001",
@@ -768,7 +768,7 @@ func (bm *BaselineManager) checkSensitiveFilesEncrypted() BaselineCheckResult {
 	return result
 }
 
-// checkSharePermissions 检查共享权限
+// checkSharePermissions 检查共享权限.
 func (bm *BaselineManager) checkSharePermissions() BaselineCheckResult {
 	result := BaselineCheckResult{
 		CheckID:     "FILE-002",
@@ -818,7 +818,7 @@ func (bm *BaselineManager) checkSharePermissions() BaselineCheckResult {
 	return result
 }
 
-// generateReportID 生成报告 ID
+// generateReportID 生成报告 ID.
 func generateReportID() string {
 	randomBytes := make([]byte, 8)
 	if _, err := rand.Read(randomBytes); err != nil {
@@ -827,7 +827,7 @@ func generateReportID() string {
 	return fmt.Sprintf("report-%s", hex.EncodeToString(randomBytes))
 }
 
-// GetCheckList 获取所有检查项列表
+// GetCheckList 获取所有检查项列表.
 func (bm *BaselineManager) GetCheckList() []map[string]interface{} {
 	list := make([]map[string]interface{}, 0, len(bm.checks))
 	for _, check := range bm.checks {
@@ -842,7 +842,7 @@ func (bm *BaselineManager) GetCheckList() []map[string]interface{} {
 	return list
 }
 
-// GetCategories 获取所有检查类别
+// GetCategories 获取所有检查类别.
 func (bm *BaselineManager) GetCategories() []string {
 	categories := make(map[string]bool)
 	for _, check := range bm.checks {

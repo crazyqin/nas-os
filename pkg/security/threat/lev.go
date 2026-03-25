@@ -10,7 +10,7 @@ import (
 
 // ========== LEV 威胁优先级系统 ==========
 
-// LEVScore LEV 综合评分
+// LEVScore LEV 综合评分.
 type LEVScore struct {
 	CVEID             string     `json:"cve_id"`
 	CVSSScore         float64    `json:"cvss_score"`         // CVSS 基础评分 0-10
@@ -36,7 +36,7 @@ type LEVScore struct {
 	FactorContributions FactorContributions `json:"factor_contributions"`
 }
 
-// FactorContributions 各因子贡献值
+// FactorContributions 各因子贡献值.
 type FactorContributions struct {
 	CVSSContribution       float64 `json:"cvss_contribution"`
 	EPSSContribution       float64 `json:"epss_contribution"`
@@ -47,12 +47,12 @@ type FactorContributions struct {
 	RansomwareContribution float64 `json:"ransomware_contribution"`
 }
 
-// LEVCalculator LEV 计算器
+// LEVCalculator LEV 计算器.
 type LEVCalculator struct {
 	config LEVConfig
 }
 
-// LEVConfig LEV 配置
+// LEVConfig LEV 配置.
 type LEVConfig struct {
 	// 各因子权重
 	CVSSWeight       float64 `json:"cvss_weight"`
@@ -72,7 +72,7 @@ type LEVConfig struct {
 }
 
 // DefaultLEVConfig 默认 LEV 配置
-// 参考群晖DSM 7.3的权重设置
+// 参考群晖DSM 7.3的权重设置.
 func DefaultLEVConfig() LEVConfig {
 	return LEVConfig{
 		CVSSWeight:       0.20,
@@ -91,12 +91,12 @@ func DefaultLEVConfig() LEVConfig {
 	}
 }
 
-// NewLEVCalculator 创建 LEV 计算器
+// NewLEVCalculator 创建 LEV 计算器.
 func NewLEVCalculator(config LEVConfig) *LEVCalculator {
 	return &LEVCalculator{config: config}
 }
 
-// Calculate 计算 LEV 评分
+// Calculate 计算 LEV 评分.
 func (lc *LEVCalculator) Calculate(input LEVInput) *LEVScore {
 	score := &LEVScore{
 		CVEID:             input.CVEID,
@@ -136,7 +136,7 @@ func (lc *LEVCalculator) Calculate(input LEVInput) *LEVScore {
 	return score
 }
 
-// LEVInput LEV 计算输入
+// LEVInput LEV 计算输入.
 type LEVInput struct {
 	CVEID             string     `json:"cve_id"`
 	CVSSScore         float64    `json:"cvss_score"`
@@ -151,7 +151,7 @@ type LEVInput struct {
 	NetworkAccessible bool       `json:"network_accessible"`
 }
 
-// calculateContributions 计算各因子贡献
+// calculateContributions 计算各因子贡献.
 func (lc *LEVCalculator) calculateContributions(score *LEVScore) {
 	cfg := lc.config
 
@@ -192,7 +192,7 @@ func (lc *LEVCalculator) calculateContributions(score *LEVScore) {
 	score.FactorContributions.RansomwareContribution = ransomwareValue * cfg.RansomwareWeight
 }
 
-// calculateAgeFactor 计算年龄因子
+// calculateAgeFactor 计算年龄因子.
 func (lc *LEVCalculator) calculateAgeFactor(ageDays int) float64 {
 	switch {
 	case ageDays < 7:
@@ -208,7 +208,7 @@ func (lc *LEVCalculator) calculateAgeFactor(ageDays int) float64 {
 	}
 }
 
-// calculateLEVScore 计算 LEV 综合评分
+// calculateLEVScore 计算 LEV 综合评分.
 func (lc *LEVCalculator) calculateLEVScore(score *LEVScore) {
 	total := score.FactorContributions.CVSSContribution +
 		score.FactorContributions.EPSSContribution +
@@ -239,7 +239,7 @@ func (lc *LEVCalculator) calculateLEVScore(score *LEVScore) {
 	score.LEVScore = math.Round(total*100) / 100
 }
 
-// determinePriority 确定优先级
+// determinePriority 确定优先级.
 func (lc *LEVCalculator) determinePriority(score *LEVScore) {
 	switch {
 	case score.LEVScore >= 80:
@@ -258,7 +258,7 @@ func (lc *LEVCalculator) determinePriority(score *LEVScore) {
 	}
 }
 
-// determineRiskLevel 确定风险等级
+// determineRiskLevel 确定风险等级.
 func (lc *LEVCalculator) determineRiskLevel(score *LEVScore) {
 	switch {
 	case score.LEVScore >= 80:
@@ -272,7 +272,7 @@ func (lc *LEVCalculator) determineRiskLevel(score *LEVScore) {
 	}
 }
 
-// determineExploitLikelihood 确定利用可能性
+// determineExploitLikelihood 确定利用可能性.
 func (lc *LEVCalculator) determineExploitLikelihood(score *LEVScore) {
 	switch {
 	case score.IsInKEV:
@@ -290,7 +290,7 @@ func (lc *LEVCalculator) determineExploitLikelihood(score *LEVScore) {
 	}
 }
 
-// determineRemediationUrgency 确定修复紧急程度
+// determineRemediationUrgency 确定修复紧急程度.
 func (lc *LEVCalculator) determineRemediationUrgency(score *LEVScore) {
 	switch score.Priority {
 	case 1:
@@ -309,7 +309,7 @@ func (lc *LEVCalculator) determineRemediationUrgency(score *LEVScore) {
 	}
 }
 
-// calculateDueDate 计算建议修复期限
+// calculateDueDate 计算建议修复期限.
 func (lc *LEVCalculator) calculateDueDate(score *LEVScore) {
 	now := time.Now()
 
@@ -342,7 +342,7 @@ func (lc *LEVCalculator) calculateDueDate(score *LEVScore) {
 
 // ========== 批量计算 ==========
 
-// CalculateBatch 批量计算 LEV 评分
+// CalculateBatch 批量计算 LEV 评分.
 func (lc *LEVCalculator) CalculateBatch(inputs []LEVInput) []*LEVScore {
 	scores := make([]*LEVScore, len(inputs))
 	for i, input := range inputs {
@@ -351,7 +351,7 @@ func (lc *LEVCalculator) CalculateBatch(inputs []LEVInput) []*LEVScore {
 	return scores
 }
 
-// SortByPriority 按优先级排序
+// SortByPriority 按优先级排序.
 func (lc *LEVCalculator) SortByPriority(scores []*LEVScore) []*LEVScore {
 	// 使用快速排序
 	result := make([]*LEVScore, len(scores))
@@ -386,7 +386,7 @@ func (lc *LEVCalculator) partition(scores []*LEVScore, low, high int) int {
 
 // ========== 统计报告 ==========
 
-// LEVReport LEV 报告
+// LEVReport LEV 报告.
 type LEVReport struct {
 	GeneratedAt          time.Time          `json:"generated_at"`
 	TotalVulnerabilities int                `json:"total_vulnerabilities"`
@@ -401,7 +401,7 @@ type LEVReport struct {
 	RemediationSummary   RemediationSummary `json:"remediation_summary"`
 }
 
-// RemediationSummary 修复摘要
+// RemediationSummary 修复摘要.
 type RemediationSummary struct {
 	Immediate int `json:"immediate"` // 需立即修复
 	Soon      int `json:"soon"`      // 近期修复
@@ -409,7 +409,7 @@ type RemediationSummary struct {
 	Deferred  int `json:"deferred"`  // 延后修复
 }
 
-// GenerateReport 生成 LEV 报告
+// GenerateReport 生成 LEV 报告.
 func (lc *LEVCalculator) GenerateReport(scores []*LEVScore) *LEVReport {
 	report := &LEVReport{
 		GeneratedAt:          time.Now(),

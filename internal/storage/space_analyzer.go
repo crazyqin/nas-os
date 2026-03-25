@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// SpaceAnalyzer 存储空间分析器
+// SpaceAnalyzer 存储空间分析器.
 type SpaceAnalyzer struct {
 	manager   *Manager
 	history   *SpaceHistory
@@ -21,20 +21,20 @@ type SpaceAnalyzer struct {
 	indexPath string // 历史数据索引文件路径
 }
 
-// SpaceHistory 空间使用历史记录
+// SpaceHistory 空间使用历史记录.
 type SpaceHistory struct {
 	Records []SpaceRecord `json:"records"`
 	mu      sync.RWMutex
 }
 
-// SpaceRecord 单次空间记录
+// SpaceRecord 单次空间记录.
 type SpaceRecord struct {
 	Timestamp time.Time       `json:"timestamp"`
 	Volumes   []VolumeRecord  `json:"volumes"`
 	FileStats FileTypeSummary `json:"fileStats"`
 }
 
-// VolumeRecord 卷空间记录
+// VolumeRecord 卷空间记录.
 type VolumeRecord struct {
 	Name      string  `json:"name"`
 	Total     uint64  `json:"total"`
@@ -43,14 +43,14 @@ type VolumeRecord struct {
 	UsedRatio float64 `json:"usedRatio"`
 }
 
-// FileTypeSummary 文件类型统计摘要
+// FileTypeSummary 文件类型统计摘要.
 type FileTypeSummary struct {
 	ByExtension map[string]FileTypeStat `json:"byExtension"`
 	TotalFiles  uint64                  `json:"totalFiles"`
 	TotalSize   uint64                  `json:"totalSize"`
 }
 
-// FileTypeStat 文件类型统计
+// FileTypeStat 文件类型统计.
 type FileTypeStat struct {
 	Extension string  `json:"extension"`
 	Count     uint64  `json:"count"`
@@ -58,7 +58,7 @@ type FileTypeStat struct {
 	Percent   float64 `json:"percent"` // 占总大小百分比
 }
 
-// LargeFile 大文件信息
+// LargeFile 大文件信息.
 type LargeFile struct {
 	Path     string    `json:"path"`
 	Size     uint64    `json:"size"`
@@ -66,7 +66,7 @@ type LargeFile struct {
 	Type     string    `json:"type"` // 文件类型/扩展名
 }
 
-// DirectoryInfo 目录信息
+// DirectoryInfo 目录信息.
 type DirectoryInfo struct {
 	Path      string  `json:"path"`
 	Size      uint64  `json:"size"`
@@ -75,7 +75,7 @@ type DirectoryInfo struct {
 	Percent   float64 `json:"percent"` // 占总大小百分比
 }
 
-// SpaceTrend 空间趋势预测
+// SpaceTrend 空间趋势预测.
 type SpaceTrend struct {
 	VolumeName     string    `json:"volumeName"`
 	CurrentUsed    uint64    `json:"currentUsed"`
@@ -90,7 +90,7 @@ type SpaceTrend struct {
 	UpdatedAt      time.Time `json:"updatedAt"`
 }
 
-// AnalyzeResult 分析结果
+// AnalyzeResult 分析结果.
 type AnalyzeResult struct {
 	VolumeName           string               `json:"volumeName"`
 	AnalyzedAt           time.Time            `json:"analyzedAt"`
@@ -104,14 +104,14 @@ type AnalyzeResult struct {
 	Warnings             []string             `json:"warnings"`
 }
 
-// FileTypeDistribution 文件类型分布
+// FileTypeDistribution 文件类型分布.
 type FileTypeDistribution struct {
 	Categories  map[string]CategoryStat `json:"categories"`
 	ByExtension []FileTypeStat          `json:"byExtension"`
 	Unknown     FileTypeStat            `json:"unknown"`
 }
 
-// CategoryStat 分类统计
+// CategoryStat 分类统计.
 type CategoryStat struct {
 	Name       string   `json:"name"`
 	Extensions []string `json:"extensions"`
@@ -120,7 +120,7 @@ type CategoryStat struct {
 	Percent    float64  `json:"percent"`
 }
 
-// AnalyzeOptions 分析选项
+// AnalyzeOptions 分析选项.
 type AnalyzeOptions struct {
 	Path               string `json:"path"`               // 分析路径（默认卷挂载点）
 	IncludeHidden      bool   `json:"includeHidden"`      // 包含隐藏文件
@@ -131,7 +131,7 @@ type AnalyzeOptions struct {
 	EnableTrend        bool   `json:"enableTrend"`        // 启用趋势预测
 }
 
-// DefaultAnalyzeOptions 默认分析选项
+// DefaultAnalyzeOptions 默认分析选项.
 var DefaultAnalyzeOptions = AnalyzeOptions{
 	IncludeHidden:      false,
 	LargeFileThreshold: 100 * 1024 * 1024, // 100MB
@@ -141,7 +141,7 @@ var DefaultAnalyzeOptions = AnalyzeOptions{
 	EnableTrend:        true,
 }
 
-// 文件类型分类映射
+// 文件类型分类映射.
 var fileTypeCategories = map[string][]string{
 	"video":    {".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm", ".m4v", ".m2ts", ".ts"},
 	"audio":    {".mp3", ".flac", ".wav", ".aac", ".m4a", ".ogg", ".wma", ".ape", ".alac"},
@@ -153,7 +153,7 @@ var fileTypeCategories = map[string][]string{
 	"disk":     {".iso", ".img", ".vhd", ".vmdk", ".qcow2"},
 }
 
-// NewSpaceAnalyzer 创建空间分析器
+// NewSpaceAnalyzer 创建空间分析器.
 func NewSpaceAnalyzer(manager *Manager, dataDir string) *SpaceAnalyzer {
 	if dataDir == "" {
 		dataDir = "/var/lib/nas-os/storage"
@@ -172,7 +172,7 @@ func NewSpaceAnalyzer(manager *Manager, dataDir string) *SpaceAnalyzer {
 	return sa
 }
 
-// loadHistory 加载历史数据
+// loadHistory 加载历史数据.
 func (sa *SpaceAnalyzer) loadHistory() error {
 	data, err := os.ReadFile(sa.indexPath)
 	if err != nil {
@@ -188,7 +188,7 @@ func (sa *SpaceAnalyzer) loadHistory() error {
 	return json.Unmarshal(data, sa.history)
 }
 
-// saveHistory 保存历史数据
+// saveHistory 保存历史数据.
 func (sa *SpaceAnalyzer) saveHistory() error {
 	sa.history.mu.RLock()
 	data, err := json.MarshalIndent(sa.history, "", "  ")
@@ -206,7 +206,7 @@ func (sa *SpaceAnalyzer) saveHistory() error {
 	return os.WriteFile(sa.indexPath, data, 0644)
 }
 
-// Analyze 执行空间分析
+// Analyze 执行空间分析.
 func (sa *SpaceAnalyzer) Analyze(volumeName string, opts AnalyzeOptions) (*AnalyzeResult, error) {
 	sa.mu.Lock()
 	defer sa.mu.Unlock()
@@ -282,7 +282,7 @@ func (sa *SpaceAnalyzer) Analyze(volumeName string, opts AnalyzeOptions) (*Analy
 	return result, nil
 }
 
-// analyzeFileTypes 分析文件类型分布
+// analyzeFileTypes 分析文件类型分布.
 func (sa *SpaceAnalyzer) analyzeFileTypes(rootPath string, opts AnalyzeOptions) (FileTypeDistribution, error) {
 	distribution := FileTypeDistribution{
 		Categories:  make(map[string]CategoryStat),
@@ -410,7 +410,7 @@ func (sa *SpaceAnalyzer) analyzeFileTypes(rootPath string, opts AnalyzeOptions) 
 	return distribution, nil
 }
 
-// findLargeFiles 查找大文件
+// findLargeFiles 查找大文件.
 func (sa *SpaceAnalyzer) findLargeFiles(rootPath string, opts AnalyzeOptions) ([]LargeFile, error) {
 	var largeFiles []LargeFile
 
@@ -462,7 +462,7 @@ func (sa *SpaceAnalyzer) findLargeFiles(rootPath string, opts AnalyzeOptions) ([
 	return largeFiles, nil
 }
 
-// rankDirectories 计算目录空间占用排行
+// rankDirectories 计算目录空间占用排行.
 func (sa *SpaceAnalyzer) rankDirectories(rootPath string, opts AnalyzeOptions) ([]DirectoryInfo, error) {
 	dirSizes := make(map[string]*DirectoryInfo)
 
@@ -580,7 +580,7 @@ func (sa *SpaceAnalyzer) rankDirectories(rootPath string, opts AnalyzeOptions) (
 	return ranking, nil
 }
 
-// recordAnalysis 记录分析结果
+// recordAnalysis 记录分析结果.
 func (sa *SpaceAnalyzer) recordAnalysis(volumeName string, vol *Volume, dist FileTypeDistribution) {
 	record := SpaceRecord{
 		Timestamp: time.Now(),
@@ -625,7 +625,7 @@ func (sa *SpaceAnalyzer) recordAnalysis(volumeName string, vol *Volume, dist Fil
 	go func() { _ = sa.saveHistory() }()
 }
 
-// predictTrend 预测空间趋势
+// predictTrend 预测空间趋势.
 func (sa *SpaceAnalyzer) predictTrend(volumeName string, vol *Volume) *SpaceTrend {
 	trend := &SpaceTrend{
 		VolumeName:   volumeName,
@@ -739,7 +739,7 @@ func (sa *SpaceAnalyzer) predictTrend(volumeName string, vol *Volume) *SpaceTren
 	return trend
 }
 
-// GetHistory 获取历史记录
+// GetHistory 获取历史记录.
 func (sa *SpaceAnalyzer) GetHistory(volumeName string, days int) ([]SpaceRecord, error) {
 	sa.history.mu.RLock()
 	defer sa.history.mu.RUnlock()
@@ -766,7 +766,7 @@ func (sa *SpaceAnalyzer) GetHistory(volumeName string, days int) ([]SpaceRecord,
 	return result, nil
 }
 
-// FormatBytes 格式化字节大小
+// FormatBytes 格式化字节大小.
 func FormatBytes(bytes uint64) string {
 	const unit = 1024
 	if bytes < unit {
@@ -780,7 +780,7 @@ func FormatBytes(bytes uint64) string {
 	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
-// GetFileTypeCategory 获取文件类型分类
+// GetFileTypeCategory 获取文件类型分类.
 func GetFileTypeCategory(ext string) string {
 	ext = strings.ToLower(ext)
 	for catName, extensions := range fileTypeCategories {
