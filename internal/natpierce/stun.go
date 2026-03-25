@@ -21,7 +21,7 @@ const (
 	STUNMagicCookie uint32 = 0x2112A442
 
 	// STUN属性类型
-	STUNAttrMappedAddress   uint16 = 0x0001
+	STUNAttrMappedAddress    uint16 = 0x0001
 	STUNAttrXORMappedAddress uint16 = 0x0020
 	STUNAttrErrorCode        uint16 = 0x0009
 	STUNAttrSoftware         uint16 = 0x0022
@@ -39,11 +39,11 @@ var (
 
 // STUNMessage STUN消息结构
 type STUNMessage struct {
-	Type       uint16
-	Length     uint16
-	Cookie     uint32
+	Type          uint16
+	Length        uint16
+	Cookie        uint32
 	TransactionID [12]byte
-	Attributes []STUNAttribute
+	Attributes    []STUNAttribute
 }
 
 // STUNAttribute STUN属性
@@ -55,31 +55,31 @@ type STUNAttribute struct {
 
 // STUNClient STUN客户端
 type STUNClient struct {
-	timeout    time.Duration
-	retries    int
-	localPort  int
+	timeout   time.Duration
+	retries   int
+	localPort int
 }
 
 // STUNResult STUN探测结果
 type STUNResult struct {
-	PublicIP    net.IP
-	PublicPort   int
-	NATType      NATType
+	PublicIP        net.IP
+	PublicPort      int
+	NATType         NATType
 	ServerReflexive *net.UDPAddr
-	RelayAddr    *net.UDPAddr
-	RTT          time.Duration
+	RelayAddr       *net.UDPAddr
+	RTT             time.Duration
 }
 
 // NATType NAT类型
 type NATType int
 
 const (
-	NATTypeUnknown NATType = iota
-	NATTypeNone            // 无NAT（公网IP）
-	NATTypeFullCone        // 完全锥形NAT
-	NATTypeRestrictedCone  // 受限锥形NAT
-	NATTypePortRestricted  // 端口受限锥形NAT
-	NATTypeSymmetric       // 对称NAT
+	NATTypeUnknown        NATType = iota
+	NATTypeNone                   // 无NAT（公网IP）
+	NATTypeFullCone               // 完全锥形NAT
+	NATTypeRestrictedCone         // 受限锥形NAT
+	NATTypePortRestricted         // 端口受限锥形NAT
+	NATTypeSymmetric              // 对称NAT
 )
 
 // String 返回NAT类型描述

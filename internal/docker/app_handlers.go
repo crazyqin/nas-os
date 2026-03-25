@@ -11,16 +11,16 @@ import (
 
 // AppHandlers 应用商店处理器
 type AppHandlers struct {
-	store                *AppStore
-	ratingManager        *RatingManager
-	discovery            *AppDiscovery
-	customTemplateMgr    *CustomTemplateManager
-	versionManager       *VersionManager
-	manualInstaller      *ManualInstaller
-	templateVersionMgr   *TemplateVersionManager
-	backupMgr            *BackupManager
-	healthChecker        *HealthChecker
-	updateChecker        *UpdateChecker
+	store              *AppStore
+	ratingManager      *RatingManager
+	discovery          *AppDiscovery
+	customTemplateMgr  *CustomTemplateManager
+	versionManager     *VersionManager
+	manualInstaller    *ManualInstaller
+	templateVersionMgr *TemplateVersionManager
+	backupMgr          *BackupManager
+	healthChecker      *HealthChecker
+	updateChecker      *UpdateChecker
 	// mu                 sync.RWMutex - 保留用于未来需要并发控制的场景
 }
 

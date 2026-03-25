@@ -21,14 +21,14 @@ type ManualInstallRequest struct {
 	ComposeURL     string `json:"composeUrl,omitempty"`     // docker-compose.yml URL
 
 	// Image 方式
-	Image       string            `json:"image,omitempty"`       // Docker 镜像名
-	Tag         string            `json:"tag,omitempty"`         // 镜像标签，默认 latest
-	Name        string            `json:"name,omitempty"`        // 容器名称
-	Ports       []PortMappingReq  `json:"ports,omitempty"`       // 端口映射
-	Volumes     []VolumeMappingReq `json:"volumes,omitempty"`    // 卷映射
-	Environment map[string]string `json:"environment,omitempty"` // 环境变量
-	Network     string            `json:"network,omitempty"`     // 网络模式
-	Restart     string            `json:"restart,omitempty"`     // 重启策略
+	Image       string             `json:"image,omitempty"`       // Docker 镜像名
+	Tag         string             `json:"tag,omitempty"`         // 镜像标签，默认 latest
+	Name        string             `json:"name,omitempty"`        // 容器名称
+	Ports       []PortMappingReq   `json:"ports,omitempty"`       // 端口映射
+	Volumes     []VolumeMappingReq `json:"volumes,omitempty"`     // 卷映射
+	Environment map[string]string  `json:"environment,omitempty"` // 环境变量
+	Network     string             `json:"network,omitempty"`     // 网络模式
+	Restart     string             `json:"restart,omitempty"`     // 重启策略
 
 	// 元数据
 	DisplayName string `json:"displayName,omitempty"`
@@ -53,18 +53,18 @@ type VolumeMappingReq struct {
 
 // ManualInstallResult 手动安装结果
 type ManualInstallResult struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	DisplayName string            `json:"displayName"`
-	Status      string            `json:"status"`
-	Type        string            `json:"type"` // compose 或 image
-	Ports       map[int]int       `json:"ports"`
-	Volumes     map[string]string `json:"volumes"`
-	Environment map[string]string `json:"environment"`
-	InstallTime time.Time         `json:"installTime"`
-	ComposePath string            `json:"composePath,omitempty"`
-	ContainerID string            `json:"containerId,omitempty"`
-	Dependencies []string         `json:"dependencies,omitempty"` // 自动安装的依赖
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	DisplayName  string            `json:"displayName"`
+	Status       string            `json:"status"`
+	Type         string            `json:"type"` // compose 或 image
+	Ports        map[int]int       `json:"ports"`
+	Volumes      map[string]string `json:"volumes"`
+	Environment  map[string]string `json:"environment"`
+	InstallTime  time.Time         `json:"installTime"`
+	ComposePath  string            `json:"composePath,omitempty"`
+	ContainerID  string            `json:"containerId,omitempty"`
+	Dependencies []string          `json:"dependencies,omitempty"` // 自动安装的依赖
 }
 
 // DependencyDetector 依赖检测器
@@ -113,14 +113,14 @@ func (dd *DependencyDetector) DetectFromCompose(composeContent string) ([]string
 func (dd *DependencyDetector) DetectFromImage(image string) ([]string, error) {
 	// 常见镜像的依赖映射
 	knownDependencies := map[string][]string{
-		"immich":         {"postgres", "redis"},
-		"nextcloud":      {"postgres", "redis"},
-		"gitea":          {"postgres", "mysql"},
-		"gitlab":         {"postgres", "redis"},
-		"grafana":        {"postgres", "mysql"},
-		"prometheus":     {"alertmanager"},
-		"wordpress":      {"mysql", "postgres"},
-		"drone/drone":    {"postgres", "mysql"},
+		"immich":             {"postgres", "redis"},
+		"nextcloud":          {"postgres", "redis"},
+		"gitea":              {"postgres", "mysql"},
+		"gitlab":             {"postgres", "redis"},
+		"grafana":            {"postgres", "mysql"},
+		"prometheus":         {"alertmanager"},
+		"wordpress":          {"mysql", "postgres"},
+		"drone/drone":        {"postgres", "mysql"},
 		"drone/drone-runner": {"docker"},
 	}
 
@@ -137,10 +137,10 @@ func (dd *DependencyDetector) DetectFromImage(image string) ([]string, error) {
 
 // ManualInstaller 手动安装器
 type ManualInstaller struct {
-	store             *AppStore
-	manager           *Manager
+	store              *AppStore
+	manager            *Manager
 	dependencyDetector *DependencyDetector
-	installDir        string
+	installDir         string
 }
 
 // NewManualInstaller 创建手动安装器

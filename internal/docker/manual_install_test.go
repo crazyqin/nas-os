@@ -160,9 +160,9 @@ func TestManualInstaller_ExtractAppNameFromCompose(t *testing.T) {
 	installer := NewManualInstaller(store, mgr, tmpDir)
 
 	tests := []struct {
-		name      string
-		compose   string
-		wantName  string
+		name     string
+		compose  string
+		wantName string
 	}{
 		{
 			name: "compose with container_name",

@@ -289,9 +289,9 @@ func TestFormatBytes(t *testing.T) {
 
 func TestUpdateChecker_ParseImageName(t *testing.T) {
 	tests := []struct {
-		image       string
+		image        string
 		expectedName string
-		expectedTag string
+		expectedTag  string
 	}{
 		{"nginx", "nginx", "latest"},
 		{"nginx:latest", "nginx", "latest"},
@@ -311,9 +311,9 @@ func TestUpdateChecker_ParseImageName(t *testing.T) {
 
 func TestUpdateChecker_ParseImageNamespace(t *testing.T) {
 	tests := []struct {
-		imageName          string
-		expectedNamespace  string
-		expectedName       string
+		imageName         string
+		expectedNamespace string
+		expectedName      string
 	}{
 		{"nginx", "library", "nginx"},
 		{"library/nginx", "library", "nginx"},
