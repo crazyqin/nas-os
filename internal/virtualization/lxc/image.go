@@ -216,7 +216,8 @@ func (i *ImageManager) ExportImage(ctx context.Context, imageRef, outputPath str
 
 // ImportImage imports an image from a file or URL.
 func (i *ImageManager) ImportImage(ctx context.Context, source string, aliases []string) (*Image, error) {
-	args := []string{"image", "import", source}
+	args := make([]string, 0, 3+2*len(aliases))
+	args = append(args, "image", "import", source)
 
 	for _, alias := range aliases {
 		args = append(args, "--alias", alias)
