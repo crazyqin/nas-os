@@ -50,7 +50,6 @@ func TestManualInstallRequest_Validate(t *testing.T) {
 			gotErr := (tt.req.Type == "compose" && tt.req.ComposeContent == "" && tt.req.ComposeURL == "") ||
 				(tt.req.Type == "image" && tt.req.Image == "")
 			if gotErr != tt.wantErr {
-			if gotErr != tt.wantErr {
 				t.Errorf("validation error = %v, wantErr %v", gotErr, tt.wantErr)
 			}
 		})
