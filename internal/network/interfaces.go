@@ -3,12 +3,14 @@ package network
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"net"
 	"os"
 	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // ListInterfaces 获取所有网络接口.
@@ -17,7 +19,10 @@ func (m *Manager) ListInterfaces() ([]*Interface, error) {
 	defer m.mu.RUnlock()
 
 	// 使用 ip 命令获取接口信息
-	cmd := exec.Command("ip", "-json", "addr", "show")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "ip", "-json", "addr", "show")
 	output, err := cmd.Output()
 	if err != nil {
 		// 回退到 /sys/class/net 方式
@@ -137,7 +142,10 @@ func (m *Manager) getInterfaceIP(name string) (string, string) {
 // getDefaultGateway 获取默认网关.
 func (m *Manager) getDefaultGateway(iface string) string {
 	// 读取路由表
-	cmd := exec.Command("ip", "route", "show", "dev", iface)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "ip", "route", "show", "dev", iface)
 	output, err := cmd.Output()
 	if err != nil {
 		return ""
@@ -240,9 +248,12 @@ func (m *Manager) ConfigureInterface(name string, config InterfaceConfig) error 
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
 	if config.DHCP {
 		// 使用 DHCP
-		cmd := exec.Command("dhclient", name)
+		cmd := exec.CommandContext(ctx, "dhclient", name)
 		if err := cmd.Run(); err != nil {
 			// 尝试使用 systemd-networkd 或 NetworkManager
 			return m.configureDHCPNetworkd(name)
@@ -254,10 +265,10 @@ func (m *Manager) ConfigureInterface(name string, config InterfaceConfig) error 
 	// 设置 IP 地址
 	if config.IP != "" && config.Netmask != "" {
 		addr := fmt.Sprintf("%s/%s", config.IP, config.Netmask)
-		cmd := exec.Command("ip", "addr", "flush", "dev", name)
+		cmd := exec.CommandContext(ctx, "ip", "addr", "flush", "dev", name)
 		_ = cmd.Run()
 
-		cmd = exec.Command("ip", "addr", "add", addr, "dev", name)
+		cmd = exec.CommandContext(ctx, "ip", "addr", "add", addr, "dev", name)
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("设置 IP 地址失败: %w", err)
 		}
@@ -266,9 +277,9 @@ func (m *Manager) ConfigureInterface(name string, config InterfaceConfig) error 
 	// 设置网关
 	if config.Gateway != "" {
 		// 先删除旧的默认路由
-		_ = exec.Command("ip", "route", "del", "default", "dev", name).Run()
+		_ = exec.CommandContext(ctx, "ip", "route", "del", "default", "dev", name).Run()
 
-		cmd := exec.Command("ip", "route", "add", "default", "via", config.Gateway, "dev", name)
+		cmd := exec.CommandContext(ctx, "ip", "route", "add", "default", "via", config.Gateway, "dev", name)
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("设置网关失败: %w", err)
 		}
@@ -318,9 +329,9 @@ func (m *Manager) ToggleInterface(name string, up bool) error {
 
 	var cmd *exec.Cmd
 	if up {
-		cmd = exec.Command("ip", "link", "set", name, "up")
+		cmd = exec.CommandContext(context.Background(), "ip", "link", "set", name, "up")
 	} else {
-		cmd = exec.Command("ip", "link", "set", name, "down")
+		cmd = exec.CommandContext(context.Background(), "ip", "link", "set", name, "down")
 	}
 
 	if err := cmd.Run(); err != nil {
