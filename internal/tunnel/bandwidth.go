@@ -52,11 +52,11 @@ type BandwidthStats struct {
 
 // TokenBucket 令牌桶限速器
 type TokenBucket struct {
-	rate      int64 // 令牌产生速率（字节/秒）
-	capacity  int64 // 桶容量
-	tokens    int64 // 当前令牌数
-	lastTime  time.Time
-	mu        sync.Mutex
+	rate     int64 // 令牌产生速率（字节/秒）
+	capacity int64 // 桶容量
+	tokens   int64 // 当前令牌数
+	lastTime time.Time
+	mu       sync.Mutex
 }
 
 // NewTokenBucket 创建令牌桶
@@ -129,14 +129,14 @@ type BandwidthMonitor struct {
 	downloadLimiter *TokenBucket
 
 	// 统计追踪
-	lastUpload    int64
-	lastDownload  int64
-	lastStatTime  time.Time
+	lastUpload   int64
+	lastDownload int64
+	lastStatTime time.Time
 
 	// 历史记录（用于计算平均速率）
-	uploadHistory  []int64
+	uploadHistory   []int64
 	downloadHistory []int64
-	historySize    int
+	historySize     int
 
 	mu sync.RWMutex
 }
@@ -148,12 +148,12 @@ func NewBandwidthMonitor(config BandwidthConfig, logger *zap.Logger) *BandwidthM
 	}
 
 	m := &BandwidthMonitor{
-		config:         config,
-		logger:         logger,
-		lastStatTime:   time.Now(),
-		uploadHistory:  make([]int64, 0, 60),
+		config:          config,
+		logger:          logger,
+		lastStatTime:    time.Now(),
+		uploadHistory:   make([]int64, 0, 60),
 		downloadHistory: make([]int64, 0, 60),
-		historySize:    60,
+		historySize:     60,
 	}
 
 	// 初始化限速器（只在有限速配置时）

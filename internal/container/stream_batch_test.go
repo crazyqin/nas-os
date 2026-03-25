@@ -122,10 +122,10 @@ func TestContainerFilter(t *testing.T) {
 // TestContainerFilter_Match tests ContainerFilter.Match method.
 func TestContainerFilter_Match(t *testing.T) {
 	tests := []struct {
-		name     string
-		filter   ContainerFilter
+		name      string
+		filter    ContainerFilter
 		container *Container
-		expected bool
+		expected  bool
 	}{
 		{
 			name:   "match all empty filter",
@@ -137,70 +137,70 @@ func TestContainerFilter_Match(t *testing.T) {
 			expected: true,
 		},
 		{
-			name: "match state",
-			filter: ContainerFilter{State: "running"},
+			name:      "match state",
+			filter:    ContainerFilter{State: "running"},
 			container: &Container{State: "running"},
-			expected: true,
+			expected:  true,
 		},
 		{
-			name: "no match state",
-			filter: ContainerFilter{State: "running"},
+			name:      "no match state",
+			filter:    ContainerFilter{State: "running"},
 			container: &Container{State: "exited"},
-			expected: false,
+			expected:  false,
 		},
 		{
-			name: "match image",
-			filter: ContainerFilter{Image: "nginx:latest"},
+			name:      "match image",
+			filter:    ContainerFilter{Image: "nginx:latest"},
 			container: &Container{Image: "nginx:latest"},
-			expected: true,
+			expected:  true,
 		},
 		{
-			name: "no match image",
-			filter: ContainerFilter{Image: "nginx:latest"},
+			name:      "no match image",
+			filter:    ContainerFilter{Image: "nginx:latest"},
 			container: &Container{Image: "redis:latest"},
-			expected: false,
+			expected:  false,
 		},
 		{
-			name: "match name",
-			filter: ContainerFilter{Name: "nginx-server"},
+			name:      "match name",
+			filter:    ContainerFilter{Name: "nginx-server"},
 			container: &Container{Name: "nginx-server"},
-			expected: true,
+			expected:  true,
 		},
 		{
-			name: "no match name",
-			filter: ContainerFilter{Name: "nginx-server"},
+			name:      "no match name",
+			filter:    ContainerFilter{Name: "nginx-server"},
 			container: &Container{Name: "redis-server"},
-			expected: false,
+			expected:  false,
 		},
 		{
-			name: "match label",
-			filter: ContainerFilter{Label: map[string]string{"app": "web"}},
+			name:      "match label",
+			filter:    ContainerFilter{Label: map[string]string{"app": "web"}},
 			container: &Container{Labels: map[string]string{"app": "web"}},
-			expected: true,
+			expected:  true,
 		},
 		{
-			name: "no match label missing",
-			filter: ContainerFilter{Label: map[string]string{"app": "web"}},
+			name:      "no match label missing",
+			filter:    ContainerFilter{Label: map[string]string{"app": "web"}},
 			container: &Container{Labels: map[string]string{}},
-			expected: false,
+			expected:  false,
 		},
 		{
-			name: "no match label different value",
-			filter: ContainerFilter{Label: map[string]string{"app": "web"}},
+			name:      "no match label different value",
+			filter:    ContainerFilter{Label: map[string]string{"app": "web"}},
 			container: &Container{Labels: map[string]string{"app": "api"}},
-			expected: false,
+			expected:  false,
 		},
 		{
-			name: "match network",
-			filter: ContainerFilter{Network: "bridge"},
+			name:      "match network",
+			filter:    ContainerFilter{Network: "bridge"},
 			container: &Container{Networks: []string{"bridge", "host"}},
-			expected: true,
+			expected:  true,
 		},
 		{
-			name: "no match network",
-			filter: ContainerFilter{Network: "custom"},
+			name:      "no match network",
+			filter:    ContainerFilter{Network: "custom"},
 			container: &Container{Networks: []string{"bridge", "host"}},
-			expected: false,
+			expected:  false,
 		},
 		{
 			name: "match multiple criteria",
@@ -319,7 +319,7 @@ func TestLogMessage(t *testing.T) {
 func TestStatsMessage(t *testing.T) {
 	stats := StatsMessage{
 		CPUUsage:    25.5,
-		MemUsage:    512 * 1024 * 1024, // 512MB
+		MemUsage:    512 * 1024 * 1024,  // 512MB
 		MemLimit:    1024 * 1024 * 1024, // 1GB
 		MemPercent:  50.0,
 		NetRX:       1024000,

@@ -27,13 +27,13 @@ type DirectLinkInfo struct {
 	FileSize int64  `json:"fileSize"`
 
 	// 直链信息
-	URL           string            `json:"url"`           // 直链URL
-	DownloadURL   string            `json:"downloadUrl"`   // 下载链接
-	StreamURL     string            `json:"streamUrl"`     // 流媒体链接（如果有）
-	ExpiresAt     time.Time         `json:"expiresAt"`     // 链接过期时间
-	ExpiresIn     int64             `json:"expiresIn"`     // 有效期秒数
-	Headers       map[string]string `json:"headers"`       // 请求头（某些网盘需要）
-	ExtraParams   map[string]string `json:"extraParams"`   // 额外参数
+	URL         string            `json:"url"`         // 直链URL
+	DownloadURL string            `json:"downloadUrl"` // 下载链接
+	StreamURL   string            `json:"streamUrl"`   // 流媒体链接（如果有）
+	ExpiresAt   time.Time         `json:"expiresAt"`   // 链接过期时间
+	ExpiresIn   int64             `json:"expiresIn"`   // 有效期秒数
+	Headers     map[string]string `json:"headers"`     // 请求头（某些网盘需要）
+	ExtraParams map[string]string `json:"extraParams"` // 额外参数
 
 	// 媒体信息
 	Duration     int64  `json:"duration"`     // 时长（秒）
@@ -45,7 +45,7 @@ type DirectLinkInfo struct {
 
 	// 状态
 	Provider ProviderType `json:"provider"`
-	Cached   bool         `json:"cached"`   // 是否缓存
+	Cached   bool         `json:"cached"` // 是否缓存
 	Error    string       `json:"error,omitempty"`
 }
 
@@ -95,18 +95,18 @@ type DirectPlayConfig struct {
 // DefaultDirectPlayConfig 默认配置
 func DefaultDirectPlayConfig() *DirectPlayConfig {
 	return &DirectPlayConfig{
-		Enabled:         true,
-		BaiduPanEnabled: true,
-		Pan123Enabled:   true,
+		Enabled:          true,
+		BaiduPanEnabled:  true,
+		Pan123Enabled:    true,
 		AliyunPanEnabled: true,
-		CacheEnabled:    true,
-		CacheTTL:        30 * time.Minute,
-		CacheMaxItems:   1000,
-		RequestTimeout:  30 * time.Second,
-		LinkExpireMin:   5 * time.Minute,
-		MaxConcurrent:   10,
-		MaxRetries:      3,
-		RetryInterval:   time.Second,
+		CacheEnabled:     true,
+		CacheTTL:         30 * time.Minute,
+		CacheMaxItems:    1000,
+		RequestTimeout:   30 * time.Second,
+		LinkExpireMin:    5 * time.Minute,
+		MaxConcurrent:    10,
+		MaxRetries:       3,
+		RetryInterval:    time.Second,
 	}
 }
 
@@ -155,34 +155,34 @@ type ListFilesResponse struct {
 
 // ProviderInfo 网盘信息
 type ProviderInfo struct {
-	Type         ProviderType `json:"type"`
-	Name         string       `json:"name"`
-	Enabled      bool         `json:"enabled"`
-	Connected    bool         `json:"connected"`
-	UserName     string       `json:"userName"`
-	TotalSpace   int64        `json:"totalSpace"`
-	UsedSpace    int64        `json:"usedSpace"`
-	Expired      bool         `json:"expired"`     // token是否过期
-	ExpiresAt    time.Time    `json:"expiresAt"`   // token过期时间
+	Type       ProviderType `json:"type"`
+	Name       string       `json:"name"`
+	Enabled    bool         `json:"enabled"`
+	Connected  bool         `json:"connected"`
+	UserName   string       `json:"userName"`
+	TotalSpace int64        `json:"totalSpace"`
+	UsedSpace  int64        `json:"usedSpace"`
+	Expired    bool         `json:"expired"`   // token是否过期
+	ExpiresAt  time.Time    `json:"expiresAt"` // token过期时间
 }
 
 // DirectPlayStatus 直链播放状态
 type DirectPlayStatus struct {
-	Enabled       bool          `json:"enabled"`
+	Enabled       bool           `json:"enabled"`
 	Providers     []ProviderInfo `json:"providers"`
-	CacheSize     int           `json:"cacheSize"`
-	ActiveStreams int           `json:"activeStreams"`
+	CacheSize     int            `json:"cacheSize"`
+	ActiveStreams int            `json:"activeStreams"`
 }
 
 // StreamSession 流媒体会话
 type StreamSession struct {
-	ID           string          `json:"id"`
-	Provider     ProviderType    `json:"provider"`
-	FileID       string          `json:"fileId"`
-	FileName     string          `json:"fileName"`
-	DirectLink   *DirectLinkInfo `json:"directLink"`
-	StartTime    time.Time       `json:"startTime"`
-	LastAccess   time.Time       `json:"lastAccess"`
-	Viewers      int             `json:"viewers"`
-	BytesServed  int64           `json:"bytesServed"`
+	ID          string          `json:"id"`
+	Provider    ProviderType    `json:"provider"`
+	FileID      string          `json:"fileId"`
+	FileName    string          `json:"fileName"`
+	DirectLink  *DirectLinkInfo `json:"directLink"`
+	StartTime   time.Time       `json:"startTime"`
+	LastAccess  time.Time       `json:"lastAccess"`
+	Viewers     int             `json:"viewers"`
+	BytesServed int64           `json:"bytesServed"`
 }

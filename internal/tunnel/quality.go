@@ -89,10 +89,10 @@ type LatencyRecord struct {
 
 // QualityMonitor 连接质量监控器
 type QualityMonitor struct {
-	config       QualityMonitorConfig
-	logger       *zap.Logger
-	conn         net.Conn
-	remoteAddr   net.Addr
+	config     QualityMonitorConfig
+	logger     *zap.Logger
+	conn       net.Conn
+	remoteAddr net.Addr
 
 	// 当前质量
 	quality atomic.Value // *ConnectionQuality
@@ -102,11 +102,11 @@ type QualityMonitor struct {
 	mu             sync.RWMutex
 
 	// 统计
-	totalProbes    int64
-	successProbes  int64
-	totalLatency   int64
-	lastLatency    int64
-	lastJitter     int64
+	totalProbes     int64
+	successProbes   int64
+	totalLatency    int64
+	lastLatency     int64
+	lastJitter      int64
 	consecutiveLoss int
 
 	// 控制
@@ -122,8 +122,8 @@ func NewQualityMonitor(config QualityMonitorConfig, logger *zap.Logger) *Quality
 	}
 
 	m := &QualityMonitor{
-		config:        config,
-		logger:        logger,
+		config:         config,
+		logger:         logger,
 		latencyHistory: make([]LatencyRecord, 0, config.HistorySize),
 	}
 
@@ -395,10 +395,10 @@ func (m *QualityMonitor) GetLatencyHistory() []LatencyRecord {
 
 // ConnectionOptimizer 连接优化器
 type ConnectionOptimizer struct {
-	config       QualityMonitorConfig
-	logger       *zap.Logger
-	monitor      *QualityMonitor
-	mode         TunnelMode
+	config         QualityMonitorConfig
+	logger         *zap.Logger
+	monitor        *QualityMonitor
+	mode           TunnelMode
 	relayAvailable bool
 
 	// 自动切换阈值
@@ -473,11 +473,11 @@ type ConnectionStabilityTest struct {
 
 // StabilityTestConfig 稳定性测试配置
 type StabilityTestConfig struct {
-	Duration       time.Duration `json:"duration"`        // 测试持续时间
-	ProbeInterval  time.Duration `json:"probe_interval"`  // 探测间隔
-	SuccessRate    float64       `json:"success_rate"`    // 成功率阈值
-	MaxLatency     int64         `json:"max_latency"`     // 最大延迟阈值
-	MaxPacketLoss  float64       `json:"max_packet_loss"` // 最大丢包率阈值
+	Duration      time.Duration `json:"duration"`        // 测试持续时间
+	ProbeInterval time.Duration `json:"probe_interval"`  // 探测间隔
+	SuccessRate   float64       `json:"success_rate"`    // 成功率阈值
+	MaxLatency    int64         `json:"max_latency"`     // 最大延迟阈值
+	MaxPacketLoss float64       `json:"max_packet_loss"` // 最大丢包率阈值
 }
 
 // StabilityTestResult 稳定性测试结果
@@ -505,7 +505,7 @@ func NewConnectionStabilityTest(config StabilityTestConfig, logger *zap.Logger) 
 // Run 执行稳定性测试
 func (t *ConnectionStabilityTest) Run(ctx context.Context, conn net.Conn) (*StabilityTestResult, error) {
 	result := &StabilityTestResult{
-		StartTime: time.Now(),
+		StartTime:  time.Now(),
 		MinLatency: 999999,
 	}
 

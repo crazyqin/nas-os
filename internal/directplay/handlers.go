@@ -150,12 +150,12 @@ func (h *Handlers) ListFiles(w http.ResponseWriter, r *http.Request) {
 
 	// 解析请求参数
 	req := ListFilesRequest{
-		Provider:    providerType,
-		DirPath:     r.URL.Query().Get("path"),
-		Recursive:   r.URL.Query().Get("recursive") == "true",
-		AccessToken: accessToken,
+		Provider:     providerType,
+		DirPath:      r.URL.Query().Get("path"),
+		Recursive:    r.URL.Query().Get("recursive") == "true",
+		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		DriveID:     driveID,
+		DriveID:      driveID,
 	}
 
 	if pageStr := r.URL.Query().Get("page"); pageStr != "" {
