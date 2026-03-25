@@ -470,7 +470,7 @@ func (nm *NotificationManager) sendWebhook(data interface{}) error {
 	defer func() { _ = resp.Body.Close() }() //nolint:errcheck
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Webhook返回错误: %d", resp.StatusCode)
+		return fmt.Errorf("webhook返回错误: %d", resp.StatusCode)
 	}
 
 	return nil

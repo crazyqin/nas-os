@@ -126,9 +126,6 @@ func (m *WatchListManager) AddWatchEntry(entry *WatchListEntry) error {
 	}
 	entry.CreatedAt = time.Now()
 	entry.UpdatedAt = entry.CreatedAt
-	if entry.Enabled {
-		// 保持用户设置的值
-	}
 
 	// 检查是否已存在相同路径
 	for _, existing := range m.watchEntries {
@@ -312,9 +309,6 @@ func (m *WatchListManager) AddIgnoreEntry(entry *IgnoreListEntry) error {
 	}
 	entry.CreatedAt = time.Now()
 	entry.UpdatedAt = entry.CreatedAt
-	if entry.Enabled {
-		// 保持用户设置的值
-	}
 
 	// 检查是否已存在相同路径
 	for _, existing := range m.ignoreEntries {

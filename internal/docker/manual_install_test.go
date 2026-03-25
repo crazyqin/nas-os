@@ -47,13 +47,9 @@ func TestManualInstallRequest_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Basic validation logic
-			gotErr := false
-			if tt.req.Type == "compose" && tt.req.ComposeContent == "" && tt.req.ComposeURL == "" {
-				gotErr = true
-			}
-			if tt.req.Type == "image" && tt.req.Image == "" {
-				gotErr = true
-			}
+			gotErr := (tt.req.Type == "compose" && tt.req.ComposeContent == "" && tt.req.ComposeURL == "") ||
+				(tt.req.Type == "image" && tt.req.Image == "")
+			if gotErr != tt.wantErr {
 			if gotErr != tt.wantErr {
 				t.Errorf("validation error = %v, wantErr %v", gotErr, tt.wantErr)
 			}

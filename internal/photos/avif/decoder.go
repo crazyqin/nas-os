@@ -556,8 +556,7 @@ func CheckSystemSupport() error {
 	if !bytes.Contains(output, []byte("avif")) &&
 		!bytes.Contains(output, []byte("heif")) &&
 		!bytes.Contains(output, []byte("libdav1d")) {
-		// ffmpeg may still support AVIF through other decoders
-		// Try a test decode
+		// ffmpeg may still support AVIF through other decoders - continue anyway
 	}
 
 	return nil

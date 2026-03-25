@@ -430,12 +430,12 @@ func (r *StorageUsageReporter) calculateSummary(
 	if len(history) >= 7 {
 		recent := history[len(history)-1]
 		weekAgo := history[len(history)-7]
-		summary.WeeklyGrowth = uint64(recent.UsedCapacity - weekAgo.UsedCapacity)
+		summary.WeeklyGrowth = recent.UsedCapacity - weekAgo.UsedCapacity
 	}
 	if len(history) >= 30 {
 		recent := history[len(history)-1]
 		monthAgo := history[0]
-		summary.MonthlyGrowth = uint64(recent.UsedCapacity - monthAgo.UsedCapacity)
+		summary.MonthlyGrowth = recent.UsedCapacity - monthAgo.UsedCapacity
 		if monthAgo.UsedCapacity > 0 {
 			summary.GrowthTrendPercent = round(float64(summary.MonthlyGrowth)/float64(monthAgo.UsedCapacity)*100, 2)
 		}

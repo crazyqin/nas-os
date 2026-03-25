@@ -346,7 +346,7 @@ func (c *Console) Process(ctx context.Context, req *ConsoleRequest) (*ConsoleRes
 // QuickChat sends a simple chat message
 func (c *Console) QuickChat(ctx context.Context, prompt string) (string, error) {
 	resp, err := c.Process(ctx, &ConsoleRequest{
-		TaskType:   TaskType(TaskPhotoSearch), // Default task
+		TaskType:   TaskPhotoSearch, // Default task
 		Capability: CapabilityChat,
 		Prompt:     prompt,
 	})

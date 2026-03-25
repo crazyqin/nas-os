@@ -583,13 +583,9 @@ func (mi *ManualInstaller) GetLatestApps() (*LatestAppsResponse, error) {
 	}
 
 	// 按评分/下载量排序（模拟）
-	trending := make([]*AppTemplate, 0)
+	trending := append([]*AppTemplate{}, templates...)
 	newApps := make([]*AppTemplate, 0)
 	updated := make([]*AppTemplate, 0)
-
-	for _, t := range templates {
-		trending = append(trending, t)
-	}
 
 	// 截取前 10
 	if len(trending) > 10 {

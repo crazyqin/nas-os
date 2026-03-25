@@ -791,7 +791,7 @@ func (m *SMARTMonitor) calculateTempScore(smartData *SMARTData) ComponentScore {
 	}
 
 	// 安全转换：温度值限制在合理范围
-	temp := int(safeUint64ToBoundedInt(smartData.Temperature.Raw, 0, 200))
+	temp := safeUint64ToBoundedInt(smartData.Temperature.Raw, 0, 200)
 	score := ComponentScore{
 		Weight: m.scoreWeights.Temperature,
 		Value:  temp,
@@ -1196,7 +1196,7 @@ func (m *SMARTMonitor) saveHistoryPoint(disk *DiskInfo) {
 
 	if disk.SmartData.Temperature != nil {
 		// 安全转换：温度值限制在合理范围
-		point.Temperature = int(safeUint64ToBoundedInt(disk.SmartData.Temperature.Raw, 0, 200))
+		point.Temperature = safeUint64ToBoundedInt(disk.SmartData.Temperature.Raw, 0, 200)
 	}
 
 	history := m.history[disk.Device]

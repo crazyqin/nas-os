@@ -16,12 +16,13 @@ import (
 
 // GoFaceDetector 使用 go-face 库实现人脸检测和识别
 type GoFaceDetector struct {
-	recognizer   interface{} // *face.Recognizer (使用 interface 避免 dlib 依赖问题)
+	// recognizer 保留为注释供将来扩展
+	// recognizer interface{} // *face.Recognizer (使用 interface 避免 dlib 依赖问题)
 	modelDir     string
 	detectorType string // "cnn" or "hog"
 	confidence   float64
-	mu           sync.RWMutex
-	initialized  bool
+	// mu sync.RWMutex // 将来需要时添加
+	initialized bool
 }
 
 // GoFaceConfig go-face 配置

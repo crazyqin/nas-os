@@ -227,7 +227,7 @@ func escapeCSVField(field string) string {
 
 // detailsToString 将Details转换为字符串
 func detailsToString(details map[string]interface{}) string {
-	if details == nil || len(details) == 0 {
+	if len(details) == 0 {
 		return ""
 	}
 
@@ -556,12 +556,7 @@ func (h *ExportHandlers) ExportWatchList(c *gin.Context) {
 		req.Type = "" // 导出所有
 	}
 
-	exportReq := WatchListExportRequest{
-		Format: req.Format,
-		Type:   req.Type,
-	}
-
-	result, err := h.watchListExporter.Export(exportReq)
+	result, err := h.watchListExporter.Export(WatchListExportRequest(req))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, "导出失败"))
 		return

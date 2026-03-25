@@ -352,7 +352,7 @@ func createBindingRequest() *STUNMessage {
 	// 计算属性长度
 	msg.Length = 0
 	for _, attr := range msg.Attributes {
-		msg.Length += 4 + uint16(attr.Length)
+		msg.Length += 4 + attr.Length
 		// 对齐到4字节边界
 		if attr.Length%4 != 0 {
 			msg.Length += 4 - (attr.Length % 4)
@@ -502,19 +502,20 @@ func parseMappedAddressValue(data []byte) (*net.UDPAddr, error) {
 	var ip net.IP
 	var port uint16
 
-	if family == 0x01 { // IPv4
+	switch family {
+	case 0x01: // IPv4
 		if len(data) < 8 {
 			return nil, ErrSTUNAttr
 		}
 		port = binary.BigEndian.Uint16(data[2:4])
 		ip = net.IP(data[4:8])
-	} else if family == 0x02 { // IPv6
+	case 0x02: // IPv6
 		if len(data) < 20 {
 			return nil, ErrSTUNAttr
 		}
 		port = binary.BigEndian.Uint16(data[2:4])
 		ip = net.IP(data[4:20])
-	} else {
+	default:
 		return nil, fmt.Errorf("%w: unknown address family %d", ErrSTUNAttr, family)
 	}
 
@@ -538,7 +539,8 @@ func parseXORMappedAddress(data []byte, transactionID []byte) (*net.UDPAddr, err
 	xorPort := binary.BigEndian.Uint16(data[2:4])
 	port = xorPort ^ uint16(STUNMagicCookie>>16)
 
-	if family == 0x01 { // IPv4
+	switch family {
+	case 0x01: // IPv4
 		if len(data) < 8 {
 			return nil, ErrSTUNAttr
 		}
@@ -546,7 +548,7 @@ func parseXORMappedAddress(data []byte, transactionID []byte) (*net.UDPAddr, err
 		xorIP := binary.BigEndian.Uint32(data[4:8])
 		ip = make(net.IP, 4)
 		binary.BigEndian.PutUint32(ip, xorIP^STUNMagicCookie)
-	} else if family == 0x02 { // IPv6
+	case 0x02: // IPv6
 		if len(data) < 20 {
 			return nil, ErrSTUNAttr
 		}

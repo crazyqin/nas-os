@@ -198,10 +198,6 @@ func (p *Pan123Provider) ListFiles(ctx context.Context, req *ListFilesRequest) (
 
 // GetFileInfo 获取123云盘文件信息
 func (p *Pan123Provider) GetFileInfo(ctx context.Context, provider ProviderType, fileID, accessToken string) (*FileInfo, error) {
-	if accessToken == "" {
-		accessToken = p.accessToken
-	}
-
 	// 通过列出文件API获取信息
 	return &FileInfo{
 		FileID:   fileID,
