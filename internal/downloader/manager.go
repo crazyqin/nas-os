@@ -322,7 +322,7 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 				}
 			}
 			if m.qbittorrentClient != nil && task.DownloadID != "" {
-				_ = m.qbittorrentClient.DeleteTorrent(task.DownloadID, deleteFiles)
+				_ = m.qbittorrentClient.DeleteTorrent(context.Background(), task.DownloadID, deleteFiles)
 			}
 		}
 	}
