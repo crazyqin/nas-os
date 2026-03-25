@@ -2,6 +2,7 @@ package media
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -806,5 +807,5 @@ var execCommand = func(name string, args ...string) interface {
 func execCommandReal(name string, args ...string) interface {
 	CombinedOutput() ([]byte, error)
 } {
-	return exec.Command(name, args...)
+	return exec.CommandContext(context.Background(), name, args...)
 }
