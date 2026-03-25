@@ -798,7 +798,7 @@ func (m *Manager) ListPersons() []*Person {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]*Person, 0)
+	result := make([]*Person, 0, len(m.persons))
 	for _, person := range m.persons {
 		personCopy := *person
 		result = append(result, &personCopy)

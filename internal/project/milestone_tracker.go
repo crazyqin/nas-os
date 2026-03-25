@@ -316,7 +316,7 @@ func (mt *MilestoneTracker) analyzeBottlenecks(milestoneID string, report *Miles
 
 	for assigneeID, tasks := range assigneeTasks {
 		if len(tasks) > 5 {
-			blockedTasks := make([]string, 0)
+			blockedTasks := make([]string, 0, len(tasks))
 			for _, t := range tasks {
 				blockedTasks = append(blockedTasks, t.ID)
 			}
@@ -338,7 +338,7 @@ func (mt *MilestoneTracker) analyzeBottlenecks(milestoneID string, report *Miles
 		}
 	}
 	if len(reviewTasks) > 3 {
-		blockedTasks := make([]string, 0)
+		blockedTasks := make([]string, 0, len(reviewTasks))
 		for _, t := range reviewTasks {
 			blockedTasks = append(blockedTasks, t.ID)
 		}

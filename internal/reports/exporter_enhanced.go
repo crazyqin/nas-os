@@ -258,7 +258,9 @@ func (e *CSVExporter) Export(report *GeneratedReport, outputPath string) error {
 	var output []byte
 	if e.encoding == "UTF-8" {
 		bom := []byte{0xEF, 0xBB, 0xBF}
-		output = append(bom, buf.Bytes()...)
+		output = make([]byte, 0, len(bom)+buf.Len())
+		output = append(output, bom...)
+		output = append(output, buf.Bytes()...)
 	} else {
 		output = buf.Bytes()
 	}

@@ -1222,7 +1222,7 @@ func (a *EnhancedCostAnalyzer) calculateAccuracyMetrics(history []CostTrendDataP
 
 // generateConfidenceIntervals 生成置信区间.
 func (a *EnhancedCostAnalyzer) generateConfidenceIntervals(forecast *CostForecast) []ConfidenceInterval {
-	intervals := make([]ConfidenceInterval, 0)
+	intervals := make([]ConfidenceInterval, 0, len(forecast.ForecastPoints))
 
 	for _, fp := range forecast.ForecastPoints {
 		// 95% 置信区间
