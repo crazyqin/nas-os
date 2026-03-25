@@ -70,7 +70,9 @@ func (se *SecretEncryption) Initialize(passphrase string) error {
 	key := pbkdf2.Key([]byte(passphrase), salt, 100000, 32, sha256.New)
 
 	// 存储密钥（盐 + 密钥）
-	data := append(salt, key...)
+	data := make([]byte, 0, 16+len(key))
+	data = append(data, salt...)
+	data = append(data, key...)
 	if err := os.MkdirAll(filepath.Dir(se.keyPath), 0700); err != nil {
 		return err
 	}
@@ -207,7 +209,9 @@ func (se *SecretEncryption) EncryptBytes(plaintext []byte) (string, error) {
 	}
 
 	ciphertext := gcm.Seal(nil, nonce, plaintext, nil)
-	result := append(nonce, ciphertext...)
+	result := make([]byte, 0, gcm.NonceSize()+len(ciphertext))
+	result = append(result, nonce...)
+	result = append(result, ciphertext...)
 
 	return base64.StdEncoding.EncodeToString(result), nil
 }

@@ -408,7 +408,7 @@ func (l *Learner) GetLearningStats() map[string]interface{} {
 	}
 
 	// 规则准确率统计
-	var ruleAccuracies []map[string]interface{}
+	ruleAccuracies := make([]map[string]interface{}, 0, len(l.ruleStats))
 	for ruleID, stats := range l.ruleStats {
 		ruleAccuracies = append(ruleAccuracies, map[string]interface{}{
 			"ruleId":   ruleID,
@@ -563,7 +563,7 @@ func (l *Learner) OptimizeRules(ctx context.Context) error {
 	defer l.mu.Unlock()
 
 	rules := l.classifier.GetRules()
-	var optimized []ClassificationRule
+	optimized := make([]ClassificationRule, 0, len(rules))
 
 	for _, rule := range rules {
 		stats, hasStats := l.ruleStats[rule.ID]

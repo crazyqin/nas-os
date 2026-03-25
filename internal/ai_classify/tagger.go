@@ -452,7 +452,7 @@ func (t *Tagger) GetCustomTags() []Tag {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 
-	var tags []Tag
+	tags := make([]Tag, 0, len(t.customTags))
 	for _, tag := range t.customTags {
 		tags = append(tags, tag)
 	}
@@ -507,7 +507,7 @@ func extractKeywordsSimple(content string) []string {
 		value int
 	}
 
-	var sorted []kv
+	sorted := make([]kv, 0, len(wordCount))
 	for k, v := range wordCount {
 		sorted = append(sorted, kv{k, v})
 	}
