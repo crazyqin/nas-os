@@ -50,13 +50,7 @@ func NewBaiduPanProvider(cfg *ProviderConfig) (*ProviderBaiduPanImpl, error) {
 	}, nil
 }
 
-// 百度网盘API响应结构
-type baiduAPIResponse struct {
-	Errno     int    `json:"errno"`
-	ErrorMsg  string `json:"errmsg,omitempty"`
-	ErrorCode int    `json:"error_code,omitempty"`
-	RequestID string `json:"request_id,omitempty"`
-}
+// baiduAPIResponse 已移除 - 使用内联结构体
 
 // refreshTokenIfNeeded 刷新访问令牌
 func (p *ProviderBaiduPanImpl) refreshTokenIfNeeded(ctx context.Context) error {
@@ -740,23 +734,4 @@ func (p *ProviderBaiduPanImpl) calculateFileMD5(file *os.File) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// getOrCreateDir 获取或创建目录
-func (p *ProviderBaiduPanImpl) getOrCreateDir(ctx context.Context, dirPath string) error {
-	if dirPath == "" || dirPath == "/" {
-		return nil
-	}
-
-	// 检查目录是否存在
-	_, err := p.Stat(ctx, dirPath)
-	if err == nil {
-		return nil // 目录已存在
-	}
-
-	// 创建父目录
-	if err := p.getOrCreateDir(ctx, filepath.Dir(dirPath)); err != nil {
-		return err
-	}
-
-	// 创建当前目录
-	return p.CreateDir(ctx, dirPath)
-}
+// getOrCreateDir 已移除 - 未使用

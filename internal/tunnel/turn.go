@@ -271,7 +271,7 @@ func (t *TURNProtocol) BindChannel(ctx context.Context, peer *net.UDPAddr) (uint
 	}
 
 	// 分配通道号 (0x4000 - 0x7FFF)
-	channel := uint16(0x4000 + t.allocation.Channel)
+	channel := 0x4000 + t.allocation.Channel
 	t.allocation.Channel++
 
 	// 创建 ChannelBind 请求

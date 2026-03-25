@@ -169,7 +169,7 @@ func (mm *MFAManager) GenerateTOTPCode(secret string, timestamp time.Time) (stri
 	}
 
 	// 计算时间步长（30 秒）
-	timeStep := int64(timestamp.Unix()) / int64(mm.config.ValidityPeriod)
+	timeStep := timestamp.Unix() / int64(mm.config.ValidityPeriod)
 
 	// 将时间步长转换为 8 字节大端序
 	var buf [8]byte

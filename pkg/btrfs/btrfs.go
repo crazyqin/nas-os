@@ -293,7 +293,7 @@ func parseUsage(output []byte) (total, used, free uint64, err error) {
 	if free == 0 && total > used {
 		free = total - used
 	}
-	return
+	return total, used, free, nil
 }
 
 // CreateVolume 创建新的 btrfs 卷

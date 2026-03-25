@@ -401,10 +401,11 @@ type EfficiencyReportGenerator struct {
 	metrics *Metrics
 
 	// 历史数据缓存
-	historyMu    sync.RWMutex
-	dailyStats   []DailyStats
-	weeklyStats  []WeeklyStats
-	monthlyStats []MonthlyStats
+	historyMu  sync.RWMutex
+	dailyStats []DailyStats
+	// weeklyStats 和 monthlyStats 保留供将来扩展
+	// weeklyStats  []WeeklyStats
+	// monthlyStats []MonthlyStats
 
 	// 成本配置
 	costConfig *CostConfig

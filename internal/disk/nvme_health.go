@@ -751,9 +751,10 @@ func (m *NVMeMonitor) generateNVMeRecommendations(info *NVMeHealthInfo, componen
 	var recommendations []string
 
 	// 温度建议
-	if components.Temperature.Status == "critical" {
+	switch components.Temperature.Status {
+	case "critical":
 		recommendations = append(recommendations, "NVMe温度严重过高，立即安装散热片或改善散热")
-	} else if components.Temperature.Status == "warning" {
+	case "warning":
 		recommendations = append(recommendations, "NVMe温度偏高，建议安装散热片")
 	}
 
@@ -767,9 +768,10 @@ func (m *NVMeMonitor) generateNVMeRecommendations(info *NVMeHealthInfo, componen
 	}
 
 	// 错误建议
-	if components.Errors.Status == "critical" {
+	switch components.Errors.Status {
+	case "critical":
 		recommendations = append(recommendations, "检测到严重错误，建议立即备份并更换设备")
-	} else if components.Errors.Status == "warning" {
+	case "warning":
 		recommendations = append(recommendations, "存在错误日志，建议运行完整诊断测试")
 	}
 

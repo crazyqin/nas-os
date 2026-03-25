@@ -39,7 +39,8 @@ type Config struct {
 type PierceClient struct {
 	config   *Config
 	conn     net.Conn
-	peerAddr *net.UDPAddr
+	// peerAddr 保留供将来P2P直连使用
+	// peerAddr *net.UDPAddr
 	status   ConnectionStatus
 	mu       sync.RWMutex
 	ctx      context.Context

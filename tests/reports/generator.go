@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// TestReport 测试报告
+// TestReport 测试报告.
 type TestReport struct {
 	Name        string         `json:"name"`
 	Version     string         `json:"version"`
@@ -23,7 +23,7 @@ type TestReport struct {
 	Environment Environment    `json:"environment"`
 }
 
-// TestSummary 测试摘要
+// TestSummary 测试摘要.
 type TestSummary struct {
 	Total    int     `json:"total"`
 	Passed   int     `json:"passed"`
@@ -32,7 +32,7 @@ type TestSummary struct {
 	Coverage float64 `json:"coverage"`
 }
 
-// ModuleReport 模块报告
+// ModuleReport 模块报告.
 type ModuleReport struct {
 	Name        string        `json:"name"`
 	Description string        `json:"description"`
@@ -43,7 +43,7 @@ type ModuleReport struct {
 	Skipped     int           `json:"skipped"`
 }
 
-// TestResult 测试结果
+// TestResult 测试结果.
 type TestResult struct {
 	Name     string        `json:"name"`
 	Status   string        `json:"status"` // passed, failed, skipped
@@ -52,7 +52,7 @@ type TestResult struct {
 	Error    string        `json:"error,omitempty"`
 }
 
-// Environment 环境信息
+// Environment 环境信息.
 type Environment struct {
 	OS        string `json:"os"`
 	Arch      string `json:"arch"`
@@ -60,19 +60,19 @@ type Environment struct {
 	Hostname  string `json:"hostname"`
 }
 
-// ReportGenerator 报告生成器
+// ReportGenerator 报告生成器.
 type ReportGenerator struct {
 	outputDir string
 }
 
-// NewReportGenerator 创建报告生成器
+// NewReportGenerator 创建报告生成器.
 func NewReportGenerator(outputDir string) *ReportGenerator {
 	return &ReportGenerator{
 		outputDir: outputDir,
 	}
 }
 
-// Generate 生成测试报告
+// Generate 生成测试报告.
 func (g *ReportGenerator) Generate(report *TestReport) error {
 	// 确保输出目录存在
 	if err := os.MkdirAll(g.outputDir, 0750); err != nil {
@@ -97,7 +97,7 @@ func (g *ReportGenerator) Generate(report *TestReport) error {
 	return nil
 }
 
-// generateJSON 生成 JSON 报告
+// generateJSON 生成 JSON 报告.
 func (g *ReportGenerator) generateJSON(report *TestReport) error {
 	path := filepath.Join(g.outputDir, "test-report.json")
 	data, err := json.MarshalIndent(report, "", "  ")
@@ -107,7 +107,7 @@ func (g *ReportGenerator) generateJSON(report *TestReport) error {
 	return os.WriteFile(path, data, 0600)
 }
 
-// generateMarkdown 生成 Markdown 报告
+// generateMarkdown 生成 Markdown 报告.
 func (g *ReportGenerator) generateMarkdown(report *TestReport) error {
 	path := filepath.Join(g.outputDir, "test-report.md")
 
