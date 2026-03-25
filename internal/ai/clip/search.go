@@ -356,12 +356,12 @@ func (s *TextSearchServiceImpl) updateStats() {
 
 // EmbeddingCache caches text embeddings
 type EmbeddingCache struct {
-	textCache map[string]*cacheEntry
+	textCache  map[string]*cacheEntry
 	imageCache map[string]*cacheEntry
-	maxSize   int
-	ttl       time.Duration
-	stats     cacheStats
-	mu        sync.RWMutex
+	maxSize    int
+	ttl        time.Duration
+	stats      cacheStats
+	mu         sync.RWMutex
 }
 
 type cacheEntry struct {
@@ -370,9 +370,9 @@ type cacheEntry struct {
 }
 
 type cacheStats struct {
-	Size        int
-	Hits        int64
-	Misses      int64
+	Size         int
+	Hits         int64
+	Misses       int64
 	TotalQueries int64
 }
 
@@ -465,8 +465,8 @@ func (c *EmbeddingCache) Clear() {
 
 // GetStats returns cache statistics
 func (c *EmbeddingCache) GetStats() struct {
-	Size        int
-	HitRate     float64
+	Size         int
+	HitRate      float64
 	TotalQueries int64
 } {
 	c.mu.RLock()
@@ -478,12 +478,12 @@ func (c *EmbeddingCache) GetStats() struct {
 	}
 
 	return struct {
-		Size        int
-		HitRate     float64
+		Size         int
+		HitRate      float64
 		TotalQueries int64
 	}{
-		Size:        c.stats.Size,
-		HitRate:     hitRate,
+		Size:         c.stats.Size,
+		HitRate:      hitRate,
 		TotalQueries: c.stats.TotalQueries,
 	}
 }

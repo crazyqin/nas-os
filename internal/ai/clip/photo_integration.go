@@ -12,15 +12,15 @@ import (
 
 // PhotoSearchIndexer integrates CLIP with the photos module
 type PhotoSearchIndexer struct {
-	service   TextSearchService
-	loader    photos.ImageLoader
-	storage   photos.Storage
-	config    *IndexerConfig
-	queue     chan *indexJob
-	workers   int
-	running   bool
-	stats     IndexerStats
-	mu        sync.RWMutex
+	service TextSearchService
+	loader  photos.ImageLoader
+	storage photos.Storage
+	config  *IndexerConfig
+	queue   chan *indexJob
+	workers int
+	running bool
+	stats   IndexerStats
+	mu      sync.RWMutex
 }
 
 // IndexerConfig holds indexer configuration
@@ -470,8 +470,8 @@ type HybridSearchQuery struct {
 
 // TagIndex provides tag-based photo lookup
 type TagIndex struct {
-	tags   map[string]map[string]bool // tag -> photo IDs
-	mu     sync.RWMutex
+	tags map[string]map[string]bool // tag -> photo IDs
+	mu   sync.RWMutex
 }
 
 // NewTagIndex creates a new tag index

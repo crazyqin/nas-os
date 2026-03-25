@@ -38,6 +38,7 @@ import (
 	"nas-os/internal/system"
 	"nas-os/internal/tags"
 	"nas-os/internal/trash"
+	"nas-os/internal/tunnel"
 	"nas-os/internal/users"
 	"nas-os/internal/versioning"
 	"nas-os/internal/vm"
@@ -98,6 +99,9 @@ type Server struct {
 	lockMgr       *lock.Manager
 	searchEngine  *search.Engine
 	searchSvc     *search.GlobalSearchService
+	tunnelMgr     *tunnel.Manager
+	tunnelService *tunnel.TunnelService
+	frpManager    *tunnel.FRPManager
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -438,6 +442,34 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		lockMgr:       lockMgr,
 		searchEngine:  searchEngine,
 		searchSvc:     searchSvc,
+		tunnelMgr: func() *tunnel.Manager {
+			cfg := tunnel.Config{
+				ServerAddr:    "tunnel.nas-os.local",
+				ServerPort:    7000,
+				DeviceID:      "nas-device",
+				DeviceName:    "NAS-OS",
+				STUNServers:   []string{"stun:stun.l.google.com:19302"},
+				HeartbeatInt:  30,
+				ReconnectInt:  5,
+				MaxReconnect:  10,
+				Timeout:       30,
+			}
+			mgr, _ := tunnel.NewManager(cfg, logger)
+			return mgr
+		}(),
+		tunnelService: nil, // 在服务启动时初始化
+		frpManager: func() *tunnel.FRPManager {
+			cfg := &tunnel.FRPConfig{
+				Enabled:       false, // 默认关闭，用户配置后启用
+				ServerAddr:    "frp.nas-os.local",
+				ServerPort:    7000,
+				DeviceID:      "nas-device",
+				DeviceName:    "NAS-OS",
+				AutoReconnect: true,
+				LogLevel:      "info",
+			}
+			return tunnel.NewFRPManager(cfg, logger)
+		}(),
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -755,6 +787,12 @@ func (s *Server) setupRoutes() {
 			apiSearchHandler.RegisterRoutes(api)
 		}
 
+		// ========== 内网穿透服务 ==========
+		if s.frpManager != nil || s.tunnelMgr != nil {
+			tunnelHandler := tunnel.NewWebUIHandler(s.frpManager, s.tunnelService, s.logger)
+			tunnelHandler.RegisterRoutes(api)
+		}
+
 		// ========== 媒体中心 ==========
 		// if s.mediaMgr != nil {
 		// 	media.NewHandlers(s.mediaMgr).RegisterRoutes(api)
@@ -799,6 +837,8 @@ func (s *Server) setupRoutes() {
 	s.engine.StaticFile("/office", "/usr/share/nas-os/webui/pages/office.html")
 	s.engine.StaticFile("/notify", "/usr/share/nas-os/webui/pages/notify.html")
 	s.engine.StaticFile("/optimizer", "/usr/share/nas-os/webui/pages/optimizer.html")
+	// v2.275.0 内网穿透页面
+	s.engine.StaticFile("/tunnel", "/usr/share/nas-os/webui/pages/tunnel.html")
 }
 
 // Start 启动服务器

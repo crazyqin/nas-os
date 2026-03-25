@@ -11,11 +11,11 @@ import (
 // Config holds CLIP service configuration
 type Config struct {
 	// Model settings
-	ModelName    string `json:"model_name"`     // "clip-vit-base-32", "clip-vit-large-14", etc.
-	ModelPath    string `json:"model_path"`     // path to model weights
-	ImageSize    int    `json:"image_size"`     // input image size (224 or 336)
-	EmbeddingDim int    `json:"embedding_dim"`  // embedding dimension (512 or 768)
-	UseGPU       bool   `json:"use_gpu"`        // use GPU acceleration
+	ModelName    string `json:"model_name"`    // "clip-vit-base-32", "clip-vit-large-14", etc.
+	ModelPath    string `json:"model_path"`    // path to model weights
+	ImageSize    int    `json:"image_size"`    // input image size (224 or 336)
+	EmbeddingDim int    `json:"embedding_dim"` // embedding dimension (512 or 768)
+	UseGPU       bool   `json:"use_gpu"`       // use GPU acceleration
 
 	// Index settings
 	IndexType     string `json:"index_type"`     // "flat", "ivf", "hnsw"
@@ -23,16 +23,16 @@ type Config struct {
 	IndexCapacity int    `json:"index_capacity"` // max vectors in index
 
 	// Search settings
-	DefaultTopK    int     `json:"default_top_k"`    // default number of results
-	MinSimilarity  float64 `json:"min_similarity"`   // minimum similarity threshold
-	BatchSize      int     `json:"batch_size"`       // batch size for processing
-	MaxTextLength  int     `json:"max_text_length"`  // max text query length
-	CacheSize      int     `json:"cache_size"`       // text embedding cache size
-	CacheTTL       int     `json:"cache_ttl"`        // cache TTL in seconds
+	DefaultTopK   int     `json:"default_top_k"`   // default number of results
+	MinSimilarity float64 `json:"min_similarity"`  // minimum similarity threshold
+	BatchSize     int     `json:"batch_size"`      // batch size for processing
+	MaxTextLength int     `json:"max_text_length"` // max text query length
+	CacheSize     int     `json:"cache_size"`      // text embedding cache size
+	CacheTTL      int     `json:"cache_ttl"`       // cache TTL in seconds
 
 	// Performance settings
-	NumWorkers     int `json:"num_workers"`     // worker goroutines for indexing
-	QueueSize      int `json:"queue_size"`      // indexing queue size
+	NumWorkers     int  `json:"num_workers"`     // worker goroutines for indexing
+	QueueSize      int  `json:"queue_size"`      // indexing queue size
 	EnablePrefetch bool `json:"enable_prefetch"` // prefetch embeddings
 }
 
@@ -71,8 +71,8 @@ type ImageEmbedding struct {
 	PhotoID     string    `json:"photo_id"`
 	Path        string    `json:"path"`
 	Embedding   Embedding `json:"embedding"`
-	Tags        []string  `json:"tags,omitempty"`        // extracted tags
-	Caption     string    `json:"caption,omitempty"`     // auto-generated caption
+	Tags        []string  `json:"tags,omitempty"`    // extracted tags
+	Caption     string    `json:"caption,omitempty"` // auto-generated caption
 	IndexedAt   time.Time `json:"indexed_at"`
 	ProcessedAt time.Time `json:"processed_at"`
 }
@@ -88,9 +88,9 @@ type TextEmbedding struct {
 type SearchResult struct {
 	PhotoID    string    `json:"photo_id"`
 	Path       string    `json:"path"`
-	Score      float64   `json:"score"`       // similarity score 0-1
-	Rank       int       `json:"rank"`        // result rank
-	MatchType  MatchType `json:"match_type"`  // how the match was found
+	Score      float64   `json:"score"`                // similarity score 0-1
+	Rank       int       `json:"rank"`                 // result rank
+	MatchType  MatchType `json:"match_type"`           // how the match was found
 	Highlights []string  `json:"highlights,omitempty"` // matched tags/captions
 }
 
@@ -106,13 +106,13 @@ const (
 
 // SearchRequest represents a search request
 type SearchRequest struct {
-	Query       string    `json:"query"`
-	TopK        int       `json:"top_k,omitempty"`
-	MinScore    float64   `json:"min_score,omitempty"`
-	Filters     *Filters  `json:"filters,omitempty"`
-	SortBy      string    `json:"sort_by,omitempty"`   // "relevance", "date", "quality"
-	SortDesc    bool      `json:"sort_desc"`
-	IncludeTags bool      `json:"include_tags"`
+	Query       string   `json:"query"`
+	TopK        int      `json:"top_k,omitempty"`
+	MinScore    float64  `json:"min_score,omitempty"`
+	Filters     *Filters `json:"filters,omitempty"`
+	SortBy      string   `json:"sort_by,omitempty"` // "relevance", "date", "quality"
+	SortDesc    bool     `json:"sort_desc"`
+	IncludeTags bool     `json:"include_tags"`
 }
 
 // Filters for search refinement
@@ -132,17 +132,17 @@ type SearchResponse struct {
 	Results     []SearchResult `json:"results"`
 	Total       int            `json:"total"`
 	QueryTime   int64          `json:"query_time_ms"`
-	Embedding   Embedding      `json:"embedding,omitempty"` // query embedding
+	Embedding   Embedding      `json:"embedding,omitempty"`   // query embedding
 	Suggestions []string       `json:"suggestions,omitempty"` // query suggestions
 }
 
 // IndexRequest represents an indexing request
 type IndexRequest struct {
-	PhotoID   string   `json:"photo_id"`
-	Path      string   `json:"path"`
-	Tags      []string `json:"tags,omitempty"`
-	Caption   string   `json:"caption,omitempty"`
-	Priority  int      `json:"priority,omitempty"` // higher = more urgent
+	PhotoID  string   `json:"photo_id"`
+	Path     string   `json:"path"`
+	Tags     []string `json:"tags,omitempty"`
+	Caption  string   `json:"caption,omitempty"`
+	Priority int      `json:"priority,omitempty"` // higher = more urgent
 }
 
 // IndexResponse represents indexing result
@@ -160,42 +160,42 @@ type BatchIndexRequest struct {
 
 // BatchIndexResponse for batch indexing results
 type BatchIndexResponse struct {
-	Total       int            `json:"total"`
-	Success     int            `json:"success"`
-	Failed      int            `json:"failed"`
+	Total       int             `json:"total"`
+	Success     int             `json:"success"`
+	Failed      int             `json:"failed"`
 	Results     []IndexResponse `json:"results"`
-	ProcessTime time.Duration  `json:"process_time"`
+	ProcessTime time.Duration   `json:"process_time"`
 }
 
 // Stats holds service statistics
 type Stats struct {
-	TotalImages    int64         `json:"total_images"`
-	TotalIndexed   int64         `json:"total_indexed"`
-	IndexSize      int64         `json:"index_size_bytes"`
-	CacheSize      int           `json:"cache_size"`
-	CacheHitRate   float64       `json:"cache_hit_rate"`
-	AvgSearchTime  time.Duration `json:"avg_search_time_ms"`
-	TotalSearches  int64         `json:"total_searches"`
-	ModelInfo      ModelInfo     `json:"model_info"`
+	TotalImages   int64         `json:"total_images"`
+	TotalIndexed  int64         `json:"total_indexed"`
+	IndexSize     int64         `json:"index_size_bytes"`
+	CacheSize     int           `json:"cache_size"`
+	CacheHitRate  float64       `json:"cache_hit_rate"`
+	AvgSearchTime time.Duration `json:"avg_search_time_ms"`
+	TotalSearches int64         `json:"total_searches"`
+	ModelInfo     ModelInfo     `json:"model_info"`
 }
 
 // ModelInfo contains model information
 type ModelInfo struct {
-	Name        string `json:"name"`
-	Version     string `json:"version"`
-	ImageSize   int    `json:"image_size"`
-	EmbeddingDim int   `json:"embedding_dim"`
-	GPUEnabled  bool   `json:"gpu_enabled"`
+	Name         string `json:"name"`
+	Version      string `json:"version"`
+	ImageSize    int    `json:"image_size"`
+	EmbeddingDim int    `json:"embedding_dim"`
+	GPUEnabled   bool   `json:"gpu_enabled"`
 }
 
 // IndexStats holds index statistics
 type IndexStats struct {
-	TotalVectors  int64     `json:"total_vectors"`
-	IndexSize     int64     `json:"index_size_bytes"`
-	LastUpdated   time.Time `json:"last_updated"`
-	IndexType     string    `json:"index_type"`
-	Capacity      int       `json:"capacity"`
-	Utilization   float64   `json:"utilization"` // % of capacity used
+	TotalVectors int64     `json:"total_vectors"`
+	IndexSize    int64     `json:"index_size_bytes"`
+	LastUpdated  time.Time `json:"last_updated"`
+	IndexType    string    `json:"index_type"`
+	Capacity     int       `json:"capacity"`
+	Utilization  float64   `json:"utilization"` // % of capacity used
 }
 
 // CLIPModel defines the interface for CLIP models
@@ -278,13 +278,13 @@ type TextSearchService interface {
 
 // Errors
 var (
-	ErrModelNotLoaded    = &CLIPError{Code: "model_not_loaded", Message: "CLIP model not loaded"}
-	ErrIndexFull         = &CLIPError{Code: "index_full", Message: "Index capacity exceeded"}
-	ErrInvalidInput      = &CLIPError{Code: "invalid_input", Message: "Invalid input"}
-	ErrImageNotFound     = &CLIPError{Code: "image_not_found", Message: "Image file not found"}
-	ErrEncodingFailed    = &CLIPError{Code: "encoding_failed", Message: "Failed to encode input"}
-	ErrSearchFailed      = &CLIPError{Code: "search_failed", Message: "Search failed"}
-	ErrIndexCorrupted    = &CLIPError{Code: "index_corrupted", Message: "Index corrupted"}
+	ErrModelNotLoaded = &CLIPError{Code: "model_not_loaded", Message: "CLIP model not loaded"}
+	ErrIndexFull      = &CLIPError{Code: "index_full", Message: "Index capacity exceeded"}
+	ErrInvalidInput   = &CLIPError{Code: "invalid_input", Message: "Invalid input"}
+	ErrImageNotFound  = &CLIPError{Code: "image_not_found", Message: "Image file not found"}
+	ErrEncodingFailed = &CLIPError{Code: "encoding_failed", Message: "Failed to encode input"}
+	ErrSearchFailed   = &CLIPError{Code: "search_failed", Message: "Search failed"}
+	ErrIndexCorrupted = &CLIPError{Code: "index_corrupted", Message: "Index corrupted"}
 )
 
 // CLIPError represents a CLIP service error

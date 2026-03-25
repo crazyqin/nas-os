@@ -15,13 +15,13 @@ import (
 
 // FlatIndex implements VectorIndex using flat (brute-force) search
 type FlatIndex struct {
-	vectors   map[string]*ImageEmbedding
-	metadata  map[string]map[string]any
-	mu        sync.RWMutex
-	config    *Config
-	stats     IndexStats
-	dirty     bool
-	savePath  string
+	vectors  map[string]*ImageEmbedding
+	metadata map[string]map[string]any
+	mu       sync.RWMutex
+	config   *Config
+	stats    IndexStats
+	dirty    bool
+	savePath string
 }
 
 // NewFlatIndex creates a new flat index
@@ -280,14 +280,14 @@ type indexData struct {
 
 // HNSWIndex implements approximate nearest neighbor search
 type HNSWIndex struct {
-	config      *Config
-	nodes       map[string]*HNSWNode
-	levels      [][]string // node IDs at each level
-	maxLevel    int
-	ef          int     // search parameter
-	ml          float64 // level multiplier
-	mu          sync.RWMutex
-	stats       IndexStats
+	config   *Config
+	nodes    map[string]*HNSWNode
+	levels   [][]string // node IDs at each level
+	maxLevel int
+	ef       int     // search parameter
+	ml       float64 // level multiplier
+	mu       sync.RWMutex
+	stats    IndexStats
 }
 
 // HNSWNode represents a node in the HNSW graph

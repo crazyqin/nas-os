@@ -1,107 +1,64 @@
 {
   "version": "v2.274.0",
   "nextVersion": "v2.275.0",
-  "round": 48,
+  "round": 49,
   "date": "2026-03-25",
-  "timestamp": "2026-03-25T07:31:00+08:00",
-  "status": "in_progress",
+  "timestamp": "2026-03-25T08:15:00+08:00",
+  "status": "actions_running",
   "actions": {
-    "ci-cd": "completed",
+    "ci-cd": "in_progress",
     "docker-publish": "in_progress",
-    "security-scan": "completed"
+    "security-scan": "in_progress",
+    "compatibility-check": "in_progress"
   },
   "ministries": {
     "吏部": {
       "task": "v2.275.0版本规划与发布管理",
-      "status": "pending",
+      "status": "completed",
       "priority": "P0",
-      "subtasks": ["版本号更新", "CHANGELOG更新", "发布协调"]
+      "result": "VERSION更新至v2.275.0，CHANGELOG已更新，发布说明已准备"
     },
     "兵部": {
       "task": "网盘直链播放功能 - 对标飞牛v1.1.4",
-      "status": "pending",
+      "status": "completed",
       "priority": "P0",
-      "subtasks": ["百度网盘直链", "123云盘直链", "阿里云盘直链优化"]
+      "result": "已实现百度网盘、123云盘、阿里云盘Provider，详见internal/directplay/"
     },
     "刑部": {
       "task": "审计日志增强（参考TrueNAS Watch/Ignore List）",
-      "status": "pending",
+      "status": "completed",
       "priority": "P0",
-      "subtasks": ["Watch List实现", "Ignore List实现", "审计日志导出CSV/JSON"]
+      "result": "Watch/Ignore List已实现，支持JSON/CSV/YAML/XML导出，详见work-report-xingbu.md"
     },
     "工部": {
       "task": "内网穿透服务（frp集成）- 对标FN Connect",
-      "status": "pending",
+      "status": "completed",
       "priority": "P0",
-      "subtasks": ["frp客户端实现", "WebUI配置界面", "API接口"]
+      "result": "frp客户端集成完成，WebUI/API已实现，P2P/STUN/TURN支持，详见work-report-gongbu.md"
     },
     "户部": {
-      "task": "成本优化 - RAIDZ扩展加速调研",
-      "status": "pending",
+      "task": "RAIDZ扩展加速调研",
+      "status": "completed",
       "priority": "P1",
-      "result": "TrueNAS实现5倍加速，评估实现方案"
+      "result": "完成TrueNAS 5X加速技术分析，OpenZFS 2.3升级方案已制定，详见memory/hubu-report-raidz-expansion.md"
     },
     "礼部": {
       "task": "竞品分析更新（2026-03-25最新）",
       "status": "completed",
       "priority": "P1",
-      "result": "已完成飞牛fnOS 1.1.4、DSM 7.3、TrueNAS Fangtooth 25.04最新分析，详见memory/competitor-analysis-2026-03-25.md"
+      "result": "已完成飞牛fnOS 1.1.4、DSM 7.3、TrueNAS Fangtooth 25.04最新分析"
     }
   },
-  "competitorAnalysis": {
-    "飞牛fnOS v1.1.4 (2025-12)": {
-      "newFeatures": [
-        "百度网盘、阿里云盘、123云盘直链播放",
-        "存储容量详情可视化",
-        "Nvidia 50系列驱动支持",
-        "团队文件外链分享",
-        "DDNS支持中文域名",
-        "应用依赖自动安装",
-        "手动安装应用功能"
-      ],
-      "toLearn": [
-        "网盘直链播放 (P0)",
-        "手动安装应用功能 (P1)",
-        "团队文件外链分享 (P1)",
-        "DDNS中文域名 (P1)"
-      ]
-    },
-    "群晖DSM 7.3 (2025-10)": {
-      "newFeatures": [
-        "Synology Tiering冷热分层",
-        "AI Console数据脱敏",
-        "Drive共享标签系统",
-        "文件请求功能",
-        "KEV/EPSS/LEV漏洞评估",
-        "第三方硬盘创建存储池"
-      ],
-      "toLearn": [
-        "共享标签系统 (P1)",
-        "文件请求功能 (P2)"
-      ]
-    },
-    "TrueNAS Fangtooth 25.04 (2025-04)": {
-      "newFeatures": [
-        "CORE/SCALE统一版本",
-        "OpenZFS 2.3 Fast Dedup",
-        "RAIDZ扩展加速5X",
-        "NFS over RDMA (50%性能提升)",
-        "iSCSI Block Cloning (10X加速)",
-        "LXC容器支持",
-        "Versioned API"
-      ],
-      "toLearn": [
-        "RAIDZ扩展加速 (P1)",
-        "NFS over RDMA (P1)",
-        "Versioned API (P1)",
-        "LXC容器支持 (P2)"
-      ]
-    }
-  },
+  "v275_features": [
+    "网盘直链播放 - 百度/123/阿里云盘 (兵部)",
+    "审计日志Watch/Ignore List (刑部)",
+    "内网穿透frp集成 (工部)",
+    "RAIDZ扩展加速技术调研 (户部)"
+  ],
   "nextPriorities": [
-    "P0: 网盘直链播放功能（兵部）",
-    "P0: 内网穿透frp集成（工部）",
-    "P0: 审计日志Watch/Ignore List（刑部）",
-    "P1: RAIDZ扩展加速评估（户部）"
+    "等待CI/CD通过后发布v2.275.0",
+    "P1: OpenZFS 2.3升级评估",
+    "P1: 共享标签系统",
+    "P2: 文件请求功能"
   ]
 }

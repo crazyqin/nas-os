@@ -206,6 +206,15 @@ linters:
         linters:
           - errcheck
         text: "src.Close|dst.Close|os.Remove|ProcessQueue"
+      # internal/directplay: 直链播放模块允许忽略fmt.Sscanf错误
+      - path: internal/directplay/
+        linters:
+          - errcheck
+        text: "fmt.Sscanf"
+      # internal/ai: AI模块注释风格放宽
+      - path: internal/ai/
+        linters:
+          - godot
 
 formatters:
   enable:
