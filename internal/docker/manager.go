@@ -714,7 +714,7 @@ func (m *Manager) StreamContainerLogs(id string, opts LogOptions) (<-chan string
 
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, fmt.Errorf("创建日志流失败: %w", err)

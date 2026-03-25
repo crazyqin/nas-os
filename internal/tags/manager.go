@@ -390,7 +390,7 @@ func (m *Manager) AddTagsToFile(filePath string, tagIDs []string) error {
 		}
 
 		// 添加关联（使用 INSERT OR IGNORE 避免重复）
-		_, err = m.db.ExecContext(context.Background(), 
+		_, err = m.db.ExecContext(context.Background(),
 			"INSERT OR IGNORE INTO file_tags (file_path, tag_id, added_at) VALUES (?, ?, ?)",
 			filePath, tagID, now,
 		)
@@ -415,7 +415,7 @@ func (m *Manager) RemoveTagsFromFile(filePath string, tagIDs []string) error {
 	defer m.mu.Unlock()
 
 	for _, tagID := range tagIDs {
-		_, err := m.db.ExecContext(context.Background(), 
+		_, err := m.db.ExecContext(context.Background(),
 			"DELETE FROM file_tags WHERE file_path = ? AND tag_id = ?",
 			filePath, tagID,
 		)
@@ -464,7 +464,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 			return err
 		}
 
-		_, err = tx.ExecContext(context.Background(), 
+		_, err = tx.ExecContext(context.Background(),
 			"INSERT INTO file_tags (file_path, tag_id, added_at) VALUES (?, ?, ?)",
 			filePath, tagID, now,
 		)
@@ -669,7 +669,7 @@ func (m *Manager) BatchAddTagsToFile(filePaths []string, tagIDs []string) error 
 
 	for _, filePath := range filePaths {
 		for _, tagID := range tagIDs {
-			_, err := tx.ExecContext(context.Background(), 
+			_, err := tx.ExecContext(context.Background(),
 				"INSERT OR IGNORE INTO file_tags (file_path, tag_id, added_at) VALUES (?, ?, ?)",
 				filePath, tagID, now,
 			)

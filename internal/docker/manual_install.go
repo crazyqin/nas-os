@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -230,7 +231,7 @@ func (mi *ManualInstaller) installFromCompose(req *ManualInstallRequest) (*Manua
 	}
 
 	// 启动应用
-	cmd := exec.Command("docker-compose", "-f", composePath, "up", "-d")
+	cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", composePath, "up", "-d")
 	cmd.Dir = appDir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -603,7 +604,7 @@ func (mi *ManualInstaller) GetLatestApps() (*LatestAppsResponse, error) {
 // Helper functions
 
 func fetchURL(url string) (string, error) {
-	cmd := exec.Command("curl", "-sL", url)
+	cmd := exec.CommandContext(context.Background(), "curl", "-sL", url)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", fmt.Errorf("请求失败: %w", err)
