@@ -708,7 +708,7 @@ func (api *DashboardAPI) GetNetworkHistory(c *gin.Context) {
 func (api *DashboardAPI) GetNetworkInterfaces(c *gin.Context) {
 	stats, _ := api.manager.GetNetworkStats()
 
-	interfaces := make([]map[string]interface{}, 0)
+	interfaces := make([]map[string]interface{}, 0, len(stats))
 	for _, s := range stats {
 		interfaces = append(interfaces, map[string]interface{}{
 			"name":      s.Interface,
