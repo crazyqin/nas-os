@@ -223,7 +223,8 @@ func (nm *NetworkManager) RemoveNetwork(id string) error {
 
 // ConnectNetwork 连接容器到网络.
 func (nm *NetworkManager) ConnectNetwork(networkID, containerID string, aliases []string) error {
-	args := []string{"network", "connect"}
+	args := make([]string, 0, len(aliases)*2+4)
+	args = append(args, "network", "connect")
 
 	// 网络别名
 	for _, alias := range aliases {

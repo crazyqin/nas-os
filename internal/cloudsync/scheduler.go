@@ -122,7 +122,7 @@ func (s *Scheduler) ListTasks() []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var list []string
+	list := make([]string, 0, len(s.tasks))
 	for taskID := range s.tasks {
 		list = append(list, taskID)
 	}

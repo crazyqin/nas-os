@@ -122,7 +122,7 @@ func (m *Manager) ListProviders() []*ProviderConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var list []*ProviderConfig
+	list := make([]*ProviderConfig, 0, len(m.providers))
 	for _, config := range m.providers {
 		list = append(list, config)
 	}
@@ -374,7 +374,7 @@ func (m *Manager) ListSyncTasks() []*SyncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var list []*SyncTask
+	list := make([]*SyncTask, 0, len(m.tasks))
 	for _, task := range m.tasks {
 		list = append(list, task)
 	}

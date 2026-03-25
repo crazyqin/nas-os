@@ -197,13 +197,14 @@ func (c *Checker) Check(ctx context.Context) *HealthReport {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
-	checkFuncs := []func(context.Context) CheckResult{
+	checkFuncs := make([]func(context.Context) CheckResult, 0, len(c.config.Services)+5)
+	checkFuncs = append(checkFuncs,
 		c.checkCPU,
 		c.checkMemory,
 		c.checkDisk,
 		c.checkLoad,
 		c.checkProcess,
-	}
+	)
 
 	// 添加服务检查
 	for _, svc := range c.config.Services {
@@ -266,7 +267,7 @@ func (c *Checker) Check(ctx context.Context) *HealthReport {
 func (c *Checker) QuickCheck(ctx context.Context) *HealthReport {
 	start := time.Now()
 
-	var checks []CheckResult
+	checks := make([]CheckResult, 0, 3)
 
 	// 只检查关键项
 	checks = append(checks, c.checkProcess(ctx))

@@ -118,7 +118,7 @@ func (vm *VersionManager) loadNotifications() error {
 
 // saveNotifications 保存通知数据.
 func (vm *VersionManager) saveNotifications() error {
-	var notifications []*UpdateNotification
+	notifications := make([]*UpdateNotification, 0, len(vm.notifications))
 	for _, n := range vm.notifications {
 		notifications = append(notifications, n)
 	}
