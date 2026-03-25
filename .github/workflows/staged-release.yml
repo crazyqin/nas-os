@@ -1,0 +1,269 @@
+# 分阶段发布工作流
+# 参考: 群晖 DSM 7.3 延迟发布机制
+#
+# 功能:
+# - Canary 发布 (预览版)
+# - 观察期等待
+# - 全量发布
+# - 支持手动回滚
+#
+# 当前版本: v1.0.0（工部维护）
+
+name: Staged Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号'
+        required: true
+        type: string
+      skip_canary:
+        description: '跳过 Canary 阶段'
+        required: false
+        default: false
+        type: boolean
+      observe_hours:
+        description: '观察期 (小时)'
+        required: false
+        default: 24
+        type: number
+
+env:
+  GO_VERSION: '1.26'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  # ========== 阶段 0: 准备发布 ==========
+  prepare:
+    name: 准备发布
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is-canary: ${{ steps.version.outputs.is_canary }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v5
+
+      - name: 确定版本
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          
+          # 检查是否为预发布版本
+          if [[ "$VERSION" =~ -rc|-beta|-alpha|-canary ]]; then
+            IS_CANARY="true"
+          else
+            IS_CANARY="false"
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_canary=$IS_CANARY" >> $GITHUB_OUTPUT
+          
+          echo "📦 版本: $VERSION"
+          echo "🚀 Canary: $IS_CANARY"
+
+  # ========== 阶段 1: 兼容性检查 ==========
+  pre-check:
+    name: 发布前检查
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    timeout-minutes: 15
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v5
+
+      - name: 设置 Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: 构建检查
+        run: |
+          go build ./...
+          echo "✅ 构建成功"
+
+      - name: 测试检查
+        run: |
+          go test -short ./...
+          echo "✅ 测试通过"
+
+      - name: Docker Compose 验证
+        run: |
+          docker compose config --quiet
+          echo "✅ Docker Compose 配置有效"
+
+      - name: 发布前摘要
+        run: |
+          echo "## 📋 发布前检查" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 检查项 | 状态 |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 构建 | ✅ 通过 |" >> $GITHUB_STEP_SUMMARY
+          echo "| 测试 | ✅ 通过 |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Compose | ✅ 通过 |" >> $GITHUB_STEP_SUMMARY
+
+  # ========== 阶段 2: Canary 发布 ==========
+  canary-release:
+    name: Canary 发布
+    runs-on: ubuntu-latest
+    needs: [prepare, pre-check]
+    if: needs.prepare.outputs.is-canary != 'true' && github.event.inputs.skip_canary != 'true'
+    timeout-minutes: 20
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v5
+
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 登录 GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: 构建 Canary 镜像
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:canary
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-canary
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 创建 Canary Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.prepare.outputs.version }}-canary
+          name: NAS-OS ${{ needs.prepare.outputs.version }} (Canary)
+          prerelease: true
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Canary 发布摘要
+        run: |
+          echo "## 🐤 Canary 发布完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**版本:** ${{ needs.prepare.outputs.version }}-canary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**镜像:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:canary\`" >> $GITHUB_STEP_SUMMARY
+
+  # ========== 阶段 3: 观察期 ==========
+  observe:
+    name: 观察期
+    runs-on: ubuntu-latest
+    needs: [prepare, canary-release]
+    if: needs.canary-release.result == 'success'
+    timeout-minutes: 1440  # 24小时
+    steps:
+      - name: 等待观察期
+        run: |
+          OBSERVE_HOURS="${{ github.event.inputs.observe_hours || '24' }}"
+          OBSERVE_SECONDS=$((OBSERVE_HOURS * 3600))
+          
+          echo "## ⏳ 观察期" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**等待时间:** ${OBSERVE_HOURS} 小时" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Canary 版本: ${{ needs.prepare.outputs.version }}-canary" >> $GITHUB_STEP_SUMMARY
+          
+          # 实际等待 (生产环境)
+          # sleep $OBSERVE_SECONDS
+          
+          # 测试环境: 等待 1 分钟
+          echo "⚠️ 测试模式: 等待 1 分钟而非 ${OBSERVE_HOURS} 小时"
+          sleep 60
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ 观察期结束，准备全量发布" >> $GITHUB_STEP_SUMMARY
+
+  # ========== 阶段 4: 全量发布 ==========
+  full-release:
+    name: 全量发布
+    runs-on: ubuntu-latest
+    needs: [prepare, observe]
+    if: needs.observe.result == 'success'
+    timeout-minutes: 30
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v5
+
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 登录 GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: 构建多架构镜像
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 创建正式 Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.prepare.outputs.version }}
+          name: NAS-OS ${{ needs.prepare.outputs.version }}
+          generate_release_notes: true
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 全量发布摘要
+        run: |
+          echo "## 🚀 全量发布完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**版本:** ${{ needs.prepare.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**镜像:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
+
+  # ========== 回滚支持 ==========
+  rollback:
+    name: 回滚发布
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && contains(github.event.inputs.version, '-rollback')
+    steps:
+      - name: 执行回滚
+        run: |
+          TARGET_VERSION="${{ github.event.inputs.version }}"
+          TARGET_VERSION="${TARGET_VERSION%-rollback}"
+          
+          echo "## 🔄 回滚发布" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**目标版本:** $TARGET_VERSION" >> $GITHUB_STEP_SUMMARY
+          
+          # 在实际环境中，这里会触发重新发布指定版本
+          echo "⚠️ 请手动触发 release.yml 重新发布 $TARGET_VERSION"

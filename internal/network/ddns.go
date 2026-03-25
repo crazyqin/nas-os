@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -221,7 +222,14 @@ func (p *DuckDNSProvider) Update(domain, ip string) error {
 	formData.Set("token", p.Token)
 	formData.Set("ip", ip)
 
-	resp, err := http.PostForm("https://www.duckdns.org/update", formData)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "https://www.duckdns.org/update", strings.NewReader(formData.Encode()))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}

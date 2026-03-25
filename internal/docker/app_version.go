@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -208,7 +209,9 @@ func (vm *VersionManager) getLatestTag(image string) (string, error) {
 	// 查询 Docker Hub API
 	url := fmt.Sprintf("https://hub.docker.com/v2/repositories/%s/%s/tags/?page_size=10", namespace, name)
 
-	req, err := http.NewRequest("GET", url, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return "", err
 	}
@@ -299,7 +302,13 @@ func (vm *VersionManager) fetchVersionsFromDockerHub(image string) ([]*AppVersio
 
 	url := fmt.Sprintf("https://hub.docker.com/v2/repositories/%s/%s/tags/?page_size=50", namespace, name)
 
-	resp, err := vm.httpClient.Get(url)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := vm.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

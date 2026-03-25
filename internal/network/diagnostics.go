@@ -351,21 +351,24 @@ func (m *Manager) DNSLookup(host string, recordType string) (*DNSLookupResult, e
 		Addresses: make([]string, 0),
 	}
 
+	ctx := context.Background()
+	resolver := net.Resolver{}
+
 	// A/AAAA 记录
-	addrs, err := net.LookupHost(host)
+	addrs, err := resolver.LookupHost(ctx, host)
 	if err == nil {
 		result.Addresses = addrs
 	}
 
 	// CNAME 记录
-	cname, err := net.LookupCNAME(host)
+	cname, err := resolver.LookupCNAME(ctx, host)
 	if err == nil && cname != host && cname != "" {
 		result.CNAME = cname
 	}
 
 	// MX 记录
 	if recordType == "" || recordType == "MX" {
-		mxRecords, err := net.LookupMX(host)
+		mxRecords, err := resolver.LookupMX(ctx, host)
 		if err == nil {
 			for _, mx := range mxRecords {
 				result.MXRecords = append(result.MXRecords, MXRecord{
@@ -378,7 +381,7 @@ func (m *Manager) DNSLookup(host string, recordType string) (*DNSLookupResult, e
 
 	// NS 记录
 	if recordType == "" || recordType == "NS" {
-		nsRecords, err := net.LookupNS(host)
+		nsRecords, err := resolver.LookupNS(ctx, host)
 		if err == nil {
 			for _, ns := range nsRecords {
 				result.NSRecords = append(result.NSRecords, NSRecord{

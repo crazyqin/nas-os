@@ -16,6 +16,7 @@ type AppHandlers struct {
 	discovery         *AppDiscovery
 	customTemplateMgr *CustomTemplateManager
 	versionManager    *VersionManager
+	backupManager     *BackupManager
 	// mu                 sync.RWMutex - 保留用于未来需要并发控制的场景
 }
 
@@ -44,6 +45,11 @@ func (h *AppHandlers) SetCustomTemplateManager(ctm *CustomTemplateManager) {
 // SetVersionManager 设置版本管理器
 func (h *AppHandlers) SetVersionManager(vm *VersionManager) {
 	h.versionManager = vm
+}
+
+// SetBackupManager 设置备份管理器
+func (h *AppHandlers) SetBackupManager(bm *BackupManager) {
+	h.backupManager = bm
 }
 
 // RegisterRoutes 注册路由
@@ -97,6 +103,18 @@ func (h *AppHandlers) RegisterRoutes(r *gin.RouterGroup) {
 		apps.POST("/notifications/read-all", h.markAllNotificationsRead)
 		apps.GET("/notifications/unread-count", h.getUnreadCount)
 		apps.POST("/installed/:id/update-version", h.updateAppVersion)
+
+		// === 备份管理 ===
+		apps.GET("/backups", h.listBackups)
+		apps.GET("/backups/:id", h.getBackup)
+		apps.POST("/installed/:id/backup", h.createBackup)
+		apps.POST("/backups/:id/restore", h.restoreBackup)
+		apps.DELETE("/backups/:id", h.deleteBackup)
+		apps.POST("/backups/:id/export", h.exportBackup)
+		apps.POST("/backups/import", h.importBackup)
+		apps.POST("/installed/:id/auto-update", h.setAppAutoUpdate)
+		apps.GET("/updates/available", h.getAvailableUpdates)
+		apps.POST("/updates/check-all", h.checkAllUpdates)
 	}
 }
 
@@ -1155,5 +1173,298 @@ func (h *AppHandlers) updateAppVersion(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "版本更新成功",
+	})
+}
+
+// === 备份管理 ===
+
+// listBackups 列出备份
+func (h *AppHandlers) listBackups(c *gin.Context) {
+	appID := c.Query("appId")
+
+	if h.backupManager == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    0,
+			"message": "success",
+			"data":    []*AppBackup{},
+		})
+		return
+	}
+
+	backups := h.backupManager.ListBackups(appID)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    backups,
+	})
+}
+
+// getBackup 获取备份详情
+func (h *AppHandlers) getBackup(c *gin.Context) {
+	id := c.Param("id")
+
+	if h.backupManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "备份系统未初始化",
+		})
+		return
+	}
+
+	backup, err := h.backupManager.GetBackup(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    backup,
+	})
+}
+
+// createBackup 创建备份
+func (h *AppHandlers) createBackup(c *gin.Context) {
+	appID := c.Param("id")
+
+	var req struct {
+		Type        string `json:"type"`
+		Description string `json:"description"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		// 使用默认值
+		req.Type = "config"
+		req.Description = "手动备份"
+	}
+
+	if req.Type == "" {
+		req.Type = "config"
+	}
+
+	if h.backupManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "备份系统未初始化",
+		})
+		return
+	}
+
+	backup, err := h.backupManager.CreateBackup(appID, req.Type, req.Description)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "备份创建成功",
+		"data":    backup,
+	})
+}
+
+// restoreBackup 恢复备份
+func (h *AppHandlers) restoreBackup(c *gin.Context) {
+	id := c.Param("id")
+
+	if h.backupManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "备份系统未初始化",
+		})
+		return
+	}
+
+	if err := h.backupManager.RestoreBackup(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "备份恢复成功",
+	})
+}
+
+// deleteBackup 删除备份
+func (h *AppHandlers) deleteBackup(c *gin.Context) {
+	id := c.Param("id")
+
+	if h.backupManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "备份系统未初始化",
+		})
+		return
+	}
+
+	if err := h.backupManager.DeleteBackup(id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "备份已删除",
+	})
+}
+
+// exportBackup 导出备份
+func (h *AppHandlers) exportBackup(c *gin.Context) {
+	id := c.Param("id")
+
+	var req struct {
+		DestPath string `json:"destPath"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请指定导出路径",
+		})
+		return
+	}
+
+	if h.backupManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "备份系统未初始化",
+		})
+		return
+	}
+
+	if err := h.backupManager.ExportBackup(id, req.DestPath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "备份导出成功",
+	})
+}
+
+// importBackup 导入备份
+func (h *AppHandlers) importBackup(c *gin.Context) {
+	var req struct {
+		BackupFile string `json:"backupFile"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请指定备份文件路径",
+		})
+		return
+	}
+
+	if h.backupManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "备份系统未初始化",
+		})
+		return
+	}
+
+	backup, err := h.backupManager.ImportBackup(req.BackupFile)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "备份导入成功",
+		"data":    backup,
+	})
+}
+
+// setAppAutoUpdate 设置应用自动更新
+func (h *AppHandlers) setAppAutoUpdate(c *gin.Context) {
+	appID := c.Param("id")
+
+	var req struct {
+		AutoUpdate bool `json:"autoUpdate"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求格式错误",
+		})
+		return
+	}
+
+	if err := h.store.SetAppAutoUpdate(appID, req.AutoUpdate); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "设置成功",
+	})
+}
+
+// getAvailableUpdates 获取可用更新
+func (h *AppHandlers) getAvailableUpdates(c *gin.Context) {
+	updates := h.store.GetAvailableUpdates()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    updates,
+	})
+}
+
+// checkAllUpdates 检查所有更新
+func (h *AppHandlers) checkAllUpdates(c *gin.Context) {
+	results, err := h.store.CheckAllAppUpdates()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// 统计可用更新数量
+	availableCount := 0
+	for _, r := range results {
+		if r.HasUpdate {
+			availableCount++
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "检查完成",
+		"data": gin.H{
+			"results":        results,
+			"availableCount": availableCount,
+		},
 	})
 }
