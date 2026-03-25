@@ -959,7 +959,7 @@ func (h *Handlers) compressFile(c *gin.Context) {
 // compressZip 压缩为 ZIP 格式.
 func (h *Handlers) compressZip(srcPath, dstPath string, level int) error {
 	// 检查是否使用系统 zip 命令
-	cmd := exec.Command("zip", "-r", "-"+fmt.Sprintf("%d", level), dstPath, filepath.Base(srcPath))
+	cmd := exec.CommandContext(context.Background(), "zip", "-r", "-"+fmt.Sprintf("%d", level), dstPath, filepath.Base(srcPath))
 	cmd.Dir = filepath.Dir(srcPath)
 
 	if err := cmd.Run(); err == nil {
@@ -1032,7 +1032,7 @@ func (h *Handlers) compressZipGo(srcPath, dstPath string, level int) error {
 
 // compressTarGz 压缩为 TAR.GZ 格式.
 func (h *Handlers) compressTarGz(srcPath, dstPath string, level int) error {
-	cmd := exec.Command("tar", "-czf", dstPath, "-C", filepath.Dir(srcPath), filepath.Base(srcPath))
+	cmd := exec.CommandContext(context.Background(), "tar", "-czf", dstPath, "-C", filepath.Dir(srcPath), filepath.Base(srcPath))
 	return cmd.Run()
 }
 
@@ -1089,9 +1089,9 @@ func (h *Handlers) extractFile(c *gin.Context) {
 // extractZip 解压 ZIP 文件.
 func (h *Handlers) extractZip(archivePath, destPath string, overwrite bool) error {
 	// 优先使用系统 unzip 命令
-	cmd := exec.Command("unzip", "-o", archivePath, "-d", destPath)
+	cmd := exec.CommandContext(context.Background(), "unzip", "-o", archivePath, "-d", destPath)
 	if !overwrite {
-		cmd = exec.Command("unzip", "-n", archivePath, "-d", destPath)
+		cmd = exec.CommandContext(context.Background(), "unzip", "-n", archivePath, "-d", destPath)
 	}
 
 	if err := cmd.Run(); err == nil {
@@ -1156,7 +1156,7 @@ func (h *Handlers) extractZipGo(archivePath, destPath string, overwrite bool) er
 
 // extractTarGz 解压 TAR.GZ 文件.
 func (h *Handlers) extractTarGz(archivePath, destPath string, overwrite bool) error {
-	cmd := exec.Command("tar", "-xf", archivePath, "-C", destPath)
+	cmd := exec.CommandContext(context.Background(), "tar", "-xf", archivePath, "-C", destPath)
 	return cmd.Run()
 }
 
