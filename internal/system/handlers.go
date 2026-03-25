@@ -86,7 +86,7 @@ func (h *Handlers) websocketHandler(c *gin.Context) {
 
 	// 立即发送一次当前数据
 	systemStats, _ := h.monitor.GetSystemStats()
-	diskStats, _ := h.monitor.GetDiskStats()
+	diskStats, _ := h.monitor.GetDiskStats(c.Request.Context())
 	networkStats, _ := h.monitor.GetNetworkStats(nil)
 
 	h.monitor.Broadcast(&RealTimeData{
@@ -161,7 +161,7 @@ func (h *Handlers) getSystemInfo(c *gin.Context) {
 // @Router /system/disks [get]
 // @Security BearerAuth.
 func (h *Handlers) getDiskStats(c *gin.Context) {
-	stats, err := h.monitor.GetDiskStats()
+	stats, err := h.monitor.GetDiskStats(c.Request.Context())
 	if err != nil {
 		api.InternalError(c, err.Error())
 		return
@@ -178,7 +178,7 @@ func (h *Handlers) getSMARTInfo(c *gin.Context) {
 		return
 	}
 
-	info, err := h.monitor.GetSMARTInfo("/dev/" + device)
+	info, err := h.monitor.GetSMARTInfo(c.Request.Context(), "/dev/"+device)
 	if err != nil {
 		api.InternalError(c, err.Error())
 		return
@@ -189,7 +189,7 @@ func (h *Handlers) getSMARTInfo(c *gin.Context) {
 
 // checkAllDisks 检查所有磁盘.
 func (h *Handlers) checkAllDisks(c *gin.Context) {
-	results, err := h.monitor.CheckAllDisks()
+	results, err := h.monitor.CheckAllDisks(c.Request.Context())
 	if err != nil {
 		api.InternalError(c, err.Error())
 		return
@@ -237,7 +237,7 @@ func (h *Handlers) getTopProcesses(c *gin.Context) {
 		}
 	}
 
-	processes, err := h.monitor.GetTopProcesses(limit)
+	processes, err := h.monitor.GetTopProcesses(c.Request.Context(), limit)
 	if err != nil {
 		api.InternalError(c, err.Error())
 		return

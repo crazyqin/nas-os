@@ -361,9 +361,7 @@ func (dm *DiskEncryptionManager) CreateLUKS(devicePath, passphrase string, confi
 	}
 
 	// 使用 cryptsetup 创建 LUKS 卷
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "cryptsetup", "-q", "--type", luksVersion,
+	cmd := exec.CommandContext(context.Background(), "cryptsetup", "-q", "--type", luksVersion,
 		"--cipher", cipher,
 		"--key-size", fmt.Sprintf("%d", keySize),
 		"luksFormat", devicePath)
@@ -422,9 +420,7 @@ func (dm *DiskEncryptionManager) OpenLUKS(devicePath, mapperName, passphrase str
 	}
 
 	// 使用 cryptsetup 打开卷
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "cryptsetup", "luksOpen", devicePath, mapperName)
+	cmd := exec.CommandContext(context.Background(), "cryptsetup", "luksOpen", devicePath, mapperName)
 	cmd.Stdin = strings.NewReader(passphrase + "\n")
 
 	output, err := cmd.CombinedOutput()
@@ -458,9 +454,7 @@ func (dm *DiskEncryptionManager) CloseLUKS(mapperName string) error {
 	}
 
 	// 使用 cryptsetup 关闭卷
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "cryptsetup", "luksClose", mapperName)
+	cmd := exec.CommandContext(context.Background(), "cryptsetup", "luksClose", mapperName)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -493,9 +487,7 @@ func (dm *DiskEncryptionManager) GetLUKSInfo(devicePath string) (*LUKSInfo, erro
 	}
 
 	// 使用 cryptsetup 获取信息
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "cryptsetup", "luksDump", devicePath)
+	cmd := exec.Command("cryptsetup", "luksDump", devicePath)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("获取 LUKS 信息失败: %w", err)
@@ -575,9 +567,7 @@ func (dm *DiskEncryptionManager) AddKeySlot(devicePath, currentPassphrase, newPa
 		args = []string{"luksAddKey", "--new-key-slot", fmt.Sprintf("%d", slotID), devicePath}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "cryptsetup", args...)
+	cmd := exec.Command("cryptsetup", args...)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("创建管道失败: %w", err)
@@ -607,9 +597,7 @@ func (dm *DiskEncryptionManager) RemoveKeySlot(devicePath, passphrase string, sl
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "cryptsetup", "luksKillSlot", devicePath, fmt.Sprintf("%d", slotID))
+	cmd := exec.Command("cryptsetup", "luksKillSlot", devicePath, fmt.Sprintf("%d", slotID))
 	cmd.Stdin = strings.NewReader(passphrase + "\n")
 
 	output, err := cmd.CombinedOutput()
@@ -656,9 +644,7 @@ func (dm *DiskEncryptionManager) RotateKey(devicePath, currentPassphrase, newPas
 	}
 
 	// 添加新密钥
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "cryptsetup", "luksAddKey", devicePath)
+	cmd := exec.Command("cryptsetup", "luksAddKey", devicePath)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("创建管道失败: %w", err)
@@ -696,9 +682,7 @@ func (dm *DiskEncryptionManager) RotateKey(devicePath, currentPassphrase, newPas
 
 // removeKeySlotInternal 内部移除密钥槽位方法.
 func (dm *DiskEncryptionManager) removeKeySlotInternal(devicePath, passphrase string, slotID int) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "cryptsetup", "luksKillSlot", devicePath, fmt.Sprintf("%d", slotID))
+	cmd := exec.Command("cryptsetup", "luksKillSlot", devicePath, fmt.Sprintf("%d", slotID))
 	cmd.Stdin = strings.NewReader(passphrase + "\n")
 
 	output, err := cmd.CombinedOutput()
@@ -782,9 +766,7 @@ func (dm *DiskEncryptionManager) AutoRotateKeys(passphraseProvider func(devicePa
 		newPassphrase := generatePassphrase()
 
 		// 执行轮换
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-		defer cancel()
-		cmd := exec.CommandContext(ctx, "cryptsetup", "luksAddKey", devicePath)
+		cmd := exec.Command("cryptsetup", "luksAddKey", devicePath)
 		stdin, err := cmd.StdinPipe()
 		if err != nil {
 			errors = append(errors, fmt.Sprintf("%s: 创建管道失败: %v", devicePath, err))
@@ -1018,9 +1000,7 @@ func (dm *DiskEncryptionManager) UpdateConfig(devicePath string, config *DiskEnc
 // scanEncryptedDevices 扫描加密设备.
 func (dm *DiskEncryptionManager) scanEncryptedDevices() error {
 	// 读取 /proc/crypto 或使用 blkid 扫描
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "blkid")
+	cmd := exec.Command("blkid")
 	output, err := cmd.Output()
 	if err != nil {
 		return err
@@ -1078,9 +1058,7 @@ func (dm *DiskEncryptionManager) saveConfig() error {
 }
 
 func (dm *DiskEncryptionManager) getLUKSUUID(devicePath string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "cryptsetup", "luksUUID", devicePath)
+	cmd := exec.Command("cryptsetup", "luksUUID", devicePath)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -1110,9 +1088,7 @@ func (dm *DiskEncryptionManager) SetHooks(hooks EncryptionHooks) {
 
 func generatePassphrase() string {
 	// 生成安全的随机密码
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "openssl", "rand", "-base64", "32")
+	cmd := exec.Command("openssl", "rand", "-base64", "32")
 	output, err := cmd.Output()
 	if err != nil {
 		// 回退到简单生成

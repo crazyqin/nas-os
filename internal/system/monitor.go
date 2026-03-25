@@ -270,7 +270,7 @@ func (m *Monitor) startDataCollection() {
 		case <-ticker.C:
 			// 采集系统数据
 			systemStats, _ := m.GetSystemStats()
-			diskStats, _ := m.GetDiskStats()
+			diskStats, _ := m.GetDiskStats(context.Background())
 			networkStats, _ := m.GetNetworkStats(prevNetStats)
 
 			// 计算磁盘 IO 速度
@@ -397,11 +397,11 @@ func (m *Monitor) GetSystemStats() (*Stats, error) {
 }
 
 // GetDiskStats 获取磁盘统计信息.
-func (m *Monitor) GetDiskStats() ([]*DiskStats, error) {
+func (m *Monitor) GetDiskStats(ctx context.Context) ([]*DiskStats, error) {
 	var stats []*DiskStats
 
 	// 使用 df 命令获取磁盘信息
-	cmd := exec.Command("df", "-B1", "--output=source,target,size,used,avail,fstype")
+	cmd := exec.CommandContext(ctx, "df", "-B1", "--output=source,target,size,used,avail,fstype")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取磁盘信息：%w", err)
@@ -514,7 +514,7 @@ func (m *Monitor) GetNetworkStats(prev map[string]*NetworkSpeed) ([]*NetworkStat
 }
 
 // GetSMARTInfo 获取磁盘 SMART 信息.
-func (m *Monitor) GetSMARTInfo(device string) (*SMARTInfo, error) {
+func (m *Monitor) GetSMARTInfo(ctx context.Context, device string) (*SMARTInfo, error) {
 	info := &SMARTInfo{
 		Device: device,
 		Health: "UNKNOWN",
@@ -536,7 +536,7 @@ func (m *Monitor) GetSMARTInfo(device string) (*SMARTInfo, error) {
 
 	// 获取 SMART 信息
 	// #nosec G204 -- 设备路径已验证为 /dev/ 开头且不包含危险字符
-	cmd := exec.Command("smartctl", "-A", "-i", "-H", device)
+	cmd := exec.CommandContext(ctx, "smartctl", "-A", "-i", "-H", device)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取 SMART 信息：%w", err)
@@ -610,11 +610,11 @@ func (m *Monitor) GetSMARTInfo(device string) (*SMARTInfo, error) {
 }
 
 // CheckAllDisks 检查所有磁盘.
-func (m *Monitor) CheckAllDisks() ([]*SMARTInfo, error) {
+func (m *Monitor) CheckAllDisks(ctx context.Context) ([]*SMARTInfo, error) {
 	var results []*SMARTInfo
 
 	// 列出所有块设备
-	cmd := exec.Command("lsblk", "-d", "-n", "-o", "NAME")
+	cmd := exec.CommandContext(ctx, "lsblk", "-d", "-n", "-o", "NAME")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出磁盘：%w", err)
@@ -624,7 +624,7 @@ func (m *Monitor) CheckAllDisks() ([]*SMARTInfo, error) {
 	for scanner.Scan() {
 		device := "/dev/" + strings.TrimSpace(scanner.Text())
 		if strings.HasPrefix(device, "/dev/sd") || strings.HasPrefix(device, "/dev/nvme") {
-			info, err := m.GetSMARTInfo(device)
+			info, err := m.GetSMARTInfo(ctx, device)
 			if err == nil {
 				results = append(results, info)
 			}
@@ -635,12 +635,12 @@ func (m *Monitor) CheckAllDisks() ([]*SMARTInfo, error) {
 }
 
 // GetTopProcesses 获取资源占用 Top10 进程.
-func (m *Monitor) GetTopProcesses(limit int) ([]*ProcessInfo, error) {
+func (m *Monitor) GetTopProcesses(ctx context.Context, limit int) ([]*ProcessInfo, error) {
 	if limit <= 0 {
 		limit = 10
 	}
 
-	cmd := exec.Command("ps", "aux", "--sort=-%cpu")
+	cmd := exec.CommandContext(ctx, "ps", "aux", "--sort=-%cpu")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取进程列表：%w", err)

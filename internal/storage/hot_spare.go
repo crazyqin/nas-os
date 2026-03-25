@@ -415,7 +415,7 @@ func (h *HotSpareManager) checkDeviceHealth(device string) DeviceHealthStatus {
 	}
 
 	// 使用 btrfs device stats 命令获取错误统计
-	cmd := exec.Command("sudo", "btrfs", "device", "stats", device)
+	cmd := exec.CommandContext(h.ctx, "sudo", "btrfs", "device", "stats", device)
 	output, err := cmd.Output()
 	if err != nil {
 		// 如果无法获取状态，假设设备有问题
@@ -716,7 +716,7 @@ func (h *HotSpareManager) CancelRebuild(device string) error {
 // getDeviceCapacity 获取设备容量.
 func (h *HotSpareManager) getDeviceCapacity(device string) (uint64, error) {
 	// 使用 blockdev 命令获取设备大小
-	cmd := exec.Command("sudo", "blockdev", "--getsize64", device)
+	cmd := exec.CommandContext(h.ctx, "sudo", "blockdev", "--getsize64", device)
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, fmt.Errorf("获取设备容量失败: %w", err)
@@ -732,13 +732,13 @@ func (h *HotSpareManager) getDeviceCapacity(device string) (uint64, error) {
 // checkDeviceAvailable 检查设备是否可用.
 func (h *HotSpareManager) checkDeviceAvailable(device string) error {
 	// 检查设备是否存在
-	cmd := exec.Command("test", "-b", device)
+	cmd := exec.CommandContext(h.ctx, "test", "-b", device)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("设备 %s 不存在或不是块设备", device)
 	}
 
 	// 检查设备是否已挂载
-	cmd = exec.Command("grep", "-q", device, "/proc/mounts")
+	cmd = exec.CommandContext(h.ctx, "grep", "-q", device, "/proc/mounts")
 	if cmd.Run() == nil {
 		return fmt.Errorf("设备 %s 已挂载", device)
 	}
@@ -773,7 +773,7 @@ func (h *HotSpareManager) validateCapacity(device string, vol *Volume) error {
 
 // replaceDevice 执行设备替换.
 func (h *HotSpareManager) replaceDevice(mountPoint, srcDevice, tgtDevice string) error {
-	cmd := exec.Command("sudo", "btrfs", "replace", "start", srcDevice, tgtDevice, mountPoint)
+	cmd := exec.CommandContext(h.ctx, "sudo", "btrfs", "replace", "start", srcDevice, tgtDevice, mountPoint)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("启动设备替换失败: %w, output: %s", err, string(output))
@@ -783,7 +783,7 @@ func (h *HotSpareManager) replaceDevice(mountPoint, srcDevice, tgtDevice string)
 
 // getReplaceStatus 获取设备替换状态.
 func (h *HotSpareManager) getReplaceStatus(mountPoint string) (*ReplaceStatus, error) {
-	cmd := exec.Command("sudo", "btrfs", "replace", "status", mountPoint)
+	cmd := exec.CommandContext(h.ctx, "sudo", "btrfs", "replace", "status", mountPoint)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("获取替换状态失败: %w", err)
@@ -831,7 +831,7 @@ func (h *HotSpareManager) parseReplaceStatus(output string) (*ReplaceStatus, err
 
 // cancelReplace 取消设备替换.
 func (h *HotSpareManager) cancelReplace(mountPoint string) error {
-	cmd := exec.Command("sudo", "btrfs", "replace", "cancel", mountPoint)
+	cmd := exec.CommandContext(h.ctx, "sudo", "btrfs", "replace", "cancel", mountPoint)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("取消替换失败: %w, output: %s", err, string(output))

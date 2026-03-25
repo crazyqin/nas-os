@@ -1,6 +1,7 @@
 package smb
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -327,10 +328,10 @@ func (m *Manager) ApplyConfig() error {
 	logInfo("SMB配置已写入", "path", configPath)
 
 	// 重新加载 Samba 配置
-	cmd := exec.Command("smbcontrol", "smbd", "reload-config")
+	cmd := exec.CommandContext(context.Background(), "smbcontrol", "smbd", "reload-config")
 	if err := cmd.Run(); err != nil {
 		// 如果 smbcontrol 不可用，尝试重启服务
-		cmd = exec.Command("systemctl", "restart", "smbd")
+		cmd = exec.CommandContext(context.Background(), "systemctl", "restart", "smbd")
 		if err := cmd.Run(); err != nil {
 			logError("重启 Samba 服务失败", err)
 			return fmt.Errorf("重启 Samba 服务失败：%w", err)
@@ -512,7 +513,7 @@ func (m *Manager) Status() (*ServiceStatus, error) {
 	}
 
 	// 检查 smbd 服务状态
-	cmd := exec.Command("systemctl", "is-active", "smbd")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "is-active", "smbd")
 	output, err := cmd.Output()
 	if err != nil {
 		status.Status = "stopped"
@@ -527,7 +528,7 @@ func (m *Manager) Status() (*ServiceStatus, error) {
 	}
 
 	// 获取 PID
-	pidCmd := exec.Command("systemctl", "show", "--property=MainPID", "smbd")
+	pidCmd := exec.CommandContext(context.Background(), "systemctl", "show", "--property=MainPID", "smbd")
 	pidOutput, err := pidCmd.Output()
 	if err == nil {
 		pidStr := strings.TrimPrefix(strings.TrimSpace(string(pidOutput)), "MainPID=")
@@ -551,7 +552,7 @@ func (m *Manager) Connections() ([]*Connection, error) {
 	var connections []*Connection
 
 	// 使用 smbstatus 获取连接信息
-	cmd := exec.Command("smbstatus", "-b")
+	cmd := exec.CommandContext(context.Background(), "smbstatus", "-b")
 	output, err := cmd.Output()
 	if err != nil {
 		logError("获取连接信息失败", err)
@@ -604,7 +605,7 @@ func (m *Manager) Connections() ([]*Connection, error) {
 // countOpenFiles 统计打开文件数.
 func (m *Manager) countOpenFiles(connections []*Connection) int {
 	// 使用 smbstatus -L 获取锁定文件
-	cmd := exec.Command("smbstatus", "-L")
+	cmd := exec.CommandContext(context.Background(), "smbstatus", "-L")
 	output, err := cmd.Output()
 	if err != nil {
 		return 0
@@ -632,7 +633,7 @@ func (m *Manager) GetStatus() (bool, error) {
 
 // Start 启动 Samba 服务.
 func (m *Manager) Start() error {
-	cmd := exec.Command("systemctl", "start", "smbd")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "start", "smbd")
 	if err := cmd.Run(); err != nil {
 		logError("启动 Samba 服务失败", err)
 		return fmt.Errorf("启动 Samba 服务失败：%w", err)

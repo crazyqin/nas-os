@@ -157,6 +157,7 @@ func ValidateArgs(args ...string) error {
 
 // SafeCommand 创建一个安全的命令，先验证参数再创建
 // 注意：这只能验证已知的危险字符，不能完全防止所有注入.
+// Deprecated: Use SafeCommandContext instead.
 func SafeCommand(name string, args ...string) (*exec.Cmd, error) {
 	// 验证命令名
 	if err := ValidateArg(name); err != nil {
@@ -166,9 +167,7 @@ func SafeCommand(name string, args ...string) (*exec.Cmd, error) {
 	if err := ValidateArgs(args...); err != nil {
 		return nil, fmt.Errorf("invalid command argument: %w", err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 30*60*1000000000) // 30 minutes default timeout
-	defer cancel()
-	return exec.CommandContext(ctx, name, args...), nil
+	return exec.CommandContext(context.Background(), name, args...), nil
 }
 
 // SafeCommandContext 创建一个带上下文的安全命令.
