@@ -7,6 +7,39 @@
 
 ---
 
+## [v2.276.0] - 2026-03-25
+
+### 修复
+- 🔧 **golangci-lint noctx 问题修复**
+  - cmd/nasctl/main.go: 使用 http.NewRequestWithContext
+  - internal/auth/sms.go: HTTP 请求添加 context
+  - internal/automation/action/action.go: webhook 通知使用 context
+  - internal/backup/manager.go: 使用 exec.CommandContext
+  - internal/backup/restore.go: 使用 exec.CommandContext
+- 🔧 **gofmt 格式修复** - 10个测试文件格式化
+
+### 竞品研究
+- 📊 **飞牛fnOS 1.0 正式版** (2025年11月发布)
+  - 免费国产NAS系统，支持x86和ARM架构
+  - 影视海报墙、AI相册、FN Connect内网穿透
+  - 短板: RAID扩容能力差、数据安全性不足
+- 📊 **群晖DSM 7.3** (2025年10月发布)
+  - Synology Tiering分层存储
+  - AI Console智能脱敏
+  - Plus系列支持第三方硬盘
+- 📊 **TrueNAS Scale 24.10**
+  - ZFS企业级可靠性
+  - 应用生态完善
+
+### 六部协同
+- 兵部: lint修复、代码质量提升
+- 刑部: 安全审计
+- 工部: CI/CD优化
+- 礼部: 文档更新
+- 吏部: 版本管理
+
+---
+
 ## [v2.275.0] - 2026-03-25
 
 ### 竞品研究更新
