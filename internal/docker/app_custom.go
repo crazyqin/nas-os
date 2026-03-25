@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,7 +13,7 @@ import (
 	"time"
 )
 
-// CustomTemplate 自定义应用模板
+// CustomTemplate 自定义应用模板.
 type CustomTemplate struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -26,14 +27,14 @@ type CustomTemplate struct {
 	SourceURL   string    `json:"source_url,omitempty"`
 }
 
-// CustomTemplateManager 自定义模板管理器
+// CustomTemplateManager 自定义模板管理器.
 type CustomTemplateManager struct {
 	mu           sync.RWMutex
 	templates    map[string]*CustomTemplate
 	templatesDir string
 }
 
-// NewCustomTemplateManager 创建自定义模板管理器
+// NewCustomTemplateManager 创建自定义模板管理器.
 func NewCustomTemplateManager(templatesDir string) (*CustomTemplateManager, error) {
 	ctm := &CustomTemplateManager{
 		templates:    make(map[string]*CustomTemplate),
@@ -52,10 +53,14 @@ func NewCustomTemplateManager(templatesDir string) (*CustomTemplateManager, erro
 	return ctm, nil
 }
 
-// ImportFromURL 从 URL 导入应用模板
+// ImportFromURL 从 URL 导入应用模板.
 func (ctm *CustomTemplateManager) ImportFromURL(url, name, displayName, description, category string) (*CustomTemplate, error) {
 	// 下载 compose 文件
-	resp, err := http.Get(url)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败：%w", err)
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("下载失败：%w", err)
 	}
@@ -95,13 +100,13 @@ func (ctm *CustomTemplateManager) ImportFromURL(url, name, displayName, descript
 // 	}
 // }
 
-// ImportFromGitHub 从 GitHub 导入
+// ImportFromGitHub 从 GitHub 导入.
 func (ctm *CustomTemplateManager) ImportFromGitHub(owner, repo, path, ref, name, displayName, description string) (*CustomTemplate, error) {
 	url := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s/%s", owner, repo, ref, path)
 	return ctm.ImportFromURL(url, name, displayName, description, "custom")
 }
 
-// CreateFromCompose 从 compose 内容创建模板
+// CreateFromCompose 从 compose 内容创建模板.
 func (ctm *CustomTemplateManager) CreateFromCompose(name, displayName, description, category, composeContent string) (*CustomTemplate, error) {
 	if name == "" {
 		return nil, fmt.Errorf("名称不能为空")
@@ -122,12 +127,12 @@ func (ctm *CustomTemplateManager) CreateFromCompose(name, displayName, descripti
 	return template, nil
 }
 
-// generateTemplateID 生成模板 ID
+// generateTemplateID 生成模板 ID.
 func generateTemplateID(name string) string {
 	return "custom-" + strings.ToLower(strings.ReplaceAll(name, " ", "-"))
 }
 
-// saveTemplate 保存模板到文件
+// saveTemplate 保存模板到文件.
 func (ctm *CustomTemplateManager) saveTemplate(template *CustomTemplate) error {
 	if ctm.templatesDir == "" {
 		return nil
@@ -143,7 +148,7 @@ func (ctm *CustomTemplateManager) saveTemplate(template *CustomTemplate) error {
 	return os.WriteFile(filePath, data, 0640)
 }
 
-// loadTemplates 加载所有模板
+// loadTemplates 加载所有模板.
 func (ctm *CustomTemplateManager) loadTemplates() error {
 	if ctm.templatesDir == "" {
 		return nil
@@ -179,7 +184,7 @@ func (ctm *CustomTemplateManager) loadTemplates() error {
 	return nil
 }
 
-// ListTemplates 列出所有模板
+// ListTemplates 列出所有模板.
 func (ctm *CustomTemplateManager) ListTemplates() []*CustomTemplate {
 	ctm.mu.RLock()
 	defer ctm.mu.RUnlock()
@@ -191,7 +196,7 @@ func (ctm *CustomTemplateManager) ListTemplates() []*CustomTemplate {
 	return result
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (ctm *CustomTemplateManager) GetTemplate(id string) (*CustomTemplate, error) {
 	ctm.mu.RLock()
 	defer ctm.mu.RUnlock()
@@ -203,12 +208,12 @@ func (ctm *CustomTemplateManager) GetTemplate(id string) (*CustomTemplate, error
 	return t, nil
 }
 
-// CreateFromURL 从 URL 创建模板（别名）
+// CreateFromURL 从 URL 创建模板（别名）.
 func (ctm *CustomTemplateManager) CreateFromURL(url, name, displayName, description, category string) (*CustomTemplate, error) {
 	return ctm.ImportFromURL(url, name, displayName, description, category)
 }
 
-// UpdateTemplate 更新模板
+// UpdateTemplate 更新模板.
 func (ctm *CustomTemplateManager) UpdateTemplate(id string, updates map[string]interface{}) (*CustomTemplate, error) {
 	ctm.mu.Lock()
 	defer ctm.mu.Unlock()
@@ -250,7 +255,7 @@ func (ctm *CustomTemplateManager) UpdateTemplate(id string, updates map[string]i
 	return t, nil
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (ctm *CustomTemplateManager) DeleteTemplate(id string) error {
 	ctm.mu.Lock()
 	defer ctm.mu.Unlock()
@@ -271,7 +276,7 @@ func (ctm *CustomTemplateManager) DeleteTemplate(id string) error {
 	return nil
 }
 
-// IncrementDownloads 增加下载计数（占位实现）
+// IncrementDownloads 增加下载计数（占位实现）.
 func (ctm *CustomTemplateManager) IncrementDownloads(id string) error {
 	return nil
 }
