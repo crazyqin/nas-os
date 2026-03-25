@@ -4,6 +4,7 @@ package monitoring
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os/exec"
 	"strconv"
@@ -165,7 +166,7 @@ func (m *SSDHealthMonitor) ScanSSDs() error {
 	defer m.mu.Unlock()
 
 	// 使用 lsblk 扫描块设备
-	cmd := exec.Command("lsblk", "-d", "-n", "-o", "NAME,SIZE,ROTA,TYPE")
+	cmd := exec.CommandContext(context.Background(), "lsblk", "-d", "-n", "-o", "NAME,SIZE,ROTA,TYPE")
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("扫描块设备失败: %w", err)
@@ -263,7 +264,7 @@ func (m *SSDHealthMonitor) getSSDHealth(device string) (*SSDHealth, error) {
 
 // parseNVMeSMART 解析 NVMe SSD SMART 数据.
 func (m *SSDHealthMonitor) parseNVMeSMART(health *SSDHealth) error {
-	cmd := exec.Command("smartctl", "-a", health.Device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-a", health.Device)
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("获取 NVMe SMART 数据失败: %w", err)
@@ -369,7 +370,7 @@ func (m *SSDHealthMonitor) parseNVMeSMART(health *SSDHealth) error {
 
 // parseSATASMART 解析 SATA SSD SMART 数据.
 func (m *SSDHealthMonitor) parseSATASMART(health *SSDHealth) error {
-	cmd := exec.Command("smartctl", "-A", "-i", health.Device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-A", "-i", health.Device)
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("获取 SATA SMART 数据失败: %w", err)

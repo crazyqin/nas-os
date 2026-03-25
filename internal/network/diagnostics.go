@@ -668,11 +668,11 @@ type ConnectivityStatus struct {
 
 // Netstat 获取网络连接状态.
 func (m *Manager) Netstat() (string, error) {
-	cmd := exec.Command("netstat", "-tulpn")
+	cmd := exec.CommandContext(context.Background(), "netstat", "-tulpn")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		// 尝试 ss 命令
-		cmd = exec.Command("ss", "-tulpn")
+		cmd = exec.CommandContext(context.Background(), "ss", "-tulpn")
 		output, err = cmd.CombinedOutput()
 		if err != nil {
 			return "", fmt.Errorf("获取网络状态失败: %w", err)
@@ -683,7 +683,7 @@ func (m *Manager) Netstat() (string, error) {
 
 // ARPTable 获取 ARP 表.
 func (m *Manager) ARPTable() ([]ARPEntry, error) {
-	cmd := exec.Command("arp", "-n")
+	cmd := exec.CommandContext(context.Background(), "arp", "-n")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("获取 ARP 表失败: %w", err)
