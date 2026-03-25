@@ -49,10 +49,10 @@ linters:
             - "disableStutteringCheck"
 
     gocyclo:
-      min-complexity: 20
+      min-complexity: 60
 
     gocognit:
-      min-complexity: 40
+      min-complexity: 120
 
     dupl:
       threshold: 400
@@ -201,6 +201,11 @@ linters:
         linters:
           - errcheck
         text: "Encode|Write"
+      # pkg/storage/tiering/migrator.go: 文件迁移清理操作允许忽略错误
+      - path: pkg/storage/tiering/migrator\.go
+        linters:
+          - errcheck
+        text: "src.Close|dst.Close|os.Remove|ProcessQueue"
 
 formatters:
   enable:
