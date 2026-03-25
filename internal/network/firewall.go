@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -223,7 +224,7 @@ func (m *Manager) applyFirewallRule(rule *FirewallRule) error {
 	args = append(args, "-j", action)
 
 	// 执行 iptables 命令
-	cmd := exec.Command("iptables", args...)
+	cmd := exec.CommandContext(context.Background(), "iptables", args...)
 	if output, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("iptables 执行失败: %w, 输出: %s", err, string(output))
 	}
@@ -272,7 +273,7 @@ func (m *Manager) removeFirewallRule(rule *FirewallRule) {
 	}
 	args = append(args, "-j", action)
 
-	_ = exec.Command("iptables", args...).Run()
+	_ = exec.CommandContext(context.Background(), "iptables", args...).Run()
 }
 
 // ListActiveFirewallRules 列出系统中活跃的防火墙规则.
@@ -281,7 +282,7 @@ func (m *Manager) ListActiveFirewallRules() (map[string][]string, error) {
 	result := make(map[string][]string)
 
 	for _, chain := range chains {
-		cmd := exec.Command("iptables", "-L", chain, "-n", "--line-numbers")
+		cmd := exec.CommandContext(context.Background(), "iptables", "-L", chain, "-n", "--line-numbers")
 		output, err := cmd.Output()
 		if err != nil {
 			return nil, err
@@ -308,7 +309,7 @@ func (m *Manager) GetFirewallStatus() (*FirewallStatus, error) {
 	}
 
 	// 检查是否有任何 INPUT 规则（除了默认规则）
-	cmd := exec.Command("iptables", "-L", "INPUT", "-n")
+	cmd := exec.CommandContext(context.Background(), "iptables", "-L", "INPUT", "-n")
 	output, err := cmd.Output()
 	if err != nil {
 		return status, nil // iptables 可能未安装或未运行
@@ -329,7 +330,7 @@ func (m *Manager) GetFirewallStatus() (*FirewallStatus, error) {
 
 	// 获取各链的默认策略
 	for _, chain := range []string{"INPUT", "OUTPUT", "FORWARD"} {
-		cmd := exec.Command("iptables", "-L", chain, "-n")
+		cmd := exec.CommandContext(context.Background(), "iptables", "-L", chain, "-n")
 		output, err := cmd.Output()
 		if err == nil {
 			lines := strings.Split(string(output), "\n")
@@ -367,7 +368,7 @@ func (m *Manager) SetDefaultPolicy(chain, policy string) error {
 		return fmt.Errorf("策略只能是 ACCEPT 或 DROP")
 	}
 
-	cmd := exec.Command("iptables", "-P", chain, policy)
+	cmd := exec.CommandContext(context.Background(), "iptables", "-P", chain, policy)
 	if output, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("设置默认策略失败: %w, 输出: %s", err, string(output))
 	}
@@ -385,13 +386,13 @@ func (m *Manager) FlushRules(chain string) error {
 
 	if chain == "ALL" {
 		for _, c := range []string{"INPUT", "OUTPUT", "FORWARD"} {
-			cmd := exec.Command("iptables", "-F", c)
+			cmd := exec.CommandContext(context.Background(), "iptables", "-F", c)
 			if err := cmd.Run(); err != nil {
 				return fmt.Errorf("清空链 %s 失败: %w", c, err)
 			}
 		}
 	} else {
-		cmd := exec.Command("iptables", "-F", chain)
+		cmd := exec.CommandContext(context.Background(), "iptables", "-F", chain)
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("清空链失败: %w", err)
 		}
@@ -402,7 +403,7 @@ func (m *Manager) FlushRules(chain string) error {
 
 // SaveFirewallRules 保存防火墙规则到文件.
 func (m *Manager) SaveFirewallRules(path string) error {
-	cmd := exec.Command("iptables-save")
+	cmd := exec.CommandContext(context.Background(), "iptables-save")
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("获取规则失败: %w", err)
@@ -425,6 +426,6 @@ func (m *Manager) RestoreFirewallRules(path string) error {
 		path = "/etc/iptables/rules.v4"
 	}
 
-	cmd := exec.Command("iptables-restore", "<", path)
+	cmd := exec.CommandContext(context.Background(), "iptables-restore", "<", path)
 	return cmd.Run()
 }
