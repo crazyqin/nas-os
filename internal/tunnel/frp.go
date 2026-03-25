@@ -18,41 +18,41 @@ import (
 
 // FRPConfig FRP配置
 type FRPConfig struct {
-	Enabled       bool   `json:"enabled"`       // 是否启用
-	ServerAddr    string `json:"serverAddr"`    // FRP服务器地址
-	ServerPort    int    `json:"serverPort"`    // FRP服务器端口
-	Token         string `json:"token"`         // 认证令牌
-	DeviceID      string `json:"deviceId"`      // 设备ID
-	DeviceName    string `json:"deviceName"`    // 设备名称
-	STUNServers   []string `json:"stunServers"` // STUN服务器列表
-	AutoReconnect bool   `json:"autoReconnect"` // 自动重连
-	LogLevel      string `json:"logLevel"`      // 日志级别
+	Enabled       bool     `json:"enabled"`       // 是否启用
+	ServerAddr    string   `json:"serverAddr"`    // FRP服务器地址
+	ServerPort    int      `json:"serverPort"`    // FRP服务器端口
+	Token         string   `json:"token"`         // 认证令牌
+	DeviceID      string   `json:"deviceId"`      // 设备ID
+	DeviceName    string   `json:"deviceName"`    // 设备名称
+	STUNServers   []string `json:"stunServers"`   // STUN服务器列表
+	AutoReconnect bool     `json:"autoReconnect"` // 自动重连
+	LogLevel      string   `json:"logLevel"`      // 日志级别
 }
 
 // FRPProxyConfig 代理配置
 type FRPProxyConfig struct {
-	Name        string            `json:"name"`        // 代理名称
-	Type        string            `json:"type"`        // 类型: tcp, udp, http, https
-	LocalIP     string            `json:"localIp"`     // 本地IP
-	LocalPort   int               `json:"localPort"`   // 本地端口
-	RemotePort  int               `json:"remotePort"`  // 远程端口（tcp/udp）
-	CustomDomains []string        `json:"customDomains"` // 自定义域名（http/https）
-	Subdomain   string            `json:"subdomain"`   // 子域名
-	Headers     map[string]string `json:"headers"`     // HTTP头
-	EnableTLS   bool              `json:"enableTls"`   // 启用TLS
+	Name          string            `json:"name"`          // 代理名称
+	Type          string            `json:"type"`          // 类型: tcp, udp, http, https
+	LocalIP       string            `json:"localIp"`       // 本地IP
+	LocalPort     int               `json:"localPort"`     // 本地端口
+	RemotePort    int               `json:"remotePort"`    // 远程端口（tcp/udp）
+	CustomDomains []string          `json:"customDomains"` // 自定义域名（http/https）
+	Subdomain     string            `json:"subdomain"`     // 子域名
+	Headers       map[string]string `json:"headers"`       // HTTP头
+	EnableTLS     bool              `json:"enableTls"`     // 启用TLS
 }
 
 // FRPStatus FRP状态
 type FRPStatus struct {
-	Connected     bool              `json:"connected"`     // 是否已连接
-	ServerAddr    string            `json:"serverAddr"`    // 服务器地址
-	DeviceID      string            `json:"deviceId"`      // 设备ID
-	PublicURL     string            `json:"publicUrl"`     // 公网访问地址
-	Uptime        time.Duration     `json:"uptime"`        // 运行时间
-	ProxyCount    int               `json:"proxyCount"`    // 代理数量
-	LastConnected time.Time         `json:"lastConnected"` // 最后连接时间
-	ErrorMessage  string            `json:"errorMessage"`  // 错误信息
-	Proxies       []FRPProxyStatus  `json:"proxies"`       // 代理状态列表
+	Connected     bool             `json:"connected"`     // 是否已连接
+	ServerAddr    string           `json:"serverAddr"`    // 服务器地址
+	DeviceID      string           `json:"deviceId"`      // 设备ID
+	PublicURL     string           `json:"publicUrl"`     // 公网访问地址
+	Uptime        time.Duration    `json:"uptime"`        // 运行时间
+	ProxyCount    int              `json:"proxyCount"`    // 代理数量
+	LastConnected time.Time        `json:"lastConnected"` // 最后连接时间
+	ErrorMessage  string           `json:"errorMessage"`  // 错误信息
+	Proxies       []FRPProxyStatus `json:"proxies"`       // 代理状态列表
 }
 
 // FRPProxyStatus 代理状态
@@ -69,15 +69,15 @@ type FRPProxyStatus struct {
 
 // FRPManager FRP管理器
 type FRPManager struct {
-	config       *FRPConfig
-	proxyConfigs map[string]*FRPProxyConfig
-	status       FRPStatus
-	cmd          *exec.Cmd
-	configPath   string
-	mu           sync.RWMutex
-	ctx          context.Context
-	cancel       context.CancelFunc
-	logger       *zap.Logger
+	config         *FRPConfig
+	proxyConfigs   map[string]*FRPProxyConfig
+	status         FRPStatus
+	cmd            *exec.Cmd
+	configPath     string
+	mu             sync.RWMutex
+	ctx            context.Context
+	cancel         context.CancelFunc
+	logger         *zap.Logger
 	onStatusChange func(status FRPStatus)
 }
 
@@ -90,9 +90,9 @@ func NewFRPManager(config *FRPConfig, logger *zap.Logger) *FRPManager {
 		status: FRPStatus{
 			Connected: false,
 		},
-		ctx:        ctx,
-		cancel:     cancel,
-		logger:     logger,
+		ctx:    ctx,
+		cancel: cancel,
+		logger: logger,
 	}
 }
 
@@ -127,7 +127,7 @@ func (m *FRPManager) Start() error {
 	// 启动状态监控
 	go m.monitorStatus()
 
-	m.logger.Info("FRP客户端已启动", 
+	m.logger.Info("FRP客户端已启动",
 		zap.String("device", m.config.DeviceID),
 		zap.String("server", m.config.ServerAddr))
 
@@ -269,7 +269,7 @@ func (m *FRPManager) buildTOMLConfig() string {
 	sb.WriteString("[common]\n")
 	sb.WriteString(fmt.Sprintf("serverAddr = \"%s\"\n", m.config.ServerAddr))
 	sb.WriteString(fmt.Sprintf("serverPort = %d\n", m.config.ServerPort))
-	
+
 	if m.config.Token != "" {
 		sb.WriteString(fmt.Sprintf("auth.token = \"%s\"\n", m.config.Token))
 	}
@@ -346,7 +346,7 @@ func (m *FRPManager) checkConnection() {
 	if err := m.cmd.Process.Signal(syscall.Signal(0)); err != nil {
 		m.status.Connected = false
 		m.status.ErrorMessage = "进程已退出"
-		
+
 		// 自动重连
 		if m.config.AutoReconnect {
 			go m.reconnect()
@@ -369,7 +369,7 @@ func (m *FRPManager) checkConnection() {
 func (m *FRPManager) reconnect() {
 	for i := 0; i < 5; i++ {
 		m.logger.Info("尝试重新连接FRP服务器", zap.Int("attempt", i+1))
-		
+
 		if err := m.Start(); err == nil {
 			m.logger.Info("FRP服务器重连成功")
 			return

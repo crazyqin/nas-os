@@ -92,8 +92,8 @@ func TestDetermineStability(t *testing.T) {
 	monitor := NewQualityMonitor(config, nil)
 
 	tests := []struct {
-		score      int
-		stability  string
+		score     int
+		stability string
 	}{
 		{95, "excellent"},
 		{85, "good"},

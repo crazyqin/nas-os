@@ -16,12 +16,12 @@ import (
 
 // GoFaceDetector 使用 go-face 库实现人脸检测和识别
 type GoFaceDetector struct {
-	recognizer    interface{} // *face.Recognizer (使用 interface 避免 dlib 依赖问题)
-	modelDir      string
-	detectorType  string // "cnn" or "hog"
-	confidence    float64
-	mu            sync.RWMutex
-	initialized   bool
+	recognizer   interface{} // *face.Recognizer (使用 interface 避免 dlib 依赖问题)
+	modelDir     string
+	detectorType string // "cnn" or "hog"
+	confidence   float64
+	mu           sync.RWMutex
+	initialized  bool
 }
 
 // GoFaceConfig go-face 配置
@@ -54,7 +54,7 @@ func NewGoFaceDetector(config *GoFaceConfig) (*GoFaceDetector, error) {
 		"shape_predictor_5_face_landmarks.dat",
 		"dlib_face_recognition_resnet_model_v1.dat",
 	}
-	
+
 	for _, model := range requiredModels {
 		modelPath := filepath.Join(config.ModelDir, model)
 		if _, err := os.Stat(modelPath); os.IsNotExist(err) {
@@ -127,7 +127,7 @@ func (d *GoFaceDetector) CompareFaces(emb1, emb2 []float32) float64 {
 // alignFace 对齐人脸
 func (d *GoFaceDetector) alignFace(img image.Image, face FaceDetection) (image.Image, error) {
 	bounds := img.Bounds()
-	
+
 	// 计算人脸区域
 	x := int(face.BoundingBox.X * float64(bounds.Dx()))
 	y := int(face.BoundingBox.Y * float64(bounds.Dy()))
@@ -143,7 +143,7 @@ func (d *GoFaceDetector) alignFace(img image.Image, face FaceDetection) (image.I
 
 	// 裁剪
 	cropped := imaging.Crop(img, image.Rect(x, y, x+w, y+h))
-	
+
 	// 缩放到标准大小 (150x150)
 	resized := imaging.Resize(cropped, 150, 150, imaging.Linear)
 
@@ -236,15 +236,15 @@ func (d *GoFaceDetector) isSkinRegion(img image.Image, x, y, w, h int) bool {
 // expandSkinRegion 扩展肤色区域
 func (d *GoFaceDetector) expandSkinRegion(img image.Image, x, y, size int) Rect {
 	bounds := img.Bounds()
-	
+
 	// 向四周扩展
 	expandedW, expandedH := size, size
-	
+
 	// 向右扩展
 	for dx := x + size; dx < bounds.Dx()-10 && d.isSkinRegion(img, dx, y, 10, size); dx += 10 {
 		expandedW += 10
 	}
-	
+
 	// 向下扩展
 	for dy := y + size; dy < bounds.Dy()-10 && d.isSkinRegion(img, x, dy, size, 10); dy += 10 {
 		expandedH += 10

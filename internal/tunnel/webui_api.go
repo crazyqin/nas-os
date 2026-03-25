@@ -91,11 +91,11 @@ func (h *WebUIHandler) GetDashboard(c *gin.Context) {
 	// 构建响应
 	response := DashboardResponse{
 		OverallStatus: OverallStatus{
-			Connected:    frpDashboard.Status.Connected || p2pStatus.State == StateConnected,
-			PrimaryMode:  "frp",
-			Uptime:       frpDashboard.Status.Uptime,
-			LastChecked:  time.Now(),
-			PublicIP:     p2pStatus.PublicIP,
+			Connected:   frpDashboard.Status.Connected || p2pStatus.State == StateConnected,
+			PrimaryMode: "frp",
+			Uptime:      frpDashboard.Status.Uptime,
+			LastChecked: time.Now(),
+			PublicIP:    p2pStatus.PublicIP,
 		},
 		FRP: FRPDashboardResponse{
 			Enabled:      h.frpManager.config.Enabled,

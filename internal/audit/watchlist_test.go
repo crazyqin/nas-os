@@ -235,8 +235,8 @@ func TestWatchListManager_UpdateIgnoreEntry(t *testing.T) {
 
 	// 更新
 	update := &IgnoreListEntry{
-		ID:     entry.ID,
-		Reason: "更新后的原因",
+		ID:      entry.ID,
+		Reason:  "更新后的原因",
 		Enabled: false,
 	}
 	err = manager.UpdateIgnoreEntry(update)

@@ -33,8 +33,8 @@ func TestEnhancedConfigValidation(t *testing.T) {
 		errMsg  string
 	}{
 		{
-			name:   "valid config",
-			config: createValidTestConfig(),
+			name:    "valid config",
+			config:  createValidTestConfig(),
 			wantErr: false,
 		},
 		{
@@ -168,9 +168,9 @@ func TestEnhancedConfigValidation(t *testing.T) {
 // TestApplyProfile 测试应用配置模板
 func TestApplyProfile(t *testing.T) {
 	tests := []struct {
-		name          string
-		profile       ConfigProfile
-		checkResult   func(t *testing.T, c *EnhancedConfig)
+		name        string
+		profile     ConfigProfile
+		checkResult func(t *testing.T, c *EnhancedConfig)
 	}{
 		{
 			name:    "performance profile",
@@ -384,9 +384,9 @@ func TestLoggingConfig(t *testing.T) {
 // TestBandwidthConfig 测试带宽配置
 func TestBandwidthConfig(t *testing.T) {
 	config := BandwidthConfig{
-		UploadLimit:     1000000,
-		DownloadLimit:   2000000,
-		StatsInterval:   time.Second,
+		UploadLimit:      1000000,
+		DownloadLimit:    2000000,
+		StatsInterval:    time.Second,
 		BucketMultiplier: 2,
 	}
 

@@ -227,6 +227,10 @@ linters:
       - path: internal/tunnel/
         linters:
           - godot
+      # internal/photos: 照片模块注释风格放宽
+      - path: internal/photos/
+        linters:
+          - godot
 
 formatters:
   enable:

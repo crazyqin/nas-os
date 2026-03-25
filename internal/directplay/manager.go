@@ -22,19 +22,19 @@ type Manager struct {
 type DirectPlayProvider interface {
 	// GetType 获取提供商类型
 	GetType() ProviderType
-	
+
 	// GetDirectLink 获取直链
 	GetDirectLink(ctx context.Context, req *DirectPlayRequest) (*DirectLinkInfo, error)
-	
+
 	// ListFiles 列出文件
 	ListFiles(ctx context.Context, req *ListFilesRequest) (*ListFilesResponse, error)
-	
+
 	// GetFileInfo 获取文件信息
 	GetFileInfo(ctx context.Context, provider ProviderType, fileID, accessToken string) (*FileInfo, error)
-	
+
 	// TestConnection 测试连接
 	TestConnection(ctx context.Context, accessToken, refreshToken string) (*ProviderInfo, error)
-	
+
 	// SetAccessToken 设置访问令牌
 	SetAccessToken(accessToken, refreshToken, driveID string)
 }

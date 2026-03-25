@@ -24,9 +24,9 @@ func TestNewBandwidthMonitor(t *testing.T) {
 // TestNewBandwidthMonitorWithLimits 测试创建有限速的带宽监控器
 func TestNewBandwidthMonitorWithLimits(t *testing.T) {
 	config := BandwidthConfig{
-		UploadLimit:     1000000,
-		DownloadLimit:   2000000,
-		StatsInterval:   time.Second,
+		UploadLimit:      1000000,
+		DownloadLimit:    2000000,
+		StatsInterval:    time.Second,
 		BucketMultiplier: 2,
 	}
 	monitor := NewBandwidthMonitor(config, nil)
@@ -169,7 +169,7 @@ func TestBandwidthMonitorReset(t *testing.T) {
 // TestBandwidthMonitorAllowUpload 测试上传限速检查
 func TestBandwidthMonitorAllowUpload(t *testing.T) {
 	config := BandwidthConfig{
-		UploadLimit:     1000,
+		UploadLimit:      1000,
 		BucketMultiplier: 2,
 	}
 	monitor := NewBandwidthMonitor(config, nil)
@@ -214,7 +214,7 @@ func TestBandwidthMonitorPeakRates(t *testing.T) {
 	// 模拟高流量并等待足够时间
 	monitor.RecordUpload(100000)
 	monitor.RecordDownload(200000)
-	
+
 	// 更新统计
 	monitor.mu.Lock()
 	monitor.stats.UploadRate = 100000

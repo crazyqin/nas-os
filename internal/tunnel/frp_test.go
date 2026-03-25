@@ -36,10 +36,10 @@ func TestFRPManager_AddProxy(t *testing.T) {
 	manager := NewFRPManager(config, logger)
 
 	proxy := &FRPProxyConfig{
-		Name:      "web-ui",
-		Type:      "tcp",
-		LocalIP:   "127.0.0.1",
-		LocalPort: 80,
+		Name:       "web-ui",
+		Type:       "tcp",
+		LocalIP:    "127.0.0.1",
+		LocalPort:  80,
 		RemotePort: 8080,
 	}
 
@@ -64,15 +64,15 @@ func TestFRPManager_RemoveProxy(t *testing.T) {
 	manager := NewFRPManager(config, logger)
 
 	proxy := &FRPProxyConfig{
-		Name:      "web-ui",
-		Type:      "tcp",
-		LocalIP:   "127.0.0.1",
-		LocalPort: 80,
+		Name:       "web-ui",
+		Type:       "tcp",
+		LocalIP:    "127.0.0.1",
+		LocalPort:  80,
 		RemotePort: 8080,
 	}
 
 	manager.AddProxy(proxy)
-	
+
 	err := manager.RemoveProxy("web-ui")
 	assert.NoError(t, err)
 	assert.Equal(t, 0, manager.status.ProxyCount)

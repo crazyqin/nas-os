@@ -56,10 +56,10 @@ func (p *BaiduPanProvider) GetDirectLink(ctx context.Context, req *DirectPlayReq
 
 	// 请求体
 	body := map[string]interface{}{
-		"fsids":    []string{req.FileID},
-		"dlink":    1,
-		"extra":    1, // 获取额外信息
-		"thumb":    1, // 获取缩略图
+		"fsids": []string{req.FileID},
+		"dlink": 1,
+		"extra": 1, // 获取额外信息
+		"thumb": 1, // 获取缩略图
 	}
 
 	bodyBytes, _ := json.Marshal(body)
@@ -81,14 +81,14 @@ func (p *BaiduPanProvider) GetDirectLink(ctx context.Context, req *DirectPlayReq
 		Errno  int    `json:"errno"`
 		ErrMsg string `json:"errmsg,omitempty"`
 		List   []struct {
-			FsID       int64  `json:"fs_id"`
-			Path       string `json:"path"`
-			Filename   string `json:"filename"`
-			Size       int64  `json:"size"`
-			Dlink      string `json:"dlink"`
-			Md5        string `json:"md5"`
-			ServerMtime int64 `json:"server_mtime"`
-			Thumbs     struct {
+			FsID        int64  `json:"fs_id"`
+			Path        string `json:"path"`
+			Filename    string `json:"filename"`
+			Size        int64  `json:"size"`
+			Dlink       string `json:"dlink"`
+			Md5         string `json:"md5"`
+			ServerMtime int64  `json:"server_mtime"`
+			Thumbs      struct {
 				Icon string `json:"icon,omitempty"`
 				URL3 string `json:"url3,omitempty"` // 大缩略图
 			} `json:"thumbs"`
@@ -135,15 +135,15 @@ func (p *BaiduPanProvider) GetDirectLink(ctx context.Context, req *DirectPlayReq
 	}
 
 	link := &DirectLinkInfo{
-		FileID:       fmt.Sprintf("%d", file.FsID),
-		FileName:     file.Filename,
-		FilePath:     file.Path,
-		FileSize:     file.Size,
-		URL:          downloadURL,
-		DownloadURL:  downloadURL,
-		StreamURL:    downloadURL, // 百度网盘下载链接可直接用于流播放
-		ExpiresAt:    time.Now().Add(8 * time.Hour), // 百度网盘链接有效期约8小时
-		ExpiresIn:    8 * 60 * 60,
+		FileID:      fmt.Sprintf("%d", file.FsID),
+		FileName:    file.Filename,
+		FilePath:    file.Path,
+		FileSize:    file.Size,
+		URL:         downloadURL,
+		DownloadURL: downloadURL,
+		StreamURL:   downloadURL,                   // 百度网盘下载链接可直接用于流播放
+		ExpiresAt:   time.Now().Add(8 * time.Hour), // 百度网盘链接有效期约8小时
+		ExpiresIn:   8 * 60 * 60,
 		Headers: map[string]string{
 			"User-Agent": "LogStatistic",
 		},
@@ -327,10 +327,10 @@ func (p *BaiduPanProvider) TestConnection(ctx context.Context, accessToken, refr
 	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
-		Errno       int    `json:"errno"`
-		BaiduName   string `json:"baidu_name"`
-		TotalQuota  int64  `json:"total_quota"`
-		UsedQuota   int64  `json:"used_quota"`
+		Errno      int    `json:"errno"`
+		BaiduName  string `json:"baidu_name"`
+		TotalQuota int64  `json:"total_quota"`
+		UsedQuota  int64  `json:"used_quota"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {

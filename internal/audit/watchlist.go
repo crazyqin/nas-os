@@ -28,15 +28,15 @@ const (
 type WatchOperation string
 
 const (
-	WatchOpRead    WatchOperation = "read"    // 读取
-	WatchOpWrite   WatchOperation = "write"   // 写入
-	WatchOpCreate  WatchOperation = "create"  // 创建
-	WatchOpDelete  WatchOperation = "delete"  // 删除
-	WatchOpRename  WatchOperation = "rename"  // 重命名
-	WatchOpMove    WatchOperation = "move"    // 移动
-	WatchOpChmod   WatchOperation = "chmod"   // 权限修改
-	WatchOpChown   WatchOperation = "chown"   // 所有者修改
-	WatchOpAll     WatchOperation = "all"     // 所有操作
+	WatchOpRead   WatchOperation = "read"   // 读取
+	WatchOpWrite  WatchOperation = "write"  // 写入
+	WatchOpCreate WatchOperation = "create" // 创建
+	WatchOpDelete WatchOperation = "delete" // 删除
+	WatchOpRename WatchOperation = "rename" // 重命名
+	WatchOpMove   WatchOperation = "move"   // 移动
+	WatchOpChmod  WatchOperation = "chmod"  // 权限修改
+	WatchOpChown  WatchOperation = "chown"  // 所有者修改
+	WatchOpAll    WatchOperation = "all"    // 所有操作
 )
 
 // WatchListEntry 监控列表条目
@@ -56,22 +56,22 @@ type WatchListEntry struct {
 
 // IgnoreListEntry 忽略列表条目
 type IgnoreListEntry struct {
-	ID          string    `json:"id"`                    // 唯一标识
-	Path        string    `json:"path"`                  // 文件/目录路径
-	Pattern     string    `json:"pattern,omitempty"`     // glob匹配模式（可选）
-	Reason      string    `json:"reason,omitempty"`      // 忽略原因
-	Enabled     bool      `json:"enabled"`               // 是否启用
-	Description string    `json:"description,omitempty"` // 描述
-	CreatedAt   time.Time `json:"created_at"`            // 创建时间
-	UpdatedAt   time.Time `json:"updated_at"`            // 更新时间
-	CreatedBy   string    `json:"created_by"`            // 创建者用户ID
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"` // 过期时间（可选）
-	Tags        []string  `json:"tags,omitempty"`        // 标签
+	ID          string     `json:"id"`                    // 唯一标识
+	Path        string     `json:"path"`                  // 文件/目录路径
+	Pattern     string     `json:"pattern,omitempty"`     // glob匹配模式（可选）
+	Reason      string     `json:"reason,omitempty"`      // 忽略原因
+	Enabled     bool       `json:"enabled"`               // 是否启用
+	Description string     `json:"description,omitempty"` // 描述
+	CreatedAt   time.Time  `json:"created_at"`            // 创建时间
+	UpdatedAt   time.Time  `json:"updated_at"`            // 更新时间
+	CreatedBy   string     `json:"created_by"`            // 创建者用户ID
+	ExpiresAt   *time.Time `json:"expires_at,omitempty"`  // 过期时间（可选）
+	Tags        []string   `json:"tags,omitempty"`        // 标签
 }
 
 // WatchListConfig 监控列表配置
 type WatchListConfig struct {
-	MaxWatchEntries int `json:"max_watch_entries"` // 最大监控条目数
+	MaxWatchEntries  int `json:"max_watch_entries"`  // 最大监控条目数
 	MaxIgnoreEntries int `json:"max_ignore_entries"` // 最大忽略条目数
 }
 
@@ -428,13 +428,13 @@ func (m *WatchListManager) ListIgnoreEntries(filter IgnoreListFilter) []*IgnoreL
 
 // IgnoreListFilter 忽略列表筛选条件
 type IgnoreListFilter struct {
-	Path      string    `json:"path,omitempty"`
-	Enabled   *bool     `json:"enabled,omitempty"`
-	CreatedBy string    `json:"created_by,omitempty"`
-	Tags      []string  `json:"tags,omitempty"`
-	Expired   *bool     `json:"expired,omitempty"`
-	Limit     int       `json:"limit"`
-	Offset    int       `json:"offset"`
+	Path      string   `json:"path,omitempty"`
+	Enabled   *bool    `json:"enabled,omitempty"`
+	CreatedBy string   `json:"created_by,omitempty"`
+	Tags      []string `json:"tags,omitempty"`
+	Expired   *bool    `json:"expired,omitempty"`
+	Limit     int      `json:"limit"`
+	Offset    int      `json:"offset"`
 }
 
 // matchIgnoreFilter 检查忽略条目是否匹配筛选条件
@@ -564,12 +564,12 @@ func (m *WatchListManager) matchPath(targetPath, basePath, pattern string) bool 
 
 // WatchListStats 监控列表统计
 type WatchListStats struct {
-	TotalWatchEntries   int            `json:"total_watch_entries"`
-	TotalIgnoreEntries  int            `json:"total_ignore_entries"`
-	EnabledWatchEntries int            `json:"enabled_watch_entries"`
-	EnabledIgnoreEntries int           `json:"enabled_ignore_entries"`
-	ExpiredIgnoreEntries int           `json:"expired_ignore_entries"`
-	OperationsByType    map[string]int `json:"operations_by_type"`
+	TotalWatchEntries    int            `json:"total_watch_entries"`
+	TotalIgnoreEntries   int            `json:"total_ignore_entries"`
+	EnabledWatchEntries  int            `json:"enabled_watch_entries"`
+	EnabledIgnoreEntries int            `json:"enabled_ignore_entries"`
+	ExpiredIgnoreEntries int            `json:"expired_ignore_entries"`
+	OperationsByType     map[string]int `json:"operations_by_type"`
 }
 
 // GetStats 获取统计信息
@@ -578,9 +578,9 @@ func (m *WatchListManager) GetStats() *WatchListStats {
 	defer m.mu.RUnlock()
 
 	stats := &WatchListStats{
-		TotalWatchEntries:   len(m.watchEntries),
-		TotalIgnoreEntries:  len(m.ignoreEntries),
-		OperationsByType:    make(map[string]int),
+		TotalWatchEntries:  len(m.watchEntries),
+		TotalIgnoreEntries: len(m.ignoreEntries),
+		OperationsByType:   make(map[string]int),
 	}
 
 	now := time.Now()

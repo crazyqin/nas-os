@@ -178,15 +178,15 @@ func (p *AliyunPanProvider) getFileInfo(ctx context.Context, accessToken, driveI
 	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
-		Code             string `json:"code"`
-		Message          string `json:"message"`
-		Name             string `json:"name"`
-		Path             string `json:"path"`
-		Size             int64  `json:"size"`
-		Type             string `json:"type"`
-		FileExtension    string `json:"file_extension"`
-		CreatedAt        string `json:"created_at"`
-		UpdatedAt        string `json:"updated_at"`
+		Code               string `json:"code"`
+		Message            string `json:"message"`
+		Name               string `json:"name"`
+		Path               string `json:"path"`
+		Size               int64  `json:"size"`
+		Type               string `json:"type"`
+		FileExtension      string `json:"file_extension"`
+		CreatedAt          string `json:"created_at"`
+		UpdatedAt          string `json:"updated_at"`
 		VideoMediaMetadata struct {
 			Duration   string `json:"duration"`
 			Width      int    `json:"width"`
@@ -291,15 +291,15 @@ func (p *AliyunPanProvider) ListFiles(ctx context.Context, req *ListFilesRequest
 	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
-		Code       string `json:"code"`
-		Message    string `json:"message"`
-		Items      []struct {
-			FileId       string `json:"file_id"`
-			Name         string `json:"name"`
-			Size         int64  `json:"size"`
-			Type         string `json:"type"`
-			UpdatedAt    string `json:"updated_at"`
-			CreatedAt    string `json:"created_at"`
+		Code    string `json:"code"`
+		Message string `json:"message"`
+		Items   []struct {
+			FileId        string `json:"file_id"`
+			Name          string `json:"name"`
+			Size          int64  `json:"size"`
+			Type          string `json:"type"`
+			UpdatedAt     string `json:"updated_at"`
+			CreatedAt     string `json:"created_at"`
 			FileExtension string `json:"file_extension"`
 		} `json:"items"`
 		NextMarker string `json:"next_marker"`
@@ -373,13 +373,13 @@ func (p *AliyunPanProvider) TestConnection(ctx context.Context, accessToken, ref
 	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
-		Code          string `json:"code"`
-		Message       string `json:"message"`
-		NickName      string `json:"nick_name"`
-		UserName      string `json:"user_name"`
+		Code           string `json:"code"`
+		Message        string `json:"message"`
+		NickName       string `json:"nick_name"`
+		UserName       string `json:"user_name"`
 		DefaultDriveId string `json:"default_drive_id"`
-		UsedSpaceSize int64  `json:"used_size"`
-		TotalSpaceSize int64 `json:"total_size"`
+		UsedSpaceSize  int64  `json:"used_size"`
+		TotalSpaceSize int64  `json:"total_size"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -435,8 +435,8 @@ func (p *AliyunPanProvider) GetOpenFileDirectLink(ctx context.Context, accessTok
 	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
-		Code      string `json:"code"`
-		Message   string `json:"message"`
+		Code        string `json:"code"`
+		Message     string `json:"message"`
 		DownloadURL string `json:"download_url"`
 		Expiration  string `json:"expiration"`
 	}

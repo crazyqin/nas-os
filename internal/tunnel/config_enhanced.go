@@ -279,11 +279,11 @@ func ValidateEnhancedConfig(config *EnhancedConfig) error {
 type ConfigProfile string
 
 const (
-	ProfileBalanced  ConfigProfile = "balanced"  // 平衡模式
+	ProfileBalanced    ConfigProfile = "balanced"    // 平衡模式
 	ProfilePerformance ConfigProfile = "performance" // 性能优先
-	ProfileReliable  ConfigProfile = "reliable"  // 稳定性优先
-	ProfileLowLatency ConfigProfile = "low_latency" // 低延迟模式
-	ProfileSecure    ConfigProfile = "secure"    // 安全优先
+	ProfileReliable    ConfigProfile = "reliable"    // 稳定性优先
+	ProfileLowLatency  ConfigProfile = "low_latency" // 低延迟模式
+	ProfileSecure      ConfigProfile = "secure"      // 安全优先
 )
 
 // ApplyProfile 应用配置模板

@@ -553,16 +553,16 @@ func (h *WatchListHandlers) cleanupExpired(c *gin.Context) {
 
 // checkPathRequest 检查路径请求
 type checkPathRequest struct {
-	Path      string          `json:"path" binding:"required"`
-	Operation WatchOperation  `json:"operation,omitempty"`
+	Path      string         `json:"path" binding:"required"`
+	Operation WatchOperation `json:"operation,omitempty"`
 }
 
 // checkPathResponse 检查路径响应
 type checkPathResponse struct {
-	Path      string           `json:"path"`
-	IsWatched bool             `json:"is_watched"`
-	IsIgnored bool             `json:"is_ignored"`
-	WatchedBy *WatchListEntry  `json:"watched_by,omitempty"`
+	Path      string          `json:"path"`
+	IsWatched bool            `json:"is_watched"`
+	IsIgnored bool            `json:"is_ignored"`
+	WatchedBy *WatchListEntry `json:"watched_by,omitempty"`
 }
 
 // checkPath 检查路径是否被监控或忽略

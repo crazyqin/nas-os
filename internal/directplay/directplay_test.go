@@ -66,9 +66,9 @@ func TestLinkCache(t *testing.T) {
 	cache := NewLinkCache(time.Hour, 100)
 
 	link := &DirectLinkInfo{
-		FileID:   "test123",
-		FileName: "test.mp4",
-		URL:      "https://example.com/test.mp4",
+		FileID:    "test123",
+		FileName:  "test.mp4",
+		URL:       "https://example.com/test.mp4",
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 
@@ -159,9 +159,9 @@ func TestAliyunPanProviderGetType(t *testing.T) {
 
 func TestManagerProviderDisabled(t *testing.T) {
 	config := &DirectPlayConfig{
-		Enabled:         true,
-		BaiduPanEnabled: false,
-		Pan123Enabled:   false,
+		Enabled:          true,
+		BaiduPanEnabled:  false,
+		Pan123Enabled:    false,
 		AliyunPanEnabled: false,
 	}
 	manager := NewManager(config)
