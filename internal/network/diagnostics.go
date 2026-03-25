@@ -345,6 +345,8 @@ func (m *Manager) parseTracepathOutput(output string, result *TracerouteResult) 
 // DNSLookup 执行 DNS 查询.
 func (m *Manager) DNSLookup(host string, recordType string) (*DNSLookupResult, error) {
 	start := time.Now()
+	ctx := context.Background()
+	resolver := &net.Resolver{}
 
 	result := &DNSLookupResult{
 		Host:      host,
@@ -352,20 +354,20 @@ func (m *Manager) DNSLookup(host string, recordType string) (*DNSLookupResult, e
 	}
 
 	// A/AAAA 记录
-	addrs, err := net.LookupHost(host)
+	addrs, err := resolver.LookupHost(ctx, host)
 	if err == nil {
 		result.Addresses = addrs
 	}
 
 	// CNAME 记录
-	cname, err := net.LookupCNAME(host)
+	cname, err := resolver.LookupCNAME(ctx, host)
 	if err == nil && cname != host && cname != "" {
 		result.CNAME = cname
 	}
 
 	// MX 记录
 	if recordType == "" || recordType == "MX" {
-		mxRecords, err := net.LookupMX(host)
+		mxRecords, err := resolver.LookupMX(ctx, host)
 		if err == nil {
 			for _, mx := range mxRecords {
 				result.MXRecords = append(result.MXRecords, MXRecord{
@@ -378,7 +380,7 @@ func (m *Manager) DNSLookup(host string, recordType string) (*DNSLookupResult, e
 
 	// NS 记录
 	if recordType == "" || recordType == "NS" {
-		nsRecords, err := net.LookupNS(host)
+		nsRecords, err := resolver.LookupNS(ctx, host)
 		if err == nil {
 			for _, ns := range nsRecords {
 				result.NSRecords = append(result.NSRecords, NSRecord{
@@ -390,7 +392,7 @@ func (m *Manager) DNSLookup(host string, recordType string) (*DNSLookupResult, e
 
 	// TXT 记录
 	if recordType == "" || recordType == "TXT" {
-		txtRecords, err := net.LookupTXT(host)
+		txtRecords, err := resolver.LookupTXT(ctx, host)
 		if err == nil {
 			result.TXTRecords = txtRecords
 		}
@@ -415,6 +417,7 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 	}
 
 	timeout := 1 * time.Second
+	dialer := &net.Dialer{Timeout: timeout}
 
 	for _, port := range ports {
 		status := PortStatus{
@@ -425,7 +428,7 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 		address := net.JoinHostPort(host, fmt.Sprintf("%d", port))
 
 		if protocol == "tcp" {
-			conn, err := net.DialTimeout("tcp", address, timeout)
+			conn, err := dialer.DialContext(context.Background(), "tcp", address)
 			if err == nil {
 				status.Open = true
 				_ = conn.Close()
@@ -434,7 +437,7 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 			}
 		} else {
 			// UDP 扫描
-			conn, err := net.DialTimeout("udp", address, timeout)
+			conn, err := dialer.DialContext(context.Background(), "udp", address)
 			if err == nil {
 				// 发送空数据包
 				_, _ = conn.Write([]byte{})
@@ -613,12 +616,16 @@ func (m *Manager) ParseDigOutput(output string) []string {
 
 // CheckConnectivity 检查网络连接状态.
 func (m *Manager) CheckConnectivity() (*ConnectivityStatus, error) {
+	ctx := context.Background()
+	resolver := &net.Resolver{}
+	dialer := &net.Dialer{Timeout: 2 * time.Second}
+
 	status := &ConnectivityStatus{
 		Checks: make(map[string]bool),
 	}
 
 	// 检查 DNS 解析
-	if _, err := net.LookupHost("google.com"); err == nil {
+	if _, err := resolver.LookupHost(ctx, "google.com"); err == nil {
 		status.Checks["dns"] = true
 	} else {
 		status.Checks["dns"] = false
@@ -632,7 +639,7 @@ func (m *Manager) CheckConnectivity() (*ConnectivityStatus, error) {
 	}
 
 	for _, host := range testHosts {
-		conn, err := net.DialTimeout("tcp", host, 2*time.Second)
+		conn, err := dialer.DialContext(ctx, "tcp", host)
 		if err == nil {
 			_ = conn.Close()
 			status.Checks["internet"] = true
