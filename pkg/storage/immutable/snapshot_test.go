@@ -280,10 +280,10 @@ func TestRansomwareCheck(t *testing.T) {
 
 	// Create protected snapshot
 	opts := CreateSnapshotOptions{
-		ID:                  "snap-009",
-		Name:                "ransomware-test",
-		Volume:              "volume-1",
-		CreatedBy:           "admin",
+		ID:                   "snap-009",
+		Name:                 "ransomware-test",
+		Volume:               "volume-1",
+		CreatedBy:            "admin",
 		RansomwareProtection: true,
 	}
 	m.CreateSnapshot(context.Background(), opts)

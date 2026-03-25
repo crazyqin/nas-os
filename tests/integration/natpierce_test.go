@@ -349,8 +349,8 @@ func TestNatPierce_ConfigValidation(t *testing.T) {
 		{
 			name: "缺少服务器地址",
 			cfg: &natpierce.Config{
-				Enabled:  true,
-				Mode:     natpierce.ModeRelay,
+				Enabled:    true,
+				Mode:       natpierce.ModeRelay,
 				ServerAddr: "",
 				ServerPort: 443,
 			},

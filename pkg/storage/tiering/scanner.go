@@ -31,12 +31,12 @@ type ScanProgress struct {
 
 // ScanResult contains scan results
 type ScanResult struct {
-	Files      []FileInfo       `json:"files"`
-	ByTier     map[Tier]int64   `json:"by_tier"`
-	SizeByTier map[Tier]int64   `json:"size_by_tier"`
-	Progress   ScanProgress     `json:"progress"`
-	Duration   time.Duration    `json:"duration"`
-	Errors     []ScanError      `json:"errors,omitempty"`
+	Files      []FileInfo     `json:"files"`
+	ByTier     map[Tier]int64 `json:"by_tier"`
+	SizeByTier map[Tier]int64 `json:"size_by_tier"`
+	Progress   ScanProgress   `json:"progress"`
+	Duration   time.Duration  `json:"duration"`
+	Errors     []ScanError    `json:"errors,omitempty"`
 }
 
 // ScanError represents a scanning error
@@ -204,13 +204,13 @@ func (s *Scanner) scanFile(path string, opts ScanOptions) (*FileInfo, error) {
 	tier := s.determineInitialTier(info, atime)
 
 	return &FileInfo{
-		Path:        path,
-		Size:        info.Size(),
-		CurrentTier: tier,
-		LastAccess:  atime,
+		Path:         path,
+		Size:         info.Size(),
+		CurrentTier:  tier,
+		LastAccess:   atime,
 		LastModified: info.ModTime(),
-		CreatedAt:   info.ModTime(), // Approximation
-		AccessCount: 0,               // Would need extended attributes or tracking
+		CreatedAt:    info.ModTime(), // Approximation
+		AccessCount:  0,              // Would need extended attributes or tracking
 	}, nil
 }
 

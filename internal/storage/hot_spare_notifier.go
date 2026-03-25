@@ -54,31 +54,31 @@ type NotificationConfig struct {
 
 // EmailConfig 邮件配置
 type EmailConfig struct {
-	Enabled   bool     `json:"enabled"`
-	SMTPHost  string   `json:"smtpHost"`
-	SMTPPort  int      `json:"smtpPort"`
-	Username  string   `json:"username"`
-	Password  string   `json:"password"`
-	From      string   `json:"from"`
-	To        []string `json:"to"`
-	UseTLS    bool     `json:"useTLS"`
-	UseStartTLS bool   `json:"useStartTLS"`
+	Enabled     bool     `json:"enabled"`
+	SMTPHost    string   `json:"smtpHost"`
+	SMTPPort    int      `json:"smtpPort"`
+	Username    string   `json:"username"`
+	Password    string   `json:"password"`
+	From        string   `json:"from"`
+	To          []string `json:"to"`
+	UseTLS      bool     `json:"useTLS"`
+	UseStartTLS bool     `json:"useStartTLS"`
 }
 
 // WebhookConfig Webhook配置
 type WebhookConfig struct {
-	Enabled  bool               `json:"enabled"`
-	URL      string             `json:"url"`
-	Method   string             `json:"method"`
-	Headers  map[string]string  `json:"headers"`
-	Template string             `json:"template"` // 自定义模板
+	Enabled  bool              `json:"enabled"`
+	URL      string            `json:"url"`
+	Method   string            `json:"method"`
+	Headers  map[string]string `json:"headers"`
+	Template string            `json:"template"` // 自定义模板
 }
 
 // TelegramConfig Telegram配置
 type TelegramConfig struct {
-	Enabled bool   `json:"enabled"`
-	BotToken string `json:"botToken"`
-	ChatID   string `json:"chatId"`
+	Enabled   bool   `json:"enabled"`
+	BotToken  string `json:"botToken"`
+	ChatID    string `json:"chatId"`
 	ParseMode string `json:"parseMode"` // HTML, Markdown
 }
 
@@ -108,10 +108,10 @@ var DefaultNotificationConfig = NotificationConfig{
 
 // NotificationManager 通知管理器
 type NotificationManager struct {
-	config        NotificationConfig
-	lastNotified  map[string]time.Time // 事件类型 -> 最后通知时间
-	templates     map[string]*template.Template
-	httpClient    *http.Client
+	config       NotificationConfig
+	lastNotified map[string]time.Time // 事件类型 -> 最后通知时间
+	templates    map[string]*template.Template
+	httpClient   *http.Client
 }
 
 // NewNotificationManager 创建通知管理器

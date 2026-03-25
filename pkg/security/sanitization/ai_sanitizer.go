@@ -46,19 +46,19 @@ var (
 type SensitiveType string
 
 const (
-	SensitiveTypeCreditCard    SensitiveType = "credit_card"
-	SensitiveTypeSSN           SensitiveType = "ssn"
-	SensitiveTypePassport      SensitiveType = "passport"
-	SensitiveTypePhone         SensitiveType = "phone"
-	SensitiveTypeEmail         SensitiveType = "email"
-	SensitiveTypeIP            SensitiveType = "ip_address"
-	SensitiveTypePassword      SensitiveType = "password"
-	SensitiveTypeAPIKey        SensitiveType = "api_key"
-	SensitiveTypeBankAccount   SensitiveType = "bank_account"
-	SensitiveTypeName          SensitiveType = "name"
-	SensitiveTypeAddress       SensitiveType = "address"
-	SensitiveTypeIDCard        SensitiveType = "id_card"
-	SensitiveTypeCustom        SensitiveType = "custom"
+	SensitiveTypeCreditCard  SensitiveType = "credit_card"
+	SensitiveTypeSSN         SensitiveType = "ssn"
+	SensitiveTypePassport    SensitiveType = "passport"
+	SensitiveTypePhone       SensitiveType = "phone"
+	SensitiveTypeEmail       SensitiveType = "email"
+	SensitiveTypeIP          SensitiveType = "ip_address"
+	SensitiveTypePassword    SensitiveType = "password"
+	SensitiveTypeAPIKey      SensitiveType = "api_key"
+	SensitiveTypeBankAccount SensitiveType = "bank_account"
+	SensitiveTypeName        SensitiveType = "name"
+	SensitiveTypeAddress     SensitiveType = "address"
+	SensitiveTypeIDCard      SensitiveType = "id_card"
+	SensitiveTypeCustom      SensitiveType = "custom"
 )
 
 // SensitiveData 敏感数据
@@ -74,22 +74,22 @@ type SensitiveData struct {
 
 // SanitizationResult 去敏感化结果
 type SanitizationResult struct {
-	OriginalText     string           `json:"original_text,omitempty"`
-	SanitizedText    string           `json:"sanitized_text"`
-	DetectedItems    []SensitiveData  `json:"detected_items"`
+	OriginalText     string            `json:"original_text,omitempty"`
+	SanitizedText    string            `json:"sanitized_text"`
+	DetectedItems    []SensitiveData   `json:"detected_items"`
 	Stats            SanitizationStats `json:"stats"`
-	Timestamp        time.Time        `json:"timestamp"`
-	ProcessingTimeMS int64            `json:"processing_time_ms"`
+	Timestamp        time.Time         `json:"timestamp"`
+	ProcessingTimeMS int64             `json:"processing_time_ms"`
 }
 
 // SanitizationStats 统计信息
 type SanitizationStats struct {
-	TotalScanned      int `json:"total_scanned"`
-	TotalDetected     int `json:"total_detected"`
-	TotalReplaced     int `json:"total_replaced"`
-	TotalRedacted     int `json:"total_redacted"`
-	TotalEncrypted    int `json:"total_encrypted"`
-	ByType            map[SensitiveType]int `json:"by_type"`
+	TotalScanned   int                   `json:"total_scanned"`
+	TotalDetected  int                   `json:"total_detected"`
+	TotalReplaced  int                   `json:"total_replaced"`
+	TotalRedacted  int                   `json:"total_redacted"`
+	TotalEncrypted int                   `json:"total_encrypted"`
+	ByType         map[SensitiveType]int `json:"by_type"`
 }
 
 // SanitizationMode 去敏感化模式
@@ -114,43 +114,43 @@ const (
 type SanitizationConfig struct {
 	// 默认模式
 	DefaultMode SanitizationMode `json:"default_mode"`
-	
+
 	// 各类型的模式配置
 	TypeModes map[SensitiveType]SanitizationMode `json:"type_modes"`
-	
+
 	// 遮蔽字符
 	MaskChar string `json:"mask_char"`
-	
+
 	// 遮蔽比例（0-1，保留多少比例的原始字符）
 	MaskRatio float64 `json:"mask_ratio"`
-	
+
 	// 替换模板
 	ReplaceTemplate string `json:"replace_template"`
-	
+
 	// 是否保留上下文
 	PreserveContext bool `json:"preserve_context"`
-	
+
 	// 上下文窗口大小
 	ContextWindowSize int `json:"context_window_size"`
-	
+
 	// 最小置信度阈值
 	ConfidenceThreshold float64 `json:"confidence_threshold"`
-	
+
 	// 是否启用加密
 	EnableEncryption bool `json:"enable_encryption"`
-	
+
 	// 加密密钥路径
 	EncryptionKeyPath string `json:"encryption_key_path"`
-	
+
 	// 是否生成报告
 	GenerateReport bool `json:"generate_report"`
-	
+
 	// 自定义模式
 	CustomPatterns map[string]*regexp.Regexp `json:"-"`
-	
+
 	// 敏感词列表
 	SensitiveWords []string `json:"sensitive_words"`
-	
+
 	// 排除模式（不处理的模式）
 	ExcludePatterns []string `json:"exclude_patterns"`
 }
@@ -160,17 +160,17 @@ func DefaultSanitizationConfig() *SanitizationConfig {
 	return &SanitizationConfig{
 		DefaultMode:         ModeMask,
 		TypeModes:           make(map[SensitiveType]SanitizationMode),
-		MaskChar:           "*",
-		MaskRatio:          0.3,
-		ReplaceTemplate:    "[REDACTED_%s]",
-		PreserveContext:    true,
-		ContextWindowSize:  50,
+		MaskChar:            "*",
+		MaskRatio:           0.3,
+		ReplaceTemplate:     "[REDACTED_%s]",
+		PreserveContext:     true,
+		ContextWindowSize:   50,
 		ConfidenceThreshold: 0.7,
-		EnableEncryption:   false,
-		GenerateReport:     true,
-		CustomPatterns:     make(map[string]*regexp.Regexp),
-		SensitiveWords:     []string{},
-		ExcludePatterns:    []string{},
+		EnableEncryption:    false,
+		GenerateReport:      true,
+		CustomPatterns:      make(map[string]*regexp.Regexp),
+		SensitiveWords:      []string{},
+		ExcludePatterns:     []string{},
 	}
 }
 
@@ -212,31 +212,31 @@ func NewAISanitizer(config *SanitizationConfig) (*AISanitizer, error) {
 func (s *AISanitizer) initPatterns() {
 	// 信用卡号
 	s.patterns[SensitiveTypeCreditCard] = regexp.MustCompile(`\b(?:\d{4}[-\s]?){3}\d{4}\b`)
-	
+
 	// 社会安全号（中国身份证）
 	s.patterns[SensitiveTypeSSN] = regexp.MustCompile(`\b\d{6}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]\b`)
-	
+
 	// 护照号码
 	s.patterns[SensitiveTypePassport] = regexp.MustCompile(`\b[EGP][A-Z]?\d{8}\b`)
-	
+
 	// 手机号
 	s.patterns[SensitiveTypePhone] = regexp.MustCompile(`\b(?:\+?86)?1[3-9]\d{9}\b`)
-	
+
 	// 邮箱
 	s.patterns[SensitiveTypeEmail] = regexp.MustCompile(`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`)
-	
+
 	// IP地址
 	s.patterns[SensitiveTypeIP] = regexp.MustCompile(`\b(?:\d{1,3}\.){3}\d{1,3}\b`)
-	
+
 	// 密码模式（常见密码字段）
 	s.patterns[SensitiveTypePassword] = regexp.MustCompile(`(?i)(?:password|passwd|pwd|密码)\s*[=:：]\s*\S+`)
-	
+
 	// API Key模式
 	s.patterns[SensitiveTypeAPIKey] = regexp.MustCompile(`(?i)(?:api[_-]?key|apikey|secret[_-]?key|token)\s*[=:：]\s*[A-Za-z0-9_-]{16,}`)
-	
+
 	// 银行账号
 	s.patterns[SensitiveTypeBankAccount] = regexp.MustCompile(`\b\d{16,19}\b`)
-	
+
 	// 身份证号
 	s.patterns[SensitiveTypeIDCard] = regexp.MustCompile(`\b\d{17}[\dXx]\b`)
 }
@@ -252,7 +252,7 @@ func (s *AISanitizer) loadEncryptionKey(keyPath string) error {
 				return err
 			}
 			s.encryptKey = key
-			
+
 			// 保存密钥
 			if err := os.MkdirAll(filepath.Dir(keyPath), 0700); err != nil {
 				return err
@@ -261,7 +261,7 @@ func (s *AISanitizer) loadEncryptionKey(keyPath string) error {
 		}
 		return err
 	}
-	
+
 	s.encryptKey = data
 	return nil
 }
@@ -269,7 +269,7 @@ func (s *AISanitizer) loadEncryptionKey(keyPath string) error {
 // Sanitize 执行去敏感化
 func (s *AISanitizer) Sanitize(ctx context.Context, text string) (*SanitizationResult, error) {
 	startTime := time.Now()
-	
+
 	result := &SanitizationResult{
 		OriginalText:  text,
 		SanitizedText: text,
@@ -294,31 +294,31 @@ func (s *AISanitizer) Sanitize(ctx context.Context, text string) (*SanitizationR
 	// 根据模式处理
 	sanitizedText := text
 	offset := 0
-	
+
 	for _, item := range detected {
 		// 获取该类型的处理模式
 		mode := s.getMode(item.Type)
-		
+
 		// 计算实际位置（考虑之前替换的偏移）
 		actualStart := item.StartPos + offset
 		actualEnd := item.EndPos + offset
-		
+
 		var replacement string
 		var err error
-		
+
 		replacement, err = s.processItem(item, mode)
 		if err != nil {
 			return nil, fmt.Errorf("failed to process item: %w", err)
 		}
-		
+
 		// 替换文本
 		before := sanitizedText[:actualStart]
 		after := sanitizedText[actualEnd:]
 		sanitizedText = before + replacement + after
-		
+
 		// 计算偏移量变化
 		offset += len(replacement) - (item.EndPos - item.StartPos)
-		
+
 		// 更新统计
 		switch mode {
 		case ModeRedact:
@@ -339,7 +339,7 @@ func (s *AISanitizer) Sanitize(ctx context.Context, text string) (*SanitizationR
 // detect 检测敏感信息
 func (s *AISanitizer) detect(text string) []SensitiveData {
 	var results []SensitiveData
-	
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -349,15 +349,15 @@ func (s *AISanitizer) detect(text string) []SensitiveData {
 		for _, match := range matches {
 			start, end := match[0], match[1]
 			value := text[start:end]
-			
+
 			// 检查是否在排除列表
 			if s.isExcluded(value) {
 				continue
 			}
-			
+
 			// 获取上下文
 			context := s.getContext(text, start, end)
-			
+
 			results = append(results, SensitiveData{
 				Type:       sensitiveType,
 				Value:      value,
@@ -375,13 +375,13 @@ func (s *AISanitizer) detect(text string) []SensitiveData {
 		for _, match := range matches {
 			start, end := match[0], match[1]
 			value := text[start:end]
-			
+
 			if s.isExcluded(value) {
 				continue
 			}
-			
+
 			context := s.getContext(text, start, end)
-			
+
 			results = append(results, SensitiveData{
 				Type:       SensitiveTypeCustom,
 				Value:      value,
@@ -456,22 +456,22 @@ func (s *AISanitizer) redact(item SensitiveData) (string, error) {
 func (s *AISanitizer) mask(item SensitiveData) (string, error) {
 	value := item.Value
 	length := len(value)
-	
+
 	if length <= 4 {
 		return strings.Repeat(s.config.MaskChar, length), nil
 	}
-	
+
 	// 根据遮蔽比例计算保留的字符数
 	keepChars := int(float64(length) * s.config.MaskRatio)
 	if keepChars < 2 {
 		keepChars = 2
 	}
-	
+
 	// 保留首尾，中间遮蔽
 	start := value[:keepChars/2]
 	end := value[length-keepChars/2:]
 	middle := strings.Repeat(s.config.MaskChar, length-keepChars)
-	
+
 	return start + middle + end, nil
 }
 
@@ -489,22 +489,22 @@ func (s *AISanitizer) encrypt(item SensitiveData) (string, error) {
 	if s.encryptKey == nil {
 		return "", ErrKeyNotFound
 	}
-	
+
 	block, err := aes.NewCipher(s.encryptKey)
 	if err != nil {
 		return "", fmt.Errorf("%w: %v", ErrEncryptionFailed, err)
 	}
-	
+
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return "", fmt.Errorf("%w: %v", ErrEncryptionFailed, err)
 	}
-	
+
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
 		return "", fmt.Errorf("%w: %v", ErrEncryptionFailed, err)
 	}
-	
+
 	encrypted := gcm.Seal(nonce, nonce, []byte(item.Value), nil)
 	return base64.StdEncoding.EncodeToString(encrypted), nil
 }
@@ -536,33 +536,33 @@ func (s *AISanitizer) Decrypt(encryptedBase64 string) (string, error) {
 	if s.encryptKey == nil {
 		return "", ErrKeyNotFound
 	}
-	
+
 	encrypted, err := base64.StdEncoding.DecodeString(encryptedBase64)
 	if err != nil {
 		return "", fmt.Errorf("%w: invalid base64", ErrDecryptionFailed)
 	}
-	
+
 	block, err := aes.NewCipher(s.encryptKey)
 	if err != nil {
 		return "", fmt.Errorf("%w: %v", ErrDecryptionFailed, err)
 	}
-	
+
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return "", fmt.Errorf("%w: %v", ErrDecryptionFailed, err)
 	}
-	
+
 	nonceSize := gcm.NonceSize()
 	if len(encrypted) < nonceSize {
 		return "", fmt.Errorf("%w: ciphertext too short", ErrDecryptionFailed)
 	}
-	
+
 	nonce, ciphertext := encrypted[:nonceSize], encrypted[nonceSize:]
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return "", fmt.Errorf("%w: %v", ErrDecryptionFailed, err)
 	}
-	
+
 	return string(plaintext), nil
 }
 
@@ -571,19 +571,19 @@ func (s *AISanitizer) getContext(text string, start, end int) string {
 	if !s.config.PreserveContext {
 		return ""
 	}
-	
+
 	windowSize := s.config.ContextWindowSize / 2
-	
+
 	contextStart := start - windowSize
 	if contextStart < 0 {
 		contextStart = 0
 	}
-	
+
 	contextEnd := end + windowSize
 	if contextEnd > len(text) {
 		contextEnd = len(text)
 	}
-	
+
 	return text[contextStart:contextEnd]
 }
 
@@ -642,28 +642,28 @@ func (s *AISanitizer) luhnCheck(number string) bool {
 		}
 		return -1
 	}, number)
-	
+
 	if len(digits) < 13 || len(digits) > 19 {
 		return false
 	}
-	
+
 	sum := 0
 	alt := false
-	
+
 	for i := len(digits) - 1; i >= 0; i-- {
 		digit := int(digits[i] - '0')
-		
+
 		if alt {
 			digit *= 2
 			if digit > 9 {
 				digit -= 9
 			}
 		}
-		
+
 		sum += digit
 		alt = !alt
 	}
-	
+
 	return sum%10 == 0
 }
 
@@ -672,7 +672,7 @@ func (s *AISanitizer) idCardCheck(id string) bool {
 	if len(id) != 18 {
 		return false
 	}
-	
+
 	weights := []int{7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2}
 	checkCodes := "10X98765432"
 
@@ -682,7 +682,7 @@ func (s *AISanitizer) idCardCheck(id string) bool {
 		_, _ = fmt.Sscanf(string(id[i]), "%d", &digit)
 		sum += digit * weights[i]
 	}
-	
+
 	expectedCheck := checkCodes[sum%11]
 	return strings.ToUpper(string(id[17])) == string(expectedCheck)
 }
@@ -728,11 +728,11 @@ func (s *AISanitizer) SetTypeMode(t SensitiveType, mode SanitizationMode) {
 // GenerateReport 生成报告
 func (s *AISanitizer) GenerateReport(result *SanitizationResult) string {
 	var sb strings.Builder
-	
+
 	sb.WriteString("=== 数据去敏感化报告 ===\n\n")
 	sb.WriteString(fmt.Sprintf("处理时间: %s\n", result.Timestamp.Format("2006-01-02 15:04:05")))
 	sb.WriteString(fmt.Sprintf("处理耗时: %d ms\n\n", result.ProcessingTimeMS))
-	
+
 	sb.WriteString("=== 统计信息 ===\n")
 	sb.WriteString(fmt.Sprintf("扫描字符数: %d\n", result.Stats.TotalScanned))
 	sb.WriteString(fmt.Sprintf("检测到敏感信息: %d\n", result.Stats.TotalDetected))
@@ -740,12 +740,12 @@ func (s *AISanitizer) GenerateReport(result *SanitizationResult) string {
 	sb.WriteString(fmt.Sprintf("  - 移除: %d\n", result.Stats.TotalRedacted))
 	sb.WriteString(fmt.Sprintf("  - 替换: %d\n", result.Stats.TotalReplaced))
 	sb.WriteString(fmt.Sprintf("  - 加密: %d\n", result.Stats.TotalEncrypted))
-	
+
 	sb.WriteString("\n=== 按类型统计 ===\n")
 	for t, count := range result.Stats.ByType {
 		sb.WriteString(fmt.Sprintf("  %s: %d\n", t, count))
 	}
-	
+
 	sb.WriteString("\n=== 检测详情 ===\n")
 	for i, item := range result.DetectedItems {
 		sb.WriteString(fmt.Sprintf("%d. 类型: %s, 置信度: %.2f%%\n", i+1, item.Type, item.Confidence*100))
@@ -753,7 +753,7 @@ func (s *AISanitizer) GenerateReport(result *SanitizationResult) string {
 			sb.WriteString(fmt.Sprintf("   上下文: %s\n", item.Context))
 		}
 	}
-	
+
 	return sb.String()
 }
 
@@ -785,19 +785,19 @@ func NewTokenStore() *TokenStore {
 func (ts *TokenStore) CreateToken(value string, t SensitiveType) string {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
-	
+
 	// 生成唯一令牌
 	tokenBytes := make([]byte, 16)
 	rand.Read(tokenBytes)
 	token := fmt.Sprintf("TKN_%s", base64.URLEncoding.EncodeToString(tokenBytes))
-	
+
 	ts.tokens[token] = &TokenInfo{
 		Token:     token,
 		Value:     value,
 		Type:      t,
 		CreatedAt: time.Now(),
 	}
-	
+
 	return token
 }
 
@@ -805,17 +805,17 @@ func (ts *TokenStore) CreateToken(value string, t SensitiveType) string {
 func (ts *TokenStore) GetValue(token string) (string, bool) {
 	ts.mu.RLock()
 	defer ts.mu.RUnlock()
-	
+
 	info, ok := ts.tokens[token]
 	if !ok {
 		return "", false
 	}
-	
+
 	// 检查过期
 	if info.ExpiresAt != nil && info.ExpiresAt.Before(time.Now()) {
 		return "", false
 	}
-	
+
 	return info.Value, true
 }
 
@@ -823,12 +823,12 @@ func (ts *TokenStore) GetValue(token string) (string, bool) {
 func (ts *TokenStore) SetExpiry(token string, expiry time.Time) bool {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
-	
+
 	info, ok := ts.tokens[token]
 	if !ok {
 		return false
 	}
-	
+
 	info.ExpiresAt = &expiry
 	return true
 }
@@ -844,16 +844,16 @@ func (ts *TokenStore) DeleteToken(token string) {
 func (ts *TokenStore) SaveToFile(path string) error {
 	ts.mu.RLock()
 	defer ts.mu.RUnlock()
-	
+
 	data, err := json.MarshalIndent(ts.tokens, "", "  ")
 	if err != nil {
 		return err
 	}
-	
+
 	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(path, data, 0600)
 }
 
@@ -863,7 +863,7 @@ func (ts *TokenStore) LoadFromFile(path string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return json.Unmarshal(data, &ts.tokens)
 }
 
@@ -872,7 +872,7 @@ func (ts *TokenStore) LoadFromFile(path string) error {
 // BatchSanitize 批量去敏感化
 func (s *AISanitizer) BatchSanitize(ctx context.Context, texts []string) ([]*SanitizationResult, error) {
 	results := make([]*SanitizationResult, len(texts))
-	
+
 	for i, text := range texts {
 		select {
 		case <-ctx.Done():
@@ -885,7 +885,7 @@ func (s *AISanitizer) BatchSanitize(ctx context.Context, texts []string) ([]*San
 			results[i] = result
 		}
 	}
-	
+
 	return results, nil
 }
 
@@ -895,19 +895,19 @@ func (s *AISanitizer) SanitizeFile(ctx context.Context, inputPath, outputPath st
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
-	
+
 	result, err := s.Sanitize(ctx, string(data))
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if err := os.WriteFile(outputPath, []byte(result.SanitizedText), 0644); err != nil {
 		return nil, fmt.Errorf("failed to write file: %w", err)
 	}
-	
+
 	// 不保留原始文本在结果中
 	result.OriginalText = ""
-	
+
 	return result, nil
 }
 
@@ -918,10 +918,10 @@ func ValidateConfig(config *SanitizationConfig) error {
 	if config.MaskRatio < 0 || config.MaskRatio > 1 {
 		return fmt.Errorf("mask_ratio must be between 0 and 1, got %f", config.MaskRatio)
 	}
-	
+
 	if config.ConfidenceThreshold < 0 || config.ConfidenceThreshold > 1 {
 		return fmt.Errorf("confidence_threshold must be between 0 and 1, got %f", config.ConfidenceThreshold)
 	}
-	
+
 	return nil
 }
