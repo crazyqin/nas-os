@@ -342,7 +342,7 @@ func (m *Manager) ListMounts() []MountInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var list []MountInfo
+	list := make([]MountInfo, 0, len(m.mounts))
 	for _, instance := range m.mounts {
 		list = append(list, *m.getInstanceInfo(instance))
 	}

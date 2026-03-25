@@ -1062,7 +1062,7 @@ func (g *FinancialReportGenerator) generateComprehensiveReport(ctx context.Conte
 
 // buildCategoryData 构建分类数据.
 func (g *FinancialReportGenerator) buildCategoryData(totals map[string]float64, grandTotal float64) []SectionDataRow {
-	rows := []SectionDataRow{}
+	rows := make([]SectionDataRow, 0, len(totals))
 	for category, amount := range totals {
 		percent := 0.0
 		if grandTotal > 0 {
