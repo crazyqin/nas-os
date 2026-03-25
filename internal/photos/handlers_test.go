@@ -1,8 +1,8 @@
 package photos
 
 import (
-	"context"
 	"bytes"
+	"context"
 	"io"
 	"mime/multipart"
 	"net/http"

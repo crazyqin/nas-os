@@ -2,6 +2,7 @@ package container
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -289,9 +290,9 @@ func (cm *ComposeManager) parseService(name string, data interface{}) (*ComposeS
 }
 
 // Deploy 部署 Compose 项目.
-func (cm *ComposeManager) Deploy(composePath string) error {
+func (cm *ComposeManager) Deploy(ctx context.Context, composePath string) error {
 	dir := filepath.Dir(composePath)
-	cmd := exec.Command("docker", "compose", "-f", composePath, "up", "-d", "--build")
+	cmd := exec.CommandContext(ctx, "docker", "compose", "-f", composePath, "up", "-d", "--build")
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -301,7 +302,7 @@ func (cm *ComposeManager) Deploy(composePath string) error {
 }
 
 // DeployWithProgress 带进度跟踪的部署.
-func (cm *ComposeManager) DeployWithProgress(composePath string, progressChan chan<- *DeployProgress) error {
+func (cm *ComposeManager) DeployWithProgress(ctx context.Context, composePath string, progressChan chan<- *DeployProgress) error {
 	project, err := cm.ParseComposeFile(composePath)
 	if err != nil {
 		return err
@@ -318,7 +319,7 @@ func (cm *ComposeManager) DeployWithProgress(composePath string, progressChan ch
 	}
 
 	dir := filepath.Dir(composePath)
-	cmd := exec.Command("docker", "compose", "-f", composePath, "up", "-d", "--build")
+	cmd := exec.CommandContext(ctx, "docker", "compose", "-f", composePath, "up", "-d", "--build")
 	cmd.Dir = dir
 
 	// 捕获输出
@@ -362,9 +363,9 @@ func (cm *ComposeManager) DeployWithProgress(composePath string, progressChan ch
 }
 
 // Stop 停止 Compose 项目.
-func (cm *ComposeManager) Stop(composePath string) error {
+func (cm *ComposeManager) Stop(ctx context.Context, composePath string) error {
 	dir := filepath.Dir(composePath)
-	cmd := exec.Command("docker", "compose", "-f", composePath, "down")
+	cmd := exec.CommandContext(ctx, "docker", "compose", "-f", composePath, "down")
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -374,9 +375,9 @@ func (cm *ComposeManager) Stop(composePath string) error {
 }
 
 // Restart 重启 Compose 项目.
-func (cm *ComposeManager) Restart(composePath string) error {
+func (cm *ComposeManager) Restart(ctx context.Context, composePath string) error {
 	dir := filepath.Dir(composePath)
-	cmd := exec.Command("docker", "compose", "-f", composePath, "restart")
+	cmd := exec.CommandContext(ctx, "docker", "compose", "-f", composePath, "restart")
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -386,14 +387,14 @@ func (cm *ComposeManager) Restart(composePath string) error {
 }
 
 // Remove 删除 Compose 项目.
-func (cm *ComposeManager) Remove(composePath string, removeVolumes bool) error {
+func (cm *ComposeManager) Remove(ctx context.Context, composePath string, removeVolumes bool) error {
 	args := []string{"compose", "-f", composePath, "down"}
 	if removeVolumes {
 		args = append(args, "-v")
 	}
 
 	dir := filepath.Dir(composePath)
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -403,9 +404,9 @@ func (cm *ComposeManager) Remove(composePath string, removeVolumes bool) error {
 }
 
 // GetServices 获取 Compose 项目服务状态.
-func (cm *ComposeManager) GetServices(composePath string) ([]*ComposeService, error) {
+func (cm *ComposeManager) GetServices(ctx context.Context, composePath string) ([]*ComposeService, error) {
 	dir := filepath.Dir(composePath)
-	cmd := exec.Command("docker", "compose", "-f", composePath, "ps", "--format", "json")
+	cmd := exec.CommandContext(ctx, "docker", "compose", "-f", composePath, "ps", "--format", "json")
 	cmd.Dir = dir
 	output, err := cmd.Output()
 	if err != nil {
@@ -438,7 +439,7 @@ func (cm *ComposeManager) GetServices(composePath string) ([]*ComposeService, er
 }
 
 // GetLogs 获取 Compose 项目日志.
-func (cm *ComposeManager) GetLogs(composePath string, service string, tail int) ([]string, error) {
+func (cm *ComposeManager) GetLogs(ctx context.Context, composePath string, service string, tail int) ([]string, error) {
 	args := []string{"compose", "-f", composePath, "logs"}
 	if tail > 0 {
 		args = append(args, "--tail", fmt.Sprintf("%d", tail))
@@ -448,7 +449,7 @@ func (cm *ComposeManager) GetLogs(composePath string, service string, tail int) 
 	}
 
 	dir := filepath.Dir(composePath)
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -465,9 +466,9 @@ func (cm *ComposeManager) GetLogs(composePath string, service string, tail int) 
 }
 
 // ValidateComposeFile 验证 Compose 文件.
-func (cm *ComposeManager) ValidateComposeFile(path string) error {
+func (cm *ComposeManager) ValidateComposeFile(ctx context.Context, path string) error {
 	dir := filepath.Dir(path)
-	cmd := exec.Command("docker", "compose", "-f", path, "config")
+	cmd := exec.CommandContext(ctx, "docker", "compose", "-f", path, "config")
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
