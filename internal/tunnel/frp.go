@@ -283,7 +283,7 @@ func (m *FRPManager) buildTOMLConfig() string {
 
 	// 代理配置
 	for name, proxy := range m.proxyConfigs {
-		sb.WriteString(fmt.Sprintf("[[proxies]]\n"))
+		sb.WriteString("[[proxies]]\n")
 		sb.WriteString(fmt.Sprintf("name = \"%s\"\n", name))
 		sb.WriteString(fmt.Sprintf("type = \"%s\"\n", proxy.Type))
 		sb.WriteString(fmt.Sprintf("localIP = \"%s\"\n", proxy.LocalIP))

@@ -13,13 +13,16 @@ import (
 	"time"
 )
 
-// PierceMode 穿透模式
+// PierceMode 穿透模式.
 type PierceMode string
 
 const (
-	ModeP2P   PierceMode = "p2p"   // P2P直连
-	ModeRelay PierceMode = "relay" // 中继模式
-	ModeAuto  PierceMode = "auto"  // 自动选择
+	// ModeP2P P2P直连.
+	ModeP2P PierceMode = "p2p"
+	// ModeRelay 中继模式.
+	ModeRelay PierceMode = "relay"
+	// ModeAuto 自动选择.
+	ModeAuto PierceMode = "auto"
 )
 
 // Config 穿透配置

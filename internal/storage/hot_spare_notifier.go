@@ -511,7 +511,7 @@ func (nm *NotificationManager) sendTelegram(data interface{}) error {
 	defer func() { _ = resp.Body.Close() }() //nolint:errcheck
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Telegram API返回错误: %d", resp.StatusCode)
+		return fmt.Errorf("telegram API返回错误: %d", resp.StatusCode)
 	}
 
 	return nil

@@ -94,14 +94,18 @@ type SearchResult struct {
 	Highlights []string  `json:"highlights,omitempty"` // matched tags/captions
 }
 
-// MatchType indicates how a search match was found
+// MatchType indicates how a search match was found.
 type MatchType string
 
 const (
-	MatchTypeSemantic MatchType = "semantic" // CLIP semantic match
-	MatchTypeTag      MatchType = "tag"      // tag-based match
-	MatchTypeCaption  MatchType = "caption"  // caption-based match
-	MatchTypeHybrid   MatchType = "hybrid"   // combined match
+	// MatchTypeSemantic is CLIP semantic match.
+	MatchTypeSemantic MatchType = "semantic"
+	// MatchTypeTag is tag-based match.
+	MatchTypeTag MatchType = "tag"
+	// MatchTypeCaption is caption-based match.
+	MatchTypeCaption MatchType = "caption"
+	// MatchTypeHybrid is combined match.
+	MatchTypeHybrid MatchType = "hybrid"
 )
 
 // SearchRequest represents a search request

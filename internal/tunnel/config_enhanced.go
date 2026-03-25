@@ -275,15 +275,20 @@ func ValidateEnhancedConfig(config *EnhancedConfig) error {
 	return nil
 }
 
-// ConfigProfile 配置模板
+// ConfigProfile 配置模板.
 type ConfigProfile string
 
 const (
-	ProfileBalanced    ConfigProfile = "balanced"    // 平衡模式
-	ProfilePerformance ConfigProfile = "performance" // 性能优先
-	ProfileReliable    ConfigProfile = "reliable"    // 稳定性优先
-	ProfileLowLatency  ConfigProfile = "low_latency" // 低延迟模式
-	ProfileSecure      ConfigProfile = "secure"      // 安全优先
+	// ProfileBalanced 平衡模式.
+	ProfileBalanced ConfigProfile = "balanced"
+	// ProfilePerformance 性能优先.
+	ProfilePerformance ConfigProfile = "performance"
+	// ProfileReliable 稳定性优先.
+	ProfileReliable ConfigProfile = "reliable"
+	// ProfileLowLatency 低延迟模式.
+	ProfileLowLatency ConfigProfile = "low_latency"
+	// ProfileSecure 安全优先.
+	ProfileSecure ConfigProfile = "secure"
 )
 
 // ApplyProfile 应用配置模板
@@ -377,9 +382,10 @@ type ConfigValidator interface {
 	Validate(config *EnhancedConfig) error
 }
 
-// NetworkValidator 网络配置验证器
+// NetworkValidator 网络配置验证器.
 type NetworkValidator struct{}
 
+// Validate 验证配置.
 func (v *NetworkValidator) Validate(config *EnhancedConfig) error {
 	// 验证 STUN 服务器地址
 	for _, server := range config.STUNServers {

@@ -17,22 +17,28 @@ import (
 	"github.com/google/uuid"
 )
 
-// TierType 存储层级类型
+// TierType 存储层级类型.
 type TierType string
 
 const (
-	TierTypeSSD   TierType = "ssd"   // SSD缓存层（热数据）
-	TierTypeHDD   TierType = "hdd"   // HDD存储层（冷数据）
-	TierTypeCloud TierType = "cloud" // 云存储归档层
+	// TierTypeSSD SSD缓存层（热数据）.
+	TierTypeSSD TierType = "ssd"
+	// TierTypeHDD HDD存储层（冷数据）.
+	TierTypeHDD TierType = "hdd"
+	// TierTypeCloud 云存储归档层.
+	TierTypeCloud TierType = "cloud"
 )
 
-// AccessFrequency 访问频率级别
+// AccessFrequency 访问频率级别.
 type AccessFrequency string
 
 const (
-	AccessFrequencyHot  AccessFrequency = "hot"  // 热数据：频繁访问
-	AccessFrequencyWarm AccessFrequency = "warm" // 温数据：偶尔访问
-	AccessFrequencyCold AccessFrequency = "cold" // 冷数据：很少访问
+	// AccessFrequencyHot 热数据：频繁访问.
+	AccessFrequencyHot AccessFrequency = "hot"
+	// AccessFrequencyWarm 温数据：偶尔访问.
+	AccessFrequencyWarm AccessFrequency = "warm"
+	// AccessFrequencyCold 冷数据：很少访问.
+	AccessFrequencyCold AccessFrequency = "cold"
 )
 
 // TierConfig 存储层配置
@@ -966,7 +972,7 @@ func (m *Manager) GetTierStats(tierType TierType) (map[string]interface{}, error
 		return nil, fmt.Errorf("存储层不存在: %s", tierType)
 	}
 
-	records, _ := m.recordsByTier[tierType]
+	records := m.recordsByTier[tierType]
 
 	var hotFiles, warmFiles, coldFiles int64
 	var hotBytes, warmBytes, coldBytes int64
