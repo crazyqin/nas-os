@@ -108,7 +108,7 @@ func (h *Handlers) listAllShares(c *gin.Context) {
 	// 收集 SMB 共享
 	smbShares, _ := h.smbManager.ListShares()
 	nfsExports, _ := h.nfsManager.ListExports()
-	
+
 	result := make([]ShareOverview, 0, len(smbShares)+len(nfsExports))
 	for _, s := range smbShares {
 		result = append(result, ShareOverview{
