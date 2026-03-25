@@ -143,7 +143,7 @@ func (s *Server) Start() error {
 
 	// 启动监听
 	addr := fmt.Sprintf(":%d", s.config.Port)
-	listener, err := net.Listen("tcp", addr)
+	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", addr)
 	if err != nil {
 		return fmt.Errorf("监听端口 %d 失败：%w", s.config.Port, err)
 	}
@@ -280,7 +280,7 @@ func (s *Server) startInternal() error {
 	s.configureSSH()
 
 	addr := fmt.Sprintf(":%d", s.config.Port)
-	listener, err := net.Listen("tcp", addr)
+	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", addr)
 	if err != nil {
 		return fmt.Errorf("监听端口 %d 失败：%w", s.config.Port, err)
 	}

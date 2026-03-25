@@ -3,6 +3,7 @@ package quota
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -188,7 +189,7 @@ func (m *Monitor) sendWebhookWithSeverity(alert *Alert, webhookURL string) {
 
 	jsonData, _ := json.Marshal(payload)
 	client := &http.Client{Timeout: 10 * time.Second}
-	req, _ := http.NewRequest("POST", webhookURL, bytes.NewBuffer(jsonData))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", webhookURL, bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Alert-Type", "quota-escalation")
 	req.Header.Set("X-Alert-Severity", string(alert.Severity))
@@ -416,7 +417,7 @@ func (m *Monitor) sendWebhook(alert *Alert) {
 		Timeout: 10 * time.Second,
 	}
 
-	req, err := http.NewRequest("POST", m.config.WebhookURL, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(context.Background(), "POST", m.config.WebhookURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Printf("[quota] 创建 webhook 请求失败：%v\n", err)
 		return

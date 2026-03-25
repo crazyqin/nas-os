@@ -235,7 +235,7 @@ func (vm *VolumeManager) BackupVolume(volumeName, backupPath string, compress bo
 		"sh", "-c", fmt.Sprintf("%s > /backup/%s", tarCmd, filepath.Base(backupFile)),
 	}
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("备份卷失败：%w, %s", err, string(output))
@@ -301,7 +301,7 @@ func (vm *VolumeManager) RestoreVolume(backupPath, volumeName string) error {
 		"sh", "-c", tarCmd,
 	}
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	inputFile, err := os.Open(backupPath)
 	if err != nil {
 		return fmt.Errorf("打开备份文件失败：%w", err)
@@ -319,7 +319,7 @@ func (vm *VolumeManager) RestoreVolume(backupPath, volumeName string) error {
 
 // PruneVolumes 清理未使用的卷.
 func (vm *VolumeManager) PruneVolumes() (uint64, error) {
-	cmd := exec.Command("docker", "volume", "prune", "-f")
+	cmd := exec.CommandContext(context.Background(), "docker", "volume", "prune", "-f")
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, fmt.Errorf("清理卷失败：%w", err)
@@ -341,7 +341,7 @@ func (vm *VolumeManager) PruneVolumes() (uint64, error) {
 
 // getVolumeSize 获取卷大小.
 func (vm *VolumeManager) getVolumeSize(path string) (uint64, error) {
-	cmd := exec.Command("du", "-sb", path)
+	cmd := exec.CommandContext(context.Background(), "du", "-sb", path)
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, err
@@ -370,7 +370,7 @@ func (vm *VolumeManager) getFileSize(path string) (uint64, error) {
 
 // calculateChecksum 计算文件校验和.
 func (vm *VolumeManager) calculateChecksum(path string) (string, error) {
-	cmd := exec.Command("sha256sum", path)
+	cmd := exec.CommandContext(context.Background(), "sha256sum", path)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err

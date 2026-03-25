@@ -2,6 +2,7 @@ package dashboard
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -579,7 +580,7 @@ func FormatRate(bytesPerSec uint64) string {
 
 // ExecuteCommand 执行系统命令.
 func ExecuteCommand(name string, args ...string) (string, error) {
-	cmd := exec.Command(name, args...)
+	cmd := exec.CommandContext(context.Background(), name, args...)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
