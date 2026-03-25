@@ -114,7 +114,7 @@ func NewManager() (*Manager, error) {
 
 // IsRunning 检查 Docker 是否运行.
 func (m *Manager) IsRunning() bool {
-	cmd := exec.Command("docker", "info")
+	cmd := exec.CommandContext(context.Background(), "docker", "info")
 	return cmd.Run() == nil
 }
 
@@ -125,7 +125,7 @@ func (m *Manager) ListContainers(all bool) ([]*Container, error) {
 		args = []string{"ps", "-a", "--format", "{{json .}}"}
 	}
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出容器: %w", err)
@@ -167,7 +167,7 @@ func (m *Manager) ListContainers(all bool) ([]*Container, error) {
 
 // GetContainer 获取容器详情.
 func (m *Manager) GetContainer(id string) (*Container, error) {
-	cmd := exec.Command("docker", "inspect", "--format", "{{json .}}", id)
+	cmd := exec.CommandContext(context.Background(), "docker", "inspect", "--format", "{{json .}}", id)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取容器信息: %w", err)
@@ -288,7 +288,7 @@ func (m *Manager) CreateContainer(name, image string, opts map[string]interface{
 
 	args = append(args, image)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("创建容器失败: %w, %s", err, string(output))
@@ -299,7 +299,7 @@ func (m *Manager) CreateContainer(name, image string, opts map[string]interface{
 
 // StartContainer 启动容器.
 func (m *Manager) StartContainer(id string) error {
-	cmd := exec.Command("docker", "start", id)
+	cmd := exec.CommandContext(context.Background(), "docker", "start", id)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("启动容器失败: %w, %s", err, string(output))
@@ -315,7 +315,7 @@ func (m *Manager) StopContainer(id string, timeout int) error {
 	}
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("停止容器失败: %w, %s", err, string(output))
@@ -331,7 +331,7 @@ func (m *Manager) RestartContainer(id string, timeout int) error {
 	}
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("重启容器失败: %w, %s", err, string(output))
@@ -347,7 +347,7 @@ func (m *Manager) RemoveContainer(id string, force bool) error {
 	}
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("删除容器失败: %w, %s", err, string(output))
@@ -409,7 +409,7 @@ func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 
 // ListImages 列出镜像.
 func (m *Manager) ListImages() ([]*Image, error) {
-	cmd := exec.Command("docker", "images", "--format", "{{json .}}")
+	cmd := exec.CommandContext(context.Background(), "docker", "images", "--format", "{{json .}}")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出镜像: %w", err)
@@ -444,7 +444,7 @@ func (m *Manager) ListImages() ([]*Image, error) {
 
 // PullImage 拉取镜像.
 func (m *Manager) PullImage(image string) error {
-	cmd := exec.Command("docker", "pull", image)
+	cmd := exec.CommandContext(context.Background(), "docker", "pull", image)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("拉取镜像失败: %w, %s", err, string(output))
@@ -460,7 +460,7 @@ func (m *Manager) RemoveImage(id string, force bool) error {
 	}
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("删除镜像失败: %w, %s", err, string(output))
@@ -470,7 +470,7 @@ func (m *Manager) RemoveImage(id string, force bool) error {
 
 // ListNetworks 列出网络.
 func (m *Manager) ListNetworks() ([]*Network, error) {
-	cmd := exec.Command("docker", "network", "ls", "--format", "{{json .}}")
+	cmd := exec.CommandContext(context.Background(), "docker", "network", "ls", "--format", "{{json .}}")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出网络: %w", err)
@@ -505,7 +505,7 @@ func (m *Manager) ListNetworks() ([]*Network, error) {
 
 // ListVolumes 列出所有卷.
 func (m *Manager) ListVolumes() ([]*Volume, error) {
-	cmd := exec.Command("docker", "volume", "ls", "--format", "{{json .}}")
+	cmd := exec.CommandContext(context.Background(), "docker", "volume", "ls", "--format", "{{json .}}")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出卷: %w", err)
@@ -560,7 +560,7 @@ func (m *Manager) CreateVolume(name string, driver string, opts map[string]strin
 		args = append(args, "-o", fmt.Sprintf("%s=%s", k, v))
 	}
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("创建卷失败: %w, %s", err, string(output))
@@ -573,7 +573,7 @@ func (m *Manager) CreateVolume(name string, driver string, opts map[string]strin
 
 // GetVolume 获取卷详情.
 func (m *Manager) GetVolume(name string) (*Volume, error) {
-	cmd := exec.Command("docker", "volume", "inspect", "--format", "{{json .}}", name)
+	cmd := exec.CommandContext(context.Background(), "docker", "volume", "inspect", "--format", "{{json .}}", name)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("获取卷信息失败: %w", err)
@@ -622,7 +622,7 @@ func (m *Manager) RemoveVolume(name string, force bool) error {
 	}
 	args = append(args, name)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("删除卷失败: %w, %s", err, string(output))
@@ -633,7 +633,7 @@ func (m *Manager) RemoveVolume(name string, force bool) error {
 // getVolumeSize 获取卷大小.
 func (m *Manager) getVolumeSize(name string) (uint64, error) {
 	// 简化实现：使用 du 命令获取目录大小
-	cmd := exec.Command("docker", "volume", "inspect", "--format", "{{.Mountpoint}}", name)
+	cmd := exec.CommandContext(context.Background(), "docker", "volume", "inspect", "--format", "{{.Mountpoint}}", name)
 	mpOutput, err := cmd.Output()
 	if err != nil {
 		return 0, err
@@ -645,7 +645,7 @@ func (m *Manager) getVolumeSize(name string) (uint64, error) {
 	}
 
 	// 使用 du 获取大小
-	cmd = exec.Command("du", "-sb", mountpoint)
+	cmd = exec.CommandContext(context.Background(), "du", "-sb", mountpoint)
 	duOutput, err := cmd.Output()
 	if err != nil {
 		return 0, err
@@ -678,7 +678,7 @@ func (m *Manager) GetContainerLogs(id string, opts LogOptions) (string, error) {
 
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("获取日志失败: %w", err)

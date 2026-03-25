@@ -4,6 +4,7 @@ package e2e
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -40,7 +41,7 @@ func (c *TestClient) Request(method, path string, body interface{}) (*http.Respo
 		reqBody = bytes.NewReader(jsonData)
 	}
 
-	req, err := http.NewRequest(method, c.BaseURL+path, reqBody)
+	req, err := http.NewRequestWithContext(context.Background(), method, c.BaseURL+path, reqBody)
 	if err != nil {
 		return nil, err
 	}

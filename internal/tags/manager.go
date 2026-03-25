@@ -437,7 +437,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 	defer m.mu.Unlock()
 
 	// 开始事务
-	tx, err := m.db.Begin()
+	tx, err := m.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		return err
 	}
@@ -659,7 +659,7 @@ func (m *Manager) BatchAddTagsToFile(filePaths []string, tagIDs []string) error 
 	defer m.mu.Unlock()
 
 	now := time.Now()
-	tx, err := m.db.Begin()
+	tx, err := m.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		return err
 	}
@@ -696,7 +696,7 @@ func (m *Manager) ClearAllTags() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	tx, err := m.db.Begin()
+	tx, err := m.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		return err
 	}

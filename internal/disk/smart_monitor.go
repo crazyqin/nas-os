@@ -425,7 +425,7 @@ func (m *SMARTMonitor) ScanDisks() error {
 	defer m.mu.Unlock()
 
 	// 使用 lsblk 列出块设备
-	cmd := exec.Command("lsblk", "-d", "-n", "-o", "NAME,SIZE,ROTA")
+	cmd := exec.CommandContext(context.Background(), "lsblk", "-d", "-n", "-o", "NAME,SIZE,ROTA")
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("扫描磁盘失败: %w", err)
@@ -514,7 +514,7 @@ func (m *SMARTMonitor) getSMARTData(device string) (*SMARTData, error) {
 		args = []string{"-a", device}
 	}
 
-	cmd := exec.Command("smartctl", args...)
+	cmd := exec.CommandContext(context.Background(), "smartctl", args...)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("获取 SMART 数据失败: %w", err)
