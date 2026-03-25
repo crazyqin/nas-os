@@ -3,6 +3,7 @@
 package benchmark
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"io"
@@ -215,7 +216,7 @@ func BenchmarkAPI_Health(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/health", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/health", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -227,7 +228,7 @@ func BenchmarkAPI_SystemInfo(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/system/info", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/system/info", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -239,7 +240,7 @@ func BenchmarkAPI_StorageVolumes(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/storage/volumes", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -251,7 +252,7 @@ func BenchmarkAPI_StorageVolumeDetail(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/storage/volumes/data", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes/data", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -263,7 +264,7 @@ func BenchmarkAPI_FilesList(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/files/list?path=/home", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/files/list?path=/home", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -275,7 +276,7 @@ func BenchmarkAPI_Users(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/users", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/users", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -287,7 +288,7 @@ func BenchmarkAPI_Shares(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/shares", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/shares", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -299,7 +300,7 @@ func BenchmarkAPI_PerformanceMetrics(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/performance/metrics", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/performance/metrics", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -312,7 +313,7 @@ func BenchmarkAPI_Search(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		body := bytes.NewBufferString(`{"query":"test","type":"files"}`)
-		req, _ := http.NewRequest("POST", "/api/v1/search", body)
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/search", body)
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -326,7 +327,7 @@ func BenchmarkAPI_CreateVolume(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		body := bytes.NewBufferString(`{"name":"test-vol","devices":["/dev/sda1","/dev/sdb1"],"profile":"raid1"}`)
-		req, _ := http.NewRequest("POST", "/api/v1/storage/volumes", body)
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/storage/volumes", body)
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -424,7 +425,7 @@ func BenchmarkAPI_ConcurrentHealth(b *testing.B) {
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			req, _ := http.NewRequest("GET", "/api/v1/health", nil)
+			req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/health", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 		}
@@ -437,7 +438,7 @@ func BenchmarkAPI_ConcurrentVolumes(b *testing.B) {
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			req, _ := http.NewRequest("GET", "/api/v1/storage/volumes", nil)
+			req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 		}
@@ -453,7 +454,7 @@ func BenchmarkAPI_ConcurrentFilesList(b *testing.B) {
 		i := 0
 		for pb.Next() {
 			path := paths[i%len(paths)]
-			req, _ := http.NewRequest("GET", "/api/v1/files/list?path="+path, nil)
+			req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/files/list?path="+path, nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			i++
@@ -469,7 +470,7 @@ func BenchmarkAPI_ConcurrentSearch(b *testing.B) {
 		i := 0
 		for pb.Next() {
 			body := bytes.NewBufferString(`{"query":"test` + string(rune(i%100)) + `","type":"files"}`)
-			req, _ := http.NewRequest("POST", "/api/v1/search", body)
+			req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/search", body)
 			req.Header.Set("Content-Type", "application/json")
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
@@ -488,16 +489,16 @@ func BenchmarkAPI_MixedWorkload(b *testing.B) {
 			var req *http.Request
 			switch i % 5 {
 			case 0:
-				req, _ = http.NewRequest("GET", "/api/v1/health", nil)
+				req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/health", nil)
 			case 1:
-				req, _ = http.NewRequest("GET", "/api/v1/storage/volumes", nil)
+				req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 			case 2:
-				req, _ = http.NewRequest("GET", "/api/v1/files/list", nil)
+				req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/files/list", nil)
 			case 3:
-				req, _ = http.NewRequest("GET", "/api/v1/performance/metrics", nil)
+				req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/performance/metrics", nil)
 			case 4:
 				body := bytes.NewBufferString(`{"query":"test","type":"files"}`)
-				req, _ = http.NewRequest("POST", "/api/v1/search", body)
+				req, _ = http.NewRequestWithContext(context.Background(), "POST", "/api/v1/search", body)
 				req.Header.Set("Content-Type", "application/json")
 			}
 			w := httptest.NewRecorder()
@@ -565,7 +566,7 @@ func benchmarkFileUpload(b *testing.B, size int) {
 		file.Close()
 		writer.Close()
 
-		req, _ := http.NewRequest("POST", "/api/v1/files/upload?path=/tmp", body)
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/files/upload?path=/tmp", body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -634,7 +635,7 @@ func BenchmarkAPI_MemoryAllocation_HTTPRequest(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/storage/volumes", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}

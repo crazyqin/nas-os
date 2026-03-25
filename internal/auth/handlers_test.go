@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -104,7 +105,7 @@ func TestGetStatus_Unauthorized(t *testing.T) {
 	// 不设置 user_id
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/mfa/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/mfa/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -124,7 +125,7 @@ func TestGetStatus_Authorized(t *testing.T) {
 	})
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/mfa/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/mfa/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -142,7 +143,7 @@ func TestSetupTOTP_Unauthorized(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/totp/setup", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/totp/setup", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -163,7 +164,7 @@ func TestSetupTOTP_Authorized(t *testing.T) {
 	})
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/totp/setup", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/totp/setup", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -187,7 +188,7 @@ func TestEnableTOTP_Unauthorized(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	body, _ := json.Marshal(EnableTOTPRequest{Code: "123456"})
-	req := httptest.NewRequest("POST", "/api/mfa/totp/enable", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/totp/enable", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -208,7 +209,7 @@ func TestEnableTOTP_MissingCode(t *testing.T) {
 	})
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/totp/enable", bytes.NewReader([]byte("{}")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/totp/enable", bytes.NewReader([]byte("{}")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -228,7 +229,7 @@ func TestDisableTOTP_Unauthorized(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	body, _ := json.Marshal(EnableTOTPRequest{Code: "123456"})
-	req := httptest.NewRequest("POST", "/api/mfa/totp/disable", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/totp/disable", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -248,7 +249,7 @@ func TestSendSMS_Unauthorized(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	body, _ := json.Marshal(SendSMSRequest{Phone: "+8613800138000"})
-	req := httptest.NewRequest("POST", "/api/mfa/sms/send", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/sms/send", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -269,7 +270,7 @@ func TestSendSMS_MissingPhone(t *testing.T) {
 	})
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/sms/send", bytes.NewReader([]byte("{}")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/sms/send", bytes.NewReader([]byte("{}")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -289,7 +290,7 @@ func TestEnableSMS_Unauthorized(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	body, _ := json.Marshal(EnableSMSRequest{Phone: "+8613800138000", Code: "123456"})
-	req := httptest.NewRequest("POST", "/api/mfa/sms/enable", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/sms/enable", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -310,7 +311,7 @@ func TestEnableSMS_MissingFields(t *testing.T) {
 	})
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/sms/enable", bytes.NewReader([]byte("{}")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/sms/enable", bytes.NewReader([]byte("{}")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -330,7 +331,7 @@ func TestDisableSMS_Unauthorized(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	body, _ := json.Marshal(EnableTOTPRequest{Code: "123456"})
-	req := httptest.NewRequest("POST", "/api/mfa/sms/disable", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/sms/disable", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -349,7 +350,7 @@ func TestGenerateBackupCodes_Unauthorized(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/backup/generate", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/backup/generate", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -379,7 +380,7 @@ func TestGenerateBackupCodes_MFAEnabled(t *testing.T) {
 	})
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/backup/generate", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/backup/generate", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -399,7 +400,7 @@ func TestGenerateBackupCodes_MFANotEnabled(t *testing.T) {
 	})
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/backup/generate", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/backup/generate", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -418,7 +419,7 @@ func TestGetBackupStatus_Unauthorized(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/mfa/backup/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/mfa/backup/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -438,7 +439,7 @@ func TestGetBackupStatus_Authorized(t *testing.T) {
 	})
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/mfa/backup/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/mfa/backup/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -457,7 +458,7 @@ func TestBeginWebAuthnRegistration_Unauthorized(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	body, _ := json.Marshal(WebAuthnRegisterStartRequest{DisplayName: "My Key"})
-	req := httptest.NewRequest("POST", "/api/mfa/webauthn/register/start", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/webauthn/register/start", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -476,7 +477,7 @@ func TestFinishWebAuthnRegistration_Unauthorized(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/webauthn/register/finish", bytes.NewReader([]byte("{}")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/webauthn/register/finish", bytes.NewReader([]byte("{}")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -495,7 +496,7 @@ func TestBeginWebAuthnAuthentication_Unauthorized(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/webauthn/authenticate/start", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/webauthn/authenticate/start", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -513,7 +514,7 @@ func TestFinishWebAuthnAuthentication_Unauthorized(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/webauthn/authenticate/finish", bytes.NewReader([]byte("{}")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/webauthn/authenticate/finish", bytes.NewReader([]byte("{}")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -532,7 +533,7 @@ func TestGetWebAuthnCredentials_Unauthorized(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/mfa/webauthn/credentials", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/mfa/webauthn/credentials", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -552,7 +553,7 @@ func TestGetWebAuthnCredentials_Authorized(t *testing.T) {
 	})
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/mfa/webauthn/credentials", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/mfa/webauthn/credentials", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -570,7 +571,7 @@ func TestRemoveWebAuthnCredential_Unauthorized(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("DELETE", "/api/mfa/webauthn/credentials/cred-id", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/mfa/webauthn/credentials/cred-id", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -589,7 +590,7 @@ func TestVerifyMFA_Unauthorized(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	body, _ := json.Marshal(VerifyMFARequest{MFAType: "totp", Code: "123456"})
-	req := httptest.NewRequest("POST", "/api/mfa/verify", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/verify", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -610,7 +611,7 @@ func TestVerifyMFA_MissingMFAType(t *testing.T) {
 	})
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/mfa/verify", bytes.NewReader([]byte("{}")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/mfa/verify", bytes.NewReader([]byte("{}")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

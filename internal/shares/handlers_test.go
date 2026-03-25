@@ -2,6 +2,7 @@
 package shares
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -300,7 +301,7 @@ func TestListAllShares(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/shares", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/shares", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -314,7 +315,7 @@ func TestGetStatus(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/shares/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/shares/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -328,7 +329,7 @@ func TestListSMBShares(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/shares/smb", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/shares/smb", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -351,7 +352,7 @@ func TestGetSMBShare(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/shares/smb/share1", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/shares/smb/share1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -375,7 +376,7 @@ func TestCreateSMBShare(t *testing.T) {
 	}
 	body, _ := json.Marshal(share)
 
-	req, _ := http.NewRequest("POST", "/api/shares/smb", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/shares/smb", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -399,7 +400,7 @@ func TestUpdateSMBShare(t *testing.T) {
 	}
 	body, _ := json.Marshal(share)
 
-	req, _ := http.NewRequest("PUT", "/api/shares/smb/share1", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/shares/smb/share1", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -414,7 +415,7 @@ func TestDeleteSMBShare(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("DELETE", "/api/shares/smb/share1", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/shares/smb/share1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -428,7 +429,7 @@ func TestListNFSExports(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/shares/nfs", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/shares/nfs", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -454,7 +455,7 @@ func TestGetNFSExport(t *testing.T) {
 	// NFS 使用路径作为参数，由于路径包含 "/"，需要特殊处理
 	// Gin 路由不支持带 "/" 的路径参数，所以这个 API 可能需要重新设计
 	// 暂时跳过这个测试，改为测试 listNFSExports
-	req, _ := http.NewRequest("GET", "/api/shares/nfs", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/shares/nfs", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -474,7 +475,7 @@ func TestCreateNFSExport(t *testing.T) {
 	}
 	body, _ := json.Marshal(export)
 
-	req, _ := http.NewRequest("POST", "/api/shares/nfs", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/shares/nfs", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -498,7 +499,7 @@ func TestDeleteNFSExport(t *testing.T) {
 	}
 	body, _ := json.Marshal(export)
 
-	req, _ := http.NewRequest("POST", "/api/shares/nfs", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/shares/nfs", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -514,7 +515,7 @@ func TestSMBStatus(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/shares/smb/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/shares/smb/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -528,7 +529,7 @@ func TestNFSStatus(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/shares/nfs/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/shares/nfs/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -542,7 +543,7 @@ func TestSMBRestart(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("POST", "/api/shares/smb/restart", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/shares/smb/restart", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -556,7 +557,7 @@ func TestNFSRestart(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("POST", "/api/shares/nfs/restart", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/shares/nfs/restart", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -570,7 +571,7 @@ func TestSMBConnections(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/shares/smb/connections", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/shares/smb/connections", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

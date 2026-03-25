@@ -1,6 +1,7 @@
 package smb
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -123,7 +124,7 @@ func TestListShares_Empty(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/shares/smb", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/shares/smb", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -155,7 +156,7 @@ func TestListShares_WithShares(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/shares/smb", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/shares/smb", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -191,7 +192,7 @@ func TestCreateShare_Valid(t *testing.T) {
 	}
 	body, _ := json.Marshal(reqBody)
 
-	req := httptest.NewRequest("POST", "/api/shares/smb", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/shares/smb", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -210,7 +211,7 @@ func TestCreateShare_InvalidJSON(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/shares/smb", bytes.NewReader([]byte("invalid json")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/shares/smb", bytes.NewReader([]byte("invalid json")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -236,7 +237,7 @@ func TestGetShare_Exists(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/shares/smb/test-share", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/shares/smb/test-share", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -260,7 +261,7 @@ func TestGetShare_NotExists(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/shares/smb/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/shares/smb/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -292,7 +293,7 @@ func TestUpdateShare_Valid(t *testing.T) {
 	}
 	body, _ := json.Marshal(reqBody)
 
-	req := httptest.NewRequest("PUT", "/api/shares/smb/test-share", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/shares/smb/test-share", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -317,7 +318,7 @@ func TestUpdateShare_NotExists(t *testing.T) {
 	}
 	body, _ := json.Marshal(reqBody)
 
-	req := httptest.NewRequest("PUT", "/api/shares/smb/nonexistent", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/shares/smb/nonexistent", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -342,7 +343,7 @@ func TestDeleteShare_Exists(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("DELETE", "/api/shares/smb/test-share", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/shares/smb/test-share", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -359,7 +360,7 @@ func TestDeleteShare_NotExists(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("DELETE", "/api/shares/smb/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/shares/smb/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -389,7 +390,7 @@ func TestSetPermission_Valid(t *testing.T) {
 	}
 	body, _ := json.Marshal(reqBody)
 
-	req := httptest.NewRequest("POST", "/api/shares/smb/test-share/permission", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/shares/smb/test-share/permission", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -407,7 +408,7 @@ func TestSetPermission_InvalidRequest(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/shares/smb/test-share/permission", bytes.NewReader([]byte("{}")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/shares/smb/test-share/permission", bytes.NewReader([]byte("{}")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -433,7 +434,7 @@ func TestRemovePermission_Valid(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("DELETE", "/api/shares/smb/test-share/permission/testuser", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/shares/smb/test-share/permission/testuser", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -459,7 +460,7 @@ func TestCloseShare_Valid(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/shares/smb/test-share/close", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/shares/smb/test-share/close", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -476,7 +477,7 @@ func TestCloseShare_NotExists(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/shares/smb/nonexistent/close", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/shares/smb/nonexistent/close", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -501,7 +502,7 @@ func TestOpenShare_Valid(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/shares/smb/test-share/open", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/shares/smb/test-share/open", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -518,7 +519,7 @@ func TestOpenShare_NotExists(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/shares/smb/nonexistent/open", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/shares/smb/nonexistent/open", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -536,7 +537,7 @@ func TestGetStatus(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/smb/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/smb/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -559,7 +560,7 @@ func TestGetConnections(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/smb/connections", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/smb/connections", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -578,7 +579,7 @@ func TestStartService(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/smb/start", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/smb/start", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -597,7 +598,7 @@ func TestStopService(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/smb/stop", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/smb/stop", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -615,7 +616,7 @@ func TestRestartService(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/smb/restart", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/smb/restart", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -633,7 +634,7 @@ func TestReloadConfig(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/smb/reload", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/smb/reload", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -651,7 +652,7 @@ func TestTestConfig(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/smb/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/smb/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -674,7 +675,7 @@ func TestGetUserShares_Valid(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/shares/smb/user?user=testuser", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/shares/smb/user?user=testuser", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -690,7 +691,7 @@ func TestGetUserShares_MissingUser(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/shares/smb/user", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/shares/smb/user", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -708,7 +709,7 @@ func TestGetConfig(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/smb/config", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/smb/config", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -736,7 +737,7 @@ func TestUpdateConfig_Valid(t *testing.T) {
 	}
 	body, _ := json.Marshal(reqBody)
 
-	req := httptest.NewRequest("PUT", "/api/smb/config", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/smb/config", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -754,7 +755,7 @@ func TestUpdateConfig_InvalidJSON(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("PUT", "/api/smb/config", bytes.NewReader([]byte("invalid")))
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/smb/config", bytes.NewReader([]byte("invalid")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

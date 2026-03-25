@@ -2,6 +2,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -306,7 +307,7 @@ func TestEnhancedWebSocketHandlerStatus(t *testing.T) {
 	router := gin.New()
 	router.GET("/ws/status", handler.GetStatus)
 
-	req := httptest.NewRequest("GET", "/ws/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/ws/status", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -338,7 +339,7 @@ func TestEnhancedWebSocketHandlerClientStatus(t *testing.T) {
 	router := gin.New()
 	router.GET("/ws/client/:id", handler.GetClientStatus)
 
-	req := httptest.NewRequest("GET", "/ws/client/non-existent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/ws/client/non-existent", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)

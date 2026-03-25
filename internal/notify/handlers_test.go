@@ -1,6 +1,7 @@
 package notify
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -247,7 +248,7 @@ func TestHandlersUpdateConfig(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest(http.MethodPut, "/config", bytes.NewReader(body))
+	c.Request = httptest.NewRequestWithContext(context.Background(), http.MethodPut, "/config", bytes.NewReader(body))
 	c.Request.Header.Set("Content-Type", "application/json")
 
 	h.updateConfig(c)
@@ -279,7 +280,7 @@ func TestHandlersUpdateConfigInvalidJSON(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest(http.MethodPut, "/config", bytes.NewReader([]byte("invalid json")))
+	c.Request = httptest.NewRequestWithContext(context.Background(), http.MethodPut, "/config", bytes.NewReader([]byte("invalid json")))
 	c.Request.Header.Set("Content-Type", "application/json")
 
 	h.updateConfig(c)
@@ -309,7 +310,7 @@ func TestHandlersTestNotificationEmail(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest(http.MethodPost, "/test", bytes.NewReader(body))
+	c.Request = httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/test", bytes.NewReader(body))
 	c.Request.Header.Set("Content-Type", "application/json")
 
 	h.testNotification(c)
@@ -331,7 +332,7 @@ func TestHandlersTestNotificationEmailNotEnabled(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest(http.MethodPost, "/test", bytes.NewReader(body))
+	c.Request = httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/test", bytes.NewReader(body))
 	c.Request.Header.Set("Content-Type", "application/json")
 
 	h.testNotification(c)
@@ -361,7 +362,7 @@ func TestHandlersTestNotificationWeChat(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest(http.MethodPost, "/test", bytes.NewReader(body))
+	c.Request = httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/test", bytes.NewReader(body))
 	c.Request.Header.Set("Content-Type", "application/json")
 
 	h.testNotification(c)
@@ -383,7 +384,7 @@ func TestHandlersTestNotificationWeChatNotEnabled(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest(http.MethodPost, "/test", bytes.NewReader(body))
+	c.Request = httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/test", bytes.NewReader(body))
 	c.Request.Header.Set("Content-Type", "application/json")
 
 	h.testNotification(c)
@@ -402,7 +403,7 @@ func TestHandlersTestNotificationInvalidJSON(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest(http.MethodPost, "/test", bytes.NewReader([]byte("invalid")))
+	c.Request = httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/test", bytes.NewReader([]byte("invalid")))
 	c.Request.Header.Set("Content-Type", "application/json")
 
 	h.testNotification(c)
@@ -433,7 +434,7 @@ func TestHandlersTestNotificationAllChannels(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest(http.MethodPost, "/test", bytes.NewReader(body))
+	c.Request = httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/test", bytes.NewReader(body))
 	c.Request.Header.Set("Content-Type", "application/json")
 
 	h.testNotification(c)

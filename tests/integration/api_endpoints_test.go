@@ -3,6 +3,7 @@
 package integration
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -376,7 +377,7 @@ func setupTestRouter() *gin.Engine {
 func TestAPI_HealthEndpoint(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/health", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/health", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -397,7 +398,7 @@ func TestAPI_HealthEndpoint(t *testing.T) {
 func TestAPI_SystemInfo(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/system/info", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/system/info", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -423,7 +424,7 @@ func TestAPI_SystemInfo(t *testing.T) {
 func TestAPI_ListVolumes(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/volumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/volumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -435,7 +436,7 @@ func TestAPI_ListVolumes(t *testing.T) {
 func TestAPI_CreateVolume(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/volumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/volumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -447,7 +448,7 @@ func TestAPI_CreateVolume(t *testing.T) {
 func TestAPI_GetVolume(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/volumes/test-vol", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/volumes/test-vol", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -459,7 +460,7 @@ func TestAPI_GetVolume(t *testing.T) {
 func TestAPI_DeleteVolume(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("DELETE", "/api/v1/volumes/test-vol", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/volumes/test-vol", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -473,7 +474,7 @@ func TestAPI_DeleteVolume(t *testing.T) {
 func TestAPI_ListSubvolumes(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/subvolumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/subvolumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -485,7 +486,7 @@ func TestAPI_ListSubvolumes(t *testing.T) {
 func TestAPI_CreateSubvolume(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/subvolumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/subvolumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -499,7 +500,7 @@ func TestAPI_CreateSubvolume(t *testing.T) {
 func TestAPI_ListSnapshots(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/snapshots", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/snapshots", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -511,7 +512,7 @@ func TestAPI_ListSnapshots(t *testing.T) {
 func TestAPI_CreateSnapshot(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/snapshots", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/snapshots", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -525,7 +526,7 @@ func TestAPI_CreateSnapshot(t *testing.T) {
 func TestAPI_ListUsers(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/users", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/users", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -537,7 +538,7 @@ func TestAPI_ListUsers(t *testing.T) {
 func TestAPI_CreateUser(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/users", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/users", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -549,7 +550,7 @@ func TestAPI_CreateUser(t *testing.T) {
 func TestAPI_GetUser(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/users/1", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/users/1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -561,7 +562,7 @@ func TestAPI_GetUser(t *testing.T) {
 func TestAPI_UpdateUser(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("PUT", "/api/v1/users/1", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/v1/users/1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -573,7 +574,7 @@ func TestAPI_UpdateUser(t *testing.T) {
 func TestAPI_DeleteUser(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("DELETE", "/api/v1/users/1", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/users/1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -587,7 +588,7 @@ func TestAPI_DeleteUser(t *testing.T) {
 func TestAPI_Login(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/auth/login", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/auth/login", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -608,7 +609,7 @@ func TestAPI_Login(t *testing.T) {
 func TestAPI_Logout(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/auth/logout", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/auth/logout", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -620,7 +621,7 @@ func TestAPI_Logout(t *testing.T) {
 func TestAPI_RefreshToken(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/auth/refresh", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/auth/refresh", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -634,7 +635,7 @@ func TestAPI_RefreshToken(t *testing.T) {
 func TestAPI_ListQuotas(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/quota", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/quota", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -646,7 +647,7 @@ func TestAPI_ListQuotas(t *testing.T) {
 func TestAPI_CreateQuota(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/quota", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/quota", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -660,7 +661,7 @@ func TestAPI_CreateQuota(t *testing.T) {
 func TestAPI_ListShares(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/shares", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/shares", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -672,7 +673,7 @@ func TestAPI_ListShares(t *testing.T) {
 func TestAPI_CreateShare(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/shares", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/shares", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -686,7 +687,7 @@ func TestAPI_CreateShare(t *testing.T) {
 func TestAPI_ListBackupJobs(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/backup/jobs", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/backup/jobs", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -698,7 +699,7 @@ func TestAPI_ListBackupJobs(t *testing.T) {
 func TestAPI_CreateBackupJob(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/backup/jobs", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/backup/jobs", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -710,7 +711,7 @@ func TestAPI_CreateBackupJob(t *testing.T) {
 func TestAPI_RunBackupJob(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/backup/jobs/job-001/run", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/backup/jobs/job-001/run", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -724,7 +725,7 @@ func TestAPI_RunBackupJob(t *testing.T) {
 func TestAPI_DedupStatus(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -736,7 +737,7 @@ func TestAPI_DedupStatus(t *testing.T) {
 func TestAPI_DedupScan(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/scan", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/scan", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -750,7 +751,7 @@ func TestAPI_DedupScan(t *testing.T) {
 func TestAPI_Search(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/search?q=test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/search?q=test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -764,7 +765,7 @@ func TestAPI_Search(t *testing.T) {
 func TestAPI_MonitorMetrics(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/monitor/metrics", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/monitor/metrics", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -789,7 +790,7 @@ func TestAPI_MonitorMetrics(t *testing.T) {
 func TestAPI_MonitorAlerts(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/monitor/alerts", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/monitor/alerts", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -803,7 +804,7 @@ func TestAPI_MonitorAlerts(t *testing.T) {
 func TestAPI_ListTiers(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/tiering/tiers", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tiering/tiers", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -815,7 +816,7 @@ func TestAPI_ListTiers(t *testing.T) {
 func TestAPI_ListTieringPolicies(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/tiering/policies", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tiering/policies", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -829,7 +830,7 @@ func TestAPI_ListTieringPolicies(t *testing.T) {
 func TestAPI_CompressStatus(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/compress/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/compress/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -843,7 +844,7 @@ func TestAPI_CompressStatus(t *testing.T) {
 func TestAPI_WebDAVStatus(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/webdav/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/webdav/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -857,7 +858,7 @@ func TestAPI_WebDAVStatus(t *testing.T) {
 func TestAPI_FTPStatus(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/ftp/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/ftp/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -871,7 +872,7 @@ func TestAPI_FTPStatus(t *testing.T) {
 func TestAPI_ListISCSITargets(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/iscsi/targets", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/iscsi/targets", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -885,7 +886,7 @@ func TestAPI_ListISCSITargets(t *testing.T) {
 func TestAPI_ListContainers(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/containers", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/containers", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -899,7 +900,7 @@ func TestAPI_ListContainers(t *testing.T) {
 func TestAPI_ListPlugins(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/plugins", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/plugins", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -917,7 +918,7 @@ func TestAPI_ConcurrentRequests(t *testing.T) {
 	// 并发执行多个请求
 	for i := 0; i < 20; i++ {
 		go func(id int) {
-			req, _ := http.NewRequest("GET", "/api/v1/health", nil)
+			req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/health", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -947,7 +948,7 @@ func TestAPI_ConcurrentRequests(t *testing.T) {
 func TestAPI_NotFound(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

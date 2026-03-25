@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -69,7 +70,7 @@ func TestHandlers_MarketList_NoMarket(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/plugins/market", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/plugins/market", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -90,7 +91,7 @@ func TestHandlers_MarketSearch_NoMarket(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/plugins/market/search?q=test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/plugins/market/search?q=test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -106,7 +107,7 @@ func TestHandlers_MarketCategories(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/plugins/market/categories", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/plugins/market/categories", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -137,7 +138,7 @@ func TestHandlers_MarketDetail_NoMarket(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/plugins/market/test-plugin", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/plugins/market/test-plugin", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -153,7 +154,7 @@ func TestHandlers_MarketRate_InvalidJSON(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("POST", "/api/plugins/market/test-plugin/rate", bytes.NewReader([]byte("invalid")))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/plugins/market/test-plugin/rate", bytes.NewReader([]byte("invalid")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -171,7 +172,7 @@ func TestHandlers_MarketRate_NoMarket(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	body := `{"rating": 5, "review": "Great plugin!", "userId": "user123"}`
-	req, _ := http.NewRequest("POST", "/api/plugins/market/test-plugin/rate", bytes.NewReader([]byte(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/plugins/market/test-plugin/rate", bytes.NewReader([]byte(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -188,7 +189,7 @@ func TestHandlers_MarketReviews_NoMarket(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/plugins/market/test-plugin/reviews", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/plugins/market/test-plugin/reviews", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

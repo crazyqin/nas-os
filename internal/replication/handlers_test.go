@@ -1,6 +1,7 @@
 package replication
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -51,7 +52,7 @@ func TestHandlers_CreateTask(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/api/v1/replications", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -85,13 +86,13 @@ func TestHandlers_ListTasks(t *testing.T) {
 		Type:       "scheduled",
 	}
 	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/api/v1/replications", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
 	// 列出任务
-	req = httptest.NewRequest("GET", "/api/v1/replications", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/v1/replications", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -123,7 +124,7 @@ func TestHandlers_GetTask(t *testing.T) {
 		Type:       "scheduled",
 	}
 	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/api/v1/replications", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -136,7 +137,7 @@ func TestHandlers_GetTask(t *testing.T) {
 	taskID := task["id"].(string)
 
 	// 获取任务
-	req = httptest.NewRequest("GET", "/api/v1/replications/"+taskID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/v1/replications/"+taskID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -151,7 +152,7 @@ func TestHandlers_GetTask_NotFound(t *testing.T) {
 	_, router, tmpDir := setupTestHandlers(t)
 	defer os.RemoveAll(tmpDir)
 
-	req := httptest.NewRequest("GET", "/api/v1/replications/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/v1/replications/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -174,7 +175,7 @@ func TestHandlers_UpdateTask(t *testing.T) {
 		Type:       "scheduled",
 	}
 	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/api/v1/replications", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -194,7 +195,7 @@ func TestHandlers_UpdateTask(t *testing.T) {
 		Enabled: &enabled,
 	}
 	body, _ = json.Marshal(updateReq)
-	req = httptest.NewRequest("PUT", "/api/v1/replications/"+taskID, bytes.NewReader(body))
+	req = httptest.NewRequestWithContext(context.Background(), "PUT", "/api/v1/replications/"+taskID, bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -218,7 +219,7 @@ func TestHandlers_DeleteTask(t *testing.T) {
 		Type:       "scheduled",
 	}
 	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/api/v1/replications", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -231,14 +232,14 @@ func TestHandlers_DeleteTask(t *testing.T) {
 	taskID := task["id"].(string)
 
 	// 删除任务
-	req = httptest.NewRequest("DELETE", "/api/v1/replications/"+taskID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/replications/"+taskID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	// 验证删除
-	req = httptest.NewRequest("GET", "/api/v1/replications/"+taskID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/v1/replications/"+taskID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
@@ -260,7 +261,7 @@ func TestHandlers_PauseTask(t *testing.T) {
 		Type:       "scheduled",
 	}
 	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/api/v1/replications", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -273,7 +274,7 @@ func TestHandlers_PauseTask(t *testing.T) {
 	taskID := task["id"].(string)
 
 	// 暂停任务
-	req = httptest.NewRequest("POST", "/api/v1/replications/"+taskID+"/pause", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications/"+taskID+"/pause", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -296,7 +297,7 @@ func TestHandlers_ResumeTask(t *testing.T) {
 		Type:       "scheduled",
 	}
 	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/api/v1/replications", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -309,7 +310,7 @@ func TestHandlers_ResumeTask(t *testing.T) {
 	taskID := task["id"].(string)
 
 	// 恢复任务
-	req = httptest.NewRequest("POST", "/api/v1/replications/"+taskID+"/resume", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications/"+taskID+"/resume", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -320,7 +321,7 @@ func TestHandlers_GetStats(t *testing.T) {
 	_, router, tmpDir := setupTestHandlers(t)
 	defer os.RemoveAll(tmpDir)
 
-	req := httptest.NewRequest("GET", "/api/v1/replications/stats", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/v1/replications/stats", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -341,7 +342,7 @@ func TestHandlers_CreateTask_InvalidRequest(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	// 缺少必填字段
-	req := httptest.NewRequest("POST", "/api/v1/replications", bytes.NewReader([]byte("{}")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications", bytes.NewReader([]byte("{}")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -366,7 +367,7 @@ func TestHandlers_SyncTask(t *testing.T) {
 		Type:       "realtime",
 	}
 	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/api/v1/replications", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -379,7 +380,7 @@ func TestHandlers_SyncTask(t *testing.T) {
 	taskID := task["id"].(string)
 
 	// 同步任务
-	req = httptest.NewRequest("POST", "/api/v1/replications/"+taskID+"/sync", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications/"+taskID+"/sync", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -390,7 +391,7 @@ func TestHandlers_ListConflicts(t *testing.T) {
 	mgr, router, tmpDir := setupTestHandlers(t)
 	defer os.RemoveAll(tmpDir)
 
-	req := httptest.NewRequest("GET", "/api/v1/replications/conflicts", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/v1/replications/conflicts", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -403,7 +404,7 @@ func TestHandlers_ResolveConflict_InvalidJSON(t *testing.T) {
 	_, router, tmpDir := setupTestHandlers(t)
 	defer os.RemoveAll(tmpDir)
 
-	req := httptest.NewRequest("POST", "/api/v1/replications/conflicts/nonexistent/resolve", bytes.NewReader([]byte("invalid")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/replications/conflicts/nonexistent/resolve", bytes.NewReader([]byte("invalid")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

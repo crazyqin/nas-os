@@ -2,6 +2,7 @@
 package middleware
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -73,7 +74,7 @@ func TestRequestLoggerMiddleware(t *testing.T) {
 				}
 			})
 
-			req := httptest.NewRequest(tt.method, tt.path, nil)
+			req := httptest.NewRequestWithContext(context.Background(), tt.method, tt.path, nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -228,7 +229,7 @@ func TestRequestIDMiddleware(t *testing.T) {
 
 	// 测试没有请求 ID 的情况
 	t.Run("generate request id", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/test", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -243,7 +244,7 @@ func TestRequestIDMiddleware(t *testing.T) {
 
 	// 测试已有请求 ID 的情况
 	t.Run("use existing request id", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/test", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 		req.Header.Set("X-Request-ID", "existing-id-123")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -272,7 +273,7 @@ func TestRequestLoggerWithSkip(t *testing.T) {
 	// 测试跳过的路径
 	t.Run("skip health", func(t *testing.T) {
 		logger.entry = nil
-		req := httptest.NewRequest("GET", "/health", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/health", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -284,7 +285,7 @@ func TestRequestLoggerWithSkip(t *testing.T) {
 	// 测试非跳过的路径
 	t.Run("log api test", func(t *testing.T) {
 		logger.entry = nil
-		req := httptest.NewRequest("GET", "/api/test", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -312,7 +313,7 @@ func TestRequestLoggerFull(t *testing.T) {
 	}
 	bodyBytes, _ := json.Marshal(body)
 
-	req := httptest.NewRequest("POST", "/api/test", bytes.NewReader(bodyBytes))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/test", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -332,7 +333,7 @@ func TestRequestLoggerMinimal(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("GET", "/api/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

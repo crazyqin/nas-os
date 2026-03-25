@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -23,7 +24,7 @@ func TestListVolumes_NilStorageMgr(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/storage/volumes", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -48,7 +49,7 @@ func TestListVolumes_WithMockData(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/storage/volumes", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -73,7 +74,7 @@ func TestCreateVolume_NilStorageMgr(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req := httptest.NewRequest("POST", "/api/storage/volumes", bytes.NewBuffer(jsonBody))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -94,7 +95,7 @@ func TestCreateVolume_InvalidRequest(t *testing.T) {
 	// Missing required fields
 	jsonBody := `{"name": ""}`
 
-	req := httptest.NewRequest("POST", "/api/storage/volumes", bytes.NewBufferString(jsonBody))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes", bytes.NewBufferString(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -120,7 +121,7 @@ func TestCreateVolume_MissingDevices(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req := httptest.NewRequest("POST", "/api/storage/volumes", bytes.NewBuffer(jsonBody))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -139,7 +140,7 @@ func TestListPools_NilStorageMgr(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/storage/pools", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/storage/pools", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -163,7 +164,7 @@ func TestListAllSnapshots_NilStorageMgr(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/storage/snapshots", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/storage/snapshots", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -184,7 +185,7 @@ func TestListAllSnapshots_WithVolumeFilter(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/storage/snapshots?volume=test-vol", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/storage/snapshots?volume=test-vol", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -330,7 +331,7 @@ func TestStorageHandlers_ConcurrentAccess(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		go func() {
-			req := httptest.NewRequest("GET", "/api/storage/volumes", nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			done <- true

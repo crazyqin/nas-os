@@ -1,6 +1,7 @@
 package iscsi
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -24,7 +25,7 @@ func makeRequest(method, path string, body interface{}) (*http.Request, error) {
 			return nil, err
 		}
 	}
-	req, err := http.NewRequest(method, path, &reqBody)
+	req, err := http.NewRequestWithContext(context.Background(), method, path, &reqBody)
 	if err != nil {
 		return nil, err
 	}

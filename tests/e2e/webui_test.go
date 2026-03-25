@@ -3,6 +3,7 @@
 package e2e
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -344,7 +345,7 @@ func setupWebUITestRouter() *gin.Engine {
 func TestWebUI_Dashboard(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/dashboard", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dashboard", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -369,7 +370,7 @@ func TestWebUI_Dashboard(t *testing.T) {
 func TestWebUI_DashboardSystemInfo(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/dashboard", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dashboard", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -394,7 +395,7 @@ func TestWebUI_DashboardSystemInfo(t *testing.T) {
 func TestWebUI_StorageOverview(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/storage/overview", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/overview", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -419,7 +420,7 @@ func TestWebUI_StorageOverview(t *testing.T) {
 func TestWebUI_VolumeDetails(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/volumes/data/details", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/volumes/data/details", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -446,7 +447,7 @@ func TestWebUI_VolumeDetails(t *testing.T) {
 func TestWebUI_UserOverview(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/users/overview", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/users/overview", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -471,7 +472,7 @@ func TestWebUI_UserOverview(t *testing.T) {
 func TestWebUI_Permissions(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/permissions", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/permissions", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -498,7 +499,7 @@ func TestWebUI_Permissions(t *testing.T) {
 func TestWebUI_GetSettings(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/settings", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/settings", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -523,7 +524,7 @@ func TestWebUI_GetSettings(t *testing.T) {
 func TestWebUI_UpdateSettings(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("PUT", "/api/v1/settings", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/v1/settings", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -537,7 +538,7 @@ func TestWebUI_UpdateSettings(t *testing.T) {
 func TestWebUI_GetLogs(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/logs", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/logs", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -558,7 +559,7 @@ func TestWebUI_GetLogs(t *testing.T) {
 func TestWebUI_LogStream(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/logs/stream", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/logs/stream", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -572,7 +573,7 @@ func TestWebUI_LogStream(t *testing.T) {
 func TestWebUI_ListServices(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/services", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/services", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -593,7 +594,7 @@ func TestWebUI_ListServices(t *testing.T) {
 func TestWebUI_StartService(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/services/ftp/start", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/services/ftp/start", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -605,7 +606,7 @@ func TestWebUI_StartService(t *testing.T) {
 func TestWebUI_StopService(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/services/smb/stop", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/services/smb/stop", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -617,7 +618,7 @@ func TestWebUI_StopService(t *testing.T) {
 func TestWebUI_RestartService(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/services/nfs/restart", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/services/nfs/restart", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -631,7 +632,7 @@ func TestWebUI_RestartService(t *testing.T) {
 func TestWebUI_TieringVisualization(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/tiering/visualization", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tiering/visualization", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -658,7 +659,7 @@ func TestWebUI_TieringVisualization(t *testing.T) {
 func TestWebUI_CompressOverview(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/compress/overview", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/compress/overview", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -685,7 +686,7 @@ func TestWebUI_CompressOverview(t *testing.T) {
 func TestWebUI_Performance(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/performance", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/performance", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -712,7 +713,7 @@ func TestWebUI_Performance(t *testing.T) {
 func TestWebUI_ListAlerts(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("GET", "/api/v1/alerts", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/alerts", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -737,7 +738,7 @@ func TestWebUI_ListAlerts(t *testing.T) {
 func TestWebUI_AcknowledgeAlert(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequest("POST", "/api/v1/alerts/alert-001/acknowledge", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/alerts/alert-001/acknowledge", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -752,7 +753,7 @@ func TestWebUI_CompleteWorkflow(t *testing.T) {
 	router := setupWebUITestRouter()
 
 	t.Log("步骤 1: 检查仪表板")
-	req, _ := http.NewRequest("GET", "/api/v1/dashboard", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dashboard", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
@@ -760,7 +761,7 @@ func TestWebUI_CompleteWorkflow(t *testing.T) {
 	}
 
 	t.Log("步骤 2: 查看存储概览")
-	req, _ = http.NewRequest("GET", "/api/v1/storage/overview", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/overview", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
@@ -768,7 +769,7 @@ func TestWebUI_CompleteWorkflow(t *testing.T) {
 	}
 
 	t.Log("步骤 3: 查看服务状态")
-	req, _ = http.NewRequest("GET", "/api/v1/services", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/services", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
@@ -776,7 +777,7 @@ func TestWebUI_CompleteWorkflow(t *testing.T) {
 	}
 
 	t.Log("步骤 4: 检查告警")
-	req, _ = http.NewRequest("GET", "/api/v1/alerts", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/alerts", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
@@ -784,7 +785,7 @@ func TestWebUI_CompleteWorkflow(t *testing.T) {
 	}
 
 	t.Log("步骤 5: 查看性能数据")
-	req, _ = http.NewRequest("GET", "/api/v1/performance", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/performance", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
@@ -809,7 +810,7 @@ func TestWebUI_ResponseTime(t *testing.T) {
 
 	for _, endpoint := range endpoints {
 		start := time.Now()
-		req, _ := http.NewRequest("GET", endpoint, nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", endpoint, nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 		elapsed := time.Since(start)

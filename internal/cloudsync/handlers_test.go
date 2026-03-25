@@ -1,6 +1,7 @@
 package cloudsync
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -61,7 +62,7 @@ func TestCloudSyncHandlers_CreateProvider(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/providers", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/cloudsync/providers", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -91,7 +92,7 @@ func TestCloudSyncHandlers_CreateProvider_MissingFields(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/providers", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/cloudsync/providers", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -115,7 +116,7 @@ func TestCloudSyncHandlers_GetProvider(t *testing.T) {
 
 	// 测试获取提供商
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/cloudsync/providers/"+provider.ID, nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/cloudsync/providers/"+provider.ID, nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -131,7 +132,7 @@ func TestCloudSyncHandlers_GetProvider_NotFound(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/cloudsync/providers/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/cloudsync/providers/nonexistent", nil)
 	router.ServeHTTP(w, req)
 
 	assert.NotEqual(t, http.StatusOK, w.Code)
@@ -155,7 +156,7 @@ func TestCloudSyncHandlers_ListProviders(t *testing.T) {
 
 	// 测试列表
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/cloudsync/providers", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/cloudsync/providers", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -193,7 +194,7 @@ func TestCloudSyncHandlers_UpdateProvider(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/api/v1/cloudsync/providers/"+provider.ID, bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/v1/cloudsync/providers/"+provider.ID, bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -221,7 +222,7 @@ func TestCloudSyncHandlers_DeleteProvider(t *testing.T) {
 
 	// 删除提供商
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/api/v1/cloudsync/providers/"+provider.ID, nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/cloudsync/providers/"+provider.ID, nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -247,7 +248,7 @@ func TestCloudSyncHandlers_TestProvider(t *testing.T) {
 
 	// 测试连接
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/providers/"+provider.ID+"/test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/cloudsync/providers/"+provider.ID+"/test", nil)
 	router.ServeHTTP(w, req)
 
 	// 注意：由于使用假的凭据，测试可能失败，但 API 应该正常响应
@@ -283,7 +284,7 @@ func TestCloudSyncHandlers_CreateSyncTask(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/cloudsync/tasks", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -318,7 +319,7 @@ func TestCloudSyncHandlers_GetSyncTask(t *testing.T) {
 
 	// 获取任务
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/cloudsync/tasks/"+task.ID, nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/cloudsync/tasks/"+task.ID, nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -349,7 +350,7 @@ func TestCloudSyncHandlers_ListSyncTasks(t *testing.T) {
 
 	// 列出任务
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/cloudsync/tasks", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/cloudsync/tasks", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -385,7 +386,7 @@ func TestCloudSyncHandlers_DeleteSyncTask(t *testing.T) {
 
 	// 删除任务
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/api/v1/cloudsync/tasks/"+task.ID, nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/cloudsync/tasks/"+task.ID, nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -418,7 +419,7 @@ func TestCloudSyncHandlers_GetSyncStatus(t *testing.T) {
 
 	// 获取状态
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/cloudsync/tasks/"+task.ID+"/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/cloudsync/tasks/"+task.ID+"/status", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -429,7 +430,7 @@ func TestCloudSyncHandlers_GetStats(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/cloudsync/stats", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/cloudsync/stats", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -445,7 +446,7 @@ func TestCloudSyncHandlers_GetProvidersInfo(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/cloudsync/providers-info", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/cloudsync/providers-info", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -494,7 +495,7 @@ func TestCloudSyncHandlers_UpdateSyncTask(t *testing.T) {
 	require.NoError(t, err)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/api/v1/cloudsync/tasks/"+task.ID, bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/v1/cloudsync/tasks/"+task.ID, bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -524,7 +525,7 @@ func TestCloudSyncHandlers_UpdateSyncTask_NotFound(t *testing.T) {
 	require.NoError(t, err)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/api/v1/cloudsync/tasks/nonexistent", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/v1/cloudsync/tasks/nonexistent", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -557,7 +558,7 @@ func TestCloudSyncHandlers_GetAllStatuses(t *testing.T) {
 
 	// 获取所有状态
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/cloudsync/statuses", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/cloudsync/statuses", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -592,7 +593,7 @@ func TestCloudSyncHandlers_RunSyncTask(t *testing.T) {
 
 	// 运行同步任务
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks/"+task.ID+"/run", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/cloudsync/tasks/"+task.ID+"/run", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -608,7 +609,7 @@ func TestCloudSyncHandlers_RunSyncTask_NotFound(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks/nonexistent/run", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/cloudsync/tasks/nonexistent/run", nil)
 	router.ServeHTTP(w, req)
 
 	assert.NotEqual(t, http.StatusOK, w.Code)
@@ -638,7 +639,7 @@ func TestCloudSyncHandlers_PauseSyncTask_NotRunning(t *testing.T) {
 
 	// 暂停未运行的任务应该返回错误
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks/"+task.ID+"/pause", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/cloudsync/tasks/"+task.ID+"/pause", nil)
 	router.ServeHTTP(w, req)
 
 	assert.NotEqual(t, http.StatusOK, w.Code)
@@ -668,7 +669,7 @@ func TestCloudSyncHandlers_ResumeSyncTask_NotRunning(t *testing.T) {
 
 	// 恢复未运行的任务应该返回错误
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks/"+task.ID+"/resume", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/cloudsync/tasks/"+task.ID+"/resume", nil)
 	router.ServeHTTP(w, req)
 
 	assert.NotEqual(t, http.StatusOK, w.Code)
@@ -698,7 +699,7 @@ func TestCloudSyncHandlers_CancelSyncTask_NotRunning(t *testing.T) {
 
 	// 取消未运行的任务应该返回错误
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks/"+task.ID+"/cancel", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/cloudsync/tasks/"+task.ID+"/cancel", nil)
 	router.ServeHTTP(w, req)
 
 	assert.NotEqual(t, http.StatusOK, w.Code)

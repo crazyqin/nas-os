@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -366,7 +367,7 @@ func TestHandlers(t *testing.T) {
 
 	// 测试列出 DDNS
 	t.Run("ListDDNS", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/api/v1/network/ddns", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/network/ddns", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -378,7 +379,7 @@ func TestHandlers(t *testing.T) {
 	// 测试添加 DDNS
 	t.Run("AddDDNS", func(t *testing.T) {
 		body := `{"provider":"duckdns","domain":"handler-test.duckdns.org","token":"test-token"}`
-		req, _ := http.NewRequest("POST", "/api/v1/network/ddns", strings.NewReader(body))
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/network/ddns", strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -390,7 +391,7 @@ func TestHandlers(t *testing.T) {
 
 	// 测试获取 DDNS
 	t.Run("GetDDNS", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/api/v1/network/ddns/handler-test.duckdns.org", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/network/ddns/handler-test.duckdns.org", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -401,7 +402,7 @@ func TestHandlers(t *testing.T) {
 
 	// 测试列出端口转发
 	t.Run("ListPortForwards", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/api/v1/network/portforwards", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/network/portforwards", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -413,7 +414,7 @@ func TestHandlers(t *testing.T) {
 	// 测试添加端口转发
 	t.Run("AddPortForward", func(t *testing.T) {
 		body := `{"name":"test-forward","externalPort":9090,"protocol":"tcp","internalIp":"192.168.1.50","internalPort":9090,"enabled":false}`
-		req, _ := http.NewRequest("POST", "/api/v1/network/portforwards", strings.NewReader(body))
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/network/portforwards", strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -425,7 +426,7 @@ func TestHandlers(t *testing.T) {
 
 	// 测试列出防火墙规则
 	t.Run("ListFirewallRules", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/api/v1/network/firewall/rules", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/network/firewall/rules", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -437,7 +438,7 @@ func TestHandlers(t *testing.T) {
 	// 测试添加防火墙规则
 	t.Run("AddFirewallRule", func(t *testing.T) {
 		body := `{"name":"test-rule","action":"accept","direction":"in","protocol":"tcp","destPort":"443","enabled":false}`
-		req, _ := http.NewRequest("POST", "/api/v1/network/firewall/rules", strings.NewReader(body))
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/network/firewall/rules", strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)

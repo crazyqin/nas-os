@@ -366,7 +366,7 @@ func TestGenerateCacheKey(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
-			c.Request = httptest.NewRequest(tt.method, tt.path+"?"+tt.query, nil)
+			c.Request = httptest.NewRequestWithContext(context.Background(), tt.method, tt.path+"?"+tt.query, nil)
 
 			key := generateCacheKey(c, "prefix:")
 

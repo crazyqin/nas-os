@@ -1,6 +1,7 @@
 package lock
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -443,7 +444,7 @@ func TestAPI_AcquireLock(t *testing.T) {
 		"timeout": 300
 	}`
 
-	req, _ := http.NewRequest("POST", "/api/v1/locks", strings.NewReader(body))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/locks", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
@@ -467,7 +468,7 @@ func TestAPI_ReleaseLock(t *testing.T) {
 	require.NoError(t, err)
 
 	// 通过API释放
-	req, _ := http.NewRequest("DELETE", "/api/v1/locks/"+lock.ID+"?owner=user1", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/locks/"+lock.ID+"?owner=user1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -489,7 +490,7 @@ func TestAPI_GetLock(t *testing.T) {
 	require.NoError(t, err)
 
 	// 查询锁
-	req, _ := http.NewRequest("GET", "/api/v1/locks/"+lock.ID, nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/locks/"+lock.ID, nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -513,7 +514,7 @@ func TestAPI_ListLocks(t *testing.T) {
 	}
 
 	// 列出锁
-	req, _ := http.NewRequest("GET", "/api/v1/locks", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/locks", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -535,7 +536,7 @@ func TestAPI_CheckLock(t *testing.T) {
 	require.NoError(t, err)
 
 	// 检查锁定状态
-	req, _ := http.NewRequest("GET", "/api/v1/locks/check/test/file.txt", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/locks/check/test/file.txt", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -558,7 +559,7 @@ func TestAPI_GetStats(t *testing.T) {
 	require.NoError(t, err)
 
 	// 获取统计
-	req, _ := http.NewRequest("GET", "/api/v1/locks/stats", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/locks/stats", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -577,7 +578,7 @@ func TestAPI_LockConflict(t *testing.T) {
 		"lockType": "exclusive",
 		"owner": "user1"
 	}`
-	req1, _ := http.NewRequest("POST", "/api/v1/locks", strings.NewReader(body1))
+	req1, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/locks", strings.NewReader(body1))
 	req1.Header.Set("Content-Type", "application/json")
 	w1 := httptest.NewRecorder()
 	router.ServeHTTP(w1, req1)
@@ -589,7 +590,7 @@ func TestAPI_LockConflict(t *testing.T) {
 		"lockType": "shared",
 		"owner": "user2"
 	}`
-	req2, _ := http.NewRequest("POST", "/api/v1/locks", strings.NewReader(body2))
+	req2, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/locks", strings.NewReader(body2))
 	req2.Header.Set("Content-Type", "application/json")
 	w2 := httptest.NewRecorder()
 	router.ServeHTTP(w2, req2)
@@ -613,7 +614,7 @@ func TestAPI_ForceReleaseLock(t *testing.T) {
 	require.NoError(t, err)
 
 	// 强制释放
-	req, _ := http.NewRequest("DELETE", "/api/v1/locks/"+lock.ID+"/force", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/locks/"+lock.ID+"/force", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -636,7 +637,7 @@ func TestAPI_ExtendLock(t *testing.T) {
 
 	// 延长锁
 	body := `{"duration": 300}`
-	req, _ := http.NewRequest("PUT", "/api/v1/locks/"+lock.ID+"/extend?owner=user1", strings.NewReader(body))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/v1/locks/"+lock.ID+"/extend?owner=user1", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

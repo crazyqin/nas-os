@@ -177,7 +177,7 @@ func TestWebhookTrigger_VerifySignature(t *testing.T) {
 func TestWebhookTrigger_HandleRequest(t *testing.T) {
 	// Create test request
 	body := strings.NewReader(`{"event": "test", "data": "value"}`)
-	req := httptest.NewRequest("POST", "/webhook/test", body)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/webhook/test", body)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Process request
@@ -199,7 +199,7 @@ func TestWebhookTrigger_HandleRequest_WithSignature(t *testing.T) {
 	mac.Write(payload)
 	signature := hex.EncodeToString(mac.Sum(nil))
 
-	req := httptest.NewRequest("POST", "/webhook/test", strings.NewReader(string(payload)))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/webhook/test", strings.NewReader(string(payload)))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Signature", "sha256="+signature)
 

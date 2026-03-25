@@ -438,7 +438,7 @@ func TestNatPierce_Handler_Status(t *testing.T) {
 	handler := natpierce.NewHandler(client)
 
 	// 测试状态API
-	req := httptest.NewRequest(http.MethodGet, "/api/natpierce/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/natpierce/status", nil)
 	rec := httptest.NewRecorder()
 
 	handler.HandleStatus(rec, req)
@@ -463,7 +463,7 @@ func TestNatPierce_Handler_Config(t *testing.T) {
 
 	// 测试获取配置
 	t.Run("GetConfig", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "/api/natpierce/config", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/natpierce/config", nil)
 		rec := httptest.NewRecorder()
 
 		handler.HandleConfig(rec, req)
@@ -475,7 +475,7 @@ func TestNatPierce_Handler_Config(t *testing.T) {
 
 	// 测试方法不允许
 	t.Run("MethodNotAllowed", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodDelete, "/api/natpierce/config", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodDelete, "/api/natpierce/config", nil)
 		rec := httptest.NewRecorder()
 
 		handler.HandleConfig(rec, req)
@@ -498,7 +498,7 @@ func TestNatPierce_Handler_Connect(t *testing.T) {
 	handler := natpierce.NewHandler(client)
 
 	// 测试连接API
-	req := httptest.NewRequest(http.MethodPost, "/api/natpierce/connect", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/natpierce/connect", nil)
 	rec := httptest.NewRecorder()
 
 	handler.HandleConnect(rec, req)
@@ -519,7 +519,7 @@ func TestNatPierce_Handler_Disconnect(t *testing.T) {
 	handler := natpierce.NewHandler(client)
 
 	// 测试断开连接API
-	req := httptest.NewRequest(http.MethodPost, "/api/natpierce/disconnect", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/natpierce/disconnect", nil)
 	rec := httptest.NewRecorder()
 
 	handler.HandleDisconnect(rec, req)
@@ -572,7 +572,7 @@ func BenchmarkNatPierce_Handler_Status(b *testing.B) {
 	client := natpierce.NewPierceClient(cfg)
 	handler := natpierce.NewHandler(client)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/natpierce/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/natpierce/status", nil)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

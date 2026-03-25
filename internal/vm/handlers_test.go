@@ -1,6 +1,7 @@
 package vm
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -159,7 +160,7 @@ func TestHandler_HandleListVMs_MethodNotAllowed(t *testing.T) {
 
 	// Create a simple test server
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/v1/vms", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/vms", nil)
 
 	// Directly call HandleListVMs with wrong method
 	// The handler should still work and return MethodNotAllowed
@@ -173,7 +174,7 @@ func TestHandler_HandleListISOs_MethodNotAllowed(t *testing.T) {
 	h := NewHandler(nil, nil, nil, logger)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/v1/vm-isos", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/vm-isos", nil)
 
 	h.handleListISOs(w, req)
 
@@ -187,7 +188,7 @@ func TestHandler_HandleListSnapshots_MethodNotAllowed(t *testing.T) {
 	h := NewHandler(nil, nil, nil, logger)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/v1/vm-snapshots", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/vm-snapshots", nil)
 
 	h.handleListSnapshots(w, req)
 
@@ -201,7 +202,7 @@ func TestHandler_HandleListTemplates_MethodNotAllowed(t *testing.T) {
 	h := NewHandler(nil, nil, nil, logger)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/v1/vm-templates", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/vm-templates", nil)
 
 	h.handleListTemplates(w, req)
 
@@ -215,7 +216,7 @@ func TestHandler_HandleUSBDevices_MethodNotAllowed(t *testing.T) {
 	h := NewHandler(nil, nil, nil, logger)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/v1/vm-usb-devices", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/vm-usb-devices", nil)
 
 	h.handleUSBDevices(w, req)
 
@@ -229,7 +230,7 @@ func TestHandler_HandlePCIDevices_MethodNotAllowed(t *testing.T) {
 	h := NewHandler(nil, nil, nil, logger)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/v1/vm-pci-devices", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/vm-pci-devices", nil)
 
 	h.handlePCIDevices(w, req)
 
@@ -245,7 +246,7 @@ func TestHandler_HandleListSnapshots_WithoutVMID(t *testing.T) {
 	h := NewHandler(nil, nil, nil, logger)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/api/v1/vm-snapshots", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/v1/vm-snapshots", nil)
 
 	h.handleListSnapshots(w, req)
 
@@ -273,7 +274,7 @@ func TestHandler_HandleISO_InvalidAction(t *testing.T) {
 	// POST with invalid action
 	body := `{"action": "invalid"}`
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/v1/vm-isos/test-iso", strings.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/vm-isos/test-iso", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.SetPathValue("/", "test-iso") // Go 1.22+ path values
 
@@ -292,7 +293,7 @@ func TestHandler_VMAction_UnknownAction(t *testing.T) {
 
 	body := `{"action": "unknown-action"}`
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/v1/vms/test-vm", strings.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/vms/test-vm", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	// Test handleVM directly - will fail on path extraction but tests the logic
@@ -306,7 +307,7 @@ func TestHandler_HandleCreateVM_InvalidBody(t *testing.T) {
 	h := NewHandler(nil, nil, nil, logger)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/v1/vms", strings.NewReader("invalid json"))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/vms", strings.NewReader("invalid json"))
 	req.Header.Set("Content-Type", "application/json")
 
 	h.handleCreateVM(w, req)
@@ -333,7 +334,7 @@ func TestHandler_HandleCreateVM_ValidBody(t *testing.T) {
 	}`
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/v1/vms", strings.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/vms", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	// This will panic due to nil manager, so we test body parsing only
@@ -419,7 +420,7 @@ func TestHandler_DeleteVM_WithForce(t *testing.T) {
 	h := NewHandler(nil, nil, nil, logger)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("DELETE", "/api/v1/vms/test-vm?force=true", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/vms/test-vm?force=true", nil)
 
 	// This will panic due to nil manager, so we use recover
 	defer func() {

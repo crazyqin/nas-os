@@ -1,6 +1,7 @@
 package snapshot
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -272,7 +273,7 @@ func TestHandlers_ListPolicies_Empty(t *testing.T) {
 	handlers := NewHandlers(pm)
 	handlers.RegisterRoutes(apiGroup)
 
-	req := httptest.NewRequest("GET", "/api/snapshots/policies", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/snapshots/policies", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -289,7 +290,7 @@ func TestHandlers_GetPolicy_NotFound(t *testing.T) {
 	handlers := NewHandlers(pm)
 	handlers.RegisterRoutes(apiGroup)
 
-	req := httptest.NewRequest("GET", "/api/snapshot/policies/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/snapshot/policies/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

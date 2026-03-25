@@ -61,7 +61,7 @@ func TestExtractBearerToken(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/test", nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 			if tt.header != "" {
 				req.Header.Set("Authorization", tt.header)
 			}
@@ -88,7 +88,7 @@ func TestExtractCookieToken(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/test", nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 			if tt.cookieVal != "" {
 				req.AddCookie(&http.Cookie{
 					Name:  tt.cookieName,
@@ -119,7 +119,7 @@ func TestExtractQueryToken(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/test", nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 			if tt.paramVal != "" {
 				q := req.URL.Query()
 				q.Set(tt.paramName, tt.paramVal)
@@ -139,7 +139,7 @@ func TestExtractQueryToken(t *testing.T) {
 
 func TestDefaultDeniedHandler(t *testing.T) {
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 
 	result := &CheckResult{
 		Allowed:      false,
@@ -157,7 +157,7 @@ func TestDefaultDeniedHandler(t *testing.T) {
 
 func TestDefaultErrorHandler_PermissionDenied(t *testing.T) {
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 
 	DefaultErrorHandler(w, req, ErrPermissionDenied)
 
@@ -168,7 +168,7 @@ func TestDefaultErrorHandler_PermissionDenied(t *testing.T) {
 
 func TestDefaultErrorHandler_OtherError(t *testing.T) {
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 
 	DefaultErrorHandler(w, req, ErrUserNotFound)
 
@@ -279,7 +279,7 @@ func TestMiddleware_Handler_SkipPaths(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
-	req := httptest.NewRequest("GET", "/health", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/health", nil)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -303,7 +303,7 @@ func TestMiddleware_Handler_PublicPaths(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
-	req := httptest.NewRequest("POST", "/api/auth/login", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/auth/login", nil)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -327,7 +327,7 @@ func TestMiddleware_Handler_MissingToken(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
-	req := httptest.NewRequest("GET", "/api/protected", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/protected", nil)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -355,7 +355,7 @@ func TestMiddleware_RequirePermission(t *testing.T) {
 
 	// 创建带有用户信息的请求
 	ctx := context.WithValue(context.Background(), UserIDKey, "user1")
-	req := httptest.NewRequest("GET", "/api/test", nil).WithContext(ctx)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil).WithContext(ctx)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -380,7 +380,7 @@ func TestMiddleware_RequirePermission_Denied(t *testing.T) {
 	}))
 
 	ctx := context.WithValue(context.Background(), UserIDKey, "user1")
-	req := httptest.NewRequest("GET", "/api/test", nil).WithContext(ctx)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil).WithContext(ctx)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -409,7 +409,7 @@ func TestMiddleware_RequireRole(t *testing.T) {
 	}))
 
 	ctx := context.WithValue(context.Background(), UserRoleKey, RoleOperator)
-	req := httptest.NewRequest("GET", "/api/test", nil).WithContext(ctx)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil).WithContext(ctx)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -432,7 +432,7 @@ func TestMiddleware_RequireRole_Denied(t *testing.T) {
 	}))
 
 	ctx := context.WithValue(context.Background(), UserRoleKey, RoleGuest)
-	req := httptest.NewRequest("GET", "/api/test", nil).WithContext(ctx)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil).WithContext(ctx)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -459,7 +459,7 @@ func TestMiddleware_RequireAdmin(t *testing.T) {
 	}))
 
 	ctx := context.WithValue(context.Background(), UserRoleKey, RoleAdmin)
-	req := httptest.NewRequest("GET", "/api/test", nil).WithContext(ctx)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil).WithContext(ctx)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -495,7 +495,7 @@ func TestMiddleware_RequireOperator(t *testing.T) {
 			}))
 
 			ctx := context.WithValue(context.Background(), UserRoleKey, tt.role)
-			req := httptest.NewRequest("GET", "/api/test", nil).WithContext(ctx)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil).WithContext(ctx)
 			w := httptest.NewRecorder()
 			handler.ServeHTTP(w, req)
 
@@ -537,7 +537,7 @@ func TestResourcePermission_CanRead(t *testing.T) {
 	}))
 
 	ctx := context.WithValue(context.Background(), UserIDKey, "user1")
-	req := httptest.NewRequest("GET", "/api/test", nil).WithContext(ctx)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil).WithContext(ctx)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -562,7 +562,7 @@ func TestResourcePermission_CanWrite(t *testing.T) {
 	}))
 
 	ctx := context.WithValue(context.Background(), UserIDKey, "user1")
-	req := httptest.NewRequest("GET", "/api/test", nil).WithContext(ctx)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil).WithContext(ctx)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -587,7 +587,7 @@ func TestResourcePermission_CanAdmin(t *testing.T) {
 	}))
 
 	ctx := context.WithValue(context.Background(), UserIDKey, "user1")
-	req := httptest.NewRequest("GET", "/api/test", nil).WithContext(ctx)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil).WithContext(ctx)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
@@ -721,7 +721,7 @@ func TestMiddleware_WithPermission(t *testing.T) {
 	})
 
 	ctx := context.WithValue(context.Background(), UserIDKey, "user1")
-	req := httptest.NewRequest("GET", "/api/test", nil).WithContext(ctx)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/test", nil).WithContext(ctx)
 	w := httptest.NewRecorder()
 	handler(w, req)
 

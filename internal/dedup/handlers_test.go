@@ -1,6 +1,7 @@
 package dedup
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -65,7 +66,7 @@ func TestDedupHandlers_Scan(t *testing.T) {
 	bodyBytes, _ := json.Marshal(body)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/scan", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/scan", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -87,7 +88,7 @@ func TestDedupHandlers_Scan_DefaultPaths(t *testing.T) {
 
 	// 测试空路径扫描（使用默认路径）
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/scan", bytes.NewReader([]byte{}))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/scan", bytes.NewReader([]byte{}))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -100,7 +101,7 @@ func TestDedupHandlers_CancelScan(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/scan/cancel", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/scan/cancel", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -129,7 +130,7 @@ func TestDedupHandlers_GetDuplicates(t *testing.T) {
 
 	// 获取重复列表
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/duplicates", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/duplicates", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -161,7 +162,7 @@ func TestDedupHandlers_GetDuplicates_ForUser(t *testing.T) {
 
 	// 获取特定用户的重复
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/duplicates?user=user1", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/duplicates?user=user1", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -190,7 +191,7 @@ func TestDedupHandlers_GetCrossUserDuplicates(t *testing.T) {
 
 	// 获取跨用户重复
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/duplicates/cross-user", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/duplicates/cross-user", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -226,7 +227,7 @@ func TestDedupHandlers_Deduplicate(t *testing.T) {
 	bodyBytes, _ := json.Marshal(body)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/deduplicate", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/deduplicate", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -244,7 +245,7 @@ func TestDedupHandlers_Deduplicate_MissingFields(t *testing.T) {
 	bodyBytes, _ := json.Marshal(body)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/deduplicate", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/deduplicate", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -278,7 +279,7 @@ func TestDedupHandlers_DeduplicateAll(t *testing.T) {
 	bodyBytes, _ := json.Marshal(body)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/deduplicate/all", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/deduplicate/all", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -308,7 +309,7 @@ func TestDedupHandlers_GetReport(t *testing.T) {
 
 	// 获取报告
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/report", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/report", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -328,7 +329,7 @@ func TestDedupHandlers_GetStats(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/stats", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/stats", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -357,7 +358,7 @@ func TestDedupHandlers_GetUserStats(t *testing.T) {
 
 	// 获取用户统计
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/stats/users?user=user1", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/stats/users?user=user1", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -381,7 +382,7 @@ func TestDedupHandlers_GetUserStats_AllUsers(t *testing.T) {
 
 	// 获取所有用户统计
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/stats/users", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/stats/users", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -392,7 +393,7 @@ func TestDedupHandlers_GetConfig(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/config", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/config", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -413,7 +414,7 @@ func TestDedupHandlers_UpdateConfig(t *testing.T) {
 	bodyBytes, _ := json.Marshal(newConfig)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/api/v1/dedup/config", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/v1/dedup/config", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -429,7 +430,7 @@ func TestDedupHandlers_GetAutoTask(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/auto", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/auto", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -451,7 +452,7 @@ func TestDedupHandlers_EnableAutoDedup(t *testing.T) {
 	bodyBytes, _ := json.Marshal(body)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/auto/enable", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/auto/enable", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -477,7 +478,7 @@ func TestDedupHandlers_RunAutoDedup(t *testing.T) {
 	require.NoError(t, err)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/auto/run", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/auto/run", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -494,7 +495,7 @@ func TestDedupHandlers_GetChunks(t *testing.T) {
 	require.NoError(t, err)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/chunks", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/chunks", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -510,7 +511,7 @@ func TestDedupHandlers_GetSharedChunks(t *testing.T) {
 	mgr.CreateChunkForUser(data, "user2")
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/dedup/chunks/shared", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dedup/chunks/shared", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -531,7 +532,7 @@ func TestDedupHandlers_ChunkFile(t *testing.T) {
 	bodyBytes, _ := json.Marshal(body)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/chunks/file", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/chunks/file", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -551,7 +552,7 @@ func TestDedupHandlers_ChunkFile_MissingPath(t *testing.T) {
 	bodyBytes, _ := json.Marshal(body)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/dedup/chunks/file", bytes.NewReader(bodyBytes))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dedup/chunks/file", bytes.NewReader(bodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 

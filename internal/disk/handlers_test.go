@@ -2,6 +2,7 @@
 package disk
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -164,7 +165,7 @@ func TestListDisks(t *testing.T) {
 		},
 	}
 
-	req, _ := http.NewRequest("GET", "/api/disk", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/disk", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -196,7 +197,7 @@ func TestGetDiskInfo(t *testing.T) {
 	}
 
 	// 测试存在的磁盘
-	req, _ := http.NewRequest("GET", "/api/disk/sda", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/disk/sda", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -205,7 +206,7 @@ func TestGetDiskInfo(t *testing.T) {
 	}
 
 	// 测试不存在的磁盘
-	req2, _ := http.NewRequest("GET", "/api/disk/sdz", nil)
+	req2, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/disk/sdz", nil)
 	w2 := httptest.NewRecorder()
 	router.ServeHTTP(w2, req2)
 
@@ -219,7 +220,7 @@ func TestGetAlerts(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/disk/alerts", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/disk/alerts", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -243,7 +244,7 @@ func TestAcknowledgeAlert(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("POST", "/api/disk/alerts/alert-1/acknowledge", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/disk/alerts/alert-1/acknowledge", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -264,7 +265,7 @@ func TestGetAlertRules(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/disk/alerts/rules", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/disk/alerts/rules", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -299,7 +300,7 @@ func TestUpdateAlertRule(t *testing.T) {
 	}
 	body, _ := json.Marshal(ruleUpdate)
 
-	req, _ := http.NewRequest("PUT", "/api/disk/alerts/rules/temp-warning", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/disk/alerts/rules/temp-warning", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -324,7 +325,7 @@ func TestSetScoreWeights(t *testing.T) {
 	}
 	body, _ := json.Marshal(weights)
 
-	req, _ := http.NewRequest("PUT", "/api/disk/config/weights", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/disk/config/weights", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -339,7 +340,7 @@ func TestScanDisks(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("POST", "/api/disk/scan", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/disk/scan", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -353,7 +354,7 @@ func TestCheckAllDisks(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("POST", "/api/disk/check", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/disk/check", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -380,7 +381,7 @@ func TestGetDiskHistory(t *testing.T) {
 		},
 	}
 
-	req, _ := http.NewRequest("GET", "/api/disk/sda/history?duration=7d", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/disk/sda/history?duration=7d", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -394,7 +395,7 @@ func TestExportData(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/disk/export", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/disk/export", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -423,7 +424,7 @@ func TestImportData(t *testing.T) {
 	}
 	body, _ := json.Marshal(importData)
 
-	req, _ := http.NewRequest("POST", "/api/disk/import", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/disk/import", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -452,7 +453,7 @@ func TestGetSMARTData(t *testing.T) {
 		},
 	}
 
-	req, _ := http.NewRequest("GET", "/api/disk/sda/smart", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/disk/sda/smart", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -485,7 +486,7 @@ func TestGetDiskHealth(t *testing.T) {
 		},
 	}
 
-	req, _ := http.NewRequest("GET", "/api/disk/sda/health", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/disk/sda/health", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -512,7 +513,7 @@ func TestGetDiskPredictions(t *testing.T) {
 		},
 	}
 
-	req, _ := http.NewRequest("GET", "/api/disk/sda/predictions", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/disk/sda/predictions", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
