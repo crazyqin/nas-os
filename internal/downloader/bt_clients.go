@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -132,7 +133,7 @@ func (c *TransmissionClient) getSession() error {
 		return nil
 	}
 
-	req, err := http.NewRequest("GET", c.url, nil)
+	req, err := http.NewRequestWithContext(context.Background(), "GET", c.url, nil)
 	if err != nil {
 		return err
 	}
@@ -176,7 +177,7 @@ func (c *TransmissionClient) doRequest(method string, args interface{}) (*Transm
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", c.url, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(context.Background(), "POST", c.url, bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
@@ -409,7 +410,7 @@ func (c *QBittorrentClient) login() error {
 	formData.Set("username", c.username)
 	formData.Set("password", c.password)
 
-	req, err := http.NewRequest("POST", c.url+"/auth/login", strings.NewReader(formData.Encode()))
+	req, err := http.NewRequestWithContext(context.Background(), "POST", c.url+"/auth/login", strings.NewReader(formData.Encode()))
 	if err != nil {
 		return err
 	}
@@ -461,7 +462,7 @@ func (c *QBittorrentClient) doRequest(method, endpoint string, data url.Values) 
 		body = strings.NewReader(data.Encode())
 	}
 
-	req, err := http.NewRequest(method, c.url+endpoint, body)
+	req, err := http.NewRequestWithContext(context.Background(), method, c.url+endpoint, body)
 	if err != nil {
 		return nil, err
 	}
