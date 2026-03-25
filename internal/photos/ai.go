@@ -4,6 +4,7 @@ package photos
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -2027,7 +2028,8 @@ func (e *CloudAIEngine) detectFacesAzure(img image.Image) ([]FaceInfo, error) {
 	apiURL += "face/v1.0/detect?returnFaceId=true&returnFaceAttributes=age,gender,emotion"
 
 	// 创建 HTTP 请求
-	req, err := http.NewRequest("POST", apiURL, buf)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, buf)
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败: %w", err)
 	}
@@ -2156,7 +2158,8 @@ func (e *CloudAIEngine) classifySceneAzure(img image.Image) (string, float32, er
 	}
 	apiURL += "vision/v3.2/analyze?visualFeatures=Categories,Tags"
 
-	req, err := http.NewRequest("POST", apiURL, buf)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, buf)
 	if err != nil {
 		return "", 0, fmt.Errorf("创建请求失败: %w", err)
 	}
@@ -2237,7 +2240,8 @@ func (e *CloudAIEngine) detectObjectsAzure(img image.Image) ([]string, error) {
 	}
 	apiURL += "vision/v3.2/analyze?visualFeatures=Objects"
 
-	req, err := http.NewRequest("POST", apiURL, buf)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, buf)
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败: %w", err)
 	}
@@ -2308,7 +2312,8 @@ func (e *CloudAIEngine) extractColorsAzure(img image.Image) ([]string, error) {
 	}
 	apiURL += "vision/v3.2/analyze?visualFeatures=Color"
 
-	req, err := http.NewRequest("POST", apiURL, buf)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, buf)
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败: %w", err)
 	}

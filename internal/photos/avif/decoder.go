@@ -547,7 +547,7 @@ func (s *AVIFSupport) ClearCache() {
 // CheckSystemSupport checks if the system supports AVIF decoding
 func CheckSystemSupport() error {
 	// Check for ffmpeg with AVIF support
-	cmd := exec.Command("ffmpeg", "-decoders")
+	cmd := exec.CommandContext(context.Background(), "ffmpeg", "-decoders")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("ffmpeg not available: %w", err)

@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha1" // #nosec G505 -- 阿里云 DNS API 签名规范要求 HMAC-SHA1
 	"encoding/base64"
@@ -145,7 +146,12 @@ func (p *AliDNSProvider) request(params map[string]string, result interface{}) e
 	requestURL := "https://alidns.aliyuncs.com/?" + queryString
 
 	// 发送请求
-	resp, err := http.Get(requestURL)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "GET", requestURL, nil)
+	if err != nil {
+		return fmt.Errorf("创建请求失败: %w", err)
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("请求失败: %w", err)
 	}
@@ -287,7 +293,8 @@ func (p *CloudflareProvider) getZoneID(domain string) (string, error) {
 	}
 	zoneName := strings.Join(parts[len(parts)-2:], ".")
 
-	req, err := http.NewRequest("GET",
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "GET",
 		fmt.Sprintf("https://api.cloudflare.com/client/v4/zones?name=%s", zoneName), nil)
 	if err != nil {
 		return "", err
@@ -321,7 +328,8 @@ func (p *CloudflareProvider) getZoneID(domain string) (string, error) {
 
 // listDNSRecords 列出 DNS 记录.
 func (p *CloudflareProvider) listDNSRecords(name string) ([]CloudflareRecord, error) {
-	req, err := http.NewRequest("GET",
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "GET",
 		fmt.Sprintf("https://api.cloudflare.com/client/v4/zones/%s/dns_records?name=%s&type=A",
 			p.ZoneID, name), nil)
 	if err != nil {
@@ -363,7 +371,8 @@ func (p *CloudflareProvider) createDNSRecord(name, ip string) error {
 	}
 
 	body, _ := json.Marshal(data)
-	req, err := http.NewRequest("POST",
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "POST",
 		fmt.Sprintf("https://api.cloudflare.com/client/v4/zones/%s/dns_records", p.ZoneID),
 		strings.NewReader(string(body)))
 	if err != nil {
@@ -408,7 +417,8 @@ func (p *CloudflareProvider) updateDNSRecord(recordID, name, ip string) error {
 	}
 
 	body, _ := json.Marshal(data)
-	req, err := http.NewRequest("PUT",
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "PUT",
 		fmt.Sprintf("https://api.cloudflare.com/client/v4/zones/%s/dns_records/%s",
 			p.ZoneID, recordID),
 		strings.NewReader(string(body)))
@@ -468,7 +478,8 @@ func (p *TailscaleProvider) Update(domain, ip string) error {
 	// Tailscale 使用自己的 DNS 系统
 	// 这里我们更新设备的 ACL 标签或 DNS 记录
 
-	req, err := http.NewRequest("GET",
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "GET",
 		"https://api.tailscale.com/api/v2/tailnet/"+p.Tailnet+"/dns", nil)
 	if err != nil {
 		return err
@@ -494,7 +505,8 @@ func (p *TailscaleProvider) Update(domain, ip string) error {
 
 // GetDeviceIP 获取 Tailscale 设备 IP.
 func (p *TailscaleProvider) GetDeviceIP(deviceName string) (string, error) {
-	req, err := http.NewRequest("GET",
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "GET",
 		"https://api.tailscale.com/api/v2/tailnet/"+p.Tailnet+"/devices", nil)
 	if err != nil {
 		return "", err

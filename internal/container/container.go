@@ -141,13 +141,17 @@ func NewManager() (*Manager, error) {
 
 // IsRunning 检查 Docker 是否运行.
 func (m *Manager) IsRunning() bool {
-	cmd := exec.Command("docker", "info")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "docker", "info")
 	return cmd.Run() == nil
 }
 
 // GetVersion 获取 Docker 版本信息.
 func (m *Manager) GetVersion() (map[string]string, error) {
-	cmd := exec.Command("docker", "version", "--format", "{{json .}}")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "docker", "version", "--format", "{{json .}}")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("获取 Docker 版本失败：%w", err)
@@ -189,7 +193,9 @@ func (m *Manager) ListContainers(all bool) ([]*Container, error) {
 		args = []string{"ps", "-a", "--format", "{{json .}}"}
 	}
 
-	cmd := exec.Command("docker", args...)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出容器：%w", err)
@@ -228,7 +234,9 @@ func (m *Manager) ListContainers(all bool) ([]*Container, error) {
 
 // GetContainer 获取容器详情.
 func (m *Manager) GetContainer(id string) (*Container, error) {
-	cmd := exec.Command("docker", "inspect", "--format", "{{json .}}", id)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "docker", "inspect", "--format", "{{json .}}", id)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取容器信息：%w", err)
@@ -397,7 +405,9 @@ func (m *Manager) CreateContainer(config *Config) (*Container, error) {
 		args = append(args, config.Command...)
 	}
 
-	cmd := exec.Command("docker", args...)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("创建容器失败：%w, %s", err, string(output))
@@ -409,7 +419,9 @@ func (m *Manager) CreateContainer(config *Config) (*Container, error) {
 
 // StartContainer 启动容器.
 func (m *Manager) StartContainer(id string) error {
-	cmd := exec.Command("docker", "start", id)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "docker", "start", id)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("启动容器失败：%w, %s", err, string(output))
@@ -425,7 +437,9 @@ func (m *Manager) StopContainer(id string, timeout int) error {
 	}
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout+10)*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("停止容器失败：%w, %s", err, string(output))
@@ -441,7 +455,9 @@ func (m *Manager) RestartContainer(id string, timeout int) error {
 	}
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout+10)*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("重启容器失败：%w, %s", err, string(output))
@@ -460,7 +476,9 @@ func (m *Manager) RemoveContainer(id string, force bool, removeVolumes bool) err
 	}
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("删除容器失败：%w, %s", err, string(output))
@@ -549,7 +567,9 @@ func (m *Manager) GetContainerLogs(id string, tail int, follow bool) ([]Log, err
 	}
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil && len(output) == 0 {
 		return nil, fmt.Errorf("获取日志失败：%w", err)

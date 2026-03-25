@@ -2,6 +2,7 @@ package notification
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -312,7 +313,8 @@ func (s *WebhookSender) Send(config *ChannelConfig, notification *Notification) 
 		method = "POST"
 	}
 
-	req, err := http.NewRequest(method, webhookConfig.URL, bytes.NewBuffer(jsonData))
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, method, webhookConfig.URL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
@@ -459,7 +461,13 @@ func (s *WeChatSender) Send(config *ChannelConfig, notification *Notification) e
 		return err
 	}
 
-	resp, err := s.client.Post(wechatConfig.WebhookURL, "application/json", bytes.NewBuffer(jsonData))
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "POST", wechatConfig.WebhookURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := s.client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -549,7 +557,13 @@ func (s *DingTalkSender) Send(config *ChannelConfig, notification *Notification)
 		return err
 	}
 
-	resp, err := s.client.Post(webhookURL, "application/json", bytes.NewBuffer(jsonData))
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "POST", webhookURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := s.client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -624,7 +638,13 @@ func (s *TelegramSender) Send(config *ChannelConfig, notification *Notification)
 		return err
 	}
 
-	resp, err := s.client.Post(apiURL, "application/json", bytes.NewBuffer(jsonData))
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := s.client.Do(req)
 	if err != nil {
 		return err
 	}
