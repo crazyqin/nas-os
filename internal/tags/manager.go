@@ -1,6 +1,7 @@
 package tags
 
 import (
+	"context"
 	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
@@ -121,7 +122,7 @@ func (m *Manager) initDB() error {
 	CREATE INDEX IF NOT EXISTS idx_file_tags_tag ON file_tags(tag_id);
 	`
 
-	_, err = db.Exec(createTableSQL)
+	_, err = db.ExecContext(context.Background(), createTableSQL)
 	return err
 }
 
@@ -143,7 +144,7 @@ func (m *Manager) CreateTag(input TagInput) (*Tag, error) {
 
 	// 检查名称是否已存在
 	var exists int
-	err := m.db.QueryRow("SELECT 1 FROM tags WHERE name = ?", input.Name).Scan(&exists)
+	err := m.db.QueryRowContext(context.Background(), "SELECT 1 FROM tags WHERE name = ?", input.Name).Scan(&exists)
 	if err == nil {
 		return nil, ErrTagExists
 	}
@@ -168,7 +169,7 @@ func (m *Manager) CreateTag(input TagInput) (*Tag, error) {
 	}
 
 	query := `INSERT INTO tags (id, name, color, icon, grp, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	_, err = m.db.Exec(query, tag.ID, tag.Name, tag.Color, tag.Icon, tag.Group, tag.CreatedAt, tag.UpdatedAt)
+	_, err = m.db.ExecContext(context.Background(), query, tag.ID, tag.Name, tag.Color, tag.Icon, tag.Group, tag.CreatedAt, tag.UpdatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("创建标签失败：%w", err)
 	}
@@ -183,7 +184,7 @@ func (m *Manager) GetTag(id string) (*Tag, error) {
 
 	tag := &Tag{}
 	query := `SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE id = ?`
-	err := m.db.QueryRow(query, id).Scan(
+	err := m.db.QueryRowContext(context.Background(), query, id).Scan(
 		&tag.ID, &tag.Name, &tag.Color, &tag.Icon, &tag.Group,
 		&tag.CreatedAt, &tag.UpdatedAt,
 	)
@@ -204,7 +205,7 @@ func (m *Manager) GetTagByName(name string) (*Tag, error) {
 
 	tag := &Tag{}
 	query := `SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE name = ?`
-	err := m.db.QueryRow(query, name).Scan(
+	err := m.db.QueryRowContext(context.Background(), query, name).Scan(
 		&tag.ID, &tag.Name, &tag.Color, &tag.Icon, &tag.Group,
 		&tag.CreatedAt, &tag.UpdatedAt,
 	)
@@ -224,7 +225,7 @@ func (m *Manager) ListTags() ([]*Tag, error) {
 	defer m.mu.RUnlock()
 
 	query := `SELECT id, name, color, icon, grp, created_at, updated_at FROM tags ORDER BY name`
-	rows, err := m.db.Query(query)
+	rows, err := m.db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +253,7 @@ func (m *Manager) ListTagsByGroup(group string) ([]*Tag, error) {
 	defer m.mu.RUnlock()
 
 	query := `SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE grp = ? ORDER BY name`
-	rows, err := m.db.Query(query, group)
+	rows, err := m.db.QueryContext(context.Background(), query, group)
 	if err != nil {
 		return nil, err
 	}
@@ -281,7 +282,7 @@ func (m *Manager) UpdateTag(id string, input TagInput) (*Tag, error) {
 
 	// 检查标签是否存在
 	var existingTag Tag
-	err := m.db.QueryRow("SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE id = ?",
+	err := m.db.QueryRowContext(context.Background(), "SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE id = ?",
 		id).Scan(&existingTag.ID, &existingTag.Name, &existingTag.Color, &existingTag.Icon,
 		&existingTag.Group, &existingTag.CreatedAt, &existingTag.UpdatedAt)
 	if err == sql.ErrNoRows {
@@ -294,7 +295,7 @@ func (m *Manager) UpdateTag(id string, input TagInput) (*Tag, error) {
 	// 检查新名称是否已被其他标签使用
 	if input.Name != "" {
 		var existingID string
-		err := m.db.QueryRow("SELECT id FROM tags WHERE name = ? AND id != ?", input.Name, id).Scan(&existingID)
+		err := m.db.QueryRowContext(context.Background(), "SELECT id FROM tags WHERE name = ? AND id != ?", input.Name, id).Scan(&existingID)
 		if err == nil {
 			return nil, ErrTagExists
 		}
@@ -306,7 +307,7 @@ func (m *Manager) UpdateTag(id string, input TagInput) (*Tag, error) {
 	now := time.Now()
 	query := `UPDATE tags SET name = COALESCE(NULLIF(?, ''), name), color = COALESCE(NULLIF(?, ''), color), 
 	          icon = COALESCE(NULLIF(?, ''), icon), grp = COALESCE(NULLIF(?, ''), grp), updated_at = ? WHERE id = ?`
-	_, err = m.db.Exec(query, input.Name, input.Color, input.Icon, input.Group, now, id)
+	_, err = m.db.ExecContext(context.Background(), query, input.Name, input.Color, input.Icon, input.Group, now, id)
 	if err != nil {
 		return nil, fmt.Errorf("更新标签失败：%w", err)
 	}
@@ -343,13 +344,13 @@ func (m *Manager) DeleteTag(id string) error {
 	defer m.mu.Unlock()
 
 	// 先删除文件关联
-	_, err := m.db.Exec("DELETE FROM file_tags WHERE tag_id = ?", id)
+	_, err := m.db.ExecContext(context.Background(), "DELETE FROM file_tags WHERE tag_id = ?", id)
 	if err != nil {
 		return fmt.Errorf("删除文件标签关联失败：%w", err)
 	}
 
 	// 删除标签
-	result, err := m.db.Exec("DELETE FROM tags WHERE id = ?", id)
+	result, err := m.db.ExecContext(context.Background(), "DELETE FROM tags WHERE id = ?", id)
 	if err != nil {
 		return fmt.Errorf("删除标签失败：%w", err)
 	}
@@ -380,7 +381,7 @@ func (m *Manager) AddTagsToFile(filePath string, tagIDs []string) error {
 	for _, tagID := range tagIDs {
 		// 检查标签是否存在
 		var exists int
-		err := m.db.QueryRow("SELECT 1 FROM tags WHERE id = ?", tagID).Scan(&exists)
+		err := m.db.QueryRowContext(context.Background(), "SELECT 1 FROM tags WHERE id = ?", tagID).Scan(&exists)
 		if err == sql.ErrNoRows {
 			return ErrInvalidTagID
 		}
@@ -389,7 +390,7 @@ func (m *Manager) AddTagsToFile(filePath string, tagIDs []string) error {
 		}
 
 		// 添加关联（使用 INSERT OR IGNORE 避免重复）
-		_, err = m.db.Exec(
+		_, err = m.db.ExecContext(context.Background(), 
 			"INSERT OR IGNORE INTO file_tags (file_path, tag_id, added_at) VALUES (?, ?, ?)",
 			filePath, tagID, now,
 		)
@@ -414,7 +415,7 @@ func (m *Manager) RemoveTagsFromFile(filePath string, tagIDs []string) error {
 	defer m.mu.Unlock()
 
 	for _, tagID := range tagIDs {
-		_, err := m.db.Exec(
+		_, err := m.db.ExecContext(context.Background(), 
 			"DELETE FROM file_tags WHERE file_path = ? AND tag_id = ?",
 			filePath, tagID,
 		)
@@ -445,7 +446,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 	}()
 
 	// 删除现有标签
-	_, err = tx.Exec("DELETE FROM file_tags WHERE file_path = ?", filePath)
+	_, err = tx.ExecContext(context.Background(), "DELETE FROM file_tags WHERE file_path = ?", filePath)
 	if err != nil {
 		return err
 	}
@@ -455,7 +456,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 	for _, tagID := range tagIDs {
 		// 检查标签是否存在
 		var exists int
-		err := tx.QueryRow("SELECT 1 FROM tags WHERE id = ?", tagID).Scan(&exists)
+		err := tx.QueryRowContext(context.Background(), "SELECT 1 FROM tags WHERE id = ?", tagID).Scan(&exists)
 		if err == sql.ErrNoRows {
 			return ErrInvalidTagID
 		}
@@ -463,7 +464,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 			return err
 		}
 
-		_, err = tx.Exec(
+		_, err = tx.ExecContext(context.Background(), 
 			"INSERT INTO file_tags (file_path, tag_id, added_at) VALUES (?, ?, ?)",
 			filePath, tagID, now,
 		)
@@ -487,7 +488,7 @@ func (m *Manager) GetTagsForFile(filePath string) ([]*Tag, error) {
 		WHERE ft.file_path = ?
 		ORDER BY t.name
 	`
-	rows, err := m.db.Query(query, filePath)
+	rows, err := m.db.QueryContext(context.Background(), query, filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -546,7 +547,7 @@ func (m *Manager) GetFilesByTags(tagIDs []string, matchAll bool) ([]string, erro
 		}
 	}
 
-	rows, err := m.db.Query(query, args...)
+	rows, err := m.db.QueryContext(context.Background(), query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -570,7 +571,7 @@ func (m *Manager) GetFileTagCount(filePath string) (int, error) {
 	defer m.mu.RUnlock()
 
 	var count int
-	err := m.db.QueryRow("SELECT COUNT(*) FROM file_tags WHERE file_path = ?", filePath).Scan(&count)
+	err := m.db.QueryRowContext(context.Background(), "SELECT COUNT(*) FROM file_tags WHERE file_path = ?", filePath).Scan(&count)
 	return count, err
 }
 
@@ -580,7 +581,7 @@ func (m *Manager) GetTagUsageCount(tagID string) (int, error) {
 	defer m.mu.RUnlock()
 
 	var count int
-	err := m.db.QueryRow("SELECT COUNT(*) FROM file_tags WHERE tag_id = ?", tagID).Scan(&count)
+	err := m.db.QueryRowContext(context.Background(), "SELECT COUNT(*) FROM file_tags WHERE tag_id = ?", tagID).Scan(&count)
 	return count, err
 }
 
@@ -598,7 +599,7 @@ func (m *Manager) ListGroups() ([]*TagGroup, error) {
 		GROUP BY grp 
 		ORDER BY grp
 	`
-	rows, err := m.db.Query(query)
+	rows, err := m.db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -626,19 +627,19 @@ func (m *Manager) GetStats() (*Stats, error) {
 	stats := &Stats{}
 
 	// 标签总数
-	err := m.db.QueryRow("SELECT COUNT(*) FROM tags").Scan(&stats.TotalTags)
+	err := m.db.QueryRowContext(context.Background(), "SELECT COUNT(*) FROM tags").Scan(&stats.TotalTags)
 	if err != nil {
 		return nil, err
 	}
 
 	// 有标签的文件数
-	err = m.db.QueryRow("SELECT COUNT(DISTINCT file_path) FROM file_tags").Scan(&stats.TotalFiles)
+	err = m.db.QueryRowContext(context.Background(), "SELECT COUNT(DISTINCT file_path) FROM file_tags").Scan(&stats.TotalFiles)
 	if err != nil {
 		return nil, err
 	}
 
 	// 有分组的标签数
-	err = m.db.QueryRow("SELECT COUNT(*) FROM tags WHERE grp != ''").Scan(&stats.TotalGrouped)
+	err = m.db.QueryRowContext(context.Background(), "SELECT COUNT(*) FROM tags WHERE grp != ''").Scan(&stats.TotalGrouped)
 	if err != nil {
 		return nil, err
 	}
@@ -668,7 +669,7 @@ func (m *Manager) BatchAddTagsToFile(filePaths []string, tagIDs []string) error 
 
 	for _, filePath := range filePaths {
 		for _, tagID := range tagIDs {
-			_, err := tx.Exec(
+			_, err := tx.ExecContext(context.Background(), 
 				"INSERT OR IGNORE INTO file_tags (file_path, tag_id, added_at) VALUES (?, ?, ?)",
 				filePath, tagID, now,
 			)
@@ -686,7 +687,7 @@ func (m *Manager) ClearFileTags(filePath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	_, err := m.db.Exec("DELETE FROM file_tags WHERE file_path = ?", filePath)
+	_, err := m.db.ExecContext(context.Background(), "DELETE FROM file_tags WHERE file_path = ?", filePath)
 	return err
 }
 
@@ -703,12 +704,12 @@ func (m *Manager) ClearAllTags() error {
 		_ = tx.Rollback()
 	}()
 
-	_, err = tx.Exec("DELETE FROM file_tags")
+	_, err = tx.ExecContext(context.Background(), "DELETE FROM file_tags")
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("DELETE FROM tags")
+	_, err = tx.ExecContext(context.Background(), "DELETE FROM tags")
 	if err != nil {
 		return err
 	}
@@ -724,7 +725,7 @@ func (m *Manager) SearchTags(keyword string) ([]*Tag, error) {
 	defer m.mu.RUnlock()
 
 	query := `SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE name LIKE ? ORDER BY name`
-	rows, err := m.db.Query(query, "%"+keyword+"%")
+	rows, err := m.db.QueryContext(context.Background(), query, "%"+keyword+"%")
 	if err != nil {
 		return nil, err
 	}
@@ -791,7 +792,7 @@ func (m *Manager) SearchFilesByTags(keyword string, tagIDs []string, matchAll bo
 		}
 	}
 
-	rows, err := m.db.Query(query, args...)
+	rows, err := m.db.QueryContext(context.Background(), query, args...)
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package system
 
 import (
 	"bufio"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -209,7 +210,7 @@ func (m *Monitor) initDB(dbPath string) error {
 	);
 	`
 
-	_, err = db.Exec(createTableSQL)
+	_, err = db.ExecContext(context.Background(), createTableSQL)
 	return err
 }
 
@@ -701,7 +702,7 @@ func (m *Monitor) GetHistoryData(duration string, interval string) ([]*HistoryDa
 	ORDER BY timestamp ASC
 	`
 
-	rows, err := m.db.Query(query, timeRange)
+	rows, err := m.db.QueryContext(context.Background(), query, timeRange)
 	if err != nil {
 		return nil, err
 	}
@@ -727,7 +728,7 @@ func (m *Monitor) GetHistoryData(duration string, interval string) ([]*HistoryDa
 func (m *Monitor) GetAlerts() ([]*Alert, error) {
 	query := `SELECT id, type, level, message, source, timestamp, acknowledged, resolved FROM alerts ORDER BY timestamp DESC`
 
-	rows, err := m.db.Query(query)
+	rows, err := m.db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -754,7 +755,7 @@ func (m *Monitor) AddAlert(alert *Alert) error {
 	query := `INSERT OR REPLACE INTO alerts (id, type, level, message, source, timestamp, acknowledged, resolved) 
 			  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 
-	_, err := m.db.Exec(query, alert.ID, alert.Type, alert.Level, alert.Message, alert.Source,
+	_, err := m.db.ExecContext(context.Background(), query, alert.ID, alert.Type, alert.Level, alert.Message, alert.Source,
 		alert.Timestamp, boolToInt(alert.Acknowledged), boolToInt(alert.Resolved))
 	return err
 }
@@ -762,7 +763,7 @@ func (m *Monitor) AddAlert(alert *Alert) error {
 // AcknowledgeAlert 确认告警.
 func (m *Monitor) AcknowledgeAlert(id string) error {
 	query := `UPDATE alerts SET acknowledged = 1 WHERE id = ?`
-	_, err := m.db.Exec(query, id)
+	_, err := m.db.ExecContext(context.Background(), query, id)
 	return err
 }
 
@@ -786,7 +787,7 @@ func (m *Monitor) saveHistoryData(system *Stats, network []*NetworkStats) {
 			  net_rx_bytes, net_tx_bytes, net_rx_speed, net_tx_speed) 
 			  VALUES (?, ?, ?, ?, ?, 0, 0, ?, ?)`
 
-	_, err := m.db.Exec(query, system.Timestamp, system.CPUUsage, system.MemoryUsage,
+	_, err := m.db.ExecContext(context.Background(), query, system.Timestamp, system.CPUUsage, system.MemoryUsage,
 		system.MemoryTotal, system.MemoryUsed, netRX, netTX)
 
 	if err != nil {
@@ -800,7 +801,7 @@ func (m *Monitor) saveHistoryData(system *Stats, network []*NetworkStats) {
 
 // cleanupOldData 清理旧数据.
 func (m *Monitor) cleanupOldData() {
-	_, err := m.db.Exec(`DELETE FROM system_history WHERE timestamp < datetime('now', '-90 days')`)
+	_, err := m.db.ExecContext(context.Background(), `DELETE FROM system_history WHERE timestamp < datetime('now', '-90 days')`)
 	if err != nil {
 		return
 	}
