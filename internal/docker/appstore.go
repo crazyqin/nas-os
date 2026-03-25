@@ -698,7 +698,7 @@ func (s *AppStore) InstallApp(templateID string, config map[string]interface{}) 
 	}
 
 	// 使用 docker-compose 启动
-	cmd := exec.Command("docker-compose", "-f", composePath, "up", "-d")
+	cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", composePath, "up", "-d")
 	cmd.Dir = appDir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -831,7 +831,7 @@ func (s *AppStore) UninstallApp(id string, removeData bool) error {
 
 	// 停止并删除容器
 	if app.ComposePath != "" {
-		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "down")
+		cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", app.ComposePath, "down")
 		if err := cmd.Run(); err != nil {
 			log.Printf("docker-compose down 失败: %v", err)
 		}
@@ -867,7 +867,7 @@ func (s *AppStore) StartApp(id string) error {
 	}
 
 	if app.ComposePath != "" {
-		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "start")
+		cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", app.ComposePath, "start")
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("启动失败: %w, %s", err, string(output))
@@ -894,7 +894,7 @@ func (s *AppStore) StopApp(id string) error {
 	}
 
 	if app.ComposePath != "" {
-		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "stop")
+		cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", app.ComposePath, "stop")
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("停止失败: %w, %s", err, string(output))
@@ -921,7 +921,7 @@ func (s *AppStore) RestartApp(id string) error {
 	}
 
 	if app.ComposePath != "" {
-		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "restart")
+		cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", app.ComposePath, "restart")
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("重启失败: %w, %s", err, string(output))
@@ -955,7 +955,7 @@ func (s *AppStore) UpdateApp(id string) error {
 
 	// 重新创建容器
 	if app.ComposePath != "" {
-		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "up", "-d")
+		cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", app.ComposePath, "up", "-d")
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("更新失败: %w, %s", err, string(output))

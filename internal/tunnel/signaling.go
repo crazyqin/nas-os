@@ -410,7 +410,8 @@ func NewSignalServer(addr string, logger *zap.Logger) *SignalServer {
 
 // Start 启动信令服务器
 func (s *SignalServer) Start(ctx context.Context) error {
-	listener, err := net.Listen("tcp", s.addr)
+	lc := &net.ListenConfig{}
+	listener, err := lc.Listen(ctx, "tcp", s.addr)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
