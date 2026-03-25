@@ -318,4 +318,3 @@ func TestFNConnectStats_Structure(t *testing.T) {
 	assert.Equal(t, "https://test.fnos.cn", stats.PublicURL)
 	assert.Equal(t, 2, stats.ActiveTunnels)
 }
-

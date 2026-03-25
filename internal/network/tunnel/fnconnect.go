@@ -49,11 +49,11 @@ type FNConnect struct {
 // FNConnectConfig 配置
 type FNConnectConfig struct {
 	// 服务器配置
-	ServerURL    string `json:"server_url"`    // 穿透服务器地址
-	Region       string `json:"region"`        // 区域: cn, us, eu
-	DeviceID     string `json:"device_id"`     // 设备ID
-	DeviceName   string `json:"device_name"`   // 设备名称
-	AuthToken    string `json:"auth_token"`    // 认证令牌（可选）
+	ServerURL  string `json:"server_url"`  // 穿透服务器地址
+	Region     string `json:"region"`      // 区域: cn, us, eu
+	DeviceID   string `json:"device_id"`   // 设备ID
+	DeviceName string `json:"device_name"` // 设备名称
+	AuthToken  string `json:"auth_token"`  // 认证令牌（可选）
 
 	// 连接配置
 	ReconnectInterval time.Duration `json:"reconnect_interval"` // 重连间隔
@@ -62,9 +62,9 @@ type FNConnectConfig struct {
 	MaxRetries        int           `json:"max_retries"`        // 最大重试次数
 
 	// 安全配置
-	EnableTLS    bool   `json:"enable_tls"`    // 启用TLS
-	TokenFile    string `json:"token_file"`    // 令牌存储文件
-	AllowInsecure bool  `json:"allow_insecure"` // 允许不安全连接
+	EnableTLS     bool   `json:"enable_tls"`     // 启用TLS
+	TokenFile     string `json:"token_file"`     // 令牌存储文件
+	AllowInsecure bool   `json:"allow_insecure"` // 允许不安全连接
 
 	// 带宽配置
 	MaxBandwidth int64 `json:"max_bandwidth"` // 最大带宽 (bytes/s)
@@ -84,18 +84,18 @@ const (
 
 // FNCTunnel 隧道配置
 type FNCTunnel struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Protocol    string    `json:"protocol"`     // tcp, udp, http, https
-	LocalPort   int       `json:"local_port"`
-	RemotePort  int       `json:"remote_port"`  // 0表示自动分配
-	Subdomain   string    `json:"subdomain"`    // HTTP隧道子域名
-	CustomDomain string   `json:"custom_domain"` // 自定义域名
-	State       FNConnectState `json:"state"`
-	PublicURL   string    `json:"public_url"`   // 公网访问地址
-	CreatedAt   time.Time `json:"created_at"`
-	BytesTx     int64     `json:"bytes_tx"`
-	BytesRx     int64     `json:"bytes_rx"`
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`
+	Protocol     string         `json:"protocol"` // tcp, udp, http, https
+	LocalPort    int            `json:"local_port"`
+	RemotePort   int            `json:"remote_port"`   // 0表示自动分配
+	Subdomain    string         `json:"subdomain"`     // HTTP隧道子域名
+	CustomDomain string         `json:"custom_domain"` // 自定义域名
+	State        FNConnectState `json:"state"`
+	PublicURL    string         `json:"public_url"` // 公网访问地址
+	CreatedAt    time.Time      `json:"created_at"`
+	BytesTx      int64          `json:"bytes_tx"`
+	BytesRx      int64          `json:"bytes_rx"`
 }
 
 // FNCMessage 消息结构
@@ -111,12 +111,12 @@ type FNConnectEventHandler func(event *FNConnectEvent)
 
 // FNConnectEvent 事件
 type FNConnectEvent struct {
-	Type      string          `json:"type"`
-	TunnelID  string          `json:"tunnel_id,omitempty"`
-	State     FNConnectState  `json:"state,omitempty"`
-	Error     error           `json:"error,omitempty"`
-	Data      interface{}     `json:"data,omitempty"`
-	Timestamp time.Time       `json:"timestamp"`
+	Type      string         `json:"type"`
+	TunnelID  string         `json:"tunnel_id,omitempty"`
+	State     FNConnectState `json:"state,omitempty"`
+	Error     error          `json:"error,omitempty"`
+	Data      interface{}    `json:"data,omitempty"`
+	Timestamp time.Time      `json:"timestamp"`
 }
 
 // FNConnectStats 统计信息
@@ -187,15 +187,15 @@ func NewFNConnect(config *FNConnectConfig, logger *zap.Logger) (*FNConnect, erro
 // DefaultFNConnectConfig 默认配置
 func DefaultFNConnectConfig() *FNConnectConfig {
 	return &FNConnectConfig{
-		ServerURL:        "connect.fnos.cn:7000",
-		Region:           "cn",
+		ServerURL:         "connect.fnos.cn:7000",
+		Region:            "cn",
 		ReconnectInterval: 5 * time.Second,
 		HeartbeatInterval: 30 * time.Second,
-		Timeout:          30 * time.Second,
-		MaxRetries:       5,
-		EnableTLS:        true,
-		MaxBandwidth:     10 * 1024 * 1024, // 10MB/s
-		QoSLevel:         3,
+		Timeout:           30 * time.Second,
+		MaxRetries:        5,
+		EnableTLS:         true,
+		MaxBandwidth:      10 * 1024 * 1024, // 10MB/s
+		QoSLevel:          3,
 	}
 }
 
@@ -210,7 +210,7 @@ func (f *FNConnect) Connect(ctx context.Context) error {
 
 	f.state = FNCStateConnecting
 	f.emitEvent(&FNConnectEvent{
-		Type: "state_change",
+		Type:  "state_change",
 		State: FNCStateConnecting,
 	})
 
@@ -241,7 +241,7 @@ func (f *FNConnect) Connect(ctx context.Context) error {
 	if err != nil {
 		f.state = FNCStateError
 		f.emitEvent(&FNConnectEvent{
-			Type: "error",
+			Type:  "error",
 			Error: err,
 		})
 		return fmt.Errorf("连接服务器失败: %w", err)
@@ -293,10 +293,10 @@ func (f *FNConnect) selectServer() string {
 // authenticate 认证
 func (f *FNConnect) authenticate() error {
 	authReq := map[string]interface{}{
-		"type":       "auth",
-		"device_id":  f.config.DeviceID,
+		"type":        "auth",
+		"device_id":   f.config.DeviceID,
 		"device_name": f.config.DeviceName,
-		"token":      f.config.AuthToken,
+		"token":       f.config.AuthToken,
 		"timestamp":   time.Now().Unix(),
 	}
 
@@ -569,7 +569,7 @@ func (f *FNConnect) heartbeatLoop() {
 // sendHeartbeat 发送心跳
 func (f *FNConnect) sendHeartbeat() error {
 	req := map[string]interface{}{
-		"type": "heartbeat",
+		"type":      "heartbeat",
 		"timestamp": time.Now().Unix(),
 	}
 	return f.sendMessage(req)

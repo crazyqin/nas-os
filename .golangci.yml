@@ -231,6 +231,10 @@ linters:
       - path: internal/photos/
         linters:
           - godot
+      # pkg/storage: 存储模块注释风格放宽
+      - path: pkg/storage/
+        linters:
+          - godot
 
 formatters:
   enable:

@@ -17,34 +17,34 @@ import (
 type PierceMode string
 
 const (
-	ModeP2P    PierceMode = "p2p"    // P2P直连
-	ModeRelay  PierceMode = "relay"  // 中继模式
-	ModeAuto   PierceMode = "auto"   // 自动选择
+	ModeP2P   PierceMode = "p2p"   // P2P直连
+	ModeRelay PierceMode = "relay" // 中继模式
+	ModeAuto  PierceMode = "auto"  // 自动选择
 )
 
 // Config 穿透配置
 type Config struct {
-	Enabled      bool       `json:"enabled"`
-	Mode         PierceMode `json:"mode"`
-	ServerAddr   string     `json:"serverAddr"`   // 中继服务器地址
-	ServerPort   int        `json:"serverPort"`   // 中继服务器端口
-	LocalPort    int        `json:"localPort"`    // 本地服务端口
-	Token        string     `json:"token"`        // 认证令牌
-	STUNServers  []string   `json:"stunServers"`  // STUN服务器列表
-	TLSEnabled   bool       `json:"tlsEnabled"`   // 是否启用TLS
-	Timeout      int        `json:"timeout"`      // 连接超时(秒)
+	Enabled     bool       `json:"enabled"`
+	Mode        PierceMode `json:"mode"`
+	ServerAddr  string     `json:"serverAddr"`  // 中继服务器地址
+	ServerPort  int        `json:"serverPort"`  // 中继服务器端口
+	LocalPort   int        `json:"localPort"`   // 本地服务端口
+	Token       string     `json:"token"`       // 认证令牌
+	STUNServers []string   `json:"stunServers"` // STUN服务器列表
+	TLSEnabled  bool       `json:"tlsEnabled"`  // 是否启用TLS
+	Timeout     int        `json:"timeout"`     // 连接超时(秒)
 }
 
 // PierceClient 穿透客户端
 type PierceClient struct {
-	config    *Config
-	conn      net.Conn
-	peerAddr  *net.UDPAddr
-	status    ConnectionStatus
-	mu        sync.RWMutex
-	ctx       context.Context
-	cancel    context.CancelFunc
-	onStatus  func(status ConnectionStatus)
+	config   *Config
+	conn     net.Conn
+	peerAddr *net.UDPAddr
+	status   ConnectionStatus
+	mu       sync.RWMutex
+	ctx      context.Context
+	cancel   context.CancelFunc
+	onStatus func(status ConnectionStatus)
 }
 
 // ConnectionStatus 连接状态
@@ -128,7 +128,7 @@ func (pc *PierceClient) startRelay() error {
 	} else {
 		conn, err = net.Dial("tcp", addr)
 	}
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to connect relay server: %w", err)
 	}
@@ -219,10 +219,10 @@ func (pc *PierceClient) heartbeat() {
 // Stop 停止穿透服务
 func (pc *PierceClient) Stop() error {
 	pc.cancel()
-	
+
 	pc.mu.Lock()
 	defer pc.mu.Unlock()
-	
+
 	if pc.conn != nil {
 		return pc.conn.Close()
 	}
