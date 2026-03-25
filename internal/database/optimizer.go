@@ -273,7 +273,7 @@ func (o *Optimizer) EnableWAL() error {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 
-	_, err := o.db.Exec("PRAGMA journal_mode=WAL")
+	_, err := o.db.ExecContext(context.Background(), "PRAGMA journal_mode=WAL")
 	if err != nil {
 		return fmt.Errorf("failed to enable WAL: %w", err)
 	}
@@ -297,7 +297,7 @@ func (o *Optimizer) ConfigurePerformance() error {
 
 	for pragma, value := range pragmas {
 		query := fmt.Sprintf("PRAGMA %s = %v", pragma, value)
-		if _, err := o.db.Exec(query); err != nil {
+		if _, err := o.db.ExecContext(context.Background(), query); err != nil {
 			o.logger.Warn("Failed to set PRAGMA",
 				zap.String("pragma", pragma),
 				zap.Error(err))
@@ -317,7 +317,7 @@ func (o *Optimizer) CreateIndex(table, name, columns string) error {
 		name, table, columns,
 	)
 
-	_, err := o.db.Exec(query)
+	_, err := o.db.ExecContext(context.Background(), query)
 	if err != nil {
 		return fmt.Errorf("failed to create index %s: %w", name, err)
 	}
@@ -340,7 +340,7 @@ func (o *Optimizer) AnalyzeTable(table string) error {
 	if err := validateTableName(table); err != nil {
 		return err
 	}
-	_, err := o.db.Exec(fmt.Sprintf("ANALYZE %s", table))
+	_, err := o.db.ExecContext(context.Background(), fmt.Sprintf("ANALYZE %s", table))
 	if err != nil {
 		return fmt.Errorf("failed to analyze table %s: %w", table, err)
 	}
@@ -351,7 +351,7 @@ func (o *Optimizer) AnalyzeTable(table string) error {
 
 // AnalyzeAll runs ANALYZE on all tables.
 func (o *Optimizer) AnalyzeAll() error {
-	_, err := o.db.Exec("ANALYZE")
+	_, err := o.db.ExecContext(context.Background(), "ANALYZE")
 	if err != nil {
 		return fmt.Errorf("failed to analyze database: %w", err)
 	}
@@ -379,7 +379,7 @@ func (o *Optimizer) QueryWithCache(query string, args ...interface{}) ([]map[str
 	atomic.AddInt64(&o.cacheMisses, 1)
 
 	// Execute query
-	rows, err := o.db.Query(query, args...)
+	rows, err := o.db.QueryContext(context.Background(), query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -433,7 +433,7 @@ func (o *Optimizer) QueryWithCache(query string, args ...interface{}) ([]map[str
 func (o *Optimizer) ExecWithTiming(query string, args ...interface{}) (sql.Result, error) {
 	start := time.Now()
 
-	result, err := o.db.Exec(query, args...)
+	result, err := o.db.ExecContext(context.Background(), query, args...)
 
 	duration := time.Since(start)
 	atomic.AddInt64(&o.queryCount, 1)
@@ -452,7 +452,7 @@ func (o *Optimizer) ExecWithTiming(query string, args ...interface{}) (sql.Resul
 func (o *Optimizer) QueryWithTiming(query string, args ...interface{}) (*sql.Rows, error) {
 	start := time.Now()
 
-	rows, err := o.db.Query(query, args...)
+	rows, err := o.db.QueryContext(context.Background(), query, args...)
 
 	duration := time.Since(start)
 	atomic.AddInt64(&o.queryCount, 1)
@@ -533,7 +533,7 @@ func (o *Optimizer) ExecContextWithTiming(ctx context.Context, query string, arg
 
 // Vacuum runs VACUUM to reclaim space.
 func (o *Optimizer) Vacuum() error {
-	_, err := o.db.Exec("VACUUM")
+	_, err := o.db.ExecContext(context.Background(), "VACUUM")
 	if err != nil {
 		return fmt.Errorf("failed to vacuum database: %w", err)
 	}
@@ -548,7 +548,7 @@ func (o *Optimizer) Checkpoint() error {
 		return nil
 	}
 
-	_, err := o.db.Exec("PRAGMA wal_checkpoint(PASSIVE)")
+	_, err := o.db.ExecContext(context.Background(), "PRAGMA wal_checkpoint(PASSIVE)")
 	if err != nil {
 		return fmt.Errorf("failed to checkpoint: %w", err)
 	}
@@ -559,7 +559,7 @@ func (o *Optimizer) Checkpoint() error {
 
 // GetIndexes returns all indexes in the database.
 func (o *Optimizer) GetIndexes() ([]string, error) {
-	rows, err := o.db.Query(`
+	rows, err := o.db.QueryContext(context.Background(), `
 		SELECT name, tbl_name, sql 
 		FROM sqlite_master 
 		WHERE type='index' AND sql IS NOT NULL
