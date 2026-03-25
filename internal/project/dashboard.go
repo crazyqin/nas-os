@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Dashboard 仪表板数据结构
+// Dashboard 仪表板数据结构.
 type Dashboard struct {
 	// 项目概览
 	TotalProjects     int `json:"total_projects"`
@@ -49,7 +49,7 @@ type Dashboard struct {
 	AssigneeWorkload     map[string]int    `json:"assignee_workload"`
 }
 
-// DailyTaskStats 每日任务统计
+// DailyTaskStats 每日任务统计.
 type DailyTaskStats struct {
 	Date      string `json:"date"`
 	Created   int    `json:"created"`
@@ -57,7 +57,7 @@ type DailyTaskStats struct {
 	Total     int    `json:"total"`
 }
 
-// WeeklyTaskStats 每周任务统计
+// WeeklyTaskStats 每周任务统计.
 type WeeklyTaskStats struct {
 	WeekStart string `json:"week_start"`
 	Created   int    `json:"created"`
@@ -65,7 +65,7 @@ type WeeklyTaskStats struct {
 	Total     int    `json:"total"`
 }
 
-// DashboardData 项目仪表板数据
+// DashboardData 项目仪表板数据.
 type DashboardData struct {
 	ProjectID   string `json:"project_id"`
 	ProjectName string `json:"project_name"`
@@ -93,7 +93,7 @@ type DashboardData struct {
 	MemberWorkloads map[string]MemberWorkload `json:"member_workloads"`
 }
 
-// MemberWorkload 成员工作量
+// MemberWorkload 成员工作量.
 type MemberWorkload struct {
 	UserID          string  `json:"user_id"`
 	TotalTasks      int     `json:"total_tasks"`
@@ -105,7 +105,7 @@ type MemberWorkload struct {
 	ActualHours     float64 `json:"actual_hours"`
 }
 
-// MilestoneProgress 里程碑进度
+// MilestoneProgress 里程碑进度.
 type MilestoneProgress struct {
 	ID            string         `json:"id"`
 	Name          string         `json:"name"`
@@ -120,19 +120,19 @@ type MilestoneProgress struct {
 	TasksByStatus map[string]int `json:"tasks_by_status"`
 }
 
-// DashboardHandlers 仪表板处理器
+// DashboardHandlers 仪表板处理器.
 type DashboardHandlers struct {
 	manager *Manager
 }
 
-// NewDashboardHandlers 创建仪表板处理器
+// NewDashboardHandlers 创建仪表板处理器.
 func NewDashboardHandlers(mgr *Manager) *DashboardHandlers {
 	return &DashboardHandlers{
 		manager: mgr,
 	}
 }
 
-// RegisterDashboardRoutes 注册仪表板路由
+// RegisterDashboardRoutes 注册仪表板路由.
 func (h *DashboardHandlers) RegisterDashboardRoutes(router *gin.RouterGroup) {
 	dashboard := router.Group("/dashboard")
 	{
@@ -152,7 +152,7 @@ func (h *DashboardHandlers) RegisterDashboardRoutes(router *gin.RouterGroup) {
 // @Produce json
 // @Param days query int false "趋势天数" default(7)
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboard/overview [get]
+// @Router /dashboard/overview [get].
 func (h *DashboardHandlers) getOverview(c *gin.Context) {
 	days, _ := strconv.Atoi(c.DefaultQuery("days", "7"))
 	if days <= 0 {
@@ -180,7 +180,7 @@ func (h *DashboardHandlers) getOverview(c *gin.Context) {
 // @Param id path string true "项目ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /dashboard/project/{id} [get]
+// @Router /dashboard/project/{id} [get].
 func (h *DashboardHandlers) getProjectDashboard(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -205,7 +205,7 @@ func (h *DashboardHandlers) getProjectDashboard(c *gin.Context) {
 // @Produce json
 // @Param project_id query string false "项目ID筛选"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboard/milestones [get]
+// @Router /dashboard/milestones [get].
 func (h *DashboardHandlers) getMilestonesProgress(c *gin.Context) {
 	projectID := c.Query("project_id")
 
@@ -227,7 +227,7 @@ func (h *DashboardHandlers) getMilestonesProgress(c *gin.Context) {
 // @Param days query int false "天数" default(7)
 // @Param project_id query string false "项目ID筛选"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboard/trends [get]
+// @Router /dashboard/trends [get].
 func (h *DashboardHandlers) getTrends(c *gin.Context) {
 	days, _ := strconv.Atoi(c.DefaultQuery("days", "7"))
 	if days <= 0 {
@@ -255,7 +255,7 @@ func (h *DashboardHandlers) getTrends(c *gin.Context) {
 // @Produce json
 // @Param project_id query string false "项目ID筛选"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboard/workload [get]
+// @Router /dashboard/workload [get].
 func (h *DashboardHandlers) getWorkload(c *gin.Context) {
 	projectID := c.Query("project_id")
 
@@ -270,7 +270,7 @@ func (h *DashboardHandlers) getWorkload(c *gin.Context) {
 
 // ========== Manager 仪表板方法 ==========
 
-// GetDashboardOverview 获取仪表板概览
+// GetDashboardOverview 获取仪表板概览.
 func (m *Manager) GetDashboardOverview(trendDays int) Dashboard {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -388,7 +388,7 @@ func (m *Manager) GetDashboardOverview(trendDays int) Dashboard {
 	return dashboard
 }
 
-// GetProjectDashboard 获取项目仪表板
+// GetProjectDashboard 获取项目仪表板.
 func (m *Manager) GetProjectDashboard(projectID string) (*DashboardData, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -516,7 +516,7 @@ func (m *Manager) GetProjectDashboard(projectID string) (*DashboardData, error) 
 	return dashboard, nil
 }
 
-// GetMilestonesProgress 获取里程碑进度
+// GetMilestonesProgress 获取里程碑进度.
 func (m *Manager) GetMilestonesProgress(projectID string) []MilestoneProgress {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -571,7 +571,7 @@ func (m *Manager) GetMilestonesProgress(projectID string) []MilestoneProgress {
 	return result
 }
 
-// GetTaskTrends 获取任务趋势
+// GetTaskTrends 获取任务趋势.
 func (m *Manager) GetTaskTrends(days int, projectID string) []DailyTaskStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -616,7 +616,7 @@ func (m *Manager) GetTaskTrends(days int, projectID string) []DailyTaskStats {
 	return trends
 }
 
-// GetWorkload 获取工作量统计
+// GetWorkload 获取工作量统计.
 func (m *Manager) GetWorkload(projectID string) map[string]MemberWorkload {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -659,7 +659,7 @@ func (m *Manager) GetWorkload(projectID string) map[string]MemberWorkload {
 	return workload
 }
 
-// generateDailyTrend 生成每日趋势
+// generateDailyTrend 生成每日趋势.
 func (m *Manager) generateDailyTrend(days int, now time.Time) []DailyTaskStats {
 	trends := make([]DailyTaskStats, 0, days)
 

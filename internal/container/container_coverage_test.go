@@ -308,7 +308,7 @@ func TestNewManager_WithEnv(t *testing.T) {
 	_ = origEnv
 }
 
-// 辅助函数
+// 辅助函数.
 func getEnvValue(key string) string {
 	return ""
 }

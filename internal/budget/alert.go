@@ -14,21 +14,21 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrAlertRuleNotFound 警报规则不存在错误
+	// ErrAlertRuleNotFound 警报规则不存在错误.
 	ErrAlertRuleNotFound = errors.New("警报规则不存在")
-	// ErrAlertAlreadyActive 警报已处于活跃状态错误
+	// ErrAlertAlreadyActive 警报已处于活跃状态错误.
 	ErrAlertAlreadyActive = errors.New("警报已处于活跃状态")
-	// ErrAlertAlreadyResolved 警报已解决错误
+	// ErrAlertAlreadyResolved 警报已解决错误.
 	ErrAlertAlreadyResolved = errors.New("警报已解决")
-	// ErrInvalidNotifierType 无效的通知类型错误
+	// ErrInvalidNotifierType 无效的通知类型错误.
 	ErrInvalidNotifierType = errors.New("无效的通知类型")
-	// ErrNotificationFailed 通知发送失败错误
+	// ErrNotificationFailed 通知发送失败错误.
 	ErrNotificationFailed = errors.New("通知发送失败")
 )
 
 // ========== 预算警报配置 ==========
 
-// AlertManagerConfig 警报管理器配置
+// AlertManagerConfig 警报管理器配置.
 type AlertManagerConfig struct {
 	// 默认阈值配置
 	DefaultThresholds []ThresholdConfig `json:"default_thresholds"`
@@ -53,21 +53,21 @@ type AlertManagerConfig struct {
 	MaxRetryCount int `json:"max_retry_count"`
 }
 
-// ThresholdConfig 阈值配置
+// ThresholdConfig 阈值配置.
 type ThresholdConfig struct {
 	Percentage float64 `json:"percentage"` // 预算使用百分比
 	Level      string  `json:"level"`      // info, warning, critical, emergency
 	Message    string  `json:"message"`    // 自定义消息
 }
 
-// EscalationRuleConfig 升级规则配置
+// EscalationRuleConfig 升级规则配置.
 type EscalationRuleConfig struct {
 	AfterMinutes int      `json:"after_minutes"` // 多少分钟后升级
 	ToLevel      string   `json:"to_level"`      // 升级到的级别
 	NotifyUsers  []string `json:"notify_users"`  // 通知用户
 }
 
-// DefaultAlertManagerConfig 默认警报管理器配置
+// DefaultAlertManagerConfig 默认警报管理器配置.
 func DefaultAlertManagerConfig() AlertManagerConfig {
 	return AlertManagerConfig{
 		DefaultThresholds: []ThresholdConfig{
@@ -91,7 +91,7 @@ func DefaultAlertManagerConfig() AlertManagerConfig {
 
 // ========== 预算警报定义 ==========
 
-// Alert 预算警报
+// Alert 预算警报.
 type Alert struct {
 	ID             string     `json:"id"`
 	BudgetID       string     `json:"budget_id"`
@@ -128,10 +128,10 @@ type Alert struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// Level 警报级别
+// Level 警报级别.
 type Level string
 
-// 警报级别常量
+// 警报级别常量.
 const (
 	LevelInfo      Level = "info"      // 信息
 	LevelWarning   Level = "warning"   // 警告
@@ -139,10 +139,10 @@ const (
 	LevelEmergency Level = "emergency" // 紧急
 )
 
-// AlertStatus 警报状态
+// AlertStatus 警报状态.
 type AlertStatus string
 
-// 警报状态常量
+// 警报状态常量.
 const (
 	AlertStatusActive       AlertStatus = "active"       // 活跃
 	AlertStatusAcknowledged AlertStatus = "acknowledged" // 已确认
@@ -150,7 +150,7 @@ const (
 	AlertStatusSuppressed   AlertStatus = "suppressed"   // 已抑制
 )
 
-// AlertRule 警报规则
+// AlertRule 警报规则.
 type AlertRule struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -162,7 +162,7 @@ type AlertRule struct {
 	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
-// NotifyConfig 通知配置
+// NotifyConfig 通知配置.
 type NotifyConfig struct {
 	NotifyEmail     bool     `json:"notify_email"`
 	EmailRecipients []string `json:"email_recipients"`
@@ -177,7 +177,7 @@ type NotifyConfig struct {
 	WebhookPayloadTemplate string `json:"webhook_payload_template,omitempty"`
 }
 
-// AlertHistory 警报历史
+// AlertHistory 警报历史.
 type AlertHistory struct {
 	AlertID   string    `json:"alert_id"`
 	BudgetID  string    `json:"budget_id"`
@@ -191,7 +191,7 @@ type AlertHistory struct {
 	Message   string    `json:"message,omitempty"`
 }
 
-// AlertStats 警报统计
+// AlertStats 警报统计.
 type AlertStats struct {
 	TotalAlerts           int            `json:"total_alerts"`
 	ActiveAlerts          int            `json:"active_alerts"`
@@ -204,7 +204,7 @@ type AlertStats struct {
 
 // ========== 警报通知接口 ==========
 
-// AlertNotifier 警报通知接口
+// AlertNotifier 警报通知接口.
 type AlertNotifier interface {
 	// 发送通知
 	Send(ctx context.Context, alert *Alert, config *NotifyConfig) error
@@ -215,7 +215,7 @@ type AlertNotifier interface {
 
 // ========== 警报管理器 ==========
 
-// AlertManager 警报管理器
+// AlertManager 警报管理器.
 type AlertManager struct {
 	mu        sync.RWMutex
 	config    AlertManagerConfig
@@ -233,7 +233,7 @@ type AlertManager struct {
 	lastTriggerTime map[string]time.Time
 }
 
-// DataProvider 预算数据提供者接口
+// DataProvider 预算数据提供者接口.
 type DataProvider interface {
 	// 获取预算
 	GetBudget(ctx context.Context, budgetID string) (*Info, error)
@@ -245,7 +245,7 @@ type DataProvider interface {
 	UpdateBudgetStatus(ctx context.Context, budgetID string, status string) error
 }
 
-// Info 预算信息
+// Info 预算信息.
 type Info struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
@@ -258,7 +258,7 @@ type Info struct {
 	EndDate      time.Time `json:"end_date"`
 }
 
-// NewAlertManager 创建警报管理器
+// NewAlertManager 创建警报管理器.
 func NewAlertManager(config AlertManagerConfig, budgetProvider DataProvider) *AlertManager {
 	return &AlertManager{
 		config:          config,
@@ -271,7 +271,7 @@ func NewAlertManager(config AlertManagerConfig, budgetProvider DataProvider) *Al
 	}
 }
 
-// RegisterNotifier 注册通知器
+// RegisterNotifier 注册通知器.
 func (m *AlertManager) RegisterNotifier(notifier AlertNotifier) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -280,7 +280,7 @@ func (m *AlertManager) RegisterNotifier(notifier AlertNotifier) {
 
 // ========== 警报检查 ==========
 
-// CheckAlerts 检查预算警报
+// CheckAlerts 检查预算警报.
 func (m *AlertManager) CheckAlerts(ctx context.Context) ([]*Alert, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -301,7 +301,7 @@ func (m *AlertManager) CheckAlerts(ctx context.Context) ([]*Alert, error) {
 	return triggeredAlerts, nil
 }
 
-// CheckAlert 检查单个预算警报
+// CheckAlert 检查单个预算警报.
 func (m *AlertManager) CheckAlert(ctx context.Context, budgetID string) ([]*Alert, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -314,7 +314,7 @@ func (m *AlertManager) CheckAlert(ctx context.Context, budgetID string) ([]*Aler
 	return m.checkBudget(budget), nil
 }
 
-// checkBudget 检查单个预算
+// checkBudget 检查单个预算.
 func (m *AlertManager) checkBudget(budget *Info) []*Alert {
 	var alerts []*Alert
 
@@ -352,7 +352,7 @@ func (m *AlertManager) checkBudget(budget *Info) []*Alert {
 	return alerts
 }
 
-// getThresholds 获取阈值配置
+// getThresholds 获取阈值配置.
 func (m *AlertManager) getThresholds(budgetID string) []ThresholdConfig {
 	// 先检查特定规则
 	if rule, ok := m.rules[budgetID]; ok && rule.Enabled {
@@ -368,7 +368,7 @@ func (m *AlertManager) getThresholds(budgetID string) []ThresholdConfig {
 	return m.config.DefaultThresholds
 }
 
-// isInCooldown 检查是否在冷却期
+// isInCooldown 检查是否在冷却期.
 func (m *AlertManager) isInCooldown(budgetID string) bool {
 	lastTrigger, ok := m.lastTriggerTime[budgetID]
 	if !ok {
@@ -379,7 +379,7 @@ func (m *AlertManager) isInCooldown(budgetID string) bool {
 	return time.Since(lastTrigger) < cooldown
 }
 
-// hasActiveAlert 检查是否有活跃警报
+// hasActiveAlert 检查是否有活跃警报.
 func (m *AlertManager) hasActiveAlert(budgetID string, level Level) bool {
 	for _, alert := range m.alerts {
 		if alert.BudgetID == budgetID &&
@@ -391,7 +391,7 @@ func (m *AlertManager) hasActiveAlert(budgetID string, level Level) bool {
 	return false
 }
 
-// createAlert 创建警报
+// createAlert 创建警报.
 func (m *AlertManager) createAlert(budget *Info, threshold ThresholdConfig) *Alert {
 	now := time.Now()
 	level := stringToLevel(threshold.Level)
@@ -423,7 +423,7 @@ func (m *AlertManager) createAlert(budget *Info, threshold ThresholdConfig) *Ale
 
 // ========== 警报操作 ==========
 
-// AcknowledgeAlert 确认警报
+// AcknowledgeAlert 确认警报.
 func (m *AlertManager) AcknowledgeAlert(alertID, acknowledgedBy string) (*Alert, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -449,7 +449,7 @@ func (m *AlertManager) AcknowledgeAlert(alertID, acknowledgedBy string) (*Alert,
 	return alert, nil
 }
 
-// ResolveAlert 解决警报
+// ResolveAlert 解决警报.
 func (m *AlertManager) ResolveAlert(alertID, resolvedBy string) (*Alert, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -474,7 +474,7 @@ func (m *AlertManager) ResolveAlert(alertID, resolvedBy string) (*Alert, error) 
 	return alert, nil
 }
 
-// SuppressAlert 抑制警报
+// SuppressAlert 抑制警报.
 func (m *AlertManager) SuppressAlert(alertID, reason string) (*Alert, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -496,7 +496,7 @@ func (m *AlertManager) SuppressAlert(alertID, reason string) (*Alert, error) {
 
 // ========== 通知发送 ==========
 
-// SendAlertNotifications 发送警报通知
+// SendAlertNotifications 发送警报通知.
 func (m *AlertManager) SendAlertNotifications(ctx context.Context, alert *Alert) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -552,7 +552,7 @@ func (m *AlertManager) SendAlertNotifications(ctx context.Context, alert *Alert)
 	return lastErr
 }
 
-// getNotifyConfig 获取通知配置
+// getNotifyConfig 获取通知配置.
 func (m *AlertManager) getNotifyConfig(budgetID string) *NotifyConfig {
 	// 检查特定规则
 	if rule, ok := m.rules[budgetID]; ok && rule.Enabled {
@@ -575,7 +575,7 @@ func (m *AlertManager) getNotifyConfig(budgetID string) *NotifyConfig {
 
 // ========== 警报升级 ==========
 
-// CheckEscalations 检查警报升级
+// CheckEscalations 检查警报升级.
 func (m *AlertManager) CheckEscalations(ctx context.Context) ([]*Alert, error) {
 	if !m.config.EscalationEnabled {
 		return nil, nil
@@ -627,7 +627,7 @@ func (m *AlertManager) CheckEscalations(ctx context.Context) ([]*Alert, error) {
 
 // ========== 警报查询 ==========
 
-// GetAlert 获取警报
+// GetAlert 获取警报.
 func (m *AlertManager) GetAlert(alertID string) (*Alert, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -640,7 +640,7 @@ func (m *AlertManager) GetAlert(alertID string) (*Alert, error) {
 	return alert, nil
 }
 
-// ListAlerts 列出警报
+// ListAlerts 列出警报.
 func (m *AlertManager) ListAlerts(query AlertQuery) ([]*Alert, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -715,7 +715,7 @@ func (m *AlertManager) ListAlerts(query AlertQuery) ([]*Alert, error) {
 	return result, nil
 }
 
-// GetActiveAlerts 获取活跃警报
+// GetActiveAlerts 获取活跃警报.
 func (m *AlertManager) GetActiveAlerts() []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -729,7 +729,7 @@ func (m *AlertManager) GetActiveAlerts() []*Alert {
 	return result
 }
 
-// GetAlertStats 获取警报统计
+// GetAlertStats 获取警报统计.
 func (m *AlertManager) GetAlertStats() *AlertStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -770,7 +770,7 @@ func (m *AlertManager) GetAlertStats() *AlertStats {
 	return stats
 }
 
-// GetAlertHistory 获取警报历史
+// GetAlertHistory 获取警报历史.
 func (m *AlertManager) GetAlertHistory(budgetID string, limit int) []AlertHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -787,7 +787,7 @@ func (m *AlertManager) GetAlertHistory(budgetID string, limit int) []AlertHistor
 
 // ========== 规则管理 ==========
 
-// CreateAlertRule 创建警报规则
+// CreateAlertRule 创建警报规则.
 func (m *AlertManager) CreateAlertRule(rule *AlertRule) (*AlertRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -803,7 +803,7 @@ func (m *AlertManager) CreateAlertRule(rule *AlertRule) (*AlertRule, error) {
 	return rule, nil
 }
 
-// UpdateAlertRule 更新警报规则
+// UpdateAlertRule 更新警报规则.
 func (m *AlertManager) UpdateAlertRule(ruleID string, rule *AlertRule) (*AlertRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -822,7 +822,7 @@ func (m *AlertManager) UpdateAlertRule(ruleID string, rule *AlertRule) (*AlertRu
 	return rule, nil
 }
 
-// DeleteAlertRule 删除警报规则
+// DeleteAlertRule 删除警报规则.
 func (m *AlertManager) DeleteAlertRule(ruleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -835,7 +835,7 @@ func (m *AlertManager) DeleteAlertRule(ruleID string) error {
 	return nil
 }
 
-// GetAlertRule 获取警报规则
+// GetAlertRule 获取警报规则.
 func (m *AlertManager) GetAlertRule(ruleID string) (*AlertRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -848,7 +848,7 @@ func (m *AlertManager) GetAlertRule(ruleID string) (*AlertRule, error) {
 	return rule, nil
 }
 
-// ListAlertRules 列出警报规则
+// ListAlertRules 列出警报规则.
 func (m *AlertManager) ListAlertRules(budgetID string) []*AlertRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -864,7 +864,7 @@ func (m *AlertManager) ListAlertRules(budgetID string) []*AlertRule {
 
 // ========== 辅助方法 ==========
 
-// recordHistory 记录历史
+// recordHistory 记录历史.
 func (m *AlertManager) recordHistory(alert *Alert, action, oldStatus, newStatus string) {
 	history := AlertHistory{
 		AlertID:   alert.ID,
@@ -883,7 +883,7 @@ func (m *AlertManager) recordHistory(alert *Alert, action, oldStatus, newStatus 
 	}
 }
 
-// stringToLevel 字符串转警报级别
+// stringToLevel 字符串转警报级别.
 func stringToLevel(s string) Level {
 	switch s {
 	case "info":
@@ -899,7 +899,7 @@ func stringToLevel(s string) Level {
 	}
 }
 
-// getEscalationLevel 获取升级级别数值
+// getEscalationLevel 获取升级级别数值.
 func getEscalationLevel(level string) int {
 	switch level {
 	case "info":
@@ -915,17 +915,17 @@ func getEscalationLevel(level string) int {
 	}
 }
 
-// generateAlertID 生成警报ID
+// generateAlertID 生成警报ID.
 func generateAlertID() string {
 	return fmt.Sprintf("alert-%d-%s", time.Now().UnixNano(), randomAlertString(6))
 }
 
-// generateRuleID 生成规则ID
+// generateRuleID 生成规则ID.
 func generateRuleID() string {
 	return fmt.Sprintf("rule-%d-%s", time.Now().UnixNano(), randomAlertString(6))
 }
 
-// randomAlertString 生成随机字符串
+// randomAlertString 生成随机字符串.
 func randomAlertString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
@@ -947,7 +947,7 @@ func randomAlertString(n int) string {
 
 // ========== 内置通知器实现 ==========
 
-// EmailNotifier 邮件通知器
+// EmailNotifier 邮件通知器.
 type EmailNotifier struct {
 	smtpHost     string
 	smtpPort     int
@@ -956,7 +956,7 @@ type EmailNotifier struct {
 	fromAddress  string
 }
 
-// NewEmailNotifier 创建邮件通知器
+// NewEmailNotifier 创建邮件通知器.
 func NewEmailNotifier(smtpHost string, smtpPort int, user, password, from string) *EmailNotifier {
 	return &EmailNotifier{
 		smtpHost:     smtpHost,
@@ -967,7 +967,7 @@ func NewEmailNotifier(smtpHost string, smtpPort int, user, password, from string
 	}
 }
 
-// Send 发送邮件
+// Send 发送邮件.
 func (n *EmailNotifier) Send(ctx context.Context, alert *Alert, config *NotifyConfig) error {
 	// 邮件发送逻辑（需要实现实际的SMTP发送）
 	// 这里是简化实现
@@ -998,22 +998,22 @@ func (n *EmailNotifier) Send(ctx context.Context, alert *Alert, config *NotifyCo
 	return nil
 }
 
-// Type 获取类型
+// Type 获取类型.
 func (n *EmailNotifier) Type() string {
 	return "email"
 }
 
-// WebhookNotifier Webhook通知器
+// WebhookNotifier Webhook通知器.
 type WebhookNotifier struct {
 	defaultURL string
 }
 
-// NewWebhookNotifier 创建Webhook通知器
+// NewWebhookNotifier 创建Webhook通知器.
 func NewWebhookNotifier(defaultURL string) *WebhookNotifier {
 	return &WebhookNotifier{defaultURL: defaultURL}
 }
 
-// Send 发送Webhook
+// Send 发送Webhook.
 func (n *WebhookNotifier) Send(ctx context.Context, alert *Alert, config *NotifyConfig) error {
 	url := config.WebhookURL
 	if url == "" {
@@ -1027,7 +1027,7 @@ func (n *WebhookNotifier) Send(ctx context.Context, alert *Alert, config *Notify
 	return nil
 }
 
-// Type 获取类型
+// Type 获取类型.
 func (n *WebhookNotifier) Type() string {
 	return "webhook"
 }

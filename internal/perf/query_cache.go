@@ -9,7 +9,7 @@ import (
 )
 
 // QueryCache 查询结果缓存系统
-// 支持 LRU 淘汰策略和 TTL 过期
+// 支持 LRU 淘汰策略和 TTL 过期.
 type QueryCache struct {
 	mu sync.RWMutex
 
@@ -27,7 +27,7 @@ type QueryCache struct {
 	stats CacheStats
 }
 
-// CacheConfig 缓存配置
+// CacheConfig 缓存配置.
 type CacheConfig struct {
 	// 最大条目数
 	MaxItems int
@@ -43,7 +43,7 @@ type CacheConfig struct {
 	KeyPrefix string
 }
 
-// DefaultCacheConfig 默认缓存配置
+// DefaultCacheConfig 默认缓存配置.
 var DefaultCacheConfig = CacheConfig{
 	MaxItems:        10000,
 	MaxMemory:       100 * 1024 * 1024, // 100MB
@@ -53,7 +53,7 @@ var DefaultCacheConfig = CacheConfig{
 	KeyPrefix:       "",
 }
 
-// CacheItem 缓存条目
+// CacheItem 缓存条目.
 type CacheItem struct {
 	Key         string      `json:"key"`
 	Value       interface{} `json:"value"`
@@ -66,7 +66,7 @@ type CacheItem struct {
 	Tags        []string    `json:"tags"`        // 标签（用于批量失效）
 }
 
-// CacheStats 缓存统计
+// CacheStats 缓存统计.
 type CacheStats struct {
 	mu sync.RWMutex
 
@@ -81,7 +81,7 @@ type CacheStats struct {
 	LastCleanupAt int64 `json:"lastCleanupAt"`
 }
 
-// HitRate 计算命中率
+// HitRate 计算命中率.
 func (s *CacheStats) HitRate() float64 {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -93,7 +93,7 @@ func (s *CacheStats) HitRate() float64 {
 	return float64(s.Hits) / float64(total)
 }
 
-// NewQueryCache 创建查询缓存
+// NewQueryCache 创建查询缓存.
 func NewQueryCache(config CacheConfig) *QueryCache {
 	if config.MaxItems <= 0 {
 		config.MaxItems = DefaultCacheConfig.MaxItems
@@ -123,12 +123,12 @@ func NewQueryCache(config CacheConfig) *QueryCache {
 	return c
 }
 
-// lruEntry LRU 条目
+// lruEntry LRU 条目.
 type lruEntry struct {
 	key string
 }
 
-// Set 设置缓存
+// Set 设置缓存.
 func (c *QueryCache) Set(key string, value interface{}, ttl ...time.Duration) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -185,7 +185,7 @@ func (c *QueryCache) Set(key string, value interface{}, ttl ...time.Duration) er
 	return nil
 }
 
-// Get 获取缓存
+// Get 获取缓存.
 func (c *QueryCache) Get(key string) (interface{}, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -232,7 +232,7 @@ func (c *QueryCache) Get(key string) (interface{}, bool) {
 	return item.Value, true
 }
 
-// GetWithTTL 获取缓存并返回剩余 TTL
+// GetWithTTL 获取缓存并返回剩余 TTL.
 func (c *QueryCache) GetWithTTL(key string) (interface{}, time.Duration, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -283,7 +283,7 @@ func (c *QueryCache) GetWithTTL(key string) (interface{}, time.Duration, bool) {
 	return item.Value, remainingTTL, true
 }
 
-// Delete 删除缓存
+// Delete 删除缓存.
 func (c *QueryCache) Delete(key string) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -303,7 +303,7 @@ func (c *QueryCache) Delete(key string) bool {
 	return true
 }
 
-// deleteLocked 删除缓存（已持有锁）
+// deleteLocked 删除缓存（已持有锁）.
 func (c *QueryCache) deleteLocked(key string) {
 	item, exists := c.items[key]
 	if !exists {
@@ -328,7 +328,7 @@ func (c *QueryCache) deleteLocked(key string) {
 	}
 }
 
-// Clear 清空缓存
+// Clear 清空缓存.
 func (c *QueryCache) Clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -345,7 +345,7 @@ func (c *QueryCache) Clear() {
 	}
 }
 
-// needEvictionLocked 检查是否需要淘汰
+// needEvictionLocked 检查是否需要淘汰.
 func (c *QueryCache) needEvictionLocked(newSize int64) bool {
 	// 检查条目数
 	if len(c.items) >= c.config.MaxItems {
@@ -366,7 +366,7 @@ func (c *QueryCache) needEvictionLocked(newSize int64) bool {
 	return false
 }
 
-// evictLRULocked 淘汰 LRU 条目
+// evictLRULocked 淘汰 LRU 条目.
 func (c *QueryCache) evictLRULocked() {
 	// 从 LRU 尾部淘汰
 	element := c.lruList.Back()
@@ -387,7 +387,7 @@ func (c *QueryCache) evictLRULocked() {
 	}
 }
 
-// cleanupLoop 定期清理过期条目
+// cleanupLoop 定期清理过期条目.
 func (c *QueryCache) cleanupLoop() {
 	ticker := time.NewTicker(c.config.CleanupInterval)
 	defer ticker.Stop()
@@ -397,7 +397,7 @@ func (c *QueryCache) cleanupLoop() {
 	}
 }
 
-// Cleanup 清理过期条目
+// Cleanup 清理过期条目.
 func (c *QueryCache) Cleanup() int {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -431,7 +431,7 @@ func (c *QueryCache) Cleanup() int {
 	return len(expiredKeys)
 }
 
-// Stats 获取统计信息
+// Stats 获取统计信息.
 func (c *QueryCache) Stats() CacheStats {
 	c.stats.mu.RLock()
 	defer c.stats.mu.RUnlock()
@@ -449,7 +449,7 @@ func (c *QueryCache) Stats() CacheStats {
 	}
 }
 
-// Keys 获取所有键
+// Keys 获取所有键.
 func (c *QueryCache) Keys() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -461,14 +461,14 @@ func (c *QueryCache) Keys() []string {
 	return keys
 }
 
-// Size 获取缓存大小
+// Size 获取缓存大小.
 func (c *QueryCache) Size() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return len(c.items)
 }
 
-// Memory 获取内存占用
+// Memory 获取内存占用.
 func (c *QueryCache) Memory() int64 {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -480,7 +480,7 @@ func (c *QueryCache) Memory() int64 {
 	return total
 }
 
-// Has 检查键是否存在
+// Has 检查键是否存在.
 func (c *QueryCache) Has(key string) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -498,7 +498,7 @@ func (c *QueryCache) Has(key string) bool {
 	return true
 }
 
-// SetWithTags 设置带标签的缓存
+// SetWithTags 设置带标签的缓存.
 func (c *QueryCache) SetWithTags(key string, value interface{}, tags []string, ttl ...time.Duration) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -556,7 +556,7 @@ func (c *QueryCache) SetWithTags(key string, value interface{}, tags []string, t
 	return nil
 }
 
-// InvalidateByTag 按标签失效缓存
+// InvalidateByTag 按标签失效缓存.
 func (c *QueryCache) InvalidateByTag(tag string) int {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -575,7 +575,7 @@ func (c *QueryCache) InvalidateByTag(tag string) int {
 	return count
 }
 
-// InvalidateByTags 按多个标签失效缓存
+// InvalidateByTags 按多个标签失效缓存.
 func (c *QueryCache) InvalidateByTags(tags []string) int {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -599,7 +599,7 @@ func (c *QueryCache) InvalidateByTags(tags []string) int {
 	return count
 }
 
-// GetOrSet 获取或设置缓存
+// GetOrSet 获取或设置缓存.
 func (c *QueryCache) GetOrSet(key string, fn func() (interface{}, error), ttl ...time.Duration) (interface{}, error) {
 	// 先尝试获取
 	if value, ok := c.Get(key); ok {
@@ -622,7 +622,7 @@ func (c *QueryCache) GetOrSet(key string, fn func() (interface{}, error), ttl ..
 	return value, nil
 }
 
-// GetItem 获取缓存条目信息
+// GetItem 获取缓存条目信息.
 func (c *QueryCache) GetItem(key string) (*CacheItem, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -640,7 +640,7 @@ func (c *QueryCache) GetItem(key string) (*CacheItem, bool) {
 	return item, true
 }
 
-// estimateSize 估算值的大小
+// estimateSize 估算值的大小.
 func estimateSize(value interface{}) int64 {
 	if value == nil {
 		return 0
@@ -663,7 +663,7 @@ func estimateSize(value interface{}) int64 {
 	}
 }
 
-// QueryCacheEntry 查询缓存条目（用于导出）
+// QueryCacheEntry 查询缓存条目（用于导出）.
 type QueryCacheEntry struct {
 	Key         string      `json:"key"`
 	Value       interface{} `json:"value,omitempty"`
@@ -676,7 +676,7 @@ type QueryCacheEntry struct {
 	TTL         int64       `json:"ttl"` // 剩余秒数
 }
 
-// Export 导出缓存条目
+// Export 导出缓存条目.
 func (c *QueryCache) Export() []QueryCacheEntry {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -705,7 +705,7 @@ func (c *QueryCache) Export() []QueryCacheEntry {
 	return entries
 }
 
-// Warmup 预热缓存
+// Warmup 预热缓存.
 func (c *QueryCache) Warmup(items map[string]interface{}, ttl time.Duration) int {
 	count := 0
 	for key, value := range items {
@@ -716,7 +716,7 @@ func (c *QueryCache) Warmup(items map[string]interface{}, ttl time.Duration) int
 	return count
 }
 
-// ResetStats 重置统计
+// ResetStats 重置统计.
 func (c *QueryCache) ResetStats() {
 	c.stats.mu.Lock()
 	defer c.stats.mu.Unlock()

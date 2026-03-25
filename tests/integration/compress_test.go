@@ -12,7 +12,7 @@ import (
 	"nas-os/internal/compress"
 )
 
-// MockCompressManager 模拟压缩管理器
+// MockCompressManager 模拟压缩管理器.
 type MockCompressManager struct {
 	config *compress.Config
 	stats  *compress.Stats
@@ -20,7 +20,7 @@ type MockCompressManager struct {
 	mu     sync.RWMutex
 }
 
-// CompressedFile 压缩文件信息
+// CompressedFile 压缩文件信息.
 type CompressedFile struct {
 	Path      string
 	OrigSize  int64
@@ -29,7 +29,7 @@ type CompressedFile struct {
 	Ratio     float64
 }
 
-// NewMockCompressManager 创建模拟压缩管理器
+// NewMockCompressManager 创建模拟压缩管理器.
 func NewMockCompressManager() *MockCompressManager {
 	return &MockCompressManager{
 		config: compress.DefaultConfig(),
@@ -40,7 +40,7 @@ func NewMockCompressManager() *MockCompressManager {
 	}
 }
 
-// CompressFile 压缩文件
+// CompressFile 压缩文件.
 func (m *MockCompressManager) CompressFile(path string, data []byte, algo compress.Algorithm) (*CompressedFile, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -77,7 +77,7 @@ func (m *MockCompressManager) CompressFile(path string, data []byte, algo compre
 	return file, nil
 }
 
-// DecompressFile 解压文件
+// DecompressFile 解压文件.
 func (m *MockCompressManager) DecompressFile(path string) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -91,19 +91,19 @@ func (m *MockCompressManager) DecompressFile(path string) ([]byte, error) {
 	return make([]byte, file.OrigSize), nil
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *MockCompressManager) GetStats() *compress.Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *MockCompressManager) GetConfig() *compress.Config {
 	return m.config
 }
 
-// ShouldCompress 检查是否应该压缩
+// ShouldCompress 检查是否应该压缩.
 func (m *MockCompressManager) ShouldCompress(path string, size int64) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -125,7 +125,7 @@ func (m *MockCompressManager) ShouldCompress(path string, size int64) bool {
 
 // ========== 压缩存储集成测试 ==========
 
-// TestCompress_DefaultConfig 测试默认配置
+// TestCompress_DefaultConfig 测试默认配置.
 func TestCompress_DefaultConfig(t *testing.T) {
 	config := compress.DefaultConfig()
 
@@ -154,7 +154,7 @@ func TestCompress_DefaultConfig(t *testing.T) {
 	}
 }
 
-// TestCompress_Algorithms 测试压缩算法
+// TestCompress_Algorithms 测试压缩算法.
 func TestCompress_Algorithms(t *testing.T) {
 	algorithms := []compress.Algorithm{
 		compress.AlgorithmZstd,
@@ -172,7 +172,7 @@ func TestCompress_Algorithms(t *testing.T) {
 	}
 }
 
-// TestCompress_CompressFile 测试文件压缩
+// TestCompress_CompressFile 测试文件压缩.
 func TestCompress_CompressFile(t *testing.T) {
 	manager := NewMockCompressManager()
 
@@ -222,7 +222,7 @@ func TestCompress_CompressFile(t *testing.T) {
 	}
 }
 
-// TestCompress_DecompressFile 测试文件解压
+// TestCompress_DecompressFile 测试文件解压.
 func TestCompress_DecompressFile(t *testing.T) {
 	manager := NewMockCompressManager()
 
@@ -246,7 +246,7 @@ func TestCompress_DecompressFile(t *testing.T) {
 	}
 }
 
-// TestCompress_ShouldCompress 测试压缩判断
+// TestCompress_ShouldCompress 测试压缩判断.
 func TestCompress_ShouldCompress(t *testing.T) {
 	manager := NewMockCompressManager()
 
@@ -278,7 +278,7 @@ func TestCompress_ShouldCompress(t *testing.T) {
 	}
 }
 
-// TestCompress_Stats 测试压缩统计
+// TestCompress_Stats 测试压缩统计.
 func TestCompress_Stats(t *testing.T) {
 	manager := NewMockCompressManager()
 
@@ -308,7 +308,7 @@ func TestCompress_Stats(t *testing.T) {
 	}
 }
 
-// TestCompress_ExcludeExtensions 测试排除扩展名
+// TestCompress_ExcludeExtensions 测试排除扩展名.
 func TestCompress_ExcludeExtensions(t *testing.T) {
 	config := compress.DefaultConfig()
 
@@ -339,7 +339,7 @@ func TestCompress_ExcludeExtensions(t *testing.T) {
 	}
 }
 
-// TestCompress_CompressDecompressRoundTrip 测试压缩解压往返
+// TestCompress_CompressDecompressRoundTrip 测试压缩解压往返.
 func TestCompress_CompressDecompressRoundTrip(t *testing.T) {
 	manager := NewMockCompressManager()
 
@@ -369,7 +369,7 @@ func TestCompress_CompressDecompressRoundTrip(t *testing.T) {
 	}
 }
 
-// TestCompress_ConcurrentCompression 测试并发压缩
+// TestCompress_ConcurrentCompression 测试并发压缩.
 func TestCompress_ConcurrentCompression(t *testing.T) {
 	manager := NewMockCompressManager()
 	done := make(chan bool, 10)
@@ -393,7 +393,7 @@ func TestCompress_ConcurrentCompression(t *testing.T) {
 	}
 }
 
-// TestCompress_MultipleAlgorithms 测试多种算法
+// TestCompress_MultipleAlgorithms 测试多种算法.
 func TestCompress_MultipleAlgorithms(t *testing.T) {
 	manager := NewMockCompressManager()
 
@@ -425,7 +425,7 @@ func TestCompress_MultipleAlgorithms(t *testing.T) {
 	}
 }
 
-// TestCompress_MinSizeFilter 测试最小大小过滤
+// TestCompress_MinSizeFilter 测试最小大小过滤.
 func TestCompress_MinSizeFilter(t *testing.T) {
 	manager := NewMockCompressManager()
 
@@ -452,7 +452,7 @@ func TestCompress_MinSizeFilter(t *testing.T) {
 	}
 }
 
-// TestCompress_CompressionLevel 测试压缩级别
+// TestCompress_CompressionLevel 测试压缩级别.
 func TestCompress_CompressionLevel(t *testing.T) {
 	config := compress.DefaultConfig()
 
@@ -474,7 +474,7 @@ func TestCompress_CompressionLevel(t *testing.T) {
 	}
 }
 
-// TestCompress_ExcludeDirs 测试排除目录
+// TestCompress_ExcludeDirs 测试排除目录.
 func TestCompress_ExcludeDirs(t *testing.T) {
 	config := compress.DefaultConfig()
 
@@ -494,7 +494,7 @@ func TestCompress_ExcludeDirs(t *testing.T) {
 	}
 }
 
-// TestCompress_StatsUpdate 测试统计更新
+// TestCompress_StatsUpdate 测试统计更新.
 func TestCompress_StatsUpdate(t *testing.T) {
 	manager := NewMockCompressManager()
 
@@ -519,7 +519,7 @@ func TestCompress_StatsUpdate(t *testing.T) {
 	}
 }
 
-// TestCompress_NilConfig 测试空配置
+// TestCompress_NilConfig 测试空配置.
 func TestCompress_NilConfig(t *testing.T) {
 	// 当传入 nil 时应使用默认配置
 	config := compress.DefaultConfig()
@@ -530,7 +530,7 @@ func TestCompress_NilConfig(t *testing.T) {
 
 // ========== 性能测试 ==========
 
-// BenchmarkCompress_CompressFile 性能测试：文件压缩
+// BenchmarkCompress_CompressFile 性能测试：文件压缩.
 func BenchmarkCompress_CompressFile(b *testing.B) {
 	manager := NewMockCompressManager()
 	data := make([]byte, 10240) // 10KB
@@ -542,7 +542,7 @@ func BenchmarkCompress_CompressFile(b *testing.B) {
 	}
 }
 
-// BenchmarkCompress_DecompressFile 性能测试：文件解压
+// BenchmarkCompress_DecompressFile 性能测试：文件解压.
 func BenchmarkCompress_DecompressFile(b *testing.B) {
 	manager := NewMockCompressManager()
 	data := make([]byte, 10240)
@@ -554,7 +554,7 @@ func BenchmarkCompress_DecompressFile(b *testing.B) {
 	}
 }
 
-// BenchmarkCompress_ShouldCompress 性能测试：压缩判断
+// BenchmarkCompress_ShouldCompress 性能测试：压缩判断.
 func BenchmarkCompress_ShouldCompress(b *testing.B) {
 	manager := NewMockCompressManager()
 
@@ -564,7 +564,7 @@ func BenchmarkCompress_ShouldCompress(b *testing.B) {
 	}
 }
 
-// BenchmarkCompress_GetStats 性能测试：获取统计
+// BenchmarkCompress_GetStats 性能测试：获取统计.
 func BenchmarkCompress_GetStats(b *testing.B) {
 	manager := NewMockCompressManager()
 
@@ -576,7 +576,7 @@ func BenchmarkCompress_GetStats(b *testing.B) {
 
 // ========== 辅助函数 ==========
 
-// TestCompress_BufferOperations 测试缓冲区操作
+// TestCompress_BufferOperations 测试缓冲区操作.
 func TestCompress_BufferOperations(t *testing.T) {
 	// 测试缓冲区读写
 	data := []byte("test data for compression")

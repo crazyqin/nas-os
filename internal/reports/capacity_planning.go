@@ -8,7 +8,7 @@ import (
 
 // ========== 容量规划 ==========
 
-// GrowthModel 增长模型类型
+// GrowthModel 增长模型类型.
 type GrowthModel string
 
 const (
@@ -20,7 +20,7 @@ const (
 	GrowthModelLogarithmic GrowthModel = "logarithmic" // 对数增长
 )
 
-// CapacityHistory 容量历史数据点
+// CapacityHistory 容量历史数据点.
 type CapacityHistory struct {
 	Timestamp      time.Time `json:"timestamp"`
 	TotalBytes     uint64    `json:"total_bytes"`
@@ -29,7 +29,7 @@ type CapacityHistory struct {
 	UsagePercent   float64   `json:"usage_percent"`
 }
 
-// CapacityForecast 容量预测
+// CapacityForecast 容量预测.
 type CapacityForecast struct {
 	// 预测时间点
 	Timestamp time.Time `json:"timestamp"`
@@ -50,7 +50,7 @@ type CapacityForecast struct {
 	Model GrowthModel `json:"model"`
 }
 
-// CapacityPlanningConfig 容量规划配置
+// CapacityPlanningConfig 容量规划配置.
 type CapacityPlanningConfig struct {
 	// 预警阈值（%）
 	AlertThreshold float64 `json:"alert_threshold"`
@@ -71,7 +71,7 @@ type CapacityPlanningConfig struct {
 	SafetyBuffer float64 `json:"safety_buffer"`
 }
 
-// CapacityPlanningReport 容量规划报告
+// CapacityPlanningReport 容量规划报告.
 type CapacityPlanningReport struct {
 	ID              string                   `json:"id"`
 	Name            string                   `json:"name"`
@@ -86,7 +86,7 @@ type CapacityPlanningReport struct {
 	GeneratedAt     time.Time                `json:"generated_at"`
 }
 
-// CapacityStatus 当前容量状态
+// CapacityStatus 当前容量状态.
 type CapacityStatus struct {
 	TotalBytes     uint64    `json:"total_bytes"`
 	UsedBytes      uint64    `json:"used_bytes"`
@@ -96,7 +96,7 @@ type CapacityStatus struct {
 	LastUpdated    time.Time `json:"last_updated"`
 }
 
-// CapacityMilestone 容量里程碑
+// CapacityMilestone 容量里程碑.
 type CapacityMilestone struct {
 	Name           string    `json:"name"`            // 如 "70%预警线"
 	Threshold      float64   `json:"threshold"`       // 阈值百分比
@@ -106,7 +106,7 @@ type CapacityMilestone struct {
 	ActionRequired string    `json:"action_required"` // 建议行动
 }
 
-// CapacityRecommendation 容量建议
+// CapacityRecommendation 容量建议.
 type CapacityRecommendation struct {
 	Type        string `json:"type"`     // expansion, cleanup, optimization, migration
 	Priority    string `json:"priority"` // high, medium, low
@@ -117,7 +117,7 @@ type CapacityRecommendation struct {
 	SavingsGB   uint64 `json:"savings_gb"` // 预计节省/增加容量（GB）
 }
 
-// CapacityPlanningSummary 容量规划汇总
+// CapacityPlanningSummary 容量规划汇总.
 type CapacityPlanningSummary struct {
 	// 当前使用率
 	CurrentUsagePercent float64 `json:"current_usage_percent"`
@@ -141,12 +141,12 @@ type CapacityPlanningSummary struct {
 	Trend string `json:"trend"` // growing, stable, declining
 }
 
-// CapacityPlanner 容量规划器
+// CapacityPlanner 容量规划器.
 type CapacityPlanner struct {
 	config CapacityPlanningConfig
 }
 
-// NewCapacityPlanner 创建容量规划器
+// NewCapacityPlanner 创建容量规划器.
 func NewCapacityPlanner(config CapacityPlanningConfig) *CapacityPlanner {
 	// 设置默认值
 	if config.AlertThreshold == 0 {
@@ -171,7 +171,7 @@ func NewCapacityPlanner(config CapacityPlanningConfig) *CapacityPlanner {
 	return &CapacityPlanner{config: config}
 }
 
-// Analyze 分析容量并生成规划报告
+// Analyze 分析容量并生成规划报告.
 func (p *CapacityPlanner) Analyze(history []CapacityHistory, volumeName string) *CapacityPlanningReport {
 	if len(history) == 0 {
 		return nil
@@ -208,7 +208,7 @@ func (p *CapacityPlanner) Analyze(history []CapacityHistory, volumeName string) 
 	}
 }
 
-// getCurrentStatus 获取当前状态
+// getCurrentStatus 获取当前状态.
 func (p *CapacityPlanner) getCurrentStatus(history []CapacityHistory) CapacityStatus {
 	latest := history[len(history)-1]
 
@@ -229,7 +229,7 @@ func (p *CapacityPlanner) getCurrentStatus(history []CapacityHistory) CapacitySt
 	}
 }
 
-// generateForecasts 生成预测
+// generateForecasts 生成预测.
 func (p *CapacityPlanner) generateForecasts(history []CapacityHistory) []CapacityForecast {
 	if len(history) < 2 {
 		return nil
@@ -280,7 +280,7 @@ func (p *CapacityPlanner) generateForecasts(history []CapacityHistory) []Capacit
 	return forecasts
 }
 
-// calculateGrowthRate 计算增长率
+// calculateGrowthRate 计算增长率.
 func (p *CapacityPlanner) calculateGrowthRate(history []CapacityHistory) float64 {
 	if len(history) < 2 {
 		return 0
@@ -307,7 +307,7 @@ func (p *CapacityPlanner) calculateGrowthRate(history []CapacityHistory) float64
 	return growthRate
 }
 
-// calculateDailyGrowth 计算日增长量
+// calculateDailyGrowth 计算日增长量.
 func (p *CapacityPlanner) calculateDailyGrowth(history []CapacityHistory, growthRate float64) uint64 {
 	if len(history) < 2 {
 		return 0
@@ -325,12 +325,12 @@ func (p *CapacityPlanner) calculateDailyGrowth(history []CapacityHistory, growth
 	return uint64(float64(last.UsedBytes-first.UsedBytes) / days)
 }
 
-// linearForecast 线性预测
+// linearForecast 线性预测.
 func (p *CapacityPlanner) linearForecast(currentBytes uint64, dailyGrowth uint64, days int) uint64 {
 	return currentBytes + dailyGrowth*uint64(days)
 }
 
-// exponentialForecast 指数预测
+// exponentialForecast 指数预测.
 func (p *CapacityPlanner) exponentialForecast(currentBytes uint64, dailyRate float64, days int) uint64 {
 	// 将月增长率转换为日增长率
 	dailyRateAdjusted := dailyRate / 30.0
@@ -338,7 +338,7 @@ func (p *CapacityPlanner) exponentialForecast(currentBytes uint64, dailyRate flo
 	return uint64(float64(currentBytes) * factor)
 }
 
-// logarithmicForecast 对数预测
+// logarithmicForecast 对数预测.
 func (p *CapacityPlanner) logarithmicForecast(history []CapacityHistory, days int) uint64 {
 	if len(history) < 2 {
 		return 0
@@ -354,7 +354,7 @@ func (p *CapacityPlanner) logarithmicForecast(history []CapacityHistory, days in
 	return uint64(float64(latest.UsedBytes) * (1 + adjustedRate*float64(days)/30.0))
 }
 
-// calculateMilestones 计算里程碑
+// calculateMilestones 计算里程碑.
 func (p *CapacityPlanner) calculateMilestones(current CapacityStatus, forecasts []CapacityForecast) []CapacityMilestone {
 	milestones := make([]CapacityMilestone, 0)
 
@@ -402,7 +402,7 @@ func (p *CapacityPlanner) calculateMilestones(current CapacityStatus, forecasts 
 	return milestones
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (p *CapacityPlanner) generateRecommendations(current CapacityStatus, forecasts []CapacityForecast) []CapacityRecommendation {
 	recommendations := make([]CapacityRecommendation, 0)
 
@@ -477,7 +477,7 @@ func (p *CapacityPlanner) generateRecommendations(current CapacityStatus, foreca
 	return recommendations
 }
 
-// calculateSummary 计算汇总
+// calculateSummary 计算汇总.
 func (p *CapacityPlanner) calculateSummary(history []CapacityHistory, forecasts []CapacityForecast) CapacityPlanningSummary {
 	summary := CapacityPlanningSummary{}
 
@@ -531,7 +531,7 @@ func (p *CapacityPlanner) calculateSummary(history []CapacityHistory, forecasts 
 	return summary
 }
 
-// PredictCapacityNeeds 预测容量需求
+// PredictCapacityNeeds 预测容量需求.
 func (p *CapacityPlanner) PredictCapacityNeeds(history []CapacityHistory, targetMonths int) (uint64, error) {
 	if len(history) < 2 {
 		return 0, nil
@@ -558,12 +558,12 @@ func (p *CapacityPlanner) PredictCapacityNeeds(history []CapacityHistory, target
 	return uint64(predictedWithBuffer), nil
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (p *CapacityPlanner) UpdateConfig(config CapacityPlanningConfig) {
 	p.config = config
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (p *CapacityPlanner) GetConfig() CapacityPlanningConfig {
 	return p.config
 }

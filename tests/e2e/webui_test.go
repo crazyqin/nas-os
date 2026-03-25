@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// WebUI 测试服务器
+// WebUI 测试服务器.
 func setupWebUITestRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()

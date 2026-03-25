@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AppHandlers 应用商店处理器
+// AppHandlers 应用商店处理器.
 type AppHandlers struct {
 	store              *AppStore
 	ratingManager      *RatingManager
@@ -24,59 +24,59 @@ type AppHandlers struct {
 	// mu                 sync.RWMutex - 保留用于未来需要并发控制的场景
 }
 
-// NewAppHandlers 创建应用商店处理器
+// NewAppHandlers 创建应用商店处理器.
 func NewAppHandlers(store *AppStore) *AppHandlers {
 	return &AppHandlers{
 		store: store,
 	}
 }
 
-// SetRatingManager 设置评分管理器
+// SetRatingManager 设置评分管理器.
 func (h *AppHandlers) SetRatingManager(rm *RatingManager) {
 	h.ratingManager = rm
 }
 
-// SetDiscovery 设置应用发现器
+// SetDiscovery 设置应用发现器.
 func (h *AppHandlers) SetDiscovery(ad *AppDiscovery) {
 	h.discovery = ad
 }
 
-// SetCustomTemplateManager 设置自定义模板管理器
+// SetCustomTemplateManager 设置自定义模板管理器.
 func (h *AppHandlers) SetCustomTemplateManager(ctm *CustomTemplateManager) {
 	h.customTemplateMgr = ctm
 }
 
-// SetVersionManager 设置版本管理器
+// SetVersionManager 设置版本管理器.
 func (h *AppHandlers) SetVersionManager(vm *VersionManager) {
 	h.versionManager = vm
 }
 
-// SetManualInstaller 设置手动安装器
+// SetManualInstaller 设置手动安装器.
 func (h *AppHandlers) SetManualInstaller(mi *ManualInstaller) {
 	h.manualInstaller = mi
 }
 
-// SetTemplateVersionManager 设置模板版本管理器
+// SetTemplateVersionManager 设置模板版本管理器.
 func (h *AppHandlers) SetTemplateVersionManager(tvm *TemplateVersionManager) {
 	h.templateVersionMgr = tvm
 }
 
-// SetBackupManager 设置备份管理器
+// SetBackupManager 设置备份管理器.
 func (h *AppHandlers) SetBackupManager(bm *BackupManager) {
 	h.backupMgr = bm
 }
 
-// SetHealthChecker 设置健康检查器
+// SetHealthChecker 设置健康检查器.
 func (h *AppHandlers) SetHealthChecker(hc *HealthChecker) {
 	h.healthChecker = hc
 }
 
-// SetUpdateChecker 设置更新检测器
+// SetUpdateChecker 设置更新检测器.
 func (h *AppHandlers) SetUpdateChecker(uc *UpdateChecker) {
 	h.updateChecker = uc
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *AppHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	apps := r.Group("/apps")
 	{
@@ -153,7 +153,7 @@ func (h *AppHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// listCatalog 列出应用目录
+// listCatalog 列出应用目录.
 func (h *AppHandlers) listCatalog(c *gin.Context) {
 	category := c.Query("category")
 
@@ -199,7 +199,7 @@ func (h *AppHandlers) listCatalog(c *gin.Context) {
 	})
 }
 
-// getTemplate 获取模板详情
+// getTemplate 获取模板详情.
 func (h *AppHandlers) getTemplate(c *gin.Context) {
 	id := c.Param("id")
 
@@ -230,7 +230,7 @@ func (h *AppHandlers) getTemplate(c *gin.Context) {
 	})
 }
 
-// listInstalled 列出已安装应用
+// listInstalled 列出已安装应用.
 func (h *AppHandlers) listInstalled(c *gin.Context) {
 	apps := h.store.ListInstalled()
 
@@ -265,7 +265,7 @@ func (h *AppHandlers) listInstalled(c *gin.Context) {
 	})
 }
 
-// getInstalled 获取已安装应用详情
+// getInstalled 获取已安装应用详情.
 func (h *AppHandlers) getInstalled(c *gin.Context) {
 	id := c.Param("id")
 
@@ -285,7 +285,7 @@ func (h *AppHandlers) getInstalled(c *gin.Context) {
 	})
 }
 
-// installApp 安装应用
+// installApp 安装应用.
 func (h *AppHandlers) installApp(c *gin.Context) {
 	templateID := c.Param("id")
 
@@ -340,7 +340,7 @@ func (h *AppHandlers) installApp(c *gin.Context) {
 	})
 }
 
-// uninstallApp 卸载应用
+// uninstallApp 卸载应用.
 func (h *AppHandlers) uninstallApp(c *gin.Context) {
 	id := c.Param("id")
 	removeData := c.Query("removeData") == "true"
@@ -359,7 +359,7 @@ func (h *AppHandlers) uninstallApp(c *gin.Context) {
 	})
 }
 
-// startApp 启动应用
+// startApp 启动应用.
 func (h *AppHandlers) startApp(c *gin.Context) {
 	id := c.Param("id")
 
@@ -377,7 +377,7 @@ func (h *AppHandlers) startApp(c *gin.Context) {
 	})
 }
 
-// stopApp 停止应用
+// stopApp 停止应用.
 func (h *AppHandlers) stopApp(c *gin.Context) {
 	id := c.Param("id")
 
@@ -395,7 +395,7 @@ func (h *AppHandlers) stopApp(c *gin.Context) {
 	})
 }
 
-// restartApp 重启应用
+// restartApp 重启应用.
 func (h *AppHandlers) restartApp(c *gin.Context) {
 	id := c.Param("id")
 
@@ -413,7 +413,7 @@ func (h *AppHandlers) restartApp(c *gin.Context) {
 	})
 }
 
-// updateApp 更新应用
+// updateApp 更新应用.
 func (h *AppHandlers) updateApp(c *gin.Context) {
 	id := c.Param("id")
 
@@ -431,7 +431,7 @@ func (h *AppHandlers) updateApp(c *gin.Context) {
 	})
 }
 
-// getAppStats 获取应用统计
+// getAppStats 获取应用统计.
 func (h *AppHandlers) getAppStats(c *gin.Context) {
 	id := c.Param("id")
 
@@ -453,7 +453,7 @@ func (h *AppHandlers) getAppStats(c *gin.Context) {
 
 // === 评分和评论 ===
 
-// getRatings 获取评分列表
+// getRatings 获取评分列表.
 func (h *AppHandlers) getRatings(c *gin.Context) {
 	templateID := c.Param("templateId")
 
@@ -479,7 +479,7 @@ func (h *AppHandlers) getRatings(c *gin.Context) {
 	})
 }
 
-// getRatingStats 获取评分统计
+// getRatingStats 获取评分统计.
 func (h *AppHandlers) getRatingStats(c *gin.Context) {
 	templateID := c.Param("templateId")
 
@@ -501,7 +501,7 @@ func (h *AppHandlers) getRatingStats(c *gin.Context) {
 	})
 }
 
-// addRating 添加评分
+// addRating 添加评分.
 func (h *AppHandlers) addRating(c *gin.Context) {
 	templateID := c.Param("templateId")
 
@@ -559,7 +559,7 @@ func (h *AppHandlers) addRating(c *gin.Context) {
 	})
 }
 
-// deleteRating 删除评分
+// deleteRating 删除评分.
 func (h *AppHandlers) deleteRating(c *gin.Context) {
 	templateID := c.Param("templateId")
 	ratingID := c.Param("ratingId")
@@ -591,7 +591,7 @@ func (h *AppHandlers) deleteRating(c *gin.Context) {
 	})
 }
 
-// markHelpful 标记有用
+// markHelpful 标记有用.
 func (h *AppHandlers) markHelpful(c *gin.Context) {
 	templateID := c.Param("templateId")
 	ratingID := c.Param("ratingId")
@@ -625,7 +625,7 @@ func (h *AppHandlers) markHelpful(c *gin.Context) {
 
 // === 应用发现 ===
 
-// getDiscovered 获取发现的应用
+// getDiscovered 获取发现的应用.
 func (h *AppHandlers) getDiscovered(c *gin.Context) {
 	if h.discovery == nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -653,7 +653,7 @@ func (h *AppHandlers) getDiscovered(c *gin.Context) {
 	})
 }
 
-// refreshDiscovery 刷新发现
+// refreshDiscovery 刷新发现.
 func (h *AppHandlers) refreshDiscovery(c *gin.Context) {
 	if h.discovery == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -679,7 +679,7 @@ func (h *AppHandlers) refreshDiscovery(c *gin.Context) {
 
 // === 自定义模板 ===
 
-// listCustomTemplates 列出自定义模板
+// listCustomTemplates 列出自定义模板.
 func (h *AppHandlers) listCustomTemplates(c *gin.Context) {
 	if h.customTemplateMgr == nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -699,7 +699,7 @@ func (h *AppHandlers) listCustomTemplates(c *gin.Context) {
 	})
 }
 
-// getCustomTemplate 获取自定义模板
+// getCustomTemplate 获取自定义模板.
 func (h *AppHandlers) getCustomTemplate(c *gin.Context) {
 	id := c.Param("id")
 
@@ -727,7 +727,7 @@ func (h *AppHandlers) getCustomTemplate(c *gin.Context) {
 	})
 }
 
-// createCustomTemplate 创建自定义模板
+// createCustomTemplate 创建自定义模板.
 func (h *AppHandlers) createCustomTemplate(c *gin.Context) {
 	var req struct {
 		Name        string `json:"name"`
@@ -769,7 +769,7 @@ func (h *AppHandlers) createCustomTemplate(c *gin.Context) {
 	})
 }
 
-// createCustomFromURL 从 URL 创建模板
+// createCustomFromURL 从 URL 创建模板.
 func (h *AppHandlers) createCustomFromURL(c *gin.Context) {
 	var req struct {
 		Name        string `json:"name"`
@@ -811,7 +811,7 @@ func (h *AppHandlers) createCustomFromURL(c *gin.Context) {
 	})
 }
 
-// createCustomFromGitHub 从 GitHub 创建模板
+// createCustomFromGitHub 从 GitHub 创建模板.
 func (h *AppHandlers) createCustomFromGitHub(c *gin.Context) {
 	var req struct {
 		Name        string `json:"name"`
@@ -863,7 +863,7 @@ func (h *AppHandlers) createCustomFromGitHub(c *gin.Context) {
 	})
 }
 
-// updateCustomTemplate 更新自定义模板
+// updateCustomTemplate 更新自定义模板.
 func (h *AppHandlers) updateCustomTemplate(c *gin.Context) {
 	id := c.Param("id")
 
@@ -900,7 +900,7 @@ func (h *AppHandlers) updateCustomTemplate(c *gin.Context) {
 	})
 }
 
-// deleteCustomTemplate 删除自定义模板
+// deleteCustomTemplate 删除自定义模板.
 func (h *AppHandlers) deleteCustomTemplate(c *gin.Context) {
 	id := c.Param("id")
 
@@ -926,7 +926,7 @@ func (h *AppHandlers) deleteCustomTemplate(c *gin.Context) {
 	})
 }
 
-// installCustomTemplate 安装自定义模板
+// installCustomTemplate 安装自定义模板.
 func (h *AppHandlers) installCustomTemplate(c *gin.Context) {
 	id := c.Param("id")
 
@@ -996,7 +996,7 @@ func (h *AppHandlers) installCustomTemplate(c *gin.Context) {
 
 // === 手动安装 ===
 
-// manualInstallApp 手动安装应用
+// manualInstallApp 手动安装应用.
 func (h *AppHandlers) manualInstallApp(c *gin.Context) {
 	if h.manualInstaller == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -1052,7 +1052,7 @@ func (h *AppHandlers) manualInstallApp(c *gin.Context) {
 	})
 }
 
-// getLatestApps 获取最新应用列表
+// getLatestApps 获取最新应用列表.
 func (h *AppHandlers) getLatestApps(c *gin.Context) {
 	if h.manualInstaller == nil {
 		// 回退到 store 的模板列表
@@ -1089,7 +1089,7 @@ func (h *AppHandlers) getLatestApps(c *gin.Context) {
 
 // === 版本管理 ===
 
-// getAvailableVersions 获取可用版本
+// getAvailableVersions 获取可用版本.
 func (h *AppHandlers) getAvailableVersions(c *gin.Context) {
 	templateID := c.Param("templateId")
 
@@ -1118,7 +1118,7 @@ func (h *AppHandlers) getAvailableVersions(c *gin.Context) {
 	})
 }
 
-// checkUpdates 检查更新
+// checkUpdates 检查更新.
 func (h *AppHandlers) checkUpdates(c *gin.Context) {
 	if h.versionManager == nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -1145,7 +1145,7 @@ func (h *AppHandlers) checkUpdates(c *gin.Context) {
 	})
 }
 
-// getNotifications 获取通知列表
+// getNotifications 获取通知列表.
 func (h *AppHandlers) getNotifications(c *gin.Context) {
 	if h.versionManager == nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -1166,7 +1166,7 @@ func (h *AppHandlers) getNotifications(c *gin.Context) {
 	})
 }
 
-// markNotificationRead 标记通知已读
+// markNotificationRead 标记通知已读.
 func (h *AppHandlers) markNotificationRead(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1192,7 +1192,7 @@ func (h *AppHandlers) markNotificationRead(c *gin.Context) {
 	})
 }
 
-// dismissNotification 忽略通知
+// dismissNotification 忽略通知.
 func (h *AppHandlers) dismissNotification(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1218,7 +1218,7 @@ func (h *AppHandlers) dismissNotification(c *gin.Context) {
 	})
 }
 
-// markAllNotificationsRead 标记所有通知已读
+// markAllNotificationsRead 标记所有通知已读.
 func (h *AppHandlers) markAllNotificationsRead(c *gin.Context) {
 	if h.versionManager == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -1242,7 +1242,7 @@ func (h *AppHandlers) markAllNotificationsRead(c *gin.Context) {
 	})
 }
 
-// getUnreadCount 获取未读通知数量
+// getUnreadCount 获取未读通知数量.
 func (h *AppHandlers) getUnreadCount(c *gin.Context) {
 	if h.versionManager == nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -1266,7 +1266,7 @@ func (h *AppHandlers) getUnreadCount(c *gin.Context) {
 	})
 }
 
-// updateAppVersion 更新应用版本
+// updateAppVersion 更新应用版本.
 func (h *AppHandlers) updateAppVersion(c *gin.Context) {
 	appID := c.Param("id")
 
@@ -1308,7 +1308,7 @@ func (h *AppHandlers) updateAppVersion(c *gin.Context) {
 // 模板版本管理 API
 // =============================================================================
 
-// getTemplateVersions 获取模板的所有版本
+// getTemplateVersions 获取模板的所有版本.
 func (h *AppHandlers) getTemplateVersions(c *gin.Context) {
 	templateID := c.Param("id")
 
@@ -1330,7 +1330,7 @@ func (h *AppHandlers) getTemplateVersions(c *gin.Context) {
 	})
 }
 
-// getTemplateLatestVersion 获取模板最新版本
+// getTemplateLatestVersion 获取模板最新版本.
 func (h *AppHandlers) getTemplateLatestVersion(c *gin.Context) {
 	templateID := c.Param("id")
 
@@ -1358,7 +1358,7 @@ func (h *AppHandlers) getTemplateLatestVersion(c *gin.Context) {
 	})
 }
 
-// addTemplateVersion 添加模板版本
+// addTemplateVersion 添加模板版本.
 func (h *AppHandlers) addTemplateVersion(c *gin.Context) {
 	templateID := c.Param("id")
 
@@ -1394,7 +1394,7 @@ func (h *AppHandlers) addTemplateVersion(c *gin.Context) {
 	})
 }
 
-// deprecateTemplateVersion 标记模板版本为弃用
+// deprecateTemplateVersion 标记模板版本为弃用.
 func (h *AppHandlers) deprecateTemplateVersion(c *gin.Context) {
 	templateID := c.Param("id")
 	version := c.Param("version")
@@ -1421,7 +1421,7 @@ func (h *AppHandlers) deprecateTemplateVersion(c *gin.Context) {
 	})
 }
 
-// removeTemplateVersion 移除模板版本
+// removeTemplateVersion 移除模板版本.
 func (h *AppHandlers) removeTemplateVersion(c *gin.Context) {
 	templateID := c.Param("id")
 	version := c.Param("version")
@@ -1452,7 +1452,7 @@ func (h *AppHandlers) removeTemplateVersion(c *gin.Context) {
 // 备份与恢复 API
 // =============================================================================
 
-// backupApp 备份应用
+// backupApp 备份应用.
 func (h *AppHandlers) backupApp(c *gin.Context) {
 	appID := c.Param("id")
 
@@ -1489,7 +1489,7 @@ func (h *AppHandlers) backupApp(c *gin.Context) {
 	})
 }
 
-// listBackups 列出备份
+// listBackups 列出备份.
 func (h *AppHandlers) listBackups(c *gin.Context) {
 	appID := c.Query("appId")
 
@@ -1518,7 +1518,7 @@ func (h *AppHandlers) listBackups(c *gin.Context) {
 	})
 }
 
-// getBackup 获取备份信息
+// getBackup 获取备份信息.
 func (h *AppHandlers) getBackup(c *gin.Context) {
 	backupID := c.Param("id")
 
@@ -1546,7 +1546,7 @@ func (h *AppHandlers) getBackup(c *gin.Context) {
 	})
 }
 
-// restoreApp 恢复应用
+// restoreApp 恢复应用.
 func (h *AppHandlers) restoreApp(c *gin.Context) {
 	backupID := c.Param("id")
 
@@ -1577,7 +1577,7 @@ func (h *AppHandlers) restoreApp(c *gin.Context) {
 	})
 }
 
-// deleteBackup 删除备份
+// deleteBackup 删除备份.
 func (h *AppHandlers) deleteBackup(c *gin.Context) {
 	backupID := c.Param("id")
 
@@ -1607,7 +1607,7 @@ func (h *AppHandlers) deleteBackup(c *gin.Context) {
 // 健康检查 API
 // =============================================================================
 
-// getAppHealth 获取应用健康状态
+// getAppHealth 获取应用健康状态.
 func (h *AppHandlers) getAppHealth(c *gin.Context) {
 	appID := c.Param("id")
 
@@ -1639,7 +1639,7 @@ func (h *AppHandlers) getAppHealth(c *gin.Context) {
 // 更新检测 API
 // =============================================================================
 
-// checkAppUpdates 检查单个应用的更新
+// checkAppUpdates 检查单个应用的更新.
 func (h *AppHandlers) checkAppUpdates(c *gin.Context) {
 	appID := c.Param("id")
 
@@ -1667,7 +1667,7 @@ func (h *AppHandlers) checkAppUpdates(c *gin.Context) {
 	})
 }
 
-// checkAllUpdates 检查所有应用的更新
+// checkAllUpdates 检查所有应用的更新.
 func (h *AppHandlers) checkAllUpdates(c *gin.Context) {
 	if h.updateChecker == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

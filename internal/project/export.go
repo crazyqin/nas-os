@@ -7,15 +7,15 @@ import (
 	"time"
 )
 
-// ExportFormat 导出格式
+// ExportFormat 导出格式.
 type ExportFormat string
 
-// 导出格式常量
+// 导出格式常量.
 const (
 	ExportFormatJSON ExportFormat = "json"
 )
 
-// Export 项目导出数据
+// Export 项目导出数据.
 type Export struct {
 	// 元数据
 	ExportVersion string    `json:"export_version"`
@@ -44,7 +44,7 @@ type Export struct {
 // 注意：已移除 ProjectExport 别名，请直接使用 Export 类型
 // 原因：避免 stutter (project.ProjectExport -> project.Export)
 
-// ExportOptions 导出选项
+// ExportOptions 导出选项.
 type ExportOptions struct {
 	IncludeComments  bool `json:"include_comments"`
 	IncludeHistory   bool `json:"include_history"`
@@ -54,7 +54,7 @@ type ExportOptions struct {
 	IncludeSensitive bool `json:"include_sensitive"`
 }
 
-// ImportOptions 导入选项
+// ImportOptions 导入选项.
 type ImportOptions struct {
 	OverwriteExisting bool              `json:"overwrite_existing"`
 	CreateNewProject  bool              `json:"create_new_project"`
@@ -70,7 +70,7 @@ type ImportOptions struct {
 	UserMapping       map[string]string `json:"user_mapping,omitempty"`
 }
 
-// ImportResult 导入结果
+// ImportResult 导入结果.
 type ImportResult struct {
 	ProjectID          string   `json:"project_id"`
 	ImportedTasks      int      `json:"imported_tasks"`
@@ -81,19 +81,19 @@ type ImportResult struct {
 	Warnings           []string `json:"warnings,omitempty"`
 }
 
-// ExportManager 导出管理器
+// ExportManager 导出管理器.
 type ExportManager struct {
 	manager *Manager
 }
 
-// NewExportManager 创建导出管理器
+// NewExportManager 创建导出管理器.
 func NewExportManager(mgr *Manager) *ExportManager {
 	return &ExportManager{
 		manager: mgr,
 	}
 }
 
-// ExportProject 导出项目
+// ExportProject 导出项目.
 func (em *ExportManager) ExportProject(projectID, exportedBy string, options ExportOptions) (*Export, error) {
 	project, err := em.manager.GetProject(projectID)
 	if err != nil {
@@ -150,7 +150,7 @@ func (em *ExportManager) ExportProject(projectID, exportedBy string, options Exp
 	return export, nil
 }
 
-// anonymizeExport 匿名化导出数据
+// anonymizeExport 匿名化导出数据.
 func (em *ExportManager) anonymizeExport(export *Export) {
 	// 匿名化项目信息
 	export.Project.OwnerID = "user_1"
@@ -198,7 +198,7 @@ func (em *ExportManager) anonymizeExport(export *Export) {
 	export.ExportedBy = "user_1"
 }
 
-// ExportToJSON 导出为JSON
+// ExportToJSON 导出为JSON.
 func (em *ExportManager) ExportToJSON(projectID, exportedBy string, options ExportOptions) ([]byte, error) {
 	export, err := em.ExportProject(projectID, exportedBy, options)
 	if err != nil {
@@ -208,7 +208,7 @@ func (em *ExportManager) ExportToJSON(projectID, exportedBy string, options Expo
 	return json.MarshalIndent(export, "", "  ")
 }
 
-// ImportProject 导入项目
+// ImportProject 导入项目.
 func (em *ExportManager) ImportProject(data []byte, options ImportOptions) (*ImportResult, error) {
 	var export Export
 	if err := json.Unmarshal(data, &export); err != nil {
@@ -354,7 +354,7 @@ func (em *ExportManager) ImportProject(data []byte, options ImportOptions) (*Imp
 	return result, nil
 }
 
-// ValidateImportData 验证导入数据
+// ValidateImportData 验证导入数据.
 func (em *ExportManager) ValidateImportData(data []byte) (*Export, []string, error) {
 	var export Export
 	if err := json.Unmarshal(data, &export); err != nil {
@@ -396,7 +396,7 @@ func (em *ExportManager) ValidateImportData(data []byte) (*Export, []string, err
 	return &export, warnings, nil
 }
 
-// GetExportSummary 获取导出摘要
+// GetExportSummary 获取导出摘要.
 func (em *ExportManager) GetExportSummary(projectID string) (*ExportSummary, error) {
 	project, err := em.manager.GetProject(projectID)
 	if err != nil {
@@ -432,7 +432,7 @@ func (em *ExportManager) GetExportSummary(projectID string) (*ExportSummary, err
 	return summary, nil
 }
 
-// ExportSummary 导出摘要
+// ExportSummary 导出摘要.
 type ExportSummary struct {
 	ProjectID         string         `json:"project_id"`
 	ProjectName       string         `json:"project_name"`
@@ -443,7 +443,7 @@ type ExportSummary struct {
 	EstimatedDataSize int64          `json:"estimated_data_size"` // 字节
 }
 
-// estimateSize 估算导出数据大小
+// estimateSize 估算导出数据大小.
 func (em *ExportManager) estimateSize(project *Project, milestones []*Milestone, tasks []*Task) int64 {
 	// 粗略估算
 	baseSize := 500 // 基础JSON结构
@@ -454,7 +454,7 @@ func (em *ExportManager) estimateSize(project *Project, milestones []*Milestone,
 	return int64(baseSize + projectSize + milestoneSize + taskSize)
 }
 
-// BatchExport 批量导出
+// BatchExport 批量导出.
 func (em *ExportManager) BatchExport(projectIDs []string, exportedBy string, options ExportOptions) (map[string]*Export, []error) {
 	results := make(map[string]*Export)
 	errors := make([]error, 0)
@@ -471,7 +471,7 @@ func (em *ExportManager) BatchExport(projectIDs []string, exportedBy string, opt
 	return results, errors
 }
 
-// MergeProjects 合并多个项目（导入到一个新项目）
+// MergeProjects 合并多个项目（导入到一个新项目）.
 func (em *ExportManager) MergeProjects(projectIDs []string, newName, newKey, ownerID string, options ExportOptions) (*Project, *ImportResult, error) {
 	// 创建新项目
 	project, err := em.manager.CreateProject(newName, newKey, "合并项目", ownerID, ownerID)

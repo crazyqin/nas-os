@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 监控处理器
+// Handlers 监控处理器.
 type Handlers struct {
 	manager    *Manager
 	alerts     []*Alert
@@ -19,7 +19,7 @@ type Handlers struct {
 	mu         sync.RWMutex
 }
 
-// NewHandlers 创建监控处理器
+// NewHandlers 创建监控处理器.
 func NewHandlers(mgr *Manager, notifyMgr *notify.Manager) *Handlers {
 	h := &Handlers{
 		manager:   mgr,
@@ -38,7 +38,7 @@ func NewHandlers(mgr *Manager, notifyMgr *notify.Manager) *Handlers {
 	return h
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	monitor := r.Group("/monitor")
 	{
@@ -66,7 +66,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Success 200 {object} map[string]interface{} "成功"
 // @Failure 500 {object} map[string]interface{} "服务器内部错误"
 // @Router /monitor/system [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getSystemStats(c *gin.Context) {
 	stats, err := h.manager.GetSystemStats()
 	if err != nil {
@@ -93,7 +93,7 @@ func (h *Handlers) getSystemStats(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "成功"
 // @Failure 500 {object} map[string]interface{} "服务器内部错误"
 // @Router /monitor/disks [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getDiskStats(c *gin.Context) {
 	stats, err := h.manager.GetDiskStats()
 	if err != nil {
@@ -120,7 +120,7 @@ func (h *Handlers) getDiskStats(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "成功"
 // @Failure 500 {object} map[string]interface{} "服务器内部错误"
 // @Router /monitor/network [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getNetworkStats(c *gin.Context) {
 	stats, err := h.manager.GetNetworkStats()
 	if err != nil {
@@ -149,7 +149,7 @@ func (h *Handlers) getNetworkStats(c *gin.Context) {
 // @Failure 400 {object} map[string]interface{} "参数错误"
 // @Failure 500 {object} map[string]interface{} "服务器内部错误"
 // @Router /monitor/smart/{device} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getSMARTInfo(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -176,7 +176,7 @@ func (h *Handlers) getSMARTInfo(c *gin.Context) {
 	})
 }
 
-// checkAllDisks 检查所有磁盘
+// checkAllDisks 检查所有磁盘.
 func (h *Handlers) checkAllDisks(c *gin.Context) {
 	results, err := h.manager.CheckDisks()
 	if err != nil {
@@ -204,7 +204,7 @@ func (h *Handlers) checkAllDisks(c *gin.Context) {
 // @Param type query string false "告警类型 (cpu/memory/disk)"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /monitor/alerts [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getAlerts(c *gin.Context) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -231,7 +231,7 @@ func (h *Handlers) getAlerts(c *gin.Context) {
 	})
 }
 
-// acknowledgeAlert 确认告警
+// acknowledgeAlert 确认告警.
 func (h *Handlers) acknowledgeAlert(c *gin.Context) {
 	id := c.Param("id")
 
@@ -255,7 +255,7 @@ func (h *Handlers) acknowledgeAlert(c *gin.Context) {
 	})
 }
 
-// deleteAlert 删除告警
+// deleteAlert 删除告警.
 func (h *Handlers) deleteAlert(c *gin.Context) {
 	id := c.Param("id")
 
@@ -279,7 +279,7 @@ func (h *Handlers) deleteAlert(c *gin.Context) {
 	})
 }
 
-// getAlertRules 获取告警规则
+// getAlertRules 获取告警规则.
 func (h *Handlers) getAlertRules(c *gin.Context) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -291,7 +291,7 @@ func (h *Handlers) getAlertRules(c *gin.Context) {
 	})
 }
 
-// updateAlertRule 更新告警规则
+// updateAlertRule 更新告警规则.
 func (h *Handlers) updateAlertRule(c *gin.Context) {
 	name := c.Param("name")
 
@@ -329,7 +329,7 @@ func (h *Handlers) updateAlertRule(c *gin.Context) {
 	})
 }
 
-// startAlertChecker 启动告警检查器
+// startAlertChecker 启动告警检查器.
 func (h *Handlers) startAlertChecker() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -339,7 +339,7 @@ func (h *Handlers) startAlertChecker() {
 	}
 }
 
-// checkAlerts 检查告警
+// checkAlerts 检查告警.
 func (h *Handlers) checkAlerts() {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -390,7 +390,7 @@ func (h *Handlers) checkAlerts() {
 	}
 }
 
-// addAlert 添加告警
+// addAlert 添加告警.
 func (h *Handlers) addAlert(alert *Alert) {
 	// 检查是否已存在相同的未确认告警
 	for _, a := range h.alerts {
@@ -428,7 +428,7 @@ func (h *Handlers) addAlert(alert *Alert) {
 	}
 }
 
-// getAlertDescription 获取告警详细描述
+// getAlertDescription 获取告警详细描述.
 func (h *Handlers) getAlertDescription(alert *Alert) string {
 	desc := alert.Message
 	if alert.Source != "" {

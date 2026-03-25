@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// mockSMBManager 模拟 SMB 管理器（实现 SMBManager 接口）
+// mockSMBManager 模拟 SMB 管理器（实现 SMBManager 接口）.
 type mockSMBManager struct {
 	shares      map[string]*smb.Share
 	config      *smb.Config
@@ -182,7 +182,7 @@ func (m *mockSMBManager) GetSharePath(name string) string {
 	return ""
 }
 
-// mockNFSManager 模拟 NFS 管理器（实现 NFSManager 接口）
+// mockNFSManager 模拟 NFS 管理器（实现 NFSManager 接口）.
 type mockNFSManager struct {
 	exports map[string]*nfs.Export
 	status  *nfs.ServiceStatus
@@ -275,7 +275,7 @@ func (m *mockNFSManager) ValidateExport(export *nfs.Export) error {
 	return nil
 }
 
-// setupTestRouter 创建测试路由
+// setupTestRouter 创建测试路由.
 func setupTestRouter() (*gin.Engine, *Handlers) {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()

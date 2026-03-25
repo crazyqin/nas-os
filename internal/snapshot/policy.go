@@ -13,49 +13,49 @@ import (
 	"github.com/google/uuid"
 )
 
-// PolicyType 策略类型
+// PolicyType 策略类型.
 type PolicyType string
 
 const (
-	// PolicyTypeManual 手动快照
+	// PolicyTypeManual 手动快照.
 	PolicyTypeManual PolicyType = "manual"
-	// PolicyTypeScheduled 定时快照
+	// PolicyTypeScheduled 定时快照.
 	PolicyTypeScheduled PolicyType = "scheduled"
-	// PolicyTypeApplicationConsistent 应用一致性快照
+	// PolicyTypeApplicationConsistent 应用一致性快照.
 	PolicyTypeApplicationConsistent PolicyType = "application_consistent"
 )
 
-// ScheduleType 调度类型
+// ScheduleType 调度类型.
 type ScheduleType string
 
 const (
-	// ScheduleTypeHourly 每小时
+	// ScheduleTypeHourly 每小时.
 	ScheduleTypeHourly ScheduleType = "hourly"
-	// ScheduleTypeDaily 每天
+	// ScheduleTypeDaily 每天.
 	ScheduleTypeDaily ScheduleType = "daily"
-	// ScheduleTypeWeekly 每周
+	// ScheduleTypeWeekly 每周.
 	ScheduleTypeWeekly ScheduleType = "weekly"
-	// ScheduleTypeMonthly 每月
+	// ScheduleTypeMonthly 每月.
 	ScheduleTypeMonthly ScheduleType = "monthly"
-	// ScheduleTypeCustom 自定义 cron 表达式
+	// ScheduleTypeCustom 自定义 cron 表达式.
 	ScheduleTypeCustom ScheduleType = "custom"
 )
 
-// RetentionPolicyType 保留策略类型
+// RetentionPolicyType 保留策略类型.
 type RetentionPolicyType string
 
 const (
-	// RetentionByCount 按数量保留
+	// RetentionByCount 按数量保留.
 	RetentionByCount RetentionPolicyType = "by_count"
-	// RetentionByAge 按时间保留
+	// RetentionByAge 按时间保留.
 	RetentionByAge RetentionPolicyType = "by_age"
-	// RetentionBySize 按存储空间限制
+	// RetentionBySize 按存储空间限制.
 	RetentionBySize RetentionPolicyType = "by_size"
-	// RetentionCombined 组合策略
+	// RetentionCombined 组合策略.
 	RetentionCombined RetentionPolicyType = "combined"
 )
 
-// RetentionPolicy 保留策略配置
+// RetentionPolicy 保留策略配置.
 type RetentionPolicy struct {
 	// Type 策略类型
 	Type RetentionPolicyType `json:"type"`
@@ -75,7 +75,7 @@ type RetentionPolicy struct {
 	SizePolicy  *RetentionPolicy `json:"sizePolicy,omitempty"`
 }
 
-// ScheduleConfig 调度配置
+// ScheduleConfig 调度配置.
 type ScheduleConfig struct {
 	// Type 调度类型
 	Type ScheduleType `json:"type"`
@@ -99,7 +99,7 @@ type ScheduleConfig struct {
 	IntervalHours int `json:"intervalHours,omitempty"`
 }
 
-// ScriptConfig 脚本配置（应用一致性快照）
+// ScriptConfig 脚本配置（应用一致性快照）.
 type ScriptConfig struct {
 	// PreSnapshotScript 快照前执行的脚本
 	PreSnapshotScript string `json:"preSnapshotScript,omitempty"`
@@ -114,7 +114,7 @@ type ScriptConfig struct {
 	ContinueOnFailure bool `json:"continueOnFailure,omitempty"`
 }
 
-// Policy 快照策略
+// Policy 快照策略.
 type Policy struct {
 	// ID 策略 ID
 	ID string `json:"id"`
@@ -180,7 +180,7 @@ type Policy struct {
 	Stats PolicyStats `json:"stats"`
 }
 
-// PolicyStats 策略执行统计
+// PolicyStats 策略执行统计.
 type PolicyStats struct {
 	// TotalRuns 总执行次数
 	TotalRuns int `json:"totalRuns"`
@@ -207,7 +207,7 @@ type PolicyStats struct {
 	TotalBytesSaved int64 `json:"totalBytesSaved"`
 }
 
-// PolicyManager 策略管理器
+// PolicyManager 策略管理器.
 type PolicyManager struct {
 	mu sync.RWMutex
 
@@ -233,7 +233,7 @@ type PolicyManager struct {
 	hooks PolicyHooks
 }
 
-// StorageManager 存储管理器接口
+// StorageManager 存储管理器接口.
 type StorageManager interface {
 	CreateSnapshot(volumeName, subvolName, snapshotName string, readOnly bool) (interface{}, error)
 	DeleteSnapshot(volumeName, snapshotName string) error
@@ -241,7 +241,7 @@ type StorageManager interface {
 	GetVolume(volumeName string) interface{}
 }
 
-// PolicyHooks 策略事件钩子
+// PolicyHooks 策略事件钩子.
 type PolicyHooks struct {
 	// OnBeforeSnapshot 快照创建前回调
 	OnBeforeSnapshot func(policy *Policy) error
@@ -259,7 +259,7 @@ type PolicyHooks struct {
 	OnPolicyDisabled func(policy *Policy)
 }
 
-// NewPolicyManager 创建策略管理器
+// NewPolicyManager 创建策略管理器.
 func NewPolicyManager(configPath string, storageMgr StorageManager) *PolicyManager {
 	pm := &PolicyManager{
 		policies:   make(map[string]*Policy),
@@ -279,7 +279,7 @@ func NewPolicyManager(configPath string, storageMgr StorageManager) *PolicyManag
 	return pm
 }
 
-// Initialize 初始化策略管理器
+// Initialize 初始化策略管理器.
 func (pm *PolicyManager) Initialize() error {
 	// 加载配置
 	if err := pm.loadConfig(); err != nil {
@@ -304,14 +304,14 @@ func (pm *PolicyManager) Initialize() error {
 	return nil
 }
 
-// Close 关闭策略管理器
+// Close 关闭策略管理器.
 func (pm *PolicyManager) Close() {
 	pm.scheduler.Stop()
 }
 
 // ========== 策略 CRUD ==========
 
-// CreatePolicy 创建策略
+// CreatePolicy 创建策略.
 func (pm *PolicyManager) CreatePolicy(policy *Policy) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -349,7 +349,7 @@ func (pm *PolicyManager) CreatePolicy(policy *Policy) error {
 	return nil
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (pm *PolicyManager) GetPolicy(id string) (*Policy, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -362,7 +362,7 @@ func (pm *PolicyManager) GetPolicy(id string) (*Policy, error) {
 	return policy, nil
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (pm *PolicyManager) ListPolicies() []*Policy {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -374,7 +374,7 @@ func (pm *PolicyManager) ListPolicies() []*Policy {
 	return result
 }
 
-// ListPoliciesByVolume 列出指定卷的策略
+// ListPoliciesByVolume 列出指定卷的策略.
 func (pm *PolicyManager) ListPoliciesByVolume(volumeName string) []*Policy {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -388,7 +388,7 @@ func (pm *PolicyManager) ListPoliciesByVolume(volumeName string) []*Policy {
 	return result
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (pm *PolicyManager) UpdatePolicy(id string, updates *Policy) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -427,7 +427,7 @@ func (pm *PolicyManager) UpdatePolicy(id string, updates *Policy) error {
 	return nil
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (pm *PolicyManager) DeletePolicy(id string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -453,7 +453,7 @@ func (pm *PolicyManager) DeletePolicy(id string) error {
 	return nil
 }
 
-// EnablePolicy 启用/禁用策略
+// EnablePolicy 启用/禁用策略.
 func (pm *PolicyManager) EnablePolicy(id string, enabled bool) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -487,7 +487,7 @@ func (pm *PolicyManager) EnablePolicy(id string, enabled bool) error {
 
 // ========== 快照执行 ==========
 
-// ExecutePolicy 手动执行策略
+// ExecutePolicy 手动执行策略.
 func (pm *PolicyManager) ExecutePolicy(id string) (string, error) {
 	pm.mu.RLock()
 	policy, ok := pm.policies[id]
@@ -500,7 +500,7 @@ func (pm *PolicyManager) ExecutePolicy(id string) (string, error) {
 	return pm.executePolicy(policy)
 }
 
-// executePolicy 执行策略（内部方法）
+// executePolicy 执行策略（内部方法）.
 func (pm *PolicyManager) executePolicy(policy *Policy) (string, error) {
 	// 触发前置钩子
 	if pm.hooks.OnBeforeSnapshot != nil {
@@ -552,7 +552,7 @@ func (pm *PolicyManager) executePolicy(policy *Policy) (string, error) {
 	return snapshotName, err
 }
 
-// runCleanup 执行清理
+// runCleanup 执行清理.
 func (pm *PolicyManager) runCleanup(policy *Policy) {
 	deleted, err := pm.cleaner.Clean(policy)
 	if err != nil {
@@ -645,22 +645,22 @@ func (pm *PolicyManager) saveConfig() error {
 	return os.WriteFile(pm.configPath, data, 0640)
 }
 
-// SetHooks 设置事件钩子
+// SetHooks 设置事件钩子.
 func (pm *PolicyManager) SetHooks(hooks PolicyHooks) {
 	pm.hooks = hooks
 }
 
-// GetScheduler 获取调度器
+// GetScheduler 获取调度器.
 func (pm *PolicyManager) GetScheduler() *Scheduler {
 	return pm.scheduler
 }
 
-// GetExecutor 获取执行器
+// GetExecutor 获取执行器.
 func (pm *PolicyManager) GetExecutor() *Executor {
 	return pm.executor
 }
 
-// GetCleaner 获取清理器
+// GetCleaner 获取清理器.
 func (pm *PolicyManager) GetCleaner() *RetentionCleaner {
 	return pm.cleaner
 }

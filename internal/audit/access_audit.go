@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// AccessAuditEntry 访问审计条目
+// AccessAuditEntry 访问审计条目.
 type AccessAuditEntry struct {
 	ID        string                 `json:"id"`
 	Timestamp time.Time              `json:"timestamp"`
@@ -27,7 +27,7 @@ type AccessAuditEntry struct {
 	Metadata  map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// AccessAuditLogger 访问审计日志器
+// AccessAuditLogger 访问审计日志器.
 type AccessAuditLogger struct {
 	mu      sync.RWMutex
 	logDir  string
@@ -36,7 +36,7 @@ type AccessAuditLogger struct {
 	enabled bool
 }
 
-// NewAccessAuditLogger 创建访问审计日志器
+// NewAccessAuditLogger 创建访问审计日志器.
 func NewAccessAuditLogger(logDir string, maxSize int) (*AccessAuditLogger, error) {
 	if err := os.MkdirAll(logDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建日志目录失败: %w", err)
@@ -49,7 +49,7 @@ func NewAccessAuditLogger(logDir string, maxSize int) (*AccessAuditLogger, error
 	}, nil
 }
 
-// Log 记录访问审计日志
+// Log 记录访问审计日志.
 func (l *AccessAuditLogger) Log(ctx context.Context, entry AccessAuditEntry) error {
 	if !l.enabled {
 		return nil
@@ -76,7 +76,7 @@ func (l *AccessAuditLogger) Log(ctx context.Context, entry AccessAuditEntry) err
 	return nil
 }
 
-// writeToFile 写入日志文件
+// writeToFile 写入日志文件.
 func (l *AccessAuditLogger) writeToFile(entry AccessAuditEntry) error {
 	filename := filepath.Join(l.logDir, fmt.Sprintf("audit_%s.log", entry.Timestamp.Format("2006-01-02")))
 	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
@@ -94,7 +94,7 @@ func (l *AccessAuditLogger) writeToFile(entry AccessAuditEntry) error {
 	return err
 }
 
-// Query 查询审计日志
+// Query 查询审计日志.
 func (l *AccessAuditLogger) Query(ctx context.Context, filter Filter) ([]AccessAuditEntry, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -108,21 +108,21 @@ func (l *AccessAuditLogger) Query(ctx context.Context, filter Filter) ([]AccessA
 	return result, nil
 }
 
-// Enable 启用审计
+// Enable 启用审计.
 func (l *AccessAuditLogger) Enable() {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.enabled = true
 }
 
-// Disable 禁用审计
+// Disable 禁用审计.
 func (l *AccessAuditLogger) Disable() {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.enabled = false
 }
 
-// Filter 审计过滤器
+// Filter 审计过滤器.
 type Filter struct {
 	UserID    string
 	Action    string
@@ -132,7 +132,7 @@ type Filter struct {
 	Status    *int
 }
 
-// Match 匹配过滤条件
+// Match 匹配过滤条件.
 func (f Filter) Match(entry AccessAuditEntry) bool {
 	if f.UserID != "" && entry.UserID != f.UserID {
 		return false

@@ -13,13 +13,13 @@ import (
 	"nas-os/internal/storage"
 )
 
-// MockStorageManager 模拟存储管理器
+// MockStorageManager 模拟存储管理器.
 type MockStorageManager struct {
 	volumes map[string]*storage.Volume
 	mu      sync.RWMutex
 }
 
-// NewMockStorageManager 创建模拟存储管理器
+// NewMockStorageManager 创建模拟存储管理器.
 func NewMockStorageManager() *MockStorageManager {
 	return &MockStorageManager{
 		volumes: make(map[string]*storage.Volume),
@@ -70,7 +70,7 @@ func (m *MockStorageManager) GetVolume(name string) (*storage.Volume, error) {
 
 // ========== 存储模块基准测试 ==========
 
-// BenchmarkStorage_CreateVolume 基准测试：创建卷
+// BenchmarkStorage_CreateVolume 基准测试：创建卷.
 func BenchmarkStorage_CreateVolume(b *testing.B) {
 	mgr := NewMockStorageManager()
 
@@ -81,7 +81,7 @@ func BenchmarkStorage_CreateVolume(b *testing.B) {
 	}
 }
 
-// BenchmarkStorage_ListVolumes 基准测试：列出卷
+// BenchmarkStorage_ListVolumes 基准测试：列出卷.
 func BenchmarkStorage_ListVolumes(b *testing.B) {
 	mgr := NewMockStorageManager()
 
@@ -97,7 +97,7 @@ func BenchmarkStorage_ListVolumes(b *testing.B) {
 	}
 }
 
-// BenchmarkStorage_GetVolume 基准测试：获取卷
+// BenchmarkStorage_GetVolume 基准测试：获取卷.
 func BenchmarkStorage_GetVolume(b *testing.B) {
 	mgr := NewMockStorageManager()
 	_, _ = mgr.CreateVolume("test-vol", []string{"/dev/sda1"}, "single")
@@ -108,7 +108,7 @@ func BenchmarkStorage_GetVolume(b *testing.B) {
 	}
 }
 
-// BenchmarkStorage_ConcurrentAccess 基准测试：并发访问
+// BenchmarkStorage_ConcurrentAccess 基准测试：并发访问.
 func BenchmarkStorage_ConcurrentAccess(b *testing.B) {
 	mgr := NewMockStorageManager()
 
@@ -131,7 +131,7 @@ func BenchmarkStorage_ConcurrentAccess(b *testing.B) {
 
 // ========== RAID 配置基准测试 ==========
 
-// BenchmarkRAIDConfig_Lookup 基准测试：RAID 配置查找
+// BenchmarkRAIDConfig_Lookup 基准测试：RAID 配置查找.
 func BenchmarkRAIDConfig_Lookup(b *testing.B) {
 	profiles := []string{"single", "raid0", "raid1", "raid5", "raid6", "raid10"}
 
@@ -144,7 +144,7 @@ func BenchmarkRAIDConfig_Lookup(b *testing.B) {
 
 // ========== 数据结构基准测试 ==========
 
-// BenchmarkVolume_Creation 基准测试：创建 Volume 对象
+// BenchmarkVolume_Creation 基准测试：创建 Volume 对象.
 func BenchmarkVolume_Creation(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -167,7 +167,7 @@ func BenchmarkVolume_Creation(b *testing.B) {
 	}
 }
 
-// BenchmarkSubVolume_Creation 基准测试：创建 SubVolume 对象
+// BenchmarkSubVolume_Creation 基准测试：创建 SubVolume 对象.
 func BenchmarkSubVolume_Creation(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -182,7 +182,7 @@ func BenchmarkSubVolume_Creation(b *testing.B) {
 	}
 }
 
-// BenchmarkSnapshot_Creation 基准测试：创建 Snapshot 对象
+// BenchmarkSnapshot_Creation 基准测试：创建 Snapshot 对象.
 func BenchmarkSnapshot_Creation(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
@@ -199,7 +199,7 @@ func BenchmarkSnapshot_Creation(b *testing.B) {
 
 // ========== 内存分配基准测试 ==========
 
-// BenchmarkMemory_VolumeSlice 基准测试：Volume 切片内存分配
+// BenchmarkMemory_VolumeSlice 基准测试：Volume 切片内存分配.
 func BenchmarkMemory_VolumeSlice(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -212,7 +212,7 @@ func BenchmarkMemory_VolumeSlice(b *testing.B) {
 	}
 }
 
-// BenchmarkMemory_VolumeMap 基准测试：Volume Map 内存分配
+// BenchmarkMemory_VolumeMap 基准测试：Volume Map 内存分配.
 func BenchmarkMemory_VolumeMap(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -226,7 +226,7 @@ func BenchmarkMemory_VolumeMap(b *testing.B) {
 
 // ========== 并发基准测试 ==========
 
-// BenchmarkConcurrency_Mutex 基准测试：Mutex 并发
+// BenchmarkConcurrency_Mutex 基准测试：Mutex 并发.
 func BenchmarkConcurrency_Mutex(b *testing.B) {
 	var mu sync.Mutex
 	data := make(map[string]int)
@@ -243,7 +243,7 @@ func BenchmarkConcurrency_Mutex(b *testing.B) {
 	})
 }
 
-// BenchmarkConcurrency_RWMutex_Read 基准测试：RWMutex 读并发
+// BenchmarkConcurrency_RWMutex_Read 基准测试：RWMutex 读并发.
 func BenchmarkConcurrency_RWMutex_Read(b *testing.B) {
 	var mu sync.RWMutex
 	data := make(map[string]int)
@@ -263,7 +263,7 @@ func BenchmarkConcurrency_RWMutex_Read(b *testing.B) {
 	})
 }
 
-// BenchmarkConcurrency_RWMutex_Write 基准测试：RWMutex 写并发
+// BenchmarkConcurrency_RWMutex_Write 基准测试：RWMutex 写并发.
 func BenchmarkConcurrency_RWMutex_Write(b *testing.B) {
 	var mu sync.RWMutex
 	data := make(map[string]int)
@@ -282,7 +282,7 @@ func BenchmarkConcurrency_RWMutex_Write(b *testing.B) {
 
 // ========== 性能测试入口 ==========
 
-// TestMain 性能测试入口
+// TestMain 性能测试入口.
 func TestMain(m *testing.M) {
 	fmt.Println("⚡ NAS-OS 性能基准测试 v1.0")
 	fmt.Println("=====================================")

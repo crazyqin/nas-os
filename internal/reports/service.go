@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-// Service 报表服务
+// Service 报表服务.
 type Service struct {
 	TemplateManager *TemplateManager
 	Generator       *ReportGenerator
@@ -20,12 +20,12 @@ type Service struct {
 	mu      sync.RWMutex
 }
 
-// Config 服务配置
+// Config 服务配置.
 type Config struct {
 	DataDir string `json:"data_dir"`
 }
 
-// NewService 创建报表服务
+// NewService 创建报表服务.
 func NewService(config Config) (*Service, error) {
 	dataDir := config.DataDir
 	if dataDir == "" {
@@ -75,35 +75,35 @@ func NewService(config Config) (*Service, error) {
 	return service, nil
 }
 
-// Start 启动服务
+// Start 启动服务.
 func (s *Service) Start() error {
 	// 启动定时任务调度器
 	s.ScheduleManager.Start()
 	return nil
 }
 
-// Stop 停止服务
+// Stop 停止服务.
 func (s *Service) Stop() {
 	// 停止定时任务调度器
 	s.ScheduleManager.Stop()
 }
 
-// RegisterDataSource 注册数据源
+// RegisterDataSource 注册数据源.
 func (s *Service) RegisterDataSource(source DataSource) {
 	s.Generator.RegisterDataSource(source)
 }
 
-// SetNotifyEmail 设置邮件通知回调
+// SetNotifyEmail 设置邮件通知回调.
 func (s *Service) SetNotifyEmail(fn func(scheduleID string, emails []string, report *GeneratedReport, path string) error) {
 	s.ScheduleManager.SetNotifyEmail(fn)
 }
 
-// SetNotifyWebhook 设置 Webhook 通知回调
+// SetNotifyWebhook 设置 Webhook 通知回调.
 func (s *Service) SetNotifyWebhook(fn func(scheduleID string, webhooks []string, report *GeneratedReport, path string) error) {
 	s.ScheduleManager.SetNotifyWebhook(fn)
 }
 
-// GetStats 获取服务统计
+// GetStats 获取服务统计.
 func (s *Service) GetStats() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -121,17 +121,17 @@ func (s *Service) GetStats() map[string]interface{} {
 
 // ========== 便捷方法 ==========
 
-// CreateReportFromTemplate 从模板快速创建报表
+// CreateReportFromTemplate 从模板快速创建报表.
 func (s *Service) CreateReportFromTemplate(templateID string, parameters map[string]interface{}) (*GeneratedReport, error) {
 	return s.Generator.GenerateFromTemplate(templateID, parameters, nil)
 }
 
-// CreateReportFromCustom 从自定义报表快速创建
+// CreateReportFromCustom 从自定义报表快速创建.
 func (s *Service) CreateReportFromCustom(reportID string, parameters map[string]interface{}) (*GeneratedReport, error) {
 	return s.Generator.GenerateFromCustomReport(reportID, parameters, nil)
 }
 
-// ExportReport 导出报表
+// ExportReport 导出报表.
 func (s *Service) ExportReport(report *GeneratedReport, format ExportFormat, outputPath string) (*ExportResult, error) {
 	return s.Exporter.Export(report, format, outputPath, ExportOptions{
 		Title:         report.Name,
@@ -140,7 +140,7 @@ func (s *Service) ExportReport(report *GeneratedReport, format ExportFormat, out
 	})
 }
 
-// ScheduleReport 创建定时报表
+// ScheduleReport 创建定时报表.
 func (s *Service) ScheduleReport(name string, templateID string, frequency ScheduleFrequency, format ExportFormat, emails []string) (*ScheduledReport, error) {
 	input := ScheduledReportInput{
 		Name:         name,
@@ -161,7 +161,7 @@ var (
 	once          sync.Once
 )
 
-// Init 初始化全局服务
+// Init 初始化全局服务.
 func Init(config Config) error {
 	var err error
 	once.Do(func() {
@@ -170,7 +170,7 @@ func Init(config Config) error {
 	return err
 }
 
-// GetService 获取全局服务
+// GetService 获取全局服务.
 func GetService() *Service {
 	return globalService
 }

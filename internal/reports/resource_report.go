@@ -7,7 +7,7 @@ import (
 
 // ========== 资源可视化报告 v2.30.0 ==========
 
-// ResourceReportType 资源报告类型
+// ResourceReportType 资源报告类型.
 type ResourceReportType string
 
 const (
@@ -25,7 +25,7 @@ const (
 	ResourceReportPerformance ResourceReportType = "performance" // 性能报告
 )
 
-// ResourceVisualizationReport 资源可视化报告
+// ResourceVisualizationReport 资源可视化报告.
 type ResourceVisualizationReport struct {
 	// 报告ID
 	ID string `json:"id"`
@@ -64,7 +64,7 @@ type ResourceVisualizationReport struct {
 	Alerts []ResourceAlert `json:"alerts"`
 }
 
-// StorageOverview 存储概览
+// StorageOverview 存储概览.
 type StorageOverview struct {
 	// 总容量（字节）
 	TotalCapacity uint64 `json:"total_capacity"`
@@ -106,7 +106,7 @@ type StorageOverview struct {
 	TypeDistribution StorageTypeDistribution `json:"type_distribution"`
 }
 
-// VolumeStorageInfo 卷存储信息
+// VolumeStorageInfo 卷存储信息.
 type VolumeStorageInfo struct {
 	// 卷名称
 	Name string `json:"name"`
@@ -155,7 +155,7 @@ type VolumeStorageInfo struct {
 	Trend []StorageTrendPoint `json:"trend,omitempty"`
 }
 
-// StorageTrendPoint 存储趋势数据点
+// StorageTrendPoint 存储趋势数据点.
 type StorageTrendPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	UsedCapacity uint64    `json:"used_capacity"`
@@ -165,7 +165,7 @@ type StorageTrendPoint struct {
 	WriteBps     uint64    `json:"write_bps"`
 }
 
-// StorageEfficiency 存储效率
+// StorageEfficiency 存储效率.
 type StorageEfficiency struct {
 	// 压缩率（%）
 	CompressionRatio float64 `json:"compression_ratio"`
@@ -183,7 +183,7 @@ type StorageEfficiency struct {
 	SavedSpace uint64 `json:"saved_space"`
 }
 
-// StorageTypeDistribution 存储类型分布
+// StorageTypeDistribution 存储类型分布.
 type StorageTypeDistribution struct {
 	// 按文件类型
 	ByFileType []FileTypeDistribution `json:"by_file_type"`
@@ -198,7 +198,7 @@ type StorageTypeDistribution struct {
 	ByAge []AgeDistribution `json:"by_age"`
 }
 
-// FileTypeDistribution 文件类型分布
+// FileTypeDistribution 文件类型分布.
 type FileTypeDistribution struct {
 	// 文件类型
 	Type string `json:"type"` // document, image, video, audio, archive, other
@@ -213,7 +213,7 @@ type FileTypeDistribution struct {
 	Percent float64 `json:"percent"`
 }
 
-// UserStorageDistribution 用户存储分布
+// UserStorageDistribution 用户存储分布.
 type UserStorageDistribution struct {
 	// 用户名
 	Username string `json:"username"`
@@ -231,7 +231,7 @@ type UserStorageDistribution struct {
 	FileCount uint64 `json:"file_count"`
 }
 
-// DirectoryDistribution 目录分布
+// DirectoryDistribution 目录分布.
 type DirectoryDistribution struct {
 	// 路径
 	Path string `json:"path"`
@@ -246,7 +246,7 @@ type DirectoryDistribution struct {
 	Percent float64 `json:"percent"`
 }
 
-// AgeDistribution 年龄分布
+// AgeDistribution 年龄分布.
 type AgeDistribution struct {
 	// 年龄段
 	AgeRange string `json:"age_range"` // 0-7days, 7-30days, 30-90days, 90-365days, 365+days
@@ -261,7 +261,7 @@ type AgeDistribution struct {
 	Percent float64 `json:"percent"`
 }
 
-// BandwidthOverview 带宽概览
+// BandwidthOverview 带宽概览.
 type BandwidthOverview struct {
 	// 当前总速率
 	CurrentRate BandwidthRate `json:"current_rate"`
@@ -285,7 +285,7 @@ type BandwidthOverview struct {
 	TrafficPattern string `json:"traffic_pattern"` // balanced, download_heavy, upload_heavy
 }
 
-// BandwidthRate 带宽速率
+// BandwidthRate 带宽速率.
 type BandwidthRate struct {
 	// 接收速率（字节/秒）
 	RxBytesPerSec uint64 `json:"rx_bytes_per_sec"`
@@ -306,7 +306,7 @@ type BandwidthRate struct {
 	TotalMbps float64 `json:"total_mbps"`
 }
 
-// InterfaceBandwidthInfo 接口带宽信息
+// InterfaceBandwidthInfo 接口带宽信息.
 type InterfaceBandwidthInfo struct {
 	// 接口名称
 	Name string `json:"name"`
@@ -338,7 +338,7 @@ type InterfaceBandwidthInfo struct {
 	BandwidthLimit float64 `json:"bandwidth_limit"`
 }
 
-// BandwidthSummaryInfo 带宽汇总信息
+// BandwidthSummaryInfo 带宽汇总信息.
 type BandwidthSummaryInfo struct {
 	// 周期内总接收（字节）
 	TotalRxBytes uint64 `json:"total_rx_bytes"`
@@ -365,7 +365,7 @@ type BandwidthSummaryInfo struct {
 	TotalGB float64 `json:"total_gb"`
 }
 
-// BandwidthTrendPoint 带宽趋势数据点
+// BandwidthTrendPoint 带宽趋势数据点.
 type BandwidthTrendPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	RxMbps    float64   `json:"rx_mbps"`
@@ -373,7 +373,7 @@ type BandwidthTrendPoint struct {
 	TotalMbps float64   `json:"total_mbps"`
 }
 
-// BandwidthPeakInfo 带宽峰值信息
+// BandwidthPeakInfo 带宽峰值信息.
 type BandwidthPeakInfo struct {
 	// 峰值速率（Mbps）
 	PeakMbps float64 `json:"peak_mbps"`
@@ -385,7 +385,7 @@ type BandwidthPeakInfo struct {
 	PeakInterface string `json:"peak_interface,omitempty"`
 }
 
-// UserResourceOverview 用户资源概览
+// UserResourceOverview 用户资源概览.
 type UserResourceOverview struct {
 	// 用户总数
 	TotalUsers int `json:"total_users"`
@@ -418,7 +418,7 @@ type UserResourceOverview struct {
 	UserTrend []UserTrendPoint `json:"user_trend"`
 }
 
-// UserResourceInfo 用户资源信息
+// UserResourceInfo 用户资源信息.
 type UserResourceInfo struct {
 	// 用户名
 	Username string `json:"username"`
@@ -445,7 +445,7 @@ type UserResourceInfo struct {
 	Status string `json:"status"` // active, inactive, over_quota
 }
 
-// UserTrendPoint 用户趋势数据点
+// UserTrendPoint 用户趋势数据点.
 type UserTrendPoint struct {
 	Timestamp   time.Time `json:"timestamp"`
 	TotalUsers  int       `json:"total_users"`
@@ -453,7 +453,7 @@ type UserTrendPoint struct {
 	AvgUsagePct float64   `json:"avg_usage_pct"`
 }
 
-// SystemResourceOverview 系统资源概览
+// SystemResourceOverview 系统资源概览.
 type SystemResourceOverview struct {
 	// CPU 使用率（%）
 	CPUUsage float64 `json:"cpu_usage"`
@@ -483,7 +483,7 @@ type SystemResourceOverview struct {
 	Prediction SystemPrediction `json:"prediction"`
 }
 
-// MemoryInfo 内存信息
+// MemoryInfo 内存信息.
 type MemoryInfo struct {
 	// 总内存（字节）
 	Total uint64 `json:"total"`
@@ -504,7 +504,7 @@ type MemoryInfo struct {
 	SwapUsed uint64 `json:"swap_used"`
 }
 
-// DiskIOInfo 磁盘 I/O 信息
+// DiskIOInfo 磁盘 I/O 信息.
 type DiskIOInfo struct {
 	// 读速率（字节/秒）
 	ReadBps uint64 `json:"read_bps"`
@@ -525,7 +525,7 @@ type DiskIOInfo struct {
 	Utilization float64 `json:"utilization"`
 }
 
-// LoadAverageInfo 负载信息
+// LoadAverageInfo 负载信息.
 type LoadAverageInfo struct {
 	// 1分钟负载
 	Load1 float64 `json:"load_1"`
@@ -537,7 +537,7 @@ type LoadAverageInfo struct {
 	Load15 float64 `json:"load_15"`
 }
 
-// SystemPrediction 系统预测
+// SystemPrediction 系统预测.
 type SystemPrediction struct {
 	// 预计存储增长（字节/天）
 	StorageGrowthPerDay float64 `json:"storage_growth_per_day"`
@@ -555,7 +555,7 @@ type SystemPrediction struct {
 	Confidence float64 `json:"confidence"` // 0-1
 }
 
-// ChartData 图表数据
+// ChartData 图表数据.
 type ChartData struct {
 	// 图表ID
 	ID string `json:"id"`
@@ -582,7 +582,7 @@ type ChartData struct {
 	Options map[string]interface{} `json:"options,omitempty"`
 }
 
-// ChartSeries 图表数据系列
+// ChartSeries 图表数据系列.
 type ChartSeries struct {
 	// 系列名称
 	Name string `json:"name"`
@@ -597,7 +597,7 @@ type ChartSeries struct {
 	Type string `json:"type,omitempty"`
 }
 
-// ChartPoint 图表数据点
+// ChartPoint 图表数据点.
 type ChartPoint struct {
 	// X值（时间戳或标签）
 	X interface{} `json:"x"`
@@ -609,7 +609,7 @@ type ChartPoint struct {
 	Extra map[string]interface{} `json:"extra,omitempty"`
 }
 
-// ResourceRecommendation 资源建议
+// ResourceRecommendation 资源建议.
 type ResourceRecommendation struct {
 	// ID
 	ID string `json:"id"`
@@ -645,7 +645,7 @@ type ResourceRecommendation struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// ResourceAlert 资源告警
+// ResourceAlert 资源告警.
 type ResourceAlert struct {
 	// ID
 	ID string `json:"id"`
@@ -689,7 +689,7 @@ type ResourceAlert struct {
 
 // ========== 资源报告配置 ==========
 
-// ResourceReportConfig 资源报告配置
+// ResourceReportConfig 资源报告配置.
 type ResourceReportConfig struct {
 	// 存储警告阈值（%）
 	StorageWarningThreshold float64 `json:"storage_warning_threshold"`
@@ -722,7 +722,7 @@ type ResourceReportConfig struct {
 	TopUsersCount int `json:"top_users_count"`
 }
 
-// DefaultResourceReportConfig 默认配置
+// DefaultResourceReportConfig 默认配置.
 func DefaultResourceReportConfig() ResourceReportConfig {
 	return ResourceReportConfig{
 		StorageWarningThreshold:    70.0,

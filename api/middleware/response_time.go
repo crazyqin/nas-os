@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ResponseTimeConfig configures the response time middleware
+// ResponseTimeConfig configures the response time middleware.
 type ResponseTimeConfig struct {
 	// HeaderName is the header name for response time (default: X-Response-Time)
 	HeaderName string
@@ -18,14 +18,14 @@ type ResponseTimeConfig struct {
 	SkipPaths []string
 }
 
-// DefaultResponseTimeConfig default response time configuration
+// DefaultResponseTimeConfig default response time configuration.
 var DefaultResponseTimeConfig = ResponseTimeConfig{
 	HeaderName: "X-Response-Time",
 	Precise:    false,
 	SkipPaths:  []string{"/health", "/metrics"},
 }
 
-// ResponseTimeMiddleware creates a response time middleware
+// ResponseTimeMiddleware creates a response time middleware.
 func ResponseTimeMiddleware(config ...ResponseTimeConfig) gin.HandlerFunc {
 	cfg := DefaultResponseTimeConfig
 	if len(config) > 0 {
@@ -69,7 +69,7 @@ func ResponseTimeMiddleware(config ...ResponseTimeConfig) gin.HandlerFunc {
 	}
 }
 
-// ResponseTimeStats contains response time statistics
+// ResponseTimeStats contains response time statistics.
 type ResponseTimeStats struct {
 	TotalRequests   int64         `json:"totalRequests"`
 	AvgResponseTime int64         `json:"avgResponseTimeMs"`
@@ -81,7 +81,7 @@ type ResponseTimeStats struct {
 	TotalDuration   time.Duration `json:"totalDuration"`
 }
 
-// ResponseTimeCollector collects response time statistics
+// ResponseTimeCollector collects response time statistics.
 type ResponseTimeCollector struct {
 	times   []int64
 	mu      sync.RWMutex
@@ -94,7 +94,7 @@ func init() {
 	defaultCollector = NewResponseTimeCollector(10000)
 }
 
-// NewResponseTimeCollector creates a new response time collector
+// NewResponseTimeCollector creates a new response time collector.
 func NewResponseTimeCollector(maxSize int) *ResponseTimeCollector {
 	if maxSize <= 0 {
 		maxSize = 10000
@@ -105,7 +105,7 @@ func NewResponseTimeCollector(maxSize int) *ResponseTimeCollector {
 	}
 }
 
-// Record records a response time
+// Record records a response time.
 func (c *ResponseTimeCollector) Record(durationMs int64) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -116,7 +116,7 @@ func (c *ResponseTimeCollector) Record(durationMs int64) {
 	c.times = append(c.times, durationMs)
 }
 
-// GetStats returns current statistics
+// GetStats returns current statistics.
 func (c *ResponseTimeCollector) GetStats() ResponseTimeStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -155,14 +155,14 @@ func (c *ResponseTimeCollector) GetStats() ResponseTimeStats {
 	}
 }
 
-// Reset resets the collector
+// Reset resets the collector.
 func (c *ResponseTimeCollector) Reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.times = c.times[:0]
 }
 
-// sortSlice sorts a slice of int64
+// sortSlice sorts a slice of int64.
 func sortSlice(s []int64) {
 	for i := 0; i < len(s); i++ {
 		for j := i + 1; j < len(s); j++ {
@@ -173,7 +173,7 @@ func sortSlice(s []int64) {
 	}
 }
 
-// percentile calculates the percentile value
+// percentile calculates the percentile value.
 func percentile(sorted []int64, p int) int64 {
 	if len(sorted) == 0 {
 		return 0
@@ -189,7 +189,7 @@ func percentile(sorted []int64, p int) int64 {
 	return int64(float64(sorted[lower])*(1-weight) + float64(sorted[upper])*weight)
 }
 
-// ResponseTimeWithCollector creates middleware that records to a collector
+// ResponseTimeWithCollector creates middleware that records to a collector.
 func ResponseTimeWithCollector(collector *ResponseTimeCollector) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -201,17 +201,17 @@ func ResponseTimeWithCollector(collector *ResponseTimeCollector) gin.HandlerFunc
 	}
 }
 
-// GetDefaultCollector returns the default response time collector
+// GetDefaultCollector returns the default response time collector.
 func GetDefaultCollector() *ResponseTimeCollector {
 	return defaultCollector
 }
 
-// GetResponseTimeStats returns current response time statistics
+// GetResponseTimeStats returns current response time statistics.
 func GetResponseTimeStats() ResponseTimeStats {
 	return defaultCollector.GetStats()
 }
 
-// ResetResponseTimeStats resets the response time statistics
+// ResetResponseTimeStats resets the response time statistics.
 func ResetResponseTimeStats() {
 	defaultCollector.Reset()
 }

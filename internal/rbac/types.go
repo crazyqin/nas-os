@@ -8,21 +8,21 @@ import (
 
 // ========== 角色定义 ==========
 
-// Role 系统角色
+// Role 系统角色.
 type Role string
 
 const (
-	// RoleAdmin 管理员 - 完全控制权限
+	// RoleAdmin 管理员 - 完全控制权限.
 	RoleAdmin Role = "admin"
-	// RoleOperator 运维员 - 系统操作权限，无用户管理
+	// RoleOperator 运维员 - 系统操作权限，无用户管理.
 	RoleOperator Role = "operator"
-	// RoleReadOnly 只读用户 - 只能查看，不能修改
+	// RoleReadOnly 只读用户 - 只能查看，不能修改.
 	RoleReadOnly Role = "readonly"
-	// RoleGuest 访客 - 最小权限，仅基本访问
+	// RoleGuest 访客 - 最小权限，仅基本访问.
 	RoleGuest Role = "guest"
 )
 
-// RoleInfo 角色信息
+// RoleInfo 角色信息.
 type RoleInfo struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
@@ -30,7 +30,7 @@ type RoleInfo struct {
 	Priority    int      `json:"priority"` // 角色优先级，数字越大权限越高
 }
 
-// DefaultRoles 默认角色定义
+// DefaultRoles 默认角色定义.
 var DefaultRoles = map[Role]RoleInfo{
 	RoleAdmin: {
 		Name:        "admin",
@@ -79,7 +79,7 @@ var DefaultRoles = map[Role]RoleInfo{
 
 // ========== 权限模型 ==========
 
-// Permission 权限定义（资源:操作）
+// Permission 权限定义（资源:操作）.
 type Permission struct {
 	Resource   string `json:"resource"`   // 资源类型
 	Action     string `json:"action"`     // 操作类型
@@ -88,60 +88,60 @@ type Permission struct {
 	IsWildcard bool   `json:"is_wildcard"`
 }
 
-// 预定义权限
+// 预定义权限.
 var (
-	// 系统管理
+	// 系统管理.
 	PermSystemRead  = Permission{Resource: "system", Action: "read", Desc: "查看系统信息"}
 	PermSystemWrite = Permission{Resource: "system", Action: "write", Desc: "修改系统配置", DependsOn: "system:read"}
 	PermSystemAdmin = Permission{Resource: "system", Action: "admin", Desc: "系统管理操作", DependsOn: "system:write"}
 
-	// 用户管理
+	// 用户管理.
 	PermUserRead  = Permission{Resource: "user", Action: "read", Desc: "查看用户信息"}
 	PermUserWrite = Permission{Resource: "user", Action: "write", Desc: "创建/修改用户", DependsOn: "user:read"}
 	PermUserAdmin = Permission{Resource: "user", Action: "admin", Desc: "删除用户/修改角色", DependsOn: "user:write"}
 
-	// 存储管理
+	// 存储管理.
 	PermStorageRead  = Permission{Resource: "storage", Action: "read", Desc: "查看存储状态"}
 	PermStorageWrite = Permission{Resource: "storage", Action: "write", Desc: "管理存储池/卷", DependsOn: "storage:read"}
 	PermStorageAdmin = Permission{Resource: "storage", Action: "admin", Desc: "删除存储/格式化", DependsOn: "storage:write"}
 
-	// 共享管理
+	// 共享管理.
 	PermShareRead  = Permission{Resource: "share", Action: "read", Desc: "查看共享列表"}
 	PermShareWrite = Permission{Resource: "share", Action: "write", Desc: "创建/修改共享", DependsOn: "share:read"}
 	PermShareAdmin = Permission{Resource: "share", Action: "admin", Desc: "删除共享/权限管理", DependsOn: "share:write"}
 
-	// 网络管理
+	// 网络管理.
 	PermNetworkRead  = Permission{Resource: "network", Action: "read", Desc: "查看网络配置"}
 	PermNetworkWrite = Permission{Resource: "network", Action: "write", Desc: "修改网络配置", DependsOn: "network:read"}
 
-	// 服务管理
+	// 服务管理.
 	PermServiceRead  = Permission{Resource: "service", Action: "read", Desc: "查看服务状态"}
 	PermServiceWrite = Permission{Resource: "service", Action: "write", Desc: "启动/停止服务", DependsOn: "service:read"}
 
-	// 备份管理
+	// 备份管理.
 	PermBackupRead  = Permission{Resource: "backup", Action: "read", Desc: "查看备份任务"}
 	PermBackupWrite = Permission{Resource: "backup", Action: "write", Desc: "创建/执行备份", DependsOn: "backup:read"}
 
-	// 日志查看
+	// 日志查看.
 	PermLogRead = Permission{Resource: "log", Action: "read", Desc: "查看系统日志"}
 
-	// 监控
+	// 监控.
 	PermMonitorRead = Permission{Resource: "monitor", Action: "read", Desc: "查看系统监控"}
 
-	// 审计
+	// 审计.
 	PermAuditRead  = Permission{Resource: "audit", Action: "read", Desc: "查看审计日志"}
 	PermAuditAdmin = Permission{Resource: "audit", Action: "admin", Desc: "管理审计配置"}
 
-	// 快照管理
+	// 快照管理.
 	PermSnapshotRead  = Permission{Resource: "snapshot", Action: "read", Desc: "查看快照"}
 	PermSnapshotWrite = Permission{Resource: "snapshot", Action: "write", Desc: "创建/删除快照", DependsOn: "snapshot:read"}
 
-	// 权限管理
+	// 权限管理.
 	PermPermissionRead  = Permission{Resource: "permission", Action: "read", Desc: "查看权限配置"}
 	PermPermissionWrite = Permission{Resource: "permission", Action: "write", Desc: "修改权限配置", DependsOn: "permission:read"}
 )
 
-// AllPermissions 所有预定义权限
+// AllPermissions 所有预定义权限.
 var AllPermissions = []Permission{
 	PermSystemRead, PermSystemWrite, PermSystemAdmin,
 	PermUserRead, PermUserWrite, PermUserAdmin,
@@ -157,12 +157,12 @@ var AllPermissions = []Permission{
 	PermPermissionRead, PermPermissionWrite,
 }
 
-// PermissionString 权限字符串格式 (resource:action)
+// PermissionString 权限字符串格式 (resource:action).
 func PermissionString(resource, action string) string {
 	return resource + ":" + action
 }
 
-// ParsePermission 解析权限字符串
+// ParsePermission 解析权限字符串.
 func ParsePermission(perm string) (resource, action string) {
 	for i := 0; i < len(perm); i++ {
 		if perm[i] == ':' {
@@ -174,7 +174,7 @@ func ParsePermission(perm string) (resource, action string) {
 
 // ========== 用户组权限继承 ==========
 
-// GroupPermission 用户组权限
+// GroupPermission 用户组权限.
 type GroupPermission struct {
 	GroupID     string    `json:"group_id"`
 	GroupName   string    `json:"group_name"`
@@ -184,7 +184,7 @@ type GroupPermission struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// UserPermission 用户权限（包含直接权限和继承权限）
+// UserPermission 用户权限（包含直接权限和继承权限）.
 type UserPermission struct {
 	UserID           string         `json:"user_id"`
 	Username         string         `json:"username"`
@@ -197,7 +197,7 @@ type UserPermission struct {
 	CustomPolicies   []PolicyEffect `json:"custom_policies,omitempty"` // 自定义策略
 }
 
-// GroupMember 用户组成员关系
+// GroupMember 用户组成员关系.
 type GroupMember struct {
 	GroupID   string `json:"group_id"`
 	GroupName string `json:"group_name"`
@@ -206,7 +206,7 @@ type GroupMember struct {
 
 // ========== 权限策略 ==========
 
-// Policy 权限策略
+// Policy 权限策略.
 type Policy struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -222,17 +222,17 @@ type Policy struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// PolicyEffect 策略效果
+// PolicyEffect 策略效果.
 type PolicyEffect string
 
 const (
-	// EffectAllow 允许
+	// EffectAllow 允许.
 	EffectAllow PolicyEffect = "allow"
-	// EffectDeny 拒绝
+	// EffectDeny 拒绝.
 	EffectDeny PolicyEffect = "deny"
 )
 
-// Condition 策略条件
+// Condition 策略条件.
 type Condition struct {
 	Type     string   `json:"type"`     // 条件类型: time, ip, resource, etc.
 	Key      string   `json:"key"`      // 条件键
@@ -242,7 +242,7 @@ type Condition struct {
 
 // ========== 权限检查结果 ==========
 
-// CheckResult 权限检查结果
+// CheckResult 权限检查结果.
 type CheckResult struct {
 	Allowed      bool     `json:"allowed"`
 	Reason       string   `json:"reason"`
@@ -253,7 +253,7 @@ type CheckResult struct {
 
 // ========== 权限缓存 ==========
 
-// PermissionCache 权限缓存
+// PermissionCache 权限缓存.
 type PermissionCache struct {
 	UserID         string    `json:"user_id"`
 	EffectivePerms []string  `json:"effective_permissions"`

@@ -14,7 +14,7 @@ import (
 // ============================================================
 
 // StorageCostConfig 存储成本配置
-// 定义不同存储后端的定价参数
+// 定义不同存储后端的定价参数.
 type StorageCostConfig struct {
 	// 存储提供商类型
 	Provider CloudProvider `json:"provider"`
@@ -38,7 +38,7 @@ type StorageCostConfig struct {
 	AvailabilitySLA float64 `json:"availabilitySLA"`
 }
 
-// DefaultStorageCostConfigs 默认存储成本配置
+// DefaultStorageCostConfigs 默认存储成本配置.
 func DefaultStorageCostConfigs() map[CloudProvider]*StorageCostConfig {
 	return map[CloudProvider]*StorageCostConfig{
 		"local": {
@@ -76,7 +76,7 @@ func DefaultStorageCostConfigs() map[CloudProvider]*StorageCostConfig {
 	}
 }
 
-// CostRecord 备份成本记录
+// CostRecord 备份成本记录.
 type CostRecord struct {
 	BackupID         string        `json:"backupId"`
 	ConfigID         string        `json:"configId"`
@@ -102,7 +102,7 @@ type CostRecord struct {
 // BackupCostRecord is an alias for CostRecord for backward compatibility.
 type BackupCostRecord = CostRecord //nolint:revive // 向后兼容别名
 
-// CostTrendData 成本趋势数据
+// CostTrendData 成本趋势数据.
 type CostTrendData struct {
 	Timestamp           time.Time `json:"timestamp"`
 	StorageCost         float64   `json:"storageCost"`
@@ -113,7 +113,7 @@ type CostTrendData struct {
 	AvgCompressionRatio float64   `json:"avgCompressionRatio"`
 }
 
-// CostReport 成本分析报告
+// CostReport 成本分析报告.
 type CostReport struct {
 	GeneratedAt     time.Time            `json:"generatedAt"`
 	Period          ReportPeriod         `json:"period"`
@@ -127,22 +127,22 @@ type CostReport struct {
 	Alerts          []CostAlert          `json:"alerts,omitempty"`
 }
 
-// ReportPeriod 报告周期类型
+// ReportPeriod 报告周期类型.
 type ReportPeriod string
 
-// 报告周期常量
+// 报告周期常量.
 const (
-	// PeriodDaily 每日报告
+	// PeriodDaily 每日报告.
 	PeriodDaily ReportPeriod = "daily"
-	// PeriodWeekly 每周报告
+	// PeriodWeekly 每周报告.
 	PeriodWeekly ReportPeriod = "weekly"
-	// PeriodMonthly 每月报告
+	// PeriodMonthly 每月报告.
 	PeriodMonthly ReportPeriod = "monthly"
-	// PeriodYearly 每年报告
+	// PeriodYearly 每年报告.
 	PeriodYearly ReportPeriod = "yearly"
 )
 
-// CostSummary 成本汇总
+// CostSummary 成本汇总.
 type CostSummary struct {
 	TotalCost            float64 `json:"totalCost"`
 	StorageCost          float64 `json:"storageCost"`
@@ -158,7 +158,7 @@ type CostSummary struct {
 	EstimatedMonthlyCost float64 `json:"estimatedMonthlyCost"`
 }
 
-// ProviderCost 按提供商分类的成本
+// ProviderCost 按提供商分类的成本.
 type ProviderCost struct {
 	Provider            CloudProvider `json:"provider"`
 	StorageCost         float64       `json:"storageCost"`
@@ -171,7 +171,7 @@ type ProviderCost struct {
 	BackupCount         int           `json:"backupCount"`
 }
 
-// CostRecommendation 成本优化建议
+// CostRecommendation 成本优化建议.
 type CostRecommendation struct {
 	Type             RecommendationType `json:"type"`
 	Priority         int                `json:"priority"`
@@ -183,26 +183,26 @@ type CostRecommendation struct {
 	Risk             string             `json:"risk,omitempty"`
 }
 
-// RecommendationType 建议类型
+// RecommendationType 建议类型.
 type RecommendationType string
 
-// 建议类型常量
+// 建议类型常量.
 const (
-	// RecommendationCompression 压缩优化建议
+	// RecommendationCompression 压缩优化建议.
 	RecommendationCompression RecommendationType = "compression"
-	// RecommendationStorageTier 存储层级建议
+	// RecommendationStorageTier 存储层级建议.
 	RecommendationStorageTier RecommendationType = "storage_tier"
-	// RecommendationIncremental 增量备份建议
+	// RecommendationIncremental 增量备份建议.
 	RecommendationIncremental RecommendationType = "incremental"
-	// RecommendationRetention 保留策略建议
+	// RecommendationRetention 保留策略建议.
 	RecommendationRetention RecommendationType = "retention"
-	// RecommendationLocation 存储位置建议
+	// RecommendationLocation 存储位置建议.
 	RecommendationLocation RecommendationType = "location"
-	// RecommendationDeduplication 去重建议
+	// RecommendationDeduplication 去重建议.
 	RecommendationDeduplication RecommendationType = "deduplication"
 )
 
-// CostForecast 成本预测
+// CostForecast 成本预测.
 type CostForecast struct {
 	Date                 time.Time `json:"date"`
 	ProjectedStorage     int64     `json:"projectedStorage"`
@@ -212,7 +212,7 @@ type CostForecast struct {
 	Basis                string    `json:"basis"`
 }
 
-// CostAlert 成本告警
+// CostAlert 成本告警.
 type CostAlert struct {
 	Level        AlertLevel `json:"level"`
 	Type         string     `json:"type"`
@@ -222,20 +222,20 @@ type CostAlert struct {
 	Timestamp    time.Time  `json:"timestamp"`
 }
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
-// 告警级别常量
+// 告警级别常量.
 const (
-	// AlertLevelInfo 信息级别
+	// AlertLevelInfo 信息级别.
 	AlertLevelInfo AlertLevel = "info"
-	// AlertLevelWarning 警告级别
+	// AlertLevelWarning 警告级别.
 	AlertLevelWarning AlertLevel = "warning"
-	// AlertLevelCritical 严重级别
+	// AlertLevelCritical 严重级别.
 	AlertLevelCritical AlertLevel = "critical"
 )
 
-// CostAlertThresholds 成本告警阈值配置
+// CostAlertThresholds 成本告警阈值配置.
 type CostAlertThresholds struct {
 	MonthlyCostWarning    float64 `json:"monthlyCostWarning"`
 	MonthlyCostCritical   float64 `json:"monthlyCostCritical"`
@@ -246,7 +246,7 @@ type CostAlertThresholds struct {
 	MinCompressionRatio   float64 `json:"minCompressionRatio"`
 }
 
-// DefaultCostAlertThresholds 默认告警阈值
+// DefaultCostAlertThresholds 默认告警阈值.
 func DefaultCostAlertThresholds() *CostAlertThresholds {
 	return &CostAlertThresholds{
 		MonthlyCostWarning:    100.0,
@@ -259,7 +259,7 @@ func DefaultCostAlertThresholds() *CostAlertThresholds {
 	}
 }
 
-// CostAnalyzer 备份成本分析器
+// CostAnalyzer 备份成本分析器.
 type CostAnalyzer struct {
 	mu              sync.RWMutex
 	records         []*CostRecord
@@ -269,7 +269,7 @@ type CostAnalyzer struct {
 	manager         *Manager
 }
 
-// NewCostAnalyzer 创建成本分析器
+// NewCostAnalyzer 创建成本分析器.
 func NewCostAnalyzer(manager *Manager) *CostAnalyzer {
 	return &CostAnalyzer{
 		records:         make([]*CostRecord, 0),
@@ -280,7 +280,7 @@ func NewCostAnalyzer(manager *Manager) *CostAnalyzer {
 	}
 }
 
-// CalculateBackupCost 计算单次备份成本
+// CalculateBackupCost 计算单次备份成本.
 func (ca *CostAnalyzer) CalculateBackupCost(
 	config *JobConfig,
 	originalSize int64,
@@ -342,7 +342,7 @@ func (ca *CostAnalyzer) CalculateBackupCost(
 	return record
 }
 
-// CalculateRestoreCost 计算恢复操作成本
+// CalculateRestoreCost 计算恢复操作成本.
 func (ca *CostAnalyzer) CalculateRestoreCost(
 	config *JobConfig,
 	downloadBytes int64,
@@ -404,7 +404,7 @@ func (ca *CostAnalyzer) getProviderFromConfig(config *JobConfig) CloudProvider {
 	}
 }
 
-// GetCostTrend 获取成本趋势数据
+// GetCostTrend 获取成本趋势数据.
 func (ca *CostAnalyzer) GetCostTrend(days int, period ReportPeriod) ([]*CostTrendData, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -482,7 +482,7 @@ func (ca *CostAnalyzer) sortTrendData(data []*CostTrendData) {
 	}
 }
 
-// GenerateCostReport 生成成本分析报告
+// GenerateCostReport 生成成本分析报告.
 func (ca *CostAnalyzer) GenerateCostReport(period ReportPeriod) (*CostReport, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -851,21 +851,21 @@ func (ca *CostAnalyzer) checkAlerts(summary *CostSummary) []CostAlert {
 	return alerts
 }
 
-// SetCostConfig 设置存储成本配置
+// SetCostConfig 设置存储成本配置.
 func (ca *CostAnalyzer) SetCostConfig(provider CloudProvider, config *StorageCostConfig) {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
 	ca.costConfigs[provider] = config
 }
 
-// SetAlertThresholds 设置告警阈值
+// SetAlertThresholds 设置告警阈值.
 func (ca *CostAnalyzer) SetAlertThresholds(thresholds *CostAlertThresholds) {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
 	ca.alertThresholds = thresholds
 }
 
-// GetRecords 获取成本记录
+// GetRecords 获取成本记录.
 func (ca *CostAnalyzer) GetRecords(limit int) []*CostRecord {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -892,7 +892,7 @@ func (ca *CostAnalyzer) GetRecords(limit int) []*CostRecord {
 	return result
 }
 
-// GetCurrentStorageCost 获取当前存储成本（按月）
+// GetCurrentStorageCost 获取当前存储成本（按月）.
 func (ca *CostAnalyzer) GetCurrentStorageCost() float64 {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -909,7 +909,7 @@ func (ca *CostAnalyzer) GetCurrentStorageCost() float64 {
 	return storedGB * config.StoragePricePerGB
 }
 
-// OptimizeRequest 优化建议请求参数
+// OptimizeRequest 优化建议请求参数.
 type OptimizeRequest struct {
 	ConfigIDs    []string `json:"configIds,omitempty"`
 	IncludeSteps bool     `json:"includeSteps"`
@@ -917,7 +917,7 @@ type OptimizeRequest struct {
 	OptimizeGoal string   `json:"optimizeGoal"`
 }
 
-// OptimizeResponse 优化建议响应
+// OptimizeResponse 优化建议响应.
 type OptimizeResponse struct {
 	CurrentCost         float64              `json:"currentCost"`
 	OptimizedCost       float64              `json:"optimizedCost"`
@@ -927,7 +927,7 @@ type OptimizeResponse struct {
 	ImplementationOrder []string             `json:"implementationOrder"`
 }
 
-// GetOptimizationSuggestions 获取优化建议
+// GetOptimizationSuggestions 获取优化建议.
 func (ca *CostAnalyzer) GetOptimizationSuggestions(req *OptimizeRequest) (*OptimizeResponse, error) {
 	report, err := ca.GenerateCostReport(PeriodMonthly)
 	if err != nil {

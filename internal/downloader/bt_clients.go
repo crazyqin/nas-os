@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// TransmissionClient Transmission RPC 客户端
+// TransmissionClient Transmission RPC 客户端.
 type TransmissionClient struct {
 	url      string
 	username string
@@ -20,21 +20,21 @@ type TransmissionClient struct {
 	client   *http.Client
 }
 
-// TransmissionRequest Transmission RPC 请求
+// TransmissionRequest Transmission RPC 请求.
 type TransmissionRequest struct {
 	Method    string      `json:"method"`
 	Arguments interface{} `json:"arguments,omitempty"`
 	Tag       int         `json:"tag,omitempty"`
 }
 
-// TransmissionResponse Transmission RPC 响应
+// TransmissionResponse Transmission RPC 响应.
 type TransmissionResponse struct {
 	Result    string          `json:"result"`
 	Arguments json.RawMessage `json:"arguments,omitempty"`
 	Tag       int             `json:"tag,omitempty"`
 }
 
-// TransmissionTorrentAddRequest 添加种子请求
+// TransmissionTorrentAddRequest 添加种子请求.
 type TransmissionTorrentAddRequest struct {
 	Filename    string `json:"filename,omitempty"`     // .torrent 文件 URL 或磁力链接
 	Metainfo    string `json:"metainfo,omitempty"`     // base64 编码的 .torrent 文件内容
@@ -42,7 +42,7 @@ type TransmissionTorrentAddRequest struct {
 	Paused      bool   `json:"paused,omitempty"`       // 是否暂停
 }
 
-// TransmissionTorrentAddResponse 添加种子响应
+// TransmissionTorrentAddResponse 添加种子响应.
 type TransmissionTorrentAddResponse struct {
 	TorrentDuplicate struct {
 		HashString string `json:"hashString"`
@@ -56,18 +56,18 @@ type TransmissionTorrentAddResponse struct {
 	} `json:"torrent-added,omitempty"`
 }
 
-// TransmissionTorrentGetRequest 获取种子信息请求
+// TransmissionTorrentGetRequest 获取种子信息请求.
 type TransmissionTorrentGetRequest struct {
 	IDs    []int    `json:"ids,omitempty"`    // 种子 ID 列表，空表示所有
 	Fields []string `json:"fields,omitempty"` // 需要获取的字段
 }
 
-// TransmissionTorrentGetResponse 获取种子信息响应
+// TransmissionTorrentGetResponse 获取种子信息响应.
 type TransmissionTorrentGetResponse struct {
 	Torrents []TransmissionTorrent `json:"torrents"`
 }
 
-// TransmissionTorrent 种子信息
+// TransmissionTorrent 种子信息.
 type TransmissionTorrent struct {
 	ID             int     `json:"id"`
 	Name           string  `json:"name"`
@@ -90,13 +90,13 @@ type TransmissionTorrent struct {
 	ActivityDate   int64   `json:"activityDate"`
 }
 
-// TransmissionTorrentRemoveRequest 删除种子请求
+// TransmissionTorrentRemoveRequest 删除种子请求.
 type TransmissionTorrentRemoveRequest struct {
 	IDs             []int `json:"ids"`
 	DeleteLocalData bool  `json:"delete-local-data"` // 是否同时删除下载的数据
 }
 
-// TransmissionSessionStatsResponse 会话统计响应
+// TransmissionSessionStatsResponse 会话统计响应.
 type TransmissionSessionStatsResponse struct {
 	ActiveTorrentCount int   `json:"activeTorrentCount"`
 	CumulativeStats    Stats `json:"cumulativeStats"`
@@ -105,7 +105,7 @@ type TransmissionSessionStatsResponse struct {
 	TorrentCount       int   `json:"torrentCount"`
 }
 
-// Stats 统计信息
+// Stats 统计信息.
 type Stats struct {
 	DownloadedBytes int64 `json:"downloadedBytes"`
 	UploadedBytes   int64 `json:"uploadedBytes"`
@@ -114,7 +114,7 @@ type Stats struct {
 	SecondsActive   int   `json:"secondsActive"`
 }
 
-// NewTransmissionClient 创建 Transmission 客户端
+// NewTransmissionClient 创建 Transmission 客户端.
 func NewTransmissionClient(url, username, password string) *TransmissionClient {
 	return &TransmissionClient{
 		url:      strings.TrimSuffix(url, "/") + "/transmission/rpc",
@@ -126,7 +126,7 @@ func NewTransmissionClient(url, username, password string) *TransmissionClient {
 	}
 }
 
-// getSession 获取 session ID
+// getSession 获取 session ID.
 func (c *TransmissionClient) getSession() error {
 	if c.session != "" {
 		return nil
@@ -160,7 +160,7 @@ func (c *TransmissionClient) getSession() error {
 	return nil
 }
 
-// doRequest 执行 RPC 请求
+// doRequest 执行 RPC 请求.
 func (c *TransmissionClient) doRequest(method string, args interface{}) (*TransmissionResponse, error) {
 	if err := c.getSession(); err != nil {
 		return nil, err
@@ -217,7 +217,7 @@ func (c *TransmissionClient) doRequest(method string, args interface{}) (*Transm
 	return &result, nil
 }
 
-// AddTorrent 添加种子
+// AddTorrent 添加种子.
 func (c *TransmissionClient) AddTorrent(torrentURL, downloadDir string) (string, int, error) {
 	args := TransmissionTorrentAddRequest{
 		Filename:    torrentURL,
@@ -246,7 +246,7 @@ func (c *TransmissionClient) AddTorrent(torrentURL, downloadDir string) (string,
 	return "", 0, fmt.Errorf("添加种子失败：未返回有效信息")
 }
 
-// GetTorrents 获取种子列表
+// GetTorrents 获取种子列表.
 func (c *TransmissionClient) GetTorrents(ids ...int) ([]TransmissionTorrent, error) {
 	args := TransmissionTorrentGetRequest{
 		IDs: ids,
@@ -272,7 +272,7 @@ func (c *TransmissionClient) GetTorrents(ids ...int) ([]TransmissionTorrent, err
 	return getResp.Torrents, nil
 }
 
-// GetTorrentByHash 通过 hash 获取种子信息
+// GetTorrentByHash 通过 hash 获取种子信息.
 func (c *TransmissionClient) GetTorrentByHash(hash string) (*TransmissionTorrent, error) {
 	// Transmission 不支持直接用 hash 查询，需要获取所有后过滤
 	torrents, err := c.GetTorrents()
@@ -289,7 +289,7 @@ func (c *TransmissionClient) GetTorrentByHash(hash string) (*TransmissionTorrent
 	return nil, fmt.Errorf("未找到种子: %s", hash)
 }
 
-// RemoveTorrent 删除种子
+// RemoveTorrent 删除种子.
 func (c *TransmissionClient) RemoveTorrent(id int, deleteData bool) error {
 	args := TransmissionTorrentRemoveRequest{
 		IDs:             []int{id},
@@ -300,19 +300,19 @@ func (c *TransmissionClient) RemoveTorrent(id int, deleteData bool) error {
 	return err
 }
 
-// StopTorrent 暂停种子
+// StopTorrent 暂停种子.
 func (c *TransmissionClient) StopTorrent(id int) error {
 	_, err := c.doRequest("torrent-stop", map[string]interface{}{"ids": []int{id}})
 	return err
 }
 
-// StartTorrent 开始种子
+// StartTorrent 开始种子.
 func (c *TransmissionClient) StartTorrent(id int) error {
 	_, err := c.doRequest("torrent-start", map[string]interface{}{"ids": []int{id}})
 	return err
 }
 
-// GetSessionStats 获取会话统计
+// GetSessionStats 获取会话统计.
 func (c *TransmissionClient) GetSessionStats() (*TransmissionSessionStatsResponse, error) {
 	resp, err := c.doRequest("session-stats", nil)
 	if err != nil {
@@ -329,7 +329,7 @@ func (c *TransmissionClient) GetSessionStats() (*TransmissionSessionStatsRespons
 
 // ==================== qBittorrent 客户端 ====================
 
-// QBittorrentClient qBittorrent Web API 客户端
+// QBittorrentClient qBittorrent Web API 客户端.
 type QBittorrentClient struct {
 	url      string
 	username string
@@ -338,7 +338,7 @@ type QBittorrentClient struct {
 	cookie   string
 }
 
-// QBittorrentTorrentInfo 种子信息
+// QBittorrentTorrentInfo 种子信息.
 type QBittorrentTorrentInfo struct {
 	AddedOn           int64   `json:"added_on"`
 	AmountLeft        int64   `json:"amount_left"`
@@ -387,7 +387,7 @@ type QBittorrentTorrentInfo struct {
 	Upspeed           int64   `json:"upspeed"`
 }
 
-// NewQBittorrentClient 创建 qBittorrent 客户端
+// NewQBittorrentClient 创建 qBittorrent 客户端.
 func NewQBittorrentClient(url, username, password string) *QBittorrentClient {
 	return &QBittorrentClient{
 		url:      strings.TrimSuffix(url, "/") + "/api/v2",
@@ -399,7 +399,7 @@ func NewQBittorrentClient(url, username, password string) *QBittorrentClient {
 	}
 }
 
-// login 登录获取 cookie
+// login 登录获取 cookie.
 func (c *QBittorrentClient) login() error {
 	if c.cookie != "" {
 		return nil
@@ -450,7 +450,7 @@ func (c *QBittorrentClient) login() error {
 	return fmt.Errorf("qBittorrent 登录失败：未获取到 SID")
 }
 
-// doRequest 执行 API 请求
+// doRequest 执行 API 请求.
 func (c *QBittorrentClient) doRequest(method, endpoint string, data url.Values) ([]byte, error) {
 	if err := c.login(); err != nil {
 		return nil, err
@@ -489,7 +489,7 @@ func (c *QBittorrentClient) doRequest(method, endpoint string, data url.Values) 
 	return respBody, nil
 }
 
-// AddTorrent 添加种子
+// AddTorrent 添加种子.
 func (c *QBittorrentClient) AddTorrent(torrentURL, savePath string) error {
 	data := url.Values{}
 	data.Set("urls", torrentURL)
@@ -501,14 +501,14 @@ func (c *QBittorrentClient) AddTorrent(torrentURL, savePath string) error {
 	return err
 }
 
-// AddTorrentFile 通过文件添加种子
+// AddTorrentFile 通过文件添加种子.
 func (c *QBittorrentClient) AddTorrentFile(torrentContent []byte, savePath string) error {
 	// qBittorrent 需要使用 multipart/form-data 上传文件
 	// 这里简化处理，使用 URL 方式
 	return fmt.Errorf("暂不支持文件上传方式，请使用 URL 或磁力链接")
 }
 
-// GetTorrents 获取种子列表
+// GetTorrents 获取种子列表.
 func (c *QBittorrentClient) GetTorrents() ([]QBittorrentTorrentInfo, error) {
 	respBody, err := c.doRequest("GET", "/torrents/info", nil)
 	if err != nil {
@@ -523,7 +523,7 @@ func (c *QBittorrentClient) GetTorrents() ([]QBittorrentTorrentInfo, error) {
 	return torrents, nil
 }
 
-// GetTorrentByHash 通过 hash 获取种子信息
+// GetTorrentByHash 通过 hash 获取种子信息.
 func (c *QBittorrentClient) GetTorrentByHash(hash string) (*QBittorrentTorrentInfo, error) {
 	data := url.Values{}
 	data.Set("hashes", hash)
@@ -545,7 +545,7 @@ func (c *QBittorrentClient) GetTorrentByHash(hash string) (*QBittorrentTorrentIn
 	return &torrents[0], nil
 }
 
-// PauseTorrent 暂停种子
+// PauseTorrent 暂停种子.
 func (c *QBittorrentClient) PauseTorrent(hash string) error {
 	data := url.Values{}
 	data.Set("hashes", hash)
@@ -554,7 +554,7 @@ func (c *QBittorrentClient) PauseTorrent(hash string) error {
 	return err
 }
 
-// ResumeTorrent 恢复种子
+// ResumeTorrent 恢复种子.
 func (c *QBittorrentClient) ResumeTorrent(hash string) error {
 	data := url.Values{}
 	data.Set("hashes", hash)
@@ -563,7 +563,7 @@ func (c *QBittorrentClient) ResumeTorrent(hash string) error {
 	return err
 }
 
-// DeleteTorrent 删除种子
+// DeleteTorrent 删除种子.
 func (c *QBittorrentClient) DeleteTorrent(hash string, deleteFiles bool) error {
 	data := url.Values{}
 	data.Set("hashes", hash)
@@ -575,7 +575,7 @@ func (c *QBittorrentClient) DeleteTorrent(hash string, deleteFiles bool) error {
 	return err
 }
 
-// SetDownloadLimit 设置下载限速
+// SetDownloadLimit 设置下载限速.
 func (c *QBittorrentClient) SetDownloadLimit(hash string, limit int64) error {
 	data := url.Values{}
 	data.Set("hashes", hash)
@@ -585,7 +585,7 @@ func (c *QBittorrentClient) SetDownloadLimit(hash string, limit int64) error {
 	return err
 }
 
-// SetUploadLimit 设置上传限速
+// SetUploadLimit 设置上传限速.
 func (c *QBittorrentClient) SetUploadLimit(hash string, limit int64) error {
 	data := url.Values{}
 	data.Set("hashes", hash)
@@ -595,7 +595,7 @@ func (c *QBittorrentClient) SetUploadLimit(hash string, limit int64) error {
 	return err
 }
 
-// GetTransferInfo 获取传输信息
+// GetTransferInfo 获取传输信息.
 func (c *QBittorrentClient) GetTransferInfo() (map[string]interface{}, error) {
 	respBody, err := c.doRequest("GET", "/transfer/info", nil)
 	if err != nil {
@@ -610,7 +610,7 @@ func (c *QBittorrentClient) GetTransferInfo() (map[string]interface{}, error) {
 	return info, nil
 }
 
-// Logout 登出
+// Logout 登出.
 func (c *QBittorrentClient) Logout() error {
 	_, err := c.doRequest("POST", "/auth/logout", nil)
 	c.cookie = ""

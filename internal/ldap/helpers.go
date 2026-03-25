@@ -4,7 +4,7 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-// createSearchRequest 创建搜索请求的辅助函数
+// createSearchRequest 创建搜索请求的辅助函数.
 func createSearchRequest(baseDN, filter string, attributes []string) *ldap.SearchRequest {
 	return ldap.NewSearchRequest(
 		baseDN,
@@ -17,7 +17,7 @@ func createSearchRequest(baseDN, filter string, attributes []string) *ldap.Searc
 	)
 }
 
-// MergeAttributeMaps 合并属性映射
+// MergeAttributeMaps 合并属性映射.
 func MergeAttributeMaps(base, override AttributeMapping) AttributeMapping {
 	result := base
 
@@ -79,7 +79,7 @@ func MergeAttributeMaps(base, override AttributeMapping) AttributeMapping {
 	return result
 }
 
-// ValidateConfig 验证配置
+// ValidateConfig 验证配置.
 func ValidateConfig(config Config) error {
 	if config.Name == "" {
 		return ErrInvalidConfig
@@ -96,7 +96,7 @@ func ValidateConfig(config Config) error {
 	return nil
 }
 
-// GetAttributeValueSafe 安全获取属性值
+// GetAttributeValueSafe 安全获取属性值.
 func GetAttributeValueSafe(entry *ldap.Entry, attr string) string {
 	if entry == nil {
 		return ""
@@ -104,7 +104,7 @@ func GetAttributeValueSafe(entry *ldap.Entry, attr string) string {
 	return entry.GetAttributeValue(attr)
 }
 
-// GetAttributeValuesSafe 安全获取属性值列表
+// GetAttributeValuesSafe 安全获取属性值列表.
 func GetAttributeValuesSafe(entry *ldap.Entry, attr string) []string {
 	if entry == nil {
 		return []string{}

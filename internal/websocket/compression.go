@@ -15,28 +15,28 @@ import (
 	"time"
 )
 
-// CompressionAlgorithm 压缩算法类型
+// CompressionAlgorithm 压缩算法类型.
 type CompressionAlgorithm string
 
 const (
-	// CompressionNone 无压缩，直接透传数据
+	// CompressionNone 无压缩，直接透传数据.
 	CompressionNone CompressionAlgorithm = "none"
-	// CompressionGzip Gzip 压缩算法
+	// CompressionGzip Gzip 压缩算法.
 	CompressionGzip CompressionAlgorithm = "gzip"
-	// CompressionZlib Zlib 压缩算法
+	// CompressionZlib Zlib 压缩算法.
 	CompressionZlib CompressionAlgorithm = "zlib"
-	// CompressionFlate Flate (DEFLATE) 压缩算法
+	// CompressionFlate Flate (DEFLATE) 压缩算法.
 	CompressionFlate CompressionAlgorithm = "flate"
-	// CompressionSnappy Snappy 压缩算法（需要外部依赖，当前仅定义）
+	// CompressionSnappy Snappy 压缩算法（需要外部依赖，当前仅定义）.
 	CompressionSnappy CompressionAlgorithm = "snappy"
 )
 
-// String 返回算法字符串
+// String 返回算法字符串.
 func (a CompressionAlgorithm) String() string {
 	return string(a)
 }
 
-// CompressionConfig 压缩配置
+// CompressionConfig 压缩配置.
 type CompressionConfig struct {
 	// Enabled 是否启用压缩
 	Enabled bool `json:"enabled"`
@@ -66,7 +66,7 @@ type CompressionConfig struct {
 	PoolSize int `json:"poolSize"`
 }
 
-// DefaultCompressionConfig 默认压缩配置
+// DefaultCompressionConfig 默认压缩配置.
 var DefaultCompressionConfig = &CompressionConfig{
 	Enabled:    true,
 	Algorithm:  CompressionGzip,
@@ -78,7 +78,7 @@ var DefaultCompressionConfig = &CompressionConfig{
 	PoolSize:   10,
 }
 
-// CompressionResult 压缩结果
+// CompressionResult 压缩结果.
 type CompressionResult struct {
 	OriginalSize   int                  `json:"originalSize"`
 	CompressedSize int                  `json:"compressedSize"`
@@ -88,7 +88,7 @@ type CompressionResult struct {
 	Duration       time.Duration        `json:"duration"`
 }
 
-// CompressedMessage 压缩后的消息
+// CompressedMessage 压缩后的消息.
 type CompressedMessage struct {
 	OriginalType   string               `json:"originalType"`
 	Algorithm      CompressionAlgorithm `json:"algorithm"`
@@ -98,7 +98,7 @@ type CompressedMessage struct {
 	CompressedAt   time.Time            `json:"compressedAt"`
 }
 
-// Compressor 压缩器接口
+// Compressor 压缩器接口.
 type Compressor interface {
 	// Compress 压缩数据
 	Compress(data []byte) ([]byte, error)
@@ -108,13 +108,13 @@ type Compressor interface {
 	Algorithm() CompressionAlgorithm
 }
 
-// GzipCompressor Gzip 压缩器
+// GzipCompressor Gzip 压缩器.
 type GzipCompressor struct {
 	level int
 	pool  sync.Pool
 }
 
-// NewGzipCompressor 创建 Gzip 压缩器
+// NewGzipCompressor 创建 Gzip 压缩器.
 func NewGzipCompressor(level int) *GzipCompressor {
 	return &GzipCompressor{
 		level: level,
@@ -127,7 +127,7 @@ func NewGzipCompressor(level int) *GzipCompressor {
 	}
 }
 
-// Compress 压缩数据
+// Compress 压缩数据.
 func (c *GzipCompressor) Compress(data []byte) ([]byte, error) {
 	var buf bytes.Buffer
 	w, ok := c.pool.Get().(*gzip.Writer)
@@ -146,7 +146,7 @@ func (c *GzipCompressor) Compress(data []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// Decompress 解压数据
+// Decompress 解压数据.
 func (c *GzipCompressor) Decompress(data []byte) ([]byte, error) {
 	r, err := gzip.NewReader(bytes.NewReader(data))
 	if err != nil {
@@ -161,19 +161,19 @@ func (c *GzipCompressor) Decompress(data []byte) ([]byte, error) {
 	return result, nil
 }
 
-// Algorithm 返回算法类型
+// Algorithm 返回算法类型.
 func (c *GzipCompressor) Algorithm() CompressionAlgorithm {
 	return CompressionGzip
 }
 
-// ZlibCompressor Zlib 压缩器
+// ZlibCompressor Zlib 压缩器.
 type ZlibCompressor struct {
 	level int
 	pool  sync.Pool
 	dict  []byte
 }
 
-// NewZlibCompressor 创建 Zlib 压缩器
+// NewZlibCompressor 创建 Zlib 压缩器.
 func NewZlibCompressor(level int, dict []byte) *ZlibCompressor {
 	return &ZlibCompressor{
 		level: level,
@@ -187,7 +187,7 @@ func NewZlibCompressor(level int, dict []byte) *ZlibCompressor {
 	}
 }
 
-// Compress 压缩数据
+// Compress 压缩数据.
 func (c *ZlibCompressor) Compress(data []byte) ([]byte, error) {
 	var buf bytes.Buffer
 	w, ok := c.pool.Get().(*zlib.Writer)
@@ -211,7 +211,7 @@ func (c *ZlibCompressor) Compress(data []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// Decompress 解压数据
+// Decompress 解压数据.
 func (c *ZlibCompressor) Decompress(data []byte) ([]byte, error) {
 	var r io.ReadCloser
 	var err error
@@ -234,19 +234,19 @@ func (c *ZlibCompressor) Decompress(data []byte) ([]byte, error) {
 	return result, nil
 }
 
-// Algorithm 返回算法类型
+// Algorithm 返回算法类型.
 func (c *ZlibCompressor) Algorithm() CompressionAlgorithm {
 	return CompressionZlib
 }
 
-// FlateCompressor Flate (DEFLATE) 压缩器
+// FlateCompressor Flate (DEFLATE) 压缩器.
 type FlateCompressor struct {
 	level int
 	pool  sync.Pool
 	dict  []byte
 }
 
-// NewFlateCompressor 创建 Flate 压缩器
+// NewFlateCompressor 创建 Flate 压缩器.
 func NewFlateCompressor(level int, dict []byte) *FlateCompressor {
 	return &FlateCompressor{
 		level: level,
@@ -260,7 +260,7 @@ func NewFlateCompressor(level int, dict []byte) *FlateCompressor {
 	}
 }
 
-// Compress 压缩数据
+// Compress 压缩数据.
 func (c *FlateCompressor) Compress(data []byte) ([]byte, error) {
 	var buf bytes.Buffer
 	w, ok := c.pool.Get().(*flate.Writer)
@@ -279,7 +279,7 @@ func (c *FlateCompressor) Compress(data []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// Decompress 解压数据
+// Decompress 解压数据.
 func (c *FlateCompressor) Decompress(data []byte) ([]byte, error) {
 	var r io.ReadCloser
 	var err error
@@ -298,35 +298,35 @@ func (c *FlateCompressor) Decompress(data []byte) ([]byte, error) {
 	return result, nil
 }
 
-// Algorithm 返回算法类型
+// Algorithm 返回算法类型.
 func (c *FlateCompressor) Algorithm() CompressionAlgorithm {
 	return CompressionFlate
 }
 
-// NoneCompressor 无压缩器（透传）
+// NoneCompressor 无压缩器（透传）.
 type NoneCompressor struct{}
 
-// NewNoneCompressor 创建无压缩器
+// NewNoneCompressor 创建无压缩器.
 func NewNoneCompressor() *NoneCompressor {
 	return &NoneCompressor{}
 }
 
-// Compress 直接返回原数据
+// Compress 直接返回原数据.
 func (c *NoneCompressor) Compress(data []byte) ([]byte, error) {
 	return data, nil
 }
 
-// Decompress 直接返回原数据
+// Decompress 直接返回原数据.
 func (c *NoneCompressor) Decompress(data []byte) ([]byte, error) {
 	return data, nil
 }
 
-// Algorithm 返回算法类型
+// Algorithm 返回算法类型.
 func (c *NoneCompressor) Algorithm() CompressionAlgorithm {
 	return CompressionNone
 }
 
-// MessageCompressor 消息压缩管理器
+// MessageCompressor 消息压缩管理器.
 type MessageCompressor struct {
 	config      *CompressionConfig
 	compressor  Compressor
@@ -336,7 +336,7 @@ type MessageCompressor struct {
 	initialized bool
 }
 
-// CompressionStats 压缩统计
+// CompressionStats 压缩统计.
 type CompressionStats struct {
 	TotalCompressed      int64 `json:"totalCompressed"`
 	TotalDecompressed    int64 `json:"totalDecompressed"`
@@ -349,7 +349,7 @@ type CompressionStats struct {
 	SkippedBadRatio      int64 `json:"skippedBadRatio"`
 }
 
-// NewMessageCompressor 创建消息压缩管理器
+// NewMessageCompressor 创建消息压缩管理器.
 func NewMessageCompressor(config *CompressionConfig) *MessageCompressor {
 	if config == nil {
 		config = DefaultCompressionConfig
@@ -372,7 +372,7 @@ func NewMessageCompressor(config *CompressionConfig) *MessageCompressor {
 	return mc
 }
 
-// createCompressor 创建压缩器
+// createCompressor 创建压缩器.
 func (mc *MessageCompressor) createCompressor(algorithm CompressionAlgorithm, level int, dict []byte) Compressor {
 	switch algorithm {
 	case CompressionGzip:
@@ -388,7 +388,7 @@ func (mc *MessageCompressor) createCompressor(algorithm CompressionAlgorithm, le
 	}
 }
 
-// CompressMessage 压缩消息
+// CompressMessage 压缩消息.
 func (mc *MessageCompressor) CompressMessage(msg *Message) (*CompressedMessage, error) {
 	if !mc.config.Enabled {
 		return nil, ErrCompressionDisabled
@@ -446,7 +446,7 @@ func (mc *MessageCompressor) CompressMessage(msg *Message) (*CompressedMessage, 
 	}, nil
 }
 
-// DecompressMessage 解压消息
+// DecompressMessage 解压消息.
 func (mc *MessageCompressor) DecompressMessage(cm *CompressedMessage) (*Message, error) {
 	if !mc.config.Enabled {
 		return nil, ErrCompressionDisabled
@@ -478,7 +478,7 @@ func (mc *MessageCompressor) DecompressMessage(cm *CompressedMessage) (*Message,
 	return &msg, nil
 }
 
-// CompressData 直接压缩数据
+// CompressData 直接压缩数据.
 func (mc *MessageCompressor) CompressData(data []byte) ([]byte, *CompressionResult, error) {
 	if !mc.config.Enabled {
 		return data, &CompressionResult{
@@ -545,7 +545,7 @@ func (mc *MessageCompressor) CompressData(data []byte) ([]byte, *CompressionResu
 	}, nil
 }
 
-// DecompressData 直接解压数据
+// DecompressData 直接解压数据.
 func (mc *MessageCompressor) DecompressData(data []byte, algorithm CompressionAlgorithm) ([]byte, error) {
 	if !mc.config.Enabled || algorithm == CompressionNone {
 		return data, nil
@@ -566,21 +566,21 @@ func (mc *MessageCompressor) DecompressData(data []byte, algorithm CompressionAl
 	return result, nil
 }
 
-// GetStats 获取压缩统计
+// GetStats 获取压缩统计.
 func (mc *MessageCompressor) GetStats() CompressionStats {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
 	return mc.stats
 }
 
-// ResetStats 重置统计
+// ResetStats 重置统计.
 func (mc *MessageCompressor) ResetStats() {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
 	mc.stats = CompressionStats{}
 }
 
-// SetAlgorithm 设置压缩算法
+// SetAlgorithm 设置压缩算法.
 func (mc *MessageCompressor) SetAlgorithm(algorithm CompressionAlgorithm) {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -589,7 +589,7 @@ func (mc *MessageCompressor) SetAlgorithm(algorithm CompressionAlgorithm) {
 	mc.compressor = mc.createCompressor(algorithm, mc.config.Level, mc.config.DictData)
 }
 
-// SetLevel 设置压缩级别
+// SetLevel 设置压缩级别.
 func (mc *MessageCompressor) SetLevel(level int) error {
 	if level < 1 || level > 9 {
 		return fmt.Errorf("invalid compression level: %d, must be 1-9", level)
@@ -603,26 +603,26 @@ func (mc *MessageCompressor) SetLevel(level int) error {
 	return nil
 }
 
-// IsEnabled 是否启用压缩
+// IsEnabled 是否启用压缩.
 func (mc *MessageCompressor) IsEnabled() bool {
 	return mc.config.Enabled
 }
 
-// SetEnabled 设置是否启用
+// SetEnabled 设置是否启用.
 func (mc *MessageCompressor) SetEnabled(enabled bool) {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
 	mc.config.Enabled = enabled
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (mc *MessageCompressor) GetConfig() CompressionConfig {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
 	return *mc.config
 }
 
-// BatchCompress 批量压缩消息
+// BatchCompress 批量压缩消息.
 func (mc *MessageCompressor) BatchCompress(messages []*Message) ([]*CompressedMessage, []error) {
 	results := make([]*CompressedMessage, 0, len(messages))
 	var errors []error
@@ -641,7 +641,7 @@ func (mc *MessageCompressor) BatchCompress(messages []*Message) ([]*CompressedMe
 	return results, errors
 }
 
-// BatchDecompress 批量解压消息
+// BatchDecompress 批量解压消息.
 func (mc *MessageCompressor) BatchDecompress(messages []*CompressedMessage) ([]*Message, []error) {
 	results := make([]*Message, 0, len(messages))
 	var errors []error
@@ -658,13 +658,13 @@ func (mc *MessageCompressor) BatchDecompress(messages []*CompressedMessage) ([]*
 	return results, errors
 }
 
-// CompressionMiddleware 压缩中间件，用于 WebSocket 连接
+// CompressionMiddleware 压缩中间件，用于 WebSocket 连接.
 type CompressionMiddleware struct {
 	compressor *MessageCompressor
 	config     *CompressionConfig
 }
 
-// NewCompressionMiddleware 创建压缩中间件
+// NewCompressionMiddleware 创建压缩中间件.
 func NewCompressionMiddleware(config *CompressionConfig) *CompressionMiddleware {
 	return &CompressionMiddleware{
 		compressor: NewMessageCompressor(config),
@@ -672,22 +672,22 @@ func NewCompressionMiddleware(config *CompressionConfig) *CompressionMiddleware 
 	}
 }
 
-// ProcessOutgoing 处理出站消息（压缩）
+// ProcessOutgoing 处理出站消息（压缩）.
 func (m *CompressionMiddleware) ProcessOutgoing(data []byte) ([]byte, *CompressionResult, error) {
 	return m.compressor.CompressData(data)
 }
 
-// ProcessIncoming 处理入站消息（解压）
+// ProcessIncoming 处理入站消息（解压）.
 func (m *CompressionMiddleware) ProcessIncoming(data []byte, algorithm CompressionAlgorithm) ([]byte, error) {
 	return m.compressor.DecompressData(data, algorithm)
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *CompressionMiddleware) GetStats() CompressionStats {
 	return m.compressor.GetStats()
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrCompressionDisabled  = fmt.Errorf("压缩功能已禁用")
 	ErrMessageTooSmall      = fmt.Errorf("消息太小，无需压缩")

@@ -8,7 +8,7 @@ import (
 	"nas-os/pkg/btrfs"
 )
 
-// TestFusionPoolStruct 测试 FusionPool 结构体
+// TestFusionPoolStruct 测试 FusionPool 结构体.
 func TestFusionPoolStruct(t *testing.T) {
 	pool := &FusionPool{
 		Name:        "test-pool",
@@ -55,7 +55,7 @@ func TestFusionPoolStruct(t *testing.T) {
 	}
 }
 
-// TestTieringPolicy 测试分层策略
+// TestTieringPolicy 测试分层策略.
 func TestTieringPolicy(t *testing.T) {
 	policy := DefaultTieringPolicy
 
@@ -76,7 +76,7 @@ func TestTieringPolicy(t *testing.T) {
 	}
 }
 
-// TestCacheConfig 测试缓存配置
+// TestCacheConfig 测试缓存配置.
 func TestCacheConfig(t *testing.T) {
 	config := DefaultCacheConfig
 
@@ -97,7 +97,7 @@ func TestCacheConfig(t *testing.T) {
 	}
 }
 
-// TestFusionSubvolume 测试融合子卷
+// TestFusionSubvolume 测试融合子卷.
 func TestFusionSubvolume(t *testing.T) {
 	subvol := &FusionSubvolume{
 		ID:           256,
@@ -128,7 +128,7 @@ func TestFusionSubvolume(t *testing.T) {
 	}
 }
 
-// TestCreateFusionPoolRequest 测试创建请求
+// TestCreateFusionPoolRequest 测试创建请求.
 func TestCreateFusionPoolRequest(t *testing.T) {
 	req := &CreateFusionPoolRequest{
 		Name:        "test-pool",
@@ -168,7 +168,7 @@ func TestCreateFusionPoolRequest(t *testing.T) {
 	}
 }
 
-// TestFusionPoolStatus 测试融合池状态
+// TestFusionPoolStatus 测试融合池状态.
 func TestFusionPoolStatus(t *testing.T) {
 	status := FusionPoolStatus{
 		Healthy:           true,
@@ -198,7 +198,7 @@ func TestFusionPoolStatus(t *testing.T) {
 	}
 }
 
-// TestMetadataCacheEntry 测试元数据缓存条目
+// TestMetadataCacheEntry 测试元数据缓存条目.
 func TestMetadataCacheEntry(t *testing.T) {
 	entry := &MetadataCacheEntry{
 		Path: "/mnt/fusion/test-pool/documents",
@@ -230,7 +230,7 @@ func TestMetadataCacheEntry(t *testing.T) {
 	}
 }
 
-// TestFusionPoolStats 测试融合池统计
+// TestFusionPoolStats 测试融合池统计.
 func TestFusionPoolStats(t *testing.T) {
 	stats := &FusionPoolStats{
 		PoolName:     "test-pool",
@@ -266,7 +266,7 @@ func TestFusionPoolStats(t *testing.T) {
 	}
 }
 
-// TestFusionPoolManagerBasics 测试融合池管理器基础功能
+// TestFusionPoolManagerBasics 测试融合池管理器基础功能.
 func TestFusionPoolManagerBasics(t *testing.T) {
 	// 注意：这个测试不会真正创建 btrfs 卷，只测试结构
 	pools := make(map[string]*FusionPool)
@@ -307,7 +307,7 @@ func TestFusionPoolManagerBasics(t *testing.T) {
 	}
 }
 
-// TestMetadataCache 测试元数据缓存操作
+// TestMetadataCache 测试元数据缓存操作.
 func TestMetadataCache(t *testing.T) {
 	pool := &FusionPool{
 		Name: "test-pool",
@@ -356,7 +356,7 @@ func TestMetadataCache(t *testing.T) {
 	}
 }
 
-// TestTieringPolicyValidation 测试分层策略验证
+// TestTieringPolicyValidation 测试分层策略验证.
 func TestTieringPolicyValidation(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -421,7 +421,7 @@ func TestTieringPolicyValidation(t *testing.T) {
 	}
 }
 
-// TestCacheConfigValidation 测试缓存配置验证
+// TestCacheConfigValidation 测试缓存配置验证.
 func TestCacheConfigValidation(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -475,7 +475,7 @@ func TestCacheConfigValidation(t *testing.T) {
 	}
 }
 
-// TestSubvolumeAccessPattern 测试子卷访问模式
+// TestSubvolumeAccessPattern 测试子卷访问模式.
 func TestSubvolumeAccessPattern(t *testing.T) {
 	subvol := &FusionSubvolume{
 		ID:          256,

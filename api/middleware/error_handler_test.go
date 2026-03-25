@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TestErrorHandlerMiddleware tests the error handler middleware
+// TestErrorHandlerMiddleware tests the error handler middleware.
 func TestErrorHandlerMiddleware(t *testing.T) {
 	router := gin.New()
 	router.Use(ErrorHandlerMiddleware())
@@ -42,7 +42,7 @@ func TestErrorHandlerMiddleware(t *testing.T) {
 	}
 }
 
-// TestErrorHandlerPanic tests panic recovery
+// TestErrorHandlerPanic tests panic recovery.
 func TestErrorHandlerPanic(t *testing.T) {
 	router := gin.New()
 	router.Use(ErrorHandlerMiddleware())
@@ -60,7 +60,7 @@ func TestErrorHandlerPanic(t *testing.T) {
 	}
 }
 
-// TestErrorHandlerDebugMode tests debug mode
+// TestErrorHandlerDebugMode tests debug mode.
 func TestErrorHandlerDebugMode(t *testing.T) {
 	config := ErrorHandlerConfig{
 		DebugMode: true,
@@ -87,7 +87,7 @@ func TestErrorHandlerDebugMode(t *testing.T) {
 	_ = response // avoid unused variable error
 }
 
-// TestAPIError tests APIError structure
+// TestAPIError tests APIError structure.
 func TestAPIError(t *testing.T) {
 	err := APIError{
 		Code:      CodeBadRequest,
@@ -105,7 +105,7 @@ func TestAPIError(t *testing.T) {
 	}
 }
 
-// TestErrorResponder tests the error responder
+// TestErrorResponder tests the error responder.
 func TestErrorResponder(t *testing.T) {
 	router := gin.New()
 	responder := NewErrorResponder()
@@ -167,7 +167,7 @@ func TestErrorResponder(t *testing.T) {
 	}
 }
 
-// TestHelperFunctions tests helper functions
+// TestHelperFunctions tests helper functions.
 func TestHelperFunctions(t *testing.T) {
 	router := gin.New()
 
@@ -217,7 +217,7 @@ func TestHelperFunctions(t *testing.T) {
 	}
 }
 
-// TestMapErrorToStatus tests error to status mapping
+// TestMapErrorToStatus tests error to status mapping.
 func TestMapErrorToStatus(t *testing.T) {
 	tests := []struct {
 		err      error
@@ -241,7 +241,7 @@ func TestMapErrorToStatus(t *testing.T) {
 	}
 }
 
-// TestRecoverMiddleware tests recover middleware
+// TestRecoverMiddleware tests recover middleware.
 func TestRecoverMiddleware(t *testing.T) {
 	router := gin.New()
 	router.Use(RecoverMiddleware())
@@ -273,7 +273,7 @@ func TestRecoverMiddleware(t *testing.T) {
 	}
 }
 
-// TestCustomErrorHandler tests custom error handler
+// TestCustomErrorHandler tests custom error handler.
 func TestCustomErrorHandler(t *testing.T) {
 	config := ErrorHandlerConfig{
 		LogErrors: false,
@@ -301,7 +301,7 @@ func TestCustomErrorHandler(t *testing.T) {
 	}
 }
 
-// TestAPIErrorFromJSON tests JSON parsing
+// TestAPIErrorFromJSON tests JSON parsing.
 func TestAPIErrorFromJSON(t *testing.T) {
 	jsonData := `{"code":400,"message":"Bad request","requestId":"req-123"}`
 
@@ -325,7 +325,7 @@ func TestAPIErrorFromJSON(t *testing.T) {
 	}
 }
 
-// TestWriteJSON tests WriteJSON helper
+// TestWriteJSON tests WriteJSON helper.
 func TestWriteJSON(t *testing.T) {
 	router := gin.New()
 
@@ -342,7 +342,7 @@ func TestWriteJSON(t *testing.T) {
 	}
 }
 
-// TestWriteError tests WriteError helper
+// TestWriteError tests WriteError helper.
 func TestWriteError(t *testing.T) {
 	router := gin.New()
 
@@ -359,7 +359,7 @@ func TestWriteError(t *testing.T) {
 	}
 }
 
-// BenchmarkErrorHandlerMiddleware benchmarks the middleware
+// BenchmarkErrorHandlerMiddleware benchmarks the middleware.
 func BenchmarkErrorHandlerMiddleware(b *testing.B) {
 	router := gin.New()
 	router.Use(ErrorHandlerMiddleware())
@@ -376,7 +376,7 @@ func BenchmarkErrorHandlerMiddleware(b *testing.B) {
 	}
 }
 
-// BenchmarkErrorResponder benchmarks error responses
+// BenchmarkErrorResponder benchmarks error responses.
 func BenchmarkErrorResponder(b *testing.B) {
 	router := gin.New()
 	responder := NewErrorResponder()

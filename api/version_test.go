@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -68,7 +69,7 @@ func TestVersionRouterSetupRoutes(t *testing.T) {
 	router.SetupRoutes(engine, "/api")
 
 	// Test version discovery
-	req := httptest.NewRequest("GET", "/api/versions", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/versions", nil)
 	w := httptest.NewRecorder()
 	engine.ServeHTTP(w, req)
 
@@ -128,7 +129,7 @@ func TestVersionMiddleware(t *testing.T) {
 				c.JSON(200, gin.H{"ok": true})
 			})
 
-			req := httptest.NewRequest("GET", tt.path, nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", tt.path, nil)
 			w := httptest.NewRecorder()
 			engine.ServeHTTP(w, req)
 
@@ -177,7 +178,7 @@ func TestDeprecationMiddleware(t *testing.T) {
 		c.JSON(200, gin.H{"ok": true})
 	})
 
-	req := httptest.NewRequest("GET", "/api/v0/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/v0/test", nil)
 	w := httptest.NewRecorder()
 	engine.ServeHTTP(w, req)
 

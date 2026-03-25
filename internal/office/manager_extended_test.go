@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestManager_IsEnabled 测试 IsEnabled 方法
+// TestManager_IsEnabled 测试 IsEnabled 方法.
 func TestManager_IsEnabled(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, err := NewManager("", accessor, WithCleanupWorker(false))
@@ -23,7 +23,7 @@ func TestManager_IsEnabled(t *testing.T) {
 	assert.True(t, mgr.IsEnabled())
 }
 
-// TestManager_GetFileSessions 测试获取文件的所有会话
+// TestManager_GetFileSessions 测试获取文件的所有会话.
 func TestManager_GetFileSessions(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.docx", 1024)
@@ -40,7 +40,7 @@ func TestManager_GetFileSessions(t *testing.T) {
 	assert.Len(t, sessions, 2)
 }
 
-// TestManager_UpdateSessionStatus 测试更新会话状态
+// TestManager_UpdateSessionStatus 测试更新会话状态.
 func TestManager_UpdateSessionStatus(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.docx", 1024)
@@ -58,7 +58,7 @@ func TestManager_UpdateSessionStatus(t *testing.T) {
 	assert.Equal(t, SessionStatusEditing, updated.Status)
 }
 
-// TestManager_UpdateSessionStatus_NotFound 测试更新不存在的会话
+// TestManager_UpdateSessionStatus_NotFound 测试更新不存在的会话.
 func TestManager_UpdateSessionStatus_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -68,7 +68,7 @@ func TestManager_UpdateSessionStatus_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestManager_HandleCallback 测试回调处理
+// TestManager_HandleCallback 测试回调处理.
 func TestManager_HandleCallback(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.docx", 1024)
@@ -90,7 +90,7 @@ func TestManager_HandleCallback(t *testing.T) {
 	assert.Equal(t, SessionStatusEditing, updated.Status)
 }
 
-// TestManager_HandleCallback_Saving 测试保存中回调
+// TestManager_HandleCallback_Saving 测试保存中回调.
 func TestManager_HandleCallback_Saving(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.docx", 1024)
@@ -111,7 +111,7 @@ func TestManager_HandleCallback_Saving(t *testing.T) {
 	assert.Equal(t, SessionStatusSaving, updated.Status)
 }
 
-// TestManager_HandleCallback_Closed 测试关闭回调
+// TestManager_HandleCallback_Closed 测试关闭回调.
 func TestManager_HandleCallback_Closed(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.docx", 1024)
@@ -132,7 +132,7 @@ func TestManager_HandleCallback_Closed(t *testing.T) {
 	assert.Equal(t, SessionStatusClosed, updated.Status)
 }
 
-// TestManager_HandleCallback_Error 测试错误回调
+// TestManager_HandleCallback_Error 测试错误回调.
 func TestManager_HandleCallback_Error(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.docx", 1024)
@@ -153,7 +153,7 @@ func TestManager_HandleCallback_Error(t *testing.T) {
 	assert.Equal(t, SessionStatusError, updated.Status)
 }
 
-// TestManager_HandleCallbackByKey 测试通过 Key 处理回调
+// TestManager_HandleCallbackByKey 测试通过 Key 处理回调.
 func TestManager_HandleCallbackByKey(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.docx", 1024)
@@ -174,7 +174,7 @@ func TestManager_HandleCallbackByKey(t *testing.T) {
 	assert.Equal(t, SessionStatusEditing, updated.Status)
 }
 
-// TestManager_HandleCallbackByKey_NotFound 测试 Key 不存在
+// TestManager_HandleCallbackByKey_NotFound 测试 Key 不存在.
 func TestManager_HandleCallbackByKey_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -189,7 +189,7 @@ func TestManager_HandleCallbackByKey_NotFound(t *testing.T) {
 
 // ========== 协作编辑测试 ==========
 
-// TestManager_StartCollaboration 测试启动协作
+// TestManager_StartCollaboration 测试启动协作.
 func TestManager_StartCollaboration(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -202,7 +202,7 @@ func TestManager_StartCollaboration(t *testing.T) {
 	assert.Equal(t, "doc1", session.DocID)
 }
 
-// TestManager_StartCollaboration_Disabled 测试禁用时启动协作
+// TestManager_StartCollaboration_Disabled 测试禁用时启动协作.
 func TestManager_StartCollaboration_Disabled(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -213,7 +213,7 @@ func TestManager_StartCollaboration_Disabled(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestManager_StartCollaboration_Existing 测试已存在的协作
+// TestManager_StartCollaboration_Existing 测试已存在的协作.
 func TestManager_StartCollaboration_Existing(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -229,7 +229,7 @@ func TestManager_StartCollaboration_Existing(t *testing.T) {
 	assert.Equal(t, session1.SessionID, session2.SessionID)
 }
 
-// TestManager_JoinCollaboration 测试加入协作
+// TestManager_JoinCollaboration 测试加入协作.
 func TestManager_JoinCollaboration(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -243,7 +243,7 @@ func TestManager_JoinCollaboration(t *testing.T) {
 	assert.Equal(t, "user1", session.Users[0].UserID)
 }
 
-// TestManager_JoinCollaboration_NotFound 测试加入不存在的协作
+// TestManager_JoinCollaboration_NotFound 测试加入不存在的协作.
 func TestManager_JoinCollaboration_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -253,7 +253,7 @@ func TestManager_JoinCollaboration_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestManager_LeaveCollaboration 测试离开协作
+// TestManager_LeaveCollaboration 测试离开协作.
 func TestManager_LeaveCollaboration(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -274,7 +274,7 @@ func TestManager_LeaveCollaboration(t *testing.T) {
 	assert.Equal(t, "user2", session.Users[0].UserID)
 }
 
-// TestManager_LeaveCollaboration_LastUser 测试最后一个用户离开
+// TestManager_LeaveCollaboration_LastUser 测试最后一个用户离开.
 func TestManager_LeaveCollaboration_LastUser(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -293,7 +293,7 @@ func TestManager_LeaveCollaboration_LastUser(t *testing.T) {
 	assert.Equal(t, "closed", session.Status)
 }
 
-// TestManager_GetCollaborationSession 测试获取协作会话
+// TestManager_GetCollaborationSession 测试获取协作会话.
 func TestManager_GetCollaborationSession(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -307,7 +307,7 @@ func TestManager_GetCollaborationSession(t *testing.T) {
 	assert.NotNil(t, session)
 }
 
-// TestManager_GetCollaborationSession_NotFound 测试获取不存在的协作会话
+// TestManager_GetCollaborationSession_NotFound 测试获取不存在的协作会话.
 func TestManager_GetCollaborationSession_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -317,7 +317,7 @@ func TestManager_GetCollaborationSession_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestManager_UpdateCursor 测试更新光标
+// TestManager_UpdateCursor 测试更新光标.
 func TestManager_UpdateCursor(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -335,7 +335,7 @@ func TestManager_UpdateCursor(t *testing.T) {
 	assert.Equal(t, 5, session.Cursors["user1"].Column)
 }
 
-// TestManager_UpdateCursor_NotFound 测试更新不存在文档的光标
+// TestManager_UpdateCursor_NotFound 测试更新不存在文档的光标.
 func TestManager_UpdateCursor_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -347,7 +347,7 @@ func TestManager_UpdateCursor_NotFound(t *testing.T) {
 
 // ========== 版本历史测试 ==========
 
-// TestManager_GetVersionHistory 测试获取版本历史
+// TestManager_GetVersionHistory 测试获取版本历史.
 func TestManager_GetVersionHistory(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -361,7 +361,7 @@ func TestManager_GetVersionHistory(t *testing.T) {
 	assert.Equal(t, 0, history.TotalVers)
 }
 
-// TestManager_GetVersionHistory_Disabled 测试禁用时获取版本历史
+// TestManager_GetVersionHistory_Disabled 测试禁用时获取版本历史.
 func TestManager_GetVersionHistory_Disabled(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -372,7 +372,7 @@ func TestManager_GetVersionHistory_Disabled(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestManager_CreateVersion 测试创建版本
+// TestManager_CreateVersion 测试创建版本.
 func TestManager_CreateVersion(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -386,7 +386,7 @@ func TestManager_CreateVersion(t *testing.T) {
 	assert.Equal(t, "Initial version", version.Description)
 }
 
-// TestManager_CreateVersion_Disabled 测试禁用时创建版本
+// TestManager_CreateVersion_Disabled 测试禁用时创建版本.
 func TestManager_CreateVersion_Disabled(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -397,7 +397,7 @@ func TestManager_CreateVersion_Disabled(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestManager_GetVersion 测试获取特定版本
+// TestManager_GetVersion 测试获取特定版本.
 func TestManager_GetVersion(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -411,7 +411,7 @@ func TestManager_GetVersion(t *testing.T) {
 	assert.Equal(t, created.VersionID, version.VersionID)
 }
 
-// TestManager_GetVersion_NotFound 测试获取不存在的版本
+// TestManager_GetVersion_NotFound 测试获取不存在的版本.
 func TestManager_GetVersion_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -421,7 +421,7 @@ func TestManager_GetVersion_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestManager_RestoreVersion 测试恢复版本
+// TestManager_RestoreVersion 测试恢复版本.
 func TestManager_RestoreVersion(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -440,7 +440,7 @@ func TestManager_RestoreVersion(t *testing.T) {
 	assert.Equal(t, 2, history.TotalVers)
 }
 
-// TestManager_RestoreVersion_NotFound 测试恢复不存在的版本
+// TestManager_RestoreVersion_NotFound 测试恢复不存在的版本.
 func TestManager_RestoreVersion_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -452,7 +452,7 @@ func TestManager_RestoreVersion_NotFound(t *testing.T) {
 
 // ========== 评论测试 ==========
 
-// TestManager_AddComment 测试添加评论
+// TestManager_AddComment 测试添加评论.
 func TestManager_AddComment(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -467,7 +467,7 @@ func TestManager_AddComment(t *testing.T) {
 	assert.False(t, comment.Resolved)
 }
 
-// TestManager_AddComment_Disabled 测试禁用时添加评论
+// TestManager_AddComment_Disabled 测试禁用时添加评论.
 func TestManager_AddComment_Disabled(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -478,7 +478,7 @@ func TestManager_AddComment_Disabled(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestManager_AddCommentWithPosition 测试添加带位置的评论
+// TestManager_AddCommentWithPosition 测试添加带位置的评论.
 func TestManager_AddCommentWithPosition(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -493,7 +493,7 @@ func TestManager_AddCommentWithPosition(t *testing.T) {
 	assert.Equal(t, 20, comment.Position.Offset)
 }
 
-// TestManager_GetComments 测试获取评论列表
+// TestManager_GetComments 测试获取评论列表.
 func TestManager_GetComments(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -511,7 +511,7 @@ func TestManager_GetComments(t *testing.T) {
 	assert.Len(t, list.Comments, 2)
 }
 
-// TestManager_ResolveComment 测试解决评论
+// TestManager_ResolveComment 测试解决评论.
 func TestManager_ResolveComment(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -529,7 +529,7 @@ func TestManager_ResolveComment(t *testing.T) {
 	assert.True(t, list.Comments[0].Resolved)
 }
 
-// TestManager_ResolveComment_NotFound 测试解决不存在的评论
+// TestManager_ResolveComment_NotFound 测试解决不存在的评论.
 func TestManager_ResolveComment_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -539,7 +539,7 @@ func TestManager_ResolveComment_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestManager_ReplyComment 测试回复评论
+// TestManager_ReplyComment 测试回复评论.
 func TestManager_ReplyComment(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -559,7 +559,7 @@ func TestManager_ReplyComment(t *testing.T) {
 	assert.Equal(t, "Reply", list.Comments[0].Replies[0].Content)
 }
 
-// TestManager_ReplyComment_NotFound 测试回复不存在的评论
+// TestManager_ReplyComment_NotFound 测试回复不存在的评论.
 func TestManager_ReplyComment_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -569,7 +569,7 @@ func TestManager_ReplyComment_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestManager_DeleteComment 测试删除评论
+// TestManager_DeleteComment 测试删除评论.
 func TestManager_DeleteComment(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -587,7 +587,7 @@ func TestManager_DeleteComment(t *testing.T) {
 	assert.Equal(t, 0, list.Total)
 }
 
-// TestManager_DeleteComment_NotFound 测试删除不存在的评论
+// TestManager_DeleteComment_NotFound 测试删除不存在的评论.
 func TestManager_DeleteComment_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -599,7 +599,7 @@ func TestManager_DeleteComment_NotFound(t *testing.T) {
 
 // ========== 辅助方法测试 ==========
 
-// TestGenerateFileKey 测试文件 Key 生成
+// TestGenerateFileKey 测试文件 Key 生成.
 func TestGenerateFileKey(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -613,7 +613,7 @@ func TestGenerateFileKey(t *testing.T) {
 	assert.NotEqual(t, key1, key2)
 }
 
-// TestBuildCallbackURL 测试回调 URL 构建
+// TestBuildCallbackURL 测试回调 URL 构建.
 func TestBuildCallbackURL(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -623,7 +623,7 @@ func TestBuildCallbackURL(t *testing.T) {
 	assert.Equal(t, "/api/v1/office/callback/session123", url)
 }
 
-// TestParseCallbackURL 测试回调 URL 解析
+// TestParseCallbackURL 测试回调 URL 解析.
 func TestParseCallbackURL(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -649,7 +649,7 @@ func TestParseCallbackURL(t *testing.T) {
 	}
 }
 
-// TestGetAllFileAssociations 测试获取所有文件关联
+// TestGetAllFileAssociations 测试获取所有文件关联.
 func TestGetAllFileAssociations(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -665,7 +665,7 @@ func TestGetAllFileAssociations(t *testing.T) {
 	assert.False(t, exists)
 }
 
-// TestSortSessionsByTime 测试会话时间排序
+// TestSortSessionsByTime 测试会话时间排序.
 func TestSortSessionsByTime(t *testing.T) {
 	now := time.Now()
 	sessions := []*EditingSession{
@@ -682,7 +682,7 @@ func TestSortSessionsByTime(t *testing.T) {
 	assert.Equal(t, "1", sessions[2].ID)
 }
 
-// TestEditingSession_IsActive 测试会话活跃状态
+// TestEditingSession_IsActive 测试会话活跃状态.
 func TestEditingSession_IsActive(t *testing.T) {
 	t.Run("活跃会话", func(t *testing.T) {
 		session := &EditingSession{
@@ -702,7 +702,7 @@ func TestEditingSession_IsActive(t *testing.T) {
 	})
 }
 
-// TestCreateSession_NotEnabled 测试禁用时创建会话
+// TestCreateSession_NotEnabled 测试禁用时创建会话.
 func TestCreateSession_NotEnabled(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.docx", 1024)
@@ -715,7 +715,7 @@ func TestCreateSession_NotEnabled(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestCreateSession_UnsupportedType 测试不支持的文件类型
+// TestCreateSession_UnsupportedType 测试不支持的文件类型.
 func TestCreateSession_UnsupportedType(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.exe", 1024)
@@ -728,12 +728,12 @@ func TestCreateSession_UnsupportedType(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestCreateSession_FileNotFound 测试文件不存在 - 跳过，因为 mock 无法模拟错误
+// TestCreateSession_FileNotFound 测试文件不存在 - 跳过，因为 mock 无法模拟错误.
 func TestCreateSession_FileNotFound(t *testing.T) {
 	t.Skip("MockFileAccessor 无法模拟文件不存在的错误情况")
 }
 
-// TestGetSession_NotFound 测试获取不存在的会话
+// TestGetSession_NotFound 测试获取不存在的会话.
 func TestGetSession_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -743,7 +743,7 @@ func TestGetSession_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestCloseSession_NotFound 测试关闭不存在的会话
+// TestCloseSession_NotFound 测试关闭不存在的会话.
 func TestCloseSession_NotFound(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
@@ -753,7 +753,7 @@ func TestCloseSession_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestJWTGeneration 测试 JWT 生成
+// TestJWTGeneration 测试 JWT 生成.
 func TestJWTGeneration(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.docx", 1024)
@@ -781,7 +781,7 @@ func TestJWTGeneration(t *testing.T) {
 	assert.NotEmpty(t, config.Token)
 }
 
-// TestListSessions_Pagination 测试分页
+// TestListSessions_Pagination 测试分页.
 func TestListSessions_Pagination(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	for i := 0; i < 5; i++ {
@@ -814,7 +814,7 @@ func TestListSessions_Pagination(t *testing.T) {
 	assert.Len(t, empty, 0)
 }
 
-// TestListSessions_StatusFilter 测试状态过滤
+// TestListSessions_StatusFilter 测试状态过滤.
 func TestListSessions_StatusFilter(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file1", "test.docx", 1024)

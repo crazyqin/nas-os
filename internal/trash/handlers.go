@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 回收站 HTTP 处理器
+// Handlers 回收站 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	trash := apiGroup.Group("/trash")
 	{
@@ -35,7 +35,7 @@ func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	}
 }
 
-// Response 回收站项目响应
+// Response 回收站项目响应.
 type Response struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
@@ -47,7 +47,7 @@ type Response struct {
 	DaysLeft     int       `json:"days_left"`
 }
 
-// convertToResponse 将 Item 转换为响应格式
+// convertToResponse 将 Item 转换为响应格式.
 func convertToResponse(item *Item) Response {
 	daysLeft := int(time.Until(item.ExpiresAt).Hours() / 24)
 	if daysLeft < 0 {
@@ -65,7 +65,7 @@ func convertToResponse(item *Item) Response {
 	}
 }
 
-// get 获取单个回收站项目详情
+// get 获取单个回收站项目详情.
 func (h *Handlers) get(c *gin.Context) {
 	id := c.Param("id")
 
@@ -78,7 +78,7 @@ func (h *Handlers) get(c *gin.Context) {
 	api.OK(c, convertToResponse(item))
 }
 
-// list 列出回收站项目
+// list 列出回收站项目.
 func (h *Handlers) list(c *gin.Context) {
 	items := h.manager.List()
 
@@ -90,19 +90,19 @@ func (h *Handlers) list(c *gin.Context) {
 	api.OK(c, response)
 }
 
-// getStats 获取统计信息
+// getStats 获取统计信息.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	api.OK(c, stats)
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
 	api.OK(c, config)
 }
 
-// UpdateConfigRequest 更新配置请求
+// UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
 	Enabled       *bool  `json:"enabled"`
 	RetentionDays *int   `json:"retention_days"`
@@ -110,7 +110,7 @@ type UpdateConfigRequest struct {
 	AutoEmpty     *bool  `json:"auto_empty"`
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -141,12 +141,12 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	api.OK(c, config)
 }
 
-// RestoreRequest 恢复请求
+// RestoreRequest 恢复请求.
 type RestoreRequest struct {
 	TargetPath string `json:"target_path,omitempty"`
 }
 
-// restore 恢复文件
+// restore 恢复文件.
 func (h *Handlers) restore(c *gin.Context) {
 	id := c.Param("id")
 
@@ -170,7 +170,7 @@ func (h *Handlers) restore(c *gin.Context) {
 	api.OK(c, nil)
 }
 
-// deletePermanently 永久删除
+// deletePermanently 永久删除.
 func (h *Handlers) deletePermanently(c *gin.Context) {
 	id := c.Param("id")
 
@@ -182,7 +182,7 @@ func (h *Handlers) deletePermanently(c *gin.Context) {
 	api.OK(c, nil)
 }
 
-// empty 清空回收站
+// empty 清空回收站.
 func (h *Handlers) empty(c *gin.Context) {
 	if err := h.manager.Empty(); err != nil {
 		api.InternalError(c, err.Error())
@@ -192,13 +192,13 @@ func (h *Handlers) empty(c *gin.Context) {
 	api.OK(c, nil)
 }
 
-// MoveToTrashRequest 移动到回收站请求
+// MoveToTrashRequest 移动到回收站请求.
 type MoveToTrashRequest struct {
 	Path   string `json:"path" binding:"required"`
 	UserID string `json:"user_id"`
 }
 
-// MoveToTrash 移动到回收站（外部调用）
+// MoveToTrash 移动到回收站（外部调用）.
 func (h *Handlers) MoveToTrash(c *gin.Context) {
 	var req MoveToTrashRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

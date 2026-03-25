@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 性能优化 HTTP 处理器
+// Handlers 性能优化 HTTP 处理器.
 type Handlers struct {
 	optimizer *PerformanceOptimizer
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(opt *PerformanceOptimizer) *Handlers {
 	return &Handlers{optimizer: opt}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	opt := api.Group("/optimizer")
 	{
@@ -32,7 +32,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// APIResponse 通用响应
+// APIResponse 通用响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -47,7 +47,7 @@ func apiError(code int, message string) APIResponse {
 	return APIResponse{Code: code, Message: message}
 }
 
-// getStats 获取性能统计
+// getStats 获取性能统计.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.optimizer.GetStats()
 
@@ -80,13 +80,13 @@ func (h *Handlers) getStats(c *gin.Context) {
 	c.JSON(http.StatusOK, success(response))
 }
 
-// getConfig 获取优化配置
+// getConfig 获取优化配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.optimizer.GetConfig()
 	c.JSON(http.StatusOK, success(cfg))
 }
 
-// UpdateConfigRequest 更新配置请求
+// UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
 	CacheEnabled   *bool          `json:"cache_enabled"`
 	CacheCapacity  *int           `json:"cache_capacity"`
@@ -99,7 +99,7 @@ type UpdateConfigRequest struct {
 	WorkerPoolSize *int           `json:"worker_pool_size"`
 }
 
-// updateConfig 更新优化配置
+// updateConfig 更新优化配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -143,7 +143,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, success(cfg))
 }
 
-// forceGC 强制 GC
+// forceGC 强制 GC.
 func (h *Handlers) forceGC(c *gin.Context) {
 	h.optimizer.ForceGC()
 	c.JSON(http.StatusOK, success(map[string]string{
@@ -151,7 +151,7 @@ func (h *Handlers) forceGC(c *gin.Context) {
 	}))
 }
 
-// getMemoryInfo 获取内存详情
+// getMemoryInfo 获取内存详情.
 func (h *Handlers) getMemoryInfo(c *gin.Context) {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
@@ -182,7 +182,7 @@ func (h *Handlers) getMemoryInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, success(response))
 }
 
-// getGoroutines 获取 Goroutine 详情
+// getGoroutines 获取 Goroutine 详情.
 func (h *Handlers) getGoroutines(c *gin.Context) {
 	buf := make([]byte, 1<<20)
 	n := runtime.Stack(buf, true)
@@ -193,7 +193,7 @@ func (h *Handlers) getGoroutines(c *gin.Context) {
 	}))
 }
 
-// clearCache 清空缓存
+// clearCache 清空缓存.
 func (h *Handlers) clearCache(c *gin.Context) {
 	cache := h.optimizer.GetCache()
 	if cache != nil {
@@ -204,7 +204,7 @@ func (h *Handlers) clearCache(c *gin.Context) {
 	}))
 }
 
-// PerformanceMiddleware 性能监控中间件
+// PerformanceMiddleware 性能监控中间件.
 func PerformanceMiddleware(opt *PerformanceOptimizer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()

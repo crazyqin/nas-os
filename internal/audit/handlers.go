@@ -8,13 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 审计模块 HTTP 处理器
+// Handlers 审计模块 HTTP 处理器.
 type Handlers struct {
 	manager  *Manager
 	reporter *ComplianceReporter
 }
 
-// NewHandlers 创建审计处理器
+// NewHandlers 创建审计处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager:  manager,
@@ -23,7 +23,7 @@ func NewHandlers(manager *Manager) *Handlers {
 }
 
 // RegisterRoutes 注册路由
-// 注意：调用方应在应用此路由组前添加认证和权限中间件
+// 注意：调用方应在应用此路由组前添加认证和权限中间件.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	audit := api.Group("/audit")
 	{
@@ -84,7 +84,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 // @Success 200 {object} map[string]interface{}{data=QueryResult}
 // @Failure 500 {object} map[string]interface{}
 // @Router /audit/logs [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getLogs(c *gin.Context) {
 	// 解析查询参数
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
@@ -158,7 +158,7 @@ func (h *Handlers) getLogs(c *gin.Context) {
 // @Success 200 {object} map[string]interface{}{data=Entry}
 // @Failure 404 {object} map[string]interface{}
 // @Router /audit/logs/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getLogByID(c *gin.Context) {
 	id := c.Param("id")
 
@@ -179,7 +179,7 @@ func (h *Handlers) getLogByID(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{}{data=Statistics}
 // @Router /audit/statistics [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getStatistics(c *gin.Context) {
 	stats := h.manager.GetStatistics()
 	c.JSON(http.StatusOK, SuccessResponse(stats))
@@ -196,7 +196,7 @@ func (h *Handlers) getStatistics(c *gin.Context) {
 // @Param category query string false "日志分类"
 // @Success 200 {object} map[string]interface{}{data=[]TimelineItem}
 // @Router /audit/timeline [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getTimeline(c *gin.Context) {
 	// 解析时间范围
 	startTime := time.Now().Add(-24 * time.Hour)
@@ -229,7 +229,7 @@ func (h *Handlers) getTimeline(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{}{data=DashboardData}
 // @Router /audit/dashboard [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getDashboard(c *gin.Context) {
 	data := h.reporter.GenerateDashboardData()
 	c.JSON(http.StatusOK, SuccessResponse(data))
@@ -251,7 +251,7 @@ func (h *Handlers) getDashboard(c *gin.Context) {
 // @Success 200 {file} file
 // @Failure 500 {object} map[string]interface{}
 // @Router /audit/export [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) exportLogs(c *gin.Context) {
 	// 解析参数
 	format := ExportFormat(c.DefaultQuery("format", "json"))
@@ -317,7 +317,7 @@ func (h *Handlers) exportLogs(c *gin.Context) {
 	c.Data(http.StatusOK, contentType, data)
 }
 
-// splitCategories 分割分类字符串
+// splitCategories 分割分类字符串.
 func splitCategories(s string) []string {
 	result := make([]string, 0)
 	start := 0
@@ -342,7 +342,7 @@ func splitCategories(s string) []string {
 // @Produce json
 // @Success 200 {object} map[string]interface{}{data=IntegrityReport}
 // @Router /audit/integrity [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) verifyIntegrity(c *gin.Context) {
 	report := h.manager.VerifyIntegrity()
 	c.JSON(http.StatusOK, SuccessResponse(report))
@@ -362,7 +362,7 @@ func (h *Handlers) verifyIntegrity(c *gin.Context) {
 // @Success 200 {object} map[string]interface{}{data=ComplianceReport}
 // @Failure 500 {object} map[string]interface{}
 // @Router /audit/compliance/report [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getComplianceReport(c *gin.Context) {
 	// 解析参数
 	standard := ComplianceStandard(c.DefaultQuery("standard", "gdpr"))
@@ -404,7 +404,7 @@ func (h *Handlers) getComplianceReport(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{}{data=[]map[string]string}
 // @Router /audit/compliance/standards [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getComplianceStandards(c *gin.Context) {
 	standards := []map[string]string{
 		{"code": "gdpr", "name": "GDPR (欧盟通用数据保护条例)"},
@@ -419,13 +419,13 @@ func (h *Handlers) getComplianceStandards(c *gin.Context) {
 
 // ========== 配置管理 ==========
 
-// getConfig 获取审计配置
+// getConfig 获取审计配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
 	c.JSON(http.StatusOK, SuccessResponse(config))
 }
 
-// updateConfig 更新审计配置
+// updateConfig 更新审计配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var config Config
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -447,7 +447,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 
 // ========== 日志记录接口 ==========
 
-// createLog 创建审计日志
+// createLog 创建审计日志.
 func (h *Handlers) createLog(c *gin.Context) {
 	var entry Entry
 	if err := c.ShouldBindJSON(&entry); err != nil {
@@ -474,7 +474,7 @@ func (h *Handlers) createLog(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(gin.H{"id": entry.ID}))
 }
 
-// logAuthRequest 认证日志请求
+// logAuthRequest 认证日志请求.
 type logAuthRequest struct {
 	Event     string                 `json:"event" binding:"required"`
 	UserID    string                 `json:"user_id"`
@@ -486,7 +486,7 @@ type logAuthRequest struct {
 	Details   map[string]interface{} `json:"details"`
 }
 
-// logAuth 记录认证事件
+// logAuth 记录认证事件.
 func (h *Handlers) logAuth(c *gin.Context) {
 	var req logAuthRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -514,7 +514,7 @@ func (h *Handlers) logAuth(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
-// logAccessRequest 访问日志请求
+// logAccessRequest 访问日志请求.
 type logAccessRequest struct {
 	UserID   string                 `json:"user_id"`
 	Username string                 `json:"username"`
@@ -525,7 +525,7 @@ type logAccessRequest struct {
 	Details  map[string]interface{} `json:"details"`
 }
 
-// logAccess 记录访问事件
+// logAccess 记录访问事件.
 func (h *Handlers) logAccess(c *gin.Context) {
 	var req logAccessRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -552,7 +552,7 @@ func (h *Handlers) logAccess(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
-// logSecurityRequest 安全日志请求
+// logSecurityRequest 安全日志请求.
 type logSecurityRequest struct {
 	Event    string                 `json:"event" binding:"required"`
 	UserID   string                 `json:"user_id"`
@@ -563,7 +563,7 @@ type logSecurityRequest struct {
 	Details  map[string]interface{} `json:"details"`
 }
 
-// logSecurity 记录安全事件
+// logSecurity 记录安全事件.
 func (h *Handlers) logSecurity(c *gin.Context) {
 	var req logSecurityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -590,7 +590,7 @@ func (h *Handlers) logSecurity(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
-// logDataOperationRequest 数据操作日志请求
+// logDataOperationRequest 数据操作日志请求.
 type logDataOperationRequest struct {
 	UserID   string                 `json:"user_id"`
 	Username string                 `json:"username"`
@@ -601,7 +601,7 @@ type logDataOperationRequest struct {
 	Details  map[string]interface{} `json:"details"`
 }
 
-// logDataOperation 记录数据操作
+// logDataOperation 记录数据操作.
 func (h *Handlers) logDataOperation(c *gin.Context) {
 	var req logDataOperationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -628,7 +628,7 @@ func (h *Handlers) logDataOperation(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
-// logConfigChangeRequest 配置变更日志请求
+// logConfigChangeRequest 配置变更日志请求.
 type logConfigChangeRequest struct {
 	UserID   string      `json:"user_id"`
 	Username string      `json:"username"`
@@ -639,7 +639,7 @@ type logConfigChangeRequest struct {
 	NewValue interface{} `json:"new_value"`
 }
 
-// logConfigChange 记录配置变更
+// logConfigChange 记录配置变更.
 func (h *Handlers) logConfigChange(c *gin.Context) {
 	var req logConfigChangeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

@@ -6,7 +6,7 @@ import (
 )
 
 // MonitorDataSource 监控数据源适配器
-// 这是一个通用适配器，用于将监控数据集成到报表系统
+// 这是一个通用适配器，用于将监控数据集成到报表系统.
 type MonitorDataSource struct {
 	name string
 	// 数据获取函数
@@ -18,7 +18,7 @@ type MonitorDataSource struct {
 	getResourceReport func(period string) (map[string]interface{}, error)
 }
 
-// MonitorDataSourceConfig 监控数据源配置
+// MonitorDataSourceConfig 监控数据源配置.
 type MonitorDataSourceConfig struct {
 	Name              string
 	GetSystemStats    func() (map[string]interface{}, error)
@@ -29,7 +29,7 @@ type MonitorDataSourceConfig struct {
 	GetResourceReport func(period string) (map[string]interface{}, error)
 }
 
-// NewMonitorDataSource 创建监控数据源
+// NewMonitorDataSource 创建监控数据源.
 func NewMonitorDataSource(config MonitorDataSourceConfig) *MonitorDataSource {
 	return &MonitorDataSource{
 		name:              config.Name,
@@ -42,7 +42,7 @@ func NewMonitorDataSource(config MonitorDataSourceConfig) *MonitorDataSource {
 	}
 }
 
-// Name 数据源名称
+// Name 数据源名称.
 func (ds *MonitorDataSource) Name() string {
 	if ds.name == "" {
 		return "monitor"
@@ -50,7 +50,7 @@ func (ds *MonitorDataSource) Name() string {
 	return ds.name
 }
 
-// Query 查询数据
+// Query 查询数据.
 func (ds *MonitorDataSource) Query(
 	query map[string]interface{},
 	fields []TemplateField,
@@ -83,7 +83,7 @@ func (ds *MonitorDataSource) Query(
 	}
 }
 
-// queryCurrent 查询当前状态
+// queryCurrent 查询当前状态.
 func (ds *MonitorDataSource) queryCurrent() ([]map[string]interface{}, error) {
 	row := make(map[string]interface{})
 
@@ -112,7 +112,7 @@ func (ds *MonitorDataSource) queryCurrent() ([]map[string]interface{}, error) {
 	return []map[string]interface{}{row}, nil
 }
 
-// queryHealthScore 查询健康评分
+// queryHealthScore 查询健康评分.
 func (ds *MonitorDataSource) queryHealthScore() ([]map[string]interface{}, error) {
 	if ds.getHealthScore == nil {
 		return nil, fmt.Errorf("健康评分函数未配置")
@@ -126,7 +126,7 @@ func (ds *MonitorDataSource) queryHealthScore() ([]map[string]interface{}, error
 	return []map[string]interface{}{score}, nil
 }
 
-// queryTrend 查询趋势数据
+// queryTrend 查询趋势数据.
 func (ds *MonitorDataSource) queryTrend(query map[string]interface{}) ([]map[string]interface{}, error) {
 	if ds.getTrendData == nil {
 		return nil, fmt.Errorf("趋势数据函数未配置")
@@ -145,7 +145,7 @@ func (ds *MonitorDataSource) queryTrend(query map[string]interface{}) ([]map[str
 	return data, nil
 }
 
-// queryDiskStats 查询磁盘统计
+// queryDiskStats 查询磁盘统计.
 func (ds *MonitorDataSource) queryDiskStats() ([]map[string]interface{}, error) {
 	if ds.getDiskStats == nil {
 		return nil, fmt.Errorf("磁盘统计函数未配置")
@@ -159,7 +159,7 @@ func (ds *MonitorDataSource) queryDiskStats() ([]map[string]interface{}, error) 
 	return stats, nil
 }
 
-// queryNetworkStats 查询网络统计
+// queryNetworkStats 查询网络统计.
 func (ds *MonitorDataSource) queryNetworkStats() ([]map[string]interface{}, error) {
 	if ds.getNetworkStats == nil {
 		return nil, fmt.Errorf("网络统计函数未配置")
@@ -173,7 +173,7 @@ func (ds *MonitorDataSource) queryNetworkStats() ([]map[string]interface{}, erro
 	return stats, nil
 }
 
-// querySystemStats 查询系统统计
+// querySystemStats 查询系统统计.
 func (ds *MonitorDataSource) querySystemStats() ([]map[string]interface{}, error) {
 	if ds.getSystemStats == nil {
 		return nil, fmt.Errorf("系统统计函数未配置")
@@ -187,7 +187,7 @@ func (ds *MonitorDataSource) querySystemStats() ([]map[string]interface{}, error
 	return []map[string]interface{}{stats}, nil
 }
 
-// GetSummary 获取摘要
+// GetSummary 获取摘要.
 func (ds *MonitorDataSource) GetSummary(query map[string]interface{}) (map[string]interface{}, error) {
 	summary := make(map[string]interface{})
 
@@ -209,7 +209,7 @@ func (ds *MonitorDataSource) GetSummary(query map[string]interface{}) (map[strin
 	return summary, nil
 }
 
-// GetAvailableFields 获取可用字段
+// GetAvailableFields 获取可用字段.
 func (ds *MonitorDataSource) GetAvailableFields() []TemplateField {
 	return []TemplateField{
 		// 系统字段
@@ -247,34 +247,34 @@ func (ds *MonitorDataSource) GetAvailableFields() []TemplateField {
 	}
 }
 
-// ResourceReportGenerator 资源报告生成器
+// ResourceReportGenerator 资源报告生成器.
 type ResourceReportGenerator struct {
 	getResourceReport func(period string) (map[string]interface{}, error)
 }
 
-// NewResourceReportGenerator 创建资源报告生成器
+// NewResourceReportGenerator 创建资源报告生成器.
 func NewResourceReportGenerator(getReportFunc func(period string) (map[string]interface{}, error)) *ResourceReportGenerator {
 	return &ResourceReportGenerator{
 		getResourceReport: getReportFunc,
 	}
 }
 
-// GenerateDailyReport 生成日报
+// GenerateDailyReport 生成日报.
 func (rg *ResourceReportGenerator) GenerateDailyReport() (*GeneratedReport, error) {
 	return rg.generateReport("daily")
 }
 
-// GenerateWeeklyReport 生成周报
+// GenerateWeeklyReport 生成周报.
 func (rg *ResourceReportGenerator) GenerateWeeklyReport() (*GeneratedReport, error) {
 	return rg.generateReport("weekly")
 }
 
-// GenerateHourlyReport 生成时报
+// GenerateHourlyReport 生成时报.
 func (rg *ResourceReportGenerator) GenerateHourlyReport() (*GeneratedReport, error) {
 	return rg.generateReport("hourly")
 }
 
-// generateReport 生成报告
+// generateReport 生成报告.
 func (rg *ResourceReportGenerator) generateReport(period string) (*GeneratedReport, error) {
 	if rg.getResourceReport == nil {
 		return nil, fmt.Errorf("报告生成函数未配置")
@@ -321,7 +321,7 @@ func (rg *ResourceReportGenerator) generateReport(period string) (*GeneratedRepo
 	return report, nil
 }
 
-// getPeriodDuration 获取周期时长
+// getPeriodDuration 获取周期时长.
 func getPeriodDuration(period string) time.Duration {
 	switch period {
 	case "hourly":

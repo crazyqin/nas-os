@@ -9,13 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CostHandlers 成本 API 处理器
+// CostHandlers 成本 API 处理器.
 type CostHandlers struct {
 	analyzer *CostAnalyzer
 	manager  *Manager
 }
 
-// NewCostHandlers 创建成本 API 处理器
+// NewCostHandlers 创建成本 API 处理器.
 func NewCostHandlers(analyzer *CostAnalyzer, manager *Manager) *CostHandlers {
 	return &CostHandlers{
 		analyzer: analyzer,
@@ -23,7 +23,7 @@ func NewCostHandlers(analyzer *CostAnalyzer, manager *Manager) *CostHandlers {
 	}
 }
 
-// RegisterCostRoutes 注册成本相关路由
+// RegisterCostRoutes 注册成本相关路由.
 func (h *CostHandlers) RegisterCostRoutes(r *gin.RouterGroup) {
 	cost := r.Group("/backup/cost")
 	{
@@ -62,7 +62,7 @@ func (h *CostHandlers) RegisterCostRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// CostQueryRequest 成本查询请求
+// CostQueryRequest 成本查询请求.
 type CostQueryRequest struct {
 	StartTime string `form:"startTime" json:"startTime"`
 	EndTime   string `form:"endTime" json:"endTime"`
@@ -70,18 +70,18 @@ type CostQueryRequest struct {
 	Provider  string `form:"provider" json:"provider"`
 }
 
-// CostTrendRequest 成本趋势请求
+// CostTrendRequest 成本趋势请求.
 type CostTrendRequest struct {
 	Days   int    `form:"days" json:"days"`
 	Period string `form:"period" json:"period"`
 }
 
-// CostReportRequest 成本报告请求
+// CostReportRequest 成本报告请求.
 type CostReportRequest struct {
 	Period string `form:"period" json:"period"`
 }
 
-// CostOverviewResponse 成本概览响应
+// CostOverviewResponse 成本概览响应.
 type CostOverviewResponse struct {
 	CurrentPeriodCost    float64               `json:"currentPeriodCost"`
 	PreviousPeriodCost   float64               `json:"previousPeriodCost"`
@@ -96,7 +96,7 @@ type CostOverviewResponse struct {
 	CostByProvider       []ProviderCostSummary `json:"costByProvider"`
 }
 
-// ProviderCostSummary 提供商成本摘要
+// ProviderCostSummary 提供商成本摘要.
 type ProviderCostSummary struct {
 	Provider    string  `json:"provider"`
 	TotalCost   float64 `json:"totalCost"`
@@ -104,7 +104,7 @@ type ProviderCostSummary struct {
 	BackupCount int     `json:"backupCount"`
 }
 
-// CostRecordResponse 成本记录响应
+// CostRecordResponse 成本记录响应.
 type CostRecordResponse struct {
 	Records []*CostRecord `json:"records"`
 	Total   int           `json:"total"`
@@ -113,7 +113,7 @@ type CostRecordResponse struct {
 // getCost 获取备份成本概览
 // @Summary 获取备份成本概览
 // @Tags backup-cost
-// @Router /backup/cost [get]
+// @Router /backup/cost [get].
 func (h *CostHandlers) getCost(c *gin.Context) {
 	var req CostQueryRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -170,7 +170,7 @@ func (h *CostHandlers) getCost(c *gin.Context) {
 // getCostTrend 获取成本趋势
 // @Summary 获取成本趋势
 // @Tags backup-cost
-// @Router /backup/cost/trend [get]
+// @Router /backup/cost/trend [get].
 func (h *CostHandlers) getCostTrend(c *gin.Context) {
 	var req CostTrendRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -205,7 +205,7 @@ func (h *CostHandlers) getCostTrend(c *gin.Context) {
 // getCostReport 获取成本报告
 // @Summary 获取成本报告
 // @Tags backup-cost
-// @Router /backup/cost/report [get]
+// @Router /backup/cost/report [get].
 func (h *CostHandlers) getCostReport(c *gin.Context) {
 	var req CostReportRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -237,7 +237,7 @@ func (h *CostHandlers) getCostReport(c *gin.Context) {
 // getOptimizeSuggestions 获取优化建议
 // @Summary 获取成本优化建议
 // @Tags backup-cost
-// @Router /backup/cost/optimize [post]
+// @Router /backup/cost/optimize [post].
 func (h *CostHandlers) getOptimizeSuggestions(c *gin.Context) {
 	var req OptimizeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -268,7 +268,7 @@ func (h *CostHandlers) getOptimizeSuggestions(c *gin.Context) {
 // getCostRecords 获取成本记录列表
 // @Summary 获取成本记录列表
 // @Tags backup-cost
-// @Router /backup/cost/records [get]
+// @Router /backup/cost/records [get].
 func (h *CostHandlers) getCostRecords(c *gin.Context) {
 	limit := 100
 	if l := c.Query("limit"); l != "" {
@@ -292,7 +292,7 @@ func (h *CostHandlers) getCostRecords(c *gin.Context) {
 // getCostForecast 获取成本预测
 // @Summary 获取成本预测
 // @Tags backup-cost
-// @Router /backup/cost/forecast [get]
+// @Router /backup/cost/forecast [get].
 func (h *CostHandlers) getCostForecast(c *gin.Context) {
 	report, err := h.analyzer.GenerateCostReport(PeriodMonthly)
 	if err != nil {
@@ -314,7 +314,7 @@ func (h *CostHandlers) getCostForecast(c *gin.Context) {
 // getCostAlerts 获取成本告警
 // @Summary 获取成本告警
 // @Tags backup-cost
-// @Router /backup/cost/alerts [get]
+// @Router /backup/cost/alerts [get].
 func (h *CostHandlers) getCostAlerts(c *gin.Context) {
 	report, err := h.analyzer.GenerateCostReport(PeriodMonthly)
 	if err != nil {
@@ -328,7 +328,7 @@ func (h *CostHandlers) getCostAlerts(c *gin.Context) {
 // getProviderPricing 获取存储提供商定价
 // @Summary 获取存储提供商定价
 // @Tags backup-cost
-// @Router /backup/cost/providers [get]
+// @Router /backup/cost/providers [get].
 func (h *CostHandlers) getProviderPricing(c *gin.Context) {
 	configs := DefaultStorageCostConfigs()
 
@@ -340,7 +340,7 @@ func (h *CostHandlers) getProviderPricing(c *gin.Context) {
 	api.OK(c, response)
 }
 
-// updateProviderPricingRequest 更新提供商定价请求
+// updateProviderPricingRequest 更新提供商定价请求.
 type updateProviderPricingRequest struct {
 	StoragePricePerGB  float64 `json:"storagePricePerGB"`
 	DownloadPricePerGB float64 `json:"downloadPricePerGB"`
@@ -353,7 +353,7 @@ type updateProviderPricingRequest struct {
 // updateProviderPricing 更新提供商定价
 // @Summary 更新存储提供商定价
 // @Tags backup-cost
-// @Router /backup/cost/providers/{provider} [put]
+// @Router /backup/cost/providers/{provider} [put].
 func (h *CostHandlers) updateProviderPricing(c *gin.Context) {
 	provider := CloudProvider(c.Param("provider"))
 
@@ -388,13 +388,13 @@ func (h *CostHandlers) updateProviderPricing(c *gin.Context) {
 // getAlertThresholds 获取告警阈值
 // @Summary 获取成本告警阈值
 // @Tags backup-cost
-// @Router /backup/cost/thresholds [get]
+// @Router /backup/cost/thresholds [get].
 func (h *CostHandlers) getAlertThresholds(c *gin.Context) {
 	thresholds := DefaultCostAlertThresholds()
 	api.OK(c, thresholds)
 }
 
-// updateAlertThresholdsRequest 更新告警阈值请求
+// updateAlertThresholdsRequest 更新告警阈值请求.
 type updateAlertThresholdsRequest struct {
 	MonthlyCostWarning   float64 `json:"monthlyCostWarning"`
 	MonthlyCostCritical  float64 `json:"monthlyCostCritical"`
@@ -407,7 +407,7 @@ type updateAlertThresholdsRequest struct {
 // updateAlertThresholds 更新告警阈值
 // @Summary 更新成本告警阈值
 // @Tags backup-cost
-// @Router /backup/cost/thresholds [put]
+// @Router /backup/cost/thresholds [put].
 func (h *CostHandlers) updateAlertThresholds(c *gin.Context) {
 	var req updateAlertThresholdsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -429,7 +429,7 @@ func (h *CostHandlers) updateAlertThresholds(c *gin.Context) {
 	api.OKWithMessage(c, "告警阈值更新成功", nil)
 }
 
-// parseIntParam 解析整数参数
+// parseIntParam 解析整数参数.
 func parseIntParam(s string, defaultValue int) (int, error) {
 	if s == "" {
 		return defaultValue, nil

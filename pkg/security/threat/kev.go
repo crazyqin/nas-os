@@ -17,7 +17,7 @@ import (
 
 // ========== KEV (Known Exploited Vulnerabilities) 数据库 ==========
 
-// KEVCatalog CISA KEV 目录结构
+// KEVCatalog CISA KEV 目录结构.
 type KEVCatalog struct {
 	Title           string     `json:"title"`
 	CatalogVersion  string     `json:"catalogVersion"`
@@ -26,7 +26,7 @@ type KEVCatalog struct {
 	Vulnerabilities []KEVEntry `json:"vulnerabilities"`
 }
 
-// KEVEntry KEV 漏洞条目
+// KEVEntry KEV 漏洞条目.
 type KEVEntry struct {
 	CVEID                      string `json:"cveID"`
 	VendorProject              string `json:"vendorProject"`
@@ -40,7 +40,7 @@ type KEVEntry struct {
 	Notes                      string `json:"notes"`
 }
 
-// KEVDatabase KEV 数据库管理器
+// KEVDatabase KEV 数据库管理器.
 type KEVDatabase struct {
 	catalog      *KEVCatalog
 	cachePath    string
@@ -51,7 +51,7 @@ type KEVDatabase struct {
 	mu           sync.RWMutex
 }
 
-// KEVConfig KEV 配置
+// KEVConfig KEV 配置.
 type KEVConfig struct {
 	SourceURL    string        `json:"source_url"`
 	CachePath    string        `json:"cache_path"`
@@ -59,7 +59,7 @@ type KEVConfig struct {
 	OfflineMode  bool          `json:"offline_mode"`
 }
 
-// DefaultKEVConfig 默认 KEV 配置
+// DefaultKEVConfig 默认 KEV 配置.
 func DefaultKEVConfig() KEVConfig {
 	return KEVConfig{
 		SourceURL:    "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
@@ -69,7 +69,7 @@ func DefaultKEVConfig() KEVConfig {
 	}
 }
 
-// NewKEVDatabase 创建 KEV 数据库
+// NewKEVDatabase 创建 KEV 数据库.
 func NewKEVDatabase(config KEVConfig) *KEVDatabase {
 	// 确保缓存目录存在
 	cacheDir := filepath.Dir(config.CachePath)
@@ -91,7 +91,7 @@ func NewKEVDatabase(config KEVConfig) *KEVDatabase {
 	return kdb
 }
 
-// loadCache 加载本地缓存
+// loadCache 加载本地缓存.
 func (kdb *KEVDatabase) loadCache() error {
 	data, err := os.ReadFile(kdb.cachePath)
 	if err != nil {
@@ -110,7 +110,7 @@ func (kdb *KEVDatabase) loadCache() error {
 	return nil
 }
 
-// saveCache 保存缓存
+// saveCache 保存缓存.
 func (kdb *KEVDatabase) saveCache() error {
 	kdb.mu.RLock()
 	data, err := json.MarshalIndent(kdb.catalog, "", "  ")
@@ -123,7 +123,7 @@ func (kdb *KEVDatabase) saveCache() error {
 	return os.WriteFile(kdb.cachePath, data, 0600)
 }
 
-// Sync 同步 KEV 目录
+// Sync 同步 KEV 目录.
 func (kdb *KEVDatabase) Sync(ctx context.Context) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, kdb.sourceURL, nil)
 	if err != nil {
@@ -162,7 +162,7 @@ func (kdb *KEVDatabase) Sync(ctx context.Context) error {
 	return kdb.saveCache()
 }
 
-// IsInKEV 检查 CVE 是否在 KEV 目录中
+// IsInKEV 检查 CVE 是否在 KEV 目录中.
 func (kdb *KEVDatabase) IsInKEV(cveID string) bool {
 	kdb.mu.RLock()
 	defer kdb.mu.RUnlock()
@@ -175,7 +175,7 @@ func (kdb *KEVDatabase) IsInKEV(cveID string) bool {
 	return false
 }
 
-// GetKEVEntry 获取 KEV 条目
+// GetKEVEntry 获取 KEV 条目.
 func (kdb *KEVDatabase) GetKEVEntry(cveID string) *KEVEntry {
 	kdb.mu.RLock()
 	defer kdb.mu.RUnlock()
@@ -188,7 +188,7 @@ func (kdb *KEVDatabase) GetKEVEntry(cveID string) *KEVEntry {
 	return nil
 }
 
-// GetAllEntries 获取所有 KEV 条目
+// GetAllEntries 获取所有 KEV 条目.
 func (kdb *KEVDatabase) GetAllEntries() []KEVEntry {
 	kdb.mu.RLock()
 	defer kdb.mu.RUnlock()
@@ -198,7 +198,7 @@ func (kdb *KEVDatabase) GetAllEntries() []KEVEntry {
 	return entries
 }
 
-// GetRansomwareRelated 获取与勒索软件相关的漏洞
+// GetRansomwareRelated 获取与勒索软件相关的漏洞.
 func (kdb *KEVDatabase) GetRansomwareRelated() []KEVEntry {
 	kdb.mu.RLock()
 	defer kdb.mu.RUnlock()
@@ -212,7 +212,7 @@ func (kdb *KEVDatabase) GetRansomwareRelated() []KEVEntry {
 	return entries
 }
 
-// GetOverdue 获取已过修复期限的漏洞
+// GetOverdue 获取已过修复期限的漏洞.
 func (kdb *KEVDatabase) GetOverdue() []KEVEntry {
 	kdb.mu.RLock()
 	defer kdb.mu.RUnlock()
@@ -231,7 +231,7 @@ func (kdb *KEVDatabase) GetOverdue() []KEVEntry {
 	return entries
 }
 
-// Search 搜索 KEV 目录
+// Search 搜索 KEV 目录.
 func (kdb *KEVDatabase) Search(query string) []KEVEntry {
 	kdb.mu.RLock()
 	defer kdb.mu.RUnlock()
@@ -250,7 +250,7 @@ func (kdb *KEVDatabase) Search(query string) []KEVEntry {
 	return entries
 }
 
-// FilterByVendor 按厂商过滤
+// FilterByVendor 按厂商过滤.
 func (kdb *KEVDatabase) FilterByVendor(vendor string) []KEVEntry {
 	kdb.mu.RLock()
 	defer kdb.mu.RUnlock()
@@ -266,7 +266,7 @@ func (kdb *KEVDatabase) FilterByVendor(vendor string) []KEVEntry {
 	return entries
 }
 
-// GetCatalogInfo 获取目录信息
+// GetCatalogInfo 获取目录信息.
 func (kdb *KEVDatabase) GetCatalogInfo() map[string]interface{} {
 	kdb.mu.RLock()
 	defer kdb.mu.RUnlock()

@@ -11,7 +11,7 @@ import (
 	"nas-os/internal/search"
 )
 
-// SearchHandler 搜索处理器
+// SearchHandler 搜索处理器.
 type SearchHandler struct {
 	globalSearch *search.GlobalSearchService
 	engine       *search.Engine
@@ -20,7 +20,7 @@ type SearchHandler struct {
 	logger       *zap.Logger
 }
 
-// NewSearchHandler 创建搜索处理器
+// NewSearchHandler 创建搜索处理器.
 func NewSearchHandler(
 	globalSearch *search.GlobalSearchService,
 	engine *search.Engine,
@@ -37,7 +37,7 @@ func NewSearchHandler(
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *SearchHandler) RegisterRoutes(r *gin.RouterGroup) {
 	searchGroup := r.Group("/search")
 	{
@@ -67,7 +67,7 @@ func (h *SearchHandler) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// GlobalSearchRequest 全局搜索请求
+// GlobalSearchRequest 全局搜索请求.
 type GlobalSearchRequest struct {
 	Query      string   `json:"query" binding:"required"`
 	Types      []string `json:"types,omitempty"`
@@ -87,7 +87,7 @@ type GlobalSearchRequest struct {
 // @Success 200 {object} search.GlobalSearchResponse
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /search/global [post]
+// @Router /search/global [post].
 func (h *SearchHandler) GlobalSearch(c *gin.Context) {
 	var req GlobalSearchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -128,7 +128,7 @@ func (h *SearchHandler) GlobalSearch(c *gin.Context) {
 	})
 }
 
-// QuickSearchRequest 快速搜索请求
+// QuickSearchRequest 快速搜索请求.
 type QuickSearchRequest struct {
 	Query string `form:"query" binding:"required"`
 	Limit int    `form:"limit"`
@@ -143,7 +143,7 @@ type QuickSearchRequest struct {
 // @Param limit query int false "结果数量限制"
 // @Success 200 {object} search.GlobalSearchResponse
 // @Failure 400 {object} map[string]interface{}
-// @Router /search/quick [get]
+// @Router /search/quick [get].
 func (h *SearchHandler) QuickSearch(c *gin.Context) {
 	var req QuickSearchRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -177,7 +177,7 @@ func (h *SearchHandler) QuickSearch(c *gin.Context) {
 // @Produce json
 // @Param query query string true "搜索查询"
 // @Success 200 {object} map[string]interface{}
-// @Router /search/suggestions [get]
+// @Router /search/suggestions [get].
 func (h *SearchHandler) GetSuggestions(c *gin.Context) {
 	query := c.Query("query")
 	if query == "" {
@@ -222,7 +222,7 @@ func (h *SearchHandler) GetSuggestions(c *gin.Context) {
 // @Tags 搜索
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /search/categories [get]
+// @Router /search/categories [get].
 func (h *SearchHandler) GetCategories(c *gin.Context) {
 	categories := h.globalSearch.GetSearchCategories()
 	c.JSON(http.StatusOK, gin.H{
@@ -238,7 +238,7 @@ func (h *SearchHandler) GetCategories(c *gin.Context) {
 // @Tags 搜索
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /search/popular [get]
+// @Router /search/popular [get].
 func (h *SearchHandler) GetPopularSearches(c *gin.Context) {
 	popular := h.globalSearch.GetPopularSearches()
 	c.JSON(http.StatusOK, gin.H{
@@ -259,7 +259,7 @@ func (h *SearchHandler) GetPopularSearches(c *gin.Context) {
 // @Param request body search.Request true "搜索请求"
 // @Success 200 {object} search.Response
 // @Failure 400 {object} map[string]interface{}
-// @Router /search/files [post]
+// @Router /search/files [post].
 func (h *SearchHandler) SearchFiles(c *gin.Context) {
 	var req search.Request
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -286,7 +286,7 @@ func (h *SearchHandler) SearchFiles(c *gin.Context) {
 	})
 }
 
-// IndexFilesRequest 索引文件请求
+// IndexFilesRequest 索引文件请求.
 type IndexFilesRequest struct {
 	Paths []string `json:"paths" binding:"required"`
 }
@@ -299,7 +299,7 @@ type IndexFilesRequest struct {
 // @Produce json
 // @Param request body IndexFilesRequest true "索引请求"
 // @Success 200 {object} map[string]interface{}
-// @Router /search/files/index [post]
+// @Router /search/files/index [post].
 func (h *SearchHandler) IndexFiles(c *gin.Context) {
 	var req IndexFilesRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -334,7 +334,7 @@ func (h *SearchHandler) IndexFiles(c *gin.Context) {
 	})
 }
 
-// IndexDirectoryRequest 索引目录请求
+// IndexDirectoryRequest 索引目录请求.
 type IndexDirectoryRequest struct {
 	Path string `json:"path" binding:"required"`
 }
@@ -347,7 +347,7 @@ type IndexDirectoryRequest struct {
 // @Produce json
 // @Param request body IndexDirectoryRequest true "索引请求"
 // @Success 200 {object} map[string]interface{}
-// @Router /search/files/index/dir [post]
+// @Router /search/files/index/dir [post].
 func (h *SearchHandler) IndexDirectory(c *gin.Context) {
 	var req IndexDirectoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -375,7 +375,7 @@ func (h *SearchHandler) IndexDirectory(c *gin.Context) {
 	})
 }
 
-// DeleteFromIndexRequest 删除索引请求
+// DeleteFromIndexRequest 删除索引请求.
 type DeleteFromIndexRequest struct {
 	Paths []string `json:"paths" binding:"required"`
 }
@@ -388,7 +388,7 @@ type DeleteFromIndexRequest struct {
 // @Produce json
 // @Param request body DeleteFromIndexRequest true "删除请求"
 // @Success 200 {object} map[string]interface{}
-// @Router /search/files/index [delete]
+// @Router /search/files/index [delete].
 func (h *SearchHandler) DeleteFromIndex(c *gin.Context) {
 	var req DeleteFromIndexRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -422,7 +422,7 @@ func (h *SearchHandler) DeleteFromIndex(c *gin.Context) {
 // @Tags 搜索
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /search/files/stats [get]
+// @Router /search/files/stats [get].
 func (h *SearchHandler) GetFileStats(c *gin.Context) {
 	stats := h.engine.Stats()
 	c.JSON(http.StatusOK, gin.H{
@@ -440,7 +440,7 @@ func (h *SearchHandler) GetFileStats(c *gin.Context) {
 // @Param query query string true "搜索查询"
 // @Param limit query int false "结果数量限制"
 // @Success 200 {object} map[string]interface{}
-// @Router /search/settings [get]
+// @Router /search/settings [get].
 func (h *SearchHandler) SearchSettings(c *gin.Context) {
 	query := c.Query("query")
 	limit := 10
@@ -468,7 +468,7 @@ func (h *SearchHandler) SearchSettings(c *gin.Context) {
 // @Tags 搜索
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /search/settings/categories [get]
+// @Router /search/settings/categories [get].
 func (h *SearchHandler) GetSettingCategories(c *gin.Context) {
 	categories := h.settings.GetCategories()
 	c.JSON(http.StatusOK, gin.H{
@@ -484,7 +484,7 @@ func (h *SearchHandler) GetSettingCategories(c *gin.Context) {
 // @Tags 搜索
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /search/settings/all [get]
+// @Router /search/settings/all [get].
 func (h *SearchHandler) GetAllSettings(c *gin.Context) {
 	settings := h.settings.GetAll()
 	c.JSON(http.StatusOK, gin.H{
@@ -505,7 +505,7 @@ func (h *SearchHandler) GetAllSettings(c *gin.Context) {
 // @Param query query string true "搜索查询"
 // @Param limit query int false "结果数量限制"
 // @Success 200 {object} map[string]interface{}
-// @Router /search/apps [get]
+// @Router /search/apps [get].
 func (h *SearchHandler) SearchApps(c *gin.Context) {
 	query := c.Query("query")
 	limit := 10
@@ -528,7 +528,7 @@ func (h *SearchHandler) SearchApps(c *gin.Context) {
 // @Tags 搜索
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /search/apps/stats [get]
+// @Router /search/apps/stats [get].
 func (h *SearchHandler) GetAppStats(c *gin.Context) {
 	stats := h.apps.GetAppStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -546,7 +546,7 @@ func (h *SearchHandler) GetAppStats(c *gin.Context) {
 // @Param query query string true "搜索查询"
 // @Param status query string false "状态过滤"
 // @Success 200 {object} map[string]interface{}
-// @Router /search/containers [get]
+// @Router /search/containers [get].
 func (h *SearchHandler) SearchContainers(c *gin.Context) {
 	query := c.Query("query")
 	status := c.Query("status")

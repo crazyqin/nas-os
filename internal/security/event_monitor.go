@@ -10,7 +10,7 @@ import (
 
 // ========== 安全事件监控器 ==========
 
-// EventMonitor 安全事件监控器
+// EventMonitor 安全事件监控器.
 type EventMonitor struct {
 	config          MonitorConfig
 	eventBuffer     []*AuditLogEntry
@@ -21,7 +21,7 @@ type EventMonitor struct {
 	cancel          context.CancelFunc
 }
 
-// MonitorConfig 监控器配置
+// MonitorConfig 监控器配置.
 type MonitorConfig struct {
 	Enabled              bool          `json:"enabled"`
 	BufferSize           int           `json:"buffer_size"`            // 事件缓冲区大小
@@ -32,7 +32,7 @@ type MonitorConfig struct {
 	BruteForceWindow     time.Duration `json:"brute_force_window"`     // 暴力破解检测窗口
 }
 
-// DefaultMonitorConfig 默认监控配置
+// DefaultMonitorConfig 默认监控配置.
 func DefaultMonitorConfig() MonitorConfig {
 	return MonitorConfig{
 		Enabled:              true,
@@ -45,7 +45,7 @@ func DefaultMonitorConfig() MonitorConfig {
 	}
 }
 
-// NewEventMonitor 创建安全事件监控器
+// NewEventMonitor 创建安全事件监控器.
 func NewEventMonitor(config MonitorConfig) *EventMonitor {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &EventMonitor{
@@ -58,7 +58,7 @@ func NewEventMonitor(config MonitorConfig) *EventMonitor {
 	}
 }
 
-// ProcessEvent 处理安全事件
+// ProcessEvent 处理安全事件.
 func (m *EventMonitor) ProcessEvent(entry *AuditLogEntry) {
 	if !m.config.Enabled {
 		return
@@ -79,7 +79,7 @@ func (m *EventMonitor) ProcessEvent(entry *AuditLogEntry) {
 	m.detectRealTimeAnomaly(entry)
 }
 
-// detectRealTimeAnomaly 实时异常检测
+// detectRealTimeAnomaly 实时异常检测.
 func (m *EventMonitor) detectRealTimeAnomaly(entry *AuditLogEntry) {
 	// 检测暴力破解
 	if entry.Event == "login_failure" {
@@ -102,7 +102,7 @@ func (m *EventMonitor) detectRealTimeAnomaly(entry *AuditLogEntry) {
 	}
 }
 
-// detectBruteForce 检测暴力破解
+// detectBruteForce 检测暴力破解.
 func (m *EventMonitor) detectBruteForce(entry *AuditLogEntry) {
 	now := time.Now()
 	window := m.config.BruteForceWindow
@@ -122,7 +122,7 @@ func (m *EventMonitor) detectBruteForce(entry *AuditLogEntry) {
 	}
 }
 
-// detectPrivilegeEscalation 检测权限提升
+// detectPrivilegeEscalation 检测权限提升.
 func (m *EventMonitor) detectPrivilegeEscalation(entry *AuditLogEntry) {
 	// 检查是否在非工作时间
 	hour := entry.Timestamp.Hour()
@@ -132,7 +132,7 @@ func (m *EventMonitor) detectPrivilegeEscalation(entry *AuditLogEntry) {
 	}
 }
 
-// detectSuspiciousConfigChange 检测可疑配置变更
+// detectSuspiciousConfigChange 检测可疑配置变更.
 func (m *EventMonitor) detectSuspiciousConfigChange(entry *AuditLogEntry) {
 	// 检测敏感配置变更
 	sensitiveResources := map[string]bool{
@@ -148,7 +148,7 @@ func (m *EventMonitor) detectSuspiciousConfigChange(entry *AuditLogEntry) {
 	}
 }
 
-// generateAlert 生成告警
+// generateAlert 生成告警.
 func (m *EventMonitor) generateAlert(severity, alertType, message string, entry *AuditLogEntry) {
 	alert := &Alert{
 		ID:          generateAlertID(),
@@ -174,22 +174,22 @@ func (m *EventMonitor) generateAlert(severity, alertType, message string, entry 
 	}
 }
 
-// GetAlertChannel 获取告警通道
+// GetAlertChannel 获取告警通道.
 func (m *EventMonitor) GetAlertChannel() <-chan *Alert {
 	return m.alertChan
 }
 
-// Start 启动监控器
+// Start 启动监控器.
 func (m *EventMonitor) Start() {
 	go m.runAnalysisLoop()
 }
 
-// Stop 停止监控器
+// Stop 停止监控器.
 func (m *EventMonitor) Stop() {
 	m.cancel()
 }
 
-// runAnalysisLoop 运行分析循环
+// runAnalysisLoop 运行分析循环.
 func (m *EventMonitor) runAnalysisLoop() {
 	ticker := time.NewTicker(m.config.AnalysisInterval)
 	defer ticker.Stop()
@@ -204,7 +204,7 @@ func (m *EventMonitor) runAnalysisLoop() {
 	}
 }
 
-// performPeriodicAnalysis 执行周期性分析
+// performPeriodicAnalysis 执行周期性分析.
 func (m *EventMonitor) performPeriodicAnalysis() {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -220,7 +220,7 @@ func (m *EventMonitor) performPeriodicAnalysis() {
 	}
 }
 
-// GetEventStats 获取事件统计
+// GetEventStats 获取事件统计.
 func (m *EventMonitor) GetEventStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -246,26 +246,26 @@ func (m *EventMonitor) GetEventStats() map[string]interface{} {
 
 // ========== 异常检测器 ==========
 
-// AnomalyDetector 异常检测器
+// AnomalyDetector 异常检测器.
 type AnomalyDetector struct {
 	thresholds AnomalyThresholds
 }
 
-// AnomalyThresholds 异常阈值
+// AnomalyThresholds 异常阈值.
 type AnomalyThresholds struct {
 	HighEventRate      float64 `json:"high_event_rate"`      // 高事件率阈值 (事件/秒)
 	UniqueIPThreshold  int     `json:"unique_ip_threshold"`  // 唯一IP阈值
 	ErrorRateThreshold float64 `json:"error_rate_threshold"` // 错误率阈值
 }
 
-// AnomalyResult 异常检测结果
+// AnomalyResult 异常检测结果.
 type AnomalyResult struct {
 	Type     string `json:"type"`
 	Severity string `json:"severity"`
 	Message  string `json:"message"`
 }
 
-// NewAnomalyDetector 创建异常检测器
+// NewAnomalyDetector 创建异常检测器.
 func NewAnomalyDetector() *AnomalyDetector {
 	return &AnomalyDetector{
 		thresholds: AnomalyThresholds{
@@ -276,7 +276,7 @@ func NewAnomalyDetector() *AnomalyDetector {
 	}
 }
 
-// Analyze 分析事件
+// Analyze 分析事件.
 func (d *AnomalyDetector) Analyze(events []*AuditLogEntry) []*AnomalyResult {
 	var results []*AnomalyResult
 
@@ -307,7 +307,7 @@ func (d *AnomalyDetector) Analyze(events []*AuditLogEntry) []*AnomalyResult {
 	return results
 }
 
-// detectHighFrequency 检测高频事件
+// detectHighFrequency 检测高频事件.
 func (d *AnomalyDetector) detectHighFrequency(events []*AuditLogEntry) *AnomalyResult {
 	if len(events) < 10 {
 		return nil
@@ -331,7 +331,7 @@ func (d *AnomalyDetector) detectHighFrequency(events []*AuditLogEntry) *AnomalyR
 	return nil
 }
 
-// detectMultipleIPs 检测多IP访问
+// detectMultipleIPs 检测多IP访问.
 func (d *AnomalyDetector) detectMultipleIPs(events []*AuditLogEntry) *AnomalyResult {
 	uniqueIPs := make(map[string]bool)
 	for _, entry := range events {
@@ -351,7 +351,7 @@ func (d *AnomalyDetector) detectMultipleIPs(events []*AuditLogEntry) *AnomalyRes
 	return nil
 }
 
-// detectHighErrorRate 检测高错误率
+// detectHighErrorRate 检测高错误率.
 func (d *AnomalyDetector) detectHighErrorRate(events []*AuditLogEntry) *AnomalyResult {
 	if len(events) < 5 {
 		return nil
@@ -376,7 +376,7 @@ func (d *AnomalyDetector) detectHighErrorRate(events []*AuditLogEntry) *AnomalyR
 	return nil
 }
 
-// detectAbnormalTimePattern 检测异常时间模式
+// detectAbnormalTimePattern 检测异常时间模式.
 func (d *AnomalyDetector) detectAbnormalTimePattern(events []*AuditLogEntry) *AnomalyResult {
 	// 检测深夜活动 (0:00-5:00)
 	var lateNightEvents int

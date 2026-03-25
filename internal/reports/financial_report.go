@@ -28,7 +28,7 @@ var (
 
 // ========== 财务报告类型定义 ==========
 
-// FinancialReportType 财务报告类型
+// FinancialReportType 财务报告类型.
 type FinancialReportType string
 
 const (
@@ -50,7 +50,7 @@ const (
 	FinancialReportTypeCustom FinancialReportType = "custom" // 自定义报告
 )
 
-// ReportStatus 报告状态
+// ReportStatus 报告状态.
 type ReportStatus string
 
 const (
@@ -64,7 +64,7 @@ const (
 	ReportStatusFailed ReportStatus = "failed" // 失败
 )
 
-// Currency 货币类型
+// Currency 货币类型.
 type Currency string
 
 const (
@@ -80,7 +80,7 @@ const (
 
 // ========== 财务报告数据结构 ==========
 
-// FinancialReport 财务报告
+// FinancialReport 财务报告.
 type FinancialReport struct {
 	ID          string              `json:"id"`
 	Name        string              `json:"name"`
@@ -117,7 +117,7 @@ type FinancialReport struct {
 	ErrorMessage string `json:"error_message,omitempty"`
 }
 
-// FinancialSummary 财务摘要
+// FinancialSummary 财务摘要.
 type FinancialSummary struct {
 	// 收入
 	TotalRevenue     float64 `json:"total_revenue"`
@@ -156,7 +156,7 @@ type FinancialSummary struct {
 	MoMGrowth float64 `json:"mom_growth"` // 环比增长
 }
 
-// SectionType 区块类型
+// SectionType 区块类型.
 type SectionType string
 
 const (
@@ -172,7 +172,7 @@ const (
 	SectionTypeText SectionType = "text"
 )
 
-// ReportSection 报告区块
+// ReportSection 报告区块.
 type ReportSection struct {
 	ID        string             `json:"id"`
 	Title     string             `json:"title"`
@@ -186,7 +186,7 @@ type ReportSection struct {
 	Style     SectionStyle       `json:"style,omitempty"`
 }
 
-// SectionDataRow 区块数据行
+// SectionDataRow 区块数据行.
 type SectionDataRow struct {
 	ID       string                 `json:"id"`
 	Label    string                 `json:"label"`
@@ -196,7 +196,7 @@ type SectionDataRow struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// SectionStyle 区块样式
+// SectionStyle 区块样式.
 type SectionStyle struct {
 	Highlight bool   `json:"highlight"`
 	Color     string `json:"color,omitempty"`
@@ -204,7 +204,7 @@ type SectionStyle struct {
 	Format    string `json:"format,omitempty"`
 }
 
-// FinChartConfig 财务图表配置
+// FinChartConfig 财务图表配置.
 type FinChartConfig struct {
 	ID         string                 `json:"id"`
 	Type       FinChartType           `json:"type"`
@@ -214,7 +214,7 @@ type FinChartConfig struct {
 	Position   FinChartPosition       `json:"position"`
 }
 
-// FinChartType 财务图表类型
+// FinChartType 财务图表类型.
 type FinChartType string
 
 const (
@@ -232,7 +232,7 @@ const (
 	FinChartTypeTable FinChartType = "table"
 )
 
-// FinChartPosition 财务图表位置
+// FinChartPosition 财务图表位置.
 type FinChartPosition struct {
 	Row    int `json:"row"`
 	Col    int `json:"col"`
@@ -240,7 +240,7 @@ type FinChartPosition struct {
 	Height int `json:"height"`
 }
 
-// AuditEntry 审计条目
+// AuditEntry 审计条目.
 type AuditEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	Action    string    `json:"action"`
@@ -250,7 +250,7 @@ type AuditEntry struct {
 
 // ========== 报告生成配置 ==========
 
-// FinancialReportConfig 报告配置
+// FinancialReportConfig 报告配置.
 type FinancialReportConfig struct {
 	ID            string              `json:"id"`
 	Name          string              `json:"name"`
@@ -268,7 +268,7 @@ type FinancialReportConfig struct {
 	CreatedBy     string              `json:"created_by"`
 }
 
-// SectionConfig 区块配置
+// SectionConfig 区块配置.
 type SectionConfig struct {
 	ID         string   `json:"id"`
 	Title      string   `json:"title"`
@@ -281,7 +281,7 @@ type SectionConfig struct {
 	Visible    bool     `json:"visible"`
 }
 
-// DataSourceConfig 数据源配置
+// DataSourceConfig 数据源配置.
 type DataSourceConfig struct {
 	ID       string                 `json:"id"`
 	Type     string                 `json:"type"`
@@ -289,14 +289,14 @@ type DataSourceConfig struct {
 	Params   map[string]interface{} `json:"params,omitempty"`
 }
 
-// ReportFilter 报告过滤器
+// ReportFilter 报告过滤器.
 type ReportFilter struct {
 	Field    string      `json:"field"`
 	Operator string      `json:"operator"`
 	Value    interface{} `json:"value"`
 }
 
-// ScheduleConfig 调度配置
+// ScheduleConfig 调度配置.
 type ScheduleConfig struct {
 	Frequency string     `json:"frequency"`
 	Time      string     `json:"time"`
@@ -307,7 +307,7 @@ type ScheduleConfig struct {
 
 // ========== 报告请求 ==========
 
-// FinancialReportRequest 财务报告请求
+// FinancialReportRequest 财务报告请求.
 type FinancialReportRequest struct {
 	Name          string              `json:"name"`
 	Type          FinancialReportType `json:"type"`
@@ -323,7 +323,7 @@ type FinancialReportRequest struct {
 	Tags          []string            `json:"tags"`
 }
 
-// FinancialReportQuery 财务报告查询
+// FinancialReportQuery 财务报告查询.
 type FinancialReportQuery struct {
 	IDs         []string              `json:"ids,omitempty"`
 	Types       []FinancialReportType `json:"types,omitempty"`
@@ -340,7 +340,7 @@ type FinancialReportQuery struct {
 
 // ========== 财务报告生成器 ==========
 
-// FinancialReportGenerator 财务报告生成器
+// FinancialReportGenerator 财务报告生成器.
 type FinancialReportGenerator struct {
 	mu           sync.RWMutex
 	reports      map[string]*FinancialReport
@@ -349,7 +349,7 @@ type FinancialReportGenerator struct {
 	dataProvider FinancialDataProvider
 }
 
-// FinancialDataProvider 财务数据提供者接口
+// FinancialDataProvider 财务数据提供者接口.
 type FinancialDataProvider interface {
 	// 获取收入数据
 	GetRevenueData(ctx context.Context, start, end time.Time) ([]RevenueRecord, error)
@@ -363,7 +363,7 @@ type FinancialDataProvider interface {
 	GetCostData(ctx context.Context, start, end time.Time) ([]CostRecord, error)
 }
 
-// RevenueRecord 收入记录
+// RevenueRecord 收入记录.
 type RevenueRecord struct {
 	ID          string    `json:"id"`
 	Date        time.Time `json:"date"`
@@ -373,7 +373,7 @@ type RevenueRecord struct {
 	Description string    `json:"description"`
 }
 
-// ExpenseRecord 支出记录
+// ExpenseRecord 支出记录.
 type ExpenseRecord struct {
 	ID          string    `json:"id"`
 	Date        time.Time `json:"date"`
@@ -383,7 +383,7 @@ type ExpenseRecord struct {
 	Description string    `json:"description"`
 }
 
-// BudgetRecord 预算记录
+// BudgetRecord 预算记录.
 type BudgetRecord struct {
 	ID        string  `json:"id"`
 	Name      string  `json:"name"`
@@ -393,7 +393,7 @@ type BudgetRecord struct {
 	Period    string  `json:"period"`
 }
 
-// CashFlowRecord 现金流记录
+// CashFlowRecord 现金流记录.
 type CashFlowRecord struct {
 	ID          string    `json:"id"`
 	Date        time.Time `json:"date"`
@@ -403,7 +403,7 @@ type CashFlowRecord struct {
 	Description string    `json:"description"`
 }
 
-// CostRecord 成本记录
+// CostRecord 成本记录.
 type CostRecord struct {
 	ID       string    `json:"id"`
 	Date     time.Time `json:"date"`
@@ -414,7 +414,7 @@ type CostRecord struct {
 	UnitCost float64   `json:"unit_cost"`
 }
 
-// NewFinancialReportGenerator 创建财务报告生成器
+// NewFinancialReportGenerator 创建财务报告生成器.
 func NewFinancialReportGenerator(dataProvider FinancialDataProvider, storagePath string) (*FinancialReportGenerator, error) {
 	if storagePath == "" {
 		storagePath = "./data/financial_reports"
@@ -440,7 +440,7 @@ func NewFinancialReportGenerator(dataProvider FinancialDataProvider, storagePath
 	return gen, nil
 }
 
-// loadReports 加载已保存的报告
+// loadReports 加载已保存的报告.
 func (g *FinancialReportGenerator) loadReports() error {
 	files, err := filepath.Glob(filepath.Join(g.storagePath, "*.json"))
 	if err != nil {
@@ -464,7 +464,7 @@ func (g *FinancialReportGenerator) loadReports() error {
 	return nil
 }
 
-// GenerateReport 生成财务报告
+// GenerateReport 生成财务报告.
 func (g *FinancialReportGenerator) GenerateReport(ctx context.Context, req FinancialReportRequest) (*FinancialReport, error) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -539,7 +539,7 @@ func (g *FinancialReportGenerator) GenerateReport(ctx context.Context, req Finan
 	return report, nil
 }
 
-// generateIncomeReport 生成收入报告
+// generateIncomeReport 生成收入报告.
 func (g *FinancialReportGenerator) generateIncomeReport(ctx context.Context, report *FinancialReport, req FinancialReportRequest) error {
 	data, err := g.dataProvider.GetRevenueData(ctx, req.PeriodStart, req.PeriodEnd)
 	if err != nil {
@@ -616,7 +616,7 @@ func (g *FinancialReportGenerator) generateIncomeReport(ctx context.Context, rep
 	return nil
 }
 
-// generateExpenseReport 生成支出报告
+// generateExpenseReport 生成支出报告.
 func (g *FinancialReportGenerator) generateExpenseReport(ctx context.Context, report *FinancialReport, req FinancialReportRequest) error {
 	data, err := g.dataProvider.GetExpenseData(ctx, req.PeriodStart, req.PeriodEnd)
 	if err != nil {
@@ -693,7 +693,7 @@ func (g *FinancialReportGenerator) generateExpenseReport(ctx context.Context, re
 	return nil
 }
 
-// generateCashFlowReport 生成现金流报告
+// generateCashFlowReport 生成现金流报告.
 func (g *FinancialReportGenerator) generateCashFlowReport(ctx context.Context, report *FinancialReport, req FinancialReportRequest) error {
 	data, err := g.dataProvider.GetCashFlowData(ctx, req.PeriodStart, req.PeriodEnd)
 	if err != nil {
@@ -748,7 +748,7 @@ func (g *FinancialReportGenerator) generateCashFlowReport(ctx context.Context, r
 	return nil
 }
 
-// generateBudgetReport 生成预算执行报告
+// generateBudgetReport 生成预算执行报告.
 func (g *FinancialReportGenerator) generateBudgetReport(ctx context.Context, report *FinancialReport, req FinancialReportRequest) error {
 	data, err := g.dataProvider.GetBudgetData(ctx, nil)
 	if err != nil {
@@ -817,7 +817,7 @@ func (g *FinancialReportGenerator) generateBudgetReport(ctx context.Context, rep
 	return nil
 }
 
-// generateCostAnalysisReport 生成成本分析报告
+// generateCostAnalysisReport 生成成本分析报告.
 func (g *FinancialReportGenerator) generateCostAnalysisReport(ctx context.Context, report *FinancialReport, req FinancialReportRequest) error {
 	data, err := g.dataProvider.GetCostData(ctx, req.PeriodStart, req.PeriodEnd)
 	if err != nil {
@@ -866,7 +866,7 @@ func (g *FinancialReportGenerator) generateCostAnalysisReport(ctx context.Contex
 	return nil
 }
 
-// generateProfitLossReport 生成损益报告
+// generateProfitLossReport 生成损益报告.
 func (g *FinancialReportGenerator) generateProfitLossReport(ctx context.Context, report *FinancialReport, req FinancialReportRequest) error {
 	// 获取收入数据
 	revenueData, err := g.dataProvider.GetRevenueData(ctx, req.PeriodStart, req.PeriodEnd)
@@ -964,7 +964,7 @@ func (g *FinancialReportGenerator) generateProfitLossReport(ctx context.Context,
 	return nil
 }
 
-// generateComprehensiveReport 生成综合财务报告
+// generateComprehensiveReport 生成综合财务报告.
 func (g *FinancialReportGenerator) generateComprehensiveReport(ctx context.Context, report *FinancialReport, req FinancialReportRequest) error {
 	// 获取所有数据
 	revenueData, _ := g.dataProvider.GetRevenueData(ctx, req.PeriodStart, req.PeriodEnd)
@@ -1060,7 +1060,7 @@ func (g *FinancialReportGenerator) generateComprehensiveReport(ctx context.Conte
 	return nil
 }
 
-// buildCategoryData 构建分类数据
+// buildCategoryData 构建分类数据.
 func (g *FinancialReportGenerator) buildCategoryData(totals map[string]float64, grandTotal float64) []SectionDataRow {
 	rows := []SectionDataRow{}
 	for category, amount := range totals {
@@ -1078,7 +1078,7 @@ func (g *FinancialReportGenerator) buildCategoryData(totals map[string]float64, 
 	return rows
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (g *FinancialReportGenerator) GetReport(ctx context.Context, id string) (*FinancialReport, error) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -1091,7 +1091,7 @@ func (g *FinancialReportGenerator) GetReport(ctx context.Context, id string) (*F
 	return report, nil
 }
 
-// QueryReports 查询报告
+// QueryReports 查询报告.
 func (g *FinancialReportGenerator) QueryReports(ctx context.Context, query FinancialReportQuery) ([]*FinancialReport, int, error) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -1176,7 +1176,7 @@ func (g *FinancialReportGenerator) QueryReports(ctx context.Context, query Finan
 	return results[start:end], total, nil
 }
 
-// sortReports 排序报告
+// sortReports 排序报告.
 func (g *FinancialReportGenerator) sortReports(reports []*FinancialReport, sortBy, sortOrder string) {
 	if sortBy == "" {
 		sortBy = "generated_at"
@@ -1205,7 +1205,7 @@ func (g *FinancialReportGenerator) sortReports(reports []*FinancialReport, sortB
 	}
 }
 
-// DeleteReport 删除报告
+// DeleteReport 删除报告.
 func (g *FinancialReportGenerator) DeleteReport(ctx context.Context, id string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -1223,7 +1223,7 @@ func (g *FinancialReportGenerator) DeleteReport(ctx context.Context, id string) 
 	return nil
 }
 
-// ExportReport 导出报告
+// ExportReport 导出报告.
 func (g *FinancialReportGenerator) exportReport(report *FinancialReport, format ExportFormat) (string, error) {
 	switch format {
 	case ExportJSON:
@@ -1237,7 +1237,7 @@ func (g *FinancialReportGenerator) exportReport(report *FinancialReport, format 
 	}
 }
 
-// exportToJSON 导出为JSON
+// exportToJSON 导出为JSON.
 func (g *FinancialReportGenerator) exportToJSON(report *FinancialReport) (string, error) {
 	filename := fmt.Sprintf("%s_%s.json", report.Type, report.ID)
 	filePath := filepath.Join(g.storagePath, filename)
@@ -1254,7 +1254,7 @@ func (g *FinancialReportGenerator) exportToJSON(report *FinancialReport) (string
 	return filePath, nil
 }
 
-// exportToCSV 导出为CSV
+// exportToCSV 导出为CSV.
 func (g *FinancialReportGenerator) exportToCSV(report *FinancialReport) (string, error) {
 	filename := fmt.Sprintf("%s_%s.csv", report.Type, report.ID)
 	filePath := filepath.Join(g.storagePath, filename)
@@ -1281,7 +1281,7 @@ func (g *FinancialReportGenerator) exportToCSV(report *FinancialReport) (string,
 	return filePath, nil
 }
 
-// exportToExcel 导出为Excel
+// exportToExcel 导出为Excel.
 func (g *FinancialReportGenerator) exportToExcel(report *FinancialReport) (string, error) {
 	filename := fmt.Sprintf("%s_%s.xlsx", report.Type, report.ID)
 	filePath := filepath.Join(g.storagePath, filename)
@@ -1318,7 +1318,7 @@ func (g *FinancialReportGenerator) exportToExcel(report *FinancialReport) (strin
 	return filePath, nil
 }
 
-// saveReport 保存报告
+// saveReport 保存报告.
 func (g *FinancialReportGenerator) saveReport(report *FinancialReport) error {
 	data, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
@@ -1331,7 +1331,7 @@ func (g *FinancialReportGenerator) saveReport(report *FinancialReport) error {
 
 // ========== 报告模板 ==========
 
-// FinancialReportTemplate 财务报告模板
+// FinancialReportTemplate 财务报告模板.
 type FinancialReportTemplate struct {
 	ID          string              `json:"id"`
 	Name        string              `json:"name"`
@@ -1344,7 +1344,7 @@ type FinancialReportTemplate struct {
 	IsDefault   bool                `json:"is_default"`
 }
 
-// SectionTemplate 区块模板
+// SectionTemplate 区块模板.
 type SectionTemplate struct {
 	ID         string `json:"id"`
 	Title      string `json:"title"`
@@ -1354,7 +1354,7 @@ type SectionTemplate struct {
 	Position   int    `json:"position"`
 }
 
-// ChartTemplate 图表模板
+// ChartTemplate 图表模板.
 type ChartTemplate struct {
 	ID       string `json:"id"`
 	Type     string `json:"type"`
@@ -1362,7 +1362,7 @@ type ChartTemplate struct {
 	Position int    `json:"position"`
 }
 
-// GetFinReportDefaultTemplates 获取财务报告默认模板
+// GetFinReportDefaultTemplates 获取财务报告默认模板.
 func GetFinReportDefaultTemplates() []FinancialReportTemplate {
 	return []FinancialReportTemplate{
 		{

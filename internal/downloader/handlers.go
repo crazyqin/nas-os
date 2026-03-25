@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler API 处理器
+// Handler API 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("/downloader/tasks", h.ListTasks)
 	r.POST("/downloader/tasks", h.CreateTask)
@@ -30,19 +30,19 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("/downloader/stats", h.GetStats)
 }
 
-// APIResponse API 响应
+// APIResponse API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   string      `json:"error,omitempty"`
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(c *gin.Context, status int, data interface{}) {
 	c.JSON(status, data)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(c *gin.Context, status int, message string) {
 	writeJSON(c, status, APIResponse{
 		Success: false,
@@ -50,7 +50,7 @@ func writeError(c *gin.Context, status int, message string) {
 	})
 }
 
-// writeSuccess 写入成功响应
+// writeSuccess 写入成功响应.
 func writeSuccess(c *gin.Context, data interface{}) {
 	writeJSON(c, http.StatusOK, APIResponse{
 		Success: true,
@@ -58,14 +58,14 @@ func writeSuccess(c *gin.Context, data interface{}) {
 	})
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (h *Handler) ListTasks(c *gin.Context) {
 	status := DownloadStatus(c.Query("status"))
 	tasks := h.manager.ListTasks(status)
 	writeSuccess(c, tasks)
 }
 
-// CreateTask 创建任务
+// CreateTask 创建任务.
 func (h *Handler) CreateTask(c *gin.Context) {
 	var req CreateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -87,7 +87,7 @@ func (h *Handler) CreateTask(c *gin.Context) {
 	writeSuccess(c, task)
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (h *Handler) GetTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -100,7 +100,7 @@ func (h *Handler) GetTask(c *gin.Context) {
 	writeSuccess(c, task)
 }
 
-// UpdateTask 更新任务
+// UpdateTask 更新任务.
 func (h *Handler) UpdateTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -119,7 +119,7 @@ func (h *Handler) UpdateTask(c *gin.Context) {
 	writeSuccess(c, task)
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (h *Handler) DeleteTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -133,7 +133,7 @@ func (h *Handler) DeleteTask(c *gin.Context) {
 	writeSuccess(c, nil)
 }
 
-// StartTask 启动任务
+// StartTask 启动任务.
 func (h *Handler) StartTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -145,7 +145,7 @@ func (h *Handler) StartTask(c *gin.Context) {
 	writeSuccess(c, nil)
 }
 
-// PauseTask 暂停任务
+// PauseTask 暂停任务.
 func (h *Handler) PauseTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -157,7 +157,7 @@ func (h *Handler) PauseTask(c *gin.Context) {
 	writeSuccess(c, nil)
 }
 
-// ResumeTask 恢复任务
+// ResumeTask 恢复任务.
 func (h *Handler) ResumeTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -169,7 +169,7 @@ func (h *Handler) ResumeTask(c *gin.Context) {
 	writeSuccess(c, nil)
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	writeSuccess(c, stats)

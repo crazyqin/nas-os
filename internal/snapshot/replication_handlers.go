@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ReplicationHandlers 复制 API 处理器
+// ReplicationHandlers 复制 API 处理器.
 type ReplicationHandlers struct {
 	manager *ReplicationManager
 }
 
-// NewReplicationHandlers 创建处理器
+// NewReplicationHandlers 创建处理器.
 func NewReplicationHandlers(manager *ReplicationManager) *ReplicationHandlers {
 	return &ReplicationHandlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *ReplicationHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	replication := r.Group("/replication")
 	{
@@ -46,7 +46,7 @@ func (h *ReplicationHandlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 配置管理 ==========
 
-// listConfigs 列出所有复制配置
+// listConfigs 列出所有复制配置.
 func (h *ReplicationHandlers) listConfigs(c *gin.Context) {
 	configs := h.manager.ListConfigs()
 
@@ -57,7 +57,7 @@ func (h *ReplicationHandlers) listConfigs(c *gin.Context) {
 	})
 }
 
-// getConfig 获取单个配置
+// getConfig 获取单个配置.
 func (h *ReplicationHandlers) getConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -77,7 +77,7 @@ func (h *ReplicationHandlers) getConfig(c *gin.Context) {
 	})
 }
 
-// createConfig 创建复制配置
+// createConfig 创建复制配置.
 func (h *ReplicationHandlers) createConfig(c *gin.Context) {
 	var config ReplicationConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -103,7 +103,7 @@ func (h *ReplicationHandlers) createConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新复制配置
+// updateConfig 更新复制配置.
 func (h *ReplicationHandlers) updateConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -131,7 +131,7 @@ func (h *ReplicationHandlers) updateConfig(c *gin.Context) {
 	})
 }
 
-// deleteConfig 删除复制配置
+// deleteConfig 删除复制配置.
 func (h *ReplicationHandlers) deleteConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -151,7 +151,7 @@ func (h *ReplicationHandlers) deleteConfig(c *gin.Context) {
 
 // ========== 复制操作 ==========
 
-// startReplication 启动复制
+// startReplication 启动复制.
 func (h *ReplicationHandlers) startReplication(c *gin.Context) {
 	id := c.Param("id")
 
@@ -174,7 +174,7 @@ func (h *ReplicationHandlers) startReplication(c *gin.Context) {
 	})
 }
 
-// cancelJob 取消任务
+// cancelJob 取消任务.
 func (h *ReplicationHandlers) cancelJob(c *gin.Context) {
 	jobID := c.Param("jobId")
 
@@ -194,7 +194,7 @@ func (h *ReplicationHandlers) cancelJob(c *gin.Context) {
 
 // ========== 状态监控 ==========
 
-// getStatus 获取复制状态
+// getStatus 获取复制状态.
 func (h *ReplicationHandlers) getStatus(c *gin.Context) {
 	id := c.Param("id")
 
@@ -214,7 +214,7 @@ func (h *ReplicationHandlers) getStatus(c *gin.Context) {
 	})
 }
 
-// listJobs 列出任务
+// listJobs 列出任务.
 func (h *ReplicationHandlers) listJobs(c *gin.Context) {
 	configID := c.Query("configId")
 	limit := 50
@@ -231,7 +231,7 @@ func (h *ReplicationHandlers) listJobs(c *gin.Context) {
 	})
 }
 
-// getJob 获取任务详情
+// getJob 获取任务详情.
 func (h *ReplicationHandlers) getJob(c *gin.Context) {
 	jobID := c.Param("jobId")
 
@@ -266,7 +266,7 @@ func (h *ReplicationHandlers) getJob(c *gin.Context) {
 
 // ========== 节点管理 ==========
 
-// listNodes 列出节点状态
+// listNodes 列出节点状态.
 func (h *ReplicationHandlers) listNodes(c *gin.Context) {
 	configs := h.manager.ListConfigs()
 
@@ -295,7 +295,7 @@ func (h *ReplicationHandlers) listNodes(c *gin.Context) {
 	})
 }
 
-// checkNodes 检查节点状态
+// checkNodes 检查节点状态.
 func (h *ReplicationHandlers) checkNodes(c *gin.Context) {
 	// 手动触发节点检查
 	go h.manager.checkNodes()
@@ -308,17 +308,17 @@ func (h *ReplicationHandlers) checkNodes(c *gin.Context) {
 
 // ========== 复制服务端接口 ==========
 
-// ReplicationServerHandlers 复制服务端处理器
+// ReplicationServerHandlers 复制服务端处理器.
 type ReplicationServerHandlers struct {
 	server *ReplicationServer
 }
 
-// NewReplicationServerHandlers 创建服务端处理器
+// NewReplicationServerHandlers 创建服务端处理器.
 func NewReplicationServerHandlers(server *ReplicationServer) *ReplicationServerHandlers {
 	return &ReplicationServerHandlers{server: server}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *ReplicationServerHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	receive := r.Group("/replication")
 	{
@@ -328,7 +328,7 @@ func (h *ReplicationServerHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// receiveSnapshot 接收快照
+// receiveSnapshot 接收快照.
 func (h *ReplicationServerHandlers) receiveSnapshot(c *gin.Context) {
 	var req TransferRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -364,7 +364,7 @@ func (h *ReplicationServerHandlers) receiveSnapshot(c *gin.Context) {
 	})
 }
 
-// completeReceive 完成接收
+// completeReceive 完成接收.
 func (h *ReplicationServerHandlers) completeReceive(c *gin.Context) {
 	snapshotName := c.GetHeader("X-Snapshot-Name")
 	checksum := c.GetHeader("X-Checksum")
@@ -390,7 +390,7 @@ func (h *ReplicationServerHandlers) completeReceive(c *gin.Context) {
 	})
 }
 
-// healthCheck 健康检查
+// healthCheck 健康检查.
 func (h *ReplicationServerHandlers) healthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,

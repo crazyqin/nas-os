@@ -4,7 +4,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// EdgeServices 边缘计算服务集合
+// EdgeServices 边缘计算服务集合.
 type EdgeServices struct {
 	NodeManager   *EdgeNodeManager
 	TaskScheduler *TaskScheduler
@@ -13,7 +13,7 @@ type EdgeServices struct {
 	API           *EdgeAPI
 }
 
-// EdgeRootConfig 边缘计算总配置
+// EdgeRootConfig 边缘计算总配置.
 type EdgeRootConfig struct {
 	Enabled       bool                   `json:"enabled"`
 	NodeID        string                 `json:"node_id"`
@@ -24,7 +24,7 @@ type EdgeRootConfig struct {
 	LoadBalancer  EdgeLBConfig           `json:"load_balancer"`
 }
 
-// InitializeEdgeComputing 初始化边缘计算服务
+// InitializeEdgeComputing 初始化边缘计算服务.
 func InitializeEdgeComputing(config EdgeRootConfig, logger *zap.Logger, cluster *Manager) (*EdgeServices, error) {
 	if !config.Enabled {
 		logger.Info("边缘计算功能已禁用")
@@ -117,7 +117,7 @@ func InitializeEdgeComputing(config EdgeRootConfig, logger *zap.Logger, cluster 
 	return services, nil
 }
 
-// ShutdownEdgeComputing 关闭边缘计算服务
+// ShutdownEdgeComputing 关闭边缘计算服务.
 func ShutdownEdgeComputing(services *EdgeServices) error {
 	if services == nil {
 		return nil
@@ -152,7 +152,7 @@ func ShutdownEdgeComputing(services *EdgeServices) error {
 	return lastErr
 }
 
-// DefaultEdgeConfig 默认边缘计算配置
+// DefaultEdgeConfig 默认边缘计算配置.
 func DefaultEdgeConfig() EdgeRootConfig {
 	return EdgeRootConfig{
 		Enabled: true,

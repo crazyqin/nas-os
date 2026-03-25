@@ -18,7 +18,7 @@ import (
 	nooptrace "go.opentelemetry.io/otel/trace/noop"
 )
 
-// TracingConfig 分布式追踪配置
+// TracingConfig 分布式追踪配置.
 type TracingConfig struct {
 	Enabled     bool    `json:"enabled"`
 	ServiceName string  `json:"serviceName"`
@@ -28,7 +28,7 @@ type TracingConfig struct {
 	Insecure    bool    `json:"insecure"`
 }
 
-// DefaultTracingConfig 默认追踪配置
+// DefaultTracingConfig 默认追踪配置.
 func DefaultTracingConfig() *TracingConfig {
 	return &TracingConfig{
 		Enabled:     false,
@@ -40,7 +40,7 @@ func DefaultTracingConfig() *TracingConfig {
 	}
 }
 
-// TracingManager 追踪管理器
+// TracingManager 追踪管理器.
 type TracingManager struct {
 	config   *TracingConfig
 	tracer   trace.Tracer
@@ -49,7 +49,7 @@ type TracingManager struct {
 	enabled  bool
 }
 
-// NewTracingManager 创建追踪管理器
+// NewTracingManager 创建追踪管理器.
 func NewTracingManager(config *TracingConfig) (*TracingManager, error) {
 	if config == nil {
 		config = DefaultTracingConfig()
@@ -140,17 +140,17 @@ func NewTracingManager(config *TracingConfig) (*TracingManager, error) {
 	return tm, nil
 }
 
-// Tracer 获取追踪器
+// Tracer 获取追踪器.
 func (tm *TracingManager) Tracer() trace.Tracer {
 	return tm.tracer
 }
 
-// Enabled 检查是否启用
+// Enabled 检查是否启用.
 func (tm *TracingManager) Enabled() bool {
 	return tm.enabled
 }
 
-// Shutdown 关闭追踪
+// Shutdown 关闭追踪.
 func (tm *TracingManager) Shutdown(ctx context.Context) error {
 	if tm.shutdown != nil {
 		return tm.shutdown(ctx)
@@ -158,14 +158,14 @@ func (tm *TracingManager) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-// StartSpan 开始追踪 Span
+// StartSpan 开始追踪 Span.
 func (tm *TracingManager) StartSpan(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	return tm.tracer.Start(ctx, name, opts...)
 }
 
 // ========== 追踪辅助函数 ==========
 
-// TraceOperation 追踪操作
+// TraceOperation 追踪操作.
 func (tm *TracingManager) TraceOperation(ctx context.Context, operationName string, fn func(ctx context.Context) error) error {
 	if !tm.enabled {
 		return fn(ctx)
@@ -183,7 +183,7 @@ func (tm *TracingManager) TraceOperation(ctx context.Context, operationName stri
 	return err
 }
 
-// TraceOperationWithResult 追踪带返回值的操作
+// TraceOperationWithResult 追踪带返回值的操作.
 func TraceOperationWithResult[T any](tm *TracingManager, ctx context.Context, operationName string, fn func(ctx context.Context) (T, error)) (T, error) {
 	if !tm.enabled {
 		return fn(ctx)
@@ -203,7 +203,7 @@ func TraceOperationWithResult[T any](tm *TracingManager, ctx context.Context, op
 
 // ========== 预定义的追踪操作 ==========
 
-// TraceBackupOperation 追踪备份操作
+// TraceBackupOperation 追踪备份操作.
 func (tm *TracingManager) TraceBackupOperation(ctx context.Context, jobID, jobName string, fn func(ctx context.Context) error) error {
 	if !tm.enabled {
 		return fn(ctx)
@@ -225,7 +225,7 @@ func (tm *TracingManager) TraceBackupOperation(ctx context.Context, jobID, jobNa
 	return err
 }
 
-// TraceSnapshotOperation 追踪快照操作
+// TraceSnapshotOperation 追踪快照操作.
 func (tm *TracingManager) TraceSnapshotOperation(ctx context.Context, pool, snapshotID string, fn func(ctx context.Context) error) error {
 	if !tm.enabled {
 		return fn(ctx)
@@ -247,7 +247,7 @@ func (tm *TracingManager) TraceSnapshotOperation(ctx context.Context, pool, snap
 	return err
 }
 
-// TraceStorageOperation 追踪存储操作
+// TraceStorageOperation 追踪存储操作.
 func (tm *TracingManager) TraceStorageOperation(ctx context.Context, operation, pool string, fn func(ctx context.Context) error) error {
 	if !tm.enabled {
 		return fn(ctx)
@@ -269,7 +269,7 @@ func (tm *TracingManager) TraceStorageOperation(ctx context.Context, operation, 
 	return err
 }
 
-// TraceAPIRequest 追踪 API 请求
+// TraceAPIRequest 追踪 API 请求.
 func (tm *TracingManager) TraceAPIRequest(ctx context.Context, method, path string, fn func(ctx context.Context) error) error {
 	if !tm.enabled {
 		return fn(ctx)
@@ -293,7 +293,7 @@ func (tm *TracingManager) TraceAPIRequest(ctx context.Context, method, path stri
 
 // ========== Span 属性辅助 ==========
 
-// SetBackupSpanAttributes 设置备份 Span 属性
+// SetBackupSpanAttributes 设置备份 Span 属性.
 func SetBackupSpanAttributes(span trace.Span, jobID, jobName, backupType string, size int64, duration time.Duration) {
 	span.SetAttributes(
 		attribute.String("backup.job_id", jobID),
@@ -304,7 +304,7 @@ func SetBackupSpanAttributes(span trace.Span, jobID, jobName, backupType string,
 	)
 }
 
-// SetSnapshotSpanAttributes 设置快照 Span 属性
+// SetSnapshotSpanAttributes 设置快照 Span 属性.
 func SetSnapshotSpanAttributes(span trace.Span, pool, snapshotID string, size int64, exclusive bool) {
 	span.SetAttributes(
 		attribute.String("snapshot.pool", pool),
@@ -314,7 +314,7 @@ func SetSnapshotSpanAttributes(span trace.Span, pool, snapshotID string, size in
 	)
 }
 
-// SetStorageSpanAttributes 设置存储 Span 属性
+// SetStorageSpanAttributes 设置存储 Span 属性.
 func SetStorageSpanAttributes(span trace.Span, pool, operation string, success bool) {
 	span.SetAttributes(
 		attribute.String("storage.pool", pool),
@@ -327,7 +327,7 @@ func SetStorageSpanAttributes(span trace.Span, pool, operation string, success b
 
 var globalTracingManager *TracingManager
 
-// InitGlobalTracing 初始化全局追踪
+// InitGlobalTracing 初始化全局追踪.
 func InitGlobalTracing(config *TracingConfig) error {
 	tm, err := NewTracingManager(config)
 	if err != nil {
@@ -337,7 +337,7 @@ func InitGlobalTracing(config *TracingConfig) error {
 	return nil
 }
 
-// GlobalTracing 获取全局追踪管理器
+// GlobalTracing 获取全局追踪管理器.
 func GlobalTracing() *TracingManager {
 	if globalTracingManager == nil {
 		globalTracingManager, _ = NewTracingManager(nil)

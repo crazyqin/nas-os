@@ -21,10 +21,10 @@ import (
 
 // ========== SMB/NFS 审计类型定义 ==========
 
-// Protocol 协议类型
+// Protocol 协议类型.
 type Protocol string
 
-// Protocol constants
+// Protocol constants.
 const (
 	ProtocolSMB    Protocol = "smb"
 	ProtocolNFS    Protocol = "nfs"
@@ -32,10 +32,10 @@ const (
 	ProtocolWebDAV Protocol = "webdav"
 )
 
-// FileOperation 文件操作类型
+// FileOperation 文件操作类型.
 type FileOperation string
 
-// FileOperation constants
+// FileOperation constants.
 const (
 	OpCreate   FileOperation = "create"   // 创建文件/目录
 	OpRead     FileOperation = "read"     // 读取文件
@@ -55,14 +55,14 @@ const (
 	OpUpload   FileOperation = "upload"   // 上传
 )
 
-// 文件操作状态常量
+// 文件操作状态常量.
 const (
 	StatusDenied Status = "denied" // 拒绝
 )
 
 // ========== SMB/NFS 审计日志条目 ==========
 
-// FileAuditEntry SMB/NFS 文件操作审计日志条目
+// FileAuditEntry SMB/NFS 文件操作审计日志条目.
 type FileAuditEntry struct {
 	// 基本信息
 	ID        string    `json:"id"`
@@ -113,7 +113,7 @@ type FileAuditEntry struct {
 
 // ========== 审计日志记录器 ==========
 
-// FileAuditLogger SMB/NFS 文件操作审计日志记录器
+// FileAuditLogger SMB/NFS 文件操作审计日志记录器.
 type FileAuditLogger struct {
 	config     FileAuditConfig
 	entries    []*FileAuditEntry
@@ -123,7 +123,7 @@ type FileAuditLogger struct {
 	stopCh     chan struct{}
 }
 
-// FileAuditConfig 审计日志配置
+// FileAuditConfig 审计日志配置.
 type FileAuditConfig struct {
 	// 基本配置
 	Enabled       bool   `json:"enabled"`
@@ -148,7 +148,7 @@ type FileAuditConfig struct {
 	FlushInterval time.Duration `json:"flush_interval"` // 刷新间隔
 }
 
-// DefaultFileAuditConfig 默认配置
+// DefaultFileAuditConfig 默认配置.
 func DefaultFileAuditConfig() FileAuditConfig {
 	return FileAuditConfig{
 		Enabled:           true,
@@ -164,7 +164,7 @@ func DefaultFileAuditConfig() FileAuditConfig {
 	}
 }
 
-// NewFileAuditLogger 创建文件操作审计日志记录器
+// NewFileAuditLogger 创建文件操作审计日志记录器.
 func NewFileAuditLogger(config FileAuditConfig) (*FileAuditLogger, error) {
 	// 创建存储目录
 	if err := os.MkdirAll(config.LogPath, 0750); err != nil {
@@ -194,7 +194,7 @@ func NewFileAuditLogger(config FileAuditConfig) (*FileAuditLogger, error) {
 	return logger, nil
 }
 
-// Stop 停止日志记录器
+// Stop 停止日志记录器.
 func (l *FileAuditLogger) Stop() {
 	close(l.stopCh)
 	l.flush()
@@ -202,7 +202,7 @@ func (l *FileAuditLogger) Stop() {
 
 // ========== 日志记录方法 ==========
 
-// Log 记录文件操作审计日志
+// Log 记录文件操作审计日志.
 func (l *FileAuditLogger) Log(ctx context.Context, entry *FileAuditEntry) error {
 	if !l.config.Enabled {
 		return nil
@@ -256,7 +256,7 @@ func (l *FileAuditLogger) Log(ctx context.Context, entry *FileAuditEntry) error 
 	return nil
 }
 
-// LogSMBOperation 记录 SMB 操作
+// LogSMBOperation 记录 SMB 操作.
 func (l *FileAuditLogger) LogSMBOperation(ctx context.Context, shareName, sharePath, userID, username, clientIP string, op FileOperation, filePath string, status Status, details map[string]interface{}) error {
 	entry := &FileAuditEntry{
 		Protocol:  ProtocolSMB,
@@ -274,7 +274,7 @@ func (l *FileAuditLogger) LogSMBOperation(ctx context.Context, shareName, shareP
 	return l.Log(ctx, entry)
 }
 
-// LogNFSOperation 记录 NFS 操作
+// LogNFSOperation 记录 NFS 操作.
 func (l *FileAuditLogger) LogNFSOperation(ctx context.Context, sharePath, userID, username, clientIP string, op FileOperation, filePath string, status Status, details map[string]interface{}) error {
 	entry := &FileAuditEntry{
 		Protocol:  ProtocolNFS,
@@ -291,7 +291,7 @@ func (l *FileAuditLogger) LogNFSOperation(ctx context.Context, sharePath, userID
 	return l.Log(ctx, entry)
 }
 
-// LogFileCreate 记录文件创建
+// LogFileCreate 记录文件创建.
 func (l *FileAuditLogger) LogFileCreate(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, filePath string, isDir bool, status Status) error {
 	entry := &FileAuditEntry{
 		Protocol:    protocol,
@@ -309,7 +309,7 @@ func (l *FileAuditLogger) LogFileCreate(ctx context.Context, protocol Protocol, 
 	return l.Log(ctx, entry)
 }
 
-// LogFileDelete 记录文件删除
+// LogFileDelete 记录文件删除.
 func (l *FileAuditLogger) LogFileDelete(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, filePath string, isDir bool, status Status) error {
 	entry := &FileAuditEntry{
 		Protocol:    protocol,
@@ -327,7 +327,7 @@ func (l *FileAuditLogger) LogFileDelete(ctx context.Context, protocol Protocol, 
 	return l.Log(ctx, entry)
 }
 
-// LogFileRename 记录文件重命名
+// LogFileRename 记录文件重命名.
 func (l *FileAuditLogger) LogFileRename(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, oldPath, newPath string, status Status) error {
 	entry := &FileAuditEntry{
 		Protocol:  protocol,
@@ -348,7 +348,7 @@ func (l *FileAuditLogger) LogFileRename(ctx context.Context, protocol Protocol, 
 	return l.Log(ctx, entry)
 }
 
-// LogFileMove 记录文件移动
+// LogFileMove 记录文件移动.
 func (l *FileAuditLogger) LogFileMove(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, oldPath, newPath string, status Status) error {
 	entry := &FileAuditEntry{
 		Protocol:  protocol,
@@ -369,7 +369,7 @@ func (l *FileAuditLogger) LogFileMove(ctx context.Context, protocol Protocol, sh
 	return l.Log(ctx, entry)
 }
 
-// LogFileWrite 记录文件写入
+// LogFileWrite 记录文件写入.
 func (l *FileAuditLogger) LogFileWrite(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, filePath string, fileSize int64, status Status) error {
 	entry := &FileAuditEntry{
 		Protocol:  protocol,
@@ -389,7 +389,7 @@ func (l *FileAuditLogger) LogFileWrite(ctx context.Context, protocol Protocol, s
 
 // ========== 查询方法 ==========
 
-// FileAuditQueryOptions 查询选项
+// FileAuditQueryOptions 查询选项.
 type FileAuditQueryOptions struct {
 	Limit     int           `json:"limit"`
 	Offset    int           `json:"offset"`
@@ -406,13 +406,13 @@ type FileAuditQueryOptions struct {
 	Keyword   string        `json:"keyword,omitempty"`
 }
 
-// FileAuditQueryResult 查询结果
+// FileAuditQueryResult 查询结果.
 type FileAuditQueryResult struct {
 	Total   int               `json:"total"`
 	Entries []*FileAuditEntry `json:"entries"`
 }
 
-// Query 查询审计日志
+// Query 查询审计日志.
 func (l *FileAuditLogger) Query(opts FileAuditQueryOptions) (*FileAuditQueryResult, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -457,7 +457,7 @@ func (l *FileAuditLogger) Query(opts FileAuditQueryOptions) (*FileAuditQueryResu
 	}, nil
 }
 
-// GetByID 根据ID获取日志
+// GetByID 根据ID获取日志.
 func (l *FileAuditLogger) GetByID(id string) (*FileAuditEntry, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -473,7 +473,7 @@ func (l *FileAuditLogger) GetByID(id string) (*FileAuditEntry, error) {
 
 // ========== 统计方法 ==========
 
-// FileAuditStatistics 审计统计
+// FileAuditStatistics 审计统计.
 type FileAuditStatistics struct {
 	TotalOperations int              `json:"total_operations"`
 	SuccessCount    int              `json:"success_count"`
@@ -491,32 +491,32 @@ type FileAuditStatistics struct {
 	NewestEntry     *time.Time       `json:"newest_entry,omitempty"`
 }
 
-// UserAuditStat 用户审计统计
+// UserAuditStat 用户审计统计.
 type UserAuditStat struct {
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
 	Count    int    `json:"count"`
 }
 
-// IPAuditStat IP审计统计
+// IPAuditStat IP审计统计.
 type IPAuditStat struct {
 	IP    string `json:"ip"`
 	Count int    `json:"count"`
 }
 
-// ShareAuditStat 共享审计统计
+// ShareAuditStat 共享审计统计.
 type ShareAuditStat struct {
 	ShareName string `json:"share_name"`
 	Count     int    `json:"count"`
 }
 
-// FileAuditStat 文件审计统计
+// FileAuditStat 文件审计统计.
 type FileAuditStat struct {
 	FilePath string `json:"file_path"`
 	Count    int    `json:"count"`
 }
 
-// GetStatistics 获取审计统计
+// GetStatistics 获取审计统计.
 func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -659,7 +659,7 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 
 // ========== 辅助方法 ==========
 
-// isExcludedOperation 检查是否排除的操作
+// isExcludedOperation 检查是否排除的操作.
 func (l *FileAuditLogger) isExcludedOperation(op FileOperation) bool {
 	for _, excluded := range l.config.ExcludeOperations {
 		if op == excluded {
@@ -669,7 +669,7 @@ func (l *FileAuditLogger) isExcludedOperation(op FileOperation) bool {
 	return false
 }
 
-// isExcludedPath 检查是否排除的路径
+// isExcludedPath 检查是否排除的路径.
 func (l *FileAuditLogger) isExcludedPath(path string) bool {
 	for _, excluded := range l.config.ExcludePaths {
 		if strings.HasPrefix(path, excluded) {
@@ -679,7 +679,7 @@ func (l *FileAuditLogger) isExcludedPath(path string) bool {
 	return false
 }
 
-// isExcludedUser 检查是否排除的用户
+// isExcludedUser 检查是否排除的用户.
 func (l *FileAuditLogger) isExcludedUser(username string) bool {
 	for _, excluded := range l.config.ExcludeUsers {
 		if username == excluded {
@@ -689,7 +689,7 @@ func (l *FileAuditLogger) isExcludedUser(username string) bool {
 	return false
 }
 
-// matchesFilter 检查是否匹配筛选条件
+// matchesFilter 检查是否匹配筛选条件.
 func (l *FileAuditLogger) matchesFilter(entry *FileAuditEntry, opts FileAuditQueryOptions) bool {
 	// 时间范围
 	if opts.StartTime != nil && entry.Timestamp.Before(*opts.StartTime) {
@@ -752,7 +752,7 @@ func (l *FileAuditLogger) matchesFilter(entry *FileAuditEntry, opts FileAuditQue
 	return true
 }
 
-// generateSignature 生成数字签名
+// generateSignature 生成数字签名.
 func (l *FileAuditLogger) generateSignature(entry *FileAuditEntry) string {
 	signData := fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s|%s",
 		entry.Timestamp.Format(time.RFC3339Nano),
@@ -770,7 +770,7 @@ func (l *FileAuditLogger) generateSignature(entry *FileAuditEntry) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// VerifySignature 验证签名
+// VerifySignature 验证签名.
 func (l *FileAuditLogger) VerifySignature(entry *FileAuditEntry) bool {
 	if entry.Signature == "" {
 		return false
@@ -781,7 +781,7 @@ func (l *FileAuditLogger) VerifySignature(entry *FileAuditEntry) bool {
 
 // ========== 后台任务 ==========
 
-// flushLoop 定时刷新循环
+// flushLoop 定时刷新循环.
 func (l *FileAuditLogger) flushLoop() {
 	ticker := time.NewTicker(l.config.FlushInterval)
 	defer ticker.Stop()
@@ -796,7 +796,7 @@ func (l *FileAuditLogger) flushLoop() {
 	}
 }
 
-// cleanupLoop 定时清理循环
+// cleanupLoop 定时清理循环.
 func (l *FileAuditLogger) cleanupLoop() {
 	ticker := time.NewTicker(time.Hour)
 	defer ticker.Stop()
@@ -811,7 +811,7 @@ func (l *FileAuditLogger) cleanupLoop() {
 	}
 }
 
-// flush 刷新到存储
+// flush 刷新到存储.
 func (l *FileAuditLogger) flush() {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -839,7 +839,7 @@ func (l *FileAuditLogger) flush() {
 
 // ========== 导出功能 ==========
 
-// FileExportOptions 文件审计导出选项
+// FileExportOptions 文件审计导出选项.
 type FileExportOptions struct {
 	Format    string    `json:"format"` // json, csv
 	StartTime time.Time `json:"start_time"`
@@ -848,7 +848,7 @@ type FileExportOptions struct {
 	Compress  bool      `json:"compress"`
 }
 
-// Export 导出审计日志
+// Export 导出审计日志.
 func (l *FileAuditLogger) Export(opts FileExportOptions) ([]byte, error) {
 	queryOpts := FileAuditQueryOptions{
 		StartTime: &opts.StartTime,
@@ -872,7 +872,7 @@ func (l *FileAuditLogger) Export(opts FileExportOptions) ([]byte, error) {
 	}
 }
 
-// exportToCSV 导出为CSV
+// exportToCSV 导出为CSV.
 func (l *FileAuditLogger) exportToCSV(entries []*FileAuditEntry) ([]byte, error) {
 	var csv strings.Builder
 	csv.WriteString("ID,Timestamp,Protocol,ShareName,UserID,Username,ClientIP,Operation,FilePath,FileName,Status,IsDirectory\n")
@@ -899,28 +899,28 @@ func (l *FileAuditLogger) exportToCSV(entries []*FileAuditEntry) ([]byte, error)
 
 // ========== 配置管理 ==========
 
-// SetConfig 设置配置
+// SetConfig 设置配置.
 func (l *FileAuditLogger) SetConfig(config FileAuditConfig) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.config = config
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (l *FileAuditLogger) GetConfig() FileAuditConfig {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	return l.config
 }
 
-// Enable 启用审计
+// Enable 启用审计.
 func (l *FileAuditLogger) Enable() {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.config.Enabled = true
 }
 
-// Disable 禁用审计
+// Disable 禁用审计.
 func (l *FileAuditLogger) Disable() {
 	l.mu.Lock()
 	defer l.mu.Unlock()

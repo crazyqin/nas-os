@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ResourceVisualizationHandlers 资源可视化 API 处理器
+// ResourceVisualizationHandlers 资源可视化 API 处理器.
 type ResourceVisualizationHandlers struct {
 	reporter          *ResourceReporter
 	costCalculator    *StorageCostCalculator
@@ -18,7 +18,7 @@ type ResourceVisualizationHandlers struct {
 	capacityPlanner   *CapacityPlanner
 }
 
-// NewResourceVisualizationHandlers 创建资源可视化 API 处理器
+// NewResourceVisualizationHandlers 创建资源可视化 API 处理器.
 func NewResourceVisualizationHandlers() *ResourceVisualizationHandlers {
 	return &ResourceVisualizationHandlers{
 		reporter:          NewResourceReporter(DefaultResourceReportConfig()),
@@ -28,7 +28,7 @@ func NewResourceVisualizationHandlers() *ResourceVisualizationHandlers {
 	}
 }
 
-// DefaultStorageCostConfig 默认存储成本配置
+// DefaultStorageCostConfig 默认存储成本配置.
 func DefaultStorageCostConfig() StorageCostConfig {
 	return StorageCostConfig{
 		CostPerGBMonthly:        0.5,
@@ -42,7 +42,7 @@ func DefaultStorageCostConfig() StorageCostConfig {
 	}
 }
 
-// DefaultBandwidthReportConfig 默认带宽报告配置
+// DefaultBandwidthReportConfig 默认带宽报告配置.
 func DefaultBandwidthReportConfig() BandwidthReportConfig {
 	return BandwidthReportConfig{
 		BandwidthLimitMbps:           1000,
@@ -54,7 +54,7 @@ func DefaultBandwidthReportConfig() BandwidthReportConfig {
 	}
 }
 
-// DefaultCapacityPlanningConfig 默认容量规划配置
+// DefaultCapacityPlanningConfig 默认容量规划配置.
 func DefaultCapacityPlanningConfig() CapacityPlanningConfig {
 	return CapacityPlanningConfig{
 		AlertThreshold:    70.0,
@@ -66,7 +66,7 @@ func DefaultCapacityPlanningConfig() CapacityPlanningConfig {
 	}
 }
 
-// RegisterResourceVisualizationRoutes 注册资源可视化路由
+// RegisterResourceVisualizationRoutes 注册资源可视化路由.
 func (h *ResourceVisualizationHandlers) RegisterResourceVisualizationRoutes(apiGroup *gin.RouterGroup) {
 	// ========== 资源总览 ==========
 	overview := apiGroup.Group("/resource-visualization")

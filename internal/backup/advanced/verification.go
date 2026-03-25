@@ -15,14 +15,14 @@ import (
 
 // ========== 验证器 ==========
 
-// Verifier 备份验证器
+// Verifier 备份验证器.
 type Verifier struct {
 	manager     *Manager
 	checksumMap map[string]string // 文件路径 -> 校验和
 	_           sync.RWMutex      // 保留字段以备将来使用
 }
 
-// NewVerifier 创建验证器
+// NewVerifier 创建验证器.
 func NewVerifier(manager *Manager) *Verifier {
 	return &Verifier{
 		manager:     manager,
@@ -30,7 +30,7 @@ func NewVerifier(manager *Manager) *Verifier {
 	}
 }
 
-// VerifyBackup 验证备份完整性
+// VerifyBackup 验证备份完整性.
 func (v *Verifier) VerifyBackup(ctx context.Context, backupID string) (*VerificationResult, error) {
 	startTime := time.Now()
 
@@ -121,7 +121,7 @@ func (v *Verifier) VerifyBackup(ctx context.Context, backupID string) (*Verifica
 	return result, nil
 }
 
-// verifyFile 验证单个文件
+// verifyFile 验证单个文件.
 func (v *Verifier) verifyFile(path string, manifest FileManifest) (bool, error) {
 	// 检查文件是否存在
 	info, err := os.Stat(path)
@@ -159,7 +159,7 @@ func (v *Verifier) verifyFile(path string, manifest FileManifest) (bool, error) 
 	return true, nil
 }
 
-// getErrorType 获取错误类型
+// getErrorType 获取错误类型.
 func (v *Verifier) getErrorType(err error) string {
 	if err == nil {
 		return ""
@@ -177,7 +177,7 @@ func (v *Verifier) getErrorType(err error) string {
 	}
 }
 
-// calculateBackupChecksum 计算备份整体校验和
+// calculateBackupChecksum 计算备份整体校验和.
 func (v *Verifier) calculateBackupChecksum(backupPath string) (string, error) {
 	hash := sha256.New()
 
@@ -208,7 +208,7 @@ func (v *Verifier) calculateBackupChecksum(backupPath string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// QuickVerify 快速验证（仅检查文件是否存在和大小）
+// QuickVerify 快速验证（仅检查文件是否存在和大小）.
 func (v *Verifier) QuickVerify(ctx context.Context, backupID string) (*VerificationResult, error) {
 	startTime := time.Now()
 
@@ -279,7 +279,7 @@ func (v *Verifier) QuickVerify(ctx context.Context, backupID string) (*Verificat
 	return result, nil
 }
 
-// VerifyChecksum 验证文件校验和
+// VerifyChecksum 验证文件校验和.
 func (v *Verifier) VerifyChecksum(path, expectedChecksum string) (bool, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -298,25 +298,25 @@ func (v *Verifier) VerifyChecksum(path, expectedChecksum string) (bool, error) {
 
 // ========== 完整性检查器 ==========
 
-// IntegrityChecker 完整性检查器
+// IntegrityChecker 完整性检查器.
 type IntegrityChecker struct {
 	verifier  *Verifier
 	encryptor Encryptor
 }
 
-// NewIntegrityChecker 创建完整性检查器
+// NewIntegrityChecker 创建完整性检查器.
 func NewIntegrityChecker(verifier *Verifier) *IntegrityChecker {
 	return &IntegrityChecker{
 		verifier: verifier,
 	}
 }
 
-// SetEncryptor 设置加密器
+// SetEncryptor 设置加密器.
 func (ic *IntegrityChecker) SetEncryptor(encryptor Encryptor) {
 	ic.encryptor = encryptor
 }
 
-// CheckManifest 检查清单完整性
+// CheckManifest 检查清单完整性.
 func (ic *IntegrityChecker) CheckManifest(manifestPath string) (*BackupManifest, error) {
 	data, err := os.ReadFile(manifestPath)
 	if err != nil {
@@ -354,7 +354,7 @@ func (ic *IntegrityChecker) CheckManifest(manifestPath string) (*BackupManifest,
 	return &manifest, nil
 }
 
-// CheckBackupChain 检查备份链完整性
+// CheckBackupChain 检查备份链完整性.
 func (ic *IntegrityChecker) CheckBackupChain(ctx context.Context, backupIDs []string) ([]*VerificationResult, error) {
 	var results []*VerificationResult
 
@@ -379,7 +379,7 @@ func (ic *IntegrityChecker) CheckBackupChain(ctx context.Context, backupIDs []st
 	return results, nil
 }
 
-// ValidateIncrementalChain 验证增量备份链
+// ValidateIncrementalChain 验证增量备份链.
 func (ic *IntegrityChecker) ValidateIncrementalChain(ctx context.Context, baseID string, incrementalIDs []string) error {
 	// 验证基础备份
 	result, err := ic.verifier.QuickVerify(ctx, baseID)

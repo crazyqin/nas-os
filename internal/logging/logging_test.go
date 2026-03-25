@@ -279,7 +279,7 @@ func TestLogRotator_Rotation(t *testing.T) {
 	}
 }
 
-// parseTime 辅助函数
+// parseTime 辅助函数.
 func parseTime(s string) time.Time {
 	t, _ := time.Parse(time.RFC3339, s)
 	return t

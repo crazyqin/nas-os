@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// STUN constants
+// STUN constants.
 const (
 	STUNMagicCookie          = 0x2112A442
 	STUNHeaderSize           = 20
@@ -27,24 +27,24 @@ const (
 )
 
 var (
-	// ErrSTUNTimeout indicates STUN request timeout
+	// ErrSTUNTimeout indicates STUN request timeout.
 	ErrSTUNTimeout = errors.New("STUN request timeout")
-	// ErrSTUNNoResponse indicates no STUN response received
+	// ErrSTUNNoResponse indicates no STUN response received.
 	ErrSTUNNoResponse = errors.New("no STUN response")
-	// ErrSTUNInvalid indicates invalid STUN response
+	// ErrSTUNInvalid indicates invalid STUN response.
 	ErrSTUNInvalid = errors.New("invalid STUN response")
-	// ErrSTUNNoMapped indicates no mapped address in response
+	// ErrSTUNNoMapped indicates no mapped address in response.
 	ErrSTUNNoMapped = errors.New("no mapped address in response")
 )
 
-// STUNClient handles STUN protocol operations
+// STUNClient handles STUN protocol operations.
 type STUNClient struct {
 	config *TunnelConfig
 	conn   *net.UDPConn
 	mu     sync.RWMutex
 }
 
-// STUNResult contains the result of a STUN query
+// STUNResult contains the result of a STUN query.
 type STUNResult struct {
 	PublicIP   net.IP
 	PublicPort int
@@ -53,14 +53,14 @@ type STUNResult struct {
 	LocalPort  int
 }
 
-// NewSTUNClient creates a new STUN client
+// NewSTUNClient creates a new STUN client.
 func NewSTUNClient(config *TunnelConfig) *STUNClient {
 	return &STUNClient{
 		config: config,
 	}
 }
 
-// Discover performs NAT discovery using multiple STUN servers
+// Discover performs NAT discovery using multiple STUN servers.
 func (c *STUNClient) Discover(ctx context.Context) (*STUNResult, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -120,7 +120,7 @@ func (c *STUNClient) Discover(ctx context.Context) (*STUNResult, error) {
 	return result, nil
 }
 
-// querySTUNServer queries a single STUN server
+// querySTUNServer queries a single STUN server.
 func (c *STUNClient) querySTUNServer(ctx context.Context, server string) (net.IP, int, error) {
 	// Parse STUN server address
 	host := strings.TrimPrefix(server, "stun:")
@@ -167,7 +167,7 @@ func (c *STUNClient) querySTUNServer(ctx context.Context, server string) (net.IP
 	return c.parseBindingResponse(response[:n])
 }
 
-// createBindingRequest creates a STUN binding request message
+// createBindingRequest creates a STUN binding request message.
 func (c *STUNClient) createBindingRequest() []byte {
 	// STUN header: 2 bytes type + 2 bytes length + 4 bytes magic + 12 bytes transaction ID
 	buf := make([]byte, STUNHeaderSize)
@@ -187,7 +187,7 @@ func (c *STUNClient) createBindingRequest() []byte {
 	return buf
 }
 
-// parseBindingResponse parses a STUN binding response
+// parseBindingResponse parses a STUN binding response.
 func (c *STUNClient) parseBindingResponse(data []byte) (net.IP, int, error) {
 	if len(data) < STUNHeaderSize {
 		return nil, 0, ErrSTUNInvalid
@@ -231,7 +231,7 @@ func (c *STUNClient) parseBindingResponse(data []byte) (net.IP, int, error) {
 	return nil, 0, ErrSTUNNoMapped
 }
 
-// parseMappedAddress parses STUN MAPPED-ADDRESS attribute
+// parseMappedAddress parses STUN MAPPED-ADDRESS attribute.
 func (c *STUNClient) parseMappedAddress(data []byte) (net.IP, int, error) {
 	if len(data) < 8 {
 		return nil, 0, ErrSTUNInvalid
@@ -257,7 +257,7 @@ func (c *STUNClient) parseMappedAddress(data []byte) (net.IP, int, error) {
 	return ip, port, nil
 }
 
-// parseXORMappedAddress parses STUN XOR-MAPPED-ADDRESS attribute
+// parseXORMappedAddress parses STUN XOR-MAPPED-ADDRESS attribute.
 func (c *STUNClient) parseXORMappedAddress(data []byte) (net.IP, int, error) {
 	if len(data) < 8 {
 		return nil, 0, ErrSTUNInvalid
@@ -291,7 +291,7 @@ func (c *STUNClient) parseXORMappedAddress(data []byte) (net.IP, int, error) {
 	return ip, port, nil
 }
 
-// detectNATType determines the NAT type using RFC 3489 algorithm
+// detectNATType determines the NAT type using RFC 3489 algorithm.
 func (c *STUNClient) detectNATType(ctx context.Context) NATType {
 	if len(c.config.STUNServers) < 2 {
 		return NATUnknown
@@ -327,7 +327,7 @@ func (c *STUNClient) detectNATType(ctx context.Context) NATType {
 	return NATRestrictedCone
 }
 
-// GetPublicAddress returns the public IP and port
+// GetPublicAddress returns the public IP and port.
 func (c *STUNClient) GetPublicAddress(ctx context.Context, server string) (net.IP, int, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -348,7 +348,7 @@ func (c *STUNClient) GetPublicAddress(ctx context.Context, server string) (net.I
 	return c.querySTUNServer(ctx, server)
 }
 
-// Close closes the STUN client connection
+// Close closes the STUN client connection.
 func (c *STUNClient) Close() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -359,7 +359,7 @@ func (c *STUNClient) Close() error {
 	return nil
 }
 
-// IsBehindNAT checks if the client is behind NAT
+// IsBehindNAT checks if the client is behind NAT.
 func (c *STUNClient) IsBehindNAT(ctx context.Context) (bool, error) {
 	result, err := c.Discover(ctx)
 	if err != nil {
@@ -368,7 +368,7 @@ func (c *STUNClient) IsBehindNAT(ctx context.Context) (bool, error) {
 	return result.NATType != NATNone && result.NATType != NATUnknown, nil
 }
 
-// ParseSTUNServer parses a STUN server URL
+// ParseSTUNServer parses a STUN server URL.
 func ParseSTUNServer(url string) (host string, port int, err error) {
 	url = strings.TrimPrefix(url, "stun:")
 	url = strings.TrimPrefix(url, "stuns:")
@@ -384,7 +384,7 @@ func ParseSTUNServer(url string) (host string, port int, err error) {
 	return host, port, err
 }
 
-// STUNPacket represents a parsed STUN packet
+// STUNPacket represents a parsed STUN packet.
 type STUNPacket struct {
 	Type          uint16
 	Length        uint16
@@ -392,7 +392,7 @@ type STUNPacket struct {
 	Attributes    map[uint16][]byte
 }
 
-// ParseSTUNPacket parses a raw STUN packet
+// ParseSTUNPacket parses a raw STUN packet.
 func ParseSTUNPacket(data []byte) (*STUNPacket, error) {
 	if len(data) < STUNHeaderSize {
 		return nil, ErrSTUNInvalid
@@ -438,14 +438,14 @@ func ParseSTUNPacket(data []byte) (*STUNPacket, error) {
 	return pkt, nil
 }
 
-// GenerateTransactionID generates a new STUN transaction ID
+// GenerateTransactionID generates a new STUN transaction ID.
 func GenerateTransactionID() []byte {
 	id := make([]byte, 12)
 	rand.Read(id)
 	return id
 }
 
-// ValidateTransactionID checks if two transaction IDs match
+// ValidateTransactionID checks if two transaction IDs match.
 func ValidateTransactionID(id1, id2 []byte) bool {
 	return bytes.Equal(id1, id2)
 }

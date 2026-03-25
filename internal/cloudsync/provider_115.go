@@ -31,7 +31,7 @@ type Provider115Impl struct {
 	rootDirID   string
 }
 
-// New115Provider 创建115网盘提供商
+// New115Provider 创建115网盘提供商.
 func New115Provider(cfg *ProviderConfig) (*Provider115Impl, error) {
 	client := &http.Client{
 		Timeout: 60 * time.Second,
@@ -51,7 +51,7 @@ func New115Provider(cfg *ProviderConfig) (*Provider115Impl, error) {
 	}, nil
 }
 
-// 115网盘API响应结构
+// 115网盘API响应结构.
 type api115Response struct {
 	State    bool   `json:"state"`
 	Error    string `json:"error"`
@@ -60,7 +60,7 @@ type api115Response struct {
 }
 
 // Upload 上传文件到115网盘
-// 115网盘支持秒传功能，会先尝试秒传，失败后走普通上传流程
+// 115网盘支持秒传功能，会先尝试秒传，失败后走普通上传流程.
 func (p *Provider115Impl) Upload(ctx context.Context, localPath, remotePath string) error {
 	file, err := os.Open(localPath)
 	if err != nil {
@@ -107,7 +107,7 @@ func (p *Provider115Impl) Upload(ctx context.Context, localPath, remotePath stri
 	return p.confirmUpload(ctx, uploadInfo.UploadID, fileName, parentID, stat.Size(), hash)
 }
 
-// calculateFileHash 计算文件哈希（115网盘使用的哈希算法）
+// calculateFileHash 计算文件哈希（115网盘使用的哈希算法）.
 func (p *Provider115Impl) calculateFileHash(file *os.File) (string, error) {
 	// 重置文件指针
 	if _, err := file.Seek(0, 0); err != nil {
@@ -127,7 +127,7 @@ func (p *Provider115Impl) calculateFileHash(file *os.File) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// tryInstantUpload 尝试秒传
+// tryInstantUpload 尝试秒传.
 func (p *Provider115Impl) tryInstantUpload(ctx context.Context, fileName, parentID, hash string, size int64) error {
 	apiURL := fmt.Sprintf("%s/files/upload_instant", p.baseURL)
 
@@ -165,14 +165,14 @@ func (p *Provider115Impl) tryInstantUpload(ctx context.Context, fileName, parent
 	return fmt.Errorf("秒传失败: %s", result.ErrnoMsg)
 }
 
-// uploadInfo115 上传信息
+// uploadInfo115 上传信息.
 type uploadInfo115 struct {
 	UploadID  string `json:"upload_id"`
 	UploadURL string `json:"upload_url"`
 	ObjectID  string `json:"object_id"`
 }
 
-// getUploadInfo 获取上传信息
+// getUploadInfo 获取上传信息.
 func (p *Provider115Impl) getUploadInfo(ctx context.Context, fileName, parentID string, size int64, hash string) (*uploadInfo115, error) {
 	apiURL := fmt.Sprintf("%s/files/upload_init", p.baseURL)
 
@@ -214,7 +214,7 @@ func (p *Provider115Impl) getUploadInfo(ctx context.Context, fileName, parentID 
 	return &result.Data, nil
 }
 
-// uploadToOSS 上传文件到OSS
+// uploadToOSS 上传文件到OSS.
 func (p *Provider115Impl) uploadToOSS(ctx context.Context, uploadURL string, file *os.File, size int64) error {
 	req, err := http.NewRequestWithContext(ctx, "PUT", uploadURL, file)
 	if err != nil {
@@ -237,7 +237,7 @@ func (p *Provider115Impl) uploadToOSS(ctx context.Context, uploadURL string, fil
 	return nil
 }
 
-// confirmUpload 确认上传
+// confirmUpload 确认上传.
 func (p *Provider115Impl) confirmUpload(ctx context.Context, uploadID, fileName, parentID string, size int64, hash string) error {
 	apiURL := fmt.Sprintf("%s/files/upload_complete", p.baseURL)
 
@@ -276,7 +276,7 @@ func (p *Provider115Impl) confirmUpload(ctx context.Context, uploadID, fileName,
 	return nil
 }
 
-// Download 从115网盘下载文件
+// Download 从115网盘下载文件.
 func (p *Provider115Impl) Download(ctx context.Context, remotePath, localPath string) error {
 	// 获取文件ID
 	fileID, err := p.getFileIDByPath(ctx, remotePath)
@@ -322,7 +322,7 @@ func (p *Provider115Impl) Download(ctx context.Context, remotePath, localPath st
 	return err
 }
 
-// getDownloadURL 获取下载链接
+// getDownloadURL 获取下载链接.
 func (p *Provider115Impl) getDownloadURL(ctx context.Context, fileID string) (string, error) {
 	apiURL := fmt.Sprintf("%s/files/download?file_id=%s", p.baseURL, fileID)
 
@@ -357,7 +357,7 @@ func (p *Provider115Impl) getDownloadURL(ctx context.Context, fileID string) (st
 	return result.Data.URL, nil
 }
 
-// Delete 删除115网盘文件
+// Delete 删除115网盘文件.
 func (p *Provider115Impl) Delete(ctx context.Context, remotePath string) error {
 	fileID, err := p.getFileIDByPath(ctx, remotePath)
 	if err != nil {
@@ -397,7 +397,7 @@ func (p *Provider115Impl) Delete(ctx context.Context, remotePath string) error {
 	return nil
 }
 
-// List 列出115网盘文件
+// List 列出115网盘文件.
 func (p *Provider115Impl) List(ctx context.Context, prefix string, recursive bool) ([]FileInfo, error) {
 	dirID, err := p.getDirIDByPath(ctx, prefix)
 	if err != nil {
@@ -407,7 +407,7 @@ func (p *Provider115Impl) List(ctx context.Context, prefix string, recursive boo
 	return p.listFiles(ctx, dirID, prefix, recursive)
 }
 
-// listFiles 列出目录下的文件
+// listFiles 列出目录下的文件.
 func (p *Provider115Impl) listFiles(ctx context.Context, dirID, prefix string, recursive bool) ([]FileInfo, error) {
 	apiURL := fmt.Sprintf("%s/files/list?parent_id=%s&limit=1000", p.baseURL, dirID)
 
@@ -464,7 +464,7 @@ func (p *Provider115Impl) listFiles(ctx context.Context, dirID, prefix string, r
 	return files, nil
 }
 
-// Stat 获取115网盘文件信息
+// Stat 获取115网盘文件信息.
 func (p *Provider115Impl) Stat(ctx context.Context, remotePath string) (*FileInfo, error) {
 	fileID, err := p.getFileIDByPath(ctx, remotePath)
 	if err != nil {
@@ -514,18 +514,18 @@ func (p *Provider115Impl) Stat(ctx context.Context, remotePath string) (*FileInf
 	}, nil
 }
 
-// CreateDir 在115网盘创建目录
+// CreateDir 在115网盘创建目录.
 func (p *Provider115Impl) CreateDir(ctx context.Context, remotePath string) error {
 	_, err := p.getOrCreateDirID(ctx, remotePath)
 	return err
 }
 
-// DeleteDir 删除115网盘目录
+// DeleteDir 删除115网盘目录.
 func (p *Provider115Impl) DeleteDir(ctx context.Context, remotePath string) error {
 	return p.Delete(ctx, remotePath)
 }
 
-// TestConnection 测试115网盘连接
+// TestConnection 测试115网盘连接.
 func (p *Provider115Impl) TestConnection(ctx context.Context) (*ConnectionTestResult, error) {
 	start := time.Now()
 
@@ -570,30 +570,30 @@ func (p *Provider115Impl) TestConnection(ctx context.Context) (*ConnectionTestRe
 	return result, nil
 }
 
-// Close 关闭连接
+// Close 关闭连接.
 func (p *Provider115Impl) Close() error {
 	return nil
 }
 
-// GetType 返回提供商类型
+// GetType 返回提供商类型.
 func (p *Provider115Impl) GetType() ProviderType {
 	return Provider115
 }
 
-// GetCapabilities 返回支持的功能
+// GetCapabilities 返回支持的功能.
 func (p *Provider115Impl) GetCapabilities() []string {
 	return []string{"upload", "download", "delete", "list", "instant_upload", "offline_download"}
 }
 
 // ==================== 辅助方法 ====================
 
-// setAuthHeader 设置认证头
+// setAuthHeader 设置认证头.
 func (p *Provider115Impl) setAuthHeader(req *http.Request) {
 	req.Header.Set("Authorization", "Bearer "+p.accessToken)
 	req.Header.Set("User-Agent", "NAS-OS/1.0")
 }
 
-// getOrCreateDirID 获取或创建目录ID
+// getOrCreateDirID 获取或创建目录ID.
 func (p *Provider115Impl) getOrCreateDirID(ctx context.Context, path string) (string, error) {
 	if path == "" || path == "/" {
 		return p.rootDirID, nil
@@ -622,12 +622,12 @@ func (p *Provider115Impl) getOrCreateDirID(ctx context.Context, path string) (st
 	return parentID, nil
 }
 
-// getDirIDByPath 通过路径获取目录ID
+// getDirIDByPath 通过路径获取目录ID.
 func (p *Provider115Impl) getDirIDByPath(ctx context.Context, path string) (string, error) {
 	return p.getOrCreateDirID(ctx, path)
 }
 
-// findDir 查找目录
+// findDir 查找目录.
 func (p *Provider115Impl) findDir(ctx context.Context, parentID, name string) (string, error) {
 	apiURL := fmt.Sprintf("%s/files/list?parent_id=%s&name=%s", p.baseURL, parentID, url.QueryEscape(name))
 
@@ -668,7 +668,7 @@ func (p *Provider115Impl) findDir(ctx context.Context, parentID, name string) (s
 	return "", os.ErrNotExist
 }
 
-// createDir 创建目录
+// createDir 创建目录.
 func (p *Provider115Impl) createDir(ctx context.Context, parentID, name string) (string, error) {
 	apiURL := fmt.Sprintf("%s/files/mkdir", p.baseURL)
 
@@ -710,7 +710,7 @@ func (p *Provider115Impl) createDir(ctx context.Context, parentID, name string) 
 	return result.Data.FileID, nil
 }
 
-// getFileIDByPath 通过路径获取文件ID
+// getFileIDByPath 通过路径获取文件ID.
 func (p *Provider115Impl) getFileIDByPath(ctx context.Context, path string) (string, error) {
 	dir := filepath.Dir(path)
 	fileName := filepath.Base(path)

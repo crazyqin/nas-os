@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// MockExecuter 模拟命令执行器
+// MockExecuter 模拟命令执行器.
 type MockExecuter struct {
 	outputs map[string][]byte
 	errors  map[string]error

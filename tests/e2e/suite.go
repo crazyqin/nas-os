@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-// TestMain E2E 测试入口
+// TestMain E2E 测试入口.
 func TestMain(m *testing.M) {
 	fmt.Println("🚀 NAS-OS E2E 测试套件 v1.0")
 	fmt.Println("=====================================")

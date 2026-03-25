@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RateLimitConfig 限流配置
+// RateLimitConfig 限流配置.
 type RateLimitConfig struct {
 	// 每秒请求数
 	Rate float64
@@ -25,7 +25,7 @@ type RateLimitConfig struct {
 	Message string
 }
 
-// DefaultRateLimitConfig 默认限流配置
+// DefaultRateLimitConfig 默认限流配置.
 var DefaultRateLimitConfig = RateLimitConfig{
 	Rate:        100,         // 100 req/s
 	Burst:       200,         // 突发 200
@@ -34,20 +34,20 @@ var DefaultRateLimitConfig = RateLimitConfig{
 	Message:     "请求过于频繁，请稍后再试",
 }
 
-// RateLimiter 接口
+// RateLimiter 接口.
 type RateLimiter interface {
 	Allow() bool
 	Stats() RateLimiterStats
 }
 
-// RateLimiterStats 限流器统计
+// RateLimiterStats 限流器统计.
 type RateLimiterStats struct {
 	Total   int64
 	Allowed int64
 	Denied  int64
 }
 
-// TokenBucketLimiter 令牌桶限流器
+// TokenBucketLimiter 令牌桶限流器.
 type TokenBucketLimiter struct {
 	rate       float64
 	burst      int
@@ -57,7 +57,7 @@ type TokenBucketLimiter struct {
 	stats      RateLimiterStats
 }
 
-// NewTokenBucketLimiter 创建令牌桶限流器
+// NewTokenBucketLimiter 创建令牌桶限流器.
 func NewTokenBucketLimiter(rate float64, burst int) *TokenBucketLimiter {
 	return &TokenBucketLimiter{
 		rate:       rate,
@@ -67,7 +67,7 @@ func NewTokenBucketLimiter(rate float64, burst int) *TokenBucketLimiter {
 	}
 }
 
-// Allow 检查是否允许请求
+// Allow 检查是否允许请求.
 func (l *TokenBucketLimiter) Allow() bool {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -94,14 +94,14 @@ func (l *TokenBucketLimiter) Allow() bool {
 	return false
 }
 
-// Stats 返回统计信息
+// Stats 返回统计信息.
 func (l *TokenBucketLimiter) Stats() RateLimiterStats {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	return l.stats
 }
 
-// SlidingWindowLimiter 滑动窗口限流器
+// SlidingWindowLimiter 滑动窗口限流器.
 type SlidingWindowLimiter struct {
 	windowSize  time.Duration
 	maxRequests int
@@ -110,7 +110,7 @@ type SlidingWindowLimiter struct {
 	stats       RateLimiterStats
 }
 
-// NewSlidingWindowLimiter 创建滑动窗口限流器
+// NewSlidingWindowLimiter 创建滑动窗口限流器.
 func NewSlidingWindowLimiter(windowSize time.Duration, maxRequests int) *SlidingWindowLimiter {
 	return &SlidingWindowLimiter{
 		windowSize:  windowSize,
@@ -119,7 +119,7 @@ func NewSlidingWindowLimiter(windowSize time.Duration, maxRequests int) *Sliding
 	}
 }
 
-// Allow 检查是否允许请求
+// Allow 检查是否允许请求.
 func (l *SlidingWindowLimiter) Allow() bool {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -150,27 +150,27 @@ func (l *SlidingWindowLimiter) Allow() bool {
 	return false
 }
 
-// Stats 返回统计信息
+// Stats 返回统计信息.
 func (l *SlidingWindowLimiter) Stats() RateLimiterStats {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	return l.stats
 }
 
-// RateLimiterStore 限流器存储
+// RateLimiterStore 限流器存储.
 type RateLimiterStore struct {
 	limiters sync.Map
 	config   RateLimitConfig
 }
 
-// NewRateLimiterStore 创建限流器存储
+// NewRateLimiterStore 创建限流器存储.
 func NewRateLimiterStore(config RateLimitConfig) *RateLimiterStore {
 	return &RateLimiterStore{
 		config: config,
 	}
 }
 
-// Get 获取或创建限流器
+// Get 获取或创建限流器.
 func (s *RateLimiterStore) Get(key string) RateLimiter {
 	if v, ok := s.limiters.Load(key); ok {
 		if limiter, ok := v.(RateLimiter); ok {
@@ -186,7 +186,7 @@ func (s *RateLimiterStore) Get(key string) RateLimiter {
 	return limiter
 }
 
-// Cleanup 清理过期限流器
+// Cleanup 清理过期限流器.
 func (s *RateLimiterStore) Cleanup() {
 	s.limiters.Range(func(key, value interface{}) bool {
 		if limiter, ok := value.(RateLimiter); ok {
@@ -200,12 +200,12 @@ func (s *RateLimiterStore) Cleanup() {
 	})
 }
 
-// DefaultKeyFunc 默认键提取函数（按 IP）
+// DefaultKeyFunc 默认键提取函数（按 IP）.
 func DefaultKeyFunc(c *gin.Context) string {
 	return c.ClientIP()
 }
 
-// RateLimit 限流中间件
+// RateLimit 限流中间件.
 func RateLimit(config RateLimitConfig) gin.HandlerFunc {
 	if config.Rate == 0 {
 		config = DefaultRateLimitConfig
@@ -233,7 +233,7 @@ func RateLimit(config RateLimitConfig) gin.HandlerFunc {
 	}
 }
 
-// RateLimitByUser 按用户限流中间件
+// RateLimitByUser 按用户限流中间件.
 func RateLimitByUser(rate float64, burst int) gin.HandlerFunc {
 	config := RateLimitConfig{
 		Rate:    rate,
@@ -253,7 +253,7 @@ func RateLimitByUser(rate float64, burst int) gin.HandlerFunc {
 	return RateLimit(config)
 }
 
-// RateLimitByIP 按 IP 限流中间件
+// RateLimitByIP 按 IP 限流中间件.
 func RateLimitByIP(rate float64, burst int) gin.HandlerFunc {
 	config := RateLimitConfig{
 		Rate:    rate,
@@ -264,7 +264,7 @@ func RateLimitByIP(rate float64, burst int) gin.HandlerFunc {
 	return RateLimit(config)
 }
 
-// RateLimitByEndpoint 按端点限流中间件
+// RateLimitByEndpoint 按端点限流中间件.
 func RateLimitByEndpoint(rate float64, burst int) gin.HandlerFunc {
 	config := RateLimitConfig{
 		Rate:    rate,
@@ -277,7 +277,7 @@ func RateLimitByEndpoint(rate float64, burst int) gin.HandlerFunc {
 	return RateLimit(config)
 }
 
-// SlidingWindowRateLimit 滑动窗口限流中间件
+// SlidingWindowRateLimit 滑动窗口限流中间件.
 func SlidingWindowRateLimit(windowSize time.Duration, maxRequests int) gin.HandlerFunc {
 	store := &swLimiterStore{
 		limiters: sync.Map{},
@@ -320,12 +320,12 @@ func (s *swLimiterStore) Get(key string) RateLimiter {
 	return limiter
 }
 
-// IPRateLimiter IP 级别限流器
+// IPRateLimiter IP 级别限流器.
 type IPRateLimiter struct {
 	store *RateLimiterStore
 }
 
-// NewIPRateLimiter 创建 IP 限流器
+// NewIPRateLimiter 创建 IP 限流器.
 func NewIPRateLimiter(rate float64, burst int) *IPRateLimiter {
 	return &IPRateLimiter{
 		store: NewRateLimiterStore(RateLimitConfig{
@@ -336,7 +336,7 @@ func NewIPRateLimiter(rate float64, burst int) *IPRateLimiter {
 	}
 }
 
-// Middleware 返回 Gin 中间件
+// Middleware 返回 Gin 中间件.
 func (l *IPRateLimiter) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		limiter := l.store.Get(c.ClientIP())
@@ -349,7 +349,7 @@ func (l *IPRateLimiter) Middleware() gin.HandlerFunc {
 	}
 }
 
-// RateLimitHeaders 添加限流响应头
+// RateLimitHeaders 添加限流响应头.
 func RateLimitHeaders(rate, burst int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("X-RateLimit-Limit", intToStr(rate))
@@ -372,7 +372,7 @@ func intToStr(n int) string {
 }
 
 // ConditionalRateLimit 条件限流中间件
-// 只对特定条件的请求进行限流
+// 只对特定条件的请求进行限流.
 func ConditionalRateLimit(condition func(*gin.Context) bool, rate float64, burst int) gin.HandlerFunc {
 	limiter := NewTokenBucketLimiter(rate, burst)
 
@@ -391,17 +391,17 @@ func ConditionalRateLimit(condition func(*gin.Context) bool, rate float64, burst
 	}
 }
 
-// StrictRateLimit 严格限流（用于敏感接口）
+// StrictRateLimit 严格限流（用于敏感接口）.
 func StrictRateLimit() gin.HandlerFunc {
 	return RateLimitByIP(10, 20) // 10 req/s, burst 20
 }
 
-// NormalRateLimit 普通限流
+// NormalRateLimit 普通限流.
 func NormalRateLimit() gin.HandlerFunc {
 	return RateLimitByIP(100, 200) // 100 req/s, burst 200
 }
 
-// RelaxedRateLimit 宽松限流
+// RelaxedRateLimit 宽松限流.
 func RelaxedRateLimit() gin.HandlerFunc {
 	return RateLimitByIP(1000, 2000) // 1000 req/s, burst 2000
 }
@@ -428,7 +428,7 @@ func APIRateLimit() gin.HandlerFunc {
 	}
 }
 
-// RateLimitStats 限流统计中间件
+// RateLimitStats 限流统计中间件.
 func RateLimitStats() gin.HandlerFunc {
 	var (
 		mu         sync.Mutex
@@ -449,21 +449,21 @@ func RateLimitStats() gin.HandlerFunc {
 	}
 }
 
-// GetRateLimitStats 获取限流统计
+// GetRateLimitStats 获取限流统计.
 func GetRateLimitStats() (total int64, byEndpoint, byIP map[string]int64) {
 	// 这里应该从全局统计中获取
 	// 简化实现
 	return 0, nil, nil
 }
 
-// RateLimitExceededHandler 自定义限流处理
+// RateLimitExceededHandler 自定义限流处理.
 func RateLimitExceededHandler(handler func(*gin.Context)) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		handler(c)
 	}
 }
 
-// RetryAfter 返回重试时间
+// RetryAfter 返回重试时间.
 func RetryAfter(seconds int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Retry-After", intToStr(seconds))
@@ -471,7 +471,7 @@ func RetryAfter(seconds int) gin.HandlerFunc {
 	}
 }
 
-// RateLimitResponseHeaders 设置限流响应头
+// RateLimitResponseHeaders 设置限流响应头.
 func RateLimitResponseHeaders(limit, remaining int, reset time.Time) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("X-RateLimit-Limit", intToStr(limit))
@@ -481,7 +481,7 @@ func RateLimitResponseHeaders(limit, remaining int, reset time.Time) gin.Handler
 	}
 }
 
-// CombinedRateLimit 组合限流（IP + 用户）
+// CombinedRateLimit 组合限流（IP + 用户）.
 func CombinedRateLimit(ipRate, userRate float64, ipBurst, userBurst int) gin.HandlerFunc {
 	ipLimiter := NewTokenBucketLimiter(ipRate, ipBurst)
 	userLimiters := NewRateLimiterStore(RateLimitConfig{
@@ -513,7 +513,7 @@ func CombinedRateLimit(ipRate, userRate float64, ipBurst, userBurst int) gin.Han
 	}
 }
 
-// HealthCheckBypass 健康检查绕过限流
+// HealthCheckBypass 健康检查绕过限流.
 func HealthCheckBypass(path string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Request.URL.Path == path {
@@ -525,7 +525,7 @@ func HealthCheckBypass(path string) gin.HandlerFunc {
 	}
 }
 
-// RateLimitWithError 限流并返回详细错误
+// RateLimitWithError 限流并返回详细错误.
 func RateLimitWithError(rate float64, burst int) gin.HandlerFunc {
 	limiter := NewTokenBucketLimiter(rate, burst)
 

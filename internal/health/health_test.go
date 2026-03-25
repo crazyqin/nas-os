@@ -472,7 +472,7 @@ func TestCheckType_String(t *testing.T) {
 	}
 }
 
-// 集成测试
+// 集成测试.
 func TestManager_Integration(t *testing.T) {
 	manager := NewManager(10 * time.Second)
 
@@ -510,7 +510,7 @@ func TestManager_Integration(t *testing.T) {
 	}
 }
 
-// Benchmark 测试
+// Benchmark 测试.
 func BenchmarkMemoryChecker_Check(b *testing.B) {
 	checker := NewMemoryChecker(80.0)
 	ctx := context.Background()

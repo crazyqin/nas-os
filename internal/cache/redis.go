@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// RedisCache provides Redis-backed caching
+// RedisCache provides Redis-backed caching.
 type RedisCache struct {
 	client *redis.Client
 	ctx    context.Context
@@ -17,7 +17,7 @@ type RedisCache struct {
 	prefix string
 }
 
-// NewRedisCache creates a new Redis cache client
+// NewRedisCache creates a new Redis cache client.
 func NewRedisCache(addr, password string, db int) (*RedisCache, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     addr,
@@ -39,12 +39,12 @@ func NewRedisCache(addr, password string, db int) (*RedisCache, error) {
 	}, nil
 }
 
-// SetWithLogger sets logger for redis cache
+// SetWithLogger sets logger for redis cache.
 func (r *RedisCache) SetWithLogger(logger *zap.Logger) {
 	r.logger = logger
 }
 
-// Get retrieves a value from Redis
+// Get retrieves a value from Redis.
 func (r *RedisCache) Get(key string) (interface{}, bool) {
 	val, err := r.client.Get(r.ctx, r.prefix+key).Bytes()
 	if err == redis.Nil {
@@ -67,12 +67,12 @@ func (r *RedisCache) Get(key string) (interface{}, bool) {
 	return result, true
 }
 
-// Set stores a value in Redis with default TTL
+// Set stores a value in Redis with default TTL.
 func (r *RedisCache) Set(key string, value interface{}) error {
 	return r.SetWithTTL(key, value, 1*time.Hour)
 }
 
-// SetWithTTL stores a value with custom TTL
+// SetWithTTL stores a value with custom TTL.
 func (r *RedisCache) SetWithTTL(key string, value interface{}, ttl time.Duration) error {
 	data, err := json.Marshal(value)
 	if err != nil {
@@ -82,18 +82,18 @@ func (r *RedisCache) SetWithTTL(key string, value interface{}, ttl time.Duration
 	return r.client.Set(r.ctx, r.prefix+key, data, ttl).Err()
 }
 
-// Delete removes a key from Redis
+// Delete removes a key from Redis.
 func (r *RedisCache) Delete(key string) error {
 	return r.client.Del(r.ctx, r.prefix+key).Err()
 }
 
-// Exists checks if a key exists
+// Exists checks if a key exists.
 func (r *RedisCache) Exists(key string) (bool, error) {
 	val, err := r.client.Exists(r.ctx, r.prefix+key).Result()
 	return val > 0, err
 }
 
-// Clear clears all keys with our prefix
+// Clear clears all keys with our prefix.
 func (r *RedisCache) Clear() error {
 	keys, err := r.client.Keys(r.ctx, r.prefix+"*").Result()
 	if err != nil {
@@ -106,12 +106,12 @@ func (r *RedisCache) Clear() error {
 	return nil
 }
 
-// GetClient returns the underlying redis client
+// GetClient returns the underlying redis client.
 func (r *RedisCache) GetClient() *redis.Client {
 	return r.client
 }
 
-// Close closes the redis connection
+// Close closes the redis connection.
 func (r *RedisCache) Close() error {
 	return r.client.Close()
 }

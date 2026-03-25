@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RBACHandlers RBAC HTTP 处理器
+// RBACHandlers RBAC HTTP 处理器.
 type RBACHandlers struct {
 	manager *RBACManager
 }
 
-// NewRBACHandlers 创建 RBAC 处理器
+// NewRBACHandlers 创建 RBAC 处理器.
 func NewRBACHandlers(mgr *RBACManager) *RBACHandlers {
 	return &RBACHandlers{manager: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *RBACHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	rbac := api.Group("/rbac")
 	{
@@ -46,32 +46,32 @@ func (h *RBACHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// success 创建成功响应
+// success 创建成功响应.
 func success(data interface{}) APIResponse {
 	return APIResponse{Code: 0, Message: "success", Data: data}
 }
 
-// apiError 创建错误响应
+// apiError 创建错误响应.
 func apiError(code int, message string) APIResponse {
 	return APIResponse{Code: code, Message: message}
 }
 
 // ========== 角色管理 ==========
 
-// getRoles 获取所有角色
+// getRoles 获取所有角色.
 func (h *RBACHandlers) getRoles(c *gin.Context) {
 	roles := h.manager.GetRoles()
 	c.JSON(http.StatusOK, success(roles))
 }
 
-// CreateRoleRequest 创建角色请求
+// CreateRoleRequest 创建角色请求.
 type CreateRoleRequest struct {
 	Name        string       `json:"name" binding:"required"`
 	Description string       `json:"description"`
@@ -79,7 +79,7 @@ type CreateRoleRequest struct {
 	Inherits    []string     `json:"inherits"`
 }
 
-// createRole 创建自定义角色
+// createRole 创建自定义角色.
 func (h *RBACHandlers) createRole(c *gin.Context) {
 	var req CreateRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -113,7 +113,7 @@ func (h *RBACHandlers) createRole(c *gin.Context) {
 	c.JSON(http.StatusCreated, success(nil))
 }
 
-// getRole 获取角色详情
+// getRole 获取角色详情.
 func (h *RBACHandlers) getRole(c *gin.Context) {
 	roleName := Role(c.Param("name"))
 
@@ -129,7 +129,7 @@ func (h *RBACHandlers) getRole(c *gin.Context) {
 	c.JSON(http.StatusOK, success(roleDef))
 }
 
-// deleteRole 删除角色
+// deleteRole 删除角色.
 func (h *RBACHandlers) deleteRole(c *gin.Context) {
 	roleName := Role(c.Param("name"))
 
@@ -148,7 +148,7 @@ func (h *RBACHandlers) deleteRole(c *gin.Context) {
 
 // ========== 用户角色分配 ==========
 
-// getUserRoles 获取用户的所有角色
+// getUserRoles 获取用户的所有角色.
 func (h *RBACHandlers) getUserRoles(c *gin.Context) {
 	userID := c.Param("id")
 
@@ -160,12 +160,12 @@ func (h *RBACHandlers) getUserRoles(c *gin.Context) {
 	c.JSON(http.StatusOK, success(roles))
 }
 
-// AssignRoleRequest 分配角色请求
+// AssignRoleRequest 分配角色请求.
 type AssignRoleRequest struct {
 	Role string `json:"role" binding:"required"`
 }
 
-// assignUserRole 给用户分配角色
+// assignUserRole 给用户分配角色.
 func (h *RBACHandlers) assignUserRole(c *gin.Context) {
 	userID := c.Param("id")
 
@@ -184,7 +184,7 @@ func (h *RBACHandlers) assignUserRole(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
-// removeUserRole 移除用户角色
+// removeUserRole 移除用户角色.
 func (h *RBACHandlers) removeUserRole(c *gin.Context) {
 	userID := c.Param("id")
 	roleName := Role(c.Param("role"))
@@ -200,7 +200,7 @@ func (h *RBACHandlers) removeUserRole(c *gin.Context) {
 
 // ========== 组角色分配 ==========
 
-// getGroupRoles 获取用户组的所有角色
+// getGroupRoles 获取用户组的所有角色.
 func (h *RBACHandlers) getGroupRoles(c *gin.Context) {
 	groupID := c.Param("id")
 
@@ -215,7 +215,7 @@ func (h *RBACHandlers) getGroupRoles(c *gin.Context) {
 	c.JSON(http.StatusOK, success(roles))
 }
 
-// assignGroupRole 给用户组分配角色
+// assignGroupRole 给用户组分配角色.
 func (h *RBACHandlers) assignGroupRole(c *gin.Context) {
 	groupID := c.Param("id")
 
@@ -234,7 +234,7 @@ func (h *RBACHandlers) assignGroupRole(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
-// removeGroupRole 移除用户组角色
+// removeGroupRole 移除用户组角色.
 func (h *RBACHandlers) removeGroupRole(c *gin.Context) {
 	groupID := c.Param("id")
 	roleName := Role(c.Param("role"))
@@ -256,7 +256,7 @@ func (h *RBACHandlers) removeGroupRole(c *gin.Context) {
 
 // ========== 权限检查 ==========
 
-// CheckPermissionRequest 权限检查请求
+// CheckPermissionRequest 权限检查请求.
 type CheckPermissionRequest struct {
 	UserID   string   `json:"user_id" binding:"required"`
 	Groups   []string `json:"groups"`
@@ -264,7 +264,7 @@ type CheckPermissionRequest struct {
 	Action   string   `json:"action" binding:"required"`
 }
 
-// checkPermission 检查权限
+// checkPermission 检查权限.
 func (h *RBACHandlers) checkPermission(c *gin.Context) {
 	var req CheckPermissionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -284,7 +284,7 @@ func (h *RBACHandlers) checkPermission(c *gin.Context) {
 	}))
 }
 
-// getUserPermissions 获取用户所有权限
+// getUserPermissions 获取用户所有权限.
 func (h *RBACHandlers) getUserPermissions(c *gin.Context) {
 	userID := c.Param("id")
 
@@ -301,7 +301,7 @@ func (h *RBACHandlers) getUserPermissions(c *gin.Context) {
 
 // ========== 资源 ACL ==========
 
-// ResourceACLRequest 资源 ACL 请求
+// ResourceACLRequest 资源 ACL 请求.
 type ResourceACLRequest struct {
 	ResourceType string     `json:"resource_type" binding:"required"`
 	OwnerID      string     `json:"owner_id" binding:"required"`
@@ -311,7 +311,7 @@ type ResourceACLRequest struct {
 	Inherit      bool       `json:"inherit"`
 }
 
-// getResourceACL 获取资源 ACL
+// getResourceACL 获取资源 ACL.
 func (h *RBACHandlers) getResourceACL(c *gin.Context) {
 	resourceID := c.Param("id")
 
@@ -327,7 +327,7 @@ func (h *RBACHandlers) getResourceACL(c *gin.Context) {
 	c.JSON(http.StatusOK, success(acl))
 }
 
-// setResourceACL 设置资源 ACL
+// setResourceACL 设置资源 ACL.
 func (h *RBACHandlers) setResourceACL(c *gin.Context) {
 	resourceID := c.Param("id")
 

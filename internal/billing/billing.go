@@ -18,25 +18,25 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrBillingNotFound 计费记录不存在错误
+	// ErrBillingNotFound 计费记录不存在错误.
 	ErrBillingNotFound = errors.New("计费记录不存在")
-	// ErrInvoiceNotFound 发票不存在错误
+	// ErrInvoiceNotFound 发票不存在错误.
 	ErrInvoiceNotFound = errors.New("发票不存在")
-	// ErrUsageRecordNotFound 用量记录不存在错误
+	// ErrUsageRecordNotFound 用量记录不存在错误.
 	ErrUsageRecordNotFound = errors.New("用量记录不存在")
-	// ErrInvalidBillingPeriod 无效的计费周期错误
+	// ErrInvalidBillingPeriod 无效的计费周期错误.
 	ErrInvalidBillingPeriod = errors.New("无效的计费周期")
-	// ErrInvalidPricingModel 无效的计价模式错误
+	// ErrInvalidPricingModel 无效的计价模式错误.
 	ErrInvalidPricingModel = errors.New("无效的计价模式")
-	// ErrInvoiceAlreadyPaid 发票已支付错误
+	// ErrInvoiceAlreadyPaid 发票已支付错误.
 	ErrInvoiceAlreadyPaid = errors.New("发票已支付")
-	// ErrInvoiceAlreadyVoid 发票已作废错误
+	// ErrInvoiceAlreadyVoid 发票已作废错误.
 	ErrInvoiceAlreadyVoid = errors.New("发票已作废")
 )
 
 // ========== 计费配置 ==========
 
-// Config 计费配置
+// Config 计费配置.
 type Config struct {
 	// 基础配置
 	Enabled           bool   `json:"enabled"`              // 是否启用计费
@@ -71,10 +71,10 @@ type Config struct {
 	CompanyEmail   string `json:"company_email"`
 }
 
-// Cycle 计费周期
+// Cycle 计费周期.
 type Cycle string
 
-// 计费周期常量
+// 计费周期常量.
 const (
 	CycleDaily   Cycle = "daily"   // 日结
 	CycleWeekly  Cycle = "weekly"  // 周结
@@ -82,7 +82,7 @@ const (
 	CycleYearly  Cycle = "yearly"  // 年结
 )
 
-// StoragePricingConfig 存储计费配置
+// StoragePricingConfig 存储计费配置.
 type StoragePricingConfig struct {
 	// 基础存储价格
 	BasePricePerGB    float64 `json:"base_price_per_gb"`    // 基础存储价格（元/GB/周期）
@@ -101,7 +101,7 @@ type StoragePricingConfig struct {
 	TieredPricing []StorageTier `json:"tiered_pricing"` // 阶梯定价配置
 }
 
-// PoolPricing 存储池定价
+// PoolPricing 存储池定价.
 type PoolPricing struct {
 	PoolID          string  `json:"pool_id"`
 	PoolName        string  `json:"pool_name"`
@@ -112,14 +112,14 @@ type PoolPricing struct {
 	DiscountPercent float64 `json:"discount_percent"`  // 折扣百分比
 }
 
-// StorageTier 存储阶梯定价
+// StorageTier 存储阶梯定价.
 type StorageTier struct {
 	MinGB      float64 `json:"min_gb"`       // 起始 GB
 	MaxGB      float64 `json:"max_gb"`       // 结束 GB（-1 表示无限）
 	PricePerGB float64 `json:"price_per_gb"` // 该阶梯价格
 }
 
-// BandwidthPricingConfig 带宽计费配置
+// BandwidthPricingConfig 带宽计费配置.
 type BandwidthPricingConfig struct {
 	// 带宽计费模式
 	Model BandwidthModel `json:"model"` // 计费模式
@@ -138,17 +138,17 @@ type BandwidthPricingConfig struct {
 	TieredPricing []BandwidthTier `json:"tiered_pricing"` // 阶梯定价
 }
 
-// BandwidthModel 带宽计费模式
+// BandwidthModel 带宽计费模式.
 type BandwidthModel string
 
-// 带宽计费模式常量
+// 带宽计费模式常量.
 const (
 	BandwidthModelTraffic   BandwidthModel = "traffic"   // 按流量
 	BandwidthModelBandwidth BandwidthModel = "bandwidth" // 按带宽峰值
 	BandwidthModel95th      BandwidthModel = "95th"      // 95 峰值
 )
 
-// BandwidthTier 带宽阶梯定价
+// BandwidthTier 带宽阶梯定价.
 type BandwidthTier struct {
 	MinGB      float64 `json:"min_gb"`       // 起始 GB
 	MaxGB      float64 `json:"max_gb"`       // 结束 GB（-1 表示无限）
@@ -157,7 +157,7 @@ type BandwidthTier struct {
 
 // ========== 用量记录 ==========
 
-// UsageRecord 用量记录
+// UsageRecord 用量记录.
 type UsageRecord struct {
 	ID       string `json:"id"`
 	UserID   string `json:"user_id"`
@@ -195,7 +195,7 @@ type UsageRecord struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// UsageRecordInput 用量记录输入
+// UsageRecordInput 用量记录输入.
 type UsageRecordInput struct {
 	UserID            string                 `json:"user_id" binding:"required"`
 	UserName          string                 `json:"user_name"`
@@ -213,7 +213,7 @@ type UsageRecordInput struct {
 	Metadata          map[string]interface{} `json:"metadata"`
 }
 
-// UsageSummary 用量汇总
+// UsageSummary 用量汇总.
 type UsageSummary struct {
 	UserID      string    `json:"user_id"`
 	UserName    string    `json:"user_name"`
@@ -241,7 +241,7 @@ type UsageSummary struct {
 	PoolSummaries map[string]*PoolUsageSummary `json:"pool_summaries"`
 }
 
-// PoolUsageSummary 存储池用量汇总
+// PoolUsageSummary 存储池用量汇总.
 type PoolUsageSummary struct {
 	PoolID              string  `json:"pool_id"`
 	PoolName            string  `json:"pool_name"`
@@ -256,7 +256,7 @@ type PoolUsageSummary struct {
 
 // ========== 发票 ==========
 
-// Invoice 发票
+// Invoice 发票.
 type Invoice struct {
 	ID            string `json:"id"`
 	InvoiceNumber string `json:"invoice_number"`
@@ -313,10 +313,10 @@ type Invoice struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// InvoiceStatus 发票状态
+// InvoiceStatus 发票状态.
 type InvoiceStatus string
 
-// 发票状态常量
+// 发票状态常量.
 const (
 	InvoiceStatusDraft    InvoiceStatus = "draft"    // 草稿
 	InvoiceStatusIssued   InvoiceStatus = "issued"   // 已开具
@@ -327,7 +327,7 @@ const (
 	InvoiceStatusRefunded InvoiceStatus = "refunded" // 已退款
 )
 
-// InvoiceLineItem 发票明细项
+// InvoiceLineItem 发票明细项.
 type InvoiceLineItem struct {
 	ID              string     `json:"id"`
 	Description     string     `json:"description"`          // 描述
@@ -343,7 +343,7 @@ type InvoiceLineItem struct {
 	PoolName        string     `json:"pool_name,omitempty"`  // 存储池名称
 }
 
-// InvoiceInput 发票输入
+// InvoiceInput 发票输入.
 type InvoiceInput struct {
 	UserID         string                 `json:"user_id" binding:"required"`
 	UserName       string                 `json:"user_name"`
@@ -358,7 +358,7 @@ type InvoiceInput struct {
 	Metadata       map[string]interface{} `json:"metadata"`
 }
 
-// InvoiceLineItemInput 发票明细项输入
+// InvoiceLineItemInput 发票明细项输入.
 type InvoiceLineItemInput struct {
 	Description     string     `json:"description" binding:"required"`
 	Quantity        float64    `json:"quantity" binding:"required"`
@@ -372,7 +372,7 @@ type InvoiceLineItemInput struct {
 	PoolName        string     `json:"pool_name"`
 }
 
-// InvoiceSummary 发票汇总
+// InvoiceSummary 发票汇总.
 type InvoiceSummary struct {
 	UserID      string    `json:"user_id"`
 	UserName    string    `json:"user_name"`
@@ -403,7 +403,7 @@ type InvoiceSummary struct {
 
 // ========== 计费统计 ==========
 
-// Stats 计费统计
+// Stats 计费统计.
 type Stats struct {
 	PeriodStart time.Time `json:"period_start"`
 	PeriodEnd   time.Time `json:"period_end"`
@@ -437,7 +437,7 @@ type Stats struct {
 	PoolStats []PoolStats `json:"pool_stats"`
 }
 
-// UserStats 用户计费统计
+// UserStats 用户计费统计.
 type UserStats struct {
 	UserID   string `json:"user_id"`
 	UserName string `json:"user_name"`
@@ -464,7 +464,7 @@ type UserStats struct {
 	PoolCount int `json:"pool_count"`
 }
 
-// PoolStats 存储池计费统计
+// PoolStats 存储池计费统计.
 type PoolStats struct {
 	PoolID      string `json:"pool_id"`
 	PoolName    string `json:"pool_name"`
@@ -492,7 +492,7 @@ type PoolStats struct {
 
 // ========== 计费管理器 ==========
 
-// Manager 计费管理器
+// Manager 计费管理器.
 type Manager struct {
 	config  *Config
 	dataDir string
@@ -504,7 +504,7 @@ type Manager struct {
 	invoiceCounter int                     // 发票计数器
 }
 
-// NewManager 创建计费管理器
+// NewManager 创建计费管理器.
 func NewManager(config *Config, dataDir string) (*Manager, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -530,7 +530,7 @@ func NewManager(config *Config, dataDir string) (*Manager, error) {
 	return bm, nil
 }
 
-// DefaultConfig 默认计费配置
+// DefaultConfig 默认计费配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:            true,
@@ -566,7 +566,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// load 加载数据
+// load 加载数据.
 func (bm *Manager) load() error {
 	// 加载用量记录
 	usagePath := filepath.Join(bm.dataDir, "usage_records.json")
@@ -599,7 +599,7 @@ func (bm *Manager) load() error {
 	return nil
 }
 
-// save 保存数据
+// save 保存数据.
 func (bm *Manager) save() error {
 	// 保存用量记录
 	records := make([]*UsageRecord, 0, len(bm.usageRecords))
@@ -632,7 +632,7 @@ func (bm *Manager) save() error {
 
 // ========== 用量记录管理 ==========
 
-// RecordUsage 记录用量
+// RecordUsage 记录用量.
 func (bm *Manager) RecordUsage(ctx context.Context, input *UsageRecordInput) (*UsageRecord, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -673,7 +673,7 @@ func (bm *Manager) RecordUsage(ctx context.Context, input *UsageRecordInput) (*U
 	return record, nil
 }
 
-// GetUsageRecord 获取用量记录
+// GetUsageRecord 获取用量记录.
 func (bm *Manager) GetUsageRecord(id string) (*UsageRecord, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -685,7 +685,7 @@ func (bm *Manager) GetUsageRecord(id string) (*UsageRecord, error) {
 	return record, nil
 }
 
-// ListUsageRecords 列出用量记录
+// ListUsageRecords 列出用量记录.
 func (bm *Manager) ListUsageRecords(userID string, poolID string, start, end time.Time) ([]*UsageRecord, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -711,7 +711,7 @@ func (bm *Manager) ListUsageRecords(userID string, poolID string, start, end tim
 	return result, nil
 }
 
-// GetUserUsageSummary 获取用户用量汇总
+// GetUserUsageSummary 获取用户用量汇总.
 func (bm *Manager) GetUserUsageSummary(userID string, start, end time.Time) (*UsageSummary, error) {
 	records, err := bm.ListUsageRecords(userID, "", start, end)
 	if err != nil {
@@ -785,7 +785,7 @@ func (bm *Manager) GetUserUsageSummary(userID string, start, end time.Time) (*Us
 	return summary, nil
 }
 
-// GetPoolUsageSummary 获取存储池用量汇总
+// GetPoolUsageSummary 获取存储池用量汇总.
 func (bm *Manager) GetPoolUsageSummary(poolID string, start, end time.Time) (*PoolUsageSummary, error) {
 	records, err := bm.ListUsageRecords("", poolID, start, end)
 	if err != nil {
@@ -821,7 +821,7 @@ func (bm *Manager) GetPoolUsageSummary(poolID string, start, end time.Time) (*Po
 
 // ========== 发票管理 ==========
 
-// CreateInvoice 创建发票
+// CreateInvoice 创建发票.
 func (bm *Manager) CreateInvoice(ctx context.Context, input *InvoiceInput) (*Invoice, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -922,7 +922,7 @@ func (bm *Manager) CreateInvoice(ctx context.Context, input *InvoiceInput) (*Inv
 	return invoice, nil
 }
 
-// GenerateInvoiceFromUsage 根据用量生成发票
+// GenerateInvoiceFromUsage 根据用量生成发票.
 func (bm *Manager) GenerateInvoiceFromUsage(ctx context.Context, userID string, start, end time.Time) (*Invoice, error) {
 	// 获取用户用量汇总
 	summary, err := bm.GetUserUsageSummary(userID, start, end)
@@ -976,7 +976,7 @@ func (bm *Manager) GenerateInvoiceFromUsage(ctx context.Context, userID string, 
 	})
 }
 
-// GetInvoice 获取发票
+// GetInvoice 获取发票.
 func (bm *Manager) GetInvoice(id string) (*Invoice, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -988,7 +988,7 @@ func (bm *Manager) GetInvoice(id string) (*Invoice, error) {
 	return invoice, nil
 }
 
-// GetInvoiceByNumber 按发票号获取发票
+// GetInvoiceByNumber 按发票号获取发票.
 func (bm *Manager) GetInvoiceByNumber(number string) (*Invoice, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -1001,7 +1001,7 @@ func (bm *Manager) GetInvoiceByNumber(number string) (*Invoice, error) {
 	return nil, ErrInvoiceNotFound
 }
 
-// ListInvoices 列出发票
+// ListInvoices 列出发票.
 func (bm *Manager) ListInvoices(userID string, status InvoiceStatus, start, end time.Time) ([]*Invoice, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -1026,7 +1026,7 @@ func (bm *Manager) ListInvoices(userID string, status InvoiceStatus, start, end 
 	return result, nil
 }
 
-// IssueInvoice 开具发票
+// IssueInvoice 开具发票.
 func (bm *Manager) IssueInvoice(id string) (*Invoice, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -1050,7 +1050,7 @@ func (bm *Manager) IssueInvoice(id string) (*Invoice, error) {
 	return invoice, nil
 }
 
-// MarkInvoicePaid 标记发票已支付
+// MarkInvoicePaid 标记发票已支付.
 func (bm *Manager) MarkInvoicePaid(id string, paymentMethod, paymentRef string) (*Invoice, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -1080,7 +1080,7 @@ func (bm *Manager) MarkInvoicePaid(id string, paymentMethod, paymentRef string) 
 	return invoice, nil
 }
 
-// VoidInvoice 作废发票
+// VoidInvoice 作废发票.
 func (bm *Manager) VoidInvoice(id string) (*Invoice, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -1108,7 +1108,7 @@ func (bm *Manager) VoidInvoice(id string) (*Invoice, error) {
 
 // ========== 计费统计 ==========
 
-// GetStats 获取计费统计
+// GetStats 获取计费统计.
 func (bm *Manager) GetStats(start, end time.Time) (*Stats, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -1242,7 +1242,7 @@ func (bm *Manager) GetStats(start, end time.Time) (*Stats, error) {
 	return stats, nil
 }
 
-// GetUserStats 获取用户计费统计
+// GetUserStats 获取用户计费统计.
 func (bm *Manager) GetUserStats(userID string, start, end time.Time) (*UserStats, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -1305,7 +1305,7 @@ func (bm *Manager) GetUserStats(userID string, start, end time.Time) (*UserStats
 	return stats, nil
 }
 
-// GetPoolStats 获取存储池计费统计
+// GetPoolStats 获取存储池计费统计.
 func (bm *Manager) GetPoolStats(poolID string, start, end time.Time) (*PoolStats, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -1346,7 +1346,7 @@ func (bm *Manager) GetPoolStats(poolID string, start, end time.Time) (*PoolStats
 	return stats, nil
 }
 
-// GetInvoiceSummary 获取发票汇总
+// GetInvoiceSummary 获取发票汇总.
 func (bm *Manager) GetInvoiceSummary(userID string, start, end time.Time) (*InvoiceSummary, error) {
 	invoices, err := bm.ListInvoices(userID, "", start, end)
 	if err != nil {
@@ -1396,7 +1396,7 @@ func (bm *Manager) GetInvoiceSummary(userID string, start, end time.Time) (*Invo
 
 // ========== 费用计算 ==========
 
-// calculateStorageCost 计算存储费用
+// calculateStorageCost 计算存储费用.
 func (bm *Manager) calculateStorageCost(gb float64) float64 {
 	// 输入验证：负数返回0
 	if gb <= 0 {
@@ -1417,7 +1417,7 @@ func (bm *Manager) calculateStorageCost(gb float64) float64 {
 	return gb * bm.config.StoragePricing.BasePricePerGB
 }
 
-// calculateBandwidthCost 计算带宽费用
+// calculateBandwidthCost 计算带宽费用.
 func (bm *Manager) calculateBandwidthCost(gb float64) float64 {
 	// 输入验证：负数返回0
 	if gb <= 0 {
@@ -1438,7 +1438,7 @@ func (bm *Manager) calculateBandwidthCost(gb float64) float64 {
 	return gb * bm.config.BandwidthPricing.TrafficPricePerGB
 }
 
-// calculatePoolStorageCost 计算存储池存储费用
+// calculatePoolStorageCost 计算存储池存储费用.
 func (bm *Manager) calculatePoolStorageCost(summary *PoolUsageSummary) float64 {
 	// 检查是否有存储池定价
 	if pricing, ok := bm.config.StoragePricing.PoolPricing[summary.PoolID]; ok {
@@ -1457,7 +1457,7 @@ func (bm *Manager) calculatePoolStorageCost(summary *PoolUsageSummary) float64 {
 	return bm.calculateStorageCost(summary.TotalStorageUsedGB)
 }
 
-// getStorageUnitPrice 获取存储单价
+// getStorageUnitPrice 获取存储单价.
 func (bm *Manager) getStorageUnitPrice(gb float64) float64 {
 	if len(bm.config.StoragePricing.TieredPricing) > 0 {
 		for _, tier := range bm.config.StoragePricing.TieredPricing {
@@ -1469,7 +1469,7 @@ func (bm *Manager) getStorageUnitPrice(gb float64) float64 {
 	return bm.config.StoragePricing.BasePricePerGB
 }
 
-// getBandwidthUnitPrice 获取带宽单价
+// getBandwidthUnitPrice 获取带宽单价.
 func (bm *Manager) getBandwidthUnitPrice(gb float64) float64 {
 	if len(bm.config.BandwidthPricing.TieredPricing) > 0 {
 		for _, tier := range bm.config.BandwidthPricing.TieredPricing {
@@ -1481,7 +1481,7 @@ func (bm *Manager) getBandwidthUnitPrice(gb float64) float64 {
 	return bm.config.BandwidthPricing.TrafficPricePerGB
 }
 
-// getPoolUnitPrice 获取存储池单价
+// getPoolUnitPrice 获取存储池单价.
 func (bm *Manager) getPoolUnitPrice(poolID string) float64 {
 	if pricing, ok := bm.config.StoragePricing.PoolPricing[poolID]; ok {
 		return pricing.PricePerGB
@@ -1491,12 +1491,12 @@ func (bm *Manager) getPoolUnitPrice(poolID string) float64 {
 
 // ========== 辅助函数 ==========
 
-// generateID 生成 ID
+// generateID 生成 ID.
 func generateID(prefix string) string {
 	return fmt.Sprintf("%s-%d-%s", prefix, time.Now().UnixNano(), randomString(6))
 }
 
-// randomString 生成随机字符串
+// randomString 生成随机字符串.
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
@@ -1517,12 +1517,12 @@ func randomString(n int) string {
 	return string(b)
 }
 
-// bytesToGB 字节转 GB
+// bytesToGB 字节转 GB.
 func bytesToGB(bytes uint64) float64 {
 	return float64(bytes) / (1024 * 1024 * 1024)
 }
 
-// extractInvoiceNumber 从发票号提取编号
+// extractInvoiceNumber 从发票号提取编号.
 func extractInvoiceNumber(number string) int {
 	// 发票号格式: PREFIX-YYYYMMDD-NNNN
 	// 提取最后一个数字部分
@@ -1537,7 +1537,7 @@ func extractInvoiceNumber(number string) int {
 	return 0
 }
 
-// calculateTieredCost 阶梯定价计算（存储）
+// calculateTieredCost 阶梯定价计算（存储）.
 func calculateTieredCost(amount float64, tiers []StorageTier) float64 {
 	var total float64
 	remaining := amount
@@ -1566,7 +1566,7 @@ func calculateTieredCost(amount float64, tiers []StorageTier) float64 {
 	return total
 }
 
-// calculateBandwidthTieredCost 阶梯定价计算（带宽）
+// calculateBandwidthTieredCost 阶梯定价计算（带宽）.
 func calculateBandwidthTieredCost(amount float64, tiers []BandwidthTier) float64 {
 	var total float64
 	remaining := amount
@@ -1597,14 +1597,14 @@ func calculateBandwidthTieredCost(amount float64, tiers []BandwidthTier) float64
 
 // ========== 配置管理 ==========
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (bm *Manager) GetConfig() *Config {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 	return bm.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (bm *Manager) UpdateConfig(config *Config) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -1615,7 +1615,7 @@ func (bm *Manager) UpdateConfig(config *Config) error {
 
 // ========== 清理过期数据 ==========
 
-// CleanupOldData 清理过期数据
+// CleanupOldData 清理过期数据.
 func (bm *Manager) CleanupOldData() error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()

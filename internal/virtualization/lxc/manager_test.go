@@ -353,7 +353,7 @@ func TestGetImageAlias(t *testing.T) {
 	}
 }
 
-// Integration tests (require running LXC backend)
+// Integration tests (require running LXC backend).
 func TestManagerIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")

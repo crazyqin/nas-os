@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Category 文件分类
+// Category 文件分类.
 type Category struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -19,7 +19,7 @@ type Category struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-// Tag 标签
+// Tag 标签.
 type Tag struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -29,7 +29,7 @@ type Tag struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// FileClassification 文件分类结果
+// FileClassification 文件分类结果.
 type FileClassification struct {
 	Path        string    `json:"path"`
 	FileName    string    `json:"fileName"`
@@ -44,7 +44,7 @@ type FileClassification struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
-// Features 文件特征
+// Features 文件特征.
 type Features struct {
 	// 文本特征
 	WordCount int      `json:"wordCount,omitempty"`
@@ -76,7 +76,7 @@ type Features struct {
 	Author    string `json:"author,omitempty"`
 }
 
-// Similarity 相似度结果
+// Similarity 相似度结果.
 type Similarity struct {
 	FileA      string    `json:"fileA"`
 	FileB      string    `json:"fileB"`
@@ -86,7 +86,7 @@ type Similarity struct {
 	DetectedAt time.Time `json:"detectedAt"`
 }
 
-// SimType 相似类型
+// SimType 相似类型.
 type SimType string
 
 // SimType constants define the types of similarity detection.
@@ -98,7 +98,7 @@ const (
 	SimTypeSemantic SimType = "semantic" // 语义相似
 )
 
-// ClassificationRule 分类规则
+// ClassificationRule 分类规则.
 type ClassificationRule struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -113,7 +113,7 @@ type ClassificationRule struct {
 	UpdatedAt   time.Time   `json:"updatedAt"`
 }
 
-// Condition 条件
+// Condition 条件.
 type Condition struct {
 	Type     ConditionType `json:"type"`
 	Field    string        `json:"field"`
@@ -121,7 +121,7 @@ type Condition struct {
 	Value    interface{}   `json:"value"`
 }
 
-// ConditionType 条件类型
+// ConditionType 条件类型.
 type ConditionType string
 
 // ConditionType constants define the types of conditions for classification rules.
@@ -136,7 +136,7 @@ const (
 	CondTypeMIME      ConditionType = "mime"
 )
 
-// Action 动作
+// Action 动作.
 type Action struct {
 	Type       ActionType `json:"type"`
 	CategoryID string     `json:"categoryId,omitempty"`
@@ -145,7 +145,7 @@ type Action struct {
 	Rename     string     `json:"rename,omitempty"`
 }
 
-// ActionType 动作类型
+// ActionType 动作类型.
 type ActionType string
 
 // ActionType constants define the types of actions for classification rules.
@@ -157,7 +157,7 @@ const (
 	ActionNotify   ActionType = "notify"
 )
 
-// LearningData 学习数据
+// LearningData 学习数据.
 type LearningData struct {
 	ID           string    `json:"id"`
 	FilePath     string    `json:"filePath"`
@@ -171,7 +171,7 @@ type LearningData struct {
 	CreatedAt    time.Time `json:"createdAt"`
 }
 
-// Config 分类器配置
+// Config 分类器配置.
 type Config struct {
 	// 基础配置
 	DataDir        string `json:"dataDir"`        // 数据存储目录
@@ -194,7 +194,7 @@ type Config struct {
 	EnableVideoFeat bool  `json:"enableVideoFeat"` // 提取视频特征
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() Config {
 	return Config{
 		DataDir:             "/var/lib/nas-os/ai_classify",

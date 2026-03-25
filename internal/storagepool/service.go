@@ -9,14 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Service 存储池服务
+// Service 存储池服务.
 type Service struct {
 	Manager  *Manager
 	Handlers *Handlers
 	monitor  *Monitor
 }
 
-// NewService 创建存储池服务
+// NewService 创建存储池服务.
 func NewService(dataPath, mountBase string) (*Service, error) {
 	manager, err := NewManager(dataPath, mountBase)
 	if err != nil {
@@ -33,7 +33,7 @@ func NewService(dataPath, mountBase string) (*Service, error) {
 	}, nil
 }
 
-// Initialize 初始化服务
+// Initialize 初始化服务.
 func (s *Service) Initialize() error {
 	// 启动监控
 	s.monitor.Start()
@@ -42,23 +42,23 @@ func (s *Service) Initialize() error {
 	return nil
 }
 
-// Close 关闭服务
+// Close 关闭服务.
 func (s *Service) Close() {
 	s.monitor.Stop()
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (s *Service) RegisterRoutes(r *gin.RouterGroup) {
 	s.Handlers.RegisterRoutes(r)
 }
 
-// DefaultDataPath 默认数据路径
+// DefaultDataPath 默认数据路径.
 const DefaultDataPath = "/var/lib/nas-os/storage-pools"
 
-// DefaultMountBase 默认挂载基础目录
+// DefaultMountBase 默认挂载基础目录.
 const DefaultMountBase = "/mnt/pools"
 
-// InitializeService 初始化存储池服务（便捷函数）
+// InitializeService 初始化存储池服务（便捷函数）.
 func InitializeService() (*Service, error) {
 	svc, err := NewService(DefaultDataPath, DefaultMountBase)
 	if err != nil {
@@ -72,7 +72,7 @@ func InitializeService() (*Service, error) {
 	return svc, nil
 }
 
-// Monitor 存储池监控器
+// Monitor 存储池监控器.
 type Monitor struct {
 	manager  *Manager
 	interval time.Duration
@@ -81,7 +81,7 @@ type Monitor struct {
 	mu       sync.Mutex
 }
 
-// NewMonitor 创建监控器
+// NewMonitor 创建监控器.
 func NewMonitor(manager *Manager) *Monitor {
 	return &Monitor{
 		manager:  manager,
@@ -90,7 +90,7 @@ func NewMonitor(manager *Manager) *Monitor {
 	}
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *Monitor) Start() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -103,7 +103,7 @@ func (m *Monitor) Start() {
 	go m.run()
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *Monitor) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -116,14 +116,14 @@ func (m *Monitor) Stop() {
 	m.running = false
 }
 
-// SetInterval 设置监控间隔
+// SetInterval 设置监控间隔.
 func (m *Monitor) SetInterval(interval time.Duration) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.interval = interval
 }
 
-// run 运行监控循环
+// run 运行监控循环.
 func (m *Monitor) run() {
 	ticker := time.NewTicker(m.interval)
 	defer ticker.Stop()
@@ -138,7 +138,7 @@ func (m *Monitor) run() {
 	}
 }
 
-// checkAllPools 检查所有存储池状态
+// checkAllPools 检查所有存储池状态.
 func (m *Monitor) checkAllPools() {
 	pools := m.manager.ListPools()
 
@@ -147,7 +147,7 @@ func (m *Monitor) checkAllPools() {
 	}
 }
 
-// checkPoolHealth 检查存储池健康状态
+// checkPoolHealth 检查存储池健康状态.
 func (m *Monitor) checkPoolHealth(pool *Pool) {
 	// 计算健康分数
 	healthScore := m.calculateHealthScore(pool)
@@ -186,7 +186,7 @@ func (m *Monitor) checkPoolHealth(pool *Pool) {
 	}
 }
 
-// calculateHealthScore 计算健康分数
+// calculateHealthScore 计算健康分数.
 func (m *Monitor) calculateHealthScore(pool *Pool) int {
 	score := 100
 

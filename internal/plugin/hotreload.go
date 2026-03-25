@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// HotReloader manages hot reloading of plugins
+// HotReloader manages hot reloading of plugins.
 type HotReloader struct {
 	pluginDir  string
 	manager    *Manager
@@ -26,7 +26,7 @@ type HotReloader struct {
 	notifyFunc func(pluginID string, event HotReloadEvent)
 }
 
-// Watcher tracks plugin file changes
+// Watcher tracks plugin file changes.
 type Watcher struct {
 	PluginID   string
 	Path       string
@@ -35,7 +35,7 @@ type Watcher struct {
 	CheckCount int
 }
 
-// HotReloadEvent represents a hot reload event
+// HotReloadEvent represents a hot reload event.
 type HotReloadEvent struct {
 	Type      HotReloadEventType `json:"type"`
 	PluginID  string             `json:"pluginId"`
@@ -44,30 +44,30 @@ type HotReloadEvent struct {
 	Error     string             `json:"error,omitempty"`
 }
 
-// HotReloadEventType defines event types
+// HotReloadEventType defines event types.
 type HotReloadEventType string
 
 const (
-	// EventPluginLoaded indicates a plugin was successfully loaded
+	// EventPluginLoaded indicates a plugin was successfully loaded.
 	EventPluginLoaded HotReloadEventType = "loaded"
-	// EventPluginUnloaded indicates a plugin was unloaded
+	// EventPluginUnloaded indicates a plugin was unloaded.
 	EventPluginUnloaded HotReloadEventType = "unloaded"
-	// EventPluginReloaded indicates a plugin was reloaded
+	// EventPluginReloaded indicates a plugin was reloaded.
 	EventPluginReloaded HotReloadEventType = "reloaded"
-	// EventPluginError indicates an error occurred with a plugin
+	// EventPluginError indicates an error occurred with a plugin.
 	EventPluginError HotReloadEventType = "error"
-	// EventPluginDiscovered indicates a new plugin was discovered
+	// EventPluginDiscovered indicates a new plugin was discovered.
 	EventPluginDiscovered HotReloadEventType = "discovered"
 )
 
-// HotReloadConfig holds hot reloader configuration
+// HotReloadConfig holds hot reloader configuration.
 type HotReloadConfig struct {
 	PluginDir     string
 	CheckInterval time.Duration
 	NotifyFunc    func(pluginID string, event HotReloadEvent)
 }
 
-// NewHotReloader creates a new hot reloader
+// NewHotReloader creates a new hot reloader.
 func NewHotReloader(cfg HotReloadConfig, manager *Manager) *HotReloader {
 	if cfg.CheckInterval == 0 {
 		cfg.CheckInterval = 5 * time.Second
@@ -84,19 +84,19 @@ func NewHotReloader(cfg HotReloadConfig, manager *Manager) *HotReloader {
 	}
 }
 
-// Start begins watching for plugin changes
+// Start begins watching for plugin changes.
 func (hr *HotReloader) Start() {
 	go hr.watch()
 	log.Printf("Plugin hot reloader started, watching: %s", hr.pluginDir)
 }
 
-// Stop stops the hot reloader
+// Stop stops the hot reloader.
 func (hr *HotReloader) Stop() {
 	close(hr.stopCh)
 	log.Println("Plugin hot reloader stopped")
 }
 
-// watch continuously checks for plugin changes
+// watch continuously checks for plugin changes.
 func (hr *HotReloader) watch() {
 	ticker := time.NewTicker(hr.interval)
 	defer ticker.Stop()
@@ -114,7 +114,7 @@ func (hr *HotReloader) watch() {
 	}
 }
 
-// scanPlugins performs initial scan of plugin directory
+// scanPlugins performs initial scan of plugin directory.
 func (hr *HotReloader) scanPlugins() {
 	entries, err := os.ReadDir(hr.pluginDir)
 	if err != nil {
@@ -130,7 +130,7 @@ func (hr *HotReloader) scanPlugins() {
 	}
 }
 
-// registerPlugin registers a plugin for watching
+// registerPlugin registers a plugin for watching.
 func (hr *HotReloader) registerPlugin(path string, entry os.DirEntry) {
 	hr.mu.Lock()
 	defer hr.mu.Unlock()
@@ -180,7 +180,7 @@ func (hr *HotReloader) registerPlugin(path string, entry os.DirEntry) {
 	})
 }
 
-// checkForChanges checks for plugin modifications
+// checkForChanges checks for plugin modifications.
 func (hr *HotReloader) checkForChanges() {
 	entries, err := os.ReadDir(hr.pluginDir)
 	if err != nil {
@@ -251,7 +251,7 @@ func (hr *HotReloader) checkForChanges() {
 	}
 }
 
-// reloadPlugin reloads a plugin
+// reloadPlugin reloads a plugin.
 func (hr *HotReloader) reloadPlugin(pluginID, path string) {
 	log.Printf("Reloading plugin: %s", pluginID)
 
@@ -318,7 +318,7 @@ func (hr *HotReloader) reloadPlugin(pluginID, path string) {
 	})
 }
 
-// unloadPlugin unloads a removed plugin
+// unloadPlugin unloads a removed plugin.
 func (hr *HotReloader) unloadPlugin(pluginID string) {
 	log.Printf("Unloading removed plugin: %s", pluginID)
 
@@ -335,7 +335,7 @@ func (hr *HotReloader) unloadPlugin(pluginID string) {
 	})
 }
 
-// calculateChecksum calculates checksum for a plugin
+// calculateChecksum calculates checksum for a plugin.
 func (hr *HotReloader) calculateChecksum(path string) string {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -374,14 +374,14 @@ func (hr *HotReloader) calculateChecksum(path string) string {
 	return hex.EncodeToString(hash.Sum(nil))[:16]
 }
 
-// notify sends a notification
+// notify sends a notification.
 func (hr *HotReloader) notify(pluginID string, event HotReloadEvent) {
 	if hr.notifyFunc != nil {
 		hr.notifyFunc(pluginID, event)
 	}
 }
 
-// GetWatchers returns all plugin watchers
+// GetWatchers returns all plugin watchers.
 func (hr *HotReloader) GetWatchers() map[string]*Watcher {
 	hr.mu.RLock()
 	defer hr.mu.RUnlock()
@@ -393,7 +393,7 @@ func (hr *HotReloader) GetWatchers() map[string]*Watcher {
 	return result
 }
 
-// ForceReload forces a reload of a specific plugin
+// ForceReload forces a reload of a specific plugin.
 func (hr *HotReloader) ForceReload(pluginID string) error {
 	hr.mu.RLock()
 	watcher, exists := hr.watchers[pluginID]
@@ -407,14 +407,14 @@ func (hr *HotReloader) ForceReload(pluginID string) error {
 	return nil
 }
 
-// HotReloadStatus represents the status of hot reloading
+// HotReloadStatus represents the status of hot reloading.
 type HotReloadStatus struct {
 	Running       bool                     `json:"running"`
 	CheckInterval string                   `json:"checkInterval"`
 	Watchers      map[string]WatcherStatus `json:"watchers"`
 }
 
-// WatcherStatus represents status of a plugin watcher
+// WatcherStatus represents status of a plugin watcher.
 type WatcherStatus struct {
 	PluginID    string `json:"pluginId"`
 	Path        string `json:"path"`
@@ -423,7 +423,7 @@ type WatcherStatus struct {
 	ReloadCount int    `json:"reloadCount"`
 }
 
-// GetStatus returns hot reloader status
+// GetStatus returns hot reloader status.
 func (hr *HotReloader) GetStatus() HotReloadStatus {
 	hr.mu.RLock()
 	defer hr.mu.RUnlock()
@@ -445,7 +445,7 @@ func (hr *HotReloader) GetStatus() HotReloadStatus {
 	}
 }
 
-// MarshalJSON implements json.Marshaler for HotReloadEvent
+// MarshalJSON implements json.Marshaler for HotReloadEvent.
 func (e HotReloadEvent) MarshalJSON() ([]byte, error) {
 	type Alias HotReloadEvent
 	return json.Marshal(&struct {

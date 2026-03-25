@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TaskScheduler 任务调度器
+// TaskScheduler 任务调度器.
 type TaskScheduler struct {
 	mu       sync.RWMutex
 	manager  *Manager
@@ -16,7 +16,7 @@ type TaskScheduler struct {
 	strategy SchedulingStrategy
 }
 
-// SchedulerConfig 调度器配置
+// SchedulerConfig 调度器配置.
 type SchedulerConfig struct {
 	MaxTasksPerUser     int            `json:"max_tasks_per_user"`     // 每人最大任务数
 	PriorityWeight      float64        `json:"priority_weight"`        // 优先级权重
@@ -28,7 +28,7 @@ type SchedulerConfig struct {
 	WorkingDays         []time.Weekday `json:"working_days"`           // 工作日
 }
 
-// DefaultSchedulerConfig 默认调度器配置
+// DefaultSchedulerConfig 默认调度器配置.
 func DefaultSchedulerConfig() SchedulerConfig {
 	return SchedulerConfig{
 		MaxTasksPerUser:     10,
@@ -42,13 +42,13 @@ func DefaultSchedulerConfig() SchedulerConfig {
 	}
 }
 
-// SchedulingStrategy 调度策略接口
+// SchedulingStrategy 调度策略接口.
 type SchedulingStrategy interface {
 	Score(task *Task, user *UserInfo, context SchedulingContext) float64
 	Name() string
 }
 
-// UserInfo 用户信息
+// UserInfo 用户信息.
 type UserInfo struct {
 	ID             string           `json:"id"`
 	Name           string           `json:"name"`
@@ -58,14 +58,14 @@ type UserInfo struct {
 	History        *UserPerformance `json:"history,omitempty"`
 }
 
-// UserPerformance 用户绩效
+// UserPerformance 用户绩效.
 type UserPerformance struct {
 	AverageCompletionTime float64 `json:"average_completion_time"` // 平均完成时间（小时）
 	OnTimeRate            float64 `json:"on_time_rate"`            // 按时完成率
 	QualityScore          float64 `json:"quality_score"`           // 质量分数 (0-100)
 }
 
-// SchedulingContext 调度上下文
+// SchedulingContext 调度上下文.
 type SchedulingContext struct {
 	ProjectTasks    []*Task             `json:"project_tasks"`
 	UserWorkloads   map[string]int      `json:"user_workloads"`
@@ -74,7 +74,7 @@ type SchedulingContext struct {
 	ProjectDeadline *time.Time          `json:"project_deadline,omitempty"`
 }
 
-// SchedulingResult 调度结果
+// SchedulingResult 调度结果.
 type SchedulingResult struct {
 	TaskID          string       `json:"task_id"`
 	TaskTitle       string       `json:"task_title"`
@@ -87,14 +87,14 @@ type SchedulingResult struct {
 	Conflicts       []Conflict   `json:"conflicts,omitempty"`
 }
 
-// UserScore 用户评分
+// UserScore 用户评分.
 type UserScore struct {
 	UserID string  `json:"user_id"`
 	Score  float64 `json:"score"`
 	Reason string  `json:"reason"`
 }
 
-// Conflict 冲突信息
+// Conflict 冲突信息.
 type Conflict struct {
 	Type        string `json:"type"` // workload, skill, dependency, schedule
 	Description string `json:"description"`
@@ -103,7 +103,7 @@ type Conflict struct {
 	Severity    string `json:"severity"` // low, medium, high
 }
 
-// NewTaskScheduler 创建任务调度器
+// NewTaskScheduler 创建任务调度器.
 func NewTaskScheduler(mgr *Manager, config SchedulerConfig) *TaskScheduler {
 	return &TaskScheduler{
 		manager:  mgr,
@@ -112,17 +112,17 @@ func NewTaskScheduler(mgr *Manager, config SchedulerConfig) *TaskScheduler {
 	}
 }
 
-// DefaultSchedulingStrategy 默认调度策略
+// DefaultSchedulingStrategy 默认调度策略.
 type DefaultSchedulingStrategy struct {
 	config SchedulerConfig
 }
 
-// Name 策略名称
+// Name 策略名称.
 func (s *DefaultSchedulingStrategy) Name() string {
 	return "default"
 }
 
-// Score 计算用户对任务的适配分数
+// Score 计算用户对任务的适配分数.
 func (s *DefaultSchedulingStrategy) Score(task *Task, user *UserInfo, context SchedulingContext) float64 {
 	score := 0.0
 
@@ -160,7 +160,7 @@ func (s *DefaultSchedulingStrategy) Score(task *Task, user *UserInfo, context Sc
 	return score
 }
 
-// ScheduleTask 调度单个任务
+// ScheduleTask 调度单个任务.
 func (ts *TaskScheduler) ScheduleTask(taskID string, users []*UserInfo) (*SchedulingResult, error) {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
@@ -238,7 +238,7 @@ func (ts *TaskScheduler) ScheduleTask(taskID string, users []*UserInfo) (*Schedu
 	return result, nil
 }
 
-// ScheduleProject 调度项目所有未分配任务
+// ScheduleProject 调度项目所有未分配任务.
 func (ts *TaskScheduler) ScheduleProject(projectID string, users []*UserInfo) ([]*SchedulingResult, error) {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
@@ -332,7 +332,7 @@ func (ts *TaskScheduler) ScheduleProject(projectID string, users []*UserInfo) ([
 	return results, nil
 }
 
-// AutoAssign 自动分配任务
+// AutoAssign 自动分配任务.
 func (ts *TaskScheduler) AutoAssign(taskID string, users []*UserInfo) (string, error) {
 	result, err := ts.ScheduleTask(taskID, users)
 	if err != nil {
@@ -353,7 +353,7 @@ func (ts *TaskScheduler) AutoAssign(taskID string, users []*UserInfo) (string, e
 	return result.RecommendedUser, nil
 }
 
-// buildContext 构建调度上下文
+// buildContext 构建调度上下文.
 func (ts *TaskScheduler) buildContext(projectID string) SchedulingContext {
 	context := SchedulingContext{
 		ProjectTasks:  ts.manager.ListTasks(TaskFilter{ProjectID: projectID, Limit: 10000}),
@@ -379,7 +379,7 @@ func (ts *TaskScheduler) buildContext(projectID string) SchedulingContext {
 	return context
 }
 
-// explainScore 解释评分原因
+// explainScore 解释评分原因.
 func (ts *TaskScheduler) explainScore(task *Task, user *UserInfo, score float64, context SchedulingContext) string {
 	reasons := make([]string, 0)
 
@@ -420,7 +420,7 @@ func (ts *TaskScheduler) explainScore(task *Task, user *UserInfo, score float64,
 	return reasons[0]
 }
 
-// detectConflicts 检测冲突
+// detectConflicts 检测冲突.
 func (ts *TaskScheduler) detectConflicts(task *Task, userID string, context SchedulingContext) []Conflict {
 	conflicts := make([]Conflict, 0)
 
@@ -482,7 +482,7 @@ func (ts *TaskScheduler) detectConflicts(task *Task, userID string, context Sche
 	return conflicts
 }
 
-// calculateRecommendedDate 计算建议开始日期
+// calculateRecommendedDate 计算建议开始日期.
 func (ts *TaskScheduler) calculateRecommendedDate(task *Task, context SchedulingContext) *time.Time {
 	if task.StartDate != nil {
 		return task.StartDate
@@ -509,7 +509,7 @@ func (ts *TaskScheduler) calculateRecommendedDate(task *Task, context Scheduling
 	return &date
 }
 
-// GetSchedulingRecommendations 获取调度建议
+// GetSchedulingRecommendations 获取调度建议.
 func (ts *TaskScheduler) GetSchedulingRecommendations(projectID string, users []*UserInfo) (*SchedulingRecommendations, error) {
 	results, err := ts.ScheduleProject(projectID, users)
 	if err != nil {
@@ -591,7 +591,7 @@ func (ts *TaskScheduler) GetSchedulingRecommendations(projectID string, users []
 	return recs, nil
 }
 
-// SchedulingRecommendations 调度建议
+// SchedulingRecommendations 调度建议.
 type SchedulingRecommendations struct {
 	ProjectID            string              `json:"project_id"`
 	GeneratedAt          time.Time           `json:"generated_at"`
@@ -602,7 +602,7 @@ type SchedulingRecommendations struct {
 	Suggestions          []string            `json:"suggestions"`
 }
 
-// OptimizeAssignment 优化任务分配
+// OptimizeAssignment 优化任务分配.
 func (ts *TaskScheduler) OptimizeAssignment(projectID string, users []*UserInfo) ([]*SchedulingResult, error) {
 	// 多轮优化
 	results, err := ts.ScheduleProject(projectID, users)
@@ -646,7 +646,7 @@ func (ts *TaskScheduler) OptimizeAssignment(projectID string, users []*UserInfo)
 	return optimized, nil
 }
 
-// GetWorkloadReport 获取负载报告
+// GetWorkloadReport 获取负载报告.
 func (ts *TaskScheduler) GetWorkloadReport(projectID string, users []*UserInfo) (*WorkloadReport, error) {
 	context := ts.buildContext(projectID)
 
@@ -703,7 +703,7 @@ func (ts *TaskScheduler) GetWorkloadReport(projectID string, users []*UserInfo) 
 	return report, nil
 }
 
-// WorkloadReport 负载报告
+// WorkloadReport 负载报告.
 type WorkloadReport struct {
 	ProjectID   string             `json:"project_id"`
 	GeneratedAt time.Time          `json:"generated_at"`
@@ -713,7 +713,7 @@ type WorkloadReport struct {
 	Bottlenecks []BottleneckInfo   `json:"bottlenecks"`
 }
 
-// UserWorkloadStat 用户负载统计
+// UserWorkloadStat 用户负载统计.
 type UserWorkloadStat struct {
 	UserID         string  `json:"user_id"`
 	UserName       string  `json:"user_name"`
@@ -724,31 +724,31 @@ type UserWorkloadStat struct {
 	Status         string  `json:"status"` // available, moderate, high, overloaded
 }
 
-// SetStrategy 设置调度策略
+// SetStrategy 设置调度策略.
 func (ts *TaskScheduler) SetStrategy(strategy SchedulingStrategy) {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
 	ts.strategy = strategy
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (ts *TaskScheduler) UpdateConfig(config SchedulerConfig) {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
 	ts.config = config
 }
 
-// PriorityBasedStrategy 优先级调度策略
+// PriorityBasedStrategy 优先级调度策略.
 type PriorityBasedStrategy struct {
 	config SchedulerConfig
 }
 
-// Name 策略名称
+// Name 策略名称.
 func (s *PriorityBasedStrategy) Name() string {
 	return "priority_based"
 }
 
-// Score 基于优先级评分
+// Score 基于优先级评分.
 func (s *PriorityBasedStrategy) Score(task *Task, user *UserInfo, context SchedulingContext) float64 {
 	baseScore := 0.0
 
@@ -779,17 +779,17 @@ func (s *PriorityBasedStrategy) Score(task *Task, user *UserInfo, context Schedu
 	return baseScore
 }
 
-// BalancedStrategy 均衡调度策略
+// BalancedStrategy 均衡调度策略.
 type BalancedStrategy struct {
 	config SchedulerConfig
 }
 
-// Name 策略名称
+// Name 策略名称.
 func (s *BalancedStrategy) Name() string {
 	return "balanced"
 }
 
-// Score 均衡评分
+// Score 均衡评分.
 func (s *BalancedStrategy) Score(task *Task, user *UserInfo, context SchedulingContext) float64 {
 	score := 0.0
 

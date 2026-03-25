@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Target represents an iSCSI target
+// Target represents an iSCSI target.
 type Target struct {
 	ID                string      `json:"id"`
 	IQN               string      `json:"iqn"`                         // iSCSI Qualified Name
@@ -21,7 +21,7 @@ type Target struct {
 	UpdatedAt         time.Time   `json:"updatedAt"`
 }
 
-// TargetInput for creating/updating targets
+// TargetInput for creating/updating targets.
 type TargetInput struct {
 	Name              string     `json:"name" binding:"required"`
 	Alias             string     `json:"alias"`
@@ -31,7 +31,7 @@ type TargetInput struct {
 	CHAP              *CHAPInput `json:"chap"`
 }
 
-// LUN represents a Logical Unit Number
+// LUN represents a Logical Unit Number.
 type LUN struct {
 	ID        string         `json:"id"`
 	Number    int            `json:"number"`    // LUN number (0-255)
@@ -46,17 +46,17 @@ type LUN struct {
 	UpdatedAt time.Time      `json:"updatedAt"`
 }
 
-// LUNType defines the type of LUN backing
+// LUNType defines the type of LUN backing.
 type LUNType string
 
 // LUN 类型常量，定义逻辑单元号的存储后端类型。
 const (
-	// LUNTypeFile represents file-backed LUN type
+	// LUNTypeFile represents file-backed LUN type.
 	LUNTypeFile  LUNType = "file"
 	LUNTypeBlock LUNType = "block"
 )
 
-// LUNInput for creating/updating LUNs
+// LUNInput for creating/updating LUNs.
 type LUNInput struct {
 	Name      string  `json:"name" binding:"required"`
 	Type      LUNType `json:"type" binding:"required"`
@@ -66,12 +66,12 @@ type LUNInput struct {
 	ReadOnly  bool    `json:"readOnly"`
 }
 
-// LUNExpandInput for expanding LUN
+// LUNExpandInput for expanding LUN.
 type LUNExpandInput struct {
 	Size int64 `json:"size" binding:"required"` // New size (must be larger)
 }
 
-// LUNSnapshot represents a LUN snapshot
+// LUNSnapshot represents a LUN snapshot.
 type LUNSnapshot struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -80,12 +80,12 @@ type LUNSnapshot struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// LUNSnapshotInput for creating snapshots
+// LUNSnapshotInput for creating snapshots.
 type LUNSnapshotInput struct {
 	Name string `json:"name" binding:"required"`
 }
 
-// CHAPConfig holds CHAP authentication settings
+// CHAPConfig holds CHAP authentication settings.
 type CHAPConfig struct {
 	Enabled      bool   `json:"enabled"`
 	Username     string `json:"username"`
@@ -95,7 +95,7 @@ type CHAPConfig struct {
 	MutualSecret string `json:"mutualSecret,omitempty"` // Hidden in responses
 }
 
-// CHAPInput for configuring CHAP
+// CHAPInput for configuring CHAP.
 type CHAPInput struct {
 	Enabled      bool   `json:"enabled"`
 	Username     string `json:"username" binding:"required_if=Enabled true"`
@@ -105,7 +105,7 @@ type CHAPInput struct {
 	MutualSecret string `json:"mutualSecret"`
 }
 
-// Session represents an active iSCSI session
+// Session represents an active iSCSI session.
 type Session struct {
 	ID           string    `json:"id"`
 	TargetIQN    string    `json:"targetIqn"`
@@ -115,7 +115,7 @@ type Session struct {
 	State        string    `json:"state"`
 }
 
-// TargetStatus represents target operational status
+// TargetStatus represents target operational status.
 type TargetStatus struct {
 	IQN          string     `json:"iqn"`
 	Running      bool       `json:"running"`
@@ -125,7 +125,7 @@ type TargetStatus struct {
 	LUNCount     int        `json:"lunCount"`
 }
 
-// Config for iSCSI service
+// Config for iSCSI service.
 type Config struct {
 	Enabled       bool   `json:"enabled"`
 	PortalIP      string `json:"portalIp"`
@@ -133,7 +133,7 @@ type Config struct {
 	DiscoveryAuth bool   `json:"discoveryAuth"`
 }
 
-// Errors
+// Errors.
 var (
 	ErrTargetNotFound     = &ISError{Code: 404, Message: "target not found"}
 	ErrTargetExists       = &ISError{Code: 409, Message: "target already exists"}
@@ -146,7 +146,7 @@ var (
 	ErrMaxSessionsReached = &ISError{Code: 503, Message: "maximum sessions reached"}
 )
 
-// ISError represents an iSCSI error
+// ISError represents an iSCSI error.
 type ISError struct {
 	Code    int
 	Message string

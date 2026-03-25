@@ -6,19 +6,19 @@ import (
 	"time"
 )
 
-// APIHandlers API处理器
+// APIHandlers API处理器.
 type APIHandlers struct {
 	manager *Manager
 }
 
-// NewAPIHandlers 创建API处理器
+// NewAPIHandlers 创建API处理器.
 func NewAPIHandlers(manager *Manager) *APIHandlers {
 	return &APIHandlers{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *APIHandlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/backup/advanced/config", h.handleConfig)
 	mux.HandleFunc("/api/backup/advanced/create", h.handleCreate)
@@ -30,7 +30,7 @@ func (h *APIHandlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/backup/advanced/encryption", h.handleEncryptionInfo)
 }
 
-// handleConfig 处理配置请求
+// handleConfig 处理配置请求.
 func (h *APIHandlers) handleConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -52,7 +52,7 @@ func (h *APIHandlers) handleConfig(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleCreate 处理创建备份请求
+// handleCreate 处理创建备份请求.
 func (h *APIHandlers) handleCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		jsonError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -84,7 +84,7 @@ func (h *APIHandlers) handleCreate(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusCreated, record)
 }
 
-// handleRestore 处理恢复请求
+// handleRestore 处理恢复请求.
 func (h *APIHandlers) handleRestore(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		jsonError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -110,7 +110,7 @@ func (h *APIHandlers) handleRestore(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, record)
 }
 
-// handleVerify 处理验证请求
+// handleVerify 处理验证请求.
 func (h *APIHandlers) handleVerify(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		jsonError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -145,7 +145,7 @@ func (h *APIHandlers) handleVerify(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, result)
 }
 
-// handleList 处理列表请求
+// handleList 处理列表请求.
 func (h *APIHandlers) handleList(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		jsonError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -156,7 +156,7 @@ func (h *APIHandlers) handleList(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, records)
 }
 
-// handleProgress 处理进度请求
+// handleProgress 处理进度请求.
 func (h *APIHandlers) handleProgress(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		jsonError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -178,7 +178,7 @@ func (h *APIHandlers) handleProgress(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, progress)
 }
 
-// handleCompressionInfo 处理压缩信息请求
+// handleCompressionInfo 处理压缩信息请求.
 func (h *APIHandlers) handleCompressionInfo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		jsonError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -189,7 +189,7 @@ func (h *APIHandlers) handleCompressionInfo(w http.ResponseWriter, r *http.Reque
 	jsonResponse(w, http.StatusOK, algorithms)
 }
 
-// handleEncryptionInfo 处理加密信息请求
+// handleEncryptionInfo 处理加密信息请求.
 func (h *APIHandlers) handleEncryptionInfo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		jsonError(w, http.StatusMethodNotAllowed, "method not allowed")

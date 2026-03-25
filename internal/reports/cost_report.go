@@ -31,7 +31,7 @@ var (
 
 // ========== 报告类型 ==========
 
-// CostReportType 成本报告类型
+// CostReportType 成本报告类型.
 type CostReportType string
 
 const (
@@ -43,7 +43,7 @@ const (
 	CostReportTypeMonthly CostReportType = "monthly" // 月报
 )
 
-// CostExportFormat 成本导出格式
+// CostExportFormat 成本导出格式.
 type CostExportFormat string
 
 const (
@@ -55,7 +55,7 @@ const (
 
 // ========== 成本报告定义 ==========
 
-// CostReport 成本报告
+// CostReport 成本报告.
 type CostReport struct {
 	// 基本信息
 	ID             string         `json:"id"`
@@ -93,7 +93,7 @@ type CostReport struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// CostReportSummary 成本报告摘要
+// CostReportSummary 成本报告摘要.
 type CostReportSummary struct {
 	// 总成本
 	TotalCost     float64 `json:"total_cost"`
@@ -120,7 +120,7 @@ type CostReportSummary struct {
 	HealthScore int `json:"health_score"` // 0-100
 }
 
-// StorageCostSection 存储成本部分
+// StorageCostSection 存储成本部分.
 type StorageCostSection struct {
 	// 总量
 	TotalCapacityGB float64 `json:"total_capacity_gb"`
@@ -153,7 +153,7 @@ type StorageCostSection struct {
 	TierBreakdown []TierCostItem `json:"tier_breakdown"`
 }
 
-// BandwidthCostSection 带宽成本部分
+// BandwidthCostSection 带宽成本部分.
 type BandwidthCostSection struct {
 	// 流量统计
 	InboundTrafficGB  float64 `json:"inbound_traffic_gb"`
@@ -183,7 +183,7 @@ type BandwidthCostSection struct {
 	OffPeakHours []int `json:"off_peak_hours"` // 低谷时段
 }
 
-// CostTrendItem 成本趋势项
+// CostTrendItem 成本趋势项.
 type CostTrendItem struct {
 	Date           time.Time `json:"date"`
 	StorageCost    float64   `json:"storage_cost"`
@@ -194,7 +194,7 @@ type CostTrendItem struct {
 	CumulativeCost float64   `json:"cumulative_cost"`
 }
 
-// PoolCostItem 存储池成本项
+// PoolCostItem 存储池成本项.
 type PoolCostItem struct {
 	PoolID          string  `json:"pool_id"`
 	PoolName        string  `json:"pool_name"`
@@ -215,7 +215,7 @@ type PoolCostItem struct {
 	Trend string `json:"trend"` // up, down, stable
 }
 
-// UserCostItem 用户成本项
+// UserCostItem 用户成本项.
 type UserCostItem struct {
 	UserID      string             `json:"user_id"`
 	UserName    string             `json:"user_name"`
@@ -227,7 +227,7 @@ type UserCostItem struct {
 	PoolUsage   map[string]float64 `json:"pool_usage"` // poolID -> GB
 }
 
-// TierCostItem 阶梯成本项
+// TierCostItem 阶梯成本项.
 type TierCostItem struct {
 	TierName   string  `json:"tier_name"`
 	MinGB      float64 `json:"min_gb"`
@@ -237,7 +237,7 @@ type TierCostItem struct {
 	Cost       float64 `json:"cost"`
 }
 
-// BudgetComparison 预算对比
+// BudgetComparison 预算对比.
 type BudgetComparison struct {
 	BudgetID     string  `json:"budget_id"`
 	BudgetName   string  `json:"budget_name"`
@@ -252,7 +252,7 @@ type BudgetComparison struct {
 	Categories []BudgetCategoryItem `json:"categories"`
 }
 
-// BudgetCategoryItem 预算分类项
+// BudgetCategoryItem 预算分类项.
 type BudgetCategoryItem struct {
 	Name         string  `json:"name"`
 	Budget       float64 `json:"budget"`
@@ -261,7 +261,7 @@ type BudgetCategoryItem struct {
 	Trend        string  `json:"trend"`
 }
 
-// RecommendationItem 建议项
+// RecommendationItem 建议项.
 type RecommendationItem struct {
 	ID               string  `json:"id"`
 	Type             string  `json:"type"`
@@ -277,7 +277,7 @@ type RecommendationItem struct {
 
 // ========== 报告生成器 ==========
 
-// CostReportGenerator 成本报告生成器
+// CostReportGenerator 成本报告生成器.
 type CostReportGenerator struct {
 	mu        sync.RWMutex
 	dataDir   string
@@ -289,7 +289,7 @@ type CostReportGenerator struct {
 	cacheExpiry time.Duration
 }
 
-// ReportDataProvider 报告数据提供者接口
+// ReportDataProvider 报告数据提供者接口.
 type ReportDataProvider interface {
 	// 存储数据
 	GetStorageData(ctx context.Context, start, end time.Time) (*StorageReportData, error)
@@ -312,7 +312,7 @@ type ReportDataProvider interface {
 	GetHistoricalReport(ctx context.Context, reportType CostReportType, date time.Time) (*CostReport, error)
 }
 
-// StorageReportData 存储报告数据
+// StorageReportData 存储报告数据.
 type StorageReportData struct {
 	TotalCapacityGB float64 `json:"total_capacity_gb"`
 	UsedCapacityGB  float64 `json:"used_capacity_gb"`
@@ -338,7 +338,7 @@ type StorageReportData struct {
 	TierBreakdown   []TierCostItem `json:"tier_breakdown"`
 }
 
-// PoolReportData 存储池报告数据
+// PoolReportData 存储池报告数据.
 type PoolReportData struct {
 	PoolID          string  `json:"pool_id"`
 	PoolName        string  `json:"pool_name"`
@@ -353,7 +353,7 @@ type PoolReportData struct {
 	Trend           string  `json:"trend"`
 }
 
-// UserReportData 用户报告数据
+// UserReportData 用户报告数据.
 type UserReportData struct {
 	UserID      string             `json:"user_id"`
 	UserName    string             `json:"user_name"`
@@ -365,7 +365,7 @@ type UserReportData struct {
 	PoolUsage   map[string]float64 `json:"pool_usage"`
 }
 
-// BandwidthReportData 带宽报告数据
+// BandwidthReportData 带宽报告数据.
 type BandwidthReportData struct {
 	InboundTrafficGB  float64 `json:"inbound_traffic_gb"`
 	OutboundTrafficGB float64 `json:"outbound_traffic_gb"`
@@ -381,7 +381,7 @@ type BandwidthReportData struct {
 	PeakHours         []int   `json:"peak_hours"`
 }
 
-// TrendReportData 趋势报告数据
+// TrendReportData 趋势报告数据.
 type TrendReportData struct {
 	Date          time.Time `json:"date"`
 	StorageCost   float64   `json:"storage_cost"`
@@ -390,7 +390,7 @@ type TrendReportData struct {
 	TrafficGB     float64   `json:"traffic_gb"`
 }
 
-// BudgetReportData 预算报告数据
+// BudgetReportData 预算报告数据.
 type BudgetReportData struct {
 	BudgetID     string               `json:"budget_id"`
 	BudgetName   string               `json:"budget_name"`
@@ -401,7 +401,7 @@ type BudgetReportData struct {
 	Categories   []BudgetCategoryItem `json:"categories"`
 }
 
-// ReportConfig 报告配置
+// ReportConfig 报告配置.
 type ReportConfig struct {
 	DefaultCurrency   string        `json:"default_currency"`
 	DataRetentionDays int           `json:"data_retention_days"`
@@ -410,7 +410,7 @@ type ReportConfig struct {
 	OutputDir         string        `json:"output_dir"`
 }
 
-// DefaultReportConfig 默认报告配置
+// DefaultReportConfig 默认报告配置.
 func DefaultReportConfig() ReportConfig {
 	return ReportConfig{
 		DefaultCurrency:   "CNY",
@@ -421,7 +421,7 @@ func DefaultReportConfig() ReportConfig {
 	}
 }
 
-// NewCostReportGenerator 创建成本报告生成器
+// NewCostReportGenerator 创建成本报告生成器.
 func NewCostReportGenerator(dataDir string, providers ReportDataProvider, config ReportConfig) *CostReportGenerator {
 	return &CostReportGenerator{
 		dataDir:     dataDir,
@@ -434,7 +434,7 @@ func NewCostReportGenerator(dataDir string, providers ReportDataProvider, config
 
 // ========== 报告生成方法 ==========
 
-// GenerateDailyReport 生成日报
+// GenerateDailyReport 生成日报.
 func (g *CostReportGenerator) GenerateDailyReport(ctx context.Context, date time.Time) (*CostReport, error) {
 	start := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 	end := start.Add(24 * time.Hour)
@@ -462,7 +462,7 @@ func (g *CostReportGenerator) GenerateDailyReport(ctx context.Context, date time
 	return report, nil
 }
 
-// GenerateWeeklyReport 生成周报
+// GenerateWeeklyReport 生成周报.
 func (g *CostReportGenerator) GenerateWeeklyReport(ctx context.Context, weekStart time.Time) (*CostReport, error) {
 	// 计算周的开始（周一）和结束（周日）
 	start := weekStart
@@ -501,7 +501,7 @@ func (g *CostReportGenerator) GenerateWeeklyReport(ctx context.Context, weekStar
 	return report, nil
 }
 
-// GenerateMonthlyReport 生成月报
+// GenerateMonthlyReport 生成月报.
 func (g *CostReportGenerator) GenerateMonthlyReport(ctx context.Context, month time.Time) (*CostReport, error) {
 	start := time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, month.Location())
 	end := start.AddDate(0, 1, 0)
@@ -534,7 +534,7 @@ func (g *CostReportGenerator) GenerateMonthlyReport(ctx context.Context, month t
 	return report, nil
 }
 
-// GenerateCustomReport 生成自定义时间范围报告
+// GenerateCustomReport 生成自定义时间范围报告.
 func (g *CostReportGenerator) GenerateCustomReport(ctx context.Context, start, end time.Time) (*CostReport, error) {
 	report := &CostReport{
 		ID:             fmt.Sprintf("custom-%d-%s", start.Unix(), randomString(6)),
@@ -556,7 +556,7 @@ func (g *CostReportGenerator) GenerateCustomReport(ctx context.Context, start, e
 
 // ========== 数据收集 ==========
 
-// collectReportData 收集报告数据
+// collectReportData 收集报告数据.
 func (g *CostReportGenerator) collectReportData(ctx context.Context, report *CostReport, start, end time.Time) error {
 	var wg sync.WaitGroup
 	errChan := make(chan error, 6)
@@ -646,7 +646,7 @@ func (g *CostReportGenerator) collectReportData(ctx context.Context, report *Cos
 	return nil
 }
 
-// populateStorageSection 填充存储部分
+// populateStorageSection 填充存储部分.
 func (g *CostReportGenerator) populateStorageSection(report *CostReport, data *StorageReportData) {
 	if data == nil {
 		return
@@ -679,7 +679,7 @@ func (g *CostReportGenerator) populateStorageSection(report *CostReport, data *S
 	}
 }
 
-// populateBandwidthSection 填充带宽部分
+// populateBandwidthSection 填充带宽部分.
 func (g *CostReportGenerator) populateBandwidthSection(report *CostReport, data *BandwidthReportData) {
 	if data == nil {
 		return
@@ -700,7 +700,7 @@ func (g *CostReportGenerator) populateBandwidthSection(report *CostReport, data 
 	}
 }
 
-// populatePoolBreakdown 填充存储池分解
+// populatePoolBreakdown 填充存储池分解.
 func (g *CostReportGenerator) populatePoolBreakdown(report *CostReport, data []PoolReportData) {
 	report.PoolBreakdown = make([]PoolCostItem, 0, len(data))
 	for _, p := range data {
@@ -728,7 +728,7 @@ func (g *CostReportGenerator) populatePoolBreakdown(report *CostReport, data []P
 	}
 }
 
-// populateUserBreakdown 填充用户分解
+// populateUserBreakdown 填充用户分解.
 func (g *CostReportGenerator) populateUserBreakdown(report *CostReport, data []UserReportData) {
 	report.UserBreakdown = make([]UserCostItem, 0, len(data))
 	for _, u := range data {
@@ -736,7 +736,7 @@ func (g *CostReportGenerator) populateUserBreakdown(report *CostReport, data []U
 	}
 }
 
-// populateTrends 填充趋势数据
+// populateTrends 填充趋势数据.
 func (g *CostReportGenerator) populateTrends(report *CostReport, data []TrendReportData) {
 	report.Trends = make([]CostTrendItem, 0, len(data))
 	var cumulative float64
@@ -757,7 +757,7 @@ func (g *CostReportGenerator) populateTrends(report *CostReport, data []TrendRep
 	}
 }
 
-// calculateSummary 计算摘要
+// calculateSummary 计算摘要.
 func (g *CostReportGenerator) calculateSummary(report *CostReport) {
 	summary := CostReportSummary{
 		TotalCost:          report.StorageCost.MonthlyCost + report.BandwidthCost.TotalCost,
@@ -780,7 +780,7 @@ func (g *CostReportGenerator) calculateSummary(report *CostReport) {
 	report.Summary = summary
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (g *CostReportGenerator) calculateHealthScore(report *CostReport, summary *CostReportSummary) int {
 	score := 100
 
@@ -821,7 +821,7 @@ func (g *CostReportGenerator) calculateHealthScore(report *CostReport, summary *
 	return score
 }
 
-// calculateCostEfficiency 计算成本效率
+// calculateCostEfficiency 计算成本效率.
 func (g *CostReportGenerator) calculateCostEfficiency(usagePercent float64) float64 {
 	if usagePercent >= 60 && usagePercent <= 80 {
 		return 1.0
@@ -832,7 +832,7 @@ func (g *CostReportGenerator) calculateCostEfficiency(usagePercent float64) floa
 	}
 }
 
-// compareWithPreviousReport 与历史报告对比计算环比变化
+// compareWithPreviousReport 与历史报告对比计算环比变化.
 func (g *CostReportGenerator) compareWithPreviousReport(report, prevReport *CostReport) {
 	if prevReport == nil || prevReport.Summary.TotalCost <= 0 {
 		return
@@ -844,7 +844,7 @@ func (g *CostReportGenerator) compareWithPreviousReport(report, prevReport *Cost
 	report.Summary.BandwidthChange = report.Summary.BandwidthCost - prevReport.Summary.BandwidthCost
 }
 
-// addWeeklyAnalysis 添加周环比分析
+// addWeeklyAnalysis 添加周环比分析.
 func (g *CostReportGenerator) addWeeklyAnalysis(ctx context.Context, report *CostReport) error {
 	// 获取上周报告进行对比
 	prevWeekStart := report.PeriodStart.AddDate(0, 0, -7)
@@ -858,7 +858,7 @@ func (g *CostReportGenerator) addWeeklyAnalysis(ctx context.Context, report *Cos
 	return nil
 }
 
-// addMonthlyAnalysis 添加月度分析
+// addMonthlyAnalysis 添加月度分析.
 func (g *CostReportGenerator) addMonthlyAnalysis(ctx context.Context, report *CostReport) error {
 	// 获取上月报告进行对比
 	prevMonthStart := report.PeriodStart.AddDate(0, -1, 0)
@@ -885,7 +885,7 @@ func (g *CostReportGenerator) addMonthlyAnalysis(ctx context.Context, report *Co
 
 // ========== 导出方法 ==========
 
-// ExportReport 导出报告
+// ExportReport 导出报告.
 func (g *CostReportGenerator) ExportReport(report *CostReport, format CostExportFormat, outputPath string) error {
 	switch format {
 	case CostExportFormatJSON:
@@ -897,7 +897,7 @@ func (g *CostReportGenerator) ExportReport(report *CostReport, format CostExport
 	}
 }
 
-// exportJSON 导出JSON格式
+// exportJSON 导出JSON格式.
 func (g *CostReportGenerator) exportJSON(report *CostReport, outputPath string) error {
 	data, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
@@ -917,7 +917,7 @@ func (g *CostReportGenerator) exportJSON(report *CostReport, outputPath string) 
 	return nil
 }
 
-// exportCSV 导出CSV格式
+// exportCSV 导出CSV格式.
 func (g *CostReportGenerator) exportCSV(report *CostReport, outputPath string) error {
 	// 确保目录存在
 	dir := filepath.Dir(outputPath)
@@ -1051,7 +1051,7 @@ func (g *CostReportGenerator) exportCSV(report *CostReport, outputPath string) e
 	return nil
 }
 
-// ExportToJSON 导出为JSON字符串
+// ExportToJSON 导出为JSON字符串.
 func (g *CostReportGenerator) ExportToJSON(report *CostReport) (string, error) {
 	data, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
@@ -1060,7 +1060,7 @@ func (g *CostReportGenerator) ExportToJSON(report *CostReport) (string, error) {
 	return string(data), nil
 }
 
-// ExportToCSV 导出为CSV字符串
+// ExportToCSV 导出为CSV字符串.
 func (g *CostReportGenerator) ExportToCSV(report *CostReport) (string, error) {
 	var builder strings.Builder
 	writer := csv.NewWriter(&builder)
@@ -1103,13 +1103,13 @@ func (g *CostReportGenerator) ExportToCSV(report *CostReport) (string, error) {
 
 // ========== 报告管理 ==========
 
-// cachedReport 缓存项（包含过期时间）
+// cachedReport 缓存项（包含过期时间）.
 type cachedReport struct {
 	report   *CostReport
 	cachedAt time.Time
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (g *CostReportGenerator) GetReport(id string) (*CostReport, error) {
 	// 先查缓存
 	if g.config.EnableCache {
@@ -1149,7 +1149,7 @@ func (g *CostReportGenerator) GetReport(id string) (*CostReport, error) {
 	return &report, nil
 }
 
-// ListReports 列出报告
+// ListReports 列出报告.
 func (g *CostReportGenerator) ListReports(reportType CostReportType, limit int) ([]*CostReport, error) {
 	reportsDir := filepath.Join(g.dataDir, "reports")
 	files, err := os.ReadDir(reportsDir)
@@ -1185,7 +1185,7 @@ func (g *CostReportGenerator) ListReports(reportType CostReportType, limit int) 
 	return reports, nil
 }
 
-// DeleteReport 删除报告
+// DeleteReport 删除报告.
 func (g *CostReportGenerator) DeleteReport(id string) error {
 	reportPath := filepath.Join(g.dataDir, "reports", id+".json")
 
@@ -1202,7 +1202,7 @@ func (g *CostReportGenerator) DeleteReport(id string) error {
 	return nil
 }
 
-// saveReport 保存报告
+// saveReport 保存报告.
 func (g *CostReportGenerator) saveReport(report *CostReport) error {
 	reportsDir := filepath.Join(g.dataDir, "reports")
 	if err := os.MkdirAll(reportsDir, 0750); err != nil {
@@ -1229,12 +1229,12 @@ func (g *CostReportGenerator) saveReport(report *CostReport) error {
 
 // ========== 辅助函数 ==========
 
-// generateReportID 生成报告ID
+// generateReportID 生成报告ID.
 func generateReportID(reportType CostReportType, date time.Time) string {
 	return fmt.Sprintf("%s-%s", reportType, date.Format("20060102"))
 }
 
-// randomString 生成随机字符串（使用加密安全的随机数）
+// randomString 生成随机字符串（使用加密安全的随机数）.
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
@@ -1256,7 +1256,7 @@ func randomString(n int) string {
 	return string(b)
 }
 
-// CleanupOldReports 清理过期报告
+// CleanupOldReports 清理过期报告.
 func (g *CostReportGenerator) CleanupOldReports() error {
 	cutoff := time.Now().AddDate(0, 0, -g.config.DataRetentionDays)
 

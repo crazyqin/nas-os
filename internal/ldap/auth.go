@@ -7,13 +7,13 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-// Authenticator LDAP 认证器
+// Authenticator LDAP 认证器.
 type Authenticator struct {
 	client *Client
 	config Config
 }
 
-// NewAuthenticator 创建认证器
+// NewAuthenticator 创建认证器.
 func NewAuthenticator(config Config) (*Authenticator, error) {
 	client, err := NewClient(config)
 	if err != nil {
@@ -26,7 +26,7 @@ func NewAuthenticator(config Config) (*Authenticator, error) {
 	}, nil
 }
 
-// Authenticate 用户认证
+// Authenticate 用户认证.
 func (a *Authenticator) Authenticate(username, password string) (*AuthResult, error) {
 	result := &AuthResult{
 		Success:    false,
@@ -70,7 +70,7 @@ func (a *Authenticator) Authenticate(username, password string) (*AuthResult, er
 	return result, nil
 }
 
-// AuthenticateWithDN 使用 DN 直接认证
+// AuthenticateWithDN 使用 DN 直接认证.
 func (a *Authenticator) AuthenticateWithDN(dn, password string) (*AuthResult, error) {
 	result := &AuthResult{
 		Success:    false,
@@ -88,7 +88,7 @@ func (a *Authenticator) AuthenticateWithDN(dn, password string) (*AuthResult, er
 	return result, nil
 }
 
-// findUser 查找用户
+// findUser 查找用户.
 func (a *Authenticator) findUser(username string) (*User, error) {
 	filter := a.buildUserFilter(username)
 
@@ -124,7 +124,7 @@ func (a *Authenticator) findUser(username string) (*User, error) {
 	return a.entryToUser(result.Entries[0]), nil
 }
 
-// buildUserFilter 构建用户搜索过滤器
+// buildUserFilter 构建用户搜索过滤器.
 func (a *Authenticator) buildUserFilter(username string) string {
 	escaped := ldap.EscapeFilter(username)
 
@@ -151,7 +151,7 @@ func (a *Authenticator) buildUserFilter(username string) string {
 	}
 }
 
-// getUserAttributes 获取需要查询的用户属性
+// getUserAttributes 获取需要查询的用户属性.
 func (a *Authenticator) getUserAttributes() []string {
 	attrs := a.config.Attributes
 	return []string{
@@ -171,7 +171,7 @@ func (a *Authenticator) getUserAttributes() []string {
 	}
 }
 
-// entryToUser 将 LDAP 条目转换为用户对象
+// entryToUser 将 LDAP 条目转换为用户对象.
 func (a *Authenticator) entryToUser(entry *ldap.Entry) *User {
 	attrs := a.config.Attributes
 	user := &User{
@@ -212,7 +212,7 @@ func (a *Authenticator) entryToUser(entry *ldap.Entry) *User {
 	return user
 }
 
-// parseADAttributes 解析 AD 特定属性
+// parseADAttributes 解析 AD 特定属性.
 func (a *Authenticator) parseADAttributes(entry *ldap.Entry, user *User) {
 	// 检查账户状态
 	userAccountControl := entry.GetAttributeValue("userAccountControl")
@@ -247,7 +247,7 @@ func (a *Authenticator) parseADAttributes(entry *ldap.Entry, user *User) {
 	}
 }
 
-// getUserGroups 获取用户组
+// getUserGroups 获取用户组.
 func (a *Authenticator) getUserGroups(userDN string) ([]string, error) {
 	filter := a.buildGroupFilter(userDN)
 
@@ -279,7 +279,7 @@ func (a *Authenticator) getUserGroups(userDN string) ([]string, error) {
 	return groups, nil
 }
 
-// buildGroupFilter 构建组搜索过滤器
+// buildGroupFilter 构建组搜索过滤器.
 func (a *Authenticator) buildGroupFilter(userDN string) string {
 	escaped := ldap.EscapeFilter(userDN)
 
@@ -306,7 +306,7 @@ func (a *Authenticator) buildGroupFilter(userDN string) string {
 	}
 }
 
-// extractCN 从 DN 中提取 CN
+// extractCN 从 DN 中提取 CN.
 func (a *Authenticator) extractCN(dn string) string {
 	parsed, err := ldap.ParseDN(dn)
 	if err != nil {
@@ -324,12 +324,12 @@ func (a *Authenticator) extractCN(dn string) string {
 	return ""
 }
 
-// Close 关闭认证器
+// Close 关闭认证器.
 func (a *Authenticator) Close() error {
 	return a.client.Close()
 }
 
-// VerifyPassword 验证密码（不获取用户信息）
+// VerifyPassword 验证密码（不获取用户信息）.
 func (a *Authenticator) VerifyPassword(username, password string) (bool, error) {
 	// 连接并绑定服务账号
 	if err := a.client.Bind(); err != nil {
@@ -354,7 +354,7 @@ func (a *Authenticator) VerifyPassword(username, password string) (bool, error) 
 	return true, nil
 }
 
-// ChangePassword 修改用户密码
+// ChangePassword 修改用户密码.
 func (a *Authenticator) ChangePassword(username, oldPassword, newPassword string) error {
 	// 先验证旧密码
 	valid, err := a.VerifyPassword(username, oldPassword)
@@ -375,7 +375,7 @@ func (a *Authenticator) ChangePassword(username, oldPassword, newPassword string
 	return a.client.PasswordModify(user.DN, oldPassword, newPassword)
 }
 
-// parseUAC 解析 userAccountControl
+// parseUAC 解析 userAccountControl.
 func parseUAC(value string) uint32 {
 	var uac uint32
 	for _, c := range value {

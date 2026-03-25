@@ -15,38 +15,38 @@ import (
 	"github.com/google/uuid"
 )
 
-// LockDuration 锁定时长类型
+// LockDuration 锁定时长类型.
 type LockDuration string
 
 const (
-	// LockDuration7Days 7天锁定
+	// LockDuration7Days 7天锁定.
 	LockDuration7Days LockDuration = "7d"
-	// LockDuration30Days 30天锁定
+	// LockDuration30Days 30天锁定.
 	LockDuration30Days LockDuration = "30d"
-	// LockDurationPermanent 永久锁定
+	// LockDurationPermanent 永久锁定.
 	LockDurationPermanent LockDuration = "permanent"
 )
 
-// LockDurationHours 锁定时长的小时数映射
+// LockDurationHours 锁定时长的小时数映射.
 var LockDurationHours = map[LockDuration]int{
 	LockDuration7Days:     7 * 24,
 	LockDuration30Days:    30 * 24,
 	LockDurationPermanent: -1, // -1 表示永久
 }
 
-// ImmutableStatus 不可变状态
+// ImmutableStatus 不可变状态.
 type ImmutableStatus string
 
 const (
-	// ImmutableStatusActive 已锁定
+	// ImmutableStatusActive 已锁定.
 	ImmutableStatusActive ImmutableStatus = "active"
-	// ImmutableStatusExpired 已过期（可解锁）
+	// ImmutableStatusExpired 已过期（可解锁）.
 	ImmutableStatusExpired ImmutableStatus = "expired"
-	// ImmutableStatusUnlocked 已解锁
+	// ImmutableStatusUnlocked 已解锁.
 	ImmutableStatusUnlocked ImmutableStatus = "unlocked"
 )
 
-// ImmutableConfig 不可变存储配置
+// ImmutableConfig 不可变存储配置.
 type ImmutableConfig struct {
 	// SnapDir 不可变快照存储目录
 	SnapDir string `json:"snapDir"`
@@ -58,7 +58,7 @@ type ImmutableConfig struct {
 	MaxRecords int `json:"maxRecords"`
 }
 
-// DefaultImmutableConfig 默认配置
+// DefaultImmutableConfig 默认配置.
 var DefaultImmutableConfig = ImmutableConfig{
 	SnapDir:         ".immutable",
 	AutoCleanup:     true,
@@ -66,7 +66,7 @@ var DefaultImmutableConfig = ImmutableConfig{
 	MaxRecords:      10000,
 }
 
-// ImmutableRecord 不可变记录
+// ImmutableRecord 不可变记录.
 type ImmutableRecord struct {
 	// ID 记录唯一标识
 	ID string `json:"id"`
@@ -100,7 +100,7 @@ type ImmutableRecord struct {
 	ProtectedByRansomware bool `json:"protectedByRansomware"`
 }
 
-// ImmutableManager 不可变存储管理器
+// ImmutableManager 不可变存储管理器.
 type ImmutableManager struct {
 	client     *btrfs.Client
 	storageMgr *Manager
@@ -111,7 +111,7 @@ type ImmutableManager struct {
 	stopChan   chan struct{}
 }
 
-// NewImmutableManager 创建不可变存储管理器
+// NewImmutableManager 创建不可变存储管理器.
 func NewImmutableManager(storageMgr *Manager, config ImmutableConfig) (*ImmutableManager, error) {
 	if storageMgr == nil {
 		return nil, fmt.Errorf("存储管理器不能为空")
@@ -155,7 +155,7 @@ func NewImmutableManager(storageMgr *Manager, config ImmutableConfig) (*Immutabl
 	return m, nil
 }
 
-// loadRecords 加载记录
+// loadRecords 加载记录.
 func (m *ImmutableManager) loadRecords() error {
 	data, err := os.ReadFile(m.dataFile)
 	if err != nil {
@@ -177,7 +177,7 @@ func (m *ImmutableManager) loadRecords() error {
 	return nil
 }
 
-// saveRecords 保存记录
+// saveRecords 保存记录.
 func (m *ImmutableManager) saveRecords() error {
 	m.mu.RLock()
 	records := make([]*ImmutableRecord, 0, len(m.records))
@@ -204,7 +204,7 @@ func (m *ImmutableManager) saveRecords() error {
 	return nil
 }
 
-// cleanupLoop 自动清理循环
+// cleanupLoop 自动清理循环.
 func (m *ImmutableManager) cleanupLoop() {
 	ticker := time.NewTicker(time.Duration(m.config.CleanupInterval) * time.Hour)
 	defer ticker.Stop()
@@ -219,7 +219,7 @@ func (m *ImmutableManager) cleanupLoop() {
 	}
 }
 
-// cleanup 清理过期记录和更新状态
+// cleanup 清理过期记录和更新状态.
 func (m *ImmutableManager) cleanup() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -248,12 +248,12 @@ func (m *ImmutableManager) cleanup() {
 	}
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *ImmutableManager) Stop() {
 	close(m.stopChan)
 }
 
-// LockRequest 锁定请求
+// LockRequest 锁定请求.
 type LockRequest struct {
 	// Path 要锁定的目录路径
 	Path string `json:"path"`
@@ -269,7 +269,7 @@ type LockRequest struct {
 	ProtectFromRansomware bool `json:"protectFromRansomware"`
 }
 
-// Lock 锁定目录（创建不可变快照）
+// Lock 锁定目录（创建不可变快照）.
 func (m *ImmutableManager) Lock(req LockRequest) (*ImmutableRecord, error) {
 	// 验证路径
 	if req.Path == "" {
@@ -369,7 +369,7 @@ func (m *ImmutableManager) Lock(req LockRequest) (*ImmutableRecord, error) {
 }
 
 // Unlock 解锁目录（删除不可变快照）
-// 注意：只有过期或管理授权才能解锁
+// 注意：只有过期或管理授权才能解锁.
 func (m *ImmutableManager) Unlock(id string, force bool) (*ImmutableRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -416,7 +416,7 @@ func (m *ImmutableManager) Unlock(id string, force bool) (*ImmutableRecord, erro
 	return record, nil
 }
 
-// GetRecord 获取记录
+// GetRecord 获取记录.
 func (m *ImmutableManager) GetRecord(id string) (*ImmutableRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -429,7 +429,7 @@ func (m *ImmutableManager) GetRecord(id string) (*ImmutableRecord, error) {
 	return record, nil
 }
 
-// ListRecords 列出记录
+// ListRecords 列出记录.
 func (m *ImmutableManager) ListRecords(filter *RecordFilter) []*ImmutableRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -445,7 +445,7 @@ func (m *ImmutableManager) ListRecords(filter *RecordFilter) []*ImmutableRecord 
 	return result
 }
 
-// RecordFilter 记录过滤器
+// RecordFilter 记录过滤器.
 type RecordFilter struct {
 	// Status 状态过滤
 	Status *ImmutableStatus `json:"status,omitempty"`
@@ -505,7 +505,7 @@ func containsSubstring(s, substr string) bool {
 	return false
 }
 
-// ExtendLock 延长锁定时间
+// ExtendLock 延长锁定时间.
 func (m *ImmutableManager) ExtendLock(id string, additionalDuration LockDuration) (*ImmutableRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -540,7 +540,7 @@ func (m *ImmutableManager) ExtendLock(id string, additionalDuration LockDuration
 	return record, nil
 }
 
-// GetStatus 获取路径的锁定状态
+// GetStatus 获取路径的锁定状态.
 func (m *ImmutableManager) GetStatus(path string) (*ImmutableRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -554,7 +554,7 @@ func (m *ImmutableManager) GetStatus(path string) (*ImmutableRecord, error) {
 	return nil, nil // 未锁定
 }
 
-// Restore 从不可变快照恢复数据
+// Restore 从不可变快照恢复数据.
 func (m *ImmutableManager) Restore(id string, targetPath string) error {
 	m.mu.RLock()
 	record, exists := m.records[id]
@@ -577,7 +577,7 @@ func (m *ImmutableManager) Restore(id string, targetPath string) error {
 	return nil
 }
 
-// findVolumeForPath 查找路径所属的卷
+// findVolumeForPath 查找路径所属的卷.
 func (m *ImmutableManager) findVolumeForPath(path string) (*Volume, string, error) {
 	volumes := m.storageMgr.ListVolumes()
 
@@ -636,7 +636,7 @@ func splitPath(path string) []string {
 	return parts
 }
 
-// setImmutableAttribute 设置不可变属性（使用 chattr +i）
+// setImmutableAttribute 设置不可变属性（使用 chattr +i）.
 func setImmutableAttribute(path string) error {
 	// 使用 chattr 设置不可变属性
 	// 这需要 root 权限
@@ -647,13 +647,13 @@ func setImmutableAttribute(path string) error {
 	return nil // 实际实现需要调用系统命令
 }
 
-// removeImmutableAttribute 移除不可变属性（使用 chattr -i）
+// removeImmutableAttribute 移除不可变属性（使用 chattr -i）.
 func removeImmutableAttribute(path string) error {
 	// 使用 chattr 移除不可变属性
 	return nil // 实际实现需要调用系统命令
 }
 
-// getDirSize 获取目录大小
+// getDirSize 获取目录大小.
 func getDirSize(path string) (uint64, error) {
 	var size uint64
 	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
@@ -668,7 +668,7 @@ func getDirSize(path string) (uint64, error) {
 	return size, err
 }
 
-// GetStatistics 获取统计信息
+// GetStatistics 获取统计信息.
 func (m *ImmutableManager) GetStatistics() *ImmutableStatistics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -690,7 +690,7 @@ func (m *ImmutableManager) GetStatistics() *ImmutableStatistics {
 	return stats
 }
 
-// ImmutableStatistics 不可变存储统计
+// ImmutableStatistics 不可变存储统计.
 type ImmutableStatistics struct {
 	TotalRecords int                     `json:"totalRecords"`
 	TotalSize    uint64                  `json:"totalSize"`
@@ -698,7 +698,7 @@ type ImmutableStatistics struct {
 	ByDuration   map[LockDuration]int    `json:"byDuration"`
 }
 
-// CheckRansomwareProtection 检查防勒索保护状态
+// CheckRansomwareProtection 检查防勒索保护状态.
 func (m *ImmutableManager) CheckRansomwareProtection(path string) (*RansomwareProtectionStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -722,7 +722,7 @@ func (m *ImmutableManager) CheckRansomwareProtection(path string) (*RansomwarePr
 	return status, nil
 }
 
-// RansomwareProtectionStatus 防勒索保护状态
+// RansomwareProtectionStatus 防勒索保护状态.
 type RansomwareProtectionStatus struct {
 	Path                  string    `json:"path"`
 	Protected             bool      `json:"protected"`
@@ -732,7 +732,7 @@ type RansomwareProtectionStatus struct {
 	ProtectedByRansomware bool      `json:"protectedByRansomware"`
 }
 
-// QuickLock 快速锁定（使用默认配置）
+// QuickLock 快速锁定（使用默认配置）.
 func (m *ImmutableManager) QuickLock(path string, duration LockDuration) (*ImmutableRecord, error) {
 	return m.Lock(LockRequest{
 		Path:                  path,
@@ -741,7 +741,7 @@ func (m *ImmutableManager) QuickLock(path string, duration LockDuration) (*Immut
 	})
 }
 
-// BatchLock 批量锁定
+// BatchLock 批量锁定.
 func (m *ImmutableManager) BatchLock(paths []string, duration LockDuration, description string) ([]*ImmutableRecord, []error) {
 	var records []*ImmutableRecord
 	var errors []error

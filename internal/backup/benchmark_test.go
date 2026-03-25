@@ -13,7 +13,7 @@ import (
 
 // ========== 数据结构基准测试 ==========
 
-// BenchmarkJobConfig_Creation 创建配置性能测试
+// BenchmarkJobConfig_Creation 创建配置性能测试.
 func BenchmarkJobConfig_Creation(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -32,7 +32,7 @@ func BenchmarkJobConfig_Creation(b *testing.B) {
 	}
 }
 
-// BenchmarkBackupTask_Creation 创建任务性能测试
+// BenchmarkBackupTask_Creation 创建任务性能测试.
 func BenchmarkBackupTask_Creation(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
@@ -50,7 +50,7 @@ func BenchmarkBackupTask_Creation(b *testing.B) {
 	}
 }
 
-// BenchmarkBackupHistory_Creation 历史记录创建性能测试
+// BenchmarkBackupHistory_Creation 历史记录创建性能测试.
 func BenchmarkBackupHistory_Creation(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
@@ -70,7 +70,7 @@ func BenchmarkBackupHistory_Creation(b *testing.B) {
 	}
 }
 
-// BenchmarkBackupStats_Creation 统计信息创建性能测试
+// BenchmarkBackupStats_Creation 统计信息创建性能测试.
 func BenchmarkBackupStats_Creation(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
@@ -92,7 +92,7 @@ func BenchmarkBackupStats_Creation(b *testing.B) {
 
 // ========== 内存分配基准测试 ==========
 
-// BenchmarkMemory_ConfigSlice 配置切片内存分配
+// BenchmarkMemory_ConfigSlice 配置切片内存分配.
 func BenchmarkMemory_ConfigSlice(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -107,7 +107,7 @@ func BenchmarkMemory_ConfigSlice(b *testing.B) {
 	}
 }
 
-// BenchmarkMemory_TaskMap 任务 Map 内存分配
+// BenchmarkMemory_TaskMap 任务 Map 内存分配.
 func BenchmarkMemory_TaskMap(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -122,7 +122,7 @@ func BenchmarkMemory_TaskMap(b *testing.B) {
 
 // ========== 并发基准测试 ==========
 
-// BenchmarkMutex_Read 读锁性能
+// BenchmarkMutex_Read 读锁性能.
 func BenchmarkMutex_Read(b *testing.B) {
 	var mu sync.RWMutex
 	configs := make(map[string]*backup.JobConfig)
@@ -138,7 +138,7 @@ func BenchmarkMutex_Read(b *testing.B) {
 	}
 }
 
-// BenchmarkMutex_Write 写锁性能
+// BenchmarkMutex_Write 写锁性能.
 func BenchmarkMutex_Write(b *testing.B) {
 	var mu sync.RWMutex
 	configs := make(map[string]*backup.JobConfig)
@@ -151,7 +151,7 @@ func BenchmarkMutex_Write(b *testing.B) {
 	}
 }
 
-// BenchmarkMutex_Parallel 并行读写测试
+// BenchmarkMutex_Parallel 并行读写测试.
 func BenchmarkMutex_Parallel(b *testing.B) {
 	var mu sync.RWMutex
 	configs := make(map[string]*backup.JobConfig)
@@ -179,7 +179,7 @@ func BenchmarkMutex_Parallel(b *testing.B) {
 
 // ========== Context 基准测试 ==========
 
-// BenchmarkContext_Timeout Context 超时性能
+// BenchmarkContext_Timeout Context 超时性能.
 func BenchmarkContext_Timeout(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -189,7 +189,7 @@ func BenchmarkContext_Timeout(b *testing.B) {
 	}
 }
 
-// BenchmarkContext_Cancel Context 取消性能
+// BenchmarkContext_Cancel Context 取消性能.
 func BenchmarkContext_Cancel(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -201,7 +201,7 @@ func BenchmarkContext_Cancel(b *testing.B) {
 
 // ========== 类型常量基准测试 ==========
 
-// BenchmarkBackupType_Compare 备份类型比较性能
+// BenchmarkBackupType_Compare 备份类型比较性能.
 func BenchmarkBackupType_Compare(b *testing.B) {
 	types := []backup.BackupType{
 		backup.BackupTypeLocal,
@@ -218,7 +218,7 @@ func BenchmarkBackupType_Compare(b *testing.B) {
 	}
 }
 
-// BenchmarkTaskStatus_Compare 任务状态比较性能
+// BenchmarkTaskStatus_Compare 任务状态比较性能.
 func BenchmarkTaskStatus_Compare(b *testing.B) {
 	statuses := []backup.TaskStatus{
 		backup.TaskStatusPending,

@@ -8,13 +8,13 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-// ADClient Active Directory 客户端
+// ADClient Active Directory 客户端.
 type ADClient struct {
 	client *Client
 	config Config
 }
 
-// NewADClient 创建 AD 客户端
+// NewADClient 创建 AD 客户端.
 func NewADClient(config Config) (*ADClient, error) {
 	if config.ServerType != ServerTypeAD {
 		config.ServerType = ServerTypeAD
@@ -36,7 +36,7 @@ func NewADClient(config Config) (*ADClient, error) {
 	}, nil
 }
 
-// Authenticate AD 用户认证
+// Authenticate AD 用户认证.
 func (a *ADClient) Authenticate(username, password string) (*AuthResult, error) {
 	// AD 可以使用 userPrincipalName (user@domain) 或 sAMAccountName
 	auth := &Authenticator{
@@ -46,17 +46,17 @@ func (a *ADClient) Authenticate(username, password string) (*AuthResult, error) 
 	return auth.Authenticate(username, password)
 }
 
-// AuthenticateWithUPN 使用 UPN 认证
+// AuthenticateWithUPN 使用 UPN 认证.
 func (a *ADClient) AuthenticateWithUPN(upn, password string) (*AuthResult, error) {
 	return a.Authenticate(upn, password)
 }
 
-// AuthenticateWithSAM 使用 sAMAccountName 认证
+// AuthenticateWithSAM 使用 sAMAccountName 认证.
 func (a *ADClient) AuthenticateWithSAM(samAccountName, password string) (*AuthResult, error) {
 	return a.Authenticate(samAccountName, password)
 }
 
-// GetDomainInfo 获取域信息
+// GetDomainInfo 获取域信息.
 func (a *ADClient) GetDomainInfo() (*DomainInfo, error) {
 	if err := a.client.Bind(); err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (a *ADClient) GetDomainInfo() (*DomainInfo, error) {
 	return info, nil
 }
 
-// GetForestInfo 获取林信息
+// GetForestInfo 获取林信息.
 func (a *ADClient) GetForestInfo() (*ForestInfo, error) {
 	if err := a.client.Bind(); err != nil {
 		return nil, err
@@ -139,7 +139,7 @@ func (a *ADClient) GetForestInfo() (*ForestInfo, error) {
 	return info, nil
 }
 
-// GetUserAccountInfo 获取用户账户详细信息
+// GetUserAccountInfo 获取用户账户详细信息.
 func (a *ADClient) GetUserAccountInfo(username string) (*ADUserAccountInfo, error) {
 	if err := a.client.Bind(); err != nil {
 		return nil, err
@@ -174,7 +174,7 @@ func (a *ADClient) GetUserAccountInfo(username string) (*ADUserAccountInfo, erro
 	return a.parseADUserAccountInfo(entry), nil
 }
 
-// parseADUserAccountInfo 解析 AD 用户账户信息
+// parseADUserAccountInfo 解析 AD 用户账户信息.
 func (a *ADClient) parseADUserAccountInfo(entry *ldap.Entry) *ADUserAccountInfo {
 	info := &ADUserAccountInfo{
 		DN:                entry.DN,
@@ -228,17 +228,17 @@ func (a *ADClient) parseADUserAccountInfo(entry *ldap.Entry) *ADUserAccountInfo 
 	return info
 }
 
-// EnableUser 启用用户
+// EnableUser 启用用户.
 func (a *ADClient) EnableUser(userDN string) error {
 	return a.setUserAccountControlBit(userDN, 0x0002, false) // 清除 ACCOUNTDISABLE 位
 }
 
-// DisableUser 禁用用户
+// DisableUser 禁用用户.
 func (a *ADClient) DisableUser(userDN string) error {
 	return a.setUserAccountControlBit(userDN, 0x0002, true) // 设置 ACCOUNTDISABLE 位
 }
 
-// UnlockUser 解锁用户
+// UnlockUser 解锁用户.
 func (a *ADClient) UnlockUser(userDN string) error {
 	// 清除 lockoutTime
 	request := ldap.NewModifyRequest(userDN, nil)
@@ -246,7 +246,7 @@ func (a *ADClient) UnlockUser(userDN string) error {
 	return a.client.Modify(request)
 }
 
-// ForcePasswordChange 强制用户下次登录时修改密码
+// ForcePasswordChange 强制用户下次登录时修改密码.
 func (a *ADClient) ForcePasswordChange(userDN string) error {
 	// 设置 pwdLastSet 为 0
 	request := ldap.NewModifyRequest(userDN, nil)
@@ -254,7 +254,7 @@ func (a *ADClient) ForcePasswordChange(userDN string) error {
 	return a.client.Modify(request)
 }
 
-// setUserAccountControlBit 设置 userAccountControl 位
+// setUserAccountControlBit 设置 userAccountControl 位.
 func (a *ADClient) setUserAccountControlBit(userDN string, bit uint32, set bool) error {
 	// 先获取当前 userAccountControl
 	filter := fmt.Sprintf("(distinguishedName=%s)", ldap.EscapeFilter(userDN))
@@ -292,7 +292,7 @@ func (a *ADClient) setUserAccountControlBit(userDN string, bit uint32, set bool)
 	return a.client.Modify(request)
 }
 
-// GetGroupMembership 获取用户组成员关系
+// GetGroupMembership 获取用户组成员关系.
 func (a *ADClient) GetGroupMembership(userDN string, recursive bool) ([]*Group, error) {
 	if err := a.client.Bind(); err != nil {
 		return nil, err
@@ -368,12 +368,12 @@ func (a *ADClient) GetGroupMembership(userDN string, recursive bool) ([]*Group, 
 	return groups, nil
 }
 
-// Close 关闭客户端
+// Close 关闭客户端.
 func (a *ADClient) Close() error {
 	return a.client.Close()
 }
 
-// DomainInfo 域信息
+// DomainInfo 域信息.
 type DomainInfo struct {
 	DN                string     `json:"dn"`
 	Name              string     `json:"name"`
@@ -383,19 +383,19 @@ type DomainInfo struct {
 	Modified          *time.Time `json:"modified,omitempty"`
 }
 
-// ForestInfo 林信息
+// ForestInfo 林信息.
 type ForestInfo struct {
 	Domains []DomainRef `json:"domains"`
 }
 
-// DomainRef 域引用
+// DomainRef 域引用.
 type DomainRef struct {
 	Name string `json:"name"`
 	DN   string `json:"dn"`
 	DNS  string `json:"dns"`
 }
 
-// ADUserAccountInfo AD 用户账户信息
+// ADUserAccountInfo AD 用户账户信息.
 type ADUserAccountInfo struct {
 	DN                string `json:"dn"`
 	SAMAccountName    string `json:"sam_account_name"`
@@ -423,7 +423,7 @@ type ADUserAccountInfo struct {
 	PrimaryGroupID string   `json:"primary_group_id,omitempty"`
 }
 
-// parseADTimestamp 解析 AD 时间戳
+// parseADTimestamp 解析 AD 时间戳.
 func parseADTimestamp(value string) *time.Time {
 	if value == "0" || value == "" {
 		return nil
@@ -452,7 +452,7 @@ func parseADTimestamp(value string) *time.Time {
 	return &t
 }
 
-// parseADGeneralizedTime 解析 AD Generalized Time
+// parseADGeneralizedTime 解析 AD Generalized Time.
 func parseADGeneralizedTime(value string) *time.Time {
 	if value == "" {
 		return nil
@@ -467,7 +467,7 @@ func parseADGeneralizedTime(value string) *time.Time {
 	return &t
 }
 
-// adFunctionalLevelName 获取功能级别名称
+// adFunctionalLevelName 获取功能级别名称.
 func adFunctionalLevelName(version string) string {
 	switch version {
 	case "0":
@@ -495,7 +495,7 @@ func adFunctionalLevelName(version string) string {
 	}
 }
 
-// parseInt 解析整数，负数返回 0
+// parseInt 解析整数，负数返回 0.
 func parseInt(value string) int {
 	var result int
 	for i, c := range value {
@@ -509,7 +509,7 @@ func parseInt(value string) int {
 	return result
 }
 
-// BuildADConfig 构建 AD 配置
+// BuildADConfig 构建 AD 配置.
 func BuildADConfig(name, url, bindDN, bindPassword, baseDN, domainName string) Config {
 	return Config{
 		Name:             name,
@@ -531,7 +531,7 @@ func BuildADConfig(name, url, bindDN, bindPassword, baseDN, domainName string) C
 	}
 }
 
-// BuildOpenLDAPConfig 构建 OpenLDAP 配置
+// BuildOpenLDAPConfig 构建 OpenLDAP 配置.
 func BuildOpenLDAPConfig(name, url, bindDN, bindPassword, baseDN string) Config {
 	return Config{
 		Name:             name,
@@ -552,7 +552,7 @@ func BuildOpenLDAPConfig(name, url, bindDN, bindPassword, baseDN string) Config 
 	}
 }
 
-// BuildFreeIPAConfig 构建 FreeIPA 配置
+// BuildFreeIPAConfig 构建 FreeIPA 配置.
 func BuildFreeIPAConfig(name, url, bindDN, bindPassword, baseDN string) Config {
 	attrs := DefaultAttributeMapping()
 	attrs.UserObjectClass = "posixAccount"
@@ -578,7 +578,7 @@ func BuildFreeIPAConfig(name, url, bindDN, bindPassword, baseDN string) Config {
 	}
 }
 
-// DetectServerType 从服务器信息检测类型
+// DetectServerType 从服务器信息检测类型.
 func DetectServerType(client *Client) (ServerType, error) {
 	if err := client.Bind(); err != nil {
 		return ServerTypeGeneric, err
@@ -629,7 +629,7 @@ func DetectServerType(client *Client) (ServerType, error) {
 	return ServerTypeGeneric, nil
 }
 
-// IsUserInGroup 检查用户是否在指定组中
+// IsUserInGroup 检查用户是否在指定组中.
 func (a *ADClient) IsUserInGroup(userDN, groupCN string) (bool, error) {
 	groups, err := a.GetGroupMembership(userDN, true)
 	if err != nil {
@@ -645,7 +645,7 @@ func (a *ADClient) IsUserInGroup(userDN, groupCN string) (bool, error) {
 	return false, nil
 }
 
-// GetNestedGroupMembers 获取组的所有成员（包括嵌套组成员）
+// GetNestedGroupMembers 获取组的所有成员（包括嵌套组成员）.
 func (a *ADClient) GetNestedGroupMembers(groupDN string) ([]*User, error) {
 	if err := a.client.Bind(); err != nil {
 		return nil, err

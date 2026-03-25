@@ -10,49 +10,49 @@ import (
 	"go.uber.org/zap"
 )
 
-// 错误定义
+// 错误定义.
 var (
-	// ErrNodeNotFound 节点未找到错误
+	// ErrNodeNotFound 节点未找到错误.
 	ErrNodeNotFound = errors.New("node not found")
-	// ErrNodeAlreadyExists 节点已存在错误
+	// ErrNodeAlreadyExists 节点已存在错误.
 	ErrNodeAlreadyExists = errors.New("node already exists")
-	// ErrClusterNotReady 集群未就绪错误
+	// ErrClusterNotReady 集群未就绪错误.
 	ErrClusterNotReady = errors.New("cluster not ready")
-	// ErrNoLeader 无可用领导者错误
+	// ErrNoLeader 无可用领导者错误.
 	ErrNoLeader = errors.New("no leader available")
-	// ErrSplitBrain 脑裂检测错误
+	// ErrSplitBrain 脑裂检测错误.
 	ErrSplitBrain = errors.New("split brain detected")
 )
 
-// NodeState 节点状态
+// NodeState 节点状态.
 type NodeState string
 
-// 节点状态常量
+// 节点状态常量.
 const (
-	// NodeStateActive 节点活跃状态
+	// NodeStateActive 节点活跃状态.
 	NodeStateActive NodeState = "active"
-	// NodeStateInactive 节点非活跃状态
+	// NodeStateInactive 节点非活跃状态.
 	NodeStateInactive NodeState = "inactive"
-	// NodeStateSuspect 节点可疑状态
+	// NodeStateSuspect 节点可疑状态.
 	NodeStateSuspect NodeState = "suspect"
-	// NodeStateFailed 节点失败状态
+	// NodeStateFailed 节点失败状态.
 	NodeStateFailed NodeState = "failed"
 )
 
-// NodeRole 节点角色
+// NodeRole 节点角色.
 type NodeRole string
 
-// 节点角色常量
+// 节点角色常量.
 const (
-	// NodeRoleLeader 领导者角色
+	// NodeRoleLeader 领导者角色.
 	NodeRoleLeader NodeRole = "leader"
-	// NodeRoleFollower 跟随者角色
+	// NodeRoleFollower 跟随者角色.
 	NodeRoleFollower NodeRole = "follower"
-	// NodeRoleCandidate 候选者角色
+	// NodeRoleCandidate 候选者角色.
 	NodeRoleCandidate NodeRole = "candidate"
 )
 
-// Node 集群节点
+// Node 集群节点.
 type Node struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -66,7 +66,7 @@ type Node struct {
 	Priority      int               `json:"priority"` // 用于领导者选举优先级
 }
 
-// Config 集群配置
+// Config 集群配置.
 type Config struct {
 	NodeID              string        `json:"node_id"`
 	NodeName            string        `json:"node_name"`
@@ -80,7 +80,7 @@ type Config struct {
 	SplitBrainThreshold int           `json:"split_brain_threshold"` // 脑裂检测阈值（需要多少节点确认）
 }
 
-// PeerConfig 对等节点配置
+// PeerConfig 对等节点配置.
 type PeerConfig struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`
@@ -88,7 +88,7 @@ type PeerConfig struct {
 	Port    int    `json:"port"`
 }
 
-// Cluster 集群管理器
+// Cluster 集群管理器.
 type Cluster struct {
 	config    *Config
 	localNode *Node
@@ -114,7 +114,7 @@ type Cluster struct {
 	logger *zap.Logger
 }
 
-// NewCluster 创建集群管理器
+// NewCluster 创建集群管理器.
 func NewCluster(config *Config, logger *zap.Logger) *Cluster {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -164,7 +164,7 @@ func NewCluster(config *Config, logger *zap.Logger) *Cluster {
 	return c
 }
 
-// Start 启动集群
+// Start 启动集群.
 func (c *Cluster) Start() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -193,14 +193,14 @@ func (c *Cluster) Start() error {
 	return nil
 }
 
-// Stop 停止集群
+// Stop 停止集群.
 func (c *Cluster) Stop() {
 	c.cancel()
 	c.wg.Wait()
 	c.logger.Info("Cluster stopped")
 }
 
-// heartbeatLoop 心跳循环
+// heartbeatLoop 心跳循环.
 func (c *Cluster) heartbeatLoop() {
 	defer c.wg.Done()
 
@@ -217,7 +217,7 @@ func (c *Cluster) heartbeatLoop() {
 	}
 }
 
-// sendHeartbeats 发送心跳
+// sendHeartbeats 发送心跳.
 func (c *Cluster) sendHeartbeats() {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -242,14 +242,14 @@ func (c *Cluster) sendHeartbeats() {
 	}
 }
 
-// sendHeartbeat 发送单个心跳
+// sendHeartbeat 发送单个心跳.
 func (c *Cluster) sendHeartbeat(node *Node) error {
 	// 实际实现中这里应该是网络调用
 	// 这里使用模拟实现，假设心跳成功
 	return nil
 }
 
-// failureDetectionLoop 故障检测循环
+// failureDetectionLoop 故障检测循环.
 func (c *Cluster) failureDetectionLoop() {
 	defer c.wg.Done()
 
@@ -266,7 +266,7 @@ func (c *Cluster) failureDetectionLoop() {
 	}
 }
 
-// detectFailures 检测故障
+// detectFailures 检测故障.
 func (c *Cluster) detectFailures() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -309,7 +309,7 @@ func (c *Cluster) detectFailures() {
 	}
 }
 
-// electionLoop 选举循环
+// electionLoop 选举循环.
 func (c *Cluster) electionLoop() {
 	defer c.wg.Done()
 
@@ -323,7 +323,7 @@ func (c *Cluster) electionLoop() {
 	}
 }
 
-// performElection 执行选举
+// performElection 执行选举.
 func (c *Cluster) performElection() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -369,7 +369,7 @@ func (c *Cluster) performElection() {
 	}
 }
 
-// splitBrainDetectionLoop 脑裂检测循环
+// splitBrainDetectionLoop 脑裂检测循环.
 func (c *Cluster) splitBrainDetectionLoop() {
 	defer c.wg.Done()
 
@@ -386,7 +386,7 @@ func (c *Cluster) splitBrainDetectionLoop() {
 	}
 }
 
-// checkSplitBrain 检查脑裂
+// checkSplitBrain 检查脑裂.
 func (c *Cluster) checkSplitBrain() {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -424,7 +424,7 @@ func (c *Cluster) checkSplitBrain() {
 	}
 }
 
-// GetLeader 获取当前领导者
+// GetLeader 获取当前领导者.
 func (c *Cluster) GetLeader() (*Node, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -435,7 +435,7 @@ func (c *Cluster) GetLeader() (*Node, error) {
 	return c.leader, nil
 }
 
-// GetNodes 获取所有节点
+// GetNodes 获取所有节点.
 func (c *Cluster) GetNodes() []*Node {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -447,7 +447,7 @@ func (c *Cluster) GetNodes() []*Node {
 	return nodes
 }
 
-// GetNode 获取指定节点
+// GetNode 获取指定节点.
 func (c *Cluster) GetNode(id string) (*Node, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -459,7 +459,7 @@ func (c *Cluster) GetNode(id string) (*Node, error) {
 	return node, nil
 }
 
-// IsLeader 当前节点是否是领导者
+// IsLeader 当前节点是否是领导者.
 func (c *Cluster) IsLeader() bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -467,7 +467,7 @@ func (c *Cluster) IsLeader() bool {
 	return c.localNode.Role == NodeRoleLeader
 }
 
-// GetLocalNode 获取本地节点
+// GetLocalNode 获取本地节点.
 func (c *Cluster) GetLocalNode() *Node {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -475,7 +475,7 @@ func (c *Cluster) GetLocalNode() *Node {
 	return c.localNode
 }
 
-// Stats 集群统计
+// Stats 集群统计.
 type Stats struct {
 	TotalNodes  int    `json:"total_nodes"`
 	ActiveNodes int    `json:"active_nodes"`
@@ -484,7 +484,7 @@ type Stats struct {
 	IsLeader    bool   `json:"is_leader"`
 }
 
-// GetStats 获取集群统计
+// GetStats 获取集群统计.
 func (c *Cluster) GetStats() Stats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()

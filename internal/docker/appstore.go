@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// AppTemplate 应用模板
+// AppTemplate 应用模板.
 type AppTemplate struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -34,7 +34,7 @@ type AppTemplate struct {
 	Source      string            `json:"source"`
 }
 
-// PortConfig 端口配置
+// PortConfig 端口配置.
 type PortConfig struct {
 	Port        int    `json:"port"`
 	Protocol    string `json:"protocol"`
@@ -42,14 +42,14 @@ type PortConfig struct {
 	Default     int    `json:"default"` // 默认主机端口
 }
 
-// VolumeConfig 卷配置
+// VolumeConfig 卷配置.
 type VolumeConfig struct {
 	ContainerPath string `json:"containerPath"`
 	Description   string `json:"description"`
 	Default       string `json:"default"` // 默认主机路径
 }
 
-// InstalledApp 已安装应用
+// InstalledApp 已安装应用.
 type InstalledApp struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -65,7 +65,7 @@ type InstalledApp struct {
 	ComposePath string            `json:"composePath"`
 }
 
-// AppStore 应用商店
+// AppStore 应用商店.
 type AppStore struct {
 	mu          sync.RWMutex
 	manager     *Manager
@@ -76,7 +76,7 @@ type AppStore struct {
 	installed   map[string]*InstalledApp
 }
 
-// NewAppStore 创建应用商店
+// NewAppStore 创建应用商店.
 func NewAppStore(mgr *Manager, dataDir string) (*AppStore, error) {
 	templateDir := filepath.Join(dataDir, "app-templates")
 	installDir := filepath.Join(dataDir, "apps")
@@ -111,7 +111,7 @@ func NewAppStore(mgr *Manager, dataDir string) (*AppStore, error) {
 	return store, nil
 }
 
-// loadBuiltinTemplates 加载内置模板
+// loadBuiltinTemplates 加载内置模板.
 func (s *AppStore) loadBuiltinTemplates() {
 	templates := []*AppTemplate{
 		{
@@ -548,7 +548,7 @@ services:
 	}
 }
 
-// loadInstalled 加载已安装应用
+// loadInstalled 加载已安装应用.
 func (s *AppStore) loadInstalled() error {
 	data, err := os.ReadFile(s.dataFile)
 	if err != nil {
@@ -566,7 +566,7 @@ func (s *AppStore) loadInstalled() error {
 	return nil
 }
 
-// saveInstalled 保存已安装应用
+// saveInstalled 保存已安装应用.
 func (s *AppStore) saveInstalled() error {
 	apps := make([]*InstalledApp, 0, len(s.installed))
 	for _, app := range s.installed {
@@ -581,7 +581,7 @@ func (s *AppStore) saveInstalled() error {
 	return os.WriteFile(s.dataFile, data, 0640)
 }
 
-// ListTemplates 列出所有模板
+// ListTemplates 列出所有模板.
 func (s *AppStore) ListTemplates() []*AppTemplate {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -592,14 +592,14 @@ func (s *AppStore) ListTemplates() []*AppTemplate {
 	return result
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (s *AppStore) GetTemplate(id string) *AppTemplate {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.templates[id]
 }
 
-// ListInstalled 列出已安装应用
+// ListInstalled 列出已安装应用.
 func (s *AppStore) ListInstalled() []*InstalledApp {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -616,7 +616,7 @@ func (s *AppStore) ListInstalled() []*InstalledApp {
 	return result
 }
 
-// GetInstalled 获取已安装应用
+// GetInstalled 获取已安装应用.
 func (s *AppStore) GetInstalled(id string) *InstalledApp {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -631,7 +631,7 @@ func (s *AppStore) GetInstalled(id string) *InstalledApp {
 	return app
 }
 
-// InstallApp 安装应用
+// InstallApp 安装应用.
 func (s *AppStore) InstallApp(templateID string, config map[string]interface{}) (*InstalledApp, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -739,7 +739,7 @@ func (s *AppStore) InstallApp(templateID string, config map[string]interface{}) 
 	return app, nil
 }
 
-// renderCompose 渲染 Docker Compose 模板
+// renderCompose 渲染 Docker Compose 模板.
 func (s *AppStore) renderCompose(template *AppTemplate, config map[string]interface{}) string {
 	compose := template.Compose
 	if compose == "" {
@@ -779,7 +779,7 @@ func (s *AppStore) renderCompose(template *AppTemplate, config map[string]interf
 	return compose
 }
 
-// generateDefaultCompose 生成默认 compose
+// generateDefaultCompose 生成默认 compose.
 func (s *AppStore) generateDefaultCompose(template *AppTemplate, config map[string]interface{}) string {
 	ports := make([]string, 0, len(template.Ports))
 	for _, port := range template.Ports {
@@ -819,7 +819,7 @@ services:
 `, template.Name, template.Image, template.Name, strings.Join(ports, "\n"), strings.Join(volumes, "\n"), strings.Join(env, "\n"))
 }
 
-// UninstallApp 卸载应用
+// UninstallApp 卸载应用.
 func (s *AppStore) UninstallApp(id string, removeData bool) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -856,7 +856,7 @@ func (s *AppStore) UninstallApp(id string, removeData bool) error {
 	return nil
 }
 
-// StartApp 启动应用
+// StartApp 启动应用.
 func (s *AppStore) StartApp(id string) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -883,7 +883,7 @@ func (s *AppStore) StartApp(id string) error {
 	return nil
 }
 
-// StopApp 停止应用
+// StopApp 停止应用.
 func (s *AppStore) StopApp(id string) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -910,7 +910,7 @@ func (s *AppStore) StopApp(id string) error {
 	return nil
 }
 
-// RestartApp 重启应用
+// RestartApp 重启应用.
 func (s *AppStore) RestartApp(id string) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -933,7 +933,7 @@ func (s *AppStore) RestartApp(id string) error {
 	return nil
 }
 
-// UpdateApp 更新应用
+// UpdateApp 更新应用.
 func (s *AppStore) UpdateApp(id string) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -965,7 +965,7 @@ func (s *AppStore) UpdateApp(id string) error {
 	return nil
 }
 
-// GetAppStats 获取应用统计
+// GetAppStats 获取应用统计.
 func (s *AppStore) GetAppStats(id string) (map[string]interface{}, error) {
 	app, ok := s.installed[id]
 	if !ok {
@@ -996,7 +996,7 @@ func (s *AppStore) GetAppStats(id string) (map[string]interface{}, error) {
 // 模板版本管理（参考飞牛fnOS应用市场设计）
 // =============================================================================
 
-// TemplateVersion 模板版本信息
+// TemplateVersion 模板版本信息.
 type TemplateVersion struct {
 	ID           string            `json:"id"`
 	TemplateID   string            `json:"templateId"`
@@ -1011,7 +1011,7 @@ type TemplateVersion struct {
 	MinVersion   string            `json:"minVersion,omitempty"` // 最低系统版本要求
 }
 
-// TemplateVersionManager 模板版本管理器
+// TemplateVersionManager 模板版本管理器.
 type TemplateVersionManager struct {
 	mu       sync.RWMutex
 	store    *AppStore
@@ -1019,7 +1019,7 @@ type TemplateVersionManager struct {
 	versions map[string][]*TemplateVersion // templateID -> versions
 }
 
-// NewTemplateVersionManager 创建模板版本管理器
+// NewTemplateVersionManager 创建模板版本管理器.
 func NewTemplateVersionManager(store *AppStore, dataDir string) (*TemplateVersionManager, error) {
 	tvm := &TemplateVersionManager{
 		store:    store,
@@ -1035,7 +1035,7 @@ func NewTemplateVersionManager(store *AppStore, dataDir string) (*TemplateVersio
 	return tvm, nil
 }
 
-// load 加载版本数据
+// load 加载版本数据.
 func (tvm *TemplateVersionManager) load() error {
 	dataFile := filepath.Join(tvm.dataDir, "template-versions.json")
 	data, err := os.ReadFile(dataFile)
@@ -1049,7 +1049,7 @@ func (tvm *TemplateVersionManager) load() error {
 	return json.Unmarshal(data, &tvm.versions)
 }
 
-// save 保存版本数据
+// save 保存版本数据.
 func (tvm *TemplateVersionManager) save() error {
 	dataFile := filepath.Join(tvm.dataDir, "template-versions.json")
 	data, err := json.MarshalIndent(tvm.versions, "", "  ")
@@ -1059,7 +1059,7 @@ func (tvm *TemplateVersionManager) save() error {
 	return os.WriteFile(dataFile, data, 0640)
 }
 
-// AddVersion 添加模板版本
+// AddVersion 添加模板版本.
 func (tvm *TemplateVersionManager) AddVersion(templateID string, version *TemplateVersion) error {
 	tvm.mu.Lock()
 	defer tvm.mu.Unlock()
@@ -1078,7 +1078,7 @@ func (tvm *TemplateVersionManager) AddVersion(templateID string, version *Templa
 	return tvm.save()
 }
 
-// GetVersions 获取模板的所有版本
+// GetVersions 获取模板的所有版本.
 func (tvm *TemplateVersionManager) GetVersions(templateID string) []*TemplateVersion {
 	tvm.mu.RLock()
 	defer tvm.mu.RUnlock()
@@ -1094,7 +1094,7 @@ func (tvm *TemplateVersionManager) GetVersions(templateID string) []*TemplateVer
 	return result
 }
 
-// GetLatestVersion 获取最新版本
+// GetLatestVersion 获取最新版本.
 func (tvm *TemplateVersionManager) GetLatestVersion(templateID string) *TemplateVersion {
 	tvm.mu.RLock()
 	defer tvm.mu.RUnlock()
@@ -1114,7 +1114,7 @@ func (tvm *TemplateVersionManager) GetLatestVersion(templateID string) *Template
 	return versions[len(versions)-1]
 }
 
-// GetVersion 获取指定版本
+// GetVersion 获取指定版本.
 func (tvm *TemplateVersionManager) GetVersion(templateID, version string) *TemplateVersion {
 	tvm.mu.RLock()
 	defer tvm.mu.RUnlock()
@@ -1128,7 +1128,7 @@ func (tvm *TemplateVersionManager) GetVersion(templateID, version string) *Templ
 	return nil
 }
 
-// DeprecateVersion 标记版本为弃用
+// DeprecateVersion 标记版本为弃用.
 func (tvm *TemplateVersionManager) DeprecateVersion(templateID, version string) error {
 	tvm.mu.Lock()
 	defer tvm.mu.Unlock()
@@ -1143,7 +1143,7 @@ func (tvm *TemplateVersionManager) DeprecateVersion(templateID, version string) 
 	return fmt.Errorf("版本不存在: %s", version)
 }
 
-// RemoveVersion 移除版本
+// RemoveVersion 移除版本.
 func (tvm *TemplateVersionManager) RemoveVersion(templateID, version string) error {
 	tvm.mu.Lock()
 	defer tvm.mu.Unlock()
@@ -1163,7 +1163,7 @@ func (tvm *TemplateVersionManager) RemoveVersion(templateID, version string) err
 // 应用更新检测增强
 // =============================================================================
 
-// UpdateInfo 更新信息
+// UpdateInfo 更新信息.
 type UpdateInfo struct {
 	AppID          string    `json:"appId"`
 	AppName        string    `json:"appName"`
@@ -1180,7 +1180,7 @@ type UpdateInfo struct {
 	IgnoreUntil    time.Time `json:"ignoreUntil"`
 }
 
-// UpdateChecker 更新检测器
+// UpdateChecker 更新检测器.
 type UpdateChecker struct {
 	mu          sync.RWMutex
 	store       *AppStore
@@ -1189,13 +1189,13 @@ type UpdateChecker struct {
 	credentials map[string]RegistryCredential
 }
 
-// RegistryCredential Registry 凭证
+// RegistryCredential Registry 凭证.
 type RegistryCredential struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-// NewUpdateChecker 创建更新检测器
+// NewUpdateChecker 创建更新检测器.
 func NewUpdateChecker(store *AppStore) *UpdateChecker {
 	return &UpdateChecker{
 		store: store,
@@ -1207,19 +1207,19 @@ func NewUpdateChecker(store *AppStore) *UpdateChecker {
 	}
 }
 
-// SetRegistry 设置 Registry 地址
+// SetRegistry 设置 Registry 地址.
 func (uc *UpdateChecker) SetRegistry(registry string) {
 	uc.registry = registry
 }
 
-// SetCredential 设置 Registry 凭证
+// SetCredential 设置 Registry 凭证.
 func (uc *UpdateChecker) SetCredential(registry string, cred RegistryCredential) {
 	uc.mu.Lock()
 	defer uc.mu.Unlock()
 	uc.credentials[registry] = cred
 }
 
-// CheckAppUpdate 检查单个应用的更新
+// CheckAppUpdate 检查单个应用的更新.
 func (uc *UpdateChecker) CheckAppUpdate(appID string) (*UpdateInfo, error) {
 	app := uc.store.GetInstalled(appID)
 	if app == nil {
@@ -1234,7 +1234,7 @@ func (uc *UpdateChecker) CheckAppUpdate(appID string) (*UpdateInfo, error) {
 	return uc.CheckImageUpdate(template.Image, app.Version)
 }
 
-// CheckImageUpdate 检查镜像更新
+// CheckImageUpdate 检查镜像更新.
 func (uc *UpdateChecker) CheckImageUpdate(image, currentTag string) (*UpdateInfo, error) {
 	// 解析镜像名称
 	imageName, tag := parseImageName(image)
@@ -1283,14 +1283,14 @@ func (uc *UpdateChecker) CheckImageUpdate(image, currentTag string) (*UpdateInfo
 	return info, nil
 }
 
-// ImageInfo 镜像信息
+// ImageInfo 镜像信息.
 type ImageInfo struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Tags        []TagInfo `json:"tags"`
 }
 
-// TagInfo 标签信息
+// TagInfo 标签信息.
 type TagInfo struct {
 	Name         string    `json:"name"`
 	Digest       string    `json:"digest"`
@@ -1299,7 +1299,7 @@ type TagInfo struct {
 	ReleaseNotes string    `json:"release_notes"`
 }
 
-// fetchImageInfo 获取镜像信息
+// fetchImageInfo 获取镜像信息.
 func (uc *UpdateChecker) fetchImageInfo(imageName string) (*ImageInfo, error) {
 	namespace, name := parseImageNamespace(imageName)
 
@@ -1366,7 +1366,7 @@ func (uc *UpdateChecker) fetchImageInfo(imageName string) (*ImageInfo, error) {
 	return info, nil
 }
 
-// parseImageName 解析镜像名称
+// parseImageName 解析镜像名称.
 func parseImageName(image string) (string, string) {
 	parts := strings.SplitN(image, ":", 2)
 	if len(parts) == 1 {
@@ -1375,7 +1375,7 @@ func parseImageName(image string) (string, string) {
 	return parts[0], parts[1]
 }
 
-// parseImageNamespace 解析镜像命名空间
+// parseImageNamespace 解析镜像命名空间.
 func parseImageNamespace(imageName string) (string, string) {
 	if strings.Contains(imageName, "/") {
 		parts := strings.SplitN(imageName, "/", 2)
@@ -1384,7 +1384,7 @@ func parseImageNamespace(imageName string) (string, string) {
 	return "library", imageName
 }
 
-// findLatestStableTag 查找最新稳定版本标签
+// findLatestStableTag 查找最新稳定版本标签.
 func findLatestStableTag(tags []TagInfo) *TagInfo {
 	// 优先选择非 latest、非预发布版本
 	for _, t := range tags {
@@ -1415,7 +1415,7 @@ func findLatestStableTag(tags []TagInfo) *TagInfo {
 // 应用备份与恢复
 // =============================================================================
 
-// BackupInfo 备份信息
+// BackupInfo 备份信息.
 type BackupInfo struct {
 	ID         string            `json:"id"`
 	AppID      string            `json:"appId"`
@@ -1429,14 +1429,14 @@ type BackupInfo struct {
 	Labels     map[string]string `json:"labels"`
 }
 
-// BackupManager 备份管理器
+// BackupManager 备份管理器.
 type BackupManager struct {
 	mu        sync.RWMutex
 	store     *AppStore
 	backupDir string
 }
 
-// NewBackupManager 创建备份管理器
+// NewBackupManager 创建备份管理器.
 func NewBackupManager(store *AppStore, dataDir string) (*BackupManager, error) {
 	backupDir := filepath.Join(dataDir, "app-backups")
 	if err := os.MkdirAll(backupDir, 0750); err != nil {
@@ -1449,7 +1449,7 @@ func NewBackupManager(store *AppStore, dataDir string) (*BackupManager, error) {
 	}, nil
 }
 
-// BackupApp 备份应用
+// BackupApp 备份应用.
 func (bm *BackupManager) BackupApp(appID string, opts BackupOptions) (*BackupInfo, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -1562,7 +1562,7 @@ func (bm *BackupManager) BackupApp(appID string, opts BackupOptions) (*BackupInf
 	return info, nil
 }
 
-// BackupOptions 备份选项
+// BackupOptions 备份选项.
 type BackupOptions struct {
 	IncludeConfig  bool              `json:"includeConfig"`
 	IncludeCompose bool              `json:"includeCompose"`
@@ -1571,7 +1571,7 @@ type BackupOptions struct {
 	Labels         map[string]string `json:"labels"`
 }
 
-// RestoreApp 恢复应用
+// RestoreApp 恢复应用.
 func (bm *BackupManager) RestoreApp(backupID string, opts RestoreOptions) (*InstalledApp, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -1695,14 +1695,14 @@ func (bm *BackupManager) RestoreApp(backupID string, opts RestoreOptions) (*Inst
 	return app, nil
 }
 
-// RestoreOptions 恢复选项
+// RestoreOptions 恢复选项.
 type RestoreOptions struct {
 	ForceRestore      bool `json:"forceRestore"`
 	RestoreData       bool `json:"restoreData"`
 	StartAfterRestore bool `json:"startAfterRestore"`
 }
 
-// ListBackups 列出所有备份
+// ListBackups 列出所有备份.
 func (bm *BackupManager) ListBackups(appID string) ([]*BackupInfo, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -1741,7 +1741,7 @@ func (bm *BackupManager) ListBackups(appID string) ([]*BackupInfo, error) {
 	return backups, nil
 }
 
-// GetBackup 获取备份信息
+// GetBackup 获取备份信息.
 func (bm *BackupManager) GetBackup(backupID string) (*BackupInfo, error) {
 	infoPath := filepath.Join(bm.backupDir, backupID, "backup.json")
 	data, err := os.ReadFile(infoPath)
@@ -1757,13 +1757,13 @@ func (bm *BackupManager) GetBackup(backupID string) (*BackupInfo, error) {
 	return &info, nil
 }
 
-// DeleteBackup 删除备份
+// DeleteBackup 删除备份.
 func (bm *BackupManager) DeleteBackup(backupID string) error {
 	backupPath := filepath.Join(bm.backupDir, backupID)
 	return os.RemoveAll(backupPath)
 }
 
-// calculateChecksum 计算备份目录校验和
+// calculateChecksum 计算备份目录校验和.
 func (bm *BackupManager) calculateChecksum(backupPath string) (string, error) {
 	// 简单实现：遍历文件计算 MD5
 	ctx := context.Background()
@@ -1776,7 +1776,7 @@ func (bm *BackupManager) calculateChecksum(backupPath string) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-// sortBackupsByTime 按时间排序备份
+// sortBackupsByTime 按时间排序备份.
 func sortBackupsByTime(backups []*BackupInfo) {
 	for i := 0; i < len(backups); i++ {
 		for j := i + 1; j < len(backups); j++ {
@@ -1787,7 +1787,7 @@ func sortBackupsByTime(backups []*BackupInfo) {
 	}
 }
 
-// containsStr 检查字符串是否在切片中
+// containsStr 检查字符串是否在切片中.
 func containsStr(slice []string, str string) bool {
 	for _, s := range slice {
 		if s == str {
@@ -1801,7 +1801,7 @@ func containsStr(slice []string, str string) bool {
 // 应用健康检查
 // =============================================================================
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus struct {
 	AppID        string        `json:"appId"`
 	AppName      string        `json:"appName"`
@@ -1814,7 +1814,7 @@ type HealthStatus struct {
 	Message      string        `json:"message"`
 }
 
-// HealthCheck 健康检查项
+// HealthCheck 健康检查项.
 type HealthCheck struct {
 	Name     string        `json:"name"`
 	Type     string        `json:"type"` // http, tcp, exec, container
@@ -1824,14 +1824,14 @@ type HealthCheck struct {
 	Endpoint string        `json:"endpoint,omitempty"`
 }
 
-// HealthChecker 健康检查器
+// HealthChecker 健康检查器.
 type HealthChecker struct {
 	store   *AppStore
 	manager *Manager
 	config  HealthCheckConfig
 }
 
-// HealthCheckConfig 健康检查配置
+// HealthCheckConfig 健康检查配置.
 type HealthCheckConfig struct {
 	CheckInterval      time.Duration `json:"checkInterval"`
 	Timeout            time.Duration `json:"timeout"`
@@ -1839,7 +1839,7 @@ type HealthCheckConfig struct {
 	UnhealthyThreshold int           `json:"unhealthyThreshold"`
 }
 
-// DefaultHealthCheckConfig 默认健康检查配置
+// DefaultHealthCheckConfig 默认健康检查配置.
 var DefaultHealthCheckConfig = HealthCheckConfig{
 	CheckInterval:      30 * time.Second,
 	Timeout:            10 * time.Second,
@@ -1847,7 +1847,7 @@ var DefaultHealthCheckConfig = HealthCheckConfig{
 	UnhealthyThreshold: 3,
 }
 
-// NewHealthChecker 创建健康检查器
+// NewHealthChecker 创建健康检查器.
 func NewHealthChecker(store *AppStore, mgr *Manager, config HealthCheckConfig) *HealthChecker {
 	if config.CheckInterval == 0 {
 		config = DefaultHealthCheckConfig
@@ -1860,7 +1860,7 @@ func NewHealthChecker(store *AppStore, mgr *Manager, config HealthCheckConfig) *
 	}
 }
 
-// CheckHealth 检查应用健康状态
+// CheckHealth 检查应用健康状态.
 func (hc *HealthChecker) CheckHealth(appID string) (*HealthStatus, error) {
 	app := hc.store.GetInstalled(appID)
 	if app == nil {
@@ -1914,7 +1914,7 @@ func (hc *HealthChecker) CheckHealth(appID string) (*HealthStatus, error) {
 	return status, nil
 }
 
-// checkContainerStatus 检查容器状态
+// checkContainerStatus 检查容器状态.
 func (hc *HealthChecker) checkContainerStatus(container *Container) HealthCheck {
 	check := HealthCheck{
 		Name: "容器状态",
@@ -1932,7 +1932,7 @@ func (hc *HealthChecker) checkContainerStatus(container *Container) HealthCheck 
 	return check
 }
 
-// checkPorts 检查端口
+// checkPorts 检查端口.
 func (hc *HealthChecker) checkPorts(ports map[int]int) []HealthCheck {
 	checks := make([]HealthCheck, 0, len(ports))
 
@@ -1967,7 +1967,7 @@ func (hc *HealthChecker) checkPorts(ports map[int]int) []HealthCheck {
 	return checks
 }
 
-// checkHTTPEndpoint 检查 HTTP 端点
+// checkHTTPEndpoint 检查 HTTP 端点.
 func (hc *HealthChecker) checkHTTPEndpoint(app *InstalledApp) *HealthCheck {
 	// 查找可能的 Web 端口
 	var webPort int
@@ -2029,7 +2029,7 @@ func (hc *HealthChecker) checkHTTPEndpoint(app *InstalledApp) *HealthCheck {
 	return &check
 }
 
-// checkResources 检查资源使用
+// checkResources 检查资源使用.
 func (hc *HealthChecker) checkResources(container *Container) HealthCheck {
 	check := HealthCheck{
 		Name: "资源使用",
@@ -2062,7 +2062,7 @@ func (hc *HealthChecker) checkResources(container *Container) HealthCheck {
 	return check
 }
 
-// aggregateStatus 汇总状态
+// aggregateStatus 汇总状态.
 func (hc *HealthChecker) aggregateStatus(checks []HealthCheck) string {
 	hasUnhealthy := false
 	hasDegraded := false
@@ -2085,7 +2085,7 @@ func (hc *HealthChecker) aggregateStatus(checks []HealthCheck) string {
 	return "healthy"
 }
 
-// getStatusMessage 获取状态消息
+// getStatusMessage 获取状态消息.
 func (hc *HealthChecker) getStatusMessage(checks []HealthCheck) string {
 	var unhealthy []string
 	for _, check := range checks {
@@ -2101,7 +2101,7 @@ func (hc *HealthChecker) getStatusMessage(checks []HealthCheck) string {
 	return fmt.Sprintf("异常检查项: %s", strings.Join(unhealthy, ", "))
 }
 
-// formatBytes 格式化字节
+// formatBytes 格式化字节.
 func formatBytes(b uint64) string {
 	const unit = 1024
 	if b < unit {
@@ -2115,7 +2115,7 @@ func formatBytes(b uint64) string {
 	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
 }
 
-// StartPeriodicCheck 启动定期健康检查
+// StartPeriodicCheck 启动定期健康检查.
 func (hc *HealthChecker) StartPeriodicCheck() chan *HealthStatus {
 	results := make(chan *HealthStatus, 100)
 

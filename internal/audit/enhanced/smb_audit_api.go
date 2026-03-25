@@ -10,19 +10,19 @@ import (
 	"time"
 )
 
-// SMAuditAPIHandler SMB审计API处理器
+// SMAuditAPIHandler SMB审计API处理器.
 type SMAuditAPIHandler struct {
 	manager *SMAuditManager
 }
 
-// NewSMAuditAPIHandler 创建SMB审计API处理器
+// NewSMAuditAPIHandler 创建SMB审计API处理器.
 func NewSMAuditAPIHandler(manager *SMAuditManager) *SMAuditAPIHandler {
 	return &SMAuditAPIHandler{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册API路由
+// RegisterRoutes 注册API路由.
 func (h *SMAuditAPIHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/audit/smb/config", h.handleConfig)
 	mux.HandleFunc("/api/audit/smb/events", h.handleEvents)
@@ -33,7 +33,7 @@ func (h *SMAuditAPIHandler) RegisterRoutes(mux *http.ServeMux) {
 
 // handleConfig 处理配置请求
 // GET: 获取当前配置
-// PUT: 更新配置
+// PUT: 更新配置.
 func (h *SMAuditAPIHandler) handleConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -45,13 +45,13 @@ func (h *SMAuditAPIHandler) handleConfig(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// getConfig 获取当前配置
+// getConfig 获取当前配置.
 func (h *SMAuditAPIHandler) getConfig(w http.ResponseWriter, r *http.Request) {
 	config := h.manager.GetConfig()
 	h.respondJSON(w, http.StatusOK, config)
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *SMAuditAPIHandler) updateConfig(w http.ResponseWriter, r *http.Request) {
 	var config SMAuditConfig
 	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
@@ -71,7 +71,7 @@ func (h *SMAuditAPIHandler) updateConfig(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// validateConfig 验证配置
+// validateConfig 验证配置.
 func (h *SMAuditAPIHandler) validateConfig(config *SMAuditConfig) error {
 	// 验证审计级别
 	validLevels := map[SMAuditLevel]bool{
@@ -102,7 +102,7 @@ func (h *SMAuditAPIHandler) validateConfig(config *SMAuditConfig) error {
 	return nil
 }
 
-// handleEvents 处理事件查询请求
+// handleEvents 处理事件查询请求.
 func (h *SMAuditAPIHandler) handleEvents(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -124,7 +124,7 @@ func (h *SMAuditAPIHandler) handleEvents(w http.ResponseWriter, r *http.Request)
 	h.respondJSON(w, http.StatusOK, response)
 }
 
-// parseQueryOptions 解析查询参数
+// parseQueryOptions 解析查询参数.
 func (h *SMAuditAPIHandler) parseQueryOptions(r *http.Request) SMAuditQueryOptions {
 	query := r.URL.Query()
 
@@ -166,7 +166,7 @@ func (h *SMAuditAPIHandler) parseQueryOptions(r *http.Request) SMAuditQueryOptio
 	return opts
 }
 
-// handleStatistics 处理统计请求
+// handleStatistics 处理统计请求.
 func (h *SMAuditAPIHandler) handleStatistics(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -177,7 +177,7 @@ func (h *SMAuditAPIHandler) handleStatistics(w http.ResponseWriter, r *http.Requ
 	h.respondJSON(w, http.StatusOK, stats)
 }
 
-// handleLevels 处理审计级别列表请求
+// handleLevels 处理审计级别列表请求.
 func (h *SMAuditAPIHandler) handleLevels(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -215,7 +215,7 @@ func (h *SMAuditAPIHandler) handleLevels(w http.ResponseWriter, r *http.Request)
 	h.respondJSON(w, http.StatusOK, levels)
 }
 
-// handleExport 处理导出请求
+// handleExport 处理导出请求.
 func (h *SMAuditAPIHandler) handleExport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -243,7 +243,7 @@ func (h *SMAuditAPIHandler) handleExport(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// exportJSON 导出JSON格式
+// exportJSON 导出JSON格式.
 func (h *SMAuditAPIHandler) exportJSON(w http.ResponseWriter, events []SMAuditEvent) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Disposition", "attachment; filename=smb-audit-export.json")
@@ -259,7 +259,7 @@ func (h *SMAuditAPIHandler) exportJSON(w http.ResponseWriter, events []SMAuditEv
 	}
 }
 
-// exportCSV 导出CSV格式
+// exportCSV 导出CSV格式.
 func (h *SMAuditAPIHandler) exportCSV(w http.ResponseWriter, events []SMAuditEvent) {
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Disposition", "attachment; filename=smb-audit-export.csv")
@@ -292,7 +292,7 @@ func (h *SMAuditAPIHandler) exportCSV(w http.ResponseWriter, events []SMAuditEve
 	}
 }
 
-// respondJSON 返回JSON响应
+// respondJSON 返回JSON响应.
 func (h *SMAuditAPIHandler) respondJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -301,39 +301,39 @@ func (h *SMAuditAPIHandler) respondJSON(w http.ResponseWriter, status int, data 
 	}
 }
 
-// respondError 返回错误响应
+// respondError 返回错误响应.
 func (h *SMAuditAPIHandler) respondError(w http.ResponseWriter, status int, message string) {
 	h.respondJSON(w, status, map[string]string{
 		"error": message,
 	})
 }
 
-// ValidationError 验证错误
+// ValidationError 验证错误.
 type ValidationError struct {
 	Field   string `json:"field"`
 	Message string `json:"message"`
 }
 
-// Error 实现error接口
+// Error 实现error接口.
 func (e *ValidationError) Error() string {
 	return e.Field + ": " + e.Message
 }
 
 // ========== 审计配置持久化 ==========
 
-// SMAuditConfigManager 审计配置管理器
+// SMAuditConfigManager 审计配置管理器.
 type SMAuditConfigManager struct {
 	configPath string
 }
 
-// NewSMAuditConfigManager 创建配置管理器
+// NewSMAuditConfigManager 创建配置管理器.
 func NewSMAuditConfigManager(configPath string) *SMAuditConfigManager {
 	return &SMAuditConfigManager{
 		configPath: configPath,
 	}
 }
 
-// LoadConfig 加载配置
+// LoadConfig 加载配置.
 func (m *SMAuditConfigManager) LoadConfig() (*SMAuditConfig, error) {
 	data, err := os.ReadFile(m.configPath)
 	if os.IsNotExist(err) {
@@ -353,7 +353,7 @@ func (m *SMAuditConfigManager) LoadConfig() (*SMAuditConfig, error) {
 	return &config, nil
 }
 
-// SaveConfig 保存配置
+// SaveConfig 保存配置.
 func (m *SMAuditConfigManager) SaveConfig(config *SMAuditConfig) error {
 	data, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {

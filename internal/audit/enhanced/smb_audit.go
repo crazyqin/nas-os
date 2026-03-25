@@ -13,23 +13,23 @@ import (
 
 // ========== SMB审计级别 ==========
 
-// SMAuditLevel SMB审计级别
+// SMAuditLevel SMB审计级别.
 type SMAuditLevel string
 
 const (
-	// SMAuditLevelNone 不记录审计日志
+	// SMAuditLevelNone 不记录审计日志.
 	SMAuditLevelNone SMAuditLevel = "none"
-	// SMAuditLevelMinimal 最小审计：仅记录连接/断开
+	// SMAuditLevelMinimal 最小审计：仅记录连接/断开.
 	SMAuditLevelMinimal SMAuditLevel = "minimal"
-	// SMAuditLevelStandard 标准审计：记录连接、文件操作摘要
+	// SMAuditLevelStandard 标准审计：记录连接、文件操作摘要.
 	SMAuditLevelStandard SMAuditLevel = "standard"
-	// SMAuditLevelDetailed 详细审计：记录所有文件操作详情
+	// SMAuditLevelDetailed 详细审计：记录所有文件操作详情.
 	SMAuditLevelDetailed SMAuditLevel = "detailed"
-	// SMAuditLevelFull 完整审计：记录所有操作包括读写内容摘要
+	// SMAuditLevelFull 完整审计：记录所有操作包括读写内容摘要.
 	SMAuditLevelFull SMAuditLevel = "full"
 )
 
-// auditLevelValue 级别数值映射
+// auditLevelValue 级别数值映射.
 var auditLevelValue = map[SMAuditLevel]int{
 	SMAuditLevelNone:     0,
 	SMAuditLevelMinimal:  1,
@@ -38,12 +38,12 @@ var auditLevelValue = map[SMAuditLevel]int{
 	SMAuditLevelFull:     4,
 }
 
-// levelAtLeast 检查当前级别是否至少为指定级别
+// levelAtLeast 检查当前级别是否至少为指定级别.
 func (l SMAuditLevel) atLeast(required SMAuditLevel) bool {
 	return auditLevelValue[l] >= auditLevelValue[required]
 }
 
-// SMAuditConfig SMB审计配置
+// SMAuditConfig SMB审计配置.
 type SMAuditConfig struct {
 	Enabled             bool          `json:"enabled"`
 	Level               SMAuditLevel  `json:"level"`
@@ -68,7 +68,7 @@ type SMAuditConfig struct {
 	ExcludePaths        []string      `json:"exclude_paths"`         // 排除审计的路径模式
 }
 
-// DefaultSMAuditConfig 默认SMB审计配置
+// DefaultSMAuditConfig 默认SMB审计配置.
 func DefaultSMAuditConfig() SMAuditConfig {
 	return SMAuditConfig{
 		Enabled:             true,
@@ -95,7 +95,7 @@ func DefaultSMAuditConfig() SMAuditConfig {
 	}
 }
 
-// ShouldLog 根据审计级别和配置判断是否需要记录
+// ShouldLog 根据审计级别和配置判断是否需要记录.
 func (c SMAuditConfig) ShouldLog(opType string) bool {
 	if !c.Enabled || c.Level == SMAuditLevelNone {
 		return false
@@ -127,10 +127,10 @@ func (c SMAuditConfig) ShouldLog(opType string) bool {
 
 // ========== SMB文件操作审计事件 ==========
 
-// SMBFileOperation SMB文件操作类型
+// SMBFileOperation SMB文件操作类型.
 type SMBFileOperation string
 
-// SMB文件操作类型常量
+// SMB文件操作类型常量.
 const (
 	SMBFileOpRead           SMBFileOperation = "read"
 	SMBFileOpWrite          SMBFileOperation = "write"
@@ -153,7 +153,7 @@ const (
 	SMBFileOpTreeDisconnect SMBFileOperation = "tree_disconnect"
 )
 
-// SMAuditEvent SMB审计事件
+// SMAuditEvent SMB审计事件.
 type SMAuditEvent struct {
 	EventID       string                 `json:"event_id"`
 	Timestamp     time.Time              `json:"timestamp"`
@@ -192,14 +192,14 @@ type SMAuditEvent struct {
 	Details       map[string]interface{} `json:"details,omitempty"`
 }
 
-// SMAuditEntry SMB审计日志条目（持久化格式）
+// SMAuditEntry SMB审计日志条目（持久化格式）.
 type SMAuditEntry struct {
 	ID        string       `json:"id"`
 	Event     SMAuditEvent `json:"event"`
 	Signature string       `json:"signature,omitempty"` // 防篡改签名
 }
 
-// SMAuditStatistics SMB审计统计
+// SMAuditStatistics SMB审计统计.
 type SMAuditStatistics struct {
 	TotalEvents        int64               `json:"total_events"`
 	EventsByType       map[string]int64    `json:"events_by_type"`
@@ -220,25 +220,25 @@ type SMAuditStatistics struct {
 	HourlyDistribution map[int]int64       `json:"hourly_distribution"`
 }
 
-// FileAccessCount 文件访问计数
+// FileAccessCount 文件访问计数.
 type FileAccessCount struct {
 	FilePath string `json:"file_path"`
 	Count    int64  `json:"count"`
 }
 
-// UserAccessCount 用户访问计数
+// UserAccessCount 用户访问计数.
 type UserAccessCount struct {
 	Username string `json:"username"`
 	Count    int64  `json:"count"`
 }
 
-// ClientAccessCount 客户端访问计数
+// ClientAccessCount 客户端访问计数.
 type ClientAccessCount struct {
 	ClientIP string `json:"client_ip"`
 	Count    int64  `json:"count"`
 }
 
-// SMAuditManager SMB审计管理器
+// SMAuditManager SMB审计管理器.
 type SMAuditManager struct {
 	config      SMAuditConfig
 	events      chan SMAuditEvent
@@ -252,7 +252,7 @@ type SMAuditManager struct {
 	currentSize int64
 }
 
-// NewSMAuditManager 创建SMB审计管理器
+// NewSMAuditManager 创建SMB审计管理器.
 func NewSMAuditManager(config SMAuditConfig) *SMAuditManager {
 	if config.LogPath == "" {
 		config.LogPath = "/var/log/nas-os/audit/smb"
@@ -306,7 +306,7 @@ func NewSMAuditManager(config SMAuditConfig) *SMAuditManager {
 
 // ========== 审计事件记录方法 ==========
 
-// LogConnect 记录SMB连接
+// LogConnect 记录SMB连接.
 func (m *SMAuditManager) LogConnect(session *SMBSession) {
 	if !m.config.Enabled || m.config.Level == SMAuditLevelNone {
 		return
@@ -330,7 +330,7 @@ func (m *SMAuditManager) LogConnect(session *SMBSession) {
 	}
 }
 
-// LogDisconnect 记录SMB断开
+// LogDisconnect 记录SMB断开.
 func (m *SMAuditManager) LogDisconnect(sessionID, username, clientIP string, bytesRead, bytesWritten int64) {
 	if !m.config.Enabled || m.config.Level == SMAuditLevelNone {
 		return
@@ -349,7 +349,7 @@ func (m *SMAuditManager) LogDisconnect(sessionID, username, clientIP string, byt
 	}
 }
 
-// LogTreeConnect 记录共享连接
+// LogTreeConnect 记录共享连接.
 func (m *SMAuditManager) LogTreeConnect(sessionID, shareName, username, clientIP string, permissions string) {
 	if !m.config.ShouldLog("tree_connect") {
 		return
@@ -373,7 +373,7 @@ func (m *SMAuditManager) LogTreeConnect(sessionID, shareName, username, clientIP
 	}
 }
 
-// LogTreeDisconnect 记录共享断开
+// LogTreeDisconnect 记录共享断开.
 func (m *SMAuditManager) LogTreeDisconnect(sessionID, shareName, username, clientIP string) {
 	if !m.config.ShouldLog("tree_disconnect") {
 		return
@@ -395,7 +395,7 @@ func (m *SMAuditManager) LogTreeDisconnect(sessionID, shareName, username, clien
 	}
 }
 
-// LogFileOpen 记录文件打开
+// LogFileOpen 记录文件打开.
 func (m *SMAuditManager) LogFileOpen(sessionID, shareName, username, clientIP, filePath string, accessMode string, isDirectory bool) {
 	if !m.config.ShouldLog("file_open") {
 		return
@@ -422,7 +422,7 @@ func (m *SMAuditManager) LogFileOpen(sessionID, shareName, username, clientIP, f
 	}
 }
 
-// LogFileClose 记录文件关闭
+// LogFileClose 记录文件关闭.
 func (m *SMAuditManager) LogFileClose(sessionID, shareName, username, clientIP, filePath string, bytesRead, bytesWritten int64) {
 	if !m.config.ShouldLog("file_close") {
 		return
@@ -447,7 +447,7 @@ func (m *SMAuditManager) LogFileClose(sessionID, shareName, username, clientIP, 
 	}
 }
 
-// LogFileRead 记录文件读取
+// LogFileRead 记录文件读取.
 func (m *SMAuditManager) LogFileRead(sessionID, shareName, username, clientIP, filePath string, offset, length int64) {
 	if !m.config.ShouldLog("file_read") {
 		return
@@ -472,7 +472,7 @@ func (m *SMAuditManager) LogFileRead(sessionID, shareName, username, clientIP, f
 	}
 }
 
-// LogFileWrite 记录文件写入
+// LogFileWrite 记录文件写入.
 func (m *SMAuditManager) LogFileWrite(sessionID, shareName, username, clientIP, filePath string, offset, length int64, contentDigest string) {
 	if !m.config.ShouldLog("file_write") {
 		return
@@ -503,7 +503,7 @@ func (m *SMAuditManager) LogFileWrite(sessionID, shareName, username, clientIP, 
 	m.events <- event
 }
 
-// LogFileDelete 记录文件删除
+// LogFileDelete 记录文件删除.
 func (m *SMAuditManager) LogFileDelete(sessionID, shareName, username, clientIP, filePath string, isDirectory bool) {
 	if !m.config.ShouldLog("file_delete") {
 		return
@@ -527,7 +527,7 @@ func (m *SMAuditManager) LogFileDelete(sessionID, shareName, username, clientIP,
 	}
 }
 
-// LogFileRename 记录文件重命名
+// LogFileRename 记录文件重命名.
 func (m *SMAuditManager) LogFileRename(sessionID, shareName, username, clientIP, oldPath, newPath string, isDirectory bool) {
 	if !m.config.ShouldLog("file_rename") {
 		return
@@ -553,7 +553,7 @@ func (m *SMAuditManager) LogFileRename(sessionID, shareName, username, clientIP,
 	}
 }
 
-// LogFileCreate 记录文件创建
+// LogFileCreate 记录文件创建.
 func (m *SMAuditManager) LogFileCreate(sessionID, shareName, username, clientIP, filePath string, isDirectory bool, permissions string) {
 	if !m.config.ShouldLog("file_create") {
 		return
@@ -578,7 +578,7 @@ func (m *SMAuditManager) LogFileCreate(sessionID, shareName, username, clientIP,
 	}
 }
 
-// LogPermissionChange 记录权限变更
+// LogPermissionChange 记录权限变更.
 func (m *SMAuditManager) LogPermissionChange(sessionID, shareName, username, clientIP, filePath, oldPerms, newPerms string) {
 	if !m.config.ShouldLog("permission_change") {
 		return
@@ -603,7 +603,7 @@ func (m *SMAuditManager) LogPermissionChange(sessionID, shareName, username, cli
 	}
 }
 
-// LogOwnershipChange 记录所有者变更
+// LogOwnershipChange 记录所有者变更.
 func (m *SMAuditManager) LogOwnershipChange(sessionID, shareName, username, clientIP, filePath, oldOwner, newOwner string) {
 	if !m.config.ShouldLog("ownership_change") {
 		return
@@ -628,7 +628,7 @@ func (m *SMAuditManager) LogOwnershipChange(sessionID, shareName, username, clie
 	}
 }
 
-// LogFileLock 记录文件锁定
+// LogFileLock 记录文件锁定.
 func (m *SMAuditManager) LogFileLock(sessionID, shareName, username, clientIP, filePath, lockType, lockRange string) {
 	if !m.config.ShouldLog("file_lock") {
 		return
@@ -653,7 +653,7 @@ func (m *SMAuditManager) LogFileLock(sessionID, shareName, username, clientIP, f
 	}
 }
 
-// LogFileUnlock 记录文件解锁
+// LogFileUnlock 记录文件解锁.
 func (m *SMAuditManager) LogFileUnlock(sessionID, shareName, username, clientIP, filePath string) {
 	if !m.config.ShouldLog("file_unlock") {
 		return
@@ -676,7 +676,7 @@ func (m *SMAuditManager) LogFileUnlock(sessionID, shareName, username, clientIP,
 	}
 }
 
-// LogOperationFailure 记录操作失败
+// LogOperationFailure 记录操作失败.
 func (m *SMAuditManager) LogOperationFailure(sessionID, shareName, username, clientIP, filePath string, operation SMBFileOperation, errorCode int, errorMessage string) {
 	if !m.config.Enabled || m.config.Level == SMAuditLevelNone {
 		return
@@ -701,7 +701,7 @@ func (m *SMAuditManager) LogOperationFailure(sessionID, shareName, username, cli
 	}
 }
 
-// LogOperationDenied 记录操作被拒绝
+// LogOperationDenied 记录操作被拒绝.
 func (m *SMAuditManager) LogOperationDenied(sessionID, shareName, username, clientIP, filePath string, operation SMBFileOperation, reason string) {
 	if !m.config.Enabled || m.config.Level == SMAuditLevelNone {
 		return
@@ -727,7 +727,7 @@ func (m *SMAuditManager) LogOperationDenied(sessionID, shareName, username, clie
 
 // ========== 查询和统计方法 ==========
 
-// GetStatistics 获取审计统计
+// GetStatistics 获取审计统计.
 func (m *SMAuditManager) GetStatistics() SMAuditStatistics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -769,7 +769,7 @@ func (m *SMAuditManager) GetStatistics() SMAuditStatistics {
 	return stats
 }
 
-// QueryEvents 查询审计事件
+// QueryEvents 查询审计事件.
 func (m *SMAuditManager) QueryEvents(opts SMAuditQueryOptions) ([]SMAuditEvent, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -808,7 +808,7 @@ func (m *SMAuditManager) QueryEvents(opts SMAuditQueryOptions) ([]SMAuditEvent, 
 	return results[start:end], total
 }
 
-// SMAuditQueryOptions SMB审计查询选项
+// SMAuditQueryOptions SMB审计查询选项.
 type SMAuditQueryOptions struct {
 	Limit     int              `json:"limit"`
 	Offset    int              `json:"offset"`
@@ -823,7 +823,7 @@ type SMAuditQueryOptions struct {
 	Status    string           `json:"status,omitempty"`
 }
 
-// matchesQuery 检查事件是否匹配查询条件
+// matchesQuery 检查事件是否匹配查询条件.
 func (m *SMAuditManager) matchesQuery(event SMAuditEvent, opts SMAuditQueryOptions) bool {
 	if opts.StartTime != nil && event.Timestamp.Before(*opts.StartTime) {
 		return false
@@ -857,7 +857,7 @@ func (m *SMAuditManager) matchesQuery(event SMAuditEvent, opts SMAuditQueryOptio
 
 // ========== 内部方法 ==========
 
-// isExcluded 检查是否在排除列表中
+// isExcluded 检查是否在排除列表中.
 func (m *SMAuditManager) isExcluded(shareName, username, filePath string) bool {
 	// 检查排除的共享
 	for _, s := range m.config.ExcludeShares {
@@ -883,7 +883,7 @@ func (m *SMAuditManager) isExcluded(shareName, username, filePath string) bool {
 	return false
 }
 
-// processEvents 处理事件队列
+// processEvents 处理事件队列.
 func (m *SMAuditManager) processEvents() {
 	defer m.wg.Done()
 
@@ -902,7 +902,7 @@ func (m *SMAuditManager) processEvents() {
 	}
 }
 
-// writeEvent 写入事件到内存和文件
+// writeEvent 写入事件到内存和文件.
 func (m *SMAuditManager) writeEvent(event SMAuditEvent) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -929,7 +929,7 @@ func (m *SMAuditManager) writeEvent(event SMAuditEvent) {
 	m.writeToFile(entry)
 }
 
-// updateStats 更新统计数据
+// updateStats 更新统计数据.
 func (m *SMAuditManager) updateStats(event SMAuditEvent) {
 	m.stats.TotalEvents++
 	m.stats.EventsByType[string(event.Operation)]++
@@ -964,7 +964,7 @@ func (m *SMAuditManager) updateStats(event SMAuditEvent) {
 	}
 }
 
-// writeToFile 写入日志文件
+// writeToFile 写入日志文件.
 func (m *SMAuditManager) writeToFile(entry SMAuditEntry) {
 	if m.config.LogPath == "" {
 		return
@@ -993,7 +993,7 @@ func (m *SMAuditManager) writeToFile(entry SMAuditEntry) {
 	m.currentSize += int64(n)
 }
 
-// rotateFile 轮转日志文件
+// rotateFile 轮转日志文件.
 func (m *SMAuditManager) rotateFile() {
 	if m.currentFile != nil {
 		_ = m.currentFile.Close()
@@ -1013,7 +1013,7 @@ func (m *SMAuditManager) rotateFile() {
 	m.currentSize = 0
 }
 
-// rotateLogs 定期轮转日志
+// rotateLogs 定期轮转日志.
 func (m *SMAuditManager) rotateLogs() {
 	defer m.wg.Done()
 
@@ -1029,7 +1029,7 @@ func (m *SMAuditManager) rotateLogs() {
 	}
 }
 
-// cleanupOldLogs 清理旧日志
+// cleanupOldLogs 清理旧日志.
 func (m *SMAuditManager) cleanupOldLogs() {
 	defer m.wg.Done()
 
@@ -1046,7 +1046,7 @@ func (m *SMAuditManager) cleanupOldLogs() {
 	}
 }
 
-// doCleanup 执行清理
+// doCleanup 执行清理.
 func (m *SMAuditManager) doCleanup() {
 	if m.config.LogPath == "" || m.config.MaxLogAgeDays <= 0 {
 		return
@@ -1082,13 +1082,13 @@ func (m *SMAuditManager) doCleanup() {
 	}
 }
 
-// compressFile 压缩文件
+// compressFile 压缩文件.
 func compressFile(filePath string) error {
 	// 简单实现，实际可使用 gzip
 	return nil
 }
 
-// Stop 停止审计管理器
+// Stop 停止审计管理器.
 func (m *SMAuditManager) Stop() {
 	close(m.stopCh)
 	m.wg.Wait()
@@ -1100,26 +1100,26 @@ func (m *SMAuditManager) Stop() {
 	m.mu.Unlock()
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *SMAuditManager) UpdateConfig(config SMAuditConfig) {
 	m.mu.Lock()
 	m.config = config
 	m.mu.Unlock()
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *SMAuditManager) GetConfig() SMAuditConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// generateSMBEventID 生成事件ID
+// generateSMBEventID 生成事件ID.
 func generateSMBEventID() string {
 	return fmt.Sprintf("smb-%d-%s", time.Now().UnixNano(), randomString(8))
 }
 
-// randomString 生成随机字符串
+// randomString 生成随机字符串.
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)

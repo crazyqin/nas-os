@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Manager 安全管理器（统一入口）
+// Manager 安全管理器（统一入口）.
 type Manager struct {
 	firewall   *FirewallManager
 	fail2ban   *Fail2BanManager
@@ -16,7 +16,7 @@ type Manager struct {
 	mu         sync.RWMutex
 }
 
-// NewManager 创建安全管理器
+// NewManager 创建安全管理器.
 func NewManager() *Manager {
 	sm := &Manager{
 		firewall: NewFirewallManager(),
@@ -54,7 +54,7 @@ func NewManager() *Manager {
 	return sm
 }
 
-// handleAlert 处理安全告警
+// handleAlert 处理安全告警.
 func (sm *Manager) handleAlert(alert Alert) {
 	sm.mu.RLock()
 	notifyFunc := sm.notifyFunc
@@ -71,41 +71,41 @@ func (sm *Manager) handleAlert(alert Alert) {
 	}
 }
 
-// SetNotifyFunc 设置通知回调
+// SetNotifyFunc 设置通知回调.
 func (sm *Manager) SetNotifyFunc(notifyFn func(alert Alert)) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 	sm.notifyFunc = notifyFn
 }
 
-// GetFirewallManager 获取防火墙管理器
+// GetFirewallManager 获取防火墙管理器.
 func (sm *Manager) GetFirewallManager() *FirewallManager {
 	return sm.firewall
 }
 
-// GetFail2BanManager 获取失败登录保护管理器
+// GetFail2BanManager 获取失败登录保护管理器.
 func (sm *Manager) GetFail2BanManager() *Fail2BanManager {
 	return sm.fail2ban
 }
 
-// GetAuditManager 获取审计管理器
+// GetAuditManager 获取审计管理器.
 func (sm *Manager) GetAuditManager() *AuditManager {
 	return sm.audit
 }
 
-// GetBaselineManager 获取基线检查管理器
+// GetBaselineManager 获取基线检查管理器.
 func (sm *Manager) GetBaselineManager() *BaselineManager {
 	return sm.baseline
 }
 
-// GetConfig 获取安全配置
+// GetConfig 获取安全配置.
 func (sm *Manager) GetConfig() Config {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
 	return sm.config
 }
 
-// UpdateConfig 更新安全配置
+// UpdateConfig 更新安全配置.
 func (sm *Manager) UpdateConfig(config Config) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -131,7 +131,7 @@ func (sm *Manager) UpdateConfig(config Config) error {
 	return nil
 }
 
-// RecordFailedLogin 记录失败登录（统一入口）
+// RecordFailedLogin 记录失败登录（统一入口）.
 func (sm *Manager) RecordFailedLogin(ip, username, userAgent, reason string) error {
 	// 记录到审计日志
 	sm.audit.LogLogin(LoginLogEntry{
@@ -146,7 +146,7 @@ func (sm *Manager) RecordFailedLogin(ip, username, userAgent, reason string) err
 	return sm.fail2ban.RecordFailedLogin(ip, username, userAgent, reason)
 }
 
-// RecordSuccessfulLogin 记录成功登录
+// RecordSuccessfulLogin 记录成功登录.
 func (sm *Manager) RecordSuccessfulLogin(ip, username, userAgent, mfaMethod string) {
 	// 记录到审计日志
 	sm.audit.LogLogin(LoginLogEntry{
@@ -161,12 +161,12 @@ func (sm *Manager) RecordSuccessfulLogin(ip, username, userAgent, mfaMethod stri
 	sm.fail2ban.RecordSuccessfulLogin(ip, username)
 }
 
-// RecordAction 记录操作日志
+// RecordAction 记录操作日志.
 func (sm *Manager) RecordAction(userID, username, ip, resource, action string, details map[string]interface{}, status string) {
 	sm.audit.LogAction(userID, username, ip, resource, action, details, status)
 }
 
-// IsAccessAllowed 检查访问是否允许
+// IsAccessAllowed 检查访问是否允许.
 func (sm *Manager) IsAccessAllowed(ip string) bool {
 	// 检查是否在白名单
 	if sm.firewall.IsWhitelisted(ip) {
@@ -186,12 +186,12 @@ func (sm *Manager) IsAccessAllowed(ip string) bool {
 	return true
 }
 
-// BanIP 封禁 IP
+// BanIP 封禁 IP.
 func (sm *Manager) BanIP(ip, reason string, durationMinutes int) error {
 	return sm.firewall.AddToBlacklist(ip, reason, durationMinutes)
 }
 
-// UnbanIP 解封 IP
+// UnbanIP 解封 IP.
 func (sm *Manager) UnbanIP(ip string) error {
 	// 从防火墙黑名单移除
 	if err := sm.firewall.RemoveFromBlacklist(ip); err != nil {
@@ -201,7 +201,7 @@ func (sm *Manager) UnbanIP(ip string) error {
 	return nil
 }
 
-// GetSecurityStatus 获取安全状态概览
+// GetSecurityStatus 获取安全状态概览.
 func (sm *Manager) GetSecurityStatus() map[string]interface{} {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -220,12 +220,12 @@ func (sm *Manager) GetSecurityStatus() map[string]interface{} {
 	}
 }
 
-// RunBaselineCheck 运行基线检查
+// RunBaselineCheck 运行基线检查.
 func (sm *Manager) RunBaselineCheck() BaselineReport {
 	return sm.baseline.RunAllChecks()
 }
 
-// GetDashboard 获取安全仪表板数据
+// GetDashboard 获取安全仪表板数据.
 func (sm *Manager) GetDashboard() map[string]interface{} {
 	now := time.Now()
 	startTime := now.Add(-24 * time.Hour)

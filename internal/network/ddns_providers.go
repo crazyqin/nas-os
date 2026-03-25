@@ -16,14 +16,14 @@ import (
 
 // ========== 阿里云 DNS 实现 ==========
 
-// AliDNSProvider 阿里云 DNS
+// AliDNSProvider 阿里云 DNS.
 type AliDNSProvider struct {
 	AccessKeyID     string
 	AccessKeySecret string
 	RegionID        string
 }
 
-// AliDNSRecord 阿里云 DNS 记录
+// AliDNSRecord 阿里云 DNS 记录.
 type AliDNSRecord struct {
 	RecordID string `json:"RecordId"`
 	RR       string `json:"RR"`
@@ -33,7 +33,7 @@ type AliDNSRecord struct {
 	Status   string `json:"Status"`
 }
 
-// NewAliDNSProvider 创建阿里云 DNS 提供者
+// NewAliDNSProvider 创建阿里云 DNS 提供者.
 func NewAliDNSProvider(accessKeyID, accessKeySecret string) *AliDNSProvider {
 	return &AliDNSProvider{
 		AccessKeyID:     accessKeyID,
@@ -42,7 +42,7 @@ func NewAliDNSProvider(accessKeyID, accessKeySecret string) *AliDNSProvider {
 	}
 }
 
-// Update 更新 DNS 记录
+// Update 更新 DNS 记录.
 func (p *AliDNSProvider) Update(domain, ip string) error {
 	// 解析域名
 	parts := strings.Split(domain, ".")
@@ -75,7 +75,7 @@ func (p *AliDNSProvider) Update(domain, ip string) error {
 	return p.addDomainRecord(mainDomain, subDomain, "A", ip)
 }
 
-// describeDomainRecords 查询域名解析记录
+// describeDomainRecords 查询域名解析记录.
 func (p *AliDNSProvider) describeDomainRecords(domain, rr string) ([]AliDNSRecord, error) {
 	params := map[string]string{
 		"Action":      "DescribeDomainRecords",
@@ -96,7 +96,7 @@ func (p *AliDNSProvider) describeDomainRecords(domain, rr string) ([]AliDNSRecor
 	return result.Records, nil
 }
 
-// addDomainRecord 添加域名解析记录
+// addDomainRecord 添加域名解析记录.
 func (p *AliDNSProvider) addDomainRecord(domain, rr, recordType, value string) error {
 	params := map[string]string{
 		"Action":     "AddDomainRecord",
@@ -110,7 +110,7 @@ func (p *AliDNSProvider) addDomainRecord(domain, rr, recordType, value string) e
 	return p.request(params, nil)
 }
 
-// updateDomainRecord 更新域名解析记录
+// updateDomainRecord 更新域名解析记录.
 func (p *AliDNSProvider) updateDomainRecord(recordID, rr, recordType, value string) error {
 	params := map[string]string{
 		"Action":   "UpdateDomainRecord",
@@ -124,7 +124,7 @@ func (p *AliDNSProvider) updateDomainRecord(recordID, rr, recordType, value stri
 	return p.request(params, nil)
 }
 
-// request 发送阿里云 API 请求
+// request 发送阿里云 API 请求.
 func (p *AliDNSProvider) request(params map[string]string, result interface{}) error {
 	// 公共参数
 	params["Format"] = "JSON"
@@ -175,7 +175,7 @@ func (p *AliDNSProvider) request(params map[string]string, result interface{}) e
 	return nil
 }
 
-// generateSignature 生成签名
+// generateSignature 生成签名.
 func (p *AliDNSProvider) generateSignature(params map[string]string) string {
 	// 排序参数
 	var keys []string
@@ -202,7 +202,7 @@ func (p *AliDNSProvider) generateSignature(params map[string]string) string {
 	return signature
 }
 
-// buildQueryString 构建查询字符串
+// buildQueryString 构建查询字符串.
 func (p *AliDNSProvider) buildQueryString(params map[string]string) string {
 	var pairs []string
 	for k, v := range params {
@@ -211,7 +211,7 @@ func (p *AliDNSProvider) buildQueryString(params map[string]string) string {
 	return strings.Join(pairs, "&")
 }
 
-// specialURLEncode 特殊 URL 编码（阿里云要求）
+// specialURLEncode 特殊 URL 编码（阿里云要求）.
 func specialURLEncode(s string) string {
 	encoded := url.QueryEscape(s)
 	encoded = strings.ReplaceAll(encoded, "+", "%20")
@@ -222,7 +222,7 @@ func specialURLEncode(s string) string {
 
 // ========== Cloudflare DNS 实现 ==========
 
-// CloudflareProvider Cloudflare DNS
+// CloudflareProvider Cloudflare DNS.
 type CloudflareProvider struct {
 	APIToken string
 	ZoneID   string
@@ -230,7 +230,7 @@ type CloudflareProvider struct {
 	Key      string // 可选，Global API Key
 }
 
-// CloudflareRecord Cloudflare DNS 记录
+// CloudflareRecord Cloudflare DNS 记录.
 type CloudflareRecord struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`
@@ -240,19 +240,19 @@ type CloudflareRecord struct {
 	Proxied bool   `json:"proxied"`
 }
 
-// NewCloudflareProvider 创建 Cloudflare 提供者
+// NewCloudflareProvider 创建 Cloudflare 提供者.
 func NewCloudflareProvider(apiToken string) *CloudflareProvider {
 	return &CloudflareProvider{
 		APIToken: apiToken,
 	}
 }
 
-// SetZoneID 设置 Zone ID
+// SetZoneID 设置 Zone ID.
 func (p *CloudflareProvider) SetZoneID(zoneID string) {
 	p.ZoneID = zoneID
 }
 
-// Update 更新 DNS 记录
+// Update 更新 DNS 记录.
 func (p *CloudflareProvider) Update(domain, ip string) error {
 	// 如果没有 ZoneID，先获取
 	if p.ZoneID == "" {
@@ -278,7 +278,7 @@ func (p *CloudflareProvider) Update(domain, ip string) error {
 	return p.createDNSRecord(domain, ip)
 }
 
-// getZoneID 获取 Zone ID
+// getZoneID 获取 Zone ID.
 func (p *CloudflareProvider) getZoneID(domain string) (string, error) {
 	// 解析主域名
 	parts := strings.Split(domain, ".")
@@ -319,7 +319,7 @@ func (p *CloudflareProvider) getZoneID(domain string) (string, error) {
 	return result.Result[0].ID, nil
 }
 
-// listDNSRecords 列出 DNS 记录
+// listDNSRecords 列出 DNS 记录.
 func (p *CloudflareProvider) listDNSRecords(name string) ([]CloudflareRecord, error) {
 	req, err := http.NewRequest("GET",
 		fmt.Sprintf("https://api.cloudflare.com/client/v4/zones/%s/dns_records?name=%s&type=A",
@@ -352,7 +352,7 @@ func (p *CloudflareProvider) listDNSRecords(name string) ([]CloudflareRecord, er
 	return result.Result, nil
 }
 
-// createDNSRecord 创建 DNS 记录
+// createDNSRecord 创建 DNS 记录.
 func (p *CloudflareProvider) createDNSRecord(name, ip string) error {
 	data := map[string]interface{}{
 		"type":    "A",
@@ -397,7 +397,7 @@ func (p *CloudflareProvider) createDNSRecord(name, ip string) error {
 	return nil
 }
 
-// updateDNSRecord 更新 DNS 记录
+// updateDNSRecord 更新 DNS 记录.
 func (p *CloudflareProvider) updateDNSRecord(recordID, name, ip string) error {
 	data := map[string]interface{}{
 		"type":    "A",
@@ -437,7 +437,7 @@ func (p *CloudflareProvider) updateDNSRecord(recordID, name, ip string) error {
 	return nil
 }
 
-// setAuthHeader 设置认证头
+// setAuthHeader 设置认证头.
 func (p *CloudflareProvider) setAuthHeader(req *http.Request) {
 	if p.APIToken != "" {
 		req.Header.Set("Authorization", "Bearer "+p.APIToken)
@@ -449,13 +449,13 @@ func (p *CloudflareProvider) setAuthHeader(req *http.Request) {
 
 // ========== Tailscale 实现 ==========
 
-// TailscaleProvider Tailscale DDNS
+// TailscaleProvider Tailscale DDNS.
 type TailscaleProvider struct {
 	APIKey  string
 	Tailnet string // Tailscale 网络名称
 }
 
-// NewTailscaleProvider 创建 Tailscale 提供者
+// NewTailscaleProvider 创建 Tailscale 提供者.
 func NewTailscaleProvider(apiKey, tailnet string) *TailscaleProvider {
 	return &TailscaleProvider{
 		APIKey:  apiKey,
@@ -463,7 +463,7 @@ func NewTailscaleProvider(apiKey, tailnet string) *TailscaleProvider {
 	}
 }
 
-// Update 更新 Tailscale DNS (MagicDNS)
+// Update 更新 Tailscale DNS (MagicDNS).
 func (p *TailscaleProvider) Update(domain, ip string) error {
 	// Tailscale 使用自己的 DNS 系统
 	// 这里我们更新设备的 ACL 标签或 DNS 记录
@@ -492,7 +492,7 @@ func (p *TailscaleProvider) Update(domain, ip string) error {
 	return nil
 }
 
-// GetDeviceIP 获取 Tailscale 设备 IP
+// GetDeviceIP 获取 Tailscale 设备 IP.
 func (p *TailscaleProvider) GetDeviceIP(deviceName string) (string, error) {
 	req, err := http.NewRequest("GET",
 		"https://api.tailscale.com/api/v2/tailnet/"+p.Tailnet+"/devices", nil)
@@ -530,7 +530,7 @@ func (p *TailscaleProvider) GetDeviceIP(deviceName string) (string, error) {
 
 // ========== 更新 getDDNSProvider ==========
 
-// getDDNSProvider 获取 DDNS 服务商实现 (更新版)
+// getDDNSProvider 获取 DDNS 服务商实现 (更新版).
 func (m *Manager) getDDNSProviderEx(provider, token, secret, extra string) (DDNSProvider, error) {
 	switch provider {
 	case "alidns":

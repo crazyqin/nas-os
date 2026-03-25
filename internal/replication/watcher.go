@@ -11,7 +11,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-// Watcher 文件监控器
+// Watcher 文件监控器.
 type Watcher struct {
 	mu            sync.RWMutex
 	watcher       *fsnotify.Watcher
@@ -25,7 +25,7 @@ type Watcher struct {
 	batchedEvents map[string]time.Time // 路径 -> 最后事件时间
 }
 
-// FileEvent 文件事件
+// FileEvent 文件事件.
 type FileEvent struct {
 	TaskID    string    `json:"task_id"`
 	Path      string    `json:"path"`
@@ -34,7 +34,7 @@ type FileEvent struct {
 	IsDir     bool      `json:"is_dir"`
 }
 
-// NewWatcher 创建文件监控器
+// NewWatcher 创建文件监控器.
 func NewWatcher(conflictDetector *ConflictDetector) (*Watcher, error) {
 	fsWatcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -53,7 +53,7 @@ func NewWatcher(conflictDetector *ConflictDetector) (*Watcher, error) {
 	}, nil
 }
 
-// AddTask 添加监控任务
+// AddTask 添加监控任务.
 func (w *Watcher) AddTask(task *Task) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -84,7 +84,7 @@ func (w *Watcher) AddTask(task *Task) error {
 	return nil
 }
 
-// RemoveTask 移除监控任务
+// RemoveTask 移除监控任务.
 func (w *Watcher) RemoveTask(taskID string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -102,7 +102,7 @@ func (w *Watcher) RemoveTask(taskID string) error {
 	return nil
 }
 
-// addSubdirectories 递归添加子目录监控
+// addSubdirectories 递归添加子目录监控.
 func (w *Watcher) addSubdirectories(root string) error {
 	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -118,20 +118,20 @@ func (w *Watcher) addSubdirectories(root string) error {
 	})
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (w *Watcher) Start() {
 	w.wg.Add(1)
 	go w.run()
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (w *Watcher) Stop() {
 	close(w.stopChan)
 	_ = w.watcher.Close()
 	w.wg.Wait()
 }
 
-// run 运行监控循环
+// run 运行监控循环.
 func (w *Watcher) run() {
 	defer w.wg.Done()
 
@@ -161,7 +161,7 @@ func (w *Watcher) run() {
 	}
 }
 
-// handleEvent 处理文件事件
+// handleEvent 处理文件事件.
 func (w *Watcher) handleEvent(event fsnotify.Event) {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -196,7 +196,7 @@ func (w *Watcher) handleEvent(event fsnotify.Event) {
 	w.batchedEvents[event.Name] = time.Now()
 }
 
-// processBatchedEvents 处理批量事件
+// processBatchedEvents 处理批量事件.
 func (w *Watcher) processBatchedEvents() {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -244,18 +244,18 @@ func (w *Watcher) processBatchedEvents() {
 	}
 }
 
-// Events 获取事件通道
+// Events 获取事件通道.
 func (w *Watcher) Events() <-chan FileEvent {
 	return w.eventChan
 }
 
-// WatcherStats 监控统计
+// WatcherStats 监控统计.
 type WatcherStats struct {
 	TasksWatched  int `json:"tasks_watched"`
 	EventsPending int `json:"events_pending"`
 }
 
-// GetStats 获取监控统计
+// GetStats 获取监控统计.
 func (w *Watcher) GetStats() WatcherStats {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -266,7 +266,7 @@ func (w *Watcher) GetStats() WatcherStats {
 	}
 }
 
-// BidirectionalSyncManager 双向同步管理器
+// BidirectionalSyncManager 双向同步管理器.
 type BidirectionalSyncManager struct {
 	mu          sync.RWMutex
 	tasks       map[string]*Task
@@ -277,7 +277,7 @@ type BidirectionalSyncManager struct {
 	wg          sync.WaitGroup
 }
 
-// NewBidirectionalSyncManager 创建双向同步管理器
+// NewBidirectionalSyncManager 创建双向同步管理器.
 func NewBidirectionalSyncManager(watcher *Watcher, conflictDetector *ConflictDetector) *BidirectionalSyncManager {
 	return &BidirectionalSyncManager{
 		tasks:       make(map[string]*Task),
@@ -288,7 +288,7 @@ func NewBidirectionalSyncManager(watcher *Watcher, conflictDetector *ConflictDet
 	}
 }
 
-// AddTask 添加双向同步任务
+// AddTask 添加双向同步任务.
 func (m *BidirectionalSyncManager) AddTask(task *Task) error {
 	if task.Type != TypeBidirectional {
 		return fmt.Errorf("任务类型不是双向同步")
@@ -306,7 +306,7 @@ func (m *BidirectionalSyncManager) AddTask(task *Task) error {
 	return nil
 }
 
-// RemoveTask 移除双向同步任务
+// RemoveTask 移除双向同步任务.
 func (m *BidirectionalSyncManager) RemoveTask(taskID string) {
 	m.mu.Lock()
 	delete(m.tasks, taskID)
@@ -315,19 +315,19 @@ func (m *BidirectionalSyncManager) RemoveTask(taskID string) {
 	_ = m.watcher.RemoveTask(taskID)
 }
 
-// Start 启动双向同步
+// Start 启动双向同步.
 func (m *BidirectionalSyncManager) Start() {
 	m.wg.Add(1)
 	go m.run()
 }
 
-// Stop 停止双向同步
+// Stop 停止双向同步.
 func (m *BidirectionalSyncManager) Stop() {
 	close(m.stopChan)
 	m.wg.Wait()
 }
 
-// run 运行双向同步循环
+// run 运行双向同步循环.
 func (m *BidirectionalSyncManager) run() {
 	defer m.wg.Done()
 
@@ -345,7 +345,7 @@ func (m *BidirectionalSyncManager) run() {
 	}
 }
 
-// processEvent 处理文件事件
+// processEvent 处理文件事件.
 func (m *BidirectionalSyncManager) processEvent(event FileEvent) {
 	m.mu.RLock()
 	task, exists := m.tasks[event.TaskID]
@@ -360,7 +360,7 @@ func (m *BidirectionalSyncManager) processEvent(event FileEvent) {
 	// 实际同步逻辑由 Manager 执行
 }
 
-// syncTask 同步任务
+// syncTask 同步任务.
 func (m *BidirectionalSyncManager) syncTask(taskID string) {
 	m.mu.RLock()
 	task, exists := m.tasks[taskID]

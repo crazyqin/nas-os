@@ -7,7 +7,7 @@ import (
 
 // ========== 资源报告集成类型 ==========
 
-// HubuReportType 资源报告类型
+// HubuReportType 资源报告类型.
 type HubuReportType string
 
 const (
@@ -21,7 +21,7 @@ const (
 	HubuReportComprehensive HubuReportType = "comprehensive" // 综合资源报告
 )
 
-// HubuReportRequest 资源报告请求
+// HubuReportRequest 资源报告请求.
 type HubuReportRequest struct {
 	// 报告类型
 	Type HubuReportType `json:"type" binding:"required"`
@@ -54,7 +54,7 @@ type HubuReportRequest struct {
 	Format string `json:"format,omitempty"` // json, html, pdf, excel
 }
 
-// HubuReportResponse 资源报告响应
+// HubuReportResponse 资源报告响应.
 type HubuReportResponse struct {
 	// 报告ID
 	ID string `json:"id"`
@@ -90,7 +90,7 @@ type HubuReportResponse struct {
 	ExportLinks map[string]string `json:"export_links,omitempty"`
 }
 
-// HubuComprehensiveReport 综合资源报告
+// HubuComprehensiveReport 综合资源报告.
 type HubuComprehensiveReport struct {
 	// 总体健康评分
 	OverallHealthScore float64 `json:"overall_health_score"` // 0-100
@@ -123,7 +123,7 @@ type HubuComprehensiveReport struct {
 	ForecastSummary HubuForecastSummary `json:"forecast_summary"`
 }
 
-// HubuKeyMetric 关键指标
+// HubuKeyMetric 关键指标.
 type HubuKeyMetric struct {
 	// 指标名称
 	Name string `json:"name"`
@@ -147,7 +147,7 @@ type HubuKeyMetric struct {
 	Description string `json:"description"`
 }
 
-// HubuAlertSummary 告警汇总
+// HubuAlertSummary 告警汇总.
 type HubuAlertSummary struct {
 	// 总告警数
 	Total int `json:"total"`
@@ -168,7 +168,7 @@ type HubuAlertSummary struct {
 	ByResource map[string]int `json:"by_resource"`
 }
 
-// HubuPrioritizedRecommendation 优先建议
+// HubuPrioritizedRecommendation 优先建议.
 type HubuPrioritizedRecommendation struct {
 	// 优先级排名
 	Rank int `json:"rank"`
@@ -201,7 +201,7 @@ type HubuPrioritizedRecommendation struct {
 	EstimatedTime string `json:"estimated_time"`
 }
 
-// HubuTrendSummary 趋势摘要
+// HubuTrendSummary 趋势摘要.
 type HubuTrendSummary struct {
 	// 存储增长趋势
 	StorageTrend string `json:"storage_trend"` // increasing, stable, decreasing
@@ -222,7 +222,7 @@ type HubuTrendSummary struct {
 	DaysToBandwidthFull int `json:"days_to_bandwidth_full"`
 }
 
-// HubuForecastSummary 预测摘要
+// HubuForecastSummary 预测摘要.
 type HubuForecastSummary struct {
 	// 下月存储使用预测（GB）
 	NextMonthStorageGB float64 `json:"next_month_storage_gb"`
@@ -243,7 +243,7 @@ type HubuForecastSummary struct {
 	Confidence float64 `json:"confidence"` // 0-1
 }
 
-// HubuResourceReportGenerator 集成资源报告生成器 (v2.89.0)
+// HubuResourceReportGenerator 集成资源报告生成器 (v2.89.0).
 type HubuResourceReportGenerator struct {
 	storageReporter   *StorageUsageReporter
 	bandwidthReporter *BandwidthReporter
@@ -251,7 +251,7 @@ type HubuResourceReportGenerator struct {
 	costCalculator    *StorageCostCalculator
 }
 
-// NewHubuResourceReportGenerator 创建集成资源报告生成器
+// NewHubuResourceReportGenerator 创建集成资源报告生成器.
 func NewHubuResourceReportGenerator(
 	storageConfig StorageReportConfig,
 	bandwidthConfig BandwidthReportConfig,
@@ -266,7 +266,7 @@ func NewHubuResourceReportGenerator(
 	}
 }
 
-// GenerateReport 生成资源报告
+// GenerateReport 生成资源报告.
 func (g *HubuResourceReportGenerator) GenerateReport(req HubuReportRequest) *HubuReportResponse {
 	startTime := time.Now()
 
@@ -315,7 +315,7 @@ func (g *HubuResourceReportGenerator) GenerateReport(req HubuReportRequest) *Hub
 	return response
 }
 
-// generateStorageUsageReport 生成存储使用报告
+// generateStorageUsageReport 生成存储使用报告.
 func (g *HubuResourceReportGenerator) generateStorageUsageReport(req HubuReportRequest) *StorageUsageReport {
 	now := time.Now()
 	return &StorageUsageReport{
@@ -337,7 +337,7 @@ func (g *HubuResourceReportGenerator) generateStorageUsageReport(req HubuReportR
 	}
 }
 
-// generateBandwidthStatsReport 生成带宽统计报告
+// generateBandwidthStatsReport 生成带宽统计报告.
 func (g *HubuResourceReportGenerator) generateBandwidthStatsReport(req HubuReportRequest) *BandwidthReport {
 	now := time.Now()
 	return &BandwidthReport{
@@ -355,7 +355,7 @@ func (g *HubuResourceReportGenerator) generateBandwidthStatsReport(req HubuRepor
 	}
 }
 
-// generateCapacityForecastReport 生成容量预测报告
+// generateCapacityForecastReport 生成容量预测报告.
 func (g *HubuResourceReportGenerator) generateCapacityForecastReport(req HubuReportRequest) *CapacityPlanningReport {
 	now := time.Now()
 	return &CapacityPlanningReport{
@@ -368,7 +368,7 @@ func (g *HubuResourceReportGenerator) generateCapacityForecastReport(req HubuRep
 	}
 }
 
-// generateComprehensiveReport 生成综合报告
+// generateComprehensiveReport 生成综合报告.
 func (g *HubuResourceReportGenerator) generateComprehensiveReport(req HubuReportRequest) *HubuComprehensiveReport {
 	report := &HubuComprehensiveReport{
 		OverallHealthScore: 85.0,
@@ -401,7 +401,7 @@ func (g *HubuResourceReportGenerator) generateComprehensiveReport(req HubuReport
 	return report
 }
 
-// CalculateHealthScore 计算健康评分
+// CalculateHealthScore 计算健康评分.
 func (g *HubuResourceReportGenerator) CalculateHealthScore(
 	storageReport *StorageUsageReport,
 	bandwidthReport *BandwidthReport,
@@ -471,7 +471,7 @@ func (g *HubuResourceReportGenerator) CalculateHealthScore(
 	return score
 }
 
-// GetHealthStatus 获取健康状态描述
+// GetHealthStatus 获取健康状态描述.
 func (g *HubuResourceReportGenerator) GetHealthStatus(score float64) string {
 	if score >= 90 {
 		return "excellent"
@@ -485,7 +485,7 @@ func (g *HubuResourceReportGenerator) GetHealthStatus(score float64) string {
 
 // ========== 存储使用报告增强功能 ==========
 
-// HubuStorageEnhancedReport 存储使用增强报告
+// HubuStorageEnhancedReport 存储使用增强报告.
 type HubuStorageEnhancedReport struct {
 	*StorageUsageReport
 
@@ -499,7 +499,7 @@ type HubuStorageEnhancedReport struct {
 	HotspotAnalysis HubuStorageHotspotAnalysis `json:"hotspot_analysis"`
 }
 
-// HubuStorageEnhancedMetrics 存储增强指标
+// HubuStorageEnhancedMetrics 存储增强指标.
 type HubuStorageEnhancedMetrics struct {
 	// IOPS统计
 	ReadIOPS  uint64 `json:"read_iops"`
@@ -523,7 +523,7 @@ type HubuStorageEnhancedMetrics struct {
 	SnapshotEfficiency float64 `json:"snapshot_efficiency"`
 }
 
-// HubuStorageCostAnalysis 存储成本分析
+// HubuStorageCostAnalysis 存储成本分析.
 type HubuStorageCostAnalysis struct {
 	// 月度成本
 	MonthlyCost float64 `json:"monthly_cost"` // 元
@@ -541,7 +541,7 @@ type HubuStorageCostAnalysis struct {
 	CostEfficiency float64 `json:"cost_efficiency"` // 0-100
 }
 
-// HubuCostBreakdown 成本构成
+// HubuCostBreakdown 成本构成.
 type HubuCostBreakdown struct {
 	// 存储成本
 	StorageCost float64 `json:"storage_cost"`
@@ -556,7 +556,7 @@ type HubuCostBreakdown struct {
 	DepreciationCost float64 `json:"depreciation_cost"`
 }
 
-// HubuStorageHotspotAnalysis 存储热点分析
+// HubuStorageHotspotAnalysis 存储热点分析.
 type HubuStorageHotspotAnalysis struct {
 	// 热点目录
 	HotDirectories []HubuHotDirectory `json:"hot_directories"`
@@ -571,7 +571,7 @@ type HubuStorageHotspotAnalysis struct {
 	AccessPattern string `json:"access_pattern"` // read_heavy, write_heavy, balanced
 }
 
-// HubuHotDirectory 热点目录
+// HubuHotDirectory 热点目录.
 type HubuHotDirectory struct {
 	Path        string  `json:"path"`
 	AccessCount int64   `json:"access_count"`
@@ -579,7 +579,7 @@ type HubuHotDirectory struct {
 	GrowthRate  float64 `json:"growth_rate"` // %/day
 }
 
-// HubuHotFile 热点文件
+// HubuHotFile 热点文件.
 type HubuHotFile struct {
 	Path        string    `json:"path"`
 	SizeMB      float64   `json:"size_mb"`
@@ -587,7 +587,7 @@ type HubuHotFile struct {
 	LastAccess  time.Time `json:"last_access"`
 }
 
-// HubuActiveUser 活跃用户
+// HubuActiveUser 活跃用户.
 type HubuActiveUser struct {
 	Username   string `json:"username"`
 	ReadBytes  uint64 `json:"read_bytes"`
@@ -597,7 +597,7 @@ type HubuActiveUser struct {
 
 // ========== 带宽统计报告增强功能 ==========
 
-// HubuBandwidthEnhancedReport 带宽统计增强报告
+// HubuBandwidthEnhancedReport 带宽统计增强报告.
 type HubuBandwidthEnhancedReport struct {
 	*BandwidthReport
 
@@ -611,7 +611,7 @@ type HubuBandwidthEnhancedReport struct {
 	ProtocolDistribution []HubuProtocolStats `json:"protocol_distribution"`
 }
 
-// HubuBandwidthEnhancedMetrics 带宽增强指标
+// HubuBandwidthEnhancedMetrics 带宽增强指标.
 type HubuBandwidthEnhancedMetrics struct {
 	// 连接统计
 	ActiveConnections int `json:"active_connections"`
@@ -632,7 +632,7 @@ type HubuBandwidthEnhancedMetrics struct {
 	AvgTCPWindow uint64 `json:"avg_tcp_window"`
 }
 
-// HubuTrafficAnalysis 流量分析
+// HubuTrafficAnalysis 流量分析.
 type HubuTrafficAnalysis struct {
 	// 流量模式
 	Pattern string `json:"pattern"` // bursty, steady, periodic
@@ -644,7 +644,7 @@ type HubuTrafficAnalysis struct {
 	AppDistribution []HubuAppStats `json:"app_distribution"`
 }
 
-// HubuPeakHour 峰值时段
+// HubuPeakHour 峰值时段.
 type HubuPeakHour struct {
 	Hour       int     `json:"hour"` // 0-23
 	AvgMbps    float64 `json:"avg_mbps"`
@@ -652,7 +652,7 @@ type HubuPeakHour struct {
 	Percentage float64 `json:"percentage"` // 占总流量比例
 }
 
-// HubuAppStats 应用统计
+// HubuAppStats 应用统计.
 type HubuAppStats struct {
 	Application string  `json:"application"`
 	Port        int     `json:"port"`
@@ -660,7 +660,7 @@ type HubuAppStats struct {
 	Percentage  float64 `json:"percentage"`
 }
 
-// HubuProtocolStats 协议统计
+// HubuProtocolStats 协议统计.
 type HubuProtocolStats struct {
 	Protocol   string  `json:"protocol"` // TCP, UDP, HTTP, HTTPS, etc.
 	Bytes      uint64  `json:"bytes"`
@@ -670,7 +670,7 @@ type HubuProtocolStats struct {
 
 // ========== 容量预测增强功能 ==========
 
-// HubuCapacityEnhancedReport 容量预测增强报告
+// HubuCapacityEnhancedReport 容量预测增强报告.
 type HubuCapacityEnhancedReport struct {
 	*CapacityPlanningReport
 
@@ -681,7 +681,7 @@ type HubuCapacityEnhancedReport struct {
 	ScenarioAnalysis []HubuCapacityScenario `json:"scenario_analysis"`
 }
 
-// HubuEnhancedCapacityForecast 增强容量预测
+// HubuEnhancedCapacityForecast 增强容量预测.
 type HubuEnhancedCapacityForecast struct {
 	// 置信区间
 	ConfidenceIntervals []HubuConfidenceInterval `json:"confidence_intervals"`
@@ -693,7 +693,7 @@ type HubuEnhancedCapacityForecast struct {
 	Seasonality HubuSeasonalityAnalysis `json:"seasonality"`
 }
 
-// HubuConfidenceInterval 置信区间
+// HubuConfidenceInterval 置信区间.
 type HubuConfidenceInterval struct {
 	Date      time.Time `json:"date"`
 	Lower     uint64    `json:"lower"`     // 下限
@@ -702,7 +702,7 @@ type HubuConfidenceInterval struct {
 	Level     float64   `json:"level"`     // 置信水平 (0.95 = 95%)
 }
 
-// HubuModelDetails 模型详情
+// HubuModelDetails 模型详情.
 type HubuModelDetails struct {
 	Type         string  `json:"type"`          // linear, exponential, arima, lstm
 	Accuracy     float64 `json:"accuracy"`      // 模型准确度
@@ -711,7 +711,7 @@ type HubuModelDetails struct {
 	TrainingDays int     `json:"training_days"` // 训练数据天数
 }
 
-// HubuSeasonalityAnalysis 季节性分析
+// HubuSeasonalityAnalysis 季节性分析.
 type HubuSeasonalityAnalysis struct {
 	HasSeasonality bool    `json:"has_seasonality"`
 	CycleDays      int     `json:"cycle_days"` // 周期天数
@@ -719,7 +719,7 @@ type HubuSeasonalityAnalysis struct {
 	Variation      float64 `json:"variation"`  // 波动幅度
 }
 
-// HubuCapacityScenario 容量场景
+// HubuCapacityScenario 容量场景.
 type HubuCapacityScenario struct {
 	Name        string     `json:"name"` // 乐观, 基准, 悲观
 	Description string     `json:"description"`

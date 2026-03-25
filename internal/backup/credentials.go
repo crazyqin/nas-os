@@ -13,14 +13,14 @@ import (
 	"sync"
 )
 
-// CredentialStore 安全凭证存储
+// CredentialStore 安全凭证存储.
 type CredentialStore struct {
 	keyPath string
 	key     []byte
 	mu      sync.RWMutex
 }
 
-// NewCredentialStore 创建凭证存储
+// NewCredentialStore 创建凭证存储.
 func NewCredentialStore(keyPath string) (*CredentialStore, error) {
 	cs := &CredentialStore{
 		keyPath: keyPath,
@@ -34,7 +34,7 @@ func NewCredentialStore(keyPath string) (*CredentialStore, error) {
 	return cs, nil
 }
 
-// loadOrGenerateKey 加载或生成加密密钥
+// loadOrGenerateKey 加载或生成加密密钥.
 func (cs *CredentialStore) loadOrGenerateKey() error {
 	// 确保目录存在
 	if err := os.MkdirAll(filepath.Dir(cs.keyPath), 0700); err != nil {
@@ -58,7 +58,7 @@ func (cs *CredentialStore) loadOrGenerateKey() error {
 	return os.WriteFile(cs.keyPath, cs.key, 0600)
 }
 
-// Encrypt 加密敏感数据
+// Encrypt 加密敏感数据.
 func (cs *CredentialStore) Encrypt(plaintext string) (string, error) {
 	if plaintext == "" {
 		return "", nil
@@ -86,7 +86,7 @@ func (cs *CredentialStore) Encrypt(plaintext string) (string, error) {
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-// Decrypt 解密敏感数据
+// Decrypt 解密敏感数据.
 func (cs *CredentialStore) Decrypt(ciphertext string) (string, error) {
 	if ciphertext == "" {
 		return "", nil
@@ -124,7 +124,7 @@ func (cs *CredentialStore) Decrypt(ciphertext string) (string, error) {
 	return string(plaintext), nil
 }
 
-// SecureJobConfig 安全的作业配置（包含加密凭证）
+// SecureJobConfig 安全的作业配置（包含加密凭证）.
 type SecureJobConfig struct {
 	*JobConfig
 
@@ -134,7 +134,7 @@ type SecureJobConfig struct {
 	EncryptedCloudSecret    string `json:"encryptedCloudSecret,omitempty"`
 }
 
-// EncryptCredentials 加密配置中的敏感信息
+// EncryptCredentials 加密配置中的敏感信息.
 func (cs *CredentialStore) EncryptCredentials(config *JobConfig) (*SecureJobConfig, error) {
 	secure := &SecureJobConfig{JobConfig: config}
 
@@ -163,7 +163,7 @@ func (cs *CredentialStore) EncryptCredentials(config *JobConfig) (*SecureJobConf
 	return secure, nil
 }
 
-// DecryptCredentials 解密配置中的敏感信息
+// DecryptCredentials 解密配置中的敏感信息.
 func (cs *CredentialStore) DecryptCredentials(secure *SecureJobConfig) (*JobConfig, error) {
 	config := secure.JobConfig
 
@@ -192,7 +192,7 @@ func (cs *CredentialStore) DecryptCredentials(secure *SecureJobConfig) (*JobConf
 	return config, nil
 }
 
-// SecureBackupTarget 安全的备份目标配置
+// SecureBackupTarget 安全的备份目标配置.
 type SecureBackupTarget struct {
 	Name           string            `json:"name"`
 	Type           string            `json:"type"`
@@ -201,7 +201,7 @@ type SecureBackupTarget struct {
 	EncryptedCreds map[string]string `json:"encryptedCreds,omitempty"`
 }
 
-// EncryptTargetCredentials 加密目标配置中的凭证
+// EncryptTargetCredentials 加密目标配置中的凭证.
 func (cs *CredentialStore) EncryptTargetCredentials(target *BackupTarget) (*SecureBackupTarget, error) {
 	secure := &SecureBackupTarget{
 		Name:    target.Name,
@@ -224,7 +224,7 @@ func (cs *CredentialStore) EncryptTargetCredentials(target *BackupTarget) (*Secu
 	return secure, nil
 }
 
-// DecryptTargetCredentials 解密目标配置中的凭证
+// DecryptTargetCredentials 解密目标配置中的凭证.
 func (cs *CredentialStore) DecryptTargetCredentials(secure *SecureBackupTarget) (*BackupTarget, error) {
 	target := &BackupTarget{
 		Name:    secure.Name,
@@ -247,7 +247,7 @@ func (cs *CredentialStore) DecryptTargetCredentials(secure *SecureBackupTarget) 
 	return target, nil
 }
 
-// SaveSecureConfig 安全保存配置到文件
+// SaveSecureConfig 安全保存配置到文件.
 func (cs *CredentialStore) SaveSecureConfig(config *JobConfig, path string) error {
 	secure, err := cs.EncryptCredentials(config)
 	if err != nil {
@@ -262,7 +262,7 @@ func (cs *CredentialStore) SaveSecureConfig(config *JobConfig, path string) erro
 	return os.WriteFile(path, data, 0600)
 }
 
-// LoadSecureConfig 安全加载配置从文件
+// LoadSecureConfig 安全加载配置从文件.
 func (cs *CredentialStore) LoadSecureConfig(path string) (*JobConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {

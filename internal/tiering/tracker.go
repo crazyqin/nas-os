@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// AccessTracker 访问频率追踪器
+// AccessTracker 访问频率追踪器.
 type AccessTracker struct {
 	mu sync.RWMutex
 
@@ -32,7 +32,7 @@ type AccessTracker struct {
 	stopCh  chan struct{}
 }
 
-// NewAccessTracker 创建访问追踪器
+// NewAccessTracker 创建访问追踪器.
 func NewAccessTracker(config PolicyEngineConfig) *AccessTracker {
 	return &AccessTracker{
 		config:   config,
@@ -46,7 +46,7 @@ func NewAccessTracker(config PolicyEngineConfig) *AccessTracker {
 	}
 }
 
-// Start 启动追踪器
+// Start 启动追踪器.
 func (t *AccessTracker) Start() error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -73,7 +73,7 @@ func (t *AccessTracker) Start() error {
 	return nil
 }
 
-// Stop 停止追踪器
+// Stop 停止追踪器.
 func (t *AccessTracker) Stop() {
 	t.mu.Lock()
 	t.running = false
@@ -87,7 +87,7 @@ func (t *AccessTracker) Stop() {
 
 // ==================== 访问记录操作 ====================
 
-// RecordAccess 记录文件访问
+// RecordAccess 记录文件访问.
 func (t *AccessTracker) RecordAccess(path string, tier TierType, readBytes, writeBytes int64) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -129,17 +129,17 @@ func (t *AccessTracker) RecordAccess(path string, tier TierType, readBytes, writ
 	return nil
 }
 
-// RecordFileRead 记录文件读取
+// RecordFileRead 记录文件读取.
 func (t *AccessTracker) RecordFileRead(path string, tier TierType, bytesRead int64) error {
 	return t.RecordAccess(path, tier, bytesRead, 0)
 }
 
-// RecordFileWrite 记录文件写入
+// RecordFileWrite 记录文件写入.
 func (t *AccessTracker) RecordFileWrite(path string, tier TierType, bytesWritten int64) error {
 	return t.RecordAccess(path, tier, 0, bytesWritten)
 }
 
-// GetRecord 获取文件访问记录
+// GetRecord 获取文件访问记录.
 func (t *AccessTracker) GetRecord(path string) (*FileAccessRecord, error) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -152,7 +152,7 @@ func (t *AccessTracker) GetRecord(path string) (*FileAccessRecord, error) {
 	return record, nil
 }
 
-// GetRecordsByTier 获取指定存储层的所有记录
+// GetRecordsByTier 获取指定存储层的所有记录.
 func (t *AccessTracker) GetRecordsByTier(tier TierType) []*FileAccessRecord {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -167,7 +167,7 @@ func (t *AccessTracker) GetRecordsByTier(tier TierType) []*FileAccessRecord {
 	return records
 }
 
-// GetHotFiles 获取热数据文件
+// GetHotFiles 获取热数据文件.
 func (t *AccessTracker) GetHotFiles(tier TierType, limit int) []*FileAccessRecord {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -187,7 +187,7 @@ func (t *AccessTracker) GetHotFiles(tier TierType, limit int) []*FileAccessRecor
 	return files
 }
 
-// GetColdFiles 获取冷数据文件
+// GetColdFiles 获取冷数据文件.
 func (t *AccessTracker) GetColdFiles(tier TierType, limit int) []*FileAccessRecord {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -207,7 +207,7 @@ func (t *AccessTracker) GetColdFiles(tier TierType, limit int) []*FileAccessReco
 	return files
 }
 
-// UpdateFileTier 更新文件存储层
+// UpdateFileTier 更新文件存储层.
 func (t *AccessTracker) UpdateFileTier(path string, newTier TierType) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -234,7 +234,7 @@ func (t *AccessTracker) UpdateFileTier(path string, newTier TierType) error {
 	return nil
 }
 
-// RemoveRecord 移除访问记录
+// RemoveRecord 移除访问记录.
 func (t *AccessTracker) RemoveRecord(path string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -257,7 +257,7 @@ func (t *AccessTracker) RemoveRecord(path string) error {
 
 // ==================== 统计 ====================
 
-// GetStats 获取访问统计
+// GetStats 获取访问统计.
 func (t *AccessTracker) GetStats() *AccessStats {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -268,7 +268,7 @@ func (t *AccessTracker) GetStats() *AccessStats {
 	return t.stats
 }
 
-// GetTierStats 获取存储层统计
+// GetTierStats 获取存储层统计.
 func (t *AccessTracker) GetTierStats(tier TierType, config *TierConfig) (*TierStats, error) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -310,7 +310,7 @@ func (t *AccessTracker) GetTierStats(tier TierType, config *TierConfig) (*TierSt
 	return stats, nil
 }
 
-// updateStatsLocked 更新统计（需要锁）
+// updateStatsLocked 更新统计（需要锁）.
 func (t *AccessTracker) updateStatsLocked() {
 	stats := &AccessStats{
 		LastUpdated: time.Now(),
@@ -346,7 +346,7 @@ func (t *AccessTracker) updateStatsLocked() {
 	t.stats = stats
 }
 
-// calculateFrequency 计算访问频率
+// calculateFrequency 计算访问频率.
 func (t *AccessTracker) calculateFrequency(record *FileAccessRecord) AccessFrequency {
 	// 基于访问次数和时间判断
 	accessCount := record.AccessCount
@@ -384,7 +384,7 @@ func (t *AccessTracker) runBackgroundTasks() {
 	}
 }
 
-// updateFrequencies 更新访问频率
+// updateFrequencies 更新访问频率.
 func (t *AccessTracker) updateFrequencies() {
 	t.mu.Lock()
 	defer t.mu.Unlock()

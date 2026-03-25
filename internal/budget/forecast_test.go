@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// MockHistoryStore 模拟历史数据存储
+// MockHistoryStore 模拟历史数据存储.
 type MockHistoryStore struct {
 	data   []HistoricalDataPoint
 	budget *Budget

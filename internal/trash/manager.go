@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Item 回收站项目
+// Item 回收站项目.
 type Item struct {
 	ID           string    `json:"id"`
 	OriginalPath string    `json:"original_path"`
@@ -26,7 +26,7 @@ type Item struct {
 	DeletedBy    string    `json:"deleted_by"`
 }
 
-// Config 回收站配置
+// Config 回收站配置.
 type Config struct {
 	Enabled       bool   `json:"enabled"`
 	RetentionDays int    `json:"retention_days"`
@@ -35,7 +35,7 @@ type Config struct {
 	EmptySchedule string `json:"empty_schedule"` // cron 表达式
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:       true,
@@ -46,7 +46,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Manager 回收站管理器
+// Manager 回收站管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	config       *Config
@@ -62,7 +62,7 @@ type Manager struct {
 	cancel context.CancelFunc
 }
 
-// NewManager 创建回收站管理器
+// NewManager 创建回收站管理器.
 func NewManager(configPath, trashRoot string, config *Config) (*Manager, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -114,7 +114,7 @@ func NewManager(configPath, trashRoot string, config *Config) (*Manager, error) 
 	return m, nil
 }
 
-// MoveToTrash 移动到回收站
+// MoveToTrash 移动到回收站.
 func (m *Manager) MoveToTrash(originalPath, userID string) (*Item, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -183,12 +183,12 @@ func (m *Manager) MoveToTrash(originalPath, userID string) (*Item, error) {
 	return item, nil
 }
 
-// Restore 恢复文件到原始路径
+// Restore 恢复文件到原始路径.
 func (m *Manager) Restore(id string) error {
 	return m.RestoreTo(id, "")
 }
 
-// RestoreTo 恢复文件到指定路径（空路径则恢复到原始位置）
+// RestoreTo 恢复文件到指定路径（空路径则恢复到原始位置）.
 func (m *Manager) RestoreTo(id string, targetPath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -228,7 +228,7 @@ func (m *Manager) RestoreTo(id string, targetPath string) error {
 	return m.saveItems()
 }
 
-// DeletePermanently 永久删除
+// DeletePermanently 永久删除.
 func (m *Manager) DeletePermanently(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -251,7 +251,7 @@ func (m *Manager) DeletePermanently(id string) error {
 	return m.saveItems()
 }
 
-// Empty 清空回收站
+// Empty 清空回收站.
 func (m *Manager) Empty() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -268,7 +268,7 @@ func (m *Manager) Empty() error {
 	return m.saveItems()
 }
 
-// List 列出回收站项目
+// List 列出回收站项目.
 func (m *Manager) List() []*Item {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -286,7 +286,7 @@ func (m *Manager) List() []*Item {
 	return items
 }
 
-// Get 获取单个回收站项目
+// Get 获取单个回收站项目.
 func (m *Manager) Get(id string) (*Item, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -299,7 +299,7 @@ func (m *Manager) Get(id string) (*Item, error) {
 	return item, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -314,14 +314,14 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *Config) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -330,7 +330,7 @@ func (m *Manager) UpdateConfig(config *Config) error {
 	return m.saveConfig()
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (m *Manager) loadConfig() error {
 	data, err := os.ReadFile(m.configPath)
 	if err != nil {
@@ -340,7 +340,7 @@ func (m *Manager) loadConfig() error {
 	return json.Unmarshal(data, m.config)
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (m *Manager) saveConfig() error {
 	data, err := json.MarshalIndent(m.config, "", "  ")
 	if err != nil {
@@ -350,7 +350,7 @@ func (m *Manager) saveConfig() error {
 	return os.WriteFile(m.configPath, data, 0640)
 }
 
-// loadItems 加载项目列表
+// loadItems 加载项目列表.
 func (m *Manager) loadItems() error {
 	itemsPath := filepath.Join(m.trashRoot, "items.json")
 	data, err := os.ReadFile(itemsPath)
@@ -378,7 +378,7 @@ func (m *Manager) loadItems() error {
 	return nil
 }
 
-// saveItems 保存项目列表
+// saveItems 保存项目列表.
 func (m *Manager) saveItems() error {
 	itemsPath := filepath.Join(m.trashRoot, "items.json")
 
@@ -395,7 +395,7 @@ func (m *Manager) saveItems() error {
 	return os.WriteFile(itemsPath, data, 0640)
 }
 
-// startAutoClean 启动自动清理
+// startAutoClean 启动自动清理.
 func (m *Manager) startAutoClean() {
 	// 每小时检查一次
 	ticker := time.NewTicker(1 * time.Hour)
@@ -411,14 +411,14 @@ func (m *Manager) startAutoClean() {
 	}
 }
 
-// Stop stops the trash manager and cleanup goroutine
+// Stop stops the trash manager and cleanup goroutine.
 func (m *Manager) Stop() {
 	if m.cancel != nil {
 		m.cancel()
 	}
 }
 
-// cleanupExpired 清理过期项目
+// cleanupExpired 清理过期项目.
 func (m *Manager) cleanupExpired() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -446,7 +446,7 @@ func (m *Manager) cleanupExpired() {
 	}
 }
 
-// cleanupOldest 清理最早的项目以释放空间
+// cleanupOldest 清理最早的项目以释放空间.
 func (m *Manager) cleanupOldest() error {
 	// 按删除时间排序
 	items := make([]*Item, 0, len(m.items))
@@ -474,12 +474,12 @@ func (m *Manager) cleanupOldest() error {
 	return m.saveItems()
 }
 
-// generateTrashID 生成回收站 ID
+// generateTrashID 生成回收站 ID.
 func generateTrashID() string {
 	return fmt.Sprintf("trash-%d", time.Now().UnixNano())
 }
 
-// SetSizeChangeCallback 设置空间变化回调
+// SetSizeChangeCallback 设置空间变化回调.
 func (m *Manager) SetSizeChangeCallback(fn func(int64)) {
 	m.onSizeChange = fn
 }

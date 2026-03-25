@@ -15,21 +15,21 @@ import (
 
 // ========== 配额优化类型定义 ==========
 
-// OptimizationType 优化类型
+// OptimizationType 优化类型.
 type OptimizationType string
 
 const (
-	// OptimizationAutoAdjust 自动调整建议
+	// OptimizationAutoAdjust 自动调整建议.
 	OptimizationAutoAdjust OptimizationType = "auto_adjust"
-	// OptimizationPrediction 配额使用预测
+	// OptimizationPrediction 配额使用预测.
 	OptimizationPrediction OptimizationType = "prediction"
-	// OptimizationViolation 配额违规检测
+	// OptimizationViolation 配额违规检测.
 	OptimizationViolation OptimizationType = "violation"
-	// OptimizationReportType 配额优化报告
+	// OptimizationReportType 配额优化报告.
 	OptimizationReportType OptimizationType = "report"
 )
 
-// OptimizationSuggestion 优化建议
+// OptimizationSuggestion 优化建议.
 type OptimizationSuggestion struct {
 	ID               string           `json:"id"`
 	Type             OptimizationType `json:"type"`
@@ -50,7 +50,7 @@ type OptimizationSuggestion struct {
 
 // ========== 自动配额调整建议 ==========
 
-// AutoAdjustConfig 自动调整配置
+// AutoAdjustConfig 自动调整配置.
 type AutoAdjustConfig struct {
 	Enabled              bool          `json:"enabled"`
 	CheckInterval        time.Duration `json:"check_interval"`
@@ -64,7 +64,7 @@ type AutoAdjustConfig struct {
 	ExpandCooldownDays   int           `json:"expand_cooldown_days"`   // 扩展冷却期（天）
 }
 
-// DefaultAutoAdjustConfig 默认自动调整配置
+// DefaultAutoAdjustConfig 默认自动调整配置.
 func DefaultAutoAdjustConfig() AutoAdjustConfig {
 	return AutoAdjustConfig{
 		Enabled:              true,
@@ -80,7 +80,7 @@ func DefaultAutoAdjustConfig() AutoAdjustConfig {
 	}
 }
 
-// AutoAdjustResult 自动调整结果
+// AutoAdjustResult 自动调整结果.
 type AutoAdjustResult struct {
 	QuotaID           string    `json:"quota_id"`
 	TargetName        string    `json:"target_name"`
@@ -94,7 +94,7 @@ type AutoAdjustResult struct {
 
 // ========== 配额使用预测 ==========
 
-// UsagePrediction 使用预测
+// UsagePrediction 使用预测.
 type UsagePrediction struct {
 	QuotaID              string         `json:"quota_id"`
 	TargetID             string         `json:"target_id"`
@@ -115,28 +115,28 @@ type UsagePrediction struct {
 	GeneratedAt          time.Time      `json:"generated_at"`
 }
 
-// HistoryPoint 历史数据点
+// HistoryPoint 历史数据点.
 type HistoryPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	UsedBytes    uint64    `json:"used_bytes"`
 	UsagePercent float64   `json:"usage_percent"`
 }
 
-// PredictionMethod 预测方法
+// PredictionMethod 预测方法.
 type PredictionMethod string
 
 const (
-	// PredictionLinear 线性回归预测方法
+	// PredictionLinear 线性回归预测方法.
 	PredictionLinear PredictionMethod = "linear"
-	// PredictionExponential 指数平滑预测方法
+	// PredictionExponential 指数平滑预测方法.
 	PredictionExponential PredictionMethod = "exponential"
-	// PredictionMovingAvg 移动平均预测方法
+	// PredictionMovingAvg 移动平均预测方法.
 	PredictionMovingAvg PredictionMethod = "moving_avg"
-	// PredictionARIMA ARIMA模型预测方法
+	// PredictionARIMA ARIMA模型预测方法.
 	PredictionARIMA PredictionMethod = "arima"
 )
 
-// PredictionConfig 预测配置
+// PredictionConfig 预测配置.
 type PredictionConfig struct {
 	Method           PredictionMethod `json:"method"`
 	HistoryDays      int              `json:"history_days"`       // 使用多少历史数据
@@ -146,7 +146,7 @@ type PredictionConfig struct {
 	OutlierThreshold float64          `json:"outlier_threshold"`  // 异常值阈值
 }
 
-// DefaultPredictionConfig 默认预测配置
+// DefaultPredictionConfig 默认预测配置.
 func DefaultPredictionConfig() PredictionConfig {
 	return PredictionConfig{
 		Method:           PredictionLinear,
@@ -160,23 +160,23 @@ func DefaultPredictionConfig() PredictionConfig {
 
 // ========== 配额违规检测 ==========
 
-// ViolationType 违规类型
+// ViolationType 违规类型.
 type ViolationType string
 
 const (
-	// ViolationHardLimit 硬限制违规类型
+	// ViolationHardLimit 硬限制违规类型.
 	ViolationHardLimit ViolationType = "hard_limit"
-	// ViolationSoftLimit 软限制违规类型
+	// ViolationSoftLimit 软限制违规类型.
 	ViolationSoftLimit ViolationType = "soft_limit"
-	// ViolationProjected 预测违规类型
+	// ViolationProjected 预测违规类型.
 	ViolationProjected ViolationType = "projected"
-	// ViolationAnomaly 异常使用违规类型
+	// ViolationAnomaly 异常使用违规类型.
 	ViolationAnomaly ViolationType = "anomaly"
-	// ViolationPolicy 策略违规类型
+	// ViolationPolicy 策略违规类型.
 	ViolationPolicy ViolationType = "policy"
 )
 
-// ViolationRecord 违规记录
+// ViolationRecord 违规记录.
 type ViolationRecord struct {
 	ID           string           `json:"id"`
 	QuotaID      string           `json:"quota_id"`
@@ -198,7 +198,7 @@ type ViolationRecord struct {
 	History      []ViolationEvent `json:"history,omitempty"`
 }
 
-// ViolationEvent 违规事件
+// ViolationEvent 违规事件.
 type ViolationEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 	Action    string    `json:"action"`
@@ -206,7 +206,7 @@ type ViolationEvent struct {
 	Notes     string    `json:"notes,omitempty"`
 }
 
-// ViolationConfig 违规检测配置
+// ViolationConfig 违规检测配置.
 type ViolationConfig struct {
 	Enabled              bool          `json:"enabled"`
 	CheckInterval        time.Duration `json:"check_interval"`
@@ -219,7 +219,7 @@ type ViolationConfig struct {
 	NotifyWebhooks       []string      `json:"notify_webhooks"`
 }
 
-// DefaultViolationConfig 默认违规检测配置
+// DefaultViolationConfig 默认违规检测配置.
 func DefaultViolationConfig() ViolationConfig {
 	return ViolationConfig{
 		Enabled:              true,
@@ -235,7 +235,7 @@ func DefaultViolationConfig() ViolationConfig {
 
 // ========== 配额优化报告 ==========
 
-// OptimizationReport 优化报告
+// OptimizationReport 优化报告.
 type OptimizationReport struct {
 	ID              string                   `json:"id"`
 	GeneratedAt     time.Time                `json:"generated_at"`
@@ -249,7 +249,7 @@ type OptimizationReport struct {
 	Recommendations []string                 `json:"recommendations"`
 }
 
-// OptimizationSummary 优化摘要
+// OptimizationSummary 优化摘要.
 type OptimizationSummary struct {
 	TotalQuotas          int     `json:"total_quotas"`
 	AnalyzedQuotas       int     `json:"analyzed_quotas"`
@@ -266,7 +266,7 @@ type OptimizationSummary struct {
 	UnderutilizedCount   int     `json:"underutilized_count"`   // 低利用率数量
 }
 
-// CostImpactAnalysis 成本影响分析
+// CostImpactAnalysis 成本影响分析.
 type CostImpactAnalysis struct {
 	CurrentMonthlyCost   float64 `json:"current_monthly_cost"`
 	OptimizedMonthlyCost float64 `json:"optimized_monthly_cost"`
@@ -277,7 +277,7 @@ type CostImpactAnalysis struct {
 
 // ========== 配额优化器 ==========
 
-// QuotaOptimizer 配额优化器
+// QuotaOptimizer 配额优化器.
 type QuotaOptimizer struct {
 	mu              sync.RWMutex
 	dataDir         string
@@ -290,7 +290,7 @@ type QuotaOptimizer struct {
 	lastAnalysis    time.Time
 }
 
-// QuotaDataProvider 配额数据提供者接口
+// QuotaDataProvider 配额数据提供者接口.
 type QuotaDataProvider interface {
 	GetAllUsage() ([]*QuotaUsageInfo, error)
 	GetUserUsage(username string) ([]*QuotaUsageInfo, error)
@@ -298,13 +298,13 @@ type QuotaDataProvider interface {
 	UpdateQuota(quotaID string, newLimit uint64) error
 }
 
-// HistoryDataProvider 历史数据提供者接口
+// HistoryDataProvider 历史数据提供者接口.
 type HistoryDataProvider interface {
 	GetHistory(quotaID string, days int) ([]HistoryPoint, error)
 	GetGrowthRate(quotaID string) (float64, error)
 }
 
-// QuotaUsageInfo 配额使用信息
+// QuotaUsageInfo 配额使用信息.
 type QuotaUsageInfo struct {
 	QuotaID      string    `json:"quota_id"`
 	TargetID     string    `json:"target_id"`
@@ -321,7 +321,7 @@ type QuotaUsageInfo struct {
 	LastChecked  time.Time `json:"last_checked"`
 }
 
-// QuotaInfo 配额信息
+// QuotaInfo 配额信息.
 type QuotaInfo struct {
 	ID         string    `json:"id"`
 	TargetID   string    `json:"target_id"`
@@ -345,7 +345,7 @@ type OptimizerConfig struct {
 	Currency   string           `json:"currency"`
 }
 
-// DefaultOptimizerConfig 默认优化器配置
+// DefaultOptimizerConfig 默认优化器配置.
 func DefaultOptimizerConfig() OptimizerConfig {
 	return OptimizerConfig{
 		AutoAdjust: DefaultAutoAdjustConfig(),
@@ -356,7 +356,7 @@ func DefaultOptimizerConfig() OptimizerConfig {
 	}
 }
 
-// NewQuotaOptimizer 创建配额优化器
+// NewQuotaOptimizer 创建配额优化器.
 func NewQuotaOptimizer(dataDir string, quotaProvider QuotaDataProvider, historyProvider HistoryDataProvider, config OptimizerConfig) *QuotaOptimizer {
 	optimizer := &QuotaOptimizer{
 		dataDir:         dataDir,
@@ -374,7 +374,7 @@ func NewQuotaOptimizer(dataDir string, quotaProvider QuotaDataProvider, historyP
 	return optimizer
 }
 
-// load 加载数据
+// load 加载数据.
 func (o *QuotaOptimizer) load() error {
 	// 加载优化建议
 	suggestionPath := filepath.Join(o.dataDir, "suggestions.json")
@@ -408,7 +408,7 @@ func (o *QuotaOptimizer) load() error {
 	return nil
 }
 
-// save 保存数据
+// save 保存数据.
 func (o *QuotaOptimizer) save() error {
 	if err := os.MkdirAll(o.dataDir, 0750); err != nil {
 		return err
@@ -454,7 +454,7 @@ func (o *QuotaOptimizer) save() error {
 
 // ========== 自动配额调整建议 ==========
 
-// GenerateAdjustmentSuggestions 生成调整建议
+// GenerateAdjustmentSuggestions 生成调整建议.
 func (o *QuotaOptimizer) GenerateAdjustmentSuggestions() ([]OptimizationSuggestion, error) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
@@ -484,7 +484,7 @@ func (o *QuotaOptimizer) GenerateAdjustmentSuggestions() ([]OptimizationSuggesti
 	return suggestions, nil
 }
 
-// analyzeQuotaForAdjustment 分析配额是否需要调整
+// analyzeQuotaForAdjustment 分析配额是否需要调整.
 func (o *QuotaOptimizer) analyzeQuotaForAdjustment(usage *QuotaUsageInfo) *OptimizationSuggestion {
 	cfg := o.config.AutoAdjust
 	if !cfg.Enabled {
@@ -578,7 +578,7 @@ func (o *QuotaOptimizer) analyzeQuotaForAdjustment(usage *QuotaUsageInfo) *Optim
 
 // ========== 配额使用预测 ==========
 
-// PredictUsage 预测配额使用
+// PredictUsage 预测配额使用.
 func (o *QuotaOptimizer) PredictUsage(quotaID string) (*UsagePrediction, error) {
 	o.mu.RLock()
 	defer o.mu.RUnlock()
@@ -654,7 +654,7 @@ func (o *QuotaOptimizer) PredictUsage(quotaID string) (*UsagePrediction, error) 
 	return prediction, nil
 }
 
-// PredictAllUsage 预测所有配额使用
+// PredictAllUsage 预测所有配额使用.
 func (o *QuotaOptimizer) PredictAllUsage() ([]*UsagePrediction, error) {
 	usages, err := o.quotaProvider.GetAllUsage()
 	if err != nil {
@@ -672,7 +672,7 @@ func (o *QuotaOptimizer) PredictAllUsage() ([]*UsagePrediction, error) {
 	return predictions, nil
 }
 
-// simplePrediction 简单预测（历史数据不足时）
+// simplePrediction 简单预测（历史数据不足时）.
 func (o *QuotaOptimizer) simplePrediction(usage *QuotaUsageInfo, quota *QuotaInfo) *UsagePrediction {
 	prediction := &UsagePrediction{
 		QuotaID:      usage.QuotaID,
@@ -695,7 +695,7 @@ func (o *QuotaOptimizer) simplePrediction(usage *QuotaUsageInfo, quota *QuotaInf
 	return prediction
 }
 
-// linearPrediction 线性回归预测
+// linearPrediction 线性回归预测.
 func (o *QuotaOptimizer) linearPrediction(prediction *UsagePrediction, history []HistoryPoint) {
 	if len(history) < 2 {
 		prediction.GrowthRate = 0
@@ -744,7 +744,7 @@ func (o *QuotaOptimizer) linearPrediction(prediction *UsagePrediction, history [
 	prediction.Confidence = math.Min(0.9, 0.5+float64(n)/float64(o.config.Prediction.MinHistoryPoints)*0.4)
 }
 
-// movingAvgPrediction 移动平均预测
+// movingAvgPrediction 移动平均预测.
 func (o *QuotaOptimizer) movingAvgPrediction(prediction *UsagePrediction, history []HistoryPoint) {
 	if len(history) < 2 {
 		prediction.GrowthRate = 0
@@ -786,7 +786,7 @@ func (o *QuotaOptimizer) movingAvgPrediction(prediction *UsagePrediction, histor
 	prediction.Confidence = 0.7
 }
 
-// generatePredictionRecommendation 生成预测建议
+// generatePredictionRecommendation 生成预测建议.
 func (o *QuotaOptimizer) generatePredictionRecommendation(prediction *UsagePrediction) string {
 	if prediction.PredictedDaysToFull > 0 && prediction.PredictedDaysToFull <= 30 {
 		return fmt.Sprintf("预计 %d 天内将达到配额限制，建议立即扩展配额", prediction.PredictedDaysToFull)
@@ -802,7 +802,7 @@ func (o *QuotaOptimizer) generatePredictionRecommendation(prediction *UsagePredi
 
 // ========== 配额违规检测 ==========
 
-// DetectViolations 检测违规
+// DetectViolations 检测违规.
 func (o *QuotaOptimizer) DetectViolations() ([]ViolationRecord, error) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
@@ -897,7 +897,7 @@ func (o *QuotaOptimizer) DetectViolations() ([]ViolationRecord, error) {
 	return violations, nil
 }
 
-// ResolveViolation 解决违规
+// ResolveViolation 解决违规.
 func (o *QuotaOptimizer) ResolveViolation(violationID, resolvedBy string) error {
 	o.mu.Lock()
 	defer o.mu.Unlock()
@@ -926,7 +926,7 @@ func (o *QuotaOptimizer) ResolveViolation(violationID, resolvedBy string) error 
 
 // ========== 配额优化报告 ==========
 
-// GenerateOptimizationReport 生成优化报告
+// GenerateOptimizationReport 生成优化报告.
 func (o *QuotaOptimizer) GenerateOptimizationReport() (*OptimizationReport, error) {
 	// 先获取需要的数据（不持有锁）
 	usages, err := o.quotaProvider.GetAllUsage()
@@ -986,7 +986,7 @@ func (o *QuotaOptimizer) GenerateOptimizationReport() (*OptimizationReport, erro
 
 // ========== 辅助方法 ==========
 
-// calculateImpact 计算影响
+// calculateImpact 计算影响.
 func (o *QuotaOptimizer) calculateImpact(usage *QuotaUsageInfo, suggestedLimit uint64) string {
 	suggestedInt, _ := safeguards.SafeUint64ToInt64(suggestedLimit)
 	limitInt, _ := safeguards.SafeUint64ToInt64(usage.HardLimit)
@@ -999,7 +999,7 @@ func (o *QuotaOptimizer) calculateImpact(usage *QuotaUsageInfo, suggestedLimit u
 		-changePercent, formatBytes(usage.HardLimit-suggestedLimit))
 }
 
-// calculateSummary 计算摘要
+// calculateSummary 计算摘要.
 func (o *QuotaOptimizer) calculateSummary(usages []*QuotaUsageInfo, report *OptimizationReport) OptimizationSummary {
 	summary := OptimizationSummary{
 		TotalQuotas:      len(usages),
@@ -1043,7 +1043,7 @@ func (o *QuotaOptimizer) calculateSummary(usages []*QuotaUsageInfo, report *Opti
 	return summary
 }
 
-// calculateCostImpact 计算成本影响
+// calculateCostImpact 计算成本影响.
 func (o *QuotaOptimizer) calculateCostImpact(report *OptimizationReport) CostImpactAnalysis {
 	impact := CostImpactAnalysis{
 		Currency: o.config.Currency,
@@ -1084,7 +1084,7 @@ func (o *QuotaOptimizer) calculateCostImpact(report *OptimizationReport) CostImp
 	return impact
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (o *QuotaOptimizer) generateRecommendations(report *OptimizationReport) []string {
 	recs := make([]string, 0)
 
@@ -1115,7 +1115,7 @@ func (o *QuotaOptimizer) generateRecommendations(report *OptimizationReport) []s
 	return recs
 }
 
-// ApplySuggestion 应用建议
+// ApplySuggestion 应用建议.
 func (o *QuotaOptimizer) ApplySuggestion(suggestionID string) error {
 	o.mu.Lock()
 	defer o.mu.Unlock()
@@ -1157,7 +1157,7 @@ func (o *QuotaOptimizer) ApplySuggestion(suggestionID string) error {
 	return nil
 }
 
-// DismissSuggestion 忽略建议
+// DismissSuggestion 忽略建议.
 func (o *QuotaOptimizer) DismissSuggestion(suggestionID string) error {
 	o.mu.Lock()
 	defer o.mu.Unlock()
@@ -1175,7 +1175,7 @@ func (o *QuotaOptimizer) DismissSuggestion(suggestionID string) error {
 	return nil
 }
 
-// GetSuggestions 获取建议列表
+// GetSuggestions 获取建议列表.
 func (o *QuotaOptimizer) GetSuggestions(status string) []OptimizationSuggestion {
 	o.mu.RLock()
 	defer o.mu.RUnlock()
@@ -1189,7 +1189,7 @@ func (o *QuotaOptimizer) GetSuggestions(status string) []OptimizationSuggestion 
 	return result
 }
 
-// GetViolations 获取违规列表
+// GetViolations 获取违规列表.
 func (o *QuotaOptimizer) GetViolations(status string) []ViolationRecord {
 	o.mu.RLock()
 	defer o.mu.RUnlock()
@@ -1203,7 +1203,7 @@ func (o *QuotaOptimizer) GetViolations(status string) []ViolationRecord {
 	return result
 }
 
-// GetAdjustHistory 获取调整历史
+// GetAdjustHistory 获取调整历史.
 func (o *QuotaOptimizer) GetAdjustHistory(limit int) []AutoAdjustResult {
 	o.mu.RLock()
 	defer o.mu.RUnlock()

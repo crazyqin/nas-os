@@ -11,59 +11,59 @@ import (
 	"time"
 )
 
-// PoolStatus 存储池状态
+// PoolStatus 存储池状态.
 type PoolStatus string
 
 const (
-	// PoolStatusCreating 表示存储池正在创建中
+	// PoolStatusCreating 表示存储池正在创建中.
 	PoolStatusCreating PoolStatus = "creating"
-	// PoolStatusHealthy 表示存储池状态健康
+	// PoolStatusHealthy 表示存储池状态健康.
 	PoolStatusHealthy PoolStatus = "healthy"
-	// PoolStatusDegraded 表示存储池降级（部分磁盘故障）
+	// PoolStatusDegraded 表示存储池降级（部分磁盘故障）.
 	PoolStatusDegraded PoolStatus = "degraded"
-	// PoolStatusRebuilding 表示存储池正在重建中
+	// PoolStatusRebuilding 表示存储池正在重建中.
 	PoolStatusRebuilding PoolStatus = "rebuilding"
-	// PoolStatusFaulted 表示存储池故障（不可用）
+	// PoolStatusFaulted 表示存储池故障（不可用）.
 	PoolStatusFaulted PoolStatus = "faulted"
-	// PoolStatusOffline 表示存储池离线
+	// PoolStatusOffline 表示存储池离线.
 	PoolStatusOffline PoolStatus = "offline"
 )
 
-// RAIDLevel RAID 级别
+// RAIDLevel RAID 级别.
 type RAIDLevel string
 
 const (
-	// RAIDLevelSingle 表示单盘模式
+	// RAIDLevelSingle 表示单盘模式.
 	RAIDLevelSingle RAIDLevel = "single"
-	// RAIDLevelRAID0 表示 RAID0 条带模式
+	// RAIDLevelRAID0 表示 RAID0 条带模式.
 	RAIDLevelRAID0 RAIDLevel = "raid0"
-	// RAIDLevelRAID1 表示 RAID1 镜像模式
+	// RAIDLevelRAID1 表示 RAID1 镜像模式.
 	RAIDLevelRAID1 RAIDLevel = "raid1"
-	// RAIDLevelRAID5 表示 RAID5 分布式奇偶校验模式
+	// RAIDLevelRAID5 表示 RAID5 分布式奇偶校验模式.
 	RAIDLevelRAID5 RAIDLevel = "raid5"
-	// RAIDLevelRAID6 表示 RAID6 双奇偶校验模式
+	// RAIDLevelRAID6 表示 RAID6 双奇偶校验模式.
 	RAIDLevelRAID6 RAIDLevel = "raid6"
-	// RAIDLevelRAID10 表示 RAID10 条带镜像模式
+	// RAIDLevelRAID10 表示 RAID10 条带镜像模式.
 	RAIDLevelRAID10 RAIDLevel = "raid10"
 )
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
-	// DeviceStatusOnline 表示设备在线状态
+	// DeviceStatusOnline 表示设备在线状态.
 	DeviceStatusOnline DeviceStatus = "online"
-	// DeviceStatusOffline 表示设备离线状态
+	// DeviceStatusOffline 表示设备离线状态.
 	DeviceStatusOffline DeviceStatus = "offline"
-	// DeviceStatusFaulted 表示设备故障状态
+	// DeviceStatusFaulted 表示设备故障状态.
 	DeviceStatusFaulted DeviceStatus = "faulted"
-	// DeviceStatusSpare 表示设备为热备状态
+	// DeviceStatusSpare 表示设备为热备状态.
 	DeviceStatusSpare DeviceStatus = "spare"
-	// DeviceStatusRemoved 表示设备已移除状态
+	// DeviceStatusRemoved 表示设备已移除状态.
 	DeviceStatusRemoved DeviceStatus = "removed"
 )
 
-// Device 磁盘设备信息
+// Device 磁盘设备信息.
 type Device struct {
 	ID           string       `json:"id"`           // 设备唯一标识（如 /dev/sda）
 	Path         string       `json:"path"`         // 设备路径
@@ -79,7 +79,7 @@ type Device struct {
 	AddedAt      time.Time    `json:"addedAt"`      // 添加时间
 }
 
-// Pool 存储池信息
+// Pool 存储池信息.
 type Pool struct {
 	ID              string     `json:"id"`              // 存储池唯一标识
 	Name            string     `json:"name"`            // 存储池名称
@@ -103,7 +103,7 @@ type Pool struct {
 	Tags            []string   `json:"tags"`            // 标签
 }
 
-// CreatePoolRequest 创建存储池请求
+// CreatePoolRequest 创建存储池请求.
 type CreatePoolRequest struct {
 	Name        string    `json:"name" validate:"required,min=1,max=64"`
 	Description string    `json:"description"`
@@ -115,26 +115,26 @@ type CreatePoolRequest struct {
 	Tags        []string  `json:"tags"`
 }
 
-// AddDeviceRequest 添加设备请求
+// AddDeviceRequest 添加设备请求.
 type AddDeviceRequest struct {
 	DevicePaths []string `json:"devicePaths" validate:"required,min=1"`
 	IsSpare     bool     `json:"isSpare"` // 是否作为热备盘
 }
 
-// RemoveDeviceRequest 移除设备请求
+// RemoveDeviceRequest 移除设备请求.
 type RemoveDeviceRequest struct {
 	DeviceID string `json:"deviceId" validate:"required"`
 	Force    bool   `json:"force"` // 强制移除（可能丢失数据）
 }
 
-// ResizePoolRequest 扩容/缩容请求
+// ResizePoolRequest 扩容/缩容请求.
 type ResizePoolRequest struct {
 	NewRAIDLevel  RAIDLevel `json:"newRaidLevel"`  // 新的 RAID 级别（可选）
 	AddDevices    []string  `json:"addDevices"`    // 添加的设备
 	RemoveDevices []string  `json:"removeDevices"` // 移除的设备
 }
 
-// RAIDConfig RAID 配置信息
+// RAIDConfig RAID 配置信息.
 type RAIDConfig struct {
 	Level          RAIDLevel `json:"level"`
 	MinDevices     int       `json:"minDevices"`
@@ -145,7 +145,7 @@ type RAIDConfig struct {
 	Description    string    `json:"description"`
 }
 
-// RAIDConfigs 预定义的 RAID 配置映射表
+// RAIDConfigs 预定义的 RAID 配置映射表.
 var RAIDConfigs = map[RAIDLevel]RAIDConfig{
 	RAIDLevelSingle: {
 		Level:          RAIDLevelSingle,
@@ -203,7 +203,7 @@ var RAIDConfigs = map[RAIDLevel]RAIDConfig{
 	},
 }
 
-// Manager 存储池管理器
+// Manager 存储池管理器.
 type Manager struct {
 	pools     map[string]*Pool
 	devices   map[string]*Device
@@ -212,7 +212,7 @@ type Manager struct {
 	mountBase string // 挂载基础目录
 }
 
-// NewManager 创建存储池管理器
+// NewManager 创建存储池管理器.
 func NewManager(dataPath, mountBase string) (*Manager, error) {
 	if dataPath == "" {
 		dataPath = "/var/lib/nas-os/storage-pools"
@@ -246,7 +246,7 @@ func NewManager(dataPath, mountBase string) (*Manager, error) {
 	return m, nil
 }
 
-// CreatePool 创建存储池
+// CreatePool 创建存储池.
 func (m *Manager) CreatePool(req *CreatePoolRequest) (*Pool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -354,7 +354,7 @@ func (m *Manager) CreatePool(req *CreatePoolRequest) (*Pool, error) {
 	return pool, nil
 }
 
-// GetPool 获取存储池
+// GetPool 获取存储池.
 func (m *Manager) GetPool(id string) (*Pool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -368,7 +368,7 @@ func (m *Manager) GetPool(id string) (*Pool, error) {
 	return m.clonePool(pool), nil
 }
 
-// GetPoolByName 通过名称获取存储池
+// GetPoolByName 通过名称获取存储池.
 func (m *Manager) GetPoolByName(name string) (*Pool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -382,7 +382,7 @@ func (m *Manager) GetPoolByName(name string) (*Pool, error) {
 	return nil, fmt.Errorf("存储池不存在: %s", name)
 }
 
-// ListPools 列出所有存储池
+// ListPools 列出所有存储池.
 func (m *Manager) ListPools() []*Pool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -395,7 +395,7 @@ func (m *Manager) ListPools() []*Pool {
 	return pools
 }
 
-// DeletePool 删除存储池
+// DeletePool 删除存储池.
 func (m *Manager) DeletePool(id string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -425,7 +425,7 @@ func (m *Manager) DeletePool(id string, force bool) error {
 	return m.save()
 }
 
-// AddDevice 添加设备到存储池
+// AddDevice 添加设备到存储池.
 func (m *Manager) AddDevice(poolID string, req *AddDeviceRequest) (*Pool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -469,7 +469,7 @@ func (m *Manager) AddDevice(poolID string, req *AddDeviceRequest) (*Pool, error)
 	return m.clonePool(pool), nil
 }
 
-// RemoveDevice 从存储池移除设备
+// RemoveDevice 从存储池移除设备.
 func (m *Manager) RemoveDevice(poolID string, req *RemoveDeviceRequest) (*Pool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -539,7 +539,7 @@ func (m *Manager) RemoveDevice(poolID string, req *RemoveDeviceRequest) (*Pool, 
 	return m.clonePool(pool), nil
 }
 
-// ResizePool 扩容/缩容存储池
+// ResizePool 扩容/缩容存储池.
 func (m *Manager) ResizePool(poolID string, req *ResizePoolRequest) (*Pool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -602,7 +602,7 @@ func (m *Manager) ResizePool(poolID string, req *ResizePoolRequest) (*Pool, erro
 	return m.clonePool(pool), nil
 }
 
-// GetAvailableDevices 获取可用设备列表
+// GetAvailableDevices 获取可用设备列表.
 func (m *Manager) GetAvailableDevices() []*Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -618,7 +618,7 @@ func (m *Manager) GetAvailableDevices() []*Device {
 	return devices
 }
 
-// GetPoolStats 获取存储池统计信息
+// GetPoolStats 获取存储池统计信息.
 func (m *Manager) GetPoolStats(poolID string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -653,7 +653,7 @@ func (m *Manager) GetPoolStats(poolID string) (map[string]interface{}, error) {
 	return stats, nil
 }
 
-// UpdatePoolStats 更新存储池状态（由监控系统调用）
+// UpdatePoolStats 更新存储池状态（由监控系统调用）.
 func (m *Manager) UpdatePoolStats(poolID string, stats *PoolStatsUpdate) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -691,7 +691,7 @@ func (m *Manager) UpdatePoolStats(poolID string, stats *PoolStatsUpdate) error {
 	return m.save()
 }
 
-// PoolStatsUpdate 存储池状态更新
+// PoolStatsUpdate 存储池状态更新.
 type PoolStatsUpdate struct {
 	Used            *uint64    `json:"used,omitempty"`
 	Status          PoolStatus `json:"status,omitempty"`
@@ -702,7 +702,7 @@ type PoolStatsUpdate struct {
 	RebuildProgress *float64   `json:"rebuildProgress,omitempty"`
 }
 
-// getAvailableDevice 获取可用设备
+// getAvailableDevice 获取可用设备.
 func (m *Manager) getAvailableDevice(path string) (*Device, error) {
 	device, ok := m.devices[path]
 	if !ok {
@@ -730,7 +730,7 @@ func (m *Manager) getAvailableDevice(path string) (*Device, error) {
 	return device, nil
 }
 
-// recalculatePoolCapacity 重新计算存储池容量
+// recalculatePoolCapacity 重新计算存储池容量.
 func (m *Manager) recalculatePoolCapacity(pool *Pool) {
 	var totalSize uint64
 	for _, d := range pool.Devices {
@@ -742,7 +742,7 @@ func (m *Manager) recalculatePoolCapacity(pool *Pool) {
 	pool.Free = pool.Size - pool.Used
 }
 
-// clonePool 克隆存储池（返回副本）
+// clonePool 克隆存储池（返回副本）.
 func (m *Manager) clonePool(pool *Pool) *Pool {
 	clone := &Pool{
 		ID:              pool.ID,
@@ -779,7 +779,7 @@ func (m *Manager) clonePool(pool *Pool) *Pool {
 	return clone
 }
 
-// cloneDevice 克隆设备
+// cloneDevice 克隆设备.
 func (m *Manager) cloneDevice(d *Device) *Device {
 	return &Device{
 		ID:           d.ID,
@@ -797,7 +797,7 @@ func (m *Manager) cloneDevice(d *Device) *Device {
 	}
 }
 
-// load 加载数据
+// load 加载数据.
 func (m *Manager) load() error {
 	dataFile := filepath.Join(m.dataPath, "pools.json")
 	data, err := os.ReadFile(dataFile)
@@ -829,7 +829,7 @@ func (m *Manager) load() error {
 	return nil
 }
 
-// save 保存数据
+// save 保存数据.
 func (m *Manager) save() error {
 	dataFile := filepath.Join(m.dataPath, "pools.json")
 
@@ -849,7 +849,7 @@ func (m *Manager) save() error {
 	return os.WriteFile(dataFile, data, 0640)
 }
 
-// scanDevices 扫描系统设备
+// scanDevices 扫描系统设备.
 func (m *Manager) scanDevices() error {
 	// 扫描 /dev/disk/by-id/ 和 /sys/block/ 获取设备信息
 	// 这里简化实现，实际应该读取 /sys/block/ 和 lsblk
@@ -861,7 +861,7 @@ func (m *Manager) scanDevices() error {
 	return nil
 }
 
-// generatePoolID 生成存储池 ID
+// generatePoolID 生成存储池 ID.
 func generatePoolID() string {
 	return fmt.Sprintf("pool-%d", time.Now().UnixNano())
 }

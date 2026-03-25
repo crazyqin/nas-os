@@ -11,7 +11,7 @@ import (
 	"nas-os/pkg/btrfs"
 )
 
-// Manager 存储管理器
+// Manager 存储管理器.
 type Manager struct {
 	client    *btrfs.Client
 	volumes   map[string]*Volume
@@ -19,7 +19,7 @@ type Manager struct {
 	mountBase string // 挂载基础目录
 }
 
-// Volume 卷信息
+// Volume 卷信息.
 type Volume struct {
 	Name        string       `json:"name"`
 	UUID        string       `json:"uuid"`
@@ -35,7 +35,7 @@ type Volume struct {
 	CreatedAt   time.Time    `json:"createdAt"`
 }
 
-// VolumeStatus 卷状态
+// VolumeStatus 卷状态.
 type VolumeStatus struct {
 	BalanceRunning  bool    `json:"balanceRunning"`
 	BalanceProgress float64 `json:"balanceProgress"`
@@ -45,7 +45,7 @@ type VolumeStatus struct {
 	Healthy         bool    `json:"healthy"`
 }
 
-// SubVolume 子卷信息
+// SubVolume 子卷信息.
 type SubVolume struct {
 	ID        uint64      `json:"id"`
 	Name      string      `json:"name"`
@@ -57,7 +57,7 @@ type SubVolume struct {
 	Snapshots []*Snapshot `json:"snapshots"`
 }
 
-// Snapshot 快照信息
+// Snapshot 快照信息.
 type Snapshot struct {
 	Name       string    `json:"name"`
 	Path       string    `json:"path"`
@@ -68,7 +68,7 @@ type Snapshot struct {
 	Size       uint64    `json:"size"` // 快照大小（估算）
 }
 
-// SnapshotConfig 快照配置
+// SnapshotConfig 快照配置.
 type SnapshotConfig struct {
 	Prefix     string // 快照名称前缀
 	Suffix     string // 快照名称后缀
@@ -78,7 +78,7 @@ type SnapshotConfig struct {
 	SnapDir    string // 快照目录（默认 .snapshots）
 }
 
-// DefaultSnapshotConfig 默认快照配置
+// DefaultSnapshotConfig 默认快照配置.
 var DefaultSnapshotConfig = SnapshotConfig{
 	Prefix:     "",
 	Suffix:     "",
@@ -88,7 +88,7 @@ var DefaultSnapshotConfig = SnapshotConfig{
 	SnapDir:    ".snapshots",
 }
 
-// RAIDConfig RAID 配置
+// RAIDConfig RAID 配置.
 type RAIDConfig struct {
 	DataProfile    string `json:"dataProfile"`    // single, raid0, raid1, raid5, raid6, raid10
 	MetaProfile    string `json:"metaProfile"`    // 元数据配置
@@ -98,7 +98,7 @@ type RAIDConfig struct {
 	Description    string `json:"description"`
 }
 
-// RAIDConfigs 预定义的 RAID 配置
+// RAIDConfigs 预定义的 RAID 配置.
 var RAIDConfigs = map[string]RAIDConfig{
 	"single": {
 		DataProfile:    "single",
@@ -150,7 +150,7 @@ var RAIDConfigs = map[string]RAIDConfig{
 	},
 }
 
-// NewManager 创建存储管理器
+// NewManager 创建存储管理器.
 func NewManager(mountBase string) (*Manager, error) {
 	if mountBase == "" {
 		mountBase = "/mnt"
@@ -175,7 +175,7 @@ func NewManager(mountBase string) (*Manager, error) {
 	return m, nil
 }
 
-// scanVolumes 扫描系统上的 btrfs 卷
+// scanVolumes 扫描系统上的 btrfs 卷.
 func (m *Manager) scanVolumes() error {
 	vols, err := m.client.ListVolumes()
 	if err != nil {
@@ -213,7 +213,7 @@ func (m *Manager) scanVolumes() error {
 	return nil
 }
 
-// scanSubvolumes 扫描卷的子卷
+// scanSubvolumes 扫描卷的子卷.
 func (m *Manager) scanSubvolumes(vol *Volume) error {
 	if vol.MountPoint == "" {
 		return fmt.Errorf("卷未挂载")
@@ -242,7 +242,7 @@ func (m *Manager) scanSubvolumes(vol *Volume) error {
 
 // ========== 卷管理 ==========
 
-// ListVolumes 获取所有卷
+// ListVolumes 获取所有卷.
 func (m *Manager) ListVolumes() []*Volume {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -254,14 +254,14 @@ func (m *Manager) ListVolumes() []*Volume {
 	return result
 }
 
-// GetVolume 获取指定卷
+// GetVolume 获取指定卷.
 func (m *Manager) GetVolume(name string) *Volume {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.volumes[name]
 }
 
-// CreateVolume 创建新卷
+// CreateVolume 创建新卷.
 func (m *Manager) CreateVolume(name string, devices []string, profile string) (*Volume, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -315,7 +315,7 @@ func (m *Manager) CreateVolume(name string, devices []string, profile string) (*
 	return vol, nil
 }
 
-// DeleteVolume 删除卷（危险操作）
+// DeleteVolume 删除卷（危险操作）.
 func (m *Manager) DeleteVolume(name string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -357,7 +357,7 @@ func (m *Manager) DeleteVolume(name string, force bool) error {
 	return nil
 }
 
-// MountVolume 挂载卷
+// MountVolume 挂载卷.
 func (m *Manager) MountVolume(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -395,7 +395,7 @@ func (m *Manager) MountVolume(name string) error {
 	return nil
 }
 
-// UnmountVolume 卸载卷
+// UnmountVolume 卸载卷.
 func (m *Manager) UnmountVolume(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -416,7 +416,7 @@ func (m *Manager) UnmountVolume(name string) error {
 	return nil
 }
 
-// GetUsage 获取卷使用情况
+// GetUsage 获取卷使用情况.
 func (m *Manager) GetUsage(name string) (total, used, free uint64, err error) {
 	m.mu.RLock()
 	vol, exists := m.volumes[name]
@@ -435,7 +435,7 @@ func (m *Manager) GetUsage(name string) (total, used, free uint64, err error) {
 
 // ========== 子卷管理 ==========
 
-// ListSubVolumes 列出卷的所有子卷
+// ListSubVolumes 列出卷的所有子卷.
 func (m *Manager) ListSubVolumes(volumeName string) ([]*SubVolume, error) {
 	m.mu.RLock()
 	vol, exists := m.volumes[volumeName]
@@ -457,7 +457,7 @@ func (m *Manager) ListSubVolumes(volumeName string) ([]*SubVolume, error) {
 	return vol.Subvolumes, nil
 }
 
-// CreateSubVolume 创建子卷
+// CreateSubVolume 创建子卷.
 func (m *Manager) CreateSubVolume(volumeName, name string) (*SubVolume, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -504,7 +504,7 @@ func (m *Manager) CreateSubVolume(volumeName, name string) (*SubVolume, error) {
 	return subvol, nil
 }
 
-// DeleteSubVolume 删除子卷
+// DeleteSubVolume 删除子卷.
 func (m *Manager) DeleteSubVolume(volumeName, name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -543,7 +543,7 @@ func (m *Manager) DeleteSubVolume(volumeName, name string) error {
 	return nil
 }
 
-// GetSubVolume 获取子卷详情
+// GetSubVolume 获取子卷详情.
 func (m *Manager) GetSubVolume(volumeName, name string) (*SubVolume, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -562,7 +562,7 @@ func (m *Manager) GetSubVolume(volumeName, name string) (*SubVolume, error) {
 	return nil, fmt.Errorf("子卷 %s 不存在", name)
 }
 
-// SetSubVolumeReadOnly 设置子卷只读属性
+// SetSubVolumeReadOnly 设置子卷只读属性.
 func (m *Manager) SetSubVolumeReadOnly(volumeName, name string, readOnly bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -593,7 +593,7 @@ func (m *Manager) SetSubVolumeReadOnly(volumeName, name string, readOnly bool) e
 }
 
 // MountSubVolume 挂载子卷到指定目录
-// mountPath: 挂载目标路径，如 "/mnt/documents"
+// mountPath: 挂载目标路径，如 "/mnt/documents".
 func (m *Manager) MountSubVolume(volumeName, subvolName, mountPath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -634,7 +634,7 @@ func (m *Manager) MountSubVolume(volumeName, subvolName, mountPath string) error
 	return nil
 }
 
-// MountSubVolumeByID 通过 ID 挂载子卷
+// MountSubVolumeByID 通过 ID 挂载子卷.
 func (m *Manager) MountSubVolumeByID(volumeName string, subvolID uint64, mountPath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -662,7 +662,7 @@ func (m *Manager) MountSubVolumeByID(volumeName string, subvolID uint64, mountPa
 	return nil
 }
 
-// UnmountSubVolume 卸载子卷挂载
+// UnmountSubVolume 卸载子卷挂载.
 func (m *Manager) UnmountSubVolume(mountPath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -677,7 +677,7 @@ func (m *Manager) UnmountSubVolume(mountPath string) error {
 	return nil
 }
 
-// GetDefaultSubVolume 获取卷的默认子卷
+// GetDefaultSubVolume 获取卷的默认子卷.
 func (m *Manager) GetDefaultSubVolume(volumeName string) (uint64, error) {
 	m.mu.RLock()
 	vol, exists := m.volumes[volumeName]
@@ -694,7 +694,7 @@ func (m *Manager) GetDefaultSubVolume(volumeName string) (uint64, error) {
 	return m.client.GetDefaultSubVolume(vol.MountPoint)
 }
 
-// SetDefaultSubVolume 设置卷的默认子卷
+// SetDefaultSubVolume 设置卷的默认子卷.
 func (m *Manager) SetDefaultSubVolume(volumeName string, subvolID uint64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -713,14 +713,14 @@ func (m *Manager) SetDefaultSubVolume(volumeName string, subvolID uint64) error 
 
 // ========== 快照管理 ==========
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (m *Manager) CreateSnapshot(volumeName, subvolName, snapshotName string, readOnly bool) (*Snapshot, error) {
 	config := DefaultSnapshotConfig
 	config.ReadOnly = readOnly
 	return m.CreateSnapshotWithConfig(volumeName, subvolName, snapshotName, &config)
 }
 
-// CreateSnapshotWithConfig 使用配置创建快照
+// CreateSnapshotWithConfig 使用配置创建快照.
 func (m *Manager) CreateSnapshotWithConfig(volumeName, subvolName, snapshotName string, config *SnapshotConfig) (*Snapshot, error) {
 	if config == nil {
 		config = &DefaultSnapshotConfig
@@ -814,7 +814,7 @@ func (m *Manager) CreateSnapshotWithConfig(volumeName, subvolName, snapshotName 
 	return snap, nil
 }
 
-// CreateTimedSnapshot 创建带时间戳的快照
+// CreateTimedSnapshot 创建带时间戳的快照.
 func (m *Manager) CreateTimedSnapshot(volumeName, subvolName, prefix string, readOnly bool) (*Snapshot, error) {
 	config := &SnapshotConfig{
 		Prefix:     prefix,
@@ -826,12 +826,12 @@ func (m *Manager) CreateTimedSnapshot(volumeName, subvolName, prefix string, rea
 	return m.CreateSnapshotWithConfig(volumeName, subvolName, "", config)
 }
 
-// ListSnapshots 列出卷的所有快照
+// ListSnapshots 列出卷的所有快照.
 func (m *Manager) ListSnapshots(volumeName string) ([]*Snapshot, error) {
 	return m.ListSnapshotsInDir(volumeName, "")
 }
 
-// ListSnapshotsInDir 列出指定目录下的快照
+// ListSnapshotsInDir 列出指定目录下的快照.
 func (m *Manager) ListSnapshotsInDir(volumeName, snapDir string) ([]*Snapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -898,7 +898,7 @@ func (m *Manager) ListSnapshotsInDir(volumeName, snapDir string) ([]*Snapshot, e
 	return snapshots, nil
 }
 
-// ListSubVolumeSnapshots 列出指定子卷的快照
+// ListSubVolumeSnapshots 列出指定子卷的快照.
 func (m *Manager) ListSubVolumeSnapshots(volumeName, subvolName string) ([]*Snapshot, error) {
 	m.mu.RLock()
 	vol, exists := m.volumes[volumeName]
@@ -918,12 +918,12 @@ func (m *Manager) ListSubVolumeSnapshots(volumeName, subvolName string) ([]*Snap
 	return nil, fmt.Errorf("子卷 %s 不存在", subvolName)
 }
 
-// DeleteSnapshot 删除快照
+// DeleteSnapshot 删除快照.
 func (m *Manager) DeleteSnapshot(volumeName, snapshotName string) error {
 	return m.DeleteSnapshotInDir(volumeName, snapshotName, "")
 }
 
-// DeleteSnapshotInDir 删除指定目录下的快照
+// DeleteSnapshotInDir 删除指定目录下的快照.
 func (m *Manager) DeleteSnapshotInDir(volumeName, snapshotName, snapDir string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -961,12 +961,12 @@ func (m *Manager) DeleteSnapshotInDir(volumeName, snapshotName, snapDir string) 
 	return nil
 }
 
-// GetSnapshot 获取快照详情
+// GetSnapshot 获取快照详情.
 func (m *Manager) GetSnapshot(volumeName, snapshotName string) (*Snapshot, error) {
 	return m.GetSnapshotInDir(volumeName, snapshotName, "")
 }
 
-// GetSnapshotInDir 获取指定目录下的快照详情
+// GetSnapshotInDir 获取指定目录下的快照详情.
 func (m *Manager) GetSnapshotInDir(volumeName, snapshotName, snapDir string) (*Snapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1001,12 +1001,12 @@ func (m *Manager) GetSnapshotInDir(volumeName, snapshotName, snapDir string) (*S
 	}, nil
 }
 
-// RestoreSnapshot 恢复快照（创建可写副本）
+// RestoreSnapshot 恢复快照（创建可写副本）.
 func (m *Manager) RestoreSnapshot(volumeName, snapshotName, targetName string) error {
 	return m.RestoreSnapshotInDir(volumeName, snapshotName, targetName, "")
 }
 
-// RestoreSnapshotInDir 从指定目录恢复快照
+// RestoreSnapshotInDir 从指定目录恢复快照.
 func (m *Manager) RestoreSnapshotInDir(volumeName, snapshotName, targetName, snapDir string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1047,12 +1047,12 @@ func (m *Manager) RestoreSnapshotInDir(volumeName, snapshotName, targetName, sna
 }
 
 // RollbackSnapshot 回滚到快照（替换当前子卷内容）
-// 警告：此操作会删除当前子卷内容并用快照替换
+// 警告：此操作会删除当前子卷内容并用快照替换.
 func (m *Manager) RollbackSnapshot(volumeName, subvolName, snapshotName string) error {
 	return m.RollbackSnapshotInDir(volumeName, subvolName, snapshotName, "")
 }
 
-// RollbackSnapshotInDir 从指定目录回滚快照
+// RollbackSnapshotInDir 从指定目录回滚快照.
 func (m *Manager) RollbackSnapshotInDir(volumeName, subvolName, snapshotName, snapDir string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1122,12 +1122,12 @@ func (m *Manager) RollbackSnapshotInDir(volumeName, subvolName, snapshotName, sn
 
 // ========== RAID 配置管理 ==========
 
-// GetRAIDConfigs 获取所有 RAID 配置
+// GetRAIDConfigs 获取所有 RAID 配置.
 func (m *Manager) GetRAIDConfigs() map[string]RAIDConfig {
 	return RAIDConfigs
 }
 
-// GetRAIDConfig 获取指定 RAID 配置
+// GetRAIDConfig 获取指定 RAID 配置.
 func (m *Manager) GetRAIDConfig(profile string) *RAIDConfig {
 	if config, ok := RAIDConfigs[profile]; ok {
 		return &config
@@ -1135,7 +1135,7 @@ func (m *Manager) GetRAIDConfig(profile string) *RAIDConfig {
 	return nil
 }
 
-// ConvertRAID 转换卷的 RAID 配置
+// ConvertRAID 转换卷的 RAID 配置.
 func (m *Manager) ConvertRAID(volumeName, newDataProfile, newMetaProfile string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1173,7 +1173,7 @@ func (m *Manager) ConvertRAID(volumeName, newDataProfile, newMetaProfile string)
 	return nil
 }
 
-// AddDevice 添加设备到卷（扩容）
+// AddDevice 添加设备到卷（扩容）.
 func (m *Manager) AddDevice(volumeName, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1195,7 +1195,7 @@ func (m *Manager) AddDevice(volumeName, device string) error {
 	return nil
 }
 
-// RemoveDevice 从卷中移除设备
+// RemoveDevice 从卷中移除设备.
 func (m *Manager) RemoveDevice(volumeName, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1224,7 +1224,7 @@ func (m *Manager) RemoveDevice(volumeName, device string) error {
 	return nil
 }
 
-// GetDeviceStats 获取设备统计
+// GetDeviceStats 获取设备统计.
 func (m *Manager) GetDeviceStats(volumeName string) ([]btrfs.DeviceStats, error) {
 	m.mu.RLock()
 	vol, exists := m.volumes[volumeName]
@@ -1243,7 +1243,7 @@ func (m *Manager) GetDeviceStats(volumeName string) ([]btrfs.DeviceStats, error)
 
 // ========== 维护操作 ==========
 
-// Balance 启动数据平衡
+// Balance 启动数据平衡.
 func (m *Manager) Balance(volumeName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1270,7 +1270,7 @@ func (m *Manager) Balance(volumeName string) error {
 	return nil
 }
 
-// GetBalanceStatus 获取平衡状态
+// GetBalanceStatus 获取平衡状态.
 func (m *Manager) GetBalanceStatus(volumeName string) (*btrfs.BalanceStatus, error) {
 	m.mu.RLock()
 	vol, exists := m.volumes[volumeName]
@@ -1298,7 +1298,7 @@ func (m *Manager) GetBalanceStatus(volumeName string) (*btrfs.BalanceStatus, err
 	return status, nil
 }
 
-// Scrub 启动数据校验
+// Scrub 启动数据校验.
 func (m *Manager) Scrub(volumeName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1325,7 +1325,7 @@ func (m *Manager) Scrub(volumeName string) error {
 	return nil
 }
 
-// GetScrubStatus 获取校验状态
+// GetScrubStatus 获取校验状态.
 func (m *Manager) GetScrubStatus(volumeName string) (*btrfs.ScrubStatus, error) {
 	m.mu.RLock()
 	vol, exists := m.volumes[volumeName]
@@ -1359,7 +1359,7 @@ func (m *Manager) GetScrubStatus(volumeName string) (*btrfs.ScrubStatus, error) 
 	return status, nil
 }
 
-// Refresh 刷新卷信息
+// Refresh 刷新卷信息.
 func (m *Manager) Refresh() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

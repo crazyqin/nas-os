@@ -1029,7 +1029,7 @@ func (m *Manager) removeFromWaitQueue(filePath string, waitID string) {
 	}
 }
 
-// processWaitQueue 处理等待队列
+// processWaitQueue 处理等待队列.
 func (m *Manager) processWaitQueue(filePath string) {
 	if !m.config.EnableWaitQueue {
 		return
@@ -1074,7 +1074,7 @@ func (m *Manager) processWaitQueue(filePath string) {
 	}
 }
 
-// logAudit 记录审计日志
+// logAudit 记录审计日志.
 func (m *Manager) logAudit(entry *LockAuditEntry) {
 	if !m.config.EnableAudit {
 		return
@@ -1094,7 +1094,7 @@ func (m *Manager) logAudit(entry *LockAuditEntry) {
 	}
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() {
 	m.cancel()
 	m.wg.Wait()
@@ -1229,7 +1229,7 @@ func (m *Manager) processAllWaitQueues() {
 	})
 }
 
-// LockFilter 锁过滤器
+// LockFilter 锁过滤器.
 type LockFilter struct {
 	Owner    string
 	LockType LockType

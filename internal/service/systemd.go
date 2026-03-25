@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-// SystemdBackend systemd 服务后端
+// SystemdBackend systemd 服务后端.
 type SystemdBackend struct {
 	systemctlPath string
 }
 
-// NewSystemdBackend 创建 systemd 后端
+// NewSystemdBackend 创建 systemd 后端.
 func NewSystemdBackend() (*SystemdBackend, error) {
 	// 检查 systemctl 是否可用
 	systemctlPath, err := exec.LookPath("systemctl")
@@ -29,7 +29,7 @@ func NewSystemdBackend() (*SystemdBackend, error) {
 	}, nil
 }
 
-// Start 启动服务
+// Start 启动服务.
 func (b *SystemdBackend) Start(name string) error {
 	// 尝试标准服务名，如果失败则尝试添加 .service 后缀
 	serviceName := b.normalizeServiceName(name)
@@ -42,7 +42,7 @@ func (b *SystemdBackend) Start(name string) error {
 	return nil
 }
 
-// Stop 停止服务
+// Stop 停止服务.
 func (b *SystemdBackend) Stop(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
@@ -54,7 +54,7 @@ func (b *SystemdBackend) Stop(name string) error {
 	return nil
 }
 
-// Restart 重启服务
+// Restart 重启服务.
 func (b *SystemdBackend) Restart(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
@@ -66,7 +66,7 @@ func (b *SystemdBackend) Restart(name string) error {
 	return nil
 }
 
-// Status 获取服务状态
+// Status 获取服务状态.
 func (b *SystemdBackend) Status(name string) (*ServiceStatus, error) {
 	serviceName := b.normalizeServiceName(name)
 
@@ -130,7 +130,7 @@ func (b *SystemdBackend) Status(name string) (*ServiceStatus, error) {
 	return status, nil
 }
 
-// Enable 启用服务开机自启
+// Enable 启用服务开机自启.
 func (b *SystemdBackend) Enable(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
@@ -142,7 +142,7 @@ func (b *SystemdBackend) Enable(name string) error {
 	return nil
 }
 
-// Disable 禁用服务开机自启
+// Disable 禁用服务开机自启.
 func (b *SystemdBackend) Disable(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
@@ -154,7 +154,7 @@ func (b *SystemdBackend) Disable(name string) error {
 	return nil
 }
 
-// IsEnabled 检查服务是否开机自启
+// IsEnabled 检查服务是否开机自启.
 func (b *SystemdBackend) IsEnabled(name string) (bool, error) {
 	serviceName := b.normalizeServiceName(name)
 
@@ -169,7 +169,7 @@ func (b *SystemdBackend) IsEnabled(name string) (bool, error) {
 	return result == "enabled" || result == "enabled-runtime" || result == "static", nil
 }
 
-// IsRunning 检查服务是否运行中
+// IsRunning 检查服务是否运行中.
 func (b *SystemdBackend) IsRunning(name string) (bool, error) {
 	serviceName := b.normalizeServiceName(name)
 
@@ -182,7 +182,7 @@ func (b *SystemdBackend) IsRunning(name string) (bool, error) {
 	return strings.TrimSpace(string(output)) == "active", nil
 }
 
-// List 列出所有服务
+// List 列出所有服务.
 func (b *SystemdBackend) List() ([]*Service, error) {
 	// 获取所有服务单元
 	cmd := exec.Command(b.systemctlPath, "list-units", "--type=service", "--all",
@@ -244,7 +244,7 @@ func (b *SystemdBackend) List() ([]*Service, error) {
 	return services, nil
 }
 
-// Get 获取单个服务信息
+// Get 获取单个服务信息.
 func (b *SystemdBackend) Get(name string) (*Service, error) {
 	serviceName := b.normalizeServiceName(name)
 
@@ -277,7 +277,7 @@ func (b *SystemdBackend) Get(name string) (*Service, error) {
 	return svc, nil
 }
 
-// normalizeServiceName 标准化服务名称
+// normalizeServiceName 标准化服务名称.
 func (b *SystemdBackend) normalizeServiceName(name string) string {
 	// 如果已经包含后缀，直接返回
 	if strings.Contains(name, ".") {
@@ -287,7 +287,7 @@ func (b *SystemdBackend) normalizeServiceName(name string) string {
 	return name + ".service"
 }
 
-// parseProperties 解析 systemctl show 输出的属性
+// parseProperties 解析 systemctl show 输出的属性.
 func (b *SystemdBackend) parseProperties(output string) map[string]string {
 	props := make(map[string]string)
 
@@ -306,7 +306,7 @@ func (b *SystemdBackend) parseProperties(output string) map[string]string {
 	return props
 }
 
-// enrichStatus 使用其他命令丰富状态信息
+// enrichStatus 使用其他命令丰富状态信息.
 func (b *SystemdBackend) enrichStatus(status *ServiceStatus) {
 	if status.PID <= 0 {
 		return
@@ -344,7 +344,7 @@ func (b *SystemdBackend) enrichStatus(status *ServiceStatus) {
 	}
 }
 
-// GetServiceLogs 获取服务日志
+// GetServiceLogs 获取服务日志.
 func (b *SystemdBackend) GetServiceLogs(name string, lines int, follow bool) (string, error) {
 	serviceName := b.normalizeServiceName(name)
 
@@ -365,7 +365,7 @@ func (b *SystemdBackend) GetServiceLogs(name string, lines int, follow bool) (st
 	return string(output), nil
 }
 
-// GetServiceUnitFile 获取服务单元文件内容
+// GetServiceUnitFile 获取服务单元文件内容.
 func (b *SystemdBackend) GetServiceUnitFile(name string) (string, error) {
 	serviceName := b.normalizeServiceName(name)
 
@@ -378,7 +378,7 @@ func (b *SystemdBackend) GetServiceUnitFile(name string) (string, error) {
 	return string(output), nil
 }
 
-// GetFailedServices 获取失败的服务列表
+// GetFailedServices 获取失败的服务列表.
 func (b *SystemdBackend) GetFailedServices() ([]*Service, error) {
 	cmd := exec.Command(b.systemctlPath, "list-units", "--state=failed", "--type=service",
 		"--no-pager", "--no-legend")
@@ -425,7 +425,7 @@ func (b *SystemdBackend) GetFailedServices() ([]*Service, error) {
 	return services, nil
 }
 
-// DaemonReload 重新加载 systemd 配置
+// DaemonReload 重新加载 systemd 配置.
 func (b *SystemdBackend) DaemonReload() error {
 	cmd := exec.Command(b.systemctlPath, "daemon-reload")
 	output, err := cmd.CombinedOutput()
@@ -435,7 +435,7 @@ func (b *SystemdBackend) DaemonReload() error {
 	return nil
 }
 
-// ResetFailed 重置失败状态
+// ResetFailed 重置失败状态.
 func (b *SystemdBackend) ResetFailed(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
@@ -447,7 +447,7 @@ func (b *SystemdBackend) ResetFailed(name string) error {
 	return nil
 }
 
-// Mask 屏蔽服务
+// Mask 屏蔽服务.
 func (b *SystemdBackend) Mask(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
@@ -459,7 +459,7 @@ func (b *SystemdBackend) Mask(name string) error {
 	return nil
 }
 
-// Unmask 取消屏蔽服务
+// Unmask 取消屏蔽服务.
 func (b *SystemdBackend) Unmask(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
@@ -471,7 +471,7 @@ func (b *SystemdBackend) Unmask(name string) error {
 	return nil
 }
 
-// GetServiceDependencies 获取服务依赖
+// GetServiceDependencies 获取服务依赖.
 func (b *SystemdBackend) GetServiceDependencies(name string) ([]string, error) {
 	serviceName := b.normalizeServiceName(name)
 

@@ -16,7 +16,7 @@ import (
 
 // ========== 类型定义 ==========
 
-// DiskEncryptionConfig 磁盘加密配置
+// DiskEncryptionConfig 磁盘加密配置.
 type DiskEncryptionConfig struct {
 	// ID 配置 ID
 	ID string `json:"id"`
@@ -64,43 +64,43 @@ type DiskEncryptionConfig struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// EncryptionType 加密类型
+// EncryptionType 加密类型.
 type EncryptionType string
 
 const (
-	// EncryptionTypeLUKS1 表示 LUKS1 加密格式
+	// EncryptionTypeLUKS1 表示 LUKS1 加密格式.
 	EncryptionTypeLUKS1 EncryptionType = "luks1"
-	// EncryptionTypeLUKS2 表示 LUKS2 加密格式（推荐）
+	// EncryptionTypeLUKS2 表示 LUKS2 加密格式（推荐）.
 	EncryptionTypeLUKS2 EncryptionType = "luks2"
 )
 
-// KeySourceType 密钥来源类型
+// KeySourceType 密钥来源类型.
 type KeySourceType string
 
 const (
-	// KeySourcePassphrase 表示使用密码短语作为密钥来源
+	// KeySourcePassphrase 表示使用密码短语作为密钥来源.
 	KeySourcePassphrase KeySourceType = "passphrase"
-	// KeySourceKeyFile 表示使用密钥文件作为密钥来源
+	// KeySourceKeyFile 表示使用密钥文件作为密钥来源.
 	KeySourceKeyFile KeySourceType = "keyfile"
-	// KeySourceTPM 表示使用 TPM 作为密钥来源
+	// KeySourceTPM 表示使用 TPM 作为密钥来源.
 	KeySourceTPM KeySourceType = "tpm"
-	// KeySourceYubiKey 表示使用 YubiKey 作为密钥来源
+	// KeySourceYubiKey 表示使用 YubiKey 作为密钥来源.
 	KeySourceYubiKey KeySourceType = "yubikey"
 )
 
-// EncryptionStatus 加密状态
+// EncryptionStatus 加密状态.
 type EncryptionStatus string
 
 const (
-	// EncryptionStatusLocked 表示加密设备已锁定
+	// EncryptionStatusLocked 表示加密设备已锁定.
 	EncryptionStatusLocked EncryptionStatus = "locked"
-	// EncryptionStatusUnlocked 表示加密设备已解锁
+	// EncryptionStatusUnlocked 表示加密设备已解锁.
 	EncryptionStatusUnlocked EncryptionStatus = "unlocked"
-	// EncryptionStatusError 表示加密设备处于错误状态
+	// EncryptionStatusError 表示加密设备处于错误状态.
 	EncryptionStatusError EncryptionStatus = "error"
 )
 
-// LUKSInfo LUKS 信息
+// LUKSInfo LUKS 信息.
 type LUKSInfo struct {
 	// Version LUKS 版本
 	Version string `json:"version"`
@@ -130,7 +130,7 @@ type LUKSInfo struct {
 	DataOffset int64 `json:"dataOffset"`
 }
 
-// KeySlotInfo 密钥槽位信息
+// KeySlotInfo 密钥槽位信息.
 type KeySlotInfo struct {
 	// SlotID 槽位 ID
 	SlotID int `json:"slotId"`
@@ -151,7 +151,7 @@ type KeySlotInfo struct {
 	LastUsedAt *time.Time `json:"lastUsedAt,omitempty"`
 }
 
-// KeyRotationPolicy 密钥轮换策略
+// KeyRotationPolicy 密钥轮换策略.
 type KeyRotationPolicy struct {
 	// Enabled 是否启用
 	Enabled bool `json:"enabled"`
@@ -175,7 +175,7 @@ type KeyRotationPolicy struct {
 	KeyHistory []KeyHistoryEntry `json:"keyHistory,omitempty"`
 }
 
-// KeyHistoryEntry 密钥历史记录
+// KeyHistoryEntry 密钥历史记录.
 type KeyHistoryEntry struct {
 	// SlotID 槽位 ID
 	SlotID int `json:"slotId"`
@@ -193,7 +193,7 @@ type KeyHistoryEntry struct {
 	User string `json:"user,omitempty"`
 }
 
-// EncryptionPerformance 加密性能指标
+// EncryptionPerformance 加密性能指标.
 type EncryptionPerformance struct {
 	// DevicePath 设备路径
 	DevicePath string `json:"devicePath"`
@@ -223,7 +223,7 @@ type EncryptionPerformance struct {
 	LastUpdated time.Time `json:"lastUpdated"`
 }
 
-// EncryptionBenchmark 加密基准测试结果
+// EncryptionBenchmark 加密基准测试结果.
 type EncryptionBenchmark struct {
 	// Algorithm 算法
 	Algorithm string `json:"algorithm"`
@@ -253,7 +253,7 @@ type EncryptionBenchmark struct {
 	Notes string `json:"notes,omitempty"`
 }
 
-// DiskEncryptionManager 磁盘加密管理器
+// DiskEncryptionManager 磁盘加密管理器.
 type DiskEncryptionManager struct {
 	mu sync.RWMutex
 
@@ -273,7 +273,7 @@ type DiskEncryptionManager struct {
 	hooks EncryptionHooks
 }
 
-// EncryptionHooks 加密事件钩子
+// EncryptionHooks 加密事件钩子.
 type EncryptionHooks struct {
 	// OnDiskLocked 磁盘锁定回调
 	OnDiskLocked func(devicePath string)
@@ -288,7 +288,7 @@ type EncryptionHooks struct {
 	OnRotationReminder func(devicePath string, daysUntilExpiry int)
 }
 
-// NewDiskEncryptionManager 创建磁盘加密管理器
+// NewDiskEncryptionManager 创建磁盘加密管理器.
 func NewDiskEncryptionManager(configPath string) *DiskEncryptionManager {
 	return &DiskEncryptionManager{
 		configs:          make(map[string]*DiskEncryptionConfig),
@@ -306,7 +306,7 @@ func NewDiskEncryptionManager(configPath string) *DiskEncryptionManager {
 	}
 }
 
-// Initialize 初始化磁盘加密管理器
+// Initialize 初始化磁盘加密管理器.
 func (dm *DiskEncryptionManager) Initialize() error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -327,7 +327,7 @@ func (dm *DiskEncryptionManager) Initialize() error {
 
 // ========== LUKS 操作 ==========
 
-// CreateLUKS 创建 LUKS 加密卷
+// CreateLUKS 创建 LUKS 加密卷.
 func (dm *DiskEncryptionManager) CreateLUKS(devicePath, passphrase string, config *DiskEncryptionConfig) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -405,7 +405,7 @@ func (dm *DiskEncryptionManager) CreateLUKS(devicePath, passphrase string, confi
 	return nil
 }
 
-// OpenLUKS 打开 LUKS 加密卷
+// OpenLUKS 打开 LUKS 加密卷.
 func (dm *DiskEncryptionManager) OpenLUKS(devicePath, mapperName, passphrase string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -442,7 +442,7 @@ func (dm *DiskEncryptionManager) OpenLUKS(devicePath, mapperName, passphrase str
 	return nil
 }
 
-// CloseLUKS 关闭 LUKS 加密卷
+// CloseLUKS 关闭 LUKS 加密卷.
 func (dm *DiskEncryptionManager) CloseLUKS(mapperName string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -478,7 +478,7 @@ func (dm *DiskEncryptionManager) CloseLUKS(mapperName string) error {
 	return nil
 }
 
-// GetLUKSInfo 获取 LUKS 信息
+// GetLUKSInfo 获取 LUKS 信息.
 func (dm *DiskEncryptionManager) GetLUKSInfo(devicePath string) (*LUKSInfo, error) {
 	// 安全检查：验证设备路径
 	if err := cmdsec.ValidateDevicePath(devicePath); err != nil {
@@ -495,7 +495,7 @@ func (dm *DiskEncryptionManager) GetLUKSInfo(devicePath string) (*LUKSInfo, erro
 	return dm.parseLUKSDump(string(output), devicePath)
 }
 
-// parseLUKSDump 解析 LUKS dump 输出
+// parseLUKSDump 解析 LUKS dump 输出.
 func (dm *DiskEncryptionManager) parseLUKSDump(dump, devicePath string) (*LUKSInfo, error) {
 	info := &LUKSInfo{
 		Device:   devicePath,
@@ -549,7 +549,7 @@ func (dm *DiskEncryptionManager) parseLUKSDump(dump, devicePath string) (*LUKSIn
 
 // ========== 密钥管理 ==========
 
-// AddKeySlot 添加密钥槽位
+// AddKeySlot 添加密钥槽位.
 func (dm *DiskEncryptionManager) AddKeySlot(devicePath, currentPassphrase, newPassphrase string, slotID int) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -591,7 +591,7 @@ func (dm *DiskEncryptionManager) AddKeySlot(devicePath, currentPassphrase, newPa
 	return nil
 }
 
-// RemoveKeySlot 移除密钥槽位
+// RemoveKeySlot 移除密钥槽位.
 func (dm *DiskEncryptionManager) RemoveKeySlot(devicePath, passphrase string, slotID int) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -610,7 +610,7 @@ func (dm *DiskEncryptionManager) RemoveKeySlot(devicePath, passphrase string, sl
 	return nil
 }
 
-// RotateKey 轮换密钥
+// RotateKey 轮换密钥.
 func (dm *DiskEncryptionManager) RotateKey(devicePath, currentPassphrase, newPassphrase string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -679,7 +679,7 @@ func (dm *DiskEncryptionManager) RotateKey(devicePath, currentPassphrase, newPas
 	return nil
 }
 
-// removeKeySlotInternal 内部移除密钥槽位方法
+// removeKeySlotInternal 内部移除密钥槽位方法.
 func (dm *DiskEncryptionManager) removeKeySlotInternal(devicePath, passphrase string, slotID int) error {
 	cmd := exec.Command("cryptsetup", "luksKillSlot", devicePath, fmt.Sprintf("%d", slotID))
 	cmd.Stdin = strings.NewReader(passphrase + "\n")
@@ -694,14 +694,14 @@ func (dm *DiskEncryptionManager) removeKeySlotInternal(devicePath, passphrase st
 
 // ========== 密钥轮换机制 ==========
 
-// SetRotationPolicy 设置密钥轮换策略
+// SetRotationPolicy 设置密钥轮换策略.
 func (dm *DiskEncryptionManager) SetRotationPolicy(policy *KeyRotationPolicy) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 	dm.rotationPolicy = policy
 }
 
-// CheckKeyRotation 检查是否需要轮换密钥
+// CheckKeyRotation 检查是否需要轮换密钥.
 func (dm *DiskEncryptionManager) CheckKeyRotation(devicePath string) (needsRotation bool, daysUntilExpiry int, err error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -730,7 +730,7 @@ func (dm *DiskEncryptionManager) CheckKeyRotation(devicePath string) (needsRotat
 	return false, daysUntilExpiry, nil
 }
 
-// AutoRotateKeys 自动轮换密钥
+// AutoRotateKeys 自动轮换密钥.
 func (dm *DiskEncryptionManager) AutoRotateKeys(passphraseProvider func(devicePath string) (string, error)) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -806,7 +806,7 @@ func (dm *DiskEncryptionManager) AutoRotateKeys(passphraseProvider func(devicePa
 
 // ========== 加密性能优化 ==========
 
-// GetEncryptionPerformance 获取加密性能
+// GetEncryptionPerformance 获取加密性能.
 func (dm *DiskEncryptionManager) GetEncryptionPerformance(devicePath string) (*EncryptionPerformance, error) {
 	dm.mu.RLock()
 	if perf, ok := dm.performanceCache[devicePath]; ok {
@@ -828,7 +828,7 @@ func (dm *DiskEncryptionManager) GetEncryptionPerformance(devicePath string) (*E
 	return perf, nil
 }
 
-// benchmarkEncryption 基准测试加密性能
+// benchmarkEncryption 基准测试加密性能.
 func (dm *DiskEncryptionManager) benchmarkEncryption(devicePath string) (*EncryptionPerformance, error) {
 	perf := &EncryptionPerformance{
 		DevicePath:          devicePath,
@@ -856,7 +856,7 @@ func (dm *DiskEncryptionManager) benchmarkEncryption(devicePath string) (*Encryp
 	return perf, nil
 }
 
-// checkHardwareAcceleration 检查硬件加速
+// checkHardwareAcceleration 检查硬件加速.
 func (dm *DiskEncryptionManager) checkHardwareAcceleration() bool {
 	// 检查 CPU 是否支持 AES-NI
 	data, err := os.ReadFile("/proc/cpuinfo")
@@ -867,7 +867,7 @@ func (dm *DiskEncryptionManager) checkHardwareAcceleration() bool {
 	return strings.Contains(string(data), "aes")
 }
 
-// OptimizeEncryption 优化加密配置
+// OptimizeEncryption 优化加密配置.
 func (dm *DiskEncryptionManager) OptimizeEncryption(devicePath string) ([]string, error) {
 	var recommendations []string
 
@@ -907,7 +907,7 @@ func (dm *DiskEncryptionManager) OptimizeEncryption(devicePath string) ([]string
 	return recommendations, nil
 }
 
-// RunEncryptionBenchmark 运行加密基准测试
+// RunEncryptionBenchmark 运行加密基准测试.
 func (dm *DiskEncryptionManager) RunEncryptionBenchmark(testSizeMB int) ([]EncryptionBenchmark, error) {
 	var results []EncryptionBenchmark
 
@@ -956,7 +956,7 @@ func (dm *DiskEncryptionManager) RunEncryptionBenchmark(testSizeMB int) ([]Encry
 
 // ========== 配置管理 ==========
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (dm *DiskEncryptionManager) GetConfig(devicePath string) (*DiskEncryptionConfig, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -969,7 +969,7 @@ func (dm *DiskEncryptionManager) GetConfig(devicePath string) (*DiskEncryptionCo
 	return config, nil
 }
 
-// ListConfigs 列出所有配置
+// ListConfigs 列出所有配置.
 func (dm *DiskEncryptionManager) ListConfigs() []*DiskEncryptionConfig {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -981,7 +981,7 @@ func (dm *DiskEncryptionManager) ListConfigs() []*DiskEncryptionConfig {
 	return result
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (dm *DiskEncryptionManager) UpdateConfig(devicePath string, config *DiskEncryptionConfig) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -996,7 +996,7 @@ func (dm *DiskEncryptionManager) UpdateConfig(devicePath string, config *DiskEnc
 	return dm.saveConfig()
 }
 
-// scanEncryptedDevices 扫描加密设备
+// scanEncryptedDevices 扫描加密设备.
 func (dm *DiskEncryptionManager) scanEncryptedDevices() error {
 	// 读取 /proc/crypto 或使用 blkid 扫描
 	cmd := exec.Command("blkid")
@@ -1076,7 +1076,7 @@ func (dm *DiskEncryptionManager) addKeyHistory(devicePath string, slotID int, ac
 	}
 }
 
-// SetHooks 设置事件钩子
+// SetHooks 设置事件钩子.
 func (dm *DiskEncryptionManager) SetHooks(hooks EncryptionHooks) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()

@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestImmutableManager_NewManager 测试创建管理器
+// TestImmutableManager_NewManager 测试创建管理器.
 func TestImmutableManager_NewManager(t *testing.T) {
 	// 创建临时目录
 	tmpDir, err := os.MkdirTemp("", "immutable-test")
@@ -40,7 +40,7 @@ func TestImmutableManager_NewManager(t *testing.T) {
 	mgr.Stop()
 }
 
-// TestImmutableConfig_Defaults 测试默认配置
+// TestImmutableConfig_Defaults 测试默认配置.
 func TestImmutableConfig_Defaults(t *testing.T) {
 	assert.Equal(t, ".immutable", DefaultImmutableConfig.SnapDir)
 	assert.True(t, DefaultImmutableConfig.AutoCleanup)
@@ -48,7 +48,7 @@ func TestImmutableConfig_Defaults(t *testing.T) {
 	assert.Equal(t, 10000, DefaultImmutableConfig.MaxRecords)
 }
 
-// TestLockDuration_Hours 测试锁定时长映射
+// TestLockDuration_Hours 测试锁定时长映射.
 func TestLockDuration_Hours(t *testing.T) {
 	tests := []struct {
 		duration LockDuration
@@ -66,14 +66,14 @@ func TestLockDuration_Hours(t *testing.T) {
 	}
 }
 
-// TestImmutableStatus_Values 测试状态值
+// TestImmutableStatus_Values 测试状态值.
 func TestImmutableStatus_Values(t *testing.T) {
 	assert.Equal(t, ImmutableStatus("active"), ImmutableStatusActive)
 	assert.Equal(t, ImmutableStatus("expired"), ImmutableStatusExpired)
 	assert.Equal(t, ImmutableStatus("unlocked"), ImmutableStatusUnlocked)
 }
 
-// TestRecordFilter_Match 测试记录过滤
+// TestRecordFilter_Match 测试记录过滤.
 func TestRecordFilter_Match(t *testing.T) {
 	now := time.Now()
 
@@ -157,7 +157,7 @@ func TestRecordFilter_Match(t *testing.T) {
 	}
 }
 
-// TestImmutableRecord_Expiry 测试过期时间计算
+// TestImmutableRecord_Expiry 测试过期时间计算.
 func TestImmutableRecord_Expiry(t *testing.T) {
 	now := time.Now()
 
@@ -215,7 +215,7 @@ func TestImmutableRecord_Expiry(t *testing.T) {
 	}
 }
 
-// TestImmutableStatistics 测试统计功能
+// TestImmutableStatistics 测试统计功能.
 func TestImmutableStatistics(t *testing.T) {
 	mgr := &ImmutableManager{
 		records: make(map[string]*ImmutableRecord),
@@ -256,7 +256,7 @@ func TestImmutableStatistics(t *testing.T) {
 	assert.Equal(t, 1, stats.ByDuration[LockDuration30Days])
 }
 
-// TestRansomwareProtectionStatus 测试防勒索保护状态
+// TestRansomwareProtectionStatus 测试防勒索保护状态.
 func TestRansomwareProtectionStatus(t *testing.T) {
 	mgr := &ImmutableManager{
 		records: make(map[string]*ImmutableRecord),
@@ -286,7 +286,7 @@ func TestRansomwareProtectionStatus(t *testing.T) {
 	assert.True(t, status.ProtectedByRansomware)
 }
 
-// TestLockRequest_Validation 测试锁定请求验证
+// TestLockRequest_Validation 测试锁定请求验证.
 func TestLockRequest_Validation(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -347,7 +347,7 @@ func TestLockRequest_Validation(t *testing.T) {
 	}
 }
 
-// TestSplitPath 测试路径分割
+// TestSplitPath 测试路径分割.
 func TestSplitPath(t *testing.T) {
 	tests := []struct {
 		path     string
@@ -368,7 +368,7 @@ func TestSplitPath(t *testing.T) {
 	}
 }
 
-// TestImmutableRecord_JSON 测试 JSON 序列化
+// TestImmutableRecord_JSON 测试 JSON 序列化.
 func TestImmutableRecord_JSON(t *testing.T) {
 	now := time.Now()
 	record := &ImmutableRecord{
@@ -404,7 +404,7 @@ func TestImmutableRecord_JSON(t *testing.T) {
 	assert.Equal(t, record.ProtectedByRansomware, decoded.ProtectedByRansomware)
 }
 
-// TestBatchLock 测试批量锁定逻辑
+// TestBatchLock 测试批量锁定逻辑.
 func TestBatchLock(t *testing.T) {
 	// 创建临时目录用于测试
 	tmpDir, err := os.MkdirTemp("", "batch-lock-test")
@@ -427,7 +427,7 @@ func TestBatchLock(t *testing.T) {
 	assert.Len(t, paths, 2)
 }
 
-// TestCleanupExpiredRecords 测试过期记录清理
+// TestCleanupExpiredRecords 测试过期记录清理.
 func TestCleanupExpiredRecords(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")

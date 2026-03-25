@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Config 备份配置
+// Config 备份配置.
 type Config struct {
 	// 基本配置
 	BackupPath string `json:"backup_path"`
@@ -46,7 +46,7 @@ type Config struct {
 	Targets []Target `json:"targets"`
 }
 
-// Sanitize 返回脱敏后的配置副本（用于日志和调试）
+// Sanitize 返回脱敏后的配置副本（用于日志和调试）.
 func (bc *Config) Sanitize() map[string]interface{} {
 	targets := make([]map[string]interface{}, len(bc.Targets))
 	for i, t := range bc.Targets {
@@ -70,7 +70,7 @@ func (bc *Config) Sanitize() map[string]interface{} {
 	}
 }
 
-// Target 备份目标
+// Target 备份目标.
 type Target struct {
 	Name        string            `json:"name"`
 	Type        string            `json:"type"` // local, s3, sftp
@@ -79,7 +79,7 @@ type Target struct {
 	Enabled     bool              `json:"enabled"`
 }
 
-// SanitizeConfig 返回脱敏后的配置副本（用于日志和调试）
+// SanitizeConfig 返回脱敏后的配置副本（用于日志和调试）.
 func (bt *Target) SanitizeConfig() map[string]interface{} {
 	return map[string]interface{}{
 		"name":            bt.Name,
@@ -96,14 +96,14 @@ type BackupConfig = Config //nolint:revive // 向后兼容别名
 // BackupTarget is an alias for Target for backward compatibility.
 type BackupTarget = Target //nolint:revive // 向后兼容别名
 
-// ConfigManager 配置管理器
+// ConfigManager 配置管理器.
 type ConfigManager struct {
 	configPath string
 	config     *Config
 	mu         sync.RWMutex
 }
 
-// NewConfigManager 创建配置管理器
+// NewConfigManager 创建配置管理器.
 func NewConfigManager(configPath string) *ConfigManager {
 	cm := &ConfigManager{
 		configPath: configPath,
@@ -113,7 +113,7 @@ func NewConfigManager(configPath string) *ConfigManager {
 	return cm
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		BackupPath:         "/var/lib/nas-os/backups",
@@ -135,7 +135,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// load 加载配置
+// load 加载配置.
 func (cm *ConfigManager) load() error {
 	data, err := os.ReadFile(cm.configPath)
 	if err != nil {
@@ -148,7 +148,7 @@ func (cm *ConfigManager) load() error {
 	return json.Unmarshal(data, cm.config)
 }
 
-// Save 保存配置
+// Save 保存配置.
 func (cm *ConfigManager) Save() error {
 	// 确保目录存在
 	if err := os.MkdirAll(filepath.Dir(cm.configPath), 0750); err != nil {
@@ -163,14 +163,14 @@ func (cm *ConfigManager) Save() error {
 	return os.WriteFile(cm.configPath, data, 0600)
 }
 
-// Get 获取配置
+// Get 获取配置.
 func (cm *ConfigManager) Get() *Config {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	return cm.config
 }
 
-// Update 更新配置
+// Update 更新配置.
 func (cm *ConfigManager) Update(config *Config) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -179,7 +179,7 @@ func (cm *ConfigManager) Update(config *Config) error {
 	return cm.Save()
 }
 
-// SetBackupPath 设置备份路径
+// SetBackupPath 设置备份路径.
 func (cm *ConfigManager) SetBackupPath(path string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -188,7 +188,7 @@ func (cm *ConfigManager) SetBackupPath(path string) error {
 	return cm.Save()
 }
 
-// AddTarget 添加备份目标
+// AddTarget 添加备份目标.
 func (cm *ConfigManager) AddTarget(target Target) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -197,7 +197,7 @@ func (cm *ConfigManager) AddTarget(target Target) error {
 	return cm.Save()
 }
 
-// RemoveTarget 移除备份目标
+// RemoveTarget 移除备份目标.
 func (cm *ConfigManager) RemoveTarget(name string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -211,7 +211,7 @@ func (cm *ConfigManager) RemoveTarget(name string) error {
 	return cm.Save()
 }
 
-// RetentionPolicy 保留策略
+// RetentionPolicy 保留策略.
 type RetentionPolicy struct {
 	KeepDaily   int `json:"keep_daily"`   // 保留每日备份数
 	KeepWeekly  int `json:"keep_weekly"`  // 保留每周备份数
@@ -220,7 +220,7 @@ type RetentionPolicy struct {
 	MaxAge      int `json:"max_age"`      // 最大保留天数
 }
 
-// DefaultRetentionPolicy 默认保留策略
+// DefaultRetentionPolicy 默认保留策略.
 func DefaultRetentionPolicy() *RetentionPolicy {
 	return &RetentionPolicy{
 		KeepDaily:   7,
@@ -231,7 +231,7 @@ func DefaultRetentionPolicy() *RetentionPolicy {
 	}
 }
 
-// ShouldKeep 判断是否应该保留
+// ShouldKeep 判断是否应该保留.
 func (rp *RetentionPolicy) ShouldKeep(snapshot *Snapshot, now time.Time) bool {
 	age := now.Sub(snapshot.CreatedAt)
 
@@ -248,7 +248,7 @@ func (rp *RetentionPolicy) ShouldKeep(snapshot *Snapshot, now time.Time) bool {
 	return false
 }
 
-// Policy 备份策略
+// Policy 备份策略.
 type Policy struct {
 	Name        string               `json:"name"`
 	Source      string               `json:"source"`
@@ -260,47 +260,47 @@ type Policy struct {
 	Enabled     bool                 `json:"enabled"`
 }
 
-// EncryptionSettings 加密设置
+// EncryptionSettings 加密设置.
 type EncryptionSettings struct {
 	Enabled   bool   `json:"enabled"`
 	Algorithm string `json:"algorithm"`
 	KeyID     string `json:"key_id"`
 }
 
-// CompressionSettings 压缩设置
+// CompressionSettings 压缩设置.
 type CompressionSettings struct {
 	Algorithm string `json:"algorithm"` // gzip, lz4, zstd
 	Level     int    `json:"level"`     // 压缩级别
 }
 
-// PolicyManager 策略管理器
+// PolicyManager 策略管理器.
 type PolicyManager struct {
 	policies map[string]*Policy
 	mu       sync.RWMutex
 }
 
-// NewPolicyManager 创建策略管理器
+// NewPolicyManager 创建策略管理器.
 func NewPolicyManager() *PolicyManager {
 	return &PolicyManager{
 		policies: make(map[string]*Policy),
 	}
 }
 
-// Add 添加策略
+// Add 添加策略.
 func (pm *PolicyManager) Add(policy *Policy) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	pm.policies[policy.Name] = policy
 }
 
-// Get 获取策略
+// Get 获取策略.
 func (pm *PolicyManager) Get(name string) *Policy {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 	return pm.policies[name]
 }
 
-// List 列出策略
+// List 列出策略.
 func (pm *PolicyManager) List() []*Policy {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -312,14 +312,14 @@ func (pm *PolicyManager) List() []*Policy {
 	return policies
 }
 
-// Remove 移除策略
+// Remove 移除策略.
 func (pm *PolicyManager) Remove(name string) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	delete(pm.policies, name)
 }
 
-// Update 更新策略
+// Update 更新策略.
 func (pm *PolicyManager) Update(policy *Policy) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()

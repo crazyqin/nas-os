@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// TestEdgeNodeManager 测试边缘节点管理器
+// TestEdgeNodeManager 测试边缘节点管理器.
 func TestEdgeNodeManager(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
@@ -93,7 +93,7 @@ func TestEdgeNodeManager(t *testing.T) {
 	}
 }
 
-// TestTaskScheduler 测试任务调度器
+// TestTaskScheduler 测试任务调度器.
 func TestTaskScheduler(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
@@ -185,7 +185,7 @@ func TestTaskScheduler(t *testing.T) {
 	t.Log("Test completed")
 }
 
-// TestResultAggregator 测试结果聚合器
+// TestResultAggregator 测试结果聚合器.
 func TestResultAggregator(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
@@ -243,7 +243,7 @@ func TestResultAggregator(t *testing.T) {
 	}
 }
 
-// TestEdgeLoadBalancer 测试边缘负载均衡器
+// TestEdgeLoadBalancer 测试边缘负载均衡器.
 func TestEdgeLoadBalancer(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
@@ -379,7 +379,7 @@ func TestEdgeLoadBalancer(t *testing.T) {
 	}
 }
 
-// TestEdgeNodeSelection 测试边缘节点选择
+// TestEdgeNodeSelection 测试边缘节点选择.
 func TestEdgeNodeSelection(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
@@ -476,7 +476,7 @@ func TestEdgeNodeSelection(t *testing.T) {
 	}
 }
 
-// TestEdgeIntegration 边缘计算集成测试
+// TestEdgeIntegration 边缘计算集成测试.
 func TestEdgeIntegration(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 

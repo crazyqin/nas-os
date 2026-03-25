@@ -6,10 +6,10 @@ import "time"
 
 // ========== 登录审计类型 ==========
 
-// LoginEventType 登录事件类型
+// LoginEventType 登录事件类型.
 type LoginEventType string
 
-// 登录事件类型常量
+// 登录事件类型常量.
 const (
 	LoginEventSuccess         LoginEventType = "success"          // 登录成功
 	LoginEventFailure         LoginEventType = "failure"          // 登录失败
@@ -22,10 +22,10 @@ const (
 	LoginEventAccountUnlocked LoginEventType = "account_unlocked" // 账户解锁
 )
 
-// AuthMethod 认证方式
+// AuthMethod 认证方式.
 type AuthMethod string
 
-// 认证方式常量
+// 认证方式常量.
 const (
 	AuthMethodPassword AuthMethod = "password" // 密码认证
 	AuthMethodOTP      AuthMethod = "otp"      // 一次性密码
@@ -37,7 +37,7 @@ const (
 	AuthMethodToken    AuthMethod = "token"    // Token认证
 )
 
-// LoginSession 登录会话信息
+// LoginSession 登录会话信息.
 type LoginSession struct {
 	SessionID    string            `json:"session_id"`
 	UserID       string            `json:"user_id"`
@@ -57,7 +57,7 @@ type LoginSession struct {
 	Metadata     map[string]string `json:"metadata,omitempty"`
 }
 
-// GeoLocation 地理位置
+// GeoLocation 地理位置.
 type GeoLocation struct {
 	Country     string  `json:"country"`
 	CountryCode string  `json:"country_code"`
@@ -69,7 +69,7 @@ type GeoLocation struct {
 	ISP         string  `json:"isp,omitempty"`
 }
 
-// LoginAuditEntry 登录审计条目
+// LoginAuditEntry 登录审计条目.
 type LoginAuditEntry struct {
 	ID            string                 `json:"id"`
 	Timestamp     time.Time              `json:"timestamp"`
@@ -92,7 +92,7 @@ type LoginAuditEntry struct {
 	Metadata      map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// LoginPattern 登录模式分析
+// LoginPattern 登录模式分析.
 type LoginPattern struct {
 	UserID             string    `json:"user_id"`
 	Username           string    `json:"username"`
@@ -113,10 +113,10 @@ type LoginPattern struct {
 
 // ========== 操作审计类型 ==========
 
-// OperationCategory 操作类别
+// OperationCategory 操作类别.
 type OperationCategory string
 
-// 操作类别常量
+// 操作类别常量.
 const (
 	OperationCategoryFile      OperationCategory = "file"      // 文件操作
 	OperationCategoryUser      OperationCategory = "user"      // 用户管理
@@ -130,10 +130,10 @@ const (
 	OperationCategoryVM        OperationCategory = "vm"        // 虚拟机管理
 )
 
-// OperationAction 操作动作
+// OperationAction 操作动作.
 type OperationAction string
 
-// 操作动作常量
+// 操作动作常量.
 const (
 	ActionCreate   OperationAction = "create"
 	ActionRead     OperationAction = "read"
@@ -154,7 +154,7 @@ const (
 	ActionRestart  OperationAction = "restart"
 )
 
-// OperationAuditEntry 操作审计条目
+// OperationAuditEntry 操作审计条目.
 type OperationAuditEntry struct {
 	ID               string                 `json:"id"`
 	Timestamp        time.Time              `json:"timestamp"`
@@ -181,7 +181,7 @@ type OperationAuditEntry struct {
 	Details          map[string]interface{} `json:"details,omitempty"`
 }
 
-// OperationChain 操作链（用于追踪一系列相关操作）
+// OperationChain 操作链（用于追踪一系列相关操作）.
 type OperationChain struct {
 	CorrelationID string                 `json:"correlation_id"`
 	UserID        string                 `json:"user_id"`
@@ -195,10 +195,10 @@ type OperationChain struct {
 
 // ========== 敏感操作标记 ==========
 
-// SensitivityLevel 敏感级别
+// SensitivityLevel 敏感级别.
 type SensitivityLevel string
 
-// 敏感级别常量
+// 敏感级别常量.
 const (
 	SensitivityLow      SensitivityLevel = "low"
 	SensitivityMedium   SensitivityLevel = "medium"
@@ -206,7 +206,7 @@ const (
 	SensitivityCritical SensitivityLevel = "critical"
 )
 
-// SensitiveOperation 敏感操作定义
+// SensitiveOperation 敏感操作定义.
 type SensitiveOperation struct {
 	ID               string            `json:"id"`
 	Name             string            `json:"name"`
@@ -224,7 +224,7 @@ type SensitiveOperation struct {
 	Tags             []string          `json:"tags,omitempty"`
 }
 
-// SensitiveOperationEvent 敏感操作事件
+// SensitiveOperationEvent 敏感操作事件.
 type SensitiveOperationEvent struct {
 	ID            string                 `json:"id"`
 	Timestamp     time.Time              `json:"timestamp"`
@@ -245,7 +245,7 @@ type SensitiveOperationEvent struct {
 	RiskScore     int                    `json:"risk_score"`
 }
 
-// OperationApproval 操作审批请求
+// OperationApproval 操作审批请求.
 type OperationApproval struct {
 	ID            string                 `json:"id"`
 	OperationID   string                 `json:"operation_id"`
@@ -267,10 +267,10 @@ type OperationApproval struct {
 
 // ========== 审计报告类型 ==========
 
-// AuditReportType 报告类型
+// AuditReportType 报告类型.
 type AuditReportType string
 
-// 报告类型常量
+// 报告类型常量.
 const (
 	ReportTypeLogin        AuditReportType = "login"         // 登录报告
 	ReportTypeOperation    AuditReportType = "operation"     // 操作报告
@@ -282,7 +282,7 @@ const (
 	ReportTypeExecutive    AuditReportType = "executive"     // 执行摘要报告
 )
 
-// AuditReport 审计报告
+// AuditReport 审计报告.
 type AuditReport struct {
 	ReportID        string                 `json:"report_id"`
 	ReportType      AuditReportType        `json:"report_type"`
@@ -301,7 +301,7 @@ type AuditReport struct {
 	ChartData       map[string]interface{} `json:"chart_data,omitempty"`
 }
 
-// ReportSummary 报告摘要
+// ReportSummary 报告摘要.
 type ReportSummary struct {
 	TotalEvents      int                   `json:"total_events"`
 	UniqueUsers      int                   `json:"unique_users"`
@@ -317,7 +317,7 @@ type ReportSummary struct {
 	TopOperations    []OperationCount      `json:"top_operations"`
 }
 
-// LoginAnalysis 登录分析
+// LoginAnalysis 登录分析.
 type LoginAnalysis struct {
 	TotalLogins        int                `json:"total_logins"`
 	SuccessfulLogins   int                `json:"successful_logins"`
@@ -334,7 +334,7 @@ type LoginAnalysis struct {
 	MFAUsageRate       float64            `json:"mfa_usage_rate"` // 百分比
 }
 
-// OperationStatistics 操作统计
+// OperationStatistics 操作统计.
 type OperationStatistics struct {
 	TotalOperations   int                      `json:"total_operations"`
 	SuccessfulOps     int                      `json:"successful_ops"`
@@ -350,7 +350,7 @@ type OperationStatistics struct {
 	FailedOpsByReason map[string]int           `json:"failed_ops_by_reason"`
 }
 
-// SensitiveOpsSummary 敏感操作摘要
+// SensitiveOpsSummary 敏感操作摘要.
 type SensitiveOpsSummary struct {
 	TotalSensitiveOps int                    `json:"total_sensitive_ops"`
 	ApprovedOps       int                    `json:"approved_ops"`
@@ -363,7 +363,7 @@ type SensitiveOpsSummary struct {
 	AvgApprovalTime   int                    `json:"avg_approval_time"` // 分钟
 }
 
-// RiskAnalysis 风险分析
+// RiskAnalysis 风险分析.
 type RiskAnalysis struct {
 	OverallRiskScore  int                `json:"overall_risk_score"` // 0-100
 	RiskLevel         string             `json:"risk_level"`         // low, medium, high, critical
@@ -376,7 +376,7 @@ type RiskAnalysis struct {
 	MitigationActions []MitigationAction `json:"mitigation_actions"`
 }
 
-// UserActivitySummary 用户活动摘要
+// UserActivitySummary 用户活动摘要.
 type UserActivitySummary struct {
 	UserID         string `json:"user_id"`
 	Username       string `json:"username"`
@@ -386,57 +386,57 @@ type UserActivitySummary struct {
 	RiskScore      int    `json:"risk_score"`
 }
 
-// OperationCount 操作计数
+// OperationCount 操作计数.
 type OperationCount struct {
 	Operation string `json:"operation"`
 	Count     int    `json:"count"`
 }
 
-// LocationCount 地理位置计数
+// LocationCount 地理位置计数.
 type LocationCount struct {
 	Location string `json:"location"`
 	Count    int    `json:"count"`
 }
 
-// DeviceCount 设备计数
+// DeviceCount 设备计数.
 type DeviceCount struct {
 	Device string `json:"device"`
 	Count  int    `json:"count"`
 }
 
-// UserOperationCount 用户操作计数
+// UserOperationCount 用户操作计数.
 type UserOperationCount struct {
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
 	Count    int    `json:"count"`
 }
 
-// ResourceOperationCount 资源操作计数
+// ResourceOperationCount 资源操作计数.
 type ResourceOperationCount struct {
 	ResourceType string `json:"resource_type"`
 	Count        int    `json:"count"`
 }
 
-// ResourceCount 资源计数
+// ResourceCount 资源计数.
 type ResourceCount struct {
 	Resource string `json:"resource"`
 	Count    int    `json:"count"`
 }
 
-// SensitiveOpCount 敏感操作计数
+// SensitiveOpCount 敏感操作计数.
 type SensitiveOpCount struct {
 	OperationName string `json:"operation_name"`
 	Count         int    `json:"count"`
 }
 
-// UserSensitiveOpCount 用户敏感操作计数
+// UserSensitiveOpCount 用户敏感操作计数.
 type UserSensitiveOpCount struct {
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
 	Count    int    `json:"count"`
 }
 
-// UserRisk 用户风险
+// UserRisk 用户风险.
 type UserRisk struct {
 	UserID      string   `json:"user_id"`
 	Username    string   `json:"username"`
@@ -444,7 +444,7 @@ type UserRisk struct {
 	RiskFactors []string `json:"risk_factors"`
 }
 
-// IPRisk IP风险
+// IPRisk IP风险.
 type IPRisk struct {
 	IP          string   `json:"ip"`
 	RiskScore   int      `json:"risk_score"`
@@ -452,14 +452,14 @@ type IPRisk struct {
 	EventCount  int      `json:"event_count"`
 }
 
-// RiskTrend 风险趋势
+// RiskTrend 风险趋势.
 type RiskTrend struct {
 	Date       string `json:"date"`
 	RiskScore  int    `json:"risk_score"`
 	EventCount int    `json:"event_count"`
 }
 
-// ThreatIndicator 威胁指标
+// ThreatIndicator 威胁指标.
 type ThreatIndicator struct {
 	Type        string   `json:"type"` // brute_force, credential_stuffing, privilege_escalation, etc.
 	Description string   `json:"description"`
@@ -468,7 +468,7 @@ type ThreatIndicator struct {
 	Sources     []string `json:"sources"`
 }
 
-// MitigationAction 缓解措施
+// MitigationAction 缓解措施.
 type MitigationAction struct {
 	Priority    int    `json:"priority"`
 	Action      string `json:"action"`
@@ -478,7 +478,7 @@ type MitigationAction struct {
 
 // ========== 查询选项 ==========
 
-// LoginQueryOptions 登录审计查询选项
+// LoginQueryOptions 登录审计查询选项.
 type LoginQueryOptions struct {
 	Limit        int            `json:"limit"`
 	Offset       int            `json:"offset"`
@@ -493,7 +493,7 @@ type LoginQueryOptions struct {
 	MinRiskScore int            `json:"min_risk_score,omitempty"`
 }
 
-// OperationQueryOptions 操作审计查询选项
+// OperationQueryOptions 操作审计查询选项.
 type OperationQueryOptions struct {
 	Limit            int               `json:"limit"`
 	Offset           int               `json:"offset"`
@@ -513,7 +513,7 @@ type OperationQueryOptions struct {
 	MinRiskScore     int               `json:"min_risk_score,omitempty"`
 }
 
-// ReportGenerateOptions 报告生成选项
+// ReportGenerateOptions 报告生成选项.
 type ReportGenerateOptions struct {
 	ReportType     AuditReportType     `json:"report_type"`
 	PeriodStart    time.Time           `json:"period_start"`
@@ -527,24 +527,24 @@ type ReportGenerateOptions struct {
 
 // ========== API响应类型 ==========
 
-// APIResponse 通用API响应
+// APIResponse 通用API响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// SuccessResponse 成功响应
+// SuccessResponse 成功响应.
 func SuccessResponse(data interface{}) APIResponse {
 	return APIResponse{Code: 0, Message: "success", Data: data}
 }
 
-// ErrorResponse 错误响应
+// ErrorResponse 错误响应.
 func ErrorResponse(code int, message string) APIResponse {
 	return APIResponse{Code: code, Message: message}
 }
 
-// 错误码定义
+// 错误码定义.
 const (
 	ErrCodeInvalidParam  = 400
 	ErrCodeNotFound      = 404

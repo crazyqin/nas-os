@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-// CleanupManager 清理策略管理器
+// CleanupManager 清理策略管理器.
 type CleanupManager struct {
 	quotaMgr *Manager
 	tasks    map[string]*CleanupTask
 }
 
-// NewCleanupManager 创建清理管理器
+// NewCleanupManager 创建清理管理器.
 func NewCleanupManager(quotaMgr *Manager) *CleanupManager {
 	return &CleanupManager{
 		quotaMgr: quotaMgr,
@@ -27,7 +27,7 @@ func NewCleanupManager(quotaMgr *Manager) *CleanupManager {
 
 // ========== 清理策略管理 ==========
 
-// CreatePolicy 创建清理策略
+// CreatePolicy 创建清理策略.
 func (m *CleanupManager) CreatePolicy(input CleanupPolicyInput) (*CleanupPolicy, error) {
 	m.quotaMgr.mu.Lock()
 	defer m.quotaMgr.mu.Unlock()
@@ -72,7 +72,7 @@ func (m *CleanupManager) CreatePolicy(input CleanupPolicyInput) (*CleanupPolicy,
 	return policy, nil
 }
 
-// GetPolicy 获取清理策略
+// GetPolicy 获取清理策略.
 func (m *CleanupManager) GetPolicy(id string) (*CleanupPolicy, error) {
 	m.quotaMgr.mu.RLock()
 	defer m.quotaMgr.mu.RUnlock()
@@ -84,7 +84,7 @@ func (m *CleanupManager) GetPolicy(id string) (*CleanupPolicy, error) {
 	return policy, nil
 }
 
-// ListPolicies 列出所有清理策略
+// ListPolicies 列出所有清理策略.
 func (m *CleanupManager) ListPolicies() []*CleanupPolicy {
 	m.quotaMgr.mu.RLock()
 	defer m.quotaMgr.mu.RUnlock()
@@ -96,7 +96,7 @@ func (m *CleanupManager) ListPolicies() []*CleanupPolicy {
 	return result
 }
 
-// UpdatePolicy 更新清理策略
+// UpdatePolicy 更新清理策略.
 func (m *CleanupManager) UpdatePolicy(id string, input CleanupPolicyInput) (*CleanupPolicy, error) {
 	m.quotaMgr.mu.Lock()
 	defer m.quotaMgr.mu.Unlock()
@@ -130,7 +130,7 @@ func (m *CleanupManager) UpdatePolicy(id string, input CleanupPolicyInput) (*Cle
 	return policy, nil
 }
 
-// DeletePolicy 删除清理策略
+// DeletePolicy 删除清理策略.
 func (m *CleanupManager) DeletePolicy(id string) error {
 	m.quotaMgr.mu.Lock()
 	defer m.quotaMgr.mu.Unlock()
@@ -144,7 +144,7 @@ func (m *CleanupManager) DeletePolicy(id string) error {
 	return nil
 }
 
-// EnablePolicy 启用/禁用策略
+// EnablePolicy 启用/禁用策略.
 func (m *CleanupManager) EnablePolicy(id string, enabled bool) error {
 	m.quotaMgr.mu.Lock()
 	defer m.quotaMgr.mu.Unlock()
@@ -160,7 +160,7 @@ func (m *CleanupManager) EnablePolicy(id string, enabled bool) error {
 	return nil
 }
 
-// validatePolicyInput 验证策略输入
+// validatePolicyInput 验证策略输入.
 func (m *CleanupManager) validatePolicyInput(input *CleanupPolicyInput) error {
 	switch input.Type {
 	case CleanupPolicyAge:
@@ -198,7 +198,7 @@ func (m *CleanupManager) validatePolicyInput(input *CleanupPolicyInput) error {
 
 // ========== 清理执行 ==========
 
-// RunPolicy 执行清理策略
+// RunPolicy 执行清理策略.
 func (m *CleanupManager) RunPolicy(policyID string) (*CleanupTask, error) {
 	m.quotaMgr.mu.RLock()
 	policy, exists := m.quotaMgr.policies[policyID]
@@ -211,7 +211,7 @@ func (m *CleanupManager) RunPolicy(policyID string) (*CleanupTask, error) {
 	return m.executePolicy(policy)
 }
 
-// PreviewPolicy 预览清理策略（dry-run 模式，不实际执行）
+// PreviewPolicy 预览清理策略（dry-run 模式，不实际执行）.
 func (m *CleanupManager) PreviewPolicy(policyID string, maxFiles int) (*CleanupPreview, error) {
 	m.quotaMgr.mu.RLock()
 	policy, exists := m.quotaMgr.policies[policyID]
@@ -224,7 +224,7 @@ func (m *CleanupManager) PreviewPolicy(policyID string, maxFiles int) (*CleanupP
 	return m.previewPolicy(policy, maxFiles)
 }
 
-// previewPolicy 执行清理预览
+// previewPolicy 执行清理预览.
 func (m *CleanupManager) previewPolicy(policy *CleanupPolicy, maxFiles int) (*CleanupPreview, error) {
 	preview := &CleanupPreview{
 		PolicyID:   policy.ID,
@@ -275,7 +275,7 @@ func (m *CleanupManager) previewPolicy(policy *CleanupPolicy, maxFiles int) (*Cl
 	return preview, nil
 }
 
-// findFilesWithInfo 查找符合条件的文件（带详细信息）
+// findFilesWithInfo 查找符合条件的文件（带详细信息）.
 func (m *CleanupManager) findFilesWithInfo(rootPath string, policy *CleanupPolicy) ([]CleanupFile, error) {
 	var files []CleanupFile
 	now := time.Now()
@@ -376,7 +376,7 @@ func (m *CleanupManager) findFilesWithInfo(rootPath string, policy *CleanupPolic
 	return files, err
 }
 
-// formatBytes 格式化字节数
+// formatBytes 格式化字节数.
 func formatBytes(bytes uint64) string {
 	const unit = 1024
 	if bytes < unit {
@@ -390,7 +390,7 @@ func formatBytes(bytes uint64) string {
 	return fmt.Sprintf("%.1f %ciB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
-// executePolicy 执行清理策略
+// executePolicy 执行清理策略.
 func (m *CleanupManager) executePolicy(policy *CleanupPolicy) (*CleanupTask, error) {
 	// 创建任务记录
 	task := &CleanupTask{
@@ -454,7 +454,7 @@ func (m *CleanupManager) executePolicy(policy *CleanupPolicy) (*CleanupTask, err
 	return task, nil
 }
 
-// findFiles 查找符合条件的文件
+// findFiles 查找符合条件的文件.
 func (m *CleanupManager) findFiles(rootPath string, policy *CleanupPolicy) ([]string, error) {
 	var files []string
 	now := time.Now()
@@ -530,7 +530,7 @@ func (m *CleanupManager) findFiles(rootPath string, policy *CleanupPolicy) ([]st
 	return files, err
 }
 
-// processFile 处理单个文件
+// processFile 处理单个文件.
 func (m *CleanupManager) processFile(filePath string, policy *CleanupPolicy) error {
 	switch policy.Action {
 	case CleanupActionDelete:
@@ -558,7 +558,7 @@ func (m *CleanupManager) processFile(filePath string, policy *CleanupPolicy) err
 	return fmt.Errorf("未知清理动作: %s", policy.Action)
 }
 
-// RunAutoCleanup 运行自动清理（检查配额并执行清理）
+// RunAutoCleanup 运行自动清理（检查配额并执行清理）.
 func (m *CleanupManager) RunAutoCleanup() ([]*CleanupTask, error) {
 	var tasks []*CleanupTask
 
@@ -600,7 +600,7 @@ func (m *CleanupManager) RunAutoCleanup() ([]*CleanupTask, error) {
 	return tasks, nil
 }
 
-// GetTask 获取清理任务
+// GetTask 获取清理任务.
 func (m *CleanupManager) GetTask(taskID string) (*CleanupTask, error) {
 	task, exists := m.tasks[taskID]
 	if !exists {
@@ -609,7 +609,7 @@ func (m *CleanupManager) GetTask(taskID string) (*CleanupTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出清理任务
+// ListTasks 列出清理任务.
 func (m *CleanupManager) ListTasks(limit int) []*CleanupTask {
 	tasks := make([]*CleanupTask, 0, len(m.tasks))
 	for _, t := range m.tasks {
@@ -628,7 +628,7 @@ func (m *CleanupManager) ListTasks(limit int) []*CleanupTask {
 	return tasks
 }
 
-// CleanupOldTasks 清理旧任务记录
+// CleanupOldTasks 清理旧任务记录.
 func (m *CleanupManager) CleanupOldTasks(maxAge time.Duration) int {
 	cutoff := time.Now().Add(-maxAge)
 	count := 0
@@ -643,7 +643,7 @@ func (m *CleanupManager) CleanupOldTasks(maxAge time.Duration) int {
 	return count
 }
 
-// GetCleanupStats 获取清理统计
+// GetCleanupStats 获取清理统计.
 func (m *CleanupManager) GetCleanupStats() map[string]interface{} {
 	m.quotaMgr.mu.RLock()
 	policyCount := len(m.quotaMgr.policies)

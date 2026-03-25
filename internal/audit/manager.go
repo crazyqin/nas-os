@@ -18,14 +18,14 @@ import (
 	"github.com/google/uuid"
 )
 
-// escapeXML 安全转义 XML 特殊字符，防止 XML 注入
+// escapeXML 安全转义 XML 特殊字符，防止 XML 注入.
 func escapeXML(s string) string {
 	var buf strings.Builder
 	xml.Escape(&buf, []byte(s))
 	return buf.String()
 }
 
-// Manager 审计日志管理器
+// Manager 审计日志管理器.
 type Manager struct {
 	config     Config
 	entries    []*Entry
@@ -34,7 +34,7 @@ type Manager struct {
 	stopCh     chan struct{}
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() Config {
 	return Config{
 		Enabled:           true,
@@ -55,7 +55,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// NewManager 创建审计日志管理器
+// NewManager 创建审计日志管理器.
 func NewManager(config Config) *Manager {
 	m := &Manager{
 		config:     config,
@@ -78,19 +78,19 @@ func NewManager(config Config) *Manager {
 	return m
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	close(m.stopCh)
 }
 
-// SetConfig 设置配置
+// SetConfig 设置配置.
 func (m *Manager) SetConfig(config Config) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -99,7 +99,7 @@ func (m *Manager) GetConfig() Config {
 
 // ========== 日志记录 ==========
 
-// Log 记录审计日志
+// Log 记录审计日志.
 func (m *Manager) Log(entry *Entry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -136,7 +136,7 @@ func (m *Manager) Log(entry *Entry) error {
 	return nil
 }
 
-// LogWithDetails 记录带详细信息的审计日志
+// LogWithDetails 记录带详细信息的审计日志.
 func (m *Manager) LogWithDetails(level Level, category Category, event, userID, username, ip, resource, action string, status Status, message string, details map[string]interface{}) error {
 	entry := &Entry{
 		Level:    level,
@@ -156,7 +156,7 @@ func (m *Manager) LogWithDetails(level Level, category Category, event, userID, 
 
 // ========== 便捷日志方法 ==========
 
-// LogAuth 记录认证事件
+// LogAuth 记录认证事件.
 func (m *Manager) LogAuth(event, userID, username, ip, userAgent string, status Status, message string, details map[string]interface{}) error {
 	entry := &Entry{
 		Level:     LevelInfo,
@@ -179,7 +179,7 @@ func (m *Manager) LogAuth(event, userID, username, ip, userAgent string, status 
 	return m.Log(entry)
 }
 
-// LogAccess 记录访问控制事件
+// LogAccess 记录访问控制事件.
 func (m *Manager) LogAccess(userID, username, ip, resource, action string, status Status, details map[string]interface{}) error {
 	entry := &Entry{
 		Level:    LevelInfo,
@@ -201,7 +201,7 @@ func (m *Manager) LogAccess(userID, username, ip, resource, action string, statu
 	return m.Log(entry)
 }
 
-// LogSecurity 记录安全事件
+// LogSecurity 记录安全事件.
 func (m *Manager) LogSecurity(event, userID, username, ip string, level Level, message string, details map[string]interface{}) error {
 	entry := &Entry{
 		Level:    level,
@@ -217,7 +217,7 @@ func (m *Manager) LogSecurity(event, userID, username, ip string, level Level, m
 	return m.Log(entry)
 }
 
-// LogDataOperation 记录数据操作
+// LogDataOperation 记录数据操作.
 func (m *Manager) LogDataOperation(userID, username, ip, resource, action string, status Status, details map[string]interface{}) error {
 	entry := &Entry{
 		Level:    LevelInfo,
@@ -234,7 +234,7 @@ func (m *Manager) LogDataOperation(userID, username, ip, resource, action string
 	return m.Log(entry)
 }
 
-// LogConfigChange 记录配置变更
+// LogConfigChange 记录配置变更.
 func (m *Manager) LogConfigChange(userID, username, ip, resource, action string, oldVal, newVal interface{}) error {
 	entry := &Entry{
 		Level:    LevelWarning, // 配置变更默认为警告级别
@@ -254,7 +254,7 @@ func (m *Manager) LogConfigChange(userID, username, ip, resource, action string,
 	return m.Log(entry)
 }
 
-// LogUserOperation 记录用户操作
+// LogUserOperation 记录用户操作.
 func (m *Manager) LogUserOperation(operatorID, operatorName, ip, targetUser, action string, status Status, details map[string]interface{}) error {
 	entry := &Entry{
 		Level:    LevelInfo,
@@ -273,7 +273,7 @@ func (m *Manager) LogUserOperation(operatorID, operatorName, ip, targetUser, act
 
 // ========== 查询功能 ==========
 
-// Query 查询审计日志
+// Query 查询审计日志.
 func (m *Manager) Query(opts QueryOptions) (*QueryResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -322,7 +322,7 @@ func (m *Manager) Query(opts QueryOptions) (*QueryResult, error) {
 	}, nil
 }
 
-// GetByID 根据ID获取日志
+// GetByID 根据ID获取日志.
 func (m *Manager) GetByID(id string) (*Entry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -336,7 +336,7 @@ func (m *Manager) GetByID(id string) (*Entry, error) {
 	return nil, errors.New(ErrEntryNotFound)
 }
 
-// matchesFilters 检查日志是否匹配筛选条件
+// matchesFilters 检查日志是否匹配筛选条件.
 func (m *Manager) matchesFilters(entry *Entry, opts QueryOptions) bool {
 	// 时间范围
 	if opts.StartTime != nil && entry.Timestamp.Before(*opts.StartTime) {
@@ -402,7 +402,7 @@ func (m *Manager) matchesFilters(entry *Entry, opts QueryOptions) bool {
 
 // ========== 统计功能 ==========
 
-// GetStatistics 获取审计统计
+// GetStatistics 获取审计统计.
 func (m *Manager) GetStatistics() *Statistics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -499,7 +499,7 @@ func (m *Manager) GetStatistics() *Statistics {
 
 // ========== 完整性验证 ==========
 
-// generateSignature 生成签名
+// generateSignature 生成签名.
 func (m *Manager) generateSignature(entry *Entry) string {
 	// 创建待签名数据（不包含签名本身）
 	signData := fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s",
@@ -517,7 +517,7 @@ func (m *Manager) generateSignature(entry *Entry) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// VerifyIntegrity 验证日志完整性
+// VerifyIntegrity 验证日志完整性.
 func (m *Manager) VerifyIntegrity() *IntegrityReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -563,7 +563,7 @@ func (m *Manager) VerifyIntegrity() *IntegrityReport {
 
 // ========== 日志清理 ==========
 
-// Cleanup 清理过期日志
+// Cleanup 清理过期日志.
 func (m *Manager) Cleanup() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -591,7 +591,7 @@ func (m *Manager) Cleanup() int {
 	return cleaned
 }
 
-// cleanupDiskLogs 清理磁盘上的过期日志文件
+// cleanupDiskLogs 清理磁盘上的过期日志文件.
 func (m *Manager) cleanupDiskLogs(cutoff time.Time) {
 	entries, err := os.ReadDir(m.config.LogPath)
 	if err != nil {
@@ -617,7 +617,7 @@ func (m *Manager) cleanupDiskLogs(cutoff time.Time) {
 
 // ========== 持久化 ==========
 
-// autoSaveLoop 自动保存循环
+// autoSaveLoop 自动保存循环.
 func (m *Manager) autoSaveLoop() {
 	ticker := time.NewTicker(m.config.SaveInterval)
 	defer ticker.Stop()
@@ -633,7 +633,7 @@ func (m *Manager) autoSaveLoop() {
 	}
 }
 
-// save 保存日志到磁盘
+// save 保存日志到磁盘.
 func (m *Manager) save() {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -662,7 +662,7 @@ func (m *Manager) save() {
 	_ = os.WriteFile(filename, data, 0600)
 }
 
-// Load 加载日志
+// Load 加载日志.
 func (m *Manager) Load(date string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -684,7 +684,7 @@ func (m *Manager) Load(date string) error {
 
 // ========== 导出功能 ==========
 
-// Export 导出日志
+// Export 导出日志.
 func (m *Manager) Export(opts ExportOptions) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -734,7 +734,7 @@ func (m *Manager) Export(opts ExportOptions) ([]byte, error) {
 	}
 }
 
-// exportToCSV 导出为CSV
+// exportToCSV 导出为CSV.
 func (m *Manager) exportToCSV(entries []*Entry) ([]byte, error) {
 	var csv strings.Builder
 	csv.WriteString("ID,Timestamp,Level,Category,Event,UserID,Username,IP,Resource,Action,Status,Message\n")
@@ -759,7 +759,7 @@ func (m *Manager) exportToCSV(entries []*Entry) ([]byte, error) {
 	return []byte(csv.String()), nil
 }
 
-// exportToXML 导出为XML
+// exportToXML 导出为XML.
 func (m *Manager) exportToXML(entries []*Entry) ([]byte, error) {
 	var xmlBuf strings.Builder
 	xmlBuf.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)

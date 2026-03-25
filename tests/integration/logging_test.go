@@ -16,7 +16,7 @@ import (
 	"nas-os/internal/logging"
 )
 
-// TestLogging_Integration 日志系统集成测试
+// TestLogging_Integration 日志系统集成测试.
 func TestLogging_Integration(t *testing.T) {
 	t.Run("LoggerCreation", func(t *testing.T) {
 		// 默认配置创建
@@ -100,7 +100,7 @@ func TestLogging_Integration(t *testing.T) {
 	})
 }
 
-// TestLogging_WithFields 测试带字段的日志
+// TestLogging_WithFields 测试带字段的日志.
 func TestLogging_WithFields(t *testing.T) {
 	var buf bytes.Buffer
 	logger := logging.NewLogger(&logging.LogConfig{
@@ -135,7 +135,7 @@ func TestLogging_WithFields(t *testing.T) {
 	}
 }
 
-// TestLogging_LevelMethods 测试各日志级别方法
+// TestLogging_LevelMethods 测试各日志级别方法.
 func TestLogging_LevelMethods(t *testing.T) {
 	var buf bytes.Buffer
 	logger := logging.NewLogger(&logging.LogConfig{
@@ -169,7 +169,7 @@ func TestLogging_LevelMethods(t *testing.T) {
 	}
 }
 
-// TestLogging_FormattedMethods 测试格式化方法
+// TestLogging_FormattedMethods 测试格式化方法.
 func TestLogging_FormattedMethods(t *testing.T) {
 	var buf bytes.Buffer
 	logger := logging.NewLogger(&logging.LogConfig{
@@ -197,7 +197,7 @@ func TestLogging_FormattedMethods(t *testing.T) {
 	}
 }
 
-// TestLogging_LogManager 测试日志管理器
+// TestLogging_LogManager 测试日志管理器.
 func TestLogging_LogManager(t *testing.T) {
 	manager := logging.NewLogManager()
 
@@ -218,7 +218,7 @@ func TestLogging_LogManager(t *testing.T) {
 	}
 }
 
-// TestLogging_Rotator 测试日志轮转
+// TestLogging_Rotator 测试日志轮转.
 func TestLogging_Rotator(t *testing.T) {
 	tmpDir := t.TempDir()
 	logPath := filepath.Join(tmpDir, "test.log")
@@ -250,7 +250,7 @@ func TestLogging_Rotator(t *testing.T) {
 	}
 }
 
-// TestLogging_Context 测试上下文日志
+// TestLogging_Context 测试上下文日志.
 func TestLogging_Context(t *testing.T) {
 	logger := logging.NewLogger(nil)
 
@@ -271,7 +271,7 @@ func TestLogging_Context(t *testing.T) {
 
 // TestLogging_ConcurrentWrites 测试并发写入
 // 注意：由于 bytes.Buffer 不是线程安全的，此测试验证日志格式正确性
-// 而不是严格的并发安全性
+// 而不是严格的并发安全性.
 func TestLogging_ConcurrentWrites(t *testing.T) {
 	var buf bytes.Buffer
 	var mu sync.Mutex
@@ -306,7 +306,7 @@ func TestLogging_ConcurrentWrites(t *testing.T) {
 	}
 }
 
-// TestLogging_Timestamp 测试时间戳
+// TestLogging_Timestamp 测试时间戳.
 func TestLogging_Timestamp(t *testing.T) {
 	var buf bytes.Buffer
 	logger := logging.NewLogger(&logging.LogConfig{
@@ -329,7 +329,7 @@ func TestLogging_Timestamp(t *testing.T) {
 	}
 }
 
-// TestLogging_SetLevel 测试动态设置日志级别
+// TestLogging_SetLevel 测试动态设置日志级别.
 func TestLogging_SetLevel(t *testing.T) {
 	var buf bytes.Buffer
 	logger := logging.NewLogger(&logging.LogConfig{
@@ -353,7 +353,7 @@ func TestLogging_SetLevel(t *testing.T) {
 
 // ========== 性能测试 ==========
 
-// BenchmarkLogging_Info 性能测试：Info 级别日志
+// BenchmarkLogging_Info 性能测试：Info 级别日志.
 func BenchmarkLogging_Info(b *testing.B) {
 	var buf bytes.Buffer
 	logger := logging.NewLogger(&logging.LogConfig{
@@ -368,7 +368,7 @@ func BenchmarkLogging_Info(b *testing.B) {
 	}
 }
 
-// BenchmarkLogging_WithFields 性能测试：带字段日志
+// BenchmarkLogging_WithFields 性能测试：带字段日志.
 func BenchmarkLogging_WithFields(b *testing.B) {
 	var buf bytes.Buffer
 	logger := logging.NewLogger(&logging.LogConfig{
@@ -387,7 +387,7 @@ func BenchmarkLogging_WithFields(b *testing.B) {
 	}
 }
 
-// BenchmarkLogging_JSONFormat 性能测试：JSON 格式化
+// BenchmarkLogging_JSONFormat 性能测试：JSON 格式化.
 func BenchmarkLogging_JSONFormat(b *testing.B) {
 	var buf bytes.Buffer
 	logger := logging.NewLogger(&logging.LogConfig{
@@ -402,7 +402,7 @@ func BenchmarkLogging_JSONFormat(b *testing.B) {
 	}
 }
 
-// BenchmarkLogging_Concurrent 性能测试：并发日志
+// BenchmarkLogging_Concurrent 性能测试：并发日志.
 func BenchmarkLogging_Concurrent(b *testing.B) {
 	var buf bytes.Buffer
 	logger := logging.NewLogger(&logging.LogConfig{

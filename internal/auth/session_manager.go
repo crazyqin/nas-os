@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// Session 会话信息
+// Session 会话信息.
 type Session struct {
 	ID           string    `json:"id"`
 	UserID       string    `json:"user_id"`
@@ -31,7 +31,7 @@ type Session struct {
 	Groups       []string  `json:"groups,omitempty"`
 }
 
-// SessionConfig 会话配置
+// SessionConfig 会话配置.
 type SessionConfig struct {
 	TokenExpiry        time.Duration `json:"token_expiry"`          // 令牌有效期
 	RefreshTokenExpiry time.Duration `json:"refresh_token_expiry"`  // 刷新令牌有效期
@@ -41,7 +41,7 @@ type SessionConfig struct {
 	CleanupInterval    time.Duration `json:"cleanup_interval"`      // 清理间隔
 }
 
-// DefaultSessionConfig 默认会话配置
+// DefaultSessionConfig 默认会话配置.
 var DefaultSessionConfig = SessionConfig{
 	TokenExpiry:        24 * time.Hour,
 	RefreshTokenExpiry: 7 * 24 * time.Hour,
@@ -50,7 +50,7 @@ var DefaultSessionConfig = SessionConfig{
 	CleanupInterval:    1 * time.Hour,
 }
 
-// SessionManager 会话管理器
+// SessionManager 会话管理器.
 type SessionManager struct {
 	mu          sync.RWMutex
 	sessions    map[string]*Session // token -> session
@@ -62,7 +62,7 @@ type SessionManager struct {
 	cancel context.CancelFunc
 }
 
-// NewSessionManager 创建会话管理器
+// NewSessionManager 创建会话管理器.
 func NewSessionManager(config SessionConfig) *SessionManager {
 	if config.TokenExpiry == 0 {
 		config.TokenExpiry = DefaultSessionConfig.TokenExpiry
@@ -98,7 +98,7 @@ func NewSessionManager(config SessionConfig) *SessionManager {
 	return m
 }
 
-// CreateSession 创建新会话
+// CreateSession 创建新会话.
 func (m *SessionManager) CreateSession(userID, username, ip, userAgent string, roles, groups []string) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -156,7 +156,7 @@ func (m *SessionManager) CreateSession(userID, username, ip, userAgent string, r
 	return session, nil
 }
 
-// ValidateSession 验证会话
+// ValidateSession 验证会话.
 func (m *SessionManager) ValidateSession(token string) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -178,7 +178,7 @@ func (m *SessionManager) ValidateSession(token string) (*Session, error) {
 	return session, nil
 }
 
-// RefreshSession 刷新会话
+// RefreshSession 刷新会话.
 func (m *SessionManager) RefreshSession(refreshToken string) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -235,7 +235,7 @@ func (m *SessionManager) RefreshSession(refreshToken string) (*Session, error) {
 	return session, nil
 }
 
-// InvalidateSession 使会话失效
+// InvalidateSession 使会话失效.
 func (m *SessionManager) InvalidateSession(token string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -254,7 +254,7 @@ func (m *SessionManager) InvalidateSession(token string) error {
 	return nil
 }
 
-// InvalidateUserSessions 使用户所有会话失效
+// InvalidateUserSessions 使用户所有会话失效.
 func (m *SessionManager) InvalidateUserSessions(userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -272,7 +272,7 @@ func (m *SessionManager) InvalidateUserSessions(userID string) error {
 	return nil
 }
 
-// GetUserSessions 获取用户的所有会话
+// GetUserSessions 获取用户的所有会话.
 func (m *SessionManager) GetUserSessions(userID string) []*Session {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -300,7 +300,7 @@ func (m *SessionManager) GetUserSessions(userID string) []*Session {
 	return sessions
 }
 
-// SetMFAVerified 设置 MFA 验证状态
+// SetMFAVerified 设置 MFA 验证状态.
 func (m *SessionManager) SetMFAVerified(token string, verified bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -318,7 +318,7 @@ func (m *SessionManager) SetMFAVerified(token string, verified bool) error {
 	return nil
 }
 
-// UpdateSessionDevice 更新会话设备信息
+// UpdateSessionDevice 更新会话设备信息.
 func (m *SessionManager) UpdateSessionDevice(token, deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -336,7 +336,7 @@ func (m *SessionManager) UpdateSessionDevice(token, deviceID string) error {
 	return nil
 }
 
-// removeSession 移除会话（内部方法，需要持有锁）
+// removeSession 移除会话（内部方法，需要持有锁）.
 func (m *SessionManager) removeSession(session *Session) {
 	delete(m.sessions, session.Token)
 
@@ -355,7 +355,7 @@ func (m *SessionManager) removeSession(session *Session) {
 	}
 }
 
-// cleanupLoop 定期清理过期会话
+// cleanupLoop 定期清理过期会话.
 func (m *SessionManager) cleanupLoop() {
 	interval := m.config.CleanupInterval
 	if interval == 0 {
@@ -375,14 +375,14 @@ func (m *SessionManager) cleanupLoop() {
 	}
 }
 
-// Stop stops the session manager and cleanup goroutine
+// Stop stops the session manager and cleanup goroutine.
 func (m *SessionManager) Stop() {
 	if m.cancel != nil {
 		m.cancel()
 	}
 }
 
-// Cleanup 清理过期会话
+// Cleanup 清理过期会话.
 func (m *SessionManager) Cleanup() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -406,7 +406,7 @@ func (m *SessionManager) Cleanup() int {
 	return count
 }
 
-// load 加载会话
+// load 加载会话.
 func (m *SessionManager) load() error {
 	if m.config.SessionFilePath == "" {
 		return nil
@@ -439,7 +439,7 @@ func (m *SessionManager) load() error {
 	return nil
 }
 
-// save 保存会话
+// save 保存会话.
 func (m *SessionManager) save() error {
 	if m.config.SessionFilePath == "" {
 		return nil
@@ -462,7 +462,7 @@ func (m *SessionManager) save() error {
 	return os.WriteFile(m.config.SessionFilePath, data, 0600)
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *SessionManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -494,7 +494,7 @@ func generateSecureID() string {
 	return hex.EncodeToString(b)
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrSessionNotFound     = errors.New("会话不存在")
 	ErrSessionExpired      = errors.New("会话已过期")
@@ -502,12 +502,12 @@ var (
 	ErrRefreshTokenExpired = errors.New("刷新令牌已过期")
 )
 
-// SessionMiddleware 会话中间件（用于 Gin）
+// SessionMiddleware 会话中间件（用于 Gin）.
 type SessionMiddleware struct {
 	sessionManager *SessionManager
 }
 
-// NewSessionMiddleware 创建会话中间件
+// NewSessionMiddleware 创建会话中间件.
 func NewSessionMiddleware(sm *SessionManager) *SessionMiddleware {
 	return &SessionMiddleware{
 		sessionManager: sm,

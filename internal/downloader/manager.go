@@ -18,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 安全 HTTP 客户端，设置合理的超时时间
+// 安全 HTTP 客户端，设置合理的超时时间.
 var safeHTTPClient = &http.Client{
 	Timeout: 30 * time.Minute, // 下载可能需要较长时间
 	Transport: &http.Transport{
@@ -29,7 +29,7 @@ var safeHTTPClient = &http.Client{
 	},
 }
 
-// Manager 下载管理器
+// Manager 下载管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	tasks      map[string]*DownloadTask
@@ -56,7 +56,7 @@ type Manager struct {
 	logger *zap.Logger
 }
 
-// NewManager 创建下载管理器
+// NewManager 创建下载管理器.
 func NewManager(dataDir string, logger *zap.Logger) (*Manager, error) {
 	if err := os.MkdirAll(dataDir, 0750); err != nil {
 		return nil, err
@@ -84,34 +84,34 @@ func NewManager(dataDir string, logger *zap.Logger) (*Manager, error) {
 	return m, nil
 }
 
-// SetTransmissionURL 设置 Transmission 地址
+// SetTransmissionURL 设置 Transmission 地址.
 func (m *Manager) SetTransmissionURL(url string) {
 	m.transmissionURL = url
 }
 
-// SetTransmissionAuth 设置 Transmission 认证信息
+// SetTransmissionAuth 设置 Transmission 认证信息.
 func (m *Manager) SetTransmissionAuth(username, password string) {
 	m.transmissionUsername = username
 	m.transmissionPassword = password
 }
 
-// SetQbittorrentURL 设置 qBittorrent 地址
+// SetQbittorrentURL 设置 qBittorrent 地址.
 func (m *Manager) SetQbittorrentURL(url string) {
 	m.qbittorrentURL = url
 }
 
-// SetQbittorrentAuth 设置 qBittorrent 认证信息
+// SetQbittorrentAuth 设置 qBittorrent 认证信息.
 func (m *Manager) SetQbittorrentAuth(username, password string) {
 	m.qbittorrentUsername = username
 	m.qbittorrentPassword = password
 }
 
-// SetOnTaskUpdate 设置任务更新回调
+// SetOnTaskUpdate 设置任务更新回调.
 func (m *Manager) SetOnTaskUpdate(callback func(*DownloadTask)) {
 	m.onTaskUpdate = callback
 }
 
-// CreateTask 创建下载任务
+// CreateTask 创建下载任务.
 func (m *Manager) CreateTask(req CreateTaskRequest) (*DownloadTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -165,7 +165,7 @@ func (m *Manager) CreateTask(req CreateTaskRequest) (*DownloadTask, error) {
 	return task, nil
 }
 
-// detectType 检测下载类型
+// detectType 检测下载类型.
 func (m *Manager) detectType(url string) DownloadType {
 	if strings.HasPrefix(url, "magnet:?") {
 		return TypeMagnet
@@ -182,7 +182,7 @@ func (m *Manager) detectType(url string) DownloadType {
 	return TypeHTTP // 默认
 }
 
-// extractNameFromURL 从 URL 提取文件名
+// extractNameFromURL 从 URL 提取文件名.
 func (m *Manager) extractNameFromURL(url string) string {
 	if strings.HasPrefix(url, "magnet:?") {
 		// 从磁力链接提取 name 参数
@@ -204,7 +204,7 @@ func (m *Manager) extractNameFromURL(url string) string {
 	return "Unknown File"
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *Manager) GetTask(id string) (*DownloadTask, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -219,7 +219,7 @@ func (m *Manager) GetTask(id string) (*DownloadTask, bool) {
 	return &taskCopy, true
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (m *Manager) ListTasks(status DownloadStatus) []*DownloadTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -240,7 +240,7 @@ func (m *Manager) ListTasks(status DownloadStatus) []*DownloadTask {
 	return tasks
 }
 
-// UpdateTask 更新任务
+// UpdateTask 更新任务.
 func (m *Manager) UpdateTask(id string, req UpdateTaskRequest) (*DownloadTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -279,7 +279,7 @@ func (m *Manager) UpdateTask(id string, req UpdateTaskRequest) (*DownloadTask, e
 	return &taskCopy, nil
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -337,7 +337,7 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 	return nil
 }
 
-// StartTask 启动下载任务
+// StartTask 启动下载任务.
 func (m *Manager) StartTask(id string) error {
 	m.mu.Lock()
 	task, exists := m.tasks[id]
@@ -370,7 +370,7 @@ func (m *Manager) StartTask(id string) error {
 	return m.saveTasks()
 }
 
-// downloadBittorrent 启动 BT 下载
+// downloadBittorrent 启动 BT 下载.
 func (m *Manager) downloadBittorrent(ctx context.Context, task *DownloadTask) {
 	// 如果配置了 Transmission
 	if m.transmissionURL != "" {
@@ -405,7 +405,7 @@ func (m *Manager) downloadBittorrent(ctx context.Context, task *DownloadTask) {
 	}
 }
 
-// addToTransmission 添加任务到 Transmission
+// addToTransmission 添加任务到 Transmission.
 func (m *Manager) addToTransmission(task *DownloadTask) error {
 	// 初始化客户端
 	if m.transmissionClient == nil {
@@ -436,7 +436,7 @@ func (m *Manager) addToTransmission(task *DownloadTask) error {
 	return nil
 }
 
-// addToQbittorrent 添加任务到 qBittorrent
+// addToQbittorrent 添加任务到 qBittorrent.
 func (m *Manager) addToQbittorrent(task *DownloadTask) error {
 	// 初始化客户端
 	if m.qbittorrentClient == nil {
@@ -464,7 +464,7 @@ func (m *Manager) addToQbittorrent(task *DownloadTask) error {
 	return nil
 }
 
-// downloadWithAria2c 使用 aria2c 下载 BT
+// downloadWithAria2c 使用 aria2c 下载 BT.
 func (m *Manager) downloadWithAria2c(ctx context.Context, task *DownloadTask) error {
 	args := []string{
 		"--dir=" + task.DestPath,
@@ -493,19 +493,19 @@ func (m *Manager) downloadWithAria2c(ctx context.Context, task *DownloadTask) er
 	return nil
 }
 
-// PauseTask 暂停任务
+// PauseTask 暂停任务.
 func (m *Manager) PauseTask(id string) error {
 	_, err := m.UpdateTask(id, UpdateTaskRequest{Status: StatusPaused})
 	return err
 }
 
-// ResumeTask 恢复任务
+// ResumeTask 恢复任务.
 func (m *Manager) ResumeTask(id string) error {
 	_, err := m.UpdateTask(id, UpdateTaskRequest{Status: StatusDownloading})
 	return err
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() TaskStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -533,7 +533,7 @@ func (m *Manager) GetStats() TaskStats {
 	return stats
 }
 
-// backgroundRunner 后台运行器
+// backgroundRunner 后台运行器.
 func (m *Manager) backgroundRunner() {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -548,7 +548,7 @@ func (m *Manager) backgroundRunner() {
 	}
 }
 
-// updateTasks 更新任务状态
+// updateTasks 更新任务状态.
 func (m *Manager) updateTasks() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -572,7 +572,7 @@ func (m *Manager) updateTasks() {
 	_ = m.saveTasks()
 }
 
-// updateBittorrentTask 从 BT 客户端获取任务状态
+// updateBittorrentTask 从 BT 客户端获取任务状态.
 func (m *Manager) updateBittorrentTask(task *DownloadTask, now time.Time) {
 	if m.transmissionURL != "" {
 		stats, err := m.getTransmissionStats(task.ID)
@@ -611,7 +611,7 @@ func (m *Manager) updateBittorrentTask(task *DownloadTask, now time.Time) {
 	}
 }
 
-// downloadHTTP 执行 HTTP/FTP 下载
+// downloadHTTP 执行 HTTP/FTP 下载.
 func (m *Manager) downloadHTTP(ctx context.Context, task *DownloadTask) {
 	m.mu.Lock()
 	task.Status = StatusDownloading
@@ -750,7 +750,7 @@ func (m *Manager) downloadHTTP(ctx context.Context, task *DownloadTask) {
 	}
 }
 
-// TransmissionStats Transmission 统计信息
+// TransmissionStats Transmission 统计信息.
 type TransmissionStats struct {
 	Progress   float64
 	Speed      int64
@@ -760,7 +760,7 @@ type TransmissionStats struct {
 	Seeds      int
 }
 
-// getTransmissionStats 从 Transmission 获取统计信息
+// getTransmissionStats 从 Transmission 获取统计信息.
 func (m *Manager) getTransmissionStats(taskID string) (*TransmissionStats, error) {
 	if m.transmissionClient == nil {
 		return nil, fmt.Errorf("transmission 客户端未初始化")
@@ -815,7 +815,7 @@ func (m *Manager) getTransmissionStats(taskID string) (*TransmissionStats, error
 	return nil, fmt.Errorf("未找到对应的种子: %s", task.DownloadID)
 }
 
-// QbittorrentStats qBittorrent 统计信息
+// QbittorrentStats qBittorrent 统计信息.
 type QbittorrentStats struct {
 	Progress   float64
 	Speed      int64
@@ -825,7 +825,7 @@ type QbittorrentStats struct {
 	Seeds      int
 }
 
-// getQbittorrentStats 从 qBittorrent 获取统计信息
+// getQbittorrentStats 从 qBittorrent 获取统计信息.
 func (m *Manager) getQbittorrentStats(taskID string) (*QbittorrentStats, error) {
 	if m.qbittorrentClient == nil {
 		return nil, fmt.Errorf("qBittorrent 客户端未初始化")
@@ -878,7 +878,7 @@ func (m *Manager) getQbittorrentStats(taskID string) (*QbittorrentStats, error) 
 	}, nil
 }
 
-// loadTasks 加载任务
+// loadTasks 加载任务.
 func (m *Manager) loadTasks() error {
 	data, err := os.ReadFile(m.configFile)
 	if err != nil {
@@ -900,7 +900,7 @@ func (m *Manager) loadTasks() error {
 	return nil
 }
 
-// saveTasks 保存任务
+// saveTasks 保存任务.
 func (m *Manager) saveTasks() error {
 	var tasks []*DownloadTask
 	for _, task := range m.tasks {
@@ -915,7 +915,7 @@ func (m *Manager) saveTasks() error {
 	return os.WriteFile(m.configFile, data, 0640)
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() {
 	m.cancel()
 	_ = m.saveTasks()

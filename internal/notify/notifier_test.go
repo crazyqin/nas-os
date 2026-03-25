@@ -217,7 +217,7 @@ func TestWebhookNotifierSendError(t *testing.T) {
 	}
 }
 
-// mockNotifier 用于测试的模拟通知器
+// mockNotifier 用于测试的模拟通知器.
 type mockNotifier struct {
 	name   string
 	called bool

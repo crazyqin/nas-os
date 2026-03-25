@@ -9,20 +9,20 @@ import (
 	"time"
 )
 
-// BackupCodeManager 备份码管理器
+// BackupCodeManager 备份码管理器.
 type BackupCodeManager struct {
 	mu    sync.RWMutex
 	codes map[string]map[string]*BackupCode // userID -> code -> BackupCode
 }
 
-// NewBackupCodeManager 创建备份码管理器
+// NewBackupCodeManager 创建备份码管理器.
 func NewBackupCodeManager() *BackupCodeManager {
 	return &BackupCodeManager{
 		codes: make(map[string]map[string]*BackupCode),
 	}
 }
 
-// generateBackupCode 生成单个备份码
+// generateBackupCode 生成单个备份码.
 func generateBackupCode() (string, error) {
 	b := make([]byte, 8)
 	if _, err := rand.Read(b); err != nil {
@@ -33,7 +33,7 @@ func generateBackupCode() (string, error) {
 	return fmt.Sprintf("%s-%s", hexStr[:8], hexStr[8:]), nil
 }
 
-// GenerateBackupCodes 生成备份码（返回未加密的明文，用于展示给用户）
+// GenerateBackupCodes 生成备份码（返回未加密的明文，用于展示给用户）.
 func (m *BackupCodeManager) GenerateBackupCodes(userID string, count int) ([]string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -64,7 +64,7 @@ func (m *BackupCodeManager) GenerateBackupCodes(userID string, count int) ([]str
 	return plainCodes, nil
 }
 
-// VerifyBackupCode 验证备份码
+// VerifyBackupCode 验证备份码.
 func (m *BackupCodeManager) VerifyBackupCode(userID, code string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -91,7 +91,7 @@ func (m *BackupCodeManager) VerifyBackupCode(userID, code string) error {
 	return nil
 }
 
-// GetUnusedCount 获取未使用的备份码数量
+// GetUnusedCount 获取未使用的备份码数量.
 func (m *BackupCodeManager) GetUnusedCount(userID string) int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -110,14 +110,14 @@ func (m *BackupCodeManager) GetUnusedCount(userID string) int {
 	return count
 }
 
-// InvalidateAll 使所有备份码失效（用户重新生成时调用）
+// InvalidateAll 使所有备份码失效（用户重新生成时调用）.
 func (m *BackupCodeManager) InvalidateAll(userID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.codes, userID)
 }
 
-// ListUsedCodes 列出已使用的备份码（用于审计）
+// ListUsedCodes 列出已使用的备份码（用于审计）.
 func (m *BackupCodeManager) ListUsedCodes(userID string) []BackupCode {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

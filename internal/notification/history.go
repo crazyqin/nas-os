@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// HistoryManager 历史记录管理器
+// HistoryManager 历史记录管理器.
 type HistoryManager struct {
 	records    []*Record
 	recordMap  map[string]*Record
@@ -20,7 +20,7 @@ type HistoryManager struct {
 	maxDays    int
 }
 
-// NewHistoryManager 创建历史记录管理器
+// NewHistoryManager 创建历史记录管理器.
 func NewHistoryManager(storePath string, maxRecords, maxDays int) (*HistoryManager, error) {
 	if maxRecords <= 0 {
 		maxRecords = 10000
@@ -47,7 +47,7 @@ func NewHistoryManager(storePath string, maxRecords, maxDays int) (*HistoryManag
 	return hm, nil
 }
 
-// load 加载历史记录
+// load 加载历史记录.
 func (hm *HistoryManager) load() error {
 	if hm.storePath == "" {
 		return nil
@@ -78,7 +78,7 @@ func (hm *HistoryManager) load() error {
 	return nil
 }
 
-// save 保存历史记录
+// save 保存历史记录.
 func (hm *HistoryManager) save() error {
 	if hm.storePath == "" {
 		return nil
@@ -102,7 +102,7 @@ func (hm *HistoryManager) save() error {
 	return os.WriteFile(hm.storePath, data, 0640)
 }
 
-// AddRecord 添加记录
+// AddRecord 添加记录.
 func (hm *HistoryManager) AddRecord(record *Record) error {
 	if record.ID == "" {
 		record.ID = GenerateID()
@@ -125,7 +125,7 @@ func (hm *HistoryManager) AddRecord(record *Record) error {
 	return hm.save()
 }
 
-// UpdateRecord 更新记录
+// UpdateRecord 更新记录.
 func (hm *HistoryManager) UpdateRecord(record *Record) error {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -147,7 +147,7 @@ func (hm *HistoryManager) UpdateRecord(record *Record) error {
 	return hm.save()
 }
 
-// GetRecord 获取记录
+// GetRecord 获取记录.
 func (hm *HistoryManager) GetRecord(id string) (*Record, error) {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -160,7 +160,7 @@ func (hm *HistoryManager) GetRecord(id string) (*Record, error) {
 	return record, nil
 }
 
-// DeleteRecord 删除记录
+// DeleteRecord 删除记录.
 func (hm *HistoryManager) DeleteRecord(id string) error {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -181,7 +181,7 @@ func (hm *HistoryManager) DeleteRecord(id string) error {
 	return hm.save()
 }
 
-// Query 查询记录
+// Query 查询记录.
 func (hm *HistoryManager) Query(filter *HistoryFilter) []*Record {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -224,7 +224,7 @@ func (hm *HistoryManager) Query(filter *HistoryFilter) []*Record {
 	return result[start:end]
 }
 
-// matchFilter 匹配过滤条件
+// matchFilter 匹配过滤条件.
 func (hm *HistoryManager) matchFilter(record *Record, filter *HistoryFilter) bool {
 	if filter == nil {
 		return true
@@ -276,7 +276,7 @@ func (hm *HistoryManager) matchFilter(record *Record, filter *HistoryFilter) boo
 	return true
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (hm *HistoryManager) GetStats(startTime, endTime *time.Time) *HistoryStats {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -320,7 +320,7 @@ func (hm *HistoryManager) GetStats(startTime, endTime *time.Time) *HistoryStats 
 	return stats
 }
 
-// calculateDailyStats 计算每日统计
+// calculateDailyStats 计算每日统计.
 func (hm *HistoryManager) calculateDailyStats(startTime, endTime *time.Time) []DailyStat {
 	dailyMap := make(map[string]*DailyStat)
 
@@ -359,7 +359,7 @@ func (hm *HistoryManager) calculateDailyStats(startTime, endTime *time.Time) []D
 	return result
 }
 
-// cleanup 清理过期记录
+// cleanup 清理过期记录.
 func (hm *HistoryManager) cleanup() {
 	cutoff := time.Now().AddDate(0, 0, -hm.maxDays)
 
@@ -389,7 +389,7 @@ func (hm *HistoryManager) cleanup() {
 	hm.records = newRecords
 }
 
-// periodicCleanup 定期清理
+// periodicCleanup 定期清理.
 func (hm *HistoryManager) periodicCleanup() {
 	ticker := time.NewTicker(time.Hour)
 	defer ticker.Stop()
@@ -402,7 +402,7 @@ func (hm *HistoryManager) periodicCleanup() {
 	}
 }
 
-// Clear 清空历史记录
+// Clear 清空历史记录.
 func (hm *HistoryManager) Clear() error {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -413,14 +413,14 @@ func (hm *HistoryManager) Clear() error {
 	return hm.save()
 }
 
-// Count 获取记录总数
+// Count 获取记录总数.
 func (hm *HistoryManager) Count() int {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
 	return len(hm.records)
 }
 
-// GetRecordsByNotificationID 根据通知ID获取记录
+// GetRecordsByNotificationID 根据通知ID获取记录.
 func (hm *HistoryManager) GetRecordsByNotificationID(notificationID string) []*Record {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -435,7 +435,7 @@ func (hm *HistoryManager) GetRecordsByNotificationID(notificationID string) []*R
 	return result
 }
 
-// GetPendingRecords 获取待发送记录
+// GetPendingRecords 获取待发送记录.
 func (hm *HistoryManager) GetPendingRecords() []*Record {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -450,7 +450,7 @@ func (hm *HistoryManager) GetPendingRecords() []*Record {
 	return result
 }
 
-// GetFailedRecords 获取失败记录
+// GetFailedRecords 获取失败记录.
 func (hm *HistoryManager) GetFailedRecords(limit int) []*Record {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()

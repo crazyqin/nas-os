@@ -653,7 +653,7 @@ func TestRiskLevel(t *testing.T) {
 	}
 }
 
-// Benchmark tests
+// Benchmark tests.
 func BenchmarkDetector_Detect(b *testing.B) {
 	detector := NewDetector(DefaultDetectorConfig)
 	ctx := context.Background()
@@ -680,7 +680,7 @@ func BenchmarkMasker_Mask(b *testing.B) {
 	}
 }
 
-// Helper function
+// Helper function.
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && s[:len(substr)] == substr ||
 		len(s) > len(substr) && contains(s[1:], substr)

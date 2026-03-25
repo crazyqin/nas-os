@@ -7,7 +7,7 @@ import (
 
 // ========== 报告与配额集成 v2.31.0 ==========
 
-// QuotaIntegration 配额集成接口
+// QuotaIntegration 配额集成接口.
 type QuotaIntegration interface {
 	// GetQuotaUsage 获取配额使用情况
 	GetQuotaUsage(volumeName string) ([]QuotaUsageInfo, error)
@@ -19,7 +19,7 @@ type QuotaIntegration interface {
 	GetQuotaTrends(quotaID string, duration time.Duration) ([]QuotaTrendPoint, error)
 }
 
-// QuotaUsageInfo 配额使用信息
+// QuotaUsageInfo 配额使用信息.
 type QuotaUsageInfo struct {
 	QuotaID      string    `json:"quota_id"`
 	Type         string    `json:"type"`          // user, group, directory
@@ -36,7 +36,7 @@ type QuotaUsageInfo struct {
 	LastChecked  time.Time `json:"last_checked"`
 }
 
-// QuotaAlertInfo 配额告警信息
+// QuotaAlertInfo 配额告警信息.
 type QuotaAlertInfo struct {
 	ID           string     `json:"id"`
 	QuotaID      string     `json:"quota_id"`
@@ -55,21 +55,21 @@ type QuotaAlertInfo struct {
 	ResolvedAt   *time.Time `json:"resolved_at,omitempty"`
 }
 
-// QuotaTrendPoint 配额趋势数据点
+// QuotaTrendPoint 配额趋势数据点.
 type QuotaTrendPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	UsedBytes    uint64    `json:"used_bytes"`
 	UsagePercent float64   `json:"usage_percent"`
 }
 
-// QuotaReportIntegrator 配额报告集成器
+// QuotaReportIntegrator 配额报告集成器.
 type QuotaReportIntegrator struct {
 	quotaProvider QuotaIntegration
 	reporter      *ResourceReporter
 	planner       *CapacityPlanner
 }
 
-// NewQuotaReportIntegrator 创建配额报告集成器
+// NewQuotaReportIntegrator 创建配额报告集成器.
 func NewQuotaReportIntegrator(
 	quotaProvider QuotaIntegration,
 	reporter *ResourceReporter,
@@ -82,7 +82,7 @@ func NewQuotaReportIntegrator(
 	}
 }
 
-// GenerateQuotaIntegratedReport 生成配额集成报告
+// GenerateQuotaIntegratedReport 生成配额集成报告.
 func (i *QuotaReportIntegrator) GenerateQuotaIntegratedReport(volumeName string) (*QuotaIntegratedReport, error) {
 	now := time.Now()
 
@@ -129,7 +129,7 @@ func (i *QuotaReportIntegrator) GenerateQuotaIntegratedReport(volumeName string)
 	return report, nil
 }
 
-// generateQuotaSummary 生成配额汇总
+// generateQuotaSummary 生成配额汇总.
 func (i *QuotaReportIntegrator) generateQuotaSummary(usages []QuotaUsageInfo, alerts []QuotaAlertInfo) QuotaReportSummary {
 	summary := QuotaReportSummary{
 		TotalQuotas: len(usages),
@@ -185,7 +185,7 @@ func (i *QuotaReportIntegrator) generateQuotaSummary(usages []QuotaUsageInfo, al
 	return summary
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (i *QuotaReportIntegrator) calculateHealthScore(summary *QuotaReportSummary) float64 {
 	score := 100.0
 
@@ -219,7 +219,7 @@ func (i *QuotaReportIntegrator) calculateHealthScore(summary *QuotaReportSummary
 	return round(score, 1)
 }
 
-// generateQuotaPredictions 生成配额预测
+// generateQuotaPredictions 生成配额预测.
 func (i *QuotaReportIntegrator) generateQuotaPredictions(usages []QuotaUsageInfo) []QuotaPrediction {
 	predictions := make([]QuotaPrediction, 0)
 
@@ -276,7 +276,7 @@ func (i *QuotaReportIntegrator) generateQuotaPredictions(usages []QuotaUsageInfo
 	return predictions
 }
 
-// generateQuotaRecommendations 生成配额建议
+// generateQuotaRecommendations 生成配额建议.
 func (i *QuotaReportIntegrator) generateQuotaRecommendations(report *QuotaIntegratedReport) []QuotaRecommendation {
 	recommendations := make([]QuotaRecommendation, 0)
 	now := time.Now()
@@ -339,7 +339,7 @@ func (i *QuotaReportIntegrator) generateQuotaRecommendations(report *QuotaIntegr
 	return recommendations
 }
 
-// QuotaIntegratedReport 配额集成报告
+// QuotaIntegratedReport 配额集成报告.
 type QuotaIntegratedReport struct {
 	ID              string                `json:"id"`
 	VolumeName      string                `json:"volume_name"`
@@ -352,7 +352,7 @@ type QuotaIntegratedReport struct {
 	Recommendations []QuotaRecommendation `json:"recommendations"`
 }
 
-// QuotaReportSummary 配额报告汇总
+// QuotaReportSummary 配额报告汇总.
 type QuotaReportSummary struct {
 	TotalQuotas         int                           `json:"total_quotas"`
 	TotalLimitBytes     uint64                        `json:"total_limit_bytes"`
@@ -369,7 +369,7 @@ type QuotaReportSummary struct {
 	ByVolume            map[string]VolumeQuotaSummary `json:"by_volume"`
 }
 
-// VolumeQuotaSummary 卷配额汇总
+// VolumeQuotaSummary 卷配额汇总.
 type VolumeQuotaSummary struct {
 	VolumeName string `json:"volume_name"`
 	TotalLimit uint64 `json:"total_limit"`
@@ -377,7 +377,7 @@ type VolumeQuotaSummary struct {
 	QuotaCount int    `json:"quota_count"`
 }
 
-// QuotaPrediction 配额预测
+// QuotaPrediction 配额预测.
 type QuotaPrediction struct {
 	QuotaID           string     `json:"quota_id"`
 	TargetName        string     `json:"target_name"`
@@ -389,7 +389,7 @@ type QuotaPrediction struct {
 	RiskLevel         string     `json:"risk_level"` // low, medium, high, critical
 }
 
-// QuotaRecommendation 配额建议
+// QuotaRecommendation 配额建议.
 type QuotaRecommendation struct {
 	Type        string    `json:"type"`     // quota_increase, capacity_planning, cleanup
 	Priority    string    `json:"priority"` // critical, high, medium, low
@@ -403,13 +403,13 @@ type QuotaRecommendation struct {
 
 // ========== 配额告警预测集成 ==========
 
-// QuotaAlertPredictor 配额告警预测器
+// QuotaAlertPredictor 配额告警预测器.
 type QuotaAlertPredictor struct {
 	integrator *QuotaReportIntegrator
 	config     QuotaAlertPredictConfig
 }
 
-// QuotaAlertPredictConfig 配额告警预测配置
+// QuotaAlertPredictConfig 配额告警预测配置.
 type QuotaAlertPredictConfig struct {
 	// 预警阈值
 	WarningThreshold   float64 `json:"warning_threshold"`   // 警告阈值（%）
@@ -421,7 +421,7 @@ type QuotaAlertPredictConfig struct {
 	EnableProactiveAlert bool `json:"enable_proactive_alert"` // 是否启用主动告警
 }
 
-// DefaultQuotaAlertPredictConfig 默认配置
+// DefaultQuotaAlertPredictConfig 默认配置.
 func DefaultQuotaAlertPredictConfig() QuotaAlertPredictConfig {
 	return QuotaAlertPredictConfig{
 		WarningThreshold:     70.0,
@@ -432,7 +432,7 @@ func DefaultQuotaAlertPredictConfig() QuotaAlertPredictConfig {
 	}
 }
 
-// NewQuotaAlertPredictor 创建配额告警预测器
+// NewQuotaAlertPredictor 创建配额告警预测器.
 func NewQuotaAlertPredictor(integrator *QuotaReportIntegrator, config QuotaAlertPredictConfig) *QuotaAlertPredictor {
 	return &QuotaAlertPredictor{
 		integrator: integrator,
@@ -440,7 +440,7 @@ func NewQuotaAlertPredictor(integrator *QuotaReportIntegrator, config QuotaAlert
 	}
 }
 
-// PredictAlerts 预测即将发生的告警
+// PredictAlerts 预测即将发生的告警.
 func (p *QuotaAlertPredictor) PredictAlerts(volumeName string) ([]PredictedAlert, error) {
 	report, err := p.integrator.GenerateQuotaIntegratedReport(volumeName)
 	if err != nil {
@@ -507,7 +507,7 @@ func (p *QuotaAlertPredictor) PredictAlerts(volumeName string) ([]PredictedAlert
 	return predictedAlerts, nil
 }
 
-// PredictedAlert 预测告警
+// PredictedAlert 预测告警.
 type PredictedAlert struct {
 	QuotaID        string     `json:"quota_id"`
 	TargetName     string     `json:"target_name"`

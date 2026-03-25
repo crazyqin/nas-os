@@ -8,7 +8,7 @@ import (
 
 // ========== 核心配置 ==========
 
-// Config OnlyOffice 集成配置
+// Config OnlyOffice 集成配置.
 type Config struct {
 	// Document Server 配置
 	ServerURL string `json:"server_url"` // OnlyOffice Document Server URL，如 http://onlyoffice:80
@@ -31,7 +31,7 @@ type Config struct {
 	ConfigPath string `json:"-"` // 配置文件存储路径
 }
 
-// EditorConfig 编辑器配置
+// EditorConfig 编辑器配置.
 type EditorConfig struct {
 	// 界面语言
 	Lang string `json:"lang"` // zh-CN, en-US 等
@@ -46,7 +46,7 @@ type EditorConfig struct {
 	Customization CustomizationConfig `json:"customization"`
 }
 
-// CoEditingConfig 协作编辑配置
+// CoEditingConfig 协作编辑配置.
 type CoEditingConfig struct {
 	Enabled     bool `json:"enabled"`      // 是否启用协作编辑
 	AutoSave    bool `json:"auto_save"`    // 是否自动保存
@@ -54,7 +54,7 @@ type CoEditingConfig struct {
 	ShowChanges bool `json:"show_changes"` // 是否显示变更追踪
 }
 
-// CustomizationConfig 自定义配置
+// CustomizationConfig 自定义配置.
 type CustomizationConfig struct {
 	// 界面元素
 	HideRightMenu bool `json:"hide_right_menu"` // 隐藏右侧菜单
@@ -68,7 +68,7 @@ type CustomizationConfig struct {
 	LogoURL string `json:"logo_url"` // 自定义 Logo URL
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		ServerURL:    "http://localhost:8080",
@@ -101,7 +101,7 @@ func DefaultConfig() *Config {
 
 // ========== 会话管理 ==========
 
-// EditingSession 编辑会话
+// EditingSession 编辑会话.
 type EditingSession struct {
 	// 基本信息
 	ID       string `json:"id"`        // 会话唯一 ID
@@ -133,12 +133,12 @@ type EditingSession struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// SessionStatus 会话状态
+// SessionStatus 会话状态.
 type SessionStatus string
 
-// 会话状态常量
+// 会话状态常量.
 const (
-	// SessionStatusActive 活动中
+	// SessionStatusActive 活动中.
 	SessionStatusActive  SessionStatus = "active"
 	SessionStatusEditing SessionStatus = "editing" // 编辑中
 	SessionStatusSaving  SessionStatus = "saving"  // 保存中
@@ -147,19 +147,19 @@ const (
 	SessionStatusError   SessionStatus = "error"   // 错误
 )
 
-// IsExpired 检查会话是否过期
+// IsExpired 检查会话是否过期.
 func (s *EditingSession) IsExpired() bool {
 	return time.Now().After(s.ExpiresAt)
 }
 
-// IsActive 检查会话是否活动
+// IsActive 检查会话是否活动.
 func (s *EditingSession) IsActive() bool {
 	return s.Status == SessionStatusActive || s.Status == SessionStatusEditing
 }
 
 // ========== 回调处理 ==========
 
-// CallbackRequest OnlyOffice 回调请求
+// CallbackRequest OnlyOffice 回调请求.
 type CallbackRequest struct {
 	// 密钥
 	Key string `json:"key"` // 文档唯一标识
@@ -188,7 +188,7 @@ type CallbackRequest struct {
 	Forcesave bool     `json:"forcesave,omitempty"` // 是否强制保存
 }
 
-// CallbackUser 回调用户信息
+// CallbackUser 回调用户信息.
 type CallbackUser struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
@@ -196,13 +196,13 @@ type CallbackUser struct {
 	Group string `json:"group,omitempty"`
 }
 
-// History 文档历史
+// History 文档历史.
 type History struct {
 	CurrentVersion string        `json:"currentVersion"`
 	History        []HistoryItem `json:"history,omitempty"`
 }
 
-// HistoryItem 历史项
+// HistoryItem 历史项.
 type HistoryItem struct {
 	Version       string       `json:"version"`
 	Key           string       `json:"key"`
@@ -212,20 +212,20 @@ type HistoryItem struct {
 	ServerVersion string       `json:"serverVersion,omitempty"`
 }
 
-// Change 变更记录
+// Change 变更记录.
 type Change struct {
 	User CallbackUser `json:"user"`
 	Type string       `json:"type"`
 	Time string       `json:"time"`
 }
 
-// Action 用户操作
+// Action 用户操作.
 type Action struct {
 	Type   int    `json:"type"`   // 1=连接，2=断开，3=强制保存
 	UserID string `json:"userid"` // 用户 ID
 }
 
-// CallbackStatus 回调状态码
+// CallbackStatus 回调状态码.
 const (
 	CallbackStatusEditing   = 1 // 正在编辑
 	CallbackStatusSaved     = 2 // 已保存，可以下载
@@ -236,14 +236,14 @@ const (
 	CallbackStatusClosedErr = 8 // 关闭错误
 )
 
-// CallbackResponse 回调响应
+// CallbackResponse 回调响应.
 type CallbackResponse struct {
 	Error int `json:"error"` // 0=成功
 }
 
 // ========== 文件关联 ==========
 
-// FileAssociation 文件关联配置
+// FileAssociation 文件关联配置.
 type FileAssociation struct {
 	Extension string `json:"extension"`           // 文件扩展名（不含点）
 	MimeType  string `json:"mime_type"`           // MIME 类型
@@ -253,7 +253,7 @@ type FileAssociation struct {
 	Icon      string `json:"icon,omitempty"`      // 图标路径
 }
 
-// DefaultFileAssociations 返回默认文件关联
+// DefaultFileAssociations 返回默认文件关联.
 func DefaultFileAssociations() map[string]FileAssociation {
 	return map[string]FileAssociation{
 		// 文档类型
@@ -307,7 +307,7 @@ func DefaultFileAssociations() map[string]FileAssociation {
 
 // ========== 编辑器配置（用于前端） ==========
 
-// EditorInitConfig 编辑器初始化配置（传递给 OnlyOffice 前端）
+// EditorInitConfig 编辑器初始化配置（传递给 OnlyOffice 前端）.
 type EditorInitConfig struct {
 	// 文档配置
 	Document DocumentConfig `json:"document"`
@@ -325,7 +325,7 @@ type EditorInitConfig struct {
 	Token string `json:"token,omitempty"`
 }
 
-// DocumentConfig 文档配置
+// DocumentConfig 文档配置.
 type DocumentConfig struct {
 	// 文件类型（扩展名）
 	FileType string `json:"fileType"`
@@ -346,7 +346,7 @@ type DocumentConfig struct {
 	Permissions Permissions `json:"permissions"`
 }
 
-// Permissions 文档权限
+// Permissions 文档权限.
 type Permissions struct {
 	Comment              bool `json:"comment"`              // 是否允许评论
 	Copy                 bool `json:"copy"`                 // 是否允许复制
@@ -360,7 +360,7 @@ type Permissions struct {
 	FillForms            bool `json:"fillForms"`            // 是否允许填写表单
 }
 
-// EditorOptions 编辑器选项
+// EditorOptions 编辑器选项.
 type EditorOptions struct {
 	// 回调 URL
 	CallbackURL string `json:"callbackUrl"`
@@ -384,41 +384,41 @@ type EditorOptions struct {
 	CoEditing CoEditingOptions `json:"coEditing,omitempty"`
 }
 
-// EditorUser 编辑器用户
+// EditorUser 编辑器用户.
 type EditorUser struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
 	Group string `json:"group,omitempty"`
 }
 
-// CustomizationOptions 自定义选项
+// CustomizationOptions 自定义选项.
 type CustomizationOptions struct {
 	Forcesave     bool `json:"forcesave"`
 	HideRightMenu bool `json:"hideRightMenu"`
 	Logo          Logo `json:"logo,omitempty"`
 }
 
-// Logo Logo 配置
+// Logo Logo 配置.
 type Logo struct {
 	Image string `json:"image,omitempty"`
 	URL   string `json:"url,omitempty"`
 }
 
-// CoEditingOptions 协作选项
+// CoEditingOptions 协作选项.
 type CoEditingOptions struct {
 	Mode string `json:"mode"` // fast, strict
 }
 
 // ========== API 请求/响应 ==========
 
-// EditRequest 编辑请求
+// EditRequest 编辑请求.
 type EditRequest struct {
 	FileID   string `json:"file_id" binding:"required"` // 文件 ID
 	Mode     string `json:"mode"`                       // edit 或 view，默认 edit
 	Language string `json:"language"`                   // 界面语言，默认 zh-CN
 }
 
-// EditResponse 编辑响应
+// EditResponse 编辑响应.
 type EditResponse struct {
 	SessionID    string           `json:"session_id"`    // 会话 ID
 	EditorConfig EditorInitConfig `json:"editor_config"` // 编辑器配置
@@ -426,19 +426,19 @@ type EditResponse struct {
 	ExpiresAt    time.Time        `json:"expires_at"`    // 过期时间
 }
 
-// SessionListResponse 会话列表响应
+// SessionListResponse 会话列表响应.
 type SessionListResponse struct {
 	Total    int              `json:"total"`
 	Sessions []EditingSession `json:"sessions"`
 }
 
-// ConfigResponse 配置响应
+// ConfigResponse 配置响应.
 type ConfigResponse struct {
 	Config       Config                     `json:"config"`
 	Associations map[string]FileAssociation `json:"associations"`
 }
 
-// UpdateConfigRequest 更新配置请求
+// UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
 	ServerURL      *string       `json:"server_url,omitempty"`
 	SecretKey      *string       `json:"secret_key,omitempty"`
@@ -451,7 +451,7 @@ type UpdateConfigRequest struct {
 
 // ========== 协作编辑 ==========
 
-// CollaborationSession 协作编辑会话
+// CollaborationSession 协作编辑会话.
 type CollaborationSession struct {
 	DocID      string            `json:"doc_id"`      // 文档 ID
 	SessionID  string            `json:"session_id"`  // 协作会话 ID
@@ -463,7 +463,7 @@ type CollaborationSession struct {
 	Locks      []DocumentLock    `json:"locks"`       // 文档锁
 }
 
-// Collaborator 协作者
+// Collaborator 协作者.
 type Collaborator struct {
 	UserID    string    `json:"user_id"`
 	UserName  string    `json:"user_name"`
@@ -472,14 +472,14 @@ type Collaborator struct {
 	IsEditing bool      `json:"is_editing"`
 }
 
-// Cursor 光标位置
+// Cursor 光标位置.
 type Cursor struct {
 	UserID string `json:"user_id"`
 	Line   int    `json:"line"`
 	Column int    `json:"column"`
 }
 
-// DocumentLock 文档锁（用于防止编辑冲突）
+// DocumentLock 文档锁（用于防止编辑冲突）.
 type DocumentLock struct {
 	LockID   string     `json:"lock_id"`
 	UserID   string     `json:"user_id"`
@@ -487,7 +487,7 @@ type DocumentLock struct {
 	LockedAt time.Time  `json:"locked_at"`
 }
 
-// LockRegion 锁定区域
+// LockRegion 锁定区域.
 type LockRegion struct {
 	StartLine   int `json:"start_line"`
 	StartColumn int `json:"start_column"`
@@ -497,7 +497,7 @@ type LockRegion struct {
 
 // ========== 版本历史 ==========
 
-// DocumentVersion 文档版本
+// DocumentVersion 文档版本.
 type DocumentVersion struct {
 	VersionID   string          `json:"version_id"`  // 版本 ID
 	DocID       string          `json:"doc_id"`      // 文档 ID
@@ -510,14 +510,14 @@ type DocumentVersion struct {
 	Changes     []VersionChange `json:"changes"`     // 变更摘要
 }
 
-// VersionChange 版本变更
+// VersionChange 版本变更.
 type VersionChange struct {
 	Type        string `json:"type"`        // add, modify, delete
 	Region      string `json:"region"`      // 变更区域描述
 	Description string `json:"description"` // 变更描述
 }
 
-// VersionHistory 版本历史响应
+// VersionHistory 版本历史响应.
 type VersionHistory struct {
 	DocID      string            `json:"doc_id"`
 	CurrentVer int               `json:"current_version"`
@@ -528,7 +528,7 @@ type VersionHistory struct {
 
 // ========== 文档评论 ==========
 
-// DocumentComment 文档评论
+// DocumentComment 文档评论.
 type DocumentComment struct {
 	CommentID string         `json:"comment_id"` // 评论 ID
 	DocID     string         `json:"doc_id"`     // 文档 ID
@@ -542,14 +542,14 @@ type DocumentComment struct {
 	Replies   []CommentReply `json:"replies"`    // 回复列表
 }
 
-// CommentPos 评论位置
+// CommentPos 评论位置.
 type CommentPos struct {
 	Paragraph int `json:"paragraph"` // 段落索引
 	Offset    int `json:"offset"`    // 字符偏移
 	Line      int `json:"line"`      // 行号（可选）
 }
 
-// CommentReply 评论回复
+// CommentReply 评论回复.
 type CommentReply struct {
 	ReplyID   string    `json:"reply_id"`
 	UserID    string    `json:"user_id"`
@@ -558,7 +558,7 @@ type CommentReply struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// CommentListResponse 评论列表响应
+// CommentListResponse 评论列表响应.
 type CommentListResponse struct {
 	DocID      string            `json:"doc_id"`
 	Total      int               `json:"total"`
@@ -568,7 +568,7 @@ type CommentListResponse struct {
 
 // ========== 错误定义 ==========
 
-// 错误常量
+// 错误常量.
 var (
 	ErrNotEnabled            = "OnlyOffice 服务未启用"
 	ErrServerNotReachable    = "OnlyOffice 服务不可达"

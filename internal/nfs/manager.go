@@ -13,7 +13,7 @@ import (
 	"nas-os/internal/logging"
 )
 
-// ServiceStatus NFS服务状态
+// ServiceStatus NFS服务状态.
 type ServiceStatus struct {
 	Running     bool   `json:"running"`
 	Status      string `json:"status"`
@@ -22,7 +22,7 @@ type ServiceStatus struct {
 	Exports     int    `json:"exports"`
 }
 
-// Manager NFS服务管理器
+// Manager NFS服务管理器.
 type Manager struct {
 	configPath string
 	exports    map[string]*Export
@@ -31,7 +31,7 @@ type Manager struct {
 	logger     *logging.Logger
 }
 
-// Export NFS导出配置
+// Export NFS导出配置.
 type Export struct {
 	Path    string        `json:"path"`
 	Clients []Client      `json:"clients"`
@@ -40,13 +40,13 @@ type Export struct {
 	Comment string        `json:"comment,omitempty"`
 }
 
-// Client NFS客户端配置
+// Client NFS客户端配置.
 type Client struct {
 	Host    string   `json:"host"`
 	Options []string `json:"options,omitempty"`
 }
 
-// ExportOptions NFS导出选项
+// ExportOptions NFS导出选项.
 type ExportOptions struct {
 	Ro           bool `json:"ro"`
 	Rw           bool `json:"rw"`
@@ -56,7 +56,7 @@ type ExportOptions struct {
 	SubtreeCheck bool `json:"subtree_check"`
 }
 
-// Config NFS 全局配置
+// Config NFS 全局配置.
 type Config struct {
 	Enabled        bool     `json:"enabled"`
 	Version        string   `json:"version"`         // NFS版本: "4", "3", "4.2"
@@ -71,13 +71,13 @@ type Config struct {
 	MaxConnections int      `json:"max_connections"` // 最大连接数
 }
 
-// persistentConfig 持久化配置结构
+// persistentConfig 持久化配置结构.
 type persistentConfig struct {
 	Config  *Config            `json:"config"`
 	Exports map[string]*Export `json:"exports"`
 }
 
-// newDefaultConfig 创建默认配置
+// newDefaultConfig 创建默认配置.
 func newDefaultConfig() *Config {
 	return &Config{
 		Enabled:        true,
@@ -94,7 +94,7 @@ func newDefaultConfig() *Config {
 	}
 }
 
-// NewManager 创建NFS管理器
+// NewManager 创建NFS管理器.
 func NewManager(configPath string) (*Manager, error) {
 	logger := logging.NewLogger(nil).WithSource("nfs")
 
@@ -114,7 +114,7 @@ func NewManager(configPath string) (*Manager, error) {
 	return m, nil
 }
 
-// loadConfig 从文件加载配置
+// loadConfig 从文件加载配置.
 func (m *Manager) loadConfig() error {
 	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
 		m.logger.Debug("配置文件不存在，使用空配置")
@@ -142,7 +142,7 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置到文件
+// saveConfig 保存配置到文件.
 func (m *Manager) saveConfig() error {
 	m.mu.RLock()
 	pc := persistentConfig{
@@ -154,7 +154,7 @@ func (m *Manager) saveConfig() error {
 	return m.writeConfigFile(pc)
 }
 
-// saveConfigLocked 保存配置（调用者已持有锁）
+// saveConfigLocked 保存配置（调用者已持有锁）.
 func (m *Manager) saveConfigLocked() error {
 	pc := persistentConfig{
 		Config:  m.config,
@@ -163,7 +163,7 @@ func (m *Manager) saveConfigLocked() error {
 	return m.writeConfigFile(pc)
 }
 
-// writeConfigFile 写入配置文件
+// writeConfigFile 写入配置文件.
 func (m *Manager) writeConfigFile(pc persistentConfig) error {
 	data, err := json.MarshalIndent(pc, "", "  ")
 	if err != nil {
@@ -183,7 +183,7 @@ func (m *Manager) writeConfigFile(pc persistentConfig) error {
 	return nil
 }
 
-// CreateExport 创建NFS导出
+// CreateExport 创建NFS导出.
 func (m *Manager) CreateExport(export *Export) error {
 	if export == nil {
 		return fmt.Errorf("导出配置不能为空")
@@ -224,7 +224,7 @@ func (m *Manager) CreateExport(export *Export) error {
 	return nil
 }
 
-// applyDefaultOptions 应用默认选项
+// applyDefaultOptions 应用默认选项.
 func (m *Manager) applyDefaultOptions(export *Export) {
 	// 如果没有客户端，添加默认允许所有
 	if len(export.Clients) == 0 {
@@ -239,7 +239,7 @@ func (m *Manager) applyDefaultOptions(export *Export) {
 	}
 }
 
-// UpdateExport 更新NFS导出
+// UpdateExport 更新NFS导出.
 func (m *Manager) UpdateExport(path string, export *Export) error {
 	if export == nil {
 		return fmt.Errorf("导出配置不能为空")
@@ -289,7 +289,7 @@ func (m *Manager) UpdateExport(path string, export *Export) error {
 	return nil
 }
 
-// DeleteExport 删除NFS导出
+// DeleteExport 删除NFS导出.
 func (m *Manager) DeleteExport(path string) error {
 	if path == "" {
 		return fmt.Errorf("导出路径不能为空")
@@ -314,7 +314,7 @@ func (m *Manager) DeleteExport(path string) error {
 	return nil
 }
 
-// ListExports 列出所有NFS导出
+// ListExports 列出所有NFS导出.
 func (m *Manager) ListExports() ([]*Export, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -328,7 +328,7 @@ func (m *Manager) ListExports() ([]*Export, error) {
 	return exports, nil
 }
 
-// GetExport 获取指定NFS导出
+// GetExport 获取指定NFS导出.
 func (m *Manager) GetExport(path string) (*Export, error) {
 	if path == "" {
 		return nil, fmt.Errorf("导出路径不能为空")
@@ -345,7 +345,7 @@ func (m *Manager) GetExport(path string) (*Export, error) {
 	return export, nil
 }
 
-// Reload 重新加载NFS配置
+// Reload 重新加载NFS配置.
 func (m *Manager) Reload() error {
 	m.logger.Info("重新加载NFS配置")
 
@@ -372,7 +372,7 @@ func (m *Manager) Reload() error {
 	return nil
 }
 
-// Status 获取NFS服务状态
+// Status 获取NFS服务状态.
 func (m *Manager) Status() (*ServiceStatus, error) {
 	m.mu.RLock()
 	exportsCount := len(m.exports)
@@ -413,7 +413,7 @@ func (m *Manager) Status() (*ServiceStatus, error) {
 
 // getConnectionsCount 获取NFS连接数
 // 通过解析 /proc/fs/nfsd/clients/ 目录统计活跃连接
-// 这是最可靠的方法，因为数据直接来自内核
+// 这是最可靠的方法，因为数据直接来自内核.
 func (m *Manager) getConnectionsCount() int {
 	clientsDir := "/proc/fs/nfsd/clients"
 
@@ -434,7 +434,7 @@ func (m *Manager) getConnectionsCount() int {
 	return count
 }
 
-// GenerateExportsFile 生成/etc/exports文件内容
+// GenerateExportsFile 生成/etc/exports文件内容.
 func (m *Manager) GenerateExportsFile() (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -460,7 +460,7 @@ func (m *Manager) GenerateExportsFile() (string, error) {
 	return sb.String(), nil
 }
 
-// optionsToString 将导出选项转换为字符串
+// optionsToString 将导出选项转换为字符串.
 func (m *Manager) optionsToString(opts *ExportOptions) string {
 	var parts []string
 
@@ -495,7 +495,7 @@ func (m *Manager) optionsToString(opts *ExportOptions) string {
 	return strings.Join(parts, ",")
 }
 
-// Start 启动NFS服务
+// Start 启动NFS服务.
 func (m *Manager) Start() error {
 	m.logger.Info("启动NFS服务")
 
@@ -509,7 +509,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止NFS服务
+// Stop 停止NFS服务.
 func (m *Manager) Stop() error {
 	m.logger.Info("停止NFS服务")
 
@@ -523,7 +523,7 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// Restart 重启NFS服务
+// Restart 重启NFS服务.
 func (m *Manager) Restart() error {
 	m.logger.Info("重启NFS服务")
 
@@ -537,7 +537,7 @@ func (m *Manager) Restart() error {
 	return nil
 }
 
-// GetClients 获取连接的客户端信息
+// GetClients 获取连接的客户端信息.
 func (m *Manager) GetClients() ([]map[string]string, error) {
 	cmd := exec.Command("showmount", "-a", "localhost")
 	output, err := cmd.Output()
@@ -568,7 +568,7 @@ func (m *Manager) GetClients() ([]map[string]string, error) {
 	return clients, nil
 }
 
-// ValidateExport 验证导出配置
+// ValidateExport 验证导出配置.
 func (m *Manager) ValidateExport(export *Export) error {
 	if export == nil {
 		return fmt.Errorf("导出配置不能为空")
@@ -598,14 +598,14 @@ func (m *Manager) ValidateExport(export *Export) error {
 	return nil
 }
 
-// GetConfig 获取全局配置
+// GetConfig 获取全局配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新全局配置
+// UpdateConfig 更新全局配置.
 func (m *Manager) UpdateConfig(config *Config) error {
 	if err := ValidateConfig(config); err != nil {
 		return fmt.Errorf("验证配置失败: %w", err)
@@ -623,7 +623,7 @@ func (m *Manager) UpdateConfig(config *Config) error {
 	return nil
 }
 
-// ValidateConfig 验证全局配置
+// ValidateConfig 验证全局配置.
 func ValidateConfig(config *Config) error {
 	if config == nil {
 		return fmt.Errorf("配置不能为空")

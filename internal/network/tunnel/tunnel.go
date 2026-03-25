@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Tunnel errors
+// Tunnel errors.
 var (
 	ErrTunnelNotStarted    = errors.New("tunnel not started")
 	ErrTunnelAlreadyExists = errors.New("tunnel already exists")
@@ -18,7 +18,7 @@ var (
 	ErrMaxPeersReached     = errors.New("maximum peers reached")
 )
 
-// TunnelManager manages the overall tunnel system
+// TunnelManager manages the overall tunnel system.
 type TunnelManager struct {
 	config *TunnelConfig
 	peerID string
@@ -45,7 +45,7 @@ type TunnelManager struct {
 	mu            sync.RWMutex
 }
 
-// NewTunnelManager creates a new tunnel manager
+// NewTunnelManager creates a new tunnel manager.
 func NewTunnelManager(config *TunnelConfig) (*TunnelManager, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -90,7 +90,7 @@ func NewTunnelManager(config *TunnelConfig) (*TunnelManager, error) {
 	}, nil
 }
 
-// Start starts the tunnel manager
+// Start starts the tunnel manager.
 func (m *TunnelManager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -187,7 +187,7 @@ func (m *TunnelManager) Start(ctx context.Context) error {
 	return nil
 }
 
-// setupSignalingHandlers sets up signaling message handlers
+// setupSignalingHandlers sets up signaling message handlers.
 func (m *TunnelManager) setupSignalingHandlers() {
 	// Handle peer discovery
 	m.signaling.OnMessage("peer_discovered", func(msg *Message) error {
@@ -249,7 +249,7 @@ func (m *TunnelManager) setupSignalingHandlers() {
 	})
 }
 
-// initTURNClient initializes the TURN client
+// initTURNClient initializes the TURN client.
 func (m *TunnelManager) initTURNClient() error {
 	if len(m.config.TURNServers) == 0 {
 		return errors.New("no TURN servers configured")
@@ -286,7 +286,7 @@ func (m *TunnelManager) initTURNClient() error {
 	return nil
 }
 
-// keepaliveLoop sends keepalive packets
+// keepaliveLoop sends keepalive packets.
 func (m *TunnelManager) keepaliveLoop() {
 	defer m.wg.Done()
 
@@ -319,7 +319,7 @@ func (m *TunnelManager) keepaliveLoop() {
 	}
 }
 
-// statsLoop collects statistics
+// statsLoop collects statistics.
 func (m *TunnelManager) statsLoop() {
 	defer m.wg.Done()
 
@@ -336,7 +336,7 @@ func (m *TunnelManager) statsLoop() {
 	}
 }
 
-// collectStats collects and aggregates statistics
+// collectStats collects and aggregates statistics.
 func (m *TunnelManager) collectStats() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -361,7 +361,7 @@ func (m *TunnelManager) collectStats() {
 	m.stats.Uptime = time.Since(m.startTime)
 }
 
-// ConnectPeer connects to a specific peer
+// ConnectPeer connects to a specific peer.
 func (m *TunnelManager) ConnectPeer(ctx context.Context, peerID string, peerInfo *PeerInfo) error {
 	if len(m.peerManager.GetPeers()) >= m.config.MaxPeers {
 		return ErrMaxPeersReached
@@ -386,7 +386,7 @@ func (m *TunnelManager) ConnectPeer(ctx context.Context, peerID string, peerInfo
 	return peer.Connect(ctx, m.config, m.signaling)
 }
 
-// DisconnectPeer disconnects from a peer
+// DisconnectPeer disconnects from a peer.
 func (m *TunnelManager) DisconnectPeer(peerID string) error {
 	if m.signaling != nil {
 		m.signaling.SendToPeer(peerID, MsgTypeDisconnect, nil)
@@ -394,7 +394,7 @@ func (m *TunnelManager) DisconnectPeer(peerID string) error {
 	return m.peerManager.RemovePeer(peerID)
 }
 
-// Send sends data to a specific peer
+// Send sends data to a specific peer.
 func (m *TunnelManager) Send(peerID string, data []byte) error {
 	peer, err := m.peerManager.GetPeer(peerID)
 	if err != nil {
@@ -403,12 +403,12 @@ func (m *TunnelManager) Send(peerID string, data []byte) error {
 	return peer.Send(data)
 }
 
-// Broadcast sends data to all connected peers
+// Broadcast sends data to all connected peers.
 func (m *TunnelManager) Broadcast(data []byte) error {
 	return m.peerManager.Broadcast(data)
 }
 
-// Receive returns a channel for receiving data from any peer
+// Receive returns a channel for receiving data from any peer.
 func (m *TunnelManager) Receive() <-chan *PeerData {
 	ch := make(chan *PeerData, 100)
 
@@ -431,44 +431,44 @@ func (m *TunnelManager) Receive() <-chan *PeerData {
 	return ch
 }
 
-// PeerData represents data received from a peer
+// PeerData represents data received from a peer.
 type PeerData struct {
 	PeerID string
 	Data   []byte
 }
 
-// GetState returns the current tunnel state
+// GetState returns the current tunnel state.
 func (m *TunnelManager) GetState() *TunnelState {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.state
 }
 
-// GetStats returns tunnel statistics
+// GetStats returns tunnel statistics.
 func (m *TunnelManager) GetStats() *TunnelStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// GetPeerID returns the local peer ID
+// GetPeerID returns the local peer ID.
 func (m *TunnelManager) GetPeerID() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.peerID
 }
 
-// GetPeers returns all connected peers
+// GetPeers returns all connected peers.
 func (m *TunnelManager) GetPeers() []*Peer {
 	return m.peerManager.GetPeers()
 }
 
-// GetPublicKey returns the local public key
+// GetPublicKey returns the local public key.
 func (m *TunnelManager) GetPublicKey() []byte {
 	return m.crypto.GetPublicKey()
 }
 
-// Close stops the tunnel manager
+// Close stops the tunnel manager.
 func (m *TunnelManager) Close() error {
 	m.mu.Lock()
 	if m.cancel != nil {
@@ -513,7 +513,7 @@ func (m *TunnelManager) Close() error {
 	return nil
 }
 
-// OnEvent registers an event handler
+// OnEvent registers an event handler.
 func (m *TunnelManager) OnEvent(handler EventHandler) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -521,7 +521,7 @@ func (m *TunnelManager) OnEvent(handler EventHandler) {
 	m.peerManager.OnEvent(handler)
 }
 
-// emitEvent emits an event to all handlers
+// emitEvent emits an event to all handlers.
 func (m *TunnelManager) emitEvent(event TunnelEvent) {
 	event.Timestamp = time.Now()
 	for _, handler := range m.eventHandlers {
@@ -529,7 +529,7 @@ func (m *TunnelManager) emitEvent(event TunnelEvent) {
 	}
 }
 
-// CreateTunnel creates a new tunnel between two peers
+// CreateTunnel creates a new tunnel between two peers.
 func (m *TunnelManager) CreateTunnel(ctx context.Context, remotePeerID string, config *TunnelConfig) error {
 	peer, err := m.peerManager.GetPeer(remotePeerID)
 	if err != nil {
@@ -543,31 +543,31 @@ func (m *TunnelManager) CreateTunnel(ctx context.Context, remotePeerID string, c
 	return nil
 }
 
-// DiscoverPeers discovers peers on the local network
+// DiscoverPeers discovers peers on the local network.
 func (m *TunnelManager) DiscoverPeers(ctx context.Context) ([]*PeerInfo, error) {
 	// Would implement mDNS or broadcast discovery
 	return nil, nil
 }
 
-// GetLocalCandidates returns local ICE candidates
+// GetLocalCandidates returns local ICE candidates.
 func (m *TunnelManager) GetLocalCandidates() []Candidate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.state.LocalCandidates
 }
 
-// needsRelay determines if TURN relay is needed based on NAT type
+// needsRelay determines if TURN relay is needed based on NAT type.
 func needsRelay(natType NATType) bool {
 	return natType == NATSymmetric || natType == NATSymmetricUDPFirewall
 }
 
-// TunnelServer represents a server that can accept incoming tunnel connections
+// TunnelServer represents a server that can accept incoming tunnel connections.
 type TunnelServer struct {
 	manager *TunnelManager
 	port    int
 }
 
-// NewTunnelServer creates a new tunnel server
+// NewTunnelServer creates a new tunnel server.
 func NewTunnelServer(manager *TunnelManager, port int) *TunnelServer {
 	return &TunnelServer{
 		manager: manager,
@@ -575,7 +575,7 @@ func NewTunnelServer(manager *TunnelManager, port int) *TunnelServer {
 	}
 }
 
-// Start starts listening for incoming connections
+// Start starts listening for incoming connections.
 func (s *TunnelServer) Start(ctx context.Context) error {
 	addr := &net.UDPAddr{Port: s.port}
 	conn, err := net.ListenUDP("udp", addr)
@@ -587,7 +587,7 @@ func (s *TunnelServer) Start(ctx context.Context) error {
 	return nil
 }
 
-// handleConnections handles incoming tunnel connections
+// handleConnections handles incoming tunnel connections.
 func (s *TunnelServer) handleConnections(ctx context.Context, conn *net.UDPConn) {
 	defer conn.Close()
 

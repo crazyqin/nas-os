@@ -3,10 +3,10 @@ package project
 
 import "time"
 
-// TaskStatus 任务状态类型
+// TaskStatus 任务状态类型.
 type TaskStatus string
 
-// 任务状态常量
+// 任务状态常量.
 const (
 	TaskStatusTodo       TaskStatus = "todo"
 	TaskStatusInProgress TaskStatus = "in_progress"
@@ -15,10 +15,10 @@ const (
 	TaskStatusCancelled  TaskStatus = "cancelled"
 )
 
-// TaskPriority 任务优先级类型
+// TaskPriority 任务优先级类型.
 type TaskPriority string
 
-// 任务优先级常量
+// 任务优先级常量.
 const (
 	PriorityLow    TaskPriority = "low"
 	PriorityMedium TaskPriority = "medium"
@@ -26,7 +26,7 @@ const (
 	PriorityUrgent TaskPriority = "urgent"
 )
 
-// Task 任务定义
+// Task 任务定义.
 type Task struct {
 	ID             string       `json:"id"`
 	Title          string       `json:"title"`
@@ -51,7 +51,7 @@ type Task struct {
 	CreatedBy      string       `json:"created_by"`
 }
 
-// Milestone 里程碑
+// Milestone 里程碑.
 type Milestone struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -69,7 +69,7 @@ type Milestone struct {
 	CreatedBy   string     `json:"created_by"`
 }
 
-// Project 项目
+// Project 项目.
 type Project struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -87,7 +87,7 @@ type Project struct {
 	CreatedBy   string     `json:"created_by"`
 }
 
-// TaskComment 任务评论
+// TaskComment 任务评论.
 type TaskComment struct {
 	ID        string    `json:"id"`
 	TaskID    string    `json:"task_id"`
@@ -97,7 +97,7 @@ type TaskComment struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TaskHistory 任务历史记录
+// TaskHistory 任务历史记录.
 type TaskHistory struct {
 	ID        string                 `json:"id"`
 	TaskID    string                 `json:"task_id"`
@@ -109,7 +109,7 @@ type TaskHistory struct {
 	Metadata  map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// TaskFilter 任务筛选条件
+// TaskFilter 任务筛选条件.
 type TaskFilter struct {
 	Status      []TaskStatus   `json:"status,omitempty"`
 	Priority    []TaskPriority `json:"priority,omitempty"`
@@ -128,7 +128,7 @@ type TaskFilter struct {
 	Offset      int            `json:"offset,omitempty"`
 }
 
-// TaskStats 任务统计
+// TaskStats 任务统计.
 type TaskStats struct {
 	Total             int            `json:"total"`
 	ByStatus          map[string]int `json:"by_status"`

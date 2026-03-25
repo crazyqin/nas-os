@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Stats holds cache statistics
+// Stats holds cache statistics.
 type Stats struct {
 	Hits        int64   `json:"hits"`
 	Misses      int64   `json:"misses"`
@@ -19,7 +19,7 @@ type Stats struct {
 	HitRatio    float64 `json:"hit_ratio"`
 }
 
-// Manager handles multiple cache instances with statistics
+// Manager handles multiple cache instances with statistics.
 type Manager struct {
 	memoryCache *LRUCache
 	redisCache  *RedisCache // Optional
@@ -39,7 +39,7 @@ type Manager struct {
 	cancel context.CancelFunc
 }
 
-// NewManager creates a new cache manager
+// NewManager creates a new cache manager.
 func NewManager(capacity int, ttl time.Duration, logger *zap.Logger) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
@@ -55,7 +55,7 @@ func NewManager(capacity int, ttl time.Duration, logger *zap.Logger) *Manager {
 	return m
 }
 
-// EnableRedis enables Redis cache (optional)
+// EnableRedis enables Redis cache (optional).
 func (m *Manager) EnableRedis(addr, password string, db int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -70,7 +70,7 @@ func (m *Manager) EnableRedis(addr, password string, db int) error {
 	return nil
 }
 
-// Get retrieves a value from cache (memory first, then redis)
+// Get retrieves a value from cache (memory first, then redis).
 func (m *Manager) Get(key string) (interface{}, bool) {
 	// Try memory cache first
 	if val, ok := m.memoryCache.Get(key); ok {
@@ -92,7 +92,7 @@ func (m *Manager) Get(key string) (interface{}, bool) {
 	return nil, false
 }
 
-// Set stores a value in cache
+// Set stores a value in cache.
 func (m *Manager) Set(key string, value interface{}) {
 	atomic.AddInt64(&m.sets, 1)
 	m.memoryCache.Set(key, value)
@@ -103,7 +103,7 @@ func (m *Manager) Set(key string, value interface{}) {
 	}
 }
 
-// Delete removes a key from cache
+// Delete removes a key from cache.
 func (m *Manager) Delete(key string) {
 	m.memoryCache.Delete(key)
 	if m.redisCache != nil {
@@ -111,7 +111,7 @@ func (m *Manager) Delete(key string) {
 	}
 }
 
-// GetStats returns current cache statistics
+// GetStats returns current cache statistics.
 func (m *Manager) GetStats() *Stats {
 	hits := atomic.LoadInt64(&m.hits)
 	misses := atomic.LoadInt64(&m.misses)
@@ -133,7 +133,7 @@ func (m *Manager) GetStats() *Stats {
 	}
 }
 
-// ResetStats resets all statistics
+// ResetStats resets all statistics.
 func (m *Manager) ResetStats() {
 	atomic.StoreInt64(&m.hits, 0)
 	atomic.StoreInt64(&m.misses, 0)
@@ -142,7 +142,7 @@ func (m *Manager) ResetStats() {
 	atomic.StoreInt64(&m.expires, 0)
 }
 
-// startCleanup runs periodic cleanup of expired items
+// startCleanup runs periodic cleanup of expired items.
 func (m *Manager) startCleanup() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -161,7 +161,7 @@ func (m *Manager) startCleanup() {
 	}
 }
 
-// Stop stops the cache manager and cleanup goroutine
+// Stop stops the cache manager and cleanup goroutine.
 func (m *Manager) Stop() {
 	if m.cancel != nil {
 		m.cancel()
@@ -169,17 +169,17 @@ func (m *Manager) Stop() {
 	m.logger.Info("Cache manager stopped")
 }
 
-// GetMemoryCache returns the underlying memory cache
+// GetMemoryCache returns the underlying memory cache.
 func (m *Manager) GetMemoryCache() *LRUCache {
 	return m.memoryCache
 }
 
-// GetRedisCache returns the redis cache if enabled
+// GetRedisCache returns the redis cache if enabled.
 func (m *Manager) GetRedisCache() *RedisCache {
 	return m.redisCache
 }
 
-// Clear clears all cache entries (both memory and redis)
+// Clear clears all cache entries (both memory and redis).
 func (m *Manager) Clear() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -191,7 +191,7 @@ func (m *Manager) Clear() {
 	m.logger.Info("Cache cleared")
 }
 
-// GetMulti retrieves multiple values from cache
+// GetMulti retrieves multiple values from cache.
 func (m *Manager) GetMulti(keys []string) map[string]interface{} {
 	result := make(map[string]interface{})
 	for _, key := range keys {
@@ -202,21 +202,21 @@ func (m *Manager) GetMulti(keys []string) map[string]interface{} {
 	return result
 }
 
-// SetMulti stores multiple values in cache
+// SetMulti stores multiple values in cache.
 func (m *Manager) SetMulti(items map[string]interface{}) {
 	for key, value := range items {
 		m.Set(key, value)
 	}
 }
 
-// DeleteMulti removes multiple keys from cache
+// DeleteMulti removes multiple keys from cache.
 func (m *Manager) DeleteMulti(keys []string) {
 	for _, key := range keys {
 		m.Delete(key)
 	}
 }
 
-// GetOrSet retrieves a value or sets it using the provided function
+// GetOrSet retrieves a value or sets it using the provided function.
 func (m *Manager) GetOrSet(key string, fn func() (interface{}, error)) (interface{}, error) {
 	// Try to get from cache first
 	if val, ok := m.Get(key); ok {
@@ -234,7 +234,7 @@ func (m *Manager) GetOrSet(key string, fn func() (interface{}, error)) (interfac
 	return val, nil
 }
 
-// Warmup preloads cache with frequently accessed data
+// Warmup preloads cache with frequently accessed data.
 func (m *Manager) Warmup(items map[string]interface{}) {
 	for key, value := range items {
 		m.Set(key, value)
@@ -242,7 +242,7 @@ func (m *Manager) Warmup(items map[string]interface{}) {
 	m.logger.Info("Cache warmed up", zap.Int("items", len(items)))
 }
 
-// InvalidatePattern invalidates all keys matching a pattern
+// InvalidatePattern invalidates all keys matching a pattern.
 func (m *Manager) InvalidatePattern(pattern string) {
 	// For memory cache, we need to iterate through all keys
 	// This is a simplified implementation

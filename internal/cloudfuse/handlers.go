@@ -9,19 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建 HTTP 处理器
+// NewHandler 创建 HTTP 处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	mounts := r.Group("/mounts")
 	{
@@ -44,7 +44,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 // @Tags cloudfuse
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/cloudfuse/mounts/providers [get]
+// @Router /api/v1/cloudfuse/mounts/providers [get].
 func (h *Handler) ListProviders(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"providers": SupportedProviders(),
@@ -57,7 +57,7 @@ func (h *Handler) ListProviders(c *gin.Context) {
 // @Tags cloudfuse
 // @Produce json
 // @Success 200 {object} MountListResponse
-// @Router /api/v1/cloudfuse/mounts [get]
+// @Router /api/v1/cloudfuse/mounts [get].
 func (h *Handler) ListMounts(c *gin.Context) {
 	mounts := h.manager.ListMounts()
 
@@ -76,7 +76,7 @@ func (h *Handler) ListMounts(c *gin.Context) {
 // @Param request body MountRequest true "挂载请求"
 // @Success 200 {object} MountInfo
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/cloudfuse/mounts [post]
+// @Router /api/v1/cloudfuse/mounts [post].
 func (h *Handler) CreateMount(c *gin.Context) {
 	var req MountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -138,7 +138,7 @@ func (h *Handler) CreateMount(c *gin.Context) {
 // @Param id path string true "挂载ID"
 // @Success 200 {object} MountInfo
 // @Failure 404 {object} map[string]string
-// @Router /api/v1/cloudfuse/mounts/{id} [get]
+// @Router /api/v1/cloudfuse/mounts/{id} [get].
 func (h *Handler) GetMount(c *gin.Context) {
 	id := c.Param("id")
 
@@ -161,7 +161,7 @@ func (h *Handler) GetMount(c *gin.Context) {
 // @Param request body MountRequest true "挂载配置"
 // @Success 200 {object} MountInfo
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/cloudfuse/mounts/{id} [put]
+// @Router /api/v1/cloudfuse/mounts/{id} [put].
 func (h *Handler) UpdateMount(c *gin.Context) {
 	id := c.Param("id")
 
@@ -218,7 +218,7 @@ func (h *Handler) UpdateMount(c *gin.Context) {
 // @Param id path string true "挂载ID"
 // @Success 200 {object} OperationResult
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/cloudfuse/mounts/{id} [delete]
+// @Router /api/v1/cloudfuse/mounts/{id} [delete].
 func (h *Handler) DeleteMount(c *gin.Context) {
 	id := c.Param("id")
 
@@ -244,7 +244,7 @@ func (h *Handler) DeleteMount(c *gin.Context) {
 // @Param id path string true "挂载ID"
 // @Success 200 {object} MountInfo
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/cloudfuse/mounts/{id}/mount [post]
+// @Router /api/v1/cloudfuse/mounts/{id}/mount [post].
 func (h *Handler) Mount(c *gin.Context) {
 	id := c.Param("id")
 
@@ -289,7 +289,7 @@ func (h *Handler) Mount(c *gin.Context) {
 // @Param id path string true "挂载ID"
 // @Success 200 {object} OperationResult
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/cloudfuse/mounts/{id}/unmount [post]
+// @Router /api/v1/cloudfuse/mounts/{id}/unmount [post].
 func (h *Handler) Unmount(c *gin.Context) {
 	id := c.Param("id")
 
@@ -312,7 +312,7 @@ func (h *Handler) Unmount(c *gin.Context) {
 // @Param id path string true "挂载ID"
 // @Success 200 {object} MountStats
 // @Failure 404 {object} map[string]string
-// @Router /api/v1/cloudfuse/mounts/{id}/stats [get]
+// @Router /api/v1/cloudfuse/mounts/{id}/stats [get].
 func (h *Handler) GetStats(c *gin.Context) {
 	id := c.Param("id")
 
@@ -334,7 +334,7 @@ func (h *Handler) GetStats(c *gin.Context) {
 // @Param request body MountRequest true "挂载配置"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/cloudfuse/mounts/test [post]
+// @Router /api/v1/cloudfuse/mounts/test [post].
 func (h *Handler) TestMount(c *gin.Context) {
 	var req MountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

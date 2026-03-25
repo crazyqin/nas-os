@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-// MilestoneHealthStatus 里程碑健康状态
+// MilestoneHealthStatus 里程碑健康状态.
 type MilestoneHealthStatus string
 
-// 里程碑健康状态常量
+// 里程碑健康状态常量.
 const (
 	HealthStatusHealthy    MilestoneHealthStatus = "healthy"     // 按计划进行
 	HealthStatusAtRisk     MilestoneHealthStatus = "at_risk"     // 有风险
@@ -21,10 +21,10 @@ const (
 	HealthStatusNotStarted MilestoneHealthStatus = "not_started" // 未开始
 )
 
-// MilestoneRiskLevel 风险等级
+// MilestoneRiskLevel 风险等级.
 type MilestoneRiskLevel string
 
-// 风险等级常量
+// 风险等级常量.
 const (
 	RiskLevelLow      MilestoneRiskLevel = "low"
 	RiskLevelMedium   MilestoneRiskLevel = "medium"
@@ -32,7 +32,7 @@ const (
 	RiskLevelCritical MilestoneRiskLevel = "critical"
 )
 
-// MilestoneHealthReport 里程碑健康报告
+// MilestoneHealthReport 里程碑健康报告.
 type MilestoneHealthReport struct {
 	MilestoneID      string                `json:"milestone_id"`
 	HealthStatus     MilestoneHealthStatus `json:"health_status"`
@@ -49,7 +49,7 @@ type MilestoneHealthReport struct {
 	LastUpdated      time.Time             `json:"last_updated"`
 }
 
-// RiskFactor 风险因素
+// RiskFactor 风险因素.
 type RiskFactor struct {
 	Type        string `json:"type"`     // schedule, resource, dependency, scope
 	Severity    string `json:"severity"` // low, medium, high, critical
@@ -58,7 +58,7 @@ type RiskFactor struct {
 	Mitigation  string `json:"mitigation,omitempty"`
 }
 
-// BottleneckInfo 瓶颈信息
+// BottleneckInfo 瓶颈信息.
 type BottleneckInfo struct {
 	Type        string   `json:"type"`         // assignee, task, dependency
 	ID          string   `json:"id"`           // 相关 ID
@@ -67,7 +67,7 @@ type BottleneckInfo struct {
 	Impact      int      `json:"impact"`       // 影响任务数
 }
 
-// MilestoneTracker 里程碑追踪器
+// MilestoneTracker 里程碑追踪器.
 type MilestoneTracker struct {
 	mu       sync.RWMutex
 	manager  *Manager
@@ -75,14 +75,14 @@ type MilestoneTracker struct {
 	notifier MilestoneNotifier
 }
 
-// MilestoneNotifier 里程碑通知接口
+// MilestoneNotifier 里程碑通知接口.
 type MilestoneNotifier interface {
 	NotifyHealthChange(milestoneID string, oldStatus, newStatus MilestoneHealthStatus)
 	NotifyRiskAlert(milestoneID string, risk RiskFactor)
 	NotifyBottleneck(milestoneID string, bottleneck BottleneckInfo)
 }
 
-// NewMilestoneTracker 创建里程碑追踪器
+// NewMilestoneTracker 创建里程碑追踪器.
 func NewMilestoneTracker(mgr *Manager, notifier MilestoneNotifier) *MilestoneTracker {
 	return &MilestoneTracker{
 		manager:  mgr,
@@ -91,7 +91,7 @@ func NewMilestoneTracker(mgr *Manager, notifier MilestoneNotifier) *MilestoneTra
 	}
 }
 
-// AnalyzeMilestone 分析里程碑健康状态
+// AnalyzeMilestone 分析里程碑健康状态.
 func (mt *MilestoneTracker) AnalyzeMilestone(milestoneID string) (*MilestoneHealthReport, error) {
 	mt.mu.Lock()
 	defer mt.mu.Unlock()
@@ -172,7 +172,7 @@ func (mt *MilestoneTracker) AnalyzeMilestone(milestoneID string) (*MilestoneHeal
 	return report, nil
 }
 
-// determineHealthStatus 确定健康状态
+// determineHealthStatus 确定健康状态.
 func (mt *MilestoneTracker) determineHealthStatus(milestone *Milestone, report *MilestoneHealthReport, stats MilestoneStats) MilestoneHealthStatus {
 	// 已完成
 	if milestone.Status == string(MilestoneStatusCompleted) {
@@ -202,7 +202,7 @@ func (mt *MilestoneTracker) determineHealthStatus(milestone *Milestone, report *
 	}
 }
 
-// determineRiskLevel 确定风险等级
+// determineRiskLevel 确定风险等级.
 func (mt *MilestoneTracker) determineRiskLevel(report *MilestoneHealthReport) MilestoneRiskLevel {
 	switch {
 	case report.DaysOverdue > 7 || report.Deviation < -40:
@@ -216,7 +216,7 @@ func (mt *MilestoneTracker) determineRiskLevel(report *MilestoneHealthReport) Mi
 	}
 }
 
-// analyzeRiskFactors 分析风险因素
+// analyzeRiskFactors 分析风险因素.
 func (mt *MilestoneTracker) analyzeRiskFactors(milestone *Milestone, report *MilestoneHealthReport, stats MilestoneStats) {
 	mm := NewMilestoneManager(mt.manager)
 	// 1. 进度风险
@@ -301,7 +301,7 @@ func (mt *MilestoneTracker) analyzeRiskFactors(milestone *Milestone, report *Mil
 	}
 }
 
-// analyzeBottlenecks 分析瓶颈
+// analyzeBottlenecks 分析瓶颈.
 func (mt *MilestoneTracker) analyzeBottlenecks(milestoneID string, report *MilestoneHealthReport) {
 	mm := NewMilestoneManager(mt.manager)
 	tasks := mm.GetMilestoneTasks(milestoneID, 1000, 0)
@@ -359,7 +359,7 @@ func (mt *MilestoneTracker) analyzeBottlenecks(milestoneID string, report *Miles
 	}
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (mt *MilestoneTracker) generateRecommendations(report *MilestoneHealthReport) {
 	switch report.HealthStatus {
 	case HealthStatusCritical:
@@ -404,7 +404,7 @@ func (mt *MilestoneTracker) generateRecommendations(report *MilestoneHealthRepor
 	}
 }
 
-// forecastCompletionDate 预测完成日期
+// forecastCompletionDate 预测完成日期.
 func (mt *MilestoneTracker) forecastCompletionDate(milestone *Milestone, stats MilestoneStats) *time.Time {
 	if stats.Progress >= 100 || stats.TotalTasks == 0 {
 		return nil
@@ -433,7 +433,7 @@ func (mt *MilestoneTracker) forecastCompletionDate(milestone *Milestone, stats M
 	return &forecast
 }
 
-// GetMilestoneHealthReport 获取里程碑健康报告
+// GetMilestoneHealthReport 获取里程碑健康报告.
 func (mt *MilestoneTracker) GetMilestoneHealthReport(milestoneID string) (*MilestoneHealthReport, error) {
 	mt.mu.RLock()
 	report, exists := mt.report[milestoneID]
@@ -447,7 +447,7 @@ func (mt *MilestoneTracker) GetMilestoneHealthReport(milestoneID string) (*Miles
 	return mt.AnalyzeMilestone(milestoneID)
 }
 
-// GetAllMilestoneReports 获取所有里程碑报告
+// GetAllMilestoneReports 获取所有里程碑报告.
 func (mt *MilestoneTracker) GetAllMilestoneReports(projectID string) ([]*MilestoneHealthReport, error) {
 	milestones := mt.manager.ListMilestones(projectID)
 	reports := make([]*MilestoneHealthReport, 0, len(milestones))
@@ -463,7 +463,7 @@ func (mt *MilestoneTracker) GetAllMilestoneReports(projectID string) ([]*Milesto
 	return reports, nil
 }
 
-// GetAtRiskMilestones 获取有风险的里程碑
+// GetAtRiskMilestones 获取有风险的里程碑.
 func (mt *MilestoneTracker) GetAtRiskMilestones(projectID string) ([]*MilestoneHealthReport, error) {
 	reports, err := mt.GetAllMilestoneReports(projectID)
 	if err != nil {
@@ -482,7 +482,7 @@ func (mt *MilestoneTracker) GetAtRiskMilestones(projectID string) ([]*MilestoneH
 	return atRisk, nil
 }
 
-// MilestoneTrend 里程碑趋势
+// MilestoneTrend 里程碑趋势.
 type MilestoneTrend struct {
 	MilestoneID  string       `json:"milestone_id"`
 	TrendPoints  []TrendPoint `json:"trend_points"`
@@ -491,13 +491,13 @@ type MilestoneTrend struct {
 	Acceleration float64      `json:"acceleration"` // 加速度
 }
 
-// TrendPoint 趋势数据点
+// TrendPoint 趋势数据点.
 type TrendPoint struct {
 	Date     time.Time `json:"date"`
 	Progress int       `json:"progress"`
 }
 
-// CalculateTrend 计算里程碑趋势
+// CalculateTrend 计算里程碑趋势.
 func (mt *MilestoneTracker) CalculateTrend(milestoneID string) (*MilestoneTrend, error) {
 	mpt := NewMilestoneProgressTracker(mt.manager)
 	records := mpt.GetProgressHistory(milestoneID)
@@ -556,7 +556,7 @@ func (mt *MilestoneTracker) CalculateTrend(milestoneID string) (*MilestoneTrend,
 	return trend, nil
 }
 
-// BatchAnalyzeMilestones 批量分析里程碑
+// BatchAnalyzeMilestones 批量分析里程碑.
 func (mt *MilestoneTracker) BatchAnalyzeMilestones(projectID string) (map[string]*MilestoneHealthReport, error) {
 	milestones := mt.manager.ListMilestones(projectID)
 	results := make(map[string]*MilestoneHealthReport)

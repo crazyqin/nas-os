@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// SimilarityDetector 相似度检测器
+// SimilarityDetector 相似度检测器.
 type SimilarityDetector struct {
 	config       Config
 	hashIndex    map[string][]string // hash -> file paths
@@ -25,7 +25,7 @@ type SimilarityDetector struct {
 	mu           sync.RWMutex
 }
 
-// NewSimilarityDetector 创建相似度检测器
+// NewSimilarityDetector 创建相似度检测器.
 func NewSimilarityDetector(config Config) *SimilarityDetector {
 	return &SimilarityDetector{
 		config:       config,
@@ -35,7 +35,7 @@ func NewSimilarityDetector(config Config) *SimilarityDetector {
 	}
 }
 
-// DetectSimilar 检测相似文件
+// DetectSimilar 检测相似文件.
 func (d *SimilarityDetector) DetectSimilar(ctx context.Context, path string, options ...DetectOption) ([]Similarity, error) {
 	opts := &DetectOptions{
 		MaxResults:   d.config.MaxSimilarFiles,
@@ -140,7 +140,7 @@ func (d *SimilarityDetector) DetectSimilar(ctx context.Context, path string, opt
 	return results, nil
 }
 
-// DetectOptions 检测选项
+// DetectOptions 检测选项.
 type DetectOptions struct {
 	MaxResults    int
 	MinScore      float64
@@ -150,10 +150,10 @@ type DetectOptions struct {
 	CheckSemantic bool
 }
 
-// DetectOption 检测选项函数
+// DetectOption 检测选项函数.
 type DetectOption func(*DetectOptions)
 
-// detectNameSimilarity 检测文件名相似度
+// detectNameSimilarity 检测文件名相似度.
 func (d *SimilarityDetector) detectNameSimilarity(path string, minScore float64) []Similarity {
 	var results []Similarity
 	fileName := normalizeFileName(filepath.Base(path))
@@ -187,7 +187,7 @@ func (d *SimilarityDetector) detectNameSimilarity(path string, minScore float64)
 	return results
 }
 
-// detectContentSimilarity 检测内容相似度
+// detectContentSimilarity 检测内容相似度.
 func (d *SimilarityDetector) detectContentSimilarity(path string, features Features, minScore float64) []Similarity {
 	var results []Similarity
 
@@ -228,7 +228,7 @@ func (d *SimilarityDetector) detectContentSimilarity(path string, features Featu
 	return results
 }
 
-// detectSemanticSimilarity 检测语义相似度
+// detectSemanticSimilarity 检测语义相似度.
 func (d *SimilarityDetector) detectSemanticSimilarity(path string, features Features, minScore float64) []Similarity {
 	var results []Similarity
 
@@ -256,7 +256,7 @@ func (d *SimilarityDetector) detectSemanticSimilarity(path string, features Feat
 	return results
 }
 
-// calculateFeatureSimilarity 计算特征相似度
+// calculateFeatureSimilarity 计算特征相似度.
 func (d *SimilarityDetector) calculateFeatureSimilarity(a, b Features) float64 {
 	var score float64
 	var count float64
@@ -305,7 +305,7 @@ func (d *SimilarityDetector) calculateFeatureSimilarity(a, b Features) float64 {
 	return score / count
 }
 
-// IndexFile 索引文件
+// IndexFile 索引文件.
 func (d *SimilarityDetector) IndexFile(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -348,7 +348,7 @@ func (d *SimilarityDetector) IndexFile(path string) error {
 	return nil
 }
 
-// IndexDirectory 索引目录
+// IndexDirectory 索引目录.
 func (d *SimilarityDetector) IndexDirectory(ctx context.Context, dir string, recursive bool, concurrency int) error {
 	var paths []string
 
@@ -399,7 +399,7 @@ func (d *SimilarityDetector) IndexDirectory(ctx context.Context, dir string, rec
 	return indexErr
 }
 
-// RemoveFromIndex 从索引中移除
+// RemoveFromIndex 从索引中移除.
 func (d *SimilarityDetector) RemoveFromIndex(path string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -428,7 +428,7 @@ func (d *SimilarityDetector) RemoveFromIndex(path string) {
 	delete(d.featureIndex, path)
 }
 
-// FindDuplicates 查找重复文件
+// FindDuplicates 查找重复文件.
 func (d *SimilarityDetector) FindDuplicates(ctx context.Context) ([][]string, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -444,7 +444,7 @@ func (d *SimilarityDetector) FindDuplicates(ctx context.Context) ([][]string, er
 	return duplicates, nil
 }
 
-// GetStatistics 获取统计信息
+// GetStatistics 获取统计信息.
 func (d *SimilarityDetector) GetStatistics() map[string]interface{} {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -468,7 +468,7 @@ func (d *SimilarityDetector) GetStatistics() map[string]interface{} {
 	}
 }
 
-// SaveIndex 保存索引
+// SaveIndex 保存索引.
 func (d *SimilarityDetector) SaveIndex(path string) error {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -491,7 +491,7 @@ func (d *SimilarityDetector) SaveIndex(path string) error {
 	return os.WriteFile(path, jsonData, 0640)
 }
 
-// LoadIndex 加载索引
+// LoadIndex 加载索引.
 func (d *SimilarityDetector) LoadIndex(path string) error {
 	jsonData, err := os.ReadFile(path)
 	if err != nil {
@@ -518,7 +518,7 @@ func (d *SimilarityDetector) LoadIndex(path string) error {
 	return nil
 }
 
-// calculateFileHash 计算文件哈希
+// calculateFileHash 计算文件哈希.
 func (d *SimilarityDetector) calculateFileHash(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -534,7 +534,7 @@ func (d *SimilarityDetector) calculateFileHash(path string) (string, error) {
 	return hex.EncodeToString(hasher.Sum(nil)), nil
 }
 
-// extractFeatures 提取特征
+// extractFeatures 提取特征.
 func (d *SimilarityDetector) extractFeatures(path string) (Features, error) {
 	ext := strings.ToLower(filepath.Ext(path))
 	features := Features{}
@@ -552,7 +552,7 @@ func (d *SimilarityDetector) extractFeatures(path string) (Features, error) {
 	return features, nil
 }
 
-// extractTextFeatures 提取文本特征
+// extractTextFeatures 提取文本特征.
 func (d *SimilarityDetector) extractTextFeatures(path string, info os.FileInfo) (Features, error) {
 	features := Features{}
 
@@ -581,7 +581,7 @@ func (d *SimilarityDetector) extractTextFeatures(path string, info os.FileInfo) 
 	return features, nil
 }
 
-// normalizeFileName 标准化文件名
+// normalizeFileName 标准化文件名.
 func normalizeFileName(name string) string {
 	// 移除扩展名
 	ext := filepath.Ext(name)
@@ -600,7 +600,7 @@ func normalizeFileName(name string) string {
 	return name
 }
 
-// calculateStringSimilarity 计算字符串相似度（Levenshtein 距离）
+// calculateStringSimilarity 计算字符串相似度（Levenshtein 距离）.
 func calculateStringSimilarity(a, b string) float64 {
 	if a == b {
 		return 1.0
@@ -643,7 +643,7 @@ func calculateStringSimilarity(a, b string) float64 {
 	return 1.0 - float64(distance)/float64(maxLen)
 }
 
-// jaccardSimilarity 计算 Jaccard 相似度
+// jaccardSimilarity 计算 Jaccard 相似度.
 func jaccardSimilarity(a, b map[string]bool) float64 {
 	if len(a) == 0 && len(b) == 0 {
 		return 1.0
@@ -664,7 +664,7 @@ func jaccardSimilarity(a, b map[string]bool) float64 {
 	return float64(intersection) / float64(union)
 }
 
-// isTextFile 检查是否是文本文件
+// isTextFile 检查是否是文本文件.
 func isTextFile(ext string) bool {
 	textExts := map[string]bool{
 		".txt": true, ".md": true, ".json": true, ".xml": true,

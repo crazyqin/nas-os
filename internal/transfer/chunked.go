@@ -15,13 +15,13 @@ import (
 )
 
 const (
-	// DefaultChunkSize 默认分块大小 4MB
+	// DefaultChunkSize 默认分块大小 4MB.
 	DefaultChunkSize = 4 * 1024 * 1024
-	// MaxRetries 最大重试次数
+	// MaxRetries 最大重试次数.
 	MaxRetries = 3
 )
 
-// ChunkInfo represents a file chunk
+// ChunkInfo represents a file chunk.
 type ChunkInfo struct {
 	Index      int       `json:"index"`
 	Offset     int64     `json:"offset"`
@@ -31,7 +31,7 @@ type ChunkInfo struct {
 	UploadTime time.Time `json:"upload_time,omitempty"`
 }
 
-// UploadProgress tracks upload progress
+// UploadProgress tracks upload progress.
 type UploadProgress struct {
 	TotalChunks    int     `json:"total_chunks"`
 	UploadedChunks int     `json:"uploaded_chunks"`
@@ -42,13 +42,13 @@ type UploadProgress struct {
 	ETA            int64   `json:"eta"`      // seconds
 }
 
-// ChunkedUploader handles chunked file uploads
+// ChunkedUploader handles chunked file uploads.
 type ChunkedUploader struct {
 	chunkSize  int64
 	maxRetries int
 }
 
-// NewChunkedUploader creates a new chunked uploader
+// NewChunkedUploader creates a new chunked uploader.
 func NewChunkedUploader(chunkSize int64, maxRetries int) *ChunkedUploader {
 	if chunkSize <= 0 {
 		chunkSize = DefaultChunkSize
@@ -63,7 +63,7 @@ func NewChunkedUploader(chunkSize int64, maxRetries int) *ChunkedUploader {
 	}
 }
 
-// SplitFile splits a file into chunks
+// SplitFile splits a file into chunks.
 func (u *ChunkedUploader) SplitFile(filePath string, outputDir string) ([]ChunkInfo, error) {
 	// 安全检查：验证路径不包含路径遍历
 	if err := pathutil.ValidatePath(filePath); err != nil {
@@ -121,7 +121,7 @@ func (u *ChunkedUploader) SplitFile(filePath string, outputDir string) ([]ChunkI
 	return chunks, nil
 }
 
-// MergeChunks merges uploaded chunks into final file
+// MergeChunks merges uploaded chunks into final file.
 func (u *ChunkedUploader) MergeChunks(chunkDir string, outputPath string, totalChunks int) error {
 	// 安全检查：验证路径
 	if err := pathutil.ValidatePath(chunkDir); err != nil {
@@ -164,7 +164,7 @@ func (u *ChunkedUploader) MergeChunks(chunkDir string, outputPath string, totalC
 	return nil
 }
 
-// UploadChunk uploads a single chunk with retry
+// UploadChunk uploads a single chunk with retry.
 func (u *ChunkedUploader) UploadChunk(
 	chunkPath string,
 	uploadFunc func(data []byte, chunk ChunkInfo) error,
@@ -197,7 +197,7 @@ func (u *ChunkedUploader) UploadChunk(
 	return fmt.Errorf("failed after %d attempts: %w", u.maxRetries, lastErr)
 }
 
-// CalculateFileSHA256 calculates SHA256 hash of a file
+// CalculateFileSHA256 calculates SHA256 hash of a file.
 func CalculateFileSHA256(filePath string) (string, error) {
 	// 安全检查：验证路径
 	if err := pathutil.ValidatePath(filePath); err != nil {
@@ -228,7 +228,7 @@ func calculateSHA256(data []byte) string {
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-// CompressReader creates a gzip compression reader
+// CompressReader creates a gzip compression reader.
 func CompressReader(reader io.Reader) (io.Reader, error) {
 	pr, pw := io.Pipe()
 	gw := gzip.NewWriter(pw)
@@ -255,12 +255,12 @@ func CompressReader(reader io.Reader) (io.Reader, error) {
 	return pr, nil
 }
 
-// DecompressReader creates a gzip decompression reader
+// DecompressReader creates a gzip decompression reader.
 func DecompressReader(reader io.Reader) (io.Reader, error) {
 	return gzip.NewReader(reader)
 }
 
-// CompressFile compresses a file
+// CompressFile compresses a file.
 func CompressFile(inputPath, outputPath string) (err error) {
 	// 安全检查：验证路径
 	if err := pathutil.ValidatePath(inputPath); err != nil {
@@ -301,7 +301,7 @@ func CompressFile(inputPath, outputPath string) (err error) {
 	return err
 }
 
-// DecompressFile decompresses a file
+// DecompressFile decompresses a file.
 func DecompressFile(inputPath, outputPath string) (err error) {
 	// 安全检查：验证路径
 	if err := pathutil.ValidatePath(inputPath); err != nil {
@@ -348,7 +348,7 @@ func DecompressFile(inputPath, outputPath string) (err error) {
 	return err
 }
 
-// ResumableUpload supports resumable uploads
+// ResumableUpload supports resumable uploads.
 type ResumableUpload struct {
 	filePath     string
 	fileSize     int64
@@ -357,7 +357,7 @@ type ResumableUpload struct {
 	mu           sync.Mutex
 }
 
-// NewResumableUpload creates a new resumable upload session
+// NewResumableUpload creates a new resumable upload session.
 func NewResumableUpload(filePath string, chunkSize int64) (*ResumableUpload, error) {
 	stat, err := os.Stat(filePath)
 	if err != nil {
@@ -375,7 +375,7 @@ func NewResumableUpload(filePath string, chunkSize int64) (*ResumableUpload, err
 	}, nil
 }
 
-// GetNextChunk returns the next chunk to upload
+// GetNextChunk returns the next chunk to upload.
 func (r *ResumableUpload) GetNextChunk() ([]byte, int64, int64, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -404,7 +404,7 @@ func (r *ResumableUpload) GetNextChunk() ([]byte, int64, int64, error) {
 	return buf[:n], offset, int64(n), nil
 }
 
-// GetProgress returns upload progress
+// GetProgress returns upload progress.
 func (r *ResumableUpload) GetProgress() float64 {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -412,28 +412,28 @@ func (r *ResumableUpload) GetProgress() float64 {
 	return float64(r.uploadedSize) / float64(r.fileSize) * 100
 }
 
-// SetUploadedSize sets the already uploaded size (for resuming)
+// SetUploadedSize sets the already uploaded size (for resuming).
 func (r *ResumableUpload) SetUploadedSize(size int64) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.uploadedSize = size
 }
 
-// GetUploadedSize returns the uploaded size
+// GetUploadedSize returns the uploaded size.
 func (r *ResumableUpload) GetUploadedSize() int64 {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return r.uploadedSize
 }
 
-// IsComplete checks if upload is complete
+// IsComplete checks if upload is complete.
 func (r *ResumableUpload) IsComplete() bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return r.uploadedSize >= r.fileSize
 }
 
-// ChunkedReader reads a file in chunks
+// ChunkedReader reads a file in chunks.
 type ChunkedReader struct {
 	file      *os.File
 	chunkSize int
@@ -442,7 +442,7 @@ type ChunkedReader struct {
 	eof       bool
 }
 
-// NewChunkedReader creates a new chunked reader
+// NewChunkedReader creates a new chunked reader.
 func NewChunkedReader(filePath string, chunkSize int) (*ChunkedReader, error) {
 	// 安全检查：验证路径
 	if err := pathutil.ValidatePath(filePath); err != nil {
@@ -465,7 +465,7 @@ func NewChunkedReader(filePath string, chunkSize int) (*ChunkedReader, error) {
 	}, nil
 }
 
-// ReadNextChunk reads the next chunk
+// ReadNextChunk reads the next chunk.
 func (r *ChunkedReader) ReadNextChunk() ([]byte, error) {
 	if r.eof {
 		return nil, io.EOF
@@ -487,17 +487,17 @@ func (r *ChunkedReader) ReadNextChunk() ([]byte, error) {
 	return r.buf[:n], nil
 }
 
-// GetOffset returns current read offset
+// GetOffset returns current read offset.
 func (r *ChunkedReader) GetOffset() int64 {
 	return r.offset
 }
 
-// Close closes the reader
+// Close closes the reader.
 func (r *ChunkedReader) Close() error {
 	return r.file.Close()
 }
 
-// ChunkedWriter writes data in chunks
+// ChunkedWriter writes data in chunks.
 type ChunkedWriter struct {
 	file      *os.File
 	chunkSize int
@@ -506,7 +506,7 @@ type ChunkedWriter struct {
 	mu        sync.Mutex
 }
 
-// NewChunkedWriter creates a new chunked writer
+// NewChunkedWriter creates a new chunked writer.
 func NewChunkedWriter(filePath string, chunkSize int) (*ChunkedWriter, error) {
 	// 安全检查：验证路径
 	if err := pathutil.ValidatePath(filePath); err != nil {
@@ -529,7 +529,7 @@ func NewChunkedWriter(filePath string, chunkSize int) (*ChunkedWriter, error) {
 	}, nil
 }
 
-// WriteChunk writes a chunk
+// WriteChunk writes a chunk.
 func (w *ChunkedWriter) WriteChunk(data []byte) (int64, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -543,7 +543,7 @@ func (w *ChunkedWriter) WriteChunk(data []byte) (int64, error) {
 	return int64(n), nil
 }
 
-// WriteAt writes data at specific offset
+// WriteAt writes data at specific offset.
 func (w *ChunkedWriter) WriteAt(data []byte, offset int64) (int64, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -556,26 +556,26 @@ func (w *ChunkedWriter) WriteAt(data []byte, offset int64) (int64, error) {
 	return int64(n), nil
 }
 
-// GetOffset returns current write offset
+// GetOffset returns current write offset.
 func (w *ChunkedWriter) GetOffset() int64 {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	return w.offset
 }
 
-// Close closes the writer
+// Close closes the writer.
 func (w *ChunkedWriter) Close() error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	return w.file.Close()
 }
 
-// BufferPool provides reusable buffers
+// BufferPool provides reusable buffers.
 type BufferPool struct {
 	pool sync.Pool
 }
 
-// NewBufferPool creates a new buffer pool
+// NewBufferPool creates a new buffer pool.
 func NewBufferPool(bufferSize int) *BufferPool {
 	return &BufferPool{
 		pool: sync.Pool{
@@ -586,7 +586,7 @@ func NewBufferPool(bufferSize int) *BufferPool {
 	}
 }
 
-// Get retrieves a buffer from the pool
+// Get retrieves a buffer from the pool.
 func (p *BufferPool) Get() *[]byte {
 	buf, ok := p.pool.Get().(*[]byte)
 	if !ok {
@@ -597,12 +597,12 @@ func (p *BufferPool) Get() *[]byte {
 	return buf
 }
 
-// Put returns a buffer to the pool
+// Put returns a buffer to the pool.
 func (p *BufferPool) Put(buf *[]byte) {
 	p.pool.Put(buf)
 }
 
-// CopyWithProgress copies data with progress tracking
+// CopyWithProgress copies data with progress tracking.
 func CopyWithProgress(dst io.Writer, src io.Reader, totalSize int64, progressFunc func(int64)) (int64, error) {
 	var written int64
 	buf := make([]byte, 32*1024) // 32KB buffer
@@ -633,7 +633,7 @@ func CopyWithProgress(dst io.Writer, src io.Reader, totalSize int64, progressFun
 	return written, nil
 }
 
-// StreamCopy copies data with buffering
+// StreamCopy copies data with buffering.
 func StreamCopy(dst io.Writer, src io.Reader, bufferSize int) (int64, error) {
 	if bufferSize <= 0 {
 		bufferSize = 32 * 1024

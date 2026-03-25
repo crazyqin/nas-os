@@ -10,14 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// setupTestRouter 创建测试路由
+// setupTestRouter 创建测试路由.
 func setupTestRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	return router
 }
 
-// setupTestHandlers 创建测试处理器
+// setupTestHandlers 创建测试处理器.
 func setupTestHandlers() (*Manager, *Handlers, *gin.Engine) {
 	router := setupTestRouter()
 	mgr := &Manager{

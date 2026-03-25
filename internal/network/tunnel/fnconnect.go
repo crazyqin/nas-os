@@ -18,7 +18,7 @@ import (
 )
 
 // FNConnect 飞牛Connect免费内网穿透客户端
-// 提供类似 frp 的功能，但使用免费公共服务
+// 提供类似 frp 的功能，但使用免费公共服务.
 type FNConnect struct {
 	config     *FNConnectConfig
 	logger     *zap.Logger
@@ -46,7 +46,7 @@ type FNConnect struct {
 	wg            sync.WaitGroup
 }
 
-// FNConnectConfig 配置
+// FNConnectConfig 配置.
 type FNConnectConfig struct {
 	// 服务器配置
 	ServerURL  string `json:"server_url"`  // 穿透服务器地址
@@ -87,7 +87,7 @@ const (
 	FNCStateError FNConnectState = "error"
 )
 
-// FNCTunnel 隧道配置
+// FNCTunnel 隧道配置.
 type FNCTunnel struct {
 	ID           string         `json:"id"`
 	Name         string         `json:"name"`
@@ -103,7 +103,7 @@ type FNCTunnel struct {
 	BytesRx      int64          `json:"bytes_rx"`
 }
 
-// FNCMessage 消息结构
+// FNCMessage 消息结构.
 type FNCMessage struct {
 	Type      string          `json:"type"`
 	TunnelID  string          `json:"tunnel_id,omitempty"`
@@ -111,10 +111,10 @@ type FNCMessage struct {
 	Timestamp time.Time       `json:"timestamp"`
 }
 
-// FNConnectEventHandler 事件处理器
+// FNConnectEventHandler 事件处理器.
 type FNConnectEventHandler func(event *FNConnectEvent)
 
-// FNConnectEvent 事件
+// FNConnectEvent 事件.
 type FNConnectEvent struct {
 	Type      string         `json:"type"`
 	TunnelID  string         `json:"tunnel_id,omitempty"`
@@ -124,7 +124,7 @@ type FNConnectEvent struct {
 	Timestamp time.Time      `json:"timestamp"`
 }
 
-// FNConnectStats 统计信息
+// FNConnectStats 统计信息.
 type FNConnectStats struct {
 	State          FNConnectState `json:"state"`
 	PublicURL      string         `json:"public_url"`
@@ -136,7 +136,7 @@ type FNConnectStats struct {
 	ReconnectCount int            `json:"reconnect_count"`
 }
 
-// 默认公共穿透服务器列表
+// 默认公共穿透服务器列表.
 var defaultFNCServers = map[string][]string{
 	"cn": {
 		"connect.fnos.cn:7000",
@@ -150,7 +150,7 @@ var defaultFNCServers = map[string][]string{
 	},
 }
 
-// NewFNConnect 创建FN Connect客户端
+// NewFNConnect 创建FN Connect客户端.
 func NewFNConnect(config *FNConnectConfig, logger *zap.Logger) (*FNConnect, error) {
 	if config == nil {
 		config = DefaultFNConnectConfig()
@@ -189,7 +189,7 @@ func NewFNConnect(config *FNConnectConfig, logger *zap.Logger) (*FNConnect, erro
 	}, nil
 }
 
-// DefaultFNConnectConfig 默认配置
+// DefaultFNConnectConfig 默认配置.
 func DefaultFNConnectConfig() *FNConnectConfig {
 	return &FNConnectConfig{
 		ServerURL:         "connect.fnos.cn:7000",
@@ -204,7 +204,7 @@ func DefaultFNConnectConfig() *FNConnectConfig {
 	}
 }
 
-// Connect 连接到穿透服务器
+// Connect 连接到穿透服务器.
 func (f *FNConnect) Connect(ctx context.Context) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -280,7 +280,7 @@ func (f *FNConnect) Connect(ctx context.Context) error {
 	return nil
 }
 
-// selectServer 选择服务器
+// selectServer 选择服务器.
 func (f *FNConnect) selectServer() string {
 	if f.config.ServerURL != "" {
 		return f.config.ServerURL
@@ -295,7 +295,7 @@ func (f *FNConnect) selectServer() string {
 	return servers[0]
 }
 
-// authenticate 认证
+// authenticate 认证.
 func (f *FNConnect) authenticate() error {
 	authReq := map[string]interface{}{
 		"type":        "auth",
@@ -345,7 +345,7 @@ func (f *FNConnect) authenticate() error {
 	return errors.New("invalid auth response")
 }
 
-// CreateTunnel 创建隧道
+// CreateTunnel 创建隧道.
 func (f *FNConnect) CreateTunnel(config *FNCTunnel) (*FNCTunnel, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -419,7 +419,7 @@ func (f *FNConnect) CreateTunnel(config *FNCTunnel) (*FNCTunnel, error) {
 	return nil, errors.New("failed to create tunnel")
 }
 
-// DeleteTunnel 删除隧道
+// DeleteTunnel 删除隧道.
 func (f *FNConnect) DeleteTunnel(tunnelID string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -450,7 +450,7 @@ func (f *FNConnect) DeleteTunnel(tunnelID string) error {
 	return nil
 }
 
-// forwardData 转发数据
+// forwardData 转发数据.
 func (f *FNConnect) forwardData(tunnel *FNCTunnel) {
 	defer f.wg.Done()
 
@@ -479,7 +479,7 @@ func (f *FNConnect) forwardData(tunnel *FNCTunnel) {
 	}
 }
 
-// handleConnection 处理连接
+// handleConnection 处理连接.
 func (f *FNConnect) handleConnection(tunnel *FNCTunnel, localConn net.Conn) {
 	defer f.wg.Done()
 	defer localConn.Close()
@@ -506,7 +506,7 @@ func (f *FNConnect) handleConnection(tunnel *FNCTunnel, localConn net.Conn) {
 	}
 }
 
-// proxyData 代理数据
+// proxyData 代理数据.
 func (f *FNConnect) proxyData(tunnel *FNCTunnel, conn net.Conn) {
 	// 实现数据转发逻辑
 	buf := make([]byte, 32*1024)
@@ -527,7 +527,7 @@ func (f *FNConnect) proxyData(tunnel *FNCTunnel, conn net.Conn) {
 	}
 }
 
-// messageLoop 消息循环
+// messageLoop 消息循环.
 func (f *FNConnect) messageLoop() {
 	defer f.wg.Done()
 
@@ -550,7 +550,7 @@ func (f *FNConnect) messageLoop() {
 	}
 }
 
-// heartbeatLoop 心跳循环
+// heartbeatLoop 心跳循环.
 func (f *FNConnect) heartbeatLoop() {
 	defer f.wg.Done()
 
@@ -571,7 +571,7 @@ func (f *FNConnect) heartbeatLoop() {
 	}
 }
 
-// sendHeartbeat 发送心跳
+// sendHeartbeat 发送心跳.
 func (f *FNConnect) sendHeartbeat() error {
 	req := map[string]interface{}{
 		"type":      "heartbeat",
@@ -580,7 +580,7 @@ func (f *FNConnect) sendHeartbeat() error {
 	return f.sendMessage(req)
 }
 
-// sendMessage 发送消息
+// sendMessage 发送消息.
 func (f *FNConnect) sendMessage(msg interface{}) error {
 	data, err := json.Marshal(msg)
 	if err != nil {
@@ -591,7 +591,7 @@ func (f *FNConnect) sendMessage(msg interface{}) error {
 	return err
 }
 
-// readMessage 读取消息
+// readMessage 读取消息.
 func (f *FNConnect) readMessage() (*FNCMessage, error) {
 	decoder := json.NewDecoder(f.controlConn)
 	var msg FNCMessage
@@ -601,7 +601,7 @@ func (f *FNConnect) readMessage() (*FNCMessage, error) {
 	return &msg, nil
 }
 
-// handleDisconnect 处理断开
+// handleDisconnect 处理断开.
 func (f *FNConnect) handleDisconnect() {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -627,7 +627,7 @@ func (f *FNConnect) handleDisconnect() {
 	}()
 }
 
-// restoreTunnels 恢复隧道
+// restoreTunnels 恢复隧道.
 func (f *FNConnect) restoreTunnels() {
 	f.mu.RLock()
 	tunnels := make([]*FNCTunnel, 0, len(f.tunnels))
@@ -647,7 +647,7 @@ func (f *FNConnect) restoreTunnels() {
 	}
 }
 
-// emitEvent 发送事件
+// emitEvent 发送事件.
 func (f *FNConnect) emitEvent(event *FNConnectEvent) {
 	event.Timestamp = time.Now()
 	for _, handler := range f.eventHandlers {
@@ -655,14 +655,14 @@ func (f *FNConnect) emitEvent(event *FNConnectEvent) {
 	}
 }
 
-// OnEvent 注册事件处理器
+// OnEvent 注册事件处理器.
 func (f *FNConnect) OnEvent(handler FNConnectEventHandler) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.eventHandlers = append(f.eventHandlers, handler)
 }
 
-// Disconnect 断开连接
+// Disconnect 断开连接.
 func (f *FNConnect) Disconnect() error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -682,7 +682,7 @@ func (f *FNConnect) Disconnect() error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (f *FNConnect) GetStats() *FNConnectStats {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -702,7 +702,7 @@ func (f *FNConnect) GetStats() *FNConnectStats {
 	}
 }
 
-// GetTunnels 获取所有隧道
+// GetTunnels 获取所有隧道.
 func (f *FNConnect) GetTunnels() []*FNCTunnel {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -714,21 +714,21 @@ func (f *FNConnect) GetTunnels() []*FNCTunnel {
 	return tunnels
 }
 
-// GetPublicURL 获取公网地址
+// GetPublicURL 获取公网地址.
 func (f *FNConnect) GetPublicURL() string {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 	return f.publicURL
 }
 
-// IsConnected 检查连接状态
+// IsConnected 检查连接状态.
 func (f *FNConnect) IsConnected() bool {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 	return f.state == FNCStateConnected
 }
 
-// 辅助函数
+// 辅助函数.
 func generateDeviceID() string {
 	return fmt.Sprintf("device-%d", time.Now().UnixNano())
 }

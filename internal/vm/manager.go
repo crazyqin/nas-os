@@ -16,15 +16,15 @@ import (
 )
 
 const (
-	// DefaultVMStoragePath 默认 VM 存储路径
+	// DefaultVMStoragePath 默认 VM 存储路径.
 	DefaultVMStoragePath = "/mnt/vms"
-	// DefaultISOStoragePath 默认 ISO 存储路径
+	// DefaultISOStoragePath 默认 ISO 存储路径.
 	DefaultISOStoragePath = "/mnt/isos"
-	// DefaultVNCPortBase 默认 VNC 起始端口
+	// DefaultVNCPortBase 默认 VNC 起始端口.
 	DefaultVNCPortBase = 5900
 )
 
-// Manager VM 管理器
+// Manager VM 管理器.
 type Manager struct {
 	mu               sync.RWMutex
 	storagePath      string
@@ -37,7 +37,7 @@ type Manager struct {
 	libvirtAvailable bool
 }
 
-// NewManager 创建 VM 管理器
+// NewManager 创建 VM 管理器.
 func NewManager(storagePath string, logger *zap.Logger) (*Manager, error) {
 	if storagePath == "" {
 		storagePath = DefaultVMStoragePath
@@ -82,7 +82,7 @@ func NewManager(storagePath string, logger *zap.Logger) (*Manager, error) {
 	return m, nil
 }
 
-// checkLibvirt 检查 libvirt 是否可用
+// checkLibvirt 检查 libvirt 是否可用.
 func checkLibvirt() bool {
 	// #nosec G204 -- Commands use fixed binaries (virsh, qemu-img) with validated VM names
 	// VM names are validated by validateConfig() to contain only alphanumeric, underscore, hyphen
@@ -93,7 +93,7 @@ func checkLibvirt() bool {
 	return true
 }
 
-// loadVMs 加载现有 VM 配置
+// loadVMs 加载现有 VM 配置.
 func (m *Manager) loadVMs() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -122,7 +122,7 @@ func (m *Manager) loadVMs() error {
 	return nil
 }
 
-// loadSnapshots 加载快照配置
+// loadSnapshots 加载快照配置.
 func (m *Manager) loadSnapshots() error {
 	snapshotPath := filepath.Join(m.storagePath, "snapshots")
 	if _, err := os.Stat(snapshotPath); os.IsNotExist(err) {
@@ -170,7 +170,7 @@ func (m *Manager) loadSnapshots() error {
 	return nil
 }
 
-// loadTemplates 加载模板配置
+// loadTemplates 加载模板配置.
 func (m *Manager) loadTemplates() error {
 	templatePath := filepath.Join(m.storagePath, "templates")
 	if _, err := os.Stat(templatePath); os.IsNotExist(err) {
@@ -182,7 +182,7 @@ func (m *Manager) loadTemplates() error {
 	return nil
 }
 
-// createBuiltInTemplates 创建内置模板
+// createBuiltInTemplates 创建内置模板.
 func (m *Manager) createBuiltInTemplates() {
 	templates := []Template{
 		{
@@ -240,7 +240,7 @@ func (m *Manager) createBuiltInTemplates() {
 	}
 }
 
-// CreateVM 创建虚拟机
+// CreateVM 创建虚拟机.
 func (m *Manager) CreateVM(ctx context.Context, config Config) (*VM, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -324,7 +324,7 @@ func (m *Manager) CreateVM(ctx context.Context, config Config) (*VM, error) {
 	return vm, nil
 }
 
-// validateConfig 验证 VM 配置
+// validateConfig 验证 VM 配置.
 func (m *Manager) validateConfig(config Config) error {
 	if config.Name == "" {
 		return fmt.Errorf("VM 名称不能为空")
@@ -364,7 +364,7 @@ func (m *Manager) validateConfig(config Config) error {
 	return nil
 }
 
-// createDiskImage 创建磁盘镜像
+// createDiskImage 创建磁盘镜像.
 func (m *Manager) createDiskImage(path string, sizeGB uint64) error {
 	// #nosec G204 -- qemu-img with internally generated path and size
 	cmd := exec.Command("qemu-img", "create", "-f", "qcow2", path, fmt.Sprintf("%dG", sizeGB))
@@ -375,7 +375,7 @@ func (m *Manager) createDiskImage(path string, sizeGB uint64) error {
 	return nil
 }
 
-// generateLibvirtXML 生成 libvirt XML 配置
+// generateLibvirtXML 生成 libvirt XML 配置.
 func (m *Manager) generateLibvirtXML(vm *VM) string {
 	// 生成基本的 libvirt domain XML
 	xmlConfig := fmt.Sprintf(`<domain type='kvm'>
@@ -461,7 +461,7 @@ func (m *Manager) generateLibvirtXML(vm *VM) string {
 	return xmlConfig
 }
 
-// allocateVNCPort 分配 VNC 端口
+// allocateVNCPort 分配 VNC 端口.
 func (m *Manager) allocateVNCPort() int {
 	usedPorts := make(map[int]bool)
 	for _, vm := range m.vms {
@@ -479,7 +479,7 @@ func (m *Manager) allocateVNCPort() int {
 	return 0 // 无法分配
 }
 
-// saveConfig 保存 VM 配置
+// saveConfig 保存 VM 配置.
 func (m *Manager) saveConfig(vm *VM) error {
 	vmDir := filepath.Join(m.storagePath, vm.ID)
 	configPath := filepath.Join(vmDir, "config.json")
@@ -496,7 +496,7 @@ func (m *Manager) saveConfig(vm *VM) error {
 	return nil
 }
 
-// loadConfig 加载 VM 配置
+// loadConfig 加载 VM 配置.
 func loadConfig(configPath string) (*VM, error) {
 	// #nosec G304 -- configPath is built from internally managed storagePath
 	data, err := os.ReadFile(configPath)
@@ -512,7 +512,7 @@ func loadConfig(configPath string) (*VM, error) {
 	return &vm, nil
 }
 
-// GetVM 获取虚拟机信息
+// GetVM 获取虚拟机信息.
 func (m *Manager) GetVM(vmID string) (*VM, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -525,7 +525,7 @@ func (m *Manager) GetVM(vmID string) (*VM, error) {
 	return vm, nil
 }
 
-// ListVMs 获取所有虚拟机列表
+// ListVMs 获取所有虚拟机列表.
 func (m *Manager) ListVMs() []*VM {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -538,7 +538,7 @@ func (m *Manager) ListVMs() []*VM {
 	return vms
 }
 
-// StartVM 启动虚拟机
+// StartVM 启动虚拟机.
 func (m *Manager) StartVM(ctx context.Context, vmID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -569,7 +569,7 @@ func (m *Manager) StartVM(ctx context.Context, vmID string) error {
 	return nil
 }
 
-// StopVM 停止虚拟机
+// StopVM 停止虚拟机.
 func (m *Manager) StopVM(ctx context.Context, vmID string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -605,7 +605,7 @@ func (m *Manager) StopVM(ctx context.Context, vmID string, force bool) error {
 	return nil
 }
 
-// DeleteVM 删除虚拟机
+// DeleteVM 删除虚拟机.
 func (m *Manager) DeleteVM(ctx context.Context, vmID string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -647,7 +647,7 @@ func (m *Manager) DeleteVM(ctx context.Context, vmID string, force bool) error {
 	return nil
 }
 
-// GetVNCConnection 获取 VNC 连接信息
+// GetVNCConnection 获取 VNC 连接信息.
 func (m *Manager) GetVNCConnection(vmID string) (*VNCConnection, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -667,7 +667,7 @@ func (m *Manager) GetVNCConnection(vmID string) (*VNCConnection, error) {
 	}, nil
 }
 
-// UpdateVM 更新虚拟机配置
+// UpdateVM 更新虚拟机配置.
 func (m *Manager) UpdateVM(ctx context.Context, vmID string, config Config) (*VM, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -736,7 +736,7 @@ func (m *Manager) UpdateVM(ctx context.Context, vmID string, config Config) (*VM
 	return vm, nil
 }
 
-// ListTemplates 获取所有 VM 模板
+// ListTemplates 获取所有 VM 模板.
 func (m *Manager) ListTemplates() []*Template {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -749,7 +749,7 @@ func (m *Manager) ListTemplates() []*Template {
 	return templates
 }
 
-// GetTemplate 获取单个模板
+// GetTemplate 获取单个模板.
 func (m *Manager) GetTemplate(templateID string) (*Template, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -762,7 +762,7 @@ func (m *Manager) GetTemplate(templateID string) (*Template, error) {
 	return tpl, nil
 }
 
-// ListUSBDevices 列出可用 USB 设备
+// ListUSBDevices 列出可用 USB 设备.
 func (m *Manager) ListUSBDevices() ([]*USBDevice, error) {
 	var devices []*USBDevice
 
@@ -825,7 +825,7 @@ func (m *Manager) ListUSBDevices() ([]*USBDevice, error) {
 	return devices, nil
 }
 
-// ListPCIDevices 列出可用 PCIe 设备
+// ListPCIDevices 列出可用 PCIe 设备.
 func (m *Manager) ListPCIDevices() ([]*PCIDevice, error) {
 	var devices []*PCIDevice
 
@@ -898,7 +898,7 @@ func (m *Manager) ListPCIDevices() ([]*PCIDevice, error) {
 	return devices, nil
 }
 
-// GetStats 完善版本 - 从 libvirt 获取实时统计信息
+// GetStats 完善版本 - 从 libvirt 获取实时统计信息.
 func (m *Manager) GetStats(vmID string) (*Stats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -932,7 +932,7 @@ func (m *Manager) GetStats(vmID string) (*Stats, error) {
 	}, nil
 }
 
-// getLibvirtStats 从 libvirt 获取 VM 统计信息
+// getLibvirtStats 从 libvirt 获取 VM 统计信息.
 func (m *Manager) getLibvirtStats(vmName string) (*Stats, error) {
 	// #nosec G204 -- vmName validated by validateConfig() to contain only safe characters
 	cmd := exec.Command("virsh", "-c", "qemu:///system", "domstats", vmName)

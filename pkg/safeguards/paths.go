@@ -11,10 +11,10 @@ import (
 	"strings"
 )
 
-// SafeNameRegex matches safe identifier characters
+// SafeNameRegex matches safe identifier characters.
 var SafeNameRegex = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`)
 
-// ValidateSafeIdentifier validates an identifier is safe for use in commands/paths
+// ValidateSafeIdentifier validates an identifier is safe for use in commands/paths.
 func ValidateSafeIdentifier(id, fieldName string) error {
 	if id == "" {
 		return fmt.Errorf("%s cannot be empty", fieldName)
@@ -28,7 +28,7 @@ func ValidateSafeIdentifier(id, fieldName string) error {
 	return nil
 }
 
-// ValidateSafePath validates a path doesn't contain traversal characters
+// ValidateSafePath validates a path doesn't contain traversal characters.
 func ValidateSafePath(path string) error {
 	// Check for null bytes
 	if strings.ContainsRune(path, '\x00') {
@@ -44,7 +44,7 @@ func ValidateSafePath(path string) error {
 	return nil
 }
 
-// SecureJoin safely joins base path with user-provided path
+// SecureJoin safely joins base path with user-provided path.
 func SecureJoin(baseDir, userPath string) (string, error) {
 	// Clean the user path
 	cleanUserPath := filepath.Clean(userPath)
@@ -75,7 +75,7 @@ func SecureJoin(baseDir, userPath string) (string, error) {
 	return absFull, nil
 }
 
-// GenerateSecureID generates a cryptographically secure random ID
+// GenerateSecureID generates a cryptographically secure random ID.
 func GenerateSecureID() string {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
@@ -84,7 +84,7 @@ func GenerateSecureID() string {
 	return hex.EncodeToString(b)
 }
 
-// IsAllowedPath checks if a path is within allowed directories
+// IsAllowedPath checks if a path is within allowed directories.
 func IsAllowedPath(path string, allowedDirs []string) bool {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
@@ -103,7 +103,7 @@ func IsAllowedPath(path string, allowedDirs []string) bool {
 	return false
 }
 
-// SafeFileOp wraps file operations with safety checks
+// SafeFileOp wraps file operations with safety checks.
 func SafeFileOp(baseDir, userPath string, op func(safePath string) error) error {
 	safePath, err := SecureJoin(baseDir, userPath)
 	if err != nil {
@@ -112,7 +112,7 @@ func SafeFileOp(baseDir, userPath string, op func(safePath string) error) error 
 	return op(safePath)
 }
 
-// ValidateAndSanitizeFilename validates and sanitizes a filename
+// ValidateAndSanitizeFilename validates and sanitizes a filename.
 func ValidateAndSanitizeFilename(name string) (string, error) {
 	// Remove dangerous characters
 	name = strings.Map(func(r rune) rune {
@@ -142,7 +142,7 @@ func ValidateAndSanitizeFilename(name string) (string, error) {
 	return name, nil
 }
 
-// SafeReadFile reads a file after validating the path
+// SafeReadFile reads a file after validating the path.
 func SafeReadFile(baseDir, userPath string) ([]byte, error) {
 	safePath, err := SecureJoin(baseDir, userPath)
 	if err != nil {
@@ -152,7 +152,7 @@ func SafeReadFile(baseDir, userPath string) ([]byte, error) {
 	return os.ReadFile(safePath)
 }
 
-// SafeWriteFile writes to a file after validating the path
+// SafeWriteFile writes to a file after validating the path.
 func SafeWriteFile(baseDir, userPath string, data []byte, perm os.FileMode) error {
 	safePath, err := SecureJoin(baseDir, userPath)
 	if err != nil {
@@ -168,7 +168,7 @@ func SafeWriteFile(baseDir, userPath string, data []byte, perm os.FileMode) erro
 	return os.WriteFile(safePath, data, perm)
 }
 
-// SafeRemove removes a file after validating the path
+// SafeRemove removes a file after validating the path.
 func SafeRemove(baseDir, userPath string) error {
 	safePath, err := SecureJoin(baseDir, userPath)
 	if err != nil {
@@ -177,7 +177,7 @@ func SafeRemove(baseDir, userPath string) error {
 	return os.Remove(safePath)
 }
 
-// SafeMkdirAll creates directories after validating the path
+// SafeMkdirAll creates directories after validating the path.
 func SafeMkdirAll(baseDir, userPath string, perm os.FileMode) error {
 	safePath, err := SecureJoin(baseDir, userPath)
 	if err != nil {

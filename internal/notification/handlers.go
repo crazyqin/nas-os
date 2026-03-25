@@ -10,19 +10,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers API 处理器
+// Handlers API 处理器.
 type Handlers struct {
 	service *Service
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(service *Service) *Handlers {
 	return &Handlers{
 		service: service,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	notify := r.Group("/notification")
 	{
@@ -90,7 +90,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Param request body SendRequest true "发送请求"
 // @Success 200 {object} SendResponse "成功"
 // @Router /notification/send [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) sendNotification(c *gin.Context) {
 	var req SendRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -126,7 +126,7 @@ func (h *Handlers) sendNotification(c *gin.Context) {
 // @Param request body SendRequest true "发送请求"
 // @Success 200 {object} map[string]string "成功"
 // @Router /notification/send-async [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) sendAsyncNotification(c *gin.Context) {
 	var req SendRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -164,7 +164,7 @@ func (h *Handlers) sendAsyncNotification(c *gin.Context) {
 // @Param end query string false "结束时间"
 // @Success 200 {object} HistoryStats "成功"
 // @Router /notification/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getStats(c *gin.Context) {
 	var startTime, endTime *time.Time
 
@@ -201,7 +201,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 // @Param type query string false "渠道类型"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/channels [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listChannels(c *gin.Context) {
 	channelType := ChannelType(c.Query("type"))
 	channels := h.service.GetChannelManager().ListChannels(channelType)
@@ -245,7 +245,7 @@ func (h *Handlers) listChannels(c *gin.Context) {
 // @Param request body ChannelConfig true "渠道配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/channels [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createChannel(c *gin.Context) {
 	var config ChannelConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -279,7 +279,7 @@ func (h *Handlers) createChannel(c *gin.Context) {
 // @Param id path string true "渠道ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/channels/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getChannel(c *gin.Context) {
 	id := c.Param("id")
 
@@ -309,7 +309,7 @@ func (h *Handlers) getChannel(c *gin.Context) {
 // @Param request body ChannelConfig true "渠道配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/channels/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) updateChannel(c *gin.Context) {
 	id := c.Param("id")
 
@@ -346,7 +346,7 @@ func (h *Handlers) updateChannel(c *gin.Context) {
 // @Param id path string true "渠道ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/channels/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deleteChannel(c *gin.Context) {
 	id := c.Param("id")
 
@@ -372,7 +372,7 @@ func (h *Handlers) deleteChannel(c *gin.Context) {
 // @Param id path string true "渠道ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/channels/{id}/test [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) testChannel(c *gin.Context) {
 	id := c.Param("id")
 
@@ -400,7 +400,7 @@ func (h *Handlers) testChannel(c *gin.Context) {
 // @Param category query string false "模板类别"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/templates [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listTemplates(c *gin.Context) {
 	category := c.Query("category")
 	templates := h.service.GetTemplateManager().List(category)
@@ -421,7 +421,7 @@ func (h *Handlers) listTemplates(c *gin.Context) {
 // @Param request body Template true "模板配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/templates [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createTemplate(c *gin.Context) {
 	var template Template
 	if err := c.ShouldBindJSON(&template); err != nil {
@@ -455,7 +455,7 @@ func (h *Handlers) createTemplate(c *gin.Context) {
 // @Param id path string true "模板ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/templates/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getTemplate(c *gin.Context) {
 	id := c.Param("id")
 
@@ -485,7 +485,7 @@ func (h *Handlers) getTemplate(c *gin.Context) {
 // @Param request body Template true "模板配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/templates/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) updateTemplate(c *gin.Context) {
 	id := c.Param("id")
 
@@ -522,7 +522,7 @@ func (h *Handlers) updateTemplate(c *gin.Context) {
 // @Param id path string true "模板ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/templates/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deleteTemplate(c *gin.Context) {
 	id := c.Param("id")
 
@@ -550,7 +550,7 @@ func (h *Handlers) deleteTemplate(c *gin.Context) {
 // @Param request body map[string]interface{} true "变量"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/templates/{id}/render [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) renderTemplate(c *gin.Context) {
 	id := c.Param("id")
 
@@ -587,7 +587,7 @@ func (h *Handlers) renderTemplate(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/rules [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listRules(c *gin.Context) {
 	rules := h.service.GetRuleEngine().ListRules()
 
@@ -607,7 +607,7 @@ func (h *Handlers) listRules(c *gin.Context) {
 // @Param request body Rule true "规则配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/rules [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createRule(c *gin.Context) {
 	var rule Rule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -641,7 +641,7 @@ func (h *Handlers) createRule(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/rules/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -671,7 +671,7 @@ func (h *Handlers) getRule(c *gin.Context) {
 // @Param request body Rule true "规则配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/rules/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) updateRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -708,7 +708,7 @@ func (h *Handlers) updateRule(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/rules/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deleteRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -734,7 +734,7 @@ func (h *Handlers) deleteRule(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/rules/{id}/enable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) enableRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -760,7 +760,7 @@ func (h *Handlers) enableRule(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/rules/{id}/disable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) disableRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -788,7 +788,7 @@ func (h *Handlers) disableRule(c *gin.Context) {
 // @Param request body Notification true "测试通知"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/rules/{id}/test [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) testRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -833,7 +833,7 @@ func (h *Handlers) testRule(c *gin.Context) {
 // @Param pageSize query int false "每页数量"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listHistory(c *gin.Context) {
 	filter := &HistoryFilter{
 		Status:   Status(c.Query("status")),
@@ -878,7 +878,7 @@ func (h *Handlers) listHistory(c *gin.Context) {
 // @Param id path string true "记录ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/history/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getHistoryRecord(c *gin.Context) {
 	id := c.Param("id")
 
@@ -906,7 +906,7 @@ func (h *Handlers) getHistoryRecord(c *gin.Context) {
 // @Param id path string true "记录ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/history/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deleteHistoryRecord(c *gin.Context) {
 	id := c.Param("id")
 
@@ -932,7 +932,7 @@ func (h *Handlers) deleteHistoryRecord(c *gin.Context) {
 // @Param id path string true "记录ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/history/{id}/retry [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) retryRecord(c *gin.Context) {
 	id := c.Param("id")
 
@@ -957,7 +957,7 @@ func (h *Handlers) retryRecord(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/history [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) clearHistory(c *gin.Context) {
 	if err := h.service.GetHistoryManager().Clear(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -982,7 +982,7 @@ func (h *Handlers) clearHistory(c *gin.Context) {
 // @Param end query string false "结束时间"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /notification/history/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getHistoryStats(c *gin.Context) {
 	var startTime, endTime *time.Time
 

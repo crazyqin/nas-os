@@ -11,15 +11,15 @@ import (
 )
 
 var (
-	// ErrPathTraversal path traversal attempt detected
+	// ErrPathTraversal path traversal attempt detected.
 	ErrPathTraversal = errors.New("path traversal attempt detected")
-	// ErrInvalidInput invalid input detected
+	// ErrInvalidInput invalid input detected.
 	ErrInvalidInput = errors.New("invalid input detected")
-	// ErrDangerousChar dangerous character detected
+	// ErrDangerousChar dangerous character detected.
 	ErrDangerousChar = errors.New("dangerous character detected")
 )
 
-// SafePath validates and sanitizes file paths to prevent path traversal attacks
+// SafePath validates and sanitizes file paths to prevent path traversal attacks.
 func SafePath(baseDir, userPath string) (string, error) {
 	// Clean the path to remove any .. or . components
 	cleanPath := filepath.Clean(userPath)
@@ -46,7 +46,7 @@ func SafePath(baseDir, userPath string) (string, error) {
 	return absPath, nil
 }
 
-// ValidateFilename validates a filename for safe use
+// ValidateFilename validates a filename for safe use.
 func ValidateFilename(name string) error {
 	if name == "" || len(name) > 255 {
 		return ErrInvalidInput
@@ -63,7 +63,7 @@ func ValidateFilename(name string) error {
 	return nil
 }
 
-// SanitizeCommandArg sanitizes a command argument to prevent command injection
+// SanitizeCommandArg sanitizes a command argument to prevent command injection.
 func SanitizeCommandArg(arg string) (string, error) {
 	// Remove null bytes
 	arg = strings.ReplaceAll(arg, "\x00", "")
@@ -79,7 +79,7 @@ func SanitizeCommandArg(arg string) (string, error) {
 	return arg, nil
 }
 
-// ValidateID validates an ID string (alphanumeric with dashes and underscores)
+// ValidateID validates an ID string (alphanumeric with dashes and underscores).
 func ValidateID(id string) error {
 	if id == "" || len(id) > 128 {
 		return ErrInvalidInput
@@ -96,7 +96,7 @@ func ValidateID(id string) error {
 	return nil
 }
 
-// ValidateIP validates an IP address format
+// ValidateIP validates an IP address format.
 func ValidateIP(ip string) error {
 	if ip == "" {
 		return ErrInvalidInput
@@ -125,7 +125,7 @@ func ValidateIP(ip string) error {
 	return ErrInvalidInput
 }
 
-// ValidatePort validates a port number
+// ValidatePort validates a port number.
 func ValidatePort(port int) error {
 	if port < 1 || port > 65535 {
 		return ErrInvalidInput
@@ -133,7 +133,7 @@ func ValidatePort(port int) error {
 	return nil
 }
 
-// IsPathWithinBase checks if a path is within a base directory
+// IsPathWithinBase checks if a path is within a base directory.
 func IsPathWithinBase(path, baseDir string) bool {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
@@ -148,12 +148,12 @@ func IsPathWithinBase(path, baseDir string) bool {
 	return strings.HasPrefix(absPath, absBase+string(os.PathSeparator)) || absPath == absBase
 }
 
-// SecureFilePermission returns secure file permission (0600)
+// SecureFilePermission returns secure file permission (0600).
 func SecureFilePermission() os.FileMode {
 	return 0600
 }
 
-// SecureDirPermission returns secure directory permission (0750)
+// SecureDirPermission returns secure directory permission (0750).
 func SecureDirPermission() os.FileMode {
 	return 0750
 }

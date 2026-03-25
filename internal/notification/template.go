@@ -12,14 +12,14 @@ import (
 	"time"
 )
 
-// TemplateManager 模板管理器
+// TemplateManager 模板管理器.
 type TemplateManager struct {
 	templates map[string]*Template
 	mu        sync.RWMutex
 	storePath string
 }
 
-// NewTemplateManager 创建模板管理器
+// NewTemplateManager 创建模板管理器.
 func NewTemplateManager(storePath string) (*TemplateManager, error) {
 	tm := &TemplateManager{
 		templates: make(map[string]*Template),
@@ -36,7 +36,7 @@ func NewTemplateManager(storePath string) (*TemplateManager, error) {
 	return tm, nil
 }
 
-// load 加载模板
+// load 加载模板.
 func (tm *TemplateManager) load() error {
 	if tm.storePath == "" {
 		return nil
@@ -65,7 +65,7 @@ func (tm *TemplateManager) load() error {
 	return nil
 }
 
-// save 保存模板
+// save 保存模板.
 func (tm *TemplateManager) save() error {
 	if tm.storePath == "" {
 		return nil
@@ -91,7 +91,7 @@ func (tm *TemplateManager) save() error {
 	return os.WriteFile(tm.storePath, data, 0640)
 }
 
-// loadBuiltinTemplates 加载内置模板
+// loadBuiltinTemplates 加载内置模板.
 func (tm *TemplateManager) loadBuiltinTemplates() {
 	builtinTemplates := []*Template{
 		{
@@ -224,7 +224,7 @@ IP 地址：{{.ipAddress}}
 	}
 }
 
-// Create 创建模板
+// Create 创建模板.
 func (tm *TemplateManager) Create(template *Template) error {
 	if template.ID == "" {
 		return fmt.Errorf("模板 ID 不能为空")
@@ -248,7 +248,7 @@ func (tm *TemplateManager) Create(template *Template) error {
 	return tm.save()
 }
 
-// Update 更新模板
+// Update 更新模板.
 func (tm *TemplateManager) Update(template *Template) error {
 	if template.ID == "" {
 		return fmt.Errorf("模板 ID 不能为空")
@@ -270,7 +270,7 @@ func (tm *TemplateManager) Update(template *Template) error {
 	return tm.save()
 }
 
-// Delete 删除模板
+// Delete 删除模板.
 func (tm *TemplateManager) Delete(id string) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -283,7 +283,7 @@ func (tm *TemplateManager) Delete(id string) error {
 	return tm.save()
 }
 
-// Get 获取模板
+// Get 获取模板.
 func (tm *TemplateManager) Get(id string) (*Template, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -296,7 +296,7 @@ func (tm *TemplateManager) Get(id string) (*Template, error) {
 	return template, nil
 }
 
-// List 列出模板
+// List 列出模板.
 func (tm *TemplateManager) List(category string) []*Template {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -311,7 +311,7 @@ func (tm *TemplateManager) List(category string) []*Template {
 	return result
 }
 
-// Render 渲染模板
+// Render 渲染模板.
 func (tm *TemplateManager) Render(templateID string, variables map[string]interface{}) (*RenderedTemplate, error) {
 	tmpl, err := tm.Get(templateID)
 	if err != nil {
@@ -354,7 +354,7 @@ func (tm *TemplateManager) Render(templateID string, variables map[string]interf
 	}, nil
 }
 
-// RenderedTemplate 渲染后的模板
+// RenderedTemplate 渲染后的模板.
 type RenderedTemplate struct {
 	TemplateID string
 	Subject    string
@@ -362,7 +362,7 @@ type RenderedTemplate struct {
 	Variables  map[string]interface{}
 }
 
-// renderTemplate 渲染文本模板
+// renderTemplate 渲染文本模板.
 func renderTemplate(text string, variables map[string]interface{}) (string, error) {
 	// 方法1：使用 Go text/template
 	tmpl, err := template.New("notification").Parse(text)
@@ -379,7 +379,7 @@ func renderTemplate(text string, variables map[string]interface{}) (string, erro
 	return buf.String(), nil
 }
 
-// simpleVariableReplace 简单变量替换
+// simpleVariableReplace 简单变量替换.
 func simpleVariableReplace(text string, variables map[string]interface{}) string {
 	result := text
 
@@ -408,7 +408,7 @@ func simpleVariableReplace(text string, variables map[string]interface{}) string
 	return result
 }
 
-// ValidateVariables 验证模板变量
+// ValidateVariables 验证模板变量.
 func (tm *TemplateManager) ValidateVariables(templateID string, variables map[string]interface{}) error {
 	tmpl, err := tm.Get(templateID)
 	if err != nil {
@@ -427,7 +427,7 @@ func (tm *TemplateManager) ValidateVariables(templateID string, variables map[st
 	return nil
 }
 
-// Clone 克隆模板
+// Clone 克隆模板.
 func (tm *TemplateManager) Clone(sourceID, targetID string) (*Template, error) {
 	source, err := tm.Get(sourceID)
 	if err != nil {
@@ -447,7 +447,7 @@ func (tm *TemplateManager) Clone(sourceID, targetID string) (*Template, error) {
 	return &clone, nil
 }
 
-// Export 导出模板
+// Export 导出模板.
 func (tm *TemplateManager) Export(ids []string) ([]*Template, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -466,7 +466,7 @@ func (tm *TemplateManager) Export(ids []string) ([]*Template, error) {
 	return result, nil
 }
 
-// Import 导入模板
+// Import 导入模板.
 func (tm *TemplateManager) Import(templates []*Template, overwrite bool) error {
 	for _, t := range templates {
 		tm.mu.Lock()

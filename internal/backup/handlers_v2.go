@@ -10,14 +10,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// SmartHandlers 智能备份 API 处理器
+// SmartHandlers 智能备份 API 处理器.
 type SmartHandlers struct {
 	manager   *SmartManagerV2
 	scheduler *BackupScheduler
 	logger    *zap.Logger
 }
 
-// NewSmartHandlers 创建智能备份处理器
+// NewSmartHandlers 创建智能备份处理器.
 func NewSmartHandlers(manager *SmartManagerV2, scheduler *BackupScheduler, logger *zap.Logger) *SmartHandlers {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -29,7 +29,7 @@ func NewSmartHandlers(manager *SmartManagerV2, scheduler *BackupScheduler, logge
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *SmartHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	backup := r.Group("/backup")
 	{
@@ -76,7 +76,7 @@ func (h *SmartHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // 请求/响应结构体
 // ============================================================================
 
-// CreateBackupJobRequest 创建备份任务请求
+// CreateBackupJobRequest 创建备份任务请求.
 type CreateBackupJobRequest struct {
 	Name        string   `json:"name" binding:"required"`
 	Source      string   `json:"source" binding:"required"`
@@ -88,20 +88,20 @@ type CreateBackupJobRequest struct {
 	Tags        []string `json:"tags"`
 }
 
-// RestoreBackupRequest 恢复备份请求
+// RestoreBackupRequest 恢复备份请求.
 type RestoreBackupRequest struct {
 	TargetPath string `json:"target_path" binding:"required"`
 	Overwrite  bool   `json:"overwrite"`
 }
 
-// ScheduleJobRequest 调度作业请求
+// ScheduleJobRequest 调度作业请求.
 type ScheduleJobRequest struct {
 	BackupJobID string `json:"backup_job_id" binding:"required"`
 	Schedule    string `json:"schedule" binding:"required"`
 	Priority    int    `json:"priority"`
 }
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message,omitempty"`
@@ -113,7 +113,7 @@ type APIResponse struct {
 // 备份作业管理 API
 // ============================================================================
 
-// CreateBackupJob 创建备份任务
+// CreateBackupJob 创建备份任务.
 func (h *SmartHandlers) CreateBackupJob(c *gin.Context) {
 	var req CreateBackupJobRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -149,7 +149,7 @@ func (h *SmartHandlers) CreateBackupJob(c *gin.Context) {
 	})
 }
 
-// ListBackupJobs 列出备份任务
+// ListBackupJobs 列出备份任务.
 func (h *SmartHandlers) ListBackupJobs(c *gin.Context) {
 	jobs := h.manager.ListJobs()
 	c.JSON(http.StatusOK, APIResponse{
@@ -158,7 +158,7 @@ func (h *SmartHandlers) ListBackupJobs(c *gin.Context) {
 	})
 }
 
-// GetBackupJob 获取备份详情
+// GetBackupJob 获取备份详情.
 func (h *SmartHandlers) GetBackupJob(c *gin.Context) {
 	id := c.Param("id")
 
@@ -177,7 +177,7 @@ func (h *SmartHandlers) GetBackupJob(c *gin.Context) {
 	})
 }
 
-// DeleteBackupJob 删除备份
+// DeleteBackupJob 删除备份.
 func (h *SmartHandlers) DeleteBackupJob(c *gin.Context) {
 	id := c.Param("id")
 
@@ -195,7 +195,7 @@ func (h *SmartHandlers) DeleteBackupJob(c *gin.Context) {
 	})
 }
 
-// UpdateBackupJob 更新备份配置
+// UpdateBackupJob 更新备份配置.
 func (h *SmartHandlers) UpdateBackupJob(c *gin.Context) {
 	id := c.Param("id")
 
@@ -245,7 +245,7 @@ func (h *SmartHandlers) UpdateBackupJob(c *gin.Context) {
 // 备份执行 API
 // ============================================================================
 
-// RunBackup 执行备份
+// RunBackup 执行备份.
 func (h *SmartHandlers) RunBackup(c *gin.Context) {
 	id := c.Param("id")
 
@@ -265,7 +265,7 @@ func (h *SmartHandlers) RunBackup(c *gin.Context) {
 	})
 }
 
-// RestoreBackup 恢复备份
+// RestoreBackup 恢复备份.
 func (h *SmartHandlers) RestoreBackup(c *gin.Context) {
 	backupID := c.Param("id")
 
@@ -298,7 +298,7 @@ func (h *SmartHandlers) RestoreBackup(c *gin.Context) {
 // 版本管理 API
 // ============================================================================
 
-// ListVersions 列出版本
+// ListVersions 列出版本.
 func (h *SmartHandlers) ListVersions(c *gin.Context) {
 	name := c.Query("name")
 	versions := h.manager.ListVersions(name)
@@ -308,7 +308,7 @@ func (h *SmartHandlers) ListVersions(c *gin.Context) {
 	})
 }
 
-// GetVersion 获取版本详情
+// GetVersion 获取版本详情.
 func (h *SmartHandlers) GetVersion(c *gin.Context) {
 	id := c.Param("id")
 
@@ -327,7 +327,7 @@ func (h *SmartHandlers) GetVersion(c *gin.Context) {
 	})
 }
 
-// DeleteVersion 删除版本
+// DeleteVersion 删除版本.
 func (h *SmartHandlers) DeleteVersion(c *gin.Context) {
 	id := c.Param("id")
 
@@ -349,7 +349,7 @@ func (h *SmartHandlers) DeleteVersion(c *gin.Context) {
 // 调度管理 API
 // ============================================================================
 
-// GetScheduleConfig 获取调度配置
+// GetScheduleConfig 获取调度配置.
 func (h *SmartHandlers) GetScheduleConfig(c *gin.Context) {
 	if h.scheduler == nil {
 		c.JSON(http.StatusNotFound, APIResponse{
@@ -366,7 +366,7 @@ func (h *SmartHandlers) GetScheduleConfig(c *gin.Context) {
 	})
 }
 
-// UpdateScheduleConfig 更新调度配置
+// UpdateScheduleConfig 更新调度配置.
 func (h *SmartHandlers) UpdateScheduleConfig(c *gin.Context) {
 	if h.scheduler == nil {
 		c.JSON(http.StatusNotFound, APIResponse{
@@ -399,7 +399,7 @@ func (h *SmartHandlers) UpdateScheduleConfig(c *gin.Context) {
 	})
 }
 
-// ScheduleJob 调度作业
+// ScheduleJob 调度作业.
 func (h *SmartHandlers) ScheduleJob(c *gin.Context) {
 	if h.scheduler == nil {
 		c.JSON(http.StatusNotFound, APIResponse{
@@ -441,7 +441,7 @@ func (h *SmartHandlers) ScheduleJob(c *gin.Context) {
 	})
 }
 
-// UnscheduleJob 取消调度
+// UnscheduleJob 取消调度.
 func (h *SmartHandlers) UnscheduleJob(c *gin.Context) {
 	if h.scheduler == nil {
 		c.JSON(http.StatusNotFound, APIResponse{
@@ -467,7 +467,7 @@ func (h *SmartHandlers) UnscheduleJob(c *gin.Context) {
 	})
 }
 
-// TriggerJob 手动触发作业
+// TriggerJob 手动触发作业.
 func (h *SmartHandlers) TriggerJob(c *gin.Context) {
 	if h.scheduler == nil {
 		c.JSON(http.StatusNotFound, APIResponse{
@@ -497,7 +497,7 @@ func (h *SmartHandlers) TriggerJob(c *gin.Context) {
 // 统计与健康检查 API
 // ============================================================================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (h *SmartHandlers) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 
@@ -515,7 +515,7 @@ func (h *SmartHandlers) GetStats(c *gin.Context) {
 	})
 }
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 func (h *SmartHandlers) HealthCheck(c *gin.Context) {
 	result, err := h.manager.HealthCheck()
 	if err != nil {

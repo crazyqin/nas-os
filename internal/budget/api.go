@@ -14,7 +14,7 @@ import (
 
 // ========== 预算管理器 ==========
 
-// Manager 预算管理器
+// Manager 预算管理器.
 type Manager struct {
 	mu             sync.RWMutex
 	budgets        map[string]*Budget
@@ -25,21 +25,21 @@ type Manager struct {
 	costCalculator CostCalculator
 }
 
-// NotificationService 通知服务接口
+// NotificationService 通知服务接口.
 type NotificationService interface {
 	SendEmail(to []string, subject, body string) error
 	SendWebhook(url string, payload interface{}) error
 	SendAlert(alert *Alert) error
 }
 
-// CostCalculator 成本计算器接口
+// CostCalculator 成本计算器接口.
 type CostCalculator interface {
 	CalculateStorageCost(bytes uint64) float64
 	CalculateBandwidthCost(bytes uint64) float64
 	CalculateComputeCost(duration time.Duration) float64
 }
 
-// NewBudgetManager 创建预算管理器
+// NewBudgetManager 创建预算管理器.
 func NewBudgetManager() *Manager {
 	return &Manager{
 		budgets:      make(map[string]*Budget),
@@ -49,14 +49,14 @@ func NewBudgetManager() *Manager {
 	}
 }
 
-// SetNotifier 设置通知服务
+// SetNotifier 设置通知服务.
 func (m *Manager) SetNotifier(notifier NotificationService) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.notifier = notifier
 }
 
-// SetCostCalculator 设置成本计算器
+// SetCostCalculator 设置成本计算器.
 func (m *Manager) SetCostCalculator(calc CostCalculator) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -65,7 +65,7 @@ func (m *Manager) SetCostCalculator(calc CostCalculator) {
 
 // ========== 预算 CRUD 操作 ==========
 
-// CreateBudget 创建预算
+// CreateBudget 创建预算.
 func (m *Manager) CreateBudget(input Input, createdBy string) (*Budget, error) {
 	if input.Amount <= 0 {
 		return nil, ErrInvalidAmount
@@ -127,7 +127,7 @@ func (m *Manager) CreateBudget(input Input, createdBy string) (*Budget, error) {
 	return budget, nil
 }
 
-// UpdateBudget 更新预算
+// UpdateBudget 更新预算.
 func (m *Manager) UpdateBudget(id string, input Input) (*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -169,7 +169,7 @@ func (m *Manager) UpdateBudget(id string, input Input) (*Budget, error) {
 	return budget, nil
 }
 
-// DeleteBudget 删除预算
+// DeleteBudget 删除预算.
 func (m *Manager) DeleteBudget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -185,7 +185,7 @@ func (m *Manager) DeleteBudget(id string) error {
 	return nil
 }
 
-// GetBudget 获取预算
+// GetBudget 获取预算.
 func (m *Manager) GetBudget(id string) (*Budget, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -198,7 +198,7 @@ func (m *Manager) GetBudget(id string) (*Budget, error) {
 	return budget, nil
 }
 
-// ListBudgets 列出预算
+// ListBudgets 列出预算.
 func (m *Manager) ListBudgets(query BudgetQuery) ([]*Budget, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -228,7 +228,7 @@ func (m *Manager) ListBudgets(query BudgetQuery) ([]*Budget, int64, error) {
 
 // ========== 预算使用追踪 ==========
 
-// RecordUsage 记录使用
+// RecordUsage 记录使用.
 func (m *Manager) RecordUsage(input UsageInput) (*Usage, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -286,7 +286,7 @@ func (m *Manager) RecordUsage(input UsageInput) (*Usage, error) {
 	return usage, nil
 }
 
-// GetUsageHistory 获取使用历史
+// GetUsageHistory 获取使用历史.
 func (m *Manager) GetUsageHistory(budgetID string, query UsageQuery) ([]*Usage, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -315,7 +315,7 @@ func (m *Manager) GetUsageHistory(budgetID string, query UsageQuery) ([]*Usage, 
 	return result[start:end], total, nil
 }
 
-// GetUsageStats 获取使用统计
+// GetUsageStats 获取使用统计.
 func (m *Manager) GetUsageStats(budgetID string, startTime, endTime time.Time) (*UsageStatsResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -375,7 +375,7 @@ func (m *Manager) GetUsageStats(budgetID string, startTime, endTime time.Time) (
 	return result, nil
 }
 
-// UsageStatsResult 使用统计结果
+// UsageStatsResult 使用统计结果.
 type UsageStatsResult struct {
 	BudgetID       string             `json:"budget_id"`
 	StartTime      time.Time          `json:"start_time"`
@@ -388,7 +388,7 @@ type UsageStatsResult struct {
 	DailyUsage     []DailyUsage       `json:"daily_usage"`
 }
 
-// DailyUsage 每日使用量
+// DailyUsage 每日使用量.
 type DailyUsage struct {
 	Date   time.Time `json:"date"`
 	Amount float64   `json:"amount"`
@@ -396,7 +396,7 @@ type DailyUsage struct {
 
 // ========== 预算预警 ==========
 
-// checkAndCreateAlert 检查并创建预警
+// checkAndCreateAlert 检查并创建预警.
 func (m *Manager) checkAndCreateAlert(budget *Budget) {
 	if !budget.AlertConfig.Enabled {
 		return
@@ -445,7 +445,7 @@ func (m *Manager) checkAndCreateAlert(budget *Budget) {
 	}
 }
 
-// checkBudgetStatus 检查预算状态
+// checkBudgetStatus 检查预算状态.
 func (m *Manager) checkBudgetStatus(budget *Budget) {
 	switch {
 	case budget.UsagePercent >= 100:
@@ -461,7 +461,7 @@ func (m *Manager) checkBudgetStatus(budget *Budget) {
 	}
 }
 
-// AcknowledgeAlert 确认预警
+// AcknowledgeAlert 确认预警.
 func (m *Manager) AcknowledgeAlert(alertID string, acknowledgedBy string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -480,7 +480,7 @@ func (m *Manager) AcknowledgeAlert(alertID string, acknowledgedBy string) error 
 	return ErrAlertNotFound
 }
 
-// ResolveAlert 解决预警
+// ResolveAlert 解决预警.
 func (m *Manager) ResolveAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -498,7 +498,7 @@ func (m *Manager) ResolveAlert(alertID string) error {
 	return ErrAlertNotFound
 }
 
-// GetActiveAlerts 获取活跃预警
+// GetActiveAlerts 获取活跃预警.
 func (m *Manager) GetActiveAlerts(query AlertQuery) ([]*Alert, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -522,7 +522,7 @@ func (m *Manager) GetActiveAlerts(query AlertQuery) ([]*Alert, int64, error) {
 	return result[start:end], total, nil
 }
 
-// GetAlertHistory 获取预警历史
+// GetAlertHistory 获取预警历史.
 func (m *Manager) GetAlertHistory(budgetID string, query AlertQuery) ([]*Alert, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -553,7 +553,7 @@ func (m *Manager) GetAlertHistory(budgetID string, query AlertQuery) ([]*Alert, 
 
 // ========== 预算重置和结转 ==========
 
-// ResetBudget 重置预算
+// ResetBudget 重置预算.
 func (m *Manager) ResetBudget(id string) (*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -582,7 +582,7 @@ func (m *Manager) ResetBudget(id string) (*Budget, error) {
 	return budget, nil
 }
 
-// CheckAndResetBudgets 检查并重置到期预算
+// CheckAndResetBudgets 检查并重置到期预算.
 func (m *Manager) CheckAndResetBudgets() ([]*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -618,7 +618,7 @@ func (m *Manager) CheckAndResetBudgets() ([]*Budget, error) {
 
 // ========== 报告生成 ==========
 
-// GenerateReport 生成预算报告
+// GenerateReport 生成预算报告.
 func (m *Manager) GenerateReport(request ReportRequest) (*Report, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -748,7 +748,7 @@ func (m *Manager) GenerateReport(request ReportRequest) (*Report, error) {
 	return report, nil
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() *BudgetStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -808,7 +808,7 @@ func (m *Manager) GetStats() *BudgetStats {
 
 // ========== 辅助函数 ==========
 
-// calculateNextReset 计算下次重置时间
+// calculateNextReset 计算下次重置时间.
 func calculateNextReset(lastReset time.Time, period Period) *time.Time {
 	var next time.Time
 
@@ -830,7 +830,7 @@ func calculateNextReset(lastReset time.Time, period Period) *time.Time {
 	return &next
 }
 
-// calculatePercent 计算百分比
+// calculatePercent 计算百分比.
 func calculatePercent(used, total float64) float64 {
 	if total == 0 {
 		return 0
@@ -838,7 +838,7 @@ func calculatePercent(used, total float64) float64 {
 	return math.Min(100, (used/total)*100)
 }
 
-// matchBudgetQuery 匹配预算查询
+// matchBudgetQuery 匹配预算查询.
 func matchBudgetQuery(budget *Budget, query BudgetQuery) bool {
 	if len(query.IDs) > 0 && !containsString(query.IDs, budget.ID) {
 		return false
@@ -870,7 +870,7 @@ func matchBudgetQuery(budget *Budget, query BudgetQuery) bool {
 	return true
 }
 
-// matchUsageQuery 匹配使用记录查询
+// matchUsageQuery 匹配使用记录查询.
 func matchUsageQuery(usage *Usage, query UsageQuery) bool {
 	if len(query.SourceTypes) > 0 && !containsString(query.SourceTypes, usage.SourceType) {
 		return false
@@ -890,7 +890,7 @@ func matchUsageQuery(usage *Usage, query UsageQuery) bool {
 	return true
 }
 
-// matchAlertQuery 匹配预警查询
+// matchAlertQuery 匹配预警查询.
 func matchAlertQuery(alert *Alert, query AlertQuery) bool {
 	if len(query.BudgetIDs) > 0 && !containsString(query.BudgetIDs, alert.BudgetID) {
 		return false
@@ -904,7 +904,7 @@ func matchAlertQuery(alert *Alert, query AlertQuery) bool {
 	return true
 }
 
-// getPaginationBounds 获取分页边界
+// getPaginationBounds 获取分页边界.
 func getPaginationBounds(total, page, pageSize int) (int, int) {
 	if page <= 0 {
 		page = 1
@@ -922,7 +922,7 @@ func getPaginationBounds(total, page, pageSize int) (int, int) {
 	return start, end
 }
 
-// containsString 检查字符串是否在切片中
+// containsString 检查字符串是否在切片中.
 func containsString(slice []string, s string) bool {
 	for _, item := range slice {
 		if item == s {
@@ -932,7 +932,7 @@ func containsString(slice []string, s string) bool {
 	return false
 }
 
-// containsType 检查预算类型是否在切片中
+// containsType 检查预算类型是否在切片中.
 func containsType(slice []Type, t Type) bool {
 	for _, item := range slice {
 		if item == t {
@@ -942,7 +942,7 @@ func containsType(slice []Type, t Type) bool {
 	return false
 }
 
-// containsScope 检查预算范围是否在切片中
+// containsScope 检查预算范围是否在切片中.
 func containsScope(slice []Scope, s Scope) bool {
 	for _, item := range slice {
 		if item == s {
@@ -952,7 +952,7 @@ func containsScope(slice []Scope, s Scope) bool {
 	return false
 }
 
-// containsBudgetStatus 检查预算状态是否在切片中
+// containsBudgetStatus 检查预算状态是否在切片中.
 func containsBudgetStatus(slice []BudgetStatus, s BudgetStatus) bool {
 	for _, item := range slice {
 		if item == s {
@@ -962,7 +962,7 @@ func containsBudgetStatus(slice []BudgetStatus, s BudgetStatus) bool {
 	return false
 }
 
-// containsLevel 检查预警级别是否在切片中
+// containsLevel 检查预警级别是否在切片中.
 func containsLevel(slice []Level, l Level) bool {
 	for _, item := range slice {
 		if item == l {
@@ -972,7 +972,7 @@ func containsLevel(slice []Level, l Level) bool {
 	return false
 }
 
-// containsAlertStatus 检查警报状态切片是否包含指定状态
+// containsAlertStatus 检查警报状态切片是否包含指定状态.
 func containsAlertStatus(slice []AlertStatus, s AlertStatus) bool {
 	for _, item := range slice {
 		if item == s {
@@ -982,7 +982,7 @@ func containsAlertStatus(slice []AlertStatus, s AlertStatus) bool {
 	return false
 }
 
-// sortBudgets 排序预算列表
+// sortBudgets 排序预算列表.
 func sortBudgets(budgets []*Budget, sortBy, sortOrder string) {
 	if len(budgets) == 0 {
 		return
@@ -1012,7 +1012,7 @@ func sortBudgets(budgets []*Budget, sortBy, sortOrder string) {
 	})
 }
 
-// sortTopConsumers 排序消费排行
+// sortTopConsumers 排序消费排行.
 func sortTopConsumers(consumers []TopConsumer) {
 	// 使用标准库排序，O(n log n) 复杂度
 	sort.Slice(consumers, func(i, j int) bool {
@@ -1025,7 +1025,7 @@ func sortTopConsumers(consumers []TopConsumer) {
 	}
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func calculateHealthScore(budget *Budget) int {
 	if budget.UsagePercent >= 100 {
 		return 0
@@ -1041,7 +1041,7 @@ func calculateHealthScore(budget *Budget) int {
 	return 100
 }
 
-// calculateTrend 计算趋势
+// calculateTrend 计算趋势.
 func calculateTrend(usages []*Usage) string {
 	if len(usages) < 2 {
 		return "stable"
@@ -1071,7 +1071,7 @@ func calculateTrend(usages []*Usage) string {
 	return "stable"
 }
 
-// calculateDailyAvgUsage 计算日均使用量
+// calculateDailyAvgUsage 计算日均使用量.
 func calculateDailyAvgUsage(usages []*Usage, start, end time.Time) float64 {
 	if len(usages) == 0 {
 		return 0
@@ -1092,7 +1092,7 @@ func calculateDailyAvgUsage(usages []*Usage, start, end time.Time) float64 {
 	return total / days
 }
 
-// countActiveBudgets 计算活跃预算数
+// countActiveBudgets 计算活跃预算数.
 func countActiveBudgets(details []BudgetDetail) int {
 	count := 0
 	for _, d := range details {
@@ -1103,7 +1103,7 @@ func countActiveBudgets(details []BudgetDetail) int {
 	return count
 }
 
-// avgHealthScore 计算平均健康评分
+// avgHealthScore 计算平均健康评分.
 func avgHealthScore(scores []int) int {
 	if len(scores) == 0 {
 		return 100
@@ -1116,7 +1116,7 @@ func avgHealthScore(scores []int) int {
 	return sum / len(scores)
 }
 
-// calculateOverallHealth 计算整体健康度
+// calculateOverallHealth 计算整体健康度.
 func calculateOverallHealth(stats *BudgetStats) int {
 	if stats.TotalBudgets == 0 {
 		return 100
@@ -1133,7 +1133,7 @@ func calculateOverallHealth(stats *BudgetStats) int {
 	return score
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func generateRecommendations(details []BudgetDetail, summary ReportSummary) []BudgetRecommendation {
 	var recommendations []BudgetRecommendation
 
@@ -1187,14 +1187,14 @@ func generateRecommendations(details []BudgetDetail, summary ReportSummary) []Bu
 // ========== 通知重试机制 ==========
 
 const (
-	// 通知重试配置
+	// 通知重试配置.
 	maxNotifyRetries     = 3
 	baseRetryDelay       = 1 * time.Second
 	maxRetryDelay        = 30 * time.Second
 	retryDelayMultiplier = 2.0
 )
 
-// sendAlertWithRetry 发送预警通知（带重试机制）
+// sendAlertWithRetry 发送预警通知（带重试机制）.
 func (m *Manager) sendAlertWithRetry(alert *Alert) {
 	if m.notifier == nil {
 		return

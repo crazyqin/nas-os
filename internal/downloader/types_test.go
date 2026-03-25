@@ -397,7 +397,7 @@ func TestDownloadTask_MagnetLink(t *testing.T) {
 	}
 }
 
-// Helper function for testing
+// Helper function for testing.
 func isValidMagnetURL(url string) bool {
 	return len(url) > 7 && url[:7] == "magnet:"
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// testConfig 创建测试用的配置
+// testConfig 创建测试用的配置.
 func testConfig(versionRoot string) *Config {
 	config := DefaultConfig()
 	config.VersionRoot = versionRoot

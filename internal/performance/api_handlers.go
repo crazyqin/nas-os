@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// APIHandlers 性能监控 API 处理器
+// APIHandlers 性能监控 API 处理器.
 type APIHandlers struct {
 	logger     *zap.Logger
 	collector  *SystemCollector
@@ -20,7 +20,7 @@ type APIHandlers struct {
 	monitor    *Monitor
 }
 
-// NewAPIHandlers 创建 API 处理器
+// NewAPIHandlers 创建 API 处理器.
 func NewAPIHandlers(
 	logger *zap.Logger,
 	collector *SystemCollector,
@@ -41,7 +41,7 @@ func NewAPIHandlers(
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *APIHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	// 指标端点
 	r.GET("/metrics", h.GetMetrics)
@@ -87,7 +87,7 @@ func (h *APIHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Tags 性能监控
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/metrics [get]
+// @Router /api/v1/metrics [get].
 func (h *APIHandlers) GetMetrics(c *gin.Context) {
 	metrics := gin.H{
 		"timestamp": time.Now(),
@@ -121,7 +121,7 @@ func (h *APIHandlers) GetMetrics(c *gin.Context) {
 // @Tags 性能监控
 // @Produce plain
 // @Success 200 {string} string
-// @Router /metrics [get]
+// @Router /metrics [get].
 func (h *APIHandlers) GetPrometheusMetrics(c *gin.Context) {
 	if h.prometheus == nil {
 		c.String(http.StatusServiceUnavailable, "Prometheus exporter not configured")
@@ -136,7 +136,7 @@ func (h *APIHandlers) GetPrometheusMetrics(c *gin.Context) {
 // @Tags 性能监控
 // @Produce json
 // @Success 200 {object} SystemHealth
-// @Router /api/v1/health [get]
+// @Router /api/v1/health [get].
 func (h *APIHandlers) GetHealth(c *gin.Context) {
 	health := h.health.GetHealth()
 
@@ -153,7 +153,7 @@ func (h *APIHandlers) GetHealth(c *gin.Context) {
 // @Tags 性能监控
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/health/checks [get]
+// @Router /api/v1/health/checks [get].
 func (h *APIHandlers) GetHealthChecks(c *gin.Context) {
 	health := h.health.GetHealth()
 
@@ -178,7 +178,7 @@ func (h *APIHandlers) GetHealthChecks(c *gin.Context) {
 // @Param level query string false "告警级别过滤"
 // @Param type query string false "告警类型过滤"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/alerts [get]
+// @Router /api/v1/alerts [get].
 func (h *APIHandlers) GetAlerts(c *gin.Context) {
 	alerts := h.alerts.GetAlerts()
 
@@ -218,7 +218,7 @@ func (h *APIHandlers) GetAlerts(c *gin.Context) {
 // @Produce json
 // @Param limit query int false "返回数量限制" default(50)
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/alerts/history [get]
+// @Router /api/v1/alerts/history [get].
 func (h *APIHandlers) GetAlertHistory(c *gin.Context) {
 	limit, err := strconv.Atoi(c.Query("limit"))
 	if err != nil || limit <= 0 {
@@ -243,7 +243,7 @@ func (h *APIHandlers) GetAlertHistory(c *gin.Context) {
 // @Tags 告警管理
 // @Param id path string true "告警ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/alerts/{id}/acknowledge [post]
+// @Router /api/v1/alerts/{id}/acknowledge [post].
 func (h *APIHandlers) AcknowledgeAlert(c *gin.Context) {
 	id := c.Param("id")
 	user := c.GetString("user") // 从上下文获取用户
@@ -268,7 +268,7 @@ func (h *APIHandlers) AcknowledgeAlert(c *gin.Context) {
 // @Tags 告警管理
 // @Param id path string true "告警ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/alerts/{id}/silence [post]
+// @Router /api/v1/alerts/{id}/silence [post].
 func (h *APIHandlers) SilenceAlert(c *gin.Context) {
 	id := c.Param("id")
 
@@ -292,7 +292,7 @@ func (h *APIHandlers) SilenceAlert(c *gin.Context) {
 // @Tags 告警管理
 // @Param id path string true "告警ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/alerts/{id} [delete]
+// @Router /api/v1/alerts/{id} [delete].
 func (h *APIHandlers) ClearAlert(c *gin.Context) {
 	id := c.Param("id")
 
@@ -316,7 +316,7 @@ func (h *APIHandlers) ClearAlert(c *gin.Context) {
 // @Tags 告警管理
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/alerts/rules [get]
+// @Router /api/v1/alerts/rules [get].
 func (h *APIHandlers) GetAlertRules(c *gin.Context) {
 	rules := h.alerts.GetRules()
 
@@ -334,7 +334,7 @@ func (h *APIHandlers) GetAlertRules(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Param body body map[string]interface{} true "更新内容"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/alerts/rules/{id} [put]
+// @Router /api/v1/alerts/rules/{id} [put].
 func (h *APIHandlers) UpdateAlertRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -367,7 +367,7 @@ func (h *APIHandlers) UpdateAlertRule(c *gin.Context) {
 // @Tags 系统指标
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/system [get]
+// @Router /api/v1/system [get].
 func (h *APIHandlers) GetSystemMetrics(c *gin.Context) {
 	summary := h.collector.Collect()
 
@@ -384,7 +384,7 @@ func (h *APIHandlers) GetSystemMetrics(c *gin.Context) {
 // @Tags 系统指标
 // @Produce json
 // @Success 200 {object} CPUMetric
-// @Router /api/v1/system/cpu [get]
+// @Router /api/v1/system/cpu [get].
 func (h *APIHandlers) GetCPUMetrics(c *gin.Context) {
 	cpu := h.collector.collectCPU()
 
@@ -401,7 +401,7 @@ func (h *APIHandlers) GetCPUMetrics(c *gin.Context) {
 // @Tags 系统指标
 // @Produce json
 // @Success 200 {object} MemoryMetric
-// @Router /api/v1/system/memory [get]
+// @Router /api/v1/system/memory [get].
 func (h *APIHandlers) GetMemoryMetrics(c *gin.Context) {
 	mem := h.collector.collectMemory()
 
@@ -418,7 +418,7 @@ func (h *APIHandlers) GetMemoryMetrics(c *gin.Context) {
 // @Tags 系统指标
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/system/disks [get]
+// @Router /api/v1/system/disks [get].
 func (h *APIHandlers) GetDiskMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -436,7 +436,7 @@ func (h *APIHandlers) GetDiskMetrics(c *gin.Context) {
 // @Tags 系统指标
 // @Produce json
 // @Success 200 {object} []NetworkMetric
-// @Router /api/v1/system/network [get]
+// @Router /api/v1/system/network [get].
 func (h *APIHandlers) GetNetworkMetrics(c *gin.Context) {
 	network := h.collector.collectNetwork()
 
@@ -453,7 +453,7 @@ func (h *APIHandlers) GetNetworkMetrics(c *gin.Context) {
 // @Tags 存储性能
 // @Produce json
 // @Success 200 {object} StorageMetrics
-// @Router /api/v1/storage [get]
+// @Router /api/v1/storage [get].
 func (h *APIHandlers) GetStorageMetrics(c *gin.Context) {
 	metrics := h.storage.Collect()
 
@@ -470,7 +470,7 @@ func (h *APIHandlers) GetStorageMetrics(c *gin.Context) {
 // @Tags 存储性能
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/storage/iops [get]
+// @Router /api/v1/storage/iops [get].
 func (h *APIHandlers) GetIOPSMetrics(c *gin.Context) {
 	metrics := h.storage.Collect()
 
@@ -500,7 +500,7 @@ func (h *APIHandlers) GetIOPSMetrics(c *gin.Context) {
 // @Tags 存储性能
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/storage/latency [get]
+// @Router /api/v1/storage/latency [get].
 func (h *APIHandlers) GetLatencyMetrics(c *gin.Context) {
 	metrics := h.storage.Collect()
 	readAvg, writeAvg := h.storage.GetAverageLatency()
@@ -533,7 +533,7 @@ func (h *APIHandlers) GetLatencyMetrics(c *gin.Context) {
 // @Tags 存储性能
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/storage/throughput [get]
+// @Router /api/v1/storage/throughput [get].
 func (h *APIHandlers) GetThroughputMetrics(c *gin.Context) {
 	metrics := h.storage.Collect()
 
@@ -557,7 +557,7 @@ func (h *APIHandlers) GetThroughputMetrics(c *gin.Context) {
 // @Tags 历史数据
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/history/cpu [get]
+// @Router /api/v1/history/cpu [get].
 func (h *APIHandlers) GetCPUHistory(c *gin.Context) {
 	history := h.collector.GetCPUHistory()
 
@@ -574,7 +574,7 @@ func (h *APIHandlers) GetCPUHistory(c *gin.Context) {
 // @Tags 历史数据
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/history/memory [get]
+// @Router /api/v1/history/memory [get].
 func (h *APIHandlers) GetMemoryHistory(c *gin.Context) {
 	history := h.collector.GetMemoryHistory()
 
@@ -591,7 +591,7 @@ func (h *APIHandlers) GetMemoryHistory(c *gin.Context) {
 // @Tags 历史数据
 // @Produce json
 // @Success 200 {object} []StorageMetrics
-// @Router /api/v1/history/storage [get]
+// @Router /api/v1/history/storage [get].
 func (h *APIHandlers) GetStorageHistory(c *gin.Context) {
 	history := h.storage.GetHistory()
 

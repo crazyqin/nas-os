@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// AlertRuleEngine 告警规则引擎
+// AlertRuleEngine 告警规则引擎.
 type AlertRuleEngine struct {
 	mu           sync.RWMutex
 	rules        map[string]*AlertRuleConfig
@@ -19,7 +19,7 @@ type AlertRuleEngine struct {
 	configPath   string
 }
 
-// AlertRuleConfig 告警规则配置
+// AlertRuleConfig 告警规则配置.
 type AlertRuleConfig struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -40,41 +40,41 @@ type AlertRuleConfig struct {
 	TriggerCount int               `json:"triggerCount"`
 }
 
-// AlertRuleType 告警规则类型
+// AlertRuleType 告警规则类型.
 type AlertRuleType string
 
 const (
-	// RuleTypeCPU CPU 使用率告警规则类型
+	// RuleTypeCPU CPU 使用率告警规则类型.
 	RuleTypeCPU AlertRuleType = "cpu"
-	// RuleTypeMemory 内存使用率告警规则类型
+	// RuleTypeMemory 内存使用率告警规则类型.
 	RuleTypeMemory AlertRuleType = "memory"
-	// RuleTypeDisk 磁盘使用率告警规则类型
+	// RuleTypeDisk 磁盘使用率告警规则类型.
 	RuleTypeDisk AlertRuleType = "disk"
-	// RuleTypeDiskHealth 磁盘健康状态告警规则类型
+	// RuleTypeDiskHealth 磁盘健康状态告警规则类型.
 	RuleTypeDiskHealth AlertRuleType = "disk_health"
-	// RuleTypeNetwork 网络状态告警规则类型
+	// RuleTypeNetwork 网络状态告警规则类型.
 	RuleTypeNetwork AlertRuleType = "network"
-	// RuleTypeTemperature 温度告警规则类型
+	// RuleTypeTemperature 温度告警规则类型.
 	RuleTypeTemperature AlertRuleType = "temperature"
-	// RuleTypeService 服务状态告警规则类型
+	// RuleTypeService 服务状态告警规则类型.
 	RuleTypeService AlertRuleType = "service"
-	// RuleTypeBackup 备份状态告警规则类型
+	// RuleTypeBackup 备份状态告警规则类型.
 	RuleTypeBackup AlertRuleType = "backup"
-	// RuleTypeCustom 自定义告警规则类型
+	// RuleTypeCustom 自定义告警规则类型.
 	RuleTypeCustom AlertRuleType = "custom"
 )
 
-// LogicOperator 逻辑运算符
+// LogicOperator 逻辑运算符.
 type LogicOperator string
 
 const (
-	// LogicAnd 逻辑与运算符
+	// LogicAnd 逻辑与运算符.
 	LogicAnd LogicOperator = "and"
-	// LogicOr 逻辑或运算符
+	// LogicOr 逻辑或运算符.
 	LogicOr LogicOperator = "or"
 )
 
-// RuleCondition 规则条件
+// RuleCondition 规则条件.
 type RuleCondition struct {
 	Field       string        `json:"field"`
 	Operator    CompareOp     `json:"operator"`
@@ -83,55 +83,55 @@ type RuleCondition struct {
 	Aggregation *Aggregation  `json:"aggregation,omitempty"` // 聚合方式
 }
 
-// CompareOp 比较运算符
+// CompareOp 比较运算符.
 type CompareOp string
 
 const (
-	// OpEqual 等于比较运算符
+	// OpEqual 等于比较运算符.
 	OpEqual CompareOp = "eq"
-	// OpNotEqual 不等于比较运算符
+	// OpNotEqual 不等于比较运算符.
 	OpNotEqual CompareOp = "ne"
-	// OpGreaterThan 大于比较运算符
+	// OpGreaterThan 大于比较运算符.
 	OpGreaterThan CompareOp = "gt"
-	// OpGreaterEqual 大于等于比较运算符
+	// OpGreaterEqual 大于等于比较运算符.
 	OpGreaterEqual CompareOp = "gte"
-	// OpLessThan 小于比较运算符
+	// OpLessThan 小于比较运算符.
 	OpLessThan CompareOp = "lt"
-	// OpLessEqual 小于等于比较运算符
+	// OpLessEqual 小于等于比较运算符.
 	OpLessEqual CompareOp = "lte"
-	// OpContains 包含比较运算符
+	// OpContains 包含比较运算符.
 	OpContains CompareOp = "contains"
-	// OpMatches 正则匹配比较运算符
+	// OpMatches 正则匹配比较运算符.
 	OpMatches CompareOp = "matches"
-	// OpExists 存在性检查运算符
+	// OpExists 存在性检查运算符.
 	OpExists CompareOp = "exists"
-	// OpChangeRate 变化率比较运算符
+	// OpChangeRate 变化率比较运算符.
 	OpChangeRate CompareOp = "rate"
 )
 
-// Aggregation 聚合方式
+// Aggregation 聚合方式.
 type Aggregation struct {
 	Type   AggregationType `json:"type"`
 	Window time.Duration   `json:"window"`
 }
 
-// AggregationType 聚合类型
+// AggregationType 聚合类型.
 type AggregationType string
 
 const (
-	// AggAvg 平均值聚合类型
+	// AggAvg 平均值聚合类型.
 	AggAvg AggregationType = "avg"
-	// AggMax 最大值聚合类型
+	// AggMax 最大值聚合类型.
 	AggMax AggregationType = "max"
-	// AggMin 最小值聚合类型
+	// AggMin 最小值聚合类型.
 	AggMin AggregationType = "min"
-	// AggSum 求和聚合类型
+	// AggSum 求和聚合类型.
 	AggSum AggregationType = "sum"
-	// AggCount 计数聚合类型
+	// AggCount 计数聚合类型.
 	AggCount AggregationType = "count"
 )
 
-// MetricValue 指标值
+// MetricValue 指标值.
 type MetricValue struct {
 	Name      string                 `json:"name"`
 	Value     float64                `json:"value"`
@@ -140,7 +140,7 @@ type MetricValue struct {
 	Metadata  map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// NewAlertRuleEngine 创建告警规则引擎
+// NewAlertRuleEngine 创建告警规则引擎.
 func NewAlertRuleEngine(configPath string, alertMgr *AlertingManager) *AlertRuleEngine {
 	engine := &AlertRuleEngine{
 		rules:        make(map[string]*AlertRuleConfig),
@@ -159,7 +159,7 @@ func NewAlertRuleEngine(configPath string, alertMgr *AlertingManager) *AlertRule
 	return engine
 }
 
-// addDefaultRules 添加默认规则
+// addDefaultRules 添加默认规则.
 func (e *AlertRuleEngine) addDefaultRules() {
 	defaultRules := []*AlertRuleConfig{
 		// CPU 告警规则
@@ -322,7 +322,7 @@ func (e *AlertRuleEngine) addDefaultRules() {
 	}
 }
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (e *AlertRuleEngine) AddRule(rule *AlertRuleConfig) error {
 	if rule.ID == "" {
 		return fmt.Errorf("规则 ID 不能为空")
@@ -343,7 +343,7 @@ func (e *AlertRuleEngine) AddRule(rule *AlertRuleConfig) error {
 	return nil
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (e *AlertRuleEngine) UpdateRule(rule *AlertRuleConfig) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -362,7 +362,7 @@ func (e *AlertRuleEngine) UpdateRule(rule *AlertRuleConfig) error {
 	return nil
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (e *AlertRuleEngine) DeleteRule(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -380,7 +380,7 @@ func (e *AlertRuleEngine) DeleteRule(id string) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (e *AlertRuleEngine) GetRule(id string) (*AlertRuleConfig, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -393,7 +393,7 @@ func (e *AlertRuleEngine) GetRule(id string) (*AlertRuleConfig, error) {
 	return rule, nil
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (e *AlertRuleEngine) GetRules() []*AlertRuleConfig {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -406,7 +406,7 @@ func (e *AlertRuleEngine) GetRules() []*AlertRuleConfig {
 	return rules
 }
 
-// GetRulesByType 按类型获取规则
+// GetRulesByType 按类型获取规则.
 func (e *AlertRuleEngine) GetRulesByType(ruleType AlertRuleType) []*AlertRuleConfig {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -421,7 +421,7 @@ func (e *AlertRuleEngine) GetRulesByType(ruleType AlertRuleType) []*AlertRuleCon
 	return rules
 }
 
-// EnableRule 启用规则
+// EnableRule 启用规则.
 func (e *AlertRuleEngine) EnableRule(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -441,7 +441,7 @@ func (e *AlertRuleEngine) EnableRule(id string) error {
 	return nil
 }
 
-// DisableRule 禁用规则
+// DisableRule 禁用规则.
 func (e *AlertRuleEngine) DisableRule(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -461,7 +461,7 @@ func (e *AlertRuleEngine) DisableRule(id string) error {
 	return nil
 }
 
-// Evaluate 评估指标
+// Evaluate 评估指标.
 func (e *AlertRuleEngine) Evaluate(metrics map[string]float64, labels map[string]string) []*AlertRuleConfig {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -509,7 +509,7 @@ func (e *AlertRuleEngine) Evaluate(metrics map[string]float64, labels map[string
 	return triggered
 }
 
-// evaluateRule 评估单个规则
+// evaluateRule 评估单个规则.
 func (e *AlertRuleEngine) evaluateRule(rule *AlertRuleConfig, metrics map[string]float64, labels map[string]string) bool {
 	results := make([]bool, len(rule.Conditions))
 
@@ -542,7 +542,7 @@ func (e *AlertRuleEngine) evaluateRule(rule *AlertRuleConfig, metrics map[string
 	return true
 }
 
-// evaluateCondition 评估条件
+// evaluateCondition 评估条件.
 func (e *AlertRuleEngine) evaluateCondition(condition RuleCondition, value float64, labels map[string]string) bool {
 	threshold, ok := condition.Value.(float64)
 	if !ok {
@@ -572,7 +572,7 @@ func (e *AlertRuleEngine) evaluateCondition(condition RuleCondition, value float
 	}
 }
 
-// generateAlertMessage 生成告警消息
+// generateAlertMessage 生成告警消息.
 func (e *AlertRuleEngine) generateAlertMessage(rule *AlertRuleConfig, metrics map[string]float64, labels map[string]string) string {
 	msg := rule.Name
 
@@ -590,7 +590,7 @@ func (e *AlertRuleEngine) generateAlertMessage(rule *AlertRuleConfig, metrics ma
 	return msg
 }
 
-// LoadRules 从文件加载规则
+// LoadRules 从文件加载规则.
 func (e *AlertRuleEngine) LoadRules() error {
 	if e.configPath == "" {
 		return nil
@@ -619,7 +619,7 @@ func (e *AlertRuleEngine) LoadRules() error {
 	return nil
 }
 
-// saveRules 保存规则到文件
+// saveRules 保存规则到文件.
 func (e *AlertRuleEngine) saveRules() error {
 	if e.configPath == "" {
 		return nil
@@ -639,7 +639,7 @@ func (e *AlertRuleEngine) saveRules() error {
 	return os.WriteFile(e.configPath, data, 0640)
 }
 
-// GetRuleStats 获取规则统计
+// GetRuleStats 获取规则统计.
 func (e *AlertRuleEngine) GetRuleStats() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -678,7 +678,7 @@ func (e *AlertRuleEngine) GetRuleStats() map[string]interface{} {
 	return stats
 }
 
-// AlertRuleTemplate 告警规则模板
+// AlertRuleTemplate 告警规则模板.
 type AlertRuleTemplate struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
@@ -691,7 +691,7 @@ type AlertRuleTemplate struct {
 	Cooldown    time.Duration   `json:"cooldown"`
 }
 
-// GetRuleTemplates 获取规则模板
+// GetRuleTemplates 获取规则模板.
 func GetRuleTemplates() []AlertRuleTemplate {
 	return []AlertRuleTemplate{
 		{

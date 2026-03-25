@@ -20,41 +20,41 @@ import (
 	"github.com/shirou/gopsutil/v3/mem"
 )
 
-// Status 健康状态
+// Status 健康状态.
 type Status string
 
 const (
-	// StatusHealthy 表示系统健康状态
+	// StatusHealthy 表示系统健康状态.
 	StatusHealthy Status = "healthy"
-	// StatusWarning 表示系统警告状态
+	// StatusWarning 表示系统警告状态.
 	StatusWarning Status = "warning"
-	// StatusCritical 表示系统严重状态
+	// StatusCritical 表示系统严重状态.
 	StatusCritical Status = "critical"
-	// StatusUnknown 表示系统状态未知
+	// StatusUnknown 表示系统状态未知.
 	StatusUnknown Status = "unknown"
 )
 
-// CheckType 检查类型
+// CheckType 检查类型.
 type CheckType string
 
 const (
-	// CheckTypeCPU 表示 CPU 检查类型
+	// CheckTypeCPU 表示 CPU 检查类型.
 	CheckTypeCPU CheckType = "cpu"
-	// CheckTypeMemory 表示内存检查类型
+	// CheckTypeMemory 表示内存检查类型.
 	CheckTypeMemory CheckType = "memory"
-	// CheckTypeDisk 表示磁盘检查类型
+	// CheckTypeDisk 表示磁盘检查类型.
 	CheckTypeDisk CheckType = "disk"
-	// CheckTypeLoad 表示负载检查类型
+	// CheckTypeLoad 表示负载检查类型.
 	CheckTypeLoad CheckType = "load"
-	// CheckTypeProcess 表示进程检查类型
+	// CheckTypeProcess 表示进程检查类型.
 	CheckTypeProcess CheckType = "process"
-	// CheckTypeService 表示服务检查类型
+	// CheckTypeService 表示服务检查类型.
 	CheckTypeService CheckType = "service"
-	// CheckTypeNetwork 表示网络检查类型
+	// CheckTypeNetwork 表示网络检查类型.
 	CheckTypeNetwork CheckType = "network"
 )
 
-// CheckResult 单项检查结果
+// CheckResult 单项检查结果.
 type CheckResult struct {
 	Type      CheckType     `json:"type"`
 	Name      string        `json:"name"`
@@ -66,7 +66,7 @@ type CheckResult struct {
 	Timestamp time.Time     `json:"timestamp"`
 }
 
-// Threshold 阈值配置
+// Threshold 阈值配置.
 type Threshold struct {
 	Warning  float64 `json:"warning"`
 	Critical float64 `json:"critical"`
@@ -85,7 +85,7 @@ type HealthReport struct {
 	Version       string        `json:"version"`
 }
 
-// Summary 检查摘要
+// Summary 检查摘要.
 type Summary struct {
 	Total    int `json:"total"`
 	Healthy  int `json:"healthy"`
@@ -94,7 +94,7 @@ type Summary struct {
 	Unknown  int `json:"unknown"`
 }
 
-// CheckerConfig 检查器配置
+// CheckerConfig 检查器配置.
 type CheckerConfig struct {
 	// 磁盘阈值
 	DiskWarningThreshold  float64
@@ -122,7 +122,7 @@ type CheckerConfig struct {
 	Timeout time.Duration
 }
 
-// ServiceCheck 服务检查配置
+// ServiceCheck 服务检查配置.
 type ServiceCheck struct {
 	Name    string
 	Port    int
@@ -130,7 +130,7 @@ type ServiceCheck struct {
 	URL     string
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *CheckerConfig {
 	return &CheckerConfig{
 		DiskWarningThreshold:    80,
@@ -147,7 +147,7 @@ func DefaultConfig() *CheckerConfig {
 	}
 }
 
-// Checker 健康检查器
+// Checker 健康检查器.
 type Checker struct {
 	config   *CheckerConfig
 	hostname string
@@ -155,7 +155,7 @@ type Checker struct {
 	mu       sync.RWMutex
 }
 
-// NewChecker 创建健康检查器
+// NewChecker 创建健康检查器.
 func NewChecker(config *CheckerConfig) *Checker {
 	if config == nil {
 		config = DefaultConfig()
@@ -173,14 +173,14 @@ func NewChecker(config *CheckerConfig) *Checker {
 	}
 }
 
-// SetVersion 设置版本
+// SetVersion 设置版本.
 func (c *Checker) SetVersion(version string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.version = version
 }
 
-// Check 执行完整健康检查
+// Check 执行完整健康检查.
 func (c *Checker) Check(ctx context.Context) *HealthReport {
 	start := time.Now()
 
@@ -262,7 +262,7 @@ func (c *Checker) Check(ctx context.Context) *HealthReport {
 	}
 }
 
-// QuickCheck 快速健康检查
+// QuickCheck 快速健康检查.
 func (c *Checker) QuickCheck(ctx context.Context) *HealthReport {
 	start := time.Now()
 
@@ -308,7 +308,7 @@ func (c *Checker) QuickCheck(ctx context.Context) *HealthReport {
 	}
 }
 
-// checkCPU 检查 CPU 状态
+// checkCPU 检查 CPU 状态.
 func (c *Checker) checkCPU(ctx context.Context) CheckResult {
 	start := time.Now()
 	result := CheckResult{
@@ -358,7 +358,7 @@ func (c *Checker) checkCPU(ctx context.Context) CheckResult {
 	return result
 }
 
-// checkMemory 检查内存状态
+// checkMemory 检查内存状态.
 func (c *Checker) checkMemory(ctx context.Context) CheckResult {
 	start := time.Now()
 	result := CheckResult{
@@ -408,7 +408,7 @@ func (c *Checker) checkMemory(ctx context.Context) CheckResult {
 	return result
 }
 
-// checkDisk 检查磁盘状态
+// checkDisk 检查磁盘状态.
 func (c *Checker) checkDisk(ctx context.Context) CheckResult {
 	start := time.Now()
 	result := CheckResult{
@@ -479,7 +479,7 @@ func (c *Checker) checkDisk(ctx context.Context) CheckResult {
 	return result
 }
 
-// checkLoad 检查系统负载
+// checkLoad 检查系统负载.
 func (c *Checker) checkLoad(ctx context.Context) CheckResult {
 	start := time.Now()
 	result := CheckResult{
@@ -524,7 +524,7 @@ func (c *Checker) checkLoad(ctx context.Context) CheckResult {
 	return result
 }
 
-// checkProcess 检查进程状态
+// checkProcess 检查进程状态.
 func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 	start := time.Now()
 	result := CheckResult{
@@ -605,7 +605,7 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 	return result
 }
 
-// checkService 检查服务状态
+// checkService 检查服务状态.
 func (c *Checker) checkService(ctx context.Context, svc ServiceCheck) CheckResult {
 	start := time.Now()
 	result := CheckResult{
@@ -662,7 +662,7 @@ func (c *Checker) checkService(ctx context.Context, svc ServiceCheck) CheckResul
 	return result
 }
 
-// GetSystemInfo 获取系统信息
+// GetSystemInfo 获取系统信息.
 func (c *Checker) GetSystemInfo(ctx context.Context) (map[string]interface{}, error) {
 	info := make(map[string]interface{})
 

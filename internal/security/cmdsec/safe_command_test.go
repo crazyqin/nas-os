@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// TestCommandValidationError tests the Error method of CommandValidationError
+// TestCommandValidationError tests the Error method of CommandValidationError.
 func TestCommandValidationError(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -39,7 +39,7 @@ func TestCommandValidationError(t *testing.T) {
 	}
 }
 
-// TestValidateDevicePath tests device path validation
+// TestValidateDevicePath tests device path validation.
 func TestValidateDevicePath(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -93,7 +93,7 @@ func TestValidateDevicePath(t *testing.T) {
 	}
 }
 
-// TestValidatePath tests path validation
+// TestValidatePath tests path validation.
 func TestValidatePath(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -143,7 +143,7 @@ func TestValidatePath(t *testing.T) {
 	}
 }
 
-// TestValidateMountOptions tests mount options validation
+// TestValidateMountOptions tests mount options validation.
 func TestValidateMountOptions(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -190,7 +190,7 @@ func TestValidateMountOptions(t *testing.T) {
 	}
 }
 
-// TestValidateFSType tests filesystem type validation
+// TestValidateFSType tests filesystem type validation.
 func TestValidateFSType(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -249,7 +249,7 @@ func TestValidateFSType(t *testing.T) {
 	}
 }
 
-// TestValidateIP tests IP address validation
+// TestValidateIP tests IP address validation.
 func TestValidateIP(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -305,7 +305,7 @@ func TestValidateIP(t *testing.T) {
 	}
 }
 
-// TestValidateDomain tests domain name validation
+// TestValidateDomain tests domain name validation.
 func TestValidateDomain(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -361,7 +361,7 @@ func TestValidateDomain(t *testing.T) {
 	}
 }
 
-// TestValidateContainerName tests container/image name validation
+// TestValidateContainerName tests container/image name validation.
 func TestValidateContainerName(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -419,7 +419,7 @@ func TestValidateContainerName(t *testing.T) {
 	}
 }
 
-// TestValidateTestType tests SMART test type validation
+// TestValidateTestType tests SMART test type validation.
 func TestValidateTestType(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -462,7 +462,7 @@ func TestValidateTestType(t *testing.T) {
 	}
 }
 
-// TestValidateArg tests single argument validation
+// TestValidateArg tests single argument validation.
 func TestValidateArg(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -524,7 +524,7 @@ func TestValidateArg(t *testing.T) {
 	}
 }
 
-// TestValidateArgs tests multiple argument validation
+// TestValidateArgs tests multiple argument validation.
 func TestValidateArgs(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -567,7 +567,7 @@ func TestValidateArgs(t *testing.T) {
 	}
 }
 
-// TestSafeCommand tests safe command creation
+// TestSafeCommand tests safe command creation.
 func TestSafeCommand(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -617,7 +617,7 @@ func TestSafeCommand(t *testing.T) {
 	}
 }
 
-// TestSafeCommandContext tests safe command creation with context
+// TestSafeCommandContext tests safe command creation with context.
 func TestSafeCommandContext(t *testing.T) {
 	ctx := context.Background()
 
@@ -669,7 +669,7 @@ func TestSafeCommandContext(t *testing.T) {
 	}
 }
 
-// TestErrorWrapping tests that errors are properly wrapped
+// TestErrorWrapping tests that errors are properly wrapped.
 func TestErrorWrapping(t *testing.T) {
 	// Test SafeCommand error wrapping
 	_, err := SafeCommand(";rm", "-rf", "/")
@@ -706,7 +706,7 @@ func TestErrorWrapping(t *testing.T) {
 	}
 }
 
-// TestEdgeCases tests edge cases and boundary conditions
+// TestEdgeCases tests edge cases and boundary conditions.
 func TestEdgeCases(t *testing.T) {
 	// Test empty strings
 	t.Run("empty strings", func(t *testing.T) {

@@ -13,19 +13,19 @@ import (
 	"nas-os/internal/logging"
 )
 
-// SMBProvider SMB会话数据提供者接口
+// SMBProvider SMB会话数据提供者接口.
 type SMBProvider interface {
 	Connections() ([]*SMBConnection, error)
 	KillConnection(pid int) error
 }
 
-// NFSProvider NFS会话数据提供者接口
+// NFSProvider NFS会话数据提供者接口.
 type NFSProvider interface {
 	GetClients() ([]*NFSClient, error)
 	KillClient(clientID string) error
 }
 
-// SMBConnection SMB连接信息（从SMB模块获取）
+// SMBConnection SMB连接信息（从SMB模块获取）.
 type SMBConnection struct {
 	PID         int
 	Username    string
@@ -38,7 +38,7 @@ type SMBConnection struct {
 	LockedFiles []string
 }
 
-// NFSClient NFS客户端信息
+// NFSClient NFS客户端信息.
 type NFSClient struct {
 	ID          string
 	ClientIP    string
@@ -48,7 +48,7 @@ type NFSClient struct {
 	BytesWrite  int64
 }
 
-// Monitor 会话监控器
+// Monitor 会话监控器.
 type Monitor struct {
 	manager      *Manager
 	logger       *logging.Logger
@@ -62,7 +62,7 @@ type Monitor struct {
 	lastNFSCount int
 }
 
-// NewMonitor 创建会话监控器
+// NewMonitor 创建会话监控器.
 func NewMonitor(manager *Manager, logger *logging.Logger) *Monitor {
 	if logger == nil {
 		logger = logging.NewLogger(nil).WithSource("session-monitor")
@@ -76,22 +76,22 @@ func NewMonitor(manager *Manager, logger *logging.Logger) *Monitor {
 	}
 }
 
-// SetSMBProvider 设置SMB数据提供者
+// SetSMBProvider 设置SMB数据提供者.
 func (m *Monitor) SetSMBProvider(provider SMBProvider) {
 	m.smbProvider = provider
 }
 
-// SetNFSProvider 设置NFS数据提供者
+// SetNFSProvider 设置NFS数据提供者.
 func (m *Monitor) SetNFSProvider(provider NFSProvider) {
 	m.nfsProvider = provider
 }
 
-// SetPollInterval 设置轮询间隔
+// SetPollInterval 设置轮询间隔.
 func (m *Monitor) SetPollInterval(interval time.Duration) {
 	m.pollInterval = interval
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *Monitor) Start(ctx context.Context) error {
 	m.runningMu.Lock()
 	if m.running {
@@ -108,7 +108,7 @@ func (m *Monitor) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *Monitor) Stop() {
 	m.runningMu.Lock()
 	defer m.runningMu.Unlock()
@@ -122,7 +122,7 @@ func (m *Monitor) Stop() {
 	m.logger.Info("会话监控器已停止")
 }
 
-// run 运行监控循环
+// run 运行监控循环.
 func (m *Monitor) run(ctx context.Context) {
 	ticker := time.NewTicker(m.pollInterval)
 	defer ticker.Stop()
@@ -142,7 +142,7 @@ func (m *Monitor) run(ctx context.Context) {
 	}
 }
 
-// poll 执行一次轮询
+// poll 执行一次轮询.
 func (m *Monitor) poll() {
 	var wg sync.WaitGroup
 	var smbSessions []*Session
@@ -203,7 +203,7 @@ func (m *Monitor) poll() {
 	}
 }
 
-// collectSMBSessions 收集SMB会话
+// collectSMBSessions 收集SMB会话.
 func (m *Monitor) collectSMBSessions() ([]*Session, error) {
 	var sessions []*Session
 
@@ -241,7 +241,7 @@ func (m *Monitor) collectSMBSessions() ([]*Session, error) {
 	return m.collectSMBSessionsFromCommand()
 }
 
-// collectSMBSessionsFromCommand 从命令收集SMB会话
+// collectSMBSessionsFromCommand 从命令收集SMB会话.
 func (m *Monitor) collectSMBSessionsFromCommand() ([]*Session, error) {
 	// 使用 smbstatus -b 获取会话信息
 	cmd := exec.Command("smbstatus", "-b")
@@ -293,7 +293,7 @@ func (m *Monitor) collectSMBSessionsFromCommand() ([]*Session, error) {
 	return sessions, nil
 }
 
-// collectSMBLockedFiles 收集SMB锁定文件
+// collectSMBLockedFiles 收集SMB锁定文件.
 func (m *Monitor) collectSMBLockedFiles(sessions []*Session) {
 	// 使用 smbstatus -L 获取锁定文件
 	cmd := exec.Command("smbstatus", "-L")
@@ -329,7 +329,7 @@ func (m *Monitor) collectSMBLockedFiles(sessions []*Session) {
 	}
 }
 
-// collectNFSSessions 收集NFS会话
+// collectNFSSessions 收集NFS会话.
 func (m *Monitor) collectNFSSessions() ([]*Session, error) {
 	var sessions []*Session
 
@@ -363,7 +363,7 @@ func (m *Monitor) collectNFSSessions() ([]*Session, error) {
 	return m.collectNFSSessionsFromSystem()
 }
 
-// collectNFSSessionsFromSystem 从系统收集NFS会话
+// collectNFSSessionsFromSystem 从系统收集NFS会话.
 func (m *Monitor) collectNFSSessionsFromSystem() ([]*Session, error) {
 	var sessions []*Session
 
@@ -420,7 +420,7 @@ func (m *Monitor) collectNFSSessionsFromSystem() ([]*Session, error) {
 	return sessions, nil
 }
 
-// getNFSSharePath 获取NFS共享路径
+// getNFSSharePath 获取NFS共享路径.
 func (m *Monitor) getNFSSharePath(clientID string) string {
 	// 读取客户端的状态信息
 	clientsDir := "/proc/fs/nfsd/clients"
@@ -445,7 +445,7 @@ func (m *Monitor) getNFSSharePath(clientID string) string {
 	return "/"
 }
 
-// enrichNFSFromShowmount 使用showmount补充NFS信息
+// enrichNFSFromShowmount 使用showmount补充NFS信息.
 func (m *Monitor) enrichNFSFromShowmount(sessions []*Session) {
 	cmd := exec.Command("showmount", "-a", "localhost")
 	output, err := cmd.Output()
@@ -478,7 +478,7 @@ func (m *Monitor) enrichNFSFromShowmount(sessions []*Session) {
 	}
 }
 
-// GetStatus 获取监控器状态
+// GetStatus 获取监控器状态.
 func (m *Monitor) GetStatus() map[string]interface{} {
 	m.runningMu.Lock()
 	running := m.running
@@ -498,16 +498,16 @@ func (m *Monitor) GetStatus() map[string]interface{} {
 	}
 }
 
-// ForceRefresh 强制刷新会话数据
+// ForceRefresh 强制刷新会话数据.
 func (m *Monitor) ForceRefresh() error {
 	m.poll()
 	return nil
 }
 
-// DefaultSMBProvider 默认SMB提供者实现
+// DefaultSMBProvider 默认SMB提供者实现.
 type DefaultSMBProvider struct{}
 
-// Connections 获取SMB连接
+// Connections 获取SMB连接.
 func (p *DefaultSMBProvider) Connections() ([]*SMBConnection, error) {
 	cmd := exec.Command("smbstatus", "-b")
 	output, err := cmd.Output()
@@ -550,17 +550,17 @@ func (p *DefaultSMBProvider) Connections() ([]*SMBConnection, error) {
 	return connections, nil
 }
 
-// KillConnection 断开SMB连接
+// KillConnection 断开SMB连接.
 func (p *DefaultSMBProvider) KillConnection(pid int) error {
 	// 使用 smbcontrol 断开连接
 	cmd := exec.Command("smbcontrol", strconv.Itoa(pid), "close-share")
 	return cmd.Run()
 }
 
-// DefaultNFSProvider 默认NFS提供者实现
+// DefaultNFSProvider 默认NFS提供者实现.
 type DefaultNFSProvider struct{}
 
-// GetClients 获取NFS客户端
+// GetClients 获取NFS客户端.
 func (p *DefaultNFSProvider) GetClients() ([]*NFSClient, error) {
 	var clients []*NFSClient
 
@@ -603,7 +603,7 @@ func (p *DefaultNFSProvider) GetClients() ([]*NFSClient, error) {
 	return clients, nil
 }
 
-// KillClient 断开NFS客户端
+// KillClient 断开NFS客户端.
 func (p *DefaultNFSProvider) KillClient(clientID string) error {
 	// NFS 没有直接的断开命令，需要通过内核接口
 	// 写入到 /proc/fs/nfsd/clients/{id}/ctl

@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// PolicyManager manages data protection policies
+// PolicyManager manages data protection policies.
 type PolicyManager struct {
 	policies map[string]*Policy
 	active   string // Active policy ID
@@ -20,7 +20,7 @@ type PolicyManager struct {
 	storage  string // Storage path for policies
 }
 
-// NewPolicyManager creates a new policy manager
+// NewPolicyManager creates a new policy manager.
 func NewPolicyManager(storagePath string) *PolicyManager {
 	pm := &PolicyManager{
 		policies: make(map[string]*Policy),
@@ -30,7 +30,7 @@ func NewPolicyManager(storagePath string) *PolicyManager {
 	return pm
 }
 
-// CreatePolicy creates a new policy
+// CreatePolicy creates a new policy.
 func (pm *PolicyManager) CreatePolicy(name, description string, detector DetectorConfig, masker MaskerConfig, actions PolicyActions) (*Policy, error) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -52,7 +52,7 @@ func (pm *PolicyManager) CreatePolicy(name, description string, detector Detecto
 	return policy, nil
 }
 
-// GetPolicy retrieves a policy by ID
+// GetPolicy retrieves a policy by ID.
 func (pm *PolicyManager) GetPolicy(id string) (*Policy, bool) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -60,7 +60,7 @@ func (pm *PolicyManager) GetPolicy(id string) (*Policy, bool) {
 	return policy, ok
 }
 
-// UpdatePolicy updates an existing policy
+// UpdatePolicy updates an existing policy.
 func (pm *PolicyManager) UpdatePolicy(id string, updates PolicyUpdate) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -91,7 +91,7 @@ func (pm *PolicyManager) UpdatePolicy(id string, updates PolicyUpdate) error {
 	return nil
 }
 
-// DeletePolicy deletes a policy
+// DeletePolicy deletes a policy.
 func (pm *PolicyManager) DeletePolicy(id string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -109,7 +109,7 @@ func (pm *PolicyManager) DeletePolicy(id string) error {
 	return nil
 }
 
-// SetActivePolicy sets the active policy
+// SetActivePolicy sets the active policy.
 func (pm *PolicyManager) SetActivePolicy(id string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -123,7 +123,7 @@ func (pm *PolicyManager) SetActivePolicy(id string) error {
 	return nil
 }
 
-// GetActivePolicy returns the currently active policy
+// GetActivePolicy returns the currently active policy.
 func (pm *PolicyManager) GetActivePolicy() (*Policy, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -140,7 +140,7 @@ func (pm *PolicyManager) GetActivePolicy() (*Policy, error) {
 	return policy, nil
 }
 
-// ListPolicies lists all policies
+// ListPolicies lists all policies.
 func (pm *PolicyManager) ListPolicies() []*Policy {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -152,7 +152,7 @@ func (pm *PolicyManager) ListPolicies() []*Policy {
 	return policies
 }
 
-// loadPolicies loads policies from storage
+// loadPolicies loads policies from storage.
 func (pm *PolicyManager) loadPolicies() {
 	if pm.storage == "" {
 		return
@@ -175,7 +175,7 @@ func (pm *PolicyManager) loadPolicies() {
 	pm.active = state.Active
 }
 
-// savePolicies saves policies to storage
+// savePolicies saves policies to storage.
 func (pm *PolicyManager) savePolicies() {
 	if pm.storage == "" {
 		return
@@ -202,7 +202,7 @@ func (pm *PolicyManager) savePolicies() {
 	}
 }
 
-// PolicyUpdate represents updates to a policy
+// PolicyUpdate represents updates to a policy.
 type PolicyUpdate struct {
 	Name        *string         `json:"name,omitempty"`
 	Description *string         `json:"description,omitempty"`
@@ -211,7 +211,7 @@ type PolicyUpdate struct {
 	Actions     *PolicyActions  `json:"actions,omitempty"`
 }
 
-// AuditLogger handles audit logging for sensitive data operations
+// AuditLogger handles audit logging for sensitive data operations.
 type AuditLogger struct {
 	logs    []AuditLog
 	maxLogs int
@@ -220,7 +220,7 @@ type AuditLogger struct {
 	enabled bool
 }
 
-// NewAuditLogger creates a new audit logger
+// NewAuditLogger creates a new audit logger.
 func NewAuditLogger(storagePath string, maxLogs int) *AuditLogger {
 	al := &AuditLogger{
 		logs:    make([]AuditLog, 0),
@@ -232,7 +232,7 @@ func NewAuditLogger(storagePath string, maxLogs int) *AuditLogger {
 	return al
 }
 
-// Log records an audit log entry
+// Log records an audit log entry.
 func (al *AuditLogger) Log(ctx context.Context, entry AuditLog) error {
 	al.mu.Lock()
 	defer al.mu.Unlock()
@@ -259,7 +259,7 @@ func (al *AuditLogger) Log(ctx context.Context, entry AuditLog) error {
 	return nil
 }
 
-// GetLogs retrieves logs with optional filtering
+// GetLogs retrieves logs with optional filtering.
 func (al *AuditLogger) GetLogs(filter AuditFilter) []AuditLog {
 	al.mu.RLock()
 	defer al.mu.RUnlock()
@@ -299,7 +299,7 @@ func (al *AuditLogger) GetLogs(filter AuditFilter) []AuditLog {
 	return result
 }
 
-// Clear clears all logs
+// Clear clears all logs.
 func (al *AuditLogger) Clear() {
 	al.mu.Lock()
 	defer al.mu.Unlock()
@@ -307,14 +307,14 @@ func (al *AuditLogger) Clear() {
 	al.saveLogs()
 }
 
-// Enable enables or disables logging
+// Enable enables or disables logging.
 func (al *AuditLogger) Enable(enabled bool) {
 	al.mu.Lock()
 	defer al.mu.Unlock()
 	al.enabled = enabled
 }
 
-// loadLogs loads logs from storage
+// loadLogs loads logs from storage.
 func (al *AuditLogger) loadLogs() {
 	if al.storage == "" {
 		return
@@ -330,7 +330,7 @@ func (al *AuditLogger) loadLogs() {
 	}
 }
 
-// saveLogs saves logs to storage
+// saveLogs saves logs to storage.
 func (al *AuditLogger) saveLogs() {
 	if al.storage == "" {
 		return
@@ -349,7 +349,7 @@ func (al *AuditLogger) saveLogs() {
 	}
 }
 
-// AuditFilter represents filters for audit log queries
+// AuditFilter represents filters for audit log queries.
 type AuditFilter struct {
 	StartTime   *time.Time `json:"start_time,omitempty"`
 	EndTime     *time.Time `json:"end_time,omitempty"`

@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 // 告警级别常量，定义不同严重程度的告警等级。
@@ -19,7 +19,7 @@ const (
 	AlertLevelCritical AlertLevel = "critical"
 )
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	ID             string                 `json:"id"`
 	Name           string                 `json:"name"`
@@ -40,7 +40,7 @@ type Alert struct {
 	Details        map[string]interface{} `json:"details,omitempty"`
 }
 
-// AlertRule 告警规则
+// AlertRule 告警规则.
 type AlertRule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -62,7 +62,7 @@ type AlertRule struct {
 	fireCount    int
 }
 
-// AlertManager 告警管理器
+// AlertManager 告警管理器.
 type AlertManager struct {
 	logger *zap.Logger
 	mu     sync.RWMutex
@@ -85,7 +85,7 @@ type AlertManager struct {
 	health    *HealthChecker
 }
 
-// NewAlertManager 创建告警管理器
+// NewAlertManager 创建告警管理器.
 func NewAlertManager(
 	logger *zap.Logger,
 	collector *SystemCollector,
@@ -110,7 +110,7 @@ func NewAlertManager(
 	return am
 }
 
-// addDefaultRules 添加默认告警规则
+// addDefaultRules 添加默认告警规则.
 func (am *AlertManager) addDefaultRules() {
 	am.rules = []*AlertRule{
 		// CPU 告警
@@ -237,7 +237,7 @@ func (am *AlertManager) addDefaultRules() {
 	}
 }
 
-// SetCallbacks 设置回调
+// SetCallbacks 设置回调.
 func (am *AlertManager) SetCallbacks(onAlert, onResolve func(alert *Alert)) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -245,7 +245,7 @@ func (am *AlertManager) SetCallbacks(onAlert, onResolve func(alert *Alert)) {
 	am.onResolve = onResolve
 }
 
-// Start 启动告警检查
+// Start 启动告警检查.
 func (am *AlertManager) Start(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	go func() {
@@ -261,7 +261,7 @@ func (am *AlertManager) Start(ctx context.Context, interval time.Duration) {
 	}()
 }
 
-// Check 执行告警检查
+// Check 执行告警检查.
 func (am *AlertManager) Check() {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -327,7 +327,7 @@ func (am *AlertManager) Check() {
 	}
 }
 
-// evaluateRule 评估规则
+// evaluateRule 评估规则.
 func (am *AlertManager) evaluateRule(rule *AlertRule, value float64) bool {
 	switch rule.Operator {
 	case ">":
@@ -346,7 +346,7 @@ func (am *AlertManager) evaluateRule(rule *AlertRule, value float64) bool {
 	return false
 }
 
-// processAlert 处理告警
+// processAlert 处理告警.
 func (am *AlertManager) processAlert(rule *AlertRule, value float64, source string) {
 	// 查找是否已存在相同的告警
 	for _, alert := range am.alerts {
@@ -411,7 +411,7 @@ func (am *AlertManager) processAlert(rule *AlertRule, value float64, source stri
 	rule.fireCount = 0
 }
 
-// checkResolve 检查告警是否恢复
+// checkResolve 检查告警是否恢复.
 func (am *AlertManager) checkResolve(rule *AlertRule, source string) {
 	for i, alert := range am.alerts {
 		if alert.Name == rule.Name && alert.Source == source && alert.Status == "firing" {
@@ -438,7 +438,7 @@ func (am *AlertManager) checkResolve(rule *AlertRule, source string) {
 	}
 }
 
-// GetAlerts 获取活动告警
+// GetAlerts 获取活动告警.
 func (am *AlertManager) GetAlerts() []*Alert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -448,7 +448,7 @@ func (am *AlertManager) GetAlerts() []*Alert {
 	return result
 }
 
-// GetAlertHistory 获取告警历史
+// GetAlertHistory 获取告警历史.
 func (am *AlertManager) GetAlertHistory(limit int) []*Alert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -467,7 +467,7 @@ func (am *AlertManager) GetAlertHistory(limit int) []*Alert {
 	return result
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (am *AlertManager) AcknowledgeAlert(id, by string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -483,7 +483,7 @@ func (am *AlertManager) AcknowledgeAlert(id, by string) error {
 	return fmt.Errorf("告警不存在: %s", id)
 }
 
-// SilenceAlert 静默告警
+// SilenceAlert 静默告警.
 func (am *AlertManager) SilenceAlert(id string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -498,7 +498,7 @@ func (am *AlertManager) SilenceAlert(id string) error {
 	return fmt.Errorf("告警不存在: %s", id)
 }
 
-// ClearAlert 清除告警
+// ClearAlert 清除告警.
 func (am *AlertManager) ClearAlert(id string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -513,14 +513,14 @@ func (am *AlertManager) ClearAlert(id string) error {
 	return fmt.Errorf("告警不存在: %s", id)
 }
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (am *AlertManager) AddRule(rule *AlertRule) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
 	am.rules = append(am.rules, rule)
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (am *AlertManager) UpdateRule(id string, updates map[string]interface{}) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -546,7 +546,7 @@ func (am *AlertManager) UpdateRule(id string, updates map[string]interface{}) er
 	return fmt.Errorf("规则不存在: %s", id)
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (am *AlertManager) GetRules() []*AlertRule {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -556,7 +556,7 @@ func (am *AlertManager) GetRules() []*AlertRule {
 	return result
 }
 
-// GetAlertStats 获取告警统计
+// GetAlertStats 获取告警统计.
 func (am *AlertManager) GetAlertStats() map[string]interface{} {
 	am.mu.RLock()
 	defer am.mu.RUnlock()

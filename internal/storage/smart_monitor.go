@@ -16,7 +16,7 @@ import (
 	"nas-os/pkg/safeguards"
 )
 
-// SMARTMonitor SMART 磁盘健康监控器
+// SMARTMonitor SMART 磁盘健康监控器.
 type SMARTMonitor struct {
 	mu sync.RWMutex
 
@@ -36,7 +36,7 @@ type SMARTMonitor struct {
 	stopChan chan struct{}
 }
 
-// SMARTConfig SMART 监控配置
+// SMARTConfig SMART 监控配置.
 type SMARTConfig struct {
 	// 检查间隔
 	CheckInterval time.Duration
@@ -60,7 +60,7 @@ type SMARTConfig struct {
 	HistoryRetentionDays int
 }
 
-// DefaultSMARTConfig 默认 SMART 配置
+// DefaultSMARTConfig 默认 SMART 配置.
 var DefaultSMARTConfig = SMARTConfig{
 	CheckInterval:         30 * time.Minute,
 	TempWarningThreshold:  50,
@@ -74,7 +74,7 @@ var DefaultSMARTConfig = SMARTConfig{
 	HistoryRetentionDays:  30,
 }
 
-// DiskHealth 磁盘健康状态
+// DiskHealth 磁盘健康状态.
 type DiskHealth struct {
 	Device          string `json:"device"`
 	Model           string `json:"model"`
@@ -113,7 +113,7 @@ type DiskHealth struct {
 	Attributes map[string]SMARTAttribute `json:"attributes"`
 }
 
-// SMARTAttribute SMART 属性
+// SMARTAttribute SMART 属性.
 type SMARTAttribute struct {
 	ID          uint8  `json:"id"`
 	Name        string `json:"name"`
@@ -125,7 +125,7 @@ type SMARTAttribute struct {
 	Description string `json:"description"`
 }
 
-// SMARTStatus SMART 状态
+// SMARTStatus SMART 状态.
 type SMARTStatus string
 
 const (
@@ -141,7 +141,7 @@ const (
 	SMARTStatusUNSUPPORTED SMARTStatus = "UNSUPPORTED"
 )
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus string
 
 const (
@@ -157,7 +157,7 @@ const (
 	HealthStatusCritical HealthStatus = "CRITICAL"
 )
 
-// HealthSnapshot 健康快照
+// HealthSnapshot 健康快照.
 type HealthSnapshot struct {
 	Timestamp          time.Time    `json:"timestamp"`
 	Temperature        int          `json:"temperature"`
@@ -167,7 +167,7 @@ type HealthSnapshot struct {
 	HealthStatus       HealthStatus `json:"healthStatus"`
 }
 
-// AlertType 告警类型
+// AlertType 告警类型.
 type AlertType string
 
 const (
@@ -187,7 +187,7 @@ const (
 	AlertTypeSeekError AlertType = "SEEK_ERROR"
 )
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	Type        AlertType   `json:"type"`
 	Device      string      `json:"device"`
@@ -199,10 +199,10 @@ type Alert struct {
 	HealthScore int         `json:"healthScore"`
 }
 
-// AlertHandler 告警处理器
+// AlertHandler 告警处理器.
 type AlertHandler func(alert Alert)
 
-// NewSMARTMonitor 创建 SMART 监控器
+// NewSMARTMonitor 创建 SMART 监控器.
 func NewSMARTMonitor(config SMARTConfig) *SMARTMonitor {
 	if config.CheckInterval <= 0 {
 		config.CheckInterval = DefaultSMARTConfig.CheckInterval
@@ -223,7 +223,7 @@ func NewSMARTMonitor(config SMARTConfig) *SMARTMonitor {
 	}
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *SMARTMonitor) Start() error {
 	// 初始检查
 	if err := m.CheckAll(); err != nil {
@@ -238,12 +238,12 @@ func (m *SMARTMonitor) Start() error {
 	return nil
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *SMARTMonitor) Stop() {
 	close(m.stopChan)
 }
 
-// checkLoop 定期检查循环
+// checkLoop 定期检查循环.
 func (m *SMARTMonitor) checkLoop() {
 	ticker := time.NewTicker(m.config.CheckInterval)
 	defer ticker.Stop()
@@ -260,7 +260,7 @@ func (m *SMARTMonitor) checkLoop() {
 	}
 }
 
-// CheckAll 检查所有磁盘
+// CheckAll 检查所有磁盘.
 func (m *SMARTMonitor) CheckAll() error {
 	// 获取所有磁盘
 	disks, err := m.detectDisks()
@@ -278,7 +278,7 @@ func (m *SMARTMonitor) CheckAll() error {
 	return nil
 }
 
-// detectDisks 检测系统磁盘
+// detectDisks 检测系统磁盘.
 func (m *SMARTMonitor) detectDisks() ([]string, error) {
 	var disks []string
 
@@ -321,7 +321,7 @@ func (m *SMARTMonitor) detectDisks() ([]string, error) {
 	return disks, nil
 }
 
-// isMainDevice 判断是否为主设备（不含分区）
+// isMainDevice 判断是否为主设备（不含分区）.
 func isMainDevice(name string) bool {
 	// SATA/SAS: sda, sdb, etc.
 	// NVMe: nvme0n1, nvme1n1, etc.
@@ -344,7 +344,7 @@ func isMainDevice(name string) bool {
 		vdPattern.MatchString(name)
 }
 
-// CheckDevice 检查指定设备
+// CheckDevice 检查指定设备.
 func (m *SMARTMonitor) CheckDevice(device string) error {
 	// 判断是否为 NVMe
 	isNVMe := strings.Contains(device, "nvme")
@@ -379,7 +379,7 @@ func (m *SMARTMonitor) CheckDevice(device string) error {
 	return nil
 }
 
-// checkSATADevice 检查 SATA/SAS 设备
+// checkSATADevice 检查 SATA/SAS 设备.
 func (m *SMARTMonitor) checkSATADevice(device string) (*DiskHealth, error) {
 	health := &DiskHealth{
 		Device:        device,
@@ -481,7 +481,7 @@ func (m *SMARTMonitor) checkSATADevice(device string) (*DiskHealth, error) {
 	return health, nil
 }
 
-// checkNVMeDevice 检查 NVMe 设备
+// checkNVMeDevice 检查 NVMe 设备.
 func (m *SMARTMonitor) checkNVMeDevice(device string) (*DiskHealth, error) {
 	health := &DiskHealth{
 		Device:        device,
@@ -590,7 +590,7 @@ func (m *SMARTMonitor) checkNVMeDevice(device string) (*DiskHealth, error) {
 	return health, nil
 }
 
-// parseSMARTAttributes 解析 SMART 属性
+// parseSMARTAttributes 解析 SMART 属性.
 func (m *SMARTMonitor) parseSMARTAttributes(output string) map[string]SMARTAttribute {
 	attributes := make(map[string]SMARTAttribute)
 
@@ -632,7 +632,7 @@ func (m *SMARTMonitor) parseSMARTAttributes(output string) map[string]SMARTAttri
 	return attributes
 }
 
-// calculateHealthScore 计算健康分数
+// calculateHealthScore 计算健康分数.
 func (m *SMARTMonitor) calculateHealthScore(health *DiskHealth) {
 	score := 100
 
@@ -725,7 +725,7 @@ func (m *SMARTMonitor) calculateHealthScore(health *DiskHealth) {
 	}
 }
 
-// checkAlerts 检查告警
+// checkAlerts 检查告警.
 func (m *SMARTMonitor) checkAlerts(health *DiskHealth) {
 	now := time.Now()
 
@@ -833,21 +833,21 @@ func (m *SMARTMonitor) checkAlerts(health *DiskHealth) {
 	}
 }
 
-// sendAlert 发送告警
+// sendAlert 发送告警.
 func (m *SMARTMonitor) sendAlert(alert Alert) {
 	for _, handler := range m.alertHandlers {
 		go handler(alert)
 	}
 }
 
-// AddAlertHandler 添加告警处理器
+// AddAlertHandler 添加告警处理器.
 func (m *SMARTMonitor) AddAlertHandler(handler AlertHandler) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.alertHandlers = append(m.alertHandlers, handler)
 }
 
-// saveSnapshot 保存健康快照
+// saveSnapshot 保存健康快照.
 func (m *SMARTMonitor) saveSnapshot(health *DiskHealth) {
 	if m.config.HistoryRetentionDays <= 0 {
 		return
@@ -878,7 +878,7 @@ func (m *SMARTMonitor) saveSnapshot(health *DiskHealth) {
 	m.history[health.Device] = validSnapshots
 }
 
-// GetDiskHealth 获取磁盘健康状态
+// GetDiskHealth 获取磁盘健康状态.
 func (m *SMARTMonitor) GetDiskHealth(device string) (*DiskHealth, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -898,7 +898,7 @@ func (m *SMARTMonitor) GetDiskHealth(device string) (*DiskHealth, bool) {
 	return &copy, true
 }
 
-// GetAllDisks 获取所有磁盘状态
+// GetAllDisks 获取所有磁盘状态.
 func (m *SMARTMonitor) GetAllDisks() map[string]*DiskHealth {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -916,7 +916,7 @@ func (m *SMARTMonitor) GetAllDisks() map[string]*DiskHealth {
 	return result
 }
 
-// GetHistory 获取历史数据
+// GetHistory 获取历史数据.
 func (m *SMARTMonitor) GetHistory(device string) []HealthSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -924,7 +924,7 @@ func (m *SMARTMonitor) GetHistory(device string) []HealthSnapshot {
 	return m.history[device]
 }
 
-// RunSelfTest 运行自检
+// RunSelfTest 运行自检.
 func (m *SMARTMonitor) RunSelfTest(device string, testType string) error {
 	// 验证设备路径（防止命令注入）
 	if device == "" || strings.ContainsAny(device, ";|&$`()<>") {
@@ -951,7 +951,7 @@ func (m *SMARTMonitor) RunSelfTest(device string, testType string) error {
 	return cmd.Run()
 }
 
-// GetSelfTestStatus 获取自检状态
+// GetSelfTestStatus 获取自检状态.
 func (m *SMARTMonitor) GetSelfTestStatus(device string) (string, error) {
 	// 验证设备路径（防止命令注入）
 	if device == "" || strings.ContainsAny(device, ";|&$`()<>") {
@@ -979,7 +979,7 @@ func (m *SMARTMonitor) GetSelfTestStatus(device string) (string, error) {
 	return "未找到自检信息", nil
 }
 
-// ExportHealth 导出健康报告
+// ExportHealth 导出健康报告.
 func (m *SMARTMonitor) ExportHealth() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -997,7 +997,7 @@ func (m *SMARTMonitor) ExportHealth() ([]byte, error) {
 	return json.MarshalIndent(report, "", "  ")
 }
 
-// parseCapacity 解析容量
+// parseCapacity 解析容量.
 func parseCapacity(line string) uint64 {
 	// 格式: "User Capacity:    1,000,204,886,016 bytes [1.00 TB]"
 	re := regexp.MustCompile(`(\d[\d,]+)\s*bytes`)
@@ -1010,7 +1010,7 @@ func parseCapacity(line string) uint64 {
 	return 0
 }
 
-// parseNVMeTemperature 解析 NVMe 温度
+// parseNVMeTemperature 解析 NVMe 温度.
 func parseNVMeTemperature(line string) int {
 	// 格式: "Temperature:                    35 Celsius"
 	re := regexp.MustCompile(`(\d+)\s*Celsius`)
@@ -1022,7 +1022,7 @@ func parseNVMeTemperature(line string) int {
 	return 0
 }
 
-// parsePercentage 解析百分比
+// parsePercentage 解析百分比.
 func parsePercentage(line string) int {
 	// 格式: "Available Spare:                    100%"
 	re := regexp.MustCompile(`(\d+)%`)
@@ -1034,7 +1034,7 @@ func parsePercentage(line string) int {
 	return 0
 }
 
-// parseDataUnits 解析数据单元
+// parseDataUnits 解析数据单元.
 func parseDataUnits(line string) uint64 {
 	// 格式: "Data Units Read:                  1,234,567 [6.34 GB]"
 	re := regexp.MustCompile(`(\d[\d,]+)\s*\[`)
@@ -1047,7 +1047,7 @@ func parseDataUnits(line string) uint64 {
 	return 0
 }
 
-// parseNVMeCount 解析 NVMe 计数
+// parseNVMeCount 解析 NVMe 计数.
 func parseNVMeCount(line string) uint64 {
 	// 格式: "Power Cycles:                      123"
 	parts := strings.Split(line, ":")

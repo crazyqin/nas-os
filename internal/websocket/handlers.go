@@ -8,19 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// QueueHandlers 消息队列处理器
+// QueueHandlers 消息队列处理器.
 type QueueHandlers struct {
 	queue *EnhancedMessageQueue
 }
 
-// NewQueueHandlers 创建消息队列处理器
+// NewQueueHandlers 创建消息队列处理器.
 func NewQueueHandlers(queue *EnhancedMessageQueue) *QueueHandlers {
 	return &QueueHandlers{
 		queue: queue,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *QueueHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	mq := r.Group("/message-queue")
 	{
@@ -54,7 +54,7 @@ func (h *QueueHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /message-queue/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *QueueHandlers) getStats(c *gin.Context) {
 	stats := h.queue.Stats()
 
@@ -73,7 +73,7 @@ func (h *QueueHandlers) getStats(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /message-queue/config [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *QueueHandlers) getConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -91,7 +91,7 @@ func (h *QueueHandlers) getConfig(c *gin.Context) {
 // @Param request body MessageQueueConfig true "配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /message-queue/config [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *QueueHandlers) updateConfig(c *gin.Context) {
 	var req struct {
 		EnableDedup           *bool    `json:"enableDedup,omitempty"`
@@ -143,7 +143,7 @@ func (h *QueueHandlers) updateConfig(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /message-queue/flush [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *QueueHandlers) flushQueue(c *gin.Context) {
 	count := h.queue.Flush()
 
@@ -165,7 +165,7 @@ func (h *QueueHandlers) flushQueue(c *gin.Context) {
 // @Param request body Message true "消息"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /message-queue/push [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *QueueHandlers) pushMessage(c *gin.Context) {
 	var msg Message
 	if err := c.ShouldBindJSON(&msg); err != nil {
@@ -202,7 +202,7 @@ func (h *QueueHandlers) pushMessage(c *gin.Context) {
 // @Param request body []Message true "消息列表"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /message-queue/batch-push [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *QueueHandlers) batchPushMessages(c *gin.Context) {
 	var messages []*Message
 	if err := c.ShouldBindJSON(&messages); err != nil {
@@ -235,7 +235,7 @@ func (h *QueueHandlers) batchPushMessages(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /message-queue/backpressure [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *QueueHandlers) getBackpressureStats(c *gin.Context) {
 	if h.queue.backpressure == nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -264,7 +264,7 @@ func (h *QueueHandlers) getBackpressureStats(c *gin.Context) {
 // @Param request body map[string]float64 true "阈值配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /message-queue/backpressure/threshold [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *QueueHandlers) setBackpressureThreshold(c *gin.Context) {
 	var req struct {
 		Threshold float64 `json:"threshold"`
@@ -305,7 +305,7 @@ func (h *QueueHandlers) setBackpressureThreshold(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /message-queue/dedup/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *QueueHandlers) getDedupStats(c *gin.Context) {
 	if h.queue.deduplicator == nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -333,7 +333,7 @@ func (h *QueueHandlers) getDedupStats(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /message-queue/dedup/cache [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *QueueHandlers) clearDedupCache(c *gin.Context) {
 	if h.queue.deduplicator == nil {
 		c.JSON(http.StatusOK, gin.H{

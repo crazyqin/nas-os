@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// FilesystemScanner 文件系统安全扫描器
+// FilesystemScanner 文件系统安全扫描器.
 type FilesystemScanner struct {
 	config           Config
 	tasks            map[string]*ScanTask
@@ -26,7 +26,7 @@ type FilesystemScanner struct {
 	progressCallback func(taskID string, progress int)
 }
 
-// NewFilesystemScanner 创建文件系统扫描器
+// NewFilesystemScanner 创建文件系统扫描器.
 func NewFilesystemScanner(config Config) *FilesystemScanner {
 	return &FilesystemScanner{
 		config:          config,
@@ -38,14 +38,14 @@ func NewFilesystemScanner(config Config) *FilesystemScanner {
 	}
 }
 
-// SetProgressCallback 设置进度回调
+// SetProgressCallback 设置进度回调.
 func (s *FilesystemScanner) SetProgressCallback(callback func(taskID string, progress int)) {
 	s.progressCallback = callback
 }
 
 // ========== 扫描任务管理 ==========
 
-// CreateScanTask 创建扫描任务
+// CreateScanTask 创建扫描任务.
 func (s *FilesystemScanner) CreateScanTask(name string, scanType ScanType, targetPaths, excludePaths []string, options *ScanOptions) *ScanTask {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -77,7 +77,7 @@ func (s *FilesystemScanner) CreateScanTask(name string, scanType ScanType, targe
 	return task
 }
 
-// StartScan 启动扫描
+// StartScan 启动扫描.
 func (s *FilesystemScanner) StartScan(taskID string) error {
 	s.mu.Lock()
 	task, exists := s.tasks[taskID]
@@ -102,7 +102,7 @@ func (s *FilesystemScanner) StartScan(taskID string) error {
 	return nil
 }
 
-// CancelScan 取消扫描
+// CancelScan 取消扫描.
 func (s *FilesystemScanner) CancelScan(taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -121,14 +121,14 @@ func (s *FilesystemScanner) CancelScan(taskID string) error {
 	return nil
 }
 
-// GetScanTask 获取扫描任务
+// GetScanTask 获取扫描任务.
 func (s *FilesystemScanner) GetScanTask(taskID string) *ScanTask {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.tasks[taskID]
 }
 
-// ListScanTasks 列出扫描任务
+// ListScanTasks 列出扫描任务.
 func (s *FilesystemScanner) ListScanTasks(limit int) []*ScanTask {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -152,7 +152,7 @@ func (s *FilesystemScanner) ListScanTasks(limit int) []*ScanTask {
 
 // ========== 扫描执行 ==========
 
-// executeScan 执行扫描
+// executeScan 执行扫描.
 func (s *FilesystemScanner) executeScan(task *ScanTask) {
 	defer func() {
 		s.mu.Lock()
@@ -190,7 +190,7 @@ func (s *FilesystemScanner) executeScan(task *ScanTask) {
 	}
 }
 
-// scanPath 扫描路径
+// scanPath 扫描路径.
 func (s *FilesystemScanner) scanPath(task *ScanTask, rootPath string) {
 	excludeMap := make(map[string]bool)
 	for _, p := range task.ExcludePaths {
@@ -276,7 +276,7 @@ func (s *FilesystemScanner) scanPath(task *ScanTask, rootPath string) {
 	})
 }
 
-// scanFile 扫描单个文件
+// scanFile 扫描单个文件.
 func (s *FilesystemScanner) scanFile(task *ScanTask, path string, info os.FileInfo) {
 	// 计算文件哈希
 	var fileHash string
@@ -302,7 +302,7 @@ func (s *FilesystemScanner) scanFile(task *ScanTask, path string, info os.FileIn
 
 // ========== 权限检查 ==========
 
-// checkPathPermissions 检查路径权限
+// checkPathPermissions 检查路径权限.
 func (s *FilesystemScanner) checkPathPermissions(task *ScanTask, path string, info os.FileInfo) {
 	mode := info.Mode()
 
@@ -374,7 +374,7 @@ func (s *FilesystemScanner) checkPathPermissions(task *ScanTask, path string, in
 	}
 }
 
-// checkFilePermissions 检查文件权限
+// checkFilePermissions 检查文件权限.
 func (s *FilesystemScanner) checkFilePermissions(task *ScanTask, path string, info os.FileInfo) {
 	mode := info.Mode()
 
@@ -467,7 +467,7 @@ func (s *FilesystemScanner) checkFilePermissions(task *ScanTask, path string, in
 
 // ========== 敏感数据检测 ==========
 
-// checkSensitiveData 检查敏感数据
+// checkSensitiveData 检查敏感数据.
 func (s *FilesystemScanner) checkSensitiveData(task *ScanTask, path string, info os.FileInfo, fileHash string) {
 	// 跳过二进制文件
 	if isBinaryFile(path) {
@@ -563,7 +563,7 @@ func (s *FilesystemScanner) checkSensitiveData(task *ScanTask, path string, info
 
 // ========== 完整性检查 ==========
 
-// checkFileIntegrity 检查文件完整性
+// checkFileIntegrity 检查文件完整性.
 func (s *FilesystemScanner) checkFileIntegrity(task *ScanTask, path string, info os.FileInfo, fileHash string) {
 	// 检查可疑文件名
 	suspiciousNames := []string{
@@ -627,7 +627,7 @@ func (s *FilesystemScanner) checkFileIntegrity(task *ScanTask, path string, info
 
 // ========== 辅助方法 ==========
 
-// addFinding 添加发现
+// addFinding 添加发现.
 func (s *FilesystemScanner) addFinding(task *ScanTask, finding *FileFinding) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -637,7 +637,7 @@ func (s *FilesystemScanner) addFinding(task *ScanTask, finding *FileFinding) {
 	task.FindingsBySeverity[string(finding.Severity)]++
 }
 
-// countFiles 统计文件数量
+// countFiles 统计文件数量.
 func (s *FilesystemScanner) countFiles(rootPath string, options ScanOptions) (int, error) {
 	count := 0
 
@@ -655,7 +655,7 @@ func (s *FilesystemScanner) countFiles(rootPath string, options ScanOptions) (in
 	return count, nil
 }
 
-// calculateFileHash 计算文件哈希（使用 SHA256）
+// calculateFileHash 计算文件哈希（使用 SHA256）.
 func (s *FilesystemScanner) calculateFileHash(path string, algorithm string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -669,7 +669,7 @@ func (s *FilesystemScanner) calculateFileHash(path string, algorithm string) (st
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// generateReport 生成报告
+// generateReport 生成报告.
 func (s *FilesystemScanner) generateReport(task *ScanTask) *FileScanReport {
 	s.mu.RLock()
 	findings := s.findings[task.ID]
@@ -722,7 +722,7 @@ func (s *FilesystemScanner) generateReport(task *ScanTask) *FileScanReport {
 	return report
 }
 
-// calculateRiskScore 计算风险分数
+// calculateRiskScore 计算风险分数.
 func (s *FilesystemScanner) calculateRiskScore(summary *FileScanSummary) int {
 	score := 100
 
@@ -739,7 +739,7 @@ func (s *FilesystemScanner) calculateRiskScore(summary *FileScanSummary) int {
 	return score
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (s *FilesystemScanner) generateRecommendations(summary *FileScanSummary, findings []*FileFinding) []string {
 	recommendations := make([]string, 0)
 
@@ -762,14 +762,14 @@ func (s *FilesystemScanner) generateRecommendations(summary *FileScanSummary, fi
 	return recommendations
 }
 
-// GetFindings 获取扫描发现
+// GetFindings 获取扫描发现.
 func (s *FilesystemScanner) GetFindings(taskID string) []*FileFinding {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.findings[taskID]
 }
 
-// GetReport 获取扫描报告
+// GetReport 获取扫描报告.
 func (s *FilesystemScanner) GetReport(taskID string) *FileScanReport {
 	task := s.GetScanTask(taskID)
 	if task == nil {
@@ -778,7 +778,7 @@ func (s *FilesystemScanner) GetReport(taskID string) *FileScanReport {
 	return s.generateReport(task)
 }
 
-// Stop 停止扫描器
+// Stop 停止扫描器.
 func (s *FilesystemScanner) Stop() {
 	close(s.stopChan)
 }

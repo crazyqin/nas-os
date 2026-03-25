@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// PerformanceAnalyzer analyzes performance bottlenecks
+// PerformanceAnalyzer analyzes performance bottlenecks.
 type PerformanceAnalyzer struct {
 	slowQueries []SlowQuery
 	hotspots    []Hotspot
@@ -21,7 +21,7 @@ type PerformanceAnalyzer struct {
 	logger *zap.Logger
 }
 
-// SlowQuery represents a slow database query
+// SlowQuery represents a slow database query.
 type SlowQuery struct {
 	Query     string        `json:"query"`
 	Duration  time.Duration `json:"duration"`
@@ -30,7 +30,7 @@ type SlowQuery struct {
 	Params    []interface{} `json:"params,omitempty"`
 }
 
-// Hotspot represents a performance hotspot
+// Hotspot represents a performance hotspot.
 type Hotspot struct {
 	Name        string        `json:"name"`
 	Type        string        `json:"type"` // "function", "endpoint", "query"
@@ -40,7 +40,7 @@ type Hotspot struct {
 	Percent     float64       `json:"percent"` // percentage of total time
 }
 
-// Bottleneck represents a system bottleneck
+// Bottleneck represents a system bottleneck.
 type Bottleneck struct {
 	Resource    string    `json:"resource"` // "cpu", "memory", "disk", "network"
 	Severity    string    `json:"severity"` // "low", "medium", "high", "critical"
@@ -50,7 +50,7 @@ type Bottleneck struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-// ToResponse converts Bottleneck to BottleneckResponse
+// ToResponse converts Bottleneck to BottleneckResponse.
 func (b *Bottleneck) ToResponse() *BottleneckResponse {
 	return &BottleneckResponse{
 		Resource:    b.Resource,
@@ -62,7 +62,7 @@ func (b *Bottleneck) ToResponse() *BottleneckResponse {
 	}
 }
 
-// EndpointStats holds endpoint performance stats
+// EndpointStats holds endpoint performance stats.
 type EndpointStats struct {
 	Path         string        `json:"path"`
 	Method       string        `json:"method"`
@@ -76,7 +76,7 @@ type EndpointStats struct {
 	ErrorCount   int64         `json:"error_count"`
 }
 
-// FunctionStats holds function performance stats
+// FunctionStats holds function performance stats.
 type FunctionStats struct {
 	Name        string        `json:"name"`
 	Package     string        `json:"package"`
@@ -85,7 +85,7 @@ type FunctionStats struct {
 	TotalTime   time.Duration `json:"total_time"`
 }
 
-// NewPerformanceAnalyzer creates a new performance analyzer
+// NewPerformanceAnalyzer creates a new performance analyzer.
 func NewPerformanceAnalyzer(slowQueryThreshold time.Duration, maxSlowQueries int, logger *zap.Logger) *PerformanceAnalyzer {
 	return &PerformanceAnalyzer{
 		slowQueries:        make([]SlowQuery, 0),
@@ -97,7 +97,7 @@ func NewPerformanceAnalyzer(slowQueryThreshold time.Duration, maxSlowQueries int
 	}
 }
 
-// RecordSlowQuery records a slow query
+// RecordSlowQuery records a slow query.
 func (a *PerformanceAnalyzer) RecordSlowQuery(query string, duration time.Duration, source string, params ...interface{}) {
 	if duration < a.slowQueryThreshold {
 		return
@@ -129,13 +129,13 @@ func (a *PerformanceAnalyzer) RecordSlowQuery(query string, duration time.Durati
 	}
 }
 
-// RecordEndpoint records endpoint performance
+// RecordEndpoint records endpoint performance.
 func (a *PerformanceAnalyzer) RecordEndpoint(path, method string, duration time.Duration, isError bool) {
 	// This would be called from HTTP middleware
 	// Implementation depends on your HTTP framework
 }
 
-// AnalyzeHotspots analyzes performance hotspots
+// AnalyzeHotspots analyzes performance hotspots.
 func (a *PerformanceAnalyzer) AnalyzeHotspots() []Hotspot {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -181,7 +181,7 @@ func (a *PerformanceAnalyzer) AnalyzeHotspots() []Hotspot {
 	return hotspots
 }
 
-// DetectBottlenecks detects system bottlenecks
+// DetectBottlenecks detects system bottlenecks.
 func (a *PerformanceAnalyzer) DetectBottlenecks(cpu, mem float64, diskIO, netIO uint64) []Bottleneck {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -241,7 +241,7 @@ func (a *PerformanceAnalyzer) DetectBottlenecks(cpu, mem float64, diskIO, netIO 
 	return bottlenecks
 }
 
-// GetSlowQueries returns recorded slow queries
+// GetSlowQueries returns recorded slow queries.
 func (a *PerformanceAnalyzer) GetSlowQueries() []SlowQuery {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -251,7 +251,7 @@ func (a *PerformanceAnalyzer) GetSlowQueries() []SlowQuery {
 	return result
 }
 
-// GetBottlenecks returns detected bottlenecks
+// GetBottlenecks returns detected bottlenecks.
 func (a *PerformanceAnalyzer) GetBottlenecks() []Bottleneck {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -261,7 +261,7 @@ func (a *PerformanceAnalyzer) GetBottlenecks() []Bottleneck {
 	return result
 }
 
-// GetSummary returns performance summary
+// GetSummary returns performance summary.
 func (a *PerformanceAnalyzer) GetSummary() PerformanceSummary {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -282,7 +282,7 @@ func (a *PerformanceAnalyzer) GetSummary() PerformanceSummary {
 	return summary
 }
 
-// PerformanceSummary holds performance summary
+// PerformanceSummary holds performance summary.
 type PerformanceSummary struct {
 	TotalSlowQueries     int           `json:"total_slow_queries"`
 	AvgSlowQueryDuration time.Duration `json:"avg_slow_query_duration"`
@@ -290,21 +290,21 @@ type PerformanceSummary struct {
 	CriticalBottlenecks  int           `json:"critical_bottlenecks"`
 }
 
-// ClearSlowQueries clears slow query log
+// ClearSlowQueries clears slow query log.
 func (a *PerformanceAnalyzer) ClearSlowQueries() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.slowQueries = make([]SlowQuery, 0)
 }
 
-// ClearBottlenecks clears bottleneck history
+// ClearBottlenecks clears bottleneck history.
 func (a *PerformanceAnalyzer) ClearBottlenecks() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.bottlenecks = make([]Bottleneck, 0)
 }
 
-// normalizeQuery normalizes a SQL query by removing specific values
+// normalizeQuery normalizes a SQL query by removing specific values.
 func (a *PerformanceAnalyzer) normalizeQuery(query string) string {
 	// Simple normalization - in production, use proper SQL parser
 	normalized := query
@@ -314,7 +314,7 @@ func (a *PerformanceAnalyzer) normalizeQuery(query string) string {
 	return normalized
 }
 
-// CalculatePercentile calculates percentile from durations
+// CalculatePercentile calculates percentile from durations.
 func CalculatePercentile(durations []time.Duration, percentile float64) time.Duration {
 	if len(durations) == 0 {
 		return 0
@@ -332,14 +332,14 @@ func CalculatePercentile(durations []time.Duration, percentile float64) time.Dur
 	return durations[index]
 }
 
-// Timer provides easy timing for code blocks
+// Timer provides easy timing for code blocks.
 type Timer struct {
 	start    time.Time
 	name     string
 	callback func(time.Duration)
 }
 
-// NewTimer creates a new timer
+// NewTimer creates a new timer.
 func NewTimer(name string, callback func(time.Duration)) *Timer {
 	return &Timer{
 		start:    time.Now(),
@@ -348,7 +348,7 @@ func NewTimer(name string, callback func(time.Duration)) *Timer {
 	}
 }
 
-// Stop stops the timer and calls callback
+// Stop stops the timer and calls callback.
 func (t *Timer) Stop() time.Duration {
 	duration := time.Since(t.start)
 	if t.callback != nil {
@@ -357,7 +357,7 @@ func (t *Timer) Stop() time.Duration {
 	return duration
 }
 
-// TimeFunc times a function execution
+// TimeFunc times a function execution.
 func TimeFunc(name string, fn func()) time.Duration {
 	start := time.Now()
 	fn()
@@ -365,7 +365,7 @@ func TimeFunc(name string, fn func()) time.Duration {
 	return duration
 }
 
-// TimeFuncWithResult times a function with error result
+// TimeFuncWithResult times a function with error result.
 func TimeFuncWithResult(name string, fn func() error) (time.Duration, error) {
 	start := time.Now()
 	err := fn()

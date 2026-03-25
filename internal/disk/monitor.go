@@ -3,7 +3,7 @@ package disk
 
 import "time"
 
-// Monitor 定义 SMART 监控器接口
+// Monitor 定义 SMART 监控器接口.
 type Monitor interface {
 	GetAllDisks() []*DiskInfo
 	GetDiskInfo(device string) (*DiskInfo, error)

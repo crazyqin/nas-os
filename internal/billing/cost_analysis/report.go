@@ -12,10 +12,10 @@ import (
 
 // ========== 成本分析报告类型 ==========
 
-// CostReportType 成本报告类型
+// CostReportType 成本报告类型.
 type CostReportType string
 
-// 成本报告类型常量
+// 成本报告类型常量.
 const (
 	CostReportStorageTrend   CostReportType = "storage_trend"   // 存储成本趋势分析
 	CostReportResourceUtil   CostReportType = "resource_util"   // 资源利用率报告
@@ -24,7 +24,7 @@ const (
 	CostReportComprehensive  CostReportType = "comprehensive"   // 综合成本分析报告
 )
 
-// CostReport 成本分析报告
+// CostReport 成本分析报告.
 type CostReport struct {
 	ID              string                 `json:"id"`
 	Type            CostReportType         `json:"type"`
@@ -38,7 +38,7 @@ type CostReport struct {
 	Metadata        map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// CostSummary 成本摘要
+// CostSummary 成本摘要.
 type CostSummary struct {
 	TotalCost            float64 `json:"total_cost"`             // 总成本（元）
 	StorageCost          float64 `json:"storage_cost"`           // 存储成本
@@ -51,7 +51,7 @@ type CostSummary struct {
 	BudgetUtilization    float64 `json:"budget_utilization"`     // 预算使用率
 }
 
-// CostTrend 成本趋势
+// CostTrend 成本趋势.
 type CostTrend struct {
 	Date          time.Time `json:"date"`
 	StorageCost   float64   `json:"storage_cost"`
@@ -61,7 +61,7 @@ type CostTrend struct {
 	BandwidthGB   float64   `json:"bandwidth_gb"`
 }
 
-// CostRecommendation 成本优化建议
+// CostRecommendation 成本优化建议.
 type CostRecommendation struct {
 	ID               string  `json:"id"`
 	Type             string  `json:"type"`     // storage, bandwidth, user, pool
@@ -76,7 +76,7 @@ type CostRecommendation struct {
 
 // ========== 存储成本趋势分析 ==========
 
-// StorageTrendAnalysis 存储成本趋势分析
+// StorageTrendAnalysis 存储成本趋势分析.
 type StorageTrendAnalysis struct {
 	AnalysisDate   time.Time            `json:"analysis_date"`
 	PeriodDays     int                  `json:"period_days"`
@@ -89,7 +89,7 @@ type StorageTrendAnalysis struct {
 	Alerts         []CostAlert          `json:"alerts,omitempty"`
 }
 
-// StorageUsageSnapshot 存储使用快照
+// StorageUsageSnapshot 存储使用快照.
 type StorageUsageSnapshot struct {
 	Timestamp    time.Time `json:"timestamp"`
 	TotalBytes   uint64    `json:"total_bytes"`
@@ -100,7 +100,7 @@ type StorageUsageSnapshot struct {
 	MonthlyCost  float64   `json:"monthly_cost"`
 }
 
-// StorageTrendPoint 存储趋势数据点
+// StorageTrendPoint 存储趋势数据点.
 type StorageTrendPoint struct {
 	Date         time.Time `json:"date"`
 	UsedBytes    uint64    `json:"used_bytes"`
@@ -111,7 +111,7 @@ type StorageTrendPoint struct {
 	DailyCost    float64   `json:"daily_cost"`
 }
 
-// StorageGrowthRate 存储增长率
+// StorageGrowthRate 存储增长率.
 type StorageGrowthRate struct {
 	DailyGrowthBytes   uint64  `json:"daily_growth_bytes"`
 	DailyGrowthGB      float64 `json:"daily_growth_gb"`
@@ -121,7 +121,7 @@ type StorageGrowthRate struct {
 	TrendDirection     string  `json:"trend_direction"` // increasing, decreasing, stable
 }
 
-// CostProjection 成本预测
+// CostProjection 成本预测.
 type CostProjection struct {
 	CurrentMonthlyCost   float64  `json:"current_monthly_cost"`
 	ProjectedNextMonth   float64  `json:"projected_next_month"`
@@ -131,7 +131,7 @@ type CostProjection struct {
 	Assumptions          []string `json:"assumptions"`
 }
 
-// PoolCostAnalysis 存储池成本分析
+// PoolCostAnalysis 存储池成本分析.
 type PoolCostAnalysis struct {
 	PoolID            string  `json:"pool_id"`
 	PoolName          string  `json:"pool_name"`
@@ -145,7 +145,7 @@ type PoolCostAnalysis struct {
 	OptimizationScore float64 `json:"optimization_score"`
 }
 
-// UserCostAnalysis 用户成本分析
+// UserCostAnalysis 用户成本分析.
 type UserCostAnalysis struct {
 	UserID       string   `json:"user_id"`
 	UserName     string   `json:"user_name"`
@@ -157,7 +157,7 @@ type UserCostAnalysis struct {
 	GrowthRate   float64  `json:"growth_rate"`
 }
 
-// CostAlert 成本告警
+// CostAlert 成本告警.
 type CostAlert struct {
 	ID           string    `json:"id"`
 	Type         string    `json:"type"`     // budget_exceeded, growth_anomaly, inefficiency
@@ -171,7 +171,7 @@ type CostAlert struct {
 
 // ========== 资源利用率报告 ==========
 
-// ResourceUtilizationReport 资源利用率报告
+// ResourceUtilizationReport 资源利用率报告.
 type ResourceUtilizationReport struct {
 	GeneratedAt     time.Time                   `json:"generated_at"`
 	PeriodStart     time.Time                   `json:"period_start"`
@@ -186,7 +186,7 @@ type ResourceUtilizationReport struct {
 	Recommendations []UtilizationRecommendation `json:"recommendations"`
 }
 
-// StorageUtilization 存储利用率
+// StorageUtilization 存储利用率.
 type StorageUtilization struct {
 	TotalCapacity   uint64  `json:"total_capacity"`
 	UsedCapacity    uint64  `json:"used_capacity"`
@@ -200,7 +200,7 @@ type StorageUtilization struct {
 	WastedCost      float64 `json:"wasted_cost"`      // 浪费成本
 }
 
-// BandwidthUtilization 带宽利用率
+// BandwidthUtilization 带宽利用率.
 type BandwidthUtilization struct {
 	TotalAllocated  uint64  `json:"total_allocated"` // 分配带宽（Mbps）
 	PeakUsage       uint64  `json:"peak_usage"`      // 峰值使用
@@ -213,7 +213,7 @@ type BandwidthUtilization struct {
 	MonthlyCost     float64 `json:"monthly_cost"`
 }
 
-// UserUtilStats 用户利用率统计
+// UserUtilStats 用户利用率统计.
 type UserUtilStats struct {
 	UserID           string     `json:"user_id"`
 	UserName         string     `json:"user_name"`
@@ -225,7 +225,7 @@ type UserUtilStats struct {
 	SavingsPotential float64    `json:"savings_potential"` // 潜在节省
 }
 
-// PoolUtilStats 存储池利用率统计
+// PoolUtilStats 存储池利用率统计.
 type PoolUtilStats struct {
 	PoolID          string  `json:"pool_id"`
 	PoolName        string  `json:"pool_name"`
@@ -237,7 +237,7 @@ type PoolUtilStats struct {
 	CostEfficiency  float64 `json:"cost_efficiency"`
 }
 
-// IdleResource 闲置资源
+// IdleResource 闲置资源.
 type IdleResource struct {
 	ResourceType string     `json:"resource_type"` // quota, pool, directory
 	ResourceID   string     `json:"resource_id"`
@@ -249,7 +249,7 @@ type IdleResource struct {
 	Reason       string     `json:"reason"`
 }
 
-// UnderutilizedResource 低利用率资源
+// UnderutilizedResource 低利用率资源.
 type UnderutilizedResource struct {
 	ResourceID       string  `json:"resource_id"`
 	ResourceName     string  `json:"resource_name"`
@@ -261,7 +261,7 @@ type UnderutilizedResource struct {
 	SavingsPotential float64 `json:"savings_potential"`
 }
 
-// UtilizationRecommendation 利用率建议
+// UtilizationRecommendation 利用率建议.
 type UtilizationRecommendation struct {
 	Type        string  `json:"type"` // consolidate, deallocate, optimize
 	Priority    string  `json:"priority"`
@@ -273,7 +273,7 @@ type UtilizationRecommendation struct {
 
 // ========== 预算跟踪功能 ==========
 
-// BudgetConfig 预算配置
+// BudgetConfig 预算配置.
 type BudgetConfig struct {
 	ID              string           `json:"id"`
 	Name            string           `json:"name"`
@@ -290,7 +290,7 @@ type BudgetConfig struct {
 	UpdatedAt       time.Time        `json:"updated_at"`
 }
 
-// BudgetCategory 预算分类
+// BudgetCategory 预算分类.
 type BudgetCategory struct {
 	Name         string  `json:"name"`          // storage, bandwidth, etc.
 	Budget       float64 `json:"budget"`        // 该分类预算
@@ -298,7 +298,7 @@ type BudgetCategory struct {
 	Percentage   float64 `json:"percentage"`    // 占总预算百分比
 }
 
-// BudgetTrackingReport 预算跟踪报告
+// BudgetTrackingReport 预算跟踪报告.
 type BudgetTrackingReport struct {
 	GeneratedAt      time.Time          `json:"generated_at"`
 	BudgetID         string             `json:"budget_id"`
@@ -320,7 +320,7 @@ type BudgetTrackingReport struct {
 	Recommendations  []string           `json:"recommendations"`
 }
 
-// CategorySpend 分类支出
+// CategorySpend 分类支出.
 type CategorySpend struct {
 	Name         string  `json:"name"`
 	Budget       float64 `json:"budget"`
@@ -329,7 +329,7 @@ type CategorySpend struct {
 	Trend        string  `json:"trend"` // up, down, stable
 }
 
-// BudgetTrendPoint 预算趋势数据点
+// BudgetTrendPoint 预算趋势数据点.
 type BudgetTrendPoint struct {
 	Date       time.Time `json:"date"`
 	Spend      float64   `json:"spend"`
@@ -337,7 +337,7 @@ type BudgetTrendPoint struct {
 	Percentage float64   `json:"percentage"`
 }
 
-// BudgetAlert 预算告警
+// BudgetAlert 预算告警.
 type BudgetAlert struct {
 	ID           string    `json:"id"`
 	BudgetID     string    `json:"budget_id"`
@@ -354,7 +354,7 @@ type BudgetAlert struct {
 
 // CostAnalysisEngine 成本分析引擎
 // 提供成本分析报告生成、预算管理、趋势分析等功能
-// 支持多种报告类型：存储趋势、资源利用率、优化建议、预算跟踪等
+// 支持多种报告类型：存储趋势、资源利用率、优化建议、预算跟踪等.
 type CostAnalysisEngine struct {
 	mu            sync.RWMutex
 	dataDir       string
@@ -371,7 +371,7 @@ type CostAnalysisEngine struct {
 	cacheTTL         time.Duration
 }
 
-// BillingDataProvider 计费数据提供者接口
+// BillingDataProvider 计费数据提供者接口.
 type BillingDataProvider interface {
 	GetUsageRecords(userID, poolID string, start, end time.Time) ([]*UsageRecord, error)
 	GetUserUsageSummary(userID string, start, end time.Time) (*UsageSummary, error)
@@ -380,14 +380,14 @@ type BillingDataProvider interface {
 	GetBandwidthPrice() float64
 }
 
-// QuotaDataProvider 配额数据提供者接口
+// QuotaDataProvider 配额数据提供者接口.
 type QuotaDataProvider interface {
 	GetAllUsage() ([]*QuotaUsageInfo, error)
 	GetUserUsage(username string) ([]*QuotaUsageInfo, error)
 	GetPoolUsage(poolID string) (*QuotaUsageInfo, error)
 }
 
-// UsageRecord 用量记录
+// UsageRecord 用量记录.
 type UsageRecord struct {
 	ID            string    `json:"id"`
 	UserID        string    `json:"user_id"`
@@ -397,14 +397,14 @@ type UsageRecord struct {
 	RecordedAt    time.Time `json:"recorded_at"`
 }
 
-// UsageSummary 用量汇总
+// UsageSummary 用量汇总.
 type UsageSummary struct {
 	UserID             string  `json:"user_id"`
 	TotalStorageUsedGB float64 `json:"total_storage_used_gb"`
 	TotalBandwidthGB   float64 `json:"total_bandwidth_gb"`
 }
 
-// BillingStats 计费统计
+// BillingStats 计费统计.
 type BillingStats struct {
 	TotalStorageUsedGB float64 `json:"total_storage_used_gb"`
 	TotalBandwidthGB   float64 `json:"total_bandwidth_gb"`
@@ -413,7 +413,7 @@ type BillingStats struct {
 	BandwidthRevenue   float64 `json:"bandwidth_revenue"`
 }
 
-// QuotaUsageInfo 配额使用信息
+// QuotaUsageInfo 配额使用信息.
 type QuotaUsageInfo struct {
 	QuotaID      string  `json:"quota_id"`
 	TargetID     string  `json:"target_id"`
@@ -425,7 +425,7 @@ type QuotaUsageInfo struct {
 	UsagePercent float64 `json:"usage_percent"`
 }
 
-// AnalysisConfig 分析配置
+// AnalysisConfig 分析配置.
 type AnalysisConfig struct {
 	DataRetentionDays     int       `json:"data_retention_days"`
 	TrendAnalysisDays     int       `json:"trend_analysis_days"`
@@ -435,7 +435,7 @@ type AnalysisConfig struct {
 	BudgetAlertThresholds []float64 `json:"budget_alert_thresholds"`
 }
 
-// DefaultAnalysisConfig 默认分析配置
+// DefaultAnalysisConfig 默认分析配置.
 func DefaultAnalysisConfig() AnalysisConfig {
 	return AnalysisConfig{
 		DataRetentionDays:     365,
@@ -447,7 +447,7 @@ func DefaultAnalysisConfig() AnalysisConfig {
 	}
 }
 
-// NewCostAnalysisEngine 创建成本分析引擎
+// NewCostAnalysisEngine 创建成本分析引擎.
 func NewCostAnalysisEngine(dataDir string, billing BillingDataProvider, quota QuotaDataProvider, config AnalysisConfig) *CostAnalysisEngine {
 	engine := &CostAnalysisEngine{
 		dataDir:       dataDir,
@@ -466,7 +466,7 @@ func NewCostAnalysisEngine(dataDir string, billing BillingDataProvider, quota Qu
 	return engine
 }
 
-// load 加载数据
+// load 加载数据.
 func (e *CostAnalysisEngine) load() error {
 	// 加载预算配置
 	budgetPath := filepath.Join(e.dataDir, "budgets.json")
@@ -488,7 +488,7 @@ func (e *CostAnalysisEngine) load() error {
 	return nil
 }
 
-// save 保存数据
+// save 保存数据.
 func (e *CostAnalysisEngine) save() error {
 	if err := os.MkdirAll(e.dataDir, 0750); err != nil {
 		return fmt.Errorf("创建数据目录失败: %w", err)
@@ -517,7 +517,7 @@ func (e *CostAnalysisEngine) save() error {
 
 // ========== 成本分析报告生成 ==========
 
-// GenerateStorageTrendReport 生成存储成本趋势报告
+// GenerateStorageTrendReport 生成存储成本趋势报告.
 func (e *CostAnalysisEngine) GenerateStorageTrendReport(days int) (*CostReport, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -555,7 +555,7 @@ func (e *CostAnalysisEngine) GenerateStorageTrendReport(days int) (*CostReport, 
 	return report, nil
 }
 
-// GenerateResourceUtilizationReport 生成资源利用率报告
+// GenerateResourceUtilizationReport 生成资源利用率报告.
 func (e *CostAnalysisEngine) GenerateResourceUtilizationReport() (*CostReport, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -586,7 +586,7 @@ func (e *CostAnalysisEngine) GenerateResourceUtilizationReport() (*CostReport, e
 	return report, nil
 }
 
-// GenerateOptimizationReport 生成成本优化建议报告
+// GenerateOptimizationReport 生成成本优化建议报告.
 func (e *CostAnalysisEngine) GenerateOptimizationReport() (*CostReport, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -623,7 +623,7 @@ func (e *CostAnalysisEngine) GenerateOptimizationReport() (*CostReport, error) {
 	return report, nil
 }
 
-// GenerateBudgetTrackingReport 生成预算跟踪报告
+// GenerateBudgetTrackingReport 生成预算跟踪报告.
 func (e *CostAnalysisEngine) GenerateBudgetTrackingReport(budgetID string) (*CostReport, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -660,7 +660,7 @@ func (e *CostAnalysisEngine) GenerateBudgetTrackingReport(budgetID string) (*Cos
 	return report, nil
 }
 
-// GenerateComprehensiveReport 生成综合成本分析报告
+// GenerateComprehensiveReport 生成综合成本分析报告.
 func (e *CostAnalysisEngine) GenerateComprehensiveReport() (*CostReport, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -715,7 +715,7 @@ func (e *CostAnalysisEngine) GenerateComprehensiveReport() (*CostReport, error) 
 
 // ========== 分析方法 ==========
 
-// analyzeStorageTrend 分析存储趋势
+// analyzeStorageTrend 分析存储趋势.
 func (e *CostAnalysisEngine) analyzeStorageTrend(start, end time.Time) *StorageTrendAnalysis {
 	analysis := &StorageTrendAnalysis{
 		AnalysisDate: time.Now(),
@@ -802,7 +802,7 @@ func (e *CostAnalysisEngine) analyzeStorageTrend(start, end time.Time) *StorageT
 	return analysis
 }
 
-// analyzeResourceUtilization 分析资源利用率
+// analyzeResourceUtilization 分析资源利用率.
 func (e *CostAnalysisEngine) analyzeResourceUtilization(start, end time.Time) *ResourceUtilizationReport {
 	report := &ResourceUtilizationReport{
 		GeneratedAt:     time.Now(),
@@ -927,7 +927,7 @@ func (e *CostAnalysisEngine) analyzeResourceUtilization(start, end time.Time) *R
 	return report
 }
 
-// analyzeOptimizationOpportunities 分析优化机会
+// analyzeOptimizationOpportunities 分析优化机会.
 func (e *CostAnalysisEngine) analyzeOptimizationOpportunities(start, end time.Time) []CostRecommendation {
 	recommendations := make([]CostRecommendation, 0)
 
@@ -998,7 +998,7 @@ func (e *CostAnalysisEngine) analyzeOptimizationOpportunities(start, end time.Ti
 
 // ========== 预算管理 ==========
 
-// CreateBudget 创建预算
+// CreateBudget 创建预算.
 func (e *CostAnalysisEngine) CreateBudget(config BudgetConfig) (*BudgetConfig, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -1015,7 +1015,7 @@ func (e *CostAnalysisEngine) CreateBudget(config BudgetConfig) (*BudgetConfig, e
 	return &config, nil
 }
 
-// UpdateBudget 更新预算
+// UpdateBudget 更新预算.
 func (e *CostAnalysisEngine) UpdateBudget(id string, config BudgetConfig) (*BudgetConfig, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -1035,7 +1035,7 @@ func (e *CostAnalysisEngine) UpdateBudget(id string, config BudgetConfig) (*Budg
 	return &config, nil
 }
 
-// DeleteBudget 删除预算
+// DeleteBudget 删除预算.
 func (e *CostAnalysisEngine) DeleteBudget(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -1052,7 +1052,7 @@ func (e *CostAnalysisEngine) DeleteBudget(id string) error {
 	return nil
 }
 
-// GetBudget 获取预算
+// GetBudget 获取预算.
 func (e *CostAnalysisEngine) GetBudget(id string) (*BudgetConfig, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -1065,7 +1065,7 @@ func (e *CostAnalysisEngine) GetBudget(id string) (*BudgetConfig, error) {
 	return budget, nil
 }
 
-// ListBudgets 列出所有预算
+// ListBudgets 列出所有预算.
 func (e *CostAnalysisEngine) ListBudgets() []*BudgetConfig {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -1077,7 +1077,7 @@ func (e *CostAnalysisEngine) ListBudgets() []*BudgetConfig {
 	return result
 }
 
-// generateBudgetTracking 生成预算跟踪
+// generateBudgetTracking 生成预算跟踪.
 func (e *CostAnalysisEngine) generateBudgetTracking(budget *BudgetConfig) *BudgetTrackingReport {
 	now := time.Now()
 	tracking := &BudgetTrackingReport{
@@ -1186,7 +1186,7 @@ func (e *CostAnalysisEngine) generateBudgetTracking(budget *BudgetConfig) *Budge
 
 // ========== 辅助方法 ==========
 
-// calculateCostChange 计算成本变化
+// calculateCostChange 计算成本变化.
 func (e *CostAnalysisEngine) calculateCostChange(days int) float64 {
 	if len(e.trendData) < 2 {
 		return 0
@@ -1219,7 +1219,7 @@ func (e *CostAnalysisEngine) calculateCostChange(days int) float64 {
 	return 0
 }
 
-// calculateGrowthRate 计算增长率
+// calculateGrowthRate 计算增长率.
 func (e *CostAnalysisEngine) calculateGrowthRate(start, end time.Time) StorageGrowthRate {
 	// 简化实现，实际应从历史数据计算
 	return StorageGrowthRate{
@@ -1227,7 +1227,7 @@ func (e *CostAnalysisEngine) calculateGrowthRate(start, end time.Time) StorageGr
 	}
 }
 
-// projectCost 预测成本
+// projectCost 预测成本.
 func (e *CostAnalysisEngine) projectCost(analysis *StorageTrendAnalysis) CostProjection {
 	projection := CostProjection{
 		CurrentMonthlyCost: analysis.CurrentUsage.MonthlyCost,
@@ -1250,7 +1250,7 @@ func (e *CostAnalysisEngine) projectCost(analysis *StorageTrendAnalysis) CostPro
 	return projection
 }
 
-// generateCostAlerts 生成成本告警
+// generateCostAlerts 生成成本告警.
 func (e *CostAnalysisEngine) generateCostAlerts(analysis *StorageTrendAnalysis) []CostAlert {
 	alerts := make([]CostAlert, 0)
 
@@ -1285,12 +1285,12 @@ func (e *CostAnalysisEngine) generateCostAlerts(analysis *StorageTrendAnalysis) 
 	return alerts
 }
 
-// generateStorageRecommendations 生成存储建议
+// generateStorageRecommendations 生成存储建议.
 func (e *CostAnalysisEngine) generateStorageRecommendations(analysis *StorageTrendAnalysis) []CostRecommendation {
 	return e.analyzeOptimizationOpportunities(time.Now().AddDate(0, -1, 0), time.Now())
 }
 
-// generateTrendData 生成趋势数据
+// generateTrendData 生成趋势数据.
 func (e *CostAnalysisEngine) generateTrendData(start, end time.Time) []CostTrend {
 	trends := make([]CostTrend, 0)
 
@@ -1304,7 +1304,7 @@ func (e *CostAnalysisEngine) generateTrendData(start, end time.Time) []CostTrend
 	return trends
 }
 
-// calculateCostEfficiency 计算成本效率
+// calculateCostEfficiency 计算成本效率.
 func (e *CostAnalysisEngine) calculateCostEfficiency(usagePercent float64) float64 {
 	// 理想利用率在 60-80% 之间
 	if usagePercent >= 60 && usagePercent <= 80 {
@@ -1316,7 +1316,7 @@ func (e *CostAnalysisEngine) calculateCostEfficiency(usagePercent float64) float
 	}
 }
 
-// calculateSavings 计算节省
+// calculateSavings 计算节省.
 func (e *CostAnalysisEngine) calculateSavings(allocated, used uint64) float64 {
 	wasted := allocated - used
 	wastedGB := float64(wasted) / (1024 * 1024 * 1024)
@@ -1324,12 +1324,12 @@ func (e *CostAnalysisEngine) calculateSavings(allocated, used uint64) float64 {
 	return wastedGB * pricePerGB
 }
 
-// calculatePoolSavings 计算存储池节省
+// calculatePoolSavings 计算存储池节省.
 func (e *CostAnalysisEngine) calculatePoolSavings(total, used uint64, poolID string) float64 {
 	return e.calculateSavings(total, used)
 }
 
-// calculateOverallScore 计算整体评分
+// calculateOverallScore 计算整体评分.
 func (e *CostAnalysisEngine) calculateOverallScore(report *ResourceUtilizationReport) float64 {
 	if report.StorageUtil.TotalCapacity == 0 {
 		return 0
@@ -1358,7 +1358,7 @@ func (e *CostAnalysisEngine) calculateOverallScore(report *ResourceUtilizationRe
 	return score
 }
 
-// generateUtilRecommendations 生成利用率建议
+// generateUtilRecommendations 生成利用率建议.
 func (e *CostAnalysisEngine) generateUtilRecommendations(report *ResourceUtilizationReport) []UtilizationRecommendation {
 	recs := make([]UtilizationRecommendation, 0)
 
@@ -1389,7 +1389,7 @@ func (e *CostAnalysisEngine) generateUtilRecommendations(report *ResourceUtiliza
 	return recs
 }
 
-// generateUtilizationRecommendations 生成利用率建议（兼容方法）
+// generateUtilizationRecommendations 生成利用率建议（兼容方法）.
 func (e *CostAnalysisEngine) generateUtilizationRecommendations(report *ResourceUtilizationReport) []CostRecommendation {
 	recs := make([]CostRecommendation, 0)
 
@@ -1409,7 +1409,7 @@ func (e *CostAnalysisEngine) generateUtilizationRecommendations(report *Resource
 	return recs
 }
 
-// generateBudgetRecommendations 生成预算建议
+// generateBudgetRecommendations 生成预算建议.
 func (e *CostAnalysisEngine) generateBudgetRecommendations(tracking *BudgetTrackingReport) []CostRecommendation {
 	recs := make([]CostRecommendation, 0)
 
@@ -1439,7 +1439,7 @@ func (e *CostAnalysisEngine) generateBudgetRecommendations(tracking *BudgetTrack
 	return recs
 }
 
-// getAlertSeverity 获取告警严重级别
+// getAlertSeverity 获取告警严重级别.
 func (e *CostAnalysisEngine) getAlertSeverity(threshold float64) string {
 	if threshold >= 100 {
 		return "critical"
@@ -1451,7 +1451,7 @@ func (e *CostAnalysisEngine) getAlertSeverity(threshold float64) string {
 	return "info"
 }
 
-// sumIdleSavings 计算闲置资源总节省
+// sumIdleSavings 计算闲置资源总节省.
 func (e *CostAnalysisEngine) sumIdleSavings(idle []IdleResource) float64 {
 	var total float64
 	for _, i := range idle {
@@ -1460,7 +1460,7 @@ func (e *CostAnalysisEngine) sumIdleSavings(idle []IdleResource) float64 {
 	return total
 }
 
-// sumUnderutilSavings 计算低利用率资源总节省
+// sumUnderutilSavings 计算低利用率资源总节省.
 func (e *CostAnalysisEngine) sumUnderutilSavings(under []UnderutilizedResource) float64 {
 	var total float64
 	for _, u := range under {
@@ -1469,7 +1469,7 @@ func (e *CostAnalysisEngine) sumUnderutilSavings(under []UnderutilizedResource) 
 	return total
 }
 
-// RecordTrendData 记录趋势数据
+// RecordTrendData 记录趋势数据.
 func (e *CostAnalysisEngine) RecordTrendData(data CostTrend) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -1478,7 +1478,7 @@ func (e *CostAnalysisEngine) RecordTrendData(data CostTrend) {
 	_ = e.save() // 保存失败不影响主流程
 }
 
-// GetAlerts 获取成本告警
+// GetAlerts 获取成本告警.
 func (e *CostAnalysisEngine) GetAlerts() []*CostAlert {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -1488,7 +1488,7 @@ func (e *CostAnalysisEngine) GetAlerts() []*CostAlert {
 	return result
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (e *CostAnalysisEngine) AcknowledgeAlert(alertID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -1504,7 +1504,7 @@ func (e *CostAnalysisEngine) AcknowledgeAlert(alertID string) error {
 }
 
 // ClearCache 清除缓存
-// 用于在数据更新后强制刷新缓存
+// 用于在数据更新后强制刷新缓存.
 func (e *CostAnalysisEngine) ClearCache() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -1513,7 +1513,7 @@ func (e *CostAnalysisEngine) ClearCache() {
 }
 
 // GetCacheStatus 获取缓存状态
-// 返回缓存是否有效和缓存时间
+// 返回缓存是否有效和缓存时间.
 func (e *CostAnalysisEngine) GetCacheStatus() (valid bool, cacheTime time.Time) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -1526,14 +1526,14 @@ func (e *CostAnalysisEngine) GetCacheStatus() (valid bool, cacheTime time.Time) 
 	return valid, e.summaryCacheTime
 }
 
-// generateReportID 生成报告ID
+// generateReportID 生成报告ID.
 func generateReportID() string {
 	return fmt.Sprintf("rpt-%d-%s", time.Now().UnixNano(), randomString(6))
 }
 
 // randomString 生成随机字符串
 // 注意：此函数用于生成非安全敏感的ID，如报告ID
-// 对于安全敏感的场景，应使用 crypto/rand
+// 对于安全敏感的场景，应使用 crypto/rand.
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)

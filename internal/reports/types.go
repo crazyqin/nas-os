@@ -7,7 +7,7 @@ import (
 
 // ========== 报表模板 ==========
 
-// TemplateType 模板类型
+// TemplateType 模板类型.
 type TemplateType string
 
 const (
@@ -23,7 +23,7 @@ const (
 	TemplateTypeCustom TemplateType = "custom" // 自定义模板
 )
 
-// FieldType 字段类型
+// FieldType 字段类型.
 type FieldType string
 
 const (
@@ -47,7 +47,7 @@ const (
 	FieldTypeList FieldType = "list"
 )
 
-// TemplateField 模板字段
+// TemplateField 模板字段.
 type TemplateField struct {
 	Name         string    `json:"name"`         // 字段名（英文标识）
 	Label        string    `json:"label"`        // 显示标签
@@ -62,27 +62,27 @@ type TemplateField struct {
 	Description  string    `json:"description"`  // 字段说明
 }
 
-// TemplateFilter 模板过滤器
+// TemplateFilter 模板过滤器.
 type TemplateFilter struct {
 	Field    string      `json:"field"`    // 字段名
 	Operator string      `json:"operator"` // 操作符: eq, ne, gt, lt, gte, lte, contains, in, between
 	Value    interface{} `json:"value"`    // 值
 }
 
-// TemplateSort 模板排序
+// TemplateSort 模板排序.
 type TemplateSort struct {
 	Field string `json:"field"` // 字段名
 	Order string `json:"order"` // asc 或 desc
 }
 
-// TemplateAggregation 模板聚合
+// TemplateAggregation 模板聚合.
 type TemplateAggregation struct {
 	Field    string `json:"field"`    // 字段名
 	Function string `json:"function"` // sum, avg, count, min, max
 	Alias    string `json:"alias"`    // 结果别名
 }
 
-// ReportTemplate 报表模板
+// ReportTemplate 报表模板.
 type ReportTemplate struct {
 	ID           string                `json:"id"`
 	Name         string                `json:"name"`
@@ -102,7 +102,7 @@ type ReportTemplate struct {
 	IsPublic     bool                  `json:"is_public"` // 是否公开给所有用户
 }
 
-// TemplateInput 创建/更新模板输入
+// TemplateInput 创建/更新模板输入.
 type TemplateInput struct {
 	Name         string                `json:"name" binding:"required"`
 	Type         TemplateType          `json:"type" binding:"required"`
@@ -119,7 +119,7 @@ type TemplateInput struct {
 
 // ========== 自定义报表 ==========
 
-// CustomReport 自定义报表
+// CustomReport 自定义报表.
 type CustomReport struct {
 	ID           string                 `json:"id"`
 	Name         string                 `json:"name"`
@@ -140,7 +140,7 @@ type CustomReport struct {
 	CreatedBy    string                 `json:"created_by,omitempty"`
 }
 
-// CustomReportInput 自定义报表输入
+// CustomReportInput 自定义报表输入.
 type CustomReportInput struct {
 	Name         string                 `json:"name" binding:"required"`
 	Description  string                 `json:"description"`
@@ -159,7 +159,7 @@ type CustomReportInput struct {
 
 // ========== 定时报表 ==========
 
-// ScheduleFrequency 调度频率
+// ScheduleFrequency 调度频率.
 type ScheduleFrequency string
 
 const (
@@ -175,7 +175,7 @@ const (
 	FrequencyCustom ScheduleFrequency = "custom"
 )
 
-// ScheduledReport 定时报表
+// ScheduledReport 定时报表.
 type ScheduledReport struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -199,7 +199,7 @@ type ScheduledReport struct {
 	CreatedBy     string            `json:"created_by,omitempty"`
 }
 
-// ScheduledReportInput 定时报表输入
+// ScheduledReportInput 定时报表输入.
 type ScheduledReportInput struct {
 	Name          string            `json:"name" binding:"required"`
 	Description   string            `json:"description"`
@@ -216,7 +216,7 @@ type ScheduledReportInput struct {
 	Enabled       bool              `json:"enabled"`
 }
 
-// ScheduledReportExecution 调度执行记录
+// ScheduledReportExecution 调度执行记录.
 type ScheduledReportExecution struct {
 	ID           string                 `json:"id"`
 	ScheduleID   string                 `json:"schedule_id"`
@@ -232,7 +232,7 @@ type ScheduledReportExecution struct {
 
 // ========== 导出格式 ==========
 
-// ExportFormat 导出格式
+// ExportFormat 导出格式.
 type ExportFormat string
 
 const (
@@ -248,7 +248,7 @@ const (
 	ExportExcel ExportFormat = "xlsx"
 )
 
-// ExportOptions 导出选项
+// ExportOptions 导出选项.
 type ExportOptions struct {
 	Format        ExportFormat `json:"format"`
 	Filename      string       `json:"filename,omitempty"`
@@ -265,7 +265,7 @@ type ExportOptions struct {
 	Footer        string       `json:"footer,omitempty"`
 }
 
-// ExportResult 导出结果
+// ExportResult 导出结果.
 type ExportResult struct {
 	Format    ExportFormat `json:"format"`
 	Filename  string       `json:"filename"`
@@ -277,7 +277,7 @@ type ExportResult struct {
 
 // ========== 报表输出 ==========
 
-// GeneratedReport 生成的报表
+// GeneratedReport 生成的报表.
 type GeneratedReport struct {
 	ID             string                   `json:"id"`
 	Name           string                   `json:"name"`
@@ -293,7 +293,7 @@ type GeneratedReport struct {
 	ExportPath     string                   `json:"export_path,omitempty"`
 }
 
-// ReportPeriod 报告时间范围
+// ReportPeriod 报告时间范围.
 type ReportPeriod struct {
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
@@ -301,7 +301,7 @@ type ReportPeriod struct {
 
 // ========== 数据源适配器 ==========
 
-// DataSource 数据源接口
+// DataSource 数据源接口.
 type DataSource interface {
 	// Name 数据源名称
 	Name() string
@@ -319,7 +319,7 @@ type DataSource interface {
 	GetAvailableFields() []TemplateField
 }
 
-// DataSourceType 数据源类型
+// DataSourceType 数据源类型.
 type DataSourceType string
 
 const (

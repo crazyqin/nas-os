@@ -9,17 +9,17 @@ import (
 	"time"
 )
 
-// APIHandler 成本分析API处理程序
+// APIHandler 成本分析API处理程序.
 type APIHandler struct {
 	engine *CostAnalysisEngine
 }
 
-// NewAPIHandler 创建API处理程序
+// NewAPIHandler 创建API处理程序.
 func NewAPIHandler(engine *CostAnalysisEngine) *APIHandler {
 	return &APIHandler{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *APIHandler) RegisterRoutes(mux *http.ServeMux) {
 	// 报告生成
 	mux.HandleFunc("/api/cost/reports/storage-trend", h.HandleStorageTrendReport)
@@ -40,7 +40,7 @@ func (h *APIHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/cost/trends", h.HandleTrends)
 }
 
-// HandleStorageTrendReport 处理存储成本趋势报告请求
+// HandleStorageTrendReport 处理存储成本趋势报告请求.
 func (h *APIHandler) HandleStorageTrendReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -64,7 +64,7 @@ func (h *APIHandler) HandleStorageTrendReport(w http.ResponseWriter, r *http.Req
 	h.writeJSON(w, http.StatusOK, report)
 }
 
-// HandleResourceUtilizationReport 处理资源利用率报告请求
+// HandleResourceUtilizationReport 处理资源利用率报告请求.
 func (h *APIHandler) HandleResourceUtilizationReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -80,7 +80,7 @@ func (h *APIHandler) HandleResourceUtilizationReport(w http.ResponseWriter, r *h
 	h.writeJSON(w, http.StatusOK, report)
 }
 
-// HandleOptimizationReport 处理成本优化建议报告请求
+// HandleOptimizationReport 处理成本优化建议报告请求.
 func (h *APIHandler) HandleOptimizationReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -96,7 +96,7 @@ func (h *APIHandler) HandleOptimizationReport(w http.ResponseWriter, r *http.Req
 	h.writeJSON(w, http.StatusOK, report)
 }
 
-// HandleBudgetTrackingReport 处理预算跟踪报告请求
+// HandleBudgetTrackingReport 处理预算跟踪报告请求.
 func (h *APIHandler) HandleBudgetTrackingReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -118,7 +118,7 @@ func (h *APIHandler) HandleBudgetTrackingReport(w http.ResponseWriter, r *http.R
 	h.writeJSON(w, http.StatusOK, report)
 }
 
-// HandleComprehensiveReport 处理综合成本分析报告请求
+// HandleComprehensiveReport 处理综合成本分析报告请求.
 func (h *APIHandler) HandleComprehensiveReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -134,7 +134,7 @@ func (h *APIHandler) HandleComprehensiveReport(w http.ResponseWriter, r *http.Re
 	h.writeJSON(w, http.StatusOK, report)
 }
 
-// HandleBudgets 处理预算列表请求
+// HandleBudgets 处理预算列表请求.
 func (h *APIHandler) HandleBudgets(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -161,7 +161,7 @@ func (h *APIHandler) HandleBudgets(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// HandleBudgetByID 处理单个预算请求
+// HandleBudgetByID 处理单个预算请求.
 func (h *APIHandler) HandleBudgetByID(w http.ResponseWriter, r *http.Request) {
 	// 提取预算ID
 	id := r.URL.Path[len("/api/cost/budgets/"):]
@@ -207,7 +207,7 @@ func (h *APIHandler) HandleBudgetByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// HandleAlerts 处理告警列表请求
+// HandleAlerts 处理告警列表请求.
 func (h *APIHandler) HandleAlerts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -218,7 +218,7 @@ func (h *APIHandler) HandleAlerts(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, alerts)
 }
 
-// HandleAlertByID 处理单个告警请求
+// HandleAlertByID 处理单个告警请求.
 func (h *APIHandler) HandleAlertByID(w http.ResponseWriter, r *http.Request) {
 	// 提取告警ID
 	id := r.URL.Path[len("/api/cost/alerts/"):]
@@ -254,7 +254,7 @@ func (h *APIHandler) HandleAlertByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// HandleTrends 处理趋势数据请求
+// HandleTrends 处理趋势数据请求.
 func (h *APIHandler) HandleTrends(w http.ResponseWriter, r *http.Request) {
 	// POST 方法用于记录新的趋势数据点
 	if r.Method == http.MethodPost {
@@ -302,7 +302,7 @@ func (h *APIHandler) HandleTrends(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, report.Trends)
 }
 
-// 辅助方法
+// 辅助方法.
 func (h *APIHandler) writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

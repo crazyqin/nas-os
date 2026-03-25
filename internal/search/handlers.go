@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 搜索处理器
+// Handlers 搜索处理器.
 type Handlers struct {
 	engine *Engine
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(engine *Engine) *Handlers {
 	return &Handlers{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	search := r.Group("/search")
 	{
@@ -38,7 +38,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Success 200 {object} Response
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /search/query [post]
+// @Router /search/query [post].
 func (h *Handlers) search(c *gin.Context) {
 	var req Request
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -66,7 +66,7 @@ func (h *Handlers) search(c *gin.Context) {
 	})
 }
 
-// indexRequest 索引请求
+// indexRequest 索引请求.
 type indexRequest struct {
 	Paths []string `json:"paths" binding:"required"`
 }
@@ -81,7 +81,7 @@ type indexRequest struct {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /search/index [post]
+// @Router /search/index [post].
 func (h *Handlers) indexFiles(c *gin.Context) {
 	var req indexRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -117,7 +117,7 @@ func (h *Handlers) indexFiles(c *gin.Context) {
 	})
 }
 
-// indexDirRequest 索引目录请求
+// indexDirRequest 索引目录请求.
 type indexDirRequest struct {
 	Path string `json:"path" binding:"required"`
 }
@@ -132,7 +132,7 @@ type indexDirRequest struct {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /search/index/dir [post]
+// @Router /search/index/dir [post].
 func (h *Handlers) indexDirectory(c *gin.Context) {
 	var req indexDirRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -160,7 +160,7 @@ func (h *Handlers) indexDirectory(c *gin.Context) {
 	})
 }
 
-// deleteRequest 删除请求
+// deleteRequest 删除请求.
 type deleteRequest struct {
 	Paths []string `json:"paths" binding:"required"`
 }
@@ -175,7 +175,7 @@ type deleteRequest struct {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /search/index [delete]
+// @Router /search/index [delete].
 func (h *Handlers) deleteFromIndex(c *gin.Context) {
 	var req deleteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -210,7 +210,7 @@ func (h *Handlers) deleteFromIndex(c *gin.Context) {
 // @Tags 搜索
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /search/stats [get]
+// @Router /search/stats [get].
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.engine.Stats()
 

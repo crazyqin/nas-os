@@ -17,7 +17,7 @@ import (
 
 // ========== 报表生成器 ==========
 
-// ReportGenerator 报表生成器
+// ReportGenerator 报表生成器.
 type ReportGenerator struct {
 	mu              sync.RWMutex
 	templateManager *TemplateManager
@@ -26,7 +26,7 @@ type ReportGenerator struct {
 	dataDir         string
 }
 
-// NewReportGenerator 创建报表生成器
+// NewReportGenerator 创建报表生成器.
 func NewReportGenerator(templateManager *TemplateManager, dataDir string) *ReportGenerator {
 	rg := &ReportGenerator{
 		templateManager: templateManager,
@@ -41,12 +41,12 @@ func NewReportGenerator(templateManager *TemplateManager, dataDir string) *Repor
 	return rg
 }
 
-// RegisterDataSource 注册数据源
+// RegisterDataSource 注册数据源.
 func (rg *ReportGenerator) RegisterDataSource(source DataSource) {
 	rg.DataSources[source.Name()] = source
 }
 
-// loadCustomReports 加载自定义报表
+// loadCustomReports 加载自定义报表.
 func (rg *ReportGenerator) loadCustomReports() {
 	files, err := filepath.Glob(filepath.Join(rg.dataDir, "custom_*.json"))
 	if err != nil {
@@ -68,7 +68,7 @@ func (rg *ReportGenerator) loadCustomReports() {
 	}
 }
 
-// saveCustomReport 保存自定义报表
+// saveCustomReport 保存自定义报表.
 func (rg *ReportGenerator) saveCustomReport(report *CustomReport) error {
 	data, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
@@ -79,7 +79,7 @@ func (rg *ReportGenerator) saveCustomReport(report *CustomReport) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// CreateCustomReport 创建自定义报表
+// CreateCustomReport 创建自定义报表.
 func (rg *ReportGenerator) CreateCustomReport(input CustomReportInput, createdBy string) (*CustomReport, error) {
 	rg.mu.Lock()
 	defer rg.mu.Unlock()
@@ -127,7 +127,7 @@ func (rg *ReportGenerator) CreateCustomReport(input CustomReportInput, createdBy
 	return report, nil
 }
 
-// GetCustomReport 获取自定义报表
+// GetCustomReport 获取自定义报表.
 func (rg *ReportGenerator) GetCustomReport(id string) (*CustomReport, error) {
 	rg.mu.RLock()
 	defer rg.mu.RUnlock()
@@ -140,7 +140,7 @@ func (rg *ReportGenerator) GetCustomReport(id string) (*CustomReport, error) {
 	return report, nil
 }
 
-// ListCustomReports 列出自定义报表
+// ListCustomReports 列出自定义报表.
 func (rg *ReportGenerator) ListCustomReports(dataSource string) []*CustomReport {
 	rg.mu.RLock()
 	defer rg.mu.RUnlock()
@@ -156,7 +156,7 @@ func (rg *ReportGenerator) ListCustomReports(dataSource string) []*CustomReport 
 	return result
 }
 
-// UpdateCustomReport 更新自定义报表
+// UpdateCustomReport 更新自定义报表.
 func (rg *ReportGenerator) UpdateCustomReport(id string, input CustomReportInput) (*CustomReport, error) {
 	rg.mu.Lock()
 	defer rg.mu.Unlock()
@@ -193,7 +193,7 @@ func (rg *ReportGenerator) UpdateCustomReport(id string, input CustomReportInput
 	return report, nil
 }
 
-// DeleteCustomReport 删除自定义报表
+// DeleteCustomReport 删除自定义报表.
 func (rg *ReportGenerator) DeleteCustomReport(id string) error {
 	rg.mu.Lock()
 	defer rg.mu.Unlock()
@@ -208,7 +208,7 @@ func (rg *ReportGenerator) DeleteCustomReport(id string) error {
 	return os.Remove(path)
 }
 
-// GenerateFromTemplate 从模板生成报表
+// GenerateFromTemplate 从模板生成报表.
 func (rg *ReportGenerator) GenerateFromTemplate(templateID string, parameters map[string]interface{}, period *ReportPeriod) (*GeneratedReport, error) {
 	template, err := rg.templateManager.GetTemplate(templateID)
 	if err != nil {
@@ -220,7 +220,7 @@ func (rg *ReportGenerator) GenerateFromTemplate(templateID string, parameters ma
 		parameters, period, template.Name)
 }
 
-// GenerateFromCustomReport 从自定义报表生成
+// GenerateFromCustomReport 从自定义报表生成.
 func (rg *ReportGenerator) GenerateFromCustomReport(reportID string, parameters map[string]interface{}, period *ReportPeriod) (*GeneratedReport, error) {
 	report, err := rg.GetCustomReport(reportID)
 	if err != nil {
@@ -241,7 +241,7 @@ func (rg *ReportGenerator) GenerateFromCustomReport(reportID string, parameters 
 		mergedParams, period, report.Name)
 }
 
-// generateReport 核心生成逻辑
+// generateReport 核心生成逻辑.
 func (rg *ReportGenerator) generateReport(
 	fields []TemplateField,
 	filters []TemplateFilter,
@@ -346,7 +346,7 @@ func (rg *ReportGenerator) generateReport(
 	return report, nil
 }
 
-// applyParametersToFilters 将参数应用到过滤器
+// applyParametersToFilters 将参数应用到过滤器.
 func (rg *ReportGenerator) applyParametersToFilters(filters []TemplateFilter, parameters map[string]interface{}) []TemplateFilter {
 	result := make([]TemplateFilter, len(filters))
 	copy(result, filters)
@@ -361,7 +361,7 @@ func (rg *ReportGenerator) applyParametersToFilters(filters []TemplateFilter, pa
 	return result
 }
 
-// applyAggregations 应用聚合
+// applyAggregations 应用聚合.
 func (rg *ReportGenerator) applyAggregations(data []map[string]interface{}, aggregations []TemplateAggregation) []map[string]interface{} {
 	if len(aggregations) == 0 {
 		return data
@@ -435,7 +435,7 @@ func (rg *ReportGenerator) applyAggregations(data []map[string]interface{}, aggr
 	return result
 }
 
-// applySorts 应用排序
+// applySorts 应用排序.
 func (rg *ReportGenerator) applySorts(data []map[string]interface{}, sorts []TemplateSort) []map[string]interface{} {
 	if len(sorts) == 0 {
 		return data
@@ -462,7 +462,7 @@ func (rg *ReportGenerator) applySorts(data []map[string]interface{}, sorts []Tem
 	return result
 }
 
-// compareValues 比较两个值
+// compareValues 比较两个值.
 func compareValues(a, b interface{}) int {
 	if a == nil && b == nil {
 		return 0
@@ -492,7 +492,7 @@ func compareValues(a, b interface{}) int {
 	return strings.Compare(aStr, bStr)
 }
 
-// toFloat64 转换为 float64
+// toFloat64 转换为 float64.
 func toFloat64(v interface{}) (float64, bool) {
 	switch val := v.(type) {
 	case float64:
@@ -521,7 +521,7 @@ func toFloat64(v interface{}) (float64, bool) {
 	return 0, false
 }
 
-// formatFields 格式化字段
+// formatFields 格式化字段.
 func (rg *ReportGenerator) formatFields(data []map[string]interface{}, fields []TemplateField) []map[string]interface{} {
 	for i, row := range data {
 		for _, field := range fields {
@@ -534,7 +534,7 @@ func (rg *ReportGenerator) formatFields(data []map[string]interface{}, fields []
 	return data
 }
 
-// formatValue 格式化值
+// formatValue 格式化值.
 func (rg *ReportGenerator) formatValue(val interface{}, fieldType FieldType, format string) interface{} {
 	switch fieldType {
 	case FieldTypeBytes:
@@ -568,7 +568,7 @@ func (rg *ReportGenerator) formatValue(val interface{}, fieldType FieldType, for
 	return val
 }
 
-// formatBytes 格式化字节
+// formatBytes 格式化字节.
 func formatBytes(bytes uint64) string {
 	const unit = 1024
 	if bytes < unit {
@@ -582,7 +582,7 @@ func formatBytes(bytes uint64) string {
 	return fmt.Sprintf("%.1f %ciB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
-// formatDuration 格式化持续时间
+// formatDuration 格式化持续时间.
 func formatDuration(d time.Duration) string {
 	days := int(d.Hours()) / 24
 	hours := int(d.Hours()) % 24
@@ -597,7 +597,7 @@ func formatDuration(d time.Duration) string {
 	return fmt.Sprintf("%d分钟", minutes)
 }
 
-// GenerateQuickReport 快速生成报表（不保存配置）
+// GenerateQuickReport 快速生成报表（不保存配置）.
 func (rg *ReportGenerator) GenerateQuickReport(
 	dataSource string,
 	fields []TemplateField,
@@ -613,13 +613,13 @@ func (rg *ReportGenerator) GenerateQuickReport(
 	return rg.generateReport(fields, filters, sorts, nil, nil, limit, 0, parameters, period, "快速报表")
 }
 
-// PreviewReport 预览报表（限制条数）
+// PreviewReport 预览报表（限制条数）.
 func (rg *ReportGenerator) PreviewReport(templateID string, parameters map[string]interface{}) (*GeneratedReport, error) {
 	// 限制预览条数为 10 条
 	return rg.GenerateFromTemplate(templateID, parameters, nil)
 }
 
-// GetAvailableFields 获取数据源可用字段
+// GetAvailableFields 获取数据源可用字段.
 func (rg *ReportGenerator) GetAvailableFields(dataSource string) ([]TemplateField, error) {
 	ds, exists := rg.DataSources[dataSource]
 	if !exists {
@@ -629,7 +629,7 @@ func (rg *ReportGenerator) GetAvailableFields(dataSource string) ([]TemplateFiel
 	return ds.GetAvailableFields(), nil
 }
 
-// ListDataSources 列出数据源
+// ListDataSources 列出数据源.
 func (rg *ReportGenerator) ListDataSources() []string {
 	result := make([]string, 0, len(rg.DataSources))
 	for name := range rg.DataSources {

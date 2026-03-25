@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 聚合状态
+// 聚合状态.
 const (
 	AggregationStatusPending   = "pending"
 	AggregationStatusRunning   = "running"
@@ -21,7 +21,7 @@ const (
 	AggregationStatusPartial   = "partial"
 )
 
-// 聚合策略
+// 聚合策略.
 const (
 	AggregationStrategyAll    = "all"    // 等待所有结果
 	AggregationStrategyAny    = "any"    // 任一结果即可
@@ -29,7 +29,7 @@ const (
 	AggregationStrategyFirst  = "first"  // 第一个结果
 )
 
-// AggregatedResult 聚合结果
+// AggregatedResult 聚合结果.
 type AggregatedResult struct {
 	ID             string                 `json:"id"`
 	TaskID         string                 `json:"task_id"`
@@ -47,7 +47,7 @@ type AggregatedResult struct {
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// AggregationRule 聚合规则
+// AggregationRule 聚合规则.
 type AggregationRule struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -61,7 +61,7 @@ type AggregationRule struct {
 	CreatedAt   time.Time     `json:"created_at"`
 }
 
-// ResultAggregatorConfig 结果聚合器配置
+// ResultAggregatorConfig 结果聚合器配置.
 type ResultAggregatorConfig struct {
 	DataDir        string `json:"data_dir"`
 	MaxResults     int    `json:"max_results"`     // 最大保存结果数
@@ -69,7 +69,7 @@ type ResultAggregatorConfig struct {
 	ProcessWorkers int    `json:"process_workers"` // 处理工作线程数
 }
 
-// ResultAggregator 结果聚合器
+// ResultAggregator 结果聚合器.
 type ResultAggregator struct {
 	config       ResultAggregatorConfig
 	aggregations map[string]*AggregatedResult
@@ -83,14 +83,14 @@ type ResultAggregator struct {
 	callbacks    ResultCallbacks
 }
 
-// ResultCallbacks 结果回调
+// ResultCallbacks 结果回调.
 type ResultCallbacks struct {
 	OnResultReceived      func(result *TaskResult)
 	OnAggregationComplete func(agg *AggregatedResult)
 	OnAggregationFailed   func(agg *AggregatedResult, err error)
 }
 
-// NewResultAggregator 创建结果聚合器
+// NewResultAggregator 创建结果聚合器.
 func NewResultAggregator(config ResultAggregatorConfig, logger *zap.Logger) (*ResultAggregator, error) {
 	if config.DataDir == "" {
 		config.DataDir = "/var/lib/nas-os/edge/results"
@@ -131,7 +131,7 @@ func NewResultAggregator(config ResultAggregatorConfig, logger *zap.Logger) (*Re
 	return ra, nil
 }
 
-// Initialize 初始化结果聚合器
+// Initialize 初始化结果聚合器.
 func (ra *ResultAggregator) Initialize() error {
 	ra.logger.Info("初始化结果聚合器")
 
@@ -144,12 +144,12 @@ func (ra *ResultAggregator) Initialize() error {
 	return nil
 }
 
-// SetCallbacks 设置回调
+// SetCallbacks 设置回调.
 func (ra *ResultAggregator) SetCallbacks(callbacks ResultCallbacks) {
 	ra.callbacks = callbacks
 }
 
-// SubmitResult 提交结果
+// SubmitResult 提交结果.
 func (ra *ResultAggregator) SubmitResult(result *TaskResult) error {
 	select {
 	case ra.pending <- result:
@@ -163,7 +163,7 @@ func (ra *ResultAggregator) SubmitResult(result *TaskResult) error {
 	}
 }
 
-// CreateAggregation 创建聚合
+// CreateAggregation 创建聚合.
 func (ra *ResultAggregator) CreateAggregation(taskID string, strategy string, expectedCount int) (*AggregatedResult, error) {
 	ra.aggMutex.Lock()
 	defer ra.aggMutex.Unlock()
@@ -189,7 +189,7 @@ func (ra *ResultAggregator) CreateAggregation(taskID string, strategy string, ex
 	return agg, nil
 }
 
-// GetAggregation 获取聚合
+// GetAggregation 获取聚合.
 func (ra *ResultAggregator) GetAggregation(aggID string) (*AggregatedResult, bool) {
 	ra.aggMutex.RLock()
 	defer ra.aggMutex.RUnlock()
@@ -198,7 +198,7 @@ func (ra *ResultAggregator) GetAggregation(aggID string) (*AggregatedResult, boo
 	return agg, exists
 }
 
-// GetAggregations 获取所有聚合
+// GetAggregations 获取所有聚合.
 func (ra *ResultAggregator) GetAggregations() []*AggregatedResult {
 	ra.aggMutex.RLock()
 	defer ra.aggMutex.RUnlock()
@@ -210,7 +210,7 @@ func (ra *ResultAggregator) GetAggregations() []*AggregatedResult {
 	return aggs
 }
 
-// CreateRule 创建聚合规则
+// CreateRule 创建聚合规则.
 func (ra *ResultAggregator) CreateRule(rule *AggregationRule) error {
 	ra.rulesMutex.Lock()
 	defer ra.rulesMutex.Unlock()
@@ -230,7 +230,7 @@ func (ra *ResultAggregator) CreateRule(rule *AggregationRule) error {
 	return ra.saveRules()
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (ra *ResultAggregator) GetRules() []*AggregationRule {
 	ra.rulesMutex.RLock()
 	defer ra.rulesMutex.RUnlock()
@@ -242,7 +242,7 @@ func (ra *ResultAggregator) GetRules() []*AggregationRule {
 	return rules
 }
 
-// processWorker 处理工作线程
+// processWorker 处理工作线程.
 func (ra *ResultAggregator) processWorker(id int) {
 	for {
 		select {
@@ -254,7 +254,7 @@ func (ra *ResultAggregator) processWorker(id int) {
 	}
 }
 
-// processResult 处理结果
+// processResult 处理结果.
 func (ra *ResultAggregator) processResult(result *TaskResult) {
 	// 触发回调
 	if ra.callbacks.OnResultReceived != nil {
@@ -277,7 +277,7 @@ func (ra *ResultAggregator) processResult(result *TaskResult) {
 	}
 }
 
-// resultMatchesAggregation 检查结果是否匹配聚合
+// resultMatchesAggregation 检查结果是否匹配聚合.
 func (ra *ResultAggregator) resultMatchesAggregation(result *TaskResult, agg *AggregatedResult) bool {
 	// 简单匹配：任务 ID 相同或父任务 ID 相同
 	if result.TaskID == agg.TaskID {
@@ -301,7 +301,7 @@ func (ra *ResultAggregator) resultMatchesAggregation(result *TaskResult, agg *Ag
 	return false
 }
 
-// addResultToAggregation 添加结果到聚合
+// addResultToAggregation 添加结果到聚合.
 func (ra *ResultAggregator) addResultToAggregation(result *TaskResult, agg *AggregatedResult) {
 	agg.Status = AggregationStatusRunning
 	agg.Results = append(agg.Results, result)
@@ -325,7 +325,7 @@ func (ra *ResultAggregator) addResultToAggregation(result *TaskResult, agg *Aggr
 	}
 }
 
-// checkAggregationComplete 检查聚合是否完成
+// checkAggregationComplete 检查聚合是否完成.
 func (ra *ResultAggregator) checkAggregationComplete(agg *AggregatedResult) bool {
 	switch agg.Strategy {
 	case AggregationStrategyAll:
@@ -345,7 +345,7 @@ func (ra *ResultAggregator) checkAggregationComplete(agg *AggregatedResult) bool
 	}
 }
 
-// finalizeAggregation 完成聚合
+// finalizeAggregation 完成聚合.
 func (ra *ResultAggregator) finalizeAggregation(agg *AggregatedResult) {
 	agg.EndTime = time.Now()
 	agg.Duration = agg.EndTime.Sub(agg.StartTime)
@@ -391,7 +391,7 @@ func (ra *ResultAggregator) finalizeAggregation(agg *AggregatedResult) {
 	_ = ra.saveAggregations()
 }
 
-// aggregateResults 聚合结果数据
+// aggregateResults 聚合结果数据.
 func (ra *ResultAggregator) aggregateResults(agg *AggregatedResult) (json.RawMessage, error) {
 	// 收集所有成功结果的数据
 	var allData []json.RawMessage
@@ -420,7 +420,7 @@ func (ra *ResultAggregator) aggregateResults(agg *AggregatedResult) (json.RawMes
 	}
 }
 
-// mergeResults 合并结果
+// mergeResults 合并结果.
 func (ra *ResultAggregator) mergeResults(results []json.RawMessage) (json.RawMessage, error) {
 	// 简化处理：创建一个数组包含所有结果
 	merged := make([]interface{}, 0)
@@ -436,14 +436,14 @@ func (ra *ResultAggregator) mergeResults(results []json.RawMessage) (json.RawMes
 	return json.Marshal(merged)
 }
 
-// ResultStats 结果统计
+// ResultStats 结果统计.
 type ResultStats struct {
 	TotalAggregations int            `json:"total_aggregations"`
 	ByStatus          map[string]int `json:"by_status"`
 	TotalResults      int            `json:"total_results"`
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (ra *ResultAggregator) GetStats() map[string]interface{} {
 	ra.aggMutex.RLock()
 	defer ra.aggMutex.RUnlock()
@@ -467,7 +467,7 @@ func (ra *ResultAggregator) GetStats() map[string]interface{} {
 	}
 }
 
-// CleanupOldResults 清理旧结果
+// CleanupOldResults 清理旧结果.
 func (ra *ResultAggregator) CleanupOldResults(maxAge time.Duration) int {
 	ra.aggMutex.Lock()
 	defer ra.aggMutex.Unlock()
@@ -490,7 +490,7 @@ func (ra *ResultAggregator) CleanupOldResults(maxAge time.Duration) int {
 	return count
 }
 
-// Shutdown 关闭结果聚合器
+// Shutdown 关闭结果聚合器.
 func (ra *ResultAggregator) Shutdown() error {
 	ra.cancel()
 	_ = ra.saveAggregations()

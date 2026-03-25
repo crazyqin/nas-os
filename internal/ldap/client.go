@@ -11,14 +11,14 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-// Client LDAP 客户端
+// Client LDAP 客户端.
 type Client struct {
 	config Config
 	conn   *ldap.Conn
 	mu     sync.Mutex
 }
 
-// Pool 连接池
+// Pool 连接池.
 type Pool struct {
 	config    Config
 	clients   chan *Client
@@ -26,7 +26,7 @@ type Pool struct {
 	createdAt time.Time
 }
 
-// NewClient 创建新的 LDAP 客户端
+// NewClient 创建新的 LDAP 客户端.
 func NewClient(config Config) (*Client, error) {
 	client := &Client{
 		config: config,
@@ -34,7 +34,7 @@ func NewClient(config Config) (*Client, error) {
 	return client, nil
 }
 
-// Connect 连接到 LDAP 服务器
+// Connect 连接到 LDAP 服务器.
 func (c *Client) Connect() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -98,12 +98,12 @@ func (c *Client) Connect() error {
 	return nil
 }
 
-// dialPlain 普通连接
+// dialPlain 普通连接.
 func (c *Client) dialPlain() (*ldap.Conn, error) {
 	return ldap.DialURL(c.config.URL)
 }
 
-// dialTLS TLS 连接
+// dialTLS TLS 连接.
 func (c *Client) dialTLS() (*ldap.Conn, error) {
 	// 生产环境必须验证证书，仅测试环境可跳过
 	// 注意：InsecureSkipVerify 默认为 false，显式设置为 false 确保安全
@@ -146,7 +146,7 @@ func (c *Client) dialTLS() (*ldap.Conn, error) {
 	return ldap.DialURL(c.config.URL, ldap.DialWithTLSConfig(tlsConfig))
 }
 
-// loadCACert 加载 CA 证书
+// loadCACert 加载 CA 证书.
 func (c *Client) loadCACert() (*x509.CertPool, error) {
 	caCert, err := os.ReadFile(c.config.CACertPath)
 	if err != nil {
@@ -161,7 +161,7 @@ func (c *Client) loadCACert() (*x509.CertPool, error) {
 	return pool, nil
 }
 
-// Bind 绑定到 LDAP 服务器
+// Bind 绑定到 LDAP 服务器.
 func (c *Client) Bind() error {
 	if err := c.Connect(); err != nil {
 		return err
@@ -178,7 +178,7 @@ func (c *Client) Bind() error {
 	return nil
 }
 
-// BindWithCredential 使用指定凭据绑定
+// BindWithCredential 使用指定凭据绑定.
 func (c *Client) BindWithCredential(dn, password string) error {
 	if err := c.Connect(); err != nil {
 		return err
@@ -191,7 +191,7 @@ func (c *Client) BindWithCredential(dn, password string) error {
 	return nil
 }
 
-// Close 关闭连接
+// Close 关闭连接.
 func (c *Client) Close() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -204,21 +204,21 @@ func (c *Client) Close() error {
 	return nil
 }
 
-// IsConnected 检查是否已连接
+// IsConnected 检查是否已连接.
 func (c *Client) IsConnected() bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.conn != nil
 }
 
-// RawConn 获取原始连接（用于高级操作）
+// RawConn 获取原始连接（用于高级操作）.
 func (c *Client) RawConn() *ldap.Conn {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.conn
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (c *Client) Search(request *ldap.SearchRequest) (*ldap.SearchResult, error) {
 	if err := c.Bind(); err != nil {
 		return nil, err
@@ -232,7 +232,7 @@ func (c *Client) Search(request *ldap.SearchRequest) (*ldap.SearchResult, error)
 	return result, nil
 }
 
-// Add 添加条目
+// Add 添加条目.
 func (c *Client) Add(request *ldap.AddRequest) error {
 	if err := c.Bind(); err != nil {
 		return err
@@ -245,7 +245,7 @@ func (c *Client) Add(request *ldap.AddRequest) error {
 	return nil
 }
 
-// Modify 修改条目
+// Modify 修改条目.
 func (c *Client) Modify(request *ldap.ModifyRequest) error {
 	if err := c.Bind(); err != nil {
 		return err
@@ -258,7 +258,7 @@ func (c *Client) Modify(request *ldap.ModifyRequest) error {
 	return nil
 }
 
-// Delete 删除条目
+// Delete 删除条目.
 func (c *Client) Delete(dn string) error {
 	if err := c.Bind(); err != nil {
 		return err
@@ -272,7 +272,7 @@ func (c *Client) Delete(dn string) error {
 	return nil
 }
 
-// ModifyDN 修改条目 DN
+// ModifyDN 修改条目 DN.
 func (c *Client) ModifyDN(dn, newRDN string, deleteOld bool, newSuperior string) error {
 	if err := c.Bind(); err != nil {
 		return err
@@ -286,7 +286,7 @@ func (c *Client) ModifyDN(dn, newRDN string, deleteOld bool, newSuperior string)
 	return nil
 }
 
-// Compare 比较属性值
+// Compare 比较属性值.
 func (c *Client) Compare(dn, attribute, value string) (bool, error) {
 	if err := c.Bind(); err != nil {
 		return false, err
@@ -300,7 +300,7 @@ func (c *Client) Compare(dn, attribute, value string) (bool, error) {
 	return result, nil
 }
 
-// PasswordModify 修改密码
+// PasswordModify 修改密码.
 func (c *Client) PasswordModify(userDN, oldPassword, newPassword string) error {
 	if err := c.Bind(); err != nil {
 		return err
@@ -325,7 +325,7 @@ func (c *Client) PasswordModify(userDN, oldPassword, newPassword string) error {
 	return c.Modify(request)
 }
 
-// encodeADPassword 编码 AD 密码
+// encodeADPassword 编码 AD 密码.
 func encodeADPassword(password string) ([]byte, error) {
 	// AD 密码需要 UTF-16LE 编码并加上双引号
 	quoted := "\"" + password + "\""
@@ -339,7 +339,7 @@ func encodeADPassword(password string) ([]byte, error) {
 
 // ========== 连接池 ==========
 
-// NewPool 创建连接池
+// NewPool 创建连接池.
 func NewPool(config Config) (*Pool, error) {
 	size := config.PoolSize
 	if size <= 0 {
@@ -365,7 +365,7 @@ func NewPool(config Config) (*Pool, error) {
 	return pool, nil
 }
 
-// Get 获取连接
+// Get 获取连接.
 func (p *Pool) Get() (*Client, error) {
 	select {
 	case client := <-p.clients:
@@ -381,7 +381,7 @@ func (p *Pool) Get() (*Client, error) {
 	}
 }
 
-// Put 放回连接
+// Put 放回连接.
 func (p *Pool) Put(client *Client) {
 	select {
 	case p.clients <- client:
@@ -395,7 +395,7 @@ func (p *Pool) Put(client *Client) {
 	}
 }
 
-// Close 关闭连接池
+// Close 关闭连接池.
 func (p *Pool) Close() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -410,7 +410,7 @@ func (p *Pool) Close() error {
 	return lastErr
 }
 
-// Stats 获取连接池统计
+// Stats 获取连接池统计.
 func (p *Pool) Stats() map[string]interface{} {
 	return map[string]interface{}{
 		"pool_size":   cap(p.clients),

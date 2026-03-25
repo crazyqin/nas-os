@@ -8,7 +8,7 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-// Scheduler 调度器
+// Scheduler 调度器.
 type Scheduler struct {
 	mu sync.RWMutex
 
@@ -25,7 +25,7 @@ type Scheduler struct {
 	running bool
 }
 
-// NewScheduler 创建调度器
+// NewScheduler 创建调度器.
 func NewScheduler(pm *PolicyManager) *Scheduler {
 	return &Scheduler{
 		cron:          cron.New(cron.WithSeconds(), cron.WithLocation(time.Local)),
@@ -34,7 +34,7 @@ func NewScheduler(pm *PolicyManager) *Scheduler {
 	}
 }
 
-// Start 启动调度器
+// Start 启动调度器.
 func (s *Scheduler) Start() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -45,7 +45,7 @@ func (s *Scheduler) Start() {
 	}
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (s *Scheduler) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -57,7 +57,7 @@ func (s *Scheduler) Stop() {
 	}
 }
 
-// AddJob 添加定时任务
+// AddJob 添加定时任务.
 func (s *Scheduler) AddJob(policy *Policy) error {
 	if policy.Type != PolicyTypeScheduled || policy.Schedule == nil {
 		return fmt.Errorf("策略不是定时类型或未配置调度")
@@ -100,7 +100,7 @@ func (s *Scheduler) AddJob(policy *Policy) error {
 	return nil
 }
 
-// RemoveJob 移除定时任务
+// RemoveJob 移除定时任务.
 func (s *Scheduler) RemoveJob(policyID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -111,7 +111,7 @@ func (s *Scheduler) RemoveJob(policyID string) {
 	}
 }
 
-// UpdateJob 更新定时任务
+// UpdateJob 更新定时任务.
 func (s *Scheduler) UpdateJob(policy *Policy) error {
 	s.RemoveJob(policy.ID)
 	if policy.Enabled {
@@ -120,13 +120,13 @@ func (s *Scheduler) UpdateJob(policy *Policy) error {
 	return nil
 }
 
-// ValidateCron 验证 cron 表达式
+// ValidateCron 验证 cron 表达式.
 func (s *Scheduler) ValidateCron(expr string) bool {
 	_, err := cron.ParseStandard(expr)
 	return err == nil
 }
 
-// CalculateNextRun 计算下次执行时间
+// CalculateNextRun 计算下次执行时间.
 func (s *Scheduler) CalculateNextRun(policy *Policy) time.Time {
 	s.mu.RLock()
 	entryID, exists := s.jobIDs[policy.ID]
@@ -140,7 +140,7 @@ func (s *Scheduler) CalculateNextRun(policy *Policy) time.Time {
 	return entry.Next
 }
 
-// GetNextRuns 获取所有任务的下次执行时间
+// GetNextRuns 获取所有任务的下次执行时间.
 func (s *Scheduler) GetNextRuns() map[string]time.Time {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -153,7 +153,7 @@ func (s *Scheduler) GetNextRuns() map[string]time.Time {
 	return result
 }
 
-// generateCronExpression 生成 cron 表达式
+// generateCronExpression 生成 cron 表达式.
 func (s *Scheduler) generateCronExpression(schedule *ScheduleConfig) string {
 	if schedule == nil {
 		return ""
@@ -216,7 +216,7 @@ func (s *Scheduler) generateCronExpression(schedule *ScheduleConfig) string {
 	}
 }
 
-// ListJobs 列出所有任务
+// ListJobs 列出所有任务.
 func (s *Scheduler) ListJobs() []JobInfo {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -242,7 +242,7 @@ func (s *Scheduler) ListJobs() []JobInfo {
 	return jobs
 }
 
-// JobInfo 任务信息
+// JobInfo 任务信息.
 type JobInfo struct {
 	PolicyID   string    `json:"policyId"`
 	PolicyName string    `json:"policyName"`
@@ -252,7 +252,7 @@ type JobInfo struct {
 	Enabled    bool      `json:"enabled"`
 }
 
-// GetJobStatus 获取任务状态
+// GetJobStatus 获取任务状态.
 func (s *Scheduler) GetJobStatus(policyID string) (*JobInfo, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -278,7 +278,7 @@ func (s *Scheduler) GetJobStatus(policyID string) (*JobInfo, error) {
 	}, nil
 }
 
-// IsRunning 检查调度器是否运行中
+// IsRunning 检查调度器是否运行中.
 func (s *Scheduler) IsRunning() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

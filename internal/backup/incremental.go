@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	// ErrBackupNotFound 备份不存在错误
+	// ErrBackupNotFound 备份不存在错误.
 	ErrBackupNotFound = errors.New("backup not found")
 	// ErrBackupInProgress indicates a backup is already in progress.
 	ErrBackupInProgress = errors.New("backup already in progress")
@@ -25,7 +25,7 @@ var (
 	ErrVerificationFailed = errors.New("backup verification failed")
 )
 
-// IncrementalBackup 增量备份管理器
+// IncrementalBackup 增量备份管理器.
 type IncrementalBackup struct {
 	config     *Config
 	snapshots  map[string]*Snapshot
@@ -40,7 +40,7 @@ type IncrementalBackup struct {
 	compressor     *Compressor
 }
 
-// Snapshot 快照
+// Snapshot 快照.
 type Snapshot struct {
 	ID        string              `json:"id"`
 	CreatedAt time.Time           `json:"created_at"`
@@ -55,35 +55,35 @@ type Snapshot struct {
 	Metadata  map[string]string   `json:"metadata,omitempty"`
 }
 
-// SnapshotType 快照类型
+// SnapshotType 快照类型.
 type SnapshotType string
 
-// 快照类型常量
+// 快照类型常量.
 const (
-	// SnapshotTypeFull 完整快照
+	// SnapshotTypeFull 完整快照.
 	SnapshotTypeFull SnapshotType = "full"
-	// SnapshotTypeInc 增量快照
+	// SnapshotTypeInc 增量快照.
 	SnapshotTypeInc SnapshotType = "incremental"
-	// SnapshotTypeDiff 差异快照
+	// SnapshotTypeDiff 差异快照.
 	SnapshotTypeDiff SnapshotType = "differential"
 )
 
-// SnapshotStatus 快照状态
+// SnapshotStatus 快照状态.
 type SnapshotStatus string
 
-// 快照状态常量
+// 快照状态常量.
 const (
-	// SnapshotStatusPending 待执行
+	// SnapshotStatusPending 待执行.
 	SnapshotStatusPending SnapshotStatus = "pending"
-	// SnapshotStatusRunning 执行中
+	// SnapshotStatusRunning 执行中.
 	SnapshotStatusRunning SnapshotStatus = "running"
-	// SnapshotStatusCompleted 已完成
+	// SnapshotStatusCompleted 已完成.
 	SnapshotStatusCompleted SnapshotStatus = "completed"
-	// SnapshotStatusFailed 失败
+	// SnapshotStatusFailed 失败.
 	SnapshotStatusFailed SnapshotStatus = "failed"
 )
 
-// FileInfo 文件信息
+// FileInfo 文件信息.
 type FileInfo struct {
 	Path     string      `json:"path"`
 	Size     int64       `json:"size"`
@@ -93,7 +93,7 @@ type FileInfo struct {
 	Chunks   []string    `json:"chunks,omitempty"`
 }
 
-// Job 备份作业
+// Job 备份作业.
 type Job struct {
 	ID          string
 	Source      string
@@ -108,13 +108,13 @@ type Job struct {
 // BackupJob is an alias for Job for backward compatibility.
 type BackupJob = Job //nolint:revive // 向后兼容别名
 
-// FileIndex 文件索引（用于快速变更检测）
+// FileIndex 文件索引（用于快速变更检测）.
 type FileIndex struct {
 	entries map[string]*IndexEntry
 	mu      sync.RWMutex
 }
 
-// IndexEntry 索引条目
+// IndexEntry 索引条目.
 type IndexEntry struct {
 	Path        string
 	Checksum    string
@@ -123,14 +123,14 @@ type IndexEntry struct {
 	LastChecked time.Time
 }
 
-// NewFileIndex 创建文件索引
+// NewFileIndex 创建文件索引.
 func NewFileIndex() *FileIndex {
 	return &FileIndex{
 		entries: make(map[string]*IndexEntry),
 	}
 }
 
-// Update 更新索引
+// Update 更新索引.
 func (fi *FileIndex) Update(path string, checksum string, size int64, modTime time.Time) {
 	fi.mu.Lock()
 	defer fi.mu.Unlock()
@@ -144,21 +144,21 @@ func (fi *FileIndex) Update(path string, checksum string, size int64, modTime ti
 	}
 }
 
-// Get 获取索引条目
+// Get 获取索引条目.
 func (fi *FileIndex) Get(path string) *IndexEntry {
 	fi.mu.RLock()
 	defer fi.mu.RUnlock()
 	return fi.entries[path]
 }
 
-// Remove 移除索引条目
+// Remove 移除索引条目.
 func (fi *FileIndex) Remove(path string) {
 	fi.mu.Lock()
 	defer fi.mu.Unlock()
 	delete(fi.entries, path)
 }
 
-// GetAll 获取所有条目
+// GetAll 获取所有条目.
 func (fi *FileIndex) GetAll() []*IndexEntry {
 	fi.mu.RLock()
 	defer fi.mu.RUnlock()
@@ -170,19 +170,19 @@ func (fi *FileIndex) GetAll() []*IndexEntry {
 	return entries
 }
 
-// ChangeDetector 变更检测器
+// ChangeDetector 变更检测器.
 type ChangeDetector struct {
 	fileIndex *FileIndex
 }
 
-// NewChangeDetector 创建变更检测器
+// NewChangeDetector 创建变更检测器.
 func NewChangeDetector(fileIndex *FileIndex) *ChangeDetector {
 	return &ChangeDetector{
 		fileIndex: fileIndex,
 	}
 }
 
-// DetectChanges 检测变更文件
+// DetectChanges 检测变更文件.
 func (cd *ChangeDetector) DetectChanges(ctx context.Context, source string) ([]string, []string, []string, error) {
 	var added, modified, deleted []string
 
@@ -238,7 +238,7 @@ func (cd *ChangeDetector) DetectChanges(ctx context.Context, source string) ([]s
 	return added, modified, deleted, nil
 }
 
-// ChunkStore 块存储（用于去重）
+// ChunkStore 块存储（用于去重）.
 type ChunkStore struct {
 	chunks map[string][]byte
 	refs   map[string]int // 引用计数
@@ -246,7 +246,7 @@ type ChunkStore struct {
 	mu     sync.RWMutex
 }
 
-// NewChunkStore 创建块存储
+// NewChunkStore 创建块存储.
 func NewChunkStore(path string) *ChunkStore {
 	return &ChunkStore{
 		chunks: make(map[string][]byte),
@@ -255,7 +255,7 @@ func NewChunkStore(path string) *ChunkStore {
 	}
 }
 
-// Store 存储块
+// Store 存储块.
 func (cs *ChunkStore) Store(id string, data []byte) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
@@ -273,7 +273,7 @@ func (cs *ChunkStore) Store(id string, data []byte) error {
 	return nil
 }
 
-// Get 获取块
+// Get 获取块.
 func (cs *ChunkStore) Get(id string) ([]byte, bool) {
 	cs.mu.RLock()
 	defer cs.mu.RUnlock()
@@ -282,7 +282,7 @@ func (cs *ChunkStore) Get(id string) ([]byte, bool) {
 	return data, exists
 }
 
-// Remove 移除块（减少引用计数）
+// Remove 移除块（减少引用计数）.
 func (cs *ChunkStore) Remove(id string) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
@@ -298,7 +298,7 @@ func (cs *ChunkStore) Remove(id string) {
 	}
 }
 
-// Stats 块存储统计
+// Stats 块存储统计.
 func (cs *ChunkStore) Stats() map[string]interface{} {
 	cs.mu.RLock()
 	defer cs.mu.RUnlock()
@@ -315,13 +315,13 @@ func (cs *ChunkStore) Stats() map[string]interface{} {
 	}
 }
 
-// Compressor 压缩器
+// Compressor 压缩器.
 type Compressor struct {
 	algorithm string
 	level     int
 }
 
-// NewCompressor 创建压缩器
+// NewCompressor 创建压缩器.
 func NewCompressor(algorithm string, level int) *Compressor {
 	return &Compressor{
 		algorithm: algorithm,
@@ -329,7 +329,7 @@ func NewCompressor(algorithm string, level int) *Compressor {
 	}
 }
 
-// NewIncrementalBackup 创建增量备份管理器
+// NewIncrementalBackup 创建增量备份管理器.
 func NewIncrementalBackup(config *Config, logger *zap.Logger) *IncrementalBackup {
 	return &IncrementalBackup{
 		config:         config,
@@ -343,7 +343,7 @@ func NewIncrementalBackup(config *Config, logger *zap.Logger) *IncrementalBackup
 	}
 }
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (ib *IncrementalBackup) CreateSnapshot(ctx context.Context, source string, dest string, snapshotType SnapshotType) (*Snapshot, error) {
 	ib.mu.Lock()
 
@@ -409,7 +409,7 @@ func (ib *IncrementalBackup) CreateSnapshot(ctx context.Context, source string, 
 	return snapshot, err
 }
 
-// performFullBackup 执行完整备份
+// performFullBackup 执行完整备份.
 func (ib *IncrementalBackup) performFullBackup(ctx context.Context, snapshot *Snapshot, source, dest string) error {
 	ib.logger.Info("Starting full backup",
 		zap.String("snapshot_id", snapshot.ID),
@@ -479,7 +479,7 @@ func (ib *IncrementalBackup) performFullBackup(ctx context.Context, snapshot *Sn
 	return nil
 }
 
-// performIncrementalBackup 执行增量备份
+// performIncrementalBackup 执行增量备份.
 func (ib *IncrementalBackup) performIncrementalBackup(ctx context.Context, snapshot *Snapshot, source, dest string) error {
 	ib.logger.Info("Starting incremental backup",
 		zap.String("snapshot_id", snapshot.ID),
@@ -584,13 +584,13 @@ func (ib *IncrementalBackup) performIncrementalBackup(ctx context.Context, snaps
 	return nil
 }
 
-// performDifferentialBackup 执行差异备份
+// performDifferentialBackup 执行差异备份.
 func (ib *IncrementalBackup) performDifferentialBackup(ctx context.Context, snapshot *Snapshot, source, dest string) error {
 	// 差异备份与增量备份类似，但基于最近的完整备份
 	return ib.performIncrementalBackup(ctx, snapshot, source, dest)
 }
 
-// processFile 处理文件（分块、去重、存储）
+// processFile 处理文件（分块、去重、存储）.
 func (ib *IncrementalBackup) processFile(path string, snapshot *Snapshot) (string, []string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -628,7 +628,7 @@ func (ib *IncrementalBackup) processFile(path string, snapshot *Snapshot) (strin
 	return checksum, chunks, nil
 }
 
-// GetSnapshot 获取快照
+// GetSnapshot 获取快照.
 func (ib *IncrementalBackup) GetSnapshot(id string) (*Snapshot, error) {
 	ib.mu.RLock()
 	defer ib.mu.RUnlock()
@@ -640,7 +640,7 @@ func (ib *IncrementalBackup) GetSnapshot(id string) (*Snapshot, error) {
 	return snapshot, nil
 }
 
-// ListSnapshots 列出快照
+// ListSnapshots 列出快照.
 func (ib *IncrementalBackup) ListSnapshots() []*Snapshot {
 	ib.mu.RLock()
 	defer ib.mu.RUnlock()
@@ -652,7 +652,7 @@ func (ib *IncrementalBackup) ListSnapshots() []*Snapshot {
 	return snapshots
 }
 
-// DeleteSnapshot 删除快照
+// DeleteSnapshot 删除快照.
 func (ib *IncrementalBackup) DeleteSnapshot(id string) error {
 	ib.mu.Lock()
 	defer ib.mu.Unlock()
@@ -671,7 +671,7 @@ func (ib *IncrementalBackup) DeleteSnapshot(id string) error {
 	return nil
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (ib *IncrementalBackup) GetStats() map[string]interface{} {
 	ib.mu.RLock()
 	defer ib.mu.RUnlock()
@@ -689,12 +689,12 @@ func (ib *IncrementalBackup) GetStats() map[string]interface{} {
 	}
 }
 
-// generateID 生成ID
+// generateID 生成ID.
 func generateID() string {
 	return time.Now().Format("20060102-150405") + "-" + randomString(8)
 }
 
-// randomString 生成随机字符串
+// randomString 生成随机字符串.
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)

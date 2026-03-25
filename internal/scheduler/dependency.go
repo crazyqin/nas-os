@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// DependencyManager 依赖管理器
+// DependencyManager 依赖管理器.
 type DependencyManager struct {
 	tasks        map[string]*Task
 	dependents   map[string][]string // 被依赖映射: taskID -> 依赖它的任务列表
@@ -15,7 +15,7 @@ type DependencyManager struct {
 	mu           sync.RWMutex
 }
 
-// NewDependencyManager 创建依赖管理器
+// NewDependencyManager 创建依赖管理器.
 func NewDependencyManager() *DependencyManager {
 	return &DependencyManager{
 		tasks:        make(map[string]*Task),
@@ -25,7 +25,7 @@ func NewDependencyManager() *DependencyManager {
 	}
 }
 
-// RegisterTask 注册任务
+// RegisterTask 注册任务.
 func (dm *DependencyManager) RegisterTask(task *Task) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -48,7 +48,7 @@ func (dm *DependencyManager) RegisterTask(task *Task) error {
 	return nil
 }
 
-// UnregisterTask 注销任务
+// UnregisterTask 注销任务.
 func (dm *DependencyManager) UnregisterTask(taskID string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -93,7 +93,7 @@ func (dm *DependencyManager) removeDependency(taskID, depID string) {
 	}
 }
 
-// CanRun 检查任务是否可以运行
+// CanRun 检查任务是否可以运行.
 func (dm *DependencyManager) CanRun(taskID string) (bool, string) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -155,7 +155,7 @@ func (dm *DependencyManager) CanRun(taskID string) (bool, string) {
 	}
 }
 
-// MarkCompleted 标记任务完成
+// MarkCompleted 标记任务完成.
 func (dm *DependencyManager) MarkCompleted(taskID string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -171,7 +171,7 @@ func (dm *DependencyManager) MarkCompleted(taskID string) {
 	}
 }
 
-// MarkFailed 标记任务失败
+// MarkFailed 标记任务失败.
 func (dm *DependencyManager) MarkFailed(taskID string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -182,7 +182,7 @@ func (dm *DependencyManager) MarkFailed(taskID string) {
 	}
 }
 
-// GetDependents 获取依赖于指定任务的任务列表
+// GetDependents 获取依赖于指定任务的任务列表.
 func (dm *DependencyManager) GetDependents(taskID string) []string {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -193,7 +193,7 @@ func (dm *DependencyManager) GetDependents(taskID string) []string {
 	return result
 }
 
-// GetDependencies 获取指定任务的依赖列表
+// GetDependencies 获取指定任务的依赖列表.
 func (dm *DependencyManager) GetDependencies(taskID string) []string {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -204,7 +204,7 @@ func (dm *DependencyManager) GetDependencies(taskID string) []string {
 	return result
 }
 
-// GetReadyTasks 获取可以执行的任务列表
+// GetReadyTasks 获取可以执行的任务列表.
 func (dm *DependencyManager) GetReadyTasks() []string {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -256,7 +256,7 @@ func (dm *DependencyManager) canRunInternal(taskID string) (bool, string) {
 	}
 }
 
-// HasCycle 检查是否存在循环依赖
+// HasCycle 检查是否存在循环依赖.
 func (dm *DependencyManager) HasCycle() bool {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -295,7 +295,7 @@ func (dm *DependencyManager) hasCycleDFS(taskID string, visited, recStack map[st
 	return false
 }
 
-// GetExecutionOrder 获取执行顺序（拓扑排序）
+// GetExecutionOrder 获取执行顺序（拓扑排序）.
 func (dm *DependencyManager) GetExecutionOrder() ([]string, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -346,7 +346,7 @@ func (dm *DependencyManager) GetExecutionOrder() ([]string, error) {
 	return result, nil
 }
 
-// Reset 重置所有完成状态
+// Reset 重置所有完成状态.
 func (dm *DependencyManager) Reset() {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -359,7 +359,7 @@ func (dm *DependencyManager) Reset() {
 	}
 }
 
-// ResetTask 重置指定任务的完成状态
+// ResetTask 重置指定任务的完成状态.
 func (dm *DependencyManager) ResetTask(taskID string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -372,26 +372,26 @@ func (dm *DependencyManager) ResetTask(taskID string) {
 	}
 }
 
-// DependencyGraph 依赖图
+// DependencyGraph 依赖图.
 type DependencyGraph struct {
 	Nodes []*GraphNode `json:"nodes"`
 	Edges []*GraphEdge `json:"edges"`
 }
 
-// GraphNode 图节点
+// GraphNode 图节点.
 type GraphNode struct {
 	ID     string     `json:"id"`
 	Name   string     `json:"name"`
 	Status TaskStatus `json:"status"`
 }
 
-// GraphEdge 图边
+// GraphEdge 图边.
 type GraphEdge struct {
 	From string `json:"from"`
 	To   string `json:"to"`
 }
 
-// GetGraph 获取依赖图
+// GetGraph 获取依赖图.
 func (dm *DependencyManager) GetGraph() *DependencyGraph {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()

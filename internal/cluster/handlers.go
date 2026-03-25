@@ -12,25 +12,25 @@ import (
 	"nas-os/internal/auth"
 )
 
-// 集群资源权限定义
+// 集群资源权限定义.
 const (
-	// ResourceCluster 集群管理资源
+	// ResourceCluster 集群管理资源.
 	ResourceCluster auth.Resource = "cluster"
-	// ResourceSync 同步规则资源
+	// ResourceSync 同步规则资源.
 	ResourceSync auth.Resource = "cluster_sync"
-	// ResourceLoadBalancer 负载均衡资源
+	// ResourceLoadBalancer 负载均衡资源.
 	ResourceLoadBalancer auth.Resource = "cluster_lb"
-	// ResourceHighAvailability 高可用资源
+	// ResourceHighAvailability 高可用资源.
 	ResourceHighAvailability auth.Resource = "cluster_ha"
 )
 
-// 输入验证正则
+// 输入验证正则.
 var (
 	nodeIDPattern = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 	ipPattern     = regexp.MustCompile(`^(\d{1,3}\.){3}\d{1,3}$|^\[?[0-9a-fA-F:]+\]?$`)
 )
 
-// API 集群 API 处理器
+// API 集群 API 处理器.
 type API struct {
 	manager        *Manager
 	sync           *StorageSync
@@ -40,7 +40,7 @@ type API struct {
 	authMiddleware *auth.Middleware
 }
 
-// NewAPI 创建集群 API 处理器
+// NewAPI 创建集群 API 处理器.
 func NewAPI(manager *Manager, sync *StorageSync, lb *LoadBalancer, ha *HighAvailability, logger *zap.Logger) *API {
 	return &API{
 		manager:        manager,
@@ -52,17 +52,17 @@ func NewAPI(manager *Manager, sync *StorageSync, lb *LoadBalancer, ha *HighAvail
 	}
 }
 
-// SetAuthMiddleware 设置认证中间件
+// SetAuthMiddleware 设置认证中间件.
 func (api *API) SetAuthMiddleware(am *auth.Middleware) {
 	api.authMiddleware = am
 }
 
-// NewClusterAPI 创建集群 API 处理器（兼容旧代码）
+// NewClusterAPI 创建集群 API 处理器（兼容旧代码）.
 func NewClusterAPI(manager *Manager, sync *StorageSync, lb *LoadBalancer, ha *HighAvailability, logger *zap.Logger) *API {
 	return NewAPI(manager, sync, lb, ha, logger)
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (api *API) RegisterRoutes(router *gin.RouterGroup) {
 	// 辅助函数：获取认证中间件（如果配置了）
 	authRequired := func() gin.HandlerFunc {
@@ -133,7 +133,7 @@ func (api *API) RegisterRoutes(router *gin.RouterGroup) {
 
 // 节点管理 API
 
-// GetNodes 获取节点列表
+// GetNodes 获取节点列表.
 func (api *API) GetNodes(c *gin.Context) {
 	nodes := api.manager.GetNodes()
 	c.JSON(http.StatusOK, gin.H{
@@ -143,7 +143,7 @@ func (api *API) GetNodes(c *gin.Context) {
 	})
 }
 
-// GetNode 获取节点详情
+// GetNode 获取节点详情.
 func (api *API) GetNode(c *gin.Context) {
 	nodeID := c.Param("id")
 
@@ -171,7 +171,7 @@ func (api *API) GetNode(c *gin.Context) {
 	})
 }
 
-// JoinCluster 加入集群
+// JoinCluster 加入集群.
 func (api *API) JoinCluster(c *gin.Context) {
 	var req struct {
 		NodeID   string `json:"node_id"`
@@ -255,7 +255,7 @@ func (api *API) JoinCluster(c *gin.Context) {
 	})
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (api *API) RemoveNode(c *gin.Context) {
 	nodeID := c.Param("id")
 
@@ -282,7 +282,7 @@ func (api *API) RemoveNode(c *gin.Context) {
 	})
 }
 
-// GetNodeStatus 获取节点状态
+// GetNodeStatus 获取节点状态.
 func (api *API) GetNodeStatus(c *gin.Context) {
 	nodeID := c.Param("id")
 
@@ -316,7 +316,7 @@ func (api *API) GetNodeStatus(c *gin.Context) {
 	})
 }
 
-// DrainNode 节点下线
+// DrainNode 节点下线.
 func (api *API) DrainNode(c *gin.Context) {
 	nodeID := c.Param("id")
 
@@ -349,7 +349,7 @@ func (api *API) DrainNode(c *gin.Context) {
 
 // 存储同步 API
 
-// GetSyncRules 获取同步规则列表
+// GetSyncRules 获取同步规则列表.
 func (api *API) GetSyncRules(c *gin.Context) {
 	rules := api.sync.GetRules()
 	c.JSON(http.StatusOK, gin.H{
@@ -359,7 +359,7 @@ func (api *API) GetSyncRules(c *gin.Context) {
 	})
 }
 
-// GetSyncRule 获取同步规则详情
+// GetSyncRule 获取同步规则详情.
 func (api *API) GetSyncRule(c *gin.Context) {
 	ruleID := c.Param("id")
 
@@ -387,7 +387,7 @@ func (api *API) GetSyncRule(c *gin.Context) {
 	})
 }
 
-// CreateSyncRule 创建同步规则
+// CreateSyncRule 创建同步规则.
 func (api *API) CreateSyncRule(c *gin.Context) {
 	var rule SyncRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -413,7 +413,7 @@ func (api *API) CreateSyncRule(c *gin.Context) {
 	})
 }
 
-// UpdateSyncRule 更新同步规则
+// UpdateSyncRule 更新同步规则.
 func (api *API) UpdateSyncRule(c *gin.Context) {
 	ruleID := c.Param("id")
 
@@ -449,7 +449,7 @@ func (api *API) UpdateSyncRule(c *gin.Context) {
 	})
 }
 
-// DeleteSyncRule 删除同步规则
+// DeleteSyncRule 删除同步规则.
 func (api *API) DeleteSyncRule(c *gin.Context) {
 	ruleID := c.Param("id")
 
@@ -476,7 +476,7 @@ func (api *API) DeleteSyncRule(c *gin.Context) {
 	})
 }
 
-// TriggerSync 手动触发同步
+// TriggerSync 手动触发同步.
 func (api *API) TriggerSync(c *gin.Context) {
 	var req struct {
 		RuleID string `json:"rule_id"`
@@ -513,7 +513,7 @@ func (api *API) TriggerSync(c *gin.Context) {
 	})
 }
 
-// GetSyncStatus 获取同步状态
+// GetSyncStatus 获取同步状态.
 func (api *API) GetSyncStatus(c *gin.Context) {
 	status := api.sync.GetStatus()
 	c.JSON(http.StatusOK, gin.H{
@@ -522,7 +522,7 @@ func (api *API) GetSyncStatus(c *gin.Context) {
 	})
 }
 
-// GetSyncJobs 获取同步任务历史
+// GetSyncJobs 获取同步任务历史.
 func (api *API) GetSyncJobs(c *gin.Context) {
 	limit := 20 // 默认返回 20 条
 	if l := c.Query("limit"); l != "" {
@@ -539,7 +539,7 @@ func (api *API) GetSyncJobs(c *gin.Context) {
 
 // 负载均衡 API
 
-// GetLBConfig 获取负载均衡配置
+// GetLBConfig 获取负载均衡配置.
 func (api *API) GetLBConfig(c *gin.Context) {
 	config := api.lb.GetConfig()
 	c.JSON(http.StatusOK, gin.H{
@@ -548,7 +548,7 @@ func (api *API) GetLBConfig(c *gin.Context) {
 	})
 }
 
-// UpdateLBConfig 更新负载均衡配置
+// UpdateLBConfig 更新负载均衡配置.
 func (api *API) UpdateLBConfig(c *gin.Context) {
 	var config LBConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -573,7 +573,7 @@ func (api *API) UpdateLBConfig(c *gin.Context) {
 	})
 }
 
-// GetBackends 获取后端节点
+// GetBackends 获取后端节点.
 func (api *API) GetBackends(c *gin.Context) {
 	backends := api.lb.GetBackends()
 	c.JSON(http.StatusOK, gin.H{
@@ -583,7 +583,7 @@ func (api *API) GetBackends(c *gin.Context) {
 	})
 }
 
-// GetLBStats 获取负载均衡统计
+// GetLBStats 获取负载均衡统计.
 func (api *API) GetLBStats(c *gin.Context) {
 	stats := api.lb.GetStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -592,7 +592,7 @@ func (api *API) GetLBStats(c *gin.Context) {
 	})
 }
 
-// ResetLBStats 重置负载均衡统计
+// ResetLBStats 重置负载均衡统计.
 func (api *API) ResetLBStats(c *gin.Context) {
 	api.lb.ResetStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -603,7 +603,7 @@ func (api *API) ResetLBStats(c *gin.Context) {
 
 // 高可用 API
 
-// GetHAStatus 获取高可用状态
+// GetHAStatus 获取高可用状态.
 func (api *API) GetHAStatus(c *gin.Context) {
 	status := api.ha.GetStatus()
 	c.JSON(http.StatusOK, gin.H{
@@ -612,7 +612,7 @@ func (api *API) GetHAStatus(c *gin.Context) {
 	})
 }
 
-// ManualFailover 手动故障转移
+// ManualFailover 手动故障转移.
 func (api *API) ManualFailover(c *gin.Context) {
 	var req struct {
 		TargetNodeID string `json:"target_node_id"`
@@ -649,7 +649,7 @@ func (api *API) ManualFailover(c *gin.Context) {
 	})
 }
 
-// GetFailoverHistory 获取故障转移历史
+// GetFailoverHistory 获取故障转移历史.
 func (api *API) GetFailoverHistory(c *gin.Context) {
 	limit := 20
 	if l := c.Query("limit"); l != "" {

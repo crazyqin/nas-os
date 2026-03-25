@@ -9,14 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Config 通知配置
+// Config 通知配置.
 type Config struct {
 	Email    EmailConfig     `json:"email,omitempty"`
 	WeChat   WeChatConfig    `json:"wechat,omitempty"`
 	Webhooks []WebhookConfig `json:"webhooks,omitempty"`
 }
 
-// EmailConfig 邮件配置
+// EmailConfig 邮件配置.
 type EmailConfig struct {
 	Enabled  bool     `json:"enabled"`
 	SMTP     string   `json:"smtp_server"`
@@ -27,20 +27,20 @@ type EmailConfig struct {
 	To       []string `json:"to"`
 }
 
-// WeChatConfig 企业微信配置
+// WeChatConfig 企业微信配置.
 type WeChatConfig struct {
 	Enabled    bool   `json:"enabled"`
 	WebhookURL string `json:"webhook_url"`
 }
 
-// WebhookConfig Webhook 配置
+// WebhookConfig Webhook 配置.
 type WebhookConfig struct {
 	Enabled bool   `json:"enabled"`
 	Name    string `json:"name"`
 	URL     string `json:"url"`
 }
 
-// Handlers 通知处理器
+// Handlers 通知处理器.
 type Handlers struct {
 	manager    *Manager
 	config     *Config
@@ -48,7 +48,7 @@ type Handlers struct {
 	mu         sync.RWMutex
 }
 
-// NewHandlers 创建通知处理器
+// NewHandlers 创建通知处理器.
 func NewHandlers(manager *Manager, configPath string) *Handlers {
 	h := &Handlers{
 		manager:    manager,
@@ -59,7 +59,7 @@ func NewHandlers(manager *Manager, configPath string) *Handlers {
 	return h
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	notify := r.Group("/notify")
 	{
@@ -70,7 +70,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (h *Handlers) loadConfig() {
 	data, err := os.ReadFile(h.configPath)
 	if err != nil {
@@ -81,7 +81,7 @@ func (h *Handlers) loadConfig() {
 	h.applyConfig()
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (h *Handlers) saveConfig() error {
 	data, err := json.MarshalIndent(h.config, "", "  ")
 	if err != nil {
@@ -90,7 +90,7 @@ func (h *Handlers) saveConfig() error {
 	return os.WriteFile(h.configPath, data, 0640)
 }
 
-// applyConfig 应用配置
+// applyConfig 应用配置.
 func (h *Handlers) applyConfig() {
 	h.manager.notifiers = make([]Notifier, 0)
 
@@ -119,7 +119,7 @@ func (h *Handlers) applyConfig() {
 	}
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -148,7 +148,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -179,7 +179,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	})
 }
 
-// testNotification 测试通知
+// testNotification 测试通知.
 func (h *Handlers) testNotification(c *gin.Context) {
 	var req struct {
 		Channel string `json:"channel"`
@@ -254,7 +254,7 @@ func (h *Handlers) testNotification(c *gin.Context) {
 	})
 }
 
-// getChannels 获取已配置的通知渠道
+// getChannels 获取已配置的通知渠道.
 func (h *Handlers) getChannels(c *gin.Context) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()

@@ -6,10 +6,10 @@ import "time"
 
 // ========== 审计日志类型 ==========
 
-// Level 审计日志级别
+// Level 审计日志级别.
 type Level string
 
-// 日志级别常量
+// 日志级别常量.
 const (
 	LevelInfo     Level = "info"     // 信息级别
 	LevelWarning  Level = "warning"  // 警告级别
@@ -17,10 +17,10 @@ const (
 	LevelCritical Level = "critical" // 严重级别
 )
 
-// Category 审计日志分类
+// Category 审计日志分类.
 type Category string
 
-// 审计日志分类常量
+// 审计日志分类常量.
 const (
 	CategoryAuth       Category = "auth"       // 认证相关
 	CategoryAccess     Category = "access"     // 访问控制
@@ -34,17 +34,17 @@ const (
 	CategoryAudit      Category = "audit"      // 审计自身操作
 )
 
-// Status 操作状态
+// Status 操作状态.
 type Status string
 
-// 操作状态常量
+// 操作状态常量.
 const (
 	StatusSuccess Status = "success" // 成功
 	StatusFailure Status = "failure" // 失败
 	StatusPending Status = "pending" // 待处理
 )
 
-// Entry 审计日志条目
+// Entry 审计日志条目.
 type Entry struct {
 	ID        string                 `json:"id"`                   // 唯一标识
 	Timestamp time.Time              `json:"timestamp"`            // 时间戳
@@ -65,7 +65,7 @@ type Entry struct {
 
 // ========== 查询和筛选 ==========
 
-// QueryOptions 审计日志查询选项
+// QueryOptions 审计日志查询选项.
 type QueryOptions struct {
 	Limit     int        `json:"limit"`                // 返回数量限制
 	Offset    int        `json:"offset"`               // 偏移量
@@ -82,7 +82,7 @@ type QueryOptions struct {
 	Keyword   string     `json:"keyword,omitempty"`    // 关键词搜索
 }
 
-// QueryResult 查询结果
+// QueryResult 查询结果.
 type QueryResult struct {
 	Total   int      `json:"total"`   // 总数量
 	Entries []*Entry `json:"entries"` // 日志条目
@@ -90,10 +90,10 @@ type QueryResult struct {
 
 // ========== 合规报告 ==========
 
-// ComplianceStandard 合规标准
+// ComplianceStandard 合规标准.
 type ComplianceStandard string
 
-// 合规标准常量
+// 合规标准常量.
 const (
 	ComplianceGDPR     ComplianceStandard = "gdpr"     // GDPR
 	ComplianceHIPAA    ComplianceStandard = "hipaa"    // HIPAA
@@ -103,7 +103,7 @@ const (
 	CompliancePCI      ComplianceStandard = "pci"      // PCI DSS
 )
 
-// ComplianceReport 合规报告
+// ComplianceReport 合规报告.
 type ComplianceReport struct {
 	ReportID        string              `json:"report_id"`       // 报告ID
 	Standard        ComplianceStandard  `json:"standard"`        // 合规标准
@@ -115,7 +115,7 @@ type ComplianceReport struct {
 	Recommendations []string            `json:"recommendations"` // 改进建议
 }
 
-// ComplianceSummary 合规摘要统计
+// ComplianceSummary 合规摘要统计.
 type ComplianceSummary struct {
 	TotalEvents        int            `json:"total_events"`         // 总事件数
 	AuthEvents         int            `json:"auth_events"`          // 认证事件
@@ -130,7 +130,7 @@ type ComplianceSummary struct {
 	EventsByHour       map[int]int    `json:"events_by_hour"`       // 小时统计
 }
 
-// ComplianceFinding 合规发现项
+// ComplianceFinding 合规发现项.
 type ComplianceFinding struct {
 	ID          string                 `json:"id"`          // 发现ID
 	Severity    Level                  `json:"severity"`    // 严重程度
@@ -143,7 +143,7 @@ type ComplianceFinding struct {
 
 // ========== 审计配置 ==========
 
-// Config 审计配置
+// Config 审计配置.
 type Config struct {
 	Enabled           bool              `json:"enabled"`            // 是否启用审计
 	LogPath           string            `json:"log_path"`           // 日志存储路径
@@ -157,7 +157,7 @@ type Config struct {
 	RetentionPolicies []RetentionPolicy `json:"retention_policies"` // 保留策略
 }
 
-// RetentionPolicy 日志保留策略
+// RetentionPolicy 日志保留策略.
 type RetentionPolicy struct {
 	Category Category `json:"category"`  // 适用分类
 	MaxAge   int      `json:"max_age"`   // 最大保留天数
@@ -167,7 +167,7 @@ type RetentionPolicy struct {
 
 // ========== 统计信息 ==========
 
-// Statistics 审计统计
+// Statistics 审计统计.
 type Statistics struct {
 	TotalEntries     int            `json:"total_entries"`          // 总日志数
 	TodayEntries     int            `json:"today_entries"`          // 今日日志数
@@ -182,14 +182,14 @@ type Statistics struct {
 	NewestEntry      *time.Time     `json:"newest_entry,omitempty"` // 最新日志时间
 }
 
-// UserActivity 用户活动统计
+// UserActivity 用户活动统计.
 type UserActivity struct {
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
 	Count    int    `json:"count"`
 }
 
-// IPActivity IP活动统计
+// IPActivity IP活动统计.
 type IPActivity struct {
 	IP    string `json:"ip"`
 	Count int    `json:"count"`
@@ -197,7 +197,7 @@ type IPActivity struct {
 
 // ========== 完整性验证 ==========
 
-// IntegrityReport 完整性验证报告
+// IntegrityReport 完整性验证报告.
 type IntegrityReport struct {
 	GeneratedAt     time.Time       `json:"generated_at"`
 	TotalEntries    int             `json:"total_entries"`
@@ -208,7 +208,7 @@ type IntegrityReport struct {
 	Valid           bool            `json:"valid"`
 }
 
-// TamperedEntry 被篡改的日志条目
+// TamperedEntry 被篡改的日志条目.
 type TamperedEntry struct {
 	EntryID     string    `json:"entry_id"`
 	Timestamp   time.Time `json:"timestamp"`
@@ -219,10 +219,10 @@ type TamperedEntry struct {
 
 // ========== 导出选项 ==========
 
-// ExportFormat 导出格式
+// ExportFormat 导出格式.
 type ExportFormat string
 
-// 导出格式常量
+// 导出格式常量.
 const (
 	ExportJSON ExportFormat = "json"
 	ExportCSV  ExportFormat = "csv"
@@ -231,7 +231,7 @@ const (
 	ExportYAML ExportFormat = "yaml"
 )
 
-// ExportOptions 导出选项
+// ExportOptions 导出选项.
 type ExportOptions struct {
 	Format            ExportFormat `json:"format"`             // 导出格式
 	StartTime         time.Time    `json:"start_time"`         // 开始时间
@@ -243,26 +243,26 @@ type ExportOptions struct {
 
 // ========== API 响应类型 ==========
 
-// APIResponse 通用API响应
+// APIResponse 通用API响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// SuccessResponse 成功响应
+// SuccessResponse 成功响应.
 func SuccessResponse(data interface{}) APIResponse {
 	return APIResponse{Code: 0, Message: "success", Data: data}
 }
 
-// ErrorResponse 错误响应
+// ErrorResponse 错误响应.
 func ErrorResponse(code int, message string) APIResponse {
 	return APIResponse{Code: code, Message: message}
 }
 
 // ========== 错误定义 ==========
 
-// 错误码定义
+// 错误码定义.
 const (
 	ErrCodeInvalidParam  = 400
 	ErrCodeNotFound      = 404
@@ -270,7 +270,7 @@ const (
 	ErrCodeAuditDisabled = 503
 )
 
-// 错误消息定义
+// 错误消息定义.
 var (
 	ErrAuditDisabled    = "审计功能未启用"
 	ErrInvalidTimeRange = "无效的时间范围"

@@ -335,7 +335,7 @@ func TestSyncEngine_CalculateFileHash(t *testing.T) {
 
 // ==================== Mock Provider 测试 ====================
 
-// MockProvider 用于测试的模拟提供商
+// MockProvider 用于测试的模拟提供商.
 type MockProvider struct {
 	files map[string]FileInfo
 }

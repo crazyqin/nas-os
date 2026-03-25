@@ -11,13 +11,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// API 会话API处理器
+// API 会话API处理器.
 type API struct {
 	manager *Manager
 	monitor *Monitor
 }
 
-// NewAPI 创建会话API处理器
+// NewAPI 创建会话API处理器.
 func NewAPI(manager *Manager, monitor *Monitor) *API {
 	return &API{
 		manager: manager,
@@ -25,7 +25,7 @@ func NewAPI(manager *Manager, monitor *Monitor) *API {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (a *API) RegisterRoutes(r *gin.RouterGroup) {
 	sessions := r.Group("/sessions")
 	{
@@ -60,7 +60,7 @@ func (a *API) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// ListSessionsRequest 列表请求参数
+// ListSessionsRequest 列表请求参数.
 type ListSessionsRequest struct {
 	Type   string `form:"type"`   // smb, nfs
 	Status string `form:"status"` // active, idle, stale
@@ -71,7 +71,7 @@ type ListSessionsRequest struct {
 	Offset int    `form:"offset"`
 }
 
-// SessionListResponse 会话列表响应
+// SessionListResponse 会话列表响应.
 type SessionListResponse struct {
 	Total    int        `json:"total"`
 	Sessions []*Session `json:"sessions"`
@@ -92,7 +92,7 @@ type SessionListResponse struct {
 // @Param offset query int false "偏移量"
 // @Success 200 {object} SessionListResponse
 // @Failure 500 {object} api.ErrorResponse
-// @Router /sessions [get]
+// @Router /sessions [get].
 func (a *API) ListSessions(c *gin.Context) {
 	var req ListSessionsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -139,7 +139,7 @@ func (a *API) ListSessions(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} SessionStats
-// @Router /sessions/stats [get]
+// @Router /sessions/stats [get].
 func (a *API) GetStats(c *gin.Context) {
 	stats := a.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
@@ -153,7 +153,7 @@ func (a *API) GetStats(c *gin.Context) {
 // @Produce json
 // @Param limit query int false "返回数量限制"
 // @Success 200 {array} SessionEvent
-// @Router /sessions/events [get]
+// @Router /sessions/events [get].
 func (a *API) GetEvents(c *gin.Context) {
 	limit := 100
 	if l := c.Query("limit"); l != "" {
@@ -175,7 +175,7 @@ func (a *API) GetEvents(c *gin.Context) {
 // @Param type path string true "会话类型 (smb, nfs)"
 // @Success 200 {array} Session
 // @Failure 400 {object} api.ErrorResponse
-// @Router /sessions/type/{type} [get]
+// @Router /sessions/type/{type} [get].
 func (a *API) ListSessionsByType(c *gin.Context) {
 	sessionType := c.Param("type")
 	if sessionType != "smb" && sessionType != "nfs" {
@@ -195,7 +195,7 @@ func (a *API) ListSessionsByType(c *gin.Context) {
 // @Produce json
 // @Param user path string true "用户名"
 // @Success 200 {array} Session
-// @Router /sessions/user/{user} [get]
+// @Router /sessions/user/{user} [get].
 func (a *API) ListSessionsByUser(c *gin.Context) {
 	user := c.Param("user")
 	sessions := a.manager.ListSessionsByUser(user)
@@ -210,7 +210,7 @@ func (a *API) ListSessionsByUser(c *gin.Context) {
 // @Produce json
 // @Param ip path string true "客户端IP"
 // @Success 200 {array} Session
-// @Router /sessions/client/{ip} [get]
+// @Router /sessions/client/{ip} [get].
 func (a *API) ListSessionsByClient(c *gin.Context) {
 	ip := c.Param("ip")
 	sessions := a.manager.ListSessionsByClient(ip)
@@ -226,7 +226,7 @@ func (a *API) ListSessionsByClient(c *gin.Context) {
 // @Param id path string true "会话ID"
 // @Success 200 {object} Session
 // @Failure 404 {object} api.ErrorResponse
-// @Router /sessions/{id} [get]
+// @Router /sessions/{id} [get].
 func (a *API) GetSession(c *gin.Context) {
 	id := c.Param("id")
 	session, err := a.manager.GetSession(id)
@@ -238,12 +238,12 @@ func (a *API) GetSession(c *gin.Context) {
 	c.JSON(http.StatusOK, session)
 }
 
-// KickSessionRequest 断开会话请求
+// KickSessionRequest 断开会话请求.
 type KickSessionRequest struct {
 	Reason string `json:"reason"`
 }
 
-// KickSessionResponse 断开会话响应
+// KickSessionResponse 断开会话响应.
 type KickSessionResponse struct {
 	Success   bool   `json:"success"`
 	Message   string `json:"message"`
@@ -262,7 +262,7 @@ type KickSessionResponse struct {
 // @Param body body KickSessionRequest false "断开原因"
 // @Success 200 {object} KickSessionResponse
 // @Failure 404 {object} api.ErrorResponse
-// @Router /sessions/{id} [delete]
+// @Router /sessions/{id} [delete].
 func (a *API) KickSession(c *gin.Context) {
 	id := c.Param("id")
 
@@ -295,12 +295,12 @@ func (a *API) KickSession(c *gin.Context) {
 	})
 }
 
-// KickSessionsByUserRequest 批量断开请求
+// KickSessionsByUserRequest 批量断开请求.
 type KickSessionsByUserRequest struct {
 	Reason string `json:"reason"`
 }
 
-// KickSessionsByUserResponse 批量断开响应
+// KickSessionsByUserResponse 批量断开响应.
 type KickSessionsByUserResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
@@ -317,7 +317,7 @@ type KickSessionsByUserResponse struct {
 // @Param user path string true "用户名"
 // @Param body body KickSessionsByUserRequest false "断开原因"
 // @Success 200 {object} KickSessionsByUserResponse
-// @Router /sessions/kick/user/{user} [post]
+// @Router /sessions/kick/user/{user} [post].
 func (a *API) KickSessionsByUser(c *gin.Context) {
 	user := c.Param("user")
 
@@ -352,7 +352,7 @@ func (a *API) KickSessionsByUser(c *gin.Context) {
 // @Param ip path string true "客户端IP"
 // @Param body body KickSessionsByUserRequest false "断开原因"
 // @Success 200 {object} KickSessionsByUserResponse
-// @Router /sessions/kick/client/{ip} [post]
+// @Router /sessions/kick/client/{ip} [post].
 func (a *API) KickSessionsByClient(c *gin.Context) {
 	ip := c.Param("ip")
 
@@ -385,7 +385,7 @@ func (a *API) KickSessionsByClient(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{}}
-// @Router /sessions/monitor/status [get]
+// @Router /sessions/monitor/status [get].
 func (a *API) GetMonitorStatus(c *gin.Context) {
 	if a.monitor == nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -407,7 +407,7 @@ func (a *API) GetMonitorStatus(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]string}
 // @Failure 500 {object} api.ErrorResponse
-// @Router /sessions/monitor/refresh [post]
+// @Router /sessions/monitor/refresh [post].
 func (a *API) ForceRefresh(c *gin.Context) {
 	if a.monitor == nil {
 		api.InternalError(c, "监控器未初始化")
@@ -432,7 +432,7 @@ func (a *API) ForceRefresh(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Config
-// @Router /session-config [get]
+// @Router /session-config [get].
 func (a *API) GetConfig(c *gin.Context) {
 	config := a.manager.GetConfig()
 	c.JSON(http.StatusOK, config)
@@ -447,7 +447,7 @@ func (a *API) GetConfig(c *gin.Context) {
 // @Param body body Config true "配置"
 // @Success 200 {object} Config
 // @Failure 400 {object} api.ErrorResponse
-// @Router /session-config [put]
+// @Router /session-config [put].
 func (a *API) UpdateConfig(c *gin.Context) {
 	var config Config
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -549,7 +549,7 @@ func sortSessions(sessions []*Session, sortField, order string) []*Session {
 	return result
 }
 
-// RegisterRoutesWithGroup 注册路由到指定的路由组
+// RegisterRoutesWithGroup 注册路由到指定的路由组.
 func RegisterRoutesWithGroup(r *gin.RouterGroup, manager *Manager, monitor *Monitor) {
 	api := NewAPI(manager, monitor)
 	api.RegisterRoutes(r)

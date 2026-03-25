@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// HandlersV2 安全模块 v2 HTTP 处理器
+// HandlersV2 安全模块 v2 HTTP 处理器.
 type HandlersV2 struct {
 	manager *SecurityManagerV2
 }
 
-// NewHandlersV2 创建安全处理器 v2
+// NewHandlersV2 创建安全处理器 v2.
 func NewHandlersV2(mgr *SecurityManagerV2) *HandlersV2 {
 	return &HandlersV2{manager: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *HandlersV2) RegisterRoutes(api *gin.RouterGroup) {
 	security := api.Group("/security/v2")
 	{
@@ -74,7 +74,7 @@ func (h *HandlersV2) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -136,7 +136,7 @@ func (h *HandlersV2) getMFAStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, success(status))
 }
 
-// SetupMFARequest 设置 MFA 的请求参数
+// SetupMFARequest 设置 MFA 的请求参数.
 type SetupMFARequest struct {
 	Phone string `json:"phone"`
 	Email string `json:"email"`
@@ -339,7 +339,7 @@ func (h *HandlersV2) getEncryptionStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, success(status))
 }
 
-// InitializeEncryptionRequest 初始化加密的请求参数
+// InitializeEncryptionRequest 初始化加密的请求参数.
 type InitializeEncryptionRequest struct {
 	Password string `json:"password"`
 }
@@ -359,7 +359,7 @@ func (h *HandlersV2) initializeEncryption(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
-// CreateEncryptedDirectoryRequest 创建加密目录的请求参数
+// CreateEncryptedDirectoryRequest 创建加密目录的请求参数.
 type CreateEncryptedDirectoryRequest struct {
 	Path        string `json:"path"`
 	Name        string `json:"name"`
@@ -428,7 +428,7 @@ func (h *HandlersV2) deleteEncryptedDirectory(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
-// EncryptFileRequest 文件加密/解密的请求参数
+// EncryptFileRequest 文件加密/解密的请求参数.
 type EncryptFileRequest struct {
 	SrcPath string `json:"src_path"`
 	DstPath string `json:"dst_path"`
@@ -523,7 +523,7 @@ func (h *HandlersV2) getSubscribers(c *gin.Context) {
 	c.JSON(http.StatusOK, success(subscribers))
 }
 
-// AddSubscriberRequest 添加告警订阅者的请求参数
+// AddSubscriberRequest 添加告警订阅者的请求参数.
 type AddSubscriberRequest struct {
 	Name     string   `json:"name"`
 	Type     string   `json:"type"`

@@ -8,7 +8,7 @@ import (
 
 // ========== 系统资源报表 v2.56.0 ==========
 
-// SystemResourceReport 系统资源报表
+// SystemResourceReport 系统资源报表.
 type SystemResourceReport struct {
 	// 报告ID
 	ID string `json:"id"`
@@ -53,7 +53,7 @@ type SystemResourceReport struct {
 	HealthScore SystemHealthScore `json:"health_score"`
 }
 
-// SystemResourceSummary 系统资源摘要
+// SystemResourceSummary 系统资源摘要.
 type SystemResourceSummary struct {
 	// 主机名
 	Hostname string `json:"hostname"`
@@ -95,14 +95,14 @@ type SystemResourceSummary struct {
 	PerformanceScore float64 `json:"performance_score"` // 0-100
 }
 
-// LoadAverage 负载均值
+// LoadAverage 负载均值.
 type LoadAverage struct {
 	Load1  float64 `json:"load_1"`
 	Load5  float64 `json:"load_5"`
 	Load15 float64 `json:"load_15"`
 }
 
-// ResourceUtilizationSummary 资源利用率摘要
+// ResourceUtilizationSummary 资源利用率摘要.
 type ResourceUtilizationSummary struct {
 	CPU     float64 `json:"cpu"`     // %
 	Memory  float64 `json:"memory"`  // %
@@ -110,7 +110,7 @@ type ResourceUtilizationSummary struct {
 	Network float64 `json:"network"` // Mbps
 }
 
-// CPUResourceInfo CPU 资源信息
+// CPUResourceInfo CPU 资源信息.
 type CPUResourceInfo struct {
 	// CPU 核心数
 	Cores int `json:"cores"`
@@ -155,7 +155,7 @@ type CPUResourceInfo struct {
 	Interrupts uint64 `json:"interrupts"`
 }
 
-// CPUMetricPoint CPU 指标数据点
+// CPUMetricPoint CPU 指标数据点.
 type CPUMetricPoint struct {
 	Timestamp     time.Time `json:"timestamp"`
 	UsagePercent  float64   `json:"usage_percent"`
@@ -164,7 +164,7 @@ type CPUMetricPoint struct {
 	IOWaitPercent float64   `json:"io_wait_percent"`
 }
 
-// MemoryResourceInfo 内存资源信息
+// MemoryResourceInfo 内存资源信息.
 type MemoryResourceInfo struct {
 	// 总内存（字节）
 	Total uint64 `json:"total"`
@@ -211,7 +211,7 @@ type MemoryResourceInfo struct {
 	OOMRisk float64 `json:"oom_risk"` // 0-1
 }
 
-// MemoryMetricPoint 内存指标数据点
+// MemoryMetricPoint 内存指标数据点.
 type MemoryMetricPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	Used         uint64    `json:"used"`
@@ -220,7 +220,7 @@ type MemoryMetricPoint struct {
 	Available    uint64    `json:"available"`
 }
 
-// DiskResourceInfo 磁盘资源信息
+// DiskResourceInfo 磁盘资源信息.
 type DiskResourceInfo struct {
 	// 磁盘数量
 	DiskCount int `json:"disk_count"`
@@ -262,7 +262,7 @@ type DiskResourceInfo struct {
 	History []DiskMetricPoint `json:"history"`
 }
 
-// DiskDetail 磁盘详情
+// DiskDetail 磁盘详情.
 type DiskDetail struct {
 	// 设备名
 	Name string `json:"name"`
@@ -301,7 +301,7 @@ type DiskDetail struct {
 	LifeRemaining int `json:"life_remaining,omitempty"`
 }
 
-// DiskMetricPoint 磁盘指标数据点
+// DiskMetricPoint 磁盘指标数据点.
 type DiskMetricPoint struct {
 	Timestamp       time.Time `json:"timestamp"`
 	UsedCapacity    uint64    `json:"used_capacity"`
@@ -313,7 +313,7 @@ type DiskMetricPoint struct {
 	AvgIOLatency    float64   `json:"avg_io_latency"`
 }
 
-// NetworkResourceInfo 网络资源信息
+// NetworkResourceInfo 网络资源信息.
 type NetworkResourceInfo struct {
 	// 接口数量
 	InterfaceCount int `json:"interface_count"`
@@ -340,7 +340,7 @@ type NetworkResourceInfo struct {
 	History []NetworkMetricPoint `json:"history"`
 }
 
-// NetworkInterfaceInfo 网络接口信息
+// NetworkInterfaceInfo 网络接口信息.
 type NetworkInterfaceInfo struct {
 	// 接口名
 	Name string `json:"name"`
@@ -379,7 +379,7 @@ type NetworkInterfaceInfo struct {
 	UtilizationPercent float64 `json:"utilization_percent"`
 }
 
-// TCPConnectionStates TCP 连接状态
+// TCPConnectionStates TCP 连接状态.
 type TCPConnectionStates struct {
 	Established int `json:"established"`
 	SynSent     int `json:"syn_sent"`
@@ -394,7 +394,7 @@ type TCPConnectionStates struct {
 	Closing     int `json:"closing"`
 }
 
-// NetworkMetricPoint 网络指标数据点
+// NetworkMetricPoint 网络指标数据点.
 type NetworkMetricPoint struct {
 	Timestamp     time.Time `json:"timestamp"`
 	RxBytesPerSec uint64    `json:"rx_bytes_per_sec"`
@@ -402,7 +402,7 @@ type NetworkMetricPoint struct {
 	Connections   int       `json:"connections"`
 }
 
-// ProcessInfo 进程信息
+// ProcessInfo 进程信息.
 type ProcessInfo struct {
 	// 总进程数
 	Total int `json:"total"`
@@ -429,7 +429,7 @@ type ProcessInfo struct {
 	TopByIO []ProcessDetail `json:"top_by_io"`
 }
 
-// ProcessDetail 进程详情
+// ProcessDetail 进程详情.
 type ProcessDetail struct {
 	// PID
 	PID int `json:"pid"`
@@ -459,7 +459,7 @@ type ProcessDetail struct {
 	Cmdline string `json:"cmdline,omitempty"`
 }
 
-// ResourceTrends 资源趋势
+// ResourceTrends 资源趋势.
 type ResourceTrends struct {
 	// CPU 趋势
 	CPU TrendAnalysis `json:"cpu"`
@@ -474,7 +474,7 @@ type ResourceTrends struct {
 	Network TrendAnalysis `json:"network"`
 }
 
-// TrendAnalysis 趋势分析
+// TrendAnalysis 趋势分析.
 type TrendAnalysis struct {
 	// 数据点
 	DataPoints []MetricDataPoint `json:"data_points"`
@@ -498,13 +498,13 @@ type TrendAnalysis struct {
 	Volatility float64 `json:"volatility"`
 }
 
-// MetricDataPoint 指标数据点
+// MetricDataPoint 指标数据点.
 type MetricDataPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	Value     float64   `json:"value"`
 }
 
-// ResourceAlertItem 资源告警项
+// ResourceAlertItem 资源告警项.
 type ResourceAlertItem struct {
 	// ID
 	ID string `json:"id"`
@@ -543,7 +543,7 @@ type ResourceAlertItem struct {
 	SuggestedAction string `json:"suggested_action"`
 }
 
-// SystemRecommendation 系统建议
+// SystemRecommendation 系统建议.
 type SystemRecommendation struct {
 	// ID
 	ID string `json:"id"`
@@ -570,7 +570,7 @@ type SystemRecommendation struct {
 	Steps []string `json:"steps,omitempty"`
 }
 
-// SystemHealthScore 系统健康评分
+// SystemHealthScore 系统健康评分.
 type SystemHealthScore struct {
 	// 总分
 	Overall int `json:"overall"` // 0-100
@@ -594,12 +594,12 @@ type SystemHealthScore struct {
 	MainIssues []string `json:"main_issues"`
 }
 
-// SystemResourceReporter 系统资源报告生成器
+// SystemResourceReporter 系统资源报告生成器.
 type SystemResourceReporter struct {
 	config SystemReportConfig
 }
 
-// SystemReportConfig 系统报告配置
+// SystemReportConfig 系统报告配置.
 type SystemReportConfig struct {
 	// CPU 高使用率阈值
 	CPUHighThreshold float64 `json:"cpu_high_threshold"`
@@ -626,7 +626,7 @@ type SystemReportConfig struct {
 	TopProcessCount int `json:"top_process_count"`
 }
 
-// DefaultSystemReportConfig 默认系统报告配置
+// DefaultSystemReportConfig 默认系统报告配置.
 func DefaultSystemReportConfig() SystemReportConfig {
 	return SystemReportConfig{
 		CPUHighThreshold:        70.0,
@@ -640,12 +640,12 @@ func DefaultSystemReportConfig() SystemReportConfig {
 	}
 }
 
-// NewSystemResourceReporter 创建系统资源报告生成器
+// NewSystemResourceReporter 创建系统资源报告生成器.
 func NewSystemResourceReporter(config SystemReportConfig) *SystemResourceReporter {
 	return &SystemResourceReporter{config: config}
 }
 
-// GenerateReport 生成系统资源报告
+// GenerateReport 生成系统资源报告.
 func (r *SystemResourceReporter) GenerateReport(
 	summary SystemResourceSummary,
 	cpu CPUResourceInfo,
@@ -685,7 +685,7 @@ func (r *SystemResourceReporter) GenerateReport(
 	return report
 }
 
-// generateAlerts 生成告警
+// generateAlerts 生成告警.
 func (r *SystemResourceReporter) generateAlerts(report *SystemResourceReport) []ResourceAlertItem {
 	alerts := make([]ResourceAlertItem, 0)
 	now := time.Now()
@@ -801,7 +801,7 @@ func (r *SystemResourceReporter) generateAlerts(report *SystemResourceReport) []
 	return alerts
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (r *SystemResourceReporter) generateRecommendations(report *SystemResourceReport) []SystemRecommendation {
 	recs := make([]SystemRecommendation, 0)
 
@@ -875,7 +875,7 @@ func (r *SystemResourceReporter) generateRecommendations(report *SystemResourceR
 	return recs
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (r *SystemResourceReporter) calculateHealthScore(report *SystemResourceReport) SystemHealthScore {
 	score := SystemHealthScore{
 		MainIssues: make([]string, 0),

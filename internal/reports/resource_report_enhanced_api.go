@@ -12,7 +12,7 @@ import (
 
 // ========== v2.76.0 资源报告增强 API ==========
 
-// ResourceReportEnhancedAPI 资源报告增强 API 处理器
+// ResourceReportEnhancedAPI 资源报告增强 API 处理器.
 type ResourceReportEnhancedAPI struct {
 	storageReporter   *StorageUsageReporter
 	bandwidthReporter *BandwidthReporter
@@ -20,7 +20,7 @@ type ResourceReportEnhancedAPI struct {
 	systemReporter    *SystemResourceReporter
 }
 
-// NewResourceReportEnhancedAPI 创建资源报告增强 API 处理器
+// NewResourceReportEnhancedAPI 创建资源报告增强 API 处理器.
 func NewResourceReportEnhancedAPI() *ResourceReportEnhancedAPI {
 	return &ResourceReportEnhancedAPI{
 		storageReporter:   NewStorageUsageReporter(DefaultStorageReportConfig()),
@@ -30,7 +30,7 @@ func NewResourceReportEnhancedAPI() *ResourceReportEnhancedAPI {
 	}
 }
 
-// RegisterEnhancedRoutes 注册增强版资源报告路由
+// RegisterEnhancedRoutes 注册增强版资源报告路由.
 func (h *ResourceReportEnhancedAPI) RegisterEnhancedRoutes(apiGroup *gin.RouterGroup) {
 	// 存储使用报告增强
 	storage := apiGroup.Group("/storage-usage")

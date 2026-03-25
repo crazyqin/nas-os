@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// newTestVersionManager 创建测试用的 VersionManager
+// newTestVersionManager 创建测试用的 VersionManager.
 func newTestVersionManager(t *testing.T) *VersionManager {
 	tempDir := t.TempDir()
 	// 创建一个最小化的 Manager

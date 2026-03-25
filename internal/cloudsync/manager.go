@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager 云同步管理器
+// Manager 云同步管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -35,7 +35,7 @@ type Manager struct {
 	onTaskComplete func(taskID string, status *SyncStatus)
 }
 
-// NewManager 创建云同步管理器
+// NewManager 创建云同步管理器.
 func NewManager(configPath string) *Manager {
 	return &Manager{
 		configPath:      configPath,
@@ -48,7 +48,7 @@ func NewManager(configPath string) *Manager {
 	}
 }
 
-// Initialize 初始化管理器
+// Initialize 初始化管理器.
 func (m *Manager) Initialize() error {
 	if err := m.loadConfig(); err != nil {
 		// 配置文件不存在是正常的
@@ -66,7 +66,7 @@ func (m *Manager) Initialize() error {
 
 // ==================== 提供商管理 ====================
 
-// CreateProvider 创建云存储提供商
+// CreateProvider 创建云存储提供商.
 func (m *Manager) CreateProvider(config ProviderConfig) (*ProviderConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -104,7 +104,7 @@ func (m *Manager) CreateProvider(config ProviderConfig) (*ProviderConfig, error)
 	return &config, nil
 }
 
-// GetProvider 获取提供商配置
+// GetProvider 获取提供商配置.
 func (m *Manager) GetProvider(id string) (*ProviderConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -117,7 +117,7 @@ func (m *Manager) GetProvider(id string) (*ProviderConfig, error) {
 	return config, nil
 }
 
-// ListProviders 列出所有提供商
+// ListProviders 列出所有提供商.
 func (m *Manager) ListProviders() []*ProviderConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -129,7 +129,7 @@ func (m *Manager) ListProviders() []*ProviderConfig {
 	return list
 }
 
-// UpdateProvider 更新提供商
+// UpdateProvider 更新提供商.
 func (m *Manager) UpdateProvider(id string, config ProviderConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -154,7 +154,7 @@ func (m *Manager) UpdateProvider(id string, config ProviderConfig) error {
 	return m.saveConfigLocked()
 }
 
-// DeleteProvider 删除提供商
+// DeleteProvider 删除提供商.
 func (m *Manager) DeleteProvider(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -176,7 +176,7 @@ func (m *Manager) DeleteProvider(id string) error {
 	return m.saveConfigLocked()
 }
 
-// TestProvider 测试提供商连接
+// TestProvider 测试提供商连接.
 func (m *Manager) TestProvider(id string) (*ConnectionTestResult, error) {
 	m.mu.RLock()
 	config, ok := m.providers[id]
@@ -200,7 +200,7 @@ func (m *Manager) TestProvider(id string) (*ConnectionTestResult, error) {
 	return provider.TestConnection(context.Background())
 }
 
-// getOrCreateProvider 获取或创建提供商实例
+// getOrCreateProvider 获取或创建提供商实例.
 func (m *Manager) getOrCreateProvider(id string) (Provider, error) {
 	m.mu.RLock()
 	if provider, ok := m.activeProviders[id]; ok {
@@ -231,7 +231,7 @@ func (m *Manager) getOrCreateProvider(id string) (Provider, error) {
 	return provider, nil
 }
 
-// validateProviderConfig 验证提供商配置
+// validateProviderConfig 验证提供商配置.
 func (m *Manager) validateProviderConfig(config *ProviderConfig) error {
 	switch config.Type {
 	case ProviderAliyunOSS, ProviderTencentCOS, ProviderAWSS3, ProviderBackblazeB2, ProviderS3Compatible:
@@ -290,7 +290,7 @@ func (m *Manager) validateProviderConfig(config *ProviderConfig) error {
 
 // ==================== 同步任务管理 ====================
 
-// CreateSyncTask 创建同步任务
+// CreateSyncTask 创建同步任务.
 func (m *Manager) CreateSyncTask(task SyncTask) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -356,7 +356,7 @@ func (m *Manager) CreateSyncTask(task SyncTask) (*SyncTask, error) {
 	return &task, nil
 }
 
-// GetSyncTask 获取同步任务
+// GetSyncTask 获取同步任务.
 func (m *Manager) GetSyncTask(id string) (*SyncTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -369,7 +369,7 @@ func (m *Manager) GetSyncTask(id string) (*SyncTask, error) {
 	return task, nil
 }
 
-// ListSyncTasks 列出所有同步任务
+// ListSyncTasks 列出所有同步任务.
 func (m *Manager) ListSyncTasks() []*SyncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -381,7 +381,7 @@ func (m *Manager) ListSyncTasks() []*SyncTask {
 	return list
 }
 
-// UpdateSyncTask 更新同步任务
+// UpdateSyncTask 更新同步任务.
 func (m *Manager) UpdateSyncTask(id string, task SyncTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -406,7 +406,7 @@ func (m *Manager) UpdateSyncTask(id string, task SyncTask) error {
 	return m.saveConfigLocked()
 }
 
-// DeleteSyncTask 删除同步任务
+// DeleteSyncTask 删除同步任务.
 func (m *Manager) DeleteSyncTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -430,7 +430,7 @@ func (m *Manager) DeleteSyncTask(id string) error {
 
 // ==================== 同步执行 ====================
 
-// RunSyncTask 执行同步任务
+// RunSyncTask 执行同步任务.
 func (m *Manager) RunSyncTask(taskID string) (*SyncStatus, error) {
 	m.mu.RLock()
 	task, ok := m.tasks[taskID]
@@ -502,7 +502,7 @@ func (m *Manager) RunSyncTask(taskID string) (*SyncStatus, error) {
 	return engine.GetStatus(), nil
 }
 
-// PauseSyncTask 暂停同步任务
+// PauseSyncTask 暂停同步任务.
 func (m *Manager) PauseSyncTask(taskID string) error {
 	m.mu.RLock()
 	engine, ok := m.engines[taskID]
@@ -516,7 +516,7 @@ func (m *Manager) PauseSyncTask(taskID string) error {
 	return nil
 }
 
-// ResumeSyncTask 恢复同步任务
+// ResumeSyncTask 恢复同步任务.
 func (m *Manager) ResumeSyncTask(taskID string) error {
 	m.mu.RLock()
 	engine, ok := m.engines[taskID]
@@ -530,7 +530,7 @@ func (m *Manager) ResumeSyncTask(taskID string) error {
 	return nil
 }
 
-// CancelSyncTask 取消同步任务
+// CancelSyncTask 取消同步任务.
 func (m *Manager) CancelSyncTask(taskID string) error {
 	m.mu.RLock()
 	engine, ok := m.engines[taskID]
@@ -544,7 +544,7 @@ func (m *Manager) CancelSyncTask(taskID string) error {
 	return nil
 }
 
-// GetSyncStatus 获取同步状态
+// GetSyncStatus 获取同步状态.
 func (m *Manager) GetSyncStatus(taskID string) (*SyncStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -561,7 +561,7 @@ func (m *Manager) GetSyncStatus(taskID string) (*SyncStatus, error) {
 	return status, nil
 }
 
-// GetAllSyncStatuses 获取所有任务状态
+// GetAllSyncStatuses 获取所有任务状态.
 func (m *Manager) GetAllSyncStatuses() map[string]*SyncStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -586,7 +586,7 @@ func (m *Manager) GetAllSyncStatuses() map[string]*SyncStatus {
 
 // ==================== 调度 ====================
 
-// scheduleTask 添加任务到调度器
+// scheduleTask 添加任务到调度器.
 func (m *Manager) scheduleTask(task *SyncTask) error {
 	switch task.ScheduleType {
 	case ScheduleTypeInterval:
@@ -604,7 +604,7 @@ func (m *Manager) scheduleTask(task *SyncTask) error {
 
 // ==================== 统计 ====================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *SyncStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

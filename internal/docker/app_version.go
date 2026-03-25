@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// AppVersion 应用版本
+// AppVersion 应用版本.
 type AppVersion struct {
 	ID           string    `json:"id"`
 	TemplateID   string    `json:"templateId"`
@@ -25,7 +25,7 @@ type AppVersion struct {
 	IsLatest     bool      `json:"isLatest"`
 }
 
-// UpdateNotification 更新通知
+// UpdateNotification 更新通知.
 type UpdateNotification struct {
 	ID           string    `json:"id"`
 	AppID        string    `json:"appId"`
@@ -38,7 +38,7 @@ type UpdateNotification struct {
 	Dismissed    bool      `json:"dismissed"`
 }
 
-// VersionManager 版本管理器
+// VersionManager 版本管理器.
 type VersionManager struct {
 	store         *AppStore
 	dataDir       string
@@ -50,7 +50,7 @@ type VersionManager struct {
 	mu            sync.RWMutex
 }
 
-// NewVersionManager 创建版本管理器
+// NewVersionManager 创建版本管理器.
 func NewVersionManager(store *AppStore, dataDir string) (*VersionManager, error) {
 	versionsFile := filepath.Join(dataDir, "app-versions.json")
 	notifyFile := filepath.Join(dataDir, "update-notifications.json")
@@ -78,7 +78,7 @@ func NewVersionManager(store *AppStore, dataDir string) (*VersionManager, error)
 	return vm, nil
 }
 
-// loadVersions 加载版本数据
+// loadVersions 加载版本数据.
 func (vm *VersionManager) loadVersions() error {
 	data, err := os.ReadFile(vm.versionsFile)
 	if err != nil {
@@ -88,7 +88,7 @@ func (vm *VersionManager) loadVersions() error {
 	return json.Unmarshal(data, &vm.versions)
 }
 
-// saveVersions 保存版本数据
+// saveVersions 保存版本数据.
 func (vm *VersionManager) saveVersions() error {
 	data, err := json.MarshalIndent(vm.versions, "", "  ")
 	if err != nil {
@@ -97,7 +97,7 @@ func (vm *VersionManager) saveVersions() error {
 	return os.WriteFile(vm.versionsFile, data, 0640)
 }
 
-// loadNotifications 加载通知数据
+// loadNotifications 加载通知数据.
 func (vm *VersionManager) loadNotifications() error {
 	data, err := os.ReadFile(vm.notifyFile)
 	if err != nil {
@@ -115,7 +115,7 @@ func (vm *VersionManager) loadNotifications() error {
 	return nil
 }
 
-// saveNotifications 保存通知数据
+// saveNotifications 保存通知数据.
 func (vm *VersionManager) saveNotifications() error {
 	var notifications []*UpdateNotification
 	for _, n := range vm.notifications {
@@ -129,7 +129,7 @@ func (vm *VersionManager) saveNotifications() error {
 	return os.WriteFile(vm.notifyFile, data, 0640)
 }
 
-// CheckForUpdates 检查更新
+// CheckForUpdates 检查更新.
 func (vm *VersionManager) CheckForUpdates() ([]*UpdateNotification, error) {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
@@ -188,7 +188,7 @@ func (vm *VersionManager) CheckForUpdates() ([]*UpdateNotification, error) {
 	return updates, nil
 }
 
-// getLatestTag 获取最新标签
+// getLatestTag 获取最新标签.
 func (vm *VersionManager) getLatestTag(image string) (string, error) {
 	// 解析镜像名称
 	parts := strings.Split(image, ":")
@@ -250,7 +250,7 @@ func (vm *VersionManager) getLatestTag(image string) (string, error) {
 	return "latest", nil
 }
 
-// GetAvailableVersions 获取可用版本
+// GetAvailableVersions 获取可用版本.
 func (vm *VersionManager) GetAvailableVersions(templateID string) ([]*AppVersion, error) {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -282,7 +282,7 @@ func (vm *VersionManager) GetAvailableVersions(templateID string) ([]*AppVersion
 	return versions, nil
 }
 
-// fetchVersionsFromDockerHub 从 Docker Hub 获取版本
+// fetchVersionsFromDockerHub 从 Docker Hub 获取版本.
 func (vm *VersionManager) fetchVersionsFromDockerHub(image string) ([]*AppVersion, error) {
 	parts := strings.Split(image, ":")
 	imageName := parts[0]
@@ -348,7 +348,7 @@ func (vm *VersionManager) fetchVersionsFromDockerHub(image string) ([]*AppVersio
 	return versions, nil
 }
 
-// GetNotifications 获取通知列表
+// GetNotifications 获取通知列表.
 func (vm *VersionManager) GetNotifications(unreadOnly bool) []*UpdateNotification {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -374,7 +374,7 @@ func (vm *VersionManager) GetNotifications(unreadOnly bool) []*UpdateNotificatio
 	return result
 }
 
-// MarkNotificationRead 标记通知已读
+// MarkNotificationRead 标记通知已读.
 func (vm *VersionManager) MarkNotificationRead(id string) error {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
@@ -388,7 +388,7 @@ func (vm *VersionManager) MarkNotificationRead(id string) error {
 	return vm.saveNotifications()
 }
 
-// DismissNotification 忽略通知
+// DismissNotification 忽略通知.
 func (vm *VersionManager) DismissNotification(id string) error {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
@@ -402,7 +402,7 @@ func (vm *VersionManager) DismissNotification(id string) error {
 	return vm.saveNotifications()
 }
 
-// MarkAllNotificationsRead 标记所有通知已读
+// MarkAllNotificationsRead 标记所有通知已读.
 func (vm *VersionManager) MarkAllNotificationsRead() error {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
@@ -413,7 +413,7 @@ func (vm *VersionManager) MarkAllNotificationsRead() error {
 	return vm.saveNotifications()
 }
 
-// ClearNotifications 清除所有通知
+// ClearNotifications 清除所有通知.
 func (vm *VersionManager) ClearNotifications() error {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
@@ -422,7 +422,7 @@ func (vm *VersionManager) ClearNotifications() error {
 	return vm.saveNotifications()
 }
 
-// GetUnreadCount 获取未读通知数量
+// GetUnreadCount 获取未读通知数量.
 func (vm *VersionManager) GetUnreadCount() int {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -436,7 +436,7 @@ func (vm *VersionManager) GetUnreadCount() int {
 	return count
 }
 
-// UpdateAppVersion 更新应用版本
+// UpdateAppVersion 更新应用版本.
 func (vm *VersionManager) UpdateAppVersion(appID, newVersion string) error {
 	app := vm.store.GetInstalled(appID)
 	if app == nil {
@@ -490,7 +490,7 @@ func (vm *VersionManager) UpdateAppVersion(appID, newVersion string) error {
 	return nil
 }
 
-// StartUpdateChecker 启动定期更新检查（后台协程）
+// StartUpdateChecker 启动定期更新检查（后台协程）.
 func (vm *VersionManager) StartUpdateChecker(interval time.Duration) {
 	go func() {
 		ticker := time.NewTicker(interval)

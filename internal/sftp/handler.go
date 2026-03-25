@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Handler SFTP 文件处理器（完整实现）
+// Handler SFTP 文件处理器（完整实现）.
 type Handler struct {
 	rootDir      string
 	readOnly     bool
@@ -21,14 +21,14 @@ type Handler struct {
 	bandwidthLim *BandwidthLimiter
 }
 
-// BandwidthLimiter 带宽限制器
+// BandwidthLimiter 带宽限制器.
 type BandwidthLimiter struct {
 	DownloadKBps int64
 	UploadKBps   int64
 	Enabled      bool
 }
 
-// NewHandler 创建 SFTP 处理器
+// NewHandler 创建 SFTP 处理器.
 func NewHandler(rootDir, username, sessionID, clientIP string, logger *TransferLogger, bwLimit *BandwidthLimiter) *Handler {
 	return &Handler{
 		rootDir:      rootDir,
@@ -41,7 +41,7 @@ func NewHandler(rootDir, username, sessionID, clientIP string, logger *TransferL
 	}
 }
 
-// resolvePath 解析路径（确保在 chroot 内）
+// resolvePath 解析路径（确保在 chroot 内）.
 func (h *Handler) resolvePath(name string) (string, error) {
 	cleanPath := filepath.Clean(name)
 
@@ -60,7 +60,7 @@ func (h *Handler) resolvePath(name string) (string, error) {
 
 // FileOp 文件操作接口实现
 
-// Fileread 读取文件
+// Fileread 读取文件.
 func (h *Handler) Fileread(r *Request) (io.ReadCloser, error) {
 	if h.readOnly {
 		return nil, os.ErrPermission
@@ -101,7 +101,7 @@ func (h *Handler) Fileread(r *Request) (io.ReadCloser, error) {
 	}, nil
 }
 
-// Filewrite 写入文件
+// Filewrite 写入文件.
 func (h *Handler) Filewrite(r *Request) (io.WriteCloser, error) {
 	if h.readOnly {
 		return nil, os.ErrPermission
@@ -138,7 +138,7 @@ func (h *Handler) Filewrite(r *Request) (io.WriteCloser, error) {
 	}, nil
 }
 
-// Filecmd 文件命令操作
+// Filecmd 文件命令操作.
 func (h *Handler) Filecmd(r *Request) error {
 	if h.readOnly && (r.Method == "Setstat" || r.Method == "Rename" || r.Method == "Rmdir" || r.Method == "Remove" || r.Method == "Mkdir") {
 		return os.ErrPermission
@@ -162,7 +162,7 @@ func (h *Handler) Filecmd(r *Request) error {
 	}
 }
 
-// Filelist 列出文件
+// Filelist 列出文件.
 func (h *Handler) Filelist(r *Request) (ListerAt, error) {
 	fullPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
@@ -195,7 +195,7 @@ func (h *Handler) Filelist(r *Request) (ListerAt, error) {
 	return sliceListerAt(fileInfos), nil
 }
 
-// handleSetstat 处理属性设置
+// handleSetstat 处理属性设置.
 func (h *Handler) handleSetstat(r *Request) error {
 	fullPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
@@ -217,7 +217,7 @@ func (h *Handler) handleSetstat(r *Request) error {
 	return nil
 }
 
-// handleRename 处理重命名
+// handleRename 处理重命名.
 func (h *Handler) handleRename(r *Request) error {
 	oldPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
@@ -237,7 +237,7 @@ func (h *Handler) handleRename(r *Request) error {
 	return os.Rename(oldPath, newPath)
 }
 
-// handleRmdir 处理删除目录
+// handleRmdir 处理删除目录.
 func (h *Handler) handleRmdir(r *Request) error {
 	fullPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
@@ -246,7 +246,7 @@ func (h *Handler) handleRmdir(r *Request) error {
 	return os.RemoveAll(fullPath)
 }
 
-// handleMkdir 处理创建目录
+// handleMkdir 处理创建目录.
 func (h *Handler) handleMkdir(r *Request) error {
 	fullPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
@@ -255,7 +255,7 @@ func (h *Handler) handleMkdir(r *Request) error {
 	return os.MkdirAll(fullPath, 0750)
 }
 
-// handleRemove 处理删除文件
+// handleRemove 处理删除文件.
 func (h *Handler) handleRemove(r *Request) error {
 	fullPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
@@ -264,13 +264,13 @@ func (h *Handler) handleRemove(r *Request) error {
 	return os.Remove(fullPath)
 }
 
-// handleSymlink 处理符号链接
+// handleSymlink 处理符号链接.
 func (h *Handler) handleSymlink(r *Request) error {
 	// 安全考虑：禁用符号链接
 	return os.ErrPermission
 }
 
-// trackedReader 跟踪读取进度的读取器
+// trackedReader 跟踪读取进度的读取器.
 type trackedReader struct {
 	io.ReadCloser
 	handler      *Handler
@@ -313,7 +313,7 @@ func (r *trackedReader) Close() error {
 	return r.ReadCloser.Close()
 }
 
-// trackedWriter 跟踪写入进度的写入器
+// trackedWriter 跟踪写入进度的写入器.
 type trackedWriter struct {
 	io.WriteCloser
 	handler      *Handler
@@ -356,7 +356,7 @@ func (w *trackedWriter) Close() error {
 	return w.WriteCloser.Close()
 }
 
-// Request 简化的请求结构
+// Request 简化的请求结构.
 type Request struct {
 	Method   string
 	Filepath string
@@ -366,12 +366,12 @@ type Request struct {
 	Mtime    time.Time
 }
 
-// ListerAt 列表接口
+// ListerAt 列表接口.
 type ListerAt interface {
 	ListAt([]os.FileInfo, int64) (int, error)
 }
 
-// sliceListerAt 切片实现的 ListerAt
+// sliceListerAt 切片实现的 ListerAt.
 type sliceListerAt []os.FileInfo
 
 func (s sliceListerAt) ListAt(f []os.FileInfo, offset int64) (int, error) {
@@ -386,14 +386,14 @@ func (s sliceListerAt) ListAt(f []os.FileInfo, offset int64) (int, error) {
 	return n, nil
 }
 
-// HandshakeHandler SSH 握手处理器
+// HandshakeHandler SSH 握手处理器.
 type HandshakeHandler struct {
 	server       *Server
 	getUserHome  func(username string) string
 	getUserPerms func(username string) *UserPermissions
 }
 
-// UserPermissions 用户权限
+// UserPermissions 用户权限.
 type UserPermissions struct {
 	Read      bool
 	Write     bool
@@ -403,24 +403,24 @@ type UserPermissions struct {
 	ChrootDir string
 }
 
-// NewHandshakeHandler 创建握手处理器
+// NewHandshakeHandler 创建握手处理器.
 func NewHandshakeHandler(server *Server) *HandshakeHandler {
 	return &HandshakeHandler{
 		server: server,
 	}
 }
 
-// SetGetUserHome 设置获取用户主目录函数
+// SetGetUserHome 设置获取用户主目录函数.
 func (h *HandshakeHandler) SetGetUserHome(fn func(username string) string) {
 	h.getUserHome = fn
 }
 
-// SetGetUserPerms 设置获取用户权限函数
+// SetGetUserPerms 设置获取用户权限函数.
 func (h *HandshakeHandler) SetGetUserPerms(fn func(username string) *UserPermissions) {
 	h.getUserPerms = fn
 }
 
-// HandleConnection 处理 SSH 连接
+// HandleConnection 处理 SSH 连接.
 func (h *HandshakeHandler) HandleConnection(conn net.Conn) {
 	// 使用 server 的配置处理连接
 	// 具体实现在 server.go 中

@@ -11,14 +11,14 @@ import (
 	"time"
 )
 
-// Loader 插件加载器
+// Loader 插件加载器.
 type Loader struct {
 	pluginDir string
 	instances map[string]*Instance
 	mu        sync.RWMutex
 }
 
-// NewLoader 创建插件加载器
+// NewLoader 创建插件加载器.
 func NewLoader(pluginDir string) *Loader {
 	return &Loader{
 		pluginDir: pluginDir,
@@ -26,7 +26,7 @@ func NewLoader(pluginDir string) *Loader {
 	}
 }
 
-// Discover 发现所有可用插件
+// Discover 发现所有可用插件.
 func (l *Loader) Discover() ([]Info, error) {
 	var plugins []Info
 
@@ -58,7 +58,7 @@ func (l *Loader) Discover() ([]Info, error) {
 	return plugins, nil
 }
 
-// Load 加载插件
+// Load 加载插件.
 func (l *Loader) Load(pluginPath string) (*Instance, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -150,7 +150,7 @@ func (l *Loader) Load(pluginPath string) (*Instance, error) {
 	return instance, nil
 }
 
-// Unload 卸载插件
+// Unload 卸载插件.
 func (l *Loader) Unload(pluginID string) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -177,7 +177,7 @@ func (l *Loader) Unload(pluginID string) error {
 	return nil
 }
 
-// GetInstance 获取插件实例
+// GetInstance 获取插件实例.
 func (l *Loader) GetInstance(pluginID string) (*Instance, bool) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -185,7 +185,7 @@ func (l *Loader) GetInstance(pluginID string) (*Instance, bool) {
 	return inst, ok
 }
 
-// ListInstances 列出所有已加载的插件实例
+// ListInstances 列出所有已加载的插件实例.
 func (l *Loader) ListInstances() []*Instance {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -197,7 +197,7 @@ func (l *Loader) ListInstances() []*Instance {
 	return instances
 }
 
-// loadManifest 加载插件清单
+// loadManifest 加载插件清单.
 func (l *Loader) loadManifest(manifestPath string) (Info, error) {
 	var info Info
 
@@ -213,7 +213,7 @@ func (l *Loader) loadManifest(manifestPath string) (Info, error) {
 	return info, nil
 }
 
-// loadSOInfo 从 .so 文件加载插件信息
+// loadSOInfo 从 .so 文件加载插件信息.
 func (l *Loader) loadSOInfo(soPath string) (Info, error) {
 	// 尝试打开 .so 文件
 	plug, err := plugin.Open(soPath)
@@ -250,7 +250,7 @@ func (l *Loader) loadSOInfo(soPath string) (Info, error) {
 	}, nil
 }
 
-// timeNow 返回当前时间（便于测试）
+// timeNow 返回当前时间（便于测试）.
 var timeNow = func() time.Time {
 	return time.Now()
 }

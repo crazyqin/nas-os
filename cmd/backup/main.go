@@ -675,7 +675,7 @@ func writeChecksum(filePath string) error {
 	return os.WriteFile(checksumFile, []byte(hex.EncodeToString(checksum)+"  "+filepath.Base(filePath)+"\n"), 0600)
 }
 
-// BackupResult 用于命令行输出的备份结果
+// BackupResult 用于命令行输出的备份结果.
 type BackupResult struct {
 	BackupPath    string        `json:"backupPath"`
 	IsIncremental bool          `json:"isIncremental"`

@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// AppItem 应用项
+// AppItem 应用项.
 type AppItem struct {
 	ID          string   `json:"id"`          // 唯一标识
 	Name        string   `json:"name"`        // 应用名称
@@ -21,7 +21,7 @@ type AppItem struct {
 	Type        string   `json:"type"`        // 类型: app, container, service
 }
 
-// ContainerItem 容器项
+// ContainerItem 容器项.
 type ContainerItem struct {
 	ID       string            `json:"id"`       // 容器ID
 	Name     string            `json:"name"`     // 容器名称
@@ -34,14 +34,14 @@ type ContainerItem struct {
 	Labels   map[string]string `json:"labels"`   // 容器标签
 }
 
-// AppRegistry 应用注册表
+// AppRegistry 应用注册表.
 type AppRegistry struct {
 	apps       []AppItem
 	containers []ContainerItem
 	mu         sync.RWMutex
 }
 
-// NewAppRegistry 创建应用注册表
+// NewAppRegistry 创建应用注册表.
 func NewAppRegistry() *AppRegistry {
 	return &AppRegistry{
 		apps:       make([]AppItem, 0),
@@ -49,49 +49,49 @@ func NewAppRegistry() *AppRegistry {
 	}
 }
 
-// RegisterApp 注册应用
+// RegisterApp 注册应用.
 func (r *AppRegistry) RegisterApp(apps ...AppItem) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.apps = append(r.apps, apps...)
 }
 
-// RegisterContainer 注册容器
+// RegisterContainer 注册容器.
 func (r *AppRegistry) RegisterContainer(containers ...ContainerItem) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.containers = append(r.containers, containers...)
 }
 
-// ClearApps 清空应用列表
+// ClearApps 清空应用列表.
 func (r *AppRegistry) ClearApps() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.apps = make([]AppItem, 0)
 }
 
-// ClearContainers 清空容器列表
+// ClearContainers 清空容器列表.
 func (r *AppRegistry) ClearContainers() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.containers = make([]ContainerItem, 0)
 }
 
-// UpdateApps 更新应用列表
+// UpdateApps 更新应用列表.
 func (r *AppRegistry) UpdateApps(apps []AppItem) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.apps = apps
 }
 
-// UpdateContainers 更新容器列表
+// UpdateContainers 更新容器列表.
 func (r *AppRegistry) UpdateContainers(containers []ContainerItem) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.containers = containers
 }
 
-// GetAllApps 获取所有应用
+// GetAllApps 获取所有应用.
 func (r *AppRegistry) GetAllApps() []AppItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -100,7 +100,7 @@ func (r *AppRegistry) GetAllApps() []AppItem {
 	return result
 }
 
-// GetAllContainers 获取所有容器
+// GetAllContainers 获取所有容器.
 func (r *AppRegistry) GetAllContainers() []ContainerItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -109,7 +109,7 @@ func (r *AppRegistry) GetAllContainers() []ContainerItem {
 	return result
 }
 
-// AppSearchResult 应用搜索结果
+// AppSearchResult 应用搜索结果.
 type AppSearchResult struct {
 	Item       interface{} `json:"item"`       // AppItem 或 ContainerItem
 	Score      float64     `json:"score"`      // 相关性分数
@@ -118,7 +118,7 @@ type AppSearchResult struct {
 	Type       string      `json:"type"`       // app 或 container
 }
 
-// SearchApps 搜索应用
+// SearchApps 搜索应用.
 func (r *AppRegistry) SearchApps(query string, limit int) []AppSearchResult {
 	if query == "" {
 		return nil
@@ -269,7 +269,7 @@ func (r *AppRegistry) SearchApps(query string, limit int) []AppSearchResult {
 	return results
 }
 
-// GetRunningApps 获取运行中的应用
+// GetRunningApps 获取运行中的应用.
 func (r *AppRegistry) GetRunningApps() []AppItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -283,7 +283,7 @@ func (r *AppRegistry) GetRunningApps() []AppItem {
 	return results
 }
 
-// GetRunningContainers 获取运行中的容器
+// GetRunningContainers 获取运行中的容器.
 func (r *AppRegistry) GetRunningContainers() []ContainerItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -297,7 +297,7 @@ func (r *AppRegistry) GetRunningContainers() []ContainerItem {
 	return results
 }
 
-// GetAppCategories 获取应用分类
+// GetAppCategories 获取应用分类.
 func (r *AppRegistry) GetAppCategories() []string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -316,7 +316,7 @@ func (r *AppRegistry) GetAppCategories() []string {
 	return categories
 }
 
-// sortAppSearchResults 排序应用搜索结果
+// sortAppSearchResults 排序应用搜索结果.
 func sortAppSearchResults(results []AppSearchResult) {
 	for i := 0; i < len(results); i++ {
 		for j := i + 1; j < len(results); j++ {
@@ -327,7 +327,7 @@ func sortAppSearchResults(results []AppSearchResult) {
 	}
 }
 
-// SearchAppsByStatus 按状态搜索应用
+// SearchAppsByStatus 按状态搜索应用.
 func (r *AppRegistry) SearchAppsByStatus(status string) []AppItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -342,7 +342,7 @@ func (r *AppRegistry) SearchAppsByStatus(status string) []AppItem {
 	return results
 }
 
-// SearchContainersByStatus 按状态搜索容器
+// SearchContainersByStatus 按状态搜索容器.
 func (r *AppRegistry) SearchContainersByStatus(status string) []ContainerItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -357,7 +357,7 @@ func (r *AppRegistry) SearchContainersByStatus(status string) []ContainerItem {
 	return results
 }
 
-// SearchContainersByImage 按镜像搜索容器
+// SearchContainersByImage 按镜像搜索容器.
 func (r *AppRegistry) SearchContainersByImage(image string) []ContainerItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -372,7 +372,7 @@ func (r *AppRegistry) SearchContainersByImage(image string) []ContainerItem {
 	return results
 }
 
-// GetAppStats 获取应用统计
+// GetAppStats 获取应用统计.
 func (r *AppRegistry) GetAppStats() map[string]interface{} {
 	r.mu.RLock()
 	defer r.mu.RUnlock()

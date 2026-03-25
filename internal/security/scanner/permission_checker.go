@@ -11,14 +11,14 @@ import (
 	"time"
 )
 
-// PermissionChecker 权限检查器
+// PermissionChecker 权限检查器.
 type PermissionChecker struct {
 	rules  []PermissionRule
 	config CheckerConfig
 	mu     sync.RWMutex
 }
 
-// CheckerConfig 检查器配置
+// CheckerConfig 检查器配置.
 type CheckerConfig struct {
 	CheckWorldWritable bool     `json:"check_world_writable"`
 	CheckWorldReadable bool     `json:"check_world_readable"`
@@ -31,7 +31,7 @@ type CheckerConfig struct {
 	SkipPaths          []string `json:"skip_paths"`
 }
 
-// DefaultCheckerConfig 默认检查器配置
+// DefaultCheckerConfig 默认检查器配置.
 func DefaultCheckerConfig() CheckerConfig {
 	return CheckerConfig{
 		CheckWorldWritable: true,
@@ -56,7 +56,7 @@ func DefaultCheckerConfig() CheckerConfig {
 	}
 }
 
-// NewPermissionChecker 创建权限检查器
+// NewPermissionChecker 创建权限检查器.
 func NewPermissionChecker(config CheckerConfig) *PermissionChecker {
 	return &PermissionChecker{
 		rules:  DefaultPermissionRules(),
@@ -64,14 +64,14 @@ func NewPermissionChecker(config CheckerConfig) *PermissionChecker {
 	}
 }
 
-// AddRule 添加权限规则
+// AddRule 添加权限规则.
 func (pc *PermissionChecker) AddRule(rule PermissionRule) {
 	pc.mu.Lock()
 	defer pc.mu.Unlock()
 	pc.rules = append(pc.rules, rule)
 }
 
-// RemoveRule 移除权限规则
+// RemoveRule 移除权限规则.
 func (pc *PermissionChecker) RemoveRule(ruleID string) {
 	pc.mu.Lock()
 	defer pc.mu.Unlock()
@@ -84,7 +84,7 @@ func (pc *PermissionChecker) RemoveRule(ruleID string) {
 	}
 }
 
-// ListRules 列出权限规则
+// ListRules 列出权限规则.
 func (pc *PermissionChecker) ListRules() []PermissionRule {
 	pc.mu.RLock()
 	defer pc.mu.RUnlock()
@@ -96,7 +96,7 @@ func (pc *PermissionChecker) ListRules() []PermissionRule {
 
 // ========== 权限检查 ==========
 
-// CheckPath 检查单个路径权限
+// CheckPath 检查单个路径权限.
 func (pc *PermissionChecker) CheckPath(path string) *PermissionCheckResult {
 	result := &PermissionCheckResult{
 		ScanTime:     time.Now(),
@@ -115,7 +115,7 @@ func (pc *PermissionChecker) CheckPath(path string) *PermissionCheckResult {
 	return result
 }
 
-// CheckPaths 批量检查路径权限
+// CheckPaths 批量检查路径权限.
 func (pc *PermissionChecker) CheckPaths(paths []string) *PermissionCheckResult {
 	result := &PermissionCheckResult{
 		ScanTime:     time.Now(),
@@ -157,7 +157,7 @@ func (pc *PermissionChecker) CheckPaths(paths []string) *PermissionCheckResult {
 	return result
 }
 
-// checkSinglePath 检查单个路径
+// checkSinglePath 检查单个路径.
 func (pc *PermissionChecker) checkSinglePath(path string, info fs.FileInfo, result *PermissionCheckResult) {
 	result.TotalChecked++
 
@@ -279,7 +279,7 @@ func (pc *PermissionChecker) checkSinglePath(path string, info fs.FileInfo, resu
 
 // ========== 敏感路径检查 ==========
 
-// CheckSensitivePaths 检查敏感路径权限
+// CheckSensitivePaths 检查敏感路径权限.
 func (pc *PermissionChecker) CheckSensitivePaths() *PermissionCheckResult {
 	result := &PermissionCheckResult{
 		ScanTime:     time.Now(),
@@ -311,7 +311,7 @@ func (pc *PermissionChecker) CheckSensitivePaths() *PermissionCheckResult {
 
 // ========== SSH安全检查 ==========
 
-// CheckSSHSecurity 检查SSH相关安全
+// CheckSSHSecurity 检查SSH相关安全.
 func (pc *PermissionChecker) CheckSSHSecurity() *PermissionCheckResult {
 	result := &PermissionCheckResult{
 		ScanTime:     time.Now(),
@@ -434,7 +434,7 @@ func (pc *PermissionChecker) CheckSSHSecurity() *PermissionCheckResult {
 
 // ========== 用户目录检查 ==========
 
-// CheckUserHomeDirs 检查用户主目录权限
+// CheckUserHomeDirs 检查用户主目录权限.
 func (pc *PermissionChecker) CheckUserHomeDirs() *PermissionCheckResult {
 	result := &PermissionCheckResult{
 		ScanTime:     time.Now(),
@@ -494,7 +494,7 @@ func (pc *PermissionChecker) CheckUserHomeDirs() *PermissionCheckResult {
 
 // ========== 系统配置检查 ==========
 
-// CheckSystemConfig 检查系统配置文件权限
+// CheckSystemConfig 检查系统配置文件权限.
 func (pc *PermissionChecker) CheckSystemConfig() *PermissionCheckResult {
 	result := &PermissionCheckResult{
 		ScanTime:     time.Now(),
@@ -558,7 +558,7 @@ func (pc *PermissionChecker) CheckSystemConfig() *PermissionCheckResult {
 
 // ========== 辅助方法 ==========
 
-// getRiskDescription 获取风险描述
+// getRiskDescription 获取风险描述.
 func (pc *PermissionChecker) getRiskDescription(severity Severity) string {
 	switch severity {
 	case SeverityCritical:
@@ -574,7 +574,7 @@ func (pc *PermissionChecker) getRiskDescription(severity Severity) string {
 	}
 }
 
-// generateSuggestions 生成修复建议
+// generateSuggestions 生成修复建议.
 func (pc *PermissionChecker) generateSuggestions(result *PermissionCheckResult) []string {
 	suggestions := make([]string, 0)
 
@@ -617,7 +617,7 @@ func (pc *PermissionChecker) generateSuggestions(result *PermissionCheckResult) 
 
 // ========== 统计功能 ==========
 
-// GetStatistics 获取权限检查统计
+// GetStatistics 获取权限检查统计.
 func (pc *PermissionChecker) GetStatistics(result *PermissionCheckResult) map[string]interface{} {
 	issuesByType := make(map[string]int)
 	issuesBySeverity := make(map[string]int)
@@ -639,7 +639,7 @@ func (pc *PermissionChecker) GetStatistics(result *PermissionCheckResult) map[st
 
 // ========== 快速检查 ==========
 
-// QuickCheck 快速权限检查
+// QuickCheck 快速权限检查.
 func (pc *PermissionChecker) QuickCheck(paths []string) []*PermissionIssue {
 	issues := make([]*PermissionIssue, 0)
 
@@ -681,7 +681,7 @@ func (pc *PermissionChecker) QuickCheck(paths []string) []*PermissionIssue {
 
 // ========== 批量修复 ==========
 
-// FixPermissions 修复权限
+// FixPermissions 修复权限.
 func (pc *PermissionChecker) FixPermissions(issues []*PermissionIssue, dryRun bool) ([]string, error) {
 	results := make([]string, 0)
 
@@ -716,7 +716,7 @@ func (pc *PermissionChecker) FixPermissions(issues []*PermissionIssue, dryRun bo
 
 // ========== 排序 ==========
 
-// SortIssuesBySeverity 按严重程度排序
+// SortIssuesBySeverity 按严重程度排序.
 func SortIssuesBySeverity(issues []*PermissionIssue) []*PermissionIssue {
 	sorted := make([]*PermissionIssue, len(issues))
 	copy(sorted, issues)

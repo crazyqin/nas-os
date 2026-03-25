@@ -21,7 +21,7 @@ import (
 // Rate Limiting Middleware
 // ============================================================
 
-// RateLimitConfig 配置限流中间件
+// RateLimitConfig 配置限流中间件.
 type RateLimitConfig struct {
 	// RequestsPerSecond 每秒请求数
 	RequestsPerSecond float64
@@ -35,7 +35,7 @@ type RateLimitConfig struct {
 	SkipCondition func(*gin.Context) bool
 }
 
-// DefaultRateLimitConfig 默认限流配置
+// DefaultRateLimitConfig 默认限流配置.
 var DefaultRateLimitConfig = RateLimitConfig{
 	RequestsPerSecond: 100,
 	Burst:             200,
@@ -51,7 +51,7 @@ var DefaultRateLimitConfig = RateLimitConfig{
 	},
 }
 
-// RateLimiter 令牌桶限流器
+// RateLimiter 令牌桶限流器.
 type RateLimiter struct {
 	rate       float64   // 每秒令牌数
 	burst      int       // 最大令牌数
@@ -65,7 +65,7 @@ type RateLimiter struct {
 	denied        int64
 }
 
-// NewRateLimiter 创建新的限流器
+// NewRateLimiter 创建新的限流器.
 func NewRateLimiter(rate float64, burst int) *RateLimiter {
 	return &RateLimiter{
 		rate:       rate,
@@ -75,7 +75,7 @@ func NewRateLimiter(rate float64, burst int) *RateLimiter {
 	}
 }
 
-// Allow 检查是否允许请求
+// Allow 检查是否允许请求.
 func (r *RateLimiter) Allow() bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -102,7 +102,7 @@ func (r *RateLimiter) Allow() bool {
 	return false
 }
 
-// Stats 返回限流器统计信息
+// Stats 返回限流器统计信息.
 func (r *RateLimiter) Stats() map[string]int64 {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -114,7 +114,7 @@ func (r *RateLimiter) Stats() map[string]int64 {
 	}
 }
 
-// RateLimiterStore 限流器存储接口
+// RateLimiterStore 限流器存储接口.
 type RateLimiterStore interface {
 	Get(key string) *RateLimiter
 	Delete(key string)
@@ -122,7 +122,7 @@ type RateLimiterStore interface {
 	Stats() map[string]map[string]int64
 }
 
-// InMemoryRateLimiterStore 内存限流器存储
+// InMemoryRateLimiterStore 内存限流器存储.
 type InMemoryRateLimiterStore struct {
 	limiters map[string]*RateLimiter
 	config   RateLimitConfig
@@ -130,7 +130,7 @@ type InMemoryRateLimiterStore struct {
 	logger   *zap.Logger
 }
 
-// NewInMemoryRateLimiterStore 创建内存限流器存储
+// NewInMemoryRateLimiterStore 创建内存限流器存储.
 func NewInMemoryRateLimiterStore(config RateLimitConfig, logger *zap.Logger) *InMemoryRateLimiterStore {
 	store := &InMemoryRateLimiterStore{
 		limiters: make(map[string]*RateLimiter),
@@ -144,7 +144,7 @@ func NewInMemoryRateLimiterStore(config RateLimitConfig, logger *zap.Logger) *In
 	return store
 }
 
-// Get 获取或创建限流器
+// Get 获取或创建限流器.
 func (s *InMemoryRateLimiterStore) Get(key string) *RateLimiter {
 	s.mu.RLock()
 	limiter, exists := s.limiters[key]
@@ -167,21 +167,21 @@ func (s *InMemoryRateLimiterStore) Get(key string) *RateLimiter {
 	return limiter
 }
 
-// Delete 删除限流器
+// Delete 删除限流器.
 func (s *InMemoryRateLimiterStore) Delete(key string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.limiters, key)
 }
 
-// Clear 清空所有限流器
+// Clear 清空所有限流器.
 func (s *InMemoryRateLimiterStore) Clear() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.limiters = make(map[string]*RateLimiter)
 }
 
-// Stats 返回所有限流器的统计信息
+// Stats 返回所有限流器的统计信息.
 func (s *InMemoryRateLimiterStore) Stats() map[string]map[string]int64 {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -193,7 +193,7 @@ func (s *InMemoryRateLimiterStore) Stats() map[string]map[string]int64 {
 	return stats
 }
 
-// cleanup 定期清理不活跃的限流器
+// cleanup 定期清理不活跃的限流器.
 func (s *InMemoryRateLimiterStore) cleanup() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -214,7 +214,7 @@ func (s *InMemoryRateLimiterStore) cleanup() {
 	}
 }
 
-// RateLimitMiddleware 创建限流中间件
+// RateLimitMiddleware 创建限流中间件.
 func RateLimitMiddleware(config RateLimitConfig, logger *zap.Logger) gin.HandlerFunc {
 	if config.RequestsPerSecond <= 0 {
 		config.RequestsPerSecond = DefaultRateLimitConfig.RequestsPerSecond
@@ -266,15 +266,15 @@ func RateLimitMiddleware(config RateLimitConfig, logger *zap.Logger) gin.Handler
 // Circuit Breaker Middleware
 // ============================================================
 
-// CircuitState 熔断器状态
+// CircuitState 熔断器状态.
 type CircuitState int32
 
 const (
-	// StateClosed 关闭状态（正常）
+	// StateClosed 关闭状态（正常）.
 	StateClosed CircuitState = iota
-	// StateOpen 开启状态（熔断）
+	// StateOpen 开启状态（熔断）.
 	StateOpen
-	// StateHalfOpen 半开启状态（试探）
+	// StateHalfOpen 半开启状态（试探）.
 	StateHalfOpen
 )
 
@@ -291,7 +291,7 @@ func (s CircuitState) String() string {
 	}
 }
 
-// CircuitBreakerConfig 熔断器配置
+// CircuitBreakerConfig 熔断器配置.
 type CircuitBreakerConfig struct {
 	// FailureThreshold 故障阈值，超过此数量触发熔断
 	FailureThreshold int
@@ -307,7 +307,7 @@ type CircuitBreakerConfig struct {
 	OnError func(*gin.Context, error) bool
 }
 
-// DefaultCircuitBreakerConfig 默认熔断器配置
+// DefaultCircuitBreakerConfig 默认熔断器配置.
 var DefaultCircuitBreakerConfig = CircuitBreakerConfig{
 	FailureThreshold: 5,
 	SuccessThreshold: 3,
@@ -322,7 +322,7 @@ var DefaultCircuitBreakerConfig = CircuitBreakerConfig{
 	},
 }
 
-// CircuitBreaker 熔断器
+// CircuitBreaker 熔断器.
 type CircuitBreaker struct {
 	config CircuitBreakerConfig
 
@@ -344,7 +344,7 @@ type CircuitBreaker struct {
 	logger *zap.Logger
 }
 
-// NewCircuitBreaker 创建熔断器
+// NewCircuitBreaker 创建熔断器.
 func NewCircuitBreaker(config CircuitBreakerConfig, logger *zap.Logger) *CircuitBreaker {
 	return &CircuitBreaker{
 		config:          config,
@@ -354,12 +354,12 @@ func NewCircuitBreaker(config CircuitBreakerConfig, logger *zap.Logger) *Circuit
 	}
 }
 
-// State 获取当前状态
+// State 获取当前状态.
 func (cb *CircuitBreaker) State() CircuitState {
 	return CircuitState(atomic.LoadInt32(&cb.state))
 }
 
-// setState 设置状态
+// setState 设置状态.
 func (cb *CircuitBreaker) setState(newState CircuitState) {
 	oldState := cb.State()
 	if oldState == newState {
@@ -382,7 +382,7 @@ func (cb *CircuitBreaker) setState(newState CircuitState) {
 	)
 }
 
-// Allow 检查是否允许请求
+// Allow 检查是否允许请求.
 func (cb *CircuitBreaker) Allow() bool {
 	state := cb.State()
 
@@ -419,7 +419,7 @@ func (cb *CircuitBreaker) Allow() bool {
 	}
 }
 
-// RecordSuccess 记录成功
+// RecordSuccess 记录成功.
 func (cb *CircuitBreaker) RecordSuccess() {
 	atomic.AddInt64(&cb.totalRequests, 1)
 	atomic.AddInt64(&cb.totalSuccesses, 1)
@@ -440,7 +440,7 @@ func (cb *CircuitBreaker) RecordSuccess() {
 	}
 }
 
-// RecordFailure 记录故障
+// RecordFailure 记录故障.
 func (cb *CircuitBreaker) RecordFailure() {
 	atomic.AddInt64(&cb.totalRequests, 1)
 	atomic.AddInt64(&cb.totalFailures, 1)
@@ -465,7 +465,7 @@ func (cb *CircuitBreaker) RecordFailure() {
 	}
 }
 
-// Stats 返回熔断器统计信息
+// Stats 返回熔断器统计信息.
 func (cb *CircuitBreaker) Stats() map[string]interface{} {
 	cb.mu.RLock()
 	defer cb.mu.RUnlock()
@@ -483,7 +483,7 @@ func (cb *CircuitBreaker) Stats() map[string]interface{} {
 	}
 }
 
-// Reset 重置熔断器
+// Reset 重置熔断器.
 func (cb *CircuitBreaker) Reset() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -495,7 +495,7 @@ func (cb *CircuitBreaker) Reset() {
 	cb.lastFailureTime = time.Time{}
 }
 
-// CircuitBreakerMiddleware 创建熔断器中间件
+// CircuitBreakerMiddleware 创建熔断器中间件.
 func CircuitBreakerMiddleware(config CircuitBreakerConfig, logger *zap.Logger) gin.HandlerFunc {
 	if config.FailureThreshold <= 0 {
 		config.FailureThreshold = DefaultCircuitBreakerConfig.FailureThreshold
@@ -541,7 +541,7 @@ func CircuitBreakerMiddleware(config CircuitBreakerConfig, logger *zap.Logger) g
 	}
 }
 
-// bodyLogWriter 用于捕获响应体
+// bodyLogWriter 用于捕获响应体.
 type bodyLogWriter struct {
 	gin.ResponseWriter
 	body []byte
@@ -556,7 +556,7 @@ func (w *bodyLogWriter) Write(b []byte) (int, error) {
 // Retry Middleware
 // ============================================================
 
-// RetryConfig 重试配置
+// RetryConfig 重试配置.
 type RetryConfig struct {
 	// MaxAttempts 最大尝试次数（包括首次请求）
 	MaxAttempts int
@@ -574,7 +574,7 @@ type RetryConfig struct {
 	OnRetry func(attempt int, delay time.Duration, err error)
 }
 
-// DefaultRetryConfig 默认重试配置
+// DefaultRetryConfig 默认重试配置.
 var DefaultRetryConfig = RetryConfig{
 	MaxAttempts:          3,
 	InitialDelay:         100 * time.Millisecond,
@@ -589,7 +589,7 @@ var DefaultRetryConfig = RetryConfig{
 	},
 }
 
-// RetryMiddleware 创建重试中间件
+// RetryMiddleware 创建重试中间件.
 func RetryMiddleware(config RetryConfig, logger *zap.Logger) gin.HandlerFunc {
 	if config.MaxAttempts <= 0 {
 		config.MaxAttempts = DefaultRetryConfig.MaxAttempts
@@ -672,7 +672,7 @@ func RetryMiddleware(config RetryConfig, logger *zap.Logger) gin.HandlerFunc {
 	}
 }
 
-// isRetryableStatus 检查状态码是否可重试
+// isRetryableStatus 检查状态码是否可重试.
 func isRetryableStatus(status int, retryableCodes []int) bool {
 	for _, code := range retryableCodes {
 		if status == code {
@@ -686,7 +686,7 @@ func isRetryableStatus(status int, retryableCodes []int) bool {
 // API Gateway Middleware
 // ============================================================
 
-// GatewayConfig API 网关配置
+// GatewayConfig API 网关配置.
 type GatewayConfig struct {
 	// RateLimit 限流配置
 	RateLimit RateLimitConfig
@@ -704,7 +704,7 @@ type GatewayConfig struct {
 	Timeout time.Duration
 }
 
-// DefaultGatewayConfig 默认网关配置
+// DefaultGatewayConfig 默认网关配置.
 var DefaultGatewayConfig = GatewayConfig{
 	RateLimit:            DefaultRateLimitConfig,
 	CircuitBreaker:       DefaultCircuitBreakerConfig,
@@ -715,7 +715,7 @@ var DefaultGatewayConfig = GatewayConfig{
 	Timeout:              30 * time.Second,
 }
 
-// GatewayMiddleware 创建 API 网关中间件
+// GatewayMiddleware 创建 API 网关中间件.
 func GatewayMiddleware(config GatewayConfig, logger *zap.Logger) gin.HandlerFunc {
 	var middlewares []gin.HandlerFunc
 
@@ -749,7 +749,7 @@ func GatewayMiddleware(config GatewayConfig, logger *zap.Logger) gin.HandlerFunc
 	}
 }
 
-// TimeoutMiddleware 创建超时中间件
+// TimeoutMiddleware 创建超时中间件.
 func TimeoutMiddleware(timeout time.Duration, logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
@@ -783,7 +783,7 @@ func TimeoutMiddleware(timeout time.Duration, logger *zap.Logger) gin.HandlerFun
 	}
 }
 
-// GatewayStats 网关统计
+// GatewayStats 网关统计.
 type GatewayStats struct {
 	mu sync.RWMutex
 
@@ -794,7 +794,7 @@ type GatewayStats struct {
 	totalRetries        int64
 }
 
-// NewGatewayStats 创建网关统计
+// NewGatewayStats 创建网关统计.
 func NewGatewayStats() *GatewayStats {
 	return &GatewayStats{
 		rateLimitStats:      make(map[string]map[string]int64),
@@ -802,21 +802,21 @@ func NewGatewayStats() *GatewayStats {
 	}
 }
 
-// UpdateRateLimitStats 更新限流统计
+// UpdateRateLimitStats 更新限流统计.
 func (s *GatewayStats) UpdateRateLimitStats(stats map[string]map[string]int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.rateLimitStats = stats
 }
 
-// UpdateCircuitBreakerStats 更新熔断器统计
+// UpdateCircuitBreakerStats 更新熔断器统计.
 func (s *GatewayStats) UpdateCircuitBreakerStats(stats map[string]interface{}) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.circuitBreakerStats = stats
 }
 
-// GetStats 获取所有统计
+// GetStats 获取所有统计.
 func (s *GatewayStats) GetStats() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -830,7 +830,7 @@ func (s *GatewayStats) GetStats() map[string]interface{} {
 	}
 }
 
-// GetGatewayStatusHandler 获取网关状态处理器
+// GetGatewayStatusHandler 获取网关状态处理器.
 func GetGatewayStatusHandler(store RateLimiterStore, cb *CircuitBreaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -844,12 +844,12 @@ func GetGatewayStatusHandler(store RateLimiterStore, cb *CircuitBreaker) gin.Han
 	}
 }
 
-// MarshalJSON 实现 JSON 序列化
+// MarshalJSON 实现 JSON 序列化.
 func (s *GatewayStats) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.GetStats())
 }
 
-// ParseGatewayConfig 解析网关配置
+// ParseGatewayConfig 解析网关配置.
 func ParseGatewayConfig(data []byte) (*GatewayConfig, error) {
 	var config GatewayConfig
 	if err := json.Unmarshal(data, &config); err != nil {
@@ -858,7 +858,7 @@ func ParseGatewayConfig(data []byte) (*GatewayConfig, error) {
 	return &config, nil
 }
 
-// Validate 验证网关配置
+// Validate 验证网关配置.
 func (c *GatewayConfig) Validate() error {
 	if c.RateLimit.RequestsPerSecond <= 0 && c.EnableRateLimit {
 		return fmt.Errorf("rate limit requests per second must be positive")

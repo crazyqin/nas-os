@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ResourceMonitorService 资源监控服务
+// ResourceMonitorService 资源监控服务.
 type ResourceMonitorService struct {
 	costAnalyzer     *EnhancedCostAnalyzer
 	capacityAnalyzer *CapacityPlanningAnalyzer
@@ -21,7 +21,7 @@ type ResourceMonitorService struct {
 	config           ResourceMonitorConfig
 }
 
-// ResourceMonitorConfig 资源监控配置
+// ResourceMonitorConfig 资源监控配置.
 type ResourceMonitorConfig struct {
 	// 采集间隔（秒）
 	CollectInterval int `json:"collect_interval"`
@@ -43,7 +43,7 @@ type ResourceMonitorConfig struct {
 	CostPerGBMonthly float64 `json:"cost_per_gb_monthly"`
 }
 
-// DefaultResourceMonitorConfig 默认配置
+// DefaultResourceMonitorConfig 默认配置.
 func DefaultResourceMonitorConfig() ResourceMonitorConfig {
 	return ResourceMonitorConfig{
 		CollectInterval:            60,
@@ -60,7 +60,7 @@ func DefaultResourceMonitorConfig() ResourceMonitorConfig {
 	}
 }
 
-// NewResourceMonitorService 创建资源监控服务
+// NewResourceMonitorService 创建资源监控服务.
 func NewResourceMonitorService(config ResourceMonitorConfig) *ResourceMonitorService {
 	costConfig := StorageCostConfig{
 		CostPerGBMonthly:      config.CostPerGBMonthly,
@@ -80,7 +80,7 @@ func NewResourceMonitorService(config ResourceMonitorConfig) *ResourceMonitorSer
 	}
 }
 
-// ResourceMonitorAPIHandlers 资源监控 API 处理器
+// ResourceMonitorAPIHandlers 资源监控 API 处理器.
 type ResourceMonitorAPIHandlers struct {
 	service *ResourceMonitorService
 	// 数据获取函数
@@ -93,7 +93,7 @@ type ResourceMonitorAPIHandlers struct {
 	getCapacityHistory  func(volume string, duration time.Duration) ([]CapacityHistory, error)
 }
 
-// SystemMetricsData 系统指标数据
+// SystemMetricsData 系统指标数据.
 type SystemMetricsData struct {
 	// CPU
 	CPUUsage  float64 `json:"cpu_usage"`
@@ -126,7 +126,7 @@ type SystemMetricsData struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// StorageMetricsData 存储指标数据
+// StorageMetricsData 存储指标数据.
 type StorageMetricsData struct {
 	VolumeName   string    `json:"volume_name"`
 	Device       string    `json:"device"`
@@ -150,7 +150,7 @@ type StorageMetricsData struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
-// NetworkMetricsData 网络指标数据
+// NetworkMetricsData 网络指标数据.
 type NetworkMetricsData struct {
 	Interface      string    `json:"interface"`
 	RxBytes        uint64    `json:"rx_bytes"`
@@ -167,7 +167,7 @@ type NetworkMetricsData struct {
 	Timestamp      time.Time `json:"timestamp"`
 }
 
-// UserMetricsData 用户指标数据
+// UserMetricsData 用户指标数据.
 type UserMetricsData struct {
 	Username     string     `json:"username"`
 	UserID       string     `json:"user_id"`
@@ -180,7 +180,7 @@ type UserMetricsData struct {
 	Timestamp    time.Time  `json:"timestamp"`
 }
 
-// ProcessMetricsData 进程指标数据
+// ProcessMetricsData 进程指标数据.
 type ProcessMetricsData struct {
 	PID        int       `json:"pid"`
 	Name       string    `json:"name"`
@@ -194,14 +194,14 @@ type ProcessMetricsData struct {
 	FDCount    int       `json:"fd_count"`
 }
 
-// NewResourceMonitorAPIHandlers 创建资源监控 API 处理器
+// NewResourceMonitorAPIHandlers 创建资源监控 API 处理器.
 func NewResourceMonitorAPIHandlers(config ResourceMonitorConfig) *ResourceMonitorAPIHandlers {
 	return &ResourceMonitorAPIHandlers{
 		service: NewResourceMonitorService(config),
 	}
 }
 
-// SetDataProviders 设置数据提供者
+// SetDataProviders 设置数据提供者.
 func (h *ResourceMonitorAPIHandlers) SetDataProviders(
 	systemProvider func() (*SystemMetricsData, error),
 	storageProvider func() ([]StorageMetricsData, error),
@@ -220,7 +220,7 @@ func (h *ResourceMonitorAPIHandlers) SetDataProviders(
 	h.getCapacityHistory = capacityHistoryProvider
 }
 
-// RegisterResourceMonitorRoutes 注册资源监控路由
+// RegisterResourceMonitorRoutes 注册资源监控路由.
 func (h *ResourceMonitorAPIHandlers) RegisterResourceMonitorRoutes(apiGroup *gin.RouterGroup) {
 	monitor := apiGroup.Group("/resource-monitor")
 	{
@@ -273,7 +273,7 @@ func (h *ResourceMonitorAPIHandlers) RegisterResourceMonitorRoutes(apiGroup *gin
 
 // ========== 实时监控 API ==========
 
-// getRealtimeMetrics 获取实时资源指标
+// getRealtimeMetrics 获取实时资源指标.
 func (h *ResourceMonitorAPIHandlers) getRealtimeMetrics(c *gin.Context) {
 	response := gin.H{
 		"generated_at": time.Now(),
@@ -310,7 +310,7 @@ func (h *ResourceMonitorAPIHandlers) getRealtimeMetrics(c *gin.Context) {
 	api.OK(c, response)
 }
 
-// getRealtimeSystemMetrics 获取实时系统指标
+// getRealtimeSystemMetrics 获取实时系统指标.
 func (h *ResourceMonitorAPIHandlers) getRealtimeSystemMetrics(c *gin.Context) {
 	if h.getSystemMetrics == nil {
 		// 返回默认/模拟数据
@@ -327,7 +327,7 @@ func (h *ResourceMonitorAPIHandlers) getRealtimeSystemMetrics(c *gin.Context) {
 	api.OK(c, metrics)
 }
 
-// getRealtimeStorageMetrics 获取实时存储指标
+// getRealtimeStorageMetrics 获取实时存储指标.
 func (h *ResourceMonitorAPIHandlers) getRealtimeStorageMetrics(c *gin.Context) {
 	if h.getStorageMetrics == nil {
 		api.OK(c, []StorageMetricsData{})
@@ -343,7 +343,7 @@ func (h *ResourceMonitorAPIHandlers) getRealtimeStorageMetrics(c *gin.Context) {
 	api.OK(c, metrics)
 }
 
-// getRealtimeNetworkMetrics 获取实时网络指标
+// getRealtimeNetworkMetrics 获取实时网络指标.
 func (h *ResourceMonitorAPIHandlers) getRealtimeNetworkMetrics(c *gin.Context) {
 	if h.getNetworkMetrics == nil {
 		api.OK(c, []NetworkMetricsData{})
@@ -359,7 +359,7 @@ func (h *ResourceMonitorAPIHandlers) getRealtimeNetworkMetrics(c *gin.Context) {
 	api.OK(c, metrics)
 }
 
-// getRealtimeProcessMetrics 获取实时进程指标
+// getRealtimeProcessMetrics 获取实时进程指标.
 func (h *ResourceMonitorAPIHandlers) getRealtimeProcessMetrics(c *gin.Context) {
 	if h.getProcessMetrics == nil {
 		api.OK(c, []ProcessMetricsData{})
@@ -390,7 +390,7 @@ func (h *ResourceMonitorAPIHandlers) getRealtimeProcessMetrics(c *gin.Context) {
 
 // ========== 资源统计汇总 API ==========
 
-// getResourceSummary 获取资源统计汇总
+// getResourceSummary 获取资源统计汇总.
 func (h *ResourceMonitorAPIHandlers) getResourceSummary(c *gin.Context) {
 	summary := gin.H{
 		"generated_at": time.Now(),
@@ -409,17 +409,17 @@ func (h *ResourceMonitorAPIHandlers) getResourceSummary(c *gin.Context) {
 	api.OK(c, summary)
 }
 
-// getStorageSummary 获取存储汇总
+// getStorageSummary 获取存储汇总.
 func (h *ResourceMonitorAPIHandlers) getStorageSummary(c *gin.Context) {
 	api.OK(c, h.getStorageSummaryData())
 }
 
-// getUserSummary 获取用户汇总
+// getUserSummary 获取用户汇总.
 func (h *ResourceMonitorAPIHandlers) getUserSummary(c *gin.Context) {
 	api.OK(c, h.getUserSummaryData())
 }
 
-// getCostSummary 获取成本汇总
+// getCostSummary 获取成本汇总.
 func (h *ResourceMonitorAPIHandlers) getCostSummary(c *gin.Context) {
 	summary, err := h.getCostSummaryData()
 	if err != nil {
@@ -431,7 +431,7 @@ func (h *ResourceMonitorAPIHandlers) getCostSummary(c *gin.Context) {
 
 // ========== 容量分析 API ==========
 
-// getVolumeCapacityAnalysis 获取卷容量分析
+// getVolumeCapacityAnalysis 获取卷容量分析.
 func (h *ResourceMonitorAPIHandlers) getVolumeCapacityAnalysis(c *gin.Context) {
 	volumeName := c.Param("volume")
 
@@ -456,7 +456,7 @@ func (h *ResourceMonitorAPIHandlers) getVolumeCapacityAnalysis(c *gin.Context) {
 	api.OK(c, analysis)
 }
 
-// getCapacityPrediction 获取容量预测
+// getCapacityPrediction 获取容量预测.
 func (h *ResourceMonitorAPIHandlers) getCapacityPrediction(c *gin.Context) {
 	volume := c.Query("volume")
 	months := 6
@@ -497,7 +497,7 @@ func (h *ResourceMonitorAPIHandlers) getCapacityPrediction(c *gin.Context) {
 
 // ========== 资源趋势 API ==========
 
-// getResourceTrend 获取资源趋势
+// getResourceTrend 获取资源趋势.
 func (h *ResourceMonitorAPIHandlers) getResourceTrend(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
@@ -524,7 +524,7 @@ func (h *ResourceMonitorAPIHandlers) getResourceTrend(c *gin.Context) {
 	api.OK(c, trend)
 }
 
-// getStorageTrend 获取存储趋势
+// getStorageTrend 获取存储趋势.
 func (h *ResourceMonitorAPIHandlers) getStorageTrend(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
@@ -540,7 +540,7 @@ func (h *ResourceMonitorAPIHandlers) getStorageTrend(c *gin.Context) {
 	api.OK(c, trend)
 }
 
-// getBandwidthTrend 获取带宽趋势
+// getBandwidthTrend 获取带宽趋势.
 func (h *ResourceMonitorAPIHandlers) getBandwidthTrend(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
@@ -558,13 +558,13 @@ func (h *ResourceMonitorAPIHandlers) getBandwidthTrend(c *gin.Context) {
 
 // ========== 资源告警 API ==========
 
-// getResourceAlerts 获取资源告警
+// getResourceAlerts 获取资源告警.
 func (h *ResourceMonitorAPIHandlers) getResourceAlerts(c *gin.Context) {
 	alerts := h.getActiveAlertsData()
 	api.OK(c, alerts)
 }
 
-// getActiveAlerts 获取活跃告警
+// getActiveAlerts 获取活跃告警.
 func (h *ResourceMonitorAPIHandlers) getActiveAlerts(c *gin.Context) {
 	alerts := h.getActiveAlertsData()
 
@@ -579,7 +579,7 @@ func (h *ResourceMonitorAPIHandlers) getActiveAlerts(c *gin.Context) {
 	api.OK(c, active)
 }
 
-// getAlertHistory 获取告警历史
+// getAlertHistory 获取告警历史.
 func (h *ResourceMonitorAPIHandlers) getAlertHistory(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
@@ -603,7 +603,7 @@ func (h *ResourceMonitorAPIHandlers) getAlertHistory(c *gin.Context) {
 
 // ========== 成本分析 API ==========
 
-// analyzeCost 分析成本
+// analyzeCost 分析成本.
 func (h *ResourceMonitorAPIHandlers) analyzeCost(c *gin.Context) {
 	var req struct {
 		VolumeMetrics []StorageMetrics     `json:"volume_metrics"`
@@ -639,7 +639,7 @@ func (h *ResourceMonitorAPIHandlers) analyzeCost(c *gin.Context) {
 	api.OK(c, report)
 }
 
-// forecastCost 成本预测
+// forecastCost 成本预测.
 func (h *ResourceMonitorAPIHandlers) forecastCost(c *gin.Context) {
 	var req struct {
 		History []CostTrendDataPoint `json:"history" binding:"required"`
@@ -665,7 +665,7 @@ func (h *ResourceMonitorAPIHandlers) forecastCost(c *gin.Context) {
 	api.OK(c, forecast)
 }
 
-// getCostOptimization 获取成本优化建议
+// getCostOptimization 获取成本优化建议.
 func (h *ResourceMonitorAPIHandlers) getCostOptimization(c *gin.Context) {
 	// 返回通用优化建议
 	recommendations := []gin.H{
@@ -716,7 +716,7 @@ func (h *ResourceMonitorAPIHandlers) getCostOptimization(c *gin.Context) {
 
 // ========== 资源排行 API ==========
 
-// getUserRanking 获取用户排行
+// getUserRanking 获取用户排行.
 func (h *ResourceMonitorAPIHandlers) getUserRanking(c *gin.Context) {
 	if h.getUserMetrics == nil {
 		api.OK(c, []UserMetricsData{})
@@ -756,7 +756,7 @@ func (h *ResourceMonitorAPIHandlers) getUserRanking(c *gin.Context) {
 	api.OK(c, ranking)
 }
 
-// getVolumeRanking 获取卷排行
+// getVolumeRanking 获取卷排行.
 func (h *ResourceMonitorAPIHandlers) getVolumeRanking(c *gin.Context) {
 	if h.getStorageMetrics == nil {
 		api.OK(c, []StorageMetricsData{})
@@ -796,7 +796,7 @@ func (h *ResourceMonitorAPIHandlers) getVolumeRanking(c *gin.Context) {
 	api.OK(c, ranking)
 }
 
-// getProcessRanking 获取进程排行
+// getProcessRanking 获取进程排行.
 func (h *ResourceMonitorAPIHandlers) getProcessRanking(c *gin.Context) {
 	if h.getProcessMetrics == nil {
 		api.OK(c, []ProcessMetricsData{})
@@ -867,7 +867,7 @@ func (h *ResourceMonitorAPIHandlers) getProcessRanking(c *gin.Context) {
 
 // ========== 健康评分 API ==========
 
-// getResourceHealth 获取资源健康状态
+// getResourceHealth 获取资源健康状态.
 func (h *ResourceMonitorAPIHandlers) getResourceHealth(c *gin.Context) {
 	health := gin.H{
 		"generated_at": time.Now(),
@@ -929,7 +929,7 @@ func (h *ResourceMonitorAPIHandlers) getResourceHealth(c *gin.Context) {
 	api.OK(c, health)
 }
 
-// getHealthScore 获取健康评分
+// getHealthScore 获取健康评分.
 func (h *ResourceMonitorAPIHandlers) getHealthScore(c *gin.Context) {
 	data := h.getRealtimeMetricsData()
 	score := h.calculateHealthScore(data)
@@ -943,12 +943,12 @@ func (h *ResourceMonitorAPIHandlers) getHealthScore(c *gin.Context) {
 
 // ========== 配置 API ==========
 
-// getMonitorConfig 获取监控配置
+// getMonitorConfig 获取监控配置.
 func (h *ResourceMonitorAPIHandlers) getMonitorConfig(c *gin.Context) {
 	api.OK(c, h.service.config)
 }
 
-// updateMonitorConfig 更新监控配置
+// updateMonitorConfig 更新监控配置.
 func (h *ResourceMonitorAPIHandlers) updateMonitorConfig(c *gin.Context) {
 	var config ResourceMonitorConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -962,7 +962,7 @@ func (h *ResourceMonitorAPIHandlers) updateMonitorConfig(c *gin.Context) {
 
 // ========== 辅助方法 ==========
 
-// getDefaultSystemMetrics 获取默认系统指标
+// getDefaultSystemMetrics 获取默认系统指标.
 func (h *ResourceMonitorAPIHandlers) getDefaultSystemMetrics() *SystemMetricsData {
 	return &SystemMetricsData{
 		CPUCount:    runtime.NumCPU(),
@@ -974,7 +974,7 @@ func (h *ResourceMonitorAPIHandlers) getDefaultSystemMetrics() *SystemMetricsDat
 	}
 }
 
-// getRealtimeMetricsData 获取实时指标数据
+// getRealtimeMetricsData 获取实时指标数据.
 func (h *ResourceMonitorAPIHandlers) getRealtimeMetricsData() gin.H {
 	data := gin.H{
 		"system":  nil,
@@ -1003,7 +1003,7 @@ func (h *ResourceMonitorAPIHandlers) getRealtimeMetricsData() gin.H {
 	return data
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (h *ResourceMonitorAPIHandlers) calculateHealthScore(data gin.H) int {
 	score := 100
 
@@ -1040,7 +1040,7 @@ func (h *ResourceMonitorAPIHandlers) calculateHealthScore(data gin.H) int {
 	return score
 }
 
-// scoreToGrade 评分转等级
+// scoreToGrade 评分转等级.
 func (h *ResourceMonitorAPIHandlers) scoreToGrade(score int) string {
 	if score >= 90 {
 		return "A"
@@ -1054,7 +1054,7 @@ func (h *ResourceMonitorAPIHandlers) scoreToGrade(score int) string {
 	return "F"
 }
 
-// scoreToStatus 评分转状态
+// scoreToStatus 评分转状态.
 func (h *ResourceMonitorAPIHandlers) scoreToStatus(score int) string {
 	if score >= 80 {
 		return "healthy"
@@ -1064,7 +1064,7 @@ func (h *ResourceMonitorAPIHandlers) scoreToStatus(score int) string {
 	return "critical"
 }
 
-// getSystemSummary 获取系统汇总
+// getSystemSummary 获取系统汇总.
 func (h *ResourceMonitorAPIHandlers) getSystemSummary() gin.H {
 	summary := gin.H{
 		"cpu_usage":    0,
@@ -1085,7 +1085,7 @@ func (h *ResourceMonitorAPIHandlers) getSystemSummary() gin.H {
 	return summary
 }
 
-// getStorageSummaryData 获取存储汇总数据
+// getStorageSummaryData 获取存储汇总数据.
 func (h *ResourceMonitorAPIHandlers) getStorageSummaryData() gin.H {
 	summary := gin.H{
 		"total_volumes": 0,
@@ -1131,7 +1131,7 @@ func (h *ResourceMonitorAPIHandlers) getStorageSummaryData() gin.H {
 	return summary
 }
 
-// getUserSummaryData 获取用户汇总数据
+// getUserSummaryData 获取用户汇总数据.
 func (h *ResourceMonitorAPIHandlers) getUserSummaryData() gin.H {
 	summary := gin.H{
 		"total_users": 0,
@@ -1184,7 +1184,7 @@ func (h *ResourceMonitorAPIHandlers) getUserSummaryData() gin.H {
 	return summary
 }
 
-// getCostSummaryData 获取成本汇总数据
+// getCostSummaryData 获取成本汇总数据.
 func (h *ResourceMonitorAPIHandlers) getCostSummaryData() (gin.H, error) {
 	if h.getStorageMetrics == nil {
 		return gin.H{
@@ -1214,7 +1214,7 @@ func (h *ResourceMonitorAPIHandlers) getCostSummaryData() (gin.H, error) {
 	}, nil
 }
 
-// getActiveAlertsData 获取活跃告警数据
+// getActiveAlertsData 获取活跃告警数据.
 func (h *ResourceMonitorAPIHandlers) getActiveAlertsData() []ResourceAlert {
 	alerts := make([]ResourceAlert, 0)
 	now := time.Now()
@@ -1296,7 +1296,7 @@ func (h *ResourceMonitorAPIHandlers) getActiveAlertsData() []ResourceAlert {
 	return alerts
 }
 
-// getStorageTrendData 获取存储趋势数据
+// getStorageTrendData 获取存储趋势数据.
 func (h *ResourceMonitorAPIHandlers) getStorageTrendData(days int) (gin.H, error) {
 	if h.getCapacityHistory == nil {
 		return gin.H{"error": "数据源未配置"}, nil
@@ -1319,7 +1319,7 @@ func (h *ResourceMonitorAPIHandlers) getStorageTrendData(days int) (gin.H, error
 	}, nil
 }
 
-// getBandwidthTrendData 获取带宽趋势数据
+// getBandwidthTrendData 获取带宽趋势数据.
 func (h *ResourceMonitorAPIHandlers) getBandwidthTrendData(days int) (gin.H, error) {
 	if h.getBandwidthHistory == nil {
 		return gin.H{"error": "数据源未配置"}, nil
@@ -1342,7 +1342,7 @@ func (h *ResourceMonitorAPIHandlers) getBandwidthTrendData(days int) (gin.H, err
 	}, nil
 }
 
-// evaluateStorageHealth 评估存储健康
+// evaluateStorageHealth 评估存储健康.
 func (h *ResourceMonitorAPIHandlers) evaluateStorageHealth(metrics []StorageMetricsData) (int, []string) {
 	score := 100
 	issues := make([]string, 0)
@@ -1369,7 +1369,7 @@ func (h *ResourceMonitorAPIHandlers) evaluateStorageHealth(metrics []StorageMetr
 	return score, issues
 }
 
-// evaluateSystemHealth 评估系统健康
+// evaluateSystemHealth 评估系统健康.
 func (h *ResourceMonitorAPIHandlers) evaluateSystemHealth(system *SystemMetricsData) (int, int, []string) {
 	cpuScore := 100
 	memScore := 100

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// mockCheck 模拟检查项
+// mockCheck 模拟检查项.
 type mockCheck struct {
 	id          string
 	checkType   CheckType

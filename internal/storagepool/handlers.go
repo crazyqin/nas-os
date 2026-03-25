@@ -7,19 +7,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 存储池 API 处理器
+// Handlers 存储池 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	pools := r.Group("/pools")
 	{
@@ -55,7 +55,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Tags storagepool
 // @Produce json
 // @Success 200 {object} api.Response{data=[]Pool}
-// @Router /pools [get]
+// @Router /pools [get].
 func (h *Handlers) listPools(c *gin.Context) {
 	pools := h.manager.ListPools()
 	api.OK(c, pools)
@@ -69,7 +69,7 @@ func (h *Handlers) listPools(c *gin.Context) {
 // @Param id path string true "存储池ID"
 // @Success 200 {object} api.Response{data=Pool}
 // @Failure 404 {object} api.Response
-// @Router /pools/{id} [get]
+// @Router /pools/{id} [get].
 func (h *Handlers) getPool(c *gin.Context) {
 	id := c.Param("id")
 
@@ -91,7 +91,7 @@ func (h *Handlers) getPool(c *gin.Context) {
 // @Param request body CreatePoolRequest true "创建请求"
 // @Success 201 {object} api.Response{data=Pool}
 // @Failure 400 {object} api.Response
-// @Router /pools [post]
+// @Router /pools [post].
 func (h *Handlers) createPool(c *gin.Context) {
 	var req CreatePoolRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -116,7 +116,7 @@ func (h *Handlers) createPool(c *gin.Context) {
 // @Param force query bool false "强制删除"
 // @Success 204 "No Content"
 // @Failure 400,404 {object} api.Response
-// @Router /pools/{id} [delete]
+// @Router /pools/{id} [delete].
 func (h *Handlers) deletePool(c *gin.Context) {
 	id := c.Param("id")
 	force := c.Query("force") == "true"
@@ -145,7 +145,7 @@ func (h *Handlers) deletePool(c *gin.Context) {
 // @Param request body AddDeviceRequest true "添加设备请求"
 // @Success 200 {object} api.Response{data=Pool}
 // @Failure 400,404 {object} api.Response
-// @Router /pools/{id}/devices [post]
+// @Router /pools/{id}/devices [post].
 func (h *Handlers) addDevice(c *gin.Context) {
 	poolID := c.Param("id")
 
@@ -178,7 +178,7 @@ func (h *Handlers) addDevice(c *gin.Context) {
 // @Param request body RemoveDeviceRequest true "移除设备请求"
 // @Success 200 {object} api.Response{data=Pool}
 // @Failure 400,404 {object} api.Response
-// @Router /pools/{id}/devices [delete]
+// @Router /pools/{id}/devices [delete].
 func (h *Handlers) removeDevice(c *gin.Context) {
 	poolID := c.Param("id")
 
@@ -213,7 +213,7 @@ func (h *Handlers) removeDevice(c *gin.Context) {
 // @Param request body ResizePoolRequest true "调整请求"
 // @Success 200 {object} api.Response{data=Pool}
 // @Failure 400,404 {object} api.Response
-// @Router /pools/{id}/resize [post]
+// @Router /pools/{id}/resize [post].
 func (h *Handlers) resizePool(c *gin.Context) {
 	poolID := c.Param("id")
 
@@ -246,7 +246,7 @@ func (h *Handlers) resizePool(c *gin.Context) {
 // @Param id path string true "存储池ID"
 // @Success 200 {object} api.Response{data=map[string]interface{}}
 // @Failure 404 {object} api.Response
-// @Router /pools/{id}/stats [get]
+// @Router /pools/{id}/stats [get].
 func (h *Handlers) getPoolStats(c *gin.Context) {
 	poolID := c.Param("id")
 
@@ -267,7 +267,7 @@ func (h *Handlers) getPoolStats(c *gin.Context) {
 // @Tags storagepool
 // @Produce json
 // @Success 200 {object} api.Response{data=[]Device}
-// @Router /devices/available [get]
+// @Router /devices/available [get].
 func (h *Handlers) listAvailableDevices(c *gin.Context) {
 	devices := h.manager.GetAvailableDevices()
 	api.OK(c, devices)
@@ -281,7 +281,7 @@ func (h *Handlers) listAvailableDevices(c *gin.Context) {
 // @Tags storagepool
 // @Produce json
 // @Success 200 {object} api.Response{data=map[string]RAIDConfig}
-// @Router /raid-configs [get]
+// @Router /raid-configs [get].
 func (h *Handlers) getRAIDConfigs(c *gin.Context) {
 	api.OK(c, RAIDConfigs)
 }

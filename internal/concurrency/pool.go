@@ -10,18 +10,18 @@ import (
 )
 
 var (
-	// ErrPoolClosed 工作池已关闭错误
+	// ErrPoolClosed 工作池已关闭错误.
 	ErrPoolClosed = errors.New("worker pool is closed")
-	// ErrPoolTimeout 工作池超时错误
+	// ErrPoolTimeout 工作池超时错误.
 	ErrPoolTimeout = errors.New("worker pool timeout")
-	// ErrQueueFull 工作队列已满错误
+	// ErrQueueFull 工作队列已满错误.
 	ErrQueueFull = errors.New("worker queue is full")
 )
 
-// Task represents a unit of work
+// Task represents a unit of work.
 type Task func() error
 
-// WorkerPool manages a pool of worker goroutines
+// WorkerPool manages a pool of worker goroutines.
 type WorkerPool struct {
 	workers  int
 	maxQueue int
@@ -41,7 +41,7 @@ type WorkerPool struct {
 	logger *zap.Logger
 }
 
-// NewWorkerPool creates a new worker pool
+// NewWorkerPool creates a new worker pool.
 func NewWorkerPool(workers, maxQueue int, logger *zap.Logger) *WorkerPool {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -64,7 +64,7 @@ func NewWorkerPool(workers, maxQueue int, logger *zap.Logger) *WorkerPool {
 	return pool
 }
 
-// worker is the main worker loop
+// worker is the main worker loop.
 func (p *WorkerPool) worker(id int) {
 	defer p.wg.Done()
 
@@ -99,7 +99,7 @@ func (p *WorkerPool) worker(id int) {
 	}
 }
 
-// Submit adds a task to the pool
+// Submit adds a task to the pool.
 func (p *WorkerPool) Submit(task Task) error {
 	p.mu.Lock()
 	if p.closed {
@@ -121,7 +121,7 @@ func (p *WorkerPool) Submit(task Task) error {
 	}
 }
 
-// SubmitWait submits a task and waits for completion
+// SubmitWait submits a task and waits for completion.
 func (p *WorkerPool) SubmitWait(task Task, timeout time.Duration) error {
 	done := make(chan error, 1)
 
@@ -145,7 +145,7 @@ func (p *WorkerPool) SubmitWait(task Task, timeout time.Duration) error {
 	}
 }
 
-// Close gracefully shuts down the pool
+// Close gracefully shuts down the pool.
 func (p *WorkerPool) Close() {
 	p.mu.Lock()
 	if p.closed {
@@ -161,7 +161,7 @@ func (p *WorkerPool) Close() {
 	close(p.errChan)
 }
 
-// Stats returns pool statistics
+// Stats returns pool statistics.
 func (p *WorkerPool) Stats() PoolStats {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -177,7 +177,7 @@ func (p *WorkerPool) Stats() PoolStats {
 	}
 }
 
-// PoolStats holds worker pool statistics
+// PoolStats holds worker pool statistics.
 type PoolStats struct {
 	Workers   int   `json:"workers"`
 	QueueSize int   `json:"queue_size"`
@@ -188,7 +188,7 @@ type PoolStats struct {
 	Pending   int64 `json:"pending"`
 }
 
-// ErrorChan returns the error channel for monitoring
+// ErrorChan returns the error channel for monitoring.
 func (p *WorkerPool) ErrorChan() <-chan error {
 	return p.errChan
 }

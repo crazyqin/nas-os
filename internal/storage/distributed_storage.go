@@ -50,7 +50,7 @@ type Node struct {
 	CreatedAt    time.Time         `json:"createdAt"`    // 加入时间
 }
 
-// NodeHealth 健康检查结果
+// NodeHealth 健康检查结果.
 type NodeHealth struct {
 	NodeID       string        `json:"nodeId"`
 	Status       NodeStatus    `json:"status"`
@@ -62,7 +62,7 @@ type NodeHealth struct {
 	Details      HealthDetails `json:"details"`
 }
 
-// HealthDetails 健康检查详情
+// HealthDetails 健康检查详情.
 type HealthDetails struct {
 	DiskHealth     bool      `json:"diskHealth"`     // 磁盘健康
 	MemoryUsage    float64   `json:"memoryUsage"`    // 内存使用率
@@ -87,7 +87,7 @@ const (
 	ShardingConsistent ShardingStrategy = "consistent"
 )
 
-// ShardingPolicy 分片策略配置
+// ShardingPolicy 分片策略配置.
 type ShardingPolicy struct {
 	ID                 string           `json:"id"`
 	Name               string           `json:"name"`
@@ -101,7 +101,7 @@ type ShardingPolicy struct {
 	UpdatedAt          time.Time        `json:"updatedAt"`
 }
 
-// Shard 分片信息
+// Shard 分片信息.
 type Shard struct {
 	ID           string    `json:"id"`
 	PoolID       string    `json:"poolId"`
@@ -115,7 +115,7 @@ type Shard struct {
 	CreatedAt    time.Time `json:"createdAt"`
 }
 
-// KeyRange 键范围
+// KeyRange 键范围.
 type KeyRange struct {
 	Start string `json:"start"` // 起始键
 	End   string `json:"end"`   // 结束键
@@ -136,7 +136,7 @@ const (
 	ReplicaSemiSync ReplicaStrategy = "semiSync"
 )
 
-// PlacementConstraint 放置约束
+// PlacementConstraint 放置约束.
 type PlacementConstraint struct {
 	ZoneAware      bool              `json:"zoneAware"`      // 机架/可用区感知
 	RegionAware    bool              `json:"regionAware"`    // 地域感知
@@ -146,7 +146,7 @@ type PlacementConstraint struct {
 	RequireLabels  map[string]string `json:"requireLabels"`  // 必需标签
 }
 
-// ReplicaPolicy 副本策略配置
+// ReplicaPolicy 副本策略配置.
 type ReplicaPolicy struct {
 	ID               string              `json:"id"`
 	Name             string              `json:"name"`
@@ -162,7 +162,7 @@ type ReplicaPolicy struct {
 	UpdatedAt        time.Time           `json:"updatedAt"`
 }
 
-// ReplicaStatus 副本状态
+// ReplicaStatus 副本状态.
 type ReplicaStatus struct {
 	ShardID      string        `json:"shardId"`
 	NodeID       string        `json:"nodeId"`
@@ -212,7 +212,7 @@ type Pool struct {
 	UpdatedAt     time.Time       `json:"updatedAt"`
 }
 
-// PoolStats 存储池统计
+// PoolStats 存储池统计.
 type PoolStats struct {
 	PoolID         string        `json:"poolId"`
 	TotalNodes     int           `json:"totalNodes"`
@@ -231,7 +231,7 @@ type PoolStats struct {
 
 // ========== 分布式存储管理器 ==========
 
-// DistributedManager 分布式存储管理器
+// DistributedManager 分布式存储管理器.
 type DistributedManager struct {
 	nodes               map[string]*Node           // 节点映射
 	pools               map[string]*Pool           // 存储池映射
@@ -245,19 +245,19 @@ type DistributedManager struct {
 	wg                  sync.WaitGroup
 }
 
-// DistributedConfig 分布式存储配置
+// DistributedConfig 分布式存储配置.
 type DistributedConfig struct {
 	HealthCheckInterval time.Duration // 健康检查间隔
 	HealthCheckTimeout  time.Duration // 健康检查超时
 }
 
-// DefaultDistributedConfig 默认配置
+// DefaultDistributedConfig 默认配置.
 var DefaultDistributedConfig = DistributedConfig{
 	HealthCheckInterval: 30 * time.Second,
 	HealthCheckTimeout:  5 * time.Second,
 }
 
-// NewDistributedManager 创建分布式存储管理器
+// NewDistributedManager 创建分布式存储管理器.
 func NewDistributedManager(config *DistributedConfig) *DistributedManager {
 	if config == nil {
 		config = &DefaultDistributedConfig
@@ -277,20 +277,20 @@ func NewDistributedManager(config *DistributedConfig) *DistributedManager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (dm *DistributedManager) Start() error {
 	dm.wg.Add(1)
 	go dm.healthCheckLoop()
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (dm *DistributedManager) Stop() {
 	dm.cancel()
 	dm.wg.Wait()
 }
 
-// healthCheckLoop 健康检查循环
+// healthCheckLoop 健康检查循环.
 func (dm *DistributedManager) healthCheckLoop() {
 	defer dm.wg.Done()
 
@@ -307,7 +307,7 @@ func (dm *DistributedManager) healthCheckLoop() {
 	}
 }
 
-// runHealthChecks 执行健康检查
+// runHealthChecks 执行健康检查.
 func (dm *DistributedManager) runHealthChecks() {
 	dm.mu.RLock()
 	nodes := make([]*Node, 0, len(dm.nodes))
@@ -322,7 +322,7 @@ func (dm *DistributedManager) runHealthChecks() {
 	}
 }
 
-// checkNodeHealth 检查节点健康状态
+// checkNodeHealth 检查节点健康状态.
 func (dm *DistributedManager) checkNodeHealth(node *Node) *NodeHealth {
 	ctx, cancel := context.WithTimeout(dm.ctx, dm.healthCheckTimeout)
 	defer cancel()
@@ -359,7 +359,7 @@ func (dm *DistributedManager) checkNodeHealth(node *Node) *NodeHealth {
 	}
 }
 
-// updateNodeHealth 更新节点健康状态
+// updateNodeHealth 更新节点健康状态.
 func (dm *DistributedManager) updateNodeHealth(nodeID string, health *NodeHealth) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -379,7 +379,7 @@ func (dm *DistributedManager) updateNodeHealth(nodeID string, health *NodeHealth
 	}
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func calculateHealthScore(health *NodeHealth) int {
 	if !health.Healthy {
 		return 0
@@ -415,7 +415,7 @@ func calculateHealthScore(health *NodeHealth) int {
 
 // ========== 节点管理 ==========
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (dm *DistributedManager) RegisterNode(node *Node) error {
 	if node.ID == "" {
 		return fmt.Errorf("节点 ID 不能为空")
@@ -444,7 +444,7 @@ func (dm *DistributedManager) RegisterNode(node *Node) error {
 	return nil
 }
 
-// UnregisterNode 注销节点
+// UnregisterNode 注销节点.
 func (dm *DistributedManager) UnregisterNode(nodeID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -466,7 +466,7 @@ func (dm *DistributedManager) UnregisterNode(nodeID string) error {
 	return nil
 }
 
-// GetNode 获取节点
+// GetNode 获取节点.
 func (dm *DistributedManager) GetNode(nodeID string) (*Node, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -479,7 +479,7 @@ func (dm *DistributedManager) GetNode(nodeID string) (*Node, error) {
 	return node, nil
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (dm *DistributedManager) ListNodes() []*Node {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -491,7 +491,7 @@ func (dm *DistributedManager) ListNodes() []*Node {
 	return nodes
 }
 
-// ListNodesByStatus 按状态列出节点
+// ListNodesByStatus 按状态列出节点.
 func (dm *DistributedManager) ListNodesByStatus(status NodeStatus) []*Node {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -505,7 +505,7 @@ func (dm *DistributedManager) ListNodesByStatus(status NodeStatus) []*Node {
 	return nodes
 }
 
-// UpdateNode 更新节点信息
+// UpdateNode 更新节点信息.
 func (dm *DistributedManager) UpdateNode(nodeID string, updates map[string]interface{}) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -554,7 +554,7 @@ func (dm *DistributedManager) UpdateNode(nodeID string, updates map[string]inter
 
 // ========== 分片策略管理 ==========
 
-// CreateShardingPolicy 创建分片策略
+// CreateShardingPolicy 创建分片策略.
 func (dm *DistributedManager) CreateShardingPolicy(policy *ShardingPolicy) error {
 	if policy.ID == "" {
 		return fmt.Errorf("策略 ID 不能为空")
@@ -588,7 +588,7 @@ func (dm *DistributedManager) CreateShardingPolicy(policy *ShardingPolicy) error
 	return nil
 }
 
-// GetShardingPolicy 获取分片策略
+// GetShardingPolicy 获取分片策略.
 func (dm *DistributedManager) GetShardingPolicy(policyID string) (*ShardingPolicy, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -601,7 +601,7 @@ func (dm *DistributedManager) GetShardingPolicy(policyID string) (*ShardingPolic
 	return policy, nil
 }
 
-// ListShardingPolicies 列出所有分片策略
+// ListShardingPolicies 列出所有分片策略.
 func (dm *DistributedManager) ListShardingPolicies() []*ShardingPolicy {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -613,7 +613,7 @@ func (dm *DistributedManager) ListShardingPolicies() []*ShardingPolicy {
 	return policies
 }
 
-// DeleteShardingPolicy 删除分片策略
+// DeleteShardingPolicy 删除分片策略.
 func (dm *DistributedManager) DeleteShardingPolicy(policyID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -635,7 +635,7 @@ func (dm *DistributedManager) DeleteShardingPolicy(policyID string) error {
 
 // ========== 副本策略管理 ==========
 
-// CreateReplicaPolicy 创建副本策略
+// CreateReplicaPolicy 创建副本策略.
 func (dm *DistributedManager) CreateReplicaPolicy(policy *ReplicaPolicy) error {
 	if policy.ID == "" {
 		return fmt.Errorf("策略 ID 不能为空")
@@ -681,7 +681,7 @@ func (dm *DistributedManager) CreateReplicaPolicy(policy *ReplicaPolicy) error {
 	return nil
 }
 
-// GetReplicaPolicy 获取副本策略
+// GetReplicaPolicy 获取副本策略.
 func (dm *DistributedManager) GetReplicaPolicy(policyID string) (*ReplicaPolicy, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -694,7 +694,7 @@ func (dm *DistributedManager) GetReplicaPolicy(policyID string) (*ReplicaPolicy,
 	return policy, nil
 }
 
-// ListReplicaPolicies 列出所有副本策略
+// ListReplicaPolicies 列出所有副本策略.
 func (dm *DistributedManager) ListReplicaPolicies() []*ReplicaPolicy {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -706,7 +706,7 @@ func (dm *DistributedManager) ListReplicaPolicies() []*ReplicaPolicy {
 	return policies
 }
 
-// DeleteReplicaPolicy 删除副本策略
+// DeleteReplicaPolicy 删除副本策略.
 func (dm *DistributedManager) DeleteReplicaPolicy(policyID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -728,7 +728,7 @@ func (dm *DistributedManager) DeleteReplicaPolicy(policyID string) error {
 
 // ========== 存储池管理 ==========
 
-// CreatePool 创建存储池
+// CreatePool 创建存储池.
 func (dm *DistributedManager) CreatePool(pool *Pool) error {
 	if pool.ID == "" {
 		return fmt.Errorf("存储池 ID 不能为空")
@@ -778,7 +778,7 @@ func (dm *DistributedManager) CreatePool(pool *Pool) error {
 	return nil
 }
 
-// GetPool 获取存储池
+// GetPool 获取存储池.
 func (dm *DistributedManager) GetPool(poolID string) (*Pool, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -791,7 +791,7 @@ func (dm *DistributedManager) GetPool(poolID string) (*Pool, error) {
 	return pool, nil
 }
 
-// ListPools 列出所有存储池
+// ListPools 列出所有存储池.
 func (dm *DistributedManager) ListPools() []*Pool {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -803,7 +803,7 @@ func (dm *DistributedManager) ListPools() []*Pool {
 	return pools
 }
 
-// DeletePool 删除存储池
+// DeletePool 删除存储池.
 func (dm *DistributedManager) DeletePool(poolID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -816,7 +816,7 @@ func (dm *DistributedManager) DeletePool(poolID string) error {
 	return nil
 }
 
-// AddNodeToPool 添加节点到存储池
+// AddNodeToPool 添加节点到存储池.
 func (dm *DistributedManager) AddNodeToPool(poolID, nodeID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -844,7 +844,7 @@ func (dm *DistributedManager) AddNodeToPool(poolID, nodeID string) error {
 	return nil
 }
 
-// RemoveNodeFromPool 从存储池移除节点
+// RemoveNodeFromPool 从存储池移除节点.
 func (dm *DistributedManager) RemoveNodeFromPool(poolID, nodeID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -875,7 +875,7 @@ func (dm *DistributedManager) RemoveNodeFromPool(poolID, nodeID string) error {
 	return nil
 }
 
-// GetPoolStats 获取存储池统计
+// GetPoolStats 获取存储池统计.
 func (dm *DistributedManager) GetPoolStats(poolID string) (*PoolStats, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -932,7 +932,7 @@ func (dm *DistributedManager) GetPoolStats(poolID string) (*PoolStats, error) {
 	return stats, nil
 }
 
-// calculatePoolCapacity 计算存储池容量
+// calculatePoolCapacity 计算存储池容量.
 func (dm *DistributedManager) calculatePoolCapacity(pool *Pool) {
 	var totalCapacity, totalUsed uint64
 
@@ -948,7 +948,7 @@ func (dm *DistributedManager) calculatePoolCapacity(pool *Pool) {
 	pool.Available = totalCapacity - totalUsed
 }
 
-// SetPoolShardingPolicy 设置存储池分片策略
+// SetPoolShardingPolicy 设置存储池分片策略.
 func (dm *DistributedManager) SetPoolShardingPolicy(poolID, policyID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -969,7 +969,7 @@ func (dm *DistributedManager) SetPoolShardingPolicy(poolID, policyID string) err
 	return nil
 }
 
-// SetPoolReplicaPolicy 设置存储池副本策略
+// SetPoolReplicaPolicy 设置存储池副本策略.
 func (dm *DistributedManager) SetPoolReplicaPolicy(poolID, policyID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -992,7 +992,7 @@ func (dm *DistributedManager) SetPoolReplicaPolicy(poolID, policyID string) erro
 
 // ========== 分片管理 ==========
 
-// AllocateShards 为存储池分配分片
+// AllocateShards 为存储池分配分片.
 func (dm *DistributedManager) AllocateShards(poolID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -1057,7 +1057,7 @@ func (dm *DistributedManager) AllocateShards(poolID string) error {
 	return nil
 }
 
-// GetShard 获取分片
+// GetShard 获取分片.
 func (dm *DistributedManager) GetShard(poolID, shardID string) (*Shard, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -1076,7 +1076,7 @@ func (dm *DistributedManager) GetShard(poolID, shardID string) (*Shard, error) {
 	return nil, fmt.Errorf("分片 %s 不存在", shardID)
 }
 
-// ListShards 列出存储池的所有分片
+// ListShards 列出存储池的所有分片.
 func (dm *DistributedManager) ListShards(poolID string) ([]*Shard, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -1089,7 +1089,7 @@ func (dm *DistributedManager) ListShards(poolID string) ([]*Shard, error) {
 	return pool.Shards, nil
 }
 
-// RebalanceShards 重新平衡分片
+// RebalanceShards 重新平衡分片.
 func (dm *DistributedManager) RebalanceShards(poolID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -1147,7 +1147,7 @@ func (dm *DistributedManager) RebalanceShards(poolID string) error {
 	return nil
 }
 
-// migrateShardData 迁移分片数据
+// migrateShardData 迁移分片数据.
 func (dm *DistributedManager) migrateShardData(poolID, shardID, sourceNode, targetNode string) {
 	// 记录迁移开始
 	migration := &MigrationTask{
@@ -1192,7 +1192,7 @@ func (dm *DistributedManager) migrateShardData(poolID, shardID, sourceNode, targ
 	dm.mu.Unlock()
 }
 
-// MigrationTask 迁移任务
+// MigrationTask 迁移任务.
 type MigrationTask struct {
 	PoolID     string    `json:"poolId"`
 	ShardID    string    `json:"shardId"`
@@ -1206,7 +1206,7 @@ type MigrationTask struct {
 
 // ========== 健康检查接口 ==========
 
-// CheckNode 手动检查节点健康
+// CheckNode 手动检查节点健康.
 func (dm *DistributedManager) CheckNode(nodeID string) (*NodeHealth, error) {
 	dm.mu.RLock()
 	node, exists := dm.nodes[nodeID]
@@ -1221,12 +1221,12 @@ func (dm *DistributedManager) CheckNode(nodeID string) (*NodeHealth, error) {
 	return health, nil
 }
 
-// CheckPool 检查存储池健康
+// CheckPool 检查存储池健康.
 func (dm *DistributedManager) CheckPool(poolID string) (*PoolStats, error) {
 	return dm.GetPoolStats(poolID)
 }
 
-// GetClusterHealth 获取集群整体健康状态
+// GetClusterHealth 获取集群整体健康状态.
 func (dm *DistributedManager) GetClusterHealth() *ClusterHealth {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -1271,7 +1271,7 @@ func (dm *DistributedManager) GetClusterHealth() *ClusterHealth {
 	return health
 }
 
-// ClusterHealth 集群健康状态
+// ClusterHealth 集群健康状态.
 type ClusterHealth struct {
 	CheckTime         time.Time `json:"checkTime"`
 	TotalNodes        int       `json:"totalNodes"`
@@ -1287,7 +1287,7 @@ type ClusterHealth struct {
 
 // ========== 数据放置接口 ==========
 
-// GetNodeForKey 根据键获取应该存放的节点（一致性哈希）
+// GetNodeForKey 根据键获取应该存放的节点（一致性哈希）.
 func (dm *DistributedManager) GetNodeForKey(poolID, key string) (*Node, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -1350,7 +1350,7 @@ func (dm *DistributedManager) GetNodeForKey(poolID, key string) (*Node, error) {
 	return node, nil
 }
 
-// GetReplicaNodes 获取副本节点列表
+// GetReplicaNodes 获取副本节点列表.
 func (dm *DistributedManager) GetReplicaNodes(poolID, key string) ([]*Node, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()

@@ -8,19 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers API 处理器
+// Handlers API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	usb := r.Group("/usb")
 	{
@@ -55,7 +55,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Tags USB Mount
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/devices [get]
+// @Router /usb/devices [get].
 func (h *Handlers) listDevices(c *gin.Context) {
 	devices := h.manager.ListDevices()
 
@@ -72,7 +72,7 @@ func (h *Handlers) listDevices(c *gin.Context) {
 // @Produce json
 // @Param id path string true "设备 ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/devices/{id} [get]
+// @Router /usb/devices/{id} [get].
 func (h *Handlers) getDevice(c *gin.Context) {
 	id := c.Param("id")
 
@@ -100,7 +100,7 @@ func (h *Handlers) getDevice(c *gin.Context) {
 // @Param id path string true "设备 ID"
 // @Param body body MountRequest false "挂载选项"
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/devices/{id}/mount [post]
+// @Router /usb/devices/{id}/mount [post].
 func (h *Handlers) mountDevice(c *gin.Context) {
 	id := c.Param("id")
 
@@ -127,7 +127,7 @@ func (h *Handlers) mountDevice(c *gin.Context) {
 	})
 }
 
-// MountRequest 挂载请求
+// MountRequest 挂载请求.
 type MountRequest struct {
 	MountPoint string            `json:"mountPoint"`
 	Options    map[string]string `json:"options"`
@@ -139,7 +139,7 @@ type MountRequest struct {
 // @Produce json
 // @Param id path string true "设备 ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/devices/{id}/unmount [post]
+// @Router /usb/devices/{id}/unmount [post].
 func (h *Handlers) unmountDevice(c *gin.Context) {
 	id := c.Param("id")
 
@@ -163,7 +163,7 @@ func (h *Handlers) unmountDevice(c *gin.Context) {
 // @Tags USB Mount
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/devices/mount-all [post]
+// @Router /usb/devices/mount-all [post].
 func (h *Handlers) mountAllDevices(c *gin.Context) {
 	results := h.manager.MountAll()
 
@@ -179,7 +179,7 @@ func (h *Handlers) mountAllDevices(c *gin.Context) {
 // @Tags USB Mount
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/devices/unmount-all [post]
+// @Router /usb/devices/unmount-all [post].
 func (h *Handlers) unmountAllDevices(c *gin.Context) {
 	errors := h.manager.UnmountAll()
 
@@ -205,7 +205,7 @@ func (h *Handlers) unmountAllDevices(c *gin.Context) {
 // @Tags USB Mount
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/rules [get]
+// @Router /usb/rules [get].
 func (h *Handlers) listRules(c *gin.Context) {
 	rules := h.manager.ListRules()
 
@@ -222,7 +222,7 @@ func (h *Handlers) listRules(c *gin.Context) {
 // @Produce json
 // @Param id path string true "规则 ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/rules/{id} [get]
+// @Router /usb/rules/{id} [get].
 func (h *Handlers) getRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -249,7 +249,7 @@ func (h *Handlers) getRule(c *gin.Context) {
 // @Produce json
 // @Param body body MountRule true "规则配置"
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/rules [post]
+// @Router /usb/rules [post].
 func (h *Handlers) createRule(c *gin.Context) {
 	var rule MountRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -283,7 +283,7 @@ func (h *Handlers) createRule(c *gin.Context) {
 // @Param id path string true "规则 ID"
 // @Param body body MountRule true "规则配置"
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/rules/{id} [put]
+// @Router /usb/rules/{id} [put].
 func (h *Handlers) updateRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -317,7 +317,7 @@ func (h *Handlers) updateRule(c *gin.Context) {
 // @Produce json
 // @Param id path string true "规则 ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/rules/{id} [delete]
+// @Router /usb/rules/{id} [delete].
 func (h *Handlers) deleteRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -342,7 +342,7 @@ func (h *Handlers) deleteRule(c *gin.Context) {
 // @Tags USB Mount
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/config [get]
+// @Router /usb/config [get].
 func (h *Handlers) getConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
 
@@ -360,7 +360,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 // @Produce json
 // @Param body body Config true "配置"
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/config [put]
+// @Router /usb/config [put].
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var config Config
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -393,7 +393,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 // @Tags USB Mount
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /usb/status [get]
+// @Router /usb/status [get].
 func (h *Handlers) getStatus(c *gin.Context) {
 	devices := h.manager.ListDevices()
 

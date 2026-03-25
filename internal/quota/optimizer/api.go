@@ -7,17 +7,17 @@ import (
 	"net/http"
 )
 
-// APIHandler 配额优化 API 处理器
+// APIHandler 配额优化 API 处理器.
 type APIHandler struct {
 	optimizer *QuotaOptimizer
 }
 
-// NewAPIHandler 创建 API 处理器
+// NewAPIHandler 创建 API 处理器.
 func NewAPIHandler(optimizer *QuotaOptimizer) *APIHandler {
 	return &APIHandler{optimizer: optimizer}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *APIHandler) RegisterRoutes(mux *http.ServeMux) {
 	// 优化建议
 	mux.HandleFunc("/api/quota/optimizer/suggestions", h.HandleSuggestions)
@@ -43,7 +43,7 @@ func (h *APIHandler) RegisterRoutes(mux *http.ServeMux) {
 
 // ========== 优化建议 API ==========
 
-// HandleSuggestions 处理建议列表请求
+// HandleSuggestions 处理建议列表请求.
 func (h *APIHandler) HandleSuggestions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -56,7 +56,7 @@ func (h *APIHandler) HandleSuggestions(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, suggestions)
 }
 
-// HandleGenerateSuggestions 处理生成建议请求
+// HandleGenerateSuggestions 处理生成建议请求.
 func (h *APIHandler) HandleGenerateSuggestions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -75,7 +75,7 @@ func (h *APIHandler) HandleGenerateSuggestions(w http.ResponseWriter, r *http.Re
 	})
 }
 
-// HandleApplySuggestion 处理应用建议请求
+// HandleApplySuggestion 处理应用建议请求.
 func (h *APIHandler) HandleApplySuggestion(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -97,7 +97,7 @@ func (h *APIHandler) HandleApplySuggestion(w http.ResponseWriter, r *http.Reques
 	h.writeJSON(w, map[string]string{"status": "ok"})
 }
 
-// HandleDismissSuggestion 处理忽略建议请求
+// HandleDismissSuggestion 处理忽略建议请求.
 func (h *APIHandler) HandleDismissSuggestion(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -121,7 +121,7 @@ func (h *APIHandler) HandleDismissSuggestion(w http.ResponseWriter, r *http.Requ
 
 // ========== 使用预测 API ==========
 
-// HandlePrediction 处理单个配额预测请求
+// HandlePrediction 处理单个配额预测请求.
 func (h *APIHandler) HandlePrediction(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -144,7 +144,7 @@ func (h *APIHandler) HandlePrediction(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, prediction)
 }
 
-// HandleAllPredictions 处理所有配额预测请求
+// HandleAllPredictions 处理所有配额预测请求.
 func (h *APIHandler) HandleAllPredictions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -162,7 +162,7 @@ func (h *APIHandler) HandleAllPredictions(w http.ResponseWriter, r *http.Request
 
 // ========== 违规检测 API ==========
 
-// HandleViolations 处理违规列表请求
+// HandleViolations 处理违规列表请求.
 func (h *APIHandler) HandleViolations(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -175,7 +175,7 @@ func (h *APIHandler) HandleViolations(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, violations)
 }
 
-// HandleDetectViolations 处理检测违规请求
+// HandleDetectViolations 处理检测违规请求.
 func (h *APIHandler) HandleDetectViolations(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -194,7 +194,7 @@ func (h *APIHandler) HandleDetectViolations(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-// HandleResolveViolation 处理解决违规请求
+// HandleResolveViolation 处理解决违规请求.
 func (h *APIHandler) HandleResolveViolation(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -226,7 +226,7 @@ func (h *APIHandler) HandleResolveViolation(w http.ResponseWriter, r *http.Reque
 
 // ========== 优化报告 API ==========
 
-// HandleOptimizationReport 处理优化报告请求
+// HandleOptimizationReport 处理优化报告请求.
 func (h *APIHandler) HandleOptimizationReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -244,7 +244,7 @@ func (h *APIHandler) HandleOptimizationReport(w http.ResponseWriter, r *http.Req
 
 // ========== 调整历史 API ==========
 
-// HandleAdjustHistory 处理调整历史请求
+// HandleAdjustHistory 处理调整历史请求.
 func (h *APIHandler) HandleAdjustHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.writeError(w, http.StatusMethodNotAllowed, "方法不允许")

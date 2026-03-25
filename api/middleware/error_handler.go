@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ErrorHandlerConfig configures the error handler middleware
+// ErrorHandlerConfig configures the error handler middleware.
 type ErrorHandlerConfig struct {
 	// DebugMode enables stack traces in error responses
 	DebugMode bool
@@ -21,13 +21,13 @@ type ErrorHandlerConfig struct {
 	CustomErrorHandler func(c *gin.Context, err error) (int, interface{})
 }
 
-// DefaultErrorHandlerConfig default error handler configuration
+// DefaultErrorHandlerConfig default error handler configuration.
 var DefaultErrorHandlerConfig = ErrorHandlerConfig{
 	DebugMode: false,
 	LogErrors: true,
 }
 
-// APIError represents an API error response
+// APIError represents an API error response.
 type APIError struct {
 	Code      int         `json:"code"`
 	Message   string      `json:"message"`
@@ -36,7 +36,7 @@ type APIError struct {
 	Stack     string      `json:"stack,omitempty"`
 }
 
-// Common error codes
+// Common error codes.
 const (
 	CodeSuccess            = 0
 	CodeBadRequest         = 400
@@ -48,7 +48,7 @@ const (
 	CodeServiceUnavailable = 503
 )
 
-// Predefined errors
+// Predefined errors.
 var (
 	ErrBadRequest         = errors.New("bad request")
 	ErrUnauthorized       = errors.New("unauthorized")
@@ -59,7 +59,7 @@ var (
 	ErrServiceUnavailable = errors.New("service unavailable")
 )
 
-// ErrorHandlerMiddleware creates an error handler middleware
+// ErrorHandlerMiddleware creates an error handler middleware.
 func ErrorHandlerMiddleware(config ...ErrorHandlerConfig) gin.HandlerFunc {
 	cfg := DefaultErrorHandlerConfig
 	if len(config) > 0 {
@@ -130,7 +130,7 @@ func ErrorHandlerMiddleware(config ...ErrorHandlerConfig) gin.HandlerFunc {
 	}
 }
 
-// mapErrorToAPIError maps an error to an APIError
+// mapErrorToAPIError maps an error to an APIError.
 func mapErrorToAPIError(err error, c *gin.Context) APIError {
 	var requestID string
 	if rid, exists := c.Get("requestId"); exists {
@@ -178,7 +178,7 @@ func mapErrorToAPIError(err error, c *gin.Context) APIError {
 	}
 }
 
-// mapErrorToStatus maps an error to an HTTP status code
+// mapErrorToStatus maps an error to an HTTP status code.
 func mapErrorToStatus(err error) int {
 	switch {
 	case errors.Is(err, ErrBadRequest):
@@ -198,15 +198,15 @@ func mapErrorToStatus(err error) int {
 	}
 }
 
-// ErrorResponder provides helper methods for error responses
+// ErrorResponder provides helper methods for error responses.
 type ErrorResponder struct{}
 
-// NewErrorResponder creates a new error responder
+// NewErrorResponder creates a new error responder.
 func NewErrorResponder() *ErrorResponder {
 	return &ErrorResponder{}
 }
 
-// BadRequest responds with a 400 error
+// BadRequest responds with a 400 error.
 func (e *ErrorResponder) BadRequest(c *gin.Context, message string) {
 	c.JSON(http.StatusBadRequest, APIError{
 		Code:    CodeBadRequest,
@@ -215,7 +215,7 @@ func (e *ErrorResponder) BadRequest(c *gin.Context, message string) {
 	c.Abort()
 }
 
-// Unauthorized responds with a 401 error
+// Unauthorized responds with a 401 error.
 func (e *ErrorResponder) Unauthorized(c *gin.Context, message string) {
 	if message == "" {
 		message = "Unauthorized"
@@ -227,7 +227,7 @@ func (e *ErrorResponder) Unauthorized(c *gin.Context, message string) {
 	c.Abort()
 }
 
-// Forbidden responds with a 403 error
+// Forbidden responds with a 403 error.
 func (e *ErrorResponder) Forbidden(c *gin.Context, message string) {
 	if message == "" {
 		message = "Forbidden"
@@ -239,7 +239,7 @@ func (e *ErrorResponder) Forbidden(c *gin.Context, message string) {
 	c.Abort()
 }
 
-// NotFound responds with a 404 error
+// NotFound responds with a 404 error.
 func (e *ErrorResponder) NotFound(c *gin.Context, message string) {
 	if message == "" {
 		message = "Not found"
@@ -251,7 +251,7 @@ func (e *ErrorResponder) NotFound(c *gin.Context, message string) {
 	c.Abort()
 }
 
-// InternalError responds with a 500 error
+// InternalError responds with a 500 error.
 func (e *ErrorResponder) InternalError(c *gin.Context, message string) {
 	if message == "" {
 		message = "Internal server error"
@@ -263,7 +263,7 @@ func (e *ErrorResponder) InternalError(c *gin.Context, message string) {
 	c.Abort()
 }
 
-// ServiceUnavailable responds with a 503 error
+// ServiceUnavailable responds with a 503 error.
 func (e *ErrorResponder) ServiceUnavailable(c *gin.Context, message string) {
 	if message == "" {
 		message = "Service unavailable"
@@ -275,7 +275,7 @@ func (e *ErrorResponder) ServiceUnavailable(c *gin.Context, message string) {
 	c.Abort()
 }
 
-// ValidationError responds with a 400 error for validation failures
+// ValidationError responds with a 400 error for validation failures.
 func (e *ErrorResponder) ValidationError(c *gin.Context, details interface{}) {
 	c.JSON(http.StatusBadRequest, APIError{
 		Code:    CodeBadRequest,
@@ -285,7 +285,7 @@ func (e *ErrorResponder) ValidationError(c *gin.Context, details interface{}) {
 	c.Abort()
 }
 
-// CustomError responds with a custom error
+// CustomError responds with a custom error.
 func (e *ErrorResponder) CustomError(c *gin.Context, status int, code int, message string) {
 	c.JSON(status, APIError{
 		Code:    code,
@@ -294,7 +294,7 @@ func (e *ErrorResponder) CustomError(c *gin.Context, status int, code int, messa
 	c.Abort()
 }
 
-// Success responds with a success message
+// Success responds with a success message.
 func (e *ErrorResponder) Success(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    CodeSuccess,
@@ -303,7 +303,7 @@ func (e *ErrorResponder) Success(c *gin.Context, data interface{}) {
 	})
 }
 
-// SuccessWithMessage responds with a success message and custom message
+// SuccessWithMessage responds with a success message and custom message.
 func (e *ErrorResponder) SuccessWithMessage(c *gin.Context, message string, data interface{}) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    CodeSuccess,
@@ -312,55 +312,55 @@ func (e *ErrorResponder) SuccessWithMessage(c *gin.Context, message string, data
 	})
 }
 
-// Global error responder
+// Global error responder.
 var responder = NewErrorResponder()
 
-// BadRequest responds with a 400 error
+// BadRequest responds with a 400 error.
 func BadRequest(c *gin.Context, message string) {
 	responder.BadRequest(c, message)
 }
 
-// Unauthorized responds with a 401 error
+// Unauthorized responds with a 401 error.
 func Unauthorized(c *gin.Context, message string) {
 	responder.Unauthorized(c, message)
 }
 
-// Forbidden responds with a 403 error
+// Forbidden responds with a 403 error.
 func Forbidden(c *gin.Context, message string) {
 	responder.Forbidden(c, message)
 }
 
-// NotFound responds with a 404 error
+// NotFound responds with a 404 error.
 func NotFound(c *gin.Context, message string) {
 	responder.NotFound(c, message)
 }
 
-// InternalError responds with a 500 error
+// InternalError responds with a 500 error.
 func InternalError(c *gin.Context, message string) {
 	responder.InternalError(c, message)
 }
 
-// ServiceUnavailable responds with a 503 error
+// ServiceUnavailable responds with a 503 error.
 func ServiceUnavailable(c *gin.Context, message string) {
 	responder.ServiceUnavailable(c, message)
 }
 
-// ValidationError responds with a 400 error for validation failures
+// ValidationError responds with a 400 error for validation failures.
 func ValidationError(c *gin.Context, details interface{}) {
 	responder.ValidationError(c, details)
 }
 
-// Success responds with a success message
+// Success responds with a success message.
 func Success(c *gin.Context, data interface{}) {
 	responder.Success(c, data)
 }
 
-// SuccessWithMessage responds with a success message
+// SuccessWithMessage responds with a success message.
 func SuccessWithMessage(c *gin.Context, message string, data interface{}) {
 	responder.SuccessWithMessage(c, message, data)
 }
 
-// ParseJSONBody parses JSON body and handles errors
+// ParseJSONBody parses JSON body and handles errors.
 func ParseJSONBody(c *gin.Context, v interface{}) error {
 	if err := c.ShouldBindJSON(v); err != nil {
 		BadRequest(c, "Invalid JSON body: "+err.Error())
@@ -369,7 +369,7 @@ func ParseJSONBody(c *gin.Context, v interface{}) error {
 	return nil
 }
 
-// MustParseJSON parses JSON body or panics
+// MustParseJSON parses JSON body or panics.
 func MustParseJSON(c *gin.Context, v interface{}) {
 	if err := c.ShouldBindJSON(v); err != nil {
 		BadRequest(c, "Invalid JSON body: "+err.Error())
@@ -377,12 +377,12 @@ func MustParseJSON(c *gin.Context, v interface{}) {
 	}
 }
 
-// WriteJSON writes JSON response
+// WriteJSON writes JSON response.
 func WriteJSON(c *gin.Context, status int, v interface{}) {
 	c.JSON(status, v)
 }
 
-// WriteError writes an error response
+// WriteError writes an error response.
 func WriteError(c *gin.Context, status int, code int, message string) {
 	c.JSON(status, APIError{
 		Code:    code,
@@ -390,7 +390,7 @@ func WriteError(c *gin.Context, status int, code int, message string) {
 	})
 }
 
-// RecoverMiddleware recovers from panics and returns a 500 error
+// RecoverMiddleware recovers from panics and returns a 500 error.
 func RecoverMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
@@ -415,7 +415,7 @@ func RecoverMiddleware() gin.HandlerFunc {
 	}
 }
 
-// APIErrorFromJSON creates an APIError from JSON bytes
+// APIErrorFromJSON creates an APIError from JSON bytes.
 func APIErrorFromJSON(data []byte) (*APIError, error) {
 	var err APIError
 	if e := json.Unmarshal(data, &err); e != nil {

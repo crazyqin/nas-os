@@ -11,7 +11,7 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-// Synchronizer LDAP 同步器
+// Synchronizer LDAP 同步器.
 type Synchronizer struct {
 	client     *Client
 	config     Config
@@ -24,7 +24,7 @@ type Synchronizer struct {
 	lastResult *SyncResult
 }
 
-// UserSyncHandler 用户同步处理器接口
+// UserSyncHandler 用户同步处理器接口.
 type UserSyncHandler interface {
 	CreateUser(user *User) error
 	UpdateUser(user *User) error
@@ -33,7 +33,7 @@ type UserSyncHandler interface {
 	ListUsers() ([]*User, error)
 }
 
-// GroupSyncHandler 组同步处理器接口
+// GroupSyncHandler 组同步处理器接口.
 type GroupSyncHandler interface {
 	CreateGroup(group *Group) error
 	UpdateGroup(group *Group) error
@@ -44,7 +44,7 @@ type GroupSyncHandler interface {
 	RemoveUserFromGroup(username, groupName string) error
 }
 
-// NewSynchronizer 创建同步器
+// NewSynchronizer 创建同步器.
 func NewSynchronizer(config Config, userHandler UserSyncHandler, groupHandler GroupSyncHandler) (*Synchronizer, error) {
 	client, err := NewClient(config)
 	if err != nil {
@@ -59,7 +59,7 @@ func NewSynchronizer(config Config, userHandler UserSyncHandler, groupHandler Gr
 	}, nil
 }
 
-// Start 启动同步
+// Start 启动同步.
 func (s *Synchronizer) Start(ctx context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -77,7 +77,7 @@ func (s *Synchronizer) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止同步
+// Stop 停止同步.
 func (s *Synchronizer) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -92,7 +92,7 @@ func (s *Synchronizer) Stop() {
 	s.running = false
 }
 
-// syncLoop 同步循环
+// syncLoop 同步循环.
 func (s *Synchronizer) syncLoop(ctx context.Context) {
 	interval := s.config.SyncConfig.Interval
 	if interval <= 0 {
@@ -117,7 +117,7 @@ func (s *Synchronizer) syncLoop(ctx context.Context) {
 	}
 }
 
-// SyncAll 执行全量同步
+// SyncAll 执行全量同步.
 func (s *Synchronizer) SyncAll() (*SyncResult, error) {
 	result := &SyncResult{
 		StartTime: time.Now(),
@@ -150,7 +150,7 @@ func (s *Synchronizer) SyncAll() (*SyncResult, error) {
 	return result, nil
 }
 
-// syncUsers 同步用户
+// syncUsers 同步用户.
 func (s *Synchronizer) syncUsers(result *SyncResult) error {
 	// 获取 LDAP 用户
 	ldapUsers, err := s.fetchAllUsers()
@@ -233,7 +233,7 @@ func (s *Synchronizer) syncUsers(result *SyncResult) error {
 	return nil
 }
 
-// syncGroups 同步组
+// syncGroups 同步组.
 func (s *Synchronizer) syncGroups(result *SyncResult) error {
 	// 获取 LDAP 组
 	ldapGroups, err := s.fetchAllGroups()
@@ -320,7 +320,7 @@ func (s *Synchronizer) syncGroups(result *SyncResult) error {
 	return nil
 }
 
-// mergeMembers 合并成员列表
+// mergeMembers 合并成员列表.
 func (s *Synchronizer) mergeMembers(local, ldap []string) []string {
 	members := make(map[string]bool)
 	for _, m := range local {
@@ -337,7 +337,7 @@ func (s *Synchronizer) mergeMembers(local, ldap []string) []string {
 	return result
 }
 
-// fetchAllUsers 获取所有 LDAP 用户
+// fetchAllUsers 获取所有 LDAP 用户.
 func (s *Synchronizer) fetchAllUsers() ([]*User, error) {
 	if err := s.client.Bind(); err != nil {
 		return nil, err
@@ -413,7 +413,7 @@ func (s *Synchronizer) fetchAllUsers() ([]*User, error) {
 	return users, nil
 }
 
-// fetchAllGroups 获取所有 LDAP 组
+// fetchAllGroups 获取所有 LDAP 组.
 func (s *Synchronizer) fetchAllGroups() ([]*Group, error) {
 	if err := s.client.Bind(); err != nil {
 		return nil, err
@@ -474,7 +474,7 @@ func (s *Synchronizer) fetchAllGroups() ([]*Group, error) {
 	return groups, nil
 }
 
-// extractCN 从 DN 中提取 CN
+// extractCN 从 DN 中提取 CN.
 func (s *Synchronizer) extractCN(dn string) string {
 	parsed, err := ldap.ParseDN(dn)
 	if err != nil {
@@ -492,14 +492,14 @@ func (s *Synchronizer) extractCN(dn string) string {
 	return ""
 }
 
-// matchesExcludeFilter 检查是否匹配排除过滤
+// matchesExcludeFilter 检查是否匹配排除过滤.
 func (s *Synchronizer) matchesExcludeFilter(user *User, filter string) bool {
 	// 简单实现：检查用户名或邮箱是否包含过滤字符串
 	return strings.Contains(user.Username, filter) ||
 		strings.Contains(user.Email, filter)
 }
 
-// SyncSingleUser 同步单个用户
+// SyncSingleUser 同步单个用户.
 func (s *Synchronizer) SyncSingleUser(username string) (*SyncResult, error) {
 	result := &SyncResult{
 		StartTime: time.Now(),
@@ -604,27 +604,27 @@ func (s *Synchronizer) SyncSingleUser(username string) (*SyncResult, error) {
 	return result, nil
 }
 
-// GetLastSync 获取上次同步时间和结果
+// GetLastSync 获取上次同步时间和结果.
 func (s *Synchronizer) GetLastSync() (time.Time, *SyncResult) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.lastSync, s.lastResult
 }
 
-// IsRunning 检查是否正在运行
+// IsRunning 检查是否正在运行.
 func (s *Synchronizer) IsRunning() bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.running
 }
 
-// Close 关闭同步器
+// Close 关闭同步器.
 func (s *Synchronizer) Close() error {
 	s.Stop()
 	return s.client.Close()
 }
 
-// GetStatus 获取同步状态
+// GetStatus 获取同步状态.
 func (s *Synchronizer) GetStatus() map[string]interface{} {
 	s.mu.Lock()
 	defer s.mu.Unlock()

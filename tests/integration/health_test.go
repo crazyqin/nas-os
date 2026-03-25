@@ -115,7 +115,7 @@ func TestHealth_Timeout(t *testing.T) {
 	}
 }
 
-// 性能测试
+// 性能测试.
 func BenchmarkHealth_RunAllChecks(b *testing.B) {
 	manager := health.NewManager(5 * time.Second)
 	manager.RegisterChecker(health.NewMemoryChecker(80.0))

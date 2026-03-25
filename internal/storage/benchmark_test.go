@@ -13,7 +13,7 @@ import (
 
 // ========== 数据结构基准测试 ==========
 
-// BenchmarkVolume_Creation 创建 Volume 对象性能测试
+// BenchmarkVolume_Creation 创建 Volume 对象性能测试.
 func BenchmarkVolume_Creation(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -36,7 +36,7 @@ func BenchmarkVolume_Creation(b *testing.B) {
 	}
 }
 
-// BenchmarkSubVolume_Creation 创建 SubVolume 对象性能测试
+// BenchmarkSubVolume_Creation 创建 SubVolume 对象性能测试.
 func BenchmarkSubVolume_Creation(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -51,7 +51,7 @@ func BenchmarkSubVolume_Creation(b *testing.B) {
 	}
 }
 
-// BenchmarkSnapshot_Creation 创建 Snapshot 对象性能测试
+// BenchmarkSnapshot_Creation 创建 Snapshot 对象性能测试.
 func BenchmarkSnapshot_Creation(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
@@ -66,7 +66,7 @@ func BenchmarkSnapshot_Creation(b *testing.B) {
 	}
 }
 
-// BenchmarkRAIDConfig_Lookup RAID 配置查找性能测试
+// BenchmarkRAIDConfig_Lookup RAID 配置查找性能测试.
 func BenchmarkRAIDConfig_Lookup(b *testing.B) {
 	profiles := []string{"single", "raid0", "raid1", "raid5", "raid6", "raid10"}
 
@@ -79,7 +79,7 @@ func BenchmarkRAIDConfig_Lookup(b *testing.B) {
 
 // ========== 内存分配基准测试 ==========
 
-// BenchmarkMemory_VolumeSlice Volume 切片内存分配
+// BenchmarkMemory_VolumeSlice Volume 切片内存分配.
 func BenchmarkMemory_VolumeSlice(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -92,7 +92,7 @@ func BenchmarkMemory_VolumeSlice(b *testing.B) {
 	}
 }
 
-// BenchmarkMemory_VolumeMap Volume Map 内存分配
+// BenchmarkMemory_VolumeMap Volume Map 内存分配.
 func BenchmarkMemory_VolumeMap(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -104,7 +104,7 @@ func BenchmarkMemory_VolumeMap(b *testing.B) {
 	}
 }
 
-// BenchmarkMemory_LargeSlice 大切片内存分配
+// BenchmarkMemory_LargeSlice 大切片内存分配.
 func BenchmarkMemory_LargeSlice(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -120,7 +120,7 @@ func BenchmarkMemory_LargeSlice(b *testing.B) {
 
 // ========== 并发基准测试 ==========
 
-// BenchmarkConcurrency_Mutex Mutex 并发性能
+// BenchmarkConcurrency_Mutex Mutex 并发性能.
 func BenchmarkConcurrency_Mutex(b *testing.B) {
 	var mu sync.Mutex
 	data := make(map[string]int)
@@ -137,7 +137,7 @@ func BenchmarkConcurrency_Mutex(b *testing.B) {
 	})
 }
 
-// BenchmarkConcurrency_RWMutex_Read RWMutex 读并发性能
+// BenchmarkConcurrency_RWMutex_Read RWMutex 读并发性能.
 func BenchmarkConcurrency_RWMutex_Read(b *testing.B) {
 	var mu sync.RWMutex
 	data := make(map[string]int)
@@ -157,7 +157,7 @@ func BenchmarkConcurrency_RWMutex_Read(b *testing.B) {
 	})
 }
 
-// BenchmarkConcurrency_RWMutex_Write RWMutex 写并发性能
+// BenchmarkConcurrency_RWMutex_Write RWMutex 写并发性能.
 func BenchmarkConcurrency_RWMutex_Write(b *testing.B) {
 	var mu sync.RWMutex
 	data := make(map[string]int)
@@ -174,7 +174,7 @@ func BenchmarkConcurrency_RWMutex_Write(b *testing.B) {
 	})
 }
 
-// BenchmarkConcurrency_RWMutex_Mixed RWMutex 混合读写性能
+// BenchmarkConcurrency_RWMutex_Mixed RWMutex 混合读写性能.
 func BenchmarkConcurrency_RWMutex_Mixed(b *testing.B) {
 	var mu sync.RWMutex
 	data := make(map[string]int)
@@ -202,7 +202,7 @@ func BenchmarkConcurrency_RWMutex_Mixed(b *testing.B) {
 
 // ========== GC 压力测试 ==========
 
-// BenchmarkGC_Pressure GC 压力测试
+// BenchmarkGC_Pressure GC 压力测试.
 func BenchmarkGC_Pressure(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -215,7 +215,7 @@ func BenchmarkGC_Pressure(b *testing.B) {
 	}
 }
 
-// BenchmarkGC_WithManualTrigger 手动触发 GC 测试
+// BenchmarkGC_WithManualTrigger 手动触发 GC 测试.
 func BenchmarkGC_WithManualTrigger(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -233,7 +233,7 @@ func BenchmarkGC_WithManualTrigger(b *testing.B) {
 
 // ========== 分布式存储基准测试 ==========
 
-// BenchmarkStorageNode_Creation 创建存储节点性能测试
+// BenchmarkStorageNode_Creation 创建存储节点性能测试.
 func BenchmarkStorageNode_Creation(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
@@ -258,7 +258,7 @@ func BenchmarkStorageNode_Creation(b *testing.B) {
 	}
 }
 
-// BenchmarkShard_Creation 创建分片性能测试
+// BenchmarkShard_Creation 创建分片性能测试.
 func BenchmarkShard_Creation(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
@@ -277,7 +277,7 @@ func BenchmarkShard_Creation(b *testing.B) {
 	}
 }
 
-// BenchmarkReplicaPolicy_Creation 创建副本策略性能测试
+// BenchmarkReplicaPolicy_Creation 创建副本策略性能测试.
 func BenchmarkReplicaPolicy_Creation(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()

@@ -6,34 +6,34 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Response 通用响应
+// Response 通用响应.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Success 返回成功响应
+// Success 返回成功响应.
 func Success(data interface{}) Response {
 	return Response{Code: 0, Message: "success", Data: data}
 }
 
-// Error 返回错误响应
+// Error 返回错误响应.
 func Error(code int, message string) Response {
 	return Response{Code: code, Message: message}
 }
 
-// Handlers SMB 处理器
+// Handlers SMB 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	shares := api.Group("/shares/smb")
 	{
@@ -65,7 +65,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	api.PUT("/smb/config", h.updateConfig)
 }
 
-// listShares 列出所有共享
+// listShares 列出所有共享.
 func (h *Handlers) listShares(c *gin.Context) {
 	shares, err := h.manager.ListShares()
 	if err != nil {
@@ -75,7 +75,7 @@ func (h *Handlers) listShares(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(shares))
 }
 
-// createShare 创建共享
+// createShare 创建共享.
 func (h *Handlers) createShare(c *gin.Context) {
 	var req ShareInput
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -112,7 +112,7 @@ func (h *Handlers) createShare(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(share))
 }
 
-// getShare 获取单个共享
+// getShare 获取单个共享.
 func (h *Handlers) getShare(c *gin.Context) {
 	name := c.Param("name")
 	share, err := h.manager.GetShare(name)
@@ -123,7 +123,7 @@ func (h *Handlers) getShare(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(share))
 }
 
-// updateShare 更新共享
+// updateShare 更新共享.
 func (h *Handlers) updateShare(c *gin.Context) {
 	name := c.Param("name")
 	var req ShareInput
@@ -161,7 +161,7 @@ func (h *Handlers) updateShare(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(updatedShare))
 }
 
-// deleteShare 删除共享
+// deleteShare 删除共享.
 func (h *Handlers) deleteShare(c *gin.Context) {
 	name := c.Param("name")
 	if err := h.manager.DeleteShare(name); err != nil {
@@ -177,7 +177,7 @@ func (h *Handlers) deleteShare(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// setPermission 设置权限
+// setPermission 设置权限.
 func (h *Handlers) setPermission(c *gin.Context) {
 	name := c.Param("name")
 	var req struct {
@@ -202,7 +202,7 @@ func (h *Handlers) setPermission(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// removePermission 移除权限
+// removePermission 移除权限.
 func (h *Handlers) removePermission(c *gin.Context) {
 	name := c.Param("name")
 	username := c.Param("user")
@@ -219,7 +219,7 @@ func (h *Handlers) removePermission(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// closeShare 关闭共享
+// closeShare 关闭共享.
 func (h *Handlers) closeShare(c *gin.Context) {
 	name := c.Param("name")
 	if err := h.manager.CloseShare(name); err != nil {
@@ -235,7 +235,7 @@ func (h *Handlers) closeShare(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// openShare 打开共享
+// openShare 打开共享.
 func (h *Handlers) openShare(c *gin.Context) {
 	name := c.Param("name")
 	if err := h.manager.OpenShare(name); err != nil {
@@ -251,7 +251,7 @@ func (h *Handlers) openShare(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// getStatus 获取服务状态
+// getStatus 获取服务状态.
 func (h *Handlers) getStatus(c *gin.Context) {
 	status, err := h.manager.Status()
 	if err != nil {
@@ -261,7 +261,7 @@ func (h *Handlers) getStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(status))
 }
 
-// getConnections 获取当前连接
+// getConnections 获取当前连接.
 func (h *Handlers) getConnections(c *gin.Context) {
 	connections, err := h.manager.Connections()
 	if err != nil {
@@ -271,7 +271,7 @@ func (h *Handlers) getConnections(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(connections))
 }
 
-// startService 启动服务
+// startService 启动服务.
 func (h *Handlers) startService(c *gin.Context) {
 	if err := h.manager.Start(); err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
@@ -280,7 +280,7 @@ func (h *Handlers) startService(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// stopService 停止服务
+// stopService 停止服务.
 func (h *Handlers) stopService(c *gin.Context) {
 	if err := h.manager.Stop(); err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
@@ -289,7 +289,7 @@ func (h *Handlers) stopService(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// restartService 重启服务
+// restartService 重启服务.
 func (h *Handlers) restartService(c *gin.Context) {
 	if err := h.manager.Restart(); err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
@@ -298,7 +298,7 @@ func (h *Handlers) restartService(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// reloadConfig 重新加载配置
+// reloadConfig 重新加载配置.
 func (h *Handlers) reloadConfig(c *gin.Context) {
 	if err := h.manager.Reload(); err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
@@ -307,7 +307,7 @@ func (h *Handlers) reloadConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// testConfig 测试配置
+// testConfig 测试配置.
 func (h *Handlers) testConfig(c *gin.Context) {
 	ok, output, err := h.manager.TestConfig()
 	c.JSON(http.StatusOK, Success(gin.H{
@@ -317,7 +317,7 @@ func (h *Handlers) testConfig(c *gin.Context) {
 	}))
 }
 
-// getUserShares 获取用户可访问的共享
+// getUserShares 获取用户可访问的共享.
 func (h *Handlers) getUserShares(c *gin.Context) {
 	username := c.Query("user")
 	if username == "" {
@@ -329,13 +329,13 @@ func (h *Handlers) getUserShares(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(shares))
 }
 
-// getConfig 获取全局配置
+// getConfig 获取全局配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
 	c.JSON(http.StatusOK, Success(config))
 }
 
-// updateConfig 更新全局配置
+// updateConfig 更新全局配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var req Config
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -356,7 +356,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// errToString 将错误转换为字符串
+// errToString 将错误转换为字符串.
 func errToString(err error) string {
 	if err == nil {
 		return ""

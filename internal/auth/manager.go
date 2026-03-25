@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// MFAManager 双因素认证管理器
+// MFAManager 双因素认证管理器.
 type MFAManager struct {
 	mu            sync.RWMutex
 	configs       map[string]*MFAConfig // userID -> MFAConfig
@@ -22,7 +22,7 @@ type MFAManager struct {
 	issuer        string
 }
 
-// MFAStatus MFA 状态
+// MFAStatus MFA 状态.
 type MFAStatus struct {
 	Enabled          bool   `json:"enabled"`
 	TOTPEnabled      bool   `json:"totp_enabled"`
@@ -32,7 +32,7 @@ type MFAStatus struct {
 	Phone            string `json:"phone,omitempty"`
 }
 
-// MFASession MFA 临时会话（用于登录流程）
+// MFASession MFA 临时会话（用于登录流程）.
 type MFASession struct {
 	UserID      string    `json:"user_id"`
 	Username    string    `json:"username"`
@@ -44,15 +44,15 @@ type MFASession struct {
 }
 
 var (
-	// ErrMFANotConfigured indicates MFA is not configured for the user
+	// ErrMFANotConfigured indicates MFA is not configured for the user.
 	ErrMFANotConfigured = errors.New("双因素认证未配置")
-	// ErrMFASessionExpired indicates the MFA session has expired
+	// ErrMFASessionExpired indicates the MFA session has expired.
 	ErrMFASessionExpired = errors.New("MFA 会话已过期")
-	// ErrMFAAlreadyEnabled indicates MFA is already enabled
+	// ErrMFAAlreadyEnabled indicates MFA is already enabled.
 	ErrMFAAlreadyEnabled = errors.New("双因素认证已启用")
 )
 
-// NewMFAManager 创建 MFA 管理器
+// NewMFAManager 创建 MFA 管理器.
 func NewMFAManager(configPath, issuer string, smsProvider SMSProvider) (*MFAManager, error) {
 	m := &MFAManager{
 		configs:    make(map[string]*MFAConfig),
@@ -86,7 +86,7 @@ func NewMFAManager(configPath, issuer string, smsProvider SMSProvider) (*MFAMana
 	return m, nil
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (m *MFAManager) loadConfig() error {
 	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
 		return nil
@@ -106,7 +106,7 @@ func (m *MFAManager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (m *MFAManager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -128,14 +128,14 @@ func (m *MFAManager) saveConfig() error {
 	return nil
 }
 
-// GetConfig 获取用户 MFA 配置
+// GetConfig 获取用户 MFA 配置.
 func (m *MFAManager) GetConfig(userID string) *MFAConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.configs[userID]
 }
 
-// GetStatus 获取用户 MFA 状态
+// GetStatus 获取用户 MFA 状态.
 func (m *MFAManager) GetStatus(userID string) *MFAStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -163,7 +163,7 @@ func (m *MFAManager) GetStatus(userID string) *MFAStatus {
 
 // ========== TOTP 相关 ==========
 
-// SetupTOTP 设置 TOTP
+// SetupTOTP 设置 TOTP.
 func (m *MFAManager) SetupTOTP(userID, username string) (*TOTPSetup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *MFAManager) SetupTOTP(userID, username string) (*TOTPSetup, error) {
 	return setup, nil
 }
 
-// EnableTOTP 启用 TOTP（用户扫描 QR 码后调用）
+// EnableTOTP 启用 TOTP（用户扫描 QR 码后调用）.
 func (m *MFAManager) EnableTOTP(userID, code string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -224,7 +224,7 @@ func (m *MFAManager) EnableTOTP(userID, code string) error {
 	return nil
 }
 
-// DisableTOTP 禁用 TOTP
+// DisableTOTP 禁用 TOTP.
 func (m *MFAManager) DisableTOTP(userID, verifyCode string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -258,7 +258,7 @@ func (m *MFAManager) DisableTOTP(userID, verifyCode string) error {
 
 // ========== 短信验证码相关 ==========
 
-// SendSMSCode 发送短信验证码
+// SendSMSCode 发送短信验证码.
 func (m *MFAManager) SendSMSCode(userID, phone string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -280,7 +280,7 @@ func (m *MFAManager) SendSMSCode(userID, phone string) error {
 	return m.smsManager.SendCode(phone)
 }
 
-// EnableSMS 启用短信验证
+// EnableSMS 启用短信验证.
 func (m *MFAManager) EnableSMS(userID, phone, code string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -310,7 +310,7 @@ func (m *MFAManager) EnableSMS(userID, phone, code string) error {
 	return nil
 }
 
-// DisableSMS 禁用短信验证
+// DisableSMS 禁用短信验证.
 func (m *MFAManager) DisableSMS(userID, verifyCode string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -342,7 +342,7 @@ func (m *MFAManager) DisableSMS(userID, verifyCode string) error {
 
 // ========== 备份码相关 ==========
 
-// GenerateBackupCodes 生成备份码
+// GenerateBackupCodes 生成备份码.
 func (m *MFAManager) GenerateBackupCodes(userID string) ([]string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -364,14 +364,14 @@ func (m *MFAManager) GenerateBackupCodes(userID string) ([]string, error) {
 	return codes, nil
 }
 
-// VerifyBackupCode 验证备份码
+// VerifyBackupCode 验证备份码.
 func (m *MFAManager) VerifyBackupCode(userID, code string) error {
 	return m.backupManager.VerifyBackupCode(userID, code)
 }
 
 // ========== WebAuthn 相关 ==========
 
-// BeginWebAuthnRegistration 开始 WebAuthn 注册
+// BeginWebAuthnRegistration 开始 WebAuthn 注册.
 func (m *MFAManager) BeginWebAuthnRegistration(userID, username, displayName string) (string, interface{}, error) {
 	if m.webauthnMgr == nil {
 		return "", nil, fmt.Errorf("WebAuthn 未配置")
@@ -379,7 +379,7 @@ func (m *MFAManager) BeginWebAuthnRegistration(userID, username, displayName str
 	return m.webauthnMgr.BeginRegistration(userID, username, displayName)
 }
 
-// FinishWebAuthnRegistration 完成 WebAuthn 注册
+// FinishWebAuthnRegistration 完成 WebAuthn 注册.
 func (m *MFAManager) FinishWebAuthnRegistration(sessionID string, responseData interface{}) error {
 	if m.webauthnMgr == nil {
 		return fmt.Errorf("WebAuthn 未配置")
@@ -411,7 +411,7 @@ func (m *MFAManager) FinishWebAuthnRegistration(sessionID string, responseData i
 	return nil
 }
 
-// BeginWebAuthnAuthentication 开始 WebAuthn 认证
+// BeginWebAuthnAuthentication 开始 WebAuthn 认证.
 func (m *MFAManager) BeginWebAuthnAuthentication(userID string) (string, interface{}, error) {
 	if m.webauthnMgr == nil {
 		return "", nil, fmt.Errorf("WebAuthn 未配置")
@@ -419,7 +419,7 @@ func (m *MFAManager) BeginWebAuthnAuthentication(userID string) (string, interfa
 	return m.webauthnMgr.BeginAuthentication(userID)
 }
 
-// FinishWebAuthnAuthentication 完成 WebAuthn 认证
+// FinishWebAuthnAuthentication 完成 WebAuthn 认证.
 func (m *MFAManager) FinishWebAuthnAuthentication(sessionID string, responseData interface{}) (string, error) {
 	if m.webauthnMgr == nil {
 		return "", fmt.Errorf("WebAuthn 未配置")
@@ -427,7 +427,7 @@ func (m *MFAManager) FinishWebAuthnAuthentication(sessionID string, responseData
 	return m.webauthnMgr.FinishAuthentication(sessionID, responseData)
 }
 
-// GetWebAuthnCredentials 获取用户的 WebAuthn 凭据
+// GetWebAuthnCredentials 获取用户的 WebAuthn 凭据.
 func (m *MFAManager) GetWebAuthnCredentials(userID string) []*WebAuthnCredential {
 	if m.webauthnMgr == nil {
 		return nil
@@ -435,7 +435,7 @@ func (m *MFAManager) GetWebAuthnCredentials(userID string) []*WebAuthnCredential
 	return m.webauthnMgr.GetCredentials(userID)
 }
 
-// RemoveWebAuthnCredential 移除 WebAuthn 凭据
+// RemoveWebAuthnCredential 移除 WebAuthn 凭据.
 func (m *MFAManager) RemoveWebAuthnCredential(userID, credentialID string) error {
 	if m.webauthnMgr == nil {
 		return fmt.Errorf("WebAuthn 未配置")
@@ -445,13 +445,13 @@ func (m *MFAManager) RemoveWebAuthnCredential(userID, credentialID string) error
 
 // ========== MFA 会话管理 ==========
 
-// sessions 临时存储 MFA 会话
+// sessions 临时存储 MFA 会话.
 var (
 	mfaSessionsMu sync.RWMutex
 	mfaSessions   = make(map[string]*MFASession)
 )
 
-// CreateMFASession 创建 MFA 会话（登录流程中使用）
+// CreateMFASession 创建 MFA 会话（登录流程中使用）.
 func (m *MFAManager) CreateMFASession(userID, username string, mfaType string) (string, error) {
 	token := make([]byte, 32)
 	if _, err := rand.Read(token); err != nil {
@@ -475,7 +475,7 @@ func (m *MFAManager) CreateMFASession(userID, username string, mfaType string) (
 	return tokenStr, nil
 }
 
-// GetMFASession 获取 MFA 会话
+// GetMFASession 获取 MFA 会话.
 func (m *MFAManager) GetMFASession(token string) (*MFASession, error) {
 	mfaSessionsMu.RLock()
 	session, ok := mfaSessions[token]
@@ -495,7 +495,7 @@ func (m *MFAManager) GetMFASession(token string) (*MFASession, error) {
 	return session, nil
 }
 
-// CompleteMFASession 完成 MFA 会话
+// CompleteMFASession 完成 MFA 会话.
 func (m *MFAManager) CompleteMFASession(token string) error {
 	mfaSessionsMu.Lock()
 	defer mfaSessionsMu.Unlock()
@@ -509,7 +509,7 @@ func (m *MFAManager) CompleteMFASession(token string) error {
 	return nil
 }
 
-// DeleteMFASession 删除 MFA 会话
+// DeleteMFASession 删除 MFA 会话.
 func (m *MFAManager) DeleteMFASession(token string) {
 	mfaSessionsMu.Lock()
 	defer mfaSessionsMu.Unlock()
@@ -518,7 +518,7 @@ func (m *MFAManager) DeleteMFASession(token string) {
 
 // ========== 验证 MFA ==========
 
-// VerifyMFA 验证 MFA（登录流程中使用）
+// VerifyMFA 验证 MFA（登录流程中使用）.
 func (m *MFAManager) VerifyMFA(userID, mfaType, code string, responseData interface{}) error {
 	m.mu.RLock()
 	cfg := m.configs[userID]
@@ -563,7 +563,7 @@ func (m *MFAManager) VerifyMFA(userID, mfaType, code string, responseData interf
 	}
 }
 
-// RequireMFA 检查用户是否需要 MFA
+// RequireMFA 检查用户是否需要 MFA.
 func (m *MFAManager) RequireMFA(userID string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -572,7 +572,7 @@ func (m *MFAManager) RequireMFA(userID string) bool {
 	return cfg != nil && cfg.Enabled
 }
 
-// GetMFAType 获取用户启用的 MFA 类型
+// GetMFAType 获取用户启用的 MFA 类型.
 func (m *MFAManager) GetMFAType(userID string) string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -595,7 +595,7 @@ func (m *MFAManager) GetMFAType(userID string) string {
 	return ""
 }
 
-// helper function to extract userID from session
+// helper function to extract userID from session.
 func userIDFromSession(sessionID string) string {
 	// This is a placeholder - in real implementation,
 	// you would store and retrieve userID from session

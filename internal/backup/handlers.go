@@ -8,13 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 备份 API 处理器
+// Handlers 备份 API 处理器.
 type Handlers struct {
 	manager     *Manager
 	syncManager *SyncManager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager, syncManager *SyncManager) *Handlers {
 	return &Handlers{
 		manager:     manager,
@@ -22,7 +22,7 @@ func NewHandlers(manager *Manager, syncManager *SyncManager) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	backup := r.Group("/backup")
 	{
@@ -87,7 +87,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Produce json
 // @Success 200 {object} api.Response{data=[]JobConfig}
 // @Router /backup/configs [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listConfigs(c *gin.Context) {
 	configs := h.manager.ListConfigs()
 	api.OK(c, configs)
@@ -103,7 +103,7 @@ func (h *Handlers) listConfigs(c *gin.Context) {
 // @Success 200 {object} api.Response{data=JobConfig}
 // @Failure 404 {object} api.Response
 // @Router /backup/configs/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getConfig(c *gin.Context) {
 	id := c.Param("id")
 	config, err := h.manager.GetConfig(id)
@@ -125,7 +125,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/configs [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createConfig(c *gin.Context) {
 	var config JobConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -153,7 +153,7 @@ func (h *Handlers) createConfig(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/configs/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -181,7 +181,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/configs/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deleteConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -205,7 +205,7 @@ func (h *Handlers) deleteConfig(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/configs/{id}/enable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) enableConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -237,7 +237,7 @@ func (h *Handlers) enableConfig(c *gin.Context) {
 // @Success 200 {object} api.Response{data=Task}
 // @Failure 500 {object} api.Response
 // @Router /backup/run/{id} [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) runBackup(c *gin.Context) {
 	id := c.Param("id")
 
@@ -261,7 +261,7 @@ func (h *Handlers) runBackup(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/restore [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) restore(c *gin.Context) {
 	var options RestoreOptions
 	if err := c.ShouldBindJSON(&options); err != nil {
@@ -288,7 +288,7 @@ func (h *Handlers) restore(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=[]Task}
 // @Router /backup/tasks [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listTasks(c *gin.Context) {
 	tasks := h.manager.ListTasks()
 	api.OK(c, tasks)
@@ -304,7 +304,7 @@ func (h *Handlers) listTasks(c *gin.Context) {
 // @Success 200 {object} api.Response{data=Task}
 // @Failure 404 {object} api.Response
 // @Router /backup/tasks/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -327,7 +327,7 @@ func (h *Handlers) getTask(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/tasks/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) cancelTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -351,7 +351,7 @@ func (h *Handlers) cancelTask(c *gin.Context) {
 // @Success 200 {object} api.Response{data=[]HistoryEntry}
 // @Failure 500 {object} api.Response
 // @Router /backup/history/{configId} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getHistory(c *gin.Context) {
 	configID := c.Param("configId")
 
@@ -374,7 +374,7 @@ func (h *Handlers) getHistory(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=[]SyncTask}
 // @Router /backup/sync/tasks [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listSyncTasks(c *gin.Context) {
 	tasks := h.syncManager.ListSyncTasks()
 	api.OK(c, tasks)
@@ -390,7 +390,7 @@ func (h *Handlers) listSyncTasks(c *gin.Context) {
 // @Success 200 {object} api.Response{data=SyncTask}
 // @Failure 404 {object} api.Response
 // @Router /backup/sync/tasks/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getSyncTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -414,7 +414,7 @@ func (h *Handlers) getSyncTask(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/sync/tasks [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createSyncTask(c *gin.Context) {
 	var task SyncTask
 	if err := c.ShouldBindJSON(&task); err != nil {
@@ -443,7 +443,7 @@ func (h *Handlers) createSyncTask(c *gin.Context) {
 // @Failure 404 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/sync/tasks/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) updateSyncTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -482,7 +482,7 @@ func (h *Handlers) updateSyncTask(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/sync/tasks/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deleteSyncTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -504,7 +504,7 @@ func (h *Handlers) deleteSyncTask(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/sync/run/{id} [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) runSyncTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -529,7 +529,7 @@ func (h *Handlers) runSyncTask(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/sync/versions [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listVersions(c *gin.Context) {
 	filePath := c.Query("path")
 	if filePath == "" {
@@ -557,7 +557,7 @@ func (h *Handlers) listVersions(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/sync/versions/restore [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) restoreVersion(c *gin.Context) {
 	var req struct {
 		VersionID  string `json:"versionId"`
@@ -589,7 +589,7 @@ func (h *Handlers) restoreVersion(c *gin.Context) {
 // @Success 200 {object} api.Response{data=ConfigCheckResult}
 // @Failure 404 {object} api.Response
 // @Router /backup/configs/{id}/check [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) checkConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -660,7 +660,7 @@ func (h *Handlers) checkConfig(c *gin.Context) {
 // @Success 200 {object} api.Response{data=DetailedCheckResult}
 // @Failure 500 {object} api.Response
 // @Router /backup/configs/{id}/check-detailed [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) checkConfigDetailed(c *gin.Context) {
 	id := c.Param("id")
 
@@ -683,7 +683,7 @@ func (h *Handlers) checkConfigDetailed(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=[]RestorePreset}
 // @Router /backup/restore-presets [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listRestorePresets(c *gin.Context) {
 	presets := DefaultRestorePresets()
 	api.OK(c, presets)
@@ -700,7 +700,7 @@ func (h *Handlers) listRestorePresets(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/restore/preview [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) previewRestore(c *gin.Context) {
 	var options RestoreOptions
 	if err := c.ShouldBindJSON(&options); err != nil {
@@ -728,7 +728,7 @@ func (h *Handlers) previewRestore(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=BackupStats}
 // @Router /backup/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	api.OK(c, stats)
@@ -745,7 +745,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 // @Success 200 {object} api.Response{data=HealthCheckResult}
 // @Failure 500 {object} api.Response
 // @Router /backup/health [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) healthCheck(c *gin.Context) {
 	result, err := h.manager.HealthCheck()
 	if err != nil {
@@ -757,14 +757,14 @@ func (h *Handlers) healthCheck(c *gin.Context) {
 
 // ========== 辅助类型 ==========
 
-// ConfigCheckResult 配置检查结果
+// ConfigCheckResult 配置检查结果.
 type ConfigCheckResult struct {
 	ConfigID string      `json:"configId"`
 	Status   string      `json:"status"` // pass, warn, fail
 	Checks   []CheckItem `json:"checks"`
 }
 
-// CheckItem 检查项
+// CheckItem 检查项.
 type CheckItem struct {
 	Name    string `json:"name"`
 	Status  string `json:"status"` // pass, warn, fail, skip

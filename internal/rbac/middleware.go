@@ -7,34 +7,34 @@ import (
 	"strings"
 )
 
-// contextKey 上下文键类型
+// contextKey 上下文键类型.
 type contextKey string
 
 const (
-	// UserIDKey 用户ID上下文键
+	// UserIDKey 用户ID上下文键.
 	UserIDKey contextKey = "userID"
-	// UsernameKey 用户名上下文键
+	// UsernameKey 用户名上下文键.
 	UsernameKey contextKey = "username"
-	// UserRoleKey 用户角色上下文键
+	// UserRoleKey 用户角色上下文键.
 	UserRoleKey contextKey = "userRole"
-	// PermissionKey 权限结果上下文键
+	// PermissionKey 权限结果上下文键.
 	PermissionKey contextKey = "permission"
 )
 
-// UserInfo 用户信息接口
+// UserInfo 用户信息接口.
 type UserInfo interface {
 	GetUserID() string
 	GetUsername() string
 	GetRole() Role
 }
 
-// UserProvider 用户提供者接口
+// UserProvider 用户提供者接口.
 type UserProvider interface {
 	GetUserByID(userID string) (UserInfo, error)
 	GetUserByUsername(username string) (UserInfo, error)
 }
 
-// MiddlewareConfig 中间件配置
+// MiddlewareConfig 中间件配置.
 type MiddlewareConfig struct {
 	// SkipPaths 跳过权限检查的路径
 	SkipPaths []string
@@ -50,7 +50,7 @@ type MiddlewareConfig struct {
 	OnError func(w http.ResponseWriter, r *http.Request, err error)
 }
 
-// DefaultMiddlewareConfig 默认中间件配置
+// DefaultMiddlewareConfig 默认中间件配置.
 func DefaultMiddlewareConfig() MiddlewareConfig {
 	return MiddlewareConfig{
 		SkipPaths: []string{
@@ -69,13 +69,13 @@ func DefaultMiddlewareConfig() MiddlewareConfig {
 	}
 }
 
-// Middleware 权限检查中间件
+// Middleware 权限检查中间件.
 type Middleware struct {
 	manager *Manager
 	config  MiddlewareConfig
 }
 
-// NewMiddleware 创建权限中间件
+// NewMiddleware 创建权限中间件.
 func NewMiddleware(manager *Manager, config MiddlewareConfig) *Middleware {
 	return &Middleware{
 		manager: manager,
@@ -83,7 +83,7 @@ func NewMiddleware(manager *Manager, config MiddlewareConfig) *Middleware {
 	}
 }
 
-// Handler 返回中间件处理器
+// Handler 返回中间件处理器.
 func (m *Middleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 跳过指定路径
@@ -126,7 +126,7 @@ func (m *Middleware) Handler(next http.Handler) http.Handler {
 	})
 }
 
-// RequirePermission 创建权限检查中间件
+// RequirePermission 创建权限检查中间件.
 func (m *Middleware) RequirePermission(resource, action string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +149,7 @@ func (m *Middleware) RequirePermission(resource, action string) func(http.Handle
 	}
 }
 
-// RequireRole 创建角色检查中间件
+// RequireRole 创建角色检查中间件.
 func (m *Middleware) RequireRole(roles ...Role) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -181,19 +181,19 @@ func (m *Middleware) RequireRole(roles ...Role) func(http.Handler) http.Handler 
 	}
 }
 
-// RequireAdmin 管理员权限检查
+// RequireAdmin 管理员权限检查.
 func (m *Middleware) RequireAdmin() func(http.Handler) http.Handler {
 	return m.RequireRole(RoleAdmin)
 }
 
-// RequireOperator 运维员及以上权限检查
+// RequireOperator 运维员及以上权限检查.
 func (m *Middleware) RequireOperator() func(http.Handler) http.Handler {
 	return m.RequireRole(RoleAdmin, RoleOperator)
 }
 
 // ========== 上下文辅助函数 ==========
 
-// GetUserIDFromContext 从上下文获取用户ID
+// GetUserIDFromContext 从上下文获取用户ID.
 func GetUserIDFromContext(ctx context.Context) string {
 	if v := ctx.Value(UserIDKey); v != nil {
 		if s, ok := v.(string); ok {
@@ -203,7 +203,7 @@ func GetUserIDFromContext(ctx context.Context) string {
 	return ""
 }
 
-// GetUsernameFromContext 从上下文获取用户名
+// GetUsernameFromContext 从上下文获取用户名.
 func GetUsernameFromContext(ctx context.Context) string {
 	if v := ctx.Value(UsernameKey); v != nil {
 		if s, ok := v.(string); ok {
@@ -213,7 +213,7 @@ func GetUsernameFromContext(ctx context.Context) string {
 	return ""
 }
 
-// GetRoleFromContext 从上下文获取用户角色
+// GetRoleFromContext 从上下文获取用户角色.
 func GetRoleFromContext(ctx context.Context) Role {
 	if v := ctx.Value(UserRoleKey); v != nil {
 		if r, ok := v.(Role); ok {
@@ -223,7 +223,7 @@ func GetRoleFromContext(ctx context.Context) Role {
 	return ""
 }
 
-// GetPermissionResultFromContext 从上下文获取权限检查结果
+// GetPermissionResultFromContext 从上下文获取权限检查结果.
 func GetPermissionResultFromContext(ctx context.Context) *CheckResult {
 	if v := ctx.Value(PermissionKey); v != nil {
 		if r, ok := v.(*CheckResult); ok {
@@ -235,7 +235,7 @@ func GetPermissionResultFromContext(ctx context.Context) *CheckResult {
 
 // ========== 令牌提取器 ==========
 
-// ExtractBearerToken 从 Authorization 头提取 Bearer 令牌
+// ExtractBearerToken 从 Authorization 头提取 Bearer 令牌.
 func ExtractBearerToken(r *http.Request) string {
 	auth := r.Header.Get("Authorization")
 	if auth == "" {
@@ -249,7 +249,7 @@ func ExtractBearerToken(r *http.Request) string {
 	return ""
 }
 
-// ExtractCookieToken 从 Cookie 提取令牌
+// ExtractCookieToken 从 Cookie 提取令牌.
 func ExtractCookieToken(cookieName string) func(r *http.Request) string {
 	return func(r *http.Request) string {
 		cookie, err := r.Cookie(cookieName)
@@ -260,7 +260,7 @@ func ExtractCookieToken(cookieName string) func(r *http.Request) string {
 	}
 }
 
-// ExtractQueryToken 从查询参数提取令牌
+// ExtractQueryToken 从查询参数提取令牌.
 func ExtractQueryToken(paramName string) func(r *http.Request) string {
 	return func(r *http.Request) string {
 		return r.URL.Query().Get(paramName)
@@ -269,7 +269,7 @@ func ExtractQueryToken(paramName string) func(r *http.Request) string {
 
 // ========== 默认处理器 ==========
 
-// DefaultDeniedHandler 默认权限拒绝处理器
+// DefaultDeniedHandler 默认权限拒绝处理器.
 func DefaultDeniedHandler(w http.ResponseWriter, r *http.Request, result *CheckResult) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusForbidden)
@@ -292,7 +292,7 @@ func DefaultDeniedHandler(w http.ResponseWriter, r *http.Request, result *CheckR
 	}
 }
 
-// DefaultErrorHandler 默认错误处理器
+// DefaultErrorHandler 默认错误处理器.
 func DefaultErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -318,10 +318,10 @@ func DefaultErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
 
 // ========== 权限装饰器 ==========
 
-// PermissionFunc 带权限检查的处理函数
+// PermissionFunc 带权限检查的处理函数.
 type PermissionFunc func(w http.ResponseWriter, r *http.Request)
 
-// WithPermission 为处理函数添加权限检查
+// WithPermission 为处理函数添加权限检查.
 func (m *Middleware) WithPermission(resource, action string, handler PermissionFunc) PermissionFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID := GetUserIDFromContext(r.Context())
@@ -342,13 +342,13 @@ func (m *Middleware) WithPermission(resource, action string, handler PermissionF
 
 // ========== 资源级权限检查 ==========
 
-// ResourcePermission 资源权限检查器
+// ResourcePermission 资源权限检查器.
 type ResourcePermission struct {
 	manager    *Manager
 	middleware *Middleware
 }
 
-// NewResourcePermission 创建资源权限检查器
+// NewResourcePermission 创建资源权限检查器.
 func NewResourcePermission(manager *Manager, middleware *Middleware) *ResourcePermission {
 	return &ResourcePermission{
 		manager:    manager,
@@ -356,24 +356,24 @@ func NewResourcePermission(manager *Manager, middleware *Middleware) *ResourcePe
 	}
 }
 
-// CanRead 检查读权限
+// CanRead 检查读权限.
 func (rp *ResourcePermission) CanRead(resource string) func(http.Handler) http.Handler {
 	return rp.middleware.RequirePermission(resource, "read")
 }
 
-// CanWrite 检查写权限
+// CanWrite 检查写权限.
 func (rp *ResourcePermission) CanWrite(resource string) func(http.Handler) http.Handler {
 	return rp.middleware.RequirePermission(resource, "write")
 }
 
-// CanAdmin 检查管理权限
+// CanAdmin 检查管理权限.
 func (rp *ResourcePermission) CanAdmin(resource string) func(http.Handler) http.Handler {
 	return rp.middleware.RequirePermission(resource, "admin")
 }
 
 // ========== 批量权限检查 ==========
 
-// CheckMultiple 批量检查权限
+// CheckMultiple 批量检查权限.
 func (m *Manager) CheckMultiple(userID string, checks []struct{ Resource, Action string }) map[string]bool {
 	results := make(map[string]bool)
 	for _, check := range checks {
@@ -383,7 +383,7 @@ func (m *Manager) CheckMultiple(userID string, checks []struct{ Resource, Action
 	return results
 }
 
-// CheckAll 检查是否拥有所有权限
+// CheckAll 检查是否拥有所有权限.
 func (m *Manager) CheckAll(userID string, checks []struct{ Resource, Action string }) bool {
 	for _, check := range checks {
 		if !m.CheckPermissionFast(userID, check.Resource, check.Action) {
@@ -393,7 +393,7 @@ func (m *Manager) CheckAll(userID string, checks []struct{ Resource, Action stri
 	return true
 }
 
-// CheckAny 检查是否拥有任意权限
+// CheckAny 检查是否拥有任意权限.
 func (m *Manager) CheckAny(userID string, checks []struct{ Resource, Action string }) bool {
 	for _, check := range checks {
 		if m.CheckPermissionFast(userID, check.Resource, check.Action) {

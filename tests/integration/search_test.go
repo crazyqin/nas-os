@@ -11,7 +11,7 @@ import (
 	"nas-os/internal/search"
 )
 
-// MockSearchEngine 模拟搜索引擎
+// MockSearchEngine 模拟搜索引擎.
 type MockSearchEngine struct {
 	index   map[string]*search.FileInfo
 	results map[string][]search.Result
@@ -19,7 +19,7 @@ type MockSearchEngine struct {
 	mu      sync.RWMutex
 }
 
-// NewMockSearchEngine 创建模拟搜索引擎
+// NewMockSearchEngine 创建模拟搜索引擎.
 func NewMockSearchEngine() *MockSearchEngine {
 	e := &MockSearchEngine{
 		index:   make(map[string]*search.FileInfo),
@@ -63,7 +63,7 @@ func NewMockSearchEngine() *MockSearchEngine {
 	return e
 }
 
-// IndexFile 索引文件
+// IndexFile 索引文件.
 func (e *MockSearchEngine) IndexFile(info *search.FileInfo) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -76,7 +76,7 @@ func (e *MockSearchEngine) IndexFile(info *search.FileInfo) error {
 	return nil
 }
 
-// Search 搜索
+// Search 搜索.
 func (e *MockSearchEngine) Search(ctx context.Context, req *search.Request) ([]search.Result, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -129,7 +129,7 @@ func (e *MockSearchEngine) Search(ctx context.Context, req *search.Request) ([]s
 	return results, nil
 }
 
-// DeleteFromIndex 从索引删除
+// DeleteFromIndex 从索引删除.
 func (e *MockSearchEngine) DeleteFromIndex(path string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -140,14 +140,14 @@ func (e *MockSearchEngine) DeleteFromIndex(path string) error {
 	return nil
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (e *MockSearchEngine) GetStats() search.IndexStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.stats
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (e *MockSearchEngine) RebuildIndex(ctx context.Context) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -158,7 +158,7 @@ func (e *MockSearchEngine) RebuildIndex(ctx context.Context) error {
 
 // ========== 智能搜索集成测试 ==========
 
-// TestSearch_IndexFile 测试文件索引
+// TestSearch_IndexFile 测试文件索引.
 func TestSearch_IndexFile(t *testing.T) {
 	engine := NewMockSearchEngine()
 
@@ -182,7 +182,7 @@ func TestSearch_IndexFile(t *testing.T) {
 	}
 }
 
-// TestSearch_Search 测试搜索功能
+// TestSearch_Search 测试搜索功能.
 func TestSearch_Search(t *testing.T) {
 	engine := NewMockSearchEngine()
 	ctx := context.Background()
@@ -231,7 +231,7 @@ func TestSearch_Search(t *testing.T) {
 	}
 }
 
-// TestSearch_SearchWithFilters 测试带过滤器的搜索
+// TestSearch_SearchWithFilters 测试带过滤器的搜索.
 func TestSearch_SearchWithFilters(t *testing.T) {
 	engine := NewMockSearchEngine()
 	ctx := context.Background()
@@ -321,7 +321,7 @@ func TestSearch_SearchWithFilters(t *testing.T) {
 	}
 }
 
-// TestSearch_DeleteFromIndex 测试删除索引
+// TestSearch_DeleteFromIndex 测试删除索引.
 func TestSearch_DeleteFromIndex(t *testing.T) {
 	engine := NewMockSearchEngine()
 
@@ -348,7 +348,7 @@ func TestSearch_DeleteFromIndex(t *testing.T) {
 	}
 }
 
-// TestSearch_RebuildIndex 测试重建索引
+// TestSearch_RebuildIndex 测试重建索引.
 func TestSearch_RebuildIndex(t *testing.T) {
 	engine := NewMockSearchEngine()
 	ctx := context.Background()
@@ -364,7 +364,7 @@ func TestSearch_RebuildIndex(t *testing.T) {
 	}
 }
 
-// TestSearch_GetStats 测试获取统计
+// TestSearch_GetStats 测试获取统计.
 func TestSearch_GetStats(t *testing.T) {
 	engine := NewMockSearchEngine()
 
@@ -383,7 +383,7 @@ func TestSearch_GetStats(t *testing.T) {
 	}
 }
 
-// TestSearch_ConcurrentSearch 测试并发搜索
+// TestSearch_ConcurrentSearch 测试并发搜索.
 func TestSearch_ConcurrentSearch(t *testing.T) {
 	engine := NewMockSearchEngine()
 	ctx := context.Background()
@@ -413,7 +413,7 @@ func TestSearch_ConcurrentSearch(t *testing.T) {
 	}
 }
 
-// TestSearch_SearchResultScore 测试搜索结果评分
+// TestSearch_SearchResultScore 测试搜索结果评分.
 func TestSearch_SearchResultScore(t *testing.T) {
 	engine := NewMockSearchEngine()
 	ctx := context.Background()
@@ -430,7 +430,7 @@ func TestSearch_SearchResultScore(t *testing.T) {
 	}
 }
 
-// TestSearch_FileInfoStructure 测试文件信息结构
+// TestSearch_FileInfoStructure 测试文件信息结构.
 func TestSearch_FileInfoStructure(t *testing.T) {
 	now := time.Now()
 	info := &search.FileInfo{
@@ -465,7 +465,7 @@ func TestSearch_FileInfoStructure(t *testing.T) {
 	}
 }
 
-// TestSearch_SearchResultStructure 测试搜索结果结构
+// TestSearch_SearchResultStructure 测试搜索结果结构.
 func TestSearch_SearchResultStructure(t *testing.T) {
 	now := time.Now()
 	result := search.Result{
@@ -497,7 +497,7 @@ func TestSearch_SearchResultStructure(t *testing.T) {
 	}
 }
 
-// TestSearch_IndexConfig 测试索引配置
+// TestSearch_IndexConfig 测试索引配置.
 func TestSearch_IndexConfig(t *testing.T) {
 	config := search.DefaultIndexConfig()
 
@@ -518,7 +518,7 @@ func TestSearch_IndexConfig(t *testing.T) {
 	}
 }
 
-// TestSearch_SearchRequestWithDate 测试日期过滤
+// TestSearch_SearchRequestWithDate 测试日期过滤.
 func TestSearch_SearchRequestWithDate(t *testing.T) {
 	engine := NewMockSearchEngine()
 	ctx := context.Background()
@@ -562,7 +562,7 @@ func TestSearch_SearchRequestWithDate(t *testing.T) {
 	}
 }
 
-// TestSearch_SearchRequestSorting 测试排序
+// TestSearch_SearchRequestSorting 测试排序.
 func TestSearch_SearchRequestSorting(t *testing.T) {
 	engine := NewMockSearchEngine()
 	ctx := context.Background()
@@ -596,7 +596,7 @@ func TestSearch_SearchRequestSorting(t *testing.T) {
 	}
 }
 
-// TestSearch_SearchRequestOffset 测试分页偏移
+// TestSearch_SearchRequestOffset 测试分页偏移.
 func TestSearch_SearchRequestOffset(t *testing.T) {
 	engine := NewMockSearchEngine()
 	ctx := context.Background()
@@ -641,7 +641,7 @@ func TestSearch_SearchRequestOffset(t *testing.T) {
 	}
 }
 
-// TestSearch_ContextCancellation 测试上下文取消
+// TestSearch_ContextCancellation 测试上下文取消.
 func TestSearch_ContextCancellation(t *testing.T) {
 	engine := NewMockSearchEngine()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -653,7 +653,7 @@ func TestSearch_ContextCancellation(t *testing.T) {
 	_ = err
 }
 
-// TestSearch_Highlight 测试高亮功能
+// TestSearch_Highlight 测试高亮功能.
 func TestSearch_Highlight(t *testing.T) {
 	highlight := search.Highlight{
 		Field: "content",
@@ -674,7 +674,7 @@ func TestSearch_Highlight(t *testing.T) {
 
 // ========== 性能测试 ==========
 
-// BenchmarkSearch_IndexFile 性能测试：文件索引
+// BenchmarkSearch_IndexFile 性能测试：文件索引.
 func BenchmarkSearch_IndexFile(b *testing.B) {
 	engine := NewMockSearchEngine()
 
@@ -689,7 +689,7 @@ func BenchmarkSearch_IndexFile(b *testing.B) {
 	}
 }
 
-// BenchmarkSearch_Search 性能测试：搜索
+// BenchmarkSearch_Search 性能测试：搜索.
 func BenchmarkSearch_Search(b *testing.B) {
 	engine := NewMockSearchEngine()
 	ctx := context.Background()
@@ -710,7 +710,7 @@ func BenchmarkSearch_Search(b *testing.B) {
 	}
 }
 
-// BenchmarkSearch_DeleteFromIndex 性能测试：删除索引
+// BenchmarkSearch_DeleteFromIndex 性能测试：删除索引.
 func BenchmarkSearch_DeleteFromIndex(b *testing.B) {
 	engine := NewMockSearchEngine()
 
@@ -725,7 +725,7 @@ func BenchmarkSearch_DeleteFromIndex(b *testing.B) {
 	}
 }
 
-// BenchmarkSearch_GetStats 性能测试：获取统计
+// BenchmarkSearch_GetStats 性能测试：获取统计.
 func BenchmarkSearch_GetStats(b *testing.B) {
 	engine := NewMockSearchEngine()
 

@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-// Level 合规级别
+// Level 合规级别.
 type Level string
 
-// 合规级别常量
+// 合规级别常量.
 const (
 	LevelA Level = "A" // 完全合规
 	LevelB Level = "B" // 基本合规
@@ -18,10 +18,10 @@ const (
 	LevelD Level = "D" // 不合规
 )
 
-// CheckType 检查类型
+// CheckType 检查类型.
 type CheckType string
 
-// 检查类型常量
+// 检查类型常量.
 const (
 	CheckSecurity CheckType = "security"
 	CheckAccess   CheckType = "access"
@@ -30,7 +30,7 @@ const (
 	CheckPrivacy  CheckType = "privacy"
 )
 
-// CheckResult 检查结果
+// CheckResult 检查结果.
 type CheckResult struct {
 	ID          string                 `json:"id"`
 	Type        CheckType              `json:"type"`
@@ -43,12 +43,12 @@ type CheckResult struct {
 	Timestamp   time.Time              `json:"timestamp"`
 }
 
-// Checker 合规检查器
+// Checker 合规检查器.
 type Checker struct {
 	checks []Check
 }
 
-// Check 合规检查接口
+// Check 合规检查接口.
 type Check interface {
 	ID() string
 	Type() CheckType
@@ -57,19 +57,19 @@ type Check interface {
 	Execute(ctx context.Context) (CheckResult, error)
 }
 
-// NewChecker 创建合规检查器
+// NewChecker 创建合规检查器.
 func NewChecker() *Checker {
 	return &Checker{
 		checks: make([]Check, 0),
 	}
 }
 
-// RegisterCheck 注册检查项
+// RegisterCheck 注册检查项.
 func (c *Checker) RegisterCheck(check Check) {
 	c.checks = append(c.checks, check)
 }
 
-// RunChecks 运行所有检查
+// RunChecks 运行所有检查.
 func (c *Checker) RunChecks(ctx context.Context) (*Report, error) {
 	report := &Report{
 		ID:        generateReportID(),
@@ -102,7 +102,7 @@ func (c *Checker) RunChecks(ctx context.Context) (*Report, error) {
 	return report, nil
 }
 
-// RunChecksByType 按类型运行检查
+// RunChecksByType 按类型运行检查.
 func (c *Checker) RunChecksByType(ctx context.Context, checkType CheckType) (*Report, error) {
 	report := &Report{
 		ID:        generateReportID(),
@@ -136,7 +136,7 @@ func (c *Checker) RunChecksByType(ctx context.Context, checkType CheckType) (*Re
 	return report, nil
 }
 
-// GetRegisteredChecks 获取已注册的检查项
+// GetRegisteredChecks 获取已注册的检查项.
 func (c *Checker) GetRegisteredChecks() []Check {
 	return c.checks
 }

@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// TURN constants
+// TURN constants.
 const (
 	TURNAllocateRequest          = 0x0003
 	TURNAllocateResponse         = 0x0103
@@ -24,7 +24,7 @@ const (
 	TURNChannelBindRequest       = 0x0009
 	TURNChannelBindResponse      = 0x0109
 
-	// TURN Attributes
+	// TURN Attributes.
 	TURNAttrLifetime           = 0x000D
 	TURNAttrXORPeerAddress     = 0x0012
 	TURNAttrData               = 0x0013
@@ -35,24 +35,24 @@ const (
 	TURNAttrRealm              = 0x0014
 	TURNAttrUsername           = 0x0006
 
-	// TURN defaults
+	// TURN defaults.
 	TURNDefaultLifetime = 600 // 10 minutes
 	TURNMinChannel      = 0x4000
 	TURNMaxChannel      = 0x7FFF
 )
 
 var (
-	// ErrTURNAllocationFailed indicates TURN allocation failure
+	// ErrTURNAllocationFailed indicates TURN allocation failure.
 	ErrTURNAllocationFailed = errors.New("TURN allocation failed")
-	// ErrTURNPermissionDenied indicates TURN permission denied
+	// ErrTURNPermissionDenied indicates TURN permission denied.
 	ErrTURNPermissionDenied = errors.New("TURN permission denied")
-	// ErrTURNNoRelay indicates no relay address available
+	// ErrTURNNoRelay indicates no relay address available.
 	ErrTURNNoRelay = errors.New("no relay address")
-	// ErrTURNTimeout indicates TURN operation timeout
+	// ErrTURNTimeout indicates TURN operation timeout.
 	ErrTURNTimeout = errors.New("TURN operation timeout")
 )
 
-// TURNClient handles TURN protocol operations
+// TURNClient handles TURN protocol operations.
 type TURNClient struct {
 	config *TunnelConfig
 	conn   *net.UDPConn
@@ -78,7 +78,7 @@ type TURNClient struct {
 	mu           sync.RWMutex
 }
 
-// TURNAllocation represents an active TURN allocation
+// TURNAllocation represents an active TURN allocation.
 type TURNAllocation struct {
 	RelayAddr *net.UDPAddr
 	Lifetime  time.Duration
@@ -86,7 +86,7 @@ type TURNAllocation struct {
 	Server    string
 }
 
-// NewTURNClient creates a new TURN client
+// NewTURNClient creates a new TURN client.
 func NewTURNClient(config *TunnelConfig, server TURNServer) *TURNClient {
 	return &TURNClient{
 		config:       config,
@@ -98,7 +98,7 @@ func NewTURNClient(config *TunnelConfig, server TURNServer) *TURNClient {
 	}
 }
 
-// Connect establishes connection to TURN server
+// Connect establishes connection to TURN server.
 func (c *TURNClient) Connect(ctx context.Context, serverAddr string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -121,7 +121,7 @@ func (c *TURNClient) Connect(ctx context.Context, serverAddr string) error {
 	return nil
 }
 
-// Allocate creates a relay allocation on the TURN server
+// Allocate creates a relay allocation on the TURN server.
 func (c *TURNClient) Allocate(ctx context.Context) (*TURNAllocation, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -194,7 +194,7 @@ func (c *TURNClient) Allocate(ctx context.Context) (*TURNAllocation, error) {
 	return allocation, nil
 }
 
-// allocateWithAuth performs allocation with authentication
+// allocateWithAuth performs allocation with authentication.
 func (c *TURNClient) allocateWithAuth(ctx context.Context, transactionID []byte) (*TURNAllocation, error) {
 	// Create new transaction ID
 	newTransactionID := GenerateTransactionID()
@@ -239,7 +239,7 @@ func (c *TURNClient) allocateWithAuth(ctx context.Context, transactionID []byte)
 	}, nil
 }
 
-// createAllocateRequest creates a TURN allocate request
+// createAllocateRequest creates a TURN allocate request.
 func (c *TURNClient) createAllocateRequest(transactionID []byte) []byte {
 	buf := make([]byte, STUNHeaderSize, 1500)
 
@@ -267,7 +267,7 @@ func (c *TURNClient) createAllocateRequest(transactionID []byte) []byte {
 	return buf
 }
 
-// createAllocateRequestWithAuth creates an authenticated allocate request
+// createAllocateRequestWithAuth creates an authenticated allocate request.
 func (c *TURNClient) createAllocateRequestWithAuth(transactionID []byte) []byte {
 	buf := make([]byte, STUNHeaderSize, 1500)
 
@@ -308,7 +308,7 @@ func (c *TURNClient) createAllocateRequestWithAuth(transactionID []byte) []byte 
 	return buf
 }
 
-// encodeAttribute encodes a STUN/TURN attribute
+// encodeAttribute encodes a STUN/TURN attribute.
 func (c *TURNClient) encodeAttribute(attrType uint16, value []byte) []byte {
 	buf := make([]byte, 4+len(value))
 	binary.BigEndian.PutUint16(buf[0:2], attrType)
@@ -324,7 +324,7 @@ func (c *TURNClient) encodeAttribute(attrType uint16, value []byte) []byte {
 	return buf
 }
 
-// calculateIntegrityKey calculates the MESSAGE-INTEGRITY key
+// calculateIntegrityKey calculates the MESSAGE-INTEGRITY key.
 func (c *TURNClient) calculateIntegrityKey() {
 	// key = MD5(username ":" realm ":" password)
 	h := md5.New()
@@ -332,14 +332,14 @@ func (c *TURNClient) calculateIntegrityKey() {
 	c.integrityKey = h.Sum(nil)
 }
 
-// calculateMessageIntegrity calculates HMAC-SHA1 for MESSAGE-INTEGRITY
+// calculateMessageIntegrity calculates HMAC-SHA1 for MESSAGE-INTEGRITY.
 func (c *TURNClient) calculateMessageIntegrity(message []byte) []byte {
 	mac := hmac.New(nil, c.integrityKey) // Using SHA1 would be: hmac.New(sha1.New, c.integrityKey)
 	mac.Write(message)
 	return mac.Sum(nil)[:20] // 20 bytes for HMAC-SHA1
 }
 
-// extractRelayedAddress extracts the relayed address from response
+// extractRelayedAddress extracts the relayed address from response.
 func (c *TURNClient) extractRelayedAddress(pkt *STUNPacket) (*net.UDPAddr, error) {
 	data, ok := pkt.Attributes[TURNAttrXORRelayedAddress]
 	if !ok {
@@ -366,7 +366,7 @@ func (c *TURNClient) extractRelayedAddress(pkt *STUNPacket) (*net.UDPAddr, error
 	return &net.UDPAddr{IP: ip, Port: port}, nil
 }
 
-// CreatePermission creates a permission for a peer
+// CreatePermission creates a permission for a peer.
 func (c *TURNClient) CreatePermission(ctx context.Context, peer *net.UDPAddr) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -402,7 +402,7 @@ func (c *TURNClient) CreatePermission(ctx context.Context, peer *net.UDPAddr) er
 	return nil
 }
 
-// createPermissionRequest creates a CreatePermission request
+// createPermissionRequest creates a CreatePermission request.
 func (c *TURNClient) createPermissionRequest(transactionID []byte, peer *net.UDPAddr) []byte {
 	buf := make([]byte, STUNHeaderSize, 1500)
 
@@ -419,7 +419,7 @@ func (c *TURNClient) createPermissionRequest(transactionID []byte, peer *net.UDP
 	return buf
 }
 
-// encodeXORPeerAddress encodes a peer address for XOR-PEER-ADDRESS
+// encodeXORPeerAddress encodes a peer address for XOR-PEER-ADDRESS.
 func (c *TURNClient) encodeXORPeerAddress(addr *net.UDPAddr) []byte {
 	buf := make([]byte, 8) // IPv4 only for now
 
@@ -442,7 +442,7 @@ func (c *TURNClient) encodeXORPeerAddress(addr *net.UDPAddr) []byte {
 	return buf
 }
 
-// Send sends data to a peer through the TURN relay
+// Send sends data to a peer through the TURN relay.
 func (c *TURNClient) Send(ctx context.Context, data []byte, peer *net.UDPAddr) error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -458,7 +458,7 @@ func (c *TURNClient) Send(ctx context.Context, data []byte, peer *net.UDPAddr) e
 	return err
 }
 
-// createSendRequest creates a TURN Send request
+// createSendRequest creates a TURN Send request.
 func (c *TURNClient) createSendRequest(transactionID []byte, data []byte, peer *net.UDPAddr) []byte {
 	buf := make([]byte, STUNHeaderSize, 1500)
 
@@ -478,7 +478,7 @@ func (c *TURNClient) createSendRequest(transactionID []byte, data []byte, peer *
 	return buf
 }
 
-// Receive receives data from the TURN relay
+// Receive receives data from the TURN relay.
 func (c *TURNClient) Receive(ctx context.Context) ([]byte, *net.UDPAddr, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -512,7 +512,7 @@ func (c *TURNClient) Receive(ctx context.Context) ([]byte, *net.UDPAddr, error) 
 	return nil, nil, errors.New("unexpected packet type")
 }
 
-// parseDataIndication parses a TURN Data Indication
+// parseDataIndication parses a TURN Data Indication.
 func (c *TURNClient) parseDataIndication(pkt *STUNPacket) ([]byte, *net.UDPAddr, error) {
 	data, ok := pkt.Attributes[TURNAttrData]
 	if !ok {
@@ -543,14 +543,14 @@ func (c *TURNClient) parseDataIndication(pkt *STUNPacket) ([]byte, *net.UDPAddr,
 	return data, &net.UDPAddr{IP: ip, Port: port}, nil
 }
 
-// Refresh refreshes the TURN allocation
+// Refresh refreshes the TURN allocation.
 func (c *TURNClient) Refresh(ctx context.Context) error {
 	// Re-allocate to refresh
 	_, err := c.Allocate(ctx)
 	return err
 }
 
-// Close closes the TURN client
+// Close closes the TURN client.
 func (c *TURNClient) Close() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -562,21 +562,21 @@ func (c *TURNClient) Close() error {
 	return nil
 }
 
-// GetRelayAddress returns the relay address
+// GetRelayAddress returns the relay address.
 func (c *TURNClient) GetRelayAddress() *net.UDPAddr {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.relayAddr
 }
 
-// IsAllocated returns whether there's an active allocation
+// IsAllocated returns whether there's an active allocation.
 func (c *TURNClient) IsAllocated() bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.allocated
 }
 
-// BindChannel binds a channel for efficient data transfer
+// BindChannel binds a channel for efficient data transfer.
 func (c *TURNClient) BindChannel(ctx context.Context, peer *net.UDPAddr) (uint16, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -614,7 +614,7 @@ func (c *TURNClient) BindChannel(ctx context.Context, peer *net.UDPAddr) (uint16
 	return channel, nil
 }
 
-// createChannelBindRequest creates a ChannelBind request
+// createChannelBindRequest creates a ChannelBind request.
 func (c *TURNClient) createChannelBindRequest(transactionID []byte, channel uint16, peer *net.UDPAddr) []byte {
 	buf := make([]byte, STUNHeaderSize, 1500)
 
@@ -638,7 +638,7 @@ func (c *TURNClient) createChannelBindRequest(transactionID []byte, channel uint
 	return buf
 }
 
-// GenerateTURNKey generates a TURN integrity key
+// GenerateTURNKey generates a TURN integrity key.
 func GenerateTURNKey(username, realm, password string) []byte {
 	h := md5.New()
 	h.Write([]byte(username + ":" + realm + ":" + password))

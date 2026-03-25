@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// RestoreOptionsExtended 扩展恢复选项（restore 包内部使用）
+// RestoreOptionsExtended 扩展恢复选项（restore 包内部使用）.
 type RestoreOptionsExtended struct {
 	BackupID    string
 	TargetPath  string
@@ -23,7 +23,7 @@ type RestoreOptionsExtended struct {
 	VerifyAfter bool
 }
 
-// Info 备份信息
+// Info 备份信息.
 type Info struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -34,10 +34,10 @@ type Info struct {
 	Metadata  *Metadata `json:"metadata,omitempty"`
 }
 
-// BackupInfo 备份信息（兼容别名）
+// BackupInfo 备份信息（兼容别名）.
 type BackupInfo = Info //nolint:revive // 向后兼容别名
 
-// Metadata 备份元数据
+// Metadata 备份元数据.
 type Metadata struct {
 	SourcePath string            `json:"sourcePath"`
 	FileCount  int               `json:"fileCount"`
@@ -47,17 +47,17 @@ type Metadata struct {
 	Extra      map[string]string `json:"extra,omitempty"`
 }
 
-// BackupMetadata 备份元数据（兼容别名）
+// BackupMetadata 备份元数据（兼容别名）.
 type BackupMetadata = Metadata //nolint:revive // 向后兼容别名
 
-// RestoreManager 恢复管理器
+// RestoreManager 恢复管理器.
 type RestoreManager struct {
 	backupDir  string
 	storageDir string
 	encryptor  *EncryptionManager
 }
 
-// NewRestoreManager 创建恢复管理器
+// NewRestoreManager 创建恢复管理器.
 func NewRestoreManager(backupDir, storageDir string, encryptor *EncryptionManager) *RestoreManager {
 	return &RestoreManager{
 		backupDir:  backupDir,
@@ -66,7 +66,7 @@ func NewRestoreManager(backupDir, storageDir string, encryptor *EncryptionManage
 	}
 }
 
-// RestoreResult 恢复结果
+// RestoreResult 恢复结果.
 type RestoreResult struct {
 	Success       bool          `json:"success"`
 	BackupInfo    *BackupInfo   `json:"backupInfo"`
@@ -79,7 +79,7 @@ type RestoreResult struct {
 	Warnings      []string      `json:"warnings,omitempty"`
 }
 
-// Restore 一键恢复
+// Restore 一键恢复.
 func (rm *RestoreManager) Restore(opts RestoreOptionsExtended) (*RestoreResult, error) {
 	startTime := time.Now()
 	result := &RestoreResult{
@@ -155,14 +155,14 @@ func (rm *RestoreManager) Restore(opts RestoreOptionsExtended) (*RestoreResult, 
 	return result, nil
 }
 
-// backupPreview 恢复预览
+// backupPreview 恢复预览.
 type backupPreview struct {
 	fileCount int
 	totalSize int64
 	files     []string
 }
 
-// previewRestore 预览恢复
+// previewRestore 预览恢复.
 func (rm *RestoreManager) previewRestore(backupPath string, files []string) (*backupPreview, error) {
 	preview := &backupPreview{}
 
@@ -203,7 +203,7 @@ func (rm *RestoreManager) previewRestore(backupPath string, files []string) (*ba
 	return preview, nil
 }
 
-// executeRestore 执行恢复
+// executeRestore 执行恢复.
 func (rm *RestoreManager) executeRestore(backupPath, targetPath string, files []string, overwrite bool) error {
 	if err := os.MkdirAll(targetPath, 0750); err != nil {
 		return err
@@ -236,7 +236,7 @@ func (rm *RestoreManager) executeRestore(backupPath, targetPath string, files []
 	return nil
 }
 
-// copyFileOrDir 复制文件或目录
+// copyFileOrDir 复制文件或目录.
 func (rm *RestoreManager) copyFileOrDir(src, dst string, overwrite bool) error {
 	info, err := os.Stat(src)
 	if err != nil {
@@ -282,7 +282,7 @@ func (rm *RestoreManager) copyFileOrDir(src, dst string, overwrite bool) error {
 	return nil
 }
 
-// verifyRestore 验证恢复结果
+// verifyRestore 验证恢复结果.
 func (rm *RestoreManager) verifyRestore(backupPath, targetPath string) error {
 	// 简单验证：检查文件数量是否一致
 	var backupFiles, targetFiles int
@@ -308,7 +308,7 @@ func (rm *RestoreManager) verifyRestore(backupPath, targetPath string) error {
 	return nil
 }
 
-// decryptBackup 解密备份
+// decryptBackup 解密备份.
 func (rm *RestoreManager) decryptBackup(backupPath, password string) (string, error) {
 	// 创建临时目录
 	tempDir, err := os.MkdirTemp("", "backup-decrypt-*")
@@ -348,7 +348,7 @@ func (rm *RestoreManager) decryptBackup(backupPath, password string) (string, er
 	}
 }
 
-// findBackup 查找备份
+// findBackup 查找备份.
 func (rm *RestoreManager) findBackup(backupID string) (*BackupInfo, error) {
 	// 1. 如果是绝对路径，直接使用
 	if filepath.IsAbs(backupID) {
@@ -386,7 +386,7 @@ func (rm *RestoreManager) findBackup(backupID string) (*BackupInfo, error) {
 	return nil, fmt.Errorf("备份不存在：%s，可用备份：%+v", backupID, allBackups)
 }
 
-// loadBackupInfo 加载备份信息
+// loadBackupInfo 加载备份信息.
 func (rm *RestoreManager) loadBackupInfo(backupPath string) (*BackupInfo, error) {
 	metaPath := filepath.Join(backupPath, ".backup-meta.json")
 
@@ -411,7 +411,7 @@ func (rm *RestoreManager) loadBackupInfo(backupPath string) (*BackupInfo, error)
 	return info, nil
 }
 
-// validateTargetPath 验证目标路径
+// validateTargetPath 验证目标路径.
 func (rm *RestoreManager) validateTargetPath(targetPath string, overwrite bool) error {
 	if targetPath == "" {
 		return fmt.Errorf("目标路径不能为空")
@@ -436,7 +436,7 @@ func (rm *RestoreManager) validateTargetPath(targetPath string, overwrite bool) 
 	return nil
 }
 
-// checkDiskSpace 检查磁盘空间
+// checkDiskSpace 检查磁盘空间.
 func (rm *RestoreManager) checkDiskSpace(path string) error {
 	// 简化实现：仅检查路径是否可写
 	testFile := filepath.Join(path, ".space-test-"+fmt.Sprintf("%d", time.Now().UnixNano()))
@@ -447,7 +447,7 @@ func (rm *RestoreManager) checkDiskSpace(path string) error {
 	return nil
 }
 
-// getRestoreStats 获取恢复统计
+// getRestoreStats 获取恢复统计.
 func (rm *RestoreManager) getRestoreStats(path string) (*backupPreview, error) {
 	stats := &backupPreview{}
 
@@ -462,7 +462,7 @@ func (rm *RestoreManager) getRestoreStats(path string) (*backupPreview, error) {
 	return stats, err
 }
 
-// ListAllBackups 列出所有可用备份
+// ListAllBackups 列出所有可用备份.
 func (rm *RestoreManager) ListAllBackups() ([]BackupInfo, error) {
 	var allBackups []BackupInfo
 
@@ -492,7 +492,7 @@ func (rm *RestoreManager) ListAllBackups() ([]BackupInfo, error) {
 	return allBackups, nil
 }
 
-// QuickRestore 快速恢复到最新备份
+// QuickRestore 快速恢复到最新备份.
 func (rm *RestoreManager) QuickRestore(backupName, targetPath string) (*RestoreResult, error) {
 	return rm.Restore(RestoreOptionsExtended{
 		BackupID:    backupName,
@@ -503,7 +503,7 @@ func (rm *RestoreManager) QuickRestore(backupName, targetPath string) (*RestoreR
 	})
 }
 
-// RestoreSingleFile 恢复单个文件
+// RestoreSingleFile 恢复单个文件.
 func (rm *RestoreManager) RestoreSingleFile(backupID, filePath, targetPath string) (*RestoreResult, error) {
 	return rm.Restore(RestoreOptionsExtended{
 		BackupID:   backupID,

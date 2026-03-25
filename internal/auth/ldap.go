@@ -11,7 +11,7 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-// LDAPConfig LDAP/AD 配置
+// LDAPConfig LDAP/AD 配置.
 type LDAPConfig struct {
 	Name          string       `json:"name"`
 	URL           string       `json:"url"`             // ldap://host:port 或 ldaps://host:port
@@ -28,7 +28,7 @@ type LDAPConfig struct {
 	IsAD          bool         `json:"is_ad"` // 是否为 Active Directory
 }
 
-// AttributeMap 属性映射
+// AttributeMap 属性映射.
 type AttributeMap struct {
 	Username  string `json:"username"`   // 用户名属性
 	Email     string `json:"email"`      // 邮箱属性
@@ -38,7 +38,7 @@ type AttributeMap struct {
 	Groups    string `json:"groups"`     // 组属性
 }
 
-// LDAPUser LDAP 用户信息
+// LDAPUser LDAP 用户信息.
 type LDAPUser struct {
 	Username  string   `json:"username"`
 	Email     string   `json:"email"`
@@ -49,35 +49,35 @@ type LDAPUser struct {
 	DN        string   `json:"dn"`
 }
 
-// LDAPManager LDAP/AD 管理器
+// LDAPManager LDAP/AD 管理器.
 type LDAPManager struct {
 	mu      sync.RWMutex
 	configs map[string]*LDAPConfig
 }
 
 var (
-	// ErrLDAPConfigNotFound LDAP 配置未找到
+	// ErrLDAPConfigNotFound LDAP 配置未找到.
 	ErrLDAPConfigNotFound = errors.New("LDAP 配置未找到")
-	// ErrLDAPConnectionFailed LDAP 连接失败
+	// ErrLDAPConnectionFailed LDAP 连接失败.
 	ErrLDAPConnectionFailed = errors.New("LDAP 连接失败")
-	// ErrLDAPBindFailed LDAP 绑定失败
+	// ErrLDAPBindFailed LDAP 绑定失败.
 	ErrLDAPBindFailed = errors.New("LDAP 绑定失败")
-	// ErrLDAPUserNotFound LDAP 用户未找到
+	// ErrLDAPUserNotFound LDAP 用户未找到.
 	ErrLDAPUserNotFound = errors.New("LDAP 用户未找到")
-	// ErrLDAPAuthFailed LDAP 认证失败
+	// ErrLDAPAuthFailed LDAP 认证失败.
 	ErrLDAPAuthFailed = errors.New("LDAP 认证失败")
-	// ErrLDAPSearchFailed LDAP 搜索失败
+	// ErrLDAPSearchFailed LDAP 搜索失败.
 	ErrLDAPSearchFailed = errors.New("LDAP 搜索失败")
 )
 
-// NewLDAPManager 创建 LDAP 管理器
+// NewLDAPManager 创建 LDAP 管理器.
 func NewLDAPManager() *LDAPManager {
 	return &LDAPManager{
 		configs: make(map[string]*LDAPConfig),
 	}
 }
 
-// RegisterConfig 注册 LDAP 配置
+// RegisterConfig 注册 LDAP 配置.
 func (m *LDAPManager) RegisterConfig(config LDAPConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -86,7 +86,7 @@ func (m *LDAPManager) RegisterConfig(config LDAPConfig) error {
 	return nil
 }
 
-// GetConfig 获取 LDAP 配置
+// GetConfig 获取 LDAP 配置.
 func (m *LDAPManager) GetConfig(name string) (*LDAPConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -98,7 +98,7 @@ func (m *LDAPManager) GetConfig(name string) (*LDAPConfig, error) {
 	return config, nil
 }
 
-// ListConfigs 列出所有已启用的配置
+// ListConfigs 列出所有已启用的配置.
 func (m *LDAPManager) ListConfigs() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -112,7 +112,7 @@ func (m *LDAPManager) ListConfigs() []string {
 	return configs
 }
 
-// Authenticate LDAP 认证
+// Authenticate LDAP 认证.
 func (m *LDAPManager) Authenticate(configName, username, password string) (*LDAPUser, error) {
 	config, err := m.GetConfig(configName)
 	if err != nil {
@@ -146,7 +146,7 @@ func (m *LDAPManager) Authenticate(configName, username, password string) (*LDAP
 	return user, nil
 }
 
-// connect 连接 LDAP 服务器
+// connect 连接 LDAP 服务器.
 func (m *LDAPManager) connect(config *LDAPConfig) (*ldap.Conn, error) {
 	var conn *ldap.Conn
 	var err error
@@ -209,7 +209,7 @@ func (m *LDAPManager) connect(config *LDAPConfig) (*ldap.Conn, error) {
 	return conn, nil
 }
 
-// searchUser 搜索用户
+// searchUser 搜索用户.
 func (m *LDAPManager) searchUser(conn *ldap.Conn, config *LDAPConfig, username string) (*LDAPUser, error) {
 	// 构建搜索过滤器
 	filter := fmt.Sprintf(config.UserFilter, ldap.EscapeFilter(username))
@@ -262,7 +262,7 @@ func (m *LDAPManager) searchUser(conn *ldap.Conn, config *LDAPConfig, username s
 	return user, nil
 }
 
-// getUserGroups 获取用户组
+// getUserGroups 获取用户组.
 func (m *LDAPManager) getUserGroups(conn *ldap.Conn, config *LDAPConfig, userDN string) ([]string, error) {
 	if config.GroupFilter == "" {
 		return nil, nil
@@ -294,7 +294,7 @@ func (m *LDAPManager) getUserGroups(conn *ldap.Conn, config *LDAPConfig, userDN 
 	return groups, nil
 }
 
-// SearchUsers 搜索用户（管理功能）
+// SearchUsers 搜索用户（管理功能）.
 func (m *LDAPManager) SearchUsers(configName, query string) ([]*LDAPUser, error) {
 	config, err := m.GetConfig(configName)
 	if err != nil {
@@ -342,7 +342,7 @@ func (m *LDAPManager) SearchUsers(configName, query string) ([]*LDAPUser, error)
 	return users, nil
 }
 
-// TestConnection 测试 LDAP 连接
+// TestConnection 测试 LDAP 连接.
 func (m *LDAPManager) TestConnection(configName string) error {
 	config, err := m.GetConfig(configName)
 	if err != nil {
@@ -360,7 +360,7 @@ func (m *LDAPManager) TestConnection(configName string) error {
 
 // ========== 预定义配置模板 ==========
 
-// GetOpenLDAPConfig 获取 OpenLDAP 配置模板
+// GetOpenLDAPConfig 获取 OpenLDAP 配置模板.
 func GetOpenLDAPConfig(name, url, bindDN, bindPassword, baseDN string) LDAPConfig {
 	return LDAPConfig{
 		Name:         name,
@@ -384,7 +384,7 @@ func GetOpenLDAPConfig(name, url, bindDN, bindPassword, baseDN string) LDAPConfi
 	}
 }
 
-// GetADConfig 获取 Active Directory 配置模板
+// GetADConfig 获取 Active Directory 配置模板.
 func GetADConfig(name, url, bindDN, bindPassword, baseDN string) LDAPConfig {
 	return LDAPConfig{
 		Name:         name,
@@ -408,7 +408,7 @@ func GetADConfig(name, url, bindDN, bindPassword, baseDN string) LDAPConfig {
 	}
 }
 
-// GetFreeIPAConfig 获取 FreeIPA 配置模板
+// GetFreeIPAConfig 获取 FreeIPA 配置模板.
 func GetFreeIPAConfig(name, url, bindDN, bindPassword, baseDN string) LDAPConfig {
 	return LDAPConfig{
 		Name:         name,

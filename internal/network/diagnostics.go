@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// DiagnosticResult 诊断结果
+// DiagnosticResult 诊断结果.
 type DiagnosticResult struct {
 	Success bool                   `json:"success"`
 	Output  string                 `json:"output"`
@@ -19,7 +19,7 @@ type DiagnosticResult struct {
 	Details map[string]interface{} `json:"details,omitempty"`
 }
 
-// PingOptions Ping 选项
+// PingOptions Ping 选项.
 type PingOptions struct {
 	Count    int `json:"count"`    // 发送次数
 	Interval int `json:"interval"` // 间隔（毫秒）
@@ -27,7 +27,7 @@ type PingOptions struct {
 	Size     int `json:"size"`     // 包大小
 }
 
-// PingResult Ping 结果
+// PingResult Ping 结果.
 type PingResult struct {
 	Host        string  `json:"host"`
 	PacketsSent int     `json:"packetsSent"`
@@ -40,7 +40,7 @@ type PingResult struct {
 	Output      string  `json:"output"`
 }
 
-// TracerouteHop 路由跳
+// TracerouteHop 路由跳.
 type TracerouteHop struct {
 	Hop     int     `json:"hop"`
 	Host    string  `json:"host"`
@@ -51,7 +51,7 @@ type TracerouteHop struct {
 	Timeout bool    `json:"timeout"` // 是否超时
 }
 
-// TracerouteResult Traceroute 结果
+// TracerouteResult Traceroute 结果.
 type TracerouteResult struct {
 	Host     string          `json:"host"`
 	Hops     []TracerouteHop `json:"hops"`
@@ -59,7 +59,7 @@ type TracerouteResult struct {
 	Complete bool            `json:"complete"`
 }
 
-// DNSLookupResult DNS 查询结果
+// DNSLookupResult DNS 查询结果.
 type DNSLookupResult struct {
 	Host       string     `json:"host"`
 	Addresses  []string   `json:"addresses"`
@@ -70,25 +70,25 @@ type DNSLookupResult struct {
 	QueryTime  int64      `json:"queryTime"` // 纳秒
 }
 
-// MXRecord MX 记录
+// MXRecord MX 记录.
 type MXRecord struct {
 	Preference int    `json:"preference"`
 	Host       string `json:"host"`
 }
 
-// NSRecord NS 记录
+// NSRecord NS 记录.
 type NSRecord struct {
 	Host string `json:"host"`
 }
 
-// PortScanResult 端口扫描结果
+// PortScanResult 端口扫描结果.
 type PortScanResult struct {
 	Host     string       `json:"host"`
 	Ports    []PortStatus `json:"ports"`
 	ScanTime int64        `json:"scanTime"` // 毫秒
 }
 
-// PortStatus 端口状态
+// PortStatus 端口状态.
 type PortStatus struct {
 	Port     int    `json:"port"`
 	Protocol string `json:"protocol"` // tcp, udp
@@ -96,7 +96,7 @@ type PortStatus struct {
 	Service  string `json:"service,omitempty"`
 }
 
-// Ping 执行 Ping 测试
+// Ping 执行 Ping 测试.
 func (m *Manager) Ping(host string, opts PingOptions) (*PingResult, error) {
 	if opts.Count == 0 {
 		opts.Count = 4
@@ -142,7 +142,7 @@ func (m *Manager) Ping(host string, opts PingOptions) (*PingResult, error) {
 	return result, nil
 }
 
-// parsePingOutput 解析 ping 输出
+// parsePingOutput 解析 ping 输出.
 func (m *Manager) parsePingOutput(output string, result *PingResult) {
 	lines := strings.Split(output, "\n")
 
@@ -174,7 +174,7 @@ func (m *Manager) parsePingOutput(output string, result *PingResult) {
 	}
 }
 
-// Traceroute 执行路由追踪
+// Traceroute 执行路由追踪.
 func (m *Manager) Traceroute(host string, maxHops int) (*TracerouteResult, error) {
 	if maxHops == 0 {
 		maxHops = 30
@@ -210,7 +210,7 @@ func (m *Manager) Traceroute(host string, maxHops int) (*TracerouteResult, error
 	return result, nil
 }
 
-// parseTracerouteOutput 解析 traceroute 输出
+// parseTracerouteOutput 解析 traceroute 输出.
 func (m *Manager) parseTracerouteOutput(output string, result *TracerouteResult) {
 	scanner := bufio.NewScanner(strings.NewReader(output))
 	hopNum := 0
@@ -295,7 +295,7 @@ func (m *Manager) parseTracerouteOutput(output string, result *TracerouteResult)
 	}
 }
 
-// parseTracepathOutput 解析 tracepath 输出
+// parseTracepathOutput 解析 tracepath 输出.
 func (m *Manager) parseTracepathOutput(output string, result *TracerouteResult) {
 	scanner := bufio.NewScanner(strings.NewReader(output))
 	hopNum := 0
@@ -342,7 +342,7 @@ func (m *Manager) parseTracepathOutput(output string, result *TracerouteResult) 
 	}
 }
 
-// DNSLookup 执行 DNS 查询
+// DNSLookup 执行 DNS 查询.
 func (m *Manager) DNSLookup(host string, recordType string) (*DNSLookupResult, error) {
 	start := time.Now()
 
@@ -401,7 +401,7 @@ func (m *Manager) DNSLookup(host string, recordType string) (*DNSLookupResult, e
 	return result, nil
 }
 
-// PortScan 端口扫描
+// PortScan 端口扫描.
 func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScanResult, error) {
 	start := time.Now()
 
@@ -456,7 +456,7 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 	return result, nil
 }
 
-// identifyService 识别端口对应的服务
+// identifyService 识别端口对应的服务.
 func (m *Manager) identifyService(port int) string {
 	services := map[int]string{
 		20:    "FTP Data",
@@ -488,7 +488,7 @@ func (m *Manager) identifyService(port int) string {
 	return ""
 }
 
-// NetworkDiagnose 综合网络诊断
+// NetworkDiagnose 综合网络诊断.
 func (m *Manager) NetworkDiagnose(host string) (map[string]interface{}, error) {
 	results := make(map[string]interface{})
 
@@ -520,7 +520,7 @@ func (m *Manager) NetworkDiagnose(host string) (map[string]interface{}, error) {
 	return results, nil
 }
 
-// Whois 查询域名 Whois 信息
+// Whois 查询域名 Whois 信息.
 func (m *Manager) Whois(domain string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -534,7 +534,7 @@ func (m *Manager) Whois(domain string) (string, error) {
 	return string(output), nil
 }
 
-// Nslookup 执行 nslookup 命令
+// Nslookup 执行 nslookup 命令.
 func (m *Manager) Nslookup(host string, server string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -553,7 +553,7 @@ func (m *Manager) Nslookup(host string, server string) (string, error) {
 	return string(output), nil
 }
 
-// Dig 执行 DNS 查询（使用 dig 命令）
+// Dig 执行 DNS 查询（使用 dig 命令）.
 func (m *Manager) Dig(host string, recordType string, server string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -576,7 +576,7 @@ func (m *Manager) Dig(host string, recordType string, server string) (string, er
 	return string(output), nil
 }
 
-// ParseDigOutput 解析 dig 输出获取 IP 列表
+// ParseDigOutput 解析 dig 输出获取 IP 列表.
 func (m *Manager) ParseDigOutput(output string) []string {
 	var ips []string
 	scanner := bufio.NewScanner(strings.NewReader(output))
@@ -611,7 +611,7 @@ func (m *Manager) ParseDigOutput(output string) []string {
 	return ips
 }
 
-// CheckConnectivity 检查网络连接状态
+// CheckConnectivity 检查网络连接状态.
 func (m *Manager) CheckConnectivity() (*ConnectivityStatus, error) {
 	status := &ConnectivityStatus{
 		Checks: make(map[string]bool),
@@ -653,13 +653,13 @@ func (m *Manager) CheckConnectivity() (*ConnectivityStatus, error) {
 	return status, nil
 }
 
-// ConnectivityStatus 连接状态
+// ConnectivityStatus 连接状态.
 type ConnectivityStatus struct {
 	Connected bool            `json:"connected"`
 	Checks    map[string]bool `json:"checks"`
 }
 
-// Netstat 获取网络连接状态
+// Netstat 获取网络连接状态.
 func (m *Manager) Netstat() (string, error) {
 	cmd := exec.Command("netstat", "-tulpn")
 	output, err := cmd.CombinedOutput()
@@ -674,7 +674,7 @@ func (m *Manager) Netstat() (string, error) {
 	return string(output), nil
 }
 
-// ARPTable 获取 ARP 表
+// ARPTable 获取 ARP 表.
 func (m *Manager) ARPTable() ([]ARPEntry, error) {
 	cmd := exec.Command("arp", "-n")
 	output, err := cmd.Output()
@@ -707,7 +707,7 @@ func (m *Manager) ARPTable() ([]ARPEntry, error) {
 	return entries, nil
 }
 
-// ARPEntry ARP 表条目
+// ARPEntry ARP 表条目.
 type ARPEntry struct {
 	IP        string `json:"ip"`
 	HWAddress string `json:"hwAddress"`

@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// SecurityAuditLogger 安全审计日志记录器
+// SecurityAuditLogger 安全审计日志记录器.
 type SecurityAuditLogger struct {
 	mu       sync.RWMutex
 	logPath  string
@@ -20,7 +20,7 @@ type SecurityAuditLogger struct {
 	maxFiles int   // 最大保留日志文件数
 }
 
-// SecurityAuditEntry 安全审计日志条目
+// SecurityAuditEntry 安全审计日志条目.
 type SecurityAuditEntry struct {
 	ID        string                 `json:"id"`
 	Timestamp time.Time              `json:"timestamp"`
@@ -37,7 +37,7 @@ type SecurityAuditEntry struct {
 	Details   map[string]interface{} `json:"details,omitempty"`
 }
 
-// DefaultSecurityAuditLogger 默认安全审计日志记录器
+// DefaultSecurityAuditLogger 默认安全审计日志记录器.
 var DefaultSecurityAuditLogger = &SecurityAuditLogger{
 	logPath:  "/var/log/nas-os/security-audit.log",
 	enabled:  true,
@@ -45,7 +45,7 @@ var DefaultSecurityAuditLogger = &SecurityAuditLogger{
 	maxFiles: 10,
 }
 
-// NewSecurityAuditLogger 创建安全审计日志记录器
+// NewSecurityAuditLogger 创建安全审计日志记录器.
 func NewSecurityAuditLogger(logPath string) *SecurityAuditLogger {
 	return &SecurityAuditLogger{
 		logPath:  logPath,
@@ -55,14 +55,14 @@ func NewSecurityAuditLogger(logPath string) *SecurityAuditLogger {
 	}
 }
 
-// SetEnabled 设置是否启用审计日志
+// SetEnabled 设置是否启用审计日志.
 func (l *SecurityAuditLogger) SetEnabled(enabled bool) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.enabled = enabled
 }
 
-// Log 记录安全审计日志
+// Log 记录安全审计日志.
 func (l *SecurityAuditLogger) Log(entry SecurityAuditEntry) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -111,7 +111,7 @@ func (l *SecurityAuditLogger) Log(entry SecurityAuditEntry) {
 	}
 }
 
-// rotateIfNeeded 检查并执行日志轮转
+// rotateIfNeeded 检查并执行日志轮转.
 func (l *SecurityAuditLogger) rotateIfNeeded() {
 	info, err := os.Stat(l.logPath)
 	if err != nil {
@@ -124,7 +124,7 @@ func (l *SecurityAuditLogger) rotateIfNeeded() {
 	}
 }
 
-// rotateLog 执行日志轮转
+// rotateLog 执行日志轮转.
 func (l *SecurityAuditLogger) rotateLog() {
 	// 删除最旧的日志文件
 	oldestLog := l.logPath + "." + string(rune(l.maxFiles-1))
@@ -147,7 +147,7 @@ func (l *SecurityAuditLogger) rotateLog() {
 
 // ========== 便捷日志记录方法 ==========
 
-// LogLogin 记录登录事件
+// LogLogin 记录登录事件.
 func (l *SecurityAuditLogger) LogLogin(userID, username, ip, userAgent, status, reason string) {
 	l.Log(SecurityAuditEntry{
 		Category:  "auth",
@@ -161,7 +161,7 @@ func (l *SecurityAuditLogger) LogLogin(userID, username, ip, userAgent, status, 
 	})
 }
 
-// LogLogout 记录登出事件
+// LogLogout 记录登出事件.
 func (l *SecurityAuditLogger) LogLogout(userID, username, ip string) {
 	l.Log(SecurityAuditEntry{
 		Category: "auth",
@@ -173,7 +173,7 @@ func (l *SecurityAuditLogger) LogLogout(userID, username, ip string) {
 	})
 }
 
-// LogLoginAttempt 记录登录尝试
+// LogLoginAttempt 记录登录尝试.
 func (l *SecurityAuditLogger) LogLoginAttempt(username, ip, userAgent, status, reason string) {
 	l.Log(SecurityAuditEntry{
 		Category:  "auth",
@@ -186,7 +186,7 @@ func (l *SecurityAuditLogger) LogLoginAttempt(username, ip, userAgent, status, r
 	})
 }
 
-// LogMFASetup 记录 MFA 设置事件
+// LogMFASetup 记录 MFA 设置事件.
 func (l *SecurityAuditLogger) LogMFASetup(userID, username, ip, mfaType, status string) {
 	l.Log(SecurityAuditEntry{
 		Category: "mfa",
@@ -199,7 +199,7 @@ func (l *SecurityAuditLogger) LogMFASetup(userID, username, ip, mfaType, status 
 	})
 }
 
-// LogMFAVerify 记录 MFA 验证事件
+// LogMFAVerify 记录 MFA 验证事件.
 func (l *SecurityAuditLogger) LogMFAVerify(userID, username, ip, mfaType, status, reason string) {
 	l.Log(SecurityAuditEntry{
 		Category: "mfa",
@@ -213,7 +213,7 @@ func (l *SecurityAuditLogger) LogMFAVerify(userID, username, ip, mfaType, status
 	})
 }
 
-// LogPasswordChange 记录密码变更事件
+// LogPasswordChange 记录密码变更事件.
 func (l *SecurityAuditLogger) LogPasswordChange(userID, username, ip, status, reason string) {
 	l.Log(SecurityAuditEntry{
 		Category: "password",
@@ -226,7 +226,7 @@ func (l *SecurityAuditLogger) LogPasswordChange(userID, username, ip, status, re
 	})
 }
 
-// LogPasswordReset 记录密码重置事件
+// LogPasswordReset 记录密码重置事件.
 func (l *SecurityAuditLogger) LogPasswordReset(userID, username, ip, status, reason string) {
 	l.Log(SecurityAuditEntry{
 		Category: "password",
@@ -239,7 +239,7 @@ func (l *SecurityAuditLogger) LogPasswordReset(userID, username, ip, status, rea
 	})
 }
 
-// LogSessionCreate 记录会话创建事件
+// LogSessionCreate 记录会话创建事件.
 func (l *SecurityAuditLogger) LogSessionCreate(userID, username, ip, userAgent, deviceID string) {
 	l.Log(SecurityAuditEntry{
 		Category:  "session",
@@ -253,7 +253,7 @@ func (l *SecurityAuditLogger) LogSessionCreate(userID, username, ip, userAgent, 
 	})
 }
 
-// LogSessionInvalidate 记录会话失效事件
+// LogSessionInvalidate 记录会话失效事件.
 func (l *SecurityAuditLogger) LogSessionInvalidate(userID, username, ip, reason string) {
 	l.Log(SecurityAuditEntry{
 		Category: "session",
@@ -266,7 +266,7 @@ func (l *SecurityAuditLogger) LogSessionInvalidate(userID, username, ip, reason 
 	})
 }
 
-// LogAccountLock 记录账户锁定事件
+// LogAccountLock 记录账户锁定事件.
 func (l *SecurityAuditLogger) LogAccountLock(username, ip, reason string) {
 	l.Log(SecurityAuditEntry{
 		Category: "auth",
@@ -278,7 +278,7 @@ func (l *SecurityAuditLogger) LogAccountLock(username, ip, reason string) {
 	})
 }
 
-// LogAccountUnlock 记录账户解锁事件
+// LogAccountUnlock 记录账户解锁事件.
 func (l *SecurityAuditLogger) LogAccountUnlock(username, adminUser, reason string) {
 	l.Log(SecurityAuditEntry{
 		Category: "auth",
@@ -292,7 +292,7 @@ func (l *SecurityAuditLogger) LogAccountUnlock(username, adminUser, reason strin
 	})
 }
 
-// LogPermissionChange 记录权限变更事件
+// LogPermissionChange 记录权限变更事件.
 func (l *SecurityAuditLogger) LogPermissionChange(userID, username, ip, resource, action, status string) {
 	l.Log(SecurityAuditEntry{
 		Category: "auth",
@@ -306,7 +306,7 @@ func (l *SecurityAuditLogger) LogPermissionChange(userID, username, ip, resource
 	})
 }
 
-// LogSecurityAlert 记录安全告警
+// LogSecurityAlert 记录安全告警.
 func (l *SecurityAuditLogger) LogSecurityAlert(alertType, severity, message string, details map[string]interface{}) {
 	l.Log(SecurityAuditEntry{
 		Category: "security",
@@ -323,22 +323,22 @@ func (l *SecurityAuditLogger) LogSecurityAlert(alertType, severity, message stri
 
 // ========== 全局日志记录函数 ==========
 
-// AuditLog 使用默认记录器记录审计日志
+// AuditLog 使用默认记录器记录审计日志.
 func AuditLog(entry SecurityAuditEntry) {
 	DefaultSecurityAuditLogger.Log(entry)
 }
 
-// AuditLogin 记录登录事件
+// AuditLogin 记录登录事件.
 func AuditLogin(userID, username, ip, userAgent, status, reason string) {
 	DefaultSecurityAuditLogger.LogLogin(userID, username, ip, userAgent, status, reason)
 }
 
-// AuditMFASetup 记录 MFA 设置事件
+// AuditMFASetup 记录 MFA 设置事件.
 func AuditMFASetup(userID, username, ip, mfaType, status string) {
 	DefaultSecurityAuditLogger.LogMFASetup(userID, username, ip, mfaType, status)
 }
 
-// AuditPasswordChange 记录密码变更事件
+// AuditPasswordChange 记录密码变更事件.
 func AuditPasswordChange(userID, username, ip, status, reason string) {
 	DefaultSecurityAuditLogger.LogPasswordChange(userID, username, ip, status, reason)
 }

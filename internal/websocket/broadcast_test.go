@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TestBroadcaster_CreateRoom 测试创建房间
+// TestBroadcaster_CreateRoom 测试创建房间.
 func TestBroadcaster_CreateRoom(t *testing.T) {
 	b := NewBroadcaster(DefaultBroadcasterConfig)
 	b.Start()
@@ -30,7 +30,7 @@ func TestBroadcaster_CreateRoom(t *testing.T) {
 	}
 }
 
-// TestBroadcaster_DeleteRoom 测试删除房间
+// TestBroadcaster_DeleteRoom 测试删除房间.
 func TestBroadcaster_DeleteRoom(t *testing.T) {
 	b := NewBroadcaster(DefaultBroadcasterConfig)
 
@@ -47,7 +47,7 @@ func TestBroadcaster_DeleteRoom(t *testing.T) {
 	}
 }
 
-// TestBroadcaster_JoinLeaveRoom 测试加入和离开房间
+// TestBroadcaster_JoinLeaveRoom 测试加入和离开房间.
 func TestBroadcaster_JoinLeaveRoom(t *testing.T) {
 	b := NewBroadcaster(DefaultBroadcasterConfig)
 
@@ -80,7 +80,7 @@ func TestBroadcaster_JoinLeaveRoom(t *testing.T) {
 	}
 }
 
-// TestBroadcaster_TopicSubscribe 测试主题订阅
+// TestBroadcaster_TopicSubscribe 测试主题订阅.
 func TestBroadcaster_TopicSubscribe(t *testing.T) {
 	b := NewBroadcaster(DefaultBroadcasterConfig)
 
@@ -108,7 +108,7 @@ func TestBroadcaster_TopicSubscribe(t *testing.T) {
 	}
 }
 
-// TestBroadcaster_BroadcastToRoom 测试房间广播
+// TestBroadcaster_BroadcastToRoom 测试房间广播.
 func TestBroadcaster_BroadcastToRoom(t *testing.T) {
 	b := NewBroadcaster(DefaultBroadcasterConfig)
 	b.Start()
@@ -165,7 +165,7 @@ func TestBroadcaster_BroadcastToRoom(t *testing.T) {
 	}
 }
 
-// TestBroadcaster_BroadcastToTopic 测试主题广播
+// TestBroadcaster_BroadcastToTopic 测试主题广播.
 func TestBroadcaster_BroadcastToTopic(t *testing.T) {
 	b := NewBroadcaster(DefaultBroadcasterConfig)
 	b.Start()
@@ -222,7 +222,7 @@ func TestBroadcaster_BroadcastToTopic(t *testing.T) {
 	}
 }
 
-// TestBroadcaster_RoomTopicBinding 测试房间主题绑定
+// TestBroadcaster_RoomTopicBinding 测试房间主题绑定.
 func TestBroadcaster_RoomTopicBinding(t *testing.T) {
 	b := NewBroadcaster(DefaultBroadcasterConfig)
 
@@ -249,7 +249,7 @@ func TestBroadcaster_RoomTopicBinding(t *testing.T) {
 	}
 }
 
-// TestBroadcaster_Stats 测试统计功能
+// TestBroadcaster_Stats 测试统计功能.
 func TestBroadcaster_Stats(t *testing.T) {
 	b := NewBroadcaster(DefaultBroadcasterConfig)
 	b.Start()
@@ -276,7 +276,7 @@ func TestBroadcaster_Stats(t *testing.T) {
 	}
 }
 
-// TestBroadcaster_History 测试历史记录
+// TestBroadcaster_History 测试历史记录.
 func TestBroadcaster_HroadcastHistory(t *testing.T) {
 	config := DefaultBroadcasterConfig
 	config.EnableHistory = true
@@ -318,7 +318,7 @@ func TestBroadcaster_HroadcastHistory(t *testing.T) {
 	}
 }
 
-// TestBroadcaster_LeaveAllRooms 测试离开所有房间
+// TestBroadcaster_LeaveAllRooms 测试离开所有房间.
 func TestBroadcaster_LeaveAllRooms(t *testing.T) {
 	b := NewBroadcaster(DefaultBroadcasterConfig)
 
@@ -355,7 +355,7 @@ func TestBroadcaster_LeaveAllRooms(t *testing.T) {
 	}
 }
 
-// TestBroadcaster_ExcludeClients 测试排除客户端
+// TestBroadcaster_ExcludeClients 测试排除客户端.
 func TestBroadcaster_ExcludeClients(t *testing.T) {
 	b := NewBroadcaster(DefaultBroadcasterConfig)
 	b.Start()

@@ -8,7 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// InitValidator 初始化自定义验证器
+// InitValidator 初始化自定义验证器.
 func InitValidator() {
 	// 注册自定义验证规则
 	_ = validate.RegisterValidation("username", validateUsername)
@@ -23,7 +23,7 @@ func InitValidator() {
 
 // 自定义验证规则
 
-// validateUsername 验证用户名：字母开头，允许字母数字下划线，3-32字符
+// validateUsername 验证用户名：字母开头，允许字母数字下划线，3-32字符.
 func validateUsername(fl validator.FieldLevel) bool {
 	username := fl.Field().String()
 	if len(username) < 3 || len(username) > 32 {
@@ -33,13 +33,13 @@ func validateUsername(fl validator.FieldLevel) bool {
 	return matched
 }
 
-// validatePassword 验证密码：至少6个字符
+// validatePassword 验证密码：至少6个字符.
 func validatePassword(fl validator.FieldLevel) bool {
 	password := fl.Field().String()
 	return len(password) >= 6
 }
 
-// validateVolumeName 验证卷名：允许字母数字下划线中划线，1-64字符
+// validateVolumeName 验证卷名：允许字母数字下划线中划线，1-64字符.
 func validateVolumeName(fl validator.FieldLevel) bool {
 	name := fl.Field().String()
 	if len(name) < 1 || len(name) > 64 {
@@ -49,7 +49,7 @@ func validateVolumeName(fl validator.FieldLevel) bool {
 	return matched
 }
 
-// validateContainerName 验证容器名：允许字母数字下划线中划线点，1-64字符
+// validateContainerName 验证容器名：允许字母数字下划线中划线点，1-64字符.
 func validateContainerName(fl validator.FieldLevel) bool {
 	name := fl.Field().String()
 	if len(name) < 1 || len(name) > 64 {
@@ -59,7 +59,7 @@ func validateContainerName(fl validator.FieldLevel) bool {
 	return matched
 }
 
-// validateIP 验证 IP 地址
+// validateIP 验证 IP 地址.
 func validateIP(fl validator.FieldLevel) bool {
 	ip := fl.Field().String()
 	if ip == "" {
@@ -76,13 +76,13 @@ func validateIP(fl validator.FieldLevel) bool {
 	return matched
 }
 
-// validatePort 验证端口号：1-65535
+// validatePort 验证端口号：1-65535.
 func validatePort(fl validator.FieldLevel) bool {
 	port := fl.Field().Int()
 	return port >= 1 && port <= 65535
 }
 
-// validateHostname 验证主机名
+// validateHostname 验证主机名.
 func validateHostname(fl validator.FieldLevel) bool {
 	hostname := fl.Field().String()
 	if len(hostname) < 1 || len(hostname) > 253 {
@@ -94,7 +94,7 @@ func validateHostname(fl validator.FieldLevel) bool {
 	return matched
 }
 
-// validatePath 验证文件路径
+// validatePath 验证文件路径.
 func validatePath(fl validator.FieldLevel) bool {
 	path := fl.Field().String()
 	if path == "" {
@@ -110,28 +110,28 @@ func validatePath(fl validator.FieldLevel) bool {
 
 // ========== 通用请求结构 ==========
 
-// IDRequest ID 请求参数
+// IDRequest ID 请求参数.
 type IDRequest struct {
 	ID string `uri:"id" binding:"required" json:"id"`
 }
 
-// NameRequest 名称请求参数
+// NameRequest 名称请求参数.
 type NameRequest struct {
 	Name string `uri:"name" binding:"required" json:"name"`
 }
 
-// EnableRequest 启用/禁用请求
+// EnableRequest 启用/禁用请求.
 type EnableRequest struct {
 	Enabled bool `json:"enabled"`
 }
 
-// PaginationRequest 分页请求
+// PaginationRequest 分页请求.
 type PaginationRequest struct {
 	Page     int `form:"page" binding:"omitempty,min=1"`
 	PageSize int `form:"pageSize" binding:"omitempty,min=1,max=100"`
 }
 
-// GetPage 获取页码，默认为 1
+// GetPage 获取页码，默认为 1.
 func (r *PaginationRequest) GetPage() int {
 	if r.Page < 1 {
 		return 1
@@ -139,7 +139,7 @@ func (r *PaginationRequest) GetPage() int {
 	return r.Page
 }
 
-// GetPageSize 获取每页数量，默认为 20
+// GetPageSize 获取每页数量，默认为 20.
 func (r *PaginationRequest) GetPageSize() int {
 	if r.PageSize < 1 {
 		return 20
@@ -150,18 +150,18 @@ func (r *PaginationRequest) GetPageSize() int {
 	return r.PageSize
 }
 
-// GetOffset 获取偏移量
+// GetOffset 获取偏移量.
 func (r *PaginationRequest) GetOffset() int {
 	return (r.GetPage() - 1) * r.GetPageSize()
 }
 
-// SortRequest 排序请求
+// SortRequest 排序请求.
 type SortRequest struct {
 	SortBy    string `form:"sortBy" json:"sortBy"`
 	SortOrder string `form:"sortOrder" json:"sortOrder"` // asc, desc
 }
 
-// GetSortOrder 获取排序方向，默认 desc
+// GetSortOrder 获取排序方向，默认 desc.
 func (r *SortRequest) GetSortOrder() string {
 	if r.SortOrder != "asc" && r.SortOrder != "desc" {
 		return "desc"
@@ -169,20 +169,20 @@ func (r *SortRequest) GetSortOrder() string {
 	return r.SortOrder
 }
 
-// TimeRangeRequest 时间范围请求
+// TimeRangeRequest 时间范围请求.
 type TimeRangeRequest struct {
 	StartTime string `form:"startTime" json:"startTime"` // RFC3339 格式
 	EndTime   string `form:"endTime" json:"endTime"`     // RFC3339 格式
 }
 
-// SearchRequest 搜索请求
+// SearchRequest 搜索请求.
 type SearchRequest struct {
 	Query string `form:"query" binding:"required,min=1,max=100" json:"query"`
 }
 
 // ========== 辅助函数 ==========
 
-// GetParam 获取路径参数，如果为空则返回默认值
+// GetParam 获取路径参数，如果为空则返回默认值.
 func GetParam(c interface{ Param(string) string }, key, defaultValue string) string {
 	value := c.Param(key)
 	if value == "" {
@@ -191,7 +191,7 @@ func GetParam(c interface{ Param(string) string }, key, defaultValue string) str
 	return value
 }
 
-// GetQuery 获取查询参数，如果为空则返回默认值
+// GetQuery 获取查询参数，如果为空则返回默认值.
 func GetQuery(c interface{ Query(string) string }, key, defaultValue string) string {
 	value := c.Query(key)
 	if value == "" {
@@ -200,7 +200,7 @@ func GetQuery(c interface{ Query(string) string }, key, defaultValue string) str
 	return value
 }
 
-// GetQueryInt 获取整数查询参数
+// GetQueryInt 获取整数查询参数.
 func GetQueryInt(c interface{ Query(string) string }, key string, defaultValue int) int {
 	value := c.Query(key)
 	if value == "" {
@@ -212,7 +212,7 @@ func GetQueryInt(c interface{ Query(string) string }, key string, defaultValue i
 	return result
 }
 
-// GetQueryBool 获取布尔查询参数
+// GetQueryBool 获取布尔查询参数.
 func GetQueryBool(c interface{ Query(string) string }, key string, defaultValue bool) bool {
 	value := c.Query(key)
 	if value == "" {

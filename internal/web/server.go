@@ -52,7 +52,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Server Web 服务器
+// Server Web 服务器.
 type Server struct {
 	engine        *gin.Engine
 	httpSrv       *http.Server
@@ -105,7 +105,7 @@ type Server struct {
 	// mediaMgr      *media.LibraryManager
 }
 
-// NewServer 创建 Web 服务器
+// NewServer 创建 Web 服务器.
 func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager, logger *zap.Logger) *Server {
 	// 如果未提供 logger，使用 nop logger
 	if logger == nil {
@@ -841,7 +841,7 @@ func (s *Server) setupRoutes() {
 	s.engine.StaticFile("/tunnel", "/usr/share/nas-os/webui/pages/tunnel.html")
 }
 
-// Start 启动服务器
+// Start 启动服务器.
 func (s *Server) Start(addr string) error {
 	// 启动 WebDAV 服务器
 	if s.webdavSrv != nil {
@@ -886,7 +886,7 @@ func (s *Server) Start(addr string) error {
 	return s.httpSrv.ListenAndServe()
 }
 
-// Stop 停止服务器
+// Stop 停止服务器.
 func (s *Server) Stop() error {
 	// 停止性能监控
 	if s.perfMgr != nil {
@@ -925,7 +925,7 @@ func (s *Server) Stop() error {
 
 // ========== 卷管理 API ==========
 
-// GenericResponse 通用 API 响应
+// GenericResponse 通用 API 响应.
 type GenericResponse struct {
 	Code    int         `json:"code" example:"0"`
 	Message string      `json:"message" example:"success"`
@@ -939,7 +939,7 @@ type GenericResponse struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GenericResponse "成功"
-// @Router /volumes [get]
+// @Router /volumes [get].
 func (s *Server) listVolumes(c *gin.Context) {
 	volumes := s.storageMgr.ListVolumes()
 	c.JSON(http.StatusOK, gin.H{
@@ -949,7 +949,7 @@ func (s *Server) listVolumes(c *gin.Context) {
 	})
 }
 
-// APISearchHandler 搜索处理器适配器
+// APISearchHandler 搜索处理器适配器.
 type APISearchHandler struct {
 	globalSearch *search.GlobalSearchService
 	engine       *search.Engine
@@ -958,7 +958,7 @@ type APISearchHandler struct {
 	logger       *zap.Logger
 }
 
-// NewAPISearchHandler 创建搜索处理器
+// NewAPISearchHandler 创建搜索处理器.
 func NewAPISearchHandler(
 	globalSearch *search.GlobalSearchService,
 	engine *search.Engine,
@@ -975,7 +975,7 @@ func NewAPISearchHandler(
 	}
 }
 
-// RegisterRoutes 注册搜索路由
+// RegisterRoutes 注册搜索路由.
 func (h *APISearchHandler) RegisterRoutes(r *gin.RouterGroup) {
 	searchGroup := r.Group("/search")
 	{
@@ -1083,7 +1083,7 @@ func parseInt(s string) (int, error) {
 // @Success 200 {object} GenericResponse "创建成功"
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes [post]
+// @Router /volumes [post].
 func (s *Server) createVolume(c *gin.Context) {
 	var req struct {
 		Name    string   `json:"name" binding:"required"`
@@ -1113,7 +1113,7 @@ func (s *Server) createVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 404 {object} GenericResponse "卷不存在"
-// @Router /volumes/{name} [get]
+// @Router /volumes/{name} [get].
 func (s *Server) getVolume(c *gin.Context) {
 	name := c.Param("name")
 	vol := s.storageMgr.GetVolume(name)
@@ -1134,7 +1134,7 @@ func (s *Server) getVolume(c *gin.Context) {
 // @Param force query bool false "强制删除"
 // @Success 200 {object} GenericResponse "删除成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name} [delete]
+// @Router /volumes/{name} [delete].
 func (s *Server) deleteVolume(c *gin.Context) {
 	name := c.Param("name")
 	force := c.Query("force") == "true"
@@ -1156,7 +1156,7 @@ func (s *Server) deleteVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "挂载成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/mount [post]
+// @Router /volumes/{name}/mount [post].
 func (s *Server) mountVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -1177,7 +1177,7 @@ func (s *Server) mountVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "卸载成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/unmount [post]
+// @Router /volumes/{name}/unmount [post].
 func (s *Server) unmountVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -1198,7 +1198,7 @@ func (s *Server) unmountVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/usage [get]
+// @Router /volumes/{name}/usage [get].
 func (s *Server) getVolumeUsage(c *gin.Context) {
 	name := c.Param("name")
 	total, used, free, err := s.storageMgr.GetUsage(name)
@@ -1240,7 +1240,7 @@ func (s *Server) getVolumeUsage(c *gin.Context) {
 // @Success 200 {object} GenericResponse "添加成功"
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/devices [post]
+// @Router /volumes/{name}/devices [post].
 func (s *Server) addDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
@@ -1269,7 +1269,7 @@ func (s *Server) addDevice(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} GenericResponse "移除成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/devices/{device} [delete]
+// @Router /volumes/{name}/devices/{device} [delete].
 func (s *Server) removeDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 	device := c.Param("device")
@@ -1308,7 +1308,7 @@ func (s *Server) getDeviceStats(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/subvolumes [get]
+// @Router /volumes/{name}/subvolumes [get].
 func (s *Server) listSubVolumes(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvols, err := s.storageMgr.ListSubVolumes(volumeName)
@@ -1335,7 +1335,7 @@ func (s *Server) listSubVolumes(c *gin.Context) {
 // @Success 200 {object} GenericResponse "创建成功"
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/subvolumes [post]
+// @Router /volumes/{name}/subvolumes [post].
 func (s *Server) createSubVolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
@@ -1411,7 +1411,7 @@ func (s *Server) setSubVolumeReadOnly(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/snapshots [get]
+// @Router /volumes/{name}/snapshots [get].
 func (s *Server) listSnapshots(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapshots, err := s.storageMgr.ListSnapshots(volumeName)
@@ -1567,7 +1567,7 @@ func (s *Server) getScrubStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GenericResponse "成功"
-// @Router /system/info [get]
+// @Router /system/info [get].
 func (s *Server) getSystemInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
@@ -1585,7 +1585,7 @@ func (s *Server) getSystemInfo(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} HealthResponse "系统健康"
-// @Router /system/health [get]
+// @Router /system/health [get].
 func (s *Server) getHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,

@@ -10,13 +10,13 @@ import (
 	"time"
 )
 
-// FileSystem 透明压缩文件系统
+// FileSystem 透明压缩文件系统.
 type FileSystem struct {
 	manager  *Manager
 	rootPath string
 }
 
-// NewFileSystem 创建透明压缩文件系统
+// NewFileSystem 创建透明压缩文件系统.
 func NewFileSystem(rootPath string, manager *Manager) (*FileSystem, error) {
 	if err := os.MkdirAll(rootPath, 0750); err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func NewFileSystem(rootPath string, manager *Manager) (*FileSystem, error) {
 	}, nil
 }
 
-// Open 打开文件（自动解压）
+// Open 打开文件（自动解压）.
 func (fs *FileSystem) Open(name string) (io.ReadCloser, error) {
 	path := fs.resolvePath(name)
 
@@ -54,7 +54,7 @@ func (fs *FileSystem) Open(name string) (io.ReadCloser, error) {
 	return os.Open(path)
 }
 
-// Create 创建文件（自动压缩）
+// Create 创建文件（自动压缩）.
 func (fs *FileSystem) Create(name string) (io.WriteCloser, error) {
 	path := fs.resolvePath(name)
 
@@ -72,7 +72,7 @@ func (fs *FileSystem) Create(name string) (io.WriteCloser, error) {
 	return os.Create(path)
 }
 
-// Stat 获取文件信息
+// Stat 获取文件信息.
 func (fs *FileSystem) Stat(name string) (os.FileInfo, error) {
 	path := fs.resolvePath(name)
 
@@ -89,7 +89,7 @@ func (fs *FileSystem) Stat(name string) (os.FileInfo, error) {
 	return info, nil
 }
 
-// Remove 删除文件
+// Remove 删除文件.
 func (fs *FileSystem) Remove(name string) error {
 	path := fs.resolvePath(name)
 
@@ -105,7 +105,7 @@ func (fs *FileSystem) Remove(name string) error {
 	return nil
 }
 
-// Rename 重命名文件
+// Rename 重命名文件.
 func (fs *FileSystem) Rename(oldName, newName string) error {
 	oldPath := fs.resolvePath(oldName)
 	newPath := fs.resolvePath(newName)
@@ -132,24 +132,24 @@ func (fs *FileSystem) Rename(oldName, newName string) error {
 	return nil
 }
 
-// ReadDir 读取目录
+// ReadDir 读取目录.
 func (fs *FileSystem) ReadDir(name string) ([]os.DirEntry, error) {
 	path := fs.resolvePath(name)
 	return os.ReadDir(path)
 }
 
-// Mkdir 创建目录
+// Mkdir 创建目录.
 func (fs *FileSystem) Mkdir(name string, perm os.FileMode) error {
 	path := fs.resolvePath(name)
 	return os.MkdirAll(path, perm)
 }
 
-// resolvePath 解析路径
+// resolvePath 解析路径.
 func (fs *FileSystem) resolvePath(name string) string {
 	return filepath.Join(fs.rootPath, filepath.Clean(name))
 }
 
-// findCompressedVersion 查找压缩版本
+// findCompressedVersion 查找压缩版本.
 func (fs *FileSystem) findCompressedVersion(path string) string {
 	exts := []string{".gz", ".zst", ".lz4"}
 	for _, ext := range exts {
@@ -161,7 +161,7 @@ func (fs *FileSystem) findCompressedVersion(path string) string {
 	return ""
 }
 
-// openCompressed 打开压缩文件并解压
+// openCompressed 打开压缩文件并解压.
 func (fs *FileSystem) openCompressed(path string) (io.ReadCloser, error) {
 	algorithm := fs.manager.detectAlgorithm(path)
 	if algorithm == AlgorithmNone {
@@ -177,7 +177,7 @@ func (fs *FileSystem) openCompressed(path string) (io.ReadCloser, error) {
 	return NewDecompressReader(file, algorithm)
 }
 
-// Writer 延迟压缩写入器
+// Writer 延迟压缩写入器.
 type Writer struct {
 	file       *os.File
 	manager    *Manager
@@ -188,7 +188,7 @@ type Writer struct {
 	closed     bool
 }
 
-// NewWriter 创建压缩写入器
+// NewWriter 创建压缩写入器.
 func NewWriter(path string, manager *Manager) (*Writer, error) {
 	// 创建临时文件
 	bufferPath := path + ".tmp"
@@ -206,14 +206,14 @@ func NewWriter(path string, manager *Manager) (*Writer, error) {
 	}, nil
 }
 
-// Write 写入数据
+// Write 写入数据.
 func (w *Writer) Write(p []byte) (int, error) {
 	n, err := w.file.Write(p)
 	w.bytesWrite += int64(n)
 	return n, err
 }
 
-// Close 关闭并压缩
+// Close 关闭并压缩.
 func (w *Writer) Close() error {
 	if w.closed {
 		return nil
@@ -250,14 +250,14 @@ func (w *Writer) Close() error {
 	return nil
 }
 
-// DecompressReader 解压读取器
+// DecompressReader 解压读取器.
 type DecompressReader struct {
 	file   *os.File
 	reader io.Reader
 	closed bool
 }
 
-// NewDecompressReader 创建解压读取器
+// NewDecompressReader 创建解压读取器.
 func NewDecompressReader(file *os.File, algorithm Algorithm) (*DecompressReader, error) {
 	var reader io.Reader = file
 
@@ -279,12 +279,12 @@ func NewDecompressReader(file *os.File, algorithm Algorithm) (*DecompressReader,
 	}, nil
 }
 
-// Read 读取数据
+// Read 读取数据.
 func (r *DecompressReader) Read(p []byte) (int, error) {
 	return r.reader.Read(p)
 }
 
-// Close 关闭
+// Close 关闭.
 func (r *DecompressReader) Close() error {
 	if r.closed {
 		return nil
@@ -293,13 +293,13 @@ func (r *DecompressReader) Close() error {
 	return r.file.Close()
 }
 
-// gzipNewReader 创建 gzip 读取器
+// gzipNewReader 创建 gzip 读取器.
 func gzipNewReader(r io.Reader) (io.Reader, error) {
 	// 使用标准库
 	return r, nil // 简化实现
 }
 
-// CompressedFileInfo 压缩文件信息
+// CompressedFileInfo 压缩文件信息.
 type CompressedFileInfo struct {
 	Name           string      `json:"name"`
 	Path           string      `json:"path"`
@@ -311,7 +311,7 @@ type CompressedFileInfo struct {
 	Mode           os.FileMode `json:"mode"`
 }
 
-// GetCompressedFiles 获取压缩文件列表
+// GetCompressedFiles 获取压缩文件列表.
 func (fs *FileSystem) GetCompressedFiles(dir string) ([]*CompressedFileInfo, error) {
 	path := fs.resolvePath(dir)
 
@@ -364,7 +364,7 @@ func (fs *FileSystem) GetCompressedFiles(dir string) ([]*CompressedFileInfo, err
 	return files, err
 }
 
-// BatchCompress 批量压缩
+// BatchCompress 批量压缩.
 func (fs *FileSystem) BatchCompress(dir string, recursive bool) (*BatchCompressResult, error) {
 	path := fs.resolvePath(dir)
 
@@ -411,7 +411,7 @@ func (fs *FileSystem) BatchCompress(dir string, recursive bool) (*BatchCompressR
 	return result, err
 }
 
-// BatchCompressResult 批量压缩结果
+// BatchCompressResult 批量压缩结果.
 type BatchCompressResult struct {
 	StartTime       time.Time     `json:"start_time"`
 	EndTime         time.Time     `json:"end_time"`

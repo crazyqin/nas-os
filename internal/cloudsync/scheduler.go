@@ -7,7 +7,7 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-// Scheduler 调度器
+// Scheduler 调度器.
 type Scheduler struct {
 	mu       sync.RWMutex
 	cron     *cron.Cron
@@ -15,7 +15,7 @@ type Scheduler struct {
 	handlers map[string]func()
 }
 
-// NewScheduler 创建调度器
+// NewScheduler 创建调度器.
 func NewScheduler() *Scheduler {
 	return &Scheduler{
 		cron:     cron.New(cron.WithSeconds()),
@@ -24,17 +24,17 @@ func NewScheduler() *Scheduler {
 	}
 }
 
-// Run 启动调度器
+// Run 启动调度器.
 func (s *Scheduler) Run() {
 	s.cron.Start()
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (s *Scheduler) Stop() {
 	s.cron.Stop()
 }
 
-// AddCronTask 添加 Cron 任务
+// AddCronTask 添加 Cron 任务.
 func (s *Scheduler) AddCronTask(taskID, expr string, handler func()) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -55,7 +55,7 @@ func (s *Scheduler) AddCronTask(taskID, expr string, handler func()) error {
 	return nil
 }
 
-// AddIntervalTask 添加间隔任务
+// AddIntervalTask 添加间隔任务.
 func (s *Scheduler) AddIntervalTask(taskID, interval string, handler func()) error {
 	// 解析间隔，支持格式: "1h", "30m", "1h30m" 等
 	duration, err := time.ParseDuration(interval)
@@ -91,7 +91,7 @@ func (s *Scheduler) AddIntervalTask(taskID, interval string, handler func()) err
 	return nil
 }
 
-// RemoveTask 移除任务
+// RemoveTask 移除任务.
 func (s *Scheduler) RemoveTask(taskID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -104,7 +104,7 @@ func (s *Scheduler) RemoveTask(taskID string) {
 	delete(s.handlers, taskID)
 }
 
-// GetNextRun 获取下次运行时间
+// GetNextRun 获取下次运行时间.
 func (s *Scheduler) GetNextRun(taskID string) time.Time {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -117,7 +117,7 @@ func (s *Scheduler) GetNextRun(taskID string) time.Time {
 	return time.Time{}
 }
 
-// ListTasks 列出所有调度任务
+// ListTasks 列出所有调度任务.
 func (s *Scheduler) ListTasks() []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// LRUCache implements a thread-safe LRU cache with TTL support
+// LRUCache implements a thread-safe LRU cache with TTL support.
 type LRUCache struct {
 	capacity int
 	cache    map[interface{}]*list.Element
@@ -23,7 +23,7 @@ type cacheItem struct {
 	lastAccess time.Time
 }
 
-// NewLRUCache creates a new LRU cache with given capacity and TTL
+// NewLRUCache creates a new LRU cache with given capacity and TTL.
 func NewLRUCache(capacity int, ttl time.Duration) *LRUCache {
 	return &LRUCache{
 		capacity: capacity,
@@ -33,7 +33,7 @@ func NewLRUCache(capacity int, ttl time.Duration) *LRUCache {
 	}
 }
 
-// Get retrieves a value from the cache
+// Get retrieves a value from the cache.
 func (c *LRUCache) Get(key interface{}) (interface{}, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -63,7 +63,7 @@ func (c *LRUCache) Get(key interface{}) (interface{}, bool) {
 	return item.value, true
 }
 
-// Set stores a value in the cache
+// Set stores a value in the cache.
 func (c *LRUCache) Set(key, value interface{}) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -103,7 +103,7 @@ func (c *LRUCache) Set(key, value interface{}) {
 	c.cache[key] = elem
 }
 
-// Delete removes a key from the cache
+// Delete removes a key from the cache.
 func (c *LRUCache) Delete(key interface{}) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -113,7 +113,7 @@ func (c *LRUCache) Delete(key interface{}) {
 	}
 }
 
-// Clear removes all items from the cache
+// Clear removes all items from the cache.
 func (c *LRUCache) Clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -122,19 +122,19 @@ func (c *LRUCache) Clear() {
 	c.lru = list.New()
 }
 
-// Len returns the current number of items in the cache
+// Len returns the current number of items in the cache.
 func (c *LRUCache) Len() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.lru.Len()
 }
 
-// Capacity returns the cache capacity
+// Capacity returns the cache capacity.
 func (c *LRUCache) Capacity() int {
 	return c.capacity
 }
 
-// removeElement removes an element from both the list and map
+// removeElement removes an element from both the list and map.
 func (c *LRUCache) removeElement(elem *list.Element) {
 	item, ok := elem.Value.(*cacheItem)
 	if !ok {
@@ -144,7 +144,7 @@ func (c *LRUCache) removeElement(elem *list.Element) {
 	c.lru.Remove(elem)
 }
 
-// evictOldest removes the least recently used item
+// evictOldest removes the least recently used item.
 func (c *LRUCache) evictOldest() {
 	elem := c.lru.Back()
 	if elem != nil {
@@ -152,7 +152,7 @@ func (c *LRUCache) evictOldest() {
 	}
 }
 
-// Cleanup removes all expired items
+// Cleanup removes all expired items.
 func (c *LRUCache) Cleanup() int {
 	c.mu.Lock()
 	defer c.mu.Unlock()

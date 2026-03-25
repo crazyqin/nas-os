@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// 基本错误定义
+// 基本错误定义.
 var (
 	ErrConfigNotFound    = errors.New("LDAP 配置未找到")
 	ErrConnectionFailed  = errors.New("LDAP 连接失败")
@@ -26,10 +26,10 @@ var (
 	ErrOperationFailed   = errors.New("操作失败")
 )
 
-// ServerType LDAP 服务器类型
+// ServerType LDAP 服务器类型.
 type ServerType string
 
-// LDAP 服务器类型常量
+// LDAP 服务器类型常量.
 const (
 	ServerTypeOpenLDAP ServerType = "openldap"
 	ServerTypeAD       ServerType = "ad" // Active Directory
@@ -37,27 +37,27 @@ const (
 	ServerTypeGeneric  ServerType = "generic"
 )
 
-// SyncMode 同步模式
+// SyncMode 同步模式.
 type SyncMode string
 
-// 同步模式常量
+// 同步模式常量.
 const (
 	SyncModeFull        SyncMode = "full"        // 全量同步
 	SyncModeIncremental SyncMode = "incremental" // 增量同步
 	SyncModeOneTime     SyncMode = "onetime"     // 一次性同步
 )
 
-// SyncDirection 同步方向
+// SyncDirection 同步方向.
 type SyncDirection string
 
-// 同步方向常量
+// 同步方向常量.
 const (
 	SyncDirectionImport SyncDirection = "import" // 从 LDAP 导入
 	SyncDirectionExport SyncDirection = "export" // 导出到 LDAP
 	SyncDirectionBoth   SyncDirection = "both"   // 双向同步
 )
 
-// Config LDAP/AD 服务器配置
+// Config LDAP/AD 服务器配置.
 type Config struct {
 	// 基本信息
 	Name        string     `json:"name" yaml:"name"`
@@ -106,7 +106,7 @@ type Config struct {
 	RetryDelay time.Duration `json:"retry_delay" yaml:"retry_delay"`
 }
 
-// AttributeMapping 属性映射配置
+// AttributeMapping 属性映射配置.
 type AttributeMapping struct {
 	// 用户属性
 	Username    string `json:"username" yaml:"username"`
@@ -135,7 +135,7 @@ type AttributeMapping struct {
 	GroupObjectClass string `json:"group_object_class" yaml:"group_object_class"`
 }
 
-// SyncConfig 同步配置
+// SyncConfig 同步配置.
 type SyncConfig struct {
 	Enabled   bool          `json:"enabled" yaml:"enabled"`
 	Mode      SyncMode      `json:"mode" yaml:"mode"`
@@ -165,7 +165,7 @@ type SyncConfig struct {
 	ConflictResolution string `json:"conflict_resolution" yaml:"conflict_resolution"` // skip, overwrite, merge
 }
 
-// User LDAP 用户信息
+// User LDAP 用户信息.
 type User struct {
 	// 基本信息
 	DN          string `json:"dn"`
@@ -207,7 +207,7 @@ type User struct {
 	RawAttributes map[string][]string `json:"raw_attributes,omitempty"`
 }
 
-// Group LDAP 组信息
+// Group LDAP 组信息.
 type Group struct {
 	DN          string   `json:"dn"`
 	Name        string   `json:"name"`
@@ -225,14 +225,14 @@ type Group struct {
 	RawAttributes map[string][]string `json:"raw_attributes,omitempty"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Users  []*User  `json:"users,omitempty"`
 	Groups []*Group `json:"groups,omitempty"`
 	Total  int      `json:"total"`
 }
 
-// SyncResult 同步结果
+// SyncResult 同步结果.
 type SyncResult struct {
 	StartTime time.Time     `json:"start_time"`
 	EndTime   time.Time     `json:"end_time"`
@@ -259,7 +259,7 @@ type SyncResult struct {
 	Message string `json:"message,omitempty"`
 }
 
-// SyncError 同步错误
+// SyncError 同步错误.
 type SyncError struct {
 	DN    string `json:"dn"`
 	Name  string `json:"name"`
@@ -268,7 +268,7 @@ type SyncError struct {
 	Code  string `json:"code,omitempty"`
 }
 
-// ConnectionStatus 连接状态
+// ConnectionStatus 连接状态.
 type ConnectionStatus struct {
 	ConfigName  string        `json:"config_name"`
 	Connected   bool          `json:"connected"`
@@ -278,7 +278,7 @@ type ConnectionStatus struct {
 	ServerInfo  *ServerInfo   `json:"server_info,omitempty"`
 }
 
-// ServerInfo 服务器信息
+// ServerInfo 服务器信息.
 type ServerInfo struct {
 	Vendor          string `json:"vendor,omitempty"`
 	Version         string `json:"version,omitempty"`
@@ -289,7 +289,7 @@ type ServerInfo struct {
 	Realm           string `json:"realm,omitempty"`
 }
 
-// AuthResult 认证结果
+// AuthResult 认证结果.
 type AuthResult struct {
 	Success    bool   `json:"success"`
 	User       *User  `json:"user,omitempty"`
@@ -298,14 +298,14 @@ type AuthResult struct {
 	AuthMethod string `json:"auth_method"` // simple, sasl, gssapi
 }
 
-// OperationResult 操作结果
+// OperationResult 操作结果.
 type OperationResult struct {
 	Success bool   `json:"success"`
 	Message string `json:"message,omitempty"`
 	Error   error  `json:"error,omitempty"`
 }
 
-// DefaultConfig 获取默认配置
+// DefaultConfig 获取默认配置.
 func DefaultConfig() Config {
 	return Config{
 		ServerType:       ServerTypeGeneric,
@@ -322,7 +322,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// DefaultAttributeMapping 获取默认属性映射
+// DefaultAttributeMapping 获取默认属性映射.
 func DefaultAttributeMapping() AttributeMapping {
 	return AttributeMapping{
 		Username:          "uid",
@@ -346,7 +346,7 @@ func DefaultAttributeMapping() AttributeMapping {
 	}
 }
 
-// ADAttributeMapping 获取 Active Directory 属性映射
+// ADAttributeMapping 获取 Active Directory 属性映射.
 func ADAttributeMapping() AttributeMapping {
 	return AttributeMapping{
 		Username:          "sAMAccountName",
@@ -370,7 +370,7 @@ func ADAttributeMapping() AttributeMapping {
 	}
 }
 
-// DefaultSyncConfig 获取默认同步配置
+// DefaultSyncConfig 获取默认同步配置.
 func DefaultSyncConfig() SyncConfig {
 	return SyncConfig{
 		Enabled:            false,

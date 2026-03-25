@@ -10,14 +10,14 @@ import (
 
 // ========== 电费计算 API 处理器 ==========
 
-// ElectricityAPI 电费计算API
+// ElectricityAPI 电费计算API.
 type ElectricityAPI struct {
 	calculator *ElectricityCostCalculator
 	profiles   map[string]PowerProfile
 	tariffs    map[string]ElectricityTariff
 }
 
-// NewElectricityAPI 创建电费计算API
+// NewElectricityAPI 创建电费计算API.
 func NewElectricityAPI(config ElectricityCostConfig) *ElectricityAPI {
 	// 使用默认北京电价
 	tariff := DefaultTariffs["beijing_general"]
@@ -34,7 +34,7 @@ func NewElectricityAPI(config ElectricityCostConfig) *ElectricityAPI {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (api *ElectricityAPI) RegisterRoutes(r *gin.RouterGroup) {
 	elec := r.Group("/electricity")
 	{
@@ -71,12 +71,12 @@ func (api *ElectricityAPI) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 电价配置 API ==========
 
-// ListTariffsRequest 列出电价配置请求
+// ListTariffsRequest 列出电价配置请求.
 type ListTariffsRequest struct {
 	Region string `form:"region"` // 按地区筛选
 }
 
-// ListTariffs 列出电价配置
+// ListTariffs 列出电价配置.
 func (api *ElectricityAPI) ListTariffs(c *gin.Context) {
 	var req ListTariffsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -97,7 +97,7 @@ func (api *ElectricityAPI) ListTariffs(c *gin.Context) {
 	})
 }
 
-// GetTariff 获取单个电价配置
+// GetTariff 获取单个电价配置.
 func (api *ElectricityAPI) GetTariff(c *gin.Context) {
 	id := c.Param("id")
 	tariff, ok := api.tariffs[id]
@@ -109,7 +109,7 @@ func (api *ElectricityAPI) GetTariff(c *gin.Context) {
 	c.JSON(http.StatusOK, tariff)
 }
 
-// CreateTariffRequest 创建电价配置请求
+// CreateTariffRequest 创建电价配置请求.
 type CreateTariffRequest struct {
 	Name           string          `json:"name" binding:"required"`
 	Region         string          `json:"region" binding:"required"`
@@ -119,7 +119,7 @@ type CreateTariffRequest struct {
 	EffectiveFrom  *time.Time      `json:"effective_from"`
 }
 
-// CreateTariff 创建电价配置
+// CreateTariff 创建电价配置.
 func (api *ElectricityAPI) CreateTariff(c *gin.Context) {
 	var req CreateTariffRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -150,7 +150,7 @@ func (api *ElectricityAPI) CreateTariff(c *gin.Context) {
 	c.JSON(http.StatusCreated, tariff)
 }
 
-// UpdateTariff 更新电价配置
+// UpdateTariff 更新电价配置.
 func (api *ElectricityAPI) UpdateTariff(c *gin.Context) {
 	id := c.Param("id")
 	tariff, ok := api.tariffs[id]
@@ -177,7 +177,7 @@ func (api *ElectricityAPI) UpdateTariff(c *gin.Context) {
 	c.JSON(http.StatusOK, tariff)
 }
 
-// DeleteTariff 删除电价配置
+// DeleteTariff 删除电价配置.
 func (api *ElectricityAPI) DeleteTariff(c *gin.Context) {
 	id := c.Param("id")
 	if _, ok := api.tariffs[id]; !ok {
@@ -192,7 +192,7 @@ func (api *ElectricityAPI) DeleteTariff(c *gin.Context) {
 
 // ========== 设备功耗配置 API ==========
 
-// ListProfiles 列出设备功耗配置
+// ListProfiles 列出设备功耗配置.
 func (api *ElectricityAPI) ListProfiles(c *gin.Context) {
 	profiles := api.calculator.ListPowerProfiles()
 
@@ -202,7 +202,7 @@ func (api *ElectricityAPI) ListProfiles(c *gin.Context) {
 	})
 }
 
-// GetProfile 获取单个设备功耗配置
+// GetProfile 获取单个设备功耗配置.
 func (api *ElectricityAPI) GetProfile(c *gin.Context) {
 	id := c.Param("id")
 	profile, ok := api.calculator.GetPowerProfile(id)
@@ -214,7 +214,7 @@ func (api *ElectricityAPI) GetProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, profile)
 }
 
-// CreateProfileRequest 创建设备功耗配置请求
+// CreateProfileRequest 创建设备功耗配置请求.
 type CreateProfileRequest struct {
 	DeviceName        string     `json:"device_name" binding:"required"`
 	DeviceType        DeviceType `json:"device_type"`
@@ -228,7 +228,7 @@ type CreateProfileRequest struct {
 	Description       string     `json:"description"`
 }
 
-// CreateProfile 创建设备功耗配置
+// CreateProfile 创建设备功耗配置.
 func (api *ElectricityAPI) CreateProfile(c *gin.Context) {
 	var req CreateProfileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -265,7 +265,7 @@ func (api *ElectricityAPI) CreateProfile(c *gin.Context) {
 	c.JSON(http.StatusCreated, profile)
 }
 
-// UpdateProfile 更新设备功耗配置
+// UpdateProfile 更新设备功耗配置.
 func (api *ElectricityAPI) UpdateProfile(c *gin.Context) {
 	id := c.Param("id")
 	profile, ok := api.calculator.GetPowerProfile(id)
@@ -297,7 +297,7 @@ func (api *ElectricityAPI) UpdateProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, profile)
 }
 
-// DeleteProfile 删除设备功耗配置
+// DeleteProfile 删除设备功耗配置.
 func (api *ElectricityAPI) DeleteProfile(c *gin.Context) {
 	id := c.Param("id")
 	if _, ok := api.calculator.GetPowerProfile(id); !ok {
@@ -312,14 +312,14 @@ func (api *ElectricityAPI) DeleteProfile(c *gin.Context) {
 
 // ========== 电费计算 API ==========
 
-// CalculateCostRequest 计算电费请求
+// CalculateCostRequest 计算电费请求.
 type CalculateCostRequest struct {
 	DeviceID string         `json:"device_id" binding:"required"`
 	Readings []PowerReading `json:"readings"`
 	Period   ReportPeriod   `json:"period"`
 }
 
-// CalculateCost 计算指定设备电费
+// CalculateCost 计算指定设备电费.
 func (api *ElectricityAPI) CalculateCost(c *gin.Context) {
 	var req CalculateCostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -339,13 +339,13 @@ func (api *ElectricityAPI) CalculateCost(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// CalculateAllCostsRequest 计算所有设备电费请求
+// CalculateAllCostsRequest 计算所有设备电费请求.
 type CalculateAllCostsRequest struct {
 	Readings []PowerReading `json:"readings" binding:"required"`
 	Period   ReportPeriod   `json:"period"`
 }
 
-// CalculateAllCosts 计算所有设备电费
+// CalculateAllCosts 计算所有设备电费.
 func (api *ElectricityAPI) CalculateAllCosts(c *gin.Context) {
 	var req CalculateAllCostsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -368,13 +368,13 @@ func (api *ElectricityAPI) CalculateAllCosts(c *gin.Context) {
 	})
 }
 
-// EstimateCostRequest 估算电费请求
+// EstimateCostRequest 估算电费请求.
 type EstimateCostRequest struct {
 	ProfileID string `json:"profile_id" binding:"required"`
 	Days      int    `json:"days"`
 }
 
-// EstimateCost 从配置估算电费
+// EstimateCost 从配置估算电费.
 func (api *ElectricityAPI) EstimateCost(c *gin.Context) {
 	var req EstimateCostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -397,14 +397,14 @@ func (api *ElectricityAPI) EstimateCost(c *gin.Context) {
 
 // ========== 账单生成 API ==========
 
-// GenerateBillRequest 生成账单请求
+// GenerateBillRequest 生成账单请求.
 type GenerateBillRequest struct {
 	CustomerName string                            `json:"customer_name" binding:"required"`
 	Period       ReportPeriod                      `json:"period"`
 	Results      map[string]*ElectricityCostResult `json:"results"`
 }
 
-// GenerateBill 生成电费账单
+// GenerateBill 生成电费账单.
 func (api *ElectricityAPI) GenerateBill(c *gin.Context) {
 	var req GenerateBillRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -426,13 +426,13 @@ func (api *ElectricityAPI) GenerateBill(c *gin.Context) {
 
 // ========== 电费预测 API ==========
 
-// ForecastCostRequest 预测电费请求
+// ForecastCostRequest 预测电费请求.
 type ForecastCostRequest struct {
 	Historical []ElectricityTrendPoint `json:"historical" binding:"required"`
 	Months     int                     `json:"months"`
 }
 
-// ForecastCost 预测未来电费
+// ForecastCost 预测未来电费.
 func (api *ElectricityAPI) ForecastCost(c *gin.Context) {
 	var req ForecastCostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -460,10 +460,10 @@ func (api *ElectricityAPI) ForecastCost(c *gin.Context) {
 
 // ========== 用电记录 API ==========
 
-// readingStore 用电记录存储 (简化实现)
+// readingStore 用电记录存储 (简化实现).
 var readingStore = make(map[string][]PowerReading)
 
-// AddReading 添加用电读数
+// AddReading 添加用电读数.
 func (api *ElectricityAPI) AddReading(c *gin.Context) {
 	var reading PowerReading
 	if err := c.ShouldBindJSON(&reading); err != nil {
@@ -480,7 +480,7 @@ func (api *ElectricityAPI) AddReading(c *gin.Context) {
 	c.JSON(http.StatusCreated, reading)
 }
 
-// ListReadingsRequest 列出用电记录请求
+// ListReadingsRequest 列出用电记录请求.
 type ListReadingsRequest struct {
 	DeviceID  string    `form:"device_id"`
 	StartTime time.Time `form:"start_time" time_format:"2006-01-02T15:04:05Z07:00"`
@@ -488,7 +488,7 @@ type ListReadingsRequest struct {
 	Limit     int       `form:"limit"`
 }
 
-// ListReadings 列出用电记录
+// ListReadings 列出用电记录.
 func (api *ElectricityAPI) ListReadings(c *gin.Context) {
 	var req ListReadingsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -546,7 +546,7 @@ func (api *ElectricityAPI) ListReadings(c *gin.Context) {
 
 // ========== API 工厂函数 ==========
 
-// DefaultElectricityConfig 默认电费计算配置
+// DefaultElectricityConfig 默认电费计算配置.
 func DefaultElectricityConfig() ElectricityCostConfig {
 	return ElectricityCostConfig{
 		Region:             "北京",

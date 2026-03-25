@@ -41,7 +41,7 @@ const (
 	AccessFrequencyCold AccessFrequency = "cold"
 )
 
-// TierConfig 存储层配置
+// TierConfig 存储层配置.
 type TierConfig struct {
 	Type        TierType `json:"type"`
 	Name        string   `json:"name"`
@@ -55,7 +55,7 @@ type TierConfig struct {
 	AutoDemote  bool     `json:"autoDemote"`  // 自动降级冷数据
 }
 
-// PolicyConfig 分层策略配置
+// PolicyConfig 分层策略配置.
 type PolicyConfig struct {
 	ID              string        `json:"id"`
 	Name            string        `json:"name"`
@@ -73,7 +73,7 @@ type PolicyConfig struct {
 	NextRun         time.Time     `json:"nextRun"`
 }
 
-// FileAccessRecord 文件访问记录
+// FileAccessRecord 文件访问记录.
 type FileAccessRecord struct {
 	Path        string          `json:"path"`
 	Size        int64           `json:"size"`
@@ -86,7 +86,7 @@ type FileAccessRecord struct {
 	Frequency   AccessFrequency `json:"frequency"`
 }
 
-// MigrateTask 迁移任务
+// MigrateTask 迁移任务.
 type MigrateTask struct {
 	ID             string         `json:"id"`
 	PolicyID       string         `json:"policyId,omitempty"`
@@ -105,7 +105,7 @@ type MigrateTask struct {
 	Errors         []MigrateError `json:"errors,omitempty"`
 }
 
-// MigrateFile 迁移文件
+// MigrateFile 迁移文件.
 type MigrateFile struct {
 	Path    string    `json:"path"`
 	Size    int64     `json:"size"`
@@ -114,14 +114,14 @@ type MigrateFile struct {
 	Error   string    `json:"error,omitempty"`
 }
 
-// MigrateError 迁移错误
+// MigrateError 迁移错误.
 type MigrateError struct {
 	Path    string    `json:"path"`
 	Message string    `json:"message"`
 	Time    time.Time `json:"time"`
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	CheckInterval  time.Duration `json:"checkInterval"`  // 检查间隔
 	HotThreshold   int64         `json:"hotThreshold"`   // 热数据访问次数阈值
@@ -132,7 +132,7 @@ type ManagerConfig struct {
 	ConfigPath     string        `json:"configPath"`     // 配置文件路径
 }
 
-// DefaultManagerConfig 默认配置
+// DefaultManagerConfig 默认配置.
 func DefaultManagerConfig() ManagerConfig {
 	return ManagerConfig{
 		CheckInterval:  1 * time.Hour,
@@ -145,7 +145,7 @@ func DefaultManagerConfig() ManagerConfig {
 	}
 }
 
-// Manager 存储分层管理器
+// Manager 存储分层管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -178,7 +178,7 @@ type Manager struct {
 	onMigrationComplete func(task *MigrateTask)
 }
 
-// NewManager 创建存储分层管理器
+// NewManager 创建存储分层管理器.
 func NewManager(config ManagerConfig) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -194,7 +194,7 @@ func NewManager(config ManagerConfig) *Manager {
 	}
 }
 
-// Initialize 初始化管理器
+// Initialize 初始化管理器.
 func (m *Manager) Initialize() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -216,7 +216,7 @@ func (m *Manager) Initialize() error {
 	return nil
 }
 
-// initDefaultTiers 初始化默认存储层
+// initDefaultTiers 初始化默认存储层.
 func (m *Manager) initDefaultTiers() {
 	m.tiers = map[TierType]*TierConfig{
 		TierTypeSSD: {
@@ -248,7 +248,7 @@ func (m *Manager) initDefaultTiers() {
 	}
 }
 
-// initDefaultPolicies 初始化默认策略
+// initDefaultPolicies 初始化默认策略.
 func (m *Manager) initDefaultPolicies() {
 	m.policies = map[string]*PolicyConfig{
 		"hot-to-ssd": {
@@ -274,7 +274,7 @@ func (m *Manager) initDefaultPolicies() {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	m.running = true
@@ -289,7 +289,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	m.running = false
@@ -305,7 +305,7 @@ func (m *Manager) Stop() {
 
 // ==================== 存储层管理 ====================
 
-// CreateTier 创建存储层
+// CreateTier 创建存储层.
 func (m *Manager) CreateTier(config TierConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -320,7 +320,7 @@ func (m *Manager) CreateTier(config TierConfig) error {
 	return m.saveConfigLocked()
 }
 
-// GetTier 获取存储层配置
+// GetTier 获取存储层配置.
 func (m *Manager) GetTier(tierType TierType) (*TierConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -333,7 +333,7 @@ func (m *Manager) GetTier(tierType TierType) (*TierConfig, error) {
 	return tier, nil
 }
 
-// UpdateTier 更新存储层配置
+// UpdateTier 更新存储层配置.
 func (m *Manager) UpdateTier(config TierConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -346,7 +346,7 @@ func (m *Manager) UpdateTier(config TierConfig) error {
 	return m.saveConfigLocked()
 }
 
-// DeleteTier 删除存储层
+// DeleteTier 删除存储层.
 func (m *Manager) DeleteTier(tierType TierType) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -361,7 +361,7 @@ func (m *Manager) DeleteTier(tierType TierType) error {
 	return m.saveConfigLocked()
 }
 
-// ListTiers 列出所有存储层
+// ListTiers 列出所有存储层.
 func (m *Manager) ListTiers() []*TierConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -375,7 +375,7 @@ func (m *Manager) ListTiers() []*TierConfig {
 
 // ==================== 策略管理 ====================
 
-// CreatePolicy 创建分层策略
+// CreatePolicy 创建分层策略.
 func (m *Manager) CreatePolicy(config PolicyConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -400,7 +400,7 @@ func (m *Manager) CreatePolicy(config PolicyConfig) error {
 	return m.saveConfigLocked()
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (m *Manager) GetPolicy(id string) (*PolicyConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -413,7 +413,7 @@ func (m *Manager) GetPolicy(id string) (*PolicyConfig, error) {
 	return policy, nil
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (m *Manager) UpdatePolicy(config PolicyConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -426,7 +426,7 @@ func (m *Manager) UpdatePolicy(config PolicyConfig) error {
 	return m.saveConfigLocked()
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (m *Manager) DeletePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -439,7 +439,7 @@ func (m *Manager) DeletePolicy(id string) error {
 	return m.saveConfigLocked()
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (m *Manager) ListPolicies() []*PolicyConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -453,7 +453,7 @@ func (m *Manager) ListPolicies() []*PolicyConfig {
 
 // ==================== 文件访问追踪 ====================
 
-// RecordAccess 记录文件访问
+// RecordAccess 记录文件访问.
 func (m *Manager) RecordAccess(path string, tier TierType, readBytes, writeBytes int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -493,7 +493,7 @@ func (m *Manager) RecordAccess(path string, tier TierType, readBytes, writeBytes
 	return nil
 }
 
-// GetRecord 获取文件访问记录
+// GetRecord 获取文件访问记录.
 func (m *Manager) GetRecord(path string) (*FileAccessRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -506,7 +506,7 @@ func (m *Manager) GetRecord(path string) (*FileAccessRecord, error) {
 	return record, nil
 }
 
-// GetHotFiles 获取热数据文件
+// GetHotFiles 获取热数据文件.
 func (m *Manager) GetHotFiles(tier TierType, limit int) []*FileAccessRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -529,7 +529,7 @@ func (m *Manager) GetHotFiles(tier TierType, limit int) []*FileAccessRecord {
 	return files
 }
 
-// GetColdFiles 获取冷数据文件
+// GetColdFiles 获取冷数据文件.
 func (m *Manager) GetColdFiles(tier TierType, limit int) []*FileAccessRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -552,7 +552,7 @@ func (m *Manager) GetColdFiles(tier TierType, limit int) []*FileAccessRecord {
 	return files
 }
 
-// calculateFrequency 计算访问频率
+// calculateFrequency 计算访问频率.
 func (m *Manager) calculateFrequency(record *FileAccessRecord) AccessFrequency {
 	accessCount := record.AccessCount
 	age := time.Since(record.AccessTime)
@@ -574,7 +574,7 @@ func (m *Manager) calculateFrequency(record *FileAccessRecord) AccessFrequency {
 
 // ==================== 迁移操作 ====================
 
-// MigrateHotToSSD 迁移热数据到SSD
+// MigrateHotToSSD 迁移热数据到SSD.
 func (m *Manager) MigrateHotToSSD(ctx context.Context) (*MigrateTask, error) {
 	m.mu.RLock()
 	ssdTier, ssdExists := m.tiers[TierTypeSSD]
@@ -644,7 +644,7 @@ func (m *Manager) MigrateHotToSSD(ctx context.Context) (*MigrateTask, error) {
 	return task, nil
 }
 
-// MigrateColdToHDD 迁移冷数据到HDD
+// MigrateColdToHDD 迁移冷数据到HDD.
 func (m *Manager) MigrateColdToHDD(ctx context.Context) (*MigrateTask, error) {
 	m.mu.RLock()
 	ssdTier, ssdExists := m.tiers[TierTypeSSD]
@@ -700,7 +700,7 @@ func (m *Manager) MigrateColdToHDD(ctx context.Context) (*MigrateTask, error) {
 	return task, nil
 }
 
-// executeMigration 执行迁移
+// executeMigration 执行迁移.
 func (m *Manager) executeMigration(task *MigrateTask, targetPath string, preserveSource bool) {
 	m.mu.Lock()
 	task.Status = "running"
@@ -783,7 +783,7 @@ func (m *Manager) executeMigration(task *MigrateTask, targetPath string, preserv
 	)
 }
 
-// copyFile 复制文件
+// copyFile 复制文件.
 func (m *Manager) copyFile(src, dst string) error {
 	// 确保目标目录存在
 	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
@@ -828,7 +828,7 @@ func (m *Manager) copyFile(src, dst string) error {
 	return nil
 }
 
-// GetTask 获取迁移任务
+// GetTask 获取迁移任务.
 func (m *Manager) GetTask(id string) (*MigrateTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -841,7 +841,7 @@ func (m *Manager) GetTask(id string) (*MigrateTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出迁移任务
+// ListTasks 列出迁移任务.
 func (m *Manager) ListTasks(limit int) []*MigrateTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -858,7 +858,7 @@ func (m *Manager) ListTasks(limit int) []*MigrateTask {
 
 // ==================== 策略引擎 ====================
 
-// runPolicyEngine 运行策略引擎
+// runPolicyEngine 运行策略引擎.
 func (m *Manager) runPolicyEngine() {
 	ticker := time.NewTicker(m.config.CheckInterval)
 	defer ticker.Stop()
@@ -873,7 +873,7 @@ func (m *Manager) runPolicyEngine() {
 	}
 }
 
-// executeAutoPolicies 执行自动策略
+// executeAutoPolicies 执行自动策略.
 func (m *Manager) executeAutoPolicies() {
 	m.mu.RLock()
 	policies := make([]*PolicyConfig, 0)
@@ -915,7 +915,7 @@ func (m *Manager) executeAutoPolicies() {
 
 // ==================== 统计 ====================
 
-// GetStatus 获取分层状态
+// GetStatus 获取分层状态.
 func (m *Manager) GetStatus() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -962,7 +962,7 @@ func (m *Manager) GetStatus() map[string]interface{} {
 	}
 }
 
-// GetTierStats 获取存储层统计
+// GetTierStats 获取存储层统计.
 func (m *Manager) GetTierStats(tierType TierType) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1009,7 +1009,7 @@ func (m *Manager) GetTierStats(tierType TierType) (map[string]interface{}, error
 	}, nil
 }
 
-// SetMigrationCallback 设置迁移完成回调
+// SetMigrationCallback 设置迁移完成回调.
 func (m *Manager) SetMigrationCallback(callback func(task *MigrateTask)) {
 	m.onMigrationComplete = callback
 }

@@ -9,20 +9,20 @@ import (
 	"github.com/google/uuid"
 )
 
-// TaskTracker 任务追踪器
+// TaskTracker 任务追踪器.
 type TaskTracker struct {
 	mu      sync.RWMutex
 	manager *Manager
 }
 
-// NewTaskTracker 创建任务追踪器
+// NewTaskTracker 创建任务追踪器.
 func NewTaskTracker(mgr *Manager) *TaskTracker {
 	return &TaskTracker{
 		manager: mgr,
 	}
 }
 
-// TaskTransitions 任务状态流转规则
+// TaskTransitions 任务状态流转规则.
 var TaskTransitions = map[TaskStatus][]TaskStatus{
 	TaskStatusTodo: {
 		TaskStatusInProgress,
@@ -47,7 +47,7 @@ var TaskTransitions = map[TaskStatus][]TaskStatus{
 }
 
 // TaskTransitionError 任务状态流转错误
-// TaskTransitionError 任务状态流转错误
+// TaskTransitionError 任务状态流转错误.
 type TaskTransitionError struct {
 	From TaskStatus
 	To   TaskStatus
@@ -57,7 +57,7 @@ func (e *TaskTransitionError) Error() string {
 	return "invalid task transition from " + string(e.From) + " to " + string(e.To)
 }
 
-// TransitionTask 任务状态流转
+// TransitionTask 任务状态流转.
 func (t *TaskTracker) TransitionTask(taskID, userID string, newStatus TaskStatus) (*Task, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -89,7 +89,7 @@ func (t *TaskTracker) TransitionTask(taskID, userID string, newStatus TaskStatus
 	return t.manager.UpdateTask(taskID, userID, updates)
 }
 
-// isValidTransition 检查状态流转是否合法
+// isValidTransition 检查状态流转是否合法.
 func isValidTransition(from, to TaskStatus) bool {
 	if from == to {
 		return true
@@ -106,7 +106,7 @@ func isValidTransition(from, to TaskStatus) bool {
 	return false
 }
 
-// AssignTask 分配任务
+// AssignTask 分配任务.
 func (t *TaskTracker) AssignTask(taskID, assigneeID, assignerID string) (*Task, error) {
 	updates := map[string]interface{}{
 		"assignee_id": assigneeID,
@@ -114,7 +114,7 @@ func (t *TaskTracker) AssignTask(taskID, assigneeID, assignerID string) (*Task, 
 	return t.manager.UpdateTask(taskID, assignerID, updates)
 }
 
-// SetTaskMilestone 设置任务里程碑
+// SetTaskMilestone 设置任务里程碑.
 func (t *TaskTracker) SetTaskMilestone(taskID, milestoneID, userID string) (*Task, error) {
 	updates := map[string]interface{}{
 		"milestone_id": milestoneID,
@@ -122,7 +122,7 @@ func (t *TaskTracker) SetTaskMilestone(taskID, milestoneID, userID string) (*Tas
 	return t.manager.UpdateTask(taskID, userID, updates)
 }
 
-// SetTaskProgress 设置任务进度
+// SetTaskProgress 设置任务进度.
 func (t *TaskTracker) SetTaskProgress(taskID string, progress int, userID string) (*Task, error) {
 	if progress < 0 || progress > 100 {
 		return nil, errors.New("进度必须在 0-100 之间")
@@ -147,7 +147,7 @@ func (t *TaskTracker) SetTaskProgress(taskID string, progress int, userID string
 	return t.manager.UpdateTask(taskID, userID, updates)
 }
 
-// SetTaskDueDate 设置任务截止日期
+// SetTaskDueDate 设置任务截止日期.
 func (t *TaskTracker) SetTaskDueDate(taskID string, dueDate *time.Time, userID string) (*Task, error) {
 	updates := map[string]interface{}{
 		"due_date": dueDate,
@@ -155,7 +155,7 @@ func (t *TaskTracker) SetTaskDueDate(taskID string, dueDate *time.Time, userID s
 	return t.manager.UpdateTask(taskID, userID, updates)
 }
 
-// AddTaskTags 添加任务标签
+// AddTaskTags 添加任务标签.
 func (t *TaskTracker) AddTaskTags(taskID string, tags []string, userID string) (*Task, error) {
 	task, err := t.manager.GetTask(taskID)
 	if err != nil {
@@ -179,7 +179,7 @@ func (t *TaskTracker) AddTaskTags(taskID string, tags []string, userID string) (
 	return t.manager.UpdateTask(taskID, userID, updates)
 }
 
-// RemoveTaskTag 移除任务标签
+// RemoveTaskTag 移除任务标签.
 func (t *TaskTracker) RemoveTaskTag(taskID, tag string, userID string) (*Task, error) {
 	task, err := t.manager.GetTask(taskID)
 	if err != nil {
@@ -199,7 +199,7 @@ func (t *TaskTracker) RemoveTaskTag(taskID, tag string, userID string) (*Task, e
 	return t.manager.UpdateTask(taskID, userID, updates)
 }
 
-// CreateSubTask 创建子任务
+// CreateSubTask 创建子任务.
 func (t *TaskTracker) CreateSubTask(parentID, title, description, reporterID string, priority TaskPriority) (*Task, error) {
 	parent, err := t.manager.GetTask(parentID)
 	if err != nil {
@@ -225,7 +225,7 @@ func (t *TaskTracker) CreateSubTask(parentID, title, description, reporterID str
 	return task, nil
 }
 
-// GetSubTasks 获取子任务列表
+// GetSubTasks 获取子任务列表.
 func (t *TaskTracker) GetSubTasks(parentID string) ([]*Task, error) {
 	filter := TaskFilter{
 		ProjectID: "",
@@ -242,7 +242,7 @@ func (t *TaskTracker) GetSubTasks(parentID string) ([]*Task, error) {
 	return subTasks, nil
 }
 
-// TaskTimeEntry 工时记录
+// TaskTimeEntry 工时记录.
 type TaskTimeEntry struct {
 	ID          string    `json:"id"`
 	TaskID      string    `json:"task_id"`
@@ -253,20 +253,20 @@ type TaskTimeEntry struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// TimeTracker 工时追踪器
+// TimeTracker 工时追踪器.
 type TimeTracker struct {
 	mu      sync.RWMutex
 	entries map[string][]*TaskTimeEntry // taskID -> entries
 }
 
-// NewTimeTracker 创建工时追踪器
+// NewTimeTracker 创建工时追踪器.
 func NewTimeTracker() *TimeTracker {
 	return &TimeTracker{
 		entries: make(map[string][]*TaskTimeEntry),
 	}
 }
 
-// AddTimeEntry 添加工时记录
+// AddTimeEntry 添加工时记录.
 func (tt *TimeTracker) AddTimeEntry(taskID, userID, description string, hours float64, date time.Time) (*TaskTimeEntry, error) {
 	tt.mu.Lock()
 	defer tt.mu.Unlock()
@@ -285,14 +285,14 @@ func (tt *TimeTracker) AddTimeEntry(taskID, userID, description string, hours fl
 	return entry, nil
 }
 
-// GetTimeEntries 获取任务工时记录
+// GetTimeEntries 获取任务工时记录.
 func (tt *TimeTracker) GetTimeEntries(taskID string) []*TaskTimeEntry {
 	tt.mu.RLock()
 	defer tt.mu.RUnlock()
 	return append([]*TaskTimeEntry{}, tt.entries[taskID]...)
 }
 
-// GetTotalHours 获取任务总工时
+// GetTotalHours 获取任务总工时.
 func (tt *TimeTracker) GetTotalHours(taskID string) float64 {
 	tt.mu.RLock()
 	defer tt.mu.RUnlock()
@@ -304,7 +304,7 @@ func (tt *TimeTracker) GetTotalHours(taskID string) float64 {
 	return total
 }
 
-// TaskWatcher 任务观察者
+// TaskWatcher 任务观察者.
 type TaskWatcher struct {
 	ID        string    `json:"id"`
 	TaskID    string    `json:"task_id"`
@@ -312,20 +312,20 @@ type TaskWatcher struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// WatchManager 关注管理器
+// WatchManager 关注管理器.
 type WatchManager struct {
 	mu       sync.RWMutex
 	watchers map[string][]*TaskWatcher // taskID -> watchers
 }
 
-// NewWatchManager 创建关注管理器
+// NewWatchManager 创建关注管理器.
 func NewWatchManager() *WatchManager {
 	return &WatchManager{
 		watchers: make(map[string][]*TaskWatcher),
 	}
 }
 
-// AddWatcher 添加关注者
+// AddWatcher 添加关注者.
 func (wm *WatchManager) AddWatcher(taskID, userID string) (*TaskWatcher, error) {
 	wm.mu.Lock()
 	defer wm.mu.Unlock()
@@ -348,7 +348,7 @@ func (wm *WatchManager) AddWatcher(taskID, userID string) (*TaskWatcher, error) 
 	return watcher, nil
 }
 
-// RemoveWatcher 移除关注者
+// RemoveWatcher 移除关注者.
 func (wm *WatchManager) RemoveWatcher(taskID, userID string) {
 	wm.mu.Lock()
 	defer wm.mu.Unlock()
@@ -363,14 +363,14 @@ func (wm *WatchManager) RemoveWatcher(taskID, userID string) {
 	wm.watchers[taskID] = newWatchers
 }
 
-// GetWatchers 获取任务关注者
+// GetWatchers 获取任务关注者.
 func (wm *WatchManager) GetWatchers(taskID string) []*TaskWatcher {
 	wm.mu.RLock()
 	defer wm.mu.RUnlock()
 	return append([]*TaskWatcher{}, wm.watchers[taskID]...)
 }
 
-// IsWatcher 检查是否关注
+// IsWatcher 检查是否关注.
 func (wm *WatchManager) IsWatcher(taskID, userID string) bool {
 	wm.mu.RLock()
 	defer wm.mu.RUnlock()

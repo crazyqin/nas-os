@@ -9,35 +9,35 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AuditLogger 审计日志记录器接口
+// AuditLogger 审计日志记录器接口.
 type AuditLogger interface {
 	LogAccess(userID, method, path, ip string, statusCode int)
 	LogPermissionDenied(userID, resource, action, ip string)
 	LogAuthFailure(ip, reason string)
 }
 
-// DefaultAuditLogger 默认审计日志实现
+// DefaultAuditLogger 默认审计日志实现.
 type DefaultAuditLogger struct{}
 
-// LogAccess 记录访问日志
+// LogAccess 记录访问日志.
 func (l *DefaultAuditLogger) LogAccess(userID, method, path, ip string, statusCode int) {
 	log.Printf("[AUDIT] user=%s method=%s path=%s ip=%s status=%d time=%s",
 		userID, method, path, ip, statusCode, time.Now().Format(time.RFC3339))
 }
 
-// LogPermissionDenied 记录权限拒绝日志
+// LogPermissionDenied 记录权限拒绝日志.
 func (l *DefaultAuditLogger) LogPermissionDenied(userID, resource, action, ip string) {
 	log.Printf("[AUDIT] PERMISSION_DENIED user=%s resource=%s action=%s ip=%s time=%s",
 		userID, resource, action, ip, time.Now().Format(time.RFC3339))
 }
 
-// LogAuthFailure 记录认证失败日志
+// LogAuthFailure 记录认证失败日志.
 func (l *DefaultAuditLogger) LogAuthFailure(ip, reason string) {
 	log.Printf("[AUDIT] AUTH_FAILURE ip=%s reason=%s time=%s",
 		ip, reason, time.Now().Format(time.RFC3339))
 }
 
-// Middleware 认证中间件
+// Middleware 认证中间件.
 type Middleware struct {
 	userManager interface {
 		ValidateToken(token string) (string, error) // 验证 token 返回 userID
@@ -50,7 +50,7 @@ type Middleware struct {
 	rateLimitConfig RateLimitConfig
 }
 
-// RateLimitConfig 限流配置
+// RateLimitConfig 限流配置.
 type RateLimitConfig struct {
 	Enabled         bool
 	RequestsPerMin  int
@@ -66,7 +66,7 @@ var DefaultRateLimitConfig = RateLimitConfig{
 	CleanupInterval: 5 * time.Minute,
 }
 
-// MiddlewareConfig 认证中间件配置
+// MiddlewareConfig 认证中间件配置.
 type MiddlewareConfig struct {
 	IPWhitelist []string
 	IPBlacklist []string
@@ -74,7 +74,7 @@ type MiddlewareConfig struct {
 	AuditLogger AuditLogger
 }
 
-// NewMiddleware 创建认证中间件
+// NewMiddleware 创建认证中间件.
 func NewMiddleware(userMgr interface {
 	ValidateToken(token string) (string, error)
 	GetUser(userID string) (interface{}, error)
@@ -82,7 +82,7 @@ func NewMiddleware(userMgr interface {
 	return NewMiddlewareWithConfig(userMgr, rbacMgr, MiddlewareConfig{})
 }
 
-// NewMiddlewareWithConfig 创建认证中间件（带配置）
+// NewMiddlewareWithConfig 创建认证中间件（带配置）.
 func NewMiddlewareWithConfig(userMgr interface {
 	ValidateToken(token string) (string, error)
 	GetUser(userID string) (interface{}, error)
@@ -115,7 +115,7 @@ func NewMiddlewareWithConfig(userMgr interface {
 	return m
 }
 
-// RequireAuth 需要认证的中间件
+// RequireAuth 需要认证的中间件.
 func (m *Middleware) RequireAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		clientIP := c.ClientIP()
@@ -220,7 +220,7 @@ func (m *Middleware) RequireAuth() gin.HandlerFunc {
 }
 
 // extractUserGroups 从用户对象中提取组信息
-// 支持多种用户类型，通过类型断言和反射获取 Groups 字段
+// 支持多种用户类型，通过类型断言和反射获取 Groups 字段.
 func extractUserGroups(user interface{}) []string {
 	if user == nil {
 		return []string{}
@@ -253,12 +253,12 @@ func extractUserGroups(user interface{}) []string {
 	return []string{}
 }
 
-// GroupProvider 定义获取用户组的接口
+// GroupProvider 定义获取用户组的接口.
 type GroupProvider interface {
 	GetGroups() []string
 }
 
-// RequirePermission 需要特定权限的中间件
+// RequirePermission 需要特定权限的中间件.
 func (m *Middleware) RequirePermission(resource Resource, action Action) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 先执行认证
@@ -321,7 +321,7 @@ func (m *Middleware) RequirePermission(resource Resource, action Action) gin.Han
 	}
 }
 
-// RequirePermissionWithResource 需要特定权限的中间件（带资源ID）
+// RequirePermissionWithResource 需要特定权限的中间件（带资源ID）.
 func (m *Middleware) RequirePermissionWithResource(resource Resource, action Action, getResourceID func(*gin.Context) string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, exists := c.Get("user_id")
@@ -381,7 +381,7 @@ func (m *Middleware) RequirePermissionWithResource(resource Resource, action Act
 	}
 }
 
-// RequireRole 需要特定角色的中间件
+// RequireRole 需要特定角色的中间件.
 func (m *Middleware) RequireRole(roles ...Role) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, exists := c.Get("user_id")
@@ -435,12 +435,12 @@ func (m *Middleware) RequireRole(roles ...Role) gin.HandlerFunc {
 	}
 }
 
-// RequireAdmin 需要管理员权限的中间件
+// RequireAdmin 需要管理员权限的中间件.
 func (m *Middleware) RequireAdmin() gin.HandlerFunc {
 	return m.RequireRole(RoleAdmin)
 }
 
-// OptionalAuth 可选认证中间件（有 token 则认证，无 token 则匿名）
+// OptionalAuth 可选认证中间件（有 token 则认证，无 token 则匿名）.
 func (m *Middleware) OptionalAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -474,7 +474,7 @@ func (m *Middleware) OptionalAuth() gin.HandlerFunc {
 	}
 }
 
-// GetUserID 从上下文获取用户 ID
+// GetUserID 从上下文获取用户 ID.
 func GetUserID(c *gin.Context) string {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -487,7 +487,7 @@ func GetUserID(c *gin.Context) string {
 	return userIDStr
 }
 
-// HasPermission 检查当前用户是否有权限
+// HasPermission 检查当前用户是否有权限.
 func HasPermission(c *gin.Context, _ Resource, _ Action) bool {
 	userID := GetUserID(c)
 	if userID == "" {
@@ -499,7 +499,7 @@ func HasPermission(c *gin.Context, _ Resource, _ Action) bool {
 	return true
 }
 
-// AuditLogMiddleware 审计日志中间件
+// AuditLogMiddleware 审计日志中间件.
 func AuditLogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 从上下文获取用户信息
@@ -517,7 +517,7 @@ func AuditLogMiddleware() gin.HandlerFunc {
 	}
 }
 
-// AuditMiddleware 带完整审计日志的中间件
+// AuditMiddleware 带完整审计日志的中间件.
 func (m *Middleware) AuditMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -548,7 +548,7 @@ func (m *Middleware) AuditMiddleware() gin.HandlerFunc {
 	}
 }
 
-// RequireAnyPermission 需要任一权限的中间件
+// RequireAnyPermission 需要任一权限的中间件.
 func (m *Middleware) RequireAnyPermission(checks []struct {
 	Resource Resource
 	Action   Action
@@ -599,7 +599,7 @@ func (m *Middleware) RequireAnyPermission(checks []struct {
 	}
 }
 
-// RequireAllPermissions 需要所有权限的中间件
+// RequireAllPermissions 需要所有权限的中间件.
 func (m *Middleware) RequireAllPermissions(checks []struct {
 	Resource Resource
 	Action   Action
@@ -650,7 +650,7 @@ func (m *Middleware) RequireAllPermissions(checks []struct {
 	}
 }
 
-// CheckIPAccess IP 访问检查中间件
+// CheckIPAccess IP 访问检查中间件.
 func (m *Middleware) CheckIPAccess() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		clientIP := c.ClientIP()
@@ -681,27 +681,27 @@ func (m *Middleware) CheckIPAccess() gin.HandlerFunc {
 	}
 }
 
-// AddToWhitelist 添加 IP 到白名单
+// AddToWhitelist 添加 IP 到白名单.
 func (m *Middleware) AddToWhitelist(ip string) {
 	m.ipWhitelist[ip] = true
 }
 
-// RemoveFromWhitelist 从白名单移除 IP
+// RemoveFromWhitelist 从白名单移除 IP.
 func (m *Middleware) RemoveFromWhitelist(ip string) {
 	delete(m.ipWhitelist, ip)
 }
 
-// AddToBlacklist 添加 IP 到黑名单
+// AddToBlacklist 添加 IP 到黑名单.
 func (m *Middleware) AddToBlacklist(ip string) {
 	m.ipBlacklist[ip] = true
 }
 
-// RemoveFromBlacklist 从黑名单移除 IP
+// RemoveFromBlacklist 从黑名单移除 IP.
 func (m *Middleware) RemoveFromBlacklist(ip string) {
 	delete(m.ipBlacklist, ip)
 }
 
-// GetWhitelist 获取白名单
+// GetWhitelist 获取白名单.
 func (m *Middleware) GetWhitelist() []string {
 	ips := make([]string, 0, len(m.ipWhitelist))
 	for ip := range m.ipWhitelist {
@@ -710,7 +710,7 @@ func (m *Middleware) GetWhitelist() []string {
 	return ips
 }
 
-// GetBlacklist 获取黑名单
+// GetBlacklist 获取黑名单.
 func (m *Middleware) GetBlacklist() []string {
 	ips := make([]string, 0, len(m.ipBlacklist))
 	for ip := range m.ipBlacklist {
@@ -719,7 +719,7 @@ func (m *Middleware) GetBlacklist() []string {
 	return ips
 }
 
-// GetClientIP 从上下文获取客户端 IP
+// GetClientIP 从上下文获取客户端 IP.
 func GetClientIP(c *gin.Context) string {
 	if ip, exists := c.Get("client_ip"); exists {
 		if ipStr, ok := ip.(string); ok {
@@ -729,7 +729,7 @@ func GetClientIP(c *gin.Context) string {
 	return c.ClientIP()
 }
 
-// GetUserRoles 从上下文获取用户角色
+// GetUserRoles 从上下文获取用户角色.
 func GetUserRoles(c *gin.Context) []Role {
 	if roles, exists := c.Get("user_roles"); exists {
 		if roleList, ok := roles.([]Role); ok {
@@ -739,7 +739,7 @@ func GetUserRoles(c *gin.Context) []Role {
 	return nil
 }
 
-// GetUserPermissions 从上下文获取用户权限
+// GetUserPermissions 从上下文获取用户权限.
 func GetUserPermissions(c *gin.Context) []Permission {
 	if perms, exists := c.Get("user_permissions"); exists {
 		if permList, ok := perms.([]Permission); ok {

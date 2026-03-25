@@ -16,7 +16,7 @@ import (
 )
 
 // FileAuditStorage 文件审计存储管理器
-// 负责日志文件的存储、轮转和归档
+// 负责日志文件的存储、轮转和归档.
 type FileAuditStorage struct {
 	basePath     string // 基础路径
 	maxFileSize  int64  // 单文件最大大小(bytes)
@@ -31,7 +31,7 @@ type FileAuditStorage struct {
 	bufferMu     sync.Mutex
 }
 
-// NewFileAuditStorage 创建存储管理器
+// NewFileAuditStorage 创建存储管理器.
 func NewFileAuditStorage(basePath string, maxFileSize int64, maxFileCount, maxAgeDays, compressAge int) (*FileAuditStorage, error) {
 	// 确保目录存在
 	if err := os.MkdirAll(basePath, 0750); err != nil {
@@ -55,7 +55,7 @@ func NewFileAuditStorage(basePath string, maxFileSize int64, maxFileCount, maxAg
 	return storage, nil
 }
 
-// initCurrentFile 初始化当前文件
+// initCurrentFile 初始化当前文件.
 func (s *FileAuditStorage) initCurrentFile() error {
 	today := time.Now().Format("2006-01-02")
 	filename := s.getLogFilename(today)
@@ -80,17 +80,17 @@ func (s *FileAuditStorage) initCurrentFile() error {
 	return nil
 }
 
-// getLogFilename 获取日志文件名
+// getLogFilename 获取日志文件名.
 func (s *FileAuditStorage) getLogFilename(date string) string {
 	return filepath.Join(s.basePath, fmt.Sprintf("file-audit-%s.log", date))
 }
 
-// getArchiveFilename 获取归档文件名
+// getArchiveFilename 获取归档文件名.
 func (s *FileAuditStorage) getArchiveFilename(startMonth, endMonth string) string {
 	return filepath.Join(s.basePath, "archive", fmt.Sprintf("file-audit-%s-%s.tar.gz", startMonth, endMonth))
 }
 
-// Write 写入单条日志
+// Write 写入单条日志.
 func (s *FileAuditStorage) Write(entry *FileAuditEntry) error {
 	s.bufferMu.Lock()
 	s.writeBuffer = append(s.writeBuffer, entry)
@@ -104,7 +104,7 @@ func (s *FileAuditStorage) Write(entry *FileAuditEntry) error {
 	return nil
 }
 
-// WriteBatch 批量写入日志
+// WriteBatch 批量写入日志.
 func (s *FileAuditStorage) WriteBatch(date string, entries []*FileAuditEntry) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -126,7 +126,7 @@ func (s *FileAuditStorage) WriteBatch(date string, entries []*FileAuditEntry) er
 	return nil
 }
 
-// writeEntry 写入单条日志到文件
+// writeEntry 写入单条日志到文件.
 func (s *FileAuditStorage) writeEntry(entry *FileAuditEntry) error {
 	data, err := json.Marshal(entry)
 	if err != nil {
@@ -151,7 +151,7 @@ func (s *FileAuditStorage) writeEntry(entry *FileAuditEntry) error {
 	return nil
 }
 
-// FlushBuffer 刷新缓冲区
+// FlushBuffer 刷新缓冲区.
 func (s *FileAuditStorage) FlushBuffer() error {
 	s.bufferMu.Lock()
 	entries := s.writeBuffer
@@ -190,7 +190,7 @@ func (s *FileAuditStorage) FlushBuffer() error {
 	return nil
 }
 
-// rotateDate 日期轮转
+// rotateDate 日期轮转.
 func (s *FileAuditStorage) rotateDate(newDate string) error {
 	// 关闭当前文件
 	if s.currentFile != nil {
@@ -211,7 +211,7 @@ func (s *FileAuditStorage) rotateDate(newDate string) error {
 	return nil
 }
 
-// rotateSize 大小轮转
+// rotateSize 大小轮转.
 func (s *FileAuditStorage) rotateSize() error {
 	// 关闭当前文件
 	if s.currentFile != nil {
@@ -237,7 +237,7 @@ func (s *FileAuditStorage) rotateSize() error {
 	return nil
 }
 
-// Cleanup 清理过期日志
+// Cleanup 清理过期日志.
 func (s *FileAuditStorage) Cleanup() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -288,7 +288,7 @@ func (s *FileAuditStorage) Cleanup() error {
 	return nil
 }
 
-// compressFile 压缩日志文件
+// compressFile 压缩日志文件.
 func (s *FileAuditStorage) compressFile(filename string) error {
 	srcPath := filepath.Join(s.basePath, filename)
 	dstPath := srcPath + ".gz"
@@ -320,7 +320,7 @@ func (s *FileAuditStorage) compressFile(filename string) error {
 	return os.Remove(srcPath)
 }
 
-// enforceMaxFileCount 强制最大文件数限制
+// enforceMaxFileCount 强制最大文件数限制.
 func (s *FileAuditStorage) enforceMaxFileCount() {
 	entries, err := os.ReadDir(s.basePath)
 	if err != nil {
@@ -373,7 +373,7 @@ func (s *FileAuditStorage) enforceMaxFileCount() {
 	}
 }
 
-// Archive 归档日志
+// Archive 归档日志.
 func (s *FileAuditStorage) Archive(startMonth, endMonth string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -477,7 +477,7 @@ func (s *FileAuditStorage) Archive(startMonth, endMonth string) error {
 	return nil
 }
 
-// Load 加载指定日期的日志
+// Load 加载指定日期的日志.
 func (s *FileAuditStorage) Load(date string) ([]*FileAuditEntry, error) {
 	filename := s.getLogFilename(date)
 
@@ -489,7 +489,7 @@ func (s *FileAuditStorage) Load(date string) ([]*FileAuditEntry, error) {
 	return s.loadFile(filename)
 }
 
-// loadFile 加载日志文件
+// loadFile 加载日志文件.
 func (s *FileAuditStorage) loadFile(filename string) ([]*FileAuditEntry, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -526,7 +526,7 @@ func (s *FileAuditStorage) loadFile(filename string) ([]*FileAuditEntry, error) 
 	return entries, nil
 }
 
-// ListAvailableDates 列出可用的日志日期
+// ListAvailableDates 列出可用的日志日期.
 func (s *FileAuditStorage) ListAvailableDates() ([]string, error) {
 	entries, err := os.ReadDir(s.basePath)
 	if err != nil {
@@ -567,7 +567,7 @@ func (s *FileAuditStorage) ListAvailableDates() ([]string, error) {
 	return result, nil
 }
 
-// GetStorageInfo 获取存储信息
+// GetStorageInfo 获取存储信息.
 func (s *FileAuditStorage) GetStorageInfo() (*StorageInfo, error) {
 	entries, err := os.ReadDir(s.basePath)
 	if err != nil {
@@ -615,7 +615,7 @@ func (s *FileAuditStorage) GetStorageInfo() (*StorageInfo, error) {
 	return info, nil
 }
 
-// StorageInfo 存储信息
+// StorageInfo 存储信息.
 type StorageInfo struct {
 	TotalSize  int64  `json:"total_size"`  // 总大小(bytes)
 	FileCount  int    `json:"file_count"`  // 文件数量
@@ -623,7 +623,7 @@ type StorageInfo struct {
 	NewestDate string `json:"newest_date"` // 最新日期
 }
 
-// Close 关闭存储
+// Close 关闭存储.
 func (s *FileAuditStorage) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()

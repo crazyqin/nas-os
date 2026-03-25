@@ -8,14 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler API 处理器
+// Handler API 处理器.
 type Handler struct {
 	manager   *Manager
 	metrics   *Metrics
 	generator *EfficiencyReportGenerator
 }
 
-// NewHandler 创建 API 处理器
+// NewHandler 创建 API 处理器.
 func NewHandler(manager *Manager) *Handler {
 	metrics := NewMetrics()
 	return &Handler{
@@ -25,7 +25,7 @@ func NewHandler(manager *Manager) *Handler {
 	}
 }
 
-// NewHandlerWithGenerator 创建带自定义生成器的 API 处理器
+// NewHandlerWithGenerator 创建带自定义生成器的 API 处理器.
 func NewHandlerWithGenerator(manager *Manager, metrics *Metrics, generator *EfficiencyReportGenerator) *Handler {
 	return &Handler{
 		manager:   manager,
@@ -34,7 +34,7 @@ func NewHandlerWithGenerator(manager *Manager, metrics *Metrics, generator *Effi
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	tiering := r.Group("/tiering")
 	{
@@ -85,7 +85,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// ListTiers 列出所有存储层
+// ListTiers 列出所有存储层.
 func (h *Handler) ListTiers(c *gin.Context) {
 	tiers := h.manager.ListTiers()
 	c.JSON(http.StatusOK, gin.H{
@@ -95,7 +95,7 @@ func (h *Handler) ListTiers(c *gin.Context) {
 	})
 }
 
-// CreateTier 创建存储层
+// CreateTier 创建存储层.
 func (h *Handler) CreateTier(c *gin.Context) {
 	var config TierConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -129,7 +129,7 @@ func (h *Handler) CreateTier(c *gin.Context) {
 	})
 }
 
-// GetTier 获取存储层配置
+// GetTier 获取存储层配置.
 func (h *Handler) GetTier(c *gin.Context) {
 	tierType := TierType(c.Param("type"))
 	tier, err := h.manager.GetTier(tierType)
@@ -147,7 +147,7 @@ func (h *Handler) GetTier(c *gin.Context) {
 	})
 }
 
-// UpdateTier 更新存储层配置
+// UpdateTier 更新存储层配置.
 func (h *Handler) UpdateTier(c *gin.Context) {
 	tierType := TierType(c.Param("type"))
 	var config TierConfig
@@ -172,7 +172,7 @@ func (h *Handler) UpdateTier(c *gin.Context) {
 	})
 }
 
-// DeleteTier 删除存储层
+// DeleteTier 删除存储层.
 func (h *Handler) DeleteTier(c *gin.Context) {
 	tierType := TierType(c.Param("type"))
 	if err := h.manager.DeleteTier(tierType); err != nil {
@@ -188,7 +188,7 @@ func (h *Handler) DeleteTier(c *gin.Context) {
 	})
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (h *Handler) ListPolicies(c *gin.Context) {
 	policies := h.manager.ListPolicies()
 	c.JSON(http.StatusOK, gin.H{
@@ -198,7 +198,7 @@ func (h *Handler) ListPolicies(c *gin.Context) {
 	})
 }
 
-// CreatePolicy 创建策略
+// CreatePolicy 创建策略.
 func (h *Handler) CreatePolicy(c *gin.Context) {
 	var policy Policy
 	if err := c.ShouldBindJSON(&policy); err != nil {
@@ -223,7 +223,7 @@ func (h *Handler) CreatePolicy(c *gin.Context) {
 	})
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (h *Handler) GetPolicy(c *gin.Context) {
 	id := c.Param("id")
 	policy, err := h.manager.GetPolicy(id)
@@ -241,7 +241,7 @@ func (h *Handler) GetPolicy(c *gin.Context) {
 	})
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (h *Handler) UpdatePolicy(c *gin.Context) {
 	id := c.Param("id")
 	var policy Policy
@@ -265,7 +265,7 @@ func (h *Handler) UpdatePolicy(c *gin.Context) {
 	})
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (h *Handler) DeletePolicy(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeletePolicy(id); err != nil {
@@ -281,7 +281,7 @@ func (h *Handler) DeletePolicy(c *gin.Context) {
 	})
 }
 
-// ExecutePolicy 执行策略
+// ExecutePolicy 执行策略.
 func (h *Handler) ExecutePolicy(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.manager.ExecutePolicy(id)
@@ -299,7 +299,7 @@ func (h *Handler) ExecutePolicy(c *gin.Context) {
 	})
 }
 
-// Migrate 手动迁移
+// Migrate 手动迁移.
 func (h *Handler) Migrate(c *gin.Context) {
 	var req MigrateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -324,7 +324,7 @@ func (h *Handler) Migrate(c *gin.Context) {
 	})
 }
 
-// ListTasks 列出迁移任务
+// ListTasks 列出迁移任务.
 func (h *Handler) ListTasks(c *gin.Context) {
 	tasks := h.manager.ListTasks(100)
 	c.JSON(http.StatusOK, gin.H{
@@ -334,7 +334,7 @@ func (h *Handler) ListTasks(c *gin.Context) {
 	})
 }
 
-// GetTask 获取任务详情
+// GetTask 获取任务详情.
 func (h *Handler) GetTask(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.manager.GetTask(id)
@@ -352,7 +352,7 @@ func (h *Handler) GetTask(c *gin.Context) {
 	})
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (h *Handler) CancelTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.CancelTask(id); err != nil {
@@ -368,7 +368,7 @@ func (h *Handler) CancelTask(c *gin.Context) {
 	})
 }
 
-// GetStatus 获取分层状态
+// GetStatus 获取分层状态.
 func (h *Handler) GetStatus(c *gin.Context) {
 	status := h.manager.GetStatus()
 	c.JSON(http.StatusOK, gin.H{
@@ -378,7 +378,7 @@ func (h *Handler) GetStatus(c *gin.Context) {
 	})
 }
 
-// GetStats 获取分层统计
+// GetStats 获取分层统计.
 func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.manager.GetAccessStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -388,7 +388,7 @@ func (h *Handler) GetStats(c *gin.Context) {
 	})
 }
 
-// GetTierStats 获取存储层统计
+// GetTierStats 获取存储层统计.
 func (h *Handler) GetTierStats(c *gin.Context) {
 	tierType := TierType(c.Param("type"))
 
@@ -422,7 +422,7 @@ func (h *Handler) GetTierStats(c *gin.Context) {
 
 // ==================== 效率报告 API ====================
 
-// GetEfficiencyReport 获取完整的分层效率报告
+// GetEfficiencyReport 获取完整的分层效率报告.
 func (h *Handler) GetEfficiencyReport(c *gin.Context) {
 	period := c.DefaultQuery("period", "daily")
 
@@ -442,7 +442,7 @@ func (h *Handler) GetEfficiencyReport(c *gin.Context) {
 	})
 }
 
-// GetDataDistribution 获取冷热数据分布报告
+// GetDataDistribution 获取冷热数据分布报告.
 func (h *Handler) GetDataDistribution(c *gin.Context) {
 	report := h.generator.generateDataDistribution()
 
@@ -453,7 +453,7 @@ func (h *Handler) GetDataDistribution(c *gin.Context) {
 	})
 }
 
-// GetMigrationEfficiency 获取迁移效率统计报告
+// GetMigrationEfficiency 获取迁移效率统计报告.
 func (h *Handler) GetMigrationEfficiency(c *gin.Context) {
 	period := c.DefaultQuery("period", "daily")
 	report := h.generator.generateMigrationEfficiency(period)
@@ -465,7 +465,7 @@ func (h *Handler) GetMigrationEfficiency(c *gin.Context) {
 	})
 }
 
-// GetCostAnalysis 获取成本分析报告
+// GetCostAnalysis 获取成本分析报告.
 func (h *Handler) GetCostAnalysis(c *gin.Context) {
 	report := h.generator.generateCostAnalysis()
 
@@ -476,7 +476,7 @@ func (h *Handler) GetCostAnalysis(c *gin.Context) {
 	})
 }
 
-// GetCapacityForecast 获取容量趋势预测报告
+// GetCapacityForecast 获取容量趋势预测报告.
 func (h *Handler) GetCapacityForecast(c *gin.Context) {
 	days := 90
 	if d := c.Query("days"); d != "" {
@@ -494,7 +494,7 @@ func (h *Handler) GetCapacityForecast(c *gin.Context) {
 	})
 }
 
-// GetHealthScore 获取分层健康评分
+// GetHealthScore 获取分层健康评分.
 func (h *Handler) GetHealthScore(c *gin.Context) {
 	score := h.generator.calculateHealthScore()
 
@@ -505,7 +505,7 @@ func (h *Handler) GetHealthScore(c *gin.Context) {
 	})
 }
 
-// GetRecommendations 获取优化建议
+// GetRecommendations 获取优化建议.
 func (h *Handler) GetRecommendations(c *gin.Context) {
 	recommendations := h.generator.generateRecommendations()
 
@@ -516,7 +516,7 @@ func (h *Handler) GetRecommendations(c *gin.Context) {
 	})
 }
 
-// OptimizeSSDCache 优化 SSD 缓存层
+// OptimizeSSDCache 优化 SSD 缓存层.
 func (h *Handler) OptimizeSSDCache(c *gin.Context) {
 	result, err := h.manager.OptimizeSSDCache()
 	if err != nil {
@@ -534,7 +534,7 @@ func (h *Handler) OptimizeSSDCache(c *gin.Context) {
 	})
 }
 
-// AutoMigrate 执行自动数据迁移
+// AutoMigrate 执行自动数据迁移.
 func (h *Handler) AutoMigrate(c *gin.Context) {
 	result, err := h.manager.AutoMigrate()
 	if err != nil {
@@ -552,7 +552,7 @@ func (h *Handler) AutoMigrate(c *gin.Context) {
 	})
 }
 
-// GetMetrics 获取监控指标
+// GetMetrics 获取监控指标.
 func (h *Handler) GetMetrics(c *gin.Context) {
 	summary := h.metrics.GetSummary()
 
@@ -563,14 +563,14 @@ func (h *Handler) GetMetrics(c *gin.Context) {
 	})
 }
 
-// GetPrometheusMetrics 获取 Prometheus 格式指标
+// GetPrometheusMetrics 获取 Prometheus 格式指标.
 func (h *Handler) GetPrometheusMetrics(c *gin.Context) {
 	output := h.metrics.ExportPrometheus()
 
 	c.Data(http.StatusOK, "text/plain; charset=utf-8", []byte(output))
 }
 
-// parseIntParam 解析整数参数
+// parseIntParam 解析整数参数.
 func parseIntParam(s string) (int, error) {
 	var result int
 	_, err := fmt.Sscanf(s, "%d", &result)

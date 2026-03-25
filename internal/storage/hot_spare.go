@@ -15,7 +15,7 @@ import (
 
 // ========== Hot Spare 数据结构 ==========
 
-// HotSpare 热备盘配置
+// HotSpare 热备盘配置.
 type HotSpare struct {
 	ID              string    `json:"id"`              // 热备盘标识
 	Device          string    `json:"device"`          // 设备路径 (如 /dev/sdb)
@@ -31,7 +31,7 @@ type HotSpare struct {
 	ErrorMessage    string    `json:"errorMessage"`    // 错误信息
 }
 
-// DeviceHealthStatus 设备健康状态
+// DeviceHealthStatus 设备健康状态.
 type DeviceHealthStatus struct {
 	Device           string `json:"device"`           // 设备路径
 	Healthy          bool   `json:"healthy"`          // 是否健康
@@ -42,7 +42,7 @@ type DeviceHealthStatus struct {
 	Message          string `json:"message"`          // 状态消息
 }
 
-// ReplaceStatus 设备替换状态
+// ReplaceStatus 设备替换状态.
 type ReplaceStatus struct {
 	Running      bool      `json:"running"`      // 是否正在运行
 	Progress     float64   `json:"progress"`     // 进度 0-100
@@ -53,7 +53,7 @@ type ReplaceStatus struct {
 	ErrorCode    int       `json:"errorCode"`    // 错误码 (0 表示成功)
 }
 
-// HotSpareConfig Hot Spare 配置
+// HotSpareConfig Hot Spare 配置.
 type HotSpareConfig struct {
 	Enabled           bool          `json:"enabled"`           // 是否启用
 	CheckInterval     time.Duration `json:"checkInterval"`     // 检查间隔 (默认 30s)
@@ -65,7 +65,7 @@ type HotSpareConfig struct {
 	MinCapacityMargin int           `json:"minCapacityMargin"` // 最小容量余量百分比 (默认 5%)
 }
 
-// HotSpareEvent 热备盘事件
+// HotSpareEvent 热备盘事件.
 type HotSpareEvent struct {
 	Type         string    `json:"type"`         // added, removed, activated, rebuild_start, rebuild_complete, rebuild_failed, error
 	HotSpareID   string    `json:"hotSpareId"`   // 热备盘 ID
@@ -76,7 +76,7 @@ type HotSpareEvent struct {
 	Timestamp    time.Time `json:"timestamp"`    // 事件时间
 }
 
-// HotSpareStatus 热备盘系统状态
+// HotSpareStatus 热备盘系统状态.
 type HotSpareStatus struct {
 	TotalHotSpares  int            `json:"totalHotSpares"`  // 总热备盘数
 	AvailableCount  int            `json:"availableCount"`  // 可用数
@@ -86,12 +86,12 @@ type HotSpareStatus struct {
 	Config          HotSpareConfig `json:"config"`          // 当前配置
 }
 
-// NotificationFunc 通知回调函数类型
+// NotificationFunc 通知回调函数类型.
 type NotificationFunc func(event HotSpareEvent)
 
 // ========== HotSpareManager 热备盘管理器 ==========
 
-// HotSpareManager 热备盘管理器
+// HotSpareManager 热备盘管理器.
 type HotSpareManager struct {
 	manager    *Manager
 	client     *btrfs.Client
@@ -105,7 +105,7 @@ type HotSpareManager struct {
 	eventChan  chan HotSpareEvent
 }
 
-// DefaultHotSpareConfig 默认配置
+// DefaultHotSpareConfig 默认配置.
 var DefaultHotSpareConfig = HotSpareConfig{
 	Enabled:           true,
 	CheckInterval:     30 * time.Second,
@@ -117,7 +117,7 @@ var DefaultHotSpareConfig = HotSpareConfig{
 	MinCapacityMargin: 5,
 }
 
-// NewHotSpareManager 创建热备盘管理器
+// NewHotSpareManager 创建热备盘管理器.
 func NewHotSpareManager(manager *Manager) *HotSpareManager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &HotSpareManager{
@@ -131,21 +131,21 @@ func NewHotSpareManager(manager *Manager) *HotSpareManager {
 	}
 }
 
-// SetConfig 设置配置
+// SetConfig 设置配置.
 func (h *HotSpareManager) SetConfig(config HotSpareConfig) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.config = config
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (h *HotSpareManager) GetConfig() HotSpareConfig {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return h.config
 }
 
-// SetNotificationFunc 设置通知回调
+// SetNotificationFunc 设置通知回调.
 func (h *HotSpareManager) SetNotificationFunc(fn NotificationFunc) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -154,7 +154,7 @@ func (h *HotSpareManager) SetNotificationFunc(fn NotificationFunc) {
 
 // ========== 热备盘配置管理 ==========
 
-// AddHotSpare 添加热备盘
+// AddHotSpare 添加热备盘.
 func (h *HotSpareManager) AddHotSpare(device, volumeName string) (*HotSpare, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -213,7 +213,7 @@ func (h *HotSpareManager) AddHotSpare(device, volumeName string) (*HotSpare, err
 	return hs, nil
 }
 
-// RemoveHotSpare 移除热备盘
+// RemoveHotSpare 移除热备盘.
 func (h *HotSpareManager) RemoveHotSpare(device string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -243,7 +243,7 @@ func (h *HotSpareManager) RemoveHotSpare(device string) error {
 	return nil
 }
 
-// ListHotSpares 列出所有热备盘
+// ListHotSpares 列出所有热备盘.
 func (h *HotSpareManager) ListHotSpares(volumeName string) []*HotSpare {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -257,7 +257,7 @@ func (h *HotSpareManager) ListHotSpares(volumeName string) []*HotSpare {
 	return result
 }
 
-// GetHotSpare 获取热备盘详情
+// GetHotSpare 获取热备盘详情.
 func (h *HotSpareManager) GetHotSpare(device string) (*HotSpare, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -269,7 +269,7 @@ func (h *HotSpareManager) GetHotSpare(device string) (*HotSpare, error) {
 	return hs, nil
 }
 
-// GetStatus 获取热备盘系统状态
+// GetStatus 获取热备盘系统状态.
 func (h *HotSpareManager) GetStatus() HotSpareStatus {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -298,7 +298,7 @@ func (h *HotSpareManager) GetStatus() HotSpareStatus {
 
 // ========== 自动故障检测 ==========
 
-// Start 启动故障检测
+// Start 启动故障检测.
 func (h *HotSpareManager) Start() error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -314,7 +314,7 @@ func (h *HotSpareManager) Start() error {
 	return nil
 }
 
-// Stop 停止故障检测
+// Stop 停止故障检测.
 func (h *HotSpareManager) Stop() {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -327,7 +327,7 @@ func (h *HotSpareManager) Stop() {
 	h.running = false
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (h *HotSpareManager) monitorLoop() {
 	ticker := time.NewTicker(h.config.CheckInterval)
 	defer ticker.Stop()
@@ -344,7 +344,7 @@ func (h *HotSpareManager) monitorLoop() {
 	}
 }
 
-// eventLoop 事件处理循环
+// eventLoop 事件处理循环.
 func (h *HotSpareManager) eventLoop() {
 	for {
 		select {
@@ -358,7 +358,7 @@ func (h *HotSpareManager) eventLoop() {
 	}
 }
 
-// checkAllDevices 检查所有设备状态
+// checkAllDevices 检查所有设备状态.
 func (h *HotSpareManager) checkAllDevices() {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -407,7 +407,7 @@ func (h *HotSpareManager) checkAllDevices() {
 	}
 }
 
-// checkDeviceHealth 检查设备健康状态
+// checkDeviceHealth 检查设备健康状态.
 func (h *HotSpareManager) checkDeviceHealth(device string) DeviceHealthStatus {
 	health := DeviceHealthStatus{
 		Device:  device,
@@ -471,7 +471,7 @@ func (h *HotSpareManager) checkDeviceHealth(device string) DeviceHealthStatus {
 	return health
 }
 
-// handleDeviceFailure 处理设备故障
+// handleDeviceFailure 处理设备故障.
 func (h *HotSpareManager) handleDeviceFailure(volumeName, failedDevice string) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -506,7 +506,7 @@ func (h *HotSpareManager) handleDeviceFailure(volumeName, failedDevice string) {
 	}
 }
 
-// findAvailableHotSpare 查找可用的热备盘
+// findAvailableHotSpare 查找可用的热备盘.
 func (h *HotSpareManager) findAvailableHotSpare(volumeName string) *HotSpare {
 	// 优先查找专用于该卷的热备盘
 	for _, hs := range h.hotSpares {
@@ -527,7 +527,7 @@ func (h *HotSpareManager) findAvailableHotSpare(volumeName string) *HotSpare {
 
 // ========== 自动重建逻辑 ==========
 
-// startRebuild 开始重建
+// startRebuild 开始重建.
 func (h *HotSpareManager) startRebuild(hs *HotSpare, volumeName, failedDevice string) error {
 	vol := h.manager.GetVolume(volumeName)
 	if vol == nil {
@@ -566,7 +566,7 @@ func (h *HotSpareManager) startRebuild(hs *HotSpare, volumeName, failedDevice st
 	return nil
 }
 
-// monitorRebuildProgress 监控重建进度
+// monitorRebuildProgress 监控重建进度.
 func (h *HotSpareManager) monitorRebuildProgress(hs *HotSpare, volumeName string) {
 	timeout := time.After(h.config.RebuildTimeout)
 	ticker := time.NewTicker(5 * time.Second)
@@ -643,7 +643,7 @@ func (h *HotSpareManager) monitorRebuildProgress(hs *HotSpare, volumeName string
 
 // ========== 手动操作 ==========
 
-// ActivateHotSpare 手动激活热备盘
+// ActivateHotSpare 手动激活热备盘.
 func (h *HotSpareManager) ActivateHotSpare(device, volumeName, failedDevice string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -671,7 +671,7 @@ func (h *HotSpareManager) ActivateHotSpare(device, volumeName, failedDevice stri
 	return h.startRebuild(hs, volumeName, failedDevice)
 }
 
-// CancelRebuild 取消重建
+// CancelRebuild 取消重建.
 func (h *HotSpareManager) CancelRebuild(device string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -713,7 +713,7 @@ func (h *HotSpareManager) CancelRebuild(device string) error {
 
 // ========== 辅助方法 ==========
 
-// getDeviceCapacity 获取设备容量
+// getDeviceCapacity 获取设备容量.
 func (h *HotSpareManager) getDeviceCapacity(device string) (uint64, error) {
 	// 使用 blockdev 命令获取设备大小
 	cmd := exec.Command("sudo", "blockdev", "--getsize64", device)
@@ -729,7 +729,7 @@ func (h *HotSpareManager) getDeviceCapacity(device string) (uint64, error) {
 	return size, nil
 }
 
-// checkDeviceAvailable 检查设备是否可用
+// checkDeviceAvailable 检查设备是否可用.
 func (h *HotSpareManager) checkDeviceAvailable(device string) error {
 	// 检查设备是否存在
 	cmd := exec.Command("test", "-b", device)
@@ -746,7 +746,7 @@ func (h *HotSpareManager) checkDeviceAvailable(device string) error {
 	return nil
 }
 
-// validateCapacity 验证设备容量是否足够
+// validateCapacity 验证设备容量是否足够.
 func (h *HotSpareManager) validateCapacity(device string, vol *Volume) error {
 	capacity, err := h.getDeviceCapacity(device)
 	if err != nil {
@@ -771,7 +771,7 @@ func (h *HotSpareManager) validateCapacity(device string, vol *Volume) error {
 	return nil
 }
 
-// replaceDevice 执行设备替换
+// replaceDevice 执行设备替换.
 func (h *HotSpareManager) replaceDevice(mountPoint, srcDevice, tgtDevice string) error {
 	cmd := exec.Command("sudo", "btrfs", "replace", "start", srcDevice, tgtDevice, mountPoint)
 	output, err := cmd.CombinedOutput()
@@ -781,7 +781,7 @@ func (h *HotSpareManager) replaceDevice(mountPoint, srcDevice, tgtDevice string)
 	return nil
 }
 
-// getReplaceStatus 获取设备替换状态
+// getReplaceStatus 获取设备替换状态.
 func (h *HotSpareManager) getReplaceStatus(mountPoint string) (*ReplaceStatus, error) {
 	cmd := exec.Command("sudo", "btrfs", "replace", "status", mountPoint)
 	output, err := cmd.Output()
@@ -792,7 +792,7 @@ func (h *HotSpareManager) getReplaceStatus(mountPoint string) (*ReplaceStatus, e
 	return h.parseReplaceStatus(string(output))
 }
 
-// parseReplaceStatus 解析替换状态输出
+// parseReplaceStatus 解析替换状态输出.
 func (h *HotSpareManager) parseReplaceStatus(output string) (*ReplaceStatus, error) {
 	status := &ReplaceStatus{}
 
@@ -829,7 +829,7 @@ func (h *HotSpareManager) parseReplaceStatus(output string) (*ReplaceStatus, err
 	return status, nil
 }
 
-// cancelReplace 取消设备替换
+// cancelReplace 取消设备替换.
 func (h *HotSpareManager) cancelReplace(mountPoint string) error {
 	cmd := exec.Command("sudo", "btrfs", "replace", "cancel", mountPoint)
 	output, err := cmd.CombinedOutput()
@@ -839,14 +839,14 @@ func (h *HotSpareManager) cancelReplace(mountPoint string) error {
 	return nil
 }
 
-// emitEvent 发送事件 (需要持有锁)
+// emitEvent 发送事件 (需要持有锁).
 func (h *HotSpareManager) emitEvent(event HotSpareEvent) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.emitEventUnlocked(event)
 }
 
-// emitEventUnlocked 发送事件 (无需持有锁)
+// emitEventUnlocked 发送事件 (无需持有锁).
 func (h *HotSpareManager) emitEventUnlocked(event HotSpareEvent) {
 	select {
 	case h.eventChan <- event:
@@ -855,14 +855,14 @@ func (h *HotSpareManager) emitEventUnlocked(event HotSpareEvent) {
 	}
 }
 
-// generateID 生成热备盘 ID
+// generateID 生成热备盘 ID.
 func generateID(device string) string {
 	return fmt.Sprintf("hs-%d", time.Now().UnixNano())
 }
 
 // ========== 重建状态查询 ==========
 
-// RebuildStatus 重建状态
+// RebuildStatus 重建状态.
 type RebuildStatus struct {
 	Device       string    `json:"device"`       // 热备盘设备
 	VolumeName   string    `json:"volumeName"`   // 卷名
@@ -875,7 +875,7 @@ type RebuildStatus struct {
 	BytesTotal   uint64    `json:"bytesTotal"`   // 总字节数
 }
 
-// GetRebuildStatus 获取重建状态
+// GetRebuildStatus 获取重建状态.
 func (h *HotSpareManager) GetRebuildStatus(device string) (*RebuildStatus, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -904,7 +904,7 @@ func (h *HotSpareManager) GetRebuildStatus(device string) (*RebuildStatus, error
 	return status, nil
 }
 
-// ListRebuilding 列出正在重建的热备盘
+// ListRebuilding 列出正在重建的热备盘.
 func (h *HotSpareManager) ListRebuilding() []*RebuildStatus {
 	h.mu.RLock()
 	defer h.mu.RUnlock()

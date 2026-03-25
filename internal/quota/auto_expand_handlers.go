@@ -9,13 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AutoExpandHandlers 自动扩展 HTTP 处理器
+// AutoExpandHandlers 自动扩展 HTTP 处理器.
 type AutoExpandHandlers struct {
 	expandMgr *AutoExpandManager
 	quotaMgr  *Manager
 }
 
-// NewAutoExpandHandlers 创建自动扩展处理器
+// NewAutoExpandHandlers 创建自动扩展处理器.
 func NewAutoExpandHandlers(expandMgr *AutoExpandManager, quotaMgr *Manager) *AutoExpandHandlers {
 	return &AutoExpandHandlers{
 		expandMgr: expandMgr,
@@ -23,7 +23,7 @@ func NewAutoExpandHandlers(expandMgr *AutoExpandManager, quotaMgr *Manager) *Aut
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *AutoExpandHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	// 策略管理
 	policies := api.Group("/auto-expand/policies")
@@ -315,7 +315,7 @@ func (h *AutoExpandHandlers) getQuotaHistory(c *gin.Context) {
 
 // ========== 仪表盘扩展数据 ==========
 
-// ExpandDashboardData 扩展仪表盘数据
+// ExpandDashboardData 扩展仪表盘数据.
 type ExpandDashboardData struct {
 	TotalPolicies      int                           `json:"total_policies"`
 	EnabledPolicies    int                           `json:"enabled_policies"`
@@ -328,7 +328,7 @@ type ExpandDashboardData struct {
 	PolicyStats        map[string]*ExpandPolicyStats `json:"policy_stats"`
 }
 
-// GetExpandDashboardData 获取扩展仪表盘数据
+// GetExpandDashboardData 获取扩展仪表盘数据.
 func (h *AutoExpandHandlers) GetExpandDashboardData() *ExpandDashboardData {
 	data := &ExpandDashboardData{
 		PolicyStats: make(map[string]*ExpandPolicyStats),

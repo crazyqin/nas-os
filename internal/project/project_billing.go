@@ -12,24 +12,24 @@ import (
 // ========== 计费相关错误 ==========
 
 var (
-	// ErrQuotaExceeded 资源配额已超限错误
+	// ErrQuotaExceeded 资源配额已超限错误.
 	ErrQuotaExceeded = errors.New("资源配额已超限")
-	// ErrQuotaNotFound 配额配置不存在错误
+	// ErrQuotaNotFound 配额配置不存在错误.
 	ErrQuotaNotFound = errors.New("配额配置不存在")
-	// ErrBillingNotFound 计费记录不存在错误
+	// ErrBillingNotFound 计费记录不存在错误.
 	ErrBillingNotFound = errors.New("计费记录不存在")
-	// ErrInvalidCostAmount 无效成本金额错误
+	// ErrInvalidCostAmount 无效成本金额错误.
 	ErrInvalidCostAmount = errors.New("无效的成本金额")
-	// ErrInvalidQuotaValue 无效配额值错误
+	// ErrInvalidQuotaValue 无效配额值错误.
 	ErrInvalidQuotaValue = errors.New("无效的配额值")
 )
 
 // ========== 资源配额类型 ==========
 
-// ResourceType 资源类型
+// ResourceType 资源类型.
 type ResourceType string
 
-// 资源类型常量
+// 资源类型常量.
 const (
 	ResourceTypeCPU     ResourceType = "cpu"     // CPU核心数
 	ResourceTypeMemory  ResourceType = "memory"  // 内存(MB)
@@ -41,10 +41,10 @@ const (
 	ResourceTypeProject ResourceType = "project" // 项目数
 )
 
-// QuotaScope 配额范围
+// QuotaScope 配额范围.
 type QuotaScope string
 
-// 配额范围常量
+// 配额范围常量.
 const (
 	QuotaScopeProject QuotaScope = "project" // 项目级别
 	QuotaScopeUser    QuotaScope = "user"    // 用户级别
@@ -53,7 +53,7 @@ const (
 
 // ========== 资源配额定义 ==========
 
-// ResourceQuota 资源配额
+// ResourceQuota 资源配额.
 type ResourceQuota struct {
 	ID           string       `json:"id"`
 	ProjectID    string       `json:"project_id"`
@@ -80,7 +80,7 @@ type ResourceQuota struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// QuotaUsage 配额使用记录
+// QuotaUsage 配额使用记录.
 type QuotaUsage struct {
 	ID           string                 `json:"id"`
 	ProjectID    string                 `json:"project_id"`
@@ -95,7 +95,7 @@ type QuotaUsage struct {
 
 // ========== 计费记录 ==========
 
-// BillingRecord 计费记录
+// BillingRecord 计费记录.
 type BillingRecord struct {
 	ID          string    `json:"id"`
 	ProjectID   string    `json:"project_id"`
@@ -123,7 +123,7 @@ type BillingRecord struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// ResourceCost 资源成本
+// ResourceCost 资源成本.
 type ResourceCost struct {
 	ResourceType ResourceType `json:"resource_type"`
 	Quantity     int64        `json:"quantity"`    // 使用量
@@ -135,7 +135,7 @@ type ResourceCost struct {
 
 // ========== 成本分析 ==========
 
-// CostAnalysis 成本分析报告
+// CostAnalysis 成本分析报告.
 type CostAnalysis struct {
 	ProjectID   string    `json:"project_id"`
 	ProjectName string    `json:"project_name"`
@@ -164,7 +164,7 @@ type CostAnalysis struct {
 	Recommendations []CostRecommendation `json:"recommendations,omitempty"`
 }
 
-// ResourceCostSummary 资源成本汇总
+// ResourceCostSummary 资源成本汇总.
 type ResourceCostSummary struct {
 	ResourceType  ResourceType `json:"resource_type"`
 	TotalCost     float64      `json:"total_cost"`
@@ -174,26 +174,26 @@ type ResourceCostSummary struct {
 	Trend         string       `json:"trend"`      // up/down/stable
 }
 
-// DailyCost 每日成本
+// DailyCost 每日成本.
 type DailyCost struct {
 	Date string  `json:"date"`
 	Cost float64 `json:"cost"`
 }
 
-// MonthlyCost 每月成本
+// MonthlyCost 每月成本.
 type MonthlyCost struct {
 	Month string  `json:"month"`
 	Cost  float64 `json:"cost"`
 }
 
-// PeriodComparison 周期对比
+// PeriodComparison 周期对比.
 type PeriodComparison struct {
 	PreviousCost  float64 `json:"previous_cost"`
 	ChangeAmount  float64 `json:"change_amount"`
 	ChangePercent float64 `json:"change_percent"`
 }
 
-// CostRecommendation 成本优化建议
+// CostRecommendation 成本优化建议.
 type CostRecommendation struct {
 	Type             string  `json:"type"` // reduce/optimize/resize/schedule
 	ResourceType     string  `json:"resource_type"`
@@ -205,7 +205,7 @@ type CostRecommendation struct {
 
 // ========== 资源使用报告 ==========
 
-// ResourceUsageReport 资源使用报告
+// ResourceUsageReport 资源使用报告.
 type ResourceUsageReport struct {
 	ProjectID    string    `json:"project_id"`
 	ProjectName  string    `json:"project_name"`
@@ -233,7 +233,7 @@ type ResourceUsageReport struct {
 	Currency  string  `json:"currency"`
 }
 
-// ResourceUsageDetail 资源使用详情
+// ResourceUsageDetail 资源使用详情.
 type ResourceUsageDetail struct {
 	ResourceType    ResourceType `json:"resource_type"`
 	Allocated       int64        `json:"allocated"`        // 分配量
@@ -246,7 +246,7 @@ type ResourceUsageDetail struct {
 	QuotaPercent    float64      `json:"quota_percent"`    // 配额使用百分比
 }
 
-// QuotaUsageSummary 配额使用汇总
+// QuotaUsageSummary 配额使用汇总.
 type QuotaUsageSummary struct {
 	ResourceType ResourceType `json:"resource_type"`
 	HardLimit    int64        `json:"hard_limit"`
@@ -258,7 +258,7 @@ type QuotaUsageSummary struct {
 	Status       string       `json:"status"` // normal/warning/critical/exceeded
 }
 
-// OverQuotaAlert 配额超限告警
+// OverQuotaAlert 配额超限告警.
 type OverQuotaAlert struct {
 	ResourceType   ResourceType `json:"resource_type"`
 	CurrentUsage   int64        `json:"current_usage"`
@@ -268,7 +268,7 @@ type OverQuotaAlert struct {
 	Severity       string       `json:"severity"` // warning/critical
 }
 
-// UsageTrendPoint 使用趋势数据点
+// UsageTrendPoint 使用趋势数据点.
 type UsageTrendPoint struct {
 	Timestamp string           `json:"timestamp"`
 	Resources map[string]int64 `json:"resources"`
@@ -276,7 +276,7 @@ type UsageTrendPoint struct {
 
 // ========== BillingManager 计费管理器 ==========
 
-// BillingManager 计费管理器
+// BillingManager 计费管理器.
 type BillingManager struct {
 	mu             sync.RWMutex
 	quotas         map[string]*ResourceQuota          // quotaID -> quota
@@ -287,7 +287,7 @@ type BillingManager struct {
 	manager        *Manager                           // 项目管理器引用
 }
 
-// NewBillingManager 创建计费管理器
+// NewBillingManager 创建计费管理器.
 func NewBillingManager(projectManager *Manager) *BillingManager {
 	return &BillingManager{
 		quotas:         make(map[string]*ResourceQuota),
@@ -301,7 +301,7 @@ func NewBillingManager(projectManager *Manager) *BillingManager {
 
 // ========== 配额管理方法 ==========
 
-// SetQuota 设置资源配额
+// SetQuota 设置资源配额.
 func (bm *BillingManager) SetQuota(projectID string, resourceType ResourceType, hardLimit, softLimit int64, unitPrice float64, currency string) (*ResourceQuota, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -365,7 +365,7 @@ func (bm *BillingManager) SetQuota(projectID string, resourceType ResourceType, 
 	return quota, nil
 }
 
-// GetQuota 获取资源配额
+// GetQuota 获取资源配额.
 func (bm *BillingManager) GetQuota(projectID string, resourceType ResourceType) (*ResourceQuota, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -388,7 +388,7 @@ func (bm *BillingManager) GetQuota(projectID string, resourceType ResourceType) 
 	return quota, nil
 }
 
-// ListQuotas 列出项目所有配额
+// ListQuotas 列出项目所有配额.
 func (bm *BillingManager) ListQuotas(projectID string) []*ResourceQuota {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -409,7 +409,7 @@ func (bm *BillingManager) ListQuotas(projectID string) []*ResourceQuota {
 	return result
 }
 
-// AllocateResource 分配资源
+// AllocateResource 分配资源.
 func (bm *BillingManager) AllocateResource(projectID string, resourceType ResourceType, amount int64, userID, description string) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -456,7 +456,7 @@ func (bm *BillingManager) AllocateResource(projectID string, resourceType Resour
 	return nil
 }
 
-// ReleaseResource 释放资源
+// ReleaseResource 释放资源.
 func (bm *BillingManager) ReleaseResource(projectID string, resourceType ResourceType, amount int64, userID, description string) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -499,7 +499,7 @@ func (bm *BillingManager) ReleaseResource(projectID string, resourceType Resourc
 	return nil
 }
 
-// GetQuotaUsage 获取配额使用记录
+// GetQuotaUsage 获取配额使用记录.
 func (bm *BillingManager) GetQuotaUsage(projectID string, limit int) []*QuotaUsage {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -531,7 +531,7 @@ func (bm *BillingManager) GetQuotaUsage(projectID string, limit int) []*QuotaUsa
 
 // ========== 计费管理方法 ==========
 
-// CreateBillingRecord 创建计费记录
+// CreateBillingRecord 创建计费记录.
 func (bm *BillingManager) CreateBillingRecord(projectID string, periodStart, periodEnd time.Time, resourceCosts []ResourceCost, discount, taxRate float64) (*BillingRecord, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -574,7 +574,7 @@ func (bm *BillingManager) CreateBillingRecord(projectID string, periodStart, per
 	return record, nil
 }
 
-// GetBillingRecord 获取计费记录
+// GetBillingRecord 获取计费记录.
 func (bm *BillingManager) GetBillingRecord(billingID string) (*BillingRecord, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -587,7 +587,7 @@ func (bm *BillingManager) GetBillingRecord(billingID string) (*BillingRecord, er
 	return record, nil
 }
 
-// ListBillingRecords 列出项目计费记录
+// ListBillingRecords 列出项目计费记录.
 func (bm *BillingManager) ListBillingRecords(projectID string, limit, offset int) []*BillingRecord {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -623,7 +623,7 @@ func (bm *BillingManager) ListBillingRecords(projectID string, limit, offset int
 	return result[offset:end]
 }
 
-// UpdateBillingStatus 更新计费状态
+// UpdateBillingStatus 更新计费状态.
 func (bm *BillingManager) UpdateBillingStatus(billingID string, status string, paidAt *time.Time) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -644,7 +644,7 @@ func (bm *BillingManager) UpdateBillingStatus(billingID string, status string, p
 
 // ========== 成本分析方法 ==========
 
-// GetCostAnalysis 获取成本分析
+// GetCostAnalysis 获取成本分析.
 func (bm *BillingManager) GetCostAnalysis(projectID string, periodStart, periodEnd time.Time) (*CostAnalysis, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -728,7 +728,7 @@ func (bm *BillingManager) GetCostAnalysis(projectID string, periodStart, periodE
 	return analysis, nil
 }
 
-// generateDailyCost 生成每日成本数据
+// generateDailyCost 生成每日成本数据.
 func (bm *BillingManager) generateDailyCost(projectID string, start, end time.Time) []DailyCost {
 	dailyCosts := make([]DailyCost, 0)
 
@@ -766,7 +766,7 @@ func (bm *BillingManager) generateDailyCost(projectID string, start, end time.Ti
 	return dailyCosts
 }
 
-// generateCostRecommendations 生成成本优化建议
+// generateCostRecommendations 生成成本优化建议.
 func (bm *BillingManager) generateCostRecommendations(analysis *CostAnalysis) []CostRecommendation {
 	recommendations := make([]CostRecommendation, 0)
 
@@ -801,7 +801,7 @@ func (bm *BillingManager) generateCostRecommendations(analysis *CostAnalysis) []
 
 // ========== 资源使用报告方法 ==========
 
-// GetResourceUsageReport 获取资源使用报告
+// GetResourceUsageReport 获取资源使用报告.
 func (bm *BillingManager) GetResourceUsageReport(projectID string, periodStart, periodEnd time.Time) (*ResourceUsageReport, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -914,7 +914,7 @@ func (bm *BillingManager) GetResourceUsageReport(projectID string, periodStart, 
 	return report, nil
 }
 
-// DeleteQuota 删除资源配额
+// DeleteQuota 删除资源配额.
 func (bm *BillingManager) DeleteQuota(projectID string, resourceType ResourceType) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()

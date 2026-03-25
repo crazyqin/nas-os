@@ -8,19 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 项目管理 HTTP 处理器
+// Handlers 项目管理 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{
 		manager: mgr,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(router *gin.RouterGroup) {
 	// ========== 项目管理 ==========
 	projects := router.Group("/projects")
@@ -67,7 +67,7 @@ func (h *Handlers) RegisterRoutes(router *gin.RouterGroup) {
 
 // ========== 请求/响应结构 ==========
 
-// CreateProjectRequest 创建项目请求
+// CreateProjectRequest 创建项目请求.
 type CreateProjectRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Key         string `json:"key" binding:"required"`
@@ -75,21 +75,21 @@ type CreateProjectRequest struct {
 	OwnerID     string `json:"owner_id,omitempty"`
 }
 
-// UpdateProjectRequest 更新项目请求
+// UpdateProjectRequest 更新项目请求.
 type UpdateProjectRequest struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 	Status      string `json:"status,omitempty"`
 }
 
-// CreateMilestoneRequest 创建里程碑请求
+// CreateMilestoneRequest 创建里程碑请求.
 type CreateMilestoneRequest struct {
 	Name        string     `json:"name" binding:"required"`
 	Description string     `json:"description,omitempty"`
 	DueDate     *time.Time `json:"due_date,omitempty"`
 }
 
-// UpdateMilestoneRequest 更新里程碑请求
+// UpdateMilestoneRequest 更新里程碑请求.
 type UpdateMilestoneRequest struct {
 	Name        string     `json:"name,omitempty"`
 	Description string     `json:"description,omitempty"`
@@ -97,7 +97,7 @@ type UpdateMilestoneRequest struct {
 	DueDate     *time.Time `json:"due_date,omitempty"`
 }
 
-// CreateTaskRequest 创建任务请求
+// CreateTaskRequest 创建任务请求.
 type CreateTaskRequest struct {
 	Title          string       `json:"title" binding:"required"`
 	Description    string       `json:"description,omitempty"`
@@ -112,7 +112,7 @@ type CreateTaskRequest struct {
 	EstimatedHours float64      `json:"estimated_hours,omitempty"`
 }
 
-// UpdateTaskRequest 更新任务请求
+// UpdateTaskRequest 更新任务请求.
 type UpdateTaskRequest struct {
 	Title          string       `json:"title,omitempty"`
 	Description    string       `json:"description,omitempty"`
@@ -129,7 +129,7 @@ type UpdateTaskRequest struct {
 	ActualHours    float64      `json:"actual_hours,omitempty"`
 }
 
-// AddCommentRequest 添加评论请求
+// AddCommentRequest 添加评论请求.
 type AddCommentRequest struct {
 	Content string `json:"content" binding:"required"`
 }
@@ -146,7 +146,7 @@ type AddCommentRequest struct {
 // @Param offset query int false "偏移量" default(0)
 // @Param user_id query string false "用户ID筛选"
 // @Success 200 {object} map[string]interface{}
-// @Router /projects [get]
+// @Router /projects [get].
 func (h *Handlers) listProjects(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
@@ -170,7 +170,7 @@ func (h *Handlers) listProjects(c *gin.Context) {
 // @Param request body CreateProjectRequest true "项目创建参数"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
-// @Router /projects [post]
+// @Router /projects [post].
 func (h *Handlers) createProject(c *gin.Context) {
 	var req CreateProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -212,7 +212,7 @@ func (h *Handlers) createProject(c *gin.Context) {
 // @Param id path string true "项目ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /projects/{id} [get]
+// @Router /projects/{id} [get].
 func (h *Handlers) getProject(c *gin.Context) {
 	id := c.Param("id")
 
@@ -239,7 +239,7 @@ func (h *Handlers) getProject(c *gin.Context) {
 // @Param request body UpdateProjectRequest true "项目更新参数"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /projects/{id} [put]
+// @Router /projects/{id} [put].
 func (h *Handlers) updateProject(c *gin.Context) {
 	id := c.Param("id")
 
@@ -282,7 +282,7 @@ func (h *Handlers) updateProject(c *gin.Context) {
 // @Param id path string true "项目ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /projects/{id} [delete]
+// @Router /projects/{id} [delete].
 func (h *Handlers) deleteProject(c *gin.Context) {
 	id := c.Param("id")
 
@@ -305,7 +305,7 @@ func (h *Handlers) deleteProject(c *gin.Context) {
 // @Produce json
 // @Param id path string true "项目ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /projects/{id}/stats [get]
+// @Router /projects/{id}/stats [get].
 func (h *Handlers) getProjectStats(c *gin.Context) {
 	id := c.Param("id")
 
@@ -328,7 +328,7 @@ func (h *Handlers) getProjectStats(c *gin.Context) {
 // @Produce json
 // @Param id path string true "项目ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /projects/{id}/milestones [get]
+// @Router /projects/{id}/milestones [get].
 func (h *Handlers) listMilestones(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -350,7 +350,7 @@ func (h *Handlers) listMilestones(c *gin.Context) {
 // @Param id path string true "项目ID"
 // @Param request body CreateMilestoneRequest true "里程碑创建参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /projects/{id}/milestones [post]
+// @Router /projects/{id}/milestones [post].
 func (h *Handlers) createMilestone(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -388,7 +388,7 @@ func (h *Handlers) createMilestone(c *gin.Context) {
 // @Param id path string true "里程碑ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /milestones/{id} [get]
+// @Router /milestones/{id} [get].
 func (h *Handlers) getMilestone(c *gin.Context) {
 	id := c.Param("id")
 
@@ -415,7 +415,7 @@ func (h *Handlers) getMilestone(c *gin.Context) {
 // @Param request body UpdateMilestoneRequest true "里程碑更新参数"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /milestones/{id} [put]
+// @Router /milestones/{id} [put].
 func (h *Handlers) updateMilestone(c *gin.Context) {
 	id := c.Param("id")
 
@@ -461,7 +461,7 @@ func (h *Handlers) updateMilestone(c *gin.Context) {
 // @Param id path string true "里程碑ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /milestones/{id} [delete]
+// @Router /milestones/{id} [delete].
 func (h *Handlers) deleteMilestone(c *gin.Context) {
 	id := c.Param("id")
 
@@ -491,7 +491,7 @@ func (h *Handlers) deleteMilestone(c *gin.Context) {
 // @Param limit query int false "限制数量" default(50)
 // @Param offset query int false "偏移量" default(0)
 // @Success 200 {object} map[string]interface{}
-// @Router /projects/{id}/tasks [get]
+// @Router /projects/{id}/tasks [get].
 func (h *Handlers) listTasks(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -542,7 +542,7 @@ func (h *Handlers) listTasks(c *gin.Context) {
 // @Param limit query int false "限制数量" default(50)
 // @Param offset query int false "偏移量" default(0)
 // @Success 200 {object} map[string]interface{}
-// @Router /tasks [get]
+// @Router /tasks [get].
 func (h *Handlers) listAllTasks(c *gin.Context) {
 	filter := TaskFilter{}
 
@@ -591,7 +591,7 @@ func (h *Handlers) listAllTasks(c *gin.Context) {
 // @Param id path string true "项目ID"
 // @Param request body CreateTaskRequest true "任务创建参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /projects/{id}/tasks [post]
+// @Router /projects/{id}/tasks [post].
 func (h *Handlers) createTask(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -658,7 +658,7 @@ func (h *Handlers) createTask(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /tasks/{id} [get]
+// @Router /tasks/{id} [get].
 func (h *Handlers) getTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -685,7 +685,7 @@ func (h *Handlers) getTask(c *gin.Context) {
 // @Param request body UpdateTaskRequest true "任务更新参数"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /tasks/{id} [put]
+// @Router /tasks/{id} [put].
 func (h *Handlers) updateTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -761,7 +761,7 @@ func (h *Handlers) updateTask(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /tasks/{id} [delete]
+// @Router /tasks/{id} [delete].
 func (h *Handlers) deleteTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -786,7 +786,7 @@ func (h *Handlers) deleteTask(c *gin.Context) {
 // @Produce json
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /tasks/{id}/comments [get]
+// @Router /tasks/{id}/comments [get].
 func (h *Handlers) getTaskComments(c *gin.Context) {
 	taskID := c.Param("id")
 
@@ -808,7 +808,7 @@ func (h *Handlers) getTaskComments(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Param request body AddCommentRequest true "评论内容"
 // @Success 200 {object} map[string]interface{}
-// @Router /tasks/{id}/comments [post]
+// @Router /tasks/{id}/comments [post].
 func (h *Handlers) addTaskComment(c *gin.Context) {
 	taskID := c.Param("id")
 
@@ -847,7 +847,7 @@ func (h *Handlers) addTaskComment(c *gin.Context) {
 // @Produce json
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /tasks/{id}/history [get]
+// @Router /tasks/{id}/history [get].
 func (h *Handlers) getTaskHistory(c *gin.Context) {
 	taskID := c.Param("id")
 
@@ -870,7 +870,7 @@ func (h *Handlers) getTaskHistory(c *gin.Context) {
 // @Produce json
 // @Param project_id query string false "项目ID筛选"
 // @Success 200 {object} map[string]interface{}
-// @Router /task-stats [get]
+// @Router /task-stats [get].
 func (h *Handlers) getTaskStats(c *gin.Context) {
 	projectID := c.Query("project_id")
 

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Fail2BanManager 失败登录保护管理器
+// Fail2BanManager 失败登录保护管理器.
 type Fail2BanManager struct {
 	config          Fail2BanConfig
 	failedAttempts  map[string][]FailedLoginAttempt // IP -> 失败尝试列表
@@ -20,7 +20,7 @@ type Fail2BanManager struct {
 	notifyFunc      func(alert Alert) // 通知回调
 }
 
-// NewFail2BanManager 创建失败登录保护管理器
+// NewFail2BanManager 创建失败登录保护管理器.
 func NewFail2BanManager() *Fail2BanManager {
 	return &Fail2BanManager{
 		config: Fail2BanConfig{
@@ -38,21 +38,21 @@ func NewFail2BanManager() *Fail2BanManager {
 	}
 }
 
-// SetNotifyFunc 设置通知回调函数
+// SetNotifyFunc 设置通知回调函数.
 func (f2m *Fail2BanManager) SetNotifyFunc(notifyFn func(alert Alert)) {
 	f2m.mu.Lock()
 	defer f2m.mu.Unlock()
 	f2m.notifyFunc = notifyFn
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (f2m *Fail2BanManager) GetConfig() Fail2BanConfig {
 	f2m.mu.RLock()
 	defer f2m.mu.RUnlock()
 	return f2m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (f2m *Fail2BanManager) UpdateConfig(config Fail2BanConfig) error {
 	f2m.mu.Lock()
 	defer f2m.mu.Unlock()
@@ -81,7 +81,7 @@ func (f2m *Fail2BanManager) UpdateConfig(config Fail2BanConfig) error {
 	return nil
 }
 
-// RecordFailedLogin 记录失败登录尝试
+// RecordFailedLogin 记录失败登录尝试.
 func (f2m *Fail2BanManager) RecordFailedLogin(ip, username, userAgent, reason string) error {
 	f2m.mu.Lock()
 	defer f2m.mu.Unlock()
@@ -131,7 +131,7 @@ func (f2m *Fail2BanManager) RecordFailedLogin(ip, username, userAgent, reason st
 	return nil
 }
 
-// banIPLocked 封禁 IP（已持有锁）
+// banIPLocked 封禁 IP（已持有锁）.
 func (f2m *Fail2BanManager) banIPLocked(ip, username string, attempts int) error {
 	// 检查是否在白名单中
 	// 这里应该检查防火墙白名单，简化处理跳过
@@ -176,7 +176,7 @@ func (f2m *Fail2BanManager) banIPLocked(ip, username string, attempts int) error
 	return nil
 }
 
-// applyBan 应用封禁到系统防火墙
+// applyBan 应用封禁到系统防火墙.
 func (f2m *Fail2BanManager) applyBan(ip string) error {
 	// 使用 iptables 封禁 IP
 	cmd := exec.Command("iptables", "-I", "INPUT", "-s", ip, "-j", "DROP")
@@ -194,7 +194,7 @@ func (f2m *Fail2BanManager) applyBan(ip string) error {
 	return nil
 }
 
-// applyBanViaFail2Ban 通过 fail2ban-client 应用封禁
+// applyBanViaFail2Ban 通过 fail2ban-client 应用封禁.
 func (f2m *Fail2BanManager) applyBanViaFail2Ban(ip string) error {
 	// 检查 fail2ban-client 是否存在
 	cmd := exec.Command("which", "fail2ban-client")
@@ -212,7 +212,7 @@ func (f2m *Fail2BanManager) applyBanViaFail2Ban(ip string) error {
 	return nil
 }
 
-// UnbanIP 解封 IP
+// UnbanIP 解封 IP.
 func (f2m *Fail2BanManager) UnbanIP(ip string) error {
 	f2m.mu.Lock()
 	defer f2m.mu.Unlock()
@@ -220,7 +220,7 @@ func (f2m *Fail2BanManager) UnbanIP(ip string) error {
 	return f2m.unbanIPInternal(ip)
 }
 
-// unbanIPInternal 解封 IP（已持有锁）
+// unbanIPInternal 解封 IP（已持有锁）.
 func (f2m *Fail2BanManager) unbanIPInternal(ip string) error {
 	if _, exists := f2m.bannedIPs[ip]; !exists {
 		return fmt.Errorf("IP 未被封禁")
@@ -236,7 +236,7 @@ func (f2m *Fail2BanManager) unbanIPInternal(ip string) error {
 	return nil
 }
 
-// removeBan 从系统防火墙移除封禁
+// removeBan 从系统防火墙移除封禁.
 func (f2m *Fail2BanManager) removeBan(ip string) error {
 	cmd := exec.Command("iptables", "-D", "INPUT", "-s", ip, "-j", "DROP")
 	_ = cmd.Run()
@@ -259,7 +259,7 @@ func (f2m *Fail2BanManager) removeBan(ip string) error {
 	return nil
 }
 
-// GetBannedIPs 获取被封禁的 IP 列表
+// GetBannedIPs 获取被封禁的 IP 列表.
 func (f2m *Fail2BanManager) GetBannedIPs() []*BannedIP {
 	f2m.mu.RLock()
 	defer f2m.mu.RUnlock()
@@ -271,7 +271,7 @@ func (f2m *Fail2BanManager) GetBannedIPs() []*BannedIP {
 	return ips
 }
 
-// IsBanned 检查 IP 是否被封禁
+// IsBanned 检查 IP 是否被封禁.
 func (f2m *Fail2BanManager) IsBanned(ip string) bool {
 	f2m.mu.RLock()
 	defer f2m.mu.RUnlock()
@@ -289,7 +289,7 @@ func (f2m *Fail2BanManager) IsBanned(ip string) bool {
 	return true
 }
 
-// checkAccountLockout 检查账户锁定
+// checkAccountLockout 检查账户锁定.
 func (f2m *Fail2BanManager) checkAccountLockout(username string) {
 	// 统计该用户的失败尝试
 	attempts := 0
@@ -330,7 +330,7 @@ func (f2m *Fail2BanManager) checkAccountLockout(username string) {
 	}
 }
 
-// IsAccountLocked 检查账户是否被锁定
+// IsAccountLocked 检查账户是否被锁定.
 func (f2m *Fail2BanManager) IsAccountLocked(username string) bool {
 	f2m.mu.RLock()
 	defer f2m.mu.RUnlock()
@@ -348,7 +348,7 @@ func (f2m *Fail2BanManager) IsAccountLocked(username string) bool {
 	return true
 }
 
-// UnlockAccount 解锁账户
+// UnlockAccount 解锁账户.
 func (f2m *Fail2BanManager) UnlockAccount(username string) error {
 	f2m.mu.Lock()
 	defer f2m.mu.Unlock()
@@ -361,7 +361,7 @@ func (f2m *Fail2BanManager) UnlockAccount(username string) error {
 	return nil
 }
 
-// GetFailedAttempts 获取指定 IP 的失败尝试记录
+// GetFailedAttempts 获取指定 IP 的失败尝试记录.
 func (f2m *Fail2BanManager) GetFailedAttempts(ip string) []FailedLoginAttempt {
 	f2m.mu.RLock()
 	defer f2m.mu.RUnlock()
@@ -376,7 +376,7 @@ func (f2m *Fail2BanManager) GetFailedAttempts(ip string) []FailedLoginAttempt {
 	return result
 }
 
-// GetStatus 获取失败登录保护状态
+// GetStatus 获取失败登录保护状态.
 func (f2m *Fail2BanManager) GetStatus() map[string]interface{} {
 	f2m.mu.RLock()
 	defer f2m.mu.RUnlock()
@@ -411,7 +411,7 @@ func (f2m *Fail2BanManager) GetStatus() map[string]interface{} {
 	}
 }
 
-// CleanupExpired 清理过期的封禁和锁定
+// CleanupExpired 清理过期的封禁和锁定.
 func (f2m *Fail2BanManager) CleanupExpired() {
 	f2m.mu.Lock()
 	defer f2m.mu.Unlock()
@@ -450,7 +450,7 @@ func (f2m *Fail2BanManager) CleanupExpired() {
 	}
 }
 
-// StartCleanupRoutine 启动定期清理例程
+// StartCleanupRoutine 启动定期清理例程.
 func (f2m *Fail2BanManager) StartCleanupRoutine(interval time.Duration) {
 	go func() {
 		ticker := time.NewTicker(interval)
@@ -461,7 +461,7 @@ func (f2m *Fail2BanManager) StartCleanupRoutine(interval time.Duration) {
 	}()
 }
 
-// RecordSuccessfulLogin 记录成功登录（清除该 IP 的失败记录）
+// RecordSuccessfulLogin 记录成功登录（清除该 IP 的失败记录）.
 func (f2m *Fail2BanManager) RecordSuccessfulLogin(ip, username string) {
 	f2m.mu.Lock()
 	defer f2m.mu.Unlock()
@@ -473,14 +473,14 @@ func (f2m *Fail2BanManager) RecordSuccessfulLogin(ip, username string) {
 	delete(f2m.accountLockouts, username)
 }
 
-// generateAlertID 生成告警 ID
+// generateAlertID 生成告警 ID.
 func generateAlertID() string {
 	return fmt.Sprintf("alert-%d", time.Now().UnixNano())
 }
 
 // ========== Fail2Ban 配置文件生成 ==========
 
-// GenerateFail2BanConfig 生成 fail2ban 配置文件
+// GenerateFail2BanConfig 生成 fail2ban 配置文件.
 func (f2m *Fail2BanManager) GenerateFail2BanConfig() (string, error) {
 	f2m.mu.RLock()
 	defer f2m.mu.RUnlock()
@@ -522,7 +522,7 @@ bantime = %d
 	), nil
 }
 
-// InstallFail2BanFilter 安装 fail2ban 过滤器
+// InstallFail2BanFilter 安装 fail2ban 过滤器.
 func InstallFail2BanFilter() error {
 	filter := `[Definition]
 failregex = ^.*Failed login attempt.*IP: <HOST>.*$
@@ -540,13 +540,13 @@ ignoreregex =
 	return nil
 }
 
-// HasFail2Ban 检查系统是否安装了 fail2ban
+// HasFail2Ban 检查系统是否安装了 fail2ban.
 func HasFail2Ban() bool {
 	cmd := exec.Command("which", "fail2ban-client")
 	return cmd.Run() == nil
 }
 
-// GetFail2BanStatus 获取 fail2ban 状态
+// GetFail2BanStatus 获取 fail2ban 状态.
 func GetFail2BanStatus() (string, error) {
 	if !HasFail2Ban() {
 		return "", fmt.Errorf("fail2ban 未安装")
@@ -561,7 +561,7 @@ func GetFail2BanStatus() (string, error) {
 	return string(output), nil
 }
 
-// GetFail2BanJailStatus 获取指定 jail 的状态
+// GetFail2BanJailStatus 获取指定 jail 的状态.
 func GetFail2BanJailStatus(jail string) (string, error) {
 	if !HasFail2Ban() {
 		return "", fmt.Errorf("fail2ban 未安装")
@@ -576,7 +576,7 @@ func GetFail2BanJailStatus(jail string) (string, error) {
 	return string(output), nil
 }
 
-// ListFail2BanJails 列出所有 jail
+// ListFail2BanJails 列出所有 jail.
 func ListFail2BanJails() ([]string, error) {
 	if !HasFail2Ban() {
 		return []string{}, nil

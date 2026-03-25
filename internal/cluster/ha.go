@@ -13,14 +13,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// HA 状态
+// HA 状态.
 const (
 	HAStateFollower  = "follower"
 	HAStateCandidate = "candidate"
 	HAStateLeader    = "leader"
 )
 
-// 故障转移事件类型
+// 故障转移事件类型.
 const (
 	FailoverEventDetection = "detection"
 	FailoverEventElection  = "election"
@@ -28,7 +28,7 @@ const (
 	FailoverEventRecovery  = "recovery"
 )
 
-// HAEvent 高可用事件
+// HAEvent 高可用事件.
 type HAEvent struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"`
@@ -39,7 +39,7 @@ type HAEvent struct {
 	Duration  string    `json:"duration"`
 }
 
-// HAConfig 高可用配置
+// HAConfig 高可用配置.
 type HAConfig struct {
 	NodeID           string `json:"node_id"`
 	DataDir          string `json:"data_dir"`
@@ -48,7 +48,7 @@ type HAConfig struct {
 	ElectionTimeout  int    `json:"election_timeout"`  // 毫秒
 }
 
-// HAStatus 高可用状态
+// HAStatus 高可用状态.
 type HAStatus struct {
 	State       string     `json:"state"`
 	Leader      string     `json:"leader"`
@@ -58,7 +58,7 @@ type HAStatus struct {
 	Peers       []PeerInfo `json:"peers"`
 }
 
-// PeerInfo 对等节点信息
+// PeerInfo 对等节点信息.
 type PeerInfo struct {
 	ID      string `json:"id"`
 	Address string `json:"address"`
@@ -66,7 +66,7 @@ type PeerInfo struct {
 	Healthy bool   `json:"healthy"`
 }
 
-// HighAvailability 高可用管理器（简化版 - 基于心跳的 leader 选举）
+// HighAvailability 高可用管理器（简化版 - 基于心跳的 leader 选举）.
 type HighAvailability struct {
 	config      HAConfig
 	state       string
@@ -84,14 +84,14 @@ type HighAvailability struct {
 	lastContact time.Time
 }
 
-// HACallbacks HA 事件回调
+// HACallbacks HA 事件回调.
 type HACallbacks struct {
 	OnLeaderChange func(oldLeader, newLeader string)
 	OnNodeJoin     func(nodeID string)
 	OnNodeLeave    func(nodeID string)
 }
 
-// NewHighAvailability 创建高可用管理器
+// NewHighAvailability 创建高可用管理器.
 func NewHighAvailability(config HAConfig, logger *zap.Logger) (*HighAvailability, error) {
 	if config.NodeID == "" {
 		hostname, _ := os.Hostname()
@@ -135,7 +135,7 @@ func NewHighAvailability(config HAConfig, logger *zap.Logger) (*HighAvailability
 	return ha, nil
 }
 
-// Initialize 初始化高可用管理器
+// Initialize 初始化高可用管理器.
 func (ha *HighAvailability) Initialize() error {
 	ha.logger.Info("初始化高可用管理器", zap.String("node_id", ha.config.NodeID))
 
@@ -153,7 +153,7 @@ func (ha *HighAvailability) Initialize() error {
 	return nil
 }
 
-// leaderCheckWorker 检查领导者状态
+// leaderCheckWorker 检查领导者状态.
 func (ha *HighAvailability) leaderCheckWorker() {
 	ticker := time.NewTicker(time.Duration(ha.config.ElectionTimeout) * time.Millisecond / 2)
 	defer ticker.Stop()
@@ -168,7 +168,7 @@ func (ha *HighAvailability) leaderCheckWorker() {
 	}
 }
 
-// checkLeader 检查领导者是否存活
+// checkLeader 检查领导者是否存活.
 func (ha *HighAvailability) checkLeader() {
 	ha.peersMutex.RLock()
 	currentLeader := ha.leaderID
@@ -180,7 +180,7 @@ func (ha *HighAvailability) checkLeader() {
 	}
 }
 
-// startElection 开始选举
+// startElection 开始选举.
 func (ha *HighAvailability) startElection() {
 	ha.logger.Info("开始领导者选举", zap.String("node_id", ha.config.NodeID))
 
@@ -191,7 +191,7 @@ func (ha *HighAvailability) startElection() {
 	ha.becomeLeader()
 }
 
-// becomeLeader 成为领导者
+// becomeLeader 成为领导者.
 func (ha *HighAvailability) becomeLeader() {
 	oldLeader := ha.leaderID
 
@@ -221,7 +221,7 @@ func (ha *HighAvailability) becomeLeader() {
 	}
 }
 
-// heartbeatWorker 心跳广播工作线程
+// heartbeatWorker 心跳广播工作线程.
 func (ha *HighAvailability) heartbeatWorker() {
 	ticker := time.NewTicker(time.Duration(ha.config.HeartbeatTimeout) * time.Millisecond / 3)
 	defer ticker.Stop()
@@ -238,7 +238,7 @@ func (ha *HighAvailability) heartbeatWorker() {
 	}
 }
 
-// broadcastHeartbeat 广播心跳
+// broadcastHeartbeat 广播心跳.
 func (ha *HighAvailability) broadcastHeartbeat() {
 	// 简化实现：只更新本地状态
 	ha.lastContact = time.Now()
@@ -253,7 +253,7 @@ func (ha *HighAvailability) broadcastHeartbeat() {
 	ha.peersMutex.RUnlock()
 }
 
-// sendHeartbeatToPeer 发送心跳到指定节点
+// sendHeartbeatToPeer 发送心跳到指定节点.
 func (ha *HighAvailability) sendHeartbeatToPeer(peer *PeerInfo) {
 	ctx, cancel := context.WithTimeout(ha.ctx, 5*time.Second)
 	defer cancel()
@@ -283,7 +283,7 @@ func (ha *HighAvailability) sendHeartbeatToPeer(peer *PeerInfo) {
 	}
 }
 
-// markPeerUnhealthy 标记节点为不健康
+// markPeerUnhealthy 标记节点为不健康.
 func (ha *HighAvailability) markPeerUnhealthy(peerID string) {
 	ha.peersMutex.Lock()
 	defer ha.peersMutex.Unlock()
@@ -293,24 +293,24 @@ func (ha *HighAvailability) markPeerUnhealthy(peerID string) {
 	}
 }
 
-// IsLeader 检查当前节点是否为领导者
+// IsLeader 检查当前节点是否为领导者.
 func (ha *HighAvailability) IsLeader() bool {
 	return ha.state == HAStateLeader
 }
 
-// GetLeader 获取当前领导者
+// GetLeader 获取当前领导者.
 func (ha *HighAvailability) GetLeader() (string, string) {
 	ha.peersMutex.RLock()
 	defer ha.peersMutex.RUnlock()
 	return ha.leaderID, ha.leaderAddr
 }
 
-// GetState 获取当前状态
+// GetState 获取当前状态.
 func (ha *HighAvailability) GetState() string {
 	return ha.state
 }
 
-// GetStatus 获取详细状态
+// GetStatus 获取详细状态.
 func (ha *HighAvailability) GetStatus() HAStatus {
 	ha.peersMutex.RLock()
 	defer ha.peersMutex.RUnlock()
@@ -330,7 +330,7 @@ func (ha *HighAvailability) GetStatus() HAStatus {
 	}
 }
 
-// AddPeer 添加对等节点
+// AddPeer 添加对等节点.
 func (ha *HighAvailability) AddPeer(nodeID, address string) error {
 	ha.peersMutex.Lock()
 	defer ha.peersMutex.Unlock()
@@ -352,7 +352,7 @@ func (ha *HighAvailability) AddPeer(nodeID, address string) error {
 	return nil
 }
 
-// RemovePeer 移除对等节点
+// RemovePeer 移除对等节点.
 func (ha *HighAvailability) RemovePeer(nodeID string) error {
 	ha.peersMutex.Lock()
 	defer ha.peersMutex.Unlock()
@@ -369,7 +369,7 @@ func (ha *HighAvailability) RemovePeer(nodeID string) error {
 	return nil
 }
 
-// TransferLeadership 转移领导权
+// TransferLeadership 转移领导权.
 func (ha *HighAvailability) TransferLeadership(targetNodeID string) error {
 	if !ha.IsLeader() {
 		return fmt.Errorf("当前节点不是领导者，无法转移领导权")
@@ -402,7 +402,7 @@ func (ha *HighAvailability) TransferLeadership(targetNodeID string) error {
 	return nil
 }
 
-// GetPeers 获取所有对等节点
+// GetPeers 获取所有对等节点.
 func (ha *HighAvailability) GetPeers() []*PeerInfo {
 	ha.peersMutex.RLock()
 	defer ha.peersMutex.RUnlock()
@@ -414,7 +414,7 @@ func (ha *HighAvailability) GetPeers() []*PeerInfo {
 	return peers
 }
 
-// GetFailoverHistory 获取故障转移历史
+// GetFailoverHistory 获取故障转移历史.
 func (ha *HighAvailability) GetFailoverHistory(limit int) []HAEvent {
 	ha.eventsMutex.RLock()
 	defer ha.eventsMutex.RUnlock()
@@ -433,7 +433,7 @@ func (ha *HighAvailability) GetFailoverHistory(limit int) []HAEvent {
 	return result
 }
 
-// recordFailoverEvent 记录故障转移事件
+// recordFailoverEvent 记录故障转移事件.
 func (ha *HighAvailability) recordFailoverEvent(event HAEvent) {
 	ha.eventsMutex.Lock()
 	defer ha.eventsMutex.Unlock()
@@ -446,12 +446,12 @@ func (ha *HighAvailability) recordFailoverEvent(event HAEvent) {
 	}
 }
 
-// SetCallbacks 设置事件回调
+// SetCallbacks 设置事件回调.
 func (ha *HighAvailability) SetCallbacks(callbacks HACallbacks) {
 	ha.callbacks = callbacks
 }
 
-// Shutdown 关闭高可用管理器
+// Shutdown 关闭高可用管理器.
 func (ha *HighAvailability) Shutdown() error {
 	ha.cancel()
 	_ = ha.saveState()

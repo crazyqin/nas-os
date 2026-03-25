@@ -19,10 +19,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// ManagerOption 管理器选项
+// ManagerOption 管理器选项.
 type ManagerOption func(*Manager)
 
-// WithCleanupWorker 启用/禁用清理协程
+// WithCleanupWorker 启用/禁用清理协程.
 func WithCleanupWorker(enabled bool) ManagerOption {
 	return func(m *Manager) {
 		if !enabled {
@@ -31,7 +31,7 @@ func WithCleanupWorker(enabled bool) ManagerOption {
 	}
 }
 
-// Manager OnlyOffice 管理器
+// Manager OnlyOffice 管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	config       *Config
@@ -52,7 +52,7 @@ type Manager struct {
 	noCleanup bool
 }
 
-// FileAccessor 文件访问接口（由外部提供实现）
+// FileAccessor 文件访问接口（由外部提供实现）.
 type FileAccessor interface {
 	// GetFileInfo 获取文件信息
 	GetFileInfo(fileID string) (*FileInfo, error)
@@ -64,7 +64,7 @@ type FileAccessor interface {
 	GetFilePath(fileID string) (string, error)
 }
 
-// FileInfo 文件信息
+// FileInfo 文件信息.
 type FileInfo struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
@@ -74,7 +74,7 @@ type FileInfo struct {
 	OwnerID  string `json:"owner_id"`
 }
 
-// NewManager 创建 OnlyOffice 管理器
+// NewManager 创建 OnlyOffice 管理器.
 func NewManager(configPath string, accessor FileAccessor, opts ...ManagerOption) (*Manager, error) {
 	m := &Manager{
 		config:       DefaultConfig(),
@@ -106,7 +106,7 @@ func NewManager(configPath string, accessor FileAccessor, opts ...ManagerOption)
 	return m, nil
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (m *Manager) loadConfig() error {
 	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
 		return nil
@@ -129,7 +129,7 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (m *Manager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -153,14 +153,14 @@ func (m *Manager) saveConfig() error {
 
 // ========== 配置管理 ==========
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(req UpdateConfigRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -190,14 +190,14 @@ func (m *Manager) UpdateConfig(req UpdateConfigRequest) error {
 	return m.saveConfig()
 }
 
-// IsEnabled 检查是否启用
+// IsEnabled 检查是否启用.
 func (m *Manager) IsEnabled() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config.Enabled
 }
 
-// CheckServer 检查 OnlyOffice 服务器是否可达
+// CheckServer 检查 OnlyOffice 服务器是否可达.
 func (m *Manager) CheckServer() error {
 	m.mu.RLock()
 	serverURL := m.config.ServerURL
@@ -224,7 +224,7 @@ func (m *Manager) CheckServer() error {
 
 // ========== 会话管理 ==========
 
-// CreateSession 创建编辑会话
+// CreateSession 创建编辑会话.
 func (m *Manager) CreateSession(fileID, userID, userName, mode string) (*EditingSession, *EditorInitConfig, error) {
 	m.mu.RLock()
 	if !m.config.Enabled {
@@ -299,7 +299,7 @@ func (m *Manager) CreateSession(fileID, userID, userName, mode string) (*Editing
 	return session, editorConfig, nil
 }
 
-// GetSession 获取会话
+// GetSession 获取会话.
 func (m *Manager) GetSession(sessionID string) (*EditingSession, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -312,7 +312,7 @@ func (m *Manager) GetSession(sessionID string) (*EditingSession, error) {
 	return session, nil
 }
 
-// GetFileSessions 获取文件的所有会话
+// GetFileSessions 获取文件的所有会话.
 func (m *Manager) GetFileSessions(fileID string) []*EditingSession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -327,7 +327,7 @@ func (m *Manager) GetFileSessions(fileID string) []*EditingSession {
 	return sessions
 }
 
-// ListSessions 列出所有会话
+// ListSessions 列出所有会话.
 func (m *Manager) ListSessions(status SessionStatus, limit, offset int) ([]*EditingSession, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -356,7 +356,7 @@ func (m *Manager) ListSessions(status SessionStatus, limit, offset int) ([]*Edit
 	return result[offset:end], total
 }
 
-// CloseSession 关闭会话
+// CloseSession 关闭会话.
 func (m *Manager) CloseSession(sessionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -384,7 +384,7 @@ func (m *Manager) CloseSession(sessionID string) error {
 	return nil
 }
 
-// UpdateSessionStatus 更新会话状态
+// UpdateSessionStatus 更新会话状态.
 func (m *Manager) UpdateSessionStatus(sessionID string, status SessionStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -402,7 +402,7 @@ func (m *Manager) UpdateSessionStatus(sessionID string, status SessionStatus) er
 
 // ========== 回调处理 ==========
 
-// HandleCallback 处理 OnlyOffice 回调
+// HandleCallback 处理 OnlyOffice 回调.
 func (m *Manager) HandleCallback(sessionID string, req CallbackRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -447,7 +447,7 @@ func (m *Manager) HandleCallback(sessionID string, req CallbackRequest) error {
 }
 
 // HandleCallbackByKey 通过 Key 处理 OnlyOffice 回调
-// OnlyOffice 回调通过 body 中的 key 来标识文档
+// OnlyOffice 回调通过 body 中的 key 来标识文档.
 func (m *Manager) HandleCallbackByKey(req CallbackRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -499,7 +499,7 @@ func (m *Manager) HandleCallbackByKey(req CallbackRequest) error {
 	}
 }
 
-// handleSave 处理保存
+// handleSave 处理保存.
 func (m *Manager) handleSave(session *EditingSession, req CallbackRequest) error {
 	if req.URL == "" {
 		return errors.New("保存 URL 为空")
@@ -532,7 +532,7 @@ func (m *Manager) handleSave(session *EditingSession, req CallbackRequest) error
 	return nil
 }
 
-// handleCallbackWithoutSession 处理没有会话的回调
+// handleCallbackWithoutSession 处理没有会话的回调.
 func (m *Manager) handleCallbackWithoutSession(req CallbackRequest) error {
 	// 尝试通过 Key 恢复文件信息
 	// 这里需要外部提供 Key 到 FileID 的映射
@@ -541,7 +541,7 @@ func (m *Manager) handleCallbackWithoutSession(req CallbackRequest) error {
 
 // ========== 辅助方法 ==========
 
-// isSupported 检查文件类型是否支持
+// isSupported 检查文件类型是否支持.
 func (m *Manager) isSupported(ext string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -554,7 +554,7 @@ func (m *Manager) isSupported(ext string) bool {
 	return false
 }
 
-// getDocumentType 获取文档类型
+// getDocumentType 获取文档类型.
 func (m *Manager) getDocumentType(ext string) string {
 	switch strings.ToLower(ext) {
 	case "doc", "docx", "docm", "dotx", "dotm", "odt", "fodt", "ott", "rtf", "txt", "html", "htm", "mht", "pdf", "djvu", "fb2", "epub", "xps", "oxps":
@@ -568,27 +568,27 @@ func (m *Manager) getDocumentType(ext string) string {
 	}
 }
 
-// generateFileKey 生成文件 Key
+// generateFileKey 生成文件 Key.
 func (m *Manager) generateFileKey(fileID string) string {
 	// 使用 UUID 作为文件 Key，确保唯一性
 	return uuid.New().String()
 }
 
-// buildCallbackURL 构建回调 URL
+// buildCallbackURL 构建回调 URL.
 func (m *Manager) buildCallbackURL(sessionID string) string {
 	// 回调 URL 由 NAS-OS 提供
 	// 格式: /api/v1/office/callback/:sessionId
 	return fmt.Sprintf("/api/v1/office/callback/%s", sessionID)
 }
 
-// buildEditorConfig 构建编辑器配置（公共方法，获取锁）
+// buildEditorConfig 构建编辑器配置（公共方法，获取锁）.
 func (m *Manager) buildEditorConfig(session *EditingSession, fileInfo *FileInfo, fileURL, mode, docType string) *EditorInitConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.buildEditorConfigLocked(session, fileInfo, fileURL, mode, docType)
 }
 
-// buildEditorConfigLocked 构建编辑器配置（内部方法，不获取锁，调用者需持有锁）
+// buildEditorConfigLocked 构建编辑器配置（内部方法，不获取锁，调用者需持有锁）.
 func (m *Manager) buildEditorConfigLocked(session *EditingSession, fileInfo *FileInfo, fileURL, mode, docType string) *EditorInitConfig {
 
 	// 权限配置
@@ -652,7 +652,7 @@ func (m *Manager) buildEditorConfigLocked(session *EditingSession, fileInfo *Fil
 	return config
 }
 
-// generateJWT 生成 JWT Token（简化版）
+// generateJWT 生成 JWT Token（简化版）.
 func (m *Manager) generateJWT(config *EditorInitConfig) string {
 	// 注意：实际生产环境应使用 jwt-go 库
 	// 这里仅作为示例，使用 HMAC-SHA256 生成签名
@@ -663,7 +663,7 @@ func (m *Manager) generateJWT(config *EditorInitConfig) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// ValidateCallbackToken 验证回调 Token
+// ValidateCallbackToken 验证回调 Token.
 func (m *Manager) ValidateCallbackToken(token string, req CallbackRequest) bool {
 	if m.config.SecretKey == "" {
 		return true
@@ -678,7 +678,7 @@ func (m *Manager) ValidateCallbackToken(token string, req CallbackRequest) bool 
 	return hmac.Equal([]byte(token), []byte(expected))
 }
 
-// sessionCleanupWorker 会话清理协程
+// sessionCleanupWorker 会话清理协程.
 func (m *Manager) sessionCleanupWorker() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -695,11 +695,11 @@ func (m *Manager) sessionCleanupWorker() {
 
 // ========== 协作编辑 ==========
 
-// collaborationSessions 协作会话存储（内存）
+// collaborationSessions 协作会话存储（内存）.
 var collaborationSessions = make(map[string]*CollaborationSession)
 var collaborationMu sync.RWMutex
 
-// StartCollaboration 启动实时协作编辑
+// StartCollaboration 启动实时协作编辑.
 func (m *Manager) StartCollaboration(docID string) (*CollaborationSession, error) {
 	m.mu.RLock()
 	if !m.config.Enabled {
@@ -737,7 +737,7 @@ func (m *Manager) StartCollaboration(docID string) (*CollaborationSession, error
 	return session, nil
 }
 
-// JoinCollaboration 加入协作编辑
+// JoinCollaboration 加入协作编辑.
 func (m *Manager) JoinCollaboration(docID, userID, userName string) (*CollaborationSession, error) {
 	collaborationMu.Lock()
 	defer collaborationMu.Unlock()
@@ -766,7 +766,7 @@ func (m *Manager) JoinCollaboration(docID, userID, userName string) (*Collaborat
 	return session, nil
 }
 
-// LeaveCollaboration 离开协作编辑
+// LeaveCollaboration 离开协作编辑.
 func (m *Manager) LeaveCollaboration(docID, userID string) error {
 	collaborationMu.Lock()
 	defer collaborationMu.Unlock()
@@ -796,7 +796,7 @@ func (m *Manager) LeaveCollaboration(docID, userID string) error {
 	return nil
 }
 
-// GetCollaborationSession 获取协作会话
+// GetCollaborationSession 获取协作会话.
 func (m *Manager) GetCollaborationSession(docID string) (*CollaborationSession, error) {
 	collaborationMu.RLock()
 	defer collaborationMu.RUnlock()
@@ -809,7 +809,7 @@ func (m *Manager) GetCollaborationSession(docID string) (*CollaborationSession, 
 	return session, nil
 }
 
-// UpdateCursor 更新用户光标位置
+// UpdateCursor 更新用户光标位置.
 func (m *Manager) UpdateCursor(docID, userID string, line, column int) error {
 	collaborationMu.Lock()
 	defer collaborationMu.Unlock()
@@ -831,11 +831,11 @@ func (m *Manager) UpdateCursor(docID, userID string, line, column int) error {
 
 // ========== 版本历史 ==========
 
-// versionStore 版本存储（模拟）
+// versionStore 版本存储（模拟）.
 var versionStore = make(map[string][]DocumentVersion)
 var versionMu sync.RWMutex
 
-// GetVersionHistory 获取文档版本历史
+// GetVersionHistory 获取文档版本历史.
 func (m *Manager) GetVersionHistory(docID string) (*VersionHistory, error) {
 	m.mu.RLock()
 	if !m.config.Enabled {
@@ -873,7 +873,7 @@ func (m *Manager) GetVersionHistory(docID string) (*VersionHistory, error) {
 	}, nil
 }
 
-// CreateVersion 创建文档版本
+// CreateVersion 创建文档版本.
 func (m *Manager) CreateVersion(docID, userID, userName, description string) (*DocumentVersion, error) {
 	m.mu.RLock()
 	if !m.config.Enabled {
@@ -907,7 +907,7 @@ func (m *Manager) CreateVersion(docID, userID, userName, description string) (*D
 	return &version, nil
 }
 
-// GetVersion 获取特定版本
+// GetVersion 获取特定版本.
 func (m *Manager) GetVersion(docID, versionID string) (*DocumentVersion, error) {
 	versionMu.RLock()
 	defer versionMu.RUnlock()
@@ -926,7 +926,7 @@ func (m *Manager) GetVersion(docID, versionID string) (*DocumentVersion, error) 
 	return nil, errors.New(ErrVersionNotFound)
 }
 
-// RestoreVersion 恢复到特定版本
+// RestoreVersion 恢复到特定版本.
 func (m *Manager) RestoreVersion(docID, versionID string) error {
 	versionMu.RLock()
 	versions, exists := versionStore[docID]
@@ -955,16 +955,16 @@ func (m *Manager) RestoreVersion(docID, versionID string) error {
 
 // ========== 文档评论 ==========
 
-// commentStore 评论存储
+// commentStore 评论存储.
 var commentStore = make(map[string][]DocumentComment)
 var commentMu sync.RWMutex
 
-// AddComment 添加文档评论
+// AddComment 添加文档评论.
 func (m *Manager) AddComment(docID, userID, comment string) (*DocumentComment, error) {
 	return m.AddCommentWithPosition(docID, userID, comment, CommentPos{})
 }
 
-// AddCommentWithPosition 添加带位置的评论
+// AddCommentWithPosition 添加带位置的评论.
 func (m *Manager) AddCommentWithPosition(docID, userID, comment string, pos CommentPos) (*DocumentComment, error) {
 	m.mu.RLock()
 	if !m.config.Enabled {
@@ -1008,7 +1008,7 @@ func (m *Manager) AddCommentWithPosition(docID, userID, comment string, pos Comm
 	return &newComment, nil
 }
 
-// GetComments 获取文档评论列表
+// GetComments 获取文档评论列表.
 func (m *Manager) GetComments(docID string) (*CommentListResponse, error) {
 	commentMu.RLock()
 	defer commentMu.RUnlock()
@@ -1033,7 +1033,7 @@ func (m *Manager) GetComments(docID string) (*CommentListResponse, error) {
 	}, nil
 }
 
-// ResolveComment 解决评论
+// ResolveComment 解决评论.
 func (m *Manager) ResolveComment(docID, commentID string) error {
 	commentMu.Lock()
 	defer commentMu.Unlock()
@@ -1051,7 +1051,7 @@ func (m *Manager) ResolveComment(docID, commentID string) error {
 	return errors.New(ErrCommentNotFound)
 }
 
-// ReplyComment 回复评论
+// ReplyComment 回复评论.
 func (m *Manager) ReplyComment(docID, commentID, userID, reply string) error {
 	commentMu.Lock()
 	defer commentMu.Unlock()
@@ -1086,7 +1086,7 @@ func (m *Manager) ReplyComment(docID, commentID, userID, reply string) error {
 	return errors.New(ErrCommentNotFound)
 }
 
-// DeleteComment 删除评论
+// DeleteComment 删除评论.
 func (m *Manager) DeleteComment(docID, commentID string) error {
 	commentMu.Lock()
 	defer commentMu.Unlock()
@@ -1103,12 +1103,12 @@ func (m *Manager) DeleteComment(docID, commentID string) error {
 	return errors.New(ErrCommentNotFound)
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() {
 	close(m.stopCh)
 }
 
-// cleanupExpiredSessions 清理过期会话
+// cleanupExpiredSessions 清理过期会话.
 func (m *Manager) cleanupExpiredSessions() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1130,7 +1130,7 @@ func (m *Manager) cleanupExpiredSessions() {
 	}
 }
 
-// GetFileAssociation 获取文件关联
+// GetFileAssociation 获取文件关联.
 func (m *Manager) GetFileAssociation(ext string) (FileAssociation, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1139,7 +1139,7 @@ func (m *Manager) GetFileAssociation(ext string) (FileAssociation, bool) {
 	return assoc, ok
 }
 
-// GetAllFileAssociations 获取所有文件关联
+// GetAllFileAssociations 获取所有文件关联.
 func (m *Manager) GetAllFileAssociations() map[string]FileAssociation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1152,7 +1152,7 @@ func (m *Manager) GetAllFileAssociations() map[string]FileAssociation {
 	return result
 }
 
-// ParseCallbackURL 从回调 URL 解析会话 ID
+// ParseCallbackURL 从回调 URL 解析会话 ID.
 func ParseCallbackURL(callbackURL string) (string, error) {
 	// 格式: /api/v1/office/callback/:sessionId
 	u, err := url.Parse(callbackURL)
@@ -1169,7 +1169,7 @@ func ParseCallbackURL(callbackURL string) (string, error) {
 	return parts[4], nil
 }
 
-// sortSessionsByTime 按时间排序会话
+// sortSessionsByTime 按时间排序会话.
 func sortSessionsByTime(sessions []*EditingSession) {
 	for i := 0; i < len(sessions)-1; i++ {
 		for j := i + 1; j < len(sessions); j++ {

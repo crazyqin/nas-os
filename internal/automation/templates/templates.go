@@ -14,7 +14,7 @@ import (
 	"nas-os/internal/automation/trigger"
 )
 
-// Template 工作流模板
+// Template 工作流模板.
 type Template struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
@@ -26,20 +26,20 @@ type Template struct {
 	Workflow    engine.Workflow `json:"workflow"`
 }
 
-// ValidationResult 验证结果
+// ValidationResult 验证结果.
 type ValidationResult struct {
 	Valid    bool     `json:"valid"`
 	Errors   []string `json:"errors,omitempty"`
 	Warnings []string `json:"warnings,omitempty"`
 }
 
-// TemplateManager 模板管理器
+// TemplateManager 模板管理器.
 type TemplateManager struct {
 	customTemplates map[string]*Template
 	storagePath     string
 }
 
-// NewTemplateManager 创建模板管理器
+// NewTemplateManager 创建模板管理器.
 func NewTemplateManager(storagePath string) (*TemplateManager, error) {
 	tm := &TemplateManager{
 		customTemplates: make(map[string]*Template),
@@ -60,7 +60,7 @@ func NewTemplateManager(storagePath string) (*TemplateManager, error) {
 	return tm, nil
 }
 
-// loadCustomTemplates 从存储加载自定义模板
+// loadCustomTemplates 从存储加载自定义模板.
 func (tm *TemplateManager) loadCustomTemplates() error {
 	if tm.storagePath == "" {
 		return nil
@@ -96,12 +96,12 @@ func (tm *TemplateManager) loadCustomTemplates() error {
 	return nil
 }
 
-// GetTemplates 获取所有模板（预置 + 自定义）
+// GetTemplates 获取所有模板（预置 + 自定义）.
 func GetTemplates() []Template {
 	return GetBuiltInTemplates()
 }
 
-// GetBuiltInTemplates 获取预置模板
+// GetBuiltInTemplates 获取预置模板.
 func GetBuiltInTemplates() []Template {
 	return []Template{
 		// ==================== 备份任务模板 ====================
@@ -513,7 +513,7 @@ func GetBuiltInTemplates() []Template {
 	}
 }
 
-// GetTemplate 获取单个模板
+// GetTemplate 获取单个模板.
 func GetTemplate(id string) (*Template, error) {
 	templates := GetTemplates()
 	for _, t := range templates {
@@ -524,7 +524,7 @@ func GetTemplate(id string) (*Template, error) {
 	return nil, fmt.Errorf("template not found: %s", id)
 }
 
-// GetTemplatesByCategory 按分类获取模板
+// GetTemplatesByCategory 按分类获取模板.
 func GetTemplatesByCategory(category string) []Template {
 	templates := GetTemplates()
 	result := []Template{}
@@ -536,7 +536,7 @@ func GetTemplatesByCategory(category string) []Template {
 	return result
 }
 
-// GetCategories 获取所有分类
+// GetCategories 获取所有分类.
 func GetCategories() []string {
 	categories := make(map[string]bool)
 	for _, t := range GetTemplates() {
@@ -550,7 +550,7 @@ func GetCategories() []string {
 	return result
 }
 
-// GetTemplatesByTag 按标签获取模板
+// GetTemplatesByTag 按标签获取模板.
 func GetTemplatesByTag(tag string) []Template {
 	templates := GetTemplates()
 	result := []Template{}
@@ -567,7 +567,7 @@ func GetTemplatesByTag(tag string) []Template {
 
 // ==================== 模板验证功能 ====================
 
-// ValidateTemplate 验证模板的完整性和有效性
+// ValidateTemplate 验证模板的完整性和有效性.
 func ValidateTemplate(tpl *Template) *ValidationResult {
 	result := &ValidationResult{
 		Valid:    true,
@@ -599,7 +599,7 @@ func ValidateTemplate(tpl *Template) *ValidationResult {
 	return result
 }
 
-// validateWorkflow 验证工作流配置
+// validateWorkflow 验证工作流配置.
 func validateWorkflow(wf *engine.Workflow, result *ValidationResult) {
 	if wf.Name == "" {
 		result.Errors = append(result.Errors, "工作流名称不能为空")
@@ -628,7 +628,7 @@ func validateWorkflow(wf *engine.Workflow, result *ValidationResult) {
 	}
 }
 
-// validateTrigger 验证触发器配置
+// validateTrigger 验证触发器配置.
 func validateTrigger(trig trigger.Trigger, result *ValidationResult) {
 	switch t := trig.(type) {
 	case *trigger.TimeTrigger:
@@ -659,7 +659,7 @@ func validateTrigger(trig trigger.Trigger, result *ValidationResult) {
 	}
 }
 
-// validateAction 验证动作配置
+// validateAction 验证动作配置.
 func validateAction(act action.Action) error {
 	switch a := act.(type) {
 	case *action.CopyAction:
@@ -707,7 +707,7 @@ func validateAction(act action.Action) error {
 	return nil
 }
 
-// isValidVersion 检查版本号格式
+// isValidVersion 检查版本号格式.
 func isValidVersion(version string) bool {
 	pattern := `^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$`
 	matched, err := regexp.MatchString(pattern, version)
@@ -717,7 +717,7 @@ func isValidVersion(version string) bool {
 	return matched
 }
 
-// isValidCron 检查 cron 表达式格式
+// isValidCron 检查 cron 表达式格式.
 func isValidCron(schedule string) bool {
 	// 支持标准 5 字段和扩展 6 字段 cron
 	parts := strings.Fields(schedule)
@@ -739,7 +739,7 @@ func isValidCron(schedule string) bool {
 
 // ==================== 模板导入/导出功能 ====================
 
-// ExportTemplate 导出模板为 JSON
+// ExportTemplate 导出模板为 JSON.
 func ExportTemplate(tpl *Template) ([]byte, error) {
 	// 验证模板
 	result := ValidateTemplate(tpl)
@@ -750,7 +750,7 @@ func ExportTemplate(tpl *Template) ([]byte, error) {
 	return json.MarshalIndent(tpl, "", "  ")
 }
 
-// ImportTemplate 从 JSON 导入模板
+// ImportTemplate 从 JSON 导入模板.
 func ImportTemplate(data []byte) (*Template, error) {
 	var tpl Template
 	if err := json.Unmarshal(data, &tpl); err != nil {
@@ -766,7 +766,7 @@ func ImportTemplate(data []byte) (*Template, error) {
 	return &tpl, nil
 }
 
-// ExportTemplateToFile 导出模板到文件
+// ExportTemplateToFile 导出模板到文件.
 func ExportTemplateToFile(tpl *Template, filePath string) error {
 	data, err := ExportTemplate(tpl)
 	if err != nil {
@@ -782,7 +782,7 @@ func ExportTemplateToFile(tpl *Template, filePath string) error {
 	return os.WriteFile(filePath, data, 0640)
 }
 
-// ImportTemplateFromFile 从文件导入模板
+// ImportTemplateFromFile 从文件导入模板.
 func ImportTemplateFromFile(filePath string) (*Template, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -792,7 +792,7 @@ func ImportTemplateFromFile(filePath string) (*Template, error) {
 	return ImportTemplate(data)
 }
 
-// ExportAllTemplates 导出所有模板到目录
+// ExportAllTemplates 导出所有模板到目录.
 func ExportAllTemplates(outputDir string) error {
 	templates := GetTemplates()
 
@@ -814,7 +814,7 @@ func ExportAllTemplates(outputDir string) error {
 
 // ==================== 模板管理器方法 ====================
 
-// GetAllTemplates 获取所有模板（预置 + 自定义）
+// GetAllTemplates 获取所有模板（预置 + 自定义）.
 func (tm *TemplateManager) GetAllTemplates() []Template {
 	result := GetBuiltInTemplates()
 
@@ -825,7 +825,7 @@ func (tm *TemplateManager) GetAllTemplates() []Template {
 	return result
 }
 
-// GetTemplateByID 按 ID 获取模板
+// GetTemplateByID 按 ID 获取模板.
 func (tm *TemplateManager) GetTemplateByID(id string) (*Template, error) {
 	// 先查找自定义模板
 	if tpl, ok := tm.customTemplates[id]; ok {
@@ -836,7 +836,7 @@ func (tm *TemplateManager) GetTemplateByID(id string) (*Template, error) {
 	return GetTemplate(id)
 }
 
-// AddCustomTemplate 添加自定义模板
+// AddCustomTemplate 添加自定义模板.
 func (tm *TemplateManager) AddCustomTemplate(tpl *Template) error {
 	// 验证模板
 	result := ValidateTemplate(tpl)
@@ -870,7 +870,7 @@ func (tm *TemplateManager) AddCustomTemplate(tpl *Template) error {
 	return nil
 }
 
-// UpdateCustomTemplate 更新自定义模板
+// UpdateCustomTemplate 更新自定义模板.
 func (tm *TemplateManager) UpdateCustomTemplate(tpl *Template) error {
 	// 验证模板
 	result := ValidateTemplate(tpl)
@@ -904,7 +904,7 @@ func (tm *TemplateManager) UpdateCustomTemplate(tpl *Template) error {
 	return nil
 }
 
-// DeleteCustomTemplate 删除自定义模板
+// DeleteCustomTemplate 删除自定义模板.
 func (tm *TemplateManager) DeleteCustomTemplate(id string) error {
 	// 检查是否是预置模板
 	for _, builtIn := range GetBuiltInTemplates() {
@@ -932,7 +932,7 @@ func (tm *TemplateManager) DeleteCustomTemplate(id string) error {
 	return nil
 }
 
-// CreateWorkflowFromTemplate 从模板创建工作流
+// CreateWorkflowFromTemplate 从模板创建工作流.
 func CreateWorkflowFromTemplate(tpl *Template, params map[string]string) *engine.Workflow {
 	wf := &engine.Workflow{
 		Name:         tpl.Workflow.Name,
@@ -953,7 +953,7 @@ func CreateWorkflowFromTemplate(tpl *Template, params map[string]string) *engine
 	return wf
 }
 
-// applyTemplateParams 应用模板参数替换
+// applyTemplateParams 应用模板参数替换.
 func applyTemplateParams(wf *engine.Workflow, params map[string]string) {
 	// 替换触发器中的参数
 	if trig, ok := wf.Trigger.(*trigger.TimeTrigger); ok {
@@ -1000,7 +1000,7 @@ func applyTemplateParams(wf *engine.Workflow, params map[string]string) {
 	}
 }
 
-// replaceParams 替换参数
+// replaceParams 替换参数.
 func replaceParams(s string, params map[string]string) string {
 	if s == "" || params == nil {
 		return s
@@ -1015,7 +1015,7 @@ func replaceParams(s string, params map[string]string) string {
 	return result
 }
 
-// GetTemplateParams 获取模板中的参数占位符
+// GetTemplateParams 获取模板中的参数占位符.
 func GetTemplateParams(tpl *Template) []string {
 	params := make(map[string]bool)
 
@@ -1031,7 +1031,7 @@ func GetTemplateParams(tpl *Template) []string {
 	return result
 }
 
-// extractParamsFromWorkflow 从工作流中提取参数
+// extractParamsFromWorkflow 从工作流中提取参数.
 func extractParamsFromWorkflow(wf *engine.Workflow, params map[string]bool) {
 	// 提取参数的正则表达式
 	re := regexp.MustCompile(`\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}`)

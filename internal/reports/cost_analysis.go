@@ -10,7 +10,7 @@ import (
 
 // ========== 成本分析报告 ==========
 
-// CostAnalysisReport 成本分析报告
+// CostAnalysisReport 成本分析报告.
 type CostAnalysisReport struct {
 	ID              string                 `json:"id"`
 	Name            string                 `json:"name"`
@@ -26,7 +26,7 @@ type CostAnalysisReport struct {
 	Summary         CostAnalysisSummary    `json:"summary"`
 }
 
-// CostBreakdown 成本细分
+// CostBreakdown 成本细分.
 type CostBreakdown struct {
 	StorageCost      float64 `json:"storage_cost"`       // 存储成本
 	ComputeCost      float64 `json:"compute_cost"`       // 计算成本
@@ -39,7 +39,7 @@ type CostBreakdown struct {
 	CostPerUser      float64 `json:"cost_per_user"`      // 每用户成本
 }
 
-// VolumeCostAnalysis 卷成本分析
+// VolumeCostAnalysis 卷成本分析.
 type VolumeCostAnalysis struct {
 	VolumeID          string        `json:"volume_id"`
 	VolumeName        string        `json:"volume_name"`
@@ -55,7 +55,7 @@ type VolumeCostAnalysis struct {
 	AvgUsagePercent   float64       `json:"avg_usage_percent"`
 }
 
-// UserCostAnalysis 用户成本分析
+// UserCostAnalysis 用户成本分析.
 type UserCostAnalysis struct {
 	UserID         string         `json:"user_id"`
 	Username       string         `json:"username"`
@@ -70,7 +70,7 @@ type UserCostAnalysis struct {
 	TopFileTypes   []FileTypeCost `json:"top_file_types"`
 }
 
-// FileTypeCost 文件类型成本
+// FileTypeCost 文件类型成本.
 type FileTypeCost struct {
 	Type       string  `json:"type"`        // 文件扩展名
 	Count      uint64  `json:"count"`       // 文件数量
@@ -79,7 +79,7 @@ type FileTypeCost struct {
 	Percent    float64 `json:"percent"`     // 占比
 }
 
-// CostTrendAnalysis 成本趋势分析
+// CostTrendAnalysis 成本趋势分析.
 type CostTrendAnalysis struct {
 	DataPoints        []CostTrendDataPoint `json:"data_points"`
 	AvgMonthlyCost    float64              `json:"avg_monthly_cost"`
@@ -90,7 +90,7 @@ type CostTrendAnalysis struct {
 	Volatility        float64              `json:"volatility"`      // 成本波动率
 }
 
-// CostTrendDataPoint 成本趋势数据点
+// CostTrendDataPoint 成本趋势数据点.
 type CostTrendDataPoint struct {
 	Timestamp   time.Time `json:"timestamp"`
 	TotalCost   float64   `json:"total_cost"`
@@ -101,7 +101,7 @@ type CostTrendDataPoint struct {
 	CostPerGB   float64   `json:"cost_per_gb"`
 }
 
-// CostForecast 成本预测
+// CostForecast 成本预测.
 type CostForecast struct {
 	NextMonthCost    float64         `json:"next_month_cost"`
 	NextQuarterCost  float64         `json:"next_quarter_cost"`
@@ -113,7 +113,7 @@ type CostForecast struct {
 	BudgetAlert      bool            `json:"budget_alert"`
 }
 
-// ForecastPoint 预测数据点
+// ForecastPoint 预测数据点.
 type ForecastPoint struct {
 	Date           time.Time `json:"date"`
 	PredictedCost  float64   `json:"predicted_cost,omitempty"`
@@ -124,7 +124,7 @@ type ForecastPoint struct {
 	IsBudgetExceed bool      `json:"is_budget_exceed,omitempty"`
 }
 
-// CostOptimizationItem 成本优化项
+// CostOptimizationItem 成本优化项.
 type CostOptimizationItem struct {
 	ID             string    `json:"id"`
 	Type           string    `json:"type"` // cleanup, tiering, compression, dedupe
@@ -142,7 +142,7 @@ type CostOptimizationItem struct {
 	CreatedAt      time.Time `json:"created_at"`
 }
 
-// CostRecommendation 成本建议
+// CostRecommendation 成本建议.
 type CostRecommendation struct {
 	Type        string  `json:"type"`     // reduce, optimize, monitor, expand
 	Priority    string  `json:"priority"` // critical, high, medium, low
@@ -153,7 +153,7 @@ type CostRecommendation struct {
 	Deadline    string  `json:"deadline"` // 建议截止时间
 }
 
-// CostAnalysisSummary 成本分析摘要
+// CostAnalysisSummary 成本分析摘要.
 type CostAnalysisSummary struct {
 	TotalMonthlyCost        float64 `json:"total_monthly_cost"`
 	TotalStorageGB          float64 `json:"total_storage_gb"`
@@ -166,14 +166,14 @@ type CostAnalysisSummary struct {
 	Status                  string  `json:"status"`       // healthy, warning, critical
 }
 
-// CostAnalyzer 成本分析器
+// CostAnalyzer 成本分析器.
 type CostAnalyzer struct {
 	config     StorageCostConfig
 	optimizer  *CostOptimizer
 	calculator *StorageCostCalculator
 }
 
-// NewCostAnalyzer 创建成本分析器
+// NewCostAnalyzer 创建成本分析器.
 func NewCostAnalyzer(config StorageCostConfig) *CostAnalyzer {
 	return &CostAnalyzer{
 		config:     config,
@@ -182,7 +182,7 @@ func NewCostAnalyzer(config StorageCostConfig) *CostAnalyzer {
 	}
 }
 
-// Analyze 执行成本分析
+// Analyze 执行成本分析.
 func (a *CostAnalyzer) Analyze(
 	volumeMetrics []StorageMetrics,
 	userUsages []UserStorageUsage,
@@ -230,7 +230,7 @@ func (a *CostAnalyzer) Analyze(
 	return report
 }
 
-// UserStorageUsage 用户存储使用情况
+// UserStorageUsage 用户存储使用情况.
 type UserStorageUsage struct {
 	UserID         string            `json:"user_id"`
 	Username       string            `json:"username"`
@@ -241,7 +241,7 @@ type UserStorageUsage struct {
 	FileTypes      map[string]uint64 `json:"file_types"` // 扩展名 -> 字节数
 }
 
-// analyzeVolumeCosts 分析卷成本
+// analyzeVolumeCosts 分析卷成本.
 func (a *CostAnalyzer) analyzeVolumeCosts(metrics []StorageMetrics) []VolumeCostAnalysis {
 	analyses := make([]VolumeCostAnalysis, 0, len(metrics))
 
@@ -274,7 +274,7 @@ func (a *CostAnalyzer) analyzeVolumeCosts(metrics []StorageMetrics) []VolumeCost
 	return analyses
 }
 
-// analyzeUserCosts 分析用户成本
+// analyzeUserCosts 分析用户成本.
 func (a *CostAnalyzer) analyzeUserCosts(usages []UserStorageUsage) []UserCostAnalysis {
 	analyses := make([]UserCostAnalysis, 0, len(usages))
 
@@ -341,7 +341,7 @@ func (a *CostAnalyzer) analyzeUserCosts(usages []UserStorageUsage) []UserCostAna
 	return analyses
 }
 
-// calculateTotalCost 计算总成本
+// calculateTotalCost 计算总成本.
 func (a *CostAnalyzer) calculateTotalCost(volumeCosts []VolumeCostAnalysis, userCosts []UserCostAnalysis) CostBreakdown {
 	total := CostBreakdown{}
 
@@ -370,7 +370,7 @@ func (a *CostAnalyzer) calculateTotalCost(volumeCosts []VolumeCostAnalysis, user
 	return total
 }
 
-// analyzeTrend 分析趋势
+// analyzeTrend 分析趋势.
 func (a *CostAnalyzer) analyzeTrend(history []CostTrendDataPoint) CostTrendAnalysis {
 	analysis := CostTrendAnalysis{
 		DataPoints: history,
@@ -430,7 +430,7 @@ func (a *CostAnalyzer) analyzeTrend(history []CostTrendDataPoint) CostTrendAnaly
 	return analysis
 }
 
-// forecastCost 预测成本
+// forecastCost 预测成本.
 func (a *CostAnalyzer) forecastCost(history []CostTrendDataPoint) *CostForecast {
 	if len(history) < 3 {
 		return nil
@@ -495,7 +495,7 @@ func (a *CostAnalyzer) forecastCost(history []CostTrendDataPoint) *CostForecast 
 	return forecast
 }
 
-// calculateForecastConfidence 计算预测置信度
+// calculateForecastConfidence 计算预测置信度.
 func (a *CostAnalyzer) calculateForecastConfidence(history []CostTrendDataPoint) float64 {
 	if len(history) < 6 {
 		return 0.5
@@ -530,7 +530,7 @@ func (a *CostAnalyzer) calculateForecastConfidence(history []CostTrendDataPoint)
 	return round(confidence, 2)
 }
 
-// identifyOptimizations 识别优化项
+// identifyOptimizations 识别优化项.
 func (a *CostAnalyzer) identifyOptimizations(report *CostAnalysisReport) []CostOptimizationItem {
 	items := make([]CostOptimizationItem, 0)
 	now := time.Now()
@@ -643,7 +643,7 @@ func (a *CostAnalyzer) identifyOptimizations(report *CostAnalysisReport) []CostO
 	return items
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (a *CostAnalyzer) generateRecommendations(report *CostAnalysisReport) []CostRecommendation {
 	recs := make([]CostRecommendation, 0)
 
@@ -694,7 +694,7 @@ func (a *CostAnalyzer) generateRecommendations(report *CostAnalysisReport) []Cos
 	return recs
 }
 
-// calculateSummary 计算摘要
+// calculateSummary 计算摘要.
 func (a *CostAnalyzer) calculateSummary(report *CostAnalysisReport) CostAnalysisSummary {
 	summary := CostAnalysisSummary{
 		TotalMonthlyCost: report.TotalCost.TotalMonthlyCost,
@@ -736,7 +736,7 @@ func (a *CostAnalyzer) calculateSummary(report *CostAnalysisReport) CostAnalysis
 	return summary
 }
 
-// calculateEfficiencyScore 计算效率评分
+// calculateEfficiencyScore 计算效率评分.
 func (a *CostAnalyzer) calculateEfficiencyScore(usagePercent float64) float64 {
 	// 使用率在 60-80% 之间效率最高
 	if usagePercent >= 60 && usagePercent <= 80 {
@@ -752,7 +752,7 @@ func (a *CostAnalyzer) calculateEfficiencyScore(usagePercent float64) float64 {
 	return round((100-usagePercent)/20*50+50, 2)
 }
 
-// calculateCostEfficiency 计算成本效率
+// calculateCostEfficiency 计算成本效率.
 func (a *CostAnalyzer) calculateCostEfficiency(usagePercent float64) float64 {
 	if usagePercent >= 50 && usagePercent <= 85 {
 		return 100
@@ -765,7 +765,7 @@ func (a *CostAnalyzer) calculateCostEfficiency(usagePercent float64) float64 {
 	return round((100-usagePercent)/15*50+50, 2)
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (a *CostAnalyzer) calculateHealthScore(report *CostAnalysisReport) int {
 	score := 100.0
 
@@ -806,7 +806,7 @@ func (a *CostAnalyzer) calculateHealthScore(report *CostAnalysisReport) int {
 
 // ========== v2.35.0 增强功能：存储成本预测 ==========
 
-// StorageCostForecastModel 存储成本预测模型
+// StorageCostForecastModel 存储成本预测模型.
 type StorageCostForecastModel string
 
 const (
@@ -820,7 +820,7 @@ const (
 	ForecastModelHoltWinters StorageCostForecastModel = "holt_winters"
 )
 
-// EnhancedCostForecast 增强的成本预测
+// EnhancedCostForecast 增强的成本预测.
 type EnhancedCostForecast struct {
 	// 基础预测
 	*CostForecast
@@ -844,7 +844,7 @@ type EnhancedCostForecast struct {
 	AccuracyMetrics ForecastAccuracyMetrics `json:"accuracy_metrics"`
 }
 
-// SeasonalityAnalysis 季节性分析
+// SeasonalityAnalysis 季节性分析.
 type SeasonalityAnalysis struct {
 	HasSeasonality bool             `json:"has_seasonality"`
 	Pattern        string           `json:"pattern"`  // daily, weekly, monthly, quarterly, yearly
@@ -854,7 +854,7 @@ type SeasonalityAnalysis struct {
 	CycleLength    int              `json:"cycle_length"` // 周期长度（天）
 }
 
-// SeasonalPeak 季节性峰值
+// SeasonalPeak 季节性峰值.
 type SeasonalPeak struct {
 	Period    string  `json:"period"` // 如 "每月初", "周末"
 	Month     int     `json:"month,omitempty"`
@@ -862,7 +862,7 @@ type SeasonalPeak struct {
 	Magnitude float64 `json:"magnitude"` // 相对增幅
 }
 
-// SeasonalTrough 季节性低谷
+// SeasonalTrough 季节性低谷.
 type SeasonalTrough struct {
 	Period    string  `json:"period"`
 	Month     int     `json:"month,omitempty"`
@@ -870,7 +870,7 @@ type SeasonalTrough struct {
 	Magnitude float64 `json:"magnitude"` // 相对降幅
 }
 
-// CostAnomaly 成本异常点
+// CostAnomaly 成本异常点.
 type CostAnomaly struct {
 	Timestamp     time.Time `json:"timestamp"`
 	ActualCost    float64   `json:"actual_cost"`
@@ -880,7 +880,7 @@ type CostAnomaly struct {
 	PossibleCause string    `json:"possible_cause"`
 }
 
-// ConfidenceInterval 置信区间
+// ConfidenceInterval 置信区间.
 type ConfidenceInterval struct {
 	Level      float64   `json:"level"` // 0.95, 0.99 等
 	LowerBound float64   `json:"lower_bound"`
@@ -888,7 +888,7 @@ type ConfidenceInterval struct {
 	Timestamp  time.Time `json:"timestamp"`
 }
 
-// ForecastAccuracyMetrics 预测准确性指标
+// ForecastAccuracyMetrics 预测准确性指标.
 type ForecastAccuracyMetrics struct {
 	MAE  float64 `json:"mae"`  // 平均绝对误差
 	MAPE float64 `json:"mape"` // 平均绝对百分比误差
@@ -896,14 +896,14 @@ type ForecastAccuracyMetrics struct {
 	R2   float64 `json:"r2"`   // R平方
 }
 
-// EnhancedCostAnalyzer 增强的成本分析器
+// EnhancedCostAnalyzer 增强的成本分析器.
 type EnhancedCostAnalyzer struct {
 	*CostAnalyzer
 	seasonalityDetector *SeasonalityDetector
 	anomalyDetector     *AnomalyDetector
 }
 
-// NewEnhancedCostAnalyzer 创建增强成本分析器
+// NewEnhancedCostAnalyzer 创建增强成本分析器.
 func NewEnhancedCostAnalyzer(config StorageCostConfig) *EnhancedCostAnalyzer {
 	return &EnhancedCostAnalyzer{
 		CostAnalyzer:        NewCostAnalyzer(config),
@@ -912,7 +912,7 @@ func NewEnhancedCostAnalyzer(config StorageCostConfig) *EnhancedCostAnalyzer {
 	}
 }
 
-// ForecastEnhanced 增强的成本预测
+// ForecastEnhanced 增强的成本预测.
 func (a *EnhancedCostAnalyzer) ForecastEnhanced(history []CostTrendDataPoint, months int) *EnhancedCostForecast {
 	if len(history) < 3 {
 		return nil
@@ -950,7 +950,7 @@ func (a *EnhancedCostAnalyzer) ForecastEnhanced(history []CostTrendDataPoint, mo
 	return forecast
 }
 
-// linearForecast 线性预测
+// linearForecast 线性预测.
 func (a *EnhancedCostAnalyzer) linearForecast(history []CostTrendDataPoint, months int) *CostForecast {
 	n := float64(len(history))
 	var sumX, sumY, sumXY, sumX2 float64
@@ -1006,7 +1006,7 @@ func (a *EnhancedCostAnalyzer) linearForecast(history []CostTrendDataPoint, mont
 	return forecast
 }
 
-// exponentialForecast 指数预测
+// exponentialForecast 指数预测.
 func (a *EnhancedCostAnalyzer) exponentialForecast(history []CostTrendDataPoint, months int) *CostForecast {
 	if len(history) < 2 {
 		return nil
@@ -1057,7 +1057,7 @@ func (a *EnhancedCostAnalyzer) exponentialForecast(history []CostTrendDataPoint,
 	return forecast
 }
 
-// holtWintersForecast Holt-Winters 预测
+// holtWintersForecast Holt-Winters 预测.
 func (a *EnhancedCostAnalyzer) holtWintersForecast(history []CostTrendDataPoint, months int, seasonality *SeasonalityAnalysis) *CostForecast {
 	if len(history) < seasonality.CycleLength*2 {
 		return nil
@@ -1133,7 +1133,7 @@ func (a *EnhancedCostAnalyzer) holtWintersForecast(history []CostTrendDataPoint,
 	return forecast
 }
 
-// calculateConfidence 计算置信度
+// calculateConfidence 计算置信度.
 func (a *EnhancedCostAnalyzer) calculateConfidence(history []CostTrendDataPoint) float64 {
 	if len(history) < 6 {
 		return 0.5
@@ -1173,7 +1173,7 @@ func (a *EnhancedCostAnalyzer) calculateConfidence(history []CostTrendDataPoint)
 	return round(confidence, 2)
 }
 
-// calculateAccuracyMetrics 计算准确性指标
+// calculateAccuracyMetrics 计算准确性指标.
 func (a *EnhancedCostAnalyzer) calculateAccuracyMetrics(history []CostTrendDataPoint, forecast *CostForecast) ForecastAccuracyMetrics {
 	metrics := ForecastAccuracyMetrics{}
 
@@ -1220,7 +1220,7 @@ func (a *EnhancedCostAnalyzer) calculateAccuracyMetrics(history []CostTrendDataP
 	return metrics
 }
 
-// generateConfidenceIntervals 生成置信区间
+// generateConfidenceIntervals 生成置信区间.
 func (a *EnhancedCostAnalyzer) generateConfidenceIntervals(forecast *CostForecast) []ConfidenceInterval {
 	intervals := make([]ConfidenceInterval, 0)
 
@@ -1241,7 +1241,7 @@ func (a *EnhancedCostAnalyzer) generateConfidenceIntervals(forecast *CostForecas
 
 // ========== v2.35.0 增强功能：容量规划建议 ==========
 
-// EnhancedCapacityPlan 增强的容量规划
+// EnhancedCapacityPlan 增强的容量规划.
 type EnhancedCapacityPlan struct {
 	// 基础规划报告
 	*CapacityPlanningReport
@@ -1262,7 +1262,7 @@ type EnhancedCapacityPlan struct {
 	OptimizationPaths []OptimizationPath `json:"optimization_paths"`
 }
 
-// CapacityScenario 容量场景
+// CapacityScenario 容量场景.
 type CapacityScenario struct {
 	Name              string  `json:"name"`
 	Description       string  `json:"description"`
@@ -1275,7 +1275,7 @@ type CapacityScenario struct {
 	Probability       float64 `json:"probability"` // 发生概率
 }
 
-// ExpansionEvent 扩容事件
+// ExpansionEvent 扩容事件.
 type ExpansionEvent struct {
 	Date              time.Time `json:"date"`
 	VolumeName        string    `json:"volume_name"`
@@ -1286,7 +1286,7 @@ type ExpansionEvent struct {
 	Priority          string    `json:"priority"`
 }
 
-// CapacityCostImpact 容量成本影响
+// CapacityCostImpact 容量成本影响.
 type CapacityCostImpact struct {
 	CurrentMonthlyCost   float64 `json:"current_monthly_cost"`
 	ProjectedMonthlyCost float64 `json:"projected_monthly_cost"`
@@ -1295,7 +1295,7 @@ type CapacityCostImpact struct {
 	AnnualCostImpact     float64 `json:"annual_cost_impact"`
 }
 
-// CapacityRisk 容量风险
+// CapacityRisk 容量风险.
 type CapacityRisk struct {
 	Type        string  `json:"type"`        // capacity_shortage, performance, budget
 	Severity    string  `json:"severity"`    // low, medium, high, critical
@@ -1304,7 +1304,7 @@ type CapacityRisk struct {
 	Mitigation  string  `json:"mitigation"`
 }
 
-// OptimizationPath 优化路径
+// OptimizationPath 优化路径.
 type OptimizationPath struct {
 	Name           string   `json:"name"`
 	Description    string   `json:"description"`
@@ -1315,13 +1315,13 @@ type OptimizationPath struct {
 	Timeline       string   `json:"timeline"`
 }
 
-// CapacityPlanningAnalyzer 容量规划分析器
+// CapacityPlanningAnalyzer 容量规划分析器.
 type CapacityPlanningAnalyzer struct {
 	config       StorageCostConfig
 	costAnalyzer *EnhancedCostAnalyzer
 }
 
-// NewCapacityPlanningAnalyzer 创建容量规划分析器
+// NewCapacityPlanningAnalyzer 创建容量规划分析器.
 func NewCapacityPlanningAnalyzer(config StorageCostConfig) *CapacityPlanningAnalyzer {
 	return &CapacityPlanningAnalyzer{
 		config:       config,
@@ -1329,7 +1329,7 @@ func NewCapacityPlanningAnalyzer(config StorageCostConfig) *CapacityPlanningAnal
 	}
 }
 
-// AnalyzeCapacityEnhanced 增强的容量分析
+// AnalyzeCapacityEnhanced 增强的容量分析.
 func (a *CapacityPlanningAnalyzer) AnalyzeCapacityEnhanced(
 	history []CapacityHistory,
 	volumeName string,
@@ -1359,7 +1359,7 @@ func (a *CapacityPlanningAnalyzer) AnalyzeCapacityEnhanced(
 	return plan
 }
 
-// generateScenarios 生成场景分析
+// generateScenarios 生成场景分析.
 func (a *CapacityPlanningAnalyzer) generateScenarios(history []CapacityHistory, months int) []CapacityScenario {
 	scenarios := make([]CapacityScenario, 0)
 
@@ -1415,7 +1415,7 @@ func (a *CapacityPlanningAnalyzer) generateScenarios(history []CapacityHistory, 
 	return scenarios
 }
 
-// generateExpansionTimeline 生成扩容时间线
+// generateExpansionTimeline 生成扩容时间线.
 func (a *CapacityPlanningAnalyzer) generateExpansionTimeline(report *CapacityPlanningReport) []ExpansionEvent {
 	timeline := make([]ExpansionEvent, 0)
 
@@ -1438,7 +1438,7 @@ func (a *CapacityPlanningAnalyzer) generateExpansionTimeline(report *CapacityPla
 	return timeline
 }
 
-// assessRisks 评估风险
+// assessRisks 评估风险.
 func (a *CapacityPlanningAnalyzer) assessRisks(report *CapacityPlanningReport) []CapacityRisk {
 	risks := make([]CapacityRisk, 0)
 
@@ -1487,7 +1487,7 @@ func (a *CapacityPlanningAnalyzer) assessRisks(report *CapacityPlanningReport) [
 	return risks
 }
 
-// generateOptimizationPaths 生成优化路径
+// generateOptimizationPaths 生成优化路径.
 func (a *CapacityPlanningAnalyzer) generateOptimizationPaths(report *CapacityPlanningReport) []OptimizationPath {
 	paths := make([]OptimizationPath, 0)
 
@@ -1544,7 +1544,7 @@ func (a *CapacityPlanningAnalyzer) generateOptimizationPaths(report *CapacityPla
 	return paths
 }
 
-// calculateCostImpact 计算成本影响
+// calculateCostImpact 计算成本影响.
 func (a *CapacityPlanningAnalyzer) calculateCostImpact(history []CapacityHistory, plan *EnhancedCapacityPlan) CapacityCostImpact {
 	impact := CapacityCostImpact{}
 
@@ -1580,7 +1580,7 @@ func (a *CapacityPlanningAnalyzer) calculateCostImpact(history []CapacityHistory
 
 // ========== v2.35.0 增强功能：资源使用趋势分析 ==========
 
-// ResourceTrendAnalysis 资源使用趋势分析
+// ResourceTrendAnalysis 资源使用趋势分析.
 type ResourceTrendAnalysis struct {
 	ID          string       `json:"id"`
 	VolumeName  string       `json:"volume_name"`
@@ -1598,7 +1598,7 @@ type ResourceTrendAnalysis struct {
 	Alerts       []TrendAlert          `json:"alerts"`
 }
 
-// StorageTrendMetrics 存储趋势指标
+// StorageTrendMetrics 存储趋势指标.
 type StorageTrendMetrics struct {
 	GrowthRate         float64    `json:"growth_rate"`         // %/月
 	GrowthAcceleration float64    `json:"growth_acceleration"` // 加速度
@@ -1608,7 +1608,7 @@ type StorageTrendMetrics struct {
 	Volatility         float64    `json:"volatility"`
 }
 
-// IOTrendMetrics IO 趋势指标
+// IOTrendMetrics IO 趋势指标.
 type IOTrendMetrics struct {
 	ReadIOPSTrend   string  `json:"read_iops_trend"` // increasing, stable, decreasing
 	WriteIOPSTrend  string  `json:"write_iops_trend"`
@@ -1619,7 +1619,7 @@ type IOTrendMetrics struct {
 	IOPSVariability float64 `json:"iops_variability"`
 }
 
-// BandwidthTrendMetrics 带宽趋势指标
+// BandwidthTrendMetrics 带宽趋势指标.
 type BandwidthTrendMetrics struct {
 	ReadThroughputTrend  string  `json:"read_throughput_trend"`
 	WriteThroughputTrend string  `json:"write_throughput_trend"`
@@ -1630,7 +1630,7 @@ type BandwidthTrendMetrics struct {
 	SaturationRisk       float64 `json:"saturation_risk"` // 0-1
 }
 
-// ResourceCorrelation 资源相关性
+// ResourceCorrelation 资源相关性.
 type ResourceCorrelation struct {
 	Resource1    string  `json:"resource_1"`
 	Resource2    string  `json:"resource_2"`
@@ -1638,7 +1638,7 @@ type ResourceCorrelation struct {
 	Significance string  `json:"significance"` // strong, moderate, weak
 }
 
-// ResourcePredictions 资源预测
+// ResourcePredictions 资源预测.
 type ResourcePredictions struct {
 	NextMonthStorageGB     float64 `json:"next_month_storage_gb"`
 	NextQuarterStorageGB   float64 `json:"next_quarter_storage_gb"`
@@ -1647,7 +1647,7 @@ type ResourcePredictions struct {
 	Confidence             float64 `json:"confidence"`
 }
 
-// TrendAlert 趋势预警
+// TrendAlert 趋势预警.
 type TrendAlert struct {
 	Type       string    `json:"type"`     // capacity, performance, anomaly
 	Severity   string    `json:"severity"` // info, warning, critical
@@ -1658,15 +1658,15 @@ type TrendAlert struct {
 	Suggestion string    `json:"suggestion"`
 }
 
-// ResourceTrendAnalyzer 资源趋势分析器
+// ResourceTrendAnalyzer 资源趋势分析器.
 type ResourceTrendAnalyzer struct{}
 
-// NewResourceTrendAnalyzer 创建资源趋势分析器
+// NewResourceTrendAnalyzer 创建资源趋势分析器.
 func NewResourceTrendAnalyzer() *ResourceTrendAnalyzer {
 	return &ResourceTrendAnalyzer{}
 }
 
-// AnalyzeTrend 分析资源使用趋势
+// AnalyzeTrend 分析资源使用趋势.
 func (a *ResourceTrendAnalyzer) AnalyzeTrend(
 	storageHistory []CapacityHistory,
 	ioHistory []IOHistoryPoint,
@@ -1704,7 +1704,7 @@ func (a *ResourceTrendAnalyzer) AnalyzeTrend(
 	return analysis
 }
 
-// IOHistoryPoint IO 历史数据点
+// IOHistoryPoint IO 历史数据点.
 type IOHistoryPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	ReadIOPS     float64   `json:"read_iops"`
@@ -1713,7 +1713,7 @@ type IOHistoryPoint struct {
 	WriteLatency float64   `json:"write_latency_ms"`
 }
 
-// analyzeStorageTrend 分析存储趋势
+// analyzeStorageTrend 分析存储趋势.
 func (a *ResourceTrendAnalyzer) analyzeStorageTrend(history []CapacityHistory) StorageTrendMetrics {
 	metrics := StorageTrendMetrics{
 		TrendDirection: "stable",
@@ -1756,7 +1756,7 @@ func (a *ResourceTrendAnalyzer) analyzeStorageTrend(history []CapacityHistory) S
 	return metrics
 }
 
-// analyzeIOTrend 分析 IO 趋势
+// analyzeIOTrend 分析 IO 趋势.
 func (a *ResourceTrendAnalyzer) analyzeIOTrend(history []IOHistoryPoint) IOTrendMetrics {
 	metrics := IOTrendMetrics{}
 
@@ -1801,7 +1801,7 @@ func (a *ResourceTrendAnalyzer) analyzeIOTrend(history []IOHistoryPoint) IOTrend
 	return metrics
 }
 
-// analyzeBandwidthTrend 分析带宽趋势
+// analyzeBandwidthTrend 分析带宽趋势.
 func (a *ResourceTrendAnalyzer) analyzeBandwidthTrend(history []BandwidthHistoryPoint) BandwidthTrendMetrics {
 	metrics := BandwidthTrendMetrics{}
 
@@ -1832,7 +1832,7 @@ func (a *ResourceTrendAnalyzer) analyzeBandwidthTrend(history []BandwidthHistory
 	return metrics
 }
 
-// calculateCorrelations 计算相关性
+// calculateCorrelations 计算相关性.
 func (a *ResourceTrendAnalyzer) calculateCorrelations(
 	storage []CapacityHistory,
 	io []IOHistoryPoint,
@@ -1857,7 +1857,7 @@ func (a *ResourceTrendAnalyzer) calculateCorrelations(
 	return correlations
 }
 
-// generatePredictions 生成预测
+// generatePredictions 生成预测.
 func (a *ResourceTrendAnalyzer) generatePredictions(analysis *ResourceTrendAnalysis) ResourcePredictions {
 	predictions := ResourcePredictions{
 		Confidence: 0.7,
@@ -1874,7 +1874,7 @@ func (a *ResourceTrendAnalyzer) generatePredictions(analysis *ResourceTrendAnaly
 	return predictions
 }
 
-// generateAlerts 生成预警
+// generateAlerts 生成预警.
 func (a *ResourceTrendAnalyzer) generateAlerts(analysis *ResourceTrendAnalysis) []TrendAlert {
 	alerts := make([]TrendAlert, 0)
 
@@ -1914,7 +1914,7 @@ func (a *ResourceTrendAnalyzer) generateAlerts(analysis *ResourceTrendAnalysis) 
 	return alerts
 }
 
-// 辅助方法
+// 辅助方法.
 func (a *ResourceTrendAnalyzer) calculateMonthlyGrowth(history []CapacityHistory) float64 {
 	if len(history) < 2 {
 		return 0
@@ -2011,15 +2011,15 @@ func (a *ResourceTrendAnalyzer) correlationSignificance(corr float64) string {
 
 // ========== 辅助类型 ==========
 
-// SeasonalityDetector 季节性检测器
+// SeasonalityDetector 季节性检测器.
 type SeasonalityDetector struct{}
 
-// NewSeasonalityDetector 创建季节性检测器
+// NewSeasonalityDetector 创建季节性检测器.
 func NewSeasonalityDetector() *SeasonalityDetector {
 	return &SeasonalityDetector{}
 }
 
-// Analyze 分析季节性
+// Analyze 分析季节性.
 func (d *SeasonalityDetector) Analyze(history []CostTrendDataPoint) *SeasonalityAnalysis {
 	analysis := &SeasonalityAnalysis{
 		HasSeasonality: false,
@@ -2048,15 +2048,15 @@ func (d *SeasonalityDetector) detectMonthlyPattern(history []CostTrendDataPoint)
 	return 0
 }
 
-// AnomalyDetector 异常检测器
+// AnomalyDetector 异常检测器.
 type AnomalyDetector struct{}
 
-// NewAnomalyDetector 创建异常检测器
+// NewAnomalyDetector 创建异常检测器.
 func NewAnomalyDetector() *AnomalyDetector {
 	return &AnomalyDetector{}
 }
 
-// Detect 检测异常点
+// Detect 检测异常点.
 func (d *AnomalyDetector) Detect(history []CostTrendDataPoint) []CostAnomaly {
 	anomalies := make([]CostAnomaly, 0)
 
@@ -2110,7 +2110,7 @@ func min(a, b int) int {
 	return b
 }
 
-// getPriority 获取优先级
+// getPriority 获取优先级.
 func getPriority(threshold float64) string {
 	if threshold >= 80 {
 		return "high"
@@ -2120,7 +2120,7 @@ func getPriority(threshold float64) string {
 
 // ========== v2.86.0 增强功能：多模型资源预测 ==========
 
-// PredictionModelType 预测模型类型
+// PredictionModelType 预测模型类型.
 type PredictionModelType string
 
 const (
@@ -2134,7 +2134,7 @@ const (
 	PredictionModelARIMA PredictionModelType = "arima"
 )
 
-// PredictionResult 预测结果
+// PredictionResult 预测结果.
 type PredictionResult struct {
 	// 预测模型
 	Model PredictionModelType `json:"model"`
@@ -2158,7 +2158,7 @@ type PredictionResult struct {
 	PredictedDate time.Time `json:"predicted_date"`
 }
 
-// MultiModelPrediction 多模型预测结果
+// MultiModelPrediction 多模型预测结果.
 type MultiModelPrediction struct {
 	// 预测ID
 	ID string `json:"id"`
@@ -2182,7 +2182,7 @@ type MultiModelPrediction struct {
 	AccuracyMetrics PredictionAccuracyMetrics `json:"accuracy_metrics"`
 }
 
-// PredictionAccuracyMetrics 预测准确性指标
+// PredictionAccuracyMetrics 预测准确性指标.
 type PredictionAccuracyMetrics struct {
 	// 平均绝对误差
 	MAE float64 `json:"mae"`
@@ -2200,12 +2200,12 @@ type PredictionAccuracyMetrics struct {
 	Confidence float64 `json:"confidence"`
 }
 
-// ResourcePredictor 资源预测器
+// ResourcePredictor 资源预测器.
 type ResourcePredictor struct {
 	config PredictionConfig
 }
 
-// PredictionConfig 预测配置
+// PredictionConfig 预测配置.
 type PredictionConfig struct {
 	// 默认预测天数
 	DefaultForecastDays int `json:"default_forecast_days"`
@@ -2223,7 +2223,7 @@ type PredictionConfig struct {
 	EnableAnomalyDetection bool `json:"enable_anomaly_detection"`
 }
 
-// DefaultPredictionConfig 默认预测配置
+// DefaultPredictionConfig 默认预测配置.
 func DefaultPredictionConfig() PredictionConfig {
 	return PredictionConfig{
 		DefaultForecastDays:    30,
@@ -2234,12 +2234,12 @@ func DefaultPredictionConfig() PredictionConfig {
 	}
 }
 
-// NewResourcePredictor 创建资源预测器
+// NewResourcePredictor 创建资源预测器.
 func NewResourcePredictor(config PredictionConfig) *ResourcePredictor {
 	return &ResourcePredictor{config: config}
 }
 
-// PredictStorage 预测存储使用量
+// PredictStorage 预测存储使用量.
 func (p *ResourcePredictor) PredictStorage(history []CapacityHistory, forecastDays int) *MultiModelPrediction {
 	if len(history) < p.config.MinHistoryPoints {
 		return nil
@@ -2299,7 +2299,7 @@ func (p *ResourcePredictor) PredictStorage(history []CapacityHistory, forecastDa
 	return prediction
 }
 
-// linearPredict 线性预测
+// linearPredict 线性预测.
 func (p *ResourcePredictor) linearPredict(values []float64, timestamps []time.Time, days int) []PredictionResult {
 	n := len(values)
 	if n < 2 {
@@ -2355,7 +2355,7 @@ func (p *ResourcePredictor) linearPredict(values []float64, timestamps []time.Ti
 	return results
 }
 
-// exponentialPredict 指数预测
+// exponentialPredict 指数预测.
 func (p *ResourcePredictor) exponentialPredict(values []float64, timestamps []time.Time, days int) []PredictionResult {
 	n := len(values)
 	if n < 2 {
@@ -2397,7 +2397,7 @@ func (p *ResourcePredictor) exponentialPredict(values []float64, timestamps []ti
 	return results
 }
 
-// polynomialPredict 多项式预测
+// polynomialPredict 多项式预测.
 func (p *ResourcePredictor) polynomialPredict(values []float64, timestamps []time.Time, days int, degree int) []PredictionResult {
 	n := len(values)
 	if n < degree+1 {
@@ -2474,7 +2474,7 @@ func (p *ResourcePredictor) polynomialPredict(values []float64, timestamps []tim
 	return results
 }
 
-// generateEnsemblePredictions 生成集成预测
+// generateEnsemblePredictions 生成集成预测.
 func (p *ResourcePredictor) generateEnsemblePredictions(modelResults map[PredictionModelType][]PredictionResult, days int) []PredictionResult {
 	ensemble := make([]PredictionResult, days)
 
@@ -2510,7 +2510,7 @@ func (p *ResourcePredictor) generateEnsemblePredictions(modelResults map[Predict
 	return ensemble
 }
 
-// calculateModelMAPE 计算模型MAPE
+// calculateModelMAPE 计算模型MAPE.
 func (p *ResourcePredictor) calculateModelMAPE(actual []float64, predictions []PredictionResult) float64 {
 	if len(predictions) == 0 || len(actual) < 2 {
 		return math.MaxFloat64
@@ -2534,7 +2534,7 @@ func (p *ResourcePredictor) calculateModelMAPE(actual []float64, predictions []P
 	return round(sumAPE/float64(testSize)*100, 2)
 }
 
-// calculateAccuracyMetrics 计算准确性指标
+// calculateAccuracyMetrics 计算准确性指标.
 func (p *ResourcePredictor) calculateAccuracyMetrics(actual []float64, prediction *MultiModelPrediction) PredictionAccuracyMetrics {
 	metrics := PredictionAccuracyMetrics{}
 
@@ -2599,7 +2599,7 @@ func (p *ResourcePredictor) calculateAccuracyMetrics(actual []float64, predictio
 	return metrics
 }
 
-// PredictCapacityFullDate 预测容量满载日期
+// PredictCapacityFullDate 预测容量满载日期.
 func (p *ResourcePredictor) PredictCapacityFullDate(history []CapacityHistory, totalCapacity uint64) (*time.Time, int) {
 	if len(history) < p.config.MinHistoryPoints || totalCapacity == 0 {
 		return nil, 0

@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// VerificationConfig 验证配置
+// VerificationConfig 验证配置.
 type VerificationConfig struct {
 	// 验证方式
 	VerifyChecksum  bool `json:"verify_checksum"`  // 校验和验证
@@ -32,7 +32,7 @@ type VerificationConfig struct {
 	MaxRetries int  `json:"max_retries"` // 最大重试次数
 }
 
-// VerificationResult 验证结果
+// VerificationResult 验证结果.
 type VerificationResult struct {
 	SnapshotID    string                `json:"snapshot_id"`
 	StartTime     time.Time             `json:"start_time"`
@@ -50,23 +50,23 @@ type VerificationResult struct {
 	RepairedFiles int                   `json:"repaired_files"`
 }
 
-// VerificationStatus 验证状态
+// VerificationStatus 验证状态.
 type VerificationStatus string
 
 const (
-	// VerificationStatusPassed 验证通过
+	// VerificationStatusPassed 验证通过.
 	VerificationStatusPassed VerificationStatus = "passed"
-	// VerificationStatusFailed 验证失败
+	// VerificationStatusFailed 验证失败.
 	VerificationStatusFailed VerificationStatus = "failed"
-	// VerificationStatusPartial 部分验证
+	// VerificationStatusPartial 部分验证.
 	VerificationStatusPartial VerificationStatus = "partial"
-	// VerificationStatusTimeout 验证超时
+	// VerificationStatusTimeout 验证超时.
 	VerificationStatusTimeout VerificationStatus = "timeout"
-	// VerificationStatusCancelled 验证取消
+	// VerificationStatusCancelled 验证取消.
 	VerificationStatusCancelled VerificationStatus = "cancelled"
 )
 
-// VerificationError 验证错误
+// VerificationError 验证错误.
 type VerificationError struct {
 	Path     string `json:"path"`
 	Type     string `json:"type"` // checksum, structure, integrity, decrypt
@@ -75,13 +75,13 @@ type VerificationError struct {
 	Actual   string `json:"actual,omitempty"`
 }
 
-// VerificationWarning 验证警告
+// VerificationWarning 验证警告.
 type VerificationWarning struct {
 	Path    string `json:"path"`
 	Message string `json:"message"`
 }
 
-// VerificationManager 验证管理器
+// VerificationManager 验证管理器.
 type VerificationManager struct {
 	config        *VerificationConfig
 	backupManager *IncrementalBackup
@@ -91,7 +91,7 @@ type VerificationManager struct {
 	logger        *zap.Logger
 }
 
-// NewVerificationManager 创建验证管理器
+// NewVerificationManager 创建验证管理器.
 func NewVerificationManager(config *VerificationConfig, backup *IncrementalBackup, encryption *EncryptionManager, logger *zap.Logger) *VerificationManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -105,7 +105,7 @@ func NewVerificationManager(config *VerificationConfig, backup *IncrementalBacku
 	}
 }
 
-// VerifySnapshot 验证快照
+// VerifySnapshot 验证快照.
 func (vm *VerificationManager) VerifySnapshot(ctx context.Context, snapshotID string) (*VerificationResult, error) {
 	if vm.backupManager == nil {
 		return nil, errors.New("backup manager is nil")
@@ -195,7 +195,7 @@ func (vm *VerificationManager) VerifySnapshot(ctx context.Context, snapshotID st
 	return result, nil
 }
 
-// verifyFile 验证单个文件
+// verifyFile 验证单个文件.
 func (vm *VerificationManager) verifyFile(ctx context.Context, path string, info FileInfo, snapshot *Snapshot) *VerificationError {
 	// 结构验证
 	if vm.config.VerifyStructure {
@@ -228,7 +228,7 @@ func (vm *VerificationManager) verifyFile(ctx context.Context, path string, info
 	return nil
 }
 
-// verifyStructure 验证文件结构
+// verifyStructure 验证文件结构.
 func (vm *VerificationManager) verifyStructure(path string, info FileInfo) *VerificationError {
 	// 检查文件是否存在
 	file, err := os.Open(path)
@@ -277,7 +277,7 @@ func (vm *VerificationManager) verifyStructure(path string, info FileInfo) *Veri
 	return nil
 }
 
-// verifyChecksum 验证校验和
+// verifyChecksum 验证校验和.
 func (vm *VerificationManager) verifyChecksum(path string, info FileInfo) *VerificationError {
 	file, err := os.Open(path)
 	if err != nil {
@@ -313,7 +313,7 @@ func (vm *VerificationManager) verifyChecksum(path string, info FileInfo) *Verif
 	return nil
 }
 
-// verifyIntegrity 验证完整性
+// verifyIntegrity 验证完整性.
 func (vm *VerificationManager) verifyIntegrity(path string, info FileInfo, snapshot *Snapshot) *VerificationError {
 	// 验证数据块
 	for _, chunkID := range info.Chunks {
@@ -329,7 +329,7 @@ func (vm *VerificationManager) verifyIntegrity(path string, info FileInfo, snaps
 	return nil
 }
 
-// verifyDecryption 验证解密
+// verifyDecryption 验证解密.
 func (vm *VerificationManager) verifyDecryption(path string, info FileInfo) *VerificationError {
 	// 读取文件
 	data, err := os.ReadFile(path)
@@ -365,13 +365,13 @@ func (vm *VerificationManager) verifyDecryption(path string, info FileInfo) *Ver
 	}
 }
 
-// shouldVerify 决定是否验证（抽样）
+// shouldVerify 决定是否验证（抽样）.
 func (vm *VerificationManager) shouldVerify(index int) bool {
 	// 使用简单的随机抽样逻辑
 	return float64(index%100)/100.0 < vm.config.SampleRate
 }
 
-// repairFile 修复文件
+// repairFile 修复文件.
 func (vm *VerificationManager) repairFile(path string, info FileInfo, snapshot *Snapshot) bool {
 	vm.logger.Debug("Attempting to repair file", zap.String("path", path))
 
@@ -401,7 +401,7 @@ func (vm *VerificationManager) repairFile(path string, info FileInfo, snapshot *
 	return false
 }
 
-// VerifyAll 验证所有快照
+// VerifyAll 验证所有快照.
 func (vm *VerificationManager) VerifyAll(ctx context.Context) ([]*VerificationResult, error) {
 	if vm.backupManager == nil {
 		return nil, errors.New("backup manager is nil")
@@ -424,7 +424,7 @@ func (vm *VerificationManager) VerifyAll(ctx context.Context) ([]*VerificationRe
 	return results, nil
 }
 
-// GetResult 获取验证结果
+// GetResult 获取验证结果.
 func (vm *VerificationManager) GetResult(snapshotID string) (*VerificationResult, error) {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -436,7 +436,7 @@ func (vm *VerificationManager) GetResult(snapshotID string) (*VerificationResult
 	return result, nil
 }
 
-// GetResults 获取所有结果
+// GetResults 获取所有结果.
 func (vm *VerificationManager) GetResults() []*VerificationResult {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -448,7 +448,7 @@ func (vm *VerificationManager) GetResults() []*VerificationResult {
 	return results
 }
 
-// QuickVerify 快速验证
+// QuickVerify 快速验证.
 func (vm *VerificationManager) QuickVerify(ctx context.Context, snapshotID string) (*VerificationResult, error) {
 	// 保存原始配置
 	originalRate := vm.config.SampleRate
@@ -466,7 +466,7 @@ func (vm *VerificationManager) QuickVerify(ctx context.Context, snapshotID strin
 	return vm.VerifySnapshot(ctx, snapshotID)
 }
 
-// FullVerify 完整验证
+// FullVerify 完整验证.
 func (vm *VerificationManager) FullVerify(ctx context.Context, snapshotID string) (*VerificationResult, error) {
 	// 保存原始配置
 	originalRate := vm.config.SampleRate
@@ -484,7 +484,7 @@ func (vm *VerificationManager) FullVerify(ctx context.Context, snapshotID string
 	return vm.VerifySnapshot(ctx, snapshotID)
 }
 
-// ValidateSnapshot 验证快照是否可用
+// ValidateSnapshot 验证快照是否可用.
 func (vm *VerificationManager) ValidateSnapshot(snapshotID string) (bool, error) {
 	if vm.backupManager == nil {
 		return false, errors.New("backup manager is nil")
@@ -514,7 +514,7 @@ func (vm *VerificationManager) ValidateSnapshot(snapshotID string) (bool, error)
 	return true, nil
 }
 
-// VerificationStats 验证统计
+// VerificationStats 验证统计.
 type VerificationStats struct {
 	TotalVerifications int           `json:"total_verifications"`
 	PassedCount        int           `json:"passed_count"`
@@ -527,7 +527,7 @@ type VerificationStats struct {
 	TotalFilesRepaired int           `json:"total_files_repaired"`
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (vm *VerificationManager) GetStats() VerificationStats {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -565,14 +565,14 @@ func (vm *VerificationManager) GetStats() VerificationStats {
 	return stats
 }
 
-// ClearResults 清除结果
+// ClearResults 清除结果.
 func (vm *VerificationManager) ClearResults() {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
 	vm.results = make(map[string]*VerificationResult)
 }
 
-// ScheduledVerification 计划验证配置
+// ScheduledVerification 计划验证配置.
 type ScheduledVerification struct {
 	SnapshotID string        `json:"snapshot_id"`
 	Interval   time.Duration `json:"interval"`
@@ -581,7 +581,7 @@ type ScheduledVerification struct {
 	Enabled    bool          `json:"enabled"`
 }
 
-// VerificationScheduler 验证调度器
+// VerificationScheduler 验证调度器.
 type VerificationScheduler struct {
 	verifier  *VerificationManager
 	schedules map[string]*ScheduledVerification
@@ -592,7 +592,7 @@ type VerificationScheduler struct {
 	logger    *zap.Logger
 }
 
-// NewVerificationScheduler 创建验证调度器
+// NewVerificationScheduler 创建验证调度器.
 func NewVerificationScheduler(verifier *VerificationManager, logger *zap.Logger) *VerificationScheduler {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &VerificationScheduler{
@@ -604,19 +604,19 @@ func NewVerificationScheduler(verifier *VerificationManager, logger *zap.Logger)
 	}
 }
 
-// Start 启动调度器
+// Start 启动调度器.
 func (vs *VerificationScheduler) Start() {
 	vs.wg.Add(1)
 	go vs.loop()
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (vs *VerificationScheduler) Stop() {
 	vs.cancel()
 	vs.wg.Wait()
 }
 
-// loop 调度循环
+// loop 调度循环.
 func (vs *VerificationScheduler) loop() {
 	defer vs.wg.Done()
 
@@ -633,7 +633,7 @@ func (vs *VerificationScheduler) loop() {
 	}
 }
 
-// checkSchedules 检查调度
+// checkSchedules 检查调度.
 func (vs *VerificationScheduler) checkSchedules() {
 	vs.mu.RLock()
 	defer vs.mu.RUnlock()
@@ -651,7 +651,7 @@ func (vs *VerificationScheduler) checkSchedules() {
 	}
 }
 
-// runVerification 运行验证
+// runVerification 运行验证.
 func (vs *VerificationScheduler) runVerification(schedule *ScheduledVerification) {
 	vs.logger.Info("Running scheduled verification",
 		zap.String("snapshot_id", schedule.SnapshotID),
@@ -671,7 +671,7 @@ func (vs *VerificationScheduler) runVerification(schedule *ScheduledVerification
 	vs.mu.Unlock()
 }
 
-// AddSchedule 添加调度
+// AddSchedule 添加调度.
 func (vs *VerificationScheduler) AddSchedule(snapshotID string, interval time.Duration) {
 	vs.mu.Lock()
 	defer vs.mu.Unlock()
@@ -684,14 +684,14 @@ func (vs *VerificationScheduler) AddSchedule(snapshotID string, interval time.Du
 	}
 }
 
-// RemoveSchedule 移除调度
+// RemoveSchedule 移除调度.
 func (vs *VerificationScheduler) RemoveSchedule(snapshotID string) {
 	vs.mu.Lock()
 	defer vs.mu.Unlock()
 	delete(vs.schedules, snapshotID)
 }
 
-// GetSchedules 获取调度列表
+// GetSchedules 获取调度列表.
 func (vs *VerificationScheduler) GetSchedules() []*ScheduledVerification {
 	vs.mu.RLock()
 	defer vs.mu.RUnlock()

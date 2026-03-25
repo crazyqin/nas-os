@@ -292,7 +292,7 @@ func (s *StatsStreamer) StreamStats(ctx context.Context, containerID string, _ t
 	return statsChan, nil
 }
 
-// StreamAllStats streams stats for all running containers
+// StreamAllStats streams stats for all running containers.
 func (s *StatsStreamer) StreamAllStats(ctx context.Context, interval time.Duration) (<-chan StatsMessage, error) {
 	if interval <= 0 {
 		interval = 2 * time.Second
@@ -331,7 +331,7 @@ func (s *StatsStreamer) StreamAllStats(ctx context.Context, interval time.Durati
 	return statsChan, nil
 }
 
-// getAllContainerStats gets stats for all running containers
+// getAllContainerStats gets stats for all running containers.
 func (s *StatsStreamer) getAllContainerStats(ctx context.Context) ([]StatsMessage, error) {
 	cmd := exec.CommandContext(ctx, "docker", "stats", "--no-stream", "--format", "{{json .}}")
 	output, err := cmd.Output()
@@ -368,7 +368,7 @@ func (s *StatsStreamer) getAllContainerStats(ctx context.Context) ([]StatsMessag
 	return stats, nil
 }
 
-// parseStatsLine parses a docker stats JSON line
+// parseStatsLine parses a docker stats JSON line.
 func (s *StatsStreamer) parseStatsLine(line string, containerID string) StatsMessage {
 	var raw struct {
 		CPUPerc  string `json:"CPUPerc"`
@@ -402,7 +402,7 @@ func (s *StatsStreamer) parseStatsLine(line string, containerID string) StatsMes
 	})
 }
 
-// parseStatsFromRaw parses stats from raw JSON struct
+// parseStatsFromRaw parses stats from raw JSON struct.
 func (s *StatsStreamer) parseStatsFromRaw(raw struct {
 	Container string `json:"Container"`
 	CPUPerc   string `json:"CPUPerc"`
@@ -459,7 +459,7 @@ func (s *StatsStreamer) parseStatsFromRaw(raw struct {
 	return stats
 }
 
-// Stop stops streaming stats for a container
+// Stop stops streaming stats for a container.
 func (s *StatsStreamer) Stop(containerID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -470,7 +470,7 @@ func (s *StatsStreamer) Stop(containerID string) {
 	}
 }
 
-// StopAll stops all active stats streams
+// StopAll stops all active stats streams.
 func (s *StatsStreamer) StopAll() {
 	s.mu.Lock()
 	defer s.mu.Unlock()

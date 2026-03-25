@@ -7,7 +7,7 @@ import (
 	"unicode"
 )
 
-// PasswordPolicy 密码策略配置
+// PasswordPolicy 密码策略配置.
 type PasswordPolicy struct {
 	MinLength        int  `json:"min_length"`        // 最小长度
 	MaxLength        int  `json:"max_length"`        // 最大长度
@@ -22,7 +22,7 @@ type PasswordPolicy struct {
 	MaxAge           int  `json:"max_age"`           // 密码最大有效期（天），0 表示不限制
 }
 
-// DefaultPasswordPolicy 默认密码策略
+// DefaultPasswordPolicy 默认密码策略.
 var DefaultPasswordPolicy = PasswordPolicy{
 	MinLength:        8,
 	MaxLength:        128,
@@ -37,7 +37,7 @@ var DefaultPasswordPolicy = PasswordPolicy{
 	MaxAge:           90, // 90 天
 }
 
-// PasswordValidationResult 密码验证结果
+// PasswordValidationResult 密码验证结果.
 type PasswordValidationResult struct {
 	Valid    bool     `json:"valid"`
 	Errors   []string `json:"errors,omitempty"`
@@ -45,13 +45,13 @@ type PasswordValidationResult struct {
 	Score    int      `json:"score"` // 0-100 密码强度评分
 }
 
-// PasswordValidator 密码验证器
+// PasswordValidator 密码验证器.
 type PasswordValidator struct {
 	policy          PasswordPolicy
 	commonPasswords map[string]bool
 }
 
-// NewPasswordValidator 创建密码验证器
+// NewPasswordValidator 创建密码验证器.
 func NewPasswordValidator(policy PasswordPolicy) *PasswordValidator {
 	v := &PasswordValidator{
 		policy:          policy,
@@ -64,7 +64,7 @@ func NewPasswordValidator(policy PasswordPolicy) *PasswordValidator {
 	return v
 }
 
-// loadCommonPasswords 加载常见弱密码
+// loadCommonPasswords 加载常见弱密码.
 func (v *PasswordValidator) loadCommonPasswords() {
 	// 常见弱密码列表（部分）
 	common := []string{
@@ -84,7 +84,7 @@ func (v *PasswordValidator) loadCommonPasswords() {
 	}
 }
 
-// Validate 验证密码
+// Validate 验证密码.
 func (v *PasswordValidator) Validate(password string, userInfo ...string) PasswordValidationResult {
 	result := PasswordValidationResult{
 		Valid:    true,
@@ -173,7 +173,7 @@ func (v *PasswordValidator) Validate(password string, userInfo ...string) Passwo
 	return result
 }
 
-// ValidateWithConfirm 验证密码并确认
+// ValidateWithConfirm 验证密码并确认.
 func (v *PasswordValidator) ValidateWithConfirm(password, confirmPassword string, userInfo ...string) PasswordValidationResult {
 	result := v.Validate(password, userInfo...)
 
@@ -185,7 +185,7 @@ func (v *PasswordValidator) ValidateWithConfirm(password, confirmPassword string
 	return result
 }
 
-// calculateScore 计算密码强度评分
+// calculateScore 计算密码强度评分.
 func (v *PasswordValidator) calculateScore(password string, hasUpper, hasLower, hasDigit bool, specialCount int) int {
 	score := 0
 
@@ -243,7 +243,7 @@ func (v *PasswordValidator) calculateScore(password string, hasUpper, hasLower, 
 	return score
 }
 
-// GetStrengthLevel 获取密码强度等级
+// GetStrengthLevel 获取密码强度等级.
 func GetStrengthLevel(score int) string {
 	switch {
 	case score >= 80:
@@ -259,7 +259,7 @@ func GetStrengthLevel(score int) string {
 
 // 辅助函数
 
-// lowercase 将字符串转换为小写
+// lowercase 将字符串转换为小写.
 func lowercase(s string) string {
 	result := make([]rune, len(s))
 	for i, c := range s {
@@ -268,12 +268,12 @@ func lowercase(s string) string {
 	return string(result)
 }
 
-// containsIgnoreCase 不区分大小写检查子字符串
+// containsIgnoreCase 不区分大小写检查子字符串.
 func containsIgnoreCase(s, substr string) bool {
 	return regexp.MustCompile("(?i)" + regexp.QuoteMeta(substr)).MatchString(s)
 }
 
-// hasSequentialChars 检查是否有连续字符（如 abc, 123, cba, 321）
+// hasSequentialChars 检查是否有连续字符（如 abc, 123, cba, 321）.
 func hasSequentialChars(s string) bool {
 	for i := 0; i < len(s)-2; i++ {
 		if s[i]+1 == s[i+1] && s[i+1]+1 == s[i+2] {
@@ -286,7 +286,7 @@ func hasSequentialChars(s string) bool {
 	return false
 }
 
-// hasRepeatingChars 检查是否有重复字符（如 aaa, 111）
+// hasRepeatingChars 检查是否有重复字符（如 aaa, 111）.
 func hasRepeatingChars(s string) bool {
 	for i := 0; i < len(s)-2; i++ {
 		if s[i] == s[i+1] && s[i+1] == s[i+2] {
@@ -296,13 +296,13 @@ func hasRepeatingChars(s string) bool {
 	return false
 }
 
-// PasswordHistory 密码历史记录
+// PasswordHistory 密码历史记录.
 type PasswordHistory struct {
 	Hashes   []string `json:"hashes"`
 	MaxCount int      `json:"max_count"`
 }
 
-// NewPasswordHistory 创建密码历史记录
+// NewPasswordHistory 创建密码历史记录.
 func NewPasswordHistory(maxCount int) *PasswordHistory {
 	if maxCount <= 0 {
 		maxCount = 5
@@ -313,7 +313,7 @@ func NewPasswordHistory(maxCount int) *PasswordHistory {
 	}
 }
 
-// Add 添加密码到历史记录
+// Add 添加密码到历史记录.
 func (h *PasswordHistory) Add(hash string) {
 	h.Hashes = append(h.Hashes, hash)
 	if len(h.Hashes) > h.MaxCount {
@@ -321,7 +321,7 @@ func (h *PasswordHistory) Add(hash string) {
 	}
 }
 
-// Contains 检查密码是否在历史记录中
+// Contains 检查密码是否在历史记录中.
 func (h *PasswordHistory) Contains(hash string) bool {
 	for _, existingHash := range h.Hashes {
 		if existingHash == hash {
@@ -331,7 +331,7 @@ func (h *PasswordHistory) Contains(hash string) bool {
 	return false
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrPasswordTooShort       = errors.New("密码长度不足")
 	ErrPasswordTooLong        = errors.New("密码过长")

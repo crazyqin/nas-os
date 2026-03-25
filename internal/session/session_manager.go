@@ -10,19 +10,19 @@ import (
 	"time"
 )
 
-// SessionType 会话类型
+// SessionType 会话类型.
 type SessionType string
 
-// SessionType constants
+// SessionType constants.
 const (
 	SessionTypeSMB SessionType = "smb"
 	SessionTypeNFS SessionType = "nfs"
 )
 
-// SessionStatus 会话状态
+// SessionStatus 会话状态.
 type SessionStatus string
 
-// SessionStatus constants
+// SessionStatus constants.
 const (
 	StatusActive SessionStatus = "active"
 	StatusIdle   SessionStatus = "idle"
@@ -31,7 +31,7 @@ const (
 	StatusKicked SessionStatus = "kicked"
 )
 
-// Session 会话信息
+// Session 会话信息.
 type Session struct {
 	ID           string        `json:"id"`
 	Type         SessionType   `json:"type"`
@@ -52,7 +52,7 @@ type Session struct {
 	PID          int           `json:"pid,omitempty"`
 }
 
-// SessionStats 会话统计信息
+// SessionStats 会话统计信息.
 type SessionStats struct {
 	TotalSessions      int            `json:"total_sessions"`
 	ActiveSessions     int            `json:"active_sessions"`
@@ -70,7 +70,7 @@ type SessionStats struct {
 	AvgSessionDuration time.Duration  `json:"avg_session_duration"`
 }
 
-// SessionEvent 会话事件
+// SessionEvent 会话事件.
 type SessionEvent struct {
 	Type      string    `json:"type"` // connect, disconnect, activity, kick
 	SessionID string    `json:"session_id"`
@@ -80,7 +80,7 @@ type SessionEvent struct {
 	Message   string    `json:"message,omitempty"`
 }
 
-// Config 会话管理配置
+// Config 会话管理配置.
 type Config struct {
 	Enabled          bool          `json:"enabled"`
 	RefreshInterval  time.Duration `json:"refresh_interval"`
@@ -90,7 +90,7 @@ type Config struct {
 	HistoryRetention time.Duration `json:"history_retention"`
 }
 
-// Manager 会话管理器
+// Manager 会话管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	sessions    map[string]*Session
@@ -102,7 +102,7 @@ type Manager struct {
 	onEvent     func(SessionEvent)
 }
 
-// defaultConfig 默认配置
+// defaultConfig 默认配置.
 func defaultConfig() *Config {
 	return &Config{
 		Enabled:          true,
@@ -114,7 +114,7 @@ func defaultConfig() *Config {
 	}
 }
 
-// NewManager 创建会话管理器
+// NewManager 创建会话管理器.
 func NewManager(configPath string) (*Manager, error) {
 	m := &Manager{
 		sessions:    make(map[string]*Session),
@@ -131,7 +131,7 @@ func NewManager(configPath string) (*Manager, error) {
 	return m, nil
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (m *Manager) loadConfig() error {
 	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
 		return nil
@@ -149,7 +149,7 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-// SaveConfig 保存配置
+// SaveConfig 保存配置.
 func (m *Manager) SaveConfig() error {
 	m.mu.RLock()
 	config := m.config
@@ -171,14 +171,14 @@ func (m *Manager) SaveConfig() error {
 	return nil
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *Config) error {
 	m.mu.Lock()
 	m.config = config
@@ -187,7 +187,7 @@ func (m *Manager) UpdateConfig(config *Config) error {
 	return m.SaveConfig()
 }
 
-// AddSession 添加会话
+// AddSession 添加会话.
 func (m *Manager) AddSession(session *Session) error {
 	if session == nil {
 		return fmt.Errorf("会话不能为空")
@@ -225,7 +225,7 @@ func (m *Manager) AddSession(session *Session) error {
 	return nil
 }
 
-// UpdateSession 更新会话
+// UpdateSession 更新会话.
 func (m *Manager) UpdateSession(id string, updates *Session) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -266,7 +266,7 @@ func (m *Manager) UpdateSession(id string, updates *Session) error {
 	return nil
 }
 
-// RemoveSession 移除会话
+// RemoveSession 移除会话.
 func (m *Manager) RemoveSession(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -284,7 +284,7 @@ func (m *Manager) RemoveSession(id string) error {
 	return nil
 }
 
-// GetSession 获取会话
+// GetSession 获取会话.
 func (m *Manager) GetSession(id string) (*Session, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -297,7 +297,7 @@ func (m *Manager) GetSession(id string) (*Session, error) {
 	return session, nil
 }
 
-// ListSessions 列出所有会话
+// ListSessions 列出所有会话.
 func (m *Manager) ListSessions() []*Session {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -310,7 +310,7 @@ func (m *Manager) ListSessions() []*Session {
 	return sessions
 }
 
-// ListSessionsByType 按类型列出会话
+// ListSessionsByType 按类型列出会话.
 func (m *Manager) ListSessionsByType(sessionType SessionType) []*Session {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -325,7 +325,7 @@ func (m *Manager) ListSessionsByType(sessionType SessionType) []*Session {
 	return sessions
 }
 
-// ListSessionsByUser 按用户列出会话
+// ListSessionsByUser 按用户列出会话.
 func (m *Manager) ListSessionsByUser(user string) []*Session {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -340,7 +340,7 @@ func (m *Manager) ListSessionsByUser(user string) []*Session {
 	return sessions
 }
 
-// ListSessionsByClient 按客户端IP列出会话
+// ListSessionsByClient 按客户端IP列出会话.
 func (m *Manager) ListSessionsByClient(clientIP string) []*Session {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -355,7 +355,7 @@ func (m *Manager) ListSessionsByClient(clientIP string) []*Session {
 	return sessions
 }
 
-// KickSession 强制断开会话
+// KickSession 强制断开会话.
 func (m *Manager) KickSession(id, reason string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -377,7 +377,7 @@ func (m *Manager) KickSession(id, reason string) error {
 	return nil
 }
 
-// KickSessionsByUser 强制断开用户所有会话
+// KickSessionsByUser 强制断开用户所有会话.
 func (m *Manager) KickSessionsByUser(user, reason string) (int, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -395,7 +395,7 @@ func (m *Manager) KickSessionsByUser(user, reason string) (int, error) {
 	return count, nil
 }
 
-// KickSessionsByClient 强制断开客户端所有会话
+// KickSessionsByClient 强制断开客户端所有会话.
 func (m *Manager) KickSessionsByClient(clientIP, reason string) (int, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -413,7 +413,7 @@ func (m *Manager) KickSessionsByClient(clientIP, reason string) (int, error) {
 	return count, nil
 }
 
-// GetStats 获取会话统计
+// GetStats 获取会话统计.
 func (m *Manager) GetStats() *SessionStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -473,7 +473,7 @@ func (m *Manager) GetStats() *SessionStats {
 	return stats
 }
 
-// UpdateStats 更新会话统计（从外部数据源更新）
+// UpdateStats 更新会话统计（从外部数据源更新）.
 func (m *Manager) UpdateStats(bytesRead, bytesWritten map[string]int64, filesOpen map[string]int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -497,7 +497,7 @@ func (m *Manager) UpdateStats(bytesRead, bytesWritten map[string]int64, filesOpe
 	}
 }
 
-// MarkIdle 标记空闲会话
+// MarkIdle 标记空闲会话.
 func (m *Manager) MarkIdle() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -518,7 +518,7 @@ func (m *Manager) MarkIdle() int {
 	return count
 }
 
-// CleanupStale 清理过期会话
+// CleanupStale 清理过期会话.
 func (m *Manager) CleanupStale() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -539,7 +539,7 @@ func (m *Manager) CleanupStale() int {
 	return count
 }
 
-// GetEvents 获取事件历史
+// GetEvents 获取事件历史.
 func (m *Manager) GetEvents(limit int) []SessionEvent {
 	m.eventMu.RLock()
 	defer m.eventMu.RUnlock()
@@ -560,12 +560,12 @@ func (m *Manager) GetEvents(limit int) []SessionEvent {
 	return result
 }
 
-// SetEventHandler 设置事件处理器
+// SetEventHandler 设置事件处理器.
 func (m *Manager) SetEventHandler(handler func(SessionEvent)) {
 	m.onEvent = handler
 }
 
-// recordEvent 记录事件
+// recordEvent 记录事件.
 func (m *Manager) recordEvent(eventType, sessionID, user, clientIP, message string) {
 	event := SessionEvent{
 		Type:      eventType,
@@ -591,7 +591,7 @@ func (m *Manager) recordEvent(eventType, sessionID, user, clientIP, message stri
 	}
 }
 
-// removeOldestIdleSessionLocked 移除最旧的空闲会话（已持有锁）
+// removeOldestIdleSessionLocked 移除最旧的空闲会话（已持有锁）.
 func (m *Manager) removeOldestIdleSessionLocked() {
 	var oldestID string
 	var oldestTime time.Time
@@ -610,7 +610,7 @@ func (m *Manager) removeOldestIdleSessionLocked() {
 	}
 }
 
-// SyncSessions 同步会话（用新数据替换）
+// SyncSessions 同步会话（用新数据替换）.
 func (m *Manager) SyncSessions(sessions []*Session) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -641,14 +641,14 @@ func (m *Manager) SyncSessions(sessions []*Session) {
 	m.sessions = newSessions
 }
 
-// Count 获取会话数
+// Count 获取会话数.
 func (m *Manager) Count() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return len(m.sessions)
 }
 
-// CountByType 按类型统计会话数
+// CountByType 按类型统计会话数.
 func (m *Manager) CountByType(sessionType SessionType) int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

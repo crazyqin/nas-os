@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// MockBackend 模拟服务后端
+// MockBackend 模拟服务后端.
 type MockBackend struct {
 	mu       sync.Mutex
 	services map[string]*mockServiceState
@@ -146,7 +146,7 @@ func (m *MockBackend) Get(name string) (*Service, error) {
 	return nil, errors.New("service not found")
 }
 
-// TestNewManager 测试创建管理器
+// TestNewManager 测试创建管理器.
 func TestNewManager(t *testing.T) {
 	backend := NewMockBackend()
 	manager, err := NewManagerWithBackend(backend)
@@ -184,7 +184,7 @@ func TestNewManager(t *testing.T) {
 	}
 }
 
-// TestManagerStartStop 测试启动和停止服务
+// TestManagerStartStop 测试启动和停止服务.
 func TestManagerStartStop(t *testing.T) {
 	backend := NewMockBackend()
 	manager, err := NewManagerWithBackend(backend)
@@ -223,7 +223,7 @@ func TestManagerStartStop(t *testing.T) {
 	}
 }
 
-// TestManagerEnableDisable 测试启用和禁用服务
+// TestManagerEnableDisable 测试启用和禁用服务.
 func TestManagerEnableDisable(t *testing.T) {
 	backend := NewMockBackend()
 	manager, err := NewManagerWithBackend(backend)
@@ -262,7 +262,7 @@ func TestManagerEnableDisable(t *testing.T) {
 	}
 }
 
-// TestManagerRestart 测试重启服务
+// TestManagerRestart 测试重启服务.
 func TestManagerRestart(t *testing.T) {
 	backend := NewMockBackend()
 	manager, err := NewManagerWithBackend(backend)
@@ -286,7 +286,7 @@ func TestManagerRestart(t *testing.T) {
 	}
 }
 
-// TestManagerRegisterUnregister 测试注册和注销服务
+// TestManagerRegisterUnregister 测试注册和注销服务.
 func TestManagerRegisterUnregister(t *testing.T) {
 	backend := NewMockBackend()
 	manager, err := NewManagerWithBackend(backend)
@@ -335,7 +335,7 @@ func TestManagerRegisterUnregister(t *testing.T) {
 	}
 }
 
-// TestManagerStatus 测试获取服务状态
+// TestManagerStatus 测试获取服务状态.
 func TestManagerStatus(t *testing.T) {
 	backend := NewMockBackend()
 	manager, err := NewManagerWithBackend(backend)
@@ -357,7 +357,7 @@ func TestManagerStatus(t *testing.T) {
 	}
 }
 
-// TestManagerList 测试列出服务
+// TestManagerList 测试列出服务.
 func TestManagerList(t *testing.T) {
 	backend := NewMockBackend()
 	manager, err := NewManagerWithBackend(backend)
@@ -391,7 +391,7 @@ func TestManagerList(t *testing.T) {
 	_ = manager.Refresh("docker")
 }
 
-// TestServiceNotFound 测试服务不存在的错误处理
+// TestServiceNotFound 测试服务不存在的错误处理.
 func TestServiceNotFound(t *testing.T) {
 	backend := NewMockBackend()
 	manager, err := NewManagerWithBackend(backend)
@@ -418,7 +418,7 @@ func TestServiceNotFound(t *testing.T) {
 	}
 }
 
-// TestManagerRefresh 测试刷新服务状态
+// TestManagerRefresh 测试刷新服务状态.
 func TestManagerRefresh(t *testing.T) {
 	backend := NewMockBackend()
 	manager, err := NewManagerWithBackend(backend)

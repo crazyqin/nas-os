@@ -538,7 +538,7 @@ func TestRiskIndicatorJSON(t *testing.T) {
 	}
 }
 
-// Benchmark 测试
+// Benchmark 测试.
 func BenchmarkCalculateRiskScore(b *testing.B) {
 	config := DefaultRiskIndicatorConfig()
 	config.AutoUpdate = false

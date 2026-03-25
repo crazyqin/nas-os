@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 边缘负载均衡算法
+// 边缘负载均衡算法.
 const (
 	EdgeLBStrategyRoundRobin  = "round-robin"
 	EdgeLBStrategyLeastLoad   = "least-load"
@@ -21,7 +21,7 @@ const (
 	EdgeLBStrategyCapability  = "capability"
 )
 
-// EdgeLBConfig 边缘负载均衡配置
+// EdgeLBConfig 边缘负载均衡配置.
 type EdgeLBConfig struct {
 	Strategy         string        `json:"strategy"`
 	HealthCheckInt   time.Duration `json:"health_check_interval"`
@@ -34,7 +34,7 @@ type EdgeLBConfig struct {
 	CapabilityWeight float64       `json:"capability_weight"` // 能力权重
 }
 
-// EdgeLoadBalancer 边缘负载均衡器
+// EdgeLoadBalancer 边缘负载均衡器.
 type EdgeLoadBalancer struct {
 	config       EdgeLBConfig
 	configMutex  sync.RWMutex
@@ -48,7 +48,7 @@ type EdgeLoadBalancer struct {
 	logger       *zap.Logger
 }
 
-// EdgeLBStats 边缘负载均衡统计
+// EdgeLBStats 边缘负载均衡统计.
 type EdgeLBStats struct {
 	TotalRequests   int64                       `json:"total_requests"`
 	SuccessRequests int64                       `json:"success_requests"`
@@ -58,7 +58,7 @@ type EdgeLBStats struct {
 	NodeStats       map[string]*EdgeNodeLBStats `json:"node_stats"`
 }
 
-// EdgeNodeLBStats 边缘节点负载均衡统计
+// EdgeNodeLBStats 边缘节点负载均衡统计.
 type EdgeNodeLBStats struct {
 	NodeID      string        `json:"node_id"`
 	Requests    int64         `json:"requests"`
@@ -69,7 +69,7 @@ type EdgeNodeLBStats struct {
 	LastError   string        `json:"last_error"`
 }
 
-// NewEdgeLoadBalancer 创建边缘负载均衡器
+// NewEdgeLoadBalancer 创建边缘负载均衡器.
 func NewEdgeLoadBalancer(config EdgeLBConfig, edgeManager *EdgeNodeManager, logger *zap.Logger) (*EdgeLoadBalancer, error) {
 	if config.Strategy == "" {
 		config.Strategy = EdgeLBStrategyLeastLoad
@@ -113,7 +113,7 @@ func NewEdgeLoadBalancer(config EdgeLBConfig, edgeManager *EdgeNodeManager, logg
 	return elb, nil
 }
 
-// Initialize 初始化边缘负载均衡器
+// Initialize 初始化边缘负载均衡器.
 func (elb *EdgeLoadBalancer) Initialize() error {
 	elb.logger.Info("初始化边缘负载均衡器", zap.String("strategy", elb.config.Strategy))
 
@@ -127,7 +127,7 @@ func (elb *EdgeLoadBalancer) Initialize() error {
 	return nil
 }
 
-// SelectNode 选择节点
+// SelectNode 选择节点.
 func (elb *EdgeLoadBalancer) SelectNode(req SelectNodeRequest) (*EdgeNode, error) {
 	// 检查会话保持
 	if elb.config.StickySession && req.SessionID != "" {
@@ -183,7 +183,7 @@ func (elb *EdgeLoadBalancer) SelectNode(req SelectNodeRequest) (*EdgeNode, error
 	return selected, nil
 }
 
-// SelectNodeRequest 选择节点请求
+// SelectNodeRequest 选择节点请求.
 type SelectNodeRequest struct {
 	SessionID    string                 `json:"session_id"`
 	ClientIP     string                 `json:"client_ip"`
@@ -193,12 +193,12 @@ type SelectNodeRequest struct {
 	Preferences  map[string]interface{} `json:"preferences"`
 }
 
-// isNodeAvailable 检查节点是否可用
+// isNodeAvailable 检查节点是否可用.
 func (elb *EdgeLoadBalancer) isNodeAvailable(node *EdgeNode) bool {
 	return node.Status == EdgeNodeStatusOnline || node.Status == EdgeNodeStatusIdle
 }
 
-// getAvailableNodes 获取可用节点
+// getAvailableNodes 获取可用节点.
 func (elb *EdgeLoadBalancer) getAvailableNodes(req TaskRequirements) []*EdgeNode {
 	nodes := elb.edgeManager.GetAvailableNodes()
 
@@ -213,7 +213,7 @@ func (elb *EdgeLoadBalancer) getAvailableNodes(req TaskRequirements) []*EdgeNode
 	return filtered
 }
 
-// nodeMeetsRequirements 检查节点是否满足要求
+// nodeMeetsRequirements 检查节点是否满足要求.
 func (elb *EdgeLoadBalancer) nodeMeetsRequirements(node *EdgeNode, req TaskRequirements) bool {
 	if req.CPU > 0 && node.Capabilities.CPU < req.CPU {
 		return false
@@ -239,7 +239,7 @@ func (elb *EdgeLoadBalancer) nodeMeetsRequirements(node *EdgeNode, req TaskRequi
 	return true
 }
 
-// selectRoundRobin 轮询选择
+// selectRoundRobin 轮询选择.
 func (elb *EdgeLoadBalancer) selectRoundRobin(nodes []*EdgeNode, req SelectNodeRequest) *EdgeNode {
 	if len(nodes) == 0 {
 		return nil
@@ -253,7 +253,7 @@ func (elb *EdgeLoadBalancer) selectRoundRobin(nodes []*EdgeNode, req SelectNodeR
 	return nodes[idx]
 }
 
-// selectLeastLoad 最小负载选择
+// selectLeastLoad 最小负载选择.
 func (elb *EdgeLoadBalancer) selectLeastLoad(nodes []*EdgeNode, req SelectNodeRequest) *EdgeNode {
 	if len(nodes) == 0 {
 		return nil
@@ -273,7 +273,7 @@ func (elb *EdgeLoadBalancer) selectLeastLoad(nodes []*EdgeNode, req SelectNodeRe
 	return selected
 }
 
-// calculateLoadScore 计算负载得分（越低越好）
+// calculateLoadScore 计算负载得分（越低越好）.
 func (elb *EdgeLoadBalancer) calculateLoadScore(node *EdgeNode) float64 {
 	cpuScore := node.Resources.CPUUsed / 100.0
 	memScore := node.Resources.MemoryUsed / 100.0
@@ -282,7 +282,7 @@ func (elb *EdgeLoadBalancer) calculateLoadScore(node *EdgeNode) float64 {
 	return cpuScore*0.4 + memScore*0.3 + taskScore*0.3
 }
 
-// selectByResource 按资源选择
+// selectByResource 按资源选择.
 func (elb *EdgeLoadBalancer) selectByResource(nodes []*EdgeNode, req SelectNodeRequest) *EdgeNode {
 	if len(nodes) == 0 {
 		return nil
@@ -302,7 +302,7 @@ func (elb *EdgeLoadBalancer) selectByResource(nodes []*EdgeNode, req SelectNodeR
 	return selected
 }
 
-// calculateResourceScore 计算资源得分（越高越好）
+// calculateResourceScore 计算资源得分（越高越好）.
 func (elb *EdgeLoadBalancer) calculateResourceScore(node *EdgeNode) float64 {
 	cpuAvail := float64(node.Capabilities.CPU) * (1 - node.Resources.CPUUsed/100.0)
 	memAvail := float64(node.Capabilities.Memory) * (1 - node.Resources.MemoryUsed/100.0)
@@ -310,7 +310,7 @@ func (elb *EdgeLoadBalancer) calculateResourceScore(node *EdgeNode) float64 {
 	return cpuAvail*0.5 + memAvail*0.5
 }
 
-// selectByLatency 按延迟选择
+// selectByLatency 按延迟选择.
 func (elb *EdgeLoadBalancer) selectByLatency(nodes []*EdgeNode, req SelectNodeRequest) *EdgeNode {
 	if len(nodes) == 0 {
 		return nil
@@ -331,7 +331,7 @@ func (elb *EdgeLoadBalancer) selectByLatency(nodes []*EdgeNode, req SelectNodeRe
 	return selected
 }
 
-// estimateLatency 估计延迟
+// estimateLatency 估计延迟.
 func (elb *EdgeLoadBalancer) estimateLatency(node *EdgeNode, req SelectNodeRequest) time.Duration {
 	// 如果有客户端位置信息，计算地理距离
 	if req.ClientLat != 0 && req.ClientLng != 0 && node.Location.Latitude != 0 {
@@ -352,7 +352,7 @@ func (elb *EdgeLoadBalancer) estimateLatency(node *EdgeNode, req SelectNodeReque
 	return 50 * time.Millisecond
 }
 
-// calculateGeoDistance 计算地理距离（km）
+// calculateGeoDistance 计算地理距离（km）.
 func (elb *EdgeLoadBalancer) calculateGeoDistance(lat1, lng1, lat2, lng2 float64) float64 {
 	// 简化的距离计算
 	dLat := lat2 - lat1
@@ -360,7 +360,7 @@ func (elb *EdgeLoadBalancer) calculateGeoDistance(lat1, lng1, lat2, lng2 float64
 	return math.Sqrt(dLat*dLat+dLng*dLng) * 111 // 纬度每度约 111km
 }
 
-// selectWeighted 加权选择
+// selectWeighted 加权选择.
 func (elb *EdgeLoadBalancer) selectWeighted(nodes []*EdgeNode, req SelectNodeRequest) *EdgeNode {
 	if len(nodes) == 0 {
 		return nil
@@ -403,7 +403,7 @@ func (elb *EdgeLoadBalancer) selectWeighted(nodes []*EdgeNode, req SelectNodeReq
 	return selected
 }
 
-// selectByGeoLocation 按地理位置选择
+// selectByGeoLocation 按地理位置选择.
 func (elb *EdgeLoadBalancer) selectByGeoLocation(nodes []*EdgeNode, req SelectNodeRequest) *EdgeNode {
 	if len(nodes) == 0 {
 		return nil
@@ -436,7 +436,7 @@ func (elb *EdgeLoadBalancer) selectByGeoLocation(nodes []*EdgeNode, req SelectNo
 	return selected
 }
 
-// selectByCapability 按能力选择
+// selectByCapability 按能力选择.
 func (elb *EdgeLoadBalancer) selectByCapability(nodes []*EdgeNode, req SelectNodeRequest) *EdgeNode {
 	if len(nodes) == 0 {
 		return nil
@@ -469,7 +469,7 @@ func (elb *EdgeLoadBalancer) selectByCapability(nodes []*EdgeNode, req SelectNod
 	return selected
 }
 
-// RecordRequest 记录请求
+// RecordRequest 记录请求.
 func (elb *EdgeLoadBalancer) RecordRequest(nodeID string, success bool, latency time.Duration) {
 	elb.statsMutex.Lock()
 	defer elb.statsMutex.Unlock()
@@ -509,7 +509,7 @@ func (elb *EdgeLoadBalancer) RecordRequest(nodeID string, success bool, latency 
 	}
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (elb *EdgeLoadBalancer) GetStats() EdgeLBStats {
 	elb.statsMutex.RLock()
 	defer elb.statsMutex.RUnlock()
@@ -517,7 +517,7 @@ func (elb *EdgeLoadBalancer) GetStats() EdgeLBStats {
 	return elb.stats
 }
 
-// ClearSession 清除会话
+// ClearSession 清除会话.
 func (elb *EdgeLoadBalancer) ClearSession(sessionID string) {
 	elb.sessionMutex.Lock()
 	defer elb.sessionMutex.Unlock()
@@ -525,7 +525,7 @@ func (elb *EdgeLoadBalancer) ClearSession(sessionID string) {
 	delete(elb.sessions, sessionID)
 }
 
-// ClearAllSessions 清除所有会话
+// ClearAllSessions 清除所有会话.
 func (elb *EdgeLoadBalancer) ClearAllSessions() {
 	elb.sessionMutex.Lock()
 	defer elb.sessionMutex.Unlock()
@@ -533,7 +533,7 @@ func (elb *EdgeLoadBalancer) ClearAllSessions() {
 	elb.sessions = make(map[string]string)
 }
 
-// healthCheckWorker 健康检查工作线程
+// healthCheckWorker 健康检查工作线程.
 func (elb *EdgeLoadBalancer) healthCheckWorker() {
 	elb.configMutex.RLock()
 	interval := elb.config.HealthCheckInt
@@ -554,7 +554,7 @@ func (elb *EdgeLoadBalancer) healthCheckWorker() {
 	}
 }
 
-// checkNodesHealth 检查节点健康
+// checkNodesHealth 检查节点健康.
 func (elb *EdgeLoadBalancer) checkNodesHealth() {
 	nodes := elb.edgeManager.GetNodes()
 
@@ -565,7 +565,7 @@ func (elb *EdgeLoadBalancer) checkNodesHealth() {
 	}
 }
 
-// statsWorker 统计工作线程
+// statsWorker 统计工作线程.
 func (elb *EdgeLoadBalancer) statsWorker() {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -591,7 +591,7 @@ func (elb *EdgeLoadBalancer) statsWorker() {
 	}
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (elb *EdgeLoadBalancer) UpdateConfig(config EdgeLBConfig) {
 	elb.configMutex.Lock()
 	elb.config = config
@@ -599,14 +599,14 @@ func (elb *EdgeLoadBalancer) UpdateConfig(config EdgeLBConfig) {
 	elb.logger.Info("边缘负载均衡配置已更新", zap.String("strategy", config.Strategy))
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (elb *EdgeLoadBalancer) GetConfig() EdgeLBConfig {
 	elb.configMutex.RLock()
 	defer elb.configMutex.RUnlock()
 	return elb.config
 }
 
-// Shutdown 关闭边缘负载均衡器
+// Shutdown 关闭边缘负载均衡器.
 func (elb *EdgeLoadBalancer) Shutdown() error {
 	elb.cancel()
 	elb.logger.Info("边缘负载均衡器已关闭")

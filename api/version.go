@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// VersionInfo represents API version information
+// VersionInfo represents API version information.
 type VersionInfo struct {
 	Version     string `json:"version"`
 	Deprecated  bool   `json:"deprecated"`
@@ -18,13 +18,13 @@ type VersionInfo struct {
 	Description string `json:"description"`
 }
 
-// VersionRouter manages API version routing
+// VersionRouter manages API version routing.
 type VersionRouter struct {
 	versions map[string]*VersionConfig
 	current  string
 }
 
-// VersionConfig holds configuration for a specific API version
+// VersionConfig holds configuration for a specific API version.
 type VersionConfig struct {
 	Version    string
 	Deprecated bool
@@ -32,7 +32,7 @@ type VersionConfig struct {
 	Router     func(*gin.RouterGroup)
 }
 
-// NewVersionRouter creates a new version router
+// NewVersionRouter creates a new version router.
 func NewVersionRouter(currentVersion string) *VersionRouter {
 	return &VersionRouter{
 		versions: make(map[string]*VersionConfig),
@@ -40,17 +40,17 @@ func NewVersionRouter(currentVersion string) *VersionRouter {
 	}
 }
 
-// RegisterVersion registers an API version
+// RegisterVersion registers an API version.
 func (vr *VersionRouter) RegisterVersion(version string, config *VersionConfig) {
 	vr.versions[version] = config
 }
 
-// GetCurrentVersion returns the current API version
+// GetCurrentVersion returns the current API version.
 func (vr *VersionRouter) GetCurrentVersion() string {
 	return vr.current
 }
 
-// GetVersions returns all registered versions
+// GetVersions returns all registered versions.
 func (vr *VersionRouter) GetVersions() []VersionInfo {
 	var versions []VersionInfo
 	for v, config := range vr.versions {
@@ -65,7 +65,7 @@ func (vr *VersionRouter) GetVersions() []VersionInfo {
 	return versions
 }
 
-// SetupRoutes sets up versioned routes
+// SetupRoutes sets up versioned routes.
 func (vr *VersionRouter) SetupRoutes(engine *gin.Engine, basePath string) {
 	// Version discovery endpoint
 	engine.GET(basePath+"/versions", func(c *gin.Context) {
@@ -114,7 +114,7 @@ func (vr *VersionRouter) SetupRoutes(engine *gin.Engine, basePath string) {
 	})
 }
 
-// VersionMiddleware extracts and validates API version from request
+// VersionMiddleware extracts and validates API version from request.
 func VersionMiddleware(currentVersion string, supportedVersions []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
@@ -155,7 +155,7 @@ func VersionMiddleware(currentVersion string, supportedVersions []string) gin.Ha
 }
 
 // AcceptVersionMiddleware extracts version from Accept header
-// Example: Accept: application/vnd.nas-os.v1+json
+// Example: Accept: application/vnd.nas-os.v1+json.
 func AcceptVersionMiddleware(currentVersion string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		accept := c.GetHeader("Accept")
@@ -176,12 +176,12 @@ func AcceptVersionMiddleware(currentVersion string) gin.HandlerFunc {
 	}
 }
 
-// VersionHandler provides API version management handlers
+// VersionHandler provides API version management handlers.
 type VersionHandler struct {
 	router *VersionRouter
 }
 
-// NewVersionHandler creates a new version handler
+// NewVersionHandler creates a new version handler.
 func NewVersionHandler(router *VersionRouter) *VersionHandler {
 	return &VersionHandler{router: router}
 }
@@ -192,7 +192,7 @@ func NewVersionHandler(router *VersionRouter) *VersionHandler {
 // @Tags api
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/versions [get]
+// @Router /api/versions [get].
 func (h *VersionHandler) GetVersions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -204,7 +204,7 @@ func (h *VersionHandler) GetVersions(c *gin.Context) {
 	})
 }
 
-// DeprecationNotice represents a deprecation notice
+// DeprecationNotice represents a deprecation notice.
 type DeprecationNotice struct {
 	Version      string   `json:"version"`
 	Endpoint     string   `json:"endpoint"`
@@ -214,29 +214,29 @@ type DeprecationNotice struct {
 	Alternatives []string `json:"alternatives,omitempty"`
 }
 
-// DeprecationManager manages API deprecations
+// DeprecationManager manages API deprecations.
 type DeprecationManager struct {
 	notices []DeprecationNotice
 }
 
-// NewDeprecationManager creates a new deprecation manager
+// NewDeprecationManager creates a new deprecation manager.
 func NewDeprecationManager() *DeprecationManager {
 	return &DeprecationManager{
 		notices: make([]DeprecationNotice, 0),
 	}
 }
 
-// AddNotice adds a deprecation notice
+// AddNotice adds a deprecation notice.
 func (dm *DeprecationManager) AddNotice(notice DeprecationNotice) {
 	dm.notices = append(dm.notices, notice)
 }
 
-// GetNotices returns all deprecation notices
+// GetNotices returns all deprecation notices.
 func (dm *DeprecationManager) GetNotices() []DeprecationNotice {
 	return dm.notices
 }
 
-// Middleware adds deprecation headers for deprecated endpoints
+// Middleware adds deprecation headers for deprecated endpoints.
 func (dm *DeprecationManager) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Check if endpoint is deprecated

@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 网络 API 处理器
+// Handlers 网络 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建网络处理器
+// NewHandlers 创建网络处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	network := r.Group("/network")
 	{
@@ -85,7 +85,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Success 200 {object} api.Response{data=[]Interface}
 // @Failure 500 {object} api.Response
 // @Router /network/interfaces [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listInterfaces(c *gin.Context) {
 	ifaces, err := h.manager.ListInterfaces()
 	if err != nil {
@@ -105,7 +105,7 @@ func (h *Handlers) listInterfaces(c *gin.Context) {
 // @Success 200 {object} api.Response{data=Interface}
 // @Failure 404 {object} api.Response
 // @Router /network/interfaces/{name} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getInterface(c *gin.Context) {
 	name := c.Param("name")
 	iface, err := h.manager.GetInterface(name)
@@ -128,7 +128,7 @@ func (h *Handlers) getInterface(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /network/interfaces/{name} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) configureInterface(c *gin.Context) {
 	name := c.Param("name")
 	var config InterfaceConfig
@@ -537,7 +537,7 @@ func (h *Handlers) restoreFirewallRules(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /network/diagnostics/ping [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) ping(c *gin.Context) {
 	var req struct {
 		Host    string `json:"host" binding:"required"`

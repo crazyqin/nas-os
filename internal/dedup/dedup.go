@@ -17,7 +17,7 @@ import (
 
 // ========== 数据结构 ==========
 
-// Chunk 表示一个数据块
+// Chunk 表示一个数据块.
 type Chunk struct {
 	Hash       string            `json:"hash"`
 	Size       int64             `json:"size"`
@@ -30,20 +30,20 @@ type Chunk struct {
 	AccessedAt time.Time         `json:"accessedAt"`
 }
 
-// ChunkIndex 块索引
+// ChunkIndex 块索引.
 type ChunkIndex struct {
 	mu     sync.RWMutex
 	chunks map[string]*Chunk // hash -> chunk
 }
 
-// NewChunkIndex 创建块索引
+// NewChunkIndex 创建块索引.
 func NewChunkIndex() *ChunkIndex {
 	return &ChunkIndex{
 		chunks: make(map[string]*Chunk),
 	}
 }
 
-// FileRecord 文件记录
+// FileRecord 文件记录.
 type FileRecord struct {
 	Path        string    `json:"path"`
 	Size        int64     `json:"size"`
@@ -56,7 +56,7 @@ type FileRecord struct {
 	AccessedAt  time.Time `json:"accessedAt"`
 }
 
-// DuplicateGroup 重复文件组
+// DuplicateGroup 重复文件组.
 type DuplicateGroup struct {
 	Checksum  string              `json:"checksum"`
 	Size      int64               `json:"size"`
@@ -66,7 +66,7 @@ type DuplicateGroup struct {
 	UserFiles map[string][]string `json:"userFiles,omitempty"`
 }
 
-// Stats 去重统计
+// Stats 去重统计.
 type Stats struct {
 	mu sync.RWMutex
 
@@ -96,21 +96,21 @@ type Stats struct {
 	TotalScanTime time.Duration `json:"totalScanTime"`
 }
 
-// GetValues 获取统计值（线程安全）
+// GetValues 获取统计值（线程安全）.
 func (s *Stats) GetValues() (totalFiles, totalSize, duplicateFiles, duplicateSize, savingsPotential, savingsActual int64) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.TotalFiles, s.TotalSize, s.DuplicateFiles, s.DuplicateSize, s.SavingsPotential, s.SavingsActual
 }
 
-// Update 更新统计（线程安全）
+// Update 更新统计（线程安全）.
 func (s *Stats) Update(fn func(*Stats)) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	fn(s)
 }
 
-// Clone 克隆统计（返回不含锁的快照）
+// Clone 克隆统计（返回不含锁的快照）.
 func (s *Stats) Clone() StatsSnapshot {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -129,7 +129,7 @@ func (s *Stats) Clone() StatsSnapshot {
 	}
 }
 
-// StatsSnapshot 统计快照（不含锁，可安全复制）
+// StatsSnapshot 统计快照（不含锁，可安全复制）.
 type StatsSnapshot struct {
 	TotalFiles       int64 `json:"totalFiles"`
 	TotalSize        int64 `json:"totalSize"`
@@ -144,7 +144,7 @@ type StatsSnapshot struct {
 	CrossUserSavings int64 `json:"crossUserSavings"`
 }
 
-// Progress 进度信息
+// Progress 进度信息.
 type Progress struct {
 	Phase      string    `json:"phase"`   // 当前阶段
 	Current    int64     `json:"current"` // 当前进度
@@ -157,12 +157,12 @@ type Progress struct {
 	LastUpdate time.Time `json:"lastUpdate"`
 }
 
-// ProgressCallback 进度回调函数
+// ProgressCallback 进度回调函数.
 type ProgressCallback func(progress *Progress)
 
 // ========== 块指纹计算 ==========
 
-// ChunkFingerprint 计算文件块指纹
+// ChunkFingerprint 计算文件块指纹.
 func ChunkFingerprint(filePath string, chunkSize int64) ([]*Chunk, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -216,7 +216,7 @@ func ChunkFingerprint(filePath string, chunkSize int64) ([]*Chunk, error) {
 	return chunks, nil
 }
 
-// ChunkFingerprintWithProgress 带进度的块指纹计算
+// ChunkFingerprintWithProgress 带进度的块指纹计算.
 func ChunkFingerprintWithProgress(filePath string, chunkSize int64, callback ProgressCallback) ([]*Chunk, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -294,7 +294,7 @@ func ChunkFingerprintWithProgress(filePath string, chunkSize int64, callback Pro
 	return chunks, nil
 }
 
-// FileChecksum 计算文件整体校验和
+// FileChecksum 计算文件整体校验和.
 func FileChecksum(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -312,7 +312,7 @@ func FileChecksum(filePath string) (string, error) {
 
 // ========== 查找重复块 ==========
 
-// FindDuplicatesResult 查找重复结果
+// FindDuplicatesResult 查找重复结果.
 type FindDuplicatesResult struct {
 	Groups           []*DuplicateGroup `json:"groups"`
 	TotalFiles       int               `json:"totalFiles"`
@@ -326,13 +326,13 @@ type FindDuplicatesResult struct {
 	Duration         time.Duration     `json:"duration"`
 }
 
-// ScanError 扫描错误
+// ScanError 扫描错误.
 type ScanError struct {
 	Path    string `json:"path"`
 	Message string `json:"message"`
 }
 
-// FindDuplicates 查找重复文件
+// FindDuplicates 查找重复文件.
 func FindDuplicates(paths []string, config *Config, callback ProgressCallback) (*FindDuplicatesResult, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -507,7 +507,7 @@ func FindDuplicates(paths []string, config *Config, callback ProgressCallback) (
 	return result, nil
 }
 
-// FindDuplicateChunks 查找重复块
+// FindDuplicateChunks 查找重复块.
 func FindDuplicateChunks(filePath string, chunkSize int64, index *ChunkIndex) ([]*Chunk, error) {
 	chunks, err := ChunkFingerprint(filePath, chunkSize)
 	if err != nil {
@@ -529,7 +529,7 @@ func FindDuplicateChunks(filePath string, chunkSize int64, index *ChunkIndex) ([
 
 // ========== 执行去重 ==========
 
-// DeduplicateResult 去重结果
+// DeduplicateResult 去重结果.
 type DeduplicateResult struct {
 	Success        bool          `json:"success"`
 	ProcessedFiles int           `json:"processedFiles"`
@@ -540,7 +540,7 @@ type DeduplicateResult struct {
 	DryRun         bool          `json:"dryRun"`
 }
 
-// GroupResult 组处理结果
+// GroupResult 组处理结果.
 type GroupResult struct {
 	Checksum  string   `json:"checksum"`
 	KeepPath  string   `json:"keepPath"`
@@ -549,13 +549,13 @@ type GroupResult struct {
 	Skipped   []string `json:"skipped,omitempty"`
 }
 
-// Error 去重错误
+// Error 去重错误.
 type Error struct {
 	Path  string `json:"path"`
 	Error string `json:"error"`
 }
 
-// Deduplicate 执行去重
+// Deduplicate 执行去重.
 func Deduplicate(groups []*DuplicateGroup, policy *Policy, callback ProgressCallback) (*DeduplicateResult, error) {
 	if policy == nil {
 		policy = DefaultPolicy()
@@ -647,7 +647,7 @@ func Deduplicate(groups []*DuplicateGroup, policy *Policy, callback ProgressCall
 	return result, nil
 }
 
-// selectKeepFile 选择保留的文件
+// selectKeepFile 选择保留的文件.
 func selectKeepFile(group *DuplicateGroup, retention RetentionPolicy) (string, error) {
 	if len(group.Files) == 0 {
 		return "", fmt.Errorf("空重复组")
@@ -720,7 +720,7 @@ func selectKeepFile(group *DuplicateGroup, retention RetentionPolicy) (string, e
 	return group.Files[0], nil
 }
 
-// executeDedupAction 执行去重操作
+// executeDedupAction 执行去重操作.
 func executeDedupAction(targetPath, keepPath string, action Action, preserveAttrs bool) error {
 	switch action {
 	case ActionReport:
@@ -800,18 +800,18 @@ func executeDedupAction(targetPath, keepPath string, action Action, preserveAttr
 
 // ========== 去重统计 ==========
 
-// StatsCollector 统计收集器
+// StatsCollector 统计收集器.
 type StatsCollector struct {
 	mu    sync.RWMutex
 	stats Stats
 }
 
-// NewStatsCollector 创建统计收集器
+// NewStatsCollector 创建统计收集器.
 func NewStatsCollector() *StatsCollector {
 	return &StatsCollector{}
 }
 
-// GetStats 获取统计快照（不含锁）
+// GetStats 获取统计快照（不含锁）.
 func (s *StatsCollector) GetStats() StatsSnapshot {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -830,28 +830,28 @@ func (s *StatsCollector) GetStats() StatsSnapshot {
 	}
 }
 
-// IncrementFiles 增加文件计数
+// IncrementFiles 增加文件计数.
 func (s *StatsCollector) IncrementFiles(delta int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.stats.TotalFiles += delta
 }
 
-// IncrementSize 增加大小
+// IncrementSize 增加大小.
 func (s *StatsCollector) IncrementSize(delta int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.stats.TotalSize += delta
 }
 
-// AddSavings 添加节省空间
+// AddSavings 添加节省空间.
 func (s *StatsCollector) AddSavings(delta int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.stats.SavingsActual += delta
 }
 
-// RecordScan 记录扫描时间
+// RecordScan 记录扫描时间.
 func (s *StatsCollector) RecordScan(d time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -859,21 +859,21 @@ func (s *StatsCollector) RecordScan(d time.Duration) {
 	s.stats.TotalScanTime += d
 }
 
-// RecordDedup 记录去重时间
+// RecordDedup 记录去重时间.
 func (s *StatsCollector) RecordDedup() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.stats.LastDedupTime = time.Now()
 }
 
-// Reset 重置统计
+// Reset 重置统计.
 func (s *StatsCollector) Reset() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.stats = Stats{}
 }
 
-// ToJSON 转换为 JSON
+// ToJSON 转换为 JSON.
 func (s *StatsCollector) ToJSON() string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -896,7 +896,7 @@ func (s *StatsCollector) ToJSON() string {
 
 // ========== 辅助函数 ==========
 
-// extractUserFromPath 从路径提取用户
+// extractUserFromPath 从路径提取用户.
 func extractUserFromPath(path string) string {
 	patterns := []string{
 		"/home/",

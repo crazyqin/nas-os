@@ -9,19 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ImmutableHandlers 不可变存储 API 处理器
+// ImmutableHandlers 不可变存储 API 处理器.
 type ImmutableHandlers struct {
 	manager *ImmutableManager
 }
 
-// NewImmutableHandlers 创建处理器
+// NewImmutableHandlers 创建处理器.
 func NewImmutableHandlers(manager *ImmutableManager) *ImmutableHandlers {
 	return &ImmutableHandlers{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *ImmutableHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	immutable := r.Group("/immutable")
 	{
@@ -46,7 +46,7 @@ func (h *ImmutableHandlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 记录管理 ==========
 
-// listRecordsRequest 列表请求
+// listRecordsRequest 列表请求.
 type listRecordsRequest struct {
 	Status      string `form:"status"`
 	VolumeName  string `form:"volumeName"`
@@ -64,7 +64,7 @@ type listRecordsRequest struct {
 // @Param pathContains query string false "路径包含过滤"
 // @Param createdBy query string false "创建者过滤"
 // @Success 200 {object} api.Response{data=[]ImmutableRecord}
-// @Router /immutable [get]
+// @Router /immutable [get].
 func (h *ImmutableHandlers) listRecords(c *gin.Context) {
 	var req listRecordsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -97,7 +97,7 @@ func (h *ImmutableHandlers) listRecords(c *gin.Context) {
 // @Param id path string true "记录 ID"
 // @Success 200 {object} api.Response{data=ImmutableRecord}
 // @Failure 404 {object} api.Response
-// @Router /immutable/{id} [get]
+// @Router /immutable/{id} [get].
 func (h *ImmutableHandlers) getRecord(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -114,7 +114,7 @@ func (h *ImmutableHandlers) getRecord(c *gin.Context) {
 	api.OK(c, record)
 }
 
-// lockPathRequest 锁定请求
+// lockPathRequest 锁定请求.
 type lockPathRequest struct {
 	Path                  string   `json:"path" binding:"required"`
 	Duration              string   `json:"duration" binding:"required"` // 7d, 30d, permanent
@@ -124,7 +124,7 @@ type lockPathRequest struct {
 	ProtectFromRansomware bool     `json:"protectFromRansomware"`
 }
 
-// lockPathResponse 锁定响应
+// lockPathResponse 锁定响应.
 type lockPathResponse struct {
 	ID           string `json:"id"`
 	Status       string `json:"status"`
@@ -142,7 +142,7 @@ type lockPathResponse struct {
 // @Param request body lockPathRequest true "锁定请求"
 // @Success 201 {object} api.Response{data=lockPathResponse}
 // @Failure 400 {object} api.Response
-// @Router /immutable [post]
+// @Router /immutable [post].
 func (h *ImmutableHandlers) lockPath(c *gin.Context) {
 	var req lockPathRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -176,7 +176,7 @@ func (h *ImmutableHandlers) lockPath(c *gin.Context) {
 	})
 }
 
-// unlockPathRequest 解锁请求
+// unlockPathRequest 解锁请求.
 type unlockPathRequest struct {
 	Force bool `json:"force"` // 强制解锁（管理授权）
 }
@@ -191,7 +191,7 @@ type unlockPathRequest struct {
 // @Param request body unlockPathRequest false "解锁请求"
 // @Success 200 {object} api.Response{data=ImmutableRecord}
 // @Failure 400 {object} api.Response
-// @Router /immutable/{id} [delete]
+// @Router /immutable/{id} [delete].
 func (h *ImmutableHandlers) unlockPath(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -211,7 +211,7 @@ func (h *ImmutableHandlers) unlockPath(c *gin.Context) {
 	api.OK(c, record)
 }
 
-// extendLockRequest 延长锁定请求
+// extendLockRequest 延长锁定请求.
 type extendLockRequest struct {
 	Duration string `json:"duration" binding:"required"` // 7d, 30d, permanent
 }
@@ -226,7 +226,7 @@ type extendLockRequest struct {
 // @Param request body extendLockRequest true "延长请求"
 // @Success 200 {object} api.Response{data=ImmutableRecord}
 // @Failure 400 {object} api.Response
-// @Router /immutable/{id}/extend [post]
+// @Router /immutable/{id}/extend [post].
 func (h *ImmutableHandlers) extendLock(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -249,7 +249,7 @@ func (h *ImmutableHandlers) extendLock(c *gin.Context) {
 	api.OK(c, record)
 }
 
-// restoreSnapshotRequest 恢复请求
+// restoreSnapshotRequest 恢复请求.
 type restoreSnapshotRequest struct {
 	TargetPath string `json:"targetPath"` // 恢复目标路径（可选）
 }
@@ -264,7 +264,7 @@ type restoreSnapshotRequest struct {
 // @Param request body restoreSnapshotRequest false "恢复请求"
 // @Success 200 {object} api.Response
 // @Failure 400 {object} api.Response
-// @Router /immutable/{id}/restore [post]
+// @Router /immutable/{id}/restore [post].
 func (h *ImmutableHandlers) restoreSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -285,7 +285,7 @@ func (h *ImmutableHandlers) restoreSnapshot(c *gin.Context) {
 
 // ========== 状态查询 ==========
 
-// getPathStatusRequest 状态查询请求
+// getPathStatusRequest 状态查询请求.
 type getPathStatusRequest struct {
 	Path string `form:"path" binding:"required"`
 }
@@ -297,7 +297,7 @@ type getPathStatusRequest struct {
 // @Produce json
 // @Param path query string true "路径"
 // @Success 200 {object} api.Response{data=ImmutableRecord}
-// @Router /immutable/status [get]
+// @Router /immutable/status [get].
 func (h *ImmutableHandlers) getPathStatus(c *gin.Context) {
 	var req getPathStatusRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -331,13 +331,13 @@ func (h *ImmutableHandlers) getPathStatus(c *gin.Context) {
 // @Tags immutable
 // @Produce json
 // @Success 200 {object} api.Response{data=ImmutableStatistics}
-// @Router /immutable/statistics [get]
+// @Router /immutable/statistics [get].
 func (h *ImmutableHandlers) getStatistics(c *gin.Context) {
 	stats := h.manager.GetStatistics()
 	api.OK(c, stats)
 }
 
-// checkRansomwareProtectionRequest 防勒索检查请求
+// checkRansomwareProtectionRequest 防勒索检查请求.
 type checkRansomwareProtectionRequest struct {
 	Path string `json:"path" binding:"required"`
 }
@@ -350,7 +350,7 @@ type checkRansomwareProtectionRequest struct {
 // @Produce json
 // @Param request body checkRansomwareProtectionRequest true "检查请求"
 // @Success 200 {object} api.Response{data=RansomwareProtectionStatus}
-// @Router /immutable/check-ransomware [post]
+// @Router /immutable/check-ransomware [post].
 func (h *ImmutableHandlers) checkRansomwareProtection(c *gin.Context) {
 	var req checkRansomwareProtectionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -369,7 +369,7 @@ func (h *ImmutableHandlers) checkRansomwareProtection(c *gin.Context) {
 
 // ========== 快捷操作 ==========
 
-// quickLockRequest 快速锁定请求
+// quickLockRequest 快速锁定请求.
 type quickLockRequest struct {
 	Path     string `json:"path" binding:"required"`
 	Duration string `json:"duration" binding:"required"` // 7d, 30d, permanent
@@ -383,7 +383,7 @@ type quickLockRequest struct {
 // @Produce json
 // @Param request body quickLockRequest true "快速锁定请求"
 // @Success 201 {object} api.Response{data=ImmutableRecord}
-// @Router /immutable/quick-lock [post]
+// @Router /immutable/quick-lock [post].
 func (h *ImmutableHandlers) quickLock(c *gin.Context) {
 	var req quickLockRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -404,14 +404,14 @@ func (h *ImmutableHandlers) quickLock(c *gin.Context) {
 	})
 }
 
-// batchLockRequest 批量锁定请求
+// batchLockRequest 批量锁定请求.
 type batchLockRequest struct {
 	Paths       []string `json:"paths" binding:"required"`
 	Duration    string   `json:"duration" binding:"required"`
 	Description string   `json:"description"`
 }
 
-// batchLockResponse 批量锁定响应
+// batchLockResponse 批量锁定响应.
 type batchLockResponse struct {
 	SuccessCount int                `json:"successCount"`
 	FailedCount  int                `json:"failedCount"`
@@ -427,7 +427,7 @@ type batchLockResponse struct {
 // @Produce json
 // @Param request body batchLockRequest true "批量锁定请求"
 // @Success 200 {object} api.Response{data=batchLockResponse}
-// @Router /immutable/batch-lock [post]
+// @Router /immutable/batch-lock [post].
 func (h *ImmutableHandlers) batchLock(c *gin.Context) {
 	var req batchLockRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

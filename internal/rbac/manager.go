@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// 错误定义
+// 错误定义.
 var (
 	ErrPermissionDenied   = errors.New("权限不足")
 	ErrUserNotFound       = errors.New("用户不存在")
@@ -25,7 +25,7 @@ var (
 	ErrCacheExpired       = errors.New("权限缓存已过期")
 )
 
-// Config RBAC 配置
+// Config RBAC 配置.
 type Config struct {
 	CacheEnabled bool          `json:"cache_enabled"`
 	CacheTTL     time.Duration `json:"cache_ttl"`
@@ -34,7 +34,7 @@ type Config struct {
 	AuditEnabled bool          `json:"audit_enabled"` // 是否记录权限检查日志
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() Config {
 	return Config{
 		CacheEnabled: true,
@@ -44,7 +44,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// Manager RBAC 管理器
+// Manager RBAC 管理器.
 type Manager struct {
 	config Config
 	mu     sync.RWMutex
@@ -65,7 +65,7 @@ type Manager struct {
 	auditCallback func(userID, resource, action string, result *CheckResult)
 }
 
-// NewManager 创建 RBAC 管理器
+// NewManager 创建 RBAC 管理器.
 func NewManager(config Config) (*Manager, error) {
 	m := &Manager{
 		config:          config,
@@ -89,14 +89,14 @@ func NewManager(config Config) (*Manager, error) {
 	return m, nil
 }
 
-// SetAuditCallback 设置审计回调
+// SetAuditCallback 设置审计回调.
 func (m *Manager) SetAuditCallback(callback func(userID, resource, action string, result *CheckResult)) {
 	m.auditCallback = callback
 }
 
 // ========== 用户权限管理 ==========
 
-// SetUserRole 设置用户角色
+// SetUserRole 设置用户角色.
 func (m *Manager) SetUserRole(userID, username string, role Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -129,7 +129,7 @@ func (m *Manager) SetUserRole(userID, username string, role Role) error {
 	return m.save()
 }
 
-// GetUserPermissions 获取用户权限
+// GetUserPermissions 获取用户权限.
 func (m *Manager) GetUserPermissions(userID string) (*UserPermission, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -145,7 +145,7 @@ func (m *Manager) GetUserPermissions(userID string) (*UserPermission, error) {
 	return up, nil
 }
 
-// GrantPermission 授予用户权限
+// GrantPermission 授予用户权限.
 func (m *Manager) GrantPermission(userID, username, permission string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -182,7 +182,7 @@ func (m *Manager) GrantPermission(userID, username, permission string) error {
 	return m.save()
 }
 
-// RevokePermission 撤销用户权限
+// RevokePermission 撤销用户权限.
 func (m *Manager) RevokePermission(userID, permission string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -206,7 +206,7 @@ func (m *Manager) RevokePermission(userID, permission string) error {
 
 // ========== 权限检查 ==========
 
-// CheckPermission 检查用户是否有指定权限
+// CheckPermission 检查用户是否有指定权限.
 func (m *Manager) CheckPermission(userID, resource, action string) *CheckResult {
 	result := &CheckResult{
 		Allowed: false,
@@ -247,12 +247,12 @@ func (m *Manager) CheckPermission(userID, resource, action string) *CheckResult 
 	return result
 }
 
-// CheckPermissionFast 快速权限检查（不返回详细信息）
+// CheckPermissionFast 快速权限检查（不返回详细信息）.
 func (m *Manager) CheckPermissionFast(userID, resource, action string) bool {
 	return m.CheckPermission(userID, resource, action).Allowed
 }
 
-// checkWithCache 使用缓存检查权限
+// checkWithCache 使用缓存检查权限.
 func (m *Manager) checkWithCache(cached *PermissionCache, resource, action string) *CheckResult {
 	perm := PermissionString(resource, action)
 
@@ -283,7 +283,7 @@ func (m *Manager) checkWithCache(cached *PermissionCache, resource, action strin
 	}
 }
 
-// checkWithUserPermission 使用用户权限检查
+// checkWithUserPermission 使用用户权限检查.
 func (m *Manager) checkWithUserPermission(up *UserPermission, resource, action string) *CheckResult {
 	perm := PermissionString(resource, action)
 
@@ -391,7 +391,7 @@ func (m *Manager) checkWithUserPermission(up *UserPermission, resource, action s
 	}
 }
 
-// calculateEffectivePermissions 计算有效权限
+// calculateEffectivePermissions 计算有效权限.
 func (m *Manager) calculateEffectivePermissions(up *UserPermission) {
 	effective := make(map[string]bool)
 
@@ -436,7 +436,7 @@ func (m *Manager) calculateEffectivePermissions(up *UserPermission) {
 
 // ========== 用户组权限管理 ==========
 
-// CreateGroupPermission 创建用户组权限
+// CreateGroupPermission 创建用户组权限.
 func (m *Manager) CreateGroupPermission(groupID, groupName string, permissions []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -464,7 +464,7 @@ func (m *Manager) CreateGroupPermission(groupID, groupName string, permissions [
 	return m.save()
 }
 
-// UpdateGroupPermission 更新用户组权限
+// UpdateGroupPermission 更新用户组权限.
 func (m *Manager) UpdateGroupPermission(groupID string, permissions []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -490,7 +490,7 @@ func (m *Manager) UpdateGroupPermission(groupID string, permissions []string) er
 	return m.save()
 }
 
-// DeleteGroupPermission 删除用户组权限
+// DeleteGroupPermission 删除用户组权限.
 func (m *Manager) DeleteGroupPermission(groupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -514,7 +514,7 @@ func (m *Manager) DeleteGroupPermission(groupID string) error {
 	return m.save()
 }
 
-// AddUserToGroup 将用户添加到组
+// AddUserToGroup 将用户添加到组.
 func (m *Manager) AddUserToGroup(userID, username, groupID, groupName string, isOwner bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -548,7 +548,7 @@ func (m *Manager) AddUserToGroup(userID, username, groupID, groupName string, is
 	return m.save()
 }
 
-// RemoveUserFromGroup 从组中移除用户
+// RemoveUserFromGroup 从组中移除用户.
 func (m *Manager) RemoveUserFromGroup(userID, groupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -572,7 +572,7 @@ func (m *Manager) RemoveUserFromGroup(userID, groupID string) error {
 
 // ========== 策略管理 ==========
 
-// CreatePolicy 创建策略
+// CreatePolicy 创建策略.
 func (m *Manager) CreatePolicy(name, description string, effect PolicyEffect, principals, resources, actions []string, priority int) (*Policy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -611,7 +611,7 @@ func (m *Manager) CreatePolicy(name, description string, effect PolicyEffect, pr
 	return policy, nil
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (m *Manager) UpdatePolicy(policyID string, enabled *bool, priority *int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -632,7 +632,7 @@ func (m *Manager) UpdatePolicy(policyID string, enabled *bool, priority *int) er
 	return m.save()
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (m *Manager) DeletePolicy(policyID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -645,7 +645,7 @@ func (m *Manager) DeletePolicy(policyID string) error {
 	return m.save()
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (m *Manager) ListPolicies() []*Policy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -691,7 +691,7 @@ func (m *Manager) invalidateCache(userID string) {
 	delete(m.cache, userID)
 }
 
-// InvalidateAllCaches 清除所有缓存
+// InvalidateAllCaches 清除所有缓存.
 func (m *Manager) InvalidateAllCaches() {
 	m.cacheMu.Lock()
 	defer m.cacheMu.Unlock()
@@ -841,7 +841,7 @@ func (m *Manager) save() error {
 	return os.WriteFile(m.config.ConfigPath, data, 0600)
 }
 
-// DeleteUser 删除用户权限
+// DeleteUser 删除用户权限.
 func (m *Manager) DeleteUser(userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -855,7 +855,7 @@ func (m *Manager) DeleteUser(userID string) error {
 	return m.save()
 }
 
-// ListUserPermissions 列出所有用户权限
+// ListUserPermissions 列出所有用户权限.
 func (m *Manager) ListUserPermissions() []*UserPermission {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -868,7 +868,7 @@ func (m *Manager) ListUserPermissions() []*UserPermission {
 	return result
 }
 
-// GetRoleInfo 获取角色信息
+// GetRoleInfo 获取角色信息.
 func (m *Manager) GetRoleInfo(role Role) (*RoleInfo, bool) {
 	if info, ok := DefaultRoles[role]; ok {
 		return &info, true
@@ -879,7 +879,7 @@ func (m *Manager) GetRoleInfo(role Role) (*RoleInfo, bool) {
 	return nil, false
 }
 
-// ListRoles 列出所有角色
+// ListRoles 列出所有角色.
 func (m *Manager) ListRoles() []RoleInfo {
 	roles := make([]RoleInfo, 0, len(DefaultRoles)+len(m.customRoles))
 

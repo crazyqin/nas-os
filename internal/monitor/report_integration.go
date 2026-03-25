@@ -6,14 +6,14 @@ import (
 	"nas-os/internal/reports"
 )
 
-// ReportIntegration 监控报告集成服务
+// ReportIntegration 监控报告集成服务.
 type ReportIntegration struct {
 	manager   *Manager
 	scorer    *HealthScorer
 	collector *MetricsCollector
 }
 
-// NewReportIntegration 创建报告集成服务
+// NewReportIntegration 创建报告集成服务.
 func NewReportIntegration(manager *Manager) *ReportIntegration {
 	scorer := NewHealthScorer(manager)
 	collector := NewMetricsCollector(manager, scorer)
@@ -25,27 +25,27 @@ func NewReportIntegration(manager *Manager) *ReportIntegration {
 	}
 }
 
-// GetHealthScorer 获取健康评分器
+// GetHealthScorer 获取健康评分器.
 func (ri *ReportIntegration) GetHealthScorer() *HealthScorer {
 	return ri.scorer
 }
 
-// GetMetricsCollector 获取指标收集器
+// GetMetricsCollector 获取指标收集器.
 func (ri *ReportIntegration) GetMetricsCollector() *MetricsCollector {
 	return ri.collector
 }
 
-// Start 启动监控和收集
+// Start 启动监控和收集.
 func (ri *ReportIntegration) Start() {
 	ri.collector.Start()
 }
 
-// Stop 停止监控和收集
+// Stop 停止监控和收集.
 func (ri *ReportIntegration) Stop() {
 	ri.collector.Stop()
 }
 
-// CreateMonitorDataSource 创建监控数据源适配器
+// CreateMonitorDataSource 创建监控数据源适配器.
 func (ri *ReportIntegration) CreateMonitorDataSource() *reports.MonitorDataSource {
 	return reports.NewMonitorDataSource(reports.MonitorDataSourceConfig{
 		Name: "monitor",
@@ -247,7 +247,7 @@ func (ri *ReportIntegration) CreateMonitorDataSource() *reports.MonitorDataSourc
 	})
 }
 
-// CreateResourceReportGenerator 创建资源报告生成器
+// CreateResourceReportGenerator 创建资源报告生成器.
 func (ri *ReportIntegration) CreateResourceReportGenerator() *reports.ResourceReportGenerator {
 	return reports.NewResourceReportGenerator(func(period string) (map[string]interface{}, error) {
 		report := ri.collector.GenerateResourceReport(period)
@@ -305,7 +305,7 @@ func (ri *ReportIntegration) CreateResourceReportGenerator() *reports.ResourceRe
 	})
 }
 
-// GetQuickHealthReport 获取快速健康报告
+// GetQuickHealthReport 获取快速健康报告.
 func (ri *ReportIntegration) GetQuickHealthReport() map[string]interface{} {
 	score := ri.scorer.CalculateScore()
 	stats, _ := ri.manager.GetSystemStats()

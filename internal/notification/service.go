@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Service 通知服务
+// Service 通知服务.
 type Service struct {
 	config          *ServiceConfig
 	templateManager *TemplateManager
@@ -35,7 +35,7 @@ type sendTaskResult struct {
 	errors  map[string]string
 }
 
-// NewService 创建通知服务
+// NewService 创建通知服务.
 func NewService(config *ServiceConfig) (*Service, error) {
 	if config == nil {
 		config = &ServiceConfig{
@@ -98,7 +98,7 @@ func NewService(config *ServiceConfig) (*Service, error) {
 	return s, nil
 }
 
-// Start 启动服务
+// Start 启动服务.
 func (s *Service) Start() error {
 	// 加载已保存的渠道配置
 	if s.config.StoragePath != "" {
@@ -110,14 +110,14 @@ func (s *Service) Start() error {
 	return nil
 }
 
-// Stop 停止服务
+// Stop 停止服务.
 func (s *Service) Stop() {
 	s.cancel()
 	s.wg.Wait()
 	close(s.taskQueue)
 }
 
-// loadChannels 加载渠道配置
+// loadChannels 加载渠道配置.
 func (s *Service) loadChannels() error {
 	data, err := readFile(s.config.StoragePath + "/channels.json")
 	if err != nil {
@@ -136,7 +136,7 @@ func (s *Service) loadChannels() error {
 	return nil
 }
 
-// saveChannels 保存渠道配置
+// saveChannels 保存渠道配置.
 func (s *Service) saveChannels() error {
 	channels := s.channelManager.ListChannels("")
 	data, err := json.MarshalIndent(channels, "", "  ")
@@ -147,7 +147,7 @@ func (s *Service) saveChannels() error {
 	return writeFile(s.config.StoragePath+"/channels.json", data)
 }
 
-// worker 工作协程
+// worker 工作协程.
 func (s *Service) worker() {
 	s.wg.Add(1)
 	defer s.wg.Done()
@@ -168,7 +168,7 @@ func (s *Service) worker() {
 	}
 }
 
-// processTask 处理发送任务
+// processTask 处理发送任务.
 func (s *Service) processTask(task *sendTask) *sendTaskResult {
 	result := &sendTaskResult{
 		records: make([]*Record, 0),
@@ -216,7 +216,7 @@ func (s *Service) processTask(task *sendTask) *sendTaskResult {
 	return result
 }
 
-// sendWithRetry 带重试的发送
+// sendWithRetry 带重试的发送.
 func (s *Service) sendWithRetry(sender ChannelSender, channel *ChannelConfig, notification *Notification, record *Record) error {
 	var lastErr error
 
@@ -240,7 +240,7 @@ func (s *Service) sendWithRetry(sender ChannelSender, channel *ChannelConfig, no
 	return lastErr
 }
 
-// Send 发送通知
+// Send 发送通知.
 func (s *Service) Send(ctx context.Context, req *SendRequest) (*SendResponse, error) {
 	notification := req.Notification
 	if notification == nil {
@@ -337,7 +337,7 @@ func (s *Service) Send(ctx context.Context, req *SendRequest) (*SendResponse, er
 	}
 }
 
-// SendAsync 异步发送通知
+// SendAsync 异步发送通知.
 func (s *Service) SendAsync(req *SendRequest) (string, error) {
 	notification := req.Notification
 	if notification == nil {
@@ -392,32 +392,32 @@ func (s *Service) SendAsync(req *SendRequest) (string, error) {
 	return notification.ID, nil
 }
 
-// GetTemplateManager 获取模板管理器
+// GetTemplateManager 获取模板管理器.
 func (s *Service) GetTemplateManager() *TemplateManager {
 	return s.templateManager
 }
 
-// GetChannelManager 获取渠道管理器
+// GetChannelManager 获取渠道管理器.
 func (s *Service) GetChannelManager() *ChannelManager {
 	return s.channelManager
 }
 
-// GetRuleEngine 获取规则引擎
+// GetRuleEngine 获取规则引擎.
 func (s *Service) GetRuleEngine() *RuleEngine {
 	return s.ruleEngine
 }
 
-// GetHistoryManager 获取历史管理器
+// GetHistoryManager 获取历史管理器.
 func (s *Service) GetHistoryManager() *HistoryManager {
 	return s.historyManager
 }
 
-// SetWebSocketBroadcaster 设置 WebSocket 广播器
+// SetWebSocketBroadcaster 设置 WebSocket 广播器.
 func (s *Service) SetWebSocketBroadcaster(broadcaster WebSocketBroadcaster) {
 	s.senderRegistry.SetWebSocketSender(broadcaster)
 }
 
-// AddChannel 添加渠道
+// AddChannel 添加渠道.
 func (s *Service) AddChannel(config *ChannelConfig) error {
 	if err := s.channelManager.AddChannel(config); err != nil {
 		return err
@@ -425,7 +425,7 @@ func (s *Service) AddChannel(config *ChannelConfig) error {
 	return s.saveChannels()
 }
 
-// UpdateChannel 更新渠道
+// UpdateChannel 更新渠道.
 func (s *Service) UpdateChannel(config *ChannelConfig) error {
 	if err := s.channelManager.UpdateChannel(config); err != nil {
 		return err
@@ -433,7 +433,7 @@ func (s *Service) UpdateChannel(config *ChannelConfig) error {
 	return s.saveChannels()
 }
 
-// RemoveChannel 移除渠道
+// RemoveChannel 移除渠道.
 func (s *Service) RemoveChannel(id string) error {
 	if err := s.channelManager.RemoveChannel(id); err != nil {
 		return err
@@ -441,7 +441,7 @@ func (s *Service) RemoveChannel(id string) error {
 	return s.saveChannels()
 }
 
-// TestChannel 测试渠道
+// TestChannel 测试渠道.
 func (s *Service) TestChannel(channelID string) error {
 	channel, err := s.channelManager.GetChannel(channelID)
 	if err != nil {
@@ -465,7 +465,7 @@ func (s *Service) TestChannel(channelID string) error {
 	return sender.Send(channel, testNotification)
 }
 
-// RetryFailed 重试失败的记录
+// RetryFailed 重试失败的记录.
 func (s *Service) RetryFailed(recordID string) error {
 	record, err := s.historyManager.GetRecord(recordID)
 	if err != nil {
@@ -507,7 +507,7 @@ func (s *Service) RetryFailed(recordID string) error {
 	return s.historyManager.UpdateRecord(record)
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (s *Service) GetStats(startTime, endTime *time.Time) *HistoryStats {
 	return s.historyManager.GetStats(startTime, endTime)
 }

@@ -6,79 +6,79 @@ import "time"
 
 // ========== 文件系统扫描类型 ==========
 
-// ScanType 扫描类型
+// ScanType 扫描类型.
 type ScanType string
 
 const (
-	// ScanTypeFull 全量扫描
+	// ScanTypeFull 全量扫描.
 	ScanTypeFull ScanType = "full"
-	// ScanTypeQuick 快速扫描
+	// ScanTypeQuick 快速扫描.
 	ScanTypeQuick ScanType = "quick"
-	// ScanTypeCustom 自定义扫描
+	// ScanTypeCustom 自定义扫描.
 	ScanTypeCustom ScanType = "custom"
-	// ScanTypeScheduled 定时扫描
+	// ScanTypeScheduled 定时扫描.
 	ScanTypeScheduled ScanType = "scheduled"
-	// ScanTypePermission 权限扫描
+	// ScanTypePermission 权限扫描.
 	ScanTypePermission ScanType = "permission"
-	// ScanTypeMalware 恶意软件扫描
+	// ScanTypeMalware 恶意软件扫描.
 	ScanTypeMalware ScanType = "malware"
 )
 
-// ScanStatus 扫描状态
+// ScanStatus 扫描状态.
 type ScanStatus string
 
 const (
-	// ScanStatusPending 待执行
+	// ScanStatusPending 待执行.
 	ScanStatusPending ScanStatus = "pending"
-	// ScanStatusRunning 执行中
+	// ScanStatusRunning 执行中.
 	ScanStatusRunning ScanStatus = "running"
-	// ScanStatusCompleted 已完成
+	// ScanStatusCompleted 已完成.
 	ScanStatusCompleted ScanStatus = "completed"
-	// ScanStatusFailed 失败
+	// ScanStatusFailed 失败.
 	ScanStatusFailed ScanStatus = "failed"
-	// ScanStatusCancelled 已取消
+	// ScanStatusCancelled 已取消.
 	ScanStatusCancelled ScanStatus = "cancelled"
-	// ScanStatusPaused 已暂停
+	// ScanStatusPaused 已暂停.
 	ScanStatusPaused ScanStatus = "paused"
 )
 
-// Severity 严重级别
+// Severity 严重级别.
 type Severity string
 
 const (
-	// SeverityCritical 严重
+	// SeverityCritical 严重.
 	SeverityCritical Severity = "critical"
-	// SeverityHigh 高
+	// SeverityHigh 高.
 	SeverityHigh Severity = "high"
-	// SeverityMedium 中
+	// SeverityMedium 中.
 	SeverityMedium Severity = "medium"
-	// SeverityLow 低
+	// SeverityLow 低.
 	SeverityLow Severity = "low"
-	// SeverityInfo 信息
+	// SeverityInfo 信息.
 	SeverityInfo Severity = "info"
 )
 
-// FindingType 发现类型
+// FindingType 发现类型.
 type FindingType string
 
 const (
-	// FindingTypePermission 权限问题
+	// FindingTypePermission 权限问题.
 	FindingTypePermission FindingType = "permission"
-	// FindingTypeMalware 恶意软件
+	// FindingTypeMalware 恶意软件.
 	FindingTypeMalware FindingType = "malware"
-	// FindingTypeSensitiveData 敏感数据
+	// FindingTypeSensitiveData 敏感数据.
 	FindingTypeSensitiveData FindingType = "sensitive_data"
-	// FindingTypeConfiguration 配置问题
+	// FindingTypeConfiguration 配置问题.
 	FindingTypeConfiguration FindingType = "configuration"
-	// FindingTypeVulnerability 漏洞
+	// FindingTypeVulnerability 漏洞.
 	FindingTypeVulnerability FindingType = "vulnerability"
-	// FindingTypeSuspicious 可疑文件
+	// FindingTypeSuspicious 可疑文件.
 	FindingTypeSuspicious FindingType = "suspicious"
-	// FindingTypeIntegrity 完整性问题
+	// FindingTypeIntegrity 完整性问题.
 	FindingTypeIntegrity FindingType = "integrity"
 )
 
-// FileFinding 文件扫描发现
+// FileFinding 文件扫描发现.
 type FileFinding struct {
 	ID             string                 `json:"id"`
 	Timestamp      time.Time              `json:"timestamp"`
@@ -99,7 +99,7 @@ type FileFinding struct {
 	AcknowledgedAt *time.Time             `json:"acknowledged_at,omitempty"`
 }
 
-// ScanTask 扫描任务
+// ScanTask 扫描任务.
 type ScanTask struct {
 	ID                 string         `json:"id"`
 	Name               string         `json:"name"`
@@ -120,7 +120,7 @@ type ScanTask struct {
 	CreatedBy          string         `json:"created_by"`
 }
 
-// ScanOptions 扫描选项
+// ScanOptions 扫描选项.
 type ScanOptions struct {
 	CheckPermissions   bool     `json:"check_permissions"`
 	CheckMalware       bool     `json:"check_malware"`
@@ -138,7 +138,7 @@ type ScanOptions struct {
 	GenerateReport     bool     `json:"generate_report"`
 }
 
-// DefaultScanOptions 默认扫描选项
+// DefaultScanOptions 默认扫描选项.
 func DefaultScanOptions() ScanOptions {
 	return ScanOptions{
 		CheckPermissions:   true,
@@ -156,7 +156,7 @@ func DefaultScanOptions() ScanOptions {
 	}
 }
 
-// FileScanReport 文件扫描报告
+// FileScanReport 文件扫描报告.
 type FileScanReport struct {
 	ReportID        string          `json:"report_id"`
 	TaskID          string          `json:"task_id"`
@@ -169,7 +169,7 @@ type FileScanReport struct {
 	RiskLevel       string          `json:"risk_level"`
 }
 
-// FileScanSummary 文件扫描摘要
+// FileScanSummary 文件扫描摘要.
 type FileScanSummary struct {
 	TotalFiles     int            `json:"total_files"`
 	ScannedFiles   int            `json:"scanned_files"`
@@ -186,7 +186,7 @@ type FileScanSummary struct {
 
 // ========== 权限检查类型 ==========
 
-// PermissionIssue 权限问题
+// PermissionIssue 权限问题.
 type PermissionIssue struct {
 	Path            string   `json:"path"`
 	Type            string   `json:"type"` // file, directory
@@ -199,7 +199,7 @@ type PermissionIssue struct {
 	Risk            string   `json:"risk"`
 }
 
-// PermissionCheckResult 权限检查结果
+// PermissionCheckResult 权限检查结果.
 type PermissionCheckResult struct {
 	ScanTime       time.Time          `json:"scan_time"`
 	TotalChecked   int                `json:"total_checked"`
@@ -210,7 +210,7 @@ type PermissionCheckResult struct {
 	Suggestions    []string           `json:"suggestions"`
 }
 
-// PermissionRule 权限规则
+// PermissionRule 权限规则.
 type PermissionRule struct {
 	ID            string   `json:"id"`
 	Name          string   `json:"name"`
@@ -226,7 +226,7 @@ type PermissionRule struct {
 
 // ========== 漏洞检测类型 ==========
 
-// Vulnerability 漏洞信息
+// Vulnerability 漏洞信息.
 type Vulnerability struct {
 	ID                string     `json:"id"`
 	CVE               string     `json:"cve,omitempty"`
@@ -245,7 +245,7 @@ type Vulnerability struct {
 	PatchAvailable    bool       `json:"patch_available"`
 }
 
-// VulnerabilityScanResult 漏洞扫描结果
+// VulnerabilityScanResult 漏洞扫描结果.
 type VulnerabilityScanResult struct {
 	ScanID          string           `json:"scan_id"`
 	ScanTime        time.Time        `json:"scan_time"`
@@ -261,7 +261,7 @@ type VulnerabilityScanResult struct {
 	LastUpdated     time.Time        `json:"last_updated"`
 }
 
-// VulnerabilityDatabase 漏洞数据库配置
+// VulnerabilityDatabase 漏洞数据库配置.
 type VulnerabilityDatabase struct {
 	Name        string    `json:"name"`
 	URL         string    `json:"url"`
@@ -272,7 +272,7 @@ type VulnerabilityDatabase struct {
 
 // ========== 安全评分类型 ==========
 
-// SecurityScore 安全评分
+// SecurityScore 安全评分.
 type SecurityScore struct {
 	OverallScore       int                `json:"overall_score"` // 0-100
 	Grade              string             `json:"grade"`         // A-F
@@ -286,7 +286,7 @@ type SecurityScore struct {
 	ChangeFromPrevious int                `json:"change_from_previous"`
 }
 
-// ScoreCategory 评分类别
+// ScoreCategory 评分类别.
 type ScoreCategory struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`
@@ -296,7 +296,7 @@ type ScoreCategory struct {
 	Enabled     bool    `json:"enabled"`
 }
 
-// ScoreFinding 评分发现
+// ScoreFinding 评分发现.
 type ScoreFinding struct {
 	Category    string   `json:"category"`
 	ID          string   `json:"id"`
@@ -307,7 +307,7 @@ type ScoreFinding struct {
 	Remediation string   `json:"remediation,omitempty"`
 }
 
-// ScoreHistory 评分历史
+// ScoreHistory 评分历史.
 type ScoreHistory struct {
 	Date     time.Time `json:"date"`
 	Score    int       `json:"score"`
@@ -317,29 +317,29 @@ type ScoreHistory struct {
 
 // ========== 敏感数据检测类型 ==========
 
-// SensitiveDataType 敏感数据类型
+// SensitiveDataType 敏感数据类型.
 type SensitiveDataType string
 
 const (
-	// SensitiveDataPassword 密码
+	// SensitiveDataPassword 密码.
 	SensitiveDataPassword SensitiveDataType = "password"
-	// SensitiveDataAPIKey API密钥
+	// SensitiveDataAPIKey API密钥.
 	SensitiveDataAPIKey SensitiveDataType = "api_key"
-	// SensitiveDataCreditCard 信用卡
+	// SensitiveDataCreditCard 信用卡.
 	SensitiveDataCreditCard SensitiveDataType = "credit_card"
-	// SensitiveDataSSN 社会安全号
+	// SensitiveDataSSN 社会安全号.
 	SensitiveDataSSN SensitiveDataType = "ssn"
-	// SensitiveDataPrivateKey 私钥
+	// SensitiveDataPrivateKey 私钥.
 	SensitiveDataPrivateKey SensitiveDataType = "private_key"
-	// SensitiveDataCredential 凭证
+	// SensitiveDataCredential 凭证.
 	SensitiveDataCredential SensitiveDataType = "credential"
-	// SensitiveDataToken 令牌
+	// SensitiveDataToken 令牌.
 	SensitiveDataToken SensitiveDataType = "token"
-	// SensitiveDataDatabase 数据库
+	// SensitiveDataDatabase 数据库.
 	SensitiveDataDatabase SensitiveDataType = "database"
 )
 
-// SensitiveDataFinding 敏感数据发现
+// SensitiveDataFinding 敏感数据发现.
 type SensitiveDataFinding struct {
 	Type        SensitiveDataType `json:"type"`
 	FilePath    string            `json:"file_path"`
@@ -351,7 +351,7 @@ type SensitiveDataFinding struct {
 	Description string            `json:"description"`
 }
 
-// SensitiveDataRule 敏感数据检测规则
+// SensitiveDataRule 敏感数据检测规则.
 type SensitiveDataRule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -365,31 +365,31 @@ type SensitiveDataRule struct {
 
 // ========== 恶意软件检测类型 ==========
 
-// MalwareType 恶意软件类型
+// MalwareType 恶意软件类型.
 type MalwareType string
 
 const (
-	// MalwareTypeVirus 病毒
+	// MalwareTypeVirus 病毒.
 	MalwareTypeVirus MalwareType = "virus"
-	// MalwareTypeTrojan 木马
+	// MalwareTypeTrojan 木马.
 	MalwareTypeTrojan MalwareType = "trojan"
-	// MalwareTypeWorm 蠕虫
+	// MalwareTypeWorm 蠕虫.
 	MalwareTypeWorm MalwareType = "worm"
-	// MalwareTypeRansomware 勒索软件
+	// MalwareTypeRansomware 勒索软件.
 	MalwareTypeRansomware MalwareType = "ransomware"
-	// MalwareTypeSpyware 间谍软件
+	// MalwareTypeSpyware 间谍软件.
 	MalwareTypeSpyware MalwareType = "spyware"
-	// MalwareTypeAdware 广告软件
+	// MalwareTypeAdware 广告软件.
 	MalwareTypeAdware MalwareType = "adware"
-	// MalwareTypeRootkit Rootkit
+	// MalwareTypeRootkit Rootkit.
 	MalwareTypeRootkit MalwareType = "rootkit"
-	// MalwareTypeBackdoor 后门
+	// MalwareTypeBackdoor 后门.
 	MalwareTypeBackdoor MalwareType = "backdoor"
-	// MalwareTypePUA 潜在有害程序
+	// MalwareTypePUA 潜在有害程序.
 	MalwareTypePUA MalwareType = "pua"
 )
 
-// MalwareFinding 恶意软件发现
+// MalwareFinding 恶意软件发现.
 type MalwareFinding struct {
 	FilePath       string      `json:"file_path"`
 	FileName       string      `json:"file_name"`
@@ -407,7 +407,7 @@ type MalwareFinding struct {
 
 // ========== 配置类型 ==========
 
-// Config 扫描器配置
+// Config 扫描器配置.
 type Config struct {
 	Enabled            bool                    `json:"enabled"`
 	MaxConcurrentScans int                     `json:"max_concurrent_scans"`
@@ -421,7 +421,7 @@ type Config struct {
 	MaxReportCount     int                     `json:"max_report_count"`
 }
 
-// ScheduledScan 定时扫描配置
+// ScheduledScan 定时扫描配置.
 type ScheduledScan struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -433,7 +433,7 @@ type ScheduledScan struct {
 	NextRun     *time.Time `json:"next_run,omitempty"`
 }
 
-// DefaultConfig 默认扫描器配置
+// DefaultConfig 默认扫描器配置.
 func DefaultConfig() Config {
 	return Config{
 		Enabled:            true,
@@ -448,7 +448,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// DefaultSensitiveDataRules 默认敏感数据检测规则
+// DefaultSensitiveDataRules 默认敏感数据检测规则.
 func DefaultSensitiveDataRules() []SensitiveDataRule {
 	return []SensitiveDataRule{
 		{
@@ -499,7 +499,7 @@ func DefaultSensitiveDataRules() []SensitiveDataRule {
 	}
 }
 
-// DefaultPermissionRules 默认权限规则
+// DefaultPermissionRules 默认权限规则.
 func DefaultPermissionRules() []PermissionRule {
 	return []PermissionRule{
 		{
@@ -542,24 +542,24 @@ func DefaultPermissionRules() []PermissionRule {
 
 // ========== API响应类型 ==========
 
-// APIResponse 通用API响应
+// APIResponse 通用API响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// SuccessResponse 成功响应
+// SuccessResponse 成功响应.
 func SuccessResponse(data interface{}) APIResponse {
 	return APIResponse{Code: 0, Message: "success", Data: data}
 }
 
-// ErrorResponse 错误响应
+// ErrorResponse 错误响应.
 func ErrorResponse(code int, message string) APIResponse {
 	return APIResponse{Code: code, Message: message}
 }
 
-// 错误码定义
+// 错误码定义.
 const (
 	ErrCodeInvalidParam   = 400
 	ErrCodeNotFound       = 404

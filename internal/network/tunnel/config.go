@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-// Config errors
+// Config errors.
 var (
 	ErrInvalidConfigFile = errors.New("invalid configuration file")
 	ErrMissingSTUNServer = errors.New("at least one STUN server required")
 )
 
-// LoadConfig loads tunnel configuration from a file
+// LoadConfig loads tunnel configuration from a file.
 func LoadConfig(path string) (*TunnelConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -36,7 +36,7 @@ func LoadConfig(path string) (*TunnelConfig, error) {
 	return config, nil
 }
 
-// SaveConfig saves tunnel configuration to a file
+// SaveConfig saves tunnel configuration to a file.
 func SaveConfig(path string, config *TunnelConfig) error {
 	data, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
@@ -46,7 +46,7 @@ func SaveConfig(path string, config *TunnelConfig) error {
 	return os.WriteFile(path, data, 0600)
 }
 
-// ValidateConfig validates tunnel configuration
+// ValidateConfig validates tunnel configuration.
 func ValidateConfig(config *TunnelConfig) error {
 	if config == nil {
 		return errors.New("config is nil")
@@ -87,7 +87,7 @@ func ValidateConfig(config *TunnelConfig) error {
 	return nil
 }
 
-// GenerateKeyPair generates a new encryption key pair
+// GenerateKeyPair generates a new encryption key pair.
 func GenerateKeyPair() (publicKey, privateKey []byte, err error) {
 	privateKey = make([]byte, 32)
 	if _, err := rand.Read(privateKey); err != nil {
@@ -102,38 +102,38 @@ func GenerateKeyPair() (publicKey, privateKey []byte, err error) {
 	return publicKey, privateKey, nil
 }
 
-// GenerateEncryptionKey generates a random encryption key
+// GenerateEncryptionKey generates a random encryption key.
 func GenerateEncryptionKey() ([]byte, error) {
 	key := make([]byte, 32)
 	_, err := rand.Read(key)
 	return key, err
 }
 
-// ConfigBuilder helps build tunnel configuration
+// ConfigBuilder helps build tunnel configuration.
 type ConfigBuilder struct {
 	config *TunnelConfig
 }
 
-// NewConfigBuilder creates a new config builder
+// NewConfigBuilder creates a new config builder.
 func NewConfigBuilder() *ConfigBuilder {
 	return &ConfigBuilder{
 		config: DefaultConfig(),
 	}
 }
 
-// WithListenPort sets the listen port
+// WithListenPort sets the listen port.
 func (b *ConfigBuilder) WithListenPort(port int) *ConfigBuilder {
 	b.config.ListenPort = port
 	return b
 }
 
-// WithSTUNServers sets STUN servers
+// WithSTUNServers sets STUN servers.
 func (b *ConfigBuilder) WithSTUNServers(servers ...string) *ConfigBuilder {
 	b.config.STUNServers = servers
 	return b
 }
 
-// WithTURNServer adds a TURN server
+// WithTURNServer adds a TURN server.
 func (b *ConfigBuilder) WithTURNServer(url, username, password string) *ConfigBuilder {
 	b.config.TURNServers = append(b.config.TURNServers, TURNServer{
 		URL:      url,
@@ -143,13 +143,13 @@ func (b *ConfigBuilder) WithTURNServer(url, username, password string) *ConfigBu
 	return b
 }
 
-// WithSignaling sets the signaling server URL
+// WithSignaling sets the signaling server URL.
 func (b *ConfigBuilder) WithSignaling(url string) *ConfigBuilder {
 	b.config.SignalingURL = url
 	return b
 }
 
-// WithTimeouts sets various timeouts
+// WithTimeouts sets various timeouts.
 func (b *ConfigBuilder) WithTimeouts(stun, turn, ice time.Duration) *ConfigBuilder {
 	b.config.STUNTimeout = stun
 	b.config.TURNTimeout = turn
@@ -157,25 +157,25 @@ func (b *ConfigBuilder) WithTimeouts(stun, turn, ice time.Duration) *ConfigBuild
 	return b
 }
 
-// WithKeepalive sets the keepalive interval
+// WithKeepalive sets the keepalive interval.
 func (b *ConfigBuilder) WithKeepalive(interval time.Duration) *ConfigBuilder {
 	b.config.Keepalive = interval
 	return b
 }
 
-// WithMaxPeers sets the maximum number of peers
+// WithMaxPeers sets the maximum number of peers.
 func (b *ConfigBuilder) WithMaxPeers(max int) *ConfigBuilder {
 	b.config.MaxPeers = max
 	return b
 }
 
-// WithEncryptionKey sets the encryption key
+// WithEncryptionKey sets the encryption key.
 func (b *ConfigBuilder) WithEncryptionKey(key []byte) *ConfigBuilder {
 	b.config.EncryptionKey = key
 	return b
 }
 
-// Build returns the built configuration
+// Build returns the built configuration.
 func (b *ConfigBuilder) Build() (*TunnelConfig, error) {
 	if err := ValidateConfig(b.config); err != nil {
 		return nil, err
@@ -183,7 +183,7 @@ func (b *ConfigBuilder) Build() (*TunnelConfig, error) {
 	return b.config, nil
 }
 
-// PublicSTUNServers returns a list of public STUN servers
+// PublicSTUNServers returns a list of public STUN servers.
 func PublicSTUNServers() []string {
 	return []string{
 		"stun:stun.l.google.com:19302",
@@ -197,14 +197,14 @@ func PublicSTUNServers() []string {
 	}
 }
 
-// PeerConfigJSON represents peer configuration in JSON format
+// PeerConfigJSON represents peer configuration in JSON format.
 type PeerConfigJSON struct {
 	ID        string   `json:"id"`
 	PublicKey string   `json:"public_key"`
 	Endpoints []string `json:"endpoints"`
 }
 
-// ParsePeerConfig parses peer configuration from JSON
+// ParsePeerConfig parses peer configuration from JSON.
 func ParsePeerConfig(data []byte) (*PeerConfig, error) {
 	var jsonConfig PeerConfigJSON
 	if err := json.Unmarshal(data, &jsonConfig); err != nil {
@@ -233,7 +233,7 @@ func ParsePeerConfig(data []byte) (*PeerConfig, error) {
 	return config, nil
 }
 
-// ToJSON converts peer configuration to JSON
+// ToJSON converts peer configuration to JSON.
 func (c *PeerConfig) ToJSON() ([]byte, error) {
 	jsonConfig := PeerConfigJSON{
 		ID:        c.ID,
@@ -248,7 +248,7 @@ func (c *PeerConfig) ToJSON() ([]byte, error) {
 	return json.MarshalIndent(jsonConfig, "", "  ")
 }
 
-// TunnelConfigJSON represents tunnel configuration in JSON format
+// TunnelConfigJSON represents tunnel configuration in JSON format.
 type TunnelConfigJSON struct {
 	ListenPort   int          `json:"listen_port"`
 	STUNServers  []string     `json:"stun_servers"`
@@ -262,7 +262,7 @@ type TunnelConfigJSON struct {
 	MaxRetries   int          `json:"max_retries"`
 }
 
-// ToJSON converts tunnel configuration to JSON
+// ToJSON converts tunnel configuration to JSON.
 func (c *TunnelConfig) ToJSON() ([]byte, error) {
 	jsonConfig := TunnelConfigJSON{
 		ListenPort:   c.ListenPort,
@@ -280,7 +280,7 @@ func (c *TunnelConfig) ToJSON() ([]byte, error) {
 	return json.MarshalIndent(jsonConfig, "", "  ")
 }
 
-// Environment variable names
+// Environment variable names.
 const (
 	EnvTunnelListenPort   = "TUNNEL_LISTEN_PORT"
 	EnvTunnelSTUNServers  = "TUNNEL_STUN_SERVERS"
@@ -289,7 +289,7 @@ const (
 	EnvTunnelMaxPeers     = "TUNNEL_MAX_PEERS"
 )
 
-// LoadConfigFromEnv loads configuration from environment variables
+// LoadConfigFromEnv loads configuration from environment variables.
 func LoadConfigFromEnv() *TunnelConfig {
 	config := DefaultConfig()
 

@@ -21,7 +21,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// FileListCache 文件列表缓存
+// FileListCache 文件列表缓存.
 type FileListCache struct {
 	cache     map[string]*CachedFileList
 	mu        sync.RWMutex
@@ -32,7 +32,7 @@ type FileListCache struct {
 	evictions int64
 }
 
-// CachedFileList 缓存的文件列表
+// CachedFileList 缓存的文件列表.
 type CachedFileList struct {
 	Files     []FileInfo `json:"files"`
 	Path      string     `json:"path"`
@@ -40,7 +40,7 @@ type CachedFileList struct {
 	ExpiresAt time.Time  `json:"expiresAt"`
 }
 
-// NewFileListCache 创建文件列表缓存
+// NewFileListCache 创建文件列表缓存.
 func NewFileListCache(maxSize int, ttl time.Duration) *FileListCache {
 	flc := &FileListCache{
 		cache:   make(map[string]*CachedFileList),
@@ -54,7 +54,7 @@ func NewFileListCache(maxSize int, ttl time.Duration) *FileListCache {
 	return flc
 }
 
-// Get 获取缓存的文件列表
+// Get 获取缓存的文件列表.
 func (c *FileListCache) Get(path string) (*CachedFileList, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -74,7 +74,7 @@ func (c *FileListCache) Get(path string) (*CachedFileList, bool) {
 	return entry, true
 }
 
-// Set 设置缓存
+// Set 设置缓存.
 func (c *FileListCache) Set(path string, files []FileInfo) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -92,14 +92,14 @@ func (c *FileListCache) Set(path string, files []FileInfo) {
 	}
 }
 
-// Delete 删除缓存
+// Delete 删除缓存.
 func (c *FileListCache) Delete(path string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	delete(c.cache, path)
 }
 
-// Invalidate 使指定路径及其子路径的缓存失效
+// Invalidate 使指定路径及其子路径的缓存失效.
 func (c *FileListCache) Invalidate(path string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -111,7 +111,7 @@ func (c *FileListCache) Invalidate(path string) {
 	}
 }
 
-// Stats 获取缓存统计
+// Stats 获取缓存统计.
 func (c *FileListCache) Stats() (hits, misses, evictions int64, size int) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -119,7 +119,7 @@ func (c *FileListCache) Stats() (hits, misses, evictions int64, size int) {
 		atomic.LoadInt64(&c.evictions), len(c.cache)
 }
 
-// evictOldest 淘汰最旧的条目
+// evictOldest 淘汰最旧的条目.
 func (c *FileListCache) evictOldest() {
 	var oldestKey string
 	var oldestTime time.Time
@@ -137,7 +137,7 @@ func (c *FileListCache) evictOldest() {
 	}
 }
 
-// startCleanup 启动后台清理
+// startCleanup 启动后台清理.
 func (c *FileListCache) startCleanup() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -155,7 +155,7 @@ func (c *FileListCache) startCleanup() {
 	}
 }
 
-// ThumbnailCache 缩略图缓存（带大小限制）
+// ThumbnailCache 缩略图缓存（带大小限制）.
 type ThumbnailCache struct {
 	cache     map[string]*ThumbnailEntry
 	mu        sync.RWMutex
@@ -167,7 +167,7 @@ type ThumbnailCache struct {
 	evictions int64
 }
 
-// ThumbnailEntry 缩略图缓存条目
+// ThumbnailEntry 缩略图缓存条目.
 type ThumbnailEntry struct {
 	Thumbnail string    `json:"thumbnail"`
 	Width     int       `json:"width"`
@@ -178,7 +178,7 @@ type ThumbnailEntry struct {
 	Bytes     int       `json:"bytes"` // 缓存条目字节大小
 }
 
-// NewThumbnailCache 创建缩略图缓存
+// NewThumbnailCache 创建缩略图缓存.
 func NewThumbnailCache(maxSize int, maxBytes int64) *ThumbnailCache {
 	tc := &ThumbnailCache{
 		cache:    make(map[string]*ThumbnailEntry),
@@ -192,7 +192,7 @@ func NewThumbnailCache(maxSize int, maxBytes int64) *ThumbnailCache {
 	return tc
 }
 
-// Get 获取缩略图
+// Get 获取缩略图.
 func (c *ThumbnailCache) Get(path string, size int, modTime time.Time) (*ThumbnailEntry, bool) {
 	cacheKey := fmt.Sprintf("%s:%d", path, size)
 
@@ -219,7 +219,7 @@ func (c *ThumbnailCache) Get(path string, size int, modTime time.Time) (*Thumbna
 	return entry, true
 }
 
-// Set 设置缩略图
+// Set 设置缩略图.
 func (c *ThumbnailCache) Set(path string, size int, modTime time.Time, thumbnail string, width, height int) {
 	cacheKey := fmt.Sprintf("%s:%d", path, size)
 	bytes := len(thumbnail)
@@ -249,7 +249,7 @@ func (c *ThumbnailCache) Set(path string, size int, modTime time.Time, thumbnail
 	c.curBytes += int64(bytes)
 }
 
-// Stats 获取统计信息
+// Stats 获取统计信息.
 func (c *ThumbnailCache) Stats() (hits, misses, evictions int64, size int, bytes int64) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -257,7 +257,7 @@ func (c *ThumbnailCache) Stats() (hits, misses, evictions int64, size int, bytes
 		atomic.LoadInt64(&c.evictions), len(c.cache), c.curBytes
 }
 
-// evictOldestLocked 淘汰最旧的条目（已持有锁）
+// evictOldestLocked 淘汰最旧的条目（已持有锁）.
 func (c *ThumbnailCache) evictOldestLocked() {
 	var oldestKey string
 	var oldestTime time.Time
@@ -278,7 +278,7 @@ func (c *ThumbnailCache) evictOldestLocked() {
 	}
 }
 
-// startCleanup 启动后台清理
+// startCleanup 启动后台清理.
 func (c *ThumbnailCache) startCleanup() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -298,7 +298,7 @@ func (c *ThumbnailCache) startCleanup() {
 	}
 }
 
-// OptimizedManager 优化的文件管理器
+// OptimizedManager 优化的文件管理器.
 type OptimizedManager struct {
 	*Manager       // 继承原有功能
 	fileListCache  *FileListCache
@@ -323,7 +323,7 @@ type thumbnailResult struct {
 	height    int
 }
 
-// NewOptimizedManager 创建优化的文件管理器
+// NewOptimizedManager 创建优化的文件管理器.
 func NewOptimizedManager(config PreviewConfig, logger *zap.Logger) *OptimizedManager {
 	m := NewManager(config)
 
@@ -342,14 +342,14 @@ func NewOptimizedManager(config PreviewConfig, logger *zap.Logger) *OptimizedMan
 	return om
 }
 
-// startThumbnailWorkers 启动缩略图工作池
+// startThumbnailWorkers 启动缩略图工作池.
 func (m *OptimizedManager) startThumbnailWorkers() {
 	for i := 0; i < m.thumbnailWorkers; i++ {
 		go m.thumbnailWorker()
 	}
 }
 
-// thumbnailWorker 缩略图工作线程
+// thumbnailWorker 缩略图工作线程.
 func (m *OptimizedManager) thumbnailWorker() {
 	for req := range m.thumbnailQueue {
 		thumbnail, w, h := m.generateThumbnailInternal(req.path, req.thumbSize)
@@ -358,7 +358,7 @@ func (m *OptimizedManager) thumbnailWorker() {
 	}
 }
 
-// ListFilesCached 带缓存的文件列表
+// ListFilesCached 带缓存的文件列表.
 func (m *OptimizedManager) ListFilesCached(dirPath string, generateThumbnails bool) ([]FileInfo, error) {
 	// 尝试从缓存获取
 	if cached, ok := m.fileListCache.Get(dirPath); ok {
@@ -385,7 +385,7 @@ func (m *OptimizedManager) ListFilesCached(dirPath string, generateThumbnails bo
 	return files, nil
 }
 
-// generateThumbnailsAsync 异步生成缩略图
+// generateThumbnailsAsync 异步生成缩略图.
 func (m *OptimizedManager) generateThumbnailsAsync(dirPath string, files []FileInfo) {
 	var mu sync.Mutex
 	var wg sync.WaitGroup
@@ -431,7 +431,7 @@ func (m *OptimizedManager) generateThumbnailsAsync(dirPath string, files []FileI
 	m.fileListCache.Set(dirPath, files)
 }
 
-// GetThumbnailCached 获取缩略图（带缓存）
+// GetThumbnailCached 获取缩略图（带缓存）.
 func (m *OptimizedManager) GetThumbnailCached(path string, thumbSize uint) (string, int, int) {
 	// 获取文件信息
 	info, err := os.Stat(path)
@@ -455,7 +455,7 @@ func (m *OptimizedManager) GetThumbnailCached(path string, thumbSize uint) (stri
 	return thumbnail, w, h
 }
 
-// generateThumbnailInternal 内部缩略图生成
+// generateThumbnailInternal 内部缩略图生成.
 func (m *OptimizedManager) generateThumbnailInternal(path string, thumbSize uint) (string, int, int) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -502,12 +502,12 @@ func (m *OptimizedManager) generateThumbnailInternal(path string, thumbSize uint
 	return thumbBase64, origW, origH
 }
 
-// InvalidateCache 使缓存失效
+// InvalidateCache 使缓存失效.
 func (m *OptimizedManager) InvalidateCache(path string) {
 	m.fileListCache.Invalidate(path)
 }
 
-// GetCacheStats 获取缓存统计
+// GetCacheStats 获取缓存统计.
 func (m *OptimizedManager) GetCacheStats() map[string]interface{} {
 	hits, misses, evictions, size := m.fileListCache.Stats()
 	thits, tmisses, tevictions, tsize, tbytes := m.thumbnailCache.Stats()
@@ -541,13 +541,13 @@ func (m *OptimizedManager) GetCacheStats() map[string]interface{} {
 	}
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *OptimizedManager) Close() {
 	close(m.thumbnailQueue)
 	m.thumbnailWg.Wait()
 }
 
-// SearchCache 搜索结果缓存
+// SearchCache 搜索结果缓存.
 type SearchCache struct {
 	cache   map[string]*CachedSearch
 	mu      sync.RWMutex
@@ -555,7 +555,7 @@ type SearchCache struct {
 	ttl     time.Duration
 }
 
-// CachedSearch 缓存的搜索结果
+// CachedSearch 缓存的搜索结果.
 type CachedSearch struct {
 	Query     string      `json:"query"`
 	Result    interface{} `json:"result"`
@@ -563,7 +563,7 @@ type CachedSearch struct {
 	ExpiresAt time.Time   `json:"expiresAt"`
 }
 
-// NewSearchCache 创建搜索缓存
+// NewSearchCache 创建搜索缓存.
 func NewSearchCache(maxSize int, ttl time.Duration) *SearchCache {
 	return &SearchCache{
 		cache:   make(map[string]*CachedSearch),
@@ -572,7 +572,7 @@ func NewSearchCache(maxSize int, ttl time.Duration) *SearchCache {
 	}
 }
 
-// Get 获取缓存的搜索结果
+// Get 获取缓存的搜索结果.
 func (c *SearchCache) Get(query string) (interface{}, bool) {
 	// 计算查询哈希作为键
 	key := hashQuery(query)
@@ -592,7 +592,7 @@ func (c *SearchCache) Get(query string) (interface{}, bool) {
 	return entry.Result, true
 }
 
-// Set 设置搜索结果缓存
+// Set 设置搜索结果缓存.
 func (c *SearchCache) Set(query string, result interface{}) {
 	key := hashQuery(query)
 
@@ -622,7 +622,7 @@ func (c *SearchCache) Set(query string, result interface{}) {
 	}
 }
 
-// hashQuery 计算查询的哈希
+// hashQuery 计算查询的哈希.
 func hashQuery(query string) string {
 	// 对查询进行规范化和哈希
 	h := sha256.New()
@@ -630,7 +630,7 @@ func hashQuery(query string) string {
 	return fmt.Sprintf("%x", h.Sum(nil))[:16]
 }
 
-// BatchOperation 批量操作结果
+// BatchOperation 批量操作结果.
 type BatchOperation struct {
 	Success []string `json:"success"`
 	Failed  []struct {
@@ -639,7 +639,7 @@ type BatchOperation struct {
 	} `json:"failed"`
 }
 
-// BatchDelete 批量删除文件
+// BatchDelete 批量删除文件.
 func (m *OptimizedManager) BatchDelete(paths []string) *BatchOperation {
 	result := &BatchOperation{
 		Success: make([]string, 0),
@@ -665,7 +665,7 @@ func (m *OptimizedManager) BatchDelete(paths []string) *BatchOperation {
 	return result
 }
 
-// BatchRename 批量重命名
+// BatchRename 批量重命名.
 func (m *OptimizedManager) BatchRename(renames map[string]string) *BatchOperation {
 	result := &BatchOperation{
 		Success: make([]string, 0),
@@ -691,7 +691,7 @@ func (m *OptimizedManager) BatchRename(renames map[string]string) *BatchOperatio
 	return result
 }
 
-// SortFiles 排序文件列表
+// SortFiles 排序文件列表.
 func SortFiles(files []FileInfo, sortBy string, desc bool) {
 	sort.Slice(files, func(i, j int) bool {
 		var less bool
@@ -718,7 +718,7 @@ func SortFiles(files []FileInfo, sortBy string, desc bool) {
 	})
 }
 
-// FilterFiles 过滤文件列表
+// FilterFiles 过滤文件列表.
 func FilterFiles(files []FileInfo, filter FileFilter) []FileInfo {
 	result := make([]FileInfo, 0)
 	for _, f := range files {
@@ -729,7 +729,7 @@ func FilterFiles(files []FileInfo, filter FileFilter) []FileInfo {
 	return result
 }
 
-// FileFilter 文件过滤器
+// FileFilter 文件过滤器.
 type FileFilter struct {
 	NamePattern string   `json:"namePattern"`
 	Types       []string `json:"types"`
@@ -737,7 +737,7 @@ type FileFilter struct {
 	MaxSize     int64    `json:"maxSize"`
 }
 
-// Match 检查文件是否匹配过滤器
+// Match 检查文件是否匹配过滤器.
 func (f FileFilter) Match(file FileInfo) bool {
 	// 名称模式
 	if f.NamePattern != "" {
@@ -772,13 +772,13 @@ func (f FileFilter) Match(file FileInfo) bool {
 	return true
 }
 
-// ToJSON 导出为 JSON
+// ToJSON 导出为 JSON.
 func (f *FileInfo) ToJSON() string {
 	data, _ := json.MarshalIndent(f, "", "  ")
 	return string(data)
 }
 
-// FileInfoFromJSON 从 JSON 解析
+// FileInfoFromJSON 从 JSON 解析.
 func FileInfoFromJSON(data string) (*FileInfo, error) {
 	var info FileInfo
 	err := json.Unmarshal([]byte(data), &info)

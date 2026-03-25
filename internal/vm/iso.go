@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 安全 HTTP 客户端，设置合理的超时时间
+// 安全 HTTP 客户端，设置合理的超时时间.
 var safeHTTPClient = &http.Client{
 	Timeout: 30 * time.Minute, // ISO 文件下载可能需要较长时间
 	Transport: &http.Transport{
@@ -25,7 +25,7 @@ var safeHTTPClient = &http.Client{
 	},
 }
 
-// ISOManager ISO 镜像管理器
+// ISOManager ISO 镜像管理器.
 type ISOManager struct {
 	mu      sync.RWMutex
 	isoPath string
@@ -33,7 +33,7 @@ type ISOManager struct {
 	logger  *zap.Logger
 }
 
-// NewISOManager 创建 ISO 管理器
+// NewISOManager 创建 ISO 管理器.
 func NewISOManager(isoPath string, logger *zap.Logger) (*ISOManager, error) {
 	if isoPath == "" {
 		isoPath = DefaultISOStoragePath
@@ -60,7 +60,7 @@ func NewISOManager(isoPath string, logger *zap.Logger) (*ISOManager, error) {
 	return m, nil
 }
 
-// loadISOs 加载现有 ISO 文件
+// loadISOs 加载现有 ISO 文件.
 func (m *ISOManager) loadISOs() error {
 	files, err := os.ReadDir(m.isoPath)
 	if err != nil {
@@ -100,7 +100,7 @@ func (m *ISOManager) loadISOs() error {
 	return nil
 }
 
-// addBuiltInISOs 添加内置 ISO 下载源
+// addBuiltInISOs 添加内置 ISO 下载源.
 func (m *ISOManager) addBuiltInISOs() {
 	builtInISOs := []ISOImage{
 		{
@@ -166,7 +166,7 @@ func (m *ISOManager) addBuiltInISOs() {
 	}
 }
 
-// ListISOs 获取 ISO 列表
+// ListISOs 获取 ISO 列表.
 func (m *ISOManager) ListISOs() []*ISOImage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -179,7 +179,7 @@ func (m *ISOManager) ListISOs() []*ISOImage {
 	return isos
 }
 
-// GetISO 获取 ISO 信息
+// GetISO 获取 ISO 信息.
 func (m *ISOManager) GetISO(isoID string) (*ISOImage, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -192,7 +192,7 @@ func (m *ISOManager) GetISO(isoID string) (*ISOImage, error) {
 	return iso, nil
 }
 
-// UploadISO 上传 ISO 文件
+// UploadISO 上传 ISO 文件.
 func (m *ISOManager) UploadISO(ctx context.Context, name string, reader io.Reader) (*ISOImage, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -238,7 +238,7 @@ func (m *ISOManager) UploadISO(ctx context.Context, name string, reader io.Reade
 	return iso, nil
 }
 
-// DownloadISO 下载 ISO 镜像
+// DownloadISO 下载 ISO 镜像.
 func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan chan<- int64) (*ISOImage, error) {
 	m.mu.Lock()
 	iso, exists := m.isos[isoID]
@@ -333,7 +333,7 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 	return iso, nil
 }
 
-// DeleteISO 删除 ISO 文件
+// DeleteISO 删除 ISO 文件.
 func (m *ISOManager) DeleteISO(isoID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

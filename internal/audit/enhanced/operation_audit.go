@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// OperationAuditor 操作审计器
+// OperationAuditor 操作审计器.
 type OperationAuditor struct {
 	entries    []*OperationAuditEntry
 	chains     map[string]*OperationChain
@@ -23,7 +23,7 @@ type OperationAuditor struct {
 	stopCh     chan struct{}
 }
 
-// OperationAuditConfig 操作审计配置
+// OperationAuditConfig 操作审计配置.
 type OperationAuditConfig struct {
 	Enabled           bool          `json:"enabled"`
 	MaxEntries        int           `json:"max_entries"`
@@ -36,7 +36,7 @@ type OperationAuditConfig struct {
 	StorageInterval   time.Duration `json:"storage_interval"`
 }
 
-// DefaultOperationAuditConfig 默认操作审计配置
+// DefaultOperationAuditConfig 默认操作审计配置.
 func DefaultOperationAuditConfig() OperationAuditConfig {
 	return OperationAuditConfig{
 		Enabled:           true,
@@ -51,7 +51,7 @@ func DefaultOperationAuditConfig() OperationAuditConfig {
 	}
 }
 
-// NewOperationAuditor 创建操作审计器
+// NewOperationAuditor 创建操作审计器.
 func NewOperationAuditor(config OperationAuditConfig) *OperationAuditor {
 	storageDir := "/var/log/nas-os/audit/operations"
 	if err := os.MkdirAll(storageDir, 0750); err != nil {
@@ -74,7 +74,7 @@ func NewOperationAuditor(config OperationAuditConfig) *OperationAuditor {
 	return oa
 }
 
-// Stop 停止审计器
+// Stop 停止审计器.
 func (oa *OperationAuditor) Stop() {
 	close(oa.stopCh)
 	oa.save()
@@ -82,7 +82,7 @@ func (oa *OperationAuditor) Stop() {
 
 // ========== 操作记录 ==========
 
-// RecordOperation 记录操作
+// RecordOperation 记录操作.
 func (oa *OperationAuditor) RecordOperation(
 	userID, username, ip, userAgent, sessionID string,
 	category OperationCategory,
@@ -147,7 +147,7 @@ func (oa *OperationAuditor) RecordOperation(
 	return entry
 }
 
-// RecordOperationWithDuration 记录带持续时间的操作
+// RecordOperationWithDuration 记录带持续时间的操作.
 func (oa *OperationAuditor) RecordOperationWithDuration(
 	userID, username, ip, userAgent, sessionID string,
 	category OperationCategory,
@@ -173,7 +173,7 @@ func (oa *OperationAuditor) RecordOperationWithDuration(
 	return entry
 }
 
-// RecordFailure 记录失败操作
+// RecordFailure 记录失败操作.
 func (oa *OperationAuditor) RecordFailure(
 	userID, username, ip, userAgent, sessionID string,
 	category OperationCategory,
@@ -213,7 +213,7 @@ func (oa *OperationAuditor) RecordFailure(
 
 // ========== 操作链追踪 ==========
 
-// StartOperationChain 开始操作链
+// StartOperationChain 开始操作链.
 func (oa *OperationAuditor) StartOperationChain(userID, username string) string {
 	oa.mu.Lock()
 	defer oa.mu.Unlock()
@@ -238,7 +238,7 @@ func (oa *OperationAuditor) StartOperationChain(userID, username string) string 
 	return correlationID
 }
 
-// AddToChain 添加操作到链
+// AddToChain 添加操作到链.
 func (oa *OperationAuditor) AddToChain(correlationID string, entry *OperationAuditEntry) {
 	oa.mu.Lock()
 	defer oa.mu.Unlock()
@@ -250,7 +250,7 @@ func (oa *OperationAuditor) AddToChain(correlationID string, entry *OperationAud
 	}
 }
 
-// EndOperationChain 结束操作链
+// EndOperationChain 结束操作链.
 func (oa *OperationAuditor) EndOperationChain(correlationID string, status string) {
 	oa.mu.Lock()
 	defer oa.mu.Unlock()
@@ -262,14 +262,14 @@ func (oa *OperationAuditor) EndOperationChain(correlationID string, status strin
 	}
 }
 
-// GetOperationChain 获取操作链
+// GetOperationChain 获取操作链.
 func (oa *OperationAuditor) GetOperationChain(correlationID string) *OperationChain {
 	oa.mu.RLock()
 	defer oa.mu.RUnlock()
 	return oa.chains[correlationID]
 }
 
-// cleanupOldChains 清理旧的操作链
+// cleanupOldChains 清理旧的操作链.
 func (oa *OperationAuditor) cleanupOldChains() {
 	// 按开始时间排序并删除最老的
 	type chainWithTime struct {
@@ -295,7 +295,7 @@ func (oa *OperationAuditor) cleanupOldChains() {
 
 // ========== 批量操作记录 ==========
 
-// RecordBatchOperations 批量记录操作
+// RecordBatchOperations 批量记录操作.
 func (oa *OperationAuditor) RecordBatchOperations(
 	userID, username, ip, userAgent, sessionID string,
 	operations []BatchOperation,
@@ -319,7 +319,7 @@ func (oa *OperationAuditor) RecordBatchOperations(
 	return correlationID, entries
 }
 
-// BatchOperation 批量操作项
+// BatchOperation 批量操作项.
 type BatchOperation struct {
 	Category     OperationCategory
 	Action       OperationAction
@@ -334,7 +334,7 @@ type BatchOperation struct {
 
 // ========== 查询功能 ==========
 
-// Query 查询操作审计日志
+// Query 查询操作审计日志.
 func (oa *OperationAuditor) Query(opts OperationQueryOptions) ([]*OperationAuditEntry, int) {
 	oa.mu.RLock()
 	defer oa.mu.RUnlock()
@@ -374,7 +374,7 @@ func (oa *OperationAuditor) Query(opts OperationQueryOptions) ([]*OperationAudit
 	return filtered[start:end], total
 }
 
-// matchesFilter 检查是否匹配筛选条件
+// matchesFilter 检查是否匹配筛选条件.
 func (oa *OperationAuditor) matchesFilter(entry *OperationAuditEntry, opts OperationQueryOptions) bool {
 	if opts.StartTime != nil && entry.Timestamp.Before(*opts.StartTime) {
 		return false
@@ -421,7 +421,7 @@ func (oa *OperationAuditor) matchesFilter(entry *OperationAuditEntry, opts Opera
 	return true
 }
 
-// GetByID 根据ID获取操作审计条目
+// GetByID 根据ID获取操作审计条目.
 func (oa *OperationAuditor) GetByID(id string) *OperationAuditEntry {
 	oa.mu.RLock()
 	defer oa.mu.RUnlock()
@@ -434,7 +434,7 @@ func (oa *OperationAuditor) GetByID(id string) *OperationAuditEntry {
 	return nil
 }
 
-// GetByCorrelationID 根据关联ID获取操作
+// GetByCorrelationID 根据关联ID获取操作.
 func (oa *OperationAuditor) GetByCorrelationID(correlationID string) []*OperationAuditEntry {
 	oa.mu.RLock()
 	defer oa.mu.RUnlock()
@@ -453,7 +453,7 @@ func (oa *OperationAuditor) GetByCorrelationID(correlationID string) []*Operatio
 	return entries
 }
 
-// GetByResource 根据资源获取操作历史
+// GetByResource 根据资源获取操作历史.
 func (oa *OperationAuditor) GetByResource(resourceType, resourceID string, limit int) []*OperationAuditEntry {
 	oa.mu.RLock()
 	defer oa.mu.RUnlock()
@@ -476,7 +476,7 @@ func (oa *OperationAuditor) GetByResource(resourceType, resourceID string, limit
 	return entries
 }
 
-// GetUserOperations 获取用户操作历史
+// GetUserOperations 获取用户操作历史.
 func (oa *OperationAuditor) GetUserOperations(userID string, limit int) []*OperationAuditEntry {
 	oa.mu.RLock()
 	defer oa.mu.RUnlock()
@@ -499,7 +499,7 @@ func (oa *OperationAuditor) GetUserOperations(userID string, limit int) []*Opera
 	return entries
 }
 
-// GetSensitiveOperations 获取敏感操作
+// GetSensitiveOperations 获取敏感操作.
 func (oa *OperationAuditor) GetSensitiveOperations(limit int) []*OperationAuditEntry {
 	oa.mu.RLock()
 	defer oa.mu.RUnlock()
@@ -524,7 +524,7 @@ func (oa *OperationAuditor) GetSensitiveOperations(limit int) []*OperationAuditE
 
 // ========== 统计功能 ==========
 
-// GetStatistics 获取操作统计
+// GetStatistics 获取操作统计.
 func (oa *OperationAuditor) GetStatistics(start, end time.Time) *OperationStatistics {
 	oa.mu.RLock()
 	defer oa.mu.RUnlock()
@@ -630,7 +630,7 @@ func (oa *OperationAuditor) GetStatistics(start, end time.Time) *OperationStatis
 
 // ========== 辅助功能 ==========
 
-// calculateSensitiveRiskScore 计算敏感操作风险分数
+// calculateSensitiveRiskScore 计算敏感操作风险分数.
 func (oa *OperationAuditor) calculateSensitiveRiskScore(level SensitivityLevel) int {
 	switch level {
 	case SensitivityCritical:
@@ -648,7 +648,7 @@ func (oa *OperationAuditor) calculateSensitiveRiskScore(level SensitivityLevel) 
 
 // ========== 持久化 ==========
 
-// save 保存数据
+// save 保存数据.
 func (oa *OperationAuditor) save() {
 	if len(oa.entries) == 0 {
 		return
@@ -666,7 +666,7 @@ func (oa *OperationAuditor) save() {
 	_ = os.WriteFile(filename, data, 0600)
 }
 
-// Load 加载数据
+// Load 加载数据.
 func (oa *OperationAuditor) Load(date string) error {
 	filename := filepath.Join(oa.storageDir, "operations-"+date+".log")
 	data, err := os.ReadFile(filename)

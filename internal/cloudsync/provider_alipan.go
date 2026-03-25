@@ -31,7 +31,7 @@ type ProviderAliyunPanImpl struct {
 	tokenExpiry  time.Time
 }
 
-// NewAliyunPanProvider 创建阿里云盘提供商
+// NewAliyunPanProvider 创建阿里云盘提供商.
 func NewAliyunPanProvider(cfg *ProviderConfig) (*ProviderAliyunPanImpl, error) {
 	client := &http.Client{
 		Timeout: 60 * time.Second,
@@ -51,14 +51,14 @@ func NewAliyunPanProvider(cfg *ProviderConfig) (*ProviderAliyunPanImpl, error) {
 	}, nil
 }
 
-// 阿里云盘API响应结构
+// 阿里云盘API响应结构.
 type alipanAPIResponse struct {
 	Code          string `json:"code"`
 	Message       string `json:"message"`
 	NextPageToken string `json:"next_page_token,omitempty"`
 }
 
-// refreshTokenIfNeeded 刷新访问令牌
+// refreshTokenIfNeeded 刷新访问令牌.
 func (p *ProviderAliyunPanImpl) refreshTokenIfNeeded(ctx context.Context) error {
 	// 如果token未过期，直接返回
 	if p.accessToken != "" && time.Now().Before(p.tokenExpiry.Add(-5*time.Minute)) {
@@ -116,7 +116,7 @@ func (p *ProviderAliyunPanImpl) refreshTokenIfNeeded(ctx context.Context) error 
 }
 
 // Upload 上传文件到阿里云盘
-// 阿里云盘支持秒传功能，会先尝试秒传，失败后走普通上传流程
+// 阿里云盘支持秒传功能，会先尝试秒传，失败后走普通上传流程.
 func (p *ProviderAliyunPanImpl) Upload(ctx context.Context, localPath, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -169,7 +169,7 @@ func (p *ProviderAliyunPanImpl) Upload(ctx context.Context, localPath, remotePat
 	return p.completeUpload(ctx, uploadInfo)
 }
 
-// alipanUploadInfo 上传信息
+// alipanUploadInfo 上传信息.
 type alipanUploadInfo struct {
 	FileID    string `json:"file_id"`
 	UploadID  string `json:"upload_id"`
@@ -181,7 +181,7 @@ type alipanUploadInfo struct {
 	} `json:"part_info_list"`
 }
 
-// calculateFileHash 计算文件哈希（阿里云盘使用sha1）
+// calculateFileHash 计算文件哈希（阿里云盘使用sha1）.
 func (p *ProviderAliyunPanImpl) calculateFileHash(file *os.File) (string, error) {
 	if _, err := file.Seek(0, 0); err != nil {
 		return "", err
@@ -199,7 +199,7 @@ func (p *ProviderAliyunPanImpl) calculateFileHash(file *os.File) (string, error)
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// createFile 创建文件（尝试秒传）
+// createFile 创建文件（尝试秒传）.
 func (p *ProviderAliyunPanImpl) createFile(ctx context.Context, fileName, parentID string, size int64, hash string) (*alipanUploadInfo, error) {
 	apiURL := fmt.Sprintf("%s/file/create", p.baseURL)
 
@@ -275,7 +275,7 @@ func (p *ProviderAliyunPanImpl) createFile(ctx context.Context, fileName, parent
 	}, nil
 }
 
-// uploadToOSS 上传文件到OSS
+// uploadToOSS 上传文件到OSS.
 func (p *ProviderAliyunPanImpl) uploadToOSS(ctx context.Context, uploadURL string, file *os.File, size int64) error {
 	req, err := http.NewRequestWithContext(ctx, "PUT", uploadURL, file)
 	if err != nil {
@@ -298,7 +298,7 @@ func (p *ProviderAliyunPanImpl) uploadToOSS(ctx context.Context, uploadURL strin
 	return nil
 }
 
-// completeUpload 完成上传
+// completeUpload 完成上传.
 func (p *ProviderAliyunPanImpl) completeUpload(ctx context.Context, uploadInfo *alipanUploadInfo) error {
 	apiURL := fmt.Sprintf("%s/file/complete", p.baseURL)
 
@@ -335,7 +335,7 @@ func (p *ProviderAliyunPanImpl) completeUpload(ctx context.Context, uploadInfo *
 	return nil
 }
 
-// Download 从阿里云盘下载文件
+// Download 从阿里云盘下载文件.
 func (p *ProviderAliyunPanImpl) Download(ctx context.Context, remotePath, localPath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -385,7 +385,7 @@ func (p *ProviderAliyunPanImpl) Download(ctx context.Context, remotePath, localP
 	return err
 }
 
-// getDownloadURL 获取下载链接
+// getDownloadURL 获取下载链接.
 func (p *ProviderAliyunPanImpl) getDownloadURL(ctx context.Context, fileID string) (string, error) {
 	apiURL := fmt.Sprintf("%s/file/get_download_url", p.baseURL)
 
@@ -425,7 +425,7 @@ func (p *ProviderAliyunPanImpl) getDownloadURL(ctx context.Context, fileID strin
 	return result.URL, nil
 }
 
-// Delete 删除阿里云盘文件
+// Delete 删除阿里云盘文件.
 func (p *ProviderAliyunPanImpl) Delete(ctx context.Context, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -471,7 +471,7 @@ func (p *ProviderAliyunPanImpl) Delete(ctx context.Context, remotePath string) e
 	return nil
 }
 
-// List 列出阿里云盘文件
+// List 列出阿里云盘文件.
 func (p *ProviderAliyunPanImpl) List(ctx context.Context, prefix string, recursive bool) ([]FileInfo, error) {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return nil, err
@@ -485,7 +485,7 @@ func (p *ProviderAliyunPanImpl) List(ctx context.Context, prefix string, recursi
 	return p.listFiles(ctx, dirID, prefix, recursive)
 }
 
-// listFiles 列出目录下的文件
+// listFiles 列出目录下的文件.
 func (p *ProviderAliyunPanImpl) listFiles(ctx context.Context, dirID, prefix string, recursive bool) ([]FileInfo, error) {
 	apiURL := fmt.Sprintf("%s/file/list", p.baseURL)
 
@@ -552,7 +552,7 @@ func (p *ProviderAliyunPanImpl) listFiles(ctx context.Context, dirID, prefix str
 	return files, nil
 }
 
-// Stat 获取阿里云盘文件信息
+// Stat 获取阿里云盘文件信息.
 func (p *ProviderAliyunPanImpl) Stat(ctx context.Context, remotePath string) (*FileInfo, error) {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return nil, err
@@ -612,7 +612,7 @@ func (p *ProviderAliyunPanImpl) Stat(ctx context.Context, remotePath string) (*F
 	}, nil
 }
 
-// CreateDir 在阿里云盘创建目录
+// CreateDir 在阿里云盘创建目录.
 func (p *ProviderAliyunPanImpl) CreateDir(ctx context.Context, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -622,12 +622,12 @@ func (p *ProviderAliyunPanImpl) CreateDir(ctx context.Context, remotePath string
 	return err
 }
 
-// DeleteDir 删除阿里云盘目录
+// DeleteDir 删除阿里云盘目录.
 func (p *ProviderAliyunPanImpl) DeleteDir(ctx context.Context, remotePath string) error {
 	return p.Delete(ctx, remotePath)
 }
 
-// TestConnection 测试阿里云盘连接
+// TestConnection 测试阿里云盘连接.
 func (p *ProviderAliyunPanImpl) TestConnection(ctx context.Context) (*ConnectionTestResult, error) {
 	start := time.Now()
 
@@ -687,30 +687,30 @@ func (p *ProviderAliyunPanImpl) TestConnection(ctx context.Context) (*Connection
 	return result, nil
 }
 
-// Close 关闭连接
+// Close 关闭连接.
 func (p *ProviderAliyunPanImpl) Close() error {
 	return nil
 }
 
-// GetType 返回提供商类型
+// GetType 返回提供商类型.
 func (p *ProviderAliyunPanImpl) GetType() ProviderType {
 	return ProviderAliyunPan
 }
 
-// GetCapabilities 返回支持的功能
+// GetCapabilities 返回支持的功能.
 func (p *ProviderAliyunPanImpl) GetCapabilities() []string {
 	return []string{"upload", "download", "delete", "list", "instant_upload", "share"}
 }
 
 // ==================== 辅助方法 ====================
 
-// setAuthHeader 设置认证头
+// setAuthHeader 设置认证头.
 func (p *ProviderAliyunPanImpl) setAuthHeader(req *http.Request) {
 	req.Header.Set("Authorization", "Bearer "+p.accessToken)
 	req.Header.Set("User-Agent", "NAS-OS/1.0")
 }
 
-// getOrCreateDirID 获取或创建目录ID
+// getOrCreateDirID 获取或创建目录ID.
 func (p *ProviderAliyunPanImpl) getOrCreateDirID(ctx context.Context, path string) (string, error) {
 	if path == "" || path == "/" {
 		return "root", nil
@@ -737,12 +737,12 @@ func (p *ProviderAliyunPanImpl) getOrCreateDirID(ctx context.Context, path strin
 	return parentID, nil
 }
 
-// getDirIDByPath 通过路径获取目录ID
+// getDirIDByPath 通过路径获取目录ID.
 func (p *ProviderAliyunPanImpl) getDirIDByPath(ctx context.Context, path string) (string, error) {
 	return p.getOrCreateDirID(ctx, path)
 }
 
-// findDir 查找目录
+// findDir 查找目录.
 func (p *ProviderAliyunPanImpl) findDir(ctx context.Context, parentID, name string) (string, error) {
 	apiURL := fmt.Sprintf("%s/file/search", p.baseURL)
 
@@ -789,7 +789,7 @@ func (p *ProviderAliyunPanImpl) findDir(ctx context.Context, parentID, name stri
 	return "", os.ErrNotExist
 }
 
-// createDir 创建目录
+// createDir 创建目录.
 func (p *ProviderAliyunPanImpl) createDir(ctx context.Context, parentID, name string) (string, error) {
 	apiURL := fmt.Sprintf("%s/file/create_folder", p.baseURL)
 
@@ -831,7 +831,7 @@ func (p *ProviderAliyunPanImpl) createDir(ctx context.Context, parentID, name st
 	return result.FileID, nil
 }
 
-// getFileIDByPath 通过路径获取文件ID
+// getFileIDByPath 通过路径获取文件ID.
 func (p *ProviderAliyunPanImpl) getFileIDByPath(ctx context.Context, path string) (string, error) {
 	dir := filepath.Dir(path)
 	fileName := filepath.Base(path)

@@ -16,20 +16,20 @@ import (
 	"time"
 )
 
-// ChannelManager 渠道管理器
+// ChannelManager 渠道管理器.
 type ChannelManager struct {
 	channels map[string]*ChannelConfig
 	mu       sync.RWMutex
 }
 
-// NewChannelManager 创建渠道管理器
+// NewChannelManager 创建渠道管理器.
 func NewChannelManager() *ChannelManager {
 	return &ChannelManager{
 		channels: make(map[string]*ChannelConfig),
 	}
 }
 
-// AddChannel 添加渠道
+// AddChannel 添加渠道.
 func (cm *ChannelManager) AddChannel(config *ChannelConfig) error {
 	if config.ID == "" {
 		return fmt.Errorf("渠道 ID 不能为空")
@@ -49,7 +49,7 @@ func (cm *ChannelManager) AddChannel(config *ChannelConfig) error {
 	return nil
 }
 
-// UpdateChannel 更新渠道
+// UpdateChannel 更新渠道.
 func (cm *ChannelManager) UpdateChannel(config *ChannelConfig) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -64,7 +64,7 @@ func (cm *ChannelManager) UpdateChannel(config *ChannelConfig) error {
 	return nil
 }
 
-// RemoveChannel 移除渠道
+// RemoveChannel 移除渠道.
 func (cm *ChannelManager) RemoveChannel(id string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -77,7 +77,7 @@ func (cm *ChannelManager) RemoveChannel(id string) error {
 	return nil
 }
 
-// GetChannel 获取渠道
+// GetChannel 获取渠道.
 func (cm *ChannelManager) GetChannel(id string) (*ChannelConfig, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -90,7 +90,7 @@ func (cm *ChannelManager) GetChannel(id string) (*ChannelConfig, error) {
 	return config, nil
 }
 
-// ListChannels 列出渠道
+// ListChannels 列出渠道.
 func (cm *ChannelManager) ListChannels(channelType ChannelType) []*ChannelConfig {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -105,7 +105,7 @@ func (cm *ChannelManager) ListChannels(channelType ChannelType) []*ChannelConfig
 	return result
 }
 
-// GetEnabledChannels 获取启用的渠道
+// GetEnabledChannels 获取启用的渠道.
 func (cm *ChannelManager) GetEnabledChannels() []*ChannelConfig {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -120,26 +120,26 @@ func (cm *ChannelManager) GetEnabledChannels() []*ChannelConfig {
 	return result
 }
 
-// ChannelSender 渠道发送器接口
+// ChannelSender 渠道发送器接口.
 type ChannelSender interface {
 	Send(config *ChannelConfig, notification *Notification) error
 	Type() ChannelType
 }
 
-// EmailSender 邮件发送器
+// EmailSender 邮件发送器.
 type EmailSender struct{}
 
-// NewEmailSender 创建邮件发送器
+// NewEmailSender 创建邮件发送器.
 func NewEmailSender() *EmailSender {
 	return &EmailSender{}
 }
 
-// Type 返回渠道类型
+// Type 返回渠道类型.
 func (s *EmailSender) Type() ChannelType {
 	return ChannelEmail
 }
 
-// Send 发送邮件通知
+// Send 发送邮件通知.
 func (s *EmailSender) Send(config *ChannelConfig, notification *Notification) error {
 	emailConfig, err := parseEmailConfig(config.Config)
 	if err != nil {
@@ -261,24 +261,24 @@ func (s *EmailSender) getLevelLabel(level Level) string {
 	return "未知"
 }
 
-// WebhookSender Webhook 发送器
+// WebhookSender Webhook 发送器.
 type WebhookSender struct {
 	client *http.Client
 }
 
-// NewWebhookSender 创建 Webhook 发送器
+// NewWebhookSender 创建 Webhook 发送器.
 func NewWebhookSender() *WebhookSender {
 	return &WebhookSender{
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
-// Type 返回渠道类型
+// Type 返回渠道类型.
 func (s *WebhookSender) Type() ChannelType {
 	return ChannelWebhook
 }
 
-// Send 发送 Webhook 通知
+// Send 发送 Webhook 通知.
 func (s *WebhookSender) Send(config *ChannelConfig, notification *Notification) error {
 	webhookConfig, err := parseWebhookConfig(config.Config)
 	if err != nil {
@@ -335,31 +335,31 @@ func (s *WebhookSender) Send(config *ChannelConfig, notification *Notification) 
 	return nil
 }
 
-// WebSocketSender WebSocket 发送器
+// WebSocketSender WebSocket 发送器.
 type WebSocketSender struct {
 	broadcaster WebSocketBroadcaster
 }
 
-// WebSocketBroadcaster WebSocket 广播接口
+// WebSocketBroadcaster WebSocket 广播接口.
 type WebSocketBroadcaster interface {
 	Broadcast(message []byte) error
 	SendToRoom(roomID string, message []byte) error
 	SendToUser(userID string, message []byte) error
 }
 
-// NewWebSocketSender 创建 WebSocket 发送器
+// NewWebSocketSender 创建 WebSocket 发送器.
 func NewWebSocketSender(broadcaster WebSocketBroadcaster) *WebSocketSender {
 	return &WebSocketSender{
 		broadcaster: broadcaster,
 	}
 }
 
-// Type 返回渠道类型
+// Type 返回渠道类型.
 func (s *WebSocketSender) Type() ChannelType {
 	return ChannelWebSocket
 }
 
-// Send 发送 WebSocket 通知
+// Send 发送 WebSocket 通知.
 func (s *WebSocketSender) Send(config *ChannelConfig, notification *Notification) error {
 	wsConfig, err := parseWebSocketConfig(config.Config)
 	if err != nil {
@@ -405,24 +405,24 @@ func (s *WebSocketSender) Send(config *ChannelConfig, notification *Notification
 	return nil
 }
 
-// WeChatSender 企业微信发送器
+// WeChatSender 企业微信发送器.
 type WeChatSender struct {
 	client *http.Client
 }
 
-// NewWeChatSender 创建企业微信发送器
+// NewWeChatSender 创建企业微信发送器.
 func NewWeChatSender() *WeChatSender {
 	return &WeChatSender{
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
-// Type 返回渠道类型
+// Type 返回渠道类型.
 func (s *WeChatSender) Type() ChannelType {
 	return ChannelWeChat
 }
 
-// Send 发送企业微信通知
+// Send 发送企业微信通知.
 func (s *WeChatSender) Send(config *ChannelConfig, notification *Notification) error {
 	wechatConfig, err := parseWeChatConfig(config.Config)
 	if err != nil {
@@ -500,24 +500,24 @@ func (s *WeChatSender) getLevelLabel(level Level) string {
 	return "未知"
 }
 
-// DingTalkSender 钉钉发送器
+// DingTalkSender 钉钉发送器.
 type DingTalkSender struct {
 	client *http.Client
 }
 
-// NewDingTalkSender 创建钉钉发送器
+// NewDingTalkSender 创建钉钉发送器.
 func NewDingTalkSender() *DingTalkSender {
 	return &DingTalkSender{
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
-// Type 返回渠道类型
+// Type 返回渠道类型.
 func (s *DingTalkSender) Type() ChannelType {
 	return ChannelDingTalk
 }
 
-// Send 发送钉钉通知
+// Send 发送钉钉通知.
 func (s *DingTalkSender) Send(config *ChannelConfig, notification *Notification) error {
 	dingConfig, err := parseDingTalkConfig(config.Config)
 	if err != nil {
@@ -573,24 +573,24 @@ func (s *DingTalkSender) signURL(webhookURL, secret string) string {
 	return fmt.Sprintf("%s&timestamp=%d&sign=%s", webhookURL, timestamp, url.QueryEscape(sign))
 }
 
-// TelegramSender Telegram 发送器
+// TelegramSender Telegram 发送器.
 type TelegramSender struct {
 	client *http.Client
 }
 
-// NewTelegramSender 创建 Telegram 发送器
+// NewTelegramSender 创建 Telegram 发送器.
 func NewTelegramSender() *TelegramSender {
 	return &TelegramSender{
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
-// Type 返回渠道类型
+// Type 返回渠道类型.
 func (s *TelegramSender) Type() ChannelType {
 	return ChannelTelegram
 }
 
-// Send 发送 Telegram 通知
+// Send 发送 Telegram 通知.
 func (s *TelegramSender) Send(config *ChannelConfig, notification *Notification) error {
 	telegramConfig, err := parseTelegramConfig(config.Config)
 	if err != nil {
@@ -647,13 +647,13 @@ func escapeTelegramMarkdown(text string) string {
 	return result
 }
 
-// SenderRegistry 发送器注册表
+// SenderRegistry 发送器注册表.
 type SenderRegistry struct {
 	senders map[ChannelType]ChannelSender
 	mu      sync.RWMutex
 }
 
-// NewSenderRegistry 创建发送器注册表
+// NewSenderRegistry 创建发送器注册表.
 func NewSenderRegistry() *SenderRegistry {
 	registry := &SenderRegistry{
 		senders: make(map[ChannelType]ChannelSender),
@@ -669,14 +669,14 @@ func NewSenderRegistry() *SenderRegistry {
 	return registry
 }
 
-// Register 注册发送器
+// Register 注册发送器.
 func (r *SenderRegistry) Register(sender ChannelSender) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.senders[sender.Type()] = sender
 }
 
-// Get 获取发送器
+// Get 获取发送器.
 func (r *SenderRegistry) Get(channelType ChannelType) (ChannelSender, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -684,7 +684,7 @@ func (r *SenderRegistry) Get(channelType ChannelType) (ChannelSender, bool) {
 	return sender, exists
 }
 
-// SetWebSocketSender 设置 WebSocket 发送器（需要外部注入）
+// SetWebSocketSender 设置 WebSocket 发送器（需要外部注入）.
 func (r *SenderRegistry) SetWebSocketSender(broadcaster WebSocketBroadcaster) {
 	r.Register(NewWebSocketSender(broadcaster))
 }
@@ -815,12 +815,12 @@ func parseTelegramConfig(config map[string]interface{}) (*TelegramChannelConfig,
 	return &telegramConfig, nil
 }
 
-// GenerateID 生成唯一 ID
+// GenerateID 生成唯一 ID.
 func GenerateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
-// HexEncode 十六进制编码
+// HexEncode 十六进制编码.
 func HexEncode(data []byte) string {
 	return hex.EncodeToString(data)
 }

@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 健康检查 API 处理器
+// Handlers 健康检查 API 处理器.
 type Handlers struct {
 	manager *Manager
 	version string
 }
 
-// NewHandlers 创建健康检查处理器
+// NewHandlers 创建健康检查处理器.
 func NewHandlers(manager *Manager, version string) *Handlers {
 	return &Handlers{
 		manager: manager,
@@ -21,7 +21,7 @@ func NewHandlers(manager *Manager, version string) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	api := r.Group("/api/v1")
 	{
@@ -36,7 +36,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// Response 健康检查响应
+// Response 健康检查响应.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -49,7 +49,7 @@ type Response struct {
 // @Tags health
 // @Produce json
 // @Success 200 {object} HealthResponse
-// @Router /api/v1/health [get]
+// @Router /api/v1/health [get].
 func (h *Handlers) getHealth(c *gin.Context) {
 	report := h.manager.GenerateReport(c.Request.Context(), h.version)
 
@@ -75,7 +75,7 @@ func (h *Handlers) getHealth(c *gin.Context) {
 // @Tags health
 // @Produce json
 // @Success 200 {object} HealthResponse
-// @Router /api/v1/health/live [get]
+// @Router /api/v1/health/live [get].
 func (h *Handlers) getLiveness(c *gin.Context) {
 	// 存活探针只检查服务是否响应
 	c.JSON(http.StatusOK, Response{
@@ -94,7 +94,7 @@ func (h *Handlers) getLiveness(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} HealthResponse
 // @Failure 503 {object} HealthResponse
-// @Router /api/v1/health/ready [get]
+// @Router /api/v1/health/ready [get].
 func (h *Handlers) getReadiness(c *gin.Context) {
 	// 就绪探针检查关键依赖是否可用
 	report := h.manager.RunAllChecks(c.Request.Context())
@@ -135,7 +135,7 @@ func (h *Handlers) getReadiness(c *gin.Context) {
 // @Tags health
 // @Produce json
 // @Success 200 {object} HealthResponse
-// @Router /api/v1/health/report [get]
+// @Router /api/v1/health/report [get].
 func (h *Handlers) getReport(c *gin.Context) {
 	report := h.manager.GenerateReport(c.Request.Context(), h.version)
 
@@ -152,7 +152,7 @@ func (h *Handlers) getReport(c *gin.Context) {
 // @Tags health
 // @Produce json
 // @Success 200 {object} HealthResponse
-// @Router /api/v1/health/checks [get]
+// @Router /api/v1/health/checks [get].
 func (h *Handlers) listChecks(c *gin.Context) {
 	checkers := h.manager.ListCheckers()
 	results := h.manager.GetAllLastResults()
@@ -188,7 +188,7 @@ func (h *Handlers) listChecks(c *gin.Context) {
 // @Param name path string true "检查器名称"
 // @Success 200 {object} HealthResponse
 // @Failure 404 {object} HealthResponse
-// @Router /api/v1/health/checks/{name}/run [post]
+// @Router /api/v1/health/checks/{name}/run [post].
 func (h *Handlers) runCheck(c *gin.Context) {
 	name := c.Param("name")
 
@@ -222,7 +222,7 @@ func (h *Handlers) runCheck(c *gin.Context) {
 // @Param name path string true "检查器名称"
 // @Success 200 {object} HealthResponse
 // @Failure 404 {object} HealthResponse
-// @Router /api/v1/health/checks/{name} [get]
+// @Router /api/v1/health/checks/{name} [get].
 func (h *Handlers) getCheckResult(c *gin.Context) {
 	name := c.Param("name")
 
@@ -242,7 +242,7 @@ func (h *Handlers) getCheckResult(c *gin.Context) {
 	})
 }
 
-// RegisterSimpleRoutes 注册简化路由（用于内部服务）
+// RegisterSimpleRoutes 注册简化路由（用于内部服务）.
 func (h *Handlers) RegisterSimpleRoutes(r *gin.Engine) {
 	r.GET("/health", h.getHealth)
 	r.GET("/healthz", h.getLiveness)

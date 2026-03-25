@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Migrator 数据迁移调度器
+// Migrator 数据迁移调度器.
 type Migrator struct {
 	mu sync.RWMutex
 
@@ -28,7 +28,7 @@ type Migrator struct {
 	cloudSyncFunc func(sourcePath, targetPath string) error
 }
 
-// NewMigrator 创建迁移调度器
+// NewMigrator 创建迁移调度器.
 func NewMigrator(config PolicyEngineConfig) *Migrator {
 	return &Migrator{
 		config: config,
@@ -37,14 +37,14 @@ func NewMigrator(config PolicyEngineConfig) *Migrator {
 	}
 }
 
-// Start 启动迁移器
+// Start 启动迁移器.
 func (m *Migrator) Start() {
 	m.mu.Lock()
 	m.running = true
 	m.mu.Unlock()
 }
 
-// Stop 停止迁移器
+// Stop 停止迁移器.
 func (m *Migrator) Stop() {
 	m.mu.Lock()
 	m.running = false
@@ -53,14 +53,14 @@ func (m *Migrator) Stop() {
 	close(m.stopCh)
 }
 
-// SetCloudSyncFunc 设置云同步回调
+// SetCloudSyncFunc 设置云同步回调.
 func (m *Migrator) SetCloudSyncFunc(fn func(sourcePath, targetPath string) error) {
 	m.cloudSyncFunc = fn
 }
 
 // ==================== 文件迁移 ====================
 
-// MigrateFile 迁移单个文件
+// MigrateFile 迁移单个文件.
 func (m *Migrator) MigrateFile(file *MigrateFile, policy *Policy) error {
 	// 获取并发槽
 	m.sem <- struct{}{}
@@ -89,7 +89,7 @@ func (m *Migrator) MigrateFile(file *MigrateFile, policy *Policy) error {
 	}
 }
 
-// moveFile 移动文件
+// moveFile 移动文件.
 func (m *Migrator) moveFile(file *MigrateFile, policy *Policy) error {
 	// 确定目标路径
 	targetPath := m.getTargetPath(file.Path, policy.TargetTier)
@@ -121,7 +121,7 @@ func (m *Migrator) moveFile(file *MigrateFile, policy *Policy) error {
 	return nil
 }
 
-// copyFile 复制文件
+// copyFile 复制文件.
 func (m *Migrator) copyFile(file *MigrateFile, policy *Policy) error {
 	targetPath := m.getTargetPath(file.Path, policy.TargetTier)
 
@@ -131,7 +131,7 @@ func (m *Migrator) copyFile(file *MigrateFile, policy *Policy) error {
 	return m.copyFileInternal(file.Path, targetPath, policy.VerifyAfter)
 }
 
-// copyFileInternal 内部复制实现
+// copyFileInternal 内部复制实现.
 func (m *Migrator) copyFileInternal(sourcePath, targetPath string, verify bool) error {
 	// 确保目标目录存在
 	targetDir := filepath.Dir(targetPath)
@@ -191,7 +191,7 @@ func (m *Migrator) copyFileInternal(sourcePath, targetPath string, verify bool) 
 	return nil
 }
 
-// archiveFile 归档文件
+// archiveFile 归档文件.
 func (m *Migrator) archiveFile(file *MigrateFile, policy *Policy) error {
 	// 如果有云同步回调，使用云同步
 	if m.cloudSyncFunc != nil {
@@ -215,7 +215,7 @@ func (m *Migrator) archiveFile(file *MigrateFile, policy *Policy) error {
 	return m.copyFile(file, policy)
 }
 
-// deleteFile 删除文件
+// deleteFile 删除文件.
 func (m *Migrator) deleteFile(file *MigrateFile, policy *Policy) error {
 	file.SourcePath = file.Path
 
@@ -230,7 +230,7 @@ func (m *Migrator) deleteFile(file *MigrateFile, policy *Policy) error {
 
 // ==================== 辅助函数 ====================
 
-// getTargetPath 获取目标路径
+// getTargetPath 获取目标路径.
 func (m *Migrator) getTargetPath(sourcePath string, targetTier TierType) string {
 	// 基于源路径生成目标路径
 	// 实际实现应根据存储层配置
@@ -246,7 +246,7 @@ func (m *Migrator) getTargetPath(sourcePath string, targetTier TierType) string 
 	}
 }
 
-// verifyFile 验证文件
+// verifyFile 验证文件.
 func (m *Migrator) verifyFile(sourcePath, targetPath string) error {
 	// 比较文件大小
 	sourceInfo, err := os.Stat(sourcePath)
@@ -283,7 +283,7 @@ func (m *Migrator) verifyFile(sourcePath, targetPath string) error {
 	return nil
 }
 
-// calculateFileHash 计算文件的 SHA256 哈希值
+// calculateFileHash 计算文件的 SHA256 哈希值.
 func (m *Migrator) calculateFileHash(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -301,7 +301,7 @@ func (m *Migrator) calculateFileHash(filePath string) (string, error) {
 
 // ==================== 批量迁移 ====================
 
-// BatchMigrate 批量迁移
+// BatchMigrate 批量迁移.
 func (m *Migrator) BatchMigrate(files []MigrateFile, policy *Policy, progress func(int, int)) error {
 	var wg sync.WaitGroup
 	errCh := make(chan error, len(files))
@@ -345,7 +345,7 @@ func (m *Migrator) BatchMigrate(files []MigrateFile, policy *Policy, progress fu
 
 // ==================== 估算 ====================
 
-// EstimateMigration 估算迁移
+// EstimateMigration 估算迁移.
 func (m *Migrator) EstimateMigration(files []MigrateFile, targetTier TierType) (totalSize int64, fileCount int) {
 	for _, file := range files {
 		totalSize += file.Size

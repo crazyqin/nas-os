@@ -9,7 +9,7 @@ import (
 
 // ========== SMB 用户权限测试 ==========
 
-// setupPermissionTest 创建带用户管理器的测试环境
+// setupPermissionTest 创建带用户管理器的测试环境.
 func setupPermissionTest(t *testing.T) (*Manager, *users.Manager, string) {
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "smb.json")

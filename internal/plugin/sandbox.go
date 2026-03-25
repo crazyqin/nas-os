@@ -10,54 +10,54 @@ import (
 	"sync"
 )
 
-// PermissionType represents a plugin permission type
+// PermissionType represents a plugin permission type.
 type PermissionType string
 
 const (
-	// PermReadFiles 读文件权限
+	// PermReadFiles 读文件权限.
 	PermReadFiles PermissionType = "fs.read"
-	// PermWriteFiles 写文件权限
+	// PermWriteFiles 写文件权限.
 	PermWriteFiles PermissionType = "fs.write"
-	// PermDeleteFiles 删除文件权限
+	// PermDeleteFiles 删除文件权限.
 	PermDeleteFiles PermissionType = "fs.delete"
-	// PermExecFiles 执行文件权限
+	// PermExecFiles 执行文件权限.
 	PermExecFiles PermissionType = "fs.exec"
 
-	// PermNetworkListen 网络监听权限
+	// PermNetworkListen 网络监听权限.
 	PermNetworkListen PermissionType = "network.listen"
-	// PermNetworkDial 网络连接权限
+	// PermNetworkDial 网络连接权限.
 	PermNetworkDial PermissionType = "network.dial"
-	// PermNetworkHTTP HTTP网络权限
+	// PermNetworkHTTP HTTP网络权限.
 	PermNetworkHTTP PermissionType = "network.http"
 
-	// PermSystemInfo 系统信息权限
+	// PermSystemInfo 系统信息权限.
 	PermSystemInfo PermissionType = "system.info"
-	// PermSystemExec 系统执行权限
+	// PermSystemExec 系统执行权限.
 	PermSystemExec PermissionType = "system.exec"
-	// PermSystemMount 系统挂载权限
+	// PermSystemMount 系统挂载权限.
 	PermSystemMount PermissionType = "system.mount"
 
-	// PermUserRead 用户读权限
+	// PermUserRead 用户读权限.
 	PermUserRead PermissionType = "user.read"
-	// PermUserWrite 用户写权限
+	// PermUserWrite 用户写权限.
 	PermUserWrite PermissionType = "user.write"
 
-	// PermStorageRead 存储读权限
+	// PermStorageRead 存储读权限.
 	PermStorageRead PermissionType = "storage.read"
-	// PermStorageWrite 存储写权限
+	// PermStorageWrite 存储写权限.
 	PermStorageWrite PermissionType = "storage.write"
 
-	// PermAdmin 管理员权限
+	// PermAdmin 管理员权限.
 	PermAdmin PermissionType = "admin"
 )
 
-// PermissionSet defines a set of permissions
+// PermissionSet defines a set of permissions.
 type PermissionSet struct {
 	Permissions []PermissionType `json:"permissions"`
 	Deny        []PermissionType `json:"deny,omitempty"`
 }
 
-// SandboxConfig defines sandbox configuration for a plugin
+// SandboxConfig defines sandbox configuration for a plugin.
 type SandboxConfig struct {
 	// Permissions granted to the plugin
 	Permissions PermissionSet `json:"permissions"`
@@ -81,7 +81,7 @@ type SandboxConfig struct {
 	ReadOnlyRoot    bool `json:"readOnlyRoot"`
 }
 
-// Sandbox manages plugin isolation and permissions
+// Sandbox manages plugin isolation and permissions.
 type Sandbox struct {
 	config     SandboxConfig
 	pluginID   string
@@ -89,7 +89,7 @@ type Sandbox struct {
 	mu         sync.RWMutex
 }
 
-// Violation represents a permission violation
+// Violation represents a permission violation.
 type Violation struct {
 	Timestamp  int64          `json:"timestamp"`
 	Permission PermissionType `json:"permission"`
@@ -99,7 +99,7 @@ type Violation struct {
 	Message    string         `json:"message"`
 }
 
-// NewSandbox creates a new sandbox for a plugin
+// NewSandbox creates a new sandbox for a plugin.
 func NewSandbox(pluginID string, config SandboxConfig) *Sandbox {
 	// Set defaults
 	if config.MaxMemoryMB == 0 {
@@ -119,7 +119,7 @@ func NewSandbox(pluginID string, config SandboxConfig) *Sandbox {
 	}
 }
 
-// CheckPermission checks if a permission is granted
+// CheckPermission checks if a permission is granted.
 func (s *Sandbox) CheckPermission(perm PermissionType) bool {
 	// Check if in deny list
 	for _, d := range s.config.Permissions.Deny {
@@ -140,7 +140,7 @@ func (s *Sandbox) CheckPermission(perm PermissionType) bool {
 	return false
 }
 
-// CheckFileAccess checks if file access is allowed
+// CheckFileAccess checks if file access is allowed.
 func (s *Sandbox) CheckFileAccess(path string, op string) error {
 	// Normalize path
 	absPath, err := filepath.Abs(path)
@@ -199,7 +199,7 @@ func (s *Sandbox) CheckFileAccess(path string, op string) error {
 	return nil
 }
 
-// CheckNetworkAccess checks if network access is allowed
+// CheckNetworkAccess checks if network access is allowed.
 func (s *Sandbox) CheckNetworkAccess(host string, port int) error {
 	// Check denied hosts
 	for _, denied := range s.config.DeniedHosts {
@@ -247,7 +247,7 @@ func (s *Sandbox) CheckNetworkAccess(host string, port int) error {
 	return nil
 }
 
-// recordViolation records a permission violation
+// recordViolation records a permission violation.
 func (s *Sandbox) recordViolation(perm PermissionType, resource, action string, denied bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -263,7 +263,7 @@ func (s *Sandbox) recordViolation(perm PermissionType, resource, action string, 
 	s.violations = append(s.violations, v)
 }
 
-// GetViolations returns all recorded violations
+// GetViolations returns all recorded violations.
 func (s *Sandbox) GetViolations() []Violation {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -273,18 +273,18 @@ func (s *Sandbox) GetViolations() []Violation {
 	return result
 }
 
-// GetConfig returns sandbox configuration
+// GetConfig returns sandbox configuration.
 func (s *Sandbox) GetConfig() SandboxConfig {
 	return s.config
 }
 
-// FileSystem wraps os file operations with sandbox checks
+// FileSystem wraps os file operations with sandbox checks.
 type FileSystem struct {
 	sandbox *Sandbox
 	root    string // Chroot root
 }
 
-// NewFileSystem creates a sandboxed file system
+// NewFileSystem creates a sandboxed file system.
 func NewFileSystem(sandbox *Sandbox, root string) *FileSystem {
 	return &FileSystem{
 		sandbox: sandbox,
@@ -292,7 +292,7 @@ func NewFileSystem(sandbox *Sandbox, root string) *FileSystem {
 	}
 }
 
-// Open opens a file with sandbox checks
+// Open opens a file with sandbox checks.
 func (fs *FileSystem) Open(path string) (*os.File, error) {
 	if err := fs.sandbox.CheckFileAccess(path, "read"); err != nil {
 		return nil, err
@@ -300,7 +300,7 @@ func (fs *FileSystem) Open(path string) (*os.File, error) {
 	return os.Open(fs.resolvePath(path))
 }
 
-// Create creates a file with sandbox checks
+// Create creates a file with sandbox checks.
 func (fs *FileSystem) Create(path string) (*os.File, error) {
 	if err := fs.sandbox.CheckFileAccess(path, "write"); err != nil {
 		return nil, err
@@ -308,7 +308,7 @@ func (fs *FileSystem) Create(path string) (*os.File, error) {
 	return os.Create(fs.resolvePath(path))
 }
 
-// ReadFile reads a file with sandbox checks
+// ReadFile reads a file with sandbox checks.
 func (fs *FileSystem) ReadFile(path string) ([]byte, error) {
 	if err := fs.sandbox.CheckFileAccess(path, "read"); err != nil {
 		return nil, err
@@ -316,7 +316,7 @@ func (fs *FileSystem) ReadFile(path string) ([]byte, error) {
 	return os.ReadFile(fs.resolvePath(path))
 }
 
-// WriteFile writes a file with sandbox checks
+// WriteFile writes a file with sandbox checks.
 func (fs *FileSystem) WriteFile(path string, data []byte, perm fs.FileMode) error {
 	if err := fs.sandbox.CheckFileAccess(path, "write"); err != nil {
 		return err
@@ -331,7 +331,7 @@ func (fs *FileSystem) WriteFile(path string, data []byte, perm fs.FileMode) erro
 	return os.WriteFile(fs.resolvePath(path), data, perm)
 }
 
-// Remove removes a file with sandbox checks
+// Remove removes a file with sandbox checks.
 func (fs *FileSystem) Remove(path string) error {
 	if err := fs.sandbox.CheckFileAccess(path, "delete"); err != nil {
 		return err
@@ -339,7 +339,7 @@ func (fs *FileSystem) Remove(path string) error {
 	return os.Remove(fs.resolvePath(path))
 }
 
-// Mkdir creates a directory with sandbox checks
+// Mkdir creates a directory with sandbox checks.
 func (fs *FileSystem) Mkdir(path string, perm fs.FileMode) error {
 	if err := fs.sandbox.CheckFileAccess(path, "write"); err != nil {
 		return err
@@ -347,7 +347,7 @@ func (fs *FileSystem) Mkdir(path string, perm fs.FileMode) error {
 	return os.Mkdir(fs.resolvePath(path), perm)
 }
 
-// ReadDir reads a directory with sandbox checks
+// ReadDir reads a directory with sandbox checks.
 func (fs *FileSystem) ReadDir(path string) ([]os.DirEntry, error) {
 	if err := fs.sandbox.CheckFileAccess(path, "read"); err != nil {
 		return nil, err
@@ -355,7 +355,7 @@ func (fs *FileSystem) ReadDir(path string) ([]os.DirEntry, error) {
 	return os.ReadDir(fs.resolvePath(path))
 }
 
-// Stat gets file info with sandbox checks
+// Stat gets file info with sandbox checks.
 func (fs *FileSystem) Stat(path string) (os.FileInfo, error) {
 	if err := fs.sandbox.CheckFileAccess(path, "read"); err != nil {
 		return nil, err
@@ -363,7 +363,7 @@ func (fs *FileSystem) Stat(path string) (os.FileInfo, error) {
 	return os.Stat(fs.resolvePath(path))
 }
 
-// resolvePath resolves path relative to sandbox root
+// resolvePath resolves path relative to sandbox root.
 func (fs *FileSystem) resolvePath(path string) string {
 	if fs.root == "" {
 		return path
@@ -384,14 +384,14 @@ func (fs *FileSystem) resolvePath(path string) string {
 	return cleanPath
 }
 
-// SandboxManager manages all plugin sandboxes
+// SandboxManager manages all plugin sandboxes.
 type SandboxManager struct {
 	sandboxes map[string]*Sandbox
 	profiles  map[string]SandboxConfig
 	mu        sync.RWMutex
 }
 
-// NewSandboxManager creates a new sandbox manager
+// NewSandboxManager creates a new sandbox manager.
 func NewSandboxManager() *SandboxManager {
 	sm := &SandboxManager{
 		sandboxes: make(map[string]*Sandbox),
@@ -404,7 +404,7 @@ func NewSandboxManager() *SandboxManager {
 	return sm
 }
 
-// registerDefaultProfiles registers default sandbox profiles
+// registerDefaultProfiles registers default sandbox profiles.
 func (sm *SandboxManager) registerDefaultProfiles() {
 	// Minimal profile - read-only, no network
 	sm.profiles["minimal"] = SandboxConfig{
@@ -461,7 +461,7 @@ func (sm *SandboxManager) registerDefaultProfiles() {
 	}
 }
 
-// CreateSandbox creates a sandbox for a plugin
+// CreateSandbox creates a sandbox for a plugin.
 func (sm *SandboxManager) CreateSandbox(pluginID string, profile string) (*Sandbox, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -478,7 +478,7 @@ func (sm *SandboxManager) CreateSandbox(pluginID string, profile string) (*Sandb
 	return sandbox, nil
 }
 
-// GetSandbox returns a plugin's sandbox
+// GetSandbox returns a plugin's sandbox.
 func (sm *SandboxManager) GetSandbox(pluginID string) (*Sandbox, bool) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -487,7 +487,7 @@ func (sm *SandboxManager) GetSandbox(pluginID string) (*Sandbox, bool) {
 	return sandbox, exists
 }
 
-// RemoveSandbox removes a plugin's sandbox
+// RemoveSandbox removes a plugin's sandbox.
 func (sm *SandboxManager) RemoveSandbox(pluginID string) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -495,7 +495,7 @@ func (sm *SandboxManager) RemoveSandbox(pluginID string) {
 	delete(sm.sandboxes, pluginID)
 }
 
-// ListSandboxes lists all sandboxes
+// ListSandboxes lists all sandboxes.
 func (sm *SandboxManager) ListSandboxes() map[string]SandboxConfig {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -507,7 +507,7 @@ func (sm *SandboxManager) ListSandboxes() map[string]SandboxConfig {
 	return result
 }
 
-// GetProfiles returns available profiles
+// GetProfiles returns available profiles.
 func (sm *SandboxManager) GetProfiles() map[string]SandboxConfig {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -519,7 +519,7 @@ func (sm *SandboxManager) GetProfiles() map[string]SandboxConfig {
 	return result
 }
 
-// AddProfile adds a custom profile
+// AddProfile adds a custom profile.
 func (sm *SandboxManager) AddProfile(name string, config SandboxConfig) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -527,7 +527,7 @@ func (sm *SandboxManager) AddProfile(name string, config SandboxConfig) {
 	sm.profiles[name] = config
 }
 
-// GetViolations returns all violations across sandboxes
+// GetViolations returns all violations across sandboxes.
 func (sm *SandboxManager) GetViolations() map[string][]Violation {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -539,7 +539,7 @@ func (sm *SandboxManager) GetViolations() map[string][]Violation {
 	return result
 }
 
-// ToJSON converts sandbox config to JSON
+// ToJSON converts sandbox config to JSON.
 func (c SandboxConfig) ToJSON() (string, error) {
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
@@ -548,7 +548,7 @@ func (c SandboxConfig) ToJSON() (string, error) {
 	return string(data), nil
 }
 
-// ParseSandboxConfig parses sandbox config from JSON
+// ParseSandboxConfig parses sandbox config from JSON.
 func ParseSandboxConfig(jsonStr string) (SandboxConfig, error) {
 	var config SandboxConfig
 	err := json.Unmarshal([]byte(jsonStr), &config)

@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// DistributedMonitor 分布式监控管理器
+// DistributedMonitor 分布式监控管理器.
 type DistributedMonitor struct {
 	mu              sync.RWMutex
 	localManager    *Manager
@@ -28,7 +28,7 @@ type DistributedMonitor struct {
 	wg              sync.WaitGroup
 }
 
-// ClusterNodeInfo 集群节点信息
+// ClusterNodeInfo 集群节点信息.
 type ClusterNodeInfo struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
@@ -38,7 +38,7 @@ type ClusterNodeInfo struct {
 	IsLeader bool   `json:"is_leader"`
 }
 
-// NodeMetrics 节点指标
+// NodeMetrics 节点指标.
 type NodeMetrics struct {
 	NodeID         string              `json:"node_id"`
 	NodeName       string              `json:"node_name"`
@@ -51,7 +51,7 @@ type NodeMetrics struct {
 	Status         string              `json:"status"`
 }
 
-// SystemMetricData 系统指标数据
+// SystemMetricData 系统指标数据.
 type SystemMetricData struct {
 	CPUUsage     float64 `json:"cpu_usage"`
 	MemoryUsage  float64 `json:"memory_usage"`
@@ -65,7 +65,7 @@ type SystemMetricData struct {
 	ProcessCount int     `json:"process_count"`
 }
 
-// DiskMetricData 磁盘指标数据
+// DiskMetricData 磁盘指标数据.
 type DiskMetricData struct {
 	Device       string  `json:"device"`
 	MountPoint   string  `json:"mount_point"`
@@ -82,7 +82,7 @@ type DiskMetricData struct {
 	HealthStatus string  `json:"health_status"`
 }
 
-// StoragePoolMetric 存储池指标
+// StoragePoolMetric 存储池指标.
 type StoragePoolMetric struct {
 	PoolName       string           `json:"pool_name"`
 	PoolType       string           `json:"pool_type"` // btrfs, zfs, mdadm, etc.
@@ -100,7 +100,7 @@ type StoragePoolMetric struct {
 	Alerts         []PoolAlertState `json:"alerts,omitempty"`
 }
 
-// StorageIOStats 存储 IO 统计
+// StorageIOStats 存储 IO 统计.
 type StorageIOStats struct {
 	ReadBytesPerSec  float64 `json:"read_bytes_per_sec"`
 	WriteBytesPerSec float64 `json:"write_bytes_per_sec"`
@@ -109,7 +109,7 @@ type StorageIOStats struct {
 	AvgLatencyMs     float64 `json:"avg_latency_ms"`
 }
 
-// RebuildStatus 重建状态
+// RebuildStatus 重建状态.
 type RebuildStatus struct {
 	IsActive   bool    `json:"is_active"`
 	Progress   float64 `json:"progress"`
@@ -117,7 +117,7 @@ type RebuildStatus struct {
 	StartTime  string  `json:"start_time,omitempty"`
 }
 
-// PoolAlertState 存储池告警状态
+// PoolAlertState 存储池告警状态.
 type PoolAlertState struct {
 	AlertType   string    `json:"alert_type"`
 	Level       string    `json:"level"`
@@ -125,7 +125,7 @@ type PoolAlertState struct {
 	TriggeredAt time.Time `json:"triggered_at"`
 }
 
-// NetworkMetricData 网络指标数据
+// NetworkMetricData 网络指标数据.
 type NetworkMetricData struct {
 	RXBytes      uint64  `json:"rx_bytes"`
 	TXBytes      uint64  `json:"tx_bytes"`
@@ -139,7 +139,7 @@ type NetworkMetricData struct {
 	BandwidthOut float64 `json:"bandwidth_out_mbps"`
 }
 
-// AggregationRule 指标聚合规则
+// AggregationRule 指标聚合规则.
 type AggregationRule struct {
 	Interval        time.Duration       `json:"interval"`
 	RetentionPeriod time.Duration       `json:"retention_period"`
@@ -147,14 +147,14 @@ type AggregationRule struct {
 	Aggregations    []MetricAggregation `json:"aggregations"`
 }
 
-// MetricAggregation 指标聚合配置
+// MetricAggregation 指标聚合配置.
 type MetricAggregation struct {
 	MetricName string `json:"metric_name"`
 	Method     string `json:"method"` // avg, max, min, sum, percentile
 	WindowSize string `json:"window_size"`
 }
 
-// MetricReporter 指标上报器
+// MetricReporter 指标上报器.
 type MetricReporter struct {
 	NodeID     string
 	Endpoint   string
@@ -164,7 +164,7 @@ type MetricReporter struct {
 	LastError  error
 }
 
-// StoragePoolAlertRule 存储池告警规则
+// StoragePoolAlertRule 存储池告警规则.
 type StoragePoolAlertRule struct {
 	Name            string        `json:"name"`
 	PoolPattern     string        `json:"pool_pattern"` // 支持通配符匹配
@@ -176,7 +176,7 @@ type StoragePoolAlertRule struct {
 	MessageTemplate string        `json:"message_template"`
 }
 
-// AggregatedMetrics 聚合后的指标
+// AggregatedMetrics 聚合后的指标.
 type AggregatedMetrics struct {
 	Timestamp     time.Time              `json:"timestamp"`
 	NodeCount     int                    `json:"node_count"`
@@ -193,7 +193,7 @@ type AggregatedMetrics struct {
 	Alerts        []ClusterAlert         `json:"alerts"`
 }
 
-// AggregatedPoolMetric 聚合的存储池指标
+// AggregatedPoolMetric 聚合的存储池指标.
 type AggregatedPoolMetric struct {
 	PoolName       string  `json:"pool_name"`
 	TotalBytes     uint64  `json:"total_bytes"`
@@ -204,7 +204,7 @@ type AggregatedPoolMetric struct {
 	AlertCount     int     `json:"alert_count"`
 }
 
-// ClusterAlert 集群告警
+// ClusterAlert 集群告警.
 type ClusterAlert struct {
 	ID           string    `json:"id"`
 	Type         string    `json:"type"` // node_down, pool_degraded, high_usage, io_latency
@@ -217,7 +217,7 @@ type ClusterAlert struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
-// NewDistributedMonitor 创建分布式监控管理器
+// NewDistributedMonitor 创建分布式监控管理器.
 func NewDistributedMonitor(localManager *Manager, collector *MetricsCollector, alertManager *AlertingManager) *DistributedMonitor {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -247,7 +247,7 @@ func NewDistributedMonitor(localManager *Manager, collector *MetricsCollector, a
 	return dm
 }
 
-// DefaultStoragePoolAlertRules 默认存储池告警规则
+// DefaultStoragePoolAlertRules 默认存储池告警规则.
 func DefaultStoragePoolAlertRules() []StoragePoolAlertRule {
 	return []StoragePoolAlertRule{
 		{
@@ -313,7 +313,7 @@ func DefaultStoragePoolAlertRules() []StoragePoolAlertRule {
 	}
 }
 
-// Start 启动分布式监控
+// Start 启动分布式监控.
 func (dm *DistributedMonitor) Start() error {
 	dm.wg.Add(1)
 	go dm.monitorLoop()
@@ -327,13 +327,13 @@ func (dm *DistributedMonitor) Start() error {
 	return nil
 }
 
-// Stop 停止分布式监控
+// Stop 停止分布式监控.
 func (dm *DistributedMonitor) Stop() {
 	dm.cancel()
 	dm.wg.Wait()
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (dm *DistributedMonitor) monitorLoop() {
 	defer dm.wg.Done()
 
@@ -351,7 +351,7 @@ func (dm *DistributedMonitor) monitorLoop() {
 	}
 }
 
-// reportLoop 上报循环
+// reportLoop 上报循环.
 func (dm *DistributedMonitor) reportLoop() {
 	defer dm.wg.Done()
 
@@ -368,7 +368,7 @@ func (dm *DistributedMonitor) reportLoop() {
 	}
 }
 
-// alertCheckLoop 告警检查循环
+// alertCheckLoop 告警检查循环.
 func (dm *DistributedMonitor) alertCheckLoop() {
 	defer dm.wg.Done()
 
@@ -385,7 +385,7 @@ func (dm *DistributedMonitor) alertCheckLoop() {
 	}
 }
 
-// collectLocalMetrics 收集本地指标
+// collectLocalMetrics 收集本地指标.
 func (dm *DistributedMonitor) collectLocalMetrics() {
 	if dm.localManager == nil {
 		return
@@ -464,7 +464,7 @@ func (dm *DistributedMonitor) collectLocalMetrics() {
 	dm.mu.Unlock()
 }
 
-// RegisterNode 注册集群节点
+// RegisterNode 注册集群节点.
 func (dm *DistributedMonitor) RegisterNode(node ClusterNodeInfo) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -480,7 +480,7 @@ func (dm *DistributedMonitor) RegisterNode(node ClusterNodeInfo) {
 	dm.clusterNodes = append(dm.clusterNodes, node)
 }
 
-// UnregisterNode 注销集群节点
+// UnregisterNode 注销集群节点.
 func (dm *DistributedMonitor) UnregisterNode(nodeID string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -497,7 +497,7 @@ func (dm *DistributedMonitor) UnregisterNode(nodeID string) {
 	delete(dm.nodes, nodeID)
 }
 
-// UpdateNodeMetrics 更新节点指标（用于接收远程节点上报）
+// UpdateNodeMetrics 更新节点指标（用于接收远程节点上报）.
 func (dm *DistributedMonitor) UpdateNodeMetrics(metrics *NodeMetrics) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -506,7 +506,7 @@ func (dm *DistributedMonitor) UpdateNodeMetrics(metrics *NodeMetrics) {
 	dm.nodes[metrics.NodeID] = metrics
 }
 
-// aggregateMetrics 聚合指标
+// aggregateMetrics 聚合指标.
 func (dm *DistributedMonitor) aggregateMetrics() *AggregatedMetrics {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -612,12 +612,12 @@ func (dm *DistributedMonitor) aggregateMetrics() *AggregatedMetrics {
 	return agg
 }
 
-// GetAggregatedMetrics 获取聚合指标
+// GetAggregatedMetrics 获取聚合指标.
 func (dm *DistributedMonitor) GetAggregatedMetrics() *AggregatedMetrics {
 	return dm.aggregateMetrics()
 }
 
-// GetNodeMetrics 获取节点指标
+// GetNodeMetrics 获取节点指标.
 func (dm *DistributedMonitor) GetNodeMetrics(nodeID string) *NodeMetrics {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -625,7 +625,7 @@ func (dm *DistributedMonitor) GetNodeMetrics(nodeID string) *NodeMetrics {
 	return dm.nodes[nodeID]
 }
 
-// GetAllNodeMetrics 获取所有节点指标
+// GetAllNodeMetrics 获取所有节点指标.
 func (dm *DistributedMonitor) GetAllNodeMetrics() []*NodeMetrics {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -637,7 +637,7 @@ func (dm *DistributedMonitor) GetAllNodeMetrics() []*NodeMetrics {
 	return result
 }
 
-// UpdateStoragePoolMetrics 更新存储池指标
+// UpdateStoragePoolMetrics 更新存储池指标.
 func (dm *DistributedMonitor) UpdateStoragePoolMetrics(poolMetrics []StoragePoolMetric) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -660,7 +660,7 @@ func (dm *DistributedMonitor) UpdateStoragePoolMetrics(poolMetrics []StoragePool
 	}
 }
 
-// checkStoragePoolAlerts 检查存储池告警
+// checkStoragePoolAlerts 检查存储池告警.
 func (dm *DistributedMonitor) checkStoragePoolAlerts() {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -724,13 +724,13 @@ func (dm *DistributedMonitor) checkStoragePoolAlerts() {
 	}
 }
 
-// formatAlertMessage 格式化告警消息
+// formatAlertMessage 格式化告警消息.
 func formatAlertMessage(template, poolName string, value float64) string {
 	// 简单模板替换
 	return fmt.Sprintf("存储池 %s 当前值 %.2f", poolName, value)
 }
 
-// AddAlertRule 添加告警规则
+// AddAlertRule 添加告警规则.
 func (dm *DistributedMonitor) AddAlertRule(rule StoragePoolAlertRule) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -738,7 +738,7 @@ func (dm *DistributedMonitor) AddAlertRule(rule StoragePoolAlertRule) {
 	dm.alertRules = append(dm.alertRules, rule)
 }
 
-// RemoveAlertRule 移除告警规则
+// RemoveAlertRule 移除告警规则.
 func (dm *DistributedMonitor) RemoveAlertRule(name string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -751,7 +751,7 @@ func (dm *DistributedMonitor) RemoveAlertRule(name string) {
 	}
 }
 
-// GetAlertRules 获取告警规则
+// GetAlertRules 获取告警规则.
 func (dm *DistributedMonitor) GetAlertRules() []StoragePoolAlertRule {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -761,7 +761,7 @@ func (dm *DistributedMonitor) GetAlertRules() []StoragePoolAlertRule {
 	return result
 }
 
-// reportMetrics 上报指标
+// reportMetrics 上报指标.
 func (dm *DistributedMonitor) reportMetrics() {
 	dm.mu.RLock()
 	reporters := make(map[string]*MetricReporter)
@@ -784,7 +784,7 @@ func (dm *DistributedMonitor) reportMetrics() {
 	}
 }
 
-// reportToEndpoint 上报到指定端点
+// reportToEndpoint 上报到指定端点.
 func (dm *DistributedMonitor) reportToEndpoint(reporter *MetricReporter) error {
 	metrics := dm.GetAggregatedMetrics()
 	if metrics == nil {
@@ -817,7 +817,7 @@ func (dm *DistributedMonitor) reportToEndpoint(reporter *MetricReporter) error {
 	return nil
 }
 
-// RegisterReporter 注册指标上报器
+// RegisterReporter 注册指标上报器.
 func (dm *DistributedMonitor) RegisterReporter(reporter *MetricReporter) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -825,7 +825,7 @@ func (dm *DistributedMonitor) RegisterReporter(reporter *MetricReporter) {
 	dm.reporters[reporter.NodeID] = reporter
 }
 
-// UnregisterReporter 注销指标上报器
+// UnregisterReporter 注销指标上报器.
 func (dm *DistributedMonitor) UnregisterReporter(nodeID string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -833,7 +833,7 @@ func (dm *DistributedMonitor) UnregisterReporter(nodeID string) {
 	delete(dm.reporters, nodeID)
 }
 
-// GetClusterStats 获取集群统计
+// GetClusterStats 获取集群统计.
 func (dm *DistributedMonitor) GetClusterStats() map[string]interface{} {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()

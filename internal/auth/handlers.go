@@ -6,18 +6,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers MFA HTTP 处理器
+// Handlers MFA HTTP 处理器.
 type Handlers struct {
 	manager *MFAManager
 }
 
-// NewHandlers 创建 MFA 处理器
+// NewHandlers 创建 MFA 处理器.
 func NewHandlers(mgr *MFAManager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
 // RegisterRoutes 注册路由
-// 注意：MFA 操作需要认证，调用方应在应用此路由组前添加认证中间件
+// 注意：MFA 操作需要认证，调用方应在应用此路由组前添加认证中间件.
 func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	mfa := apiGroup.Group("/mfa")
 	// 所有 MFA 操作都需要认证
@@ -63,7 +63,7 @@ func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 // @Success 200 {object} api.Response{data=MFAStatus}
 // @Failure 401 {object} api.Response
 // @Router /mfa/status [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getStatus(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -77,7 +77,7 @@ func (h *Handlers) getStatus(c *gin.Context) {
 
 // ========== TOTP ==========
 
-// TOTPSetupResponse TOTP 设置响应
+// TOTPSetupResponse TOTP 设置响应.
 type TOTPSetupResponse struct {
 	Secret      string `json:"secret"`
 	URI         string `json:"uri"`
@@ -86,7 +86,7 @@ type TOTPSetupResponse struct {
 	AccountName string `json:"account_name"`
 }
 
-// EnableTOTPRequest 启用 TOTP 请求
+// EnableTOTPRequest 启用 TOTP 请求.
 type EnableTOTPRequest struct {
 	Code string `json:"code" binding:"required"`
 }
@@ -101,7 +101,7 @@ type EnableTOTPRequest struct {
 // @Failure 400 {object} api.Response
 // @Failure 401 {object} api.Response
 // @Router /mfa/totp/setup [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) setupTOTP(c *gin.Context) {
 	userID := c.GetString("user_id")
 	username := c.GetString("username")
@@ -137,7 +137,7 @@ func (h *Handlers) setupTOTP(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 401 {object} api.Response
 // @Router /mfa/totp/enable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) enableTOTP(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -159,7 +159,7 @@ func (h *Handlers) enableTOTP(c *gin.Context) {
 	api.OK(c, nil)
 }
 
-// disableTOTP 禁用 TOTP
+// disableTOTP 禁用 TOTP.
 func (h *Handlers) disableTOTP(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -183,18 +183,18 @@ func (h *Handlers) disableTOTP(c *gin.Context) {
 
 // ========== 短信验证码 ==========
 
-// SendSMSRequest 发送短信验证码请求
+// SendSMSRequest 发送短信验证码请求.
 type SendSMSRequest struct {
 	Phone string `json:"phone" binding:"required"`
 }
 
-// EnableSMSRequest 启用短信验证请求
+// EnableSMSRequest 启用短信验证请求.
 type EnableSMSRequest struct {
 	Phone string `json:"phone" binding:"required"`
 	Code  string `json:"code" binding:"required"`
 }
 
-// sendSMS 发送短信验证码
+// sendSMS 发送短信验证码.
 func (h *Handlers) sendSMS(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -216,7 +216,7 @@ func (h *Handlers) sendSMS(c *gin.Context) {
 	api.OK(c, nil)
 }
 
-// enableSMS 启用短信验证
+// enableSMS 启用短信验证.
 func (h *Handlers) enableSMS(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -238,7 +238,7 @@ func (h *Handlers) enableSMS(c *gin.Context) {
 	api.OK(c, nil)
 }
 
-// disableSMS 禁用短信验证
+// disableSMS 禁用短信验证.
 func (h *Handlers) disableSMS(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -262,7 +262,7 @@ func (h *Handlers) disableSMS(c *gin.Context) {
 
 // ========== 备份码 ==========
 
-// generateBackupCodes 生成备份码
+// generateBackupCodes 生成备份码.
 func (h *Handlers) generateBackupCodes(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -281,7 +281,7 @@ func (h *Handlers) generateBackupCodes(c *gin.Context) {
 	})
 }
 
-// getBackupStatus 获取备份码状态
+// getBackupStatus 获取备份码状态.
 func (h *Handlers) getBackupStatus(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -297,18 +297,18 @@ func (h *Handlers) getBackupStatus(c *gin.Context) {
 
 // ========== WebAuthn ==========
 
-// WebAuthnRegisterStartRequest WebAuthn 注册开始请求
+// WebAuthnRegisterStartRequest WebAuthn 注册开始请求.
 type WebAuthnRegisterStartRequest struct {
 	DisplayName string `json:"display_name"`
 }
 
-// WebAuthnRegisterStartResponse WebAuthn 注册开始响应
+// WebAuthnRegisterStartResponse WebAuthn 注册开始响应.
 type WebAuthnRegisterStartResponse struct {
 	SessionID string      `json:"session_id"`
 	Options   interface{} `json:"options"`
 }
 
-// beginWebAuthnRegistration 开始 WebAuthn 注册
+// beginWebAuthnRegistration 开始 WebAuthn 注册.
 func (h *Handlers) beginWebAuthnRegistration(c *gin.Context) {
 	userID := c.GetString("user_id")
 	username := c.GetString("username")
@@ -341,7 +341,7 @@ func (h *Handlers) beginWebAuthnRegistration(c *gin.Context) {
 	})
 }
 
-// finishWebAuthnRegistration 完成 WebAuthn 注册
+// finishWebAuthnRegistration 完成 WebAuthn 注册.
 func (h *Handlers) finishWebAuthnRegistration(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -370,7 +370,7 @@ func (h *Handlers) finishWebAuthnRegistration(c *gin.Context) {
 	api.OK(c, nil)
 }
 
-// beginWebAuthnAuthentication 开始 WebAuthn 认证
+// beginWebAuthnAuthentication 开始 WebAuthn 认证.
 func (h *Handlers) beginWebAuthnAuthentication(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -390,7 +390,7 @@ func (h *Handlers) beginWebAuthnAuthentication(c *gin.Context) {
 	})
 }
 
-// finishWebAuthnAuthentication 完成 WebAuthn 认证
+// finishWebAuthnAuthentication 完成 WebAuthn 认证.
 func (h *Handlers) finishWebAuthnAuthentication(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -421,7 +421,7 @@ func (h *Handlers) finishWebAuthnAuthentication(c *gin.Context) {
 	})
 }
 
-// getWebAuthnCredentials 获取 WebAuthn 凭证列表
+// getWebAuthnCredentials 获取 WebAuthn 凭证列表.
 func (h *Handlers) getWebAuthnCredentials(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -433,7 +433,7 @@ func (h *Handlers) getWebAuthnCredentials(c *gin.Context) {
 	api.OK(c, credentials)
 }
 
-// removeWebAuthnCredential 删除 WebAuthn 凭证
+// removeWebAuthnCredential 删除 WebAuthn 凭证.
 func (h *Handlers) removeWebAuthnCredential(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -452,14 +452,14 @@ func (h *Handlers) removeWebAuthnCredential(c *gin.Context) {
 
 // ========== MFA 验证 ==========
 
-// VerifyMFARequest MFA 验证请求
+// VerifyMFARequest MFA 验证请求.
 type VerifyMFARequest struct {
 	MFAType      string      `json:"mfa_type" binding:"required"` // totp, sms, webauthn
 	Code         string      `json:"code"`                        // TOTP 或短信验证码
 	ResponseData interface{} `json:"response_data"`               // WebAuthn 响应数据
 }
 
-// verifyMFA 验证 MFA
+// verifyMFA 验证 MFA.
 func (h *Handlers) verifyMFA(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {

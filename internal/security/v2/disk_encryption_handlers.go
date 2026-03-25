@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// DiskEncryptionHandlers 磁盘加密 API 处理器
+// DiskEncryptionHandlers 磁盘加密 API 处理器.
 type DiskEncryptionHandlers struct {
 	manager *DiskEncryptionManager
 }
 
-// NewDiskEncryptionHandlers 创建处理器
+// NewDiskEncryptionHandlers 创建处理器.
 func NewDiskEncryptionHandlers(manager *DiskEncryptionManager) *DiskEncryptionHandlers {
 	return &DiskEncryptionHandlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *DiskEncryptionHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	encryption := r.Group("/encryption")
 	{
@@ -57,7 +57,7 @@ func (h *DiskEncryptionHandlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 加密卷管理 ==========
 
-// listVolumes 列出所有加密卷
+// listVolumes 列出所有加密卷.
 func (h *DiskEncryptionHandlers) listVolumes(c *gin.Context) {
 	configs := h.manager.ListConfigs()
 
@@ -68,7 +68,7 @@ func (h *DiskEncryptionHandlers) listVolumes(c *gin.Context) {
 	})
 }
 
-// getVolume 获取单个加密卷
+// getVolume 获取单个加密卷.
 func (h *DiskEncryptionHandlers) getVolume(c *gin.Context) {
 	device := c.Param("device")
 
@@ -91,7 +91,7 @@ func (h *DiskEncryptionHandlers) getVolume(c *gin.Context) {
 	})
 }
 
-// createVolume 创建加密卷
+// createVolume 创建加密卷.
 func (h *DiskEncryptionHandlers) createVolume(c *gin.Context) {
 	var req struct {
 		DevicePath     string         `json:"devicePath" binding:"required"`
@@ -136,7 +136,7 @@ func (h *DiskEncryptionHandlers) createVolume(c *gin.Context) {
 	})
 }
 
-// updateVolume 更新加密卷配置
+// updateVolume 更新加密卷配置.
 func (h *DiskEncryptionHandlers) updateVolume(c *gin.Context) {
 	device := c.Param("device")
 	devicePath := "/" + device
@@ -165,7 +165,7 @@ func (h *DiskEncryptionHandlers) updateVolume(c *gin.Context) {
 	})
 }
 
-// deleteVolume 删除加密卷配置
+// deleteVolume 删除加密卷配置.
 func (h *DiskEncryptionHandlers) deleteVolume(c *gin.Context) {
 	_ = c.Param("device") // device path from URL
 
@@ -180,7 +180,7 @@ func (h *DiskEncryptionHandlers) deleteVolume(c *gin.Context) {
 
 // ========== LUKS 操作 ==========
 
-// openVolume 打开加密卷
+// openVolume 打开加密卷.
 func (h *DiskEncryptionHandlers) openVolume(c *gin.Context) {
 	device := c.Param("device")
 	devicePath := "/" + device
@@ -217,7 +217,7 @@ func (h *DiskEncryptionHandlers) openVolume(c *gin.Context) {
 	})
 }
 
-// closeVolume 关闭加密卷
+// closeVolume 关闭加密卷.
 func (h *DiskEncryptionHandlers) closeVolume(c *gin.Context) {
 	_ = c.Param("device") // device path from URL
 
@@ -247,7 +247,7 @@ func (h *DiskEncryptionHandlers) closeVolume(c *gin.Context) {
 	})
 }
 
-// getVolumeInfo 获取 LUKS 信息
+// getVolumeInfo 获取 LUKS 信息.
 func (h *DiskEncryptionHandlers) getVolumeInfo(c *gin.Context) {
 	device := c.Param("device")
 	devicePath := "/" + device
@@ -270,7 +270,7 @@ func (h *DiskEncryptionHandlers) getVolumeInfo(c *gin.Context) {
 
 // ========== 密钥管理 ==========
 
-// addKey 添加密钥
+// addKey 添加密钥.
 func (h *DiskEncryptionHandlers) addKey(c *gin.Context) {
 	device := c.Param("device")
 	devicePath := "/" + device
@@ -308,7 +308,7 @@ func (h *DiskEncryptionHandlers) addKey(c *gin.Context) {
 	})
 }
 
-// removeKey 移除密钥
+// removeKey 移除密钥.
 func (h *DiskEncryptionHandlers) removeKey(c *gin.Context) {
 	device := c.Param("device")
 	devicePath := "/" + device
@@ -343,7 +343,7 @@ func (h *DiskEncryptionHandlers) removeKey(c *gin.Context) {
 	})
 }
 
-// rotateKey 轮换密钥
+// rotateKey 轮换密钥.
 func (h *DiskEncryptionHandlers) rotateKey(c *gin.Context) {
 	device := c.Param("device")
 	devicePath := "/" + device
@@ -387,7 +387,7 @@ func (h *DiskEncryptionHandlers) rotateKey(c *gin.Context) {
 
 // ========== 密钥轮换策略 ==========
 
-// getRotationPolicy 获取密钥轮换策略
+// getRotationPolicy 获取密钥轮换策略.
 func (h *DiskEncryptionHandlers) getRotationPolicy(c *gin.Context) {
 	h.manager.mu.RLock()
 	policy := h.manager.rotationPolicy
@@ -400,7 +400,7 @@ func (h *DiskEncryptionHandlers) getRotationPolicy(c *gin.Context) {
 	})
 }
 
-// setRotationPolicy 设置密钥轮换策略
+// setRotationPolicy 设置密钥轮换策略.
 func (h *DiskEncryptionHandlers) setRotationPolicy(c *gin.Context) {
 	var policy KeyRotationPolicy
 	if err := c.ShouldBindJSON(&policy); err != nil {
@@ -420,7 +420,7 @@ func (h *DiskEncryptionHandlers) setRotationPolicy(c *gin.Context) {
 	})
 }
 
-// checkKeyRotation 检查密钥轮换状态
+// checkKeyRotation 检查密钥轮换状态.
 func (h *DiskEncryptionHandlers) checkKeyRotation(c *gin.Context) {
 	device := c.Param("device")
 	devicePath := "/" + device
@@ -445,7 +445,7 @@ func (h *DiskEncryptionHandlers) checkKeyRotation(c *gin.Context) {
 	})
 }
 
-// autoRotateKeys 自动轮换密钥
+// autoRotateKeys 自动轮换密钥.
 func (h *DiskEncryptionHandlers) autoRotateKeys(c *gin.Context) {
 	// 需要一个密码提供器
 	// 在实际实现中，这应该从安全的密钥存储中获取
@@ -470,7 +470,7 @@ func (h *DiskEncryptionHandlers) autoRotateKeys(c *gin.Context) {
 
 // ========== 性能监控 ==========
 
-// getPerformance 获取加密性能
+// getPerformance 获取加密性能.
 func (h *DiskEncryptionHandlers) getPerformance(c *gin.Context) {
 	device := c.Param("device")
 	devicePath := "/" + device
@@ -491,7 +491,7 @@ func (h *DiskEncryptionHandlers) getPerformance(c *gin.Context) {
 	})
 }
 
-// getOptimization 获取优化建议
+// getOptimization 获取优化建议.
 func (h *DiskEncryptionHandlers) getOptimization(c *gin.Context) {
 	device := c.Param("device")
 	devicePath := "/" + device
@@ -515,7 +515,7 @@ func (h *DiskEncryptionHandlers) getOptimization(c *gin.Context) {
 	})
 }
 
-// runBenchmark 运行基准测试
+// runBenchmark 运行基准测试.
 func (h *DiskEncryptionHandlers) runBenchmark(c *gin.Context) {
 	var req struct {
 		TestSizeMB int `json:"testSizeMb"`
@@ -543,7 +543,7 @@ func (h *DiskEncryptionHandlers) runBenchmark(c *gin.Context) {
 
 // ========== 状态 ==========
 
-// getStatus 获取加密状态总览
+// getStatus 获取加密状态总览.
 func (h *DiskEncryptionHandlers) getStatus(c *gin.Context) {
 	configs := h.manager.ListConfigs()
 

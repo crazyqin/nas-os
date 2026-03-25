@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Manager LDAP 管理器
+// Manager LDAP 管理器.
 type Manager struct {
 	mu             sync.RWMutex
 	configs        map[string]*Config
@@ -22,7 +22,7 @@ type Manager struct {
 	configPath     string
 }
 
-// NewManager 创建 LDAP 管理器
+// NewManager 创建 LDAP 管理器.
 func NewManager() *Manager {
 	return &Manager{
 		configs:        make(map[string]*Config),
@@ -33,7 +33,7 @@ func NewManager() *Manager {
 	}
 }
 
-// NewManagerWithConfig 创建带配置文件的管理器
+// NewManagerWithConfig 创建带配置文件的管理器.
 func NewManagerWithConfig(configPath string) (*Manager, error) {
 	m := NewManager()
 	m.configPath = configPath
@@ -45,7 +45,7 @@ func NewManagerWithConfig(configPath string) (*Manager, error) {
 	return m, nil
 }
 
-// loadConfigs 从文件加载配置
+// loadConfigs 从文件加载配置.
 func (m *Manager) loadConfigs() error {
 	if m.configPath == "" {
 		return nil
@@ -73,7 +73,7 @@ func (m *Manager) loadConfigs() error {
 	return nil
 }
 
-// saveConfigs 保存配置到文件
+// saveConfigs 保存配置到文件.
 func (m *Manager) saveConfigs() error {
 	if m.configPath == "" {
 		return nil
@@ -98,7 +98,7 @@ func (m *Manager) saveConfigs() error {
 
 // ========== 配置管理 ==========
 
-// RegisterConfig 注册 LDAP 配置
+// RegisterConfig 注册 LDAP 配置.
 func (m *Manager) RegisterConfig(config Config) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -119,7 +119,7 @@ func (m *Manager) RegisterConfig(config Config) error {
 	return nil
 }
 
-// UpdateConfig 更新 LDAP 配置
+// UpdateConfig 更新 LDAP 配置.
 func (m *Manager) UpdateConfig(name string, config Config) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -154,7 +154,7 @@ func (m *Manager) UpdateConfig(name string, config Config) error {
 	return nil
 }
 
-// DeleteConfig 删除 LDAP 配置
+// DeleteConfig 删除 LDAP 配置.
 func (m *Manager) DeleteConfig(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -186,7 +186,7 @@ func (m *Manager) DeleteConfig(name string) error {
 	return nil
 }
 
-// GetConfig 获取 LDAP 配置
+// GetConfig 获取 LDAP 配置.
 func (m *Manager) GetConfig(name string) (*Config, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -201,7 +201,7 @@ func (m *Manager) GetConfig(name string) (*Config, error) {
 	return &copy, nil
 }
 
-// ListConfigs 列出所有配置
+// ListConfigs 列出所有配置.
 func (m *Manager) ListConfigs() []Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -213,7 +213,7 @@ func (m *Manager) ListConfigs() []Config {
 	return configs
 }
 
-// ListEnabledConfigs 列出已启用的配置
+// ListEnabledConfigs 列出已启用的配置.
 func (m *Manager) ListEnabledConfigs() []Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -227,7 +227,7 @@ func (m *Manager) ListEnabledConfigs() []Config {
 	return configs
 }
 
-// EnableConfig 启用配置
+// EnableConfig 启用配置.
 func (m *Manager) EnableConfig(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -241,7 +241,7 @@ func (m *Manager) EnableConfig(name string) error {
 	return m.saveConfigs()
 }
 
-// DisableConfig 禁用配置
+// DisableConfig 禁用配置.
 func (m *Manager) DisableConfig(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -255,7 +255,7 @@ func (m *Manager) DisableConfig(name string) error {
 	return m.saveConfigs()
 }
 
-// applyDefaults 应用默认值
+// applyDefaults 应用默认值.
 func (m *Manager) applyDefaults(config *Config) {
 	defaults := DefaultConfig()
 
@@ -293,7 +293,7 @@ func (m *Manager) applyDefaults(config *Config) {
 
 // ========== 认证 ==========
 
-// Authenticate 使用指定配置进行认证
+// Authenticate 使用指定配置进行认证.
 func (m *Manager) Authenticate(configName, username, password string) (*AuthResult, error) {
 	config, err := m.GetConfig(configName)
 	if err != nil {
@@ -322,7 +322,7 @@ func (m *Manager) Authenticate(configName, username, password string) (*AuthResu
 	return auth.Authenticate(username, password)
 }
 
-// getAuthenticator 获取或创建认证器
+// getAuthenticator 获取或创建认证器.
 func (m *Manager) getAuthenticator(configName string) (*Authenticator, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -345,7 +345,7 @@ func (m *Manager) getAuthenticator(configName string) (*Authenticator, error) {
 	return auth, nil
 }
 
-// getADClient 获取或创建 AD 客户端
+// getADClient 获取或创建 AD 客户端.
 func (m *Manager) getADClient(configName string) (*ADClient, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -370,7 +370,7 @@ func (m *Manager) getADClient(configName string) (*ADClient, error) {
 
 // ========== 连接池 ==========
 
-// GetPool 获取连接池
+// GetPool 获取连接池.
 func (m *Manager) GetPool(configName string) (*Pool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -393,7 +393,7 @@ func (m *Manager) GetPool(configName string) (*Pool, error) {
 	return pool, nil
 }
 
-// TestConnection 测试连接
+// TestConnection 测试连接.
 func (m *Manager) TestConnection(configName string) (*ConnectionStatus, error) {
 	config, err := m.GetConfig(configName)
 	if err != nil {
@@ -429,7 +429,7 @@ func (m *Manager) TestConnection(configName string) (*ConnectionStatus, error) {
 	return status, nil
 }
 
-// TestAllConnections 测试所有连接
+// TestAllConnections 测试所有连接.
 func (m *Manager) TestAllConnections() map[string]*ConnectionStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -445,7 +445,7 @@ func (m *Manager) TestAllConnections() map[string]*ConnectionStatus {
 
 // ========== 同步 ==========
 
-// StartSync 启动同步
+// StartSync 启动同步.
 func (m *Manager) StartSync(ctx context.Context, configName string, userHandler UserSyncHandler, groupHandler GroupSyncHandler) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -476,7 +476,7 @@ func (m *Manager) StartSync(ctx context.Context, configName string, userHandler 
 	return nil
 }
 
-// StopSync 停止同步
+// StopSync 停止同步.
 func (m *Manager) StopSync(configName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -491,7 +491,7 @@ func (m *Manager) StopSync(configName string) error {
 	return nil
 }
 
-// SyncAll 执行一次性全量同步
+// SyncAll 执行一次性全量同步.
 func (m *Manager) SyncAll(configName string, userHandler UserSyncHandler, groupHandler GroupSyncHandler) (*SyncResult, error) {
 	config, err := m.GetConfig(configName)
 	if err != nil {
@@ -512,7 +512,7 @@ func (m *Manager) SyncAll(configName string, userHandler UserSyncHandler, groupH
 	return sync.SyncAll()
 }
 
-// GetSyncStatus 获取同步状态
+// GetSyncStatus 获取同步状态.
 func (m *Manager) GetSyncStatus(configName string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -527,7 +527,7 @@ func (m *Manager) GetSyncStatus(configName string) (map[string]interface{}, erro
 
 // ========== 用户操作 ==========
 
-// SearchUsers 搜索用户
+// SearchUsers 搜索用户.
 func (m *Manager) SearchUsers(configName, query string) ([]*User, error) {
 	config, err := m.GetConfig(configName)
 	if err != nil {
@@ -589,7 +589,7 @@ func (m *Manager) SearchUsers(configName, query string) ([]*User, error) {
 	return users, nil
 }
 
-// GetUser 获取用户详细信息
+// GetUser 获取用户详细信息.
 func (m *Manager) GetUser(configName, username string) (*User, error) {
 	config, err := m.GetConfig(configName)
 	if err != nil {
@@ -648,7 +648,7 @@ func (m *Manager) GetUser(configName, username string) (*User, error) {
 
 // ========== 组操作 ==========
 
-// GetGroups 获取组列表
+// GetGroups 获取组列表.
 func (m *Manager) GetGroups(configName string) ([]*Group, error) {
 	config, err := m.GetConfig(configName)
 	if err != nil {
@@ -703,7 +703,7 @@ func (m *Manager) GetGroups(configName string) ([]*Group, error) {
 
 // ========== 关闭 ==========
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -745,7 +745,7 @@ func (m *Manager) Close() error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

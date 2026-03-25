@@ -9,19 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// NVMeHandlers NVMe监控处理器
+// NVMeHandlers NVMe监控处理器.
 type NVMeHandlers struct {
 	monitor *NVMeMonitor
 }
 
-// NewNVMeHandlers 创建NVMe监控处理器
+// NewNVMeHandlers 创建NVMe监控处理器.
 func NewNVMeHandlers(monitor *NVMeMonitor) *NVMeHandlers {
 	return &NVMeHandlers{
 		monitor: monitor,
 	}
 }
 
-// RegisterRoutes 注册NVMe路由
+// RegisterRoutes 注册NVMe路由.
 func (h *NVMeHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	nvme := r.Group("/nvme")
 	{
@@ -57,7 +57,7 @@ func (h *NVMeHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) listNVMeDevices(c *gin.Context) {
 	devices, err := h.monitor.GetAllNVMeDevices()
 	if err != nil {
@@ -111,7 +111,7 @@ func (h *NVMeHandlers) listNVMeDevices(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "成功"
 // @Failure 404 {object} map[string]interface{} "设备不存在"
 // @Router /nvme/{device} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) getNVMeHealth(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -152,7 +152,7 @@ func (h *NVMeHandlers) getNVMeHealth(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme/{device}/smart [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) getNVMeSmart(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -211,7 +211,7 @@ func (h *NVMeHandlers) getNVMeSmart(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme/{device}/temperature [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) getNVMeTemperature(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -264,7 +264,7 @@ func (h *NVMeHandlers) getNVMeTemperature(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme/{device}/usage [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) getNVMeUsage(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -320,7 +320,7 @@ func (h *NVMeHandlers) getNVMeUsage(c *gin.Context) {
 // @Param request body NVMeTestRequest true "测试参数"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme/{device}/test [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) runNVMeTest(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -367,7 +367,7 @@ func (h *NVMeHandlers) runNVMeTest(c *gin.Context) {
 	})
 }
 
-// NVMeTestRequest NVMe测试请求
+// NVMeTestRequest NVMe测试请求.
 type NVMeTestRequest struct {
 	TestType string `json:"testType"` // short/long/vendor/verify
 }
@@ -381,7 +381,7 @@ type NVMeTestRequest struct {
 // @Param device path string true "设备路径"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme/{device}/test [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) getTestStatus(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -421,7 +421,7 @@ func (h *NVMeHandlers) getTestStatus(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme/{device}/test [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) abortTest(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -458,7 +458,7 @@ func (h *NVMeHandlers) abortTest(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme/scan [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) scanNVMeDevices(c *gin.Context) {
 	devices, err := h.monitor.ScanNVMeDevices()
 	if err != nil {
@@ -488,7 +488,7 @@ func (h *NVMeHandlers) scanNVMeDevices(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme/{device}/refresh [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) refreshNVMeDevice(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -532,7 +532,7 @@ func (h *NVMeHandlers) refreshNVMeDevice(c *gin.Context) {
 // @Param request body NVMeTestRequest true "测试参数"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme/test-all [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) runAllNVMeTest(c *gin.Context) {
 	var req NVMeTestRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -584,7 +584,7 @@ func (h *NVMeHandlers) runAllNVMeTest(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /nvme/summary [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) getNVMeSummary(c *gin.Context) {
 	devices, err := h.monitor.GetAllNVMeDevices()
 	if err != nil {

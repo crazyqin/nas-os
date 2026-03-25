@@ -18,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Config WebDAV 服务器配置
+// Config WebDAV 服务器配置.
 type Config struct {
 	Enabled       bool   `json:"enabled"`
 	Port          int    `json:"port"`
@@ -27,7 +27,7 @@ type Config struct {
 	MaxUploadSize int64  `json:"max_upload_size"` // 最大上传大小 (字节)，0 表示不限制
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:       true,
@@ -38,7 +38,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Server WebDAV 服务器
+// Server WebDAV 服务器.
 type Server struct {
 	mu            sync.RWMutex
 	config        *Config
@@ -51,7 +51,7 @@ type Server struct {
 	logger        *zap.Logger
 }
 
-// NewServer 创建 WebDAV 服务器
+// NewServer 创建 WebDAV 服务器.
 func NewServer(config *Config) (*Server, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -68,22 +68,22 @@ func NewServer(config *Config) (*Server, error) {
 	return s, nil
 }
 
-// SetAuthFunc 设置认证函数
+// SetAuthFunc 设置认证函数.
 func (s *Server) SetAuthFunc(fn func(username, password string) bool) {
 	s.authFunc = fn
 }
 
-// SetGetUserHome 设置获取用户主目录函数
+// SetGetUserHome 设置获取用户主目录函数.
 func (s *Server) SetGetUserHome(fn func(username string) string) {
 	s.getUserHome = fn
 }
 
-// SetQuotaProvider 设置配额提供者
+// SetQuotaProvider 设置配额提供者.
 func (s *Server) SetQuotaProvider(provider QuotaProvider) {
 	s.quotaProvider = provider
 }
 
-// Start 启动 WebDAV 服务器
+// Start 启动 WebDAV 服务器.
 func (s *Server) Start() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -123,7 +123,7 @@ func (s *Server) Start() error {
 	return nil
 }
 
-// startLockCleanup 定期清理过期锁
+// startLockCleanup 定期清理过期锁.
 func (s *Server) startLockCleanup() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -133,7 +133,7 @@ func (s *Server) startLockCleanup() {
 	}
 }
 
-// Stop 停止 WebDAV 服务器
+// Stop 停止 WebDAV 服务器.
 func (s *Server) Stop() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -145,7 +145,7 @@ func (s *Server) Stop() error {
 	return nil
 }
 
-// createHandler 创建 WebDAV HTTP 处理器
+// createHandler 创建 WebDAV HTTP 处理器.
 func (s *Server) createHandler() http.Handler {
 	mux := http.NewServeMux()
 
@@ -173,7 +173,7 @@ func (s *Server) createHandler() http.Handler {
 	return mux
 }
 
-// authenticateRequest 认证请求
+// authenticateRequest 认证请求.
 func (s *Server) authenticateRequest(w http.ResponseWriter, r *http.Request) (string, bool) {
 	username, password, ok := r.BasicAuth()
 	if !ok || !s.authenticate(username, password) {
@@ -184,7 +184,7 @@ func (s *Server) authenticateRequest(w http.ResponseWriter, r *http.Request) (st
 	return username, true
 }
 
-// authenticate 认证用户
+// authenticate 认证用户.
 func (s *Server) authenticate(username, password string) bool {
 	if s.authFunc != nil {
 		return s.authFunc(username, password)
@@ -193,7 +193,7 @@ func (s *Server) authenticate(username, password string) bool {
 	return false
 }
 
-// resolvePath 解析路径
+// resolvePath 解析路径.
 func (s *Server) resolvePath(r *http.Request, requestPath string) (string, error) {
 	// 解码 URL
 	decodedPath, err := url.PathUnescape(requestPath)
@@ -239,7 +239,7 @@ func (s *Server) resolvePath(r *http.Request, requestPath string) (string, error
 	return fullPath, nil
 }
 
-// handleWebDAV 处理 WebDAV 请求
+// handleWebDAV 处理 WebDAV 请求.
 func (s *Server) handleWebDAV(w http.ResponseWriter, r *http.Request, username string) {
 	path := r.URL.Path
 	fullPath, err := s.resolvePath(r, path)
@@ -278,7 +278,7 @@ func (s *Server) handleWebDAV(w http.ResponseWriter, r *http.Request, username s
 	}
 }
 
-// handleOptions 处理 OPTIONS 请求
+// handleOptions 处理 OPTIONS 请求.
 func (s *Server) handleOptions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("DAV", "1, 2, 3")
 	w.Header().Set("MS-Author-Via", "DAV")
@@ -287,7 +287,7 @@ func (s *Server) handleOptions(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// handlePropfind 处理 PROPFIND 请求（列出目录/获取文件属性）
+// handlePropfind 处理 PROPFIND 请求（列出目录/获取文件属性）.
 func (s *Server) handlePropfind(w http.ResponseWriter, r *http.Request, fullPath string) {
 	// #nosec G304 -- fullPath is validated by resolvePath() with traversal checks
 	info, err := os.Stat(fullPath)
@@ -328,7 +328,7 @@ func (s *Server) handlePropfind(w http.ResponseWriter, r *http.Request, fullPath
 	_, _ = w.Write(output)
 }
 
-// parsePropfind 解析 PROPFIND 请求
+// parsePropfind 解析 PROPFIND 请求.
 func (s *Server) parsePropfind(body io.Reader) *PropFind {
 	propFind := &PropFind{}
 	if body == nil {
@@ -348,7 +348,7 @@ func (s *Server) parsePropfind(body io.Reader) *PropFind {
 	return propFind
 }
 
-// buildPropfindResponse 构建 PROPFIND 响应
+// buildPropfindResponse 构建 PROPFIND 响应.
 func (s *Server) buildPropfindResponse(href, fullPath string, info os.FileInfo, recurse bool, propFind *PropFind) PropfindResponse {
 	response := PropfindResponse{
 		Href: href,
@@ -393,7 +393,7 @@ func (s *Server) buildPropfindResponse(href, fullPath string, info os.FileInfo, 
 	return response
 }
 
-// resourceTypeXML 获取资源类型 XML
+// resourceTypeXML 获取资源类型 XML.
 func (s *Server) resourceTypeXML(info os.FileInfo) *ResourceType {
 	if info.IsDir() {
 		return &ResourceType{Collection: &struct{}{}}
@@ -401,7 +401,7 @@ func (s *Server) resourceTypeXML(info os.FileInfo) *ResourceType {
 	return &ResourceType{}
 }
 
-// formatTimeout 格式化超时时间
+// formatTimeout 格式化超时时间.
 func formatTimeout(t time.Time) string {
 	if t.IsZero() {
 		return "Infinite"
@@ -413,7 +413,7 @@ func formatTimeout(t time.Time) string {
 	return fmt.Sprintf("Second-%d", int(remaining.Seconds()))
 }
 
-// handleProppatch 处理 PROPPATCH 请求（设置文件属性）
+// handleProppatch 处理 PROPPATCH 请求（设置文件属性）.
 func (s *Server) handleProppatch(w http.ResponseWriter, r *http.Request, fullPath string) {
 	// #nosec G304 -- fullPath is validated by resolvePath() with traversal checks
 	info, err := os.Stat(fullPath)
@@ -459,7 +459,7 @@ func (s *Server) handleProppatch(w http.ResponseWriter, r *http.Request, fullPat
 	_, _ = w.Write(output)
 }
 
-// handleGet 处理 GET 请求（下载文件）
+// handleGet 处理 GET 请求（下载文件）.
 func (s *Server) handleGet(w http.ResponseWriter, r *http.Request, fullPath string) {
 	// #nosec G304 -- fullPath is validated by resolvePath() with traversal checks
 	info, err := os.Stat(fullPath)
@@ -484,7 +484,7 @@ func (s *Server) handleGet(w http.ResponseWriter, r *http.Request, fullPath stri
 	http.ServeFile(w, r, fullPath)
 }
 
-// handleHead 处理 HEAD 请求
+// handleHead 处理 HEAD 请求.
 func (s *Server) handleHead(w http.ResponseWriter, r *http.Request, fullPath string) {
 	// #nosec G304 -- fullPath is validated by resolvePath() with traversal checks
 	info, err := os.Stat(fullPath)
@@ -506,7 +506,7 @@ func (s *Server) handleHead(w http.ResponseWriter, r *http.Request, fullPath str
 	w.WriteHeader(http.StatusOK)
 }
 
-// handlePut 处理 PUT 请求（上传文件）
+// handlePut 处理 PUT 请求（上传文件）.
 func (s *Server) handlePut(w http.ResponseWriter, r *http.Request, fullPath, username string) {
 	// 检查锁
 	if _, exists := s.lockManager.GetLockByPath(r.URL.Path); exists {
@@ -582,7 +582,7 @@ func (s *Server) handlePut(w http.ResponseWriter, r *http.Request, fullPath, use
 	w.WriteHeader(http.StatusCreated)
 }
 
-// handleDelete 处理 DELETE 请求
+// handleDelete 处理 DELETE 请求.
 func (s *Server) handleDelete(w http.ResponseWriter, r *http.Request, fullPath, username string) {
 	// 检查锁
 	if _, exists := s.lockManager.GetLockByPath(r.URL.Path); exists {
@@ -622,7 +622,7 @@ func (s *Server) handleDelete(w http.ResponseWriter, r *http.Request, fullPath, 
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// handleMkcol 处理 MKCOL 请求（创建目录）
+// handleMkcol 处理 MKCOL 请求（创建目录）.
 func (s *Server) handleMkcol(w http.ResponseWriter, r *http.Request, fullPath string) {
 	// 检查是否已存在
 	if _, err := os.Stat(fullPath); err == nil {
@@ -638,7 +638,7 @@ func (s *Server) handleMkcol(w http.ResponseWriter, r *http.Request, fullPath st
 	w.WriteHeader(http.StatusCreated)
 }
 
-// handleCopy 处理 COPY 请求
+// handleCopy 处理 COPY 请求.
 func (s *Server) handleCopy(w http.ResponseWriter, r *http.Request, fullPath, username string) {
 	dest := r.Header.Get("Destination")
 	if dest == "" {
@@ -701,7 +701,7 @@ func (s *Server) handleCopy(w http.ResponseWriter, r *http.Request, fullPath, us
 	}
 }
 
-// copyFile 复制文件
+// copyFile 复制文件.
 func (s *Server) copyFile(src, dst string) error {
 	// 确保目标目录存在
 	// #nosec G304 -- paths are validated by resolvePath() in caller
@@ -730,7 +730,7 @@ func (s *Server) copyFile(src, dst string) error {
 	return err
 }
 
-// copyDir 复制目录
+// copyDir 复制目录.
 func (s *Server) copyDir(src, dst string) error {
 	// 创建目标目录
 	if err := os.MkdirAll(dst, 0750); err != nil {
@@ -762,7 +762,7 @@ func (s *Server) copyDir(src, dst string) error {
 	return nil
 }
 
-// handleMove 处理 MOVE 请求
+// handleMove 处理 MOVE 请求.
 func (s *Server) handleMove(w http.ResponseWriter, r *http.Request, fullPath, username string) {
 	dest := r.Header.Get("Destination")
 	if dest == "" {
@@ -824,7 +824,7 @@ func (s *Server) handleMove(w http.ResponseWriter, r *http.Request, fullPath, us
 	}
 }
 
-// handleLock 处理 LOCK 请求
+// handleLock 处理 LOCK 请求.
 func (s *Server) handleLock(w http.ResponseWriter, r *http.Request, fullPath, username string) {
 	// 解析锁请求
 	var lockInfo struct {
@@ -881,7 +881,7 @@ func (s *Server) handleLock(w http.ResponseWriter, r *http.Request, fullPath, us
 	s.writeLockResponse(w, lock, http.StatusOK)
 }
 
-// handleUnlock 处理 UNLOCK 请求
+// handleUnlock 处理 UNLOCK 请求.
 func (s *Server) handleUnlock(w http.ResponseWriter, r *http.Request, fullPath string) {
 	// 从 Lock-Token 头获取令牌
 	token := r.Header.Get("Lock-Token")
@@ -902,7 +902,7 @@ func (s *Server) handleUnlock(w http.ResponseWriter, r *http.Request, fullPath s
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// writeLockResponse 写入锁响应
+// writeLockResponse 写入锁响应.
 func (s *Server) writeLockResponse(w http.ResponseWriter, lock *Lock, statusCode int) {
 	activeLock := &ActiveLock{
 		LockType:  &LockType{},
@@ -936,7 +936,7 @@ func (s *Server) writeLockResponse(w http.ResponseWriter, lock *Lock, statusCode
 	_, _ = w.Write(output)
 }
 
-// parseTimeoutHeader 解析 Timeout 头
+// parseTimeoutHeader 解析 Timeout 头.
 func parseTimeoutHeader(header string) int {
 	if header == "" || header == "Infinite" {
 		return 0 // 无限
@@ -952,14 +952,14 @@ func parseTimeoutHeader(header string) int {
 	return 60 // 默认 60 秒
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (s *Server) GetConfig() *Config {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (s *Server) UpdateConfig(config *Config) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -984,7 +984,7 @@ func (s *Server) UpdateConfig(config *Config) error {
 	return nil
 }
 
-// GetStatus 获取服务器状态
+// GetStatus 获取服务器状态.
 func (s *Server) GetStatus() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -998,7 +998,7 @@ func (s *Server) GetStatus() map[string]interface{} {
 	}
 }
 
-// RegisterRoutes 注册 HTTP 路由（用于管理 API）
+// RegisterRoutes 注册 HTTP 路由（用于管理 API）.
 func (s *Server) RegisterRoutes(api *gin.RouterGroup) {
 	webdav := api.Group("/webdav")
 	{

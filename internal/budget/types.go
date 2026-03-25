@@ -9,99 +9,99 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrBudgetNotFound 预算不存在错误
+	// ErrBudgetNotFound 预算不存在错误.
 	ErrBudgetNotFound = errors.New("预算不存在")
-	// ErrBudgetExists 预算已存在错误
+	// ErrBudgetExists 预算已存在错误.
 	ErrBudgetExists = errors.New("预算已存在")
-	// ErrBudgetExceeded 超出预算限制错误
+	// ErrBudgetExceeded 超出预算限制错误.
 	ErrBudgetExceeded = errors.New("超出预算限制")
-	// ErrInvalidAmount 无效的预算金额错误
+	// ErrInvalidAmount 无效的预算金额错误.
 	ErrInvalidAmount = errors.New("无效的预算金额")
-	// ErrInvalidPeriod 无效的预算周期错误
+	// ErrInvalidPeriod 无效的预算周期错误.
 	ErrInvalidPeriod = errors.New("无效的预算周期")
-	// ErrAlertNotFound 预警规则不存在错误
+	// ErrAlertNotFound 预警规则不存在错误.
 	ErrAlertNotFound = errors.New("预警规则不存在")
-	// ErrInvalidThreshold 无效的阈值错误
+	// ErrInvalidThreshold 无效的阈值错误.
 	ErrInvalidThreshold = errors.New("无效的阈值")
-	// ErrNoPermission 无权限操作错误
+	// ErrNoPermission 无权限操作错误.
 	ErrNoPermission = errors.New("无权限操作")
 )
 
 // ========== 预算类型 ==========
 
-// Type 预算类型
+// Type 预算类型.
 type Type string
 
 // 预算类型常量，定义预算的资源类型。
 const (
-	// TypeStorage represents storage budget type
+	// TypeStorage represents storage budget type.
 	TypeStorage Type = "storage" // 存储预算
-	// TypeBandwidth represents bandwidth budget type
+	// TypeBandwidth represents bandwidth budget type.
 	TypeBandwidth Type = "bandwidth" // 带宽预算
-	// TypeCompute represents compute budget type
+	// TypeCompute represents compute budget type.
 	TypeCompute Type = "compute" // 计算预算
-	// TypeOperations represents operations budget type
+	// TypeOperations represents operations budget type.
 	TypeOperations Type = "operations" // 运维预算
-	// TypeTotal represents total budget type
+	// TypeTotal represents total budget type.
 	TypeTotal Type = "total" // 总预算
 )
 
-// Period 预算周期
+// Period 预算周期.
 type Period string
 
 // 预算周期常量，定义预算的时间周期。
 const (
-	// PeriodDaily represents daily budget period
+	// PeriodDaily represents daily budget period.
 	PeriodDaily Period = "daily" // 日预算
-	// PeriodWeekly represents weekly budget period
+	// PeriodWeekly represents weekly budget period.
 	PeriodWeekly Period = "weekly" // 周预算
-	// PeriodMonthly represents monthly budget period
+	// PeriodMonthly represents monthly budget period.
 	PeriodMonthly Period = "monthly" // 月预算
-	// PeriodQuarter represents quarterly budget period
+	// PeriodQuarter represents quarterly budget period.
 	PeriodQuarter Period = "quarter" // 季度预算
-	// PeriodYearly represents yearly budget period
+	// PeriodYearly represents yearly budget period.
 	PeriodYearly Period = "yearly" // 年预算
 )
 
-// Scope 预算范围
+// Scope 预算范围.
 type Scope string
 
 // 预算范围常量，定义预算的应用范围。
 const (
-	// ScopeGlobal represents global budget scope
+	// ScopeGlobal represents global budget scope.
 	ScopeGlobal Scope = "global" // 全局预算
-	// ScopeUser represents user budget scope
+	// ScopeUser represents user budget scope.
 	ScopeUser Scope = "user" // 用户预算
-	// ScopeGroup represents group budget scope
+	// ScopeGroup represents group budget scope.
 	ScopeGroup Scope = "group" // 用户组预算
-	// ScopeVolume represents volume budget scope
+	// ScopeVolume represents volume budget scope.
 	ScopeVolume Scope = "volume" // 卷预算
-	// ScopeService represents service budget scope
+	// ScopeService represents service budget scope.
 	ScopeService Scope = "service" // 服务预算
-	// ScopeDirectory represents directory budget scope
+	// ScopeDirectory represents directory budget scope.
 	ScopeDirectory Scope = "directory" // 目录预算
 )
 
-// Status 预算状态
+// Status 预算状态.
 type Status string
 
 // 预算状态常量，定义预算的当前状态。
 const (
-	// StatusActive represents active budget status
+	// StatusActive represents active budget status.
 	StatusActive Status = "active" // 活跃
-	// StatusPaused represents paused budget status
+	// StatusPaused represents paused budget status.
 	StatusPaused Status = "paused" // 暂停
-	// StatusExceeded represents exceeded budget status
+	// StatusExceeded represents exceeded budget status.
 	StatusExceeded Status = "exceeded" // 超支
-	// StatusExhausted represents exhausted budget status
+	// StatusExhausted represents exhausted budget status.
 	StatusExhausted Status = "exhausted" // 耗尽
-	// StatusArchived represents archived budget status
+	// StatusArchived represents archived budget status.
 	StatusArchived Status = "archived" // 归档
 )
 
 // ========== 预算定义 ==========
 
-// Budget 预算定义
+// Budget 预算定义.
 type Budget struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -139,7 +139,7 @@ type Budget struct {
 	Tags      []string  `json:"tags,omitempty"`
 }
 
-// Input 创建/更新预算输入
+// Input 创建/更新预算输入.
 type Input struct {
 	Name        string       `json:"name" binding:"required"`
 	Description string       `json:"description"`
@@ -159,7 +159,7 @@ type Input struct {
 
 // ========== 预算使用记录 ==========
 
-// Usage 预算使用记录
+// Usage 预算使用记录.
 type Usage struct {
 	ID         string    `json:"id"`
 	BudgetID   string    `json:"budget_id"`
@@ -185,7 +185,7 @@ type Usage struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// UsageInput 预算使用输入
+// UsageInput 预算使用输入.
 type UsageInput struct {
 	BudgetID     string                 `json:"budget_id" binding:"required"`
 	Amount       float64                `json:"amount" binding:"required,gt=0"`
@@ -201,7 +201,7 @@ type UsageInput struct {
 
 // ========== 预算预警 ==========
 
-// AlertConfig 预警配置
+// AlertConfig 预警配置.
 type AlertConfig struct {
 	Enabled           bool             `json:"enabled"`
 	Thresholds        []AlertThreshold `json:"thresholds"`
@@ -214,7 +214,7 @@ type AlertConfig struct {
 	EscalationRules   []EscalationRule `json:"escalation_rules"`
 }
 
-// AlertThreshold 预警阈值
+// AlertThreshold 预警阈值.
 type AlertThreshold struct {
 	Percent     float64  `json:"percent"`      // 触发百分比
 	Level       Level    `json:"level"`        // 预警级别
@@ -225,7 +225,7 @@ type AlertThreshold struct {
 
 // AlertLevel, BudgetAlert, AlertStatus 定义在 alert.go 中
 
-// EscalationRule 升级规则
+// EscalationRule 升级规则.
 type EscalationRule struct {
 	AfterMinutes int      `json:"after_minutes"` // 多少分钟后升级
 	ToLevel      Level    `json:"to_level"`      // 升级到级别
@@ -234,7 +234,7 @@ type EscalationRule struct {
 
 // ========== 预算报告 ==========
 
-// Report 预算报告
+// Report 预算报告.
 type Report struct {
 	ID              string            `json:"id"`
 	Name            string            `json:"name"`
@@ -248,13 +248,13 @@ type Report struct {
 	Recommendations []Recommendation  `json:"recommendations"`
 }
 
-// ReportPeriod 报告时间范围
+// ReportPeriod 报告时间范围.
 type ReportPeriod struct {
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
 }
 
-// ReportSummary 预算报告摘要
+// ReportSummary 预算报告摘要.
 type ReportSummary struct {
 	TotalBudgets      int     `json:"total_budgets"`
 	ActiveBudgets     int     `json:"active_budgets"`
@@ -268,7 +268,7 @@ type ReportSummary struct {
 	HealthScore       int     `json:"health_score"` // 健康评分 0-100
 }
 
-// Detail 预算详情
+// Detail 预算详情.
 type Detail struct {
 	BudgetID       string  `json:"budget_id"`
 	BudgetName     string  `json:"budget_name"`
@@ -287,7 +287,7 @@ type Detail struct {
 	Alerts         []Alert `json:"alerts"`
 }
 
-// UsageTrendPoint 使用趋势数据点
+// UsageTrendPoint 使用趋势数据点.
 type UsageTrendPoint struct {
 	Date       time.Time `json:"date"`
 	UsedAmount float64   `json:"used_amount"`
@@ -295,7 +295,7 @@ type UsageTrendPoint struct {
 	Percent    float64   `json:"percent"`
 }
 
-// TopConsumer 消费排行
+// TopConsumer 消费排行.
 type TopConsumer struct {
 	Rank       int     `json:"rank"`
 	BudgetID   string  `json:"budget_id"`
@@ -307,7 +307,7 @@ type TopConsumer struct {
 	Trend      string  `json:"trend"`
 }
 
-// Recommendation 预算建议
+// Recommendation 预算建议.
 type Recommendation struct {
 	Type        string  `json:"type"`     // increase, decrease, optimize, alert
 	Priority    string  `json:"priority"` // high, medium, low
@@ -321,7 +321,7 @@ type Recommendation struct {
 	Action      string  `json:"action"`
 }
 
-// ReportRequest 报告请求
+// ReportRequest 报告请求.
 type ReportRequest struct {
 	StartTime    *time.Time `json:"start_time"`
 	EndTime      *time.Time `json:"end_time"`
@@ -334,7 +334,7 @@ type ReportRequest struct {
 
 // ========== 查询参数 ==========
 
-// Query 预算查询参数
+// Query 预算查询参数.
 type Query struct {
 	IDs       []string   `json:"ids,omitempty"`
 	Types     []Type     `json:"types,omitempty"`
@@ -354,7 +354,7 @@ type Query struct {
 	SortOrder string     `json:"sort_order"` // asc, desc
 }
 
-// UsageQuery 使用记录查询参数
+// UsageQuery 使用记录查询参数.
 type UsageQuery struct {
 	BudgetID    string     `json:"budget_id,omitempty"`
 	SourceTypes []string   `json:"source_types,omitempty"`
@@ -366,7 +366,7 @@ type UsageQuery struct {
 	PageSize    int        `json:"page_size"`
 }
 
-// AlertQuery 预警查询参数
+// AlertQuery 预警查询参数.
 type AlertQuery struct {
 	BudgetIDs []string      `json:"budget_ids,omitempty"`
 	Levels    []Level       `json:"levels,omitempty"`
@@ -379,7 +379,7 @@ type AlertQuery struct {
 
 // ========== 统计数据 ==========
 
-// Stats 预算统计
+// Stats 预算统计.
 type Stats struct {
 	TotalBudgets      int                 `json:"total_budgets"`
 	ActiveBudgets     int                 `json:"active_budgets"`
@@ -395,7 +395,7 @@ type Stats struct {
 	ProjectedMonthEnd float64             `json:"projected_month_end"`
 }
 
-// TypeStats 类型统计
+// TypeStats 类型统计.
 type TypeStats struct {
 	Count     int     `json:"count"`
 	Amount    float64 `json:"amount"`
@@ -405,7 +405,7 @@ type TypeStats struct {
 
 // ========== 默认配置 ==========
 
-// DefaultAlertThresholds 默认预警阈值
+// DefaultAlertThresholds 默认预警阈值.
 var DefaultAlertThresholds = []AlertThreshold{
 	{Percent: 50, Level: LevelInfo, Message: "预算已使用 50%"},
 	{Percent: 70, Level: LevelWarning, Message: "预算已使用 70%，请注意"},
@@ -413,7 +413,7 @@ var DefaultAlertThresholds = []AlertThreshold{
 	{Percent: 95, Level: LevelEmergency, Message: "预算即将耗尽，请立即处理"},
 }
 
-// DefaultAlertConfig 默认预警配置
+// DefaultAlertConfig 默认预警配置.
 func DefaultAlertConfig() AlertConfig {
 	return AlertConfig{
 		Enabled:           true,

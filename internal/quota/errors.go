@@ -6,44 +6,44 @@ import (
 
 // ========== 错误接口实现 ==========
 
-// NotFound 实现 api.notFoundChecker 接口
+// NotFound 实现 api.notFoundChecker 接口.
 func (e *QuotaError) NotFound() bool {
 	return e.code == ErrCodeQuotaNotFound || e.code == ErrCodePolicyNotFound
 }
 
-// BadRequest 实现 api.badRequestChecker 接口
+// BadRequest 实现 api.badRequestChecker 接口.
 func (e *QuotaError) BadRequest() bool {
 	return e.code == ErrCodeInvalidInput || e.code == ErrCodeInvalidLimit
 }
 
-// Conflict 实现 api.conflictChecker 接口
+// Conflict 实现 api.conflictChecker 接口.
 func (e *QuotaError) Conflict() bool {
 	return e.code == ErrCodeQuotaExists
 }
 
 // ========== 错误码定义 ==========
 
-// 错误码常量
+// 错误码常量.
 const (
-	// ErrCodeQuotaNotFound 配额未找到错误码
+	// ErrCodeQuotaNotFound 配额未找到错误码.
 	ErrCodeQuotaNotFound = 1001
-	// ErrCodeQuotaExists 配额已存在错误码
+	// ErrCodeQuotaExists 配额已存在错误码.
 	ErrCodeQuotaExists = 1002
-	// ErrCodeQuotaExceeded 超出配额错误码
+	// ErrCodeQuotaExceeded 超出配额错误码.
 	ErrCodeQuotaExceeded = 1003
-	// ErrCodeUserNotFound 用户未找到错误码
+	// ErrCodeUserNotFound 用户未找到错误码.
 	ErrCodeUserNotFound = 1004
-	// ErrCodeGroupNotFound 用户组未找到错误码
+	// ErrCodeGroupNotFound 用户组未找到错误码.
 	ErrCodeGroupNotFound = 1005
-	// ErrCodeVolumeNotFound 卷未找到错误码
+	// ErrCodeVolumeNotFound 卷未找到错误码.
 	ErrCodeVolumeNotFound = 1006
-	// ErrCodeInvalidLimit 无效限制错误码
+	// ErrCodeInvalidLimit 无效限制错误码.
 	ErrCodeInvalidLimit = 1007
-	// ErrCodePolicyNotFound 策略未找到错误码
+	// ErrCodePolicyNotFound 策略未找到错误码.
 	ErrCodePolicyNotFound = 1008
-	// ErrCodeInvalidInput 无效输入错误码
+	// ErrCodeInvalidInput 无效输入错误码.
 	ErrCodeInvalidInput = 1009
-	// ErrCodeAlertNotFound 告警未找到错误码
+	// ErrCodeAlertNotFound 告警未找到错误码.
 	ErrCodeAlertNotFound = 1010
 )
 
@@ -56,22 +56,22 @@ type QuotaError struct {
 	details map[string]interface{}
 }
 
-// Error 实现 error 接口
+// Error 实现 error 接口.
 func (e *QuotaError) Error() string {
 	return e.message
 }
 
-// Code 返回错误码
+// Code 返回错误码.
 func (e *QuotaError) Code() int {
 	return e.code
 }
 
-// Details 返回错误详情
+// Details 返回错误详情.
 func (e *QuotaError) Details() map[string]interface{} {
 	return e.details
 }
 
-// NewQuotaError 创建配额错误
+// NewQuotaError 创建配额错误.
 func NewQuotaError(code int, message string, details ...map[string]interface{}) *QuotaError {
 	e := &QuotaError{
 		code:    code,
@@ -83,7 +83,7 @@ func NewQuotaError(code int, message string, details ...map[string]interface{}) 
 	return e
 }
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrQuotaNotFoundAPI  = &QuotaError{code: ErrCodeQuotaNotFound, message: "配额不存在"}
 	ErrQuotaExistsAPI    = &QuotaError{code: ErrCodeQuotaExists, message: "配额已存在"}
@@ -96,7 +96,7 @@ var (
 	ErrInvalidInputAPI   = &QuotaError{code: ErrCodeInvalidInput, message: "无效的输入参数"}
 )
 
-// WithDetails 添加错误详情
+// WithDetails 添加错误详情.
 func (e *QuotaError) WithDetails(details map[string]interface{}) *QuotaError {
 	e.details = details
 	return e
@@ -104,7 +104,7 @@ func (e *QuotaError) WithDetails(details map[string]interface{}) *QuotaError {
 
 // ========== 错误转换 ==========
 
-// ToAPIError 转换标准错误为 API 错误
+// ToAPIError 转换标准错误为 API 错误.
 func ToAPIError(err error) *QuotaError {
 	if err == nil {
 		return nil
@@ -140,7 +140,7 @@ func ToAPIError(err error) *QuotaError {
 
 // ========== 错误响应辅助函数 ==========
 
-// ErrorResponse 返回错误响应
+// ErrorResponse 返回错误响应.
 func ErrorResponse(c *gin.Context, err error) {
 	qe := ToAPIError(err)
 	if qe == nil {
@@ -169,7 +169,7 @@ func ErrorResponse(c *gin.Context, err error) {
 
 // ========== 输入验证 ==========
 
-// ValidateQuotaInput 验证配额输入
+// ValidateQuotaInput 验证配额输入.
 func ValidateQuotaInput(input QuotaInput) error {
 	if input.Type == "" {
 		return NewQuotaError(ErrCodeInvalidInput, "配额类型不能为空")
@@ -194,7 +194,7 @@ func ValidateQuotaInput(input QuotaInput) error {
 	return nil
 }
 
-// ValidateCleanupPolicyInput 验证清理策略输入
+// ValidateCleanupPolicyInput 验证清理策略输入.
 func ValidateCleanupPolicyInput(input CleanupPolicyInput) error {
 	if input.Name == "" {
 		return NewQuotaError(ErrCodeInvalidInput, "策略名称不能为空")
@@ -237,7 +237,7 @@ func ValidateCleanupPolicyInput(input CleanupPolicyInput) error {
 
 // ========== 常用验证器 ==========
 
-// ValidateID 验证 ID
+// ValidateID 验证 ID.
 func ValidateID(id string) error {
 	if id == "" {
 		return NewQuotaError(ErrCodeInvalidInput, "ID 不能为空")
@@ -248,7 +248,7 @@ func ValidateID(id string) error {
 	return nil
 }
 
-// ValidatePath 验证路径
+// ValidatePath 验证路径.
 func ValidatePath(path string) error {
 	if path == "" {
 		return NewQuotaError(ErrCodeInvalidInput, "路径不能为空")
@@ -259,7 +259,7 @@ func ValidatePath(path string) error {
 	return nil
 }
 
-// ValidateVolumeName 验证卷名
+// ValidateVolumeName 验证卷名.
 func ValidateVolumeName(name string) error {
 	if name == "" {
 		return NewQuotaError(ErrCodeInvalidInput, "卷名不能为空")

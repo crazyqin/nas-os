@@ -9,19 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 服务管理 API 处理器
+// Handlers 服务管理 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	services := r.Group("/services")
 	{
@@ -56,7 +56,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// Request 服务操作请求
+// Request 服务操作请求.
 type Request struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
@@ -64,10 +64,10 @@ type Request struct {
 	UnitFile    string `json:"unitFile"`
 }
 
-// ServiceRequest 服务操作请求（兼容别名）
+// ServiceRequest 服务操作请求（兼容别名）.
 type ServiceRequest = Request //nolint:revive // 向后兼容别名
 
-// Summary 服务统计摘要
+// Summary 服务统计摘要.
 type Summary struct {
 	Total    int `json:"total"`
 	Running  int `json:"running"`
@@ -77,10 +77,10 @@ type Summary struct {
 	Failed   int `json:"failed"`
 }
 
-// ServiceSummary 服务统计摘要（兼容别名）
+// ServiceSummary 服务统计摘要（兼容别名）.
 type ServiceSummary = Summary //nolint:revive // 向后兼容别名
 
-// listServices 列出所有服务
+// listServices 列出所有服务.
 func (h *Handlers) listServices(c *gin.Context) {
 	// 先刷新状态
 	_ = h.manager.RefreshAll()
@@ -94,7 +94,7 @@ func (h *Handlers) listServices(c *gin.Context) {
 	api.OK(c, services)
 }
 
-// getServiceSummary 获取服务统计摘要
+// getServiceSummary 获取服务统计摘要.
 func (h *Handlers) getServiceSummary(c *gin.Context) {
 	services, err := h.manager.List()
 	if err != nil {
@@ -125,7 +125,7 @@ func (h *Handlers) getServiceSummary(c *gin.Context) {
 	api.OK(c, summary)
 }
 
-// getFailedServices 获取失败的服务列表
+// getFailedServices 获取失败的服务列表.
 func (h *Handlers) getFailedServices(c *gin.Context) {
 	backend, ok := h.manager.backend.(*SystemdBackend)
 	if !ok {
@@ -142,7 +142,7 @@ func (h *Handlers) getFailedServices(c *gin.Context) {
 	api.OK(c, failed)
 }
 
-// getService 获取单个服务详情
+// getService 获取单个服务详情.
 func (h *Handlers) getService(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -159,7 +159,7 @@ func (h *Handlers) getService(c *gin.Context) {
 	api.OK(c, service)
 }
 
-// startService 启动服务
+// startService 启动服务.
 func (h *Handlers) startService(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -175,7 +175,7 @@ func (h *Handlers) startService(c *gin.Context) {
 	api.OKWithMessage(c, "服务已启动", gin.H{"name": name})
 }
 
-// stopService 停止服务
+// stopService 停止服务.
 func (h *Handlers) stopService(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -191,7 +191,7 @@ func (h *Handlers) stopService(c *gin.Context) {
 	api.OKWithMessage(c, "服务已停止", gin.H{"name": name})
 }
 
-// restartService 重启服务
+// restartService 重启服务.
 func (h *Handlers) restartService(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -207,7 +207,7 @@ func (h *Handlers) restartService(c *gin.Context) {
 	api.OKWithMessage(c, "服务已重启", gin.H{"name": name})
 }
 
-// enableService 启用服务开机自启
+// enableService 启用服务开机自启.
 func (h *Handlers) enableService(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -223,7 +223,7 @@ func (h *Handlers) enableService(c *gin.Context) {
 	api.OKWithMessage(c, "服务已设置为开机自启", gin.H{"name": name})
 }
 
-// disableService 禁用服务开机自启
+// disableService 禁用服务开机自启.
 func (h *Handlers) disableService(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -239,7 +239,7 @@ func (h *Handlers) disableService(c *gin.Context) {
 	api.OKWithMessage(c, "服务已取消开机自启", gin.H{"name": name})
 }
 
-// getServiceStatus 获取服务状态
+// getServiceStatus 获取服务状态.
 func (h *Handlers) getServiceStatus(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -256,7 +256,7 @@ func (h *Handlers) getServiceStatus(c *gin.Context) {
 	api.OK(c, status)
 }
 
-// getServiceLogs 获取服务日志
+// getServiceLogs 获取服务日志.
 func (h *Handlers) getServiceLogs(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -294,7 +294,7 @@ func (h *Handlers) getServiceLogs(c *gin.Context) {
 	})
 }
 
-// maskService 屏蔽服务
+// maskService 屏蔽服务.
 func (h *Handlers) maskService(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -316,7 +316,7 @@ func (h *Handlers) maskService(c *gin.Context) {
 	api.OKWithMessage(c, "服务已屏蔽", gin.H{"name": name})
 }
 
-// unmaskService 取消屏蔽服务
+// unmaskService 取消屏蔽服务.
 func (h *Handlers) unmaskService(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -338,7 +338,7 @@ func (h *Handlers) unmaskService(c *gin.Context) {
 	api.OKWithMessage(c, "服务已取消屏蔽", gin.H{"name": name})
 }
 
-// resetFailedService 重置服务失败状态
+// resetFailedService 重置服务失败状态.
 func (h *Handlers) resetFailedService(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -360,7 +360,7 @@ func (h *Handlers) resetFailedService(c *gin.Context) {
 	api.OKWithMessage(c, "服务失败状态已重置", gin.H{"name": name})
 }
 
-// getServiceDependencies 获取服务依赖
+// getServiceDependencies 获取服务依赖.
 func (h *Handlers) getServiceDependencies(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -386,7 +386,7 @@ func (h *Handlers) getServiceDependencies(c *gin.Context) {
 	})
 }
 
-// daemonReload 重载 systemd 配置
+// daemonReload 重载 systemd 配置.
 func (h *Handlers) daemonReload(c *gin.Context) {
 	backend, ok := h.manager.backend.(*SystemdBackend)
 	if !ok {
@@ -402,7 +402,7 @@ func (h *Handlers) daemonReload(c *gin.Context) {
 	api.OKWithMessage(c, "systemd 配置已重载", nil)
 }
 
-// refreshAllServices 刷新所有服务状态
+// refreshAllServices 刷新所有服务状态.
 func (h *Handlers) refreshAllServices(c *gin.Context) {
 	if err := h.manager.RefreshAll(); err != nil {
 		api.InternalError(c, err.Error())
@@ -412,7 +412,7 @@ func (h *Handlers) refreshAllServices(c *gin.Context) {
 	api.OKWithMessage(c, "服务状态已刷新", nil)
 }
 
-// registerService 注册新服务
+// registerService 注册新服务.
 func (h *Handlers) registerService(c *gin.Context) {
 	var req ServiceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -442,7 +442,7 @@ func (h *Handlers) registerService(c *gin.Context) {
 	api.Created(c, svc)
 }
 
-// unregisterService 注销服务
+// unregisterService 注销服务.
 func (h *Handlers) unregisterService(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -458,18 +458,18 @@ func (h *Handlers) unregisterService(c *gin.Context) {
 	api.OKWithMessage(c, "服务已注销", gin.H{"name": name})
 }
 
-// BatchOperationRequest 批量操作请求结构
+// BatchOperationRequest 批量操作请求结构.
 type BatchOperationRequest struct {
 	Names []string `json:"names" binding:"required"`
 }
 
-// BatchOperationResponse 批量操作响应结构
+// BatchOperationResponse 批量操作响应结构.
 type BatchOperationResponse struct {
 	Success []string          `json:"success"`
 	Failed  map[string]string `json:"failed,omitempty"`
 }
 
-// BatchStart 批量启动服务
+// BatchStart 批量启动服务.
 func (h *Handlers) BatchStart(names []string) *BatchOperationResponse {
 	result := &BatchOperationResponse{
 		Success: make([]string, 0),
@@ -487,7 +487,7 @@ func (h *Handlers) BatchStart(names []string) *BatchOperationResponse {
 	return result
 }
 
-// BatchStop 批量停止服务
+// BatchStop 批量停止服务.
 func (h *Handlers) BatchStop(names []string) *BatchOperationResponse {
 	result := &BatchOperationResponse{
 		Success: make([]string, 0),
@@ -505,7 +505,7 @@ func (h *Handlers) BatchStop(names []string) *BatchOperationResponse {
 	return result
 }
 
-// BatchRestart 批量重启服务
+// BatchRestart 批量重启服务.
 func (h *Handlers) BatchRestart(names []string) *BatchOperationResponse {
 	result := &BatchOperationResponse{
 		Success: make([]string, 0),

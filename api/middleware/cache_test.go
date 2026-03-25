@@ -110,7 +110,7 @@ func TestCacheMiddleware(t *testing.T) {
 
 	// First request - cache miss
 	w1 := httptest.NewRecorder()
-	req1, _ := http.NewRequest(http.MethodGet, "/api/data", nil)
+	req1, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/data", nil)
 	router.ServeHTTP(w1, req1)
 	assert.Equal(t, http.StatusOK, w1.Code)
 	assert.Equal(t, "MISS", w1.Header().Get("X-Cache"))
@@ -118,7 +118,7 @@ func TestCacheMiddleware(t *testing.T) {
 
 	// Second request - cache hit
 	w2 := httptest.NewRecorder()
-	req2, _ := http.NewRequest(http.MethodGet, "/api/data", nil)
+	req2, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/data", nil)
 	router.ServeHTTP(w2, req2)
 	assert.Equal(t, http.StatusOK, w2.Code)
 	assert.Equal(t, "HIT", w2.Header().Get("X-Cache"))
@@ -126,7 +126,7 @@ func TestCacheMiddleware(t *testing.T) {
 
 	// Health endpoint should not be cached
 	w3 := httptest.NewRecorder()
-	req3, _ := http.NewRequest(http.MethodGet, "/health", nil)
+	req3, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/health", nil)
 	router.ServeHTTP(w3, req3)
 	assert.Equal(t, http.StatusOK, w3.Code)
 	assert.NotEqual(t, "HIT", w3.Header().Get("X-Cache"))
@@ -154,7 +154,7 @@ func TestCacheMiddlewareETag(t *testing.T) {
 
 	// First request - get ETag
 	w1 := httptest.NewRecorder()
-	req1, _ := http.NewRequest(http.MethodGet, "/api/etag", nil)
+	req1, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/etag", nil)
 	router.ServeHTTP(w1, req1)
 	assert.Equal(t, http.StatusOK, w1.Code)
 	etag := w1.Header().Get("ETag")
@@ -172,7 +172,7 @@ func TestCacheMiddlewareETag(t *testing.T) {
 
 	// Second request with If-None-Match - should return 304
 	w2 := httptest.NewRecorder()
-	req2, _ := http.NewRequest(http.MethodGet, "/api/etag", nil)
+	req2, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/etag", nil)
 	req2.Header.Set("If-None-Match", etag)
 	router.ServeHTTP(w2, req2)
 	t.Logf("Second request - Status: %d, X-Cache: %s, ETag response: %s", w2.Code, w2.Header().Get("X-Cache"), w2.Header().Get("ETag"))
@@ -211,7 +211,7 @@ func TestCacheMiddlewareDisabled(t *testing.T) {
 	// Both requests should miss cache since caching is disabled
 	for i := 0; i < 2; i++ {
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodGet, "/api/data", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/data", nil)
 		router.ServeHTTP(w, req)
 		assert.NotEqual(t, "HIT", w.Header().Get("X-Cache"))
 	}
@@ -437,7 +437,7 @@ func TestCacheMiddlewareWithAuthenticatedRequest(t *testing.T) {
 	// Request with Authorization header - should not be cached
 	for i := 0; i < 2; i++ {
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodGet, "/api/secure", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/secure", nil)
 		req.Header.Set("Authorization", "Bearer token")
 		router.ServeHTTP(w, req)
 	}
@@ -473,12 +473,12 @@ func TestCacheMiddlewareWithTTLGenerator(t *testing.T) {
 
 	// Both endpoints should work
 	w1 := httptest.NewRecorder()
-	req1, _ := http.NewRequest(http.MethodGet, "/api/short", nil)
+	req1, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/short", nil)
 	router.ServeHTTP(w1, req1)
 	assert.Equal(t, http.StatusOK, w1.Code)
 
 	w2 := httptest.NewRecorder()
-	req2, _ := http.NewRequest(http.MethodGet, "/api/long", nil)
+	req2, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/long", nil)
 	router.ServeHTTP(w2, req2)
 	assert.Equal(t, http.StatusOK, w2.Code)
 }
@@ -520,21 +520,21 @@ func TestCacheMiddlewareWithCustomKeyGenerator(t *testing.T) {
 
 	// Request with user ID
 	w1 := httptest.NewRecorder()
-	req1, _ := http.NewRequest(http.MethodGet, "/api/custom", nil)
+	req1, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/custom", nil)
 	req1.Header.Set("X-User-ID", "user123")
 	router.ServeHTTP(w1, req1)
 	assert.Equal(t, "MISS", w1.Header().Get("X-Cache"))
 
 	// Same user - should hit
 	w2 := httptest.NewRecorder()
-	req2, _ := http.NewRequest(http.MethodGet, "/api/custom", nil)
+	req2, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/custom", nil)
 	req2.Header.Set("X-User-ID", "user123")
 	router.ServeHTTP(w2, req2)
 	assert.Equal(t, "HIT", w2.Header().Get("X-Cache"))
 
 	// Different user - should miss
 	w3 := httptest.NewRecorder()
-	req3, _ := http.NewRequest(http.MethodGet, "/api/custom", nil)
+	req3, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/custom", nil)
 	req3.Header.Set("X-User-ID", "user456")
 	router.ServeHTTP(w3, req3)
 	assert.Equal(t, "MISS", w3.Header().Get("X-Cache"))

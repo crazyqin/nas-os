@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// MockReportDataProvider 模拟报告数据提供者
+// MockReportDataProvider 模拟报告数据提供者.
 type MockReportDataProvider struct {
 	storageData     *StorageReportData
 	bandwidthData   *BandwidthReportData

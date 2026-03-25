@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// ManualInstallRequest 手动安装请求
+// ManualInstallRequest 手动安装请求.
 type ManualInstallRequest struct {
 	// 安装方式: "compose" 或 "image"
 	Type string `json:"type"`
@@ -37,21 +37,21 @@ type ManualInstallRequest struct {
 	Icon        string `json:"icon,omitempty"`
 }
 
-// PortMappingReq 端口映射请求
+// PortMappingReq 端口映射请求.
 type PortMappingReq struct {
 	HostPort      int    `json:"hostPort"`
 	ContainerPort int    `json:"containerPort"`
 	Protocol      string `json:"protocol,omitempty"` // tcp 或 udp，默认 tcp
 }
 
-// VolumeMappingReq 卷映射请求
+// VolumeMappingReq 卷映射请求.
 type VolumeMappingReq struct {
 	HostPath      string `json:"hostPath"`
 	ContainerPath string `json:"containerPath"`
 	ReadOnly      bool   `json:"readOnly,omitempty"`
 }
 
-// ManualInstallResult 手动安装结果
+// ManualInstallResult 手动安装结果.
 type ManualInstallResult struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -67,17 +67,17 @@ type ManualInstallResult struct {
 	Dependencies []string          `json:"dependencies,omitempty"` // 自动安装的依赖
 }
 
-// DependencyDetector 依赖检测器
+// DependencyDetector 依赖检测器.
 type DependencyDetector struct {
 	manager *Manager
 }
 
-// NewDependencyDetector 创建依赖检测器
+// NewDependencyDetector 创建依赖检测器.
 func NewDependencyDetector(mgr *Manager) *DependencyDetector {
 	return &DependencyDetector{manager: mgr}
 }
 
-// DetectFromCompose 从 docker-compose 检测依赖
+// DetectFromCompose 从 docker-compose 检测依赖.
 func (dd *DependencyDetector) DetectFromCompose(composeContent string) ([]string, error) {
 	var dependencies []string
 
@@ -109,7 +109,7 @@ func (dd *DependencyDetector) DetectFromCompose(composeContent string) ([]string
 	return dependencies, nil
 }
 
-// DetectFromImage 从镜像检测依赖
+// DetectFromImage 从镜像检测依赖.
 func (dd *DependencyDetector) DetectFromImage(image string) ([]string, error) {
 	// 常见镜像的依赖映射
 	knownDependencies := map[string][]string{
@@ -135,7 +135,7 @@ func (dd *DependencyDetector) DetectFromImage(image string) ([]string, error) {
 	return nil, nil
 }
 
-// ManualInstaller 手动安装器
+// ManualInstaller 手动安装器.
 type ManualInstaller struct {
 	store              *AppStore
 	manager            *Manager
@@ -143,7 +143,7 @@ type ManualInstaller struct {
 	installDir         string
 }
 
-// NewManualInstaller 创建手动安装器
+// NewManualInstaller 创建手动安装器.
 func NewManualInstaller(store *AppStore, mgr *Manager, dataDir string) *ManualInstaller {
 	installDir := filepath.Join(dataDir, "manual-apps")
 	_ = os.MkdirAll(installDir, 0750)
@@ -156,7 +156,7 @@ func NewManualInstaller(store *AppStore, mgr *Manager, dataDir string) *ManualIn
 	}
 }
 
-// Install 手动安装应用
+// Install 手动安装应用.
 func (mi *ManualInstaller) Install(req *ManualInstallRequest) (*ManualInstallResult, error) {
 	switch req.Type {
 	case "compose":
@@ -168,7 +168,7 @@ func (mi *ManualInstaller) Install(req *ManualInstallRequest) (*ManualInstallRes
 	}
 }
 
-// installFromCompose 从 docker-compose 安装
+// installFromCompose 从 docker-compose 安装.
 func (mi *ManualInstaller) installFromCompose(req *ManualInstallRequest) (*ManualInstallResult, error) {
 	if req.ComposeContent == "" && req.ComposeURL == "" {
 		return nil, fmt.Errorf("需要提供 compose 内容或 URL")
@@ -293,7 +293,7 @@ func (mi *ManualInstaller) installFromCompose(req *ManualInstallRequest) (*Manua
 	}, nil
 }
 
-// installFromImage 从 Docker 镜像安装
+// installFromImage 从 Docker 镜像安装.
 func (mi *ManualInstaller) installFromImage(req *ManualInstallRequest) (*ManualInstallResult, error) {
 	if req.Image == "" {
 		return nil, fmt.Errorf("镜像名称不能为空")
@@ -440,7 +440,7 @@ func (mi *ManualInstaller) installFromImage(req *ManualInstallRequest) (*ManualI
 	}, nil
 }
 
-// ManualAppMeta 手动安装应用元数据
+// ManualAppMeta 手动安装应用元数据.
 type ManualAppMeta struct {
 	Name        string            `json:"name"`
 	DisplayName string            `json:"displayName"`
@@ -453,7 +453,7 @@ type ManualAppMeta struct {
 	Environment map[string]string `json:"environment,omitempty"`
 }
 
-// saveMeta 保存元数据
+// saveMeta 保存元数据.
 func (mi *ManualInstaller) saveMeta(appDir string, meta *ManualAppMeta) error {
 	data, err := json.MarshalIndent(meta, "", "  ")
 	if err != nil {
@@ -462,7 +462,7 @@ func (mi *ManualInstaller) saveMeta(appDir string, meta *ManualAppMeta) error {
 	return os.WriteFile(filepath.Join(appDir, "meta.json"), data, 0640)
 }
 
-// fetchComposeFromURL 从 URL 获取 compose 内容
+// fetchComposeFromURL 从 URL 获取 compose 内容.
 func (mi *ManualInstaller) fetchComposeFromURL(url string) (string, error) {
 	// 支持的 URL 格式:
 	// - 直接的 docker-compose.yml URL
@@ -480,7 +480,7 @@ func (mi *ManualInstaller) fetchComposeFromURL(url string) (string, error) {
 	return resp, nil
 }
 
-// fetchFromGitHub 从 GitHub 获取 compose
+// fetchFromGitHub 从 GitHub 获取 compose.
 func (mi *ManualInstaller) fetchFromGitHub(githubURL string) (string, error) {
 	// 解析 GitHub URL
 	// 格式: https://github.com/owner/repo 或 https://github.com/owner/repo/tree/branch/path
@@ -528,7 +528,7 @@ func (mi *ManualInstaller) fetchFromGitHub(githubURL string) (string, error) {
 	return "", fmt.Errorf("未找到 docker-compose 文件")
 }
 
-// extractAppNameFromCompose 从 compose 内容提取应用名
+// extractAppNameFromCompose 从 compose 内容提取应用名.
 func (mi *ManualInstaller) extractAppNameFromCompose(content string) string {
 	lines := strings.Split(content, "\n")
 
@@ -563,7 +563,7 @@ func (mi *ManualInstaller) extractAppNameFromCompose(content string) string {
 	return ""
 }
 
-// LatestAppsResponse 最新应用列表响应
+// LatestAppsResponse 最新应用列表响应.
 type LatestAppsResponse struct {
 	Trending   []*AppTemplate `json:"trending"`   // 热门应用
 	New        []*AppTemplate `json:"new"`        // 新上架
@@ -571,7 +571,7 @@ type LatestAppsResponse struct {
 	Categories map[string]int `json:"categories"` // 分类统计
 }
 
-// GetLatestApps 获取最新应用列表
+// GetLatestApps 获取最新应用列表.
 func (mi *ManualInstaller) GetLatestApps() (*LatestAppsResponse, error) {
 	// 从 store 获取模板
 	templates := mi.store.ListTemplates()

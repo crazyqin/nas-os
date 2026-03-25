@@ -27,12 +27,12 @@ import (
 	"github.com/nfnt/resize"
 )
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 // 文件类型常量，用于分类和识别不同类型的文件。
 const (
-	// FileTypeImage represents image file type
+	// FileTypeImage represents image file type.
 	FileTypeImage    FileType = "image"
 	FileTypeVideo    FileType = "video"
 	FileTypeAudio    FileType = "audio"
@@ -43,7 +43,7 @@ const (
 	FileTypeOther    FileType = "other"
 )
 
-// FileInfo 文件信息
+// FileInfo 文件信息.
 type FileInfo struct {
 	Name      string   `json:"name"`
 	Path      string   `json:"path"`
@@ -59,7 +59,7 @@ type FileInfo struct {
 	Duration  int      `json:"duration,omitempty"` // 视频时长(秒)
 }
 
-// PreviewConfig 预览配置
+// PreviewConfig 预览配置.
 type PreviewConfig struct {
 	ThumbnailSize    uint          `json:"thumbnailSize"`    // 缩略图尺寸
 	MaxPreviewSize   int64         `json:"maxPreviewSize"`   // 最大预览文件大小 (bytes)
@@ -69,7 +69,7 @@ type PreviewConfig struct {
 	EnableDocPreview bool          `json:"enableDocPreview"` // 启用文档预览
 }
 
-// ShareInfo 分享信息
+// ShareInfo 分享信息.
 type ShareInfo struct {
 	Token         string    `json:"token"`
 	Path          string    `json:"path"`
@@ -80,7 +80,7 @@ type ShareInfo struct {
 	Downloads     int       `json:"downloads"`
 }
 
-// shareStore 分享存储（内存 + 可持久化）
+// shareStore 分享存储（内存 + 可持久化）.
 var shareStore = struct {
 	sync.RWMutex
 	shares map[string]*ShareInfo
@@ -88,7 +88,7 @@ var shareStore = struct {
 	shares: make(map[string]*ShareInfo),
 }
 
-// Manager 文件管理器
+// Manager 文件管理器.
 type Manager struct {
 	config     PreviewConfig
 	baseDir    string // 基础目录，用于路径安全验证
@@ -100,7 +100,7 @@ type Manager struct {
 	thumbCache sync.Map
 }
 
-// NewManager 创建文件管理器
+// NewManager 创建文件管理器.
 func NewManager(config PreviewConfig) *Manager {
 	if config.ThumbnailSize == 0 {
 		config.ThumbnailSize = 256
@@ -154,14 +154,14 @@ func NewManager(config PreviewConfig) *Manager {
 	return m
 }
 
-// SetBaseDir 设置基础目录
+// SetBaseDir 设置基础目录.
 func (m *Manager) SetBaseDir(dir string) {
 	m.baseDir = filepath.Clean(dir)
 }
 
 // sanitizePath 验证并清理路径，防止路径遍历攻击
 // baseDir 是允许的基础目录，userPath 是用户输入的路径
-// 返回清理后的绝对路径，如果路径遍历攻击则返回错误
+// 返回清理后的绝对路径，如果路径遍历攻击则返回错误.
 func sanitizePath(baseDir, userPath string) (string, error) {
 	// 清理基础目录
 	baseDir = filepath.Clean(baseDir)
@@ -181,7 +181,7 @@ func sanitizePath(baseDir, userPath string) (string, error) {
 	return cleaned, nil
 }
 
-// GetFileType 获取文件类型
+// GetFileType 获取文件类型.
 func (m *Manager) GetFileType(path string) FileType {
 	ext := strings.ToLower(filepath.Ext(path))
 
@@ -209,7 +209,7 @@ func (m *Manager) GetFileType(path string) FileType {
 	return FileTypeOther
 }
 
-// GetMimeType 获取 MIME 类型
+// GetMimeType 获取 MIME 类型.
 func (m *Manager) GetMimeType(path string) string {
 	ext := strings.ToLower(filepath.Ext(path))
 	mimeTypes := map[string]string{
@@ -256,7 +256,7 @@ func (m *Manager) GetMimeType(path string) string {
 	return "application/octet-stream"
 }
 
-// ListFiles 列出目录文件
+// ListFiles 列出目录文件.
 func (m *Manager) ListFiles(dirPath string, generateThumbnails bool) ([]FileInfo, error) {
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
@@ -303,7 +303,7 @@ func (m *Manager) ListFiles(dirPath string, generateThumbnails bool) ([]FileInfo
 	return files, nil
 }
 
-// GenerateImageThumbnail 生成图片缩略图
+// GenerateImageThumbnail 生成图片缩略图.
 func (m *Manager) GenerateImageThumbnail(path string) (string, int, int) {
 	// 检查缓存
 	cacheKey := fmt.Sprintf("%s:%d:%d", path, m.config.ThumbnailSize, m.config.ThumbnailSize)
@@ -365,7 +365,7 @@ func (m *Manager) GenerateImageThumbnail(path string) (string, int, int) {
 	return thumbBase64, origW, origH
 }
 
-// GenerateVideoThumbnail 生成视频缩略图
+// GenerateVideoThumbnail 生成视频缩略图.
 func (m *Manager) GenerateVideoThumbnail(path string) string {
 	if !m.config.EnableVideoThumb {
 		return ""
@@ -410,7 +410,7 @@ func (m *Manager) GenerateVideoThumbnail(path string) string {
 	return thumbBase64
 }
 
-// GetVideoInfo 获取视频信息
+// GetVideoInfo 获取视频信息.
 func (m *Manager) GetVideoInfo(path string) (int, int, int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -439,7 +439,7 @@ func (m *Manager) GetVideoInfo(path string) (int, int, int, error) {
 	return width, height, int(durationFloat), nil
 }
 
-// PreviewFile 预览文件
+// PreviewFile 预览文件.
 func (m *Manager) PreviewFile(path string) (io.ReadCloser, string, error) {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -459,7 +459,7 @@ func (m *Manager) PreviewFile(path string) (io.ReadCloser, string, error) {
 	return file, mimeType, nil
 }
 
-// GetFileContent 获取文件内容 (文本文件)
+// GetFileContent 获取文件内容 (文本文件).
 func (m *Manager) GetFileContent(path string, maxSize int64) (string, error) {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -478,13 +478,13 @@ func (m *Manager) GetFileContent(path string, maxSize int64) (string, error) {
 	return string(data), nil
 }
 
-// Handlers 文件处理器
+// Handlers 文件处理器.
 type Handlers struct {
 	manager *Manager
 	baseDir string // 基础目录，用于路径安全验证
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager: manager,
@@ -492,17 +492,17 @@ func NewHandlers(manager *Manager) *Handlers {
 	}
 }
 
-// SetBaseDir 设置基础目录
+// SetBaseDir 设置基础目录.
 func (h *Handlers) SetBaseDir(dir string) {
 	h.baseDir = filepath.Clean(dir)
 }
 
-// validatePath 验证用户输入的路径，返回安全路径或错误
+// validatePath 验证用户输入的路径，返回安全路径或错误.
 func (h *Handlers) validatePath(userPath string) (string, error) {
 	return sanitizePath(h.baseDir, userPath)
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	files := r.Group("/files")
 	{
@@ -528,7 +528,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// listFiles 列出文件
+// listFiles 列出文件.
 func (h *Handlers) listFiles(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -560,7 +560,7 @@ func (h *Handlers) listFiles(c *gin.Context) {
 	})
 }
 
-// previewFile 预览文件
+// previewFile 预览文件.
 func (h *Handlers) previewFile(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -606,7 +606,7 @@ func (h *Handlers) previewFile(c *gin.Context) {
 	c.DataFromReader(http.StatusOK, -1, mimeType, reader, nil)
 }
 
-// getThumbnail 获取缩略图
+// getThumbnail 获取缩略图.
 func (h *Handlers) getThumbnail(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -645,7 +645,7 @@ func (h *Handlers) getThumbnail(c *gin.Context) {
 	})
 }
 
-// downloadFile 下载文件
+// downloadFile 下载文件.
 func (h *Handlers) downloadFile(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -663,7 +663,7 @@ func (h *Handlers) downloadFile(c *gin.Context) {
 	c.FileAttachment(safePath, filepath.Base(safePath))
 }
 
-// uploadFile 上传文件
+// uploadFile 上传文件.
 func (h *Handlers) uploadFile(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -715,7 +715,7 @@ func (h *Handlers) uploadFile(c *gin.Context) {
 	})
 }
 
-// createDir 创建目录
+// createDir 创建目录.
 func (h *Handlers) createDir(c *gin.Context) {
 	var req struct {
 		Path string `json:"path" binding:"required"`
@@ -762,7 +762,7 @@ func (h *Handlers) createDir(c *gin.Context) {
 	})
 }
 
-// deleteFile 删除文件
+// deleteFile 删除文件.
 func (h *Handlers) deleteFile(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -788,7 +788,7 @@ func (h *Handlers) deleteFile(c *gin.Context) {
 	})
 }
 
-// getFileInfo 获取文件信息
+// getFileInfo 获取文件信息.
 func (h *Handlers) getFileInfo(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -845,7 +845,7 @@ func (h *Handlers) getFileInfo(c *gin.Context) {
 	})
 }
 
-// renameFile 重命名文件
+// renameFile 重命名文件.
 func (h *Handlers) renameFile(c *gin.Context) {
 	var req struct {
 		OldPath string `json:"oldPath" binding:"required"`
@@ -881,7 +881,7 @@ func (h *Handlers) renameFile(c *gin.Context) {
 	})
 }
 
-// compressFile 压缩文件/文件夹
+// compressFile 压缩文件/文件夹.
 func (h *Handlers) compressFile(c *gin.Context) {
 	var req struct {
 		Path   string `json:"path" binding:"required"`
@@ -956,7 +956,7 @@ func (h *Handlers) compressFile(c *gin.Context) {
 	})
 }
 
-// compressZip 压缩为 ZIP 格式
+// compressZip 压缩为 ZIP 格式.
 func (h *Handlers) compressZip(srcPath, dstPath string, level int) error {
 	// 检查是否使用系统 zip 命令
 	cmd := exec.Command("zip", "-r", "-"+fmt.Sprintf("%d", level), dstPath, filepath.Base(srcPath))
@@ -970,7 +970,7 @@ func (h *Handlers) compressZip(srcPath, dstPath string, level int) error {
 	return h.compressZipGo(srcPath, dstPath, level)
 }
 
-// compressZipGo Go 实现 ZIP 压缩
+// compressZipGo Go 实现 ZIP 压缩.
 func (h *Handlers) compressZipGo(srcPath, dstPath string, level int) error {
 	archive, err := os.Create(dstPath)
 	if err != nil {
@@ -1030,13 +1030,13 @@ func (h *Handlers) compressZipGo(srcPath, dstPath string, level int) error {
 	})
 }
 
-// compressTarGz 压缩为 TAR.GZ 格式
+// compressTarGz 压缩为 TAR.GZ 格式.
 func (h *Handlers) compressTarGz(srcPath, dstPath string, level int) error {
 	cmd := exec.Command("tar", "-czf", dstPath, "-C", filepath.Dir(srcPath), filepath.Base(srcPath))
 	return cmd.Run()
 }
 
-// extractFile 解压文件
+// extractFile 解压文件.
 func (h *Handlers) extractFile(c *gin.Context) {
 	var req struct {
 		Path        string `json:"path" binding:"required"`
@@ -1086,7 +1086,7 @@ func (h *Handlers) extractFile(c *gin.Context) {
 	})
 }
 
-// extractZip 解压 ZIP 文件
+// extractZip 解压 ZIP 文件.
 func (h *Handlers) extractZip(archivePath, destPath string, overwrite bool) error {
 	// 优先使用系统 unzip 命令
 	cmd := exec.Command("unzip", "-o", archivePath, "-d", destPath)
@@ -1102,7 +1102,7 @@ func (h *Handlers) extractZip(archivePath, destPath string, overwrite bool) erro
 	return h.extractZipGo(archivePath, destPath, overwrite)
 }
 
-// extractZipGo Go 实现 ZIP 解压
+// extractZipGo Go 实现 ZIP 解压.
 func (h *Handlers) extractZipGo(archivePath, destPath string, overwrite bool) error {
 	r, err := zip.OpenReader(archivePath)
 	if err != nil {
@@ -1154,13 +1154,13 @@ func (h *Handlers) extractZipGo(archivePath, destPath string, overwrite bool) er
 	return nil
 }
 
-// extractTarGz 解压 TAR.GZ 文件
+// extractTarGz 解压 TAR.GZ 文件.
 func (h *Handlers) extractTarGz(archivePath, destPath string, overwrite bool) error {
 	cmd := exec.Command("tar", "-xf", archivePath, "-C", destPath)
 	return cmd.Run()
 }
 
-// createShare 创建分享链接
+// createShare 创建分享链接.
 func (h *Handlers) createShare(c *gin.Context) {
 	var req struct {
 		Path          string `json:"path" binding:"required"`
@@ -1216,7 +1216,7 @@ func (h *Handlers) createShare(c *gin.Context) {
 	})
 }
 
-// getShare 获取分享信息
+// getShare 获取分享信息.
 func (h *Handlers) getShare(c *gin.Context) {
 	token := c.Param("token")
 
@@ -1246,7 +1246,7 @@ func (h *Handlers) getShare(c *gin.Context) {
 	})
 }
 
-// revokeShare 撤销分享链接
+// revokeShare 撤销分享链接.
 func (h *Handlers) revokeShare(c *gin.Context) {
 	token := c.Param("token")
 
@@ -1260,7 +1260,7 @@ func (h *Handlers) revokeShare(c *gin.Context) {
 	})
 }
 
-// generateRandomToken 生成随机 token
+// generateRandomToken 生成随机 token.
 func generateRandomToken(length int) string {
 	bytes := make([]byte, length)
 	if _, err := rand.Read(bytes); err != nil {

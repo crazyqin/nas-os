@@ -16,7 +16,7 @@ import (
 
 // ========== 备份执行 ==========
 
-// CreateBackup 创建备份
+// CreateBackup 创建备份.
 func (m *Manager) CreateBackup(ctx context.Context, backupType BackupType) (*BackupRecord, error) {
 	m.mu.Lock()
 
@@ -94,7 +94,7 @@ func (m *Manager) CreateBackup(ctx context.Context, backupType BackupType) (*Bac
 	return record, err
 }
 
-// executeFullBackup 执行完整备份
+// executeFullBackup 执行完整备份.
 func (m *Manager) executeFullBackup(ctx context.Context, record *BackupRecord) error {
 	m.mu.Lock()
 	record.Status = StatusRunning
@@ -202,7 +202,7 @@ func (m *Manager) executeFullBackup(ctx context.Context, record *BackupRecord) e
 	return nil
 }
 
-// executeIncrementalBackup 执行增量备份
+// executeIncrementalBackup 执行增量备份.
 func (m *Manager) executeIncrementalBackup(ctx context.Context, record *BackupRecord) error {
 	m.mu.Lock()
 	record.Status = StatusRunning
@@ -327,13 +327,13 @@ func (m *Manager) executeIncrementalBackup(ctx context.Context, record *BackupRe
 	return nil
 }
 
-// executeDifferentialBackup 执行差异备份
+// executeDifferentialBackup 执行差异备份.
 func (m *Manager) executeDifferentialBackup(ctx context.Context, record *BackupRecord) error {
 	// 差异备份与增量备份类似，但总是基于完整备份
 	return m.executeIncrementalBackup(ctx, record)
 }
 
-// processFile 处理单个文件
+// processFile 处理单个文件.
 func (m *Manager) processFile(path, relPath string, info os.FileInfo, record *BackupRecord) (FileManifest, int64, error) {
 	manifest := FileManifest{
 		Path:    relPath,
@@ -383,7 +383,7 @@ func (m *Manager) processFile(path, relPath string, info os.FileInfo, record *Ba
 	return manifest, int64(len(finalData)), nil
 }
 
-// shouldExclude 检查是否应该排除
+// shouldExclude 检查是否应该排除.
 func (m *Manager) shouldExclude(path string) bool {
 	for _, pattern := range m.config.ExcludePatterns {
 		matched, _ := filepath.Match(pattern, path)
@@ -397,7 +397,7 @@ func (m *Manager) shouldExclude(path string) bool {
 	return false
 }
 
-// calculateManifestChecksum 计算清单校验和
+// calculateManifestChecksum 计算清单校验和.
 func (m *Manager) calculateManifestChecksum(manifest *BackupManifest) (string, error) {
 	data, err := json.Marshal(manifest.Files)
 	if err != nil {
@@ -407,7 +407,7 @@ func (m *Manager) calculateManifestChecksum(manifest *BackupManifest) (string, e
 	return hex.EncodeToString(hash[:]), nil
 }
 
-// saveManifest 保存清单
+// saveManifest 保存清单.
 func (m *Manager) saveManifest(backupID string, manifest *BackupManifest) error {
 	manifestPath := filepath.Join(m.storagePath, backupID, "manifest.json")
 	data, err := json.MarshalIndent(manifest, "", "  ")
@@ -417,7 +417,7 @@ func (m *Manager) saveManifest(backupID string, manifest *BackupManifest) error 
 	return os.WriteFile(manifestPath, data, 0600)
 }
 
-// updateIndex 更新增量索引
+// updateIndex 更新增量索引.
 func (m *Manager) updateIndex(manifest *BackupManifest) {
 	for _, file := range manifest.Files {
 		m.index.Update(file.Path, &FileState{
@@ -433,7 +433,7 @@ func (m *Manager) updateIndex(manifest *BackupManifest) {
 
 // ========== 备份恢复 ==========
 
-// validatePath 安全验证路径，防止路径遍历攻击
+// validatePath 安全验证路径，防止路径遍历攻击.
 func validatePath(basePath, relPath string) (string, error) {
 	// 清理路径，移除 . 和 ..
 	cleanRelPath := filepath.Clean(relPath)
@@ -452,7 +452,7 @@ func validatePath(basePath, relPath string) (string, error) {
 	return cleanFullPath, nil
 }
 
-// RestoreBackup 恢复备份
+// RestoreBackup 恢复备份.
 func (m *Manager) RestoreBackup(ctx context.Context, backupID, targetPath string, overwrite bool) (*BackupRecord, error) {
 	m.mu.RLock()
 	record, exists := m.records[backupID]
@@ -508,7 +508,7 @@ func (m *Manager) RestoreBackup(ctx context.Context, backupID, targetPath string
 	return record, nil
 }
 
-// restoreBaseBackup 恢复基础备份
+// restoreBaseBackup 恢复基础备份.
 func (m *Manager) restoreBaseBackup(ctx context.Context, backupID, targetPath string, overwrite bool) error {
 	record, err := m.GetRecord(backupID)
 	if err != nil {
@@ -554,7 +554,7 @@ func (m *Manager) restoreBaseBackup(ctx context.Context, backupID, targetPath st
 	return nil
 }
 
-// restoreFile 恢复单个文件
+// restoreFile 恢复单个文件.
 func (m *Manager) restoreFile(srcPath, dstPath string, encrypted bool) error {
 	data, err := os.ReadFile(srcPath)
 	if err != nil {
@@ -586,7 +586,7 @@ func (m *Manager) restoreFile(srcPath, dstPath string, encrypted bool) error {
 
 // ========== 查询方法 ==========
 
-// GetRecord 获取备份记录
+// GetRecord 获取备份记录.
 func (m *Manager) GetRecord(backupID string) (*BackupRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -598,7 +598,7 @@ func (m *Manager) GetRecord(backupID string) (*BackupRecord, error) {
 	return record, nil
 }
 
-// GetManifest 获取备份清单
+// GetManifest 获取备份清单.
 func (m *Manager) GetManifest(backupID string) (*BackupManifest, error) {
 	m.mu.RLock()
 	manifest, exists := m.manifests[backupID]
@@ -627,7 +627,7 @@ func (m *Manager) GetManifest(backupID string) (*BackupManifest, error) {
 	return manifest, nil
 }
 
-// ListRecords 列出所有备份记录
+// ListRecords 列出所有备份记录.
 func (m *Manager) ListRecords() []*BackupRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -639,7 +639,7 @@ func (m *Manager) ListRecords() []*BackupRecord {
 	return records
 }
 
-// DeleteBackup 删除备份
+// DeleteBackup 删除备份.
 func (m *Manager) DeleteBackup(backupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -660,7 +660,7 @@ func (m *Manager) DeleteBackup(backupID string) error {
 	return nil
 }
 
-// GetProgress 获取备份进度
+// GetProgress 获取备份进度.
 func (m *Manager) GetProgress(backupID string) (*BackupProgress, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -695,7 +695,7 @@ func max(a, b int64) int64 {
 	return b
 }
 
-// BackupStreamReader 备份流读取器
+// BackupStreamReader 备份流读取器.
 type BackupStreamReader struct {
 	reader     io.Reader
 	encryptor  Encryptor
@@ -703,7 +703,7 @@ type BackupStreamReader struct {
 	buffer     []byte
 }
 
-// NewBackupStreamReader 创建备份流读取器
+// NewBackupStreamReader 创建备份流读取器.
 func NewBackupStreamReader(reader io.Reader, encryptor Encryptor, compressor Compressor) *BackupStreamReader {
 	return &BackupStreamReader{
 		reader:     reader,
@@ -713,19 +713,19 @@ func NewBackupStreamReader(reader io.Reader, encryptor Encryptor, compressor Com
 	}
 }
 
-// Read 实现 io.Reader
+// Read 实现 io.Reader.
 func (r *BackupStreamReader) Read(p []byte) (n int, err error) {
 	return r.reader.Read(p)
 }
 
-// BackupStreamWriter 备份流写入器
+// BackupStreamWriter 备份流写入器.
 type BackupStreamWriter struct {
 	writer     io.Writer
 	encryptor  Encryptor
 	compressor Compressor
 }
 
-// NewBackupStreamWriter 创建备份流写入器
+// NewBackupStreamWriter 创建备份流写入器.
 func NewBackupStreamWriter(writer io.Writer, encryptor Encryptor, compressor Compressor) *BackupStreamWriter {
 	return &BackupStreamWriter{
 		writer:     writer,
@@ -734,7 +734,7 @@ func NewBackupStreamWriter(writer io.Writer, encryptor Encryptor, compressor Com
 	}
 }
 
-// Write 实现 io.Writer
+// Write 实现 io.Writer.
 func (w *BackupStreamWriter) Write(p []byte) (n int, err error) {
 	data := p
 

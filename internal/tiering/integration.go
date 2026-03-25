@@ -11,7 +11,7 @@ import (
 )
 
 // Integration 存储分层集成器
-// 负责与 NAS-OS 其他模块的集成
+// 负责与 NAS-OS 其他模块的集成.
 type Integration struct {
 	mu sync.RWMutex
 
@@ -35,7 +35,7 @@ type Integration struct {
 	stopCh  chan struct{}
 }
 
-// StorageCallbacks 存储模块回调接口
+// StorageCallbacks 存储模块回调接口.
 type StorageCallbacks interface {
 	// 获取存储池信息
 	GetPoolInfo(poolName string) (*PoolInfo, error)
@@ -62,7 +62,7 @@ type StorageCallbacks interface {
 	GetFileSize(path string) (int64, error)
 }
 
-// PoolInfo 存储池信息
+// PoolInfo 存储池信息.
 type PoolInfo struct {
 	Name       string `json:"name"`
 	Type       string `json:"type"` // btrfs, zfs, etc.
@@ -73,7 +73,7 @@ type PoolInfo struct {
 	MountPoint string `json:"mountPoint"`
 }
 
-// VolumeInfo 卷信息
+// VolumeInfo 卷信息.
 type VolumeInfo struct {
 	Name       string   `json:"name"`
 	Path       string   `json:"path"`
@@ -83,7 +83,7 @@ type VolumeInfo struct {
 	IsReadOnly bool     `json:"isReadOnly"`
 }
 
-// FileAccessStats 文件访问统计
+// FileAccessStats 文件访问统计.
 type FileAccessStats struct {
 	Path        string    `json:"path"`
 	LastAccess  time.Time `json:"lastAccess"`
@@ -94,35 +94,35 @@ type FileAccessStats struct {
 	IsCold      bool      `json:"isCold"`
 }
 
-// FSWatcher 文件系统监控器
+// FSWatcher 文件系统监控器.
 type FSWatcher struct {
 	_      struct{} // 防止空结构体
 	events chan FSEvent
 	stopCh chan struct{}
 }
 
-// FSEvent 文件系统事件
+// FSEvent 文件系统事件.
 type FSEvent struct {
 	Type      FSEventType
 	Path      string
 	Timestamp time.Time
 }
 
-// FSEventType 文件系统事件类型
+// FSEventType 文件系统事件类型.
 type FSEventType string
 
 const (
-	// FSEventCreate 文件创建事件
+	// FSEventCreate 文件创建事件.
 	FSEventCreate FSEventType = "create"
-	// FSEventModify 文件修改事件
+	// FSEventModify 文件修改事件.
 	FSEventModify FSEventType = "modify"
-	// FSEventDelete 文件删除事件
+	// FSEventDelete 文件删除事件.
 	FSEventDelete FSEventType = "delete"
-	// FSEventAccess 文件访问事件
+	// FSEventAccess 文件访问事件.
 	FSEventAccess FSEventType = "access"
 )
 
-// IntegrationConfig 集成配置
+// IntegrationConfig 集成配置.
 type IntegrationConfig struct {
 	// 配置文件路径
 	ConfigPath string `json:"configPath"`
@@ -140,7 +140,7 @@ type IntegrationConfig struct {
 	SyncInterval time.Duration `json:"syncInterval"`
 }
 
-// DefaultIntegrationConfig 默认集成配置
+// DefaultIntegrationConfig 默认集成配置.
 func DefaultIntegrationConfig() IntegrationConfig {
 	return IntegrationConfig{
 		ConfigPath:     "/etc/nas-os/tiering/config.json",
@@ -151,7 +151,7 @@ func DefaultIntegrationConfig() IntegrationConfig {
 	}
 }
 
-// NewIntegration 创建集成器
+// NewIntegration 创建集成器.
 func NewIntegration(config IntegrationConfig, logger *zap.Logger) *Integration {
 	engineConfig := DefaultPolicyEngineConfig()
 	engineConfig.EnableAutoTier = config.EnableAutoTier
@@ -171,14 +171,14 @@ func NewIntegration(config IntegrationConfig, logger *zap.Logger) *Integration {
 	}
 }
 
-// SetStorageCallbacks 设置存储回调
+// SetStorageCallbacks 设置存储回调.
 func (i *Integration) SetStorageCallbacks(callbacks StorageCallbacks) {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 	i.storageCallbacks = callbacks
 }
 
-// Initialize 初始化集成器
+// Initialize 初始化集成器.
 func (i *Integration) Initialize(ctx context.Context) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
@@ -203,7 +203,7 @@ func (i *Integration) Initialize(ctx context.Context) error {
 	return nil
 }
 
-// syncTierConfig 同步存储层配置
+// syncTierConfig 同步存储层配置.
 func (i *Integration) syncTierConfig(ctx context.Context) error {
 	if i.storageCallbacks == nil {
 		return nil
@@ -250,7 +250,7 @@ func (i *Integration) syncTierConfig(ctx context.Context) error {
 	return nil
 }
 
-// runSyncTask 运行同步任务
+// runSyncTask 运行同步任务.
 func (i *Integration) runSyncTask(ctx context.Context) {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -269,12 +269,12 @@ func (i *Integration) runSyncTask(ctx context.Context) {
 	}
 }
 
-// Start 启动集成器
+// Start 启动集成器.
 func (i *Integration) Start(ctx context.Context) error {
 	return i.Initialize(ctx)
 }
 
-// Stop 停止集成器
+// Stop 停止集成器.
 func (i *Integration) Stop() {
 	i.mu.Lock()
 	i.running = false
@@ -288,7 +288,7 @@ func (i *Integration) Stop() {
 
 // ==================== 文件操作集成 ====================
 
-// OnFileAccess 文件访问回调
+// OnFileAccess 文件访问回调.
 func (i *Integration) OnFileAccess(ctx context.Context, path string, tierType TierType, readBytes, writeBytes int64) error {
 	// 记录访问
 	if err := i.manager.tracker.RecordAccess(path, tierType, readBytes, writeBytes); err != nil {
@@ -301,7 +301,7 @@ func (i *Integration) OnFileAccess(ctx context.Context, path string, tierType Ti
 	return nil
 }
 
-// OnFileCreate 文件创建回调
+// OnFileCreate 文件创建回调.
 func (i *Integration) OnFileCreate(ctx context.Context, path string, size int64, tierType TierType) error {
 	// 创建访问记录
 	_ = i.manager.tracker.RecordAccess(path, tierType, 0, size)
@@ -311,7 +311,7 @@ func (i *Integration) OnFileCreate(ctx context.Context, path string, size int64,
 	return nil
 }
 
-// OnFileDelete 文件删除回调
+// OnFileDelete 文件删除回调.
 func (i *Integration) OnFileDelete(ctx context.Context, path string, tierType TierType) error {
 	// 移除访问记录
 	_ = i.manager.tracker.RemoveRecord(path)
@@ -321,7 +321,7 @@ func (i *Integration) OnFileDelete(ctx context.Context, path string, tierType Ti
 	return nil
 }
 
-// OnFileMove 文件移动回调
+// OnFileMove 文件移动回调.
 func (i *Integration) OnFileMove(ctx context.Context, srcPath, dstPath string, srcTier, dstTier TierType) error {
 	// 更新访问记录的存储层
 	_ = i.manager.tracker.RemoveRecord(srcPath)
@@ -343,7 +343,7 @@ func (i *Integration) OnFileMove(ctx context.Context, srcPath, dstPath string, s
 
 // ==================== 存储层管理集成 ====================
 
-// GetTierInfo 获取存储层信息
+// GetTierInfo 获取存储层信息.
 func (i *Integration) GetTierInfo(tierType TierType) (*TierInfo, error) {
 	tier, err := i.manager.GetTier(tierType)
 	if err != nil {
@@ -382,7 +382,7 @@ func (i *Integration) GetTierInfo(tierType TierType) (*TierInfo, error) {
 	return info, nil
 }
 
-// TierInfo 存储层详细信息
+// TierInfo 存储层详细信息.
 type TierInfo struct {
 	Type       TierType `json:"type"`
 	Name       string   `json:"name"`
@@ -411,7 +411,7 @@ type TierInfo struct {
 
 // ==================== 策略执行集成 ====================
 
-// ExecutePolicyWithCallback 执行策略并回调
+// ExecutePolicyWithCallback 执行策略并回调.
 func (i *Integration) ExecutePolicyWithCallback(ctx context.Context, policyID string, preMigrate func(path string) bool) (*MigrateTask, error) {
 	task, err := i.manager.ExecutePolicy(policyID)
 	if err != nil {
@@ -426,24 +426,24 @@ func (i *Integration) ExecutePolicyWithCallback(ctx context.Context, policyID st
 
 // ==================== 监控指标集成 ====================
 
-// GetMetrics 获取监控指标
+// GetMetrics 获取监控指标.
 func (i *Integration) GetMetrics() *Metrics {
 	return i.metrics
 }
 
-// GetMetricsSummary 获取指标汇总
+// GetMetricsSummary 获取指标汇总.
 func (i *Integration) GetMetricsSummary() *MetricsSummary {
 	return i.metrics.GetSummary()
 }
 
-// ExportPrometheusMetrics 导出 Prometheus 格式指标
+// ExportPrometheusMetrics 导出 Prometheus 格式指标.
 func (i *Integration) ExportPrometheusMetrics() string {
 	return i.metrics.ExportPrometheus()
 }
 
 // ==================== 健康检查 ====================
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 func (i *Integration) HealthCheck(ctx context.Context) *HealthStatus {
 	i.mu.RLock()
 	defer i.mu.RUnlock()
@@ -508,14 +508,14 @@ func (i *Integration) HealthCheck(ctx context.Context) *HealthStatus {
 	return status
 }
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus struct {
 	Healthy   bool                         `json:"healthy"`
 	Timestamp time.Time                    `json:"timestamp"`
 	Checks    map[string]HealthCheckResult `json:"checks"`
 }
 
-// HealthCheckResult 健康检查结果
+// HealthCheckResult 健康检查结果.
 type HealthCheckResult struct {
 	Status  string `json:"status"` // healthy, warning, error, disabled
 	Message string `json:"message"`
@@ -538,13 +538,13 @@ func poolToTierType(poolName string) TierType {
 
 // ==================== API 处理器集成 ====================
 
-// IntegrationHandler 集成 API 处理器
+// IntegrationHandler 集成 API 处理器.
 type IntegrationHandler struct {
 	integration *Integration
 	handler     *Handler
 }
 
-// NewIntegrationHandler 创建集成处理器
+// NewIntegrationHandler 创建集成处理器.
 func NewIntegrationHandler(integration *Integration) *IntegrationHandler {
 	return &IntegrationHandler{
 		integration: integration,
@@ -552,7 +552,7 @@ func NewIntegrationHandler(integration *Integration) *IntegrationHandler {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *IntegrationHandler) RegisterRoutes(r *gin.RouterGroup) {
 	// 注册基础路由
 	h.handler.RegisterRoutes(r)
@@ -566,7 +566,7 @@ func (h *IntegrationHandler) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// GetMetrics 获取指标
+// GetMetrics 获取指标.
 func (h *IntegrationHandler) GetMetrics(c *gin.Context) {
 	summary := h.integration.GetMetricsSummary()
 	c.JSON(200, gin.H{
@@ -576,13 +576,13 @@ func (h *IntegrationHandler) GetMetrics(c *gin.Context) {
 	})
 }
 
-// GetPrometheusMetrics 获取 Prometheus 格式指标
+// GetPrometheusMetrics 获取 Prometheus 格式指标.
 func (h *IntegrationHandler) GetPrometheusMetrics(c *gin.Context) {
 	metrics := h.integration.ExportPrometheusMetrics()
 	c.Data(200, "text/plain; charset=utf-8", []byte(metrics))
 }
 
-// GetHealth 获取健康状态
+// GetHealth 获取健康状态.
 func (h *IntegrationHandler) GetHealth(c *gin.Context) {
 	status := h.integration.HealthCheck(c.Request.Context())
 	if !status.Healthy {

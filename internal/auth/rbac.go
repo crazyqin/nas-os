@@ -6,67 +6,67 @@ import (
 	"time"
 )
 
-// Role 用户角色
+// Role 用户角色.
 type Role string
 
 const (
-	// RoleAdmin 管理员：全部权限
+	// RoleAdmin 管理员：全部权限.
 	RoleAdmin Role = "admin"
-	// RoleUser 普通用户：受限访问
+	// RoleUser 普通用户：受限访问.
 	RoleUser Role = "user"
-	// RoleGuest 访客：只读访问
+	// RoleGuest 访客：只读访问.
 	RoleGuest Role = "guest"
-	// RoleSystem 系统服务账号
+	// RoleSystem 系统服务账号.
 	RoleSystem Role = "system"
 )
 
-// Permission 权限定义
+// Permission 权限定义.
 type Permission struct {
 	Resource string `json:"resource"` // 资源类型
 	Action   string `json:"action"`   // 操作：read, write, delete, admin
 }
 
-// Resource 资源类型
+// Resource 资源类型.
 type Resource string
 
 const (
-	// ResourceVolume 存储卷
+	// ResourceVolume 存储卷.
 	ResourceVolume Resource = "volume"
-	// ResourceShare 共享目录
+	// ResourceShare 共享目录.
 	ResourceShare Resource = "share"
-	// ResourceUser 用户管理
+	// ResourceUser 用户管理.
 	ResourceUser Resource = "user"
-	// ResourceGroup 用户组
+	// ResourceGroup 用户组.
 	ResourceGroup Resource = "group"
-	// ResourceSystem 系统设置
+	// ResourceSystem 系统设置.
 	ResourceSystem Resource = "system"
-	// ResourceContainer 容器管理
+	// ResourceContainer 容器管理.
 	ResourceContainer Resource = "container"
-	// ResourceVM 虚拟机
+	// ResourceVM 虚拟机.
 	ResourceVM Resource = "vm"
-	// ResourceFile 文件管理
+	// ResourceFile 文件管理.
 	ResourceFile Resource = "file"
-	// ResourceSnapshot 快照
+	// ResourceSnapshot 快照.
 	ResourceSnapshot Resource = "snapshot"
 )
 
-// Action 操作类型
+// Action 操作类型.
 type Action string
 
 const (
-	// ActionRead 读取
+	// ActionRead 读取.
 	ActionRead Action = "read"
-	// ActionWrite 写入
+	// ActionWrite 写入.
 	ActionWrite Action = "write"
-	// ActionDelete 删除
+	// ActionDelete 删除.
 	ActionDelete Action = "delete"
-	// ActionAdmin 管理
+	// ActionAdmin 管理.
 	ActionAdmin Action = "admin"
-	// ActionExec 执行（容器/VM）
+	// ActionExec 执行（容器/VM）.
 	ActionExec Action = "exec"
 )
 
-// RoleDefinition 角色定义
+// RoleDefinition 角色定义.
 type RoleDefinition struct {
 	Name        Role         `json:"name"`
 	Description string       `json:"description"`
@@ -74,7 +74,7 @@ type RoleDefinition struct {
 	Inherits    []Role       `json:"inherits,omitempty"` // 继承的角色
 }
 
-// RBACManager RBAC 管理器
+// RBACManager RBAC 管理器.
 type RBACManager struct {
 	mu           sync.RWMutex
 	roles        map[Role]*RoleDefinition // 角色定义
@@ -86,7 +86,7 @@ type RBACManager struct {
 	cacheExpiry  time.Duration
 }
 
-// ResourceACL 资源访问控制列表
+// ResourceACL 资源访问控制列表.
 type ResourceACL struct {
 	ResourceID   string     `json:"resource_id"`
 	ResourceType Resource   `json:"resource_type"`
@@ -97,19 +97,19 @@ type ResourceACL struct {
 	ParentID     string     `json:"parent_id,omitempty"`
 }
 
-// GroupACL 用户组 ACL
+// GroupACL 用户组 ACL.
 type GroupACL struct {
 	GroupID     string       `json:"group_id"`
 	Permissions []Permission `json:"permissions"`
 }
 
-// UserACL 用户 ACL
+// UserACL 用户 ACL.
 type UserACL struct {
 	UserID      string       `json:"user_id"`
 	Permissions []Permission `json:"permissions"`
 }
 
-// SessionCache 会话缓存
+// SessionCache 会话缓存.
 type SessionCache struct {
 	UserID      string
 	Roles       []Role
@@ -117,7 +117,7 @@ type SessionCache struct {
 	ExpiresAt   time.Time
 }
 
-// NewRBACManager 创建 RBAC 管理器
+// NewRBACManager 创建 RBAC 管理器.
 func NewRBACManager() *RBACManager {
 	mgr := &RBACManager{
 		roles:        make(map[Role]*RoleDefinition),
@@ -135,7 +135,7 @@ func NewRBACManager() *RBACManager {
 	return mgr
 }
 
-// initBuiltInRoles 初始化内置角色
+// initBuiltInRoles 初始化内置角色.
 func (m *RBACManager) initBuiltInRoles() {
 	// Admin 角色 - 全部权限
 	m.roles[RoleAdmin] = &RoleDefinition{
@@ -222,7 +222,7 @@ func (m *RBACManager) initBuiltInRoles() {
 	}
 }
 
-// AddRole 添加自定义角色
+// AddRole 添加自定义角色.
 func (m *RBACManager) AddRole(role Role, description string, permissions []Permission, inherits []Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -237,7 +237,7 @@ func (m *RBACManager) AddRole(role Role, description string, permissions []Permi
 	return nil
 }
 
-// AssignRoleToUser 给用户分配角色
+// AssignRoleToUser 给用户分配角色.
 func (m *RBACManager) AssignRoleToUser(userID string, role Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -250,7 +250,7 @@ func (m *RBACManager) AssignRoleToUser(userID string, role Role) error {
 	return nil
 }
 
-// AssignRoleToGroup 给用户组分配角色
+// AssignRoleToGroup 给用户组分配角色.
 func (m *RBACManager) AssignRoleToGroup(groupID string, role Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -263,7 +263,7 @@ func (m *RBACManager) AssignRoleToGroup(groupID string, role Role) error {
 	return nil
 }
 
-// CheckPermission 检查用户是否有指定权限
+// CheckPermission 检查用户是否有指定权限.
 func (m *RBACManager) CheckPermission(userID string, userGroups []string, resource Resource, action Action) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -323,7 +323,7 @@ func (m *RBACManager) CheckPermission(userID string, userGroups []string, resour
 	return false
 }
 
-// GetPermissions 获取用户所有权限
+// GetPermissions 获取用户所有权限.
 func (m *RBACManager) GetPermissions(userID string, userGroups []string) []Permission {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -361,7 +361,7 @@ func (m *RBACManager) GetPermissions(userID string, userGroups []string) []Permi
 	return result
 }
 
-// SetResourceACL 设置资源 ACL
+// SetResourceACL 设置资源 ACL.
 func (m *RBACManager) SetResourceACL(resourceID string, resourceType Resource, ownerID string, groupACLs []GroupACL, userACLs []UserACL) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -375,7 +375,7 @@ func (m *RBACManager) SetResourceACL(resourceID string, resourceType Resource, o
 	}
 }
 
-// CacheSession 缓存会话权限
+// CacheSession 缓存会话权限.
 func (m *RBACManager) CacheSession(token string, userID string, groups []string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -391,7 +391,7 @@ func (m *RBACManager) CacheSession(token string, userID string, groups []string)
 	}
 }
 
-// getPermissionsInternal 内部方法，获取用户所有权限（不获取锁，调用者需持有锁）
+// getPermissionsInternal 内部方法，获取用户所有权限（不获取锁，调用者需持有锁）.
 func (m *RBACManager) getPermissionsInternal(userID string, userGroups []string) []Permission {
 	permissionsMap := make(map[string]bool)
 	var result []Permission
@@ -426,7 +426,7 @@ func (m *RBACManager) getPermissionsInternal(userID string, userGroups []string)
 	return result
 }
 
-// GetCachedSession 获取缓存的会话
+// GetCachedSession 获取缓存的会话.
 func (m *RBACManager) GetCachedSession(token string) *SessionCache {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -444,14 +444,14 @@ func (m *RBACManager) GetCachedSession(token string) *SessionCache {
 	return session
 }
 
-// InvalidateSession 使会话缓存失效
+// InvalidateSession 使会话缓存失效.
 func (m *RBACManager) InvalidateSession(token string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.sessionCache, token)
 }
 
-// CleanupExpiredSessions 清理过期会话
+// CleanupExpiredSessions 清理过期会话.
 func (m *RBACManager) CleanupExpiredSessions() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -464,7 +464,7 @@ func (m *RBACManager) CleanupExpiredSessions() {
 	}
 }
 
-// GetRoles 获取所有角色定义
+// GetRoles 获取所有角色定义.
 func (m *RBACManager) GetRoles() []*RoleDefinition {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -477,14 +477,14 @@ func (m *RBACManager) GetRoles() []*RoleDefinition {
 	return result
 }
 
-// GetUserRoles 获取用户的所有角色
+// GetUserRoles 获取用户的所有角色.
 func (m *RBACManager) GetUserRoles(userID string) []Role {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return append([]Role{}, m.userRoles[userID]...)
 }
 
-// RemoveUserRole 移除用户角色
+// RemoveUserRole 移除用户角色.
 func (m *RBACManager) RemoveUserRole(userID string, role Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -500,7 +500,7 @@ func (m *RBACManager) RemoveUserRole(userID string, role Role) error {
 	return ErrRoleNotFound
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrRoleNotFound     = errors.New("角色不存在")
 	ErrPermissionDenied = errors.New("权限不足")
@@ -510,7 +510,7 @@ var (
 
 // ========== 权限继承解析 ==========
 
-// resolveInheritedPermissions 解析角色继承的权限
+// resolveInheritedPermissions 解析角色继承的权限.
 func (m *RBACManager) resolveInheritedPermissions(role Role, visited map[Role]bool) []Permission {
 	if visited[role] {
 		return nil // 防止循环继承
@@ -547,7 +547,7 @@ func (m *RBACManager) resolveInheritedPermissions(role Role, visited map[Role]bo
 	return result
 }
 
-// GetRolePermissions 获取角色的所有权限（包括继承的）
+// GetRolePermissions 获取角色的所有权限（包括继承的）.
 func (m *RBACManager) GetRolePermissions(role Role) []Permission {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -556,7 +556,7 @@ func (m *RBACManager) GetRolePermissions(role Role) []Permission {
 
 // ========== 资源所有权检查 ==========
 
-// CheckResourceOwnership 检查用户是否是资源的所有者
+// CheckResourceOwnership 检查用户是否是资源的所有者.
 func (m *RBACManager) CheckResourceOwnership(userID, resourceID string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -569,7 +569,7 @@ func (m *RBACManager) CheckResourceOwnership(userID, resourceID string) bool {
 	return acl.OwnerID == userID
 }
 
-// SetResourceOwner 设置资源所有者
+// SetResourceOwner 设置资源所有者.
 func (m *RBACManager) SetResourceOwner(resourceID, ownerID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -584,7 +584,7 @@ func (m *RBACManager) SetResourceOwner(resourceID, ownerID string) {
 	}
 }
 
-// GetResourcesByOwner 获取用户拥有的所有资源
+// GetResourcesByOwner 获取用户拥有的所有资源.
 func (m *RBACManager) GetResourcesByOwner(ownerID string) []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -598,7 +598,7 @@ func (m *RBACManager) GetResourcesByOwner(ownerID string) []string {
 	return resources
 }
 
-// CheckPermissionWithOwner 检查权限（考虑所有权）
+// CheckPermissionWithOwner 检查权限（考虑所有权）.
 func (m *RBACManager) CheckPermissionWithOwner(userID string, userGroups []string, resource Resource, action Action, resourceID string) bool {
 	// 所有者拥有所有权限
 	if resourceID != "" && m.CheckResourceOwnership(userID, resourceID) {
@@ -611,7 +611,7 @@ func (m *RBACManager) CheckPermissionWithOwner(userID string, userGroups []strin
 
 // ========== 权限缓存优化 ==========
 
-// RefreshSessionCache 刷新会话权限缓存
+// RefreshSessionCache 刷新会话权限缓存.
 func (m *RBACManager) RefreshSessionCache(token string, userID string, groups []string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -648,7 +648,7 @@ func (m *RBACManager) RefreshSessionCache(token string, userID string, groups []
 	}
 }
 
-// GetSessionPermissions 从缓存获取会话权限
+// GetSessionPermissions 从缓存获取会话权限.
 func (m *RBACManager) GetSessionPermissions(token string) []Permission {
 	session := m.GetCachedSession(token)
 	if session == nil {
@@ -657,7 +657,7 @@ func (m *RBACManager) GetSessionPermissions(token string) []Permission {
 	return session.Permissions
 }
 
-// InvalidateUserSessions 使用户所有会话缓存失效
+// InvalidateUserSessions 使用户所有会话缓存失效.
 func (m *RBACManager) InvalidateUserSessions(userID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -669,7 +669,7 @@ func (m *RBACManager) InvalidateUserSessions(userID string) {
 	}
 }
 
-// InvalidateGroupSessions 使组成员的所有会话缓存失效
+// InvalidateGroupSessions 使组成员的所有会话缓存失效.
 func (m *RBACManager) InvalidateGroupSessions(groupID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -695,14 +695,14 @@ func (m *RBACManager) InvalidateGroupSessions(groupID string) {
 
 // ========== 权限模板 ==========
 
-// PermissionTemplate 权限模板
+// PermissionTemplate 权限模板.
 type PermissionTemplate struct {
 	Name        string       `json:"name"`
 	Description string       `json:"description"`
 	Permissions []Permission `json:"permissions"`
 }
 
-// permissionTemplates 预定义权限模板
+// permissionTemplates 预定义权限模板.
 var permissionTemplates = map[string]PermissionTemplate{
 	"readonly": {
 		Name:        "readonly",
@@ -741,7 +741,7 @@ var permissionTemplates = map[string]PermissionTemplate{
 }
 
 // GetPermissionTemplates 获取所有权限模板
-// GetPermissionTemplates 获取所有权限模板
+// GetPermissionTemplates 获取所有权限模板.
 func GetPermissionTemplates() []PermissionTemplate {
 	templates := make([]PermissionTemplate, 0, len(permissionTemplates))
 	for _, t := range permissionTemplates {
@@ -751,7 +751,7 @@ func GetPermissionTemplates() []PermissionTemplate {
 }
 
 // CreateRoleFromTemplate 从模板创建角色
-// CreateRoleFromTemplate 从模板创建角色
+// CreateRoleFromTemplate 从模板创建角色.
 func (m *RBACManager) CreateRoleFromTemplate(roleName, templateName, description string) error {
 	template, exists := permissionTemplates[templateName]
 	if !exists {
@@ -763,14 +763,14 @@ func (m *RBACManager) CreateRoleFromTemplate(roleName, templateName, description
 
 // ========== 用户组权限管理 ==========
 
-// GetUserGroupRoles 获取用户组角色
+// GetUserGroupRoles 获取用户组角色.
 func (m *RBACManager) GetUserGroupRoles(groupID string) []Role {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return append([]Role{}, m.groupRoles[groupID]...)
 }
 
-// RemoveGroupRole 移除用户组角色
+// RemoveGroupRole 移除用户组角色.
 func (m *RBACManager) RemoveGroupRole(groupID string, role Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -786,14 +786,14 @@ func (m *RBACManager) RemoveGroupRole(groupID string, role Role) error {
 	return ErrRoleNotFound
 }
 
-// RemoveResourceACL 移除资源 ACL
+// RemoveResourceACL 移除资源 ACL.
 func (m *RBACManager) RemoveResourceACL(resourceID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.resourceACLs, resourceID)
 }
 
-// GetResourceACL 获取资源 ACL
+// GetResourceACL 获取资源 ACL.
 func (m *RBACManager) GetResourceACL(resourceID string) *ResourceACL {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -802,7 +802,7 @@ func (m *RBACManager) GetResourceACL(resourceID string) *ResourceACL {
 
 // ========== 权限统计 ==========
 
-// GetRBACStats 获取 RBAC 统计信息
+// GetRBACStats 获取 RBAC 统计信息.
 func (m *RBACManager) GetRBACStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

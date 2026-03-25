@@ -16,19 +16,19 @@ import (
 )
 
 var (
-	// ErrServerNotRunning 服务器未运行
+	// ErrServerNotRunning 服务器未运行.
 	ErrServerNotRunning = errors.New("服务器未运行")
-	// ErrServerRunning 服务器已在运行
+	// ErrServerRunning 服务器已在运行.
 	ErrServerRunning = errors.New("服务器已在运行")
-	// ErrTooManyConns 连接数超过限制
+	// ErrTooManyConns 连接数超过限制.
 	ErrTooManyConns = errors.New("连接数超过限制")
-	// ErrLoginFailed 登录失败
+	// ErrLoginFailed 登录失败.
 	ErrLoginFailed = errors.New("登录失败")
-	// ErrPermissionDenied 权限被拒绝
+	// ErrPermissionDenied 权限被拒绝.
 	ErrPermissionDenied = errors.New("权限被拒绝")
 )
 
-// Server FTP 服务器
+// Server FTP 服务器.
 type Server struct {
 	mu            sync.RWMutex
 	config        *Config
@@ -45,7 +45,7 @@ type Server struct {
 	pasvPortMutex sync.Mutex
 }
 
-// clientConn 客户端连接
+// clientConn 客户端连接.
 type clientConn struct {
 	id           int
 	conn         net.Conn
@@ -66,7 +66,7 @@ type clientConn struct {
 	closed       bool
 }
 
-// NewServer 创建 FTP 服务器
+// NewServer 创建 FTP 服务器.
 func NewServer(config *Config) (*Server, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -90,17 +90,17 @@ func NewServer(config *Config) (*Server, error) {
 	return s, nil
 }
 
-// SetAuthFunc 设置认证函数
+// SetAuthFunc 设置认证函数.
 func (s *Server) SetAuthFunc(fn func(username, password string) bool) {
 	s.authFunc = fn
 }
 
-// SetGetUserHome 设置获取用户主目录函数
+// SetGetUserHome 设置获取用户主目录函数.
 func (s *Server) SetGetUserHome(fn func(username string) string) {
 	s.getUserHome = fn
 }
 
-// Start 启动 FTP 服务器
+// Start 启动 FTP 服务器.
 func (s *Server) Start() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -134,7 +134,7 @@ func (s *Server) Start() error {
 	return nil
 }
 
-// Stop 停止 FTP 服务器
+// Stop 停止 FTP 服务器.
 func (s *Server) Stop() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -167,21 +167,21 @@ func (s *Server) Stop() error {
 	return nil
 }
 
-// IsRunning 检查服务器是否运行中
+// IsRunning 检查服务器是否运行中.
 func (s *Server) IsRunning() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.running
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (s *Server) GetConfig() *Config {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (s *Server) UpdateConfig(config *Config) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -218,7 +218,7 @@ func (s *Server) UpdateConfig(config *Config) error {
 	return nil
 }
 
-// startInternal 内部启动方法（需要持有锁）
+// startInternal 内部启动方法（需要持有锁）.
 func (s *Server) startInternal() error {
 	if s.running {
 		return nil
@@ -244,7 +244,7 @@ func (s *Server) startInternal() error {
 	return nil
 }
 
-// stopInternal 内部停止方法（需要持有锁）
+// stopInternal 内部停止方法（需要持有锁）.
 func (s *Server) stopInternal() {
 	if !s.running {
 		return
@@ -270,7 +270,7 @@ func (s *Server) stopInternal() {
 	s.running = false
 }
 
-// acceptLoop 接受连接循环
+// acceptLoop 接受连接循环.
 func (s *Server) acceptLoop() {
 	for {
 		select {
@@ -304,7 +304,7 @@ func (s *Server) acceptLoop() {
 	}
 }
 
-// handleConnection 处理客户端连接
+// handleConnection 处理客户端连接.
 func (s *Server) handleConnection(conn net.Conn) {
 	s.mu.Lock()
 	s.nextClientID++
@@ -340,7 +340,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 	client.handleCommands()
 }
 
-// close 关闭客户端连接
+// close 关闭客户端连接.
 func (c *clientConn) close() {
 	if c.closed {
 		return
@@ -354,7 +354,7 @@ func (c *clientConn) close() {
 	}
 }
 
-// writeResponse 发送响应
+// writeResponse 发送响应.
 func (c *clientConn) writeResponse(code int, message string) error {
 	line := fmt.Sprintf("%d %s\r\n", code, message)
 	_, err := c.writer.WriteString(line)
@@ -364,7 +364,7 @@ func (c *clientConn) writeResponse(code int, message string) error {
 	return c.writer.Flush()
 }
 
-// handleCommands 命令处理循环
+// handleCommands 命令处理循环.
 func (c *clientConn) handleCommands() {
 	for {
 		select {
@@ -401,7 +401,7 @@ func (c *clientConn) handleCommands() {
 	}
 }
 
-// handleCommand 处理单个命令
+// handleCommand 处理单个命令.
 func (c *clientConn) handleCommand(cmd, args string) {
 	// 未登录时只允许 USER, PASS, QUIT
 	if !c.loggedIn && cmd != "USER" && cmd != "PASS" && cmd != "QUIT" && cmd != "SYST" && cmd != "FEAT" {
@@ -461,7 +461,7 @@ func (c *clientConn) handleCommand(cmd, args string) {
 	}
 }
 
-// handleUSER 处理 USER 命令
+// handleUSER 处理 USER 命令.
 func (c *clientConn) handleUSER(username string) {
 	if username == "" {
 		_ = c.writeResponse(500, "USER requires a username")
@@ -471,7 +471,7 @@ func (c *clientConn) handleUSER(username string) {
 	_ = c.writeResponse(331, "Password required")
 }
 
-// handlePASS 处理 PASS 命令
+// handlePASS 处理 PASS 命令.
 func (c *clientConn) handlePASS(password string) {
 	if c.user == "" {
 		_ = c.writeResponse(503, "Login with USER first")
@@ -510,13 +510,13 @@ func (c *clientConn) handlePASS(password string) {
 	c.user = ""
 }
 
-// handleQUIT 处理 QUIT 命令
+// handleQUIT 处理 QUIT 命令.
 func (c *clientConn) handleQUIT() {
 	_ = c.writeResponse(221, "Goodbye")
 	c.close()
 }
 
-// handleFEAT 处理 FEAT 命令
+// handleFEAT 处理 FEAT 命令.
 func (c *clientConn) handleFEAT() {
 	features := []string{
 		" PASV",
@@ -533,12 +533,12 @@ func (c *clientConn) handleFEAT() {
 	_ = c.writeResponse(211, "End")
 }
 
-// handlePWD 处理 PWD 命令
+// handlePWD 处理 PWD 命令.
 func (c *clientConn) handlePWD() {
 	_ = c.writeResponse(257, fmt.Sprintf(`"%s" is current directory`, c.currentDir))
 }
 
-// handleCWD 处理 CWD 命令
+// handleCWD 处理 CWD 命令.
 func (c *clientConn) handleCWD(path string) {
 	realPath := c.resolvePath(path)
 
@@ -552,7 +552,7 @@ func (c *clientConn) handleCWD(path string) {
 	_ = c.writeResponse(250, "Directory changed")
 }
 
-// handleCDUP 处理 CDUP 命令
+// handleCDUP 处理 CDUP 命令.
 func (c *clientConn) handleCDUP() {
 	if c.currentDir == "/" {
 		_ = c.writeResponse(250, "Directory not changed")
@@ -565,7 +565,7 @@ func (c *clientConn) handleCDUP() {
 	_ = c.writeResponse(250, "Directory changed")
 }
 
-// handleMKD 处理 MKD 命令
+// handleMKD 处理 MKD 命令.
 func (c *clientConn) handleMKD(path string) {
 	realPath := c.resolvePath(path)
 
@@ -577,7 +577,7 @@ func (c *clientConn) handleMKD(path string) {
 	_ = c.writeResponse(257, fmt.Sprintf(`"%s" created`, path))
 }
 
-// handleRMD 处理 RMD 命令
+// handleRMD 处理 RMD 命令.
 func (c *clientConn) handleRMD(path string) {
 	realPath := c.resolvePath(path)
 
@@ -589,7 +589,7 @@ func (c *clientConn) handleRMD(path string) {
 	_ = c.writeResponse(250, "Directory removed")
 }
 
-// handleDELE 处理 DELE 命令
+// handleDELE 处理 DELE 命令.
 func (c *clientConn) handleDELE(path string) {
 	realPath := c.resolvePath(path)
 
@@ -603,7 +603,7 @@ func (c *clientConn) handleDELE(path string) {
 
 var renameFrom string
 
-// handleRNFR 处理 RNFR 命令
+// handleRNFR 处理 RNFR 命令.
 func (c *clientConn) handleRNFR(path string) {
 	realPath := c.resolvePath(path)
 
@@ -616,7 +616,7 @@ func (c *clientConn) handleRNFR(path string) {
 	_ = c.writeResponse(350, "Ready for RNTO")
 }
 
-// handleRNTO 处理 RNTO 命令
+// handleRNTO 处理 RNTO 命令.
 func (c *clientConn) handleRNTO(path string) {
 	if renameFrom == "" {
 		_ = c.writeResponse(503, "RNFR required first")
@@ -635,7 +635,7 @@ func (c *clientConn) handleRNTO(path string) {
 	_ = c.writeResponse(250, "Rename successful")
 }
 
-// handleLIST 处理 LIST 命令
+// handleLIST 处理 LIST 命令.
 func (c *clientConn) handleLIST(path string) {
 	realPath := c.resolvePath(path)
 	if path == "" {
@@ -675,7 +675,7 @@ func (c *clientConn) handleLIST(path string) {
 	_ = c.writeResponse(226, "Transfer complete")
 }
 
-// formatFileInfo 格式化文件信息
+// formatFileInfo 格式化文件信息.
 func (c *clientConn) formatFileInfo(name string, info os.FileInfo) string {
 	// 类似 ls -l 的格式
 	_ = info.Mode() // 用于将来可能的权限格式化
@@ -695,7 +695,7 @@ func (c *clientConn) formatFileInfo(name string, info os.FileInfo) string {
 	return fmt.Sprintf("%s 1 ftp ftp %12d %s %s", perm, size, modTime, name)
 }
 
-// handleTYPE 处理 TYPE 命令
+// handleTYPE 处理 TYPE 命令.
 func (c *clientConn) handleTYPE(typ string) {
 	switch strings.ToUpper(typ) {
 	case "A":
@@ -709,7 +709,7 @@ func (c *clientConn) handleTYPE(typ string) {
 	}
 }
 
-// handlePASV 处理 PASV 命令（被动模式）
+// handlePASV 处理 PASV 命令（被动模式）.
 func (c *clientConn) handlePASV() {
 	port, listener, err := c.allocatePasvPort()
 	if err != nil {
@@ -753,7 +753,7 @@ func (c *clientConn) handlePASV() {
 	_ = c.writeResponse(227, response)
 }
 
-// allocatePasvPort 分配被动模式端口
+// allocatePasvPort 分配被动模式端口.
 func (c *clientConn) allocatePasvPort() (int, net.Listener, error) {
 	c.server.pasvPortMutex.Lock()
 	defer c.server.pasvPortMutex.Unlock()
@@ -778,7 +778,7 @@ func (c *clientConn) allocatePasvPort() (int, net.Listener, error) {
 	return 0, nil, errors.New("no available passive port")
 }
 
-// handlePORT 处理 PORT 命令（主动模式）
+// handlePORT 处理 PORT 命令（主动模式）.
 func (c *clientConn) handlePORT(args string) {
 	// 解析 PORT 参数: h1,h2,h3,h4,p1,p2
 	parts := strings.Split(args, ",")
@@ -813,7 +813,7 @@ func (c *clientConn) handlePORT(args string) {
 	_ = c.writeResponse(200, "PORT command successful")
 }
 
-// handleRETR 处理 RETR 命令（下载文件）
+// handleRETR 处理 RETR 命令（下载文件）.
 func (c *clientConn) handleRETR(path string) {
 	realPath := c.resolvePath(path)
 
@@ -864,7 +864,7 @@ func (c *clientConn) handleRETR(path string) {
 	_ = c.writeResponse(226, "Transfer complete")
 }
 
-// handleSTOR 处理 STOR 命令（上传文件）
+// handleSTOR 处理 STOR 命令（上传文件）.
 func (c *clientConn) handleSTOR(path string) {
 	realPath := c.resolvePath(path)
 
@@ -903,7 +903,7 @@ func (c *clientConn) handleSTOR(path string) {
 	_ = c.writeResponse(226, "Transfer complete")
 }
 
-// handleREST 处理 REST 命令（断点续传）
+// handleREST 处理 REST 命令（断点续传）.
 func (c *clientConn) handleREST(offset string) {
 	o, err := strconv.ParseInt(offset, 10, 64)
 	if err != nil {
@@ -914,7 +914,7 @@ func (c *clientConn) handleREST(offset string) {
 	_ = c.writeResponse(350, fmt.Sprintf("Restarting at %d", o))
 }
 
-// handleSIZE 处理 SIZE 命令
+// handleSIZE 处理 SIZE 命令.
 func (c *clientConn) handleSIZE(path string) {
 	realPath := c.resolvePath(path)
 
@@ -932,13 +932,13 @@ func (c *clientConn) handleSIZE(path string) {
 	_ = c.writeResponse(213, fmt.Sprintf("%d", info.Size()))
 }
 
-// handleABOR 处理 ABOR 命令
+// handleABOR 处理 ABOR 命令.
 func (c *clientConn) handleABOR() {
 	c.restOffset = 0
 	_ = c.writeResponse(226, "Abort successful")
 }
 
-// getDataConnection 获取数据连接
+// getDataConnection 获取数据连接.
 func (c *clientConn) getDataConnection() (net.Conn, error) {
 	if c.pasvListener != nil {
 		// 被动模式：等待客户端连接
@@ -973,7 +973,7 @@ func (c *clientConn) getDataConnection() (net.Conn, error) {
 	return nil, errors.New("no data connection available")
 }
 
-// resolvePath 解析路径（支持虚拟目录）
+// resolvePath 解析路径（支持虚拟目录）.
 func (c *clientConn) resolvePath(path string) string {
 	// 标准化路径
 	if !strings.HasPrefix(path, "/") {
@@ -996,7 +996,7 @@ func (c *clientConn) resolvePath(path string) string {
 	return filepath.Join(c.homeDir, path)
 }
 
-// normalizePath 标准化路径
+// normalizePath 标准化路径.
 func (c *clientConn) normalizePath(path string) string {
 	if !strings.HasPrefix(path, "/") {
 		path = filepath.Join(c.currentDir, path)
@@ -1004,7 +1004,7 @@ func (c *clientConn) normalizePath(path string) string {
 	return filepath.Clean(path)
 }
 
-// copyWithLimit 带限速的复制
+// copyWithLimit 带限速的复制.
 func (c *clientConn) copyWithLimit(dst io.Writer, src io.Reader, isUpload bool) (int64, error) {
 	c.server.mu.RLock()
 	bwLimit := c.server.config.BandwidthLimit
@@ -1055,7 +1055,7 @@ func (c *clientConn) copyWithLimit(dst io.Writer, src io.Reader, isUpload bool) 
 	}
 }
 
-// GetStatus 获取服务器状态
+// GetStatus 获取服务器状态.
 func (s *Server) GetStatus() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

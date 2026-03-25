@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Service 压缩服务
+// Service 压缩服务.
 type Service struct {
 	Manager  *Manager
 	FS       *FileSystem
@@ -27,14 +27,14 @@ type Service struct {
 	tasks map[string]*Task
 }
 
-// ServiceConfig 服务配置
+// ServiceConfig 服务配置.
 type ServiceConfig struct {
 	RootPath string  `json:"root_path"`
 	Config   *Config `json:"config"`
 	StateDir string  `json:"state_dir"` // 状态存储目录（用于恢复）
 }
 
-// DefaultServiceConfig 默认服务配置
+// DefaultServiceConfig 默认服务配置.
 func DefaultServiceConfig() ServiceConfig {
 	return ServiceConfig{
 		RootPath: "/data",
@@ -43,7 +43,7 @@ func DefaultServiceConfig() ServiceConfig {
 	}
 }
 
-// NewService 创建压缩服务
+// NewService 创建压缩服务.
 func NewService(config ServiceConfig) (*Service, error) {
 	// 创建管理器
 	manager, err := NewManager(config.Config)
@@ -95,23 +95,23 @@ func NewService(config ServiceConfig) (*Service, error) {
 	return svc, nil
 }
 
-// Start 启动服务
+// Start 启动服务.
 func (s *Service) Start() error {
 	log.Println("✅ 压缩服务已启动")
 	return nil
 }
 
-// Stop 停止服务
+// Stop 停止服务.
 func (s *Service) Stop() {
 	log.Println("压缩服务已停止")
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (s *Service) RegisterRoutes(r *gin.RouterGroup) {
 	s.Handlers.RegisterRoutes(r)
 }
 
-// InitializeService 初始化压缩服务（便捷函数）
+// InitializeService 初始化压缩服务（便捷函数）.
 func InitializeService(rootPath string) *Service {
 	config := ServiceConfig{
 		RootPath: rootPath,
@@ -131,7 +131,7 @@ func InitializeService(rootPath string) *Service {
 	return svc
 }
 
-// GetCompressedSize 获取压缩后大小
+// GetCompressedSize 获取压缩后大小.
 func (s *Service) GetCompressedSize(originalSize int64) int64 {
 	if !s.Manager.config.Enabled {
 		return originalSize
@@ -147,34 +147,34 @@ func (s *Service) GetCompressedSize(originalSize int64) int64 {
 	return int64(float64(originalSize) * stats.AvgRatio)
 }
 
-// GetStorageSavings 获取存储节省
+// GetStorageSavings 获取存储节省.
 func (s *Service) GetStorageSavings() int64 {
 	return s.Manager.GetStats().SavedBytes
 }
 
-// GetCompressionRatio 获取平均压缩率
+// GetCompressionRatio 获取平均压缩率.
 func (s *Service) GetCompressionRatio() float64 {
 	return s.Manager.GetStats().AvgRatio
 }
 
-// IsEnabled 检查是否启用
+// IsEnabled 检查是否启用.
 func (s *Service) IsEnabled() bool {
 	return s.Manager.config.Enabled
 }
 
-// SetEnabled 设置启用状态
+// SetEnabled 设置启用状态.
 func (s *Service) SetEnabled(enabled bool) {
 	s.Manager.mu.Lock()
 	defer s.Manager.mu.Unlock()
 	s.Manager.config.Enabled = enabled
 }
 
-// GetAlgorithm 获取当前算法
+// GetAlgorithm 获取当前算法.
 func (s *Service) GetAlgorithm() Algorithm {
 	return s.Manager.config.DefaultAlgorithm
 }
 
-// SetAlgorithm 设置压缩算法
+// SetAlgorithm 设置压缩算法.
 func (s *Service) SetAlgorithm(algorithm Algorithm) {
 	s.Manager.mu.Lock()
 	defer s.Manager.mu.Unlock()
@@ -183,7 +183,7 @@ func (s *Service) SetAlgorithm(algorithm Algorithm) {
 
 // ========== v2.6.0 并行压缩接口 ==========
 
-// Task 压缩任务
+// Task 压缩任务.
 type Task struct {
 	ID        string
 	Status    string // pending, running, completed, failed, paused
@@ -194,7 +194,7 @@ type Task struct {
 	StartedAt time.Time
 }
 
-// CompressParallel 并行压缩文件
+// CompressParallel 并行压缩文件.
 func (s *Service) CompressParallel(ctx context.Context, paths []string, config *ParallelConfig) (*ParallelCompressResult, error) {
 	if s.parallelCompressor == nil {
 		return nil, ErrParallelNotAvailable
@@ -232,7 +232,7 @@ func (s *Service) CompressParallel(ctx context.Context, paths []string, config *
 	return result, err
 }
 
-// CompressParallelWithProgress 带进度回调的并行压缩
+// CompressParallelWithProgress 带进度回调的并行压缩.
 func (s *Service) CompressParallelWithProgress(ctx context.Context, paths []string, config *ParallelConfig, callback ProgressCallback) (*ParallelCompressResult, error) {
 	if s.parallelCompressor == nil {
 		return nil, ErrParallelNotAvailable
@@ -244,7 +244,7 @@ func (s *Service) CompressParallelWithProgress(ctx context.Context, paths []stri
 	return s.CompressParallel(ctx, paths, config)
 }
 
-// GetTaskProgress 获取任务进度
+// GetTaskProgress 获取任务进度.
 func (s *Service) GetTaskProgress(taskID string) (*CompressionProgress, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -256,7 +256,7 @@ func (s *Service) GetTaskProgress(taskID string) (*CompressionProgress, bool) {
 	return task.Progress, true
 }
 
-// GetTaskResult 获取任务结果
+// GetTaskResult 获取任务结果.
 func (s *Service) GetTaskResult(taskID string) (*ParallelCompressResult, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -268,7 +268,7 @@ func (s *Service) GetTaskResult(taskID string) (*ParallelCompressResult, bool) {
 	return task.Result, true
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (s *Service) CancelTask(taskID string) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -283,7 +283,7 @@ func (s *Service) CancelTask(taskID string) bool {
 	return true
 }
 
-// ListPendingTasks 列出待恢复的任务
+// ListPendingTasks 列出待恢复的任务.
 func (s *Service) ListPendingTasks() []*CompressionState {
 	if s.parallelCompressor == nil {
 		return nil
@@ -291,7 +291,7 @@ func (s *Service) ListPendingTasks() []*CompressionState {
 	return s.parallelCompressor.ListPendingTasks()
 }
 
-// ResumeTask 恢复中断的任务
+// ResumeTask 恢复中断的任务.
 func (s *Service) ResumeTask(ctx context.Context, taskID string) (*ParallelCompressResult, error) {
 	if s.parallelCompressor == nil {
 		return nil, ErrParallelNotAvailable
@@ -299,7 +299,7 @@ func (s *Service) ResumeTask(ctx context.Context, taskID string) (*ParallelCompr
 	return s.parallelCompressor.Resume(ctx, taskID)
 }
 
-// GetGlobalProgress 获取全局进度
+// GetGlobalProgress 获取全局进度.
 func (s *Service) GetGlobalProgress() *CompressionProgress {
 	if s.parallelCompressor == nil {
 		return nil
@@ -307,14 +307,14 @@ func (s *Service) GetGlobalProgress() *CompressionProgress {
 	return s.parallelCompressor.GetProgress()
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrParallelNotAvailable = &Error{Code: "PARALLEL_NOT_AVAILABLE", Message: "并行压缩器未初始化"}
 	ErrTaskNotFound         = &Error{Code: "TASK_NOT_FOUND", Message: "任务不存在"}
 	ErrTaskAlreadyRunning   = &Error{Code: "TASK_RUNNING", Message: "任务正在运行"}
 )
 
-// Error 压缩错误
+// Error 压缩错误.
 type Error struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`

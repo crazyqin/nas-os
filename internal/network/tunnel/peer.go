@@ -9,26 +9,26 @@ import (
 	"time"
 )
 
-// Peer errors
+// Peer errors.
 var (
 	ErrPeerNotConnected    = errors.New("peer not connected")
 	ErrPeerAlreadyExists   = errors.New("peer already exists")
 	ErrPeerHandshakeFailed = errors.New("peer handshake failed")
 )
 
-// PeerState represents the state of a peer connection
+// PeerState represents the state of a peer connection.
 type PeerState int
 
 const (
-	// PeerStateNew indicates a new peer connection
+	// PeerStateNew indicates a new peer connection.
 	PeerStateNew PeerState = iota
-	// PeerStateConnecting indicates peer is connecting
+	// PeerStateConnecting indicates peer is connecting.
 	PeerStateConnecting
-	// PeerStateConnected indicates peer is connected
+	// PeerStateConnected indicates peer is connected.
 	PeerStateConnected
-	// PeerStateDisconnected indicates peer is disconnected
+	// PeerStateDisconnected indicates peer is disconnected.
 	PeerStateDisconnected
-	// PeerStateFailed indicates peer connection failed
+	// PeerStateFailed indicates peer connection failed.
 	PeerStateFailed
 )
 
@@ -49,7 +49,7 @@ func (s PeerState) String() string {
 	}
 }
 
-// Peer represents a remote peer connection
+// Peer represents a remote peer connection.
 type Peer struct {
 	ID        string
 	PublicKey []byte
@@ -86,7 +86,7 @@ type Peer struct {
 	mu     sync.RWMutex
 }
 
-// PeerConfig holds peer configuration
+// PeerConfig holds peer configuration.
 type PeerConfig struct {
 	ID        string
 	PublicKey []byte
@@ -94,7 +94,7 @@ type PeerConfig struct {
 	NATType   NATType
 }
 
-// NewPeer creates a new peer
+// NewPeer creates a new peer.
 func NewPeer(config *PeerConfig) *Peer {
 	return &Peer{
 		ID:        config.ID,
@@ -107,7 +107,7 @@ func NewPeer(config *PeerConfig) *Peer {
 	}
 }
 
-// Connect initiates connection to the peer
+// Connect initiates connection to the peer.
 func (p *Peer) Connect(ctx context.Context, localConfig *TunnelConfig, signaling *SignalingClient) error {
 	p.mu.Lock()
 	p.State = PeerStateConnecting
@@ -193,7 +193,7 @@ func (p *Peer) Connect(ctx context.Context, localConfig *TunnelConfig, signaling
 	}
 }
 
-// HandleOffer handles an incoming offer from a peer
+// HandleOffer handles an incoming offer from a peer.
 func (p *Peer) HandleOffer(ctx context.Context, offer *SessionDescription, localConfig *TunnelConfig, signaling *SignalingClient) error {
 	p.mu.Lock()
 	p.State = PeerStateConnecting
@@ -256,7 +256,7 @@ func (p *Peer) HandleOffer(ctx context.Context, offer *SessionDescription, local
 	}
 }
 
-// sendLoop handles outgoing data
+// sendLoop handles outgoing data.
 func (p *Peer) sendLoop() {
 	for {
 		select {
@@ -271,7 +271,7 @@ func (p *Peer) sendLoop() {
 	}
 }
 
-// receiveLoop handles incoming data
+// receiveLoop handles incoming data.
 func (p *Peer) receiveLoop() {
 	buf := make([]byte, 65535)
 	for {
@@ -307,7 +307,7 @@ func (p *Peer) receiveLoop() {
 	}
 }
 
-// sendData sends data through the ICE connection
+// sendData sends data through the ICE connection.
 func (p *Peer) sendData(data []byte) error {
 	if p.iceAgent == nil {
 		return ErrPeerNotConnected
@@ -335,7 +335,7 @@ func (p *Peer) sendData(data []byte) error {
 	return nil
 }
 
-// Send queues data to be sent to the peer
+// Send queues data to be sent to the peer.
 func (p *Peer) Send(data []byte) error {
 	p.mu.RLock()
 	if p.State != PeerStateConnected {
@@ -352,12 +352,12 @@ func (p *Peer) Send(data []byte) error {
 	}
 }
 
-// Receive returns the receive channel
+// Receive returns the receive channel.
 func (p *Peer) Receive() <-chan []byte {
 	return p.recvChan
 }
 
-// Close closes the peer connection
+// Close closes the peer connection.
 func (p *Peer) Close() error {
 	p.mu.Lock()
 	if p.cancel != nil {
@@ -373,35 +373,35 @@ func (p *Peer) Close() error {
 	return nil
 }
 
-// GetStats returns peer statistics
+// GetStats returns peer statistics.
 func (p *Peer) GetStats() (bytesSent, bytesReceived, packetsSent, packetsReceived uint64) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 	return p.bytesSent, p.bytesReceived, p.packetsSent, p.packetsReceived
 }
 
-// GetLastSeen returns the last seen time
+// GetLastSeen returns the last seen time.
 func (p *Peer) GetLastSeen() time.Time {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 	return p.lastSeen
 }
 
-// GetState returns the current state
+// GetState returns the current state.
 func (p *Peer) GetState() PeerState {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 	return p.State
 }
 
-// setState sets the peer state
+// setState sets the peer state.
 func (p *Peer) setState(state PeerState) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.State = state
 }
 
-// SetCrypto sets up encryption for the peer
+// SetCrypto sets up encryption for the peer.
 func (p *Peer) SetCrypto(crypto *Crypto) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -418,7 +418,7 @@ func (p *Peer) SetCrypto(crypto *Crypto) error {
 	return nil
 }
 
-// HolePunch performs UDP hole punching with the peer
+// HolePunch performs UDP hole punching with the peer.
 func (p *Peer) HolePunch(ctx context.Context, localPort int) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -463,7 +463,7 @@ func (p *Peer) HolePunch(ctx context.Context, localPort int) error {
 	return errors.New("hole punch failed")
 }
 
-// PeerManager manages multiple peer connections
+// PeerManager manages multiple peer connections.
 type PeerManager struct {
 	peers     map[string]*Peer
 	config    *TunnelConfig
@@ -474,7 +474,7 @@ type PeerManager struct {
 	mu            sync.RWMutex
 }
 
-// NewPeerManager creates a new peer manager
+// NewPeerManager creates a new peer manager.
 func NewPeerManager(config *TunnelConfig) *PeerManager {
 	return &PeerManager{
 		peers:  make(map[string]*Peer),
@@ -482,21 +482,21 @@ func NewPeerManager(config *TunnelConfig) *PeerManager {
 	}
 }
 
-// SetSignaling sets the signaling client
+// SetSignaling sets the signaling client.
 func (m *PeerManager) SetSignaling(client *SignalingClient) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.signaling = client
 }
 
-// SetCrypto sets the crypto instance
+// SetCrypto sets the crypto instance.
 func (m *PeerManager) SetCrypto(crypto *Crypto) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.crypto = crypto
 }
 
-// AddPeer adds a new peer
+// AddPeer adds a new peer.
 func (m *PeerManager) AddPeer(config *PeerConfig) (*Peer, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -516,7 +516,7 @@ func (m *PeerManager) AddPeer(config *PeerConfig) (*Peer, error) {
 	return peer, nil
 }
 
-// RemovePeer removes a peer
+// RemovePeer removes a peer.
 func (m *PeerManager) RemovePeer(peerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -538,7 +538,7 @@ func (m *PeerManager) RemovePeer(peerID string) error {
 	return nil
 }
 
-// GetPeer returns a peer by ID
+// GetPeer returns a peer by ID.
 func (m *PeerManager) GetPeer(peerID string) (*Peer, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -550,7 +550,7 @@ func (m *PeerManager) GetPeer(peerID string) (*Peer, error) {
 	return peer, nil
 }
 
-// GetPeers returns all peers
+// GetPeers returns all peers.
 func (m *PeerManager) GetPeers() []*Peer {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -562,7 +562,7 @@ func (m *PeerManager) GetPeers() []*Peer {
 	return peers
 }
 
-// ConnectPeer initiates connection to a peer
+// ConnectPeer initiates connection to a peer.
 func (m *PeerManager) ConnectPeer(ctx context.Context, peerID string) error {
 	m.mu.RLock()
 	peer, exists := m.peers[peerID]
@@ -581,7 +581,7 @@ func (m *PeerManager) ConnectPeer(ctx context.Context, peerID string) error {
 	return nil
 }
 
-// Broadcast sends data to all connected peers
+// Broadcast sends data to all connected peers.
 func (m *PeerManager) Broadcast(data []byte) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -597,7 +597,7 @@ func (m *PeerManager) Broadcast(data []byte) error {
 	return lastErr
 }
 
-// Close closes all peer connections
+// Close closes all peer connections.
 func (m *PeerManager) Close() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -610,14 +610,14 @@ func (m *PeerManager) Close() error {
 	return nil
 }
 
-// OnEvent registers an event handler
+// OnEvent registers an event handler.
 func (m *PeerManager) OnEvent(handler EventHandler) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.eventHandlers = append(m.eventHandlers, handler)
 }
 
-// emitEvent emits an event to all handlers
+// emitEvent emits an event to all handlers.
 func (m *PeerManager) emitEvent(event TunnelEvent) {
 	for _, handler := range m.eventHandlers {
 		go handler(event)
@@ -630,7 +630,7 @@ func unmarshalPayload(payload []byte, v interface{}) error {
 	return jsonUnmarshal(payload, v)
 }
 
-// jsonUnmarshal is a helper for JSON unmarshaling
+// jsonUnmarshal is a helper for JSON unmarshaling.
 func jsonUnmarshal(data []byte, v interface{}) error {
 	// Would use encoding/json
 	return nil

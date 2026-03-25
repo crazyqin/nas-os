@@ -11,19 +11,19 @@ import (
 
 // ========== 标签类型定义 ==========
 
-// TagType 标签类型
+// TagType 标签类型.
 type TagType int
 
 const (
-	// TagTypeUser 用户自定义标签
+	// TagTypeUser 用户自定义标签.
 	TagTypeUser TagType = iota
-	// TagTypeSystem 系统标签
+	// TagTypeSystem 系统标签.
 	TagTypeSystem
-	// TagTypeShared 共享标签（多用户可见）
+	// TagTypeShared 共享标签（多用户可见）.
 	TagTypeShared
-	// TagTypeCategory 分类标签
+	// TagTypeCategory 分类标签.
 	TagTypeCategory
-	// TagTypeStatus 状态标签
+	// TagTypeStatus 状态标签.
 	TagTypeStatus
 )
 
@@ -44,7 +44,7 @@ func (tt TagType) String() string {
 	}
 }
 
-// ParseTagType 解析标签类型
+// ParseTagType 解析标签类型.
 func ParseTagType(s string) TagType {
 	switch s {
 	case "user":
@@ -62,29 +62,29 @@ func ParseTagType(s string) TagType {
 	}
 }
 
-// TagColor 标签颜色
+// TagColor 标签颜色.
 type TagColor string
 
 const (
-	// TagColorRed 红色
+	// TagColorRed 红色.
 	TagColorRed TagColor = "red"
-	// TagColorOrange 橙色
+	// TagColorOrange 橙色.
 	TagColorOrange TagColor = "orange"
-	// TagColorYellow 黄色
+	// TagColorYellow 黄色.
 	TagColorYellow TagColor = "yellow"
-	// TagColorGreen 绿色
+	// TagColorGreen 绿色.
 	TagColorGreen TagColor = "green"
-	// TagColorBlue 蓝色
+	// TagColorBlue 蓝色.
 	TagColorBlue TagColor = "blue"
-	// TagColorPurple 紫色
+	// TagColorPurple 紫色.
 	TagColorPurple TagColor = "purple"
-	// TagColorGray 灰色
+	// TagColorGray 灰色.
 	TagColorGray TagColor = "gray"
 )
 
 // ========== 文件标签 ==========
 
-// FileTag 文件标签
+// FileTag 文件标签.
 type FileTag struct {
 	// ID 标签唯一标识
 	ID string `json:"id"`
@@ -116,7 +116,7 @@ type FileTag struct {
 	mu sync.RWMutex
 }
 
-// NewFileTag 创建新标签
+// NewFileTag 创建新标签.
 func NewFileTag(name string, tagType TagType, color TagColor, creator string) *FileTag {
 	now := time.Now()
 	return &FileTag{
@@ -131,7 +131,7 @@ func NewFileTag(name string, tagType TagType, color TagColor, creator string) *F
 	}
 }
 
-// Update 更新标签
+// Update 更新标签.
 func (t *FileTag) Update(name string, color TagColor, description string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -141,7 +141,7 @@ func (t *FileTag) Update(name string, color TagColor, description string) {
 	t.UpdatedAt = time.Now()
 }
 
-// Share 共享标签
+// Share 共享标签.
 func (t *FileTag) Share(withUsers []string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -150,7 +150,7 @@ func (t *FileTag) Share(withUsers []string) {
 	t.Type = TagTypeShared
 }
 
-// IsVisibleTo 检查标签是否对用户可见
+// IsVisibleTo 检查标签是否对用户可见.
 func (t *FileTag) IsVisibleTo(userID string) bool {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -182,7 +182,7 @@ func (t *FileTag) IsVisibleTo(userID string) bool {
 
 // ========== 文件标签关联 ==========
 
-// FileTagAssociation 文件标签关联
+// FileTagAssociation 文件标签关联.
 type FileTagAssociation struct {
 	// ID 关联ID
 	ID string `json:"id"`
@@ -204,7 +204,7 @@ type FileTagAssociation struct {
 	Notes string `json:"notes,omitempty"`
 }
 
-// NewFileTagAssociation 创建文件标签关联
+// NewFileTagAssociation 创建文件标签关联.
 func NewFileTagAssociation(filePath, fileName, tagID, tagName string, tagColor TagColor, addedBy string) *FileTagAssociation {
 	return &FileTagAssociation{
 		ID:       uuid.New().String(),
@@ -220,7 +220,7 @@ func NewFileTagAssociation(filePath, fileName, tagID, tagName string, tagColor T
 
 // ========== 标签管理器 ==========
 
-// TagManager 标签管理器
+// TagManager 标签管理器.
 type TagManager struct {
 	// tags 标签存储
 	tags sync.Map // map[string]*FileTag
@@ -235,14 +235,14 @@ type TagManager struct {
 	userTags sync.Map // map[string][]string (key: userID, value: tagIDs)
 }
 
-// NewTagManager 创建标签管理器
+// NewTagManager 创建标签管理器.
 func NewTagManager() *TagManager {
 	return &TagManager{}
 }
 
 // ========== 标签 CRUD ==========
 
-// CreateTag 创建标签
+// CreateTag 创建标签.
 func (tm *TagManager) CreateTag(name string, tagType TagType, color TagColor, creator string) (*FileTag, error) {
 	if name == "" {
 		return nil, errors.New("tag name is required")
@@ -262,7 +262,7 @@ func (tm *TagManager) CreateTag(name string, tagType TagType, color TagColor, cr
 	return tag, nil
 }
 
-// GetTag 获取标签
+// GetTag 获取标签.
 func (tm *TagManager) GetTag(tagID string) (*FileTag, error) {
 	raw, ok := tm.tags.Load(tagID)
 	if !ok {
@@ -275,7 +275,7 @@ func (tm *TagManager) GetTag(tagID string) (*FileTag, error) {
 	return tag, nil
 }
 
-// UpdateTag 更新标签
+// UpdateTag 更新标签.
 func (tm *TagManager) UpdateTag(tagID, name string, color TagColor, description string, userID string) (*FileTag, error) {
 	tag, err := tm.GetTag(tagID)
 	if err != nil {
@@ -295,7 +295,7 @@ func (tm *TagManager) UpdateTag(tagID, name string, color TagColor, description 
 	return tag, nil
 }
 
-// DeleteTag 删除标签
+// DeleteTag 删除标签.
 func (tm *TagManager) DeleteTag(tagID, userID string) error {
 	tag, err := tm.GetTag(tagID)
 	if err != nil {
@@ -320,7 +320,7 @@ func (tm *TagManager) DeleteTag(tagID, userID string) error {
 	return nil
 }
 
-// ListTags 列出用户可见的标签
+// ListTags 列出用户可见的标签.
 func (tm *TagManager) ListTags(userID string, tagType TagType) []*FileTag {
 	var result []*FileTag
 
@@ -347,7 +347,7 @@ func (tm *TagManager) ListTags(userID string, tagType TagType) []*FileTag {
 	return result
 }
 
-// FindTagByName 按名称查找标签
+// FindTagByName 按名称查找标签.
 func (tm *TagManager) FindTagByName(name, userID string) *FileTag {
 	var result *FileTag
 
@@ -367,7 +367,7 @@ func (tm *TagManager) FindTagByName(name, userID string) *FileTag {
 	return result
 }
 
-// ShareTag 共享标签
+// ShareTag 共享标签.
 func (tm *TagManager) ShareTag(tagID, userID string, withUsers []string) error {
 	tag, err := tm.GetTag(tagID)
 	if err != nil {
@@ -385,7 +385,7 @@ func (tm *TagManager) ShareTag(tagID, userID string, withUsers []string) error {
 
 // ========== 文件标签操作 ==========
 
-// AddTagToFile 为文件添加标签
+// AddTagToFile 为文件添加标签.
 func (tm *TagManager) AddTagToFile(filePath, fileName, tagID, userID string, notes string) (*FileTagAssociation, error) {
 	tag, err := tm.GetTag(tagID)
 	if err != nil {
@@ -414,7 +414,7 @@ func (tm *TagManager) AddTagToFile(filePath, fileName, tagID, userID string, not
 	return assoc, nil
 }
 
-// RemoveTagFromFile 从文件移除标签
+// RemoveTagFromFile 从文件移除标签.
 func (tm *TagManager) RemoveTagFromFile(filePath, tagID, userID string) error {
 	// 查找关联
 	assoc := tm.findAssociation(filePath, tagID)
@@ -446,7 +446,7 @@ func (tm *TagManager) RemoveTagFromFile(filePath, tagID, userID string) error {
 	return nil
 }
 
-// GetFileTags 获取文件的所有标签
+// GetFileTags 获取文件的所有标签.
 func (tm *TagManager) GetFileTags(filePath string) []*FileTagAssociation {
 	raw, ok := tm.fileTags.Load(filePath)
 	if !ok {
@@ -459,7 +459,7 @@ func (tm *TagManager) GetFileTags(filePath string) []*FileTagAssociation {
 	return *assocs
 }
 
-// GetTaggedFiles 获取标签关联的所有文件
+// GetTaggedFiles 获取标签关联的所有文件.
 func (tm *TagManager) GetTaggedFiles(tagID string) []*FileTagAssociation {
 	raw, ok := tm.tagFiles.Load(tagID)
 	if !ok {
@@ -472,7 +472,7 @@ func (tm *TagManager) GetTaggedFiles(tagID string) []*FileTagAssociation {
 	return *assocs
 }
 
-// IsFileTaggedWith 检查文件是否有指定标签
+// IsFileTaggedWith 检查文件是否有指定标签.
 func (tm *TagManager) IsFileTaggedWith(filePath, tagID string) bool {
 	assocs := tm.GetFileTags(filePath)
 	for _, a := range assocs {
@@ -483,7 +483,7 @@ func (tm *TagManager) IsFileTaggedWith(filePath, tagID string) bool {
 	return false
 }
 
-// SearchByTags 按标签搜索文件
+// SearchByTags 按标签搜索文件.
 func (tm *TagManager) SearchByTags(tagIDs []string, matchAll bool) []string {
 	if len(tagIDs) == 0 {
 		return nil
@@ -518,7 +518,7 @@ func (tm *TagManager) SearchByTags(tagIDs []string, matchAll bool) []string {
 
 // ========== 批量操作 ==========
 
-// BatchAddTags 批量为文件添加标签
+// BatchAddTags 批量为文件添加标签.
 func (tm *TagManager) BatchAddTags(filePaths []string, tagIDs []string, userID string) (int, error) {
 	count := 0
 	for _, filePath := range filePaths {
@@ -541,7 +541,7 @@ func (tm *TagManager) BatchAddTags(filePaths []string, tagIDs []string, userID s
 	return count, nil
 }
 
-// BatchRemoveTags 批量移除标签
+// BatchRemoveTags 批量移除标签.
 func (tm *TagManager) BatchRemoveTags(filePaths []string, tagIDs []string, userID string) (int, error) {
 	count := 0
 	for _, filePath := range filePaths {
@@ -666,7 +666,7 @@ func (tm *TagManager) findAssociation(filePath, tagID string) *FileTagAssociatio
 
 // ========== 标签统计 ==========
 
-// TagStats 标签统计
+// TagStats 标签统计.
 type TagStats struct {
 	TotalTags    int64            `json:"totalTags"`
 	ByType       map[string]int64 `json:"byType"`
@@ -675,14 +675,14 @@ type TagStats struct {
 	MostUsedTags []TagUsageCount  `json:"mostUsedTags"`
 }
 
-// TagUsageCount 标签使用次数
+// TagUsageCount 标签使用次数.
 type TagUsageCount struct {
 	TagID   string `json:"tagId"`
 	TagName string `json:"tagName"`
 	Count   int64  `json:"count"`
 }
 
-// GetTagStats 获取标签统计
+// GetTagStats 获取标签统计.
 func (tm *TagManager) GetTagStats() *TagStats {
 	stats := &TagStats{
 		ByType:  make(map[string]int64),
@@ -731,7 +731,7 @@ func (tm *TagManager) GetTagStats() *TagStats {
 
 // ========== 预定义标签 ==========
 
-// PredefinedTags 预定义系统标签
+// PredefinedTags 预定义系统标签.
 var PredefinedTags = []struct {
 	Name        string
 	Type        TagType
@@ -746,7 +746,7 @@ var PredefinedTags = []struct {
 	{"草稿", TagTypeSystem, TagColorYellow, "草稿文件"},
 }
 
-// InitPredefinedTags 初始化预定义标签
+// InitPredefinedTags 初始化预定义标签.
 func (tm *TagManager) InitPredefinedTags() {
 	for _, pt := range PredefinedTags {
 		tag := NewFileTag(pt.Name, pt.Type, pt.Color, "system")
@@ -757,7 +757,7 @@ func (tm *TagManager) InitPredefinedTags() {
 
 // ========== 标签 API 响应类型 ==========
 
-// TagInfo 标签信息（API响应）
+// TagInfo 标签信息（API响应）.
 type TagInfo struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -774,7 +774,7 @@ type TagInfo struct {
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
-// ToInfo 转换为TagInfo
+// ToInfo 转换为TagInfo.
 func (t *FileTag) ToInfo() *TagInfo {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -796,7 +796,7 @@ func (t *FileTag) ToInfo() *TagInfo {
 	}
 }
 
-// TagRequest 标签请求
+// TagRequest 标签请求.
 type TagRequest struct {
 	Name        string   `json:"name" binding:"required"`
 	Type        TagType  `json:"type"`
@@ -807,7 +807,7 @@ type TagRequest struct {
 	SharedWith  []string `json:"sharedWith,omitempty"`
 }
 
-// AddTagRequest 添加标签到文件请求
+// AddTagRequest 添加标签到文件请求.
 type AddTagRequest struct {
 	FilePath string `json:"filePath" binding:"required"`
 	FileName string `json:"fileName"`
@@ -815,13 +815,13 @@ type AddTagRequest struct {
 	Notes    string `json:"notes,omitempty"`
 }
 
-// SearchByTagsRequest 按标签搜索请求
+// SearchByTagsRequest 按标签搜索请求.
 type SearchByTagsRequest struct {
 	TagIDs   []string `json:"tagIds" binding:"required"`
 	MatchAll bool     `json:"matchAll"`
 }
 
-// BatchTagRequest 批量标签请求
+// BatchTagRequest 批量标签请求.
 type BatchTagRequest struct {
 	FilePaths []string `json:"filePaths" binding:"required"`
 	TagIDs    []string `json:"tagIds" binding:"required"`
@@ -829,13 +829,13 @@ type BatchTagRequest struct {
 
 // ========== 上下文支持 ==========
 
-// TagManagerWithLock 带锁管理的标签管理器
+// TagManagerWithLock 带锁管理的标签管理器.
 type TagManagerWithLock struct {
 	tagManager  *TagManager
 	lockManager *Manager
 }
 
-// NewTagManagerWithLock 创建带锁的标签管理器
+// NewTagManagerWithLock 创建带锁的标签管理器.
 func NewTagManagerWithLock(tagManager *TagManager, lockManager *Manager) *TagManagerWithLock {
 	return &TagManagerWithLock{
 		tagManager:  tagManager,
@@ -843,7 +843,7 @@ func NewTagManagerWithLock(tagManager *TagManager, lockManager *Manager) *TagMan
 	}
 }
 
-// AddTagToFileSafe 安全地为文件添加标签（带锁检查）
+// AddTagToFileSafe 安全地为文件添加标签（带锁检查）.
 func (tm *TagManagerWithLock) AddTagToFileSafe(ctx context.Context, filePath, tagID, userID string) (*FileTagAssociation, error) {
 	// 检查文件是否被锁定
 	if tm.lockManager.IsLocked(filePath) {
@@ -864,7 +864,7 @@ func (tm *TagManagerWithLock) AddTagToFileSafe(ctx context.Context, filePath, ta
 	return tm.tagManager.AddTagToFile(filePath, fileName, tagID, userID, "")
 }
 
-// RemoveTagFromFileSafe 安全地从文件移除标签（带锁检查）
+// RemoveTagFromFileSafe 安全地从文件移除标签（带锁检查）.
 func (tm *TagManagerWithLock) RemoveTagFromFileSafe(ctx context.Context, filePath, tagID, userID string) error {
 	// 检查文件是否被锁定
 	if tm.lockManager.IsLocked(filePath) {

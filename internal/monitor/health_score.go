@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// HealthScorer 系统健康评分器
+// HealthScorer 系统健康评分器.
 type HealthScorer struct {
 	mu         sync.RWMutex
 	manager    *Manager
@@ -18,7 +18,7 @@ type HealthScorer struct {
 	collector  *MetricsCollector
 }
 
-// HealthWeights 健康评分权重
+// HealthWeights 健康评分权重.
 type HealthWeights struct {
 	CPU     float64 `json:"cpu"`     // CPU 权重
 	Memory  float64 `json:"memory"`  // 内存权重
@@ -28,7 +28,7 @@ type HealthWeights struct {
 	Uptime  float64 `json:"uptime"`  // 运行时间权重
 }
 
-// HealthThresholds 健康评分阈值
+// HealthThresholds 健康评分阈值.
 type HealthThresholds struct {
 	CPUWarning      float64 `json:"cpu_warning"`       // CPU 警告阈值
 	CPUCritical     float64 `json:"cpu_critical"`      // CPU 严重阈值
@@ -42,7 +42,7 @@ type HealthThresholds struct {
 	UptimeGraceDays int     `json:"uptime_grace_days"` // 运行时间宽限天数
 }
 
-// HealthScore 健康评分
+// HealthScore 健康评分.
 type HealthScore struct {
 	TotalScore      float64            `json:"total_score"`       // 总分 0-100
 	Grade           string             `json:"grade"`             // 等级 A/B/C/D/F
@@ -54,7 +54,7 @@ type HealthScore struct {
 	Details         map[string]float64 `json:"details,omitempty"` // 详细数据
 }
 
-// ComponentScores 组件评分
+// ComponentScores 组件评分.
 type ComponentScores struct {
 	CPU     ComponentHealth `json:"cpu"`
 	Memory  ComponentHealth `json:"memory"`
@@ -64,7 +64,7 @@ type ComponentScores struct {
 	System  ComponentHealth `json:"system"`
 }
 
-// ComponentHealth 组件健康状态
+// ComponentHealth 组件健康状态.
 type ComponentHealth struct {
 	Score     float64 `json:"score"`     // 评分 0-100
 	Status    string  `json:"status"`    // healthy, warning, critical
@@ -73,7 +73,7 @@ type ComponentHealth struct {
 	Threshold float64 `json:"threshold"` // 阈值
 }
 
-// HealthIssue 健康问题
+// HealthIssue 健康问题.
 type HealthIssue struct {
 	Component string    `json:"component"` // 组件名称
 	Severity  string    `json:"severity"`  // 问题严重程度
@@ -83,7 +83,7 @@ type HealthIssue struct {
 	Timestamp time.Time `json:"timestamp"` // 发现时间
 }
 
-// ScoreTrend 评分趋势
+// ScoreTrend 评分趋势.
 type ScoreTrend struct {
 	Direction    string  `json:"direction"`     // up, down, stable
 	Change       float64 `json:"change"`        // 变化值
@@ -91,7 +91,7 @@ type ScoreTrend struct {
 	PreviousDay  float64 `json:"previous_day"`  // 上天分数
 }
 
-// NewHealthScorer 创建健康评分器
+// NewHealthScorer 创建健康评分器.
 func NewHealthScorer(manager *Manager) *HealthScorer {
 	scorer := &HealthScorer{
 		manager:    manager,
@@ -124,21 +124,21 @@ func NewHealthScorer(manager *Manager) *HealthScorer {
 	return scorer
 }
 
-// SetWeights 设置权重
+// SetWeights 设置权重.
 func (hs *HealthScorer) SetWeights(weights HealthWeights) {
 	hs.mu.Lock()
 	defer hs.mu.Unlock()
 	hs.weights = weights
 }
 
-// SetThresholds 设置阈值
+// SetThresholds 设置阈值.
 func (hs *HealthScorer) SetThresholds(thresholds HealthThresholds) {
 	hs.mu.Lock()
 	defer hs.mu.Unlock()
 	hs.thresholds = thresholds
 }
 
-// CalculateScore 计算健康评分
+// CalculateScore 计算健康评分.
 func (hs *HealthScorer) CalculateScore() *HealthScore {
 	hs.mu.RLock()
 	weights := hs.weights
@@ -210,7 +210,7 @@ func (hs *HealthScorer) CalculateScore() *HealthScore {
 	return score
 }
 
-// calculateCPUScore 计算 CPU 评分
+// calculateCPUScore 计算 CPU 评分.
 func (hs *HealthScorer) calculateCPUScore(stats *SystemStats, thresholds HealthThresholds) ComponentHealth {
 	health := ComponentHealth{
 		Weight:    hs.weights.CPU,
@@ -248,7 +248,7 @@ func (hs *HealthScorer) calculateCPUScore(stats *SystemStats, thresholds HealthT
 	return health
 }
 
-// calculateMemoryScore 计算内存评分
+// calculateMemoryScore 计算内存评分.
 func (hs *HealthScorer) calculateMemoryScore(stats *SystemStats, thresholds HealthThresholds) ComponentHealth {
 	health := ComponentHealth{
 		Weight:    hs.weights.Memory,
@@ -282,7 +282,7 @@ func (hs *HealthScorer) calculateMemoryScore(stats *SystemStats, thresholds Heal
 	return health
 }
 
-// calculateDiskScore 计算磁盘评分
+// calculateDiskScore 计算磁盘评分.
 func (hs *HealthScorer) calculateDiskScore(disks []*DiskStats, thresholds HealthThresholds) ComponentHealth {
 	health := ComponentHealth{
 		Weight:    hs.weights.Disk,
@@ -338,7 +338,7 @@ func (hs *HealthScorer) calculateDiskScore(disks []*DiskStats, thresholds Health
 	return health
 }
 
-// calculateNetworkScore 计算网络评分
+// calculateNetworkScore 计算网络评分.
 func (hs *HealthScorer) calculateNetworkScore(nets []*NetworkStats) ComponentHealth {
 	health := ComponentHealth{
 		Weight:    hs.weights.Network,
@@ -372,7 +372,7 @@ func (hs *HealthScorer) calculateNetworkScore(nets []*NetworkStats) ComponentHea
 	return health
 }
 
-// calculateSMARTScore 计算 SMART 评分
+// calculateSMARTScore 计算 SMART 评分.
 func (hs *HealthScorer) calculateSMARTScore(smarts []*SMARTInfo, thresholds HealthThresholds) ComponentHealth {
 	health := ComponentHealth{
 		Weight:    hs.weights.SMART,
@@ -410,7 +410,7 @@ func (hs *HealthScorer) calculateSMARTScore(smarts []*SMARTInfo, thresholds Heal
 	return health
 }
 
-// calculateSystemScore 计算系统评分
+// calculateSystemScore 计算系统评分.
 func (hs *HealthScorer) calculateSystemScore(stats *SystemStats, thresholds HealthThresholds) ComponentHealth {
 	health := ComponentHealth{
 		Weight:  hs.weights.Uptime,
@@ -429,12 +429,12 @@ func (hs *HealthScorer) calculateSystemScore(stats *SystemStats, thresholds Heal
 	return health
 }
 
-// addIssue 添加问题
+// addIssue 添加问题.
 func (hs *HealthScorer) addIssue(health *ComponentHealth, component, severity, message string, value, threshold float64) {
 	health.Message = message
 }
 
-// calculateTrend 计算趋势
+// calculateTrend 计算趋势.
 func (hs *HealthScorer) calculateTrend(score *HealthScore) {
 	hs.mu.RLock()
 	history := hs.history
@@ -489,7 +489,7 @@ func (hs *HealthScorer) calculateTrend(score *HealthScore) {
 	}
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (hs *HealthScorer) generateRecommendations(score *HealthScore) {
 	// CPU 建议
 	if score.Components.CPU.Score < 70 {
@@ -522,7 +522,7 @@ func (hs *HealthScorer) generateRecommendations(score *HealthScore) {
 	}
 }
 
-// scoreToGrade 分数转等级
+// scoreToGrade 分数转等级.
 func (hs *HealthScorer) scoreToGrade(score float64) string {
 	switch {
 	case score >= 90:
@@ -538,7 +538,7 @@ func (hs *HealthScorer) scoreToGrade(score float64) string {
 	}
 }
 
-// GetHistory 获取历史记录
+// GetHistory 获取历史记录.
 func (hs *HealthScorer) GetHistory(limit int) []*HealthScore {
 	hs.mu.RLock()
 	defer hs.mu.RUnlock()
@@ -554,14 +554,14 @@ func (hs *HealthScorer) GetHistory(limit int) []*HealthScore {
 	return result
 }
 
-// GetLastScore 获取最近评分
+// GetLastScore 获取最近评分.
 func (hs *HealthScorer) GetLastScore() *HealthScore {
 	hs.mu.RLock()
 	defer hs.mu.RUnlock()
 	return hs.lastScore
 }
 
-// GetScoreStats 获取评分统计
+// GetScoreStats 获取评分统计.
 func (hs *HealthScorer) GetScoreStats(duration time.Duration) map[string]interface{} {
 	hs.mu.RLock()
 	defer hs.mu.RUnlock()

@@ -9,7 +9,7 @@ import (
 
 // ========== 快照复制集成测试 ==========
 
-// SnapshotInfo 快照信息
+// SnapshotInfo 快照信息.
 type SnapshotInfo struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -19,7 +19,7 @@ type SnapshotInfo struct {
 	Status    string    `json:"status"`
 }
 
-// MockSnapshotManager 快照管理器 Mock
+// MockSnapshotManager 快照管理器 Mock.
 type MockSnapshotManager struct {
 	mu        sync.RWMutex
 	snapshots map[string]*SnapshotInfo
@@ -70,14 +70,14 @@ func (m *MockSnapshotManager) ListSnapshots() []*SnapshotInfo {
 	return result
 }
 
-// ReplicationTarget 复制目标
+// ReplicationTarget 复制目标.
 type ReplicationTarget struct {
 	NodeID    string `json:"node_id"`
 	Address   string `json:"address"`
 	Available bool   `json:"available"`
 }
 
-// MockReplicationManager 复制管理器 Mock
+// MockReplicationManager 复制管理器 Mock.
 type MockReplicationManager struct {
 	mu       sync.RWMutex
 	targets  map[string]*ReplicationTarget
@@ -120,7 +120,7 @@ func (m *MockReplicationManager) GetReplicas(snapID string) []string {
 	return m.replicas[snapID]
 }
 
-// TestSnapshotCreation 测试快照创建
+// TestSnapshotCreation 测试快照创建.
 func TestSnapshotCreation(t *testing.T) {
 	mgr := NewMockSnapshotManager()
 
@@ -144,7 +144,7 @@ func TestSnapshotCreation(t *testing.T) {
 	}
 }
 
-// TestSnapshotDeletion 测试快照删除
+// TestSnapshotDeletion 测试快照删除.
 func TestSnapshotDeletion(t *testing.T) {
 	mgr := NewMockSnapshotManager()
 
@@ -167,7 +167,7 @@ func TestSnapshotDeletion(t *testing.T) {
 	}
 }
 
-// TestSnapshotReplication 测试快照复制
+// TestSnapshotReplication 测试快照复制.
 func TestSnapshotReplication(t *testing.T) {
 	snapMgr := NewMockSnapshotManager()
 	replMgr := NewMockReplicationManager()
@@ -200,7 +200,7 @@ func TestSnapshotReplication(t *testing.T) {
 	}
 }
 
-// TestSnapshotReplicationFailure 测试复制失败
+// TestSnapshotReplicationFailure 测试复制失败.
 func TestSnapshotReplicationFailure(t *testing.T) {
 	replMgr := NewMockReplicationManager()
 
@@ -211,7 +211,7 @@ func TestSnapshotReplicationFailure(t *testing.T) {
 	}
 }
 
-// TestConcurrentSnapshotCreation 测试并发快照创建
+// TestConcurrentSnapshotCreation 测试并发快照创建.
 func TestConcurrentSnapshotCreation(t *testing.T) {
 	mgr := NewMockSnapshotManager()
 
@@ -239,7 +239,7 @@ func TestConcurrentSnapshotCreation(t *testing.T) {
 	}
 }
 
-// TestSnapshotRetention 测试快照保留策略
+// TestSnapshotRetention 测试快照保留策略.
 func TestSnapshotRetention(t *testing.T) {
 	mgr := NewMockSnapshotManager()
 
@@ -265,7 +265,7 @@ func TestSnapshotRetention(t *testing.T) {
 	}
 }
 
-// BenchmarkSnapshotCreation 快照创建基准测试
+// BenchmarkSnapshotCreation 快照创建基准测试.
 func BenchmarkSnapshotCreation(b *testing.B) {
 	mgr := NewMockSnapshotManager()
 
@@ -275,7 +275,7 @@ func BenchmarkSnapshotCreation(b *testing.B) {
 	}
 }
 
-// BenchmarkSnapshotReplication 快照复制基准测试
+// BenchmarkSnapshotReplication 快照复制基准测试.
 func BenchmarkSnapshotReplication(b *testing.B) {
 	snapMgr := NewMockSnapshotManager()
 	replMgr := NewMockReplicationManager()

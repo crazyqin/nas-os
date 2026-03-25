@@ -25,7 +25,7 @@ const (
 	ModeAuto PierceMode = "auto"
 )
 
-// Config 穿透配置
+// Config 穿透配置.
 type Config struct {
 	Enabled     bool       `json:"enabled"`
 	Mode        PierceMode `json:"mode"`
@@ -38,10 +38,10 @@ type Config struct {
 	Timeout     int        `json:"timeout"`     // 连接超时(秒)
 }
 
-// PierceClient 穿透客户端
+// PierceClient 穿透客户端.
 type PierceClient struct {
-	config   *Config
-	conn     net.Conn
+	config *Config
+	conn   net.Conn
 	// peerAddr 保留供将来P2P直连使用
 	// peerAddr *net.UDPAddr
 	status   ConnectionStatus
@@ -51,7 +51,7 @@ type PierceClient struct {
 	onStatus func(status ConnectionStatus)
 }
 
-// ConnectionStatus 连接状态
+// ConnectionStatus 连接状态.
 type ConnectionStatus struct {
 	Connected    bool       `json:"connected"`
 	Mode         PierceMode `json:"mode"`
@@ -63,7 +63,7 @@ type ConnectionStatus struct {
 	ErrorMessage string     `json:"errorMessage,omitempty"`
 }
 
-// NewPierceClient 创建穿透客户端
+// NewPierceClient 创建穿透客户端.
 func NewPierceClient(cfg *Config) *PierceClient {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &PierceClient{
@@ -74,7 +74,7 @@ func NewPierceClient(cfg *Config) *PierceClient {
 	}
 }
 
-// Start 启动穿透服务
+// Start 启动穿透服务.
 func (pc *PierceClient) Start() error {
 	if !pc.config.Enabled {
 		return fmt.Errorf("natpierce is disabled")
@@ -97,7 +97,7 @@ func (pc *PierceClient) Start() error {
 	}
 }
 
-// startP2P 启动P2P直连
+// startP2P 启动P2P直连.
 func (pc *PierceClient) startP2P() error {
 	// 1. 通过STUN获取公网地址
 	publicAddr, err := pc.discoverPublicAddress()
@@ -117,7 +117,7 @@ func (pc *PierceClient) startP2P() error {
 	return nil
 }
 
-// startRelay 启动中继模式
+// startRelay 启动中继模式.
 func (pc *PierceClient) startRelay() error {
 	// 连接中继服务器 - 使用 net.JoinHostPort 正确处理 IPv6
 	addr := net.JoinHostPort(pc.config.ServerAddr, strconv.Itoa(pc.config.ServerPort))
@@ -160,7 +160,7 @@ func (pc *PierceClient) startRelay() error {
 	return nil
 }
 
-// discoverPublicAddress 通过STUN发现公网地址
+// discoverPublicAddress 通过STUN发现公网地址.
 func (pc *PierceClient) discoverPublicAddress() (*net.UDPAddr, error) {
 	if len(pc.config.STUNServers) == 0 {
 		return nil, fmt.Errorf("no STUN servers configured")
@@ -177,14 +177,14 @@ func (pc *PierceClient) discoverPublicAddress() (*net.UDPAddr, error) {
 	return nil, fmt.Errorf("all STUN servers failed")
 }
 
-// querySTUN 查询单个STUN服务器
+// querySTUN 查询单个STUN服务器.
 func (pc *PierceClient) querySTUN(server string) (*net.UDPAddr, error) {
 	// TODO: 实现完整的STUN协议
 	// 这里是简化版本
 	return nil, fmt.Errorf("STUN query not implemented")
 }
 
-// heartbeat 心跳保活
+// heartbeat 心跳保活.
 func (pc *PierceClient) heartbeat() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -220,7 +220,7 @@ func (pc *PierceClient) heartbeat() {
 	}
 }
 
-// Stop 停止穿透服务
+// Stop 停止穿透服务.
 func (pc *PierceClient) Stop() error {
 	pc.cancel()
 
@@ -233,19 +233,19 @@ func (pc *PierceClient) Stop() error {
 	return nil
 }
 
-// GetStatus 获取连接状态
+// GetStatus 获取连接状态.
 func (pc *PierceClient) GetStatus() ConnectionStatus {
 	pc.mu.RLock()
 	defer pc.mu.RUnlock()
 	return pc.status
 }
 
-// SetStatusCallback 设置状态回调
+// SetStatusCallback 设置状态回调.
 func (pc *PierceClient) SetStatusCallback(callback func(status ConnectionStatus)) {
 	pc.onStatus = callback
 }
 
-// updateStatus 更新状态
+// updateStatus 更新状态.
 func (pc *PierceClient) updateStatus(update func(*ConnectionStatus)) {
 	pc.mu.Lock()
 	defer pc.mu.Unlock()

@@ -167,7 +167,7 @@ func (g *ReportGenerator) generateMarkdown(report *TestReport) error {
 	return os.WriteFile(path, []byte(md), 0600)
 }
 
-// generateHTML 生成 HTML 报告
+// generateHTML 生成 HTML 报告.
 func (g *ReportGenerator) generateHTML(report *TestReport) error {
 	path := filepath.Join(g.outputDir, "test-report.html")
 
@@ -302,7 +302,7 @@ func (g *ReportGenerator) generateHTML(report *TestReport) error {
 	return t.Execute(f, report)
 }
 
-// CreateSampleReport 创建示例报告
+// CreateSampleReport 创建示例报告.
 func CreateSampleReport() *TestReport {
 	return &TestReport{
 		Name:        "NAS-OS",

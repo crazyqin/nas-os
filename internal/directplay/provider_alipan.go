@@ -373,13 +373,13 @@ func (p *AliyunPanProvider) TestConnection(ctx context.Context, accessToken, ref
 	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
-		Code            string `json:"code"`
-		Message         string `json:"message"`
-		NickName        string `json:"nick_name"`
-		UserName        string `json:"user_name"`
-		DefaultDriveID  string `json:"default_drive_id"`
-		UsedSpaceSize   int64  `json:"used_size"`
-		TotalSpaceSize  int64  `json:"total_size"`
+		Code           string `json:"code"`
+		Message        string `json:"message"`
+		NickName       string `json:"nick_name"`
+		UserName       string `json:"user_name"`
+		DefaultDriveID string `json:"default_drive_id"`
+		UsedSpaceSize  int64  `json:"used_size"`
+		TotalSpaceSize int64  `json:"total_size"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {

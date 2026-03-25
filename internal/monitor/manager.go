@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Manager 监控管理器
+// Manager 监控管理器.
 type Manager struct {
 	hostname          string
 	diskHealthMonitor *DiskHealthMonitor
@@ -19,7 +19,7 @@ type Manager struct {
 	backupStats       *BackupStats
 }
 
-// SystemStats 系统统计信息
+// SystemStats 系统统计信息.
 type SystemStats struct {
 	CPUUsage      float64   `json:"cpuUsage"`
 	MemoryUsage   float64   `json:"memoryUsage"`
@@ -36,7 +36,7 @@ type SystemStats struct {
 	Timestamp     time.Time `json:"timestamp"`
 }
 
-// DiskStats 磁盘统计信息
+// DiskStats 磁盘统计信息.
 type DiskStats struct {
 	Device       string  `json:"device"`
 	MountPoint   string  `json:"mountPoint"`
@@ -47,7 +47,7 @@ type DiskStats struct {
 	FSType       string  `json:"fsType"`
 }
 
-// NetworkStats 网络统计信息
+// NetworkStats 网络统计信息.
 type NetworkStats struct {
 	Interface string `json:"interface"`
 	RXBytes   uint64 `json:"rxBytes"`
@@ -58,7 +58,7 @@ type NetworkStats struct {
 	TXErrors  uint64 `json:"txErrors"`
 }
 
-// SMARTInfo SMART 信息
+// SMARTInfo SMART 信息.
 type SMARTInfo struct {
 	Device       string `json:"device"`
 	Model        string `json:"model"`
@@ -70,7 +70,7 @@ type SMARTInfo struct {
 	WriteErrors  uint64 `json:"writeErrors"`
 }
 
-// Alert 告警信息
+// Alert 告警信息.
 type Alert struct {
 	ID           string    `json:"id"`
 	Type         string    `json:"type"`  // cpu, memory, disk, smart
@@ -81,7 +81,7 @@ type Alert struct {
 	Acknowledged bool      `json:"acknowledged"`
 }
 
-// AlertRule 告警规则
+// AlertRule 告警规则.
 type AlertRule struct {
 	Name      string  `json:"name"`
 	Type      string  `json:"type"`
@@ -90,7 +90,7 @@ type AlertRule struct {
 	Enabled   bool    `json:"enabled"`
 }
 
-// NewManager 创建监控管理器
+// NewManager 创建监控管理器.
 func NewManager() (*Manager, error) {
 	hostname, _ := os.Hostname()
 	return &Manager{
@@ -98,7 +98,7 @@ func NewManager() (*Manager, error) {
 	}, nil
 }
 
-// NewManagerWithComponents 创建带组件的监控管理器 (v2.59.0)
+// NewManagerWithComponents 创建带组件的监控管理器 (v2.59.0).
 func NewManagerWithComponents(diskMonitor *DiskHealthMonitor, alertMgr *AlertingManager) (*Manager, error) {
 	hostname, _ := os.Hostname()
 	return &Manager{
@@ -108,27 +108,27 @@ func NewManagerWithComponents(diskMonitor *DiskHealthMonitor, alertMgr *Alerting
 	}, nil
 }
 
-// SetDiskHealthMonitor 设置磁盘健康监控器 (v2.59.0)
+// SetDiskHealthMonitor 设置磁盘健康监控器 (v2.59.0).
 func (m *Manager) SetDiskHealthMonitor(monitor *DiskHealthMonitor) {
 	m.diskHealthMonitor = monitor
 }
 
-// SetAlertingManager 设置告警管理器 (v2.59.0)
+// SetAlertingManager 设置告警管理器 (v2.59.0).
 func (m *Manager) SetAlertingManager(mgr *AlertingManager) {
 	m.alertingManager = mgr
 }
 
-// GetDiskHealthMonitor 获取磁盘健康监控器 (v2.59.0)
+// GetDiskHealthMonitor 获取磁盘健康监控器 (v2.59.0).
 func (m *Manager) GetDiskHealthMonitor() *DiskHealthMonitor {
 	return m.diskHealthMonitor
 }
 
-// GetAlertingManager 获取告警管理器 (v2.59.0)
+// GetAlertingManager 获取告警管理器 (v2.59.0).
 func (m *Manager) GetAlertingManager() *AlertingManager {
 	return m.alertingManager
 }
 
-// GetBackupStats 获取备份统计 (v2.59.0)
+// GetBackupStats 获取备份统计 (v2.59.0).
 func (m *Manager) GetBackupStats() (*BackupStats, error) {
 	// 如果有缓存的备份数据，返回它
 	if m.backupStats != nil {
@@ -140,12 +140,12 @@ func (m *Manager) GetBackupStats() (*BackupStats, error) {
 	return nil, fmt.Errorf("备份统计未初始化")
 }
 
-// SetBackupStats 设置备份统计 (v2.59.0)
+// SetBackupStats 设置备份统计 (v2.59.0).
 func (m *Manager) SetBackupStats(stats *BackupStats) {
 	m.backupStats = stats
 }
 
-// UpdateBackupStats 更新备份统计 (v2.59.0)
+// UpdateBackupStats 更新备份统计 (v2.59.0).
 func (m *Manager) UpdateBackupStats(totalCount, fullCount, incrementalCount, databaseCount, configCount int, totalSize, spaceUsed, spaceTotal, spaceAvailable uint64) {
 	m.backupStats = &BackupStats{
 		TotalCount:       totalCount,
@@ -160,7 +160,7 @@ func (m *Manager) UpdateBackupStats(totalCount, fullCount, incrementalCount, dat
 	}
 }
 
-// GetSystemStats 获取系统统计信息
+// GetSystemStats 获取系统统计信息.
 func (m *Manager) GetSystemStats() (*SystemStats, error) {
 	stats := &SystemStats{
 		Timestamp: time.Now(),
@@ -209,7 +209,7 @@ func (m *Manager) GetSystemStats() (*SystemStats, error) {
 	return stats, nil
 }
 
-// GetDiskStats 获取磁盘统计信息
+// GetDiskStats 获取磁盘统计信息.
 func (m *Manager) GetDiskStats() ([]*DiskStats, error) {
 	var stats []*DiskStats
 
@@ -253,7 +253,7 @@ func (m *Manager) GetDiskStats() ([]*DiskStats, error) {
 	return stats, nil
 }
 
-// GetNetworkStats 获取网络统计信息
+// GetNetworkStats 获取网络统计信息.
 func (m *Manager) GetNetworkStats() ([]*NetworkStats, error) {
 	var stats []*NetworkStats
 
@@ -304,7 +304,7 @@ func (m *Manager) GetNetworkStats() ([]*NetworkStats, error) {
 	return stats, nil
 }
 
-// GetSMARTInfo 获取磁盘 SMART 信息
+// GetSMARTInfo 获取磁盘 SMART 信息.
 func (m *Manager) GetSMARTInfo(device string) (*SMARTInfo, error) {
 	info := &SMARTInfo{
 		Device: device,
@@ -371,7 +371,7 @@ func (m *Manager) GetSMARTInfo(device string) (*SMARTInfo, error) {
 	return info, nil
 }
 
-// CheckDisks 检查所有磁盘
+// CheckDisks 检查所有磁盘.
 func (m *Manager) CheckDisks() ([]*SMARTInfo, error) {
 	var results []*SMARTInfo
 
@@ -396,7 +396,7 @@ func (m *Manager) CheckDisks() ([]*SMARTInfo, error) {
 	return results, nil
 }
 
-// getCPUUsage 获取 CPU 使用率
+// getCPUUsage 获取 CPU 使用率.
 func (m *Manager) getCPUUsage() (float64, error) {
 	// 读取 /proc/stat
 	data, err := os.ReadFile("/proc/stat")
@@ -430,7 +430,7 @@ func (m *Manager) getCPUUsage() (float64, error) {
 	return usage, nil
 }
 
-// getMemoryInfo 获取内存信息
+// getMemoryInfo 获取内存信息.
 func (m *Manager) getMemoryInfo() (map[string]uint64, error) {
 	data, err := os.ReadFile("/proc/meminfo")
 	if err != nil {
@@ -460,7 +460,7 @@ func (m *Manager) getMemoryInfo() (map[string]uint64, error) {
 	return result, nil
 }
 
-// getSwapInfo 获取 Swap 信息
+// getSwapInfo 获取 Swap 信息.
 func (m *Manager) getSwapInfo() (map[string]uint64, error) {
 	data, err := os.ReadFile("/proc/meminfo")
 	if err != nil {
@@ -491,7 +491,7 @@ func (m *Manager) getSwapInfo() (map[string]uint64, error) {
 	return result, nil
 }
 
-// getUptime 获取运行时间
+// getUptime 获取运行时间.
 func (m *Manager) getUptime() (uint64, error) {
 	data, err := os.ReadFile("/proc/uptime")
 	if err != nil {
@@ -511,7 +511,7 @@ func (m *Manager) getUptime() (uint64, error) {
 	return uint64(uptime), nil
 }
 
-// formatUptime 格式化运行时间
+// formatUptime 格式化运行时间.
 func (m *Manager) formatUptime(seconds uint64) string {
 	days := seconds / 86400
 	hours := (seconds % 86400) / 3600
@@ -526,7 +526,7 @@ func (m *Manager) formatUptime(seconds uint64) string {
 	return fmt.Sprintf("%d分钟", mins)
 }
 
-// getLoadAverage 获取负载均衡
+// getLoadAverage 获取负载均衡.
 func (m *Manager) getLoadAverage() ([]float64, error) {
 	data, err := os.ReadFile("/proc/loadavg")
 	if err != nil {
@@ -546,7 +546,7 @@ func (m *Manager) getLoadAverage() ([]float64, error) {
 	return loadAvg, nil
 }
 
-// GetHostname 获取主机名
+// GetHostname 获取主机名.
 func (m *Manager) GetHostname() string {
 	return m.hostname
 }

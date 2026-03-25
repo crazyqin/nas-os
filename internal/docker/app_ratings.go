@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// AppRating 应用评分
+// AppRating 应用评分.
 type AppRating struct {
 	ID         string    `json:"id"`
 	TemplateID string    `json:"templateId"`
@@ -27,7 +27,7 @@ type AppRating struct {
 	Verified   bool      `json:"verified"`  // 已验证购买
 }
 
-// RatingStats 评分统计
+// RatingStats 评分统计.
 type RatingStats struct {
 	TemplateID   string  `json:"templateId"`
 	TotalReviews int     `json:"totalReviews"`
@@ -41,7 +41,7 @@ type RatingStats struct {
 	} `json:"distribution"`
 }
 
-// RatingManager 评分管理器
+// RatingManager 评分管理器.
 type RatingManager struct {
 	dataDir  string
 	dataFile string
@@ -50,7 +50,7 @@ type RatingManager struct {
 	mu       sync.RWMutex
 }
 
-// NewRatingManager 创建评分管理器
+// NewRatingManager 创建评分管理器.
 func NewRatingManager(dataDir string) (*RatingManager, error) {
 	dataFile := filepath.Join(dataDir, "app-ratings.json")
 
@@ -75,7 +75,7 @@ func NewRatingManager(dataDir string) (*RatingManager, error) {
 	return rm, nil
 }
 
-// load 加载数据
+// load 加载数据.
 func (rm *RatingManager) load() error {
 	data, err := os.ReadFile(rm.dataFile)
 	if err != nil {
@@ -101,7 +101,7 @@ func (rm *RatingManager) load() error {
 }
 
 // save 保存数据
-// 注意：调用此方法前必须已持有锁（读锁或写锁）
+// 注意：调用此方法前必须已持有锁（读锁或写锁）.
 func (rm *RatingManager) save() error {
 	var allRatings []*AppRating
 	for _, ratings := range rm.ratings {
@@ -116,7 +116,7 @@ func (rm *RatingManager) save() error {
 	return os.WriteFile(rm.dataFile, data, 0640)
 }
 
-// calculateStats 计算统计
+// calculateStats 计算统计.
 func (rm *RatingManager) calculateStats(templateID string) {
 	ratings, ok := rm.ratings[templateID]
 	if !ok {
@@ -152,7 +152,7 @@ func (rm *RatingManager) calculateStats(templateID string) {
 	rm.stats[templateID] = stats
 }
 
-// AddRating 添加评分
+// AddRating 添加评分.
 func (rm *RatingManager) AddRating(templateID, userID, userName string, rating int, title, content string) (*AppRating, error) {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -200,7 +200,7 @@ func (rm *RatingManager) AddRating(templateID, userID, userName string, rating i
 	return r, nil
 }
 
-// GetRatings 获取评分列表
+// GetRatings 获取评分列表.
 func (rm *RatingManager) GetRatings(templateID string, sortby string, limit, offset int) []*AppRating {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -252,7 +252,7 @@ func (rm *RatingManager) GetRatings(templateID string, sortby string, limit, off
 	return result[offset:end]
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (rm *RatingManager) GetStats(templateID string) *RatingStats {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -264,7 +264,7 @@ func (rm *RatingManager) GetStats(templateID string) *RatingStats {
 	return stats
 }
 
-// DeleteRating 删除评分
+// DeleteRating 删除评分.
 func (rm *RatingManager) DeleteRating(templateID, ratingID, userID string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -291,7 +291,7 @@ func (rm *RatingManager) DeleteRating(templateID, ratingID, userID string) error
 	return fmt.Errorf("评分不存在")
 }
 
-// MarkHelpful 标记有用
+// MarkHelpful 标记有用.
 func (rm *RatingManager) MarkHelpful(templateID, ratingID, userID string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -321,7 +321,7 @@ func (rm *RatingManager) MarkHelpful(templateID, ratingID, userID string) error 
 	return fmt.Errorf("评分不存在")
 }
 
-// VerifyPurchase 验证购买（已安装应用可标记为验证）
+// VerifyPurchase 验证购买（已安装应用可标记为验证）.
 func (rm *RatingManager) VerifyPurchase(templateID, userID string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -344,7 +344,7 @@ func (rm *RatingManager) VerifyPurchase(templateID, userID string) error {
 	return nil
 }
 
-// GetUserRating 获取用户评分
+// GetUserRating 获取用户评分.
 func (rm *RatingManager) GetUserRating(templateID, userID string) *AppRating {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()

@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// 全局配置
+// 全局配置.
 var (
 	configFile string
 	outputFmt  string
@@ -22,13 +22,13 @@ var (
 	quiet      bool
 )
 
-// 输出格式常量
+// 输出格式常量.
 const (
 	OutputText = "text"
 	OutputJSON = "json"
 )
 
-// API 配置
+// API 配置.
 var apiBaseURL = "http://localhost:8080/api/v1"
 
 func main() {
@@ -761,7 +761,7 @@ type Status struct {
 
 // ========== API 调用函数 ==========
 
-// apiRequest 通用 API 请求函数
+// apiRequest 通用 API 请求函数.
 func apiRequest(method, path string, body interface{}) ([]byte, error) {
 	var req *http.Request
 	var err error
@@ -804,7 +804,7 @@ func apiRequest(method, path string, body interface{}) ([]byte, error) {
 	return respBody, nil
 }
 
-// API 响应结构
+// API 响应结构.
 type APIResponse struct {
 	Code    int             `json:"code"`
 	Message string          `json:"message"`

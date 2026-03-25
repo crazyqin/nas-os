@@ -2,7 +2,7 @@ package auth
 
 import "time"
 
-// MFAConfig 双因素认证配置
+// MFAConfig 双因素认证配置.
 type MFAConfig struct {
 	UserID          string    `json:"user_id"`
 	Enabled         bool      `json:"enabled"`
@@ -16,7 +16,7 @@ type MFAConfig struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
-// TOTPSetup TOTP 设置信息
+// TOTPSetup TOTP 设置信息.
 type TOTPSetup struct {
 	Secret      string `json:"secret"`
 	URI         string `json:"uri"`
@@ -25,7 +25,7 @@ type TOTPSetup struct {
 	AccountName string `json:"account_name"`
 }
 
-// SMSCode 短信验证码
+// SMSCode 短信验证码.
 type SMSCode struct {
 	Phone     string    `json:"phone"`
 	Code      string    `json:"code"`
@@ -33,14 +33,14 @@ type SMSCode struct {
 	Attempts  int       `json:"attempts"`
 }
 
-// BackupCode 备份码
+// BackupCode 备份码.
 type BackupCode struct {
 	Code   string     `json:"code"`
 	Used   bool       `json:"used"`
 	UsedAt *time.Time `json:"used_at,omitempty"`
 }
 
-// WebAuthnCredential WebAuthn 凭据
+// WebAuthnCredential WebAuthn 凭据.
 type WebAuthnCredential struct {
 	ID              string     `json:"id"`
 	PublicKey       []byte     `json:"public_key"`
@@ -50,14 +50,14 @@ type WebAuthnCredential struct {
 	LastUsedAt      *time.Time `json:"last_used_at,omitempty"`
 }
 
-// WebAuthnSetup WebAuthn 设置信息
+// WebAuthnSetup WebAuthn 设置信息.
 type WebAuthnSetup struct {
 	UserID      string `json:"user_id"`
 	Username    string `json:"username"`
 	DisplayName string `json:"display_name"`
 }
 
-// MFALoginRequest 双因素登录请求
+// MFALoginRequest 双因素登录请求.
 type MFALoginRequest struct {
 	Username                string      `json:"username" binding:"required"`
 	Password                string      `json:"password" binding:"required"`
@@ -66,7 +66,7 @@ type MFALoginRequest struct {
 	CredentialAssertionData interface{} `json:"credential_assertion,omitempty"` // WebAuthn 认证数据
 }
 
-// MFALoginResponse 双因素登录响应
+// MFALoginResponse 双因素登录响应.
 type MFALoginResponse struct {
 	Token       string `json:"token,omitempty"`
 	ExpiresAt   string `json:"expires_at,omitempty"`
@@ -76,23 +76,23 @@ type MFALoginResponse struct {
 	User        *User  `json:"user,omitempty"`
 }
 
-// SMSRequest 短信验证码请求
+// SMSRequest 短信验证码请求.
 type SMSRequest struct {
 	Phone string `json:"phone" binding:"required"`
 }
 
-// SMSVerifyRequest 短信验证码验证请求
+// SMSVerifyRequest 短信验证码验证请求.
 type SMSVerifyRequest struct {
 	Phone string `json:"phone" binding:"required"`
 	Code  string `json:"code" binding:"required"`
 }
 
-// BackupCodesResponse 备份码响应
+// BackupCodesResponse 备份码响应.
 type BackupCodesResponse struct {
 	Codes []string `json:"codes"`
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrMFANotEnabled      = "双因素认证未启用"
 	ErrMFAInvalidCode     = "验证码无效或已过期"
@@ -101,7 +101,7 @@ var (
 	ErrBackupCodeInvalid  = "备份码无效"
 )
 
-// User 用户信息（从 users 包复制，避免循环依赖）
+// User 用户信息（从 users 包复制，避免循环依赖）.
 type User struct {
 	ID       string   `json:"id"`
 	Username string   `json:"username"`
@@ -110,7 +110,7 @@ type User struct {
 	Groups   []string `json:"groups,omitempty"`
 }
 
-// GetGroups 实现 GroupProvider 接口
+// GetGroups 实现 GroupProvider 接口.
 func (u *User) GetGroups() []string {
 	if u.Groups == nil {
 		return []string{}

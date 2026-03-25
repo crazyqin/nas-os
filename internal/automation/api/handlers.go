@@ -18,7 +18,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// safeDownloadID 安全编码下载 ID，防止 XSS 和头注入
+// safeDownloadID 安全编码下载 ID，防止 XSS 和头注入.
 func safeDownloadID(id string) string {
 	// 移除危险字符
 	id = strings.Map(func(r rune) rune {
@@ -31,19 +31,19 @@ func safeDownloadID(id string) string {
 	return url.QueryEscape(id)
 }
 
-// AutomationAPI 自动化 API 处理器
+// AutomationAPI 自动化 API 处理器.
 type AutomationAPI struct {
 	engine *engine.WorkflowEngine
 }
 
-// NewAutomationAPI 创建新的 API 处理器
+// NewAutomationAPI 创建新的 API 处理器.
 func NewAutomationAPI(eng *engine.WorkflowEngine) *AutomationAPI {
 	return &AutomationAPI{
 		engine: eng,
 	}
 }
 
-// RegisterRoutes 注册 API 路由
+// RegisterRoutes 注册 API 路由.
 func (a *AutomationAPI) RegisterRoutes(r *mux.Router) {
 	s := r.PathPrefix("/api/automation").Subrouter()
 
@@ -73,7 +73,7 @@ func (a *AutomationAPI) RegisterRoutes(r *mux.Router) {
 	s.HandleFunc("/stats", a.GetStats).Methods("GET")
 }
 
-// WorkflowRequest 工作流请求
+// WorkflowRequest 工作流请求.
 type WorkflowRequest struct {
 	Name        string                   `json:"name"`
 	Description string                   `json:"description"`
@@ -82,13 +82,13 @@ type WorkflowRequest struct {
 	Actions     []map[string]interface{} `json:"actions"`
 }
 
-// ListWorkflows 列出所有工作流
+// ListWorkflows 列出所有工作流.
 func (a *AutomationAPI) ListWorkflows(w http.ResponseWriter, r *http.Request) {
 	workflows := a.engine.ListWorkflows()
 	a.writeJSON(w, http.StatusOK, workflows)
 }
 
-// GetWorkflow 获取单个工作流
+// GetWorkflow 获取单个工作流.
 func (a *AutomationAPI) GetWorkflow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -102,7 +102,7 @@ func (a *AutomationAPI) GetWorkflow(w http.ResponseWriter, r *http.Request) {
 	a.writeJSON(w, http.StatusOK, wf)
 }
 
-// CreateWorkflow 创建工作流
+// CreateWorkflow 创建工作流.
 func (a *AutomationAPI) CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 	var req WorkflowRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -156,7 +156,7 @@ func (a *AutomationAPI) CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 	a.writeJSON(w, http.StatusCreated, wf)
 }
 
-// UpdateWorkflow 更新工作流
+// UpdateWorkflow 更新工作流.
 func (a *AutomationAPI) UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -225,7 +225,7 @@ func (a *AutomationAPI) UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 	a.writeJSON(w, http.StatusOK, wf)
 }
 
-// DeleteWorkflow 删除工作流
+// DeleteWorkflow 删除工作流.
 func (a *AutomationAPI) DeleteWorkflow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -238,7 +238,7 @@ func (a *AutomationAPI) DeleteWorkflow(w http.ResponseWriter, r *http.Request) {
 	a.writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
-// ToggleWorkflow 切换工作流状态
+// ToggleWorkflow 切换工作流状态.
 func (a *AutomationAPI) ToggleWorkflow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -263,7 +263,7 @@ func (a *AutomationAPI) ToggleWorkflow(w http.ResponseWriter, r *http.Request) {
 	a.writeJSON(w, http.StatusOK, map[string]string{"status": "toggled"})
 }
 
-// ExecuteWorkflow 手动执行工作流
+// ExecuteWorkflow 手动执行工作流.
 func (a *AutomationAPI) ExecuteWorkflow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -279,7 +279,7 @@ func (a *AutomationAPI) ExecuteWorkflow(w http.ResponseWriter, r *http.Request) 
 	a.writeJSON(w, http.StatusOK, map[string]string{"status": "executing"})
 }
 
-// ExportWorkflow 导出工作流
+// ExportWorkflow 导出工作流.
 func (a *AutomationAPI) ExportWorkflow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -295,7 +295,7 @@ func (a *AutomationAPI) ExportWorkflow(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(data)
 }
 
-// ImportWorkflow 导入工作流
+// ImportWorkflow 导入工作流.
 func (a *AutomationAPI) ImportWorkflow(w http.ResponseWriter, r *http.Request) {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -317,13 +317,13 @@ func (a *AutomationAPI) ImportWorkflow(w http.ResponseWriter, r *http.Request) {
 	a.writeJSON(w, http.StatusCreated, wf)
 }
 
-// ListTemplates 列出所有模板
+// ListTemplates 列出所有模板.
 func (a *AutomationAPI) ListTemplates(w http.ResponseWriter, r *http.Request) {
 	tpls := templates.GetTemplates()
 	a.writeJSON(w, http.StatusOK, tpls)
 }
 
-// GetTemplate 获取单个模板
+// GetTemplate 获取单个模板.
 func (a *AutomationAPI) GetTemplate(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -342,7 +342,7 @@ func (a *AutomationAPI) GetTemplate(w http.ResponseWriter, r *http.Request) {
 	a.writeJSON(w, http.StatusOK, tpl)
 }
 
-// UseTemplate 使用模板创建工作流
+// UseTemplate 使用模板创建工作流.
 func (a *AutomationAPI) UseTemplate(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -367,7 +367,7 @@ func (a *AutomationAPI) UseTemplate(w http.ResponseWriter, r *http.Request) {
 	a.writeJSON(w, http.StatusCreated, wf)
 }
 
-// ListTemplateCategories 列出模板分类
+// ListTemplateCategories 列出模板分类.
 func (a *AutomationAPI) ListTemplateCategories(w http.ResponseWriter, r *http.Request) {
 	categories := templates.GetCategories()
 	a.writeJSON(w, http.StatusOK, map[string]interface{}{
@@ -375,7 +375,7 @@ func (a *AutomationAPI) ListTemplateCategories(w http.ResponseWriter, r *http.Re
 	})
 }
 
-// ValidateTemplate 验证模板
+// ValidateTemplate 验证模板.
 func (a *AutomationAPI) ValidateTemplate(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -390,7 +390,7 @@ func (a *AutomationAPI) ValidateTemplate(w http.ResponseWriter, r *http.Request)
 	a.writeJSON(w, http.StatusOK, result)
 }
 
-// GetTemplateParams 获取模板参数
+// GetTemplateParams 获取模板参数.
 func (a *AutomationAPI) GetTemplateParams(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -409,7 +409,7 @@ func (a *AutomationAPI) GetTemplateParams(w http.ResponseWriter, r *http.Request
 	})
 }
 
-// ExportTemplate 导出模板
+// ExportTemplate 导出模板.
 func (a *AutomationAPI) ExportTemplate(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -431,7 +431,7 @@ func (a *AutomationAPI) ExportTemplate(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(data)
 }
 
-// ExportAllTemplates 导出所有模板
+// ExportAllTemplates 导出所有模板.
 func (a *AutomationAPI) ExportAllTemplates(w http.ResponseWriter, r *http.Request) {
 	tpls := templates.GetTemplates()
 
@@ -449,7 +449,7 @@ func (a *AutomationAPI) ExportAllTemplates(w http.ResponseWriter, r *http.Reques
 	_ = json.NewEncoder(w).Encode(allTemplates)
 }
 
-// ImportTemplate 导入模板
+// ImportTemplate 导入模板.
 func (a *AutomationAPI) ImportTemplate(w http.ResponseWriter, r *http.Request) {
 	var data []byte
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
@@ -466,7 +466,7 @@ func (a *AutomationAPI) ImportTemplate(w http.ResponseWriter, r *http.Request) {
 	a.writeJSON(w, http.StatusCreated, tpl)
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (a *AutomationAPI) GetStats(w http.ResponseWriter, r *http.Request) {
 	workflows := a.engine.ListWorkflows()
 
@@ -503,7 +503,7 @@ func (a *AutomationAPI) GetStats(w http.ResponseWriter, r *http.Request) {
 	a.writeJSON(w, http.StatusOK, stats)
 }
 
-// 辅助函数
+// 辅助函数.
 func (a *AutomationAPI) writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -514,7 +514,7 @@ func (a *AutomationAPI) writeError(w http.ResponseWriter, status int, message st
 	a.writeJSON(w, status, map[string]string{"error": message})
 }
 
-// parseTriggerConfig 从 map 解析触发器配置
+// parseTriggerConfig 从 map 解析触发器配置.
 func parseTriggerConfig(data map[string]interface{}) (trigger.Config, error) {
 	config := trigger.Config{}
 
@@ -581,7 +581,7 @@ func parseTriggerConfig(data map[string]interface{}) (trigger.Config, error) {
 	return config, nil
 }
 
-// parseActionConfig 从 map 解析动作配置
+// parseActionConfig 从 map 解析动作配置.
 func parseActionConfig(data map[string]interface{}) (action.Config, error) {
 	config := action.Config{}
 

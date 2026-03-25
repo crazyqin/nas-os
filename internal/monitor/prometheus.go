@@ -6,7 +6,7 @@ import (
 )
 
 // PrometheusMetrics Prometheus 指标收集器
-// v2.29.0 增强版 - 支持完整的 NAS-OS 监控指标
+// v2.29.0 增强版 - 支持完整的 NAS-OS 监控指标.
 type PrometheusMetrics struct {
 	// ========== 系统指标 ==========
 
@@ -108,7 +108,7 @@ type PrometheusMetrics struct {
 	HealthScoreGauge prometheus.Gauge
 }
 
-// NewPrometheusMetrics 创建 Prometheus 指标收集器
+// NewPrometheusMetrics 创建 Prometheus 指标收集器.
 func NewPrometheusMetrics(namespace string) *PrometheusMetrics {
 	if namespace == "" {
 		namespace = "nas_os"
@@ -448,7 +448,7 @@ func NewPrometheusMetrics(namespace string) *PrometheusMetrics {
 	}
 }
 
-// UpdateSystemMetrics 更新系统指标
+// UpdateSystemMetrics 更新系统指标.
 func (pm *PrometheusMetrics) UpdateSystemMetrics(stats *SystemStats) {
 	if stats == nil {
 		return
@@ -471,7 +471,7 @@ func (pm *PrometheusMetrics) UpdateSystemMetrics(stats *SystemStats) {
 	}
 }
 
-// UpdateDiskMetrics 更新磁盘指标
+// UpdateDiskMetrics 更新磁盘指标.
 func (pm *PrometheusMetrics) UpdateDiskMetrics(diskStats []*DiskStats) {
 	for _, d := range diskStats {
 		if d.FSType == "tmpfs" || d.FSType == "devtmpfs" {
@@ -490,7 +490,7 @@ func (pm *PrometheusMetrics) UpdateDiskMetrics(diskStats []*DiskStats) {
 	}
 }
 
-// UpdateNetworkMetrics 更新网络指标
+// UpdateNetworkMetrics 更新网络指标.
 func (pm *PrometheusMetrics) UpdateNetworkMetrics(netStats []*NetworkStats) {
 	for _, n := range netStats {
 		labels := prometheus.Labels{
@@ -506,23 +506,23 @@ func (pm *PrometheusMetrics) UpdateNetworkMetrics(netStats []*NetworkStats) {
 	}
 }
 
-// UpdateHealthScore 更新健康评分
+// UpdateHealthScore 更新健康评分.
 func (pm *PrometheusMetrics) UpdateHealthScore(score float64) {
 	pm.HealthScoreGauge.Set(score)
 }
 
-// RecordAPIRequest 记录 API 请求
+// RecordAPIRequest 记录 API 请求.
 func (pm *PrometheusMetrics) RecordAPIRequest(method, path, status string, duration float64) {
 	pm.APIRequestsTotal.WithLabelValues(method, path, status).Inc()
 	pm.APIRequestDuration.WithLabelValues(method, path).Observe(duration)
 }
 
-// IncrementAPIRequestsInFlight 增加 API 请求计数
+// IncrementAPIRequestsInFlight 增加 API 请求计数.
 func (pm *PrometheusMetrics) IncrementAPIRequestsInFlight() {
 	pm.APIRequestsInFlight.Inc()
 }
 
-// DecrementAPIRequestsInFlight 减少 API 请求计数
+// DecrementAPIRequestsInFlight 减少 API 请求计数.
 func (pm *PrometheusMetrics) DecrementAPIRequestsInFlight() {
 	pm.APIRequestsInFlight.Dec()
 }
