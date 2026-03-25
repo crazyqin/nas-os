@@ -120,7 +120,7 @@ func (s *Server) Start() error {
 
 	// 启动监听
 	addr := fmt.Sprintf(":%d", s.config.Port)
-	listener, err := net.Listen("tcp", addr)
+	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", addr)
 	if err != nil {
 		return fmt.Errorf("监听端口 %d 失败：%w", s.config.Port, err)
 	}
@@ -231,7 +231,7 @@ func (s *Server) startInternal() error {
 
 	// 启动监听
 	addr := fmt.Sprintf(":%d", s.config.Port)
-	listener, err := net.Listen("tcp", addr)
+	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", addr)
 	if err != nil {
 		return fmt.Errorf("监听端口 %d 失败：%w", s.config.Port, err)
 	}
@@ -766,7 +766,7 @@ func (c *clientConn) allocatePasvPort() (int, net.Listener, error) {
 			continue
 		}
 
-		listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+		listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", fmt.Sprintf(":%d", port))
 		if err != nil {
 			continue
 		}
@@ -963,7 +963,8 @@ func (c *clientConn) getDataConnection() (net.Conn, error) {
 		// 主动模式：连接到客户端
 		port := -c.pasvPort
 		addr := net.JoinHostPort(c.pasvHost, strconv.Itoa(port))
-		conn, err := net.DialTimeout("tcp", addr, 30*time.Second)
+		dialer := &net.Dialer{Timeout: 30 * time.Second}
+		conn, err := dialer.DialContext(context.Background(), "tcp", addr)
 		if err != nil {
 			return nil, err
 		}

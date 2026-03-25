@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha1" // #nosec G505 -- 阿里云 DNS API 签名规范要求 HMAC-SHA1
 	"encoding/base64"
@@ -145,7 +146,12 @@ func (p *AliDNSProvider) request(params map[string]string, result interface{}) e
 	requestURL := "https://alidns.aliyuncs.com/?" + queryString
 
 	// 发送请求
-	resp, err := http.Get(requestURL)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, requestURL, nil)
+	if err != nil {
+		return fmt.Errorf("创建请求失败: %w", err)
+	}
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("请求失败: %w", err)
 	}

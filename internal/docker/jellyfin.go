@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -89,7 +90,9 @@ func (jm *JellyfinManager) SetAPIKey(apiKey string) error {
 func (jm *JellyfinManager) GetSystemInfo() (map[string]interface{}, error) {
 	url := fmt.Sprintf("%s/System/Info/Public", jm.config.ServerURL)
 
-	req, err := http.NewRequest("GET", url, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +120,9 @@ func (jm *JellyfinManager) GetSystemInfo() (map[string]interface{}, error) {
 func (jm *JellyfinManager) GetLibraries() ([]map[string]interface{}, error) {
 	url := fmt.Sprintf("%s/Library/VirtualFolders", jm.config.ServerURL)
 
-	req, err := http.NewRequest("GET", url, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +167,9 @@ func (jm *JellyfinManager) CreateLibrary(name, libraryType string, paths []strin
 		return err
 	}
 
-	req, err := http.NewRequest("POST", url, strings.NewReader(string(jsonData)))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "POST", url, strings.NewReader(string(jsonData)))
 	if err != nil {
 		return err
 	}
@@ -225,7 +232,9 @@ func (jm *JellyfinManager) ScanLibrary(libraryID string) error {
 		return err
 	}
 
-	req, err := http.NewRequest("POST", url, strings.NewReader(string(jsonData)))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "POST", url, strings.NewReader(string(jsonData)))
 	if err != nil {
 		return err
 	}
@@ -297,7 +306,13 @@ func (jm *JellyfinManager) GetConfig() *JellyfinConfig {
 func (jm *JellyfinManager) TestConnection() error {
 	url := fmt.Sprintf("%s/System/Info/Public", jm.config.ServerURL)
 
-	resp, err := jm.httpClient.Get(url)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return fmt.Errorf("连接失败：%v", err)
+	}
+	resp, err := jm.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("连接失败：%v", err)
 	}
