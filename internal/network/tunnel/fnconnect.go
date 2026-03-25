@@ -71,15 +71,20 @@ type FNConnectConfig struct {
 	QoSLevel     int   `json:"qos_level"`     // QoS级别 1-5
 }
 
-// FNConnectState 连接状态
+// FNConnectState 连接状态.
 type FNConnectState string
 
 const (
+	// FNCStateDisconnected 断开.
 	FNCStateDisconnected FNConnectState = "disconnected"
-	FNCStateConnecting   FNConnectState = "connecting"
-	FNCStateConnected    FNConnectState = "connected"
+	// FNCStateConnecting 连接中.
+	FNCStateConnecting FNConnectState = "connecting"
+	// FNCStateConnected 已连接.
+	FNCStateConnected FNConnectState = "connected"
+	// FNCStateReconnecting 重连中.
 	FNCStateReconnecting FNConnectState = "reconnecting"
-	FNCStateError        FNConnectState = "error"
+	// FNCStateError 错误.
+	FNCStateError FNConnectState = "error"
 )
 
 // FNCTunnel 隧道配置

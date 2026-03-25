@@ -77,7 +77,7 @@ func (p *Pan123Provider) GetDirectLink(ctx context.Context, req *DirectPlayReque
 		Code int    `json:"code"`
 		Msg  string `json:"message"`
 		Data struct {
-			DownloadUrl string `json:"downloadUrl"`
+			DownloadURL string `json:"downloadUrl"`
 			FileName    string `json:"name"`
 			Size        int64  `json:"size"`
 			Etag        string `json:"etag"`
@@ -96,9 +96,9 @@ func (p *Pan123Provider) GetDirectLink(ctx context.Context, req *DirectPlayReque
 		FileID:      result.Data.Etag,
 		FileName:    result.Data.FileName,
 		FileSize:    result.Data.Size,
-		URL:         result.Data.DownloadUrl,
-		DownloadURL: result.Data.DownloadUrl,
-		StreamURL:   result.Data.DownloadUrl,
+		URL:         result.Data.DownloadURL,
+		DownloadURL: result.Data.DownloadURL,
+		StreamURL:   result.Data.DownloadURL,
 		ExpiresAt:   time.Now().Add(1 * time.Hour),
 		ExpiresIn:   3600,
 		Provider:    Provider123Pan,
@@ -118,9 +118,9 @@ func (p *Pan123Provider) ListFiles(ctx context.Context, req *ListFilesRequest) (
 		return nil, fmt.Errorf("需要访问令牌")
 	}
 
-	parentFileId := req.DirPath
-	if parentFileId == "" {
-		parentFileId = "0"
+	parentFileID := req.DirPath
+	if parentFileID == "" {
+		parentFileID = "0"
 	}
 
 	pageSize := req.PageSize
@@ -132,7 +132,7 @@ func (p *Pan123Provider) ListFiles(ctx context.Context, req *ListFilesRequest) (
 
 	body := map[string]interface{}{
 		"driveId":      0,
-		"parentFileId": parentFileId,
+		"parentFileId": parentFileID,
 		"limit":        pageSize,
 	}
 
@@ -157,7 +157,7 @@ func (p *Pan123Provider) ListFiles(ctx context.Context, req *ListFilesRequest) (
 		Msg  string `json:"message"`
 		Data struct {
 			InfoList []struct {
-				FileId     string `json:"fileId"`
+				FileID     string `json:"fileId"`
 				FileName   string `json:"name"`
 				Size       int64  `json:"size"`
 				Type       int    `json:"type"` // 0=文件, 1=文件夹
@@ -179,7 +179,7 @@ func (p *Pan123Provider) ListFiles(ctx context.Context, req *ListFilesRequest) (
 	files := make([]FileInfo, 0, len(result.Data.InfoList))
 	for _, item := range result.Data.InfoList {
 		files = append(files, FileInfo{
-			FileID:   item.FileId,
+			FileID:   item.FileID,
 			FileName: item.FileName,
 			FileSize: item.Size,
 			IsDir:    item.Type == 1,

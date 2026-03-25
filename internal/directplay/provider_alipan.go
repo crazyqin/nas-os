@@ -294,7 +294,7 @@ func (p *AliyunPanProvider) ListFiles(ctx context.Context, req *ListFilesRequest
 		Code    string `json:"code"`
 		Message string `json:"message"`
 		Items   []struct {
-			FileId        string `json:"file_id"`
+			FileID        string `json:"file_id"`
 			Name          string `json:"name"`
 			Size          int64  `json:"size"`
 			Type          string `json:"type"`
@@ -317,7 +317,7 @@ func (p *AliyunPanProvider) ListFiles(ctx context.Context, req *ListFilesRequest
 	for _, item := range result.Items {
 		modTime, _ := time.Parse(time.RFC3339, item.UpdatedAt)
 		files = append(files, FileInfo{
-			FileID:   item.FileId,
+			FileID:   item.FileID,
 			FileName: item.Name,
 			FileSize: item.Size,
 			IsDir:    item.Type == "folder",
@@ -373,13 +373,13 @@ func (p *AliyunPanProvider) TestConnection(ctx context.Context, accessToken, ref
 	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
-		Code           string `json:"code"`
-		Message        string `json:"message"`
-		NickName       string `json:"nick_name"`
-		UserName       string `json:"user_name"`
-		DefaultDriveId string `json:"default_drive_id"`
-		UsedSpaceSize  int64  `json:"used_size"`
-		TotalSpaceSize int64  `json:"total_size"`
+		Code            string `json:"code"`
+		Message         string `json:"message"`
+		NickName        string `json:"nick_name"`
+		UserName        string `json:"user_name"`
+		DefaultDriveID  string `json:"default_drive_id"`
+		UsedSpaceSize   int64  `json:"used_size"`
+		TotalSpaceSize  int64  `json:"total_size"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -402,8 +402,8 @@ func (p *AliyunPanProvider) TestConnection(ctx context.Context, accessToken, ref
 	info.UsedSpace = result.UsedSpaceSize
 
 	// 更新driveID
-	if result.DefaultDriveId != "" {
-		p.driveID = result.DefaultDriveId
+	if result.DefaultDriveID != "" {
+		p.driveID = result.DefaultDriveID
 	}
 
 	return info, nil

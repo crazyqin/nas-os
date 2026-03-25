@@ -664,13 +664,14 @@ func (h *HolePuncher) CloseConnection(peerID string) error {
 	return nil
 }
 
-// 消息类型定义
+// HandshakeMessage 是握手消息.
 type HandshakeMessage struct {
 	Type      string `json:"type"`
 	PeerID    string `json:"peerId"`
 	Timestamp int64  `json:"timestamp"`
 }
 
+// DataMessage 是数据消息.
 type DataMessage struct {
 	Type      string `json:"type"`
 	PeerID    string `json:"peerId"`
@@ -678,6 +679,7 @@ type DataMessage struct {
 	Timestamp int64  `json:"timestamp"`
 }
 
+// PingMessage 是心跳消息.
 type PingMessage struct {
 	Type      string `json:"type"`
 	Timestamp int64  `json:"timestamp"`

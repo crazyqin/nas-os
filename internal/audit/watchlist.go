@@ -16,27 +16,38 @@ import (
 
 // ========== Watch/Ignore List 数据结构 ==========
 
-// ListType 列表类型
+// ListType 列表类型.
 type ListType string
 
 const (
-	ListTypeWatch  ListType = "watch"  // 监控列表
-	ListTypeIgnore ListType = "ignore" // 忽略列表
+	// ListTypeWatch 监控列表.
+	ListTypeWatch ListType = "watch"
+	// ListTypeIgnore 忽略列表.
+	ListTypeIgnore ListType = "ignore"
 )
 
-// WatchOperation 监控的操作类型
+// WatchOperation 监控的操作类型.
 type WatchOperation string
 
 const (
-	WatchOpRead   WatchOperation = "read"   // 读取
-	WatchOpWrite  WatchOperation = "write"  // 写入
-	WatchOpCreate WatchOperation = "create" // 创建
-	WatchOpDelete WatchOperation = "delete" // 删除
-	WatchOpRename WatchOperation = "rename" // 重命名
-	WatchOpMove   WatchOperation = "move"   // 移动
-	WatchOpChmod  WatchOperation = "chmod"  // 权限修改
-	WatchOpChown  WatchOperation = "chown"  // 所有者修改
-	WatchOpAll    WatchOperation = "all"    // 所有操作
+	// WatchOpRead 读取.
+	WatchOpRead WatchOperation = "read"
+	// WatchOpWrite 写入.
+	WatchOpWrite WatchOperation = "write"
+	// WatchOpCreate 创建.
+	WatchOpCreate WatchOperation = "create"
+	// WatchOpDelete 删除.
+	WatchOpDelete WatchOperation = "delete"
+	// WatchOpRename 重命名.
+	WatchOpRename WatchOperation = "rename"
+	// WatchOpMove 移动.
+	WatchOpMove WatchOperation = "move"
+	// WatchOpChmod 权限修改.
+	WatchOpChmod WatchOperation = "chmod"
+	// WatchOpChown 所有者修改.
+	WatchOpChown WatchOperation = "chown"
+	// WatchOpAll 所有操作.
+	WatchOpAll WatchOperation = "all"
 )
 
 // WatchListEntry 监控列表条目

@@ -42,23 +42,36 @@ var (
 
 // ========== 敏感信息类型 ==========
 
-// SensitiveType 敏感信息类型
+// SensitiveType 敏感信息类型.
 type SensitiveType string
 
 const (
-	SensitiveTypeCreditCard  SensitiveType = "credit_card"
-	SensitiveTypeSSN         SensitiveType = "ssn"
-	SensitiveTypePassport    SensitiveType = "passport"
-	SensitiveTypePhone       SensitiveType = "phone"
-	SensitiveTypeEmail       SensitiveType = "email"
-	SensitiveTypeIP          SensitiveType = "ip_address"
-	SensitiveTypePassword    SensitiveType = "password"
-	SensitiveTypeAPIKey      SensitiveType = "api_key"
+	// SensitiveTypeCreditCard 信用卡.
+	SensitiveTypeCreditCard SensitiveType = "credit_card"
+	// SensitiveTypeSSN 社会安全号.
+	SensitiveTypeSSN SensitiveType = "ssn"
+	// SensitiveTypePassport 护照.
+	SensitiveTypePassport SensitiveType = "passport"
+	// SensitiveTypePhone 电话.
+	SensitiveTypePhone SensitiveType = "phone"
+	// SensitiveTypeEmail 邮箱.
+	SensitiveTypeEmail SensitiveType = "email"
+	// SensitiveTypeIP IP地址.
+	SensitiveTypeIP SensitiveType = "ip_address"
+	// SensitiveTypePassword 密码.
+	SensitiveTypePassword SensitiveType = "password"
+	// SensitiveTypeAPIKey API密钥.
+	SensitiveTypeAPIKey SensitiveType = "api_key"
+	// SensitiveTypeBankAccount 银行账户.
 	SensitiveTypeBankAccount SensitiveType = "bank_account"
-	SensitiveTypeName        SensitiveType = "name"
-	SensitiveTypeAddress     SensitiveType = "address"
-	SensitiveTypeIDCard      SensitiveType = "id_card"
-	SensitiveTypeCustom      SensitiveType = "custom"
+	// SensitiveTypeName 姓名.
+	SensitiveTypeName SensitiveType = "name"
+	// SensitiveTypeAddress 地址.
+	SensitiveTypeAddress SensitiveType = "address"
+	// SensitiveTypeIDCard 身份证.
+	SensitiveTypeIDCard SensitiveType = "id_card"
+	// SensitiveTypeCustom 自定义.
+	SensitiveTypeCustom SensitiveType = "custom"
 )
 
 // SensitiveData 敏感数据
@@ -730,27 +743,27 @@ func (s *AISanitizer) GenerateReport(result *SanitizationResult) string {
 	var sb strings.Builder
 
 	sb.WriteString("=== 数据去敏感化报告 ===\n\n")
-	sb.WriteString(fmt.Sprintf("处理时间: %s\n", result.Timestamp.Format("2006-01-02 15:04:05")))
-	sb.WriteString(fmt.Sprintf("处理耗时: %d ms\n\n", result.ProcessingTimeMS))
+	fmt.Fprintf(&sb, "处理时间: %s\n", result.Timestamp.Format("2006-01-02 15:04:05"))
+	fmt.Fprintf(&sb, "处理耗时: %d ms\n\n", result.ProcessingTimeMS)
 
 	sb.WriteString("=== 统计信息 ===\n")
-	sb.WriteString(fmt.Sprintf("扫描字符数: %d\n", result.Stats.TotalScanned))
-	sb.WriteString(fmt.Sprintf("检测到敏感信息: %d\n", result.Stats.TotalDetected))
-	sb.WriteString(fmt.Sprintf("已处理: %d\n", result.Stats.TotalReplaced+result.Stats.TotalRedacted+result.Stats.TotalEncrypted))
-	sb.WriteString(fmt.Sprintf("  - 移除: %d\n", result.Stats.TotalRedacted))
-	sb.WriteString(fmt.Sprintf("  - 替换: %d\n", result.Stats.TotalReplaced))
-	sb.WriteString(fmt.Sprintf("  - 加密: %d\n", result.Stats.TotalEncrypted))
+	fmt.Fprintf(&sb, "扫描字符数: %d\n", result.Stats.TotalScanned)
+	fmt.Fprintf(&sb, "检测到敏感信息: %d\n", result.Stats.TotalDetected)
+	fmt.Fprintf(&sb, "已处理: %d\n", result.Stats.TotalReplaced+result.Stats.TotalRedacted+result.Stats.TotalEncrypted)
+	fmt.Fprintf(&sb, "  - 移除: %d\n", result.Stats.TotalRedacted)
+	fmt.Fprintf(&sb, "  - 替换: %d\n", result.Stats.TotalReplaced)
+	fmt.Fprintf(&sb, "  - 加密: %d\n", result.Stats.TotalEncrypted)
 
 	sb.WriteString("\n=== 按类型统计 ===\n")
 	for t, count := range result.Stats.ByType {
-		sb.WriteString(fmt.Sprintf("  %s: %d\n", t, count))
+		fmt.Fprintf(&sb, "  %s: %d\n", t, count)
 	}
 
 	sb.WriteString("\n=== 检测详情 ===\n")
 	for i, item := range result.DetectedItems {
-		sb.WriteString(fmt.Sprintf("%d. 类型: %s, 置信度: %.2f%%\n", i+1, item.Type, item.Confidence*100))
+		fmt.Fprintf(&sb, "%d. 类型: %s, 置信度: %.2f%%\n", i+1, item.Type, item.Confidence*100)
 		if item.Context != "" {
-			sb.WriteString(fmt.Sprintf("   上下文: %s\n", item.Context))
+			fmt.Fprintf(&sb, "   上下文: %s\n", item.Context)
 		}
 	}
 

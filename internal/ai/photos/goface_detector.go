@@ -8,7 +8,6 @@ import (
 	"image"
 	"os"
 	"path/filepath"
-	"sync"
 	"time"
 
 	"github.com/disintegration/imaging"

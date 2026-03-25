@@ -70,16 +70,22 @@ type STUNResult struct {
 	RTT             time.Duration
 }
 
-// NATType NAT类型
+// NATType NAT类型.
 type NATType int
 
 const (
-	NATTypeUnknown        NATType = iota
-	NATTypeNone                   // 无NAT（公网IP）
-	NATTypeFullCone               // 完全锥形NAT
-	NATTypeRestrictedCone         // 受限锥形NAT
-	NATTypePortRestricted         // 端口受限锥形NAT
-	NATTypeSymmetric              // 对称NAT
+	// NATTypeUnknown 未知.
+	NATTypeUnknown NATType = iota
+	// NATTypeNone 无NAT（公网IP）.
+	NATTypeNone
+	// NATTypeFullCone 完全锥形NAT.
+	NATTypeFullCone
+	// NATTypeRestrictedCone 受限锥形NAT.
+	NATTypeRestrictedCone
+	// NATTypePortRestricted 端口受限锥形NAT.
+	NATTypePortRestricted
+	// NATTypeSymmetric 对称NAT.
+	NATTypeSymmetric
 )
 
 // String 返回NAT类型描述
@@ -561,7 +567,7 @@ func parseXORMappedAddress(data []byte, transactionID []byte) (*net.UDPAddr, err
 				ip[i] = data[4+i] ^ transactionID[i-4]
 			}
 		}
-	} else {
+	default:
 		return nil, fmt.Errorf("%w: unknown address family", ErrSTUNAttr)
 	}
 

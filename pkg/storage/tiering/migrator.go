@@ -274,10 +274,8 @@ func (m *Migrator) doMigration(ctx context.Context, sourcePath, targetPath strin
 			return fmt.Errorf("failed to set permissions: %w", err)
 		}
 
-		// Try to preserve timestamps
-		if err := os.Chtimes(targetPath, time.Now(), info.ModTime()); err != nil {
-			// Non-fatal, just log
-		}
+		// Try to preserve timestamps (non-fatal)
+		_ = os.Chtimes(targetPath, time.Now(), info.ModTime())
 	}
 
 	// Verify if configured
@@ -288,11 +286,9 @@ func (m *Migrator) doMigration(ctx context.Context, sourcePath, targetPath strin
 		}
 	}
 
-	// Delete source if configured
+	// Delete source if configured (non-fatal)
 	if m.config.DeleteSource {
-		if err := os.Remove(sourcePath); err != nil {
-			// Non-fatal, but return warning
-		}
+		_ = os.Remove(sourcePath)
 	}
 
 	return nil
