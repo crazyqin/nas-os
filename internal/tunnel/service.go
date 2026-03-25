@@ -403,7 +403,7 @@ func (s *TunnelService) Listen(network, addr string) (net.Listener, error) {
 func (s *TunnelService) GetStatus() *TunnelServiceStatus {
 	managerStatus := s.manager.GetStatus()
 
-	conns := make([]*ConnectionStatus, 0)
+	conns := make([]*ConnectionStatus, 0, len(s.activeConns))
 	s.mu.RLock()
 	for _, conn := range s.activeConns {
 		sent, recv := conn.P2PConn.GetStats()

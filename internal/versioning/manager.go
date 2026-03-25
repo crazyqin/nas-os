@@ -864,7 +864,7 @@ func (m *Manager) loadVersions() error {
 func (m *Manager) saveVersions() error {
 	indexPath := filepath.Join(m.config.VersionRoot, "index.json")
 
-	var allVersions []*Version
+	allVersions := make([]*Version, 0, len(m.allVersions))
 	for _, v := range m.allVersions {
 		allVersions = append(allVersions, v)
 	}
