@@ -1,6 +1,7 @@
 package security
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -179,7 +180,7 @@ func (f2m *Fail2BanManager) banIPLocked(ip, username string, attempts int) error
 // applyBan 应用封禁到系统防火墙.
 func (f2m *Fail2BanManager) applyBan(ip string) error {
 	// 使用 iptables 封禁 IP
-	cmd := exec.Command("iptables", "-I", "INPUT", "-s", ip, "-j", "DROP")
+	cmd := exec.CommandContext(context.Background(), "iptables", "-I", "INPUT", "-s", ip, "-j", "DROP")
 	if err := cmd.Run(); err != nil {
 		// 非 root 环境，尝试使用 fail2ban-client
 		return f2m.applyBanViaFail2Ban(ip)
@@ -187,7 +188,7 @@ func (f2m *Fail2BanManager) applyBan(ip string) error {
 
 	// IPv6 支持
 	if net.ParseIP(ip).To4() == nil {
-		cmd = exec.Command("ip6tables", "-I", "INPUT", "-s", ip, "-j", "DROP")
+		cmd = exec.CommandContext(context.Background(), "ip6tables", "-I", "INPUT", "-s", ip, "-j", "DROP")
 		_ = cmd.Run()
 	}
 
@@ -197,7 +198,7 @@ func (f2m *Fail2BanManager) applyBan(ip string) error {
 // applyBanViaFail2Ban 通过 fail2ban-client 应用封禁.
 func (f2m *Fail2BanManager) applyBanViaFail2Ban(ip string) error {
 	// 检查 fail2ban-client 是否存在
-	cmd := exec.Command("which", "fail2ban-client")
+	cmd := exec.CommandContext(context.Background(), "which", "fail2ban-client")
 	if err := cmd.Run(); err != nil {
 		return nil // fail2ban 未安装
 	}
@@ -205,7 +206,7 @@ func (f2m *Fail2BanManager) applyBanViaFail2Ban(ip string) error {
 	// 使用 fail2ban-client 封禁
 	jails := []string{"sshd", "nginx-http-auth", "nas-os-auth"}
 	for _, jail := range jails {
-		cmd = exec.Command("fail2ban-client", "set", jail, "banip", ip)
+		cmd = exec.CommandContext(context.Background(), "fail2ban-client", "set", jail, "banip", ip)
 		_ = cmd.Run()
 	}
 
@@ -238,20 +239,20 @@ func (f2m *Fail2BanManager) unbanIPInternal(ip string) error {
 
 // removeBan 从系统防火墙移除封禁.
 func (f2m *Fail2BanManager) removeBan(ip string) error {
-	cmd := exec.Command("iptables", "-D", "INPUT", "-s", ip, "-j", "DROP")
+	cmd := exec.CommandContext(context.Background(), "iptables", "-D", "INPUT", "-s", ip, "-j", "DROP")
 	_ = cmd.Run()
 
 	if net.ParseIP(ip).To4() == nil {
-		cmd = exec.Command("ip6tables", "-D", "INPUT", "-s", ip, "-j", "DROP")
+		cmd = exec.CommandContext(context.Background(), "ip6tables", "-D", "INPUT", "-s", ip, "-j", "DROP")
 		_ = cmd.Run()
 	}
 
 	// 也尝试通过 fail2ban-client 解封
-	cmd = exec.Command("which", "fail2ban-client")
+	cmd = exec.CommandContext(context.Background(), "which", "fail2ban-client")
 	if err := cmd.Run(); err == nil {
 		jails := []string{"sshd", "nginx-http-auth", "nas-os-auth"}
 		for _, jail := range jails {
-			cmd = exec.Command("fail2ban-client", "set", jail, "unbanip", ip)
+			cmd = exec.CommandContext(context.Background(), "fail2ban-client", "set", jail, "unbanip", ip)
 			_ = cmd.Run()
 		}
 	}
@@ -542,7 +543,7 @@ ignoreregex =
 
 // HasFail2Ban 检查系统是否安装了 fail2ban.
 func HasFail2Ban() bool {
-	cmd := exec.Command("which", "fail2ban-client")
+	cmd := exec.CommandContext(context.Background(), "which", "fail2ban-client")
 	return cmd.Run() == nil
 }
 
@@ -552,7 +553,7 @@ func GetFail2BanStatus() (string, error) {
 		return "", fmt.Errorf("fail2ban 未安装")
 	}
 
-	cmd := exec.Command("fail2ban-client", "status")
+	cmd := exec.CommandContext(context.Background(), "fail2ban-client", "status")
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -567,7 +568,7 @@ func GetFail2BanJailStatus(jail string) (string, error) {
 		return "", fmt.Errorf("fail2ban 未安装")
 	}
 
-	cmd := exec.Command("fail2ban-client", "status", jail)
+	cmd := exec.CommandContext(context.Background(), "fail2ban-client", "status", jail)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -582,7 +583,7 @@ func ListFail2BanJails() ([]string, error) {
 		return []string{}, nil
 	}
 
-	cmd := exec.Command("fail2ban-client", "status")
+	cmd := exec.CommandContext(context.Background(), "fail2ban-client", "status")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, err
