@@ -1,6 +1,7 @@
 package iscsi
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -560,7 +561,7 @@ func (m *Manager) ApplyConfig() error {
 					_, secret, ok := m.chapMgr.GetSecret(targetID)
 					if ok {
 						// 使用 stdin 传递密码，避免命令行泄露
-						execCmd := exec.Command("targetcli", "/iscsi/"+iqn+"/tpg1/auth", "set", "password=-")
+						execCmd := exec.CommandContext(context.Background(), "targetcli", "/iscsi/"+iqn+"/tpg1/auth", "set", "password=-")
 						execCmd.Stdin = strings.NewReader(secret)
 						if output, err := execCmd.CombinedOutput(); err != nil {
 							return fmt.Errorf("failed to set password: %w (%s)", err, string(output))
@@ -576,7 +577,7 @@ func (m *Manager) ApplyConfig() error {
 			continue
 		}
 
-		execCmd := exec.Command(parts[0], parts[1:]...)
+		execCmd := exec.CommandContext(context.Background(), parts[0], parts[1:]...)
 		if output, err := execCmd.CombinedOutput(); err != nil {
 			return fmt.Errorf("failed to execute %s: %w (%s)", cmd, err, string(output))
 		}
@@ -672,25 +673,25 @@ func (m *Manager) generateTargetCLICommands() []string {
 
 // Start starts the iSCSI target service.
 func (m *Manager) Start() error {
-	cmd := exec.Command("systemctl", "start", "target")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "start", "target")
 	return cmd.Run()
 }
 
 // Stop stops the iSCSI target service.
 func (m *Manager) Stop() error {
-	cmd := exec.Command("systemctl", "stop", "target")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "stop", "target")
 	return cmd.Run()
 }
 
 // Restart restarts the iSCSI target service.
 func (m *Manager) Restart() error {
-	cmd := exec.Command("systemctl", "restart", "target")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "restart", "target")
 	return cmd.Run()
 }
 
 // GetStatus checks if the iSCSI target service is running.
 func (m *Manager) GetStatus() (bool, error) {
-	cmd := exec.Command("systemctl", "is-active", "target")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "is-active", "target")
 	output, err := cmd.Output()
 	if err != nil {
 		return false, nil

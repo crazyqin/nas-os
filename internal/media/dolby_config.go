@@ -3,6 +3,7 @@
 package media
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -222,7 +223,7 @@ func AnalyzeMediaFile(ffprobePath, filePath string) (*MediaAnalysis, error) {
 		ffprobePath = "ffprobe"
 	}
 
-	cmd := exec.Command(ffprobePath,
+	cmd := exec.CommandContext(context.Background(), ffprobePath,
 		"-v", "quiet",
 		"-print_format", "json",
 		"-show_format",

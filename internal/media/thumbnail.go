@@ -80,7 +80,7 @@ func (tg *ThumbnailGenerator) GenerateFromVideo(videoPath, outputPath string, co
 	// 构建 ffmpeg 命令
 	args := tg.buildThumbnailArgs(videoPath, outputPath, config)
 
-	cmd := exec.Command(tg.ffmpegPath, args...)
+	cmd := exec.CommandContext(context.Background(), tg.ffmpegPath, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("生成缩略图失败: %s", string(output))
@@ -287,7 +287,7 @@ func (tg *ThumbnailGenerator) createSprite(thumbs []string, outputPath string, c
 		"-y", outputPath,
 	}
 
-	cmd := exec.Command(tg.ffmpegPath, args...)
+	cmd := exec.CommandContext(context.Background(), tg.ffmpegPath, args...)
 	if output, err := cmd.CombinedOutput(); err != nil {
 		return nil, fmt.Errorf("创建精灵图失败: %s", string(output))
 	}
