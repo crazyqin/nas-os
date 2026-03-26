@@ -180,17 +180,29 @@ jobs:
           
           # 并行构建 nasd 和 nasctl
           echo "🔧 构建 nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}..."
+          
+          # v2.286.0: 修复并行构建错误检查
+          set +e  # 临时禁用自动退出
           if [ -n "${{ matrix.arm }}" ]; then
-            GOARM=${{ matrix.arm }} go build -ldflags="$LDFLAGS" -trimpath -o "nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" ./cmd/nasd &
-            GOARM=${{ matrix.arm }} go build -ldflags="$LDFLAGS" -trimpath -o "nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" ./cmd/nasctl &
+            GOARM=${{ matrix.arm }} go build -ldflags="$LDFLAGS" -trimpath -o "nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" ./cmd/nasd
+            NASD_EXIT=$?
+            GOARM=${{ matrix.arm }} go build -ldflags="$LDFLAGS" -trimpath -o "nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" ./cmd/nasctl
+            NASCTL_EXIT=$?
           else
-            go build -ldflags="$LDFLAGS" -trimpath -o "nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" ./cmd/nasd &
-            go build -ldflags="$LDFLAGS" -trimpath -o "nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" ./cmd/nasctl &
+            go build -ldflags="$LDFLAGS" -trimpath -o "nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" ./cmd/nasd
+            NASD_EXIT=$?
+            go build -ldflags="$LDFLAGS" -trimpath -o "nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" ./cmd/nasctl
+            NASCTL_EXIT=$?
           fi
-          wait
+          set -e  # 重新启用
+          
+          if [ $NASD_EXIT -ne 0 ] || [ $NASCTL_EXIT -ne 0 ]; then
+            echo "❌ 构建失败: nasd exit=$NASD_EXIT, nasctl exit=$NASCTL_EXIT"
+            exit 1
+          fi
           
           echo "✅ 构建完成:"
-          ls -lh nasd-* nasctl-*
+          ls -lh nasd-* nasctl-* 2>/dev/null || { echo "❌ 未找到构建产物"; exit 1; }
       
       - name: 生成校验和
         run: |
