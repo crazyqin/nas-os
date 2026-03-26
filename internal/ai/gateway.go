@@ -442,13 +442,16 @@ func (m *GatewayMonitor) RecordRequest(backend BackendType, reqType string, late
 
 	// Update by-type counter
 	counter, _ := m.requestsByType.LoadOrStore(reqType, new(atomic.Int64))
-	counter.(*atomic.Int64).Add(1)
+	if c, ok := counter.(*atomic.Int64); ok {
+		c.Add(1)
+	}
 
 	// Update backend metrics
 	bmRaw, _ := m.backendMetrics.LoadOrStore(string(backend), &BackendMetrics{})
-	bm := bmRaw.(*BackendMetrics)
-	bm.Requests++
-	bm.AvgLatencyMs = (bm.AvgLatencyMs + latency.Milliseconds()) / 2
+	if bm, ok := bmRaw.(*BackendMetrics); ok {
+		bm.Requests++
+		bm.AvgLatencyMs = (bm.AvgLatencyMs + latency.Milliseconds()) / 2
+	}
 }
 
 // RecordSuccess records a successful request
@@ -467,7 +470,9 @@ func (m *GatewayMonitor) RecordError(backend BackendType, reqType string, err er
 	m.totalErrors.Add(1)
 
 	counter, _ := m.errorsByBackend.LoadOrStore(string(backend), new(atomic.Int64))
-	counter.(*atomic.Int64).Add(1)
+	if c, ok := counter.(*atomic.Int64); ok {
+		c.Add(1)
+	}
 }
 
 // GetMetrics returns current metrics

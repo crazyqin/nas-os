@@ -225,7 +225,7 @@ func (b *CustomBackend) IsHealthy(ctx context.Context) bool {
 		b.SetHealthy(false)
 		return false
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	healthy := resp.StatusCode == http.StatusOK
 	b.SetHealthy(healthy)
