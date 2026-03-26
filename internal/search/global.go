@@ -186,6 +186,9 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 		typeFilter[ResultTypeApp] = true
 		typeFilter[ResultTypeContainer] = true
 		typeFilter[ResultTypeMetadata] = true
+		typeFilter[ResultTypeAPI] = true
+		typeFilter[ResultTypeDoc] = true
+		typeFilter[ResultTypeLog] = true
 	}
 
 	response := &GlobalSearchResponse{
@@ -254,11 +257,51 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 		}()
 	}
 
+	// 并发搜索API端点
+	if typeFilter[ResultTypeAPI] && s.apiRegistry != nil {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			results := s.searchAPIs(req)
+			mu.Lock()
+			response.APIs = results
+			response.Facets["api"] = len(results)
+			mu.Unlock()
+		}()
+	}
+
+	// 并发搜索文档
+	if typeFilter[ResultTypeDoc] && s.docRegistry != nil {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			results := s.searchDocs(req)
+			mu.Lock()
+			response.Docs = results
+			response.Facets["doc"] = len(results)
+			mu.Unlock()
+		}()
+	}
+
+	// 并发搜索日志
+	if typeFilter[ResultTypeLog] && s.logRegistry != nil {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			results := s.searchLogs(req)
+			mu.Lock()
+			response.Logs = results
+			response.Facets["log"] = len(results)
+			mu.Unlock()
+		}()
+	}
+
 	wg.Wait()
 
 	// 计算总数
 	response.Total = len(response.Files) + len(response.Settings) +
-		len(response.Apps) + len(response.Containers) + len(response.Metadata)
+		len(response.Apps) + len(response.Containers) + len(response.Metadata) +
+		len(response.APIs) + len(response.Docs) + len(response.Logs)
 
 	// 生成搜索建议
 	if response.Total == 0 {
@@ -842,4 +885,244 @@ func (s *GlobalSearchService) GetMetadataByType(metaType string) []MetadataItem 
 	s.metadataIndex.mu.RLock()
 	defer s.metadataIndex.mu.RUnlock()
 	return s.metadataIndex.items[metaType]
+}
+
+// searchAPIs 搜索API端点.
+func (s *GlobalSearchService) searchAPIs(req GlobalSearchRequest) []GlobalSearchResult {
+	results := make([]GlobalSearchResult, 0)
+
+	if s.apiRegistry == nil {
+		return results
+	}
+
+	apiResults := s.apiRegistry.SearchAPIs(req.Query, req.Limit)
+
+	for _, r := range apiResults {
+		if r.Score < req.MinScore {
+			continue
+		}
+
+		result := GlobalSearchResult{
+			Type:        ResultTypeAPI,
+			Score:       r.Score,
+			Title:       r.Endpoint.Summary,
+			Description: fmt.Sprintf("%s %s - %s", r.Endpoint.Method, r.Endpoint.Path, r.Endpoint.Description),
+			Path:        r.Endpoint.Path,
+			Icon:        getMethodIcon(r.Endpoint.Method),
+			Category:    strings.Join(r.Endpoint.Tags, ", "),
+			MatchType:   r.MatchType,
+			MatchField:  r.MatchField,
+		}
+
+		if req.IncludeRaw {
+			result.RawData = r.Endpoint
+		}
+
+		results = append(results, result)
+	}
+
+	return results
+}
+
+// searchDocs 搜索文档.
+func (s *GlobalSearchService) searchDocs(req GlobalSearchRequest) []GlobalSearchResult {
+	results := make([]GlobalSearchResult, 0)
+
+	if s.docRegistry == nil {
+		return results
+	}
+
+	docResults := s.docRegistry.SearchDocs(req.Query, req.Limit)
+
+	for _, r := range docResults {
+		if r.Score < req.MinScore {
+			continue
+		}
+
+		result := GlobalSearchResult{
+			Type:        ResultTypeDoc,
+			Score:       r.Score,
+			Title:       r.Doc.Title,
+			Description: r.Doc.Content,
+			Path:        r.Doc.Path,
+			Icon:        r.Doc.Icon,
+			Category:    r.Doc.Section,
+			MatchType:   r.MatchType,
+			MatchField:  r.MatchField,
+		}
+
+		if req.IncludeRaw {
+			result.RawData = r.Doc
+		}
+
+		results = append(results, result)
+	}
+
+	return results
+}
+
+// searchLogs 搜索日志.
+func (s *GlobalSearchService) searchLogs(req GlobalSearchRequest) []GlobalSearchResult {
+	results := make([]GlobalSearchResult, 0)
+
+	if s.logRegistry == nil {
+		return results
+	}
+
+	logReq := LogSearchRequest{
+		Query:      req.Query,
+		Limit:      req.Limit,
+		IgnoreCase: true,
+	}
+
+	logResp, err := s.logRegistry.SearchLogs(logReq)
+	if err != nil {
+		s.logger.Debug("日志搜索失败", zap.Error(err))
+		return results
+	}
+
+	for _, r := range logResp.Results {
+		if r.Score < req.MinScore {
+			continue
+		}
+
+		result := GlobalSearchResult{
+			Type:        ResultTypeLog,
+			Score:       r.Score,
+			Title:       fmt.Sprintf("[%s] %s", r.Entry.Level, truncateText(r.Entry.Message, 50)),
+			Description: r.Entry.RawLine,
+			Path:        r.Entry.File,
+			Icon:        getLevelIcon(r.Entry.Level),
+			Category:    r.Entry.Source,
+			MatchType:   r.MatchField,
+			MatchField:  r.MatchField,
+		}
+
+		if req.IncludeRaw {
+			result.RawData = r.Entry
+		}
+
+		results = append(results, result)
+	}
+
+	return results
+}
+
+// getMethodIcon 根据HTTP方法获取图标.
+func getMethodIcon(method string) string {
+	switch strings.ToUpper(method) {
+	case "GET":
+		return "arrow-down"
+	case "POST":
+		return "plus"
+	case "PUT":
+		return "edit"
+	case "DELETE":
+		return "trash"
+	case "PATCH":
+		return "patch"
+	default:
+		return "code"
+	}
+}
+
+// getLevelIcon 根据日志级别获取图标.
+func getLevelIcon(level LogLevel) string {
+	switch level {
+	case LogLevelDebug:
+		return "bug"
+	case LogLevelInfo:
+		return "info-circle"
+	case LogLevelWarning:
+		return "exclamation-triangle"
+	case LogLevelError:
+		return "times-circle"
+	case LogLevelFatal:
+		return "skull-crossbones"
+	default:
+		return "file-alt"
+	}
+}
+
+// GetSearchCategories 获取搜索分类（更新版）.
+func (s *GlobalSearchService) GetSearchCategories() []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"type":  "file",
+			"name":  "文件",
+			"icon":  "file",
+			"count": 0,
+		},
+		{
+			"type":  "setting",
+			"name":  "设置",
+			"icon":  "cog",
+			"count": 0,
+		},
+		{
+			"type":  "app",
+			"name":  "应用",
+			"icon":  "box",
+			"count": 0,
+		},
+		{
+			"type":  "container",
+			"name":  "容器",
+			"icon":  "docker",
+			"count": 0,
+		},
+		{
+			"type":  "metadata",
+			"name":  "元数据",
+			"icon":  "tags",
+			"count": 0,
+		},
+		{
+			"type":  "api",
+			"name":  "API端点",
+			"icon":  "code",
+			"count": 0,
+		},
+		{
+			"type":  "doc",
+			"name":  "文档",
+			"icon":  "book",
+			"count": 0,
+		},
+		{
+			"type":  "log",
+			"name":  "日志",
+			"icon":  "file-alt",
+			"count": 0,
+		},
+	}
+}
+
+// RegisterAPI 注册API端点（供外部调用）.
+func (s *GlobalSearchService) RegisterAPI(endpoints ...APIEndpoint) {
+	if s.apiRegistry != nil {
+		s.apiRegistry.Register(endpoints...)
+	}
+}
+
+// RegisterDoc 注册文档（供外部调用）.
+func (s *GlobalSearchService) RegisterDoc(docs ...DocumentItem) {
+	if s.docRegistry != nil {
+		s.docRegistry.Register(docs...)
+	}
+}
+
+// GetAPIRegistry 获取API注册表.
+func (s *GlobalSearchService) GetAPIRegistry() *APIRegistry {
+	return s.apiRegistry
+}
+
+// GetDocRegistry 获取文档注册表.
+func (s *GlobalSearchService) GetDocRegistry() *DocRegistry {
+	return s.docRegistry
+}
+
+// GetLogRegistry 获取日志注册表.
+func (s *GlobalSearchService) GetLogRegistry() *LogRegistry {
+	return s.logRegistry
 }
