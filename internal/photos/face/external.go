@@ -52,10 +52,10 @@ type ExternalFace struct {
 
 // ExtractEmbeddingRequest 嵌入向量提取请求
 type ExtractEmbeddingRequest struct {
-	Image  string        `json:"image"`
-	Face   ExternalFace  `json:"face"`
-	Width  int           `json:"width"`
-	Height int           `json:"height"`
+	Image  string       `json:"image"`
+	Face   ExternalFace `json:"face"`
+	Width  int          `json:"width"`
+	Height int          `json:"height"`
 }
 
 // ExtractEmbeddingResponse 嵌入向量提取响应
@@ -157,7 +157,7 @@ func (c *ExternalClient) post(ctx context.Context, path string, body interface{}
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 {
 		bodyBytes, _ := io.ReadAll(resp.Body)

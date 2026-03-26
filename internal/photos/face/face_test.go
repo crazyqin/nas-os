@@ -29,7 +29,7 @@ func createTestImageAdapter(width, height int) *GoImageAdapter {
 
 func TestFaceStruct(t *testing.T) {
 	face := Face{
-		ID:     "face_123",
+		ID:      "face_123",
 		PhotoID: "photo_456",
 		BoundingBox: BoundingBox{
 			X:      0.1,
@@ -226,22 +226,22 @@ func TestDBSCANClusterer(t *testing.T) {
 
 	faces := []Face{
 		{
-			ID:         "face_1",
-			Embedding:  []float32{1.0, 0.0, 0.0},
-			Quality:    0.9,
-			CreatedAt:  time.Now(),
+			ID:        "face_1",
+			Embedding: []float32{1.0, 0.0, 0.0},
+			Quality:   0.9,
+			CreatedAt: time.Now(),
 		},
 		{
-			ID:         "face_2",
-			Embedding:  []float32{0.95, 0.1, 0.0},
-			Quality:    0.85,
-			CreatedAt:  time.Now(),
+			ID:        "face_2",
+			Embedding: []float32{0.95, 0.1, 0.0},
+			Quality:   0.85,
+			CreatedAt: time.Now(),
 		},
 		{
-			ID:         "face_3",
-			Embedding:  []float32{0.0, 1.0, 0.0},
-			Quality:    0.9,
-			CreatedAt:  time.Now(),
+			ID:        "face_3",
+			Embedding: []float32{0.0, 1.0, 0.0},
+			Quality:   0.9,
+			CreatedAt: time.Now(),
 		},
 	}
 
@@ -588,7 +588,7 @@ func BenchmarkDBSCANCluster(b *testing.B) {
 	for i := range faces {
 		emb := make([]float32, 512)
 		for j := range emb {
-			emb[j] = float32(i%10) / 10.0 + float32(j)/512.0
+			emb[j] = float32(i%10)/10.0 + float32(j)/512.0
 		}
 		faces[i] = Face{
 			ID:        generateID("face"),

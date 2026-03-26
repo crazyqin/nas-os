@@ -407,7 +407,10 @@ func (a *GoImageAdapter) ToRGB() ([]byte, error) {
 	idx := 0
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			c := color.NRGBAModel.Convert(a.img.At(x, y)).(color.NRGBA)
+			c, ok := color.NRGBAModel.Convert(a.img.At(x, y)).(color.NRGBA)
+			if !ok {
+				continue
+			}
 			rgb[idx] = c.R
 			rgb[idx+1] = c.G
 			rgb[idx+2] = c.B
@@ -427,7 +430,10 @@ func (a *GoImageAdapter) ToRGBA() ([]byte, error) {
 	idx := 0
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			c := color.NRGBAModel.Convert(a.img.At(x, y)).(color.NRGBA)
+			c, ok := color.NRGBAModel.Convert(a.img.At(x, y)).(color.NRGBA)
+			if !ok {
+				continue
+			}
 			rgba[idx] = c.R
 			rgba[idx+1] = c.G
 			rgba[idx+2] = c.B
@@ -440,8 +446,11 @@ func (a *GoImageAdapter) ToRGBA() ([]byte, error) {
 }
 
 // GetPixel 获取像素
-func (a *GoImageAdapter) GetPixel(x, y int) (r, g, b, a_ uint8) {
-	c := color.NRGBAModel.Convert(a.img.At(x, y)).(color.NRGBA)
+func (a *GoImageAdapter) GetPixel(x, y int) (r, g, b, alpha uint8) {
+	c, ok := color.NRGBAModel.Convert(a.img.At(x, y)).(color.NRGBA)
+	if !ok {
+		return 0, 0, 0, 0
+	}
 	return c.R, c.G, c.B, c.A
 }
 
