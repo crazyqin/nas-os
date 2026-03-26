@@ -21,7 +21,10 @@ const (
 	ResultTypeSetting   GlobalSearchResultType = "setting"
 	ResultTypeApp       GlobalSearchResultType = "app"
 	ResultTypeContainer GlobalSearchResultType = "container"
-	ResultTypeMetadata  GlobalSearchResultType = "metadata" // 新增：元数据搜索
+	ResultTypeMetadata  GlobalSearchResultType = "metadata" // 元数据搜索
+	ResultTypeAPI       GlobalSearchResultType = "api"     // API端点搜索
+	ResultTypeDoc       GlobalSearchResultType = "doc"     // 文档搜索
+	ResultTypeLog       GlobalSearchResultType = "log"     // 日志搜索
 )
 
 // GlobalSearchResult 全局搜索结果.
@@ -60,7 +63,10 @@ type GlobalSearchResponse struct {
 	Settings    []GlobalSearchResult `json:"settings,omitempty"`
 	Apps        []GlobalSearchResult `json:"apps,omitempty"`
 	Containers  []GlobalSearchResult `json:"containers,omitempty"`
-	Metadata    []GlobalSearchResult `json:"metadata,omitempty"`    // 新增：元数据结果
+	Metadata    []GlobalSearchResult `json:"metadata,omitempty"`
+	APIs        []GlobalSearchResult `json:"apis,omitempty"`
+	Docs        []GlobalSearchResult `json:"docs,omitempty"`
+	Logs        []GlobalSearchResult `json:"logs,omitempty"`
 	Suggestions []string             `json:"suggestions,omitempty"` // 搜索建议
 	Facets      map[string]int       `json:"facets,omitempty"`      // 分面统计
 }
@@ -77,7 +83,10 @@ type GlobalSearchService struct {
 	engine           *Engine
 	settingsRegistry *SettingsRegistry
 	appRegistry      *AppRegistry
-	metadataIndex    *MetadataIndex // 新增：元数据索引
+	metadataIndex    *MetadataIndex // 元数据索引
+	apiRegistry      *APIRegistry   // API端点注册表
+	docRegistry      *DocRegistry   // 文档注册表
+	logRegistry      *LogRegistry   // 日志注册表
 	logger           *zap.Logger
 
 	// 搜索历史
@@ -132,6 +141,9 @@ func NewGlobalSearchService(
 		settingsRegistry: settingsRegistry,
 		appRegistry:      appRegistry,
 		metadataIndex:    NewMetadataIndex(),
+		apiRegistry:      NewAPIRegistry(),
+		docRegistry:      NewDocRegistry(),
+		logRegistry:      NewLogRegistry(nil),
 		logger:           logger,
 		history:          make([]SearchHistory, 0),
 		maxHistory:       100,
