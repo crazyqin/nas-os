@@ -175,8 +175,8 @@ jobs:
           COMMIT="${{ github.sha }}"
           BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
           
-          # v2.254.0: 优化 LDFLAGS，添加更多构建信息
-          LDFLAGS="-w -s -trimpath -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildTime=$BUILD_TIME"
+          # v2.286.0: 修复 LDFLAGS 格式问题
+          LDFLAGS="-s -w"
           
           # 并行构建 nasd 和 nasctl
           echo "🔧 构建 nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}..."
