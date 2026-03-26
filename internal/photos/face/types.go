@@ -99,7 +99,7 @@ func DefaultRecognitionConfig() *RecognitionConfig {
 	return &RecognitionConfig{
 		MinFaceSize:        30,
 		MaxFacesPerPhoto:   50,
-		DetectionModel:     "retinaface",
+		DetectionModel:     "hog",
 		RecognitionModel:   "arcface",
 		EmbeddingSize:      512,
 		ConfidenceThresh:   0.8,
