@@ -1,6 +1,7 @@
 package lxc
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -282,7 +283,8 @@ func getHostCPUInfo() (*cpuInfo, error) {
 	info := &cpuInfo{}
 
 	// Get CPU cores
-	if output, err := exec.Command("nproc").Output(); err == nil {
+	ctx := context.Background()
+	if output, err := exec.CommandContext(ctx, "nproc").Output(); err == nil {
 		if n, err := strconv.Atoi(strings.TrimSpace(string(output))); err == nil {
 			info.Cores = n
 		}

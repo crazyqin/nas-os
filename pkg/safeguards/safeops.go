@@ -104,6 +104,7 @@ func (b *SafeCommandBuilder) AddPath(baseDir, userPath string) error {
 // Build returns the exec.Cmd for the command.
 // Deprecated: Use BuildContext instead to avoid noctx warnings.
 func (b *SafeCommandBuilder) Build() *exec.Cmd {
+	//nolint:noctx // Deprecated: Use BuildContext instead
 	return exec.Command(b.name, b.args...)
 }
 

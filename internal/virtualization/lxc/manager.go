@@ -120,7 +120,8 @@ func (m *Manager) cmd(args ...string) *exec.Cmd {
 		args = append([]string{"--project", m.project}, args...)
 	}
 
-	return exec.Command(baseCmd, args...)
+	ctx := context.Background()
+	return exec.CommandContext(ctx, baseCmd, args...)
 }
 
 // IsAvailable checks if the LXC backend is running.

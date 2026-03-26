@@ -778,7 +778,8 @@ func (m *SmartRAIDManager) ReplaceDevice(poolName, oldDevice, newDevice string) 
 	pool.Status.ExpansionRunning = true
 
 	// 执行设备替换
-	cmd := exec.Command("sudo", "btrfs", "replace", "start", oldDevice, newDevice, pool.MountPoint)
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "sudo", "btrfs", "replace", "start", oldDevice, newDevice, pool.MountPoint)
 	if output, err := cmd.CombinedOutput(); err != nil {
 		pool.ExpansionState.Status = "failed"
 		pool.ExpansionState.ErrorMessage = fmt.Sprintf("设备替换失败: %v, %s", err, string(output))
@@ -1205,7 +1206,8 @@ func (m *SmartRAIDManager) scanPools() error {
 
 // getReplaceStatus 获取设备替换状态.
 func (m *SmartRAIDManager) getReplaceStatus(mountPoint string) (*ReplaceStatus, error) {
-	cmd := exec.Command("sudo", "btrfs", "replace", "status", mountPoint)
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "sudo", "btrfs", "replace", "status", mountPoint)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("获取替换状态失败: %w", err)

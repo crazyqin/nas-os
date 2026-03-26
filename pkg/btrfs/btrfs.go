@@ -418,12 +418,13 @@ func (c *Client) Unmount(mountPoint string) error {
 	}
 
 	var cmd *exec.Cmd
+	ctx := context.Background()
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
 		// #nosec G204 -- 挂载点已通过 validatePath 验证
-		cmd = exec.Command("sudo", "umount", mountPoint)
+		cmd = exec.CommandContext(ctx, "sudo", "umount", mountPoint)
 	} else {
 		// #nosec G204 -- 挂载点已通过 validatePath 验证
-		cmd = exec.Command("umount", mountPoint)
+		cmd = exec.CommandContext(ctx, "umount", mountPoint)
 	}
 
 	output, err := cmd.CombinedOutput()
@@ -603,12 +604,13 @@ func (c *Client) MountSubVolume(device, subvolPath, mountPoint string) error {
 	args := []string{"-o", options, device, mountPoint}
 
 	var cmd *exec.Cmd
+	ctx := context.Background()
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
 		// #nosec G204 -- 设备路径、子卷路径和挂载点已通过验证函数验证
-		cmd = exec.Command("sudo", append([]string{"mount"}, args...)...)
+		cmd = exec.CommandContext(ctx, "sudo", append([]string{"mount"}, args...)...)
 	} else {
 		// #nosec G204 -- 设备路径、子卷路径和挂载点已通过验证函数验证
-		cmd = exec.Command("mount", args...)
+		cmd = exec.CommandContext(ctx, "mount", args...)
 	}
 
 	output, err := cmd.CombinedOutput()
@@ -634,12 +636,13 @@ func (c *Client) MountSubVolumeByID(device string, subvolID uint64, mountPoint s
 	args := []string{"-o", options, device, mountPoint}
 
 	var cmd *exec.Cmd
+	ctx := context.Background()
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
 		// #nosec G204 -- 设备路径和挂载点已通过验证函数验证，subvolID 是 uint64
-		cmd = exec.Command("sudo", append([]string{"mount"}, args...)...)
+		cmd = exec.CommandContext(ctx, "sudo", append([]string{"mount"}, args...)...)
 	} else {
 		// #nosec G204 -- 设备路径和挂载点已通过验证函数验证，subvolID 是 uint64
-		cmd = exec.Command("mount", args...)
+		cmd = exec.CommandContext(ctx, "mount", args...)
 	}
 
 	output, err := cmd.CombinedOutput()
