@@ -115,10 +115,11 @@ type UsageRecord struct {
 // RequestType 请求类型
 type RequestType string
 
+// 请求类型常量
 const (
-	RequestTypeChat       RequestType = "chat"
-	RequestTypeCompletion RequestType = "completion"
-	RequestTypeEmbed      RequestType = "embed"
+	RequestTypeChat       RequestType = "chat"       // 对话请求
+	RequestTypeCompletion RequestType = "completion" // 补全请求
+	RequestTypeEmbed      RequestType = "embed"      // 嵌入请求
 	RequestTypeImage      RequestType = "image"      // 图像生成
 	RequestTypeAudio      RequestType = "audio"      // 语音处理
 	RequestTypeModeration RequestType = "moderation" // 内容审核
@@ -296,6 +297,7 @@ type CostAllocation struct {
 // AllocationType 分摊类型
 type AllocationType string
 
+// 分摊类型常量
 const (
 	AllocationTypeUser       AllocationType = "user"       // 按用户分摊
 	AllocationTypeDepartment AllocationType = "department" // 按部门分摊
@@ -404,6 +406,7 @@ type UsageReport struct {
 // ReportType 报告类型
 type ReportType string
 
+// 报告类型常量
 const (
 	ReportTypeUser    ReportType = "user"    // 用户报告
 	ReportTypeModel   ReportType = "model"   // 模型报告
@@ -416,11 +419,12 @@ const (
 // ReportFormat 报告格式
 type ReportFormat string
 
+// 报告格式常量
 const (
-	ReportFormatJSON ReportFormat = "json"
-	ReportFormatCSV  ReportFormat = "csv"
-	ReportFormatHTML ReportFormat = "html"
-	ReportFormatPDF  ReportFormat = "pdf"
+	ReportFormatJSON ReportFormat = "json" // JSON格式
+	ReportFormatCSV  ReportFormat = "csv"  // CSV格式
+	ReportFormatHTML ReportFormat = "html" // HTML格式
+	ReportFormatPDF  ReportFormat = "pdf"  // PDF格式
 )
 
 // ReportPeriod 报告周期
@@ -473,12 +477,13 @@ type ReportChart struct {
 // ChartType 图表类型
 type ChartType string
 
+// 图表类型常量
 const (
-	ChartTypeLine    ChartType = "line"
-	ChartTypeBar     ChartType = "bar"
-	ChartTypePie     ChartType = "pie"
-	ChartTypeArea    ChartType = "area"
-	ChartTypeHeatmap ChartType = "heatmap"
+	ChartTypeLine    ChartType = "line"    // 折线图
+	ChartTypeBar     ChartType = "bar"     // 柱状图
+	ChartTypePie     ChartType = "pie"     // 饼图
+	ChartTypeArea    ChartType = "area"    // 面积图
+	ChartTypeHeatmap ChartType = "heatmap" // 热力图
 )
 
 // ========== 告警 ==========
@@ -517,6 +522,7 @@ type UsageAlert struct {
 // AlertType 告警类型
 type AlertType string
 
+// 告警类型常量定义
 const (
 	AlertTypeTokenQuota   AlertType = "token_quota"   // Token配额告警
 	AlertTypeCostQuota    AlertType = "cost_quota"    // 成本配额告警
@@ -529,26 +535,29 @@ const (
 // AlertLevel 告警级别
 type AlertLevel string
 
+// 告警级别常量定义
 const (
-	AlertLevelInfo      AlertLevel = "info"
-	AlertLevelWarning   AlertLevel = "warning"
-	AlertLevelCritical  AlertLevel = "critical"
-	AlertLevelEmergency AlertLevel = "emergency"
+	AlertLevelInfo      AlertLevel = "info"      // 信息
+	AlertLevelWarning   AlertLevel = "warning"   // 警告
+	AlertLevelCritical  AlertLevel = "critical"  // 严重
+	AlertLevelEmergency AlertLevel = "emergency" // 紧急
 )
 
 // AlertStatus 告警状态
 type AlertStatus string
 
+// 告警状态常量定义
 const (
-	AlertStatusActive       AlertStatus = "active"
-	AlertStatusResolved     AlertStatus = "resolved"
-	AlertStatusAcknowledged AlertStatus = "acknowledged"
-	AlertStatusSilenced     AlertStatus = "silenced"
+	AlertStatusActive       AlertStatus = "active"       // 活跃
+	AlertStatusResolved     AlertStatus = "resolved"     // 已解决
+	AlertStatusAcknowledged AlertStatus = "acknowledged" // 已确认
+	AlertStatusSilenced     AlertStatus = "silenced"     // 已静默
 )
 
 // ThresholdType 阈值类型
 type ThresholdType string
 
+// 阈值类型常量定义
 const (
 	ThresholdTypePercent  ThresholdType = "percent"  // 百分比
 	ThresholdTypeAbsolute ThresholdType = "absolute" // 绝对值

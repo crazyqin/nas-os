@@ -26,7 +26,7 @@ on:
 
 env:
   GO_VERSION: '1.26'
-  CACHE_VERSION: 'v12'
+  CACHE_VERSION: 'v13'
   GOPROXY: 'https://proxy.golang.org,direct'
 
 jobs:

@@ -27,7 +27,7 @@ env:
   # Go 版本
   GO_VERSION: '1.26'
   # 缓存版本号
-  CACHE_VERSION: 'v12'
+  CACHE_VERSION: 'v13'
   # GOPROXY 加速
   GOPROXY: 'https://proxy.golang.org,direct'
 

@@ -111,7 +111,7 @@ func (b *ClaudeBackend) Chat(ctx context.Context, req *ChatRequest) (*ChatRespon
 	}
 
 	if httpResp.StatusCode >= 400 {
-		return nil, fmt.Errorf("Claude API error: %s - %s", httpResp.Status, string(respBody))
+		return nil, fmt.Errorf("claude API error: %s - %s", httpResp.Status, string(respBody))
 	}
 
 	var claudeResp claudeResponse
@@ -151,7 +151,7 @@ func (b *ClaudeBackend) StreamChat(ctx context.Context, req *ChatRequest, callba
 
 	if httpResp.StatusCode >= 400 {
 		body, _ := io.ReadAll(httpResp.Body)
-		return fmt.Errorf("Claude API error: %s - %s", httpResp.Status, string(body))
+		return fmt.Errorf("claude API error: %s - %s", httpResp.Status, string(body))
 	}
 
 	reader := NewSSEReader(httpResp.Body)
@@ -185,7 +185,7 @@ func (b *ClaudeBackend) StreamChat(ctx context.Context, req *ChatRequest, callba
 
 // Embed is not supported by Claude (use a different backend)
 func (b *ClaudeBackend) Embed(ctx context.Context, req *EmbedRequest) (*EmbedResponse, error) {
-	return nil, fmt.Errorf("Claude does not support embeddings API")
+	return nil, fmt.Errorf("claude does not support embeddings API")
 }
 
 // ListModels lists available Claude models
