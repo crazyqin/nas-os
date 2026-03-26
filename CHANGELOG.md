@@ -7,6 +7,26 @@
 
 ---
 
+## [v2.285.0] - 2026-03-26
+
+### 修复
+- 🐛 **armv7编译错误修复**
+  - 修复 `internal/quota/cleanup_unix.go` 类型转换问题
+  - stat.Atim.Sec/Nsec int32→int64 显式转换
+  - 解决ARMv7平台编译失败
+
+### 竞品分析更新
+- 📊 **飞牛fnOS 1.1.x** - QWRT软路由、Cloudflare Tunnel、RTX显卡支持
+- 📊 **群晖DSM 7.3** - Synology Tiering分层存储、AI Console数据遮罩
+- 📊 **TrueNAS 24.10** - RAIDZ Expansion、Docker Compose、NVMe-oF
+- 📊 **Unraid 7.3** - 内部启动、TPM授权、ZFS ARC控制
+
+### 六部协同
+- 工部: armv7编译修复
+- 礼部: 竞品分析更新
+
+---
+
 ## [v2.284.0] - 2026-03-26
 
 ### 新增
