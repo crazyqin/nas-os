@@ -4,6 +4,7 @@ package search
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -759,42 +760,6 @@ func (s *GlobalSearchService) AddMetadata(item MetadataItem) {
 
 	item.IndexedAt = time.Now()
 	s.metadataIndex.items[item.Type] = append(s.metadataIndex.items[item.Type], item)
-}
-
-// GetSearchCategories 获取搜索分类.
-func (s *GlobalSearchService) GetSearchCategories() []map[string]interface{} {
-	return []map[string]interface{}{
-		{
-			"type":  "file",
-			"name":  "文件",
-			"icon":  "file",
-			"count": 0, // 可以动态获取
-		},
-		{
-			"type":  "setting",
-			"name":  "设置",
-			"icon":  "cog",
-			"count": 0,
-		},
-		{
-			"type":  "app",
-			"name":  "应用",
-			"icon":  "box",
-			"count": 0,
-		},
-		{
-			"type":  "container",
-			"name":  "容器",
-			"icon":  "docker",
-			"count": 0,
-		},
-		{
-			"type":  "metadata",
-			"name":  "元数据",
-			"icon":  "tags",
-			"count": 0,
-		},
-	}
 }
 
 // GetPopularSearches 获取热门搜索.
