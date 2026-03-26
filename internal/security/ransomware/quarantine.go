@@ -101,7 +101,7 @@ func (qm *QuarantineManager) QuarantineFile(filePath, reason, detectionID string
 	// 保存清单
 	if err := qm.saveManifest(); err != nil {
 		// 清单保存失败，回滚
-		os.Remove(quarantinePath)
+		_ = os.Remove(quarantinePath)
 		qm.entryMu.Lock()
 		delete(qm.entries, entryID)
 		qm.entryMu.Unlock()
@@ -121,29 +121,29 @@ func (qm *QuarantineManager) moveFileToQuarantine(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	// 创建目标文件
 	dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 	if err != nil {
 		return err
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	// 复制内容（可以在此处添加加密）
 	if _, err := io.Copy(dstFile, srcFile); err != nil {
-		os.Remove(dst)
+		_ = os.Remove(dst)
 		return err
 	}
 
 	// 确保数据写入磁盘
 	if err := dstFile.Sync(); err != nil {
-		os.Remove(dst)
+		_ = os.Remove(dst)
 		return err
 	}
 
 	// 删除原文件
-	srcFile.Close()
+	_ = srcFile.Close()
 	if err := os.Remove(src); err != nil {
 		// 删除失败，但文件已复制到隔离区
 		// 记录日志但返回成功
@@ -151,8 +151,6 @@ func (qm *QuarantineManager) moveFileToQuarantine(src, dst string) error {
 
 	return nil
 }
-
-// RestoreFile 恢复文件.
 func (qm *QuarantineManager) RestoreFile(entryID, restoredBy string) error {
 	qm.entryMu.Lock()
 	defer qm.entryMu.Unlock()
@@ -179,16 +177,16 @@ func (qm *QuarantineManager) RestoreFile(entryID, restoredBy string) error {
 	if err != nil {
 		return fmt.Errorf("无法访问隔离文件: %w", err)
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	dstFile, err := os.OpenFile(entry.OriginalPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
 	if err != nil {
 		return fmt.Errorf("无法创建目标文件: %w", err)
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	if _, err := io.Copy(dstFile, srcFile); err != nil {
-		os.Remove(entry.OriginalPath)
+		_ = os.Remove(entry.OriginalPath)
 		return fmt.Errorf("恢复文件失败: %w", err)
 	}
 
@@ -199,12 +197,10 @@ func (qm *QuarantineManager) RestoreFile(entryID, restoredBy string) error {
 	entry.RestoredBy = restoredBy
 
 	// 删除隔离文件
-	os.Remove(entry.QuarantinePath)
+	_ = os.Remove(entry.QuarantinePath)
 
 	// 保存清单
-	if err := qm.saveManifest(); err != nil {
-		// 记录错误但继续
-	}
+	_ = qm.saveManifest()
 
 	// 更新统计
 	qm.statsMu.Lock()
@@ -327,14 +323,14 @@ func (qm *QuarantineManager) CleanupExpired() int {
 	for id, entry := range qm.entries {
 		if entry.Timestamp.Before(cutoff) && !entry.Restored {
 			// 删除隔离文件
-			os.Remove(entry.QuarantinePath)
+			_ = os.Remove(entry.QuarantinePath)
 			delete(qm.entries, id)
 			cleaned++
 		}
 	}
 
 	if cleaned > 0 {
-		qm.saveManifest()
+		_ = qm.saveManifest()
 	}
 
 	return cleaned
@@ -379,7 +375,7 @@ func (qm *QuarantineManager) loadManifest() error {
 
 // saveManifest 保存清单.
 func (qm *QuarantineManager) saveManifest() error {
-	var entries []*QuarantineEntry
+	entries := make([]*QuarantineEntry, 0, len(qm.entries))
 	for _, entry := range qm.entries {
 		entries = append(entries, entry)
 	}

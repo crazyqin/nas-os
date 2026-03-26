@@ -482,11 +482,11 @@ func (m *ModelManager) searchHuggingFace(ctx context.Context, query string) ([]M
 	defer func() { _ = httpResp.Body.Close() }()
 
 	var models []struct {
-		ID       string `json:"id"`
-		Author   string `json:"author"`
-		ModelID  string `json:"modelId"`
-		Downloads int   `json:"downloads"`
-		Tags     []string `json:"tags"`
+		ID        string   `json:"id"`
+		Author    string   `json:"author"`
+		ModelID   string   `json:"modelId"`
+		Downloads int      `json:"downloads"`
+		Tags      []string `json:"tags"`
 	}
 
 	if err := json.NewDecoder(httpResp.Body).Decode(&models); err != nil {
@@ -592,7 +592,7 @@ func NewResourceMonitor() *ResourceMonitor {
 // GetGPUInfo returns GPU information
 func (m *ResourceMonitor) GetGPUInfo() ([]GPUInfo, error) {
 	// Try nvidia-smi
-	cmd := exec.Command("nvidia-smi", "--query-gpu=index,name,memory.total,memory.used,memory.free,utilization.gpu", "--format=json")
+	cmd := exec.CommandContext(context.Background(), "nvidia-smi", "--query-gpu=index,name,memory.total,memory.used,memory.free,utilization.gpu", "--format=json")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("nvidia-smi not available: %w", err)
@@ -616,12 +616,12 @@ func (m *ResourceMonitor) GetGPUInfo() ([]GPUInfo, error) {
 	gpus := make([]GPUInfo, len(resp.GPUs))
 	for i, gpu := range resp.GPUs {
 		gpus[i] = GPUInfo{
-			Index:        parseInt(gpu.Index),
-			Name:         gpu.Name,
-			MemoryTotal:  parseMemory(gpu.MemoryTotal),
-			MemoryUsed:   parseMemory(gpu.MemoryUsed),
-			MemoryFree:   parseMemory(gpu.MemoryFree),
-			Utilization:  parseInt(gpu.UtilGPU),
+			Index:       parseInt(gpu.Index),
+			Name:        gpu.Name,
+			MemoryTotal: parseMemory(gpu.MemoryTotal),
+			MemoryUsed:  parseMemory(gpu.MemoryUsed),
+			MemoryFree:  parseMemory(gpu.MemoryFree),
+			Utilization: parseInt(gpu.UtilGPU),
 		}
 	}
 

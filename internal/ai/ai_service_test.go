@@ -46,9 +46,9 @@ func TestOllamaBackend_Chat(t *testing.T) {
 		if r.URL.Path == "/api/chat" {
 			w.WriteHeader(http.StatusOK)
 			json.NewEncoder(w).Encode(ollamaChatResponse{
-				Model:    "llama2",
-				Message:  ChatMessage{Role: "assistant", Content: "Hello!"},
-				Done:     true,
+				Model:     "llama2",
+				Message:   ChatMessage{Role: "assistant", Content: "Hello!"},
+				Done:      true,
 				EvalCount: 10,
 			})
 		}
@@ -241,8 +241,8 @@ func TestModelRegistry_Register(t *testing.T) {
 	registry := NewModelRegistry()
 
 	model := &LocalModel{
-		Name:     "test-model",
-		Source:   "ollama",
+		Name:      "test-model",
+		Source:    "ollama",
 		Installed: true,
 	}
 

@@ -138,15 +138,15 @@ type ModelCapability struct {
 
 // BackendConfig holds backend configuration
 type BackendConfig struct {
-	Type            BackendType
-	Endpoint        string
-	APIKey          string
-	DefaultModel    string
-	Timeout         time.Duration
-	Headers         map[string]string
-	MaxRetries      int
-	RetryDelay      time.Duration
-	HealthCheckInt  time.Duration
+	Type           BackendType
+	Endpoint       string
+	APIKey         string
+	DefaultModel   string
+	Timeout        time.Duration
+	Headers        map[string]string
+	MaxRetries     int
+	RetryDelay     time.Duration
+	HealthCheckInt time.Duration
 }
 
 // BaseBackend provides common functionality for backends
@@ -445,7 +445,7 @@ func (b *OllamaBackend) ListModels(ctx context.Context) ([]ModelInfo, error) {
 // LoadModel loads a model
 func (b *OllamaBackend) LoadModel(ctx context.Context, modelName string) error {
 	req := map[string]any{
-		"model":     modelName,
+		"model":      modelName,
 		"keep_alive": b.keepAlive,
 	}
 
@@ -515,12 +515,12 @@ func (b *OllamaBackend) GetModelInfo(ctx context.Context, modelName string) (*Mo
 
 // Ollama response types
 type ollamaChatResponse struct {
-	Model          string       `json:"model"`
-	CreatedAt      string       `json:"created_at"`
-	Message        ChatMessage  `json:"message"`
-	Done           bool         `json:"done"`
+	Model           string      `json:"model"`
+	CreatedAt       string      `json:"created_at"`
+	Message         ChatMessage `json:"message"`
+	Done            bool        `json:"done"`
 	PromptEvalCount int         `json:"prompt_eval_count"`
-	EvalCount      int          `json:"eval_count"`
+	EvalCount       int         `json:"eval_count"`
 }
 
 type ollamaStreamResponse struct {

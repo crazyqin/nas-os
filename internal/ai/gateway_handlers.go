@@ -273,9 +273,9 @@ func (h *GatewayHandlers) GetModel(c *gin.Context) {
 	for _, m := range models {
 		if m.Name == modelName {
 			c.JSON(http.StatusOK, gin.H{
-				"id":      m.Name,
-				"object":  "model",
-				"created": m.ModifiedAt.Unix(),
+				"id":       m.Name,
+				"object":   "model",
+				"created":  m.ModifiedAt.Unix(),
 				"owned_by": m.Details,
 			})
 			return
@@ -316,7 +316,7 @@ func (h *GatewayHandlers) GetGatewayMetrics(c *gin.Context) {
 func (h *GatewayHandlers) GetBackends(c *gin.Context) {
 	status := h.gateway.GetBackendStatus(c.Request.Context())
 
-	backends := make([]gin.H, 0)
+	backends := make([]gin.H, 0, len(status))
 	for name, s := range status {
 		backends = append(backends, gin.H{
 			"name":    name,

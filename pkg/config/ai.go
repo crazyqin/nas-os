@@ -1,7 +1,7 @@
-// Package config provides configuration structures for NAS-OS
+// Package config provides configuration structures for NAS-OS.
 package config
 
-// AIConfig holds the complete AI service configuration
+// AIConfig holds the complete AI service configuration.
 type AIConfig struct {
 	// Gateway configuration
 	Gateway GatewayConfig `json:"gateway" yaml:"gateway"`
@@ -19,7 +19,7 @@ type AIConfig struct {
 	Security AISecurityConfig `json:"security" yaml:"security"`
 }
 
-// GatewayConfig defines the API gateway configuration
+// GatewayConfig defines the API gateway configuration.
 type GatewayConfig struct {
 	// Listen address (e.g., ":8080")
 	Listen string `json:"listen" yaml:"listen"`
@@ -43,7 +43,7 @@ type GatewayConfig struct {
 	RequestTimeout int `json:"requestTimeout" yaml:"requestTimeout"`
 }
 
-// RateLimitConfig defines rate limiting settings
+// RateLimitConfig defines rate limiting settings.
 type RateLimitConfig struct {
 	Enabled          bool `json:"enabled" yaml:"enabled"`
 	RequestsPerMin   int  `json:"requestsPerMin" yaml:"requestsPerMin"`
@@ -52,7 +52,7 @@ type RateLimitConfig struct {
 	ConcurrencyLimit int  `json:"concurrencyLimit" yaml:"concurrencyLimit"`
 }
 
-// CORSConfig defines CORS settings
+// CORSConfig defines CORS settings.
 type CORSConfig struct {
 	Enabled        bool     `json:"enabled" yaml:"enabled"`
 	AllowedOrigins []string `json:"allowedOrigins" yaml:"allowedOrigins"`
@@ -60,7 +60,7 @@ type CORSConfig struct {
 	AllowedHeaders []string `json:"allowedHeaders" yaml:"allowedHeaders"`
 }
 
-// BackendsConfig holds all backend configurations
+// BackendsConfig holds all backend configurations.
 type BackendsConfig struct {
 	Ollama  OllamaConfig  `json:"ollama" yaml:"ollama"`
 	LocalAI LocalAIConfig `json:"localAI" yaml:"localAI"`
@@ -68,7 +68,7 @@ type BackendsConfig struct {
 	Custom  CustomConfig  `json:"custom" yaml:"custom"`
 }
 
-// OllamaConfig defines Ollama backend configuration
+// OllamaConfig defines Ollama backend configuration.
 type OllamaConfig struct {
 	Enabled  bool   `json:"enabled" yaml:"enabled"`
 	Endpoint string `json:"endpoint" yaml:"endpoint"`
@@ -84,7 +84,7 @@ type OllamaConfig struct {
 	KeepAlive string `json:"keepAlive" yaml:"keepAlive"`
 }
 
-// LocalAIConfig defines LocalAI backend configuration
+// LocalAIConfig defines LocalAI backend configuration.
 type LocalAIConfig struct {
 	Enabled      bool   `json:"enabled" yaml:"enabled"`
 	Endpoint     string `json:"endpoint" yaml:"endpoint"`
@@ -99,7 +99,7 @@ type LocalAIConfig struct {
 	GPU bool `json:"gpu" yaml:"gpu"`
 }
 
-// VLLMConfig defines vLLM backend configuration
+// VLLMConfig defines vLLM backend configuration.
 type VLLMConfig struct {
 	Enabled      bool   `json:"enabled" yaml:"enabled"`
 	Endpoint     string `json:"endpoint" yaml:"endpoint"`
@@ -114,7 +114,7 @@ type VLLMConfig struct {
 	ModelPath string `json:"modelPath" yaml:"modelPath"`
 }
 
-// CustomConfig defines custom OpenAI-compatible backend
+// CustomConfig defines custom OpenAI-compatible backend.
 type CustomConfig struct {
 	Enabled      bool              `json:"enabled" yaml:"enabled"`
 	Name         string            `json:"name" yaml:"name"`
@@ -124,7 +124,7 @@ type CustomConfig struct {
 	Headers      map[string]string `json:"headers" yaml:"headers"`
 }
 
-// ModelManagerConfig defines model management configuration
+// ModelManagerConfig defines model management configuration.
 type ModelManagerConfig struct {
 	// Storage path for models
 	StoragePath string `json:"storagePath" yaml:"storagePath"`
@@ -142,7 +142,7 @@ type ModelManagerConfig struct {
 	Cache CacheConfig `json:"cache" yaml:"cache"`
 }
 
-// RegistryConfig defines model registry settings
+// RegistryConfig defines model registry settings.
 type RegistryConfig struct {
 	// Supported registries
 	HuggingFace bool `json:"huggingFace" yaml:"huggingFace"`
@@ -150,7 +150,7 @@ type RegistryConfig struct {
 	Local       bool `json:"local" yaml:"local"`
 }
 
-// CacheConfig defines cache settings
+// CacheConfig defines cache settings.
 type CacheConfig struct {
 	Enabled    bool   `json:"enabled" yaml:"enabled"`
 	Path       string `json:"path" yaml:"path"`
@@ -158,7 +158,7 @@ type CacheConfig struct {
 	ExpiryDays int    `json:"expiryDays" yaml:"expiryDays"`
 }
 
-// ResourceConfig defines resource limits
+// ResourceConfig defines resource limits.
 type ResourceConfig struct {
 	// Max GPU memory to use (percentage, 0-100)
 	MaxGPUMemory int `json:"maxGpuMemory" yaml:"maxGpuMemory"`
@@ -176,7 +176,7 @@ type ResourceConfig struct {
 	GPUScheduling bool `json:"gpuScheduling" yaml:"gpuScheduling"`
 }
 
-// AISecurityConfig defines security settings
+// AISecurityConfig defines security settings.
 type AISecurityConfig struct {
 	// Enable PII de-identification
 	EnableDeID bool `json:"enableDeId" yaml:"enableDeId"`
@@ -194,7 +194,7 @@ type AISecurityConfig struct {
 	BlockedModels []string `json:"blockedModels" yaml:"blockedModels"`
 }
 
-// DefaultAIConfig returns default AI configuration
+// DefaultAIConfig returns default AI configuration.
 func DefaultAIConfig() *AIConfig {
 	return &AIConfig{
 		Gateway: GatewayConfig{
@@ -245,8 +245,8 @@ func DefaultAIConfig() *AIConfig {
 			},
 		},
 		ModelManager: ModelManagerConfig{
-			StoragePath:   "/var/lib/nas-os/ai/models",
-			AutoDownload:  false,
+			StoragePath:      "/var/lib/nas-os/ai/models",
+			AutoDownload:     false,
 			HuggingFaceToken: "",
 			Registry: RegistryConfig{
 				HuggingFace: true,
@@ -261,11 +261,11 @@ func DefaultAIConfig() *AIConfig {
 			},
 		},
 		Resources: ResourceConfig{
-			MaxGPUMemory:   80,
+			MaxGPUMemory:    80,
 			MaxSystemMemory: 50,
-			MaxConcurrent:  10,
-			MaxQueueSize:   100,
-			GPUScheduling:  true,
+			MaxConcurrent:   10,
+			MaxQueueSize:    100,
+			GPUScheduling:   true,
 		},
 		Security: AISecurityConfig{
 			EnableDeID:       true,

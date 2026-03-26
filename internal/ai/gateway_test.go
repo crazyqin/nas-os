@@ -143,11 +143,11 @@ func TestBackendStatus(t *testing.T) {
 
 func TestGatewayMetrics(t *testing.T) {
 	metrics := GatewayMetrics{
-		TotalRequests:  100,
-		TotalErrors:    5,
-		TotalTokens:    50000,
-		AvgLatencyMs:   150,
-		RequestsByType: map[string]int64{"chat": 80, "embed": 20},
+		TotalRequests:   100,
+		TotalErrors:     5,
+		TotalTokens:     50000,
+		AvgLatencyMs:    150,
+		RequestsByType:  map[string]int64{"chat": 80, "embed": 20},
 		ErrorsByBackend: map[string]int64{"ollama": 3, "localai": 2},
 		BackendMetrics: map[string]BackendMetrics{
 			"ollama": {Requests: 80, Errors: 3, Tokens: 40000},
