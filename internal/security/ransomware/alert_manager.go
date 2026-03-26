@@ -45,7 +45,7 @@ func (am *AlertManager) CreateAlert(result *DetectionResult) *Alert {
 	}
 
 	// 检查冷却
-	alertKey := result.DetectionType + ":" + result.FilePath
+	alertKey := string(result.DetectionType) + ":" + result.FilePath
 	if am.isInCooldown(alertKey) {
 		return nil
 	}

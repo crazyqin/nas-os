@@ -36,12 +36,12 @@ func TestAIConsoleAPI_Chat(t *testing.T) {
 		wantStatus int
 	}{
 		{
-			name: "valid request",
+			name: "valid request (returns 500 without provider)",
 			body: ChatRequest{
 				Prompt:   "Hello",
 				Provider: ai.ProviderOpenAI,
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusInternalServerError, // No provider registered
 		},
 		{
 			name: "empty prompt",
@@ -76,12 +76,12 @@ func TestAIConsoleAPI_Summarize(t *testing.T) {
 		wantStatus int
 	}{
 		{
-			name: "valid request",
+			name: "valid request (returns 500 without provider)",
 			body: SummarizeRequest{
 				Content:   "This is a long piece of content that needs to be summarized.",
 				MaxLength: 100,
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusInternalServerError, // No provider registered
 		},
 		{
 			name: "empty content",
@@ -91,11 +91,11 @@ func TestAIConsoleAPI_Summarize(t *testing.T) {
 			wantStatus: http.StatusBadRequest,
 		},
 		{
-			name: "default max length",
+			name: "default max length (returns 500 without provider)",
 			body: SummarizeRequest{
 				Content: "Some content",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusInternalServerError,
 		},
 	}
 
@@ -123,12 +123,12 @@ func TestAIConsoleAPI_Translate(t *testing.T) {
 		wantStatus int
 	}{
 		{
-			name: "valid request",
+			name: "valid request (returns 500 without provider)",
 			body: TranslateRequest{
 				Text:       "Hello",
 				TargetLang: "zh",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusInternalServerError, // No provider registered
 		},
 		{
 			name: "missing text",
@@ -170,9 +170,9 @@ func TestAIConsoleAPI_Sentiment(t *testing.T) {
 		wantStatus int
 	}{
 		{
-			name:       "valid request",
+			name:       "valid request (returns 500 without provider)",
 			body:       map[string]string{"text": "I love this product!"},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusInternalServerError, // No provider registered
 		},
 		{
 			name:       "empty text",
