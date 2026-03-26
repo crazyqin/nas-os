@@ -416,7 +416,10 @@ func (m *BehaviorMonitor) evaluateCountCondition(cond Condition, now time.Time) 
 	var count int
 
 	for e := m.events.Back(); e != nil; e = e.Prev() {
-		event := e.Value.(FileEvent)
+		event, ok := e.Value.(FileEvent)
+		if !ok {
+			continue
+		}
 		if event.Timestamp.Before(cutoff) {
 			break
 		}
@@ -476,7 +479,10 @@ func (m *BehaviorMonitor) evaluateMatchCondition(cond Condition, event FileEvent
 
 	switch cond.Operator {
 	case "contains":
-		return strings.Contains(value, cond.Value.(string))
+		if strVal, ok := cond.Value.(string); ok {
+			return strings.Contains(value, strVal)
+		}
+		return false
 	case "regex":
 		// 简化实现，实际应使用正则
 		return len(value) >= 4 && len(value) <= 10

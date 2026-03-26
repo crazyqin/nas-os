@@ -311,8 +311,11 @@ func (am *AlertManager) GetStats() map[string]interface{} {
 		"unacknowledged": am.GetUnacknowledgedCount(),
 	}
 
-	severityStats := stats["by_severity"].(map[ThreatLevel]int)
-	statusStats := stats["by_status"].(map[AlertStatus]int)
+	severityStats, ok1 := stats["by_severity"].(map[ThreatLevel]int)
+	statusStats, ok2 := stats["by_status"].(map[AlertStatus]int)
+	if !ok1 || !ok2 {
+		return stats
+	}
 
 	for _, alert := range am.alerts {
 		severityStats[alert.Severity]++

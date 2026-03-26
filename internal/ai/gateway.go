@@ -479,19 +479,31 @@ func (m *GatewayMonitor) RecordError(backend BackendType, reqType string, err er
 func (m *GatewayMonitor) GetMetrics() *GatewayMetrics {
 	requestsByType := make(map[string]int64)
 	m.requestsByType.Range(func(key, value any) bool {
-		requestsByType[key.(string)] = value.(*atomic.Int64).Load()
+		if k, ok := key.(string); ok {
+			if v, ok := value.(*atomic.Int64); ok {
+				requestsByType[k] = v.Load()
+			}
+		}
 		return true
 	})
 
 	errorsByBackend := make(map[string]int64)
 	m.errorsByBackend.Range(func(key, value any) bool {
-		errorsByBackend[key.(string)] = value.(*atomic.Int64).Load()
+		if k, ok := key.(string); ok {
+			if v, ok := value.(*atomic.Int64); ok {
+				errorsByBackend[k] = v.Load()
+			}
+		}
 		return true
 	})
 
 	backendMetrics := make(map[string]BackendMetrics)
 	m.backendMetrics.Range(func(key, value any) bool {
-		backendMetrics[key.(string)] = *value.(*BackendMetrics)
+		if k, ok := key.(string); ok {
+			if v, ok := value.(*BackendMetrics); ok {
+				backendMetrics[k] = *v
+			}
+		}
 		return true
 	})
 
