@@ -10,21 +10,21 @@ import (
 
 // DocumentItem 文档项.
 type DocumentItem struct {
-	ID          string            `json:"id"`          // 唯一标识
-	Title       string            `json:"title"`       // 文档标题
-	Content     string            `json:"content"`     // 文档内容（摘要）
-	Path        string            `json:"path"`        // 文档路径/URL
-	Type        string            `json:"type"`        // 文档类型: guide, api, faq, changelog, tutorial
-	Category    string            `json:"category"`    // 文档分类
-	Tags        []string          `json:"tags"`        // 文档标签
-	Keywords    []string          `json:"keywords"`    // 搜索关键词
-	Icon        string            `json:"icon"`        // 图标
-	Locale      string            `json:"locale"`      // 语言环境
-	Version     string            `json:"version"`     // 文档版本
-	UpdatedAt   time.Time         `json:"updatedAt"`   // 更新时间
-	Section     string            `json:"section"`     // 文档区块
-	Order       int               `json:"order"`       // 排序顺序
-	Metadata    map[string]string `json:"metadata"`    // 元数据
+	ID        string            `json:"id"`        // 唯一标识
+	Title     string            `json:"title"`     // 文档标题
+	Content   string            `json:"content"`   // 文档内容（摘要）
+	Path      string            `json:"path"`      // 文档路径/URL
+	Type      string            `json:"type"`      // 文档类型: guide, api, faq, changelog, tutorial
+	Category  string            `json:"category"`  // 文档分类
+	Tags      []string          `json:"tags"`      // 文档标签
+	Keywords  []string          `json:"keywords"`  // 搜索关键词
+	Icon      string            `json:"icon"`      // 图标
+	Locale    string            `json:"locale"`    // 语言环境
+	Version   string            `json:"version"`   // 文档版本
+	UpdatedAt time.Time         `json:"updatedAt"` // 更新时间
+	Section   string            `json:"section"`   // 文档区块
+	Order     int               `json:"order"`     // 排序顺序
+	Metadata  map[string]string `json:"metadata"`  // 元数据
 }
 
 // DocRegistry 文档注册表.

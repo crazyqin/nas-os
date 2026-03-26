@@ -9,17 +9,17 @@ import (
 
 // APIEndpoint API端点项.
 type APIEndpoint struct {
-	ID          string            `json:"id"`          // 唯一标识
-	Method      string            `json:"method"`      // HTTP 方法: GET, POST, PUT, DELETE
-	Path        string            `json:"path"`        // API 路径
-	Summary     string            `json:"summary"`     // 简要描述
-	Description string            `json:"description"` // 详细描述
-	Tags        []string          `json:"tags"`        // API 标签/分组
-	Parameters  []APIParameter    `json:"parameters"`  // 参数列表
-	Responses   map[int]APIResponse `json:"responses"`  // 响应定义
-	Deprecated  bool              `json:"deprecated"`  // 是否废弃
-	Version     string            `json:"version"`     // API 版本
-	Keywords    []string          `json:"keywords"`    // 搜索关键词
+	ID          string              `json:"id"`          // 唯一标识
+	Method      string              `json:"method"`      // HTTP 方法: GET, POST, PUT, DELETE
+	Path        string              `json:"path"`        // API 路径
+	Summary     string              `json:"summary"`     // 简要描述
+	Description string              `json:"description"` // 详细描述
+	Tags        []string            `json:"tags"`        // API 标签/分组
+	Parameters  []APIParameter      `json:"parameters"`  // 参数列表
+	Responses   map[int]APIResponse `json:"responses"`   // 响应定义
+	Deprecated  bool                `json:"deprecated"`  // 是否废弃
+	Version     string              `json:"version"`     // API 版本
+	Keywords    []string            `json:"keywords"`    // 搜索关键词
 }
 
 // APIParameter API参数.

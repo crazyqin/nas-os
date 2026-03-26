@@ -23,9 +23,9 @@ const (
 	ResultTypeApp       GlobalSearchResultType = "app"
 	ResultTypeContainer GlobalSearchResultType = "container"
 	ResultTypeMetadata  GlobalSearchResultType = "metadata" // 元数据搜索
-	ResultTypeAPI       GlobalSearchResultType = "api"     // API端点搜索
-	ResultTypeDoc       GlobalSearchResultType = "doc"     // 文档搜索
-	ResultTypeLog       GlobalSearchResultType = "log"     // 日志搜索
+	ResultTypeAPI       GlobalSearchResultType = "api"      // API端点搜索
+	ResultTypeDoc       GlobalSearchResultType = "doc"      // 文档搜索
+	ResultTypeLog       GlobalSearchResultType = "log"      // 日志搜索
 )
 
 // GlobalSearchResult 全局搜索结果.
