@@ -7,6 +7,37 @@
 
 ---
 
+## [v2.287.0] - 2026-03-26
+
+### 新增
+- 🔍 **全局搜索服务增强** (兵部)
+  - 新增 `internal/search/api_registry.go` - API 端点搜索
+  - 新增 `internal/search/doc_registry.go` - 文档搜索
+  - 新增 `internal/search/log_registry.go` - 日志搜索
+- 🐳 **Docker Compose 设计文档** (工部)
+  - 新增 `docs/docker-compose-design.md`
+  - 支持 docker-compose.yaml 解析和部署
+- 🔐 **数据脱敏设计文档** (刑部)
+  - 新增 `docs/security/data-masking-design.md`
+  - 敏感信息检测和脱敏策略
+
+### 修复
+- 🐛 **CI/CD LDFLAGS 格式修复**
+  - 修复 `-trimpath` 参数位置错误
+  - 改进构建错误检查
+
+### 竞品分析更新
+- 📊 TrueNAS 24.10 Electric Eel 功能对比矩阵更新
+- 📊 群晖 DSM 7.3 功能对比矩阵更新
+
+### 六部协同
+- 兵部: 全局搜索服务架构设计
+- 工部: Docker Compose 支持设计
+- 刑部: 数据脱敏方案设计
+- 礼部: 竞品分析文档更新
+
+---
+
 ## [v2.286.0] - 2026-03-26
 
 ### 修复
