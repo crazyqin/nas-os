@@ -1,8 +1,6 @@
 package ransomware
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -465,19 +463,3 @@ func sortEntriesByTime(entries []*QuarantineEntry) {
 
 // Error definitions
 var ErrQuarantineEntryNotFound = errors.New("隔离条目不存在")
-
-// CalculateFileHash 计算文件SHA256哈希（重新声明以避免导入问题）
-func CalculateFileHash(filePath string) (string, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
-	hash := sha256.New()
-	if _, err := io.Copy(hash, file); err != nil {
-		return "", err
-	}
-
-	return hex.EncodeToString(hash.Sum(nil)), nil
-}

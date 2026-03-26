@@ -374,7 +374,7 @@ func (ca *CostAnalyzer) findOptimizationOpportunities(stats Stats, migrator *Mig
 	// Cold tier opportunity (archive potential)
 	coldCap, _ := migrator.TierCapacity(TierCold)
 	if coldCap != nil {
-		coldUsedGB := float64(coldCap.Used) / 1024 / 1024 / 1024
+		_ = float64(coldCap.Used) / 1024 / 1024 / 1024 // coldUsedGB - 用于未来归档分析
 		warmUsedGB := float64(stats.SizeByTier[TierWarm]) / 1024 / 1024 / 1024
 
 		opportunities = append(opportunities, CostOpportunity{
