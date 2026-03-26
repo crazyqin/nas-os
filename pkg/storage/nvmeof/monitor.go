@@ -37,11 +37,11 @@ type ConnectionMonitor struct {
 // ConnectionStatus 连接状态
 type ConnectionStatus struct {
 	// 基本信息
-	ControllerName string          `json:"controllerName"`
-	SubsystemNQN   string          `json:"subsystemNqn"`
-	Transport      TransportType   `json:"transport"`
-	Address        string          `json:"address"`
-	Port           string          `json:"port"`
+	ControllerName string        `json:"controllerName"`
+	SubsystemNQN   string        `json:"subsystemNqn"`
+	Transport      TransportType `json:"transport"`
+	Address        string        `json:"address"`
+	Port           string        `json:"port"`
 
 	// 连接状态
 	State           ConnectionState `json:"state"`
@@ -54,12 +54,12 @@ type ConnectionStatus struct {
 	NextReconnect     time.Time `json:"nextReconnect,omitempty"`
 
 	// 性能指标
-	Latency          uint64        `json:"latency"`          // 微秒
-	ThroughputRead   uint64        `json:"throughputRead"`   // bytes/s
-	ThroughputWrite  uint64        `json:"throughputWrite"`  // bytes/s
-	IOps             uint64        `json:"ioPs"`             // IOPS
-	QueueDepth       uint32        `json:"queueDepth"`       // 当前队列深度
-	MaxQueueDepth    uint32        `json:"maxQueueDepth"`    // 最大队列深度
+	Latency         uint64 `json:"latency"`         // 微秒
+	ThroughputRead  uint64 `json:"throughputRead"`  // bytes/s
+	ThroughputWrite uint64 `json:"throughputWrite"` // bytes/s
+	IOps            uint64 `json:"ioPs"`            // IOPS
+	QueueDepth      uint32 `json:"queueDepth"`      // 当前队列深度
+	MaxQueueDepth   uint32 `json:"maxQueueDepth"`   // 最大队列深度
 
 	// 错误统计
 	Errors          uint64 `json:"errors"`
@@ -67,7 +67,7 @@ type ConnectionStatus struct {
 	TransportErrors uint64 `json:"transportErrors"`
 
 	// 健康状态
-	HealthScore     int       `json:"healthScore"`     // 0-100
+	HealthScore     int       `json:"healthScore"` // 0-100
 	LastHealthCheck time.Time `json:"lastHealthCheck"`
 }
 
@@ -76,15 +76,15 @@ type ConnectionMetrics struct {
 	mu sync.RWMutex
 
 	// 汇总指标
-	TotalConnections    int            `json:"totalConnections"`
-	ActiveConnections   int            `json:"activeConnections"`
-	FailedConnections   int            `json:"failedConnections"`
-	TotalBytesRead      uint64         `json:"totalBytesRead"`
-	TotalBytesWritten   uint64         `json:"totalBytesWritten"`
-	TotalIOps           uint64         `json:"totalIOps"`
-	AvgLatency          uint64         `json:"avgLatency"`       // 微秒
-	P99Latency          uint64         `json:"p99Latency"`       // 微秒
-	MaxLatency          uint64         `json:"maxLatency"`       // 微秒
+	TotalConnections  int    `json:"totalConnections"`
+	ActiveConnections int    `json:"activeConnections"`
+	FailedConnections int    `json:"failedConnections"`
+	TotalBytesRead    uint64 `json:"totalBytesRead"`
+	TotalBytesWritten uint64 `json:"totalBytesWritten"`
+	TotalIOps         uint64 `json:"totalIOps"`
+	AvgLatency        uint64 `json:"avgLatency"` // 微秒
+	P99Latency        uint64 `json:"p99Latency"` // 微秒
+	MaxLatency        uint64 `json:"maxLatency"` // 微秒
 
 	// 历史数据
 	History []MetricPoint `json:"history,omitempty"`
@@ -95,8 +95,8 @@ type MetricPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	IOps      uint64    `json:"ioPs"`
 	Latency   uint64    `json:"latency"`
-	ReadBW    uint64    `json:"readBw"`   // bytes/s
-	WriteBW   uint64    `json:"writeBw"`  // bytes/s
+	ReadBW    uint64    `json:"readBw"`  // bytes/s
+	WriteBW   uint64    `json:"writeBw"` // bytes/s
 }
 
 // AlertHandler 告警处理器
@@ -104,14 +104,14 @@ type AlertHandler func(alert *ConnectionAlert)
 
 // ConnectionAlert 连接告警
 type ConnectionAlert struct {
-	Type        AlertType       `json:"type"`
-	Severity    AlertSeverity   `json:"severity"`
-	Controller  string          `json:"controller"`
-	Subsystem   string          `json:"subsystem,omitempty"`
-	Message     string          `json:"message"`
-	Value       interface{}     `json:"value,omitempty"`
-	Threshold   interface{}     `json:"threshold,omitempty"`
-	Timestamp   time.Time       `json:"timestamp"`
+	Type       AlertType     `json:"type"`
+	Severity   AlertSeverity `json:"severity"`
+	Controller string        `json:"controller"`
+	Subsystem  string        `json:"subsystem,omitempty"`
+	Message    string        `json:"message"`
+	Value      interface{}   `json:"value,omitempty"`
+	Threshold  interface{}   `json:"threshold,omitempty"`
+	Timestamp  time.Time     `json:"timestamp"`
 }
 
 // AlertType 告警类型
@@ -281,10 +281,10 @@ func (m *ConnectionMonitor) UpdateConnectionStatus(ctrlName string, status *Conn
 		// 状态变化，发送事件
 		if m.eventCh != nil {
 			m.eventCh <- NVMeOFEvent{
-				Type:        EventConnectionStateChanged,
-				Message:     fmt.Sprintf("Connection %s state changed: %s -> %s", ctrlName, oldStatus.State, status.State),
-				Controller:  ctrlName,
-				Time:        time.Now(),
+				Type:       EventConnectionStateChanged,
+				Message:    fmt.Sprintf("Connection %s state changed: %s -> %s", ctrlName, oldStatus.State, status.State),
+				Controller: ctrlName,
+				Time:       time.Now(),
 			}
 		}
 	}
@@ -328,15 +328,15 @@ func (m *ConnectionMonitor) GetMetrics() *ConnectionMetrics {
 
 	// 返回副本（不复制锁）
 	metrics := &ConnectionMetrics{
-		TotalConnections:    m.metrics.TotalConnections,
-		ActiveConnections:   m.metrics.ActiveConnections,
-		FailedConnections:   m.metrics.FailedConnections,
-		TotalBytesRead:      m.metrics.TotalBytesRead,
-		TotalBytesWritten:   m.metrics.TotalBytesWritten,
-		TotalIOps:           m.metrics.TotalIOps,
-		AvgLatency:          m.metrics.AvgLatency,
-		P99Latency:          m.metrics.P99Latency,
-		MaxLatency:          m.metrics.MaxLatency,
+		TotalConnections:  m.metrics.TotalConnections,
+		ActiveConnections: m.metrics.ActiveConnections,
+		FailedConnections: m.metrics.FailedConnections,
+		TotalBytesRead:    m.metrics.TotalBytesRead,
+		TotalBytesWritten: m.metrics.TotalBytesWritten,
+		TotalIOps:         m.metrics.TotalIOps,
+		AvgLatency:        m.metrics.AvgLatency,
+		P99Latency:        m.metrics.P99Latency,
+		MaxLatency:        m.metrics.MaxLatency,
 	}
 	if len(m.metrics.History) > 0 {
 		metrics.History = make([]MetricPoint, len(m.metrics.History))
@@ -387,4 +387,3 @@ func CalculateHealthScore(status *ConnectionStatus) int {
 
 	return score
 }
-

@@ -9,14 +9,14 @@ import (
 
 // AlertManager 告警管理器.
 type AlertManager struct {
-	config    AlertConfig
-	alerts    []*Alert
-	alertMu   sync.RWMutex
-	cooldown  map[string]time.Time // 告警冷却
+	config     AlertConfig
+	alerts     []*Alert
+	alertMu    sync.RWMutex
+	cooldown   map[string]time.Time // 告警冷却
 	cooldownMu sync.RWMutex
-	notifyCh  chan<- Alert
-	stats     Statistics
-	statsMu   sync.RWMutex
+	notifyCh   chan<- Alert
+	stats      Statistics
+	statsMu    sync.RWMutex
 }
 
 // NewAlertManager 创建告警管理器.
@@ -305,10 +305,10 @@ func (am *AlertManager) GetStats() map[string]interface{} {
 	defer am.alertMu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_alerts":      len(am.alerts),
-		"by_severity":       make(map[ThreatLevel]int),
-		"by_status":         make(map[AlertStatus]int),
-		"unacknowledged":    am.GetUnacknowledgedCount(),
+		"total_alerts":   len(am.alerts),
+		"by_severity":    make(map[ThreatLevel]int),
+		"by_status":      make(map[AlertStatus]int),
+		"unacknowledged": am.GetUnacknowledgedCount(),
 	}
 
 	severityStats := stats["by_severity"].(map[ThreatLevel]int)

@@ -11,13 +11,13 @@ import (
 
 // SignatureDB 特征库管理器.
 type SignatureDB struct {
-	signatures map[string]*RansomwareSignature
-	extensions map[string][]string // extension -> signature IDs
-	patterns   map[string][]string // pattern -> signature IDs
+	signatures  map[string]*RansomwareSignature
+	extensions  map[string][]string // extension -> signature IDs
+	patterns    map[string][]string // pattern -> signature IDs
 	ransomNotes map[string][]string // ransom note name -> signature IDs
-	mu         sync.RWMutex
-	config     SignatureDBConfig
-	lastUpdate time.Time
+	mu          sync.RWMutex
+	config      SignatureDBConfig
+	lastUpdate  time.Time
 }
 
 // NewSignatureDB 创建特征库.
@@ -530,10 +530,10 @@ func (db *SignatureDB) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_signatures": len(db.signatures),
-		"total_extensions": len(db.extensions),
+		"total_signatures":   len(db.signatures),
+		"total_extensions":   len(db.extensions),
 		"total_ransom_notes": len(db.ransomNotes),
-		"families":         familyCount,
-		"last_update":      db.lastUpdate,
+		"families":           familyCount,
+		"last_update":        db.lastUpdate,
 	}
 }

@@ -14,30 +14,28 @@ import (
 
 // Controller NVMe 控制器
 type Controller struct {
-	mu sync.RWMutex
-
 	// 基本信息
-	Name        string          `json:"name"`
-	Transport   TransportType   `json:"transport"`
-	State       ControllerState `json:"state"`
+	Name      string          `json:"name"`
+	Transport TransportType   `json:"transport"`
+	State     ControllerState `json:"state"`
 
 	// 连接信息
-	TrAddress    string `json:"trAddress"`    // 目标地址
-	TrSVCID      string `json:"trSvcid"`      // 目标端口
-	SubsysNQN    string `json:"subsysNqn"`    // 目标子系统 NQN
-	HostNQN      string `json:"hostNqn"`      // 本地 Host NQN
-	HostID       string `json:"hostId"`       // Host UUID
+	TrAddress string `json:"trAddress"` // 目标地址
+	TrSVCID   string `json:"trSvcid"`   // 目标端口
+	SubsysNQN string `json:"subsysNqn"` // 目标子系统 NQN
+	HostNQN   string `json:"hostNqn"`   // 本地 Host NQN
+	HostID    string `json:"hostId"`    // Host UUID
 
 	// RDMA 特定配置
 	TrSVCIDType string `json:"trSvcidType,omitempty"` // port, udp, tcp
 	TrDHCHAPKey string `json:"trDhchapKey,omitempty"` // DHCHAP 密钥
 
 	// 性能配置
-	IOQueues       int  `json:"ioQueues"`       // IO 队列数
-	IOQueueDepth   int  `json:"ioQueueDepth"`   // IO 队列深度
-	KeepAliveTmo   int  `json:"keepAliveTmo"`   // Keep-alive 超时（秒）
-	ReconnectTmo   int  `json:"reconnectTmo"`   // 重连超时（秒）
-	PollMode       bool `json:"pollMode"`       // 轮询模式
+	IOQueues     int  `json:"ioQueues"`     // IO 队列数
+	IOQueueDepth int  `json:"ioQueueDepth"` // IO 队列深度
+	KeepAliveTmo int  `json:"keepAliveTmo"` // Keep-alive 超时（秒）
+	ReconnectTmo int  `json:"reconnectTmo"` // 重连超时（秒）
+	PollMode     bool `json:"pollMode"`     // 轮询模式
 
 	// 命名空间
 	Namespaces map[string]*DiscoveredNamespace `json:"namespaces"`
@@ -52,8 +50,8 @@ type Controller struct {
 // DiscoveredNamespace 发现的命名空间
 type DiscoveredNamespace struct {
 	// 基本信息
-	NSID      uint32 `json:"nsid"`
-	Name      string `json:"name"`
+	NSID       uint32 `json:"nsid"`
+	Name       string `json:"name"`
 	DevicePath string `json:"devicePath"` // 本地设备路径 (如 /dev/nvme0n1)
 
 	// 容量信息
@@ -61,8 +59,8 @@ type DiscoveredNamespace struct {
 	Size      uint64 `json:"size"`
 
 	// 状态
-	Online    bool   `json:"online"`
-	ReadOnly  bool   `json:"readOnly"`
+	Online   bool `json:"online"`
+	ReadOnly bool `json:"readOnly"`
 
 	// 挂载点
 	MountPoint string `json:"mountPoint,omitempty"`
@@ -93,8 +91,8 @@ type ControllerStats struct {
 	WriteBytes   uint64 `json:"writeBytes"`
 	ReadOps      uint64 `json:"readOps"`
 	WriteOps     uint64 `json:"writeOps"`
-	AvgLatency   uint64 `json:"avgLatency"`   // 微秒
-	MaxLatency   uint64 `json:"maxLatency"`   // 微秒
+	AvgLatency   uint64 `json:"avgLatency"` // 微秒
+	MaxLatency   uint64 `json:"maxLatency"` // 微秒
 	Reconnects   uint64 `json:"reconnects"`
 	Errors       uint64 `json:"errors"`
 	ControllerID uint16 `json:"controllerId"`
@@ -118,9 +116,6 @@ type InitiatorManager struct {
 
 	// 控制器
 	controllers map[string]*Controller
-
-	// 发现服务
-	discoveryController *DiscoveryController
 
 	// 运行状态
 	running atomic.Bool
@@ -235,10 +230,10 @@ func (m *InitiatorManager) ConnectController(ctx context.Context, req *ConnectCo
 	// 发送事件
 	if m.eventCh != nil {
 		m.eventCh <- NVMeOFEvent{
-			Type:        EventControllerConnected,
-			Message:     fmt.Sprintf("Controller %s connected to %s", req.Name, req.SubsysNQN),
-			Controller:  req.Name,
-			Time:        time.Now(),
+			Type:       EventControllerConnected,
+			Message:    fmt.Sprintf("Controller %s connected to %s", req.Name, req.SubsysNQN),
+			Controller: req.Name,
+			Time:       time.Now(),
 		}
 	}
 
@@ -291,10 +286,10 @@ func (m *InitiatorManager) DisconnectController(ctx context.Context, name string
 	// 发送事件
 	if m.eventCh != nil {
 		m.eventCh <- NVMeOFEvent{
-			Type:        EventControllerDisconnected,
-			Message:     fmt.Sprintf("Controller %s disconnected", name),
-			Controller:  name,
-			Time:        time.Now(),
+			Type:       EventControllerDisconnected,
+			Message:    fmt.Sprintf("Controller %s disconnected", name),
+			Controller: name,
+			Time:       time.Now(),
 		}
 	}
 
@@ -365,14 +360,12 @@ func (m *InitiatorManager) ReconnectController(ctx context.Context, name string)
 
 // DiscoveryController 发现控制器
 type DiscoveryController struct {
-	mu sync.RWMutex
-
-	Transport  TransportType `json:"transport"`
-	TrAddress  string        `json:"trAddress"`
-	TrSVCID    string        `json:"trSvcid"`
-	HostNQN    string        `json:"hostNqn"`
-	HostID     string        `json:"hostId"`
-	Connected  bool          `json:"connected"`
+	Transport TransportType `json:"transport"`
+	TrAddress string        `json:"trAddress"`
+	TrSVCID   string        `json:"trSvcid"`
+	HostNQN   string        `json:"hostNqn"`
+	HostID    string        `json:"hostId"`
+	Connected bool          `json:"connected"`
 
 	// 缓存的发现日志
 	Entries []DiscoveryLogEntry `json:"entries"`
@@ -454,24 +447,24 @@ func (m *InitiatorManager) GetStats() *InitiatorStats {
 
 // ConnectControllerRequest 连接控制器请求
 type ConnectControllerRequest struct {
-	Name         string        `json:"name" validate:"required"`         // 控制器名称
-	Transport    TransportType `json:"transport" validate:"required"`    // 传输类型
-	TrAddress    string        `json:"trAddress" validate:"required"`    // 目标地址
-	TrSVCID      string        `json:"trSvcid"`                          // 目标端口 (默认 4420)
-	SubsysNQN    string        `json:"subsysNqn" validate:"required"`    // 目标子系统 NQN
-	HostNQN      string        `json:"hostNqn,omitempty"`                // Host NQN (可选)
-	HostID       string        `json:"hostId,omitempty"`                 // Host UUID (可选)
-	IOQueues     int           `json:"ioQueues,omitempty"`               // IO 队列数
-	IOQueueDepth int           `json:"ioQueueDepth,omitempty"`           // IO 队列深度
-	KeepAliveTmo int           `json:"keepAliveTmo,omitempty"`           // Keep-alive 超时
-	DHCHAPKey    string        `json:"dhchapKey,omitempty"`              // DHCHAP 密钥
+	Name         string        `json:"name" validate:"required"`      // 控制器名称
+	Transport    TransportType `json:"transport" validate:"required"` // 传输类型
+	TrAddress    string        `json:"trAddress" validate:"required"` // 目标地址
+	TrSVCID      string        `json:"trSvcid"`                       // 目标端口 (默认 4420)
+	SubsysNQN    string        `json:"subsysNqn" validate:"required"` // 目标子系统 NQN
+	HostNQN      string        `json:"hostNqn,omitempty"`             // Host NQN (可选)
+	HostID       string        `json:"hostId,omitempty"`              // Host UUID (可选)
+	IOQueues     int           `json:"ioQueues,omitempty"`            // IO 队列数
+	IOQueueDepth int           `json:"ioQueueDepth,omitempty"`        // IO 队列深度
+	KeepAliveTmo int           `json:"keepAliveTmo,omitempty"`        // Keep-alive 超时
+	DHCHAPKey    string        `json:"dhchapKey,omitempty"`           // DHCHAP 密钥
 }
 
 // DiscoverRequest 发现请求
 type DiscoverRequest struct {
-	Transport TransportType `json:"transport" validate:"required"`    // 传输类型
-	TrAddress string        `json:"trAddress" validate:"required"`    // 发现服务地址
-	TrSVCID   string        `json:"trSvcid"`                          // 端口 (默认 8009)
-	HostNQN   string        `json:"hostNqn,omitempty"`                // Host NQN
-	HostID    string        `json:"hostId,omitempty"`                 // Host UUID
+	Transport TransportType `json:"transport" validate:"required"` // 传输类型
+	TrAddress string        `json:"trAddress" validate:"required"` // 发现服务地址
+	TrSVCID   string        `json:"trSvcid"`                       // 端口 (默认 8009)
+	HostNQN   string        `json:"hostNqn,omitempty"`             // Host NQN
+	HostID    string        `json:"hostId,omitempty"`              // Host UUID
 }
