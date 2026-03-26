@@ -7,10 +7,7 @@ import (
 	"image"
 	"image/color"
 	"sort"
-	"sync"
 	"time"
-
-	"github.com/disintegration/imaging"
 )
 
 // ==================== 检测器实现 ====================
@@ -19,7 +16,6 @@ import (
 type LocalDetector struct {
 	config  *RecognitionConfig
 	backend DetectionBackend
-	mu      sync.RWMutex
 }
 
 // DetectionBackend 检测后端接口
@@ -563,26 +559,6 @@ func computeIOU(a, b BoundingBox) float64 {
 	union := areaA + areaB - inter
 
 	return inter / union
-}
-
-// cropFace 裁剪人脸
-func cropFace(img image.Image, face *Face, padding float64) image.Image {
-	bounds := img.Bounds()
-	w, h := bounds.Dx(), bounds.Dy()
-
-	x := int(face.BoundingBox.X * float64(w))
-	y := int(face.BoundingBox.Y * float64(h))
-	fw := int(face.BoundingBox.Width * float64(w))
-	fh := int(face.BoundingBox.Height * float64(h))
-
-	p := int(float64(fw) * padding)
-	x = maxInt(0, x-p)
-	y = maxInt(0, y-p)
-	fw = minInt(w-x, fw+2*p)
-	fh = minInt(h-y, fh+2*p)
-
-	cropped := imaging.Crop(img, image.Rect(x, y, x+fw, y+fh))
-	return cropped
 }
 
 func generateID(prefix string) string {
