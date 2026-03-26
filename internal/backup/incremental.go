@@ -410,7 +410,7 @@ func (ib *IncrementalBackup) CreateSnapshot(ctx context.Context, source string, 
 }
 
 // performFullBackup 执行完整备份.
-func (ib *IncrementalBackup) performFullBackup(ctx context.Context, snapshot *Snapshot, source, dest string) error {
+func (ib *IncrementalBackup) performFullBackup(ctx context.Context, snapshot *Snapshot, source, _ string) error {
 	ib.logger.Info("Starting full backup",
 		zap.String("snapshot_id", snapshot.ID),
 		zap.String("source", source),
@@ -695,9 +695,9 @@ func generateID() string {
 }
 
 // randomString 生成随机字符串.
-func randomString(n int) string {
+func randomString(_ int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
-	b := make([]byte, n)
+	b := make([]byte, 8)
 	for i := range b {
 		b[i] = letters[time.Now().Nanosecond()%len(letters)]
 	}

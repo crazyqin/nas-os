@@ -106,10 +106,7 @@ func (d *GoFaceDetector) GetEmbedding(ctx context.Context, img image.Image, face
 	}
 
 	// 对齐人脸
-	aligned, err := d.alignFace(img, face)
-	if err != nil {
-		return nil, fmt.Errorf("人脸对齐失败: %w", err)
-	}
+	aligned := d.alignFace(img, face)
 
 	// 调用 go-face 提取嵌入
 	// desc, err := d.recognizer.Descriptor(aligned)
@@ -125,7 +122,7 @@ func (d *GoFaceDetector) CompareFaces(emb1, emb2 []float32) float64 {
 }
 
 // alignFace 对齐人脸
-func (d *GoFaceDetector) alignFace(img image.Image, face FaceDetection) (image.Image, error) {
+func (d *GoFaceDetector) alignFace(img image.Image, face FaceDetection) image.Image {
 	bounds := img.Bounds()
 
 	// 计算人脸区域
@@ -147,7 +144,7 @@ func (d *GoFaceDetector) alignFace(img image.Image, face FaceDetection) (image.I
 	// 缩放到标准大小 (150x150)
 	resized := imaging.Resize(cropped, 150, 150, imaging.Linear)
 
-	return resized, nil
+	return resized
 }
 
 // fallbackDetect 简化的人脸检测（当 go-face 不可用时）

@@ -88,7 +88,7 @@ type UserFeedback struct {
 }
 
 // learnFromCorrection 从修正中学习.
-func (l *Learner) learnFromCorrection(ctx context.Context, feedback UserFeedback) error {
+func (l *Learner) learnFromCorrection(_ context.Context, feedback UserFeedback) error {
 	fileName := filepath.Base(feedback.FilePath)
 	ext := strings.ToLower(filepath.Ext(feedback.FilePath))
 
@@ -197,7 +197,7 @@ func (l *Learner) buildConditions(patterns []string, ext string) []Condition {
 }
 
 // findSimilarRule 查找相似规则.
-func (l *Learner) findSimilarRule(patterns []string, ext string) *ClassificationRule {
+func (l *Learner) findSimilarRule(_ []string, ext string) *ClassificationRule {
 	rules := l.classifier.GetRules()
 
 	for _, rule := range rules {

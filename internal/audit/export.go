@@ -293,7 +293,7 @@ func (e *WatchListExporter) Export(req WatchListExportRequest) (*WatchListExport
 		contentType = "application/json"
 		filename = "watch-ign-list.json"
 	case ExportCSV:
-		data, err = e.exportCSV(watchEntries, ignoreEntries, req.Type)
+		data = e.exportCSV(watchEntries, ignoreEntries, req.Type)
 		contentType = "text/csv"
 		filename = "watch-ign-list.csv"
 	case ExportYAML:
@@ -342,7 +342,7 @@ func (e *WatchListExporter) exportJSON(watchEntries []*WatchListEntry, ignoreEnt
 }
 
 // exportCSV 导出为CSV.
-func (e *WatchListExporter) exportCSV(watchEntries []*WatchListEntry, ignoreEntries []*IgnoreListEntry, listType ListType) ([]byte, error) {
+func (e *WatchListExporter) exportCSV(watchEntries []*WatchListEntry, ignoreEntries []*IgnoreListEntry, listType ListType) []byte {
 	var buf strings.Builder
 
 	// Watch List
@@ -398,7 +398,7 @@ func (e *WatchListExporter) exportCSV(watchEntries []*WatchListEntry, ignoreEntr
 		}
 	}
 
-	return []byte(buf.String()), nil
+	return []byte(buf.String())
 }
 
 // exportYAML 导出为YAML.
