@@ -538,7 +538,7 @@ func (h *EnhancedWebSocketHub) Run() {
 }
 
 // broadcastWorker processes broadcast tasks.
-func (h *EnhancedWebSocketHub) broadcastWorker(id int) {
+func (h *EnhancedWebSocketHub) broadcastWorker(_ int) {
 	defer h.broadcastWorkers.Done()
 
 	for {
@@ -1194,7 +1194,7 @@ func (c *EnhancedClient) sendCloseMessage() {
 }
 
 // handleMessage 处理消息.
-func (c *EnhancedClient) handleMessage(messageType int, message []byte, hub *EnhancedWebSocketHub) {
+func (c *EnhancedClient) handleMessage(_ int, message []byte, hub *EnhancedWebSocketHub) {
 	var msg struct {
 		Action        string          `json:"action"`
 		Subscriptions []MessageType   `json:"subscriptions,omitempty"`
