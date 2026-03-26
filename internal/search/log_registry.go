@@ -306,7 +306,6 @@ func (r *LogRegistry) parseLogLine(line string, file string, lineNum int) *LogEn
 
 // inferSourceFromPath 从文件路径推断日志来源.
 func (r *LogRegistry) inferSourceFromPath(path string) string {
-	filename := filepath.Base(path)
 	dir := filepath.Base(filepath.Dir(path))
 
 	switch {
