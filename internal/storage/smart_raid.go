@@ -266,7 +266,7 @@ func (m *SmartRAIDManager) CreateSmartPool(req *CreateSmartPoolRequest) (*SmartP
 	// 获取设备信息
 	devices := make([]*SmartDevice, 0, len(req.Devices))
 	for _, devPath := range req.Devices {
-		devInfo, err := m.getDeviceInfo(devPath)
+		devInfo, err := m.getDeviceInfo(m.ctx, devPath)
 		if err != nil {
 			return nil, fmt.Errorf("获取设备 %s 信息失败: %w", devPath, err)
 		}
@@ -589,7 +589,7 @@ func (m *SmartRAIDManager) AddDevice(poolName, devicePath string) (*SmartPool, e
 	}
 
 	// 获取新设备信息
-	devInfo, err := m.getDeviceInfo(devicePath)
+	devInfo, err := m.getDeviceInfo(m.ctx, devicePath)
 	if err != nil {
 		return nil, fmt.Errorf("获取设备信息失败: %w", err)
 	}
@@ -758,7 +758,7 @@ func (m *SmartRAIDManager) ReplaceDevice(poolName, oldDevice, newDevice string) 
 	}
 
 	// 获取新设备信息
-	newDevInfo, err := m.getDeviceInfo(newDevice)
+	newDevInfo, err := m.getDeviceInfo(m.ctx, newDevice)
 	if err != nil {
 		return fmt.Errorf("获取新设备信息失败: %w", err)
 	}

@@ -284,7 +284,7 @@ func (h *ResourceVisualizationHandlers) getStorageVisualization(c *gin.Context) 
 
 func (h *ResourceVisualizationHandlers) getVolumeVisualization(c *gin.Context) {
 	metrics := h.collectStorageMetrics()
-	volumes := make([]VolumeStorageInfo, 0)
+	volumes := make([]VolumeStorageInfo, 0, len(metrics))
 
 	for _, m := range metrics {
 		volume := VolumeStorageInfo{

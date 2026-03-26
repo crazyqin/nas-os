@@ -1238,8 +1238,6 @@ func (cc *ComplianceChecker) severityToPriority(severity string) int {
 
 // generateRecommendations 生成建议.
 func (cc *ComplianceChecker) generateRecommendations(results []*ComplianceCheckResult) []string {
-	var recommendations []string
-
 	// 分析失败项，生成改进建议
 	failedCategories := make(map[string]int)
 	for _, result := range results {
@@ -1248,6 +1246,7 @@ func (cc *ComplianceChecker) generateRecommendations(results []*ComplianceCheckR
 		}
 	}
 
+	recommendations := make([]string, 0, len(failedCategories))
 	for cat, count := range failedCategories {
 		rec := fmt.Sprintf("建议加强 %s 领域的合规措施，当前存在 %d 个不合规项", cat, count)
 		recommendations = append(recommendations, rec)

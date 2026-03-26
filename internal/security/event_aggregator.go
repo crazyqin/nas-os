@@ -365,7 +365,7 @@ func (a *EventAggregator) generateReport() *AggregationReport {
 		GeneratedAt:       time.Now(),
 		TotalGroups:       len(a.eventGroups),
 		TotalCorrelations: len(a.correlations),
-		Groups:            make([]*EventGroup, 0),
+		Groups:            make([]*EventGroup, 0, len(a.eventGroups)),
 		Correlations:      a.correlations,
 		TopRisks:          make([]*EventGroup, 0),
 		Timeline:          make([]TimelineEntry, 0),

@@ -1,6 +1,7 @@
 package security
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os/exec"
@@ -94,14 +95,16 @@ func (fm *FirewallManager) setDefaultPolicy(policy string) error {
 		chainPolicy = "DROP"
 	}
 
-	cmd := exec.Command("iptables", "-P", "INPUT", chainPolicy)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "iptables", "-P", "INPUT", chainPolicy)
 	if err := cmd.Run(); err != nil {
 		// 如果没有权限，记录但不返回错误（兼容非 root 环境）
 		return nil
 	}
 
 	if fm.config.IPv6Enabled {
-		cmd = exec.Command("ip6tables", "-P", "INPUT", chainPolicy)
+		cmd = exec.CommandContext(ctx, "ip6tables", "-P", "INPUT", chainPolicy)
 		_ = cmd.Run()
 	}
 
@@ -111,7 +114,9 @@ func (fm *FirewallManager) setDefaultPolicy(policy string) error {
 // enableIPv6Firewall 启用 IPv6 防火墙.
 func (fm *FirewallManager) enableIPv6Firewall() error {
 	// 启用 IPv6 防火墙规则
-	cmd := exec.Command("ip6tables", "-L")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "ip6tables", "-L")
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("IPv6 防火墙不可用：%w", err)
 	}
@@ -121,11 +126,13 @@ func (fm *FirewallManager) enableIPv6Firewall() error {
 // disableFirewall 禁用防火墙.
 func (fm *FirewallManager) disableFirewall() error {
 	// 设置默认接受所有流量
-	cmd := exec.Command("iptables", "-P", "INPUT", "ACCEPT")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "iptables", "-P", "INPUT", "ACCEPT")
 	_ = cmd.Run()
-	cmd = exec.Command("iptables", "-P", "FORWARD", "ACCEPT")
+	cmd = exec.CommandContext(ctx, "iptables", "-P", "FORWARD", "ACCEPT")
 	_ = cmd.Run()
-	cmd = exec.Command("iptables", "-P", "OUTPUT", "ACCEPT")
+	cmd = exec.CommandContext(ctx, "iptables", "-P", "OUTPUT", "ACCEPT")
 	_ = cmd.Run()
 	return nil
 }
@@ -338,7 +345,9 @@ func (fm *FirewallManager) applyRuleToSystem(rule *FirewallRule) error {
 	// 动作
 	args = append(args, strings.Fields(action)...)
 
-	cmd := exec.Command("iptables", args...)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "iptables", args...)
 	if err := cmd.Run(); err != nil {
 		// 非 root 环境下可能失败，记录但不返回错误
 		return nil
@@ -346,7 +355,7 @@ func (fm *FirewallManager) applyRuleToSystem(rule *FirewallRule) error {
 
 	// IPv6 支持
 	if fm.config.IPv6Enabled {
-		cmd = exec.Command("ip6tables", args...)
+		cmd = exec.CommandContext(ctx, "ip6tables", args...)
 		_ = cmd.Run()
 	}
 
@@ -462,13 +471,15 @@ func (fm *FirewallManager) AddToBlacklist(ip, reason string, durationMinutes int
 
 // blockIP 阻止 IP 地址.
 func (fm *FirewallManager) blockIP(ip string) error {
-	cmd := exec.Command("iptables", "-A", "INPUT", "-s", ip, "-j", "DROP")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "iptables", "-A", "INPUT", "-s", ip, "-j", "DROP")
 	if err := cmd.Run(); err != nil {
 		return nil // 非 root 环境
 	}
 
 	if fm.config.IPv6Enabled && net.ParseIP(ip).To4() == nil {
-		cmd = exec.Command("ip6tables", "-A", "INPUT", "-s", ip, "-j", "DROP")
+		cmd = exec.CommandContext(ctx, "ip6tables", "-A", "INPUT", "-s", ip, "-j", "DROP")
 		_ = cmd.Run()
 	}
 
@@ -492,11 +503,13 @@ func (fm *FirewallManager) RemoveFromBlacklist(ip string) error {
 
 // unblockIP 解除 IP 阻止.
 func (fm *FirewallManager) unblockIP(ip string) error {
-	cmd := exec.Command("iptables", "-D", "INPUT", "-s", ip, "-j", "DROP")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "iptables", "-D", "INPUT", "-s", ip, "-j", "DROP")
 	_ = cmd.Run()
 
 	if fm.config.IPv6Enabled {
-		cmd = exec.Command("ip6tables", "-D", "INPUT", "-s", ip, "-j", "DROP")
+		cmd = exec.CommandContext(ctx, "ip6tables", "-D", "INPUT", "-s", ip, "-j", "DROP")
 		_ = cmd.Run()
 	}
 

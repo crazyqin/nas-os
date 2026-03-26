@@ -184,14 +184,14 @@ func (p *AliDNSProvider) request(params map[string]string, result interface{}) e
 // generateSignature 生成签名.
 func (p *AliDNSProvider) generateSignature(params map[string]string) string {
 	// 排序参数
-	var keys []string
+	keys := make([]string, 0, len(params))
 	for k := range params {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
 	// 构造规范化请求字符串
-	var pairs []string
+	pairs := make([]string, 0, len(keys))
 	for _, k := range keys {
 		pairs = append(pairs, fmt.Sprintf("%s=%s", specialURLEncode(k), specialURLEncode(params[k])))
 	}
@@ -210,7 +210,7 @@ func (p *AliDNSProvider) generateSignature(params map[string]string) string {
 
 // buildQueryString 构建查询字符串.
 func (p *AliDNSProvider) buildQueryString(params map[string]string) string {
-	var pairs []string
+	pairs := make([]string, 0, len(params))
 	for k, v := range params {
 		pairs = append(pairs, fmt.Sprintf("%s=%s", url.QueryEscape(k), url.QueryEscape(v)))
 	}

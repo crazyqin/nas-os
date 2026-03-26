@@ -354,7 +354,7 @@ func (r *ResourceReporter) generateUserOverview(metrics []UserResourceInfo) *Use
 // ========== 图表生成 ==========
 
 func (r *ResourceReporter) generateStorageCharts(overview *StorageOverview) []ChartData {
-	charts := make([]ChartData, 0)
+	charts := make([]ChartData, 0, 3)
 
 	// 存储使用率仪表盘
 	charts = append(charts, ChartData{
@@ -407,7 +407,7 @@ func (r *ResourceReporter) generateStorageCharts(overview *StorageOverview) []Ch
 }
 
 func (r *ResourceReporter) generateBandwidthCharts(overview *BandwidthOverview) []ChartData {
-	charts := make([]ChartData, 0)
+	charts := make([]ChartData, 0, 2)
 
 	// 当前带宽速率
 	charts = append(charts, ChartData{
@@ -492,7 +492,7 @@ func (r *ResourceReporter) generateUserCharts(overview *UserResourceOverview) []
 }
 
 func (r *ResourceReporter) generateSystemCharts(overview *SystemResourceOverview) []ChartData {
-	charts := make([]ChartData, 0)
+	charts := make([]ChartData, 0, 3)
 
 	// CPU 使用率仪表盘
 	charts = append(charts, ChartData{
