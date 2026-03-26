@@ -481,12 +481,23 @@ jobs:
     if: |
       (needs.changes.outputs.docker-changed == 'true' || github.event_name == 'workflow_dispatch') &&
       hashFiles('Dockerfile.ai') != ''
-    timeout-minutes: 30
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: gpu
+            platforms: linux/amd64
+            suffix: gpu
+          - variant: cpu
+            platforms: linux/amd64,linux/arm64
+            suffix: cpu
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
       
       - name: 设置 QEMU
+        if: matrix.variant == 'cpu'
         uses: docker/setup-qemu-action@v3
       
       - name: 设置 Docker Buildx
@@ -504,71 +515,37 @@ jobs:
         id: sha
         run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
 
-      - name: 提取元数据
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai
-          tags: |
-            type=ref,event=branch,suffix=-{{ sha }}
-            type=ref,event=branch,enable=${{ github.ref == 'refs/heads/master' }},suffix=
-            type=semver,pattern={{version}}
-            type=sha,prefix=,suffix=,format=short
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
-
-      # GPU 版本（amd64 only，因为 nvidia/cuda 镜像支持有限）
-      - name: 构建 AI 服务镜像 (GPU)
+      # v2.255.0: 优化AI镜像构建缓存
+      - name: 构建 AI 服务镜像 (${{ matrix.variant }})
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile.ai
-          platforms: linux/amd64
+          target: ${{ matrix.variant == 'cpu' && 'ai-cpu' || '' }}
+          platforms: ${{ matrix.platforms }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:${{ steps.sha.outputs.SHORT_SHA }}-gpu
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:latest-gpu
-          cache-from: type=gha,scope=ai-gpu
-          cache-to: type=gha,scope=ai-gpu,mode=max
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:${{ steps.sha.outputs.SHORT_SHA }}-${{ matrix.suffix }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:latest-${{ matrix.suffix }}
+          # v2.255.0: 增强缓存
+          cache-from: |
+            type=gha,scope=ai-${{ matrix.variant }}-${{ env.CACHE_VERSION }}
+            type=gha,scope=ai-${{ matrix.variant }}
+          cache-to: type=gha,scope=ai-${{ matrix.variant }}-${{ env.CACHE_VERSION }},mode=max
           build-args: |
             BUILD_TIME=${{ github.event.head_commit.timestamp }}
             VERSION=${{ github.ref_name }}
             REVISION=${{ github.sha }}
-
-      # CPU 版本（多架构）
-      - name: 构建 AI 服务镜像 (CPU)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile.ai
-          target: ai-cpu
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:${{ steps.sha.outputs.SHORT_SHA }}-cpu
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:latest-cpu
-          cache-from: type=gha,scope=ai-cpu
-          cache-to: type=gha,scope=ai-cpu,mode=max
-          build-args: |
-            BUILD_TIME=${{ github.event.head_commit.timestamp }}
-            VERSION=${{ github.ref_name }}
-            REVISION=${{ github.sha }}
+            GOPROXY=${{ env.GOPROXY }}
+          provenance: false
+          sbom: false
 
       - name: 生成构建摘要
         run: |
-          echo "## 🤖 AI 服务镜像已发布" >> $GITHUB_STEP_SUMMARY
+          echo "## 🤖 AI 服务镜像已发布 (${{ matrix.variant }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**GPU 版本:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:latest-gpu" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:latest-${{ matrix.suffix }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**CPU 版本:**" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:latest-cpu" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**使用说明:**" >> $GITHUB_STEP_SUMMARY
-          echo "- GPU 版本需要 NVIDIA Docker runtime" >> $GITHUB_STEP_SUMMARY
-          echo "- CPU 版本支持 amd64/arm64，无 GPU 依赖" >> $GITHUB_STEP_SUMMARY
 
 # 注意：Docker Compose 测试已在 ci-cd.yml 中执行，此 workflow 专注于镜像构建和发布

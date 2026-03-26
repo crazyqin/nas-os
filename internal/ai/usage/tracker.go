@@ -17,12 +17,19 @@ import (
 
 // ========== 错误定义 ==========
 
+// 定义模块错误常量
 var (
-	ErrRecordNotFound     = fmt.Errorf("usage record not found")
-	ErrQuotaNotFound      = fmt.Errorf("user quota not found")
-	ErrQuotaExceeded      = fmt.Errorf("quota exceeded")
-	ErrPricingNotFound    = fmt.Errorf("model pricing not found")
-	ErrInvalidTimeRange   = fmt.Errorf("invalid time range")
+	// ErrRecordNotFound 使用记录未找到
+	ErrRecordNotFound = fmt.Errorf("usage record not found")
+	// ErrQuotaNotFound 用户配额未找到
+	ErrQuotaNotFound = fmt.Errorf("user quota not found")
+	// ErrQuotaExceeded 配额超限
+	ErrQuotaExceeded = fmt.Errorf("quota exceeded")
+	// ErrPricingNotFound 模型定价未找到
+	ErrPricingNotFound = fmt.Errorf("model pricing not found")
+	// ErrInvalidTimeRange 无效时间范围
+	ErrInvalidTimeRange = fmt.Errorf("invalid time range")
+	// ErrAllocationNotFound 成本分摊未找到
 	ErrAllocationNotFound = fmt.Errorf("cost allocation not found")
 )
 
@@ -47,7 +54,6 @@ type TokenTracker struct {
 
 	// 统计计数器
 	recordCounter int64
-	alertCounter  int64
 }
 
 // NewTokenTracker 创建Token追踪器
@@ -103,7 +109,7 @@ func (t *TokenTracker) RecordUsage(ctx context.Context, input *UsageRecordInput)
 	totalCost := inputCost + outputCost
 
 	// 计算实际计费金额（扣除免费额度）
-	billedAmount := t.calculateBilledAmount(input.InputTokens, input.OutputTokens, pricing, inputCost, outputCost)
+	billedAmount := t.calculateBilledAmount(input.InputTokens, input.OutputTokens, pricing)
 
 	// 创建记录
 	record := &UsageRecord{
@@ -575,7 +581,7 @@ func (t *TokenTracker) calculateDynamicCost(inputTokens, outputTokens int64, con
 }
 
 // calculateBilledAmount 计算实际计费金额
-func (t *TokenTracker) calculateBilledAmount(inputTokens, outputTokens int64, pricing *ModelPricing, inputCost, outputCost float64) float64 {
+func (t *TokenTracker) calculateBilledAmount(inputTokens, outputTokens int64, pricing *ModelPricing) float64 {
 	// 扣除免费额度
 	freeInputTokens := pricing.FreeInputTokens
 	freeOutputTokens := pricing.FreeOutputTokens
