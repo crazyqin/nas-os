@@ -62,13 +62,6 @@ env:
   GOPROXY: 'https://proxy.golang.org,direct'
   # v2.254.0 优化: 测试分片配置（增加到6分片）
   TEST_SHARD_COUNT: 6
-  # 构建追踪
-  BUILD_TRACKING_ENABLED: 'true'
-  # v2.123.0 新增: GOPROXY 加速
-  GOPROXY: 'https://proxy.golang.org,direct'
-  # v2.123.0 新增: 测试分片配置（预留，可通过 Makefile test-shard 手动使用）
-  # 注意：当前 CI 未启用测试分片，如需启用可在 test job 中使用
-  TEST_SHARD_COUNT: 4
 
 # 并发控制：同一分支同时只运行一个工作流
 concurrency:
@@ -712,8 +705,9 @@ jobs:
   build:
     name: 构建二进制
     runs-on: ubuntu-latest
-    needs: [prepare, test-merge]
-    timeout-minutes: 25
+    needs: [prepare]
+    # v2.254.0: 移除对 test-merge 的依赖，允许构建和测试并行
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -745,8 +739,7 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: false
 
-      # 注意：Go 模块缓存已从 prepare job 恢复
-      # 这里仅保存编译缓存，避免与模块缓存冲突
+      # v2.254.0: 增加编译产物缓存
       - name: Go 编译缓存
         uses: actions/cache@v4
         with:
@@ -761,16 +754,21 @@ jobs:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
           GOARM: ${{ matrix.arm }}
+          CGO_ENABLED: 0
         run: |
           BINARY_NAME="nasd-${{ matrix.os }}-${{ matrix.arch }}"
           if [ -n "${{ matrix.arm }}" ]; then
             BINARY_NAME="${BINARY_NAME}v${{ matrix.arm }}"
           fi
           
-          go build -ldflags="-w -s" -o "${BINARY_NAME}" ./cmd/nasd
-          echo "✅ 编译成功: ${BINARY_NAME}"
+          # v2.254.0: 添加版本信息嵌入
+          VERSION="${{ github.ref_name }}"
+          COMMIT="${{ github.sha }}"
+          BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
+          LDFLAGS="-w -s -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildTime=$BUILD_TIME"
           
-          # 显示文件大小
+          go build -ldflags="$LDFLAGS" -trimpath -o "${BINARY_NAME}" ./cmd/nasd
+          echo "✅ 编译成功: ${BINARY_NAME}"
           ls -lh "${BINARY_NAME}"
       
       - name: 生成校验和
@@ -935,7 +933,7 @@ jobs:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.253.284)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.254.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
@@ -956,7 +954,10 @@ jobs:
           echo "**触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "**运行 ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 v2.253.284 优化内容" >> $GITHUB_STEP_SUMMARY
-          echo "- 测试分片并行执行（4分片）" >> $GITHUB_STEP_SUMMARY
-          echo "- 测试结果自动合并" >> $GITHUB_STEP_SUMMARY
-          echo "- 缓存策略优化" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 v2.254.0 优化内容" >> $GITHUB_STEP_SUMMARY
+          echo "- 测试分片增加到6个，智能均衡分配" >> $GITHUB_STEP_SUMMARY
+          echo "- 测试与构建并行执行（移除依赖链）" >> $GITHUB_STEP_SUMMARY
+          echo "- 增加编译产物缓存（跨job复用）" >> $GITHUB_STEP_SUMMARY
+          echo "- 优化缓存key策略，提高命中率" >> $GITHUB_STEP_SUMMARY
+          echo "- 测试结果缓存，加速重复测试" >> $GITHUB_STEP_SUMMARY
+          echo "- 构建增加版本信息嵌入" >> $GITHUB_STEP_SUMMARY
