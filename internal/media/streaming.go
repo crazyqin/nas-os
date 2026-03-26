@@ -614,7 +614,8 @@ func (ss *StreamServer) CreateAdaptiveHLS(sourcePath, outputDir string, qualitie
 // runAdaptiveHLS 运行自适应 HLS 流
 func (ss *StreamServer) runAdaptiveHLS(session *StreamSession, qualities []AdaptiveStream) {
 	// 构建复杂的 ffmpeg 命令（多输出）
-	args := []string{"-i", session.SourcePath}
+	args := make([]string, 0, 2+24*len(qualities))
+	args = append(args, "-i", session.SourcePath)
 
 	for _, q := range qualities {
 		// 输出参数

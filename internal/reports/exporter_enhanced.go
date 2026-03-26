@@ -2,6 +2,7 @@ package reports
 
 import (
 	"bytes"
+	"context"
 	"encoding/csv"
 	"errors"
 	"fmt"
@@ -127,7 +128,9 @@ func (g *WkhtmltopdfGenerator) Generate(htmlContent []byte, outputPath string, o
 	args = append(args, tmpHTML, outputPath)
 
 	// 执行命令
-	cmd := exec.Command(g.binaryPath, args...)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, g.binaryPath, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("生成 PDF 失败: %w, 输出: %s", err, string(output))

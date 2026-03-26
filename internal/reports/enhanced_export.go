@@ -3,6 +3,7 @@ package reports
 
 import (
 	"bytes"
+	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -972,7 +973,9 @@ func (c *WKHTMLToPDFConverter) IsAvailable() bool {
 
 // Convert 转换 HTML 到 PDF.
 func (c *WKHTMLToPDFConverter) Convert(htmlPath, pdfPath string) error {
-	cmd := exec.Command(c.path,
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, c.path,
 		"--quiet",
 		"--encoding", "UTF-8",
 		"--page-size", "A4",
