@@ -32,14 +32,29 @@ info:
     | 500 | 服务器内部错误 |
     | 503 | 服务暂时不可用 |
     
-version: 2.274.0
+version: 2.284.0
   contact:
     name: NAS-OS 团队
     email: support@nas-os.io
     url: https://github.com/nas-os/nas-os
   license:
     name: MIT
-    url: https://opensource.org/licenses/MIT
+    url: https://opensource.org/MIT
+  x-changelog:
+    - version: "2.284.0"
+      date: "2026-03-26"
+      changes:
+        - "新增 WriteOnce 不可变存储 API (immutable)"
+        - "新增内网穿透 API (tunnel)"
+        - "新增文件锁定 API (files/locks)"
+        - "新增 AI 相册语义搜索 API (photos/search)"
+        - "新增勒索软件检测 API (ransomware)"
+        - "新增网盘挂载 API (cloudmount)"
+    - version: "2.274.0"
+      date: "2026-03-25"
+      changes:
+        - "新增 AI 相册以文搜图功能"
+        - "完善数据去重 API"
 
 servers:
   - url: http://localhost:8080/api/v1
@@ -68,6 +83,18 @@ tags:
     description: 通知中心 API - 系统通知与多渠道告警
   - name: optimizer
     description: 性能优化 API - 智能分析与系统优化建议
+  - name: immutable
+    description: WriteOnce 不可变存储 API - 防勒索保护与合规归档
+  - name: tunnel
+    description: 内网穿透 API - 远程访问与隧道管理
+  - name: files
+    description: 文件管理 API - 文件操作、锁定与版本控制
+  - name: photos
+    description: 照片管理 API - AI 相册与智能搜索
+  - name: ransomware
+    description: 勒索软件检测 API - 威胁检测与恢复
+  - name: cloudmount
+    description: 网盘挂载 API - 多云存储挂载与同步
 
 paths:
   # ==================== 数据去重 API ====================
@@ -2300,6 +2327,696 @@ security:
   - BearerAuth: []
 
 paths:
+  # ==================== WriteOnce 不可变存储 API ====================
+  /immutable:
+    get:
+      tags: [immutable]
+      summary: 获取不可变存储列表
+      description: 获取所有已锁定的不可变存储目录列表
+      operationId: listImmutableStorages
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ImmutableStorage'
+    post:
+      tags: [immutable]
+      summary: 锁定目录
+      description: 将目录锁定为不可变存储，防止修改和删除
+      operationId: lockImmutableStorage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImmutableLockRequest'
+            example:
+              path: "/data/important-docs"
+              duration: "30d"
+              description: "重要文档防勒索保护"
+              protectFromRansomware: true
+      responses:
+        '200':
+          description: 锁定成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/ImmutableStorage'
+
+  /immutable/{id}:
+    get:
+      tags: [immutable]
+      summary: 获取不可变存储详情
+      operationId: getImmutableStorage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/ImmutableStorage'
+    delete:
+      tags: [immutable]
+      summary: 解锁目录
+      description: 解锁不可变存储（仅限未过期或永久锁定的存储需管理员确认）
+      operationId: unlockImmutableStorage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /immutable/{id}/extend:
+    post:
+      tags: [immutable]
+      summary: 延长锁定时间
+      operationId: extendImmutableStorage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duration:
+                  type: string
+                  enum: [7d, 30d, permanent]
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /immutable/{id}/restore:
+    post:
+      tags: [immutable]
+      summary: 从快照恢复
+      description: 从不可变存储快照恢复数据
+      operationId: restoreFromImmutable
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_path:
+                  type: string
+                  description: 恢复目标路径
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 内网穿透 API ====================
+  /tunnel:
+    get:
+      tags: [tunnel]
+      summary: 获取隧道列表
+      description: 获取所有内网穿透隧道状态
+      operationId: listTunnels
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tunnel'
+    post:
+      tags: [tunnel]
+      summary: 创建隧道
+      description: 创建新的内网穿透隧道
+      operationId: createTunnel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TunnelCreateRequest'
+            example:
+              name: "web-ui"
+              local_port: 8080
+              mode: "auto"
+      responses:
+        '200':
+          description: 隧道创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Tunnel'
+
+  /tunnel/{id}:
+    get:
+      tags: [tunnel]
+      summary: 获取隧道详情
+      operationId: getTunnel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Tunnel'
+    delete:
+      tags: [tunnel]
+      summary: 删除隧道
+      operationId: deleteTunnel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /tunnel/{id}/connect:
+    post:
+      tags: [tunnel]
+      summary: 连接隧道
+      operationId: connectTunnel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /tunnel/{id}/disconnect:
+    post:
+      tags: [tunnel]
+      summary: 断开隧道
+      operationId: disconnectTunnel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 文件锁定 API ====================
+  /files/locks:
+    get:
+      tags: [files]
+      summary: 获取文件锁列表
+      description: 获取当前活跃的文件锁定列表
+      operationId: listFileLocks
+      parameters:
+        - name: path
+          in: query
+          description: 筛选路径前缀
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FileLock'
+    post:
+      tags: [files]
+      summary: 获取文件锁
+      description: 对文件或目录加锁，防止并发冲突
+      operationId: acquireFileLock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileLockRequest'
+            example:
+              path: "/data/shared/report.docx"
+              lock_type: "exclusive"
+              timeout_seconds: 3600
+      responses:
+        '200':
+          description: 加锁成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/FileLock'
+
+  /files/locks/{id}:
+    get:
+      tags: [files]
+      summary: 获取锁详情
+      operationId: getFileLock
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/FileLock'
+    delete:
+      tags: [files]
+      summary: 释放文件锁
+      operationId: releaseFileLock
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== AI 相册 API ====================
+  /photos/search:
+    post:
+      tags: [photos]
+      summary: AI 语义搜索照片
+      description: 使用自然语言描述搜索相册中的照片（CLIP 模型）
+      operationId: searchPhotosByQuery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAlbumSearchRequest'
+            example:
+              query: "海边的日落风景"
+              limit: 20
+      responses:
+        '200':
+          description: 搜索结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AIAlbumSearchResult'
+
+  /photos/index:
+    post:
+      tags: [photos]
+      summary: 重建照片索引
+      description: 为 AI 语义搜索重建照片特征索引
+      operationId: rebuildPhotoIndex
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+                  description: 要索引的目录路径
+                force:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: 索引任务已启动
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: object
+                    properties:
+                      task_id:
+                        type: string
+                      status:
+                        type: string
+
+  # ==================== 勒索软件检测 API ====================
+  /ransomware/config:
+    get:
+      tags: [ransomware]
+      summary: 获取检测配置
+      operationId: getRansomwareConfig
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/RansomwareDetectionConfig'
+    put:
+      tags: [ransomware]
+      summary: 更新检测配置
+      operationId: updateRansomwareConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RansomwareDetectionConfig'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /ransomware/alerts:
+    get:
+      tags: [ransomware]
+      summary: 获取威胁告警列表
+      operationId: listRansomwareAlerts
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, contained, false_positive, resolved]
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RansomwareAlert'
+
+  /ransomware/alerts/{id}:
+    get:
+      tags: [ransomware]
+      summary: 获取告警详情
+      operationId: getRansomwareAlert
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/RansomwareAlert'
+
+  /ransomware/alerts/{id}/contain:
+    post:
+      tags: [ransomware]
+      summary: 隔离威胁
+      description: 隔离检测到的勒索软件威胁
+      operationId: containRansomwareAlert
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /ransomware/alerts/{id}/false-positive:
+    post:
+      tags: [ransomware]
+      summary: 标记误报
+      operationId: markFalsePositive
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /ransomware/recovery/{alertId}:
+    post:
+      tags: [ransomware]
+      summary: 恢复被加密文件
+      description: 从备份恢复被勒索软件加密的文件
+      operationId: recoverFromRansomware
+      parameters:
+        - name: alertId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 恢复任务已启动
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: object
+                    properties:
+                      task_id:
+                        type: string
+                      affected_files:
+                        type: integer
+
+  # ==================== 网盘挂载 API ====================
+  /cloudmount:
+    get:
+      tags: [cloudmount]
+      summary: 获取云盘挂载列表
+      operationId: listCloudMounts
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CloudMount'
+    post:
+      tags: [cloudmount]
+      summary: 创建云盘挂载
+      description: 将云存储挂载到本地文件系统
+      operationId: createCloudMount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudMountCreateRequest'
+            example:
+              name: "阿里云盘"
+              provider: "aliyun"
+              mount_path: "/mnt/aliyun"
+              read_only: false
+      responses:
+        '200':
+          description: 挂载成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/CloudMount'
+
+  /cloudmount/{id}:
+    get:
+      tags: [cloudmount]
+      summary: 获取挂载详情
+      operationId: getCloudMount
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/CloudMount'
+    delete:
+      tags: [cloudmount]
+      summary: 卸载云盘
+      operationId: deleteCloudMount
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /cloudmount/{id}/sync:
+    post:
+      tags: [cloudmount]
+      summary: 同步云盘
+      description: 触发云盘同步任务
+      operationId: syncCloudMount
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                direction:
+                  type: string
+                  enum: [upload, download, bidirectional]
+                  default: bidirectional
+      responses:
+        '200':
+          description: 同步任务已启动
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: object
+                    properties:
+                      task_id:
+                        type: string
+
   # ==================== iSCSI 目标管理 API ====================
   /iscsi/targets:
     get:
@@ -4568,3 +5285,296 @@ paths:
           type: boolean
         ssl_enabled:
           type: boolean
+
+    # ==================== WriteOnce 不可变存储 ====================
+    ImmutableStorage:
+      type: object
+      properties:
+        id:
+          type: string
+        path:
+          type: string
+          description: 锁定的目录路径
+        duration:
+          type: string
+          enum: [7d, 30d, permanent]
+          description: 锁定时长
+        status:
+          type: string
+          enum: [locked, unlocked, expired]
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        protect_from_ransomware:
+          type: boolean
+          description: 是否启用防勒索保护
+        locked_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        size:
+          type: integer
+          description: 锁定数据大小（字节）
+
+    ImmutableLockRequest:
+      type: object
+      required:
+        - path
+        - duration
+      properties:
+        path:
+          type: string
+          description: 要锁定的目录路径
+        duration:
+          type: string
+          enum: [7d, 30d, permanent]
+          description: 锁定时长
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        protect_from_ransomware:
+          type: boolean
+          default: true
+
+    # ==================== 内网穿透 ====================
+    Tunnel:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [connected, disconnected, connecting]
+        mode:
+          type: string
+          enum: [p2p, relay, reverse]
+          description: 连接模式
+        local_port:
+          type: integer
+        remote_url:
+          type: string
+          description: 远程访问地址
+        created_at:
+          type: string
+          format: date-time
+        bytes_sent:
+          type: integer
+        bytes_received:
+          type: integer
+
+    TunnelCreateRequest:
+      type: object
+      required:
+        - name
+        - local_port
+      properties:
+        name:
+          type: string
+        local_port:
+          type: integer
+          description: 本地服务端口
+        mode:
+          type: string
+          enum: [auto, p2p, relay, reverse]
+          default: auto
+        description:
+          type: string
+
+    # ==================== 文件锁定 ====================
+    FileLock:
+      type: object
+      properties:
+        id:
+          type: string
+        path:
+          type: string
+          description: 锁定的文件路径
+        lock_type:
+          type: string
+          enum: [shared, exclusive]
+          description: 共享锁/独占锁
+        scope:
+          type: string
+          enum: [file, directory, record]
+        owner:
+          type: string
+          description: 锁持有者
+        process_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        timeout_seconds:
+          type: integer
+
+    FileLockRequest:
+      type: object
+      required:
+        - path
+        - lock_type
+      properties:
+        path:
+          type: string
+          description: 要锁定的文件路径
+        lock_type:
+          type: string
+          enum: [shared, exclusive]
+        scope:
+          type: string
+          enum: [file, directory]
+          default: file
+        timeout_seconds:
+          type: integer
+          default: 3600
+          description: 锁超时时间（秒）
+
+    # ==================== AI 相册 ====================
+    AIAlbumSearchRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: 自然语言搜索查询
+        limit:
+          type: integer
+          default: 50
+        threshold:
+          type: number
+          default: 0.5
+          description: 相似度阈值
+
+    AIAlbumSearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+        path:
+          type: string
+        filename:
+          type: string
+        similarity:
+          type: number
+          description: 与查询的相似度分数
+        thumbnail_url:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+
+    # ==================== 勒索软件检测 ====================
+    RansomwareDetectionConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        watch_paths:
+          type: array
+          items:
+            type: string
+        exclude_paths:
+          type: array
+          items:
+            type: string
+        sensitivity:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+        auto_isolate:
+          type: boolean
+          description: 检测到威胁时自动隔离
+        auto_backup:
+          type: boolean
+          description: 自动备份被修改的文件
+
+    RansomwareAlert:
+      type: object
+      properties:
+        id:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        timestamp:
+          type: string
+          format: date-time
+        process_name:
+          type: string
+        process_id:
+          type: integer
+        affected_files:
+          type: array
+          items:
+            type: string
+        threat_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        status:
+          type: string
+          enum: [active, contained, false_positive, resolved]
+        actions_taken:
+          type: array
+          items:
+            type: string
+
+    # ==================== 网盘挂载 ====================
+    CloudMount:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        provider:
+          type: string
+          enum: [aliyun, tencent, aws_s3, google_drive, onedrive, baidu, quark]
+        mount_path:
+          type: string
+          description: 本地挂载路径
+        status:
+          type: string
+          enum: [mounted, unmounted, error]
+        total_size:
+          type: integer
+        used_size:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    CloudMountCreateRequest:
+      type: object
+      required:
+        - name
+        - provider
+        - mount_path
+      properties:
+        name:
+          type: string
+        provider:
+          type: string
+          enum: [aliyun, tencent, aws_s3, google_drive, onedrive, baidu, quark]
+        mount_path:
+          type: string
+        credentials:
+          type: object
+          additionalProperties: true
+          description: 认证凭据（根据不同云存储填写）
+        read_only:
+          type: boolean
+          default: false
