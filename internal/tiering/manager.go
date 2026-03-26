@@ -251,7 +251,7 @@ func (m *Manager) ListPolicies() []*Policy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var list []*Policy
+	var list = make([]*Policy, 0, len(m.policies))
 	for _, policy := range m.policies {
 		list = append(list, policy)
 	}

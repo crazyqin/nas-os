@@ -244,7 +244,7 @@ func (m *Monitor) collectSMBSessions() ([]*Session, error) {
 // collectSMBSessionsFromCommand 从命令收集SMB会话.
 func (m *Monitor) collectSMBSessionsFromCommand() ([]*Session, error) {
 	// 使用 smbstatus -b 获取会话信息
-	cmd := exec.Command("smbstatus", "-b")
+	cmd := exec.CommandContext(context.Background(), "smbstatus", "-b")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("执行smbstatus失败: %w", err)

@@ -440,7 +440,7 @@ func (m *FRPManager) GetDashboardData() *FRPDashboard {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	proxies := make([]FRPProxyStatus, 0)
+	proxies := make([]FRPProxyStatus, 0, len(m.proxyConfigs))
 	for name, cfg := range m.proxyConfigs {
 		proxies = append(proxies, FRPProxyStatus{
 			Name:       name,

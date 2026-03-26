@@ -474,7 +474,8 @@ func (m *Manager) DeleteContainer(ctx context.Context, name string, force bool) 
 
 // UpdateContainer updates a container's configuration.
 func (m *Manager) UpdateContainer(ctx context.Context, name string, updates map[string]string) error {
-	args := []string{"config", "set", name}
+	args := make([]string, 0, 3+len(updates))
+	args = append(args, "config", "set", name)
 	for k, v := range updates {
 		args = append(args, fmt.Sprintf("%s=%s", k, v))
 	}
@@ -489,7 +490,8 @@ func (m *Manager) UpdateContainer(ctx context.Context, name string, updates map[
 
 // UpdateResources updates container resource limits.
 func (m *Manager) UpdateResources(ctx context.Context, name string, resources *ResourceConfig) error {
-	args := []string{"config", "set", name}
+	args := make([]string, 0, 10)
+	args = append(args, "config", "set", name)
 	args = append(args, buildResourceArgs(resources)...)
 
 	if len(args) <= 3 {
@@ -808,7 +810,7 @@ func parseNetworkFromState(state map[string]struct {
 		Netmask string `json:"netmask"`
 	} `json:"addresses"`
 }) []NetworkConfig {
-	var networks []NetworkConfig
+	var networks = make([]NetworkConfig, 0, len(state))
 
 	for name, net := range state {
 		config := NetworkConfig{Name: name}
