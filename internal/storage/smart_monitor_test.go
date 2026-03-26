@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"testing"
 	"time"
 )
@@ -283,7 +284,7 @@ func TestSMARTMonitor_GetHistory_Empty(t *testing.T) {
 func TestSMARTMonitor_RunSelfTest_NotFound(t *testing.T) {
 	monitor := NewSMARTMonitor(DefaultSMARTConfig)
 
-	err := monitor.RunSelfTest("/dev/nonexistent", "short")
+	err := monitor.RunSelfTest(context.Background(), "/dev/nonexistent", "short")
 	if err == nil {
 		t.Error("Expected error for nonexistent disk")
 	}
@@ -292,7 +293,7 @@ func TestSMARTMonitor_RunSelfTest_NotFound(t *testing.T) {
 func TestSMARTMonitor_GetSelfTestStatus_NotFound(t *testing.T) {
 	monitor := NewSMARTMonitor(DefaultSMARTConfig)
 
-	status, err := monitor.GetSelfTestStatus("/dev/nonexistent")
+	status, err := monitor.GetSelfTestStatus(context.Background(), "/dev/nonexistent")
 	if err == nil {
 		t.Error("Expected error for nonexistent disk")
 	}
