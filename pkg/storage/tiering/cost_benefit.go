@@ -11,24 +11,24 @@ import (
 
 // CostBenefitReport represents a comprehensive cost-benefit analysis
 type CostBenefitReport struct {
-	GeneratedAt         time.Time          `json:"generated_at"`
-	Period              TimeRange          `json:"period"`
-	StorageCosts        StorageCostBreakdown `json:"storage_costs"`
-	PerformanceValue    PerformanceValue   `json:"performance_value"`
-	ROI                 ROIAnalysis        `json:"roi"`
-	CostSavings         CostSavings        `json:"cost_savings"`
-	OptimizationOpportunities []CostOpportunity `json:"optimization_opportunities"`
-	Recommendations     []CostRecommendation `json:"recommendations"`
+	GeneratedAt               time.Time            `json:"generated_at"`
+	Period                    TimeRange            `json:"period"`
+	StorageCosts              StorageCostBreakdown `json:"storage_costs"`
+	PerformanceValue          PerformanceValue     `json:"performance_value"`
+	ROI                       ROIAnalysis          `json:"roi"`
+	CostSavings               CostSavings          `json:"cost_savings"`
+	OptimizationOpportunities []CostOpportunity    `json:"optimization_opportunities"`
+	Recommendations           []CostRecommendation `json:"recommendations"`
 }
 
 // StorageCostBreakdown represents storage costs by tier
 type StorageCostBreakdown struct {
-	HotTierCost   TierCostDetail `json:"hot_tier_cost"`
-	WarmTierCost  TierCostDetail `json:"warm_tier_cost"`
-	ColdTierCost  TierCostDetail `json:"cold_tier_cost"`
-	TotalMonthly  float64        `json:"total_monthly_usd"`
-	TotalAnnual   float64        `json:"total_annual_usd"`
-	CostPerGB     float64        `json:"cost_per_gb_usd"`
+	HotTierCost  TierCostDetail `json:"hot_tier_cost"`
+	WarmTierCost TierCostDetail `json:"warm_tier_cost"`
+	ColdTierCost TierCostDetail `json:"cold_tier_cost"`
+	TotalMonthly float64        `json:"total_monthly_usd"`
+	TotalAnnual  float64        `json:"total_annual_usd"`
+	CostPerGB    float64        `json:"cost_per_gb_usd"`
 }
 
 // TierCostDetail represents cost details for a single tier
@@ -54,15 +54,15 @@ type PerformanceValue struct {
 
 // ROIAnalysis represents return on investment analysis
 type ROIAnalysis struct {
-	InitialInvestment    float64 `json:"initial_investment_usd"`
+	InitialInvestment      float64 `json:"initial_investment_usd"`
 	MonthlyOperationalCost float64 `json:"monthly_operational_cost_usd"`
-	MonthlySavings       float64 `json:"monthly_savings_usd"`
-	MonthlyValue         float64 `json:"monthly_value_usd"`
-	PaybackPeriodMonths  float64 `json:"payback_period_months"`
-	AnnualROI            float64 `json:"annual_roi_percent"`
-	ThreeYearROI         float64 `json:"three_year_roi_percent"`
-	NPV                  float64 `json:"npv_usd"`
-	IRR                  float64 `json:"irr_percent"`
+	MonthlySavings         float64 `json:"monthly_savings_usd"`
+	MonthlyValue           float64 `json:"monthly_value_usd"`
+	PaybackPeriodMonths    float64 `json:"payback_period_months"`
+	AnnualROI              float64 `json:"annual_roi_percent"`
+	ThreeYearROI           float64 `json:"three_year_roi_percent"`
+	NPV                    float64 `json:"npv_usd"`
+	IRR                    float64 `json:"irr_percent"`
 }
 
 // CostSavings represents cost savings from tiering optimization
@@ -127,14 +127,14 @@ type CostConfig struct {
 // Based on typical 2024-2025 cloud storage pricing
 func DefaultCostConfig() CostConfig {
 	return CostConfig{
-		HotTierCostPerGB:        0.15,   // SSD/NVMe tier
-		WarmTierCostPerGB:       0.05,   // HDD tier
-		ColdTierCostPerGB:       0.004,  // Archive tier (S3 Glacier-like)
-		LatencyValuePerMs:       10.0,   // Business value per ms latency reduction
-		ThroughputValuePerMBs:   5.0,    // Business value per MB/s improvement
+		HotTierCostPerGB:         0.15,  // SSD/NVMe tier
+		WarmTierCostPerGB:        0.05,  // HDD tier
+		ColdTierCostPerGB:        0.004, // Archive tier (S3 Glacier-like)
+		LatencyValuePerMs:        10.0,  // Business value per ms latency reduction
+		ThroughputValuePerMBs:    5.0,   // Business value per MB/s improvement
 		ProductivityValuePerUser: 50.0,  // Monthly productivity value per user
-		ActiveUsers:             10,     // Default users
-		DiscountRate:            0.08,   // 8% annual discount rate
+		ActiveUsers:              10,    // Default users
+		DiscountRate:             0.08,  // 8% annual discount rate
 	}
 }
 
@@ -263,7 +263,7 @@ func (ca *CostAnalyzer) calculatePerformanceValue() PerformanceValue {
 	// Based on typical tiering performance gains
 	// Synology DSM 7.3 reports 30%+ performance improvement
 	pv := PerformanceValue{
-		ReducedLatencyValue:   ca.config.LatencyValuePerMs * 50 * float64(ca.config.ActiveUsers), // 50ms avg reduction
+		ReducedLatencyValue:   ca.config.LatencyValuePerMs * 50 * float64(ca.config.ActiveUsers),      // 50ms avg reduction
 		ThroughputValue:       ca.config.ThroughputValuePerMBs * 100 * float64(ca.config.ActiveUsers), // 100 MB/s improvement
 		IOPSValue:             ca.config.ThroughputValuePerMBs * 50 * float64(ca.config.ActiveUsers),
 		UserProductivityValue: ca.config.ProductivityValuePerUser * float64(ca.config.ActiveUsers),
@@ -277,8 +277,8 @@ func (ca *CostAnalyzer) calculatePerformanceValue() PerformanceValue {
 // calculateROI calculates return on investment metrics
 func (ca *CostAnalyzer) calculateROI(costs StorageCostBreakdown, pv PerformanceValue) ROIAnalysis {
 	roi := ROIAnalysis{
-		InitialInvestment:      1000, // Estimated tiering setup cost
-		MonthlyOperationalCost: costs.TotalMonthly * 0.1, // 10% overhead for tiering
+		InitialInvestment:      1000,                      // Estimated tiering setup cost
+		MonthlyOperationalCost: costs.TotalMonthly * 0.1,  // 10% overhead for tiering
 		MonthlySavings:         costs.TotalMonthly * 0.25, // 25% cost reduction from tiering
 		MonthlyValue:           pv.TotalPerformanceValue,
 	}
@@ -360,7 +360,7 @@ func (ca *CostAnalyzer) findOptimizationOpportunities(stats Stats, migrator *Mig
 				Type:           "migration",
 				Tier:           TierHot,
 				CurrentCost:    hotUsedGB * ca.config.HotTierCostPerGB * 12,
-				PotentialCost:  hotUsedGB * 0.7 * ca.config.HotTierCostPerGB * 12 + hotUsedGB * 0.3 * ca.config.WarmTierCostPerGB * 12,
+				PotentialCost:  hotUsedGB*0.7*ca.config.HotTierCostPerGB*12 + hotUsedGB*0.3*ca.config.WarmTierCostPerGB*12,
 				Savings:        hotUsedGB * 0.3 * (ca.config.HotTierCostPerGB - ca.config.WarmTierCostPerGB) * 12,
 				Effort:         "low",
 				Impact:         "high",
@@ -381,7 +381,7 @@ func (ca *CostAnalyzer) findOptimizationOpportunities(stats Stats, migrator *Mig
 			Type:           "archive",
 			Tier:           TierWarm,
 			CurrentCost:    warmUsedGB * ca.config.WarmTierCostPerGB * 12,
-			PotentialCost:  warmUsedGB * 0.7 * ca.config.WarmTierCostPerGB * 12 + warmUsedGB * 0.3 * ca.config.ColdTierCostPerGB * 12,
+			PotentialCost:  warmUsedGB*0.7*ca.config.WarmTierCostPerGB*12 + warmUsedGB*0.3*ca.config.ColdTierCostPerGB*12,
 			Savings:        warmUsedGB * 0.3 * (ca.config.WarmTierCostPerGB - ca.config.ColdTierCostPerGB) * 12,
 			Effort:         "medium",
 			Impact:         "medium",
@@ -482,11 +482,11 @@ func (ca *CostAnalyzer) GetConfig() CostConfig {
 // EstimateMigrationCost estimates the cost of migrating data between tiers
 func (ca *CostAnalyzer) EstimateMigrationCost(sourceTier, targetTier Tier, sizeGB float64) MigrationCostEstimate {
 	estimate := MigrationCostEstimate{
-		SourceTier:    sourceTier,
-		TargetTier:    targetTier,
-		SizeGB:        sizeGB,
-		TransferCost:  sizeGB * 0.01, // $0.01/GB transfer cost
-		TransferTime:  time.Duration(sizeGB/100) * time.Minute, // ~100GB/min
+		SourceTier:   sourceTier,
+		TargetTier:   targetTier,
+		SizeGB:       sizeGB,
+		TransferCost: sizeGB * 0.01,                           // $0.01/GB transfer cost
+		TransferTime: time.Duration(sizeGB/100) * time.Minute, // ~100GB/min
 	}
 
 	// Calculate monthly cost change

@@ -16,12 +16,12 @@ import (
 
 // QuarantineManager 隔离管理器.
 type QuarantineManager struct {
-	config    QuarantineConfig
-	entries   map[string]*QuarantineEntry
-	entryMu   sync.RWMutex
-	manifest  string // 清单文件路径
-	stats     Statistics
-	statsMu   sync.RWMutex
+	config   QuarantineConfig
+	entries  map[string]*QuarantineEntry
+	entryMu  sync.RWMutex
+	manifest string // 清单文件路径
+	stats    Statistics
+	statsMu  sync.RWMutex
 }
 
 // NewQuarantineManager 创建隔离管理器.
@@ -302,13 +302,13 @@ func (qm *QuarantineManager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_entries":    len(qm.entries),
-		"active_entries":   len(qm.entries) - restoredCount,
-		"restored_count":   restoredCount,
-		"total_size":       totalSize,
-		"max_size":         qm.config.MaxSize,
-		"usage_percent":    float64(totalSize) / float64(qm.config.MaxSize) * 100,
-		"quarantine_dir":   qm.config.QuarantineDir,
+		"total_entries":  len(qm.entries),
+		"active_entries": len(qm.entries) - restoredCount,
+		"restored_count": restoredCount,
+		"total_size":     totalSize,
+		"max_size":       qm.config.MaxSize,
+		"usage_percent":  float64(totalSize) / float64(qm.config.MaxSize) * 100,
+		"quarantine_dir": qm.config.QuarantineDir,
 	}
 }
 

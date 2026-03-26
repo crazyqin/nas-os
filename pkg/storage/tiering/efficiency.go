@@ -58,34 +58,34 @@ type HitRatioStats struct {
 
 // MigrationEfficiency represents migration efficiency metrics
 type MigrationEfficiency struct {
-	TotalMigrations    int64         `json:"total_migrations"`
-	SuccessfulMig      int64         `json:"successful_migrations"`
-	FailedMig          int64         `json:"failed_migrations"`
-	AvgMigrationTime   time.Duration `json:"avg_migration_time"`
-	TotalBytesMoved    int64         `json:"total_bytes_moved"`
-	AvgThroughput      float64       `json:"avg_throughput_mbps"`
-	QueuedMigrations   int64         `json:"queued_migrations"`
-	CancelledMig       int64         `json:"cancelled_migrations"`
-	EfficiencyScore    float64       `json:"efficiency_score"`
-	PeakConcurrency    int           `json:"peak_concurrency"`
-	AvgQueueWaitTime   time.Duration `json:"avg_queue_wait_time"`
+	TotalMigrations  int64         `json:"total_migrations"`
+	SuccessfulMig    int64         `json:"successful_migrations"`
+	FailedMig        int64         `json:"failed_migrations"`
+	AvgMigrationTime time.Duration `json:"avg_migration_time"`
+	TotalBytesMoved  int64         `json:"total_bytes_moved"`
+	AvgThroughput    float64       `json:"avg_throughput_mbps"`
+	QueuedMigrations int64         `json:"queued_migrations"`
+	CancelledMig     int64         `json:"cancelled_migrations"`
+	EfficiencyScore  float64       `json:"efficiency_score"`
+	PeakConcurrency  int           `json:"peak_concurrency"`
+	AvgQueueWaitTime time.Duration `json:"avg_queue_wait_time"`
 }
 
 // PerformanceGain represents performance improvement metrics
 type PerformanceGain struct {
-	ReadLatencyImprovement   float64 `json:"read_latency_improvement_percent"`
-	WriteLatencyImprovement  float64 `json:"write_latency_improvement_percent"`
-	ThroughputImprovement    float64 `json:"throughput_improvement_percent"`
-	IOPSImprovement          float64 `json:"iops_improvement_percent"`
-	AccessTimeReduction      float64 `json:"access_time_reduction_percent"`
-	EstimatedCostSavings     float64 `json:"estimated_cost_savings_usd"`
-	EffectiveCapacityGain    float64 `json:"effective_capacity_gain_percent"`
-	PerformanceScore         float64 `json:"performance_score"`
+	ReadLatencyImprovement  float64 `json:"read_latency_improvement_percent"`
+	WriteLatencyImprovement float64 `json:"write_latency_improvement_percent"`
+	ThroughputImprovement   float64 `json:"throughput_improvement_percent"`
+	IOPSImprovement         float64 `json:"iops_improvement_percent"`
+	AccessTimeReduction     float64 `json:"access_time_reduction_percent"`
+	EstimatedCostSavings    float64 `json:"estimated_cost_savings_usd"`
+	EffectiveCapacityGain   float64 `json:"effective_capacity_gain_percent"`
+	PerformanceScore        float64 `json:"performance_score"`
 }
 
 // EfficiencyRecommend represents a single efficiency recommendation
 type EfficiencyRecommend struct {
-	Type        string  `json:"type"` // "migration", "policy", "capacity", "config"
+	Type        string  `json:"type"`     // "migration", "policy", "capacity", "config"
 	Priority    int     `json:"priority"` // 1-5, 1 is highest
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
@@ -96,30 +96,30 @@ type EfficiencyRecommend struct {
 
 // EfficiencyAnalyzer analyzes tiering efficiency
 type EfficiencyAnalyzer struct {
-	mu          sync.RWMutex
-	history     []EfficiencySnapshot
-	config      EfficiencyConfig
+	mu      sync.RWMutex
+	history []EfficiencySnapshot
+	config  EfficiencyConfig
 }
 
 // EfficiencyConfig configures the analyzer
 type EfficiencyConfig struct {
 	HistoryRetentionDays int           `json:"history_retention_days"`
-	AnalysisInterval      time.Duration `json:"analysis_interval"`
-	MinSampleSize         int           `json:"min_sample_size"`
-	BenchmarkEnabled      bool          `json:"benchmark_enabled"`
+	AnalysisInterval     time.Duration `json:"analysis_interval"`
+	MinSampleSize        int           `json:"min_sample_size"`
+	BenchmarkEnabled     bool          `json:"benchmark_enabled"`
 }
 
 // EfficiencySnapshot represents a point-in-time efficiency measurement
 type EfficiencySnapshot struct {
-	Timestamp        time.Time `json:"timestamp"`
-	HotTierUsage     int64     `json:"hot_tier_usage"`
-	WarmTierUsage    int64     `json:"warm_tier_usage"`
-	ColdTierUsage    int64     `json:"cold_tier_usage"`
-	HitRate          float64   `json:"hit_rate"`
-	MigrationCount   int64     `json:"migration_count"`
-	ReadLatency      float64   `json:"read_latency_ms"`
-	WriteLatency     float64   `json:"write_latency_ms"`
-	Throughput       float64   `json:"throughput_mbps"`
+	Timestamp      time.Time `json:"timestamp"`
+	HotTierUsage   int64     `json:"hot_tier_usage"`
+	WarmTierUsage  int64     `json:"warm_tier_usage"`
+	ColdTierUsage  int64     `json:"cold_tier_usage"`
+	HitRate        float64   `json:"hit_rate"`
+	MigrationCount int64     `json:"migration_count"`
+	ReadLatency    float64   `json:"read_latency_ms"`
+	WriteLatency   float64   `json:"write_latency_ms"`
+	Throughput     float64   `json:"throughput_mbps"`
 }
 
 // NewEfficiencyAnalyzer creates a new efficiency analyzer
@@ -146,9 +146,9 @@ func (ea *EfficiencyAnalyzer) GenerateReport(ctx context.Context, manager *Manag
 	defer ea.mu.RUnlock()
 
 	report := &EfficiencyReport{
-		GeneratedAt:    time.Now(),
-		TimeRange:      timeRange,
-		TierEfficiency: make(map[Tier]TierEffStat),
+		GeneratedAt:     time.Now(),
+		TimeRange:       timeRange,
+		TierEfficiency:  make(map[Tier]TierEffStat),
 		Recommendations: make([]EfficiencyRecommend, 0),
 	}
 
@@ -273,8 +273,8 @@ func (ea *EfficiencyAnalyzer) calculateMigrationEfficiency(stats MigrationStats)
 func (ea *EfficiencyAnalyzer) calculateOverallEfficiency(report *EfficiencyReport) float64 {
 	// Weighted average of key metrics
 	weights := struct {
-		tierScore    float64
-		hitRate      float64
+		tierScore     float64
+		hitRate       float64
 		migEfficiency float64
 	}{
 		tierScore:     0.3,
@@ -454,12 +454,12 @@ func (ea *EfficiencyAnalyzer) CompareEfficiency(period1, period2 TimeRange) (*Ef
 	avg2 := calculateAvgSnapshot(p2Snapshots)
 
 	return &EfficiencyComparison{
-		Period1:           period1,
-		Period2:           period2,
-		HitRateChange:     avg2.HitRate - avg1.HitRate,
-		MigrationChange:   avg2.MigrationCount - avg1.MigrationCount,
-		LatencyChange:     avg2.ReadLatency - avg1.ReadLatency,
-		ThroughputChange:  avg2.Throughput - avg1.Throughput,
+		Period1:          period1,
+		Period2:          period2,
+		HitRateChange:    avg2.HitRate - avg1.HitRate,
+		MigrationChange:  avg2.MigrationCount - avg1.MigrationCount,
+		LatencyChange:    avg2.ReadLatency - avg1.ReadLatency,
+		ThroughputChange: avg2.Throughput - avg1.Throughput,
 	}, nil
 }
 

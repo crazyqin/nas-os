@@ -16,15 +16,15 @@ import (
 
 // BehaviorMonitor 行为监控器.
 type BehaviorMonitor struct {
-	config       MonitorConfig
-	signatureDB  *SignatureDB
-	events       *list.List
-	eventMu      sync.RWMutex
-	patterns     []BehaviorPattern
-	alertChan    chan<- Alert
-	startTime    time.Time
-	stats        Statistics
-	statsMu      sync.RWMutex
+	config      MonitorConfig
+	signatureDB *SignatureDB
+	events      *list.List
+	eventMu     sync.RWMutex
+	patterns    []BehaviorPattern
+	alertChan   chan<- Alert
+	startTime   time.Time
+	stats       Statistics
+	statsMu     sync.RWMutex
 }
 
 // NewBehaviorMonitor 创建行为监控器.

@@ -11,52 +11,52 @@ import (
 
 // TrendReport represents a capacity trend analysis report
 type TrendReport struct {
-	GeneratedAt       time.Time              `json:"generated_at"`
-	HistoricalPeriod  TimeRange              `json:"historical_period"`
-	ForecastPeriod    TimeRange              `json:"forecast_period"`
-	TierTrends        map[Tier]TierTrend     `json:"tier_trends"`
-	OverallTrend      OverallTrendAnalysis   `json:"overall_trend"`
-	Forecasts         map[Tier]CapacityForecast `json:"forecasts"`
-	Alerts            []CapacityAlert        `json:"alerts"`
-	Recommendations   []TrendRecommendation  `json:"recommendations"`
-	ConfidenceLevel   float64                `json:"confidence_level"`
+	GeneratedAt      time.Time                 `json:"generated_at"`
+	HistoricalPeriod TimeRange                 `json:"historical_period"`
+	ForecastPeriod   TimeRange                 `json:"forecast_period"`
+	TierTrends       map[Tier]TierTrend        `json:"tier_trends"`
+	OverallTrend     OverallTrendAnalysis      `json:"overall_trend"`
+	Forecasts        map[Tier]CapacityForecast `json:"forecasts"`
+	Alerts           []CapacityAlert           `json:"alerts"`
+	Recommendations  []TrendRecommendation     `json:"recommendations"`
+	ConfidenceLevel  float64                   `json:"confidence_level"`
 }
 
 // TierTrend represents trend analysis for a single tier
 type TierTrend struct {
-	Tier                Tier        `json:"tier"`
-	CurrentCapacity     int64       `json:"current_capacity_bytes"`
-	CurrentUsed         int64       `json:"current_used_bytes"`
-	CurrentUtilization  float64     `json:"current_utilization_percent"`
-	GrowthRate          float64     `json:"growth_rate_percent_per_month"`
-	GrowthTrend         string      `json:"growth_trend"` // "increasing", "stable", "decreasing"
-	Seasonality         Seasonality `json:"seasonality"`
-	PeakUtilization     float64     `json:"peak_utilization_percent"`
-	PeakTime            time.Time   `json:"peak_time,omitempty"`
-	PredictedFullDate   *time.Time  `json:"predicted_full_date,omitempty"`
-	DaysUntilFull       int         `json:"days_until_full,omitempty"`
-	RecommendedAction   string      `json:"recommended_action"`
+	Tier               Tier        `json:"tier"`
+	CurrentCapacity    int64       `json:"current_capacity_bytes"`
+	CurrentUsed        int64       `json:"current_used_bytes"`
+	CurrentUtilization float64     `json:"current_utilization_percent"`
+	GrowthRate         float64     `json:"growth_rate_percent_per_month"`
+	GrowthTrend        string      `json:"growth_trend"` // "increasing", "stable", "decreasing"
+	Seasonality        Seasonality `json:"seasonality"`
+	PeakUtilization    float64     `json:"peak_utilization_percent"`
+	PeakTime           time.Time   `json:"peak_time,omitempty"`
+	PredictedFullDate  *time.Time  `json:"predicted_full_date,omitempty"`
+	DaysUntilFull      int         `json:"days_until_full,omitempty"`
+	RecommendedAction  string      `json:"recommended_action"`
 }
 
 // Seasonality represents seasonal patterns in data
 type Seasonality struct {
-	Detected      bool             `json:"detected"`
-	PatternType   string           `json:"pattern_type"` // "daily", "weekly", "monthly", "yearly"
-	PeakMonths    []int            `json:"peak_months,omitempty"`
-	PeakDays      []int            `json:"peak_days,omitempty"`    // 0=Sunday
-	PeakHours     []int            `json:"peak_hours,omitempty"`
-	VariationPercent float64       `json:"variation_percent"`
+	Detected         bool    `json:"detected"`
+	PatternType      string  `json:"pattern_type"` // "daily", "weekly", "monthly", "yearly"
+	PeakMonths       []int   `json:"peak_months,omitempty"`
+	PeakDays         []int   `json:"peak_days,omitempty"` // 0=Sunday
+	PeakHours        []int   `json:"peak_hours,omitempty"`
+	VariationPercent float64 `json:"variation_percent"`
 }
 
 // CapacityForecast represents a capacity forecast for a tier
 type CapacityForecast struct {
-	Tier             Tier               `json:"tier"`
-	Predictions      []CapacityPoint    `json:"predictions"`
-	WorstCase        []CapacityPoint    `json:"worst_case"`
-	BestCase         []CapacityPoint    `json:"best_case"`
-	ConfidenceBounds ConfidenceBounds   `json:"confidence_bounds"`
-	Accuracy         ForecastAccuracy   `json:"accuracy"`
-	Method           string             `json:"method"` // "linear", "exponential", "arima", "ensemble"
+	Tier             Tier             `json:"tier"`
+	Predictions      []CapacityPoint  `json:"predictions"`
+	WorstCase        []CapacityPoint  `json:"worst_case"`
+	BestCase         []CapacityPoint  `json:"best_case"`
+	ConfidenceBounds ConfidenceBounds `json:"confidence_bounds"`
+	Accuracy         ForecastAccuracy `json:"accuracy"`
+	Method           string           `json:"method"` // "linear", "exponential", "arima", "ensemble"
 }
 
 // CapacityPoint represents a predicted capacity point
@@ -77,55 +77,55 @@ type ConfidenceBounds struct {
 
 // ForecastAccuracy represents forecast accuracy metrics
 type ForecastAccuracy struct {
-	MAPE   float64 `json:"mape"`   // Mean Absolute Percentage Error
-	MAE    float64 `json:"mae"`    // Mean Absolute Error
-	RMSE   float64 `json:"rmse"`   // Root Mean Square Error
-	R2     float64 `json:"r2"`     // R-squared
-	Score  float64 `json:"score"`  // Overall accuracy score (0-100)
+	MAPE  float64 `json:"mape"`  // Mean Absolute Percentage Error
+	MAE   float64 `json:"mae"`   // Mean Absolute Error
+	RMSE  float64 `json:"rmse"`  // Root Mean Square Error
+	R2    float64 `json:"r2"`    // R-squared
+	Score float64 `json:"score"` // Overall accuracy score (0-100)
 }
 
 // OverallTrendAnalysis represents overall storage trend analysis
 type OverallTrendAnalysis struct {
-	TotalCapacity          int64   `json:"total_capacity_bytes"`
-	TotalUsed              int64   `json:"total_used_bytes"`
-	OverallUtilization     float64 `json:"overall_utilization_percent"`
-	OverallGrowthRate      float64 `json:"overall_growth_rate_percent_per_month"`
-	TieringEfficiencyTrend string  `json:"tiering_efficiency_trend"` // "improving", "stable", "declining"
+	TotalCapacity           int64            `json:"total_capacity_bytes"`
+	TotalUsed               int64            `json:"total_used_bytes"`
+	OverallUtilization      float64          `json:"overall_utilization_percent"`
+	OverallGrowthRate       float64          `json:"overall_growth_rate_percent_per_month"`
+	TieringEfficiencyTrend  string           `json:"tiering_efficiency_trend"` // "improving", "stable", "declining"
 	OptimalTierDistribution map[Tier]float64 `json:"optimal_tier_distribution"`
-	CurrentDistribution    map[Tier]float64 `json:"current_distribution"`
-	ImprovementPotential   float64 `json:"improvement_potential_percent"`
+	CurrentDistribution     map[Tier]float64 `json:"current_distribution"`
+	ImprovementPotential    float64          `json:"improvement_potential_percent"`
 }
 
 // CapacityAlert represents a capacity-related alert
 type CapacityAlert struct {
-	Severity    string    `json:"severity"` // "critical", "warning", "info"
-	Type        string    `json:"type"`     // "capacity", "trend", "forecast"
-	Tier        Tier      `json:"tier"`
-	Title       string    `json:"title"`
-	Message     string    `json:"message"`
-	TriggeredAt time.Time `json:"triggered_at"`
-	Threshold   float64   `json:"threshold_percent"`
-	CurrentValue float64  `json:"current_value_percent"`
-	Action      string    `json:"action"`
+	Severity     string    `json:"severity"` // "critical", "warning", "info"
+	Type         string    `json:"type"`     // "capacity", "trend", "forecast"
+	Tier         Tier      `json:"tier"`
+	Title        string    `json:"title"`
+	Message      string    `json:"message"`
+	TriggeredAt  time.Time `json:"triggered_at"`
+	Threshold    float64   `json:"threshold_percent"`
+	CurrentValue float64   `json:"current_value_percent"`
+	Action       string    `json:"action"`
 }
 
 // TrendRecommendation represents a trend-based recommendation
 type TrendRecommendation struct {
-	Priority      int     `json:"priority"`
-	Type          string  `json:"type"` // "capacity", "migration", "policy", "purchase"
-	Title         string  `json:"title"`
-	Description   string  `json:"description"`
-	Impact        string  `json:"impact"`
-	CostEstimate  float64 `json:"cost_estimate_usd"`
-	Timeline      string  `json:"timeline"`
-	ExpectedROI   float64 `json:"expected_roi_percent"`
+	Priority     int     `json:"priority"`
+	Type         string  `json:"type"` // "capacity", "migration", "policy", "purchase"
+	Title        string  `json:"title"`
+	Description  string  `json:"description"`
+	Impact       string  `json:"impact"`
+	CostEstimate float64 `json:"cost_estimate_usd"`
+	Timeline     string  `json:"timeline"`
+	ExpectedROI  float64 `json:"expected_roi_percent"`
 }
 
 // TrendPredictor predicts capacity trends
 type TrendPredictor struct {
-	mu            sync.RWMutex
-	history       []CapacitySnapshot
-	config        TrendConfig
+	mu      sync.RWMutex
+	history []CapacitySnapshot
+	config  TrendConfig
 }
 
 // TrendConfig configures the trend predictor
@@ -139,15 +139,15 @@ type TrendConfig struct {
 
 // CapacitySnapshot represents a point-in-time capacity measurement
 type CapacitySnapshot struct {
-	Timestamp     time.Time `json:"timestamp"`
-	HotUsed       int64     `json:"hot_used_bytes"`
-	WarmUsed      int64     `json:"warm_used_bytes"`
-	ColdUsed      int64     `json:"cold_used_bytes"`
-	HotCapacity   int64     `json:"hot_capacity_bytes"`
-	WarmCapacity  int64     `json:"warm_capacity_bytes"`
-	ColdCapacity  int64     `json:"cold_capacity_bytes"`
-	TotalFiles    int64     `json:"total_files"`
-	MigrationCount int64    `json:"migration_count"`
+	Timestamp      time.Time `json:"timestamp"`
+	HotUsed        int64     `json:"hot_used_bytes"`
+	WarmUsed       int64     `json:"warm_used_bytes"`
+	ColdUsed       int64     `json:"cold_used_bytes"`
+	HotCapacity    int64     `json:"hot_capacity_bytes"`
+	WarmCapacity   int64     `json:"warm_capacity_bytes"`
+	ColdCapacity   int64     `json:"cold_capacity_bytes"`
+	TotalFiles     int64     `json:"total_files"`
+	MigrationCount int64     `json:"migration_count"`
 }
 
 // DefaultTrendConfig returns default trend configuration
@@ -183,10 +183,10 @@ func (tp *TrendPredictor) GenerateTrendReport(ctx context.Context, migrator *Mig
 
 	now := time.Now()
 	report := &TrendReport{
-		GeneratedAt: now,
-		TierTrends:  make(map[Tier]TierTrend),
-		Forecasts:   make(map[Tier]CapacityForecast),
-		Alerts:      make([]CapacityAlert, 0),
+		GeneratedAt:     now,
+		TierTrends:      make(map[Tier]TierTrend),
+		Forecasts:       make(map[Tier]CapacityForecast),
+		Alerts:          make([]CapacityAlert, 0),
 		Recommendations: make([]TrendRecommendation, 0),
 	}
 

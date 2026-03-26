@@ -14,8 +14,6 @@ import (
 
 // Subsystem NVMe-oF 子系统
 type Subsystem struct {
-	mu sync.RWMutex
-
 	// 基本信息
 	NQN         string         `json:"nqn"`         // NVMe Qualified Name
 	Name        string         `json:"name"`        // 简短名称
@@ -23,8 +21,8 @@ type Subsystem struct {
 	State       SubsystemState `json:"state"`       // 状态
 
 	// 配置
-	AllowAnyHost bool `json:"allowAnyHost"` // 允许任何主机
-	MaxNamespaces int `json:"maxNamespaces"` // 最大命名空间数
+	AllowAnyHost  bool `json:"allowAnyHost"`  // 允许任何主机
+	MaxNamespaces int  `json:"maxNamespaces"` // 最大命名空间数
 
 	// 命名空间
 	Namespaces map[string]*Namespace `json:"namespaces"`
@@ -45,8 +43,6 @@ type Subsystem struct {
 
 // Namespace NVMe 命名空间
 type Namespace struct {
-	mu sync.RWMutex
-
 	// 基本信息
 	NSID    uint32 `json:"nsid"`    // Namespace ID (1-based)
 	Name    string `json:"name"`    // 名称
@@ -55,16 +51,16 @@ type Namespace struct {
 	// 后端存储
 	DevicePath string `json:"devicePath"` // 后端设备路径 (如 /dev/nvme0n1)
 	BlockSize  uint32 `json:"blockSize"`  // 块大小
-	Size       uint64 `json:"size"`        // 大小（字节）
+	Size       uint64 `json:"size"`       // 大小（字节）
 
 	// 配置
-	ReadOnly      bool   `json:"readOnly"`      // 只读
-	PiEnable      bool   `json:"piEnable"`      // 保护信息
-	NGUID         string `json:"nguid"`         // Namespace GUID
-	UUID          string `json:"uuid"`          // Namespace UUID
-	EUI64         string `json:"eui64"`         // IEEE Extended Unique Identifier
-	Anagrpid      uint32 `json:"anagrpid"`      // ANA Group ID
-	TransferSize  uint32 `json:"transferSize"`  // 传输大小
+	ReadOnly     bool   `json:"readOnly"`     // 只读
+	PiEnable     bool   `json:"piEnable"`     // 保护信息
+	NGUID        string `json:"nguid"`        // Namespace GUID
+	UUID         string `json:"uuid"`         // Namespace UUID
+	EUI64        string `json:"eui64"`        // IEEE Extended Unique Identifier
+	Anagrpid     uint32 `json:"anagrpid"`     // ANA Group ID
+	TransferSize uint32 `json:"transferSize"` // 传输大小
 
 	// 统计
 	Stats NamespaceStats `json:"stats"`
@@ -75,24 +71,22 @@ type Namespace struct {
 
 // Listener NVMe-oF 监听器
 type Listener struct {
-	mu sync.RWMutex
-
 	// 基本信息
 	ID   string `json:"id"`
 	Name string `json:"name"`
 
 	// 网络配置
-	Transport   TransportType `json:"transport"`   // 传输类型
-	TrAddress   string        `json:"trAddress"`   // 传输地址 (IP)
-	TrSVCID     string        `json:"trSvcid"`     // 传输服务 ID (端口)
-	TrType      string        `json:"trType"`      // 传输类型字符串
+	Transport TransportType `json:"transport"` // 传输类型
+	TrAddress string        `json:"trAddress"` // 传输地址 (IP)
+	TrSVCID   string        `json:"trSvcid"`   // 传输服务 ID (端口)
+	TrType    string        `json:"trType"`    // 传输类型字符串
 
 	// RDMA 特定配置
 	TrDHCHAPCtrlKey string `json:"trDhchapCtrlKey,omitempty"` // DHCHAP 控制器密钥
 
 	// 状态
-	State     ConnectionState `json:"state"`
-	Enabled   bool            `json:"enabled"`
+	State   ConnectionState `json:"state"`
+	Enabled bool            `json:"enabled"`
 
 	// 所属子系统
 	SubsystemNQN string `json:"subsystemNqn"`
@@ -103,8 +97,6 @@ type Listener struct {
 
 // Host NVMe-oF 主机
 type Host struct {
-	mu sync.RWMutex
-
 	// 基本信息
 	NQN  string `json:"nqn"`  // Host NQN
 	Name string `json:"name"` // 简短名称
@@ -166,10 +158,10 @@ type HostStats struct {
 
 // TargetStats Target 端统计
 type TargetStats struct {
-	Subsystems      int `json:"subsystems"`
-	Namespaces      int `json:"namespaces"`
-	Listeners       int `json:"listeners"`
-	Hosts           int `json:"hosts"`
+	Subsystems        int `json:"subsystems"`
+	Namespaces        int `json:"namespaces"`
+	Listeners         int `json:"listeners"`
+	Hosts             int `json:"hosts"`
 	ActiveConnections int `json:"activeConnections"`
 }
 
@@ -733,33 +725,33 @@ func (m *TargetManager) GetStats() *TargetStats {
 
 // CreateSubsystemRequest 创建子系统请求
 type CreateSubsystemRequest struct {
-	NQN          string `json:"nqn" validate:"required"`          // NVMe Qualified Name
-	Name         string `json:"name"`                             // 简短名称
-	Description  string `json:"description"`                      // 描述
-	AllowAnyHost bool   `json:"allowAnyHost"`                     // 允许任何主机
-	MaxNamespaces int   `json:"maxNamespaces,omitempty"`          // 最大命名空间数
+	NQN           string `json:"nqn" validate:"required"` // NVMe Qualified Name
+	Name          string `json:"name"`                    // 简短名称
+	Description   string `json:"description"`             // 描述
+	AllowAnyHost  bool   `json:"allowAnyHost"`            // 允许任何主机
+	MaxNamespaces int    `json:"maxNamespaces,omitempty"` // 最大命名空间数
 }
 
 // CreateNamespaceRequest 创建命名空间请求
 type CreateNamespaceRequest struct {
-	NSID       uint32 `json:"nsid,omitempty"`       // Namespace ID (可选，自动分配)
-	Name       string `json:"name"`                 // 名称
+	NSID       uint32 `json:"nsid,omitempty"`                 // Namespace ID (可选，自动分配)
+	Name       string `json:"name"`                           // 名称
 	DevicePath string `json:"devicePath" validate:"required"` // 后端设备路径
-	BlockSize  uint32 `json:"blockSize,omitempty"`  // 块大小 (默认 512)
-	Size       uint64 `json:"size,omitempty"`       // 大小 (可选，从设备获取)
-	ReadOnly   bool   `json:"readOnly"`             // 只读
-	PiEnable   bool   `json:"piEnable"`             // 保护信息
-	NGUID      string `json:"nguid,omitempty"`      // Namespace GUID
-	UUID       string `json:"uuid,omitempty"`       // Namespace UUID
-	EUI64      string `json:"eui64,omitempty"`      // EUI-64
+	BlockSize  uint32 `json:"blockSize,omitempty"`            // 块大小 (默认 512)
+	Size       uint64 `json:"size,omitempty"`                 // 大小 (可选，从设备获取)
+	ReadOnly   bool   `json:"readOnly"`                       // 只读
+	PiEnable   bool   `json:"piEnable"`                       // 保护信息
+	NGUID      string `json:"nguid,omitempty"`                // Namespace GUID
+	UUID       string `json:"uuid,omitempty"`                 // Namespace UUID
+	EUI64      string `json:"eui64,omitempty"`                // EUI-64
 }
 
 // CreateListenerRequest 创建监听器请求
 type CreateListenerRequest struct {
-	Name      string        `json:"name"`                // 名称
+	Name      string        `json:"name"`                          // 名称
 	Transport TransportType `json:"transport" validate:"required"` // 传输类型
 	TrAddress string        `json:"trAddress" validate:"required"` // IP 地址
-	TrSVCID   string        `json:"trSvcid"`             // 端口 (可选)
+	TrSVCID   string        `json:"trSvcid"`                       // 端口 (可选)
 }
 
 // AddHostRequest 添加主机请求

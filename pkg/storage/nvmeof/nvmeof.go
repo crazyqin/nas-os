@@ -308,8 +308,8 @@ func DefaultNVMeOFConfig() *NVMeOFConfig {
 			ZeroCopy:       true,
 		},
 		Security: SecurityConfig{
-			EnableAuth:  false,
-			AllowedIPs:  []string{},
+			EnableAuth: false,
+			AllowedIPs: []string{},
 		},
 		Monitoring: MonitoringConfig{
 			Enabled:         true,
@@ -561,10 +561,10 @@ func (m *NVMeOFManager) GetStats() *NVMeOFStats {
 
 // NVMeOFStats NVMe-oF 统计信息
 type NVMeOFStats struct {
-	Available bool              `json:"available"`
-	Running   bool              `json:"running"`
-	Target    *TargetStats      `json:"target,omitempty"`
-	Initiator *InitiatorStats   `json:"initiator,omitempty"`
+	Available bool            `json:"available"`
+	Running   bool            `json:"running"`
+	Target    *TargetStats    `json:"target,omitempty"`
+	Initiator *InitiatorStats `json:"initiator,omitempty"`
 }
 
 // ========== 事件定义 ==========
@@ -603,14 +603,14 @@ const (
 
 // NVMeOFEvent NVMe-oF 事件
 type NVMeOFEvent struct {
-	Type      NVMeOFEventType `json:"type"`
-	Message   string          `json:"message"`
-	Subsystem string          `json:"subsystem,omitempty"`
-	Namespace string          `json:"namespace,omitempty"`
-	Host      string          `json:"host,omitempty"`
-	Controller string         `json:"controller,omitempty"`
-	Error     error           `json:"error,omitempty"`
-	Time      time.Time       `json:"time"`
+	Type       NVMeOFEventType `json:"type"`
+	Message    string          `json:"message"`
+	Subsystem  string          `json:"subsystem,omitempty"`
+	Namespace  string          `json:"namespace,omitempty"`
+	Host       string          `json:"host,omitempty"`
+	Controller string          `json:"controller,omitempty"`
+	Error      error           `json:"error,omitempty"`
+	Time       time.Time       `json:"time"`
 }
 
 // ========== 工具函数 ==========
