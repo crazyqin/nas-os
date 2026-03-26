@@ -2,6 +2,7 @@
 package storage
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -262,8 +263,9 @@ func (m *SMARTMonitor) checkLoop() {
 
 // CheckAll 检查所有磁盘.
 func (m *SMARTMonitor) CheckAll() error {
+	ctx := context.Background()
 	// 获取所有磁盘
-	disks, err := m.detectDisks()
+	disks, err := m.detectDisks(ctx)
 	if err != nil {
 		return fmt.Errorf("检测磁盘失败: %w", err)
 	}
@@ -279,15 +281,15 @@ func (m *SMARTMonitor) CheckAll() error {
 }
 
 // detectDisks 检测系统磁盘.
-func (m *SMARTMonitor) detectDisks() ([]string, error) {
+func (m *SMARTMonitor) detectDisks(ctx context.Context) ([]string, error) {
 	var disks []string
 
 	// 使用 lsblk 或 /proc/partitions 检测
-	cmd := exec.Command("lsblk", "-d", "-o", "NAME", "-n")
+	cmd := exec.CommandContext(ctx, "lsblk", "-d", "-o", "NAME", "-n")
 	output, err := cmd.Output()
 	if err != nil {
 		// 回退到读取 /proc/partitions
-		data, err := exec.Command("cat", "/proc/partitions").Output()
+		data, err := exec.CommandContext(ctx, "cat", "/proc/partitions").Output()
 		if err != nil {
 			return nil, err
 		}
@@ -346,6 +348,7 @@ func isMainDevice(name string) bool {
 
 // CheckDevice 检查指定设备.
 func (m *SMARTMonitor) CheckDevice(device string) error {
+	ctx := context.Background()
 	// 判断是否为 NVMe
 	isNVMe := strings.Contains(device, "nvme")
 
@@ -353,9 +356,9 @@ func (m *SMARTMonitor) CheckDevice(device string) error {
 	var err error
 
 	if isNVMe {
-		health, err = m.checkNVMeDevice(device)
+		health, err = m.checkNVMeDevice(ctx, device)
 	} else {
-		health, err = m.checkSATADevice(device)
+		health, err = m.checkSATADevice(ctx, device)
 	}
 
 	if err != nil {
@@ -380,7 +383,7 @@ func (m *SMARTMonitor) CheckDevice(device string) error {
 }
 
 // checkSATADevice 检查 SATA/SAS 设备.
-func (m *SMARTMonitor) checkSATADevice(device string) (*DiskHealth, error) {
+func (m *SMARTMonitor) checkSATADevice(ctx context.Context, device string) (*DiskHealth, error) {
 	health := &DiskHealth{
 		Device:        device,
 		Attributes:    make(map[string]SMARTAttribute),
@@ -397,7 +400,7 @@ func (m *SMARTMonitor) checkSATADevice(device string) (*DiskHealth, error) {
 
 	// 获取 SMART 信息
 	// #nosec G204 -- 设备路径已验证
-	cmd := exec.Command("smartctl", "-a", device)
+	cmd := exec.CommandContext(ctx, "smartctl", "-a", device)
 	output, err := cmd.Output()
 	if err != nil {
 		// smartctl 可能返回非零退出码即使有输出
@@ -482,7 +485,7 @@ func (m *SMARTMonitor) checkSATADevice(device string) (*DiskHealth, error) {
 }
 
 // checkNVMeDevice 检查 NVMe 设备.
-func (m *SMARTMonitor) checkNVMeDevice(device string) (*DiskHealth, error) {
+func (m *SMARTMonitor) checkNVMeDevice(ctx context.Context, device string) (*DiskHealth, error) {
 	health := &DiskHealth{
 		Device:        device,
 		Attributes:    make(map[string]SMARTAttribute),
@@ -499,7 +502,7 @@ func (m *SMARTMonitor) checkNVMeDevice(device string) (*DiskHealth, error) {
 
 	// 获取 NVMe SMART 信息
 	// #nosec G204 -- 设备路径已验证
-	cmd := exec.Command("smartctl", "-a", device)
+	cmd := exec.CommandContext(ctx, "smartctl", "-a", device)
 	output, err := cmd.Output()
 	if err != nil {
 		if len(output) == 0 {
@@ -925,7 +928,7 @@ func (m *SMARTMonitor) GetHistory(device string) []HealthSnapshot {
 }
 
 // RunSelfTest 运行自检.
-func (m *SMARTMonitor) RunSelfTest(device string, testType string) error {
+func (m *SMARTMonitor) RunSelfTest(ctx context.Context, device string, testType string) error {
 	// 验证设备路径（防止命令注入）
 	if device == "" || strings.ContainsAny(device, ";|&$`()<>") {
 		return fmt.Errorf("无效的设备路径")
@@ -947,12 +950,12 @@ func (m *SMARTMonitor) RunSelfTest(device string, testType string) error {
 	}
 
 	// #nosec G204 -- 设备路径已验证，testType 在白名单中验证
-	cmd := exec.Command("smartctl", "-t", testType, device)
+	cmd := exec.CommandContext(ctx, "smartctl", "-t", testType, device)
 	return cmd.Run()
 }
 
 // GetSelfTestStatus 获取自检状态.
-func (m *SMARTMonitor) GetSelfTestStatus(device string) (string, error) {
+func (m *SMARTMonitor) GetSelfTestStatus(ctx context.Context, device string) (string, error) {
 	// 验证设备路径（防止命令注入）
 	if device == "" || strings.ContainsAny(device, ";|&$`()<>") {
 		return "", fmt.Errorf("无效的设备路径")
@@ -962,7 +965,7 @@ func (m *SMARTMonitor) GetSelfTestStatus(device string) (string, error) {
 	}
 
 	// #nosec G204 -- 设备路径已验证
-	cmd := exec.Command("smartctl", "-l", "selftest", device)
+	cmd := exec.CommandContext(ctx, "smartctl", "-l", "selftest", device)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err

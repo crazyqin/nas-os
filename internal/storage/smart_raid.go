@@ -1139,7 +1139,7 @@ func (m *SmartRAIDManager) DeleteSubvolume(poolName, subvolName string) error {
 // ========== 辅助方法 ==========
 
 // getDeviceInfo 获取设备信息.
-func (m *SmartRAIDManager) getDeviceInfo(devicePath string) (*SmartDevice, error) {
+func (m *SmartRAIDManager) getDeviceInfo(ctx context.Context, devicePath string) (*SmartDevice, error) {
 	dev := &SmartDevice{
 		ID:     generateSmartUUID(),
 		Device: devicePath,
@@ -1147,7 +1147,7 @@ func (m *SmartRAIDManager) getDeviceInfo(devicePath string) (*SmartDevice, error
 	}
 
 	// 获取设备容量
-	cmd := exec.Command("sudo", "blockdev", "--getsize64", devicePath)
+	cmd := exec.CommandContext(ctx, "sudo", "blockdev", "--getsize64", devicePath)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("获取设备容量失败: %w", err)
@@ -1155,7 +1155,7 @@ func (m *SmartRAIDManager) getDeviceInfo(devicePath string) (*SmartDevice, error
 	dev.Capacity = parseUint64(strings.TrimSpace(string(output)))
 
 	// 获取设备信息
-	cmd = exec.Command("sudo", "lsblk", "-d", "-o", "NAME,SERIAL,MODEL,ROTA", "-n", devicePath)
+	cmd = exec.CommandContext(ctx, "sudo", "lsblk", "-d", "-o", "NAME,SERIAL,MODEL,ROTA", "-n", devicePath)
 	output, err = cmd.Output()
 	if err == nil {
 		fields := strings.Fields(string(output))
@@ -1177,7 +1177,7 @@ func (m *SmartRAIDManager) getDeviceInfo(devicePath string) (*SmartDevice, error
 	}
 
 	// 获取 SMART 信息
-	cmd = exec.Command("sudo", "smartctl", "-H", devicePath)
+	cmd = exec.CommandContext(ctx, "sudo", "smartctl", "-H", devicePath)
 	output, _ = cmd.Output()
 	if strings.Contains(string(output), "PASSED") {
 		dev.Health = "healthy"
