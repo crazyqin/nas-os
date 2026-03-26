@@ -7,6 +7,23 @@
 
 ---
 
+## [v2.286.0] - 2026-03-26
+
+### 修复
+- 🐛 **CI/CD构建流程修复**
+  - 修复 release.yml 并行构建错误检查
+  - 添加构建产物验证，确保文件存在
+  - 改进错误输出，便于调试
+
+### 竞品分析更新
+- 📊 **TrueNAS 24.10 Electric Eel** - Docker Compose、RAIDZ Expansion、Fast Dedup
+- 📊 **群晖 DSM 7.3** - Synology Tiering分层存储、AI去敏感、Drive 4.0
+
+### 六部协同
+- 工部: CI/CD流程修复
+
+---
+
 ## [v2.285.0] - 2026-03-26
 
 ### 修复
