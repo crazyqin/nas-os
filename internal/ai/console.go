@@ -193,14 +193,14 @@ type Console struct {
 type ProviderInfo struct {
 	Name         string         `json:"name"`
 	Provider     Provider       `json:"provider"`
-	Models       []ModelInfo    `json:"models"`
+	Models       []ConsoleModelInfo `json:"models"`
 	Capabilities []AICapability `json:"capabilities"`
 	Status       string         `json:"status"`
 	LastChecked  time.Time      `json:"lastChecked"`
 }
 
-// ModelInfo represents model information
-type ModelInfo struct {
+// ConsoleModelInfo represents model information for console
+type ConsoleModelInfo struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
 	Provider    Provider       `json:"provider"`

@@ -1,0 +1,99 @@
+# NAS-OS AI Service Docker Compose
+# 独立部署 AI 服务，支持 GPU 加速
+#
+# 使用方法：
+#   GPU 版本: docker compose -f docker-compose.ai.yml up -d
+#   CPU 版本: docker compose -f docker-compose.ai.yml -f docker-compose.ai.cpu.yml up -d
+#
+# 当前版本: v2.281.0（工部维护）
+
+services:
+  # ========== AI 服务主容器 ==========
+  nas-ai:
+    image: ghcr.io/nas-os/nas-os-ai:latest-gpu
+    build:
+      context: .
+      dockerfile: Dockerfile.ai
+    container_name: nas-ai
+    restart: unless-stopped
+    
+    # GPU 支持
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    # 网络配置
+    ports:
+      - "8081:8081"
+    
+    # 卷挂载
+    volumes:
+      - ./configs/ai.yaml:/etc/nas-os/ai.yaml:ro
+      - nas-ai-models:/var/lib/nas-os/models
+      - nas-ai-data:/var/lib/nas-os/ai
+      - nas-ai-logs:/var/log/nas-os
+    
+    # 环境变量
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - TZ=Asia/Shanghai
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ========== Ollama 本地 LLM（可选） ==========
+  # 取消注释以启用本地 LLM
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: nas-ollama
+  #   restart: unless-stopped
+  #   
+  #   # GPU 支持
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [gpu]
+  #   
+  #   ports:
+  #     - "11434:11434"
+  #   
+  #   volumes:
+  #     - ollama-data:/root/.ollama
+  #   
+  #   environment:
+  #     - OLLAMA_ORIGINS=*
+  #   
+  #   # 预下载模型
+  #   # command: >
+  #   #   sh -c "ollama pull llama3.2 && ollama serve"
+
+# ========== 网络配置 ==========
+networks:
+  default:
+    name: nas-ai-network
+    driver: bridge
+
+# ========== 卷配置 ==========
+volumes:
+  nas-ai-models:
+    driver: local
+  nas-ai-data:
+    driver: local
+  nas-ai-logs:
+    driver: local
+  # ollama-data:
+  #   driver: local

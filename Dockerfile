@@ -67,8 +67,13 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     -o nasctl ./cmd/nasctl
 
 # UPX 压缩（进一步减小 30-50%）
-# 某些架构可能不支持，失败时静默跳过
-RUN upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped (not supported on this platform)"
+# armv7 跳过 UPX：QEMU 下极慢且兼容性有限
+RUN if [ "${TARGETARCH}" != "arm" ] || [ "${TARGETVARIANT}" != "v7" ]; then \
+      echo "Running UPX compression for ${TARGETARCH}${TARGETVARIANT}..."; \
+      upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped"; \
+    else \
+      echo "Skipping UPX for armv7 (slow in QEMU, limited support)"; \
+    fi
 
 # ========== 健康检查工具构建阶段 ==========
 FROM golang:1.26-alpine AS healthcheck-builder

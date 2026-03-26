@@ -1,0 +1,19 @@
+# NAS-OS AI Service Docker Compose - CPU Override
+# 使用此文件覆盖为 CPU 版本
+#
+# 使用方法：
+#   docker compose -f docker-compose.ai.yml -f docker-compose.ai.cpu.yml up -d
+
+services:
+  nas-ai:
+    image: ghcr.io/nas-os/nas-os-ai:latest-cpu
+    build:
+      target: ai-cpu
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '1.0'
+          memory: 2G

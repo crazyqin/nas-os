@@ -7,6 +7,36 @@
 
 ---
 
+## [v2.284.0] - 2026-03-26
+
+### 新增
+- 🤖 **AI服务模块开发** - 独立AI服务镜像
+  - 新增 `Dockerfile.ai` GPU加速AI服务镜像
+  - 支持NVIDIA GPU加速推理
+  - 集成PyTorch + CLIP模型
+  - 提供CPU-only fallback镜像
+  - 新增 `docker-compose.ai.yml` 和 `docker-compose.ai.cpu.yml`
+- 📊 **竞品分析学习** - 全面跟踪竞品动态
+  - TrueNAS 24.10/26: 勒索软件检测、NVMe-oF、LXC容器
+  - 群晖DSM 7.3: 私有云AI服务、Synology Tiering、本地LLM
+  - 飞牛fnOS 1.1.x: QWRT软路由、RTX显卡支持、影视STRM直连
+  - 更新功能差距矩阵，明确差异化优势
+- 🔧 **Docker构建优化** - armv7构建超时优化
+  - 跳过armv7的UPX压缩（QEMU模拟下极慢）
+  - 优化多阶段构建流程
+  - 文档: `docs/docker-build-optimization.md`
+
+### 改进
+- 📚 AI相册设计文档完善 (`docs/ai-album-design.md`)
+- 📚 竞品分析文档更新至2026-03-26
+
+### 六部协同
+- 兵部: AI服务模块架构设计、Docker构建优化
+- 礼部: 竞品分析文档更新、文档版本同步
+- 工部: Dockerfile.ai GPU镜像构建
+
+---
+
 ## [v2.283.0] - 2026-03-26
 
 ### 版本规划更新

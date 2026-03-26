@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"nas-os/internal/ai"
 	"nas-os/internal/ai_classify"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
@@ -102,6 +103,7 @@ type Server struct {
 	tunnelMgr     *tunnel.Manager
 	tunnelService *tunnel.TunnelService
 	frpManager    *tunnel.FRPManager
+	aiSvc         *ai.AIService
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -280,6 +282,15 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		aiClassifyMgr = nil
 	} else {
 		log.Println("✅ AI 分类模块就绪")
+	}
+
+	// 初始化私有云AI服务
+	aiSvc, err := ai.NewAIService(nil)
+	if err != nil {
+		log.Printf("⚠️ 私有云AI服务初始化警告：%v", err)
+		aiSvc = nil
+	} else {
+		log.Println("✅ 私有云AI服务就绪")
 	}
 
 	// 初始化版本控制管理器
@@ -470,6 +481,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			}
 			return tunnel.NewFRPManager(cfg, logger)
 		}(),
+		aiSvc: aiSvc,
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -643,6 +655,15 @@ func (s *Server) setupRoutes() {
 			aiHandlers, err := ai_classify.NewHandlers(ai_classify.DefaultConfig())
 			if err == nil {
 				aiHandlers.RegisterRoutes(api)
+			}
+		}
+
+		// ========== 私有云AI服务 ==========
+		if s.aiSvc != nil {
+			gateway := s.aiSvc.GetGateway()
+			modelMgr := s.aiSvc.GetModelManager()
+			if gateway != nil {
+				ai.NewGatewayHandlers(gateway, modelMgr).RegisterRoutes(api)
 			}
 		}
 

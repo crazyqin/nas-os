@@ -1,0 +1,106 @@
+# AI Service 配置文件
+# 用于独立 AI 服务部署
+
+# 服务配置
+server:
+  host: "0.0.0.0"
+  port: 8081
+  read_timeout: 30s
+  write_timeout: 120s  # AI 请求可能较慢
+
+# AI 提供商配置
+providers:
+  # OpenAI 兼容 API（可用于 OpenAI、Azure、本地 LLM）
+  openai_compat:
+    enabled: true
+    endpoint: "https://api.openai.com/v1"
+    # endpoint: "http://ollama:11434/v1"  # Ollama 本地部署
+    model: "gpt-4o-mini"
+    # model: "llama3.2"  # Ollama 模型
+    max_tokens: 4096
+    temperature: 0.7
+    api_key: "${OPENAI_API_KEY}"  # 从环境变量读取
+
+  # 本地 LLM（Ollama）
+  local:
+    enabled: false
+    endpoint: "http://localhost:11434"
+    model: "llama3.2"
+
+# CLIP 模型配置（图像语义搜索）
+clip:
+  enabled: true
+  model_name: "clip-vit-base-32"
+  # model_name: "clip-vit-large-14"  # 更大更准确，但更慢
+  model_path: "/var/lib/nas-os/models/clip"
+  image_size: 224
+  embedding_dim: 512
+  use_gpu: true  # GPU 加速
+  
+  # 索引配置
+  index:
+    type: "flat"  # flat, ivf, hnsw
+    path: "/var/lib/nas-os/ai/clip.index"
+    capacity: 100000
+  
+  # 搜索配置
+  search:
+    default_top_k: 20
+    min_similarity: 0.2
+    batch_size: 32
+
+# 人脸识别配置
+face_recognition:
+  enabled: true
+  model: "buffalo_l"  # insightface 模型
+  use_gpu: true
+  min_face_size: 30
+  similarity_threshold: 0.6
+  max_faces_per_image: 100
+
+# PII 脱敏配置
+pii_protection:
+  enabled: true
+  strategy: "mask"  # mask, hash, tokenize, redact
+  rules:
+    - name: "id_card"
+      pattern: "\\d{17}[\\dXx]"
+      replacement: "[ID]"
+      enabled: true
+    - name: "phone"
+      pattern: "\\d{11}"
+      replacement: "[PHONE]"
+      enabled: true
+    - name: "email"
+      pattern: "[\\w.-]+@[\\w.-]+\\.\\w+"
+      replacement: "[EMAIL]"
+      enabled: true
+
+# 审计日志
+audit:
+  enabled: true
+  log_path: "/var/log/nas-os/ai-audit.log"
+  retention_days: 30
+
+# 使用量追踪
+usage_tracking:
+  enabled: true
+  db_path: "/var/lib/nas-os/ai/usage.db"
+
+# 性能配置
+performance:
+  max_concurrent_requests: 5
+  request_timeout: 120s
+  worker_count: 4
+  queue_size: 100
+
+# 资源限制
+resources:
+  gpu_memory_fraction: 0.8  # GPU 显存使用上限
+  max_batch_size: 32
+  
+# 健康检查
+healthcheck:
+  enabled: true
+  endpoint: "/health"
+  check_models: true  # 检查模型是否加载
