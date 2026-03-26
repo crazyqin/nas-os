@@ -13,9 +13,10 @@ import (
 	"time"
 )
 
-// BackendType represents the type of LLM backend
+// BackendType represents the type of LLM backend.
 type BackendType string
 
+// Backend types.
 const (
 	BackendOllama  BackendType = "ollama"
 	BackendLocalAI BackendType = "localai"

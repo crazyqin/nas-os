@@ -389,7 +389,7 @@ func (db *SignatureDB) GetExtensions() []string {
 	db.mu.RLock()
 	defer db.mu.RUnlock()
 
-	var exts []string
+	exts := make([]string, 0, len(db.extensions))
 	for ext := range db.extensions {
 		exts = append(exts, ext)
 	}
@@ -401,7 +401,7 @@ func (db *SignatureDB) GetRansomNotes() []string {
 	db.mu.RLock()
 	defer db.mu.RUnlock()
 
-	var notes []string
+	notes := make([]string, 0, len(db.ransomNotes))
 	for note := range db.ransomNotes {
 		notes = append(notes, note)
 	}
@@ -509,7 +509,7 @@ func (db *SignatureDB) SaveToFile(path string) error {
 	db.mu.RLock()
 	defer db.mu.RUnlock()
 
-	var signatures []RansomwareSignature
+	signatures := make([]RansomwareSignature, 0, len(db.signatures))
 	for _, sig := range db.signatures {
 		signatures = append(signatures, *sig)
 	}

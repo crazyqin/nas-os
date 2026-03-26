@@ -144,13 +144,12 @@ func (qm *QuarantineManager) moveFileToQuarantine(src, dst string) error {
 
 	// 删除原文件
 	_ = srcFile.Close()
-	if err := os.Remove(src); err != nil {
-		// 删除失败，但文件已复制到隔离区
-		// 记录日志但返回成功
-	}
+	_ = os.Remove(src) // 忽略删除错误，文件已复制到隔离区
 
 	return nil
 }
+
+// RestoreFile 恢复文件.
 func (qm *QuarantineManager) RestoreFile(entryID, restoredBy string) error {
 	qm.entryMu.Lock()
 	defer qm.entryMu.Unlock()
@@ -223,7 +222,8 @@ func (qm *QuarantineManager) DeleteEntry(entryID string) error {
 
 	// 删除隔离文件
 	if err := os.Remove(entry.QuarantinePath); err != nil && !os.IsNotExist(err) {
-		// 记录错误但继续
+		// 文件可能已被手动删除，忽略错误
+		_ = err
 	}
 
 	// 从清单中移除
@@ -231,7 +231,8 @@ func (qm *QuarantineManager) DeleteEntry(entryID string) error {
 
 	// 保存清单
 	if err := qm.saveManifest(); err != nil {
-		// 记录错误但继续
+		// 清单保存失败，但不影响删除操作
+		_ = err
 	}
 
 	// 更新统计
@@ -457,5 +458,5 @@ func sortEntriesByTime(entries []*QuarantineEntry) {
 	}
 }
 
-// Error definitions
+// ErrQuarantineEntryNotFound indicates that a quarantine entry was not found.
 var ErrQuarantineEntryNotFound = errors.New("隔离条目不存在")

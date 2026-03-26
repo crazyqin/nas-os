@@ -9,6 +9,7 @@ import (
 // ThreatLevel 威胁等级.
 type ThreatLevel string
 
+// Threat level constants.
 const (
 	ThreatLevelNone     ThreatLevel = "none"
 	ThreatLevelLow      ThreatLevel = "low"
@@ -20,6 +21,7 @@ const (
 // DetectionType 检测类型.
 type DetectionType string
 
+// Detection type constants.
 const (
 	DetectionTypeSignature DetectionType = "signature" // 特征库匹配
 	DetectionTypeBehavior  DetectionType = "behavior"  // 行为分析
@@ -50,6 +52,7 @@ type FileEvent struct {
 // FileOperation 文件操作类型.
 type FileOperation string
 
+// File operation constants.
 const (
 	FileOpCreate   FileOperation = "create"
 	FileOpModify   FileOperation = "modify"
@@ -174,6 +177,7 @@ type Alert struct {
 // AlertStatus 告警状态.
 type AlertStatus string
 
+// Alert status constants.
 const (
 	AlertStatusNew           AlertStatus = "new"
 	AlertStatusAcknowledged  AlertStatus = "acknowledged"
