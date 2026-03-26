@@ -195,7 +195,7 @@ func (m *ModelManager) downloadFromURL(ctx context.Context, req *ModelDownloadRe
 		progress.Error = fmt.Sprintf("download failed: %s", err)
 		return
 	}
-	defer httpResp.Body.Close()
+	defer func() { _ = httpResp.Body.Close() }()
 
 	if httpResp.StatusCode >= 400 {
 		progress.Status = "failed"
@@ -229,7 +229,7 @@ func (m *ModelManager) downloadFromURL(ctx context.Context, req *ModelDownloadRe
 		progress.Error = fmt.Sprintf("failed to create file: %s", err)
 		return
 	}
-	defer outFile.Close()
+	defer func() { _ = outFile.Close() }()
 
 	buf := make([]byte, 32*1024)
 	var lastUpdate time.Time
@@ -426,7 +426,7 @@ func (m *ModelManager) searchOllama(ctx context.Context, query string) ([]ModelS
 	if err != nil {
 		return nil, err
 	}
-	defer httpResp.Body.Close()
+	defer func() { _ = httpResp.Body.Close() }()
 
 	var models []struct {
 		Name string `json:"name"`
@@ -479,7 +479,7 @@ func (m *ModelManager) searchHuggingFace(ctx context.Context, query string) ([]M
 	if err != nil {
 		return nil, err
 	}
-	defer httpResp.Body.Close()
+	defer func() { _ = httpResp.Body.Close() }()
 
 	var models []struct {
 		ID       string `json:"id"`

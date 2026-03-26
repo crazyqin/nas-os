@@ -130,18 +130,18 @@ func (h *GatewayHandlers) streamChatCompletions(c *gin.Context, req *ChatRequest
 		}
 
 		jsonData, _ := json.Marshal(data)
-		c.Writer.Write([]byte("data: " + string(jsonData) + "\n\n"))
+		_, _ = c.Writer.Write([]byte("data: " + string(jsonData) + "\n\n"))
 		flusher.Flush()
 		return nil
 	})
 
 	if err != nil {
-		c.Writer.Write([]byte("data: {\"error\": \"" + err.Error() + "\"}\n\n"))
+		_, _ = c.Writer.Write([]byte("data: {\"error\": \"" + err.Error() + "\"}\n\n"))
 		flusher.Flush()
 		return
 	}
 
-	c.Writer.Write([]byte("data: [DONE]\n\n"))
+	_, _ = c.Writer.Write([]byte("data: [DONE]\n\n"))
 	flusher.Flush()
 }
 
@@ -615,7 +615,7 @@ func (h *SSEStreamHandler) WriteData(data string) error {
 
 // Close sends the [DONE] message
 func (h *SSEStreamHandler) Close() {
-	io.WriteString(h.writer, "data: [DONE]\n\n")
+	_, _ = io.WriteString(h.writer, "data: [DONE]\n\n")
 	h.flusher.Flush()
 }
 

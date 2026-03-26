@@ -259,7 +259,7 @@ func (b *OllamaBackend) IsHealthy(ctx context.Context) bool {
 		b.SetHealthy(false)
 		return false
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	healthy := resp.StatusCode == http.StatusOK
 	b.SetHealthy(healthy)
@@ -299,7 +299,7 @@ func (b *OllamaBackend) Chat(ctx context.Context, req *ChatRequest) (*ChatRespon
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 {
 		respBody, _ := io.ReadAll(resp.Body)
@@ -352,7 +352,7 @@ func (b *OllamaBackend) StreamChat(ctx context.Context, req *ChatRequest, callba
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	decoder := json.NewDecoder(resp.Body)
 	for {
@@ -394,7 +394,7 @@ func (b *OllamaBackend) Embed(ctx context.Context, req *EmbedRequest) (*EmbedRes
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var ollamaResp ollamaEmbedResponse
 	if err := json.NewDecoder(resp.Body).Decode(&ollamaResp); err != nil {
@@ -420,7 +420,7 @@ func (b *OllamaBackend) ListModels(ctx context.Context) ([]ModelInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var listResp ollamaListResponse
 	if err := json.NewDecoder(resp.Body).Decode(&listResp); err != nil {
@@ -458,7 +458,7 @@ func (b *OllamaBackend) LoadModel(ctx context.Context, modelName string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	return nil
 }
@@ -479,7 +479,7 @@ func (b *OllamaBackend) UnloadModel(ctx context.Context, modelName string) error
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	return nil
 }
@@ -499,7 +499,7 @@ func (b *OllamaBackend) GetModelInfo(ctx context.Context, modelName string) (*Mo
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var showResp ollamaShowResponse
 	if err := json.NewDecoder(resp.Body).Decode(&showResp); err != nil {
@@ -584,7 +584,7 @@ func (b *LocalAIBackend) IsHealthy(ctx context.Context) bool {
 		b.SetHealthy(false)
 		return false
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	healthy := resp.StatusCode == http.StatusOK
 	b.SetHealthy(healthy)
@@ -656,7 +656,7 @@ func (b *VLLMBackend) IsHealthy(ctx context.Context) bool {
 		b.SetHealthy(false)
 		return false
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	healthy := resp.StatusCode == http.StatusOK
 	b.SetHealthy(healthy)
@@ -720,7 +720,7 @@ func openAICompatChat(ctx context.Context, b *BaseBackend, req *ChatRequest) (*C
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 {
 		respBody, _ := io.ReadAll(resp.Body)
@@ -752,7 +752,7 @@ func openAICompatStream(ctx context.Context, b *BaseBackend, req *ChatRequest, c
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	reader := NewSSEReader(resp.Body)
 	for {
@@ -798,7 +798,7 @@ func openAICompatEmbed(ctx context.Context, b *BaseBackend, req *EmbedRequest) (
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 {
 		respBody, _ := io.ReadAll(resp.Body)
@@ -818,7 +818,7 @@ func openAICompatListModels(ctx context.Context, b *BaseBackend) ([]ModelInfo, e
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var modelsResp struct {
 		Data []struct {
