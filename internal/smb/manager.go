@@ -644,7 +644,8 @@ func (m *Manager) Start() error {
 
 // Stop 停止 Samba 服务.
 func (m *Manager) Stop() error {
-	cmd := exec.Command("systemctl", "stop", "smbd")
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "systemctl", "stop", "smbd")
 	if err := cmd.Run(); err != nil {
 		logError("停止 Samba 服务失败", err)
 		return fmt.Errorf("停止 Samba 服务失败：%w", err)
@@ -655,7 +656,8 @@ func (m *Manager) Stop() error {
 
 // Restart 重启 Samba 服务.
 func (m *Manager) Restart() error {
-	cmd := exec.Command("systemctl", "restart", "smbd")
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "systemctl", "restart", "smbd")
 	if err := cmd.Run(); err != nil {
 		logError("重启 Samba 服务失败", err)
 		return fmt.Errorf("重启 Samba 服务失败：%w", err)
@@ -666,7 +668,8 @@ func (m *Manager) Restart() error {
 
 // TestConfig 测试配置文件语法.
 func (m *Manager) TestConfig() (bool, string, error) {
-	cmd := exec.Command("testparm", "-s")
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "testparm", "-s")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return false, string(output), err
