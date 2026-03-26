@@ -37,10 +37,14 @@ type EncryptionConfig struct {
 type KeySource string
 
 const (
-	KeySourceSystem KeySource = "system" // System-generated key
-	KeySourceFile   KeySource = "file"   // Key from file
-	KeySourceHSM    KeySource = "hsm"    // Hardware Security Module
-	KeySourceVault  KeySource = "vault"  // External vault (HashiCorp, etc.)
+	// KeySourceSystem - 系统自动生成的密钥
+	KeySourceSystem KeySource = "system"
+	// KeySourceFile - 从文件读取密钥
+	KeySourceFile KeySource = "file"
+	// KeySourceHSM - 硬件安全模块
+	KeySourceHSM KeySource = "hsm"
+	// KeySourceVault - 外部密钥库 (HashiCorp等)
+	KeySourceVault KeySource = "vault"
 )
 
 // KeyManager manages encryption keys for API key storage

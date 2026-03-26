@@ -10,20 +10,34 @@ import (
 type ProviderType string
 
 const (
-	ProviderOpenAI    ProviderType = "openai"
-	ProviderAzure     ProviderType = "azure"
+	// ProviderOpenAI - OpenAI API
+	ProviderOpenAI ProviderType = "openai"
+	// ProviderAzure - Azure OpenAI
+	ProviderAzure ProviderType = "azure"
+	// ProviderAnthropic - Anthropic Claude
 	ProviderAnthropic ProviderType = "anthropic"
-	ProviderGoogle    ProviderType = "google"
-	ProviderCohere    ProviderType = "cohere"
-	ProviderMistral   ProviderType = "mistral"
-	ProviderDeepSeek  ProviderType = "deepseek"
-	ProviderMoonshot  ProviderType = "moonshot"
-	ProviderZhipu     ProviderType = "zhipu"
-	ProviderBaidu     ProviderType = "baidu"
-	ProviderAlibaba   ProviderType = "alibaba"
-	ProviderTencent   ProviderType = "tencent"
-	ProviderCustom    ProviderType = "custom"
-	ProviderLocal     ProviderType = "local" // 本地服务如 Ollama
+	// ProviderGoogle - Google AI
+	ProviderGoogle ProviderType = "google"
+	// ProviderCohere - Cohere
+	ProviderCohere ProviderType = "cohere"
+	// ProviderMistral - Mistral AI
+	ProviderMistral ProviderType = "mistral"
+	// ProviderDeepSeek - DeepSeek
+	ProviderDeepSeek ProviderType = "deepseek"
+	// ProviderMoonshot - Moonshot Kimi
+	ProviderMoonshot ProviderType = "moonshot"
+	// ProviderZhipu - 智谱AI
+	ProviderZhipu ProviderType = "zhipu"
+	// ProviderBaidu - 百度文心
+	ProviderBaidu ProviderType = "baidu"
+	// ProviderAlibaba - 阿里通义
+	ProviderAlibaba ProviderType = "alibaba"
+	// ProviderTencent - 腾讯混元
+	ProviderTencent ProviderType = "tencent"
+	// ProviderCustom - 自定义服务
+	ProviderCustom ProviderType = "custom"
+	// ProviderLocal - 本地服务 (Ollama等)
+	ProviderLocal ProviderType = "local"
 )
 
 // ProviderInfo contains provider metadata
@@ -151,22 +165,32 @@ var DefaultProviders = map[ProviderType]ProviderInfo{
 type KeyStatus string
 
 const (
-	KeyStatusActive   KeyStatus = "active"
+	// KeyStatusActive - 密钥可用
+	KeyStatusActive KeyStatus = "active"
+	// KeyStatusDisabled - 密钥已禁用
 	KeyStatusDisabled KeyStatus = "disabled"
-	KeyStatusExpired  KeyStatus = "expired"
-	KeyStatusRevoked  KeyStatus = "revoked"
-	KeyStatusRotating KeyStatus = "rotating" // 密钥轮换中
+	// KeyStatusExpired - 密钥已过期
+	KeyStatusExpired KeyStatus = "expired"
+	// KeyStatusRevoked - 密钥已吊销
+	KeyStatusRevoked KeyStatus = "revoked"
+	// KeyStatusRotating - 密钥轮换中
+	KeyStatusRotating KeyStatus = "rotating"
 )
 
 // KeyType represents the type of API key
 type KeyType string
 
 const (
-	KeyTypeAPIKey    KeyType = "api_key"   // Standard API key
-	KeyTypeOAuth     KeyType = "oauth"     // OAuth token
-	KeyTypeService   KeyType = "service"   // Service account key
-	KeyTypeProject   KeyType = "project"   // Project-specific key
-	KeyTypeTemporary KeyType = "temporary" // Temporary/expiring key
+	// KeyTypeAPIKey - 标准API密钥
+	KeyTypeAPIKey KeyType = "api_key"
+	// KeyTypeOAuth - OAuth令牌
+	KeyTypeOAuth KeyType = "oauth"
+	// KeyTypeService - 服务账户密钥
+	KeyTypeService KeyType = "service"
+	// KeyTypeProject - 项目专用密钥
+	KeyTypeProject KeyType = "project"
+	// KeyTypeTemporary - 临时/过期密钥
+	KeyTypeTemporary KeyType = "temporary"
 )
 
 // APIKey represents a stored API key with metadata
@@ -334,16 +358,26 @@ type DailyUsage struct {
 type AuditEventType string
 
 const (
-	AuditEventKeyCreate    AuditEventType = "key_create"
-	AuditEventKeyUpdate    AuditEventType = "key_update"
-	AuditEventKeyDelete    AuditEventType = "key_delete"
-	AuditEventKeyAccess    AuditEventType = "key_access"
-	AuditEventKeyRotate    AuditEventType = "key_rotate"
-	AuditEventKeyRevoke    AuditEventType = "key_revoke"
-	AuditEventKeyUse       AuditEventType = "key_use"
-	AuditEventKeyDeny      AuditEventType = "key_deny"
+	// AuditEventKeyCreate - 密钥创建
+	AuditEventKeyCreate AuditEventType = "key_create"
+	// AuditEventKeyUpdate - 密钥更新
+	AuditEventKeyUpdate AuditEventType = "key_update"
+	// AuditEventKeyDelete - 密钥删除
+	AuditEventKeyDelete AuditEventType = "key_delete"
+	// AuditEventKeyAccess - 密钥访问
+	AuditEventKeyAccess AuditEventType = "key_access"
+	// AuditEventKeyRotate - 密钥轮换
+	AuditEventKeyRotate AuditEventType = "key_rotate"
+	// AuditEventKeyRevoke - 密钥吊销
+	AuditEventKeyRevoke AuditEventType = "key_revoke"
+	// AuditEventKeyUse - 密钥使用
+	AuditEventKeyUse AuditEventType = "key_use"
+	// AuditEventKeyDeny - 密钥拒绝
+	AuditEventKeyDeny AuditEventType = "key_deny"
+	// AuditEventLimitReached - 限额达到
 	AuditEventLimitReached AuditEventType = "limit_reached"
-	AuditEventKeyExpired   AuditEventType = "key_expired"
+	// AuditEventKeyExpired - 密钥过期
+	AuditEventKeyExpired AuditEventType = "key_expired"
 )
 
 // KeyAuditLog represents an audit log entry for API key operations
@@ -372,15 +406,24 @@ type KeyAuditLog struct {
 type KeyPermission string
 
 const (
-	PermKeyCreate     KeyPermission = "ai:key:create"
-	PermKeyRead       KeyPermission = "ai:key:read"
-	PermKeyUpdate     KeyPermission = "ai:key:update"
-	PermKeyDelete     KeyPermission = "ai:key:delete"
-	PermKeyUse        KeyPermission = "ai:key:use"
-	PermKeyRotate     KeyPermission = "ai:key:rotate"
-	PermKeyAudit      KeyPermission = "ai:key:audit"
-	PermKeyAdmin      KeyPermission = "ai:key:admin"       // Full admin access
-	PermKeyViewSecret KeyPermission = "ai:key:view_secret" // Can view decrypted keys
+	// PermKeyCreate - 创建密钥权限
+	PermKeyCreate KeyPermission = "ai:key:create"
+	// PermKeyRead - 读取密钥权限
+	PermKeyRead KeyPermission = "ai:key:read"
+	// PermKeyUpdate - 更新密钥权限
+	PermKeyUpdate KeyPermission = "ai:key:update"
+	// PermKeyDelete - 删除密钥权限
+	PermKeyDelete KeyPermission = "ai:key:delete"
+	// PermKeyUse - 使用密钥权限
+	PermKeyUse KeyPermission = "ai:key:use"
+	// PermKeyRotate - 轮换密钥权限
+	PermKeyRotate KeyPermission = "ai:key:rotate"
+	// PermKeyAudit - 审计密钥权限
+	PermKeyAudit KeyPermission = "ai:key:audit"
+	// PermKeyAdmin - 完全管理权限
+	PermKeyAdmin KeyPermission = "ai:key:admin"
+	// PermKeyViewSecret - 查看解密密钥权限
+	PermKeyViewSecret KeyPermission = "ai:key:view_secret"
 )
 
 // AllKeyPermissions returns all key-related permissions
