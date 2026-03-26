@@ -13,7 +13,6 @@ import (
 // DBSCANClusterer DBSCAN聚类器
 type DBSCANClusterer struct {
 	config *RecognitionConfig
-	mu     sync.RWMutex
 }
 
 // NewDBSCANClusterer 创建DBSCAN聚类器

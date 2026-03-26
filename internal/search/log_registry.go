@@ -27,14 +27,14 @@ const (
 
 // LogEntry 日志条目.
 type LogEntry struct {
-	Timestamp time.Time `json:"timestamp"`
-	Level     LogLevel  `json:"level"`
-	Source    string    `json:"source"`    // 日志来源: system, audit, access, container
-	Service   string    `json:"service"`   // 服务名称
-	Message   string    `json:"message"`   // 日志消息
-	File      string    `json:"file"`      // 日志文件路径
-	Line      int       `json:"line"`      // 行号
-	RawLine   string    `json:"rawLine"`   // 原始行内容
+	Timestamp time.Time         `json:"timestamp"`
+	Level     LogLevel          `json:"level"`
+	Source    string            `json:"source"`             // 日志来源: system, audit, access, container
+	Service   string            `json:"service"`            // 服务名称
+	Message   string            `json:"message"`            // 日志消息
+	File      string            `json:"file"`               // 日志文件路径
+	Line      int               `json:"line"`               // 行号
+	RawLine   string            `json:"rawLine"`            // 原始行内容
 	Metadata  map[string]string `json:"metadata,omitempty"` // 元数据
 }
 
@@ -44,7 +44,7 @@ type LogSearchRequest struct {
 	Level      LogLevel   `json:"level,omitempty"`      // 日志级别过滤
 	Source     string     `json:"source,omitempty"`     // 日志来源过滤
 	Service    string     `json:"service,omitempty"`    // 服务过滤
-	StartTime  *time.Time `json:"startTime,omitempty"` // 开始时间
+	StartTime  *time.Time `json:"startTime,omitempty"`  // 开始时间
 	EndTime    *time.Time `json:"endTime,omitempty"`    // 结束时间
 	Paths      []string   `json:"paths,omitempty"`      // 日志文件路径
 	Limit      int        `json:"limit,omitempty"`      // 结果数量限制
@@ -60,20 +60,19 @@ type LogSearchResult struct {
 
 // LogSearchResponse 日志搜索响应.
 type LogSearchResponse struct {
-	Query    string             `json:"query"`
-	Total    int                `json:"total"`
-	Took     time.Duration      `json:"took"`
-	Results  []LogSearchResult  `json:"results"`
-	Sources  map[string]int     `json:"sources"`  // 各来源日志数量
-	Levels   map[LogLevel]int   `json:"levels"`   // 各级别日志数量
-	Services map[string]int     `json:"services"` // 各服务日志数量
+	Query    string            `json:"query"`
+	Total    int               `json:"total"`
+	Took     time.Duration     `json:"took"`
+	Results  []LogSearchResult `json:"results"`
+	Sources  map[string]int    `json:"sources"`  // 各来源日志数量
+	Levels   map[LogLevel]int  `json:"levels"`   // 各级别日志数量
+	Services map[string]int    `json:"services"` // 各服务日志数量
 }
 
 // LogRegistry 日志注册表.
 type LogRegistry struct {
-	logDirs   []string
-	maxLines  int
-	mu        sync.RWMutex
+	logDirs  []string
+	maxLines int
 }
 
 // NewLogRegistry 创建日志注册表.
@@ -450,10 +449,10 @@ func (r *LogRegistry) GetLogFiles() []map[string]interface{} {
 		}
 
 		result = append(result, map[string]interface{}{
-			"path":     path,
-			"size":     info.Size(),
-			"modTime":  info.ModTime(),
-			"source":   r.inferSourceFromPath(path),
+			"path":    path,
+			"size":    info.Size(),
+			"modTime": info.ModTime(),
+			"source":  r.inferSourceFromPath(path),
 		})
 	}
 
