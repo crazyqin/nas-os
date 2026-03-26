@@ -11,19 +11,19 @@ import (
 
 // Face 人脸检测结果
 type Face struct {
-	ID          string       `json:"id"`
-	PhotoID     string       `json:"photoId"`
-	BoundingBox BoundingBox  `json:"boundingBox"`
-	Landmarks   []Landmark   `json:"landmarks,omitempty"`
-	Embedding   []float32    `json:"embedding,omitempty"`
-	Confidence  float64      `json:"confidence"` // 检测置信度 0-1
-	Quality     float64      `json:"quality"`    // 人脸质量评分 0-1
-	BlurScore   float64      `json:"blurScore,omitempty"`
-	PersonID    string       `json:"personId,omitempty"`
-	PersonName  string       `json:"personName,omitempty"`
-	ClusterID   int          `json:"clusterId,omitempty"`
-	CreatedAt   time.Time    `json:"createdAt"`
-	UpdatedAt   time.Time    `json:"updatedAt"`
+	ID          string      `json:"id"`
+	PhotoID     string      `json:"photoId"`
+	BoundingBox BoundingBox `json:"boundingBox"`
+	Landmarks   []Landmark  `json:"landmarks,omitempty"`
+	Embedding   []float32   `json:"embedding,omitempty"`
+	Confidence  float64     `json:"confidence"` // 检测置信度 0-1
+	Quality     float64     `json:"quality"`    // 人脸质量评分 0-1
+	BlurScore   float64     `json:"blurScore,omitempty"`
+	PersonID    string      `json:"personId,omitempty"`
+	PersonName  string      `json:"personName,omitempty"`
+	ClusterID   int         `json:"clusterId,omitempty"`
+	CreatedAt   time.Time   `json:"createdAt"`
+	UpdatedAt   time.Time   `json:"updatedAt"`
 }
 
 // BoundingBox 人脸边界框 (归一化坐标 0-1)
@@ -72,16 +72,16 @@ type DetectionResult struct {
 // RecognitionConfig 人脸识别配置
 type RecognitionConfig struct {
 	// 检测配置
-	MinFaceSize      int     `json:"minFaceSize"`      // 最小人脸尺寸(像素)
-	MaxFacesPerPhoto int     `json:"maxFacesPerPhoto"` // 每张照片最大人脸数
-	DetectionModel   string  `json:"detectionModel"`   // retinaface, mtcnn, hog
+	MinFaceSize      int    `json:"minFaceSize"`      // 最小人脸尺寸(像素)
+	MaxFacesPerPhoto int    `json:"maxFacesPerPhoto"` // 每张照片最大人脸数
+	DetectionModel   string `json:"detectionModel"`   // retinaface, mtcnn, hog
 
 	// 识别配置
-	RecognitionModel   string  `json:"recognitionModel"`   // arcface, facenet, insightface
-	EmbeddingSize      int     `json:"embeddingSize"`      // 嵌入向量维度
-	ConfidenceThresh   float64 `json:"confidenceThresh"`   // 检测置信度阈值
-	ClusterThresh      float64 `json:"clusterThresh"`      // 聚类相似度阈值
-	MinClusterSize     int     `json:"minClusterSize"`     // 最小聚类大小
+	RecognitionModel string  `json:"recognitionModel"` // arcface, facenet, insightface
+	EmbeddingSize    int     `json:"embeddingSize"`    // 嵌入向量维度
+	ConfidenceThresh float64 `json:"confidenceThresh"` // 检测置信度阈值
+	ClusterThresh    float64 `json:"clusterThresh"`    // 聚类相似度阈值
+	MinClusterSize   int     `json:"minClusterSize"`   // 最小聚类大小
 
 	// 外部服务配置
 	ExternalServiceURL string `json:"externalServiceUrl,omitempty"`
@@ -215,13 +215,13 @@ type Service interface {
 
 // Stats 人脸识别统计
 type Stats struct {
-	TotalFaces    int            `json:"totalFaces"`
-	TotalPersons  int            `json:"totalPersons"`
-	Unassigned    int            `json:"unassigned"`
-	PhotosWith    int            `json:"photosWithFaces"`
-	TopPersons    []PersonStats  `json:"topPersons"`
-	ModelInfo     ModelInfo      `json:"modelInfo"`
-	LastProcessed time.Time      `json:"lastProcessed"`
+	TotalFaces    int           `json:"totalFaces"`
+	TotalPersons  int           `json:"totalPersons"`
+	Unassigned    int           `json:"unassigned"`
+	PhotosWith    int           `json:"photosWithFaces"`
+	TopPersons    []PersonStats `json:"topPersons"`
+	ModelInfo     ModelInfo     `json:"modelInfo"`
+	LastProcessed time.Time     `json:"lastProcessed"`
 }
 
 // PersonStats 人物统计

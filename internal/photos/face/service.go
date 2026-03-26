@@ -48,7 +48,7 @@ func NewService(config *RecognitionConfig) (*ServiceImpl, error) {
 		recognizer, err = NewLocalRecognizer(config)
 	}
 	if err != nil {
-		detector.Close()
+		_ = detector.Close()
 		return nil, err
 	}
 
@@ -194,7 +194,7 @@ func (s *ServiceImpl) ClusterFaces(ctx context.Context, photoIDs []string) (*Clu
 	for _, person := range result.Persons {
 		existingPerson, _ := s.labelManager.GetPerson(ctx, person.ID)
 		if existingPerson == nil {
-			s.labelManager.CreatePerson(ctx, person.Name)
+			_, _ = s.labelManager.CreatePerson(ctx, person.Name)
 		}
 	}
 
@@ -222,7 +222,7 @@ func (s *ServiceImpl) AutoLabel(ctx context.Context, personID string, photoIDs [
 
 		for _, face := range faces {
 			if face.PersonID == "" {
-				s.labelManager.AssignFaceToPerson(ctx, face.ID, personID)
+				_ = s.labelManager.AssignFaceToPerson(ctx, face.ID, personID)
 			}
 		}
 	}
@@ -255,10 +255,10 @@ func (s *ServiceImpl) GetStats(ctx context.Context) (*Stats, error) {
 // Close 关闭服务
 func (s *ServiceImpl) Close() error {
 	if s.detector != nil {
-		s.detector.Close()
+		_ = s.detector.Close()
 	}
 	if s.recognizer != nil {
-		s.recognizer.Close()
+		_ = s.recognizer.Close()
 	}
 	return nil
 }
