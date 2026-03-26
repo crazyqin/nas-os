@@ -307,12 +307,12 @@ type BackendStatus struct {
 
 // GatewayMetrics represents gateway metrics
 type GatewayMetrics struct {
-	TotalRequests   int64               `json:"totalRequests"`
-	TotalErrors     int64               `json:"totalErrors"`
-	TotalTokens     int64               `json:"totalTokens"`
-	AvgLatencyMs    int64               `json:"avgLatencyMs"`
-	RequestsByType  map[string]int64    `json:"requestsByType"`
-	ErrorsByBackend map[string]int64    `json:"errorsByBackend"`
+	TotalRequests   int64                     `json:"totalRequests"`
+	TotalErrors     int64                     `json:"totalErrors"`
+	TotalTokens     int64                     `json:"totalTokens"`
+	AvgLatencyMs    int64                     `json:"avgLatencyMs"`
+	RequestsByType  map[string]int64          `json:"requestsByType"`
+	ErrorsByBackend map[string]int64          `json:"errorsByBackend"`
 	BackendMetrics  map[string]BackendMetrics `json:"backendMetrics"`
 }
 
@@ -421,13 +421,13 @@ func (rl *RateLimiter) replenish() {
 
 // GatewayMonitor monitors gateway activity
 type GatewayMonitor struct {
-	totalRequests  atomic.Int64
-	totalErrors    atomic.Int64
-	totalTokens    atomic.Int64
-	totalLatency   atomic.Int64
-	requestsByType sync.Map
+	totalRequests   atomic.Int64
+	totalErrors     atomic.Int64
+	totalTokens     atomic.Int64
+	totalLatency    atomic.Int64
+	requestsByType  sync.Map
 	errorsByBackend sync.Map
-	backendMetrics sync.Map
+	backendMetrics  sync.Map
 }
 
 // NewGatewayMonitor creates a new monitor
@@ -460,8 +460,10 @@ func (m *GatewayMonitor) RecordSuccess(backend BackendType, reqType string, toke
 
 	bmRaw, ok := m.backendMetrics.Load(string(backend))
 	if ok {
-		bm := bmRaw.(*BackendMetrics)
-		bm.Tokens += int64(tokens)
+		bm, ok := bmRaw.(*BackendMetrics)
+		if ok {
+			bm.Tokens += int64(tokens)
+		}
 	}
 }
 

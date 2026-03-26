@@ -507,7 +507,10 @@ func (m *BehaviorMonitor) evaluateAverageCondition(cond Condition, now time.Time
 	var count int
 
 	for e := m.events.Back(); e != nil; e = e.Prev() {
-		event := e.Value.(FileEvent)
+		event, ok := e.Value.(FileEvent)
+		if !ok {
+			continue
+		}
 		if event.Timestamp.Before(cutoff) {
 			break
 		}
@@ -553,7 +556,10 @@ func (m *BehaviorMonitor) getAffectedFiles(basePath string) []string {
 	dir := filepath.Dir(basePath)
 
 	for e := m.events.Back(); e != nil; e = e.Prev() {
-		event := e.Value.(FileEvent)
+		event, ok := e.Value.(FileEvent)
+		if !ok {
+			continue
+		}
 		if filepath.Dir(event.Path) == dir {
 			files = append(files, event.Path)
 		}
@@ -651,7 +657,7 @@ func toFloat(v interface{}) float64 {
 }
 
 func getPatternNames(patterns []BehaviorPattern) []string {
-	var names []string
+	names := make([]string, 0, len(patterns))
 	for _, p := range patterns {
 		names = append(names, p.Name)
 	}

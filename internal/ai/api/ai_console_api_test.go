@@ -3,6 +3,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -55,7 +56,7 @@ func TestAIConsoleAPI_Chat(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.body)
-			req := httptest.NewRequest(http.MethodPost, "/api/ai/chat", bytes.NewReader(body))
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/ai/chat", bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 
@@ -102,7 +103,7 @@ func TestAIConsoleAPI_Summarize(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.body)
-			req := httptest.NewRequest(http.MethodPost, "/api/ai/summarize", bytes.NewReader(body))
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/ai/summarize", bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 
@@ -149,7 +150,7 @@ func TestAIConsoleAPI_Translate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.body)
-			req := httptest.NewRequest(http.MethodPost, "/api/ai/translate", bytes.NewReader(body))
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/ai/translate", bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 
@@ -184,7 +185,7 @@ func TestAIConsoleAPI_Sentiment(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.body)
-			req := httptest.NewRequest(http.MethodPost, "/api/ai/sentiment", bytes.NewReader(body))
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/ai/sentiment", bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 
@@ -199,7 +200,7 @@ func TestAIConsoleAPI_GetProviders(t *testing.T) {
 	console := ai.NewConsole(ai.DefaultConsoleConfig())
 	api := NewAIConsoleAPI(console, ai.NewDesensitizer())
 
-	req := httptest.NewRequest(http.MethodGet, "/api/ai/providers", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/ai/providers", nil)
 	rec := httptest.NewRecorder()
 
 	api.GetProviders(rec, req)
@@ -215,7 +216,7 @@ func TestAIConsoleAPI_GetUsage(t *testing.T) {
 	console := ai.NewConsole(ai.DefaultConsoleConfig())
 	api := NewAIConsoleAPI(console, ai.NewDesensitizer())
 
-	req := httptest.NewRequest(http.MethodGet, "/api/ai/usage", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/ai/usage", nil)
 	rec := httptest.NewRecorder()
 
 	api.GetUsage(rec, req)
@@ -227,7 +228,7 @@ func TestAIConsoleAPI_GetAuditLogs(t *testing.T) {
 	console := ai.NewConsole(ai.DefaultConsoleConfig())
 	api := NewAIConsoleAPI(console, ai.NewDesensitizer())
 
-	req := httptest.NewRequest(http.MethodGet, "/api/ai/audit-logs", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/ai/audit-logs", nil)
 	rec := httptest.NewRecorder()
 
 	api.GetAuditLogs(rec, req)
@@ -261,7 +262,7 @@ func TestAIConsoleAPI_Desensitize(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.body)
-			req := httptest.NewRequest(http.MethodPost, "/api/ai/desensitize", bytes.NewReader(body))
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/ai/desensitize", bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 
@@ -298,7 +299,7 @@ func TestAIConsoleAPI_Restore(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.body)
-			req := httptest.NewRequest(http.MethodPost, "/api/ai/restore", bytes.NewReader(body))
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/ai/restore", bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 
@@ -313,7 +314,7 @@ func TestAIConsoleAPI_GetRules(t *testing.T) {
 	console := ai.NewConsole(ai.DefaultConsoleConfig())
 	api := NewAIConsoleAPI(console, ai.NewDesensitizer())
 
-	req := httptest.NewRequest(http.MethodGet, "/api/ai/rules", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/ai/rules", nil)
 	rec := httptest.NewRecorder()
 
 	api.GetRules(rec, req)
@@ -337,7 +338,7 @@ func TestAIConsoleAPI_AddRule(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(rule)
-	req := httptest.NewRequest(http.MethodPost, "/api/ai/rules", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/ai/rules", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
 
@@ -370,7 +371,7 @@ func TestAIConsoleAPI_ProcessPII(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.body)
-			req := httptest.NewRequest(http.MethodPost, "/api/ai/process-pii", bytes.NewReader(body))
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/ai/process-pii", bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 

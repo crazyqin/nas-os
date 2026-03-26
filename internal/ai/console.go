@@ -191,12 +191,12 @@ type Console struct {
 
 // ProviderInfo represents provider information
 type ProviderInfo struct {
-	Name         string         `json:"name"`
-	Provider     Provider       `json:"provider"`
+	Name         string             `json:"name"`
+	Provider     Provider           `json:"provider"`
 	Models       []ConsoleModelInfo `json:"models"`
-	Capabilities []AICapability `json:"capabilities"`
-	Status       string         `json:"status"`
-	LastChecked  time.Time      `json:"lastChecked"`
+	Capabilities []AICapability     `json:"capabilities"`
+	Status       string             `json:"status"`
+	LastChecked  time.Time          `json:"lastChecked"`
 }
 
 // ConsoleModelInfo represents model information for console

@@ -377,7 +377,7 @@ func (db *SignatureDB) GetAllSignatures() []*RansomwareSignature {
 	db.mu.RLock()
 	defer db.mu.RUnlock()
 
-	var sigs []*RansomwareSignature
+	sigs := make([]*RansomwareSignature, 0, len(db.signatures))
 	for _, sig := range db.signatures {
 		sigs = append(sigs, sig)
 	}
@@ -494,7 +494,10 @@ func (db *SignatureDB) LoadFromFile(path string) error {
 	}
 
 	for _, sig := range signatures {
-		db.AddSignature(sig)
+		if err := db.AddSignature(sig); err != nil {
+			// 记录添加失败的签名，但继续处理其他签名
+			continue
+		}
 	}
 
 	db.lastUpdate = time.Now()
