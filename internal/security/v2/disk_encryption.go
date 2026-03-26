@@ -487,7 +487,7 @@ func (dm *DiskEncryptionManager) GetLUKSInfo(devicePath string) (*LUKSInfo, erro
 	}
 
 	// 使用 cryptsetup 获取信息
-	cmd := exec.Command("cryptsetup", "luksDump", devicePath)
+	cmd := exec.CommandContext(context.Background(), "cryptsetup", "luksDump", devicePath)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("获取 LUKS 信息失败: %w", err)
@@ -567,7 +567,7 @@ func (dm *DiskEncryptionManager) AddKeySlot(devicePath, currentPassphrase, newPa
 		args = []string{"luksAddKey", "--new-key-slot", fmt.Sprintf("%d", slotID), devicePath}
 	}
 
-	cmd := exec.Command("cryptsetup", args...)
+	cmd := exec.CommandContext(context.Background(), "cryptsetup", args...)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("创建管道失败: %w", err)
@@ -597,7 +597,7 @@ func (dm *DiskEncryptionManager) RemoveKeySlot(devicePath, passphrase string, sl
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
-	cmd := exec.Command("cryptsetup", "luksKillSlot", devicePath, fmt.Sprintf("%d", slotID))
+	cmd := exec.CommandContext(context.Background(), "cryptsetup", "luksKillSlot", devicePath, fmt.Sprintf("%d", slotID))
 	cmd.Stdin = strings.NewReader(passphrase + "\n")
 
 	output, err := cmd.CombinedOutput()
@@ -644,7 +644,7 @@ func (dm *DiskEncryptionManager) RotateKey(devicePath, currentPassphrase, newPas
 	}
 
 	// 添加新密钥
-	cmd := exec.Command("cryptsetup", "luksAddKey", devicePath)
+	cmd := exec.CommandContext(context.Background(), "cryptsetup", "luksAddKey", devicePath)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("创建管道失败: %w", err)
@@ -682,7 +682,7 @@ func (dm *DiskEncryptionManager) RotateKey(devicePath, currentPassphrase, newPas
 
 // removeKeySlotInternal 内部移除密钥槽位方法.
 func (dm *DiskEncryptionManager) removeKeySlotInternal(devicePath, passphrase string, slotID int) error {
-	cmd := exec.Command("cryptsetup", "luksKillSlot", devicePath, fmt.Sprintf("%d", slotID))
+	cmd := exec.CommandContext(context.Background(), "cryptsetup", "luksKillSlot", devicePath, fmt.Sprintf("%d", slotID))
 	cmd.Stdin = strings.NewReader(passphrase + "\n")
 
 	output, err := cmd.CombinedOutput()
@@ -766,7 +766,7 @@ func (dm *DiskEncryptionManager) AutoRotateKeys(passphraseProvider func(devicePa
 		newPassphrase := generatePassphrase()
 
 		// 执行轮换
-		cmd := exec.Command("cryptsetup", "luksAddKey", devicePath)
+		cmd := exec.CommandContext(context.Background(), "cryptsetup", "luksAddKey", devicePath)
 		stdin, err := cmd.StdinPipe()
 		if err != nil {
 			errors = append(errors, fmt.Sprintf("%s: 创建管道失败: %v", devicePath, err))
@@ -910,8 +910,6 @@ func (dm *DiskEncryptionManager) OptimizeEncryption(devicePath string) ([]string
 
 // RunEncryptionBenchmark 运行加密基准测试.
 func (dm *DiskEncryptionManager) RunEncryptionBenchmark(testSizeMB int) ([]EncryptionBenchmark, error) {
-	var results []EncryptionBenchmark
-
 	// 测试不同的算法配置
 	ciphers := []struct {
 		cipher  string
@@ -922,6 +920,8 @@ func (dm *DiskEncryptionManager) RunEncryptionBenchmark(testSizeMB int) ([]Encry
 		{"aes-cbc-essiv:sha256", 256},
 		{"serpent-xts-plain64", 512},
 	}
+
+	results := make([]EncryptionBenchmark, 0, len(ciphers))
 
 	for _, c := range ciphers {
 		benchmark := EncryptionBenchmark{
@@ -1000,7 +1000,7 @@ func (dm *DiskEncryptionManager) UpdateConfig(devicePath string, config *DiskEnc
 // scanEncryptedDevices 扫描加密设备.
 func (dm *DiskEncryptionManager) scanEncryptedDevices() error {
 	// 读取 /proc/crypto 或使用 blkid 扫描
-	cmd := exec.Command("blkid")
+	cmd := exec.CommandContext(context.Background(), "blkid")
 	output, err := cmd.Output()
 	if err != nil {
 		return err
@@ -1058,7 +1058,7 @@ func (dm *DiskEncryptionManager) saveConfig() error {
 }
 
 func (dm *DiskEncryptionManager) getLUKSUUID(devicePath string) (string, error) {
-	cmd := exec.Command("cryptsetup", "luksUUID", devicePath)
+	cmd := exec.CommandContext(context.Background(), "cryptsetup", "luksUUID", devicePath)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -1088,7 +1088,7 @@ func (dm *DiskEncryptionManager) SetHooks(hooks EncryptionHooks) {
 
 func generatePassphrase() string {
 	// 生成安全的随机密码
-	cmd := exec.Command("openssl", "rand", "-base64", "32")
+	cmd := exec.CommandContext(context.Background(), "openssl", "rand", "-base64", "32")
 	output, err := cmd.Output()
 	if err != nil {
 		// 回退到简单生成

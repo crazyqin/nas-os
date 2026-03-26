@@ -208,7 +208,7 @@ func (a *EventAggregator) calculateGroupRiskScore(group *EventGroup) float64 {
 
 // detectCorrelations 检测事件关联.
 func (a *EventAggregator) detectCorrelations() {
-	groups := make([]*EventGroup, 0)
+	groups := make([]*EventGroup, 0, len(a.eventGroups))
 	for _, g := range a.eventGroups {
 		groups = append(groups, g)
 	}
@@ -428,7 +428,7 @@ func (a *EventAggregator) generateTimeline(groups []*EventGroup) []TimelineEntry
 		}
 	}
 
-	var timeline []TimelineEntry
+	var timeline = make([]TimelineEntry, 0, len(hourlyCounts))
 	for ts, counts := range hourlyCounts {
 		// 找出最高严重级别
 		severity := "info"

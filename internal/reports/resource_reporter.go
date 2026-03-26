@@ -456,7 +456,7 @@ func (r *ResourceReporter) generateBandwidthCharts(overview *BandwidthOverview) 
 }
 
 func (r *ResourceReporter) generateUserCharts(overview *UserResourceOverview) []ChartData {
-	charts := make([]ChartData, 0)
+	charts := make([]ChartData, 0, 2)
 
 	// Top 用户使用量柱状图
 	topSeries := make([]ChartPoint, 0, len(overview.TopUsers))
