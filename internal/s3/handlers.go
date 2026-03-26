@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -273,7 +272,7 @@ func (h *Handlers) listObjectsV2(c *gin.Context, bucketName string) {
 		maxKeys = 1000
 	}
 
-	result, err := h.manager.ListObjects(c.Request.Context(), bucketName, prefix, delimiter, marker, maxKeys)
+	listResult, err := h.manager.ListObjects(c.Request.Context(), bucketName, prefix, delimiter, marker, maxKeys)
 	if err != nil {
 		h.sendS3Error(c, err)
 		return
@@ -291,7 +290,7 @@ func (h *Handlers) listObjectsV2(c *gin.Context, bucketName string) {
 		Prefix string `xml:"Prefix"`
 	}
 
-	type result struct {
+	type listBucketResultXML struct {
 		XMLName               xml.Name `xml:"ListBucketResult"`
 		Name                  string   `xml:"Name"`
 		Prefix                string   `xml:"Prefix"`
@@ -303,16 +302,16 @@ func (h *Handlers) listObjectsV2(c *gin.Context, bucketName string) {
 		CommonPrefixes        []commonPrefixXML `xml:"CommonPrefixes"`
 	}
 
-	resp := result{
+	resp := listBucketResultXML{
 		Name:        bucketName,
 		Prefix:      prefix,
-		KeyCount:    len(result.Objects),
+		KeyCount:    len(listResult.Objects),
 		MaxKeys:     maxKeys,
-		IsTruncated: result.IsTruncated,
-		NextContinuationToken: result.NextContinuationToken,
+		IsTruncated: listResult.IsTruncated,
+		NextContinuationToken: listResult.NextContinuationToken,
 	}
 
-	for _, obj := range result.Objects {
+	for _, obj := range listResult.Objects {
 		resp.Contents = append(resp.Contents, objectXML{
 			Key:          obj.Key,
 			LastModified: obj.LastModified.Format(time.RFC3339),
@@ -322,7 +321,7 @@ func (h *Handlers) listObjectsV2(c *gin.Context, bucketName string) {
 		})
 	}
 
-	for _, prefix := range result.CommonPrefixes {
+	for _, prefix := range listResult.CommonPrefixes {
 		resp.CommonPrefixes = append(resp.CommonPrefixes, commonPrefixXML{Prefix: prefix})
 	}
 
@@ -460,8 +459,6 @@ func (h *Handlers) initiateMultipartUpload(c *gin.Context) {
 
 // uploadPart uploads a part.
 func (h *Handlers) uploadPart(c *gin.Context) {
-	bucketName := c.Param("bucket")
-	key := strings.TrimPrefix(c.Param("key"), "/")
 	uploadID := c.Query("uploadId")
 	partNumber, _ := strconv.Atoi(c.Query("partNumber"))
 	contentLength, _ := strconv.ParseInt(c.GetHeader("Content-Length"), 10, 64)
