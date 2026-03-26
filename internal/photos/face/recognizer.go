@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image"
 	"math"
-	"sync"
 
 	"github.com/disintegration/imaging"
 )
@@ -18,7 +17,6 @@ type LocalRecognizer struct {
 	config  *RecognitionConfig
 	backend EmbeddingBackend
 	aligner *FaceAligner
-	mu      sync.RWMutex
 }
 
 // EmbeddingBackend 嵌入向量后端接口
