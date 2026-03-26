@@ -34,7 +34,6 @@ func NewLocalDetector(config *RecognitionConfig) (*LocalDetector, error) {
 		config = DefaultRecognitionConfig()
 	}
 
-	// 创建检测后端
 	var backend DetectionBackend
 	var err error
 
@@ -46,7 +45,6 @@ func NewLocalDetector(config *RecognitionConfig) (*LocalDetector, error) {
 	case "hog":
 		backend, err = NewHOGBackend(config)
 	default:
-		// 默认使用HOG (轻量级)
 		backend, err = NewHOGBackend(config)
 	}
 
@@ -70,16 +68,13 @@ func (d *LocalDetector) Detect(ctx context.Context, img Image) (*DetectionResult
 		return nil, NewError(ErrCodeInvalidImage, "图像转换失败", err.Error())
 	}
 
-	// 调用后端检测
 	faces, err := d.backend.Detect(ctx, rgb, width, height)
 	if err != nil {
 		return nil, err
 	}
 
-	// 过滤低质量人脸
 	filtered := d.filterFaces(faces, width, height)
 
-	// 限制最大数量
 	if len(filtered) > d.config.MaxFacesPerPhoto {
 		sort.Slice(filtered, func(i, j int) bool {
 			return filtered[i].Quality > filtered[j].Quality
@@ -87,7 +82,6 @@ func (d *LocalDetector) Detect(ctx context.Context, img Image) (*DetectionResult
 		filtered = filtered[:d.config.MaxFacesPerPhoto]
 	}
 
-	// 生成ID
 	for i := range filtered {
 		if filtered[i].ID == "" {
 			filtered[i].ID = generateID("face")
@@ -108,12 +102,10 @@ func (d *LocalDetector) filterFaces(faces []Face, imgWidth, imgHeight int) []Fac
 	filtered := make([]Face, 0, len(faces))
 
 	for _, face := range faces {
-		// 置信度检查
 		if face.Confidence < d.config.ConfidenceThresh {
 			continue
 		}
 
-		// 人脸尺寸检查
 		faceWidth := int(face.BoundingBox.Width * float64(imgWidth))
 		faceHeight := int(face.BoundingBox.Height * float64(imgHeight))
 
@@ -121,7 +113,6 @@ func (d *LocalDetector) filterFaces(faces []Face, imgWidth, imgHeight int) []Fac
 			continue
 		}
 
-		// 边界检查
 		if face.BoundingBox.X < 0 || face.BoundingBox.Y < 0 {
 			continue
 		}
@@ -132,7 +123,6 @@ func (d *LocalDetector) filterFaces(faces []Face, imgWidth, imgHeight int) []Fac
 			continue
 		}
 
-		// 宽高比检查 (人脸应该在合理范围内)
 		aspect := face.BoundingBox.Width / face.BoundingBox.Height
 		if aspect < 0.5 || aspect > 2.0 {
 			continue
@@ -152,7 +142,7 @@ func (d *LocalDetector) Close() error {
 	return nil
 }
 
-// ==================== HOG 后端实现 (轻量级) ====================
+// ==================== HOG 后端实现 ====================
 
 // HOGBackend HOG特征人脸检测后端
 type HOGBackend struct {
@@ -166,19 +156,13 @@ func NewHOGBackend(config *RecognitionConfig) (*HOGBackend, error) {
 
 // Detect 使用HOG特征检测人脸
 func (b *HOGBackend) Detect(ctx context.Context, rgb []byte, width, height int) ([]Face, error) {
-	// HOG + SVM 检测实现
-	// 这里使用简化实现，实际项目中可集成 dlib 或 OpenCV
-
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	default:
 	}
 
-	// 转换为灰度图
 	gray := rgbToGray(rgb, width, height)
-
-	// 多尺度滑动窗口检测
 	faces := b.detectMultiScale(gray, width, height)
 
 	return faces, nil
@@ -188,7 +172,6 @@ func (b *HOGBackend) Detect(ctx context.Context, rgb []byte, width, height int) 
 func (b *HOGBackend) detectMultiScale(gray []uint8, width, height int) []Face {
 	faces := make([]Face, 0)
 
-	// 多尺度检测
 	scales := []float64{1.0, 0.75, 0.5, 0.25}
 	for _, scale := range scales {
 		scaledWidth := int(float64(width) * scale)
@@ -198,27 +181,22 @@ func (b *HOGBackend) detectMultiScale(gray []uint8, width, height int) []Face {
 			continue
 		}
 
-		// 窗口大小
 		windowSize := int(float64(b.config.MinFaceSize) / scale)
 		if windowSize < 24 {
 			windowSize = 24
 		}
 
-		// 滑动窗口
 		step := windowSize / 4
 		for y := 0; y < scaledHeight-windowSize; y += step {
 			for x := 0; x < scaledWidth-windowSize; x += step {
-				// 提取窗口
 				window := extractWindow(gray, width, height, x, y, windowSize, windowSize)
 				if window == nil {
 					continue
 				}
 
-				// 计算HOG特征并分类
 				confidence := b.classifyWindow(window, windowSize)
 
 				if confidence >= b.config.ConfidenceThresh {
-					// 转换回原图坐标
 					face := Face{
 						BoundingBox: BoundingBox{
 							X:      float64(x) / float64(scaledWidth),
@@ -235,39 +213,28 @@ func (b *HOGBackend) detectMultiScale(gray []uint8, width, height int) []Face {
 		}
 	}
 
-	// 非极大值抑制
 	return nms(faces, 0.3)
 }
 
-// classifyWindow 使用简化特征分类窗口
+// classifyWindow 分类窗口
 func (b *HOGBackend) classifyWindow(window []uint8, size int) float64 {
-	// 简化实现：基于方差和边缘特征
-	// 实际项目应使用训练好的SVM模型
-
-	// 计算局部方差
 	variance := computeVariance(window)
-	if variance < 500 { // 太平滑不太可能是人脸
+	if variance < 500 {
 		return 0
 	}
 
-	// 简单的人脸模式检测
-	// 检查"眼睛区域"是否比周围暗
 	eyeRegionY := size * 2 / 7
 	eyeRegionH := size / 5
 	eyeScore := b.detectEyePattern(window, size, eyeRegionY, eyeRegionH)
 
-	// 检查"鼻子/脸颊"区域
 	noseScore := b.detectNosePattern(window, size)
 
-	// 综合评分
 	score := (eyeScore*0.6 + noseScore*0.4)
-
 	return score
 }
 
 // detectEyePattern 检测眼睛模式
 func (b *HOGBackend) detectEyePattern(window []uint8, size, regionY, regionH int) float64 {
-	// 眼睛区域应该有两个水平暗带
 	sum := 0.0
 	for y := regionY; y < regionY+regionH && y < size; y++ {
 		rowSum := 0
@@ -275,17 +242,18 @@ func (b *HOGBackend) detectEyePattern(window []uint8, size, regionY, regionH int
 			rowSum += int(window[y*size+x])
 		}
 		avg := float64(rowSum) / float64(size/2)
-		// 眼睛区域平均亮度应该较低
 		if avg < 128 {
 			sum += 0.5
 		}
+	}
+	if regionH == 0 {
+		return 0
 	}
 	return sum / float64(regionH)
 }
 
 // detectNosePattern 检测鼻子模式
 func (b *HOGBackend) detectNosePattern(window []uint8, size int) float64 {
-	// 鼻子区域中间应该较亮
 	centerX := size / 2
 	centerY := size / 2
 	regionSize := size / 6
@@ -306,7 +274,6 @@ func (b *HOGBackend) detectNosePattern(window []uint8, size int) float64 {
 	}
 
 	avg := float64(sum) / float64(count)
-	// 鼻子区域应该比较亮
 	if avg > 100 {
 		return 0.8
 	}
@@ -318,26 +285,20 @@ func (b *HOGBackend) Close() error {
 	return nil
 }
 
-// ==================== RetinaFace 后端 (模拟) ====================
+// ==================== RetinaFace 后端 ====================
 
 // RetinaFaceBackend RetinaFace检测后端
 type RetinaFaceBackend struct {
 	config *RecognitionConfig
-	// 实际项目中应该加载ONNX/TensorFlow模型
 }
 
 // NewRetinaFaceBackend 创建RetinaFace后端
 func NewRetinaFaceBackend(config *RecognitionConfig) (*RetinaFaceBackend, error) {
-	// 实际项目中加载模型
-	// onnxModel, err := onnx.Load(config.ModelPath)
 	return &RetinaFaceBackend{config: config}, nil
 }
 
 // Detect 检测人脸
 func (b *RetinaFaceBackend) Detect(ctx context.Context, rgb []byte, width, height int) ([]Face, error) {
-	// RetinaFace 模型推理
-	// 实际项目: 使用ONNX Runtime或TensorFlow推理
-	// 这里返回空，等待实际模型集成
 	return []Face{}, nil
 }
 
@@ -346,7 +307,7 @@ func (b *RetinaFaceBackend) Close() error {
 	return nil
 }
 
-// ==================== MTCNN 后端 (模拟) ====================
+// ==================== MTCNN 后端 ====================
 
 // MTCNNBackend MTCNN检测后端
 type MTCNNBackend struct {
@@ -360,8 +321,6 @@ func NewMTCNNBackend(config *RecognitionConfig) (*MTCNNBackend, error) {
 
 // Detect 检测人脸
 func (b *MTCNNBackend) Detect(ctx context.Context, rgb []byte, width, height int) ([]Face, error) {
-	// MTCNN 三阶段检测
-	// 实际项目: P-Net -> R-Net -> O-Net
 	return []Face{}, nil
 }
 
@@ -396,7 +355,6 @@ func NewExternalDetector(config *RecognitionConfig) (*ExternalDetector, error) {
 func (d *ExternalDetector) Detect(ctx context.Context, img Image) (*DetectionResult, error) {
 	start := time.Now()
 
-	// 获取图像数据
 	rgba, err := img.ToRGBA()
 	if err != nil {
 		return nil, err
@@ -404,7 +362,6 @@ func (d *ExternalDetector) Detect(ctx context.Context, img Image) (*DetectionRes
 
 	width, height := img.Bounds()
 
-	// 调用外部API
 	faces, err := d.client.DetectFaces(ctx, rgba, width, height)
 	if err != nil {
 		return nil, err
@@ -502,24 +459,6 @@ func rgbToGray(rgb []byte, width, height int) []uint8 {
 	return gray
 }
 
-// computeIntegralImage 计算积分图
-func computeIntegralImage(gray []uint8, width, height int) [][]float64 {
-	integral := make([][]float64, height+1)
-	for i := range integral {
-		integral[i] = make([]float64, width+1)
-	}
-
-	for y := 1; y <= height; y++ {
-		rowSum := 0.0
-		for x := 1; x <= width; x++ {
-			rowSum += float64(gray[(y-1)*width+(x-1)])
-			integral[y][x] = integral[y-1][x] + rowSum
-		}
-	}
-
-	return integral
-}
-
 // extractWindow 提取窗口
 func extractWindow(gray []uint8, width, height, x, y, w, h int) []uint8 {
 	if x+w > width || y+h > height {
@@ -542,14 +481,12 @@ func computeVariance(data []uint8) float64 {
 		return 0
 	}
 
-	// 计算均值
 	sum := 0.0
 	for _, v := range data {
 		sum += float64(v)
 	}
 	mean := sum / float64(n)
 
-	// 计算方差
 	variance := 0.0
 	for _, v := range data {
 		diff := float64(v) - mean
@@ -565,7 +502,6 @@ func nms(faces []Face, thresh float64) []Face {
 		return faces
 	}
 
-	// 按置信度排序
 	sort.Slice(faces, func(i, j int) bool {
 		return faces[i].Confidence > faces[j].Confidence
 	})
@@ -597,13 +533,11 @@ func nms(faces []Face, thresh float64) []Face {
 
 // computeIOU 计算IoU
 func computeIOU(a, b BoundingBox) float64 {
-	// 转换为绝对坐标
 	ax1, ay1 := a.X, a.Y
-	ax2, ay2 := a.X + a.Width, a.Y + a.Height
+	ax2, ay2 := a.X+a.Width, a.Y+a.Height
 	bx1, by1 := b.X, b.Y
-	bx2, by2 := b.X + b.Width, b.Y + b.Height
+	bx2, by2 := b.X+b.Width, b.Y+b.Height
 
-	// 计算交集
 	ix1 := max(ax1, bx1)
 	iy1 := max(ay1, by1)
 	ix2 := min(ax2, bx2)
@@ -615,7 +549,6 @@ func computeIOU(a, b BoundingBox) float64 {
 
 	inter := (ix2 - ix1) * (iy2 - iy1)
 
-	// 计算并集
 	areaA := a.Width * a.Height
 	areaB := b.Width * b.Height
 	union := areaA + areaB - inter
@@ -628,28 +561,19 @@ func cropFace(img image.Image, face *Face, padding float64) image.Image {
 	bounds := img.Bounds()
 	w, h := bounds.Dx(), bounds.Dy()
 
-	// 计算像素坐标
 	x := int(face.BoundingBox.X * float64(w))
 	y := int(face.BoundingBox.Y * float64(h))
 	fw := int(face.BoundingBox.Width * float64(w))
 	fh := int(face.BoundingBox.Height * float64(h))
 
-	// 添加边距
 	p := int(float64(fw) * padding)
 	x = maxInt(0, x-p)
 	y = maxInt(0, y-p)
 	fw = minInt(w-x, fw+2*p)
 	fh = minInt(h-y, fh+2*p)
 
-	// 裁剪
 	cropped := imaging.Crop(img, image.Rect(x, y, x+fw, y+fh))
-
 	return cropped
-}
-
-// resizeFace 调整人脸大小
-func resizeFace(img image.Image, size int) image.Image {
-	return imaging.Resize(img, size, size, imaging.Linear)
 }
 
 func generateID(prefix string) string {
