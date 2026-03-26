@@ -691,7 +691,7 @@ func formatSpeed(bytesPerSec float64) string {
 
 func parseInt(s string) int {
 	var result int
-	fmt.Sscanf(strings.TrimSpace(s), "%d", &result)
+	_, _ = fmt.Sscanf(strings.TrimSpace(s), "%d", &result)
 	return result
 }
 
@@ -712,6 +712,6 @@ func parseMemory(s string) int64 {
 // parseInt helper extracts integer from string
 func parseIntFromString(s string) int {
 	var result int
-	fmt.Sscanf(strings.TrimSpace(s), "%d", &result)
+	_, _ = fmt.Sscanf(strings.TrimSpace(s), "%d", &result)
 	return result
 }
