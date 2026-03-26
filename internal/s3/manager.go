@@ -965,7 +965,7 @@ func (m *Manager) GetBucketStats(bucketName string) (*BucketStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	bucket, exists := m.buckets[bucketName]
+	_, exists := m.buckets[bucketName]
 	if !exists {
 		return nil, ErrBucketNotFound
 	}
