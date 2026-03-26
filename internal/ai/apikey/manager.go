@@ -176,7 +176,7 @@ func (m *Manager) CreateKey(ctx context.Context, req *KeyCreateRequest, userID, 
 
 	// Audit log
 	if m.auditLog != nil {
-		m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
+		_ = m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
 			ID:        uuid.New().String(),
 			Timestamp: now,
 			EventType: AuditEventKeyCreate,
@@ -199,7 +199,7 @@ func (m *Manager) CreateKey(ctx context.Context, req *KeyCreateRequest, userID, 
 
 	// Save to disk
 	if m.config.StorePath != "" {
-		m.save()
+		_ = m.save()
 	}
 
 	return key, nil
@@ -225,7 +225,7 @@ func (m *Manager) GetKey(ctx context.Context, keyID, userID string) (*APIKey, er
 
 	// Audit log
 	if m.auditLog != nil {
-		m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
+		_ = m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
 			ID:        uuid.New().String(),
 			Timestamp: time.Now(),
 			EventType: AuditEventKeyAccess,
@@ -301,7 +301,7 @@ func (m *Manager) UseKey(ctx context.Context, req *KeyUseRequest) (*KeyUseResult
 
 		// Audit log
 		if m.auditLog != nil {
-			m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
+			_ = m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
 				ID:        uuid.New().String(),
 				Timestamp: time.Now(),
 				EventType: AuditEventKeyExpired,
@@ -325,7 +325,7 @@ func (m *Manager) UseKey(ctx context.Context, req *KeyUseRequest) (*KeyUseResult
 
 			// Audit log
 			if m.auditLog != nil {
-				m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
+				_ = m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
 					ID:        uuid.New().String(),
 					Timestamp: time.Now(),
 					EventType: AuditEventKeyDeny,
@@ -359,7 +359,7 @@ func (m *Manager) UseKey(ctx context.Context, req *KeyUseRequest) (*KeyUseResult
 
 		// Audit log
 		if m.auditLog != nil {
-			m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
+			_ = m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
 				ID:        uuid.New().String(),
 				Timestamp: time.Now(),
 				EventType: AuditEventLimitReached,
@@ -403,7 +403,7 @@ func (m *Manager) UseKey(ctx context.Context, req *KeyUseRequest) (*KeyUseResult
 
 	// Audit log
 	if m.auditLog != nil {
-		m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
+		_ = m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
 			ID:        uuid.New().String(),
 			Timestamp: now,
 			EventType: AuditEventKeyUse,
@@ -418,7 +418,7 @@ func (m *Manager) UseKey(ctx context.Context, req *KeyUseRequest) (*KeyUseResult
 
 	// Save
 	if m.config.StorePath != "" {
-		m.save()
+		_ = m.save()
 	}
 
 	return result, nil
@@ -499,7 +499,7 @@ func (m *Manager) UpdateKey(ctx context.Context, keyID, userID, username string,
 
 	// Audit log
 	if m.auditLog != nil {
-		m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
+		_ = m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
 			ID:        uuid.New().String(),
 			Timestamp: key.UpdatedAt,
 			EventType: AuditEventKeyUpdate,
@@ -517,7 +517,7 @@ func (m *Manager) UpdateKey(ctx context.Context, keyID, userID, username string,
 
 	// Save
 	if m.config.StorePath != "" {
-		m.save()
+		_ = m.save()
 	}
 
 	return key, nil
@@ -546,7 +546,7 @@ func (m *Manager) DeleteKey(ctx context.Context, keyID, userID, username string)
 
 	// Audit log
 	if m.auditLog != nil {
-		m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
+		_ = m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
 			ID:        uuid.New().String(),
 			Timestamp: time.Now(),
 			EventType: AuditEventKeyDelete,
@@ -562,7 +562,7 @@ func (m *Manager) DeleteKey(ctx context.Context, keyID, userID, username string)
 
 	// Save
 	if m.config.StorePath != "" {
-		m.save()
+		_ = m.save()
 	}
 
 	return nil
@@ -619,7 +619,7 @@ func (m *Manager) RotateKey(ctx context.Context, req *KeyRotationRequest, userID
 
 	// Audit log
 	if m.auditLog != nil {
-		m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
+		_ = m.auditLog.LogKeyEvent(ctx, &KeyAuditLog{
 			ID:        uuid.New().String(),
 			Timestamp: now,
 			EventType: AuditEventKeyRotate,
@@ -648,7 +648,7 @@ func (m *Manager) RotateKey(ctx context.Context, req *KeyRotationRequest, userID
 
 	// Save
 	if m.config.StorePath != "" {
-		m.save()
+		_ = m.save()
 	}
 
 	return key, nil

@@ -293,7 +293,7 @@ func (r *APIKeyRBAC) AuditAccess(ctx context.Context, userID string, key *APIKey
 		result = "denied"
 	}
 
-	r.auditLogger.LogKeyEvent(ctx, &KeyAuditLog{
+	_ = r.auditLogger.LogKeyEvent(ctx, &KeyAuditLog{
 		ID:        generateID(),
 		Timestamp: time.Now(),
 		EventType: eventType,
@@ -321,7 +321,7 @@ func (r *APIKeyRBAC) getCachedPermissions(userID string) *CachedPermissions {
 	return cached
 }
 
-func (r *APIKeyRBAC) checkCachedPermission(cached *CachedPermissions, resource, action string) bool {
+func (r *APIKeyRBAC) checkCachedPermission(cached *CachedPermissions, _ string, action string) bool {
 	perm := "ai:key:" + action
 	for _, p := range cached.Permissions {
 		if string(p) == perm || string(p) == "ai:key:*" || string(p) == "ai:*" || string(p) == "*" {
@@ -331,6 +331,8 @@ func (r *APIKeyRBAC) checkCachedPermission(cached *CachedPermissions, resource, 
 	return false
 }
 
+// cachePermissions caches permissions for a user
+// nolint:unused // Kept for future caching implementation
 func (r *APIKeyRBAC) cachePermissions(userID string, perms []KeyPermission) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -506,7 +508,7 @@ func (e *PolicyEvaluator) policyApplies(policy *KeyAccessPolicy, userID string, 
 	return actionMatched
 }
 
-func (e *PolicyEvaluator) evaluateConditions(conditions []AccessCondition, ctx context.Context, key *APIKey) bool {
+func (e *PolicyEvaluator) evaluateConditions(conditions []AccessCondition, _ context.Context, _ *APIKey) bool {
 	for _, cond := range conditions {
 		switch cond.Type {
 		case "time":
