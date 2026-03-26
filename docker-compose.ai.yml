@@ -8,19 +8,27 @@
 # 当前版本: v2.281.0（工部维护）
 
 services:
-  # ========== AI 服务主容器 ==========
+  # ========== AI 服务主容器（GPU） ==========
   nas-ai:
     image: ghcr.io/nas-os/nas-os-ai:latest-gpu
     build:
       context: .
       dockerfile: Dockerfile.ai
+      target: gpu-base
     container_name: nas-ai
     restart: unless-stopped
     
-    # GPU 支持
+    # GPU 支持 - NVIDIA runtime
     deploy:
       resources:
+        # 资源限制
+        limits:
+          cpus: '8.0'
+          memory: 16G
+        # 资源预留
         reservations:
+          cpus: '2.0'
+          memory: 4G
           devices:
             - driver: nvidia
               count: all
@@ -36,6 +44,8 @@ services:
       - nas-ai-models:/var/lib/nas-os/models
       - nas-ai-data:/var/lib/nas-os/ai
       - nas-ai-logs:/var/log/nas-os
+      # 可选：挂载媒体库用于图像索引
+      # - /mnt/media:/media:ro
     
     # 环境变量
     environment:
@@ -43,6 +53,10 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
       - TZ=Asia/Shanghai
+      - PYTHONUNBUFFERED=1
+      # 模型缓存目录
+      - TORCH_HOME=/var/lib/nas-os/models
+      - HF_HOME=/var/lib/nas-os/models
     
     # 健康检查
     healthcheck:
@@ -50,7 +64,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 120s
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ========== Ollama 本地 LLM（可选） ==========
   # 取消注释以启用本地 LLM
@@ -62,7 +83,12 @@ services:
   #   # GPU 支持
   #   deploy:
   #     resources:
+  #       limits:
+  #         cpus: '8.0'
+  #         memory: 32G
   #       reservations:
+  #         cpus: '2.0'
+  #         memory: 8G
   #         devices:
   #           - driver: nvidia
   #             count: all
@@ -76,8 +102,17 @@ services:
   #   
   #   environment:
   #     - OLLAMA_ORIGINS=*
+  #     - NVIDIA_VISIBLE_DEVICES=all
+  #     - NVIDIA_DRIVER_CAPABILITIES=compute,utility
   #   
-  #   # 预下载模型
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-sf", "http://localhost:11434/api/version"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   
+  #   # 预下载模型（可选）
   #   # command: >
   #   #   sh -c "ollama pull llama3.2 && ollama serve"
 
@@ -86,11 +121,19 @@ networks:
   default:
     name: nas-ai-network
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
 
 # ========== 卷配置 ==========
 volumes:
   nas-ai-models:
     driver: local
+    # 可选：指定存储位置
+    # driver_opts:
+    #   type: none
+    #   o: bind
+    #   device: /mnt/data/nas-ai/models
   nas-ai-data:
     driver: local
   nas-ai-logs:

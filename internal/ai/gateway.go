@@ -358,10 +358,10 @@ type RateLimiter struct {
 	burstSize        int
 	concurrencyLimit int
 
-	requests     chan struct{}
-	concurrency  chan struct{}
-	_            int64 // requestCount - reserved for future rate tracking
-	_            int64 // tokenCount - reserved for future token tracking
+	requests    chan struct{}
+	concurrency chan struct{}
+	_           int64 // requestCount - reserved for future rate tracking
+	_           int64 // tokenCount - reserved for future token tracking
 }
 
 // NewRateLimiter creates a new rate limiter
