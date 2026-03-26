@@ -392,7 +392,7 @@ func (m *Monitor) collectNFSSessionsFromSystem() ([]*Session, error) {
 
 		// 读取客户端信息
 		infoPath := clientsDir + "/" + clientID + "/info"
-		if info, err := exec.Command("cat", infoPath).Output(); err == nil {
+		if info, err := exec.CommandContext(context.Background(), "cat", infoPath).Output(); err == nil {
 			// 解析客户端IP
 			lines := strings.Split(string(info), "\n")
 			for _, line := range lines {
