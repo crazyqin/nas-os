@@ -243,9 +243,7 @@ func (w *WeChatNotifier) Send(notif *Notification) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -315,9 +313,7 @@ func (w *WebhookNotifier) Send(notif *Notification) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}

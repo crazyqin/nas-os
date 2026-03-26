@@ -535,10 +535,9 @@ func (m *Manager) downloadPlugin(url string) (string, error) {
 	// #nosec G107 -- URL is validated above with SSRF protection
 	req, err := http.NewRequestWithContext(context.Background(), "GET", url, nil)
 	if err != nil {
-		return "", fmt.Errorf("创建请求失败: %w", err)
+		return "", fmt.Errorf("下载失败: %w", err)
 	}
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("下载失败: %w", err)
 	}
