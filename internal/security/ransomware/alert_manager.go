@@ -388,7 +388,7 @@ func itoa(i int) string {
 	return string(digits)
 }
 
-// Error definitions
+// ErrAlertNotFound indicates that an alert was not found.
 var ErrAlertNotFound = &AlertError{Message: "告警不存在"}
 
 // AlertError 告警错误.
