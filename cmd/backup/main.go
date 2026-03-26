@@ -594,7 +594,7 @@ func handleVerify(args []string) {
 
 // ========== 健康检查 ==========
 
-func handleHealth(args []string) {
+func handleHealth(_ []string) {
 	manager := backup.NewManager("/etc/backup/config.json", "/srv/backups")
 	if err := manager.Initialize(); err != nil {
 		fmt.Printf("警告：初始化失败：%v\n", err)

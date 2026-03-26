@@ -296,7 +296,7 @@ func (m *Monitor) collectSMBSessionsFromCommand() ([]*Session, error) {
 // collectSMBLockedFiles 收集SMB锁定文件.
 func (m *Monitor) collectSMBLockedFiles(sessions []*Session) {
 	// 使用 smbstatus -L 获取锁定文件
-	cmd := exec.Command("smbstatus", "-L")
+	cmd := exec.CommandContext(context.Background(), "smbstatus", "-L")
 	output, err := cmd.Output()
 	if err != nil {
 		return
@@ -370,7 +370,7 @@ func (m *Monitor) collectNFSSessionsFromSystem() ([]*Session, error) {
 	// 从 /proc/fs/nfsd/clients/ 收集客户端信息
 	clientsDir := "/proc/fs/nfsd/clients"
 
-	entries, err := exec.Command("ls", "-1", clientsDir).Output()
+	entries, err := exec.CommandContext(context.Background(), "ls", "-1", clientsDir).Output()
 	if err != nil {
 		return nil, fmt.Errorf("读取NFS客户端目录失败: %w", err)
 	}
@@ -427,7 +427,7 @@ func (m *Monitor) getNFSSharePath(clientID string) string {
 
 	// 查找客户端打开的文件
 	opensPath := clientsDir + "/" + clientID + "/opens"
-	if opens, err := exec.Command("cat", opensPath).Output(); err == nil {
+	if opens, err := exec.CommandContext(context.Background(), "cat", opensPath).Output(); err == nil {
 		lines := strings.Split(string(opens), "\n")
 		for _, line := range lines {
 			// 从打开的文件路径提取共享路径
@@ -447,7 +447,7 @@ func (m *Monitor) getNFSSharePath(clientID string) string {
 
 // enrichNFSFromShowmount 使用showmount补充NFS信息.
 func (m *Monitor) enrichNFSFromShowmount(sessions []*Session) {
-	cmd := exec.Command("showmount", "-a", "localhost")
+	cmd := exec.CommandContext(context.Background(), "showmount", "-a", "localhost")
 	output, err := cmd.Output()
 	if err != nil {
 		return
@@ -509,7 +509,7 @@ type DefaultSMBProvider struct{}
 
 // Connections 获取SMB连接.
 func (p *DefaultSMBProvider) Connections() ([]*SMBConnection, error) {
-	cmd := exec.Command("smbstatus", "-b")
+	cmd := exec.CommandContext(context.Background(), "smbstatus", "-b")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, err
@@ -553,7 +553,7 @@ func (p *DefaultSMBProvider) Connections() ([]*SMBConnection, error) {
 // KillConnection 断开SMB连接.
 func (p *DefaultSMBProvider) KillConnection(pid int) error {
 	// 使用 smbcontrol 断开连接
-	cmd := exec.Command("smbcontrol", strconv.Itoa(pid), "close-share")
+	cmd := exec.CommandContext(context.Background(), "smbcontrol", strconv.Itoa(pid), "close-share")
 	return cmd.Run()
 }
 
@@ -565,7 +565,7 @@ func (p *DefaultNFSProvider) GetClients() ([]*NFSClient, error) {
 	var clients []*NFSClient
 
 	clientsDir := "/proc/fs/nfsd/clients"
-	entries, err := exec.Command("ls", "-1", clientsDir).Output()
+	entries, err := exec.CommandContext(context.Background(), "ls", "-1", clientsDir).Output()
 	if err != nil {
 		return nil, err
 	}
@@ -583,7 +583,7 @@ func (p *DefaultNFSProvider) GetClients() ([]*NFSClient, error) {
 
 		// 读取客户端信息
 		infoPath := clientsDir + "/" + clientID + "/info"
-		if info, err := exec.Command("cat", infoPath).Output(); err == nil {
+		if info, err := exec.CommandContext(context.Background(), "cat", infoPath).Output(); err == nil {
 			lines := strings.Split(string(info), "\n")
 			for _, line := range lines {
 				if strings.HasPrefix(line, "address:") {
@@ -609,5 +609,5 @@ func (p *DefaultNFSProvider) KillClient(clientID string) error {
 	// 写入到 /proc/fs/nfsd/clients/{id}/ctl
 	_ = fmt.Sprintf("/proc/fs/nfsd/clients/%s/ctl", clientID)
 	// TODO: 实际实现需要写入到 ctl 文件
-	return exec.Command("echo", "-1").Run()
+	return exec.CommandContext(context.Background(), "echo", "-1").Run()
 }

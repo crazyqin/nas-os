@@ -296,7 +296,7 @@ func (s *TextSearchServiceImpl) Close() error {
 
 // --- Internal Methods ---
 
-func (s *TextSearchServiceImpl) applyFilters(results []SearchResult, filters *Filters) []SearchResult {
+func (s *TextSearchServiceImpl) applyFilters(results []SearchResult, _ *Filters) []SearchResult {
 	// Simplified filter implementation
 	// Production: integrate with actual photo metadata
 	filtered := make([]SearchResult, 0)

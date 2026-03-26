@@ -44,16 +44,14 @@ func NewAIService(cfg *config.AIConfig) (*AIService, error) {
 	}
 
 	// Initialize backends
-	if err := svc.initBackends(); err != nil {
-		log.Printf("⚠️ 后端初始化警告: %v", err)
-	}
+	svc.initBackends()
 
 	svc.initialized = true
 	return svc, nil
 }
 
 // initBackends initializes configured backends
-func (s *AIService) initBackends() error {
+func (s *AIService) initBackends() {
 	// Initialize Ollama backend
 	if s.config.Backends.Ollama.Enabled {
 		backend := NewOllamaBackend(
@@ -135,8 +133,6 @@ func (s *AIService) initBackends() error {
 			log.Println("✅ 自定义后端已注册:", s.config.Backends.Custom.Name)
 		}
 	}
-
-	return nil
 }
 
 // GetGateway returns the AI gateway

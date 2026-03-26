@@ -158,7 +158,7 @@ func (idx *PhotoSearchIndexer) GetStats() IndexerStats {
 }
 
 // worker processes indexing jobs
-func (idx *PhotoSearchIndexer) worker(ctx context.Context, id int) {
+func (idx *PhotoSearchIndexer) worker(ctx context.Context, _ int) {
 	for job := range idx.queue {
 		if ctx.Err() != nil {
 			return

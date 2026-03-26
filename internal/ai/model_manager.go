@@ -47,9 +47,7 @@ func NewModelManager(cfg *config.ModelManagerConfig) (*ModelManager, error) {
 	}
 
 	// Load existing models
-	if err := mgr.scanModels(); err != nil {
-		return nil, fmt.Errorf("failed to scan models: %w", err)
-	}
+	mgr.scanModels()
 
 	return mgr, nil
 }
@@ -357,7 +355,7 @@ func (m *ModelManager) GetStorageUsage() (int64, error) {
 }
 
 // scanModels scans the storage path for existing models
-func (m *ModelManager) scanModels() error {
+func (m *ModelManager) scanModels() {
 	// Scan Ollama models
 	ollamaPath := filepath.Join(m.storagePath, "ollama")
 	if _, err := os.Stat(ollamaPath); err == nil {
@@ -390,8 +388,6 @@ func (m *ModelManager) scanModels() error {
 			}
 		}
 	}
-
-	return nil
 }
 
 // SearchModels searches for models in registries
