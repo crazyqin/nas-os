@@ -69,11 +69,11 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // DetectRequest 检测请求
 type DetectRequest struct {
-	Image     string `json:"image" binding:"required"`     // Base64编码图像
-	PhotoID   string `json:"photoId"`                      // 照片ID
-	Format    string `json:"format"`                       // jpeg, png
-	MinSize   int    `json:"minSize"`                      // 最小人脸尺寸
-	MaxFaces  int    `json:"maxFaces"`                     // 最大人脸数
+	Image    string `json:"image" binding:"required"`
+	PhotoID  string `json:"photoId"`
+	Format   string `json:"format"`
+	MinSize  int    `json:"minSize"`
+	MaxFaces int    `json:"maxFaces"`
 }
 
 // DetectResponse 检测响应
@@ -120,8 +120,8 @@ type ClusterRequest struct {
 
 // AutoLabelRequest 自动标记请求
 type AutoLabelRequest struct {
-	PersonID  string   `json:"personId" binding:"required"`
-	PhotoIDs  []string `json:"photoIds" binding:"required"`
+	PersonID string   `json:"personId" binding:"required"`
+	PhotoIDs []string `json:"photoIds" binding:"required"`
 }
 
 // CompareRequest 比较请求
@@ -151,13 +151,6 @@ type SearchResponse struct {
 // ==================== 处理器方法 ====================
 
 // Detect 人脸检测
-// @Summary 检测图像中的人脸
-// @Tags face
-// @Accept json
-// @Produce json
-// @Param request body DetectRequest true "检测请求"
-// @Success 200 {object} DetectResponse
-// @Router /face/detect [post]
 func (h *Handlers) Detect(c *gin.Context) {
 	var req DetectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -165,14 +158,12 @@ func (h *Handlers) Detect(c *gin.Context) {
 		return
 	}
 
-	// 解码图像
 	img, err := decodeBase64Image(req.Image, req.Format)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "图像解码失败: " + err.Error()})
 		return
 	}
 
-	// 检测人脸
 	ctx := context.Background()
 	adapter := NewGoImageAdapter(img)
 	result, err := h.service.DetectFaces(ctx, adapter, req.PhotoID)
@@ -189,13 +180,6 @@ func (h *Handlers) Detect(c *gin.Context) {
 }
 
 // Recognize 人脸识别
-// @Summary 检测并识别图像中的人脸
-// @Tags face
-// @Accept json
-// @Produce json
-// @Param request body RecognizeRequest true "识别请求"
-// @Success 200 {object} RecognizeResponse
-// @Router /face/recognize [post]
 func (h *Handlers) Recognize(c *gin.Context) {
 	var req RecognizeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -203,14 +187,12 @@ func (h *Handlers) Recognize(c *gin.Context) {
 		return
 	}
 
-	// 解码图像
 	img, err := decodeBase64Image(req.Image, req.Format)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "图像解码失败: " + err.Error()})
 		return
 	}
 
-	// 识别人脸
 	ctx := context.Background()
 	start := time.Now()
 	faces, err := h.service.RecognizeFaces(ctx, NewGoImageAdapter(img), req.PhotoID)
@@ -227,21 +209,13 @@ func (h *Handlers) Recognize(c *gin.Context) {
 }
 
 // BatchRecognize 批量识别
-// @Summary 批量识别图像中的人脸
-// @Tags face
-// @Accept json
-// @Produce json
-// @Param images body map[string]string true "图像映射 (photoId -> base64)"
-// @Success 200 {object} map[string][]Face
-// @Router /face/batch [post]
 func (h *Handlers) BatchRecognize(c *gin.Context) {
-	var req map[string]string // photoId -> base64 image
+	var req map[string]string
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// 解码图像
 	images := make(map[string]image.Image)
 	for photoID, base64Img := range req {
 		img, err := decodeBase64Image(base64Img, "")
@@ -252,7 +226,6 @@ func (h *Handlers) BatchRecognize(c *gin.Context) {
 		images[photoID] = img
 	}
 
-	// 批量处理
 	ctx := context.Background()
 	results, err := h.service.BatchProcessImages(ctx, images)
 	if err != nil {
@@ -264,13 +237,6 @@ func (h *Handlers) BatchRecognize(c *gin.Context) {
 }
 
 // ListPersons 列出人物
-// @Summary 列出所有人物
-// @Tags face
-// @Produce json
-// @Param limit query int false "限制数量" default(20)
-// @Param offset query int false "偏移量" default(0)
-// @Success 200 {object} map[string]interface{}
-// @Router /face/persons [get]
 func (h *Handlers) ListPersons(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
@@ -291,13 +257,6 @@ func (h *Handlers) ListPersons(c *gin.Context) {
 }
 
 // CreatePerson 创建人物
-// @Summary 创建人物
-// @Tags face
-// @Accept json
-// @Produce json
-// @Param request body CreatePersonRequest true "创建请求"
-// @Success 200 {object} Person
-// @Router /face/persons [post]
 func (h *Handlers) CreatePerson(c *gin.Context) {
 	var req CreatePersonRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -316,12 +275,6 @@ func (h *Handlers) CreatePerson(c *gin.Context) {
 }
 
 // GetPerson 获取人物
-// @Summary 获取人物详情
-// @Tags face
-// @Produce json
-// @Param id path string true "人物ID"
-// @Success 200 {object} Person
-// @Router /face/persons/{id} [get]
 func (h *Handlers) GetPerson(c *gin.Context) {
 	personID := c.Param("id")
 
@@ -336,14 +289,6 @@ func (h *Handlers) GetPerson(c *gin.Context) {
 }
 
 // UpdatePerson 更新人物
-// @Summary 更新人物
-// @Tags face
-// @Accept json
-// @Produce json
-// @Param id path string true "人物ID"
-// @Param request body UpdatePersonRequest true "更新请求"
-// @Success 200 {object} Person
-// @Router /face/persons/{id} [put]
 func (h *Handlers) UpdatePerson(c *gin.Context) {
 	personID := c.Param("id")
 
@@ -372,11 +317,6 @@ func (h *Handlers) UpdatePerson(c *gin.Context) {
 }
 
 // DeletePerson 删除人物
-// @Summary 删除人物
-// @Tags face
-// @Param id path string true "人物ID"
-// @Success 200 {object} map[string]interface{}
-// @Router /face/persons/{id} [delete]
 func (h *Handlers) DeletePerson(c *gin.Context) {
 	personID := c.Param("id")
 
@@ -390,12 +330,6 @@ func (h *Handlers) DeletePerson(c *gin.Context) {
 }
 
 // GetPhotoFaces 获取照片的人脸
-// @Summary 获取照片中的所有人脸
-// @Tags face
-// @Produce json
-// @Param photoId path string true "照片ID"
-// @Success 200 {object} map[string]interface{}
-// @Router /face/photos/{photoId}/faces [get]
 func (h *Handlers) GetPhotoFaces(c *gin.Context) {
 	photoID := c.Param("photoId")
 
@@ -414,12 +348,6 @@ func (h *Handlers) GetPhotoFaces(c *gin.Context) {
 }
 
 // GetPersonFaces 获取人物的人脸
-// @Summary 获取人物的所有人脸
-// @Tags face
-// @Produce json
-// @Param personId path string true "人物ID"
-// @Success 200 {object} map[string]interface{}
-// @Router /face/persons/{personId}/faces [get]
 func (h *Handlers) GetPersonFaces(c *gin.Context) {
 	personID := c.Param("personId")
 
@@ -438,13 +366,6 @@ func (h *Handlers) GetPersonFaces(c *gin.Context) {
 }
 
 // AssignFace 分配人脸
-// @Summary 将人脸分配给人物
-// @Tags face
-// @Accept json
-// @Param faceId path string true "人脸ID"
-// @Param request body AssignFaceRequest true "分配请求"
-// @Success 200 {object} map[string]interface{}
-// @Router /face/faces/{faceId}/assign [post]
 func (h *Handlers) AssignFace(c *gin.Context) {
 	faceID := c.Param("faceId")
 
@@ -464,11 +385,6 @@ func (h *Handlers) AssignFace(c *gin.Context) {
 }
 
 // UnassignFace 取消分配
-// @Summary 取消人脸分配
-// @Tags face
-// @Param faceId path string true "人脸ID"
-// @Success 200 {object} map[string]interface{}
-// @Router /face/faces/{faceId}/unassign [post]
 func (h *Handlers) UnassignFace(c *gin.Context) {
 	faceID := c.Param("faceId")
 
@@ -482,13 +398,6 @@ func (h *Handlers) UnassignFace(c *gin.Context) {
 }
 
 // ClusterFaces 聚类人脸
-// @Summary 对人脸进行聚类
-// @Tags face
-// @Accept json
-// @Produce json
-// @Param request body ClusterRequest true "聚类请求"
-// @Success 200 {object} ClusterResult
-// @Router /face/cluster [post]
 func (h *Handlers) ClusterFaces(c *gin.Context) {
 	var req ClusterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -507,12 +416,6 @@ func (h *Handlers) ClusterFaces(c *gin.Context) {
 }
 
 // AutoLabel 自动标记
-// @Summary 自动标记人脸
-// @Tags face
-// @Accept json
-// @Param request body AutoLabelRequest true "自动标记请求"
-// @Success 200 {object} map[string]interface{}
-// @Router /face/auto-label [post]
 func (h *Handlers) AutoLabel(c *gin.Context) {
 	var req AutoLabelRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -530,11 +433,6 @@ func (h *Handlers) AutoLabel(c *gin.Context) {
 }
 
 // GetStats 获取统计
-// @Summary 获取人脸识别统计
-// @Tags face
-// @Produce json
-// @Success 200 {object} Stats
-// @Router /face/stats [get]
 func (h *Handlers) GetStats(c *gin.Context) {
 	ctx := context.Background()
 	stats, err := h.service.GetStats(ctx)
@@ -547,13 +445,6 @@ func (h *Handlers) GetStats(c *gin.Context) {
 }
 
 // CompareFaces 比较人脸
-// @Summary 比较两个人脸的相似度
-// @Tags face
-// @Accept json
-// @Produce json
-// @Param request body CompareRequest true "比较请求"
-// @Success 200 {object} CompareResponse
-// @Router /face/compare [post]
 func (h *Handlers) CompareFaces(c *gin.Context) {
 	var req CompareRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -571,13 +462,6 @@ func (h *Handlers) CompareFaces(c *gin.Context) {
 }
 
 // SearchSimilarFaces 搜索相似人脸
-// @Summary 搜索相似人脸
-// @Tags face
-// @Accept json
-// @Produce json
-// @Param request body SearchRequest true "搜索请求"
-// @Success 200 {object} SearchResponse
-// @Router /face/search [post]
 func (h *Handlers) SearchSimilarFaces(c *gin.Context) {
 	var req SearchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -602,22 +486,11 @@ func (h *Handlers) SearchSimilarFaces(c *gin.Context) {
 }
 
 // GetConfig 获取配置
-// @Summary 获取人脸识别配置
-// @Tags face
-// @Produce json
-// @Success 200 {object} RecognitionConfig
-// @Router /face/config [get]
 func (h *Handlers) GetConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, h.service.config)
 }
 
 // UpdateConfig 更新配置
-// @Summary 更新人脸识别配置
-// @Tags face
-// @Accept json
-// @Param config body RecognitionConfig true "配置"
-// @Success 200 {object} map[string]interface{}
-// @Router /face/config [put]
 func (h *Handlers) UpdateConfig(c *gin.Context) {
 	var config RecognitionConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -625,7 +498,6 @@ func (h *Handlers) UpdateConfig(c *gin.Context) {
 		return
 	}
 
-	// 部分更新配置
 	if config.MinFaceSize > 0 {
 		h.service.config.MinFaceSize = config.MinFaceSize
 	}
@@ -646,9 +518,7 @@ func (h *Handlers) UpdateConfig(c *gin.Context) {
 
 // decodeBase64Image 解码Base64图像
 func decodeBase64Image(base64Str, format string) (image.Image, error) {
-	// 移除data URL前缀
 	if len(base64Str) > 22 && base64Str[:5] == "data:" {
-		// 找到base64数据的起始位置
 		for i := 0; i < len(base64Str)-1; i++ {
 			if base64Str[i] == ',' {
 				base64Str = base64Str[i+1:]
@@ -662,19 +532,16 @@ func decodeBase64Image(base64Str, format string) (image.Image, error) {
 		return nil, fmt.Errorf("base64解码失败: %w", err)
 	}
 
-	// 根据格式解码
 	switch format {
 	case "png":
 		return png.Decode(bytes.NewReader(data))
 	case "jpeg", "jpg":
 		return jpeg.Decode(bytes.NewReader(data))
 	default:
-		// 尝试JPEG
 		img, err := jpeg.Decode(bytes.NewReader(data))
 		if err == nil {
 			return img, nil
 		}
-		// 尝试PNG
 		return png.Decode(bytes.NewReader(data))
 	}
 }

@@ -3,7 +3,6 @@ package face
 
 import (
 	"context"
-	"math"
 	"sort"
 	"sync"
 	"time"
@@ -31,7 +30,6 @@ func (c *DBSCANClusterer) Cluster(ctx context.Context, faces []Face) (*ClusterRe
 		return &ClusterResult{}, nil
 	}
 
-	// 过滤出有嵌入向量的人脸
 	validFaces := make([]Face, 0, len(faces))
 	for _, face := range faces {
 		if len(face.Embedding) > 0 {
@@ -46,15 +44,9 @@ func (c *DBSCANClusterer) Cluster(ctx context.Context, faces []Face) (*ClusterRe
 		}, nil
 	}
 
-	n := len(validFaces)
-
-	// 构建相似度矩阵
 	similarity := c.buildSimilarityMatrix(validFaces)
-
-	// DBSCAN聚类
 	labels := c.dbscan(similarity, c.config.ClusterThresh, c.config.MinClusterSize)
 
-	// 构建聚类结果
 	persons := make([]Person, 0)
 	personFaces := make(map[int][]Face)
 	unassigned := make([]Face, 0)
@@ -69,9 +61,7 @@ func (c *DBSCANClusterer) Cluster(ctx context.Context, faces []Face) (*ClusterRe
 		}
 	}
 
-	// 创建Person实体
-	for clusterID, clusterFaces := range personFaces {
-		// 按质量排序，选择代表脸
+	for _, clusterFaces := range personFaces {
 		sort.Slice(clusterFaces, func(i, j int) bool {
 			return clusterFaces[i].Quality > clusterFaces[j].Quality
 		})
@@ -84,7 +74,6 @@ func (c *DBSCANClusterer) Cluster(ctx context.Context, faces []Face) (*ClusterRe
 			UpdatedAt:          time.Now(),
 		}
 
-		// 更新人脸的PersonID
 		for i := range clusterFaces {
 			clusterFaces[i].PersonID = person.ID
 		}
@@ -92,12 +81,10 @@ func (c *DBSCANClusterer) Cluster(ctx context.Context, faces []Face) (*ClusterRe
 		persons = append(persons, person)
 	}
 
-	// 按人脸数量排序
 	sort.Slice(persons, func(i, j int) bool {
 		return persons[i].FaceCount > persons[j].FaceCount
 	})
 
-	// 添加没有嵌入向量的人脸到未分配列表
 	for _, face := range faces {
 		if len(face.Embedding) == 0 {
 			unassigned = append(unassigned, face)
@@ -121,7 +108,6 @@ func (c *DBSCANClusterer) Assign(ctx context.Context, face *Face, persons []Pers
 	bestSimilarity := c.config.ClusterThresh
 
 	for _, person := range persons {
-		// 找到该人物的代表嵌入向量
 		maxSim := 0.0
 		for faceID, emb := range embeddings {
 			if faceID == person.RepresentativeFace {
@@ -129,24 +115,6 @@ func (c *DBSCANClusterer) Assign(ctx context.Context, face *Face, persons []Pers
 				if sim > maxSim {
 					maxSim = sim
 				}
-			}
-		}
-
-		// 或者计算所有人脸的平均相似度
-		if maxSim == 0 {
-			totalSim := 0.0
-			count := 0
-			for faceID, emb := range embeddings {
-				// 检查这个face是否属于这个person
-				for _, pf := range embeddings {
-					_ = pf
-				}
-				sim := cosineSimilarityFloat32(face.Embedding, emb)
-				totalSim += sim
-				count++
-			}
-			if count > 0 {
-				maxSim = totalSim / float64(count)
 			}
 		}
 
@@ -181,7 +149,7 @@ func (c *DBSCANClusterer) dbscan(similarity [][]float64, epsilon float64, minPts
 	n := len(similarity)
 	labels := make([]int, n)
 	for i := range labels {
-		labels[i] = -1 // -1 表示未分类
+		labels[i] = -1
 	}
 
 	visited := make([]bool, n)
@@ -195,15 +163,12 @@ func (c *DBSCANClusterer) dbscan(similarity [][]float64, epsilon float64, minPts
 
 		neighbors := c.getNeighbors(similarity, i, epsilon)
 		if len(neighbors) < minPts {
-			// 噪声点
 			continue
 		}
 
-		// 开始新聚类
 		clusterID++
 		labels[i] = clusterID
 
-		// 扩展聚类
 		seedSet := make([]int, len(neighbors))
 		copy(seedSet, neighbors)
 
@@ -239,193 +204,12 @@ func (c *DBSCANClusterer) getNeighbors(similarity [][]float64, idx int, epsilon 
 	return neighbors
 }
 
-// ==================== 层次聚类器 ====================
-
-// HierarchicalClusterer 层次聚类器
-type HierarchicalClusterer struct {
-	config *RecognitionConfig
-}
-
-// NewHierarchicalClusterer 创建层次聚类器
-func NewHierarchicalClusterer(config *RecognitionConfig) *HierarchicalClusterer {
-	return &HierarchicalClusterer{config: config}
-}
-
-// Cluster 层次聚类
-func (c *HierarchicalClusterer) Cluster(ctx context.Context, faces []Face) (*ClusterResult, error) {
-	if len(faces) == 0 {
-		return &ClusterResult{}, nil
-	}
-
-	// 过滤有效人脸
-	validFaces := make([]Face, 0, len(faces))
-	for _, face := range faces {
-		if len(face.Embedding) > 0 {
-			validFaces = append(validFaces, face)
-		}
-	}
-
-	n := len(validFaces)
-	if n == 0 {
-		return &ClusterResult{Unassigned: faces}, nil
-	}
-
-	// 初始化：每个人脸是一个聚类
-	clusters := make([][]int, n)
-	for i := range clusters {
-		clusters[i] = []int{i}
-	}
-
-	// 距离矩阵
-	dist := c.buildDistanceMatrix(validFaces)
-
-	// 凝聚聚类
-	threshold := 1.0 - c.config.ClusterThresh // 相似度转换为距离
-
-	for len(clusters) > 1 {
-		// 找到最近的两个聚类
-		minDist := math.MaxFloat64
-		mergeI, mergeJ := 0, 1
-
-		for i := 0; i < len(clusters); i++ {
-			for j := i + 1; j < len(clusters); j++ {
-				d := c.clusterDistance(dist, clusters[i], clusters[j])
-				if d < minDist {
-					minDist = d
-					mergeI, mergeJ = i, j
-				}
-			}
-		}
-
-		// 如果最小距离超过阈值，停止
-		if minDist > threshold {
-			break
-		}
-
-		// 合并聚类
-		clusters[mergeI] = append(clusters[mergeI], clusters[mergeJ]...)
-		clusters = append(clusters[:mergeJ], clusters[mergeJ+1:]...)
-	}
-
-	// 构建结果
-	persons := make([]Person, 0)
-	unassigned := make([]Face, 0)
-
-	for clusterIdx, cluster := range clusters {
-		if len(cluster) < c.config.MinClusterSize {
-			for _, idx := range cluster {
-				validFaces[idx].ClusterID = -1
-				unassigned = append(unassigned, validFaces[idx])
-			}
-			continue
-		}
-
-		// 按质量排序
-		clusterFaces := make([]Face, len(cluster))
-		for i, idx := range cluster {
-			clusterFaces[i] = validFaces[idx]
-		}
-		sort.Slice(clusterFaces, func(i, j int) bool {
-			return clusterFaces[i].Quality > clusterFaces[j].Quality
-		})
-
-		person := Person{
-			ID:                 generateID("person"),
-			FaceCount:          len(clusterFaces),
-			RepresentativeFace: clusterFaces[0].ID,
-			CreatedAt:          time.Now(),
-			UpdatedAt:          time.Now(),
-		}
-
-		for i := range clusterFaces {
-			clusterFaces[i].ClusterID = clusterIdx
-			clusterFaces[i].PersonID = person.ID
-		}
-
-		persons = append(persons, person)
-	}
-
-	// 添加没有嵌入向量的人脸
-	for _, face := range faces {
-		if len(face.Embedding) == 0 {
-			unassigned = append(unassigned, face)
-		}
-	}
-
-	return &ClusterResult{
-		Persons:      persons,
-		Unassigned:   unassigned,
-		ClusterCount: len(persons),
-	}, nil
-}
-
-// buildDistanceMatrix 构建距离矩阵
-func (c *HierarchicalClusterer) buildDistanceMatrix(faces []Face) [][]float64 {
-	n := len(faces)
-	dist := make([][]float64, n)
-	for i := range dist {
-		dist[i] = make([]float64, n)
-		for j := range dist[i] {
-			if i == j {
-				dist[i][j] = 0
-			} else {
-				// 距离 = 1 - 相似度
-				dist[i][j] = 1.0 - cosineSimilarityFloat32(faces[i].Embedding, faces[j].Embedding)
-			}
-		}
-	}
-	return dist
-}
-
-// clusterDistance 计算聚类间距离 (平均链接)
-func (c *HierarchicalClusterer) clusterDistance(dist [][]float64, c1, c2 []int) float64 {
-	total := 0.0
-	for _, i := range c1 {
-		for _, j := range c2 {
-			total += dist[i][j]
-		}
-	}
-	return total / float64(len(c1)*len(c2))
-}
-
-// Assign 分配人脸到聚类
-func (c *HierarchicalClusterer) Assign(ctx context.Context, face *Face, persons []Person, embeddings map[string][]float32) (string, error) {
-	if len(face.Embedding) == 0 {
-		return "", nil
-	}
-
-	bestPersonID := ""
-	bestSimilarity := c.config.ClusterThresh
-
-	for _, person := range persons {
-		// 计算与该聚类中心的相似度
-		totalSim := 0.0
-		count := 0
-
-		for _, emb := range embeddings {
-			sim := cosineSimilarityFloat32(face.Embedding, emb)
-			totalSim += sim
-			count++
-		}
-
-		if count > 0 {
-			avgSim := totalSim / float64(count)
-			if avgSim > bestSimilarity {
-				bestSimilarity = avgSim
-				bestPersonID = person.ID
-			}
-		}
-	}
-
-	return bestPersonID, nil
-}
-
 // ==================== 增量聚类器 ====================
 
 // IncrementalClusterer 增量聚类器
 type IncrementalClusterer struct {
 	config     *RecognitionConfig
-	centroids  map[string][]float32 // personID -> centroid
+	centroids  map[string][]float32
 	faceCounts map[string]int
 	mu         sync.RWMutex
 }
@@ -448,7 +232,6 @@ func (c *IncrementalClusterer) AddFace(face *Face) (string, error) {
 		return "", nil
 	}
 
-	// 找最匹配的聚类
 	bestPersonID := ""
 	bestSimilarity := c.config.ClusterThresh
 
@@ -461,13 +244,11 @@ func (c *IncrementalClusterer) AddFace(face *Face) (string, error) {
 	}
 
 	if bestPersonID != "" {
-		// 更新聚类中心
 		c.updateCentroid(bestPersonID, face.Embedding)
 		face.PersonID = bestPersonID
 		return bestPersonID, nil
 	}
 
-	// 创建新聚类
 	personID := generateID("person")
 	c.centroids[personID] = face.Embedding
 	c.faceCounts[personID] = 1
@@ -486,8 +267,6 @@ func (c *IncrementalClusterer) updateCentroid(personID string, embedding []float
 	}
 
 	count := c.faceCounts[personID]
-
-	// 增量更新: new_centroid = (old_centroid * count + new_embedding) / (count + 1)
 	newCentroid := make([]float32, len(centroid))
 	for i := range centroid {
 		newCentroid[i] = (centroid[i]*float32(count) + embedding[i]) / float32(count+1)
@@ -533,7 +312,5 @@ func (c *IncrementalClusterer) RemoveFace(face *Face) {
 		return
 	}
 
-	// 简化：只更新计数，不重新计算中心
-	// 实际项目中应该重新计算
 	c.faceCounts[face.PersonID] = count - 1
 }

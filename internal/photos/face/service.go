@@ -3,14 +3,11 @@ package face
 
 import (
 	"context"
-	"fmt"
 	"image"
 	"sort"
 	"sync"
 	"time"
 )
-
-// ==================== 服务实现 ====================
 
 // ServiceImpl 人脸识别服务实现
 type ServiceImpl struct {
@@ -20,11 +17,9 @@ type ServiceImpl struct {
 	clusterer    Clusterer
 	labelManager LabelManager
 
-	// 嵌入向量缓存
 	embeddings map[string][]float32
 	embMu      sync.RWMutex
 
-	// 统计
 	stats Stats
 	mu    sync.RWMutex
 }
@@ -35,7 +30,6 @@ func NewService(config *RecognitionConfig) (*ServiceImpl, error) {
 		config = DefaultRecognitionConfig()
 	}
 
-	// 创建检测器
 	var detector Detector
 	var err error
 	if config.UseExternalService {
@@ -44,10 +38,9 @@ func NewService(config *RecognitionConfig) (*ServiceImpl, error) {
 		detector, err = NewLocalDetector(config)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("创建检测器失败: %w", err)
+		return nil, err
 	}
 
-	// 创建识别器
 	var recognizer Recognizer
 	if config.UseExternalService {
 		recognizer, err = NewExternalRecognizer(config)
@@ -56,13 +49,10 @@ func NewService(config *RecognitionConfig) (*ServiceImpl, error) {
 	}
 	if err != nil {
 		detector.Close()
-		return nil, fmt.Errorf("创建识别器失败: %w", err)
+		return nil, err
 	}
 
-	// 创建聚类器
 	clusterer := NewDBSCANClusterer(config)
-
-	// 创建标签管理器
 	labelManager := NewMemoryLabelManager()
 
 	return &ServiceImpl{
@@ -90,12 +80,10 @@ func (s *ServiceImpl) DetectFaces(ctx context.Context, img Image, photoID string
 		return nil, err
 	}
 
-	// 设置PhotoID
 	for i := range result.Faces {
 		result.Faces[i].PhotoID = photoID
 	}
 
-	// 更新统计
 	s.mu.Lock()
 	s.stats.TotalFaces += len(result.Faces)
 	s.stats.PhotosWith++
@@ -112,7 +100,6 @@ func (s *ServiceImpl) ExtractEmbeddings(ctx context.Context, img Image, faces []
 	for i, face := range faces {
 		embedding, err := s.recognizer.ExtractEmbedding(ctx, img, &face)
 		if err != nil {
-			// 单个失败不影响其他
 			result[i] = face
 			continue
 		}
@@ -120,7 +107,6 @@ func (s *ServiceImpl) ExtractEmbeddings(ctx context.Context, img Image, faces []
 		face.Embedding = embedding
 		result[i] = face
 
-		// 缓存嵌入向量
 		s.embMu.Lock()
 		s.embeddings[face.ID] = embedding
 		s.embMu.Unlock()
@@ -131,7 +117,6 @@ func (s *ServiceImpl) ExtractEmbeddings(ctx context.Context, img Image, faces []
 
 // RecognizeFaces 检测并识别人脸
 func (s *ServiceImpl) RecognizeFaces(ctx context.Context, img Image, photoID string) ([]Face, error) {
-	// 1. 检测人脸
 	detection, err := s.detector.Detect(ctx, img)
 	if err != nil {
 		return nil, err
@@ -141,7 +126,6 @@ func (s *ServiceImpl) RecognizeFaces(ctx context.Context, img Image, photoID str
 		return []Face{}, nil
 	}
 
-	// 2. 提取嵌入向量
 	faces := detection.Faces
 	for i := range faces {
 		faces[i].PhotoID = photoID
@@ -152,13 +136,11 @@ func (s *ServiceImpl) RecognizeFaces(ctx context.Context, img Image, photoID str
 		}
 		faces[i].Embedding = embedding
 
-		// 缓存
 		s.embMu.Lock()
 		s.embeddings[faces[i].ID] = embedding
 		s.embMu.Unlock()
 	}
 
-	// 3. 尝试匹配已有人物
 	persons, _, _ := s.labelManager.ListPersons(ctx, 1000, 0)
 	for i := range faces {
 		if len(faces[i].Embedding) == 0 {
@@ -175,7 +157,6 @@ func (s *ServiceImpl) RecognizeFaces(ctx context.Context, img Image, photoID str
 		}
 	}
 
-	// 更新统计
 	s.mu.Lock()
 	s.stats.TotalFaces += len(faces)
 	s.stats.LastProcessed = time.Now()
@@ -186,7 +167,6 @@ func (s *ServiceImpl) RecognizeFaces(ctx context.Context, img Image, photoID str
 
 // ClusterFaces 人脸聚类
 func (s *ServiceImpl) ClusterFaces(ctx context.Context, photoIDs []string) (*ClusterResult, error) {
-	// 收集所有人脸
 	allFaces := make([]Face, 0)
 
 	for _, photoID := range photoIDs {
@@ -195,7 +175,6 @@ func (s *ServiceImpl) ClusterFaces(ctx context.Context, photoIDs []string) (*Clu
 			continue
 		}
 
-		// 从缓存获取嵌入向量
 		for i := range faces {
 			s.embMu.RLock()
 			if emb, exists := s.embeddings[faces[i].ID]; exists {
@@ -207,22 +186,18 @@ func (s *ServiceImpl) ClusterFaces(ctx context.Context, photoIDs []string) (*Clu
 		allFaces = append(allFaces, faces...)
 	}
 
-	// 执行聚类
 	result, err := s.clusterer.Cluster(ctx, allFaces)
 	if err != nil {
 		return nil, err
 	}
 
-	// 更新标签管理器
 	for _, person := range result.Persons {
-		// 创建或更新人物
 		existingPerson, _ := s.labelManager.GetPerson(ctx, person.ID)
 		if existingPerson == nil {
 			s.labelManager.CreatePerson(ctx, person.Name)
 		}
 	}
 
-	// 更新统计
 	s.mu.Lock()
 	s.stats.TotalPersons = len(result.Persons)
 	s.stats.Unassigned = len(result.Unassigned)
@@ -237,6 +212,7 @@ func (s *ServiceImpl) AutoLabel(ctx context.Context, personID string, photoIDs [
 	if err != nil {
 		return err
 	}
+	_ = person // person用于验证存在性
 
 	for _, photoID := range photoIDs {
 		faces, err := s.labelManager.GetFacesByPhoto(ctx, photoID)
@@ -259,7 +235,6 @@ func (s *ServiceImpl) GetStats(ctx context.Context) (*Stats, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	// 获取Top人物
 	persons, total, _ := s.labelManager.ListPersons(ctx, 10, 0)
 	topPersons := make([]PersonStats, 0, len(persons))
 	for _, p := range persons {
@@ -279,30 +254,16 @@ func (s *ServiceImpl) GetStats(ctx context.Context) (*Stats, error) {
 
 // Close 关闭服务
 func (s *ServiceImpl) Close() error {
-	var errs []error
-
 	if s.detector != nil {
-		if err := s.detector.Close(); err != nil {
-			errs = append(errs, err)
-		}
+		s.detector.Close()
 	}
-
 	if s.recognizer != nil {
-		if err := s.recognizer.Close(); err != nil {
-			errs = append(errs, err)
-		}
+		s.recognizer.Close()
 	}
-
-	if len(errs) > 0 {
-		return fmt.Errorf("关闭服务出错: %v", errs)
-	}
-
 	return nil
 }
 
-// ==================== 图像处理辅助 ====================
-
-// ProcessImage 处理图像，返回所有人脸信息
+// ProcessImage 处理图像
 func (s *ServiceImpl) ProcessImage(ctx context.Context, img image.Image, photoID string) ([]Face, error) {
 	adapter := NewGoImageAdapter(img)
 	return s.RecognizeFaces(ctx, adapter, photoID)
@@ -313,7 +274,6 @@ func (s *ServiceImpl) BatchProcessImages(ctx context.Context, images map[string]
 	results := make(map[string][]Face)
 	var mu sync.Mutex
 
-	// 并发处理
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, s.config.NumWorkers)
 
@@ -338,8 +298,6 @@ func (s *ServiceImpl) BatchProcessImages(ctx context.Context, images map[string]
 	wg.Wait()
 	return results, nil
 }
-
-// ==================== 人物管理 ====================
 
 // CreatePerson 创建人物
 func (s *ServiceImpl) CreatePerson(ctx context.Context, name string) (*Person, error) {
@@ -386,8 +344,6 @@ func (s *ServiceImpl) GetFacesByPhoto(ctx context.Context, photoID string) ([]Fa
 	return s.labelManager.GetFacesByPhoto(ctx, photoID)
 }
 
-// ==================== 相似人脸搜索 ====================
-
 // SearchSimilarFaces 搜索相似人脸
 func (s *ServiceImpl) SearchSimilarFaces(ctx context.Context, embedding []float32, threshold float64, topK int) []FaceSearchResult {
 	s.embMu.RLock()
@@ -398,25 +354,17 @@ func (s *ServiceImpl) SearchSimilarFaces(ctx context.Context, embedding []float3
 	for faceID, emb := range s.embeddings {
 		sim := cosineSimilarityFloat32(embedding, emb)
 		if sim >= threshold {
-			// 获取人脸信息
-			personID := ""
-			personName := ""
-			// 从标签管理器获取
-
 			results = append(results, FaceSearchResult{
-				FaceID:   faceID,
-				PersonID: personID,
-				Score:    sim,
+				FaceID: faceID,
+				Score:  sim,
 			})
 		}
 	}
 
-	// 排序
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Score > results[j].Score
 	})
 
-	// 限制数量
 	if len(results) > topK {
 		results = results[:topK]
 	}
@@ -429,8 +377,6 @@ func (s *ServiceImpl) CompareFaces(emb1, emb2 []float32) float64 {
 	return s.recognizer.Compare(emb1, emb2)
 }
 
-// ==================== 人脸验证 ====================
-
 // VerifyFace 验证人脸是否属于指定人物
 func (s *ServiceImpl) VerifyFace(ctx context.Context, embedding []float32, personID string) (bool, float64, error) {
 	faces, err := s.labelManager.GetFacesByPerson(ctx, personID)
@@ -439,10 +385,9 @@ func (s *ServiceImpl) VerifyFace(ctx context.Context, embedding []float32, perso
 	}
 
 	if len(faces) == 0 {
-		return false, 0, fmt.Errorf("人物没有人脸数据")
+		return false, 0, nil
 	}
 
-	// 计算与所有人脸的相似度
 	maxSim := 0.0
 	s.embMu.RLock()
 	for _, face := range faces {
@@ -455,7 +400,6 @@ func (s *ServiceImpl) VerifyFace(ctx context.Context, embedding []float32, perso
 	}
 	s.embMu.RUnlock()
 
-	// 判断阈值
 	threshold := s.config.ClusterThresh
 	return maxSim >= threshold, maxSim, nil
 }
