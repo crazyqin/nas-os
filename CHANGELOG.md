@@ -7,6 +7,28 @@
 
 ---
 
+## [v2.281.0] - 2026-03-26
+
+### 第62轮六部协同开发
+- 🔧 **Linter修复** - 修复noctx和prealloc警告
+  - noctx: exec.Command改为exec.CommandContext (9处)
+  - prealloc: 切片预分配优化 (8处)
+- 📊 **竞品分析** - 全面更新4大竞品信息
+  - 飞牛fnOS 1.1.x: 影视STRM直连、自签证书HTTPS、AMD GPU支持
+  - 群晖DSM 7.3: Synology Tiering、AI Console 43万+部署
+  - TrueNAS 25.10 "Goldeye": 400GbE、NVMe-oF、LXC容器、勒索软件检测
+  - Unraid 7.2.x: Linux 6.12内核、安全修复
+
+### 功能差距分析更新
+| 功能 | 优先级 | 来源 |
+|------|--------|------|
+| 网盘挂载 | P0 | 飞牛fnOS |
+| 勒索软件检测 | P0 | TrueNAS 26 |
+| NVMe over Fabrics | P1 | TrueNAS |
+| LXC容器 | P0 | TrueNAS |
+
+---
+
 ## [v2.280.0] - 2026-03-25
 
 ### 第50轮六部协同开发
