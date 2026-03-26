@@ -326,9 +326,23 @@ func (m *ConnectionMonitor) GetMetrics() *ConnectionMetrics {
 	m.metrics.mu.RLock()
 	defer m.metrics.mu.RUnlock()
 
-	// 返回副本
-	metrics := *m.metrics
-	return &metrics
+	// 返回副本（不复制锁）
+	metrics := &ConnectionMetrics{
+		TotalConnections:    m.metrics.TotalConnections,
+		ActiveConnections:   m.metrics.ActiveConnections,
+		FailedConnections:   m.metrics.FailedConnections,
+		TotalBytesRead:      m.metrics.TotalBytesRead,
+		TotalBytesWritten:   m.metrics.TotalBytesWritten,
+		TotalIOps:           m.metrics.TotalIOps,
+		AvgLatency:          m.metrics.AvgLatency,
+		P99Latency:          m.metrics.P99Latency,
+		MaxLatency:          m.metrics.MaxLatency,
+	}
+	if len(m.metrics.History) > 0 {
+		metrics.History = make([]MetricPoint, len(m.metrics.History))
+		copy(metrics.History, m.metrics.History)
+	}
+	return metrics
 }
 
 // GetHealthScore 获取健康分数
