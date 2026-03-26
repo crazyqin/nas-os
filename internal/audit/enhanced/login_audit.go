@@ -794,7 +794,7 @@ func (la *LoginAuditor) GetLoginStatistics(start, end time.Time) *LoginAnalysis 
 // ========== 辅助功能 ==========
 
 // getGeoLocation 获取地理位置（简化实现）.
-func (la *LoginAuditor) getGeoLocation(ip string) *GeoLocation {
+func (la *LoginAuditor) getGeoLocation(_ string) *GeoLocation {
 	// 这里可以集成GeoIP数据库
 	// 简化实现，返回基本信息
 	return &GeoLocation{

@@ -490,7 +490,7 @@ func (rg *ReportGenerator) generateSecuritySummary(report *AuditReport) *ReportS
 }
 
 // generateUserActivitySummary 生成用户活动摘要.
-func (rg *ReportGenerator) generateUserActivitySummary(start, end time.Time, userIDs []string) *ReportSummary {
+func (rg *ReportGenerator) generateUserActivitySummary(_, end time.Time, userIDs []string) *ReportSummary {
 	summary := &ReportSummary{
 		EventsByCategory: make(map[string]int),
 		TopUsers:         make([]UserActivitySummary, 0),

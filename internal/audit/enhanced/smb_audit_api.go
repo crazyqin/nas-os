@@ -46,7 +46,7 @@ func (h *SMAuditAPIHandler) handleConfig(w http.ResponseWriter, r *http.Request)
 }
 
 // getConfig 获取当前配置.
-func (h *SMAuditAPIHandler) getConfig(w http.ResponseWriter, r *http.Request) {
+func (h *SMAuditAPIHandler) getConfig(w http.ResponseWriter, _ *http.Request) {
 	config := h.manager.GetConfig()
 	h.respondJSON(w, http.StatusOK, config)
 }

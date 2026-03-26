@@ -577,7 +577,7 @@ func (r *ModelRegistry) List() []*LocalModel {
 
 // ResourceMonitor monitors system resources for AI workloads
 type ResourceMonitor struct {
-	gpuEnabled bool
+	_ bool // gpuEnabled - reserved for future GPU detection
 }
 
 // NewResourceMonitor creates a new resource monitor
@@ -703,11 +703,4 @@ func parseMemory(s string) int64 {
 		return int64(value) * 1024 * 1024 * 1024
 	}
 	return int64(value) * 1024 * 1024
-}
-
-// parseInt helper extracts integer from string
-func parseIntFromString(s string) int {
-	var result int
-	_, _ = fmt.Sscanf(strings.TrimSpace(s), "%d", &result)
-	return result
 }

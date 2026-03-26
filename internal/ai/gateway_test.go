@@ -177,6 +177,9 @@ func TestBackendMetrics(t *testing.T) {
 
 // ==================== Mock Backend ====================
 
+// mockTestBackend is reserved for future test extensions
+var _ Backend = (*mockTestBackend)(nil)
+
 type mockTestBackend struct {
 	name    BackendType
 	healthy bool

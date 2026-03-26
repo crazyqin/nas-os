@@ -360,8 +360,8 @@ type RateLimiter struct {
 
 	requests     chan struct{}
 	concurrency  chan struct{}
-	requestCount int64
-	tokenCount   int64
+	_            int64 // requestCount - reserved for future rate tracking
+	_            int64 // tokenCount - reserved for future token tracking
 }
 
 // NewRateLimiter creates a new rate limiter

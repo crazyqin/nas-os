@@ -492,7 +492,7 @@ func (m *Manager) runLocalBackup(ctx context.Context, cfg *JobConfig, task *Task
 	return backupPath, nil
 }
 
-func (m *Manager) runRemoteBackup(ctx context.Context, cfg *JobConfig, task *Task) (string, error) {
+func (m *Manager) runRemoteBackup(ctx context.Context, cfg *JobConfig, _ *Task) (string, error) {
 	if cfg.RemoteHost == "" {
 		return "", fmt.Errorf("远程主机地址不能为空")
 	}
