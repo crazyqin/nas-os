@@ -188,9 +188,6 @@ func (b *HOGBackend) Detect(ctx context.Context, rgb []byte, width, height int) 
 func (b *HOGBackend) detectMultiScale(gray []uint8, width, height int) []Face {
 	faces := make([]Face, 0)
 
-	// 使用积分图加速
-	integral := computeIntegralImage(gray, width, height)
-
 	// 多尺度检测
 	scales := []float64{1.0, 0.75, 0.5, 0.25}
 	for _, scale := range scales {
@@ -453,7 +450,7 @@ func (a *GoImageAdapter) ToRGB() ([]byte, error) {
 	idx := 0
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			c := color.NRGBAModel.Convert(a.img.At(x, y))
+			c := color.NRGBAModel.Convert(a.img.At(x, y)).(color.NRGBA)
 			rgb[idx] = c.R
 			rgb[idx+1] = c.G
 			rgb[idx+2] = c.B
@@ -473,7 +470,7 @@ func (a *GoImageAdapter) ToRGBA() ([]byte, error) {
 	idx := 0
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			c := color.NRGBAModel.Convert(a.img.At(x, y))
+			c := color.NRGBAModel.Convert(a.img.At(x, y)).(color.NRGBA)
 			rgba[idx] = c.R
 			rgba[idx+1] = c.G
 			rgba[idx+2] = c.B
@@ -487,7 +484,7 @@ func (a *GoImageAdapter) ToRGBA() ([]byte, error) {
 
 // GetPixel 获取像素
 func (a *GoImageAdapter) GetPixel(x, y int) (r, g, b, a_ uint8) {
-	c := color.NRGBAModel.Convert(a.img.At(x, y))
+	c := color.NRGBAModel.Convert(a.img.At(x, y)).(color.NRGBA)
 	return c.R, c.G, c.B, c.A
 }
 
@@ -639,10 +636,10 @@ func cropFace(img image.Image, face *Face, padding float64) image.Image {
 
 	// 添加边距
 	p := int(float64(fw) * padding)
-	x = max(0, x-p)
-	y = max(0, y-p)
-	fw = min(w-x, fw+2*p)
-	fh = min(h-y, fh+2*p)
+	x = maxInt(0, x-p)
+	y = maxInt(0, y-p)
+	fw = minInt(w-x, fw+2*p)
+	fh = minInt(h-y, fh+2*p)
 
 	// 裁剪
 	cropped := imaging.Crop(img, image.Rect(x, y, x+fw, y+fh))
@@ -667,6 +664,20 @@ func min(a, b float64) float64 {
 }
 
 func max(a, b float64) float64 {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func maxInt(a, b int) int {
 	if a > b {
 		return a
 	}

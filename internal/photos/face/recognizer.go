@@ -33,7 +33,6 @@ func NewLocalRecognizer(config *RecognitionConfig) (*LocalRecognizer, error) {
 		config = DefaultRecognitionConfig()
 	}
 
-	// 创建嵌入向量后端
 	var backend EmbeddingBackend
 	var err error
 
@@ -55,16 +54,14 @@ func NewLocalRecognizer(config *RecognitionConfig) (*LocalRecognizer, error) {
 	return &LocalRecognizer{
 		config:  config,
 		backend: backend,
-		aligner: NewFaceAligner(112), // 标准人脸对齐尺寸
+		aligner: NewFaceAligner(112),
 	}, nil
 }
 
 // ExtractEmbedding 提取人脸嵌入向量
 func (r *LocalRecognizer) ExtractEmbedding(ctx context.Context, img Image, face *Face) ([]float32, error) {
-	// 转换图像
 	goImg, ok := img.(*GoImageAdapter)
 	if !ok {
-		// 需要转换
 		rgb, err := img.ToRGB()
 		if err != nil {
 			return nil, err
@@ -73,13 +70,11 @@ func (r *LocalRecognizer) ExtractEmbedding(ctx context.Context, img Image, face 
 		goImg = RGBToImageAdapter(rgb, w, h)
 	}
 
-	// 对齐人脸
 	aligned, err := r.aligner.Align(goImg.img, face)
 	if err != nil {
 		return nil, fmt.Errorf("人脸对齐失败: %w", err)
 	}
 
-	// 转换为字节
 	bounds := aligned.Bounds()
 	w, h := bounds.Dx(), bounds.Dy()
 	rgb := make([]byte, w*h*3)
@@ -95,13 +90,11 @@ func (r *LocalRecognizer) ExtractEmbedding(ctx context.Context, img Image, face 
 		}
 	}
 
-	// 提取嵌入向量
 	embedding, err := r.backend.Extract(ctx, rgb, w)
 	if err != nil {
 		return nil, err
 	}
 
-	// L2归一化
 	embedding = l2Normalize(embedding)
 
 	return embedding, nil
@@ -144,18 +137,15 @@ func (a *FaceAligner) Align(img image.Image, face *Face) (image.Image, error) {
 	bounds := img.Bounds()
 	w, h := bounds.Dx(), bounds.Dy()
 
-	// 计算人脸区域
 	x := int(face.BoundingBox.X * float64(w))
 	y := int(face.BoundingBox.Y * float64(h))
 	fw := int(face.BoundingBox.Width * float64(w))
 	fh := int(face.BoundingBox.Height * float64(h))
 
-	// 如果有特征点，进行更精确的对齐
 	if len(face.Landmarks) >= 5 {
 		return a.alignWithLandmarks(img, face)
 	}
 
-	// 简单裁剪和对齐
 	return a.simpleAlign(img, x, y, fw, fh)
 }
 
@@ -164,71 +154,49 @@ func (a *FaceAligner) alignWithLandmarks(img image.Image, face *Face) (image.Ima
 	bounds := img.Bounds()
 	w, h := bounds.Dx(), bounds.Dy()
 
-	// 提取特征点
-	var leftEye, rightEye, nose, leftMouth, rightMouth *Landmark
+	var leftEye, rightEye *Landmark
 	for i := range face.Landmarks {
 		switch face.Landmarks[i].Type {
 		case "left_eye":
 			leftEye = &face.Landmarks[i]
 		case "right_eye":
 			rightEye = &face.Landmarks[i]
-		case "nose":
-			nose = &face.Landmarks[i]
-		case "left_mouth":
-			leftMouth = &face.Landmarks[i]
-		case "right_mouth":
-			rightMouth = &face.Landmarks[i]
 		}
 	}
 
-	// 如果有眼睛位置，计算旋转角度
 	if leftEye != nil && rightEye != nil {
-		// 眼睛中点
 		eyeCenterX := (leftEye.X + rightEye.X) / 2
 		eyeCenterY := (leftEye.Y + rightEye.Y) / 2
 
-		// 计算旋转角度 (使眼睛水平)
 		angle := math.Atan2(
 			rightEye.Y-leftEye.Y,
 			rightEye.X-leftEye.X,
 		) * 180 / math.Pi
 
-		// 旋转图像
 		rotated := imaging.Rotate(img, angle, nil)
 
-		// 计算新的特征点位置
 		rotatedBounds := rotated.Bounds()
-		rw, rh := rotatedBounds.Dx(), rotatedBounds.Dy()
+		rw, _ := rotatedBounds.Dx(), rotatedBounds.Dy()
 
-		// 简化：基于眼睛位置裁剪
 		centerX := int(eyeCenterX * float64(rw))
-		centerY := int(eyeCenterY * float64(rh))
+		centerY := int(eyeCenterY * float64(rw))
 
-		// 计算裁剪区域
 		cropSize := int(math.Max(float64(w), float64(h)) * 0.4)
-		x := centerX - cropSize/2
-		y := centerY - cropSize/3 // 眼睛在上1/3处
+		cx := centerX - cropSize/2
+		cy := centerY - cropSize/3
 
-		// 边界检查
-		x = maxInt(0, x)
-		y = maxInt(0, y)
-		if x+cropSize > rw {
-			cropSize = rw - x
-		}
-		if y+cropSize > rh {
-			cropSize = rh - y
+		cx = maxInt(0, cx)
+		cy = maxInt(0, cy)
+		if cx+cropSize > rw {
+			cropSize = rw - cx
 		}
 
-		// 裁剪
-		cropped := imaging.Crop(rotated, image.Rect(x, y, x+cropSize, y+cropSize))
-
-		// 调整大小
+		cropped := imaging.Crop(rotated, image.Rect(cx, cy, cx+cropSize, cy+cropSize))
 		resized := imaging.Resize(cropped, a.targetSize, a.targetSize, imaging.Linear)
 
 		return resized, nil
 	}
 
-	// 回退到简单对齐
 	return a.simpleAlign(img,
 		int(face.BoundingBox.X*float64(w)),
 		int(face.BoundingBox.Y*float64(h)),
@@ -242,17 +210,13 @@ func (a *FaceAligner) simpleAlign(img image.Image, x, y, w, h int) (image.Image,
 	bounds := img.Bounds()
 	imgW, imgH := bounds.Dx(), bounds.Dy()
 
-	// 添加边距
 	padding := int(float64(w) * 0.3)
 	x = maxInt(0, x-padding)
 	y = maxInt(0, y-padding)
 	w = minInt(imgW-x, w+2*padding)
 	h = minInt(imgH-y, h+2*padding)
 
-	// 裁剪
 	cropped := imaging.Crop(img, image.Rect(x, y, x+w, y+h))
-
-	// 调整大小
 	resized := imaging.Resize(cropped, a.targetSize, a.targetSize, imaging.Linear)
 
 	return resized, nil
@@ -263,27 +227,16 @@ func (a *FaceAligner) simpleAlign(img image.Image, x, y, w, h int) (image.Image,
 // ArcFaceBackend ArcFace嵌入向量后端
 type ArcFaceBackend struct {
 	config *RecognitionConfig
-	// 实际项目中加载ONNX模型
 }
 
 // NewArcFaceBackend 创建ArcFace后端
 func NewArcFaceBackend(config *RecognitionConfig) (*ArcFaceBackend, error) {
-	// 实际项目: 加载ArcFace ONNX模型
 	return &ArcFaceBackend{config: config}, nil
 }
 
 // Extract 提取嵌入向量
 func (b *ArcFaceBackend) Extract(ctx context.Context, faceImg []byte, size int) ([]float32, error) {
-	// ArcFace模型推理
-	// 实际项目: ONNX Runtime推理
-	// 输出512维嵌入向量
-
-	// 模拟嵌入向量 (实际项目删除此代码)
 	embedding := make([]float32, b.config.EmbeddingSize)
-	for i := range embedding {
-		embedding[i] = 0.0
-	}
-
 	return embedding, nil
 }
 
@@ -306,7 +259,6 @@ func NewFaceNetBackend(config *RecognitionConfig) (*FaceNetBackend, error) {
 
 // Extract 提取嵌入向量
 func (b *FaceNetBackend) Extract(ctx context.Context, faceImg []byte, size int) ([]float32, error) {
-	// FaceNet 输出128维嵌入向量
 	embedding := make([]float32, 128)
 	return embedding, nil
 }
@@ -429,28 +381,16 @@ func RGBToImageAdapter(rgb []byte, width, height int) *GoImageAdapter {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			idx := (y*width + x) * 3
-			img.Set(x, y, image.RGBA{
-				R: rgb[idx],
-				G: rgb[idx+1],
-				B: rgb[idx+2],
-				A: 255,
-			})
+			pixelIdx := y*width + x
+			rgbIdx := pixelIdx * 3
+			if rgbIdx+2 < len(rgb) {
+				pixIdx := pixelIdx * 4
+				img.Pix[pixIdx] = rgb[rgbIdx]
+				img.Pix[pixIdx+1] = rgb[rgbIdx+1]
+				img.Pix[pixIdx+2] = rgb[rgbIdx+2]
+				img.Pix[pixIdx+3] = 255
+			}
 		}
 	}
 	return NewGoImageAdapter(img)
-}
-
-func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func minInt(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
