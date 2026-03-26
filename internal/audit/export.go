@@ -125,7 +125,7 @@ func (e *Exporter) Export(req ExportRequest) (*ExportResult, error) {
 		contentType = "application/json"
 		filename = e.generateFilename("json", req.StartTime, req.EndTime)
 	case ExportCSV:
-		data, err = e.exportCSV(result.Entries)
+		data = e.exportCSV(result.Entries)
 		contentType = "text/csv"
 		filename = e.generateFilename("csv", req.StartTime, req.EndTime)
 	case ExportYAML:
@@ -168,7 +168,7 @@ func (e *Exporter) exportJSON(entries []*Entry) ([]byte, error) {
 }
 
 // exportCSV 导出为CSV格式.
-func (e *Exporter) exportCSV(entries []*Entry) ([]byte, error) {
+func (e *Exporter) exportCSV(entries []*Entry) []byte {
 	var buf strings.Builder
 
 	// 写入表头
@@ -195,7 +195,7 @@ func (e *Exporter) exportCSV(entries []*Entry) ([]byte, error) {
 		buf.WriteString(strings.Join(row, ",") + "\n")
 	}
 
-	return []byte(buf.String()), nil
+	return []byte(buf.String())
 }
 
 // exportYAML 导出为YAML格式.

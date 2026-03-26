@@ -689,7 +689,7 @@ func (tp *TrendPredictor) PredictUtilization(tier Tier, date time.Time) (float64
 	growthRate := tp.calculateGrowthRate(tier)
 	dailyGrowthRate := growthRate / 30
 
-	days := int(time.Until(date).Hours() / 24)
+	days := int(date.Sub(time.Now()).Hours() / 24)
 	if days < 0 {
 		return 0, ErrInvalidDate
 	}

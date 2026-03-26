@@ -270,7 +270,7 @@ func (m *ConnectionMonitor) sendAlert(alert *ConnectionAlert) {
 
 // ========== 状态更新方法 ==========
 
-// UpdateConnectionStatus 更新连接状态
+// UpdateConnectionStatus updates the connection status.
 func (m *ConnectionMonitor) UpdateConnectionStatus(ctrlName string, status *ConnectionStatus) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

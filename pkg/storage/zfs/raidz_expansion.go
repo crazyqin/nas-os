@@ -971,7 +971,7 @@ func (m *RAIDZExpansionManager) CheckExpansionSupport() (bool, string) {
 	}
 
 	// 检查 ZFS 版本
-	cmd := exec.Command("zfs", "version")
+	cmd := exec.CommandContext(context.Background(), "zfs", "version")
 	output, err := cmd.Output()
 	if err != nil {
 		return false, "cannot determine ZFS version"
