@@ -63,7 +63,7 @@ func TestConsole_RegisterProvider(t *testing.T) {
 	info := ProviderInfo{
 		Name:     "Test Provider",
 		Provider: ProviderOpenAI,
-		Models: []ModelInfo{
+		Models: []ConsoleModelInfo{
 			{
 				ID:          "gpt-4",
 				Name:        "GPT-4",
@@ -416,7 +416,7 @@ func TestProviderInfo(t *testing.T) {
 	info := ProviderInfo{
 		Name:     "Test Provider",
 		Provider: ProviderOpenAI,
-		Models: []ModelInfo{
+		Models: []ConsoleModelInfo{
 			{
 				ID:          "gpt-4",
 				Name:        "GPT-4",

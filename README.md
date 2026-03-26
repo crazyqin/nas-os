@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.280.0 Stable (2026-03-25)
+> **最新版本**: v2.284.0 Stable (2026-03-26)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.280.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.282.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -65,6 +65,7 @@
 | 📈 SSD健康监控 | 寿命预测/三级预警/健康评分 | ✅ 新增 |
 | 🤖 AI相册 | CLIP以文搜图/智能照片搜索 | ✅ 新增 |
 | 🌐 内网穿透 | 远程访问/零配置 | 🚧 开发中 |
+| 🤖 **AI服务独立镜像** | GPU加速推理/CLIP模型/本地LLM | ✅ 新增 |
 
 ## 快速开始
 
@@ -223,6 +224,7 @@ sudo nasd
 |------|------|----------|
 | 🌐 **内网穿透** | 免费内网穿透服务，零配置远程访问 | v2.276.0 |
 | 🤖 **AI相册增强** | 人脸识别/场景分类，对标飞牛fnOS | v2.276.0 |
+| 🧠 **私有云AI服务** | 本地LLM推理、AI去识别化，对标群晖DSM 7.3 | v2.285.0 |
 
 ### 竞品对比矩阵
 
@@ -230,12 +232,15 @@ sudo nasd
 |---------|:------:|:--------:|:-----------:|:-------------:|
 | **WriteOnce不可变存储** | ✅ | ❌ | ❌ | ❌ |
 | **Fusion Pool智能分层** | ✅ | ❌ | ✅ Tiering | ❌ |
+| **私有云AI服务** | 📋 规划中 | ❌ | ✅ 本地LLM | ❌ |
 | **Hot Spare热备盘** | ✅ | ❌ | ✅ | ✅ |
 | **SSD健康三级预警** | ✅ | ✅ | ✅ | ✅ |
 | **多云存储挂载** | ✅ | ✅ | ✅ | ❌ |
 | **AI数据脱敏** | ✅ | ❌ | ✅ | ❌ |
 | **AI相册-以文搜图** | ✅ | ✅ | ✅ | ❌ |
-| 内网穿透(免费) | 🚧 | ✅ FN Connect | ❌ | ❌ |
+| **内网穿透(免费)** | 🚧 | ✅ FN Connect | ❌ | ❌ |
+| **智能影视** | ✅ | ✅ 海报墙+刮削 | ✅ | ❌ |
+| **Docker Compose网页管理** | ✅ | ✅ | ✅ | ✅ K8s |
 | AI人脸识别 | 📋 | ✅ | ✅ | ❌ |
 | RAID管理 | ✅ | ✅ | ✅ | ✅ ZFS |
 | 快照管理 | ✅ | ✅ | ✅ | ✅ |
