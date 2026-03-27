@@ -336,3 +336,47 @@ const (
 	// DataSourceMonitor represents monitor data source type.
 	DataSourceMonitor DataSourceType = "monitor"
 )
+
+// ========== 用户存储使用 v2.65.0 ==========
+
+// UserStorageUsage 用户存储使用情况.
+type UserStorageUsage struct {
+	UserID      string            `json:"user_id"`
+	UserName    string            `json:"user_name"`
+	Username    string            `json:"username,omitempty"`
+	TotalBytes  uint64            `json:"total_bytes"`
+	UsedBytes   uint64            `json:"used_bytes,omitempty"`
+	QuotaBytes  uint64            `json:"quota_bytes,omitempty"`
+	PoolUsage   map[string]uint64 `json:"pool_usage"` // poolID -> bytes
+	AccessStats UserAccessStats   `json:"access_stats"`
+	FileCount   uint64            `json:"file_count,omitempty"`
+	FileTypes   map[string]uint64 `json:"file_types,omitempty"`
+}
+
+// UserAccessStats 用户访问统计.
+type UserAccessStats struct {
+	DailyAccessCount   float64 `json:"daily_access_count"`
+	WeeklyAccessCount  float64 `json:"weekly_access_count"`
+	MonthlyAccessCount float64 `json:"monthly_access_count"`
+	HotDataGB          float64 `json:"hot_data_gb"`
+	WarmDataGB         float64 `json:"warm_data_gb"`
+	ColdDataGB         float64 `json:"cold_data_gb"`
+}
+
+// ========== 预测点 v2.65.0 ==========
+
+// ForecastPoint 预测数据点.
+type ForecastPoint struct {
+	Timestamp      time.Time `json:"timestamp"`
+	Value          float64   `json:"value"`
+	ConfidenceLow  float64   `json:"confidence_low"`
+	ConfidenceHigh float64   `json:"confidence_high"`
+
+	// 兼容旧字段名
+	Date           time.Time `json:"date,omitempty"`
+	PredictedUsage float64   `json:"predicted_usage,omitempty"`
+	PredictedCost  float64   `json:"predicted_cost,omitempty"`
+	LowerBound     float64   `json:"lower_bound,omitempty"`
+	UpperBound     float64   `json:"upper_bound,omitempty"`
+	Confidence     float64   `json:"confidence,omitempty"`
+}

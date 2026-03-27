@@ -152,6 +152,9 @@ type CloudRecommendation struct {
 	// 节省金额（元/年）
 	SavingsPerYear float64 `json:"savings_per_year"`
 
+	// 节省百分比
+	SavingsPercent float64 `json:"savings_percent"`
+
 	// 理由
 	Reason string `json:"reason"`
 

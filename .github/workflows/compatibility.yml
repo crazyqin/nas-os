@@ -57,7 +57,19 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
-          cache: true
+          # 关闭 setup-go 内置缓存，避免跨 Go 版本矩阵复用同一缓存导致 tar 覆盖错误
+          cache: false
+
+      - name: 恢复 Go 模块与编译缓存
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: compatibility-${{ runner.os }}-${{ runner.arch }}-go${{ matrix.go-version }}-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            compatibility-${{ runner.os }}-${{ runner.arch }}-go${{ matrix.go-version }}-
+            compatibility-${{ runner.os }}-${{ runner.arch }}-
 
       - name: 验证 go.mod 版本
         run: |

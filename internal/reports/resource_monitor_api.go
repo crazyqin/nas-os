@@ -629,8 +629,28 @@ func (h *ResourceMonitorAPIHandlers) analyzeCost(c *gin.Context) {
 		}
 	}
 
+	convertedMetrics := make([]StorageMetricsData, 0, len(req.VolumeMetrics))
+	for _, vm := range req.VolumeMetrics {
+		convertedMetrics = append(convertedMetrics, StorageMetricsData{
+			VolumeName:   vm.VolumeName,
+			TotalBytes:   vm.TotalCapacityBytes,
+			UsedBytes:    vm.UsedCapacityBytes,
+			FreeBytes:    vm.AvailableCapacityBytes,
+			UsagePercent: vm.UsagePercent,
+			ReadIOPS:     vm.IOPSRead,
+			WriteIOPS:    vm.IOPSWrite,
+			ReadBytes:    vm.ThroughputReadBytes,
+			WriteBytes:   vm.ThroughputWriteBytes,
+			ReadLatency:  vm.LatencyReadMs,
+			WriteLatency: vm.LatencyWriteMs,
+			FileCount:    vm.FileCount,
+			DirCount:     vm.DirCount,
+			Timestamp:    vm.Timestamp,
+		})
+	}
+
 	report := h.service.costAnalyzer.Analyze(
-		req.VolumeMetrics,
+		convertedMetrics,
 		req.UserUsages,
 		req.History,
 		period,
