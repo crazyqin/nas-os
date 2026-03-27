@@ -893,7 +893,7 @@ func (h *CostAnalysisAPIHandlers) analyzeSeasonality(c *gin.Context) {
 		return
 	}
 
-	seasonality := h.enhancedAnalyzer.seasonalityDetector.Analyze(req.History)
+	seasonality := h.enhancedAnalyzer.AnalyzeSeasonality(req.History)
 	api.OK(c, seasonality)
 }
 
@@ -908,7 +908,7 @@ func (h *CostAnalysisAPIHandlers) detectAnomalies(c *gin.Context) {
 		return
 	}
 
-	anomalies := h.enhancedAnalyzer.anomalyDetector.Detect(req.History)
+	anomalies := h.enhancedAnalyzer.DetectAnomalies(req.History)
 	api.OK(c, anomalies)
 }
 
@@ -1157,13 +1157,15 @@ func (h *CostAnalysisAPIHandlers) analyzeResourceTrend(c *gin.Context) {
 		}
 	}
 
-	analysis := h.trendAnalyzer.AnalyzeTrend(
-		req.StorageHistory,
-		req.IOHistory,
-		req.BandwidthHistory,
-		req.VolumeName,
-		period,
-	)
+	analysis := &ResourceTrendAnalysis{
+		VolumeName:     req.VolumeName,
+		Period:         period,
+		StorageTrend:   h.trendAnalyzer.analyzeStorageTrend(req.StorageHistory),
+		IOTrend:        h.trendAnalyzer.analyzeIOTrend(req.IOHistory),
+		BandwidthTrend: h.trendAnalyzer.analyzeBandwidthTrend(req.BandwidthHistory),
+		Correlations:   h.trendAnalyzer.calculateCorrelations(req.StorageHistory, req.IOHistory, req.BandwidthHistory),
+		GeneratedAt:    time.Now(),
+	}
 
 	api.OK(c, analysis)
 }

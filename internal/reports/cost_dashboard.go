@@ -113,11 +113,11 @@ type CostSummarySection struct {
 	CostPerTBPerMonth float64 `json:"cost_per_tb_per_month"`
 
 	// 与预算对比
-	BudgetComparison BudgetComparison `json:"budget_comparison"`
+	BudgetComparison BudgetComparisonSummary `json:"budget_comparison"`
 }
 
-// BudgetComparison 预算对比.
-type BudgetComparison struct {
+// BudgetComparisonSummary 预算对比摘要.
+type BudgetComparisonSummary struct {
 	// 月预算
 	MonthlyBudget float64 `json:"monthly_budget"`
 
@@ -156,30 +156,12 @@ type CostTrendSection struct {
 
 	// 成本波动率
 	Volatility float64 `json:"volatility"`
-}
 
-// CostTrendDataPoint 成本趋势数据点.
-type CostTrendDataPoint struct {
-	// 时间
-	Timestamp time.Time `json:"timestamp"`
+	// 增长率（%/月）
+	GrowthRate float64 `json:"growth_rate"`
 
-	// 总成本
-	TotalCost float64 `json:"total_cost"`
-
-	// 电力成本
-	ElectricityCost float64 `json:"electricity_cost"`
-
-	// 折旧成本
-	DepreciationCost float64 `json:"depreciation_cost"`
-
-	// 运营成本
-	OperatingCost float64 `json:"operating_cost"`
-
-	// 存储容量（TB）
-	StorageTB float64 `json:"storage_tb"`
-
-	// 单位成本
-	CostPerTB float64 `json:"cost_per_tb"`
+	// 预测模型
+	Model string `json:"model"`
 }
 
 // CostForecastSection 成本预测部分.
@@ -543,7 +525,7 @@ func (g *CostDashboardGenerator) generateCostSummary(period ReportPeriod) CostSu
 	}
 
 	// 预算对比
-	budgetComparison := BudgetComparison{
+	budgetComparison := BudgetComparisonSummary{
 		MonthlyBudget:    g.monthlyBudget,
 		UsedBudget:       cost.TotalCost,
 		RemainingBudget:  g.monthlyBudget - cost.TotalCost,

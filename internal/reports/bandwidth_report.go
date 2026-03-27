@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-// round 辅助函数：四舍五入到指定小数位.
-func round(val float64, precision int) float64 {
+// roundFloat 辅助函数：四舍五入到指定小数位.
+func roundFloat(val float64, precision int) float64 {
 	multiplier := math.Pow(10, float64(precision))
 	return math.Round(val*multiplier) / multiplier
 }
@@ -373,15 +373,15 @@ func (r *BandwidthReporter) CalculateStats(history []BandwidthHistoryPoint, ifac
 
 	// 计算错误率和丢包率
 	if stats.TotalPackets > 0 {
-		stats.ErrorRate = round(float64(totalErrors)/float64(stats.TotalPackets)*100, 4)
-		stats.DropRate = round(float64(totalDrops)/float64(stats.TotalPackets)*100, 4)
+		stats.ErrorRate = roundFloat(float64(totalErrors)/float64(stats.TotalPackets)*100, 4)
+		stats.DropRate = roundFloat(float64(totalDrops)/float64(stats.TotalPackets)*100, 4)
 	}
 
 	// 计算利用率
 	if r.config.BandwidthLimitMbps > 0 {
 		// 将字节/秒转换为 Mbps
 		avgRateMbps := float64(stats.AvgRxRate+stats.AvgTxRate) * 8 / (1024 * 1024)
-		stats.UtilizationPercent = round(avgRateMbps/r.config.BandwidthLimitMbps*100, 2)
+		stats.UtilizationPercent = roundFloat(avgRateMbps/r.config.BandwidthLimitMbps*100, 2)
 	}
 
 	// 设置周期
@@ -402,14 +402,14 @@ func (r *BandwidthReporter) GenerateTrends(history []BandwidthHistoryPoint) []Ba
 	for _, point := range history {
 		trend := BandwidthTrend{
 			Timestamp: point.Timestamp,
-			RxMbps:    round(float64(point.RxRate)*8/(1024*1024), 2),
-			TxMbps:    round(float64(point.TxRate)*8/(1024*1024), 2),
-			TotalMbps: round(float64(point.RxRate+point.TxRate)*8/(1024*1024), 2),
+			RxMbps:    roundFloat(float64(point.RxRate)*8/(1024*1024), 2),
+			TxMbps:    roundFloat(float64(point.TxRate)*8/(1024*1024), 2),
+			TotalMbps: roundFloat(float64(point.RxRate+point.TxRate)*8/(1024*1024), 2),
 		}
 
 		// 计算利用率
 		if r.config.BandwidthLimitMbps > 0 {
-			trend.Utilization = round(trend.TotalMbps/r.config.BandwidthLimitMbps*100, 2)
+			trend.Utilization = roundFloat(trend.TotalMbps/r.config.BandwidthLimitMbps*100, 2)
 		}
 
 		trends = append(trends, trend)
@@ -624,19 +624,19 @@ func (r *BandwidthReporter) calculateSummary(stats []BandwidthUsageStats) Bandwi
 		}
 	}
 
-	summary.TotalRxGB = round(totalRxGB, 2)
-	summary.TotalTxGB = round(totalTxGB, 2)
-	summary.TotalGB = round(totalRxGB+totalTxGB, 2)
+	summary.TotalRxGB = roundFloat(totalRxGB, 2)
+	summary.TotalTxGB = roundFloat(totalTxGB, 2)
+	summary.TotalGB = roundFloat(totalRxGB+totalTxGB, 2)
 
 	if len(stats) > 0 {
-		summary.AvgUtilization = round(totalUtilization/float64(len(stats)), 2)
-		summary.AvgTotalMbps = round((totalRxMbps+totalTxMbps)/float64(len(stats)), 2)
-		summary.AvgErrorRate = round(avgErrorRate/float64(len(stats)), 4)
-		summary.AvgDropRate = round(avgDropRate/float64(len(stats)), 4)
+		summary.AvgUtilization = roundFloat(totalUtilization/float64(len(stats)), 2)
+		summary.AvgTotalMbps = roundFloat((totalRxMbps+totalTxMbps)/float64(len(stats)), 2)
+		summary.AvgErrorRate = roundFloat(avgErrorRate/float64(len(stats)), 4)
+		summary.AvgDropRate = roundFloat(avgDropRate/float64(len(stats)), 4)
 	}
 
-	summary.PeakUtilization = round(peakUtilization, 2)
-	summary.PeakTotalMbps = round(totalRxMbps+totalTxMbps, 2)
+	summary.PeakUtilization = roundFloat(peakUtilization, 2)
+	summary.PeakTotalMbps = roundFloat(totalRxMbps+totalTxMbps, 2)
 
 	// 判断主要流量方向
 	if totalRxGB > totalTxGB*1.5 {
@@ -675,11 +675,11 @@ func (r *BandwidthReporter) AnalyzeBandwidthTrend(history []BandwidthHistoryPoin
 
 	// 接收增长率（GB/小时）
 	rxGrowth := float64(last.RxBytes-first.RxBytes) / (1024 * 1024 * 1024) / hours
-	analysis.RxGrowthRateGBPerHour = round(rxGrowth, 4)
+	analysis.RxGrowthRateGBPerHour = roundFloat(rxGrowth, 4)
 
 	// 发送增长率（GB/小时）
 	txGrowth := float64(last.TxBytes-first.TxBytes) / (1024 * 1024 * 1024) / hours
-	analysis.TxGrowthRateGBPerHour = round(txGrowth, 4)
+	analysis.TxGrowthRateGBPerHour = roundFloat(txGrowth, 4)
 
 	// 计算平均速率
 	var totalRxRate, totalTxRate uint64
@@ -688,12 +688,12 @@ func (r *BandwidthReporter) AnalyzeBandwidthTrend(history []BandwidthHistoryPoin
 		totalTxRate += point.TxRate
 	}
 	n := float64(len(history))
-	analysis.AvgRxMbps = round(float64(totalRxRate)/n*8/(1024*1024), 2)
-	analysis.AvgTxMbps = round(float64(totalTxRate)/n*8/(1024*1024), 2)
+	analysis.AvgRxMbps = roundFloat(float64(totalRxRate)/n*8/(1024*1024), 2)
+	analysis.AvgTxMbps = roundFloat(float64(totalTxRate)/n*8/(1024*1024), 2)
 
 	// 预测未来使用量（24小时）
-	analysis.PredictedRxGB24h = round(rxGrowth*24, 2)
-	analysis.PredictedTxGB24h = round(txGrowth*24, 2)
+	analysis.PredictedRxGB24h = roundFloat(rxGrowth*24, 2)
+	analysis.PredictedTxGB24h = roundFloat(txGrowth*24, 2)
 
 	// 判断趋势方向
 	if rxGrowth > 0 && txGrowth > 0 {
@@ -748,7 +748,7 @@ func (r *BandwidthReporter) GetConfig() BandwidthReportConfig {
 
 // BandwidthToMbps 将字节/秒转换为 Mbps.
 func BandwidthToMbps(bytesPerSecond uint64) float64 {
-	return round(float64(bytesPerSecond)*8/(1024*1024), 2)
+	return roundFloat(float64(bytesPerSecond)*8/(1024*1024), 2)
 }
 
 // MbpsToBytes 将 Mbps 转换为字节/秒.
