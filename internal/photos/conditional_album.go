@@ -1,6 +1,7 @@
 package photos
 
 import (
+	"errors"
 	"time"
 )
 
@@ -164,13 +165,13 @@ func (m *ConditionalAlbumManager) matchesConditions(photo *PhotoMetadata, condit
 func (m *ConditionalAlbumManager) matchCondition(photo *PhotoMetadata, cond Condition) bool {
 	switch cond.Field {
 	case "person_id":
-		// Check if person is in photo
-		personID, ok := cond.Value.(string)
+		// Check if person is in photo (using Name field from FaceInfo)
+		personName, ok := cond.Value.(string)
 		if !ok {
 			return false
 		}
 		for _, face := range photo.Faces {
-			if face.PersonID == personID {
+			if face.Name == personName {
 				return true
 			}
 		}
@@ -197,13 +198,13 @@ func (m *ConditionalAlbumManager) matchLocation(photo *PhotoMetadata, cond Condi
 	}
 	switch cond.Operator {
 	case OpEquals:
-		return photo.Location.Name == cond.Value
+		return photo.Location.Location == cond.Value
 	case OpContains:
 		name, ok := cond.Value.(string)
 		if !ok {
 			return false
 		}
-		return contains(photo.Location.Name, name)
+		return contains(photo.Location.Location, name)
 	}
 	return false
 }
@@ -307,5 +308,3 @@ func randomString(n int) string {
 var (
 	ErrRuleNotFound = errors.New("rule not found")
 )
-
-import "errors"

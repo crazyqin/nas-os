@@ -203,7 +203,7 @@ func (t *TokenCounter) ResetMonthlyUsage(ctx context.Context) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	
-	for userID, usage := range t.usage {
+	for _, usage := range t.usage {
 		usage.PreviousMonth = usage.CurrentMonth
 		usage.CurrentMonth = 0
 		usage.QuotaResetDate = time.Now().AddDate(0, 1, 0)

@@ -40,18 +40,10 @@ type GPUInfo struct {
 
 // DetectedFace represents a detected face with GPU acceleration
 type DetectedFace struct {
-	BoundingBox  BoundingBox `json:"boundingBox"`
+	BoundingBox  BoundingBox `json:"boundingBox"`  // Uses BoundingBox from detector.go
 	Confidence   float64     `json:"confidence"`
 	Landmarks    []Landmark  `json:"landmarks,omitempty"`
 	Embedding    []float32   `json:"embedding,omitempty"`
-}
-
-// BoundingBox represents a face bounding box
-type BoundingBox struct {
-	X      int `json:"x"`
-	Y      int `json:"y"`
-	Width  int `json:"width"`
-	Height int `json:"height"`
 }
 
 // Landmark represents a facial landmark point

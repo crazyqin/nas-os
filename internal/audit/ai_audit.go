@@ -289,39 +289,39 @@ func (f *FacePrivacyAudit) CheckCompliance(ctx context.Context, userID string) C
 	
 	logs, err := f.logger.storage.Query(filter)
 	if err != nil {
-		return ComplianceReport{Compliant: true}
+		// Return empty report with compliant status
+		return ComplianceReport{
+			ReportID:    generateAuditID(),
+			Standard:    ComplianceGDPR,
+			GeneratedAt: time.Now(),
+		}
 	}
 	
 	report := ComplianceReport{
-		UserID:         userID,
-		TotalOperations: len(logs),
-		Compliant:       true,
+		ReportID:        generateAuditID(),
+		Standard:        ComplianceGDPR,
+		GeneratedAt:     time.Now(),
+		Findings:        []ComplianceFinding{},
+		Recommendations: []string{},
 	}
 	
 	for _, log := range logs {
 		if !log.PrivacyFlag {
 			// 人脸操作未标记隐私，不合规
-			report.Compliant = false
-			report.Issues = append(report.Issues, 
-				"face operation not marked as privacy-sensitive: " + log.ID)
+			report.Findings = append(report.Findings, ComplianceFinding{
+				Category:    "privacy",
+				Description: "face operation not marked as privacy-sensitive: " + log.ID,
+				Severity:    "medium",
+			})
+			report.Recommendations = append(report.Recommendations, 
+				"Ensure all face operations are marked as privacy-sensitive")
 		}
 	}
 	
 	return report
 }
 
-// ComplianceReport holds compliance check results
-type ComplianceReport struct {
-	UserID          string   `json:"user_id"`
-	TotalOperations int      `json:"total_operations"`
-	Compliant        bool     `json:"compliant"`
-	Issues          []string `json:"issues,omitempty"`
-}
-
-// Helper
-func generateAuditID() string {
-	return "audit_" + time.Now().Format("20060102150405") + "_" + randomString(8)
-}
+// Helper - generateAuditID is defined in access_audit.go
 
 func randomString(n int) string {
 	return "00000000" // placeholder
