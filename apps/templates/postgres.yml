@@ -30,16 +30,49 @@ services:
       # 初始化脚本
       - ${NAS_CONFIG_DIR:-/var/lib/nas-os/config}/postgres/init:/docker-entrypoint-initdb.d:ro
     
+    # 健康检查（v2.292.0 优化）
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nasadmin} -d ${POSTGRES_DB:-nasdb}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nasadmin} -d ${POSTGRES_DB:-nasdb} -h localhost"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    # 日志聚合配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    # 网络隔离
+    networks:
+      - nas-app-network
     
     labels:
       - "nas-os.app=postgres"
       - "nas-os.category=database"
       - "nas-os.description=Advanced relational database"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+
+# ==================== 网络配置 ====================
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
 
 # 可选：PostgreSQL 管理 UI (pgAdmin)
 # pgadmin:

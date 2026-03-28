@@ -1,0 +1,119 @@
+# NAS-OS 应用模板规范 v2.0
+#
+# 所有应用模板应遵循以下规范：
+# 1. 健康检查：必须包含，格式统一
+# 2. 日志配置：统一使用 json-file + 标签
+# 3. 资源限制：推荐配置 limits 和 reservations
+# 4. 网络模式：统一使用 nas-app-network
+# 5. 标签体系：nas-os.app/category/description
+#
+# 日志聚合：
+# - 日志目录：/var/lib/nas-os/logs/apps/{app_name}/
+# - 统一格式：json-file driver，带标签
+# - 可选 Loki/Promtail 集成
+#
+# 健康检查标准：
+# - HTTP 服务：curl -f http://localhost:PORT/health
+# - 数据库：内置命令（pg_isready, redis-cli ping）
+# - 其他：自定义健康脚本
+#
+# 资源限制建议：
+# - 轻量应用：CPU 0.5, Memory 256M
+# - 中等应用：CPU 1.0, Memory 512M
+# - 重型应用：CPU 2.0, Memory 1G
+
+# ==================== 日志聚合配置 ====================
+# 推荐在每个服务中添加以下日志配置：
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+    labels: "service,app"
+    tag: "{{.Name}}/{{.ImageName}}"
+
+# ==================== 健康检查模板 ====================
+# HTTP 服务健康检查
+x-healthcheck-http: &healthcheck-http
+  test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 30s
+
+# 数据库健康检查（PostgreSQL）
+x-healthcheck-postgres: &healthcheck-postgres
+  test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 30s
+
+# Redis 健康检查
+x-healthcheck-redis: &healthcheck-redis
+  test: ["CMD", "redis-cli", "ping"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 15s
+
+# ==================== 资源限制模板 ====================
+x-resources-light: &resources-light
+  limits:
+    cpus: '0.5'
+    memory: 256M
+  reservations:
+    cpus: '0.1'
+    memory: 64M
+
+x-resources-medium: &resources-medium
+  limits:
+    cpus: '1.0'
+    memory: 512M
+  reservations:
+    cpus: '0.25'
+    memory: 128M
+
+x-resources-heavy: &resources-heavy
+  limits:
+    cpus: '2.0'
+    memory: 1G
+  reservations:
+    cpus: '0.5'
+    memory: 256M
+
+# ==================== 网络配置 ====================
+networks:
+  nas-app-network:
+    driver: bridge
+    name: nas-app-network
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+    labels:
+      - "nas-os.network=apps"
+      - "nas-os.description=Application isolation network"
+
+# ==================== 示例服务 ====================
+# services:
+#   example-app:
+#     image: example/app:latest
+#     container_name: nas-example
+#     restart: unless-stopped
+#     
+#     networks:
+#       - nas-app-network
+#     
+#     logging: *default-logging
+#     
+#     healthcheck: *healthcheck-http
+#     
+#     deploy:
+#       resources: *resources-medium
+#     
+#     labels:
+#       - "nas-os.app=example"
+#       - "nas-os.category=utility"
+#       - "nas-os.description=Example application"
+#       - "nas-os.logging.enabled=true"
+#       - "nas-os.healthcheck.enabled=true"
