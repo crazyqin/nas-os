@@ -1,0 +1,54 @@
+# Nginx - 高性能 Web 服务器/反向代理
+#
+# 用途：
+# - Web 服务器
+# - 反向代理
+# - 负载均衡
+# - SSL/TLS 终端
+#
+# 配置文件位置：/var/lib/nas-os/config/nginx/
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nas-nginx
+    restart: unless-stopped
+    
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    volumes:
+      # 配置文件
+      - ${NAS_CONFIG_DIR:-/var/lib/nas-os/config}/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${NAS_CONFIG_DIR:-/var/lib/nas-os/config}/nginx/conf.d:/etc/nginx/conf.d:ro
+      # SSL 证书
+      - ${NAS_CONFIG_DIR:-/var/lib/nas-os/config}/nginx/ssl:/etc/nginx/ssl:ro
+      # 网站文件
+      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/www:/var/www/html:ro
+      # 日志
+      - ${NAS_LOG_DIR:-/var/lib/nas-os/logs}/nginx:/var/log/nginx
+    
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    labels:
+      - "nas-os.app=nginx"
+      - "nas-os.category=web"
+      - "nas-os.description=High-performance web server and reverse proxy"
+
+# 可选：Nginx Proxy Manager (Web UI 管理)
+# nginx-proxy-manager:
+#   image: jc21/nginx-proxy-manager:latest
+#   container_name: nas-npm
+#   restart: unless-stopped
+#   ports:
+#     - "8080:80"    # HTTP
+#     - "8443:443"   # HTTPS
+#     - "81:81"      # Admin UI
+#   volumes:
+#     - ${NAS_DATA_DIR}/npm/data:/data
+#     - ${NAS_DATA_DIR}/npm/letsencrypt:/etc/letsencrypt

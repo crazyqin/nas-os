@@ -43,7 +43,7 @@ jobs:
           fetch-depth: 0
       
       - name: 设置 Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -222,6 +222,9 @@ jobs:
         with:
           name: benchmark-results
           path: benchmark-results/
+
+      - name: 设置 Go
+        uses: actions/setup-go@v6
       
       - name: 检查性能回归
         id: check
