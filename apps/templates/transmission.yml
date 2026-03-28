@@ -1,65 +1,32 @@
-# Transmission - BitTorrent 下载客户端
-#
-# 用途：
-# - BT/磁力链接下载
-# - 种子管理
-# - RSS 自动下载（通过第三方插件）
-# - Web 远程控制
-#
-# 数据目录：
-# - /var/lib/nas-os/data/transmission/config - 配置
-# - /var/lib/nas-os/downloads - 下载目录
+# Transmission 下载器
+# 轻量级 BitTorrent 客户端
+version: '3.8'
 
 services:
   transmission:
     image: linuxserver/transmission:latest
-    container_name: nas-transmission
+    container_name: transmission
     restart: unless-stopped
-    
-    # 用户权限
-    environment:
-      PUID: ${TRANSMISSION_UID:-1000}
-      PGID: ${TRANSMISSION_GID:-1000}
-    
     ports:
-      - "9091:9091"   # Web UI
-      - "51413:51413" # BT 端口
+      - "9091:9091"  # Web界面
+      - "51413:51413"  # BT端口
       - "51413:51413/udp"
-    
     volumes:
-      # 配置目录
-      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/transmission/config:/config
-      # 下载目录
-      - ${NAS_DOWNLOADS_DIR:-/var/lib/nas-os/downloads}:/downloads
-      # 监控目录（自动添加种子）
-      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/transmission/watch:/watch
-    
+      - transmission-config:/config
+      - /mnt/downloads:/downloads  # 下载目录
+      - /mnt/watch:/watch  # 监控目录（自动添加种子）
     environment:
-      # 时区
-      TZ: ${TZ:-Asia/Shanghai}
-      # Web UI 配置
-      TRANSMISSION_WEB_HOME: /config/web
-      # 用户名密码（可选）
-      # TRANSMISSION_RPC_USERNAME: ${TRANSMISSION_USER}
-      # TRANSMISSION_RPC_PASSWORD: ${TRANSMISSION_PASSWORD}
-      # 下载配置
-      TRANSMISSION_DOWNLOAD_DIR: /downloads/complete
-      TRANSMISSION_INCOMPLETE_DIR: /downloads/incomplete
-      TRANSMISSION_WATCH_DIR: /watch
-    
+      - TZ=Asia/Shanghai
+      - PUID=1000
+      - PGID=1000
+      - TRANSMISSION_WEB_HOME=/usr/share/transmission/web
+      - USER=${TRANSMISSION_USER:-admin}
+      - PASS=${TRANSMISSION_PASS:-changeme}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9091/transmission/web/"]
+      test: ["CMD", "curl", "-f", "http://localhost:9091"]
       interval: 30s
       timeout: 10s
       retries: 3
-    
-    labels:
-      - "nas-os.app=transmission"
-      - "nas-os.category=download"
-      - "nas-os.description=Lightweight BitTorrent client with web interface"
 
-# 说明：
-# - Web UI：http://localhost:9091/transmission/web/
-# - 默认无密码，建议设置 RPC 用户名密码
-# - 支持第三方 Web UI（如 Combustion、Kettu、Shift）
-# - 可配合 FlexGet 实现 RSS 自动下载
+volumes:
+  transmission-config:

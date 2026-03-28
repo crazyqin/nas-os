@@ -1,64 +1,28 @@
-# Jellyfin - 开源媒体服务器
-#
-# 用途：
-# - 电影/电视剧管理
-# - 音乐播放
-# - 直播电视
-# - 家庭媒体中心
-#
-# 数据目录：
-# - /var/lib/nas-os/data/jellyfin/config - 配置
-# - /var/lib/nas-os/data/jellyfin/cache - 缓存
-# - /var/lib/nas-os/media - 媒体文件
+# Jellyfin 媒体服务器
+# 自由开源的媒体系统，支持电影、电视剧、音乐
+version: '3.8'
 
 services:
   jellyfin:
     image: jellyfin/jellyfin:latest
-    container_name: nas-jellyfin
+    container_name: jellyfin
     restart: unless-stopped
-    
-    # 用户权限（建议使用非 root 用户）
-    user: ${JELLYFIN_UID:-1000}:${JELLYFIN_GID:-1000}
-    
     ports:
-      - "8096:8096"   # Web UI
-      # - "8920:8920"  # HTTPS (可选)
-    
+      - "8096:8096"  # Web界面
     volumes:
-      # 配置和缓存
-      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/jellyfin/config:/config
-      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/jellyfin/cache:/cache
-      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/jellyfin/log:/log
-      # 媒体库
-      - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}/movies:/data/movies:ro
-      - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}/tv:/data/tvshows:ro
-      - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}/music:/data/music:ro
-      # 可选：转录目录（硬件加速）
-      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/jellyfin/transcode:/transcode
-    
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - /mnt/media:/media:ro  # 媒体库（只读挂载）
     environment:
-      # 时区
-      TZ: ${TZ:-Asia/Shanghai}
-      # Jellyfin 配置
-      JELLYFIN_PUBLISHED_SERVER_URL: ${JELLYFIN_URL:-http://localhost:8096}
-    
-    # 可选：硬件加速（Intel QuickSync / NVIDIA）
-    # devices:
-    #   - /dev/dri:/dev/dri        # Intel QuickSync (VA-API)
-    #   - /dev/nvidia:/dev/nvidia  # NVIDIA GPU
-    
+      - TZ=Asia/Shanghai
+      - PUID=1000
+      - PGID=1000
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8096/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-    
-    labels:
-      - "nas-os.app=jellyfin"
-      - "nas-os.category=media"
-      - "nas-os.description=Open-source media server for movies, TV, and music"
 
-# 说明：
-# - 初次访问：http://localhost:8096 进行初始化设置
-# - 建议配置媒体库路径后，启用硬件加速（如有 GPU）
-# - 支持客户端：Web、Android、iOS、Roku、Kodi 等
+volumes:
+  jellyfin-config:
+  jellyfin-cache:
