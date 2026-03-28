@@ -56,6 +56,26 @@
 - **Virtual Machine Manager**: 虚拟机管理套件
 - **套件中心**: 完善的应用生态体系
 
+### DSM存储管理详解
+| 功能 | 说明 | nas-os对标 |
+|------|------|-----------|
+| Storage Manager | 直观管理界面、可视化阵列状态 | ✅ WebUI存储管理 |
+| 数据压缩 | 平均节省30%存储空间 | ✅ btrfs压缩 |
+| 快速快照 | 增量快照、一键恢复 | ✅ 快照策略 |
+| SSD缓存 | Btrfs元数据缓存、写回加速 | ✅ Fusion Pool |
+| Flash去重 | 卷级去重、5:1减少率 | ✅ 数据去重 |
+| 数据清洗 | 自愈修复、metadata镜像 | ✅ btrfs scrub |
+| Auto Replacement | 热备盘自动克隆故障盘 | ✅ Hot Spare |
+| Fast Repair | 只修使用扇区、加速重建 | ✅ 已实现 |
+| Volume加密 | 整卷加密、KMIP密钥存储 | ✅ 加密存储 |
+| WriteOnce | Immutable Storage合规归档 | ✅ **领先** |
+
+### nas-os差异化优势
+- **Fusion Pool智能分层**: 更灵活的分层策略配置
+- **WriteOnce增强**: 更完善的WORM合规功能
+- **多云挂载原生支持**: 无需额外套件
+- **勒索软件检测**: 行为基线分析
+
 ---
 
 ## 三、TrueNAS 25 新特性
