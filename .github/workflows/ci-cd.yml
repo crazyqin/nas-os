@@ -4,7 +4,7 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
-# Go 版本: 1.26（与 go.mod 保持一致）
+# Go 版本: 1.25（与 go.mod 保持一致）
 #
 # 功能特性:
 # - 智能变更检测（paths-filter）跳过无需运行的 job
@@ -43,7 +43,7 @@ permissions:
   checks: write            # 写入检查结果
 
 env:
-  GO_VERSION: '1.26'
+  GO_VERSION: '1.25'
   # 缓存版本号，重大变更时递增
   CACHE_VERSION: 'v13'
   # Node.js 24 支持
