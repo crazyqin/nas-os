@@ -70,7 +70,7 @@ func (h *Handlers) listBuckets(c *gin.Context) {
 	}
 
 	type result struct {
-		XMLName xml.Name    `xml:"ListAllMyBucketsResult"`
+		XMLName xml.Name `xml:"ListAllMyBucketsResult"`
 		Owner   struct {
 			ID          string `xml:"ID"`
 			DisplayName string `xml:"DisplayName"`
@@ -177,7 +177,7 @@ func (h *Handlers) getBucketLocation(c *gin.Context) {
 	}
 
 	type locationResult struct {
-		XMLName           xml.Name `xml:"LocationConstraint"`
+		XMLName            xml.Name `xml:"LocationConstraint"`
 		LocationConstraint string   `xml:",chardata"`
 	}
 
@@ -291,23 +291,23 @@ func (h *Handlers) listObjectsV2(c *gin.Context, bucketName string) {
 	}
 
 	type listBucketResultXML struct {
-		XMLName               xml.Name `xml:"ListBucketResult"`
-		Name                  string   `xml:"Name"`
-		Prefix                string   `xml:"Prefix"`
-		KeyCount              int      `xml:"KeyCount"`
-		MaxKeys               int      `xml:"MaxKeys"`
-		IsTruncated           bool     `xml:"IsTruncated"`
-		NextContinuationToken string   `xml:"NextContinuationToken,omitempty"`
-		Contents              []objectXML `xml:"Contents"`
+		XMLName               xml.Name          `xml:"ListBucketResult"`
+		Name                  string            `xml:"Name"`
+		Prefix                string            `xml:"Prefix"`
+		KeyCount              int               `xml:"KeyCount"`
+		MaxKeys               int               `xml:"MaxKeys"`
+		IsTruncated           bool              `xml:"IsTruncated"`
+		NextContinuationToken string            `xml:"NextContinuationToken,omitempty"`
+		Contents              []objectXML       `xml:"Contents"`
 		CommonPrefixes        []commonPrefixXML `xml:"CommonPrefixes"`
 	}
 
 	resp := listBucketResultXML{
-		Name:        bucketName,
-		Prefix:      prefix,
-		KeyCount:    len(listResult.Objects),
-		MaxKeys:     maxKeys,
-		IsTruncated: listResult.IsTruncated,
+		Name:                  bucketName,
+		Prefix:                prefix,
+		KeyCount:              len(listResult.Objects),
+		MaxKeys:               maxKeys,
+		IsTruncated:           listResult.IsTruncated,
 		NextContinuationToken: listResult.NextContinuationToken,
 	}
 
@@ -375,7 +375,7 @@ func (h *Handlers) getObject(c *gin.Context) {
 		h.sendS3Error(c, err)
 		return
 	}
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
 
 	c.Header("Content-Type", obj.ContentType)
 	c.Header("Content-Length", strconv.FormatInt(obj.Size, 10))
@@ -387,7 +387,7 @@ func (h *Handlers) getObject(c *gin.Context) {
 		c.Header("X-Amz-Meta-"+k, v)
 	}
 
-	io.Copy(c.Writer, reader)
+	_, _ = io.Copy(c.Writer, reader)
 }
 
 // headObject gets object metadata.
@@ -509,11 +509,11 @@ func (h *Handlers) completeMultipartUpload(c *gin.Context) {
 	}
 
 	type result struct {
-		XMLName xml.Name `xml:"CompleteMultipartUploadResult"`
-		Location string  `xml:"Location"`
-		Bucket   string  `xml:"Bucket"`
-		Key      string  `xml:"Key"`
-		ETag     string  `xml:"ETag"`
+		XMLName  xml.Name `xml:"CompleteMultipartUploadResult"`
+		Location string   `xml:"Location"`
+		Bucket   string   `xml:"Bucket"`
+		Key      string   `xml:"Key"`
+		ETag     string   `xml:"ETag"`
 	}
 
 	c.XML(200, result{
@@ -560,8 +560,8 @@ func (h *Handlers) listMultipartUploads(c *gin.Context) {
 	}
 
 	type result struct {
-		XMLName xml.Name `xml:"ListMultipartUploadsResult"`
-		Bucket  string   `xml:"Bucket"`
+		XMLName xml.Name    `xml:"ListMultipartUploadsResult"`
+		Bucket  string      `xml:"Bucket"`
 		Uploads []uploadXML `xml:"Upload"`
 	}
 
