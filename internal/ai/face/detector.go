@@ -6,7 +6,6 @@ package face
 import (
 	"context"
 	"crypto/sha256"
-	"encoding/binary"
 	"fmt"
 	"image"
 	_ "image/jpeg"
@@ -205,8 +204,8 @@ func (d *FaceNetDetector) detectFacesInImage(ctx context.Context, img image.Imag
 		}
 
 		face := Face{
-			ID:         generateFaceID(imagePath, region),
-			Region:     region,
+			ID:         generateFaceID(imagePath, FaceRegion{X: region.X, Y: region.Y, Width: region.Width, Height: region.Height}),
+			Region:     FaceRegion{X: region.X, Y: region.Y, Width: region.Width, Height: region.Height},
 			Embedding:  embedding,
 			Confidence: region.Confidence,
 		}
@@ -367,8 +366,10 @@ func (d *FaceNetDetector) analyzeStructure(img image.Image) float64 {
 	height := bounds.Dy()
 
 	// 中心区域（鼻子位置）亮度分析
-	centerX := width / 2
-	centerY := height / 2
+	// centerX := width / 2
+	// centerY := height / 2
+	_ = width
+	_ = height
 
 	// 上半部分（眼睛位置）亮度分析
 	topBrightness := 0.0
