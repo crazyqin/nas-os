@@ -25,6 +25,12 @@ type Detector struct {
 	ransomwareSigns map[string]bool
 	mu           sync.RWMutex
 	running      bool
+	// 增强功能组件
+	entropyAnalyzer    *EntropyAnalyzer
+	rapidChangeTracker *RapidChangeTracker
+	processMonitor     *ProcessActivityMonitor
+	patternMatcher     *AdvancedPatternMatcher
+	snapshotManager    *AutoSnapshotManager
 }
 
 // DetectorConfig for ransomware detection (internal use)
@@ -39,6 +45,15 @@ type DetectorConfig struct {
 	QuarantinePath      string        `json:"quarantinePath"`
 	ProtectedExtensions []string      `json:"protectedExtensions"`
 	SuspiciousExtensions []string     `json:"suspiciousExtensions"`
+	// 增强检测配置
+	EntropyThreshold       float64       `json:"entropyThreshold"`       // 熵值阈值（默认7.5）
+	RapidChangeThreshold   int           `json:"rapidChangeThreshold"`   // 快速变更阈值（文件数）
+	RapidChangeWindow      time.Duration `json:"rapidChangeWindow"`      // 快速变更时间窗口
+	EnableEntropyAnalysis  bool          `json:"enableEntropyAnalysis"`  // 启用熵值分析
+	EnableProcessMonitor   bool          `json:"enableProcessMonitor"`   // 启用进程监控
+	EnableAutoSnapshot     bool          `json:"enableAutoSnapshot"`     // 启用自动快照
+	SnapshotConfig         AutoSnapshotConfig `json:"snapshotConfig"`     // 快照配置
+	MaxFileSizeToAnalyze   int64         `json:"maxFileSizeToAnalyze"`   // 最大分析文件大小
 }
 
 // DefaultDetectorConfig returns default detector configuration
