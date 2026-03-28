@@ -36,6 +36,7 @@ import (
 	"nas-os/internal/shares"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
+	"nas-os/internal/storage/nvmeof"
 	"nas-os/internal/system"
 	"nas-os/internal/tags"
 	"nas-os/internal/trash"
@@ -97,6 +98,7 @@ type Server struct {
 	tagsMgr       *tags.Manager
 	officeMgr     *office.Manager
 	iscsiMgr      *iscsi.Manager
+	nvmeofMgr     *nvmeof.Manager
 	lockMgr       *lock.Manager
 	searchEngine  *search.Engine
 	searchSvc     *search.GlobalSearchService
@@ -347,6 +349,15 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		log.Println("✅ iSCSI 目标管理模块就绪")
 	}
 
+	// 初始化 NVMe-oF 管理器
+	nvmeofMgr, err := nvmeof.NewManager("/etc/nas-os/nvmeof-config.json")
+	if err != nil {
+		log.Printf("⚠️ NVMe-oF 初始化警告：%v", err)
+		nvmeofMgr = nil
+	} else {
+		log.Println("✅ NVMe-oF 模块就绪")
+	}
+
 	// 初始化项目管理器
 	projectMgr := project.NewManager()
 	log.Println("✅ 项目管理模块就绪")
@@ -450,6 +461,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		tagsMgr:       tagsMgr,
 		officeMgr:     officeMgr,
 		iscsiMgr:      iscsiMgr,
+		nvmeofMgr:     nvmeofMgr,
 		lockMgr:       lockMgr,
 		searchEngine:  searchEngine,
 		searchSvc:     searchSvc,
@@ -697,6 +709,11 @@ func (s *Server) setupRoutes() {
 			iscsi.NewHandlers(s.iscsiMgr).RegisterRoutes(api)
 		}
 
+		// ========== NVMe-oF 管理 ==========
+		if s.nvmeofMgr != nil {
+			nvmeof.NewHandlers(s.nvmeofMgr).RegisterRoutes(api)
+		}
+
 		// ========== 插件系统 ==========
 		if s.pluginMgr != nil {
 			plugin.NewHandlers(s.pluginMgr, s.pluginMarket).RegisterRoutes(api)
@@ -855,6 +872,7 @@ func (s *Server) setupRoutes() {
 	s.engine.StaticFile("/dir-quota", "/usr/share/nas-os/webui/pages/dir-quota.html")
 	// v2.20.0 新增页面
 	s.engine.StaticFile("/iscsi", "/usr/share/nas-os/webui/pages/iscsi.html")
+	s.engine.StaticFile("/nvmeof", "/usr/share/nas-os/webui/pages/nvmeof.html")
 	s.engine.StaticFile("/office", "/usr/share/nas-os/webui/pages/office.html")
 	s.engine.StaticFile("/notify", "/usr/share/nas-os/webui/pages/notify.html")
 	s.engine.StaticFile("/optimizer", "/usr/share/nas-os/webui/pages/optimizer.html")

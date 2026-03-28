@@ -152,7 +152,7 @@ func (m *InitiatorManager) Stop() error {
 
 	// 断开所有控制器
 	for _, ctrl := range m.controllers {
-		_ = m.disconnectControllerInternal(ctrl)
+		m.disconnectControllerInternal(ctrl)
 	}
 
 	return nil
@@ -220,10 +220,7 @@ func (m *InitiatorManager) ConnectController(ctx context.Context, req *ConnectCo
 	// - 执行 nvme connect 命令
 	// - 或写入 /sys/class/nvme/nvmeX/subsystemnqn 等
 
-	err := m.connectControllerInternal(ctrl)
-	if err != nil {
-		return nil, err
-	}
+	m.connectControllerInternal(ctrl)
 
 	m.controllers[req.Name] = ctrl
 
@@ -240,7 +237,7 @@ func (m *InitiatorManager) ConnectController(ctx context.Context, req *ConnectCo
 	return ctrl, nil
 }
 
-func (m *InitiatorManager) connectControllerInternal(ctrl *Controller) error {
+func (m *InitiatorManager) connectControllerInternal(ctrl *Controller) {
 	// 模拟连接过程
 	// 实际实现需要:
 	// - 执行: nvme connect -t <transport> -a <addr> -s <port> -n <subsysnqn>
@@ -262,8 +259,6 @@ func (m *InitiatorManager) connectControllerInternal(ctrl *Controller) error {
 		ReadOnly:       false,
 		ControllerName: ctrl.Name,
 	}
-
-	return nil
 }
 
 // DisconnectController 断开控制器连接
@@ -276,10 +271,7 @@ func (m *InitiatorManager) DisconnectController(ctx context.Context, name string
 		return ErrControllerDisconnected
 	}
 
-	err := m.disconnectControllerInternal(ctrl)
-	if err != nil {
-		return err
-	}
+	m.disconnectControllerInternal(ctrl)
 
 	delete(m.controllers, name)
 
@@ -296,13 +288,12 @@ func (m *InitiatorManager) DisconnectController(ctx context.Context, name string
 	return nil
 }
 
-func (m *InitiatorManager) disconnectControllerInternal(ctrl *Controller) error {
+func (m *InitiatorManager) disconnectControllerInternal(ctrl *Controller) {
 	// 实际实现需要:
 	// - 执行: nvme disconnect -n <subsysnqn>
 	// - 或写入 /sys/class/nvme/nvmeX/delete_controller
 
 	ctrl.State = ControllerStateDead
-	return nil
 }
 
 // GetController 获取控制器
@@ -346,10 +337,7 @@ func (m *InitiatorManager) ReconnectController(ctx context.Context, name string)
 
 	ctrl.State = ControllerStateResetting
 
-	err := m.connectControllerInternal(ctrl)
-	if err != nil {
-		return err
-	}
+	m.connectControllerInternal(ctrl)
 
 	ctrl.Stats.Reconnects++
 

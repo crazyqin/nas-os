@@ -197,15 +197,15 @@ func (a *EnhancedCostAnalyzer) Analyze(volumeMetrics []StorageMetricsData, userU
 	}
 
 	return map[string]interface{}{
-		"period":           period,
-		"storage_cost":     cost,
-		"volume_analysis":  volumeAnalyses,
-		"user_analysis":    userAnalyses,
-		"trend_analysis":   trend,
-		"generated_at":     time.Now(),
-		"history_points":   len(history),
-		"volume_count":     len(volumeMetrics),
-		"user_count":       len(userUsages),
+		"period":            period,
+		"storage_cost":      cost,
+		"volume_analysis":   volumeAnalyses,
+		"user_analysis":     userAnalyses,
+		"trend_analysis":    trend,
+		"generated_at":      time.Now(),
+		"history_points":    len(history),
+		"volume_count":      len(volumeMetrics),
+		"user_count":        len(userUsages),
 		"total_capacity_tb": round(float64(totalBytes)/(1024*1024*1024*1024), 2),
 	}
 }

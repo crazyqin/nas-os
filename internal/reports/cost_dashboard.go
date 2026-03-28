@@ -379,12 +379,12 @@ type CostChartConfig struct {
 
 // CostDashboardGenerator 成本仪表板生成器.
 type CostDashboardGenerator struct {
-	costAnalyzer       *CostAnalyzer
-	cloudCalculator    *CloudCostCalculator
-	storageBytes       uint64
-	usedBytes          uint64
-	monthlyBudget      float64
-	trendData          []CostTrendDataPoint
+	costAnalyzer    *CostAnalyzer
+	cloudCalculator *CloudCostCalculator
+	storageBytes    uint64
+	usedBytes       uint64
+	monthlyBudget   float64
+	trendData       []CostTrendDataPoint
 }
 
 // NewCostDashboardGenerator 创建仪表板生成器.
@@ -457,11 +457,11 @@ func (g *CostDashboardGenerator) generateStorageSummary() StorageCostSummary {
 
 	// 计算效率评分
 	efficiency := StorageEfficiencyScore{
-		OverallScore:        75.0,
-		SpaceUtilization:    usagePercent,
-		CompressionRatio:    1.5,
-		DeduplicationRatio:  1.2,
-		Grade:               "B",
+		OverallScore:       75.0,
+		SpaceUtilization:   usagePercent,
+		CompressionRatio:   1.5,
+		DeduplicationRatio: 1.2,
+		Grade:              "B",
 	}
 	if usagePercent >= 70 && usagePercent <= 85 {
 		efficiency.OverallScore = 85.0
@@ -492,13 +492,13 @@ func (g *CostDashboardGenerator) generateStorageSummary() StorageCostSummary {
 	}
 
 	return StorageCostSummary{
-		TotalCapacityTB:       round(totalTB, 2),
-		UsedCapacityTB:        round(usedTB, 2),
-		AvailableCapacityTB:   round(availableTB, 2),
-		UsagePercent:          round(usagePercent, 1),
-		MonthlyGrowthPercent:  round(monthlyGrowth, 1),
-		DaysToFullCapacity:    daysToFull,
-		Efficiency:            efficiency,
+		TotalCapacityTB:      round(totalTB, 2),
+		UsedCapacityTB:       round(usedTB, 2),
+		AvailableCapacityTB:  round(availableTB, 2),
+		UsagePercent:         round(usagePercent, 1),
+		MonthlyGrowthPercent: round(monthlyGrowth, 1),
+		DaysToFullCapacity:   daysToFull,
+		Efficiency:           efficiency,
 	}
 }
 
@@ -526,11 +526,11 @@ func (g *CostDashboardGenerator) generateCostSummary(period ReportPeriod) CostSu
 
 	// 预算对比
 	budgetComparison := BudgetComparisonSummary{
-		MonthlyBudget:    g.monthlyBudget,
-		UsedBudget:       cost.TotalCost,
-		RemainingBudget:  g.monthlyBudget - cost.TotalCost,
+		MonthlyBudget:      g.monthlyBudget,
+		UsedBudget:         cost.TotalCost,
+		RemainingBudget:    g.monthlyBudget - cost.TotalCost,
 		BudgetUsagePercent: round(cost.TotalCost/g.monthlyBudget*100, 1),
-		Status:           "on_track",
+		Status:             "on_track",
 	}
 	if budgetComparison.BudgetUsagePercent > 100 {
 		budgetComparison.Status = "over_budget"
@@ -617,8 +617,8 @@ func (g *CostDashboardGenerator) generateCostForecast() CostForecastSection {
 	trends := make([]CostTrend, len(g.trendData))
 	for i, dp := range g.trendData {
 		trends[i] = CostTrend{
-			Timestamp:        dp.Timestamp,
-			TotalCost:        dp.TotalCost,
+			Timestamp:         dp.Timestamp,
+			TotalCost:         dp.TotalCost,
 			StorageCapacityTB: dp.StorageTB,
 		}
 	}
@@ -650,11 +650,11 @@ func (g *CostDashboardGenerator) generateCostForecast() CostForecastSection {
 	}
 
 	return CostForecastSection{
-		DataPoints:      dataPoints,
-		Model:           "linear_growth",
-		Confidence:      0.85,
-		NextMonthCost:   round(nextMonth, 2),
-		NextQuarterCost: round(nextQuarter, 2),
+		DataPoints:       dataPoints,
+		Model:            "linear_growth",
+		Confidence:       0.85,
+		NextMonthCost:    round(nextMonth, 2),
+		NextQuarterCost:  round(nextQuarter, 2),
 		ForecastYearCost: round(forecastYear, 2),
 	}
 }
@@ -683,11 +683,11 @@ func (g *CostDashboardGenerator) generateCloudComparison() CloudComparisonSectio
 	}
 
 	return CloudComparisonSection{
-		Comparison:         comparison,
-		RecommendedOption:  recommended,
-		SavingsPotential:   round(savings, 2),
-		BestCloudProvider:  provider,
-		BestCloudTier:      tier,
+		Comparison:        comparison,
+		RecommendedOption: recommended,
+		SavingsPotential:  round(savings, 2),
+		BestCloudProvider: provider,
+		BestCloudTier:     tier,
 	}
 }
 
@@ -711,9 +711,9 @@ func (g *CostDashboardGenerator) generateCostBreakdown(period ReportPeriod) Cost
 	}
 
 	return CostBreakdownSection{
-		Items:      items,
-		ChartType:  "pie",
-		TotalCost:  cost.TotalCost,
+		Items:     items,
+		ChartType: "pie",
+		TotalCost: cost.TotalCost,
 	}
 }
 
@@ -729,12 +729,12 @@ func (g *CostDashboardGenerator) generateRecommendations() []CostOptimizationRec
 
 	if usagePercent > 80 {
 		recommendations = append(recommendations, CostOptimizationRecommendation{
-			ID:            "rec_1",
-			Type:          "cost_reduction",
-			Priority:      "high",
-			Title:         "清理冗余数据释放存储空间",
-			Description:   "当前存储使用率超过80%，建议清理过期数据、重复文件和临时文件",
-			SavingsAmount: round(float64(g.usedBytes)*0.1/(1024*1024*1024)*100, 2), // 假设可清理10%
+			ID:             "rec_1",
+			Type:           "cost_reduction",
+			Priority:       "high",
+			Title:          "清理冗余数据释放存储空间",
+			Description:    "当前存储使用率超过80%，建议清理过期数据、重复文件和临时文件",
+			SavingsAmount:  round(float64(g.usedBytes)*0.1/(1024*1024*1024)*100, 2), // 假设可清理10%
 			SavingsPercent: 10,
 			Effort:         "low",
 			EstimatedTime:  "1-2周",
@@ -749,15 +749,15 @@ func (g *CostDashboardGenerator) generateRecommendations() []CostOptimizationRec
 
 	// 压缩优化建议
 	recommendations = append(recommendations, CostOptimizationRecommendation{
-		ID:            "rec_2",
-		Type:          "efficiency",
-		Priority:      "medium",
-		Title:         "启用数据压缩降低存储成本",
-		Description:   "对支持压缩的数据类型启用压缩功能，预计可节省20-40%存储空间",
-		SavingsAmount: round(float64(g.usedBytes)*0.3/(1024*1024*1024)*100, 2),
+		ID:             "rec_2",
+		Type:           "efficiency",
+		Priority:       "medium",
+		Title:          "启用数据压缩降低存储成本",
+		Description:    "对支持压缩的数据类型启用压缩功能，预计可节省20-40%存储空间",
+		SavingsAmount:  round(float64(g.usedBytes)*0.3/(1024*1024*1024)*100, 2),
 		SavingsPercent: 30,
-		Effort:        "medium",
-		EstimatedTime: "1个月",
+		Effort:         "medium",
+		EstimatedTime:  "1个月",
 		Steps: []string{
 			"评估可压缩数据类型",
 			"配置压缩策略",
@@ -768,15 +768,15 @@ func (g *CostDashboardGenerator) generateRecommendations() []CostOptimizationRec
 
 	// 云存储迁移建议
 	recommendations = append(recommendations, CostOptimizationRecommendation{
-		ID:            "rec_3",
-		Type:          "migration",
-		Priority:      "low",
-		Title:         "冷数据迁移到云归档存储",
-		Description:   "将超过90天未访问的冷数据迁移到云归档存储，降低本地存储压力",
-		SavingsAmount: round(float64(g.usedBytes)*0.2/(1024*1024*1024)*50, 2), // 假设20%冷数据
+		ID:             "rec_3",
+		Type:           "migration",
+		Priority:       "low",
+		Title:          "冷数据迁移到云归档存储",
+		Description:    "将超过90天未访问的冷数据迁移到云归档存储，降低本地存储压力",
+		SavingsAmount:  round(float64(g.usedBytes)*0.2/(1024*1024*1024)*50, 2), // 假设20%冷数据
 		SavingsPercent: 15,
-		Effort:        "high",
-		EstimatedTime: "2-3个月",
+		Effort:         "high",
+		EstimatedTime:  "2-3个月",
 		Steps: []string{
 			"识别冷数据（超过90天未访问）",
 			"选择合适的云存储服务商",
@@ -801,26 +801,26 @@ func (g *CostDashboardGenerator) generateAlerts(costSummary CostSummarySection) 
 	// 预算告警
 	if costSummary.BudgetComparison.Status == "over_budget" {
 		alerts = append(alerts, CostAlert{
-			ID:             "alert_budget_1",
-			Type:           "budget_overrun",
-			Severity:       "critical",
-			Title:          "预算超支警告",
-			Message:        "本月存储成本已超出预算",
-			CurrentValue:   costSummary.MonthlyTotal,
-			Threshold:      costSummary.BudgetComparison.MonthlyBudget,
-			TriggeredAt:    time.Now(),
+			ID:              "alert_budget_1",
+			Type:            "budget_overrun",
+			Severity:        "critical",
+			Title:           "预算超支警告",
+			Message:         "本月存储成本已超出预算",
+			CurrentValue:    costSummary.MonthlyTotal,
+			Threshold:       costSummary.BudgetComparison.MonthlyBudget,
+			TriggeredAt:     time.Now(),
 			SuggestedAction: "立即审查成本构成，采取节约措施",
 		})
 	} else if costSummary.BudgetComparison.BudgetUsagePercent > 90 {
 		alerts = append(alerts, CostAlert{
-			ID:             "alert_budget_2",
-			Type:           "budget_overrun",
-			Severity:       "warning",
-			Title:          "预算接近上限",
-			Message:        "本月存储成本已使用预算的90%以上",
-			CurrentValue:   costSummary.BudgetComparison.BudgetUsagePercent,
-			Threshold:      90,
-			TriggeredAt:    time.Now(),
+			ID:              "alert_budget_2",
+			Type:            "budget_overrun",
+			Severity:        "warning",
+			Title:           "预算接近上限",
+			Message:         "本月存储成本已使用预算的90%以上",
+			CurrentValue:    costSummary.BudgetComparison.BudgetUsagePercent,
+			Threshold:       90,
+			TriggeredAt:     time.Now(),
 			SuggestedAction: "监控成本变化，考虑采取节约措施",
 		})
 	}
@@ -828,14 +828,14 @@ func (g *CostDashboardGenerator) generateAlerts(costSummary CostSummarySection) 
 	// 成本突增告警
 	if costSummary.MonthOverMonthPercent > 20 {
 		alerts = append(alerts, CostAlert{
-			ID:             "alert_spike_1",
-			Type:           "cost_spike",
-			Severity:       "warning",
-			Title:          "成本突增警告",
-			Message:        "本月成本环比增长超过20%",
-			CurrentValue:   costSummary.MonthOverMonthPercent,
-			Threshold:      20,
-			TriggeredAt:    time.Now(),
+			ID:              "alert_spike_1",
+			Type:            "cost_spike",
+			Severity:        "warning",
+			Title:           "成本突增警告",
+			Message:         "本月成本环比增长超过20%",
+			CurrentValue:    costSummary.MonthOverMonthPercent,
+			Threshold:       20,
+			TriggeredAt:     time.Now(),
 			SuggestedAction: "分析成本增长原因，排查异常使用",
 		})
 	}
@@ -885,8 +885,8 @@ func (g *CostDashboardGenerator) generateCharts(
 
 	// 预算对比仪表盘
 	gaugeData := map[string]interface{}{
-		"value":    costSummary.BudgetComparison.BudgetUsagePercent,
-		"max":      100,
+		"value":      costSummary.BudgetComparison.BudgetUsagePercent,
+		"max":        100,
 		"thresholds": []float64{70, 90},
 	}
 	gaugeDataJSON, _ := json.Marshal(gaugeData)

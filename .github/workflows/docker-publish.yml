@@ -220,7 +220,6 @@ jobs:
     timeout-minutes: 10
     outputs:
       digest: ${{ steps.merge.outputs.digest }}
-      short-sha: ${{ steps.meta.outputs.version }}
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
@@ -305,19 +304,24 @@ jobs:
           #   ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
 
           # 获取 digest
-          DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} --format '{{.Digest}}')
+          DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} | sed -n 's/^Digest:[[:space:]]*//p' | head -n1)
+          if [ -z "$DIGEST" ]; then
+            echo "❌ 无法解析 manifest digest"
+            exit 1
+          fi
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
           echo "✅ Manifest 创建完成: $DIGEST"
 
           # 为其他标签创建 manifest
-          for TAG in $(echo "${{ steps.meta.outputs.tags }}" | tr '\n' ' '); do
+          while IFS= read -r TAG; do
+            [ -z "$TAG" ] && continue
             if [ "$TAG" != "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}" ]; then
               docker buildx imagetools create -t "$TAG" \
                 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
                 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7 || true
+                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
             fi
-          done
+          done <<< "${{ steps.meta.outputs.tags }}"
 
       - name: 生成镜像信息
         run: |
@@ -356,7 +360,7 @@ jobs:
       - name: 安装 Syft (SBOM 生成)
         uses: anchore/sbom-action/download-syft@v0
 
-      - name: 获取镜像摘要
+      - name: 获取 digest
         id: digest
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
@@ -364,8 +368,8 @@ jobs:
           # 使用 merge-manifest 输出的 digest
           DIGEST="${{ needs.merge-manifest.outputs.digest }}"
           if [ -z "$DIGEST" ]; then
-            echo "⚠️ 从 merge-manifest 获取 digest 失败，尝试 imagetools"
-            DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA --format '{{.Digest}}' 2>/dev/null || echo "")
+            echo "⚠️ 从 merge-manifest 获取 digest 失败，尝试标准 inspect 输出解析"
+            DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA | sed -n 's/^Digest:[[:space:]]*//p' | head -n1)
           fi
           if [ -z "$DIGEST" ]; then
             echo "❌ 无法获取镜像 digest"
