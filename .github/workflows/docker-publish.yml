@@ -321,7 +321,7 @@ jobs:
                 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
                 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
             fi
-done <<< "${{ steps.meta.outputs.tags }}"
+          done <<< "${{ steps.meta.outputs.tags }}"
 
       - name: 生成镜像信息
         run: |
