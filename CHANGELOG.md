@@ -7,6 +7,40 @@
 
 ---
 
+## [v2.293.0] - 2026-03-28
+
+### 🎯 竞品学习与功能增强
+
+### 新增
+- 🧑 **条件相册** (兵部) - 学习群晖Synology Photos
+  - 按人物/对象/地点/镜头自动生成相册
+  - 多条件组合规则（AND/OR逻辑）
+  - 匹配评分机制
+  - 文件: `internal/ai/face/conditional_album.go`
+- ⚡ **GPU加速支持** (兵部) - 学习飞牛fnOS
+  - Intel核显加速（OpenVINO集成框架）
+  - NVIDIA GPU加速支持
+  - 自动检测最佳加速方案
+  - 批量人脸检测优化
+  - 文件: `internal/ai/face/gpu_accel.go`
+- 🔒 **安全分享功能** (刑部) - 学习群晖Synology
+  - 链接密码保护
+  - 过期时间设置
+  - 最大访问次数限制
+  - 访问日志记录
+  - 文件: `internal/shares/secure_share.go`
+
+### 竞品研究 (司礼监)
+- **群晖 Synology Photos**: 条件相册、安全分享、RAW支持、Image Assistant
+- **飞牛 fnOS 1.1**: Intel核显加速、网盘挂载、QWRT软路由
+- **TrueNAS 24.10**: Docker Compose原生、RAIDZ扩展
+
+### 文档
+- 📝 docs/COMPETITOR_ANALYSIS.md - 竞品分析更新
+- 📝 docs/TASK_ASSIGNMENT_v2.293.0.md - 六部任务分配
+
+---
+
 ## [v2.292.0] - 2026-03-28
 
 ### 🎉 重磅发布 - 人脸识别功能
