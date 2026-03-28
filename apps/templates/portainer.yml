@@ -1,0 +1,65 @@
+# Portainer - Docker 容器管理 UI
+#
+# 用途：
+# - 容器生命周期管理
+# - 镜像管理
+# - 网络和卷管理
+# - 日志查看
+# - Stack/Compose 管理
+# - 用户权限控制
+#
+# 数据目录：
+# - /var/lib/nas-os/data/portainer/data - Portainer 数据
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: nas-portainer
+    restart: unless-stopped
+    
+    ports:
+      - "9443:9443"   # HTTPS Web UI
+      - "9000:9000"   # HTTP Web UI（可选）
+    
+    volumes:
+      # 数据目录
+      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/portainer/data:/data
+      # Docker socket（管理本地 Docker）
+      - /var/run/docker.sock:/var/run/docker.sock
+    
+    environment:
+      # 时区
+      TZ: ${TZ:-Asia/Shanghai}
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost:9443/api/system/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    labels:
+      - "nas-os.app=portainer"
+      - "nas-os.category=management"
+      - "nas-os.description=Docker container management web interface"
+
+# 说明：
+# - Web UI：https://localhost:9443 或 http://localhost:9000
+# - 首次访问需要创建管理员账户
+# - 默认连接本地 Docker，也可管理远程 Docker 环境
+# - 支持管理 Kubernetes、Swarm、Nomad 等环境
+# - 推荐使用 HTTPS 端口 9443
+# - 可通过 Edge Agent 管理远程边缘设备
+
+# 可选：Portainer Edge Agent（远程管理）
+# services:
+#   portainer-edge:
+#     image: portainer/agent:latest
+#     container_name: nas-portainer-agent
+#     restart: unless-stopped
+#     ports:
+#       - "9001:9001"
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock
+#       - /var/lib/docker/volumes:/var/lib/docker/volumes
+#     environment:
+#       EDGE_KEY: ${PORTAINER_EDGE_KEY}

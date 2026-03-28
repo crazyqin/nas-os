@@ -1,0 +1,79 @@
+# Nextcloud - 私有云存储与协作平台
+#
+# 用途：
+# - 文件存储与同步
+# - 日历/联系人管理
+# - 在线文档编辑
+# - 图片/视频管理
+# - 团队协作
+#
+# 数据目录：
+# - /var/lib/nas-os/data/nextcloud/html - Nextcloud 应用
+# - /var/lib/nas-os/data/nextcloud/data - 用户数据
+# - /var/lib/nas-os/data/nextcloud/db - 数据库（如果使用内置）
+
+services:
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nas-nextcloud
+    restart: unless-stopped
+    
+    ports:
+      - "8080:80"     # Web UI
+    
+    volumes:
+      # Nextcloud 应用和数据
+      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/nextcloud/html:/var/www/html
+      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/nextcloud/data:/var/www/html/data
+      # 外部存储（可选）
+      - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}:/media:ro
+    
+    environment:
+      # 时区
+      TZ: ${TZ:-Asia/Shanghai}
+      # 数据库配置（可选，默认 SQLite）
+      # NEXTCLOUD_DB_TYPE: mysql
+      # NEXTCLOUD_DB_HOST: nas-mysql:3306
+      # NEXTCLOUD_DB_NAME: nextcloud
+      # NEXTCLOUD_DB_USER: nextcloud
+      # NEXTCLOUD_DB_PASSWORD: ${NEXTCLOUD_DB_PASSWORD}
+      # 管理员配置（首次启动）
+      # NEXTCLOUD_ADMIN_USER: admin
+      # NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD}
+      # 信任的域名
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_DOMAIN:-localhost}
+    
+    # 可选：依赖外部数据库
+    # depends_on:
+    #   - mysql
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/status.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    labels:
+      - "nas-os.app=nextcloud"
+      - "nas-os.category=cloud"
+      - "nas-os.description=Self-hosted file sync and collaboration platform"
+
+# 说明：
+# - 初次访问：http://localhost:8080 创建管理员账户
+# - 建议配置外部数据库（MySQL/PostgreSQL）以获得更好性能
+# - 可安装 Collabora/OnlyOffice 实现在线文档编辑
+# - 支持客户端：Web、Android、iOS、桌面同步客户端
+
+# 可选：MySQL 数据库配置
+# services:
+#   mysql:
+#     image: mysql:8.0
+#     container_name: nas-nextcloud-mysql
+#     restart: unless-stopped
+#     environment:
+#       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#       MYSQL_DATABASE: nextcloud
+#       MYSQL_USER: nextcloud
+#       MYSQL_PASSWORD: ${NEXTCLOUD_DB_PASSWORD}
+#     volumes:
+#       - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/nextcloud/db:/var/lib/mysql
