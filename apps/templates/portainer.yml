@@ -31,16 +31,49 @@ services:
       # 时区
       TZ: ${TZ:-Asia/Shanghai}
     
+    # 健康检查（v2.292.0 优化）
     healthcheck:
-      test: ["CMD", "curl", "-f", "https://localhost:9443/api/system/status"]
+      test: ["CMD-SHELL", "curl -kf https://localhost:9443/api/system/status || curl -f http://localhost:9000/api/system/status"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    # 日志聚合配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    # 网络隔离
+    networks:
+      - nas-app-network
     
     labels:
       - "nas-os.app=portainer"
       - "nas-os.category=management"
       - "nas-os.description=Docker container management web interface"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+
+# ==================== 网络配置 ====================
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
 
 # 说明：
 # - Web UI：https://localhost:9443 或 http://localhost:9000
