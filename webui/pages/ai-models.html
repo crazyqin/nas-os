@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 模型管理 - nas-os</title>
+    <link href="/static/css/style.css" rel="stylesheet">
+    <style>
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .model-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            background: var(--card-bg);
+        }
+        .model-card .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .model-card .name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .model-card .tag {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        .tag-chat { background: #e3f2fd; color: #1976d2; }
+        .tag-code { background: #f3e5f5; color: #7b1fa2; }
+        .tag-embedding { background: #e8f5e9; color: #388e3c; }
+        .model-card .stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .model-card .actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        .download-progress {
+            margin-top: 1rem;
+        }
+        .progress-bar {
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s;
+        }
+        .gpu-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .gpu-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .gpu-icon {
+            width: 24px;
+            height: 24px;
+        }
+        .gpu-type { font-weight: 500; }
+        .gpu-active { color: var(--success-color); }
+        .gpu-idle { color: var(--text-muted); }
+        .task-queue {
+            margin-top: 1rem;
+        }
+        .queue-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 AI 模型管理</h1>
+            <p class="subtitle">本地 LLM 一键部署 · GPU智能调度 · OpenAI兼容API</p>
+        </header>
+
+        <!-- GPU状态面板 -->
+        <div class="gpu-status">
+            <div class="gpu-indicator">
+                <svg class="gpu-icon" viewBox="0 0 24 24">
+                    <path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h16v2H4zm0 4h16v2H4z"/>
+                </svg>
+                <span class="gpu-type" id="gpu-type">Intel 核显</span>
+                <span class="gpu-active" id="gpu-status">● 运行中</span>
+            </div>
+            <div class="gpu-stats">
+                <span>活跃任务: <strong id="active-tasks">2</strong></span>
+                <span>队列: <strong id="queued-tasks">3</strong></span>
+                <span>可用槽位: <strong id="available-slots">2</strong></span>
+            </div>
+        </div>
+
+        <!-- 已安装模型 -->
+        <section class="section">
+            <h2>已安装模型</h2>
+            <div class="model-grid" id="installed-models">
+                <!-- 动态加载 -->
+            </div>
+        </section>
+
+        <!-- 推荐模型 -->
+        <section class="section">
+            <h2>推荐模型</h2>
+            <div class="model-grid" id="recommended-models">
+                <!-- 动态加载 -->
+            </div>
+        </section>
+
+        <!-- GPU任务队列 -->
+        <section class="section">
+            <h2>GPU 任务队列</h2>
+            <div class="task-queue" id="task-queue">
+                <!-- 动态加载 -->
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 加载已安装模型
+        async function loadInstalledModels() {
+            const response = await fetch('/api/ai/models');
+            const models = await response.json();
+            
+            const container = document.getElementById('installed-models');
+            container.innerHTML = models.map(model => `
+                <div class="model-card">
+                    <div class="header">
+                        <span class="name">${model.name}</span>
+                        <span class="tag tag-${model.use_case}">${model.use_case}</span>
+                    </div>
+                    <div class="stats">
+                        <span>大小: ${formatSize(model.size)}</span>
+                        <span>版本: ${model.digest?.slice(0,8) || 'latest'}</span>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-primary btn-sm" onclick="loadModel('${model.name}')">
+                            加载
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="deleteModel('${model.name}')">
+                            删除
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 加载推荐模型
+        async function loadRecommendedModels() {
+            const models = [
+                { name: 'llama3.2', description: '通用对话模型 (3B)', use_case: 'chat' },
+                { name: 'llama3.1:8b', description: '通用对话模型 (8B)', use_case: 'chat' },
+                { name: 'mistral', description: '高效推理模型 (7B)', use_case: 'chat' },
+                { name: 'codellama', description: '代码辅助模型', use_case: 'code' },
+                { name: 'nomic-embed-text', description: '文本嵌入模型', use_case: 'embedding' },
+                { name: 'phi3', description: '轻量推理模型 (3.8B)', use_case: 'chat' }
+            ];
+            
+            const container = document.getElementById('recommended-models');
+            container.innerHTML = models.map(model => `
+                <div class="model-card">
+                    <div class="header">
+                        <span class="name">${model.name}</span>
+                        <span class="tag tag-${model.use_case}">${model.use_case}</span>
+                    </div>
+                    <p class="description">${model.description}</p>
+                    <div class="actions">
+                        <button class="btn btn-primary btn-sm" onclick="downloadModel('${model.name}')">
+                            一键下载
+                        </button>
+                    </div>
+                    <div class="download-progress" id="progress-${model.name}" style="display:none">
+                        <div class="progress-bar">
+                            <div class="fill" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">下载中...</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 下载模型
+        async function downloadModel(name) {
+            const progressDiv = document.getElementById(`progress-${name}`);
+            progressDiv.style.display = 'block';
+            
+            const response = await fetch('/api/ai/models/pull', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            
+            // SSE进度更新
+            const reader = response.body.getReader();
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const text = new TextDecoder().decode(value);
+                const data = JSON.parse(text);
+                
+                if (data.total && data.completed) {
+                    const percent = (data.completed / data.total * 100).toFixed(1);
+                    progressDiv.querySelector('.fill').style.width = percent + '%';
+                    progressDiv.querySelector('.progress-text').textContent = 
+                        `${percent}% (${formatSize(data.completed)}/${formatSize(data.total)})`;
+                }
+            }
+            
+            progressDiv.style.display = 'none';
+            loadInstalledModels();
+        }
+
+        // 加载GPU状态
+        async function loadGPUStatus() {
+            const response = await fetch('/api/ai/gpu/status');
+            const status = await response.json();
+            
+            document.getElementById('gpu-type').textContent = status.gpu_type;
+            document.getElementById('gpu-status').textContent = 
+                status.running ? '● 运行中' : '● 空闲';
+            document.getElementById('gpu-status').className = 
+                status.running ? 'gpu-active' : 'gpu-idle';
+            document.getElementById('active-tasks').textContent = status.active_tasks;
+            document.getElementById('queued-tasks').textContent = status.queued_tasks;
+            document.getElementById('available-slots').textContent = status.available_slots;
+        }
+
+        // 格式化大小
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+            if (bytes < 1024*1024*1024) return (bytes/1024/1024).toFixed(1) + ' MB';
+            return (bytes/1024/1024/1024).toFixed(1) + ' GB';
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInstalledModels();
+            loadRecommendedModels();
+            loadGPUStatus();
+            
+            // 定期刷新状态
+            setInterval(loadGPUStatus, 5000);
+        });
+    </script>
+</body>
+</html>
