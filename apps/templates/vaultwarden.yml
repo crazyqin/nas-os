@@ -1,0 +1,80 @@
+# Vaultwarden - 轻量级 Bitwarden 服务器
+#
+# 用途：
+# - 密码管理
+# - 两步验证（TOTP）
+# - 安全笔记
+# - 文件附件
+# - 密码共享（家庭/团队）
+#
+# 数据目录：
+# - /var/lib/nas-os/data/vaultwarden/data - 数据库和附件
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: nas-vaultwarden
+    restart: unless-stopped
+    
+    ports:
+      - "3012:3012"   # WebSocket（实时同步）
+      - "8000:80"     # Web UI
+    
+    volumes:
+      # 数据目录
+      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/vaultwarden/data:/data
+    
+    environment:
+      # 时区
+      TZ: ${TZ:-Asia/Shanghai}
+      # 管理员邮箱（用于管理员面板）
+      ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN:-}
+      # 域名配置
+      DOMAIN: ${VAULTWARDEN_DOMAIN:-http://localhost:8000}
+      # 邀请配置（可选）
+      INVITATION_ORG_NAME: ${VAULTWARDEN_ORG_NAME:-NAS-OS Vault}
+      # 注册限制（可选）
+      # SIGNUPS_ALLOWED: "false"
+      # INVITATIONS_ALLOWED: "true"
+      # 邮件配置（可选）
+      # SMTP_HOST: smtp.example.com
+      # SMTP_FROM: vaultwarden@example.com
+      # SMTP_PORT: 587
+      # SMTP_SSL: "true"
+      # SMTP_USERNAME: ${SMTP_USER}
+      # SMTP_PASSWORD: ${SMTP_PASSWORD}
+      # 日志级别
+      LOG_LEVEL: info
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/api/alive"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    labels:
+      - "nas-os.app=vaultwarden"
+      - "nas-os.category=security"
+      - "nas-os.description=Lightweight Bitwarden-compatible password manager server"
+
+# 说明：
+# - Web UI：http://localhost:8000
+# - 管理员面板：http://localhost:8000/admin（需设置 ADMIN_TOKEN）
+# - 支持所有 Bitwarden 客户端：Web、Android、iOS、桌面、浏览器扩展
+# - WebSocket 端口 3012 用于实时同步
+# - 强烈建议设置 ADMIN_TOKEN 并配置 HTTPS
+# - 邮件配置用于邀请用户和两步验证
+
+# 可选：Caddy 反向代理（自动 HTTPS）
+# services:
+#   caddy:
+#     image: caddy:2
+#     container_name: nas-vaultwarden-caddy
+#     restart: unless-stopped
+#     ports:
+#       - "443:443"
+#     volumes:
+#       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+#       - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/vaultwarden/caddy:/data
+#     environment:
+#       DOMAIN: ${VAULTWARDEN_DOMAIN}

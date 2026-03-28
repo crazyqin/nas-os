@@ -703,8 +703,571 @@ func BenchmarkEventProcessing(b *testing.B) {
 4. **网络流量分析**：检测C&C通信
 5. **跨节点协同**：多节点联合检测，提高整体安全性
 
+## TrueNAS Scale 对标分析
+
+### TrueNAS 26 勒索软件防护特性
+
+TrueNAS Scale 24.04+ 提供以下勒索软件防护能力：
+
+| 特性 | TrueNAS 实现 | nas-os 对照 | 差距 |
+|------|-------------|-------------|------|
+| 快照异常检测 | 快照空间突增告警 | ❌ 待实现 | P0 |
+| 文件扩展名监控 | 自定义扩展名列表 | ✅ 已设计 | - |
+| 实时告警 | 邮件/Webhook/Push | ✅ 已设计 | - |
+| 自动隔离 | 锁定共享+终止进程 | ✅ 已设计 | - |
+| 快照保护 | 防止快照被删除 | ❌ 待实现 | P1 |
+| 恢复机制 | 快照一键恢复 | ✅ 已设计 | - |
+
+### 快照异常检测增强
+
+**TrueNAS 实现**：
+- 监控快照空间增长速率
+- 突然大量数据变化触发告警
+- 对比历史快照大小差异
+
+**nas-os 实现方案**：
+
+```go
+type SnapshotAnomalyDetector struct {
+    zfsAdapter    *ZFSAdapter
+    historyStore  *SnapshotHistoryStore
+    thresholds    SnapshotThresholds
+}
+
+type SnapshotThresholds struct {
+    // 快照大小突增阈值 (相对上次快照)
+    SizeIncreasePercent   float64  // 如: 500% 突增告警
+    // 快照数量突增阈值
+    CountIncreaseRate     int      // 如: 每分钟新增10个快照
+    // 空间占用率阈值
+    SpaceUsedPercent      float64  // 如: 80% 空间告警
+    // 快照删除检测
+    DeletionAlert         bool     // 启用快照删除告警
+}
+
+func (d *SnapshotAnomalyDetector) Detect(ctx context.Context) []SnapshotAnomaly {
+    anomalies := []SnapshotAnomaly{}
+    
+    // 1. 获取当前快照列表
+    snapshots := d.zfsAdapter.ListSnapshots(ctx)
+    
+    // 2. 获取历史记录
+    history := d.historyStore.GetRecent(ctx, 24*time.Hour)
+    
+    // 3. 计算空间增长率
+    for i, snap := range snapshots {
+        if i > 0 {
+            prev := snapshots[i-1]
+            increaseRate := float64(snap.Used - prev.Used) / float64(prev.Used) * 100
+            
+            if increaseRate > d.thresholds.SizeIncreasePercent {
+                anomalies = append(anomalies, SnapshotAnomaly{
+                    Type:        AnomalySizeIncrease,
+                    Snapshot:    snap.Name,
+                    Rate:        increaseRate,
+                    Threshold:   d.thresholds.SizeIncreasePercent,
+                    Timestamp:   time.Now(),
+                })
+            }
+        }
+    }
+    
+    // 4. 检测快照删除
+    deleted := d.detectDeletedSnapshots(history, snapshots)
+    if len(deleted) > 0 && d.thresholds.DeletionAlert {
+        anomalies = append(anomalies, SnapshotAnomaly{
+            Type:        AnomalySnapshotDeletion,
+            Deleted:     deleted,
+            Timestamp:   time.Now(),
+        })
+    }
+    
+    return anomalies
+}
+```
+
+### 快照保护机制
+
+**防止勒索软件删除快照**：
+
+```go
+type SnapshotProtector struct {
+    zfsAdapter     *ZFSAdapter
+    protectedList  map[string]bool
+    holdTag        string  // ZFS hold 标签
+}
+
+// 保护关键快照，防止被删除
+func (p *SnapshotProtector) Protect(ctx context.Context, snapshot string) error {
+    // ZFS hold 机制防止快照被删除
+    return p.zfsAdapter.HoldSnapshot(ctx, snapshot, p.holdTag)
+}
+
+// 解除保护
+func (p *SnapshotProtector) Unprotect(ctx context.Context, snapshot string) error {
+    return p.zfsAdapter.ReleaseSnapshot(ctx, snapshot, p.holdTag)
+}
+
+// 检测未授权的快照操作
+func (p *SnapshotProtector) Monitor(ctx context.Context) {
+    events := p.zfsAdapter.WatchSnapshotEvents(ctx)
+    
+    for event := range events {
+        if event.Type == SnapshotDelete && p.protectedList[event.Snapshot] {
+            // 阻止删除并告警
+            p.alertUnauthorizedDelete(event)
+        }
+    }
+}
+```
+
+### 与现有系统集成
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   Enhanced Ransomware Detection                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐        │
+│  │   File Event  │  │   Snapshot    │  │   Entropy     │        │
+│  │    Monitor    │  │   Anomaly     │  │   Analyzer    │        │
+│  └───────┬───────┘  │   Detector    │  └───────┬───────┘        │
+│          │          └───────┬───────┘          │                 │
+│          │                  │                  │                 │
+│          └──────────────────┼──────────────────┘                 │
+│                             ▼                                    │
+│                   ┌─────────────────┐                            │
+│                   │  Threat Engine  │                            │
+│                   │   (多因子评分)   │                            │
+│                   └────────┬────────┘                            │
+│                            │                                     │
+│          ┌─────────────────┼─────────────────┐                   │
+│          ▼                 ▼                 ▼                   │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐        │
+│  │   Alerting    │  │   Isolation   │  │   Recovery    │        │
+│  │    Service    │  │ + Snapshot    │  │    Service    │        │
+│  │               │  │   Protector   │  │               │        │
+│  └───────────────┘  └───────────────┘  └───────────────┘        │
+│                                                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 应用中心安全设计
+
+### 1. 应用权限隔离方案
+
+**架构设计**：
+
+```yaml
+# 应用权限模型
+app_security:
+  # 用户隔离
+  user_isolation:
+    enabled: true
+    # 每个应用使用独立 UID
+    uid_range:
+      start: 50000
+      end: 60000
+    # 禁止应用以 root 运行
+    forbid_root: true
+    
+  # 文件系统隔离
+  filesystem_isolation:
+    # 应用数据目录
+    app_data_root: /var/lib/nas-os/data
+    # 每个应用独立目录
+    per_app_directory: true
+    # 应用只能访问自己的数据目录
+    directory_quota: true
+    # 只读挂载系统目录
+    readonly_system: true
+    
+  # 进程隔离
+  process_isolation:
+    # 使用 cgroup 隔离
+    cgroup_enabled: true
+    # CPU 限制
+    cpu_limit: 50%  # 默认上限
+    # 内存限制
+    memory_limit: 2GB  # 默认上限
+```
+
+**实现代码**：
+
+```go
+type AppIsolationManager struct {
+    dockerClient   *docker.Client
+    uidAllocator   *UIDAllocator
+    cgroupManager  *CgroupManager
+}
+
+type AppSecurityConfig struct {
+    AppID          string
+    UID            int
+    GID            int
+    DataPath       string
+    AllowedPaths   []string
+    ReadOnlyPaths  []string
+    CgroupLimits   CgroupLimits
+    Capabilities   []string  // Linux capabilities
+    SeccompProfile string    // Seccomp 安全策略
+}
+
+// 创建安全隔离的应用容器
+func (m *AppIsolationManager) CreateSecureContainer(
+    ctx context.Context, 
+    app AppSecurityConfig,
+) (*docker.Container, error) {
+    
+    // 1. 分配独立 UID
+    uid, gid := m.uidAllocator.Allocate(app.AppID)
+    
+    // 2. 创建应用数据目录
+    dataPath := filepath.Join(m.dataRoot, app.AppID)
+    os.MkdirAll(dataPath, 0750)
+    os.Chown(dataPath, uid, gid)
+    
+    // 3. 配置容器安全选项
+    config := &docker.ContainerConfig{
+        User: fmt.Sprintf("%d:%d", uid, gid),
+        
+        // 禁用特权模式
+        Privileged: false,
+        
+        // 限制 capabilities
+        CapDrop: []string{"ALL"},
+        CapAdd:  app.Capabilities,
+        
+        // Seccomp 安全策略
+        SecurityOpt: []string{
+            fmt.Sprintf("seccomp=%s", app.SeccompProfile),
+        },
+        
+        // 只读挂载系统目录
+        Mounts: []docker.Mount{
+            {Type: "bind", Source: "/etc", Target: "/etc", ReadOnly: true},
+            {Type: "bind", Source: "/usr", Target: "/usr", ReadOnly: true},
+            {Type: "bind", Source: dataPath, Target: "/data"},
+        },
+    }
+    
+    // 4. 创建 cgroup 资源限制
+    m.cgroupManager.Create(app.AppID, app.CgroupLimits)
+    
+    return m.dockerClient.CreateContainer(ctx, config)
+}
+```
+
+### 2. 应用网络隔离
+
+**网络架构**：
+
+```yaml
+# 网络隔离配置
+network_isolation:
+  # 应用网络模式
+  mode: bridge  # bridge / host / none
+  
+  # 默认策略：应用网络隔离
+  default_policy: isolated
+  
+  # 网络命名空间
+  per_app_namespace: false  # 可选
+  
+  # 网络访问控制
+  access_control:
+    # 禁止应用访问 NAS 管理端口
+    blocked_ports:
+      - 80    # NAS Web UI
+      - 443   # NAS HTTPS
+      - 22    # SSH
+      - 873   # rsync
+      - 2049  # NFS
+      
+    # 允许应用访问的服务
+    allowed_services:
+      - dns        # DNS 解析
+      - ntp        # 时间同步
+      - ldap       # LDAP 认证（可选）
+      
+  # 应用间通信控制
+  inter_app_communication:
+    default: deny  # 默认禁止应用间通信
+    exceptions: []  # 白名单例外
+    
+  # 外部访问控制
+  external_access:
+    # 应用对外暴露端口
+    exposed_ports: []
+    # 需要管理员审批
+    require_approval: true
+```
+
+**实现代码**：
+
+```go
+type NetworkIsolationManager struct {
+    iptables       *IPTablesManager
+    bridgeNetwork  *docker.Network
+    policies       []NetworkPolicy
+}
+
+type NetworkPolicy struct {
+    AppID         string
+    AllowedOut    []string  // 允许访问的外部地址
+    AllowedIn     []string  // 允许接收的来源地址
+    BlockedPorts  []int     // 禁止访问的端口
+    ExposedPorts  []int     // 暴露的外部端口
+    InterApp      bool      // 是否允许应用间通信
+}
+
+// 应用网络隔离规则
+func (m *NetworkIsolationManager) ApplyNetworkPolicy(
+    ctx context.Context, 
+    policy NetworkPolicy,
+) error {
+    
+    // 1. 创建应用专用网络命名空间
+    bridge := m.createAppBridge(policy.AppID)
+    
+    // 2. 配置 iptables 规则
+    
+    // 禁止访问 NAS 管理端口
+    for _, port := range policy.BlockedPorts {
+        m.iptables.AddRule(
+            "-A", "OUTPUT",
+            "-p", "tcp",
+            "--dport", fmt.Sprintf("%d", port),
+            "-j", "REJECT",
+        )
+    }
+    
+    // 3. 应用间通信隔离
+    if !policy.InterApp {
+        m.iptables.AddRule(
+            "-A", "FORWARD",
+            "-s", bridge.Subnet,
+            "-d", m.appNetworkCIDR,
+            "-j", "DROP",
+        )
+    }
+    
+    // 4. 暴露端口审批检查
+    if len(policy.ExposedPorts) > 0 {
+        if !m.approveExternalAccess(policy) {
+            return errors.New("external port exposure requires approval")
+        }
+    }
+    
+    return nil
+}
+```
+
+### 3. 应用数据访问控制
+
+**数据访问模型**：
+
+```yaml
+# 数据访问控制配置
+data_access_control:
+  # 访问模式
+  access_modes:
+    - readonly    # 只读访问
+    - writeonly   # 仅写入（备份类应用）
+    - full        # 完全访问（需审批）
+    
+  # 路径访问策略
+  path_policies:
+    # 系统目录：禁止访问
+    system_paths:
+      - /etc
+      - /var/log
+      - /var/run
+      - /root
+      policy: deny
+      
+    # 用户数据目录：只读访问（默认）
+    user_data_paths:
+      - /home
+      - /data
+      policy: readonly
+      
+    # 应用共享目录：需审批
+    shared_paths:
+      - /data/media
+      - /data/photos
+      policy: approval_required
+      
+  # 数据目录权限映射
+  directory_permissions:
+    jellyfin:
+      - path: /data/media
+        mode: readonly
+      - path: /data/music
+        mode: readonly
+        
+    photoprism:
+      - path: /data/photos
+        mode: full  # 需要写入索引
+        approved_by: admin
+        approved_at: 2026-03-15
+        
+    backup_app:
+      - path: /data
+        mode: readonly
+      - path: /backup
+        mode: writeonly
+```
+
+**实现代码**：
+
+```go
+type DataAccessController struct {
+    policyStore    *PolicyStore
+    approvalQueue  *ApprovalQueue
+    auditLogger    *AuditLogger
+}
+
+type DataAccessPolicy struct {
+    AppID       string
+    Path        string
+    Mode        AccessMode
+    Approved    bool
+    ApprovedBy  string
+    ApprovedAt  time.Time
+    AuditLevel  AuditLevel
+}
+
+// 申请数据访问权限
+func (c *DataAccessController) RequestAccess(
+    ctx context.Context,
+    appID string,
+    path string,
+    mode AccessMode,
+) (*ApprovalRequest, error) {
+    
+    // 1. 检查路径是否在禁止列表
+    if c.isSystemPath(path) {
+        return nil, errors.New("access to system paths is forbidden")
+    }
+    
+    // 2. 检查是否已有授权
+    existing := c.policyStore.Get(appID, path)
+    if existing != nil && existing.Mode >= mode {
+        return nil, nil  // 已有足够权限
+    }
+    
+    // 3. 创建审批请求
+    request := &ApprovalRequest{
+        ID:        generateRequestID(),
+        AppID:     appID,
+        Path:      path,
+        Mode:      mode,
+        Status:    ApprovalPending,
+        CreatedAt: time.Now(),
+    }
+    
+    // 4. 审批流程
+    if mode == AccessFull || c.requiresApproval(path) {
+        c.approvalQueue.Submit(request)
+        return request, errors.New("access requires approval")
+    }
+    
+    // 5. 自动批准只读访问
+    c.approveAuto(ctx, request)
+    return request, nil
+}
+
+// 审批访问请求
+func (c *DataAccessController) ApproveAccess(
+    ctx context.Context,
+    requestID string,
+    approver string,
+) error {
+    
+    request := c.approvalQueue.Get(requestID)
+    if request == nil {
+        return errors.New("request not found")
+    }
+    
+    // 1. 更新审批状态
+    request.Status = ApprovalApproved
+    request.ApprovedBy = approver
+    request.ApprovedAt = time.Now()
+    
+    // 2. 创建访问策略
+    policy := DataAccessPolicy{
+        AppID:      request.AppID,
+        Path:       request.Path,
+        Mode:       request.Mode,
+        Approved:   true,
+        ApprovedBy: approver,
+        ApprovedAt: time.Now(),
+        AuditLevel: AuditLevelDetailed,
+    }
+    
+    c.policyStore.Save(policy)
+    
+    // 3. 审计记录
+    c.auditLogger.Log(AuditEvent{
+        Type:        "data_access_approved",
+        AppID:       request.AppID,
+        Path:        request.Path,
+        Mode:        request.Mode,
+        ApprovedBy:  approver,
+        Timestamp:   time.Now(),
+    })
+    
+    return nil
+}
+```
+
+### 4. 应用安全审计
+
+**审计配置**：
+
+```yaml
+# 应用安全审计配置
+app_audit:
+  enabled: true
+  
+  # 审计级别
+  levels:
+    minimal:     # 最小审计
+      events: [start, stop, crash]
+    standard:    # 标准审计
+      events: [start, stop, crash, config_change, permission_change]
+    detailed:    # 详细审计
+      events: [all_events, file_access, network_access]
+    full:        # 完整审计
+      events: [all_events, file_access, network_access, api_calls]
+      
+  # 默认级别
+  default_level: standard
+  
+  # 敏感应用加强审计
+  sensitive_apps:
+    - photoprism
+    - backup_app
+    - sync_app
+    level: detailed
+    
+  # 审计日志
+  log:
+    path: /var/log/nas-os/audit/apps
+    retention_days: 90
+    max_size_mb: 500
+    compress: true
+```
+
+---
+
 ## 参考资料
 
 - [NIST Ransomware Guide](https://www.nist.gov/publications/nist-sp-800-171-ransomware-risk-management)
 - [No More Ransom Project](https://www.nomoreransom.org/)
 - [MITRE ATT&CK - Ransomware](https://attack.mitre.org/software/)
+- [TrueNAS Scale Security Guide](https://www.truenas.com/docs/scale/scale-securityguide/)
+- [Docker Security Best Practices](https://docs.docker.com/engine/security/)
