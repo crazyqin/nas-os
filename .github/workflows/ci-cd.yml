@@ -15,15 +15,15 @@
 # - 覆盖率趋势追踪和徽章生成
 # - Docker Compose 集成测试
 #
-# v2.295.0 优化内容（飞牛fnOS半月更节奏学习）:
-# - 完全解耦依赖链：lint/codeql/test/build 仅依赖 prepare，全并行
-# - 测试分片增加到8个，更细粒度并行
-# - 构建矩阵优化：amd64/arm64/armv7 真正并行（无 QEMU 等待）
-# - 缓存预热：prepare job 完整预热所有缓存
-# - 变更检测优化：更精准的路径过滤
-# - 总构建时间目标：从 20min → 12min
+# v2.254.0 优化内容:
+# - 测试分片增加到6个，智能分配测试包
+# - 增加编译产物跨job缓存
+# - 优化缓存key策略，提高命中率
+# - 并行化代码检查（lint+codeql并行执行）
+# - 增加测试结果缓存
+# - 构建与测试并行执行
 #
-# 当前版本: v2.295.0（工部维护）
+# 当前版本: v2.254.0（工部维护）
 
 name: CI/CD
 
@@ -45,22 +45,23 @@ permissions:
 env:
   GO_VERSION: '1.25'
   # 缓存版本号，重大变更时递增
-  CACHE_VERSION: 'v15'
+  CACHE_VERSION: 'v13'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # 测试环境目录
   TEST_DATA_DIR: '/tmp/nas-os-test'
   TEST_VAR_DIR: '/var/lib/nas-os'
+  # 构建开始时间（用于计算总耗时）
+  BUILD_START_TIME: ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
   # 覆盖率阈值
   COVERAGE_THRESHOLD: 25
   COVERAGE_WARN_THRESHOLD: 50
   # 构建追踪
   BUILD_TRACKING_ENABLED: 'true'
-  # v2.295.0 优化: GOPROXY 加速 + GOPRIVATE 私有仓库
+  # v2.254.0 优化: GOPROXY 加速
   GOPROXY: 'https://proxy.golang.org,direct'
-  GOPRIVATE: ''
-  # v2.295.0 优化: 测试分片配置（增加到8分片，更细粒度并行）
-  TEST_SHARD_COUNT: 8
+  # v2.254.0 优化: 测试分片配置（增加到6分片）
+  TEST_SHARD_COUNT: 6
 
 # 并发控制：同一分支同时只运行一个工作流
 concurrency:
@@ -178,13 +179,10 @@ jobs:
       - name: 预热编译缓存
         run: |
           echo "🔧 预热编译缓存..."
-          # v2.295.0: 分层构建，加速后续编译
-          go build -o /dev/null ./cmd/... 2>/dev/null || true
-          go build -o /dev/null ./internal/... 2>/dev/null || true
-          go build -o /dev/null ./pkg/... 2>/dev/null || true
+          go build -o /dev/null ./... 2>/dev/null || true
           echo "✅ 缓存预热完成"
       
-      - name: 缓存 Go 模块（主缓存）
+      - name: 缓存 Go 模块
         uses: actions/cache/save@v4
         with:
           path: |
@@ -192,8 +190,7 @@ jobs:
             ~/.cache/go-build
           key: ${{ steps.go-cache.outputs.cache-key }}
       
-      # v2.295.0: 分离工具缓存，避免污染主缓存
-      - name: 缓存 Go 工具（独立缓存）
+      - name: 缓存 Go 工具
         uses: actions/cache/save@v4
         with:
           path: |
@@ -201,11 +198,11 @@ jobs:
             ~/go/bin
           key: go-tools-${{ env.CACHE_VERSION }}-${{ runner.os }}
       
-      # v2.295.0: 测试结果缓存优化
       - name: 缓存测试结果（跨运行复用）
         uses: actions/cache/save@v4
         with:
-          path: ~/.cache/go-test
+          path: |
+            ~/.cache/go-test
           key: go-test-${{ env.CACHE_VERSION }}-${{ hashFiles('**/*_test.go') }}
           restore-keys: |
             go-test-${{ env.CACHE_VERSION }}-
@@ -367,20 +364,20 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "扫描结果已上传到 Security 页面" >> $GITHUB_STEP_SUMMARY
 
-  # ========== 单元测试（8分片并行） ==========
-  # v2.295.0: 解耦依赖，仅依赖 prepare，与 build/lint/codeql 全并行
+  # ========== 单元测试（分片并行） ==========
   test:
-    name: 单元测试 (分片 ${{ matrix.shard }}/${{ env.SHARD_TOTAL }})
+    name: 单元测试
     runs-on: ubuntu-latest
     needs: [prepare]
-    timeout-minutes: 15
+    # v2.254.0: 移除对 lint/codeql 的依赖，加速测试启动
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+        shard: [0, 1, 2, 3, 4, 5]
     env:
       CGO_ENABLED: 1
-      SHARD_TOTAL: 8
+      SHARD_TOTAL: 6
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
@@ -706,32 +703,24 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-  # ========== 多平台构建（Matrix 全并行） ==========
-  # v2.295.0: 解耦依赖，仅依赖 prepare，与 test/lint/codeql 全并行
-  # v2.295.0: amd64 使用原生 runner，arm64 使用 ARM runner（无 QEMU）
+  # ========== 多平台构建 ==========
   build:
-    name: 构建 ${{ matrix.platform }}
-    runs-on: ${{ matrix.runner }}
+    name: 构建二进制
+    runs-on: ubuntu-latest
     needs: [prepare]
-    timeout-minutes: ${{ matrix.timeout || 12 }}
+    # v2.254.0: 移除对 test-merge 的依赖，允许构建和测试并行
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: linux-amd64
-            os: linux
+          - os: linux
             arch: amd64
-            runner: ubuntu-latest
-          - platform: linux-arm64
-            os: linux
+          - os: linux
             arch: arm64
-            runner: ubuntu-24.04-arm  # 原生 ARM runner，无需 QEMU
-          - platform: linux-armv7
-            os: linux
+          - os: linux
             arch: arm
             arm: 7
-            runner: ubuntu-latest
-            timeout: 20  # armv7 需要 QEMU，给更多时间
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
@@ -752,48 +741,50 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: false
 
-      # v2.295.0: 增加编译产物缓存（跨job复用）
-      - name: Go 编译缓存（架构专用）
+      # v2.254.0: 增加编译产物缓存
+      - name: Go 编译缓存
         uses: actions/cache@v4
         with:
           path: ~/.cache/go-build
-          key: ${{ env.CACHE_VERSION }}-build-${{ matrix.platform }}-${{ hashFiles('go.sum') }}
+          key: ${{ env.CACHE_VERSION }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('go.sum') }}
           restore-keys: |
-            ${{ env.CACHE_VERSION }}-build-${{ matrix.platform }}-
+            ${{ env.CACHE_VERSION }}-build-${{ matrix.os }}-${{ matrix.arch }}-
             ${{ env.CACHE_VERSION }}-build-
       
-      - name: 编译（优化参数）
+      - name: 编译
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
           GOARM: ${{ matrix.arm }}
           CGO_ENABLED: 0
         run: |
-          BINARY_NAME="nasd-${{ matrix.platform }}"
+          BINARY_NAME="nasd-${{ matrix.os }}-${{ matrix.arch }}"
+          if [ -n "${{ matrix.arm }}" ]; then
+            BINARY_NAME="${BINARY_NAME}v${{ matrix.arm }}"
+          fi
           
-          # v2.295.0: 添加版本信息嵌入 + 优化编译参数
+          # v2.254.0: 添加版本信息嵌入
           VERSION="${{ github.ref_name }}"
           COMMIT="${{ github.sha }}"
           BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
           LDFLAGS="-w -s -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildTime=$BUILD_TIME"
           
-          # 使用 -p 并行编译
-          go build -ldflags="$LDFLAGS" -trimpath -p=4 -o "${BINARY_NAME}" ./cmd/nasd
+          go build -ldflags="$LDFLAGS" -trimpath -o "${BINARY_NAME}" ./cmd/nasd
           echo "✅ 编译成功: ${BINARY_NAME}"
           ls -lh "${BINARY_NAME}"
       
       - name: 生成校验和
         run: |
-          sha256sum nasd-${{ matrix.platform }} > checksums-${{ matrix.platform }}.txt
-          cat checksums-${{ matrix.platform }}.txt
+          sha256sum nasd-* > checksums.txt
+          cat checksums.txt
       
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: nas-os-${{ matrix.platform }}
+          name: nas-os-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.arm && format('v{0}', matrix.arm) || '' }}
           path: |
-            nasd-${{ matrix.platform }}
-            checksums-${{ matrix.platform }}.txt
+            nasd-*
+            checksums.txt
           retention-days: 7
 
   # ========== Docker Compose 测试 ==========
