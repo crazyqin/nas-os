@@ -167,6 +167,198 @@
             margin-left: 0.5rem;
         }
         
+        /* 搜索高亮样式 */
+        .search-highlight {
+            background: linear-gradient(120deg, #ffd54f 0%, #fff176 100%);
+            border-radius: 2px;
+            padding: 0 2px;
+        }
+        
+        /* 搜索历史和建议 */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--color-gray-200);
+            border-radius: 0 0 8px 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        .search-suggestions.active {
+            display: block;
+        }
+        .search-suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.15s;
+        }
+        .search-suggestion-item:hover {
+            background: var(--color-gray-50);
+        }
+        .search-suggestion-icon {
+            color: var(--color-gray-400);
+            font-size: 14px;
+        }
+        .search-suggestion-text {
+            flex: 1;
+        }
+        .search-suggestion-type {
+            font-size: 11px;
+            color: var(--color-gray-500);
+            background: var(--color-gray-100);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        /* 热门应用区域 */
+        .hot-section {
+            margin-bottom: 2rem;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ff6b6b, #ffa502);
+            color: white;
+        }
+        .hot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .hot-card {
+            background: linear-gradient(135deg, var(--color-primary-light), white);
+            border: 1px solid var(--color-primary-light);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .hot-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .hot-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.3), transparent);
+        }
+        .hot-rank {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .hot-rank-1 { background: linear-gradient(135deg, #ffd700, #ffb347); color: white; }
+        .hot-rank-2 { background: linear-gradient(135deg, #c0c0c0, #a8a8a8); color: white; }
+        .hot-rank-3 { background: linear-gradient(135deg, #cd7f32, #b8860b); color: white; }
+        .hot-rank-other { background: var(--color-gray-200); color: var(--color-gray-600); }
+        .hot-icon {
+            font-size: 36px;
+            margin-bottom: 0.5rem;
+        }
+        .hot-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .hot-category {
+            font-size: 12px;
+            color: var(--color-gray-500);
+        }
+        .hot-installs {
+            font-size: 11px;
+            color: var(--color-gray-400);
+            margin-top: 0.5rem;
+        }
+        
+        /* 快捷分类入口 */
+        .quick-categories {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .quick-cat-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid var(--color-gray-200);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        .quick-cat-btn:hover {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+        .quick-cat-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        .quick-cat-icon {
+            font-size: 16px;
+        }
+        .quick-cat-count {
+            font-size: 11px;
+            background: var(--color-gray-100);
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+        .quick-cat-btn.active .quick-cat-count {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* 应用卡片热门标记 */
+        .app-card-hot {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #ff6b6b, #ffa502);
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
         .sidebar {
             position: fixed;
             left: 0;
@@ -458,12 +650,37 @@
                 </svg>
                 <input type="text" class="search-input" id="app-search" 
                        placeholder="搜索应用名称、描述或分类..." 
-                       oninput="searchApps(this.value)">
+                       oninput="searchApps(this.value)" 
+                       onfocus="showSuggestions()" 
+                       onblur="hideSuggestionsDelayed()">
                 <span class="search-count" id="search-count"></span>
+                
+                <!-- 搜索建议下拉 -->
+                <div class="search-suggestions" id="search-suggestions">
+                    <!-- 动态加载 -->
+                </div>
             </div>
 
-            <!-- 分类筛选 -->
-            <div class="category-filter" id="category-filter">
+            <!-- 快捷分类入口 -->
+            <div class="quick-categories" id="quick-categories">
+                <!-- 动态加载 -->
+            </div>
+
+            <!-- 热门应用推荐 -->
+            <div class="hot-section card" id="hot-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        🔥 热门推荐
+                        <span class="section-badge">TOP 6</span>
+                    </h2>
+                </div>
+                <div class="hot-grid" id="hot-grid">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+
+            <!-- 分类筛选（详细版） -->
+            <div class="category-filter" id="category-filter" style="display: none;">
                 <button class="category-btn active" data-category="">
                     <span class="category-icon">📦</span>全部
                 </button>
@@ -674,6 +891,18 @@
         let installedApps = [];
         let currentTemplate = null;
         let currentInstalled = null;
+        let searchHistory = []; // 搜索历史
+        const MAX_HISTORY = 10;
+        
+        // 热门应用定义（基于安装量和用户偏好）
+        const HOT_APPS = [
+            { id: 'jellyfin', name: 'Jellyfin', icon: '🎬', category: 'Media', installs: 12580 },
+            { id: 'nextcloud', name: 'Nextcloud', icon: '☁️', category: 'Productivity', installs: 10890 },
+            { id: 'homeassistant', name: 'Home Assistant', icon: '🏠', category: 'Smart Home', installs: 9520 },
+            { id: 'plex', name: 'Plex', icon: '🎥', category: 'Media', installs: 8930 },
+            { id: 'qbittorrent', name: 'qBittorrent', icon: '📥', category: 'Download', installs: 7850 },
+            { id: 'syncthing', name: 'Syncthing', icon: '🔄', category: 'Backup', installs: 6420 }
+        ];
 
         // 加载应用目录
         async function loadCatalog() {
@@ -686,6 +915,10 @@
                     // 渲染分类按钮
                     const categories = Object.keys(data.data.categories || {});
                     renderCategoryFilter(categories);
+                    renderQuickCategories(categories);
+                    
+                    // 渲染热门应用
+                    renderHotApps();
                     
                     // 渲染应用
                     renderApps();
@@ -728,23 +961,167 @@
         // 获取分类中文名和图标
         function getCategoryInfo(cat) {
             const info = {
-                'Productivity': { name: '生产力', icon: '💼' },
-                'Media': { name: '媒体', icon: '🎬' },
-                'Smart Home': { name: '智能家居', icon: '🏠' },
-                'Network': { name: '网络', icon: '🌐' },
-                'Download': { name: '下载', icon: '📥' },
-                'Development': { name: '开发', icon: '💻' },
-                'Security': { name: '安全', icon: '🔒' },
-                'Storage': { name: '存储', icon: '💾' },
-                'Backup': { name: '备份', icon: '💿' },
-                'custom': { name: '自定义', icon: '📦' }
+                'Productivity': { name: '生产力', icon: '💼', color: '#4CAF50' },
+                'Media': { name: '媒体', icon: '🎬', color: '#E91E63' },
+                'Smart Home': { name: '智能家居', icon: '🏠', color: '#2196F3' },
+                'Network': { name: '网络', icon: '🌐', color: '#9C27B0' },
+                'Download': { name: '下载', icon: '📥', color: '#FF5722' },
+                'Development': { name: '开发', icon: '💻', color: '#00BCD4' },
+                'Security': { name: '安全', icon: '🔒', color: '#F44336' },
+                'Storage': { name: '存储', icon: '💾', color: '#607D8B' },
+                'Backup': { name: '备份', icon: '💿', color: '#795548' },
+                'custom': { name: '自定义', icon: '📦', color: '#9E9E9E' }
             };
-            return info[cat] || { name: cat, icon: '📦' };
+            return info[cat] || { name: cat, icon: '📦', color: '#9E9E9E' };
         }
 
         // 获取分类中文名
         function getCategoryName(cat) {
             return getCategoryInfo(cat).name;
+        }
+
+        // 渲染快捷分类入口
+        function renderQuickCategories(categories) {
+            const container = document.getElementById('quick-categories');
+            container.innerHTML = '';
+            
+            categories.forEach(cat => {
+                const info = getCategoryInfo(cat);
+                const count = templates.filter(t => t.category === cat).length;
+                const btn = document.createElement('button');
+                btn.className = 'quick-cat-btn';
+                btn.dataset.category = cat;
+                btn.innerHTML = `
+                    <span class="quick-cat-icon">${info.icon}</span>
+                    <span>${info.name}</span>
+                    <span class="quick-cat-count">${count}</span>
+                `;
+                btn.onclick = () => filterByCategory(cat);
+                container.appendChild(btn);
+            });
+        }
+
+        // 渲染热门应用推荐
+        function renderHotApps() {
+            const container = document.getElementById('hot-grid');
+            let hotHtml = '';
+            
+            HOT_APPS.forEach((hot, idx) => {
+                const template = templates.find(t => t.id === hot.id);
+                const installed = installedApps.find(a => a.templateId === hot.id);
+                const rankClass = idx < 3 ? `hot-rank-${idx + 1}` : 'hot-rank-other';
+                
+                hotHtml += `
+                    <div class="hot-card" onclick="showTemplateDetail('${hot.id}')">
+                        <div class="hot-rank ${rankClass}">${idx + 1}</div>
+                        <div class="hot-icon">${hot.icon}</div>
+                        <div class="hot-name">${hot.name}</div>
+                        <div class="hot-category">${getCategoryName(hot.category)}</div>
+                        <div class="hot-installs">
+                            ${installed ? '✅ 已安装' : `${hot.installs.toLocaleString()} 人使用`}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = hotHtml;
+            
+            // 如果搜索或筛选激活，隐藏热门区域
+            if (searchQuery || currentCategory) {
+                document.getElementById('hot-section').style.display = 'none';
+            } else {
+                document.getElementById('hot-section').style.display = 'block';
+            }
+        }
+
+        // 搜索建议功能
+        function showSuggestions() {
+            const input = document.getElementById('app-search');
+            const suggestionsEl = document.getElementById('search-suggestions');
+            const query = input.value.toLowerCase().trim();
+            
+            let suggestions = [];
+            
+            // 搜索历史（如果有）
+            if (!query && searchHistory.length > 0) {
+                searchHistory.slice(0, 5).forEach(h => {
+                    suggestions.push({ type: 'history', text: h, icon: '🕐' });
+                });
+            }
+            
+            // 推荐应用名称
+            if (query) {
+                const matched = templates.filter(t => 
+                    t.displayName.toLowerCase().includes(query) ||
+                    t.category.toLowerCase().includes(query)
+                ).slice(0, 5);
+                
+                matched.forEach(t => {
+                    suggestions.push({ 
+                        type: 'app', 
+                        text: t.displayName, 
+                        icon: t.icon,
+                        category: getCategoryName(t.category)
+                    });
+                });
+                
+                // 推荐分类
+                const matchedCategories = [...new Set(templates.map(t => t.category))]
+                    .filter(cat => cat.toLowerCase().includes(query))
+                    .slice(0, 3);
+                
+                matchedCategories.forEach(cat => {
+                    const info = getCategoryInfo(cat);
+                    suggestions.push({ 
+                        type: 'category', 
+                        text: info.name, 
+                        icon: info.icon,
+                        categoryKey: cat
+                    });
+                });
+            }
+            
+            if (suggestions.length > 0) {
+                suggestionsEl.innerHTML = suggestions.map(s => `
+                    <div class="search-suggestion-item" onclick="${s.type === 'category' ? `filterByCategory('${s.categoryKey}')` : `selectSuggestion('${s.text}')`}">
+                        <span class="search-suggestion-icon">${s.icon}</span>
+                        <span class="search-suggestion-text">${s.text}</span>
+                        <span class="search-suggestion-type">${s.type === 'history' ? '历史' : s.type === 'category' ? '分类' : s.category || '应用'}</span>
+                    </div>
+                `).join('');
+                suggestionsEl.classList.add('active');
+            } else {
+                suggestionsEl.classList.remove('active');
+            }
+        }
+
+        function hideSuggestionsDelayed() {
+            setTimeout(() => {
+                document.getElementById('search-suggestions').classList.remove('active');
+            }, 200);
+        }
+
+        function selectSuggestion(text) {
+            document.getElementById('app-search').value = text;
+            searchApps(text);
+            addToSearchHistory(text);
+            document.getElementById('search-suggestions').classList.remove('active');
+        }
+
+        function addToSearchHistory(query) {
+            if (query && !searchHistory.includes(query)) {
+                searchHistory.unshift(query);
+                if (searchHistory.length > MAX_HISTORY) {
+                    searchHistory.pop();
+                }
+            }
+        }
+
+        // 搜索高亮
+        function highlightText(text, query) {
+            if (!query) return text;
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span class="search-highlight">$1</span>');
         }
 
         // 按分类筛选
@@ -788,7 +1165,11 @@
         let searchQuery = '';
         function searchApps(query) {
             searchQuery = query.toLowerCase().trim();
+            if (searchQuery) {
+                addToSearchHistory(searchQuery);
+            }
             renderApps(currentCategory);
+            renderHotApps(); // 更新热门区域显示状态
         }
 
         // 清除搜索
@@ -796,6 +1177,7 @@
             searchQuery = '';
             document.getElementById('app-search').value = '';
             renderApps(currentCategory);
+            renderHotApps();
         }
 
         // 渲染应用列表
@@ -841,16 +1223,19 @@
             
             container.innerHTML = filtered.map(template => {
                 const installed = installedApps.find(a => a.templateId === template.id);
+                const isHot = HOT_APPS.some(h => h.id === template.id);
+                const hotIdx = HOT_APPS.findIndex(h => h.id === template.id);
                 return `
-                    <div class="app-card ${installed ? 'installed' : ''}">
+                    <div class="app-card ${installed ? 'installed' : ''}" style="position: relative;">
+                        ${isHot ? `<div class="app-card-hot">🔥 TOP ${hotIdx + 1}</div>` : ''}
                         <div class="app-header">
                             <div class="app-icon">${template.icon}</div>
                             <div class="app-info">
-                                <h3>${template.displayName}</h3>
-                                <span class="app-category">${getCategoryName(template.category)}</span>
+                                <h3>${highlightText(template.displayName, searchQuery)}</h3>
+                                <span class="app-category">${highlightText(getCategoryName(template.category), searchQuery)}</span>
                             </div>
                         </div>
-                        <p class="app-desc">${template.description}</p>
+                        <p class="app-desc">${highlightText(template.description, searchQuery)}</p>
                         <div class="app-meta">
                             ${template.ports ? template.ports.map(p => `<span class="app-tag">端口: ${p.default}</span>`).join('') : ''}
                         </div>
