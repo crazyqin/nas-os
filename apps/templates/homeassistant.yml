@@ -1,72 +1,26 @@
-# Home Assistant - 智能家居自动化平台
-#
-# 用途：
-# - 智能设备集成（灯光、传感器、空调等）
-# - 自动化场景编排
-# - 能源监控
-# - 安全报警系统
-# - 语音助手集成
-#
-# 数据目录：
-# - /var/lib/nas-os/data/homeassistant/config - 配置文件
+# Home Assistant 智能家居平台
+# 开源智能家居自动化系统
+version: '3.8'
 
 services:
   homeassistant:
     image: homeassistant/home-assistant:stable
-    container_name: nas-homeassistant
+    container_name: homeassistant
     restart: unless-stopped
-    
-    # 网络模式（部分设备需要 host 网络才能发现）
-    network_mode: host
-    
-    # 或者使用桥接网络（需要手动配置设备 IP）
-    # ports:
-    #   - "8123:8123"   # Web UI
-    
+    ports:
+      - "8123:8123"  # Web界面
     volumes:
-      # 配置目录
-      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/homeassistant/config:/config
-      # 时区数据（可选）
+      - homeassistant-config:/config
       - /etc/localtime:/etc/localtime:ro
-    
     environment:
-      # 时区
-      TZ: ${TZ:-Asia/Shanghai}
-    
-    # 特权模式（部分 USB 设备需要）
-    # privileged: true
-    
-    # 可选：USB 设备访问（Z-Wave/Zigbee 等）
-    # devices:
-    #   - /dev/ttyUSB0:/dev/ttyUSB0
-    #   - /dev/ttyACM0:/dev/ttyACM0
-    
+      - TZ=Asia/Shanghai
+    privileged: true  # 需要访问硬件设备
+    network_mode: host  # 方便发现本地设备
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8123"]
       interval: 30s
       timeout: 10s
       retries: 3
-    
-    labels:
-      - "nas-os.app=homeassistant"
-      - "nas-os.category=automation"
-      - "nas-os.description=Open-source home automation platform"
 
-# 说明：
-# - 初次访问：http://localhost:8123 进行初始化设置
-# - 使用 host 网络模式可自动发现部分本地设备
-# - 支持集成：Google Home、Alexa、Apple HomeKit
-# - 可添加 Add-ons 扩展功能（Node-RED、Mosquitto MQTT 等）
-
-# 可选：Node-RED 流程编辑器
-# services:
-#   nodered:
-#     image: nodered/node-red:latest
-#     container_name: nas-nodered
-#     restart: unless-stopped
-#     ports:
-#       - "1880:1880"
-#     volumes:
-#       - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/nodered/data:/data
-#     environment:
-#       TZ: ${TZ:-Asia/Shanghai}
+volumes:
+  homeassistant-config:
