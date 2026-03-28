@@ -2,7 +2,7 @@
 # 验证代码在不同 Go 版本和平台上的兼容性
 #
 # 功能:
-# - 多 Go 版本测试 (1.24, 1.25)
+# - 多 Go 版本测试 (1.25)
 # - 多平台构建验证 (linux/amd64, linux/arm64)
 # - API 向后兼容性检查
 # - 依赖版本兼容性
@@ -43,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ['1.24', '1.25', '1.25']
+        go-version: ['1.25']
         os: [ubuntu-latest]
         include:
           # ARM 平台测试
