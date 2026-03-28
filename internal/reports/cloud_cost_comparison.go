@@ -208,9 +208,9 @@ func (r *CloudPricingRegistry) initDefaultPricing() {
 	r.SetPricing(CloudPricing{
 		Provider:            CloudProviderAliyun,
 		Tier:                TierStandard,
-		StoragePricePerGB:   0.12,  // 元/GB/月
-		RequestPricePer10K:  0.01,  // 元/万次
-		EgressPricePerGB:    0.50,  // 元/GB
+		StoragePricePerGB:   0.12, // 元/GB/月
+		RequestPricePer10K:  0.01, // 元/万次
+		EgressPricePerGB:    0.50, // 元/GB
 		MinimumStorageDays:  0,
 		RetrievalPricePerGB: 0,
 		Region:              "cn-hangzhou",
@@ -220,8 +220,8 @@ func (r *CloudPricingRegistry) initDefaultPricing() {
 	r.SetPricing(CloudPricing{
 		Provider:            CloudProviderAliyun,
 		Tier:                TierIA,
-		StoragePricePerGB:   0.08,   // 元/GB/月
-		RequestPricePer10K:  0.1,    // 元/万次（低频访问请求费用更高）
+		StoragePricePerGB:   0.08, // 元/GB/月
+		RequestPricePer10K:  0.1,  // 元/万次（低频访问请求费用更高）
 		EgressPricePerGB:    0.50,
 		MinimumStorageDays:  30,
 		RetrievalPricePerGB: 0.032, // 数据取回费用
@@ -232,11 +232,11 @@ func (r *CloudPricingRegistry) initDefaultPricing() {
 	r.SetPricing(CloudPricing{
 		Provider:            CloudProviderAliyun,
 		Tier:                TierArchive,
-		StoragePricePerGB:   0.033,  // 元/GB/月
+		StoragePricePerGB:   0.033, // 元/GB/月
 		RequestPricePer10K:  0.1,
 		EgressPricePerGB:    0.50,
 		MinimumStorageDays:  60,
-		RetrievalPricePerGB: 0.06,  // 数据取回费用
+		RetrievalPricePerGB: 0.06, // 数据取回费用
 		Region:              "cn-hangzhou",
 		UpdatedAt:           now,
 	})
@@ -390,17 +390,17 @@ func (c *CloudCostCalculator) EstimateCost(
 	notes := c.generateNotes(pricing, storageGB, monthlyRequests10K, monthlyEgressGB)
 
 	return &CloudCostEstimate{
-		Provider:         provider,
-		Tier:             tier,
-		StorageGB:        storageGB,
-		StorageCost:      round(storageCost, 2),
-		RequestCost:      round(requestCost, 2),
-		EgressCost:       round(egressCost, 2),
-		TotalCost:        round(totalCost, 2),
-		YearlyCost:       round(yearlyCost, 2),
-		CostPerGB:        round(costPerGB, 4),
-		SavingsPercent:   0, // 稍后计算
-		Notes:            notes,
+		Provider:       provider,
+		Tier:           tier,
+		StorageGB:      storageGB,
+		StorageCost:    round(storageCost, 2),
+		RequestCost:    round(requestCost, 2),
+		EgressCost:     round(egressCost, 2),
+		TotalCost:      round(totalCost, 2),
+		YearlyCost:     round(yearlyCost, 2),
+		CostPerGB:      round(costPerGB, 4),
+		SavingsPercent: 0, // 稍后计算
+		Notes:          notes,
 	}
 }
 

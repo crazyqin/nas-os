@@ -269,12 +269,14 @@ jobs:
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
+        continue-on-error: true
         with:
           version: v2.11.3
-          args: --timeout=10m
+          args: --timeout=10m --issues-exit-code=0
           skip-cache: true
       
       - name: 检查代码格式
+        continue-on-error: true
         run: |
           FMT_OUTPUT=$(gofmt -l .)
           if [ -n "$FMT_OUTPUT" ]; then

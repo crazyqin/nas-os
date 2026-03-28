@@ -359,17 +359,17 @@ func (g *UserResourceReportGenerator) Generate(period ReportPeriod) *UserResourc
 	charts := g.generateCharts()
 
 	return &UserResourceReport{
-		ID:           "user_resource_" + now.Format("20060102150405"),
-		Name:         "用户资源使用报表",
-		GeneratedAt:  now,
-		Period:       period,
-		Summary:      summary,
-		Users:        g.users,
-		Departments:  g.departments,
-		Rankings:     rankings,
-		Trend:        g.trendData,
-		Anomalies:    anomalies,
-		Charts:       charts,
+		ID:          "user_resource_" + now.Format("20060102150405"),
+		Name:        "用户资源使用报表",
+		GeneratedAt: now,
+		Period:      period,
+		Summary:     summary,
+		Users:       g.users,
+		Departments: g.departments,
+		Rankings:    rankings,
+		Trend:       g.trendData,
+		Anomalies:   anomalies,
+		Charts:      charts,
 	}
 }
 
@@ -564,9 +564,9 @@ func (g *UserResourceReportGenerator) generateCharts() []UserResourceChart {
 	deptData := make([]map[string]interface{}, 0)
 	for _, dept := range g.departments {
 		deptData = append(deptData, map[string]interface{}{
-			"name":   dept.Name,
-			"value":  dept.TotalUsed,
-			"users":  dept.UserCount,
+			"name":  dept.Name,
+			"value": dept.TotalUsed,
+			"users": dept.UserCount,
 		})
 	}
 	charts = append(charts, UserResourceChart{
