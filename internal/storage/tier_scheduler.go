@@ -464,9 +464,9 @@ func (s *TierScheduler) scheduleByTime(policies []*MigrationPolicy, manager *Hot
 	now := time.Now()
 
 	for _, policy := range policies {
-		if policy.Enabled && policy.Schedule != "" {
+		if policy.Enabled && policy.Schedule.Cron != "" {
 			// 检查是否在调度窗口内
-			if policy.NextRun.IsZero() || now.After(policy.NextRun) || now.Equal(policy.NextRun) {
+			if policy.NextRunTime.IsZero() || now.After(policy.NextRunTime) || now.Equal(policy.NextRunTime) {
 				var task *ScheduledTask
 				if policy.Type == PolicyTypePromote {
 					task = s.createPromoteTask(policy, manager)
@@ -494,7 +494,7 @@ func (s *TierScheduler) scheduleByTime(policies []*MigrationPolicy, manager *Hot
 // createPromoteTask 创建热数据提升任务
 func (s *TierScheduler) createPromoteTask(policy *MigrationPolicy, manager *HotColdManager) *ScheduledTask {
 	// 获取冷池中的热数据候选
-	hotCandidates := manager.GetHotCandidates(s.config.HotAccessThreshold)
+	hotCandidates := manager.GetHotCandidates(float64(s.config.HotAccessThreshold))
 	if len(hotCandidates) == 0 {
 		return nil
 	}
@@ -506,32 +506,37 @@ func (s *TierScheduler) createPromoteTask(policy *MigrationPolicy, manager *HotC
 	}
 
 	// 计算可用空间（扣除保留空间）
-	reservedSpace := ssdStats.Capacity * int64(s.config.SSDSpaceReservePercent) / 100
-	availableSpace := ssdStats.Capacity - ssdStats.Used - reservedSpace
+	reservedSpace := ssdStats.TotalBytes * int64(s.config.SSDSpaceReservePercent) / 100
+	availableSpace := ssdStats.TotalBytes - ssdStats.UsedBytes - reservedSpace
 
 	if availableSpace <= 0 {
 		s.logger.Warn("SSD热池空间不足，无法提升热数据")
 		return nil
 	}
 
-	// 筛选可迁移文件
+	// 筛选可迁移文件 - hotCandidates 是路径字符串列表
+	// TODO: 需要从 manager 获取文件详细信息
 	var files []MigrationFileInfo
 	var totalSize int64
 
-	for _, candidate := range hotCandidates {
-		if totalSize + candidate.Size > availableSpace {
+	for _, candidatePath := range hotCandidates {
+		// 获取文件信息
+		record := manager.GetAccessRecord(candidatePath)
+		if record == nil {
+			continue
+		}
+		if totalSize+record.Size > availableSpace {
 			break // 空间不足
 		}
 
 		files = append(files, MigrationFileInfo{
-			Path:        candidate.Path,
-			Size:        candidate.Size,
-			ModTime:     candidate.ModTime,
-			AccessTime:  candidate.AccessTime,
-			AccessCount: candidate.AccessCount,
+			Path:        candidatePath,
+			Size:        record.Size,
+			AccessTime:  record.LastAccess,
+			AccessCount: int64(record.AccessCount),
 			Status:      "pending",
 		})
-		totalSize += candidate.Size
+		totalSize += record.Size
 	}
 
 	if len(files) == 0 {
@@ -564,16 +569,19 @@ func (s *TierScheduler) createDemoteTask(policy *MigrationPolicy, manager *HotCo
 	var files []MigrationFileInfo
 	var totalSize int64
 
-	for _, candidate := range coldCandidates {
+	for _, candidatePath := range coldCandidates {
+		record := manager.GetAccessRecord(candidatePath)
+		if record == nil {
+			continue
+		}
 		files = append(files, MigrationFileInfo{
-			Path:        candidate.Path,
-			Size:        candidate.Size,
-			ModTime:     candidate.ModTime,
-			AccessTime:  candidate.AccessTime,
-			AccessCount: candidate.AccessCount,
+			Path:        candidatePath,
+			Size:        record.Size,
+			AccessTime:  record.LastAccess,
+			AccessCount: int64(record.AccessCount),
 			Status:      "pending",
 		})
-		totalSize += candidate.Size
+		totalSize += record.Size
 	}
 
 	if len(files) == 0 {
@@ -977,7 +985,7 @@ func (s *TierScheduler) SetTaskCompleteCallback(callback func(task *ScheduledTas
 func (s *TierScheduler) ForceSchedule(migrationType MigrationType) (*ScheduledTask, error) {
 	s.mu.RLock()
 	manager := s.hotColdManager
-	policyManager := s.policyManager
+	_ = s.policyManager // reserved for future use
 	s.mu.RUnlock()
 
 	if manager == nil {
