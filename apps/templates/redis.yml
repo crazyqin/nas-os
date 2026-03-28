@@ -1,0 +1,47 @@
+# Redis - 高性能内存数据库
+#
+# 用途：
+# - 缓存
+# - 会话存储
+# - 消息队列
+# - 实时数据处理
+#
+# 数据目录：/var/lib/nas-os/data/redis
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: nas-redis
+    restart: unless-stopped
+    
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    
+    ports:
+      - "6379:6379"
+    
+    volumes:
+      # 数据持久化（AOF 模式）
+      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/redis:/data
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    labels:
+      - "nas-os.app=redis"
+      - "nas-os.category=cache"
+      - "nas-os.description=High-performance in-memory database"
+
+# 可选：Redis Commander (Web UI)
+# redis-commander:
+#   image: rediscommander/redis-commander:latest
+#   container_name: nas-redis-ui
+#   restart: unless-stopped
+#   environment:
+#     REDIS_HOSTS: local:redis:6379
+#   ports:
+#     - "8081:8081"
+#   depends_on:
+#     - redis
