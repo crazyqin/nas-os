@@ -1,7 +1,7 @@
 # 安全扫描工作流
 # 定期运行安全扫描，发现问题但不阻塞CI
 #
-# Go 版本: 1.26（与 go.mod 保持一致）
+# Go 版本: 1.25（与 go.mod 保持一致）
 #
 # 功能特性:
 # - gosec 静态分析
@@ -25,7 +25,7 @@ env:
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # Go 版本
-  GO_VERSION: '1.26'
+  GO_VERSION: '1.25'
   # 缓存版本号
   CACHE_VERSION: 'v13'
   # GOPROXY 加速

@@ -2,7 +2,7 @@
 # 验证代码在不同 Go 版本和平台上的兼容性
 #
 # 功能:
-# - 多 Go 版本测试 (1.24, 1.25, 1.26)
+# - 多 Go 版本测试 (1.24, 1.25)
 # - 多平台构建验证 (linux/amd64, linux/arm64)
 # - API 向后兼容性检查
 # - 依赖版本兼容性
@@ -43,11 +43,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ['1.24', '1.25', '1.26']
+        go-version: ['1.24', '1.25', '1.25']
         os: [ubuntu-latest]
         include:
           # ARM 平台测试
-          - go-version: '1.26'
+          - go-version: '1.25'
             os: ubuntu-24.04-arm
     steps:
       - name: 检出代码
@@ -77,9 +77,9 @@ jobs:
           echo "go.mod 指定版本: $MOD_VERSION"
           echo "当前测试版本: ${{ matrix.go-version }}"
           
-          # 1.26 可以运行 1.26 及以下的模块
-          if [[ "${{ matrix.go-version }}" == "1.26" ]]; then
-            echo "✅ Go 1.26 兼容所有版本"
+          # 1.25 是当前 go.mod 版本，兼容所有模块
+          if [[ "${{ matrix.go-version }}" == "1.25" ]]; then
+            echo "✅ Go 1.25 兼容当前模块版本"
           fi
 
       - name: 下载依赖
@@ -129,7 +129,7 @@ jobs:
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.26'
+          go-version: '1.25'
           cache: true
 
       - name: 检查 API 路由变更
@@ -176,7 +176,7 @@ jobs:
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.26'
+          go-version: '1.25'
           cache: true
 
       - name: 检查依赖更新

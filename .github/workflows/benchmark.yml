@@ -1,7 +1,7 @@
 # NAS-OS 性能基准测试工作流
 # 定期运行 Go benchmark 测试，追踪性能变化
 #
-# Go 版本: 1.26（与 go.mod 保持一致）
+# Go 版本: 1.25（与 go.mod 保持一致）
 #
 # 当前版本: v2.253.283（工部维护）
 
@@ -25,7 +25,7 @@ on:
       - '.github/workflows/benchmark.yml'
 
 env:
-  GO_VERSION: '1.26'
+  GO_VERSION: '1.25'
   CACHE_VERSION: 'v13'
   GOPROXY: 'https://proxy.golang.org,direct'
 
