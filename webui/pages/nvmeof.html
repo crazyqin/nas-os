@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVMe-oF 管理</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; background: #f7f8fa; color: #222; }
+        .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+        h1, h2 { margin-top: 0; }
+        button { margin-right: 8px; padding: 8px 14px; cursor: pointer; }
+        code { background: #f1f3f5; padding: 2px 6px; border-radius: 6px; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 12px; border-radius: 8px; overflow: auto; }
+        .muted { color: #666; }
+    </style>
+</head>
+<body>
+    <h1>NVMe over Fabrics</h1>
+    <p class="muted">当前为基础管理页，支持 Target / Initiator 配置与连接状态查看。</p>
+
+    <div class="card">
+        <h2>服务状态</h2>
+        <button onclick="serviceAction('start')">启动</button>
+        <button onclick="serviceAction('stop')">停止</button>
+        <button onclick="loadStatus()">刷新</button>
+        <pre id="status">loading...</pre>
+    </div>
+
+    <div class="card">
+        <h2>Targets</h2>
+        <p>接口：<code>GET /api/v1/nvmeof/targets</code></p>
+        <pre id="targets">loading...</pre>
+    </div>
+
+    <div class="card">
+        <h2>Initiators</h2>
+        <p>接口：<code>GET /api/v1/nvmeof/initiators</code></p>
+        <pre id="initiators">loading...</pre>
+    </div>
+
+    <script>
+        async function fetchJSON(url, options = {}) {
+            const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
+            return await res.json();
+        }
+        async function loadStatus() {
+            document.getElementById('status').textContent = JSON.stringify(await fetchJSON('/api/v1/nvmeof/status'), null, 2);
+            document.getElementById('targets').textContent = JSON.stringify(await fetchJSON('/api/v1/nvmeof/targets'), null, 2);
+            document.getElementById('initiators').textContent = JSON.stringify(await fetchJSON('/api/v1/nvmeof/initiators'), null, 2);
+        }
+        async function serviceAction(action) {
+            await fetchJSON('/api/v1/nvmeof/' + action, { method: 'POST' });
+            await loadStatus();
+        }
+        loadStatus();
+    </script>
+</body>
+</html>
