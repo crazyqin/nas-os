@@ -303,7 +303,7 @@ jobs:
           #   ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
           #   ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
 
-# 获取 digest（兼容不同 buildx 输出格式）
+          # 获取 digest（兼容不同 buildx 输出格式）
           DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} --raw | sha256sum | awk '{print "sha256:" $1}')
           if [ -z "$DIGEST" ]; then
             echo "❌ 无法解析 manifest digest"
