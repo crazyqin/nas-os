@@ -7,6 +7,82 @@
 
 ---
 
+## [v2.300.0] - 2026-03-29
+
+### 🎯 六部协同开发第76轮 - AI服务正式版
+
+### 🎉 里程碑: AI服务正式版发布
+
+本轮完成AI服务核心功能实现，对标群晖DSM 7.3/飞牛fnOS/TrueNAS 25.10。
+
+### 新增
+
+#### 兵部（软件工程）
+- 📸 **条件相册核心** - 人物/时间/地点/镜头自动归类
+  - `internal/photos/conditional_album.go` - 相册规则引擎
+  - `internal/photos/album_rule.go` - 规则定义与匹配
+  - 参考群晖Synology Photos智能相册
+- 🧑 **人脸识别服务** - 本地AI人脸检测与聚类
+  - `internal/ai/face/detector.go` - GPU加速人脸检测
+  - `internal/ai/face/cluster.go` - 人脸聚类与人物管理
+  - Intel/AMD/NVIDIA多GPU支持
+  - 参考飞牛fnOS Intel核显加速
+- 🤖 **Ollama集成框架** - 本地LLM一键部署
+  - `internal/ai/ollama/client.go` - Ollama API客户端
+  - Chat/Embedding/模型管理接口
+
+#### 工部（DevOps）
+- 🎮 **GPU调度器** - AI任务资源调度
+  - `internal/ai/gpu/scheduler.go` - 多任务GPU调度
+  - NVIDIA/Intel/AMD/CPU自适应
+- 📦 **Ollama部署模板**
+  - `deploy/ollama/docker-compose.yml` - Docker部署
+  - `scripts/install-ollama.sh` - 一键安装脚本
+  - GPU自动检测与配置
+
+#### 礼部（品牌营销）
+- 🎨 **模型管理UI**
+  - `webui/pages/ai-models.html` - 模型下载/管理界面
+  - GPU状态可视化、任务队列显示
+- 🖼️ **条件相册UI**
+  - `webui/pages/conditional-album.html` - 规则创建界面
+  - 人物选择、时间范围、地点过滤
+
+#### 刑部（法务合规）
+- 📝 **AI审计日志**
+  - `internal/audit/ai_audit.go` - AI服务调用审计
+  - 人脸识别隐私审计、合规检查
+
+#### 户部（财务预算）
+- 💰 **Token计费接口**
+  - `internal/billing/token_counter.go` - API调用计费
+  - 用户配额、成本分摊、按模型计费
+
+### 竞品对标成果
+
+| 功能 | nas-os v2.300.0 | 群晖 DSM 7.3 | 飞牛 fnOS | TrueNAS 25.10 |
+|------|:--------------:|:------------:|:---------:|:-------------:|
+| OpenAI兼容API | ✅ | ✅ | ❌ | ❌ |
+| 本地LLM一键部署 | ✅ Ollama | ✅ | ❌ | ❌ |
+| AI数据脱敏 | ✅ | ✅ | ❌ | ❌ |
+| 条件相册 | ✅ | ✅ Synology Photos | ✅ | ❌ |
+| 人脸识别 | ✅ 多GPU | ✅ | ✅ Intel核显 | ❌ |
+| GPU智能调度 | ✅ | ✅ | ✅ | ✅ |
+| Token计费 | ✅ 企业级 | ❌ | ❌ | ❌ |
+
+### 六部协同
+
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号v2.300.0、任务分配、整合提交 |
+| 兵部 | ✅ | 条件相册、人脸识别、Ollama集成 |
+| 礼部 | ✅ | 模型管理UI、条件相册UI |
+| 工部 | ✅ | GPU调度器、部署脚本、CI验证 |
+| 刑部 | ✅ | AI审计日志、隐私合规 |
+| 户部 | ✅ | Token计费接口 |
+
+---
+
 ## [v2.297.0] - 2026-03-28
 
 ### 🎯 六部协同开发第74轮 - 应用中心UI优化
