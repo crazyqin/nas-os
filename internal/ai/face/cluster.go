@@ -1,7 +1,7 @@
 package face
 
 import (
-	"context"
+	"errors"
 	"sync"
 )
 
@@ -279,5 +279,3 @@ var (
 	ErrQueueFull     = errors.New("face queue is full")
 	ErrPersonNotFound = errors.New("person not found")
 )
-
-import "errors"

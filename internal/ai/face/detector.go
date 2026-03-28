@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image"
 	"os"
-	"path/filepath"
 	"sync"
 )
 
@@ -63,6 +62,32 @@ type FaceCluster struct {
 	faces      map[string]*Face
 	threshold  float64
 	mu         sync.RWMutex
+}
+
+// ServiceFaceCluster 人脸聚类结果（用于 Service 层）
+type ServiceFaceCluster struct {
+	ID        string   `json:"id"`        // 聚类ID
+	Label     string   `json:"label"`     // 人物名称（用户标注）
+	FaceIDs   []string `json:"faceIds"`   // 该聚类包含的人脸ID
+	CoverFace string   `json:"coverFace"` // 代表人脸ID（封面）
+	CreatedAt int64    `json:"createdAt"`
+	UpdatedAt int64    `json:"updatedAt"`
+}
+
+// ServiceFace 检测到的人脸信息（用于 Service 层）
+type ServiceFace struct {
+	ID         string      `json:"id"`
+	Region     FaceRegion  `json:"region"`
+	Embedding  []float32   `json:"embedding"`
+	Confidence float32     `json:"confidence"`
+}
+
+// FaceRegion 人脸区域坐标
+type FaceRegion struct {
+	X      int `json:"x"`
+	Y      int `json:"y"`
+	Width  int `json:"width"`
+	Height int `json:"height"`
 }
 
 // Config for face detector
