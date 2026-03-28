@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.294.0 Stable (2026-03-28)
+> **最新版本**: v2.297.0 Stable (2026-03-28)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.294.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.297.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -65,8 +65,10 @@
 | 📈 SSD健康监控 | 寿命预测/三级预警/健康评分 | ✅ 新增 |
 | 🤖 AI相册 | CLIP以文搜图/智能照片搜索 | ✅ 完成 |
 | 🧑 **人脸识别** | **本地AI人脸检测/聚类/人物相册** | ✅ **重磅发布** |
-| 🌐 内网穿透 | 远程访问/零配置 | 🚧 开发中 |
-| 🤖 **AI服务独立镜像** | GPU加速推理/CLIP模型/本地LLM | ✅ 新增 |
+| 🌐 内网穿透 | 远程访问/零配置 | ✅ 新增 |
+| 🔐 **数据遮罩** | **AI训练数据脱敏/隐私保护** | ✅ **新增** |
+| 💰 **成本分析** | **存储成本统计/趋势预测** | ✅ **新增** |
+| 🤖 AI服务独立镜像 | GPU加速推理/CLIP模型/本地LLM | ✅ 新增 |
 
 ## 快速开始
 
@@ -239,7 +241,7 @@ sudo nasd
 | **多云存储挂载** | ✅ | ✅ | ✅ | ❌ |
 | **AI数据脱敏** | ✅ | ❌ | ✅ | ❌ |
 | **AI相册-以文搜图** | ✅ | ✅ | ✅ | ❌ |
-| **内网穿透(免费)** | 🚧 | ✅ FN Connect | ❌ | ❌ |
+| **内网穿透(免费)** | ✅ | ✅ FN Connect | ❌ | ❌ |
 | **智能影视** | ✅ | ✅ 海报墙+刮削 | ✅ | ❌ |
 | **Docker Compose网页管理** | ✅ | ✅ | ✅ | ✅ K8s |
 | AI人脸识别 | ✅ **重磅发布** | ✅ | ✅ | ❌ |
