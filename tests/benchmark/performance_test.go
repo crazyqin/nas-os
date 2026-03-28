@@ -19,17 +19,17 @@ import (
 
 // ========== 版本信息基准测试 ==========
 
-func BenchmarkVersionInfo(b *testing.B) {
+func BenchmarkVersionGetVersion(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = version.Info()
+		_ = version.GetVersion()
 	}
 }
 
-func BenchmarkVersionString(b *testing.B) {
+func BenchmarkVersionGetBuildInfo(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = version.String()
+		_ = version.GetBuildInfo()
 	}
 }
 
