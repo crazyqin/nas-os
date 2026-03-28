@@ -174,7 +174,7 @@ func (pm *PowerManager) checkTransitions() {
 	
 	now := time.Now()
 	
-	for device, status := range pm.statuses {
+	for _, status := range pm.statuses {
 		idleDuration := now.Sub(status.LastActive)
 		
 		// Active -> Idle (immediate)
@@ -222,7 +222,7 @@ func (pm *PowerManager) CalculatePowerCost(device string, activeWatts int, sleep
 	}
 	
 	// Calculate time in each state (simplified)
-	sleepHours := float64(now.Sub(status.LastActive).Hours())
+	sleepHours := float64(time.Since(status.LastActive).Hours())
 	if sleepHours < 0 {
 		sleepHours = 0
 	}
