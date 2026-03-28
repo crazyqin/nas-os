@@ -32,10 +32,10 @@ const (
 
 // 错误定义.
 var (
-	ErrNotPrimary        = errors.New("current node is not primary")
-	ErrNoHealthyStandby  = errors.New("no healthy standby available")
+	ErrNotPrimary         = errors.New("current node is not primary")
+	ErrNoHealthyStandby   = errors.New("no healthy standby available")
 	ErrFailoverInProgress = errors.New("failover already in progress")
-	ErrConfigNotFound    = errors.New("HA configuration not found")
+	ErrConfigNotFound     = errors.New("HA configuration not found")
 )
 
 // HAConfig 高可用配置.
@@ -67,10 +67,10 @@ type HAConfig struct {
 	HealthCheckRetries  int           `json:"health_check_retries" yaml:"health_check_retries"`
 
 	// 数据同步配置
-	SyncEnabled    bool          `json:"sync_enabled" yaml:"sync_enabled"`
-	SyncInterval   time.Duration `json:"sync_interval" yaml:"sync_interval"`
-	SyncTimeout    time.Duration `json:"sync_timeout" yaml:"sync_timeout"`
-	SyncBatchSize  int           `json:"sync_batch_size" yaml:"sync_batch_size"`
+	SyncEnabled   bool          `json:"sync_enabled" yaml:"sync_enabled"`
+	SyncInterval  time.Duration `json:"sync_interval" yaml:"sync_interval"`
+	SyncTimeout   time.Duration `json:"sync_timeout" yaml:"sync_timeout"`
+	SyncBatchSize int           `json:"sync_batch_size" yaml:"sync_batch_size"`
 
 	// 网络配置
 	BindAddress string   `json:"bind_address" yaml:"bind_address"`
@@ -87,60 +87,60 @@ type HAConfig struct {
 
 // NodeState 节点状态.
 type NodeState struct {
-	NodeID        string    `json:"node_id"`
-	Role          string    `json:"role"`
-	Status        string    `json:"status"`
-	Priority      int       `json:"priority"`
-	LastHeartbeat time.Time `json:"last_heartbeat"`
-	LastSync      time.Time `json:"last_sync"`
-	IsHealthy     bool      `json:"is_healthy"`
-	Address       string    `json:"address"`
+	NodeID        string            `json:"node_id"`
+	Role          string            `json:"role"`
+	Status        string            `json:"status"`
+	Priority      int               `json:"priority"`
+	LastHeartbeat time.Time         `json:"last_heartbeat"`
+	LastSync      time.Time         `json:"last_sync"`
+	IsHealthy     bool              `json:"is_healthy"`
+	Address       string            `json:"address"`
 	Metadata      map[string]string `json:"metadata,omitempty"`
 }
 
 // FailoverRecord 故障转移记录.
 type FailoverRecord struct {
-	ID           string    `json:"id"`
-	Timestamp    time.Time `json:"timestamp"`
-	FromNode     string    `json:"from_node"`
-	ToNode       string    `json:"to_node"`
-	Reason       string    `json:"reason"`
-	Success      bool      `json:"success"`
+	ID           string        `json:"id"`
+	Timestamp    time.Time     `json:"timestamp"`
+	FromNode     string        `json:"from_node"`
+	ToNode       string        `json:"to_node"`
+	Reason       string        `json:"reason"`
+	Success      bool          `json:"success"`
 	Duration     time.Duration `json:"duration"`
-	ErrorMessage string    `json:"error_message,omitempty"`
+	ErrorMessage string        `json:"error_message,omitempty"`
 }
 
 // HAStatus 高可用状态.
 type HAStatus struct {
-	CurrentRole       string              `json:"current_role"`
-	PrimaryNode       string              `json:"primary_node"`
-	HealthyNodes      int                 `json:"healthy_nodes"`
-	TotalNodes        int                 `json:"total_nodes"`
-	LastFailover      time.Time           `json:"last_failover"`
-	FailoverCount     int                 `json:"failover_count"`
-	IsFailoverActive  bool                `json:"is_failover_active"`
-	NodeStates        map[string]NodeState `json:"node_states"`
-	Uptime            time.Duration       `json:"uptime"`
-	LastHealthCheck   time.Time           `json:"last_health_check"`
+	CurrentRole      string               `json:"current_role"`
+	PrimaryNode      string               `json:"primary_node"`
+	HealthyNodes     int                  `json:"healthy_nodes"`
+	TotalNodes       int                  `json:"total_nodes"`
+	LastFailover     time.Time            `json:"last_failover"`
+	FailoverCount    int                  `json:"failover_count"`
+	IsFailoverActive bool                 `json:"is_failover_active"`
+	NodeStates       map[string]NodeState `json:"node_states"`
+	Uptime           time.Duration        `json:"uptime"`
+	LastHealthCheck  time.Time            `json:"last_health_check"`
 }
 
 // HAConfigManager 高可用配置管理器.
 type HAConfigManager struct {
-	config      *HAConfig
-	status      *HAStatus
-	nodeStates  map[string]*NodeState
-	failovers   []FailoverRecord
+	config     *HAConfig
+	status     *HAStatus
+	nodeStates map[string]*NodeState
+	failovers  []FailoverRecord
 
-	mu          sync.RWMutex
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
-	logger      *zap.Logger
+	mu     sync.RWMutex
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
+	logger *zap.Logger
 
 	// 回调函数
-	onRoleChange      func(oldRole, newRole string)
-	onFailover        func(record FailoverRecord)
-	onHealthChange    func(nodeID string, healthy bool)
+	onRoleChange   func(oldRole, newRole string)
+	onFailover     func(record FailoverRecord)
+	onHealthChange func(nodeID string, healthy bool)
 }
 
 // NewHAConfigManager 创建高可用配置管理器.
@@ -186,24 +186,24 @@ func NewHAConfigManager(config *HAConfig, logger *zap.Logger) (*HAConfigManager,
 func (m *HAConfigManager) initNodeStates() {
 	// 本节点
 	m.nodeStates[m.config.NodeID] = &NodeState{
-		NodeID:   m.config.NodeID,
-		Role:     m.config.NodeRole,
-		Status:   HealthStatusUnknown,
-		Priority: m.config.Priority,
+		NodeID:    m.config.NodeID,
+		Role:      m.config.NodeRole,
+		Status:    HealthStatusUnknown,
+		Priority:  m.config.Priority,
 		IsHealthy: true,
-		Address:  m.config.BindAddress,
-		Metadata: make(map[string]string),
+		Address:   m.config.BindAddress,
+		Metadata:  make(map[string]string),
 	}
 
 	// 对等节点
 	for _, peerID := range m.config.PeerNodes {
 		m.nodeStates[peerID] = &NodeState{
-			NodeID:   peerID,
-			Role:     RoleStandby,
-			Status:   HealthStatusUnknown,
-			Priority: 50,
+			NodeID:    peerID,
+			Role:      RoleStandby,
+			Status:    HealthStatusUnknown,
+			Priority:  50,
 			IsHealthy: false,
-			Metadata: make(map[string]string),
+			Metadata:  make(map[string]string),
 		}
 	}
 
@@ -450,7 +450,12 @@ func (m *HAConfigManager) detectFailures() {
 						zap.String("primary", primaryNode),
 					)
 					if m.config.FailoverEnabled {
-						m.triggerFailover(primaryNode)
+						if err := m.triggerFailover(primaryNode); err != nil {
+							m.logger.Error("触发故障转移失败",
+								zap.String("primary", primaryNode),
+								zap.Error(err),
+							)
+						}
 					}
 				}
 			}

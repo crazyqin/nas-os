@@ -151,7 +151,7 @@ func (r *LogRegistry) getLogFiles() []string {
 	var files []string
 
 	for _, dir := range r.logDirs {
-		filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		_ = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil
 			}
@@ -183,7 +183,7 @@ func (r *LogRegistry) searchLogFile(path, query string, req LogSearchRequest) []
 	if err != nil {
 		return results
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 检查是否是gzip文件
 	if strings.HasSuffix(path, ".gz") {
@@ -191,7 +191,7 @@ func (r *LogRegistry) searchLogFile(path, query string, req LogSearchRequest) []
 		if err != nil {
 			return results
 		}
-		defer reader.Close()
+		defer func() { _ = reader.Close() }()
 	} else {
 		reader = file
 	}
@@ -464,7 +464,7 @@ func (r *LogRegistry) TailLog(path string, lines int) ([]LogEntry, error) {
 	if err != nil {
 		return nil, fmt.Errorf("打开日志文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var entries []LogEntry
 	scanner := bufio.NewScanner(file)

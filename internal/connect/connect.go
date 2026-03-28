@@ -37,11 +37,11 @@ const (
 
 // Errors 错误定义.
 var (
-	ErrNotConnected      = errors.New("not connected to NAS Connect service")
-	ErrAlreadyConnected  = errors.New("already connected")
-	ErrInvalidConfig     = errors.New("invalid configuration")
+	ErrNotConnected       = errors.New("not connected to NAS Connect service")
+	ErrAlreadyConnected   = errors.New("already connected")
+	ErrInvalidConfig      = errors.New("invalid configuration")
 	ErrServiceUnreachable = errors.New("NAS Connect service unreachable")
-	ErrAuthFailed        = errors.New("authentication failed")
+	ErrAuthFailed         = errors.New("authentication failed")
 )
 
 // Config NAS Connect 配置.
@@ -76,9 +76,9 @@ type Config struct {
 	HeartbeatInterval time.Duration `json:"heartbeat_interval" yaml:"heartbeat_interval"`
 
 	// 重连配置
-	ReconnectEnabled bool          `json:"reconnect_enabled" yaml:"reconnect_enabled"`
-	ReconnectDelay   time.Duration `json:"reconnect_delay" yaml:"reconnect_delay"`
-	MaxReconnectTries int          `json:"max_reconnect_tries" yaml:"max_reconnect_tries"`
+	ReconnectEnabled  bool          `json:"reconnect_enabled" yaml:"reconnect_enabled"`
+	ReconnectDelay    time.Duration `json:"reconnect_delay" yaml:"reconnect_delay"`
+	MaxReconnectTries int           `json:"max_reconnect_tries" yaml:"max_reconnect_tries"`
 
 	// STUN/TURN 服务器
 	STUNServers []string `json:"stun_servers" yaml:"stun_servers"`
@@ -114,19 +114,19 @@ type ConnectionStats struct {
 
 // ConnectService NAS Connect 服务.
 type ConnectService struct {
-	config     *Config
-	status     string
-	deviceID   string
-	publicURL  string
-	localURL   string
-	conn       net.Conn
-	httpClient *http.Client
-	stats      *ConnectionStats
+	config      *Config
+	status      string
+	deviceID    string
+	publicURL   string
+	localURL    string
+	conn        net.Conn
+	httpClient  *http.Client
+	stats       *ConnectionStats
 	connectedAt time.Time
 
 	// 回调
-	onConnect    func()
-	onDisconnect func(error)
+	onConnect      func()
+	onDisconnect   func(error)
 	onStatusChange func(string)
 
 	mu     sync.RWMutex
@@ -358,7 +358,11 @@ func (s *ConnectService) querySTUN(server string) (*PublicAddr, error) {
 
 // discoverPublicAddressHTTP 通过 HTTP 获取公网地址.
 func (s *ConnectService) discoverPublicAddressHTTP() (*PublicAddr, error) {
-	resp, err := s.httpClient.Get("https://api.ipify.org?format=json")
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "https://api.ipify.org?format=json", nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

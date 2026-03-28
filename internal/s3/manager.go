@@ -23,23 +23,22 @@ import (
 	"github.com/google/uuid"
 )
 
-// 安全验证正则表达式
+// 安全验证正则表达式.
 var (
 	bucketNameRegex = regexp.MustCompile(`^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$`)
-	safeKeyRegex    = regexp.MustCompile(`^[a-zA-Z0-9!_.*'()-/]+$`)
 )
 
 // Manager manages S3-compatible object storage.
 type Manager struct {
-	mu          sync.RWMutex
-	buckets     map[string]*Bucket
-	objects     map[string]map[string]*Object // bucket -> key -> object
-	uploads     map[string]*MultipartUpload   // uploadID -> upload
-	config      *Config
-	configPath  string
-	dataDir     string
-	accessKey   string
-	secretKey   string
+	mu         sync.RWMutex
+	buckets    map[string]*Bucket
+	objects    map[string]map[string]*Object // bucket -> key -> object
+	uploads    map[string]*MultipartUpload   // uploadID -> upload
+	config     *Config
+	configPath string
+	dataDir    string
+	accessKey  string
+	secretKey  string
 }
 
 // persistentConfig is the on-disk configuration structure.
@@ -371,7 +370,7 @@ func (m *Manager) PutObject(ctx context.Context, bucketName, key string, reader 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create object file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// Calculate ETag while writing
 	hash := md5.New()
@@ -480,11 +479,11 @@ func (m *Manager) ListObjects(ctx context.Context, bucketName, prefix, delimiter
 	}
 
 	result := &ObjectList{
-		Bucket:     bucketName,
-		Prefix:     prefix,
-		Delimiter:  delimiter,
-		MaxKeys:    maxKeys,
-		Objects:    make([]*ObjectInfo, 0),
+		Bucket:    bucketName,
+		Prefix:    prefix,
+		Delimiter: delimiter,
+		MaxKeys:   maxKeys,
+		Objects:   make([]*ObjectInfo, 0),
 	}
 
 	objects := m.objects[bucketName]
@@ -607,7 +606,7 @@ func (m *Manager) CopyObject(ctx context.Context, srcBucket, srcKey, dstBucket, 
 	if err != nil {
 		return nil, fmt.Errorf("failed to open source object: %w", err)
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	// Create destination
 	dstPath := filepath.Join(m.dataDir, dstBucket, dstKey)
@@ -620,7 +619,7 @@ func (m *Manager) CopyObject(ctx context.Context, srcBucket, srcKey, dstBucket, 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create destination file: %w", err)
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	// Copy content
 	if _, err := io.Copy(dstFile, srcFile); err != nil {
@@ -766,7 +765,7 @@ func (m *Manager) UploadPart(ctx context.Context, uploadID string, partNumber in
 	if err != nil {
 		return nil, fmt.Errorf("failed to create part file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// Write and calculate ETag
 	hash := md5.New()
@@ -828,7 +827,7 @@ func (m *Manager) CompleteMultipartUpload(ctx context.Context, uploadID string, 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create object file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// Concatenate parts
 	hash := md5.New()
@@ -843,7 +842,7 @@ func (m *Manager) CompleteMultipartUpload(ctx context.Context, uploadID string, 
 
 		multiWriter := io.MultiWriter(file, hash)
 		written, err := io.Copy(multiWriter, partFile)
-		partFile.Close()
+		_ = partFile.Close()
 		if err != nil {
 			return nil, fmt.Errorf("failed to copy part %d: %w", cp.PartNumber, err)
 		}

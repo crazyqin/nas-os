@@ -36,12 +36,12 @@ func (h *APIHandler) RegisterRoutes(r *gin.RouterGroup) {
 
 // StatusResponse 状态响应.
 type StatusResponse struct {
-	Status     string `json:"status"`
-	Connected  bool   `json:"connected"`
-	PublicURL  string `json:"public_url,omitempty"`
-	LocalURL   string `json:"local_url,omitempty"`
-	DeviceID   string `json:"device_id,omitempty"`
-	Mode       string `json:"mode,omitempty"`
+	Status    string `json:"status"`
+	Connected bool   `json:"connected"`
+	PublicURL string `json:"public_url,omitempty"`
+	LocalURL  string `json:"local_url,omitempty"`
+	DeviceID  string `json:"device_id,omitempty"`
+	Mode      string `json:"mode,omitempty"`
 }
 
 // GetStatus 获取状态.
@@ -50,7 +50,7 @@ type StatusResponse struct {
 // @Tags connect
 // @Produce json
 // @Success 200 {object} StatusResponse
-// @Router /api/v1/connect/status [get]
+// @Router /api/v1/connect/status [get].
 func (h *APIHandler) GetStatus(c *gin.Context) {
 	status := h.service.GetStatus()
 	info := h.service.GetInfo()
@@ -67,15 +67,15 @@ func (h *APIHandler) GetStatus(c *gin.Context) {
 
 // InfoResponse 信息响应.
 type InfoResponse struct {
-	DeviceID    string           `json:"device_id"`
-	DeviceName  string           `json:"device_name"`
-	PublicURL   string           `json:"public_url"`
-	LocalURL    string           `json:"local_url"`
-	Status      string           `json:"status"`
-	Mode        string           `json:"mode"`
-	ConnectedAt string           `json:"connected_at"`
-	Uptime      string           `json:"uptime"`
-	Stats       ConnectionStats  `json:"stats"`
+	DeviceID    string          `json:"device_id"`
+	DeviceName  string          `json:"device_name"`
+	PublicURL   string          `json:"public_url"`
+	LocalURL    string          `json:"local_url"`
+	Status      string          `json:"status"`
+	Mode        string          `json:"mode"`
+	ConnectedAt string          `json:"connected_at"`
+	Uptime      string          `json:"uptime"`
+	Stats       ConnectionStats `json:"stats"`
 }
 
 // GetInfo 获取详细信息.
@@ -84,7 +84,7 @@ type InfoResponse struct {
 // @Tags connect
 // @Produce json
 // @Success 200 {object} InfoResponse
-// @Router /api/v1/connect/info [get]
+// @Router /api/v1/connect/info [get].
 func (h *APIHandler) GetInfo(c *gin.Context) {
 	info := h.service.GetInfo()
 	stats := h.service.GetStats()
@@ -122,7 +122,7 @@ type StatsResponse struct {
 // @Tags connect
 // @Produce json
 // @Success 200 {object} StatsResponse
-// @Router /api/v1/connect/stats [get]
+// @Router /api/v1/connect/stats [get].
 func (h *APIHandler) GetStats(c *gin.Context) {
 	stats := h.service.GetStats()
 
@@ -142,10 +142,10 @@ type ConnectRequest struct {
 
 // ConnectResponse 连接响应.
 type ConnectResponse struct {
-	Success  bool   `json:"success"`
-	Message  string `json:"message"`
+	Success   bool   `json:"success"`
+	Message   string `json:"message"`
 	PublicURL string `json:"public_url,omitempty"`
-	DeviceID string `json:"device_id,omitempty"`
+	DeviceID  string `json:"device_id,omitempty"`
 }
 
 // Connect 发起连接.
@@ -156,7 +156,7 @@ type ConnectResponse struct {
 // @Produce json
 // @Param request body ConnectRequest false "连接参数"
 // @Success 200 {object} ConnectResponse
-// @Router /api/v1/connect/connect [post]
+// @Router /api/v1/connect/connect [post].
 func (h *APIHandler) Connect(c *gin.Context) {
 	var req ConnectRequest
 	if err := c.ShouldBindJSON(&req); err == nil && req.Mode != "" {
@@ -167,10 +167,10 @@ func (h *APIHandler) Connect(c *gin.Context) {
 
 	if h.service.GetStatus() == StatusConnected {
 		c.JSON(http.StatusOK, ConnectResponse{
-			Success:  true,
-			Message:  "Already connected",
+			Success:   true,
+			Message:   "Already connected",
 			PublicURL: h.service.publicURL,
-			DeviceID: h.service.deviceID,
+			DeviceID:  h.service.deviceID,
 		})
 		return
 	}
@@ -197,7 +197,7 @@ func (h *APIHandler) Connect(c *gin.Context) {
 // @Tags connect
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/connect/disconnect [post]
+// @Router /api/v1/connect/disconnect [post].
 func (h *APIHandler) Disconnect(c *gin.Context) {
 	h.service.mu.Lock()
 	if h.service.conn != nil {
@@ -215,17 +215,17 @@ func (h *APIHandler) Disconnect(c *gin.Context) {
 
 // ConfigResponse 配置响应.
 type ConfigResponse struct {
-	Enabled          bool     `json:"enabled"`
-	ServerURL        string   `json:"server_url"`
-	DeviceID         string   `json:"device_id"`
-	DeviceName       string   `json:"device_name"`
-	Mode             string   `json:"mode"`
-	TLSEnabled       bool     `json:"tls_enabled"`
-	LocalPort        int      `json:"local_port"`
-	HeartbeatInterval string  `json:"heartbeat_interval"`
-	ReconnectEnabled bool     `json:"reconnect_enabled"`
-	MaxBandwidth     int      `json:"max_bandwidth"`
-	AllowedNetworks  []string `json:"allowed_networks"`
+	Enabled           bool     `json:"enabled"`
+	ServerURL         string   `json:"server_url"`
+	DeviceID          string   `json:"device_id"`
+	DeviceName        string   `json:"device_name"`
+	Mode              string   `json:"mode"`
+	TLSEnabled        bool     `json:"tls_enabled"`
+	LocalPort         int      `json:"local_port"`
+	HeartbeatInterval string   `json:"heartbeat_interval"`
+	ReconnectEnabled  bool     `json:"reconnect_enabled"`
+	MaxBandwidth      int      `json:"max_bandwidth"`
+	AllowedNetworks   []string `json:"allowed_networks"`
 }
 
 // GetConfig 获取配置.
@@ -234,7 +234,7 @@ type ConfigResponse struct {
 // @Tags connect
 // @Produce json
 // @Success 200 {object} ConfigResponse
-// @Router /api/v1/connect/config [get]
+// @Router /api/v1/connect/config [get].
 func (h *APIHandler) GetConfig(c *gin.Context) {
 	h.service.mu.RLock()
 	defer h.service.mu.RUnlock()
@@ -256,14 +256,14 @@ func (h *APIHandler) GetConfig(c *gin.Context) {
 
 // UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
-	Enabled         *bool    `json:"enabled,omitempty"`
-	ServerURL       *string  `json:"server_url,omitempty"`
-	DeviceName      *string  `json:"device_name,omitempty"`
-	Mode            *string  `json:"mode,omitempty"`
-	TLSEnabled      *bool    `json:"tls_enabled,omitempty"`
-	ReconnectEnabled *bool   `json:"reconnect_enabled,omitempty"`
-	MaxBandwidth    *int     `json:"max_bandwidth,omitempty"`
-	AllowedNetworks []string `json:"allowed_networks,omitempty"`
+	Enabled          *bool    `json:"enabled,omitempty"`
+	ServerURL        *string  `json:"server_url,omitempty"`
+	DeviceName       *string  `json:"device_name,omitempty"`
+	Mode             *string  `json:"mode,omitempty"`
+	TLSEnabled       *bool    `json:"tls_enabled,omitempty"`
+	ReconnectEnabled *bool    `json:"reconnect_enabled,omitempty"`
+	MaxBandwidth     *int     `json:"max_bandwidth,omitempty"`
+	AllowedNetworks  []string `json:"allowed_networks,omitempty"`
 }
 
 // UpdateConfig 更新配置.
@@ -274,7 +274,7 @@ type UpdateConfigRequest struct {
 // @Produce json
 // @Param request body UpdateConfigRequest true "配置参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/connect/config [put]
+// @Router /api/v1/connect/config [put].
 func (h *APIHandler) UpdateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -318,11 +318,11 @@ func (h *APIHandler) UpdateConfig(c *gin.Context) {
 
 // TestResponse 测试响应.
 type TestResponse struct {
-	Success     bool   `json:"success"`
-	Message     string `json:"message"`
-	Latency     int    `json:"latency_ms"`
-	ServerReachable bool `json:"server_reachable"`
-	STUNWorking     bool `json:"stun_working"`
+	Success         bool   `json:"success"`
+	Message         string `json:"message"`
+	Latency         int    `json:"latency_ms"`
+	ServerReachable bool   `json:"server_reachable"`
+	STUNWorking     bool   `json:"stun_working"`
 }
 
 // TestConnection 测试连接.
@@ -331,7 +331,7 @@ type TestResponse struct {
 // @Tags connect
 // @Produce json
 // @Success 200 {object} TestResponse
-// @Router /api/v1/connect/test [post]
+// @Router /api/v1/connect/test [post].
 func (h *APIHandler) TestConnection(c *gin.Context) {
 	h.service.mu.RLock()
 	config := h.service.config
