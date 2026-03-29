@@ -44,8 +44,8 @@ type RAIDZExpansionManagerInterface interface {
 	// EstimateExpansionTime 估算扩展时间
 	EstimateExpansionTime(ctx context.Context, poolName string) (time.Duration, error)
 
-	// ValidateDisk 验证磁盘是否可用于扩展
-	ValidateDisk(ctx context.Context, diskPath string) error
+	// ValidateDiskSimple 简单验证磁盘是否可用于扩展
+	ValidateDiskSimple(ctx context.Context, diskPath string) error
 
 	// ListAvailableDisks 列出可用磁盘
 	ListAvailableDisks(ctx context.Context) ([]string, error)

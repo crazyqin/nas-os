@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVMe SMART 监控 - NAS-OS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        /* NVMe SMART 专用样式 */
+        .nvme-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            padding: 20px;
+        }
+
+        .nvme-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .nvme-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .nvme-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .nvme-device-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .nvme-health-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .nvme-health-badge.healthy {
+            background: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .nvme-health-badge.warning {
+            background: var(--warning-bg);
+            color: var(--warning-color);
+        }
+
+        .nvme-health-badge.critical {
+            background: var(--danger-bg);
+            color: var(--danger-color);
+        }
+
+        .nvme-health-ring {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            margin: 20px auto;
+        }
+
+        .nvme-health-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .nvme-health-ring-bg {
+            fill: none;
+            stroke: var(--border-color);
+            stroke-width: 8;
+        }
+
+        .nvme-health-ring-progress {
+            fill: none;
+            stroke: var(--success-color);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .nvme-health-ring-progress.warning {
+            stroke: var(--warning-color);
+        }
+
+        .nvme-health-ring-progress.critical {
+            stroke: var(--danger-color);
+        }
+
+        .nvme-health-percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .nvme-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .nvme-metric-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--metric-bg);
+            border-radius: 8px;
+        }
+
+        .nvme-metric-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .nvme-metric-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .nvme-temp-gauge {
+            width: 100%;
+            height: 60px;
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .nvme-temp-bar {
+            height: 24px;
+            border-radius: 12px;
+            background: linear-gradient(to right, 
+                #4CAF50 0%, 
+                #4CAF50 40%, 
+                #FFC107 40%, 
+                #FFC107 70%, 
+                #F44336 70%, 
+                #F44336 100%);
+            position: relative;
+        }
+
+        .nvme-temp-indicator {
+            position: absolute;
+            top: 0;
+            width: 4px;
+            height: 24px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: left 0.3s ease;
+        }
+
+        .nvme-temp-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .nvme-usage-chart {
+            margin-top: 16px;
+        }
+
+        .nvme-usage-bar {
+            height: 20px;
+            border-radius: 10px;
+            background: var(--border-color);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .nvme-usage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            transition: width 0.5s ease;
+        }
+
+        .nvme-test-panel {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .nvme-test-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .nvme-test-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--btn-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nvme-test-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nvme-test-btn.running {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .nvme-test-progress {
+            margin-top: 16px;
+        }
+
+        .nvme-test-progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border-color);
+            overflow: hidden;
+        }
+
+        .nvme-test-progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .nvme-test-status {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        /* SMART 属性表格 */
+        .nvme-smart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .nvme-smart-table th,
+        .nvme-smart-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .nvme-smart-table th {
+            background: var(--table-header-bg);
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .nvme-smart-table tr:hover td {
+            background: var(--table-row-hover);
+        }
+
+        .nvme-smart-value.warning {
+            color: var(--warning-color);
+        }
+
+        .nvme-smart-value.critical {
+            color: var(--danger-color);
+        }
+
+        /* 设备详情面板 */
+        .nvme-detail-panel {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .nvme-detail-tabs {
+            display: flex;
+            gap: 16px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .nvme-detail-tab {
+            padding: 12px 0;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nvme-detail-tab:hover,
+        .nvme-detail-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        /* 历史图表 */
+        .nvme-history-chart {
+            height: 200px;
+            margin-top: 16px;
+        }
+
+        /* 批量测试面板 */
+        .nvme-batch-test-panel {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .nvme-batch-test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .nvme-batch-test-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 通知提示 */
+        .nvme-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .nvme-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .nvme-toast.success {
+            border-color: var(--success-color);
+        }
+
+        .nvme-toast.error {
+            border-color: var(--danger-color);
+        }
+
+        /* 加载状态 */
+        .nvme-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .nvme-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: nvme-spin 1s linear infinite;
+        }
+
+        @keyframes nvme-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .nvme-dashboard {
+                grid-template-columns: 1fr;
+                padding: 12px;
+                gap: 16px;
+            }
+
+            .nvme-metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nvme-test-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nvme-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1>NVMe SMART 监控</h1>
+            <div class="page-actions">
+                <button class="btn btn-primary" onclick="refreshAllDevices()">
+                    <span class="icon-refresh"></span> 刷新
+                </button>
+                <button class="btn btn-secondary" onclick="runAllTests()">
+                    <span class="icon-test"></span> 批量测试
+                </button>
+                <button class="btn btn-secondary" onclick="showTestHistory()">
+                    <span class="icon-history"></span> 测试历史
+                </button>
+            </div>
+        </div>
+
+        <!-- 汇总信息 -->
+        <div class="nvme-summary-panel">
+            <div class="nvme-summary-cards">
+                <div class="nvme-summary-card">
+                    <div class="nvme-summary-value" id="total-devices">0</div>
+                    <div class="nvme-summary-label">设备总数</div>
+                </div>
+                <div class="nvme-summary-card healthy">
+                    <div class="nvme-summary-value" id="healthy-devices">0</div>
+                    <div class="nvme-summary-label">健康设备</div>
+                </div>
+                <div class="nvme-summary-card warning">
+                    <div class="nvme-summary-value" id="warning-devices">0</div>
+                    <div class="nvme-summary-label">警告设备</div>
+                </div>
+                <div class="nvme-summary-card critical">
+                    <div class="nvme-summary-value" id="critical-devices">0</div>
+                    <div class="nvme-summary-label">严重设备</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量测试面板 -->
+        <div class="nvme-batch-test-panel" id="batch-test-panel" style="display: none;">
+            <div class="nvme-batch-test-header">
+                <h3>批量测试进度</h3>
+                <div class="nvme-batch-test-actions">
+                    <button class="btn btn-warning" onclick="pauseBatchTest()">暂停</button>
+                    <button class="btn btn-danger" onclick="cancelBatchTest()">取消</button>
+                </div>
+            </div>
+            <div class="nvme-test-progress">
+                <div class="nvme-test-progress-bar">
+                    <div class="nvme-test-progress-fill" style="width: 0%;"></div>
+                </div>
+                <div class="nvme-test-status">
+                    <span id="batch-test-current">准备中...</span>
+                    <span id="batch-test-percent">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设备卡片网格 -->
+        <div class="nvme-dashboard" id="nvme-dashboard">
+            <!-- 设备卡片将通过 JS 动态生成 -->
+            <div class="nvme-loading">
+                <div class="nvme-spinner"></div>
+                <span style="margin-left: 12px;">加载 NVMe 设备...</span>
+            </div>
+        </div>
+
+        <!-- 设备详情面板（点击卡片展开） -->
+        <div class="nvme-detail-panel" id="nvme-detail-panel" style="display: none;">
+            <div class="nvme-detail-header">
+                <h2 id="detail-device-name">nvme0n1</h2>
+                <button class="btn btn-close" onclick="closeDetailPanel()">×</button>
+            </div>
+            
+            <div class="nvme-detail-tabs">
+                <div class="nvme-detail-tab active" data-tab="overview" onclick="switchDetailTab('overview')">概览</div>
+                <div class="nvme-detail-tab" data-tab="smart" onclick="switchDetailTab('smart')">SMART 属性</div>
+                <div class="nvme-detail-tab" data-tab="temperature" onclick="switchDetailTab('temperature')">温度历史</div>
+                <div class="nvme-detail-tab" data-tab="usage" onclick="switchDetailTab('usage')">使用统计</div>
+                <div class="nvme-detail-tab" data-tab="tests" onclick="switchDetailTab('tests')">测试记录</div>
+            </div>
+
+            <!-- 概览标签页 -->
+            <div class="nvme-detail-content" id="tab-overview">
+                <div class="nvme-overview-grid">
+                    <div class="nvme-info-section">
+                        <h4>设备信息</h4>
+                        <div class="nvme-info-list">
+                            <div class="nvme-info-item">
+                                <span class="label">型号:</span>
+                                <span class="value" id="info-model">-</span>
+                            </div>
+                            <div class="nvme-info-item">
+                                <span class="label">序列号:</span>
+                                <span class="value" id="info-serial">-</span>
+                            </div>
+                            <div class="nvme-info-item">
+                                <span class="label">固件版本:</span>
+                                <span class="value" id="info-firmware">-</span>
+                            </div>
+                            <div class="nvme-info-item">
+                                <span class="label">容量:</span>
+                                <span class="value" id="info-size">-</span>
+                            </div>
+                            <div class="nvme-info-item">
+                                <span class="label">控制器:</span>
+                                <span class="value" id="info-controller">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="nvme-health-section">
+                        <h4>健康状态</h4>
+                        <div class="nvme-health-ring" id="detail-health-ring">
+                            <svg width="120" height="120">
+                                <circle class="nvme-health-ring-bg" cx="60" cy="60" r="52"/>
+                                <circle class="nvme-health-ring-progress" cx="60" cy="60" r="52"
+                                    stroke-dasharray="326.73" stroke-dashoffset="0"/>
+                            </svg>
+                            <div class="nvme-health-percentage" id="detail-health-percent">100%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 测试面板 -->
+                <div class="nvme-test-panel">
+                    <h4>S.M.A.R.T. 测试</h4>
+                    <div class="nvme-test-buttons">
+                        <button class="nvme-test-btn" onclick="runDeviceTest('short')">短测试 (~2分钟)</button>
+                        <button class="nvme-test-btn" onclick="runDeviceTest('long')">长测试 (扩展)</button>
+                        <button class="nvme-test-btn" onclick="runDeviceTest('vendor')">厂商测试</button>
+                    </div>
+                    <div class="nvme-test-progress" id="device-test-progress" style="display: none;">
+                        <div class="nvme-test-progress-bar">
+                            <div class="nvme-test-progress-fill"></div>
+                        </div>
+                        <div class="nvme-test-status">
+                            <span class="test-type">-</span>
+                            <span class="test-percent">0%</span>
+                        </div>
+                    </div>
+                    <div class="nvme-last-test-result" id="last-test-result">
+                        <h5>最近测试结果</h5>
+                        <div class="nvme-result-item">
+                            <span class="label">测试类型:</span>
+                            <span class="value" id="last-test-type">-</span>
+                        </div>
+                        <div class="nvme-result-item">
+                            <span class="label">结果:</span>
+                            <span class="value" id="last-test-result-status">-</span>
+                        </div>
+                        <div class="nvme-result-item">
+                            <span class="label">时间:</span>
+                            <span class="value" id="last-test-time">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMART 属性标签页 -->
+            <div class="nvme-detail-content" id="tab-smart" style="display: none;">
+                <table class="nvme-smart-table">
+                    <thead>
+                        <tr>
+                            <th>属性</th>
+                            <th>当前值</th>
+                            <th>阈值</th>
+                            <th>最差值</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="smart-attributes-table">
+                        <!-- SMART 属性行将通过 JS 动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 温度历史标签页 -->
+            <div class="nvme-detail-content" id="tab-temperature" style="display: none;">
+                <div class="nvme-temp-chart" id="temperature-chart"></div>
+                <div class="nvme-temp-stats">
+                    <div class="nvme-stat-item">
+                        <span class="label">当前温度:</span>
+                        <span class="value" id="temp-current">-</span>
+                    </div>
+                    <div class="nvme-stat-item">
+                        <span class="label">最高温度:</span>
+                        <span class="value" id="temp-max">-</span>
+                    </div>
+                    <div class="nvme-stat-item">
+                        <span class="label">最低温度:</span>
+                        <span class="value" id="temp-min">-</span>
+                    </div>
+                    <div class="nvme-stat-item">
+                        <span class="label">过热次数:</span>
+                        <span class="value" id="temp-events">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 使用统计标签页 -->
+            <div class="nvme-detail-content" id="tab-usage" style="display: none;">
+                <div class="nvme-usage-stats">
+                    <div class="nvme-usage-section">
+                        <h4>写入统计</h4>
+                        <div class="nvme-usage-chart" id="write-chart"></div>
+                        <div class="nvme-usage-values">
+                            <div class="nvme-usage-item">
+                                <span class="label">总写入量:</span>
+                                <span class="value" id="total-writes">-</span>
+                            </div>
+                            <div class="nvme-usage-item">
+                                <span class="label">TBW:</span>
+                                <span class="value" id="tbw-value">-</span>
+                            </div>
+                            <div class="nvme-usage-item">
+                                <span class="label">使用百分比:</span>
+                                <span class="value" id="usage-percent">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nvme-usage-section">
+                        <h4>磨损估算</h4>
+                        <div class="nvme-wear-level" id="wear-level-display">
+                            <div class="nvme-wear-bar">
+                                <div class="nvme-wear-fill" style="width: 0%;"></div>
+                            </div>
+                            <div class="nvme-wear-labels">
+                                <span>新</span>
+                                <span>轻微磨损</span>
+                                <span>中度磨损</span>
+                                <span>严重磨损</span>
+                            </div>
+                        </div>
+                        <div class="nvme-life-estimate">
+                            <span class="label">预估剩余寿命:</span>
+                            <span class="value" id="life-estimate">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 测试记录标签页 -->
+            <div class="nvme-detail-content" id="tab-tests" style="display: none;">
+                <table class="nvme-test-history-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>测试类型</th>
+                            <th>结果</th>
+                            <th>耗时</th>
+                            <th>错误数</th>
+                        </tr>
+                    </thead>
+                    <tbody id="test-history-table">
+                        <!-- 测试历史将通过 JS 动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Toast 通知 -->
+        <div class="nvme-toast" id="nvme-toast">
+            <span class="nvme-toast-message"></span>
+        </div>
+    </div>
+
+    <!-- NVMe SMART 监控 JS 模块 -->
+    <script src="../js/nvme-smart.js"></script>
+    <script>
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            NVMeSMART.init();
+        });
+    </script>
+</body>
+</html>
