@@ -1,7 +1,22 @@
 
 ---
 
-## [v2.260.0] - 2026-03-26 (计划中)
+## [v2.310.0] - 2026-03-29 (计划中)
+
+### 竞品分析 (礼部)
+
+#### TrueNAS Community Edition 25.10 新特性调研
+- 🔍 **RAIDZ Expansion** - 逐盘扩展支持，无需重建阵列
+- 🔍 **Docker替代Kubernetes** - 简化容器管理，更适合家庭用户
+- 🔍 **全局搜索** - 快速定位文件和应用
+- 🔍 **GPU Sharing** - GPU资源虚拟化共享
+- 🔍 **LXC沙箱支持** - 轻量级容器虚拟化
+- 🔍 **TrueNAS Connect** - 多系统统一管理
+
+#### 功能对比矩阵更新
+- 📊 新增 `docs/competitors/feature-matrix.md` 四方对比矩阵
+- 📊 对比 nas-os vs TrueNAS vs 群晖 vs 飞牛
+- 📊 识别差异化优势和需跟进功能
 
 ### 新增 (规划)
 - 🐳 **LXC容器支持** - 轻量级容器虚拟化，对标TrueNAS 26
