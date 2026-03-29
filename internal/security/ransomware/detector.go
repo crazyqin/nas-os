@@ -371,7 +371,7 @@ func (d *Detector) ScanDirectory(path string) (*ScanResult, error) {
 
 		if d.isProtectedExtension(ext) {
 			if file, err := os.Open(filePath); err == nil {
-				defer file.Close()
+				defer func() { _ = file.Close() }()
 				header := make([]byte, 512)
 				if _, err := file.Read(header); err == nil {
 					if d.looksEncrypted(header) {

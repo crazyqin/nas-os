@@ -706,7 +706,7 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	// 确保目标目录存在
 	dstDir := filepath.Dir(dst)
@@ -718,7 +718,7 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	// 复制内容
 	buf := make([]byte, 32*1024)
