@@ -1,6 +1,42 @@
 
 ---
 
+## [v2.320.0] - 2026-03-30 (开发中)
+
+### 🎯 六部协同开发第95轮 - 勒索软件检测核心 + NVMe-oF基础
+
+### 兵部（软件工程）
+- ✅ **文件事件监控器** - `internal/security/ransomware/monitor.go`
+  - fsnotify封装实现实时文件系统事件捕获
+  - 事件缓冲队列、速率限制器
+  - 进程信息获取接口
+
+### 工部（DevOps）
+- ✅ **NVMe-oF Target系统实现** - `internal/storage/nvmeof/target.go`
+  - Linux内核nvmet模块封装
+  - 子系统、命名空间、监听器管理
+  - configfs配置接口实现
+
+### 礼部（品牌营销）
+- ✅ **勒索软件用户指南** - `docs/RANSOMWARE_GUIDE.md`
+- ✅ **NVMe-oF使用说明** - `docs/NVMEOF_GUIDE.md`
+- ✅ CHANGELOG更新
+
+### 刑部（法务合规）
+- ✅ **勒索软件检测合规性评估** - `docs/compliance/ransomware-compliance.md`
+  - GDPR数据保护法规影响分析
+  - 文件监控隐私合规建议
+  - 企业合规部署指南
+
+### 户部（财务预算）
+- 📋 NVMe-oF硬件需求分析 - 待完善
+
+### 吏部（项目管理）
+- 📋 v2.320.0版本准备
+- 📋 里程碑跟踪更新
+
+---
+
 ## [v2.310.0] - 2026-03-29 (计划中)
 
 ### 竞品分析 (礼部)
