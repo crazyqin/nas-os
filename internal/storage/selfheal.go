@@ -385,9 +385,9 @@ func (sh *SelfHealManager) performFullScan() {
 
 // scanVolume 扫描指定卷.
 func (sh *SelfHealManager) scanVolume(volumeName string) (*ScanReport, error) {
-	vol, err := sh.storage.GetVolume(volumeName)
-	if err != nil {
-		return nil, err
+	vol := sh.storage.GetVolume(volumeName)
+	if vol == nil {
+		return nil, fmt.Errorf("volume %s not found", volumeName)
 	}
 
 	report := &ScanReport{
@@ -399,7 +399,7 @@ func (sh *SelfHealManager) scanVolume(volumeName string) (*ScanReport, error) {
 	sh.logger.Info("开始扫描卷", zap.String("volume", volumeName))
 
 	// 遍历卷中所有文件
-	err = sh.scanDirectory(vol.MountPoint, report)
+	err := sh.scanDirectory(vol.MountPoint, report)
 	if err != nil {
 		sh.logger.Error("扫描目录失败", zap.Error(err))
 	}
@@ -662,8 +662,8 @@ func (sh *SelfHealManager) selectRepairMethod(err ChecksumError) RepairMethod {
 	// 优先级：镜像 > 快照 > 备份 > parity > 标记坏块
 
 	// 检查是否有镜像副本（RAID1）
-	vol, e := sh.storage.GetVolume(err.Volume)
-	if e == nil && vol.DataProfile == "raid1" {
+	vol := sh.storage.GetVolume(err.Volume)
+	if vol != nil && vol.DataProfile == "raid1" {
 		return RepairMethodMirror
 	}
 
@@ -678,7 +678,7 @@ func (sh *SelfHealManager) selectRepairMethod(err ChecksumError) RepairMethod {
 	}
 
 	// RAID5/6 可以从 parity 恢复
-	if e == nil && (vol.DataProfile == "raid5" || vol.DataProfile == "raid6") {
+	if vol != nil && (vol.DataProfile == "raid5" || vol.DataProfile == "raid6") {
 		return RepairMethodParity
 	}
 
