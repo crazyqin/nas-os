@@ -501,7 +501,7 @@ type DailyBandwidthCost struct {
 // CostRecommendation 成本优化建议.
 type CostRecommendation struct {
 	ID               string  `json:"id"`
-	Type             string  `json:"type"`     // storage, bandwidth, access_pattern
+	Type             string  `json:"type"`     // storage, bandwidth, access_pattern, ai_service, ransomware
 	Priority         string  `json:"priority"` // high, medium, low
 	Title            string  `json:"title"`
 	Description      string  `json:"description"`
@@ -513,203 +513,196 @@ type CostRecommendation struct {
 	Implemented      bool    `json:"implemented"`
 }
 
-// ========== AI服务成本分析 ==========
+// ========== AI服务成本分析结构体 (v2.308.0新增) ==========
 
 // AIServiceCostAnalysis AI服务成本分析结果.
 type AIServiceCostAnalysis struct {
-	AnalysisTime    time.Time           `json:"analysis_time"`
-	PeriodStart     time.Time           `json:"period_start"`
-	PeriodEnd       time.Time           `json:"period_end"`
-	Currency        string              `json:"currency"`
-	LocalInferenceCost float64          `json:"local_inference_cost"`
-	CloudAPICost    float64             `json:"cloud_api_cost"`
-	TotalCost       float64             `json:"total_cost"`
-	UserAICosts     []UserAIServiceCost `json:"user_ai_costs"`
-	ModelCosts      []ModelCostBreakdown `json:"model_costs"`
-	TrendData       []AICostTrendPoint  `json:"trend_data"`
-	LocalAnalysis   LocalInferenceAnalysis `json:"local_analysis"`
-	CloudAnalysis   CloudAPIAnalysis    `json:"cloud_analysis"`
-	BudgetStatus    BudgetStatus        `json:"budget_status"`
-	Recommendations []CostRecommendation `json:"recommendations"`
-	TokenConsumption TokenConsumptionAnalysis `json:"token_consumption"`
-}
-
-// TokenConsumptionAnalysis Token消耗分析.
-type TokenConsumptionAnalysis struct {
-	TotalTokens     int64   `json:"total_tokens"`
-	InputTokens     int64   `json:"input_tokens"`
-	OutputTokens    int64   `json:"output_tokens"`
-	AvgTokensPerRequest float64 `json:"avg_tokens_per_request"`
-	GrowthRate      float64 `json:"growth_rate"`
+	AnalysisTime       time.Time `json:"analysis_time"`
+	PeriodStart        time.Time `json:"period_start"`
+	PeriodEnd          time.Time `json:"period_end"`
+	TotalCost          float64   `json:"total_cost"`
+	LocalInferenceCost float64   `json:"local_inference_cost"`
+	CloudAPICost       float64   `json:"cloud_api_cost"`
+	Currency           string    `json:"currency"`
+	LocalAnalysis      LocalInferenceAnalysis      `json:"local_analysis"`
+	CloudAnalysis      CloudAPIAnalysis           `json:"cloud_analysis"`
+	UserAICosts        []UserAIServiceCost        `json:"user_ai_costs"`
+	ModelCosts         []ModelCostBreakdown       `json:"model_costs"`
+	TokenConsumption   TokenConsumptionStats      `json:"token_consumption"`
+	TrendData          []AICostTrendPoint         `json:"trend_data"`
+	Recommendations    []CostRecommendation       `json:"recommendations"`
+	BudgetStatus       BudgetStatus               `json:"budget_status"`
 }
 
 // LocalInferenceAnalysis 本地推理分析.
 type LocalInferenceAnalysis struct {
-	Enabled            bool    `json:"enabled"`
-	TotalRequests      int64   `json:"total_requests"`
-	TotalTokens        int64   `json:"total_tokens"`
-	MonthlyCost        float64 `json:"monthly_cost"`
-	GPUHours           float64 `json:"gpu_hours"`
-	ElectricityCost    float64 `json:"electricity_cost"`
-	AvgLatencyMs       float64 `json:"avg_latency_ms"`
-	GPUModel           string  `json:"gpu_model"`
-	GPUPowerW          float64 `json:"gpu_power_w"`
-	GPUUtilization     float64 `json:"gpu_utilization"`
-	DailyHours         float64 `json:"daily_hours"`
-	MonthlyHours       float64 `json:"monthly_hours"`
-	RequestCount       int64   `json:"request_count"`
-	ElectricityPrice   float64 `json:"electricity_price"`
-	HardwareDepreciation float64 `json:"hardware_depreciation"`
-	CostPerRequest     float64 `json:"cost_per_request"`
+	DailyHours          float64   `json:"daily_hours"`
+	MonthlyHours        float64   `json:"monthly_hours"`
+	GPUModel            string    `json:"gpu_model"`
+	GPUPowerW           float64   `json:"gpu_power_w"`
+	GPUUtilization      float64   `json:"gpu_utilization"`
+	ElectricityCost     float64   `json:"electricity_cost"`
+	ElectricityPrice    float64   `json:"electricity_price"`
+	HardwareDepreciation float64  `json:"hardware_depreciation"`
+	MonthlyCost         float64   `json:"monthly_cost"`
+	RequestCount        int64     `json:"request_count"`
+	CostPerRequest      float64   `json:"cost_per_request"`
 }
 
 // CloudAPIAnalysis 云端API分析.
 type CloudAPIAnalysis struct {
-	TotalRequests      int64   `json:"total_requests"`
-	TotalTokens        int64   `json:"total_tokens"`
-	InputTokens        int64   `json:"input_tokens"`
-	OutputTokens       int64   `json:"output_tokens"`
-	TotalTokenCost     float64 `json:"total_token_cost"`
-	AvgCostPerToken    float64 `json:"avg_cost_per_token"`
-	DailyRequestCount  int64   `json:"daily_request_count"`
-	MonthlyRequestCount int64  `json:"monthly_request_count"`
-	FreeTokensLimit    int64   `json:"free_tokens_limit"`
-	ProviderBreakdown  []ProviderCostBreakdown `json:"provider_breakdown"`
-	InputTokenCost     float64 `json:"input_token_cost"`
-	OutputTokenCost    float64 `json:"output_token_cost"`
-	CostPerRequest     float64 `json:"cost_per_request"`
-	CostPerToken       float64 `json:"cost_per_token"`
+	DailyRequestCount   int64     `json:"daily_request_count"`
+	MonthlyRequestCount int64     `json:"monthly_request_count"`
+	InputTokens         int64     `json:"input_tokens"`
+	OutputTokens        int64     `json:"output_tokens"`
+	TotalTokens         int64     `json:"total_tokens"`
+	InputTokenCost      float64   `json:"input_token_cost"`
+	OutputTokenCost     float64   `json:"output_token_cost"`
+	TotalTokenCost      float64   `json:"total_token_cost"`
+	ProviderBreakdown   []ProviderCostBreakdown `json:"provider_breakdown"`
+	FreeTokensUsed      int64     `json:"free_tokens_used"`
+	FreeTokensLimit     int64     `json:"free_tokens_limit"`
+	CostPerRequest      float64   `json:"cost_per_request"`
+	CostPerToken        float64   `json:"cost_per_token"`
 }
 
-// ProviderCostBreakdown 提供商成本明细.
+// ProviderCostBreakdown 提供商成本分布.
 type ProviderCostBreakdown struct {
-	Provider      string  `json:"provider"`
-	RequestCount  int64   `json:"request_count"`
-	InputTokens   int64   `json:"input_tokens"`
-	OutputTokens  int64   `json:"output_tokens"`
-	TotalCost     float64 `json:"total_cost"`
-	AvgLatencyMs  float64 `json:"avg_latency_ms"`
-	InputCost     float64 `json:"input_cost"`
-	OutputCost    float64 `json:"output_cost"`
+	Provider       string  `json:"provider"`
+	RequestCount   int64   `json:"request_count"`
+	InputTokens    int64   `json:"input_tokens"`
+	OutputTokens   int64   `json:"output_tokens"`
+	InputCost      float64 `json:"input_cost"`
+	OutputCost     float64 `json:"output_cost"`
+	TotalCost      float64 `json:"total_cost"`
+	PercentOfTotal float64 `json:"percent_of_total"`
+}
+
+// UserAIServiceCost 用户AI服务成本.
+type UserAIServiceCost struct {
+	UserID            string  `json:"user_id"`
+	UserName          string  `json:"user_name"`
+	RequestCount      int64   `json:"request_count"`
+	InputTokens       int64   `json:"input_tokens"`
+	OutputTokens      int64   `json:"output_tokens"`
+	TotalCost         float64 `json:"total_cost"`
+	CostPerRequest    float64 `json:"cost_per_request"`
+	PreferredProvider string  `json:"preferred_provider"`
+	PreferredModel    string  `json:"preferred_model"`
+}
+
+// ModelCostBreakdown 模型成本分布.
+type ModelCostBreakdown struct {
+	ModelName      string  `json:"model_name"`
+	Provider       string  `json:"provider"`
+	RequestCount   int64   `json:"request_count"`
+	InputTokens    int64   `json:"input_tokens"`
+	OutputTokens   int64   `json:"output_tokens"`
+	InputPrice     float64 `json:"input_price"`
+	OutputPrice    float64 `json:"output_price"`
+	TotalCost      float64 `json:"total_cost"`
+	PercentOfTotal float64 `json:"percent_of_total"`
+}
+
+// TokenConsumptionStats Token消耗统计.
+type TokenConsumptionStats struct {
+	TotalInputTokens   int64             `json:"total_input_tokens"`
+	TotalOutputTokens  int64             `json:"total_output_tokens"`
+	TotalTokens        int64             `json:"total_tokens"`
+	DailyInputTokens   float64           `json:"daily_input_tokens"`
+	DailyOutputTokens  float64           `json:"daily_output_tokens"`
+	DailyTotalTokens   float64           `json:"daily_total_tokens"`
+	FunctionBreakdown  map[string]int64  `json:"function_breakdown"`
+	GrowthRate         float64           `json:"growth_rate"`
+}
+
+// AICostTrendPoint AI成本趋势数据点.
+type AICostTrendPoint struct {
+	Date               time.Time `json:"date"`
+	LocalInferenceCost float64   `json:"local_inference_cost"`
+	CloudAPICost       float64   `json:"cloud_api_cost"`
+	TotalCost          float64   `json:"total_cost"`
+	RequestCount       int64     `json:"request_count"`
+	InputTokens        int64     `json:"input_tokens"`
+	OutputTokens       int64     `json:"output_tokens"`
 }
 
 // BudgetStatus 预算状态.
 type BudgetStatus struct {
 	MonthlyBudget     float64 `json:"monthly_budget"`
 	CurrentSpending   float64 `json:"current_spending"`
-	ProjectedSpending float64 `json:"projected_spending"`
 	RemainingBudget   float64 `json:"remaining_budget"`
-	UtilizationPercent float64 `json:"utilization_percent"`
-	AlertLevel        string  `json:"alert_level"` // normal, warning, critical
 	PercentUsed       float64 `json:"percent_used"`
 	DaysRemaining     int     `json:"days_remaining"`
+	ProjectedSpending float64 `json:"projected_spending"`
+	AlertLevel        string  `json:"alert_level"`
 }
 
-// UserAIServiceCost 用户AI服务成本.
-type UserAIServiceCost struct {
-	UserID          string  `json:"user_id"`
-	UserName        string  `json:"user_name"`
-	LocalRequests   int64   `json:"local_requests"`
-	CloudRequests   int64   `json:"cloud_requests"`
-	TotalTokens     int64   `json:"total_tokens"`
-	LocalCost       float64 `json:"local_cost"`
-	CloudCost       float64 `json:"cloud_cost"`
-	TotalCost       float64 `json:"total_cost"`
-}
-
-// ModelCostBreakdown 模型成本明细.
-type ModelCostBreakdown struct {
-	ModelName       string  `json:"model_name"`
-	Provider        string  `json:"provider"`
-	TotalRequests   int64   `json:"total_requests"`
-	InputTokens     int64   `json:"input_tokens"`
-	OutputTokens    int64   `json:"output_tokens"`
-	TotalCost       float64 `json:"total_cost"`
-	AvgLatencyMs    float64 `json:"avg_latency_ms"`
-}
-
-// AICostTrendPoint AI成本趋势点.
-type AICostTrendPoint struct {
-	Date         time.Time `json:"date"`
-	LocalCost    float64   `json:"local_cost"`
-	CloudCost    float64   `json:"cloud_cost"`
-	TotalCost    float64   `json:"total_cost"`
-	RequestCount int64     `json:"request_count"`
-}
-
-// ========== 勒索检测成本分析 ==========
+// ========== 勒索检测成本分析结构体 (v2.308.0新增) ==========
 
 // RansomwareCostAnalysis 勒索检测成本分析结果.
 type RansomwareCostAnalysis struct {
-	AnalysisTime       time.Time           `json:"analysis_time"`
-	PeriodStart        time.Time           `json:"period_start"`
-	PeriodEnd          time.Time           `json:"period_end"`
-	Currency           string              `json:"currency"`
-	TotalCost          float64             `json:"total_cost"`
-	SignatureDBAnalysis SignatureDBCostBreakdown `json:"signature_db_analysis"`
-	QuarantineAnalysis QuarantineCostBreakdown   `json:"quarantine_analysis"`
-	EventLogAnalysis   EventLogCostBreakdown     `json:"event_log_analysis"`
-	SnapshotAnalysis   SnapshotCostBreakdown     `json:"snapshot_analysis"`
-	Recommendations    []CostRecommendation      `json:"recommendations"`
-	TrendData          []RansomwareCostTrendPoint `json:"trend_data"`
-	SignatureDBCost    float64             `json:"signature_db_cost"`
-	QuarantineCost     float64             `json:"quarantine_cost"`
-	EventLogCost       float64             `json:"event_log_cost"`
-	AutoSnapshotCost   float64             `json:"auto_snapshot_cost"`
+	AnalysisTime        time.Time `json:"analysis_time"`
+	PeriodStart         time.Time `json:"period_start"`
+	PeriodEnd           time.Time `json:"period_end"`
+	TotalCost           float64   `json:"total_cost"`
+	Currency            string    `json:"currency"`
+	SignatureDBCost     float64   `json:"signature_db_cost"`
+	QuarantineCost      float64   `json:"quarantine_cost"`
+	EventLogCost        float64   `json:"event_log_cost"`
+	AutoSnapshotCost    float64   `json:"auto_snapshot_cost"`
+	SignatureDBAnalysis SignatureDBCostBreakdown  `json:"signature_db_analysis"`
+	QuarantineAnalysis  QuarantineCostBreakdown   `json:"quarantine_analysis"`
+	EventLogAnalysis    EventLogCostBreakdown     `json:"event_log_analysis"`
+	SnapshotAnalysis    SnapshotCostBreakdown     `json:"snapshot_analysis"`
+	AIServiceConsumption AIServiceRansomwareConsumption `json:"ai_service_consumption"`
+	TrendData           []RansomwareCostTrendPoint `json:"trend_data"`
+	Recommendations     []CostRecommendation       `json:"recommendations"`
 }
 
-// SignatureDBCostBreakdown 签名库成本明细.
+// SignatureDBCostBreakdown 特征库成本明细.
 type SignatureDBCostBreakdown struct {
-	Enabled            bool      `json:"enabled"`
-	DatabaseSizeMB     float64   `json:"database_size_mb"`
-	UpdateFrequency    string    `json:"update_frequency"`
-	MonthlyCost        float64   `json:"monthly_cost"`
-	StorageCost        float64   `json:"storage_cost"`
-	UpdateCost         float64   `json:"update_cost"`
-	FixedMonthlyCost   float64   `json:"fixed_monthly_cost"`
 	SizeMB             float64   `json:"size_mb"`
+	UpdateFrequency    int       `json:"update_frequency_days"`
 	LastUpdate         time.Time `json:"last_update"`
 	SignatureCount     int64     `json:"signature_count"`
+	FixedMonthlyCost   float64   `json:"fixed_monthly_cost"`
 	NetworkTransferCost float64  `json:"network_transfer_cost"`
 }
 
 // QuarantineCostBreakdown 隔离区成本明细.
 type QuarantineCostBreakdown struct {
-	Enabled           bool    `json:"enabled"`
-	QuarantineSizeGB  float64 `json:"quarantine_size_gb"`
-	FileCount         int64   `json:"file_count"`
-	UsagePercent      float64 `json:"usage_percent"`
-	PricePerGB        float64 `json:"price_per_gb"`
-	MonthlyCost       float64 `json:"monthly_cost"`
-	OptimizedCost     float64 `json:"optimized_cost"`
-	SavingsPotential  float64 `json:"savings_potential"`
-	MaxCapacityGB     float64 `json:"max_capacity_gb"`
-	CurrentUsageGB    float64 `json:"current_usage_gb"`
-	AutoCleanupDays   int     `json:"auto_cleanup_days"`
-	FilesCleaned      int64   `json:"files_cleaned"`
-	SpaceReclaimedGB  float64 `json:"space_reclaimed_gb"`
+	MaxCapacityGB    float64 `json:"max_capacity_gb"`
+	CurrentUsageGB   float64 `json:"current_usage_gb"`
+	UsagePercent     float64 `json:"usage_percent"`
+	FileCount        int64   `json:"file_count"`
+	AutoCleanupDays  int     `json:"auto_cleanup_days"`
+	FilesCleaned     int64   `json:"files_cleaned"`
+	SpaceReclaimedGB float64 `json:"space_reclaimed_gb"`
+	PricePerGB       float64 `json:"price_per_gb"`
+	MonthlyCost      float64 `json:"monthly_cost"`
+	OptimizedCost    float64 `json:"optimized_cost"`
+	SavingsPotential float64 `json:"savings_potential"`
 }
 
 // EventLogCostBreakdown 事件日志成本明细.
 type EventLogCostBreakdown struct {
-	Enabled          bool    `json:"enabled"`
-	TotalSizeGB      float64 `json:"total_size_gb"`
-	EventCount       int64   `json:"event_count"`
-	CompressionRatio float64 `json:"compression_ratio"`
-	PricePerGB       float64 `json:"price_per_gb"`
-	MonthlyCost      float64 `json:"monthly_cost"`
-	AfterCleanupCost float64 `json:"after_cleanup_cost"`
-	DailyEventCount  int64   `json:"daily_event_count"`
-	MonthlyEventCount int64  `json:"monthly_event_count"`
-	EventSizeKB      float64 `json:"event_size_kb"`
-	RetentionDays    int     `json:"retention_days"`
-	CompressedSizeGB float64 `json:"compressed_size_gb"`
+	DailyEventCount   int64   `json:"daily_event_count"`
+	MonthlyEventCount int64   `json:"monthly_event_count"`
+	EventSizeKB       float64 `json:"event_size_kb"`
+	TotalSizeGB       float64 `json:"total_size_gb"`
+	RetentionDays     int     `json:"retention_days"`
+	CompressionRatio  float64 `json:"compression_ratio"`
+	CompressedSizeGB  float64 `json:"compressed_size_gb"`
+	PricePerGB        float64 `json:"price_per_gb"`
+	MonthlyCost       float64 `json:"monthly_cost"`
+	AfterCleanupCost  float64 `json:"after_cleanup_cost"`
 }
 
 // SnapshotCostBreakdown 快照成本明细.
 type SnapshotCostBreakdown struct {
 	Enabled              bool    `json:"enabled"`
-	SnapshotTriggerCount int64   `json:"snapshot_trigger_count"`
+	SnapshotTriggerCount int     `json:"snapshot_trigger_count"`
 	SnapshotSizeGB       float64 `json:"snapshot_size_gb"`
 	TotalSnapshotGB      float64 `json:"total_snapshot_gb"`
 	RetentionDays        int     `json:"retention_days"`
@@ -719,13 +712,27 @@ type SnapshotCostBreakdown struct {
 	OptimizedCost        float64 `json:"optimized_cost"`
 }
 
-// RansomwareCostTrendPoint 勒索检测成本趋势点.
+// AIServiceRansomwareConsumption AI服务用于勒索检测的资源消耗.
+type AIServiceRansomwareConsumption struct {
+	Enabled             bool    `json:"enabled"`
+	BehaviorAnalysisCount int64  `json:"behavior_analysis_count"`
+	PatternMatchCount     int64  `json:"pattern_match_count"`
+	InputTokens           int64  `json:"input_tokens"`
+	OutputTokens          int64  `json:"output_tokens"`
+	TokenCost             float64 `json:"token_cost"`
+	PercentOfAIBudget     float64 `json:"percent_of_ai_budget"`
+}
+
+// RansomwareCostTrendPoint 勒索检测成本趋势数据点.
 type RansomwareCostTrendPoint struct {
-	Date         time.Time `json:"date"`
-	TotalCost    float64   `json:"total_cost"`
-	QuarantineCost float64 `json:"quarantine_cost"`
-	EventLogCost float64   `json:"event_log_cost"`
-	SnapshotCost float64   `json:"snapshot_cost"`
+	Date            time.Time `json:"date"`
+	SignatureDBCost float64   `json:"signature_db_cost"`
+	QuarantineCost  float64   `json:"quarantine_cost"`
+	EventLogCost    float64   `json:"event_log_cost"`
+	SnapshotCost    float64   `json:"snapshot_cost"`
+	TotalCost       float64   `json:"total_cost"`
+	QuarantineGB    float64   `json:"quarantine_gb"`
+	EventCount      int64     `json:"event_count"`
 }
 
 // ========== 成本分析器 ==========
@@ -2093,7 +2100,7 @@ func (a *CostAnalyzer) calculateSignatureDBCost(info *SignatureDBInfo) Signature
 
 	return SignatureDBCostBreakdown{
 		SizeMB:           info.SizeMB,
-		UpdateFrequency:  fmt.Sprintf("%d天", config.UpdateFrequencyDays),
+		UpdateFrequency:  config.UpdateFrequencyDays,
 		LastUpdate:       info.LastUpdate,
 		SignatureCount:   info.SignatureCount,
 		FixedMonthlyCost: config.MonthlyCostEstimate,
@@ -2156,7 +2163,7 @@ func (a *CostAnalyzer) calculateSnapshotCost(stats *SnapshotStats) SnapshotCostB
 
 	return SnapshotCostBreakdown{
 		Enabled:            config.Enabled,
-		SnapshotTriggerCount: int64(stats.TriggerCount),
+		SnapshotTriggerCount: stats.TriggerCount,
 		SnapshotSizeGB:     stats.SnapshotSizeGB,
 		TotalSnapshotGB:    stats.TotalSnapshotGB,
 		RetentionDays:      config.RetentionDays,
