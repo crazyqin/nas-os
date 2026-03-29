@@ -2,9 +2,9 @@ package version
 
 // Version information
 const (
-	Version   = "2.318.0"
+	Version   = "2.321.0"
 	BuildDate = "2026-03-30"
-	GitCommit = "v2.318.0"
+	GitCommit = "v2.321.0"
 )
 
 // GetVersion returns the current version
