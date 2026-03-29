@@ -23,6 +23,14 @@
 3. **GPU转码** - Intel ARC支持
 4. **HA高可用** - 多节点故障转移
 
+### TrueNAS Community Edition 25.10 新特性 (2026-03)
+1. **RAIDZ Expansion** - 逐盘扩展支持，无需重建阵列即可增加存储容量
+2. **Docker替代Kubernetes** - 简化容器管理，更适合家庭用户
+3. **全局搜索** - 快速定位文件和应用
+4. **GPU Sharing** - GPU资源虚拟化共享，提升AI/转码效率
+5. **LXC沙箱支持** - 轻量级容器虚拟化，性能更优
+6. **TrueNAS Connect** - 多系统统一管理，一个界面管理多个NAS
+
 ---
 
 ## 六部任务分配
