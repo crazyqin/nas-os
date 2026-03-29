@@ -215,6 +215,9 @@ type LogSearchService interface {
 
 // --- 数据结构定义 ---
 
+// ResultType 类型别名，引用global.go中的GlobalSearchResultType
+type ResultType = GlobalSearchResultType
+
 // SearchRequest 基础搜索请求
 type SearchRequest struct {
 	Query      string        `json:"query"`      // 搜索查询
@@ -255,19 +258,8 @@ type SearchResult struct {
 	Metadata    map[string]any `json:"metadata,omitempty"`
 }
 
-// ResultType 结果类型
-type ResultType string
-
-const (
-	ResultTypeFile      ResultType = "file"
-	ResultTypeSetting   ResultType = "setting"
-	ResultTypeApp       ResultType = "app"
-	ResultTypeContainer ResultType = "container"
-	ResultTypeMetadata  ResultType = "metadata"
-	ResultTypeAPI       ResultType = "api"
-	ResultTypeDoc       ResultType = "doc"
-	ResultTypeLog       ResultType = "log"
-)
+// ResultType 结果类型 (从global.go引用)
+// type ResultType string
 
 // FileSearchRequest 文件搜索请求
 type FileSearchRequest struct {
@@ -304,45 +296,6 @@ type FileResult struct {
 	IsDir      bool        `json:"isDir"`
 	Score      float64     `json:"score"`
 	Highlights []Highlight `json:"highlights,omitempty"`
-}
-
-// Highlight 高亮片段
-type Highlight struct {
-	Field     string   `json:"field"`
-	Fragments []string `json:"fragments"`
-}
-
-// LogSearchRequest 日志搜索请求
-type LogSearchRequest struct {
-	Query      string        `json:"query"`
-	Sources    []string      `json:"sources"`    // 日志源过滤
-	Levels     []string      `json:"levels"`     // 日志级别过滤
-	FromDate   *time.Time    `json:"fromDate"`   // 时间范围起始
-	ToDate     *time.Time    `json:"toDate"`     // 时间范围结束
-	Components []string      `json:"components"` // 组件过滤
-	Limit      int           `json:"limit"`
-	Offset     int           `json:"offset"`
-	SortDesc   bool          `json:"sortDesc"`   // 按时间降序
-}
-
-// LogSearchResponse 日志搜索响应
-type LogSearchResponse struct {
-	Query     string        `json:"query"`
-	Took      time.Duration `json:"took"`
-	Total     int           `json:"total"`
-	Entries   []LogEntry    `json:"entries"`
-	Truncated bool          `json:"truncated"`
-}
-
-// LogEntry 日志条目
-type LogEntry struct {
-	ID        string                 `json:"id"`
-	Timestamp time.Time              `json:"timestamp"`
-	Level     string                 `json:"level"` // debug, info, warn, error
-	Source    string                 `json:"source"`
-	Component string                 `json:"component"`
-	Message   string                 `json:"message"`
-	Metadata  map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // LogFilter 日志过滤条件
