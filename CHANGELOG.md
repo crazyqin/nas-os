@@ -7,6 +7,38 @@
 
 ---
 
+## [v2.324.0] - 2026-03-30
+
+### 🎯 六部协同开发第100轮 - 竞品学习深化(TrueNAS 25.10 Goldeye)
+
+### 竞品学习
+- 🔍 **TrueNAS 25.10 Goldeye** 新功能分析
+  - NVMe over Fabric (NVMe/TCP + NVMe/RDMA) - 400GbE企业级网络存储
+  - VM Secure Boot - 安全启动支持
+  - VM Disk多格式导入导出 - QCOW2/QED/RAW/VDI/VHDX/VMDK
+  - NVIDIA Open GPU Kernel Module - Blackwell架构GPU加速
+  - ZFS Direct I/O - 虚拟化环境性能优化
+  - Application Pool Migration - 应用池自动迁移
+  - 灵活SMART监控 - 迁移到cron任务，支持Scrutiny App
+
+### nas-os对标状态
+| 功能 | TrueNAS 25.10 | nas-os状态 |
+|------|---------------|------------|
+| NVMe-oF | ✅ 企业级 | 📋 P2规划 |
+| VM Secure Boot | ✅ | ✅ KVM支持 |
+| VM多格式磁盘 | ✅ | ✅ 已支持 |
+| NVIDIA GPU | ✅ Blackwell | 🚧 开发中 |
+| ZFS Direct I/O | ✅ | 📋 P1研究 |
+| 应用池迁移 | ✅ | ✅ 已支持 |
+
+### 六部协同
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号更新至v2.324.0 |
+| 礼部 | ✅ | CHANGELOG更新、竞品学习文档 |
+
+---
+
 ## [v2.322.0] - 2026-03-30
 
 ### 🎯 六部协同开发第97轮 - RAIDZ Expansion竞品深化+用户文档
