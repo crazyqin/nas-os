@@ -1,0 +1,2044 @@
+{
+	"Golang errors": {},
+	"Issues": [
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/space_analyzer.go",
+			"code": "544: \t\tif !info.IsDir() {\n545: \t\t\tdirSizes[rootPath].Size += uint64(info.Size())\n546: \t\t\tdirSizes[rootPath].FileCount++\n",
+			"line": "545",
+			"column": "37",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/space_analyzer.go",
+			"code": "529: \t\t\t\t\tif !info.IsDir() {\n530: \t\t\t\t\t\tp.Size += uint64(info.Size())\n531: \t\t\t\t\t\tp.FileCount++\n",
+			"line": "530",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/space_analyzer.go",
+			"code": "510: \t\t\t\t\tdirInfo.FileCount++\n511: \t\t\t\t\tdirInfo.Size += uint64(info.Size())\n512: \t\t\t\t}\n",
+			"line": "511",
+			"column": "28",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/space_analyzer.go",
+			"code": "438: \t\t\t\tPath:     path,\n439: \t\t\t\tSize:     uint64(info.Size()),\n440: \t\t\t\tModified: info.ModTime(),\n",
+			"line": "439",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/space_analyzer.go",
+			"code": "435: \t\t// 检查是否为大文件\n436: \t\tif uint64(info.Size()) \u003e= opts.LargeFileThreshold {\n437: \t\t\tlargeFiles = append(largeFiles, LargeFile{\n",
+			"line": "436",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/space_analyzer.go",
+			"code": "333: \t\text := strings.ToLower(filepath.Ext(path))\n334: \t\tsize := uint64(info.Size())\n335: \n",
+			"line": "334",
+			"column": "17",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/immutable.go",
+			"code": "663: \t\tif !info.IsDir() {\n664: \t\t\tsize += uint64(info.Size())\n665: \t\t}\n",
+			"line": "664",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/mfa.go",
+			"code": "175: \tvar buf [8]byte\n176: \tbinary.BigEndian.PutUint64(buf[:], uint64(timeStep))\n177: \n",
+			"line": "176",
+			"column": "43",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e byte",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/honeyfile.go",
+			"code": "570: \t\t\tchar, _ := rand.Int(rand.Reader, big.NewInt(94))\n571: \t\t\tcontent[i] = byte(32 + char.Int64())\n572: \t\t}\n",
+			"line": "571",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e byte",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/honeyfile.go",
+			"code": "533: \t\t\tchar, _ := rand.Int(rand.Reader, big.NewInt(94))\n534: \t\t\tcontent[i] = byte(32 + char.Int64()) // ASCII 32-126\n535: \t\t}\n",
+			"line": "534",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "822: \t\thealth.AlertCount++\n823: \t} else if health.PendingSectors \u003e= uint64(m.config.PendingWarning) {\n824: \t\tm.sendAlert(Alert{\n",
+			"line": "823",
+			"column": "43",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "809: \t// 待映射扇区告警\n810: \tif health.PendingSectors \u003e= uint64(m.config.PendingCritical) {\n811: \t\tm.sendAlert(Alert{\n",
+			"line": "810",
+			"column": "36",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "793: \t\thealth.AlertCount++\n794: \t} else if health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedWarning) {\n795: \t\tm.sendAlert(Alert{\n",
+			"line": "794",
+			"column": "47",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "778: \t// 重分配扇区告警\n779: \tif health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedCritical) {\n780: \t\tm.sendAlert(Alert{\n",
+			"line": "779",
+			"column": "40",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "673: \t\t\tscore -= 30\n674: \t\t} else if health.PendingSectors \u003e= uint64(m.config.PendingWarning) {\n675: \t\t\tscore -= 15\n",
+			"line": "674",
+			"column": "44",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "671: \tif health.PendingSectors \u003e 0 {\n672: \t\tif health.PendingSectors \u003e= uint64(m.config.PendingCritical) {\n673: \t\t\tscore -= 30\n",
+			"line": "672",
+			"column": "37",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "662: \t\t\tscore -= 40\n663: \t\t} else if health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedWarning) {\n664: \t\t\tscore -= 20\n",
+			"line": "663",
+			"column": "48",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "660: \tif health.ReallocatedSectors \u003e 0 {\n661: \t\tif health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedCritical) {\n662: \t\t\tscore -= 40\n",
+			"line": "661",
+			"column": "41",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/hot_spare.go",
+			"code": "765: \t// 热备盘容量需要至少达到最大设备容量的 (100 - margin)%\n766: \tminRequired := maxDeviceSize * uint64(100-h.config.MinCapacityMargin) / 100\n767: \tif capacity \u003c minRequired {\n",
+			"line": "766",
+			"column": "39",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
+			"code": "1384: \t\t// 安全转换：hash % uint32(...) 结果不会超过 uint32 最大值\n1385: \t\tshardIndexVal := hash % uint32(len(pool.Shards))\n1386: \t\tif idx, err := safeguards.SafeUint64ToInt(uint64(shardIndexVal)); err == nil {\n",
+			"line": "1385",
+			"column": "33",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
+			"code": "1322: \t\t// 安全转换：hash % uint32(...) 结果不会超过 uint32 最大值\n1323: \t\tshardIndexVal := hash % uint32(len(pool.Shards))\n1324: \t\tif idx, err := safeguards.SafeUint64ToInt(uint64(shardIndexVal)); err == nil {\n",
+			"line": "1323",
+			"column": "33",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/baseline.go",
+			"code": "700: \t\tmode := info.Mode().Perm()\n701: \t\tif mode != os.FileMode(expectedMode) {\n702: \t\t\tissues = append(issues, fmt.Sprintf(\"%s 权限为 %o (期望 %o)\", file, mode, expectedMode))\n",
+			"line": "701",
+			"column": "25",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e rune",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/security_audit.go",
+			"code": "140: \t\t}\n141: \t\tnewPath := l.logPath + \".\" + string(rune('0'+i+1))\n142: \t\tif err := os.Rename(oldPath, newPath); err != nil \u0026\u0026 !os.IsNotExist(err) {\n",
+			"line": "141",
+			"column": "43",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e rune",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/security_audit.go",
+			"code": "138: \t\tif i \u003e 0 {\n139: \t\t\toldPath = l.logPath + \".\" + string(rune('0'+i))\n140: \t\t}\n",
+			"line": "139",
+			"column": "43",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e rune",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/security_audit.go",
+			"code": "129: \t// 删除最旧的日志文件\n130: \toldestLog := l.logPath + \".\" + string(rune(l.maxFiles-1))\n131: \tif err := os.Remove(oldestLog); err != nil \u0026\u0026 !os.IsNotExist(err) {\n",
+			"line": "130",
+			"column": "44",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "295",
+				"url": "https://cwe.mitre.org/data/definitions/295.html"
+			},
+			"rule_id": "G402",
+			"details": "TLS InsecureSkipVerify may be set to true.",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/ldap.go",
+			"code": "158: \t\ttlsConfig := \u0026tls.Config{\n159: \t\t\tInsecureSkipVerify: skipVerify,\n160: \t\t}\n",
+			"line": "159",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
+			"code": "382: func GetWeChatOAuth2Config(appID, appSecret, redirectURL string) OAuth2Provider {\n383: \treturn OAuth2Provider{\n384: \t\tName:         \"wechat\",\n385: \t\tClientID:     appID,\n386: \t\tClientSecret: appSecret,\n387: \t\tAuthURL:      \"https://open.weixin.qq.com/connect/qrconnect\",\n388: \t\tTokenURL:     \"https://api.weixin.qq.com/sns/oauth2/access_token\",\n389: \t\tUserInfoURL:  \"https://api.weixin.qq.com/sns/userinfo\",\n390: \t\tRedirectURL:  redirectURL,\n391: \t\tScopes:       []string{\"snsapi_login\"},\n392: \t\tEnabled:      true,\n393: \t}\n394: }\n",
+			"line": "383-393",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
+			"code": "367: func GetMicrosoftOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n368: \treturn OAuth2Provider{\n369: \t\tName:         \"microsoft\",\n370: \t\tClientID:     clientID,\n371: \t\tClientSecret: clientSecret,\n372: \t\tAuthURL:      \"https://login.microsoftonline.com/common/oauth2/v2.0/authorize\",\n373: \t\tTokenURL:     \"https://login.microsoftonline.com/common/oauth2/v2.0/token\",\n374: \t\tUserInfoURL:  \"https://graph.microsoft.com/v1.0/me\",\n375: \t\tRedirectURL:  redirectURL,\n376: \t\tScopes:       []string{\"openid\", \"email\", \"profile\"},\n377: \t\tEnabled:      true,\n378: \t}\n379: }\n",
+			"line": "368-378",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
+			"code": "352: func GetGitHubOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n353: \treturn OAuth2Provider{\n354: \t\tName:         \"github\",\n355: \t\tClientID:     clientID,\n356: \t\tClientSecret: clientSecret,\n357: \t\tAuthURL:      \"https://github.com/login/oauth/authorize\",\n358: \t\tTokenURL:     \"https://github.com/login/oauth/access_token\",\n359: \t\tUserInfoURL:  \"https://api.github.com/user\",\n360: \t\tRedirectURL:  redirectURL,\n361: \t\tScopes:       []string{\"read:user\", \"user:email\"},\n362: \t\tEnabled:      true,\n363: \t}\n364: }\n",
+			"line": "353-363",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
+			"code": "337: func GetGoogleOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n338: \treturn OAuth2Provider{\n339: \t\tName:         \"google\",\n340: \t\tClientID:     clientID,\n341: \t\tClientSecret: clientSecret,\n342: \t\tAuthURL:      \"https://accounts.google.com/o/oauth2/v2/auth\",\n343: \t\tTokenURL:     \"https://oauth2.googleapis.com/token\",\n344: \t\tUserInfoURL:  \"https://www.googleapis.com/oauth2/v2/userinfo\",\n345: \t\tRedirectURL:  redirectURL,\n346: \t\tScopes:       []string{\"openid\", \"email\", \"profile\"},\n347: \t\tEnabled:      true,\n348: \t}\n349: }\n",
+			"line": "338-348",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/encryption.go",
+			"code": "309: \t// 写入解密文件\n310: \tif err := os.WriteFile(dstPath, plaintext, 0600); err != nil {\n311: \t\treturn err\n",
+			"line": "310",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/encryption.go",
+			"code": "280: \t// 写入加密文件\n281: \tif err := os.WriteFile(dstPath, ciphertext, 0600); err != nil {\n282: \t\treturn err\n",
+			"line": "281",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/scanner/permission_checker.go",
+			"code": "464: \n465: \t\tinfo, err := os.Stat(homeDir)\n466: \t\tif err != nil {\n",
+			"line": "465",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "367",
+				"url": "https://cwe.mitre.org/data/definitions/367.html"
+			},
+			"rule_id": "G122",
+			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/detector.go",
+			"code": "372: \t\tif d.isProtectedExtension(ext) {\n373: \t\t\tif file, err := os.Open(filePath); err == nil {\n374: \t\t\t\tdefer func() { _ = file.Close() }()\n",
+			"line": "373",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_raid.go",
+			"code": "1209: \tctx := context.Background()\n1210: \tcmd := exec.CommandContext(ctx, \"sudo\", \"btrfs\", \"replace\", \"status\", mountPoint)\n1211: \toutput, err := cmd.Output()\n",
+			"line": "1210",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_raid.go",
+			"code": "1180: \t// 获取 SMART 信息\n1181: \tcmd = exec.CommandContext(ctx, \"sudo\", \"smartctl\", \"-H\", devicePath)\n1182: \toutput, _ = cmd.Output()\n",
+			"line": "1181",
+			"column": "8",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_raid.go",
+			"code": "1158: \t// 获取设备信息\n1159: \tcmd = exec.CommandContext(ctx, \"sudo\", \"lsblk\", \"-d\", \"-o\", \"NAME,SERIAL,MODEL,ROTA\", \"-n\", devicePath)\n1160: \toutput, err = cmd.Output()\n",
+			"line": "1159",
+			"column": "8",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_raid.go",
+			"code": "1150: \t// 获取设备容量\n1151: \tcmd := exec.CommandContext(ctx, \"sudo\", \"blockdev\", \"--getsize64\", devicePath)\n1152: \toutput, err := cmd.Output()\n",
+			"line": "1151",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_raid.go",
+			"code": "781: \tctx := context.Background()\n782: \tcmd := exec.CommandContext(ctx, \"sudo\", \"btrfs\", \"replace\", \"start\", oldDevice, newDevice, pool.MountPoint)\n783: \tif output, err := cmd.CombinedOutput(); err != nil {\n",
+			"line": "782",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/hot_spare.go",
+			"code": "833: func (h *HotSpareManager) cancelReplace(mountPoint string) error {\n834: \tcmd := exec.CommandContext(h.ctx, \"sudo\", \"btrfs\", \"replace\", \"cancel\", mountPoint)\n835: \toutput, err := cmd.CombinedOutput()\n",
+			"line": "834",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/hot_spare.go",
+			"code": "785: func (h *HotSpareManager) getReplaceStatus(mountPoint string) (*ReplaceStatus, error) {\n786: \tcmd := exec.CommandContext(h.ctx, \"sudo\", \"btrfs\", \"replace\", \"status\", mountPoint)\n787: \toutput, err := cmd.Output()\n",
+			"line": "786",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/hot_spare.go",
+			"code": "775: func (h *HotSpareManager) replaceDevice(mountPoint, srcDevice, tgtDevice string) error {\n776: \tcmd := exec.CommandContext(h.ctx, \"sudo\", \"btrfs\", \"replace\", \"start\", srcDevice, tgtDevice, mountPoint)\n777: \toutput, err := cmd.CombinedOutput()\n",
+			"line": "776",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/hot_spare.go",
+			"code": "740: \t// 检查设备是否已挂载\n741: \tcmd = exec.CommandContext(h.ctx, \"grep\", \"-q\", device, \"/proc/mounts\")\n742: \tif cmd.Run() == nil {\n",
+			"line": "741",
+			"column": "8",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/hot_spare.go",
+			"code": "734: \t// 检查设备是否存在\n735: \tcmd := exec.CommandContext(h.ctx, \"test\", \"-b\", device)\n736: \tif err := cmd.Run(); err != nil {\n",
+			"line": "735",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/hot_spare.go",
+			"code": "718: \t// 使用 blockdev 命令获取设备大小\n719: \tcmd := exec.CommandContext(h.ctx, \"sudo\", \"blockdev\", \"--getsize64\", device)\n720: \toutput, err := cmd.Output()\n",
+			"line": "719",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/hot_spare.go",
+			"code": "417: \t// 使用 btrfs device stats 命令获取错误统计\n418: \tcmd := exec.CommandContext(h.ctx, \"sudo\", \"btrfs\", \"device\", \"stats\", device)\n419: \toutput, err := cmd.Output()\n",
+			"line": "418",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/disk_encryption.go",
+			"code": "1060: func (dm *DiskEncryptionManager) getLUKSUUID(devicePath string) (string, error) {\n1061: \tcmd := exec.CommandContext(context.Background(), \"cryptsetup\", \"luksUUID\", devicePath)\n1062: \toutput, err := cmd.Output()\n",
+			"line": "1061",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/disk_encryption.go",
+			"code": "768: \t\t// 执行轮换\n769: \t\tcmd := exec.CommandContext(context.Background(), \"cryptsetup\", \"luksAddKey\", devicePath)\n770: \t\tstdin, err := cmd.StdinPipe()\n",
+			"line": "769",
+			"column": "10",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/disk_encryption.go",
+			"code": "684: func (dm *DiskEncryptionManager) removeKeySlotInternal(devicePath, passphrase string, slotID int) error {\n685: \tcmd := exec.CommandContext(context.Background(), \"cryptsetup\", \"luksKillSlot\", devicePath, fmt.Sprintf(\"%d\", slotID))\n686: \tcmd.Stdin = strings.NewReader(passphrase + \"\\n\")\n",
+			"line": "685",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/disk_encryption.go",
+			"code": "646: \t// 添加新密钥\n647: \tcmd := exec.CommandContext(context.Background(), \"cryptsetup\", \"luksAddKey\", devicePath)\n648: \tstdin, err := cmd.StdinPipe()\n",
+			"line": "647",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/disk_encryption.go",
+			"code": "599: \n600: \tcmd := exec.CommandContext(context.Background(), \"cryptsetup\", \"luksKillSlot\", devicePath, fmt.Sprintf(\"%d\", slotID))\n601: \tcmd.Stdin = strings.NewReader(passphrase + \"\\n\")\n",
+			"line": "600",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/disk_encryption.go",
+			"code": "569: \n570: \tcmd := exec.CommandContext(context.Background(), \"cryptsetup\", args...)\n571: \tstdin, err := cmd.StdinPipe()\n",
+			"line": "570",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/disk_encryption.go",
+			"code": "489: \t// 使用 cryptsetup 获取信息\n490: \tcmd := exec.CommandContext(context.Background(), \"cryptsetup\", \"luksDump\", devicePath)\n491: \toutput, err := cmd.Output()\n",
+			"line": "490",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/disk_encryption.go",
+			"code": "456: \t// 使用 cryptsetup 关闭卷\n457: \tcmd := exec.CommandContext(context.Background(), \"cryptsetup\", \"luksClose\", mapperName)\n458: \n",
+			"line": "457",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/disk_encryption.go",
+			"code": "422: \t// 使用 cryptsetup 打开卷\n423: \tcmd := exec.CommandContext(context.Background(), \"cryptsetup\", \"luksOpen\", devicePath, mapperName)\n424: \tcmd.Stdin = strings.NewReader(passphrase + \"\\n\")\n",
+			"line": "423",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/disk_encryption.go",
+			"code": "363: \t// 使用 cryptsetup 创建 LUKS 卷\n364: \tcmd := exec.CommandContext(context.Background(), \"cryptsetup\", \"-q\", \"--type\", luksVersion,\n365: \t\t\"--cipher\", cipher,\n366: \t\t\"--key-size\", fmt.Sprintf(\"%d\", keySize),\n367: \t\t\"luksFormat\", devicePath)\n368: \n",
+			"line": "364-367",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/firewall.go",
+			"code": "511: \tif fm.config.IPv6Enabled {\n512: \t\tcmd = exec.CommandContext(ctx, \"ip6tables\", \"-D\", \"INPUT\", \"-s\", ip, \"-j\", \"DROP\")\n513: \t\t_ = cmd.Run()\n",
+			"line": "512",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/firewall.go",
+			"code": "507: \tdefer cancel()\n508: \tcmd := exec.CommandContext(ctx, \"iptables\", \"-D\", \"INPUT\", \"-s\", ip, \"-j\", \"DROP\")\n509: \t_ = cmd.Run()\n",
+			"line": "508",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/firewall.go",
+			"code": "481: \tif fm.config.IPv6Enabled \u0026\u0026 net.ParseIP(ip).To4() == nil {\n482: \t\tcmd = exec.CommandContext(ctx, \"ip6tables\", \"-A\", \"INPUT\", \"-s\", ip, \"-j\", \"DROP\")\n483: \t\t_ = cmd.Run()\n",
+			"line": "482",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/firewall.go",
+			"code": "475: \tdefer cancel()\n476: \tcmd := exec.CommandContext(ctx, \"iptables\", \"-A\", \"INPUT\", \"-s\", ip, \"-j\", \"DROP\")\n477: \tif err := cmd.Run(); err != nil {\n",
+			"line": "476",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/fail2ban.go",
+			"code": "570: \n571: \tcmd := exec.CommandContext(context.Background(), \"fail2ban-client\", \"status\", jail)\n572: \toutput, err := cmd.Output()\n",
+			"line": "571",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/fail2ban.go",
+			"code": "254: \t\tfor _, jail := range jails {\n255: \t\t\tcmd = exec.CommandContext(context.Background(), \"fail2ban-client\", \"set\", jail, \"unbanip\", ip)\n256: \t\t\t_ = cmd.Run()\n",
+			"line": "255",
+			"column": "10",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/fail2ban.go",
+			"code": "245: \tif net.ParseIP(ip).To4() == nil {\n246: \t\tcmd = exec.CommandContext(context.Background(), \"ip6tables\", \"-D\", \"INPUT\", \"-s\", ip, \"-j\", \"DROP\")\n247: \t\t_ = cmd.Run()\n",
+			"line": "246",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/fail2ban.go",
+			"code": "241: func (f2m *Fail2BanManager) removeBan(ip string) error {\n242: \tcmd := exec.CommandContext(context.Background(), \"iptables\", \"-D\", \"INPUT\", \"-s\", ip, \"-j\", \"DROP\")\n243: \t_ = cmd.Run()\n",
+			"line": "242",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/fail2ban.go",
+			"code": "208: \tfor _, jail := range jails {\n209: \t\tcmd = exec.CommandContext(context.Background(), \"fail2ban-client\", \"set\", jail, \"banip\", ip)\n210: \t\t_ = cmd.Run()\n",
+			"line": "209",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/fail2ban.go",
+			"code": "190: \tif net.ParseIP(ip).To4() == nil {\n191: \t\tcmd = exec.CommandContext(context.Background(), \"ip6tables\", \"-I\", \"INPUT\", \"-s\", ip, \"-j\", \"DROP\")\n192: \t\t_ = cmd.Run()\n",
+			"line": "191",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/fail2ban.go",
+			"code": "182: \t// 使用 iptables 封禁 IP\n183: \tcmd := exec.CommandContext(context.Background(), \"iptables\", \"-I\", \"INPUT\", \"-s\", ip, \"-j\", \"DROP\")\n184: \tif err := cmd.Run(); err != nil {\n",
+			"line": "183",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/cmdsec/safe_command.go",
+			"code": "182: \t}\n183: \treturn exec.CommandContext(ctx, name, args...), nil\n184: }\n",
+			"line": "183",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/cmdsec/safe_command.go",
+			"code": "169: \t}\n170: \treturn exec.CommandContext(context.Background(), name, args...), nil\n171: }\n",
+			"line": "170",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with a potential tainted input or cmd arguments",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/baseline.go",
+			"code": "351: \t\t// 检查用户是否存在于 /etc/passwd\n352: \t\tcmd := exec.CommandContext(context.Background(), \"grep\", \"-c\", \"^\"+defaultUser+\":\", \"/etc/passwd\")\n353: \t\toutput, err := cmd.Output()\n",
+			"line": "352",
+			"column": "10",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/tiering/manager.go",
+			"code": "800: \t// 创建目标文件\n801: \tdstFile, err := os.Create(dst)\n802: \tif err != nil {\n",
+			"line": "801",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/tiering/manager.go",
+			"code": "793: \t// 打开源文件\n794: \tsrcFile, err := os.Open(src)\n795: \tif err != nil {\n",
+			"line": "794",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/selfheal.go",
+			"code": "1025: \trepairsFile := filepath.Join(sh.config.DataDir, \"repairs.json\")\n1026: \trepairsData, err := os.ReadFile(repairsFile)\n1027: \tif err == nil {\n",
+			"line": "1026",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/selfheal.go",
+			"code": "1015: \terrorsFile := filepath.Join(sh.config.DataDir, \"errors.json\")\n1016: \terrorsData, err := os.ReadFile(errorsFile)\n1017: \tif err == nil {\n",
+			"line": "1016",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/selfheal.go",
+			"code": "921: \tdbFile := filepath.Join(dataDir, \"checksums.json\")\n922: \tdata, err := os.ReadFile(dbFile)\n923: \tif err != nil {\n",
+			"line": "922",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/selfheal.go",
+			"code": "485: func (sh *SelfHealManager) calculateFileChecksum(path string) (string, error) {\n486: \tfile, err := os.Open(path)\n487: \tif err != nil {\n",
+			"line": "486",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/vulnerability_scanner.go",
+			"code": "1043: \n1044: \tdata, err := os.ReadFile(filename)\n1045: \tif err != nil {\n",
+			"line": "1044",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/vulnerability_scanner.go",
+			"code": "660: \n661: \tdata, err := os.ReadFile(filename)\n662: \tif err != nil {\n",
+			"line": "661",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/safe_file_manager.go",
+			"code": "586: \tif isTextFile(path) {\n587: \t\tdata, err := os.ReadFile(path)\n588: \t\tif err == nil \u0026\u0026 len(data) \u003c 10*1024*1024 { // 限制10MB\n",
+			"line": "587",
+			"column": "16",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/safe_file_manager.go",
+			"code": "397: \n398: \tdata, err := os.ReadFile(path)\n399: \tif err != nil {\n",
+			"line": "398",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/safe_file_manager.go",
+			"code": "202: \n203: \tdata, err := os.ReadFile(safePath)\n204: \tif err != nil {\n",
+			"line": "203",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/encryption.go",
+			"code": "345: \tkeyFilePath := filepath.Join(path, \".dir.key\")\n346: \tencryptedKey, err := os.ReadFile(keyFilePath)\n347: \tif err != nil {\n",
+			"line": "346",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/encryption.go",
+			"code": "297: \t// 读取加密文件\n298: \tciphertext, err := os.ReadFile(srcPath)\n299: \tif err != nil {\n",
+			"line": "298",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/encryption.go",
+			"code": "268: \t// 读取源文件\n269: \tplaintext, err := os.ReadFile(srcPath)\n270: \tif err != nil {\n",
+			"line": "269",
+			"column": "20",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/scanner/vulnerability_scanner.go",
+			"code": "392: \n393: \tdata, err := os.ReadFile(filename)\n394: \tif err != nil {\n",
+			"line": "393",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/scanner/vulnerability_scanner.go",
+			"code": "265: \n266: \tdata, err := os.ReadFile(filename)\n267: \tif err != nil {\n",
+			"line": "266",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/scanner/score_engine.go",
+			"code": "643: \n644: \tdata, err := os.ReadFile(filename)\n645: \tif err != nil {\n",
+			"line": "644",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/scanner/filesystem_scanner.go",
+			"code": "659: func (s *FilesystemScanner) calculateFileHash(path string, algorithm string) (string, error) {\n660: \tfile, err := os.Open(path)\n661: \tif err != nil {\n",
+			"line": "660",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/scanner/filesystem_scanner.go",
+			"code": "477: \t// 读取文件内容\n478: \tcontent, err := os.ReadFile(path)\n479: \tif err != nil {\n",
+			"line": "478",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/risk_indicator.go",
+			"code": "207: \tepssCachePath := filepath.Join(rim.storageDir, \"epss_cache.json\")\n208: \tif data, err := os.ReadFile(epssCachePath); err == nil {\n209: \t\tvar epssData map[string]*EPSSData\n",
+			"line": "208",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/risk_indicator.go",
+			"code": "198: \tkevCachePath := filepath.Join(rim.storageDir, \"kev_catalog.json\")\n199: \tif data, err := os.ReadFile(kevCachePath); err == nil {\n200: \t\tvar catalog KEVCatalog\n",
+			"line": "199",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/signature_db.go",
+			"code": "693: func (db *SignatureDB) LoadFromFile(path string) error {\n694: \tdata, err := os.ReadFile(path)\n695: \tif err != nil {\n",
+			"line": "694",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/quarantine.go",
+			"code": "126: \t// 创建目标文件\n127: \tdstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)\n128: \tif err != nil {\n",
+			"line": "127",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/quarantine.go",
+			"code": "119: \t// 打开源文件\n120: \tsrcFile, err := os.Open(src)\n121: \tif err != nil {\n",
+			"line": "120",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/detector.go",
+			"code": "372: \t\tif d.isProtectedExtension(ext) {\n373: \t\t\tif file, err := os.Open(filePath); err == nil {\n374: \t\t\t\tdefer func() { _ = file.Close() }()\n",
+			"line": "373",
+			"column": "20",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/behavior_monitor.go",
+			"code": "633: func CalculateFileHash(filePath string) (string, error) {\n634: \tdata, err := os.ReadFile(filePath)\n635: \tif err != nil {\n",
+			"line": "634",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/behavior_monitor.go",
+			"code": "624: func CalculateFileEntropy(filePath string) (float64, error) {\n625: \tdata, err := os.ReadFile(filePath)\n626: \tif err != nil {\n",
+			"line": "625",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/auto_snapshot.go",
+			"code": "716: \n717: \tdstFile, err := os.Create(dst)\n718: \tif err != nil {\n",
+			"line": "717",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/auto_snapshot.go",
+			"code": "704: func copyFile(src, dst string) error {\n705: \tsrcFile, err := os.Open(src)\n706: \tif err != nil {\n",
+			"line": "705",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/audit.go",
+			"code": "490: \t// 加载登录日志\n491: \tif data, err := os.ReadFile(loginLogFile); err == nil {\n492: \t\tvar logs []*LoginLogEntry\n",
+			"line": "491",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/audit.go",
+			"code": "482: \t// 加载审计日志\n483: \tif data, err := os.ReadFile(auditLogFile); err == nil {\n484: \t\tvar logs []*AuditLogEntry\n",
+			"line": "483",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/audit.go",
+			"code": "463: \t// 追加写入\n464: \tf, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)\n465: \tif err != nil {\n",
+			"line": "464",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "499",
+				"url": "https://cwe.mitre.org/data/definitions/499.html"
+			},
+			"rule_id": "G117",
+			"details": "Marshaled struct field \"RefreshToken\" (JSON key \"refresh_token\") matches secret pattern",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/session_manager.go",
+			"code": "452: \n453: \tdata, err := json.MarshalIndent(sessions, \"\", \"  \")\n454: \tif err != nil {\n",
+			"line": "453",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G302",
+			"details": "Expect file permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/quarantine.go",
+			"code": "180: \n181: \tdstFile, err := os.OpenFile(entry.OriginalPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)\n182: \tif err != nil {\n",
+			"line": "181",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G302",
+			"details": "Expect file permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/security_audit.go",
+			"code": "98: \t// 写入日志文件\n99: \tf, err := os.OpenFile(l.logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0640)\n100: \tif err != nil {\n",
+			"line": "99",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G301",
+			"details": "Expect directory permissions to be 0750 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/tiering/manager.go",
+			"code": "788: \t// 确保目标目录存在\n789: \tif err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {\n790: \t\treturn fmt.Errorf(\"创建目标目录失败: %w\", err)\n",
+			"line": "789",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G301",
+			"details": "Expect directory permissions to be 0750 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/space_analyzer.go",
+			"code": "201: \t// 确保目录存在\n202: \tif err := os.MkdirAll(sa.dataDir, 0755); err != nil {\n203: \t\treturn fmt.Errorf(\"创建数据目录失败: %w\", err)\n",
+			"line": "202",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G301",
+			"details": "Expect directory permissions to be 0750 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/nvmeof/manager.go",
+			"code": "160: \n161: \tif err := os.MkdirAll(filepath.Dir(m.configPath), 0o755); err != nil {\n162: \t\treturn err\n",
+			"line": "161",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G301",
+			"details": "Expect directory permissions to be 0750 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/sensitivemask/policy.go",
+			"code": "343: \n344: \tif err := os.MkdirAll(al.storage, 0755); err != nil {\n345: \t\treturn\n",
+			"line": "344",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G301",
+			"details": "Expect directory permissions to be 0750 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/sensitivemask/policy.go",
+			"code": "196: \n197: \tif err := os.MkdirAll(pm.storage, 0755); err != nil {\n198: \t\treturn\n",
+			"line": "197",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G301",
+			"details": "Expect directory permissions to be 0750 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/honeyfile.go",
+			"code": "408: \tif subdir != \"\" {\n409: \t\tif err := os.MkdirAll(filepath.Join(basePath, subdir), 0755); err != nil {\n410: \t\t\treturn nil, err\n",
+			"line": "409",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G301",
+			"details": "Expect directory permissions to be 0750 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/honeyfile.go",
+			"code": "370: \t// 确保路径存在\n371: \tif err := os.MkdirAll(basePath, 0755); err != nil {\n372: \t\treturn err\n",
+			"line": "371",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G301",
+			"details": "Expect directory permissions to be 0750 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/auto_snapshot.go",
+			"code": "712: \tdstDir := filepath.Dir(dst)\n713: \tif err := os.MkdirAll(dstDir, 0755); err != nil {\n714: \t\treturn err\n",
+			"line": "713",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G306",
+			"details": "Expect WriteFile permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/tiering/manager.go",
+			"code": "1067: \n1068: \treturn os.WriteFile(m.config.ConfigPath, data, 0640)\n1069: }\n",
+			"line": "1068",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G306",
+			"details": "Expect WriteFile permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/space_analyzer.go",
+			"code": "205: \n206: \treturn os.WriteFile(sa.indexPath, data, 0644)\n207: }\n",
+			"line": "206",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G306",
+			"details": "Expect WriteFile permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/selfheal.go",
+			"code": "1004: \t}\n1005: \tif err := os.WriteFile(repairsFile, repairsData, 0640); err != nil {\n1006: \t\treturn err\n",
+			"line": "1005",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G306",
+			"details": "Expect WriteFile permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/selfheal.go",
+			"code": "994: \t}\n995: \tif err := os.WriteFile(errorsFile, errorsData, 0640); err != nil {\n996: \t\treturn err\n",
+			"line": "995",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G306",
+			"details": "Expect WriteFile permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/selfheal.go",
+			"code": "982: \tdbFile := filepath.Join(db.dataDir, \"checksums.json\")\n983: \treturn os.WriteFile(dbFile, data, 0640)\n984: }\n",
+			"line": "983",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G306",
+			"details": "Expect WriteFile permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/sensitivemask/policy.go",
+			"code": "346: \t}\n347: \tif err := os.WriteFile(filepath.Join(al.storage, \"audit_logs.json\"), data, 0644); err != nil {\n348: \t\treturn\n",
+			"line": "347",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G306",
+			"details": "Expect WriteFile permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/sensitivemask/policy.go",
+			"code": "199: \t}\n200: \tif err := os.WriteFile(filepath.Join(pm.storage, \"policies.json\"), data, 0644); err != nil {\n201: \t\treturn\n",
+			"line": "200",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G306",
+			"details": "Expect WriteFile permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/signature_db.go",
+			"code": "729: \n730: \treturn os.WriteFile(path, data, 0644)\n731: }\n",
+			"line": "730",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G306",
+			"details": "Expect WriteFile permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/honeyfile.go",
+			"code": "429: \t// 写入文件\n430: \tif err := os.WriteFile(fullPath, content, 0644); err != nil {\n431: \t\treturn nil, err\n",
+			"line": "430",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G306",
+			"details": "Expect WriteFile permissions to be 0600 or less",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/fail2ban.go",
+			"code": "536: \tfilterPath := \"/etc/fail2ban/filter.d/nas-os-auth.conf\"\n537: \tif err := os.WriteFile(filterPath, []byte(filter), 0640); err != nil {\n538: \t\treturn fmt.Errorf(\"写入过滤器失败：%w\", err)\n",
+			"line": "537",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/tier_scheduler.go",
+			"code": "484: \t\t\t\t\tif s.policyManager != nil {\n485: \t\t\t\t\t\ts.policyManager.UpdatePolicyNextRun(policy.ID, now.Add(s.config.CheckInterval))\n486: \t\t\t\t\t}\n",
+			"line": "485",
+			"column": "7",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/ransomware/honeyfile.go",
+			"code": "941: \t\t\t// 删除旧文件（如果还存在）\n942: \t\t\tos.Remove(file.Path)\n943: \n",
+			"line": "942",
+			"column": "4",
+			"nosec": false,
+			"suppressions": null
+		}
+	],
+	"Stats": {
+		"files": 88,
+		"lines": 53425,
+		"nosec": 7,
+		"found": 125
+	},
+	"GosecVersion": "dev"
+}
