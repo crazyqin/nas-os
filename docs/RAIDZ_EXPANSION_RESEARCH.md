@@ -1,421 +1,420 @@
-# RAIDZ扩展加速技术调研报告
+# RAIDZ Expansion 技术研究报告
 
-**调研日期**: 2026-03-25
-**调研部门**: 户部（技术调研与成本优化）
-**调研目标**: 评估存储池在线扩容技术方案，对比ZFS RAIDZ Expansion与btrfs RAID扩展能力
-
----
-
-## 1. 背景概述
-
-### 1.1 调研背景
-
-TrueNAS Fangtooth（25.04版本）发布了RAIDZ扩展加速功能，将扩容速度提升5倍，最高可达10倍。OpenZFS 2.3正式支持RAIDZ Expansion特性。nas-os项目目前使用btrfs作为底层文件系统，需要评估实现类似功能的可行性和技术路径。
-
-### 1.2 核心问题
-
-- btrfs是否具备与ZFS RAIDZ Expansion相当的在线扩容能力？
-- 两种文件系统的RAID扩展机制有何本质差异？
-- nas-os实现存储池在线扩容的最佳方案是什么？
+> **版本**: v1.0.0  
+> **日期**: 2026-03-30  
+> **作者**: 兵部（软件工程与系统架构）
 
 ---
 
-## 2. ZFS RAIDZ Expansion技术分析
+## 1. 概述
 
-### 2.1 功能概述
+RAIDZ Expansion 是 OpenZFS 2.3 引入的革命性特性，允许用户向现有 RAIDZ VDEV 逐个添加磁盘，实现存储池的渐进式扩容。此特性由 iXsystems 赞助开发，并在 TrueNAS 24.10 (Electric Eel) 中首次集成 UI 支持。
 
-RAIDZ Expansion是OpenZFS 2.3引入的重大特性，允许用户向现有RAIDZ vdev逐个添加磁盘，实现增量扩容。
+### 1.1 解决的核心问题
 
-**核心特性**：
-- 支持RAIDZ1、RAIDZ2、RAIDZ3
-- 在线操作，存储池保持可访问
-- 保持原有冗余级别
-- 支持中断恢复（系统重启后继续）
+传统 ZFS 扩容方式存在两大局限：
+1. **整组扩容**：添加新 VDEV 需要成倍增加磁盘（如 RAIDZ2 需加一组 6 盘）
+2. **空间浪费**：小规模部署难以有效利用增量扩容
 
-### 2.2 技术实现
+RAIDZ Expansion 允许单盘扩容，大幅降低扩容门槛：
+- 原：5 盘 RAIDZ2 → 扩容需再加一组 5-6 盘（10-11 盘总量）
+- 新：5 盘 RAIDZ2 → 单盘扩容至 6 盘（增量成本降低 80%+）
 
-**工作原理**：
-1. 使用`zpool attach pool raidz-N new_device`命令添加新磁盘
-2. 系统自动进行数据重新分布（reflow）
-3. 数据在所有磁盘间重新条带化
-4. 新数据使用新的条带宽度写入
+---
 
-**关键代码路径**：
-```c
-// OpenZFS RAIDZ Expansion核心流程
-spa_vdev_attach() -> vdev_expand() -> raidz_expand_()
+## 2. 技术原理
+
+### 2.1 核心机制
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   RAIDZ Expansion 流程                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  原始状态              扩展中              完成状态           │
+│  ┌─┐ ┌─┐ ┌─┐ ┌─┐     ┌─┐ ┌─┐ ┌─┐ ┌─┐     ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐│
+│  │D│ │D│ │P│ │P│     │D│ │D│ │P│ │P│     │D│ │D│ │D│ │P│ │P││
+│  └─┘ └─┘ └─┘ └─┘     └─┘ └─┘ └─┘ └─┘     └─┘ └─┘ └─┘ └─┘ └─┘│
+│       4盘 RAIDZ2    +   新盘(迁移中)      5盘 RAIDZ2         │
+│                                                             │
+│  数据块需重新分布 → 新盘逐步接收数据 → 容量增加             │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-**数据重分布过程**：
-- 按顺序读取现有数据
-- 计算新的奇偶校验
-- 写入新的条带布局
-- 维护事务一致性
+### 2.2 关键技术点
 
-### 2.3 TrueNAS加速优化
+| 要素 | 说明 |
+|------|------|
+| **触发命令** | `zpool attach POOL raidzP-N NEW_DEVICE` |
+| **特性标志** | `feature@raidz_expansion` 必须启用 |
+| **数据迁移** | 读取已分配空间 → 重写到新配置（含新盘） |
+| **进度监控** | `zpool status` 显示扩展进度百分比 |
+| **中断恢复** | 支持重启/export/import 后继续 |
 
-TrueNAS团队对RAIDZ Expansion进行了算法优化：
+### 2.3 数据重分布算法
 
-| 优化点 | 效果 |
-|--------|------|
-| 并行化读取 | 提升I/O吞吐 |
-| 批量写入 | 减少随机I/O |
-| 顺序化reflow | 减少磁盘寻道 |
-| 智能调度 | 降低对正常I/O的影响 |
+```
+原始布局 (5盘 RAIDZ2):
+┌─────────────────────────────────────┐
+│ Block A: D1 D2 P1 P2 (宽=4)         │
+│ Block B: D3 D4 P1 P2 (宽=4)         │
+│ 奇偶比: 3数据 : 2校验               │
+└─────────────────────────────────────┘
 
-**性能提升**：
-- HDD阵列：5倍加速（典型情况）
-- 最大可达：10倍加速
-- 原始数据：6.38GB在4分31秒内完成重分布
+扩展后布局 (6盘 RAIDZ2):
+┌─────────────────────────────────────┐
+│ Block A: D1 D2 D3 P1 P2 (宽=5)      │ ← 新块
+│ Block B (旧): 分布到 6 盘           │ ← 旧块保持原奇偶比
+│ 新块奇偶比: 4数据 : 2校验           │
+└─────────────────────────────────────┘
+```
 
-### 2.4 开发投入
-
-- **开发周期**：约3年（含疫情延迟）
-- **资金投入**：约$100,000（FreeBSD Foundation资助）
-- **核心开发者**：Matt Ahrens（ZFS联合创始人）
-- **集成工作**：iXsystems完成最终集成
+**重要发现**：
+- 旧数据块保持原有奇偶比，分布到更多磁盘
+- 新数据块采用新的奇偶比
+- 存在"容量折损"（headroom loss）现象
 
 ---
 
-## 3. btrfs RAID扩展能力分析
+## 3. 容量分析
 
-### 3.1 设备管理机制
+### 3.1 容量计算公式
 
-btrfs支持动态添加、移除、替换设备：
+```
+理论容量 = (N - P) × DiskSize
+
+其中:
+- N = 磁盘总数
+- P = 奇偶校验盘数 (RAIDZ1=1, RAIDZ2=2, RAIDZ3=3)
+
+扩展后实际可用容量:
+- 新写入数据: 使用新奇偶比 (N_new - P)
+- 旧数据区块: 按旧奇偶比计算 (N_old - P)
+- 报告容量: 取保守值（旧奇偶比）
+```
+
+### 3.2 容量折损示例
+
+| 配置 | 理论容量 | 报告容量 | 折损率 |
+|------|----------|----------|--------|
+| 4盘 RAIDZ2 → 5盘 | 3×D | 2×D (旧) | ~33% |
+| 5盘 RAIDZ2 → 6盘 | 4×D | 3×D (旧) | ~25% |
+| 6盘 RAIDZ2 → 7盘 | 5×D | 4×D (旧) | ~20% |
+
+**恢复方法**：
+1. 自然恢复：随数据修改/删除逐步释放
+2. 主动恢复：复制重写数据到扩展池
+
+### 3.3 RAIDZ Expansion Calculator
+
+TrueNAS 提供官方计算器：
+- https://www.truenas.com/docs/references/extensioncalculator/
+- 可预估容量折损和恢复潜力
+
+---
+
+## 4. 可用性与容错
+
+### 4.1 扩展期间特性
+
+| 特性 | 状态 |
+|------|------|
+| **池可访问** | ✅ 全程可读写 |
+| **数据冗余** | ✅ 保持原有容错能力 |
+| **磁盘故障处理** | 扩展暂停 → 修复 → 继续 |
+| **重启恢复** | ✅ 自动从断点继续 |
+| **取消支持** | ❌ 不可逆操作 |
+
+### 4.2 容错能力不变性
+
+```
+扩展前后容错能力对比:
+
+4盘 RAIDZ2 (容错 2 盘) → 5盘 RAIDZ2 (容错 2 盘)
+✅ 容错级别不变
+⚠️ 但磁盘总数增加，故障概率略有上升
+```
+
+### 4.3 多次扩展支持
+
+- RAIDZ VDEV 可多次扩展
+- 每次扩展都会进一步改变奇偶比
+- 建议：扩展后尽量让数据自然迁移
+
+---
+
+## 5. 系统要求
+
+### 5.1 OpenZFS 版本
+
+| 版本 | RAIDZ Expansion 支持 |
+|------|----------------------|
+| OpenZFS 2.2.x | ✅ 实验性支持 |
+| OpenZFS 2.3+ | ✅ 正式支持 |
+| TrueNAS 24.10 | ✅ UI集成 |
+
+### 5.2 特性标志
 
 ```bash
-# 添加设备
-btrfs device add /dev/sdb /mnt/btrfs
+# 检查特性是否启用
+zpool get feature@raidz_expansion POOL
 
-# 移除设备（数据自动迁移）
-btrfs device remove /dev/sda /mnt/btrfs
+# 启用特性（池升级）
+zpool upgrade POOL
 
-# 替换设备
-btrfs replace start /dev/sda /dev/sdc /mnt/btrfs
+# 特性状态:
+# - disabled: 未启用
+# - enabled: 可扩展
+# - active: 已扩展（不可回退）
 ```
 
-### 3.2 Profile转换与Balance
+### 5.3 前置条件
 
-**Profile类型**：
-| Profile | 最小设备数 | 冗余 | 容量利用率 |
-|---------|-----------|------|-----------|
-| single | 1 | 无 | 100% |
-| DUP | 1 | 2副本（同盘） | 50% |
-| RAID1 | 2 | 2副本 | 50% |
-| RAID1C3 | 3 | 3副本 | 33% |
-| RAID1C4 | 4 | 4副本 | 25% |
-| RAID10 | 2+ | 镜像+条带 | 50% |
-| RAID5 | 2 | 单奇偶校验 | (n-1)/n |
-| RAID6 | 3 | 双奇偶校验 | (n-2)/n |
-
-**扩展流程**：
-```bash
-# 1. 添加新设备
-btrfs device add /dev/sdc /mnt/btrfs
-
-# 2. 转换profile（如需要）
-btrfs balance start -mconvert=raid1 -dconvert=raid1 /mnt/btrfs
-
-# 3. 对于RAID5/6，需要特殊的stripes filter
-btrfs balance start -dstripes=1..N /mnt/btrfs
-```
-
-### 3.3 RAID5/6状态与限制
-
-**当前状态**（截至Linux 6.x）：
-- 官方标记：**不稳定（unstable）**
-- Write Hole问题：仍存在
-- 不建议用于生产环境
-
-**官方文档说明**：
-> RAID56 is not implemented. RAID5/6 profiles are experimental and should not be used in production.
-
-**社区建议**：
-- 使用RAID1/RAID1C3替代RAID5
-- 使用RAID1C4替代RAID6
-- 或使用mdadm+LVM+XFS/EXT4方案
-
-### 3.4 与ZFS的关键差异
-
-| 特性 | ZFS RAIDZ Expansion | btrfs设备扩展 |
-|------|---------------------|---------------|
-| 操作原子性 | 单命令完成 | 多步骤（添加+balance） |
-| 自动重分布 | 是 | 否（需手动balance） |
-| 进度显示 | 内置（zpool status） | 有限（balance status） |
-| 中断恢复 | 自动 | 需skip_balance选项 |
-| RAID5/6稳定性 | 稳定 | 不稳定 |
-| 数据完整性 | 端到端校验 | 依赖上层 |
+1. 池健康状态良好
+2. 目标磁盘未被使用
+3. 特性标志已启用
+4. 单 RAIDZ VDEV（不支持多 VDEV 池扩展）
 
 ---
 
-## 4. 技术对比深度分析
+## 6. 命令参考
 
-### 4.1 架构差异
-
-**ZFS架构**：
-```
-Pool → vdev → RAIDZ → 数据集(dataset)
-       ↓
-       Copy-on-Write + 端到端校验
-       ↓
-       ARC/L2ARC缓存 + ZIL日志
-```
-
-**btrfs架构**：
-```
-Volume → Device → Profile → Subvolume
-         ↓
-         Copy-on-Write + 校验（可选）
-         ↓
-         平衡器(balance)管理数据分布
-```
-
-### 4.2 扩展操作对比
-
-**ZFS RAIDZ Expansion**：
-```bash
-# 单命令完成
-zpool attach tank raidz1-0 /dev/sde
-
-# 自动进度显示
-zpool status tank
-# expand: expansion of raidz1-0 in progress
-#         762M / 6.38G copied, 11.67% done
-```
-
-**btrfs RAID扩展**：
-```bash
-# 步骤1：添加设备
-btrfs device add /dev/sde /mnt/btrfs
-
-# 步骤2：执行balance（必需，否则空间不均匀）
-btrfs balance start -dstripes=1..4 /mnt/btrfs
-
-# 步骤3：监控进度
-btrfs balance status /mnt/btrfs
-```
-
-### 4.3 性能对比
-
-**ZFS RAIDZ Expansion（TrueNAS优化后）**：
-- HDD阵列：~27MB/s重分布速度
-- NVMe阵列：~100MB/s+
-- 对前台I/O影响：可控
-
-**btrfs Balance**：
-- HDD阵列：速度受磁盘寻道影响大
-- 全量balance非常耗时
-- 对前台I/O影响：显著
-
-### 4.4 可靠性对比
-
-| 风险场景 | ZFS | btrfs |
-|----------|-----|-------|
-| 扩展中断 | 自动恢复 | 可能需要手动干预 |
-| Write Hole | 无（COW保护） | RAID5/6存在 |
-| 数据校验 | 端到端 | 需要额外配置 |
-| 恢复能力 | scrub自动修复 | 部分支持 |
-
----
-
-## 5. nas-os实现方案评估
-
-### 5.1 当前技术栈
-
-nas-os使用btrfs作为底层文件系统：
-- 存储池管理：btrfs多设备
-- 快照/克隆：btrfs snapshot
-- 数据压缩：btrfs压缩
-- 子卷管理：btrfs subvolume
-
-### 5.2 实现存储池在线扩容的方案
-
-#### 方案A：继续使用btrfs
-
-**可行性**：部分可行
-
-**优点**：
-- 无需更换文件系统
-- RAID1/RAID10扩展已稳定
-- 支持profile动态转换
-
-**缺点**：
-- RAID5/6不稳定，不适合生产
-- 需要多步骤操作（用户体验差）
-- Balance过程对性能影响大
-- 无自动进度恢复
-
-**实现路径**：
-1. 封装扩展操作为API
-2. 提供进度监控界面
-3. 增加中断恢复机制
-4. 限制为RAID1/RAID10/RAID1C3/RAID1C4
-
-**预计工作量**：
-- API封装：2-3人周
-- 前端界面：2人周
-- 测试验证：2人周
-- **总计：6-7人周**
-
-#### 方案B：引入ZFS支持
-
-**可行性**：高可行
-
-**优点**：
-- RAIDZ Expansion成熟稳定
-- 数据完整性保证强
-- 企业级特性完善
-
-**缺点**：
-- 需要重大架构变更
-- 许可证兼容性（CDDL vs GPL）
-- 用户迁移成本
-
-**实现路径**：
-1. 添加ZFS作为可选存储后端
-2. 新建池支持ZFS
-3. 提供迁移工具
-4. 维护双引擎
-
-**预计工作量**：
-- ZFS集成：8-12人周
-- 迁移工具：4-6人周
-- 测试验证：4人周
-- **总计：16-22人周**
-
-#### 方案C：混合方案
-
-**可行性**：推荐
-
-**策略**：
-- 小规模/家庭用户：保持btrfs（限制为RAID1/RAID10）
-- 企业用户：提供ZFS选项
-- 渐进式迁移路径
-
-**优点**：
-- 兼顾不同用户需求
-- 降低迁移风险
-- 保持灵活性
-
-**缺点**：
-- 维护成本增加
-- 需要双引擎支持
-
-### 5.3 推荐方案
-
-**短期（v3.x）**：
-- 保持btrfs作为主要存储引擎
-- 优化RAID1/RAID10扩展体验
-- 封装balance操作，提供进度监控
-- 明确告知用户RAID5/6风险
-
-**中期（v4.x）**：
-- 引入ZFS作为企业版存储后端
-- 提供存储池迁移工具
-- 支持增量迁移
-
-**长期（v5.x）**：
-- 根据用户反馈决定主要引擎
-- 持续优化扩展体验
-
----
-
-## 6. 风险评估与建议
-
-### 6.1 技术风险
-
-| 风险 | 等级 | 缓解措施 |
-|------|------|----------|
-| btrfs RAID5/6数据丢失 | 高 | 禁用或强烈警告 |
-| Balance过程长影响服务 | 中 | 后台调度+限速 |
-| ZFS许可证问题 | 中 | 法律咨询+可选安装 |
-| 迁移过程数据丢失 | 中 | 完整备份+验证 |
-
-### 6.2 成本估算
-
-| 方案 | 开发成本 | 维护成本 | 迁移成本 |
-|------|----------|----------|----------|
-| 方案A（btrfs优化） | 低 | 中 | 无 |
-| 方案B（引入ZFS） | 高 | 高 | 中 |
-| 方案C（混合） | 中 | 高 | 低 |
-
-### 6.3 最终建议
-
-1. **立即行动**：
-   - 在WebUI中禁用或标记btrfs RAID5/6为实验性功能
-   - 实现RAID1/RAID10扩容API和界面
-
-2. **短期规划**：
-   - 优化btrfs balance调度策略
-   - 提供扩展进度监控
-
-3. **中期规划**：
-   - 评估ZFS集成可行性
-   - 调研用户需求和市场反馈
-
----
-
-## 7. 参考资料
-
-1. OpenZFS 2.3 Release Notes - https://github.com/openzfs/zfs/releases/tag/zfs-2.3.0
-2. TrueNAS Fangtooth OpenZFS 2.3 - https://www.truenas.com/blog/fangtooth-openzfs-23/
-3. FreeBSD Foundation RAID-Z Expansion - https://freebsdfoundation.org/blog/openzfs-raid-z-expansion-a-new-era-in-storage-flexibility/
-4. btrfs Documentation - https://btrfs.readthedocs.io/en/latest/Volume-management.html
-5. btrfs Balance - https://btrfs.readthedocs.io/en/latest/Balance.html
-6. btrfs Status - https://btrfs.readthedocs.io/en/latest/Status.html
-
----
-
-## 附录A：操作示例
-
-### A.1 ZFS RAIDZ Expansion示例
+### 6.1 基本操作
 
 ```bash
-# 查看当前池状态
-zpool status tank
-#   pool: tank
-# config:
-#     NAME        STATE
-#     tank        ONLINE
-#       raidz1-0  ONLINE
-#         sda     ONLINE
-#         sdb     ONLINE
-#         sdc     ONLINE
-#         sdd     ONLINE
+# 查看池状态（含扩展进度）
+zpool status -v POOL
 
-# 添加新磁盘扩展
-zpool attach tank raidz1-0 sde
+# 执行扩展
+zpool attach POOL raidz2-0 /dev/sdX
 
-# 监控进度
-zpool status tank
-# expand: expansion of raidz1-0 in progress
-#         762M / 6.38G copied, 11.67% done, 00:03:31 to go
-
-# 扩展完成
-zpool status tank
-# expand: expanded raidz1-0 copied 6.38G in 00:04:31
+# 估算扩展时间（基于 200MB/s 假设）
+# 实际取决于数据量和硬件性能
 ```
 
-### A.2 btrfs RAID扩展示例
+### 6.2 监控扩展进度
 
 ```bash
-# 查看当前状态
-btrfs filesystem usage /mnt/btrfs
+# zpool status 输出示例
+pool: tank
+state: ONLINE
+expand: raidz expansion in progress, 45.2% complete
 
-# 添加新设备
-btrfs device add /dev/sde /mnt/btrfs
+config:
+    NAME        STATE     READ WRITE CKSUM
+    tank        ONLINE       0     0     0
+      raidz2-0  ONLINE       0     0     0
+        sda     ONLINE       0     0     0
+        sdb     ONLINE       0     0     0
+        sdc     ONLINE       0     0     0
+        sdd     ONLINE       0     0     0  (expanding)
+```
 
-# 转换profile（如果需要）
-btrfs balance start -mconvert=raid1 -dconvert=raid1 /mnt/btrfs
+### 6.3 故障处理
 
-# 监控balance进度
-btrfs balance status /mnt/btrfs
-# Balance on '/mnt/btrfs' is running, 12% done
+```bash
+# 扩展中磁盘故障
+# 1. 扩展自动暂停
+# 2. 替换故障盘
+zpool replace tank sdd sdf
 
-# 查看结果
-btrfs filesystem usage -T /mnt/btrfs
+# 3. 等待 resilver 完成
+# 4. 扩展自动继续
 ```
 
 ---
 
-**报告完成** | 户部 技术调研组
+## 7. 性能影响
+
+### 7.1 扩展期间性能
+
+| 指标 | 影响 |
+|------|------|
+| 读取性能 | 轻微下降 (~5-10%) |
+| 写入性能 | 中等下降 (~10-20%) |
+| 扩展速度 | 100-500 MB/s（取决于硬件） |
+| CPU 使用 | 增加计算开销 |
+
+### 7.2 扩展后性能
+
+- **新数据块**：更高数据/奇偶比 → 更高空间效率
+- **旧数据块**：原有奇偶比 → 分布更广
+- **混合读取**：需要识别块类型
+
+---
+
+## 8. 最佳实践
+
+### 8.1 执行时机
+
+- ✅ 池负载较低时
+- ✅ 有充足时间窗口
+- ✅ 备份已完成
+- ❌ 避免高负载时段
+
+### 8.2 硬件准备
+
+1. 确保新盘与现有盘容量匹配（或更大）
+2. 建议使用相同型号磁盘
+3. 预留备用盘以防故障
+
+### 8.3 数据管理
+
+```bash
+# 扩展后主动恢复容量（可选）
+# 方法：复制数据到新位置，删除旧数据
+
+zfs send tank/data@snap | zfs recv tank/data_new
+zfs destroy tank/data
+zfs rename tank/data_new tank/data
+```
+
+---
+
+## 9. 与其他扩容方式对比
+
+| 方式 | 磁盘需求 | 容量增长 | 复杂度 |
+|------|----------|----------|--------|
+| RAIDZ Expansion | 单盘 | 线性增长 | 低 |
+| 添加新 VDEV | 整组 | 成倍增长 | 低 |
+| 更换大容量盘 | 全换 | 增量替换 | 高 |
+
+### 选择建议
+
+```
+┌────────────────────────────────────────────────────┐
+│             扩容方案决策树                          │
+├────────────────────────────────────────────────────┤
+│                                                    │
+│  需要扩容?                                         │
+│      │                                             │
+│      ├─ 有空闲盘位?                                │
+│      │     ├─ YES → RAIDZ Expansion (推荐)        │
+│      │     │       单盘增量，成本最优              │
+│      │     │                                       │
+│      │     └─ NO → 评估方案                        │
+│      │           ├─ 有额外盘位 → 加新 VDEV         │
+│      │           ├─ 无盘位 → 更换大容量盘          │
+│      │           └─ 预算有限 → RAIDZ Expansion +   │
+│      │                        扩展机箱              │
+│      │                                             │
+│      └─ 磁盘接近寿命极限?                          │
+│            ├─ YES → 更换大容量盘                   │
+│            └─ NO → 继续评估                        │
+│                                                    │
+└────────────────────────────────────────────────────┘
+```
+
+---
+
+## 10. nas-os 实现建议
+
+### 10.1 API 架构设计要点
+
+1. **异步执行模型**：扩展为长时间操作，需后台任务机制
+2. **进度追踪**：实时百分比、速度、ETA
+3. **状态管理**：idle/preparing/running/paused/completed/failed
+4. **错误处理**：磁盘故障自动暂停、恢复机制
+
+### 10.2 UI 设计要点
+
+参考 TrueNAS 24.10 实现：
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Storage Dashboard > Pool > Manage Devices          │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  VDEV: raidz2-0                                     │
+│  ┌───┐ ┌───┐ ┌───┐ ┌───┐                           │
+│  │sda│ │sdb│ │sdc│ │sdd│                           │
+│  └───┘ └───┘ └───┘ └───┘                           │
+│                                                     │
+│  [Extend VDEV]  ← 按钮                              │
+│                                                     │
+│  ┌─ Extend VDEV Dialog ────────────────────────┐   │
+│  │                                             │   │
+│  │  Select new disk:                           │   │
+│  │  ┌─────────────────────────────────────┐   │   │
+│  │  │ /dev/sde (1TB, available)          ▼│   │   │
+│  │  └─────────────────────────────────────┘   │   │
+│  │                                             │   │
+│  │  Estimated capacity gain: +200 GB          │   │
+│  │  Estimated time: 3-5 hours                 │   │
+│  │                                             │   │
+│  │  ⚠️ Warning: Cannot undo expansion          │   │
+│  │                                             │   │
+│  │        [Cancel]  [Extend]                  │   │
+│  │                                             │   │
+│  └─────────────────────────────────────────────┘   │
+│                                                     │
+│  Expansion Progress (during operation):            │
+│  ┌─────────────────────────────────────────────┐   │
+│  │ ████████████████████░░░░░░░░░░░░░░░░░░░░░░░ │   │
+│  │                                              │   │
+│  │  45.2% complete                              │   │
+│  │  Speed: 245 MB/s                             │   │
+│  │  ETA: 2h 15m                                 │   │
+│  │                                              │   │
+│  │  [Pause]  [Cancel]                           │   │
+│  └─────────────────────────────────────────────┘   │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+### 10.3 安全考虑
+
+1. **不可逆操作警告**：UI 必须明确提示
+2. **确认机制**：输入池名称确认
+3. **健康检查前置**：扩展前检查池状态
+4. **容量折损提示**：告知用户可能的容量折损
+
+---
+
+## 11. 参考资源
+
+### 11.1 官方文档
+
+- [TrueNAS 24.10 Pool Management](https://www.truenas.com/docs/scale/24.10/scaletutorials/storage/managepoolsscale/)
+- [OpenZFS RAIDZ Expansion PR #15022](https://github.com/openzfs/zfs/pull/15022)
+- [RAIDZ Extension Calculator](https://www.truenas.com/docs/references/extensioncalculator/)
+
+### 11.2 技术文章
+
+- [Jim Salter - RAIDZ Expansion lands in OpenZFS](https://arstechnica.com/gadgets/2021/06/raidz-expansion-code-lands-in-openzfs-master/)
+- [Louwrentius - ZFS RAIDZ Expansion Caveat](https://louwrentius.com/zfs-raidz-expansion-is-awesome-but-has-a-small-caveat.html)
+
+### 11.3 nas-os 现有实现
+
+- `pkg/storage/zfs/raidz_expansion.go` - 已有基础实现
+- `pkg/storage/zfs/interfaces.go` - ZFS 接口定义
+- `internal/storage/handlers.go` - 存储 API 处理器
+
+---
+
+## 12. 总结
+
+RAIDZ Expansion 是 OpenZFS 的里程碑特性，解决了 ZFS 长期以来的扩容痛点：
+
+**优势**：
+- ✅ 单盘增量扩容，成本最优
+- ✅ 全程在线，无服务中断
+- ✅ 支持中断恢复
+- ✅ 保持原有容错级别
+
+**注意事项**：
+- ⚠️ 不可逆操作
+- ⚠️ 存在容量折损（可恢复）
+- ⚠️ 仅支持单 RAIDZ VDEV 池
+- ⚠️ 扩展后无法降级 ZFS 版本
+
+**nas-os 实现建议**：
+- 优先复用现有 `raidz_expansion.go` 代码
+- API 设计遵循异步任务模式
+- UI 参考 TrueNAS 24.10 实现
+- 提供容量计算器和预估工具
+
+---
+
+**报告完成 | 兵部 | 2026-03-30**

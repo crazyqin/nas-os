@@ -7,6 +7,30 @@
 
 ---
 
+## [v2.322.0] - 2026-03-30
+
+### 🎯 六部协同开发第97轮 - RAIDZ Expansion竞品深化+用户文档
+
+### 竞品学习深化
+- 🔍 **TrueNAS RAIDZ Expansion**: 单盘在线扩展RAID-Z阵列
+  - OpenZFS 2.3正式支持，保持原有冗余级别
+  - 扩容速度提升5-10倍（TrueNAS Fangtooth优化）
+  - 支持中断恢复，数据自动重分布
+  - 开发投入：约3年，$100,000，核心开发者Matt Ahrens
+- 🔍 **飞牛fnOS**: 无RAIDZ扩展支持，依赖重建池扩容
+- 🔍 **nas-os规划**: P0优先级，btrfs RAID1/RAID10优化封装
+
+### 文档更新
+- `docs/COMPETITOR_ANALYSIS.md` - 新增RAIDZ功能对比分析章节
+- `docs/user-guide/raidz-expansion-guide.md` - 用户文档框架创建
+
+### 六部协同
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 礼部 | ✅ | CHANGELOG更新、竞品分析深化、用户文档框架 |
+
+---
+
 ## [v2.321.0] - 2026-03-30
 
 ### 🎯 六部协同开发第96轮 - NVMe SMART监控+竞品学习深化
