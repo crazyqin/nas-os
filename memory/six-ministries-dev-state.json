@@ -1,78 +1,95 @@
 {
-  "version": "v2.284.0",
-  "nextVersion": "v2.285.0",
-  "round": 63,
-  "date": "2026-03-26",
-  "timestamp": "2026-03-26T14:55:00+08:00",
+  "version": "v2.323.0",
+  "nextVersion": "v2.324.0",
+  "round": 98,
+  "date": "2026-03-30",
+  "timestamp": "2026-03-30T05:53:00+08:00",
   "status": "developing",
   "actions": {
-    "ci-cd": "completed",
-    "security-scan": "completed",
-    "compatibility-check": "completed"
+    "ci-cd": "in_progress",
+    "security-scan": "in_progress",
+    "compatibility-check": "in_progress"
   },
   "ministries": {
-    "吏部": {
-      "task": "v2.285.0版本规划 - AI服务Alpha里程碑",
-      "status": "pending",
-      "priority": "P0",
-      "context": "参考ROADMAP.md v2.285.0规划，确保AI API服务端点、多提供商配置UI就绪"
-    },
     "兵部": {
-      "task": "AI API服务端点实现 - OpenAI兼容API",
+      "task": "RAIDZ Expansion实现 + NVMe SMART UI完善",
       "status": "pending",
       "priority": "P0",
-      "context": "参考群晖私有云AI服务，实现/v1/chat/completions兼容端点，支持多提供商路由"
-    },
-    "刑部": {
-      "task": "AI API Key管理与数据脱敏",
-      "status": "pending",
-      "priority": "P1",
-      "context": "参考群晖AI Console本地脱敏，实现敏感数据过滤、API Key加密存储"
-    },
-    "工部": {
-      "task": "Docker镜像优化与GPU支持验证",
-      "status": "pending",
-      "priority": "P1",
-      "context": "验证Dockerfile.ai GPU镜像构建，确保NVIDIA runtime集成正确"
+      "context": "参考TrueNAS 24.10 RAIDZ Expansion技术，实现expansion_api.go接口；完善NVMe SMART UI组件，集成Chart.js温度历史图表"
     },
     "户部": {
-      "task": "AI使用量统计与成本分析",
+      "task": "云备份任务成本分析 + AI服务成本优化",
       "status": "pending",
       "priority": "P1",
-      "context": "设计Token消耗统计、成本分摊、配额管理机制"
+      "context": "分析TrueCloud Backup成本结构，设计配额管理机制；优化AI服务Token消耗统计"
     },
     "礼部": {
-      "task": "AI服务文档与用户指南",
+      "task": "Dashboard可定制重构 + Webshare UI设计",
       "status": "pending",
       "priority": "P1",
-      "context": "编写AI服务使用文档、多提供商配置指南、API参考文档"
+      "context": "参考TrueNAS 24.10 Dashboard重构，设计widgets系统；参考TrueNAS 26 Webshare设计文件分享UI"
+    },
+    "工部": {
+      "task": "RAIDZ Expansion后端实现 + Docker Compose优化",
+      "status": "pending",
+      "priority": "P0",
+      "context": "实现RAIDZ Expansion后端逻辑，封装btrfs设备添加；优化Docker Compose管理模块"
+    },
+    "吏部": {
+      "task": "版本规划v2.325.0 + RAIDZ扩展路线图",
+      "status": "pending",
+      "priority": "P0",
+      "context": "规划v2.325.0 RAIDZ扩展里程碑；制定btrfs→ZFS迁移路线图"
+    },
+    "刑部": {
+      "task": "勒索软件检测增强 + SMB Spotlight搜索安全审计",
+      "status": "pending",
+      "priority": "P0",
+      "context": "增强勒索软件检测模块，添加honeypot文件；SMB Spotlight搜索安全审计"
     }
   },
-  "v285_features": [
-    "AI API服务端点 - OpenAI兼容 (兵部)",
-    "API Key管理与脱敏 (刑部)",
-    "GPU镜像验证 (工部)",
-    "使用量统计 (户部)",
-    "用户文档 (礼部)"
-  ],
   "competitive_insights": {
-    "fnos": {
-      "strengths": ["免费内网穿透FN Connect", "AI相册以文搜图", "ARM支持", "Docker可视化管理"],
-      "learnings": "可视化容器编排、一键远程访问体验"
+    "truenas_26": {
+      "new_features": [
+        "Webshare with TrueSearch - 浏览器文件访问+搜索",
+        "Ransomware Defense - 实时威胁检测+自动响应",
+        "LXC Containers - 完整支持，HA容器故障转移",
+        "SMB Stateful Failover - 状态保持故障转移",
+        "SMB Spotlight Search - macOS客户端搜索支持",
+        "OpenZFS 2.4 - 混合池支持+物理块重写",
+        "Linux Kernel 6.18 LTS"
+      ],
+      "learnings": [
+        "年度发布周期简化版本号",
+        "勒索软件honeypot检测机制",
+        "Webshare浏览器文件管理",
+        "SMB Spotlight搜索增强"
+      ]
     },
-    "synology_dsm73": {
-      "strengths": ["私有云AI服务", "本地LLM", "AI数据脱敏", "Synology Tiering自动分层"],
-      "learnings": "企业级AI集成方案、安全脱敏机制"
-    },
-    "truenas": {
-      "strengths": ["开源免费", "ZFS原生", "NVMe-oF", "勒索软件检测", "LXC容器"],
-      "learnings": "企业级存储架构、安全防护机制"
+    "synology_dsm_storage": {
+      "features": [
+        "数据压缩 - 平均节省30%",
+        "快照和自愈 - 数据完整性保护",
+        "自动替换 - 失败盘克隆到热备",
+        "快速修复 - 只修复使用扇区",
+        "不可变存储 - WriteOnce防修改",
+        "加密密钥管理 - KMIP支持",
+        "扩展灵活性 - SHR混合容量"
+      ],
+      "learnings": [
+        "直观存储管理界面设计",
+        "自动热备替换机制",
+        "加密密钥托管方案"
+      ]
     }
   },
   "nextPriorities": [
-    "完成v2.285.0 AI服务Alpha开发",
-    "P0: AI API端点实现",
-    "P1: GPU验证与文档",
-    "P2: 发布v2.285.0"
-  ]
+    "🔴 P0: RAIDZ Expansion实现（兵部+工部）",
+    "🔴 P0: 勒索软件检测增强（刑部）",
+    "🟡 P1: Dashboard可定制重构（礼部）",
+    "🟡 P1: 云备份任务集成（户部）",
+    "🟡 P1: 版本规划（吏部）"
+  ],
+  "轮值顺序": "兵部 → 户部 → 礼部 → 工部 → 吏部 → 刑部 → (循环)",
+  "当前轮值": "兵部"
 }
