@@ -15,6 +15,9 @@ import (
 // GlobalSearchResultType 全局搜索结果类型.
 type GlobalSearchResultType string
 
+// ResultType 是 GlobalSearchResultType 的别名，用于简化使用.
+type ResultType = GlobalSearchResultType
+
 // 搜索结果类型常量.
 const (
 	// ResultTypeFile 文件类型.
