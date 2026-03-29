@@ -7,6 +7,39 @@
 
 ---
 
+## [v2.317.0] - 2026-03-30
+
+### 🎯 六部协同开发第92轮 - 司礼监调度竞品学习与功能开发
+
+### 竞品学习
+- 🔍 **飞牛fnOS**: FN Connect免费内网穿透、AI相册、网盘原生挂载
+- 🔍 **群晖DSM**: Synology Tiering、Drive文件锁定、AI Console、私有云AI
+- 🔍 **TrueNAS**: RAIDZ逐盘扩展、LXC容器、全局搜索、NVMe健康监控
+- 🔍 **铁威马TOS**: TRAID、直通挂载、SMB Multichannel
+
+### 六部协同成果
+
+#### 兵部（软件工程）
+- ✅ **内网穿透增强**: Cloudflare Tunnel/FRP实现优化
+- 📦 新增: `internal/tunnel/cloudflare_new.go`, `internal/tunnel/frp_new.go`
+
+#### 工部（DevOps）
+- ✅ **网盘挂载框架**: rclone集成、多云盘支持
+- 📦 新增: `internal/cloudmount/manager.go`, `types.go`, `rclone_config.go`
+- 支持: 阿里云盘、百度网盘、115、夸克
+
+#### 户部（资源监控）
+- ✅ **NVMe监控UI**: React组件、健康看板、温度图表
+- ✅ **全局搜索**: Cmd/Ctrl+K快捷键、分类搜索
+- 📦 新增: `web/src/components/NVMeDashboard.tsx`, `GlobalSearch.tsx`
+- 📦 新增: `web/src/hooks/useNVMe.ts`, `useSearch.ts`
+
+### 代码统计
+- 新增文件: 13个
+- 新增代码: 4701行
+
+---
+
 ## [v2.315.0] - 2026-03-29
 
 ### 🎯 六部协同开发第90轮 - 司礼监调度竞品学习与功能规划
