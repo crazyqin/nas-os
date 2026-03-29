@@ -151,7 +151,7 @@ func TestBtrfsExpansionService_ListTasks_Empty(t *testing.T) {
 	// 列出空任务列表
 	tasks := service.ListTasks("")
 	if tasks == nil {
-		tasks = []ExpansionTask{} // 初始化为空切片
+		tasks = []*ExpansionTask{} // 初始化为空切片
 	}
 
 	if len(tasks) != 0 {
