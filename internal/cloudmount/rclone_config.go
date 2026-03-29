@@ -302,7 +302,5 @@ func parseAboutOutput(output []byte, stats *MountStats) error {
 
 // parseJSON 简化 JSON 解析.
 func parseJSON(data []byte, v interface{}) error {
-	// 使用标准库
-	import "encoding/json"
 	return json.Unmarshal(data, v)
 }
