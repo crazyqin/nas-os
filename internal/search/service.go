@@ -215,9 +215,6 @@ type LogSearchService interface {
 
 // --- 数据结构定义 ---
 
-// ResultType 类型别名，引用global.go中的GlobalSearchResultType
-type ResultType = GlobalSearchResultType
-
 // SearchRequest 基础搜索请求
 type SearchRequest struct {
 	Query      string        `json:"query"`      // 搜索查询
@@ -257,9 +254,6 @@ type SearchResult struct {
 	RawData     any        `json:"rawData,omitempty"`
 	Metadata    map[string]any `json:"metadata,omitempty"`
 }
-
-// ResultType 结果类型 (从global.go引用)
-// type ResultType string
 
 // FileSearchRequest 文件搜索请求
 type FileSearchRequest struct {
