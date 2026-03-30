@@ -369,11 +369,7 @@ func (h *Handlers) updateFail2BanConfig(c *gin.Context) {
 		return
 	}
 
-	if err := h.manager.GetFail2BanManager().UpdateConfig(config); err != nil {
-		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
-		return
-	}
-
+	h.manager.GetFail2BanManager().UpdateConfig(config)
 	c.JSON(http.StatusOK, success(nil))
 }
 
@@ -385,8 +381,8 @@ func (h *Handlers) getBannedIPs(c *gin.Context) {
 func (h *Handlers) unbanIP(c *gin.Context) {
 	ip := c.Param("ip")
 
-	if err := h.manager.UnbanIP(ip); err != nil {
-		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
+	if !h.manager.GetFail2BanManager().UnbanIP(ip) {
+		c.JSON(http.StatusBadRequest, apiError(400, "IP not banned"))
 		return
 	}
 

@@ -106,8 +106,9 @@ func (sr *SceneRecognizer) RecognizeScene(ctx context.Context, img image.Image) 
 	}
 
 	bounds := img.Bounds()
-	width := bounds.Dx()
-	height := bounds.Dy()
+	// 图片尺寸用于后续分析
+	_ = bounds.Dx()
+	_ = bounds.Dy()
 
 	// 1. Extract colors
 	colors := sr.extractColors(img, 5)

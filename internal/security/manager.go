@@ -48,7 +48,7 @@ func NewManager() *Manager {
 
 	// 启动清理例程
 	sm.firewall.StartCleanupRoutine(time.Minute * 5)
-	sm.fail2ban.StartCleanupRoutine(time.Minute * 5)
+	sm.fail2ban.StartCleanupRoutine()
 	sm.audit.StartCleanupRoutine(time.Hour * 24)
 
 	return sm
@@ -118,9 +118,7 @@ func (sm *Manager) UpdateConfig(config Config) error {
 	}
 
 	// 应用 fail2ban 配置
-	if err := sm.fail2ban.UpdateConfig(config.Fail2Ban); err != nil {
-		return err
-	}
+	sm.fail2ban.UpdateConfig(config.Fail2Ban)
 
 	// 应用审计配置
 	sm.audit.SetConfig(AuditConfig{
@@ -196,7 +194,9 @@ func (sm *Manager) UnbanIP(ip string) error {
 	// 从防火墙黑名单移除
 	if err := sm.firewall.RemoveFromBlacklist(ip); err != nil {
 		// 尝试从 fail2ban 解封
-		return sm.fail2ban.UnbanIP(ip)
+		if !sm.fail2ban.UnbanIP(ip) {
+			return err
+		}
 	}
 	return nil
 }
