@@ -127,6 +127,8 @@ type Album struct {
 	IsFavorite   bool          `json:"isFavorite"`
 	CreatedAt    time.Time     `json:"createdAt"`
 	UpdatedAt    time.Time     `json:"updatedAt"`
+	PhotoIDs     []string      `json:"photoIds,omitempty"` // 照片ID列表（智能相册使用）
+	Rules        []SmartAlbumRule `json:"rules,omitempty"` // 智能相册规则
 	SharedWith   []ShareTarget `json:"sharedWith,omitempty"`
 	Tags         []string      `json:"tags"`
 	Location     string        `json:"location,omitempty"`
