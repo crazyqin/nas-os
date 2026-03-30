@@ -29,9 +29,13 @@ func NewNVIDIAProvider(logger *zap.Logger) (*NVIDIAProvider, error) {
 		logger: logger,
 	}
 
-	// 检查nvidia-smi是否可用
-	if err := provider.CheckDriver(); err != nil {
-		return nil, err
+	// 快速检查nvidia-smi是否可用（超时3秒）
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "nvidia-smi", "-L")
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("nvidia-smi不可用: %w", err)
 	}
 
 	return provider, nil

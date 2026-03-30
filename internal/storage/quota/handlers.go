@@ -48,6 +48,25 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 		// 配额检查
 		quotaGroup.POST("/check", h.checkQuota)
+
+		// ========== 新增：容量预测 ==========
+		quotaGroup.GET("/predict", h.predictAllUsage)
+		quotaGroup.GET("/predict/:id", h.predictUsage)
+		quotaGroup.GET("/history/:target", h.getUsageHistory)
+		quotaGroup.GET("/forecast/config", h.getForecastConfig)
+		quotaGroup.PUT("/forecast/config", h.setForecastConfig)
+
+		// ========== 新增：告警规则管理 ==========
+		quotaGroup.GET("/alert-rules", h.listAlertRules)
+		quotaGroup.POST("/alert-rules", h.createAlertRule)
+		quotaGroup.GET("/alert-rules/:id", h.getAlertRule)
+		quotaGroup.PUT("/alert-rules/:id", h.updateAlertRule)
+		quotaGroup.DELETE("/alert-rules/:id", h.deleteAlertRule)
+		quotaGroup.POST("/alert-rules/init-default", h.initDefaultAlertRules)
+		quotaGroup.GET("/alert-rules/stats", h.getAlertRuleStats)
+
+		// ========== 新增：增强告警检查 ==========
+		quotaGroup.POST("/check-and-alert", h.checkAndAlertWithRules)
 	}
 }
 
@@ -267,8 +286,7 @@ func (h *Handlers) resolveAlert(c *gin.Context) {
 // @Success 200 {object} api.Response{data=NotificationConfig}
 // @Router /api/v1/quota/notify/config [get]
 func (h *Handlers) getNotifyConfig(c *gin.Context) {
-	// 直接返回默认配置（实际应从manager获取）
-	config := DefaultNotificationConfig()
+	config := h.manager.GetForecastConfig()
 	api.OK(c, config)
 }
 
@@ -327,4 +345,301 @@ func (h *Handlers) checkQuota(c *gin.Context) {
 			return err.Error()
 		}(),
 	})
+}
+
+// ========== 容量预测 ==========
+
+// predictAllUsage 预测所有配额使用趋势
+// @Summary 预测所有配额使用趋势
+// @Description 预测所有配额规则的使用趋势
+// @Tags quota
+// @Success 200 {object} api.Response{data=[]PredictionResult}
+// @Router /api/v1/quota/predict [get]
+func (h *Handlers) predictAllUsage(c *gin.Context) {
+	results := h.manager.PredictAllUsage()
+	api.OK(c, results)
+}
+
+// predictUsage 预测指定配额使用趋势
+// @Summary 预测指定配额使用趋势
+// @Description 预测指定配额规则的使用趋势
+// @Tags quota
+// @Param id path string true "规则ID"
+// @Success 200 {object} api.Response{data=PredictionResult}
+// @Failure 404 {object} api.Response
+// @Router /api/v1/quota/predict/{id} [get]
+func (h *Handlers) predictUsage(c *gin.Context) {
+	id := c.Param("id")
+
+	result, err := h.manager.PredictUsage(id)
+	if err != nil {
+		if err == ErrRuleNotFound {
+			api.NotFound(c, "配额规则不存在")
+		} else if err == ErrInsufficientData {
+			api.BadRequest(c, "历史数据不足以进行预测")
+		} else {
+			api.InternalError(c, "预测失败: "+err.Error())
+		}
+		return
+	}
+
+	api.OK(c, result)
+}
+
+// getUsageHistory 获取使用历史
+// @Summary 获取使用历史
+// @Description 获取指定目标的使用历史数据
+// @Tags quota
+// @Param target path string true "目标ID"
+// @Success 200 {object} api.Response{data=[]UsageHistory}
+// @Router /api/v1/quota/history/{target} [get]
+func (h *Handlers) getUsageHistory(c *gin.Context) {
+	target := c.Param("target")
+
+	history := h.manager.GetUsageHistory(target)
+	api.OK(c, history)
+}
+
+// getForecastConfig 获取预测配置
+// @Summary 获取预测配置
+// @Description 获取容量预测配置
+// @Tags quota
+// @Success 200 {object} api.Response{data=ForecastConfig}
+// @Router /api/v1/quota/forecast/config [get]
+func (h *Handlers) getForecastConfig(c *gin.Context) {
+	config := h.manager.GetForecastConfig()
+	api.OK(c, config)
+}
+
+// setForecastConfig 设置预测配置
+// @Summary 设置预测配置
+// @Description 设置容量预测配置
+// @Tags quota
+// @Accept json
+// @Param request body ForecastConfig true "预测配置"
+// @Success 200 {object} api.Response
+// @Router /api/v1/quota/forecast/config [put]
+func (h *Handlers) setForecastConfig(c *gin.Context) {
+	var config ForecastConfig
+	if err := api.BindAndValidate(c, &config); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	// 验证配置
+	if config.HistoryDays <= 0 {
+		api.BadRequest(c, "历史天数必须大于0")
+		return
+	}
+	if config.MinDataPoints <= 0 {
+		api.BadRequest(c, "最小数据点必须大于0")
+		return
+	}
+
+	h.manager.SetForecastConfig(config)
+	api.OK(c, gin.H{"message": "预测配置已更新"})
+}
+
+// ========== 告警规则管理 ==========
+
+// listAlertRules 列出告警规则
+// @Summary 列出告警规则
+// @Description 列出所有告警规则
+// @Tags quota
+// @Success 200 {object} api.Response{data=[]AlertRule}
+// @Router /api/v1/quota/alert-rules [get]
+func (h *Handlers) listAlertRules(c *gin.Context) {
+	mgr := h.manager.GetAlertRuleManager()
+	if mgr == nil {
+		api.InternalError(c, "告警规则管理器未初始化")
+		return
+	}
+
+	rules := mgr.ListRules()
+	api.OK(c, rules)
+}
+
+// createAlertRule 创建告警规则
+// @Summary 创建告警规则
+// @Description 创建新的告警规则
+// @Tags quota
+// @Accept json
+// @Param request body AlertRuleInput true "创建请求"
+// @Success 201 {object} api.Response{data=AlertRule}
+// @Failure 400 {object} api.Response
+// @Router /api/v1/quota/alert-rules [post]
+func (h *Handlers) createAlertRule(c *gin.Context) {
+	mgr := h.manager.GetAlertRuleManager()
+	if mgr == nil {
+		api.InternalError(c, "告警规则管理器未初始化")
+		return
+	}
+
+	var input AlertRuleInput
+	if err := api.BindAndValidate(c, &input); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	// 设置默认启用
+	if !input.Enabled {
+		input.Enabled = true
+	}
+
+	rule, err := mgr.CreateRule(input)
+	if err != nil {
+		switch err {
+		case ErrInvalidThreshold:
+			api.BadRequest(c, "无效的阈值")
+		default:
+			api.InternalError(c, "创建告警规则失败: "+err.Error())
+		}
+		return
+	}
+
+	api.Created(c, rule)
+}
+
+// getAlertRule 获取告警规则
+// @Summary 获取告警规则
+// @Description 获取指定告警规则详情
+// @Tags quota
+// @Param id path string true "规则ID"
+// @Success 200 {object} api.Response{data=AlertRule}
+// @Failure 404 {object} api.Response
+// @Router /api/v1/quota/alert-rules/{id} [get]
+func (h *Handlers) getAlertRule(c *gin.Context) {
+	mgr := h.manager.GetAlertRuleManager()
+	if mgr == nil {
+		api.InternalError(c, "告警规则管理器未初始化")
+		return
+	}
+
+	id := c.Param("id")
+
+	rule, err := mgr.GetRule(id)
+	if err != nil {
+		api.NotFound(c, "告警规则不存在")
+		return
+	}
+
+	api.OK(c, rule)
+}
+
+// updateAlertRule 更新告警规则
+// @Summary 更新告警规则
+// @Description 更新告警规则
+// @Tags quota
+// @Accept json
+// @Param id path string true "规则ID"
+// @Param request body AlertRuleInput true "更新请求"
+// @Success 200 {object} api.Response{data=AlertRule}
+// @Failure 400,404 {object} api.Response
+// @Router /api/v1/quota/alert-rules/{id} [put]
+func (h *Handlers) updateAlertRule(c *gin.Context) {
+	mgr := h.manager.GetAlertRuleManager()
+	if mgr == nil {
+		api.InternalError(c, "告警规则管理器未初始化")
+		return
+	}
+
+	id := c.Param("id")
+
+	var input AlertRuleInput
+	if err := api.BindAndValidate(c, &input); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	rule, err := mgr.UpdateRule(id, input)
+	if err != nil {
+		switch err {
+		case ErrAlertRuleNotFound:
+			api.NotFound(c, "告警规则不存在")
+		case ErrInvalidThreshold:
+			api.BadRequest(c, "无效的阈值")
+		default:
+			api.InternalError(c, "更新告警规则失败: "+err.Error())
+		}
+		return
+	}
+
+	api.OK(c, rule)
+}
+
+// deleteAlertRule 删除告警规则
+// @Summary 删除告警规则
+// @Description 删除告警规则
+// @Tags quota
+// @Param id path string true "规则ID"
+// @Success 204 "删除成功"
+// @Failure 404 {object} api.Response
+// @Router /api/v1/quota/alert-rules/{id} [delete]
+func (h *Handlers) deleteAlertRule(c *gin.Context) {
+	mgr := h.manager.GetAlertRuleManager()
+	if mgr == nil {
+		api.InternalError(c, "告警规则管理器未初始化")
+		return
+	}
+
+	id := c.Param("id")
+
+	if err := mgr.DeleteRule(id); err != nil {
+		api.NotFound(c, "告警规则不存在")
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+// initDefaultAlertRules 初始化默认告警规则
+// @Summary 初始化默认告警规则
+// @Description 初始化默认的告警规则（60%、80%、90%、95%阈值）
+// @Tags quota
+// @Success 200 {object} api.Response
+// @Router /api/v1/quota/alert-rules/init-default [post]
+func (h *Handlers) initDefaultAlertRules(c *gin.Context) {
+	mgr := h.manager.GetAlertRuleManager()
+	if mgr == nil {
+		api.InternalError(c, "告警规则管理器未初始化")
+		return
+	}
+
+	err := mgr.InitDefaultRules()
+	if err != nil {
+		api.InternalError(c, "初始化默认告警规则失败: "+err.Error())
+		return
+	}
+
+	api.OK(c, gin.H{"message": "默认告警规则已初始化"})
+}
+
+// getAlertRuleStats 获取告警规则统计
+// @Summary 获取告警规则统计
+// @Description 获取告警规则的统计信息
+// @Tags quota
+// @Success 200 {object} api.Response{data=map[string]interface{}}
+// @Router /api/v1/quota/alert-rules/stats [get]
+func (h *Handlers) getAlertRuleStats(c *gin.Context) {
+	mgr := h.manager.GetAlertRuleManager()
+	if mgr == nil {
+		api.InternalError(c, "告警规则管理器未初始化")
+		return
+	}
+
+	stats := mgr.GetAlertStats()
+	api.OK(c, stats)
+}
+
+// ========== 增强告警检查 ==========
+
+// checkAndAlertWithRules 使用告警规则进行检查
+// @Summary 使用告警规则进行检查
+// @Description 检查所有配额规则并使用告警规则生成告警
+// @Tags quota
+// @Success 200 {object} api.Response{data=[]Alert}
+// @Router /api/v1/quota/check-and-alert [post]
+func (h *Handlers) checkAndAlertWithRules(c *gin.Context) {
+	alerts := h.manager.CheckAndAlertWithRules()
+	api.OK(c, alerts)
 }

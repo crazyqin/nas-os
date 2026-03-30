@@ -150,14 +150,14 @@ func (ct *SMBConnectionTracker) TrackConnection(connID, clientIP, username, shar
 	allowed, reason := ct.sm.CheckIPAllowed(clientIP)
 	if !allowed {
 		ct.logger.Warnw("SMB连接被拒绝", "conn_id", connID, "ip", clientIP, "reason", reason)
-		return fmt.Errorf(reason)
+		return fmt.Errorf("连接被拒绝: %s", reason)
 	}
 
 	// 检查限流
 	allowed, reason = ct.sm.CheckRateLimit(clientIP)
 	if !allowed {
 		ct.logger.Warnw("SMB连接被限流", "conn_id", connID, "ip", clientIP, "reason", reason)
-		return fmt.Errorf(reason)
+		return fmt.Errorf("连接被限流: %s", reason)
 	}
 
 	ct.mu.Lock()
