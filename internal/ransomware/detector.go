@@ -501,7 +501,6 @@ func (d *BuiltInAnomalyDetector) Analyze(events []FileEvent) *ThreatAssessment {
 	// 统计事件类型
 	counts := make(map[FileEventType]int)
 	encryptedCount := 0
-	suspiciousExtensions := 0
 	highEntropyFiles := 0
 
 	for _, e := range events {

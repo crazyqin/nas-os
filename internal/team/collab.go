@@ -3,7 +3,6 @@ package team
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
@@ -492,7 +491,7 @@ func (cm *CollabManager) GetStats() map[string]interface{} {
 // BroadcastEdit 广播编辑操作（用于WebSocket）
 func (cm *CollabManager) BroadcastEdit(sessionID string, op *EditOperation) {
 	if cm.notifier != nil {
-		cm.notifier.BroadcastToResource(op.ResourceID, &WSMessage{
+		cm.notifier.BroadcastToResource(sessionID, &WSMessage{
 			Type:      string(WSEventEdit),
 			Data:      op,
 			Timestamp: time.Now(),
@@ -519,7 +518,7 @@ func (cm *CollabManager) CleanupInactiveSessions(timeout time.Duration) int {
 	now := time.Now()
 	count := 0
 	
-	for id, session := range cm.sessions {
+	for sessionID, session := range cm.sessions {
 		if session.IsActive && now.Sub(session.UpdatedAt) > timeout {
 			session.IsActive = false
 			count++
