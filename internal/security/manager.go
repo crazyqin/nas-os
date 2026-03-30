@@ -141,7 +141,8 @@ func (sm *Manager) RecordFailedLogin(ip, username, userAgent, reason string) err
 	})
 
 	// 记录到 fail2ban
-	return sm.fail2ban.RecordFailedLogin(ip, username, userAgent, reason)
+	sm.fail2ban.RecordFailedLogin(ip, username, userAgent, reason)
+	return nil
 }
 
 // RecordSuccessfulLogin 记录成功登录.
