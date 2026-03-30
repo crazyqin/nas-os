@@ -338,7 +338,47 @@ func NewSmartAlbumManager(manager *Manager, classifier *AutoClassifier) *SmartAl
 		templates:  getBuiltinTemplatesStatic(),
 		dataPath:   filepath.Join(manager.dataDir, "smart-albums-config.json"),
 	}
+	// 加载已有配置
+	sam.loadConfig()
 	return sam
+}
+
+// loadConfig 加载智能相册配置
+func (sam *SmartAlbumManager) loadConfig() {
+	data, err := os.ReadFile(sam.dataPath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			fmt.Printf("加载智能相册配置失败: %v\n", err)
+		}
+		return
+	}
+
+	var albums []*Album
+	if err := json.Unmarshal(data, &albums); err != nil {
+		fmt.Printf("解析智能相册配置失败: %v\n", err)
+		return
+	}
+
+	for _, album := range albums {
+		sam.albums[album.ID] = album
+	}
+}
+
+// saveConfig 保存智能相册配置
+func (sam *SmartAlbumManager) saveConfig() error {
+	sam.mu.RLock()
+	albums := make([]*Album, 0, len(sam.albums))
+	for _, album := range sam.albums {
+		albums = append(albums, album)
+	}
+	sam.mu.RUnlock()
+
+	data, err := json.MarshalIndent(albums, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化智能相册配置失败: %w", err)
+	}
+
+	return os.WriteFile(sam.dataPath, data, 0640)
 }
 
 // getBuiltinTemplatesStatic 获取内置模板列表（静态版本）。
@@ -388,9 +428,17 @@ func (sam *SmartAlbumManager) CreateSmartAlbum(name string, description string, 
 		Description: description,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
-		PhotoIDs:    sam.matchPhotos(rules, matchMode),
+		Rules:       rules,
+		MatchMode:   matchMode,
+		PhotoIDs:    sam.matchPhotosLocked(rules, matchMode),
 	}
 	sam.albums[album.ID] = album
+
+	// 保存配置
+	if err := sam.saveConfigLocked(); err != nil {
+		fmt.Printf("保存智能相册配置失败: %v\n", err)
+	}
+
 	return album, nil
 }
 
@@ -399,6 +447,11 @@ func (sam *SmartAlbumManager) matchPhotos(rules []SmartAlbumRule, matchMode stri
 	sam.manager.mu.RLock()
 	defer sam.manager.mu.RUnlock()
 
+	return sam.matchPhotosLocked(rules, matchMode)
+}
+
+// matchPhotosLocked 匹配照片（已持有锁）。
+func (sam *SmartAlbumManager) matchPhotosLocked(rules []SmartAlbumRule, matchMode string) []string {
 	var photoIDs []string
 	for _, photo := range sam.manager.photos {
 		matched := false
@@ -418,6 +471,21 @@ func (sam *SmartAlbumManager) matchPhotos(rules []SmartAlbumRule, matchMode stri
 		}
 	}
 	return photoIDs
+}
+
+// saveConfigLocked 保存智能相册配置（已持有锁）。
+func (sam *SmartAlbumManager) saveConfigLocked() error {
+	albums := make([]*Album, 0, len(sam.albums))
+	for _, album := range sam.albums {
+		albums = append(albums, album)
+	}
+
+	data, err := json.MarshalIndent(albums, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化智能相册配置失败: %w", err)
+	}
+
+	return os.WriteFile(sam.dataPath, data, 0640)
 }
 
 // matchRule 匹配规则。

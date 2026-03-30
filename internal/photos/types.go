@@ -129,6 +129,7 @@ type Album struct {
 	UpdatedAt    time.Time     `json:"updatedAt"`
 	PhotoIDs     []string      `json:"photoIds,omitempty"` // 照片ID列表（智能相册使用）
 	Rules        []SmartAlbumRule `json:"rules,omitempty"` // 智能相册规则
+	MatchMode    string        `json:"matchMode,omitempty"` // 智能相册匹配模式（all/any）
 	SharedWith   []ShareTarget `json:"sharedWith,omitempty"`
 	Tags         []string      `json:"tags"`
 	Location     string        `json:"location,omitempty"`
