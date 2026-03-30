@@ -491,8 +491,8 @@ func TestEdgeIntegration(t *testing.T) {
 	}
 	defer func() { _ = ShutdownEdgeComputing(services) }()
 
-	// 测试边缘节点管理
-	node := &EdgeNode{
+	// 测试边缘节点管理 - 注册两个节点，一个用于任务调度，一个用于负载均衡测试
+	taskNode := &EdgeNode{
 		ID:        "integration-node",
 		Name:      "集成测试节点",
 		Type:      EdgeNodeTypeCompute,
@@ -506,8 +506,35 @@ func TestEdgeIntegration(t *testing.T) {
 		},
 	}
 
-	if err := services.NodeManager.RegisterNode(node); err != nil {
-		t.Fatalf("注册节点失败: %v", err)
+	lbNode := &EdgeNode{
+		ID:        "lb-test-node",
+		Name:      "负载均衡测试节点",
+		Type:      EdgeNodeTypeCompute,
+		IPAddress: "192.168.1.201",
+		Port:      8080,
+		Status:    EdgeNodeStatusOnline,
+		Capabilities: EdgeNodeCapabilities{
+			CPU:    4,
+			Memory: 8192,
+			Caps:   EdgeCapCompute,
+		},
+	}
+
+	if err := services.NodeManager.RegisterNode(taskNode); err != nil {
+		t.Fatalf("注册任务节点失败: %v", err)
+	}
+	if err := services.NodeManager.RegisterNode(lbNode); err != nil {
+		t.Fatalf("注册LB节点失败: %v", err)
+	}
+
+	// 先测试负载均衡（在任务调度前）
+	lbReq := SelectNodeRequest{
+		Requirements: TaskRequirements{CPU: 1, Memory: 512},
+	}
+
+	selected, err := services.LoadBalancer.SelectNode(lbReq)
+	if err != nil {
+		t.Fatalf("负载均衡选择节点失败: %v", err)
 	}
 
 	// 测试任务调度
@@ -530,15 +557,5 @@ func TestEdgeIntegration(t *testing.T) {
 		t.Fatalf("创建聚合失败: %v", err)
 	}
 
-	// 测试负载均衡
-	lbReq := SelectNodeRequest{
-		Requirements: TaskRequirements{CPU: 1, Memory: 512},
-	}
-
-	selected, err := services.LoadBalancer.SelectNode(lbReq)
-	if err != nil {
-		t.Fatalf("负载均衡选择节点失败: %v", err)
-	}
-
-	t.Logf("集成测试完成: 任务 %s 调度到节点 %s, 聚合 ID %s", task.ID, selected.ID, agg.ID)
+	t.Logf("集成测试完成: 任务 %s 调度到节点 %s, 聚合 ID %s, LB选择节点 %s", task.ID, task.NodeID, agg.ID, selected.ID)
 }
