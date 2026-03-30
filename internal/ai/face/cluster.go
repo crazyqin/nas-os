@@ -27,17 +27,17 @@ func NewCluster(cfg ClusterConfig) *Cluster {
 	if queueSize <= 0 {
 		queueSize = 1000
 	}
-	
+
 	c := &Cluster{
 		persons:   make(map[string]*Person),
 		faceQueue: make(chan *Face, queueSize),
 		threshold: cfg.Threshold,
 	}
-	
+
 	if cfg.AutoCluster {
 		c.StartProcessing()
 	}
-	
+
 	return c
 }
 
@@ -50,7 +50,7 @@ func (c *Cluster) StartProcessing() {
 	}
 	c.processing = true
 	c.mu.Unlock()
-	
+
 	go c.processQueue()
 }
 
@@ -67,11 +67,11 @@ func (c *Cluster) processQueue() {
 		c.mu.RLock()
 		running := c.processing
 		c.mu.RUnlock()
-		
+
 		if !running {
 			return
 		}
-		
+
 		select {
 		case face := <-c.faceQueue:
 			c.clusterFace(face)
@@ -96,34 +96,34 @@ func (c *Cluster) AddFace(face *Face) error {
 func (c *Cluster) clusterFace(face *Face) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	if len(face.Embedding) == 0 {
 		// Cannot cluster without embedding
 		return
 	}
-	
+
 	// Find best matching person
 	bestMatch := ""
 	bestScore := c.threshold
-	
+
 	for personID, person := range c.persons {
 		if len(person.AvgEmbedding) == 0 {
 			continue
 		}
-		
+
 		score := cosineSimilarity(face.Embedding, person.AvgEmbedding)
 		if score > bestScore {
 			bestScore = score
 			bestMatch = personID
 		}
 	}
-	
+
 	if bestMatch != "" {
 		// Add to existing person
 		c.persons[bestMatch].FaceCount++
 		c.persons[bestMatch].Photos = append(c.persons[bestMatch].Photos, face.ImagePath)
 		face.PersonID = bestMatch
-		
+
 		// Update average embedding
 		c.updatePersonEmbedding(bestMatch, face.Embedding)
 	} else {
@@ -146,11 +146,11 @@ func (c *Cluster) updatePersonEmbedding(personID string, newEmbedding []float64)
 	if len(person.AvgEmbedding) != len(newEmbedding) {
 		return
 	}
-	
+
 	// Weighted average (weight old embedding more for stability)
 	n := float64(person.FaceCount)
 	for i := range person.AvgEmbedding {
-		person.AvgEmbedding[i] = (person.AvgEmbedding[i] * (n - 1) + newEmbedding[i]) / n
+		person.AvgEmbedding[i] = (person.AvgEmbedding[i]*(n-1) + newEmbedding[i]) / n
 	}
 }
 
@@ -158,7 +158,7 @@ func (c *Cluster) updatePersonEmbedding(personID string, newEmbedding []float64)
 func (c *Cluster) GetPerson(id string) (*Person, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	person, exists := c.persons[id]
 	if !exists {
 		return nil, ErrPersonNotFound
@@ -170,7 +170,7 @@ func (c *Cluster) GetPerson(id string) (*Person, error) {
 func (c *Cluster) GetAllPersons() []*Person {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	result := make([]*Person, 0, len(c.persons))
 	for _, person := range c.persons {
 		result = append(result, person)
@@ -182,7 +182,7 @@ func (c *Cluster) GetAllPersons() []*Person {
 func (c *Cluster) RenamePerson(id string, name string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	person, exists := c.persons[id]
 	if !exists {
 		return ErrPersonNotFound
@@ -195,36 +195,36 @@ func (c *Cluster) RenamePerson(id string, name string) error {
 func (c *Cluster) MergePersons(sourceID, targetID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	source, exists := c.persons[sourceID]
 	if !exists {
 		return ErrPersonNotFound
 	}
-	
+
 	target, exists := c.persons[targetID]
 	if !exists {
 		return ErrPersonNotFound
 	}
-	
+
 	// Merge data
 	target.FaceCount += source.FaceCount
 	target.Photos = append(target.Photos, source.Photos...)
-	
+
 	// Merge embeddings (weighted average)
 	if len(target.AvgEmbedding) > 0 && len(source.AvgEmbedding) > 0 {
 		totalFaces := target.FaceCount + source.FaceCount
 		sourceWeight := float64(source.FaceCount) / float64(totalFaces)
 		targetWeight := float64(target.FaceCount) / float64(totalFaces)
-		
+
 		for i := range target.AvgEmbedding {
-			target.AvgEmbedding[i] = target.AvgEmbedding[i] * targetWeight + 
-			                          source.AvgEmbedding[i] * sourceWeight
+			target.AvgEmbedding[i] = target.AvgEmbedding[i]*targetWeight +
+				source.AvgEmbedding[i]*sourceWeight
 		}
 	}
-	
+
 	// Remove source person
 	delete(c.persons, sourceID)
-	
+
 	return nil
 }
 
@@ -232,11 +232,11 @@ func (c *Cluster) MergePersons(sourceID, targetID string) error {
 func (c *Cluster) DeletePerson(id string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	if _, exists := c.persons[id]; !exists {
 		return ErrPersonNotFound
 	}
-	
+
 	delete(c.persons, id)
 	return nil
 }
@@ -252,12 +252,12 @@ func (c *Cluster) SetThreshold(threshold float64) {
 func (c *Cluster) GetStats() ClusterStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	totalFaces := 0
 	for _, person := range c.persons {
 		totalFaces += person.FaceCount
 	}
-	
+
 	return ClusterStats{
 		TotalPersons: len(c.persons),
 		TotalFaces:   totalFaces,
@@ -276,6 +276,6 @@ type ClusterStats struct {
 
 // Errors
 var (
-	ErrQueueFull     = errors.New("face queue is full")
+	ErrQueueFull      = errors.New("face queue is full")
 	ErrPersonNotFound = errors.New("person not found")
 )

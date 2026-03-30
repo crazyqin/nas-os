@@ -24,37 +24,37 @@ type ConditionalAlbumRule struct {
 
 // Condition represents a single condition for album generation
 type Condition struct {
-	Type      ConditionType `json:"type"`      // person, object, location, date, camera
-	Field     string        `json:"field"`     // specific field name
-	Operator  Operator      `json:"operator"`  // equals, contains, between, greaterThan, lessThan
-	Value     interface{}   `json:"value"`     // condition value
-	ValueEnd  interface{}   `json:"valueEnd"`  // for range conditions
-	Weight    float64       `json:"weight"`    // confidence weight (0-1)
+	Type     ConditionType `json:"type"`     // person, object, location, date, camera
+	Field    string        `json:"field"`    // specific field name
+	Operator Operator      `json:"operator"` // equals, contains, between, greaterThan, lessThan
+	Value    interface{}   `json:"value"`    // condition value
+	ValueEnd interface{}   `json:"valueEnd"` // for range conditions
+	Weight   float64       `json:"weight"`   // confidence weight (0-1)
 }
 
 // ConditionType defines the type of condition
 type ConditionType string
 
 const (
-	ConditionPerson   ConditionType = "person"    // Face cluster/person
-	ConditionObject   ConditionType = "object"    // Detected object
-	ConditionLocation ConditionType = "location"  // GPS or place name
-	ConditionDate     ConditionType = "date"      // Date range
-	ConditionCamera   ConditionType = "camera"    // Camera model/lens
-	ConditionTag      ConditionType = "tag"       // User-defined tag
-	ConditionRating   ConditionType = "rating"    // Photo rating
+	ConditionPerson   ConditionType = "person"   // Face cluster/person
+	ConditionObject   ConditionType = "object"   // Detected object
+	ConditionLocation ConditionType = "location" // GPS or place name
+	ConditionDate     ConditionType = "date"     // Date range
+	ConditionCamera   ConditionType = "camera"   // Camera model/lens
+	ConditionTag      ConditionType = "tag"      // User-defined tag
+	ConditionRating   ConditionType = "rating"   // Photo rating
 )
 
 // Operator defines comparison operators
 type Operator string
 
 const (
-	OpEquals     Operator = "equals"
-	OpContains   Operator = "contains"
-	OpBetween    Operator = "between"
+	OpEquals      Operator = "equals"
+	OpContains    Operator = "contains"
+	OpBetween     Operator = "between"
 	OpGreaterThan Operator = "greaterThan"
-	OpLessThan   Operator = "lessThan"
-	OpNotEquals  Operator = "notEquals"
+	OpLessThan    Operator = "lessThan"
+	OpNotEquals   Operator = "notEquals"
 )
 
 // MatchMode defines how conditions are combined
@@ -67,13 +67,13 @@ const (
 
 // ConditionalAlbum represents an auto-generated album
 type ConditionalAlbum struct {
-	ID           string                   `json:"id"`
-	RuleID       string                   `json:"ruleId"`
-	Name         string                   `json:"name"`
-	PhotoCount   int                      `json:"photoCount"`
+	ID           string                  `json:"id"`
+	RuleID       string                  `json:"ruleId"`
+	Name         string                  `json:"name"`
+	PhotoCount   int                     `json:"photoCount"`
 	CoverPhotoID string                  `json:"coverPhotoId,omitempty"`
-	LastUpdated  time.Time                `json:"lastUpdated"`
-	Photos       []ConditionalAlbumPhoto  `json:"photos,omitempty"`
+	LastUpdated  time.Time               `json:"lastUpdated"`
+	Photos       []ConditionalAlbumPhoto `json:"photos,omitempty"`
 }
 
 // ConditionalAlbumPhoto represents a photo in a conditional album
@@ -86,12 +86,12 @@ type ConditionalAlbumPhoto struct {
 
 // ConditionalAlbumManager manages conditional album rules and generation
 type ConditionalAlbumManager struct {
-	mu          sync.RWMutex
-	rules       map[string]*ConditionalAlbumRule
-	albums      map[string]*ConditionalAlbum
-	detector    *Detector
-	storage     PhotoStorage
-	indexer     PhotoIndexer
+	mu       sync.RWMutex
+	rules    map[string]*ConditionalAlbumRule
+	albums   map[string]*ConditionalAlbum
+	detector *Detector
+	storage  PhotoStorage
+	indexer  PhotoIndexer
 }
 
 // PhotoStorage defines the interface for photo storage operations
@@ -109,27 +109,27 @@ type PhotoIndexer interface {
 
 // Photo represents a photo in the system
 type Photo struct {
-	ID         string            `json:"id"`
-	Path       string            `json:"path"`
-	Filename   string            `json:"filename"`
-	Size       int64             `json:"size"`
-	CreatedAt  time.Time         `json:"createdAt"`
-	ModifiedAt time.Time         `json:"modifiedAt"`
-	Metadata   *PhotoMetadata    `json:"metadata,omitempty"`
+	ID         string         `json:"id"`
+	Path       string         `json:"path"`
+	Filename   string         `json:"filename"`
+	Size       int64          `json:"size"`
+	CreatedAt  time.Time      `json:"createdAt"`
+	ModifiedAt time.Time      `json:"modifiedAt"`
+	Metadata   *PhotoMetadata `json:"metadata,omitempty"`
 }
 
 // PhotoMetadata contains extracted photo metadata
 type PhotoMetadata struct {
-	DateTaken    time.Time         `json:"dateTaken,omitempty"`
-	CameraModel  string            `json:"cameraModel,omitempty"`
-	Lens         string            `json:"lens,omitempty"`
-	Location     *Location         `json:"location,omitempty"`
-	Persons      []DetectedPerson  `json:"persons,omitempty"`
-	Objects      []DetectedObject  `json:"objects,omitempty"`
-	Tags         []string          `json:"tags,omitempty"`
-	Rating       int               `json:"rating,omitempty"`
-	Width        int               `json:"width,omitempty"`
-	Height       int               `json:"height,omitempty"`
+	DateTaken   time.Time        `json:"dateTaken,omitempty"`
+	CameraModel string           `json:"cameraModel,omitempty"`
+	Lens        string           `json:"lens,omitempty"`
+	Location    *Location        `json:"location,omitempty"`
+	Persons     []DetectedPerson `json:"persons,omitempty"`
+	Objects     []DetectedObject `json:"objects,omitempty"`
+	Tags        []string         `json:"tags,omitempty"`
+	Rating      int              `json:"rating,omitempty"`
+	Width       int              `json:"width,omitempty"`
+	Height      int              `json:"height,omitempty"`
 }
 
 // Location represents GPS coordinates and place name
@@ -158,20 +158,20 @@ type DetectedObject struct {
 
 // IndexedPhoto represents a photo in the search index
 type IndexedPhoto struct {
-	PhotoID     string                 `json:"photoId"`
-	Vectors     map[string][]float32   `json:"vectors,omitempty"`
-	Attributes  map[string]interface{} `json:"attributes"`
+	PhotoID    string                 `json:"photoId"`
+	Vectors    map[string][]float32   `json:"vectors,omitempty"`
+	Attributes map[string]interface{} `json:"attributes"`
 }
 
 // PhotoFilter for listing photos
 type PhotoFilter struct {
-	StartDate  *time.Time `json:"startDate,omitempty"`
-	EndDate    *time.Time `json:"endDate,omitempty"`
-	Location   *Location  `json:"location,omitempty"`
-	PersonID   string     `json:"personId,omitempty"`
-	Tags       []string   `json:"tags,omitempty"`
-	Limit      int        `json:"limit,omitempty"`
-	Offset     int        `json:"offset,omitempty"`
+	StartDate *time.Time `json:"startDate,omitempty"`
+	EndDate   *time.Time `json:"endDate,omitempty"`
+	Location  *Location  `json:"location,omitempty"`
+	PersonID  string     `json:"personId,omitempty"`
+	Tags      []string   `json:"tags,omitempty"`
+	Limit     int        `json:"limit,omitempty"`
+	Offset    int        `json:"offset,omitempty"`
 }
 
 // NewConditionalAlbumManager creates a new manager instance
@@ -449,7 +449,7 @@ func (m *ConditionalAlbumManager) evaluateCondition(photo *IndexedPhoto, cond Co
 
 // contains checks if a string contains a substring (case-insensitive)
 func contains(str, substr string) bool {
-	return len(str) >= len(substr) && 
+	return len(str) >= len(substr) &&
 		(str == substr || len(str) > 0 && containsIgnoreCase(str, substr))
 }
 
