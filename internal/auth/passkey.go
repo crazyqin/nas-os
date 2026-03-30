@@ -205,7 +205,7 @@ func (m *PasskeyManager) FinishPasskeyRegistration(sessionID string, responseDat
 	}
 
 	// 获取客户端数据
-	clientDataJSON, ok := response["clientDataJSON"].(string)
+	_, ok = response["clientDataJSON"].(string)
 	if !ok {
 		return nil, fmt.Errorf("客户端数据缺失")
 	}
@@ -394,13 +394,13 @@ func (m *PasskeyManager) FinishPasskeyAuthentication(sessionID string, responseD
 	}
 
 	// 获取认证器数据
-	authenticatorData, ok := response["authenticatorData"].(string)
+	_, ok = response["authenticatorData"].(string)
 	if !ok {
 		return "", fmt.Errorf("认证器数据缺失")
 	}
 
 	// 获取签名
-	signature, ok := response["signature"].(string)
+	_, ok = response["signature"].(string)
 	if !ok {
 		return "", fmt.Errorf("签名缺失")
 	}
