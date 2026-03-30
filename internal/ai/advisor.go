@@ -131,11 +131,11 @@ type NetworkInterface struct {
 
 // HealthScore 健康评分
 type HealthScore struct {
-	TotalScore    int     `json:"total_score"`    // 0-100
-	Grade         string  `json:"grade"`          // A/B/C/D/F
-	Trend         string  `json:"trend"`          // up/down/stable
-	Components    []HealthComponent `json:"components"`
-	Recommendations []string `json:"recommendations"`
+	TotalScore      int               `json:"total_score"` // 0-100
+	Grade           string            `json:"grade"`       // A/B/C/D/F
+	Trend           string            `json:"trend"`       // up/down/stable
+	Components      []HealthComponent `json:"components"`
+	Recommendations []string          `json:"recommendations"`
 }
 
 // HealthComponent 健康组件
@@ -148,78 +148,78 @@ type HealthComponent struct {
 
 // DiskHealth 磁盘健康
 type DiskHealth struct {
-	Device       string `json:"device"`
-	Model        string `json:"model"`
-	Serial       string `json:"serial"`
-	Status       string `json:"status"` // healthy/warning/critical/unknown
-	SmartStatus  string `json:"smart_status"`
-	Temperature  float64 `json:"temperature_c"`
-	PowerOnHours int    `json:"power_on_hours"`
-	ReallocSect  int    `json:"realloc_sectors"`
-	PendingSect  int    `json:"pending_sectors"`
-	Lifetime     int    `json:"estimated_lifetime_days"` // 预估剩余寿命
+	Device       string   `json:"device"`
+	Model        string   `json:"model"`
+	Serial       string   `json:"serial"`
+	Status       string   `json:"status"` // healthy/warning/critical/unknown
+	SmartStatus  string   `json:"smart_status"`
+	Temperature  float64  `json:"temperature_c"`
+	PowerOnHours int      `json:"power_on_hours"`
+	ReallocSect  int      `json:"realloc_sectors"`
+	PendingSect  int      `json:"pending_sectors"`
+	Lifetime     int      `json:"estimated_lifetime_days"` // 预估剩余寿命
 	Warnings     []string `json:"warnings"`
 }
 
 // ServiceHealth 服务健康
 type ServiceHealth struct {
-	Name        string `json:"name"`
-	Status      string `json:"status"` // running/stopped/failed
-	Health      string `json:"health"` // healthy/unhealthy
-	Uptime      string `json:"uptime"`
+	Name        string  `json:"name"`
+	Status      string  `json:"status"` // running/stopped/failed
+	Health      string  `json:"health"` // healthy/unhealthy
+	Uptime      string  `json:"uptime"`
 	CPUUsage    float64 `json:"cpu_usage"`
 	MemoryUsage float64 `json:"memory_usage"`
-	LastError   string `json:"last_error"`
+	LastError   string  `json:"last_error"`
 }
 
 // Alert 告警
 type Alert struct {
-	ID          string    `json:"id"`
-	Type        string    `json:"type"` // disk/service/storage/network/security
-	Level       string    `json:"level"` // info/warning/critical
-	Message     string    `json:"message"`
-	Source      string    `json:"source"`
-	Timestamp   time.Time `json:"timestamp"`
-	Resolved    bool      `json:"resolved"`
-	Suggestion  string    `json:"suggestion"`
+	ID         string    `json:"id"`
+	Type       string    `json:"type"`  // disk/service/storage/network/security
+	Level      string    `json:"level"` // info/warning/critical
+	Message    string    `json:"message"`
+	Source     string    `json:"source"`
+	Timestamp  time.Time `json:"timestamp"`
+	Resolved   bool      `json:"resolved"`
+	Suggestion string    `json:"suggestion"`
 }
 
 // StorageOverview 存储概览
 type StorageOverview struct {
-	TotalCapacity uint64 `json:"total_capacity_bytes"`
-	UsedCapacity  uint64 `json:"used_capacity_bytes"`
-	FreeCapacity  uint64 `json:"free_capacity_bytes"`
+	TotalCapacity uint64  `json:"total_capacity_bytes"`
+	UsedCapacity  uint64  `json:"used_capacity_bytes"`
+	FreeCapacity  uint64  `json:"free_capacity_bytes"`
 	UsagePercent  float64 `json:"usage_percent"`
-	VolumeCount   int    `json:"volume_count"`
-	PoolCount     int    `json:"pool_count"`
-	SnapshotCount int    `json:"snapshot_count"`
+	VolumeCount   int     `json:"volume_count"`
+	PoolCount     int     `json:"pool_count"`
+	SnapshotCount int     `json:"snapshot_count"`
 }
 
 // VolumeInfo 卷信息
 type VolumeInfo struct {
-	Name        string `json:"name"`
-	Path        string `json:"path"`
-	FSType      string `json:"fs_type"` // btrfs/ext4/zfs
-	Total       uint64 `json:"total_bytes"`
-	Used        uint64 `json:"used_bytes"`
-	Free        uint64 `json:"free_bytes"`
-	Usage       float64 `json:"usage_percent"`
-	Profile     string `json:"profile"` // raid0/raid1/raid5/raid6/raid10/single
-	Mounted     bool   `json:"mounted"`
-	Compress    string `json:"compression"`
-	Encrypt     bool   `json:"encrypted"`
+	Name     string  `json:"name"`
+	Path     string  `json:"path"`
+	FSType   string  `json:"fs_type"` // btrfs/ext4/zfs
+	Total    uint64  `json:"total_bytes"`
+	Used     uint64  `json:"used_bytes"`
+	Free     uint64  `json:"free_bytes"`
+	Usage    float64 `json:"usage_percent"`
+	Profile  string  `json:"profile"` // raid0/raid1/raid5/raid6/raid10/single
+	Mounted  bool    `json:"mounted"`
+	Compress string  `json:"compression"`
+	Encrypt  bool    `json:"encrypted"`
 }
 
 // PoolInfo 存储池信息
 type PoolInfo struct {
-	Name        string   `json:"name"`
-	Profile     string   `json:"profile"`
-	Devices     []string `json:"devices"`
-	Total       uint64   `json:"total_bytes"`
-	Used        uint64   `json:"used_bytes"`
-	Free        uint64   `json:"free_bytes"`
-	Status      string   `json:"status"` // healthy/degraded/error
-	Rebuilding  bool     `json:"rebuilding"`
+	Name       string   `json:"name"`
+	Profile    string   `json:"profile"`
+	Devices    []string `json:"devices"`
+	Total      uint64   `json:"total_bytes"`
+	Used       uint64   `json:"used_bytes"`
+	Free       uint64   `json:"free_bytes"`
+	Status     string   `json:"status"` // healthy/degraded/error
+	Rebuilding bool     `json:"rebuilding"`
 }
 
 // SnapshotInfo 快照信息
@@ -293,9 +293,9 @@ func NewAdvisor(config *AdvisorConfig) (*Advisor, error) {
 	}
 
 	return &Advisor{
-		config:   config,
-		history:  make(map[string][]Message),
-		systemPrompt: buildSystemPrompt(),
+		config:        config,
+		history:       make(map[string][]Message),
+		systemPrompt:  buildSystemPrompt(),
 		knowledgeBase: NewAdvisorKnowledge(),
 	}, nil
 }
@@ -392,13 +392,13 @@ func (a *Advisor) Query(ctx context.Context, sessionID, question string) (*Advis
 
 	// 5. 构建响应
 	return &AdvisorResponse{
-		Answer:      resp.Content,
-		Context:     context,
-		TokensUsed:  resp.TokensUsed,
-		Model:       resp.Model,
-		Provider:    resp.Provider,
-		Timestamp:   time.Now(),
-		SessionID:   sessionID,
+		Answer:     resp.Content,
+		Context:    context,
+		TokensUsed: resp.TokensUsed,
+		Model:      resp.Model,
+		Provider:   resp.Provider,
+		Timestamp:  time.Now(),
+		SessionID:  sessionID,
 	}, nil
 }
 
@@ -494,11 +494,11 @@ func (a *Advisor) collectContext(question string) (*AdvisorContext, error) {
 
 // questionType 问题类型分析
 type questionType struct {
-	system      bool
-	health      bool
-	storage     bool
-	service     bool
-	general     bool
+	system       bool
+	health       bool
+	storage      bool
+	service      bool
+	general      bool
 	troubleshoot bool
 }
 
@@ -716,34 +716,34 @@ func (a *Advisor) ClearHistory(sessionID string) {
 
 // AdvisorContext Advisor 上下文
 type AdvisorContext struct {
-	Timestamp       time.Time
-	SystemStatus    *SystemStatus
-	CPU             *CPUInfo
-	Memory          *MemoryInfo
-	Network         *NetworkInfo
-	HealthScore     *HealthScore
-	DiskHealth      []DiskHealth
-	ServiceHealth   []ServiceHealth
-	Alerts          []Alert
-	StorageOverview *StorageOverview
-	Volumes         []VolumeInfo
-	Pools           []PoolInfo
-	Services        []ServiceInfo
+	Timestamp         time.Time
+	SystemStatus      *SystemStatus
+	CPU               *CPUInfo
+	Memory            *MemoryInfo
+	Network           *NetworkInfo
+	HealthScore       *HealthScore
+	DiskHealth        []DiskHealth
+	ServiceHealth     []ServiceHealth
+	Alerts            []Alert
+	StorageOverview   *StorageOverview
+	Volumes           []VolumeInfo
+	Pools             []PoolInfo
+	Services          []ServiceInfo
 	RelevantKnowledge []KnowledgeEntry
-	Note            string
+	Note              string
 }
 
 // ===== AdvisorResponse =====
 
 // AdvisorResponse Advisor 响应
 type AdvisorResponse struct {
-	Answer      string          `json:"answer"`
-	Context     *AdvisorContext `json:"context,omitempty"`
-	TokensUsed  int             `json:"tokens_used"`
-	Model       string          `json:"model"`
-	Provider    Provider        `json:"provider"`
-	Timestamp   time.Time       `json:"timestamp"`
-	SessionID   string          `json:"session_id"`
+	Answer     string          `json:"answer"`
+	Context    *AdvisorContext `json:"context,omitempty"`
+	TokensUsed int             `json:"tokens_used"`
+	Model      string          `json:"model"`
+	Provider   Provider        `json:"provider"`
+	Timestamp  time.Time       `json:"timestamp"`
+	SessionID  string          `json:"session_id"`
 }
 
 // ===== Knowledge Base =====
@@ -755,11 +755,11 @@ type AdvisorKnowledge struct {
 
 // KnowledgeEntry 知识条目
 type KnowledgeEntry struct {
-	Keywords    []string `json:"keywords"`
-	Problem     string   `json:"problem"`
-	Solution    string   `json:"solution"`
-	Category    string   `json:"category"` // storage/network/service/system
-	Priority    int      `json:"priority"` // 1-5, 5最高
+	Keywords []string `json:"keywords"`
+	Problem  string   `json:"problem"`
+	Solution string   `json:"solution"`
+	Category string   `json:"category"` // storage/network/service/system
+	Priority int      `json:"priority"` // 1-5, 5最高
 }
 
 // NewAdvisorKnowledge 创建知识库
@@ -921,7 +921,7 @@ func (a *Advisor) BatchQuery(ctx context.Context, questions []string) ([]*Adviso
 		resp, err := a.QuickQuery(ctx, q)
 		if err != nil {
 			results[i] = &AdvisorResponse{
-				Answer: fmt.Sprintf("查询失败: %v", err),
+				Answer:    fmt.Sprintf("查询失败: %v", err),
 				Timestamp: time.Now(),
 			}
 			continue

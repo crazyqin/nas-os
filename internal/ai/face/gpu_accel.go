@@ -12,38 +12,38 @@ import (
 type GPUAccelerator interface {
 	// Initialize initializes the GPU accelerator
 	Initialize(ctx context.Context) error
-	
+
 	// IsAvailable checks if GPU acceleration is available
 	IsAvailable() bool
-	
+
 	// DetectFaces performs face detection using GPU acceleration
 	DetectFaces(ctx context.Context, imageData []byte) ([]DetectedFace, error)
-	
+
 	// ExtractFeatures extracts face features/embeddings
 	ExtractFeatures(ctx context.Context, faceImage []byte) ([]float32, error)
-	
+
 	// GetInfo returns GPU information
 	GetInfo() GPUInfo
-	
+
 	// Close releases GPU resources
 	Close() error
 }
 
 // GPUInfo contains GPU information
 type GPUInfo struct {
-	Vendor       string `json:"vendor"`
-	Model        string `json:"model"`
-	Memory       int64  `json:"memory"` // in MB
+	Vendor        string `json:"vendor"`
+	Model         string `json:"model"`
+	Memory        int64  `json:"memory"` // in MB
 	DriverVersion string `json:"driverVersion"`
-	ComputeUnits int    `json:"computeUnits"`
+	ComputeUnits  int    `json:"computeUnits"`
 }
 
 // DetectedFace represents a detected face with GPU acceleration
 type DetectedFace struct {
-	BoundingBox  BoundingBox `json:"boundingBox"`  // Uses BoundingBox from detector.go
-	Confidence   float64     `json:"confidence"`
-	Landmarks    []Landmark  `json:"landmarks,omitempty"`
-	Embedding    []float32   `json:"embedding,omitempty"`
+	BoundingBox BoundingBox `json:"boundingBox"` // Uses BoundingBox from detector.go
+	Confidence  float64     `json:"confidence"`
+	Landmarks   []Landmark  `json:"landmarks,omitempty"`
+	Embedding   []float32   `json:"embedding,omitempty"`
 }
 
 // Landmark represents a facial landmark point
@@ -57,17 +57,17 @@ type Landmark struct {
 type LandmarkType string
 
 const (
-	LandmarkLeftEye       LandmarkType = "leftEye"
-	LandmarkRightEye      LandmarkType = "rightEye"
-	LandmarkNose          LandmarkType = "nose"
-	LandmarkLeftMouth     LandmarkType = "leftMouth"
-	LandmarkRightMouth    LandmarkType = "rightMouth"
-	LandmarkChin          LandmarkType = "chin"
+	LandmarkLeftEye    LandmarkType = "leftEye"
+	LandmarkRightEye   LandmarkType = "rightEye"
+	LandmarkNose       LandmarkType = "nose"
+	LandmarkLeftMouth  LandmarkType = "leftMouth"
+	LandmarkRightMouth LandmarkType = "rightMouth"
+	LandmarkChin       LandmarkType = "chin"
 )
 
 // IntelGPUAccelerator provides Intel GPU acceleration via OpenVINO
 type IntelGPUAccelerator struct {
-	mu         sync.Mutex
+	mu          sync.Mutex
 	initialized bool
 	available   bool
 	info        GPUInfo
@@ -101,9 +101,9 @@ func (a *IntelGPUAccelerator) Initialize(ctx context.Context) error {
 	a.available = true
 	a.initialized = true
 	a.info = GPUInfo{
-		Vendor:    "Intel",
-		Model:     "Intel Integrated Graphics",
-		Memory:    0, // Shared memory
+		Vendor:       "Intel",
+		Model:        "Intel Integrated Graphics",
+		Memory:       0, // Shared memory
 		ComputeUnits: runtime.NumCPU(),
 	}
 
@@ -200,9 +200,9 @@ func (a *NVidiaGPUAccelerator) Initialize(ctx context.Context) error {
 	a.available = true
 	a.initialized = true
 	a.info = GPUInfo{
-		Vendor:    "NVIDIA",
-		Model:     "NVIDIA GPU",
-		Memory:    8192, // Example: 8GB
+		Vendor:       "NVIDIA",
+		Model:        "NVIDIA GPU",
+		Memory:       8192, // Example: 8GB
 		ComputeUnits: 4096,
 	}
 
@@ -261,7 +261,7 @@ func (a *NVidiaGPUAccelerator) detectNVidiaGPU() bool {
 
 // GPUAcceleratorFactory creates the appropriate GPU accelerator
 type GPUAcceleratorFactory struct {
-	mu         sync.Mutex
+	mu          sync.Mutex
 	accelerator GPUAccelerator
 }
 
@@ -366,10 +366,10 @@ func (s *FaceDetectionService) Close() error {
 
 // GPUAccelerationStatus represents the status of GPU acceleration
 type GPUAccelerationStatus struct {
-	Available    bool     `json:"available"`
-	Vendor       string   `json:"vendor,omitempty"`
-	Model        string   `json:"model,omitempty"`
-	MemoryMB     int64    `json:"memoryMb,omitempty"`
+	Available         bool    `json:"available"`
+	Vendor            string  `json:"vendor,omitempty"`
+	Model             string  `json:"model,omitempty"`
+	MemoryMB          int64   `json:"memoryMb,omitempty"`
 	AccelerationRatio float64 `json:"accelerationRatio,omitempty"`
 }
 
@@ -377,7 +377,7 @@ type GPUAccelerationStatus struct {
 func GetGPUAccelerationStatus() GPUAccelerationStatus {
 	factory := NewGPUAcceleratorFactory()
 	ctx := context.Background()
-	
+
 	accel, err := factory.GetOrCreateAccelerator(ctx)
 	if err != nil {
 		return GPUAccelerationStatus{
@@ -386,23 +386,23 @@ func GetGPUAccelerationStatus() GPUAccelerationStatus {
 	}
 
 	info := accel.GetInfo()
-	
+
 	// Estimate acceleration ratio based on GPU type
 	var ratio float64
 	switch info.Vendor {
 	case "NVIDIA":
 		ratio = 10.0 // NVIDIA GPUs are typically 10x faster
 	case "Intel":
-		ratio = 3.0  // Intel iGPU is typically 3x faster than CPU
+		ratio = 3.0 // Intel iGPU is typically 3x faster than CPU
 	default:
 		ratio = 2.0
 	}
 
 	return GPUAccelerationStatus{
-		Available:        true,
-		Vendor:           info.Vendor,
-		Model:            info.Model,
-		MemoryMB:         info.Memory,
+		Available:         true,
+		Vendor:            info.Vendor,
+		Model:             info.Model,
+		MemoryMB:          info.Memory,
 		AccelerationRatio: ratio,
 	}
 }
@@ -423,7 +423,7 @@ func BatchDetectFaces(ctx context.Context, images [][]byte, accel GPUAccelerator
 		wg.Add(1)
 		go func(idx int, imageData []byte) {
 			defer wg.Done()
-			
+
 			faces, err := accel.DetectFaces(ctx, imageData)
 			if err != nil {
 				errChan <- err
