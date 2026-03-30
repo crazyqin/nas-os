@@ -71,12 +71,15 @@ func (api *MediaCenterAPI) ScrapeMedia(w http.ResponseWriter, r *http.Request) {
 	var result interface{}
 	var err error
 
+	// 使用 SmartMatch 或 ScrapeMedia 方法
 	if req.Filename != "" {
-		result, err = api.scraper.AutoScrape(r.Context(), req.Filename)
+		result, err = api.scraper.SmartMatch(r.Context(), req.Filename)
 	} else if req.Type == media.MediaTypeTVShow {
-		result, err = api.scraper.ScrapeTVShow(r.Context(), req.Title)
+		// 使用 ScrapeMedia 传入电视剧类型提示
+		result, err = api.scraper.ScrapeMedia(r.Context(), req.Title, media.ScrapeHint{MediaType: media.MediaTypeTVShow})
 	} else {
-		result, err = api.scraper.ScrapeMovie(r.Context(), req.Title, req.Year)
+		// 使用 ScrapeMedia 传入电影类型提示和年份
+		result, err = api.scraper.ScrapeMedia(r.Context(), req.Title, media.ScrapeHint{MediaType: media.MediaTypeMovie, Year: req.Year})
 	}
 
 	if err != nil {
@@ -90,8 +93,7 @@ func (api *MediaCenterAPI) ScrapeMedia(w http.ResponseWriter, r *http.Request) {
 // BatchScrapeMedia handles batch scraping
 func (api *MediaCenterAPI) BatchScrapeMedia(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Items   []media.ScrapeItem `json:"items"`
-		Workers int                `json:"workers,omitempty"`
+		Files []string `json:"files"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -99,18 +101,19 @@ func (api *MediaCenterAPI) BatchScrapeMedia(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if len(req.Items) == 0 {
-		http.Error(w, "no items provided", http.StatusBadRequest)
+	if len(req.Files) == 0 {
+		http.Error(w, "no files provided", http.StatusBadRequest)
 		return
 	}
 
-	result := api.scraper.BatchScrape(r.Context(), req.Items, req.Workers)
+	result := api.scraper.BatchScrape(r.Context(), req.Files)
 	_ = json.NewEncoder(w).Encode(result)
 }
 
 // GetSources returns available metadata sources
 func (api *MediaCenterAPI) GetSources(w http.ResponseWriter, r *http.Request) {
-	sources := api.scraper.GetAvailableSources()
+	// 返回配置的数据源优先级
+	sources := []string{"tmdb", "douban"}
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"sources": sources,
 	})
