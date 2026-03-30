@@ -1,94 +1,112 @@
 {
-  "version": "v2.323.0",
-  "nextVersion": "v2.324.0",
-  "round": 98,
+  "version": "v2.324.0",
+  "nextVersion": "v2.325.0",
+  "round": 102,
   "date": "2026-03-30",
-  "timestamp": "2026-03-30T05:53:00+08:00",
-  "status": "developing",
+  "timestamp": "2026-03-30T11:53:00+08:00",
+  "status": "planning",
   "actions": {
-    "ci-cd": "in_progress",
-    "security-scan": "in_progress",
-    "compatibility-check": "in_progress"
+    "ci-cd": "pending",
+    "security-scan": "pending",
+    "compatibility-check": "pending"
   },
   "ministries": {
     "兵部": {
-      "task": "RAIDZ Expansion实现 + NVMe SMART UI完善",
+      "task": "GPU容器调度优化 + GPU Passthrough增强",
       "status": "pending",
       "priority": "P0",
-      "context": "参考TrueNAS 24.10 RAIDZ Expansion技术，实现expansion_api.go接口；完善NVMe SMART UI组件，集成Chart.js温度历史图表"
+      "context": "参考TrueNAS 25.10 GPU Sharing功能，实现nas-os容器GPU共享调度；支持NVIDIA GPU挂载和资源限制"
     },
     "户部": {
-      "task": "云备份任务成本分析 + AI服务成本优化",
+      "task": "存储配额告警系统 + 容量预测增强",
       "status": "pending",
       "priority": "P1",
-      "context": "分析TrueCloud Backup成本结构，设计配额管理机制；优化AI服务Token消耗统计"
+      "context": "实现存储配额告警系统，支持阈值设置和自动通知；增强容量预测功能"
     },
     "礼部": {
-      "task": "Dashboard可定制重构 + Webshare UI设计",
+      "task": "Webshare UI重构 + 响应式设计优化",
       "status": "pending",
       "priority": "P1",
-      "context": "参考TrueNAS 24.10 Dashboard重构，设计widgets系统；参考TrueNAS 26 Webshare设计文件分享UI"
+      "context": "参考TrueNAS Webshare设计，重构文件分享UI；优化移动端响应式体验"
     },
     "工部": {
-      "task": "RAIDZ Expansion后端实现 + Docker Compose优化",
+      "task": "Docker Compose增强 + App Catalog完善",
       "status": "pending",
       "priority": "P0",
-      "context": "实现RAIDZ Expansion后端逻辑，封装btrfs设备添加；优化Docker Compose管理模块"
+      "context": "增强Docker Compose管理，支持多容器编排；完善App Catalog应用商店"
     },
     "吏部": {
-      "task": "版本规划v2.325.0 + RAIDZ扩展路线图",
+      "task": "版本更新v2.324.0 + 发行说明",
       "status": "pending",
       "priority": "P0",
-      "context": "规划v2.325.0 RAIDZ扩展里程碑；制定btrfs→ZFS迁移路线图"
+      "context": "更新版本号到v2.324.0，编写完整发行说明"
     },
     "刑部": {
-      "task": "勒索软件检测增强 + SMB Spotlight搜索安全审计",
+      "task": "SMB安全增强 + 限流优化",
       "status": "pending",
       "priority": "P0",
-      "context": "增强勒索软件检测模块，添加honeypot文件；SMB Spotlight搜索安全审计"
+      "context": "增强SMB安全配置，支持IP白名单/黑名单；优化登录限流机制"
     }
   },
   "competitive_insights": {
-    "truenas_26": {
+    "truenas_25_10": {
       "new_features": [
-        "Webshare with TrueSearch - 浏览器文件访问+搜索",
-        "Ransomware Defense - 实时威胁检测+自动响应",
-        "LXC Containers - 完整支持，HA容器故障转移",
-        "SMB Stateful Failover - 状态保持故障转移",
-        "SMB Spotlight Search - macOS客户端搜索支持",
-        "OpenZFS 2.4 - 混合池支持+物理块重写",
-        "Linux Kernel 6.18 LTS"
+        "TrueNAS Connect云管理",
+        "Multi-Systems管理控制台",
+        "Single Sign-On (SSO)",
+        "Fleet & Replication Management",
+        "App Catalogs增强",
+        "Docker Compose支持",
+        "GPU Sharing",
+        "SMB Multichannel",
+        "RDMA for iSCSI/NFS",
+        "RAID-Z Expansion",
+        "ZFS混合池支持"
       ],
       "learnings": [
-        "年度发布周期简化版本号",
-        "勒索软件honeypot检测机制",
-        "Webshare浏览器文件管理",
-        "SMB Spotlight搜索增强"
+        "云管理平台集成",
+        "GPU资源虚拟化",
+        "多系统统一管理",
+        "应用商店生态"
       ]
     },
-    "synology_dsm_storage": {
+    "truenas_26": {
+      "new_features": [
+        "Webshare with TrueSearch",
+        "Ransomware Defense增强",
+        "LXC Containers HA",
+        "SMB Stateful Failover",
+        "OpenZFS 2.4"
+      ]
+    },
+    "synology_dsm": {
       "features": [
-        "数据压缩 - 平均节省30%",
-        "快照和自愈 - 数据完整性保护",
-        "自动替换 - 失败盘克隆到热备",
-        "快速修复 - 只修复使用扇区",
-        "不可变存储 - WriteOnce防修改",
-        "加密密钥管理 - KMIP支持",
-        "扩展灵活性 - SHR混合容量"
+        "SHR混合存储",
+        "自动热备替换",
+        "数据压缩(节省30%)",
+        "快照自动保护",
+        "加密密钥KMIP"
       ],
       "learnings": [
-        "直观存储管理界面设计",
-        "自动热备替换机制",
-        "加密密钥托管方案"
+        "混合存储池设计",
+        "自动容错机制",
+        "配额与告警系统"
+      ]
+    },
+    "feiniu_fnOS": {
+      "features": [
+        "轻量级NAS系统",
+        "Docker容器支持",
+        "SMB/NFS共享"
       ]
     }
   },
   "nextPriorities": [
-    "🔴 P0: RAIDZ Expansion实现（兵部+工部）",
-    "🔴 P0: 勒索软件检测增强（刑部）",
-    "🟡 P1: Dashboard可定制重构（礼部）",
-    "🟡 P1: 云备份任务集成（户部）",
-    "🟡 P1: 版本规划（吏部）"
+    "🔴 P0: GPU容器调度优化（兵部）",
+    "🔴 P0: Docker Compose增强（工部）",
+    "🔴 P0: SMB安全增强（刑部）",
+    "🟡 P1: 存储配额告警（户部）",
+    "🟡 P1: Webshare UI重构（礼部）"
   ],
   "轮值顺序": "兵部 → 户部 → 礼部 → 工部 → 吏部 → 刑部 → (循环)",
   "当前轮值": "兵部"

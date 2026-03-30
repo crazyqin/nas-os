@@ -222,6 +222,11 @@ func NewHAManager(configPath string, lxcManager LXCManagerInterface) (*HAManager
 		m.clusterConfig = DefaultClusterConfig()
 	}
 
+	// 确保 clusterConfig 不为 nil
+	if m.clusterConfig == nil {
+		m.clusterConfig = DefaultClusterConfig()
+	}
+
 	return m, nil
 }
 

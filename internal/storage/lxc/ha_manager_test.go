@@ -532,6 +532,10 @@ func TestHAManager_Events(t *testing.T) {
 	node := &HANode{ID: "node-1", Name: "Primary", StoragePools: []string{"zfs-pool"}}
 	require.NoError(t, manager.RegisterNode(node))
 
+	// 注册node-2作为备用节点
+	node2 := &HANode{ID: "node-2", Name: "Standby", StoragePools: []string{"zfs-pool"}}
+	require.NoError(t, manager.RegisterNode(node2))
+
 	config := &HAContainerConfig{
 		Name:         "test",
 		PrimaryNode:  "node-1",
