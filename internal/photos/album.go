@@ -476,6 +476,7 @@ func (sam *SmartAlbumManager) UpdateSmartAlbum(albumID string, rules []SmartAlbu
 		return nil, fmt.Errorf("相册不存在")
 	}
 
+	album.Rules = rules
 	album.PhotoIDs = sam.matchPhotos(rules, matchMode)
 	album.UpdatedAt = time.Now()
 	return album, nil
