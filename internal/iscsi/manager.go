@@ -1,6 +1,7 @@
 package iscsi
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -534,7 +535,7 @@ func (m *Manager) getSessions(targetID string) ([]*Session, error) {
 }
 
 // ApplyConfig applies the configuration to the system
-func (m *Manager) ApplyConfig() error {
+func (m *Manager) ApplyConfig(ctx context.Context) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -560,7 +561,7 @@ func (m *Manager) ApplyConfig() error {
 					_, secret, ok := m.chapMgr.GetSecret(targetID)
 					if ok {
 						// 使用 stdin 传递密码，避免命令行泄露
-						execCmd := exec.Command("targetcli", "/iscsi/"+iqn+"/tpg1/auth", "set", "password=-")
+						execCmd := exec.CommandContext(ctx, "targetcli", "/iscsi/"+iqn+"/tpg1/auth", "set", "password=-")
 						execCmd.Stdin = strings.NewReader(secret)
 						if output, err := execCmd.CombinedOutput(); err != nil {
 							return fmt.Errorf("failed to set password: %w (%s)", err, string(output))
@@ -576,7 +577,7 @@ func (m *Manager) ApplyConfig() error {
 			continue
 		}
 
-		execCmd := exec.Command(parts[0], parts[1:]...)
+		execCmd := exec.CommandContext(ctx, parts[0], parts[1:]...)
 		if output, err := execCmd.CombinedOutput(); err != nil {
 			return fmt.Errorf("failed to execute %s: %w (%s)", cmd, err, string(output))
 		}
@@ -671,26 +672,26 @@ func (m *Manager) generateTargetCLICommands() []string {
 }
 
 // Start starts the iSCSI target service
-func (m *Manager) Start() error {
-	cmd := exec.Command("systemctl", "start", "target")
+func (m *Manager) Start(ctx context.Context) error {
+	cmd := exec.CommandContext(ctx, "systemctl", "start", "target")
 	return cmd.Run()
 }
 
 // Stop stops the iSCSI target service
-func (m *Manager) Stop() error {
-	cmd := exec.Command("systemctl", "stop", "target")
+func (m *Manager) Stop(ctx context.Context) error {
+	cmd := exec.CommandContext(ctx, "systemctl", "stop", "target")
 	return cmd.Run()
 }
 
 // Restart restarts the iSCSI target service
-func (m *Manager) Restart() error {
-	cmd := exec.Command("systemctl", "restart", "target")
+func (m *Manager) Restart(ctx context.Context) error {
+	cmd := exec.CommandContext(ctx, "systemctl", "restart", "target")
 	return cmd.Run()
 }
 
 // GetStatus checks if the iSCSI target service is running
-func (m *Manager) GetStatus() (bool, error) {
-	cmd := exec.Command("systemctl", "is-active", "target")
+func (m *Manager) GetStatus(ctx context.Context) (bool, error) {
+	cmd := exec.CommandContext(ctx, "systemctl", "is-active", "target")
 	output, err := cmd.Output()
 	if err != nil {
 		return false, nil

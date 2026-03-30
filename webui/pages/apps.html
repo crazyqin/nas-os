@@ -108,11 +108,129 @@
             gap: 0.5rem;
         }
         
+        /* 一键安装按钮样式 */
+        .btn-quick-install {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-quick-install::before {
+            content: '⚡';
+            margin-right: 4px;
+        }
+        .btn-quick-install .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-gray-800);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .btn-quick-install:hover .tooltip {
+            opacity: 1;
+        }
+        
+        /* 空状态样式 */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--color-gray-500);
+        }
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        .empty-state h3 {
+            color: var(--color-gray-600);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* 快速操作栏 */
+        .quick-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .quick-action-btn {
+            font-size: 12px;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: var(--color-gray-100);
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: all 0.15s;
+            border: none;
+        }
+        .quick-action-btn:hover {
+            background: var(--color-gray-200);
+            color: var(--color-gray-800);
+        }
+        
+        /* 搜索和筛选栏 - 固定在顶部 */
+        .filter-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: linear-gradient(to bottom, var(--color-gray-50) 80%, transparent);
+            padding: 1rem 0 1.5rem;
+            margin: -1rem 0 1.5rem;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            border: 2px solid var(--color-gray-200);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s;
+            background: white;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-gray-400);
+            pointer-events: none;
+        }
+        .search-results-count {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            color: var(--color-gray-500);
+            background: var(--color-gray-100);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
         .category-filter {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 1.5rem;
             flex-wrap: wrap;
+            align-items: center;
+        }
+        .category-label {
+            font-size: 13px;
+            color: var(--color-gray-500);
+            margin-right: 0.5rem;
         }
         .category-btn {
             padding: 0.5rem 1rem;
@@ -122,11 +240,28 @@
             color: var(--color-gray-600);
             cursor: pointer;
             transition: all 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
-        .category-btn:hover, .category-btn.active {
+        .category-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+        .category-btn.active {
             background: var(--color-primary);
             color: white;
             border-color: var(--color-primary);
+        }
+        .category-btn .count {
+            font-size: 11px;
+            background: rgba(255,255,255,0.2);
+            padding: 1px 5px;
+            border-radius: 8px;
+        }
+        .category-btn.active .count {
+            background: rgba(255,255,255,0.25);
         }
         
         .installed-section {
@@ -267,9 +402,19 @@
                 <div class="installed-list" id="installed-list"></div>
             </div>
 
-            <!-- 分类筛选 -->
-            <div class="category-filter" id="category-filter">
-                <button class="category-btn active" data-category="">全部</button>
+            <!-- 搜索和筛选栏 -->
+            <div class="filter-bar">
+                <div class="search-box">
+                    <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" class="search-input" id="search-input" placeholder="搜索应用名称、描述或标签...">
+                    <span class="search-results-count" id="search-count"></span>
+                </div>
+                <div class="category-filter" id="category-filter">
+                    <span class="category-label">分类:</span>
+                    <button class="category-btn active" data-category="">全部</button>
+                </div>
             </div>
 
             <!-- 应用目录 -->
@@ -318,6 +463,8 @@
         let installedApps = [];
         let currentTemplate = null;
         let currentInstalled = null;
+        let searchQuery = '';
+        let selectedCategory = '';
 
         // 加载应用目录
         async function loadCatalog() {
@@ -333,10 +480,41 @@
                     
                     // 渲染应用
                     renderApps();
+                    
+                    // 初始化搜索
+                    initSearch();
                 }
             } catch (e) {
                 console.error('加载应用目录失败:', e);
+                showError('加载应用目录失败，请刷新页面重试');
             }
+        }
+        
+        // 初始化搜索功能
+        function initSearch() {
+            const searchInput = document.getElementById('search-input');
+            let debounceTimer;
+            
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    searchQuery = e.target.value.toLowerCase().trim();
+                    renderApps(selectedCategory);
+                }, 200);
+            });
+        }
+        
+        // 显示错误提示
+        function showError(message) {
+            const container = document.getElementById('app-grid');
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="empty-state-icon">⚠️</div>
+                    <h3>加载失败</h3>
+                    <p>${message}</p>
+                    <button class="btn btn-primary mt-4" onclick="loadCatalog()">重新加载</button>
+                </div>
+            `;
         }
 
         // 加载已安装应用
@@ -356,13 +534,22 @@
         // 渲染分类筛选
         function renderCategoryFilter(categories) {
             const container = document.getElementById('category-filter');
-            container.innerHTML = '<button class="category-btn active" data-category="">全部</button>';
+            container.innerHTML = '<span class="category-label">分类:</span>';
+            
+            // 全部按钮
+            const allBtn = document.createElement('button');
+            allBtn.className = 'category-btn active';
+            allBtn.dataset.category = '';
+            allBtn.innerHTML = `全部<span class="count">${templates.length}</span>`;
+            allBtn.onclick = () => filterByCategory('');
+            container.appendChild(allBtn);
             
             categories.forEach(cat => {
+                const count = templates.filter(t => t.category === cat).length;
                 const btn = document.createElement('button');
                 btn.className = 'category-btn';
                 btn.dataset.category = cat;
-                btn.textContent = getCategoryName(cat);
+                btn.innerHTML = `${getCategoryName(cat)}<span class="count">${count}</span>`;
                 btn.onclick = () => filterByCategory(cat);
                 container.appendChild(btn);
             });
@@ -424,12 +611,45 @@
             const container = document.getElementById('app-grid');
             let filtered = templates;
             
+            // 分类筛选
             if (category) {
-                filtered = templates.filter(t => t.category === category);
+                filtered = filtered.filter(t => t.category === category);
+            }
+            
+            // 搜索筛选
+            if (searchQuery) {
+                filtered = filtered.filter(t => 
+                    t.displayName.toLowerCase().includes(searchQuery) ||
+                    t.description.toLowerCase().includes(searchQuery) ||
+                    (t.tags && t.tags.some(tag => tag.toLowerCase().includes(searchQuery))) ||
+                    t.id.toLowerCase().includes(searchQuery)
+                );
+            }
+            
+            // 更新搜索结果计数
+            const countEl = document.getElementById('search-count');
+            if (searchQuery) {
+                countEl.textContent = `${filtered.length} 结果`;
+            } else {
+                countEl.textContent = '';
+            }
+            
+            // 空状态
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>${searchQuery ? '未找到匹配应用' : '暂无应用'}</h3>
+                        <p>${searchQuery ? '尝试使用其他关键词搜索' : '应用目录为空，请稍后再试'}</p>
+                        ${searchQuery ? '<button class="btn btn-secondary mt-4" onclick="clearSearch()">清除搜索</button>' : ''}
+                    </div>
+                `;
+                return;
             }
             
             container.innerHTML = filtered.map(template => {
                 const installed = installedApps.find(a => a.templateId === template.id);
+                const canQuickInstall = !template.ports?.length && !template.volumes?.length && !template.environment;
                 return `
                     <div class="app-card ${installed ? 'installed' : ''}">
                         <div class="app-header">
@@ -442,17 +662,84 @@
                         <p class="app-desc">${template.description}</p>
                         <div class="app-meta">
                             ${template.ports ? template.ports.map(p => `<span class="app-tag">端口: ${p.default}</span>`).join('') : ''}
+                            ${template.tags ? template.tags.map(tag => `<span class="app-tag">${tag}</span>`).join('') : ''}
                         </div>
                         <div class="app-actions">
                             ${installed ? 
-                                `<button class="btn btn-secondary" style="flex:1;" onclick="showInstalledDetail('${installed.id}')">管理</button>` :
-                                `<button class="btn btn-primary" style="flex:1;" onclick="showInstallModal('${template.id}')">安装</button>`
+                                `<button class="btn btn-secondary" style="flex:1;" onclick="showInstalledDetail('${installed.id}')">
+                                    ${installed.status === 'running' ? '✅ 管理' : '⚙️ 管理'}
+                                </button>` :
+                                canQuickInstall ?
+                                    `<button class="btn btn-primary btn-quick-install" style="flex:1;" onclick="quickInstall('${template.id}')">
+                                        一键安装
+                                        <span class="tooltip">使用默认配置快速安装</span>
+                                    </button>` :
+                                    `<button class="btn btn-primary" style="flex:1;" onclick="showInstallModal('${template.id}')">安装</button>`
                             }
                             <button class="btn btn-secondary" onclick="showTemplateDetail('${template.id}')">详情</button>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+        
+        // 清除搜索
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            searchQuery = '';
+            renderApps(selectedCategory);
+        }
+        
+        // 一键安装（无配置应用）
+        async function quickInstall(templateId) {
+            const template = templates.find(t => t.id === templateId);
+            if (!template) return;
+            
+            if (!confirm(`确定要安装 ${template.displayName} 吗？\n\n将使用默认配置快速安装。`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/apps/install/${templateId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    loadInstalled();
+                    renderApps(selectedCategory);
+                    showToast('✅ 应用安装成功！');
+                } else {
+                    showToast('❌ 安装失败: ' + data.message, 'error');
+                }
+            } catch (e) {
+                showToast('❌ 安装失败: ' + e.message, 'error');
+            }
+        }
+        
+        // Toast 提示
+        function showToast(message, type = 'success') {
+            // 简单的 toast 实现
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background: ${type === 'error' ? '#ef4444' : '#22c55e'};
+                color: white;
+                border-radius: 8px;
+                z-index: 2000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         // 显示安装配置弹窗
