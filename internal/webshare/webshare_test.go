@@ -65,9 +65,11 @@ func TestListDirectory(t *testing.T) {
 		t.Fatalf("列出目录失败: %v", err)
 	}
 
-	// 应有 2 个目录 + 2 个文件 = 4 个项（不含隐藏文件）
-	if len(info.Items) != 4 {
-		t.Errorf("项目数量不匹配: got %d, want 4", len(info.Items))
+	// 应有 2 个目录 + 2 个文件 + cache 目录 = 5 个项（不含隐藏文件）
+	// cache 目录会被 NewManager 自动创建
+	expectedItems := 5 // subdir1, subdir2, file1.txt, file2.jpg, cache
+	if len(info.Items) != expectedItems {
+		t.Errorf("项目数量不匹配: got %d, want %d", len(info.Items), expectedItems)
 	}
 
 	// 测试列表（显示隐藏文件）
@@ -76,9 +78,10 @@ func TestListDirectory(t *testing.T) {
 		t.Fatalf("列出目录失败: %v", err)
 	}
 
-	// 应有 2 个目录 + 3 个文件 = 5 个项（含隐藏文件）
-	if len(infoHidden.Items) != 5 {
-		t.Errorf("项目数量不匹配: got %d, want 5", len(infoHidden.Items))
+	// 应有 2 个目录 + 3 个文件 + cache 目录 = 6 个项（含隐藏文件）
+	expectedHidden := 6 // subdir1, subdir2, file1.txt, file2.jpg, .hidden, cache
+	if len(infoHidden.Items) != expectedHidden {
+		t.Errorf("项目数量不匹配: got %d, want %d", len(infoHidden.Items), expectedHidden)
 	}
 
 	// 验证面包屑
