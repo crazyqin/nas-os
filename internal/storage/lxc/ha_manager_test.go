@@ -492,8 +492,11 @@ func TestHAManager_StatePersistence(t *testing.T) {
 	manager1, err := NewHAManager(tempDir, mockLXC)
 	require.NoError(t, err)
 
-	node := &HANode{ID: "node-1", Name: "Primary", StoragePools: []string{"zfs-pool"}}
-	require.NoError(t, manager1.RegisterNode(node))
+	node1 := &HANode{ID: "node-1", Name: "Primary", StoragePools: []string{"zfs-pool"}}
+	require.NoError(t, manager1.RegisterNode(node1))
+
+	node2 := &HANode{ID: "node-2", Name: "Standby", StoragePools: []string{"zfs-pool"}}
+	require.NoError(t, manager1.RegisterNode(node2))
 
 	config := &HAContainerConfig{
 		Name:         "test",
