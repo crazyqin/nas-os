@@ -264,11 +264,11 @@ func (m *Manager) ComposePS(ctx context.Context, composePath string) ([]app.Comp
 		}
 
 		svc := app.ComposeService{
-			Name:   raw.Name,
-			State:  raw.State,
-			Status: raw.Status,
-			Image:  raw.Image,
-			Ports:  raw.Ports,
+			Name:    raw.Name,
+			State:   raw.State,
+			Status:  raw.Status,
+			Image:   raw.Image,
+			Ports:   raw.Ports,
 			Running: raw.State == "running",
 		}
 		services = append(services, svc)
@@ -354,13 +354,13 @@ func (m *Manager) GetAppStats(ctx context.Context, composePath string) (map[stri
 	for _, svc := range services {
 		if svc.State != "running" {
 			stats[svc.Name] = &ServiceStats{
-				CPUUsage:    0,
-				MemUsage:    0,
-				MemLimit:    0,
-				NetRx:       0,
-				NetTx:       0,
-				BlockRead:   0,
-				BlockWrite:  0,
+				CPUUsage:   0,
+				MemUsage:   0,
+				MemLimit:   0,
+				NetRx:      0,
+				NetTx:      0,
+				BlockRead:  0,
+				BlockWrite: 0,
 			}
 			continue
 		}
@@ -380,15 +380,15 @@ func (m *Manager) GetAppStats(ctx context.Context, composePath string) (map[stri
 
 // ServiceStats 服务资源统计
 type ServiceStats struct {
-	CPUUsage    float64 `json:"cpuUsage"`
-	MemUsage    uint64  `json:"memUsage"`
-	MemLimit    uint64  `json:"memLimit"`
-	MemPercent  float64 `json:"memPercent"`
-	NetRx       uint64  `json:"netRx"`
-	NetTx       uint64  `json:"netTx"`
-	BlockRead   uint64  `json:"blockRead"`
-	BlockWrite  uint64  `json:"blockWrite"`
-	PIDs        uint64  `json:"pids"`
+	CPUUsage   float64 `json:"cpuUsage"`
+	MemUsage   uint64  `json:"memUsage"`
+	MemLimit   uint64  `json:"memLimit"`
+	MemPercent float64 `json:"memPercent"`
+	NetRx      uint64  `json:"netRx"`
+	NetTx      uint64  `json:"netTx"`
+	BlockRead  uint64  `json:"blockRead"`
+	BlockWrite uint64  `json:"blockWrite"`
+	PIDs       uint64  `json:"pids"`
 }
 
 // getContainerStats 获取单个容器统计
@@ -496,10 +496,10 @@ func (m *Manager) CheckAppHealth(ctx context.Context, composePath string) (*Heal
 	for _, svc := range services {
 		healthy := svc.State == "running" && svc.Health != "unhealthy"
 		report.Services[svc.Name] = ServiceHealth{
-			Healthy:   healthy,
-			State:     svc.State,
-			Status:    svc.Status,
-			Health:    svc.Health,
+			Healthy: healthy,
+			State:   svc.State,
+			Status:  svc.Status,
+			Health:  svc.Health,
 		}
 		if !healthy {
 			allHealthy = false
@@ -522,9 +522,9 @@ func (m *Manager) CheckAppHealth(ctx context.Context, composePath string) (*Heal
 
 // HealthReport 健康检查报告
 type HealthReport struct {
-	Timestamp time.Time              `json:"timestamp"`
-	Overall   string                 `json:"overall"`  // healthy/unhealthy/stopped
-	Message   string                 `json:"message"`
+	Timestamp time.Time                `json:"timestamp"`
+	Overall   string                   `json:"overall"` // healthy/unhealthy/stopped
+	Message   string                   `json:"message"`
 	Services  map[string]ServiceHealth `json:"services"`
 }
 

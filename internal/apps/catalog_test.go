@@ -151,8 +151,8 @@ func TestSearch(t *testing.T) {
 	}
 
 	tests := []struct {
-		query      string
-		wantCount  int
+		query       string
+		wantCount   int
 		wantContain string
 	}{
 		{query: "media", wantContain: "jellyfin"},
@@ -373,7 +373,7 @@ func TestUpdate(t *testing.T) {
 		Name:        "nonexistent",
 		DisplayName: "不存在",
 		Category:    app.CategoryOther,
-		Containers: []app.ContainerSpec{{Name: "test", Image: "test:latest"}},
+		Containers:  []app.ContainerSpec{{Name: "test", Image: "test:latest"}},
 	}
 	err = catalog.Update(nonexistentTemplate)
 	if err == nil {
@@ -532,15 +532,15 @@ func TestLoadMalformedJSONFile(t *testing.T) {
 // TestTemplateValidation 测试模板验证
 func TestTemplateValidation(t *testing.T) {
 	tests := []struct {
-		name    string
+		name     string
 		template *app.Template
-		wantErr bool
+		wantErr  bool
 	}{
 		{
 			name: "有效模板",
 			template: &app.Template{
-				ID:   "valid",
-				Name: "valid",
+				ID:         "valid",
+				Name:       "valid",
 				Containers: []app.ContainerSpec{{Name: "test", Image: "test:latest"}},
 			},
 			wantErr: false,
@@ -548,7 +548,7 @@ func TestTemplateValidation(t *testing.T) {
 		{
 			name: "空ID",
 			template: &app.Template{
-				Name: "empty-id",
+				Name:       "empty-id",
 				Containers: []app.ContainerSpec{{Name: "test", Image: "test:latest"}},
 			},
 			wantErr: true,
@@ -556,7 +556,7 @@ func TestTemplateValidation(t *testing.T) {
 		{
 			name: "空名称",
 			template: &app.Template{
-				ID: "empty-name",
+				ID:         "empty-name",
 				Containers: []app.ContainerSpec{{Name: "test", Image: "test:latest"}},
 			},
 			wantErr: true,
@@ -572,8 +572,8 @@ func TestTemplateValidation(t *testing.T) {
 		{
 			name: "容器无镜像",
 			template: &app.Template{
-				ID:   "no-image",
-				Name: "no-image",
+				ID:         "no-image",
+				Name:       "no-image",
 				Containers: []app.ContainerSpec{{Name: "test"}},
 			},
 			wantErr: true,
@@ -641,11 +641,11 @@ func TestConcurrentAccess(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		go func(idx int) {
 			template := &app.Template{
-				ID:   "concurrent-" + string(rune('a'+idx)),
-				Name: "concurrent-" + string(rune('a'+idx)),
+				ID:          "concurrent-" + string(rune('a'+idx)),
+				Name:        "concurrent-" + string(rune('a'+idx)),
 				DisplayName: "并发测试" + string(rune('a'+idx)),
-				Category: app.CategoryOther,
-				Containers: []app.ContainerSpec{{Name: "test", Image: "test:latest"}},
+				Category:    app.CategoryOther,
+				Containers:  []app.ContainerSpec{{Name: "test", Image: "test:latest"}},
 			}
 			_ = catalog.Add(template)
 			done <- true

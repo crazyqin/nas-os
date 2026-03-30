@@ -38,9 +38,9 @@ func NewQueryParser() *QueryParser {
 			"2006/01/02",
 			time.RFC3339,
 		},
-		defaultField:   "content",
-		fuzziness:      1,
-		prefixEnabled:  true,
+		defaultField:  "content",
+		fuzziness:     1,
+		prefixEnabled: true,
 	}
 }
 
@@ -900,10 +900,10 @@ func SearchRecent(engine *Engine, days int, limit int) (*Response, error) {
 // SearchLarge 搜索大文件.
 func SearchLarge(engine *Engine, minSize int64, limit int) (*Response, error) {
 	req := Request{
-		Query:   "*",
-		MinSize: minSize,
-		Limit:   limit,
-		SortBy:  "size",
+		Query:    "*",
+		MinSize:  minSize,
+		Limit:    limit,
+		SortBy:   "size",
 		SortDesc: true,
 	}
 	return engine.Search(req)

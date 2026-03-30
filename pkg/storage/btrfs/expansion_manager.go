@@ -44,9 +44,9 @@ func (c *Client) RunCommand(ctx context.Context, args ...string) (string, error)
 
 // VolumeInfo 卷信息
 type VolumeInfo struct {
-	Name     string   `json:"name"`
-	Profile  string   `json:"profile"`
-	Devices  []string `json:"devices"`
+	Name    string   `json:"name"`
+	Profile string   `json:"profile"`
+	Devices []string `json:"devices"`
 }
 
 // ListVolumes 列出所有Btrfs卷
@@ -56,7 +56,7 @@ func (c *Client) ListVolumes() ([]VolumeInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 解析输出
 	volumes := []VolumeInfo{}
 	lines := strings.Split(output, "\n")
@@ -78,7 +78,7 @@ func (c *Client) GetBalanceStatus(mountPoint string) (*BalanceStatusInfo, error)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	status := &BalanceStatusInfo{}
 	if strings.Contains(output, "running") {
 		status.Running = true
@@ -99,7 +99,7 @@ func (c *Client) GetScrubStatus(mountPoint string) (*ScrubStatusInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	status := &ScrubStatusInfo{}
 	if strings.Contains(output, "running") {
 		status.Running = true
@@ -119,7 +119,7 @@ func (c *Client) GetDeviceStats(mountPoint, device string) (*DeviceStatsInfo, er
 	if err != nil {
 		return nil, err
 	}
-	
+
 	stats := &DeviceStatsInfo{}
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
@@ -157,7 +157,7 @@ func (c *Client) GetUsage(mountPoint string) (*UsageInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	usage := &UsageInfo{}
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
@@ -712,25 +712,25 @@ func (m *RAIDExpansionManager) StartExpansion(ctx context.Context, config Expans
 
 	// 创建扩展状态
 	status := &ExpansionStatus{
-		ID:                    generateExpansionID(config.VolumeName),
-		VolumeName:            config.VolumeName,
-		MountPoint:            config.MountPoint,
-		NewDevice:             config.NewDevice,
-		State:                 ExpansionStatePreparing,
-		Phase:                 PhasePreparation,
-		Progress:              0,
-		OriginalDevices:       currentDevices,
-		OriginalProfile:       volumeResult.CurrentProfile,
-		TargetProfile:         config.TargetProfile,
-		OriginalCapacity:      total,
-		NewCapacity:           newCapacity,
-		CapacityGain:          deviceResult.DeviceSize,
-		StartTime:             time.Now(),
-		TotalBytes:            used, // 需要平衡的数据量
-		CanPause:              true,
-		CanCancel:             true,
-		LastUpdateTime:        time.Now(),
-		PhaseProgress:         make(map[string]float64),
+		ID:               generateExpansionID(config.VolumeName),
+		VolumeName:       config.VolumeName,
+		MountPoint:       config.MountPoint,
+		NewDevice:        config.NewDevice,
+		State:            ExpansionStatePreparing,
+		Phase:            PhasePreparation,
+		Progress:         0,
+		OriginalDevices:  currentDevices,
+		OriginalProfile:  volumeResult.CurrentProfile,
+		TargetProfile:    config.TargetProfile,
+		OriginalCapacity: total,
+		NewCapacity:      newCapacity,
+		CapacityGain:     deviceResult.DeviceSize,
+		StartTime:        time.Now(),
+		TotalBytes:       used, // 需要平衡的数据量
+		CanPause:         true,
+		CanCancel:        true,
+		LastUpdateTime:   time.Now(),
+		PhaseProgress:    make(map[string]float64),
 	}
 
 	m.currentStatus = status

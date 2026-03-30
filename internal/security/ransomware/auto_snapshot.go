@@ -26,14 +26,14 @@ type AutoSnapshotManager struct {
 type AutoSnapshotConfig struct {
 	Enabled           bool          `json:"enabled"`
 	SnapshotDir       string        `json:"snapshot_dir"`
-	MaxSnapshots      int           `json:"max_snapshots"`       // 最大快照数
-	MaxSnapshotSize   int64         `json:"max_snapshot_size"`   // 最大快照总大小（字节）
-	SnapshotRetention time.Duration `json:"snapshot_retention"`  // 快照保留时间
-	AutoTrigger       bool          `json:"auto_trigger"`        // 自动触发快照
-	TriggerThreshold  int           `json:"trigger_threshold"`   // 触发阈值（威胁分数）
-	ProtectedPaths    []string      `json:"protected_paths"`     // 保护的路径
-	ExcludePaths      []string      `json:"exclude_paths"`       // 排除的路径
-	Compression       bool          `json:"compression"`         // 是否压缩快照
+	MaxSnapshots      int           `json:"max_snapshots"`      // 最大快照数
+	MaxSnapshotSize   int64         `json:"max_snapshot_size"`  // 最大快照总大小（字节）
+	SnapshotRetention time.Duration `json:"snapshot_retention"` // 快照保留时间
+	AutoTrigger       bool          `json:"auto_trigger"`       // 自动触发快照
+	TriggerThreshold  int           `json:"trigger_threshold"`  // 触发阈值（威胁分数）
+	ProtectedPaths    []string      `json:"protected_paths"`    // 保护的路径
+	ExcludePaths      []string      `json:"exclude_paths"`      // 排除的路径
+	Compression       bool          `json:"compression"`        // 是否压缩快照
 }
 
 // DefaultAutoSnapshotConfig 默认配置.
@@ -56,16 +56,16 @@ func DefaultAutoSnapshotConfig() AutoSnapshotConfig {
 type ProtectionSnapshot struct {
 	ID            string                 `json:"id"`
 	Timestamp     time.Time              `json:"timestamp"`
-	TriggerReason string                 `json:"trigger_reason"`    // 触发原因
-	ThreatLevel   ThreatLevel            `json:"threat_level"`      // 威胁级别
-	DetectionID   string                 `json:"detection_id"`      // 关联的检测ID
-	ProtectedPath string                 `json:"protected_path"`    // 保护的路径
-	SnapshotPath  string                 `json:"snapshot_path"`     // 快照存储路径
-	FileCount     int                    `json:"file_count"`        // 快照文件数
-	Size          int64                  `json:"size"`              // 快照大小
-	Status        SnapshotStatus         `json:"status"`            // 快照状态
-	ExpiresAt     time.Time              `json:"expires_at"`        // 过期时间
-	Restored      bool                   `json:"restored"`          // 是否已恢复
+	TriggerReason string                 `json:"trigger_reason"` // 触发原因
+	ThreatLevel   ThreatLevel            `json:"threat_level"`   // 威胁级别
+	DetectionID   string                 `json:"detection_id"`   // 关联的检测ID
+	ProtectedPath string                 `json:"protected_path"` // 保护的路径
+	SnapshotPath  string                 `json:"snapshot_path"`  // 快照存储路径
+	FileCount     int                    `json:"file_count"`     // 快照文件数
+	Size          int64                  `json:"size"`           // 快照大小
+	Status        SnapshotStatus         `json:"status"`         // 快照状态
+	ExpiresAt     time.Time              `json:"expires_at"`     // 过期时间
+	Restored      bool                   `json:"restored"`       // 是否已恢复
 	RestoredAt    *time.Time             `json:"restored_at,omitempty"`
 	RestoredTo    string                 `json:"restored_to,omitempty"`
 	Metadata      map[string]interface{} `json:"metadata,omitempty"`
@@ -75,23 +75,23 @@ type ProtectionSnapshot struct {
 type SnapshotStatus string
 
 const (
-	SnapshotStatusCreating   SnapshotStatus = "creating"
-	SnapshotStatusComplete   SnapshotStatus = "complete"
-	SnapshotStatusFailed     SnapshotStatus = "failed"
-	SnapshotStatusExpired    SnapshotStatus = "expired"
-	SnapshotStatusRestoring  SnapshotStatus = "restoring"
-	SnapshotStatusRestored   SnapshotStatus = "restored"
-	SnapshotStatusDeleted    SnapshotStatus = "deleted"
+	SnapshotStatusCreating  SnapshotStatus = "creating"
+	SnapshotStatusComplete  SnapshotStatus = "complete"
+	SnapshotStatusFailed    SnapshotStatus = "failed"
+	SnapshotStatusExpired   SnapshotStatus = "expired"
+	SnapshotStatusRestoring SnapshotStatus = "restoring"
+	SnapshotStatusRestored  SnapshotStatus = "restored"
+	SnapshotStatusDeleted   SnapshotStatus = "deleted"
 )
 
 // SnapshotStats 快照统计.
 type SnapshotStats struct {
-	TotalSnapshots    int64         `json:"total_snapshots"`
-	TotalSize         int64         `json:"total_size"`
-	ByThreatLevel     map[ThreatLevel]int64 `json:"by_threat_level"`
-	ByStatus          map[SnapshotStatus]int64 `json:"by_status"`
-	LastSnapshotTime  *time.Time    `json:"last_snapshot_time,omitempty"`
-	RestoredCount     int64         `json:"restored_count"`
+	TotalSnapshots   int64                    `json:"total_snapshots"`
+	TotalSize        int64                    `json:"total_size"`
+	ByThreatLevel    map[ThreatLevel]int64    `json:"by_threat_level"`
+	ByStatus         map[SnapshotStatus]int64 `json:"by_status"`
+	LastSnapshotTime *time.Time               `json:"last_snapshot_time,omitempty"`
+	RestoredCount    int64                    `json:"restored_count"`
 }
 
 // SnapshotServiceInterface 快照服务接口.
@@ -111,10 +111,10 @@ func NewAutoSnapshotManager(config AutoSnapshotConfig) (*AutoSnapshotManager, er
 	}
 
 	asm := &AutoSnapshotManager{
-		config:     config,
-		snapshots:  make(map[string]*ProtectionSnapshot),
-		manifest:   filepath.Join(config.SnapshotDir, "manifest.json"),
-		stats:      SnapshotStats{
+		config:    config,
+		snapshots: make(map[string]*ProtectionSnapshot),
+		manifest:  filepath.Join(config.SnapshotDir, "manifest.json"),
+		stats: SnapshotStats{
 			ByThreatLevel: make(map[ThreatLevel]int64),
 			ByStatus:      make(map[SnapshotStatus]int64),
 		},
@@ -370,11 +370,11 @@ func (asm *AutoSnapshotManager) createFileSnapshot(srcPath, dstPath string) (int
 		}
 
 		fileList = append(fileList, FileInfoRecord{
-			Path:     path,
-			Size:     info.Size(),
-			ModTime:  info.ModTime(),
-			Mode:     info.Mode(),
-			IsDir:    info.IsDir(),
+			Path:    path,
+			Size:    info.Size(),
+			ModTime: info.ModTime(),
+			Mode:    info.Mode(),
+			IsDir:   info.IsDir(),
 		})
 
 		fileCount++

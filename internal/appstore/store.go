@@ -144,10 +144,10 @@ type Store struct {
 
 // InstalledApp 已安装应用
 type InstalledApp struct {
-	Template    AppTemplate `json:"template"`
-	ContainerID string      `json:"container_id"`
-	Status      string      `json:"status"`
-	InstalledAt time.Time   `json:"installed_at"`
+	Template    AppTemplate   `json:"template"`
+	ContainerID string        `json:"container_id"`
+	Status      string        `json:"status"`
+	InstalledAt time.Time     `json:"installed_at"`
 	CustomPorts []PortMapping `json:"custom_ports,omitempty"`
 }
 

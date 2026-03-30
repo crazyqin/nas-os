@@ -17,32 +17,32 @@ import (
 
 // SecureShareLink represents a secure share link with protection
 type SecureShareLink struct {
-	ID           string            `json:"id"`
-	Token        string            `json:"token"` // Unique access token
-	ResourceType string            `json:"resourceType"` // file, album, folder
-	ResourceID   string            `json:"resourceId"`
-	ResourceName string            `json:"resourceName"`
-	
+	ID           string `json:"id"`
+	Token        string `json:"token"`        // Unique access token
+	ResourceType string `json:"resourceType"` // file, album, folder
+	ResourceID   string `json:"resourceId"`
+	ResourceName string `json:"resourceName"`
+
 	// Protection settings
-	PasswordHash  string    `json:"passwordHash,omitempty"` // bcrypt hash
-	PasswordSalt  string    `json:"passwordSalt,omitempty"`
-	ExpiresAt     *time.Time `json:"expiresAt,omitempty"`
-	MaxAccesses   int        `json:"maxAccesses,omitempty"` // 0 = unlimited
-	CurrentAccesses int      `json:"currentAccesses"`
-	
+	PasswordHash    string     `json:"passwordHash,omitempty"` // bcrypt hash
+	PasswordSalt    string     `json:"passwordSalt,omitempty"`
+	ExpiresAt       *time.Time `json:"expiresAt,omitempty"`
+	MaxAccesses     int        `json:"maxAccesses,omitempty"` // 0 = unlimited
+	CurrentAccesses int        `json:"currentAccesses"`
+
 	// Owner info
-	CreatedBy   string    `json:"createdBy"`
-	CreatedAt   time.Time `json:"createdAt"`
-	LastAccess  *time.Time `json:"lastAccess,omitempty"`
-	
+	CreatedBy  string     `json:"createdBy"`
+	CreatedAt  time.Time  `json:"createdAt"`
+	LastAccess *time.Time `json:"lastAccess,omitempty"`
+
 	// Permissions
 	AllowDownload bool `json:"allowDownload"`
 	AllowUpload   bool `json:"allowUpload"`
 	AllowDelete   bool `json:"allowDelete"`
-	
+
 	// Access tracking
 	AccessLog []ShareAccessLog `json:"accessLog,omitempty"`
-	
+
 	// Metadata
 	Description string            `json:"description,omitempty"`
 	Metadata    map[string]string `json:"metadata,omitempty"`
@@ -50,12 +50,12 @@ type SecureShareLink struct {
 
 // ShareAccessLog records access to a share link
 type ShareAccessLog struct {
-	Timestamp   time.Time `json:"timestamp"`
-	IPAddress   string    `json:"ipAddress,omitempty"`
-	UserAgent   string    `json:"userAgent,omitempty"`
-	Action      string    `json:"action"` // view, download, upload, delete
-	Success     bool      `json:"success"`
-	Reason      string    `json:"reason,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
+	IPAddress string    `json:"ipAddress,omitempty"`
+	UserAgent string    `json:"userAgent,omitempty"`
+	Action    string    `json:"action"` // view, download, upload, delete
+	Success   bool      `json:"success"`
+	Reason    string    `json:"reason,omitempty"`
 }
 
 // SecureShareManager manages secure share links
@@ -63,7 +63,7 @@ type SecureShareManager struct {
 	mu     sync.RWMutex
 	links  map[string]*SecureShareLink
 	tokens map[string]string // token -> link ID mapping
-	
+
 	// Configuration
 	config SecureShareConfig
 }
@@ -117,19 +117,19 @@ func (m *SecureShareManager) CreateSecureLink(ctx context.Context, req CreateSec
 
 	// Create link
 	link := &SecureShareLink{
-		ID:           generateShareID(),
-		Token:        token,
-		ResourceType: req.ResourceType,
-		ResourceID:   req.ResourceID,
-		ResourceName: req.ResourceName,
-		CreatedBy:    req.CreatedBy,
-		CreatedAt:    time.Now(),
+		ID:            generateShareID(),
+		Token:         token,
+		ResourceType:  req.ResourceType,
+		ResourceID:    req.ResourceID,
+		ResourceName:  req.ResourceName,
+		CreatedBy:     req.CreatedBy,
+		CreatedAt:     time.Now(),
 		AllowDownload: req.AllowDownload,
-		AllowUpload:  req.AllowUpload,
-		AllowDelete:  req.AllowDelete,
-		Description:  req.Description,
-		Metadata:     req.Metadata,
-		AccessLog:    []ShareAccessLog{},
+		AllowUpload:   req.AllowUpload,
+		AllowDelete:   req.AllowDelete,
+		Description:   req.Description,
+		Metadata:      req.Metadata,
+		AccessLog:     []ShareAccessLog{},
 	}
 
 	// Set password protection
@@ -194,7 +194,7 @@ func (m *SecureShareManager) validateRequest(req CreateSecureLinkRequest) error 
 	if req.CreatedBy == "" {
 		return fmt.Errorf("creator is required")
 	}
-	
+
 	validTypes := map[string]bool{
 		"file":   true,
 		"album":  true,
@@ -204,7 +204,7 @@ func (m *SecureShareManager) validateRequest(req CreateSecureLinkRequest) error 
 	if !validTypes[req.ResourceType] {
 		return fmt.Errorf("invalid resource type: %s", req.ResourceType)
 	}
-	
+
 	return nil
 }
 
@@ -404,12 +404,12 @@ func (m *SecureShareManager) UpdateLink(ctx context.Context, linkID string, req 
 
 // UpdateLinkRequest represents an update request
 type UpdateLinkRequest struct {
-	Password      string `json:"password,omitempty"`
+	Password       string `json:"password,omitempty"`
 	ExpirationDays int    `json:"expirationDays,omitempty"`
-	MaxAccesses   int    `json:"maxAccesses,omitempty"`
-	AllowDownload *bool  `json:"allowDownload,omitempty"`
-	AllowUpload   *bool  `json:"allowUpload,omitempty"`
-	AllowDelete   *bool  `json:"allowDelete,omitempty"`
+	MaxAccesses    int    `json:"maxAccesses,omitempty"`
+	AllowDownload  *bool  `json:"allowDownload,omitempty"`
+	AllowUpload    *bool  `json:"allowUpload,omitempty"`
+	AllowDelete    *bool  `json:"allowDelete,omitempty"`
 }
 
 // CleanupExpiredLinks removes expired links
@@ -538,15 +538,15 @@ func (l *SecureShareLink) TimeRemaining() time.Duration {
 // ToPublicInfo returns public information about the link (safe to share)
 func (l *SecureShareLink) ToPublicInfo() PublicShareInfo {
 	return PublicShareInfo{
-		Token:         l.Token,
-		ResourceType:  l.ResourceType,
-		ResourceName:  l.ResourceName,
+		Token:            l.Token,
+		ResourceType:     l.ResourceType,
+		ResourceName:     l.ResourceName,
 		RequiresPassword: l.IsPasswordProtected(),
-		ExpiresAt:     l.ExpiresAt,
-		AllowDownload: l.AllowDownload,
-		AllowUpload:   l.AllowUpload,
-		AllowDelete:   l.AllowDelete,
-		Description:   l.Description,
+		ExpiresAt:        l.ExpiresAt,
+		AllowDownload:    l.AllowDownload,
+		AllowUpload:      l.AllowUpload,
+		AllowDelete:      l.AllowDelete,
+		Description:      l.Description,
 	}
 }
 
@@ -585,10 +585,10 @@ func (m *SecureShareManager) Stats() ShareStats {
 
 // ShareStats contains statistics about secure shares
 type ShareStats struct {
-	TotalLinks       int `json:"totalLinks"`
+	TotalLinks        int `json:"totalLinks"`
 	PasswordProtected int `json:"passwordProtected"`
-	Expired          int `json:"expired"`
-	TotalAccesses    int `json:"totalAccesses"`
+	Expired           int `json:"expired"`
+	TotalAccesses     int `json:"totalAccesses"`
 }
 
 // GeneratePassword generates a random password for sharing

@@ -14,12 +14,12 @@ import (
 
 // SplitBrainGuard 脑裂防护器
 type SplitBrainGuard struct {
-	config       *HAConfig
-	quorum       *QuorumManager
-	detected     bool
-	lastCheck    time.Time
-	resolveLock  sync.Mutex
-	logger       *zap.Logger
+	config      *HAConfig
+	quorum      *QuorumManager
+	detected    bool
+	lastCheck   time.Time
+	resolveLock sync.Mutex
+	logger      *zap.Logger
 }
 
 // QuorumManager 法定人数管理器
@@ -33,11 +33,11 @@ type QuorumManager struct {
 
 // VoteRecord 投票记录
 type VoteRecord struct {
-	Timestamp   time.Time `json:"timestamp"`
-	VoterID     string    `json:"voter_id"`
-	TargetID    string    `json:"target_id"`
-	VoteType    VoteType  `json:"vote_type"`
-	Result      bool      `json:"result"`
+	Timestamp time.Time `json:"timestamp"`
+	VoterID   string    `json:"voter_id"`
+	TargetID  string    `json:"target_id"`
+	VoteType  VoteType  `json:"vote_type"`
+	Result    bool      `json:"result"`
 }
 
 // VoteType 投票类型
@@ -82,15 +82,15 @@ func NewQuorumManager(quorumSize int) *QuorumManager {
 func (sb *SplitBrainGuard) CheckSplitBrain(nodes map[string]*NodeHAInfo) *SplitBrainResult {
 	sb.resolveLock.Lock()
 	defer sb.resolveLock.Unlock()
-	
+
 	result := &SplitBrainResult{
 		Timestamp: time.Now(),
 	}
-	
+
 	// 统计活跃节点和主节点
 	activeNodes := make([]*NodeHAInfo, 0)
 	primaryNodes := make([]*NodeHAInfo, 0)
-	
+
 	for _, node := range nodes {
 		if node.State == HAStateActive || node.State == HAStatePassive {
 			activeNodes = append(activeNodes, node)
@@ -99,21 +99,21 @@ func (sb *SplitBrainGuard) CheckSplitBrain(nodes map[string]*NodeHAInfo) *SplitB
 			primaryNodes = append(primaryNodes, node)
 		}
 	}
-	
+
 	// 检查法定人数
 	result.ActiveNodeCount = len(activeNodes)
 	result.QuorumRequired = sb.config.QuorumRequired
 	result.QuorumMet = len(activeNodes) >= sb.config.QuorumRequired
-	
+
 	// 检查是否有多个主节点（脑裂）
 	result.PrimaryNodeCount = len(primaryNodes)
 	result.SplitBrainDetected = len(primaryNodes) > 1
-	
+
 	if result.SplitBrainDetected {
 		result.PrimaryNodes = primaryNodes
 		sb.detected = true
 		sb.lastCheck = time.Now()
-		
+
 		sb.logger.Error("Split brain detected",
 			zap.Int("primary_count", len(primaryNodes)),
 			zap.Strings("primary_ids", extractNodeIDs(primaryNodes)),
@@ -124,7 +124,7 @@ func (sb *SplitBrainGuard) CheckSplitBrain(nodes map[string]*NodeHAInfo) *SplitB
 			zap.Int("quorum_required", sb.config.QuorumRequired),
 		)
 	}
-	
+
 	// 检查节点是否隔离
 	if len(activeNodes) == 1 {
 		for _, node := range activeNodes {
@@ -134,7 +134,7 @@ func (sb *SplitBrainGuard) CheckSplitBrain(nodes map[string]*NodeHAInfo) *SplitB
 			}
 		}
 	}
-	
+
 	return result
 }
 
@@ -142,13 +142,13 @@ func (sb *SplitBrainGuard) CheckSplitBrain(nodes map[string]*NodeHAInfo) *SplitB
 func (sb *SplitBrainGuard) HandleSplitBrain(nodes map[string]*NodeHAInfo) error {
 	sb.resolveLock.Lock()
 	defer sb.resolveLock.Unlock()
-	
+
 	if !sb.detected {
 		return nil
 	}
-	
+
 	sb.logger.Warn("Handling split brain situation")
-	
+
 	// 收集所有声称是主节点的节点
 	claimingPrimaries := make([]*NodeHAInfo, 0)
 	for _, node := range nodes {
@@ -156,28 +156,28 @@ func (sb *SplitBrainGuard) HandleSplitBrain(nodes map[string]*NodeHAInfo) error 
 			claimingPrimaries = append(claimingPrimaries, node)
 		}
 	}
-	
+
 	if len(claimingPrimaries) == 0 {
 		sb.detected = false
 		return nil
 	}
-	
+
 	// 根据策略解决脑裂
 	resolution := sb.selectResolutionStrategy()
-	
+
 	switch resolution {
 	case ResolutionHighestPriority:
 		// 选择优先级最高的作为主节点
 		return sb.resolveByPriority(claimingPrimaries)
-		
+
 	case ResolutionLatestPrimary:
 		// 选择最后成为主节点的
 		return sb.resolveByLatest(claimingPrimaries)
-		
+
 	case ResolutionShutdownBoth:
 		// 关闭双方，等待手动介入
 		return sb.resolveByShutdown(claimingPrimaries)
-		
+
 	default:
 		return sb.resolveByPriority(claimingPrimaries)
 	}
@@ -187,7 +187,7 @@ func (sb *SplitBrainGuard) HandleSplitBrain(nodes map[string]*NodeHAInfo) error 
 func (sb *SplitBrainGuard) selectResolutionStrategy() SplitBrainResolution {
 	// 默认使用优先级策略
 	// 在实际实现中可以根据配置或自动检测选择
-	
+
 	return ResolutionHighestPriority
 }
 
@@ -196,7 +196,7 @@ func (sb *SplitBrainGuard) resolveByPriority(nodes []*NodeHAInfo) error {
 	if len(nodes) == 0 {
 		return nil
 	}
-	
+
 	// 找到优先级最高的节点
 	var winner *NodeHAInfo
 	for _, node := range nodes {
@@ -204,12 +204,12 @@ func (sb *SplitBrainGuard) resolveByPriority(nodes []*NodeHAInfo) error {
 			winner = node
 		}
 	}
-	
+
 	sb.logger.Info("Split brain resolved by priority",
 		zap.String("winner", winner.ID),
 		zap.Int("priority", winner.Priority),
 	)
-	
+
 	// 其他节点降级为备节点
 	for _, node := range nodes {
 		if node.ID != winner.ID {
@@ -220,7 +220,7 @@ func (sb *SplitBrainGuard) resolveByPriority(nodes []*NodeHAInfo) error {
 			)
 		}
 	}
-	
+
 	sb.detected = false
 	return nil
 }
@@ -234,11 +234,11 @@ func (sb *SplitBrainGuard) resolveByLatest(nodes []*NodeHAInfo) error {
 			latest = node
 		}
 	}
-	
+
 	sb.logger.Info("Split brain resolved by latest",
 		zap.String("winner", latest.ID),
 	)
-	
+
 	// 其他节点降级
 	for _, node := range nodes {
 		if node.ID != latest.ID {
@@ -246,7 +246,7 @@ func (sb *SplitBrainGuard) resolveByLatest(nodes []*NodeHAInfo) error {
 			node.State = HAStatePassive
 		}
 	}
-	
+
 	sb.detected = false
 	return nil
 }
@@ -254,12 +254,12 @@ func (sb *SplitBrainGuard) resolveByLatest(nodes []*NodeHAInfo) error {
 // resolveByShutdown 通过关闭解决
 func (sb *SplitBrainGuard) resolveByShutdown(nodes []*NodeHAInfo) error {
 	sb.logger.Error("Split brain unresolved - requiring manual intervention")
-	
+
 	// 所有节点进入安全模式
 	for _, node := range nodes {
 		node.State = HAStateStandby
 	}
-	
+
 	// 不自动解决，等待手动介入
 	return errors.New("split brain requires manual resolution")
 }
@@ -272,7 +272,7 @@ func (sb *SplitBrainGuard) IsQuorumMet(nodes map[string]*NodeHAInfo) bool {
 			activeCount++
 		}
 	}
-	
+
 	return activeCount >= sb.config.QuorumRequired
 }
 
@@ -280,7 +280,7 @@ func (sb *SplitBrainGuard) IsQuorumMet(nodes map[string]*NodeHAInfo) bool {
 func (qm *QuorumManager) RequestVote(voterID, targetID string, voteType VoteType) bool {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
-	
+
 	// 记录投票
 	vote := VoteRecord{
 		Timestamp: time.Now(),
@@ -288,19 +288,19 @@ func (qm *QuorumManager) RequestVote(voterID, targetID string, voteType VoteType
 		TargetID:  targetID,
 		VoteType:  voteType,
 	}
-	
+
 	// 统计投票
 	key := fmt.Sprintf("%s:%s", voteType, targetID)
 	qm.voteCount[key]++
-	
+
 	vote.Result = qm.voteCount[key] >= qm.quorumSize
 	qm.voteHistory = append(qm.voteHistory, vote)
-	
+
 	// 限制历史记录
 	if len(qm.voteHistory) > 100 {
 		qm.voteHistory = qm.voteHistory[len(qm.voteHistory)-100:]
 	}
-	
+
 	return vote.Result
 }
 
@@ -308,7 +308,7 @@ func (qm *QuorumManager) RequestVote(voterID, targetID string, voteType VoteType
 func (qm *QuorumManager) ClearVotes(voteType VoteType) {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
-	
+
 	for key := range qm.voteCount {
 		if len(voteType) > 0 && key[:len(voteType)] == string(voteType) {
 			delete(qm.voteCount, key)
@@ -320,10 +320,10 @@ func (qm *QuorumManager) ClearVotes(voteType VoteType) {
 func (qm *QuorumManager) GetVoteStatus(targetID string, voteType VoteType) VoteStatus {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
-	
+
 	key := fmt.Sprintf("%s:%s", voteType, targetID)
 	count := qm.voteCount[key]
-	
+
 	return VoteStatus{
 		VotesReceived: count,
 		VotesRequired: qm.quorumSize,
@@ -340,15 +340,15 @@ type VoteStatus struct {
 
 // SplitBrainResult 脑裂检测结果
 type SplitBrainResult struct {
-	Timestamp          time.Time      `json:"timestamp"`
-	SplitBrainDetected bool           `json:"split_brain_detected"`
-	PrimaryNodeCount   int            `json:"primary_node_count"`
-	PrimaryNodes       []*NodeHAInfo  `json:"primary_nodes,omitempty"`
-	QuorumMet          bool           `json:"quorum_met"`
-	QuorumRequired     int            `json:"quorum_required"`
-	ActiveNodeCount    int            `json:"active_node_count"`
-	Isolated           bool           `json:"isolated"`
-	IsolatedNodeID     string         `json:"isolated_node_id,omitempty"`
+	Timestamp          time.Time     `json:"timestamp"`
+	SplitBrainDetected bool          `json:"split_brain_detected"`
+	PrimaryNodeCount   int           `json:"primary_node_count"`
+	PrimaryNodes       []*NodeHAInfo `json:"primary_nodes,omitempty"`
+	QuorumMet          bool          `json:"quorum_met"`
+	QuorumRequired     int           `json:"quorum_required"`
+	ActiveNodeCount    int           `json:"active_node_count"`
+	Isolated           bool          `json:"isolated"`
+	IsolatedNodeID     string        `json:"isolated_node_id,omitempty"`
 }
 
 // IsSplitBrainDetected 是否检测到脑裂
@@ -371,36 +371,36 @@ func (sb *SplitBrainGuard) FenceNode(nodeID string) error {
 	sb.logger.Warn("Fencing node",
 		zap.String("node_id", nodeID),
 	)
-	
+
 	// 在实际实现中，这里需要：
 	// 1. 通过 IPMI/iLO 关闭节点电源
 	// 2. 或通过 SSH 执行关机命令
 	// 3. 或标记节点为不可用
-	
+
 	// 这里使用模拟实现
 	sb.quorum.RequestVote(sb.config.NodeID, nodeID, VoteTypeFence)
-	
+
 	return nil
 }
 
 // NodeFencing 节点防护操作
 type NodeFencing struct {
-	NodeID         string            `json:"node_id"`
-	Method         FencingMethod     `json:"method"`
-	Timestamp      time.Time         `json:"timestamp"`
-	Success        bool              `json:"success"`
-	ErrorMessage   string            `json:"error_message,omitempty"`
-	RecoveryAction string            `json:"recovery_action,omitempty"`
+	NodeID         string        `json:"node_id"`
+	Method         FencingMethod `json:"method"`
+	Timestamp      time.Time     `json:"timestamp"`
+	Success        bool          `json:"success"`
+	ErrorMessage   string        `json:"error_message,omitempty"`
+	RecoveryAction string        `json:"recovery_action,omitempty"`
 }
 
 // FencingMethod 防护方法
 type FencingMethod string
 
 const (
-	FencingIPMI    FencingMethod = "ipmi"     // IPMI 电源控制
-	FencingSSH     FencingMethod = "ssh"      // SSH 关机
-	FencingStorage FencingMethod = "storage"  // 存储隔离
-	FencingManual  FencingMethod = "manual"   // 手动干预
+	FencingIPMI    FencingMethod = "ipmi"    // IPMI 电源控制
+	FencingSSH     FencingMethod = "ssh"     // SSH 关机
+	FencingStorage FencingMethod = "storage" // 存储隔离
+	FencingManual  FencingMethod = "manual"  // 手动干预
 )
 
 // extractNodeIDs 提取节点ID列表

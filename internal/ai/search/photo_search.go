@@ -41,7 +41,7 @@ type IndexStore interface {
 
 // MemoryIndexStore 内存索引存储 (开发测试用)
 type MemoryIndexStore struct {
-	indices map[string]*PhotoIndex
+	indices  map[string]*PhotoIndex
 	features [][]float32
 	mu       sync.RWMutex
 }
@@ -62,32 +62,32 @@ func (s *MemoryIndexStore) Save(ctx context.Context, index *PhotoIndex) error {
 func (s *MemoryIndexStore) FindByFeature(ctx context.Context, feature []float32, limit int) ([]PhotoIndex, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	// 计算所有图片与查询特征的相似度
 	results := make([]PhotoIndex, 0)
 	scores := make([]struct {
-		idx PhotoIndex
+		idx   PhotoIndex
 		score float32
 	}, 0)
-	
+
 	for _, idx := range s.indices {
 		score := CosineSimilarity(feature, idx.Feature)
 		scores = append(scores, struct {
-			idx PhotoIndex
+			idx   PhotoIndex
 			score float32
 		}{idx: *idx, score: score})
 	}
-	
+
 	// 按相似度排序
 	sort.Slice(scores, func(i, j int) bool {
 		return scores[i].score > scores[j].score
 	})
-	
+
 	// 取前limit个
 	for i := 0; i < minInt(limit, len(scores)); i++ {
 		results = append(results, scores[i].idx)
 	}
-	
+
 	return results, nil
 }
 
@@ -96,18 +96,18 @@ func CosineSimilarity(a, b []float32) float32 {
 	if len(a) != len(b) {
 		return 0
 	}
-	
+
 	var dot, normA, normB float32
 	for i := range a {
 		dot += a[i] * b[i]
 		normA += a[i] * a[i]
 		normB += b[i] * b[i]
 	}
-	
+
 	if normA == 0 || normB == 0 {
 		return 0
 	}
-	
+
 	return dot / (float32(math.Sqrt(float64(normA))) * float32(math.Sqrt(float64(normB))))
 }
 
@@ -132,9 +132,9 @@ type ClipEngine interface {
 
 // SearchService 搜索服务
 type SearchService struct {
-	store  IndexStore
-	clip   ClipEngine
-	mu     sync.RWMutex
+	store IndexStore
+	clip  ClipEngine
+	mu    sync.RWMutex
 }
 
 // NewSearchService 创建搜索服务
@@ -153,13 +153,13 @@ func (s *SearchService) SearchByText(ctx context.Context, query string, limit in
 	if err != nil {
 		return nil, fmt.Errorf("extract text feature: %w", err)
 	}
-	
+
 	// 2. 在索引中搜索相似图片
 	indices, err := s.store.FindByFeature(ctx, textFeature, limit)
 	if err != nil {
 		return nil, fmt.Errorf("search indices: %w", err)
 	}
-	
+
 	// 3. 转换为搜索结果
 	results := make([]PhotoResult, len(indices))
 	for i, idx := range indices {
@@ -171,7 +171,7 @@ func (s *SearchService) SearchByText(ctx context.Context, query string, limit in
 			Tags:      idx.Tags,
 		}
 	}
-	
+
 	return results, nil
 }
 
@@ -181,7 +181,7 @@ func (s *SearchService) SearchByFeature(ctx context.Context, feature []float32, 
 	if err != nil {
 		return nil, err
 	}
-	
+
 	results := make([]PhotoResult, len(indices))
 	for i, idx := range indices {
 		results[i] = PhotoResult{
@@ -191,7 +191,7 @@ func (s *SearchService) SearchByFeature(ctx context.Context, feature []float32, 
 			Tags:      idx.Tags,
 		}
 	}
-	
+
 	return results, nil
 }
 
@@ -202,7 +202,7 @@ func (s *SearchService) IndexPhoto(ctx context.Context, photoPath string) error 
 	if err != nil {
 		return fmt.Errorf("extract image feature: %w", err)
 	}
-	
+
 	// 2. 创建索引项
 	index := &PhotoIndex{
 		ID:        generateID(photoPath),
@@ -210,7 +210,7 @@ func (s *SearchService) IndexPhoto(ctx context.Context, photoPath string) error 
 		Feature:   feature,
 		CreatedAt: time.Now(),
 	}
-	
+
 	// 3. 存储索引
 	return s.store.Save(ctx, index)
 }

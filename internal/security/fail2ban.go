@@ -8,12 +8,12 @@ import (
 
 // Fail2BanManager 失败登录保护管理器.
 type Fail2BanManager struct {
-	config       Fail2BanConfig
-	attempts     map[string][]FailedLoginAttempt // IP -> attempts
-	bannedIPs    map[string]*BannedIP            // IP -> ban info
-	lockouts     map[string]*AccountLockout      // username -> lockout
-	mu           sync.RWMutex
-	notifyFunc   func(alert Alert)
+	config     Fail2BanConfig
+	attempts   map[string][]FailedLoginAttempt // IP -> attempts
+	bannedIPs  map[string]*BannedIP            // IP -> ban info
+	lockouts   map[string]*AccountLockout      // username -> lockout
+	mu         sync.RWMutex
+	notifyFunc func(alert Alert)
 }
 
 // NewFail2BanManager 创建失败登录保护管理器.
@@ -157,9 +157,9 @@ func (m *Fail2BanManager) GetStatus() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	return map[string]interface{}{
-		"enabled":       m.config.Enabled,
-		"max_attempts":  m.config.MaxAttempts,
-		"banned_count":  len(m.bannedIPs),
+		"enabled":        m.config.Enabled,
+		"max_attempts":   m.config.MaxAttempts,
+		"banned_count":   len(m.bannedIPs),
 		"total_attempts": len(m.attempts),
 	}
 }

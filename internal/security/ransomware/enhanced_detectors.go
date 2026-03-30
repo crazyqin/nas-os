@@ -41,9 +41,9 @@ type EntropyConfig struct {
 
 // EntropyStats 熵值统计
 type EntropyStats struct {
-	FilesAnalyzed   int64   `json:"filesAnalyzed"`
-	HighEntropyFiles int64  `json:"highEntropyFiles"`
-	AvgEntropy      float64 `json:"avgEntropy"`
+	FilesAnalyzed    int64   `json:"filesAnalyzed"`
+	HighEntropyFiles int64   `json:"highEntropyFiles"`
+	AvgEntropy       float64 `json:"avgEntropy"`
 }
 
 // NewEntropyAnalyzer 创建熵值分析器
@@ -139,10 +139,10 @@ type RapidChangeEvent struct {
 
 // RapidChangeStats 快速变更统计
 type RapidChangeStats struct {
-	TotalEvents        int64 `json:"totalEvents"`
-	RecentEventCount   int   `json:"recentEventCount"`
-	ExtensionChanges   int   `json:"extensionChanges"`
-	HighActivityPeriods int  `json:"highActivityPeriods"`
+	TotalEvents         int64 `json:"totalEvents"`
+	RecentEventCount    int   `json:"recentEventCount"`
+	ExtensionChanges    int   `json:"extensionChanges"`
+	HighActivityPeriods int   `json:"highActivityPeriods"`
 }
 
 // NewRapidChangeTracker 创建快速变更追踪器
@@ -156,7 +156,7 @@ func NewRapidChangeTracker(config RapidChangeConfig) *RapidChangeTracker {
 
 	return &RapidChangeTracker{
 		config: config,
-		events:  make([]RapidChangeEvent, 0),
+		events: make([]RapidChangeEvent, 0),
 	}
 }
 
@@ -247,27 +247,27 @@ type ProcessMonitorConfig struct {
 
 // ProcessActivity 进程活动记录
 type ProcessActivity struct {
-	PID           int       `json:"pid"`
-	Name          string    `json:"name"`
-	Path          string    `json:"path"`
-	User          string    `json:"user"`
-	FileOperations int      `json:"fileOperations"`
-	FileReads     int64     `json:"fileReads"`
-	FileWrites    int64     `json:"fileWrites"`
-	FileDeletes   int64     `json:"fileDeletes"`
-	FileRenames   int64     `json:"fileRenames"`
-	ExtensionsModified []string `json:"extensionsModified"`
-	FirstSeen     time.Time `json:"firstSeen"`
-	LastSeen      time.Time `json:"lastSeen"`
-	SuspicionScore int      `json:"suspicionScore"`
-	IsSuspicious  bool      `json:"isSuspicious"`
+	PID                int       `json:"pid"`
+	Name               string    `json:"name"`
+	Path               string    `json:"path"`
+	User               string    `json:"user"`
+	FileOperations     int       `json:"fileOperations"`
+	FileReads          int64     `json:"fileReads"`
+	FileWrites         int64     `json:"fileWrites"`
+	FileDeletes        int64     `json:"fileDeletes"`
+	FileRenames        int64     `json:"fileRenames"`
+	ExtensionsModified []string  `json:"extensionsModified"`
+	FirstSeen          time.Time `json:"firstSeen"`
+	LastSeen           time.Time `json:"lastSeen"`
+	SuspicionScore     int       `json:"suspicionScore"`
+	IsSuspicious       bool      `json:"isSuspicious"`
 }
 
 // ProcessMonitorStats 进程监控统计
 type ProcessMonitorStats struct {
-	MonitoredProcesses int `json:"monitoredProcesses"`
+	MonitoredProcesses  int `json:"monitoredProcesses"`
 	SuspiciousProcesses int `json:"suspiciousProcesses"`
-	BlockedProcesses   int `json:"blockedProcesses"`
+	BlockedProcesses    int `json:"blockedProcesses"`
 }
 
 // NewProcessActivityMonitor 创建进程活动监控器
@@ -417,10 +417,10 @@ type PatternMatcherConfig struct {
 
 // PatternMatcherStats 模式匹配统计
 type PatternMatcherStats struct {
-	FilesScanned      int64 `json:"filesScanned"`
-	PatternMatches    int64 `json:"patternMatches"`
-	ExtensionMatches  int64 `json:"extensionMatches"`
-	FilenameMatches   int64 `json:"filenameMatches"`
+	FilesScanned     int64 `json:"filesScanned"`
+	PatternMatches   int64 `json:"patternMatches"`
+	ExtensionMatches int64 `json:"extensionMatches"`
+	FilenameMatches  int64 `json:"filenameMatches"`
 }
 
 // NewAdvancedPatternMatcher 创建高级模式匹配器
@@ -453,9 +453,9 @@ func (m *AdvancedPatternMatcher) initDefaultPatterns() {
 		`\.encrypted$`,
 		`\.locked$`,
 		`\.crypto$`,
-		`\.[a-z]{8,}$`,               // 长随机扩展名
-		`\.[a-z0-9]{6,}$`,            // 混合随机扩展名
-		`\.id-[a-f0-9]+\.email$`,     // ID+邮箱格式
+		`\.[a-z]{8,}$`,           // 长随机扩展名
+		`\.[a-z0-9]{6,}$`,        // 混合随机扩展名
+		`\.id-[a-f0-9]+\.email$`, // ID+邮箱格式
 	}
 
 	for _, ext := range defaultExtensions {

@@ -22,66 +22,66 @@ import (
 
 // Cloudflare Tunnel 相关错误
 var (
-	ErrCloudflaredNotFound   = errors.New("cloudflared binary not found")
-	ErrTunnelAlreadyRunning  = errors.New("tunnel already running")
-	ErrTunnelNotRunning      = errors.New("tunnel not running")
-	ErrInvalidCredentials    = errors.New("invalid cloudflare credentials")
-	ErrZoneNotFound          = errors.New("zone not found")
-	ErrDNSRecordFailed       = errors.New("dns record creation failed")
-	ErrTunnelTokenRequired   = errors.New("tunnel token required")
-	ErrAPITokenRequired      = errors.New("api token required for managed tunnels")
+	ErrCloudflaredNotFound  = errors.New("cloudflared binary not found")
+	ErrTunnelAlreadyRunning = errors.New("tunnel already running")
+	ErrTunnelNotRunning     = errors.New("tunnel not running")
+	ErrInvalidCredentials   = errors.New("invalid cloudflare credentials")
+	ErrZoneNotFound         = errors.New("zone not found")
+	ErrDNSRecordFailed      = errors.New("dns record creation failed")
+	ErrTunnelTokenRequired  = errors.New("tunnel token required")
+	ErrAPITokenRequired     = errors.New("api token required for managed tunnels")
 )
 
 // CloudflareConfig Cloudflare Tunnel 配置
 type CloudflareConfig struct {
 	// 认证方式
-	Token string `json:"token"`           // Tunnel Token (推荐方式)
-	APIToken string `json:"api_token"`    // API Token (管理 Tunnel)
-	AccountID string `json:"account_id"`  // Account ID
+	Token     string `json:"token"`      // Tunnel Token (推荐方式)
+	APIToken  string `json:"api_token"`  // API Token (管理 Tunnel)
+	AccountID string `json:"account_id"` // Account ID
 
 	// Tunnel 配置
-	TunnelID string `json:"tunnel_id"`    // 已有 Tunnel ID
+	TunnelID   string `json:"tunnel_id"`   // 已有 Tunnel ID
 	TunnelName string `json:"tunnel_name"` // Tunnel 名称
 
 	// 域名配置
-	ZoneID string `json:"zone_id"`        // Zone ID
-	ZoneName string `json:"zone_name"`    // Zone 名称 (如 example.com)
-	Subdomain string `json:"subdomain"`   // 子域名前缀 (如 nas)
+	ZoneID    string `json:"zone_id"`   // Zone ID
+	ZoneName  string `json:"zone_name"` // Zone 名称 (如 example.com)
+	Subdomain string `json:"subdomain"` // 子域名前缀 (如 nas)
 
 	// 服务配置
 	LocalServices []CloudflareService `json:"local_services"`
 
 	// 运行配置
 	CloudflaredPath string `json:"cloudflared_path"` // cloudflared 可执行文件路径
-	ConfigPath string `json:"config_path"`          // 配置文件路径
-	LogPath string `json:"log_path"`               // 日志文件路径
-	MetricsPort int `json:"metrics_port"`          // metrics 端口
-	NoAutoUpdate bool `json:"no_auto_update"`      // 禁止自动更新
+	ConfigPath      string `json:"config_path"`      // 配置文件路径
+	LogPath         string `json:"log_path"`         // 日志文件路径
+	MetricsPort     int    `json:"metrics_port"`     // metrics 端口
+	NoAutoUpdate    bool   `json:"no_auto_update"`   // 禁止自动更新
 
 	// 重连配置
-	ReconnectInterval int `json:"reconnect_interval"` // 重连间隔(秒)
+	ReconnectInterval    int `json:"reconnect_interval"`     // 重连间隔(秒)
 	MaxReconnectAttempts int `json:"max_reconnect_attempts"` // 最大重连次数
-	HeartbeatInterval int `json:"heartbeat_interval"` // 心跳间隔(秒)
+	HeartbeatInterval    int `json:"heartbeat_interval"`     // 心跳间隔(秒)
 }
 
 // CloudflareService 本地服务配置
 type CloudflareService struct {
-	Name string `json:"name"`              // 服务名称
-	Protocol string `json:"protocol"`      // 协议 (http, https, tcp, ssh)
-	LocalPort int `json:"local_port"`      // 本地端口
-	LocalHost string `json:"local_host"`   // 本地主机 (默认 localhost)
-	Path string `json:"path"`              // URL 路径 (HTTP 服务)
-	Subdomain string `json:"subdomain"`    // 子域名 (覆盖全局设置)
+	Name      string `json:"name"`       // 服务名称
+	Protocol  string `json:"protocol"`   // 协议 (http, https, tcp, ssh)
+	LocalPort int    `json:"local_port"` // 本地端口
+	LocalHost string `json:"local_host"` // 本地主机 (默认 localhost)
+	Path      string `json:"path"`       // URL 路径 (HTTP 服务)
+	Subdomain string `json:"subdomain"`  // 子域名 (覆盖全局设置)
 }
 
 // CloudflareTunnel Cloudflare Tunnel 客户端
 type CloudflareTunnel struct {
-	config   CloudflareConfig
-	logger   *zap.Logger
-	mu       sync.RWMutex
-	ctx      context.Context
-	cancel   context.CancelFunc
-	wg       sync.WaitGroup
+	config CloudflareConfig
+	logger *zap.Logger
+	mu     sync.RWMutex
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
 
 	// 运行状态
 	running    bool
@@ -91,9 +91,9 @@ type CloudflareTunnel struct {
 	connStatus CloudflareConnStatus
 
 	// 统计信息
-	stats      TunnelStats
-	startTime  time.Time
-	lastError  string
+	stats     TunnelStats
+	startTime time.Time
+	lastError string
 
 	// 配置文件路径
 	configFile string
@@ -102,25 +102,25 @@ type CloudflareTunnel struct {
 
 // CloudflareConnStatus Cloudflare 连接状态
 type CloudflareConnStatus struct {
-	Connected    bool      `json:"connected"`
-	TunnelID     string    `json:"tunnel_id"`
-	PublicURL    string    `json:"public_url"`
-	LatencyMs    int64     `json:"latency_ms"`
-	Connections  int       `json:"connections"`
-	LastConnect  time.Time `json:"last_connect"`
+	Connected      bool      `json:"connected"`
+	TunnelID       string    `json:"tunnel_id"`
+	PublicURL      string    `json:"public_url"`
+	LatencyMs      int64     `json:"latency_ms"`
+	Connections    int       `json:"connections"`
+	LastConnect    time.Time `json:"last_connect"`
 	LastDisconnect time.Time `json:"last_disconnect"`
-	ReconnectCount int     `json:"reconnect_count"`
+	ReconnectCount int       `json:"reconnect_count"`
 }
 
 // TunnelStats 隧道统计
 type TunnelStats struct {
-	BytesSent     int64     `json:"bytes_sent"`
-	BytesReceived int64     `json:"bytes_received"`
-	Connections   int       `json:"total_connections"`
-	RequestCount  int64     `json:"request_count"`
-	ErrorCount    int64     `json:"error_count"`
-	AvgLatencyMs  int64     `json:"avg_latency_ms"`
-	UptimeSeconds int64     `json:"uptime_seconds"`
+	BytesSent     int64 `json:"bytes_sent"`
+	BytesReceived int64 `json:"bytes_received"`
+	Connections   int   `json:"total_connections"`
+	RequestCount  int64 `json:"request_count"`
+	ErrorCount    int64 `json:"error_count"`
+	AvgLatencyMs  int64 `json:"avg_latency_ms"`
+	UptimeSeconds int64 `json:"uptime_seconds"`
 }
 
 // CloudflareAPI Cloudflare API 客户端
@@ -156,10 +156,10 @@ func NewCloudflareTunnel(config CloudflareConfig, logger *zap.Logger) (*Cloudfla
 	ctx, cancel := context.WithCancel(context.Background())
 
 	tunnel := &CloudflareTunnel{
-		config:    config,
-		logger:    logger,
-		ctx:       ctx,
-		cancel:    cancel,
+		config:     config,
+		logger:     logger,
+		ctx:        ctx,
+		cancel:     cancel,
 		configFile: config.ConfigPath,
 		pidFile:    filepath.Join(config.ConfigPath, "cloudflared.pid"),
 	}
@@ -348,7 +348,7 @@ func (t *CloudflareTunnel) Stop() error {
 // generateConfigFile 生成 cloudflared 配置文件
 func (t *CloudflareTunnel) generateConfigFile() error {
 	config := map[string]interface{}{
-		"tunnel": t.config.TunnelID,
+		"tunnel":           t.config.TunnelID,
 		"credentials-file": filepath.Join(t.config.ConfigPath, "credentials.json"),
 	}
 
@@ -365,7 +365,7 @@ func (t *CloudflareTunnel) generateConfigFile() error {
 			"hostname": t.buildHostname(svc),
 			"service": map[string]interface{}{
 				"protocol": svc.Protocol,
-				"address": fmt.Sprintf("%s://%s:%d", svc.Protocol, host, svc.LocalPort),
+				"address":  fmt.Sprintf("%s://%s:%d", svc.Protocol, host, svc.LocalPort),
 			},
 		}
 
@@ -583,15 +583,15 @@ func (t *CloudflareTunnel) GetStatus() CloudflareTunnelStatus {
 
 // CloudflareTunnelStatus 隧道状态
 type CloudflareTunnelStatus struct {
-	Running       bool              `json:"running"`
-	TunnelID      string            `json:"tunnel_id"`
-	PublicURL     string            `json:"public_url"`
-	Connection    CloudflareConnStatus  `json:"connection"`
-	Stats         TunnelStats       `json:"stats"`
-	Config        CloudflareConfig  `json:"config"`
-	StartTime     time.Time         `json:"start_time"`
-	UptimeSeconds int64             `json:"uptime_seconds"`
-	LastError     string            `json:"last_error"`
+	Running       bool                 `json:"running"`
+	TunnelID      string               `json:"tunnel_id"`
+	PublicURL     string               `json:"public_url"`
+	Connection    CloudflareConnStatus `json:"connection"`
+	Stats         TunnelStats          `json:"stats"`
+	Config        CloudflareConfig     `json:"config"`
+	StartTime     time.Time            `json:"start_time"`
+	UptimeSeconds int64                `json:"uptime_seconds"`
+	LastError     string               `json:"last_error"`
 }
 
 // Cleanup 清理
@@ -692,7 +692,7 @@ func (api *CloudflareAPI) CreateTunnel(name string) (*TunnelInfo, error) {
 	url := fmt.Sprintf("%s/accounts/%s/tunnels", api.baseURL, api.accountID)
 
 	body := map[string]interface{}{
-		"name": name,
+		"name":        name,
 		"tunnel_type": "cloudflared",
 	}
 
@@ -786,11 +786,11 @@ func (api *CloudflareAPI) CreateDNSRecord(zoneID, name, tunnelID string) error {
 	url := fmt.Sprintf("%s/zones/%s/dns_records", api.baseURL, zoneID)
 
 	body := map[string]interface{}{
-		"type": "CNAME",
-		"name": name,
+		"type":    "CNAME",
+		"name":    name,
 		"content": fmt.Sprintf("%s.cfargotunnel.com", tunnelID),
 		"proxied": true,
-		"ttl": 1,
+		"ttl":     1,
 	}
 
 	jsonBody, err := json.Marshal(body)
@@ -850,41 +850,41 @@ func (api *CloudflareAPI) request(method, url string, body []byte) ([]byte, erro
 
 // TunnelInfo Tunnel 信息
 type TunnelInfo struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Status    string     `json:"status"`
+	CreatedAt time.Time  `json:"created_at"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
-	Conns     int       `json:"conns_active_at,omitempty"`
-	TunType   string    `json:"tunnel_type"`
+	Conns     int        `json:"conns_active_at,omitempty"`
+	TunType   string     `json:"tunnel_type"`
 }
 
 // TunnelResponse Tunnel API 响应
 type TunnelResponse struct {
-	Success bool        `json:"success"`
-	Result  TunnelInfo  `json:"result"`
-	Errors  []APIError  `json:"errors"`
+	Success bool       `json:"success"`
+	Result  TunnelInfo `json:"result"`
+	Errors  []APIError `json:"errors"`
 }
 
 // TunnelsListResponse Tunnel 列表响应
 type TunnelsListResponse struct {
-	Success bool        `json:"success"`
+	Success bool         `json:"success"`
 	Result  []TunnelInfo `json:"result"`
-	Errors  []APIError  `json:"errors"`
+	Errors  []APIError   `json:"errors"`
 }
 
 // TokenResponse Token 响应
 type TokenResponse struct {
-	Success bool   `json:"success"`
-	Result  string `json:"result"`
+	Success bool       `json:"success"`
+	Result  string     `json:"result"`
 	Errors  []APIError `json:"errors"`
 }
 
 // DNSResponse DNS 响应
 type DNSResponse struct {
-	Success bool        `json:"success"`
-	Result  DNSRecord   `json:"result"`
-	Errors  []APIError  `json:"errors"`
+	Success bool       `json:"success"`
+	Result  DNSRecord  `json:"result"`
+	Errors  []APIError `json:"errors"`
 }
 
 // DNSRecord DNS 记录

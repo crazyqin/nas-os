@@ -24,16 +24,16 @@ const (
 
 // GPUDevice GPU设备
 type GPUDevice struct {
-	ID           string `json:"id"`
-	PCIAddress   string `json:"pci_address"`
+	ID           string  `json:"id"`
+	PCIAddress   string  `json:"pci_address"`
 	Type         GPUType `json:"type"`
-	Model        string `json:"model"`
-	VendorID     string `json:"vendor_id"`
-	DeviceID     string `json:"device_id"`
-	Driver       string `json:"driver"`
-	MemoryMB     int    `json:"memory_mb"`
-	AttachedToVM string `json:"attached_to_vm,omitempty"`
-	Status       string `json:"status"`
+	Model        string  `json:"model"`
+	VendorID     string  `json:"vendor_id"`
+	DeviceID     string  `json:"device_id"`
+	Driver       string  `json:"driver"`
+	MemoryMB     int     `json:"memory_mb"`
+	AttachedToVM string  `json:"attached_to_vm,omitempty"`
+	Status       string  `json:"status"`
 }
 
 // GPUPassthroughConfig GPU直通配置
@@ -51,18 +51,18 @@ type GPUPassthroughConfig struct {
 
 // GPUPassthroughManager GPU直通管理器
 type GPUPassthroughManager struct {
-	mu       sync.RWMutex
-	gpus     map[string]*GPUDevice
-	vms      map[string]*VMConfig
+	mu   sync.RWMutex
+	gpus map[string]*GPUDevice
+	vms  map[string]*VMConfig
 }
 
 // VMConfig 虚拟机配置
 type VMConfig struct {
-	ID         string               `json:"id"`
-	Name       string               `json:"name"`
-	Status     string               `json:"status"`
-	GPUs       []GPUPassthroughConfig `json:"gpus"`
-	CreatedAt  time.Time            `json:"created_at"`
+	ID        string                 `json:"id"`
+	Name      string                 `json:"name"`
+	Status    string                 `json:"status"`
+	GPUs      []GPUPassthroughConfig `json:"gpus"`
+	CreatedAt time.Time              `json:"created_at"`
 }
 
 // NewGPUPassthroughManager 创建GPU直通管理器

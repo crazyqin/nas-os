@@ -56,34 +56,34 @@ type Notifier interface {
 
 // Manager 配额管理器
 type Manager struct {
-	mu              sync.RWMutex
-	rules           map[string]*QuotaRule // ruleID -> QuotaRule
-	alerts          map[string]*Alert     // alertID -> Alert
-	alertHistory    []*Alert
-	configPath      string
-	storageProv     StorageProvider
-	userProv        UserProvider
-	notifier        Notifier
-	notifyConfig    NotificationConfig
-	coolDownTrack   map[string]time.Time // targetID -> last alert time
-	predictor       *Predictor
-	alertRuleMgr    *AlertRuleManager
-	forecastConfig  ForecastConfig
+	mu             sync.RWMutex
+	rules          map[string]*QuotaRule // ruleID -> QuotaRule
+	alerts         map[string]*Alert     // alertID -> Alert
+	alertHistory   []*Alert
+	configPath     string
+	storageProv    StorageProvider
+	userProv       UserProvider
+	notifier       Notifier
+	notifyConfig   NotificationConfig
+	coolDownTrack  map[string]time.Time // targetID -> last alert time
+	predictor      *Predictor
+	alertRuleMgr   *AlertRuleManager
+	forecastConfig ForecastConfig
 }
 
 // NewManager 创建配额管理器
 func NewManager(configPath string, storage StorageProvider, user UserProvider) (*Manager, error) {
 	m := &Manager{
-		rules:           make(map[string]*QuotaRule),
-		alerts:          make(map[string]*Alert),
-		alertHistory:    make([]*Alert, 0),
-		configPath:      configPath,
-		storageProv:     storage,
-		userProv:        user,
-		notifyConfig:     DefaultNotificationConfig(),
-		coolDownTrack:   make(map[string]time.Time),
-		forecastConfig:  DefaultForecastConfig(),
-		predictor:       NewPredictor(DefaultForecastConfig()),
+		rules:          make(map[string]*QuotaRule),
+		alerts:         make(map[string]*Alert),
+		alertHistory:   make([]*Alert, 0),
+		configPath:     configPath,
+		storageProv:    storage,
+		userProv:       user,
+		notifyConfig:   DefaultNotificationConfig(),
+		coolDownTrack:  make(map[string]time.Time),
+		forecastConfig: DefaultForecastConfig(),
+		predictor:      NewPredictor(DefaultForecastConfig()),
 	}
 
 	// 初始化告警规则管理器
@@ -693,10 +693,10 @@ func (m *Manager) CheckQuota(targetType, targetID string, additionalBytes int64)
 // ========== 持久化 ==========
 
 type persistentConfig struct {
-	Rules         []*QuotaRule        `json:"rules"`
-	Alerts        []*Alert            `json:"alerts"`
-	AlertHistory  []*Alert            `json:"alert_history"`
-	NotifyConfig  NotificationConfig  `json:"notify_config"`
+	Rules          []*QuotaRule       `json:"rules"`
+	Alerts         []*Alert           `json:"alerts"`
+	AlertHistory   []*Alert           `json:"alert_history"`
+	NotifyConfig   NotificationConfig `json:"notify_config"`
 	ForecastConfig ForecastConfig     `json:"forecast_config"`
 }
 
@@ -741,10 +741,10 @@ func (m *Manager) saveConfig() error {
 	}
 
 	pc := persistentConfig{
-		Rules:         make([]*QuotaRule, 0, len(m.rules)),
-		Alerts:        make([]*Alert, 0, len(m.alerts)),
-		AlertHistory:  m.alertHistory,
-		NotifyConfig:  m.notifyConfig,
+		Rules:          make([]*QuotaRule, 0, len(m.rules)),
+		Alerts:         make([]*Alert, 0, len(m.alerts)),
+		AlertHistory:   m.alertHistory,
+		NotifyConfig:   m.notifyConfig,
 		ForecastConfig: m.forecastConfig,
 	}
 

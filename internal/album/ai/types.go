@@ -19,36 +19,36 @@ type PhotoVector struct {
 // SemanticSearchResult represents a semantic search result
 type SemanticSearchResult struct {
 	PhotoID   string  `json:"photo_id"`
-	Score     float64 `json:"score"` // Similarity score 0-1
+	Score     float64 `json:"score"`      // Similarity score 0-1
 	MatchType string  `json:"match_type"` // "text", "image", "hybrid"
 }
 
 // SceneRecognitionResult represents scene recognition output
 type SceneRecognitionResult struct {
-	PhotoID    string         `json:"photo_id"`
-	Primary    SceneInfo      `json:"primary"`
-	Categories []SceneInfo    `json:"categories"`
-	Objects    []ObjectInfo   `json:"objects"`
-	Colors     []ColorInfo    `json:"colors"`
-	Mood       string         `json:"mood"` // "happy", "calm", "energetic", "melancholic"
-	TimeOfDay  string         `json:"time_of_day"` // "morning", "afternoon", "evening", "night"
-	Season     string         `json:"season"` // "spring", "summer", "autumn", "winter"
+	PhotoID    string       `json:"photo_id"`
+	Primary    SceneInfo    `json:"primary"`
+	Categories []SceneInfo  `json:"categories"`
+	Objects    []ObjectInfo `json:"objects"`
+	Colors     []ColorInfo  `json:"colors"`
+	Mood       string       `json:"mood"`        // "happy", "calm", "energetic", "melancholic"
+	TimeOfDay  string       `json:"time_of_day"` // "morning", "afternoon", "evening", "night"
+	Season     string       `json:"season"`      // "spring", "summer", "autumn", "winter"
 }
 
 // SceneInfo represents a detected scene with confidence
 type SceneInfo struct {
-	Category   string  `json:"category"`   // "beach", "mountain", "city", "forest", etc.
-	SubCategory string `json:"sub_category,omitempty"` // "sunset_beach", "snow_mountain"
-	Confidence float64 `json:"confidence"` // 0-1
-	Labels     []string `json:"labels,omitempty"` // Additional labels
+	Category    string   `json:"category"`               // "beach", "mountain", "city", "forest", etc.
+	SubCategory string   `json:"sub_category,omitempty"` // "sunset_beach", "snow_mountain"
+	Confidence  float64  `json:"confidence"`             // 0-1
+	Labels      []string `json:"labels,omitempty"`       // Additional labels
 }
 
 // ObjectInfo represents a detected object
 type ObjectInfo struct {
-	Label      string    `json:"label"`
-	Confidence float64   `json:"confidence"`
+	Label      string       `json:"label"`
+	Confidence float64      `json:"confidence"`
 	Box        *BoundingBox `json:"box,omitempty"`
-	Attributes []string  `json:"attributes,omitempty"` // "red", "large", etc.
+	Attributes []string     `json:"attributes,omitempty"` // "red", "large", etc.
 }
 
 // ColorInfo represents a dominant color
@@ -68,16 +68,16 @@ type BoundingBox struct {
 
 // LocationCluster represents a geographic cluster of photos
 type LocationCluster struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`        // User-defined or auto-generated name
-	CenterLat   float64   `json:"center_lat"`
-	CenterLng   float64   `json:"center_lng"`
-	Radius      float64   `json:"radius"`      // meters
-	PhotoCount  int       `json:"photo_count"`
-	PhotoIDs    []string  `json:"photo_ids"`
-	DateRange   DateRange `json:"date_range"`
-	PlaceInfo   *PlaceInfo `json:"place_info,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"` // User-defined or auto-generated name
+	CenterLat  float64    `json:"center_lat"`
+	CenterLng  float64    `json:"center_lng"`
+	Radius     float64    `json:"radius"` // meters
+	PhotoCount int        `json:"photo_count"`
+	PhotoIDs   []string   `json:"photo_ids"`
+	DateRange  DateRange  `json:"date_range"`
+	PlaceInfo  *PlaceInfo `json:"place_info,omitempty"`
+	CreatedAt  time.Time  `json:"created_at"`
 }
 
 // DateRange represents a date range
@@ -93,21 +93,21 @@ type PlaceInfo struct {
 	Province    string `json:"province"`
 	City        string `json:"city"`
 	District    string `json:"district"`
-	POI         string `json:"poi"`        // Point of interest name
+	POI         string `json:"poi"` // Point of interest name
 	PlaceID     string `json:"place_id"`
 }
 
 // BabyAlbum represents a baby growth tracking album
 type BabyAlbum struct {
-	ID           string       `json:"id"`
-	Name         string       `json:"name"`
-	BirthDate    time.Time    `json:"birth_date"`
-	Gender       string       `json:"gender"` // "male", "female", "unknown"
-	CoverPhotoID string       `json:"cover_photo_id,omitempty"`
-	Milestones   []Milestone  `json:"milestones"`
+	ID           string        `json:"id"`
+	Name         string        `json:"name"`
+	BirthDate    time.Time     `json:"birth_date"`
+	Gender       string        `json:"gender"` // "male", "female", "unknown"
+	CoverPhotoID string        `json:"cover_photo_id,omitempty"`
+	Milestones   []Milestone   `json:"milestones"`
 	GrowthPhotos []GrowthPhoto `json:"growth_photos"`
-	CreatedAt    time.Time    `json:"created_at"`
-	UpdatedAt    time.Time    `json:"updated_at"`
+	CreatedAt    time.Time     `json:"created_at"`
+	UpdatedAt    time.Time     `json:"updated_at"`
 }
 
 // Milestone represents a baby milestone
@@ -139,13 +139,13 @@ type FaceGrowthTracker struct {
 
 // FaceRecord represents a face detection at a point in time
 type FaceRecord struct {
-	FaceID       string    `json:"face_id"`
-	PhotoID      string    `json:"photo_id"`
-	Date         time.Time `json:"date"`
-	AgeMonths    int       `json:"age_months"`
-	Embedding    []float32 `json:"embedding"`
-	BoundingBox  BoundingBox `json:"bounding_box"`
-	Landmarks    []Landmark `json:"landmarks,omitempty"`
+	FaceID      string      `json:"face_id"`
+	PhotoID     string      `json:"photo_id"`
+	Date        time.Time   `json:"date"`
+	AgeMonths   int         `json:"age_months"`
+	Embedding   []float32   `json:"embedding"`
+	BoundingBox BoundingBox `json:"bounding_box"`
+	Landmarks   []Landmark  `json:"landmarks,omitempty"`
 }
 
 // Landmark represents a facial landmark
@@ -166,47 +166,47 @@ type GrowthPoint struct {
 // ModelConfig holds AI model configuration
 type ModelConfig struct {
 	// CLIP model settings
-	CLIPModelPath   string `json:"clip_model_path"`
-	CLIPModelType   string `json:"clip_model_type"` // "vit-b-32", "vit-l-14", "rn50"
-	CLIPDevice      string `json:"clip_device"`     // "cpu", "cuda"
-	CLIPBatchSize   int    `json:"clip_batch_size"`
+	CLIPModelPath string `json:"clip_model_path"`
+	CLIPModelType string `json:"clip_model_type"` // "vit-b-32", "vit-l-14", "rn50"
+	CLIPDevice    string `json:"clip_device"`     // "cpu", "cuda"
+	CLIPBatchSize int    `json:"clip_batch_size"`
 
 	// Face recognition settings
-	FaceModelPath   string  `json:"face_model_path"`
-	FaceModelType   string  `json:"face_model_type"` // "arcface", "insightface"
-	FaceMinSize     int     `json:"face_min_size"`
-	FaceConfThresh  float64 `json:"face_conf_thresh"`
+	FaceModelPath  string  `json:"face_model_path"`
+	FaceModelType  string  `json:"face_model_type"` // "arcface", "insightface"
+	FaceMinSize    int     `json:"face_min_size"`
+	FaceConfThresh float64 `json:"face_conf_thresh"`
 
 	// Scene classification settings
-	SceneModelPath  string `json:"scene_model_path"`
-	SceneModelType  string `json:"scene_model_type"` // "resnet50", "efficientnet"
+	SceneModelPath string `json:"scene_model_path"`
+	SceneModelType string `json:"scene_model_type"` // "resnet50", "efficientnet"
 
 	// ONNX Runtime settings
 	ONNXRuntimePath string `json:"onnx_runtime_path"`
 	UseONNXRuntime  bool   `json:"use_onnx_runtime"`
 
 	// Processing settings
-	MaxWorkers      int  `json:"max_workers"`
-	EnableGPU       bool `json:"enable_gpu"`
-	BatchSize       int  `json:"batch_size"`
+	MaxWorkers int  `json:"max_workers"`
+	EnableGPU  bool `json:"enable_gpu"`
+	BatchSize  int  `json:"batch_size"`
 
 	// Cache settings
-	VectorCacheSize int `json:"vector_cache_size"`
+	VectorCacheSize int  `json:"vector_cache_size"`
 	EnableCache     bool `json:"enable_cache"`
 }
 
 // DefaultModelConfig returns default model configuration
 func DefaultModelConfig() *ModelConfig {
 	return &ModelConfig{
-		CLIPModelType:   "vit-b-32",
-		CLIPDevice:      "cpu",
-		CLIPBatchSize:   32,
+		CLIPModelType: "vit-b-32",
+		CLIPDevice:    "cpu",
+		CLIPBatchSize: 32,
 
-		FaceModelType:   "arcface",
-		FaceMinSize:     30,
-		FaceConfThresh:  0.8,
+		FaceModelType:  "arcface",
+		FaceMinSize:    30,
+		FaceConfThresh: 0.8,
 
-		SceneModelType:  "resnet50",
+		SceneModelType: "resnet50",
 
 		UseONNXRuntime:  false,
 		MaxWorkers:      4,
@@ -219,21 +219,21 @@ func DefaultModelConfig() *ModelConfig {
 
 // SearchResult represents unified search result
 type SearchResult struct {
-	PhotoID    string                 `json:"photo_id"`
-	Score      float64                `json:"score"`
-	MatchInfo  map[string]interface{} `json:"match_info"`
-	PhotoInfo  *PhotoInfo             `json:"photo_info,omitempty"`
+	PhotoID   string                 `json:"photo_id"`
+	Score     float64                `json:"score"`
+	MatchInfo map[string]interface{} `json:"match_info"`
+	PhotoInfo *PhotoInfo             `json:"photo_info,omitempty"`
 }
 
 // PhotoInfo represents basic photo information for search results
 type PhotoInfo struct {
-	Path       string     `json:"path"`
-	Filename   string     `json:"filename"`
-	TakenAt    *time.Time `json:"taken_at,omitempty"`
-	Width      int        `json:"width"`
-	Height     int        `json:"height"`
-	Scene      string     `json:"scene,omitempty"`
-	Location   *PlaceInfo `json:"location,omitempty"`
+	Path     string     `json:"path"`
+	Filename string     `json:"filename"`
+	TakenAt  *time.Time `json:"taken_at,omitempty"`
+	Width    int        `json:"width"`
+	Height   int        `json:"height"`
+	Scene    string     `json:"scene,omitempty"`
+	Location *PlaceInfo `json:"location,omitempty"`
 }
 
 // SearchQuery represents a unified search query
@@ -245,25 +245,25 @@ type SearchQuery struct {
 	SimilarToPhotoID string `json:"similar_to_photo_id,omitempty"`
 
 	// Filters
-	PersonIDs  []string  `json:"person_ids,omitempty"`
-	Location   *PlaceInfo `json:"location,omitempty"`
-	DateFrom   *time.Time `json:"date_from,omitempty"`
-	DateTo     *time.Time `json:"date_to,omitempty"`
-	Scenes     []string  `json:"scenes,omitempty"`
-	Objects    []string  `json:"objects,omitempty"`
-	Colors     []string  `json:"colors,omitempty"`
+	PersonIDs []string   `json:"person_ids,omitempty"`
+	Location  *PlaceInfo `json:"location,omitempty"`
+	DateFrom  *time.Time `json:"date_from,omitempty"`
+	DateTo    *time.Time `json:"date_to,omitempty"`
+	Scenes    []string   `json:"scenes,omitempty"`
+	Objects   []string   `json:"objects,omitempty"`
+	Colors    []string   `json:"colors,omitempty"`
 
 	// Baby album specific
-	BabyID     string `json:"baby_id,omitempty"`
-	AgeMonths  *int   `json:"age_months,omitempty"`
+	BabyID    string `json:"baby_id,omitempty"`
+	AgeMonths *int   `json:"age_months,omitempty"`
 
 	// Pagination
-	Limit  int  `json:"limit"`
-	Offset int  `json:"offset"`
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
 
 	// Sort
-	SortBy    string `json:"sort_by"` // "relevance", "date", "quality"
-	SortDesc  bool   `json:"sort_desc"`
+	SortBy   string `json:"sort_by"` // "relevance", "date", "quality"
+	SortDesc bool   `json:"sort_desc"`
 }
 
 // VectorIndex interface for vector similarity search

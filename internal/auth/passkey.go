@@ -24,50 +24,50 @@ type PasskeyManager struct {
 
 // PasskeyCredential Passkey 凭据
 type PasskeyCredential struct {
-	ID              string            `json:"id"`
-	PublicKey       []byte            `json:"publicKey"`
-	AttestationType string            `json:"attestationType"`
-	Transport       []string          `json:"transport"`
-	AAGUID          string            `json:"aaguid"` // 认证器 GUID
-	CreatedAt       time.Time         `json:"createdAt"`
-	LastUsedAt      *time.Time        `json:"lastUsedAt"`
-	Name            string            `json:"name"`    // 用户自定义名称
-	DeviceType      string            `json:"deviceType"` // single_device, multi_device
-	BackupState     string            `json:"backupState"` // eligible, ineligible, excluded, exists
-	IsPasskey       bool              `json:"isPasskey"`   // 是否是 Passkey
+	ID              string     `json:"id"`
+	PublicKey       []byte     `json:"publicKey"`
+	AttestationType string     `json:"attestationType"`
+	Transport       []string   `json:"transport"`
+	AAGUID          string     `json:"aaguid"` // 认证器 GUID
+	CreatedAt       time.Time  `json:"createdAt"`
+	LastUsedAt      *time.Time `json:"lastUsedAt"`
+	Name            string     `json:"name"`        // 用户自定义名称
+	DeviceType      string     `json:"deviceType"`  // single_device, multi_device
+	BackupState     string     `json:"backupState"` // eligible, ineligible, excluded, exists
+	IsPasskey       bool       `json:"isPasskey"`   // 是否是 Passkey
 }
 
 // PasskeySession Passkey 会话
 type PasskeySession struct {
-	SessionID   string    `json:"sessionId"`
-	UserID      string    `json:"userId"`
-	Username    string    `json:"username"`
-	Challenge   string    `json:"challenge"`
-	CreatedAt   time.Time `json:"createdAt"`
-	ExpiresAt   time.Time `json:"expiresAt"`
-	IsRegister  bool      `json:"isRegister"`
-	DeviceType  string    `json:"deviceType"` // 认证设备类型
+	SessionID  string    `json:"sessionId"`
+	UserID     string    `json:"userId"`
+	Username   string    `json:"username"`
+	Challenge  string    `json:"challenge"`
+	CreatedAt  time.Time `json:"createdAt"`
+	ExpiresAt  time.Time `json:"expiresAt"`
+	IsRegister bool      `json:"isRegister"`
+	DeviceType string    `json:"deviceType"` // 认证设备类型
 }
 
 // PasskeyConfig Passkey 配置
 type PasskeyConfig struct {
-	RPDisplayName string   `json:"rpDisplayName"` // 显示名称
-	RPID          string   `json:"rpId"`          // Relying Party ID
-	RPOrigins     []string `json:"rpOrigins"`     // 允许的 Origins
-	Timeout       int      `json:"timeout"`       // 认证超时（毫秒）
-	RequireResidentKey bool `json:"requireResidentKey"` // 要求驻留密钥
-	UserVerification  string `json:"userVerification"` // required, preferred, discouraged
-	AttestationConveyance string `json:"attestationConveyance"` // none, indirect, direct
+	RPDisplayName         string   `json:"rpDisplayName"`         // 显示名称
+	RPID                  string   `json:"rpId"`                  // Relying Party ID
+	RPOrigins             []string `json:"rpOrigins"`             // 允许的 Origins
+	Timeout               int      `json:"timeout"`               // 认证超时（毫秒）
+	RequireResidentKey    bool     `json:"requireResidentKey"`    // 要求驻留密钥
+	UserVerification      string   `json:"userVerification"`      // required, preferred, discouraged
+	AttestationConveyance string   `json:"attestationConveyance"` // none, indirect, direct
 }
 
 // DefaultPasskeyConfig 默认配置
 var DefaultPasskeyConfig = PasskeyConfig{
-	RPDisplayName: "NAS-OS",
-	RPID:          "localhost",
-	RPOrigins:     []string{"http://localhost:8080", "https://localhost:8080"},
-	Timeout:       60000,
-	RequireResidentKey: true,
-	UserVerification:    "preferred",
+	RPDisplayName:         "NAS-OS",
+	RPID:                  "localhost",
+	RPOrigins:             []string{"http://localhost:8080", "https://localhost:8080"},
+	Timeout:               60000,
+	RequireResidentKey:    true,
+	UserVerification:      "preferred",
 	AttestationConveyance: "none",
 }
 
@@ -145,13 +145,13 @@ func (m *PasskeyManager) BeginPasskeyRegistration(userID, username, displayName 
 			{"type": "public-key", "alg": -37},  // PS256 (RSASSA-PSS)
 		},
 		"authenticatorSelection": map[string]interface{}{
-			"authenticatorAttachment": "platform",  // 平台认证器优先（支持 Passkey）
-			"residentKey":            "required",  // 驻留密钥（Passkey 必需）
-			"requireResidentKey":     m.config.RequireResidentKey,
-			"userVerification":       m.config.UserVerification,
+			"authenticatorAttachment": "platform", // 平台认证器优先（支持 Passkey）
+			"residentKey":             "required", // 驻留密钥（Passkey 必需）
+			"requireResidentKey":      m.config.RequireResidentKey,
+			"userVerification":        m.config.UserVerification,
 		},
-		"attestation":      m.config.AttestationConveyance,
-		"timeout":          m.config.Timeout,
+		"attestation":        m.config.AttestationConveyance,
+		"timeout":            m.config.Timeout,
 		"excludeCredentials": m.getExcludeCredentials(userID),
 	}
 
@@ -549,9 +549,9 @@ func (m *PasskeyManager) GetPasskeyStats(userID string) map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total":      total,
-		"passkeys":   passkeys,
-		"lastUsed":   lastUsed,
-		"hasBackup":  passkeys > 0,
+		"total":     total,
+		"passkeys":  passkeys,
+		"lastUsed":  lastUsed,
+		"hasBackup": passkeys > 0,
 	}
 }

@@ -434,9 +434,9 @@ func TestAllocationPolicyPriority(t *testing.T) {
 	policy := &AllocationPolicyPriority{}
 
 	devices := []*GPUDevice{
-		{ID: "nvidia0", CUDAcores: 8704},   // 高性能
-		{ID: "nvidia1", CUDAcores: 3584},   // 低性能
-		{ID: "nvidia2", CUDAcores: 5000},   // 中性能
+		{ID: "nvidia0", CUDAcores: 8704}, // 高性能
+		{ID: "nvidia1", CUDAcores: 3584}, // 低性能
+		{ID: "nvidia2", CUDAcores: 5000}, // 中性能
 	}
 
 	// 高优先级应该选择高性能GPU
@@ -672,9 +672,9 @@ func TestMergeContainerGPUConfig(t *testing.T) {
 	}
 
 	override := &ContainerGPUConfig{
-		GPUIndices:    []int{1},
-		MemoryLimit:   4096,
-		IncludeUVM:    true,
+		GPUIndices:  []int{1},
+		MemoryLimit: 4096,
+		IncludeUVM:  true,
 	}
 
 	result := MergeContainerGPUConfig(base, override)

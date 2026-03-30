@@ -628,29 +628,29 @@ func (am *AuditManager) GetLoginStats(startTime, endTime time.Time) map[string]i
 
 // FileAccessAudit 文件访问审计记录
 type FileAccessAudit struct {
-	ID           string                 `json:"id"`
-	Timestamp    time.Time              `json:"timestamp"`
-	FilePath     string                 `json:"file_path"`
-	ShareName    string                 `json:"share_name"`
-	Username     string                 `json:"username"`
-	ClientIP     string                 `json:"client_ip"`
-	Action       string                 `json:"action"` // read, write, delete, rename, create
-	Status       string                 `json:"status"` // success, denied, error
-	FileSize     int64                  `json:"file_size,omitempty"`
-	FileType     string                 `json:"file_type,omitempty"`
-	SessionID    string                 `json:"session_id,omitempty"`
-	Details      map[string]interface{} `json:"details,omitempty"`
+	ID        string                 `json:"id"`
+	Timestamp time.Time              `json:"timestamp"`
+	FilePath  string                 `json:"file_path"`
+	ShareName string                 `json:"share_name"`
+	Username  string                 `json:"username"`
+	ClientIP  string                 `json:"client_ip"`
+	Action    string                 `json:"action"` // read, write, delete, rename, create
+	Status    string                 `json:"status"` // success, denied, error
+	FileSize  int64                  `json:"file_size,omitempty"`
+	FileType  string                 `json:"file_type,omitempty"`
+	SessionID string                 `json:"session_id,omitempty"`
+	Details   map[string]interface{} `json:"details,omitempty"`
 }
 
 // FileAccessStats 文件访问统计
 type FileAccessStats struct {
-	TotalAccess      int                  `json:"total_access"`
-	ByUser           map[string]int       `json:"by_user"`
-	ByIP             map[string]int       `json:"by_ip"`
-	ByShare          map[string]int       `json:"by_share"`
-	ByAction         map[string]int       `json:"by_action"`
-	SensitiveFiles   []string             `json:"sensitive_files"`
-	AccessFrequency  map[string]float64   `json:"access_frequency"` // 用户访问频率
+	TotalAccess     int                `json:"total_access"`
+	ByUser          map[string]int     `json:"by_user"`
+	ByIP            map[string]int     `json:"by_ip"`
+	ByShare         map[string]int     `json:"by_share"`
+	ByAction        map[string]int     `json:"by_action"`
+	SensitiveFiles  []string           `json:"sensitive_files"`
+	AccessFrequency map[string]float64 `json:"access_frequency"` // 用户访问频率
 }
 
 // LogFileAccess 记录文件访问审计
@@ -814,17 +814,17 @@ func (am *AuditManager) GetFileAccessStats(startTime, endTime time.Time) *FileAc
 
 // AnomalyDetectionRule 异常检测规则
 type AnomalyDetectionRule struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Enabled     bool                   `json:"enabled"`
-	Severity    string                 `json:"severity"` // low, medium, high, critical
-	Category    string                 `json:"category"` // access_pattern, time_based, location, behavior
-	Conditions  []AnomalyCondition     `json:"conditions"`
-	Threshold   int                    `json:"threshold"`
-	TimeWindow  time.Duration          `json:"time_window"`
-	Actions     []string               `json:"actions"` // alert, block, notify, log
-	Whitelist   []string               `json:"whitelist"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Enabled     bool               `json:"enabled"`
+	Severity    string             `json:"severity"` // low, medium, high, critical
+	Category    string             `json:"category"` // access_pattern, time_based, location, behavior
+	Conditions  []AnomalyCondition `json:"conditions"`
+	Threshold   int                `json:"threshold"`
+	TimeWindow  time.Duration      `json:"time_window"`
+	Actions     []string           `json:"actions"` // alert, block, notify, log
+	Whitelist   []string           `json:"whitelist"`
 }
 
 // AnomalyCondition 异常检测条件
@@ -959,32 +959,32 @@ func getDefaultAnomalyRules() []AnomalyDetectionRule {
 
 // AnomalyDetector 异常检测器
 type AnomalyDetector struct {
-	rules       []AnomalyDetectionRule
-	results     []AnomalyResult
-	userStats   map[string]*UserAnomalyStats
-	ipStats     map[string]*IPAnomalyStats
-	mu          sync.RWMutex
+	rules         []AnomalyDetectionRule
+	results       []AnomalyResult
+	userStats     map[string]*UserAnomalyStats
+	ipStats       map[string]*IPAnomalyStats
+	mu            sync.RWMutex
 	alertCallback func(result AnomalyResult)
 }
 
 // UserAnomalyStats 用户异常统计
 type UserAnomalyStats struct {
-	Username          string    `json:"username"`
-	AccessCount       int       `json:"access_count"`
-	DeleteCount       int       `json:"delete_count"`
-	SensitiveCount    int       `json:"sensitive_count"`
-	ShareCount        int       `json:"share_count"`
-	LastAccess        time.Time `json:"last_access"`
-	RecentShares      []string  `json:"recent_shares"`
-	RecentFiles       []string  `json:"recent_files"`
+	Username       string    `json:"username"`
+	AccessCount    int       `json:"access_count"`
+	DeleteCount    int       `json:"delete_count"`
+	SensitiveCount int       `json:"sensitive_count"`
+	ShareCount     int       `json:"share_count"`
+	LastAccess     time.Time `json:"last_access"`
+	RecentShares   []string  `json:"recent_shares"`
+	RecentFiles    []string  `json:"recent_files"`
 }
 
 // IPAnomalyStats IP 异常统计
 type IPAnomalyStats struct {
-	ClientIP          string    `json:"client_ip"`
-	AccessCount       int       `json:"access_count"`
-	FailedAuthCount   int       `json:"failed_auth_count"`
-	LastAccess        time.Time `json:"last_access"`
+	ClientIP        string    `json:"client_ip"`
+	AccessCount     int       `json:"access_count"`
+	FailedAuthCount int       `json:"failed_auth_count"`
+	LastAccess      time.Time `json:"last_access"`
 }
 
 // NewAnomalyDetector 创建异常检测器
@@ -1379,23 +1379,23 @@ func (ad *AnomalyDetector) ClearStats() {
 
 // AlertNotifier 告警通知器
 type AlertNotifier struct {
-	config      AlertNotifierConfig
-	notified    []NotificationRecord
-	alertQueue  chan Alert
-	mu          sync.RWMutex
+	config     AlertNotifierConfig
+	notified   []NotificationRecord
+	alertQueue chan Alert
+	mu         sync.RWMutex
 }
 
 // AlertNotifierConfig 告警通知配置
 type AlertNotifierConfig struct {
-	Enabled         bool              `json:"enabled"`
-	Channels        []string          `json:"channels"`        // email, webhook, wecom, telegram
-	MinSeverity     string            `json:"min_severity"`    // 最低告警级别
-	RateLimit       int               `json:"rate_limit"`      // 每分钟最大通知数
-	QuietHours      QuietHoursConfig  `json:"quiet_hours"`     // 免打扰时段
-	EmailConfig     EmailAlertConfig  `json:"email_config"`
-	WebhookConfig   WebhookConfig     `json:"webhook_config"`
-	WeComConfig     WeComConfig       `json:"wecom_config"`
-	TelegramConfig  TelegramConfig    `json:"telegram_config"`
+	Enabled        bool             `json:"enabled"`
+	Channels       []string         `json:"channels"`     // email, webhook, wecom, telegram
+	MinSeverity    string           `json:"min_severity"` // 最低告警级别
+	RateLimit      int              `json:"rate_limit"`   // 每分钟最大通知数
+	QuietHours     QuietHoursConfig `json:"quiet_hours"`  // 免打扰时段
+	EmailConfig    EmailAlertConfig `json:"email_config"`
+	WebhookConfig  WebhookConfig    `json:"webhook_config"`
+	WeComConfig    WeComConfig      `json:"wecom_config"`
+	TelegramConfig TelegramConfig   `json:"telegram_config"`
 }
 
 // QuietHoursConfig 免打扰时段配置
@@ -1417,8 +1417,8 @@ type EmailAlertConfig struct {
 
 // WebhookConfig Webhook 配置
 type WebhookConfig struct {
-	Enabled bool     `json:"enabled"`
-	URLs    []string `json:"urls"`
+	Enabled bool              `json:"enabled"`
+	URLs    []string          `json:"urls"`
 	Headers map[string]string `json:"headers"`
 }
 
@@ -1430,33 +1430,33 @@ type WeComConfig struct {
 
 // TelegramConfig Telegram 配置
 type TelegramConfig struct {
-	Enabled bool   `json:"enabled"`
+	Enabled  bool   `json:"enabled"`
 	BotToken string `json:"bot_token"`
 	ChatID   string `json:"chat_id"`
 }
 
 // NotificationRecord 通知记录
 type NotificationRecord struct {
-	ID          string    `json:"id"`
-	AlertID     string    `json:"alert_id"`
-	Channel     string    `json:"channel"`
-	Timestamp   time.Time `json:"timestamp"`
-	Status      string    `json:"status"` // success, failed
-	Error       string    `json:"error,omitempty"`
+	ID        string    `json:"id"`
+	AlertID   string    `json:"alert_id"`
+	Channel   string    `json:"channel"`
+	Timestamp time.Time `json:"timestamp"`
+	Status    string    `json:"status"` // success, failed
+	Error     string    `json:"error,omitempty"`
 }
 
 // NewAlertNotifier 创建告警通知器
 func NewAlertNotifier() *AlertNotifier {
 	return &AlertNotifier{
 		config: AlertNotifierConfig{
-			Enabled:      true,
-			Channels:     []string{"webhook"},
-			MinSeverity:  "medium",
-			RateLimit:    10,
-			QuietHours:   QuietHoursConfig{Enabled: false, StartTime: "23:00", EndTime: "07:00"},
-			EmailConfig:  EmailAlertConfig{Enabled: false},
-			WebhookConfig: WebhookConfig{Enabled: false},
-			WeComConfig:  WeComConfig{Enabled: false},
+			Enabled:        true,
+			Channels:       []string{"webhook"},
+			MinSeverity:    "medium",
+			RateLimit:      10,
+			QuietHours:     QuietHoursConfig{Enabled: false, StartTime: "23:00", EndTime: "07:00"},
+			EmailConfig:    EmailAlertConfig{Enabled: false},
+			WebhookConfig:  WebhookConfig{Enabled: false},
+			WeComConfig:    WeComConfig{Enabled: false},
 			TelegramConfig: TelegramConfig{Enabled: false},
 		},
 		notified:   make([]NotificationRecord, 0),

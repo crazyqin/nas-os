@@ -21,9 +21,9 @@ type Detector interface {
 // Service 人脸识别服务
 type Service struct {
 	detector Detector
-	clusters  map[string]*ServiceFaceCluster
-	faces     map[string]*ServiceFace
-	mu        sync.RWMutex
+	clusters map[string]*ServiceFaceCluster
+	faces    map[string]*ServiceFace
+	mu       sync.RWMutex
 }
 
 // NewService 创建人脸识别服务

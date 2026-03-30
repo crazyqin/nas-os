@@ -15,14 +15,14 @@ import (
 
 // ComposeProject Docker Compose 项目.
 type ComposeProject struct {
-	Name        string            `json:"name"`
-	ConfigPath  string            `json:"config_path"`
-	Services    []ComposeService  `json:"services"`
-	Networks    []Network         `json:"networks"`
-	Volumes     []Volume          `json:"volumes"`
-	Status      string            `json:"status"` // running, stopped, error
-	CreatedAt   time.Time         `json:"created_at"`
-	Description string            `json:"description,omitempty"`
+	Name        string           `json:"name"`
+	ConfigPath  string           `json:"config_path"`
+	Services    []ComposeService `json:"services"`
+	Networks    []Network        `json:"networks"`
+	Volumes     []Volume         `json:"volumes"`
+	Status      string           `json:"status"` // running, stopped, error
+	CreatedAt   time.Time        `json:"created_at"`
+	Description string           `json:"description,omitempty"`
 }
 
 // ComposeService Compose 服务.
@@ -40,10 +40,10 @@ type ComposeService struct {
 
 // ComposeTemplate Compose 模板.
 type ComposeTemplate struct {
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Category    string            `json:"category"`
-	Content     string            `json:"content"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Category    string             `json:"category"`
+	Content     string             `json:"content"`
 	Variables   []TemplateVariable `json:"variables,omitempty"`
 }
 
@@ -260,9 +260,9 @@ func (m *ComposeManager) GetProjectDetails(name string) (*ComposeProject, error)
 
 // ServiceStatus 服务状态.
 type ServiceStatus struct {
-	Status  string `json:"status"`
-	Health  string `json:"health"`
-	Replicas int   `json:"replicas"`
+	Status   string `json:"status"`
+	Health   string `json:"health"`
+	Replicas int    `json:"replicas"`
 }
 
 // GetServiceStatus 获取服务状态.
@@ -386,11 +386,11 @@ func (m *ComposeManager) Up(configPath string, opts ComposeUpOptions) (*ComposeP
 
 // ComposeUpOptions Compose Up 选项.
 type ComposeUpOptions struct {
-	Name            string `json:"name"`
-	Build           bool   `json:"build"`
-	RemoveOrphans   bool   `json:"remove_orphans"`
-	ForceRecreate   bool   `json:"force_recreate"`
-	Timeout         int    `json:"timeout"`
+	Name          string `json:"name"`
+	Build         bool   `json:"build"`
+	RemoveOrphans bool   `json:"remove_orphans"`
+	ForceRecreate bool   `json:"force_recreate"`
+	Timeout       int    `json:"timeout"`
 }
 
 // Down 停止 Compose 项目.

@@ -21,52 +21,52 @@ type WidgetLayoutManager struct {
 
 // UserWidgetLayout 用户Widget布局配置
 type UserWidgetLayout struct {
-	UserID      string                  `json:"userId"`
-	Dashboards  map[string]*DashboardLayout `json:"dashboards"` // dashboardID -> layout
-	CreatedAt   time.Time               `json:"createdAt"`
-	UpdatedAt   time.Time               `json:"updatedAt"`
-	Settings    LayoutSettings          `json:"settings"`
+	UserID     string                      `json:"userId"`
+	Dashboards map[string]*DashboardLayout `json:"dashboards"` // dashboardID -> layout
+	CreatedAt  time.Time                   `json:"createdAt"`
+	UpdatedAt  time.Time                   `json:"updatedAt"`
+	Settings   LayoutSettings              `json:"settings"`
 }
 
 // DashboardLayout 单个Dashboard的布局配置
 type DashboardLayout struct {
-	DashboardID string                `json:"dashboardId"`
-	Widgets     []WidgetLayoutEntry   `json:"widgets"`
-	GridConfig  GridLayoutConfig      `json:"gridConfig"`
-	CreatedAt   time.Time             `json:"createdAt"`
-	UpdatedAt   time.Time             `json:"updatedAt"`
+	DashboardID string              `json:"dashboardId"`
+	Widgets     []WidgetLayoutEntry `json:"widgets"`
+	GridConfig  GridLayoutConfig    `json:"gridConfig"`
+	CreatedAt   time.Time           `json:"createdAt"`
+	UpdatedAt   time.Time           `json:"updatedAt"`
 }
 
 // WidgetLayoutEntry Widget布局条目
 type WidgetLayoutEntry struct {
-	WidgetID    string         `json:"widgetId"`
-	WidgetType  WidgetType     `json:"widgetType"`
-	Position    WidgetPosition `json:"position"`
-	Size        WidgetSize     `json:"size"`
-	Order       int            `json:"order"` // 排序顺序
-	Enabled     bool           `json:"enabled"`
-	Collapsed   bool           `json:"collapsed"` // 是否折叠
+	WidgetID   string         `json:"widgetId"`
+	WidgetType WidgetType     `json:"widgetType"`
+	Position   WidgetPosition `json:"position"`
+	Size       WidgetSize     `json:"size"`
+	Order      int            `json:"order"` // 排序顺序
+	Enabled    bool           `json:"enabled"`
+	Collapsed  bool           `json:"collapsed"` // 是否折叠
 }
 
 // GridLayoutConfig 网格布局配置
 type GridLayoutConfig struct {
-	Columns      int `json:"columns"`      // 列数
-	Rows         int `json:"rows"`         // 行数（可选，0表示自动）
-	Gap          int `json:"gap"`          // 间距(px)
-	CellWidth    int `json:"cellWidth"`    // 单元格宽度(px)
-	CellHeight   int `json:"cellHeight"`   // 单元格高度(px)
-	MaxWidth     int `json:"maxWidth"`     // 最大宽度(px)
-	Breakpoint   int `json:"breakpoint"`   // 响应式断点(px)
+	Columns    int `json:"columns"`    // 列数
+	Rows       int `json:"rows"`       // 行数（可选，0表示自动）
+	Gap        int `json:"gap"`        // 间距(px)
+	CellWidth  int `json:"cellWidth"`  // 单元格宽度(px)
+	CellHeight int `json:"cellHeight"` // 单元格高度(px)
+	MaxWidth   int `json:"maxWidth"`   // 最大宽度(px)
+	Breakpoint int `json:"breakpoint"` // 响应式断点(px)
 }
 
 // LayoutSettings 全局布局设置
 type LayoutSettings struct {
-	AutoArrange    bool `json:"autoArrange"`    // 自动排列
-	SnapToGrid     bool `json:"snapToGrid"`     // 吸附网格
-	ShowGridLines  bool `json:"showGridLines"`  // 显示网格线
-	CompactMode    bool `json:"compactMode"`    // 紧凑模式
-	AnimationSpeed int  `json:"animationSpeed"` // 动画速度(ms)
-	Theme          string `json:"theme"`         // 布局主题
+	AutoArrange    bool   `json:"autoArrange"`    // 自动排列
+	SnapToGrid     bool   `json:"snapToGrid"`     // 吸附网格
+	ShowGridLines  bool   `json:"showGridLines"`  // 显示网格线
+	CompactMode    bool   `json:"compactMode"`    // 紧凑模式
+	AnimationSpeed int    `json:"animationSpeed"` // 动画速度(ms)
+	Theme          string `json:"theme"`          // 布局主题
 }
 
 // SaveMode 保存模式
@@ -411,26 +411,26 @@ func (m *WidgetLayoutManager) loadAllLayouts() error {
 // DefaultGridConfig 默认网格配置
 func DefaultGridConfig() GridLayoutConfig {
 	return GridLayoutConfig{
-		Columns:      4,
-		Rows:         0,
-		Gap:          16,
-		CellWidth:    300,
-		CellHeight:   200,
-		MaxWidth:     1200,
-		Breakpoint:   768,
+		Columns:    4,
+		Rows:       0,
+		Gap:        16,
+		CellWidth:  300,
+		CellHeight: 200,
+		MaxWidth:   1200,
+		Breakpoint: 768,
 	}
 }
 
 // CompactGridConfig 紧凑网格配置
 func CompactGridConfig() GridLayoutConfig {
 	return GridLayoutConfig{
-		Columns:      6,
-		Rows:         0,
-		Gap:          8,
-		CellWidth:    200,
-		CellHeight:   150,
-		MaxWidth:     1200,
-		Breakpoint:   768,
+		Columns:    6,
+		Rows:       0,
+		Gap:        8,
+		CellWidth:  200,
+		CellHeight: 150,
+		MaxWidth:   1200,
+		Breakpoint: 768,
 	}
 }
 

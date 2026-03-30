@@ -12,12 +12,12 @@ import (
 
 // LockState 锁定状态
 type LockState struct {
-	Path       string    // 文件路径
-	LockedBy   string    // 锁定者用户
-	SessionID  string    // 会话ID
-	LockedAt   time.Time // 锁定时间
-	ExpiresAt  time.Time // 过期时间
-	LockType   LockType  // 锁类型
+	Path      string    // 文件路径
+	LockedBy  string    // 锁定者用户
+	SessionID string    // 会话ID
+	LockedAt  time.Time // 锁定时间
+	ExpiresAt time.Time // 过期时间
+	LockType  LockType  // 锁类型
 }
 
 // LockType 锁类型
@@ -30,10 +30,10 @@ const (
 
 // LockConflict 锁冲突信息
 type LockConflict struct {
-	Path          string
-	RequestBy     string
-	CurrentLock   LockState
-	ConflictType  string
+	Path         string
+	RequestBy    string
+	CurrentLock  LockState
+	ConflictType string
 }
 
 // LockBackend 锁后端接口
@@ -61,7 +61,7 @@ func NewMemoryLockBackend() *MemoryLockBackend {
 func (b *MemoryLockBackend) Acquire(ctx context.Context, path, user, session string, lockType LockType, ttl time.Duration) (*LockState, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	
+
 	// 检查是否已有锁
 	existing := b.locks[path]
 	if existing != nil {
@@ -93,7 +93,7 @@ func (b *MemoryLockBackend) Acquire(ctx context.Context, path, user, session str
 		// 过期锁，清除
 		delete(b.locks, path)
 	}
-	
+
 	// 创建新锁
 	lock := &LockState{
 		Path:      path,
@@ -104,55 +104,55 @@ func (b *MemoryLockBackend) Acquire(ctx context.Context, path, user, session str
 		LockType:  lockType,
 	}
 	b.locks[path] = lock
-	
+
 	return lock, nil
 }
 
 func (b *MemoryLockBackend) Release(ctx context.Context, path, session string) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	
+
 	lock := b.locks[path]
 	if lock != nil && lock.SessionID == session {
 		delete(b.locks, path)
 		return nil
 	}
-	
+
 	// 检查共享读锁
 	if _, ok := b.locks[path+"_"+session]; ok {
 		delete(b.locks, path+"_"+session)
 		return nil
 	}
-	
+
 	return fmt.Errorf("lock not found or not owned by session")
 }
 
 func (b *MemoryLockBackend) Get(ctx context.Context, path string) (*LockState, error) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
-	
+
 	lock := b.locks[path]
 	if lock == nil {
 		return nil, nil
 	}
-	
+
 	// 检查过期
 	if lock.ExpiresAt.Before(time.Now()) {
 		return nil, nil
 	}
-	
+
 	return lock, nil
 }
 
 func (b *MemoryLockBackend) Check(ctx context.Context, path, user string) (*LockConflict, error) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
-	
+
 	lock := b.locks[path]
 	if lock == nil || lock.ExpiresAt.Before(time.Now()) {
 		return nil, nil
 	}
-	
+
 	if lock.LockedBy != user && lock.LockType == LockTypeWrite {
 		return &LockConflict{
 			Path:         path,
@@ -161,19 +161,19 @@ func (b *MemoryLockBackend) Check(ctx context.Context, path, user string) (*Lock
 			ConflictType: "write_exclusive",
 		}, nil
 	}
-	
+
 	return nil, nil
 }
 
 func (b *MemoryLockBackend) Extend(ctx context.Context, path, session string, ttl time.Duration) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	
+
 	lock := b.locks[path]
 	if lock == nil || lock.SessionID != session {
 		return fmt.Errorf("lock not found")
 	}
-	
+
 	lock.ExpiresAt = time.Now().Add(ttl)
 	return nil
 }
@@ -181,7 +181,7 @@ func (b *MemoryLockBackend) Extend(ctx context.Context, path, session string, tt
 func (b *MemoryLockBackend) List(ctx context.Context, user string) ([]LockState, error) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
-	
+
 	locks := make([]LockState, 0)
 	for _, lock := range b.locks {
 		if lock.ExpiresAt.After(time.Now()) && (user == "" || lock.LockedBy == user) {
@@ -243,23 +243,23 @@ func (s *FileLockService) TryLock(ctx context.Context, path, user, session strin
 	if err != nil {
 		return nil, false, err
 	}
-	
+
 	if conflict != nil {
 		return nil, false, nil // 有冲突，无法锁定
 	}
-	
+
 	lock, err := s.LockFile(ctx, path, user, session)
 	if err != nil {
 		return nil, false, err
 	}
-	
+
 	return lock, true, nil
 }
 
 // WaitForLock 等待锁释放
 func (s *FileLockService) WaitForLock(ctx context.Context, path, user, session string, timeout time.Duration) (*LockState, error) {
 	deadline := time.Now().Add(timeout)
-	
+
 	for time.Now().Before(deadline) {
 		lock, acquired, err := s.TryLock(ctx, path, user, session)
 		if err != nil {
@@ -268,11 +268,11 @@ func (s *FileLockService) WaitForLock(ctx context.Context, path, user, session s
 		if acquired {
 			return lock, nil
 		}
-		
+
 		// 等待一小段时间再尝试
 		time.Sleep(100 * time.Millisecond)
 	}
-	
+
 	return nil, fmt.Errorf("lock wait timeout")
 }
 
@@ -282,7 +282,7 @@ func (s *FileLockService) AutoUnlock(ctx context.Context) int {
 	if err != nil {
 		return 0
 	}
-	
+
 	count := 0
 	for _, lock := range locks {
 		if lock.ExpiresAt.Before(time.Now()) {
@@ -291,7 +291,7 @@ func (s *FileLockService) AutoUnlock(ctx context.Context) int {
 			count++
 		}
 	}
-	
+
 	return count
 }
 
@@ -299,7 +299,7 @@ func (s *FileLockService) AutoUnlock(ctx context.Context) int {
 func (s *FileLockService) StartAutoUnlock(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -324,10 +324,10 @@ func NewRedisLockBackend(redisAddr string) *DistributedLockBackend {
 
 // NotifyLockEvent 锁事件通知
 type LockEvent struct {
-	Type     string // acquired/released/conflict/expired
-	Path     string
-	User     string
-	Session  string
+	Type      string // acquired/released/conflict/expired
+	Path      string
+	User      string
+	Session   string
 	Timestamp time.Time
 }
 

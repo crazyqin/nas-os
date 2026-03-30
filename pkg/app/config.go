@@ -15,22 +15,22 @@ import (
 
 // AppConfigFile 应用配置文件结构
 type AppConfigFile struct {
-	Version     string                 `json:"version"`     // 配置文件版本
-	AppID       string                 `json:"appId"`       // 应用ID
-	TemplateID  string                 `json:"templateId"`  // 模板ID
-	CreatedAt   time.Time              `json:"createdAt"`   // 创建时间
-	UpdatedAt   time.Time              `json:"updatedAt"`   // 更新时间
-	Settings    map[string]interface{} `json:"settings"`    // 用户设置
-	Secrets     map[string]string      `json:"secrets"`     // 密钥（不持久化，运行时注入）
-	Metadata    ConfigMetadata         `json:"metadata"`    // 元数据
+	Version    string                 `json:"version"`    // 配置文件版本
+	AppID      string                 `json:"appId"`      // 应用ID
+	TemplateID string                 `json:"templateId"` // 模板ID
+	CreatedAt  time.Time              `json:"createdAt"`  // 创建时间
+	UpdatedAt  time.Time              `json:"updatedAt"`  // 更新时间
+	Settings   map[string]interface{} `json:"settings"`   // 用户设置
+	Secrets    map[string]string      `json:"secrets"`    // 密钥（不持久化，运行时注入）
+	Metadata   ConfigMetadata         `json:"metadata"`   // 元数据
 }
 
 // ConfigMetadata 配置元数据
 type ConfigMetadata struct {
-	InstallOptions InstallOptions `json:"installOptions"` // 安装选项
-	UpgradeHistory []UpgradeRecord `json:"upgradeHistory"` // 升级历史
-	BackupPaths    []string       `json:"backupPaths"`    // 备份路径
-	CustomFields   map[string]interface{} `json:"customFields"` // 自定义字段
+	InstallOptions InstallOptions         `json:"installOptions"` // 安装选项
+	UpgradeHistory []UpgradeRecord        `json:"upgradeHistory"` // 升级历史
+	BackupPaths    []string               `json:"backupPaths"`    // 备份路径
+	CustomFields   map[string]interface{} `json:"customFields"`   // 自定义字段
 }
 
 // UpgradeRecord 升级记录
@@ -296,9 +296,9 @@ func (v *ConfigValidator) validateField(key string, value interface{}, spec Conf
 
 // ConfigSchema 配置模板定义
 type ConfigSchema struct {
-	Version string                `json:"version"` // 配置版本
-	Fields  map[string]ConfigFieldSpec `json:"fields"` // 字段定义
-	Groups  []ConfigGroup         `json:"groups"`  // 字段分组（用于UI显示）
+	Version string                     `json:"version"` // 配置版本
+	Fields  map[string]ConfigFieldSpec `json:"fields"`  // 字段定义
+	Groups  []ConfigGroup              `json:"groups"`  // 字段分组（用于UI显示）
 }
 
 // ConfigFieldSpec 配置字段规格

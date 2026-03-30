@@ -21,20 +21,20 @@ import (
 type Repository struct {
 	mu sync.RWMutex
 
-	dataDir   string             // 数据目录
-	config    RepositoryConfig   // 仓库配置文件
-	sources   map[string]*Source // 仓库源缓存
+	dataDir string             // 数据目录
+	config  RepositoryConfig   // 仓库配置文件
+	sources map[string]*Source // 仓库源缓存
 }
 
 // Source 仓库源
 type Source struct {
-	Name      string            `json:"name"`
-	URL       string            `json:"url"`
-	Type      string            `json:"type"`      // local/remote
-	Enabled   bool              `json:"enabled"`
-	Priority  int               `json:"priority"`  // 优先级（越高越优先）
-	UpdatedAt time.Time         `json:"updatedAt"`
-	Cache     []*app.Template   `json:"cache"`     // 缓存的模板
+	Name      string          `json:"name"`
+	URL       string          `json:"url"`
+	Type      string          `json:"type"` // local/remote
+	Enabled   bool            `json:"enabled"`
+	Priority  int             `json:"priority"` // 优先级（越高越优先）
+	UpdatedAt time.Time       `json:"updatedAt"`
+	Cache     []*app.Template `json:"cache"` // 缓存的模板
 }
 
 // RepositoryConfig 仓库配置

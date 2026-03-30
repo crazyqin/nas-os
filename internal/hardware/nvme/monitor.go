@@ -17,38 +17,38 @@ import (
 
 // HealthStatus NVMe健康状态
 type HealthStatus struct {
-	Device         string    // 设备路径 (/dev/nvme0n1)
-	Model         string    // 型号
-	Serial        string    // 序列号
-	Temperature   int       // 温度 (摄氏度)
-	PercentUsed   float64   // 已用寿命百分比
-	AvailableSpare float64  // 可用备用空间百分比
-	CriticalWarning int     // 关 critical警告标志
-	PowerCycles   uint64    // 电源循环次数
-	PowerOnHours  uint64    // 开机小时数
-	DataUnitsRead  uint64   // 读取数据单位
-	DataUnitsWrite uint64   // 写入数据单位
-	MediaErrors   uint64    // 媒体错误数
-	NumErrors     uint64    // 错误计数
-	SmartStatus   string    // SMART状态 (healthy/warning/critical)
-	LastChecked   time.Time // 最后检查时间
+	Device          string    // 设备路径 (/dev/nvme0n1)
+	Model           string    // 型号
+	Serial          string    // 序列号
+	Temperature     int       // 温度 (摄氏度)
+	PercentUsed     float64   // 已用寿命百分比
+	AvailableSpare  float64   // 可用备用空间百分比
+	CriticalWarning int       // 关 critical警告标志
+	PowerCycles     uint64    // 电源循环次数
+	PowerOnHours    uint64    // 开机小时数
+	DataUnitsRead   uint64    // 读取数据单位
+	DataUnitsWrite  uint64    // 写入数据单位
+	MediaErrors     uint64    // 媒体错误数
+	NumErrors       uint64    // 错误计数
+	SmartStatus     string    // SMART状态 (healthy/warning/critical)
+	LastChecked     time.Time // 最后检查时间
 }
 
 // AlertConfig 告警配置
 type AlertConfig struct {
-	TemperatureThreshold   int     // 温度阈值 (摄氏度)
-	PercentUsedThreshold   float64 // 寿命阈值 (百分比)
-	AvailableSpareThreshold float64 // 备用空间阈值
-	NotifyChannels         []string // 通知渠道 (email/webhook)
+	TemperatureThreshold    int      // 温度阈值 (摄氏度)
+	PercentUsedThreshold    float64  // 寿命阈值 (百分比)
+	AvailableSpareThreshold float64  // 备用空间阈值
+	NotifyChannels          []string // 通知渠道 (email/webhook)
 }
 
 // DefaultAlertConfig 默认告警配置
 func DefaultAlertConfig() AlertConfig {
 	return AlertConfig{
-		TemperatureThreshold:    70,   // 70度告警
-		PercentUsedThreshold:    90,   // 90%寿命告警
-		AvailableSpareThreshold: 10,   // 10%备用空间告警
-		NotifyChannels:         []string{"webhook"},
+		TemperatureThreshold:    70, // 70度告警
+		PercentUsedThreshold:    90, // 90%寿命告警
+		AvailableSpareThreshold: 10, // 10%备用空间告警
+		NotifyChannels:          []string{"webhook"},
 	}
 }
 
@@ -90,17 +90,17 @@ func (m *NVMeMonitor) DiscoverDevices(ctx context.Context) ([]string, error) {
 			return nil, fmt.Errorf("discover nvme devices: %w", err)
 		}
 	}
-	
+
 	// 解析设备列表
 	devices := parseNVMeList(string(output))
-	
+
 	// 存储设备信息
 	m.mu.Lock()
 	for _, dev := range devices {
 		m.devices[dev] = nil
 	}
 	m.mu.Unlock()
-	
+
 	return devices, nil
 }
 
@@ -117,18 +117,18 @@ func (m *NVMeMonitor) CheckHealth(ctx context.Context, device string) (*HealthSt
 			return nil, fmt.Errorf("get smart log for %s: %w", device, err)
 		}
 	}
-	
+
 	status := parseSmartLog(device, string(output))
 	status.LastChecked = time.Now()
-	
+
 	// 存储状态
 	m.mu.Lock()
 	m.devices[device] = status
 	m.mu.Unlock()
-	
+
 	// 检查告警条件
 	m.checkAlerts(status)
-	
+
 	return status, nil
 }
 
@@ -138,21 +138,21 @@ func (m *NVMeMonitor) CheckAllHealth(ctx context.Context) ([]HealthStatus, error
 	if err != nil {
 		return nil, err
 	}
-	
+
 	results := make([]HealthStatus, len(devices))
-	
+
 	for i, dev := range devices {
 		status, err := m.CheckHealth(ctx, dev)
 		if err != nil {
 			results[i] = HealthStatus{
-				Device:     dev,
+				Device:      dev,
 				SmartStatus: "unknown",
 			}
 			continue
 		}
 		results[i] = *status
 	}
-	
+
 	return results, nil
 }
 
@@ -172,7 +172,7 @@ func (m *NVMeMonitor) checkAlerts(status *HealthStatus) {
 			Timestamp: time.Now(),
 		}
 	}
-	
+
 	// 寿命告警
 	if status.PercentUsed >= m.config.PercentUsedThreshold {
 		severity := "warning"
@@ -187,7 +187,7 @@ func (m *NVMeMonitor) checkAlerts(status *HealthStatus) {
 			Timestamp: time.Now(),
 		}
 	}
-	
+
 	// 备用空间告警
 	if status.AvailableSpare <= m.config.AvailableSpareThreshold {
 		m.alertChan <- Alert{
@@ -198,7 +198,7 @@ func (m *NVMeMonitor) checkAlerts(status *HealthStatus) {
 			Timestamp: time.Now(),
 		}
 	}
-	
+
 	// 媒体错误告警
 	if status.MediaErrors > 0 {
 		m.alertChan <- Alert{
@@ -209,11 +209,11 @@ func (m *NVMeMonitor) checkAlerts(status *HealthStatus) {
 			Timestamp: time.Now(),
 		}
 	}
-	
+
 	// 确定SMART状态
 	critical := status.CriticalWarning > 0 || status.PercentUsed >= 95 || status.AvailableSpare <= 5
 	warning := status.PercentUsed >= m.config.PercentUsedThreshold || status.Temperature >= m.config.TemperatureThreshold
-	
+
 	if critical {
 		status.SmartStatus = "critical"
 	} else if warning {
@@ -239,7 +239,7 @@ func (m *NVMeMonitor) GetAllStatus() map[string]*HealthStatus {
 func (m *NVMeMonitor) StartMonitoring(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -254,15 +254,15 @@ func (m *NVMeMonitor) StartMonitoring(ctx context.Context, interval time.Duratio
 func (m *NVMeMonitor) ExportMetrics() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	var metrics strings.Builder
 	for dev, status := range m.devices {
 		if status == nil {
 			continue
 		}
-		
+
 		deviceLabel := strings.ReplaceAll(dev, "/", "_")
-		
+
 		metrics.WriteString(fmt.Sprintf("nvme_temperature{device=\"%s\"} %d\n", deviceLabel, status.Temperature))
 		metrics.WriteString(fmt.Sprintf("nvme_percent_used{device=\"%s\"} %.1f\n", deviceLabel, status.PercentUsed))
 		metrics.WriteString(fmt.Sprintf("nvme_available_spare{device=\"%s\"} %.1f\n", deviceLabel, status.AvailableSpare))
@@ -270,7 +270,7 @@ func (m *NVMeMonitor) ExportMetrics() string {
 		metrics.WriteString(fmt.Sprintf("nvme_power_on_hours{device=\"%s\"} %d\n", deviceLabel, status.PowerOnHours))
 		metrics.WriteString(fmt.Sprintf("nvme_media_errors{device=\"%s\"} %d\n", deviceLabel, status.MediaErrors))
 	}
-	
+
 	return metrics.String()
 }
 
@@ -278,7 +278,7 @@ func (m *NVMeMonitor) ExportMetrics() string {
 func parseNVMeList(output string) []string {
 	devices := []string{}
 	lines := strings.Split(output, "\n")
-	
+
 	for _, line := range lines {
 		if strings.Contains(line, "/dev/nvme") {
 			// 提取设备路径
@@ -289,7 +289,7 @@ func parseNVMeList(output string) []string {
 			}
 		}
 	}
-	
+
 	return devices
 }
 
@@ -298,11 +298,11 @@ func parseSmartLog(device, output string) *HealthStatus {
 	status := &HealthStatus{
 		Device: device,
 	}
-	
+
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		
+
 		// 温度
 		if strings.Contains(line, "temperature") {
 			re := regexp.MustCompile(`(\d+)\s*C`)
@@ -311,7 +311,7 @@ func parseSmartLog(device, output string) *HealthStatus {
 				status.Temperature, _ = strconv.Atoi(strings.TrimSuffix(match, " C"))
 			}
 		}
-		
+
 		// 已用寿命百分比
 		if strings.Contains(line, "percentage used") || strings.Contains(line, "Percentage Used") {
 			re := regexp.MustCompile(`(\d+\.?\d*)\s*%`)
@@ -321,7 +321,7 @@ func parseSmartLog(device, output string) *HealthStatus {
 				status.PercentUsed, _ = strconv.ParseFloat(val, 64)
 			}
 		}
-		
+
 		// 可用备用空间
 		if strings.Contains(line, "available spare") || strings.Contains(line, "Available Spare") {
 			re := regexp.MustCompile(`(\d+\.?\d*)\s*%`)
@@ -331,7 +331,7 @@ func parseSmartLog(device, output string) *HealthStatus {
 				status.AvailableSpare, _ = strconv.ParseFloat(val, 64)
 			}
 		}
-		
+
 		// 媒体错误
 		if strings.Contains(line, "media errors") || strings.Contains(line, "Media Errors") {
 			re := regexp.MustCompile(`(\d+)`)
@@ -341,7 +341,7 @@ func parseSmartLog(device, output string) *HealthStatus {
 			}
 		}
 	}
-	
+
 	return status
 }
 
@@ -358,17 +358,17 @@ type DashboardData struct {
 func (m *NVMeMonitor) GetDashboard() DashboardData {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	data := DashboardData{
 		LastUpdate: time.Now(),
 	}
-	
+
 	for _, status := range m.devices {
 		if status == nil {
 			continue
 		}
 		data.Devices = append(data.Devices, *status)
-		
+
 		switch status.SmartStatus {
 		case "critical":
 			data.CriticalCount++
@@ -378,7 +378,7 @@ func (m *NVMeMonitor) GetDashboard() DashboardData {
 			data.HealthyCount++
 		}
 	}
-	
+
 	return data
 }
 

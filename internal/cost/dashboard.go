@@ -324,10 +324,10 @@ func (s *DashboardService) CalculateStorageCost(resource ResourceInfo) CostItem 
 	amount := usedGB * s.config.StorageCostPerGB
 
 	return CostItem{
-		ID:          fmt.Sprintf("storage_%s_%d", resource.Name, now.Unix()),
-		Type:        CostTypeStorage,
-		Name:        fmt.Sprintf("%s 存储成本", resource.Name),
-		Description: fmt.Sprintf("容量 %.2f GB，使用 %.2f GB", totalGB, usedGB),
+		ID:           fmt.Sprintf("storage_%s_%d", resource.Name, now.Unix()),
+		Type:         CostTypeStorage,
+		Name:         fmt.Sprintf("%s 存储成本", resource.Name),
+		Description:  fmt.Sprintf("容量 %.2f GB，使用 %.2f GB", totalGB, usedGB),
 		ResourceName: resource.Name,
 		Amount:       round(amount, 2),
 		Unit:         "元/月",
@@ -354,10 +354,10 @@ func (s *DashboardService) CalculateElectricityCost(resource ResourceInfo) CostI
 	amount := powerKW * hoursPerMonth * s.config.ElectricityCostPerKWh
 
 	return CostItem{
-		ID:          fmt.Sprintf("elec_%s_%d", resource.Name, now.Unix()),
-		Type:        CostTypeElectricity,
-		Name:        fmt.Sprintf("%s 电费成本", resource.Name),
-		Description: fmt.Sprintf("功率 %.1f W，月耗电 %.2f kWh", powerWatts, powerKW*hoursPerMonth),
+		ID:           fmt.Sprintf("elec_%s_%d", resource.Name, now.Unix()),
+		Type:         CostTypeElectricity,
+		Name:         fmt.Sprintf("%s 电费成本", resource.Name),
+		Description:  fmt.Sprintf("功率 %.1f W，月耗电 %.2f kWh", powerWatts, powerKW*hoursPerMonth),
 		ResourceName: resource.Name,
 		Amount:       round(amount, 2),
 		Unit:         "元/月",
@@ -385,10 +385,10 @@ func (s *DashboardService) CalculateAllCosts(resources []ResourceInfo) []CostIte
 		opsPerResource := s.config.OpsCostMonthly / float64(len(resources))
 		for _, r := range resources {
 			items = append(items, CostItem{
-				ID:          fmt.Sprintf("ops_%s_%d", r.Name, time.Now().Unix()),
-				Type:        CostTypeOperations,
-				Name:        fmt.Sprintf("%s 运维成本", r.Name),
-				Description: "月度运维成本分摊",
+				ID:           fmt.Sprintf("ops_%s_%d", r.Name, time.Now().Unix()),
+				Type:         CostTypeOperations,
+				Name:         fmt.Sprintf("%s 运维成本", r.Name),
+				Description:  "月度运维成本分摊",
 				ResourceName: r.Name,
 				Amount:       round(opsPerResource, 2),
 				Unit:         "元/月",
@@ -414,10 +414,10 @@ func (s *DashboardService) CalculateAllCosts(resources []ResourceInfo) []CostIte
 			amount := depreciationMonthly * ratio
 
 			items = append(items, CostItem{
-				ID:          fmt.Sprintf("deprec_%s_%d", r.Name, time.Now().Unix()),
-				Type:        CostTypeDepreciation,
-				Name:        fmt.Sprintf("%s 折旧成本", r.Name),
-				Description: fmt.Sprintf("硬件折旧 %d 年分摊", s.config.DepreciationYears),
+				ID:           fmt.Sprintf("deprec_%s_%d", r.Name, time.Now().Unix()),
+				Type:         CostTypeDepreciation,
+				Name:         fmt.Sprintf("%s 折旧成本", r.Name),
+				Description:  fmt.Sprintf("硬件折旧 %d 年分摊", s.config.DepreciationYears),
 				ResourceName: r.Name,
 				Amount:       round(amount, 2),
 				Unit:         "元/月",
@@ -521,16 +521,16 @@ func (s *DashboardService) RecordTrendPoint(resources []ResourceInfo) {
 	summary := s.GenerateCostSummary(resources)
 
 	point := TrendData{
-		Timestamp:         now,
-		TotalCost:         summary.TotalCostMonthly,
-		StorageCost:       summary.CostByType[CostTypeStorage],
-		ElectricityCost:   summary.CostByType[CostTypeElectricity],
-		NetworkCost:       summary.CostByType[CostTypeNetwork],
-		OperationsCost:    summary.CostByType[CostTypeOperations],
-		DepreciationCost:  summary.CostByType[CostTypeDepreciation],
-		UsedGB:            s.getTotalUsedGB(resources),
-		UsagePercent:      s.getAvgUsagePercent(resources),
-		CostPerGB:         summary.AvgCostPerGB,
+		Timestamp:        now,
+		TotalCost:        summary.TotalCostMonthly,
+		StorageCost:      summary.CostByType[CostTypeStorage],
+		ElectricityCost:  summary.CostByType[CostTypeElectricity],
+		NetworkCost:      summary.CostByType[CostTypeNetwork],
+		OperationsCost:   summary.CostByType[CostTypeOperations],
+		DepreciationCost: summary.CostByType[CostTypeDepreciation],
+		UsedGB:           s.getTotalUsedGB(resources),
+		UsagePercent:     s.getAvgUsagePercent(resources),
+		CostPerGB:        summary.AvgCostPerGB,
 	}
 
 	// 计算趋势方向和变化率
@@ -760,7 +760,7 @@ func (s *DashboardService) calculateTrendStatistics(points []TrendData) TrendSta
 	// 预测置信度（基于数据点数量和波动性）
 	confidence := 100.0
 	if len(points) < 7 {
-		confidence -= float64(7 - len(points)) * 10
+		confidence -= float64(7-len(points)) * 10
 	}
 	if stats.VolatilityCoeff > 20 {
 		confidence -= stats.VolatilityCoeff * 0.5
@@ -820,32 +820,32 @@ func (s *DashboardService) generateForecastPoints(points []TrendData, stats Tren
 
 	// 下月预测
 	forecastPoints[0] = TrendData{
-		Timestamp:   now.AddDate(0, 1, 0),
-		TotalCost:   round(current.TotalCost*(1+growthRate), 2),
-		Trend:       stats.TrendDirection,
-		ChangeRate:  stats.GrowthRate,
-		UsedGB:      round(current.UsedGB*(1+growthRate), 2),
-		CostPerGB:   current.CostPerGB,
+		Timestamp:  now.AddDate(0, 1, 0),
+		TotalCost:  round(current.TotalCost*(1+growthRate), 2),
+		Trend:      stats.TrendDirection,
+		ChangeRate: stats.GrowthRate,
+		UsedGB:     round(current.UsedGB*(1+growthRate), 2),
+		CostPerGB:  current.CostPerGB,
 	}
 
 	// 下季度预测（3个月后）
 	forecastPoints[1] = TrendData{
-		Timestamp:   now.AddDate(0, 3, 0),
-		TotalCost:   round(current.TotalCost*(1+growthRate*3), 2),
-		Trend:       stats.TrendDirection,
-		ChangeRate:  stats.GrowthRate * 3,
-		UsedGB:      round(current.UsedGB*(1+growthRate*3), 2),
-		CostPerGB:   current.CostPerGB,
+		Timestamp:  now.AddDate(0, 3, 0),
+		TotalCost:  round(current.TotalCost*(1+growthRate*3), 2),
+		Trend:      stats.TrendDirection,
+		ChangeRate: stats.GrowthRate * 3,
+		UsedGB:     round(current.UsedGB*(1+growthRate*3), 2),
+		CostPerGB:  current.CostPerGB,
 	}
 
 	// 下半年预测（6个月后）
 	forecastPoints[2] = TrendData{
-		Timestamp:   now.AddDate(0, 6, 0),
-		TotalCost:   round(current.TotalCost*(1+growthRate*6), 2),
-		Trend:       stats.TrendDirection,
-		ChangeRate:  stats.GrowthRate * 6,
-		UsedGB:      round(current.UsedGB*(1+growthRate*6), 2),
-		CostPerGB:   current.CostPerGB,
+		Timestamp:  now.AddDate(0, 6, 0),
+		TotalCost:  round(current.TotalCost*(1+growthRate*6), 2),
+		Trend:      stats.TrendDirection,
+		ChangeRate: stats.GrowthRate * 6,
+		UsedGB:     round(current.UsedGB*(1+growthRate*6), 2),
+		CostPerGB:  current.CostPerGB,
 	}
 
 	return forecastPoints

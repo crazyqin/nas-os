@@ -21,11 +21,11 @@ type RateLimitMiddleware struct {
 
 // IPRateLimiter 单IP限流器.
 type IPRateLimiter struct {
-	ip          string
-	maxConn     int
-	windowSize  time.Duration
-	attempts    []time.Time
-	mu          sync.Mutex
+	ip         string
+	maxConn    int
+	windowSize time.Duration
+	attempts   []time.Time
+	mu         sync.Mutex
 }
 
 // NewRateLimitMiddleware 创建限流中间件.
@@ -352,13 +352,13 @@ func (sh *SMBShareAccessHandler) OnShareAccess(clientIP, username, shareName, op
 func (sh *SMBShareAccessHandler) OnFileOperation(clientIP, username, shareName, filePath, operation string) {
 	// 记录敏感文件操作审计日志
 	sensitiveOps := map[string]bool{
-		"delete":    true,
-		"rename":    true,
-		"chmod":     true,
-		"chown":     true,
-		"write":     true,
-		"upload":    true,
-		"download":  true,
+		"delete":   true,
+		"rename":   true,
+		"chmod":    true,
+		"chown":    true,
+		"write":    true,
+		"upload":   true,
+		"download": true,
 	}
 
 	if sensitiveOps[operation] {
@@ -469,8 +469,8 @@ func (sh *SecurityHandlers) unbanIP(c *gin.Context) {
 // banIP 封禁IP.
 func (sh *SecurityHandlers) banIP(c *gin.Context) {
 	var req struct {
-		IP          string `json:"ip" binding:"required"`
-		Reason      string `json:"reason"`
+		IP           string `json:"ip" binding:"required"`
+		Reason       string `json:"reason"`
 		DurationMins int    `json:"duration_mins"`
 	}
 

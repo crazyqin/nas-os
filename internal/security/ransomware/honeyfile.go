@@ -302,8 +302,8 @@ func DefaultHoneyFileConfig() HoneyFileConfig {
 		FilesPerPath:  5,
 		FileTypes:     []string{".doc", ".docx", ".xls", ".xlsx", ".pdf", ".jpg", ".zip"},
 		NamePatterns:  []string{"financial_report", "project_plan", "backup_data", "confidential", "important"},
-		MinFileSize:   1024,    // 1KB
-		MaxFileSize:   102400,  // 100KB
+		MinFileSize:   1024,   // 1KB
+		MaxFileSize:   102400, // 100KB
 		CheckInterval: 30 * time.Second,
 		ContentPattern: ContentPattern{
 			Type:                 "realistic",
@@ -333,11 +333,11 @@ func NewHoneyFileManager(config HoneyFileConfig) (*HoneyFileManager, error) {
 	}
 
 	m := &HoneyFileManager{
-		config:     config,
-		files:      make(map[string]*HoneyFile),
-		pathIndex:  make(map[string][]string),
-		events:     make([]HoneyFileEvent, 0),
-		alerts:     make(chan HoneyFileAlert, 100),
+		config:    config,
+		files:     make(map[string]*HoneyFile),
+		pathIndex: make(map[string][]string),
+		events:    make([]HoneyFileEvent, 0),
+		alerts:    make(chan HoneyFileAlert, 100),
 	}
 
 	// 初始部署蜜罐文件
@@ -432,17 +432,17 @@ func (m *HoneyFileManager) createHoneyFile(basePath string) (*HoneyFile, error) 
 	}
 
 	file := &HoneyFile{
-		ID:            generateHoneyFileID(),
-		Path:          fullPath,
-		Name:          filename,
-		Size:          size,
-		Extension:     ext,
-		Hash:          hashStr,
+		ID:             generateHoneyFileID(),
+		Path:           fullPath,
+		Name:           filename,
+		Size:           size,
+		Extension:      ext,
+		Hash:           hashStr,
 		TrackingMarker: trackingMarker,
-		CreatedAt:     time.Now(),
-		LastChecked:   time.Now(),
-		Status:        HoneyFileStatusActive,
-		DeployPathID:  basePath,
+		CreatedAt:      time.Now(),
+		LastChecked:    time.Now(),
+		Status:         HoneyFileStatusActive,
+		DeployPathID:   basePath,
 		Metadata: map[string]interface{}{
 			"created_by": "honeyfile_manager",
 			"purpose":    "ransomware_detection",
@@ -451,13 +451,13 @@ func (m *HoneyFileManager) createHoneyFile(basePath string) (*HoneyFile, error) 
 
 	// 记录创建事件
 	m.recordEvent(HoneyFileEvent{
-		ID:         generateEventID(),
-		Timestamp:  time.Now(),
-		FileID:     file.ID,
-		FilePath:   file.Path,
-		EventType:  HoneyFileEventCreate,
-		OldStatus:  "",
-		NewStatus:  HoneyFileStatusActive,
+		ID:          generateEventID(),
+		Timestamp:   time.Now(),
+		FileID:      file.ID,
+		FilePath:    file.Path,
+		EventType:   HoneyFileEventCreate,
+		OldStatus:   "",
+		NewStatus:   HoneyFileStatusActive,
 		ThreatLevel: ThreatLevelNone,
 	})
 
@@ -655,13 +655,13 @@ func (m *HoneyFileManager) checkFile(file *HoneyFile) *HoneyFileEvent {
 		file.LastChecked = time.Now()
 
 		event := &HoneyFileEvent{
-			ID:         generateEventID(),
-			Timestamp:  time.Now(),
-			FileID:     file.ID,
-			FilePath:   file.Path,
-			EventType:  HoneyFileEventDelete,
-			OldStatus:  oldStatus,
-			NewStatus:  HoneyFileStatusDeleted,
+			ID:          generateEventID(),
+			Timestamp:   time.Now(),
+			FileID:      file.ID,
+			FilePath:    file.Path,
+			EventType:   HoneyFileEventDelete,
+			OldStatus:   oldStatus,
+			NewStatus:   HoneyFileStatusDeleted,
 			ThreatLevel: ThreatLevelHigh,
 		}
 
@@ -679,13 +679,13 @@ func (m *HoneyFileManager) checkFile(file *HoneyFile) *HoneyFileEvent {
 		file.LastChecked = time.Now()
 
 		event := &HoneyFileEvent{
-			ID:         generateEventID(),
-			Timestamp:  time.Now(),
-			FileID:     file.ID,
-			FilePath:   file.Path,
-			EventType:  HoneyFileEventModify,
-			OldStatus:  oldStatus,
-			NewStatus:  HoneyFileStatusModified,
+			ID:        generateEventID(),
+			Timestamp: time.Now(),
+			FileID:    file.ID,
+			FilePath:  file.Path,
+			EventType: HoneyFileEventModify,
+			OldStatus: oldStatus,
+			NewStatus: HoneyFileStatusModified,
 			Details: map[string]interface{}{
 				"old_size": file.Size,
 				"new_size": info.Size(),
@@ -705,13 +705,13 @@ func (m *HoneyFileManager) checkFile(file *HoneyFile) *HoneyFileEvent {
 		file.LastChecked = time.Now()
 
 		event := &HoneyFileEvent{
-			ID:         generateEventID(),
-			Timestamp:  time.Now(),
-			FileID:     file.ID,
-			FilePath:   file.Path,
-			EventType:  HoneyFileEventRename,
-			OldStatus:  oldStatus,
-			NewStatus:  HoneyFileStatusRenamed,
+			ID:        generateEventID(),
+			Timestamp: time.Now(),
+			FileID:    file.ID,
+			FilePath:  file.Path,
+			EventType: HoneyFileEventRename,
+			OldStatus: oldStatus,
+			NewStatus: HoneyFileStatusRenamed,
 			Details: map[string]interface{}{
 				"old_name": filepath.Base(file.Path),
 				"new_name": info.Name(),
@@ -733,13 +733,13 @@ func (m *HoneyFileManager) checkFile(file *HoneyFile) *HoneyFileEvent {
 			file.LastChecked = time.Now()
 
 			event := &HoneyFileEvent{
-				ID:         generateEventID(),
-				Timestamp:  time.Now(),
-				FileID:     file.ID,
-				FilePath:   file.Path,
-				EventType:  HoneyFileEventEncrypt,
-				OldStatus:  oldStatus,
-				NewStatus:  HoneyFileStatusEncrypted,
+				ID:          generateEventID(),
+				Timestamp:   time.Now(),
+				FileID:      file.ID,
+				FilePath:    file.Path,
+				EventType:   HoneyFileEventEncrypt,
+				OldStatus:   oldStatus,
+				NewStatus:   HoneyFileStatusEncrypted,
 				ThreatLevel: ThreatLevelCritical,
 			}
 
@@ -750,13 +750,13 @@ func (m *HoneyFileManager) checkFile(file *HoneyFile) *HoneyFileEvent {
 
 	// 记录检查事件
 	m.recordEvent(HoneyFileEvent{
-		ID:         generateEventID(),
-		Timestamp:  time.Now(),
-		FileID:     file.ID,
-		FilePath:   file.Path,
-		EventType:  HoneyFileEventCheck,
-		OldStatus:  oldStatus,
-		NewStatus:  file.Status,
+		ID:          generateEventID(),
+		Timestamp:   time.Now(),
+		FileID:      file.ID,
+		FilePath:    file.Path,
+		EventType:   HoneyFileEventCheck,
+		OldStatus:   oldStatus,
+		NewStatus:   file.Status,
 		ThreatLevel: ThreatLevelNone,
 	})
 
@@ -850,16 +850,16 @@ func (m *HoneyFileManager) generateAlert(event *HoneyFileEvent) HoneyFileAlert {
 	}
 
 	return HoneyFileAlert{
-		ID:            generateAlertID(),
-		Timestamp:     time.Time{},
-		Severity:      severity,
-		Type:          "honeyfile_trigger",
-		Title:         title,
-		Message:       message,
-		Events:        []HoneyFileEvent{*event},
-		AffectedFiles: 1,
+		ID:              generateAlertID(),
+		Timestamp:       time.Time{},
+		Severity:        severity,
+		Type:            "honeyfile_trigger",
+		Title:           title,
+		Message:         message,
+		Events:          []HoneyFileEvent{*event},
+		AffectedFiles:   1,
 		Recommendations: recommendations,
-		Status:        AlertStatusNew,
+		Status:          AlertStatusNew,
 	}
 }
 
@@ -1047,14 +1047,14 @@ func (d *Detector) EnableHoneyFileDetection(config HoneyFileConfig) error {
 	go func() {
 		for alert := range manager.Alerts() {
 			d.handleAlert(DetectorAlert{
-				ID:          alert.ID,
-				Type:        alert.Type,
-				Title:       alert.Title,
-				Message:     alert.Message,
-				RiskScore:   int(threatLevelToScore(alert.Severity)),
-				ThreatType:  "ransomware_honeyfile",
+				ID:              alert.ID,
+				Type:            alert.Type,
+				Title:           alert.Title,
+				Message:         alert.Message,
+				RiskScore:       int(threatLevelToScore(alert.Severity)),
+				ThreatType:      "ransomware_honeyfile",
 				Recommendations: alert.Recommendations,
-				Timestamp:   alert.Timestamp,
+				Timestamp:       alert.Timestamp,
 			})
 		}
 	}()

@@ -145,11 +145,11 @@ type ScheduledTask struct {
 	Files []MigrationFileInfo `json:"files"`
 
 	// 统计
-	TotalFiles    int64 `json:"totalFiles"`
-	TotalBytes    int64 `json:"totalBytes"`
+	TotalFiles     int64 `json:"totalFiles"`
+	TotalBytes     int64 `json:"totalBytes"`
 	ProcessedFiles int64 `json:"processedFiles"`
 	ProcessedBytes int64 `json:"processedBytes"`
-	FailedFiles   int64 `json:"failedFiles"`
+	FailedFiles    int64 `json:"failedFiles"`
 
 	// 重试次数
 	RetryCount int `json:"retryCount"`
@@ -182,25 +182,25 @@ const (
 type TaskStatus string
 
 const (
-	TaskStatusPending    TaskStatus = "pending"
-	TaskStatusScheduled  TaskStatus = "scheduled"
-	TaskStatusRunning    TaskStatus = "running"
-	TaskStatusCompleted  TaskStatus = "completed"
-	TaskStatusPartial    TaskStatus = "partial"
-	TaskStatusFailed     TaskStatus = "failed"
-	TaskStatusCancelled  TaskStatus = "cancelled"
-	TaskStatusRetrying   TaskStatus = "retrying"
+	TaskStatusPending   TaskStatus = "pending"
+	TaskStatusScheduled TaskStatus = "scheduled"
+	TaskStatusRunning   TaskStatus = "running"
+	TaskStatusCompleted TaskStatus = "completed"
+	TaskStatusPartial   TaskStatus = "partial"
+	TaskStatusFailed    TaskStatus = "failed"
+	TaskStatusCancelled TaskStatus = "cancelled"
+	TaskStatusRetrying  TaskStatus = "retrying"
 )
 
 // MigrationFileInfo 迁移文件信息
 type MigrationFileInfo struct {
-	Path       string    `json:"path"`
-	Size       int64     `json:"size"`
-	ModTime    time.Time `json:"modTime"`
-	AccessTime time.Time `json:"accessTime"`
-	AccessCount int64    `json:"accessCount"`
-	Status     string    `json:"status"`
-	Error      string    `json:"error,omitempty"`
+	Path        string    `json:"path"`
+	Size        int64     `json:"size"`
+	ModTime     time.Time `json:"modTime"`
+	AccessTime  time.Time `json:"accessTime"`
+	AccessCount int64     `json:"accessCount"`
+	Status      string    `json:"status"`
+	Error       string    `json:"error,omitempty"`
 }
 
 // TaskError 任务错误
@@ -239,11 +239,11 @@ type SchedulerStats struct {
 func NewTierScheduler(config SchedulerConfig) *TierScheduler {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &TierScheduler{
-		config:     config,
-		taskQueue:  make([]*ScheduledTask, 0),
-		ctx:        ctx,
-		cancel:     cancel,
-		logger:     slog.Default(),
+		config:    config,
+		taskQueue: make([]*ScheduledTask, 0),
+		ctx:       ctx,
+		cancel:    cancel,
+		logger:    slog.Default(),
 	}
 }
 
@@ -435,7 +435,7 @@ func (s *TierScheduler) scheduleBySpace(policies []*MigrationPolicy, manager *Ho
 	hddStats, _ := manager.GetColdPoolStats()
 
 	// SSD空间压力大时，优先降级
-	ssdPressure := float64(ssdStats.UsedPercent) / float64(100 - s.config.SSDSpaceReservePercent)
+	ssdPressure := float64(ssdStats.UsedPercent) / float64(100-s.config.SSDSpaceReservePercent)
 	hddPressure := float64(hddStats.UsedPercent) / 100.0
 
 	for _, policy := range policies {
@@ -544,14 +544,14 @@ func (s *TierScheduler) createPromoteTask(policy *MigrationPolicy, manager *HotC
 	}
 
 	task := &ScheduledTask{
-		ID:          "task_" + uuid.New().String()[:8],
-		Type:        MigrationTypePromote,
-		PolicyID:    policy.ID,
-		Status:      TaskStatusPending,
-		CreatedAt:   time.Now(),
-		Files:       files,
-		TotalFiles:  int64(len(files)),
-		TotalBytes:  totalSize,
+		ID:         "task_" + uuid.New().String()[:8],
+		Type:       MigrationTypePromote,
+		PolicyID:   policy.ID,
+		Status:     TaskStatusPending,
+		CreatedAt:  time.Now(),
+		Files:      files,
+		TotalFiles: int64(len(files)),
+		TotalBytes: totalSize,
 	}
 
 	return task
@@ -589,14 +589,14 @@ func (s *TierScheduler) createDemoteTask(policy *MigrationPolicy, manager *HotCo
 	}
 
 	task := &ScheduledTask{
-		ID:          "task_" + uuid.New().String()[:8],
-		Type:        MigrationTypeDemote,
-		PolicyID:    policy.ID,
-		Status:      TaskStatusPending,
-		CreatedAt:   time.Now(),
-		Files:       files,
-		TotalFiles:  int64(len(files)),
-		TotalBytes:  totalSize,
+		ID:         "task_" + uuid.New().String()[:8],
+		Type:       MigrationTypeDemote,
+		PolicyID:   policy.ID,
+		Status:     TaskStatusPending,
+		CreatedAt:  time.Now(),
+		Files:      files,
+		TotalFiles: int64(len(files)),
+		TotalBytes: totalSize,
 	}
 
 	return task
@@ -1019,10 +1019,10 @@ func (s *TierScheduler) ForceSchedule(migrationType MigrationType) (*ScheduledTa
 
 // 错误定义
 var (
-	ErrTaskNotFound         = &SchedulerError{Message: "任务不存在"}
-	ErrTaskRunning          = &SchedulerError{Message: "任务正在运行，无法取消"}
+	ErrTaskNotFound          = &SchedulerError{Message: "任务不存在"}
+	ErrTaskRunning           = &SchedulerError{Message: "任务正在运行，无法取消"}
 	ErrManagerNotInitialized = &SchedulerError{Message: "管理器未初始化"}
-	ErrNoCandidates         = &SchedulerError{Message: "没有可迁移的数据"}
+	ErrNoCandidates          = &SchedulerError{Message: "没有可迁移的数据"}
 )
 
 // SchedulerError 调度器错误

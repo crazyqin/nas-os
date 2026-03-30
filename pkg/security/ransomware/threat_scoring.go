@@ -15,11 +15,11 @@ type ThreatScoringEngine struct {
 	entropy   *EntropyAnalyzer
 	behavior  *BehaviorAnalyzer
 	honeypot  *HoneypotDetector
-	
+
 	// 统计
-	stats    ScoringStats
-	statsMu  sync.RWMutex
-	
+	stats   ScoringStats
+	statsMu sync.RWMutex
+
 	// 事件缓存（用于时间模式分析）
 	events   []*FileEvent
 	eventsMu sync.RWMutex
@@ -40,12 +40,12 @@ type ScoringStats struct {
 // NewThreatScoringEngine 创建威胁评分引擎
 func NewThreatScoringEngine(config ThreatScoringConfig) *ThreatScoringEngine {
 	engine := &ThreatScoringEngine{
-		config:  config,
+		config:    config,
 		signature: NewSignatureMatcher(DefaultSignatureDB()),
-		entropy:  NewEntropyAnalyzer(config.EntropyThreshold),
-		behavior: NewBehaviorAnalyzer(DefaultBehaviorPatterns()),
-		honeypot: NewHoneypotDetector(DefaultHoneypotConfig()),
-		events:   make([]*FileEvent, 0, 10000),
+		entropy:   NewEntropyAnalyzer(config.EntropyThreshold),
+		behavior:  NewBehaviorAnalyzer(DefaultBehaviorPatterns()),
+		honeypot:  NewHoneypotDetector(DefaultHoneypotConfig()),
+		events:    make([]*FileEvent, 0, 10000),
 		stats: ScoringStats{
 			ByThreatLevel:   make(map[ThreatLevel]int64),
 			ByDetectionType: make(map[DetectionType]int64),
@@ -57,16 +57,16 @@ func NewThreatScoringEngine(config ThreatScoringConfig) *ThreatScoringEngine {
 // Evaluate 综合评估文件事件，返回多因子威胁评分结果
 func (e *ThreatScoringEngine) Evaluate(event *FileEvent) *DetectionResult {
 	result := &DetectionResult{
-		ID:            generateID(),
-		Timestamp:     time.Now(),
-		FilePath:      event.Path,
-		ThreatLevel:   ThreatLevelNone,
-		ThreatScore:   0,
-		DetectionType: DetectionTypeMulti,
+		ID:             generateID(),
+		Timestamp:      time.Now(),
+		FilePath:       event.Path,
+		ThreatLevel:    ThreatLevelNone,
+		ThreatScore:    0,
+		DetectionType:  DetectionTypeMulti,
 		DetectionTypes: make([]DetectionType, 0),
-		FactorScores:  FactorScores{},
-		Details:       make(map[string]interface{}),
-		Confidence:    0,
+		FactorScores:   FactorScores{},
+		Details:        make(map[string]interface{}),
+		Confidence:     0,
 	}
 
 	// 1. 签名因子评估
@@ -128,10 +128,10 @@ func (e *ThreatScoringEngine) Evaluate(event *FileEvent) *DetectionResult {
 
 	// 计算综合评分（加权平均）
 	totalScore := e.calculateWeightedScore(result.FactorScores)
-	
+
 	// 应用加成系数
 	totalScore = e.applyBoosts(totalScore, result)
-	
+
 	// 限制最大值
 	result.ThreatScore = min(100, max(0, int(math.Round(totalScore))))
 
@@ -156,57 +156,57 @@ func (e *ThreatScoringEngine) Evaluate(event *FileEvent) *DetectionResult {
 // calculateWeightedScore 计算加权综合评分
 func (e *ThreatScoringEngine) calculateWeightedScore(scores FactorScores) float64 {
 	cfg := e.config
-	
+
 	weighted := 0.0
 	weightSum := 0.0
-	
+
 	// 签名因子
 	if scores.SignatureScore > 0 {
 		weighted += float64(scores.SignatureScore) * cfg.SignatureWeight
 		weightSum += cfg.SignatureWeight
 	}
-	
+
 	// 熵值因子
 	if scores.EntropyScore > 0 {
 		weighted += float64(scores.EntropyScore) * cfg.EntropyWeight
 		weightSum += cfg.EntropyWeight
 	}
-	
+
 	// 行为因子
 	if scores.BehaviorScore > 0 {
 		weighted += float64(scores.BehaviorScore) * cfg.BehaviorWeight
 		weightSum += cfg.BehaviorWeight
 	}
-	
+
 	// 扩展名因子
 	if scores.ExtensionScore > 0 {
 		weighted += float64(scores.ExtensionScore) * cfg.ExtensionWeight
 		weightSum += cfg.ExtensionWeight
 	}
-	
+
 	// 诱饵因子
 	if scores.HoneypotScore > 0 {
 		weighted += float64(scores.HoneypotScore) * cfg.HoneypotWeight
 		weightSum += cfg.HoneypotWeight
 	}
-	
+
 	// 时间模式因子
 	if scores.TimestampScore > 0 {
 		weighted += float64(scores.TimestampScore) * cfg.TimestampPatternWeight
 		weightSum += cfg.TimestampPatternWeight
 	}
-	
+
 	// 用户行为因子
 	if scores.UserScore > 0 {
 		weighted += float64(scores.UserScore) * cfg.UserBehaviorWeight
 		weightSum += cfg.UserBehaviorWeight
 	}
-	
+
 	// 如果没有任何因子命中，返回0
 	if weightSum == 0 {
 		return 0
 	}
-	
+
 	// 归一化到100
 	return weighted / weightSum
 }
@@ -214,22 +214,22 @@ func (e *ThreatScoringEngine) calculateWeightedScore(scores FactorScores) float6
 // applyBoosts 应用加成系数
 func (e *ThreatScoringEngine) applyBoosts(score float64, result *DetectionResult) float64 {
 	cfg := e.config
-	
+
 	// 多因子匹配加成
 	if len(result.DetectionTypes) >= 3 {
 		score *= cfg.MultipleFactorBoost
 	}
-	
+
 	// KEV漏洞加成（如果签名匹配已知在利用的漏洞）
 	if result.SignatureID != "" && e.signature.IsKEV(result.SignatureID) {
 		score *= cfg.KEVBoost
 	}
-	
+
 	// 勒索软件关联加成
 	if result.SignatureName != "" && e.signature.IsRansomwareFamily(result.SignatureName) {
 		score *= cfg.RansomwareBoost
 	}
-	
+
 	return score
 }
 
@@ -251,7 +251,7 @@ func (e *ThreatScoringEngine) determineThreatLevel(score int) ThreatLevel {
 func (e *ThreatScoringEngine) calculateConfidence(result *DetectionResult) float64 {
 	// 置信度基于匹配因子数量和评分一致性
 	factorCount := len(result.DetectionTypes)
-	
+
 	// 因子越多，置信度越高
 	confidence := 0.0
 	switch factorCount {
@@ -266,17 +266,17 @@ func (e *ThreatScoringEngine) calculateConfidence(result *DetectionResult) float
 	default:
 		confidence = 0.95
 	}
-	
+
 	// 诱饵文件触发时置信度极高
 	if result.FactorScores.HoneypotScore > 0 {
 		confidence = math.Max(confidence, 0.95)
 	}
-	
+
 	// 签名匹配时置信度提升
 	if result.FactorScores.SignatureScore > 80 {
 		confidence = math.Max(confidence, 0.9)
 	}
-	
+
 	return confidence
 }
 
@@ -305,12 +305,12 @@ func (e *ThreatScoringEngine) evaluateExtension(event *FileEvent) int {
 	if ext == "" {
 		return 0
 	}
-	
+
 	// 检查是否为已知勒索软件扩展名
 	if e.signature.MatchExtension(ext) {
 		return 90
 	}
-	
+
 	// 检查扩展名变更（加密典型特征）
 	if event.OldExtension != "" && event.Extension != event.OldExtension {
 		// 扩展名变为随机字符串模式
@@ -322,7 +322,7 @@ func (e *ThreatScoringEngine) evaluateExtension(event *FileEvent) int {
 			return 70
 		}
 	}
-	
+
 	return 0
 }
 
@@ -330,11 +330,11 @@ func (e *ThreatScoringEngine) evaluateExtension(event *FileEvent) int {
 func (e *ThreatScoringEngine) evaluateTimestampPattern(event *FileEvent) int {
 	// 分析最近的文件操作时间分布
 	events := e.getRecentEvents(e.config.RapidChangeWindow)
-	
+
 	if len(events) < 10 {
 		return 0
 	}
-	
+
 	// 计算操作频率
 	now := time.Now()
 	countInLastWindow := 0
@@ -343,18 +343,18 @@ func (e *ThreatScoringEngine) evaluateTimestampPattern(event *FileEvent) int {
 			countInLastWindow++
 		}
 	}
-	
+
 	// 快速变更模式
 	if countInLastWindow >= e.config.RapidChangeThreshold {
 		return min(100, countInLastWindow)
 	}
-	
+
 	// 夜间异常活动（通常勒索软件在夜间执行）
 	hour := event.Timestamp.Hour()
 	if hour >= 0 && hour <= 5 && countInLastWindow > 10 {
 		return 30
 	}
-	
+
 	return 0
 }
 
@@ -362,34 +362,34 @@ func (e *ThreatScoringEngine) evaluateTimestampPattern(event *FileEvent) int {
 func (e *ThreatScoringEngine) evaluateUserBehavior(event *FileEvent) int {
 	// 检查用户是否在短时间内操作了大量不同类型的文件
 	events := e.getRecentEvents(300) // 5分钟
-	
+
 	if len(events) < 5 {
 		return 0
 	}
-	
+
 	userEvents := make(map[string]int)
 	for _, ev := range events {
 		if ev.UserID != "" {
 			userEvents[ev.UserID]++
 		}
 	}
-	
+
 	// 单用户短时间内大量操作
 	if event.UserID != "" && userEvents[event.UserID] > 50 {
 		return 50
 	}
-	
+
 	// 跨多个目录操作（目录遍历加密特征）
 	dirs := make(map[string]int)
 	for _, ev := range events {
 		dir := getDirectory(ev.Path)
 		dirs[dir]++
 	}
-	
+
 	if len(dirs) > 5 && len(events) > 20 {
 		return 40
 	}
-	
+
 	return 0
 }
 
@@ -397,17 +397,17 @@ func (e *ThreatScoringEngine) evaluateUserBehavior(event *FileEvent) int {
 func (e *ThreatScoringEngine) updateStats(result *DetectionResult) {
 	e.statsMu.Lock()
 	defer e.statsMu.Unlock()
-	
+
 	e.stats.TotalEvaluated++
 	e.stats.ByThreatLevel[result.ThreatLevel]++
-	
+
 	for _, dt := range result.DetectionTypes {
 		e.stats.ByDetectionType[dt]++
 	}
-	
-	e.stats.AverageScore = (e.stats.AverageScore * float64(e.stats.TotalEvaluated-1) + 
+
+	e.stats.AverageScore = (e.stats.AverageScore*float64(e.stats.TotalEvaluated-1) +
 		float64(result.ThreatScore)) / float64(e.stats.TotalEvaluated)
-	
+
 	if len(result.DetectionTypes) >= 3 {
 		e.stats.MultiFactorMatches++
 	}
@@ -426,9 +426,9 @@ func (e *ThreatScoringEngine) updateStats(result *DetectionResult) {
 func (e *ThreatScoringEngine) addEvent(event *FileEvent) {
 	e.eventsMu.Lock()
 	defer e.eventsMu.Unlock()
-	
+
 	e.events = append(e.events, event)
-	
+
 	// 限制缓存大小
 	if len(e.events) > 10000 {
 		e.events = e.events[len(e.events)-5000:]
@@ -439,17 +439,17 @@ func (e *ThreatScoringEngine) addEvent(event *FileEvent) {
 func (e *ThreatScoringEngine) getRecentEvents(windowSeconds int) []*FileEvent {
 	e.eventsMu.RLock()
 	defer e.eventsMu.RUnlock()
-	
+
 	now := time.Now()
 	cutoff := now.Add(-time.Duration(windowSeconds) * time.Second)
-	
+
 	var recent []*FileEvent
 	for _, ev := range e.events {
 		if ev.Timestamp.After(cutoff) {
 			recent = append(recent, ev)
 		}
 	}
-	
+
 	return recent
 }
 
@@ -480,13 +480,13 @@ func (e *EntropyAnalyzer) Evaluate(entropy float64) int {
 	if entropy < e.threshold {
 		return 0
 	}
-	
+
 	// 熵值越高评分越高
 	// 7.5-8.0 范围映射到 0-100
 	if entropy >= 8.0 {
 		return 100
 	}
-	
+
 	// 线性映射
 	score := int((entropy - e.threshold) / (8.0 - e.threshold) * 100)
 	return min(100, max(0, score))
@@ -497,22 +497,22 @@ func CalculateEntropy(data []byte) float64 {
 	if len(data) == 0 {
 		return 0
 	}
-	
+
 	freq := make(map[byte]int)
 	for _, b := range data {
 		freq[b]++
 	}
-	
+
 	var entropy float64
 	length := float64(len(data))
-	
+
 	for _, count := range freq {
 		if count > 0 {
 			p := float64(count) / length
 			entropy -= p * math.Log2(p)
 		}
 	}
-	
+
 	return entropy
 }
 
@@ -520,19 +520,19 @@ func CalculateEntropy(data []byte) float64 {
 
 // SignatureMatcher 签名匹配器
 type SignatureMatcher struct {
-	db         *SignatureDB
-	extensions map[string]*RansomwareSignature
+	db          *SignatureDB
+	extensions  map[string]*RansomwareSignature
 	ransomNotes map[string]*RansomwareSignature
 }
 
 // NewSignatureMatcher 创建签名匹配器
 func NewSignatureMatcher(db *SignatureDB) *SignatureMatcher {
 	m := &SignatureMatcher{
-		db:         db,
-		extensions: make(map[string]*RansomwareSignature),
+		db:          db,
+		extensions:  make(map[string]*RansomwareSignature),
 		ransomNotes: make(map[string]*RansomwareSignature),
 	}
-	
+
 	// 建立索引
 	for _, sig := range db.Signatures {
 		for _, ext := range sig.Extensions {
@@ -542,16 +542,16 @@ func NewSignatureMatcher(db *SignatureDB) *SignatureMatcher {
 			m.ransomNotes[note] = sig
 		}
 	}
-	
+
 	return m
 }
 
 // MatchResult 签名匹配结果
 type MatchResult struct {
-	Score       int
-	SignatureID string
+	Score         int
+	SignatureID   string
 	SignatureName string
-	Family      string
+	Family        string
 }
 
 // Match 匹配文件事件
@@ -567,7 +567,7 @@ func (m *SignatureMatcher) Match(event *FileEvent) *MatchResult {
 			}
 		}
 	}
-	
+
 	// 勒索信文件名匹配
 	filename := getFilename(event.Path)
 	if sig, ok := m.ransomNotes[filename]; ok {
@@ -578,7 +578,7 @@ func (m *SignatureMatcher) Match(event *FileEvent) *MatchResult {
 			Family:        sig.Family,
 		}
 	}
-	
+
 	return nil
 }
 
@@ -630,30 +630,30 @@ func NewBehaviorAnalyzer(patterns []BehaviorPattern) *BehaviorAnalyzer {
 // Evaluate 评估行为模式
 func (b *BehaviorAnalyzer) Evaluate(event *FileEvent, recentEvents []*FileEvent) int {
 	totalScore := 0
-	
+
 	for _, pattern := range b.patterns {
 		if !pattern.Enabled {
 			continue
 		}
-		
+
 		if b.matchPattern(pattern, event, recentEvents) {
 			totalScore += pattern.Weight
 		}
 	}
-	
+
 	return min(100, totalScore)
 }
 
 // matchPattern 匹配行为模式
 func (b *BehaviorAnalyzer) matchPattern(pattern BehaviorPattern, event *FileEvent, recentEvents []*FileEvent) bool {
 	matchedConditions := 0
-	
+
 	for _, cond := range pattern.Conditions {
 		if b.evaluateCondition(cond, event, recentEvents) {
 			matchedConditions++
 		}
 	}
-	
+
 	return matchedConditions >= len(pattern.Conditions)/2
 }
 
@@ -705,13 +705,13 @@ type HoneypotDetector struct {
 
 // HoneypotFile 诱饵文件记录
 type HoneypotFile struct {
-	ID            string
-	Path          string
-	Hash          string
-	CreatedAt     time.Time
-	Status        string // active, triggered, deleted
-	TriggeredAt   *time.Time
-	TriggerType   string
+	ID          string
+	Path        string
+	Hash        string
+	CreatedAt   time.Time
+	Status      string // active, triggered, deleted
+	TriggeredAt *time.Time
+	TriggerType string
 }
 
 // NewHoneypotDetector 创建诱饵检测器
@@ -726,12 +726,12 @@ func NewHoneypotDetector(config HoneypotConfig) *HoneypotDetector {
 func (h *HoneypotDetector) Check(event *FileEvent) int {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
-	
+
 	_, ok := h.files[event.Path]
 	if !ok {
 		return 0
 	}
-	
+
 	// 诱饵文件被操作，高分威胁
 	switch event.Operation {
 	case FileOpDelete:
@@ -761,7 +761,7 @@ func (h *HoneypotDetector) RegisterFile(file *HoneypotFile) {
 
 // SignatureDB 签名数据库
 type SignatureDB struct {
-	Signatures []*RansomwareSignature
+	Signatures  []*RansomwareSignature
 	LastUpdated time.Time
 }
 
@@ -770,52 +770,52 @@ func DefaultSignatureDB() *SignatureDB {
 	return &SignatureDB{
 		Signatures: []*RansomwareSignature{
 			{
-				ID:         "wannacry",
-				Name:       "WannaCry",
-				Family:     "WannaCry",
-				Extensions: []string{".WNRY", ".wannacry", ".wcry"},
+				ID:              "wannacry",
+				Name:            "WannaCry",
+				Family:          "WannaCry",
+				Extensions:      []string{".WNRY", ".wannacry", ".wcry"},
 				RansomNoteFiles: []string{"@WanaDecryptor@.exe.lnk", "@WanaDecryptor@.exe", "WannaDecryptor.exe"},
-				Severity:   ThreatLevelCritical,
+				Severity:        ThreatLevelCritical,
 			},
 			{
-				ID:         "locky",
-				Name:       "Locky",
-				Family:     "Locky",
-				Extensions: []string{".locky", ".zepto", ".odin", ".shit", ".thor", ".hammer"},
+				ID:              "locky",
+				Name:            "Locky",
+				Family:          "Locky",
+				Extensions:      []string{".locky", ".zepto", ".odin", ".shit", ".thor", ".hammer"},
 				RansomNoteFiles: []string{"_locky_recover_instructions.txt", "locky_recover_instructions.txt"},
-				Severity:   ThreatLevelCritical,
+				Severity:        ThreatLevelCritical,
 			},
 			{
-				ID:         "cryptolocker",
-				Name:       "CryptoLocker",
-				Family:     "CryptoLocker",
-				Extensions: []string{".encrypted", ".crypto"},
+				ID:              "cryptolocker",
+				Name:            "CryptoLocker",
+				Family:          "CryptoLocker",
+				Extensions:      []string{".encrypted", ".crypto"},
 				RansomNoteFiles: []string{"DECRYPT_INSTRUCTIONS.txt", "DECRYPT_INSTRUCTIONS.html"},
-				Severity:   ThreatLevelCritical,
+				Severity:        ThreatLevelCritical,
 			},
 			{
-				ID:         "ryuk",
-				Name:       "Ryuk",
-				Family:     "Ryuk",
-				Extensions: []string{".RYK"},
+				ID:              "ryuk",
+				Name:            "Ryuk",
+				Family:          "Ryuk",
+				Extensions:      []string{".RYK"},
 				RansomNoteFiles: []string{"RyukReadMe.txt", "RyukReadMe.html"},
-				Severity:   ThreatLevelCritical,
+				Severity:        ThreatLevelCritical,
 			},
 			{
-				ID:         "conti",
-				Name:       "Conti",
-				Family:     "Conti",
-				Extensions: []string{".CONTI"},
+				ID:              "conti",
+				Name:            "Conti",
+				Family:          "Conti",
+				Extensions:      []string{".CONTI"},
 				RansomNoteFiles: []string{"CONTI_README.txt"},
-				Severity:   ThreatLevelCritical,
+				Severity:        ThreatLevelCritical,
 			},
 			{
-				ID:         "blackcat",
-				Name:       "BlackCat/ALPHV",
-				Family:     "BlackCat",
-				Extensions: []string{".alphv", ".blackcat"},
+				ID:              "blackcat",
+				Name:            "BlackCat/ALPHV",
+				Family:          "BlackCat",
+				Extensions:      []string{".alphv", ".blackcat"},
 				RansomNoteFiles: []string{"README-ALPHV.txt", "README-BlackCat.txt"},
-				Severity:   ThreatLevelCritical,
+				Severity:        ThreatLevelCritical,
 			},
 			{
 				ID:         "generic-encrypted",
@@ -842,10 +842,10 @@ func DefaultBehaviorPatterns() []BehaviorPattern {
 				{Type: "count", Field: "modify", Count: 10},
 				{Type: "count", Field: "write", Count: 10},
 			},
-			Weight:   30,
+			Weight:    30,
 			Threshold: 20,
-			Severity: ThreatLevelHigh,
-			Enabled:  true,
+			Severity:  ThreatLevelHigh,
+			Enabled:   true,
 		},
 		{
 			ID:          "mass-rename",
@@ -854,10 +854,10 @@ func DefaultBehaviorPatterns() []BehaviorPattern {
 			Conditions: []Condition{
 				{Type: "count", Field: "rename", Count: 5},
 			},
-			Weight:   25,
+			Weight:    25,
 			Threshold: 20,
-			Severity: ThreatLevelHigh,
-			Enabled:  true,
+			Severity:  ThreatLevelHigh,
+			Enabled:   true,
 		},
 		{
 			ID:          "rapid-deletion",
@@ -866,10 +866,10 @@ func DefaultBehaviorPatterns() []BehaviorPattern {
 			Conditions: []Condition{
 				{Type: "count", Field: "delete", Count: 20},
 			},
-			Weight:   20,
+			Weight:    20,
 			Threshold: 15,
-			Severity: ThreatLevelHigh,
-			Enabled:  true,
+			Severity:  ThreatLevelHigh,
+			Enabled:   true,
 		},
 		{
 			ID:          "extension-change-pattern",
@@ -878,10 +878,10 @@ func DefaultBehaviorPatterns() []BehaviorPattern {
 			Conditions: []Condition{
 				{Type: "operation", Field: "rename", Value: "rename"},
 			},
-			Weight:   30,
+			Weight:    30,
 			Threshold: 25,
-			Severity: ThreatLevelCritical,
-			Enabled:  true,
+			Severity:  ThreatLevelCritical,
+			Enabled:   true,
 		},
 	}
 }

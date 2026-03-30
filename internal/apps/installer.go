@@ -17,7 +17,7 @@ import (
 
 // Installer 应用安装器
 type Installer struct {
-	installDir string          // 安装目录（Compose文件存放）
+	installDir string           // 安装目录（Compose文件存放）
 	manager    ContainerManager // 容器管理器
 }
 
@@ -71,8 +71,8 @@ func (i *Installer) Install(ctx context.Context, template *app.Template, opts *a
 	// 写入配置文件（用于后续更新）
 	configPath := filepath.Join(appDir, "config.json")
 	config := &app.InstallConfig{
-		TemplateID: template.ID,
-		Options:    opts,
+		TemplateID:  template.ID,
+		Options:     opts,
 		InstalledAt: time.Now(),
 	}
 	configData, err := json.MarshalIndent(config, "", "  ")
@@ -114,20 +114,20 @@ func (i *Installer) Install(ctx context.Context, template *app.Template, opts *a
 
 	// 构建安装记录
 	installed := &app.InstalledApp{
-		ID:          appID,
-		Name:        template.Name,
-		DisplayName: template.DisplayName,
-		TemplateID:  template.ID,
-		Version:     template.Version,
-		Status:      app.AppStatusRunning,
-		InstalledAt: time.Now(),
-		UpdatedAt:   time.Now(),
-		ComposePath: composePath,
-		ConfigPath:  configPath,
-		Config:      opts.Env,
-		PortMappings: i.extractPortMappings(template, opts),
+		ID:             appID,
+		Name:           template.Name,
+		DisplayName:    template.DisplayName,
+		TemplateID:     template.ID,
+		Version:        template.Version,
+		Status:         app.AppStatusRunning,
+		InstalledAt:    time.Now(),
+		UpdatedAt:      time.Now(),
+		ComposePath:    composePath,
+		ConfigPath:     configPath,
+		Config:         opts.Env,
+		PortMappings:   i.extractPortMappings(template, opts),
 		VolumeMappings: i.extractVolumeMappings(template, opts),
-		Services:    services,
+		Services:       services,
 	}
 
 	return installed, nil
@@ -222,10 +222,10 @@ func (i *Installer) GetStatus(ctx context.Context, installed *app.InstalledApp) 
 
 	// 计算整体状态
 	status := &app.AppStatus{
-		State:      app.AppStateRunning,
-		Services:   services,
-		Message:    "运行正常",
-		UpdatedAt:  time.Now(),
+		State:     app.AppStateRunning,
+		Services:  services,
+		Message:   "运行正常",
+		UpdatedAt: time.Now(),
 	}
 
 	allRunning := true
@@ -282,8 +282,8 @@ func (i *Installer) GetConfig(installed *app.InstalledApp) (map[string]string, e
 func (i *Installer) UpdateConfig(ctx context.Context, installed *app.InstalledApp, newConfig map[string]string) error {
 	// 读取原配置
 	config := &app.InstallConfig{
-		TemplateID: installed.TemplateID,
-		Options:    &app.InstallOptions{},
+		TemplateID:  installed.TemplateID,
+		Options:     &app.InstallOptions{},
 		InstalledAt: installed.InstalledAt,
 	}
 
@@ -336,7 +336,7 @@ func (i *Installer) UpdateConfig(ctx context.Context, installed *app.InstalledAp
 // generateCompose 生成 Docker Compose 文件
 func (i *Installer) generateCompose(template *app.Template, opts *app.InstallOptions) ([]byte, error) {
 	compose := &ComposeFile{
-		Version: "3.8",
+		Version:  "3.8",
 		Services: make(map[string]ComposeService),
 	}
 

@@ -580,9 +580,9 @@ func TestLoadSaveConfig(t *testing.T) {
 			MaxConnTotal:  500,
 			WindowSeconds: 60,
 		},
-		AutoBanEnabled:     true,
-		AutoBanThreshold:   5,
-		AutoBanWindowMins:  5,
+		AutoBanEnabled:      true,
+		AutoBanThreshold:    5,
+		AutoBanWindowMins:   5,
 		AutoBanDurationMins: 30,
 	}
 

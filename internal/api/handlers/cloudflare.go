@@ -15,8 +15,8 @@ import (
 
 // CloudflareHandlers Cloudflare Tunnel API 处理器.
 type CloudflareHandlers struct {
-	tunnel  *tunnel.CloudflareTunnel
-	logger  *zap.Logger
+	tunnel *tunnel.CloudflareTunnel
+	logger *zap.Logger
 }
 
 // NewCloudflareHandlers 创建 Cloudflare Tunnel 处理器.
@@ -57,14 +57,14 @@ func (h *CloudflareHandlers) GetStatus(c *gin.Context) {
 	status := h.tunnel.GetStatus()
 
 	api.OK(c, gin.H{
-		"running":       status.Running,
-		"tunnel_id":     status.TunnelID,
-		"public_url":    status.PublicURL,
-		"connection":    status.Connection,
-		"stats":         status.Stats,
-		"start_time":    status.StartTime.Format(time.RFC3339),
+		"running":        status.Running,
+		"tunnel_id":      status.TunnelID,
+		"public_url":     status.PublicURL,
+		"connection":     status.Connection,
+		"stats":          status.Stats,
+		"start_time":     status.StartTime.Format(time.RFC3339),
 		"uptime_seconds": status.UptimeSeconds,
-		"last_error":    status.LastError,
+		"last_error":     status.LastError,
 	})
 }
 
@@ -180,20 +180,20 @@ func (h *CloudflareHandlers) Stop(c *gin.Context) {
 
 // UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
-	Token              string                   `json:"token"`                // Tunnel Token
-	APIToken           string                   `json:"api_token"`            // API Token
-	AccountID          string                   `json:"account_id"`           // Account ID
-	TunnelID           string                   `json:"tunnel_id"`            // Tunnel ID
-	TunnelName         string                   `json:"tunnel_name"`          // Tunnel 名称
-	ZoneID             string                   `json:"zone_id"`              // Zone ID
-	ZoneName           string                   `json:"zone_name"`            // Zone 名称
-	Subdomain          string                   `json:"subdomain"`            // 子域名
-	LocalServices      []tunnel.CloudflareService `json:"local_services"`    // 本地服务配置
-	MetricsPort        int                      `json:"metrics_port"`         // Metrics 端口
-	NoAutoUpdate       bool                     `json:"no_auto_update"`       // 禁止自动更新
-	ReconnectInterval  int                      `json:"reconnect_interval"`   // 重连间隔(秒)
-	MaxReconnectAttempts int                    `json:"max_reconnect_attempts"` // 最大重连次数
-	HeartbeatInterval  int                      `json:"heartbeat_interval"`   // 心跳间隔(秒)
+	Token                string                     `json:"token"`                  // Tunnel Token
+	APIToken             string                     `json:"api_token"`              // API Token
+	AccountID            string                     `json:"account_id"`             // Account ID
+	TunnelID             string                     `json:"tunnel_id"`              // Tunnel ID
+	TunnelName           string                     `json:"tunnel_name"`            // Tunnel 名称
+	ZoneID               string                     `json:"zone_id"`                // Zone ID
+	ZoneName             string                     `json:"zone_name"`              // Zone 名称
+	Subdomain            string                     `json:"subdomain"`              // 子域名
+	LocalServices        []tunnel.CloudflareService `json:"local_services"`         // 本地服务配置
+	MetricsPort          int                        `json:"metrics_port"`           // Metrics 端口
+	NoAutoUpdate         bool                       `json:"no_auto_update"`         // 禁止自动更新
+	ReconnectInterval    int                        `json:"reconnect_interval"`     // 重连间隔(秒)
+	MaxReconnectAttempts int                        `json:"max_reconnect_attempts"` // 最大重连次数
+	HeartbeatInterval    int                        `json:"heartbeat_interval"`     // 心跳间隔(秒)
 }
 
 // UpdateConfig 更新 Cloudflare Tunnel 配置

@@ -149,7 +149,7 @@ func (s *Scheduler) selectPriority(gpus []*GPUDevice, req *GPUAllocation) (*GPUD
 			start = 0
 			end = len(gpus)
 		}
-		selected := gpus[start + rand.Intn(end - start)]
+		selected := gpus[start+rand.Intn(end-start)]
 		return selected, nil
 	}
 
@@ -158,7 +158,7 @@ func (s *Scheduler) selectPriority(gpus []*GPUDevice, req *GPUAllocation) (*GPUD
 	if lowEnd >= len(gpus) {
 		lowEnd = 0
 	}
-	selected := gpus[lowEnd + rand.Intn(len(gpus) - lowEnd)]
+	selected := gpus[lowEnd+rand.Intn(len(gpus)-lowEnd)]
 	return selected, nil
 }
 
@@ -244,7 +244,7 @@ func (s *Scheduler) calculateLoadScore(gpu *GPUDevice) float64 {
 	tempUtil := float64(gpu.Temperature) / 100.0 // 假设100°C为上限
 
 	// 综合评分
-	score := memUtil * 0.4 + powerUtil * 0.3 + tempUtil * 0.2 + 0.1 // 最后0.1为基础负载
+	score := memUtil*0.4 + powerUtil*0.3 + tempUtil*0.2 + 0.1 // 最后0.1为基础负载
 
 	return score
 }

@@ -150,7 +150,7 @@ type RepairRecord struct {
 	CompletedAt time.Time     `json:"completed_at,omitempty"`
 	Duration    time.Duration `json:"duration"`
 	Success     bool          `json:"success"`
-	Method      RepairMethod   `json:"method"`
+	Method      RepairMethod  `json:"method"`
 	Source      string        `json:"source"` // 数据来源（备份/镜像等）
 	Details     string        `json:"details,omitempty"`
 }
@@ -159,12 +159,12 @@ type RepairRecord struct {
 type RepairMethod string
 
 const (
-	RepairMethodMirror    RepairMethod = "mirror"    // 从镜像副本恢复
-	RepairMethodBackup    RepairMethod = "backup"    // 从备份恢复
-	RepairMethodSnapshot  RepairMethod = "snapshot"  // 从快照恢复
-	RepairMethodParity    RepairMethod = "parity"    // 从 RAID parity 恢复
-	RepairMethodRebuild   RepairMethod = "rebuild"   // 重建数据
-	RepairMethodMarkBad   RepairMethod = "mark_bad"  // 标记坏块（无法修复）
+	RepairMethodMirror   RepairMethod = "mirror"   // 从镜像副本恢复
+	RepairMethodBackup   RepairMethod = "backup"   // 从备份恢复
+	RepairMethodSnapshot RepairMethod = "snapshot" // 从快照恢复
+	RepairMethodParity   RepairMethod = "parity"   // 从 RAID parity 恢复
+	RepairMethodRebuild  RepairMethod = "rebuild"  // 重建数据
+	RepairMethodMarkBad  RepairMethod = "mark_bad" // 标记坏块（无法修复）
 )
 
 // ScanReport 扫描报告.
@@ -186,17 +186,17 @@ type ScanReport struct {
 
 // StorageHealthReport 存储健康报告.
 type StorageHealthReport struct {
-	Volume          string      `json:"volume"`
-	OverallScore    HealthScore `json:"overall_score"`
-	DataIntegrity   HealthScore `json:"data_integrity"`
-	MetadataHealth  HealthScore `json:"metadata_health"`
-	RedundancyStatus string     `json:"redundancy_status"`
-	ErrorCount      int         `json:"error_count"`
-	UnresolvedCount int         `json:"unresolved_count"`
-	LastScan        time.Time   `json:"last_scan"`
-	LastRepair      time.Time   `json:"last_repair"`
-	Recommendations []string    `json:"recommendations"`
-	UpdatedAt       time.Time   `json:"updated_at"`
+	Volume           string      `json:"volume"`
+	OverallScore     HealthScore `json:"overall_score"`
+	DataIntegrity    HealthScore `json:"data_integrity"`
+	MetadataHealth   HealthScore `json:"metadata_health"`
+	RedundancyStatus string      `json:"redundancy_status"`
+	ErrorCount       int         `json:"error_count"`
+	UnresolvedCount  int         `json:"unresolved_count"`
+	LastScan         time.Time   `json:"last_scan"`
+	LastRepair       time.Time   `json:"last_repair"`
+	Recommendations  []string    `json:"recommendations"`
+	UpdatedAt        time.Time   `json:"updated_at"`
 }
 
 // SelfHealStats 自愈统计.
@@ -256,16 +256,16 @@ func NewSelfHealManager(config SelfHealConfig, storage *Manager, logger *zap.Log
 	}
 
 	sh := &SelfHealManager{
-		config:    config,
-		storage:   storage,
-		state:     SelfHealStateIdle,
-		health:    StorageHealthReport{OverallScore: HealthScoreExcellent},
-		errors:    make([]ChecksumError, 0),
-		repairs:   make([]RepairRecord, 0),
-		stats:     SelfHealStats{},
-		ctx:       ctx,
-		cancel:    cancel,
-		logger:    logger,
+		config:     config,
+		storage:    storage,
+		state:      SelfHealStateIdle,
+		health:     StorageHealthReport{OverallScore: HealthScoreExcellent},
+		errors:     make([]ChecksumError, 0),
+		repairs:    make([]RepairRecord, 0),
+		stats:      SelfHealStats{},
+		ctx:        ctx,
+		cancel:     cancel,
+		logger:     logger,
 		checksumDB: checksumDB,
 	}
 

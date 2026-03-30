@@ -48,11 +48,11 @@ type DiskPowerConfig struct {
 
 // DiskPowerEvent represents a power state change event.
 type DiskPowerEvent struct {
-	DevicePath   string         `json:"device_path"`
+	DevicePath    string         `json:"device_path"`
 	PreviousState DiskPowerState `json:"previous_state"`
-	NewState     DiskPowerState `json:"new_state"`
-	Timestamp    time.Time      `json:"timestamp"`
-	Reason       string         `json:"reason"`
+	NewState      DiskPowerState `json:"new_state"`
+	Timestamp     time.Time      `json:"timestamp"`
+	Reason        string         `json:"reason"`
 }
 
 // DiskPowerManager manages disk power states and wake-up schedules.

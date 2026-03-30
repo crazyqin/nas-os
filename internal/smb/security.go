@@ -15,25 +15,25 @@ import (
 // SMBSecurityConfig SMB安全配置.
 type SMBSecurityConfig struct {
 	// IP访问控制
-	IPWhitelist   []string `json:"ip_whitelist"`
-	IPBlacklist   []string `json:"ip_blacklist"`
+	IPWhitelist []string `json:"ip_whitelist"`
+	IPBlacklist []string `json:"ip_blacklist"`
 
 	// 限流配置
-	RateLimit     RateLimitConfig `json:"rate_limit"`
+	RateLimit RateLimitConfig `json:"rate_limit"`
 
 	// SMB审计
-	AuditEnabled  bool           `json:"audit_enabled"`
-	AuditLogPath  string         `json:"audit_log_path"`
+	AuditEnabled bool   `json:"audit_enabled"`
+	AuditLogPath string `json:"audit_log_path"`
 
 	// 加密配置
-	MinProtocol   string         `json:"min_protocol"` // SMB2, SMB3
-	EncryptData   bool           `json:"encrypt_data"`
+	MinProtocol string `json:"min_protocol"` // SMB2, SMB3
+	EncryptData bool   `json:"encrypt_data"`
 
 	// 自动封禁配置
 	AutoBanEnabled      bool `json:"auto_ban_enabled"`
-	AutoBanThreshold    int  `json:"auto_ban_threshold"`    // 失败次数阈值
-	AutoBanWindowMins   int  `json:"auto_ban_window_mins"`  // 检测窗口（分钟）
-	AutoBanDurationMins  int  `json:"auto_ban_duration_mins"` // 封禁时长（分钟）
+	AutoBanThreshold    int  `json:"auto_ban_threshold"`     // 失败次数阈值
+	AutoBanWindowMins   int  `json:"auto_ban_window_mins"`   // 检测窗口（分钟）
+	AutoBanDurationMins int  `json:"auto_ban_duration_mins"` // 封禁时长（分钟）
 }
 
 // RateLimitConfig 限流配置.
@@ -62,14 +62,14 @@ type FailedAttempt struct {
 
 // AuditLogEntry 审计日志条目.
 type AuditLogEntry struct {
-	Timestamp   time.Time `json:"timestamp"`
-	EventType   string    `json:"event_type"`
-	IP          string    `json:"ip"`
-	Username    string    `json:"username,omitempty"`
-	ShareName   string    `json:"share_name,omitempty"`
-	Action      string    `json:"action"`
-	Result      string    `json:"result"` // success, denied, error
-	Details     string    `json:"details,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
+	EventType string    `json:"event_type"`
+	IP        string    `json:"ip"`
+	Username  string    `json:"username,omitempty"`
+	ShareName string    `json:"share_name,omitempty"`
+	Action    string    `json:"action"`
+	Result    string    `json:"result"` // success, denied, error
+	Details   string    `json:"details,omitempty"`
 }
 
 // SecurityManager SMB安全管理器.
@@ -83,16 +83,16 @@ type SecurityManager struct {
 	logger         *zap.SugaredLogger
 
 	// 连接计数（用于限流）
-	connCounts     map[string]int // IP -> count
-	totalConns     int
+	connCounts map[string]int // IP -> count
+	totalConns int
 }
 
 // AuditLogger 审计日志记录器.
 type AuditLogger struct {
-	mu        sync.Mutex
-	file      *os.File
-	logPath   string
-	logger    *zap.SugaredLogger
+	mu      sync.Mutex
+	file    *os.File
+	logPath string
+	logger  *zap.SugaredLogger
 }
 
 // NewSecurityManager 创建安全管理器.
@@ -131,21 +131,21 @@ func NewSecurityManager(configPath string, logger *zap.SugaredLogger) *SecurityM
 // newDefaultSecurityConfig 创建默认安全配置.
 func newDefaultSecurityConfig() *SMBSecurityConfig {
 	return &SMBSecurityConfig{
-		IPWhitelist:   []string{},
-		IPBlacklist:   []string{},
+		IPWhitelist: []string{},
+		IPBlacklist: []string{},
 		RateLimit: RateLimitConfig{
 			Enabled:       true,
 			MaxConnPerIP:  10,
 			MaxConnTotal:  1000,
 			WindowSeconds: 60,
 		},
-		AuditEnabled:       true,
-		AuditLogPath:       "/var/log/samba/audit.json",
-		MinProtocol:        "SMB2",
-		EncryptData:        false,
-		AutoBanEnabled:     true,
-		AutoBanThreshold:   5,
-		AutoBanWindowMins:  5,
+		AuditEnabled:        true,
+		AuditLogPath:        "/var/log/samba/audit.json",
+		MinProtocol:         "SMB2",
+		EncryptData:         false,
+		AutoBanEnabled:      true,
+		AutoBanThreshold:    5,
+		AutoBanWindowMins:   5,
 		AutoBanDurationMins: 30,
 	}
 }

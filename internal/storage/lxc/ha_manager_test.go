@@ -89,12 +89,12 @@ func TestHAManager_RegisterNode(t *testing.T) {
 	require.NoError(t, err)
 
 	node := &HANode{
-		ID:          "node-1",
-		Name:        "Primary Node",
-		Address:     "192.168.1.100",
-		Port:        8443,
-		State:       HAStateActive,
-		Priority:    100,
+		ID:           "node-1",
+		Name:         "Primary Node",
+		Address:      "192.168.1.100",
+		Port:         8443,
+		State:        HAStateActive,
+		Priority:     100,
 		StoragePools: []string{"zfs-pool", "btrfs-pool"},
 	}
 

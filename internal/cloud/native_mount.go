@@ -12,13 +12,13 @@ import (
 type MountProvider interface {
 	// Name returns the provider name (e.g., "115", "quark", "baidu")
 	Name() string
-	
+
 	// Mount mounts the cloud storage to local path
 	Mount(ctx context.Context, config *MountConfig) error
-	
+
 	// Unmount unmounts the cloud storage
 	Unmount(ctx context.Context, mountPath string) error
-	
+
 	// Status returns the current mount status
 	Status(ctx context.Context, mountPath string) (*MountStatus, error)
 }
@@ -27,13 +27,13 @@ type MountProvider interface {
 type MountConfig struct {
 	// Provider is the cloud storage provider name
 	Provider string `json:"provider"`
-	
+
 	// MountPath is the local mount point
 	MountPath string `json:"mountPath"`
-	
+
 	// Credentials for authentication (encrypted)
 	Credentials map[string]string `json:"credentials"`
-	
+
 	// Options for mount behavior
 	Options MountOptions `json:"options"`
 }
@@ -42,13 +42,13 @@ type MountConfig struct {
 type MountOptions struct {
 	// ReadOnly mounts the storage as read-only
 	ReadOnly bool `json:"readOnly"`
-	
+
 	// AllowOther allows other users to access the mount
 	AllowOther bool `json:"allowOther"`
-	
+
 	// CacheSize sets the cache size in MB
 	CacheSize int `json:"cacheSize"`
-	
+
 	// RefreshInterval sets the refresh interval for file list
 	RefreshInterval time.Duration `json:"refreshInterval"`
 }
@@ -57,22 +57,22 @@ type MountOptions struct {
 type MountStatus struct {
 	// Provider is the cloud storage provider
 	Provider string `json:"provider"`
-	
+
 	// MountPath is the local mount point
 	MountPath string `json:"mountPath"`
-	
+
 	// Status is the current status (mounted, unmounted, error)
 	Status string `json:"status"`
-	
+
 	// UsedSpace is the used space in bytes
 	UsedSpace int64 `json:"usedSpace"`
-	
+
 	// TotalSpace is the total space in bytes
 	TotalSpace int64 `json:"totalSpace"`
-	
+
 	// LastSync is the last sync time
 	LastSync time.Time `json:"lastSync"`
-	
+
 	// Error contains any error message
 	Error string `json:"error,omitempty"`
 }
@@ -102,18 +102,18 @@ func (s *NativeMountService) Mount(ctx context.Context, config *MountConfig) err
 	if !ok {
 		return fmt.Errorf("unknown provider: %s", config.Provider)
 	}
-	
+
 	if err := provider.Mount(ctx, config); err != nil {
 		return fmt.Errorf("mount failed: %w", err)
 	}
-	
+
 	s.mounts[config.MountPath] = &MountStatus{
 		Provider:  config.Provider,
 		MountPath: config.MountPath,
 		Status:    "mounted",
 		LastSync:  time.Now(),
 	}
-	
+
 	return nil
 }
 
@@ -123,16 +123,16 @@ func (s *NativeMountService) Unmount(ctx context.Context, mountPath string) erro
 	if !ok {
 		return fmt.Errorf("mount not found: %s", mountPath)
 	}
-	
+
 	provider, ok := s.providers[status.Provider]
 	if !ok {
 		return fmt.Errorf("provider not found: %s", status.Provider)
 	}
-	
+
 	if err := provider.Unmount(ctx, mountPath); err != nil {
 		return fmt.Errorf("unmount failed: %w", err)
 	}
-	
+
 	delete(s.mounts, mountPath)
 	return nil
 }
@@ -152,19 +152,19 @@ func (s *NativeMountService) GetStatus(ctx context.Context, mountPath string) (*
 	if !ok {
 		return nil, fmt.Errorf("mount not found: %s", mountPath)
 	}
-	
+
 	provider, ok := s.providers[status.Provider]
 	if !ok {
 		return status, nil
 	}
-	
+
 	currentStatus, err := provider.Status(ctx, mountPath)
 	if err != nil {
 		status.Status = "error"
 		status.Error = err.Error()
 		return status, nil
 	}
-	
+
 	return currentStatus, nil
 }
 

@@ -54,13 +54,13 @@ type HotColdConfig struct {
 
 // HotColdPool 存储池信息
 type HotColdPool struct {
-	Path       string    `json:"path"`
-	Name       string    `json:"name"`
+	Path       string       `json:"path"`
+	Name       string       `json:"name"`
 	Type       TierPoolType `json:"type"`
-	TotalBytes int64     `json:"totalBytes"`
-	UsedBytes  int64     `json:"usedBytes"`
-	FreeBytes  int64     `json:"freeBytes"`
-	UpdatedAt  time.Time `json:"updatedAt"`
+	TotalBytes int64        `json:"totalBytes"`
+	UsedBytes  int64        `json:"usedBytes"`
+	FreeBytes  int64        `json:"freeBytes"`
+	UpdatedAt  time.Time    `json:"updatedAt"`
 }
 
 // TierPoolType 池类型
@@ -73,27 +73,27 @@ const (
 
 // HotColdPoolStats 池统计信息
 type HotColdPoolStats struct {
-	Path          string       `json:"path"`
-	Name          string       `json:"name"`
-	Type          TierPoolType `json:"type"`
-	TotalBytes    int64        `json:"totalBytes"`
-	UsedBytes     int64        `json:"usedBytes"`
-	FreeBytes     int64        `json:"freeBytes"`
-	UsedPercent   float64      `json:"usedPercent"`
-	FileCount     int64        `json:"fileCount"`
-	DirectoryCount int64       `json:"directoryCount"`
-	AvgAccessTime float64      `json:"avgAccessTime"`
-	UpdatedAt     time.Time    `json:"updatedAt"`
+	Path           string       `json:"path"`
+	Name           string       `json:"name"`
+	Type           TierPoolType `json:"type"`
+	TotalBytes     int64        `json:"totalBytes"`
+	UsedBytes      int64        `json:"usedBytes"`
+	FreeBytes      int64        `json:"freeBytes"`
+	UsedPercent    float64      `json:"usedPercent"`
+	FileCount      int64        `json:"fileCount"`
+	DirectoryCount int64        `json:"directoryCount"`
+	AvgAccessTime  float64      `json:"avgAccessTime"`
+	UpdatedAt      time.Time    `json:"updatedAt"`
 }
 
 // TierAccessRecord 访问记录
 type TierAccessRecord struct {
-	Path         string       `json:"path"`
-	AccessCount  int          `json:"accessCount"`
-	LastAccess   time.Time    `json:"lastAccess"`
-	FirstAccess  time.Time    `json:"firstAccess"`
-	Size         int64        `json:"size"`
-	CurrentTier  TierPoolType `json:"currentTier"`
+	Path        string       `json:"path"`
+	AccessCount int          `json:"accessCount"`
+	LastAccess  time.Time    `json:"lastAccess"`
+	FirstAccess time.Time    `json:"firstAccess"`
+	Size        int64        `json:"size"`
+	CurrentTier TierPoolType `json:"currentTier"`
 }
 
 // NewHotColdManager 创建热冷管理器
