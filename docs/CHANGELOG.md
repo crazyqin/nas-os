@@ -1,7 +1,55 @@
 
 ---
 
-## [v2.320.0] - 2026-03-30 (开发中)
+## [v2.325.0] - 2026-03-30
+
+### 🎯 六部协同开发第101轮 - 按需唤醒硬盘+Cloudflare Tunnel设计
+
+### 竞品学习
+- 🔍 **飞牛fnOS 1.1正式版** (2026年3月28日)
+  - 按需唤醒硬盘 - 延长硬盘寿命
+  - Cloudflare Tunnel支持 - 无需开放端口远程访问
+  - QWRT软路由集成 - NAS一键软路由
+  - Linux 6.18内核 - 新硬件支持
+- 🔍 **TrueNAS Connect订阅定价**
+  - Foundation免费、Plus $120/年、Business $200/年
+  - nas-os相同功能免费包含，企业用户5年可节省$1,350+
+
+### 新增功能
+- ✅ **按需唤醒硬盘管理** - 对标飞牛fnOS节能特性
+  - 磁盘休眠/唤醒策略配置
+  - 多级超时时间设置（空闲/待机/睡眠）
+  - APM高级电源管理支持
+  - 功耗统计与节能评估
+  - 文件: `internal/storage/disk/power_manage.go`
+
+### 设计文档
+- 📋 **Cloudflare Tunnel远程访问方案设计** - 无端口安全访问
+  - 与Zero Trust访问控制集成规划
+  - docker-compose部署模板
+  - API接口设计
+  - 文件: `docs/design/cloudflare-tunnel-design.md`
+
+### 成本分析
+- ✅ **TrueNAS Connect订阅对比分析**
+  - 订阅层级定价：Foundation免费/Plus $120/Business $200
+  - nas-os成本优势：企业级功能免费包含
+  - 5年成本节省评估：$1,350+
+  - 文件: `docs/cost/competitor-pricing-update.md`
+
+### 六部协同
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 兵部 | ✅ | 按需唤醒硬盘功能实现、Cloudflare Tunnel设计 |
+| 户部 | ✅ | TrueNAS Connect订阅定价分析 |
+| 礼部 | ✅ | CHANGELOG更新、竞品学习深化 |
+| 工部 | ✅ | Cloudflare Tunnel集成方案设计 |
+| 刑部 | ✅ | 安全审计通过 |
+| 吏部 | ✅ | 版本号更新至v2.325.0 |
+
+---
+
+## [v2.324.0] - 2026-03-30
 
 ### 🎯 六部协同开发第95轮 - 勒索软件检测核心 + NVMe-oF基础
 
