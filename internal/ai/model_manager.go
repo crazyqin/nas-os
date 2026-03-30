@@ -626,7 +626,6 @@ func (m *ResourceMonitor) GetGPUInfo() ([]GPUInfo, error) {
 
 // GetMemoryInfo returns system memory information
 func (m *ResourceMonitor) GetMemoryInfo() (*MemoryInfo, error) {
-	// Read /proc/meminfo
 	data, err := os.ReadFile("/proc/meminfo")
 	if err != nil {
 		return nil, err
@@ -640,18 +639,23 @@ func (m *ResourceMonitor) GetMemoryInfo() (*MemoryInfo, error) {
 			continue
 		}
 
-		value := parseInt(parts[1])
+		value := uint64(parseInt(parts[1])) * 1024
 		switch parts[0] {
 		case "MemTotal:":
-			info.Total = int64(value) * 1024
-		case "MemFree:":
-			info.Free = int64(value) * 1024
+			info.Total = value
 		case "MemAvailable:":
-			info.Available = int64(value) * 1024
+			info.Available = value
+		case "SwapTotal:":
+			info.SwapTotal = value
+		case "SwapFree:":
+			info.SwapUsed = info.SwapTotal - value
 		}
 	}
 
 	info.Used = info.Total - info.Available
+	if info.Total > 0 {
+		info.Usage = float64(info.Used) / float64(info.Total) * 100
+	}
 	return info, nil
 }
 
@@ -663,14 +667,6 @@ type GPUInfo struct {
 	MemoryUsed  int64  `json:"memoryUsed"`
 	MemoryFree  int64  `json:"memoryFree"`
 	Utilization int    `json:"utilization"`
-}
-
-// MemoryInfo represents system memory information
-type MemoryInfo struct {
-	Total     int64 `json:"total"`
-	Used      int64 `json:"used"`
-	Free      int64 `json:"free"`
-	Available int64 `json:"available"`
 }
 
 // Helper functions

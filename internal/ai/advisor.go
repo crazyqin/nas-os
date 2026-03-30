@@ -396,7 +396,7 @@ func (a *Advisor) Query(ctx context.Context, sessionID, question string) (*Advis
 		Context:     context,
 		TokensUsed:  resp.TokensUsed,
 		Model:       resp.Model,
-		Provider:    resp.GetProvider(),
+		Provider:    resp.Provider,
 		Timestamp:   time.Now(),
 		SessionID:   sessionID,
 	}, nil

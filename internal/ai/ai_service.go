@@ -158,8 +158,8 @@ func (s *AIService) IsInitialized() bool {
 }
 
 // HealthCheck performs a health check
-func (s *AIService) HealthCheck(ctx context.Context) *ServiceHealth {
-	health := &ServiceHealth{
+func (s *AIService) HealthCheck(ctx context.Context) *AIServiceHealth {
+	health := &AIServiceHealth{
 		Status:   "healthy",
 		Backends: make(map[string]BackendHealth),
 	}
@@ -189,8 +189,8 @@ func (s *AIService) Shutdown() error {
 	return nil
 }
 
-// ServiceHealth represents service health
-type ServiceHealth struct {
+// AIServiceHealth represents AI service health
+type AIServiceHealth struct {
 	Status   string                   `json:"status"`
 	Backends map[string]BackendHealth `json:"backends"`
 }
