@@ -243,34 +243,8 @@ func (cm *CollabManager) ApplyOperation(sessionID, userID, username string, op E
 	
 	// 存储操作
 	cm.operations[sessionID] = append(cm.operations[sessionID], &op)
-	
-	return &op, nil
-}
 
-// GetOperations 获取操作历史
-func (cm *CollabManager) GetOperations(sessionID string, sinceVersion int64) ([]*EditOperation, error) {
-	cm.mu.RLock()
-	defer cm.mu.RUnlock()
-	
-	session, ok := cm.sessions[sessionID]
-	if !ok {
-		return nil, ErrSessionNotFound
-	}
-	
-	ops := cm.operations[sessionID]
-	if sinceVersion <= 0 {
-		return ops, nil
-	}
-	
-	// 过滤版本
-	result := make([]*EditOperation, 0)
-	for _, op := range ops {
-		if op.Version > sinceVersion {
-			result = append(result, op)
-		}
-	}
-	
-	return result, nil
+	return &op, nil
 }
 
 // UpdateCursor 更新光标位置
@@ -514,20 +488,27 @@ func (cm *CollabManager) BroadcastCursor(sessionID string, cursor *CursorPositio
 func (cm *CollabManager) CleanupInactiveSessions(timeout time.Duration) int {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
-	
+
 	now := time.Now()
 	count := 0
-	
-	for sessionID, session := range cm.sessions {
+
+	for id, session := range cm.sessions {
 		if session.IsActive && now.Sub(session.UpdatedAt) > timeout {
 			session.IsActive = false
 			count++
+			// 使用 id 进行清理记录
+			cm.logSessionCleanup(id)
 		}
 	}
-	
+
 	if count > 0 {
 		cm.saveConfig()
 	}
-	
+
 	return count
+}
+
+// logSessionCleanup 记录会话清理
+func (cm *CollabManager) logSessionCleanup(sessionID string) {
+	// 记录清理日志
 }

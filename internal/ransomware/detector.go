@@ -437,8 +437,8 @@ type BuiltInAnomalyDetector struct {
 func NewBuiltInAnomalyDetector(level DetectionLevel) *BuiltInAnomalyDetector {
 	d := &BuiltInAnomalyDetector{
 		level: level,
-		patterns: d.getDefaultPatterns(),
 	}
+	d.patterns = d.getDefaultPatterns()
 	return d
 }
 

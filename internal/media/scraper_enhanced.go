@@ -87,7 +87,7 @@ func NewUnifiedScraper(config *ScraperConfig, cache *Cache) *UnifiedScraper {
 		APIKey:  config.TMDBAPIKey,
 		BaseURL: "https://api.themoviedb.org/3",
 		Timeout: config.DownloadTimeout,
-	}, cache)
+	}, NewEnhancedCache())
 
 	// 创建豆瓣刮削器
 	doubanScraper := NewDoubanScraper(DoubanConfig{
@@ -767,8 +767,8 @@ type doubanSubject struct {
 
 // ====== 辅助函数 ======
 
-// parseIntSafe 安全解析整数
-func parseIntSafe(s string) int {
+// parseIntSafeSafe 安全解析整数（增强版）
+func parseIntSafeSafe(s string) int {
 	var result int
 	for _, c := range s {
 		if c >= '0' && c <= '9' {
