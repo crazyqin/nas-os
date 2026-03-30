@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TransferLog 传输日志记录
+// TransferLog 传输日志记录.
 type TransferLog struct {
 	ID         string    `json:"id"`
 	Timestamp  time.Time `json:"timestamp"`
@@ -26,7 +26,7 @@ type TransferLog struct {
 	Method     string    `json:"method"` // sftp
 }
 
-// TransferLogger 传输日志管理器
+// TransferLogger 传输日志管理器.
 type TransferLogger struct {
 	mu        sync.RWMutex
 	logs      []*TransferLog
@@ -38,7 +38,7 @@ type TransferLogger struct {
 	enabled   bool
 }
 
-// TransferLoggerConfig 日志配置
+// TransferLoggerConfig 日志配置.
 type TransferLoggerConfig struct {
 	LogPath   string        `json:"log_path"`
 	MaxLogs   int           `json:"max_logs"`
@@ -47,7 +47,7 @@ type TransferLoggerConfig struct {
 	Enabled   bool          `json:"enabled"`
 }
 
-// DefaultTransferLoggerConfig 默认配置
+// DefaultTransferLoggerConfig 默认配置.
 func DefaultTransferLoggerConfig() TransferLoggerConfig {
 	return TransferLoggerConfig{
 		LogPath:   "/var/log/nas-os/sftp-transfers.jsonl",
@@ -58,7 +58,7 @@ func DefaultTransferLoggerConfig() TransferLoggerConfig {
 	}
 }
 
-// NewTransferLogger 创建传输日志管理器
+// NewTransferLogger 创建传输日志管理器.
 func NewTransferLogger(config TransferLoggerConfig) (*TransferLogger, error) {
 	logger := &TransferLogger{
 		logs:      make([]*TransferLog, 0),
@@ -78,7 +78,7 @@ func NewTransferLogger(config TransferLoggerConfig) (*TransferLogger, error) {
 	return logger, nil
 }
 
-// initLogFile 初始化日志文件
+// initLogFile 初始化日志文件.
 func (l *TransferLogger) initLogFile() error {
 	if err := os.MkdirAll(filepath.Dir(l.logPath), 0750); err != nil {
 		return err
@@ -93,7 +93,7 @@ func (l *TransferLogger) initLogFile() error {
 	return nil
 }
 
-// Log 记录传输日志
+// Log 记录传输日志.
 func (l *TransferLogger) Log(log *TransferLog) {
 	if !l.enabled {
 		return
@@ -127,7 +127,7 @@ func (l *TransferLogger) Log(log *TransferLog) {
 	}
 }
 
-// StartTransfer 开始传输跟踪
+// StartTransfer 开始传输跟踪.
 func (l *TransferLogger) StartTransfer(username, clientIP, sessionID, direction, filePath string, fileSize int64) *TransferLog {
 	return &TransferLog{
 		ID:        generateTransferID(),
@@ -142,7 +142,7 @@ func (l *TransferLogger) StartTransfer(username, clientIP, sessionID, direction,
 	}
 }
 
-// CompleteTransfer 完成传输记录
+// CompleteTransfer 完成传输记录.
 func (l *TransferLogger) CompleteTransfer(log *TransferLog, bytesTrans int64, duration time.Duration, success bool, errMsg string) {
 	log.BytesTrans = bytesTrans
 	log.Duration = duration.Milliseconds()
@@ -156,7 +156,7 @@ func (l *TransferLogger) CompleteTransfer(log *TransferLog, bytesTrans int64, du
 	l.Log(log)
 }
 
-// GetLogs 获取日志列表
+// GetLogs 获取日志列表.
 func (l *TransferLogger) GetLogs(limit int, offset int, filter *TransferLogFilter) []*TransferLog {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -181,7 +181,7 @@ func (l *TransferLogger) GetLogs(limit int, offset int, filter *TransferLogFilte
 	return result
 }
 
-// GetStats 获取传输统计
+// GetStats 获取传输统计.
 func (l *TransferLogger) GetStats(period time.Duration) *TransferStats {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -223,7 +223,7 @@ func (l *TransferLogger) GetStats(period time.Duration) *TransferStats {
 	return stats
 }
 
-// Clear 清除日志
+// Clear 清除日志.
 func (l *TransferLogger) Clear() error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -239,7 +239,7 @@ func (l *TransferLogger) Clear() error {
 	return nil
 }
 
-// rotateLog 轮转日志文件
+// rotateLog 轮转日志文件.
 func (l *TransferLogger) rotateLog() {
 	if l.logFile == nil {
 		return
@@ -251,7 +251,7 @@ func (l *TransferLogger) rotateLog() {
 	_ = l.initLogFile()
 }
 
-// Close 关闭日志管理器
+// Close 关闭日志管理器.
 func (l *TransferLogger) Close() error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -262,21 +262,21 @@ func (l *TransferLogger) Close() error {
 	return nil
 }
 
-// SetEnabled 设置是否启用
+// SetEnabled 设置是否启用.
 func (l *TransferLogger) SetEnabled(enabled bool) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.enabled = enabled
 }
 
-// IsEnabled 检查是否启用
+// IsEnabled 检查是否启用.
 func (l *TransferLogger) IsEnabled() bool {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	return l.enabled
 }
 
-// TransferLogFilter 日志过滤器
+// TransferLogFilter 日志过滤器.
 type TransferLogFilter struct {
 	Username  string    `json:"username,omitempty"`
 	Direction string    `json:"direction,omitempty"`
@@ -285,7 +285,7 @@ type TransferLogFilter struct {
 	EndTime   time.Time `json:"end_time,omitempty"`
 }
 
-// Match 检查日志是否匹配过滤条件
+// Match 检查日志是否匹配过滤条件.
 func (f *TransferLogFilter) Match(log *TransferLog) bool {
 	if f.Username != "" && log.Username != f.Username {
 		return false
@@ -305,7 +305,7 @@ func (f *TransferLogFilter) Match(log *TransferLog) bool {
 	return true
 }
 
-// TransferStats 传输统计
+// TransferStats 传输统计.
 type TransferStats struct {
 	StartTime           time.Time `json:"start_time"`
 	TotalTransfers      int       `json:"total_transfers"`
@@ -318,12 +318,12 @@ type TransferStats struct {
 	AvgBandwidth        int64     `json:"avg_bandwidth_bps"`
 }
 
-// generateTransferID 生成传输 ID
+// generateTransferID 生成传输 ID.
 func generateTransferID() string {
 	return time.Now().Format("20060102150405") + "-" + randomString(8)
 }
 
-// randomString 生成随机字符串
+// randomString 生成随机字符串.
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)

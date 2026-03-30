@@ -8,19 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 安全模块 HTTP 处理器
+// Handlers 安全模块 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建安全处理器
+// NewHandlers 创建安全处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
 // RegisterRoutes 注册路由
 // 注意：调用方应在应用此路由组前添加认证和权限中间件
-// 这些都是敏感的安全操作，应该限制为管理员权限
+// 这些都是敏感的安全操作，应该限制为管理员权限.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	security := api.Group("/security")
 	// 安全操作需要管理员权限，调用方应添加相应中间件
@@ -84,19 +84,19 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 // ========== 通用响应 ==========
 
-// APIResponse represents an API response
+// APIResponse represents an API response.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// success 创建成功响应
+// success 创建成功响应.
 func success(data interface{}) APIResponse {
 	return APIResponse{Code: 0, Message: "success", Data: data}
 }
 
-// apiError 创建错误响应
+// apiError 创建错误响应.
 func apiError(code int, message string) APIResponse {
 	return APIResponse{Code: code, Message: message}
 }
@@ -142,7 +142,7 @@ func (h *Handlers) listFirewallRules(c *gin.Context) {
 	c.JSON(http.StatusOK, success(rules))
 }
 
-// AddFirewallRuleRequest represents a request to add a firewall rule
+// AddFirewallRuleRequest represents a request to add a firewall rule.
 type AddFirewallRuleRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Enabled     bool   `json:"enabled"`
@@ -266,7 +266,7 @@ func (h *Handlers) getBlacklist(c *gin.Context) {
 	c.JSON(http.StatusOK, success(blacklist))
 }
 
-// AddToBlacklistRequest represents a request to add an IP to blacklist
+// AddToBlacklistRequest represents a request to add an IP to blacklist.
 type AddToBlacklistRequest struct {
 	IP       string `json:"ip" binding:"required"`
 	Reason   string `json:"reason"`
@@ -323,7 +323,7 @@ func (h *Handlers) getWhitelist(c *gin.Context) {
 	c.JSON(http.StatusOK, success(whitelist))
 }
 
-// AddToWhitelistRequest represents a request to add an IP to whitelist
+// AddToWhitelistRequest represents a request to add an IP to whitelist.
 type AddToWhitelistRequest struct {
 	IP     string `json:"ip" binding:"required"`
 	Reason string `json:"reason"`

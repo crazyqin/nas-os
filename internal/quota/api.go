@@ -11,19 +11,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// API 配额管理 API 处理器
+// API 配额管理 API 处理器.
 type API struct {
 	manager *Manager
 }
 
-// NewAPI 创建配额 API 处理器
+// NewAPI 创建配额 API 处理器.
 func NewAPI(mgr *Manager) *API {
 	return &API{
 		manager: mgr,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (a *API) RegisterRoutes(r *gin.RouterGroup) {
 	quotaAPI := r.Group("/quota/v2")
 	{
@@ -54,7 +54,7 @@ func (a *API) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 配额设置 API ==========
 
-// SetQuotaRequest 设置配额请求
+// SetQuotaRequest 设置配额请求.
 type SetQuotaRequest struct {
 	Type        QuotaType `json:"type" binding:"required"`      // user/group/directory
 	TargetID    string    `json:"targetId" binding:"required"`  // 用户名/组名/路径
@@ -76,7 +76,7 @@ type SetQuotaRequest struct {
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
 // @Router /quota/v2/set [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) SetQuota(c *gin.Context) {
 	var req SetQuotaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -129,12 +129,12 @@ func (a *API) SetQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(quota))
 }
 
-// BatchSetQuotaRequest 批量设置配额请求
+// BatchSetQuotaRequest 批量设置配额请求.
 type BatchSetQuotaRequest struct {
 	Quotas []SetQuotaRequest `json:"quotas" binding:"required"`
 }
 
-// BatchSetQuotaResponse 批量设置配额响应
+// BatchSetQuotaResponse 批量设置配额响应.
 type BatchSetQuotaResponse struct {
 	Success int      `json:"success"`
 	Failed  int      `json:"failed"`
@@ -151,7 +151,7 @@ type BatchSetQuotaResponse struct {
 // @Param request body BatchSetQuotaRequest true "批量配额设置请求"
 // @Success 200 {object} Response{data=BatchSetQuotaResponse}
 // @Router /quota/v2/batch-set [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) BatchSetQuota(c *gin.Context) {
 	var req BatchSetQuotaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -198,7 +198,7 @@ func (a *API) BatchSetQuota(c *gin.Context) {
 // @Success 200 {object} Response{data=Quota}
 // @Failure 404 {object} Response
 // @Router /quota/v2/get/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) GetQuota(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -215,7 +215,7 @@ func (a *API) GetQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(quota))
 }
 
-// ListQuotasRequest 列出配额请求
+// ListQuotasRequest 列出配额请求.
 type ListQuotasRequest struct {
 	Type       QuotaType `form:"type"`
 	TargetID   string    `form:"targetId"`
@@ -224,7 +224,7 @@ type ListQuotasRequest struct {
 	PageSize   int       `form:"pageSize"`
 }
 
-// ListQuotasResponse 列出配额响应
+// ListQuotasResponse 列出配额响应.
 type ListQuotasResponse struct {
 	Total  int     `json:"total"`
 	Page   int     `json:"page"`
@@ -243,7 +243,7 @@ type ListQuotasResponse struct {
 // @Param pageSize query int false "每页数量" default(20)
 // @Success 200 {object} Response{data=ListQuotasResponse}
 // @Router /quota/v2/list [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) ListQuotas(c *gin.Context) {
 	var req ListQuotasRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -338,7 +338,7 @@ func (a *API) ListQuotas(c *gin.Context) {
 // @Success 200 {object} Response{data=QuotaUsage}
 // @Failure 404 {object} Response
 // @Router /quota/v2/usage/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) GetQuotaUsage(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -362,7 +362,7 @@ func (a *API) GetQuotaUsage(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} Response{data=[]QuotaUsage}
 // @Router /quota/v2/usage [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) GetAllUsage(c *gin.Context) {
 	usages, err := a.manager.GetAllUsage()
 	if err != nil {
@@ -375,7 +375,7 @@ func (a *API) GetAllUsage(c *gin.Context) {
 
 // ========== 配额调整 API ==========
 
-// AdjustQuotaRequest 调整配额请求
+// AdjustQuotaRequest 调整配额请求.
 type AdjustQuotaRequest struct {
 	HardLimitDelta int64  `json:"hardLimitDelta"` // 硬限制增量（可正可负）
 	SoftLimitDelta int64  `json:"softLimitDelta"` // 软限制增量（可正可负）
@@ -394,7 +394,7 @@ type AdjustQuotaRequest struct {
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
 // @Router /quota/v2/adjust/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) AdjustQuota(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -471,7 +471,7 @@ func (a *API) AdjustQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(updated))
 }
 
-// ExtendGracePeriodRequest 延长宽限期请求
+// ExtendGracePeriodRequest 延长宽限期请求.
 type ExtendGracePeriodRequest struct {
 	ExtendHours int    `json:"extendHours" binding:"required,min=1"` // 延长小时数
 	Reason      string `json:"reason"`                               // 延长原因
@@ -489,7 +489,7 @@ type ExtendGracePeriodRequest struct {
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
 // @Router /quota/v2/extend-grace/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) ExtendGracePeriod(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -529,7 +529,7 @@ func (a *API) ExtendGracePeriod(c *gin.Context) {
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
 // @Router /quota/v2/delete/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) DeleteQuota(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -551,7 +551,7 @@ func (a *API) DeleteQuota(c *gin.Context) {
 
 // ========== 配额限制管理 API ==========
 
-// SetLimitsRequest 设置限制请求
+// SetLimitsRequest 设置限制请求.
 type SetLimitsRequest struct {
 	HardLimit   uint64 `json:"hardLimit" binding:"required"` // 硬限制
 	SoftLimit   uint64 `json:"softLimit"`                    // 软限制
@@ -570,7 +570,7 @@ type SetLimitsRequest struct {
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
 // @Router /quota/v2/limits/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) SetLimits(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -626,7 +626,7 @@ func (a *API) SetLimits(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(updated))
 }
 
-// LimitsResponse 限制响应
+// LimitsResponse 限制响应.
 type LimitsResponse struct {
 	QuotaID      string     `json:"quotaId"`
 	HardLimit    uint64     `json:"hardLimit"`             // 硬限制（字节）
@@ -646,7 +646,7 @@ type LimitsResponse struct {
 // @Success 200 {object} Response{data=LimitsResponse}
 // @Failure 404 {object} Response
 // @Router /quota/v2/limits/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) GetLimits(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -678,7 +678,7 @@ func (a *API) GetLimits(c *gin.Context) {
 
 // ========== 配额状态 API ==========
 
-// Status 配额状态信息
+// Status 配额状态信息.
 type Status struct {
 	QuotaID        string     `json:"quotaId"`
 	Type           Type       `json:"type"`
@@ -708,7 +708,7 @@ type Status struct {
 // @Success 200 {object} Response{data=QuotaStatus}
 // @Failure 404 {object} Response
 // @Router /quota/v2/status/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) GetQuotaStatus(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -777,7 +777,7 @@ func (a *API) GetQuotaStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(status))
 }
 
-// Violation 配额违规记录
+// Violation 配额违规记录.
 type Violation struct {
 	QuotaID      string     `json:"quotaId"`
 	TargetID     string     `json:"targetId"`
@@ -799,7 +799,7 @@ type Violation struct {
 // @Param type query string false "违规类型 (soft_limit/hard_limit)"
 // @Success 200 {object} Response{data=[]Violation}
 // @Router /quota/v2/violations [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (a *API) GetViolations(c *gin.Context) {
 	filterType := c.Query("type")
 
@@ -855,7 +855,7 @@ func (a *API) GetViolations(c *gin.Context) {
 
 // ========== 辅助功能 ==========
 
-// Adjustment 配额调整记录详情
+// Adjustment 配额调整记录详情.
 type Adjustment struct {
 	QuotaID    string    `json:"quotaId"`
 	HardDelta  int64     `json:"hardDelta"`
@@ -864,13 +864,13 @@ type Adjustment struct {
 	AdjustedAt time.Time `json:"adjustedAt"`
 }
 
-// GracePeriodManager 宽限期管理器
+// GracePeriodManager 宽限期管理器.
 type GracePeriodManager struct {
 	gracePeriods map[string]*GracePeriodInfo
 	mu           sync.RWMutex
 }
 
-// GracePeriodInfo 宽限期信息
+// GracePeriodInfo 宽限期信息.
 type GracePeriodInfo struct {
 	QuotaID   string        `json:"quotaId"`
 	Duration  time.Duration `json:"duration"`
@@ -878,14 +878,14 @@ type GracePeriodInfo struct {
 	StartedAt time.Time     `json:"startedAt"`
 }
 
-// NewGracePeriodManager 创建宽限期管理器
+// NewGracePeriodManager 创建宽限期管理器.
 func NewGracePeriodManager() *GracePeriodManager {
 	return &GracePeriodManager{
 		gracePeriods: make(map[string]*GracePeriodInfo),
 	}
 }
 
-// SetGracePeriod 设置宽限期
+// SetGracePeriod 设置宽限期.
 func (g *GracePeriodManager) SetGracePeriod(quotaID string, duration time.Duration) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -897,7 +897,7 @@ func (g *GracePeriodManager) SetGracePeriod(quotaID string, duration time.Durati
 	}
 }
 
-// ExtendGracePeriod 延长宽限期
+// ExtendGracePeriod 延长宽限期.
 func (g *GracePeriodManager) ExtendGracePeriod(quotaID string, expiry time.Time) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -913,7 +913,7 @@ func (g *GracePeriodManager) ExtendGracePeriod(quotaID string, expiry time.Time)
 	info.Expiry = &expiry
 }
 
-// GetGracePeriodInfo 获取宽限期信息
+// GetGracePeriodInfo 获取宽限期信息.
 func (g *GracePeriodManager) GetGracePeriodInfo(quotaID string) (time.Duration, *time.Time) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()

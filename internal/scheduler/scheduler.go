@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Scheduler 调度器
+// Scheduler 调度器.
 type Scheduler struct {
 	tasks      map[string]*Task
 	executor   *Executor
@@ -30,7 +30,7 @@ type cronEntry struct {
 	next   time.Time
 }
 
-// NewScheduler 创建调度器
+// NewScheduler 创建调度器.
 func NewScheduler(config *Config) (*Scheduler, error) {
 	if config == nil {
 		config = &Config{
@@ -80,7 +80,7 @@ func NewScheduler(config *Config) (*Scheduler, error) {
 	return s, nil
 }
 
-// loadTasks 加载任务
+// loadTasks 加载任务.
 func (s *Scheduler) loadTasks() error {
 	data, err := os.ReadFile(s.config.StoragePath + "/tasks.json")
 	if err != nil {
@@ -108,7 +108,7 @@ func (s *Scheduler) loadTasks() error {
 	return nil
 }
 
-// saveTasks 保存任务
+// saveTasks 保存任务.
 func (s *Scheduler) saveTasks() error {
 	if s.config.StoragePath == "" {
 		return nil
@@ -134,7 +134,7 @@ func (s *Scheduler) saveTasks() error {
 	return os.WriteFile(s.config.StoragePath+"/tasks.json", data, 0640)
 }
 
-// Start 启动调度器
+// Start 启动调度器.
 func (s *Scheduler) Start() error {
 	s.mu.Lock()
 	s.running = true
@@ -147,7 +147,7 @@ func (s *Scheduler) Start() error {
 	return nil
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (s *Scheduler) Stop() {
 	s.mu.Lock()
 	s.running = false
@@ -160,7 +160,7 @@ func (s *Scheduler) Stop() {
 	_ = s.saveTasks()
 }
 
-// runScheduler 运行调度循环
+// runScheduler 运行调度循环.
 func (s *Scheduler) runScheduler() {
 	defer s.wg.Done()
 
@@ -177,7 +177,7 @@ func (s *Scheduler) runScheduler() {
 	}
 }
 
-// tick 每秒检查
+// tick 每秒检查.
 func (s *Scheduler) tick() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -224,7 +224,7 @@ func (s *Scheduler) tick() {
 	}
 }
 
-// scheduleCronTask 安排 Cron 任务
+// scheduleCronTask 安排 Cron 任务.
 func (s *Scheduler) scheduleCronTask(task *Task) error {
 	if task.CronExpression == "" {
 		return fmt.Errorf("cron 表达式为空")
@@ -247,7 +247,7 @@ func (s *Scheduler) scheduleCronTask(task *Task) error {
 	return nil
 }
 
-// AddTask 添加任务
+// AddTask 添加任务.
 func (s *Scheduler) AddTask(task *Task) error {
 	if task.ID == "" {
 		task.ID = GenerateTaskID()
@@ -293,7 +293,7 @@ func (s *Scheduler) AddTask(task *Task) error {
 	return s.saveTasks()
 }
 
-// UpdateTask 更新任务
+// UpdateTask 更新任务.
 func (s *Scheduler) UpdateTask(task *Task) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -323,7 +323,7 @@ func (s *Scheduler) UpdateTask(task *Task) error {
 	return s.saveTasks()
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (s *Scheduler) DeleteTask(taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -339,7 +339,7 @@ func (s *Scheduler) DeleteTask(taskID string) error {
 	return s.saveTasks()
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (s *Scheduler) GetTask(taskID string) (*Task, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -352,7 +352,7 @@ func (s *Scheduler) GetTask(taskID string) (*Task, error) {
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (s *Scheduler) ListTasks(filter *TaskFilter) []*Task {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -427,7 +427,7 @@ func (s *Scheduler) matchFilter(task *Task, filter *TaskFilter) bool {
 	return true
 }
 
-// RunTask 运行任务
+// RunTask 运行任务.
 func (s *Scheduler) RunTask(taskID string) (*TaskExecution, error) {
 	s.mu.RLock()
 	task, exists := s.tasks[taskID]
@@ -463,12 +463,12 @@ func (s *Scheduler) runTaskInternal(task *Task) (*TaskExecution, error) {
 	return execution, err
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (s *Scheduler) CancelTask(taskID string) error {
 	return s.executor.Cancel(taskID)
 }
 
-// PauseTask 暂停任务
+// PauseTask 暂停任务.
 func (s *Scheduler) PauseTask(taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -486,7 +486,7 @@ func (s *Scheduler) PauseTask(taskID string) error {
 	return s.saveTasks()
 }
 
-// ResumeTask 恢复任务
+// ResumeTask 恢复任务.
 func (s *Scheduler) ResumeTask(taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -507,7 +507,7 @@ func (s *Scheduler) ResumeTask(taskID string) error {
 	return s.saveTasks()
 }
 
-// EnableTask 启用任务
+// EnableTask 启用任务.
 func (s *Scheduler) EnableTask(taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -527,7 +527,7 @@ func (s *Scheduler) EnableTask(taskID string) error {
 	return s.saveTasks()
 }
 
-// DisableTask 禁用任务
+// DisableTask 禁用任务.
 func (s *Scheduler) DisableTask(taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -545,7 +545,7 @@ func (s *Scheduler) DisableTask(taskID string) error {
 	return s.saveTasks()
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (s *Scheduler) GetStats() *Stats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -598,27 +598,27 @@ func calculateSuccessRate(executions []*TaskExecution) float64 {
 	return float64(successCount) / float64(len(executions)) * 100
 }
 
-// GetExecutor 获取执行器
+// GetExecutor 获取执行器.
 func (s *Scheduler) GetExecutor() *Executor {
 	return s.executor
 }
 
-// GetLogManager 获取日志管理器
+// GetLogManager 获取日志管理器.
 func (s *Scheduler) GetLogManager() *LogManager {
 	return s.logManager
 }
 
-// RegisterHandler 注册处理器
+// RegisterHandler 注册处理器.
 func (s *Scheduler) RegisterHandler(handler TaskHandler) error {
 	return s.executor.RegisterHandler(handler)
 }
 
-// GetDependencyGraph 获取依赖图
+// GetDependencyGraph 获取依赖图.
 func (s *Scheduler) GetDependencyGraph() *DependencyGraph {
 	return s.executor.GetDependencyManager().GetGraph()
 }
 
-// GetNextRunTimes 获取任务的下次执行时间
+// GetNextRunTimes 获取任务的下次执行时间.
 func (s *Scheduler) GetNextRunTimes(taskID string, n int) []time.Time {
 	s.mu.RLock()
 	entry, exists := s.cronTasks[taskID]

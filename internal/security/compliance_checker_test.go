@@ -346,7 +346,7 @@ func TestComplianceChecker_CheckPrivacy(t *testing.T) {
 	assert.NotNil(t, resultDetails)
 }
 
-// 测试类型常量
+// 测试类型常量.
 func TestComplianceStandard_Constants(t *testing.T) {
 	assert.Equal(t, ComplianceStandard("gdpr"), StandardGDPR)
 	assert.Equal(t, ComplianceStandard("soc2"), StandardSOC2)

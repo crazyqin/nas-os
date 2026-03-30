@@ -15,7 +15,7 @@ import (
 )
 
 // SecureBackupCodeManager 安全备份码管理器
-// 使用 bcrypt 哈希存储备份码，防止明文泄露
+// 使用 bcrypt 哈希存储备份码，防止明文泄露.
 type SecureBackupCodeManager struct {
 	mu         sync.RWMutex
 	codes      map[string][]*HashedBackupCode // userID -> hashed codes
@@ -23,7 +23,7 @@ type SecureBackupCodeManager struct {
 	encryption *SecretEncryption
 }
 
-// HashedBackupCode 哈希存储的备份码
+// HashedBackupCode 哈希存储的备份码.
 type HashedBackupCode struct {
 	Hash      string     `json:"hash"` // bcrypt 哈希
 	CreatedAt time.Time  `json:"created_at"`
@@ -31,7 +31,7 @@ type HashedBackupCode struct {
 	UsedAt    *time.Time `json:"used_at,omitempty"`
 }
 
-// NewSecureBackupCodeManager 创建安全备份码管理器
+// NewSecureBackupCodeManager 创建安全备份码管理器.
 func NewSecureBackupCodeManager(configPath string, encryption *SecretEncryption) *SecureBackupCodeManager {
 	m := &SecureBackupCodeManager{
 		codes:      make(map[string][]*HashedBackupCode),
@@ -42,7 +42,7 @@ func NewSecureBackupCodeManager(configPath string, encryption *SecretEncryption)
 	return m
 }
 
-// load 加载已存储的备份码
+// load 加载已存储的备份码.
 func (m *SecureBackupCodeManager) load() {
 	if m.configPath == "" {
 		return
@@ -61,7 +61,7 @@ func (m *SecureBackupCodeManager) load() {
 	m.codes = stored
 }
 
-// save 保存备份码
+// save 保存备份码.
 func (m *SecureBackupCodeManager) save() error {
 	if m.configPath == "" {
 		return nil
@@ -79,7 +79,7 @@ func (m *SecureBackupCodeManager) save() error {
 	return os.WriteFile(m.configPath, data, 0600)
 }
 
-// generateBackupCode 生成备份码
+// generateBackupCode 生成备份码.
 func generateSecureBackupCode() (string, error) {
 	b := make([]byte, 8)
 	if _, err := rand.Read(b); err != nil {
@@ -89,7 +89,7 @@ func generateSecureBackupCode() (string, error) {
 	return fmt.Sprintf("%s-%s", hexStr[:8], hexStr[8:]), nil
 }
 
-// hashBackupCode 使用 bcrypt 哈希备份码
+// hashBackupCode 使用 bcrypt 哈希备份码.
 func hashBackupCode(code string) (string, error) {
 	// 先 SHA256 减少长度，再 bcrypt
 	hash := sha256.Sum256([]byte(code))
@@ -100,7 +100,7 @@ func hashBackupCode(code string) (string, error) {
 	return string(result), nil
 }
 
-// verifyBackupCodeHash 验证备份码哈希
+// verifyBackupCodeHash 验证备份码哈希.
 func verifyBackupCodeHash(code, hash string) bool {
 	codeHash := sha256.Sum256([]byte(code))
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(hex.EncodeToString(codeHash[:])))
@@ -108,7 +108,7 @@ func verifyBackupCodeHash(code, hash string) bool {
 }
 
 // GenerateBackupCodes 生成备份码
-// 返回明文备份码（仅此一次），存储哈希值
+// 返回明文备份码（仅此一次），存储哈希值.
 func (m *SecureBackupCodeManager) GenerateBackupCodes(userID string, count int) ([]string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -150,7 +150,7 @@ func (m *SecureBackupCodeManager) GenerateBackupCodes(userID string, count int) 
 	return plainCodes, nil
 }
 
-// VerifyBackupCode 验证备份码
+// VerifyBackupCode 验证备份码.
 func (m *SecureBackupCodeManager) VerifyBackupCode(userID, code string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -181,7 +181,7 @@ func (m *SecureBackupCodeManager) VerifyBackupCode(userID, code string) error {
 	return fmt.Errorf("%s", ErrBackupCodeInvalid)
 }
 
-// GetUnusedCount 获取未使用的备份码数量
+// GetUnusedCount 获取未使用的备份码数量.
 func (m *SecureBackupCodeManager) GetUnusedCount(userID string) int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -200,7 +200,7 @@ func (m *SecureBackupCodeManager) GetUnusedCount(userID string) int {
 	return count
 }
 
-// InvalidateAll 使所有备份码失效
+// InvalidateAll 使所有备份码失效.
 func (m *SecureBackupCodeManager) InvalidateAll(userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -209,7 +209,7 @@ func (m *SecureBackupCodeManager) InvalidateAll(userID string) error {
 	return m.save()
 }
 
-// ListUsedCodes 列出已使用的备份码（用于审计）
+// ListUsedCodes 列出已使用的备份码（用于审计）.
 func (m *SecureBackupCodeManager) ListUsedCodes(userID string) []HashedBackupCode {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -228,7 +228,7 @@ func (m *SecureBackupCodeManager) ListUsedCodes(userID string) []HashedBackupCod
 	return used
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *SecureBackupCodeManager) GetStats(userID string) map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

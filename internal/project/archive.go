@@ -12,20 +12,20 @@ import (
 	"github.com/google/uuid"
 )
 
-// ArchiveStatus 归档状态
+// ArchiveStatus 归档状态.
 type ArchiveStatus string
 
 // 归档状态常量，定义归档记录的当前状态。
 const (
-	// ArchiveStatusActive represents active archive status
+	// ArchiveStatusActive represents active archive status.
 	ArchiveStatusActive ArchiveStatus = "active"
-	// ArchiveStatusArchived represents archived status
+	// ArchiveStatusArchived represents archived status.
 	ArchiveStatusArchived ArchiveStatus = "archived"
-	// ArchiveStatusDeleted represents deleted archive status
+	// ArchiveStatusDeleted represents deleted archive status.
 	ArchiveStatusDeleted ArchiveStatus = "deleted"
 )
 
-// Archive 项目归档记录
+// Archive 项目归档记录.
 type Archive struct {
 	ID          string                 `json:"id"`
 	ProjectID   string                 `json:"project_id"`
@@ -41,7 +41,7 @@ type Archive struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// ArchiveConfig 归档配置
+// ArchiveConfig 归档配置.
 type ArchiveConfig struct {
 	StoragePath        string `json:"storage_path"`        // 归档存储路径
 	RetentionDays      int    `json:"retention_days"`      // 归档保留天数
@@ -51,7 +51,7 @@ type ArchiveConfig struct {
 	MaxArchiveSize     int64  `json:"max_archive_size"`    // 最大归档大小（字节）
 }
 
-// DefaultArchiveConfig 默认归档配置
+// DefaultArchiveConfig 默认归档配置.
 func DefaultArchiveConfig() ArchiveConfig {
 	return ArchiveConfig{
 		StoragePath:        "./archives",
@@ -63,7 +63,7 @@ func DefaultArchiveConfig() ArchiveConfig {
 	}
 }
 
-// ArchiveManager 归档管理器
+// ArchiveManager 归档管理器.
 type ArchiveManager struct {
 	mu        sync.RWMutex
 	archives  map[string]*Archive
@@ -72,7 +72,7 @@ type ArchiveManager struct {
 	exportMgr *ExportManager
 }
 
-// NewArchiveManager 创建归档管理器
+// NewArchiveManager 创建归档管理器.
 func NewArchiveManager(mgr *Manager, config ArchiveConfig) *ArchiveManager {
 	am := &ArchiveManager{
 		archives:  make(map[string]*Archive),
@@ -89,7 +89,7 @@ func NewArchiveManager(mgr *Manager, config ArchiveConfig) *ArchiveManager {
 	return am
 }
 
-// ArchiveProject 归档项目
+// ArchiveProject 归档项目.
 func (am *ArchiveManager) ArchiveProject(projectID, archivedBy string, deleteAfterArchive bool) (*Archive, error) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -176,7 +176,7 @@ func (am *ArchiveManager) ArchiveProject(projectID, archivedBy string, deleteAft
 	return archive, nil
 }
 
-// RestoreProject 恢复项目
+// RestoreProject 恢复项目.
 func (am *ArchiveManager) RestoreProject(archiveID, restoredBy string, options ImportOptions) (*ImportResult, error) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -218,7 +218,7 @@ func (am *ArchiveManager) RestoreProject(archiveID, restoredBy string, options I
 	return result, nil
 }
 
-// GetArchive 获取归档信息
+// GetArchive 获取归档信息.
 func (am *ArchiveManager) GetArchive(archiveID string) (*Archive, error) {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -230,7 +230,7 @@ func (am *ArchiveManager) GetArchive(archiveID string) (*Archive, error) {
 	return archive, nil
 }
 
-// ListArchives 列出归档
+// ListArchives 列出归档.
 func (am *ArchiveManager) ListArchives(status ArchiveStatus, limit, offset int) []*Archive {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -256,7 +256,7 @@ func (am *ArchiveManager) ListArchives(status ArchiveStatus, limit, offset int) 
 	return result[offset:end]
 }
 
-// DeleteArchive 删除归档
+// DeleteArchive 删除归档.
 func (am *ArchiveManager) DeleteArchive(archiveID string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -278,7 +278,7 @@ func (am *ArchiveManager) DeleteArchive(archiveID string) error {
 	return nil
 }
 
-// ExtendArchiveRetention 延长归档保留期
+// ExtendArchiveRetention 延长归档保留期.
 func (am *ArchiveManager) ExtendArchiveRetention(archiveID string, additionalDays int) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -296,7 +296,7 @@ func (am *ArchiveManager) ExtendArchiveRetention(archiveID string, additionalDay
 	return nil
 }
 
-// GetArchiveStats 获取归档统计
+// GetArchiveStats 获取归档统计.
 func (am *ArchiveManager) GetArchiveStats() ArchiveStats {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -318,7 +318,7 @@ func (am *ArchiveManager) GetArchiveStats() ArchiveStats {
 	return stats
 }
 
-// ArchiveStats 归档统计
+// ArchiveStats 归档统计.
 type ArchiveStats struct {
 	Total          int                   `json:"total"`
 	TotalSize      int64                 `json:"total_size"`
@@ -326,7 +326,7 @@ type ArchiveStats struct {
 	ByStatus       map[ArchiveStatus]int `json:"by_status"`
 }
 
-// CleanupExpiredArchives 清理过期归档
+// CleanupExpiredArchives 清理过期归档.
 func (am *ArchiveManager) CleanupExpiredArchives() ([]string, error) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -348,7 +348,7 @@ func (am *ArchiveManager) CleanupExpiredArchives() ([]string, error) {
 	return deleted, nil
 }
 
-// ExportArchive 导出归档文件
+// ExportArchive 导出归档文件.
 func (am *ArchiveManager) ExportArchive(archiveID string) ([]byte, error) {
 	archive, err := am.GetArchive(archiveID)
 	if err != nil {
@@ -358,7 +358,7 @@ func (am *ArchiveManager) ExportArchive(archiveID string) ([]byte, error) {
 	return os.ReadFile(archive.ArchivePath)
 }
 
-// GetArchivesByProject 获取项目的归档列表
+// GetArchivesByProject 获取项目的归档列表.
 func (am *ArchiveManager) GetArchivesByProject(projectID string) []*Archive {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -372,7 +372,7 @@ func (am *ArchiveManager) GetArchivesByProject(projectID string) []*Archive {
 	return result
 }
 
-// sortArchives 按时间排序归档
+// sortArchives 按时间排序归档.
 func (am *ArchiveManager) sortArchives(archives []*Archive) {
 	n := len(archives)
 	for i := 0; i < n-1; i++ {
@@ -384,7 +384,7 @@ func (am *ArchiveManager) sortArchives(archives []*Archive) {
 	}
 }
 
-// AutoArchive 自动归档（用于定时任务）
+// AutoArchive 自动归档（用于定时任务）.
 func (am *ArchiveManager) AutoArchive() ([]string, error) {
 	if am.config.AutoArchiveDays <= 0 {
 		return nil, nil
@@ -410,7 +410,7 @@ func (am *ArchiveManager) AutoArchive() ([]string, error) {
 	return archived, nil
 }
 
-// SaveArchives 保存归档索引
+// SaveArchives 保存归档索引.
 func (am *ArchiveManager) SaveArchives(path string) error {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -423,7 +423,7 @@ func (am *ArchiveManager) SaveArchives(path string) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// LoadArchives 加载归档索引
+// LoadArchives 加载归档索引.
 func (am *ArchiveManager) LoadArchives(path string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -439,5 +439,5 @@ func (am *ArchiveManager) LoadArchives(path string) error {
 	return json.Unmarshal(data, &am.archives)
 }
 
-// ErrArchiveNotFound 归档不存在错误
+// ErrArchiveNotFound 归档不存在错误.
 var ErrArchiveNotFound = errors.New("归档不存在")

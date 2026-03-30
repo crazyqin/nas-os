@@ -2,6 +2,7 @@ package system
 
 import (
 	"bufio"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -19,7 +20,7 @@ import (
 	_ "modernc.org/sqlite" // 纯 Go SQLite 驱动，自动注册 database/sql 驱动
 )
 
-// Monitor 系统监控器
+// Monitor 系统监控器.
 type Monitor struct {
 	hostname       string
 	db             *sql.DB
@@ -31,7 +32,7 @@ type Monitor struct {
 	historyEnabled bool
 }
 
-// Stats 系统统计信息
+// Stats 系统统计信息.
 type Stats struct {
 	CPUUsage      float64   `json:"cpuUsage"`
 	CPUCores      int       `json:"cpuCores"`
@@ -51,10 +52,10 @@ type Stats struct {
 }
 
 // SystemStats 是 Stats 的别名，保持向后兼容
-// Deprecated: Use Stats instead
+// Deprecated: Use Stats instead.
 type SystemStats = Stats //nolint:revive // 向后兼容别名
 
-// DiskStats 磁盘统计信息
+// DiskStats 磁盘统计信息.
 type DiskStats struct {
 	Device       string  `json:"device"`
 	MountPoint   string  `json:"mountPoint"`
@@ -69,7 +70,7 @@ type DiskStats struct {
 	WriteOps     uint64  `json:"writeOps,omitempty"`
 }
 
-// NetworkStats 网络统计信息
+// NetworkStats 网络统计信息.
 type NetworkStats struct {
 	Interface  string    `json:"interface"`
 	RXBytes    uint64    `json:"rxBytes"`
@@ -83,14 +84,14 @@ type NetworkStats struct {
 	LastUpdate time.Time `json:"lastUpdate"`
 }
 
-// NetworkSpeed 网络速度快照
+// NetworkSpeed 网络速度快照.
 type NetworkSpeed struct {
 	RXBytes uint64    `json:"rxBytes"`
 	TXBytes uint64    `json:"txBytes"`
 	Time    time.Time `json:"time"`
 }
 
-// SMARTInfo SMART 信息
+// SMARTInfo SMART 信息.
 type SMARTInfo struct {
 	Device       string `json:"device"`
 	Model        string `json:"model"`
@@ -104,7 +105,7 @@ type SMARTInfo struct {
 	Pending      uint64 `json:"pending"`
 }
 
-// ProcessInfo 进程信息
+// ProcessInfo 进程信息.
 type ProcessInfo struct {
 	PID      int     `json:"pid"`
 	Name     string  `json:"name"`
@@ -116,7 +117,7 @@ type ProcessInfo struct {
 	CPUTime  string  `json:"cpuTime"`
 }
 
-// HistoryData 历史数据点
+// HistoryData 历史数据点.
 type HistoryData struct {
 	Timestamp time.Time `json:"timestamp"`
 	CPU       float64   `json:"cpu"`
@@ -125,7 +126,7 @@ type HistoryData struct {
 	NetTX     uint64    `json:"netTX"`
 }
 
-// Alert 告警信息
+// Alert 告警信息.
 type Alert struct {
 	ID           string    `json:"id"`
 	Type         string    `json:"type"`
@@ -137,7 +138,7 @@ type Alert struct {
 	Resolved     bool      `json:"resolved"`
 }
 
-// RealTimeData 实时数据（WebSocket 推送）
+// RealTimeData 实时数据（WebSocket 推送）.
 type RealTimeData struct {
 	Type      string          `json:"type"`
 	System    *Stats          `json:"system,omitempty"`
@@ -147,7 +148,7 @@ type RealTimeData struct {
 	Timestamp time.Time       `json:"timestamp"`
 }
 
-// NewMonitor 创建监控器
+// NewMonitor 创建监控器.
 func NewMonitor(dbPath string) (*Monitor, error) {
 	hostname, _ := os.Hostname()
 
@@ -170,7 +171,7 @@ func NewMonitor(dbPath string) (*Monitor, error) {
 	return m, nil
 }
 
-// initDB 初始化 SQLite 数据库
+// initDB 初始化 SQLite 数据库.
 func (m *Monitor) initDB(dbPath string) error {
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
@@ -209,25 +210,25 @@ func (m *Monitor) initDB(dbPath string) error {
 	);
 	`
 
-	_, err = db.Exec(createTableSQL)
+	_, err = db.ExecContext(context.Background(), createTableSQL)
 	return err
 }
 
-// RegisterClient 注册 WebSocket 客户端
+// RegisterClient 注册 WebSocket 客户端.
 func (m *Monitor) RegisterClient(id string, conn *websocket.Conn) {
 	m.clientsMu.Lock()
 	defer m.clientsMu.Unlock()
 	m.clients[id] = conn
 }
 
-// UnregisterClient 注销 WebSocket 客户端
+// UnregisterClient 注销 WebSocket 客户端.
 func (m *Monitor) UnregisterClient(id string) {
 	m.clientsMu.Lock()
 	defer m.clientsMu.Unlock()
 	delete(m.clients, id)
 }
 
-// Broadcast 广播数据到所有客户端
+// Broadcast 广播数据到所有客户端.
 func (m *Monitor) Broadcast(data *RealTimeData) {
 	m.clientsMu.RLock()
 	defer m.clientsMu.RUnlock()
@@ -250,7 +251,7 @@ func (m *Monitor) Broadcast(data *RealTimeData) {
 	}
 }
 
-// startDataCollection 启动数据采集
+// startDataCollection 启动数据采集.
 func (m *Monitor) startDataCollection() {
 	ticker := time.NewTicker(m.dataInterval)
 	defer ticker.Stop()
@@ -269,7 +270,7 @@ func (m *Monitor) startDataCollection() {
 		case <-ticker.C:
 			// 采集系统数据
 			systemStats, _ := m.GetSystemStats()
-			diskStats, _ := m.GetDiskStats()
+			diskStats, _ := m.GetDiskStats(context.Background())
 			networkStats, _ := m.GetNetworkStats(prevNetStats)
 
 			// 计算磁盘 IO 速度
@@ -305,7 +306,7 @@ func (m *Monitor) startDataCollection() {
 	}
 }
 
-// calculateDiskIO 计算磁盘 IO 速度
+// calculateDiskIO 计算磁盘 IO 速度.
 func (m *Monitor) calculateDiskIO(disks []*DiskStats, prev map[string]struct {
 	ReadBytes  uint64
 	WriteBytes uint64
@@ -342,7 +343,7 @@ func (m *Monitor) calculateDiskIO(disks []*DiskStats, prev map[string]struct {
 	}
 }
 
-// GetSystemStats 获取系统统计信息
+// GetSystemStats 获取系统统计信息.
 func (m *Monitor) GetSystemStats() (*Stats, error) {
 	stats := &Stats{
 		Timestamp: time.Now(),
@@ -395,12 +396,12 @@ func (m *Monitor) GetSystemStats() (*Stats, error) {
 	return stats, nil
 }
 
-// GetDiskStats 获取磁盘统计信息
-func (m *Monitor) GetDiskStats() ([]*DiskStats, error) {
+// GetDiskStats 获取磁盘统计信息.
+func (m *Monitor) GetDiskStats(ctx context.Context) ([]*DiskStats, error) {
 	var stats []*DiskStats
 
 	// 使用 df 命令获取磁盘信息
-	cmd := exec.Command("df", "-B1", "--output=source,target,size,used,avail,fstype")
+	cmd := exec.CommandContext(ctx, "df", "-B1", "--output=source,target,size,used,avail,fstype")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取磁盘信息：%w", err)
@@ -444,7 +445,7 @@ func (m *Monitor) GetDiskStats() ([]*DiskStats, error) {
 	return stats, nil
 }
 
-// GetNetworkStats 获取网络统计信息
+// GetNetworkStats 获取网络统计信息.
 func (m *Monitor) GetNetworkStats(prev map[string]*NetworkSpeed) ([]*NetworkStats, error) {
 	var stats []*NetworkStats
 	now := time.Now()
@@ -512,8 +513,8 @@ func (m *Monitor) GetNetworkStats(prev map[string]*NetworkSpeed) ([]*NetworkStat
 	return stats, nil
 }
 
-// GetSMARTInfo 获取磁盘 SMART 信息
-func (m *Monitor) GetSMARTInfo(device string) (*SMARTInfo, error) {
+// GetSMARTInfo 获取磁盘 SMART 信息.
+func (m *Monitor) GetSMARTInfo(ctx context.Context, device string) (*SMARTInfo, error) {
 	info := &SMARTInfo{
 		Device: device,
 		Health: "UNKNOWN",
@@ -535,7 +536,7 @@ func (m *Monitor) GetSMARTInfo(device string) (*SMARTInfo, error) {
 
 	// 获取 SMART 信息
 	// #nosec G204 -- 设备路径已验证为 /dev/ 开头且不包含危险字符
-	cmd := exec.Command("smartctl", "-A", "-i", "-H", device)
+	cmd := exec.CommandContext(ctx, "smartctl", "-A", "-i", "-H", device)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取 SMART 信息：%w", err)
@@ -608,12 +609,12 @@ func (m *Monitor) GetSMARTInfo(device string) (*SMARTInfo, error) {
 	return info, nil
 }
 
-// CheckAllDisks 检查所有磁盘
-func (m *Monitor) CheckAllDisks() ([]*SMARTInfo, error) {
+// CheckAllDisks 检查所有磁盘.
+func (m *Monitor) CheckAllDisks(ctx context.Context) ([]*SMARTInfo, error) {
 	var results []*SMARTInfo
 
 	// 列出所有块设备
-	cmd := exec.Command("lsblk", "-d", "-n", "-o", "NAME")
+	cmd := exec.CommandContext(ctx, "lsblk", "-d", "-n", "-o", "NAME")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出磁盘：%w", err)
@@ -623,7 +624,7 @@ func (m *Monitor) CheckAllDisks() ([]*SMARTInfo, error) {
 	for scanner.Scan() {
 		device := "/dev/" + strings.TrimSpace(scanner.Text())
 		if strings.HasPrefix(device, "/dev/sd") || strings.HasPrefix(device, "/dev/nvme") {
-			info, err := m.GetSMARTInfo(device)
+			info, err := m.GetSMARTInfo(ctx, device)
 			if err == nil {
 				results = append(results, info)
 			}
@@ -633,13 +634,13 @@ func (m *Monitor) CheckAllDisks() ([]*SMARTInfo, error) {
 	return results, nil
 }
 
-// GetTopProcesses 获取资源占用 Top10 进程
-func (m *Monitor) GetTopProcesses(limit int) ([]*ProcessInfo, error) {
+// GetTopProcesses 获取资源占用 Top10 进程.
+func (m *Monitor) GetTopProcesses(ctx context.Context, limit int) ([]*ProcessInfo, error) {
 	if limit <= 0 {
 		limit = 10
 	}
 
-	cmd := exec.Command("ps", "aux", "--sort=-%cpu")
+	cmd := exec.CommandContext(ctx, "ps", "aux", "--sort=-%cpu")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取进程列表：%w", err)
@@ -680,7 +681,7 @@ func (m *Monitor) GetTopProcesses(limit int) ([]*ProcessInfo, error) {
 	return processes, nil
 }
 
-// GetHistoryData 获取历史数据
+// GetHistoryData 获取历史数据.
 func (m *Monitor) GetHistoryData(duration string, interval string) ([]*HistoryData, error) {
 	var timeRange string
 	switch duration {
@@ -701,7 +702,7 @@ func (m *Monitor) GetHistoryData(duration string, interval string) ([]*HistoryDa
 	ORDER BY timestamp ASC
 	`
 
-	rows, err := m.db.Query(query, timeRange)
+	rows, err := m.db.QueryContext(context.Background(), query, timeRange)
 	if err != nil {
 		return nil, err
 	}
@@ -723,11 +724,11 @@ func (m *Monitor) GetHistoryData(duration string, interval string) ([]*HistoryDa
 	return data, rows.Err()
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *Monitor) GetAlerts() ([]*Alert, error) {
 	query := `SELECT id, type, level, message, source, timestamp, acknowledged, resolved FROM alerts ORDER BY timestamp DESC`
 
-	rows, err := m.db.Query(query)
+	rows, err := m.db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -749,24 +750,24 @@ func (m *Monitor) GetAlerts() ([]*Alert, error) {
 	return alerts, rows.Err()
 }
 
-// AddAlert 添加告警
+// AddAlert 添加告警.
 func (m *Monitor) AddAlert(alert *Alert) error {
 	query := `INSERT OR REPLACE INTO alerts (id, type, level, message, source, timestamp, acknowledged, resolved) 
 			  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 
-	_, err := m.db.Exec(query, alert.ID, alert.Type, alert.Level, alert.Message, alert.Source,
+	_, err := m.db.ExecContext(context.Background(), query, alert.ID, alert.Type, alert.Level, alert.Message, alert.Source,
 		alert.Timestamp, boolToInt(alert.Acknowledged), boolToInt(alert.Resolved))
 	return err
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (m *Monitor) AcknowledgeAlert(id string) error {
 	query := `UPDATE alerts SET acknowledged = 1 WHERE id = ?`
-	_, err := m.db.Exec(query, id)
+	_, err := m.db.ExecContext(context.Background(), query, id)
 	return err
 }
 
-// saveHistoryData 保存历史数据
+// saveHistoryData 保存历史数据.
 func (m *Monitor) saveHistoryData(system *Stats, network []*NetworkStats) {
 	m.historyMu.Lock()
 	defer m.historyMu.Unlock()
@@ -786,7 +787,7 @@ func (m *Monitor) saveHistoryData(system *Stats, network []*NetworkStats) {
 			  net_rx_bytes, net_tx_bytes, net_rx_speed, net_tx_speed) 
 			  VALUES (?, ?, ?, ?, ?, 0, 0, ?, ?)`
 
-	_, err := m.db.Exec(query, system.Timestamp, system.CPUUsage, system.MemoryUsage,
+	_, err := m.db.ExecContext(context.Background(), query, system.Timestamp, system.CPUUsage, system.MemoryUsage,
 		system.MemoryTotal, system.MemoryUsed, netRX, netTX)
 
 	if err != nil {
@@ -798,15 +799,15 @@ func (m *Monitor) saveHistoryData(system *Stats, network []*NetworkStats) {
 	m.cleanupOldData()
 }
 
-// cleanupOldData 清理旧数据
+// cleanupOldData 清理旧数据.
 func (m *Monitor) cleanupOldData() {
-	_, err := m.db.Exec(`DELETE FROM system_history WHERE timestamp < datetime('now', '-90 days')`)
+	_, err := m.db.ExecContext(context.Background(), `DELETE FROM system_history WHERE timestamp < datetime('now', '-90 days')`)
 	if err != nil {
 		return
 	}
 }
 
-// 辅助函数
+// 辅助函数.
 func (m *Monitor) getCPUUsage() (float64, error) {
 	data, err := os.ReadFile("/proc/stat")
 	if err != nil {
@@ -967,12 +968,12 @@ func (m *Monitor) getLoadAverage() ([]float64, error) {
 	return loadAvg, nil
 }
 
-// GetHostname 获取主机名
+// GetHostname 获取主机名.
 func (m *Monitor) GetHostname() string {
 	return m.hostname
 }
 
-// Close 关闭监控器
+// Close 关闭监控器.
 func (m *Monitor) Close() {
 	close(m.stopChan)
 	if m.db != nil {

@@ -10,7 +10,7 @@ import (
 
 // ========== 高可用集成测试 ==========
 
-// NodeState 节点状态
+// NodeState 节点状态.
 type NodeState string
 
 const (
@@ -19,7 +19,7 @@ const (
 	NodeStateLeader    NodeState = "leader"
 )
 
-// HANode 高可用节点
+// HANode 高可用节点.
 type HANode struct {
 	mu          sync.RWMutex
 	ID          string
@@ -79,7 +79,7 @@ func (n *HANode) GetState() NodeState {
 	return n.State
 }
 
-// HACluster 高可用集群
+// HACluster 高可用集群.
 type HACluster struct {
 	mu     sync.RWMutex
 	nodes  map[string]*HANode
@@ -140,7 +140,7 @@ func (c *HACluster) IncrementTerm() uint64 {
 	return c.term
 }
 
-// TestLeaderElection 测试 Leader 选举
+// TestLeaderElection 测试 Leader 选举.
 func TestLeaderElection(t *testing.T) {
 	cluster := NewHACluster()
 
@@ -178,7 +178,7 @@ func TestLeaderElection(t *testing.T) {
 	}
 }
 
-// TestHeartbeat 测试心跳
+// TestHeartbeat 测试心跳.
 func TestHeartbeat(t *testing.T) {
 	cluster := NewHACluster()
 
@@ -207,7 +207,7 @@ func TestHeartbeat(t *testing.T) {
 	}
 }
 
-// TestFailover 测试故障转移
+// TestFailover 测试故障转移.
 func TestFailover(t *testing.T) {
 	cluster := NewHACluster()
 
@@ -236,7 +236,7 @@ func TestFailover(t *testing.T) {
 	}
 }
 
-// TestNodeRecovery 测试节点恢复
+// TestNodeRecovery 测试节点恢复.
 func TestNodeRecovery(t *testing.T) {
 	cluster := NewHACluster()
 
@@ -259,7 +259,7 @@ func TestNodeRecovery(t *testing.T) {
 	}
 }
 
-// TestConcurrentElection 测试并发选举
+// TestConcurrentElection 测试并发选举.
 func TestConcurrentElection(t *testing.T) {
 	cluster := NewHACluster()
 
@@ -284,7 +284,7 @@ func TestConcurrentElection(t *testing.T) {
 	}
 }
 
-// TestHeartbeatTimeout 测试心跳超时检测
+// TestHeartbeatTimeout 测试心跳超时检测.
 func TestHeartbeatTimeout(t *testing.T) {
 	follower := NewHANode("follower", "192.168.1.1:8080")
 	follower.LastContact = time.Now().Add(-500 * time.Millisecond)
@@ -296,7 +296,7 @@ func TestHeartbeatTimeout(t *testing.T) {
 	}
 }
 
-// TestClusterQuorum 测试集群仲裁
+// TestClusterQuorum 测试集群仲裁.
 func TestClusterQuorum(t *testing.T) {
 	testCases := []struct {
 		nodeCount int
@@ -328,7 +328,7 @@ func TestClusterQuorum(t *testing.T) {
 	}
 }
 
-// TestHAWithContext 测试带上下文的操作
+// TestHAWithContext 测试带上下文的操作.
 func TestHAWithContext(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 	defer cancel()
@@ -346,7 +346,7 @@ func TestHAWithContext(t *testing.T) {
 	}
 }
 
-// BenchmarkLeaderElection Leader 选举基准测试
+// BenchmarkLeaderElection Leader 选举基准测试.
 func BenchmarkLeaderElection(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		cluster := NewHACluster()
@@ -360,7 +360,7 @@ func BenchmarkLeaderElection(b *testing.B) {
 	}
 }
 
-// BenchmarkHeartbeat 心跳基准测试
+// BenchmarkHeartbeat 心跳基准测试.
 func BenchmarkHeartbeat(b *testing.B) {
 	leader := NewHANode("leader", "192.168.1.1:8080")
 	follower := NewHANode("follower", "192.168.1.2:8080")

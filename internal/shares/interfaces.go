@@ -6,7 +6,7 @@ import (
 	"nas-os/internal/smb"
 )
 
-// SMBManager 定义 SMB 管理器接口
+// SMBManager 定义 SMB 管理器接口.
 type SMBManager interface {
 	ListShares() ([]*smb.Share, error)
 	GetShare(name string) (*smb.Share, error)
@@ -34,7 +34,7 @@ type SMBManager interface {
 	GetSharePath(name string) string
 }
 
-// NFSManager 定义 NFS 管理器接口
+// NFSManager 定义 NFS 管理器接口.
 type NFSManager interface {
 	ListExports() ([]*nfs.Export, error)
 	GetExport(path string) (*nfs.Export, error)

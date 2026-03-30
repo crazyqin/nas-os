@@ -12,25 +12,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CreateDashboardRequest 创建仪表板请求
+// CreateDashboardRequest 创建仪表板请求.
 type CreateDashboardRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
 }
 
-// UpdateDashboardRequest 更新仪表板请求
+// UpdateDashboardRequest 更新仪表板请求.
 type UpdateDashboardRequest struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	Layout      *dashboard.Layout `json:"layout"`
 }
 
-// CloneDashboardRequest 克隆仪表板请求
+// CloneDashboardRequest 克隆仪表板请求.
 type CloneDashboardRequest struct {
 	Name string `json:"name" binding:"required"`
 }
 
-// AddWidgetRequest 添加小组件请求
+// AddWidgetRequest 添加小组件请求.
 type AddWidgetRequest struct {
 	Type        dashboard.WidgetType     `json:"type" binding:"required"`
 	Title       string                   `json:"title"`
@@ -40,7 +40,7 @@ type AddWidgetRequest struct {
 	RefreshRate int                      `json:"refreshRate"`
 }
 
-// UpdateWidgetRequest 更新小组件请求
+// UpdateWidgetRequest 更新小组件请求.
 type UpdateWidgetRequest struct {
 	Title       string                    `json:"title"`
 	Size        dashboard.WidgetSize      `json:"size"`
@@ -50,25 +50,25 @@ type UpdateWidgetRequest struct {
 	RefreshRate int                       `json:"refreshRate"`
 }
 
-// UpdatePositionRequest 更新位置请求
+// UpdatePositionRequest 更新位置请求.
 type UpdatePositionRequest struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
-// LayoutRequest 布局请求
+// LayoutRequest 布局请求.
 type LayoutRequest struct {
 	Columns int `json:"columns"`
 	Rows    int `json:"rows"`
 }
 
-// CreateFromTemplateRequest 从模板创建请求
+// CreateFromTemplateRequest 从模板创建请求.
 type CreateFromTemplateRequest struct {
 	TemplateID string `json:"templateId" binding:"required"`
 	Name       string `json:"name"`
 }
 
-// DashboardHandlers Dashboard API 处理器
+// DashboardHandlers Dashboard API 处理器.
 type DashboardHandlers struct {
 	manager    *dashboard.Manager
 	monitorMgr *monitor.Manager
@@ -77,7 +77,7 @@ type DashboardHandlers struct {
 	}
 }
 
-// NewDashboardHandlers 创建 Dashboard 处理器
+// NewDashboardHandlers 创建 Dashboard 处理器.
 func NewDashboardHandlers(mgr *dashboard.Manager, monitorMgr *monitor.Manager, wsHub interface {
 	Broadcast(msgType string, data interface{}) error
 }) *DashboardHandlers {
@@ -88,7 +88,7 @@ func NewDashboardHandlers(mgr *dashboard.Manager, monitorMgr *monitor.Manager, w
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *DashboardHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	dashboards := r.Group("/dashboards")
 	{
@@ -141,7 +141,7 @@ func (h *DashboardHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Tags dashboard
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards [get]
+// @Router /dashboards [get].
 func (h *DashboardHandlers) ListDashboards(c *gin.Context) {
 	dashboards := h.manager.ListDashboards()
 
@@ -160,7 +160,7 @@ func (h *DashboardHandlers) ListDashboards(c *gin.Context) {
 // @Produce json
 // @Param request body CreateDashboardRequest true "仪表板参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards [post]
+// @Router /dashboards [post].
 func (h *DashboardHandlers) CreateDashboard(c *gin.Context) {
 	var req struct {
 		Name        string `json:"name" binding:"required"`
@@ -198,7 +198,7 @@ func (h *DashboardHandlers) CreateDashboard(c *gin.Context) {
 // @Produce json
 // @Param id path string true "仪表板ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id} [get]
+// @Router /dashboards/{id} [get].
 func (h *DashboardHandlers) GetDashboard(c *gin.Context) {
 	id := c.Param("id")
 
@@ -227,7 +227,7 @@ func (h *DashboardHandlers) GetDashboard(c *gin.Context) {
 // @Param id path string true "仪表板ID"
 // @Param request body UpdateDashboardRequest true "更新参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id} [put]
+// @Router /dashboards/{id} [put].
 func (h *DashboardHandlers) UpdateDashboard(c *gin.Context) {
 	id := c.Param("id")
 
@@ -285,7 +285,7 @@ func (h *DashboardHandlers) UpdateDashboard(c *gin.Context) {
 // @Tags dashboard
 // @Param id path string true "仪表板ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id} [delete]
+// @Router /dashboards/{id} [delete].
 func (h *DashboardHandlers) DeleteDashboard(c *gin.Context) {
 	id := c.Param("id")
 
@@ -312,7 +312,7 @@ func (h *DashboardHandlers) DeleteDashboard(c *gin.Context) {
 // @Param id path string true "仪表板ID"
 // @Param request body CloneDashboardRequest true "克隆参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/clone [post]
+// @Router /dashboards/{id}/clone [post].
 func (h *DashboardHandlers) CloneDashboard(c *gin.Context) {
 	id := c.Param("id")
 
@@ -351,7 +351,7 @@ func (h *DashboardHandlers) CloneDashboard(c *gin.Context) {
 // @Produce json
 // @Param id path string true "仪表板ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/widgets [get]
+// @Router /dashboards/{id}/widgets [get].
 func (h *DashboardHandlers) GetWidgets(c *gin.Context) {
 	id := c.Param("id")
 
@@ -380,7 +380,7 @@ func (h *DashboardHandlers) GetWidgets(c *gin.Context) {
 // @Param id path string true "仪表板ID"
 // @Param request body AddWidgetRequest true "小组件参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/widgets [post]
+// @Router /dashboards/{id}/widgets [post].
 func (h *DashboardHandlers) AddWidget(c *gin.Context) {
 	id := c.Param("id")
 
@@ -445,7 +445,7 @@ func (h *DashboardHandlers) AddWidget(c *gin.Context) {
 // @Param widgetId path string true "小组件ID"
 // @Param request body UpdateWidgetRequest true "更新参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/widgets/{widgetId} [put]
+// @Router /dashboards/{id}/widgets/{widgetId} [put].
 func (h *DashboardHandlers) UpdateWidget(c *gin.Context) {
 	dashboardID := c.Param("id")
 	widgetID := c.Param("widgetId")
@@ -533,7 +533,7 @@ func (h *DashboardHandlers) UpdateWidget(c *gin.Context) {
 // @Param id path string true "仪表板ID"
 // @Param widgetId path string true "小组件ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/widgets/{widgetId} [delete]
+// @Router /dashboards/{id}/widgets/{widgetId} [delete].
 func (h *DashboardHandlers) RemoveWidget(c *gin.Context) {
 	dashboardID := c.Param("id")
 	widgetID := c.Param("widgetId")
@@ -562,7 +562,7 @@ func (h *DashboardHandlers) RemoveWidget(c *gin.Context) {
 // @Param widgetId path string true "小组件ID"
 // @Param request body UpdatePositionRequest true "位置参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/widgets/{widgetId}/position [put]
+// @Router /dashboards/{id}/widgets/{widgetId}/position [put].
 func (h *DashboardHandlers) UpdateWidgetPosition(c *gin.Context) {
 	dashboardID := c.Param("id")
 	widgetID := c.Param("widgetId")
@@ -628,7 +628,7 @@ func (h *DashboardHandlers) UpdateWidgetPosition(c *gin.Context) {
 // @Produce json
 // @Param id path string true "仪表板ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/layout [get]
+// @Router /dashboards/{id}/layout [get].
 func (h *DashboardHandlers) GetLayout(c *gin.Context) {
 	id := c.Param("id")
 
@@ -657,7 +657,7 @@ func (h *DashboardHandlers) GetLayout(c *gin.Context) {
 // @Param id path string true "仪表板ID"
 // @Param request body LayoutRequest true "布局参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/layout [put]
+// @Router /dashboards/{id}/layout [put].
 func (h *DashboardHandlers) UpdateLayout(c *gin.Context) {
 	id := c.Param("id")
 
@@ -714,7 +714,7 @@ func (h *DashboardHandlers) UpdateLayout(c *gin.Context) {
 // @Tags dashboard
 // @Param id path string true "仪表板ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/layout/reset [post]
+// @Router /dashboards/{id}/layout/reset [post].
 func (h *DashboardHandlers) ResetLayout(c *gin.Context) {
 	id := c.Param("id")
 
@@ -765,7 +765,7 @@ func (h *DashboardHandlers) ResetLayout(c *gin.Context) {
 // @Produce json
 // @Param id path string true "仪表板ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/state [get]
+// @Router /dashboards/{id}/state [get].
 func (h *DashboardHandlers) GetDashboardState(c *gin.Context) {
 	id := c.Param("id")
 
@@ -793,7 +793,7 @@ func (h *DashboardHandlers) GetDashboardState(c *gin.Context) {
 // @Param id path string true "仪表板ID"
 // @Param widgetId path string true "小组件ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/widgets/{widgetId}/data [get]
+// @Router /dashboards/{id}/widgets/{widgetId}/data [get].
 func (h *DashboardHandlers) GetWidgetData(c *gin.Context) {
 	dashboardID := c.Param("id")
 	widgetID := c.Param("widgetId")
@@ -820,7 +820,7 @@ func (h *DashboardHandlers) GetWidgetData(c *gin.Context) {
 // @Tags dashboard
 // @Param id path string true "仪表板ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/{id}/refresh [post]
+// @Router /dashboards/{id}/refresh [post].
 func (h *DashboardHandlers) RefreshDashboard(c *gin.Context) {
 	id := c.Param("id")
 
@@ -848,7 +848,7 @@ func (h *DashboardHandlers) RefreshDashboard(c *gin.Context) {
 // @Produce json
 // @Param id path string true "仪表板ID"
 // @Success 200 {string} string "JSON配置"
-// @Router /dashboards/{id}/export [get]
+// @Router /dashboards/{id}/export [get].
 func (h *DashboardHandlers) ExportDashboard(c *gin.Context) {
 	id := c.Param("id")
 
@@ -872,7 +872,7 @@ func (h *DashboardHandlers) ExportDashboard(c *gin.Context) {
 // @Produce json
 // @Param request body string true "仪表板JSON配置"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/import [post]
+// @Router /dashboards/import [post].
 func (h *DashboardHandlers) ImportDashboard(c *gin.Context) {
 	data, err := c.GetRawData()
 	if err != nil {
@@ -905,7 +905,7 @@ func (h *DashboardHandlers) ImportDashboard(c *gin.Context) {
 // @Tags dashboard
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/templates [get]
+// @Router /dashboards/templates [get].
 func (h *DashboardHandlers) GetTemplates(c *gin.Context) {
 	templates := []map[string]interface{}{
 		{
@@ -943,7 +943,7 @@ func (h *DashboardHandlers) GetTemplates(c *gin.Context) {
 // @Produce json
 // @Param request body CreateFromTemplateRequest true "模板参数"
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboards/from-template [post]
+// @Router /dashboards/from-template [post].
 func (h *DashboardHandlers) CreateFromTemplate(c *gin.Context) {
 	var req struct {
 		TemplateID string `json:"templateId" binding:"required"`
@@ -1009,7 +1009,7 @@ func (h *DashboardHandlers) CreateFromTemplate(c *gin.Context) {
 // @Tags dashboard
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboard/default [get]
+// @Router /dashboard/default [get].
 func (h *DashboardHandlers) GetDefaultDashboard(c *gin.Context) {
 	dashboards := h.manager.ListDashboards()
 
@@ -1047,7 +1047,7 @@ func (h *DashboardHandlers) GetDefaultDashboard(c *gin.Context) {
 // @Tags dashboard
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboard/stats [get]
+// @Router /dashboard/stats [get].
 func (h *DashboardHandlers) GetDashboardStats(c *gin.Context) {
 	dashboards := h.manager.ListDashboards()
 
@@ -1072,7 +1072,7 @@ func (h *DashboardHandlers) GetDashboardStats(c *gin.Context) {
 // @Tags dashboard
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /dashboard/widgets/types [get]
+// @Router /dashboard/widgets/types [get].
 func (h *DashboardHandlers) GetWidgetTypes(c *gin.Context) {
 	types := h.manager.GetWidgetTypes()
 
@@ -1096,7 +1096,7 @@ func (h *DashboardHandlers) GetWidgetTypes(c *gin.Context) {
 // @Summary Dashboard WebSocket
 // @Description WebSocket 实时数据推送
 // @Tags dashboard
-// @Router /dashboard/ws [get]
+// @Router /dashboard/ws [get].
 func (h *DashboardHandlers) HandleDashboardWebSocket(c *gin.Context) {
 	// 这里应该使用现有的 WebSocket Hub
 	// 暂时返回提示

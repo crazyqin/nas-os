@@ -1,18 +1,21 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 )
 
-// AppTemplate 应用模板
+// AppTemplate 应用模板.
 type AppTemplate struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -29,40 +32,9 @@ type AppTemplate struct {
 	Notes       string            `json:"notes"`
 	Website     string            `json:"website"`
 	Source      string            `json:"source"`
-	// 版本管理相关字段
-	VersionHistory   []TemplateVersion `json:"versionHistory,omitempty"`
-	CurrentVersion   string            `json:"currentVersion"`
-	MinNASVersion    string            `json:"minNasVersion,omitempty"`
-	Changelog        string            `json:"changelog,omitempty"`
-	UpdateURL        string            `json:"updateUrl,omitempty"`
-	AutoUpdate       bool              `json:"autoUpdate"`
-	LastCheckedAt    time.Time         `json:"lastCheckedAt,omitempty"`
-	AvailableUpdate  string            `json:"availableUpdate,omitempty"`
-	SupportedArchs   []string          `json:"supportedArchs,omitempty"`
-	Requirements     *AppRequirements  `json:"requirements,omitempty"`
 }
 
-// TemplateVersion 模板版本信息
-type TemplateVersion struct {
-	Version      string    `json:"version"`
-	ImageTag     string    `json:"imageTag"`
-	ReleaseNotes string    `json:"releaseNotes"`
-	PublishedAt  time.Time `json:"publishedAt"`
-	Digest       string    `json:"digest"`
-	Deprecated   bool      `json:"deprecated"`
-	MinVersion   string    `json:"minVersion,omitempty"` // 最低兼容版本
-}
-
-// AppRequirements 应用系统要求
-type AppRequirements struct {
-	MinCPU     int    `json:"minCpu"`     // 最小 CPU 核心数
-	MinMemory  int64  `json:"minMemory"`  // 最小内存 (MB)
-	MinStorage int64  `json:"minStorage"` // 最小存储 (MB)
-	GPU        bool   `json:"gpu"`        // 是否需要 GPU
-	Ports      []int  `json:"ports"`      // 需要开放的端口
-}
-
-// PortConfig 端口配置
+// PortConfig 端口配置.
 type PortConfig struct {
 	Port        int    `json:"port"`
 	Protocol    string `json:"protocol"`
@@ -70,14 +42,14 @@ type PortConfig struct {
 	Default     int    `json:"default"` // 默认主机端口
 }
 
-// VolumeConfig 卷配置
+// VolumeConfig 卷配置.
 type VolumeConfig struct {
 	ContainerPath string `json:"containerPath"`
 	Description   string `json:"description"`
 	Default       string `json:"default"` // 默认主机路径
 }
 
-// InstalledApp 已安装应用
+// InstalledApp 已安装应用.
 type InstalledApp struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -91,91 +63,11 @@ type InstalledApp struct {
 	Environment map[string]string `json:"environment"`
 	ContainerID string            `json:"containerId"`
 	ComposePath string            `json:"composePath"`
-	// 版本管理
-	InstalledVersion string    `json:"installedVersion"`
-	LastUpdateTime   time.Time `json:"lastUpdateTime"`
-	AutoUpdate       bool      `json:"autoUpdate"`
-	// 备份信息
-	LastBackupTime time.Time `json:"lastBackupTime,omitempty"`
-	BackupCount     int       `json:"backupCount"`
 }
 
-// AppBackup 应用备份
-type AppBackup struct {
-	ID           string            `json:"id"`
-	AppID        string            `json:"appId"`
-	AppName      string            `json:"appName"`
-	TemplateName string            `json:"templateName"`
-	Version      string            `json:"version"`
-	CreatedAt    time.Time         `json:"createdAt"`
-	Size         int64             `json:"size"`
-	Path         string            `json:"path"`
-	Type         string            `json:"type"` // "full", "config", "data"
-	Description  string            `json:"description"`
-	Includes     []string          `json:"includes"`
-	Config       map[string]string `json:"config,omitempty"`   // 配置快照
-	VolumePaths  map[string]string `json:"volumePaths"`        // 卷路径映射
-	ComposeFile  string            `json:"composeFile"`        // compose 文件内容
-	Checksum     string            `json:"checksum"`           // 校验和
-	Compressed   bool              `json:"compressed"`         // 是否压缩
-}
-
-// BackupManager 备份管理器
-type BackupManager struct {
-	store      *AppStore
-	backupDir  string
-	backups    map[string]*AppBackup
-	dataFile   string
-	maxBackups int // 最大备份数量
-}
-
-// NewBackupManager 创建备份管理器
-func NewBackupManager(store *AppStore, dataDir string) (*BackupManager, error) {
-	backupDir := filepath.Join(dataDir, "app-backups")
-	dataFile := filepath.Join(dataDir, "backups.json")
-
-	bm := &BackupManager{
-		store:      store,
-		backupDir:  backupDir,
-		dataFile:   dataFile,
-		backups:    make(map[string]*AppBackup),
-		maxBackups: 10, // 默认保留最近10个备份
-	}
-
-	if err := os.MkdirAll(backupDir, 0750); err != nil {
-		return nil, err
-	}
-
-	if err := bm.loadBackups(); err != nil {
-		fmt.Printf("加载备份列表失败: %v\n", err)
-	}
-
-	return bm, nil
-}
-
-// UpdateCheckResult 更新检测结果
-type UpdateCheckResult struct {
-	AppID           string    `json:"appId"`
-	AppName         string    `json:"appName"`
-	CurrentVersion  string    `json:"currentVersion"`
-	LatestVersion   string    `json:"latestVersion"`
-	HasUpdate       bool      `json:"hasUpdate"`
-	UpdateAvailable bool      `json:"updateAvailable"`
-	ReleaseNotes    string    `json:"releaseNotes"`
-	CheckedAt       time.Time `json:"checkedAt"`
-	ImageDigest     string    `json:"imageDigest"`
-	Size            int64     `json:"size"`
-	Critical        bool      `json:"critical"` // 是否为关键更新
-}
-
-// UpdateAPI 更新检测 API 响应
-type UpdateAPI struct {
-	Store         *AppStore
-	backupManager *BackupManager
-}
-
-// AppStore 应用商店
+// AppStore 应用商店.
 type AppStore struct {
+	mu          sync.RWMutex
 	manager     *Manager
 	templateDir string
 	installDir  string
@@ -184,7 +76,7 @@ type AppStore struct {
 	installed   map[string]*InstalledApp
 }
 
-// NewAppStore 创建应用商店
+// NewAppStore 创建应用商店.
 func NewAppStore(mgr *Manager, dataDir string) (*AppStore, error) {
 	templateDir := filepath.Join(dataDir, "app-templates")
 	installDir := filepath.Join(dataDir, "apps")
@@ -219,7 +111,7 @@ func NewAppStore(mgr *Manager, dataDir string) (*AppStore, error) {
 	return store, nil
 }
 
-// loadBuiltinTemplates 加载内置模板
+// loadBuiltinTemplates 加载内置模板.
 func (s *AppStore) loadBuiltinTemplates() {
 	templates := []*AppTemplate{
 		{
@@ -656,7 +548,7 @@ services:
 	}
 }
 
-// loadInstalled 加载已安装应用
+// loadInstalled 加载已安装应用.
 func (s *AppStore) loadInstalled() error {
 	data, err := os.ReadFile(s.dataFile)
 	if err != nil {
@@ -674,7 +566,7 @@ func (s *AppStore) loadInstalled() error {
 	return nil
 }
 
-// saveInstalled 保存已安装应用
+// saveInstalled 保存已安装应用.
 func (s *AppStore) saveInstalled() error {
 	apps := make([]*InstalledApp, 0, len(s.installed))
 	for _, app := range s.installed {
@@ -689,8 +581,10 @@ func (s *AppStore) saveInstalled() error {
 	return os.WriteFile(s.dataFile, data, 0640)
 }
 
-// ListTemplates 列出所有模板
+// ListTemplates 列出所有模板.
 func (s *AppStore) ListTemplates() []*AppTemplate {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	result := make([]*AppTemplate, 0, len(s.templates))
 	for _, t := range s.templates {
 		result = append(result, t)
@@ -698,13 +592,17 @@ func (s *AppStore) ListTemplates() []*AppTemplate {
 	return result
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (s *AppStore) GetTemplate(id string) *AppTemplate {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	return s.templates[id]
 }
 
-// ListInstalled 列出已安装应用
+// ListInstalled 列出已安装应用.
 func (s *AppStore) ListInstalled() []*InstalledApp {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	result := make([]*InstalledApp, 0, len(s.installed))
 	for _, app := range s.installed {
 		// 更新状态
@@ -718,8 +616,10 @@ func (s *AppStore) ListInstalled() []*InstalledApp {
 	return result
 }
 
-// GetInstalled 获取已安装应用
+// GetInstalled 获取已安装应用.
 func (s *AppStore) GetInstalled(id string) *InstalledApp {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	app, ok := s.installed[id]
 	if !ok {
 		return nil
@@ -731,8 +631,11 @@ func (s *AppStore) GetInstalled(id string) *InstalledApp {
 	return app
 }
 
-// InstallApp 安装应用
+// InstallApp 安装应用.
 func (s *AppStore) InstallApp(templateID string, config map[string]interface{}) (*InstalledApp, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	template, ok := s.templates[templateID]
 	if !ok {
 		return nil, fmt.Errorf("模板不存在: %s", templateID)
@@ -795,7 +698,7 @@ func (s *AppStore) InstallApp(templateID string, config map[string]interface{}) 
 	}
 
 	// 使用 docker-compose 启动
-	cmd := exec.Command("docker-compose", "-f", composePath, "up", "-d")
+	cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", composePath, "up", "-d")
 	cmd.Dir = appDir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -836,7 +739,7 @@ func (s *AppStore) InstallApp(templateID string, config map[string]interface{}) 
 	return app, nil
 }
 
-// renderCompose 渲染 Docker Compose 模板
+// renderCompose 渲染 Docker Compose 模板.
 func (s *AppStore) renderCompose(template *AppTemplate, config map[string]interface{}) string {
 	compose := template.Compose
 	if compose == "" {
@@ -876,9 +779,9 @@ func (s *AppStore) renderCompose(template *AppTemplate, config map[string]interf
 	return compose
 }
 
-// generateDefaultCompose 生成默认 compose
+// generateDefaultCompose 生成默认 compose.
 func (s *AppStore) generateDefaultCompose(template *AppTemplate, config map[string]interface{}) string {
-	var ports []string
+	ports := make([]string, 0, len(template.Ports))
 	for _, port := range template.Ports {
 		hostPort := port.Default
 		if val, ok := config[fmt.Sprintf("port_%d", port.Port)].(float64); ok {
@@ -887,7 +790,7 @@ func (s *AppStore) generateDefaultCompose(template *AppTemplate, config map[stri
 		ports = append(ports, fmt.Sprintf("      - \"%d:%d\"", hostPort, port.Port))
 	}
 
-	var volumes []string
+	volumes := make([]string, 0, len(template.Volumes))
 	for _, vol := range template.Volumes {
 		hostPath := vol.Default
 		if val, ok := config[fmt.Sprintf("vol_%s", strings.ReplaceAll(vol.ContainerPath, "/", "_"))].(string); ok && val != "" {
@@ -896,7 +799,7 @@ func (s *AppStore) generateDefaultCompose(template *AppTemplate, config map[stri
 		volumes = append(volumes, fmt.Sprintf("      - %s:%s", hostPath, vol.ContainerPath))
 	}
 
-	var env []string
+	env := make([]string, 0, len(template.Environment))
 	for k, v := range template.Environment {
 		env = append(env, fmt.Sprintf("      - %s=%s", k, v))
 	}
@@ -916,8 +819,11 @@ services:
 `, template.Name, template.Image, template.Name, strings.Join(ports, "\n"), strings.Join(volumes, "\n"), strings.Join(env, "\n"))
 }
 
-// UninstallApp 卸载应用
+// UninstallApp 卸载应用.
 func (s *AppStore) UninstallApp(id string, removeData bool) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	app, ok := s.installed[id]
 	if !ok {
 		return fmt.Errorf("应用未安装: %s", id)
@@ -925,7 +831,7 @@ func (s *AppStore) UninstallApp(id string, removeData bool) error {
 
 	// 停止并删除容器
 	if app.ComposePath != "" {
-		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "down")
+		cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", app.ComposePath, "down")
 		if err := cmd.Run(); err != nil {
 			log.Printf("docker-compose down 失败: %v", err)
 		}
@@ -950,15 +856,18 @@ func (s *AppStore) UninstallApp(id string, removeData bool) error {
 	return nil
 }
 
-// StartApp 启动应用
+// StartApp 启动应用.
 func (s *AppStore) StartApp(id string) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	app, ok := s.installed[id]
 	if !ok {
 		return fmt.Errorf("应用未安装: %s", id)
 	}
 
 	if app.ComposePath != "" {
-		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "start")
+		cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", app.ComposePath, "start")
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("启动失败: %w, %s", err, string(output))
@@ -974,15 +883,18 @@ func (s *AppStore) StartApp(id string) error {
 	return nil
 }
 
-// StopApp 停止应用
+// StopApp 停止应用.
 func (s *AppStore) StopApp(id string) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	app, ok := s.installed[id]
 	if !ok {
 		return fmt.Errorf("应用未安装: %s", id)
 	}
 
 	if app.ComposePath != "" {
-		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "stop")
+		cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", app.ComposePath, "stop")
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("停止失败: %w, %s", err, string(output))
@@ -998,15 +910,18 @@ func (s *AppStore) StopApp(id string) error {
 	return nil
 }
 
-// RestartApp 重启应用
+// RestartApp 重启应用.
 func (s *AppStore) RestartApp(id string) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	app, ok := s.installed[id]
 	if !ok {
 		return fmt.Errorf("应用未安装: %s", id)
 	}
 
 	if app.ComposePath != "" {
-		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "restart")
+		cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", app.ComposePath, "restart")
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("重启失败: %w, %s", err, string(output))
@@ -1018,8 +933,11 @@ func (s *AppStore) RestartApp(id string) error {
 	return nil
 }
 
-// UpdateApp 更新应用
+// UpdateApp 更新应用.
 func (s *AppStore) UpdateApp(id string) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	app, ok := s.installed[id]
 	if !ok {
 		return fmt.Errorf("应用未安装: %s", id)
@@ -1037,7 +955,7 @@ func (s *AppStore) UpdateApp(id string) error {
 
 	// 重新创建容器
 	if app.ComposePath != "" {
-		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "up", "-d")
+		cmd := exec.CommandContext(context.Background(), "docker-compose", "-f", app.ComposePath, "up", "-d")
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("更新失败: %w, %s", err, string(output))
@@ -1047,7 +965,7 @@ func (s *AppStore) UpdateApp(id string) error {
 	return nil
 }
 
-// GetAppStats 获取应用统计
+// GetAppStats 获取应用统计.
 func (s *AppStore) GetAppStats(id string) (map[string]interface{}, error) {
 	app, ok := s.installed[id]
 	if !ok {
@@ -1074,491 +992,338 @@ func (s *AppStore) GetAppStats(id string) (map[string]interface{}, error) {
 	}, nil
 }
 
-// === 模板版本管理 ===
+// =============================================================================
+// 模板版本管理（参考飞牛fnOS应用市场设计）
+// =============================================================================
 
-// GetTemplateVersionHistory 获取模板版本历史
-func (s *AppStore) GetTemplateVersionHistory(templateID string) ([]TemplateVersion, error) {
-	template := s.templates[templateID]
-	if template == nil {
-		return nil, fmt.Errorf("模板不存在: %s", templateID)
-	}
-	return template.VersionHistory, nil
+// TemplateVersion 模板版本信息.
+type TemplateVersion struct {
+	ID           string            `json:"id"`
+	TemplateID   string            `json:"templateId"`
+	Version      string            `json:"version"`
+	ImageTag     string            `json:"imageTag"`
+	Compose      string            `json:"compose,omitempty"`
+	ReleaseNotes string            `json:"releaseNotes"`
+	PublishedAt  time.Time         `json:"publishedAt"`
+	Digest       string            `json:"digest"`
+	Deprecated   bool              `json:"deprecated"`
+	Environment  map[string]string `json:"environment,omitempty"`
+	MinVersion   string            `json:"minVersion,omitempty"` // 最低系统版本要求
 }
 
-// AddTemplateVersion 添加模板版本
-func (s *AppStore) AddTemplateVersion(templateID string, version TemplateVersion) error {
-	template := s.templates[templateID]
-	if template == nil {
-		return fmt.Errorf("模板不存在: %s", templateID)
+// TemplateVersionManager 模板版本管理器.
+type TemplateVersionManager struct {
+	mu       sync.RWMutex
+	store    *AppStore
+	dataDir  string
+	versions map[string][]*TemplateVersion // templateID -> versions
+}
+
+// NewTemplateVersionManager 创建模板版本管理器.
+func NewTemplateVersionManager(store *AppStore, dataDir string) (*TemplateVersionManager, error) {
+	tvm := &TemplateVersionManager{
+		store:    store,
+		dataDir:  dataDir,
+		versions: make(map[string][]*TemplateVersion),
 	}
 
+	// 加载版本数据
+	if err := tvm.load(); err != nil {
+		fmt.Printf("加载模板版本数据失败: %v\n", err)
+	}
+
+	return tvm, nil
+}
+
+// load 加载版本数据.
+func (tvm *TemplateVersionManager) load() error {
+	dataFile := filepath.Join(tvm.dataDir, "template-versions.json")
+	data, err := os.ReadFile(dataFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil // 文件不存在是正常的
+		}
+		return err
+	}
+
+	return json.Unmarshal(data, &tvm.versions)
+}
+
+// save 保存版本数据.
+func (tvm *TemplateVersionManager) save() error {
+	dataFile := filepath.Join(tvm.dataDir, "template-versions.json")
+	data, err := json.MarshalIndent(tvm.versions, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(dataFile, data, 0640)
+}
+
+// AddVersion 添加模板版本.
+func (tvm *TemplateVersionManager) AddVersion(templateID string, version *TemplateVersion) error {
+	tvm.mu.Lock()
+	defer tvm.mu.Unlock()
+
+	version.TemplateID = templateID
+	version.ID = fmt.Sprintf("%s-%s", templateID, version.Version)
+
 	// 检查版本是否已存在
-	for _, v := range template.VersionHistory {
+	for _, v := range tvm.versions[templateID] {
 		if v.Version == version.Version {
 			return fmt.Errorf("版本已存在: %s", version.Version)
 		}
 	}
 
-	template.VersionHistory = append(template.VersionHistory, version)
-	template.CurrentVersion = version.Version
-	template.Version = version.Version
-	template.LastCheckedAt = time.Now()
-
-	return s.saveTemplate(template)
+	tvm.versions[templateID] = append(tvm.versions[templateID], version)
+	return tvm.save()
 }
 
-// SetTemplateAutoUpdate 设置模板自动更新
-func (s *AppStore) SetTemplateAutoUpdate(templateID string, autoUpdate bool) error {
-	template := s.templates[templateID]
-	if template == nil {
-		return fmt.Errorf("模板不存在: %s", templateID)
+// GetVersions 获取模板的所有版本.
+func (tvm *TemplateVersionManager) GetVersions(templateID string) []*TemplateVersion {
+	tvm.mu.RLock()
+	defer tvm.mu.RUnlock()
+
+	versions := tvm.versions[templateID]
+	if versions == nil {
+		return []*TemplateVersion{}
 	}
-	template.AutoUpdate = autoUpdate
-	return s.saveTemplate(template)
+
+	// 返回副本
+	result := make([]*TemplateVersion, len(versions))
+	copy(result, versions)
+	return result
 }
 
-// saveTemplate 保存模板到文件
-func (s *AppStore) saveTemplate(template *AppTemplate) error {
-	templatePath := filepath.Join(s.templateDir, template.ID+".json")
-	data, err := json.MarshalIndent(template, "", "  ")
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(templatePath, data, 0640)
-}
+// GetLatestVersion 获取最新版本.
+func (tvm *TemplateVersionManager) GetLatestVersion(templateID string) *TemplateVersion {
+	tvm.mu.RLock()
+	defer tvm.mu.RUnlock()
 
-// CheckTemplateUpdate 检查模板更新
-func (s *AppStore) CheckTemplateUpdate(templateID string) (*UpdateCheckResult, error) {
-	template := s.templates[templateID]
-	if template == nil {
-		return nil, fmt.Errorf("模板不存在: %s", templateID)
+	versions := tvm.versions[templateID]
+	if len(versions) == 0 {
+		return nil
 	}
 
-	// 如果有更新URL，从远程检查
-	if template.UpdateURL != "" {
-		// 这里可以实现远程检查逻辑
-		// 目前先返回基本信息
-	}
-
-	// 更新检查时间
-	template.LastCheckedAt = time.Now()
-
-	return &UpdateCheckResult{
-		AppID:          templateID,
-		AppName:        template.DisplayName,
-		CurrentVersion: template.Version,
-		LatestVersion:  template.AvailableUpdate,
-		HasUpdate:      template.AvailableUpdate != "" && template.AvailableUpdate != template.Version,
-		CheckedAt:      time.Now(),
-	}, nil
-}
-
-// CheckAllTemplateUpdates 检查所有模板更新
-func (s *AppStore) CheckAllTemplateUpdates() ([]*UpdateCheckResult, error) {
-	var results []*UpdateCheckResult
-
-	for id := range s.templates {
-		result, err := s.CheckTemplateUpdate(id)
-		if err != nil {
-			continue
+	// 返回最新的非弃用版本
+	for i := len(versions) - 1; i >= 0; i-- {
+		if !versions[i].Deprecated {
+			return versions[i]
 		}
-		results = append(results, result)
 	}
 
-	return results, nil
+	return versions[len(versions)-1]
 }
 
-// GetAppRequirements 获取应用系统要求
-func (s *AppStore) GetAppRequirements(templateID string) (*AppRequirements, error) {
-	template := s.templates[templateID]
-	if template == nil {
-		return nil, fmt.Errorf("模板不存在: %s", templateID)
-	}
-	return template.Requirements, nil
-}
+// GetVersion 获取指定版本.
+func (tvm *TemplateVersionManager) GetVersion(templateID, version string) *TemplateVersion {
+	tvm.mu.RLock()
+	defer tvm.mu.RUnlock()
 
-// === 备份管理器方法 ===
-
-// loadBackups 加载备份列表
-func (bm *BackupManager) loadBackups() error {
-	data, err := os.ReadFile(bm.dataFile)
-	if err != nil {
-		return err
+	for _, v := range tvm.versions[templateID] {
+		if v.Version == version {
+			return v
+		}
 	}
 
-	var backups []*AppBackup
-	if err := json.Unmarshal(data, &backups); err != nil {
-		return err
-	}
-
-	for _, b := range backups {
-		bm.backups[b.ID] = b
-	}
 	return nil
 }
 
-// saveBackups 保存备份列表
-func (bm *BackupManager) saveBackups() error {
-	var backups []*AppBackup
-	for _, b := range bm.backups {
-		backups = append(backups, b)
+// DeprecateVersion 标记版本为弃用.
+func (tvm *TemplateVersionManager) DeprecateVersion(templateID, version string) error {
+	tvm.mu.Lock()
+	defer tvm.mu.Unlock()
+
+	for _, v := range tvm.versions[templateID] {
+		if v.Version == version {
+			v.Deprecated = true
+			return tvm.save()
+		}
 	}
 
-	data, err := json.MarshalIndent(backups, "", "  ")
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(bm.dataFile, data, 0640)
+	return fmt.Errorf("版本不存在: %s", version)
 }
 
-// CreateBackup 创建应用备份
-func (bm *BackupManager) CreateBackup(appID string, backupType string, description string) (*AppBackup, error) {
-	app := bm.store.GetInstalled(appID)
+// RemoveVersion 移除版本.
+func (tvm *TemplateVersionManager) RemoveVersion(templateID, version string) error {
+	tvm.mu.Lock()
+	defer tvm.mu.Unlock()
+
+	versions := tvm.versions[templateID]
+	for i, v := range versions {
+		if v.Version == version {
+			tvm.versions[templateID] = append(versions[:i], versions[i+1:]...)
+			return tvm.save()
+		}
+	}
+
+	return fmt.Errorf("版本不存在: %s", version)
+}
+
+// =============================================================================
+// 应用更新检测增强
+// =============================================================================
+
+// UpdateInfo 更新信息.
+type UpdateInfo struct {
+	AppID          string    `json:"appId"`
+	AppName        string    `json:"appName"`
+	CurrentVersion string    `json:"currentVersion"`
+	LatestVersion  string    `json:"latestVersion"`
+	CurrentDigest  string    `json:"currentDigest"`
+	LatestDigest   string    `json:"latestDigest"`
+	HasUpdate      bool      `json:"hasUpdate"`
+	ReleaseNotes   string    `json:"releaseNotes"`
+	PublishedAt    time.Time `json:"publishedAt"`
+	ImageSize      int64     `json:"imageSize"`
+	CheckTime      time.Time `json:"checkTime"`
+	AutoUpdate     bool      `json:"autoUpdate"`
+	IgnoreUntil    time.Time `json:"ignoreUntil"`
+}
+
+// UpdateChecker 更新检测器.
+type UpdateChecker struct {
+	mu          sync.RWMutex
+	store       *AppStore
+	httpClient  *http.Client
+	registry    string // Docker Registry 地址
+	credentials map[string]RegistryCredential
+}
+
+// RegistryCredential Registry 凭证.
+type RegistryCredential struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// NewUpdateChecker 创建更新检测器.
+func NewUpdateChecker(store *AppStore) *UpdateChecker {
+	return &UpdateChecker{
+		store: store,
+		httpClient: &http.Client{
+			Timeout: 30 * time.Second,
+		},
+		registry:    "https://registry.hub.docker.com",
+		credentials: make(map[string]RegistryCredential),
+	}
+}
+
+// SetRegistry 设置 Registry 地址.
+func (uc *UpdateChecker) SetRegistry(registry string) {
+	uc.registry = registry
+}
+
+// SetCredential 设置 Registry 凭证.
+func (uc *UpdateChecker) SetCredential(registry string, cred RegistryCredential) {
+	uc.mu.Lock()
+	defer uc.mu.Unlock()
+	uc.credentials[registry] = cred
+}
+
+// CheckAppUpdate 检查单个应用的更新.
+func (uc *UpdateChecker) CheckAppUpdate(appID string) (*UpdateInfo, error) {
+	app := uc.store.GetInstalled(appID)
 	if app == nil {
 		return nil, fmt.Errorf("应用未安装: %s", appID)
 	}
 
-	backupID := fmt.Sprintf("%s-%d", appID, time.Now().Unix())
-	backupPath := filepath.Join(bm.backupDir, backupID)
-
-	if err := os.MkdirAll(backupPath, 0750); err != nil {
-		return nil, err
-	}
-
-	backup := &AppBackup{
-		ID:           backupID,
-		AppID:        appID,
-		AppName:      app.DisplayName,
-		TemplateName: app.TemplateID,
-		Version:      app.Version,
-		CreatedAt:    time.Now(),
-		Path:         backupPath,
-		Type:         backupType,
-		Description:  description,
-		VolumePaths:  app.Volumes,
-		Compressed:   true,
-	}
-
-	// 保存配置
-	backup.Config = app.Environment
-
-	// 保存 Compose 文件
-	if app.ComposePath != "" {
-		composeData, err := os.ReadFile(app.ComposePath)
-		if err == nil {
-			backup.ComposeFile = string(composeData)
-			// 同时保存到备份目录
-			_ = os.WriteFile(filepath.Join(backupPath, "docker-compose.yml"), composeData, 0640)
-		}
-	}
-
-	// 保存配置快照
-	configPath := filepath.Join(backupPath, "config.json")
-	configData, _ := json.MarshalIndent(map[string]interface{}{
-		"appId":       app.ID,
-		"name":        app.Name,
-		"displayName": app.DisplayName,
-		"templateId":  app.TemplateID,
-		"version":     app.Version,
-		"ports":       app.Ports,
-		"volumes":     app.Volumes,
-		"environment": app.Environment,
-	}, "", "  ")
-	_ = os.WriteFile(configPath, configData, 0640)
-
-	// 备份卷数据
-	if backupType == "full" || backupType == "data" {
-		for containerPath, hostPath := range app.Volumes {
-			if _, err := os.Stat(hostPath); err == nil {
-				volBackupPath := filepath.Join(backupPath, "volumes", strings.ReplaceAll(containerPath, "/", "_"))
-				_ = os.MkdirAll(filepath.Dir(volBackupPath), 0750)
-				// 使用 tar 打包卷数据
-				cmd := exec.Command("tar", "-czf", volBackupPath+".tar.gz", "-C", hostPath, ".")
-				_ = cmd.Run()
-				backup.Includes = append(backup.Includes, containerPath)
-			}
-		}
-	}
-
-	// 计算大小
-	var totalSize int64
-	filepath.Walk(backupPath, func(_ string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() {
-			totalSize += info.Size()
-		}
-		return nil
-	})
-	backup.Size = totalSize
-
-	// 计算校验和
-	backup.Checksum = bm.calculateChecksum(backupPath)
-
-	bm.backups[backupID] = backup
-
-	// 更新应用的备份信息
-	app.LastBackupTime = backup.CreatedAt
-	app.BackupCount++
-	_ = bm.store.saveInstalled()
-
-	// 清理旧备份
-	bm.cleanupOldBackups(appID)
-
-	if err := bm.saveBackups(); err != nil {
-		return nil, err
-	}
-
-	return backup, nil
-}
-
-// RestoreBackup 恢复应用备份
-func (bm *BackupManager) RestoreBackup(backupID string) error {
-	backup, ok := bm.backups[backupID]
-	if !ok {
-		return fmt.Errorf("备份不存在: %s", backupID)
-	}
-
-	// 检查应用是否存在
-	app := bm.store.GetInstalled(backup.AppID)
-	if app == nil {
-		return fmt.Errorf("应用未安装: %s", backup.AppID)
-	}
-
-	// 停止应用
-	_ = bm.store.StopApp(backup.AppID)
-
-	// 恢复配置
-	if backup.Config != nil {
-		app.Environment = backup.Config
-	}
-
-	// 恢复 Compose 文件
-	if backup.ComposeFile != "" && app.ComposePath != "" {
-		_ = os.WriteFile(app.ComposePath, []byte(backup.ComposeFile), 0640)
-	}
-
-	// 恢复卷数据
-	for _, containerPath := range backup.Includes {
-		volBackupFile := filepath.Join(backup.Path, "volumes", strings.ReplaceAll(containerPath, "/", "_")+".tar.gz")
-		hostPath := backup.VolumePaths[containerPath]
-
-		if _, err := os.Stat(volBackupFile); err == nil && hostPath != "" {
-			// 解压到目标目录
-			_ = os.MkdirAll(hostPath, 0750)
-			cmd := exec.Command("tar", "-xzf", volBackupFile, "-C", hostPath)
-			_ = cmd.Run()
-		}
-	}
-
-	// 保存配置
-	_ = bm.store.saveInstalled()
-
-	// 启动应用
-	return bm.store.StartApp(backup.AppID)
-}
-
-// ListBackups 列出应用备份
-func (bm *BackupManager) ListBackups(appID string) []*AppBackup {
-	var backups []*AppBackup
-	for _, b := range bm.backups {
-		if appID == "" || b.AppID == appID {
-			backups = append(backups, b)
-		}
-	}
-
-	// 按时间排序（最新的在前）
-	for i := 0; i < len(backups); i++ {
-		for j := i + 1; j < len(backups); j++ {
-			if backups[i].CreatedAt.Before(backups[j].CreatedAt) {
-				backups[i], backups[j] = backups[j], backups[i]
-			}
-		}
-	}
-
-	return backups
-}
-
-// GetBackup 获取备份详情
-func (bm *BackupManager) GetBackup(backupID string) (*AppBackup, error) {
-	backup, ok := bm.backups[backupID]
-	if !ok {
-		return nil, fmt.Errorf("备份不存在: %s", backupID)
-	}
-	return backup, nil
-}
-
-// DeleteBackup 删除备份
-func (bm *BackupManager) DeleteBackup(backupID string) error {
-	backup, ok := bm.backups[backupID]
-	if !ok {
-		return fmt.Errorf("备份不存在: %s", backupID)
-	}
-
-	// 删除备份文件
-	if err := os.RemoveAll(backup.Path); err != nil {
-		return err
-	}
-
-	// 更新应用的备份计数
-	app := bm.store.GetInstalled(backup.AppID)
-	if app != nil && app.BackupCount > 0 {
-		app.BackupCount--
-		_ = bm.store.saveInstalled()
-	}
-
-	delete(bm.backups, backupID)
-	return bm.saveBackups()
-}
-
-// cleanupOldBackups 清理旧备份
-func (bm *BackupManager) cleanupOldBackups(appID string) {
-	backups := bm.ListBackups(appID)
-	if len(backups) <= bm.maxBackups {
-		return
-	}
-
-	// 删除最旧的备份
-	for i := bm.maxBackups; i < len(backups); i++ {
-		_ = bm.DeleteBackup(backups[i].ID)
-	}
-}
-
-// calculateChecksum 计算校验和
-func (bm *BackupManager) calculateChecksum(path string) string {
-	// 简单的校验和计算
-	var hash uint32
-	filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() {
-			hash += uint32(info.Size())
-		}
-		return nil
-	})
-	return fmt.Sprintf("%x", hash)
-}
-
-// ScheduleBackup 定时备份
-func (bm *BackupManager) ScheduleBackup(appID string, interval time.Duration) {
-	go func() {
-		ticker := time.NewTicker(interval)
-		defer ticker.Stop()
-
-		for range ticker.C {
-			_, err := bm.CreateBackup(appID, "config", "定时备份")
-			if err != nil {
-				fmt.Printf("定时备份失败 [%s]: %v\n", appID, err)
-			}
-		}
-	}()
-}
-
-// ExportBackup 导出备份到指定路径
-func (bm *BackupManager) ExportBackup(backupID string, destPath string) error {
-	_, ok := bm.backups[backupID]
-	if !ok {
-		return fmt.Errorf("备份不存在: %s", backupID)
-	}
-
-	// 打包备份
-	outputFile := filepath.Join(destPath, backupID+".tar.gz")
-	cmd := exec.Command("tar", "-czf", outputFile, "-C", bm.backupDir, backupID)
-	return cmd.Run()
-}
-
-// ImportBackup 从外部导入备份
-func (bm *BackupManager) ImportBackup(backupFile string) (*AppBackup, error) {
-	// 解压备份文件
-	cmd := exec.Command("tar", "-xzf", backupFile, "-C", bm.backupDir)
-	if err := cmd.Run(); err != nil {
-		return nil, err
-	}
-
-	// 获取备份 ID
-	backupID := strings.TrimSuffix(filepath.Base(backupFile), ".tar.gz")
-
-	// 加载新备份
-	backupPath := filepath.Join(bm.backupDir, backupID, "config.json")
-	configData, err := os.ReadFile(backupPath)
-	if err != nil {
-		return nil, err
-	}
-
-	var backup AppBackup
-	if err := json.Unmarshal(configData, &backup); err != nil {
-		return nil, err
-	}
-
-	backup.Path = filepath.Join(bm.backupDir, backupID)
-	bm.backups[backup.ID] = &backup
-
-	if err := bm.saveBackups(); err != nil {
-		return nil, err
-	}
-
-	return &backup, nil
-}
-
-// === 更新检测 API ===
-
-// CheckAppUpdate 检查应用更新
-func (s *AppStore) CheckAppUpdate(appID string) (*UpdateCheckResult, error) {
-	app := s.installed[appID]
-	if app == nil {
-		return nil, fmt.Errorf("应用未安装: %s", appID)
-	}
-
-	template := s.templates[app.TemplateID]
+	template := uc.store.GetTemplate(app.TemplateID)
 	if template == nil {
 		return nil, fmt.Errorf("模板不存在: %s", app.TemplateID)
 	}
 
-	// 检查 Docker Hub 是否有新镜像
-	latestTag, digest, size, err := s.fetchLatestImageInfo(template.Image)
+	return uc.CheckImageUpdate(template.Image, app.Version)
+}
+
+// CheckImageUpdate 检查镜像更新.
+func (uc *UpdateChecker) CheckImageUpdate(image, currentTag string) (*UpdateInfo, error) {
+	// 解析镜像名称
+	imageName, tag := parseImageName(image)
+	if tag != "" && tag != "latest" {
+		currentTag = tag
+	}
+
+	// 获取镜像信息
+	imageInfo, err := uc.fetchImageInfo(imageName)
+	if err != nil {
+		return nil, fmt.Errorf("获取镜像信息失败: %w", err)
+	}
+
+	// 查找当前版本
+	var currentDigest string
+	for _, t := range imageInfo.Tags {
+		if t.Name == currentTag {
+			currentDigest = t.Digest
+			break
+		}
+	}
+
+	// 查找最新版本
+	latestTag := findLatestStableTag(imageInfo.Tags)
+	if latestTag == nil && len(imageInfo.Tags) > 0 {
+		latestTag = &imageInfo.Tags[0]
+	}
+
+	if latestTag == nil {
+		return nil, fmt.Errorf("未找到可用版本")
+	}
+
+	// 构建更新信息
+	info := &UpdateInfo{
+		CurrentVersion: currentTag,
+		LatestVersion:  latestTag.Name,
+		CurrentDigest:  currentDigest,
+		LatestDigest:   latestTag.Digest,
+		HasUpdate:      currentDigest != "" && currentDigest != latestTag.Digest,
+		ReleaseNotes:   latestTag.ReleaseNotes,
+		PublishedAt:    latestTag.LastUpdated,
+		ImageSize:      latestTag.FullSize,
+		CheckTime:      time.Now(),
+	}
+
+	return info, nil
+}
+
+// ImageInfo 镜像信息.
+type ImageInfo struct {
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Tags        []TagInfo `json:"tags"`
+}
+
+// TagInfo 标签信息.
+type TagInfo struct {
+	Name         string    `json:"name"`
+	Digest       string    `json:"digest"`
+	FullSize     int64     `json:"full_size"`
+	LastUpdated  time.Time `json:"last_updated"`
+	ReleaseNotes string    `json:"release_notes"`
+}
+
+// fetchImageInfo 获取镜像信息.
+func (uc *UpdateChecker) fetchImageInfo(imageName string) (*ImageInfo, error) {
+	namespace, name := parseImageNamespace(imageName)
+
+	// 构建 Docker Hub API URL
+	url := fmt.Sprintf("https://hub.docker.com/v2/repositories/%s/%s/tags/?page_size=100", namespace, name)
+
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	hasUpdate := latestTag != "" && latestTag != app.Version
-
-	return &UpdateCheckResult{
-		AppID:          appID,
-		AppName:        app.DisplayName,
-		CurrentVersion: app.Version,
-		LatestVersion:  latestTag,
-		HasUpdate:      hasUpdate,
-		UpdateAvailable: hasUpdate,
-		CheckedAt:      time.Now(),
-		ImageDigest:    digest,
-		Size:           size,
-	}, nil
-}
-
-// fetchLatestImageInfo 获取最新镜像信息
-func (s *AppStore) fetchLatestImageInfo(image string) (tag string, digest string, size int64, err error) {
-	// 解析镜像名称
-	parts := strings.Split(image, ":")
-	imageName := parts[0]
-
-	var namespace, name string
-	if strings.Contains(imageName, "/") {
-		nsParts := strings.SplitN(imageName, "/", 2)
-		namespace = nsParts[0]
-		name = nsParts[1]
-	} else {
-		namespace = "library"
-		name = imageName
+	// 添加认证（如果有）
+	if cred, ok := uc.credentials["docker.io"]; ok {
+		req.SetBasicAuth(cred.Username, cred.Password)
 	}
 
-	// 查询 Docker Hub API
-	url := fmt.Sprintf("https://hub.docker.com/v2/repositories/%s/%s/tags/?page_size=5", namespace, name)
-
-	// 使用 http 客户端请求
-	resp, err := httpDefaultClient.Get(url)
+	resp, err := uc.httpClient.Do(req)
 	if err != nil {
-		return "", "", 0, err
+		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
-	if resp.StatusCode != 200 {
-		return "", "", 0, fmt.Errorf("Docker Hub API 返回 %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("registry 返回 %d", resp.StatusCode)
 	}
 
 	var result struct {
@@ -1573,113 +1338,804 @@ func (s *AppStore) fetchLatestImageInfo(image string) (tag string, digest string
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", "", 0, err
+		return nil, err
 	}
 
-	// 返回最新的稳定版本标签（跳过 latest）
-	for _, t := range result.Results {
-		if t.Name != "latest" && !strings.Contains(t.Name, "-") {
-			var d string
-			if len(t.Images) > 0 {
-				d = t.Images[0].Digest
-			}
-			return t.Name, d, t.FullSize, nil
+	// 转换结果
+	info := &ImageInfo{
+		Name: imageName,
+		Tags: make([]TagInfo, 0, len(result.Results)),
+	}
+
+	for _, r := range result.Results {
+		var digest string
+		if len(r.Images) > 0 {
+			digest = r.Images[0].Digest
 		}
+
+		lastUpdated, _ := time.Parse(time.RFC3339, r.LastUpdated)
+
+		info.Tags = append(info.Tags, TagInfo{
+			Name:        r.Name,
+			Digest:      digest,
+			FullSize:    r.FullSize,
+			LastUpdated: lastUpdated,
+		})
 	}
 
-	// 如果没有稳定版本，返回第一个
-	if len(result.Results) > 0 {
-		t := result.Results[0]
-		var d string
-		if len(t.Images) > 0 {
-			d = t.Images[0].Digest
-		}
-		return t.Name, d, t.FullSize, nil
-	}
-
-	return "", "", 0, fmt.Errorf("未找到镜像标签")
+	return info, nil
 }
 
-// httpDefaultClient 默认 HTTP 客户端
-var httpDefaultClient = &struct {
-	Get func(url string) (*httpResponse, error)
-}{
-	Get: func(url string) (*httpResponse, error) {
-		resp, err := http.Get(url)
+// parseImageName 解析镜像名称.
+func parseImageName(image string) (string, string) {
+	parts := strings.SplitN(image, ":", 2)
+	if len(parts) == 1 {
+		return parts[0], "latest"
+	}
+	return parts[0], parts[1]
+}
+
+// parseImageNamespace 解析镜像命名空间.
+func parseImageNamespace(imageName string) (string, string) {
+	if strings.Contains(imageName, "/") {
+		parts := strings.SplitN(imageName, "/", 2)
+		return parts[0], parts[1]
+	}
+	return "library", imageName
+}
+
+// findLatestStableTag 查找最新稳定版本标签.
+func findLatestStableTag(tags []TagInfo) *TagInfo {
+	// 优先选择非 latest、非预发布版本
+	for _, t := range tags {
+		if t.Name == "latest" {
+			continue
+		}
+		// 跳过预发布版本（包含 -alpha, -beta, -rc 等）
+		if strings.Contains(t.Name, "-alpha") ||
+			strings.Contains(t.Name, "-beta") ||
+			strings.Contains(t.Name, "-rc") ||
+			strings.Contains(t.Name, "-preview") {
+			continue
+		}
+		return &t
+	}
+
+	// 如果没有稳定版本，返回第一个非 latest 版本
+	for _, t := range tags {
+		if t.Name != "latest" {
+			return &t
+		}
+	}
+
+	return nil
+}
+
+// =============================================================================
+// 应用备份与恢复
+// =============================================================================
+
+// BackupInfo 备份信息.
+type BackupInfo struct {
+	ID         string            `json:"id"`
+	AppID      string            `json:"appId"`
+	AppName    string            `json:"appName"`
+	Version    string            `json:"version"`
+	CreateTime time.Time         `json:"createTime"`
+	Size       int64             `json:"size"`
+	Notes      string            `json:"notes"`
+	Includes   []string          `json:"includes"` // 包含的内容: config, data, env
+	Checksum   string            `json:"checksum"`
+	Labels     map[string]string `json:"labels"`
+}
+
+// BackupManager 备份管理器.
+type BackupManager struct {
+	mu        sync.RWMutex
+	store     *AppStore
+	backupDir string
+}
+
+// NewBackupManager 创建备份管理器.
+func NewBackupManager(store *AppStore, dataDir string) (*BackupManager, error) {
+	backupDir := filepath.Join(dataDir, "app-backups")
+	if err := os.MkdirAll(backupDir, 0750); err != nil {
+		return nil, err
+	}
+
+	return &BackupManager{
+		store:     store,
+		backupDir: backupDir,
+	}, nil
+}
+
+// BackupApp 备份应用.
+func (bm *BackupManager) BackupApp(appID string, opts BackupOptions) (*BackupInfo, error) {
+	bm.mu.Lock()
+	defer bm.mu.Unlock()
+
+	app := bm.store.GetInstalled(appID)
+	if app == nil {
+		return nil, fmt.Errorf("应用未安装: %s", appID)
+	}
+
+	// 创建备份目录
+	backupID := fmt.Sprintf("%s-%d", appID, time.Now().Unix())
+	backupPath := filepath.Join(bm.backupDir, backupID)
+	if err := os.MkdirAll(backupPath, 0750); err != nil {
+		return nil, err
+	}
+
+	includes := []string{}
+	var totalSize int64
+
+	// 备份配置
+	if opts.IncludeConfig {
+		configPath := filepath.Join(backupPath, "config.json")
+		configData := map[string]interface{}{
+			"appId":       app.ID,
+			"name":        app.Name,
+			"displayName": app.DisplayName,
+			"templateId":  app.TemplateID,
+			"version":     app.Version,
+			"ports":       app.Ports,
+			"volumes":     app.Volumes,
+			"environment": app.Environment,
+			"installTime": app.InstallTime,
+		}
+
+		data, err := json.MarshalIndent(configData, "", "  ")
 		if err != nil {
+			_ = os.RemoveAll(backupPath)
 			return nil, err
 		}
-		return &httpResponse{Response: resp}, nil
-	},
+
+		if err := os.WriteFile(configPath, data, 0640); err != nil {
+			_ = os.RemoveAll(backupPath)
+			return nil, err
+		}
+
+		includes = append(includes, "config")
+		totalSize += int64(len(data))
+	}
+
+	// 备份 Docker Compose 文件
+	if app.ComposePath != "" && opts.IncludeCompose {
+		composeData, err := os.ReadFile(app.ComposePath)
+		if err == nil {
+			composeBackup := filepath.Join(backupPath, "docker-compose.yml")
+			if err := os.WriteFile(composeBackup, composeData, 0640); err == nil {
+				includes = append(includes, "compose")
+				totalSize += int64(len(composeData))
+			}
+		}
+	}
+
+	// 备份数据卷（可选）
+	if opts.IncludeData && len(app.Volumes) > 0 {
+		dataDir := filepath.Join(backupPath, "volumes")
+		if err := os.MkdirAll(dataDir, 0750); err == nil {
+			ctx := context.Background()
+			for containerPath, hostPath := range app.Volumes {
+				if _, err := os.Stat(hostPath); err == nil {
+					// 使用 tar 打包数据
+					archiveName := strings.ReplaceAll(strings.TrimPrefix(containerPath, "/"), "/", "_") + ".tar.gz"
+					archivePath := filepath.Join(dataDir, archiveName)
+
+					cmd := exec.CommandContext(ctx, "tar", "-czf", archivePath, "-C", hostPath, ".")
+					if err := cmd.Run(); err == nil {
+						if fi, err := os.Stat(archivePath); err == nil {
+							totalSize += fi.Size()
+						}
+					}
+				}
+			}
+			includes = append(includes, "data")
+		}
+	}
+
+	// 计算校验和
+	checksum, err := bm.calculateChecksum(backupPath)
+	if err != nil {
+		_ = os.RemoveAll(backupPath)
+		return nil, err
+	}
+
+	// 保存备份信息
+	info := &BackupInfo{
+		ID:         backupID,
+		AppID:      appID,
+		AppName:    app.DisplayName,
+		Version:    app.Version,
+		CreateTime: time.Now(),
+		Size:       totalSize,
+		Notes:      opts.Notes,
+		Includes:   includes,
+		Checksum:   checksum,
+		Labels:     opts.Labels,
+	}
+
+	infoPath := filepath.Join(backupPath, "backup.json")
+	infoData, _ := json.MarshalIndent(info, "", "  ")
+	_ = os.WriteFile(infoPath, infoData, 0640)
+
+	return info, nil
 }
 
-type httpResponse struct {
-	*http.Response
+// BackupOptions 备份选项.
+type BackupOptions struct {
+	IncludeConfig  bool              `json:"includeConfig"`
+	IncludeCompose bool              `json:"includeCompose"`
+	IncludeData    bool              `json:"includeData"`
+	Notes          string            `json:"notes"`
+	Labels         map[string]string `json:"labels"`
 }
 
-// CheckAllAppUpdates 检查所有应用更新
-func (s *AppStore) CheckAllAppUpdates() ([]*UpdateCheckResult, error) {
-	var results []*UpdateCheckResult
+// RestoreApp 恢复应用.
+func (bm *BackupManager) RestoreApp(backupID string, opts RestoreOptions) (*InstalledApp, error) {
+	bm.mu.Lock()
+	defer bm.mu.Unlock()
 
-	for id := range s.installed {
-		result, err := s.CheckAppUpdate(id)
+	backupPath := filepath.Join(bm.backupDir, backupID)
+	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("备份不存在: %s", backupID)
+	}
+
+	// 读取备份信息
+	infoPath := filepath.Join(backupPath, "backup.json")
+	infoData, err := os.ReadFile(infoPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var info BackupInfo
+	if err := json.Unmarshal(infoData, &info); err != nil {
+		return nil, err
+	}
+
+	// 验证校验和
+	checksum, err := bm.calculateChecksum(backupPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if checksum != info.Checksum {
+		return nil, fmt.Errorf("备份校验失败，文件可能已损坏")
+	}
+
+	// 读取配置
+	configPath := filepath.Join(backupPath, "config.json")
+	configData, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var config struct {
+		AppID       string            `json:"appId"`
+		Name        string            `json:"name"`
+		DisplayName string            `json:"displayName"`
+		TemplateID  string            `json:"templateId"`
+		Version     string            `json:"version"`
+		Ports       map[int]int       `json:"ports"`
+		Volumes     map[string]string `json:"volumes"`
+		Environment map[string]string `json:"environment"`
+	}
+
+	if err := json.Unmarshal(configData, &config); err != nil {
+		return nil, err
+	}
+
+	// 检查应用是否已存在
+	if !opts.ForceRestore {
+		if existing := bm.store.GetInstalled(config.AppID); existing != nil {
+			return nil, fmt.Errorf("应用已存在，使用 forceRestore 强制恢复")
+		}
+	}
+
+	// 恢复数据卷
+	if opts.RestoreData && containsStr(info.Includes, "data") {
+		dataDir := filepath.Join(backupPath, "volumes")
+		if _, err := os.Stat(dataDir); err == nil {
+			ctx := context.Background()
+			for containerPath, hostPath := range config.Volumes {
+				archiveName := strings.ReplaceAll(strings.TrimPrefix(containerPath, "/"), "/", "_") + ".tar.gz"
+				archivePath := filepath.Join(dataDir, archiveName)
+
+				if _, err := os.Stat(archivePath); err == nil {
+					// 创建目标目录
+					_ = os.MkdirAll(hostPath, 0750)
+
+					// 解压数据
+					cmd := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "-C", hostPath)
+					_ = cmd.Run()
+				}
+			}
+		}
+	}
+
+	// 恢复 Docker Compose 文件
+	composeBackup := filepath.Join(backupPath, "docker-compose.yml")
+	var composePath string
+
+	if composeData, err := os.ReadFile(composeBackup); err == nil {
+		appDir := filepath.Join(bm.store.installDir, config.Name)
+		_ = os.MkdirAll(appDir, 0750)
+		composePath = filepath.Join(appDir, "docker-compose.yml")
+		_ = os.WriteFile(composePath, composeData, 0640)
+
+		// 启动容器
+		if opts.StartAfterRestore {
+			ctx := context.Background()
+			cmd := exec.CommandContext(ctx, "docker-compose", "-f", composePath, "up", "-d")
+			_ = cmd.Run()
+		}
+	}
+
+	// 创建安装记录
+	app := &InstalledApp{
+		ID:          config.AppID,
+		Name:        config.Name,
+		DisplayName: config.DisplayName,
+		TemplateID:  config.TemplateID,
+		Version:     config.Version,
+		Status:      "restored",
+		InstallTime: time.Now(),
+		Ports:       config.Ports,
+		Volumes:     config.Volumes,
+		Environment: config.Environment,
+		ComposePath: composePath,
+	}
+
+	// 保存到安装列表
+	bm.store.mu.Lock()
+	bm.store.installed[config.AppID] = app
+	_ = bm.store.saveInstalled()
+	bm.store.mu.Unlock()
+
+	return app, nil
+}
+
+// RestoreOptions 恢复选项.
+type RestoreOptions struct {
+	ForceRestore      bool `json:"forceRestore"`
+	RestoreData       bool `json:"restoreData"`
+	StartAfterRestore bool `json:"startAfterRestore"`
+}
+
+// ListBackups 列出所有备份.
+func (bm *BackupManager) ListBackups(appID string) ([]*BackupInfo, error) {
+	bm.mu.RLock()
+	defer bm.mu.RUnlock()
+
+	var backups []*BackupInfo
+
+	entries, err := os.ReadDir(bm.backupDir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		infoPath := filepath.Join(bm.backupDir, entry.Name(), "backup.json")
+		data, err := os.ReadFile(infoPath)
 		if err != nil {
 			continue
 		}
-		results = append(results, result)
-	}
 
-	return results, nil
-}
+		var info BackupInfo
+		if err := json.Unmarshal(data, &info); err != nil {
+			continue
+		}
 
-// GetAvailableUpdates 获取可用更新列表
-func (s *AppStore) GetAvailableUpdates() []*UpdateCheckResult {
-	results, _ := s.CheckAllAppUpdates()
-	var updates []*UpdateCheckResult
-	for _, r := range results {
-		if r.HasUpdate {
-			updates = append(updates, r)
+		if appID == "" || info.AppID == appID {
+			backups = append(backups, &info)
 		}
 	}
-	return updates
+
+	// 按时间排序（最新的在前）
+	sortBackupsByTime(backups)
+
+	return backups, nil
 }
 
-// SetAppAutoUpdate 设置应用自动更新
-func (s *AppStore) SetAppAutoUpdate(appID string, autoUpdate bool) error {
-	app := s.installed[appID]
+// GetBackup 获取备份信息.
+func (bm *BackupManager) GetBackup(backupID string) (*BackupInfo, error) {
+	infoPath := filepath.Join(bm.backupDir, backupID, "backup.json")
+	data, err := os.ReadFile(infoPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var info BackupInfo
+	if err := json.Unmarshal(data, &info); err != nil {
+		return nil, err
+	}
+
+	return &info, nil
+}
+
+// DeleteBackup 删除备份.
+func (bm *BackupManager) DeleteBackup(backupID string) error {
+	backupPath := filepath.Join(bm.backupDir, backupID)
+	return os.RemoveAll(backupPath)
+}
+
+// calculateChecksum 计算备份目录校验和.
+func (bm *BackupManager) calculateChecksum(backupPath string) (string, error) {
+	// 简单实现：遍历文件计算 MD5
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "sh", "-c", fmt.Sprintf("find %s -type f -exec md5sum {} \\; | sort | md5sum | cut -d' ' -f1", backupPath))
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(string(output)), nil
+}
+
+// sortBackupsByTime 按时间排序备份.
+func sortBackupsByTime(backups []*BackupInfo) {
+	for i := 0; i < len(backups); i++ {
+		for j := i + 1; j < len(backups); j++ {
+			if backups[i].CreateTime.Before(backups[j].CreateTime) {
+				backups[i], backups[j] = backups[j], backups[i]
+			}
+		}
+	}
+}
+
+// containsStr 检查字符串是否在切片中.
+func containsStr(slice []string, str string) bool {
+	for _, s := range slice {
+		if s == str {
+			return true
+		}
+	}
+	return false
+}
+
+// =============================================================================
+// 应用健康检查
+// =============================================================================
+
+// HealthStatus 健康状态.
+type HealthStatus struct {
+	AppID        string        `json:"appId"`
+	AppName      string        `json:"appName"`
+	Status       string        `json:"status"` // healthy, unhealthy, starting, stopped
+	LastCheck    time.Time     `json:"lastCheck"`
+	Checks       []HealthCheck `json:"checks"`
+	Uptime       time.Duration `json:"uptime"`
+	RestartCount int           `json:"restartCount"`
+	LastRestart  time.Time     `json:"lastRestart"`
+	Message      string        `json:"message"`
+}
+
+// HealthCheck 健康检查项.
+type HealthCheck struct {
+	Name     string        `json:"name"`
+	Type     string        `json:"type"` // http, tcp, exec, container
+	Status   string        `json:"status"`
+	Message  string        `json:"message"`
+	Latency  time.Duration `json:"latency"`
+	Endpoint string        `json:"endpoint,omitempty"`
+}
+
+// HealthChecker 健康检查器.
+type HealthChecker struct {
+	store   *AppStore
+	manager *Manager
+	config  HealthCheckConfig
+}
+
+// HealthCheckConfig 健康检查配置.
+type HealthCheckConfig struct {
+	CheckInterval      time.Duration `json:"checkInterval"`
+	Timeout            time.Duration `json:"timeout"`
+	HealthyThreshold   int           `json:"healthyThreshold"`
+	UnhealthyThreshold int           `json:"unhealthyThreshold"`
+}
+
+// DefaultHealthCheckConfig 默认健康检查配置.
+var DefaultHealthCheckConfig = HealthCheckConfig{
+	CheckInterval:      30 * time.Second,
+	Timeout:            10 * time.Second,
+	HealthyThreshold:   2,
+	UnhealthyThreshold: 3,
+}
+
+// NewHealthChecker 创建健康检查器.
+func NewHealthChecker(store *AppStore, mgr *Manager, config HealthCheckConfig) *HealthChecker {
+	if config.CheckInterval == 0 {
+		config = DefaultHealthCheckConfig
+	}
+
+	return &HealthChecker{
+		store:   store,
+		manager: mgr,
+		config:  config,
+	}
+}
+
+// CheckHealth 检查应用健康状态.
+func (hc *HealthChecker) CheckHealth(appID string) (*HealthStatus, error) {
+	app := hc.store.GetInstalled(appID)
 	if app == nil {
-		return fmt.Errorf("应用未安装: %s", appID)
+		return nil, fmt.Errorf("应用未安装: %s", appID)
 	}
-	app.AutoUpdate = autoUpdate
-	return s.saveInstalled()
+
+	status := &HealthStatus{
+		AppID:     appID,
+		AppName:   app.DisplayName,
+		Status:    "unknown",
+		LastCheck: time.Now(),
+		Checks:    []HealthCheck{},
+	}
+
+	// 获取容器信息
+	container, err := hc.manager.GetContainer(app.Name)
+	if err != nil {
+		status.Status = "stopped"
+		status.Message = "容器不存在或已停止"
+		return status, nil
+	}
+
+	// 更新运行时间
+	if !container.Created.IsZero() {
+		status.Uptime = time.Since(container.Created)
+	}
+
+	// 1. 容器状态检查
+	containerCheck := hc.checkContainerStatus(container)
+	status.Checks = append(status.Checks, containerCheck)
+
+	// 2. 端口检查
+	if len(app.Ports) > 0 {
+		portChecks := hc.checkPorts(app.Ports)
+		status.Checks = append(status.Checks, portChecks...)
+	}
+
+	// 3. HTTP 健康检查（如果有 Web 端口）
+	if webCheck := hc.checkHTTPEndpoint(app); webCheck != nil {
+		status.Checks = append(status.Checks, *webCheck)
+	}
+
+	// 4. 资源检查
+	resourceCheck := hc.checkResources(container)
+	status.Checks = append(status.Checks, resourceCheck)
+
+	// 汇总状态
+	status.Status = hc.aggregateStatus(status.Checks)
+	status.Message = hc.getStatusMessage(status.Checks)
+
+	return status, nil
 }
 
-// PerformAutoUpdates 执行自动更新
-func (s *AppStore) PerformAutoUpdates() ([]string, error) {
-	var updated []string
-
-	for id, app := range s.installed {
-		if !app.AutoUpdate {
-			continue
-		}
-
-		result, err := s.CheckAppUpdate(id)
-		if err != nil || !result.HasUpdate {
-			continue
-		}
-
-		if err := s.UpdateApp(id); err != nil {
-			continue
-		}
-
-		app.Version = result.LatestVersion
-		app.LastUpdateTime = time.Now()
-		updated = append(updated, id)
+// checkContainerStatus 检查容器状态.
+func (hc *HealthChecker) checkContainerStatus(container *Container) HealthCheck {
+	check := HealthCheck{
+		Name: "容器状态",
+		Type: "container",
 	}
 
-	if len(updated) > 0 {
-		_ = s.saveInstalled()
+	if container.State == "running" {
+		check.Status = "healthy"
+		check.Message = fmt.Sprintf("容器运行中，状态: %s", container.Status)
+	} else {
+		check.Status = "unhealthy"
+		check.Message = fmt.Sprintf("容器未运行，状态: %s", container.State)
 	}
 
-	return updated, nil
+	return check
+}
+
+// checkPorts 检查端口.
+func (hc *HealthChecker) checkPorts(ports map[int]int) []HealthCheck {
+	checks := make([]HealthCheck, 0, len(ports))
+
+	for _, hostPort := range ports {
+		check := HealthCheck{
+			Name:     fmt.Sprintf("端口 %d", hostPort),
+			Type:     "tcp",
+			Endpoint: fmt.Sprintf("127.0.0.1:%d", hostPort),
+		}
+
+		start := time.Now()
+
+		// 尝试连接端口
+		dialer := &net.Dialer{Timeout: hc.config.Timeout}
+		ctx, cancel := context.WithTimeout(context.Background(), hc.config.Timeout)
+		conn, err := dialer.DialContext(ctx, "tcp", fmt.Sprintf("127.0.0.1:%d", hostPort))
+		cancel()
+		check.Latency = time.Since(start)
+
+		if err != nil {
+			check.Status = "unhealthy"
+			check.Message = fmt.Sprintf("端口 %d 无法连接", hostPort)
+		} else {
+			check.Status = "healthy"
+			check.Message = fmt.Sprintf("端口 %d 正常响应 (%.0fms)", hostPort, float64(check.Latency.Milliseconds()))
+			_ = conn.Close()
+		}
+
+		checks = append(checks, check)
+	}
+
+	return checks
+}
+
+// checkHTTPEndpoint 检查 HTTP 端点.
+func (hc *HealthChecker) checkHTTPEndpoint(app *InstalledApp) *HealthCheck {
+	// 查找可能的 Web 端口
+	var webPort int
+	for containerPort, hostPort := range app.Ports {
+		if containerPort == 80 || containerPort == 443 || containerPort == 8080 ||
+			containerPort == 3000 || containerPort == 8000 || containerPort == 5000 {
+			webPort = hostPort
+			break
+		}
+	}
+
+	if webPort == 0 {
+		return nil
+	}
+
+	check := HealthCheck{
+		Name:     "HTTP 健康检查",
+		Type:     "http",
+		Endpoint: fmt.Sprintf("http://127.0.0.1:%d/", webPort),
+	}
+
+	start := time.Now()
+
+	ctx, cancel := context.WithTimeout(context.Background(), hc.config.Timeout)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, check.Endpoint, nil)
+	if err != nil {
+		check.Status = "unhealthy"
+		check.Message = fmt.Sprintf("创建请求失败: %v", err)
+		return &check
+	}
+
+	client := &http.Client{
+		Timeout: hc.config.Timeout,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	resp, err := client.Do(req)
+	check.Latency = time.Since(start)
+
+	if err != nil {
+		check.Status = "unhealthy"
+		check.Message = fmt.Sprintf("HTTP 请求失败: %v", err)
+	} else {
+		_ = resp.Body.Close()
+
+		if resp.StatusCode >= 200 && resp.StatusCode < 400 {
+			check.Status = "healthy"
+			check.Message = fmt.Sprintf("HTTP %d (%.0fms)", resp.StatusCode, float64(check.Latency.Milliseconds()))
+		} else {
+			check.Status = "degraded"
+			check.Message = fmt.Sprintf("HTTP %d 响应异常", resp.StatusCode)
+		}
+	}
+
+	return &check
+}
+
+// checkResources 检查资源使用.
+func (hc *HealthChecker) checkResources(container *Container) HealthCheck {
+	check := HealthCheck{
+		Name: "资源使用",
+		Type: "resource",
+	}
+
+	// CPU 使用率检查
+	if container.CPUUsage > 80 {
+		check.Status = "degraded"
+		check.Message = fmt.Sprintf("CPU 使用率过高: %.1f%%", container.CPUUsage)
+		return check
+	}
+
+	// 内存使用检查
+	if container.MemLimit > 0 {
+		memUsagePercent := float64(container.MemUsage) / float64(container.MemLimit) * 100
+		if memUsagePercent > 90 {
+			check.Status = "degraded"
+			check.Message = fmt.Sprintf("内存使用率过高: %.1f%%", memUsagePercent)
+			return check
+		}
+	}
+
+	check.Status = "healthy"
+	check.Message = fmt.Sprintf("CPU: %.1f%%, 内存: %s/%s",
+		container.CPUUsage,
+		formatBytes(container.MemUsage),
+		formatBytes(container.MemLimit))
+
+	return check
+}
+
+// aggregateStatus 汇总状态.
+func (hc *HealthChecker) aggregateStatus(checks []HealthCheck) string {
+	hasUnhealthy := false
+	hasDegraded := false
+
+	for _, check := range checks {
+		switch check.Status {
+		case "unhealthy":
+			hasUnhealthy = true
+		case "degraded":
+			hasDegraded = true
+		}
+	}
+
+	if hasUnhealthy {
+		return "unhealthy"
+	}
+	if hasDegraded {
+		return "degraded"
+	}
+	return "healthy"
+}
+
+// getStatusMessage 获取状态消息.
+func (hc *HealthChecker) getStatusMessage(checks []HealthCheck) string {
+	var unhealthy []string
+	for _, check := range checks {
+		if check.Status == "unhealthy" {
+			unhealthy = append(unhealthy, check.Name)
+		}
+	}
+
+	if len(unhealthy) == 0 {
+		return "所有检查项正常"
+	}
+
+	return fmt.Sprintf("异常检查项: %s", strings.Join(unhealthy, ", "))
+}
+
+// formatBytes 格式化字节.
+func formatBytes(b uint64) string {
+	const unit = 1024
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := uint64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
+}
+
+// StartPeriodicCheck 启动定期健康检查.
+func (hc *HealthChecker) StartPeriodicCheck() chan *HealthStatus {
+	results := make(chan *HealthStatus, 100)
+
+	go func() {
+		ticker := time.NewTicker(hc.config.CheckInterval)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			installed := hc.store.ListInstalled()
+			for _, app := range installed {
+				if status, err := hc.CheckHealth(app.ID); err == nil {
+					select {
+					case results <- status:
+					default:
+						// 通道满了，跳过
+					}
+				}
+			}
+		}
+	}()
+
+	return results
 }

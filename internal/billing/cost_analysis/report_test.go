@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Mock implementations for testing
+// Mock implementations for testing.
 type mockBillingProvider struct {
 	storagePrice   float64
 	bandwidthPrice float64
@@ -80,7 +80,7 @@ func (m *mockQuotaProvider) GetPoolUsage(poolID string) (*QuotaUsageInfo, error)
 	return nil, nil
 }
 
-// uniqueDataDir generates a unique data directory for each test
+// uniqueDataDir generates a unique data directory for each test.
 func uniqueDataDir(testName string) string {
 	return fmt.Sprintf("/tmp/test-cost-%d-%s", time.Now().UnixNano(), testName)
 }

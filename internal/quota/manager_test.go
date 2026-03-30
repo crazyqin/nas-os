@@ -941,7 +941,7 @@ func TestManager_Persistence(t *testing.T) {
 
 // ========== 模拟实现 ==========
 
-// MockStorageProvider 模拟存储提供者
+// MockStorageProvider 模拟存储提供者.
 type MockStorageProvider struct {
 	volumes map[string]*VolumeInfo
 }
@@ -964,7 +964,7 @@ func (m *MockStorageProvider) GetUsage(volumeName string) (total, used, free uin
 	return vol.Size, vol.Used, vol.Free, nil
 }
 
-// MockUserProvider 模拟用户提供者
+// MockUserProvider 模拟用户提供者.
 type MockUserProvider struct {
 	users  map[string]bool
 	groups map[string]bool

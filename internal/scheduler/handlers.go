@@ -10,19 +10,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers API 处理器
+// Handlers API 处理器.
 type Handlers struct {
 	scheduler *Scheduler
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(scheduler *Scheduler) *Handlers {
 	return &Handlers{
 		scheduler: scheduler,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	sched := r.Group("/scheduler")
 	{
@@ -100,7 +100,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Param pageSize query int false "每页数量"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listTasks(c *gin.Context) {
 	filter := &TaskFilter{
 		Status:   TaskStatus(c.Query("status")),
@@ -145,7 +145,7 @@ func (h *Handlers) listTasks(c *gin.Context) {
 // @Param request body Task true "任务配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createTask(c *gin.Context) {
 	var task Task
 	if err := c.ShouldBindJSON(&task); err != nil {
@@ -179,7 +179,7 @@ func (h *Handlers) createTask(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -209,7 +209,7 @@ func (h *Handlers) getTask(c *gin.Context) {
 // @Param request body Task true "任务配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) updateTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -246,7 +246,7 @@ func (h *Handlers) updateTask(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deleteTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -272,7 +272,7 @@ func (h *Handlers) deleteTask(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/{id}/run [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) runTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -300,7 +300,7 @@ func (h *Handlers) runTask(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/{id}/cancel [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) cancelTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -326,7 +326,7 @@ func (h *Handlers) cancelTask(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/{id}/pause [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) pauseTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -352,7 +352,7 @@ func (h *Handlers) pauseTask(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/{id}/resume [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) resumeTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -378,7 +378,7 @@ func (h *Handlers) resumeTask(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/{id}/enable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) enableTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -404,7 +404,7 @@ func (h *Handlers) enableTask(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/{id}/disable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) disableTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -431,7 +431,7 @@ func (h *Handlers) disableTask(c *gin.Context) {
 // @Param n query int false "次数"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/{id}/next-runs [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getNextRuns(c *gin.Context) {
 	id := c.Param("id")
 
@@ -459,7 +459,7 @@ func (h *Handlers) getNextRuns(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/tasks/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.scheduler.GetStats()
 
@@ -483,7 +483,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 // @Param pageSize query int false "每页数量"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/executions [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listExecutions(c *gin.Context) {
 	filter := &ExecutionFilter{
 		TaskID:   c.Query("taskId"),
@@ -525,7 +525,7 @@ func (h *Handlers) listExecutions(c *gin.Context) {
 // @Param id path string true "执行ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/executions/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getExecution(c *gin.Context) {
 	id := c.Param("id")
 
@@ -553,7 +553,7 @@ func (h *Handlers) getExecution(c *gin.Context) {
 // @Param id path string true "执行ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/executions/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deleteExecution(c *gin.Context) {
 	id := c.Param("id")
 
@@ -581,7 +581,7 @@ func (h *Handlers) deleteExecution(c *gin.Context) {
 // @Param executionId query string false "执行ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/logs [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getLogs(c *gin.Context) {
 	executionID := c.Query("executionId")
 
@@ -610,7 +610,7 @@ func (h *Handlers) getLogs(c *gin.Context) {
 // @Param id path string true "执行ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/logs/execution/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getExecutionLogs(c *gin.Context) {
 	id := c.Param("id")
 
@@ -631,7 +631,7 @@ func (h *Handlers) getExecutionLogs(c *gin.Context) {
 // @Param id path string true "任务ID"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/logs/task/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getTaskLogs(c *gin.Context) {
 	id := c.Param("id")
 
@@ -651,7 +651,7 @@ func (h *Handlers) getTaskLogs(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/logs [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) clearLogs(c *gin.Context) {
 	if err := h.scheduler.GetLogManager().Clear(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -676,7 +676,7 @@ func (h *Handlers) clearLogs(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/handlers [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listHandlers(c *gin.Context) {
 	handlers := h.scheduler.GetExecutor().ListHandlers()
 
@@ -696,7 +696,7 @@ func (h *Handlers) listHandlers(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/dependency-graph [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getDependencyGraph(c *gin.Context) {
 	graph := h.scheduler.GetDependencyGraph()
 
@@ -718,7 +718,7 @@ func (h *Handlers) getDependencyGraph(c *gin.Context) {
 // @Param request body map[string]string true "Cron 表达式"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/cron/validate [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) validateCron(c *gin.Context) {
 	var req struct {
 		Expression string `json:"expression"`
@@ -759,7 +759,7 @@ func (h *Handlers) validateCron(c *gin.Context) {
 // @Param request body map[string]interface{} true "Cron 表达式"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/cron/next [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getNextCronTimes(c *gin.Context) {
 	var req struct {
 		Expression string `json:"expression"`
@@ -804,7 +804,7 @@ func (h *Handlers) getNextCronTimes(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/cron/presets [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getCronPresets(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -822,7 +822,7 @@ func (h *Handlers) getCronPresets(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /scheduler/retry/pending [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getPendingRetries(c *gin.Context) {
 	// 这个功能需要从重试管理器获取数据
 	// 简化实现

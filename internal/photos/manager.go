@@ -1,6 +1,7 @@
 package photos
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -419,7 +420,7 @@ func (m *Manager) generateThumbnailsFFmpeg(srcPath string, photoID string) error
 		thumbPath := filepath.Join(m.thumbsDir, fmt.Sprintf("%s_%d.jpg", photoID, size))
 
 		// ffmpeg 命令
-		cmd := exec.Command("ffmpeg", "-i", srcPath,
+		cmd := exec.CommandContext(context.Background(), "ffmpeg", "-i", srcPath,
 			"-vf", fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease", size, size),
 			"-vframes", "1",
 			"-q:v", "2",
@@ -798,7 +799,7 @@ func (m *Manager) ListPersons() []*Person {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]*Person, 0)
+	result := make([]*Person, 0, len(m.persons))
 	for _, person := range m.persons {
 		personCopy := *person
 		result = append(result, &personCopy)

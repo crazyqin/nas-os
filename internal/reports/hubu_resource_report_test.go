@@ -638,7 +638,7 @@ func TestHubuCapacityScenario_Comparison(t *testing.T) {
 	assert.Equal(t, 10.0, scenarios[2].GrowthRate)
 }
 
-// 辅助函数
+// 辅助函数.
 func ptrTime(t time.Time) *time.Time {
 	return &t
 }

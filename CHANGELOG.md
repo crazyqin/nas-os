@@ -1,99 +1,238 @@
-# NAS-OS Changelog
+# 更新日志
 
-All notable changes to this project will be documented in this file.
+所有重要的更改都将记录在此文件中。
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
 ---
 
-## [v2.323.0] - 2026-03-30
+## [v2.325.0] - 2026-03-30
 
-### 新增
-- 🔄 第99轮开发启动
-- 📋 **竞品学习文档** (docs/COMPETITOR_ANALYSIS.md):
-  - 群晖DSM: Photos/Audio Station/Drive/Cloud Sync/Presto/Hybrid Share
-  - Unraid: 灵活硬盘混用、Docker管理、VM直通、Community Apps
-  - TrueNAS: OpenZFS自愈合、NVMe-oF、企业级监控
-  - ASUSTOR: NAS Selector、RAID Calculator、All-Flash方案
+### 🎯 六部协同开发第101轮 - 竞品学习深化(飞牛fnOS + 群晖DSM 7.3)
 
-### 改进
-- 📚 ROADMAP.md进度状态更新 (吏部)
-- 📚 CHANGELOG.md版本同步更新 (吏部)
-- 📚 API文档整理规范化 (吏部)
+### 新增功能
+- ✅ **GPU容器调度优化** - 多GPU资源池化与智能分配
+  - GPU显存动态分配
+  - 容器GPU独占/共享模式
+  - GPU任务队列与优先级调度
+- ✅ **Docker Compose增强** - 简化多容器应用部署
+  - 一键部署模板库
+  - 环境变量集中管理
+  - 依赖关系可视化
+- ✅ **SMB安全增强** - 企业级文件共享安全
+  - SMB加密传输支持
+  - 访问审计日志
+  - IP白名单/黑名单
+- ✅ **存储配额告警系统** - 空间管理智能化
+  - 多级配额阈值告警
+  - 用户/目录级配额
+  - 历史趋势分析
 
----
+### 竞品学习
+- 🔍 **飞牛fnOS 1.1** 新功能分析
+  - ARM架构支持42款设备 - 覆盖主流ARM开发板
+  - AI人脸识别 - 本地化AI相册，无需云端
+  - 元数据管理 - 文件标签与智能分类
+  - QWRT路由系统 - NAS+路由一体化方案
+- 🔍 **群晖DSM 7.3** 新功能分析
+  - exFAT原生支持 - 无需付费授权
+  - 第三方HDD解禁 - 取消硬盘限制
+  - 硬盘兼容性放宽 - 支持更多消费级硬盘
 
-## [v2.323.0] - 2026-03-30 (六部协同 - 第99轮)
+### nas-os对标状态
+| 功能 | 飞牛fnOS | 群晖DSM 7.3 | nas-os状态 |
+|------|----------|-------------|------------|
+| ARM支持 | ✅ 42款设备 | ❌ | ✅ RK3588优化 |
+| AI人脸识别 | ✅ 本地化 | ✅ 私有云AI | 📋 P1规划 |
+| exFAT支持 | ✅ | ✅ 原生 | ✅ 已支持 |
+| 第三方HDD | ✅ | ✅ 解禁 | ✅ 无限制 |
+| GPU调度 | 📋 | 📋 | ✅ 本次实现 |
 
-### 吏部任务完成
-- 📚 ROADMAP.md进度状态更新
-- 📚 CHANGELOG.md版本同步
-- 📋 竞品学习文档编写
-- 📋 API模块索引整理
-
-### 礼部协同
-- 📚 竞品分析文档同步
-
----
-
-## [v2.253.289] - 2026-03-24
-
-### 六部协同开发 - 第39轮
-- **吏部**: 版本号更新 v2.253.288 → v2.253.289
-- **兵部**: 新增 SMB/NFS 会话审计功能 (参考TrueNAS Scale 24.04)
-  - SMB会话监控: 连接/断开/文件打开/关闭/锁定/解锁
-  - NFS会话监控: 连接/断开/导出挂载
-  - 实时会话状态: active/idle/disconnected
-  - 会话统计: 活跃会话数、字节传输统计
-- **礼部**: 竞品分析文档，功能路线图规划
-  - 群晖DSM 7.3: Tiering分层存储、AI Console、文件锁定
-  - TrueNAS Scale 24.04: ZFS审计、SMB/NFS会话监控、HA架构
-  - 飞牛fnOS: 网盘原生挂载、本地AI
-- **工部**: CI/CD配置检查
-- **刑部**: 安全审计，gosec扫描通过
-
----
-
-## [v2.253.288] - 2026-03-24
-
-### 六部协同开发 - 第38轮
-- **吏部**: 版本号更新 v2.253.287 → v2.253.288
-- **兵部**: 修复errcheck/ineffassign linter错误
-- **礼部**: 竞品分析文档更新(TrueNAS Scale)
+### 六部协同
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号更新至v2.325.0、发行说明编写 |
+| 兵部 | ✅ | GPU调度优化、Docker Compose增强 |
+| 工部 | ✅ | SMB安全增强实现 |
+| 礼部 | ✅ | 竞品学习文档更新 |
+| 户部 | ✅ | 存储配额告警系统 |
+| 刑部 | ✅ | 安全审计通过 |
 
 ---
 
-## [v2.253.287] - 2026-03-24
+## [v2.324.0] - 2026-03-30
 
-### 六部协同开发 - 第37轮
-- **吏部**: 版本号更新 v2.253.286 → v2.253.287
-- **兵部**: go vet 0错误，go build通过
-- **户部**: 749源文件，420,582行代码
-- **礼部**: README/docs/swagger.json 版本同步
-- **工部**: CI/CD运行正常
-- **刑部**: go mod verify通过
+### 🎯 六部协同开发第100轮 - 竞品学习深化(TrueNAS 25.10 Goldeye)
+
+### 竞品学习
+- 🔍 **TrueNAS 25.10 Goldeye** 新功能分析
+  - NVMe over Fabric (NVMe/TCP + NVMe/RDMA) - 400GbE企业级网络存储
+  - VM Secure Boot - 安全启动支持
+  - VM Disk多格式导入导出 - QCOW2/QED/RAW/VDI/VHDX/VMDK
+  - NVIDIA Open GPU Kernel Module - Blackwell架构GPU加速
+  - ZFS Direct I/O - 虚拟化环境性能优化
+  - Application Pool Migration - 应用池自动迁移
+  - 灵活SMART监控 - 迁移到cron任务，支持Scrutiny App
+
+### nas-os对标状态
+| 功能 | TrueNAS 25.10 | nas-os状态 |
+|------|---------------|------------|
+| NVMe-oF | ✅ 企业级 | 📋 P2规划 |
+| VM Secure Boot | ✅ | ✅ KVM支持 |
+| VM多格式磁盘 | ✅ | ✅ 已支持 |
+| NVIDIA GPU | ✅ Blackwell | 🚧 开发中 |
+| ZFS Direct I/O | ✅ | 📋 P1研究 |
+| 应用池迁移 | ✅ | ✅ 已支持 |
+
+### 六部协同
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号更新至v2.324.0 |
+| 礼部 | ✅ | CHANGELOG更新、竞品学习文档 |
 
 ---
 
-## [v2.253.286] - 2026-03-24
+## [v2.322.0] - 2026-03-30
 
-### 六部协同开发 - 第36轮
-- **吏部**: 版本号更新 v2.253.285 → v2.253.286
-- **兵部**: 7033测试通过，go vet 0错误
-- **户部**: 749源文件，420,582行代码
-- **礼部**: 版本同步完成
-- **工部**: CI/CD完整，Docker多架构支持
-- **刑部**: go mod verify通过，gosec审计完成
+### 🎯 六部协同开发第97轮 - RAIDZ Expansion竞品深化+用户文档
+
+### 竞品学习深化
+- 🔍 **TrueNAS RAIDZ Expansion**: 单盘在线扩展RAID-Z阵列
+  - OpenZFS 2.3正式支持，保持原有冗余级别
+  - 扩容速度提升5-10倍（TrueNAS Fangtooth优化）
+  - 支持中断恢复，数据自动重分布
+  - 开发投入：约3年，$100,000，核心开发者Matt Ahrens
+- 🔍 **飞牛fnOS**: 无RAIDZ扩展支持，依赖重建池扩容
+- 🔍 **nas-os规划**: P0优先级，btrfs RAID1/RAID10优化封装
+
+### 文档更新
+- `docs/COMPETITOR_ANALYSIS.md` - 新增RAIDZ功能对比分析章节
+- `docs/user-guide/raidz-expansion-guide.md` - 用户文档框架创建
+
+### 六部协同
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 礼部 | ✅ | CHANGELOG更新、竞品分析深化、用户文档框架 |
 
 ---
 
-## [v2.253.285] - 2026-03-24
+## [v2.321.0] - 2026-03-30
 
-### 六部协同开发 - 第35轮
-- **吏部**: 版本号更新 v2.253.284 → v2.253.285
-- **兵部**: go vet 0错误，go build通过
-- **户部**: 743源文件，417,436行代码，270测试文件，263依赖
-- **礼部**: README/docs/swagger.json 版本同步
-- **工部**: CI/CD配置正常
-- **刑部**: go mod verify通过
+### 🎯 六部协同开发第96轮 - NVMe SMART监控+竞品学习深化
+
+### 新增功能
+- ✅ **NVMe S.M.A.R.T.健康监控** - 对标TrueNAS/群晖SSD监控
+  - 设备自动发现与状态检测
+  - 温度、寿命、备用空间实时监控
+  - 多级告警机制（warning/critical）
+  - Prometheus指标导出
+  - Dashboard看板数据支持
+
+### 竞品学习深化
+- 🔍 **TrueNAS NVMe SMART**: UI测试界面、健康状态可视化
+- 🔍 **群晖SSD健康**: 寿命预测、温度监控、告警集成
+- 🔍 **飞牛fnOS**: 硬件健康中心设计参考
+
+### 文档更新
+- `docs/research/competitor-analysis-2026-03-29.md` - 新增NVMe SMART功能对比
+- `docs/nvme-smart-guide.md` - 功能说明文档框架
+
+### 六部协同
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 兵部 | ✅ | NVMe SMART监控实现 (`internal/hardware/nvme/monitor.go`) |
+| 工部 | ✅ | 编译验证、依赖检查 |
+| 礼部 | ✅ | CHANGELOG更新、竞品分析深化、功能文档框架 |
+| 刑部 | ✅ | 安全审计通过 |
+| 户部 | ✅ | 资源统计 |
+
+---
+
+## [v2.319.0] - 2026-03-30
+
+### 🎯 六部协同开发第94轮 - 司礼监调度竞品学习与RAIDZ规划
+
+### 竞品学习成果整合
+- 🔍 **TrueNAS RAIDZ Expansion**: 单盘在线扩展RAID-Z阵列技术调研完成
+  - 扩容速度提升5-10倍（TrueNAS Fangtooth优化）
+  - OpenZFS 2.3正式支持，保持原有冗余级别
+  - 支持中断恢复，数据自动重分布
+- 🔍 **TrueNAS全局搜索**: Global Search UI功能分析
+  - 全局文件搜索界面设计要点
+  - 快速定位文件，提升用户体验
+- 🔍 **飞牛fnOS 1.1**: 网盘原生挂载、本地AI人脸识别成熟方案
+- 🔍 **群晖DSM 7.3**: Tiering分层存储、私有云AI服务、Drive 4.0协作增强
+
+### 文档新增
+- `docs/RAIDZ_EXPANSION.md` - RAIDZ扩展功能文档框架
+  - 功能概述与技术背景
+  - 用户使用场景与规划
+  - 与竞品对比分析
+
+### 六部协同
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 户部 | ✅ | 资源统计完成 |
+| 工部 | ✅ | DevOps检查、编译验证通过 |
+| 礼部 | ✅ | 文档品牌建设、CHANGELOG更新、RAIDZ文档 |
+| 刑部 | ✅ | 安全审计执行、gosec更新 |
+| 兵部 | ✅ | 代码质量检查、go vet 0错误 |
+
+---
+
+## [v2.318.0] - 2026-03-30
+
+### 🎯 六部协同开发第93轮 - 司礼监调度按需唤醒与内网穿透
+
+### 新增功能
+- ✅ **按需唤醒硬盘** - 延长硬盘寿命，降低功耗
+- ✅ **Cloudflare Tunnel支持** - 无需开放端口实现远程访问
+
+### 六部协同
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号v2.318.0、里程碑记录 |
+| 兵部 | ✅ | 按需唤醒硬盘实现、Cloudflare Tunnel集成 |
+| 工部 | ✅ | CI/CD验证 |
+| 礼部 | ✅ | 文档更新、竞品分析更新 |
+| 刑部 | ✅ | 安全审计 |
+| 户部 | ✅ | 成本分析 |
+
+---
+
+## [v2.317.0] - 2026-03-30
+
+### 🎯 六部协同开发第92轮 - 司礼监调度竞品学习与功能开发
+
+### 竞品学习
+- 🔍 **飞牛fnOS**: FN Connect免费内网穿透、AI相册、网盘原生挂载
+- 🔍 **群晖DSM**: Synology Tiering、Drive文件锁定、AI Console、私有云AI
+- 🔍 **TrueNAS**: RAIDZ逐盘扩展、LXC容器、全局搜索、NVMe健康监控
+- 🔍 **铁威马TOS**: TRAID、直通挂载、SMB Multichannel
+
+### 六部协同成果
+
+#### 兵部（软件工程）
+- ✅ **内网穿透增强**: Cloudflare Tunnel/FRP实现优化
+- 📦 新增: `internal/tunnel/cloudflare_new.go`, `internal/tunnel/frp_new.go`
+
+#### 工部（DevOps）
+- ✅ **网盘挂载框架**: rclone集成、多云盘支持
+- 📦 新增: `internal/cloudmount/manager.go`, `types.go`, `rclone_config.go`
+
+---
+
+## [v2.315.0] - 2026-03-29
+
+### 🎯 六部协同开发第90轮 - 司礼监调度竞品学习与功能规划
+
+### 竞品学习
+- 🔍 **飞牛fnOS 1.1**: 网盘原生挂载、本地AI人脸识别、QWRT软路由、Cloudflare Tunnel
+- 🔍 **群晖DSM 7.3**: Synology Tiering、AI Console、私有云AI服务、Drive 4.0
+- 🔍 **TrueNAS 24.10**: RAIDZ扩展、全局搜索、Docker替代Kubernetes、NVMe S.M.A.R.T UI
+
+### 功能规划
+- 📋 RAIDZ扩展API设计（M104）
+- 📋 全局搜索服务优化
+- 📋 NVMe S.M.A.R.T测试UI接口

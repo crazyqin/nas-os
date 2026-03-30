@@ -6,63 +6,63 @@ import (
 	"time"
 )
 
-// Level 通知级别
+// Level 通知级别.
 type Level string
 
-// 通知级别常量
+// 通知级别常量.
 const (
-	// LevelInfo 表示信息级别
+	// LevelInfo 表示信息级别.
 	LevelInfo Level = "info"
-	// LevelSuccess 表示成功级别
+	// LevelSuccess 表示成功级别.
 	LevelSuccess Level = "success"
-	// LevelWarning 表示警告级别
+	// LevelWarning 表示警告级别.
 	LevelWarning Level = "warning"
-	// LevelError 表示错误级别
+	// LevelError 表示错误级别.
 	LevelError Level = "error"
-	// LevelCritical 表示严重级别
+	// LevelCritical 表示严重级别.
 	LevelCritical Level = "critical"
 )
 
-// ChannelType 通知渠道类型
+// ChannelType 通知渠道类型.
 type ChannelType string
 
-// 通知渠道类型常量
+// 通知渠道类型常量.
 const (
-	// ChannelEmail 表示邮件渠道
+	// ChannelEmail 表示邮件渠道.
 	ChannelEmail ChannelType = "email"
-	// ChannelWebhook 表示 Webhook 渠道
+	// ChannelWebhook 表示 Webhook 渠道.
 	ChannelWebhook ChannelType = "webhook"
-	// ChannelWebSocket 表示 WebSocket 渠道
+	// ChannelWebSocket 表示 WebSocket 渠道.
 	ChannelWebSocket ChannelType = "websocket"
-	// ChannelWeChat 表示企业微信渠道
+	// ChannelWeChat 表示企业微信渠道.
 	ChannelWeChat ChannelType = "wechat"
-	// ChannelDingTalk 表示钉钉渠道
+	// ChannelDingTalk 表示钉钉渠道.
 	ChannelDingTalk ChannelType = "dingtalk"
-	// ChannelTelegram 表示 Telegram 渠道
+	// ChannelTelegram 表示 Telegram 渠道.
 	ChannelTelegram ChannelType = "telegram"
 )
 
-// Status 通知状态
+// Status 通知状态.
 type Status string
 
-// 通知状态常量
+// 通知状态常量.
 const (
-	// StatusPending 表示待发送状态
+	// StatusPending 表示待发送状态.
 	StatusPending Status = "pending"
-	// StatusSent 表示已发送状态
+	// StatusSent 表示已发送状态.
 	StatusSent Status = "sent"
-	// StatusFailed 表示发送失败状态
+	// StatusFailed 表示发送失败状态.
 	StatusFailed Status = "failed"
-	// StatusRetrying 表示重试中状态
+	// StatusRetrying 表示重试中状态.
 	StatusRetrying Status = "retrying"
-	// StatusCancelled 表示已取消状态
+	// StatusCancelled 表示已取消状态.
 	StatusCancelled Status = "cancelled"
 )
 
-// RuleCondition 规则条件运算符
+// RuleCondition 规则条件运算符.
 type RuleCondition string
 
-// 规则条件常量
+// 规则条件常量.
 const (
 	ConditionEquals      RuleCondition = "equals"
 	ConditionNotEquals   RuleCondition = "not_equals"
@@ -74,17 +74,17 @@ const (
 	ConditionExists      RuleCondition = "exists"
 )
 
-// LogicalOperator 逻辑运算符
+// LogicalOperator 逻辑运算符.
 type LogicalOperator string
 
-// 逻辑运算符常量
+// 逻辑运算符常量.
 const (
 	OperatorAnd LogicalOperator = "and"
 	OperatorOr  LogicalOperator = "or"
 	OperatorNot LogicalOperator = "not"
 )
 
-// Notification 通知消息
+// Notification 通知消息.
 type Notification struct {
 	ID         string                 `json:"id"`
 	Title      string                 `json:"title"`
@@ -99,7 +99,7 @@ type Notification struct {
 	ExpiresAt  *time.Time             `json:"expiresAt,omitempty"`
 }
 
-// Record 通知发送记录
+// Record 通知发送记录.
 type Record struct {
 	ID             string        `json:"id"`
 	NotificationID string        `json:"notificationId"`
@@ -115,7 +115,7 @@ type Record struct {
 	UpdatedAt      time.Time     `json:"updatedAt"`
 }
 
-// ChannelConfig 通知渠道配置
+// ChannelConfig 通知渠道配置.
 type ChannelConfig struct {
 	ID          string                 `json:"id"`
 	Name        string                 `json:"name"`
@@ -127,7 +127,7 @@ type ChannelConfig struct {
 	UpdatedAt   time.Time              `json:"updatedAt"`
 }
 
-// EmailChannelConfig 邮件渠道配置
+// EmailChannelConfig 邮件渠道配置.
 type EmailChannelConfig struct {
 	SMTPHost   string   `json:"smtpHost"`
 	SMTPPort   int      `json:"smtpPort"`
@@ -139,7 +139,7 @@ type EmailChannelConfig struct {
 	SkipVerify bool     `json:"skipVerify"`
 }
 
-// WebhookChannelConfig Webhook 渠道配置
+// WebhookChannelConfig Webhook 渠道配置.
 type WebhookChannelConfig struct {
 	URL           string            `json:"url"`
 	Method        string            `json:"method,omitempty"`
@@ -149,31 +149,31 @@ type WebhookChannelConfig struct {
 	RetryInterval int               `json:"retryInterval,omitempty"` // 秒
 }
 
-// WebSocketChannelConfig WebSocket 渠道配置
+// WebSocketChannelConfig WebSocket 渠道配置.
 type WebSocketChannelConfig struct {
 	RoomIDs   []string `json:"roomIds,omitempty"`
 	UserIDs   []string `json:"userIds,omitempty"`
 	Broadcast bool     `json:"broadcast,omitempty"`
 }
 
-// WeChatChannelConfig 企业微信渠道配置
+// WeChatChannelConfig 企业微信渠道配置.
 type WeChatChannelConfig struct {
 	WebhookURL string `json:"webhookUrl"`
 }
 
-// DingTalkChannelConfig 钉钉渠道配置
+// DingTalkChannelConfig 钉钉渠道配置.
 type DingTalkChannelConfig struct {
 	WebhookURL string `json:"webhookUrl"`
 	Secret     string `json:"secret,omitempty"`
 }
 
-// TelegramChannelConfig Telegram 渠道配置
+// TelegramChannelConfig Telegram 渠道配置.
 type TelegramChannelConfig struct {
 	BotToken string `json:"botToken"`
 	ChatID   string `json:"chatId"`
 }
 
-// Template 通知模板
+// Template 通知模板.
 type Template struct {
 	ID          string             `json:"id"`
 	Name        string             `json:"name"`
@@ -187,7 +187,7 @@ type Template struct {
 	UpdatedAt   time.Time          `json:"updatedAt"`
 }
 
-// TemplateVariable 模板变量
+// TemplateVariable 模板变量.
 type TemplateVariable struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
@@ -195,7 +195,7 @@ type TemplateVariable struct {
 	Default     string `json:"default,omitempty"`
 }
 
-// Rule 通知规则
+// Rule 通知规则.
 type Rule struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -212,40 +212,40 @@ type Rule struct {
 	UpdatedAt   time.Time    `json:"updatedAt"`
 }
 
-// RuleGroup 规则条件组
+// RuleGroup 规则条件组.
 type RuleGroup struct {
 	Operator LogicalOperator     `json:"operator"`
 	Rules    []RuleConditionItem `json:"rules,omitempty"`
 	Groups   []RuleGroup         `json:"groups,omitempty"`
 }
 
-// RuleConditionItem 规则条件项
+// RuleConditionItem 规则条件项.
 type RuleConditionItem struct {
 	Field     string        `json:"field"`
 	Condition RuleCondition `json:"condition"`
 	Value     interface{}   `json:"value,omitempty"`
 }
 
-// RuleAction 规则动作
+// RuleAction 规则动作.
 type RuleAction struct {
 	Type       string                 `json:"type"` // forward, transform, filter
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
 }
 
-// RateLimit 频率限制
+// RateLimit 频率限制.
 type RateLimit struct {
 	Count    int           `json:"count"`
 	Duration time.Duration `json:"duration"`
 }
 
-// QuietHours 静默时段
+// QuietHours 静默时段.
 type QuietHours struct {
 	Start string `json:"start"`          // HH:mm 格式
 	End   string `json:"end"`            // HH:mm 格式
 	Days  []int  `json:"days,omitempty"` // 0-6, 0=周日
 }
 
-// HistoryFilter 历史记录过滤条件
+// HistoryFilter 历史记录过滤条件.
 type HistoryFilter struct {
 	StartTime *time.Time  `json:"startTime,omitempty"`
 	EndTime   *time.Time  `json:"endTime,omitempty"`
@@ -259,7 +259,7 @@ type HistoryFilter struct {
 	PageSize  int         `json:"pageSize,omitempty"`
 }
 
-// HistoryStats 历史统计
+// HistoryStats 历史统计.
 type HistoryStats struct {
 	TotalCount      int                 `json:"totalCount"`
 	SuccessCount    int                 `json:"successCount"`
@@ -271,7 +271,7 @@ type HistoryStats struct {
 	AvgDeliveryTime float64             `json:"avgDeliveryTime,omitempty"`
 }
 
-// DailyStat 每日统计
+// DailyStat 每日统计.
 type DailyStat struct {
 	Date    string `json:"date"`
 	Count   int    `json:"count"`
@@ -279,7 +279,7 @@ type DailyStat struct {
 	Failed  int    `json:"failed"`
 }
 
-// SendRequest 发送通知请求
+// SendRequest 发送通知请求.
 type SendRequest struct {
 	Notification *Notification          `json:"notification"`
 	Channels     []string               `json:"channels,omitempty"` // 指定渠道 ID，为空则使用规则匹配
@@ -289,7 +289,7 @@ type SendRequest struct {
 	Delay        time.Duration          `json:"delay,omitempty"`
 }
 
-// SendResponse 发送通知响应
+// SendResponse 发送通知响应.
 type SendResponse struct {
 	NotificationID string            `json:"notificationId"`
 	Records        []*Record         `json:"records"`
@@ -297,7 +297,7 @@ type SendResponse struct {
 	Errors         map[string]string `json:"errors,omitempty"`
 }
 
-// ServiceConfig 服务配置
+// ServiceConfig 服务配置.
 type ServiceConfig struct {
 	DefaultRetryCount    int           `json:"defaultRetryCount"`
 	DefaultRetryInterval time.Duration `json:"defaultRetryInterval"`

@@ -15,17 +15,17 @@ import (
 	"github.com/google/uuid"
 )
 
-// 安全验证正则表达式（白名单模式）
+// 安全验证正则表达式（白名单模式）.
 var (
-	// 安全名称：字母、数字、下划线、连字符，最大64字符
+	// 安全名称：字母、数字、下划线、连字符，最大64字符.
 	safeNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)
-	// 安全路径：/dev/ 开头的设备路径或绝对文件路径
+	// 安全路径：/dev/ 开头的设备路径或绝对文件路径.
 	safePathRegex = regexp.MustCompile(`^(/dev/[a-zA-Z0-9/_-]+|/[a-zA-Z0-9/_.-]+)$`)
-	// 安全数字
+	// 安全数字.
 	safeNumberRegex = regexp.MustCompile(`^[0-9]+$`)
 )
 
-// validateSafeName 验证名称参数，防止命令注入
+// validateSafeName 验证名称参数，防止命令注入.
 func validateSafeName(name string) error {
 	if name == "" {
 		return fmt.Errorf("name cannot be empty")
@@ -36,7 +36,7 @@ func validateSafeName(name string) error {
 	return nil
 }
 
-// validateSafePath 验证路径参数，防止命令注入
+// validateSafePath 验证路径参数，防止命令注入.
 func validateSafePath(path string) error {
 	if path == "" {
 		return fmt.Errorf("path cannot be empty")
@@ -51,7 +51,7 @@ func validateSafePath(path string) error {
 	return nil
 }
 
-// validateSafeNumber 验证数字参数
+// validateSafeNumber 验证数字参数.
 func validateSafeNumber(num string) error {
 	if !safeNumberRegex.MatchString(num) {
 		return fmt.Errorf("invalid number format")
@@ -59,7 +59,7 @@ func validateSafeNumber(num string) error {
 	return nil
 }
 
-// Manager manages iSCSI targets
+// Manager manages iSCSI targets.
 type Manager struct {
 	mu         sync.RWMutex
 	targets    map[string]*Target
@@ -70,13 +70,13 @@ type Manager struct {
 	baseDomain string
 }
 
-// persistentConfig is the on-disk configuration structure
+// persistentConfig is the on-disk configuration structure.
 type persistentConfig struct {
 	Config  *Config            `json:"config"`
 	Targets map[string]*Target `json:"targets"`
 }
 
-// NewManager creates a new iSCSI manager
+// NewManager creates a new iSCSI manager.
 func NewManager(configPath, basePath string) (*Manager, error) {
 	m := &Manager{
 		targets: make(map[string]*Target),
@@ -105,7 +105,7 @@ func NewManager(configPath, basePath string) (*Manager, error) {
 	return m, nil
 }
 
-// loadConfig loads configuration from disk
+// loadConfig loads configuration from disk.
 func (m *Manager) loadConfig() error {
 	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
 		return nil
@@ -131,7 +131,7 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-// saveConfigLocked saves configuration (caller holds lock)
+// saveConfigLocked saves configuration (caller holds lock).
 func (m *Manager) saveConfigLocked() error {
 	pc := persistentConfig{
 		Config:  m.config,
@@ -140,7 +140,7 @@ func (m *Manager) saveConfigLocked() error {
 	return m.writeConfigFile(pc)
 }
 
-// writeConfigFile writes config to file
+// writeConfigFile writes config to file.
 func (m *Manager) writeConfigFile(pc persistentConfig) error {
 	data, err := json.MarshalIndent(pc, "", "  ")
 	if err != nil {
@@ -158,7 +158,7 @@ func (m *Manager) writeConfigFile(pc persistentConfig) error {
 	return nil
 }
 
-// CreateTarget creates a new iSCSI target
+// CreateTarget creates a new iSCSI target.
 func (m *Manager) CreateTarget(input TargetInput) (*Target, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -251,7 +251,7 @@ func (m *Manager) CreateTarget(input TargetInput) (*Target, error) {
 	return target, nil
 }
 
-// GetTarget retrieves a target by ID
+// GetTarget retrieves a target by ID.
 func (m *Manager) GetTarget(id string) (*Target, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -263,7 +263,7 @@ func (m *Manager) GetTarget(id string) (*Target, error) {
 	return target, nil
 }
 
-// GetTargetByIQN retrieves a target by IQN
+// GetTargetByIQN retrieves a target by IQN.
 func (m *Manager) GetTargetByIQN(iqn string) (*Target, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -277,7 +277,7 @@ func (m *Manager) GetTargetByIQN(iqn string) (*Target, error) {
 	return nil, ErrTargetNotFound
 }
 
-// ListTargets lists all targets
+// ListTargets lists all targets.
 func (m *Manager) ListTargets() []*Target {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -289,7 +289,7 @@ func (m *Manager) ListTargets() []*Target {
 	return targets
 }
 
-// UpdateTarget updates a target
+// UpdateTarget updates a target.
 func (m *Manager) UpdateTarget(id string, input TargetInput) (*Target, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -331,7 +331,7 @@ func (m *Manager) UpdateTarget(id string, input TargetInput) (*Target, error) {
 	return target, nil
 }
 
-// DeleteTarget deletes a target
+// DeleteTarget deletes a target.
 func (m *Manager) DeleteTarget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -354,7 +354,7 @@ func (m *Manager) DeleteTarget(id string) error {
 	return m.saveConfigLocked()
 }
 
-// AddLUN adds a LUN to a target
+// AddLUN adds a LUN to a target.
 func (m *Manager) AddLUN(targetID string, input LUNInput) (*LUN, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -406,7 +406,7 @@ func (m *Manager) AddLUN(targetID string, input LUNInput) (*LUN, error) {
 	return lun, nil
 }
 
-// GetLUN retrieves a LUN from a target
+// GetLUN retrieves a LUN from a target.
 func (m *Manager) GetLUN(targetID, lunID string) (*LUN, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -425,7 +425,7 @@ func (m *Manager) GetLUN(targetID, lunID string) (*LUN, error) {
 	return nil, ErrLUNNotFound
 }
 
-// RemoveLUN removes a LUN from a target
+// RemoveLUN removes a LUN from a target.
 func (m *Manager) RemoveLUN(targetID, lunID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -449,7 +449,7 @@ func (m *Manager) RemoveLUN(targetID, lunID string) error {
 	return ErrLUNNotFound
 }
 
-// ExpandLUN expands a LUN
+// ExpandLUN expands a LUN.
 func (m *Manager) ExpandLUN(targetID, lunID string, newSize int64) (*LUN, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -475,7 +475,7 @@ func (m *Manager) ExpandLUN(targetID, lunID string, newSize int64) (*LUN, error)
 	return nil, ErrLUNNotFound
 }
 
-// CreateLUNSnapshot creates a snapshot of a LUN
+// CreateLUNSnapshot creates a snapshot of a LUN.
 func (m *Manager) CreateLUNSnapshot(targetID, lunID string, input LUNSnapshotInput) (*LUNSnapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -502,7 +502,7 @@ func (m *Manager) CreateLUNSnapshot(targetID, lunID string, input LUNSnapshotInp
 	return nil, ErrLUNNotFound
 }
 
-// GetTargetStatus gets the operational status of a target
+// GetTargetStatus gets the operational status of a target.
 func (m *Manager) GetTargetStatus(id string) (*TargetStatus, error) {
 	m.mu.RLock()
 	target, exists := m.targets[id]
@@ -527,15 +527,15 @@ func (m *Manager) GetTargetStatus(id string) (*TargetStatus, error) {
 	}, nil
 }
 
-// getSessions gets active sessions for a target
+// getSessions gets active sessions for a target.
 func (m *Manager) getSessions(targetID string) ([]*Session, error) {
 	// In production, this would query the kernel target driver
 	// For now, return simulated data
 	return make([]*Session, 0), nil
 }
 
-// ApplyConfig applies the configuration to the system
-func (m *Manager) ApplyConfig(ctx context.Context) error {
+// ApplyConfig applies the configuration to the system.
+func (m *Manager) ApplyConfig() error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -561,7 +561,7 @@ func (m *Manager) ApplyConfig(ctx context.Context) error {
 					_, secret, ok := m.chapMgr.GetSecret(targetID)
 					if ok {
 						// 使用 stdin 传递密码，避免命令行泄露
-						execCmd := exec.CommandContext(ctx, "targetcli", "/iscsi/"+iqn+"/tpg1/auth", "set", "password=-")
+						execCmd := exec.CommandContext(context.Background(), "targetcli", "/iscsi/"+iqn+"/tpg1/auth", "set", "password=-")
 						execCmd.Stdin = strings.NewReader(secret)
 						if output, err := execCmd.CombinedOutput(); err != nil {
 							return fmt.Errorf("failed to set password: %w (%s)", err, string(output))
@@ -577,7 +577,7 @@ func (m *Manager) ApplyConfig(ctx context.Context) error {
 			continue
 		}
 
-		execCmd := exec.CommandContext(ctx, parts[0], parts[1:]...)
+		execCmd := exec.CommandContext(context.Background(), parts[0], parts[1:]...)
 		if output, err := execCmd.CombinedOutput(); err != nil {
 			return fmt.Errorf("failed to execute %s: %w (%s)", cmd, err, string(output))
 		}
@@ -586,7 +586,7 @@ func (m *Manager) ApplyConfig(ctx context.Context) error {
 	return nil
 }
 
-// getTargetIDByIQN 根据 IQN 获取 target ID
+// getTargetIDByIQN 根据 IQN 获取 target ID.
 func (m *Manager) getTargetIDByIQN(iqn string) string {
 	for id, target := range m.targets {
 		if target.IQN == iqn {
@@ -597,7 +597,7 @@ func (m *Manager) getTargetIDByIQN(iqn string) string {
 }
 
 // generateTargetCLICommands generates targetcli configuration commands
-// 注意：所有参数在生成命令前已通过验证函数检查，确保命令注入安全
+// 注意：所有参数在生成命令前已通过验证函数检查，确保命令注入安全.
 func (m *Manager) generateTargetCLICommands() []string {
 	var commands []string
 
@@ -671,27 +671,27 @@ func (m *Manager) generateTargetCLICommands() []string {
 	return commands
 }
 
-// Start starts the iSCSI target service
-func (m *Manager) Start(ctx context.Context) error {
-	cmd := exec.CommandContext(ctx, "systemctl", "start", "target")
+// Start starts the iSCSI target service.
+func (m *Manager) Start() error {
+	cmd := exec.CommandContext(context.Background(), "systemctl", "start", "target")
 	return cmd.Run()
 }
 
-// Stop stops the iSCSI target service
-func (m *Manager) Stop(ctx context.Context) error {
-	cmd := exec.CommandContext(ctx, "systemctl", "stop", "target")
+// Stop stops the iSCSI target service.
+func (m *Manager) Stop() error {
+	cmd := exec.CommandContext(context.Background(), "systemctl", "stop", "target")
 	return cmd.Run()
 }
 
-// Restart restarts the iSCSI target service
-func (m *Manager) Restart(ctx context.Context) error {
-	cmd := exec.CommandContext(ctx, "systemctl", "restart", "target")
+// Restart restarts the iSCSI target service.
+func (m *Manager) Restart() error {
+	cmd := exec.CommandContext(context.Background(), "systemctl", "restart", "target")
 	return cmd.Run()
 }
 
-// GetStatus checks if the iSCSI target service is running
-func (m *Manager) GetStatus(ctx context.Context) (bool, error) {
-	cmd := exec.CommandContext(ctx, "systemctl", "is-active", "target")
+// GetStatus checks if the iSCSI target service is running.
+func (m *Manager) GetStatus() (bool, error) {
+	cmd := exec.CommandContext(context.Background(), "systemctl", "is-active", "target")
 	output, err := cmd.Output()
 	if err != nil {
 		return false, nil
@@ -699,7 +699,7 @@ func (m *Manager) GetStatus(ctx context.Context) (bool, error) {
 	return strings.TrimSpace(string(output)) == "active", nil
 }
 
-// EnableTarget enables a target
+// EnableTarget enables a target.
 func (m *Manager) EnableTarget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -715,7 +715,7 @@ func (m *Manager) EnableTarget(id string) error {
 	return m.saveConfigLocked()
 }
 
-// DisableTarget disables a target
+// DisableTarget disables a target.
 func (m *Manager) DisableTarget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -731,14 +731,14 @@ func (m *Manager) DisableTarget(id string) error {
 	return m.saveConfigLocked()
 }
 
-// GetConfig returns the current configuration
+// GetConfig returns the current configuration.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// SetBaseDomain sets the base domain for IQN generation
+// SetBaseDomain sets the base domain for IQN generation.
 func (m *Manager) SetBaseDomain(domain string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

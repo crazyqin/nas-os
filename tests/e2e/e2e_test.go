@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// NewTestServer 创建测试服务器
+// NewTestServer 创建测试服务器.
 func NewTestServer() *httptest.Server {
 	gin.SetMode(gin.TestMode)
 	engine := gin.New()
@@ -69,7 +69,7 @@ func NewTestServer() *httptest.Server {
 
 // ========== 存储 E2E 测试 ==========
 
-// TestE2E_Storage_CreateVolume E2E 测试：创建卷
+// TestE2E_Storage_CreateVolume E2E 测试：创建卷.
 func TestE2E_Storage_CreateVolume(t *testing.T) {
 	if testing.Short() {
 		t.Skip("跳过 E2E 测试")
@@ -97,7 +97,7 @@ func TestE2E_Storage_CreateVolume(t *testing.T) {
 	}
 }
 
-// TestE2E_Storage_ListVolumes E2E 测试：列出卷
+// TestE2E_Storage_ListVolumes E2E 测试：列出卷.
 func TestE2E_Storage_ListVolumes(t *testing.T) {
 	if testing.Short() {
 		t.Skip("跳过 E2E 测试")
@@ -119,7 +119,7 @@ func TestE2E_Storage_ListVolumes(t *testing.T) {
 	}
 }
 
-// TestE2E_Storage_GetVolume E2E 测试：获取单个卷
+// TestE2E_Storage_GetVolume E2E 测试：获取单个卷.
 func TestE2E_Storage_GetVolume(t *testing.T) {
 	if testing.Short() {
 		t.Skip("跳过 E2E 测试")
@@ -141,7 +141,7 @@ func TestE2E_Storage_GetVolume(t *testing.T) {
 	}
 }
 
-// TestE2E_Storage_DeleteVolume E2E 测试：删除卷
+// TestE2E_Storage_DeleteVolume E2E 测试：删除卷.
 func TestE2E_Storage_DeleteVolume(t *testing.T) {
 	if testing.Short() {
 		t.Skip("跳过 E2E 测试")
@@ -163,7 +163,7 @@ func TestE2E_Storage_DeleteVolume(t *testing.T) {
 	}
 }
 
-// TestE2E_Storage_CompleteWorkflow E2E 测试：完整存储工作流
+// TestE2E_Storage_CompleteWorkflow E2E 测试：完整存储工作流.
 func TestE2E_Storage_CompleteWorkflow(t *testing.T) {
 	if testing.Short() {
 		t.Skip("跳过 E2E 测试")
@@ -217,7 +217,7 @@ func TestE2E_Storage_CompleteWorkflow(t *testing.T) {
 
 // ========== 认证 E2E 测试 ==========
 
-// TestE2E_Auth_Login E2E 测试：登录
+// TestE2E_Auth_Login E2E 测试：登录.
 func TestE2E_Auth_Login(t *testing.T) {
 	if testing.Short() {
 		t.Skip("跳过 E2E 测试")
@@ -251,7 +251,7 @@ func TestE2E_Auth_Login(t *testing.T) {
 	}
 }
 
-// TestE2E_Auth_CompleteAuthWorkflow E2E 测试：完整认证工作流
+// TestE2E_Auth_CompleteAuthWorkflow E2E 测试：完整认证工作流.
 func TestE2E_Auth_CompleteAuthWorkflow(t *testing.T) {
 	if testing.Short() {
 		t.Skip("跳过 E2E 测试")
@@ -301,7 +301,7 @@ func TestE2E_Auth_CompleteAuthWorkflow(t *testing.T) {
 
 // ========== 系统 E2E 测试 ==========
 
-// TestE2E_System_Health E2E 测试：健康检查
+// TestE2E_System_Health E2E 测试：健康检查.
 func TestE2E_System_Health(t *testing.T) {
 	if testing.Short() {
 		t.Skip("跳过 E2E 测试")
@@ -334,7 +334,7 @@ func TestE2E_System_Health(t *testing.T) {
 	}
 }
 
-// TestE2E_System_CompleteSystemCheck E2E 测试：完整系统检查
+// TestE2E_System_CompleteSystemCheck E2E 测试：完整系统检查.
 func TestE2E_System_CompleteSystemCheck(t *testing.T) {
 	if testing.Short() {
 		t.Skip("跳过 E2E 测试")

@@ -21,7 +21,7 @@ import (
 	"nas-os/pkg/safeguards"
 )
 
-// FileInfo 文件信息
+// FileInfo 文件信息.
 type FileInfo struct {
 	Path     string    `json:"path"`
 	Name     string    `json:"name"`
@@ -33,7 +33,7 @@ type FileInfo struct {
 	MimeType string    `json:"mimeType"`
 }
 
-// Result 搜索结果
+// Result 搜索结果.
 type Result struct {
 	Path       string      `json:"path"`
 	Name       string      `json:"name"`
@@ -45,13 +45,13 @@ type Result struct {
 	Highlights []Highlight `json:"highlights,omitempty"`
 }
 
-// Highlight 高亮信息
+// Highlight 高亮信息.
 type Highlight struct {
 	Field     string   `json:"field"`
 	Fragments []string `json:"fragments"`
 }
 
-// Request 搜索请求
+// Request 搜索请求.
 type Request struct {
 	Query    string     `json:"query"`
 	Paths    []string   `json:"paths,omitempty"`    // 搜索路径限制
@@ -66,7 +66,7 @@ type Request struct {
 	SortDesc bool       `json:"sortDesc,omitempty"` // 是否降序
 }
 
-// IndexConfig 索引配置
+// IndexConfig 索引配置.
 type IndexConfig struct {
 	IndexPath    string   `json:"indexPath"`    // 索引存储路径
 	MaxFileSize  int64    `json:"maxFileSize"`  // 最大索引文件大小
@@ -78,7 +78,7 @@ type IndexConfig struct {
 	ExcludeFiles []string `json:"excludeFiles"` // 排除的文件模式
 }
 
-// IndexStats 索引统计
+// IndexStats 索引统计.
 type IndexStats struct {
 	TotalFiles    int64         `json:"totalFiles"`
 	IndexedFiles  int64         `json:"indexedFiles"`
@@ -87,7 +87,7 @@ type IndexStats struct {
 	IndexDuration time.Duration `json:"indexDuration"`
 }
 
-// Engine 搜索引擎
+// Engine 搜索引擎.
 type Engine struct {
 	config      IndexConfig
 	index       bleve.Index
@@ -100,7 +100,7 @@ type Engine struct {
 	stopChan    chan struct{}
 }
 
-// DefaultIndexConfig 默认配置
+// DefaultIndexConfig 默认配置.
 func DefaultIndexConfig() IndexConfig {
 	return IndexConfig{
 		IndexPath:    "/var/lib/nas-os/search/index.bleve",
@@ -122,7 +122,7 @@ func DefaultIndexConfig() IndexConfig {
 	}
 }
 
-// NewEngine 创建搜索引擎
+// NewEngine 创建搜索引擎.
 func NewEngine(config IndexConfig, logger *zap.Logger) (*Engine, error) {
 	if config.IndexPath == "" {
 		config = DefaultIndexConfig()
@@ -164,7 +164,7 @@ func NewEngine(config IndexConfig, logger *zap.Logger) (*Engine, error) {
 	return engine, nil
 }
 
-// openOrCreateIndex 打开或创建索引
+// openOrCreateIndex 打开或创建索引.
 func (e *Engine) openOrCreateIndex() (bleve.Index, error) {
 	// 尝试打开已有索引
 	index, err := bleve.Open(e.config.IndexPath)
@@ -185,7 +185,7 @@ func (e *Engine) openOrCreateIndex() (bleve.Index, error) {
 	return index, nil
 }
 
-// createIndexMapping 创建索引映射
+// createIndexMapping 创建索引映射.
 func (e *Engine) createIndexMapping() mapping.IndexMapping {
 	// 创建文档映射
 	docMapping := bleve.NewDocumentMapping()
@@ -252,7 +252,7 @@ func (e *Engine) createIndexMapping() mapping.IndexMapping {
 	return indexMapping
 }
 
-// shouldIndexContent 是否应该索引文件内容
+// shouldIndexContent 是否应该索引文件内容.
 func (e *Engine) shouldIndexContent(path string, size int64) bool {
 	if !e.config.IndexContent {
 		return false
@@ -264,7 +264,7 @@ func (e *Engine) shouldIndexContent(path string, size int64) bool {
 	return e.textExts[ext]
 }
 
-// shouldExclude 是否应该排除
+// shouldExclude 是否应该排除.
 func (e *Engine) shouldExclude(path string) bool {
 	// 检查目录
 	for _, part := range strings.Split(path, string(os.PathSeparator)) {
@@ -285,7 +285,7 @@ func (e *Engine) shouldExclude(path string) bool {
 	return false
 }
 
-// getMimeType 获取MIME类型
+// getMimeType 获取MIME类型.
 func getMimeType(ext string) string {
 	mimeTypes := map[string]string{
 		".txt":  "text/plain",
@@ -328,7 +328,7 @@ func getMimeType(ext string) string {
 	return "application/octet-stream"
 }
 
-// readFileContent 读取文件内容
+// readFileContent 读取文件内容.
 func (e *Engine) readFileContent(path string, maxSize int64) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -350,7 +350,7 @@ func (e *Engine) readFileContent(path string, maxSize int64) (string, error) {
 	return string(buf[:n]), nil
 }
 
-// IndexFile 索引单个文件
+// IndexFile 索引单个文件.
 func (e *Engine) IndexFile(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -395,7 +395,7 @@ func (e *Engine) IndexFile(path string) error {
 	return nil
 }
 
-// IndexDirectory 索引目录
+// IndexDirectory 索引目录.
 func (e *Engine) IndexDirectory(root string) error {
 	e.mu.Lock()
 	if e.indexing {
@@ -498,7 +498,7 @@ func (e *Engine) IndexDirectory(root string) error {
 	return nil
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (e *Engine) Search(req Request) (*Response, error) {
 	if req.Query == "" {
 		return nil, fmt.Errorf("搜索查询不能为空")
@@ -589,7 +589,7 @@ func (e *Engine) Search(req Request) (*Response, error) {
 	return response, nil
 }
 
-// buildQuery 构建查询
+// buildQuery 构建查询.
 func (e *Engine) buildQuery(req Request) query.Query {
 	// 主查询
 	mainQuery := bleve.NewMatchQuery(req.Query)
@@ -655,7 +655,7 @@ func (e *Engine) buildQuery(req Request) query.Query {
 	return mainQuery
 }
 
-// Response 搜索响应
+// Response 搜索响应.
 type Response struct {
 	Total    int           `json:"total"`
 	Took     time.Duration `json:"took"`
@@ -663,12 +663,12 @@ type Response struct {
 	Results  []Result      `json:"results"`
 }
 
-// Delete 从索引中删除
+// Delete 从索引中删除.
 func (e *Engine) Delete(path string) error {
 	return e.index.Delete(path)
 }
 
-// DeleteBatch 批量删除
+// DeleteBatch 批量删除.
 func (e *Engine) DeleteBatch(paths []string) error {
 	batch := e.index.NewBatch()
 	for _, path := range paths {
@@ -677,14 +677,14 @@ func (e *Engine) DeleteBatch(paths []string) error {
 	return e.index.Batch(batch)
 }
 
-// Stats 获取索引统计
+// Stats 获取索引统计.
 func (e *Engine) Stats() IndexStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.stats
 }
 
-// Close 关闭搜索引擎
+// Close 关闭搜索引擎.
 func (e *Engine) Close() error {
 	close(e.stopChan)
 	return e.index.Close()
@@ -692,7 +692,7 @@ func (e *Engine) Close() error {
 
 // ================== v2.4.0 智能搜索增强 ==================
 
-// SemanticSearchResult 语义搜索结果
+// SemanticSearchResult 语义搜索结果.
 type SemanticSearchResult struct {
 	Path      string    `json:"path"`
 	Name      string    `json:"name"`
@@ -704,7 +704,7 @@ type SemanticSearchResult struct {
 	RelatedTo []string  `json:"relatedTo,omitempty"`
 }
 
-// SemanticSearchRequest 语义搜索请求
+// SemanticSearchRequest 语义搜索请求.
 type SemanticSearchRequest struct {
 	Query       string   `json:"query"`
 	Paths       []string `json:"paths,omitempty"`
@@ -714,7 +714,7 @@ type SemanticSearchRequest struct {
 }
 
 // SemanticSearch 语义搜索支持
-// 通过查询扩展、模糊匹配和相关性评分实现语义搜索
+// 通过查询扩展、模糊匹配和相关性评分实现语义搜索.
 func (e *Engine) SemanticSearch(query string, limit int) (*SemanticSearchResponse, error) {
 	if query == "" {
 		return nil, fmt.Errorf("搜索查询不能为空")
@@ -797,7 +797,7 @@ func (e *Engine) SemanticSearch(query string, limit int) (*SemanticSearchRespons
 	}, nil
 }
 
-// expandQuery 扩展查询词
+// expandQuery 扩展查询词.
 func (e *Engine) expandQuery(query string) []string {
 	query = strings.TrimSpace(query)
 	queries := []string{query}
@@ -838,7 +838,7 @@ func (e *Engine) expandQuery(query string) []string {
 	return uniqueStrings(queries)
 }
 
-// sortSemanticResults 按相关性排序语义搜索结果
+// sortSemanticResults 按相关性排序语义搜索结果.
 func (e *Engine) sortSemanticResults(results []SemanticSearchResult) {
 	sort.Slice(results, func(i, j int) bool {
 		// 首先按匹配类型排序 (exact > semantic)
@@ -850,7 +850,7 @@ func (e *Engine) sortSemanticResults(results []SemanticSearchResult) {
 	})
 }
 
-// uniqueStrings 去重字符串切片
+// uniqueStrings 去重字符串切片.
 func uniqueStrings(s []string) []string {
 	seen := make(map[string]bool)
 	var result []string
@@ -863,7 +863,7 @@ func uniqueStrings(s []string) []string {
 	return result
 }
 
-// SemanticSearchResponse 语义搜索响应
+// SemanticSearchResponse 语义搜索响应.
 type SemanticSearchResponse struct {
 	Query         string                 `json:"query"`
 	ExpandedTerms []string               `json:"expandedTerms"`
@@ -871,32 +871,32 @@ type SemanticSearchResponse struct {
 	Results       []SemanticSearchResult `json:"results"`
 }
 
-// SortOption 排序选项
+// SortOption 排序选项.
 type SortOption string
 
 // 排序选项常量，定义搜索结果的排序方式。
 const (
-	// SortByRelevance sorts by relevance
+	// SortByRelevance sorts by relevance.
 	SortByRelevance SortOption = "relevance" // 相关性排序
-	// SortByDate sorts by modification date
+	// SortByDate sorts by modification date.
 	SortByDate SortOption = "date" // 修改时间排序
-	// SortBySize sorts by file size
+	// SortBySize sorts by file size.
 	SortBySize SortOption = "size" // 文件大小排序
-	// SortByName sorts by file name
+	// SortByName sorts by file name.
 	SortByName SortOption = "name" // 文件名排序
 )
 
-// SortOrder 排序顺序
+// SortOrder 排序顺序.
 type SortOrder string
 
 // 排序顺序常量，定义搜索结果的排序方向。
 const (
-	// SortOrderAsc sorts in ascending order
+	// SortOrderAsc sorts in ascending order.
 	SortOrderAsc  SortOrder = "asc"
 	SortOrderDesc SortOrder = "desc"
 )
 
-// SortedSearchRequest 排序搜索请求
+// SortedSearchRequest 排序搜索请求.
 type SortedSearchRequest struct {
 	Query  string     `json:"query"`
 	SortBy SortOption `json:"sortBy"`
@@ -905,7 +905,7 @@ type SortedSearchRequest struct {
 	Offset int        `json:"offset"`
 }
 
-// SortedSearchResult 排序搜索结果
+// SortedSearchResult 排序搜索结果.
 type SortedSearchResult struct {
 	Path    string    `json:"path"`
 	Name    string    `json:"name"`
@@ -917,7 +917,7 @@ type SortedSearchResult struct {
 	SortKey string    `json:"sortKey"` // 排序键值
 }
 
-// SortedSearchResponse 排序搜索响应
+// SortedSearchResponse 排序搜索响应.
 type SortedSearchResponse struct {
 	Query   string               `json:"query"`
 	SortBy  SortOption           `json:"sortBy"`
@@ -927,7 +927,7 @@ type SortedSearchResponse struct {
 }
 
 // SortBy 排序搜索
-// 支持按相关性(relevance)、日期(date)、大小(size)排序
+// 支持按相关性(relevance)、日期(date)、大小(size)排序.
 func (e *Engine) SortBy(query string, sortBy SortOption, order SortOrder, limit int) (*SortedSearchResponse, error) {
 	if query == "" {
 		return nil, fmt.Errorf("搜索查询不能为空")
@@ -1001,7 +1001,7 @@ func (e *Engine) SortBy(query string, sortBy SortOption, order SortOrder, limit 
 	}, nil
 }
 
-// getSortField 获取排序字段名
+// getSortField 获取排序字段名.
 func (e *Engine) getSortField(sortBy SortOption) string {
 	switch sortBy {
 	case SortByDate:
@@ -1015,7 +1015,7 @@ func (e *Engine) getSortField(sortBy SortOption) string {
 	}
 }
 
-// getSortKeyValue 获取排序键值（用于显示）
+// getSortKeyValue 获取排序键值（用于显示）.
 func (e *Engine) getSortKeyValue(result *SortedSearchResult, sortBy SortOption) string {
 	switch sortBy {
 	case SortByDate:
@@ -1029,7 +1029,7 @@ func (e *Engine) getSortKeyValue(result *SortedSearchResult, sortBy SortOption) 
 	}
 }
 
-// formatSize 格式化文件大小
+// formatSize 格式化文件大小.
 func formatSize(size int64) string {
 	const (
 		KB = 1024
@@ -1048,7 +1048,7 @@ func formatSize(size int64) string {
 	}
 }
 
-// min 返回较小的整数
+// min 返回较小的整数.
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -1056,7 +1056,7 @@ func min(a, b int) int {
 	return b
 }
 
-// SuggestionResult 搜索建议结果
+// SuggestionResult 搜索建议结果.
 type SuggestionResult struct {
 	Text     string  `json:"text"`
 	Type     string  `json:"type"` // completion, history, related
@@ -1064,14 +1064,14 @@ type SuggestionResult struct {
 	Category string  `json:"category,omitempty"`
 }
 
-// SuggestionResponse 搜索建议响应
+// SuggestionResponse 搜索建议响应.
 type SuggestionResponse struct {
 	Query       string             `json:"query"`
 	Suggestions []SuggestionResult `json:"suggestions"`
 }
 
 // GetSuggestions 获取搜索建议
-// 基于索引内容提供智能建议
+// 基于索引内容提供智能建议.
 func (e *Engine) GetSuggestions(query string) (*SuggestionResponse, error) {
 	if query == "" {
 		return &SuggestionResponse{
@@ -1113,7 +1113,7 @@ func (e *Engine) GetSuggestions(query string) (*SuggestionResponse, error) {
 	}, nil
 }
 
-// getNameSuggestions 获取文件名建议
+// getNameSuggestions 获取文件名建议.
 func (e *Engine) getNameSuggestions(query string) []SuggestionResult {
 	var results []SuggestionResult
 
@@ -1140,7 +1140,7 @@ func (e *Engine) getNameSuggestions(query string) []SuggestionResult {
 	return results
 }
 
-// getExtensionSuggestions 获取扩展名建议
+// getExtensionSuggestions 获取扩展名建议.
 func (e *Engine) getExtensionSuggestions(query string) []SuggestionResult {
 	var results []SuggestionResult
 
@@ -1184,7 +1184,7 @@ func (e *Engine) getExtensionSuggestions(query string) []SuggestionResult {
 	return results
 }
 
-// getPathSuggestions 获取路径建议
+// getPathSuggestions 获取路径建议.
 func (e *Engine) getPathSuggestions(query string) []SuggestionResult {
 	var results []SuggestionResult
 
@@ -1214,7 +1214,7 @@ func (e *Engine) getPathSuggestions(query string) []SuggestionResult {
 	return results
 }
 
-// getRelatedSuggestions 获取相关词建议
+// getRelatedSuggestions 获取相关词建议.
 func (e *Engine) getRelatedSuggestions(query string) []SuggestionResult {
 	var results []SuggestionResult
 
@@ -1257,7 +1257,7 @@ func (e *Engine) getRelatedSuggestions(query string) []SuggestionResult {
 	return results
 }
 
-// deduplicateAndSortSuggestions 去重并排序建议
+// deduplicateAndSortSuggestions 去重并排序建议.
 func deduplicateAndSortSuggestions(suggestions []SuggestionResult) []SuggestionResult {
 	seen := make(map[string]bool)
 	var results []SuggestionResult

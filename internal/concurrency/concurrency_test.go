@@ -251,7 +251,7 @@ func TestSlidingWindowLimiter_Window(t *testing.T) {
 	assert.True(t, limiter.Allow())
 }
 
-// Mock connection for testing
+// Mock connection for testing.
 type mockConn struct {
 	id      int
 	healthy bool

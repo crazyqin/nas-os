@@ -1,0 +1,440 @@
+# NAS-OS AI 服务监控配置
+# v2.308.0 新增（工部维护）
+#
+# 功能特性：
+# - AI 推理服务健康监控
+# - GPU/资源使用监控
+# - 模型推理性能监控
+# - AI 服务错误告警
+# - 模型版本追踪
+# - 推理队列监控
+
+# AI 服务健康检查配置
+healthcheck:
+  # AI 服务专用端点
+  endpoints:
+    health: "/api/v1/ai/health"
+    ready: "/api/v1/ai/ready"
+    live: "/api/v1/ai/live"
+    models: "/api/v1/ai/models"
+    metrics: "/metrics"
+  
+  # 检查间隔（AI服务建议更频繁）
+  interval: 15s
+  timeout: 30s  # AI推理可能需要更长时间
+  start_period: 60s  # 模型加载需要时间
+  retries: 5
+  
+  # 各组件检查配置
+  checks:
+    inference_engine:
+      enabled: true
+      timeout: 30s
+      critical_threshold: 3  # 连续失败次数
+    model_loader:
+      enabled: true
+      timeout: 60s
+    gpu:
+      enabled: true
+      warning_threshold: 80  # GPU内存使用率
+      critical_threshold: 95
+    queue:
+      enabled: true
+      warning_threshold: 50  # 队列长度
+      critical_threshold: 100
+
+# Prometheus 指标配置
+metrics:
+  prometheus:
+    enabled: true
+    path: "/metrics"
+    namespaces:
+      - nas_ai     # AI 服务指标
+      - nas_gpu    # GPU 指标
+      - nas_model  # 模型指标
+      - nas_queue  # 队列指标
+  
+  # 指标标签
+  labels:
+    service: "nas-ai"
+    version: "${AI_VERSION}"
+    model: "${MODEL_NAME}"
+    gpu_id: "${GPU_ID}"
+  
+  # 指标收集配置
+  collection:
+    inference:
+      enabled: true
+      interval: 5s  # 推理指标高频收集
+    gpu:
+      enabled: true
+      interval: 10s
+    model:
+      enabled: true
+      interval: 30s
+    queue:
+      enabled: true
+      interval: 5s
+
+# 告警配置
+alerts:
+  # 告警静默时间（AI服务可适当缩短）
+  silence_duration: 2m
+  repeat_interval: 30m
+  
+  # 通知渠道
+  receivers:
+    - name: "ai-team"
+      type: "webhook"
+      webhook_url_env: "AI_ALERT_WEBHOOK_URL"
+    - name: "ops-team"
+      type: "webhook"
+      webhook_url_env: "OPS_ALERT_WEBHOOK_URL"
+
+# Prometheus 告警规则
+rules:
+  groups:
+    # ==================== AI 服务状态 ====================
+    - name: ai-service-health
+      rules:
+        # AI 服务不可用
+        - alert: AIServiceDown
+          expr: up{job="nas-ai"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: ai-service
+            runbook: "https://docs.nas-os.io/runbook/ai-service"
+          annotations:
+            summary: "AI 推理服务不可用"
+            description: "AI 服务实例 {{ $labels.instance }} 已停止响应"
+        
+        # AI 服务健康检查失败
+        - alert: AIServiceHealthCheckFailed
+          expr: nas_ai_health_check_status == 0
+          for: 2m
+          labels:
+            severity: warning
+            component: ai-service
+          annotations:
+            summary: "AI 服务健康检查失败"
+            description: "AI 服务 {{ $labels.service_name }} 健康检查连续失败"
+        
+        # 模型加载失败
+        - alert: ModelLoadFailed
+          expr: nas_ai_model_load_status{status="failed"} == 1
+          for: 0m
+          labels:
+            severity: critical
+            component: ai-model
+          annotations:
+            summary: "AI 模型加载失败"
+            description: "模型 {{ $labels.model_name }} 加载失败，错误：{{ $labels.error }}"
+        
+        # 模型版本不一致
+        - alert: ModelVersionMismatch
+          expr: count(nas_ai_model_version) by (model_name) > 1
+          for: 5m
+          labels:
+            severity: warning
+            component: ai-model
+          annotations:
+            summary: "模型版本不一致"
+            description: "模型 {{ $labels.model_name }} 存在多个版本，可能导致推理不一致"
+
+    # ==================== GPU 监控 ====================
+    - name: ai-gpu-monitoring
+      rules:
+        # GPU 内存使用过高
+        - alert: GPUMemoryUsageHigh
+          expr: nas_gpu_memory_used_bytes / nas_gpu_memory_total_bytes > 0.85
+          for: 5m
+          labels:
+            severity: warning
+            component: gpu
+          annotations:
+            summary: "GPU 内存使用率过高"
+            description: "GPU {{ $labels.gpu_id }} 内存使用率 {{ $value | printf \"%.1f%%\" }}"
+        
+        # GPU 内存即将耗尽
+        - alert: GPUMemoryCritical
+          expr: nas_gpu_memory_used_bytes / nas_gpu_memory_total_bytes > 0.95
+          for: 1m
+          labels:
+            severity: critical
+            component: gpu
+          annotations:
+            summary: "GPU 内存即将耗尽"
+            description: "GPU {{ $labels.gpu_id }} 内存使用率 {{ $value | printf \"%.1f%%\" }}，可能OOM"
+        
+        # GPU 温度过高
+        - alert: GPUTemperatureHigh
+          expr: nas_gpu_temperature_celsius > 80
+          for: 2m
+          labels:
+            severity: warning
+            component: gpu
+          annotations:
+            summary: "GPU 温度过高"
+            description: "GPU {{ $labels.gpu_id }} 温度 {{ $value }}°C，建议检查散热"
+        
+        # GPU 温度危险
+        - alert: GPUTemperatureCritical
+          expr: nas_gpu_temperature_celsius > 90
+          for: 1m
+          labels:
+            severity: critical
+            component: gpu
+          annotations:
+            summary: "GPU 温度危险"
+            description: "GPU {{ $labels.gpu_id }} 温度 {{ $value }}°C，可能硬件损坏"
+        
+        # GPU 功耗异常
+        - alert: GPUPowerAnomaly
+          expr: nas_gpu_power_watts > nas_gpu_power_limit_watts * 0.9
+          for: 5m
+          labels:
+            severity: warning
+            component: gpu
+          annotations:
+            summary: "GPU 功耗接近上限"
+            description: "GPU {{ $labels.gpu_id }} 功耗 {{ $value }}W，接近功率限制"
+        
+        # GPU 利用率低（可能闲置）
+        - alert: GPUUtilizationLow
+          expr: nas_gpu_utilization_percent < 10
+          for: 30m
+          labels:
+            severity: info
+            component: gpu
+          annotations:
+            summary: "GPU 利用率过低"
+            description: "GPU {{ $labels.gpu_id }} 利用率仅 {{ $value }}%，可能资源浪费"
+        
+        # GPU ECC 错误
+        - alert: GPUECCError
+          expr: increase(nas_gpu_ecc_errors_total[1h]) > 0
+          for: 0m
+          labels:
+            severity: warning
+            component: gpu
+          annotations:
+            summary: "GPU ECC 错误"
+            description: "GPU {{ $labels.gpu_id }} 检测到 {{ $value }} 个ECC错误，可能硬件问题"
+
+    # ==================== 推理性能监控 ====================
+    - name: ai-inference-performance
+      rules:
+        # 推理延迟过高
+        - alert: InferenceLatencyHigh
+          expr: histogram_quantile(0.95, rate(nas_ai_inference_duration_seconds_bucket[5m])) > 10
+          for: 5m
+          labels:
+            severity: warning
+            component: inference
+          annotations:
+            summary: "AI 推理延迟过高"
+            description: "模型 {{ $labels.model_name }} P95 延迟 {{ $value | humanizeDuration }}，超过10秒阈值"
+        
+        # 推理延迟严重
+        - alert: InferenceLatencyCritical
+          expr: histogram_quantile(0.95, rate(nas_ai_inference_duration_seconds_bucket[5m])) > 30
+          for: 2m
+          labels:
+            severity: critical
+            component: inference
+          annotations:
+            summary: "AI 推理延迟严重"
+            description: "模型 {{ $labels.model_name }} P95 延迟 {{ $value | humanizeDuration }}，服务可能不可用"
+        
+        # 推理成功率下降
+        - alert: InferenceSuccessRateLow
+          expr: rate(nas_ai_inference_success_total[5m]) / rate(nas_ai_inference_total[5m]) < 0.95
+          for: 5m
+          labels:
+            severity: warning
+            component: inference
+          annotations:
+            summary: "AI 推理成功率下降"
+            description: "模型 {{ $labels.model_name }} 成功率 {{ $value | printf \"%.1f%%\" }}，低于95%"
+        
+        # 推理错误率高
+        - alert: InferenceErrorRateHigh
+          expr: rate(nas_ai_inference_errors_total[5m]) / rate(nas_ai_inference_total[5m]) > 0.1
+          for: 3m
+          labels:
+            severity: critical
+            component: inference
+          annotations:
+            summary: "AI 推理错误率高"
+            description: "模型 {{ $labels.model_name }} 错误率 {{ $value | printf \"%.1f%%\" }}，超过10%"
+        
+        # 推理吞吐量下降
+        - alert: InferenceThroughputDrop
+          expr: deriv(rate(nas_ai_inference_total[5m])[30m]) < -10
+          for: 10m
+          labels:
+            severity: warning
+            component: inference
+          annotations:
+            summary: "AI 推理吞吐量下降"
+            description: "模型 {{ $labels.model_name }} 吞吐量持续下降，可能资源瓶颈"
+
+    # ==================== 队列监控 ====================
+    - name: ai-queue-monitoring
+      rules:
+        # 推理队列过长
+        - alert: InferenceQueueLong
+          expr: nas_ai_queue_length > 50
+          for: 5m
+          labels:
+            severity: warning
+            component: queue
+          annotations:
+            summary: "AI 推理队列过长"
+            description: "队列长度 {{ $value }}，用户等待时间可能过长"
+        
+        # 推理队列严重堵塞
+        - alert: InferenceQueueBlocked
+          expr: nas_ai_queue_length > 100
+          for: 2m
+          labels:
+            severity: critical
+            component: queue
+          annotations:
+            summary: "AI 推理队列严重堵塞"
+            description: "队列长度 {{ $value }}，建议扩容或检查慢请求"
+        
+        # 队列等待时间过长
+        - alert: QueueWaitTimeHigh
+          expr: histogram_quantile(0.95, rate(nas_ai_queue_wait_seconds_bucket[5m])) > 60
+          for: 5m
+          labels:
+            severity: warning
+            component: queue
+          annotations:
+            summary: "队列等待时间过长"
+            description: "P95 队列等待时间 {{ $value | humanizeDuration }}"
+        
+        # 请求丢弃
+        - alert: QueueRequestDropped
+          expr: increase(nas_ai_queue_dropped_total[5m]) > 0
+          for: 0m
+          labels:
+            severity: warning
+            component: queue
+          annotations:
+            summary: "队列请求被丢弃"
+            description: "最近5分钟丢弃 {{ $value }} 个请求，队列可能过载"
+
+    # ==================== 资源监控 ====================
+    - name: ai-resource-monitoring
+      rules:
+        # AI 服务内存使用过高
+        - alert: AIServiceMemoryHigh
+          expr: container_memory_usage_bytes{name="nas-ai"} / container_spec_memory_limit_bytes{name="nas-ai"} > 0.85
+          for: 5m
+          labels:
+            severity: warning
+            component: ai-resource
+          annotations:
+            summary: "AI 服务内存使用过高"
+            description: "内存使用率 {{ $value | printf \"%.1f%%\" }}"
+        
+        # AI 服务 CPU 使用过高
+        - alert: AIServiceCPUHigh
+          expr: rate(container_cpu_usage_seconds_total{name="nas-ai"}[5m]) > 0.8
+          for: 5m
+          labels:
+            severity: warning
+            component: ai-resource
+          annotations:
+            summary: "AI 服务 CPU 使用过高"
+            description: "CPU 使用率 {{ $value | printf \"%.1f%%\" }}"
+        
+        # 模型缓存命中率低
+        - alert: ModelCacheHitRateLow
+          expr: nas_ai_model_cache_hit_rate < 0.5
+          for: 30m
+          labels:
+            severity: warning
+            component: ai-resource
+          annotations:
+            summary: "模型缓存命中率低"
+            description: "缓存命中率 {{ $value | printf \"%.1f%%\" }}，可能频繁重新加载模型"
+
+    # ==================== Ollama 特定监控 ====================
+    - name: ai-ollama-monitoring
+      rules:
+        # Ollama 服务状态
+        - alert: OllamaServiceDown
+          expr: up{job="ollama"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: ollama
+          annotations:
+            summary: "Ollama 服务不可用"
+            description: "Ollama 服务已停止响应"
+        
+        # Ollama 模型拉取失败
+        - alert: OllamaModelPullFailed
+          expr: nas_ollama_model_pull_status{status="failed"} == 1
+          for: 0m
+          labels:
+            severity: warning
+            component: ollama
+          annotations:
+            summary: "Ollama 模型拉取失败"
+            description: "模型 {{ $labels.model_name }} 拉取失败"
+        
+        # Ollama 并发请求过多
+        - alert: OllamaConcurrencyHigh
+          expr: nas_ollama_active_requests > nas_ollama_max_concurrent * 0.8
+          for: 5m
+          labels:
+            severity: warning
+            component: ollama
+          annotations:
+            summary: "Ollama 并发请求过多"
+            description: "当前 {{ $value }} 个并发请求，接近上限"
+
+# 模型配置追踪
+model_tracking:
+  enabled: true
+  # 自动注册新模型
+  auto_register: true
+  # 模型健康检查
+  health_check:
+    interval: 30s
+    timeout: 60s
+    # 测试推理
+    test_inference: true
+  # 模型版本管理
+  versioning:
+    enabled: true
+    auto_update: false
+    # 保留历史版本数量
+    history_limit: 3
+
+# GPU 配置
+gpu:
+  # GPU 监控间隔
+  monitor_interval: 10s
+  # GPU 设备配置
+  devices:
+    - id: 0
+      name: "primary"
+      memory_limit_gb: 24
+      temperature_limit_celsius: 85
+    # 多GPU时可扩展
+    # - id: 1
+    #   name: "secondary"
+    #   memory_limit_gb: 24
+  
+  # GPU 调度策略
+  scheduling:
+    strategy: "round-robin"  # 或 "least-loaded"
+    memory_threshold: 0.9
+    # GPU 专用模型
+    dedicated_models: {}

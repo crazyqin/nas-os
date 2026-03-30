@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// TestManager creates a test manager with temp directory
+// TestManager creates a test manager with temp directory.
 func setupTestManager(t *testing.T) (*Manager, string) {
 	tmpDir, err := os.MkdirTemp("", "iscsi-test-*")
 	if err != nil {

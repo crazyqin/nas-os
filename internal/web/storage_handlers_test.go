@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -199,7 +200,7 @@ func TestListVolumes_EmptyResponse(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/storage/volumes", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -218,7 +219,7 @@ func TestListPools_Handler(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/storage/pools", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/storage/pools", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -233,7 +234,7 @@ func TestListAllSnapshots_Handler(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/storage/snapshots", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/storage/snapshots", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

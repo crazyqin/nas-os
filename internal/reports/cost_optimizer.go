@@ -8,7 +8,7 @@ import (
 
 // ========== 成本优化分析 ==========
 
-// WasteType 浪费类型
+// WasteType 浪费类型.
 type WasteType string
 
 const (
@@ -30,7 +30,7 @@ const (
 	WasteTypeOldVersion WasteType = "old_version" // 旧版本文件
 )
 
-// OptimizationType 优化类型
+// OptimizationType 优化类型.
 type OptimizationType string
 
 const (
@@ -50,7 +50,7 @@ const (
 	OptimizationTypeResize OptimizationType = "resize" // 卷调整
 )
 
-// WasteItem 浪费项
+// WasteItem 浪费项.
 type WasteItem struct {
 	// 类型
 	Type WasteType `json:"type"`
@@ -77,7 +77,7 @@ type WasteItem struct {
 	Risk string `json:"risk"`
 }
 
-// OptimizationOpportunity 优化机会
+// OptimizationOpportunity 优化机会.
 type OptimizationOpportunity struct {
 	// ID
 	ID string `json:"id"`
@@ -131,7 +131,7 @@ type OptimizationOpportunity struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// CostOptimizationReport 成本优化报告
+// CostOptimizationReport 成本优化报告.
 type CostOptimizationReport struct {
 	// ID
 	ID string `json:"id"`
@@ -161,7 +161,7 @@ type CostOptimizationReport struct {
 	GeneratedAt time.Time `json:"generated_at"`
 }
 
-// WasteSummary 浪费汇总
+// WasteSummary 浪费汇总.
 type WasteSummary struct {
 	// 总浪费空间（字节）
 	TotalWastedBytes uint64 `json:"total_wasted_bytes"`
@@ -179,7 +179,7 @@ type WasteSummary struct {
 	ItemCounts map[WasteType]int `json:"item_counts"`
 }
 
-// OptimizationSummary 优化汇总
+// OptimizationSummary 优化汇总.
 type OptimizationSummary struct {
 	// 总优化机会数
 	TotalOpportunities int `json:"total_opportunities"`
@@ -203,7 +203,7 @@ type OptimizationSummary struct {
 	QuickWinCount int `json:"quick_win_count"`
 }
 
-// ActionItem 行动项
+// ActionItem 行动项.
 type ActionItem struct {
 	// 序号
 	Sequence int `json:"sequence"`
@@ -230,17 +230,17 @@ type ActionItem struct {
 	Assignee string `json:"assignee,omitempty"`
 }
 
-// CostOptimizer 成本优化器
+// CostOptimizer 成本优化器.
 type CostOptimizer struct {
 	config StorageCostConfig
 }
 
-// NewCostOptimizer 创建成本优化器
+// NewCostOptimizer 创建成本优化器.
 func NewCostOptimizer(config StorageCostConfig) *CostOptimizer {
 	return &CostOptimizer{config: config}
 }
 
-// AnalyzeWaste 分析浪费
+// AnalyzeWaste 分析浪费.
 func (o *CostOptimizer) AnalyzeWaste(items []WasteItem, totalCapacity uint64) WasteSummary {
 	summary := WasteSummary{
 		ByType:     make(map[WasteType]uint64),
@@ -264,7 +264,7 @@ func (o *CostOptimizer) AnalyzeWaste(items []WasteItem, totalCapacity uint64) Wa
 	return summary
 }
 
-// IdentifyOpportunities 识别优化机会
+// IdentifyOpportunities 识别优化机会.
 func (o *CostOptimizer) IdentifyOpportunities(
 	wasteItems []WasteItem,
 	volumeMetrics []StorageMetrics,
@@ -323,7 +323,7 @@ func (o *CostOptimizer) IdentifyOpportunities(
 	return opportunities
 }
 
-// analyzeDuplicates 分析重复文件优化
+// analyzeDuplicates 分析重复文件优化.
 func (o *CostOptimizer) analyzeDuplicates(items []WasteItem, now time.Time) *OptimizationOpportunity {
 	var totalDupBytes uint64
 	var dupCount int
@@ -368,7 +368,7 @@ func (o *CostOptimizer) analyzeDuplicates(items []WasteItem, now time.Time) *Opt
 	}
 }
 
-// analyzeExpiredData 分析过期数据清理
+// analyzeExpiredData 分析过期数据清理.
 func (o *CostOptimizer) analyzeExpiredData(items []WasteItem, now time.Time) *OptimizationOpportunity {
 	var totalExpiredBytes uint64
 	var expiredCount int
@@ -413,7 +413,7 @@ func (o *CostOptimizer) analyzeExpiredData(items []WasteItem, now time.Time) *Op
 	}
 }
 
-// analyzeUnusedQuota 分析未使用配额
+// analyzeUnusedQuota 分析未使用配额.
 func (o *CostOptimizer) analyzeUnusedQuota(items []WasteItem, now time.Time) *OptimizationOpportunity {
 	var totalUnusedBytes uint64
 	var unusedCount int
@@ -458,7 +458,7 @@ func (o *CostOptimizer) analyzeUnusedQuota(items []WasteItem, now time.Time) *Op
 	}
 }
 
-// analyzeCompression 分析压缩机会
+// analyzeCompression 分析压缩机会.
 func (o *CostOptimizer) analyzeCompression(metrics []StorageMetrics, now time.Time) *OptimizationOpportunity {
 	var totalCompressibleBytes uint64
 
@@ -502,13 +502,13 @@ func (o *CostOptimizer) analyzeCompression(metrics []StorageMetrics, now time.Ti
 	}
 }
 
-// analyzeDeduplication 分析去重机会
+// analyzeDeduplication 分析去重机会.
 func (o *CostOptimizer) analyzeDeduplication(items []WasteItem, now time.Time) *OptimizationOpportunity {
 	// 这个方法在analyzeDuplicates中已处理
 	return nil
 }
 
-// analyzeTiering 分析分层存储机会
+// analyzeTiering 分析分层存储机会.
 func (o *CostOptimizer) analyzeTiering(metrics []StorageMetrics, costs []StorageCostResult, now time.Time) *OptimizationOpportunity {
 	// 查找低使用率但高成本的卷
 	var totalColdBytes uint64
@@ -558,7 +558,7 @@ func (o *CostOptimizer) analyzeTiering(metrics []StorageMetrics, costs []Storage
 	}
 }
 
-// analyzeResize 分析卷调整机会
+// analyzeResize 分析卷调整机会.
 func (o *CostOptimizer) analyzeResize(metrics []StorageMetrics, costs []StorageCostResult, now time.Time) *OptimizationOpportunity {
 	// 查找过度分配的卷
 	var overAllocatedBytes uint64
@@ -606,7 +606,7 @@ func (o *CostOptimizer) analyzeResize(metrics []StorageMetrics, costs []StorageC
 	}
 }
 
-// GenerateReport 生成成本优化报告
+// GenerateReport 生成成本优化报告.
 func (o *CostOptimizer) GenerateReport(
 	wasteItems []WasteItem,
 	volumeMetrics []StorageMetrics,
@@ -641,7 +641,7 @@ func (o *CostOptimizer) GenerateReport(
 	}
 }
 
-// calculateOptimizationSummary 计算优化汇总
+// calculateOptimizationSummary 计算优化汇总.
 func (o *CostOptimizer) calculateOptimizationSummary(opportunities []OptimizationOpportunity) OptimizationSummary {
 	summary := OptimizationSummary{
 		TotalOpportunities: len(opportunities),
@@ -672,7 +672,7 @@ func (o *CostOptimizer) calculateOptimizationSummary(opportunities []Optimizatio
 	return summary
 }
 
-// generateActionPlan 生成行动计划
+// generateActionPlan 生成行动计划.
 func (o *CostOptimizer) generateActionPlan(opportunities []OptimizationOpportunity) []ActionItem {
 	// 按优先级和难度排序
 	sorted := make([]OptimizationOpportunity, len(opportunities))
@@ -710,12 +710,12 @@ func (o *CostOptimizer) generateActionPlan(opportunities []OptimizationOpportuni
 	return actionPlan
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (o *CostOptimizer) UpdateConfig(config StorageCostConfig) {
 	o.config = config
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (o *CostOptimizer) GetConfig() StorageCostConfig {
 	return o.config
 }

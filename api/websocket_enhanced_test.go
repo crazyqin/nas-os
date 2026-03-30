@@ -2,6 +2,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +19,7 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
-// TestNewEnhancedWebSocketHub tests hub creation
+// TestNewEnhancedWebSocketHub tests hub creation.
 func TestNewEnhancedWebSocketHub(t *testing.T) {
 	heartbeat := DefaultHeartbeatConfig
 	reconnect := DefaultReconnectConfig
@@ -42,7 +43,7 @@ func TestNewEnhancedWebSocketHub(t *testing.T) {
 	}
 }
 
-// TestEnhancedWebSocketHubBroadcast tests message broadcasting
+// TestEnhancedWebSocketHubBroadcast tests message broadcasting.
 func TestEnhancedWebSocketHubBroadcast(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -58,7 +59,7 @@ func TestEnhancedWebSocketHubBroadcast(t *testing.T) {
 	}
 }
 
-// TestEnhancedWebSocketHubBroadcastToUser tests user-specific broadcasting
+// TestEnhancedWebSocketHubBroadcastToUser tests user-specific broadcasting.
 func TestEnhancedWebSocketHubBroadcastToUser(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -72,7 +73,7 @@ func TestEnhancedWebSocketHubBroadcastToUser(t *testing.T) {
 	}
 }
 
-// TestEnhancedClientState tests client state management
+// TestEnhancedClientState tests client state management.
 func TestEnhancedClientState(t *testing.T) {
 	// Create a test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -92,11 +93,12 @@ func TestEnhancedClientState(t *testing.T) {
 
 	// Connect as client
 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http")
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	conn, resp, err := websocket.DefaultDialer.Dial(wsURL, nil)
 	if err != nil {
 		t.Fatalf("Failed to connect: %v", err)
 	}
 	defer conn.Close()
+	defer resp.Body.Close()
 
 	client := NewEnhancedClient(conn, "test-user", DefaultHeartbeatConfig, DefaultReconnectConfig)
 
@@ -121,7 +123,7 @@ func TestEnhancedClientState(t *testing.T) {
 	}
 }
 
-// TestConnectionStateString tests state string conversion
+// TestConnectionStateString tests state string conversion.
 func TestConnectionStateString(t *testing.T) {
 	tests := []struct {
 		state    ConnectionState
@@ -143,7 +145,7 @@ func TestConnectionStateString(t *testing.T) {
 	}
 }
 
-// TestHeartbeatConfig tests heartbeat configuration
+// TestHeartbeatConfig tests heartbeat configuration.
 func TestHeartbeatConfig(t *testing.T) {
 	config := HeartbeatConfig{
 		PingInterval:          15 * time.Second,
@@ -167,7 +169,7 @@ func TestHeartbeatConfig(t *testing.T) {
 	}
 }
 
-// TestReconnectConfig tests reconnect configuration
+// TestReconnectConfig tests reconnect configuration.
 func TestReconnectConfig(t *testing.T) {
 	config := ReconnectConfig{
 		Enable:        true,
@@ -187,7 +189,7 @@ func TestReconnectConfig(t *testing.T) {
 	}
 }
 
-// TestWebSocketMessage tests message types
+// TestWebSocketMessage tests message types.
 func TestWebSocketMessage(t *testing.T) {
 	msg := WebSocketMessage{
 		Type:      MessageTypeSystem,
@@ -210,7 +212,7 @@ func TestWebSocketMessage(t *testing.T) {
 	}
 }
 
-// TestConnectionStats tests connection statistics
+// TestConnectionStats tests connection statistics.
 func TestConnectionStats(t *testing.T) {
 	stats := ConnectionStats{
 		ID:               "test-id",
@@ -234,7 +236,7 @@ func TestConnectionStats(t *testing.T) {
 	}
 }
 
-// TestGetAllClientStats tests getting all client stats
+// TestGetAllClientStats tests getting all client stats.
 func TestGetAllClientStats(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 
@@ -248,7 +250,7 @@ func TestGetAllClientStats(t *testing.T) {
 	}
 }
 
-// TestGetClientStatsNotFound tests getting non-existent client stats
+// TestGetClientStatsNotFound tests getting non-existent client stats.
 func TestGetClientStatsNotFound(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 
@@ -258,7 +260,7 @@ func TestGetClientStatsNotFound(t *testing.T) {
 	}
 }
 
-// TestGenerateSecureID tests ID generation
+// TestGenerateSecureID tests ID generation.
 func TestGenerateSecureID(t *testing.T) {
 	id1 := generateSecureID()
 	id2 := generateSecureID()
@@ -276,7 +278,7 @@ func TestGenerateSecureID(t *testing.T) {
 	}
 }
 
-// TestEnhancedWebSocketHandler tests the handler
+// TestEnhancedWebSocketHandler tests the handler.
 func TestEnhancedWebSocketHandler(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -292,7 +294,7 @@ func TestEnhancedWebSocketHandler(t *testing.T) {
 	}
 }
 
-// TestEnhancedWebSocketHandlerStatus tests status endpoint
+// TestEnhancedWebSocketHandlerStatus tests status endpoint.
 func TestEnhancedWebSocketHandlerStatus(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -305,7 +307,7 @@ func TestEnhancedWebSocketHandlerStatus(t *testing.T) {
 	router := gin.New()
 	router.GET("/ws/status", handler.GetStatus)
 
-	req := httptest.NewRequest("GET", "/ws/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/ws/status", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -324,7 +326,7 @@ func TestEnhancedWebSocketHandlerStatus(t *testing.T) {
 	}
 }
 
-// TestEnhancedWebSocketHandlerClientStatus tests client status endpoint
+// TestEnhancedWebSocketHandlerClientStatus tests client status endpoint.
 func TestEnhancedWebSocketHandlerClientStatus(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -337,7 +339,7 @@ func TestEnhancedWebSocketHandlerClientStatus(t *testing.T) {
 	router := gin.New()
 	router.GET("/ws/client/:id", handler.GetClientStatus)
 
-	req := httptest.NewRequest("GET", "/ws/client/non-existent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/ws/client/non-existent", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -347,7 +349,7 @@ func TestEnhancedWebSocketHandlerClientStatus(t *testing.T) {
 	}
 }
 
-// TestConcurrentBroadcast tests concurrent broadcasting
+// TestConcurrentBroadcast tests concurrent broadcasting.
 func TestConcurrentBroadcast(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -367,7 +369,7 @@ func TestConcurrentBroadcast(t *testing.T) {
 	wg.Wait()
 }
 
-// TestMessageTypeString tests message type constants
+// TestMessageTypeString tests message type constants.
 func TestMessageTypeString(t *testing.T) {
 	types := []MessageType{
 		MessageTypeSystem,
@@ -388,7 +390,7 @@ func TestMessageTypeString(t *testing.T) {
 	}
 }
 
-// TestNotificationTypes tests notification structures
+// TestNotificationTypes tests notification structures.
 func TestNotificationTypes(t *testing.T) {
 	// SystemNotification
 	sysNotif := SystemNotification{
@@ -470,7 +472,7 @@ func TestNotificationTypes(t *testing.T) {
 	}
 }
 
-// TestHubStop tests graceful hub shutdown
+// TestHubStop tests graceful hub shutdown.
 func TestHubStop(t *testing.T) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -484,7 +486,7 @@ func TestHubStop(t *testing.T) {
 	hub.Stop()
 }
 
-// TestClientClose tests client close
+// TestClientClose tests client close.
 func TestClientClose(t *testing.T) {
 	// Create a minimal test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -501,10 +503,11 @@ func TestClientClose(t *testing.T) {
 	defer server.Close()
 
 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http")
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	conn, resp, err := websocket.DefaultDialer.Dial(wsURL, nil)
 	if err != nil {
 		t.Fatalf("Failed to connect: %v", err)
 	}
+	defer resp.Body.Close()
 
 	client := NewEnhancedClient(conn, "test", DefaultHeartbeatConfig, DefaultReconnectConfig)
 
@@ -515,7 +518,7 @@ func TestClientClose(t *testing.T) {
 	client.Close()
 }
 
-// BenchmarkBroadcast benchmarks broadcast performance
+// BenchmarkBroadcast benchmarks broadcast performance.
 func BenchmarkBroadcast(b *testing.B) {
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)
 	go hub.Run()
@@ -529,7 +532,7 @@ func BenchmarkBroadcast(b *testing.B) {
 	}
 }
 
-// BenchmarkGenerateSecureID benchmarks ID generation
+// BenchmarkGenerateSecureID benchmarks ID generation.
 func BenchmarkGenerateSecureID(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		generateSecureID()

@@ -10,17 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 标签管理 HTTP 处理器
+// Handlers 标签管理 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	// ========== 标签管理 ==========
 	tags := api.Group("/tags")
@@ -61,7 +61,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 // @Produce json
 // @Param group query string false "分组名称"
 // @Success 200 {object} Response "成功"
-// @Router /tags [get]
+// @Router /tags [get].
 func (h *Handlers) listTags(c *gin.Context) {
 	group := c.Query("group")
 
@@ -91,7 +91,7 @@ func (h *Handlers) listTags(c *gin.Context) {
 // @Param id path string true "标签ID"
 // @Success 200 {object} Response "成功"
 // @Failure 404 {object} Response "标签不存在"
-// @Router /tags/{id} [get]
+// @Router /tags/{id} [get].
 func (h *Handlers) getTag(c *gin.Context) {
 	id := c.Param("id")
 
@@ -118,7 +118,7 @@ func (h *Handlers) getTag(c *gin.Context) {
 // @Success 201 {object} Response "创建成功"
 // @Failure 400 {object} Response "请求参数错误"
 // @Failure 409 {object} Response "标签名称已存在"
-// @Router /tags [post]
+// @Router /tags [post].
 func (h *Handlers) createTag(c *gin.Context) {
 	var req TagInput
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -158,7 +158,7 @@ func (h *Handlers) createTag(c *gin.Context) {
 // @Failure 400 {object} Response "请求参数错误"
 // @Failure 404 {object} Response "标签不存在"
 // @Failure 409 {object} Response "标签名称已存在"
-// @Router /tags/{id} [put]
+// @Router /tags/{id} [put].
 func (h *Handlers) updateTag(c *gin.Context) {
 	id := c.Param("id")
 
@@ -196,7 +196,7 @@ func (h *Handlers) updateTag(c *gin.Context) {
 // @Param id path string true "标签ID"
 // @Success 200 {object} Response "删除成功"
 // @Failure 404 {object} Response "标签不存在"
-// @Router /tags/{id} [delete]
+// @Router /tags/{id} [delete].
 func (h *Handlers) deleteTag(c *gin.Context) {
 	id := c.Param("id")
 
@@ -220,7 +220,7 @@ func (h *Handlers) deleteTag(c *gin.Context) {
 // @Produce json
 // @Param q query string true "搜索关键词"
 // @Success 200 {object} Response "成功"
-// @Router /tags/search [get]
+// @Router /tags/search [get].
 func (h *Handlers) searchTags(c *gin.Context) {
 	keyword := c.Query("q")
 	if keyword == "" {
@@ -244,7 +244,7 @@ func (h *Handlers) searchTags(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response "成功"
-// @Router /tags/groups [get]
+// @Router /tags/groups [get].
 func (h *Handlers) listGroups(c *gin.Context) {
 	groups, err := h.manager.ListGroups()
 	if err != nil {
@@ -262,7 +262,7 @@ func (h *Handlers) listGroups(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response "成功"
-// @Router /tags/stats [get]
+// @Router /tags/stats [get].
 func (h *Handlers) getStats(c *gin.Context) {
 	stats, err := h.manager.GetStats()
 	if err != nil {
@@ -281,7 +281,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 // @Produce json
 // @Param id path string true "标签ID"
 // @Success 200 {object} Response "成功"
-// @Router /tags/{id}/files [get]
+// @Router /tags/{id}/files [get].
 func (h *Handlers) getTagFiles(c *gin.Context) {
 	id := c.Param("id")
 
@@ -313,7 +313,7 @@ func (h *Handlers) getTagFiles(c *gin.Context) {
 // @Produce json
 // @Param id path string true "标签ID"
 // @Success 200 {object} Response "成功"
-// @Router /tags/{id}/usage [get]
+// @Router /tags/{id}/usage [get].
 func (h *Handlers) getTagUsage(c *gin.Context) {
 	id := c.Param("id")
 
@@ -347,7 +347,7 @@ func (h *Handlers) getTagUsage(c *gin.Context) {
 // @Produce json
 // @Param id path string true "文件路径（URL编码）"
 // @Success 200 {object} Response "成功"
-// @Router /files/{id}/tags [get]
+// @Router /files/{id}/tags [get].
 func (h *Handlers) getFileTags(c *gin.Context) {
 	filePath := c.Param("id")
 
@@ -370,7 +370,7 @@ func (h *Handlers) getFileTags(c *gin.Context) {
 // @Param request body addFileTagsRequest true "标签ID列表"
 // @Success 200 {object} Response "成功"
 // @Failure 400 {object} Response "请求参数错误"
-// @Router /files/{id}/tags [post]
+// @Router /files/{id}/tags [post].
 func (h *Handlers) addFileTags(c *gin.Context) {
 	filePath := c.Param("id")
 
@@ -410,7 +410,7 @@ func (h *Handlers) addFileTags(c *gin.Context) {
 // @Param id path string true "文件路径（URL编码）"
 // @Param tagId path string true "标签ID"
 // @Success 200 {object} Response "成功"
-// @Router /files/{id}/tags/{tagId} [delete]
+// @Router /files/{id}/tags/{tagId} [delete].
 func (h *Handlers) removeFileTag(c *gin.Context) {
 	filePath := c.Param("id")
 	tagID := c.Param("tagId")
@@ -432,7 +432,7 @@ func (h *Handlers) removeFileTag(c *gin.Context) {
 // @Produce json
 // @Param tagId path string true "标签ID"
 // @Success 200 {object} Response "成功"
-// @Router /files/by-tag/{tagId} [get]
+// @Router /files/by-tag/{tagId} [get].
 func (h *Handlers) getFilesByTagID(c *gin.Context) {
 	tagID := c.Param("tagId")
 
@@ -465,7 +465,7 @@ func (h *Handlers) getFilesByTagID(c *gin.Context) {
 // @Param request body BatchTagRequest true "批量标签请求"
 // @Success 200 {object} Response "成功"
 // @Failure 400 {object} Response "请求参数错误"
-// @Router /files/batch-tags [post]
+// @Router /files/batch-tags [post].
 func (h *Handlers) batchTagFiles(c *gin.Context) {
 	var req BatchTagRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -528,12 +528,12 @@ func (h *Handlers) batchTagFiles(c *gin.Context) {
 	c.JSON(http.StatusOK, apiresponse.Success(nil))
 }
 
-// addFileTagsRequest 添加文件标签请求
+// addFileTagsRequest 添加文件标签请求.
 type addFileTagsRequest struct {
 	TagIDs []string `json:"tagIds" binding:"required"`
 }
 
-// BatchTagRequest 批量标签请求
+// BatchTagRequest 批量标签请求.
 type BatchTagRequest struct {
 	Action    string   `json:"action"` // add, set, remove, clear
 	FilePaths []string `json:"filePaths" binding:"required"`

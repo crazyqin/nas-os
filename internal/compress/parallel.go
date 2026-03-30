@@ -17,22 +17,22 @@ import (
 
 // ========== 压缩进度追踪 ==========
 
-// ProgressPhase 进度阶段
+// ProgressPhase 进度阶段.
 type ProgressPhase string
 
 // 进度阶段常量，定义压缩进度的各个阶段。
 const (
-	// PhaseScanning represents the scanning phase
+	// PhaseScanning represents the scanning phase.
 	PhaseScanning ProgressPhase = "scanning" // 扫描文件
-	// PhaseCompressing represents the compressing phase
+	// PhaseCompressing represents the compressing phase.
 	PhaseCompressing ProgressPhase = "compressing" // 压缩中
-	// PhaseVerifying represents the verifying phase
+	// PhaseVerifying represents the verifying phase.
 	PhaseVerifying ProgressPhase = "verifying" // 验证中
-	// PhaseCompleted represents the completed phase
+	// PhaseCompleted represents the completed phase.
 	PhaseCompleted ProgressPhase = "completed" // 完成
 )
 
-// CompressionProgress 压缩进度
+// CompressionProgress 压缩进度.
 type CompressionProgress struct {
 	mu sync.RWMutex
 
@@ -58,10 +58,10 @@ type CompressionProgress struct {
 	onProgress []ProgressCallback
 }
 
-// ProgressCallback 进度回调
+// ProgressCallback 进度回调.
 type ProgressCallback func(progress *CompressionProgress)
 
-// NewCompressionProgress 创建进度追踪器
+// NewCompressionProgress 创建进度追踪器.
 func NewCompressionProgress() *CompressionProgress {
 	return &CompressionProgress{
 		Phase:      PhaseScanning,
@@ -71,7 +71,7 @@ func NewCompressionProgress() *CompressionProgress {
 	}
 }
 
-// SetPhase 设置阶段
+// SetPhase 设置阶段.
 func (p *CompressionProgress) SetPhase(phase ProgressPhase) {
 	p.mu.Lock()
 	p.Phase = phase
@@ -80,7 +80,7 @@ func (p *CompressionProgress) SetPhase(phase ProgressPhase) {
 	p.notify()
 }
 
-// SetCurrentFile 设置当前文件
+// SetCurrentFile 设置当前文件.
 func (p *CompressionProgress) SetCurrentFile(file string) {
 	p.mu.Lock()
 	p.CurrentFile = file
@@ -89,7 +89,7 @@ func (p *CompressionProgress) SetCurrentFile(file string) {
 	p.notify()
 }
 
-// AddFileDone 增加完成文件计数
+// AddFileDone 增加完成文件计数.
 func (p *CompressionProgress) AddFileDone(saved int64) {
 	p.mu.Lock()
 	p.FilesDone++
@@ -100,7 +100,7 @@ func (p *CompressionProgress) AddFileDone(saved int64) {
 	p.notify()
 }
 
-// AddFileSkipped 增加跳过文件计数
+// AddFileSkipped 增加跳过文件计数.
 func (p *CompressionProgress) AddFileSkipped() {
 	p.mu.Lock()
 	p.FilesSkipped++
@@ -109,7 +109,7 @@ func (p *CompressionProgress) AddFileSkipped() {
 	p.notify()
 }
 
-// AddFileFailed 增加失败文件计数
+// AddFileFailed 增加失败文件计数.
 func (p *CompressionProgress) AddFileFailed() {
 	p.mu.Lock()
 	p.FilesFailed++
@@ -118,7 +118,7 @@ func (p *CompressionProgress) AddFileFailed() {
 	p.notify()
 }
 
-// SetTotal 设置总量
+// SetTotal 设置总量.
 func (p *CompressionProgress) SetTotal(files int64, bytes int64) {
 	p.mu.Lock()
 	p.FilesTotal = files
@@ -128,7 +128,7 @@ func (p *CompressionProgress) SetTotal(files int64, bytes int64) {
 	p.notify()
 }
 
-// AddBytes 增加处理字节数
+// AddBytes 增加处理字节数.
 func (p *CompressionProgress) AddBytes(n int64) {
 	p.mu.Lock()
 	p.BytesDone += n
@@ -138,7 +138,7 @@ func (p *CompressionProgress) AddBytes(n int64) {
 	p.notify()
 }
 
-// SetWorkers 设置工作协程数
+// SetWorkers 设置工作协程数.
 func (p *CompressionProgress) SetWorkers(n int) {
 	p.mu.Lock()
 	p.Workers = n
@@ -146,7 +146,7 @@ func (p *CompressionProgress) SetWorkers(n int) {
 	p.notify()
 }
 
-// SetActiveTasks 设置活跃任务数
+// SetActiveTasks 设置活跃任务数.
 func (p *CompressionProgress) SetActiveTasks(n int32) {
 	p.mu.Lock()
 	p.ActiveTasks = n
@@ -154,14 +154,14 @@ func (p *CompressionProgress) SetActiveTasks(n int32) {
 	p.notify()
 }
 
-// OnProgress 注册进度回调
+// OnProgress 注册进度回调.
 func (p *CompressionProgress) OnProgress(callback ProgressCallback) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.onProgress = append(p.onProgress, callback)
 }
 
-// updateETA 更新预计完成时间
+// updateETA 更新预计完成时间.
 func (p *CompressionProgress) updateETA() {
 	elapsed := time.Since(p.StartTime).Seconds()
 	if elapsed > 0 && p.BytesDone > 0 {
@@ -173,7 +173,7 @@ func (p *CompressionProgress) updateETA() {
 	}
 }
 
-// notify 通知回调
+// notify 通知回调.
 func (p *CompressionProgress) notify() {
 	p.mu.RLock()
 	callbacks := p.onProgress
@@ -184,7 +184,7 @@ func (p *CompressionProgress) notify() {
 	}
 }
 
-// GetPercent 获取完成百分比
+// GetPercent 获取完成百分比.
 func (p *CompressionProgress) GetPercent() float64 {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -194,7 +194,7 @@ func (p *CompressionProgress) GetPercent() float64 {
 	return float64(p.BytesDone) * 100 / float64(p.BytesTotal)
 }
 
-// GetSnapshot 获取进度快照（返回不含锁的副本）
+// GetSnapshot 获取进度快照（返回不含锁的副本）.
 func (p *CompressionProgress) GetSnapshot() CompressionProgressSnapshot {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -217,7 +217,7 @@ func (p *CompressionProgress) GetSnapshot() CompressionProgressSnapshot {
 	}
 }
 
-// CompressionProgressSnapshot 进度快照（不含锁，可安全复制）
+// CompressionProgressSnapshot 进度快照（不含锁，可安全复制）.
 type CompressionProgressSnapshot struct {
 	Phase        ProgressPhase `json:"phase"`
 	CurrentFile  string        `json:"currentFile"`
@@ -238,7 +238,7 @@ type CompressionProgressSnapshot struct {
 
 // ========== 压缩失败恢复 ==========
 
-// CompressionState 压缩状态（用于恢复）
+// CompressionState 压缩状态（用于恢复）.
 type CompressionState struct {
 	ID             string         `json:"id"`
 	StartedAt      time.Time      `json:"startedAt"`
@@ -253,7 +253,7 @@ type CompressionState struct {
 	Config         ParallelConfig `json:"config"`
 }
 
-// FailedFile 失败文件记录
+// FailedFile 失败文件记录.
 type FailedFile struct {
 	Path      string    `json:"path"`
 	Error     string    `json:"error"`
@@ -261,14 +261,14 @@ type FailedFile struct {
 	LastRetry time.Time `json:"lastRetry"`
 }
 
-// RecoveryManager 恢复管理器
+// RecoveryManager 恢复管理器.
 type RecoveryManager struct {
 	mu       sync.RWMutex
 	stateDir string
 	states   map[string]*CompressionState
 }
 
-// NewRecoveryManager 创建恢复管理器
+// NewRecoveryManager 创建恢复管理器.
 func NewRecoveryManager(stateDir string) (*RecoveryManager, error) {
 	if err := os.MkdirAll(stateDir, 0750); err != nil {
 		return nil, err
@@ -285,7 +285,7 @@ func NewRecoveryManager(stateDir string) (*RecoveryManager, error) {
 	return rm, nil
 }
 
-// CreateState 创建新状态
+// CreateState 创建新状态.
 func (rm *RecoveryManager) CreateState(id string, config ParallelConfig) *CompressionState {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -307,7 +307,7 @@ func (rm *RecoveryManager) CreateState(id string, config ParallelConfig) *Compre
 	return state
 }
 
-// GetState 获取状态
+// GetState 获取状态.
 func (rm *RecoveryManager) GetState(id string) (*CompressionState, bool) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -315,7 +315,7 @@ func (rm *RecoveryManager) GetState(id string) (*CompressionState, bool) {
 	return state, ok
 }
 
-// UpdateState 更新状态
+// UpdateState 更新状态.
 func (rm *RecoveryManager) UpdateState(id string, fn func(*CompressionState)) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -330,21 +330,21 @@ func (rm *RecoveryManager) UpdateState(id string, fn func(*CompressionState)) er
 	return rm.saveState(state)
 }
 
-// MarkCompleted 标记完成
+// MarkCompleted 标记完成.
 func (rm *RecoveryManager) MarkCompleted(id string) error {
 	return rm.UpdateState(id, func(s *CompressionState) {
 		s.Status = "completed"
 	})
 }
 
-// MarkFailed 标记失败
+// MarkFailed 标记失败.
 func (rm *RecoveryManager) MarkFailed(id string, err error) error {
 	return rm.UpdateState(id, func(s *CompressionState) {
 		s.Status = "failed"
 	})
 }
 
-// AddProcessed 添加已处理文件
+// AddProcessed 添加已处理文件.
 func (rm *RecoveryManager) AddProcessed(id string, path string, bytesSaved int64) error {
 	return rm.UpdateState(id, func(s *CompressionState) {
 		s.ProcessedFiles = append(s.ProcessedFiles, path)
@@ -353,7 +353,7 @@ func (rm *RecoveryManager) AddProcessed(id string, path string, bytesSaved int64
 	})
 }
 
-// AddFailed 添加失败文件
+// AddFailed 添加失败文件.
 func (rm *RecoveryManager) AddFailed(id string, path string, err error) error {
 	return rm.UpdateState(id, func(s *CompressionState) {
 		s.FailedFiles = append(s.FailedFiles, FailedFile{
@@ -363,7 +363,7 @@ func (rm *RecoveryManager) AddFailed(id string, path string, err error) error {
 	})
 }
 
-// RetryFailed 重试失败文件
+// RetryFailed 重试失败文件.
 func (rm *RecoveryManager) RetryFailed(id string) ([]string, error) {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -387,7 +387,7 @@ func (rm *RecoveryManager) RetryFailed(id string) ([]string, error) {
 	return retryPaths, nil
 }
 
-// Resume 恢复中断的任务
+// Resume 恢复中断的任务.
 func (rm *RecoveryManager) Resume(id string) (*CompressionState, error) {
 	rm.mu.RLock()
 	state, ok := rm.states[id]
@@ -404,7 +404,7 @@ func (rm *RecoveryManager) Resume(id string) (*CompressionState, error) {
 	return state, nil
 }
 
-// CleanState 清理状态
+// CleanState 清理状态.
 func (rm *RecoveryManager) CleanState(id string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -414,7 +414,7 @@ func (rm *RecoveryManager) CleanState(id string) error {
 	return os.Remove(stateFile)
 }
 
-// ListPending 列出待恢复的任务
+// ListPending 列出待恢复的任务.
 func (rm *RecoveryManager) ListPending() []*CompressionState {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -428,7 +428,7 @@ func (rm *RecoveryManager) ListPending() []*CompressionState {
 	return pending
 }
 
-// saveState 保存状态到文件
+// saveState 保存状态到文件.
 func (rm *RecoveryManager) saveState(state *CompressionState) error {
 	stateFile := filepath.Join(rm.stateDir, state.ID+".json")
 	data, err := json.MarshalIndent(state, "", "  ")
@@ -438,7 +438,7 @@ func (rm *RecoveryManager) saveState(state *CompressionState) error {
 	return os.WriteFile(stateFile, data, 0640)
 }
 
-// loadStates 从文件加载状态
+// loadStates 从文件加载状态.
 func (rm *RecoveryManager) loadStates() error {
 	entries, err := os.ReadDir(rm.stateDir)
 	if err != nil {
@@ -468,7 +468,7 @@ func (rm *RecoveryManager) loadStates() error {
 
 // ========== 并行压缩增强 ==========
 
-// ParallelConfig 并行压缩配置
+// ParallelConfig 并行压缩配置.
 type ParallelConfig struct {
 	Algorithm       Algorithm `json:"algorithm"`
 	Level           int       `json:"level"`
@@ -482,7 +482,7 @@ type ParallelConfig struct {
 	MinSize         int64     `json:"minSize"`
 }
 
-// DefaultParallelConfig 默认并行压缩配置
+// DefaultParallelConfig 默认并行压缩配置.
 func DefaultParallelConfig() *ParallelConfig {
 	return &ParallelConfig{
 		Algorithm:       AlgorithmGzip,
@@ -498,7 +498,7 @@ func DefaultParallelConfig() *ParallelConfig {
 	}
 }
 
-// ParallelCompressor 并行压缩器
+// ParallelCompressor 并行压缩器.
 type ParallelCompressor struct {
 	config      *ParallelConfig
 	compressors map[Algorithm]Compressor
@@ -506,7 +506,7 @@ type ParallelCompressor struct {
 	recovery    *RecoveryManager
 }
 
-// NewParallelCompressor 创建并行压缩器
+// NewParallelCompressor 创建并行压缩器.
 func NewParallelCompressor(config *ParallelConfig, stateDir string) (*ParallelCompressor, error) {
 	if config == nil {
 		config = DefaultParallelConfig()
@@ -533,7 +533,7 @@ func NewParallelCompressor(config *ParallelConfig, stateDir string) (*ParallelCo
 	return pc, nil
 }
 
-// ParallelCompressResult 并行压缩结果
+// ParallelCompressResult 并行压缩结果.
 type ParallelCompressResult struct {
 	ID              string               `json:"id"`
 	TotalFiles      int64                `json:"totalFiles"`
@@ -549,7 +549,7 @@ type ParallelCompressResult struct {
 	Errors          []FileCompressError  `json:"errors"`
 }
 
-// FileCompressResult 文件压缩结果
+// FileCompressResult 文件压缩结果.
 type FileCompressResult struct {
 	Path           string        `json:"path"`
 	OriginalSize   int64         `json:"originalSize"`
@@ -563,14 +563,14 @@ type FileCompressResult struct {
 	Error          string        `json:"error,omitempty"`
 }
 
-// FileCompressError 文件压缩错误
+// FileCompressError 文件压缩错误.
 type FileCompressError struct {
 	Path    string `json:"path"`
 	Error   string `json:"error"`
 	Retries int    `json:"retries"`
 }
 
-// CompressParallel 并行压缩
+// CompressParallel 并行压缩.
 func (pc *ParallelCompressor) CompressParallel(ctx context.Context, paths []string, config *ParallelConfig) (*ParallelCompressResult, error) {
 	if config == nil {
 		config = DefaultParallelConfig()
@@ -701,7 +701,7 @@ sendLoop:
 	return result, nil
 }
 
-// compressWorker 压缩工作协程
+// compressWorker 压缩工作协程.
 func (pc *ParallelCompressor) compressWorker(ctx context.Context, wg *sync.WaitGroup, config *ParallelConfig,
 	paths <-chan string, results chan<- FileCompressResult, errors chan<- FileCompressError,
 	activeTasks *int32, processedBytes, savedBytes *int64) {
@@ -741,7 +741,7 @@ func (pc *ParallelCompressor) compressWorker(ctx context.Context, wg *sync.WaitG
 	}
 }
 
-// compressFile 压缩单个文件
+// compressFile 压缩单个文件.
 func (pc *ParallelCompressor) compressFile(path string, config *ParallelConfig, compressor Compressor) FileCompressResult {
 	result := FileCompressResult{
 		Path:      path,
@@ -830,7 +830,7 @@ func (pc *ParallelCompressor) compressFile(path string, config *ParallelConfig, 
 	return result
 }
 
-// shouldCompress 检查是否应该压缩
+// shouldCompress 检查是否应该压缩.
 func (pc *ParallelCompressor) shouldCompress(path string, size int64, config *ParallelConfig) bool {
 	if size < config.MinSize {
 		return false
@@ -848,7 +848,7 @@ func (pc *ParallelCompressor) shouldCompress(path string, size int64, config *Pa
 	return true
 }
 
-// verifyCompression 验证压缩结果
+// verifyCompression 验证压缩结果.
 func (pc *ParallelCompressor) verifyCompression(srcPath, dstPath string, compressor Compressor) error {
 	// 打开压缩文件
 	dstFile, err := os.Open(dstPath)
@@ -881,12 +881,12 @@ func (pc *ParallelCompressor) verifyCompression(srcPath, dstPath string, compres
 	return nil
 }
 
-// GetProgress 获取进度
+// GetProgress 获取进度.
 func (pc *ParallelCompressor) GetProgress() *CompressionProgress {
 	return pc.progress
 }
 
-// Resume 恢复中断的任务
+// Resume 恢复中断的任务.
 func (pc *ParallelCompressor) Resume(ctx context.Context, taskID string) (*ParallelCompressResult, error) {
 	if pc.recovery == nil {
 		return nil, errors.New("recovery not enabled")
@@ -909,7 +909,7 @@ func (pc *ParallelCompressor) Resume(ctx context.Context, taskID string) (*Paral
 	return pc.CompressParallel(ctx, pending, &state.Config)
 }
 
-// ListPendingTasks 列出待恢复的任务
+// ListPendingTasks 列出待恢复的任务.
 func (pc *ParallelCompressor) ListPendingTasks() []*CompressionState {
 	if pc.recovery == nil {
 		return nil

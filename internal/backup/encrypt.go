@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	// ErrInvalidKey 无效的加密密钥错误
+	// ErrInvalidKey 无效的加密密钥错误.
 	ErrInvalidKey = errors.New("invalid encryption key")
 	// ErrEncryptionFailed indicates encryption failed.
 	ErrEncryptionFailed = errors.New("encryption failed")
@@ -28,7 +28,7 @@ var (
 	ErrKeyNotFound = errors.New("encryption key not found")
 )
 
-// EncryptionManagerConfig 加密管理器配置
+// EncryptionManagerConfig 加密管理器配置.
 type EncryptionManagerConfig struct {
 	Enabled       bool   `json:"enabled"`
 	Algorithm     string `json:"algorithm"`      // aes-256-gcm, aes-256-cbc
@@ -38,7 +38,7 @@ type EncryptionManagerConfig struct {
 	Iterations    int    `json:"iterations"` // PBKDF2 迭代次数
 }
 
-// EncryptionManager 加密管理器
+// EncryptionManager 加密管理器.
 type EncryptionManager struct {
 	config   *EncryptionManagerConfig
 	keys     map[string]*EncryptionKey
@@ -47,7 +47,7 @@ type EncryptionManager struct {
 	logger   *zap.Logger
 }
 
-// EncryptionKey 加密密钥
+// EncryptionKey 加密密钥.
 type EncryptionKey struct {
 	ID        string `json:"id"`
 	Key       []byte `json:"key"`
@@ -56,14 +56,14 @@ type EncryptionKey struct {
 	Algorithm string `json:"algorithm"`
 }
 
-// KeyStore 密钥存储
+// KeyStore 密钥存储.
 type KeyStore struct {
 	path string
 	keys map[string]*EncryptionKey
 	mu   sync.RWMutex
 }
 
-// NewKeyStore 创建密钥存储
+// NewKeyStore 创建密钥存储.
 func NewKeyStore(path string) *KeyStore {
 	ks := &KeyStore{
 		path: path,
@@ -73,7 +73,7 @@ func NewKeyStore(path string) *KeyStore {
 	return ks
 }
 
-// load 加载密钥
+// load 加载密钥.
 func (ks *KeyStore) load() {
 	// 确保目录存在
 	_ = os.MkdirAll(ks.path, 0700)
@@ -98,7 +98,7 @@ func (ks *KeyStore) load() {
 	})
 }
 
-// Store 存储密钥
+// Store 存储密钥.
 func (ks *KeyStore) Store(key *EncryptionKey) error {
 	ks.mu.Lock()
 	defer ks.mu.Unlock()
@@ -112,7 +112,7 @@ func (ks *KeyStore) Store(key *EncryptionKey) error {
 	return nil
 }
 
-// Get 获取密钥
+// Get 获取密钥.
 func (ks *KeyStore) Get(id string) (*EncryptionKey, bool) {
 	ks.mu.RLock()
 	defer ks.mu.RUnlock()
@@ -121,7 +121,7 @@ func (ks *KeyStore) Get(id string) (*EncryptionKey, bool) {
 	return key, exists
 }
 
-// Delete 删除密钥
+// Delete 删除密钥.
 func (ks *KeyStore) Delete(id string) error {
 	ks.mu.Lock()
 	defer ks.mu.Unlock()
@@ -135,7 +135,7 @@ func (ks *KeyStore) Delete(id string) error {
 	return nil
 }
 
-// List 列出所有密钥ID
+// List 列出所有密钥ID.
 func (ks *KeyStore) List() []string {
 	ks.mu.RLock()
 	defer ks.mu.RUnlock()
@@ -147,7 +147,7 @@ func (ks *KeyStore) List() []string {
 	return ids
 }
 
-// NewEncryptionManager 创建加密管理器
+// NewEncryptionManager 创建加密管理器.
 func NewEncryptionManager(config *EncryptionManagerConfig, logger *zap.Logger) *EncryptionManager {
 	em := &EncryptionManager{
 		config:   config,
@@ -166,7 +166,7 @@ func NewEncryptionManager(config *EncryptionManagerConfig, logger *zap.Logger) *
 	return em
 }
 
-// GenerateKey 生成密钥
+// GenerateKey 生成密钥.
 func (em *EncryptionManager) GenerateKey(passphrase string) (*EncryptionKey, error) {
 	// 生成盐
 	salt := make([]byte, em.config.SaltLength)
@@ -202,12 +202,12 @@ func (em *EncryptionManager) GenerateKey(passphrase string) (*EncryptionKey, err
 	return encKey, nil
 }
 
-// DeriveKey 从密码派生密钥
+// DeriveKey 从密码派生密钥.
 func (em *EncryptionManager) DeriveKey(passphrase string, salt []byte) []byte {
 	return pbkdf2.Key([]byte(passphrase), salt, em.config.Iterations, 32, sha256.New)
 }
 
-// Encrypt 加密数据
+// Encrypt 加密数据.
 func (em *EncryptionManager) Encrypt(plaintext []byte, keyID string) ([]byte, error) {
 	em.mu.RLock()
 	key, exists := em.keys[keyID]
@@ -227,7 +227,7 @@ func (em *EncryptionManager) Encrypt(plaintext []byte, keyID string) ([]byte, er
 	}
 }
 
-// encryptGCM 使用 AES-GCM 加密
+// encryptGCM 使用 AES-GCM 加密.
 func (em *EncryptionManager) encryptGCM(plaintext, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -256,7 +256,7 @@ func (em *EncryptionManager) encryptGCM(plaintext, key []byte) ([]byte, error) {
 	return result, nil
 }
 
-// encryptCBC 使用 AES-CBC 加密
+// encryptCBC 使用 AES-CBC 加密.
 func (em *EncryptionManager) encryptCBC(plaintext, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -291,7 +291,7 @@ func (em *EncryptionManager) encryptCBC(plaintext, key []byte) ([]byte, error) {
 	return result, nil
 }
 
-// Decrypt 解密数据
+// Decrypt 解密数据.
 func (em *EncryptionManager) Decrypt(ciphertext []byte, keyID string) ([]byte, error) {
 	em.mu.RLock()
 	key, exists := em.keys[keyID]
@@ -311,7 +311,7 @@ func (em *EncryptionManager) Decrypt(ciphertext []byte, keyID string) ([]byte, e
 	}
 }
 
-// decryptGCM 使用 AES-GCM 解密
+// decryptGCM 使用 AES-GCM 解密.
 func (em *EncryptionManager) decryptGCM(ciphertext, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -341,7 +341,7 @@ func (em *EncryptionManager) decryptGCM(ciphertext, key []byte) ([]byte, error) 
 	return plaintext, nil
 }
 
-// decryptCBC 使用 AES-CBC 解密
+// decryptCBC 使用 AES-CBC 解密.
 func (em *EncryptionManager) decryptCBC(ciphertext, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -371,7 +371,7 @@ func (em *EncryptionManager) decryptCBC(ciphertext, key []byte) ([]byte, error) 
 	return plaintext[:len(plaintext)-padding], nil
 }
 
-// EncryptFile 加密文件
+// EncryptFile 加密文件.
 func (em *EncryptionManager) EncryptFile(srcPath, dstPath, keyID string) error {
 	// 读取源文件
 	plaintext, err := os.ReadFile(srcPath)
@@ -389,7 +389,7 @@ func (em *EncryptionManager) EncryptFile(srcPath, dstPath, keyID string) error {
 	return os.WriteFile(dstPath, ciphertext, 0600)
 }
 
-// DecryptFile 解密文件
+// DecryptFile 解密文件.
 func (em *EncryptionManager) DecryptFile(srcPath, dstPath, keyID string) error {
 	// 读取源文件
 	ciphertext, err := os.ReadFile(srcPath)
@@ -407,7 +407,7 @@ func (em *EncryptionManager) DecryptFile(srcPath, dstPath, keyID string) error {
 	return os.WriteFile(dstPath, plaintext, 0600)
 }
 
-// RotateKey 密钥轮换
+// RotateKey 密钥轮换.
 func (em *EncryptionManager) RotateKey(oldKeyID, newPassphrase string) (*EncryptionKey, error) {
 	// 生成新密钥
 	newKey, err := em.GenerateKey(newPassphrase)
@@ -423,7 +423,7 @@ func (em *EncryptionManager) RotateKey(oldKeyID, newPassphrase string) (*Encrypt
 	return newKey, nil
 }
 
-// DeleteKey 删除密钥
+// DeleteKey 删除密钥.
 func (em *EncryptionManager) DeleteKey(keyID string) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -438,7 +438,7 @@ func (em *EncryptionManager) DeleteKey(keyID string) error {
 	return nil
 }
 
-// ListKeys 列出密钥
+// ListKeys 列出密钥.
 func (em *EncryptionManager) ListKeys() []string {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -450,7 +450,7 @@ func (em *EncryptionManager) ListKeys() []string {
 	return ids
 }
 
-// GetKeyInfo 获取密钥信息
+// GetKeyInfo 获取密钥信息.
 func (em *EncryptionManager) GetKeyInfo(keyID string) (map[string]interface{}, error) {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -467,7 +467,7 @@ func (em *EncryptionManager) GetKeyInfo(keyID string) (map[string]interface{}, e
 	}, nil
 }
 
-// EncryptStream 加密流
+// EncryptStream 加密流.
 func (em *EncryptionManager) EncryptStream(reader io.Reader, writer io.Writer, keyID string) error {
 	em.mu.RLock()
 	key, exists := em.keys[keyID]
@@ -494,7 +494,7 @@ func (em *EncryptionManager) EncryptStream(reader io.Reader, writer io.Writer, k
 	return err
 }
 
-// DecryptStream 解密流
+// DecryptStream 解密流.
 func (em *EncryptionManager) DecryptStream(reader io.Reader, writer io.Writer, keyID string) error {
 	em.mu.RLock()
 	key, exists := em.keys[keyID]
@@ -521,7 +521,7 @@ func (em *EncryptionManager) DecryptStream(reader io.Reader, writer io.Writer, k
 	return err
 }
 
-// ExportKey 导出密钥（Base64编码）
+// ExportKey 导出密钥（Base64编码）.
 func (em *EncryptionManager) ExportKey(keyID string) (string, error) {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -536,7 +536,7 @@ func (em *EncryptionManager) ExportKey(keyID string) (string, error) {
 	return base64.StdEncoding.EncodeToString(data), nil
 }
 
-// ImportKey 导入密钥
+// ImportKey 导入密钥.
 func (em *EncryptionManager) ImportKey(encodedKey, algorithm string) (*EncryptionKey, error) {
 	data, err := base64.StdEncoding.DecodeString(encodedKey)
 	if err != nil {
@@ -569,7 +569,7 @@ func (em *EncryptionManager) ImportKey(encodedKey, algorithm string) (*Encryptio
 	return encKey, nil
 }
 
-// EncryptionStats 加密统计
+// EncryptionStats 加密统计.
 type EncryptionStats struct {
 	Enabled   bool     `json:"enabled"`
 	Algorithm string   `json:"algorithm"`
@@ -577,7 +577,7 @@ type EncryptionStats struct {
 	KeyIDs    []string `json:"key_ids"`
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (em *EncryptionManager) GetStats() EncryptionStats {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -595,17 +595,17 @@ func (em *EncryptionManager) GetStats() EncryptionStats {
 	}
 }
 
-// generateKeyID 生成密钥ID
+// generateKeyID 生成密钥ID.
 func generateKeyID() string {
 	return "key-" + randomString(8)
 }
 
-// currentTime 获取当前时间字符串
+// currentTime 获取当前时间字符串.
 func currentTime() string {
 	return timeNow().Format("2006-01-02T15:04:05Z07:00")
 }
 
-// 时间函数，便于测试
+// 时间函数，便于测试.
 var timeNow = func() time.Time {
 	return time.Now()
 }

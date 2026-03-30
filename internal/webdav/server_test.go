@@ -264,7 +264,7 @@ func TestGetStatus(t *testing.T) {
 	}
 }
 
-// MockQuotaProvider 模拟配额提供者
+// MockQuotaProvider 模拟配额提供者.
 type MockQuotaProvider struct {
 	Available int64
 	Used      int64

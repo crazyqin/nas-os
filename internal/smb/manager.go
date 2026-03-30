@@ -1,6 +1,7 @@
 package smb
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -14,7 +15,7 @@ import (
 	"nas-os/internal/users"
 )
 
-// ServiceStatus SMB 服务状态
+// ServiceStatus SMB 服务状态.
 type ServiceStatus struct {
 	Running        bool      `json:"running"`
 	Status         string    `json:"status"`
@@ -26,7 +27,7 @@ type ServiceStatus struct {
 	ErrorMessage   string    `json:"error_message,omitempty"`
 }
 
-// Connection SMB 连接信息
+// Connection SMB 连接信息.
 type Connection struct {
 	ID          int       `json:"id"`
 	Username    string    `json:"username"`
@@ -39,13 +40,13 @@ type Connection struct {
 	LockedFiles []string  `json:"locked_files,omitempty"`
 }
 
-// persistentConfig 持久化配置结构
+// persistentConfig 持久化配置结构.
 type persistentConfig struct {
 	Config *Config           `json:"config"`
 	Shares map[string]*Share `json:"shares"`
 }
 
-// Share SMB 共享配置
+// Share SMB 共享配置.
 type Share struct {
 	Name               string   `json:"name"`
 	Path               string   `json:"path"`
@@ -76,7 +77,7 @@ type Share struct {
 	Printable          bool     `json:"printable"`
 }
 
-// ShareInput 创建/更新共享输入
+// ShareInput 创建/更新共享输入.
 type ShareInput struct {
 	Name          string   `json:"name" binding:"required"`
 	Path          string   `json:"path" binding:"required"`
@@ -94,7 +95,7 @@ type ShareInput struct {
 	VetoFiles     []string `json:"veto_files"`
 }
 
-// Config SMB 配置
+// Config SMB 配置.
 type Config struct {
 	Enabled              bool     `json:"enabled"`
 	Workgroup            string   `json:"workgroup"`
@@ -130,9 +131,26 @@ type Config struct {
 	ServerMinProtocol    string   `json:"server_min_protocol,omitempty"`
 	ClientMinProtocol    string   `json:"client_min_protocol,omitempty"`
 	ClientMaxProtocol    string   `json:"client_max_protocol,omitempty"`
+
+	// 性能优化配置（参考 TrueNAS）
+	EnableAIO          bool `json:"enable_aio"`           // 异步 I/O
+	AIOReadSize        int  `json:"aio_read_size"`        // 异步读取块大小 (KB)
+	AIOWriteSize       int  `json:"aio_write_size"`       // 异步写入块大小 (KB)
+	WriteCacheSize     int  `json:"write_cache_size"`     // 写缓存大小 (KB)
+	MaxXmit            int  `json:"max_xmit"`             // 最大传输大小 (KB)
+	Deadtime           int  `json:"deadtime"`             // 空闲连接超时 (分钟)
+	Keepalive          int  `json:"keepalive"`            // 保活间隔 (秒)
+	MaxOpenFiles       int  `json:"max_open_files"`       // 最大打开文件数
+	UseSendfile        bool `json:"use_sendfile"`         // 使用 sendfile 优化
+	StrictAllocate     bool `json:"strict_allocate"`      // 严格空间分配
+	LargeReadwrite     bool `json:"large_readwrite"`      // 大文件读写优化
+	MinReceivefileSize int  `json:"min_receivefile_size"` // 最小接收文件大小 (KB)
+	MaxStatCacheSize   int  `json:"max_stat_cache_size"`  // 状态缓存大小
+	GetwdCache         bool `json:"getwd_cache"`          // 工作目录缓存
+	KernelOplocks      bool `json:"kernel_oplocks"`       // 内核 oplock 支持
 }
 
-// Manager SMB 管理器
+// Manager SMB 管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	shares      map[string]*Share
@@ -141,7 +159,7 @@ type Manager struct {
 	configPath  string
 }
 
-// newDefaultConfig 创建默认配置的副本
+// newDefaultConfig 创建默认配置的副本.
 func newDefaultConfig() *Config {
 	return &Config{
 		Enabled:              true,
@@ -161,10 +179,28 @@ func newDefaultConfig() *Config {
 		UnixPasswordSync:     false,
 		PAMPasswordChange:    false,
 		PassdbBackend:        "tdbsam",
+		SocketOptions:        "TCP_NODELAY SO_RCVBUF=65536 SO_SNDBUF=65536",
+
+		// 性能优化默认值（参考 TrueNAS）
+		EnableAIO:          true,
+		AIOReadSize:        1,     // 1KB 以上启用异步读取
+		AIOWriteSize:       1,     // 1KB 以上启用异步写入
+		WriteCacheSize:     0,     // 禁用写缓存（现代内核已优化）
+		MaxXmit:            65535, // 最大传输 64KB
+		Deadtime:           15,    // 15分钟空闲断开
+		Keepalive:          300,   // 5分钟保活
+		MaxOpenFiles:       65535, // 最大打开文件数
+		UseSendfile:        true,  // 启用 sendfile 优化
+		StrictAllocate:     true,  // 严格空间分配
+		LargeReadwrite:     true,  // 大文件读写优化
+		MinReceivefileSize: 16,    // 16KB 以上使用接收文件优化
+		MaxStatCacheSize:   256,   // 状态缓存 256KB
+		GetwdCache:         true,  // 工作目录缓存
+		KernelOplocks:      true,  // 内核 oplock 支持
 	}
 }
 
-// NewManager 创建 SMB 管理器
+// NewManager 创建 SMB 管理器.
 func NewManager(configPath string) (*Manager, error) {
 	m := &Manager{
 		shares:     make(map[string]*Share),
@@ -181,7 +217,7 @@ func NewManager(configPath string) (*Manager, error) {
 	return m, nil
 }
 
-// NewManagerWithUserMgr 创建 SMB 管理器（带用户管理器）
+// NewManagerWithUserMgr 创建 SMB 管理器（带用户管理器）.
 func NewManagerWithUserMgr(userMgr *users.Manager, configPath string) (*Manager, error) {
 	m := &Manager{
 		shares:      make(map[string]*Share),
@@ -199,7 +235,7 @@ func NewManagerWithUserMgr(userMgr *users.Manager, configPath string) (*Manager,
 	return m, nil
 }
 
-// loadConfig 从文件加载配置
+// loadConfig 从文件加载配置.
 func (m *Manager) loadConfig() error {
 	// 检查配置文件是否存在
 	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
@@ -228,7 +264,7 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置到文件（线程安全）
+// saveConfig 保存配置到文件（线程安全）.
 func (m *Manager) saveConfig() error {
 	m.mu.RLock()
 	pc := persistentConfig{
@@ -240,7 +276,7 @@ func (m *Manager) saveConfig() error {
 	return writeConfigFile(m.configPath, pc)
 }
 
-// saveConfigLocked 保存配置（调用者已持有锁）
+// saveConfigLocked 保存配置（调用者已持有锁）.
 func (m *Manager) saveConfigLocked() error {
 	pc := persistentConfig{
 		Config: m.config,
@@ -249,7 +285,7 @@ func (m *Manager) saveConfigLocked() error {
 	return writeConfigFile(m.configPath, pc)
 }
 
-// writeConfigFile 写入配置文件
+// writeConfigFile 写入配置文件.
 func writeConfigFile(configPath string, pc persistentConfig) error {
 	data, err := json.MarshalIndent(pc, "", "  ")
 	if err != nil {
@@ -268,14 +304,14 @@ func writeConfigFile(configPath string, pc persistentConfig) error {
 	return nil
 }
 
-// generateSmbConf 生成 Samba 配置文件内容
+// generateSmbConf 生成 Samba 配置文件内容.
 func (m *Manager) generateSmbConf() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return GenerateSmbConf(m.config, m.shares)
 }
 
-// ApplyConfig 应用配置到系统
+// ApplyConfig 应用配置到系统.
 func (m *Manager) ApplyConfig() error {
 	configContent := m.generateSmbConf()
 
@@ -292,10 +328,10 @@ func (m *Manager) ApplyConfig() error {
 	logInfo("SMB配置已写入", "path", configPath)
 
 	// 重新加载 Samba 配置
-	cmd := exec.Command("smbcontrol", "smbd", "reload-config")
+	cmd := exec.CommandContext(context.Background(), "smbcontrol", "smbd", "reload-config")
 	if err := cmd.Run(); err != nil {
 		// 如果 smbcontrol 不可用，尝试重启服务
-		cmd = exec.Command("systemctl", "restart", "smbd")
+		cmd = exec.CommandContext(context.Background(), "systemctl", "restart", "smbd")
 		if err := cmd.Run(); err != nil {
 			logError("重启 Samba 服务失败", err)
 			return fmt.Errorf("重启 Samba 服务失败：%w", err)
@@ -306,7 +342,7 @@ func (m *Manager) ApplyConfig() error {
 	return nil
 }
 
-// CreateShare 创建共享
+// CreateShare 创建共享.
 func (m *Manager) CreateShare(share *Share) error {
 	if share == nil {
 		return fmt.Errorf("共享配置不能为空")
@@ -355,7 +391,7 @@ func (m *Manager) CreateShare(share *Share) error {
 	return nil
 }
 
-// UpdateShare 更新共享
+// UpdateShare 更新共享.
 func (m *Manager) UpdateShare(name string, share *Share) error {
 	if share == nil {
 		return fmt.Errorf("共享配置不能为空")
@@ -408,7 +444,7 @@ func (m *Manager) UpdateShare(name string, share *Share) error {
 	return nil
 }
 
-// DeleteShare 删除共享
+// DeleteShare 删除共享.
 func (m *Manager) DeleteShare(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -428,7 +464,7 @@ func (m *Manager) DeleteShare(name string) error {
 	return nil
 }
 
-// ListShares 列出所有 SMB 共享
+// ListShares 列出所有 SMB 共享.
 func (m *Manager) ListShares() ([]*Share, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -440,7 +476,7 @@ func (m *Manager) ListShares() ([]*Share, error) {
 	return shares, nil
 }
 
-// GetShare 获取指定 SMB 共享
+// GetShare 获取指定 SMB 共享.
 func (m *Manager) GetShare(name string) (*Share, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -452,7 +488,7 @@ func (m *Manager) GetShare(name string) (*Share, error) {
 	return share, nil
 }
 
-// Reload 重新加载 SMB 配置
+// Reload 重新加载 SMB 配置.
 func (m *Manager) Reload() error {
 	// 重新加载持久化配置
 	if err := m.loadConfig(); err != nil {
@@ -468,7 +504,7 @@ func (m *Manager) Reload() error {
 	return nil
 }
 
-// Status 获取 SMB 服务状态
+// Status 获取 SMB 服务状态.
 func (m *Manager) Status() (*ServiceStatus, error) {
 	status := &ServiceStatus{
 		Status:      "stopped",
@@ -477,7 +513,7 @@ func (m *Manager) Status() (*ServiceStatus, error) {
 	}
 
 	// 检查 smbd 服务状态
-	cmd := exec.Command("systemctl", "is-active", "smbd")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "is-active", "smbd")
 	output, err := cmd.Output()
 	if err != nil {
 		status.Status = "stopped"
@@ -492,7 +528,7 @@ func (m *Manager) Status() (*ServiceStatus, error) {
 	}
 
 	// 获取 PID
-	pidCmd := exec.Command("systemctl", "show", "--property=MainPID", "smbd")
+	pidCmd := exec.CommandContext(context.Background(), "systemctl", "show", "--property=MainPID", "smbd")
 	pidOutput, err := pidCmd.Output()
 	if err == nil {
 		pidStr := strings.TrimPrefix(strings.TrimSpace(string(pidOutput)), "MainPID=")
@@ -511,12 +547,12 @@ func (m *Manager) Status() (*ServiceStatus, error) {
 	return status, nil
 }
 
-// Connections 获取当前 SMB 连接
+// Connections 获取当前 SMB 连接.
 func (m *Manager) Connections() ([]*Connection, error) {
 	var connections []*Connection
 
 	// 使用 smbstatus 获取连接信息
-	cmd := exec.Command("smbstatus", "-b")
+	cmd := exec.CommandContext(context.Background(), "smbstatus", "-b")
 	output, err := cmd.Output()
 	if err != nil {
 		logError("获取连接信息失败", err)
@@ -566,10 +602,10 @@ func (m *Manager) Connections() ([]*Connection, error) {
 	return connections, nil
 }
 
-// countOpenFiles 统计打开文件数
+// countOpenFiles 统计打开文件数.
 func (m *Manager) countOpenFiles(connections []*Connection) int {
 	// 使用 smbstatus -L 获取锁定文件
-	cmd := exec.Command("smbstatus", "-L")
+	cmd := exec.CommandContext(context.Background(), "smbstatus", "-L")
 	output, err := cmd.Output()
 	if err != nil {
 		return 0
@@ -586,7 +622,7 @@ func (m *Manager) countOpenFiles(connections []*Connection) int {
 	return count
 }
 
-// GetStatus 获取 Samba 服务状态（兼容旧接口）
+// GetStatus 获取 Samba 服务状态（兼容旧接口）.
 func (m *Manager) GetStatus() (bool, error) {
 	status, err := m.Status()
 	if err != nil {
@@ -595,9 +631,9 @@ func (m *Manager) GetStatus() (bool, error) {
 	return status.Running, nil
 }
 
-// Start 启动 Samba 服务
+// Start 启动 Samba 服务.
 func (m *Manager) Start() error {
-	cmd := exec.Command("systemctl", "start", "smbd")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "start", "smbd")
 	if err := cmd.Run(); err != nil {
 		logError("启动 Samba 服务失败", err)
 		return fmt.Errorf("启动 Samba 服务失败：%w", err)
@@ -606,9 +642,10 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止 Samba 服务
+// Stop 停止 Samba 服务.
 func (m *Manager) Stop() error {
-	cmd := exec.Command("systemctl", "stop", "smbd")
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "systemctl", "stop", "smbd")
 	if err := cmd.Run(); err != nil {
 		logError("停止 Samba 服务失败", err)
 		return fmt.Errorf("停止 Samba 服务失败：%w", err)
@@ -617,9 +654,10 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// Restart 重启 Samba 服务
+// Restart 重启 Samba 服务.
 func (m *Manager) Restart() error {
-	cmd := exec.Command("systemctl", "restart", "smbd")
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "systemctl", "restart", "smbd")
 	if err := cmd.Run(); err != nil {
 		logError("重启 Samba 服务失败", err)
 		return fmt.Errorf("重启 Samba 服务失败：%w", err)
@@ -628,9 +666,10 @@ func (m *Manager) Restart() error {
 	return nil
 }
 
-// TestConfig 测试配置文件语法
+// TestConfig 测试配置文件语法.
 func (m *Manager) TestConfig() (bool, string, error) {
-	cmd := exec.Command("testparm", "-s")
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "testparm", "-s")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return false, string(output), err
@@ -638,7 +677,7 @@ func (m *Manager) TestConfig() (bool, string, error) {
 	return true, string(output), nil
 }
 
-// GetSharePath 获取共享路径（用于权限检查）
+// GetSharePath 获取共享路径（用于权限检查）.
 func (m *Manager) GetSharePath(name string) string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -649,7 +688,7 @@ func (m *Manager) GetSharePath(name string) string {
 	return ""
 }
 
-// GetUserShares 获取用户有权访问的共享列表
+// GetUserShares 获取用户有权访问的共享列表.
 func (m *Manager) GetUserShares(username string) []*Share {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -684,7 +723,7 @@ func (m *Manager) GetUserShares(username string) []*Share {
 	return result
 }
 
-// SetSharePermission 设置共享权限
+// SetSharePermission 设置共享权限.
 func (m *Manager) SetSharePermission(shareName, username string, readWrite bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -734,7 +773,7 @@ func (m *Manager) SetSharePermission(shareName, username string, readWrite bool)
 	return nil
 }
 
-// RemoveSharePermission 移除共享权限
+// RemoveSharePermission 移除共享权限.
 func (m *Manager) RemoveSharePermission(shareName, username string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -766,7 +805,7 @@ func (m *Manager) RemoveSharePermission(shareName, username string) error {
 	return nil
 }
 
-// CloseShare 关闭共享（禁用但保留配置）
+// CloseShare 关闭共享（禁用但保留配置）.
 func (m *Manager) CloseShare(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -786,7 +825,7 @@ func (m *Manager) CloseShare(name string) error {
 	return nil
 }
 
-// OpenShare 打开共享
+// OpenShare 打开共享.
 func (m *Manager) OpenShare(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -806,14 +845,14 @@ func (m *Manager) OpenShare(name string) error {
 	return nil
 }
 
-// GetConfig 获取当前配置
+// GetConfig 获取当前配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新全局配置
+// UpdateConfig 更新全局配置.
 func (m *Manager) UpdateConfig(config *Config) error {
 	if err := ValidateConfig(config); err != nil {
 		return fmt.Errorf("验证配置失败：%w", err)
@@ -831,7 +870,7 @@ func (m *Manager) UpdateConfig(config *Config) error {
 	return nil
 }
 
-// CreateShareFromInput 从输入创建共享（兼容旧接口）
+// CreateShareFromInput 从输入创建共享（兼容旧接口）.
 func (m *Manager) CreateShareFromInput(input ShareInput) (*Share, error) {
 	share := &Share{
 		Name:          input.Name,
@@ -856,7 +895,7 @@ func (m *Manager) CreateShareFromInput(input ShareInput) (*Share, error) {
 	return share, nil
 }
 
-// UpdateShareFromInput 从输入更新共享（兼容旧接口）
+// UpdateShareFromInput 从输入更新共享（兼容旧接口）.
 func (m *Manager) UpdateShareFromInput(name string, input ShareInput) (*Share, error) {
 	share := &Share{
 		Path:          input.Path,

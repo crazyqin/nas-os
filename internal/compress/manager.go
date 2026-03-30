@@ -13,10 +13,10 @@ import (
 	"time"
 )
 
-// Algorithm 压缩算法
+// Algorithm 压缩算法.
 type Algorithm string
 
-// 压缩算法常量
+// 压缩算法常量.
 const (
 	AlgorithmZstd Algorithm = "zstd"
 	AlgorithmLz4  Algorithm = "lz4"
@@ -24,7 +24,7 @@ const (
 	AlgorithmNone Algorithm = "none"
 )
 
-// Config 压缩配置
+// Config 压缩配置.
 type Config struct {
 	Enabled           bool      `json:"enabled"`
 	DefaultAlgorithm  Algorithm `json:"default_algorithm"`
@@ -38,7 +38,7 @@ type Config struct {
 	StatsEnabled      bool      `json:"stats_enabled"`      // 启用统计
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:          true,
@@ -59,7 +59,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Manager 压缩管理器
+// Manager 压缩管理器.
 type Manager struct {
 	mu     sync.RWMutex
 	config *Config
@@ -68,7 +68,7 @@ type Manager struct {
 	compressors map[Algorithm]Compressor
 }
 
-// Compressor 压缩器接口
+// Compressor 压缩器接口.
 type Compressor interface {
 	Compress(dst io.Writer, src io.Reader, level int) error
 	Decompress(dst io.Writer, src io.Reader) error
@@ -76,7 +76,7 @@ type Compressor interface {
 	Name() Algorithm
 }
 
-// Stats 压缩统计
+// Stats 压缩统计.
 type Stats struct {
 	mu              sync.RWMutex
 	TotalFiles      int64                         `json:"total_files"`
@@ -88,7 +88,7 @@ type Stats struct {
 	ByAlgorithm     map[Algorithm]*AlgorithmStats `json:"by_algorithm"`
 }
 
-// AlgorithmStats 算法统计
+// AlgorithmStats 算法统计.
 type AlgorithmStats struct {
 	Files      int64   `json:"files"`
 	Original   int64   `json:"original_bytes"`
@@ -96,7 +96,7 @@ type AlgorithmStats struct {
 	Ratio      float64 `json:"avg_ratio"`
 }
 
-// NewManager 创建压缩管理器
+// NewManager 创建压缩管理器.
 func NewManager(config *Config) (*Manager, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -114,21 +114,21 @@ func NewManager(config *Config) (*Manager, error) {
 	return m, nil
 }
 
-// registerCompressors 注册内置压缩器
+// registerCompressors 注册内置压缩器.
 func (m *Manager) registerCompressors() {
 	m.compressors[AlgorithmGzip] = &GzipCompressor{}
 	m.compressors[AlgorithmZstd] = &ZstdCompressor{}
 	m.compressors[AlgorithmLz4] = &Lz4Compressor{}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *Config) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -136,7 +136,7 @@ func (m *Manager) UpdateConfig(config *Config) error {
 	return nil
 }
 
-// ShouldCompress 检查是否应该压缩
+// ShouldCompress 检查是否应该压缩.
 func (m *Manager) ShouldCompress(path string, size int64) bool {
 	if !m.config.Enabled {
 		return false
@@ -180,7 +180,7 @@ func (m *Manager) ShouldCompress(path string, size int64) bool {
 	return true
 }
 
-// CompressFile 压缩文件
+// CompressFile 压缩文件.
 func (m *Manager) CompressFile(srcPath, dstPath string) (*Result, error) {
 	m.mu.RLock()
 	algorithm := m.config.DefaultAlgorithm
@@ -253,7 +253,7 @@ func (m *Manager) CompressFile(srcPath, dstPath string) (*Result, error) {
 	return result, nil
 }
 
-// DecompressFile 解压文件
+// DecompressFile 解压文件.
 func (m *Manager) DecompressFile(srcPath, dstPath string) error {
 	// 检测算法
 	algorithm := m.detectAlgorithm(srcPath)
@@ -284,7 +284,7 @@ func (m *Manager) DecompressFile(srcPath, dstPath string) error {
 	return compressor.Decompress(dstFile, srcFile)
 }
 
-// detectAlgorithm 检测压缩算法
+// detectAlgorithm 检测压缩算法.
 func (m *Manager) detectAlgorithm(path string) Algorithm {
 	ext := strings.ToLower(filepath.Ext(path))
 	switch ext {
@@ -299,12 +299,12 @@ func (m *Manager) detectAlgorithm(path string) Algorithm {
 	}
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() *Stats {
 	return m.stats
 }
 
-// Result 压缩结果
+// Result 压缩结果.
 type Result struct {
 	Skipped        bool          `json:"skipped"`
 	SkipReason     string        `json:"skip_reason,omitempty"`
@@ -316,14 +316,14 @@ type Result struct {
 	Algorithm      Algorithm     `json:"algorithm"`
 }
 
-// NewStats 创建统计
+// NewStats 创建统计.
 func NewStats() *Stats {
 	return &Stats{
 		ByAlgorithm: make(map[Algorithm]*AlgorithmStats),
 	}
 }
 
-// Update 更新统计
+// Update 更新统计.
 func (s *Stats) Update(algorithm Algorithm, original, compressed int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -354,7 +354,7 @@ func (s *Stats) Update(algorithm Algorithm, original, compressed int64) {
 	}
 }
 
-// Reset 重置统计
+// Reset 重置统计.
 func (s *Stats) Reset() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -368,10 +368,10 @@ func (s *Stats) Reset() {
 	s.ByAlgorithm = make(map[Algorithm]*AlgorithmStats)
 }
 
-// GzipCompressor Gzip 压缩器
+// GzipCompressor Gzip 压缩器.
 type GzipCompressor struct{}
 
-// Compress 使用 Gzip 算法压缩数据
+// Compress 使用 Gzip 算法压缩数据.
 func (c *GzipCompressor) Compress(dst io.Writer, src io.Reader, level int) error {
 	writer, err := gzip.NewWriterLevel(dst, level)
 	if err != nil {
@@ -385,7 +385,7 @@ func (c *GzipCompressor) Compress(dst io.Writer, src io.Reader, level int) error
 	return err
 }
 
-// Decompress 使用 Gzip 算法解压数据
+// Decompress 使用 Gzip 算法解压数据.
 func (c *GzipCompressor) Decompress(dst io.Writer, src io.Reader) error {
 	reader, err := gzip.NewReader(src)
 	if err != nil {
@@ -399,77 +399,77 @@ func (c *GzipCompressor) Decompress(dst io.Writer, src io.Reader) error {
 	return err
 }
 
-// Extension 返回 Gzip 文件扩展名
+// Extension 返回 Gzip 文件扩展名.
 func (c *GzipCompressor) Extension() string {
 	return ".gz"
 }
 
-// Name 返回 Gzip 算法名称
+// Name 返回 Gzip 算法名称.
 func (c *GzipCompressor) Name() Algorithm {
 	return AlgorithmGzip
 }
 
-// ZstdCompressor Zstd 压缩器 (需要 cgo 或纯 Go 实现)
+// ZstdCompressor Zstd 压缩器 (需要 cgo 或纯 Go 实现).
 type ZstdCompressor struct{}
 
-// Compress 使用 Zstd 算法压缩数据
+// Compress 使用 Zstd 算法压缩数据.
 func (c *ZstdCompressor) Compress(dst io.Writer, src io.Reader, level int) error {
 	// 简化实现：使用 gzip 作为后备
 	// 生产环境应使用 github.com/klauspost/compress/zstd
 	return (&GzipCompressor{}).Compress(dst, src, level)
 }
 
-// Decompress 使用 Zstd 算法解压数据
+// Decompress 使用 Zstd 算法解压数据.
 func (c *ZstdCompressor) Decompress(dst io.Writer, src io.Reader) error {
 	// 简化实现
 	return errors.New("zstd not implemented, use gzip")
 }
 
-// Extension 返回 Zstd 文件扩展名
+// Extension 返回 Zstd 文件扩展名.
 func (c *ZstdCompressor) Extension() string {
 	return ".zst"
 }
 
-// Name 返回 Zstd 算法名称
+// Name 返回 Zstd 算法名称.
 func (c *ZstdCompressor) Name() Algorithm {
 	return AlgorithmZstd
 }
 
-// Lz4Compressor LZ4 压缩器
+// Lz4Compressor LZ4 压缩器.
 type Lz4Compressor struct{}
 
-// Compress 使用 LZ4 算法压缩数据
+// Compress 使用 LZ4 算法压缩数据.
 func (c *Lz4Compressor) Compress(dst io.Writer, src io.Reader, level int) error {
 	// 简化实现：使用 gzip 作为后备
 	// 生产环境应使用 github.com/pierrec/lz4
 	return (&GzipCompressor{}).Compress(dst, src, level)
 }
 
-// Decompress 使用 LZ4 算法解压数据
+// Decompress 使用 LZ4 算法解压数据.
 func (c *Lz4Compressor) Decompress(dst io.Writer, src io.Reader) error {
 	return errors.New("lz4 not implemented, use gzip")
 }
 
-// Extension 返回 LZ4 文件扩展名
+// Extension 返回 LZ4 文件扩展名.
 func (c *Lz4Compressor) Extension() string {
 	return ".lz4"
 }
 
-// Name 返回 LZ4 算法名称
+// Name 返回 LZ4 算法名称.
 func (c *Lz4Compressor) Name() Algorithm {
 	return AlgorithmLz4
 }
 
 // ================== v2.4.0 压缩存储增强 ==================
 
-// AlgorithmPreference 算法偏好配置
+// AlgorithmPreference 算法偏好配置.
 type AlgorithmPreference struct {
 	Algorithm     Algorithm `json:"algorithm"`
 	Priority      int       `json:"priority"`      // 优先级 (越高越优先)
 	SpeedPriority bool      `json:"speedPriority"` // 是否优先考虑速度
 }
 
-// FileTypeRule 文件类型压缩规则
+// FileTypeRule 文件类型压缩规则.
 type FileTypeRule struct {
 	Extensions   []string  `json:"extensions"`   // 文件扩展名
 	Algorithm    Algorithm `json:"algorithm"`    // 推荐算法
@@ -478,7 +478,7 @@ type FileTypeRule struct {
 	Reason       string    `json:"reason"`       // 原因说明
 }
 
-// DefaultFileTypeRules 默认文件类型规则
+// DefaultFileTypeRules 默认文件类型规则.
 var DefaultFileTypeRules = []FileTypeRule{
 	// 已压缩格式 - 跳过
 	{
@@ -530,7 +530,7 @@ var DefaultFileTypeRules = []FileTypeRule{
 	},
 }
 
-// SelectAlgorithmForFile 根据文件类型自动选择最佳压缩算法
+// SelectAlgorithmForFile 根据文件类型自动选择最佳压缩算法.
 func (m *Manager) SelectAlgorithmForFile(path string, size int64) (Algorithm, string, bool) {
 	ext := strings.ToLower(filepath.Ext(path))
 
@@ -565,7 +565,7 @@ func (m *Manager) SelectAlgorithmForFile(path string, size int64) (Algorithm, st
 	}
 }
 
-// SmartCompressFile 智能压缩文件（自动选择算法）
+// SmartCompressFile 智能压缩文件（自动选择算法）.
 func (m *Manager) SmartCompressFile(srcPath, dstPath string) (*Result, error) {
 	// 获取文件信息
 	srcInfo, err := os.Stat(srcPath)
@@ -588,7 +588,7 @@ func (m *Manager) SmartCompressFile(srcPath, dstPath string) (*Result, error) {
 	return m.CompressFileWithAlgorithm(srcPath, dstPath, algorithm)
 }
 
-// CompressFileWithAlgorithm 使用指定算法压缩文件
+// CompressFileWithAlgorithm 使用指定算法压缩文件.
 func (m *Manager) CompressFileWithAlgorithm(srcPath, dstPath string, algorithm Algorithm) (*Result, error) {
 	compressor, ok := m.compressors[algorithm]
 	if !ok {
@@ -653,7 +653,7 @@ func (m *Manager) CompressFileWithAlgorithm(srcPath, dstPath string, algorithm A
 	return result, nil
 }
 
-// BatchCompressResultV2 批量压缩结果 (v2.4.0)
+// BatchCompressResultV2 批量压缩结果 (v2.4.0).
 type BatchCompressResultV2 struct {
 	Total     int64                  `json:"total"`
 	Succeeded int64                  `json:"succeeded"`
@@ -666,7 +666,7 @@ type BatchCompressResultV2 struct {
 	Errors    []ErrorV2              `json:"errors"`
 }
 
-// SingleCompressResult 单个压缩结果
+// SingleCompressResult 单个压缩结果.
 type SingleCompressResult struct {
 	Path           string    `json:"path"`
 	OriginalSize   int64     `json:"originalSize"`
@@ -678,13 +678,13 @@ type SingleCompressResult struct {
 	SkipReason     string    `json:"skipReason,omitempty"`
 }
 
-// ErrorV2 压缩错误
+// ErrorV2 压缩错误.
 type ErrorV2 struct {
 	Path  string `json:"path"`
 	Error string `json:"error"`
 }
 
-// BatchCompressOptions 批量压缩选项
+// BatchCompressOptions 批量压缩选项.
 type BatchCompressOptions struct {
 	Workers         int       `json:"workers"`         // 并发工作数
 	DeleteOriginal  bool      `json:"deleteOriginal"`  // 压缩后删除原文件
@@ -695,7 +695,7 @@ type BatchCompressOptions struct {
 	DryRun          bool      `json:"dryRun"`          // 仅模拟不实际压缩
 }
 
-// DefaultBatchCompressOptions 默认批量压缩选项
+// DefaultBatchCompressOptions 默认批量压缩选项.
 func DefaultBatchCompressOptions() *BatchCompressOptions {
 	return &BatchCompressOptions{
 		Workers:         4,
@@ -706,12 +706,12 @@ func DefaultBatchCompressOptions() *BatchCompressOptions {
 	}
 }
 
-// BatchCompress 批量压缩文件
+// BatchCompress 批量压缩文件.
 func (m *Manager) BatchCompress(paths []string) (*BatchCompressResultV2, error) {
 	return m.BatchCompressWithOptions(paths, nil)
 }
 
-// BatchCompressWithOptions 带选项的批量压缩
+// BatchCompressWithOptions 带选项的批量压缩.
 func (m *Manager) BatchCompressWithOptions(paths []string, opts *BatchCompressOptions) (*BatchCompressResultV2, error) {
 	if opts == nil {
 		opts = DefaultBatchCompressOptions()
@@ -784,7 +784,7 @@ func (m *Manager) BatchCompressWithOptions(paths []string, opts *BatchCompressOp
 	return result, nil
 }
 
-// batchCompressWorker 批量压缩工作协程
+// batchCompressWorker 批量压缩工作协程.
 func (m *Manager) batchCompressWorker(wg *sync.WaitGroup, paths <-chan string, results chan<- SingleCompressResult, errors chan<- ErrorV2, opts *BatchCompressOptions) {
 	defer wg.Done()
 
@@ -869,12 +869,12 @@ func (m *Manager) batchCompressWorker(wg *sync.WaitGroup, paths <-chan string, r
 	}
 }
 
-// GetAlgorithmStats 获取各算法统计信息
+// GetAlgorithmStats 获取各算法统计信息.
 func (m *Manager) GetAlgorithmStats() map[Algorithm]*AlgorithmStats {
 	return m.stats.ByAlgorithm
 }
 
-// EstimateCompressRatio 预估压缩比
+// EstimateCompressRatio 预估压缩比.
 func (m *Manager) EstimateCompressRatio(path string) (float64, Algorithm, error) {
 	info, err := os.Stat(path)
 	if err != nil {

@@ -1,6 +1,7 @@
 package compress
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -154,7 +155,7 @@ func TestHandlers_ListAlgorithms(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/compress/algorithms", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/compress/algorithms", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -170,7 +171,7 @@ func TestHandlers_GetConfig_NilManager(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/compress/config", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/compress/config", nil)
 	w := httptest.NewRecorder()
 
 	defer func() {
@@ -190,7 +191,7 @@ func TestHandlers_GetStats_NilManager(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/compress/stats", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/compress/stats", nil)
 	w := httptest.NewRecorder()
 
 	defer func() {
@@ -210,7 +211,7 @@ func TestHandlers_ListCompressedFiles_NilFS(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/compress/files?dir=/data", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/compress/files?dir=/data", nil)
 	w := httptest.NewRecorder()
 
 	defer func() {
@@ -230,7 +231,7 @@ func TestHandlers_BatchCompress_InvalidBody(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/compress/batch", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/compress/batch", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -247,7 +248,7 @@ func TestHandlers_CompressFile_InvalidBody(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/compress/compress", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/compress/compress", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -264,7 +265,7 @@ func TestHandlers_DecompressFile_InvalidBody(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/compress/decompress", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/compress/decompress", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -281,7 +282,7 @@ func TestHandlers_UpdateConfig_InvalidBody(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("PUT", "/api/compress/config", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/compress/config", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

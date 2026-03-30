@@ -12,7 +12,7 @@ import (
 
 // ========== 趋势数据增强 ==========
 
-// TrendConfig 趋势配置
+// TrendConfig 趋势配置.
 type TrendConfig struct {
 	// 数据采集配置
 	CollectInterval time.Duration `json:"collect_interval"` // 采集间隔
@@ -34,14 +34,14 @@ type TrendConfig struct {
 	PersistInterval time.Duration `json:"persist_interval"` // 持久化间隔
 }
 
-// AggregationLevel 聚合级别
+// AggregationLevel 聚合级别.
 type AggregationLevel struct {
 	Name      string        `json:"name"`      // 级别名称：hourly, daily, weekly, monthly
 	Duration  time.Duration `json:"duration"`  // 聚合时长
 	Retention time.Duration `json:"retention"` // 保留时间
 }
 
-// DefaultTrendConfig 默认趋势配置
+// DefaultTrendConfig 默认趋势配置.
 func DefaultTrendConfig() TrendConfig {
 	return TrendConfig{
 		CollectInterval:            5 * time.Minute,
@@ -62,7 +62,7 @@ func DefaultTrendConfig() TrendConfig {
 	}
 }
 
-// TrendDataPointExtended 扩展的趋势数据点
+// TrendDataPointExtended 扩展的趋势数据点.
 type TrendDataPointExtended struct {
 	QuotaID        string    `json:"quota_id,omitempty"`
 	Timestamp      time.Time `json:"timestamp"`
@@ -77,7 +77,7 @@ type TrendDataPointExtended struct {
 	ReadBytes      uint64    `json:"read_bytes,omitempty"`
 }
 
-// AggregatedTrendPoint 聚合趋势数据点
+// AggregatedTrendPoint 聚合趋势数据点.
 type AggregatedTrendPoint struct {
 	Timestamp       time.Time `json:"timestamp"`
 	MinUsedBytes    uint64    `json:"min_used_bytes"`
@@ -89,7 +89,7 @@ type AggregatedTrendPoint struct {
 	DataPointCount  int       `json:"data_point_count"`
 }
 
-// TrendPrediction 趋势预测结果
+// TrendPrediction 趋势预测结果.
 type TrendPrediction struct {
 	QuotaID            string           `json:"quota_id"`
 	TargetName         string           `json:"target_name"`
@@ -106,7 +106,7 @@ type TrendPrediction struct {
 	WarningMessage     string           `json:"warning_message,omitempty"`
 }
 
-// PredictedPoint 预测数据点
+// PredictedPoint 预测数据点.
 type PredictedPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	UsedBytes    uint64    `json:"used_bytes"`
@@ -114,7 +114,7 @@ type PredictedPoint struct {
 	IsEstimate   bool      `json:"is_estimate"`
 }
 
-// TrendAnalysisReport 趋势分析报告
+// TrendAnalysisReport 趋势分析报告.
 type TrendAnalysisReport struct {
 	QuotaID         string                 `json:"quota_id"`
 	TargetName      string                 `json:"target_name"`
@@ -130,7 +130,7 @@ type TrendAnalysisReport struct {
 	Recommendations []TrendRecommendation  `json:"recommendations"`
 }
 
-// TrendStatistics 趋势统计
+// TrendStatistics 趋势统计.
 type TrendStatistics struct {
 	// 使用量统计
 	MinUsedBytes    uint64  `json:"min_used_bytes"`
@@ -157,7 +157,7 @@ type TrendStatistics struct {
 	Volatility     float64 `json:"volatility"` // 波动率
 }
 
-// TrendPattern 趋势模式
+// TrendPattern 趋势模式.
 type TrendPattern struct {
 	Type        string    `json:"type"` // daily_peak, weekly_peak, steady_growth, fluctuation
 	Name        string    `json:"name"`
@@ -168,7 +168,7 @@ type TrendPattern struct {
 	Confidence  float64   `json:"confidence"`
 }
 
-// TrendRecommendation 趋势建议
+// TrendRecommendation 趋势建议.
 type TrendRecommendation struct {
 	Type        string `json:"type"`     // increase_quota, cleanup, monitor, warning
 	Priority    string `json:"priority"` // low, medium, high, critical
@@ -178,7 +178,7 @@ type TrendRecommendation struct {
 	Impact      string `json:"impact,omitempty"`
 }
 
-// TrendDataManager 趋势数据管理器
+// TrendDataManager 趋势数据管理器.
 type TrendDataManager struct {
 	mu             sync.RWMutex
 	config         TrendConfig
@@ -189,7 +189,7 @@ type TrendDataManager struct {
 	stopChan       chan struct{}
 }
 
-// NewTrendDataManager 创建趋势数据管理器
+// NewTrendDataManager 创建趋势数据管理器.
 func NewTrendDataManager(quotaMgr *Manager, config TrendConfig) *TrendDataManager {
 	return &TrendDataManager{
 		config:         config,
@@ -200,7 +200,7 @@ func NewTrendDataManager(quotaMgr *Manager, config TrendConfig) *TrendDataManage
 	}
 }
 
-// Start 启动趋势数据管理
+// Start 启动趋势数据管理.
 func (m *TrendDataManager) Start() {
 	if m.config.PersistEnabled {
 		m.persistTicker = time.NewTicker(m.config.PersistInterval)
@@ -208,7 +208,7 @@ func (m *TrendDataManager) Start() {
 	}
 }
 
-// Stop 停止趋势数据管理
+// Stop 停止趋势数据管理.
 func (m *TrendDataManager) Stop() {
 	close(m.stopChan)
 	if m.persistTicker != nil {
@@ -220,7 +220,7 @@ func (m *TrendDataManager) Stop() {
 	}
 }
 
-// runPersist 运行持久化
+// runPersist 运行持久化.
 func (m *TrendDataManager) runPersist() {
 	for {
 		select {
@@ -232,7 +232,7 @@ func (m *TrendDataManager) runPersist() {
 	}
 }
 
-// RecordDataPoint 记录数据点
+// RecordDataPoint 记录数据点.
 func (m *TrendDataManager) RecordDataPoint(quotaID string, point TrendDataPointExtended) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -251,7 +251,7 @@ func (m *TrendDataManager) RecordDataPoint(quotaID string, point TrendDataPointE
 	m.updateAggregations(quotaID, point)
 }
 
-// updateAggregations 更新聚合数据
+// updateAggregations 更新聚合数据.
 func (m *TrendDataManager) updateAggregations(quotaID string, point TrendDataPointExtended) {
 	if m.aggregatedData[quotaID] == nil {
 		m.aggregatedData[quotaID] = make(map[string][]AggregatedTrendPoint)
@@ -315,7 +315,7 @@ func (m *TrendDataManager) updateAggregations(quotaID string, point TrendDataPoi
 	}
 }
 
-// GetRawData 获取原始数据
+// GetRawData 获取原始数据.
 func (m *TrendDataManager) GetRawData(quotaID string, duration time.Duration) []TrendDataPointExtended {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -336,7 +336,7 @@ func (m *TrendDataManager) GetRawData(quotaID string, duration time.Duration) []
 	return result
 }
 
-// GetAggregatedData 获取聚合数据
+// GetAggregatedData 获取聚合数据.
 func (m *TrendDataManager) GetAggregatedData(quotaID string, levelName string, duration time.Duration) []AggregatedTrendPoint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -362,7 +362,7 @@ func (m *TrendDataManager) GetAggregatedData(quotaID string, levelName string, d
 	return result
 }
 
-// GetTrendStats 获取趋势统计
+// GetTrendStats 获取趋势统计.
 func (m *TrendDataManager) GetTrendStats(quotaID string, duration time.Duration) *TrendStatistics {
 	data := m.GetRawData(quotaID, duration)
 	if len(data) < 2 {
@@ -446,7 +446,7 @@ func (m *TrendDataManager) GetTrendStats(quotaID string, duration time.Duration)
 	return stats
 }
 
-// Predict 预测趋势
+// Predict 预测趋势.
 func (m *TrendDataManager) Predict(quotaID string, predictDays int) *TrendPrediction {
 	m.mu.RLock()
 	data := m.rawData[quotaID]
@@ -531,7 +531,7 @@ func (m *TrendDataManager) Predict(quotaID string, predictDays int) *TrendPredic
 	return prediction
 }
 
-// calculateConfidence 计算预测置信度
+// calculateConfidence 计算预测置信度.
 func (m *TrendDataManager) calculateConfidence(data []TrendDataPointExtended, stats *TrendStatistics) float64 {
 	if len(data) < 10 {
 		return 0.3
@@ -562,7 +562,7 @@ func (m *TrendDataManager) calculateConfidence(data []TrendDataPointExtended, st
 	return confidence
 }
 
-// GenerateReport 生成趋势分析报告
+// GenerateReport 生成趋势分析报告.
 func (m *TrendDataManager) GenerateReport(quotaID string, duration time.Duration) *TrendAnalysisReport {
 	data := m.GetRawData(quotaID, duration)
 	if len(data) == 0 {
@@ -605,7 +605,7 @@ func (m *TrendDataManager) GenerateReport(quotaID string, duration time.Duration
 	return report
 }
 
-// detectPatterns 检测趋势模式
+// detectPatterns 检测趋势模式.
 func (m *TrendDataManager) detectPatterns(data []TrendDataPointExtended) []TrendPattern {
 	patterns := make([]TrendPattern, 0)
 
@@ -710,7 +710,7 @@ func (m *TrendDataManager) detectPatterns(data []TrendDataPointExtended) []Trend
 	return patterns
 }
 
-// generateRecommendations 生成趋势建议
+// generateRecommendations 生成趋势建议.
 func (m *TrendDataManager) generateRecommendations(report *TrendAnalysisReport, quota *Quota) []TrendRecommendation {
 	recs := make([]TrendRecommendation, 0)
 
@@ -769,7 +769,7 @@ func (m *TrendDataManager) generateRecommendations(report *TrendAnalysisReport, 
 	return recs
 }
 
-// GetChartData 获取图表数据
+// GetChartData 获取图表数据.
 func (m *TrendDataManager) GetChartData(quotaID string, duration time.Duration, granularity string) map[string]interface{} {
 	result := map[string]interface{}{
 		"quota_id":  quotaID,
@@ -834,7 +834,7 @@ func (m *TrendDataManager) GetChartData(quotaID string, duration time.Duration, 
 	return result
 }
 
-// persist 持久化数据
+// persist 持久化数据.
 func (m *TrendDataManager) persist() {
 	if m.config.PersistPath == "" {
 		return
@@ -861,7 +861,7 @@ func (m *TrendDataManager) persist() {
 	_ = os.WriteFile(m.config.PersistPath, jsonData, 0600)
 }
 
-// Load 加载数据
+// Load 加载数据.
 func (m *TrendDataManager) Load() error {
 	if m.config.PersistPath == "" {
 		return nil
@@ -894,7 +894,7 @@ func (m *TrendDataManager) Load() error {
 	return nil
 }
 
-// CleanupOldData 清理过期数据
+// CleanupOldData 清理过期数据.
 func (m *TrendDataManager) CleanupOldData() {
 	m.mu.Lock()
 	defer m.mu.Unlock()

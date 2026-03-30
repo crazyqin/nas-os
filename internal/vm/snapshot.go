@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// isSafeString 检查字符串是否只包含安全字符
+// isSafeString 检查字符串是否只包含安全字符.
 func isSafeString(s string) bool {
 	for _, r := range s {
 		if !isSafeCharWithSpace(r) {
@@ -25,17 +25,17 @@ func isSafeString(s string) bool {
 	return true
 }
 
-// isSafeChar 检查是否为安全字符（字母、数字、下划线、连字符）
+// isSafeChar 检查是否为安全字符（字母、数字、下划线、连字符）.
 func isSafeChar(r rune) bool {
 	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-'
 }
 
-// isSafeCharWithSpace 检查是否为安全字符（包含空格）
+// isSafeCharWithSpace 检查是否为安全字符（包含空格）.
 func isSafeCharWithSpace(r rune) bool {
 	return isSafeChar(r) || r == ' '
 }
 
-// sanitizeDescription 清理描述字符串，移除危险字符
+// sanitizeDescription 清理描述字符串，移除危险字符.
 func sanitizeDescription(s string) string {
 	// 移除可能的命令注入字符
 	replacer := strings.NewReplacer(
@@ -55,7 +55,7 @@ func sanitizeDescription(s string) string {
 	return replacer.Replace(s)
 }
 
-// SnapshotManager 快照管理器
+// SnapshotManager 快照管理器.
 type SnapshotManager struct {
 	mu               sync.RWMutex
 	storagePath      string
@@ -65,7 +65,7 @@ type SnapshotManager struct {
 	libvirtAvailable bool
 }
 
-// NewSnapshotManager 创建快照管理器
+// NewSnapshotManager 创建快照管理器.
 func NewSnapshotManager(storagePath string, vmManager *Manager, logger *zap.Logger) (*SnapshotManager, error) {
 	if storagePath == "" {
 		storagePath = DefaultVMStoragePath
@@ -92,7 +92,7 @@ func NewSnapshotManager(storagePath string, vmManager *Manager, logger *zap.Logg
 	return m, nil
 }
 
-// loadSnapshots 加载现有快照
+// loadSnapshots 加载现有快照.
 func (m *SnapshotManager) loadSnapshots() error {
 	snapshotPath := filepath.Join(m.storagePath, "snapshots")
 
@@ -131,7 +131,7 @@ func (m *SnapshotManager) loadSnapshots() error {
 	return nil
 }
 
-// CreateSnapshot 创建虚拟机快照
+// CreateSnapshot 创建虚拟机快照.
 func (m *SnapshotManager) CreateSnapshot(ctx context.Context, vmID string, name, description string) (*Snapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -228,7 +228,7 @@ func (m *SnapshotManager) CreateSnapshot(ctx context.Context, vmID string, name,
 	return snapshot, nil
 }
 
-// ListSnapshots 获取 VM 的所有快照
+// ListSnapshots 获取 VM 的所有快照.
 func (m *SnapshotManager) ListSnapshots(vmID string) []*Snapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -243,7 +243,7 @@ func (m *SnapshotManager) ListSnapshots(vmID string) []*Snapshot {
 	return snapshots
 }
 
-// GetSnapshot 获取快照信息
+// GetSnapshot 获取快照信息.
 func (m *SnapshotManager) GetSnapshot(snapshotID string) (*Snapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -256,7 +256,7 @@ func (m *SnapshotManager) GetSnapshot(snapshotID string) (*Snapshot, error) {
 	return snapshot, nil
 }
 
-// RestoreSnapshot 恢复虚拟机快照
+// RestoreSnapshot 恢复虚拟机快照.
 func (m *SnapshotManager) RestoreSnapshot(ctx context.Context, snapshotID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -325,7 +325,7 @@ func (m *SnapshotManager) RestoreSnapshot(ctx context.Context, snapshotID string
 	return nil
 }
 
-// DeleteSnapshot 删除快照
+// DeleteSnapshot 删除快照.
 func (m *SnapshotManager) DeleteSnapshot(ctx context.Context, snapshotID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -365,7 +365,7 @@ func (m *SnapshotManager) DeleteSnapshot(ctx context.Context, snapshotID string)
 	return nil
 }
 
-// saveSnapshot 保存快照元数据
+// saveSnapshot 保存快照元数据.
 func (m *SnapshotManager) saveSnapshot(snapshot *Snapshot) error {
 	data, err := json.Marshal(snapshot)
 	if err != nil {

@@ -12,20 +12,20 @@ import (
 	"nas-os/internal/storage"
 )
 
-// MockStorageManager 模拟存储管理器
+// MockStorageManager 模拟存储管理器.
 type MockStorageManager struct {
 	volumes map[string]*storage.Volume
 	mu      sync.RWMutex
 }
 
-// NewMockStorageManager 创建模拟存储管理器
+// NewMockStorageManager 创建模拟存储管理器.
 func NewMockStorageManager() *MockStorageManager {
 	return &MockStorageManager{
 		volumes: make(map[string]*storage.Volume),
 	}
 }
 
-// CreateVolume 创建卷
+// CreateVolume 创建卷.
 func (m *MockStorageManager) CreateVolume(name string, devices []string, profile string) (*storage.Volume, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -46,7 +46,7 @@ func (m *MockStorageManager) CreateVolume(name string, devices []string, profile
 	return vol, nil
 }
 
-// ListVolumes 列出所有卷
+// ListVolumes 列出所有卷.
 func (m *MockStorageManager) ListVolumes() ([]*storage.Volume, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -58,7 +58,7 @@ func (m *MockStorageManager) ListVolumes() ([]*storage.Volume, error) {
 	return vols, nil
 }
 
-// GetVolume 获取卷
+// GetVolume 获取卷.
 func (m *MockStorageManager) GetVolume(name string) (*storage.Volume, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -70,7 +70,7 @@ func (m *MockStorageManager) GetVolume(name string) (*storage.Volume, error) {
 	return vol, nil
 }
 
-// DeleteVolume 删除卷
+// DeleteVolume 删除卷.
 func (m *MockStorageManager) DeleteVolume(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -81,7 +81,7 @@ func (m *MockStorageManager) DeleteVolume(name string) error {
 
 // ========== 存储管理全功能测试 ==========
 
-// TestFull_Storage_RAIDConfigurations 全功能测试：所有 RAID 配置
+// TestFull_Storage_RAIDConfigurations 全功能测试：所有 RAID 配置.
 func TestFull_Storage_RAIDConfigurations(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -119,7 +119,7 @@ func TestFull_Storage_RAIDConfigurations(t *testing.T) {
 	}
 }
 
-// TestFull_Storage_VolumeLifecycle 全功能测试：卷生命周期
+// TestFull_Storage_VolumeLifecycle 全功能测试：卷生命周期.
 func TestFull_Storage_VolumeLifecycle(t *testing.T) {
 	mgr := NewMockStorageManager()
 
@@ -182,7 +182,7 @@ func TestFull_Storage_VolumeLifecycle(t *testing.T) {
 	})
 }
 
-// TestFull_Storage_SubVolumeOperations 全功能测试：子卷操作
+// TestFull_Storage_SubVolumeOperations 全功能测试：子卷操作.
 func TestFull_Storage_SubVolumeOperations(t *testing.T) {
 	// 测试子卷数据结构
 	subvols := []*storage.SubVolume{
@@ -201,7 +201,7 @@ func TestFull_Storage_SubVolumeOperations(t *testing.T) {
 	}
 }
 
-// TestFull_Storage_SnapshotOperations 全功能测试：快照操作
+// TestFull_Storage_SnapshotOperations 全功能测试：快照操作.
 func TestFull_Storage_SnapshotOperations(t *testing.T) {
 	now := time.Now()
 	snapshots := []*storage.Snapshot{
@@ -222,7 +222,7 @@ func TestFull_Storage_SnapshotOperations(t *testing.T) {
 
 // ========== 并发测试 ==========
 
-// TestFull_Concurrent_VolumeOperations 全功能测试：并发卷操作
+// TestFull_Concurrent_VolumeOperations 全功能测试：并发卷操作.
 func TestFull_Concurrent_VolumeOperations(t *testing.T) {
 	mgr := NewMockStorageManager()
 	var wg sync.WaitGroup
@@ -257,7 +257,7 @@ func TestFull_Concurrent_VolumeOperations(t *testing.T) {
 
 // ========== 错误处理测试 ==========
 
-// TestFull_ErrorHandling_InvalidInputs 全功能测试：无效输入处理
+// TestFull_ErrorHandling_InvalidInputs 全功能测试：无效输入处理.
 func TestFull_ErrorHandling_InvalidInputs(t *testing.T) {
 	mgr := NewMockStorageManager()
 
@@ -275,7 +275,7 @@ func TestFull_ErrorHandling_InvalidInputs(t *testing.T) {
 
 // ========== 配置验证测试 ==========
 
-// TestFull_Config_Validation 全功能测试：配置验证
+// TestFull_Config_Validation 全功能测试：配置验证.
 func TestFull_Config_Validation(t *testing.T) {
 	// 验证快照配置
 	snapConfig := storage.DefaultSnapshotConfig
@@ -297,7 +297,7 @@ func TestFull_Config_Validation(t *testing.T) {
 
 // ========== 上下文和超时测试 ==========
 
-// TestFull_Context_Timeout 全功能测试：上下文超时
+// TestFull_Context_Timeout 全功能测试：上下文超时.
 func TestFull_Context_Timeout(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 	defer cancel()
@@ -310,7 +310,7 @@ func TestFull_Context_Timeout(t *testing.T) {
 	}
 }
 
-// TestFull_Context_Cancellation 全功能测试：上下文取消
+// TestFull_Context_Cancellation 全功能测试：上下文取消.
 func TestFull_Context_Cancellation(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -334,7 +334,7 @@ func TestFull_Context_Cancellation(t *testing.T) {
 
 // ========== 数据一致性测试 ==========
 
-// TestFull_DataConsistency_VolumeState 全功能测试：卷状态一致性
+// TestFull_DataConsistency_VolumeState 全功能测试：卷状态一致性.
 func TestFull_DataConsistency_VolumeState(t *testing.T) {
 	vol := &storage.Volume{
 		Name:   "consistency-test",

@@ -12,7 +12,7 @@ import (
 
 // ========== 预警配置增强 ==========
 
-// AlertThresholdConfig 预警阈值配置
+// AlertThresholdConfig 预警阈值配置.
 type AlertThresholdConfig struct {
 	// 多级预警阈值
 	WarningThreshold   float64 `json:"warning_threshold"`   // 警告级别（默认 70%）
@@ -34,7 +34,7 @@ type AlertThresholdConfig struct {
 	AggregateMaxCount int           `json:"aggregate_max_count"` // 聚合最大数量
 }
 
-// DefaultAlertThresholdConfig 默认预警阈值配置
+// DefaultAlertThresholdConfig 默认预警阈值配置.
 func DefaultAlertThresholdConfig() AlertThresholdConfig {
 	return AlertThresholdConfig{
 		WarningThreshold:   70,
@@ -51,7 +51,7 @@ func DefaultAlertThresholdConfig() AlertThresholdConfig {
 	}
 }
 
-// NotificationChannel 通知渠道配置
+// NotificationChannel 通知渠道配置.
 type NotificationChannel struct {
 	ID       string                 `json:"id"`
 	Name     string                 `json:"name"`
@@ -61,7 +61,7 @@ type NotificationChannel struct {
 	Severity []AlertSeverity        `json:"severity"` // 哪些严重级别使用此渠道
 }
 
-// AlertNotificationManager 预警通知管理器
+// AlertNotificationManager 预警通知管理器.
 type AlertNotificationManager struct {
 	mu              sync.RWMutex
 	channels        map[string]*NotificationChannel
@@ -72,7 +72,7 @@ type AlertNotificationManager struct {
 	lastAggregate   time.Time
 }
 
-// NewAlertNotificationManager 创建预警通知管理器
+// NewAlertNotificationManager 创建预警通知管理器.
 func NewAlertNotificationManager(thresholdConfig AlertThresholdConfig) *AlertNotificationManager {
 	return &AlertNotificationManager{
 		channels:        make(map[string]*NotificationChannel),
@@ -84,21 +84,21 @@ func NewAlertNotificationManager(thresholdConfig AlertThresholdConfig) *AlertNot
 	}
 }
 
-// AddChannel 添加通知渠道
+// AddChannel 添加通知渠道.
 func (m *AlertNotificationManager) AddChannel(channel *NotificationChannel) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.channels[channel.ID] = channel
 }
 
-// RemoveChannel 移除通知渠道
+// RemoveChannel 移除通知渠道.
 func (m *AlertNotificationManager) RemoveChannel(id string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.channels, id)
 }
 
-// GetChannels 获取所有通知渠道
+// GetChannels 获取所有通知渠道.
 func (m *AlertNotificationManager) GetChannels() []*NotificationChannel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -109,7 +109,7 @@ func (m *AlertNotificationManager) GetChannels() []*NotificationChannel {
 	return result
 }
 
-// ShouldAlert 判断是否应该发送告警
+// ShouldAlert 判断是否应该发送告警.
 func (m *AlertNotificationManager) ShouldAlert(quotaID string, severity AlertSeverity) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -133,7 +133,7 @@ func (m *AlertNotificationManager) ShouldAlert(quotaID string, severity AlertSev
 	return true
 }
 
-// RecordAlert 记录告警发送
+// RecordAlert 记录告警发送.
 func (m *AlertNotificationManager) RecordAlert(quotaID string, severity AlertSeverity) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -145,14 +145,14 @@ func (m *AlertNotificationManager) RecordAlert(quotaID string, severity AlertSev
 	m.repeatTracker[quotaID]++
 }
 
-// ResetRepeatCounter 重置重复计数器
+// ResetRepeatCounter 重置重复计数器.
 func (m *AlertNotificationManager) ResetRepeatCounter(quotaID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.repeatTracker, quotaID)
 }
 
-// CleanupCooldown 清理过期的冷却记录
+// CleanupCooldown 清理过期的冷却记录.
 func (m *AlertNotificationManager) CleanupCooldown() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -166,7 +166,7 @@ func (m *AlertNotificationManager) CleanupCooldown() {
 	}
 }
 
-// DetermineSeverity 根据使用率确定告警严重级别
+// DetermineSeverity 根据使用率确定告警严重级别.
 func (m *AlertNotificationManager) DetermineSeverity(usagePercent float64) AlertSeverity {
 	if usagePercent >= m.thresholdConfig.EmergencyThreshold {
 		return AlertSeverityEmergency
@@ -182,7 +182,7 @@ func (m *AlertNotificationManager) DetermineSeverity(usagePercent float64) Alert
 
 // ========== 自动清理增强 ==========
 
-// LargeFileRule 大文件检测规则
+// LargeFileRule 大文件检测规则.
 type LargeFileRule struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
@@ -200,7 +200,7 @@ type LargeFileRule struct {
 	UpdatedAt    time.Time     `json:"updated_at"`
 }
 
-// LargeFileResult 大文件检测结果
+// LargeFileResult 大文件检测结果.
 type LargeFileResult struct {
 	RuleID       string        `json:"rule_id"`
 	RuleName     string        `json:"rule_name"`
@@ -213,7 +213,7 @@ type LargeFileResult struct {
 	ScanDuration time.Duration `json:"scan_duration"`
 }
 
-// ExpiredFileRule 过期文件清理规则
+// ExpiredFileRule 过期文件清理规则.
 type ExpiredFileRule struct {
 	ID              string        `json:"id"`
 	Name            string        `json:"name"`
@@ -233,7 +233,7 @@ type ExpiredFileRule struct {
 	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
-// ExpiredFileResult 过期文件检测结果
+// ExpiredFileResult 过期文件检测结果.
 type ExpiredFileResult struct {
 	RuleID       string        `json:"rule_id"`
 	RuleName     string        `json:"rule_name"`
@@ -246,7 +246,7 @@ type ExpiredFileResult struct {
 	ScanDuration time.Duration `json:"scan_duration"`
 }
 
-// CleanupRuleSet 清理规则集
+// CleanupRuleSet 清理规则集.
 type CleanupRuleSet struct {
 	ID           string             `json:"id"`
 	Name         string             `json:"name"`
@@ -258,7 +258,7 @@ type CleanupRuleSet struct {
 	UpdatedAt    time.Time          `json:"updated_at"`
 }
 
-// CleanupEnhancedManager 增强的清理管理器
+// CleanupEnhancedManager 增强的清理管理器.
 type CleanupEnhancedManager struct {
 	quotaMgr         *Manager
 	largeFileRules   map[string]*LargeFileRule
@@ -268,7 +268,7 @@ type CleanupEnhancedManager struct {
 	mu               sync.RWMutex
 }
 
-// NewCleanupEnhancedManager 创建增强清理管理器
+// NewCleanupEnhancedManager 创建增强清理管理器.
 func NewCleanupEnhancedManager(quotaMgr *Manager) *CleanupEnhancedManager {
 	return &CleanupEnhancedManager{
 		quotaMgr:         quotaMgr,
@@ -281,7 +281,7 @@ func NewCleanupEnhancedManager(quotaMgr *Manager) *CleanupEnhancedManager {
 
 // ========== 大文件检测 ==========
 
-// CreateLargeFileRule 创建大文件检测规则
+// CreateLargeFileRule 创建大文件检测规则.
 func (m *CleanupEnhancedManager) CreateLargeFileRule(rule LargeFileRule) (*LargeFileRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -296,7 +296,7 @@ func (m *CleanupEnhancedManager) CreateLargeFileRule(rule LargeFileRule) (*Large
 	return &rule, nil
 }
 
-// GetLargeFileRule 获取大文件检测规则
+// GetLargeFileRule 获取大文件检测规则.
 func (m *CleanupEnhancedManager) GetLargeFileRule(id string) (*LargeFileRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -308,7 +308,7 @@ func (m *CleanupEnhancedManager) GetLargeFileRule(id string) (*LargeFileRule, er
 	return rule, nil
 }
 
-// ListLargeFileRules 列出大文件检测规则
+// ListLargeFileRules 列出大文件检测规则.
 func (m *CleanupEnhancedManager) ListLargeFileRules(volumeName string) []*LargeFileRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -322,7 +322,7 @@ func (m *CleanupEnhancedManager) ListLargeFileRules(volumeName string) []*LargeF
 	return result
 }
 
-// UpdateLargeFileRule 更新大文件检测规则
+// UpdateLargeFileRule 更新大文件检测规则.
 func (m *CleanupEnhancedManager) UpdateLargeFileRule(id string, rule LargeFileRule) (*LargeFileRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -339,7 +339,7 @@ func (m *CleanupEnhancedManager) UpdateLargeFileRule(id string, rule LargeFileRu
 	return &rule, nil
 }
 
-// DeleteLargeFileRule 删除大文件检测规则
+// DeleteLargeFileRule 删除大文件检测规则.
 func (m *CleanupEnhancedManager) DeleteLargeFileRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -351,7 +351,7 @@ func (m *CleanupEnhancedManager) DeleteLargeFileRule(id string) error {
 	return nil
 }
 
-// ScanLargeFiles 扫描大文件
+// ScanLargeFiles 扫描大文件.
 func (m *CleanupEnhancedManager) ScanLargeFiles(ruleID string, topN int) (*LargeFileResult, error) {
 	m.mu.RLock()
 	rule, exists := m.largeFileRules[ruleID]
@@ -475,7 +475,7 @@ func (m *CleanupEnhancedManager) ScanLargeFiles(ruleID string, topN int) (*Large
 
 // ========== 过期文件清理 ==========
 
-// CreateExpiredFileRule 创建过期文件清理规则
+// CreateExpiredFileRule 创建过期文件清理规则.
 func (m *CleanupEnhancedManager) CreateExpiredFileRule(rule ExpiredFileRule) (*ExpiredFileRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -490,7 +490,7 @@ func (m *CleanupEnhancedManager) CreateExpiredFileRule(rule ExpiredFileRule) (*E
 	return &rule, nil
 }
 
-// GetExpiredFileRule 获取过期文件清理规则
+// GetExpiredFileRule 获取过期文件清理规则.
 func (m *CleanupEnhancedManager) GetExpiredFileRule(id string) (*ExpiredFileRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -502,7 +502,7 @@ func (m *CleanupEnhancedManager) GetExpiredFileRule(id string) (*ExpiredFileRule
 	return rule, nil
 }
 
-// ListExpiredFileRules 列出过期文件清理规则
+// ListExpiredFileRules 列出过期文件清理规则.
 func (m *CleanupEnhancedManager) ListExpiredFileRules(volumeName string) []*ExpiredFileRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -516,7 +516,7 @@ func (m *CleanupEnhancedManager) ListExpiredFileRules(volumeName string) []*Expi
 	return result
 }
 
-// UpdateExpiredFileRule 更新过期文件清理规则
+// UpdateExpiredFileRule 更新过期文件清理规则.
 func (m *CleanupEnhancedManager) UpdateExpiredFileRule(id string, rule ExpiredFileRule) (*ExpiredFileRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -533,7 +533,7 @@ func (m *CleanupEnhancedManager) UpdateExpiredFileRule(id string, rule ExpiredFi
 	return &rule, nil
 }
 
-// DeleteExpiredFileRule 删除过期文件清理规则
+// DeleteExpiredFileRule 删除过期文件清理规则.
 func (m *CleanupEnhancedManager) DeleteExpiredFileRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -545,7 +545,7 @@ func (m *CleanupEnhancedManager) DeleteExpiredFileRule(id string) error {
 	return nil
 }
 
-// ScanExpiredFiles 扫描过期文件
+// ScanExpiredFiles 扫描过期文件.
 func (m *CleanupEnhancedManager) ScanExpiredFiles(ruleID string) (*ExpiredFileResult, error) {
 	m.mu.RLock()
 	rule, exists := m.expiredFileRules[ruleID]
@@ -683,7 +683,7 @@ func (m *CleanupEnhancedManager) ScanExpiredFiles(ruleID string) (*ExpiredFileRe
 	return result, nil
 }
 
-// ExecuteExpiredFileCleanup 执行过期文件清理
+// ExecuteExpiredFileCleanup 执行过期文件清理.
 func (m *CleanupEnhancedManager) ExecuteExpiredFileCleanup(ruleID string) (*ExpiredFileResult, error) {
 	// 先扫描
 	result, err := m.ScanExpiredFiles(ruleID)
@@ -720,7 +720,7 @@ func (m *CleanupEnhancedManager) ExecuteExpiredFileCleanup(ruleID string) (*Expi
 	return result, nil
 }
 
-// GetScanResult 获取扫描结果
+// GetScanResult 获取扫描结果.
 func (m *CleanupEnhancedManager) GetScanResult(resultKey string) (interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -734,7 +734,7 @@ func (m *CleanupEnhancedManager) GetScanResult(resultKey string) (interface{}, e
 
 // ========== 规则集管理 ==========
 
-// CreateRuleSet 创建规则集
+// CreateRuleSet 创建规则集.
 func (m *CleanupEnhancedManager) CreateRuleSet(ruleSet CleanupRuleSet) (*CleanupRuleSet, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -749,7 +749,7 @@ func (m *CleanupEnhancedManager) CreateRuleSet(ruleSet CleanupRuleSet) (*Cleanup
 	return &ruleSet, nil
 }
 
-// GetRuleSet 获取规则集
+// GetRuleSet 获取规则集.
 func (m *CleanupEnhancedManager) GetRuleSet(id string) (*CleanupRuleSet, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -761,7 +761,7 @@ func (m *CleanupEnhancedManager) GetRuleSet(id string) (*CleanupRuleSet, error) 
 	return ruleSet, nil
 }
 
-// ListRuleSets 列出规则集
+// ListRuleSets 列出规则集.
 func (m *CleanupEnhancedManager) ListRuleSets(volumeName string) []*CleanupRuleSet {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -775,7 +775,7 @@ func (m *CleanupEnhancedManager) ListRuleSets(volumeName string) []*CleanupRuleS
 	return result
 }
 
-// ExecuteRuleSet 执行规则集
+// ExecuteRuleSet 执行规则集.
 func (m *CleanupEnhancedManager) ExecuteRuleSet(id string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	ruleSet, exists := m.ruleSets[id]
@@ -810,7 +810,7 @@ func (m *CleanupEnhancedManager) ExecuteRuleSet(id string) (map[string]interface
 	return results, nil
 }
 
-// SaveRules 保存规则到文件
+// SaveRules 保存规则到文件.
 func (m *CleanupEnhancedManager) SaveRules(configPath string) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -843,7 +843,7 @@ func (m *CleanupEnhancedManager) SaveRules(configPath string) error {
 	return os.WriteFile(configPath, jsonData, 0600)
 }
 
-// LoadRules 从文件加载规则
+// LoadRules 从文件加载规则.
 func (m *CleanupEnhancedManager) LoadRules(configPath string) error {
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		return nil

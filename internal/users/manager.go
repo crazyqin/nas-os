@@ -16,19 +16,19 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Role 用户角色
+// Role 用户角色.
 type Role string
 
 const (
-	// RoleAdmin 管理员：全部权限
+	// RoleAdmin 管理员：全部权限.
 	RoleAdmin Role = "admin"
-	// RoleUser 普通用户：受限访问
+	// RoleUser 普通用户：受限访问.
 	RoleUser Role = "user"
-	// RoleGuest 访客：只读访问
+	// RoleGuest 访客：只读访问.
 	RoleGuest Role = "guest"
 )
 
-// User 用户信息
+// User 用户信息.
 type User struct {
 	ID           string     `json:"id"`
 	Username     string     `json:"username"`
@@ -45,7 +45,7 @@ type User struct {
 	LastLoginIP  string     `json:"last_login_ip,omitempty"`
 }
 
-// UserConfig 用户配置
+// UserConfig 用户配置.
 type UserConfig struct {
 	Language         string            `json:"language,omitempty"`          // 界面语言
 	Timezone         string            `json:"timezone,omitempty"`          // 时区
@@ -57,7 +57,7 @@ type UserConfig struct {
 	CustomAttributes map[string]string `json:"custom_attributes,omitempty"` // 自定义属性
 }
 
-// NotificationPrefs 通知偏好配置
+// NotificationPrefs 通知偏好配置.
 type NotificationPrefs struct {
 	EmailEnabled  bool `json:"email_enabled"`   // 邮件通知
 	PushEnabled   bool `json:"push_enabled"`    // 推送通知
@@ -67,7 +67,7 @@ type NotificationPrefs struct {
 	AlertOnChange bool `json:"alert_on_change"` // 变更提醒
 }
 
-// UserInput 创建/更新用户输入
+// UserInput 创建/更新用户输入.
 type UserInput struct {
 	Username string   `json:"username" binding:"required"`
 	Password string   `json:"password" binding:"required,min=6"`
@@ -77,7 +77,7 @@ type UserInput struct {
 	Groups   []string `json:"groups"`
 }
 
-// Group 用户组
+// Group 用户组.
 type Group struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -86,14 +86,14 @@ type Group struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// GroupInput 创建/更新用户组输入
+// GroupInput 创建/更新用户组输入.
 type GroupInput struct {
 	Name        string   `json:"name" binding:"required"`
 	Description string   `json:"description"`
 	Members     []string `json:"members"`
 }
 
-// Token 会话令牌
+// Token 会话令牌.
 type Token struct {
 	UserID    string    `json:"user_id"`
 	Token     string    `json:"token"`
@@ -101,20 +101,20 @@ type Token struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Permission 权限定义
+// Permission 权限定义.
 type Permission struct {
 	Resource string `json:"resource"` // 资源类型：volume, share, user, system
 	Action   string `json:"action"`   // 操作：read, write, delete, admin
 }
 
-// persistentConfig 持久化配置
+// persistentConfig 持久化配置.
 type persistentConfig struct {
 	Users  map[string]*User  `json:"users"`
 	Groups map[string]*Group `json:"groups"`
 	Tokens map[string]*Token `json:"tokens"`
 }
 
-// Manager 用户管理器
+// Manager 用户管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	users      map[string]*User  // username -> User
@@ -125,30 +125,30 @@ type Manager struct {
 }
 
 var (
-	// ErrUserNotFound 用户不存在
+	// ErrUserNotFound 用户不存在.
 	ErrUserNotFound = errors.New("用户不存在")
-	// ErrUserExists 用户已存在
+	// ErrUserExists 用户已存在.
 	ErrUserExists = errors.New("用户已存在")
-	// ErrInvalidPassword 密码错误
+	// ErrInvalidPassword 密码错误.
 	ErrInvalidPassword = errors.New("密码错误")
-	// ErrTokenInvalid 令牌无效或已过期
+	// ErrTokenInvalid 令牌无效或已过期.
 	ErrTokenInvalid = errors.New("令牌无效或已过期")
-	// ErrAdminCannotDelete 不能删除管理员账户
+	// ErrAdminCannotDelete 不能删除管理员账户.
 	ErrAdminCannotDelete = errors.New("不能删除管理员账户")
-	// ErrGroupNotFound 用户组不存在
+	// ErrGroupNotFound 用户组不存在.
 	ErrGroupNotFound = errors.New("用户组不存在")
-	// ErrGroupExists 用户组已存在
+	// ErrGroupExists 用户组已存在.
 	ErrGroupExists = errors.New("用户组已存在")
-	// ErrLastAdmin 系统必须保留至少一个管理员
+	// ErrLastAdmin 系统必须保留至少一个管理员.
 	ErrLastAdmin = errors.New("系统必须保留至少一个管理员")
 )
 
-// NewManager 创建用户管理器
+// NewManager 创建用户管理器.
 func NewManager(mountBase string) (*Manager, error) {
 	return NewManagerWithConfig(mountBase, "")
 }
 
-// NewManagerWithConfig 创建用户管理器（带配置文件路径）
+// NewManagerWithConfig 创建用户管理器（带配置文件路径）.
 func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 	m := &Manager{
 		users:      make(map[string]*User),
@@ -207,7 +207,7 @@ func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 	return m, nil
 }
 
-// loadConfig 从文件加载配置
+// loadConfig 从文件加载配置.
 func (m *Manager) loadConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -248,7 +248,7 @@ func (m *Manager) loadConfig() error {
 }
 
 // saveConfig 保存配置到文件
-// 注意：调用者必须持有 m.mu 锁
+// 注意：调用者必须持有 m.mu 锁.
 func (m *Manager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -276,7 +276,7 @@ func (m *Manager) saveConfig() error {
 	return nil
 }
 
-// generateID 生成用户 ID
+// generateID 生成用户 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
@@ -285,7 +285,7 @@ func generateID() string {
 	return hex.EncodeToString(b)
 }
 
-// generateToken 生成会话令牌
+// generateToken 生成会话令牌.
 func generateToken() string {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -296,7 +296,7 @@ func generateToken() string {
 
 // ========== 用户管理 ==========
 
-// CreateUser 创建用户
+// CreateUser 创建用户.
 func (m *Manager) CreateUser(input UserInput) (*User, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -342,7 +342,7 @@ func (m *Manager) CreateUser(input UserInput) (*User, error) {
 	return user, nil
 }
 
-// GetUser 获取用户
+// GetUser 获取用户.
 func (m *Manager) GetUser(username string) (*User, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -354,7 +354,7 @@ func (m *Manager) GetUser(username string) (*User, error) {
 	return user, nil
 }
 
-// GetUserByID 通过 ID 获取用户
+// GetUserByID 通过 ID 获取用户.
 func (m *Manager) GetUserByID(id string) (*User, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -367,7 +367,7 @@ func (m *Manager) GetUserByID(id string) (*User, error) {
 	return nil, ErrUserNotFound
 }
 
-// ListUsers 获取用户列表
+// ListUsers 获取用户列表.
 func (m *Manager) ListUsers() []*User {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -391,7 +391,7 @@ func (m *Manager) ListUsers() []*User {
 	return users
 }
 
-// UpdateUser 更新用户信息
+// UpdateUser 更新用户信息.
 func (m *Manager) UpdateUser(username string, input UserInput) (*User, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -429,7 +429,7 @@ func (m *Manager) UpdateUser(username string, input UserInput) (*User, error) {
 	return user, nil
 }
 
-// DeleteUser 删除用户
+// DeleteUser 删除用户.
 func (m *Manager) DeleteUser(username string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -472,7 +472,7 @@ func (m *Manager) DeleteUser(username string) error {
 
 // ========== 用户组管理 ==========
 
-// CreateGroup 创建用户组
+// CreateGroup 创建用户组.
 func (m *Manager) CreateGroup(input GroupInput) (*Group, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -504,7 +504,7 @@ func (m *Manager) CreateGroup(input GroupInput) (*Group, error) {
 	return group, nil
 }
 
-// GetGroup 获取用户组
+// GetGroup 获取用户组.
 func (m *Manager) GetGroup(name string) (*Group, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -516,7 +516,7 @@ func (m *Manager) GetGroup(name string) (*Group, error) {
 	return group, nil
 }
 
-// ListGroups 获取用户组列表
+// ListGroups 获取用户组列表.
 func (m *Manager) ListGroups() []*Group {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -528,7 +528,7 @@ func (m *Manager) ListGroups() []*Group {
 	return groups
 }
 
-// UpdateGroup 更新用户组
+// UpdateGroup 更新用户组.
 func (m *Manager) UpdateGroup(name string, input GroupInput) (*Group, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -577,7 +577,7 @@ func (m *Manager) UpdateGroup(name string, input GroupInput) (*Group, error) {
 	return group, nil
 }
 
-// DeleteGroup 删除用户组
+// DeleteGroup 删除用户组.
 func (m *Manager) DeleteGroup(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -601,7 +601,7 @@ func (m *Manager) DeleteGroup(name string) error {
 	return nil
 }
 
-// AddUserToGroup 将用户添加到组
+// AddUserToGroup 将用户添加到组.
 func (m *Manager) AddUserToGroup(username, groupName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -632,7 +632,7 @@ func (m *Manager) AddUserToGroup(username, groupName string) error {
 	return nil
 }
 
-// RemoveUserFromGroup 从组中移除用户
+// RemoveUserFromGroup 从组中移除用户.
 func (m *Manager) RemoveUserFromGroup(username, groupName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -672,7 +672,7 @@ func (m *Manager) removeString(slice []string, s string) []string {
 
 // ========== 认证管理 ==========
 
-// Authenticate 验证用户登录
+// Authenticate 验证用户登录.
 func (m *Manager) Authenticate(username, password string) (*Token, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -705,7 +705,7 @@ func (m *Manager) Authenticate(username, password string) (*Token, error) {
 	return token, nil
 }
 
-// ValidateToken 验证令牌
+// ValidateToken 验证令牌.
 func (m *Manager) ValidateToken(tokenStr string) (*User, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -732,7 +732,7 @@ func (m *Manager) ValidateToken(tokenStr string) (*User, error) {
 	return nil, ErrTokenInvalid
 }
 
-// Logout 登出（使令牌失效）
+// Logout 登出（使令牌失效）.
 func (m *Manager) Logout(tokenStr string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -742,7 +742,7 @@ func (m *Manager) Logout(tokenStr string) {
 	}
 }
 
-// RefreshToken 刷新令牌
+// RefreshToken 刷新令牌.
 func (m *Manager) RefreshToken(tokenStr string) (*Token, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -762,7 +762,7 @@ func (m *Manager) RefreshToken(tokenStr string) (*Token, error) {
 
 // ========== 用户状态管理 ==========
 
-// DisableUser 禁用/启用用户
+// DisableUser 禁用/启用用户.
 func (m *Manager) DisableUser(username string, disabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -793,7 +793,7 @@ func (m *Manager) DisableUser(username string, disabled bool) error {
 	return nil
 }
 
-// ChangePassword 修改密码
+// ChangePassword 修改密码.
 func (m *Manager) ChangePassword(username, oldPassword, newPassword string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -821,7 +821,7 @@ func (m *Manager) ChangePassword(username, oldPassword, newPassword string) erro
 	return nil
 }
 
-// ResetPassword 重置密码（管理员操作）
+// ResetPassword 重置密码（管理员操作）.
 func (m *Manager) ResetPassword(username, newPassword string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -845,7 +845,7 @@ func (m *Manager) ResetPassword(username, newPassword string) error {
 
 // ========== 权限管理 ==========
 
-// HasPermission 检查用户是否有指定权限
+// HasPermission 检查用户是否有指定权限.
 func (m *Manager) HasPermission(user *User, resource, action string) bool {
 	if user == nil {
 		return false
@@ -868,7 +868,7 @@ func (m *Manager) HasPermission(user *User, resource, action string) bool {
 	}
 }
 
-// CheckPermission 检查用户权限（通过用户名）
+// CheckPermission 检查用户权限（通过用户名）.
 func (m *Manager) CheckPermission(username, resource, action string) (bool, error) {
 	user, err := m.GetUser(username)
 	if err != nil {
@@ -877,7 +877,7 @@ func (m *Manager) CheckPermission(username, resource, action string) (bool, erro
 	return m.HasPermission(user, resource, action), nil
 }
 
-// GetUsersByRole 获取指定角色的用户列表
+// GetUsersByRole 获取指定角色的用户列表.
 func (m *Manager) GetUsersByRole(role Role) []*User {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -891,7 +891,7 @@ func (m *Manager) GetUsersByRole(role Role) []*User {
 	return users
 }
 
-// GetUsersInGroup 获取用户组中的用户列表
+// GetUsersInGroup 获取用户组中的用户列表.
 func (m *Manager) GetUsersInGroup(groupName string) ([]*User, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -910,7 +910,7 @@ func (m *Manager) GetUsersInGroup(groupName string) ([]*User, error) {
 	return users, nil
 }
 
-// SetUserRole 设置用户角色
+// SetUserRole 设置用户角色.
 func (m *Manager) SetUserRole(username string, role Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -943,7 +943,7 @@ func (m *Manager) SetUserRole(username string, role Role) error {
 
 // ========== 安全辅助函数 ==========
 
-// generateRandomPassword 生成随机密码
+// generateRandomPassword 生成随机密码.
 func generateRandomPassword(length int) string {
 	const (
 		uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -979,7 +979,7 @@ func generateRandomPassword(length int) string {
 	return string(password)
 }
 
-// mustRandomInt 生成随机整数
+// mustRandomInt 生成随机整数.
 func mustRandomInt(max int) int {
 	n, err := rand.Int(rand.Reader, big.NewInt(int64(max)))
 	if err != nil {
@@ -990,7 +990,7 @@ func mustRandomInt(max int) int {
 
 // ========== 用户配置管理 ==========
 
-// GetUserConfig 获取用户配置
+// GetUserConfig 获取用户配置.
 func (m *Manager) GetUserConfig(username string) (*UserConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1005,7 +1005,7 @@ func (m *Manager) GetUserConfig(username string) (*UserConfig, error) {
 	return &config, nil
 }
 
-// UpdateUserConfig 更新用户配置
+// UpdateUserConfig 更新用户配置.
 func (m *Manager) UpdateUserConfig(username string, config UserConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1024,7 +1024,7 @@ func (m *Manager) UpdateUserConfig(username string, config UserConfig) error {
 	return nil
 }
 
-// PatchUserConfig 部分更新用户配置
+// PatchUserConfig 部分更新用户配置.
 func (m *Manager) PatchUserConfig(username string, updates map[string]interface{}) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1079,27 +1079,27 @@ func (m *Manager) PatchUserConfig(username string, updates map[string]interface{
 	return nil
 }
 
-// SetUserLanguage 设置用户语言
+// SetUserLanguage 设置用户语言.
 func (m *Manager) SetUserLanguage(username, language string) error {
 	return m.PatchUserConfig(username, map[string]interface{}{"language": language})
 }
 
-// SetUserTimezone 设置用户时区
+// SetUserTimezone 设置用户时区.
 func (m *Manager) SetUserTimezone(username, timezone string) error {
 	return m.PatchUserConfig(username, map[string]interface{}{"timezone": timezone})
 }
 
-// SetUserTheme 设置用户主题
+// SetUserTheme 设置用户主题.
 func (m *Manager) SetUserTheme(username, theme string) error {
 	return m.PatchUserConfig(username, map[string]interface{}{"theme": theme})
 }
 
-// SetUserStorageQuota 设置用户存储配额
+// SetUserStorageQuota 设置用户存储配额.
 func (m *Manager) SetUserStorageQuota(username string, quota int64) error {
 	return m.PatchUserConfig(username, map[string]interface{}{"storage_quota": quota})
 }
 
-// GetUserStorageQuota 获取用户存储配额
+// GetUserStorageQuota 获取用户存储配额.
 func (m *Manager) GetUserStorageQuota(username string) (int64, error) {
 	config, err := m.GetUserConfig(username)
 	if err != nil {
@@ -1108,12 +1108,12 @@ func (m *Manager) GetUserStorageQuota(username string) (int64, error) {
 	return config.StorageQuota, nil
 }
 
-// SetUserNotificationPrefs 设置用户通知偏好
+// SetUserNotificationPrefs 设置用户通知偏好.
 func (m *Manager) SetUserNotificationPrefs(username string, prefs NotificationPrefs) error {
 	return m.PatchUserConfig(username, map[string]interface{}{"notifications": prefs})
 }
 
-// AllowService 允许用户访问指定服务
+// AllowService 允许用户访问指定服务.
 func (m *Manager) AllowService(username, service string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1141,7 +1141,7 @@ func (m *Manager) AllowService(username, service string) error {
 	return nil
 }
 
-// DenyService 禁止用户访问指定服务
+// DenyService 禁止用户访问指定服务.
 func (m *Manager) DenyService(username, service string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1169,7 +1169,7 @@ func (m *Manager) DenyService(username, service string) error {
 	return nil
 }
 
-// SetCustomAttribute 设置用户自定义属性
+// SetCustomAttribute 设置用户自定义属性.
 func (m *Manager) SetCustomAttribute(username, key, value string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1191,7 +1191,7 @@ func (m *Manager) SetCustomAttribute(username, key, value string) error {
 	return nil
 }
 
-// GetCustomAttribute 获取用户自定义属性
+// GetCustomAttribute 获取用户自定义属性.
 func (m *Manager) GetCustomAttribute(username, key string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1209,7 +1209,7 @@ func (m *Manager) GetCustomAttribute(username, key string) (string, error) {
 
 // ========== 用户统计与审计 ==========
 
-// UpdateLastLogin 更新用户最后登录信息
+// UpdateLastLogin 更新用户最后登录信息.
 func (m *Manager) UpdateLastLogin(username, ip string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1230,7 +1230,7 @@ func (m *Manager) UpdateLastLogin(username, ip string) error {
 	return nil
 }
 
-// GetUserStats 获取用户统计信息
+// GetUserStats 获取用户统计信息.
 func (m *Manager) GetUserStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1269,7 +1269,7 @@ func (m *Manager) GetUserStats() map[string]interface{} {
 	return stats
 }
 
-// GetActiveUsers 获取活跃用户列表（指定时间内登录过）
+// GetActiveUsers 获取活跃用户列表（指定时间内登录过）.
 func (m *Manager) GetActiveUsers(since time.Time) []*User {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1283,7 +1283,7 @@ func (m *Manager) GetActiveUsers(since time.Time) []*User {
 	return users
 }
 
-// GetInactiveUsers 获取不活跃用户列表（超过指定时间未登录）
+// GetInactiveUsers 获取不活跃用户列表（超过指定时间未登录）.
 func (m *Manager) GetInactiveUsers(duration time.Duration) []*User {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1300,7 +1300,7 @@ func (m *Manager) GetInactiveUsers(duration time.Duration) []*User {
 
 // ========== 批量操作 ==========
 
-// BatchCreateUsers 批量创建用户
+// BatchCreateUsers 批量创建用户.
 func (m *Manager) BatchCreateUsers(inputs []UserInput) ([]*User, []error) {
 	results := make([]*User, 0, len(inputs))
 	errs := make([]error, 0)
@@ -1317,7 +1317,7 @@ func (m *Manager) BatchCreateUsers(inputs []UserInput) ([]*User, []error) {
 	return results, errs
 }
 
-// BatchDeleteUsers 批量删除用户
+// BatchDeleteUsers 批量删除用户.
 func (m *Manager) BatchDeleteUsers(usernames []string) []error {
 	errs := make([]error, 0)
 	for _, username := range usernames {
@@ -1328,7 +1328,7 @@ func (m *Manager) BatchDeleteUsers(usernames []string) []error {
 	return errs
 }
 
-// BatchAddToGroup 批量将用户添加到组
+// BatchAddToGroup 批量将用户添加到组.
 func (m *Manager) BatchAddToGroup(usernames []string, groupName string) []error {
 	errs := make([]error, 0)
 	for _, username := range usernames {

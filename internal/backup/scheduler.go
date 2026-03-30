@@ -20,7 +20,7 @@ import (
 // ============================================================================
 
 // Scheduler 备份调度器
-// 支持定时备份、优先级队列、备份窗口配置、并发控制、依赖管理
+// 支持定时备份、优先级队列、备份窗口配置、并发控制、依赖管理.
 type Scheduler struct {
 	mu sync.RWMutex
 
@@ -63,10 +63,10 @@ type Scheduler struct {
 	onJobFail     func(job *ScheduledJob, err error)
 }
 
-// BackupScheduler 备份调度器（兼容别名）
+// BackupScheduler 备份调度器（兼容别名）.
 type BackupScheduler = Scheduler //nolint:revive // 向后兼容别名
 
-// SchedulerConfig 调度器配置
+// SchedulerConfig 调度器配置.
 type SchedulerConfig struct {
 	// 并发配置
 	MaxConcurrent int `json:"max_concurrent"` // 最大并发备份数
@@ -92,7 +92,7 @@ type SchedulerConfig struct {
 	Timezone string `json:"timezone"` // 时区
 }
 
-// DefaultSchedulerConfig 默认调度器配置
+// DefaultSchedulerConfig 默认调度器配置.
 func DefaultSchedulerConfig() *SchedulerConfig {
 	return &SchedulerConfig{
 		MaxConcurrent:     3,
@@ -109,7 +109,7 @@ func DefaultSchedulerConfig() *SchedulerConfig {
 	}
 }
 
-// ScheduledJob 调度作业
+// ScheduledJob 调度作业.
 type ScheduledJob struct {
 	ID           string        `json:"id"`
 	BackupJobID  string        `json:"backup_job_id"`
@@ -129,7 +129,7 @@ type ScheduledJob struct {
 	entryID      cron.EntryID
 }
 
-// JobStatus 作业状态
+// JobStatus 作业状态.
 type JobStatus string
 
 const (
@@ -149,30 +149,30 @@ const (
 	JobStatusRetrying JobStatus = "retrying"
 )
 
-// Window 备份窗口
+// Window 备份窗口.
 type Window struct {
 	StartHour int   `json:"start_hour"`
 	EndHour   int   `json:"end_hour"`
 	Days      []int `json:"days,omitempty"` // 0=Sunday, 1=Monday, ...
 }
 
-// BackupWindow 备份窗口（兼容别名）
+// BackupWindow 备份窗口（兼容别名）.
 type BackupWindow = Window //nolint:revive // 向后兼容别名
 
-// PriorityQueue 优先级队列
+// PriorityQueue 优先级队列.
 type PriorityQueue struct {
 	items []*QueueItem
 	mu    sync.RWMutex
 }
 
-// QueueItem 队列项
+// QueueItem 队列项.
 type QueueItem struct {
 	Job      *ScheduledJob
 	Priority int
 	AddedAt  time.Time
 }
 
-// SchedulerStats 调度器统计
+// SchedulerStats 调度器统计.
 type SchedulerStats struct {
 	TotalScheduled   int64         `json:"total_scheduled"`
 	TotalCompleted   int64         `json:"total_completed"`
@@ -190,7 +190,7 @@ type SchedulerStats struct {
 // 创建与初始化
 // ============================================================================
 
-// NewBackupScheduler 创建备份调度器
+// NewBackupScheduler 创建备份调度器.
 func NewBackupScheduler(config *SchedulerConfig, manager *SmartManager, logger *zap.Logger) *BackupScheduler {
 	if config == nil {
 		config = DefaultSchedulerConfig()
@@ -222,13 +222,13 @@ func NewBackupScheduler(config *SchedulerConfig, manager *SmartManager, logger *
 	return scheduler
 }
 
-// initCronScheduler 初始化 Cron 调度器
+// initCronScheduler 初始化 Cron 调度器.
 func (s *BackupScheduler) initCronScheduler() {
 	// 使用秒级精度 cron
 	s.cronScheduler = cron.New(cron.WithSeconds(), cron.WithLocation(time.Local))
 }
 
-// Start 启动调度器
+// Start 启动调度器.
 func (s *BackupScheduler) Start() error {
 	if atomic.SwapInt32(&s.running, 1) == 1 {
 		return errors.New("调度器已在运行")
@@ -250,7 +250,7 @@ func (s *BackupScheduler) Start() error {
 	return nil
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (s *BackupScheduler) Stop() error {
 	if atomic.SwapInt32(&s.stopped, 1) == 1 {
 		return errors.New("调度器已停止")
@@ -278,7 +278,7 @@ func (s *BackupScheduler) Stop() error {
 // 作业调度
 // ============================================================================
 
-// ScheduleJob 调度作业
+// ScheduleJob 调度作业.
 func (s *BackupScheduler) ScheduleJob(job *ScheduledJob) error {
 	if job.ID == "" {
 		job.ID = generateUUID()
@@ -328,7 +328,7 @@ func (s *BackupScheduler) ScheduleJob(job *ScheduledJob) error {
 	return nil
 }
 
-// UnscheduleJob 取消调度作业
+// UnscheduleJob 取消调度作业.
 func (s *BackupScheduler) UnscheduleJob(jobID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -346,7 +346,7 @@ func (s *BackupScheduler) UnscheduleJob(jobID string) error {
 	return nil
 }
 
-// executeScheduledJob 执行调度作业
+// executeScheduledJob 执行调度作业.
 func (s *BackupScheduler) executeScheduledJob(job *ScheduledJob) {
 	// 检查备份窗口
 	if s.config.WindowEnabled && !s.isWithinWindow() {
@@ -375,7 +375,7 @@ func (s *BackupScheduler) executeScheduledJob(job *ScheduledJob) {
 	)
 }
 
-// processQueue 处理队列
+// processQueue 处理队列.
 func (s *BackupScheduler) processQueue() {
 	for {
 		select {
@@ -411,7 +411,7 @@ func (s *BackupScheduler) processQueue() {
 	}
 }
 
-// runJob 运行作业
+// runJob 运行作业.
 func (s *BackupScheduler) runJob(job *ScheduledJob) {
 	s.mu.Lock()
 	s.runningJobs[job.ID] = job
@@ -458,7 +458,7 @@ func (s *BackupScheduler) runJob(job *ScheduledJob) {
 	s.mu.Unlock()
 }
 
-// waitForCompletion 等待作业完成
+// waitForCompletion 等待作业完成.
 func (s *BackupScheduler) waitForCompletion(activeJob *ActiveBackupJob) <-chan struct{} {
 	ch := make(chan struct{})
 	go func() {
@@ -473,7 +473,7 @@ func (s *BackupScheduler) waitForCompletion(activeJob *ActiveBackupJob) <-chan s
 	return ch
 }
 
-// handleJobComplete 处理作业完成
+// handleJobComplete 处理作业完成.
 func (s *BackupScheduler) handleJobComplete(job *ScheduledJob, duration time.Duration) {
 	job.Status = JobStatusCompleted
 	job.LastError = ""
@@ -501,7 +501,7 @@ func (s *BackupScheduler) handleJobComplete(job *ScheduledJob, duration time.Dur
 	}
 }
 
-// handleJobError 处理作业错误
+// handleJobError 处理作业错误.
 func (s *BackupScheduler) handleJobError(job *ScheduledJob, err error) {
 	job.LastError = err.Error()
 
@@ -553,7 +553,7 @@ func (s *BackupScheduler) handleJobError(job *ScheduledJob, err error) {
 	}
 }
 
-// isWithinWindow 检查是否在备份窗口内
+// isWithinWindow 检查是否在备份窗口内.
 func (s *BackupScheduler) isWithinWindow() bool {
 	now := time.Now()
 	hour := now.Hour()
@@ -569,7 +569,7 @@ func (s *BackupScheduler) isWithinWindow() bool {
 	return hour >= start && hour < end
 }
 
-// checkDependencies 检查依赖
+// checkDependencies 检查依赖.
 func (s *BackupScheduler) checkDependencies(job *ScheduledJob) bool {
 	if len(job.Dependencies) == 0 {
 		return true
@@ -602,14 +602,14 @@ func (s *BackupScheduler) checkDependencies(job *ScheduledJob) bool {
 // 队列管理
 // ============================================================================
 
-// NewPriorityQueue 创建优先级队列
+// NewPriorityQueue 创建优先级队列.
 func NewPriorityQueue(size int) *PriorityQueue {
 	return &PriorityQueue{
 		items: make([]*QueueItem, 0, size),
 	}
 }
 
-// Push 添加元素
+// Push 添加元素.
 func (q *PriorityQueue) Push(job *ScheduledJob) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -629,7 +629,7 @@ func (q *PriorityQueue) Push(job *ScheduledJob) {
 	q.items = append(q.items[:idx], append([]*QueueItem{item}, q.items[idx:]...)...)
 }
 
-// Pop 弹出元素
+// Pop 弹出元素.
 func (q *PriorityQueue) Pop() *QueueItem {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -643,14 +643,14 @@ func (q *PriorityQueue) Pop() *QueueItem {
 	return item
 }
 
-// Len 获取队列长度
+// Len 获取队列长度.
 func (q *PriorityQueue) Len() int {
 	q.mu.RLock()
 	defer q.mu.RUnlock()
 	return len(q.items)
 }
 
-// Peek 查看队首元素
+// Peek 查看队首元素.
 func (q *PriorityQueue) Peek() *QueueItem {
 	q.mu.RLock()
 	defer q.mu.RUnlock()
@@ -662,7 +662,7 @@ func (q *PriorityQueue) Peek() *QueueItem {
 	return q.items[0]
 }
 
-// Clear 清空队列
+// Clear 清空队列.
 func (q *PriorityQueue) Clear() {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -673,7 +673,7 @@ func (q *PriorityQueue) Clear() {
 // 手动触发
 // ============================================================================
 
-// TriggerJob 手动触发作业
+// TriggerJob 手动触发作业.
 func (s *BackupScheduler) TriggerJob(jobID string, priority int) error {
 	// 获取备份作业
 	backupJob, err := s.manager.GetJob(jobID)
@@ -702,7 +702,7 @@ func (s *BackupScheduler) TriggerJob(jobID string, priority int) error {
 	return nil
 }
 
-// TriggerAllJobs 触发所有作业
+// TriggerAllJobs 触发所有作业.
 func (s *BackupScheduler) TriggerAllJobs() error {
 	jobs := s.manager.ListJobs()
 
@@ -726,17 +726,17 @@ func (s *BackupScheduler) TriggerAllJobs() error {
 // 回调注册
 // ============================================================================
 
-// OnJobStart 注册作业开始回调
+// OnJobStart 注册作业开始回调.
 func (s *BackupScheduler) OnJobStart(callback func(job *ScheduledJob)) {
 	s.onJobStart = callback
 }
 
-// OnJobComplete 注册作业完成回调
+// OnJobComplete 注册作业完成回调.
 func (s *BackupScheduler) OnJobComplete(callback func(job *ScheduledJob)) {
 	s.onJobComplete = callback
 }
 
-// OnJobFail 注册作业失败回调
+// OnJobFail 注册作业失败回调.
 func (s *BackupScheduler) OnJobFail(callback func(job *ScheduledJob, err error)) {
 	s.onJobFail = callback
 }
@@ -745,7 +745,7 @@ func (s *BackupScheduler) OnJobFail(callback func(job *ScheduledJob, err error))
 // 状态与统计
 // ============================================================================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (s *BackupScheduler) GetStats() *SchedulerStats {
 	s.stats.mu.RLock()
 	defer s.stats.mu.RUnlock()
@@ -766,7 +766,7 @@ func (s *BackupScheduler) GetStats() *SchedulerStats {
 	return stats
 }
 
-// GetRunningJobs 获取运行中的作业
+// GetRunningJobs 获取运行中的作业.
 func (s *BackupScheduler) GetRunningJobs() []*ScheduledJob {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -779,7 +779,7 @@ func (s *BackupScheduler) GetRunningJobs() []*ScheduledJob {
 	return jobs
 }
 
-// GetQueue 获取队列中的作业
+// GetQueue 获取队列中的作业.
 func (s *BackupScheduler) GetQueue() []*ScheduledJob {
 	s.queue.mu.RLock()
 	defer s.queue.mu.RUnlock()
@@ -792,12 +792,12 @@ func (s *BackupScheduler) GetQueue() []*ScheduledJob {
 	return jobs
 }
 
-// IsRunning 检查调度器是否运行中
+// IsRunning 检查调度器是否运行中.
 func (s *BackupScheduler) IsRunning() bool {
 	return atomic.LoadInt32(&s.running) == 1 && atomic.LoadInt32(&s.stopped) == 0
 }
 
-// updateStats 更新统计
+// updateStats 更新统计.
 func (s *BackupScheduler) updateStats() {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -818,7 +818,7 @@ func (s *BackupScheduler) updateStats() {
 // 备份窗口管理
 // ============================================================================
 
-// SetWindow 设置备份窗口
+// SetWindow 设置备份窗口.
 func (s *BackupScheduler) SetWindow(startHour, endHour int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -833,7 +833,7 @@ func (s *BackupScheduler) SetWindow(startHour, endHour int) {
 	)
 }
 
-// DisableWindow 禁用备份窗口
+// DisableWindow 禁用备份窗口.
 func (s *BackupScheduler) DisableWindow() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -841,7 +841,7 @@ func (s *BackupScheduler) DisableWindow() {
 	s.logger.Info("备份窗口已禁用")
 }
 
-// GetWindow 获取备份窗口
+// GetWindow 获取备份窗口.
 func (s *BackupScheduler) GetWindow() *BackupWindow {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -860,7 +860,7 @@ func (s *BackupScheduler) GetWindow() *BackupWindow {
 // 配置热更新
 // ============================================================================
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (s *BackupScheduler) UpdateConfig(config *SchedulerConfig) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -886,7 +886,7 @@ func (s *BackupScheduler) UpdateConfig(config *SchedulerConfig) error {
 	return nil
 }
 
-// GetConfig 获取当前配置
+// GetConfig 获取当前配置.
 func (s *BackupScheduler) GetConfig() *SchedulerConfig {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

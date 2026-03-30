@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Watcher 文件监控器
+// Watcher 文件监控器.
 type Watcher struct {
 	engine   *Engine
 	watcher  *fsnotify.Watcher
@@ -24,13 +24,13 @@ type Watcher struct {
 	pending  map[string]time.Time
 }
 
-// WatcherConfig 监控器配置
+// WatcherConfig 监控器配置.
 type WatcherConfig struct {
 	Paths    []string      // 监控路径
 	Debounce time.Duration // 防抖时间
 }
 
-// NewWatcher 创建文件监控器
+// NewWatcher 创建文件监控器.
 func NewWatcher(engine *Engine, config WatcherConfig, logger *zap.Logger) (*Watcher, error) {
 	fswatcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -54,7 +54,7 @@ func NewWatcher(engine *Engine, config WatcherConfig, logger *zap.Logger) (*Watc
 	return w, nil
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (w *Watcher) Start() error {
 	w.mu.Lock()
 	if w.running {
@@ -84,7 +84,7 @@ func (w *Watcher) Start() error {
 	return nil
 }
 
-// addWatch 添加监控路径
+// addWatch 添加监控路径.
 func (w *Watcher) addWatch(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -118,7 +118,7 @@ func (w *Watcher) addWatch(path string) error {
 	return nil
 }
 
-// processEvents 处理文件事件
+// processEvents 处理文件事件.
 func (w *Watcher) processEvents() {
 	for {
 		select {
@@ -138,7 +138,7 @@ func (w *Watcher) processEvents() {
 	}
 }
 
-// handleEvent 处理单个事件
+// handleEvent 处理单个事件.
 func (w *Watcher) handleEvent(event fsnotify.Event) {
 	path := event.Name
 
@@ -153,7 +153,7 @@ func (w *Watcher) handleEvent(event fsnotify.Event) {
 	w.mu.Unlock()
 }
 
-// processPending 处理待更新队列
+// processPending 处理待更新队列.
 func (w *Watcher) processPending() {
 	ticker := time.NewTicker(w.debounce)
 	defer ticker.Stop()
@@ -168,7 +168,7 @@ func (w *Watcher) processPending() {
 	}
 }
 
-// processBatch 批量处理
+// processBatch 批量处理.
 func (w *Watcher) processBatch() {
 	w.mu.Lock()
 	pending := w.pending
@@ -195,7 +195,7 @@ func (w *Watcher) processBatch() {
 	}
 }
 
-// AddPath 添加监控路径
+// AddPath 添加监控路径.
 func (w *Watcher) AddPath(path string) error {
 	w.mu.Lock()
 	w.paths = append(w.paths, path)
@@ -204,7 +204,7 @@ func (w *Watcher) AddPath(path string) error {
 	return w.addWatch(path)
 }
 
-// RemovePath 移除监控路径
+// RemovePath 移除监控路径.
 func (w *Watcher) RemovePath(path string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -220,7 +220,7 @@ func (w *Watcher) RemovePath(path string) error {
 	return w.watcher.Remove(path)
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (w *Watcher) Stop() {
 	w.mu.Lock()
 	if !w.running {

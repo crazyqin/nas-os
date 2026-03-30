@@ -12,7 +12,7 @@ import (
 
 // ========== 备份恢复集成测试 ==========
 
-// BackupStatus 备份状态
+// BackupStatus 备份状态.
 type BackupStatus string
 
 const (
@@ -22,7 +22,7 @@ const (
 	BackupStatusFailed    BackupStatus = "failed"
 )
 
-// BackupInfo 备份信息
+// BackupInfo 备份信息.
 type BackupInfo struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -36,7 +36,7 @@ type BackupInfo struct {
 	Checksum    string       `json:"checksum,omitempty"`
 }
 
-// MockBackupManager 备份管理器 Mock
+// MockBackupManager 备份管理器 Mock.
 type MockBackupManager struct {
 	mu      sync.RWMutex
 	backups map[string]*BackupInfo
@@ -99,7 +99,7 @@ func (m *MockBackupManager) ListBackups() []*BackupInfo {
 	return result
 }
 
-// MockRestoreManager 恢复管理器 Mock
+// MockRestoreManager 恢复管理器 Mock.
 type MockRestoreManager struct {
 	mu       sync.RWMutex
 	backups  *MockBackupManager
@@ -154,7 +154,7 @@ func (r *MockRestoreManager) GetRestoreHistory() []*RestoreResult {
 	return result
 }
 
-// TestBackupCreation 测试备份创建
+// TestBackupCreation 测试备份创建.
 func TestBackupCreation(t *testing.T) {
 	mgr := NewMockBackupManager()
 
@@ -172,7 +172,7 @@ func TestBackupCreation(t *testing.T) {
 	}
 }
 
-// TestBackupRetrieval 测试备份获取
+// TestBackupRetrieval 测试备份获取.
 func TestBackupRetrieval(t *testing.T) {
 	mgr := NewMockBackupManager()
 
@@ -188,7 +188,7 @@ func TestBackupRetrieval(t *testing.T) {
 	}
 }
 
-// TestBackupDeletion 测试备份删除
+// TestBackupDeletion 测试备份删除.
 func TestBackupDeletion(t *testing.T) {
 	mgr := NewMockBackupManager()
 
@@ -206,7 +206,7 @@ func TestBackupDeletion(t *testing.T) {
 	}
 }
 
-// TestRestore 测试恢复
+// TestRestore 测试恢复.
 func TestRestore(t *testing.T) {
 	backupMgr := NewMockBackupManager()
 	restoreMgr := NewMockRestoreManager(backupMgr)
@@ -229,7 +229,7 @@ func TestRestore(t *testing.T) {
 	}
 }
 
-// TestRestoreNonexistentBackup 测试恢复不存在的备份
+// TestRestoreNonexistentBackup 测试恢复不存在的备份.
 func TestRestoreNonexistentBackup(t *testing.T) {
 	backupMgr := NewMockBackupManager()
 	restoreMgr := NewMockRestoreManager(backupMgr)
@@ -240,7 +240,7 @@ func TestRestoreNonexistentBackup(t *testing.T) {
 	}
 }
 
-// TestBackupRetention 测试备份保留策略
+// TestBackupRetention 测试备份保留策略.
 func TestBackupRetention(t *testing.T) {
 	mgr := NewMockBackupManager()
 
@@ -266,7 +266,7 @@ func TestBackupRetention(t *testing.T) {
 	}
 }
 
-// TestConcurrentBackup 并发备份测试
+// TestConcurrentBackup 并发备份测试.
 func TestConcurrentBackup(t *testing.T) {
 	mgr := NewMockBackupManager()
 
@@ -294,7 +294,7 @@ func TestConcurrentBackup(t *testing.T) {
 	}
 }
 
-// TestBackupMetadata 测试备份元数据
+// TestBackupMetadata 测试备份元数据.
 func TestBackupMetadata(t *testing.T) {
 	mgr := NewMockBackupManager()
 
@@ -326,7 +326,7 @@ func TestBackupMetadata(t *testing.T) {
 	}
 }
 
-// TestBackupStats 测试备份统计
+// TestBackupStats 测试备份统计.
 func TestBackupStats(t *testing.T) {
 	mgr := NewMockBackupManager()
 
@@ -348,7 +348,7 @@ func TestBackupStats(t *testing.T) {
 	}
 }
 
-// TestIncrementalBackup 测试增量备份
+// TestIncrementalBackup 测试增量备份.
 func TestIncrementalBackup(t *testing.T) {
 	mgr := NewMockBackupManager()
 
@@ -368,7 +368,7 @@ func TestIncrementalBackup(t *testing.T) {
 	_ = incrBackup
 }
 
-// TestBackupEncryption 测试备份加密
+// TestBackupEncryption 测试备份加密.
 func TestBackupEncryption(t *testing.T) {
 	mgr := NewMockBackupManager()
 
@@ -382,7 +382,7 @@ func TestBackupEncryption(t *testing.T) {
 	}
 }
 
-// TestRestoreHistory 测试恢复历史
+// TestRestoreHistory 测试恢复历史.
 func TestRestoreHistory(t *testing.T) {
 	backupMgr := NewMockBackupManager()
 	restoreMgr := NewMockRestoreManager(backupMgr)
@@ -400,7 +400,7 @@ func TestRestoreHistory(t *testing.T) {
 	}
 }
 
-// TestBackupWithTempDir 测试使用临时目录的备份
+// TestBackupWithTempDir 测试使用临时目录的备份.
 func TestBackupWithTempDir(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "backup-test-*")
 	if err != nil {
@@ -423,7 +423,7 @@ func TestBackupWithTempDir(t *testing.T) {
 	_ = backup
 }
 
-// BenchmarkBackupCreation 备份创建基准测试
+// BenchmarkBackupCreation 备份创建基准测试.
 func BenchmarkBackupCreation(b *testing.B) {
 	mgr := NewMockBackupManager()
 
@@ -433,7 +433,7 @@ func BenchmarkBackupCreation(b *testing.B) {
 	}
 }
 
-// BenchmarkRestore 恢复基准测试
+// BenchmarkRestore 恢复基准测试.
 func BenchmarkRestore(b *testing.B) {
 	backupMgr := NewMockBackupManager()
 	restoreMgr := NewMockRestoreManager(backupMgr)
@@ -446,7 +446,7 @@ func BenchmarkRestore(b *testing.B) {
 	}
 }
 
-// BenchmarkConcurrentBackup 并发备份基准测试
+// BenchmarkConcurrentBackup 并发备份基准测试.
 func BenchmarkConcurrentBackup(b *testing.B) {
 	mgr := NewMockBackupManager()
 

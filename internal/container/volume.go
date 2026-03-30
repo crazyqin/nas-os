@@ -2,6 +2,7 @@ package container
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,7 +12,7 @@ import (
 	"time"
 )
 
-// Volume Docker 存储卷
+// Volume Docker 存储卷.
 type Volume struct {
 	Name       string            `json:"name"`
 	Driver     string            `json:"driver"`
@@ -25,7 +26,7 @@ type Volume struct {
 	Containers []string          `json:"containers"` // 使用该卷的容器
 }
 
-// VolumeConfig 卷创建配置
+// VolumeConfig 卷创建配置.
 type VolumeConfig struct {
 	Name     string            `json:"name"`
 	Driver   string            `json:"driver"` // "local", "nfs", "cifs"
@@ -34,7 +35,7 @@ type VolumeConfig struct {
 	HostPath string            `json:"hostPath"` // 本地路径（bind mount）
 }
 
-// VolumeBackup 卷备份信息
+// VolumeBackup 卷备份信息.
 type VolumeBackup struct {
 	Name       string    `json:"name"`
 	VolumeName string    `json:"volumeName"`
@@ -46,21 +47,21 @@ type VolumeBackup struct {
 	Compressed bool      `json:"compressed"`
 }
 
-// VolumeManager 卷管理器
+// VolumeManager 卷管理器.
 type VolumeManager struct {
 	manager *Manager
 }
 
-// NewVolumeManager 创建卷管理器
+// NewVolumeManager 创建卷管理器.
 func NewVolumeManager(mgr *Manager) *VolumeManager {
 	return &VolumeManager{
 		manager: mgr,
 	}
 }
 
-// ListVolumes 列出所有卷
+// ListVolumes 列出所有卷.
 func (vm *VolumeManager) ListVolumes() ([]*Volume, error) {
-	cmd := exec.Command("docker", "volume", "ls", "--format", "{{json .}}")
+	cmd := exec.CommandContext(context.Background(), "docker", "volume", "ls", "--format", "{{json .}}")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出卷：%w", err)
@@ -95,9 +96,9 @@ func (vm *VolumeManager) ListVolumes() ([]*Volume, error) {
 	return volumes, nil
 }
 
-// GetVolume 获取卷详情
+// GetVolume 获取卷详情.
 func (vm *VolumeManager) GetVolume(name string) (*Volume, error) {
-	cmd := exec.Command("docker", "volume", "inspect", "--format", "{{json .}}", name)
+	cmd := exec.CommandContext(context.Background(), "docker", "volume", "inspect", "--format", "{{json .}}", name)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取卷信息：%w", err)
@@ -149,7 +150,7 @@ func (vm *VolumeManager) GetVolume(name string) (*Volume, error) {
 	return volume, nil
 }
 
-// CreateVolume 创建卷
+// CreateVolume 创建卷.
 func (vm *VolumeManager) CreateVolume(config *VolumeConfig) (*Volume, error) {
 	args := []string{"volume", "create"}
 
@@ -170,7 +171,7 @@ func (vm *VolumeManager) CreateVolume(config *VolumeConfig) (*Volume, error) {
 
 	args = append(args, config.Name)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("创建卷失败：%w, %s", err, string(output))
@@ -180,7 +181,7 @@ func (vm *VolumeManager) CreateVolume(config *VolumeConfig) (*Volume, error) {
 	return vm.GetVolume(volumeName)
 }
 
-// RemoveVolume 删除卷
+// RemoveVolume 删除卷.
 func (vm *VolumeManager) RemoveVolume(name string, force bool) error {
 	args := []string{"volume", "rm"}
 	if force {
@@ -188,7 +189,7 @@ func (vm *VolumeManager) RemoveVolume(name string, force bool) error {
 	}
 	args = append(args, name)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("删除卷失败：%w, %s", err, string(output))
@@ -196,7 +197,7 @@ func (vm *VolumeManager) RemoveVolume(name string, force bool) error {
 	return nil
 }
 
-// BackupVolume 备份卷
+// BackupVolume 备份卷.
 func (vm *VolumeManager) BackupVolume(volumeName, backupPath string, compress bool) (*VolumeBackup, error) {
 	// 获取卷信息
 	_, err := vm.GetVolume(volumeName)
@@ -234,7 +235,7 @@ func (vm *VolumeManager) BackupVolume(volumeName, backupPath string, compress bo
 		"sh", "-c", fmt.Sprintf("%s > /backup/%s", tarCmd, filepath.Base(backupFile)),
 	}
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("备份卷失败：%w, %s", err, string(output))
@@ -266,7 +267,7 @@ func (vm *VolumeManager) BackupVolume(volumeName, backupPath string, compress bo
 	return backup, nil
 }
 
-// RestoreVolume 从备份恢复卷
+// RestoreVolume 从备份恢复卷.
 func (vm *VolumeManager) RestoreVolume(backupPath, volumeName string) error {
 	// 检查备份文件是否存在
 	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
@@ -300,7 +301,7 @@ func (vm *VolumeManager) RestoreVolume(backupPath, volumeName string) error {
 		"sh", "-c", tarCmd,
 	}
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	inputFile, err := os.Open(backupPath)
 	if err != nil {
 		return fmt.Errorf("打开备份文件失败：%w", err)
@@ -316,9 +317,9 @@ func (vm *VolumeManager) RestoreVolume(backupPath, volumeName string) error {
 	return nil
 }
 
-// PruneVolumes 清理未使用的卷
+// PruneVolumes 清理未使用的卷.
 func (vm *VolumeManager) PruneVolumes() (uint64, error) {
-	cmd := exec.Command("docker", "volume", "prune", "-f")
+	cmd := exec.CommandContext(context.Background(), "docker", "volume", "prune", "-f")
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, fmt.Errorf("清理卷失败：%w", err)
@@ -338,9 +339,9 @@ func (vm *VolumeManager) PruneVolumes() (uint64, error) {
 	return reclaimed, nil
 }
 
-// getVolumeSize 获取卷大小
+// getVolumeSize 获取卷大小.
 func (vm *VolumeManager) getVolumeSize(path string) (uint64, error) {
-	cmd := exec.Command("du", "-sb", path)
+	cmd := exec.CommandContext(context.Background(), "du", "-sb", path)
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, err
@@ -358,7 +359,7 @@ func (vm *VolumeManager) getVolumeSize(path string) (uint64, error) {
 	return 0, fmt.Errorf("无法解析大小")
 }
 
-// getFileSize 获取文件大小
+// getFileSize 获取文件大小.
 func (vm *VolumeManager) getFileSize(path string) (uint64, error) {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -367,9 +368,9 @@ func (vm *VolumeManager) getFileSize(path string) (uint64, error) {
 	return uint64(info.Size()), nil
 }
 
-// calculateChecksum 计算文件校验和
+// calculateChecksum 计算文件校验和.
 func (vm *VolumeManager) calculateChecksum(path string) (string, error) {
-	cmd := exec.Command("sha256sum", path)
+	cmd := exec.CommandContext(context.Background(), "sha256sum", path)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -383,7 +384,7 @@ func (vm *VolumeManager) calculateChecksum(path string) (string, error) {
 	return "", fmt.Errorf("无法计算校验和")
 }
 
-// ListBackups 列出卷备份
+// ListBackups 列出卷备份.
 func (vm *VolumeManager) ListBackups(backupDir string) ([]*VolumeBackup, error) {
 	var backups []*VolumeBackup
 

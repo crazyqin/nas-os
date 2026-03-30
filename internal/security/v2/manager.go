@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// SecurityManagerV2 安全管理器 v2
+// SecurityManagerV2 安全管理器 v2.
 type SecurityManagerV2 struct {
 	mfa        *MFAManager
 	encryption *EncryptionManager
@@ -16,14 +16,14 @@ type SecurityManagerV2 struct {
 	mu         sync.RWMutex
 }
 
-// SecurityConfigV2 安全配置 v2
+// SecurityConfigV2 安全配置 v2.
 type SecurityConfigV2 struct {
 	MFA        MFAConfig        `json:"mfa"`
 	Encryption EncryptionConfig `json:"encryption"`
 	Alerting   AlertingConfig   `json:"alerting"`
 }
 
-// NewSecurityManagerV2 创建安全管理器 v2
+// NewSecurityManagerV2 创建安全管理器 v2.
 func NewSecurityManagerV2() *SecurityManagerV2 {
 	return &SecurityManagerV2{
 		mfa:        NewMFAManager(),
@@ -60,29 +60,29 @@ func NewSecurityManagerV2() *SecurityManagerV2 {
 	}
 }
 
-// GetMFAManager 获取 MFA 管理器
+// GetMFAManager 获取 MFA 管理器.
 func (sm *SecurityManagerV2) GetMFAManager() *MFAManager {
 	return sm.mfa
 }
 
-// GetEncryptionManager 获取加密管理器
+// GetEncryptionManager 获取加密管理器.
 func (sm *SecurityManagerV2) GetEncryptionManager() *EncryptionManager {
 	return sm.encryption
 }
 
-// GetAlertingManager 获取告警管理器
+// GetAlertingManager 获取告警管理器.
 func (sm *SecurityManagerV2) GetAlertingManager() *AlertingManager {
 	return sm.alerting
 }
 
-// GetConfig 获取安全配置
+// GetConfig 获取安全配置.
 func (sm *SecurityManagerV2) GetConfig() SecurityConfigV2 {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
 	return sm.config
 }
 
-// UpdateConfig 更新安全配置
+// UpdateConfig 更新安全配置.
 func (sm *SecurityManagerV2) UpdateConfig(config SecurityConfigV2) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -97,7 +97,7 @@ func (sm *SecurityManagerV2) UpdateConfig(config SecurityConfigV2) error {
 	return nil
 }
 
-// Initialize 初始化安全系统
+// Initialize 初始化安全系统.
 func (sm *SecurityManagerV2) Initialize(masterPassword string) error {
 	// 初始化加密系统
 	if err := sm.encryption.Initialize(masterPassword); err != nil {
@@ -107,7 +107,7 @@ func (sm *SecurityManagerV2) Initialize(masterPassword string) error {
 	return nil
 }
 
-// SendSecurityAlert 发送安全告警
+// SendSecurityAlert 发送安全告警.
 func (sm *SecurityManagerV2) SendSecurityAlert(severity, alertType, title, description, sourceIP, username string, details map[string]interface{}) error {
 	alert := SecurityAlertV2{
 		ID:          generateAlertIDV2(),
@@ -124,12 +124,12 @@ func (sm *SecurityManagerV2) SendSecurityAlert(severity, alertType, title, descr
 	return sm.alerting.SendAlert(alert)
 }
 
-// generateAlertIDV2 生成告警 ID
+// generateAlertIDV2 生成告警 ID.
 func generateAlertIDV2() string {
 	return "alert-" + uuid.New().String()
 }
 
-// GetSecurityDashboard 获取安全仪表板数据
+// GetSecurityDashboard 获取安全仪表板数据.
 func (sm *SecurityManagerV2) GetSecurityDashboard() map[string]interface{} {
 	mfaStats := sm.getMFAStats()
 	alertStats := sm.alerting.GetAlertStats()

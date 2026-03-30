@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: nas-os-ollama
+    hostname: ollama
+    restart: unless-stopped
+    
+    # GPU配置 - 根据GPU类型选择
+    # NVIDIA GPU
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    # Intel GPU (需要OpenVINO容器)
+    # Intel核显加速 - 参考: 飞牛fnOS
+    # environment:
+    #   - OLLAMA_INTEL_GPU=true
+    
+    volumes:
+      - ollama-data:/root/.ollama
+      - ./models:/models
+    
+    ports:
+      - "11434:11434"
+    
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_MODELS=/models
+      # GPU选择
+      - OLLAMA_GPU_TYPE=${OLLAMA_GPU_TYPE:-nvidia}
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    networks:
+      - nas-os-network
+
+  # OpenVINO容器 (Intel GPU加速)
+  openvino:
+    image: openvino/openvino:latest
+    container_name: nas-os-openvino
+    profiles:
+      - intel-gpu
+    restart: unless-stopped
+    
+    volumes:
+      - openvino-models:/opt/intel/openvino/models
+      - ./face-models:/face-models
+    
+    environment:
+      - OPENVINO_DEVICE=GPU
+      - MODEL_PATH=/face-models
+    
+    networks:
+      - nas-os-network
+
+  # 向量数据库 (Qdrant) - AI相册使用
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nas-os-qdrant
+    restart: unless-stopped
+    
+    volumes:
+      - qdrant-data:/qdrant/storage
+    
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    
+    networks:
+      - nas-os-network
+
+  # nas-os AI服务
+  nas-os-ai:
+    build:
+      context: ..
+      dockerfile: Dockerfile.ai
+    container_name: nas-os-ai
+    restart: unless-stopped
+    depends_on:
+      - ollama
+      - qdrant
+    
+    volumes:
+      - nas-data:/data
+      - ./configs:/configs
+    
+    ports:
+      - "8080:8080"
+    
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - QDRANT_URL=http://qdrant:6333
+      - AI_GPU_TYPE=${OLLAMA_GPU_TYPE:-nvidia}
+      - AI_FACE_MODEL=/face-models/face_detection.xml
+    
+    networks:
+      - nas-os-network
+
+volumes:
+  ollama-data:
+    driver: local
+  openvino-models:
+    driver: local
+  qdrant-data:
+    driver: local
+  nas-data:
+    driver: local
+
+networks:
+  nas-os-network:
+    driver: bridge
+    name: nas-os-network

@@ -3,21 +3,26 @@ package network
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"net"
 	"os"
 	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 )
 
-// ListInterfaces 获取所有网络接口
+// ListInterfaces 获取所有网络接口.
 func (m *Manager) ListInterfaces() ([]*Interface, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	// 使用 ip 命令获取接口信息
-	cmd := exec.Command("ip", "-json", "addr", "show")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "ip", "-json", "addr", "show")
 	output, err := cmd.Output()
 	if err != nil {
 		// 回退到 /sys/class/net 方式
@@ -28,7 +33,7 @@ func (m *Manager) ListInterfaces() ([]*Interface, error) {
 	return m.parseIPJson(output)
 }
 
-// listInterfacesFromSys 从 /sys/class/net 获取接口信息
+// listInterfacesFromSys 从 /sys/class/net 获取接口信息.
 func (m *Manager) listInterfacesFromSys() ([]*Interface, error) {
 	entries, err := os.ReadDir("/sys/class/net")
 	if err != nil {
@@ -49,7 +54,7 @@ func (m *Manager) listInterfacesFromSys() ([]*Interface, error) {
 	return interfaces, nil
 }
 
-// getInterfaceInfo 获取单个接口的详细信息
+// getInterfaceInfo 获取单个接口的详细信息.
 func (m *Manager) getInterfaceInfo(name string) (*Interface, error) {
 	iface := &Interface{
 		Name:  name,
@@ -105,7 +110,7 @@ func (m *Manager) getInterfaceInfo(name string) (*Interface, error) {
 	return iface, nil
 }
 
-// getInterfaceIP 获取接口的 IP 地址
+// getInterfaceIP 获取接口的 IP 地址.
 func (m *Manager) getInterfaceIP(name string) (string, string) {
 	iface, err := net.InterfaceByName(name)
 	if err != nil {
@@ -134,10 +139,13 @@ func (m *Manager) getInterfaceIP(name string) (string, string) {
 	return "", ""
 }
 
-// getDefaultGateway 获取默认网关
+// getDefaultGateway 获取默认网关.
 func (m *Manager) getDefaultGateway(iface string) string {
 	// 读取路由表
-	cmd := exec.Command("ip", "route", "show", "dev", iface)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "ip", "route", "show", "dev", iface)
 	output, err := cmd.Output()
 	if err != nil {
 		return ""
@@ -159,7 +167,7 @@ func (m *Manager) getDefaultGateway(iface string) string {
 	return ""
 }
 
-// getDNS 获取 DNS 配置
+// getDNS 获取 DNS 配置.
 func (m *Manager) getDNS(iface string) string {
 	// 读取 resolv.conf 或 systemd-resolved 状态
 	data, err := os.ReadFile("/etc/resolv.conf")
@@ -180,7 +188,7 @@ func (m *Manager) getDNS(iface string) string {
 	return strings.Join(dnsServers, ", ")
 }
 
-// getInterfaceStats 获取接口流量统计
+// getInterfaceStats 获取接口流量统计.
 func (m *Manager) getInterfaceStats(name string) (rxBytes, txBytes int64) {
 	rxData, err1 := os.ReadFile(fmt.Sprintf("/sys/class/net/%s/statistics/rx_bytes", name))
 	txData, err2 := os.ReadFile(fmt.Sprintf("/sys/class/net/%s/statistics/tx_bytes", name))
@@ -195,7 +203,7 @@ func (m *Manager) getInterfaceStats(name string) (rxBytes, txBytes int64) {
 	return
 }
 
-// parseIPJson 解析 ip -json 输出
+// parseIPJson 解析 ip -json 输出.
 func (m *Manager) parseIPJson(data []byte) ([]*Interface, error) {
 	// 简化的解析，实际应使用 encoding/json
 	// 这里先用正则提取关键信息
@@ -230,19 +238,22 @@ func (m *Manager) parseIPJson(data []byte) ([]*Interface, error) {
 	return interfaces, nil
 }
 
-// GetInterface 获取单个接口信息
+// GetInterface 获取单个接口信息.
 func (m *Manager) GetInterface(name string) (*Interface, error) {
 	return m.getInterfaceInfo(name)
 }
 
-// ConfigureInterface 配置网络接口
+// ConfigureInterface 配置网络接口.
 func (m *Manager) ConfigureInterface(name string, config InterfaceConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
 	if config.DHCP {
 		// 使用 DHCP
-		cmd := exec.Command("dhclient", name)
+		cmd := exec.CommandContext(ctx, "dhclient", name)
 		if err := cmd.Run(); err != nil {
 			// 尝试使用 systemd-networkd 或 NetworkManager
 			return m.configureDHCPNetworkd(name)
@@ -254,10 +265,10 @@ func (m *Manager) ConfigureInterface(name string, config InterfaceConfig) error 
 	// 设置 IP 地址
 	if config.IP != "" && config.Netmask != "" {
 		addr := fmt.Sprintf("%s/%s", config.IP, config.Netmask)
-		cmd := exec.Command("ip", "addr", "flush", "dev", name)
+		cmd := exec.CommandContext(ctx, "ip", "addr", "flush", "dev", name)
 		_ = cmd.Run()
 
-		cmd = exec.Command("ip", "addr", "add", addr, "dev", name)
+		cmd = exec.CommandContext(ctx, "ip", "addr", "add", addr, "dev", name)
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("设置 IP 地址失败: %w", err)
 		}
@@ -266,9 +277,9 @@ func (m *Manager) ConfigureInterface(name string, config InterfaceConfig) error 
 	// 设置网关
 	if config.Gateway != "" {
 		// 先删除旧的默认路由
-		_ = exec.Command("ip", "route", "del", "default", "dev", name).Run()
+		_ = exec.CommandContext(ctx, "ip", "route", "del", "default", "dev", name).Run()
 
-		cmd := exec.Command("ip", "route", "add", "default", "via", config.Gateway, "dev", name)
+		cmd := exec.CommandContext(ctx, "ip", "route", "add", "default", "via", config.Gateway, "dev", name)
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("设置网关失败: %w", err)
 		}
@@ -284,7 +295,7 @@ func (m *Manager) ConfigureInterface(name string, config InterfaceConfig) error 
 	return nil
 }
 
-// configureDHCPNetworkd 使用 systemd-networkd 配置 DHCP
+// configureDHCPNetworkd 使用 systemd-networkd 配置 DHCP.
 func (m *Manager) configureDHCPNetworkd(name string) error {
 	config := fmt.Sprintf(`[Match]
 Name=%s
@@ -297,7 +308,7 @@ DHCP=yes
 	return os.WriteFile(configPath, []byte(config), 0640)
 }
 
-// setDNS 设置 DNS 服务器
+// setDNS 设置 DNS 服务器.
 func (m *Manager) setDNS(dns string) error {
 	// 写入 resolv.conf
 	content := "# Generated by NAS-OS\n"
@@ -311,16 +322,16 @@ func (m *Manager) setDNS(dns string) error {
 	return os.WriteFile("/etc/resolv.conf", []byte(content), 0640)
 }
 
-// ToggleInterface 启用/禁用网络接口
+// ToggleInterface 启用/禁用网络接口.
 func (m *Manager) ToggleInterface(name string, up bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	var cmd *exec.Cmd
 	if up {
-		cmd = exec.Command("ip", "link", "set", name, "up")
+		cmd = exec.CommandContext(context.Background(), "ip", "link", "set", name, "up")
 	} else {
-		cmd = exec.Command("ip", "link", "set", name, "down")
+		cmd = exec.CommandContext(context.Background(), "ip", "link", "set", name, "down")
 	}
 
 	if err := cmd.Run(); err != nil {
@@ -330,7 +341,7 @@ func (m *Manager) ToggleInterface(name string, up bool) error {
 	return nil
 }
 
-// GetNetworkStats 获取网络统计信息
+// GetNetworkStats 获取网络统计信息.
 func (m *Manager) GetNetworkStats() (*Stats, error) {
 	ifaces, err := m.ListInterfaces()
 	if err != nil {

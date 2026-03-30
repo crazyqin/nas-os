@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Lock WebDAV 锁
+// Lock WebDAV 锁.
 type Lock struct {
 	Token     string    `json:"token"`
 	Path      string    `json:"path"`
@@ -20,14 +20,14 @@ type Lock struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// LockManager 锁管理器
+// LockManager 锁管理器.
 type LockManager struct {
 	mu    sync.RWMutex
 	locks map[string]*Lock  // token -> Lock
 	paths map[string]string // path -> token
 }
 
-// NewLockManager 创建锁管理器
+// NewLockManager 创建锁管理器.
 func NewLockManager() *LockManager {
 	return &LockManager{
 		locks: make(map[string]*Lock),
@@ -35,7 +35,7 @@ func NewLockManager() *LockManager {
 	}
 }
 
-// CreateLock 创建锁
+// CreateLock 创建锁.
 func (lm *LockManager) CreateLock(path, owner string, depth int, scope string, timeoutSeconds int) (*Lock, error) {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -75,7 +75,7 @@ func (lm *LockManager) CreateLock(path, owner string, depth int, scope string, t
 	return lock, nil
 }
 
-// GetLock 获取锁
+// GetLock 获取锁.
 func (lm *LockManager) GetLock(token string) (*Lock, bool) {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -93,7 +93,7 @@ func (lm *LockManager) GetLock(token string) (*Lock, bool) {
 	return lock, true
 }
 
-// GetLockByPath 通过路径获取锁
+// GetLockByPath 通过路径获取锁.
 func (lm *LockManager) GetLockByPath(path string) (*Lock, bool) {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -116,7 +116,7 @@ func (lm *LockManager) GetLockByPath(path string) (*Lock, bool) {
 	return lock, true
 }
 
-// RefreshLock 刷新锁
+// RefreshLock 刷新锁.
 func (lm *LockManager) RefreshLock(token string, timeoutSeconds int) (*Lock, error) {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -141,7 +141,7 @@ func (lm *LockManager) RefreshLock(token string, timeoutSeconds int) (*Lock, err
 	return lock, nil
 }
 
-// RemoveLock 移除锁
+// RemoveLock 移除锁.
 func (lm *LockManager) RemoveLock(token string) error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -157,7 +157,7 @@ func (lm *LockManager) RemoveLock(token string) error {
 	return nil
 }
 
-// IsLocked 检查路径是否被锁定
+// IsLocked 检查路径是否被锁定.
 func (lm *LockManager) IsLocked(path string) bool {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -180,7 +180,7 @@ func (lm *LockManager) IsLocked(path string) bool {
 	return true
 }
 
-// ValidateToken 验证锁令牌
+// ValidateToken 验证锁令牌.
 func (lm *LockManager) ValidateToken(path, token string) bool {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
@@ -199,7 +199,7 @@ func (lm *LockManager) ValidateToken(path, token string) bool {
 	return lock.Path == path
 }
 
-// CleanupExpired 清理过期锁
+// CleanupExpired 清理过期锁.
 func (lm *LockManager) CleanupExpired() int {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -218,7 +218,7 @@ func (lm *LockManager) CleanupExpired() int {
 	return count
 }
 
-// generateLockToken 生成锁令牌
+// generateLockToken 生成锁令牌.
 func generateLockToken() (string, error) {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
@@ -230,13 +230,13 @@ func generateLockToken() (string, error) {
 
 // ========== XML 类型定义 ==========
 
-// LockDiscovery 锁发现 XML
+// LockDiscovery 锁发现 XML.
 type LockDiscovery struct {
 	XMLName    xml.Name    `xml:"D:lockdiscovery"`
 	ActiveLock *ActiveLock `xml:"D:activelock,omitempty"`
 }
 
-// ActiveLock 活动锁 XML
+// ActiveLock 活动锁 XML.
 type ActiveLock struct {
 	XMLName   xml.Name   `xml:"D:activelock"`
 	LockType  *LockType  `xml:"D:locktype"`
@@ -248,32 +248,32 @@ type ActiveLock struct {
 	LockRoot  *LockRoot  `xml:"D:lockroot"`
 }
 
-// LockType 锁类型
+// LockType 锁类型.
 type LockType struct {
 	XMLName xml.Name `xml:"D:locktype"`
 	Write   struct{} `xml:"D:write"`
 }
 
-// LockScope 锁范围
+// LockScope 锁范围.
 type LockScope struct {
 	XMLName   xml.Name  `xml:"D:lockscope"`
 	Exclusive *struct{} `xml:"D:exclusive,omitempty"`
 	Shared    *struct{} `xml:"D:shared,omitempty"`
 }
 
-// Owner 所有者
+// Owner 所有者.
 type Owner struct {
 	XMLName xml.Name `xml:"D:owner"`
 	Href    string   `xml:"D:href,omitempty"`
 }
 
-// LockToken 锁令牌
+// LockToken 锁令牌.
 type LockToken struct {
 	XMLName xml.Name `xml:"D:locktoken"`
 	Href    string   `xml:"D:href"`
 }
 
-// LockRoot 锁根
+// LockRoot 锁根.
 type LockRoot struct {
 	XMLName xml.Name `xml:"D:lockroot"`
 	Href    string   `xml:"D:href"`

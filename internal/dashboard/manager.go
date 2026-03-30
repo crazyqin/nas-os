@@ -12,7 +12,7 @@ import (
 	"nas-os/internal/monitor"
 )
 
-// Manager 仪表板管理器
+// Manager 仪表板管理器.
 type Manager struct {
 	mu             sync.RWMutex
 	registry       *WidgetRegistry
@@ -26,14 +26,14 @@ type Manager struct {
 	subscribers    []chan *DashboardEvent
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	DataDir        string
 	RefreshRate    time.Duration
 	MonitorManager *monitor.Manager
 }
 
-// NewManager 创建仪表板管理器
+// NewManager 创建仪表板管理器.
 func NewManager(cfg *ManagerConfig) (*Manager, error) {
 	if cfg.RefreshRate == 0 {
 		cfg.RefreshRate = 5 * time.Second
@@ -70,7 +70,7 @@ func NewManager(cfg *ManagerConfig) (*Manager, error) {
 	return m, nil
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() {
 	m.mu.Lock()
 	if m.running {
@@ -84,7 +84,7 @@ func (m *Manager) Start() {
 	go m.refreshLoop()
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -101,7 +101,7 @@ func (m *Manager) Stop() {
 	}
 }
 
-// refreshLoop 刷新循环
+// refreshLoop 刷新循环.
 func (m *Manager) refreshLoop() {
 	for {
 		select {
@@ -113,7 +113,7 @@ func (m *Manager) refreshLoop() {
 	}
 }
 
-// refreshAllWidgets 刷新所有小组件
+// refreshAllWidgets 刷新所有小组件.
 func (m *Manager) refreshAllWidgets() {
 	m.mu.RLock()
 	dashboards := make([]*Dashboard, 0, len(m.dashboards))
@@ -127,7 +127,7 @@ func (m *Manager) refreshAllWidgets() {
 	}
 }
 
-// refreshDashboardWidgets 刷新仪表板小组件
+// refreshDashboardWidgets 刷新仪表板小组件.
 func (m *Manager) refreshDashboardWidgets(dashboard *Dashboard) {
 	now := time.Now()
 
@@ -197,7 +197,7 @@ func (m *Manager) refreshDashboardWidgets(dashboard *Dashboard) {
 	})
 }
 
-// getWidgetData 获取小组件数据
+// getWidgetData 获取小组件数据.
 func (m *Manager) getWidgetData(widget *Widget) (*WidgetData, error) {
 	provider, ok := m.registry.Get(widget.Type)
 	if !ok {
@@ -207,7 +207,7 @@ func (m *Manager) getWidgetData(widget *Widget) (*WidgetData, error) {
 	return provider.GetData(widget)
 }
 
-// CreateDashboard 创建仪表板
+// CreateDashboard 创建仪表板.
 func (m *Manager) CreateDashboard(name, description string) (*Dashboard, error) {
 	var dashboard *Dashboard
 	var subscribers []chan *DashboardEvent
@@ -253,7 +253,7 @@ func (m *Manager) CreateDashboard(name, description string) (*Dashboard, error) 
 	return dashboard, nil
 }
 
-// GetDashboard 获取仪表板
+// GetDashboard 获取仪表板.
 func (m *Manager) GetDashboard(id string) (*Dashboard, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -266,7 +266,7 @@ func (m *Manager) GetDashboard(id string) (*Dashboard, error) {
 	return dashboard, nil
 }
 
-// ListDashboards 列出仪表板
+// ListDashboards 列出仪表板.
 func (m *Manager) ListDashboards() []*Dashboard {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -278,7 +278,7 @@ func (m *Manager) ListDashboards() []*Dashboard {
 	return result
 }
 
-// UpdateDashboard 更新仪表板
+// UpdateDashboard 更新仪表板.
 func (m *Manager) UpdateDashboard(dashboard *Dashboard) error {
 	var subscribers []chan *DashboardEvent
 
@@ -311,7 +311,7 @@ func (m *Manager) UpdateDashboard(dashboard *Dashboard) error {
 	return nil
 }
 
-// DeleteDashboard 删除仪表板
+// DeleteDashboard 删除仪表板.
 func (m *Manager) DeleteDashboard(id string) error {
 	var subscribers []chan *DashboardEvent
 
@@ -343,7 +343,7 @@ func (m *Manager) DeleteDashboard(id string) error {
 	return nil
 }
 
-// AddWidget 添加小组件
+// AddWidget 添加小组件.
 func (m *Manager) AddWidget(dashboardID string, widget *Widget) error {
 	var subscribers []chan *DashboardEvent
 	var now time.Time
@@ -387,7 +387,7 @@ func (m *Manager) AddWidget(dashboardID string, widget *Widget) error {
 	return nil
 }
 
-// RemoveWidget 移除小组件
+// RemoveWidget 移除小组件.
 func (m *Manager) RemoveWidget(dashboardID, widgetID string) error {
 	var subscribers []chan *DashboardEvent
 
@@ -427,7 +427,7 @@ func (m *Manager) RemoveWidget(dashboardID, widgetID string) error {
 	return fmt.Errorf("小组件不存在: %s", widgetID)
 }
 
-// UpdateWidget 更新小组件
+// UpdateWidget 更新小组件.
 func (m *Manager) UpdateWidget(dashboardID string, widget *Widget) error {
 	var subscribers []chan *DashboardEvent
 
@@ -469,7 +469,7 @@ func (m *Manager) UpdateWidget(dashboardID string, widget *Widget) error {
 	return fmt.Errorf("小组件不存在: %s", widget.ID)
 }
 
-// GetWidgetData 获取小组件数据
+// GetWidgetData 获取小组件数据.
 func (m *Manager) GetWidgetData(dashboardID, widgetID string) (*WidgetData, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -487,7 +487,7 @@ func (m *Manager) GetWidgetData(dashboardID, widgetID string) (*WidgetData, erro
 	return data, nil
 }
 
-// GetDashboardState 获取仪表板状态
+// GetDashboardState 获取仪表板状态.
 func (m *Manager) GetDashboardState(dashboardID string) (*DashboardState, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -500,7 +500,7 @@ func (m *Manager) GetDashboardState(dashboardID string) (*DashboardState, error)
 	return state, nil
 }
 
-// RefreshDashboard 刷新仪表板
+// RefreshDashboard 刷新仪表板.
 func (m *Manager) RefreshDashboard(dashboardID string) error {
 	m.mu.RLock()
 	dashboard, ok := m.dashboards[dashboardID]
@@ -514,7 +514,7 @@ func (m *Manager) RefreshDashboard(dashboardID string) error {
 	return nil
 }
 
-// CreateDefaultDashboard 创建默认仪表板
+// CreateDefaultDashboard 创建默认仪表板.
 func (m *Manager) CreateDefaultDashboard() (*Dashboard, error) {
 	dashboard, err := m.CreateDashboard("系统监控", "默认系统监控仪表板")
 	if err != nil {
@@ -535,7 +535,7 @@ func (m *Manager) CreateDefaultDashboard() (*Dashboard, error) {
 	return dashboard, nil
 }
 
-// Subscribe 订阅事件
+// Subscribe 订阅事件.
 func (m *Manager) Subscribe() chan *DashboardEvent {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -545,7 +545,7 @@ func (m *Manager) Subscribe() chan *DashboardEvent {
 	return ch
 }
 
-// Unsubscribe 取消订阅
+// Unsubscribe 取消订阅.
 func (m *Manager) Unsubscribe(ch chan *DashboardEvent) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -559,7 +559,7 @@ func (m *Manager) Unsubscribe(ch chan *DashboardEvent) {
 	}
 }
 
-// publishEvent 发布事件（调用时不应持有锁）
+// publishEvent 发布事件（调用时不应持有锁）.
 func (m *Manager) publishEvent(event *DashboardEvent) {
 	subscribers := m.getSubscribers()
 	for _, ch := range subscribers {
@@ -571,7 +571,7 @@ func (m *Manager) publishEvent(event *DashboardEvent) {
 	}
 }
 
-// getSubscribers 获取订阅者列表副本（线程安全）
+// getSubscribers 获取订阅者列表副本（线程安全）.
 func (m *Manager) getSubscribers() []chan *DashboardEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -580,14 +580,14 @@ func (m *Manager) getSubscribers() []chan *DashboardEvent {
 	return subscribers
 }
 
-// getSubscribersInternal 获取订阅者列表副本（内部使用，不获取锁）
+// getSubscribersInternal 获取订阅者列表副本（内部使用，不获取锁）.
 func (m *Manager) getSubscribersInternal() []chan *DashboardEvent {
 	subscribers := make([]chan *DashboardEvent, len(m.subscribers))
 	copy(subscribers, m.subscribers)
 	return subscribers
 }
 
-// saveDashboards 保存仪表板
+// saveDashboards 保存仪表板.
 func (m *Manager) saveDashboards() error {
 	if m.dataDir == "" {
 		return nil
@@ -606,7 +606,7 @@ func (m *Manager) saveDashboards() error {
 	return nil
 }
 
-// loadDashboards 加载仪表板
+// loadDashboards 加载仪表板.
 func (m *Manager) loadDashboards() error {
 	if m.dataDir == "" {
 		return nil
@@ -628,7 +628,7 @@ func (m *Manager) loadDashboards() error {
 	return nil
 }
 
-// ExportDashboard 导出仪表板
+// ExportDashboard 导出仪表板.
 func (m *Manager) ExportDashboard(dashboardID string) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -641,7 +641,7 @@ func (m *Manager) ExportDashboard(dashboardID string) ([]byte, error) {
 	return json.MarshalIndent(dashboard, "", "  ")
 }
 
-// ImportDashboard 导入仪表板
+// ImportDashboard 导入仪表板.
 func (m *Manager) ImportDashboard(data []byte) (*Dashboard, error) {
 	var dashboard Dashboard
 	if err := json.Unmarshal(data, &dashboard); err != nil {
@@ -668,7 +668,7 @@ func (m *Manager) ImportDashboard(data []byte) (*Dashboard, error) {
 	return &dashboard, nil
 }
 
-// CloneDashboard 克隆仪表板
+// CloneDashboard 克隆仪表板.
 func (m *Manager) CloneDashboard(dashboardID string, name string) (*Dashboard, error) {
 	m.mu.RLock()
 	original, ok := m.dashboards[dashboardID]
@@ -715,12 +715,12 @@ func (m *Manager) CloneDashboard(dashboardID string, name string) (*Dashboard, e
 	return clone, nil
 }
 
-// GetWidgetTypes 获取可用小组件类型
+// GetWidgetTypes 获取可用小组件类型.
 func (m *Manager) GetWidgetTypes() []WidgetType {
 	return m.registry.GetAvailableTypes()
 }
 
-// RunWithContext 带 Context 运行
+// RunWithContext 带 Context 运行.
 func (m *Manager) RunWithContext(ctx context.Context) {
 	m.Start()
 
@@ -728,7 +728,7 @@ func (m *Manager) RunWithContext(ctx context.Context) {
 	m.Stop()
 }
 
-// generateID 生成 ID
+// generateID 生成 ID.
 func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }

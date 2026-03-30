@@ -9,10 +9,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// MilestoneStatus 里程碑状态
+// MilestoneStatus 里程碑状态.
 type MilestoneStatus string
 
-// 里程碑状态常量
+// 里程碑状态常量.
 const (
 	MilestoneStatusPlanned   MilestoneStatus = "planned"
 	MilestoneStatusActive    MilestoneStatus = "active"
@@ -20,20 +20,20 @@ const (
 	MilestoneStatusCancelled MilestoneStatus = "cancelled"
 )
 
-// MilestoneManager 里程碑管理器
+// MilestoneManager 里程碑管理器.
 type MilestoneManager struct {
 	mu      sync.RWMutex
 	manager *Manager
 }
 
-// NewMilestoneManager 创建里程碑管理器
+// NewMilestoneManager 创建里程碑管理器.
 func NewMilestoneManager(mgr *Manager) *MilestoneManager {
 	return &MilestoneManager{
 		manager: mgr,
 	}
 }
 
-// CreateMilestoneWithTasks 创建里程碑并关联任务
+// CreateMilestoneWithTasks 创建里程碑并关联任务.
 func (mm *MilestoneManager) CreateMilestoneWithTasks(name, description, projectID, createdBy string, dueDate *time.Time, taskIDs []string) (*Milestone, error) {
 	milestone, err := mm.manager.CreateMilestone(name, description, projectID, createdBy, dueDate)
 	if err != nil {
@@ -55,7 +55,7 @@ func (mm *MilestoneManager) CreateMilestoneWithTasks(name, description, projectI
 	return milestone, nil
 }
 
-// StartMilestone 启动里程碑
+// StartMilestone 启动里程碑.
 func (mm *MilestoneManager) StartMilestone(milestoneID, userID string) (*Milestone, error) {
 	updates := map[string]interface{}{
 		"status":     MilestoneStatusActive,
@@ -64,7 +64,7 @@ func (mm *MilestoneManager) StartMilestone(milestoneID, userID string) (*Milesto
 	return mm.manager.UpdateMilestone(milestoneID, updates)
 }
 
-// CompleteMilestone 完成里程碑
+// CompleteMilestone 完成里程碑.
 func (mm *MilestoneManager) CompleteMilestone(milestoneID, userID string) (*Milestone, error) {
 	// 检查是否所有任务都已完成
 	stats := mm.GetMilestoneStats(milestoneID)
@@ -80,7 +80,7 @@ func (mm *MilestoneManager) CompleteMilestone(milestoneID, userID string) (*Mile
 	return mm.manager.UpdateMilestone(milestoneID, updates)
 }
 
-// CancelMilestone 取消里程碑
+// CancelMilestone 取消里程碑.
 func (mm *MilestoneManager) CancelMilestone(milestoneID, userID string) (*Milestone, error) {
 	updates := map[string]interface{}{
 		"status": MilestoneStatusCancelled,
@@ -88,7 +88,7 @@ func (mm *MilestoneManager) CancelMilestone(milestoneID, userID string) (*Milest
 	return mm.manager.UpdateMilestone(milestoneID, updates)
 }
 
-// MilestoneStats 里程碑统计
+// MilestoneStats 里程碑统计.
 type MilestoneStats struct {
 	TotalTasks      int            `json:"total_tasks"`
 	CompletedTasks  int            `json:"completed_tasks"`
@@ -100,7 +100,7 @@ type MilestoneStats struct {
 	OnTrack         bool           `json:"on_track"` // 是否按计划进行
 }
 
-// GetMilestoneStats 获取里程碑统计
+// GetMilestoneStats 获取里程碑统计.
 func (mm *MilestoneManager) GetMilestoneStats(milestoneID string) MilestoneStats {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
@@ -154,7 +154,7 @@ func (mm *MilestoneManager) GetMilestoneStats(milestoneID string) MilestoneStats
 	return stats
 }
 
-// GetMilestoneTasks 获取里程碑任务
+// GetMilestoneTasks 获取里程碑任务.
 func (mm *MilestoneManager) GetMilestoneTasks(milestoneID string, limit, offset int) []*Task {
 	filter := TaskFilter{
 		MilestoneID: milestoneID,
@@ -166,7 +166,7 @@ func (mm *MilestoneManager) GetMilestoneTasks(milestoneID string, limit, offset 
 	return mm.manager.ListTasks(filter)
 }
 
-// ProgressRecord 里程碑进度记录
+// ProgressRecord 里程碑进度记录.
 type ProgressRecord struct {
 	ID          string    `json:"id"`
 	MilestoneID string    `json:"milestone_id"`
@@ -178,14 +178,14 @@ type ProgressRecord struct {
 	Notes       string    `json:"notes,omitempty"`
 }
 
-// MilestoneProgressTracker 进度追踪器
+// MilestoneProgressTracker 进度追踪器.
 type MilestoneProgressTracker struct {
 	mu       sync.RWMutex
 	progress map[string][]*ProgressRecord // milestoneID -> progress records
 	manager  *Manager
 }
 
-// NewMilestoneProgressTracker 创建进度追踪器
+// NewMilestoneProgressTracker 创建进度追踪器.
 func NewMilestoneProgressTracker(mgr *Manager) *MilestoneProgressTracker {
 	return &MilestoneProgressTracker{
 		progress: make(map[string][]*ProgressRecord),
@@ -193,7 +193,7 @@ func NewMilestoneProgressTracker(mgr *Manager) *MilestoneProgressTracker {
 	}
 }
 
-// RecordProgress 记录进度
+// RecordProgress 记录进度.
 func (mpt *MilestoneProgressTracker) RecordProgress(milestoneID, recordedBy, notes string) (*ProgressRecord, error) {
 	mpt.mu.Lock()
 	defer mpt.mu.Unlock()
@@ -222,14 +222,14 @@ func (mpt *MilestoneProgressTracker) RecordProgress(milestoneID, recordedBy, not
 	return progress, nil
 }
 
-// GetProgressHistory 获取进度历史
+// GetProgressHistory 获取进度历史.
 func (mpt *MilestoneProgressTracker) GetProgressHistory(milestoneID string) []*ProgressRecord {
 	mpt.mu.RLock()
 	defer mpt.mu.RUnlock()
 	return append([]*ProgressRecord{}, mpt.progress[milestoneID]...)
 }
 
-// GetLatestProgress 获取最新进度
+// GetLatestProgress 获取最新进度.
 func (mpt *MilestoneProgressTracker) GetLatestProgress(milestoneID string) *ProgressRecord {
 	mpt.mu.RLock()
 	defer mpt.mu.RUnlock()
@@ -241,14 +241,14 @@ func (mpt *MilestoneProgressTracker) GetLatestProgress(milestoneID string) *Prog
 	return records[len(records)-1]
 }
 
-// MilestoneBurndown 燃尽图数据
+// MilestoneBurndown 燃尽图数据.
 type MilestoneBurndown struct {
 	MilestoneID string               `json:"milestone_id"`
 	DataPoints  []BurndownDataPoint  `json:"data_points"`
 	IdealLine   []BurndownIdealPoint `json:"ideal_line"`
 }
 
-// BurndownDataPoint 燃尽图数据点
+// BurndownDataPoint 燃尽图数据点.
 type BurndownDataPoint struct {
 	Date         time.Time `json:"date"`
 	Remaining    int       `json:"remaining"`     // 剩余任务数
@@ -257,13 +257,13 @@ type BurndownDataPoint struct {
 	CompletedPts int       `json:"completed_pts"` // 已完成故事点（可选）
 }
 
-// BurndownIdealPoint 理想燃尽线数据点
+// BurndownIdealPoint 理想燃尽线数据点.
 type BurndownIdealPoint struct {
 	Date      time.Time `json:"date"`
 	Remaining int       `json:"remaining"`
 }
 
-// CalculateBurndown 计算燃尽图
+// CalculateBurndown 计算燃尽图.
 func (mpt *MilestoneProgressTracker) CalculateBurndown(milestoneID string) (*MilestoneBurndown, error) {
 	mpt.mu.RLock()
 	defer mpt.mu.RUnlock()
@@ -319,7 +319,7 @@ func (mpt *MilestoneProgressTracker) CalculateBurndown(milestoneID string) (*Mil
 	return burndown, nil
 }
 
-// MilestoneDependency 里程碑依赖
+// MilestoneDependency 里程碑依赖.
 type MilestoneDependency struct {
 	ID          string    `json:"id"`
 	MilestoneID string    `json:"milestone_id"`
@@ -329,20 +329,20 @@ type MilestoneDependency struct {
 	CreatedBy   string    `json:"created_by"`
 }
 
-// DependencyManager 依赖管理器
+// DependencyManager 依赖管理器.
 type DependencyManager struct {
 	mu           sync.RWMutex
 	dependencies map[string][]*MilestoneDependency // milestoneID -> dependencies
 }
 
-// NewDependencyManager 创建依赖管理器
+// NewDependencyManager 创建依赖管理器.
 func NewDependencyManager() *DependencyManager {
 	return &DependencyManager{
 		dependencies: make(map[string][]*MilestoneDependency),
 	}
 }
 
-// AddDependency 添加依赖
+// AddDependency 添加依赖.
 func (dm *DependencyManager) AddDependency(milestoneID, dependsOnID, depType, createdBy string) (*MilestoneDependency, error) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -365,7 +365,7 @@ func (dm *DependencyManager) AddDependency(milestoneID, dependsOnID, depType, cr
 	return dep, nil
 }
 
-// RemoveDependency 移除依赖
+// RemoveDependency 移除依赖.
 func (dm *DependencyManager) RemoveDependency(milestoneID, dependsOnID string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -380,14 +380,14 @@ func (dm *DependencyManager) RemoveDependency(milestoneID, dependsOnID string) {
 	dm.dependencies[milestoneID] = newDeps
 }
 
-// GetDependencies 获取里程碑依赖
+// GetDependencies 获取里程碑依赖.
 func (dm *DependencyManager) GetDependencies(milestoneID string) []*MilestoneDependency {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 	return append([]*MilestoneDependency{}, dm.dependencies[milestoneID]...)
 }
 
-// GetDependents 获取依赖此里程碑的其他里程碑
+// GetDependents 获取依赖此里程碑的其他里程碑.
 func (dm *DependencyManager) GetDependents(milestoneID string) []*MilestoneDependency {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -403,13 +403,13 @@ func (dm *DependencyManager) GetDependents(milestoneID string) []*MilestoneDepen
 	return result
 }
 
-// hasCycle 检查是否存在循环依赖
+// hasCycle 检查是否存在循环依赖.
 func (dm *DependencyManager) hasCycle(startID, targetID string) bool {
 	visited := make(map[string]bool)
 	return dm.detectCycle(targetID, startID, visited)
 }
 
-// detectCycle 深度优先检测循环
+// detectCycle 深度优先检测循环.
 func (dm *DependencyManager) detectCycle(currentID, targetID string, visited map[string]bool) bool {
 	if currentID == targetID {
 		return true

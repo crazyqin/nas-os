@@ -1,931 +1,829 @@
 package smb
 
 import (
+	"encoding/json"
 	"fmt"
-	"strings"
+	"net"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
-// SecurityEvent SMB 安全事件类型
-type SecurityEvent struct {
-	ID           string                 `json:"id"`
-	Timestamp    time.Time              `json:"timestamp"`
-	EventType    string                 `json:"event_type"`    // access, auth, anomaly, ransomware
-	Severity     string                 `json:"severity"`      // low, medium, high, critical
-	ShareName    string                 `json:"share_name"`
-	Username     string                 `json:"username"`
-	ClientIP     string                 `json:"client_ip"`
- FilePath     string                 `json:"file_path"`
-	Action       string                 `json:"action"`        // read, write, delete, rename
-	Status       string                 `json:"status"`        // success, denied, error
-	Details      map[string]interface{} `json:"details"`
-	DetectedBy   string                 `json:"detected_by"`   // audit, anomaly_detector, ransomware_detector
+// SMBSecurityConfig SMB安全配置.
+type SMBSecurityConfig struct {
+	// IP访问控制
+	IPWhitelist   []string `json:"ip_whitelist"`
+	IPBlacklist   []string `json:"ip_blacklist"`
+
+	// 限流配置
+	RateLimit     RateLimitConfig `json:"rate_limit"`
+
+	// SMB审计
+	AuditEnabled  bool           `json:"audit_enabled"`
+	AuditLogPath  string         `json:"audit_log_path"`
+
+	// 加密配置
+	MinProtocol   string         `json:"min_protocol"` // SMB2, SMB3
+	EncryptData   bool           `json:"encrypt_data"`
+
+	// 自动封禁配置
+	AutoBanEnabled      bool `json:"auto_ban_enabled"`
+	AutoBanThreshold    int  `json:"auto_ban_threshold"`    // 失败次数阈值
+	AutoBanWindowMins   int  `json:"auto_ban_window_mins"`  // 检测窗口（分钟）
+	AutoBanDurationMins  int  `json:"auto_ban_duration_mins"` // 封禁时长（分钟）
 }
 
-// FileAccessRecord 文件访问记录
-type FileAccessRecord struct {
-	ID          string    `json:"id"`
+// RateLimitConfig 限流配置.
+type RateLimitConfig struct {
+	Enabled       bool `json:"enabled"`
+	MaxConnPerIP  int  `json:"max_conn_per_ip"`
+	MaxConnTotal  int  `json:"max_conn_total"`
+	WindowSeconds int  `json:"window_seconds"`
+}
+
+// IPBanEntry IP封禁记录.
+type IPBanEntry struct {
+	IP        string    `json:"ip"`
+	Reason    string    `json:"reason"`
+	BannedAt  time.Time `json:"banned_at"`
+	ExpiresAt time.Time `json:"expires_at"`
+}
+
+// FailedAttempt 失败尝试记录.
+type FailedAttempt struct {
+	IP       string    `json:"ip"`
+	Username string    `json:"username"`
+	Time     time.Time `json:"time"`
+	Reason   string    `json:"reason"`
+}
+
+// AuditLogEntry 审计日志条目.
+type AuditLogEntry struct {
 	Timestamp   time.Time `json:"timestamp"`
-	ShareName   string    `json:"share_name"`
-	FilePath    string    `json:"file_path"`
-	Username    string    `json:"username"`
-	ClientIP    string    `json:"client_ip"`
-	Action      string    `json:"action"` // read, write, delete, rename, create
-	Status      string    `json:"status"`
-	FileSize    int64     `json:"file_size,omitempty"`
-	FileType    string    `json:"file_type,omitempty"`
-	SessionID   string    `json:"session_id,omitempty"`
+	EventType   string    `json:"event_type"`
+	IP          string    `json:"ip"`
+	Username    string    `json:"username,omitempty"`
+	ShareName   string    `json:"share_name,omitempty"`
+	Action      string    `json:"action"`
+	Result      string    `json:"result"` // success, denied, error
+	Details     string    `json:"details,omitempty"`
 }
 
-// AnomalyRule 异常检测规则
-type AnomalyRule struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Enabled     bool                   `json:"enabled"`
-	Severity    string                 `json:"severity"`
-	Category    string                 `json:"category"` // access_pattern, file_operation, time_based
-	Conditions  []AnomalyCondition     `json:"conditions"`
-	Threshold   int                    `json:"threshold"`
-	TimeWindow  time.Duration          `json:"time_window"`
-	Actions     []string               `json:"actions"` // alert, block, notify
+// SecurityManager SMB安全管理器.
+type SecurityManager struct {
+	mu             sync.RWMutex
+	config         *SMBSecurityConfig
+	bannedIPs      map[string]*IPBanEntry
+	failedAttempts map[string][]FailedAttempt // IP -> attempts
+	auditLog       *AuditLogger
+	configPath     string
+	logger         *zap.SugaredLogger
+
+	// 连接计数（用于限流）
+	connCounts     map[string]int // IP -> count
+	totalConns     int
 }
 
-// AnomalyCondition 异常检测条件
-type AnomalyCondition struct {
-	Field    string      `json:"field"`    // file_count, delete_count, access_frequency, unusual_time
-	Operator string      `json:"operator"` // gt, lt, eq, ne, contains
-	Value    interface{} `json:"value"`
+// AuditLogger 审计日志记录器.
+type AuditLogger struct {
+	mu        sync.Mutex
+	file      *os.File
+	logPath   string
+	logger    *zap.SugaredLogger
 }
 
-// RansomwareIndicator 勒索软件检测指标
-type RansomwareIndicator struct {
-	ID                     string   `json:"id"`
-	Name                   string   `json:"name"`
-	Enabled                bool     `json:"enabled"`
-	FileExtensions         []string `json:"file_extensions"`         // 可疑扩展名
-	SuspiciousPatterns     []string `json:"suspicious_patterns"`     // 可疑文件名模式
-	RapidDeleteThreshold   int      `json:"rapid_delete_threshold"`  // 快速删除阈值
-	RapidModifyThreshold   int      `json:"rapid_modify_threshold"`  // 快速修改阈值
-	TimeWindowSeconds      int      `json:"time_window_seconds"`     // 时间窗口（秒）
+// NewSecurityManager 创建安全管理器.
+func NewSecurityManager(configPath string, logger *zap.SugaredLogger) *SecurityManager {
+	if logger == nil {
+		logger = zap.NewNop().Sugar()
+	}
+
+	sm := &SecurityManager{
+		config:         newDefaultSecurityConfig(),
+		bannedIPs:      make(map[string]*IPBanEntry),
+		failedAttempts: make(map[string][]FailedAttempt),
+		configPath:     configPath,
+		logger:         logger,
+		connCounts:     make(map[string]int),
+	}
+
+	// 加载配置
+	if err := sm.loadConfig(); err != nil {
+		logger.Warnw("加载安全配置失败，使用默认配置", "error", err)
+	}
+
+	// 初始化审计日志
+	if sm.config.AuditEnabled && sm.config.AuditLogPath != "" {
+		auditLogger, err := NewAuditLogger(sm.config.AuditLogPath, logger)
+		if err != nil {
+			logger.Warnw("初始化审计日志失败", "error", err)
+		} else {
+			sm.auditLog = auditLogger
+		}
+	}
+
+	return sm
 }
 
-// SecurityAuditConfig 安全审计配置
-type SecurityAuditConfig struct {
-	Enabled                bool                   `json:"enabled"`
-	FileAccessAudit        bool                   `json:"file_access_audit"`
-	AuthAudit              bool                   `json:"auth_audit"`
-	AnomalyDetection       bool                   `json:"anomaly_detection"`
-	RansomwareDetection    bool                   `json:"ransomware_detection"`
-	MaxRecords             int                    `json:"max_records"`
-	RetentionDays          int                    `json:"retention_days"`
-	AlertThreshold         int                    `json:"alert_threshold"`
-	AlertChannels          []string               `json:"alert_channels"`
-	CustomRules            []AnomalyRule          `json:"custom_rules"`
-	WhitelistedIPs         []string               `json:"whitelisted_ips"`
-	WhitelistedUsers       []string               `json:"whitelisted_users"`
-}
-
-// SecurityAuditManager SMB 安全审计管理器
-type SecurityAuditManager struct {
-	config            SecurityAuditConfig
-	events            []*SecurityEvent
-	fileAccessRecords []*FileAccessRecord
-	anomalyRules      []AnomalyRule
-	ransomwareIndicators []RansomwareIndicator
-	userAccessStats   map[string]*UserAccessStats // 用户访问统计
-	ipAccessStats     map[string]*IPAccessStats   // IP 访问统计
-	alertCallback     func(event SecurityEvent)   // 告警回调
-	mu                sync.RWMutex
-}
-
-// UserAccessStats 用户访问统计
-type UserAccessStats struct {
-	Username          string    `json:"username"`
-	TotalAccess       int       `json:"total_access"`
-	ReadCount         int       `json:"read_count"`
-	WriteCount        int       `json:"write_count"`
-	DeleteCount       int       `json:"delete_count"`
-	LastAccess        time.Time `json:"last_access"`
-	AccessFrequency   float64   `json:"access_frequency"` // 每分钟访问次数
-	RecentFiles       []string  `json:"recent_files"`
-	RecentDeleteCount int       `json:"recent_delete_count"`
-}
-
-// IPAccessStats IP 访问统计
-type IPAccessStats struct {
-	ClientIP          string    `json:"client_ip"`
-	TotalAccess       int       `json:"total_access"`
-	FailedAuthCount   int       `json:"failed_auth_count"`
-	LastAccess        time.Time `json:"last_access"`
-	ConnectedUsers    []string  `json:"connected_users"`
-	AccessFrequency   float64   `json:"access_frequency"`
-	RecentDeleteCount int       `json:"recent_delete_count"`
-}
-
-// NewSecurityAuditManager 创建 SMB 安全审计管理器
-func NewSecurityAuditManager() *SecurityAuditManager {
-	return &SecurityAuditManager{
-		config: SecurityAuditConfig{
-			Enabled:                true,
-			FileAccessAudit:        true,
-			AuthAudit:              true,
-			AnomalyDetection:       true,
-			RansomwareDetection:    true,
-			MaxRecords:             50000,
-			RetentionDays:          90,
-			AlertThreshold:         10,
-			AlertChannels:          []string{"webhook", "email"},
-			CustomRules:            []AnomalyRule{},
-			WhitelistedIPs:         []string{},
-			WhitelistedUsers:       []string{},
+// newDefaultSecurityConfig 创建默认安全配置.
+func newDefaultSecurityConfig() *SMBSecurityConfig {
+	return &SMBSecurityConfig{
+		IPWhitelist:   []string{},
+		IPBlacklist:   []string{},
+		RateLimit: RateLimitConfig{
+			Enabled:       true,
+			MaxConnPerIP:  10,
+			MaxConnTotal:  1000,
+			WindowSeconds: 60,
 		},
-		events:            make([]*SecurityEvent, 0),
-		fileAccessRecords: make([]*FileAccessRecord, 0),
-		anomalyRules:      getDefaultAnomalyRules(),
-		ransomwareIndicators: getDefaultRansomwareIndicators(),
-		userAccessStats:   make(map[string]*UserAccessStats),
-		ipAccessStats:     make(map[string]*IPAccessStats),
+		AuditEnabled:       true,
+		AuditLogPath:       "/var/log/samba/audit.json",
+		MinProtocol:        "SMB2",
+		EncryptData:        false,
+		AutoBanEnabled:     true,
+		AutoBanThreshold:   5,
+		AutoBanWindowMins:  5,
+		AutoBanDurationMins: 30,
 	}
 }
 
-// getDefaultAnomalyRules 获取默认异常检测规则
-func getDefaultAnomalyRules() []AnomalyRule {
-	return []AnomalyRule{
-		{
-			ID:          "rapid_deletion",
-			Name:        "快速删除检测",
-			Description: "短时间内大量文件删除行为",
-			Enabled:     true,
-			Severity:    "high",
-			Category:    "file_operation",
-			Conditions: []AnomalyCondition{
-				{Field: "delete_count", Operator: "gt", Value: 10},
-			},
-			Threshold:  10,
-			TimeWindow: time.Minute,
-			Actions:    []string{"alert", "notify"},
-		},
-		{
-			ID:          "unusual_access_time",
-			Name:        "异常访问时间",
-			Description: "非工作时间的大量访问",
-			Enabled:     true,
-			Severity:    "medium",
-			Category:    "time_based",
-			Conditions: []AnomalyCondition{
-				{Field: "hour", Operator: "lt", Value: 6},
-				{Field: "hour", Operator: "gt", Value: 23},
-				{Field: "access_count", Operator: "gt", Value: 5},
-			},
-			Threshold:  5,
-			TimeWindow: time.Hour,
-			Actions:    []string{"alert"},
-		},
-		{
-			ID:          "mass_file_operation",
-			Name:        "批量文件操作",
-			Description: "短时间内大量文件操作",
-			Enabled:     true,
-			Severity:    "medium",
-			Category:    "access_pattern",
-			Conditions: []AnomalyCondition{
-				{Field: "file_count", Operator: "gt", Value: 50},
-			},
-			Threshold:  50,
-			TimeWindow: time.Minute * 5,
-			Actions:    []string{"alert", "notify"},
-		},
-		{
-			ID:          "suspicious_extension",
-			Name:        "可疑扩展名检测",
-			Description: "勒索软件相关扩展名修改",
-			Enabled:     true,
-			Severity:    "critical",
-			Category:    "ransomware",
-			Conditions: []AnomalyCondition{
-				{Field: "extension", Operator: "contains", Value: []string{".encrypted", ".locked", ".crypto"}},
-			},
-			Threshold:  1,
-			TimeWindow: time.Minute,
-			Actions:    []string{"alert", "block", "notify"},
-		},
-		{
-			ID:          "auth_failure_burst",
-			Name:        "认证失败爆发",
-			Description: "短时间内大量认证失败",
-			Enabled:     true,
-			Severity:    "high",
-			Category:    "auth",
-			Conditions: []AnomalyCondition{
-				{Field: "failed_auth_count", Operator: "gt", Value: 5},
-			},
-			Threshold:  5,
-			TimeWindow: time.Minute,
-			Actions:    []string{"alert", "block"},
-		},
+// loadConfig 加载配置.
+func (sm *SecurityManager) loadConfig() error {
+	data, err := os.ReadFile(sm.configPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil // 配置文件不存在，使用默认配置
+		}
+		return fmt.Errorf("读取配置文件失败: %w", err)
+	}
+
+	var cfg SMBSecurityConfig
+	if err := json.Unmarshal(data, &cfg); err != nil {
+		return fmt.Errorf("解析配置文件失败: %w", err)
+	}
+
+	sm.mu.Lock()
+	sm.config = &cfg
+	sm.mu.Unlock()
+	return nil
+}
+
+// saveConfig 保存配置.
+func (sm *SecurityManager) saveConfig() error {
+	sm.mu.RLock()
+	cfg := sm.config
+	sm.mu.RUnlock()
+	return sm.saveConfigFrom(cfg)
+}
+
+// saveConfigFrom 从指定配置保存（已持有锁的外部调用）.
+func (sm *SecurityManager) saveConfigFrom(cfg *SMBSecurityConfig) error {
+	data, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化配置失败: %w", err)
+	}
+
+	// 确保目录存在
+	dir := filepath.Dir(sm.configPath)
+	if err := os.MkdirAll(dir, 0750); err != nil {
+		return fmt.Errorf("创建配置目录失败: %w", err)
+	}
+
+	tmpPath := sm.configPath + ".tmp"
+	if err := os.WriteFile(tmpPath, data, 0640); err != nil {
+		return fmt.Errorf("写入配置文件失败: %w", err)
+	}
+
+	if err := os.Rename(tmpPath, sm.configPath); err != nil {
+		_ = os.Remove(tmpPath)
+		return fmt.Errorf("重命名配置文件失败: %w", err)
+	}
+
+	return nil
+}
+
+// GetConfig 获取安全配置.
+func (sm *SecurityManager) GetConfig() *SMBSecurityConfig {
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+	return sm.config
+}
+
+// UpdateConfig 更新安全配置.
+func (sm *SecurityManager) UpdateConfig(cfg *SMBSecurityConfig) error {
+	sm.mu.Lock()
+	sm.config = cfg
+
+	// 如果审计配置变更，重新初始化审计日志
+	if cfg.AuditEnabled && cfg.AuditLogPath != "" {
+		auditLogger, err := NewAuditLogger(cfg.AuditLogPath, sm.logger)
+		if err != nil {
+			sm.mu.Unlock()
+			return fmt.Errorf("初始化审计日志失败: %w", err)
+		}
+		if sm.auditLog != nil {
+			_ = sm.auditLog.Close()
+		}
+		sm.auditLog = auditLogger
+	}
+	sm.mu.Unlock()
+
+	return sm.saveConfig()
+}
+
+// CheckIPAllowed 检查IP是否允许访问.
+func (sm *SecurityManager) CheckIPAllowed(ip string) (bool, string) {
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	// 检查封禁列表
+	if ban, exists := sm.bannedIPs[ip]; exists {
+		if time.Now().Before(ban.ExpiresAt) {
+			return false, fmt.Sprintf("IP已封禁: %s (原因: %s, 解封时间: %s)",
+				ip, ban.Reason, ban.ExpiresAt.Format("2006-01-02 15:04:05"))
+		}
+		// 封禁已过期，移除
+		delete(sm.bannedIPs, ip)
+	}
+
+	// 检查黑名单
+	for _, blackIP := range sm.config.IPBlacklist {
+		if matchIP(ip, blackIP) {
+			return false, fmt.Sprintf("IP在黑名单中: %s", ip)
+		}
+	}
+
+	// 如果有白名单，只允许白名单中的IP
+	if len(sm.config.IPWhitelist) > 0 {
+		allowed := false
+		for _, whiteIP := range sm.config.IPWhitelist {
+			if matchIP(ip, whiteIP) {
+				allowed = true
+				break
+			}
+		}
+		if !allowed {
+			return false, fmt.Sprintf("IP不在白名单中: %s", ip)
+		}
+	}
+
+	return true, ""
+}
+
+// CheckRateLimit 检查是否超过限流阈值.
+func (sm *SecurityManager) CheckRateLimit(ip string) (bool, string) {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	if !sm.config.RateLimit.Enabled {
+		return true, ""
+	}
+
+	// 检查单IP连接数
+	if sm.config.RateLimit.MaxConnPerIP > 0 {
+		if sm.connCounts[ip] >= sm.config.RateLimit.MaxConnPerIP {
+			return false, fmt.Sprintf("IP连接数超限: %s (当前: %d, 最大: %d)",
+				ip, sm.connCounts[ip], sm.config.RateLimit.MaxConnPerIP)
+		}
+	}
+
+	// 检查总连接数
+	if sm.config.RateLimit.MaxConnTotal > 0 {
+		if sm.totalConns >= sm.config.RateLimit.MaxConnTotal {
+			return false, fmt.Sprintf("总连接数超限 (当前: %d, 最大: %d)",
+				sm.totalConns, sm.config.RateLimit.MaxConnTotal)
+		}
+	}
+
+	return true, ""
+}
+
+// IncrementConnection 增加连接计数.
+func (sm *SecurityManager) IncrementConnection(ip string) {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+	sm.connCounts[ip]++
+	sm.totalConns++
+}
+
+// DecrementConnection 减少连接计数.
+func (sm *SecurityManager) DecrementConnection(ip string) {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+	if sm.connCounts[ip] > 0 {
+		sm.connCounts[ip]--
+	}
+	if sm.totalConns > 0 {
+		sm.totalConns--
 	}
 }
 
-// getDefaultRansomwareIndicators 获取默认勒索软件检测指标
-func getDefaultRansomwareIndicators() []RansomwareIndicator {
-	return []RansomwareIndicator{
-		{
-			ID:                   "ransomware_extensions",
-			Name:                 "勒索软件扩展名检测",
-			Enabled:              true,
-			FileExtensions:       []string{".encrypted", ".locked", ".crypto", ".enc", ".zzz", ".ransom", ".pay", ".decrypt"},
-			SuspiciousPatterns:   []string{"README_FOR_DECRYPT", "DECRYPT_INSTRUCTIONS", "_DECRYPT_", "_READ_ME_", "RESTORE_FILES"},
-			RapidDeleteThreshold: 20,
-			RapidModifyThreshold: 30,
-			TimeWindowSeconds:    60,
-		},
-		{
-			ID:                   "mass_rename",
-			Name:                 "批量重命名检测",
-			Enabled:              true,
-			FileExtensions:       []string{},
-			SuspiciousPatterns:   []string{},
-			RapidDeleteThreshold: 50,
-			RapidModifyThreshold: 100,
-			TimeWindowSeconds:    30,
-		},
+// RecordFailedAttempt 记录失败尝试.
+func (sm *SecurityManager) RecordFailedAttempt(ip, username, reason string) {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	attempt := FailedAttempt{
+		IP:       ip,
+		Username: username,
+		Time:     time.Now(),
+		Reason:   reason,
+	}
+
+	sm.failedAttempts[ip] = append(sm.failedAttempts[ip], attempt)
+
+	// 清理过期记录
+	sm.cleanupFailedAttemptsLocked(ip)
+
+	// 记录审计日志
+	if sm.auditLog != nil {
+		sm.auditLog.Log(AuditLogEntry{
+			Timestamp: time.Now(),
+			EventType: "auth_failed",
+			IP:        ip,
+			Username:  username,
+			Action:    "authenticate",
+			Result:    "denied",
+			Details:   reason,
+		})
+	}
+
+	// 检查是否需要自动封禁
+	if sm.config.AutoBanEnabled {
+		if len(sm.failedAttempts[ip]) >= sm.config.AutoBanThreshold {
+			sm.autoBanIPLocked(ip, "暴力破解检测")
+		}
 	}
 }
 
-// SetConfig 设置安全审计配置
-func (sam *SecurityAuditManager) SetConfig(config SecurityAuditConfig) {
-	sam.mu.Lock()
-	defer sam.mu.Unlock()
-	sam.config = config
+// cleanupFailedAttemptsLocked 清理过期的失败尝试记录（调用时已持有锁）.
+func (sm *SecurityManager) cleanupFailedAttemptsLocked(ip string) {
+	window := time.Duration(sm.config.AutoBanWindowMins) * time.Minute
+	cutoff := time.Now().Add(-window)
+
+	valid := make([]FailedAttempt, 0)
+	for _, attempt := range sm.failedAttempts[ip] {
+		if attempt.Time.After(cutoff) {
+			valid = append(valid, attempt)
+		}
+	}
+	sm.failedAttempts[ip] = valid
 }
 
-// GetConfig 获取安全审计配置
-func (sam *SecurityAuditManager) GetConfig() SecurityAuditConfig {
-	sam.mu.RLock()
-	defer sam.mu.RUnlock()
-	return sam.config
+// autoBanIPLocked 自动封禁IP（调用时已持有锁）.
+func (sm *SecurityManager) autoBanIPLocked(ip, reason string) {
+	// 检查是否已在白名单
+	for _, whiteIP := range sm.config.IPWhitelist {
+		if matchIP(ip, whiteIP) {
+			sm.logger.Infow("白名单IP不会被自动封禁", "ip", ip)
+			return
+		}
+	}
+
+	ban := &IPBanEntry{
+		IP:        ip,
+		Reason:    reason,
+		BannedAt:  time.Now(),
+		ExpiresAt: time.Now().Add(time.Duration(sm.config.AutoBanDurationMins) * time.Minute),
+	}
+	sm.bannedIPs[ip] = ban
+
+	sm.logger.Warnw("IP已被自动封禁", "ip", ip, "reason", reason,
+		"expires_at", ban.ExpiresAt)
+
+	// 记录审计日志
+	if sm.auditLog != nil {
+		sm.auditLog.Log(AuditLogEntry{
+			Timestamp: time.Now(),
+			EventType: "ip_banned",
+			IP:        ip,
+			Action:    "ban",
+			Result:    "success",
+			Details:   reason,
+		})
+	}
 }
 
-// SetAlertCallback 设置告警回调函数
-func (sam *SecurityAuditManager) SetAlertCallback(callback func(event SecurityEvent)) {
-	sam.mu.Lock()
-	defer sam.mu.Unlock()
-	sam.alertCallback = callback
+// BanIP 手动封禁IP.
+func (sm *SecurityManager) BanIP(ip, reason string, durationMins int) error {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	// 检查是否在白名单
+	for _, whiteIP := range sm.config.IPWhitelist {
+		if matchIP(ip, whiteIP) {
+			return fmt.Errorf("白名单IP不能被封禁: %s", ip)
+		}
+	}
+
+	ban := &IPBanEntry{
+		IP:        ip,
+		Reason:    reason,
+		BannedAt:  time.Now(),
+		ExpiresAt: time.Now().Add(time.Duration(durationMins) * time.Minute),
+	}
+
+	// 如果永久封禁
+	if durationMins <= 0 {
+		ban.ExpiresAt = time.Now().AddDate(100, 0, 0) // 100年后
+	}
+
+	sm.bannedIPs[ip] = ban
+
+	sm.logger.Infow("IP已封禁", "ip", ip, "reason", reason, "duration_mins", durationMins)
+
+	// 记录审计日志
+	if sm.auditLog != nil {
+		sm.auditLog.Log(AuditLogEntry{
+			Timestamp: time.Now(),
+			EventType: "ip_banned",
+			IP:        ip,
+			Action:    "manual_ban",
+			Result:    "success",
+			Details:   fmt.Sprintf("%s (duration: %d mins)", reason, durationMins),
+		})
+	}
+
+	return nil
 }
 
-// LogFileAccess 记录文件访问
-func (sam *SecurityAuditManager) LogFileAccess(record FileAccessRecord) {
-	sam.mu.Lock()
-	defer sam.mu.Unlock()
+// UnbanIP 解封IP.
+func (sm *SecurityManager) UnbanIP(ip string) error {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
 
-	if !sam.config.Enabled || !sam.config.FileAccessAudit {
+	if _, exists := sm.bannedIPs[ip]; !exists {
+		return fmt.Errorf("IP未被封禁: %s", ip)
+	}
+
+	delete(sm.bannedIPs, ip)
+
+	sm.logger.Infow("IP已解封", "ip", ip)
+
+	// 记录审计日志
+	if sm.auditLog != nil {
+		sm.auditLog.Log(AuditLogEntry{
+			Timestamp: time.Now(),
+			EventType: "ip_unbanned",
+			IP:        ip,
+			Action:    "unban",
+			Result:    "success",
+		})
+	}
+
+	return nil
+}
+
+// GetBannedIPs 获取封禁IP列表.
+func (sm *SecurityManager) GetBannedIPs() []*IPBanEntry {
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	result := make([]*IPBanEntry, 0, len(sm.bannedIPs))
+	for _, ban := range sm.bannedIPs {
+		// 只返回未过期的封禁
+		if time.Now().Before(ban.ExpiresAt) {
+			result = append(result, ban)
+		}
+	}
+	return result
+}
+
+// AddToWhitelist 添加IP到白名单.
+func (sm *SecurityManager) AddToWhitelist(ip string) error {
+	sm.mu.Lock()
+
+	// 检查是否已在白名单
+	for _, existing := range sm.config.IPWhitelist {
+		if existing == ip {
+			sm.mu.Unlock()
+			return nil // 已存在
+		}
+	}
+
+	sm.config.IPWhitelist = append(sm.config.IPWhitelist, ip)
+
+	// 从封禁列表中移除
+	delete(sm.bannedIPs, ip)
+
+	// 复制配置后释放锁，再保存（避免死锁）
+	cfg := sm.config
+	sm.mu.Unlock()
+
+	sm.logger.Infow("IP已添加到白名单", "ip", ip)
+	return sm.saveConfigFrom(cfg)
+}
+
+// RemoveFromWhitelist 从白名单移除IP.
+func (sm *SecurityManager) RemoveFromWhitelist(ip string) error {
+	sm.mu.Lock()
+
+	for i, existing := range sm.config.IPWhitelist {
+		if existing == ip {
+			sm.config.IPWhitelist = append(
+				sm.config.IPWhitelist[:i],
+				sm.config.IPWhitelist[i+1:]...)
+			cfg := sm.config
+			sm.mu.Unlock()
+			sm.logger.Infow("IP已从白名单移除", "ip", ip)
+			return sm.saveConfigFrom(cfg)
+		}
+	}
+
+	sm.mu.Unlock()
+	return fmt.Errorf("IP不在白名单中: %s", ip)
+}
+
+// AddToBlacklist 添加IP到黑名单.
+func (sm *SecurityManager) AddToBlacklist(ip string) error {
+	sm.mu.Lock()
+
+	// 检查是否在白名单
+	for _, whiteIP := range sm.config.IPWhitelist {
+		if whiteIP == ip {
+			sm.mu.Unlock()
+			return fmt.Errorf("IP在白名单中，不能添加到黑名单: %s", ip)
+		}
+	}
+
+	// 检查是否已在黑名单
+	for _, existing := range sm.config.IPBlacklist {
+		if existing == ip {
+			sm.mu.Unlock()
+			return nil // 已存在
+		}
+	}
+
+	sm.config.IPBlacklist = append(sm.config.IPBlacklist, ip)
+	cfg := sm.config
+	sm.mu.Unlock()
+
+	sm.logger.Infow("IP已添加到黑名单", "ip", ip)
+	return sm.saveConfigFrom(cfg)
+}
+
+// RemoveFromBlacklist 从黑名单移除IP.
+func (sm *SecurityManager) RemoveFromBlacklist(ip string) error {
+	sm.mu.Lock()
+
+	for i, existing := range sm.config.IPBlacklist {
+		if existing == ip {
+			sm.config.IPBlacklist = append(
+				sm.config.IPBlacklist[:i],
+				sm.config.IPBlacklist[i+1:]...)
+			cfg := sm.config
+			sm.mu.Unlock()
+			sm.logger.Infow("IP已从黑名单移除", "ip", ip)
+			return sm.saveConfigFrom(cfg)
+		}
+	}
+
+	sm.mu.Unlock()
+	return fmt.Errorf("IP不在黑名单中: %s", ip)
+}
+
+// LogAccess 记录访问日志.
+func (sm *SecurityManager) LogAccess(ip, username, shareName, action, result, details string) {
+	sm.mu.RLock()
+	auditLog := sm.auditLog
+	sm.mu.RUnlock()
+
+	if auditLog == nil {
 		return
 	}
 
-	// 设置 ID 和时间戳
-	if record.ID == "" {
-		record.ID = generateEventID()
-	}
-	if record.Timestamp.IsZero() {
-		record.Timestamp = time.Now()
-	}
-
-	// 添加记录
-	sam.fileAccessRecords = append(sam.fileAccessRecords, &record)
-
-	// 限制记录数量
-	if len(sam.fileAccessRecords) > sam.config.MaxRecords {
-		sam.fileAccessRecords = sam.fileAccessRecords[len(sam.fileAccessRecords)-sam.config.MaxRecords:]
-	}
-
-	// 更新统计
-	sam.updateUserStats(&record)
-	sam.updateIPStats(&record)
-
-	// 检查异常行为
-	if sam.config.AnomalyDetection {
-		sam.checkAnomalies(&record)
-	}
-
-	// 检查勒索软件指标
-	if sam.config.RansomwareDetection {
-		sam.checkRansomwareIndicators(&record)
-	}
+	auditLog.Log(AuditLogEntry{
+		Timestamp: time.Now(),
+		EventType: "access",
+		IP:        ip,
+		Username:  username,
+		ShareName: shareName,
+		Action:    action,
+		Result:    result,
+		Details:   details,
+	})
 }
 
-// LogSecurityEvent 记录安全事件
-func (sam *SecurityAuditManager) LogSecurityEvent(event SecurityEvent) {
-	sam.mu.Lock()
-	defer sam.mu.Unlock()
+// GetAuditLogs 获取审计日志.
+func (sm *SecurityManager) GetAuditLogs(limit int, offset int) ([]AuditLogEntry, error) {
+	sm.mu.RLock()
+	auditLog := sm.auditLog
+	sm.mu.RUnlock()
 
-	if !sam.config.Enabled {
-		return
+	if auditLog == nil {
+		return nil, fmt.Errorf("审计日志未启用")
 	}
 
-	if event.ID == "" {
-		event.ID = generateEventID()
-	}
-	if event.Timestamp.IsZero() {
-		event.Timestamp = time.Now()
-	}
-
-	sam.events = append(sam.events, &event)
-
-	// 触发告警回调
-	if sam.alertCallback != nil && event.Severity != "low" {
-		go sam.alertCallback(event)
-	}
+	return auditLog.ReadLogs(limit, offset)
 }
 
-// updateUserStats 更新用户访问统计
-func (sam *SecurityAuditManager) updateUserStats(record *FileAccessRecord) {
-	stats, exists := sam.userAccessStats[record.Username]
-	if !exists {
-		stats = &UserAccessStats{
-			Username:    record.Username,
-			RecentFiles: make([]string, 0),
-		}
-		sam.userAccessStats[record.Username] = stats
-	}
+// CleanupExpiredBans 清理过期的封禁记录.
+func (sm *SecurityManager) CleanupExpiredBans() int {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
 
-	stats.TotalAccess++
-	stats.LastAccess = record.Timestamp
-
-	switch record.Action {
-	case "read":
-		stats.ReadCount++
-	case "write":
-		stats.WriteCount++
-	case "delete":
-		stats.DeleteCount++
-		stats.RecentDeleteCount++
-	}
-
-	// 计算访问频率（每分钟）
-	if stats.TotalAccess > 0 {
-		elapsed := time.Since(stats.LastAccess).Minutes()
-		if elapsed > 0 {
-			stats.AccessFrequency = float64(stats.TotalAccess) / elapsed
-		}
-	}
-
-	// 记录最近访问的文件
-	stats.RecentFiles = append(stats.RecentFiles, record.FilePath)
-	if len(stats.RecentFiles) > 100 {
-		stats.RecentFiles = stats.RecentFiles[len(stats.RecentFiles)-100:]
-	}
-}
-
-// updateIPStats 更新 IP 访问统计
-func (sam *SecurityAuditManager) updateIPStats(record *FileAccessRecord) {
-	stats, exists := sam.ipAccessStats[record.ClientIP]
-	if !exists {
-		stats = &IPAccessStats{
-			ClientIP:       record.ClientIP,
-			ConnectedUsers: make([]string, 0),
-		}
-		sam.ipAccessStats[record.ClientIP] = stats
-	}
-
-	stats.TotalAccess++
-	stats.LastAccess = record.Timestamp
-
-	if record.Action == "delete" {
-		stats.RecentDeleteCount++
-	}
-
-	// 记录连接的用户
-	found := false
-	for _, u := range stats.ConnectedUsers {
-		if u == record.Username {
-			found = true
-			break
-		}
-	}
-	if !found {
-		stats.ConnectedUsers = append(stats.ConnectedUsers, record.Username)
-	}
-}
-
-// checkAnomalies 检查异常行为
-func (sam *SecurityAuditManager) checkAnomalies(record *FileAccessRecord) {
 	now := time.Now()
-
-	for _, rule := range sam.anomalyRules {
-		if !rule.Enabled {
-			continue
-		}
-
-		// 检查白名单
-		if sam.isWhitelisted(record) {
-			continue
-		}
-
-		// 检查时间窗口内的统计
-		windowStart := now.Add(-rule.TimeWindow)
-
-		// 根据规则类型检查
-		switch rule.Category {
-		case "file_operation":
-			if rule.ID == "rapid_deletion" {
-				deleteCount := sam.countRecentDeletes(record.Username, windowStart)
-				if deleteCount > rule.Threshold {
-					sam.triggerAnomalyAlert(record, rule, deleteCount)
-				}
-			}
-		case "time_based":
-			if rule.ID == "unusual_access_time" {
-				hour := now.Hour()
-				accessCount := sam.countRecentAccess(record.Username, windowStart)
-				if (hour < 6 || hour > 23) && accessCount > rule.Threshold {
-					sam.triggerAnomalyAlert(record, rule, accessCount)
-				}
-			}
-		case "access_pattern":
-			if rule.ID == "mass_file_operation" {
-				fileCount := sam.countRecentAccess(record.Username, windowStart)
-				if fileCount > rule.Threshold {
-					sam.triggerAnomalyAlert(record, rule, fileCount)
-				}
-			}
-		case "ransomware":
-			if rule.ID == "suspicious_extension" {
-				ext := getFileExtension(record.FilePath)
-				for _, suspiciousExt := range rule.Conditions[0].Value.([]string) {
-					if strings.HasSuffix(ext, suspiciousExt) {
-						sam.triggerAnomalyAlert(record, rule, 1)
-						break
-					}
-				}
-			}
+	count := 0
+	for ip, ban := range sm.bannedIPs {
+		if now.After(ban.ExpiresAt) {
+			delete(sm.bannedIPs, ip)
+			count++
 		}
 	}
+
+	if count > 0 {
+		sm.logger.Infow("清理过期封禁记录", "count", count)
+	}
+
+	return count
 }
 
-// checkRansomwareIndicators 检查勒索软件指标
-func (sam *SecurityAuditManager) checkRansomwareIndicators(record *FileAccessRecord) {
-	for _, indicator := range sam.ransomwareIndicators {
-		if !indicator.Enabled {
-			continue
-		}
+// matchIP 检查IP是否匹配（支持CIDR）.
+func matchIP(ip, pattern string) bool {
+	// 直接匹配
+	if ip == pattern {
+		return true
+	}
 
-		// 检查可疑扩展名
-		ext := getFileExtension(record.FilePath)
-		for _, suspiciousExt := range indicator.FileExtensions {
-			if strings.HasSuffix(ext, suspiciousExt) {
-				sam.triggerRansomwareAlert(record, indicator, "可疑扩展名")
-				return
-			}
-		}
-
-		// 检查可疑文件名模式
-		for _, pattern := range indicator.SuspiciousPatterns {
-			if strings.Contains(record.FilePath, pattern) {
-				sam.triggerRansomwareAlert(record, indicator, "可疑文件名模式")
-				return
-			}
-		}
-
-		// 检查快速删除/修改
-		if record.Action == "delete" || record.Action == "rename" {
-			windowStart := time.Now().Add(-time.Duration(indicator.TimeWindowSeconds) * time.Second)
-			deleteCount := sam.countRecentDeletes(record.Username, windowStart)
-			if deleteCount > indicator.RapidDeleteThreshold {
-				sam.triggerRansomwareAlert(record, indicator, "快速删除行为")
-				return
-			}
+	// CIDR匹配
+	if _, cidr, err := net.ParseCIDR(pattern); err == nil {
+		peerIP := net.ParseIP(ip)
+		if peerIP != nil {
+			return cidr.Contains(peerIP)
 		}
 	}
-}
 
-// triggerAnomalyAlert 触发异常告警
-func (sam *SecurityAuditManager) triggerAnomalyAlert(record *FileAccessRecord, rule AnomalyRule, count int) {
-	event := SecurityEvent{
-		ID:        generateEventID(),
-		Timestamp: time.Now(),
-		EventType: "anomaly",
-		Severity:  rule.Severity,
-		ShareName: record.ShareName,
-		Username:  record.Username,
-		ClientIP:  record.ClientIP,
-		FilePath:  record.FilePath,
-		Action:    record.Action,
-		Status:    "detected",
-		Details: map[string]interface{}{
-			"rule_id":    rule.ID,
-			"rule_name":  rule.Name,
-			"count":      count,
-			"threshold":  rule.Threshold,
-			"time_window": rule.TimeWindow.String(),
-		},
-		DetectedBy: "anomaly_detector",
-	}
-
-	sam.events = append(sam.events, &event)
-
-	// 触发告警回调
-	if sam.alertCallback != nil {
-		go sam.alertCallback(event)
-	}
-}
-
-// triggerRansomwareAlert 触发勒索软件告警
-func (sam *SecurityAuditManager) triggerRansomwareAlert(record *FileAccessRecord, indicator RansomwareIndicator, reason string) {
-	event := SecurityEvent{
-		ID:        generateEventID(),
-		Timestamp: time.Now(),
-		EventType: "ransomware",
-		Severity:  "critical",
-		ShareName: record.ShareName,
-		Username:  record.Username,
-		ClientIP:  record.ClientIP,
-		FilePath:  record.FilePath,
-		Action:    record.Action,
-		Status:    "detected",
-		Details: map[string]interface{}{
-			"indicator_id":   indicator.ID,
-			"indicator_name": indicator.Name,
-			"reason":         reason,
-		},
-		DetectedBy: "ransomware_detector",
-	}
-
-	sam.events = append(sam.events, &event)
-
-	// 触发告警回调
-	if sam.alertCallback != nil {
-		go sam.alertCallback(event)
-	}
-}
-
-// isWhitelisted 检查是否在白名单中
-func (sam *SecurityAuditManager) isWhitelisted(record *FileAccessRecord) bool {
-	for _, ip := range sam.config.WhitelistedIPs {
-		if record.ClientIP == ip {
-			return true
-		}
-	}
-	for _, user := range sam.config.WhitelistedUsers {
-		if record.Username == user {
-			return true
-		}
-	}
 	return false
 }
 
-// countRecentDeletes 计算最近删除次数
-func (sam *SecurityAuditManager) countRecentDeletes(username string, windowStart time.Time) int {
-	count := 0
-	for _, record := range sam.fileAccessRecords {
-		if record.Username == username && record.Action == "delete" && record.Timestamp.After(windowStart) {
-			count++
-		}
+// NewAuditLogger 创建审计日志记录器.
+func NewAuditLogger(logPath string, logger *zap.SugaredLogger) (*AuditLogger, error) {
+	// 确保目录存在
+	dir := filepath.Dir(logPath)
+	if err := os.MkdirAll(dir, 0750); err != nil {
+		return nil, fmt.Errorf("创建日志目录失败: %w", err)
 	}
 
-	// 也检查用户统计
-	if stats, exists := sam.userAccessStats[username]; exists {
-		// 重置超过时间窗口的计数
-		if stats.LastAccess.After(windowStart) {
-			count += stats.RecentDeleteCount
-		}
+	file, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0640)
+	if err != nil {
+		return nil, fmt.Errorf("打开日志文件失败: %w", err)
 	}
 
-	return count
+	return &AuditLogger{
+		file:    file,
+		logPath: logPath,
+		logger:  logger,
+	}, nil
 }
 
-// countRecentAccess 计算最近访问次数
-func (sam *SecurityAuditManager) countRecentAccess(username string, windowStart time.Time) int {
-	count := 0
-	for _, record := range sam.fileAccessRecords {
-		if record.Username == username && record.Timestamp.After(windowStart) {
-			count++
-		}
+// Log 记录审计日志.
+func (al *AuditLogger) Log(entry AuditLogEntry) {
+	al.mu.Lock()
+	defer al.mu.Unlock()
+
+	if al.file == nil {
+		return
 	}
-	return count
+
+	data, err := json.Marshal(entry)
+	if err != nil {
+		al.logger.Warnw("序列化审计日志失败", "error", err)
+		return
+	}
+
+	_, err = al.file.WriteString(string(data) + "\n")
+	if err != nil {
+		al.logger.Warnw("写入审计日志失败", "error", err)
+	}
 }
 
-// GetFileAccessRecords 获取文件访问记录
-func (sam *SecurityAuditManager) GetFileAccessRecords(limit, offset int, filters map[string]string) []*FileAccessRecord {
-	sam.mu.RLock()
-	defer sam.mu.RUnlock()
+// ReadLogs 读取审计日志.
+func (al *AuditLogger) ReadLogs(limit int, offset int) ([]AuditLogEntry, error) {
+	al.mu.Lock()
+	defer al.mu.Unlock()
 
-	result := make([]*FileAccessRecord, 0)
+	if al.file == nil {
+		return nil, fmt.Errorf("日志文件未打开")
+	}
 
-	for _, record := range sam.fileAccessRecords {
-		if !sam.matchesFileFilters(record, filters) {
+	// 关闭当前文件句柄以便读取
+	_ = al.file.Close()
+
+	file, err := os.Open(al.logPath)
+	if err != nil {
+		// 重新打开文件用于写入
+		al.file, _ = os.OpenFile(al.logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0640)
+		return nil, fmt.Errorf("打开日志文件失败: %w", err)
+	}
+	defer func() { _ = file.Close() }()
+
+	// 重新打开文件用于写入
+	al.file, _ = os.OpenFile(al.logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0640)
+
+	// 读取所有行
+	entries := make([]AuditLogEntry, 0)
+	scanner := NewReverseScanner(file)
+	lineNum := 0
+
+	for scanner.Scan() {
+		lineNum++
+		if offset > 0 && lineNum <= offset {
 			continue
 		}
-		result = append(result, record)
-	}
+		if limit > 0 && len(entries) >= limit {
+			break
+		}
 
-	// 按时间倒序
-	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
-		result[i], result[j] = result[j], result[i]
-	}
-
-	// 分页
-	start := offset
-	if start > len(result) {
-		start = len(result)
-	}
-	end := start + limit
-	if end > len(result) {
-		end = len(result)
-	}
-
-	return result[start:end]
-}
-
-// GetSecurityEvents 获取安全事件
-func (sam *SecurityAuditManager) GetSecurityEvents(limit, offset int, filters map[string]string) []*SecurityEvent {
-	sam.mu.RLock()
-	defer sam.mu.RUnlock()
-
-	result := make([]*SecurityEvent, 0)
-
-	for _, event := range sam.events {
-		if !sam.matchesEventFilters(event, filters) {
+		var entry AuditLogEntry
+		if err := json.Unmarshal(scanner.Bytes(), &entry); err != nil {
 			continue
 		}
-		result = append(result, event)
+		entries = append(entries, entry)
 	}
 
-	// 按时间倒序
-	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
-		result[i], result[j] = result[j], result[i]
-	}
-
-	// 分页
-	start := offset
-	if start > len(result) {
-		start = len(result)
-	}
-	end := start + limit
-	if end > len(result) {
-		end = len(result)
-	}
-
-	return result[start:end]
+	return entries, scanner.Err()
 }
 
-// matchesFileFilters 检查文件访问记录是否匹配筛选条件
-func (sam *SecurityAuditManager) matchesFileFilters(record *FileAccessRecord, filters map[string]string) bool {
-	for key, value := range filters {
-		switch key {
-		case "username":
-			if record.Username != value {
-				return false
-			}
-		case "share_name":
-			if record.ShareName != value {
-				return false
-			}
-		case "client_ip":
-			if record.ClientIP != value {
-				return false
-			}
-		case "action":
-			if record.Action != value {
-				return false
-			}
-		case "status":
-			if record.Status != value {
-				return false
+// Close 关闭日志文件.
+func (al *AuditLogger) Close() error {
+	al.mu.Lock()
+	defer al.mu.Unlock()
+
+	if al.file != nil {
+		err := al.file.Close()
+		al.file = nil
+		return err
+	}
+	return nil
+}
+
+// ReverseScanner 反向扫描器.
+type ReverseScanner struct {
+	file   *os.File
+	offset int64
+	buffer []byte
+	eof    bool
+}
+
+// NewReverseScanner 创建反向扫描器.
+func NewReverseScanner(file *os.File) *ReverseScanner {
+	info, _ := file.Stat()
+	return &ReverseScanner{
+		file:   file,
+		offset: info.Size(),
+		buffer: make([]byte, 1024),
+	}
+}
+
+// Scan 扫描下一行.
+func (rs *ReverseScanner) Scan() bool {
+	if rs.eof || rs.offset <= 0 {
+		rs.eof = true
+		return false
+	}
+
+	// 向后读取直到找到换行符
+	var line []byte
+	for rs.offset > 0 {
+		readSize := int64(len(rs.buffer))
+		if readSize > rs.offset {
+			readSize = rs.offset
+		}
+		rs.offset -= readSize
+
+		_, _ = rs.file.ReadAt(rs.buffer[:readSize], rs.offset)
+
+		for i := int(readSize) - 1; i >= 0; i-- {
+			if rs.buffer[i] == '\n' {
+				if len(line) > 0 {
+					rs.offset += int64(i + 1)
+					rs.buffer = append(rs.buffer[:0], line...)
+					return true
+				}
+			} else {
+				line = append([]byte{rs.buffer[i]}, line...)
 			}
 		}
 	}
-	return true
-}
 
-// matchesEventFilters 检查安全事件是否匹配筛选条件
-func (sam *SecurityAuditManager) matchesEventFilters(event *SecurityEvent, filters map[string]string) bool {
-	for key, value := range filters {
-		switch key {
-		case "event_type":
-			if event.EventType != value {
-				return false
-			}
-		case "severity":
-			if event.Severity != value {
-				return false
-			}
-		case "username":
-			if event.Username != value {
-				return false
-			}
-		case "share_name":
-			if event.ShareName != value {
-				return false
-			}
-		case "client_ip":
-			if event.ClientIP != value {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-// GetUserAccessStats 获取用户访问统计
-func (sam *SecurityAuditManager) GetUserAccessStats(username string) (*UserAccessStats, bool) {
-	sam.mu.RLock()
-	defer sam.mu.RUnlock()
-
-	stats, exists := sam.userAccessStats[username]
-	if !exists {
-		return nil, false
+	if len(line) > 0 {
+		rs.buffer = append(rs.buffer[:0], line...)
+		return true
 	}
 
-	// 返回副本
-	copy := *stats
-	copy.RecentFiles = make([]string, len(stats.RecentFiles))
-	copySlice(stats.RecentFiles, copy.RecentFiles)
-
-	return &copy, true
+	rs.eof = true
+	return false
 }
 
-// GetIPAccessStats 获取 IP 访问统计
-func (sam *SecurityAuditManager) GetIPAccessStats(clientIP string) (*IPAccessStats, bool) {
-	sam.mu.RLock()
-	defer sam.mu.RUnlock()
-
-	stats, exists := sam.ipAccessStats[clientIP]
-	if !exists {
-		return nil, false
-	}
-
-	// 返回副本
-	copy := *stats
-	copy.ConnectedUsers = make([]string, len(stats.ConnectedUsers))
-	copySlice(stats.ConnectedUsers, copy.ConnectedUsers)
-
-	return &copy, true
+// Bytes 返回当前行的字节.
+func (rs *ReverseScanner) Bytes() []byte {
+	return rs.buffer
 }
 
-// GetAnomalyRules 获取异常检测规则
-func (sam *SecurityAuditManager) GetAnomalyRules() []AnomalyRule {
-	sam.mu.RLock()
-	defer sam.mu.RUnlock()
-
-	result := make([]AnomalyRule, len(sam.anomalyRules))
-	copy(result, sam.anomalyRules)
-	return result
-}
-
-// AddAnomalyRule 添加异常检测规则
-func (sam *SecurityAuditManager) AddAnomalyRule(rule AnomalyRule) {
-	sam.mu.Lock()
-	defer sam.mu.Unlock()
-
-	rule.Enabled = true
-	sam.anomalyRules = append(sam.anomalyRules, rule)
-}
-
-// UpdateAnomalyRule 更新异常检测规则
-func (sam *SecurityAuditManager) UpdateAnomalyRule(ruleID string, rule AnomalyRule) error {
-	sam.mu.Lock()
-	defer sam.mu.Unlock()
-
-	for i, existing := range sam.anomalyRules {
-		if existing.ID == ruleID {
-			sam.anomalyRules[i] = rule
-			return nil
-		}
-	}
-
-	return fmt.Errorf("规则不存在: %s", ruleID)
-}
-
-// DeleteAnomalyRule 删除异常检测规则
-func (sam *SecurityAuditManager) DeleteAnomalyRule(ruleID string) error {
-	sam.mu.Lock()
-	defer sam.mu.Unlock()
-
-	for i, existing := range sam.anomalyRules {
-		if existing.ID == ruleID {
-			sam.anomalyRules = append(sam.anomalyRules[:i], sam.anomalyRules[i+1:]...)
-			return nil
-		}
-	}
-
-	return fmt.Errorf("规则不存在: %s", ruleID)
-}
-
-// GetRansomwareIndicators 获取勒索软件检测指标
-func (sam *SecurityAuditManager) GetRansomwareIndicators() []RansomwareIndicator {
-	sam.mu.RLock()
-	defer sam.mu.RUnlock()
-
-	result := make([]RansomwareIndicator, len(sam.ransomwareIndicators))
-	copy(result, sam.ransomwareIndicators)
-	return result
-}
-
-// GetSecurityStats 获取安全统计信息
-func (sam *SecurityAuditManager) GetSecurityStats() map[string]interface{} {
-	sam.mu.RLock()
-	defer sam.mu.RUnlock()
-
-	// 统计事件
-	eventByType := make(map[string]int)
-	eventBySeverity := make(map[string]int)
-	for _, event := range sam.events {
-		eventByType[event.EventType]++
-		eventBySeverity[event.Severity]++
-	}
-
-	// 统计文件访问
-	actionStats := make(map[string]int)
-	for _, record := range sam.fileAccessRecords {
-		actionStats[record.Action]++
-	}
-
-	return map[string]interface{}{
-		"total_events":        len(sam.events),
-		"total_file_access":   len(sam.fileAccessRecords),
-		"events_by_type":      eventByType,
-		"events_by_severity":  eventBySeverity,
-		"actions_stats":       actionStats,
-		"unique_users":        len(sam.userAccessStats),
-		"unique_ips":          len(sam.ipAccessStats),
-		"anomaly_rules":       len(sam.anomalyRules),
-		"ransomware_indicators": len(sam.ransomwareIndicators),
-	}
-}
-
-// CleanupOldRecords 清理旧记录
-func (sam *SecurityAuditManager) CleanupOldRecords() {
-	sam.mu.Lock()
-	defer sam.mu.Unlock()
-
-	cutoff := time.Now().AddDate(0, 0, -sam.config.RetentionDays)
-
-	// 清理文件访问记录
-	cleanedRecords := make([]*FileAccessRecord, 0)
-	for _, record := range sam.fileAccessRecords {
-		if record.Timestamp.After(cutoff) {
-			cleanedRecords = append(cleanedRecords, record)
-		}
-	}
-	sam.fileAccessRecords = cleanedRecords
-
-	// 清理安全事件
-	cleanedEvents := make([]*SecurityEvent, 0)
-	for _, event := range sam.events {
-		if event.Timestamp.After(cutoff) {
-			cleanedEvents = append(cleanedEvents, event)
-		}
-	}
-	sam.events = cleanedEvents
-}
-
-// StartCleanupRoutine 启动定期清理例程
-func (sam *SecurityAuditManager) StartCleanupRoutine(interval time.Duration) {
-	go func() {
-		ticker := time.NewTicker(interval)
-		defer ticker.Stop()
-		for range ticker.C {
-			sam.CleanupOldRecords()
-		}
-	}()
-}
-
-// ResetRecentStats 重置近期统计（用于测试和调试）
-func (sam *SecurityAuditManager) ResetRecentStats() {
-	sam.mu.Lock()
-	defer sam.mu.Unlock()
-
-	for _, stats := range sam.userAccessStats {
-		stats.RecentDeleteCount = 0
-	}
-	for _, stats := range sam.ipAccessStats {
-		stats.RecentDeleteCount = 0
-	}
-}
-
-// 辅助函数
-
-// generateEventID 生成事件 ID
-func generateEventID() string {
-	return fmt.Sprintf("evt-%d", time.Now().UnixNano())
-}
-
-// getFileExtension 获取文件扩展名
-func getFileExtension(path string) string {
-	idx := strings.LastIndex(path, ".")
-	if idx == -1 {
-		return ""
-	}
-	return path[idx:]
-}
-
-// copySlice 复制切片
-func copySlice(src, dst []string) {
-	for i, v := range src {
-		if i < len(dst) {
-			dst[i] = v
-		}
-	}
+// Err 返回错误.
+func (rs *ReverseScanner) Err() error {
+	return nil
 }

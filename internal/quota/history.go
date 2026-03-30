@@ -12,7 +12,7 @@ import (
 
 // ========== 配额历史统计 ==========
 
-// HistoryConfig 历史配置
+// HistoryConfig 历史配置.
 type HistoryConfig struct {
 	MaxRecords     int           `json:"max_records"`     // 最大历史记录数
 	RetentionDays  int           `json:"retention_days"`  // 保留天数
@@ -21,7 +21,7 @@ type HistoryConfig struct {
 	PersistPath    string        `json:"persist_path"`    // 持久化路径
 }
 
-// DefaultHistoryConfig 默认历史配置
+// DefaultHistoryConfig 默认历史配置.
 func DefaultHistoryConfig() HistoryConfig {
 	return HistoryConfig{
 		MaxRecords:     10000,
@@ -31,7 +31,7 @@ func DefaultHistoryConfig() HistoryConfig {
 	}
 }
 
-// HistoryRecord 配额历史记录详情
+// HistoryRecord 配额历史记录详情.
 type HistoryRecord struct {
 	ID           string    `json:"id"`
 	QuotaID      string    `json:"quota_id"`
@@ -46,7 +46,7 @@ type HistoryRecord struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
-// HistoryStatistics 历史统计结果
+// HistoryStatistics 历史统计结果.
 type HistoryStatistics struct {
 	QuotaID     string    `json:"quota_id"`
 	TargetName  string    `json:"target_name"`
@@ -77,7 +77,7 @@ type HistoryStatistics struct {
 	MaxOverPercent float64 `json:"max_over_percent"` // 最大超限百分比
 }
 
-// HistoryQuery 历史查询参数
+// HistoryQuery 历史查询参数.
 type HistoryQuery struct {
 	QuotaID    string     `json:"quota_id,omitempty"`
 	VolumeName string     `json:"volume_name,omitempty"`
@@ -87,7 +87,7 @@ type HistoryQuery struct {
 	Limit      int        `json:"limit,omitempty"`
 }
 
-// HistoryManager 历史数据管理器
+// HistoryManager 历史数据管理器.
 type HistoryManager struct {
 	mu       sync.RWMutex
 	config   HistoryConfig
@@ -97,7 +97,7 @@ type HistoryManager struct {
 	running  bool
 }
 
-// NewHistoryManager 创建历史管理器
+// NewHistoryManager 创建历史管理器.
 func NewHistoryManager(quotaMgr *Manager, config HistoryConfig) *HistoryManager {
 	return &HistoryManager{
 		config:   config,
@@ -107,7 +107,7 @@ func NewHistoryManager(quotaMgr *Manager, config HistoryConfig) *HistoryManager 
 	}
 }
 
-// Start 启动历史采集
+// Start 启动历史采集.
 func (m *HistoryManager) Start() {
 	if !m.config.CollectEnabled {
 		return
@@ -120,7 +120,7 @@ func (m *HistoryManager) Start() {
 	go m.run()
 }
 
-// Stop 停止历史采集
+// Stop 停止历史采集.
 func (m *HistoryManager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -136,7 +136,7 @@ func (m *HistoryManager) Stop() {
 	}
 }
 
-// run 运行采集循环
+// run 运行采集循环.
 func (m *HistoryManager) run() {
 	ticker := time.NewTicker(m.config.CollectPeriod)
 	defer ticker.Stop()
@@ -154,7 +154,7 @@ func (m *HistoryManager) run() {
 	}
 }
 
-// collectAll 采集所有配额数据
+// collectAll 采集所有配额数据.
 func (m *HistoryManager) collectAll() {
 	usages, err := m.quotaMgr.GetAllUsage()
 	if err != nil {
@@ -187,7 +187,7 @@ func (m *HistoryManager) collectAll() {
 	m.cleanupRecords()
 }
 
-// cleanupRecords 清理过期记录
+// cleanupRecords 清理过期记录.
 func (m *HistoryManager) cleanupRecords() {
 	// 按数量限制
 	if len(m.records) > m.config.MaxRecords {
@@ -210,7 +210,7 @@ func (m *HistoryManager) cleanupRecords() {
 	}
 }
 
-// Record 手动记录数据点
+// Record 手动记录数据点.
 func (m *HistoryManager) Record(record *HistoryRecord) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -226,7 +226,7 @@ func (m *HistoryManager) Record(record *HistoryRecord) {
 	m.cleanupRecords()
 }
 
-// Query 查询历史数据
+// Query 查询历史数据.
 func (m *HistoryManager) Query(query HistoryQuery) []*HistoryRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -263,7 +263,7 @@ func (m *HistoryManager) Query(query HistoryQuery) []*HistoryRecord {
 	return result
 }
 
-// GetStatistics 获取历史统计
+// GetStatistics 获取历史统计.
 func (m *HistoryManager) GetStatistics(quotaID string, startTime, endTime time.Time) *HistoryStatistics {
 	records := m.Query(HistoryQuery{
 		QuotaID:   quotaID,
@@ -350,7 +350,7 @@ func (m *HistoryManager) GetStatistics(quotaID string, startTime, endTime time.T
 	return stats
 }
 
-// GetAllStatistics 获取所有配额的历史统计
+// GetAllStatistics 获取所有配额的历史统计.
 func (m *HistoryManager) GetAllStatistics(startTime, endTime time.Time) []*HistoryStatistics {
 	m.quotaMgr.mu.RLock()
 	quotaIDs := make([]string, 0, len(m.quotaMgr.quotas))
@@ -369,7 +369,7 @@ func (m *HistoryManager) GetAllStatistics(startTime, endTime time.Time) []*Histo
 	return stats
 }
 
-// persist 持久化历史数据
+// persist 持久化历史数据.
 func (m *HistoryManager) persist() {
 	if m.config.PersistPath == "" {
 		return
@@ -392,7 +392,7 @@ func (m *HistoryManager) persist() {
 	_ = os.WriteFile(m.config.PersistPath, jsonData, 0600)
 }
 
-// Load 加载历史数据
+// Load 加载历史数据.
 func (m *HistoryManager) Load() error {
 	if m.config.PersistPath == "" {
 		return nil
@@ -424,10 +424,10 @@ func (m *HistoryManager) Load() error {
 
 // ========== 配额使用图表 API 增强 ==========
 
-// ChartType 图表类型
+// ChartType 图表类型.
 type ChartType string
 
-// 图表类型常量
+// 图表类型常量.
 const (
 	ChartTypeLine    ChartType = "line"    // 折线图
 	ChartTypeBar     ChartType = "bar"     // 柱状图
@@ -437,7 +437,7 @@ const (
 	ChartTypeHeatmap ChartType = "heatmap" // 热力图
 )
 
-// ChartDataRequest 图表数据请求
+// ChartDataRequest 图表数据请求.
 type ChartDataRequest struct {
 	QuotaID     string    `json:"quota_id,omitempty"`     // 单个配额ID
 	VolumeName  string    `json:"volume_name,omitempty"`  // 按卷过滤
@@ -448,7 +448,7 @@ type ChartDataRequest struct {
 	CompareWith string    `json:"compare_with,omitempty"` // 对比选项: previous_period, same_last_year
 }
 
-// ChartDataResponse 图表数据响应
+// ChartDataResponse 图表数据响应.
 type ChartDataResponse struct {
 	ChartType   ChartType     `json:"chart_type"`
 	Title       string        `json:"title"`
@@ -459,14 +459,14 @@ type ChartDataResponse struct {
 	Options     ChartOptions  `json:"options,omitempty"`
 }
 
-// ChartPeriod 图表时间范围
+// ChartPeriod 图表时间范围.
 type ChartPeriod struct {
 	Start time.Time `json:"start"`
 	End   time.Time `json:"end"`
 	Label string    `json:"label"` // 如 "最近7天", "本月" 等
 }
 
-// ChartSeries 图表数据系列
+// ChartSeries 图表数据系列.
 type ChartSeries struct {
 	Name        string       `json:"name"`
 	Type        ChartType    `json:"type,omitempty"`
@@ -476,7 +476,7 @@ type ChartSeries struct {
 	Statistics  SeriesStats  `json:"statistics,omitempty"`
 }
 
-// ChartPoint 图表数据点
+// ChartPoint 图表数据点.
 type ChartPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	Label     string    `json:"label"`              // X轴标签
@@ -485,7 +485,7 @@ type ChartPoint struct {
 	Category  string    `json:"category,omitempty"` // 分类（用于饼图等）
 }
 
-// SeriesStats 系列统计
+// SeriesStats 系列统计.
 type SeriesStats struct {
 	Min    float64 `json:"min"`
 	Max    float64 `json:"max"`
@@ -496,7 +496,7 @@ type SeriesStats struct {
 	Change float64 `json:"change"` // 变化百分比
 }
 
-// ChartSummary 图表摘要
+// ChartSummary 图表摘要.
 type ChartSummary struct {
 	TotalUsedBytes   uint64  `json:"total_used_bytes"`
 	TotalLimitBytes  uint64  `json:"total_limit_bytes"`
@@ -508,7 +508,7 @@ type ChartSummary struct {
 	OverLimitCount   int     `json:"over_limit_count"`
 }
 
-// ChartOptions 图表选项
+// ChartOptions 图表选项.
 type ChartOptions struct {
 	YAxisLabel    string `json:"y_axis_label,omitempty"`
 	XAxisLabel    string `json:"x_axis_label,omitempty"`
@@ -519,14 +519,14 @@ type ChartOptions struct {
 	FormatPercent bool   `json:"format_percent"` // 是否格式化为百分比
 }
 
-// ChartManager 图表数据管理器
+// ChartManager 图表数据管理器.
 type ChartManager struct {
 	quotaMgr   *Manager
 	historyMgr *HistoryManager
 	trendMgr   *TrendDataManager
 }
 
-// NewChartManager 创建图表管理器
+// NewChartManager 创建图表管理器.
 func NewChartManager(quotaMgr *Manager, historyMgr *HistoryManager, trendMgr *TrendDataManager) *ChartManager {
 	return &ChartManager{
 		quotaMgr:   quotaMgr,
@@ -535,7 +535,7 @@ func NewChartManager(quotaMgr *Manager, historyMgr *HistoryManager, trendMgr *Tr
 	}
 }
 
-// GetChartData 获取图表数据
+// GetChartData 获取图表数据.
 func (m *ChartManager) GetChartData(req ChartDataRequest) (*ChartDataResponse, error) {
 	response := &ChartDataResponse{
 		ChartType:   req.ChartType,
@@ -575,7 +575,7 @@ func (m *ChartManager) GetChartData(req ChartDataRequest) (*ChartDataResponse, e
 	}
 }
 
-// getLineChartData 获取折线图数据
+// getLineChartData 获取折线图数据.
 func (m *ChartManager) getLineChartData(req ChartDataRequest, response *ChartDataResponse) (*ChartDataResponse, error) {
 	response.Title = "配额使用趋势"
 
@@ -629,7 +629,7 @@ func (m *ChartManager) getLineChartData(req ChartDataRequest, response *ChartDat
 	return response, nil
 }
 
-// getBarChartData 获取柱状图数据
+// getBarChartData 获取柱状图数据.
 func (m *ChartManager) getBarChartData(req ChartDataRequest, response *ChartDataResponse) (*ChartDataResponse, error) {
 	response.Title = "配额使用量分布"
 
@@ -676,7 +676,7 @@ func (m *ChartManager) getBarChartData(req ChartDataRequest, response *ChartData
 	return response, nil
 }
 
-// getPieChartData 获取饼图数据
+// getPieChartData 获取饼图数据.
 func (m *ChartManager) getPieChartData(req ChartDataRequest, response *ChartDataResponse) (*ChartDataResponse, error) {
 	response.Title = "存储使用分布"
 
@@ -724,7 +724,7 @@ func (m *ChartManager) getPieChartData(req ChartDataRequest, response *ChartData
 	return response, nil
 }
 
-// getGaugeChartData 获取仪表盘数据
+// getGaugeChartData 获取仪表盘数据.
 func (m *ChartManager) getGaugeChartData(req ChartDataRequest, response *ChartDataResponse) (*ChartDataResponse, error) {
 	response.Title = "配额使用率仪表盘"
 
@@ -773,7 +773,7 @@ func (m *ChartManager) getGaugeChartData(req ChartDataRequest, response *ChartDa
 	return response, nil
 }
 
-// getHeatmapChartData 获取热力图数据
+// getHeatmapChartData 获取热力图数据.
 func (m *ChartManager) getHeatmapChartData(req ChartDataRequest, response *ChartDataResponse) (*ChartDataResponse, error) {
 	response.Title = "配额使用热力图"
 
@@ -817,7 +817,7 @@ func (m *ChartManager) getHeatmapChartData(req ChartDataRequest, response *Chart
 	return response, nil
 }
 
-// calculateSeriesStats 计算系列统计
+// calculateSeriesStats 计算系列统计.
 func (m *ChartManager) calculateSeriesStats(data []ChartPoint) SeriesStats {
 	if len(data) == 0 {
 		return SeriesStats{}
@@ -863,7 +863,7 @@ func (m *ChartManager) calculateSeriesStats(data []ChartPoint) SeriesStats {
 	return stats
 }
 
-// calculateChartSummary 计算图表摘要
+// calculateChartSummary 计算图表摘要.
 func (m *ChartManager) calculateChartSummary(records []*HistoryRecord) ChartSummary {
 	if len(records) == 0 {
 		return ChartSummary{}
@@ -909,7 +909,7 @@ func (m *ChartManager) calculateChartSummary(records []*HistoryRecord) ChartSumm
 	return summary
 }
 
-// formatPeriodLabel 格式化时间范围标签
+// formatPeriodLabel 格式化时间范围标签.
 func formatPeriodLabel(start, end time.Time) string {
 	days := int(end.Sub(start).Hours() / 24)
 	switch {
@@ -930,10 +930,10 @@ func formatPeriodLabel(start, end time.Time) string {
 
 // ========== 预警通知增强 ==========
 
-// NotificationType 通知类型
+// NotificationType 通知类型.
 type NotificationType string
 
-// 通知类型常量
+// 通知类型常量.
 const (
 	NotificationEmail    NotificationType = "email"
 	NotificationWebhook  NotificationType = "webhook"
@@ -944,7 +944,7 @@ const (
 	NotificationDingtalk NotificationType = "dingtalk"
 )
 
-// AlertNotification 预警通知
+// AlertNotification 预警通知.
 type AlertNotification struct {
 	ID         string                 `json:"id"`
 	AlertID    string                 `json:"alert_id"`
@@ -961,7 +961,7 @@ type AlertNotification struct {
 	CreatedAt  time.Time              `json:"created_at"`
 }
 
-// NotificationTemplate 通知模板
+// NotificationTemplate 通知模板.
 type NotificationTemplate struct {
 	ID        string           `json:"id"`
 	Name      string           `json:"name"`
@@ -972,7 +972,7 @@ type NotificationTemplate struct {
 	Variables []string         `json:"variables"`
 }
 
-// NotificationManager 通知管理器
+// NotificationManager 通知管理器.
 type NotificationManager struct {
 	mu         sync.RWMutex
 	templates  map[string]*NotificationTemplate
@@ -981,7 +981,7 @@ type NotificationManager struct {
 	maxHistory int
 }
 
-// NewNotificationManager 创建通知管理器
+// NewNotificationManager 创建通知管理器.
 func NewNotificationManager() *NotificationManager {
 	return &NotificationManager{
 		templates:  make(map[string]*NotificationTemplate),
@@ -991,7 +991,7 @@ func NewNotificationManager() *NotificationManager {
 	}
 }
 
-// SendNotification 发送通知
+// SendNotification 发送通知.
 func (m *NotificationManager) SendNotification(alert *Alert, channelID string) (*AlertNotification, error) {
 	m.mu.RLock()
 	channel, exists := m.channels[channelID]
@@ -1045,7 +1045,7 @@ func (m *NotificationManager) SendNotification(alert *Alert, channelID string) (
 	return notification, err
 }
 
-// dispatch 分发通知
+// dispatch 分发通知.
 func (m *NotificationManager) dispatch(notification *AlertNotification, channel *NotificationChannel) error {
 	switch NotificationType(channel.Type) {
 	case NotificationWebhook:
@@ -1063,7 +1063,7 @@ func (m *NotificationManager) dispatch(notification *AlertNotification, channel 
 	}
 }
 
-// sendWebhook 发送 Webhook 通知
+// sendWebhook 发送 Webhook 通知.
 func (m *NotificationManager) sendWebhook(notification *AlertNotification, channel *NotificationChannel) error {
 	url, ok := channel.Config["url"].(string)
 	if !ok {
@@ -1075,7 +1075,7 @@ func (m *NotificationManager) sendWebhook(notification *AlertNotification, chann
 	return nil
 }
 
-// sendEmail 发送邮件通知
+// sendEmail 发送邮件通知.
 func (m *NotificationManager) sendEmail(notification *AlertNotification, channel *NotificationChannel) error {
 	to, ok := channel.Config["to"].(string)
 	if !ok {
@@ -1086,7 +1086,7 @@ func (m *NotificationManager) sendEmail(notification *AlertNotification, channel
 	return nil
 }
 
-// sendSlack 发送 Slack 通知
+// sendSlack 发送 Slack 通知.
 func (m *NotificationManager) sendSlack(notification *AlertNotification, channel *NotificationChannel) error {
 	webhook, ok := channel.Config["webhook"].(string)
 	if !ok {
@@ -1097,7 +1097,7 @@ func (m *NotificationManager) sendSlack(notification *AlertNotification, channel
 	return nil
 }
 
-// sendDiscord 发送 Discord 通知
+// sendDiscord 发送 Discord 通知.
 func (m *NotificationManager) sendDiscord(notification *AlertNotification, channel *NotificationChannel) error {
 	webhook, ok := channel.Config["webhook"].(string)
 	if !ok {
@@ -1108,7 +1108,7 @@ func (m *NotificationManager) sendDiscord(notification *AlertNotification, chann
 	return nil
 }
 
-// sendTelegram 发送 Telegram 通知
+// sendTelegram 发送 Telegram 通知.
 func (m *NotificationManager) sendTelegram(notification *AlertNotification, channel *NotificationChannel) error {
 	botToken, ok := channel.Config["bot_token"].(string)
 	if !ok || botToken == "" {
@@ -1120,7 +1120,7 @@ func (m *NotificationManager) sendTelegram(notification *AlertNotification, chan
 	return nil
 }
 
-// getChannelRecipient 获取渠道收件人
+// getChannelRecipient 获取渠道收件人.
 func getChannelRecipient(channel *NotificationChannel) string {
 	switch NotificationType(channel.Type) {
 	case NotificationEmail:
@@ -1135,7 +1135,7 @@ func getChannelRecipient(channel *NotificationChannel) string {
 	return ""
 }
 
-// AddChannel 添加通知渠道
+// AddChannel 添加通知渠道.
 func (m *NotificationManager) AddChannel(channel *NotificationChannel) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1146,14 +1146,14 @@ func (m *NotificationManager) AddChannel(channel *NotificationChannel) {
 	m.channels[channel.ID] = channel
 }
 
-// RemoveChannel 移除通知渠道
+// RemoveChannel 移除通知渠道.
 func (m *NotificationManager) RemoveChannel(id string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.channels, id)
 }
 
-// GetChannels 获取所有通知渠道
+// GetChannels 获取所有通知渠道.
 func (m *NotificationManager) GetChannels() []*NotificationChannel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1165,7 +1165,7 @@ func (m *NotificationManager) GetChannels() []*NotificationChannel {
 	return result
 }
 
-// GetHistory 获取通知历史
+// GetHistory 获取通知历史.
 func (m *NotificationManager) GetHistory(limit int) []*AlertNotification {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1181,7 +1181,7 @@ func (m *NotificationManager) GetHistory(limit int) []*AlertNotification {
 
 // ========== 用户资源使用报告 ==========
 
-// UserResourceReport 用户资源使用报告
+// UserResourceReport 用户资源使用报告.
 type UserResourceReport struct {
 	Username        string             `json:"username"`
 	GeneratedAt     time.Time          `json:"generated_at"`
@@ -1192,7 +1192,7 @@ type UserResourceReport struct {
 	Recommendations []string           `json:"recommendations"`
 }
 
-// UserQuotaDetail 用户配额详情
+// UserQuotaDetail 用户配额详情.
 type UserQuotaDetail struct {
 	QuotaID        string    `json:"quota_id"`
 	VolumeName     string    `json:"volume_name"`
@@ -1211,7 +1211,7 @@ type UserQuotaDetail struct {
 	TopFiles       []FileInfo `json:"top_files,omitempty"`
 }
 
-// FileInfo 文件信息
+// FileInfo 文件信息.
 type FileInfo struct {
 	Path    string    `json:"path"`
 	Size    uint64    `json:"size"`
@@ -1219,7 +1219,7 @@ type FileInfo struct {
 	Type    string    `json:"type,omitempty"`
 }
 
-// UserReportSummary 用户报告摘要
+// UserReportSummary 用户报告摘要.
 type UserReportSummary struct {
 	TotalQuotas     int     `json:"total_quotas"`
 	TotalLimitBytes uint64  `json:"total_limit_bytes"`
@@ -1230,7 +1230,7 @@ type UserReportSummary struct {
 	CriticalCount   int     `json:"critical_count"`
 }
 
-// UserTrendAnalysis 用户趋势分析
+// UserTrendAnalysis 用户趋势分析.
 type UserTrendAnalysis struct {
 	DailyGrowthBytes    float64   `json:"daily_growth_bytes"`
 	GrowthTrend         string    `json:"growth_trend"` // increasing, decreasing, stable
@@ -1238,14 +1238,14 @@ type UserTrendAnalysis struct {
 	WeeklyPattern       []float64 `json:"weekly_pattern,omitempty"` // 每天平均使用率
 }
 
-// ReportGeneratorEnhanced 增强的报告生成器
+// ReportGeneratorEnhanced 增强的报告生成器.
 type ReportGeneratorEnhanced struct {
 	quotaMgr   *Manager
 	historyMgr *HistoryManager
 	trendMgr   *TrendDataManager
 }
 
-// NewReportGeneratorEnhanced 创建增强报告生成器
+// NewReportGeneratorEnhanced 创建增强报告生成器.
 func NewReportGeneratorEnhanced(quotaMgr *Manager, historyMgr *HistoryManager, trendMgr *TrendDataManager) *ReportGeneratorEnhanced {
 	return &ReportGeneratorEnhanced{
 		quotaMgr:   quotaMgr,
@@ -1254,7 +1254,7 @@ func NewReportGeneratorEnhanced(quotaMgr *Manager, historyMgr *HistoryManager, t
 	}
 }
 
-// GenerateUserReport 生成用户资源报告
+// GenerateUserReport 生成用户资源报告.
 func (g *ReportGeneratorEnhanced) GenerateUserReport(username string, period ReportPeriod) (*UserResourceReport, error) {
 	report := &UserResourceReport{
 		Username:        username,
@@ -1320,7 +1320,7 @@ func (g *ReportGeneratorEnhanced) GenerateUserReport(username string, period Rep
 	return report, nil
 }
 
-// generateUserRecommendations 生成用户建议
+// generateUserRecommendations 生成用户建议.
 func (g *ReportGeneratorEnhanced) generateUserRecommendations(report *UserResourceReport) []string {
 	recs := make([]string, 0)
 
@@ -1349,7 +1349,7 @@ func (g *ReportGeneratorEnhanced) generateUserRecommendations(report *UserResour
 	return recs
 }
 
-// GenerateSystemReport 生成系统资源报告
+// GenerateSystemReport 生成系统资源报告.
 func (g *ReportGeneratorEnhanced) GenerateSystemReport(period ReportPeriod) (*SystemResourceReport, error) {
 	report := &SystemResourceReport{
 		GeneratedAt: time.Now(),
@@ -1415,7 +1415,7 @@ func (g *ReportGeneratorEnhanced) GenerateSystemReport(period ReportPeriod) (*Sy
 	return report, nil
 }
 
-// SystemResourceReport 系统资源报告
+// SystemResourceReport 系统资源报告.
 type SystemResourceReport struct {
 	GeneratedAt time.Time            `json:"generated_at"`
 	Period      ReportPeriod         `json:"period"`
@@ -1425,7 +1425,7 @@ type SystemResourceReport struct {
 	Alerts      []AlertSummary       `json:"alerts,omitempty"`
 }
 
-// SystemSummary 系统摘要
+// SystemSummary 系统摘要.
 type SystemSummary struct {
 	TotalQuotas     int     `json:"total_quotas"`
 	TotalUsers      int     `json:"total_users"`
@@ -1437,7 +1437,7 @@ type SystemSummary struct {
 	OverHardCount   int     `json:"over_hard_count"`
 }
 
-// VolumeResourceInfo 卷资源信息
+// VolumeResourceInfo 卷资源信息.
 type VolumeResourceInfo struct {
 	VolumeName      string  `json:"volume_name"`
 	QuotaCount      int     `json:"quota_count"`
@@ -1451,7 +1451,7 @@ type VolumeResourceInfo struct {
 	OverHardCount   int     `json:"over_hard_count"`
 }
 
-// SystemTrend 系统趋势
+// SystemTrend 系统趋势.
 type SystemTrend struct {
 	DailyGrowthBytes    float64   `json:"daily_growth_bytes"`
 	GrowthTrend         string    `json:"growth_trend"`
@@ -1460,7 +1460,7 @@ type SystemTrend struct {
 	WeeklyPattern       []float64 `json:"weekly_pattern,omitempty"`
 }
 
-// AlertSummary 告警摘要
+// AlertSummary 告警摘要.
 type AlertSummary struct {
 	TotalAlerts   int `json:"total_alerts"`
 	CriticalCount int `json:"critical_count"`
@@ -1468,7 +1468,7 @@ type AlertSummary struct {
 	ResolvedCount int `json:"resolved_count"`
 }
 
-// generateSystemTrend 生成系统趋势
+// generateSystemTrend 生成系统趋势.
 func (g *ReportGeneratorEnhanced) generateSystemTrend(usages []*QuotaUsage) *SystemTrend {
 	trend := &SystemTrend{
 		GrowthTrend: "stable",
@@ -1501,7 +1501,7 @@ func (g *ReportGeneratorEnhanced) generateSystemTrend(usages []*QuotaUsage) *Sys
 
 // ========== 存储使用统计 API ==========
 
-// StorageStats 存储统计
+// StorageStats 存储统计.
 type StorageStats struct {
 	VolumeName      string        `json:"volume_name"`
 	TotalBytes      uint64        `json:"total_bytes"`
@@ -1517,21 +1517,21 @@ type StorageStats struct {
 	Trend           *StorageTrend `json:"trend,omitempty"`
 }
 
-// StorageTrend 存储趋势
+// StorageTrend 存储趋势.
 type StorageTrend struct {
 	DailyGrowthBytes float64 `json:"daily_growth_bytes"`
 	GrowthPercent    float64 `json:"growth_percent"`
 	DaysToFull       int     `json:"days_to_full,omitempty"`
 }
 
-// StorageStatsManager 存储统计管理器
+// StorageStatsManager 存储统计管理器.
 type StorageStatsManager struct {
 	quotaMgr   *Manager
 	historyMgr *HistoryManager
 	trendMgr   *TrendDataManager
 }
 
-// NewStorageStatsManager 创建存储统计管理器
+// NewStorageStatsManager 创建存储统计管理器.
 func NewStorageStatsManager(quotaMgr *Manager, historyMgr *HistoryManager, trendMgr *TrendDataManager) *StorageStatsManager {
 	return &StorageStatsManager{
 		quotaMgr:   quotaMgr,
@@ -1540,7 +1540,7 @@ func NewStorageStatsManager(quotaMgr *Manager, historyMgr *HistoryManager, trend
 	}
 }
 
-// GetStorageStats 获取存储统计
+// GetStorageStats 获取存储统计.
 func (m *StorageStatsManager) GetStorageStats(volumeName string) (*StorageStats, error) {
 	usages, err := m.quotaMgr.GetAllUsage()
 	if err != nil {
@@ -1600,7 +1600,7 @@ func (m *StorageStatsManager) GetStorageStats(volumeName string) (*StorageStats,
 	return stats, nil
 }
 
-// getTopUsers 获取使用量最高的用户
+// getTopUsers 获取使用量最高的用户.
 func (m *StorageStatsManager) getTopUsers(users []QuotaUsage, limit int) []QuotaUsage {
 	if len(users) == 0 {
 		return nil
@@ -1625,7 +1625,7 @@ func (m *StorageStatsManager) getTopUsers(users []QuotaUsage, limit int) []Quota
 	return sorted
 }
 
-// calculateStorageTrend 计算存储趋势
+// calculateStorageTrend 计算存储趋势.
 func (m *StorageStatsManager) calculateStorageTrend(usages []*QuotaUsage) *StorageTrend {
 	trend := &StorageTrend{}
 
@@ -1661,7 +1661,7 @@ func (m *StorageStatsManager) calculateStorageTrend(usages []*QuotaUsage) *Stora
 	return trend
 }
 
-// GetAllVolumesStats 获取所有卷的统计
+// GetAllVolumesStats 获取所有卷的统计.
 func (m *StorageStatsManager) GetAllVolumesStats() ([]*StorageStats, error) {
 	usages, err := m.quotaMgr.GetAllUsage()
 	if err != nil {
@@ -1685,12 +1685,12 @@ func (m *StorageStatsManager) GetAllVolumesStats() ([]*StorageStats, error) {
 	return result, nil
 }
 
-// GetGlobalStats 获取全局统计
+// GetGlobalStats 获取全局统计.
 func (m *StorageStatsManager) GetGlobalStats() (*StorageStats, error) {
 	return m.GetStorageStats("")
 }
 
-// Helper function
+// Helper function.
 func formatBytesImpl(bytes uint64) string {
 	const unit = 1024
 	if bytes < unit {

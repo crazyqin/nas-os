@@ -1,6 +1,7 @@
 package tags
 
 import (
+	"context"
 	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
@@ -12,7 +13,7 @@ import (
 	_ "modernc.org/sqlite" // SQLite driver for database
 )
 
-// Tag 标签定义
+// Tag 标签定义.
 type Tag struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -23,7 +24,7 @@ type Tag struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// TagInput 创建/更新标签输入
+// TagInput 创建/更新标签输入.
 type TagInput struct {
 	Name  string `json:"name" binding:"required"`
 	Color string `json:"color"`
@@ -31,34 +32,34 @@ type TagInput struct {
 	Group string `json:"group"`
 }
 
-// FileTag 文件标签关联
+// FileTag 文件标签关联.
 type FileTag struct {
 	FilePath string    `json:"filePath"`
 	TagIDs   []string  `json:"tagIds"`
 	AddedAt  time.Time `json:"addedAt"`
 }
 
-// FileTagInput 文件标签操作输入
+// FileTagInput 文件标签操作输入.
 type FileTagInput struct {
 	FilePath string   `json:"filePath" binding:"required"`
 	TagIDs   []string `json:"tagIds" binding:"required"`
 }
 
-// TagGroup 标签分组
+// TagGroup 标签分组.
 type TagGroup struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Count       int    `json:"count"` // 该分组下的标签数量
 }
 
-// Stats 统计信息
+// Stats 统计信息.
 type Stats struct {
 	TotalTags    int `json:"totalTags"`
 	TotalFiles   int `json:"totalFiles"`
 	TotalGrouped int `json:"totalGrouped"`
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrTagNotFound     = errors.New("标签不存在")
 	ErrTagExists       = errors.New("标签名称已存在")
@@ -68,14 +69,14 @@ var (
 	ErrTagNotOnFile    = errors.New("文件没有此标签")
 )
 
-// Manager 标签管理器
+// Manager 标签管理器.
 type Manager struct {
 	db     *sql.DB
 	dbPath string
 	mu     sync.RWMutex
 }
 
-// NewManager 创建标签管理器
+// NewManager 创建标签管理器.
 func NewManager(dbPath string) (*Manager, error) {
 	m := &Manager{
 		dbPath: dbPath,
@@ -88,7 +89,7 @@ func NewManager(dbPath string) (*Manager, error) {
 	return m, nil
 }
 
-// initDB 初始化数据库
+// initDB 初始化数据库.
 func (m *Manager) initDB() error {
 	db, err := sql.Open("sqlite", m.dbPath)
 	if err != nil {
@@ -121,11 +122,11 @@ func (m *Manager) initDB() error {
 	CREATE INDEX IF NOT EXISTS idx_file_tags_tag ON file_tags(tag_id);
 	`
 
-	_, err = db.Exec(createTableSQL)
+	_, err = db.ExecContext(context.Background(), createTableSQL)
 	return err
 }
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func generateID() string {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
@@ -136,14 +137,14 @@ func generateID() string {
 
 // ========== 标签 CRUD ==========
 
-// CreateTag 创建标签
+// CreateTag 创建标签.
 func (m *Manager) CreateTag(input TagInput) (*Tag, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	// 检查名称是否已存在
 	var exists int
-	err := m.db.QueryRow("SELECT 1 FROM tags WHERE name = ?", input.Name).Scan(&exists)
+	err := m.db.QueryRowContext(context.Background(), "SELECT 1 FROM tags WHERE name = ?", input.Name).Scan(&exists)
 	if err == nil {
 		return nil, ErrTagExists
 	}
@@ -168,7 +169,7 @@ func (m *Manager) CreateTag(input TagInput) (*Tag, error) {
 	}
 
 	query := `INSERT INTO tags (id, name, color, icon, grp, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	_, err = m.db.Exec(query, tag.ID, tag.Name, tag.Color, tag.Icon, tag.Group, tag.CreatedAt, tag.UpdatedAt)
+	_, err = m.db.ExecContext(context.Background(), query, tag.ID, tag.Name, tag.Color, tag.Icon, tag.Group, tag.CreatedAt, tag.UpdatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("创建标签失败：%w", err)
 	}
@@ -176,14 +177,14 @@ func (m *Manager) CreateTag(input TagInput) (*Tag, error) {
 	return tag, nil
 }
 
-// GetTag 获取标签
+// GetTag 获取标签.
 func (m *Manager) GetTag(id string) (*Tag, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	tag := &Tag{}
 	query := `SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE id = ?`
-	err := m.db.QueryRow(query, id).Scan(
+	err := m.db.QueryRowContext(context.Background(), query, id).Scan(
 		&tag.ID, &tag.Name, &tag.Color, &tag.Icon, &tag.Group,
 		&tag.CreatedAt, &tag.UpdatedAt,
 	)
@@ -197,14 +198,14 @@ func (m *Manager) GetTag(id string) (*Tag, error) {
 	return tag, nil
 }
 
-// GetTagByName 通过名称获取标签
+// GetTagByName 通过名称获取标签.
 func (m *Manager) GetTagByName(name string) (*Tag, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	tag := &Tag{}
 	query := `SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE name = ?`
-	err := m.db.QueryRow(query, name).Scan(
+	err := m.db.QueryRowContext(context.Background(), query, name).Scan(
 		&tag.ID, &tag.Name, &tag.Color, &tag.Icon, &tag.Group,
 		&tag.CreatedAt, &tag.UpdatedAt,
 	)
@@ -218,13 +219,13 @@ func (m *Manager) GetTagByName(name string) (*Tag, error) {
 	return tag, nil
 }
 
-// ListTags 列出所有标签
+// ListTags 列出所有标签.
 func (m *Manager) ListTags() ([]*Tag, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	query := `SELECT id, name, color, icon, grp, created_at, updated_at FROM tags ORDER BY name`
-	rows, err := m.db.Query(query)
+	rows, err := m.db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -246,13 +247,13 @@ func (m *Manager) ListTags() ([]*Tag, error) {
 	return tags, rows.Err()
 }
 
-// ListTagsByGroup 按分组列出标签
+// ListTagsByGroup 按分组列出标签.
 func (m *Manager) ListTagsByGroup(group string) ([]*Tag, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	query := `SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE grp = ? ORDER BY name`
-	rows, err := m.db.Query(query, group)
+	rows, err := m.db.QueryContext(context.Background(), query, group)
 	if err != nil {
 		return nil, err
 	}
@@ -274,14 +275,14 @@ func (m *Manager) ListTagsByGroup(group string) ([]*Tag, error) {
 	return tags, rows.Err()
 }
 
-// UpdateTag 更新标签
+// UpdateTag 更新标签.
 func (m *Manager) UpdateTag(id string, input TagInput) (*Tag, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	// 检查标签是否存在
 	var existingTag Tag
-	err := m.db.QueryRow("SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE id = ?",
+	err := m.db.QueryRowContext(context.Background(), "SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE id = ?",
 		id).Scan(&existingTag.ID, &existingTag.Name, &existingTag.Color, &existingTag.Icon,
 		&existingTag.Group, &existingTag.CreatedAt, &existingTag.UpdatedAt)
 	if err == sql.ErrNoRows {
@@ -294,7 +295,7 @@ func (m *Manager) UpdateTag(id string, input TagInput) (*Tag, error) {
 	// 检查新名称是否已被其他标签使用
 	if input.Name != "" {
 		var existingID string
-		err := m.db.QueryRow("SELECT id FROM tags WHERE name = ? AND id != ?", input.Name, id).Scan(&existingID)
+		err := m.db.QueryRowContext(context.Background(), "SELECT id FROM tags WHERE name = ? AND id != ?", input.Name, id).Scan(&existingID)
 		if err == nil {
 			return nil, ErrTagExists
 		}
@@ -306,7 +307,7 @@ func (m *Manager) UpdateTag(id string, input TagInput) (*Tag, error) {
 	now := time.Now()
 	query := `UPDATE tags SET name = COALESCE(NULLIF(?, ''), name), color = COALESCE(NULLIF(?, ''), color), 
 	          icon = COALESCE(NULLIF(?, ''), icon), grp = COALESCE(NULLIF(?, ''), grp), updated_at = ? WHERE id = ?`
-	_, err = m.db.Exec(query, input.Name, input.Color, input.Icon, input.Group, now, id)
+	_, err = m.db.ExecContext(context.Background(), query, input.Name, input.Color, input.Icon, input.Group, now, id)
 	if err != nil {
 		return nil, fmt.Errorf("更新标签失败：%w", err)
 	}
@@ -337,19 +338,19 @@ func (m *Manager) UpdateTag(id string, input TagInput) (*Tag, error) {
 	return tag, nil
 }
 
-// DeleteTag 删除标签
+// DeleteTag 删除标签.
 func (m *Manager) DeleteTag(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	// 先删除文件关联
-	_, err := m.db.Exec("DELETE FROM file_tags WHERE tag_id = ?", id)
+	_, err := m.db.ExecContext(context.Background(), "DELETE FROM file_tags WHERE tag_id = ?", id)
 	if err != nil {
 		return fmt.Errorf("删除文件标签关联失败：%w", err)
 	}
 
 	// 删除标签
-	result, err := m.db.Exec("DELETE FROM tags WHERE id = ?", id)
+	result, err := m.db.ExecContext(context.Background(), "DELETE FROM tags WHERE id = ?", id)
 	if err != nil {
 		return fmt.Errorf("删除标签失败：%w", err)
 	}
@@ -364,7 +365,7 @@ func (m *Manager) DeleteTag(id string) error {
 
 // ========== 文件标签操作 ==========
 
-// AddTagsToFile 为文件添加标签
+// AddTagsToFile 为文件添加标签.
 func (m *Manager) AddTagsToFile(filePath string, tagIDs []string) error {
 	if filePath == "" {
 		return ErrInvalidFilePath
@@ -380,7 +381,7 @@ func (m *Manager) AddTagsToFile(filePath string, tagIDs []string) error {
 	for _, tagID := range tagIDs {
 		// 检查标签是否存在
 		var exists int
-		err := m.db.QueryRow("SELECT 1 FROM tags WHERE id = ?", tagID).Scan(&exists)
+		err := m.db.QueryRowContext(context.Background(), "SELECT 1 FROM tags WHERE id = ?", tagID).Scan(&exists)
 		if err == sql.ErrNoRows {
 			return ErrInvalidTagID
 		}
@@ -389,7 +390,7 @@ func (m *Manager) AddTagsToFile(filePath string, tagIDs []string) error {
 		}
 
 		// 添加关联（使用 INSERT OR IGNORE 避免重复）
-		_, err = m.db.Exec(
+		_, err = m.db.ExecContext(context.Background(),
 			"INSERT OR IGNORE INTO file_tags (file_path, tag_id, added_at) VALUES (?, ?, ?)",
 			filePath, tagID, now,
 		)
@@ -401,7 +402,7 @@ func (m *Manager) AddTagsToFile(filePath string, tagIDs []string) error {
 	return nil
 }
 
-// RemoveTagsFromFile 从文件移除标签
+// RemoveTagsFromFile 从文件移除标签.
 func (m *Manager) RemoveTagsFromFile(filePath string, tagIDs []string) error {
 	if filePath == "" {
 		return ErrInvalidFilePath
@@ -414,7 +415,7 @@ func (m *Manager) RemoveTagsFromFile(filePath string, tagIDs []string) error {
 	defer m.mu.Unlock()
 
 	for _, tagID := range tagIDs {
-		_, err := m.db.Exec(
+		_, err := m.db.ExecContext(context.Background(),
 			"DELETE FROM file_tags WHERE file_path = ? AND tag_id = ?",
 			filePath, tagID,
 		)
@@ -426,7 +427,7 @@ func (m *Manager) RemoveTagsFromFile(filePath string, tagIDs []string) error {
 	return nil
 }
 
-// SetFileTags 设置文件的标签（替换所有现有标签）
+// SetFileTags 设置文件的标签（替换所有现有标签）.
 func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 	if filePath == "" {
 		return ErrInvalidFilePath
@@ -436,7 +437,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 	defer m.mu.Unlock()
 
 	// 开始事务
-	tx, err := m.db.Begin()
+	tx, err := m.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		return err
 	}
@@ -445,7 +446,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 	}()
 
 	// 删除现有标签
-	_, err = tx.Exec("DELETE FROM file_tags WHERE file_path = ?", filePath)
+	_, err = tx.ExecContext(context.Background(), "DELETE FROM file_tags WHERE file_path = ?", filePath)
 	if err != nil {
 		return err
 	}
@@ -455,7 +456,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 	for _, tagID := range tagIDs {
 		// 检查标签是否存在
 		var exists int
-		err := tx.QueryRow("SELECT 1 FROM tags WHERE id = ?", tagID).Scan(&exists)
+		err := tx.QueryRowContext(context.Background(), "SELECT 1 FROM tags WHERE id = ?", tagID).Scan(&exists)
 		if err == sql.ErrNoRows {
 			return ErrInvalidTagID
 		}
@@ -463,7 +464,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 			return err
 		}
 
-		_, err = tx.Exec(
+		_, err = tx.ExecContext(context.Background(),
 			"INSERT INTO file_tags (file_path, tag_id, added_at) VALUES (?, ?, ?)",
 			filePath, tagID, now,
 		)
@@ -475,7 +476,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 	return tx.Commit()
 }
 
-// GetTagsForFile 获取文件的所有标签
+// GetTagsForFile 获取文件的所有标签.
 func (m *Manager) GetTagsForFile(filePath string) ([]*Tag, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -487,7 +488,7 @@ func (m *Manager) GetTagsForFile(filePath string) ([]*Tag, error) {
 		WHERE ft.file_path = ?
 		ORDER BY t.name
 	`
-	rows, err := m.db.Query(query, filePath)
+	rows, err := m.db.QueryContext(context.Background(), query, filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -510,7 +511,7 @@ func (m *Manager) GetTagsForFile(filePath string) ([]*Tag, error) {
 }
 
 // GetFilesByTags 获取拥有指定标签的文件列表
-// matchAll=true 表示必须包含所有标签，false 表示包含任意一个标签
+// matchAll=true 表示必须包含所有标签，false 表示包含任意一个标签.
 func (m *Manager) GetFilesByTags(tagIDs []string, matchAll bool) ([]string, error) {
 	if len(tagIDs) == 0 {
 		return nil, nil
@@ -546,7 +547,7 @@ func (m *Manager) GetFilesByTags(tagIDs []string, matchAll bool) ([]string, erro
 		}
 	}
 
-	rows, err := m.db.Query(query, args...)
+	rows, err := m.db.QueryContext(context.Background(), query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -564,29 +565,29 @@ func (m *Manager) GetFilesByTags(tagIDs []string, matchAll bool) ([]string, erro
 	return files, rows.Err()
 }
 
-// GetFileTagCount 获取文件的标签数量
+// GetFileTagCount 获取文件的标签数量.
 func (m *Manager) GetFileTagCount(filePath string) (int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	var count int
-	err := m.db.QueryRow("SELECT COUNT(*) FROM file_tags WHERE file_path = ?", filePath).Scan(&count)
+	err := m.db.QueryRowContext(context.Background(), "SELECT COUNT(*) FROM file_tags WHERE file_path = ?", filePath).Scan(&count)
 	return count, err
 }
 
-// GetTagUsageCount 获取标签的使用次数
+// GetTagUsageCount 获取标签的使用次数.
 func (m *Manager) GetTagUsageCount(tagID string) (int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	var count int
-	err := m.db.QueryRow("SELECT COUNT(*) FROM file_tags WHERE tag_id = ?", tagID).Scan(&count)
+	err := m.db.QueryRowContext(context.Background(), "SELECT COUNT(*) FROM file_tags WHERE tag_id = ?", tagID).Scan(&count)
 	return count, err
 }
 
 // ========== 分组管理 ==========
 
-// ListGroups 列出所有标签分组
+// ListGroups 列出所有标签分组.
 func (m *Manager) ListGroups() ([]*TagGroup, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -598,7 +599,7 @@ func (m *Manager) ListGroups() ([]*TagGroup, error) {
 		GROUP BY grp 
 		ORDER BY grp
 	`
-	rows, err := m.db.Query(query)
+	rows, err := m.db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -618,7 +619,7 @@ func (m *Manager) ListGroups() ([]*TagGroup, error) {
 
 // ========== 统计信息 ==========
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() (*Stats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -626,19 +627,19 @@ func (m *Manager) GetStats() (*Stats, error) {
 	stats := &Stats{}
 
 	// 标签总数
-	err := m.db.QueryRow("SELECT COUNT(*) FROM tags").Scan(&stats.TotalTags)
+	err := m.db.QueryRowContext(context.Background(), "SELECT COUNT(*) FROM tags").Scan(&stats.TotalTags)
 	if err != nil {
 		return nil, err
 	}
 
 	// 有标签的文件数
-	err = m.db.QueryRow("SELECT COUNT(DISTINCT file_path) FROM file_tags").Scan(&stats.TotalFiles)
+	err = m.db.QueryRowContext(context.Background(), "SELECT COUNT(DISTINCT file_path) FROM file_tags").Scan(&stats.TotalFiles)
 	if err != nil {
 		return nil, err
 	}
 
 	// 有分组的标签数
-	err = m.db.QueryRow("SELECT COUNT(*) FROM tags WHERE grp != ''").Scan(&stats.TotalGrouped)
+	err = m.db.QueryRowContext(context.Background(), "SELECT COUNT(*) FROM tags WHERE grp != ''").Scan(&stats.TotalGrouped)
 	if err != nil {
 		return nil, err
 	}
@@ -648,7 +649,7 @@ func (m *Manager) GetStats() (*Stats, error) {
 
 // ========== 批量操作 ==========
 
-// BatchAddTagsToFile 批量为多个文件添加标签
+// BatchAddTagsToFile 批量为多个文件添加标签.
 func (m *Manager) BatchAddTagsToFile(filePaths []string, tagIDs []string) error {
 	if len(filePaths) == 0 || len(tagIDs) == 0 {
 		return nil
@@ -658,7 +659,7 @@ func (m *Manager) BatchAddTagsToFile(filePaths []string, tagIDs []string) error 
 	defer m.mu.Unlock()
 
 	now := time.Now()
-	tx, err := m.db.Begin()
+	tx, err := m.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		return err
 	}
@@ -668,7 +669,7 @@ func (m *Manager) BatchAddTagsToFile(filePaths []string, tagIDs []string) error 
 
 	for _, filePath := range filePaths {
 		for _, tagID := range tagIDs {
-			_, err := tx.Exec(
+			_, err := tx.ExecContext(context.Background(),
 				"INSERT OR IGNORE INTO file_tags (file_path, tag_id, added_at) VALUES (?, ?, ?)",
 				filePath, tagID, now,
 			)
@@ -681,21 +682,21 @@ func (m *Manager) BatchAddTagsToFile(filePaths []string, tagIDs []string) error 
 	return tx.Commit()
 }
 
-// ClearFileTags 清除文件的所有标签
+// ClearFileTags 清除文件的所有标签.
 func (m *Manager) ClearFileTags(filePath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	_, err := m.db.Exec("DELETE FROM file_tags WHERE file_path = ?", filePath)
+	_, err := m.db.ExecContext(context.Background(), "DELETE FROM file_tags WHERE file_path = ?", filePath)
 	return err
 }
 
-// ClearAllTags 清除所有标签数据
+// ClearAllTags 清除所有标签数据.
 func (m *Manager) ClearAllTags() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	tx, err := m.db.Begin()
+	tx, err := m.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		return err
 	}
@@ -703,12 +704,12 @@ func (m *Manager) ClearAllTags() error {
 		_ = tx.Rollback()
 	}()
 
-	_, err = tx.Exec("DELETE FROM file_tags")
+	_, err = tx.ExecContext(context.Background(), "DELETE FROM file_tags")
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("DELETE FROM tags")
+	_, err = tx.ExecContext(context.Background(), "DELETE FROM tags")
 	if err != nil {
 		return err
 	}
@@ -718,13 +719,13 @@ func (m *Manager) ClearAllTags() error {
 
 // ========== 搜索 ==========
 
-// SearchTags 搜索标签（按名称模糊匹配）
+// SearchTags 搜索标签（按名称模糊匹配）.
 func (m *Manager) SearchTags(keyword string) ([]*Tag, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	query := `SELECT id, name, color, icon, grp, created_at, updated_at FROM tags WHERE name LIKE ? ORDER BY name`
-	rows, err := m.db.Query(query, "%"+keyword+"%")
+	rows, err := m.db.QueryContext(context.Background(), query, "%"+keyword+"%")
 	if err != nil {
 		return nil, err
 	}
@@ -746,7 +747,7 @@ func (m *Manager) SearchTags(keyword string) ([]*Tag, error) {
 	return tags, rows.Err()
 }
 
-// SearchFilesByTags 按标签搜索文件（支持关键词和标签组合）
+// SearchFilesByTags 按标签搜索文件（支持关键词和标签组合）.
 func (m *Manager) SearchFilesByTags(keyword string, tagIDs []string, matchAll bool) ([]string, error) {
 	if keyword == "" && len(tagIDs) == 0 {
 		return nil, nil
@@ -791,7 +792,7 @@ func (m *Manager) SearchFilesByTags(keyword string, tagIDs []string, matchAll bo
 		}
 	}
 
-	rows, err := m.db.Query(query, args...)
+	rows, err := m.db.QueryContext(context.Background(), query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -809,7 +810,7 @@ func (m *Manager) SearchFilesByTags(keyword string, tagIDs []string, matchAll bo
 	return files, rows.Err()
 }
 
-// Close 关闭数据库连接
+// Close 关闭数据库连接.
 func (m *Manager) Close() error {
 	if m.db != nil {
 		return m.db.Close()
@@ -817,7 +818,7 @@ func (m *Manager) Close() error {
 	return nil
 }
 
-// placeholders 生成 SQL 占位符
+// placeholders 生成 SQL 占位符.
 func placeholders(n int) string {
 	if n <= 0 {
 		return ""

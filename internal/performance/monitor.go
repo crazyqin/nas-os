@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Metrics 性能指标
+// Metrics 性能指标.
 type Metrics struct {
 	// API 性能指标
 	RequestCount int64         `json:"requestCount"`
@@ -60,7 +60,7 @@ type Metrics struct {
 	GCPauseMs      uint64 `json:"gcPauseMs"`
 }
 
-// APIMetric API 调用指标
+// APIMetric API 调用指标.
 type APIMetric struct {
 	Path       string
 	Method     string
@@ -69,7 +69,7 @@ type APIMetric struct {
 	Error      error
 }
 
-// Monitor 性能监控器
+// Monitor 性能监控器.
 type Monitor struct {
 	logger *zap.Logger
 
@@ -117,7 +117,7 @@ type Monitor struct {
 	sampleRate float64
 }
 
-// NewMonitor 创建性能监控器
+// NewMonitor 创建性能监控器.
 func NewMonitor(logger *zap.Logger) *Monitor {
 	return &Monitor{
 		logger:        logger,
@@ -128,7 +128,7 @@ func NewMonitor(logger *zap.Logger) *Monitor {
 	}
 }
 
-// Middleware 性能监控中间件
+// Middleware 性能监控中间件.
 func (pm *Monitor) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -142,7 +142,7 @@ func (pm *Monitor) Middleware() gin.HandlerFunc {
 	}
 }
 
-// RecordAPICall 记录 API 调用
+// RecordAPICall 记录 API 调用.
 func (pm *Monitor) RecordAPICall(path, method string, duration time.Duration, statusCode int) {
 	atomic.AddInt64(&pm.requestCount, 1)
 
@@ -181,53 +181,53 @@ func (pm *Monitor) RecordAPICall(path, method string, duration time.Duration, st
 	}
 }
 
-// RecordFileList 记录文件列表操作
+// RecordFileList 记录文件列表操作.
 func (pm *Monitor) RecordFileList(duration time.Duration) {
 	atomic.AddInt64(&pm.fileListCount, 1)
 	atomic.AddInt64(&pm.fileListTimeSum, int64(duration))
 }
 
-// RecordThumbnail 记录缩略图生成
+// RecordThumbnail 记录缩略图生成.
 func (pm *Monitor) RecordThumbnail(duration time.Duration) {
 	atomic.AddInt64(&pm.thumbnailCount, 1)
 	atomic.AddInt64(&pm.thumbnailTimeSum, int64(duration))
 }
 
-// RecordUpload 记录上传
+// RecordUpload 记录上传.
 func (pm *Monitor) RecordUpload(bytes int64) {
 	atomic.AddInt64(&pm.uploadCount, 1)
 	atomic.AddInt64(&pm.uploadBytes, bytes)
 }
 
-// RecordDownload 记录下载
+// RecordDownload 记录下载.
 func (pm *Monitor) RecordDownload(bytes int64) {
 	atomic.AddInt64(&pm.downloadCount, 1)
 	atomic.AddInt64(&pm.downloadBytes, bytes)
 }
 
-// RecordSearch 记录搜索
+// RecordSearch 记录搜索.
 func (pm *Monitor) RecordSearch(duration time.Duration) {
 	atomic.AddInt64(&pm.searchCount, 1)
 	atomic.AddInt64(&pm.searchTimeSum, int64(duration))
 }
 
-// RecordIndex 记录索引操作
+// RecordIndex 记录索引操作.
 func (pm *Monitor) RecordIndex(duration time.Duration) {
 	atomic.AddInt64(&pm.indexCount, 1)
 	atomic.AddInt64(&pm.indexTimeSum, int64(duration))
 }
 
-// RecordCacheHit 记录缓存命中
+// RecordCacheHit 记录缓存命中.
 func (pm *Monitor) RecordCacheHit() {
 	atomic.AddInt64(&pm.cacheHits, 1)
 }
 
-// RecordCacheMiss 记录缓存未命中
+// RecordCacheMiss 记录缓存未命中.
 func (pm *Monitor) RecordCacheMiss() {
 	atomic.AddInt64(&pm.cacheMisses, 1)
 }
 
-// RecordDBQuery 记录数据库查询
+// RecordDBQuery 记录数据库查询.
 func (pm *Monitor) RecordDBQuery(duration time.Duration, isSlow bool) {
 	atomic.AddInt64(&pm.dbQueries, 1)
 	atomic.AddInt64(&pm.dbTimeSum, int64(duration))
@@ -236,7 +236,7 @@ func (pm *Monitor) RecordDBQuery(duration time.Duration, isSlow bool) {
 	}
 }
 
-// GetMetrics 获取当前指标
+// GetMetrics 获取当前指标.
 func (pm *Monitor) GetMetrics() *Metrics {
 	pm.latencyMutex.RLock()
 	latencies := make([]time.Duration, len(pm.latencies))
@@ -320,7 +320,7 @@ func (pm *Monitor) avgTime(sum, count int64) int64 {
 	return sum / count / int64(time.Millisecond)
 }
 
-// quickSort 快速排序
+// quickSort 快速排序.
 func (pm *Monitor) quickSort(arr []time.Duration) {
 	if len(arr) <= 1 {
 		return
@@ -351,7 +351,7 @@ func (pm *Monitor) quickSort(arr []time.Duration) {
 	}
 }
 
-// Reset 重置指标
+// Reset 重置指标.
 func (pm *Monitor) Reset() {
 	atomic.StoreInt64(&pm.requestCount, 0)
 	atomic.StoreInt64(&pm.successCount, 0)
@@ -383,17 +383,17 @@ func (pm *Monitor) Reset() {
 	atomic.StoreInt64(&pm.dbTimeSum, 0)
 }
 
-// Handlers 性能监控处理器
+// Handlers 性能监控处理器.
 type Handlers struct {
 	monitor *Monitor
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(monitor *Monitor) *Handlers {
 	return &Handlers{monitor: monitor}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	perf := r.Group("/performance")
 	{
@@ -409,7 +409,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Tags 性能监控
 // @Produce json
 // @Success 200 {object} Metrics
-// @Router /performance/metrics [get]
+// @Router /performance/metrics [get].
 func (h *Handlers) getMetrics(c *gin.Context) {
 	metrics := h.monitor.GetMetrics()
 	c.JSON(http.StatusOK, gin.H{
@@ -424,7 +424,7 @@ func (h *Handlers) getMetrics(c *gin.Context) {
 // @Description 重置所有性能指标
 // @Tags 性能监控
 // @Success 200 {object} map[string]interface{}
-// @Router /performance/reset [post]
+// @Router /performance/reset [post].
 func (h *Handlers) resetMetrics(c *gin.Context) {
 	h.monitor.Reset()
 	c.JSON(http.StatusOK, gin.H{
@@ -439,7 +439,7 @@ func (h *Handlers) resetMetrics(c *gin.Context) {
 // @Tags 性能监控
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /performance/health [get]
+// @Router /performance/health [get].
 func (h *Handlers) healthCheck(c *gin.Context) {
 	metrics := h.monitor.GetMetrics()
 
@@ -493,7 +493,7 @@ func (h *Handlers) healthCheck(c *gin.Context) {
 	})
 }
 
-// PrometheusExporter Prometheus 指标导出器
+// PrometheusExporter Prometheus 指标导出器.
 type PrometheusExporter struct {
 	monitor   *Monitor
 	collector *SystemCollector
@@ -502,12 +502,12 @@ type PrometheusExporter struct {
 	alerts    *AlertManager
 }
 
-// NewPrometheusExporter 创建 Prometheus 导出器
+// NewPrometheusExporter 创建 Prometheus 导出器.
 func NewPrometheusExporter(monitor *Monitor) *PrometheusExporter {
 	return &PrometheusExporter{monitor: monitor}
 }
 
-// NewPrometheusExporterExtended 创建扩展的 Prometheus 导出器
+// NewPrometheusExporterExtended 创建扩展的 Prometheus 导出器.
 func NewPrometheusExporterExtended(
 	monitor *Monitor,
 	collector *SystemCollector,
@@ -524,7 +524,7 @@ func NewPrometheusExporterExtended(
 	}
 }
 
-// Handler 返回 Prometheus 格式的指标
+// Handler 返回 Prometheus 格式的指标.
 func (e *PrometheusExporter) Handler(w http.ResponseWriter, r *http.Request) {
 	// 收集扩展指标
 	output := e.collectAllMetrics()
@@ -536,7 +536,7 @@ func (e *PrometheusExporter) Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// collectAllMetrics 收集所有指标
+// collectAllMetrics 收集所有指标.
 func (e *PrometheusExporter) collectAllMetrics() string {
 	var output string
 
@@ -561,7 +561,7 @@ func (e *PrometheusExporter) collectAllMetrics() string {
 	return output
 }
 
-// collectPerformanceMetrics 收集性能指标
+// collectPerformanceMetrics 收集性能指标.
 func (e *PrometheusExporter) collectPerformanceMetrics() string {
 	metrics := e.monitor.GetMetrics()
 
@@ -650,7 +650,7 @@ nas_goroutines %d
 	return output
 }
 
-// collectSystemMetrics 收集系统指标
+// collectSystemMetrics 收集系统指标.
 func (e *PrometheusExporter) collectSystemMetrics() string {
 	cpu := e.collector.collectCPU()
 	mem := e.collector.collectMemory()
@@ -699,7 +699,7 @@ nas_system_uptime_seconds %d
 	return output
 }
 
-// collectHealthMetrics 收集健康指标
+// collectHealthMetrics 收集健康指标.
 func (e *PrometheusExporter) collectHealthMetrics() string {
 	health := e.health.GetHealth()
 
@@ -725,7 +725,7 @@ nas_health_status %d
 	)
 }
 
-// collectAlertMetrics 收集告警指标
+// collectAlertMetrics 收集告警指标.
 func (e *PrometheusExporter) collectAlertMetrics() string {
 	stats := e.alerts.GetAlertStats()
 	byLevel, _ := stats["by_level"].(map[AlertLevel]int)
@@ -746,7 +746,7 @@ nas_alerts_by_level{level="critical"} %d
 	)
 }
 
-// StartMetricsServer 启动独立的 metrics 服务 (用于 Prometheus 抓取)
+// StartMetricsServer 启动独立的 metrics 服务 (用于 Prometheus 抓取).
 func (e *PrometheusExporter) StartMetricsServer(ctx context.Context, addr string) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/metrics", e.Handler)
@@ -767,7 +767,7 @@ func (e *PrometheusExporter) StartMetricsServer(ctx context.Context, addr string
 	return server.ListenAndServe()
 }
 
-// ToJSON 导出 JSON 格式指标
+// ToJSON 导出 JSON 格式指标.
 func (m *Metrics) ToJSON() string {
 	data, err := json.MarshalIndent(m, "", "  ")
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// FailoverManager 故障转移管理器
+// FailoverManager 故障转移管理器.
 type FailoverManager struct {
 	cluster       *Cluster
 	config        *FailoverConfig
@@ -23,7 +23,7 @@ type FailoverManager struct {
 	logger        *zap.Logger
 }
 
-// FailoverConfig 故障转移配置
+// FailoverConfig 故障转移配置.
 type FailoverConfig struct {
 	// 自动故障转移开关
 	AutoFailoverEnabled bool `json:"auto_failover_enabled"`
@@ -50,7 +50,7 @@ type FailoverConfig struct {
 	FallbackDelay time.Duration `json:"fallback_delay"`
 }
 
-// FailoverState 故障转移状态
+// FailoverState 故障转移状态.
 type FailoverState struct {
 	InProgress       bool            `json:"in_progress"`
 	CurrentAttempt   int             `json:"current_attempt"`
@@ -61,7 +61,7 @@ type FailoverState struct {
 	LastStatusChange time.Time       `json:"last_status_change"`
 }
 
-// FailoverEvent 故障转移事件
+// FailoverEvent 故障转移事件.
 type FailoverEvent struct {
 	Timestamp time.Time     `json:"timestamp"`
 	Type      string        `json:"type"` // "started", "completed", "failed", "fallback"
@@ -71,7 +71,7 @@ type FailoverEvent struct {
 	Duration  time.Duration `json:"duration,omitempty"`
 }
 
-// FailoverStrategy 故障转移策略接口
+// FailoverStrategy 故障转移策略接口.
 type FailoverStrategy interface {
 	Name() string
 	SelectNewLeader(nodes []*Node, failedNode *Node) (*Node, error)
@@ -79,7 +79,7 @@ type FailoverStrategy interface {
 	PostFailover(newLeader *Node) error
 }
 
-// FailoverEventHandler 故障转移事件处理器
+// FailoverEventHandler 故障转移事件处理器.
 type FailoverEventHandler interface {
 	OnFailoverStarted(event FailoverEvent)
 	OnFailoverCompleted(event FailoverEvent)
@@ -87,22 +87,22 @@ type FailoverEventHandler interface {
 	OnFallback(event FailoverEvent)
 }
 
-// DefaultFailoverStrategy 默认故障转移策略
+// DefaultFailoverStrategy 默认故障转移策略.
 type DefaultFailoverStrategy struct {
 	policy string
 }
 
-// NewDefaultFailoverStrategy 创建默认策略
+// NewDefaultFailoverStrategy 创建默认策略.
 func NewDefaultFailoverStrategy(policy string) *DefaultFailoverStrategy {
 	return &DefaultFailoverStrategy{policy: policy}
 }
 
-// Name 策略名称
+// Name 策略名称.
 func (s *DefaultFailoverStrategy) Name() string {
 	return "default"
 }
 
-// SelectNewLeader 选择新领导者
+// SelectNewLeader 选择新领导者.
 func (s *DefaultFailoverStrategy) SelectNewLeader(nodes []*Node, failedNode *Node) (*Node, error) {
 	var candidates []*Node
 
@@ -145,17 +145,17 @@ func (s *DefaultFailoverStrategy) SelectNewLeader(nodes []*Node, failedNode *Nod
 	}
 }
 
-// PreFailover 故障转移前
+// PreFailover 故障转移前.
 func (s *DefaultFailoverStrategy) PreFailover(failedNode *Node) error {
 	return nil
 }
 
-// PostFailover 故障转移后
+// PostFailover 故障转移后.
 func (s *DefaultFailoverStrategy) PostFailover(newLeader *Node) error {
 	return nil
 }
 
-// NewFailoverManager 创建故障转移管理器
+// NewFailoverManager 创建故障转移管理器.
 func NewFailoverManager(cluster *Cluster, config *FailoverConfig, logger *zap.Logger) *FailoverManager {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -177,7 +177,7 @@ func NewFailoverManager(cluster *Cluster, config *FailoverConfig, logger *zap.Lo
 	return fm
 }
 
-// Start 启动故障转移管理器
+// Start 启动故障转移管理器.
 func (fm *FailoverManager) Start() error {
 	fm.wg.Add(1)
 	go fm.monitorLoop()
@@ -188,14 +188,14 @@ func (fm *FailoverManager) Start() error {
 	return nil
 }
 
-// Stop 停止故障转移管理器
+// Stop 停止故障转移管理器.
 func (fm *FailoverManager) Stop() {
 	fm.cancel()
 	fm.wg.Wait()
 	fm.logger.Info("Failover manager stopped")
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (fm *FailoverManager) monitorLoop() {
 	defer fm.wg.Done()
 
@@ -212,7 +212,7 @@ func (fm *FailoverManager) monitorLoop() {
 	}
 }
 
-// checkAndFailover 检查并执行故障转移
+// checkAndFailover 检查并执行故障转移.
 func (fm *FailoverManager) checkAndFailover() {
 	if !fm.config.AutoFailoverEnabled {
 		return
@@ -244,7 +244,7 @@ func (fm *FailoverManager) checkAndFailover() {
 	}
 }
 
-// executeFailover 执行故障转移
+// executeFailover 执行故障转移.
 func (fm *FailoverManager) executeFailover(failedNode *Node) error {
 	fm.mu.Lock()
 
@@ -355,7 +355,7 @@ func (fm *FailoverManager) executeFailover(failedNode *Node) error {
 	return nil
 }
 
-// promoteToLeader 提升为领导者
+// promoteToLeader 提升为领导者.
 func (fm *FailoverManager) promoteToLeader(node *Node) error {
 	// 这里应该调用集群的选举逻辑
 	node.Role = NodeRoleLeader
@@ -368,7 +368,7 @@ func (fm *FailoverManager) promoteToLeader(node *Node) error {
 	return nil
 }
 
-// handleFailoverFailure 处理故障转移失败
+// handleFailoverFailure 处理故障转移失败.
 func (fm *FailoverManager) handleFailoverFailure(err error) {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -394,7 +394,7 @@ func (fm *FailoverManager) handleFailoverFailure(err error) {
 	)
 }
 
-// triggerElection 触发选举
+// triggerElection 触发选举.
 func (fm *FailoverManager) triggerElection() {
 	// 获取活跃节点
 	nodes := fm.cluster.GetNodes()
@@ -429,21 +429,21 @@ func (fm *FailoverManager) triggerElection() {
 	)
 }
 
-// RegisterStrategy 注册策略
+// RegisterStrategy 注册策略.
 func (fm *FailoverManager) RegisterStrategy(name string, strategy FailoverStrategy) {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
 	fm.strategies[name] = strategy
 }
 
-// RegisterEventHandler 注册事件处理器
+// RegisterEventHandler 注册事件处理器.
 func (fm *FailoverManager) RegisterEventHandler(handler FailoverEventHandler) {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
 	fm.eventHandlers = append(fm.eventHandlers, handler)
 }
 
-// GetState 获取故障转移状态
+// GetState 获取故障转移状态.
 func (fm *FailoverManager) GetState() FailoverState {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -456,7 +456,7 @@ func (fm *FailoverManager) GetState() FailoverState {
 	}
 }
 
-// GetHistory 获取故障转移历史
+// GetHistory 获取故障转移历史.
 func (fm *FailoverManager) GetHistory(limit int) []FailoverEvent {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -475,7 +475,7 @@ func (fm *FailoverManager) GetHistory(limit int) []FailoverEvent {
 	return result
 }
 
-// ManualFailover 手动故障转移
+// ManualFailover 手动故障转移.
 func (fm *FailoverManager) ManualFailover(targetNodeID string) error {
 	fm.mu.Lock()
 	if fm.state.InProgress {
@@ -510,7 +510,7 @@ func (fm *FailoverManager) ManualFailover(targetNodeID string) error {
 	return fm.executeFailover(leader)
 }
 
-// CancelFailover 取消故障转移
+// CancelFailover 取消故障转移.
 func (fm *FailoverManager) CancelFailover() error {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -527,7 +527,7 @@ func (fm *FailoverManager) CancelFailover() error {
 	return nil
 }
 
-// FailoverStats 故障转移统计
+// FailoverStats 故障转移统计.
 type FailoverStats struct {
 	AutoFailoverEnabled      bool          `json:"auto_failover_enabled"`
 	InProgress               bool          `json:"in_progress"`
@@ -539,7 +539,7 @@ type FailoverStats struct {
 	AutomaticFallbackEnabled bool          `json:"automatic_fallback_enabled"`
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (fm *FailoverManager) GetStats() FailoverStats {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()

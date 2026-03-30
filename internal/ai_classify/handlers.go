@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers AI 分类处理器
+// Handlers AI 分类处理器.
 type Handlers struct {
 	classifier *Classifier
 	tagger     *Tagger
@@ -17,7 +17,7 @@ type Handlers struct {
 	learner    *Learner
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(config Config) (*Handlers, error) {
 	classifier, err := NewClassifier(config)
 	if err != nil {
@@ -36,7 +36,7 @@ func NewHandlers(config Config) (*Handlers, error) {
 	}, nil
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	ai := r.Group("/ai-classify")
 	{
@@ -80,7 +80,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// classifyFile 分类文件
+// classifyFile 分类文件.
 func (h *Handlers) classifyFile(c *gin.Context) {
 	var req struct {
 		Path string `json:"path" binding:"required"`
@@ -113,7 +113,7 @@ func (h *Handlers) classifyFile(c *gin.Context) {
 	})
 }
 
-// classifyBatch 批量分类
+// classifyBatch 批量分类.
 func (h *Handlers) classifyBatch(c *gin.Context) {
 	var req struct {
 		Paths       []string `json:"paths" binding:"required"`
@@ -154,7 +154,7 @@ func (h *Handlers) classifyBatch(c *gin.Context) {
 	})
 }
 
-// getClassifyResult 获取分类结果
+// getClassifyResult 获取分类结果.
 func (h *Handlers) getClassifyResult(c *gin.Context) {
 	// 如果需要异步处理，可以实现结果缓存
 	c.JSON(http.StatusOK, gin.H{
@@ -163,7 +163,7 @@ func (h *Handlers) getClassifyResult(c *gin.Context) {
 	})
 }
 
-// listCategories 列出分类
+// listCategories 列出分类.
 func (h *Handlers) listCategories(c *gin.Context) {
 	categories := h.classifier.GetCategories()
 
@@ -180,7 +180,7 @@ func (h *Handlers) listCategories(c *gin.Context) {
 	})
 }
 
-// buildCategoryTree 构建分类树
+// buildCategoryTree 构建分类树.
 func buildCategoryTree(categories []Category) []map[string]interface{} {
 	nodeMap := make(map[string]*map[string]interface{})
 	var roots []map[string]interface{}
@@ -216,7 +216,7 @@ func buildCategoryTree(categories []Category) []map[string]interface{} {
 	return roots
 }
 
-// createCategory 创建分类
+// createCategory 创建分类.
 func (h *Handlers) createCategory(c *gin.Context) {
 	var req Category
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -236,7 +236,7 @@ func (h *Handlers) createCategory(c *gin.Context) {
 	})
 }
 
-// updateCategory 更新分类
+// updateCategory 更新分类.
 func (h *Handlers) updateCategory(c *gin.Context) {
 	id := c.Param("id")
 
@@ -256,7 +256,7 @@ func (h *Handlers) updateCategory(c *gin.Context) {
 	})
 }
 
-// deleteCategory 删除分类
+// deleteCategory 删除分类.
 func (h *Handlers) deleteCategory(c *gin.Context) {
 	id := c.Param("id")
 
@@ -269,7 +269,7 @@ func (h *Handlers) deleteCategory(c *gin.Context) {
 	})
 }
 
-// listTags 列出标签
+// listTags 列出标签.
 func (h *Handlers) listTags(c *gin.Context) {
 	tags := h.tagger.GetCustomTags()
 
@@ -280,7 +280,7 @@ func (h *Handlers) listTags(c *gin.Context) {
 	})
 }
 
-// createTag 创建标签
+// createTag 创建标签.
 func (h *Handlers) createTag(c *gin.Context) {
 	var req Tag
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -297,7 +297,7 @@ func (h *Handlers) createTag(c *gin.Context) {
 	})
 }
 
-// updateTag 更新标签
+// updateTag 更新标签.
 func (h *Handlers) updateTag(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -305,7 +305,7 @@ func (h *Handlers) updateTag(c *gin.Context) {
 	})
 }
 
-// deleteTag 删除标签
+// deleteTag 删除标签.
 func (h *Handlers) deleteTag(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -313,7 +313,7 @@ func (h *Handlers) deleteTag(c *gin.Context) {
 	})
 }
 
-// generateTags 生成标签
+// generateTags 生成标签.
 func (h *Handlers) generateTags(c *gin.Context) {
 	var req struct {
 		Path    string `json:"path" binding:"required"`
@@ -341,7 +341,7 @@ func (h *Handlers) generateTags(c *gin.Context) {
 	})
 }
 
-// listRules 列出规则
+// listRules 列出规则.
 func (h *Handlers) listRules(c *gin.Context) {
 	rules := h.classifier.GetRules()
 
@@ -352,7 +352,7 @@ func (h *Handlers) listRules(c *gin.Context) {
 	})
 }
 
-// createRule 创建规则
+// createRule 创建规则.
 func (h *Handlers) createRule(c *gin.Context) {
 	var req ClassificationRule
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -372,7 +372,7 @@ func (h *Handlers) createRule(c *gin.Context) {
 	})
 }
 
-// updateRule 更新规则
+// updateRule 更新规则.
 func (h *Handlers) updateRule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -380,7 +380,7 @@ func (h *Handlers) updateRule(c *gin.Context) {
 	})
 }
 
-// deleteRule 删除规则
+// deleteRule 删除规则.
 func (h *Handlers) deleteRule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -388,7 +388,7 @@ func (h *Handlers) deleteRule(c *gin.Context) {
 	})
 }
 
-// detectSimilarity 检测相似度
+// detectSimilarity 检测相似度.
 func (h *Handlers) detectSimilarity(c *gin.Context) {
 	var req struct {
 		Path       string  `json:"path" binding:"required"`
@@ -428,7 +428,7 @@ func (h *Handlers) detectSimilarity(c *gin.Context) {
 	})
 }
 
-// indexFile 索引文件
+// indexFile 索引文件.
 func (h *Handlers) indexFile(c *gin.Context) {
 	var req struct {
 		Path string `json:"path" binding:"required"`
@@ -450,7 +450,7 @@ func (h *Handlers) indexFile(c *gin.Context) {
 	})
 }
 
-// indexDirectory 索引目录
+// indexDirectory 索引目录.
 func (h *Handlers) indexDirectory(c *gin.Context) {
 	var req struct {
 		Path        string `json:"path" binding:"required"`
@@ -482,7 +482,7 @@ func (h *Handlers) indexDirectory(c *gin.Context) {
 	})
 }
 
-// findDuplicates 查找重复文件
+// findDuplicates 查找重复文件.
 func (h *Handlers) findDuplicates(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 60*time.Second)
 	defer cancel()
@@ -503,7 +503,7 @@ func (h *Handlers) findDuplicates(c *gin.Context) {
 	})
 }
 
-// getSimilarityStats 获取相似度统计
+// getSimilarityStats 获取相似度统计.
 func (h *Handlers) getSimilarityStats(c *gin.Context) {
 	stats := h.detector.GetStatistics()
 
@@ -514,7 +514,7 @@ func (h *Handlers) getSimilarityStats(c *gin.Context) {
 	})
 }
 
-// submitFeedback 提交反馈
+// submitFeedback 提交反馈.
 func (h *Handlers) submitFeedback(c *gin.Context) {
 	var req UserFeedback
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -536,7 +536,7 @@ func (h *Handlers) submitFeedback(c *gin.Context) {
 	})
 }
 
-// learnFromDirectory 从目录学习
+// learnFromDirectory 从目录学习.
 func (h *Handlers) learnFromDirectory(c *gin.Context) {
 	var req struct {
 		Directory  string `json:"directory" binding:"required"`
@@ -562,7 +562,7 @@ func (h *Handlers) learnFromDirectory(c *gin.Context) {
 	})
 }
 
-// getLearningStats 获取学习统计
+// getLearningStats 获取学习统计.
 func (h *Handlers) getLearningStats(c *gin.Context) {
 	stats := h.learner.GetLearningStats()
 
@@ -573,7 +573,7 @@ func (h *Handlers) getLearningStats(c *gin.Context) {
 	})
 }
 
-// getSuggestions 获取规则建议
+// getSuggestions 获取规则建议.
 func (h *Handlers) getSuggestions(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
 	defer cancel()
@@ -591,7 +591,7 @@ func (h *Handlers) getSuggestions(c *gin.Context) {
 	})
 }
 
-// optimizeRules 优化规则
+// optimizeRules 优化规则.
 func (h *Handlers) optimizeRules(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 60*time.Second)
 	defer cancel()

@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 边缘节点类型
+// 边缘节点类型.
 const (
 	EdgeNodeTypeGateway  = "gateway"  // 网关节点
 	EdgeNodeTypeCompute  = "compute"  // 计算节点
@@ -21,7 +21,7 @@ const (
 	EdgeNodeTypeActuator = "actuator" // 执行器节点
 )
 
-// 边缘节点状态
+// 边缘节点状态.
 const (
 	EdgeNodeStatusOnline   = "online"
 	EdgeNodeStatusOffline  = "offline"
@@ -30,7 +30,7 @@ const (
 	EdgeNodeStatusMaintain = "maintain"
 )
 
-// 边缘节点能力标志
+// 边缘节点能力标志.
 const (
 	EdgeCapCompute  = 1 << iota // 计算能力
 	EdgeCapStorage              // 存储能力
@@ -41,7 +41,7 @@ const (
 	EdgeCapGPU                  // GPU 加速能力
 )
 
-// EdgeNodeCapabilities 边缘节点能力
+// EdgeNodeCapabilities 边缘节点能力.
 type EdgeNodeCapabilities struct {
 	CPU     int      `json:"cpu"`     // CPU 核心数
 	Memory  int64    `json:"memory"`  // 内存大小 (MB)
@@ -52,7 +52,7 @@ type EdgeNodeCapabilities struct {
 	Tags    []string `json:"tags"`    // 标签
 }
 
-// EdgeNodeResource 边缘节点资源使用情况
+// EdgeNodeResource 边缘节点资源使用情况.
 type EdgeNodeResource struct {
 	CPUUsed     float64 `json:"cpu_used"`     // CPU 使用率
 	MemoryUsed  float64 `json:"memory_used"`  // 内存使用率
@@ -64,7 +64,7 @@ type EdgeNodeResource struct {
 	PowerUsage  float64 `json:"power_usage"`  // 功耗
 }
 
-// EdgeNode 边缘节点
+// EdgeNode 边缘节点.
 type EdgeNode struct {
 	ID           string               `json:"id"`
 	Name         string               `json:"name"`
@@ -85,7 +85,7 @@ type EdgeNode struct {
 	Annotations  map[string]string    `json:"annotations"`
 }
 
-// EdgeLocation 边缘节点位置信息
+// EdgeLocation 边缘节点位置信息.
 type EdgeLocation struct {
 	Region     string  `json:"region"`     // 区域
 	Zone       string  `json:"zone"`       // 可用区
@@ -95,7 +95,7 @@ type EdgeLocation struct {
 	Longitude  float64 `json:"longitude"`  // 经度
 }
 
-// EdgeNodeConfig 边缘节点配置
+// EdgeNodeConfig 边缘节点配置.
 type EdgeNodeConfig struct {
 	NodeID            string        `json:"node_id"`
 	DataDir           string        `json:"data_dir"`
@@ -105,7 +105,7 @@ type EdgeNodeConfig struct {
 	AutoRegister      bool          `json:"auto_register"`
 }
 
-// EdgeNodeManager 边缘节点管理器
+// EdgeNodeManager 边缘节点管理器.
 type EdgeNodeManager struct {
 	config     EdgeNodeConfig
 	nodes      map[string]*EdgeNode
@@ -118,7 +118,7 @@ type EdgeNodeManager struct {
 	taskQueue  *TaskScheduler
 }
 
-// EdgeNodeCallbacks 边缘节点事件回调
+// EdgeNodeCallbacks 边缘节点事件回调.
 type EdgeNodeCallbacks struct {
 	OnNodeJoin   func(node *EdgeNode)
 	OnNodeLeave  func(node *EdgeNode)
@@ -126,7 +126,7 @@ type EdgeNodeCallbacks struct {
 	OnNodeUpdate func(node *EdgeNode)
 }
 
-// NewEdgeNodeManager 创建边缘节点管理器
+// NewEdgeNodeManager 创建边缘节点管理器.
 func NewEdgeNodeManager(config EdgeNodeConfig, logger *zap.Logger, cluster *Manager) (*EdgeNodeManager, error) {
 	if config.NodeID == "" {
 		hostname, _ := os.Hostname()
@@ -170,7 +170,7 @@ func NewEdgeNodeManager(config EdgeNodeConfig, logger *zap.Logger, cluster *Mana
 	return enm, nil
 }
 
-// Initialize 初始化边缘节点管理器
+// Initialize 初始化边缘节点管理器.
 func (enm *EdgeNodeManager) Initialize() error {
 	enm.logger.Info("初始化边缘节点管理器", zap.String("node_id", enm.config.NodeID))
 
@@ -184,7 +184,7 @@ func (enm *EdgeNodeManager) Initialize() error {
 	return nil
 }
 
-// RegisterNode 注册边缘节点
+// RegisterNode 注册边缘节点.
 func (enm *EdgeNodeManager) RegisterNode(node *EdgeNode) error {
 	enm.nodesMutex.Lock()
 	defer enm.nodesMutex.Unlock()
@@ -218,7 +218,7 @@ func (enm *EdgeNodeManager) RegisterNode(node *EdgeNode) error {
 	return enm.saveNodes()
 }
 
-// UnregisterNode 注销边缘节点
+// UnregisterNode 注销边缘节点.
 func (enm *EdgeNodeManager) UnregisterNode(nodeID string) error {
 	enm.nodesMutex.Lock()
 	defer enm.nodesMutex.Unlock()
@@ -239,7 +239,7 @@ func (enm *EdgeNodeManager) UnregisterNode(nodeID string) error {
 	return enm.saveNodes()
 }
 
-// GetNode 获取边缘节点
+// GetNode 获取边缘节点.
 func (enm *EdgeNodeManager) GetNode(nodeID string) (*EdgeNode, bool) {
 	enm.nodesMutex.RLock()
 	defer enm.nodesMutex.RUnlock()
@@ -248,7 +248,7 @@ func (enm *EdgeNodeManager) GetNode(nodeID string) (*EdgeNode, bool) {
 	return node, exists
 }
 
-// GetNodes 获取所有边缘节点
+// GetNodes 获取所有边缘节点.
 func (enm *EdgeNodeManager) GetNodes() []*EdgeNode {
 	enm.nodesMutex.RLock()
 	defer enm.nodesMutex.RUnlock()
@@ -260,7 +260,7 @@ func (enm *EdgeNodeManager) GetNodes() []*EdgeNode {
 	return nodes
 }
 
-// GetNodesByType 按类型获取边缘节点
+// GetNodesByType 按类型获取边缘节点.
 func (enm *EdgeNodeManager) GetNodesByType(nodeType string) []*EdgeNode {
 	enm.nodesMutex.RLock()
 	defer enm.nodesMutex.RUnlock()
@@ -274,7 +274,7 @@ func (enm *EdgeNodeManager) GetNodesByType(nodeType string) []*EdgeNode {
 	return nodes
 }
 
-// GetNodesByCapability 按能力获取边缘节点
+// GetNodesByCapability 按能力获取边缘节点.
 func (enm *EdgeNodeManager) GetNodesByCapability(cap uint32) []*EdgeNode {
 	enm.nodesMutex.RLock()
 	defer enm.nodesMutex.RUnlock()
@@ -288,7 +288,7 @@ func (enm *EdgeNodeManager) GetNodesByCapability(cap uint32) []*EdgeNode {
 	return nodes
 }
 
-// GetOnlineNodes 获取在线边缘节点
+// GetOnlineNodes 获取在线边缘节点.
 func (enm *EdgeNodeManager) GetOnlineNodes() []*EdgeNode {
 	enm.nodesMutex.RLock()
 	defer enm.nodesMutex.RUnlock()
@@ -302,7 +302,7 @@ func (enm *EdgeNodeManager) GetOnlineNodes() []*EdgeNode {
 	return nodes
 }
 
-// GetAvailableNodes 获取可用边缘节点（在线且非忙碌）
+// GetAvailableNodes 获取可用边缘节点（在线且非忙碌）.
 func (enm *EdgeNodeManager) GetAvailableNodes() []*EdgeNode {
 	enm.nodesMutex.RLock()
 	defer enm.nodesMutex.RUnlock()
@@ -316,7 +316,7 @@ func (enm *EdgeNodeManager) GetAvailableNodes() []*EdgeNode {
 	return nodes
 }
 
-// UpdateNodeStatus 更新边缘节点状态
+// UpdateNodeStatus 更新边缘节点状态.
 func (enm *EdgeNodeManager) UpdateNodeStatus(nodeID string, status string) error {
 	enm.nodesMutex.Lock()
 	defer enm.nodesMutex.Unlock()
@@ -338,7 +338,7 @@ func (enm *EdgeNodeManager) UpdateNodeStatus(nodeID string, status string) error
 	return nil
 }
 
-// UpdateNodeResources 更新边缘节点资源
+// UpdateNodeResources 更新边缘节点资源.
 func (enm *EdgeNodeManager) UpdateNodeResources(nodeID string, resources EdgeNodeResource) error {
 	enm.nodesMutex.Lock()
 	defer enm.nodesMutex.Unlock()
@@ -359,7 +359,7 @@ func (enm *EdgeNodeManager) UpdateNodeResources(nodeID string, resources EdgeNod
 	return nil
 }
 
-// UpdateHeartbeat 更新心跳
+// UpdateHeartbeat 更新心跳.
 func (enm *EdgeNodeManager) UpdateHeartbeat(nodeID string) error {
 	enm.nodesMutex.Lock()
 	defer enm.nodesMutex.Unlock()
@@ -380,17 +380,17 @@ func (enm *EdgeNodeManager) UpdateHeartbeat(nodeID string) error {
 	return nil
 }
 
-// SetTaskScheduler 设置任务调度器
+// SetTaskScheduler 设置任务调度器.
 func (enm *EdgeNodeManager) SetTaskScheduler(scheduler *TaskScheduler) {
 	enm.taskQueue = scheduler
 }
 
-// SetCallbacks 设置事件回调
+// SetCallbacks 设置事件回调.
 func (enm *EdgeNodeManager) SetCallbacks(callbacks EdgeNodeCallbacks) {
 	enm.callbacks = callbacks
 }
 
-// heartbeatWorker 心跳检测工作线程
+// heartbeatWorker 心跳检测工作线程.
 func (enm *EdgeNodeManager) heartbeatWorker() {
 	ticker := time.NewTicker(enm.config.HeartbeatInterval)
 	defer ticker.Stop()
@@ -405,7 +405,7 @@ func (enm *EdgeNodeManager) heartbeatWorker() {
 	}
 }
 
-// checkNodeHeartbeats 检查节点心跳
+// checkNodeHeartbeats 检查节点心跳.
 func (enm *EdgeNodeManager) checkNodeHeartbeats() {
 	enm.nodesMutex.Lock()
 	defer enm.nodesMutex.Unlock()
@@ -431,7 +431,7 @@ func (enm *EdgeNodeManager) checkNodeHeartbeats() {
 	}
 }
 
-// statusMonitorWorker 状态监控工作线程
+// statusMonitorWorker 状态监控工作线程.
 func (enm *EdgeNodeManager) statusMonitorWorker() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -446,7 +446,7 @@ func (enm *EdgeNodeManager) statusMonitorWorker() {
 	}
 }
 
-// updateNodeStatus 更新节点状态
+// updateNodeStatus 更新节点状态.
 func (enm *EdgeNodeManager) updateNodeStatus() {
 	enm.nodesMutex.RLock()
 	nodes := make([]*EdgeNode, 0, len(enm.nodes))
@@ -465,7 +465,7 @@ func (enm *EdgeNodeManager) updateNodeStatus() {
 	}
 }
 
-// EdgeNodeStats 边缘节点统计
+// EdgeNodeStats 边缘节点统计.
 type EdgeNodeStats struct {
 	TotalNodes   int            `json:"total_nodes"`
 	OnlineNodes  int            `json:"online_nodes"`
@@ -475,7 +475,7 @@ type EdgeNodeStats struct {
 	ByType       map[string]int `json:"by_type"`
 }
 
-// GetNodeStats 获取节点统计
+// GetNodeStats 获取节点统计.
 func (enm *EdgeNodeManager) GetNodeStats() map[string]interface{} {
 	enm.nodesMutex.RLock()
 	defer enm.nodesMutex.RUnlock()
@@ -517,7 +517,7 @@ func (enm *EdgeNodeManager) GetNodeStats() map[string]interface{} {
 	}
 }
 
-// SelectBestNode 选择最佳节点（基于负载均衡）
+// SelectBestNode 选择最佳节点（基于负载均衡）.
 func (enm *EdgeNodeManager) SelectBestNode(requirements TaskRequirements) (*EdgeNode, error) {
 	enm.nodesMutex.RLock()
 	defer enm.nodesMutex.RUnlock()
@@ -568,7 +568,7 @@ func (enm *EdgeNodeManager) SelectBestNode(requirements TaskRequirements) (*Edge
 	return bestNode, nil
 }
 
-// calculateNodeScore 计算节点得分
+// calculateNodeScore 计算节点得分.
 func (enm *EdgeNodeManager) calculateNodeScore(node *EdgeNode) float64 {
 	// 可用资源比例
 	cpuAvail := 1.0 - node.Resources.CPUUsed/100.0
@@ -589,7 +589,7 @@ func (enm *EdgeNodeManager) calculateNodeScore(node *EdgeNode) float64 {
 	return score
 }
 
-// Shutdown 关闭边缘节点管理器
+// Shutdown 关闭边缘节点管理器.
 func (enm *EdgeNodeManager) Shutdown() error {
 	enm.cancel()
 	_ = enm.saveNodes()

@@ -21,21 +21,21 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// Handlers 系统监控处理器
+// Handlers 系统监控处理器.
 type Handlers struct {
 	monitor    *Monitor
 	clientID   uint64
 	clientIDMu sync.Mutex
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(monitor *Monitor) *Handlers {
 	return &Handlers{
 		monitor: monitor,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	system := r.Group("/system")
 	{
@@ -66,7 +66,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// websocketHandler WebSocket 连接处理
+// websocketHandler WebSocket 连接处理.
 func (h *Handlers) websocketHandler(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -86,7 +86,7 @@ func (h *Handlers) websocketHandler(c *gin.Context) {
 
 	// 立即发送一次当前数据
 	systemStats, _ := h.monitor.GetSystemStats()
-	diskStats, _ := h.monitor.GetDiskStats()
+	diskStats, _ := h.monitor.GetDiskStats(c.Request.Context())
 	networkStats, _ := h.monitor.GetNetworkStats(nil)
 
 	h.monitor.Broadcast(&RealTimeData{
@@ -120,7 +120,7 @@ func (h *Handlers) websocketHandler(c *gin.Context) {
 // @Success 200 {object} api.Response "成功"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /system/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getSystemStats(c *gin.Context) {
 	stats, err := h.monitor.GetSystemStats()
 	if err != nil {
@@ -139,7 +139,7 @@ func (h *Handlers) getSystemStats(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response "成功"
 // @Router /system/info [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getSystemInfo(c *gin.Context) {
 	api.OK(c, gin.H{
 		"hostname":  h.monitor.GetHostname(),
@@ -159,9 +159,9 @@ func (h *Handlers) getSystemInfo(c *gin.Context) {
 // @Success 200 {object} api.Response "成功"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /system/disks [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getDiskStats(c *gin.Context) {
-	stats, err := h.monitor.GetDiskStats()
+	stats, err := h.monitor.GetDiskStats(c.Request.Context())
 	if err != nil {
 		api.InternalError(c, err.Error())
 		return
@@ -170,7 +170,7 @@ func (h *Handlers) getDiskStats(c *gin.Context) {
 	api.OK(c, stats)
 }
 
-// getSMARTInfo 获取 SMART 信息
+// getSMARTInfo 获取 SMART 信息.
 func (h *Handlers) getSMARTInfo(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -178,7 +178,7 @@ func (h *Handlers) getSMARTInfo(c *gin.Context) {
 		return
 	}
 
-	info, err := h.monitor.GetSMARTInfo("/dev/" + device)
+	info, err := h.monitor.GetSMARTInfo(c.Request.Context(), "/dev/"+device)
 	if err != nil {
 		api.InternalError(c, err.Error())
 		return
@@ -187,9 +187,9 @@ func (h *Handlers) getSMARTInfo(c *gin.Context) {
 	api.OK(c, info)
 }
 
-// checkAllDisks 检查所有磁盘
+// checkAllDisks 检查所有磁盘.
 func (h *Handlers) checkAllDisks(c *gin.Context) {
-	results, err := h.monitor.CheckAllDisks()
+	results, err := h.monitor.CheckAllDisks(c.Request.Context())
 	if err != nil {
 		api.InternalError(c, err.Error())
 		return
@@ -207,7 +207,7 @@ func (h *Handlers) checkAllDisks(c *gin.Context) {
 // @Success 200 {object} api.Response "成功"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /system/network [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getNetworkStats(c *gin.Context) {
 	stats, err := h.monitor.GetNetworkStats(nil)
 	if err != nil {
@@ -228,7 +228,7 @@ func (h *Handlers) getNetworkStats(c *gin.Context) {
 // @Success 200 {object} api.Response "成功"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /system/processes [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getTopProcesses(c *gin.Context) {
 	limit := 10
 	if l := c.Query("limit"); l != "" {
@@ -237,7 +237,7 @@ func (h *Handlers) getTopProcesses(c *gin.Context) {
 		}
 	}
 
-	processes, err := h.monitor.GetTopProcesses(limit)
+	processes, err := h.monitor.GetTopProcesses(c.Request.Context(), limit)
 	if err != nil {
 		api.InternalError(c, err.Error())
 		return
@@ -257,7 +257,7 @@ func (h *Handlers) getTopProcesses(c *gin.Context) {
 // @Success 200 {object} api.Response "成功"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /system/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getHistoryData(c *gin.Context) {
 	duration := c.DefaultQuery("duration", "24h")
 	interval := c.DefaultQuery("interval", "1m")
@@ -280,7 +280,7 @@ func (h *Handlers) getHistoryData(c *gin.Context) {
 // @Success 200 {object} api.Response "成功"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /system/alerts [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getAlerts(c *gin.Context) {
 	alerts, err := h.monitor.GetAlerts()
 	if err != nil {
@@ -291,7 +291,7 @@ func (h *Handlers) getAlerts(c *gin.Context) {
 	api.OK(c, alerts)
 }
 
-// acknowledgeAlert 确认告警
+// acknowledgeAlert 确认告警.
 func (h *Handlers) acknowledgeAlert(c *gin.Context) {
 	id := c.Param("id")
 

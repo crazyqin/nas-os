@@ -14,7 +14,7 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// EncryptionManager 文件加密管理器
+// EncryptionManager 文件加密管理器.
 type EncryptionManager struct {
 	config        EncryptionConfig
 	masterKey     []byte
@@ -22,7 +22,7 @@ type EncryptionManager struct {
 	mu            sync.RWMutex
 }
 
-// EncryptionConfig 加密配置
+// EncryptionConfig 加密配置.
 type EncryptionConfig struct {
 	Enabled         bool   `json:"enabled"`
 	Algorithm       string `json:"algorithm"`        // aes-256-gcm
@@ -32,7 +32,7 @@ type EncryptionConfig struct {
 	EncryptedPrefix string `json:"encrypted_prefix"` // 加密文件夹前缀
 }
 
-// EncryptedDirectory 加密目录
+// EncryptedDirectory 加密目录.
 type EncryptedDirectory struct {
 	Path        string          `json:"path"`
 	Name        string          `json:"name"`
@@ -43,7 +43,7 @@ type EncryptedDirectory struct {
 	Key         []byte          `json:"-"`      // 目录密钥（内存中）
 }
 
-// EncryptedFile 加密文件
+// EncryptedFile 加密文件.
 type EncryptedFile struct {
 	OriginalName  string `json:"original_name"`
 	EncryptedName string `json:"encrypted_name"`
@@ -53,7 +53,7 @@ type EncryptedFile struct {
 	Checksum      string `json:"checksum"`
 }
 
-// NewEncryptionManager 创建加密管理器
+// NewEncryptionManager 创建加密管理器.
 func NewEncryptionManager() *EncryptionManager {
 	return &EncryptionManager{
 		config: EncryptionConfig{
@@ -68,7 +68,7 @@ func NewEncryptionManager() *EncryptionManager {
 	}
 }
 
-// Initialize 初始化加密系统
+// Initialize 初始化加密系统.
 func (em *EncryptionManager) Initialize(password string) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -90,7 +90,7 @@ func (em *EncryptionManager) Initialize(password string) error {
 	return nil
 }
 
-// deriveKey 使用 Argon2 派生密钥
+// deriveKey 使用 Argon2 派生密钥.
 func (em *EncryptionManager) deriveKey(password string, salt []byte) []byte {
 	// Argon2id 参数
 	time := uint32(3)
@@ -102,7 +102,7 @@ func (em *EncryptionManager) deriveKey(password string, salt []byte) []byte {
 	return key
 }
 
-// loadOrGenerateSalt 加载或生成盐值
+// loadOrGenerateSalt 加载或生成盐值.
 func (em *EncryptionManager) loadOrGenerateSalt() ([]byte, error) {
 	// 确保目录存在
 	dir := filepath.Dir(em.config.SaltPath)
@@ -129,7 +129,7 @@ func (em *EncryptionManager) loadOrGenerateSalt() ([]byte, error) {
 	return salt, nil
 }
 
-// loadOrGenerateMasterKey 加载或生成主密钥
+// loadOrGenerateMasterKey 加载或生成主密钥.
 func (em *EncryptionManager) loadOrGenerateMasterKey() error {
 	// 确保目录存在
 	dir := filepath.Dir(em.config.MasterKeyPath)
@@ -159,7 +159,7 @@ func (em *EncryptionManager) loadOrGenerateMasterKey() error {
 	return nil
 }
 
-// CreateEncryptedDirectory 创建加密目录
+// CreateEncryptedDirectory 创建加密目录.
 func (em *EncryptionManager) CreateEncryptedDirectory(path, name, description string) (*EncryptedDirectory, error) {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -209,7 +209,7 @@ func (em *EncryptionManager) CreateEncryptedDirectory(path, name, description st
 	return encDir, nil
 }
 
-// encryptData 使用 AES-256-GCM 加密数据
+// encryptData 使用 AES-256-GCM 加密数据.
 func (em *EncryptionManager) encryptData(plaintext []byte) ([]byte, error) {
 	block, err := aes.NewCipher(em.masterKey)
 	if err != nil {
@@ -230,7 +230,7 @@ func (em *EncryptionManager) encryptData(plaintext []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-// decryptData 使用 AES-256-GCM 解密数据
+// decryptData 使用 AES-256-GCM 解密数据.
 func (em *EncryptionManager) decryptData(ciphertext []byte) ([]byte, error) {
 	block, err := aes.NewCipher(em.masterKey)
 	if err != nil {
@@ -256,7 +256,7 @@ func (em *EncryptionManager) decryptData(ciphertext []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
-// EncryptFile 加密文件
+// EncryptFile 加密文件.
 func (em *EncryptionManager) EncryptFile(srcPath, dstPath string) error {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -285,7 +285,7 @@ func (em *EncryptionManager) EncryptFile(srcPath, dstPath string) error {
 	return nil
 }
 
-// DecryptFile 解密文件
+// DecryptFile 解密文件.
 func (em *EncryptionManager) DecryptFile(srcPath, dstPath string) error {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -314,7 +314,7 @@ func (em *EncryptionManager) DecryptFile(srcPath, dstPath string) error {
 	return nil
 }
 
-// LockDirectory 锁定加密目录
+// LockDirectory 锁定加密目录.
 func (em *EncryptionManager) LockDirectory(path string) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -331,7 +331,7 @@ func (em *EncryptionManager) LockDirectory(path string) error {
 	return nil
 }
 
-// UnlockDirectory 解锁加密目录
+// UnlockDirectory 解锁加密目录.
 func (em *EncryptionManager) UnlockDirectory(path, password string) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -360,7 +360,7 @@ func (em *EncryptionManager) UnlockDirectory(path, password string) error {
 	return nil
 }
 
-// GetEncryptedDirectories 获取所有加密目录
+// GetEncryptedDirectories 获取所有加密目录.
 func (em *EncryptionManager) GetEncryptedDirectories() []*EncryptedDirectory {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -376,7 +376,7 @@ func (em *EncryptionManager) GetEncryptedDirectories() []*EncryptedDirectory {
 	return dirs
 }
 
-// DeleteEncryptedDirectory 删除加密目录
+// DeleteEncryptedDirectory 删除加密目录.
 func (em *EncryptionManager) DeleteEncryptedDirectory(path string) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -394,14 +394,14 @@ func (em *EncryptionManager) DeleteEncryptedDirectory(path string) error {
 	return nil
 }
 
-// GetConfig 获取加密配置
+// GetConfig 获取加密配置.
 func (em *EncryptionManager) GetConfig() EncryptionConfig {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
 	return em.config
 }
 
-// UpdateConfig 更新加密配置
+// UpdateConfig 更新加密配置.
 func (em *EncryptionManager) UpdateConfig(config EncryptionConfig) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -409,7 +409,7 @@ func (em *EncryptionManager) UpdateConfig(config EncryptionConfig) error {
 	return nil
 }
 
-// IsInitialized 检查加密系统是否已初始化
+// IsInitialized 检查加密系统是否已初始化.
 func (em *EncryptionManager) IsInitialized() bool {
 	em.mu.RLock()
 	defer em.mu.RUnlock()

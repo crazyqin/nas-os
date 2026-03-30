@@ -9,19 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 磁盘监控处理器
+// Handlers 磁盘监控处理器.
 type Handlers struct {
 	monitor Monitor
 }
 
-// NewHandlers 创建磁盘监控处理器
+// NewHandlers 创建磁盘监控处理器.
 func NewHandlers(monitor Monitor) *Handlers {
 	return &Handlers{
 		monitor: monitor,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	disk := r.Group("/disk")
 	{
@@ -62,7 +62,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listDisks(c *gin.Context) {
 	disks := h.monitor.GetAllDisks()
 
@@ -111,7 +111,7 @@ func (h *Handlers) listDisks(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "成功"
 // @Failure 404 {object} map[string]interface{} "磁盘不存在"
 // @Router /disk/{device} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getDiskInfo(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -155,7 +155,7 @@ func (h *Handlers) getDiskInfo(c *gin.Context) {
 // @Param device path string true "磁盘设备路径"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/{device}/smart [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getSMARTData(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -207,7 +207,7 @@ func (h *Handlers) getSMARTData(c *gin.Context) {
 // @Param device path string true "磁盘设备路径"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/{device}/health [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getDiskHealth(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -260,7 +260,7 @@ func (h *Handlers) getDiskHealth(c *gin.Context) {
 // @Param duration query string false "时间范围 (24h/7d/30d)" default(7d)
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/{device}/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getDiskHistory(c *gin.Context) {
 	device := c.Param("device")
 	durationStr := c.DefaultQuery("duration", "7d")
@@ -299,7 +299,7 @@ func (h *Handlers) getDiskHistory(c *gin.Context) {
 // @Param device path string true "磁盘设备路径"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/{device}/predictions [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getDiskPredictions(c *gin.Context) {
 	device := c.Param("device")
 
@@ -340,7 +340,7 @@ func (h *Handlers) getDiskPredictions(c *gin.Context) {
 // @Param acknowledged query bool false "是否包含已确认告警"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/alerts [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getAlerts(c *gin.Context) {
 	device := c.Query("device")
 	acknowledged := c.Query("acknowledged") == "true"
@@ -364,7 +364,7 @@ func (h *Handlers) getAlerts(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "成功"
 // @Failure 404 {object} map[string]interface{} "告警不存在"
 // @Router /disk/alerts/{id}/acknowledge [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) acknowledgeAlert(c *gin.Context) {
 	id := c.Param("id")
 
@@ -390,7 +390,7 @@ func (h *Handlers) acknowledgeAlert(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/alerts/rules [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getAlertRules(c *gin.Context) {
 	rules := h.monitor.GetAlertRules()
 
@@ -411,7 +411,7 @@ func (h *Handlers) getAlertRules(c *gin.Context) {
 // @Param request body AlertRule true "规则配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/alerts/rules/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) updateAlertRule(c *gin.Context) {
 	var req AlertRule
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -444,7 +444,7 @@ func (h *Handlers) updateAlertRule(c *gin.Context) {
 // @Param request body ScoreWeights true "权重配置"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/config/weights [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) setScoreWeights(c *gin.Context) {
 	var weights ScoreWeights
 	if err := c.ShouldBindJSON(&weights); err != nil {
@@ -471,7 +471,7 @@ func (h *Handlers) setScoreWeights(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/scan [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) scanDisks(c *gin.Context) {
 	if err := h.monitor.ScanDisks(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -496,7 +496,7 @@ func (h *Handlers) scanDisks(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/check [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) checkAllDisks(c *gin.Context) {
 	if err := h.monitor.CheckAllDisks(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -521,7 +521,7 @@ func (h *Handlers) checkAllDisks(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/export [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) exportData(c *gin.Context) {
 	data, err := h.monitor.ExportJSON()
 	if err != nil {
@@ -544,7 +544,7 @@ func (h *Handlers) exportData(c *gin.Context) {
 // @Param request body map[string]interface{} true "导入数据"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /disk/import [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) importData(c *gin.Context) {
 	data, err := c.GetRawData()
 	if err != nil {

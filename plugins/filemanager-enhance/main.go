@@ -1,11 +1,9 @@
-// Package main 文件管理器增强插件
-//
-// 提供文件批量操作、快捷键支持、文件预览等功能
-//
-// 注意：此文件为示例代码，实际构建插件时需要：
-// 1. 创建独立的 go module
-// 2. 导入 nas-os/internal/plugin 包
-// 3. 使用 go build -buildmode=plugin 构建
+// Package main 文件管理器增强插件。
+// 提供文件批量操作、快捷键支持、文件预览等功能。
+// 注意：此文件为示例代码，实际构建插件时需要：。
+// 1. 创建独立的 go module。
+// 2. 导入 nas-os/internal/plugin 包。
+// 3. 使用 go build -buildmode=plugin 构建。
 package main
 
 import (
@@ -17,7 +15,7 @@ import (
 	"time"
 )
 
-// 插件信息（导出变量供加载器读取）
+// 插件信息（导出变量供加载器读取）。
 var PluginInfo = PluginInfoStruct{
 	ID:          "com.nas-os.filemanager-enhance",
 	Name:        "文件管理器增强",
@@ -33,7 +31,7 @@ var PluginInfo = PluginInfoStruct{
 	Price:       "free",
 }
 
-// Category 插件分类
+// Category 插件分类。
 type Category string
 
 const (
@@ -43,7 +41,7 @@ const (
 	CategoryBackup      Category = "backup"
 )
 
-// PluginInfoStruct 插件元信息
+// PluginInfoStruct 插件元信息。
 type PluginInfoStruct struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
@@ -59,7 +57,7 @@ type PluginInfoStruct struct {
 	Price       string   `json:"price"`
 }
 
-// Plugin 插件接口
+// Plugin 插件接口。
 type Plugin interface {
 	Info() PluginInfoStruct
 	Init(config map[string]interface{}) error
@@ -75,7 +73,7 @@ type FileManagerEnhance struct {
 	rootPath string // 根目录，用于路径验证
 }
 
-// New 创建插件实例（入口函数）
+// New 创建插件实例（入口函数）。
 func New() Plugin {
 	return &FileManagerEnhance{
 		config:   make(map[string]interface{}),
@@ -83,22 +81,22 @@ func New() Plugin {
 	}
 }
 
-// Info 返回插件信息
+// Info 返回插件信息。
 func (p *FileManagerEnhance) Info() PluginInfoStruct {
 	return PluginInfo
 }
 
-// Init 初始化插件
+// Init 初始化插件。
 func (p *FileManagerEnhance) Init(config map[string]interface{}) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	// 合并配置
+	// 合并配置。
 	for k, v := range config {
 		p.config[k] = v
 	}
 
-	// 设置默认值
+	// 设置默认值。
 	if _, ok := p.config["enableBatch"]; !ok {
 		p.config["enableBatch"] = true
 	}
@@ -109,14 +107,14 @@ func (p *FileManagerEnhance) Init(config map[string]interface{}) error {
 		p.config["previewSize"] = 300
 	}
 
-	// 设置根目录（用于路径安全验证）
+	// 设置根目录（用于路径安全验证）。
 	if rootPath, ok := p.config["rootPath"].(string); ok && rootPath != "" {
 		p.rootPath = filepath.Clean(rootPath)
 	} else {
 		p.rootPath = "/data" // 默认根目录
 	}
 
-	// 初始化处理器
+	// 初始化处理器。
 	p.handlers["batchCopy"] = p.batchCopy
 	p.handlers["batchMove"] = p.batchMove
 	p.handlers["batchDelete"] = p.batchDelete
@@ -127,7 +125,7 @@ func (p *FileManagerEnhance) Init(config map[string]interface{}) error {
 	return nil
 }
 
-// Start 启动插件
+// Start 启动插件。
 func (p *FileManagerEnhance) Start() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -136,14 +134,14 @@ func (p *FileManagerEnhance) Start() error {
 		return nil
 	}
 
-	// 注册扩展点处理器
+	// 注册扩展点处理器。
 	p.registerExtensions()
 
 	p.running = true
 	return nil
 }
 
-// Stop 停止插件
+// Stop 停止插件。
 func (p *FileManagerEnhance) Stop() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -151,7 +149,7 @@ func (p *FileManagerEnhance) Stop() error {
 	return nil
 }
 
-// Destroy 销毁插件
+// Destroy 销毁插件。
 func (p *FileManagerEnhance) Destroy() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -163,15 +161,15 @@ func (p *FileManagerEnhance) Destroy() error {
 	return nil
 }
 
-// registerExtensions 注册扩展
+// registerExtensions 注册扩展。
 func (p *FileManagerEnhance) registerExtensions() {
-	// 这里可以注册扩展点
-	// 实际实现需要与主程序通信
+	// 这里可以注册扩展点。
+	// 实际实现需要与主程序通信。
 }
 
-// ========== 功能实现 ==========
+// ========== 功能实现 ==========。
 
-// BatchOperationRequest 批量操作请求
+// BatchOperationRequest 批量操作请求。
 type BatchOperationRequest struct {
 	Files   []string `json:"files"`
 	Target  string   `json:"target,omitempty"`
@@ -179,27 +177,27 @@ type BatchOperationRequest struct {
 	DryRun  bool     `json:"dryRun,omitempty"`  // 仅预览
 }
 
-// BatchOperationResult 批量操作结果
+// BatchOperationResult 批量操作结果。
 type BatchOperationResult struct {
 	Success []string         `json:"success"`
 	Failed  []FileError      `json:"failed"`
 	Summary OperationSummary `json:"summary"`
 }
 
-// FileError 文件错误
+// FileError 文件错误。
 type FileError struct {
 	File  string `json:"file"`
 	Error string `json:"error"`
 }
 
-// OperationSummary 操作统计
+// OperationSummary 操作统计。
 type OperationSummary struct {
 	Total     int `json:"total"`
 	Succeeded int `json:"succeeded"`
 	Failed    int `json:"failed"`
 }
 
-// batchCopy 批量复制
+// batchCopy 批量复制。
 func (p *FileManagerEnhance) batchCopy(req BatchOperationRequest) (*BatchOperationResult, error) {
 	result := &BatchOperationResult{
 		Success: []string{},
@@ -210,19 +208,19 @@ func (p *FileManagerEnhance) batchCopy(req BatchOperationRequest) (*BatchOperati
 		return nil, fmt.Errorf("目标目录不能为空")
 	}
 
-	// 验证目标路径是否在允许范围内
+	// 验证目标路径是否在允许范围内。
 	if err := p.validatePaths(req.Target); err != nil {
 		return nil, fmt.Errorf("目标路径验证失败: %w", err)
 	}
 
-	// 验证所有源文件路径
+	// 验证所有源文件路径。
 	for _, src := range req.Files {
 		if err := p.validatePaths(src); err != nil {
 			return nil, fmt.Errorf("源文件路径验证失败: %w", err)
 		}
 	}
 
-	// 确保目标目录存在
+	// 确保目标目录存在。
 	if err := os.MkdirAll(req.Target, 0755); err != nil {
 		return nil, fmt.Errorf("创建目标目录失败: %w", err)
 	}
@@ -255,7 +253,7 @@ func (p *FileManagerEnhance) batchCopy(req BatchOperationRequest) (*BatchOperati
 	return result, nil
 }
 
-// batchMove 批量移动
+// batchMove 批量移动。
 func (p *FileManagerEnhance) batchMove(req BatchOperationRequest) (*BatchOperationResult, error) {
 	result := &BatchOperationResult{
 		Success: []string{},
@@ -266,12 +264,12 @@ func (p *FileManagerEnhance) batchMove(req BatchOperationRequest) (*BatchOperati
 		return nil, fmt.Errorf("目标目录不能为空")
 	}
 
-	// 验证目标路径是否在允许范围内
+	// 验证目标路径是否在允许范围内。
 	if err := p.validatePaths(req.Target); err != nil {
 		return nil, fmt.Errorf("目标路径验证失败: %w", err)
 	}
 
-	// 验证所有源文件路径
+	// 验证所有源文件路径。
 	for _, src := range req.Files {
 		if err := p.validatePaths(src); err != nil {
 			return nil, fmt.Errorf("源文件路径验证失败: %w", err)
@@ -310,14 +308,14 @@ func (p *FileManagerEnhance) batchMove(req BatchOperationRequest) (*BatchOperati
 	return result, nil
 }
 
-// batchDelete 批量删除
+// batchDelete 批量删除。
 func (p *FileManagerEnhance) batchDelete(req BatchOperationRequest) (*BatchOperationResult, error) {
 	result := &BatchOperationResult{
 		Success: []string{},
 		Failed:  []FileError{},
 	}
 
-	// 验证所有文件路径
+	// 验证所有文件路径。
 	for _, file := range req.Files {
 		if err := p.validatePaths(file); err != nil {
 			return nil, fmt.Errorf("文件路径验证失败: %w", err)
@@ -349,7 +347,7 @@ func (p *FileManagerEnhance) batchDelete(req BatchOperationRequest) (*BatchOpera
 	return result, nil
 }
 
-// batchRename 批量重命名
+// batchRename 批量重命名。
 func (p *FileManagerEnhance) batchRename(req BatchOperationRequest) (*BatchOperationResult, error) {
 	result := &BatchOperationResult{
 		Success: []string{},
@@ -360,7 +358,7 @@ func (p *FileManagerEnhance) batchRename(req BatchOperationRequest) (*BatchOpera
 		return nil, fmt.Errorf("重命名模式不能为空")
 	}
 
-	// 验证所有文件路径
+	// 验证所有文件路径。
 	for _, src := range req.Files {
 		if err := p.validatePaths(src); err != nil {
 			return nil, fmt.Errorf("文件路径验证失败: %w", err)
@@ -372,10 +370,10 @@ func (p *FileManagerEnhance) batchRename(req BatchOperationRequest) (*BatchOpera
 		ext := filepath.Ext(src)
 		name := strings.TrimSuffix(filepath.Base(src), ext)
 
-		// 解析模式
-		// {n} - 序号
-		// {name} - 原文件名
-		// {ext} - 扩展名
+		// 解析模式。
+		// {n} - 序号。
+		// {name} - 原文件名。
+		// {ext} - 扩展名。
 		newName := strings.ReplaceAll(req.Pattern, "{n}", fmt.Sprintf("%03d", i+1))
 		newName = strings.ReplaceAll(newName, "{name}", name)
 		newName = strings.ReplaceAll(newName, "{ext}", ext)
@@ -406,9 +404,9 @@ func (p *FileManagerEnhance) batchRename(req BatchOperationRequest) (*BatchOpera
 	return result, nil
 }
 
-// preview 文件预览
+// preview 文件预览。
 func (p *FileManagerEnhance) preview(path string) (map[string]interface{}, error) {
-	// 验证路径
+	// 验证路径。
 	if err := p.validatePaths(path); err != nil {
 		return nil, fmt.Errorf("路径验证失败: %w", err)
 	}
@@ -426,11 +424,11 @@ func (p *FileManagerEnhance) preview(path string) (map[string]interface{}, error
 		"mtime": info.ModTime().Format(time.RFC3339),
 	}
 
-	// 根据文件类型提供不同的预览
+	// 根据文件类型提供不同的预览。
 	ext := strings.ToLower(filepath.Ext(path))
 
 	if info.IsDir() {
-		// 目录预览：列出文件
+		// 目录预览：列出文件。
 		entries, err := os.ReadDir(path)
 		if err != nil {
 			result["error"] = fmt.Sprintf("读取目录失败: %v", err)
@@ -449,8 +447,8 @@ func (p *FileManagerEnhance) preview(path string) (map[string]interface{}, error
 		result["type"] = "image"
 		result["previewable"] = true
 	} else if isText(ext) {
-		// 文本文件预览前几行
-		// #nosec G304 -- path is validated by p.validatePaths() at the beginning of this method
+		// 文本文件预览前几行。
+		// #nosec G304 -- path is validated by p.validatePaths() at the beginning of this method.
 		data, err := os.ReadFile(path)
 		if err == nil {
 			lines := strings.Split(string(data), "\n")
@@ -475,9 +473,9 @@ func (p *FileManagerEnhance) preview(path string) (map[string]interface{}, error
 	return result, nil
 }
 
-// advancedSearch 高级搜索
+// advancedSearch 高级搜索。
 func (p *FileManagerEnhance) advancedSearch(root, query string, options map[string]interface{}) ([]string, error) {
-	// 验证搜索根目录
+	// 验证搜索根目录。
 	if err := p.validatePaths(root); err != nil {
 		return nil, fmt.Errorf("搜索路径验证失败: %w", err)
 	}
@@ -492,7 +490,7 @@ func (p *FileManagerEnhance) advancedSearch(root, query string, options map[stri
 
 		name := strings.ToLower(info.Name())
 
-		// 简单的名称匹配
+		// 简单的名称匹配。
 		if strings.Contains(name, query) {
 			results = append(results, path)
 		}
@@ -503,58 +501,58 @@ func (p *FileManagerEnhance) advancedSearch(root, query string, options map[stri
 	return results, err
 }
 
-// ========== 辅助函数 ==========
+// ========== 辅助函数 ==========。
 
-// isPathAllowed 检查路径是否在允许的根目录内（防止路径遍历攻击）
-// 安全做法：
-// 1. 验证路径不包含危险模式（如 ".."）
-// 2. 将路径与根目录连接后清理
-// 3. 验证最终路径仍在根目录内
+// isPathAllowed 检查路径是否在允许的根目录内（防止路径遍历攻击）。
+// 安全做法：。
+// 1. 验证路径不包含危险模式（如 ".."）。
+// 2. 将路径与根目录连接后清理。
+// 3. 验证最终路径仍在根目录内。
 func (p *FileManagerEnhance) isPathAllowed(path string) bool {
 	if p.rootPath == "" {
 		return false
 	}
 
-	// 清理根目录并确保是绝对路径
+	// 清理根目录并确保是绝对路径。
 	cleanRoot := filepath.Clean(p.rootPath)
 	if !filepath.IsAbs(cleanRoot) {
 		cleanRoot = filepath.Clean(filepath.Join("/", cleanRoot))
 	}
 
-	// 拒绝包含路径遍历模式的原始路径
+	// 拒绝包含路径遍历模式的原始路径。
 	if strings.Contains(path, "..") {
 		return false
 	}
 
-	// 拒绝空路径
+	// 拒绝空路径。
 	if path == "" {
 		return false
 	}
 
-	// 计算最终路径：
-	// - 如果用户提供相对路径，与根目录连接
-	// - 如果用户提供绝对路径，必须以根目录开头
+	// 计算最终路径：。
+	// - 如果用户提供相对路径，与根目录连接。
+	// - 如果用户提供绝对路径，必须以根目录开头。
 	var finalPath string
 	if filepath.IsAbs(path) {
-		// 绝对路径：验证必须以根目录开头
+		// 绝对路径：验证必须以根目录开头。
 		finalPath = filepath.Clean(path)
 	} else {
-		// 相对路径：与根目录连接后清理
+		// 相对路径：与根目录连接后清理。
 		finalPath = filepath.Clean(filepath.Join(cleanRoot, path))
 	}
 
-	// 安全校验：最终路径必须在根目录内
-	// 使用 HasPrefix 检查，并确保是完整的目录匹配（避免 /data 匹配 /data2）
+	// 安全校验：最终路径必须在根目录内。
+	// 使用 HasPrefix 检查，并确保是完整的目录匹配（避免 /data 匹配 /data2）。
 	if !strings.HasPrefix(finalPath, cleanRoot+string(filepath.Separator)) && finalPath != cleanRoot {
 		return false
 	}
 
-	// 额外检查：确保最终路径没有跳出根目录（双重保险）
+	// 额外检查：确保最终路径没有跳出根目录（双重保险）。
 	rel, err := filepath.Rel(cleanRoot, finalPath)
 	if err != nil {
 		return false
 	}
-	// 相对路径不应该以 ".." 开头（表示在根目录之外）
+	// 相对路径不应该以 ".." 开头（表示在根目录之外）。
 	if strings.HasPrefix(rel, "..") {
 		return false
 	}
@@ -562,7 +560,7 @@ func (p *FileManagerEnhance) isPathAllowed(path string) bool {
 	return true
 }
 
-// validatePaths 验证多个路径是否都在允许范围内
+// validatePaths 验证多个路径是否都在允许范围内。
 func (p *FileManagerEnhance) validatePaths(paths ...string) error {
 	for _, path := range paths {
 		if !p.isPathAllowed(path) {
@@ -573,10 +571,10 @@ func (p *FileManagerEnhance) validatePaths(paths ...string) error {
 }
 
 func copyFile(src, dst string) error {
-	// Clean paths to prevent traversal attacks
+	// Clean paths to prevent traversal attacks.
 	src = filepath.Clean(src)
 	dst = filepath.Clean(dst)
-	// #nosec G304 -- paths are cleaned and validated by caller before this function
+	// #nosec G304 -- paths are cleaned and validated by caller before this function.
 	data, err := os.ReadFile(src)
 	if err != nil {
 		return err
@@ -624,7 +622,7 @@ func isAudio(ext string) bool {
 	return false
 }
 
-// 插件导入（实际使用时取消注释）
-// import "nas-os/internal/plugin"
+// 插件导入（实际使用时取消注释）。
+// import "nas-os/internal/plugin".
 
 func main() {} // 插件模式需要 main 函数

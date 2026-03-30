@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 安全扫描器 HTTP 处理器
+// Handlers 安全扫描器 HTTP 处理器.
 type Handlers struct {
 	filesystemScanner *FilesystemScanner
 	permissionChecker *PermissionChecker
@@ -16,7 +16,7 @@ type Handlers struct {
 	scoreEngine       *ScoreEngine
 }
 
-// NewHandlers 创建安全扫描器处理器
+// NewHandlers 创建安全扫描器处理器.
 func NewHandlers(
 	fsScanner *FilesystemScanner,
 	permChecker *PermissionChecker,
@@ -31,7 +31,7 @@ func NewHandlers(
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	security := api.Group("/security/scanner")
 	{
@@ -101,7 +101,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 // ========== 文件系统扫描处理器 ==========
 
-// createScanTask 创建扫描任务
+// createScanTask 创建扫描任务.
 func (h *Handlers) createScanTask(c *gin.Context) {
 	if h.filesystemScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "文件系统扫描器未启用"))
@@ -129,7 +129,7 @@ func (h *Handlers) createScanTask(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(task))
 }
 
-// listScanTasks 列出扫描任务
+// listScanTasks 列出扫描任务.
 func (h *Handlers) listScanTasks(c *gin.Context) {
 	if h.filesystemScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "文件系统扫描器未启用"))
@@ -142,7 +142,7 @@ func (h *Handlers) listScanTasks(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(tasks))
 }
 
-// getScanTask 获取扫描任务详情
+// getScanTask 获取扫描任务详情.
 func (h *Handlers) getScanTask(c *gin.Context) {
 	if h.filesystemScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "文件系统扫描器未启用"))
@@ -160,7 +160,7 @@ func (h *Handlers) getScanTask(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(task))
 }
 
-// startScan 启动扫描
+// startScan 启动扫描.
 func (h *Handlers) startScan(c *gin.Context) {
 	if h.filesystemScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "文件系统扫描器未启用"))
@@ -176,7 +176,7 @@ func (h *Handlers) startScan(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "扫描已启动"}))
 }
 
-// cancelScan 取消扫描
+// cancelScan 取消扫描.
 func (h *Handlers) cancelScan(c *gin.Context) {
 	if h.filesystemScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "文件系统扫描器未启用"))
@@ -192,7 +192,7 @@ func (h *Handlers) cancelScan(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "扫描已取消"}))
 }
 
-// getScanFindings 获取扫描发现
+// getScanFindings 获取扫描发现.
 func (h *Handlers) getScanFindings(c *gin.Context) {
 	if h.filesystemScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "文件系统扫描器未启用"))
@@ -220,7 +220,7 @@ func (h *Handlers) getScanFindings(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(filtered))
 }
 
-// getScanReport 获取扫描报告
+// getScanReport 获取扫描报告.
 func (h *Handlers) getScanReport(c *gin.Context) {
 	if h.filesystemScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "文件系统扫描器未启用"))
@@ -240,7 +240,7 @@ func (h *Handlers) getScanReport(c *gin.Context) {
 
 // ========== 权限检查处理器 ==========
 
-// checkPermissions 检查权限
+// checkPermissions 检查权限.
 func (h *Handlers) checkPermissions(c *gin.Context) {
 	if h.permissionChecker == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "权限检查器未启用"))
@@ -260,7 +260,7 @@ func (h *Handlers) checkPermissions(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(result))
 }
 
-// checkPathsPermissions 批量检查路径权限
+// checkPathsPermissions 批量检查路径权限.
 func (h *Handlers) checkPathsPermissions(c *gin.Context) {
 	if h.permissionChecker == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "权限检查器未启用"))
@@ -280,7 +280,7 @@ func (h *Handlers) checkPathsPermissions(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(result))
 }
 
-// checkSensitivePaths 检查敏感路径
+// checkSensitivePaths 检查敏感路径.
 func (h *Handlers) checkSensitivePaths(c *gin.Context) {
 	if h.permissionChecker == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "权限检查器未启用"))
@@ -291,7 +291,7 @@ func (h *Handlers) checkSensitivePaths(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(result))
 }
 
-// checkSSHSecurity 检查SSH安全
+// checkSSHSecurity 检查SSH安全.
 func (h *Handlers) checkSSHSecurity(c *gin.Context) {
 	if h.permissionChecker == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "权限检查器未启用"))
@@ -302,7 +302,7 @@ func (h *Handlers) checkSSHSecurity(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(result))
 }
 
-// checkUserHomeDirs 检查用户主目录
+// checkUserHomeDirs 检查用户主目录.
 func (h *Handlers) checkUserHomeDirs(c *gin.Context) {
 	if h.permissionChecker == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "权限检查器未启用"))
@@ -313,7 +313,7 @@ func (h *Handlers) checkUserHomeDirs(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(result))
 }
 
-// checkSystemConfig 检查系统配置
+// checkSystemConfig 检查系统配置.
 func (h *Handlers) checkSystemConfig(c *gin.Context) {
 	if h.permissionChecker == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "权限检查器未启用"))
@@ -324,7 +324,7 @@ func (h *Handlers) checkSystemConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(result))
 }
 
-// listPermissionRules 列出权限规则
+// listPermissionRules 列出权限规则.
 func (h *Handlers) listPermissionRules(c *gin.Context) {
 	if h.permissionChecker == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "权限检查器未启用"))
@@ -335,7 +335,7 @@ func (h *Handlers) listPermissionRules(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(rules))
 }
 
-// addPermissionRule 添加权限规则
+// addPermissionRule 添加权限规则.
 func (h *Handlers) addPermissionRule(c *gin.Context) {
 	if h.permissionChecker == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "权限检查器未启用"))
@@ -352,7 +352,7 @@ func (h *Handlers) addPermissionRule(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(rule))
 }
 
-// removePermissionRule 移除权限规则
+// removePermissionRule 移除权限规则.
 func (h *Handlers) removePermissionRule(c *gin.Context) {
 	if h.permissionChecker == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "权限检查器未启用"))
@@ -364,7 +364,7 @@ func (h *Handlers) removePermissionRule(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "已删除"}))
 }
 
-// fixPermissions 修复权限
+// fixPermissions 修复权限.
 func (h *Handlers) fixPermissions(c *gin.Context) {
 	if h.permissionChecker == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "权限检查器未启用"))
@@ -392,7 +392,7 @@ func (h *Handlers) fixPermissions(c *gin.Context) {
 
 // ========== 漏洞扫描处理器 ==========
 
-// scanVulnerability 扫描组件漏洞
+// scanVulnerability 扫描组件漏洞.
 func (h *Handlers) scanVulnerability(c *gin.Context) {
 	if h.vulnScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "漏洞扫描器未启用"))
@@ -418,7 +418,7 @@ func (h *Handlers) scanVulnerability(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(result))
 }
 
-// scanVulnerabilitiesBatch 批量扫描漏洞
+// scanVulnerabilitiesBatch 批量扫描漏洞.
 func (h *Handlers) scanVulnerabilitiesBatch(c *gin.Context) {
 	if h.vulnScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "漏洞扫描器未启用"))
@@ -443,7 +443,7 @@ func (h *Handlers) scanVulnerabilitiesBatch(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(results))
 }
 
-// getVulnerability 获取漏洞详情
+// getVulnerability 获取漏洞详情.
 func (h *Handlers) getVulnerability(c *gin.Context) {
 	if h.vulnScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "漏洞扫描器未启用"))
@@ -460,7 +460,7 @@ func (h *Handlers) getVulnerability(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(vuln))
 }
 
-// listVulnDatabases 列出漏洞数据库
+// listVulnDatabases 列出漏洞数据库.
 func (h *Handlers) listVulnDatabases(c *gin.Context) {
 	if h.vulnScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "漏洞扫描器未启用"))
@@ -471,7 +471,7 @@ func (h *Handlers) listVulnDatabases(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(dbs))
 }
 
-// syncVulnDatabase 同步漏洞数据库
+// syncVulnDatabase 同步漏洞数据库.
 func (h *Handlers) syncVulnDatabase(c *gin.Context) {
 	if h.vulnScanner == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "漏洞扫描器未启用"))
@@ -497,7 +497,7 @@ func (h *Handlers) syncVulnDatabase(c *gin.Context) {
 
 // ========== 安全评分处理器 ==========
 
-// calculateScore 计算安全评分
+// calculateScore 计算安全评分.
 func (h *Handlers) calculateScore(c *gin.Context) {
 	if h.scoreEngine == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "安全评分引擎未启用"))
@@ -520,7 +520,7 @@ func (h *Handlers) calculateScore(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(score))
 }
 
-// getCurrentScore 获取当前评分
+// getCurrentScore 获取当前评分.
 func (h *Handlers) getCurrentScore(c *gin.Context) {
 	if h.scoreEngine == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "安全评分引擎未启用"))
@@ -538,7 +538,7 @@ func (h *Handlers) getCurrentScore(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(latest))
 }
 
-// getScoreHistory 获取评分历史
+// getScoreHistory 获取评分历史.
 func (h *Handlers) getScoreHistory(c *gin.Context) {
 	if h.scoreEngine == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "安全评分引擎未启用"))
@@ -551,7 +551,7 @@ func (h *Handlers) getScoreHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(history))
 }
 
-// getTrendAnalysis 获取趋势分析
+// getTrendAnalysis 获取趋势分析.
 func (h *Handlers) getTrendAnalysis(c *gin.Context) {
 	if h.scoreEngine == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "安全评分引擎未启用"))
@@ -564,7 +564,7 @@ func (h *Handlers) getTrendAnalysis(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(analysis))
 }
 
-// getScoreReport 获取评分报告
+// getScoreReport 获取评分报告.
 func (h *Handlers) getScoreReport(c *gin.Context) {
 	if h.scoreEngine == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "安全评分引擎未启用"))
@@ -583,7 +583,7 @@ func (h *Handlers) getScoreReport(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(report))
 }
 
-// getScoreCategories 获取评分类别
+// getScoreCategories 获取评分类别.
 func (h *Handlers) getScoreCategories(c *gin.Context) {
 	if h.scoreEngine == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "安全评分引擎未启用"))
@@ -594,7 +594,7 @@ func (h *Handlers) getScoreCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(categories))
 }
 
-// updateScoreCategory 更新评分类别
+// updateScoreCategory 更新评分类别.
 func (h *Handlers) updateScoreCategory(c *gin.Context) {
 	if h.scoreEngine == nil {
 		c.JSON(http.StatusServiceUnavailable, ErrorResponse(503, "安全评分引擎未启用"))
@@ -613,13 +613,13 @@ func (h *Handlers) updateScoreCategory(c *gin.Context) {
 
 // ========== 敏感数据规则处理器 ==========
 
-// listSensitiveRules 列出敏感数据规则
+// listSensitiveRules 列出敏感数据规则.
 func (h *Handlers) listSensitiveRules(c *gin.Context) {
 	rules := DefaultSensitiveDataRules()
 	c.JSON(http.StatusOK, SuccessResponse(rules))
 }
 
-// addSensitiveRule 添加敏感数据规则
+// addSensitiveRule 添加敏感数据规则.
 func (h *Handlers) addSensitiveRule(c *gin.Context) {
 	var rule SensitiveDataRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -630,7 +630,7 @@ func (h *Handlers) addSensitiveRule(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(rule))
 }
 
-// updateSensitiveRule 更新敏感数据规则
+// updateSensitiveRule 更新敏感数据规则.
 func (h *Handlers) updateSensitiveRule(c *gin.Context) {
 	ruleID := c.Param("rule_id")
 
@@ -644,14 +644,14 @@ func (h *Handlers) updateSensitiveRule(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(rule))
 }
 
-// deleteSensitiveRule 删除敏感数据规则
+// deleteSensitiveRule 删除敏感数据规则.
 func (h *Handlers) deleteSensitiveRule(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "已删除"}))
 }
 
 // ========== 仪表板处理器 ==========
 
-// getDashboardData 获取仪表板数据
+// getDashboardData 获取仪表板数据.
 func (h *Handlers) getDashboardData(c *gin.Context) {
 	dashboard := gin.H{
 		"timestamp": time.Now(),
@@ -689,7 +689,7 @@ func (h *Handlers) getDashboardData(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(dashboard))
 }
 
-// getStatistics 获取统计数据
+// getStatistics 获取统计数据.
 func (h *Handlers) getStatistics(c *gin.Context) {
 	stats := gin.H{
 		"timestamp": time.Now(),

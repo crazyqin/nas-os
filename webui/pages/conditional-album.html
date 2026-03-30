@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>条件相册 - nas-os</title>
+    <link href="/static/css/style.css" rel="stylesheet">
+    <style>
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .album-card {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .album-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .album-card .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+        }
+        .album-card .name {
+            font-weight: 600;
+        }
+        .album-card .count {
+            font-size: 0.85rem;
+        }
+        .rule-type {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+        .rule-person { background: #ffcdd2; color: #c62828; }
+        .rule-time { background: #bbdefb; color: #1565c0; }
+        .rule-location { background: #c8e6c9; color: #2e7d32; }
+        .rule-object { background: #fff9c4; color: #f57f17; }
+        .rule-camera { background: #e1bee7; color: #6a1b9a; }
+        .create-rule-form {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .rule-condition {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .rule-condition select, .rule-condition input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📸 条件相册</h1>
+            <p class="subtitle">智能生成 · 人物/时间/地点/镜头自动归类</p>
+        </header>
+
+        <!-- 创建规则 -->
+        <section class="create-rule-form">
+            <h2>创建新规则</h2>
+            <form id="rule-form">
+                <div class="form-group">
+                    <label>相册名称</label>
+                    <input type="text" name="name" placeholder="例如: 家人的照片" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>规则类型</label>
+                    <select name="type" id="rule-type" onchange="updateConditionFields()">
+                        <option value="person">人物相册</option>
+                        <option value="time">时间相册</option>
+                        <option value="location">地点相册</option>
+                        <option value="camera">镜头相册</option>
+                        <option value="object">物体相册</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="condition-fields">
+                    <!-- 动态条件字段 -->
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="auto_update" checked>
+                        自动更新（新照片自动加入）
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">创建相册</button>
+            </form>
+        </section>
+
+        <!-- 已有相册 -->
+        <section class="section">
+            <h2>条件相册</h2>
+            <div class="album-grid" id="albums">
+                <!-- 动态加载 -->
+            </div>
+        </section>
+
+        <!-- 人物管理 -->
+        <section class="section">
+            <h2>人物管理</h2>
+            <div class="person-list" id="persons">
+                <!-- 动态加载 -->
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 更新条件字段
+        function updateConditionFields() {
+            const type = document.getElementById('rule-type').value;
+            const container = document.getElementById('condition-fields');
+            
+            let html = '';
+            switch (type) {
+                case 'person':
+                    html = `
+                        <label>选择人物</label>
+                        <select name="person_id" id="person-select">
+                            <!-- 动态加载人物列表 -->
+                        </select>
+                    `;
+                    break;
+                case 'time':
+                    html = `
+                        <label>时间范围</label>
+                        <div class="rule-condition">
+                            <input type="date" name="start_date">
+                            <span>至</span>
+                            <input type="date" name="end_date">
+                        </div>
+                    `;
+                    break;
+                case 'location':
+                    html = `
+                        <label>地点关键词</label>
+                        <input type="text" name="location" placeholder="例如: 北京、上海">
+                    `;
+                    break;
+                case 'camera':
+                    html = `
+                        <label>相机型号</label>
+                        <input type="text" name="camera" placeholder="例如: iPhone、Sony">
+                    `;
+                    break;
+                case 'object':
+                    html = `
+                        <label>物体标签</label>
+                        <input type="text" name="object" placeholder="例如: 猫、狗、车">
+                    `;
+                    break;
+            }
+            container.innerHTML = html;
+            
+            if (type === 'person') {
+                loadPersonOptions();
+            }
+        }
+
+        // 加载人物选项
+        async function loadPersonOptions() {
+            const response = await fetch('/api/ai/face/persons');
+            const persons = await response.json();
+            
+            const select = document.getElementById('person-select');
+            select.innerHTML = persons.map(person => `
+                <option value="${person.id}">${person.name} (${person.face_count}张)</option>
+            `).join('');
+        }
+
+        // 加载相册
+        async function loadAlbums() {
+            const response = await fetch('/api/photos/conditional-albums');
+            const albums = await response.json();
+            
+            const container = document.getElementById('albums');
+            container.innerHTML = albums.map(album => `
+                <div class="album-card" onclick="openAlbum('${album.id}')">
+                    <img src="/api/photos/${album.cover_photo}/thumbnail" 
+                         alt="${album.name}">
+                    <div class="overlay">
+                        <div class="name">${album.name}</div>
+                        <div class="count">${album.photo_count} 张</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 创建规则
+        document.getElementById('rule-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const rule = {
+                name: formData.get('name'),
+                type: formData.get('type'),
+                conditions: [],
+                auto_update: formData.get('auto_update') === 'on'
+            };
+            
+            // 构建条件
+            switch (rule.type) {
+                case 'person':
+                    rule.conditions.push({
+                        field: 'person_id',
+                        operator: 'equals',
+                        value: formData.get('person_id')
+                    });
+                    break;
+                case 'time':
+                    rule.conditions.push({
+                        field: 'date_taken',
+                        operator: 'in_range',
+                        value: [formData.get('start_date'), formData.get('end_date')]
+                    });
+                    break;
+                case 'location':
+                    rule.conditions.push({
+                        field: 'location',
+                        operator: 'contains',
+                        value: formData.get('location')
+                    });
+                    break;
+                case 'camera':
+                    rule.conditions.push({
+                        field: 'camera',
+                        operator: 'contains',
+                        value: formData.get('camera')
+                    });
+                    break;
+                case 'object':
+                    rule.conditions.push({
+                        field: 'object',
+                        operator: 'equals',
+                        value: formData.get('object')
+                    });
+                    break;
+            }
+            
+            const response = await fetch('/api/photos/conditional-albums/rules', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(rule)
+            });
+            
+            if (response.ok) {
+                alert('相册创建成功！');
+                loadAlbums();
+                e.target.reset();
+                updateConditionFields();
+            }
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            updateConditionFields();
+            loadAlbums();
+        });
+    </script>
+</body>
+</html>

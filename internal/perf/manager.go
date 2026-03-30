@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Manager 性能监控管理器
+// Manager 性能监控管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -35,7 +35,7 @@ type Manager struct {
 	stopChan chan struct{}
 }
 
-// MetricsStore 性能指标存储
+// MetricsStore 性能指标存储.
 type MetricsStore struct {
 	mu sync.RWMutex
 
@@ -55,7 +55,7 @@ type MetricsStore struct {
 	Baseline *PerformanceBaseline
 }
 
-// EndpointMetrics 端点指标
+// EndpointMetrics 端点指标.
 type EndpointMetrics struct {
 	Path           string        `json:"path"`
 	Method         string        `json:"method"`
@@ -75,7 +75,7 @@ type EndpointMetrics struct {
 	maxHistory int
 }
 
-// TimeWindow 时间窗口统计
+// TimeWindow 时间窗口统计.
 type TimeWindow struct {
 	mu sync.RWMutex
 
@@ -89,7 +89,7 @@ type TimeWindow struct {
 	WindowSize int64
 }
 
-// SlowLogEntry 慢请求日志条目
+// SlowLogEntry 慢请求日志条目.
 type SlowLogEntry struct {
 	Timestamp   time.Time     `json:"timestamp"`
 	RequestID   string        `json:"requestId"`
@@ -103,7 +103,7 @@ type SlowLogEntry struct {
 	RequestSize int64         `json:"requestSize"`
 }
 
-// ThroughputTracker 吞吐量追踪器
+// ThroughputTracker 吞吐量追踪器.
 type ThroughputTracker struct {
 	mu sync.RWMutex
 
@@ -117,7 +117,7 @@ type ThroughputTracker struct {
 	DailyStats map[int64]*DailyStat
 }
 
-// MinuteStat 分钟统计
+// MinuteStat 分钟统计.
 type MinuteStat struct {
 	Timestamp    int64   `json:"timestamp"`
 	RequestCount uint64  `json:"requestCount"`
@@ -127,7 +127,7 @@ type MinuteStat struct {
 	PeakRPS      float64 `json:"peakRPS"`
 }
 
-// HourlyStat 小时统计
+// HourlyStat 小时统计.
 type HourlyStat struct {
 	Timestamp    int64   `json:"timestamp"`
 	RequestCount uint64  `json:"requestCount"`
@@ -136,7 +136,7 @@ type HourlyStat struct {
 	PeakRPS      float64 `json:"peakRPS"`
 }
 
-// DailyStat 日统计
+// DailyStat 日统计.
 type DailyStat struct {
 	Timestamp    int64   `json:"timestamp"`
 	RequestCount uint64  `json:"requestCount"`
@@ -145,7 +145,7 @@ type DailyStat struct {
 	PeakRPS      float64 `json:"peakRPS"`
 }
 
-// PerformanceBaseline 性能基线
+// PerformanceBaseline 性能基线.
 type PerformanceBaseline struct {
 	mu sync.RWMutex
 
@@ -165,7 +165,7 @@ type PerformanceBaseline struct {
 	LastUpdated time.Time `json:"lastUpdated"`
 }
 
-// Config 性能监控配置
+// Config 性能监控配置.
 type Config struct {
 	SlowThreshold    time.Duration // 慢请求阈值
 	SlowLogMax       int           // 最大慢日志条数
@@ -174,7 +174,7 @@ type Config struct {
 	BaselineInterval time.Duration // 基线更新间隔
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		SlowThreshold:    500 * time.Millisecond,
@@ -185,7 +185,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewManager 创建性能监控管理器
+// NewManager 创建性能监控管理器.
 func NewManager(cfg *Config) (*Manager, error) {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -228,7 +228,7 @@ func NewManager(cfg *Config) (*Manager, error) {
 	return m, nil
 }
 
-// Middleware 性能监控中间件
+// Middleware 性能监控中间件.
 func (m *Manager) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -280,7 +280,7 @@ func (m *Manager) Middleware() gin.HandlerFunc {
 	}
 }
 
-// recordMetrics 记录性能指标
+// recordMetrics 记录性能指标.
 func (m *Manager) recordMetrics(path, method string, duration time.Duration, statusCode int) {
 	m.metrics.mu.Lock()
 	defer m.metrics.mu.Unlock()
@@ -338,7 +338,7 @@ func (m *Manager) recordMetrics(path, method string, duration time.Duration, sta
 	m.updateTimeWindow(duration, statusCode)
 }
 
-// calculatePercentiles 计算百分位响应时间
+// calculatePercentiles 计算百分位响应时间.
 func (em *EndpointMetrics) calculatePercentiles() {
 	if len(em.durations) == 0 {
 		return
@@ -362,7 +362,7 @@ func (em *EndpointMetrics) calculatePercentiles() {
 	em.AvgDuration = time.Duration(float64(em.TotalDuration) / float64(em.RequestCount))
 }
 
-// updateTimeWindow 更新时间窗口统计
+// updateTimeWindow 更新时间窗口统计.
 func (m *Manager) updateTimeWindow(duration time.Duration, statusCode int) {
 	window := m.metrics.MinuteWindow
 	window.mu.Lock()
@@ -392,7 +392,7 @@ func (m *Manager) updateTimeWindow(duration time.Duration, statusCode int) {
 	}
 }
 
-// recordThroughput 记录吞吐量
+// recordThroughput 记录吞吐量.
 func (m *Manager) recordThroughput(duration time.Duration, statusCode int, responseSize int) {
 	m.throughput.mu.Lock()
 	defer m.throughput.mu.Unlock()
@@ -443,7 +443,7 @@ func (m *Manager) recordThroughput(duration time.Duration, statusCode int, respo
 	m.cleanupThroughputData(now)
 }
 
-// recordSlowLog 记录慢请求
+// recordSlowLog 记录慢请求.
 func (m *Manager) recordSlowLog(entry *SlowLogEntry) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -458,7 +458,7 @@ func (m *Manager) recordSlowLog(entry *SlowLogEntry) {
 	go m.writeSlowLogToFile(entry)
 }
 
-// writeSlowLogToFile 写入慢日志文件
+// writeSlowLogToFile 写入慢日志文件.
 func (m *Manager) writeSlowLogToFile(entry *SlowLogEntry) {
 	f, err := os.OpenFile(m.slowLogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
@@ -477,7 +477,7 @@ func (m *Manager) writeSlowLogToFile(entry *SlowLogEntry) {
 	_, _ = f.WriteString("\n")
 }
 
-// cleanupLoop 清理过期数据
+// cleanupLoop 清理过期数据.
 func (m *Manager) cleanupLoop() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -492,7 +492,7 @@ func (m *Manager) cleanupLoop() {
 	}
 }
 
-// cleanupThroughputData 清理吞吐量数据
+// cleanupThroughputData 清理吞吐量数据.
 func (m *Manager) cleanupThroughputData(now time.Time) {
 	m.throughput.mu.Lock()
 	defer m.throughput.mu.Unlock()
@@ -522,7 +522,7 @@ func (m *Manager) cleanupThroughputData(now time.Time) {
 	}
 }
 
-// baselineLoop 更新性能基线
+// baselineLoop 更新性能基线.
 func (m *Manager) baselineLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -537,7 +537,7 @@ func (m *Manager) baselineLoop(interval time.Duration) {
 	}
 }
 
-// updateBaseline 更新性能基线
+// updateBaseline 更新性能基线.
 func (m *Manager) updateBaseline() {
 	m.metrics.mu.RLock()
 	defer m.metrics.mu.RUnlock()
@@ -590,14 +590,14 @@ func (m *Manager) updateBaseline() {
 	baseline.LastUpdated = time.Now()
 }
 
-// Stop 停止性能监控
+// Stop 停止性能监控.
 func (m *Manager) Stop() {
 	close(m.stopChan)
 }
 
 // ========== API 处理器 ==========
 
-// GetMetrics 获取性能指标
+// GetMetrics 获取性能指标.
 func (m *Manager) GetMetrics() *MetricsStore {
 	m.metrics.mu.RLock()
 	defer m.metrics.mu.RUnlock()
@@ -618,7 +618,7 @@ func (m *Manager) GetMetrics() *MetricsStore {
 	return result
 }
 
-// GetEndpointMetrics 获取特定端点的指标
+// GetEndpointMetrics 获取特定端点的指标.
 func (m *Manager) GetEndpointMetrics(path, method string) *EndpointMetrics {
 	m.metrics.mu.RLock()
 	defer m.metrics.mu.RUnlock()
@@ -627,7 +627,7 @@ func (m *Manager) GetEndpointMetrics(path, method string) *EndpointMetrics {
 	return m.metrics.Endpoints[key]
 }
 
-// GetSlowLogs 获取慢请求日志
+// GetSlowLogs 获取慢请求日志.
 func (m *Manager) GetSlowLogs(limit int) []*SlowLogEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -645,7 +645,7 @@ func (m *Manager) GetSlowLogs(limit int) []*SlowLogEntry {
 	return m.slowLogs[start:]
 }
 
-// GetThroughputStats 获取吞吐量统计
+// GetThroughputStats 获取吞吐量统计.
 func (m *Manager) GetThroughputStats() map[string]interface{} {
 	m.throughput.mu.RLock()
 	defer m.throughput.mu.RUnlock()
@@ -695,7 +695,7 @@ func (m *Manager) GetThroughputStats() map[string]interface{} {
 	}
 }
 
-// GetBaseline 获取性能基线
+// GetBaseline 获取性能基线.
 func (m *Manager) GetBaseline() *PerformanceBaseline {
 	m.metrics.mu.RLock()
 	defer m.metrics.mu.RUnlock()
@@ -703,7 +703,7 @@ func (m *Manager) GetBaseline() *PerformanceBaseline {
 	return m.metrics.Baseline
 }
 
-// GetTimeWindowStats 获取时间窗口统计
+// GetTimeWindowStats 获取时间窗口统计.
 func (m *Manager) GetTimeWindowStats() map[string]interface{} {
 	window := m.metrics.MinuteWindow
 	window.mu.RLock()
@@ -741,7 +741,7 @@ func (m *Manager) GetTimeWindowStats() map[string]interface{} {
 
 // ==================== v2.4.0 性能监控增强 ====================
 
-// AlertRule 性能告警规则
+// AlertRule 性能告警规则.
 type AlertRule struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -771,7 +771,7 @@ type AlertRule struct {
 	TriggerCount  int       `json:"triggerCount"`
 }
 
-// AlertInstance 告警实例
+// AlertInstance 告警实例.
 type AlertInstance struct {
 	RuleID      string    `json:"ruleId"`
 	RuleName    string    `json:"ruleName"`
@@ -784,10 +784,10 @@ type AlertInstance struct {
 	Resolved    bool      `json:"resolved"`
 }
 
-// ExportFormat 导出格式
+// ExportFormat 导出格式.
 type ExportFormat string
 
-// 导出格式常量
+// 导出格式常量.
 const (
 	ExportFormatJSON     ExportFormat = "json"
 	ExportFormatCSV      ExportFormat = "csv"
@@ -795,7 +795,7 @@ const (
 	ExportFormatMarkdown ExportFormat = "markdown"
 )
 
-// PerformanceReport 性能报告
+// PerformanceReport 性能报告.
 type PerformanceReport struct {
 	GeneratedAt     time.Time         `json:"generatedAt"`
 	TimeRange       string            `json:"timeRange"`
@@ -807,7 +807,7 @@ type PerformanceReport struct {
 	Recommendations []string          `json:"recommendations,omitempty"`
 }
 
-// ReportSummary 报告摘要
+// ReportSummary 报告摘要.
 type ReportSummary struct {
 	TotalRequests   uint64  `json:"totalRequests"`
 	TotalErrors     uint64  `json:"totalErrors"`
@@ -820,7 +820,7 @@ type ReportSummary struct {
 	AvgRPS          float64 `json:"avgRPS"`
 }
 
-// EndpointReport 端点报告
+// EndpointReport 端点报告.
 type EndpointReport struct {
 	Path         string  `json:"path"`
 	Method       string  `json:"method"`
@@ -833,7 +833,7 @@ type EndpointReport struct {
 	P99Duration  float64 `json:"p99Duration"`
 }
 
-// ThroughputReport 吞吐量报告
+// ThroughputReport 吞吐量报告.
 type ThroughputReport struct {
 	CurrentRPS float64       `json:"currentRPS"`
 	PeakRPS    float64       `json:"peakRPS"`
@@ -841,7 +841,7 @@ type ThroughputReport struct {
 	Daily      []*DailyStat  `json:"daily"`
 }
 
-// alertManager 告警管理器（内部使用）
+// alertManager 告警管理器（内部使用）.
 type alertManager struct {
 	mu      sync.RWMutex
 	rules   map[string]*AlertRule
@@ -849,14 +849,14 @@ type alertManager struct {
 	enabled bool
 }
 
-// 告警管理器实例
+// 告警管理器实例.
 var globalAlertManager = &alertManager{
 	rules:   make(map[string]*AlertRule),
 	alerts:  make([]*AlertInstance, 0),
 	enabled: true,
 }
 
-// SetAlertRule 设置性能告警规则
+// SetAlertRule 设置性能告警规则.
 func (m *Manager) SetAlertRule(rule AlertRule) (*AlertRule, error) {
 	if rule.Name == "" {
 		return nil, fmt.Errorf("告警规则名称不能为空")
@@ -918,7 +918,7 @@ func (m *Manager) SetAlertRule(rule AlertRule) (*AlertRule, error) {
 	return &rule, nil
 }
 
-// GetAlertRules 获取所有告警规则
+// GetAlertRules 获取所有告警规则.
 func (m *Manager) GetAlertRules() []*AlertRule {
 	globalAlertManager.mu.RLock()
 	defer globalAlertManager.mu.RUnlock()
@@ -930,7 +930,7 @@ func (m *Manager) GetAlertRules() []*AlertRule {
 	return rules
 }
 
-// DeleteAlertRule 删除告警规则
+// DeleteAlertRule 删除告警规则.
 func (m *Manager) DeleteAlertRule(id string) error {
 	globalAlertManager.mu.Lock()
 	defer globalAlertManager.mu.Unlock()
@@ -943,7 +943,7 @@ func (m *Manager) DeleteAlertRule(id string) error {
 	return nil
 }
 
-// GetActiveAlerts 获取活跃告警
+// GetActiveAlerts 获取活跃告警.
 func (m *Manager) GetActiveAlerts() []*AlertInstance {
 	globalAlertManager.mu.RLock()
 	defer globalAlertManager.mu.RUnlock()
@@ -957,7 +957,7 @@ func (m *Manager) GetActiveAlerts() []*AlertInstance {
 	return alerts
 }
 
-// startAlertCheck 启动告警检查
+// startAlertCheck 启动告警检查.
 func (m *Manager) startAlertCheck(rule *AlertRule) {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -1005,7 +1005,7 @@ func (m *Manager) startAlertCheck(rule *AlertRule) {
 	}
 }
 
-// getMetricValue 获取指标值
+// getMetricValue 获取指标值.
 func (m *Manager) getMetricValue(metric string) float64 {
 	switch metric {
 	case "response_time":
@@ -1026,7 +1026,7 @@ func (m *Manager) getMetricValue(metric string) float64 {
 	}
 }
 
-// checkCondition 检查条件
+// checkCondition 检查条件.
 func (m *Manager) checkCondition(value float64, operator string, threshold float64) bool {
 	switch operator {
 	case ">":
@@ -1044,7 +1044,7 @@ func (m *Manager) checkCondition(value float64, operator string, threshold float
 	}
 }
 
-// triggerAlert 触发告警
+// triggerAlert 触发告警.
 func (m *Manager) triggerAlert(rule *AlertRule, value float64) {
 	alert := &AlertInstance{
 		RuleID:      rule.ID,
@@ -1071,7 +1071,7 @@ func (m *Manager) triggerAlert(rule *AlertRule, value float64) {
 	go sendAlertNotification(alert)
 }
 
-// sendAlertNotification 发送告警通知
+// sendAlertNotification 发送告警通知.
 func sendAlertNotification(alert *AlertInstance) {
 	// 检查通知配置
 	if notificationConfig == nil {
@@ -1093,13 +1093,13 @@ func sendAlertNotification(alert *AlertInstance) {
 	}
 }
 
-// NotificationConfig 通知配置
+// NotificationConfig 通知配置.
 type NotificationConfig struct {
 	Email   *EmailNotificationConfig   `json:"email,omitempty"`
 	Webhook *WebhookNotificationConfig `json:"webhook,omitempty"`
 }
 
-// EmailNotificationConfig 邮件通知配置
+// EmailNotificationConfig 邮件通知配置.
 type EmailNotificationConfig struct {
 	Enabled  bool     `json:"enabled"`
 	SMTPHost string   `json:"smtpHost"`
@@ -1111,7 +1111,7 @@ type EmailNotificationConfig struct {
 	UseTLS   bool     `json:"useTLS"`
 }
 
-// WebhookNotificationConfig Webhook 通知配置
+// WebhookNotificationConfig Webhook 通知配置.
 type WebhookNotificationConfig struct {
 	Enabled bool              `json:"enabled"`
 	URL     string            `json:"url"`
@@ -1119,15 +1119,15 @@ type WebhookNotificationConfig struct {
 	Headers map[string]string `json:"headers,omitempty"`
 }
 
-// notificationConfig 通知配置（全局）
+// notificationConfig 通知配置（全局）.
 var notificationConfig *NotificationConfig
 
-// SetNotificationConfig 设置通知配置
+// SetNotificationConfig 设置通知配置.
 func SetNotificationConfig(config *NotificationConfig) {
 	notificationConfig = config
 }
 
-// sendEmailNotification 发送邮件通知
+// sendEmailNotification 发送邮件通知.
 func sendEmailNotification(alert *AlertInstance) error {
 	if notificationConfig == nil || notificationConfig.Email == nil {
 		return fmt.Errorf("邮件通知未配置")
@@ -1153,7 +1153,7 @@ func sendEmailNotification(alert *AlertInstance) error {
 	return nil
 }
 
-// sendWebhookNotification 发送 Webhook 通知
+// sendWebhookNotification 发送 Webhook 通知.
 func sendWebhookNotification(alert *AlertInstance) error {
 	if notificationConfig == nil || notificationConfig.Webhook == nil {
 		return fmt.Errorf("webhook 通知未配置")
@@ -1176,7 +1176,7 @@ func sendWebhookNotification(alert *AlertInstance) error {
 	return nil
 }
 
-// ExportReport 导出性能报告
+// ExportReport 导出性能报告.
 func (m *Manager) ExportReport(format string) ([]byte, error) {
 	exportFormat := ExportFormat(format)
 	if exportFormat == "" {
@@ -1200,7 +1200,7 @@ func (m *Manager) ExportReport(format string) ([]byte, error) {
 	}
 }
 
-// generateReport 生成报告数据
+// generateReport 生成报告数据.
 func (m *Manager) generateReport() *PerformanceReport {
 	report := &PerformanceReport{
 		GeneratedAt:     time.Now(),
@@ -1276,7 +1276,7 @@ func (m *Manager) generateReport() *PerformanceReport {
 	return report
 }
 
-// generateRecommendations 生成性能建议
+// generateRecommendations 生成性能建议.
 func (m *Manager) generateRecommendations(report *PerformanceReport) []string {
 	var recommendations []string
 
@@ -1311,12 +1311,12 @@ func (m *Manager) generateRecommendations(report *PerformanceReport) []string {
 	return recommendations
 }
 
-// exportJSON 导出JSON格式
+// exportJSON 导出JSON格式.
 func (m *Manager) exportJSON(report *PerformanceReport) ([]byte, error) {
 	return json.MarshalIndent(report, "", "  ")
 }
 
-// exportCSV 导出CSV格式
+// exportCSV 导出CSV格式.
 func (m *Manager) exportCSV(report *PerformanceReport) ([]byte, error) {
 	var buf bytes.Buffer
 	writer := csv.NewWriter(&buf)
@@ -1349,7 +1349,7 @@ func (m *Manager) exportCSV(report *PerformanceReport) ([]byte, error) {
 	return buf.Bytes(), writer.Error()
 }
 
-// exportHTML 导出HTML格式
+// exportHTML 导出HTML格式.
 func (m *Manager) exportHTML(report *PerformanceReport) ([]byte, error) {
 	var buf bytes.Buffer
 
@@ -1434,7 +1434,7 @@ func (m *Manager) exportHTML(report *PerformanceReport) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// exportMarkdown 导出Markdown格式
+// exportMarkdown 导出Markdown格式.
 func (m *Manager) exportMarkdown(report *PerformanceReport) ([]byte, error) {
 	var buf bytes.Buffer
 

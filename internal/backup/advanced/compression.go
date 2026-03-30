@@ -11,14 +11,14 @@ import (
 
 // ========== 默认压缩器 ==========
 
-// DefaultCompressor 默认压缩器（支持多种算法）
+// DefaultCompressor 默认压缩器（支持多种算法）.
 type DefaultCompressor struct {
 	algorithm CompressionAlgorithm
 	level     int
 	mu        sync.Mutex
 }
 
-// NewDefaultCompressor 创建默认压缩器
+// NewDefaultCompressor 创建默认压缩器.
 func NewDefaultCompressor(config *CompressionConfig) *DefaultCompressor {
 	if config == nil {
 		config = DefaultCompressionConfig()
@@ -29,7 +29,7 @@ func NewDefaultCompressor(config *CompressionConfig) *DefaultCompressor {
 	}
 }
 
-// Compress 压缩数据
+// Compress 压缩数据.
 func (c *DefaultCompressor) Compress(data []byte) ([]byte, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -53,7 +53,7 @@ func (c *DefaultCompressor) Compress(data []byte) ([]byte, error) {
 	}
 }
 
-// Decompress 解压数据
+// Decompress 解压数据.
 func (c *DefaultCompressor) Decompress(data []byte) ([]byte, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -76,12 +76,12 @@ func (c *DefaultCompressor) Decompress(data []byte) ([]byte, error) {
 	}
 }
 
-// Algorithm 获取算法名称
+// Algorithm 获取算法名称.
 func (c *DefaultCompressor) Algorithm() CompressionAlgorithm {
 	return c.algorithm
 }
 
-// compressGzip Gzip压缩
+// compressGzip Gzip压缩.
 func (c *DefaultCompressor) compressGzip(data []byte) ([]byte, error) {
 	var buf bytes.Buffer
 
@@ -109,7 +109,7 @@ func (c *DefaultCompressor) compressGzip(data []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// decompressGzip Gzip解压
+// decompressGzip Gzip解压.
 func (c *DefaultCompressor) decompressGzip(data []byte) ([]byte, error) {
 	reader, err := gzip.NewReader(bytes.NewReader(data))
 	if err != nil {
@@ -125,7 +125,7 @@ func (c *DefaultCompressor) decompressGzip(data []byte) ([]byte, error) {
 	return result, nil
 }
 
-// decompressBzip2 Bzip2解压
+// decompressBzip2 Bzip2解压.
 func (c *DefaultCompressor) decompressBzip2(data []byte) ([]byte, error) {
 	reader := bzip2.NewReader(bytes.NewReader(data))
 
@@ -139,7 +139,7 @@ func (c *DefaultCompressor) decompressBzip2(data []byte) ([]byte, error) {
 
 // ========== 压缩算法信息 ==========
 
-// CompressionInfo 压缩算法信息
+// CompressionInfo 压缩算法信息.
 type CompressionInfo struct {
 	Name         string               `json:"name"`
 	Algorithm    CompressionAlgorithm `json:"algorithm"`
@@ -151,7 +151,7 @@ type CompressionInfo struct {
 	Description  string               `json:"description"`
 }
 
-// SupportedCompressionAlgorithms 支持的压缩算法列表
+// SupportedCompressionAlgorithms 支持的压缩算法列表.
 func SupportedCompressionAlgorithms() []CompressionInfo {
 	return []CompressionInfo{
 		{
@@ -217,7 +217,7 @@ func SupportedCompressionAlgorithms() []CompressionInfo {
 	}
 }
 
-// GetCompressionInfo 获取压缩算法信息
+// GetCompressionInfo 获取压缩算法信息.
 func GetCompressionInfo(algorithm CompressionAlgorithm) *CompressionInfo {
 	for _, info := range SupportedCompressionAlgorithms() {
 		if info.Algorithm == algorithm {
@@ -227,7 +227,7 @@ func GetCompressionInfo(algorithm CompressionAlgorithm) *CompressionInfo {
 	return nil
 }
 
-// EstimateCompressionRatio 估算压缩率
+// EstimateCompressionRatio 估算压缩率.
 func EstimateCompressionRatio(algorithm CompressionAlgorithm) float64 {
 	switch algorithm {
 	case CompressionNone:
@@ -249,7 +249,7 @@ func EstimateCompressionRatio(algorithm CompressionAlgorithm) float64 {
 
 // ========== 压缩统计 ==========
 
-// CompressionStats 压缩统计
+// CompressionStats 压缩统计.
 type CompressionStats struct {
 	Algorithm         CompressionAlgorithm `json:"algorithm"`
 	OriginalSize      int64                `json:"originalSize"`
@@ -261,7 +261,7 @@ type CompressionStats struct {
 	DecompressionTime int64                `json:"decompressionTimeMs"`
 }
 
-// CalculateStats 计算压缩统计
+// CalculateStats 计算压缩统计.
 func CalculateStats(algorithm CompressionAlgorithm, originalSize, compressedSize int64) *CompressionStats {
 	var ratio float64
 	if originalSize > 0 {

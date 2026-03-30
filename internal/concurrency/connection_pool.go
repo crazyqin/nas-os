@@ -10,22 +10,22 @@ import (
 )
 
 var (
-	// ErrPoolExhausted 连接池已耗尽错误
+	// ErrPoolExhausted 连接池已耗尽错误.
 	ErrPoolExhausted = errors.New("connection pool exhausted")
-	// ErrConnClosed 连接已关闭错误
+	// ErrConnClosed 连接已关闭错误.
 	ErrConnClosed = errors.New("connection is closed")
 )
 
-// Connection represents a pooled connection
+// Connection represents a pooled connection.
 type Connection interface {
 	Close() error
 	IsHealthy() bool
 }
 
-// ConnectionFactory creates new connections
+// ConnectionFactory creates new connections.
 type ConnectionFactory func() (Connection, error)
 
-// ConnectionPool manages a pool of reusable connections
+// ConnectionPool manages a pool of reusable connections.
 type ConnectionPool struct {
 	factory     ConnectionFactory
 	maxSize     int
@@ -48,7 +48,7 @@ type ConnectionPool struct {
 	logger *zap.Logger
 }
 
-// NewConnectionPool creates a new connection pool
+// NewConnectionPool creates a new connection pool.
 func NewConnectionPool(
 	factory ConnectionFactory,
 	maxSize, minSize int,
@@ -85,7 +85,7 @@ func NewConnectionPool(
 	return pool
 }
 
-// Get retrieves a connection from the pool
+// Get retrieves a connection from the pool.
 func (p *ConnectionPool) Get(timeout time.Duration) (Connection, error) {
 	p.mu.Lock()
 	if p.closed {
@@ -157,7 +157,7 @@ func (p *ConnectionPool) Get(timeout time.Duration) (Connection, error) {
 	}
 }
 
-// Put returns a connection to the pool
+// Put returns a connection to the pool.
 func (p *ConnectionPool) Put(conn Connection) {
 	if conn == nil {
 		return
@@ -196,7 +196,7 @@ func (p *ConnectionPool) Put(conn Connection) {
 	}
 }
 
-// Close closes all connections in the pool
+// Close closes all connections in the pool.
 func (p *ConnectionPool) Close() {
 	p.mu.Lock()
 	if p.closed {
@@ -220,7 +220,7 @@ func (p *ConnectionPool) Close() {
 	}
 }
 
-// Stats returns pool statistics
+// Stats returns pool statistics.
 func (p *ConnectionPool) Stats() ConnPoolStats {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -237,7 +237,7 @@ func (p *ConnectionPool) Stats() ConnPoolStats {
 	}
 }
 
-// ConnPoolStats holds connection pool statistics
+// ConnPoolStats holds connection pool statistics.
 type ConnPoolStats struct {
 	MaxSize   int   `json:"max_size"`
 	MinSize   int   `json:"min_size"`
@@ -249,7 +249,7 @@ type ConnPoolStats struct {
 	WaitCount int64 `json:"wait_count"`
 }
 
-// healthCheck periodically checks and removes unhealthy connections
+// healthCheck periodically checks and removes unhealthy connections.
 func (p *ConnectionPool) healthCheck() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -272,7 +272,7 @@ func (p *ConnectionPool) healthCheck() {
 	}
 }
 
-// checkIdleConnections checks and removes unhealthy idle connections
+// checkIdleConnections checks and removes unhealthy idle connections.
 func (p *ConnectionPool) checkIdleConnections() {
 	select {
 	case conn := <-p.conns:

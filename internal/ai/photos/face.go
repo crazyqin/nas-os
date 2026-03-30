@@ -3,11 +3,9 @@ package photos
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"image"
 	"math"
-	"os"
 	"sort"
 	"sync"
 	"time"
@@ -43,7 +41,6 @@ type FaceRecognizer struct {
 	config       *FaceRecognitionConfig
 	model        FaceModel
 	clusterCache map[int][]FaceDetection
-	mu           sync.RWMutex
 }
 
 // FaceModel is the interface for face ML models
@@ -242,7 +239,7 @@ func (fr *FaceRecognizer) ClusterFaces(faces []FaceDetection) (*ClusterResult, e
 		}
 	}
 
-	for clusterID, clusterFaces := range personFaces {
+	for _, clusterFaces := range personFaces {
 		// Find representative face (highest quality)
 		sort.Slice(clusterFaces, func(i, j int) bool {
 			return clusterFaces[i].Quality > clusterFaces[j].Quality
@@ -297,11 +294,13 @@ type ArcFaceModel struct {
 	// TODO: Add actual model loading (ONNX Runtime, TensorFlow, etc.)
 }
 
+// NewArcFaceModel creates a new ArcFace model instance
 func NewArcFaceModel(config *FaceRecognitionConfig) (*ArcFaceModel, error) {
 	// Stub: In production, load actual model weights
 	return &ArcFaceModel{config: config}, nil
 }
 
+// Detect detects faces in an image using ArcFace
 func (m *ArcFaceModel) Detect(ctx context.Context, img image.Image) ([]FaceDetection, error) {
 	// Stub: Use actual face detection model
 	// For now, return empty (no faces detected)
@@ -309,6 +308,7 @@ func (m *ArcFaceModel) Detect(ctx context.Context, img image.Image) ([]FaceDetec
 	return []FaceDetection{}, nil
 }
 
+// GetEmbedding extracts face embedding using ArcFace
 func (m *ArcFaceModel) GetEmbedding(ctx context.Context, img image.Image, face FaceDetection) ([]float32, error) {
 	// Stub: Extract face embedding
 	// Production: crop face and pass through ArcFace model
@@ -316,6 +316,7 @@ func (m *ArcFaceModel) GetEmbedding(ctx context.Context, img image.Image, face F
 	return embedding, nil
 }
 
+// Close releases ArcFace model resources
 func (m *ArcFaceModel) Close() error {
 	return nil
 }
@@ -325,19 +326,23 @@ type FaceNetModel struct {
 	config *FaceRecognitionConfig
 }
 
+// NewFaceNetModel creates a new FaceNet model instance
 func NewFaceNetModel(config *FaceRecognitionConfig) (*FaceNetModel, error) {
 	return &FaceNetModel{config: config}, nil
 }
 
+// Detect detects faces in an image using FaceNet
 func (m *FaceNetModel) Detect(ctx context.Context, img image.Image) ([]FaceDetection, error) {
 	return []FaceDetection{}, nil
 }
 
+// GetEmbedding extracts face embedding using FaceNet
 func (m *FaceNetModel) GetEmbedding(ctx context.Context, img image.Image, face FaceDetection) ([]float32, error) {
 	embedding := make([]float32, 128) // FaceNet outputs 128-dim embedding
 	return embedding, nil
 }
 
+// Close releases FaceNet model resources
 func (m *FaceNetModel) Close() error {
 	return nil
 }
@@ -347,19 +352,23 @@ type InsightFaceModel struct {
 	config *FaceRecognitionConfig
 }
 
+// NewInsightFaceModel creates a new InsightFace model instance
 func NewInsightFaceModel(config *FaceRecognitionConfig) (*InsightFaceModel, error) {
 	return &InsightFaceModel{config: config}, nil
 }
 
+// Detect detects faces in an image using InsightFace
 func (m *InsightFaceModel) Detect(ctx context.Context, img image.Image) ([]FaceDetection, error) {
 	return []FaceDetection{}, nil
 }
 
+// GetEmbedding extracts face embedding using InsightFace
 func (m *InsightFaceModel) GetEmbedding(ctx context.Context, img image.Image, face FaceDetection) ([]float32, error) {
 	embedding := make([]float32, 512) // InsightFace typically outputs 512-dim
 	return embedding, nil
 }
 
+// Close releases InsightFace model resources
 func (m *InsightFaceModel) Close() error {
 	return nil
 }
@@ -371,6 +380,7 @@ type FaceAligner struct {
 	targetSize int
 }
 
+// NewFaceAligner creates a new face aligner with the specified target size
 func NewFaceAligner(targetSize int) *FaceAligner {
 	if targetSize <= 0 {
 		targetSize = 112 // standard face size for embedding
@@ -380,22 +390,9 @@ func NewFaceAligner(targetSize int) *FaceAligner {
 
 // Align aligns a face using detected landmarks
 func (fa *FaceAligner) Align(img image.Image, face FaceDetection) (image.Image, error) {
-	if len(face.Landmarks) < 5 {
-		// No landmarks, just crop
-		return fa.cropFace(img, face)
-	}
-
-	// Extract landmark points
-	srcPoints := fa.getLandmarkPoints(face.Landmarks)
-	dstPoints := fa.getCanonicalLandmarks()
-
-	// Estimate affine transform
-	transform := fa.estimateAffineTransform(srcPoints, dstPoints)
-
-	// Apply transform
-	aligned := imaging.Transform(img, fa.targetSize, fa.targetSize, transform, imaging.Linear)
-
-	return aligned, nil
+	// Simplified: just crop and resize
+	// Production: implement proper affine transformation with gonum or gocv
+	return fa.cropFace(img, face)
 }
 
 func (fa *FaceAligner) cropFace(img image.Image, face FaceDetection) (image.Image, error) {
@@ -432,31 +429,6 @@ func (fa *FaceAligner) cropFace(img image.Image, face FaceDetection) (image.Imag
 	return resized, nil
 }
 
-func (fa *FaceAligner) getLandmarkPoints(landmarks []Landmark) []Point {
-	points := make([]Point, len(landmarks))
-	for i, lm := range landmarks {
-		points[i] = Point{X: lm.X, Y: lm.Y}
-	}
-	return points
-}
-
-func (fa *FaceAligner) getCanonicalLandmarks() []Point {
-	// Standard 5-point face template (normalized 0-1)
-	return []Point{
-		{X: 0.3419, Y: 0.4646}, // left eye
-		{X: 0.6581, Y: 0.4646}, // right eye
-		{X: 0.5000, Y: 0.6191}, // nose
-		{X: 0.3814, Y: 0.8243}, // left mouth
-		{X: 0.6186, Y: 0.8243}, // right mouth
-	}
-}
-
-func (fa *FaceAligner) estimateAffineTransform(src, dst []Point) imaging.Transform {
-	// Simplified: return identity transform
-	// Production: implement proper affine estimation
-	return imaging.Transform(imaging.Identity)
-}
-
 // Point represents a 2D point
 type Point struct {
 	X, Y float64
@@ -475,6 +447,7 @@ type FaceIndex struct {
 	mu         sync.RWMutex
 }
 
+// NewFaceIndex creates a new face index for similarity search
 func NewFaceIndex() *FaceIndex {
 	return &FaceIndex{
 		embeddings: make(map[string][]float32),
@@ -482,6 +455,7 @@ func NewFaceIndex() *FaceIndex {
 	}
 }
 
+// Add adds a face embedding to the index
 func (fi *FaceIndex) Add(faceID string, embedding []float32, personID string) {
 	fi.mu.Lock()
 	defer fi.mu.Unlock()
@@ -489,15 +463,16 @@ func (fi *FaceIndex) Add(faceID string, embedding []float32, personID string) {
 	fi.personMap[faceID] = personID
 }
 
-func (fi *FaceIndex) Search(embedding []float32, threshold float64, topK int) []SearchResult {
+// Search finds faces similar to the given embedding
+func (fi *FaceIndex) Search(embedding []float32, threshold float64, topK int) []FaceSearchResult {
 	fi.mu.RLock()
 	defer fi.mu.RUnlock()
 
-	results := make([]SearchResult, 0)
+	results := make([]FaceSearchResult, 0)
 	for faceID, emb := range fi.embeddings {
 		sim := cosineSimilarity(embedding, emb)
 		if sim >= threshold {
-			results = append(results, SearchResult{
+			results = append(results, FaceSearchResult{
 				FaceID:   faceID,
 				PersonID: fi.personMap[faceID],
 				Score:    sim,
@@ -516,6 +491,7 @@ func (fi *FaceIndex) Search(embedding []float32, threshold float64, topK int) []
 	return results
 }
 
+// Delete removes a face from the index
 func (fi *FaceIndex) Delete(faceID string) {
 	fi.mu.Lock()
 	defer fi.mu.Unlock()
@@ -523,8 +499,8 @@ func (fi *FaceIndex) Delete(faceID string) {
 	delete(fi.personMap, faceID)
 }
 
-// SearchResult for face search
-type SearchResult struct {
+// FaceSearchResult for face search
+type FaceSearchResult struct {
 	FaceID   string  `json:"face_id"`
 	PersonID string  `json:"person_id"`
 	Score    float64 `json:"score"`

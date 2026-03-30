@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SplitBrainGuard 脑裂防护机制
+// SplitBrainGuard 脑裂防护机制.
 type SplitBrainGuard struct {
 	threshold    int
 	partitionMap map[string]*PartitionInfo
@@ -21,7 +21,7 @@ type SplitBrainGuard struct {
 	quorumHealthy   bool
 }
 
-// PartitionInfo 分区信息
+// PartitionInfo 分区信息.
 type PartitionInfo struct {
 	NodeID      string    `json:"node_id"`
 	DetectedAt  time.Time `json:"detected_at"`
@@ -31,7 +31,7 @@ type PartitionInfo struct {
 	ActiveNodes []string  `json:"active_nodes"`
 }
 
-// SplitBrainEvent 脑裂事件
+// SplitBrainEvent 脑裂事件.
 type SplitBrainEvent struct {
 	Timestamp   time.Time `json:"timestamp"`
 	Type        string    `json:"type"` // "detected", "resolved", "partition"
@@ -41,7 +41,7 @@ type SplitBrainEvent struct {
 	Resolution  string    `json:"resolution,omitempty"`
 }
 
-// QuorumStatus 仲裁状态
+// QuorumStatus 仲裁状态.
 type QuorumStatus struct {
 	Healthy       bool      `json:"healthy"`
 	TotalNodes    int       `json:"total_nodes"`
@@ -51,7 +51,7 @@ type QuorumStatus struct {
 	CanProceed    bool      `json:"can_proceed"`
 }
 
-// NewSplitBrainGuard 创建脑裂防护
+// NewSplitBrainGuard 创建脑裂防护.
 func NewSplitBrainGuard(threshold int, logger *zap.Logger) *SplitBrainGuard {
 	return &SplitBrainGuard{
 		threshold:    threshold,
@@ -62,7 +62,7 @@ func NewSplitBrainGuard(threshold int, logger *zap.Logger) *SplitBrainGuard {
 	}
 }
 
-// HandleSplitBrain 处理脑裂
+// HandleSplitBrain 处理脑裂.
 func (sbg *SplitBrainGuard) HandleSplitBrain(activeNodes []*Node) {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
@@ -97,7 +97,7 @@ func (sbg *SplitBrainGuard) HandleSplitBrain(activeNodes []*Node) {
 	sbg.resolveSplitBrain(activeNodes, leaders)
 }
 
-// resolveSplitBrain 解决脑裂
+// resolveSplitBrain 解决脑裂.
 func (sbg *SplitBrainGuard) resolveSplitBrain(activeNodes []*Node, leaders []string) {
 	// 策略1: 选择优先级最高的领导者
 	var bestLeader *Node
@@ -140,7 +140,7 @@ func (sbg *SplitBrainGuard) resolveSplitBrain(activeNodes []*Node, leaders []str
 	)
 }
 
-// HandlePartition 处理网络分区
+// HandlePartition 处理网络分区.
 func (sbg *SplitBrainGuard) HandlePartition(activeNodes []*Node) {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
@@ -164,7 +164,7 @@ func (sbg *SplitBrainGuard) HandlePartition(activeNodes []*Node) {
 	}
 }
 
-// getNodeIDs 获取节点ID列表
+// getNodeIDs 获取节点ID列表.
 func getNodeIDs(nodes []*Node) []string {
 	ids := make([]string, len(nodes))
 	for i, node := range nodes {
@@ -173,7 +173,7 @@ func getNodeIDs(nodes []*Node) []string {
 	return ids
 }
 
-// checkQuorumInternal 内部仲裁检查（需要已持有锁）
+// checkQuorumInternal 内部仲裁检查（需要已持有锁）.
 func (sbg *SplitBrainGuard) checkQuorumInternal(activeCount int) QuorumStatus {
 	sbg.lastQuorumCheck = time.Now()
 	required := sbg.quorumSize
@@ -189,7 +189,7 @@ func (sbg *SplitBrainGuard) checkQuorumInternal(activeCount int) QuorumStatus {
 	}
 }
 
-// CheckQuorum 检查仲裁状态
+// CheckQuorum 检查仲裁状态.
 func (sbg *SplitBrainGuard) CheckQuorum(totalNodes, activeNodes int) QuorumStatus {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
@@ -208,7 +208,7 @@ func (sbg *SplitBrainGuard) CheckQuorum(totalNodes, activeNodes int) QuorumStatu
 	}
 }
 
-// CanCommit 检查是否可以提交操作（仲裁检查）
+// CanCommit 检查是否可以提交操作（仲裁检查）.
 func (sbg *SplitBrainGuard) CanCommit(activeNodes int) bool {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
@@ -216,7 +216,7 @@ func (sbg *SplitBrainGuard) CanCommit(activeNodes int) bool {
 	return activeNodes >= sbg.quorumSize
 }
 
-// GetEvents 获取脑裂事件历史
+// GetEvents 获取脑裂事件历史.
 func (sbg *SplitBrainGuard) GetEvents(limit int) []SplitBrainEvent {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
@@ -236,7 +236,7 @@ func (sbg *SplitBrainGuard) GetEvents(limit int) []SplitBrainEvent {
 	return result
 }
 
-// GetStatus 获取脑裂防护状态
+// GetStatus 获取脑裂防护状态.
 func (sbg *SplitBrainGuard) GetStatus() map[string]interface{} {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
@@ -251,7 +251,7 @@ func (sbg *SplitBrainGuard) GetStatus() map[string]interface{} {
 	}
 }
 
-// ClearEvents 清除事件历史
+// ClearEvents 清除事件历史.
 func (sbg *SplitBrainGuard) ClearEvents() {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
@@ -259,7 +259,7 @@ func (sbg *SplitBrainGuard) ClearEvents() {
 	sbg.events = make([]SplitBrainEvent, 0)
 }
 
-// RecordPartition 记录分区
+// RecordPartition 记录分区.
 func (sbg *SplitBrainGuard) RecordPartition(nodeID string, partitionID string, isLeader bool, activeNodes []string) {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
@@ -281,7 +281,7 @@ func (sbg *SplitBrainGuard) RecordPartition(nodeID string, partitionID string, i
 	)
 }
 
-// ResolvePartition 解决分区
+// ResolvePartition 解决分区.
 func (sbg *SplitBrainGuard) ResolvePartition(nodeID string) {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
@@ -297,7 +297,7 @@ func (sbg *SplitBrainGuard) ResolvePartition(nodeID string) {
 	}
 }
 
-// GetActivePartitions 获取活跃分区
+// GetActivePartitions 获取活跃分区.
 func (sbg *SplitBrainGuard) GetActivePartitions() []*PartitionInfo {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
@@ -311,7 +311,7 @@ func (sbg *SplitBrainGuard) GetActivePartitions() []*PartitionInfo {
 	return partitions
 }
 
-// IsQuorumHealthy 检查仲裁是否健康
+// IsQuorumHealthy 检查仲裁是否健康.
 func (sbg *SplitBrainGuard) IsQuorumHealthy() bool {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
@@ -319,7 +319,7 @@ func (sbg *SplitBrainGuard) IsQuorumHealthy() bool {
 	return sbg.quorumHealthy
 }
 
-// SetQuorumSize 设置仲裁大小
+// SetQuorumSize 设置仲裁大小.
 func (sbg *SplitBrainGuard) SetQuorumSize(size int) {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
@@ -329,7 +329,7 @@ func (sbg *SplitBrainGuard) SetQuorumSize(size int) {
 }
 
 // ValidateOperation 验证操作是否可以执行
-// 用于在写入操作前检查仲裁状态
+// 用于在写入操作前检查仲裁状态.
 func (sbg *SplitBrainGuard) ValidateOperation(opType string, activeNodes int) error {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()

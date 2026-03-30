@@ -594,7 +594,7 @@ func handleVerify(args []string) {
 
 // ========== 健康检查 ==========
 
-func handleHealth(args []string) {
+func handleHealth(_ []string) {
 	manager := backup.NewManager("/etc/backup/config.json", "/srv/backups")
 	if err := manager.Initialize(); err != nil {
 		fmt.Printf("警告：初始化失败：%v\n", err)
@@ -675,7 +675,7 @@ func writeChecksum(filePath string) error {
 	return os.WriteFile(checksumFile, []byte(hex.EncodeToString(checksum)+"  "+filepath.Base(filePath)+"\n"), 0600)
 }
 
-// BackupResult 用于命令行输出的备份结果
+// BackupResult 用于命令行输出的备份结果.
 type BackupResult struct {
 	BackupPath    string        `json:"backupPath"`
 	IsIncremental bool          `json:"isIncremental"`

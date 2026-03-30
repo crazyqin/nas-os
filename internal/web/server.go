@@ -2,10 +2,12 @@ package web
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
+	"nas-os/internal/ai"
 	"nas-os/internal/ai_classify"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
@@ -16,6 +18,7 @@ import (
 	"nas-os/internal/files"
 	ftp "nas-os/internal/ftp"
 	"nas-os/internal/iscsi"
+	"nas-os/internal/lock"
 	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
@@ -28,13 +31,16 @@ import (
 	"nas-os/internal/project"
 	"nas-os/internal/quota"
 	"nas-os/internal/replication"
+	"nas-os/internal/search"
 	sftp "nas-os/internal/sftp"
 	"nas-os/internal/shares"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
+	"nas-os/internal/storage/nvmeof"
 	"nas-os/internal/system"
 	"nas-os/internal/tags"
 	"nas-os/internal/trash"
+	"nas-os/internal/tunnel"
 	"nas-os/internal/users"
 	"nas-os/internal/versioning"
 	"nas-os/internal/vm"
@@ -48,7 +54,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Server Web 服务器
+// Server Web 服务器.
 type Server struct {
 	engine        *gin.Engine
 	httpSrv       *http.Server
@@ -92,10 +98,18 @@ type Server struct {
 	tagsMgr       *tags.Manager
 	officeMgr     *office.Manager
 	iscsiMgr      *iscsi.Manager
+	nvmeofMgr     *nvmeof.Manager
+	lockMgr       *lock.Manager
+	searchEngine  *search.Engine
+	searchSvc     *search.GlobalSearchService
+	tunnelMgr     *tunnel.Manager
+	tunnelService *tunnel.TunnelService
+	frpManager    *tunnel.FRPManager
+	aiSvc         *ai.AIService
 	// mediaMgr      *media.LibraryManager
 }
 
-// NewServer 创建 Web 服务器
+// NewServer 创建 Web 服务器.
 func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager, logger *zap.Logger) *Server {
 	// 如果未提供 logger，使用 nop logger
 	if logger == nil {
@@ -272,6 +286,15 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		log.Println("✅ AI 分类模块就绪")
 	}
 
+	// 初始化私有云AI服务
+	aiSvc, err := ai.NewAIService(nil)
+	if err != nil {
+		log.Printf("⚠️ 私有云AI服务初始化警告：%v", err)
+		aiSvc = nil
+	} else {
+		log.Println("✅ 私有云AI服务就绪")
+	}
+
 	// 初始化版本控制管理器
 	versioningMgr, err := versioning.NewManager("/etc/nas-os/versioning-config.json", nil)
 	if err != nil {
@@ -326,9 +349,51 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		log.Println("✅ iSCSI 目标管理模块就绪")
 	}
 
+	// 初始化 NVMe-oF 管理器
+	nvmeofMgr, err := nvmeof.NewManager("/etc/nas-os/nvmeof-config.json")
+	if err != nil {
+		log.Printf("⚠️ NVMe-oF 初始化警告：%v", err)
+		nvmeofMgr = nil
+	} else {
+		log.Println("✅ NVMe-oF 模块就绪")
+	}
+
 	// 初始化项目管理器
 	projectMgr := project.NewManager()
 	log.Println("✅ 项目管理模块就绪")
+
+	// 初始化文件锁管理器
+	lockMgr := lock.NewManager(lock.FileLockConfig{
+		DefaultTimeout:  30 * time.Minute,
+		MaxTimeout:      24 * time.Hour,
+		CleanupInterval: 5 * time.Minute,
+		MaxLocksPerFile: 10,
+	}, logger)
+	log.Println("✅ 文件锁管理模块就绪")
+
+	// 初始化搜索引擎
+	searchEngine, err := search.NewEngine(search.IndexConfig{
+		IndexPath:    "/var/lib/nas-os/search/index.bleve",
+		MaxFileSize:  10 * 1024 * 1024, // 10MB
+		Workers:      4,
+		IndexContent: true,
+		BatchSize:    100,
+	}, logger)
+	if err != nil {
+		log.Printf("⚠️ 搜索引擎初始化警告：%v", err)
+		searchEngine = nil
+	} else {
+		log.Println("✅ 搜索引擎模块就绪")
+	}
+
+	// 初始化全局搜索服务
+	var searchSvc *search.GlobalSearchService
+	if searchEngine != nil {
+		settingsRegistry := search.NewSettingsRegistry()
+		appRegistry := search.NewAppRegistry()
+		searchSvc = search.NewGlobalSearchService(searchEngine, settingsRegistry, appRegistry, logger)
+		log.Println("✅ 全局搜索服务就绪")
+	}
 
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
@@ -396,6 +461,39 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		tagsMgr:       tagsMgr,
 		officeMgr:     officeMgr,
 		iscsiMgr:      iscsiMgr,
+		nvmeofMgr:     nvmeofMgr,
+		lockMgr:       lockMgr,
+		searchEngine:  searchEngine,
+		searchSvc:     searchSvc,
+		tunnelMgr: func() *tunnel.Manager {
+			cfg := tunnel.Config{
+				ServerAddr:   "tunnel.nas-os.local",
+				ServerPort:   7000,
+				DeviceID:     "nas-device",
+				DeviceName:   "NAS-OS",
+				STUNServers:  []string{"stun:stun.l.google.com:19302"},
+				HeartbeatInt: 30,
+				ReconnectInt: 5,
+				MaxReconnect: 10,
+				Timeout:      30,
+			}
+			mgr, _ := tunnel.NewManager(cfg, logger)
+			return mgr
+		}(),
+		tunnelService: nil, // 在服务启动时初始化
+		frpManager: func() *tunnel.FRPManager {
+			cfg := &tunnel.FRPConfig{
+				Enabled:       false, // 默认关闭，用户配置后启用
+				ServerAddr:    "frp.nas-os.local",
+				ServerPort:    7000,
+				DeviceID:      "nas-device",
+				DeviceName:    "NAS-OS",
+				AutoReconnect: true,
+				LogLevel:      "info",
+			}
+			return tunnel.NewFRPManager(cfg, logger)
+		}(),
+		aiSvc: aiSvc,
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -572,6 +670,15 @@ func (s *Server) setupRoutes() {
 			}
 		}
 
+		// ========== 私有云AI服务 ==========
+		if s.aiSvc != nil {
+			gateway := s.aiSvc.GetGateway()
+			modelMgr := s.aiSvc.GetModelManager()
+			if gateway != nil {
+				ai.NewGatewayHandlers(gateway, modelMgr).RegisterRoutes(api)
+			}
+		}
+
 		// ========== 文件版本控制 ==========
 		if s.versioningMgr != nil {
 			versioning.NewHandlers(s.versioningMgr).RegisterRoutes(api)
@@ -600,6 +707,11 @@ func (s *Server) setupRoutes() {
 		// ========== iSCSI 目标管理 ==========
 		if s.iscsiMgr != nil {
 			iscsi.NewHandlers(s.iscsiMgr).RegisterRoutes(api)
+		}
+
+		// ========== NVMe-oF 管理 ==========
+		if s.nvmeofMgr != nil {
+			nvmeof.NewHandlers(s.nvmeofMgr).RegisterRoutes(api)
 		}
 
 		// ========== 插件系统 ==========
@@ -700,6 +812,25 @@ func (s *Server) setupRoutes() {
 			project.NewHandlers(s.projectMgr).RegisterRoutes(api)
 		}
 
+		// ========== 文件锁管理 ==========
+		if s.lockMgr != nil {
+			lock.NewHandlers(s.lockMgr, s.logger).RegisterRoutes(api)
+		}
+
+		// ========== 全局搜索 ==========
+		if s.searchSvc != nil && s.searchEngine != nil {
+			settingsRegistry := search.NewSettingsRegistry()
+			appRegistry := search.NewAppRegistry()
+			apiSearchHandler := NewAPISearchHandler(s.searchSvc, s.searchEngine, settingsRegistry, appRegistry, s.logger)
+			apiSearchHandler.RegisterRoutes(api)
+		}
+
+		// ========== 内网穿透服务 ==========
+		if s.frpManager != nil || s.tunnelMgr != nil {
+			tunnelHandler := tunnel.NewWebUIHandler(s.frpManager, s.tunnelService, s.logger)
+			tunnelHandler.RegisterRoutes(api)
+		}
+
 		// ========== 媒体中心 ==========
 		// if s.mediaMgr != nil {
 		// 	media.NewHandlers(s.mediaMgr).RegisterRoutes(api)
@@ -741,12 +872,15 @@ func (s *Server) setupRoutes() {
 	s.engine.StaticFile("/dir-quota", "/usr/share/nas-os/webui/pages/dir-quota.html")
 	// v2.20.0 新增页面
 	s.engine.StaticFile("/iscsi", "/usr/share/nas-os/webui/pages/iscsi.html")
+	s.engine.StaticFile("/nvmeof", "/usr/share/nas-os/webui/pages/nvmeof.html")
 	s.engine.StaticFile("/office", "/usr/share/nas-os/webui/pages/office.html")
 	s.engine.StaticFile("/notify", "/usr/share/nas-os/webui/pages/notify.html")
 	s.engine.StaticFile("/optimizer", "/usr/share/nas-os/webui/pages/optimizer.html")
+	// v2.275.0 内网穿透页面
+	s.engine.StaticFile("/tunnel", "/usr/share/nas-os/webui/pages/tunnel.html")
 }
 
-// Start 启动服务器
+// Start 启动服务器.
 func (s *Server) Start(addr string) error {
 	// 启动 WebDAV 服务器
 	if s.webdavSrv != nil {
@@ -791,7 +925,7 @@ func (s *Server) Start(addr string) error {
 	return s.httpSrv.ListenAndServe()
 }
 
-// Stop 停止服务器
+// Stop 停止服务器.
 func (s *Server) Stop() error {
 	// 停止性能监控
 	if s.perfMgr != nil {
@@ -830,7 +964,7 @@ func (s *Server) Stop() error {
 
 // ========== 卷管理 API ==========
 
-// GenericResponse 通用 API 响应
+// GenericResponse 通用 API 响应.
 type GenericResponse struct {
 	Code    int         `json:"code" example:"0"`
 	Message string      `json:"message" example:"success"`
@@ -844,7 +978,7 @@ type GenericResponse struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GenericResponse "成功"
-// @Router /volumes [get]
+// @Router /volumes [get].
 func (s *Server) listVolumes(c *gin.Context) {
 	volumes := s.storageMgr.ListVolumes()
 	c.JSON(http.StatusOK, gin.H{
@@ -852,6 +986,130 @@ func (s *Server) listVolumes(c *gin.Context) {
 		"message": "success",
 		"data":    volumes,
 	})
+}
+
+// APISearchHandler 搜索处理器适配器.
+type APISearchHandler struct {
+	globalSearch *search.GlobalSearchService
+	engine       *search.Engine
+	settings     *search.SettingsRegistry
+	apps         *search.AppRegistry
+	logger       *zap.Logger
+}
+
+// NewAPISearchHandler 创建搜索处理器.
+func NewAPISearchHandler(
+	globalSearch *search.GlobalSearchService,
+	engine *search.Engine,
+	settings *search.SettingsRegistry,
+	apps *search.AppRegistry,
+	logger *zap.Logger,
+) *APISearchHandler {
+	return &APISearchHandler{
+		globalSearch: globalSearch,
+		engine:       engine,
+		settings:     settings,
+		apps:         apps,
+		logger:       logger,
+	}
+}
+
+// RegisterRoutes 注册搜索路由.
+func (h *APISearchHandler) RegisterRoutes(r *gin.RouterGroup) {
+	searchGroup := r.Group("/search")
+	{
+		searchGroup.POST("/global", h.globalSearchHandler)
+		searchGroup.GET("/quick", h.quickSearchHandler)
+		searchGroup.GET("/suggestions", h.getSuggestionsHandler)
+		searchGroup.GET("/categories", h.getCategoriesHandler)
+		searchGroup.POST("/files", h.searchFilesHandler)
+	}
+}
+
+func (h *APISearchHandler) globalSearchHandler(c *gin.Context) {
+	var req struct {
+		Query      string   `json:"query" binding:"required"`
+		Types      []string `json:"types,omitempty"`
+		Limit      int      `json:"limit,omitempty"`
+		TotalLimit int      `json:"totalLimit,omitempty"`
+		MinScore   float64  `json:"minScore,omitempty"`
+		IncludeRaw bool     `json:"includeRaw,omitempty"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的请求参数: " + err.Error()})
+		return
+	}
+
+	var types []search.GlobalSearchResultType
+	for _, t := range req.Types {
+		types = append(types, search.GlobalSearchResultType(t))
+	}
+
+	result, err := h.globalSearch.GlobalSearch(c.Request.Context(), search.GlobalSearchRequest{
+		Query:      req.Query,
+		Types:      types,
+		Limit:      req.Limit,
+		TotalLimit: req.TotalLimit,
+		MinScore:   req.MinScore,
+		IncludeRaw: req.IncludeRaw,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "搜索失败: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": result})
+}
+
+func (h *APISearchHandler) quickSearchHandler(c *gin.Context) {
+	query := c.Query("query")
+	limit := 5
+	if l := c.Query("limit"); l != "" {
+		if parsed, err := parseInt(l); err == nil && parsed > 0 {
+			limit = parsed
+		}
+	}
+
+	result, err := h.globalSearch.QuickSearch(c.Request.Context(), query, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "搜索失败: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": result})
+}
+
+func (h *APISearchHandler) getSuggestionsHandler(c *gin.Context) {
+	query := c.Query("query")
+	suggestions := h.globalSearch.GenerateSuggestions(query)
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": gin.H{"suggestions": suggestions}})
+}
+
+func (h *APISearchHandler) getCategoriesHandler(c *gin.Context) {
+	categories := h.globalSearch.GetSearchCategories()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": categories})
+}
+
+func (h *APISearchHandler) searchFilesHandler(c *gin.Context) {
+	var req search.Request
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的请求参数: " + err.Error()})
+		return
+	}
+
+	result, err := h.engine.Search(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "搜索失败: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": result})
+}
+
+func parseInt(s string) (int, error) {
+	var result int
+	_, err := fmt.Sscanf(s, "%d", &result)
+	return result, err
 }
 
 // createVolume 创建卷
@@ -864,7 +1122,7 @@ func (s *Server) listVolumes(c *gin.Context) {
 // @Success 200 {object} GenericResponse "创建成功"
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes [post]
+// @Router /volumes [post].
 func (s *Server) createVolume(c *gin.Context) {
 	var req struct {
 		Name    string   `json:"name" binding:"required"`
@@ -894,7 +1152,7 @@ func (s *Server) createVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 404 {object} GenericResponse "卷不存在"
-// @Router /volumes/{name} [get]
+// @Router /volumes/{name} [get].
 func (s *Server) getVolume(c *gin.Context) {
 	name := c.Param("name")
 	vol := s.storageMgr.GetVolume(name)
@@ -915,7 +1173,7 @@ func (s *Server) getVolume(c *gin.Context) {
 // @Param force query bool false "强制删除"
 // @Success 200 {object} GenericResponse "删除成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name} [delete]
+// @Router /volumes/{name} [delete].
 func (s *Server) deleteVolume(c *gin.Context) {
 	name := c.Param("name")
 	force := c.Query("force") == "true"
@@ -937,7 +1195,7 @@ func (s *Server) deleteVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "挂载成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/mount [post]
+// @Router /volumes/{name}/mount [post].
 func (s *Server) mountVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -958,7 +1216,7 @@ func (s *Server) mountVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "卸载成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/unmount [post]
+// @Router /volumes/{name}/unmount [post].
 func (s *Server) unmountVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -979,7 +1237,7 @@ func (s *Server) unmountVolume(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/usage [get]
+// @Router /volumes/{name}/usage [get].
 func (s *Server) getVolumeUsage(c *gin.Context) {
 	name := c.Param("name")
 	total, used, free, err := s.storageMgr.GetUsage(name)
@@ -1021,7 +1279,7 @@ func (s *Server) getVolumeUsage(c *gin.Context) {
 // @Success 200 {object} GenericResponse "添加成功"
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/devices [post]
+// @Router /volumes/{name}/devices [post].
 func (s *Server) addDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
@@ -1050,7 +1308,7 @@ func (s *Server) addDevice(c *gin.Context) {
 // @Param device path string true "设备路径"
 // @Success 200 {object} GenericResponse "移除成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/devices/{device} [delete]
+// @Router /volumes/{name}/devices/{device} [delete].
 func (s *Server) removeDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 	device := c.Param("device")
@@ -1089,7 +1347,7 @@ func (s *Server) getDeviceStats(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/subvolumes [get]
+// @Router /volumes/{name}/subvolumes [get].
 func (s *Server) listSubVolumes(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvols, err := s.storageMgr.ListSubVolumes(volumeName)
@@ -1116,7 +1374,7 @@ func (s *Server) listSubVolumes(c *gin.Context) {
 // @Success 200 {object} GenericResponse "创建成功"
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/subvolumes [post]
+// @Router /volumes/{name}/subvolumes [post].
 func (s *Server) createSubVolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
@@ -1192,7 +1450,7 @@ func (s *Server) setSubVolumeReadOnly(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /volumes/{name}/snapshots [get]
+// @Router /volumes/{name}/snapshots [get].
 func (s *Server) listSnapshots(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapshots, err := s.storageMgr.ListSnapshots(volumeName)
@@ -1348,7 +1606,7 @@ func (s *Server) getScrubStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GenericResponse "成功"
-// @Router /system/info [get]
+// @Router /system/info [get].
 func (s *Server) getSystemInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
@@ -1366,7 +1624,7 @@ func (s *Server) getSystemInfo(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} HealthResponse "系统健康"
-// @Router /system/health [get]
+// @Router /system/health [get].
 func (s *Server) getHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,

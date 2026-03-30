@@ -6,18 +6,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers OnlyOffice HTTP 处理器
+// Handlers OnlyOffice HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
 // RegisterRoutes 注册路由
-// 注意：编辑和配置操作需要认证，调用方应添加认证中间件
+// 注意：编辑和配置操作需要认证，调用方应添加认证中间件.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	office := api.Group("/office")
 	// 敏感操作需要认证，调用方应添加认证中间件
@@ -50,19 +50,19 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 // ========== 通用响应 ==========
 
-// Response 通用 API 响应结构
+// Response 通用 API 响应结构.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Success 创建成功响应
+// Success 创建成功响应.
 func Success(data interface{}) Response {
 	return Response{Code: 0, Message: "success", Data: data}
 }
 
-// Error 创建错误响应
+// Error 创建错误响应.
 func Error(code int, message string) Response {
 	return Response{Code: code, Message: message}
 }
@@ -75,7 +75,7 @@ func Error(code int, message string) Response {
 // @Tags office
 // @Produce json
 // @Success 200 {object} Response{data=ConfigResponse}
-// @Router /office/config [get]
+// @Router /office/config [get].
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	associations := h.manager.GetAllFileAssociations()
@@ -94,7 +94,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 // @Produce json
 // @Param request body UpdateConfigRequest true "配置更新请求"
 // @Success 200 {object} Response
-// @Router /office/config [put]
+// @Router /office/config [put].
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -116,7 +116,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 // @Tags office
 // @Produce json
 // @Success 200 {object} Response
-// @Router /office/status [get]
+// @Router /office/status [get].
 func (h *Handlers) getStatus(c *gin.Context) {
 	status := gin.H{
 		"enabled": h.manager.IsEnabled(),
@@ -156,7 +156,7 @@ func (h *Handlers) getStatus(c *gin.Context) {
 // @Param fileId path string true "文件 ID"
 // @Param request body EditRequest true "编辑请求"
 // @Success 200 {object} Response{data=EditResponse}
-// @Router /office/edit/{fileId} [post]
+// @Router /office/edit/{fileId} [post].
 func (h *Handlers) startEdit(c *gin.Context) {
 	fileID := c.Param("fileId")
 	if fileID == "" {
@@ -223,7 +223,7 @@ func (h *Handlers) startEdit(c *gin.Context) {
 // @Param limit query int false "返回数量限制" default(20)
 // @Param offset query int false "偏移量" default(0)
 // @Success 200 {object} Response{data=SessionListResponse}
-// @Router /office/sessions [get]
+// @Router /office/sessions [get].
 func (h *Handlers) listSessions(c *gin.Context) {
 	status := SessionStatus(c.Query("status"))
 	limit := 20
@@ -262,7 +262,7 @@ func (h *Handlers) listSessions(c *gin.Context) {
 // @Produce json
 // @Param sessionId path string true "会话 ID"
 // @Success 200 {object} Response{data=EditingSession}
-// @Router /office/sessions/{sessionId} [get]
+// @Router /office/sessions/{sessionId} [get].
 func (h *Handlers) getSession(c *gin.Context) {
 	sessionID := c.Param("sessionId")
 	if sessionID == "" {
@@ -286,7 +286,7 @@ func (h *Handlers) getSession(c *gin.Context) {
 // @Produce json
 // @Param sessionId path string true "会话 ID"
 // @Success 200 {object} Response
-// @Router /office/sessions/{sessionId} [delete]
+// @Router /office/sessions/{sessionId} [delete].
 func (h *Handlers) closeSession(c *gin.Context) {
 	sessionID := c.Param("sessionId")
 	if sessionID == "" {
@@ -312,7 +312,7 @@ func (h *Handlers) closeSession(c *gin.Context) {
 // @Produce json
 // @Param request body CallbackRequest true "回调请求"
 // @Success 200 {object} CallbackResponse
-// @Router /office/callback [post]
+// @Router /office/callback [post].
 func (h *Handlers) handleCallback(c *gin.Context) {
 	var req CallbackRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -350,7 +350,7 @@ func (h *Handlers) handleCallback(c *gin.Context) {
 // @Tags office
 // @Produce json
 // @Success 200 {object} Response
-// @Router /office/associations [get]
+// @Router /office/associations [get].
 func (h *Handlers) getAssociations(c *gin.Context) {
 	associations := h.manager.GetAllFileAssociations()
 
@@ -373,7 +373,7 @@ func (h *Handlers) getAssociations(c *gin.Context) {
 // @Produce json
 // @Param ext path string true "文件扩展名"
 // @Success 200 {object} Response{data=FileAssociation}
-// @Router /office/associations/{ext} [get]
+// @Router /office/associations/{ext} [get].
 func (h *Handlers) getAssociation(c *gin.Context) {
 	ext := c.Param("ext")
 	if ext == "" {
@@ -398,7 +398,7 @@ func (h *Handlers) getAssociation(c *gin.Context) {
 // @Tags office
 // @Produce json
 // @Success 200 {object} Response
-// @Router /office/health [get]
+// @Router /office/health [get].
 func (h *Handlers) healthCheck(c *gin.Context) {
 	status := gin.H{
 		"enabled": h.manager.IsEnabled(),

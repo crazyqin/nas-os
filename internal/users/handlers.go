@@ -9,13 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 用户管理 HTTP 处理器
+// Handlers 用户管理 HTTP 处理器.
 type Handlers struct {
 	manager    *Manager
 	mfaManager *auth.MFAManager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager, mfaMgr *auth.MFAManager) *Handlers {
 	return &Handlers{
 		manager:    mgr,
@@ -23,7 +23,7 @@ func NewHandlers(mgr *Manager, mfaMgr *auth.MFAManager) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(router *gin.RouterGroup) {
 	// ========== 认证相关（公开路由）==========
 	router.POST("/login", h.login)
@@ -65,7 +65,7 @@ func (h *Handlers) RegisterRoutes(router *gin.RouterGroup) {
 
 // API 请求/响应结构
 
-// LoginRequest 登录请求
+// LoginRequest 登录请求.
 type LoginRequest struct {
 	Username   string `json:"username" binding:"required"`
 	Password   string `json:"password" binding:"required"`
@@ -73,7 +73,7 @@ type LoginRequest struct {
 	BackupCode string `json:"backup_code,omitempty"` // 备份码
 }
 
-// LoginResponse 登录响应
+// LoginResponse 登录响应.
 type LoginResponse struct {
 	Token       string `json:"token,omitempty"`
 	ExpiresAt   string `json:"expires_at,omitempty"`
@@ -83,18 +83,18 @@ type LoginResponse struct {
 	User        *User  `json:"user,omitempty"`
 }
 
-// ChangePasswordRequest 修改密码请求
+// ChangePasswordRequest 修改密码请求.
 type ChangePasswordRequest struct {
 	OldPassword string `json:"old_password" binding:"required"`
 	NewPassword string `json:"new_password" binding:"required,min=6"`
 }
 
-// ResetPasswordRequest 重置密码请求
+// ResetPasswordRequest 重置密码请求.
 type ResetPasswordRequest struct {
 	NewPassword string `json:"new_password" binding:"required,min=6"`
 }
 
-// SetRoleRequest 设置角色请求
+// SetRoleRequest 设置角色请求.
 type SetRoleRequest struct {
 	Role Role `json:"role" binding:"required"`
 }
@@ -112,7 +112,7 @@ type SetRoleRequest struct {
 // @Failure 401 {object} apiresponse.Response "未认证"
 // @Failure 403 {object} apiresponse.Response "权限不足"
 // @Router /users [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listUsers(c *gin.Context) {
 	// 支持按角色筛选
 	role := c.Query("role")
@@ -138,7 +138,7 @@ func (h *Handlers) listUsers(c *gin.Context) {
 // @Failure 409 {object} apiresponse.Response "用户已存在"
 // @Failure 500 {object} apiresponse.Response "服务器内部错误"
 // @Router /users [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createUser(c *gin.Context) {
 	var req UserInput
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -169,7 +169,7 @@ func (h *Handlers) createUser(c *gin.Context) {
 // @Success 200 {object} apiresponse.Response{data=User} "成功"
 // @Failure 404 {object} apiresponse.Response "用户不存在"
 // @Router /users/{username} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getUser(c *gin.Context) {
 	username := c.Param("username")
 	user, err := h.manager.GetUser(username)
@@ -193,7 +193,7 @@ func (h *Handlers) getUser(c *gin.Context) {
 // @Failure 404 {object} apiresponse.Response "用户不存在"
 // @Failure 500 {object} apiresponse.Response "服务器内部错误"
 // @Router /users/{username} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) updateUser(c *gin.Context) {
 	username := c.Param("username")
 	var req UserInput
@@ -227,7 +227,7 @@ func (h *Handlers) updateUser(c *gin.Context) {
 // @Failure 404 {object} apiresponse.Response "用户不存在"
 // @Failure 500 {object} apiresponse.Response "服务器内部错误"
 // @Router /users/{username} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deleteUser(c *gin.Context) {
 	username := c.Param("username")
 	if err := h.manager.DeleteUser(username); err != nil {
@@ -464,7 +464,7 @@ func (h *Handlers) getGroupUsers(c *gin.Context) {
 // @Success 200 {object} apiresponse.Response{data=LoginResponse} "登录成功"
 // @Failure 400 {object} apiresponse.Response "请求参数错误"
 // @Failure 401 {object} apiresponse.Response "用户名或密码错误"
-// @Router /login [post]
+// @Router /login [post].
 func (h *Handlers) login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -538,7 +538,7 @@ func (h *Handlers) login(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} apiresponse.Response "登出成功"
 // @Router /logout [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) logout(c *gin.Context) {
 	tokenStr := c.GetHeader("Authorization")
 	if tokenStr != "" {
@@ -556,7 +556,7 @@ func (h *Handlers) logout(c *gin.Context) {
 // @Success 200 {object} apiresponse.Response{data=map[string]string} "刷新成功"
 // @Failure 401 {object} apiresponse.Response "认证失败"
 // @Router /refresh [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) refreshToken(c *gin.Context) {
 	tokenStr := c.GetHeader("Authorization")
 	if tokenStr == "" {
@@ -594,7 +594,7 @@ func (h *Handlers) getCurrentUser(c *gin.Context) {
 
 // ========== 中间件 ==========
 
-// AuthMiddleware 认证中间件
+// AuthMiddleware 认证中间件.
 func AuthMiddleware(mgr *Manager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenStr := c.GetHeader("Authorization")
@@ -623,7 +623,7 @@ func AuthMiddleware(mgr *Manager) gin.HandlerFunc {
 	}
 }
 
-// RequireRole 角色要求中间件
+// RequireRole 角色要求中间件.
 func RequireRole(mgr *Manager, roles ...Role) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, exists := c.Get("user")
@@ -652,12 +652,12 @@ func RequireRole(mgr *Manager, roles ...Role) gin.HandlerFunc {
 	}
 }
 
-// RequireAdmin 管理员中间件
+// RequireAdmin 管理员中间件.
 func RequireAdmin(mgr *Manager) gin.HandlerFunc {
 	return RequireRole(mgr, RoleAdmin)
 }
 
-// RequirePermission 权限检查中间件
+// RequirePermission 权限检查中间件.
 func RequirePermission(mgr *Manager, resource, action string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, exists := c.Get("user")

@@ -7,81 +7,81 @@ import (
 	"time"
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
-	// TaskStatusPending 任务等待中
+	// TaskStatusPending 任务等待中.
 	TaskStatusPending TaskStatus = "pending"
-	// TaskStatusRunning 任务正在运行
+	// TaskStatusRunning 任务正在运行.
 	TaskStatusRunning TaskStatus = "running"
-	// TaskStatusCompleted 任务已完成
+	// TaskStatusCompleted 任务已完成.
 	TaskStatusCompleted TaskStatus = "completed"
-	// TaskStatusFailed 任务失败
+	// TaskStatusFailed 任务失败.
 	TaskStatusFailed TaskStatus = "failed"
-	// TaskStatusCancelled 任务已取消
+	// TaskStatusCancelled 任务已取消.
 	TaskStatusCancelled TaskStatus = "cancelled"
-	// TaskStatusPaused 任务已暂停
+	// TaskStatusPaused 任务已暂停.
 	TaskStatusPaused TaskStatus = "paused"
 )
 
-// TaskPriority 任务优先级
+// TaskPriority 任务优先级.
 type TaskPriority int
 
 const (
-	// PriorityLow 低优先级
+	// PriorityLow 低优先级.
 	PriorityLow TaskPriority = 1
-	// PriorityNormal 普通优先级
+	// PriorityNormal 普通优先级.
 	PriorityNormal TaskPriority = 5
-	// PriorityHigh 高优先级
+	// PriorityHigh 高优先级.
 	PriorityHigh TaskPriority = 10
 )
 
-// TaskType 任务类型
+// TaskType 任务类型.
 type TaskType string
 
 const (
-	// TaskTypeCron Cron表达式任务
+	// TaskTypeCron Cron表达式任务.
 	TaskTypeCron TaskType = "cron"
-	// TaskTypeOneTime 一次性任务
+	// TaskTypeOneTime 一次性任务.
 	TaskTypeOneTime TaskType = "onetime"
-	// TaskTypeInterval 间隔任务
+	// TaskTypeInterval 间隔任务.
 	TaskTypeInterval TaskType = "interval"
-	// TaskTypeEvent 事件触发任务
+	// TaskTypeEvent 事件触发任务.
 	TaskTypeEvent TaskType = "event"
-	// TaskTypeDependent 依赖任务
+	// TaskTypeDependent 依赖任务.
 	TaskTypeDependent TaskType = "dependent"
 )
 
-// RetryPolicy 重试策略
+// RetryPolicy 重试策略.
 type RetryPolicy string
 
 const (
-	// RetryPolicyNone 无重试策略
+	// RetryPolicyNone 无重试策略.
 	RetryPolicyNone RetryPolicy = "none"
-	// RetryPolicyFixed 固定间隔重试
+	// RetryPolicyFixed 固定间隔重试.
 	RetryPolicyFixed RetryPolicy = "fixed"
-	// RetryPolicyExponential 指数退避重试
+	// RetryPolicyExponential 指数退避重试.
 	RetryPolicyExponential RetryPolicy = "exponential"
 )
 
-// ExecutionStatus 执行状态
+// ExecutionStatus 执行状态.
 type ExecutionStatus string
 
 const (
-	// ExecutionStatusStarted 执行已开始
+	// ExecutionStatusStarted 执行已开始.
 	ExecutionStatusStarted ExecutionStatus = "started"
-	// ExecutionStatusCompleted 执行已完成
+	// ExecutionStatusCompleted 执行已完成.
 	ExecutionStatusCompleted ExecutionStatus = "completed"
-	// ExecutionStatusFailed 执行失败
+	// ExecutionStatusFailed 执行失败.
 	ExecutionStatusFailed ExecutionStatus = "failed"
-	// ExecutionStatusTimeout 执行超时
+	// ExecutionStatusTimeout 执行超时.
 	ExecutionStatusTimeout ExecutionStatus = "timeout"
-	// ExecutionStatusCancelled 执行已取消
+	// ExecutionStatusCancelled 执行已取消.
 	ExecutionStatusCancelled ExecutionStatus = "cancelled"
 )
 
-// Task 任务定义
+// Task 任务定义.
 type Task struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -134,7 +134,7 @@ type Task struct {
 	FailCount    int `json:"failCount"`
 }
 
-// TaskExecution 任务执行记录
+// TaskExecution 任务执行记录.
 type TaskExecution struct {
 	ID           string                 `json:"id"`
 	TaskID       string                 `json:"taskId"`
@@ -150,7 +150,7 @@ type TaskExecution struct {
 	NodeID       string                 `json:"nodeId,omitempty"`
 }
 
-// TaskLog 任务日志
+// TaskLog 任务日志.
 type TaskLog struct {
 	ID          string                 `json:"id"`
 	ExecutionID string                 `json:"executionId"`
@@ -161,7 +161,7 @@ type TaskLog struct {
 	Data        map[string]interface{} `json:"data,omitempty"`
 }
 
-// TaskDependency 任务依赖
+// TaskDependency 任务依赖.
 type TaskDependency struct {
 	TaskID     string   `json:"taskId"`
 	DependsOn  []string `json:"dependsOn"`
@@ -170,7 +170,7 @@ type TaskDependency struct {
 	FailAction string   `json:"failAction,omitempty"` // skip, fail, continue
 }
 
-// Config 调度器配置
+// Config 调度器配置.
 type Config struct {
 	MaxConcurrentTasks int           `json:"maxConcurrentTasks"`
 	DefaultTimeout     time.Duration `json:"defaultTimeout"`
@@ -180,7 +180,7 @@ type Config struct {
 	HeartbeatInterval  time.Duration `json:"heartbeatInterval"`
 }
 
-// TaskFilter 任务过滤条件
+// TaskFilter 任务过滤条件.
 type TaskFilter struct {
 	Status   TaskStatus `json:"status,omitempty"`
 	Type     TaskType   `json:"type,omitempty"`
@@ -191,7 +191,7 @@ type TaskFilter struct {
 	PageSize int        `json:"pageSize,omitempty"`
 }
 
-// ExecutionFilter 执行记录过滤条件
+// ExecutionFilter 执行记录过滤条件.
 type ExecutionFilter struct {
 	TaskID    string          `json:"taskId,omitempty"`
 	Status    ExecutionStatus `json:"status,omitempty"`
@@ -201,7 +201,7 @@ type ExecutionFilter struct {
 	PageSize  int             `json:"pageSize,omitempty"`
 }
 
-// Stats 调度器统计
+// Stats 调度器统计.
 type Stats struct {
 	TotalTasks       int            `json:"totalTasks"`
 	RunningTasks     int            `json:"runningTasks"`
@@ -216,27 +216,27 @@ type Stats struct {
 	TaskGroupStats   map[string]int `json:"taskGroupStats"`
 }
 
-// RunRequest 运行请求
+// RunRequest 运行请求.
 type RunRequest struct {
 	TaskID      string                 `json:"taskId"`
 	Parameters  map[string]interface{} `json:"parameters,omitempty"`
 	TriggeredBy string                 `json:"triggeredBy,omitempty"`
 }
 
-// RunResponse 运行响应
+// RunResponse 运行响应.
 type RunResponse struct {
 	ExecutionID string          `json:"executionId"`
 	Status      ExecutionStatus `json:"status"`
 	Message     string          `json:"message"`
 }
 
-// TaskHandler 任务处理器接口
+// TaskHandler 任务处理器接口.
 type TaskHandler interface {
 	Name() string
 	Execute(ctx context.Context, task *Task) (map[string]interface{}, error)
 }
 
-// Context 上下文（用于避免导入 context 包）
+// Context 上下文（用于避免导入 context 包）.
 type Context interface {
 	Done() <-chan struct{}
 	Err() error

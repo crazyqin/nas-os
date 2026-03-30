@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// RetryManager 重试管理器
+// RetryManager 重试管理器.
 type RetryManager struct {
 	retries   map[string]*retryState
 	mu        sync.RWMutex
@@ -23,19 +23,19 @@ type retryState struct {
 	cancel    context.CancelFunc
 }
 
-// NewRetryManager 创建重试管理器
+// NewRetryManager 创建重试管理器.
 func NewRetryManager() *RetryManager {
 	return &RetryManager{
 		retries: make(map[string]*retryState),
 	}
 }
 
-// SetScheduler 设置调度器
+// SetScheduler 设置调度器.
 func (rm *RetryManager) SetScheduler(s *Scheduler) {
 	rm.scheduler = s
 }
 
-// ShouldRetry 判断是否应该重试
+// ShouldRetry 判断是否应该重试.
 func (rm *RetryManager) ShouldRetry(task *Task, err error) bool {
 	if task.RetryPolicy == RetryPolicyNone {
 		return false
@@ -56,7 +56,7 @@ func (rm *RetryManager) ShouldRetry(task *Task, err error) bool {
 	return state.attempts < task.MaxRetries
 }
 
-// CalculateDelay 计算重试延迟
+// CalculateDelay 计算重试延迟.
 func (rm *RetryManager) CalculateDelay(task *Task, attempt int) time.Duration {
 	switch task.RetryPolicy {
 	case RetryPolicyFixed:
@@ -91,7 +91,7 @@ func (rm *RetryManager) parseInterval(s string) time.Duration {
 	return d
 }
 
-// ScheduleRetry 安排重试
+// ScheduleRetry 安排重试.
 func (rm *RetryManager) ScheduleRetry(task *Task, err error) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -143,7 +143,7 @@ func (rm *RetryManager) ScheduleRetry(task *Task, err error) error {
 	return nil
 }
 
-// CancelRetry 取消重试
+// CancelRetry 取消重试.
 func (rm *RetryManager) CancelRetry(taskID string) {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -156,7 +156,7 @@ func (rm *RetryManager) CancelRetry(taskID string) {
 	}
 }
 
-// GetRetryState 获取重试状态
+// GetRetryState 获取重试状态.
 func (rm *RetryManager) GetRetryState(taskID string) (*RetryInfo, error) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -175,7 +175,7 @@ func (rm *RetryManager) GetRetryState(taskID string) (*RetryInfo, error) {
 	}, nil
 }
 
-// GetPendingRetries 获取等待重试的任务列表
+// GetPendingRetries 获取等待重试的任务列表.
 func (rm *RetryManager) GetPendingRetries() []*RetryInfo {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -193,7 +193,7 @@ func (rm *RetryManager) GetPendingRetries() []*RetryInfo {
 	return result
 }
 
-// Clear 清除所有重试状态
+// Clear 清除所有重试状态.
 func (rm *RetryManager) Clear() {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -206,7 +206,7 @@ func (rm *RetryManager) Clear() {
 	rm.retries = make(map[string]*retryState)
 }
 
-// RetryInfo 重试信息
+// RetryInfo 重试信息.
 type RetryInfo struct {
 	TaskID     string    `json:"taskId"`
 	Attempts   int       `json:"attempts"`
@@ -215,13 +215,13 @@ type RetryInfo struct {
 	LastError  error     `json:"lastError,omitempty"`
 }
 
-// RetryExecutor 带重试的执行器包装
+// RetryExecutor 带重试的执行器包装.
 type RetryExecutor struct {
 	executor *Executor
 	retryMgr *RetryManager
 }
 
-// NewRetryExecutor 创建带重试的执行器
+// NewRetryExecutor 创建带重试的执行器.
 func NewRetryExecutor(executor *Executor) *RetryExecutor {
 	return &RetryExecutor{
 		executor: executor,
@@ -229,7 +229,7 @@ func NewRetryExecutor(executor *Executor) *RetryExecutor {
 	}
 }
 
-// Execute 执行任务（带重试）
+// Execute 执行任务（带重试）.
 func (re *RetryExecutor) Execute(ctx context.Context, task *Task) (*TaskExecution, error) {
 	execution, err := re.executor.ExecuteSync(ctx, task)
 
@@ -250,19 +250,19 @@ func (re *RetryExecutor) Execute(ctx context.Context, task *Task) (*TaskExecutio
 	return execution, fmt.Errorf("任务失败: %w", err)
 }
 
-// GetRetryManager 获取重试管理器
+// GetRetryManager 获取重试管理器.
 func (re *RetryExecutor) GetRetryManager() *RetryManager {
 	return re.retryMgr
 }
 
-// DefaultRetryConfig 默认重试配置
+// DefaultRetryConfig 默认重试配置.
 type DefaultRetryConfig struct {
 	Policy     RetryPolicy
 	MaxRetries int
 	Interval   time.Duration
 }
 
-// DefaultRetryConfigs 默认重试配置映射
+// DefaultRetryConfigs 默认重试配置映射.
 var DefaultRetryConfigs = map[TaskType]DefaultRetryConfig{
 	TaskTypeCron: {
 		Policy:     RetryPolicyExponential,
@@ -286,7 +286,7 @@ var DefaultRetryConfigs = map[TaskType]DefaultRetryConfig{
 	},
 }
 
-// ApplyDefaultRetryConfig 应用默认重试配置
+// ApplyDefaultRetryConfig 应用默认重试配置.
 func ApplyDefaultRetryConfig(task *Task) {
 	if task.RetryPolicy == "" {
 		if config, ok := DefaultRetryConfigs[task.Type]; ok {
@@ -297,7 +297,7 @@ func ApplyDefaultRetryConfig(task *Task) {
 	}
 }
 
-// RetryableError 可重试的错误
+// RetryableError 可重试的错误.
 type RetryableError struct {
 	Err       error
 	Retryable bool
@@ -311,7 +311,7 @@ func (e *RetryableError) Unwrap() error {
 	return e.Err
 }
 
-// NewRetryableError 创建可重试错误
+// NewRetryableError 创建可重试错误.
 func NewRetryableError(err error, retryable bool) *RetryableError {
 	return &RetryableError{
 		Err:       err,
@@ -319,7 +319,7 @@ func NewRetryableError(err error, retryable bool) *RetryableError {
 	}
 }
 
-// IsRetryable 检查错误是否可重试
+// IsRetryable 检查错误是否可重试.
 func IsRetryable(err error) bool {
 	if err == nil {
 		return false
@@ -333,7 +333,7 @@ func IsRetryable(err error) bool {
 	return true
 }
 
-// RetryContext 重试上下文
+// RetryContext 重试上下文.
 type RetryContext struct {
 	Attempt    int
 	MaxAttempt int
@@ -341,10 +341,10 @@ type RetryContext struct {
 	StartTime  time.Time
 }
 
-// RetryFunc 重试函数
+// RetryFunc 重试函数.
 type RetryFunc func(ctx context.Context, rctx *RetryContext) error
 
-// DoRetry 执行重试
+// DoRetry 执行重试.
 func DoRetry(ctx context.Context, maxAttempts int, interval time.Duration, fn RetryFunc) error {
 	rctx := &RetryContext{
 		MaxAttempt: maxAttempts,
@@ -374,7 +374,7 @@ func DoRetry(ctx context.Context, maxAttempts int, interval time.Duration, fn Re
 	return nil
 }
 
-// DoRetryWithBackoff 执行重试（指数退避）
+// DoRetryWithBackoff 执行重试（指数退避）.
 func DoRetryWithBackoff(ctx context.Context, maxAttempts int, baseInterval time.Duration, fn RetryFunc) error {
 	rctx := &RetryContext{
 		MaxAttempt: maxAttempts,

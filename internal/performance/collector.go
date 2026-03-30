@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SystemCollector 系统指标收集器
+// SystemCollector 系统指标收集器.
 type SystemCollector struct {
 	logger *zap.Logger
 	mu     sync.RWMutex
@@ -35,7 +35,7 @@ type SystemCollector struct {
 	onAlert func(alertType, message string)
 }
 
-// CPUMetric CPU 指标
+// CPUMetric CPU 指标.
 type CPUMetric struct {
 	UsagePercent  float64   `json:"usage_percent"`
 	UserPercent   float64   `json:"user_percent"`
@@ -50,7 +50,7 @@ type CPUMetric struct {
 	Timestamp     time.Time `json:"timestamp"`
 }
 
-// CPUTimes CPU 时间片
+// CPUTimes CPU 时间片.
 type CPUTimes struct {
 	User    uint64
 	Nice    uint64
@@ -63,7 +63,7 @@ type CPUTimes struct {
 	Total   uint64
 }
 
-// MemoryMetric 内存指标
+// MemoryMetric 内存指标.
 type MemoryMetric struct {
 	TotalBytes     uint64    `json:"total_bytes"`
 	UsedBytes      uint64    `json:"used_bytes"`
@@ -79,7 +79,7 @@ type MemoryMetric struct {
 	Timestamp      time.Time `json:"timestamp"`
 }
 
-// DiskMetric 磁盘指标
+// DiskMetric 磁盘指标.
 type DiskMetric struct {
 	Device       string    `json:"device"`
 	MountPoint   string    `json:"mount_point"`
@@ -93,7 +93,7 @@ type DiskMetric struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
-// DiskIOMetric 磁盘 I/O 指标
+// DiskIOMetric 磁盘 I/O 指标.
 type DiskIOMetric struct {
 	Device       string    `json:"device"`
 	ReadBytes    uint64    `json:"read_bytes"`
@@ -112,7 +112,7 @@ type DiskIOMetric struct {
 	WriteMs uint64 `json:"-"`
 }
 
-// NetworkMetric 网络指标
+// NetworkMetric 网络指标.
 type NetworkMetric struct {
 	Interface string    `json:"interface"`
 	RXBytes   uint64    `json:"rx_bytes"`
@@ -128,7 +128,7 @@ type NetworkMetric struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// NetworkIOMetric 网络 I/O 指标
+// NetworkIOMetric 网络 I/O 指标.
 type NetworkIOMetric struct {
 	Interface string
 	RXBytes   uint64
@@ -142,7 +142,7 @@ type NetworkIOMetric struct {
 	Timestamp time.Time
 }
 
-// SystemMetricsSummary 系统指标汇总
+// SystemMetricsSummary 系统指标汇总.
 type SystemMetricsSummary struct {
 	CPU     CPUMetric       `json:"cpu"`
 	Memory  MemoryMetric    `json:"memory"`
@@ -152,7 +152,7 @@ type SystemMetricsSummary struct {
 	Uptime  uint64          `json:"uptime_seconds"`
 }
 
-// NewSystemCollector 创建系统指标收集器
+// NewSystemCollector 创建系统指标收集器.
 func NewSystemCollector(logger *zap.Logger, historySize int) *SystemCollector {
 	return &SystemCollector{
 		logger:         logger,
@@ -167,12 +167,12 @@ func NewSystemCollector(logger *zap.Logger, historySize int) *SystemCollector {
 	}
 }
 
-// SetAlertCallback 设置告警回调
+// SetAlertCallback 设置告警回调.
 func (sc *SystemCollector) SetAlertCallback(callback func(alertType, message string)) {
 	sc.onAlert = callback
 }
 
-// Collect 收集所有系统指标
+// Collect 收集所有系统指标.
 func (sc *SystemCollector) Collect() *SystemMetricsSummary {
 	summary := &SystemMetricsSummary{
 		CPU:     sc.collectCPU(),
@@ -198,7 +198,7 @@ func (sc *SystemCollector) Collect() *SystemMetricsSummary {
 	return summary
 }
 
-// collectCPU 收集 CPU 指标
+// collectCPU 收集 CPU 指标.
 func (sc *SystemCollector) collectCPU() CPUMetric {
 	metric := CPUMetric{
 		Timestamp: time.Now(),
@@ -276,7 +276,7 @@ func (sc *SystemCollector) collectCPU() CPUMetric {
 	return metric
 }
 
-// collectMemory 收集内存指标
+// collectMemory 收集内存指标.
 func (sc *SystemCollector) collectMemory() MemoryMetric {
 	metric := MemoryMetric{
 		Timestamp: time.Now(),
@@ -327,7 +327,7 @@ func (sc *SystemCollector) collectMemory() MemoryMetric {
 	return metric
 }
 
-// collectDisks 收集磁盘使用指标
+// collectDisks 收集磁盘使用指标.
 func (sc *SystemCollector) collectDisks() []DiskMetric {
 	var metrics []DiskMetric
 
@@ -372,7 +372,7 @@ func (sc *SystemCollector) collectDisks() []DiskMetric {
 	return metrics
 }
 
-// collectDiskIO 收集磁盘 I/O 指标
+// collectDiskIO 收集磁盘 I/O 指标.
 func (sc *SystemCollector) collectDiskIO() []DiskIOMetric {
 	var metrics []DiskIOMetric
 
@@ -455,7 +455,7 @@ func (sc *SystemCollector) collectDiskIO() []DiskIOMetric {
 	return metrics
 }
 
-// collectNetwork 收集网络指标
+// collectNetwork 收集网络指标.
 func (sc *SystemCollector) collectNetwork() []NetworkMetric {
 	var metrics []NetworkMetric
 
@@ -533,7 +533,7 @@ func (sc *SystemCollector) collectNetwork() []NetworkMetric {
 	return metrics
 }
 
-// getUptime 获取系统运行时间
+// getUptime 获取系统运行时间.
 func (sc *SystemCollector) getUptime() uint64 {
 	if file, err := os.Open("/proc/uptime"); err == nil {
 		defer func() { _ = file.Close() }()
@@ -549,7 +549,7 @@ func (sc *SystemCollector) getUptime() uint64 {
 	return 0
 }
 
-// getCPUTemperature 获取 CPU 温度
+// getCPUTemperature 获取 CPU 温度.
 func (sc *SystemCollector) getCPUTemperature() int {
 	// 尝试读取 thermal_zone
 	if data, err := os.ReadFile("/sys/class/thermal/thermal_zone0/temp"); err == nil {
@@ -564,7 +564,7 @@ func (sc *SystemCollector) getCPUTemperature() int {
 	return 0
 }
 
-// GetHistory 获取历史数据
+// GetHistory 获取历史数据.
 func (sc *SystemCollector) GetHistory() (cpu, memory []float64) {
 	sc.mu.RLock()
 	defer sc.mu.RUnlock()
@@ -582,7 +582,7 @@ func (sc *SystemCollector) GetHistory() (cpu, memory []float64) {
 	return
 }
 
-// GetCPUHistory 获取 CPU 历史数据
+// GetCPUHistory 获取 CPU 历史数据.
 func (sc *SystemCollector) GetCPUHistory() []CPUMetric {
 	sc.mu.RLock()
 	defer sc.mu.RUnlock()
@@ -591,7 +591,7 @@ func (sc *SystemCollector) GetCPUHistory() []CPUMetric {
 	return result
 }
 
-// GetMemoryHistory 获取内存历史数据
+// GetMemoryHistory 获取内存历史数据.
 func (sc *SystemCollector) GetMemoryHistory() []MemoryMetric {
 	sc.mu.RLock()
 	defer sc.mu.RUnlock()

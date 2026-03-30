@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// ResourceReporter 资源报告生成器
+// ResourceReporter 资源报告生成器.
 type ResourceReporter struct {
 	config           ResourceReportConfig
 	bandwidthHistory map[string][]BandwidthHistoryPoint
 }
 
-// NewResourceReporter 创建资源报告生成器
+// NewResourceReporter 创建资源报告生成器.
 func NewResourceReporter(config ResourceReportConfig) *ResourceReporter {
 	if config.StorageWarningThreshold == 0 {
 		config = DefaultResourceReportConfig()
@@ -24,7 +24,7 @@ func NewResourceReporter(config ResourceReportConfig) *ResourceReporter {
 	}
 }
 
-// GenerateOverviewReport 生成总览报告
+// GenerateOverviewReport 生成总览报告.
 func (r *ResourceReporter) GenerateOverviewReport(
 	storageMetrics []StorageMetrics,
 	bandwidthHistory map[string][]BandwidthHistoryPoint,
@@ -84,7 +84,7 @@ func (r *ResourceReporter) GenerateOverviewReport(
 	return report
 }
 
-// GenerateStorageReport 生成存储报告
+// GenerateStorageReport 生成存储报告.
 func (r *ResourceReporter) GenerateStorageReport(metrics []StorageMetrics) *ResourceVisualizationReport {
 	now := time.Now()
 	report := &ResourceVisualizationReport{
@@ -109,7 +109,7 @@ func (r *ResourceReporter) GenerateStorageReport(metrics []StorageMetrics) *Reso
 	return report
 }
 
-// GenerateBandwidthReport 生成带宽报告
+// GenerateBandwidthReport 生成带宽报告.
 func (r *ResourceReporter) GenerateBandwidthReport(history map[string][]BandwidthHistoryPoint) *ResourceVisualizationReport {
 	now := time.Now()
 	report := &ResourceVisualizationReport{
@@ -134,7 +134,7 @@ func (r *ResourceReporter) GenerateBandwidthReport(history map[string][]Bandwidt
 	return report
 }
 
-// GenerateUserReport 生成用户报告
+// GenerateUserReport 生成用户报告.
 func (r *ResourceReporter) GenerateUserReport(metrics []UserResourceInfo) *ResourceVisualizationReport {
 	now := time.Now()
 	report := &ResourceVisualizationReport{
@@ -354,7 +354,7 @@ func (r *ResourceReporter) generateUserOverview(metrics []UserResourceInfo) *Use
 // ========== 图表生成 ==========
 
 func (r *ResourceReporter) generateStorageCharts(overview *StorageOverview) []ChartData {
-	charts := make([]ChartData, 0)
+	charts := make([]ChartData, 0, 3)
 
 	// 存储使用率仪表盘
 	charts = append(charts, ChartData{
@@ -407,7 +407,7 @@ func (r *ResourceReporter) generateStorageCharts(overview *StorageOverview) []Ch
 }
 
 func (r *ResourceReporter) generateBandwidthCharts(overview *BandwidthOverview) []ChartData {
-	charts := make([]ChartData, 0)
+	charts := make([]ChartData, 0, 2)
 
 	// 当前带宽速率
 	charts = append(charts, ChartData{
@@ -456,7 +456,7 @@ func (r *ResourceReporter) generateBandwidthCharts(overview *BandwidthOverview) 
 }
 
 func (r *ResourceReporter) generateUserCharts(overview *UserResourceOverview) []ChartData {
-	charts := make([]ChartData, 0)
+	charts := make([]ChartData, 0, 2)
 
 	// Top 用户使用量柱状图
 	topSeries := make([]ChartPoint, 0, len(overview.TopUsers))
@@ -492,7 +492,7 @@ func (r *ResourceReporter) generateUserCharts(overview *UserResourceOverview) []
 }
 
 func (r *ResourceReporter) generateSystemCharts(overview *SystemResourceOverview) []ChartData {
-	charts := make([]ChartData, 0)
+	charts := make([]ChartData, 0, 3)
 
 	// CPU 使用率仪表盘
 	charts = append(charts, ChartData{
@@ -760,12 +760,12 @@ func formatBytesForResource(bytes uint64) string {
 	return fmt.Sprintf("%.1f %ciB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (r *ResourceReporter) UpdateConfig(config ResourceReportConfig) {
 	r.config = config
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (r *ResourceReporter) GetConfig() ResourceReportConfig {
 	return r.config
 }

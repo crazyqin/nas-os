@@ -4,6 +4,7 @@ package service
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"os/exec"
 	"strconv"
@@ -11,12 +12,12 @@ import (
 	"time"
 )
 
-// SystemdBackend systemd 服务后端
+// SystemdBackend systemd 服务后端.
 type SystemdBackend struct {
 	systemctlPath string
 }
 
-// NewSystemdBackend 创建 systemd 后端
+// NewSystemdBackend 创建 systemd 后端.
 func NewSystemdBackend() (*SystemdBackend, error) {
 	// 检查 systemctl 是否可用
 	systemctlPath, err := exec.LookPath("systemctl")
@@ -29,12 +30,14 @@ func NewSystemdBackend() (*SystemdBackend, error) {
 	}, nil
 }
 
-// Start 启动服务
+// Start 启动服务.
 func (b *SystemdBackend) Start(name string) error {
 	// 尝试标准服务名，如果失败则尝试添加 .service 后缀
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "start", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "start", serviceName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("systemctl start 失败: %s: %w", string(output), err)
@@ -42,11 +45,13 @@ func (b *SystemdBackend) Start(name string) error {
 	return nil
 }
 
-// Stop 停止服务
+// Stop 停止服务.
 func (b *SystemdBackend) Stop(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "stop", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "stop", serviceName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("systemctl stop 失败: %s: %w", string(output), err)
@@ -54,11 +59,13 @@ func (b *SystemdBackend) Stop(name string) error {
 	return nil
 }
 
-// Restart 重启服务
+// Restart 重启服务.
 func (b *SystemdBackend) Restart(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "restart", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "restart", serviceName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("systemctl restart 失败: %s: %w", string(output), err)
@@ -66,14 +73,16 @@ func (b *SystemdBackend) Restart(name string) error {
 	return nil
 }
 
-// Status 获取服务状态
+// Status 获取服务状态.
 func (b *SystemdBackend) Status(name string) (*ServiceStatus, error) {
 	serviceName := b.normalizeServiceName(name)
 
 	status := &ServiceStatus{}
 
 	// 获取服务状态
-	cmd := exec.Command(b.systemctlPath, "show", serviceName,
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "show", serviceName,
 		"--property=ActiveState,SubState,MainPID,ExecMainStartTimestamp,MemoryCurrent,CPUUsageNSec,Result")
 	output, err := cmd.Output()
 	if err != nil {
@@ -130,11 +139,13 @@ func (b *SystemdBackend) Status(name string) (*ServiceStatus, error) {
 	return status, nil
 }
 
-// Enable 启用服务开机自启
+// Enable 启用服务开机自启.
 func (b *SystemdBackend) Enable(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "enable", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "enable", serviceName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("systemctl enable 失败: %s: %w", string(output), err)
@@ -142,11 +153,13 @@ func (b *SystemdBackend) Enable(name string) error {
 	return nil
 }
 
-// Disable 禁用服务开机自启
+// Disable 禁用服务开机自启.
 func (b *SystemdBackend) Disable(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "disable", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "disable", serviceName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("systemctl disable 失败: %s: %w", string(output), err)
@@ -154,11 +167,13 @@ func (b *SystemdBackend) Disable(name string) error {
 	return nil
 }
 
-// IsEnabled 检查服务是否开机自启
+// IsEnabled 检查服务是否开机自启.
 func (b *SystemdBackend) IsEnabled(name string) (bool, error) {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "is-enabled", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "is-enabled", serviceName)
 	output, err := cmd.Output()
 	if err != nil {
 		// is-enabled 返回非零表示未启用
@@ -169,11 +184,13 @@ func (b *SystemdBackend) IsEnabled(name string) (bool, error) {
 	return result == "enabled" || result == "enabled-runtime" || result == "static", nil
 }
 
-// IsRunning 检查服务是否运行中
+// IsRunning 检查服务是否运行中.
 func (b *SystemdBackend) IsRunning(name string) (bool, error) {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "is-active", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "is-active", serviceName)
 	output, err := cmd.Output()
 	if err != nil {
 		return false, nil
@@ -182,10 +199,12 @@ func (b *SystemdBackend) IsRunning(name string) (bool, error) {
 	return strings.TrimSpace(string(output)) == "active", nil
 }
 
-// List 列出所有服务
+// List 列出所有服务.
 func (b *SystemdBackend) List() ([]*Service, error) {
 	// 获取所有服务单元
-	cmd := exec.Command(b.systemctlPath, "list-units", "--type=service", "--all",
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "list-units", "--type=service", "--all",
 		"--no-pager", "--no-legend")
 	output, err := cmd.Output()
 	if err != nil {
@@ -244,12 +263,14 @@ func (b *SystemdBackend) List() ([]*Service, error) {
 	return services, nil
 }
 
-// Get 获取单个服务信息
+// Get 获取单个服务信息.
 func (b *SystemdBackend) Get(name string) (*Service, error) {
 	serviceName := b.normalizeServiceName(name)
 
 	// 获取服务详细信息
-	cmd := exec.Command(b.systemctlPath, "show", serviceName,
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "show", serviceName,
 		"--property=Description,LoadState,ActiveState,SubState,UnitFileState")
 	output, err := cmd.Output()
 	if err != nil {
@@ -277,7 +298,7 @@ func (b *SystemdBackend) Get(name string) (*Service, error) {
 	return svc, nil
 }
 
-// normalizeServiceName 标准化服务名称
+// normalizeServiceName 标准化服务名称.
 func (b *SystemdBackend) normalizeServiceName(name string) string {
 	// 如果已经包含后缀，直接返回
 	if strings.Contains(name, ".") {
@@ -287,7 +308,7 @@ func (b *SystemdBackend) normalizeServiceName(name string) string {
 	return name + ".service"
 }
 
-// parseProperties 解析 systemctl show 输出的属性
+// parseProperties 解析 systemctl show 输出的属性.
 func (b *SystemdBackend) parseProperties(output string) map[string]string {
 	props := make(map[string]string)
 
@@ -306,7 +327,7 @@ func (b *SystemdBackend) parseProperties(output string) map[string]string {
 	return props
 }
 
-// enrichStatus 使用其他命令丰富状态信息
+// enrichStatus 使用其他命令丰富状态信息.
 func (b *SystemdBackend) enrichStatus(status *ServiceStatus) {
 	if status.PID <= 0 {
 		return
@@ -315,7 +336,9 @@ func (b *SystemdBackend) enrichStatus(status *ServiceStatus) {
 	// 使用 /proc 获取进程信息
 	// 读取 /proc/[pid]/stat 获取 CPU 和内存信息
 	statFile := fmt.Sprintf("/proc/%d/stat", status.PID)
-	cmd := exec.Command("cat", statFile)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "cat", statFile)
 	output, err := cmd.Output()
 	if err != nil {
 		return
@@ -333,7 +356,9 @@ func (b *SystemdBackend) enrichStatus(status *ServiceStatus) {
 	if rss, err := strconv.ParseUint(fields[23], 10, 64); err == nil {
 		// 获取系统页大小
 		pageSize := uint64(4096) // 默认 4KB
-		if ps := exec.Command("getconf", "PAGESIZE"); ps.Run() == nil {
+		ctx2, cancel2 := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel2()
+		if ps := exec.CommandContext(ctx2, "getconf", "PAGESIZE"); ps.Run() == nil {
 			if out, err := ps.Output(); err == nil {
 				if ps, err := strconv.ParseUint(strings.TrimSpace(string(out)), 10, 64); err == nil {
 					pageSize = ps
@@ -344,7 +369,7 @@ func (b *SystemdBackend) enrichStatus(status *ServiceStatus) {
 	}
 }
 
-// GetServiceLogs 获取服务日志
+// GetServiceLogs 获取服务日志.
 func (b *SystemdBackend) GetServiceLogs(name string, lines int, follow bool) (string, error) {
 	serviceName := b.normalizeServiceName(name)
 
@@ -356,7 +381,9 @@ func (b *SystemdBackend) GetServiceLogs(name string, lines int, follow bool) (st
 		args = append(args, "-f")
 	}
 
-	cmd := exec.Command(args[0], args[1:]...)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, args[0], args[1:]...)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", fmt.Errorf("获取服务日志失败: %w", err)
@@ -365,11 +392,13 @@ func (b *SystemdBackend) GetServiceLogs(name string, lines int, follow bool) (st
 	return string(output), nil
 }
 
-// GetServiceUnitFile 获取服务单元文件内容
+// GetServiceUnitFile 获取服务单元文件内容.
 func (b *SystemdBackend) GetServiceUnitFile(name string) (string, error) {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "cat", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "cat", serviceName)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", fmt.Errorf("获取服务单元文件失败: %w", err)
@@ -378,9 +407,11 @@ func (b *SystemdBackend) GetServiceUnitFile(name string) (string, error) {
 	return string(output), nil
 }
 
-// GetFailedServices 获取失败的服务列表
+// GetFailedServices 获取失败的服务列表.
 func (b *SystemdBackend) GetFailedServices() ([]*Service, error) {
-	cmd := exec.Command(b.systemctlPath, "list-units", "--state=failed", "--type=service",
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "list-units", "--state=failed", "--type=service",
 		"--no-pager", "--no-legend")
 	output, err := cmd.Output()
 	if err != nil {
@@ -425,9 +456,11 @@ func (b *SystemdBackend) GetFailedServices() ([]*Service, error) {
 	return services, nil
 }
 
-// DaemonReload 重新加载 systemd 配置
+// DaemonReload 重新加载 systemd 配置.
 func (b *SystemdBackend) DaemonReload() error {
-	cmd := exec.Command(b.systemctlPath, "daemon-reload")
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "daemon-reload")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("systemctl daemon-reload 失败: %s: %w", string(output), err)
@@ -435,11 +468,13 @@ func (b *SystemdBackend) DaemonReload() error {
 	return nil
 }
 
-// ResetFailed 重置失败状态
+// ResetFailed 重置失败状态.
 func (b *SystemdBackend) ResetFailed(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "reset-failed", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "reset-failed", serviceName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("systemctl reset-failed 失败: %s: %w", string(output), err)
@@ -447,11 +482,13 @@ func (b *SystemdBackend) ResetFailed(name string) error {
 	return nil
 }
 
-// Mask 屏蔽服务
+// Mask 屏蔽服务.
 func (b *SystemdBackend) Mask(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "mask", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "mask", serviceName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("systemctl mask 失败: %s: %w", string(output), err)
@@ -459,11 +496,13 @@ func (b *SystemdBackend) Mask(name string) error {
 	return nil
 }
 
-// Unmask 取消屏蔽服务
+// Unmask 取消屏蔽服务.
 func (b *SystemdBackend) Unmask(name string) error {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "unmask", serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "unmask", serviceName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("systemctl unmask 失败: %s: %w", string(output), err)
@@ -471,11 +510,13 @@ func (b *SystemdBackend) Unmask(name string) error {
 	return nil
 }
 
-// GetServiceDependencies 获取服务依赖
+// GetServiceDependencies 获取服务依赖.
 func (b *SystemdBackend) GetServiceDependencies(name string) ([]string, error) {
 	serviceName := b.normalizeServiceName(name)
 
-	cmd := exec.Command(b.systemctlPath, "list-dependencies", serviceName, "--no-pager", "--plain")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, b.systemctlPath, "list-dependencies", serviceName, "--no-pager", "--plain")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("获取服务依赖失败: %w", err)

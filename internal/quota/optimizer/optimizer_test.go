@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Mock implementations for testing
+// Mock implementations for testing.
 type mockQuotaDataProvider struct {
 	usages  []*QuotaUsageInfo
 	quotas  map[string]*QuotaInfo

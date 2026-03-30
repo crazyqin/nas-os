@@ -1,0 +1,67 @@
+=== Symbol Results ===
+
+Vulnerability #1: GO-2026-4815
+    OOM from malicious IFD offset in golang.org/x/image/tiff
+  More info: https://pkg.go.dev/vuln/GO-2026-4815
+  Module: golang.org/x/image
+    Found in: golang.org/x/image@v0.37.0
+    Fixed in: golang.org/x/image@v0.38.0
+    Example traces found:
+      #1: internal/media/thumbnail.go:315:34: media.ThumbnailGenerator.GenerateFromImage calls image.Decode, which calls tiff.Decode
+      #2: internal/media/thumbnail.go:515:40: media.ThumbnailGenerator.GetThumbnailInfo calls image.DecodeConfig, which calls tiff.DecodeConfig
+      #3: internal/docker/app_discovery.go:468:26: docker.AppDiscovery.FetchComposeFile calls io.SectionReader.Read, which calls tiff.buffer.ReadAt
+
+Vulnerability #2: GO-2026-4603
+    URLs in meta content attribute actions are not escaped in html/template
+  More info: https://pkg.go.dev/vuln/GO-2026-4603
+  Standard library
+    Found in: html/template@go1.26
+    Fixed in: html/template@go1.26.1
+    Example traces found:
+      #1: internal/reports/enhanced_export.go:329:24: reports.EnhancedExporter.exportHTMLEnhanced calls template.Template.Execute
+      #2: internal/web/server.go:925:33: web.Server.Start calls http.Server.ListenAndServe, which eventually calls template.Template.ExecuteTemplate
+
+Vulnerability #3: GO-2026-4602
+    FileInfo can escape from a Root in os
+  More info: https://pkg.go.dev/vuln/GO-2026-4602
+  Standard library
+    Found in: os@go1.26
+    Fixed in: os@go1.26.1
+    Example traces found:
+      #1: internal/web/server.go:925:33: web.Server.Start calls http.Server.ListenAndServe, which eventually calls os.File.ReadDir
+      #2: internal/dashboard/health/checker.go:16:2: health.init calls cpu.init, which eventually calls os.File.Readdir
+      #3: internal/docker/appstore.go:1712:28: docker.BackupManager.ListBackups calls os.ReadDir
+
+Vulnerability #4: GO-2026-4601
+    Incorrect parsing of IPv6 host literals in net/url
+  More info: https://pkg.go.dev/vuln/GO-2026-4601
+  Standard library
+    Found in: net/url@go1.26
+    Fixed in: net/url@go1.26.1
+    Example traces found:
+      #1: internal/office/manager.go:1169:21: office.ParseCallbackURL calls url.Parse
+      #2: internal/web/server.go:925:33: web.Server.Start calls http.Server.ListenAndServe, which eventually calls url.ParseRequestURI
+      #3: internal/cloudsync/providers.go:1821:26: cloudsync.OneDriveProvider.TestConnection calls http.Client.Do, which eventually calls url.URL.Parse
+
+Vulnerability #5: GO-2026-4600
+    Panic in name constraint checking for malformed certificates in crypto/x509
+  More info: https://pkg.go.dev/vuln/GO-2026-4600
+  Standard library
+    Found in: crypto/x509@go1.26
+    Fixed in: crypto/x509@go1.26.1
+    Example traces found:
+      #1: internal/ldap/client.go:89:26: ldap.Client.Connect calls ldap.Conn.StartTLS, which eventually calls x509.Certificate.Verify
+
+Vulnerability #6: GO-2026-4599
+    Incorrect enforcement of email constraints in crypto/x509
+  More info: https://pkg.go.dev/vuln/GO-2026-4599
+  Standard library
+    Found in: crypto/x509@go1.26
+    Fixed in: crypto/x509@go1.26.1
+    Example traces found:
+      #1: internal/ldap/client.go:89:26: ldap.Client.Connect calls ldap.Conn.StartTLS, which eventually calls x509.Certificate.Verify
+
+Your code is affected by 6 vulnerabilities from 1 module and the Go standard library.
+This scan found no other vulnerabilities in packages you import or modules you
+require.
+Use '-show verbose' for more details.

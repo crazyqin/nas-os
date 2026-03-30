@@ -80,7 +80,7 @@ func (tg *ThumbnailGenerator) GenerateFromVideo(videoPath, outputPath string, co
 	// 构建 ffmpeg 命令
 	args := tg.buildThumbnailArgs(videoPath, outputPath, config)
 
-	cmd := exec.Command(tg.ffmpegPath, args...)
+	cmd := exec.CommandContext(context.Background(), tg.ffmpegPath, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("生成缩略图失败: %s", string(output))
@@ -287,7 +287,7 @@ func (tg *ThumbnailGenerator) createSprite(thumbs []string, outputPath string, c
 		"-y", outputPath,
 	}
 
-	cmd := exec.Command(tg.ffmpegPath, args...)
+	cmd := exec.CommandContext(context.Background(), tg.ffmpegPath, args...)
 	if output, err := cmd.CombinedOutput(); err != nil {
 		return nil, fmt.Errorf("创建精灵图失败: %s", string(output))
 	}
@@ -387,7 +387,10 @@ func (tg *ThumbnailGenerator) resizeImage(img image.Image, width, height int) im
 
 // getVideoDuration 获取视频时长
 func (tg *ThumbnailGenerator) getVideoDuration(videoPath string) (float64, error) {
-	cmd := exec.Command(tg.ffprobePath,
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, tg.ffprobePath,
 		"-v", "error",
 		"-show_entries", "format=duration",
 		"-of", "default=noprint_wrappers=1:nokey=1",
@@ -431,7 +434,10 @@ func (tg *ThumbnailGenerator) GeneratePreviewGif(videoPath, outputPath string, d
 		"-y", outputPath,
 	}
 
-	cmd := exec.Command(tg.ffmpegPath, args...)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, tg.ffmpegPath, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("生成 GIF 失败: %s", string(output))

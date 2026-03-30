@@ -15,19 +15,19 @@ import (
 	"time"
 )
 
-// Level 日志级别
+// Level 日志级别.
 type Level int
 
 const (
-	// LevelDebug 调试级别
+	// LevelDebug 调试级别.
 	LevelDebug Level = iota
-	// LevelInfo 信息级别
+	// LevelInfo 信息级别.
 	LevelInfo
-	// LevelWarn 警告级别
+	// LevelWarn 警告级别.
 	LevelWarn
-	// LevelError 错误级别
+	// LevelError 错误级别.
 	LevelError
-	// LevelFatal 致命错误级别
+	// LevelFatal 致命错误级别.
 	LevelFatal
 )
 
@@ -48,7 +48,7 @@ func (l Level) String() string {
 	}
 }
 
-// ParseLevel 解析日志级别
+// ParseLevel 解析日志级别.
 func ParseLevel(s string) Level {
 	switch strings.ToUpper(s) {
 	case "DEBUG":
@@ -66,7 +66,7 @@ func ParseLevel(s string) Level {
 	}
 }
 
-// LogEntry 日志条目
+// LogEntry 日志条目.
 type LogEntry struct {
 	Timestamp time.Time              `json:"timestamp"`
 	Level     string                 `json:"level"`
@@ -79,7 +79,7 @@ type LogEntry struct {
 	Caller    string                 `json:"caller,omitempty"`
 }
 
-// Logger 日志记录器
+// Logger 日志记录器.
 type Logger struct {
 	level     Level
 	output    io.Writer
@@ -89,17 +89,17 @@ type Logger struct {
 	mu        sync.Mutex
 }
 
-// Formatter 日志格式化器
+// Formatter 日志格式化器.
 type Formatter interface {
 	Format(entry *LogEntry) ([]byte, error)
 }
 
-// JSONFormatter JSON 格式化器
+// JSONFormatter JSON 格式化器.
 type JSONFormatter struct {
 	PrettyPrint bool
 }
 
-// Format 将日志条目格式化为 JSON 字节
+// Format 将日志条目格式化为 JSON 字节.
 func (f *JSONFormatter) Format(entry *LogEntry) ([]byte, error) {
 	if f.PrettyPrint {
 		return json.MarshalIndent(entry, "", "  ")
@@ -107,13 +107,13 @@ func (f *JSONFormatter) Format(entry *LogEntry) ([]byte, error) {
 	return json.Marshal(entry)
 }
 
-// TextFormatter 文本格式化器
+// TextFormatter 文本格式化器.
 type TextFormatter struct {
 	DisableColors bool
 	TimeFormat    string
 }
 
-// Format 将日志条目格式化为文本字节
+// Format 将日志条目格式化为文本字节.
 func (f *TextFormatter) Format(entry *LogEntry) ([]byte, error) {
 	timeFormat := f.TimeFormat
 	if timeFormat == "" {
@@ -161,7 +161,7 @@ var levelColors = map[string]string{
 
 const resetColor = "\033[0m"
 
-// LogConfig 日志配置
+// LogConfig 日志配置.
 type LogConfig struct {
 	Level       Level
 	Output      io.Writer
@@ -172,7 +172,7 @@ type LogConfig struct {
 	PrettyPrint bool
 }
 
-// NewLogger 创建日志记录器
+// NewLogger 创建日志记录器.
 func NewLogger(config *LogConfig) *Logger {
 	if config == nil {
 		config = &LogConfig{
@@ -204,7 +204,7 @@ func NewLogger(config *LogConfig) *Logger {
 	}
 }
 
-// WithField 添加字段
+// WithField 添加字段.
 func (l *Logger) WithField(key string, value interface{}) *Logger {
 	newLogger := &Logger{
 		level:     l.level,
@@ -220,7 +220,7 @@ func (l *Logger) WithField(key string, value interface{}) *Logger {
 	return newLogger
 }
 
-// WithFields 添加多个字段
+// WithFields 添加多个字段.
 func (l *Logger) WithFields(fields map[string]interface{}) *Logger {
 	newLogger := &Logger{
 		level:     l.level,
@@ -238,24 +238,24 @@ func (l *Logger) WithFields(fields map[string]interface{}) *Logger {
 	return newLogger
 }
 
-// WithSource 设置来源
+// WithSource 设置来源.
 func (l *Logger) WithSource(source string) *Logger {
 	newLogger := l.WithField("source", source)
 	newLogger.source = source
 	return newLogger
 }
 
-// WithCaller 添加调用者信息
+// WithCaller 添加调用者信息.
 func (l *Logger) WithCaller(caller string) *Logger {
 	return l.WithField("caller", caller)
 }
 
-// WithRequestID 设置请求 ID
+// WithRequestID 设置请求 ID.
 func (l *Logger) WithRequestID(requestID string) *Logger {
 	return l.WithField("request_id", requestID)
 }
 
-// WithTrace 设置追踪信息
+// WithTrace 设置追踪信息.
 func (l *Logger) WithTrace(traceID, spanID string) *Logger {
 	return l.WithFields(map[string]interface{}{
 		"trace_id": traceID,
@@ -263,7 +263,7 @@ func (l *Logger) WithTrace(traceID, spanID string) *Logger {
 	})
 }
 
-// log 记录日志
+// log 记录日志.
 func (l *Logger) log(level Level, message string, fields map[string]interface{}) {
 	if level < l.level {
 		return
@@ -298,66 +298,66 @@ func (l *Logger) log(level Level, message string, fields map[string]interface{})
 	_, _ = l.output.Write(output)
 }
 
-// Debug 记录调试日志
+// Debug 记录调试日志.
 func (l *Logger) Debug(message string) {
 	l.log(LevelDebug, message, nil)
 }
 
-// Debugf 记录格式化调试日志
+// Debugf 记录格式化调试日志.
 func (l *Logger) Debugf(format string, args ...interface{}) {
 	l.log(LevelDebug, fmt.Sprintf(format, args...), nil)
 }
 
-// Info 记录信息日志
+// Info 记录信息日志.
 func (l *Logger) Info(message string) {
 	l.log(LevelInfo, message, nil)
 }
 
-// Infof 记录格式化信息日志
+// Infof 记录格式化信息日志.
 func (l *Logger) Infof(format string, args ...interface{}) {
 	l.log(LevelInfo, fmt.Sprintf(format, args...), nil)
 }
 
-// Warn 记录警告日志
+// Warn 记录警告日志.
 func (l *Logger) Warn(message string) {
 	l.log(LevelWarn, message, nil)
 }
 
-// Warnf 记录格式化警告日志
+// Warnf 记录格式化警告日志.
 func (l *Logger) Warnf(format string, args ...interface{}) {
 	l.log(LevelWarn, fmt.Sprintf(format, args...), nil)
 }
 
-// Error 记录错误日志
+// Error 记录错误日志.
 func (l *Logger) Error(message string) {
 	l.log(LevelError, message, nil)
 }
 
-// Errorf 记录格式化错误日志
+// Errorf 记录格式化错误日志.
 func (l *Logger) Errorf(format string, args ...interface{}) {
 	l.log(LevelError, fmt.Sprintf(format, args...), nil)
 }
 
-// Fatal 记录致命错误日志并退出
+// Fatal 记录致命错误日志并退出.
 func (l *Logger) Fatal(message string) {
 	l.log(LevelFatal, message, nil)
 	os.Exit(1)
 }
 
-// Fatalf 记录格式化致命错误日志并退出
+// Fatalf 记录格式化致命错误日志并退出.
 func (l *Logger) Fatalf(format string, args ...interface{}) {
 	l.log(LevelFatal, fmt.Sprintf(format, args...), nil)
 	os.Exit(1)
 }
 
-// SetLevel 设置日志级别
+// SetLevel 设置日志级别.
 func (l *Logger) SetLevel(level Level) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.level = level
 }
 
-// GetLevel 获取日志级别
+// GetLevel 获取日志级别.
 func (l *Logger) GetLevel() Level {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -366,7 +366,7 @@ func (l *Logger) GetLevel() Level {
 
 // ========== 日志管理器 ==========
 
-// LogManager 日志管理器
+// LogManager 日志管理器.
 type LogManager struct {
 	loggers map[string]*Logger
 	rotator *LogRotator
@@ -374,14 +374,14 @@ type LogManager struct {
 	mu      sync.RWMutex
 }
 
-// NewLogManager 创建日志管理器
+// NewLogManager 创建日志管理器.
 func NewLogManager() *LogManager {
 	return &LogManager{
 		loggers: make(map[string]*Logger),
 	}
 }
 
-// NewLogManagerWithConfig 使用配置创建日志管理器
+// NewLogManagerWithConfig 使用配置创建日志管理器.
 func NewLogManagerWithConfig(config *LogConfig) *LogManager {
 	return &LogManager{
 		loggers: make(map[string]*Logger),
@@ -389,7 +389,7 @@ func NewLogManagerWithConfig(config *LogConfig) *LogManager {
 	}
 }
 
-// GetLogger 获取日志记录器
+// GetLogger 获取日志记录器.
 func (m *LogManager) GetLogger(name string) *Logger {
 	m.mu.RLock()
 	logger, exists := m.loggers[name]
@@ -418,17 +418,17 @@ func (m *LogManager) GetLogger(name string) *Logger {
 	return logger
 }
 
-// SetRotator 设置日志轮转器
+// SetRotator 设置日志轮转器.
 func (m *LogManager) SetRotator(rotator *LogRotator) {
 	m.rotator = rotator
 }
 
-// GetRotator 获取日志轮转器
+// GetRotator 获取日志轮转器.
 func (m *LogManager) GetRotator() *LogRotator {
 	return m.rotator
 }
 
-// ListLoggers 列出所有日志记录器
+// ListLoggers 列出所有日志记录器.
 func (m *LogManager) ListLoggers() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -441,7 +441,7 @@ func (m *LogManager) ListLoggers() []string {
 
 // ========== 日志轮转 ==========
 
-// RotateConfig 轮转配置
+// RotateConfig 轮转配置.
 type RotateConfig struct {
 	Path       string // 日志文件路径
 	MaxSize    int64  // 最大文件大小（字节）
@@ -451,7 +451,7 @@ type RotateConfig struct {
 	LocalTime  bool   // 使用本地时间
 }
 
-// LogRotator 日志轮转器
+// LogRotator 日志轮转器.
 type LogRotator struct {
 	path        string
 	maxSize     int64 // 最大文件大小（字节）
@@ -463,7 +463,7 @@ type LogRotator struct {
 	mu          sync.Mutex
 }
 
-// NewLogRotator 创建日志轮转器
+// NewLogRotator 创建日志轮转器.
 func NewLogRotator(path string, maxSize int64, maxBackups, maxAge int) (*LogRotator, error) {
 	return NewLogRotatorWithConfig(&RotateConfig{
 		Path:       path,
@@ -473,7 +473,7 @@ func NewLogRotator(path string, maxSize int64, maxBackups, maxAge int) (*LogRota
 	})
 }
 
-// NewLogRotatorWithConfig 使用配置创建日志轮转器
+// NewLogRotatorWithConfig 使用配置创建日志轮转器.
 func NewLogRotatorWithConfig(config *RotateConfig) (*LogRotator, error) {
 	if config == nil {
 		return nil, fmt.Errorf("config is nil")
@@ -515,7 +515,7 @@ func (r *LogRotator) openFile() error {
 	return nil
 }
 
-// Write 写入日志
+// Write 写入日志.
 func (r *LogRotator) Write(p []byte) (n int, err error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -585,14 +585,14 @@ func (r *LogRotator) cleanOldLogs() {
 	}
 }
 
-// ForceRotate 强制轮转
+// ForceRotate 强制轮转.
 func (r *LogRotator) ForceRotate() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return r.rotate()
 }
 
-// Close 关闭轮转器
+// Close 关闭轮转器.
 func (r *LogRotator) Close() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -602,19 +602,19 @@ func (r *LogRotator) Close() error {
 	return nil
 }
 
-// GetPath 获取日志文件路径
+// GetPath 获取日志文件路径.
 func (r *LogRotator) GetPath() string {
 	return r.path
 }
 
-// GetCurrentSize 获取当前文件大小
+// GetCurrentSize 获取当前文件大小.
 func (r *LogRotator) GetCurrentSize() int64 {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return r.currentSize
 }
 
-// ListBackups 列出备份文件
+// ListBackups 列出备份文件.
 func (r *LogRotator) ListBackups() ([]string, error) {
 	dir := filepath.Dir(r.path)
 	pattern := filepath.Base(r.path) + ".*"
@@ -623,7 +623,7 @@ func (r *LogRotator) ListBackups() ([]string, error) {
 
 // ========== 日志搜索 ==========
 
-// SearchConfig 搜索配置
+// SearchConfig 搜索配置.
 type SearchConfig struct {
 	Path      string    // 日志目录路径
 	Pattern   string    // 搜索模式（支持简单的通配符）
@@ -637,24 +637,24 @@ type SearchConfig struct {
 	Offset    int       // 偏移量
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Total   int        `json:"total"`
 	Entries []LogEntry `json:"entries"`
 	Files   []string   `json:"files,omitempty"`
 }
 
-// LogSearcher 日志搜索器
+// LogSearcher 日志搜索器.
 type LogSearcher struct {
 	path string
 }
 
-// NewLogSearcher 创建日志搜索器
+// NewLogSearcher 创建日志搜索器.
 func NewLogSearcher(path string) *LogSearcher {
 	return &LogSearcher{path: path}
 }
 
-// Search 搜索日志
+// Search 搜索日志.
 func (s *LogSearcher) Search(ctx context.Context, config *SearchConfig) (*SearchResult, error) {
 	if config == nil {
 		config = &SearchConfig{}
@@ -730,7 +730,7 @@ func (s *LogSearcher) Search(ctx context.Context, config *SearchConfig) (*Search
 	return result, nil
 }
 
-// parseLogFile 解析日志文件
+// parseLogFile 解析日志文件.
 func (s *LogSearcher) parseLogFile(path string, config *SearchConfig) ([]LogEntry, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -772,7 +772,7 @@ func (s *LogSearcher) parseLogFile(path string, config *SearchConfig) ([]LogEntr
 	return entries, scanner.Err()
 }
 
-// parseTextLog 从文本日志中解析信息
+// parseTextLog 从文本日志中解析信息.
 func (s *LogSearcher) parseTextLog(line string, entry *LogEntry) {
 	// 尝试匹配常见格式：[时间] 级别 消息
 	parts := strings.Fields(line)
@@ -806,7 +806,7 @@ func (s *LogSearcher) parseTextLog(line string, entry *LogEntry) {
 	}
 }
 
-// matchFilter 检查是否匹配过滤条件
+// matchFilter 检查是否匹配过滤条件.
 func (s *LogSearcher) matchFilter(entry *LogEntry, config *SearchConfig) bool {
 	// 级别过滤
 	if config.Level != "" && !strings.EqualFold(entry.Level, config.Level) {
@@ -842,7 +842,7 @@ func (s *LogSearcher) matchFilter(entry *LogEntry, config *SearchConfig) bool {
 	return true
 }
 
-// Stream 实时流式日志
+// Stream 实时流式日志.
 func (s *LogSearcher) Stream(ctx context.Context, config *SearchConfig) (<-chan LogEntry, error) {
 	ch := make(chan LogEntry, 100)
 
@@ -910,7 +910,7 @@ func (s *LogSearcher) Stream(ctx context.Context, config *SearchConfig) (<-chan 
 	return ch, nil
 }
 
-// GetStats 获取日志统计
+// GetStats 获取日志统计.
 func (s *LogSearcher) GetStats(path string) (map[string]interface{}, error) {
 	if path == "" {
 		path = s.path
@@ -958,12 +958,12 @@ func (s *LogSearcher) GetStats(path string) (map[string]interface{}, error) {
 
 type ctxKey struct{}
 
-// WithContext 将日志记录器添加到上下文
+// WithContext 将日志记录器添加到上下文.
 func WithContext(ctx context.Context, logger *Logger) context.Context {
 	return context.WithValue(ctx, ctxKey{}, logger)
 }
 
-// FromContext 从上下文获取日志记录器
+// FromContext 从上下文获取日志记录器.
 func FromContext(ctx context.Context) *Logger {
 	if logger, ok := ctx.Value(ctxKey{}).(*Logger); ok {
 		return logger
@@ -978,14 +978,14 @@ var (
 	globalMu     sync.RWMutex
 )
 
-// SetGlobalLogger 设置全局日志记录器
+// SetGlobalLogger 设置全局日志记录器.
 func SetGlobalLogger(logger *Logger) {
 	globalMu.Lock()
 	defer globalMu.Unlock()
 	globalLogger = logger
 }
 
-// GetGlobalLogger 获取全局日志记录器
+// GetGlobalLogger 获取全局日志记录器.
 func GetGlobalLogger() *Logger {
 	globalMu.RLock()
 	defer globalMu.RUnlock()
@@ -995,38 +995,38 @@ func GetGlobalLogger() *Logger {
 	return globalLogger
 }
 
-// Debug 使用全局日志记录器记录调试日志
+// Debug 使用全局日志记录器记录调试日志.
 func Debug(message string) { GetGlobalLogger().Debug(message) }
 
-// Debugf 使用全局日志记录器记录格式化调试日志
+// Debugf 使用全局日志记录器记录格式化调试日志.
 func Debugf(format string, args ...interface{}) { GetGlobalLogger().Debugf(format, args...) }
 
-// Info 使用全局日志记录器记录信息日志
+// Info 使用全局日志记录器记录信息日志.
 func Info(message string) { GetGlobalLogger().Info(message) }
 
-// Infof 使用全局日志记录器记录格式化信息日志
+// Infof 使用全局日志记录器记录格式化信息日志.
 func Infof(format string, args ...interface{}) { GetGlobalLogger().Infof(format, args...) }
 
-// Warn 使用全局日志记录器记录警告日志
+// Warn 使用全局日志记录器记录警告日志.
 func Warn(message string) { GetGlobalLogger().Warn(message) }
 
-// Warnf 使用全局日志记录器记录格式化警告日志
+// Warnf 使用全局日志记录器记录格式化警告日志.
 func Warnf(format string, args ...interface{}) { GetGlobalLogger().Warnf(format, args...) }
 
-// Error 使用全局日志记录器记录错误日志
+// Error 使用全局日志记录器记录错误日志.
 func Error(message string) { GetGlobalLogger().Error(message) }
 
-// Errorf 使用全局日志记录器记录格式化错误日志
+// Errorf 使用全局日志记录器记录格式化错误日志.
 func Errorf(format string, args ...interface{}) { GetGlobalLogger().Errorf(format, args...) }
 
-// Fatal 使用全局日志记录器记录致命错误日志并退出
+// Fatal 使用全局日志记录器记录致命错误日志并退出.
 func Fatal(message string) { GetGlobalLogger().Fatal(message) }
 
-// Fatalf 使用全局日志记录器记录格式化致命错误日志并退出
+// Fatalf 使用全局日志记录器记录格式化致命错误日志并退出.
 func Fatalf(format string, args ...interface{}) { GetGlobalLogger().Fatalf(format, args...) }
 
-// WithField 使用全局日志记录器添加单个字段
+// WithField 使用全局日志记录器添加单个字段.
 func WithField(key string, value interface{}) *Logger { return GetGlobalLogger().WithField(key, value) }
 
-// WithFields 使用全局日志记录器添加多个字段
+// WithFields 使用全局日志记录器添加多个字段.
 func WithFields(fields map[string]interface{}) *Logger { return GetGlobalLogger().WithFields(fields) }

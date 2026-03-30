@@ -8,20 +8,20 @@ import (
 	"strings"
 )
 
-// CHAPManager handles CHAP authentication for iSCSI targets
+// CHAPManager handles CHAP authentication for iSCSI targets.
 type CHAPManager struct {
 	// In production, secrets would be stored securely (e.g., encrypted in database)
 	secrets map[string]*CHAPConfig // targetID -> config
 }
 
-// NewCHAPManager creates a new CHAP manager
+// NewCHAPManager creates a new CHAP manager.
 func NewCHAPManager() *CHAPManager {
 	return &CHAPManager{
 		secrets: make(map[string]*CHAPConfig),
 	}
 }
 
-// ValidateInput validates CHAP input
+// ValidateInput validates CHAP input.
 func (cm *CHAPManager) ValidateInput(input *CHAPInput) error {
 	if input == nil {
 		return nil
@@ -57,7 +57,7 @@ func (cm *CHAPManager) ValidateInput(input *CHAPInput) error {
 	return nil
 }
 
-// CreateConfig creates CHAP configuration from input
+// CreateConfig creates CHAP configuration from input.
 func (cm *CHAPManager) CreateConfig(targetID string, input *CHAPInput) *CHAPConfig {
 	if input == nil || !input.Enabled {
 		return nil
@@ -76,7 +76,7 @@ func (cm *CHAPManager) CreateConfig(targetID string, input *CHAPInput) *CHAPConf
 	return config
 }
 
-// UpdateConfig updates CHAP configuration
+// UpdateConfig updates CHAP configuration.
 func (cm *CHAPManager) UpdateConfig(targetID string, input *CHAPInput) *CHAPConfig {
 	if input == nil {
 		delete(cm.secrets, targetID)
@@ -86,7 +86,7 @@ func (cm *CHAPManager) UpdateConfig(targetID string, input *CHAPInput) *CHAPConf
 	return cm.CreateConfig(targetID, input)
 }
 
-// GetConfig retrieves CHAP configuration (secret hidden)
+// GetConfig retrieves CHAP configuration (secret hidden).
 func (cm *CHAPManager) GetConfig(targetID string) *CHAPConfig {
 	config, exists := cm.secrets[targetID]
 	if !exists {
@@ -103,7 +103,7 @@ func (cm *CHAPManager) GetConfig(targetID string) *CHAPConfig {
 	}
 }
 
-// GetSecret retrieves the actual secret (for internal use)
+// GetSecret retrieves the actual secret (for internal use).
 func (cm *CHAPManager) GetSecret(targetID string) (username, secret string, ok bool) {
 	config, exists := cm.secrets[targetID]
 	if !exists || !config.Enabled {
@@ -112,7 +112,7 @@ func (cm *CHAPManager) GetSecret(targetID string) (username, secret string, ok b
 	return config.Username, config.Secret, true
 }
 
-// GetMutualSecret retrieves mutual CHAP credentials
+// GetMutualSecret retrieves mutual CHAP credentials.
 func (cm *CHAPManager) GetMutualSecret(targetID string) (username, secret string, ok bool) {
 	config, exists := cm.secrets[targetID]
 	if !exists || !config.Enabled || !config.Mutual {
@@ -121,12 +121,12 @@ func (cm *CHAPManager) GetMutualSecret(targetID string) (username, secret string
 	return config.MutualUser, config.MutualSecret, true
 }
 
-// DeleteConfig removes CHAP configuration
+// DeleteConfig removes CHAP configuration.
 func (cm *CHAPManager) DeleteConfig(targetID string) {
 	delete(cm.secrets, targetID)
 }
 
-// GenerateSecret generates a random CHAP secret
+// GenerateSecret generates a random CHAP secret.
 func GenerateSecret() (string, error) {
 	bytes := make([]byte, 8) // 16 hex characters
 	if _, err := rand.Read(bytes); err != nil {
@@ -135,7 +135,7 @@ func GenerateSecret() (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-// generateUserID generates a random user ID
+// generateUserID generates a random user ID.
 func generateUserID() (string, error) {
 	bytes := make([]byte, 4)
 	if _, err := rand.Read(bytes); err != nil {
@@ -144,7 +144,7 @@ func generateUserID() (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-// ValidateIQN validates iSCSI Qualified Name format
+// ValidateIQN validates iSCSI Qualified Name format.
 func ValidateIQN(iqn string) error {
 	if iqn == "" {
 		return nil // Will be auto-generated
@@ -163,7 +163,7 @@ func ValidateIQN(iqn string) error {
 	return nil
 }
 
-// GenerateIQN generates an IQN from base domain and name
+// GenerateIQN generates an IQN from base domain and name.
 func GenerateIQN(baseDomain, name string) (string, error) {
 	id, err := generateUserID()
 	if err != nil {
@@ -185,18 +185,18 @@ func GenerateIQN(baseDomain, name string) (string, error) {
 		id), nil
 }
 
-// NormalizeIQN normalizes IQN to lowercase
+// NormalizeIQN normalizes IQN to lowercase.
 func NormalizeIQN(iqn string) string {
 	return strings.ToLower(iqn)
 }
 
-// HasAuth checks if target requires authentication
+// HasAuth checks if target requires authentication.
 func (cm *CHAPManager) HasAuth(targetID string) bool {
 	config, exists := cm.secrets[targetID]
 	return exists && config.Enabled
 }
 
-// Authenticate verifies CHAP credentials
+// Authenticate verifies CHAP credentials.
 func (cm *CHAPManager) Authenticate(targetID, username, secret string) bool {
 	config, exists := cm.secrets[targetID]
 	if !exists || !config.Enabled {

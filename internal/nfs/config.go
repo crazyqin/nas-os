@@ -13,19 +13,19 @@ import (
 	"nas-os/internal/logging"
 )
 
-// ConfigParser NFS配置解析器
+// ConfigParser NFS配置解析器.
 type ConfigParser struct {
 	logger *logging.Logger
 }
 
-// NewConfigParser 创建配置解析器
+// NewConfigParser 创建配置解析器.
 func NewConfigParser() *ConfigParser {
 	return &ConfigParser{
 		logger: logging.NewLogger(nil).WithSource("nfs-config"),
 	}
 }
 
-// ParseExportsFile 解析/etc/exports文件
+// ParseExportsFile 解析/etc/exports文件.
 func (p *ConfigParser) ParseExportsFile(path string) ([]*Export, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -104,7 +104,7 @@ func (p *ConfigParser) parseExportLine(line string) (*Export, error) {
 }
 
 // parseClientSpec 解析客户端规格
-// 格式: host(options) 或 host
+// 格式: host(options) 或 host.
 func (p *ConfigParser) parseClientSpec(spec string) (*Client, error) {
 	// 匹配 host(options) 格式
 	re := regexp.MustCompile(`^([^(]+)(?:\(([^)]*)\))?$`)
@@ -133,7 +133,7 @@ func (p *ConfigParser) parseClientSpec(spec string) (*Client, error) {
 	return client, nil
 }
 
-// ParseClientOptions 从客户端选项解析导出选项
+// ParseClientOptions 从客户端选项解析导出选项.
 func (p *ConfigParser) ParseClientOptions(opts []string) ExportOptions {
 	exportOpts := ExportOptions{
 		Rw:           true,
@@ -173,7 +173,7 @@ func (p *ConfigParser) ParseClientOptions(opts []string) ExportOptions {
 	return exportOpts
 }
 
-// WriteExportsFile 写入/etc/exports文件
+// WriteExportsFile 写入/etc/exports文件.
 func (p *ConfigParser) WriteExportsFile(path string, exports []*Export) error {
 	file, err := os.Create(path)
 	if err != nil {
@@ -203,7 +203,7 @@ func (p *ConfigParser) WriteExportsFile(path string, exports []*Export) error {
 	return nil
 }
 
-// formatExportLine 格式化导出行
+// formatExportLine 格式化导出行.
 func (p *ConfigParser) formatExportLine(export *Export) string {
 	var sb strings.Builder
 	sb.WriteString(export.Path)
@@ -229,7 +229,7 @@ func (p *ConfigParser) formatExportLine(export *Export) string {
 	return sb.String()
 }
 
-// exportOptionsToString 将导出选项转换为字符串
+// exportOptionsToString 将导出选项转换为字符串.
 func (p *ConfigParser) exportOptionsToString(opts *ExportOptions) string {
 	var parts []string
 
@@ -264,7 +264,7 @@ func (p *ConfigParser) exportOptionsToString(opts *ExportOptions) string {
 	return strings.Join(parts, ",")
 }
 
-// ParseFSID 从选项中解析FSID
+// ParseFSID 从选项中解析FSID.
 func (p *ConfigParser) ParseFSID(opts []string) (int, error) {
 	for _, opt := range opts {
 		if strings.HasPrefix(opt, "fsid=") {
@@ -279,7 +279,7 @@ func (p *ConfigParser) ParseFSID(opts []string) (int, error) {
 	return 0, nil // 默认0表示自动分配
 }
 
-// ValidateExportsPath 验证导出路径
+// ValidateExportsPath 验证导出路径.
 func (p *ConfigParser) ValidateExportsPath(path string) error {
 	// 检查路径是否是绝对路径
 	if !filepath.IsAbs(path) {
@@ -304,7 +304,7 @@ func (p *ConfigParser) ValidateExportsPath(path string) error {
 	return nil
 }
 
-// ValidateHost 验证主机规格
+// ValidateHost 验证主机规格.
 func (p *ConfigParser) ValidateHost(host string) error {
 	if host == "" {
 		return fmt.Errorf("主机不能为空")
@@ -332,7 +332,7 @@ func (p *ConfigParser) ValidateHost(host string) error {
 	return nil
 }
 
-// MergeExports 合并导出配置
+// MergeExports 合并导出配置.
 func (p *ConfigParser) MergeExports(existing, newExports []*Export) []*Export {
 	exportMap := make(map[string]*Export)
 

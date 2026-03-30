@@ -15,7 +15,7 @@ import (
 )
 
 // ConfigBackupManager 配置备份管理器
-// v2.29.0 新增 - 自动化配置备份功能
+// v2.29.0 新增 - 自动化配置备份功能.
 type ConfigBackupManager struct {
 	mu sync.RWMutex
 
@@ -38,7 +38,7 @@ type ConfigBackupManager struct {
 	running  bool
 }
 
-// ConfigBackupConfig 配置备份设置
+// ConfigBackupConfig 配置备份设置.
 type ConfigBackupConfig struct {
 	ConfigDir     string `json:"configDir"`
 	BackupDir     string `json:"backupDir"`
@@ -48,14 +48,14 @@ type ConfigBackupConfig struct {
 	Schedule      string `json:"schedule"` // cron 表达式
 }
 
-// ConfigBackupRegistry 备份注册表
+// ConfigBackupRegistry 备份注册表.
 type ConfigBackupRegistry struct {
 	Version   string                `json:"version"`
 	Backups   []*ConfigBackupRecord `json:"backups"`
 	UpdatedAt time.Time             `json:"updatedAt"`
 }
 
-// ConfigBackupRecord 备份记录
+// ConfigBackupRecord 备份记录.
 type ConfigBackupRecord struct {
 	ID          string             `json:"id"`
 	Filename    string             `json:"filename"`
@@ -68,7 +68,7 @@ type ConfigBackupRecord struct {
 	Status      ConfigBackupStatus `json:"status"`
 }
 
-// ConfigBackupType 备份类型
+// ConfigBackupType 备份类型.
 type ConfigBackupType string
 
 const (
@@ -82,7 +82,7 @@ const (
 	ConfigBackupScheduled ConfigBackupType = "scheduled" // 定时备份
 )
 
-// ConfigBackupStatus 配置备份状态
+// ConfigBackupStatus 配置备份状态.
 type ConfigBackupStatus string
 
 const (
@@ -96,7 +96,7 @@ const (
 	ConfigBackupStatusCorrupted ConfigBackupStatus = "corrupted"
 )
 
-// DefaultConfigBackupConfig 默认配置
+// DefaultConfigBackupConfig 默认配置.
 func DefaultConfigBackupConfig() *ConfigBackupConfig {
 	return &ConfigBackupConfig{
 		ConfigDir:     "/etc/nas-os",
@@ -108,7 +108,7 @@ func DefaultConfigBackupConfig() *ConfigBackupConfig {
 	}
 }
 
-// NewConfigBackupManager 创建配置备份管理器
+// NewConfigBackupManager 创建配置备份管理器.
 func NewConfigBackupManager(config *ConfigBackupConfig) *ConfigBackupManager {
 	if config == nil {
 		config = DefaultConfigBackupConfig()
@@ -128,7 +128,7 @@ func NewConfigBackupManager(config *ConfigBackupConfig) *ConfigBackupManager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *ConfigBackupManager) Initialize() error {
 	// 创建备份目录
 	if err := os.MkdirAll(m.backupDir, 0750); err != nil {
@@ -148,7 +148,7 @@ func (m *ConfigBackupManager) Initialize() error {
 	return nil
 }
 
-// CreateBackup 创建配置备份
+// CreateBackup 创建配置备份.
 func (m *ConfigBackupManager) CreateBackup(backupType ConfigBackupType, description string) (*ConfigBackupRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -207,7 +207,7 @@ func (m *ConfigBackupManager) CreateBackup(backupType ConfigBackupType, descript
 	return record, nil
 }
 
-// createTarBackup 创建 tar 备份
+// createTarBackup 创建 tar 备份.
 func (m *ConfigBackupManager) createTarBackup(backupPath string) (int64, string, error) {
 	// 创建临时文件
 	tmpPath := backupPath + ".tmp"
@@ -315,7 +315,7 @@ func (m *ConfigBackupManager) createTarBackup(backupPath string) (int64, string,
 	return info.Size(), checksum, nil
 }
 
-// RestoreBackup 恢复配置备份
+// RestoreBackup 恢复配置备份.
 func (m *ConfigBackupManager) RestoreBackup(backupID string, dryRun bool) (*ConfigRestoreResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -388,7 +388,7 @@ func (m *ConfigBackupManager) RestoreBackup(backupID string, dryRun bool) (*Conf
 	return result, nil
 }
 
-// previewBackup 预览备份内容
+// previewBackup 预览备份内容.
 func (m *ConfigBackupManager) previewBackup(backupPath string) ([]string, error) {
 	file, err := os.Open(backupPath)
 	if err != nil {
@@ -425,7 +425,7 @@ func (m *ConfigBackupManager) previewBackup(backupPath string) ([]string, error)
 	return files, nil
 }
 
-// extractBackup 解压备份
+// extractBackup 解压备份.
 func (m *ConfigBackupManager) extractBackup(backupPath, destDir string) ([]string, error) {
 	file, err := os.Open(backupPath)
 	if err != nil {
@@ -514,7 +514,7 @@ func (m *ConfigBackupManager) extractBackup(backupPath, destDir string) ([]strin
 	return files, nil
 }
 
-// ListBackups 列出所有备份
+// ListBackups 列出所有备份.
 func (m *ConfigBackupManager) ListBackups() []*ConfigBackupRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -530,7 +530,7 @@ func (m *ConfigBackupManager) ListBackups() []*ConfigBackupRecord {
 	return result
 }
 
-// GetBackup 获取备份信息
+// GetBackup 获取备份信息.
 func (m *ConfigBackupManager) GetBackup(backupID string) (*ConfigBackupRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -544,7 +544,7 @@ func (m *ConfigBackupManager) GetBackup(backupID string) (*ConfigBackupRecord, e
 	return nil, fmt.Errorf("备份不存在: %s", backupID)
 }
 
-// DeleteBackup 删除备份
+// DeleteBackup 删除备份.
 func (m *ConfigBackupManager) DeleteBackup(backupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -566,7 +566,7 @@ func (m *ConfigBackupManager) DeleteBackup(backupID string) error {
 	return fmt.Errorf("备份不存在: %s", backupID)
 }
 
-// cleanupOldBackups 清理旧备份
+// cleanupOldBackups 清理旧备份.
 func (m *ConfigBackupManager) cleanupOldBackups() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -604,7 +604,7 @@ func (m *ConfigBackupManager) cleanupOldBackups() {
 	_ = m.saveRegistry()
 }
 
-// calculateChecksum 计算校验和
+// calculateChecksum 计算校验和.
 func (m *ConfigBackupManager) calculateChecksum(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -621,7 +621,7 @@ func (m *ConfigBackupManager) calculateChecksum(filePath string) (string, error)
 	return fmt.Sprintf("%x", hash.Sum(nil))[:16], nil
 }
 
-// loadRegistry 加载注册表
+// loadRegistry 加载注册表.
 func (m *ConfigBackupManager) loadRegistry() error {
 	data, err := os.ReadFile(m.registryPath)
 	if err != nil {
@@ -631,7 +631,7 @@ func (m *ConfigBackupManager) loadRegistry() error {
 	return json.Unmarshal(data, &m.registry)
 }
 
-// saveRegistry 保存注册表
+// saveRegistry 保存注册表.
 func (m *ConfigBackupManager) saveRegistry() error {
 	data, err := json.MarshalIndent(m.registry, "", "  ")
 	if err != nil {
@@ -641,7 +641,7 @@ func (m *ConfigBackupManager) saveRegistry() error {
 	return os.WriteFile(m.registryPath, data, 0600)
 }
 
-// StartScheduledBackup 启动定时备份
+// StartScheduledBackup 启动定时备份.
 func (m *ConfigBackupManager) StartScheduledBackup(interval time.Duration) {
 	m.mu.Lock()
 	if m.running {
@@ -665,7 +665,7 @@ func (m *ConfigBackupManager) StartScheduledBackup(interval time.Duration) {
 	}()
 }
 
-// StopScheduledBackup 停止定时备份
+// StopScheduledBackup 停止定时备份.
 func (m *ConfigBackupManager) StopScheduledBackup() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -677,7 +677,7 @@ func (m *ConfigBackupManager) StopScheduledBackup() {
 	}
 }
 
-// ConfigRestoreResult 配置恢复结果
+// ConfigRestoreResult 配置恢复结果.
 type ConfigRestoreResult struct {
 	BackupID           string    `json:"backupId"`
 	PreRestoreBackupID string    `json:"preRestoreBackupId,omitempty"`
@@ -687,7 +687,7 @@ type ConfigRestoreResult struct {
 	TotalFiles         int       `json:"totalFiles"`
 }
 
-// generateBackupID 生成备份 ID
+// generateBackupID 生成备份 ID.
 func generateBackupID() string {
 	return fmt.Sprintf("cfg_%d_%s", time.Now().Unix(), randomString(8))
 }
