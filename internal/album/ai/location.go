@@ -267,8 +267,8 @@ func (lc *LocationClusterer) nominatimReverseGeocode(ctx context.Context, lat, l
 			Suburb      string `json:"suburb"`
 			POI         string `json:"poi"`
 		} `json:"address"`
-		PlaceID   uint64 `json:"place_id"`
-		POI       string `json:"name"`
+		PlaceID uint64 `json:"place_id"`
+		POI     string `json:"name"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -374,11 +374,11 @@ func (lc *LocationClusterer) baiduReverseGeocode(ctx context.Context, lat, lng f
 		Status int `json:"status"`
 		Result struct {
 			AddressComponent struct {
-				Country     string `json:"country"`
-				Province    string `json:"province"`
-				City        string `json:"city"`
-				District    string `json:"district"`
-				Street      string `json:"street"`
+				Country  string `json:"country"`
+				Province string `json:"province"`
+				City     string `json:"city"`
+				District string `json:"district"`
+				Street   string `json:"street"`
 			} `json:"addressComponent"`
 			SematicDescription string `json:"sematic_description"`
 		} `json:"result"`
@@ -496,11 +496,11 @@ func (lc *LocationClusterer) nominatimSearch(ctx context.Context, query string) 
 	defer resp.Body.Close()
 
 	var results []struct {
-		Lat       string `json:"lat"`
-		Lon       string `json:"lon"`
-		PlaceID   uint64 `json:"place_id"`
-		Name      string `json:"display_name"`
-		Type      string `json:"type"`
+		Lat     string `json:"lat"`
+		Lon     string `json:"lon"`
+		PlaceID uint64 `json:"place_id"`
+		Name    string `json:"display_name"`
+		Type    string `json:"type"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {

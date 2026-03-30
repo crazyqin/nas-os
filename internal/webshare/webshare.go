@@ -71,7 +71,7 @@ type FileItem struct {
 	Size         int64     `json:"size"`
 	IsDir        bool      `json:"isDir"`
 	ModTime      time.Time `json:"modTime"`
-	Type         string    `json:"type"`      // file, dir
+	Type         string    `json:"type"` // file, dir
 	MimeType     string    `json:"mimeType"`
 	Extension    string    `json:"extension"`
 	IsHidden     bool      `json:"isHidden"`
@@ -82,13 +82,13 @@ type FileItem struct {
 
 // DirectoryInfo 目录信息
 type DirectoryInfo struct {
-	Path         string      `json:"path"`
-	RelativePath string      `json:"relativePath"`
-	Items        []FileItem  `json:"items"`
-	TotalFiles   int         `json:"totalFiles"`
-	TotalDirs    int         `json:"totalDirs"`
-	TotalSize    int64       `json:"totalSize"`
-	Snapshots    []SnapshotInfo `json:"snapshots,omitempty"`
+	Path         string           `json:"path"`
+	RelativePath string           `json:"relativePath"`
+	Items        []FileItem       `json:"items"`
+	TotalFiles   int              `json:"totalFiles"`
+	TotalDirs    int              `json:"totalDirs"`
+	TotalSize    int64            `json:"totalSize"`
+	Snapshots    []SnapshotInfo   `json:"snapshots,omitempty"`
 	Breadcrumb   []BreadcrumbItem `json:"breadcrumb"`
 }
 
@@ -115,13 +115,13 @@ type UploadProgress struct {
 
 // Manager WebShare 管理器
 type Manager struct {
-	config       WebShareConfig
-	mu           sync.RWMutex
-	shareLinks   map[string]*ShareLink // token -> ShareLink
-	snapshots    map[string][]SnapshotInfo // path -> snapshots
-	uploadQueue  map[string]*UploadProgress // id -> progress
-	fileManager  *FileManager
-	searchIndex  *SearchIndex
+	config      WebShareConfig
+	mu          sync.RWMutex
+	shareLinks  map[string]*ShareLink      // token -> ShareLink
+	snapshots   map[string][]SnapshotInfo  // path -> snapshots
+	uploadQueue map[string]*UploadProgress // id -> progress
+	fileManager *FileManager
+	searchIndex *SearchIndex
 }
 
 // NewManager 创建 WebShare 管理器
@@ -503,17 +503,17 @@ func (m *Manager) CreateShareLink(path string, password string, expiryHours int,
 	}
 
 	link := &ShareLink{
-		ID:          fmt.Sprintf("share-%d", time.Now().UnixNano()),
-		Token:       token,
-		Path:        absPath,
-		Password:    password,
-		ExpiresAt:   expiry,
-		CreatedBy:   createdBy,
-		CreatedAt:   time.Now(),
-		AllowUpload: allowUpload,
-		AllowDelete: allowDelete,
+		ID:           fmt.Sprintf("share-%d", time.Now().UnixNano()),
+		Token:        token,
+		Path:         absPath,
+		Password:     password,
+		ExpiresAt:    expiry,
+		CreatedBy:    createdBy,
+		CreatedAt:    time.Now(),
+		AllowUpload:  allowUpload,
+		AllowDelete:  allowDelete,
 		MaxDownloads: 0, // 无限制
-		IsPublic:    password == "",
+		IsPublic:     password == "",
 	}
 
 	m.mu.Lock()
@@ -968,11 +968,11 @@ func (h *HTTPHandler) GetThumbnail(c *gin.Context) {
 // CreateShareLink 创建分享链接
 func (h *HTTPHandler) CreateShareLink(c *gin.Context) {
 	var req struct {
-		Path         string `json:"path" binding:"required"`
-		Password     string `json:"password"`
-		ExpiryHours  int    `json:"expiryHours"`
-		AllowUpload  bool   `json:"allowUpload"`
-		AllowDelete  bool   `json:"allowDelete"`
+		Path        string `json:"path" binding:"required"`
+		Password    string `json:"password"`
+		ExpiryHours int    `json:"expiryHours"`
+		AllowUpload bool   `json:"allowUpload"`
+		AllowDelete bool   `json:"allowDelete"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -1081,7 +1081,7 @@ func (h *HTTPHandler) PublicAccess(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"link": link,
+		"link":    link,
 		"content": info,
 	})
 }

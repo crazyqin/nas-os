@@ -20,21 +20,21 @@ type Scheduler struct {
 type GPUType string
 
 const (
-	GPUTypeIntel   GPUType = "intel"   // Intel QuickSync
-	GPUTypeNVIDIA  GPUType = "nvidia"  // NVIDIA CUDA
-	GPUTypeAMD     GPUType = "amd"     // AMD ROCm
-	GPUTypeCPU     GPUType = "cpu"     // CPU fallback
+	GPUTypeIntel  GPUType = "intel"  // Intel QuickSync
+	GPUTypeNVIDIA GPUType = "nvidia" // NVIDIA CUDA
+	GPUTypeAMD    GPUType = "amd"    // AMD ROCm
+	GPUTypeCPU    GPUType = "cpu"    // CPU fallback
 )
 
 // GPUTask represents a GPU task
 type GPUTask struct {
-	ID          string
-	Type        TaskType
-	Priority    int
-	MemoryMB    int
-	Duration    int // estimated duration in seconds
-	Context     context.Context
-	Callback    func(error)
+	ID       string
+	Type     TaskType
+	Priority int
+	MemoryMB int
+	Duration int // estimated duration in seconds
+	Context  context.Context
+	Callback func(error)
 }
 
 // TaskType defines task type
@@ -60,8 +60,8 @@ type GPUAllocation struct {
 
 // SchedulerConfig for GPU scheduler
 type SchedulerConfig struct {
-	GPUType  GPUType
-	MaxSlots int
+	GPUType     GPUType
+	MaxSlots    int
 	MaxMemoryMB int
 }
 
@@ -71,7 +71,7 @@ func NewScheduler(cfg SchedulerConfig) *Scheduler {
 	if maxSlots <= 0 {
 		maxSlots = 4 // Default to 4 concurrent slots
 	}
-	
+
 	return &Scheduler{
 		gpuType:     cfg.GPUType,
 		queue:       make([]GPUTask, 0),
@@ -85,17 +85,17 @@ func NewScheduler(cfg SchedulerConfig) *Scheduler {
 func (s *Scheduler) Submit(task *GPUTask) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	// Check if we can start immediately
 	if len(s.active) < s.maxSlots && s.canAllocate(task) {
 		s.startTask(task)
 		return nil
 	}
-	
+
 	// Add to queue
 	s.queue = append(s.queue, *task)
 	s.sortQueue()
-	
+
 	return nil
 }
 
@@ -114,7 +114,7 @@ func (s *Scheduler) startTask(task *GPUTask) {
 		Start:    now(),
 		MemoryMB: task.MemoryMB,
 	}
-	
+
 	// Execute task asynchronously
 	go s.executeTask(task)
 }
@@ -123,7 +123,7 @@ func (s *Scheduler) startTask(task *GPUTask) {
 func (s *Scheduler) executeTask(task *GPUTask) {
 	// Simulate execution based on GPU type
 	var err error
-	
+
 	switch s.gpuType {
 	case GPUTypeIntel:
 		err = s.executeWithIntel(task)
@@ -134,17 +134,17 @@ func (s *Scheduler) executeTask(task *GPUTask) {
 	default:
 		err = s.executeWithCPU(task)
 	}
-	
+
 	// Call callback and cleanup
 	s.mu.Lock()
 	delete(s.active, task.ID)
 	delete(s.allocations, task.ID)
 	s.mu.Unlock()
-	
+
 	if task.Callback != nil {
 		task.Callback(err)
 	}
-	
+
 	// Try to start next queued task
 	s.tryStartNext()
 }
@@ -154,7 +154,7 @@ func (s *Scheduler) executeWithIntel(task *GPUTask) error {
 	// Intel QuickSync/OpenVINO acceleration
 	// Used for face detection, video transcoding
 	// 参考: 飞牛fnOS Intel核显加速
-	
+
 	// TODO: 实际Intel GPU调用
 	return nil
 }
@@ -163,7 +163,7 @@ func (s *Scheduler) executeWithIntel(task *GPUTask) error {
 func (s *Scheduler) executeWithNVIDIA(task *GPUTask) error {
 	// NVIDIA CUDA acceleration
 	// Used for LLM inference, heavy compute
-	
+
 	// TODO: 实际NVIDIA GPU调用
 	return nil
 }
@@ -171,7 +171,7 @@ func (s *Scheduler) executeWithNVIDIA(task *GPUTask) error {
 // executeWithAMD executes on AMD GPU
 func (s *Scheduler) executeWithAMD(task *GPUTask) error {
 	// AMD ROCm acceleration
-	
+
 	// TODO: 实际AMD GPU调用
 	return nil
 }
@@ -179,7 +179,7 @@ func (s *Scheduler) executeWithAMD(task *GPUTask) error {
 // executeWithCPU executes on CPU
 func (s *Scheduler) executeWithCPU(task *GPUTask) error {
 	// CPU fallback - slower but always available
-	
+
 	// TODO: CPU execution
 	return nil
 }
@@ -188,19 +188,19 @@ func (s *Scheduler) executeWithCPU(task *GPUTask) error {
 func (s *Scheduler) tryStartNext() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if len(s.queue) == 0 {
 		return
 	}
-	
+
 	if len(s.active) >= s.maxSlots {
 		return
 	}
-	
+
 	// Get highest priority task
 	next := s.queue[0]
 	s.queue = s.queue[1:]
-	
+
 	s.startTask(&next)
 }
 
@@ -220,12 +220,12 @@ func (s *Scheduler) sortQueue() {
 func (s *Scheduler) Cancel(taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	// Check if active
 	if _, exists := s.active[taskID]; exists {
 		return ErrTaskActive
 	}
-	
+
 	// Remove from queue
 	for i, task := range s.queue {
 		if task.ID == taskID {
@@ -233,7 +233,7 @@ func (s *Scheduler) Cancel(taskID string) error {
 			return nil
 		}
 	}
-	
+
 	return ErrTaskNotFound
 }
 
@@ -241,12 +241,12 @@ func (s *Scheduler) Cancel(taskID string) error {
 func (s *Scheduler) GetStatus() SchedulerStatus {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	return SchedulerStatus{
-		GPUType:     s.gpuType,
-		ActiveTasks: len(s.active),
-		QueuedTasks: len(s.queue),
-		MaxSlots:    s.maxSlots,
+		GPUType:        s.gpuType,
+		ActiveTasks:    len(s.active),
+		QueuedTasks:    len(s.queue),
+		MaxSlots:       s.maxSlots,
 		AvailableSlots: s.maxSlots - len(s.active),
 	}
 }
@@ -287,17 +287,17 @@ func DetectGPUType() GPUType {
 	if hasIntelGPU() {
 		return GPUTypeIntel
 	}
-	
+
 	// Check for NVIDIA GPU
 	if hasNVIDIAGPU() {
 		return GPUTypeNVIDIA
 	}
-	
+
 	// Check for AMD GPU
 	if hasAMDGPU() {
 		return GPUTypeAMD
 	}
-	
+
 	// Fallback to CPU
 	return GPUTypeCPU
 }

@@ -17,9 +17,9 @@ import (
 type Catalog struct {
 	mu sync.RWMutex
 
-	templateDir string                // 模板目录
+	templateDir string                   // 模板目录
 	templates   map[string]*app.Template // 模板缓存
-	categories  map[string]int        // 分类统计
+	categories  map[string]int           // 分类统计
 }
 
 // NewCatalog 创建应用目录管理器
@@ -195,9 +195,9 @@ func (c *Catalog) loadBuiltinTemplates() {
 			License:     "Apache-2.0",
 			Containers: []app.ContainerSpec{
 				{
-					Name:       "homeassistant",
-					Image:      "homeassistant/home-assistant:stable",
-					Privileged: true,
+					Name:        "homeassistant",
+					Image:       "homeassistant/home-assistant:stable",
+					Privileged:  true,
 					NetworkMode: "host",
 					Volumes: []app.VolumeSpec{
 						{Name: "config", ContainerPath: "/config", DefaultHostPath: "/opt/nas/apps/homeassistant/config", Description: "配置目录"},
@@ -330,7 +330,7 @@ func (c *Catalog) loadBuiltinTemplates() {
 					Volumes: []app.VolumeSpec{
 						{Name: "data", ContainerPath: "/data", DefaultHostPath: "/opt/nas/apps/redis/data", Description: "数据目录"},
 					},
-					Command: []string{"redis-server", "--appendonly yes"},
+					Command:       []string{"redis-server", "--appendonly yes"},
 					RestartPolicy: "unless-stopped",
 				},
 			},

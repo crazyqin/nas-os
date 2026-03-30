@@ -69,15 +69,15 @@ type FileEvent struct {
 type FileOperation string
 
 const (
-	FileOpCreate   FileOperation = "create"
-	FileOpModify   FileOperation = "modify"
-	FileOpDelete   FileOperation = "delete"
-	FileOpRename   FileOperation = "rename"
-	FileOpMove     FileOperation = "move"
-	FileOpWrite    FileOperation = "write"
-	FileOpRead     FileOperation = "read"
-	FileOpEncrypt  FileOperation = "encrypt"
-	FileOpDecrypt  FileOperation = "decrypt"
+	FileOpCreate  FileOperation = "create"
+	FileOpModify  FileOperation = "modify"
+	FileOpDelete  FileOperation = "delete"
+	FileOpRename  FileOperation = "rename"
+	FileOpMove    FileOperation = "move"
+	FileOpWrite   FileOperation = "write"
+	FileOpRead    FileOperation = "read"
+	FileOpEncrypt FileOperation = "encrypt"
+	FileOpDecrypt FileOperation = "decrypt"
 )
 
 // ========== 检测结果 ==========
@@ -87,9 +87,9 @@ type DetectionResult struct {
 	ID              string                 `json:"id"`
 	Timestamp       time.Time              `json:"timestamp"`
 	ThreatLevel     ThreatLevel            `json:"threat_level"`
-	ThreatScore     int                    `json:"threat_score"`       // 多因子综合评分 0-100
+	ThreatScore     int                    `json:"threat_score"` // 多因子综合评分 0-100
 	DetectionType   DetectionType          `json:"detection_type"`
-	DetectionTypes  []DetectionType        `json:"detection_types"`    // 多因子时记录各类型
+	DetectionTypes  []DetectionType        `json:"detection_types"` // 多因子时记录各类型
 	SignatureID     string                 `json:"signature_id,omitempty"`
 	SignatureName   string                 `json:"signature_name,omitempty"`
 	BehaviorID      string                 `json:"behavior_id,omitempty"`
@@ -98,26 +98,26 @@ type DetectionResult struct {
 	FilePath        string                 `json:"file_path"`
 	FileCount       int                    `json:"file_count,omitempty"`
 	AffectedFiles   []string               `json:"affected_files,omitempty"`
-	Confidence      float64                `json:"confidence"`         // 置信度 0-1
+	Confidence      float64                `json:"confidence"` // 置信度 0-1
 	EntropyValue    float64                `json:"entropy_value,omitempty"`
 	ProcessInfo     *ProcessInfo           `json:"process_info,omitempty"`
 	SuggestedAction string                 `json:"suggested_action"`
 	AutoIsolated    bool                   `json:"auto_isolated"`
 	Details         map[string]interface{} `json:"details"`
-	
+
 	// 多因子贡献（用于威胁评分）
-	FactorScores    FactorScores           `json:"factor_scores"`
+	FactorScores FactorScores `json:"factor_scores"`
 }
 
 // FactorScores 各因子评分贡献
 type FactorScores struct {
-	BehaviorScore   int     `json:"behavior_score"`   // 行为因子 0-100
-	EntropyScore    int     `json:"entropy_score"`    // 熵值因子 0-100
-	SignatureScore  int     `json:"signature_score"`  // 签名因子 0-100
-	ExtensionScore  int     `json:"extension_score"`  // 扩展名因子 0-100
-	HoneypotScore   int     `json:"honeypot_score"`   // 诱饵因子 0-100
-	TimestampScore  int     `json:"timestamp_score"`  // 时间模式因子 0-100
-	UserScore       int     `json:"user_score"`       // 用户行为因子 0-100
+	BehaviorScore  int `json:"behavior_score"`  // 行为因子 0-100
+	EntropyScore   int `json:"entropy_score"`   // 熵值因子 0-100
+	SignatureScore int `json:"signature_score"` // 签名因子 0-100
+	ExtensionScore int `json:"extension_score"` // 扩展名因子 0-100
+	HoneypotScore  int `json:"honeypot_score"`  // 诱饵因子 0-100
+	TimestampScore int `json:"timestamp_score"` // 时间模式因子 0-100
+	UserScore      int `json:"user_score"`      // 用户行为因子 0-100
 }
 
 // ProcessInfo 进程信息
@@ -136,24 +136,24 @@ type ProcessInfo struct {
 
 // RansomwareSignature 勒索软件特征签名
 type RansomwareSignature struct {
-	ID              string        `json:"id"`
-	Name            string        `json:"name"`
-	Family          string        `json:"family"`
-	Aliases         []string      `json:"aliases"`
-	Extensions      []string      `json:"extensions"`      // 加密后扩展名
-	RansomNoteFiles []string      `json:"ransom_note_files"` // 勒索信文件名
-	Patterns        []string      `json:"patterns"`        // 内容特征码
-	IOCs            []IOC         `json:"iocs"`            // 威胁指标
-	FirstSeen       time.Time     `json:"first_seen"`
-	LastUpdated     time.Time     `json:"last_updated"`
-	Severity        ThreatLevel   `json:"severity"`
-	Description     string        `json:"description"`
-	References      []string      `json:"references"`
+	ID              string      `json:"id"`
+	Name            string      `json:"name"`
+	Family          string      `json:"family"`
+	Aliases         []string    `json:"aliases"`
+	Extensions      []string    `json:"extensions"`        // 加密后扩展名
+	RansomNoteFiles []string    `json:"ransom_note_files"` // 勒索信文件名
+	Patterns        []string    `json:"patterns"`          // 内容特征码
+	IOCs            []IOC       `json:"iocs"`              // 威胁指标
+	FirstSeen       time.Time   `json:"first_seen"`
+	LastUpdated     time.Time   `json:"last_updated"`
+	Severity        ThreatLevel `json:"severity"`
+	Description     string      `json:"description"`
+	References      []string    `json:"references"`
 }
 
 // IOC 威胁指标
 type IOC struct {
-	Type  string `json:"type"`  // ip, domain, url, hash, email
+	Type  string `json:"type"` // ip, domain, url, hash, email
 	Value string `json:"value"`
 }
 
@@ -161,14 +161,14 @@ type IOC struct {
 
 // BehaviorPattern 行为模式定义
 type BehaviorPattern struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Conditions  []Condition   `json:"conditions"`
-	Weight      int           `json:"weight"`
-	Threshold   int           `json:"threshold"`
-	Severity    ThreatLevel   `json:"severity"`
-	Enabled     bool          `json:"enabled"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Conditions  []Condition `json:"conditions"`
+	Weight      int         `json:"weight"`
+	Threshold   int         `json:"threshold"`
+	Severity    ThreatLevel `json:"severity"`
+	Enabled     bool        `json:"enabled"`
 }
 
 // Condition 行为条件
@@ -220,12 +220,12 @@ const (
 
 // AttackSource 攻击来源
 type AttackSource struct {
-	Process      *ProcessInfo `json:"process,omitempty"`
-	User         string       `json:"user,omitempty"`
-	ClientIP     string       `json:"client_ip,omitempty"`
-	Protocol     string       `json:"protocol,omitempty"` // SMB, NFS, WebDAV, FTP
-	ShareName    string       `json:"share_name,omitempty"`
-	SessionID    string       `json:"session_id,omitempty"`
+	Process   *ProcessInfo `json:"process,omitempty"`
+	User      string       `json:"user,omitempty"`
+	ClientIP  string       `json:"client_ip,omitempty"`
+	Protocol  string       `json:"protocol,omitempty"` // SMB, NFS, WebDAV, FTP
+	ShareName string       `json:"share_name,omitempty"`
+	SessionID string       `json:"session_id,omitempty"`
 }
 
 // ========== 隔离 ==========
@@ -296,26 +296,26 @@ type Statistics struct {
 
 // Config 勒索软件防护配置
 type Config struct {
-	Enabled         bool              `json:"enabled"`
-	Monitor         MonitorConfig     `json:"monitor"`
-	Signature       SignatureConfig   `json:"signature"`
-	Honeypot        HoneypotConfig    `json:"honeypot"`
-	ThreatScoring   ThreatScoringConfig `json:"threat_scoring"`
-	Quarantine      QuarantineConfig  `json:"quarantine"`
-	Isolation       IsolationConfig   `json:"isolation"`
-	Alert           AlertConfig       `json:"alert"`
-	SMBAudit        SMBAuditConfig    `json:"smb_audit"`
+	Enabled       bool                `json:"enabled"`
+	Monitor       MonitorConfig       `json:"monitor"`
+	Signature     SignatureConfig     `json:"signature"`
+	Honeypot      HoneypotConfig      `json:"honeypot"`
+	ThreatScoring ThreatScoringConfig `json:"threat_scoring"`
+	Quarantine    QuarantineConfig    `json:"quarantine"`
+	Isolation     IsolationConfig     `json:"isolation"`
+	Alert         AlertConfig         `json:"alert"`
+	SMBAudit      SMBAuditConfig      `json:"smb_audit"`
 }
 
 // MonitorConfig 监控配置
 type MonitorConfig struct {
-	Enabled          bool          `json:"enabled"`
-	WatchPaths       []string      `json:"watch_paths"`
-	ExcludePaths     []string      `json:"exclude_paths"`
-	MaxFileSize      int64         `json:"max_file_size"`
-	BehaviorWindow   time.Duration `json:"behavior_window"`
-	MaxEvents        int           `json:"max_events"`
-	EventBufferSize  int           `json:"event_buffer_size"`
+	Enabled         bool          `json:"enabled"`
+	WatchPaths      []string      `json:"watch_paths"`
+	ExcludePaths    []string      `json:"exclude_paths"`
+	MaxFileSize     int64         `json:"max_file_size"`
+	BehaviorWindow  time.Duration `json:"behavior_window"`
+	MaxEvents       int           `json:"max_events"`
+	EventBufferSize int           `json:"event_buffer_size"`
 }
 
 // SignatureConfig 签名库配置
@@ -329,44 +329,44 @@ type SignatureConfig struct {
 
 // HoneypotConfig 诱饵文件配置
 type HoneypotConfig struct {
-	Enabled          bool          `json:"enabled"`
-	DeployPaths      []string      `json:"deploy_paths"`
-	FilesPerPath     int           `json:"files_per_path"`
-	FileTypes        []string      `json:"file_types"`
-	NamePatterns     []string      `json:"name_patterns"`
-	MinFileSize      int64         `json:"min_file_size"`
-	MaxFileSize      int64         `json:"max_file_size"`
-	CheckInterval    time.Duration `json:"check_interval"`
-	AlertOnAccess    bool          `json:"alert_on_access"`
-	AlertOnModify    bool          `json:"alert_on_modify"`
-	AlertOnDelete    bool          `json:"alert_on_delete"`
-	AlertOnRename    bool          `json:"alert_on_rename"`
-	AutoRedeploy     bool          `json:"auto_redeploy"`
-	ContentPattern   string        `json:"content_pattern"` // random, structured, realistic
+	Enabled        bool          `json:"enabled"`
+	DeployPaths    []string      `json:"deploy_paths"`
+	FilesPerPath   int           `json:"files_per_path"`
+	FileTypes      []string      `json:"file_types"`
+	NamePatterns   []string      `json:"name_patterns"`
+	MinFileSize    int64         `json:"min_file_size"`
+	MaxFileSize    int64         `json:"max_file_size"`
+	CheckInterval  time.Duration `json:"check_interval"`
+	AlertOnAccess  bool          `json:"alert_on_access"`
+	AlertOnModify  bool          `json:"alert_on_modify"`
+	AlertOnDelete  bool          `json:"alert_on_delete"`
+	AlertOnRename  bool          `json:"alert_on_rename"`
+	AutoRedeploy   bool          `json:"auto_redeploy"`
+	ContentPattern string        `json:"content_pattern"` // random, structured, realistic
 }
 
 // ThreatScoringConfig 威胁评分配置（多因子检测）
 type ThreatScoringConfig struct {
-	Enabled              bool    `json:"enabled"`
-	BehaviorWeight       float64 `json:"behavior_weight"`       // 行为因子权重
-	EntropyWeight        float64 `json:"entropy_weight"`        // 熵值因子权重
-	SignatureWeight      float64 `json:"signature_weight"`      // 签名因子权重
-	ExtensionWeight      float64 `json:"extension_weight"`      // 扩展名因子权重
-	HoneypotWeight       float64 `json:"honeypot_weight"`       // 诱饵因子权重
+	Enabled                bool    `json:"enabled"`
+	BehaviorWeight         float64 `json:"behavior_weight"`          // 行为因子权重
+	EntropyWeight          float64 `json:"entropy_weight"`           // 熵值因子权重
+	SignatureWeight        float64 `json:"signature_weight"`         // 签名因子权重
+	ExtensionWeight        float64 `json:"extension_weight"`         // 扩展名因子权重
+	HoneypotWeight         float64 `json:"honeypot_weight"`          // 诱饵因子权重
 	TimestampPatternWeight float64 `json:"timestamp_pattern_weight"` // 时间模式权重
-	UserBehaviorWeight   float64 `json:"user_behavior_weight"` // 用户行为权重
-	
+	UserBehaviorWeight     float64 `json:"user_behavior_weight"`     // 用户行为权重
+
 	// 阈值
-	EntropyThreshold     float64 `json:"entropy_threshold"`     // 熵值阈值
-	RapidChangeThreshold int     `json:"rapid_change_threshold"` // 快速变更阈值
-	RapidChangeWindow    int     `json:"rapid_change_window"`    // 快速变更时间窗口(秒)
-	CriticalScoreThreshold int   `json:"critical_score_threshold"`
-	HighScoreThreshold     int   `json:"high_score_threshold"`
-	
+	EntropyThreshold       float64 `json:"entropy_threshold"`      // 熵值阈值
+	RapidChangeThreshold   int     `json:"rapid_change_threshold"` // 快速变更阈值
+	RapidChangeWindow      int     `json:"rapid_change_window"`    // 快速变更时间窗口(秒)
+	CriticalScoreThreshold int     `json:"critical_score_threshold"`
+	HighScoreThreshold     int     `json:"high_score_threshold"`
+
 	// 加成系数
-	KEVBoost             float64 `json:"kev_boost"` // KEV漏洞加成
-	RansomwareBoost      float64 `json:"ransomware_boost"` // 勒索软件关联加成
-	MultipleFactorBoost  float64 `json:"multiple_factor_boost"` // 多因子匹配加成
+	KEVBoost            float64 `json:"kev_boost"`             // KEV漏洞加成
+	RansomwareBoost     float64 `json:"ransomware_boost"`      // 勒索软件关联加成
+	MultipleFactorBoost float64 `json:"multiple_factor_boost"` // 多因子匹配加成
 }
 
 // QuarantineConfig 隔离配置
@@ -380,16 +380,16 @@ type QuarantineConfig struct {
 
 // IsolationConfig 自动隔离配置
 type IsolationConfig struct {
-	Enabled               bool        `json:"enabled"`
-	AutoIsolateThreshold  int         `json:"auto_isolate_threshold"`  // 自动隔离评分阈值
-	AutoIsolateLevel      ThreatLevel `json:"auto_isolate_level"`      // 自动隔离威胁等级
-	IsolateProcess        bool        `json:"isolate_process"`         // 隔离可疑进程
-	IsolateShare          bool        `json:"isolate_share"`           // 隔离受影响的共享
-	IsolateUser           bool        `json:"isolate_user"`            // 禁用可疑用户
-	EnableReadOnlyMode    bool        `json:"enable_read_only_mode"`   // 启用只读模式
-	BlockNetworkAccess    bool        `json:"block_network_access"`    // 阻断网络访问
-	CoolDownPeriod        time.Duration `json:"cool_down_period"`      // 冷却期
-	MaxIsolationDuration  time.Duration `json:"max_isolation_duration"` // 最大隔离时长
+	Enabled              bool          `json:"enabled"`
+	AutoIsolateThreshold int           `json:"auto_isolate_threshold"` // 自动隔离评分阈值
+	AutoIsolateLevel     ThreatLevel   `json:"auto_isolate_level"`     // 自动隔离威胁等级
+	IsolateProcess       bool          `json:"isolate_process"`        // 隔离可疑进程
+	IsolateShare         bool          `json:"isolate_share"`          // 隔离受影响的共享
+	IsolateUser          bool          `json:"isolate_user"`           // 禁用可疑用户
+	EnableReadOnlyMode   bool          `json:"enable_read_only_mode"`  // 启用只读模式
+	BlockNetworkAccess   bool          `json:"block_network_access"`   // 阻断网络访问
+	CoolDownPeriod       time.Duration `json:"cool_down_period"`       // 冷却期
+	MaxIsolationDuration time.Duration `json:"max_isolation_duration"` // 最大隔离时长
 }
 
 // AlertConfig 告警配置
@@ -410,20 +410,20 @@ type AlertChannel struct {
 
 // SMBAuditConfig SMB审计配置
 type SMBAuditConfig struct {
-	Enabled             bool          `json:"enabled"`
-	AuditLevel          string        `json:"audit_level"` // minimal, standard, detailed, full
-	LogPath             string        `json:"log_path"`
-	MaxLogAgeDays       int           `json:"max_log_age_days"`
-	MaxLogSizeMB        int           `json:"max_log_size_mb"`
-	LogFileRead         bool          `json:"log_file_read"`
-	LogFileWrite        bool          `json:"log_file_write"`
-	LogFileDelete       bool          `json:"log_file_delete"`
-	LogFileRename       bool          `json:"log_file_rename"`
-	SpotlightAudit      bool          `json:"spotlight_audit"`      // Spotlight搜索审计
-	SpotlightLogQueries bool          `json:"spotlight_log_queries"` // 记录搜索查询
+	Enabled                  bool     `json:"enabled"`
+	AuditLevel               string   `json:"audit_level"` // minimal, standard, detailed, full
+	LogPath                  string   `json:"log_path"`
+	MaxLogAgeDays            int      `json:"max_log_age_days"`
+	MaxLogSizeMB             int      `json:"max_log_size_mb"`
+	LogFileRead              bool     `json:"log_file_read"`
+	LogFileWrite             bool     `json:"log_file_write"`
+	LogFileDelete            bool     `json:"log_file_delete"`
+	LogFileRename            bool     `json:"log_file_rename"`
+	SpotlightAudit           bool     `json:"spotlight_audit"`            // Spotlight搜索审计
+	SpotlightLogQueries      bool     `json:"spotlight_log_queries"`      // 记录搜索查询
 	SpotlightAlertSuspicious bool     `json:"spotlight_alert_suspicious"` // 搜索可疑内容告警
-	ExcludeShares       []string      `json:"exclude_shares"`
-	ExcludeUsers        []string      `json:"exclude_users"`
+	ExcludeShares            []string `json:"exclude_shares"`
+	ExcludeUsers             []string `json:"exclude_users"`
 }
 
 // DefaultConfig 返回默认配置
@@ -445,37 +445,37 @@ func DefaultConfig() Config {
 			UpdateInterval: 24 * time.Hour,
 		},
 		Honeypot: HoneypotConfig{
-			Enabled:       true,
-			DeployPaths:   []string{"/data/shares", "/shares"},
-			FilesPerPath:  5,
-			FileTypes:     []string{".doc", ".docx", ".xls", ".xlsx", ".pdf", ".jpg", ".zip"},
-			NamePatterns:  []string{"financial_report", "project_plan", "backup_data", "important"},
-			MinFileSize:   1024,
-			MaxFileSize:   102400,
-			CheckInterval: 30 * time.Second,
-			AlertOnModify: true,
-			AlertOnDelete: true,
-			AlertOnRename: true,
-			AutoRedeploy:  true,
+			Enabled:        true,
+			DeployPaths:    []string{"/data/shares", "/shares"},
+			FilesPerPath:   5,
+			FileTypes:      []string{".doc", ".docx", ".xls", ".xlsx", ".pdf", ".jpg", ".zip"},
+			NamePatterns:   []string{"financial_report", "project_plan", "backup_data", "important"},
+			MinFileSize:    1024,
+			MaxFileSize:    102400,
+			CheckInterval:  30 * time.Second,
+			AlertOnModify:  true,
+			AlertOnDelete:  true,
+			AlertOnRename:  true,
+			AutoRedeploy:   true,
 			ContentPattern: "realistic",
 		},
 		ThreatScoring: ThreatScoringConfig{
-			Enabled:               true,
-			BehaviorWeight:        0.25,
-			EntropyWeight:         0.20,
-			SignatureWeight:       0.25,
-			ExtensionWeight:       0.10,
-			HoneypotWeight:        0.15,
+			Enabled:                true,
+			BehaviorWeight:         0.25,
+			EntropyWeight:          0.20,
+			SignatureWeight:        0.25,
+			ExtensionWeight:        0.10,
+			HoneypotWeight:         0.15,
 			TimestampPatternWeight: 0.05,
-			UserBehaviorWeight:    0.05,
-			EntropyThreshold:      7.5,
-			RapidChangeThreshold:  50,
-			RapidChangeWindow:     60,
+			UserBehaviorWeight:     0.05,
+			EntropyThreshold:       7.5,
+			RapidChangeThreshold:   50,
+			RapidChangeWindow:      60,
 			CriticalScoreThreshold: 80,
-			HighScoreThreshold:    60,
-			KEVBoost:              1.2,
-			RansomwareBoost:       1.1,
-			MultipleFactorBoost:   1.15,
+			HighScoreThreshold:     60,
+			KEVBoost:               1.2,
+			RansomwareBoost:        1.1,
+			MultipleFactorBoost:    1.15,
 		},
 		Quarantine: QuarantineConfig{
 			Enabled:       true,
@@ -501,19 +501,19 @@ func DefaultConfig() Config {
 			MaxAlerts:      1000,
 		},
 		SMBAudit: SMBAuditConfig{
-			Enabled:             true,
-			AuditLevel:          "standard",
-			LogPath:             "/var/log/nas-os/audit/smb",
-			MaxLogAgeDays:       90,
-			MaxLogSizeMB:        100,
-			LogFileRead:         true,
-			LogFileWrite:        true,
-			LogFileDelete:       true,
-			LogFileRename:       true,
-			SpotlightAudit:      true,
-			SpotlightLogQueries: true,
+			Enabled:                  true,
+			AuditLevel:               "standard",
+			LogPath:                  "/var/log/nas-os/audit/smb",
+			MaxLogAgeDays:            90,
+			MaxLogSizeMB:             100,
+			LogFileRead:              true,
+			LogFileWrite:             true,
+			LogFileDelete:            true,
+			LogFileRename:            true,
+			SpotlightAudit:           true,
+			SpotlightLogQueries:      true,
 			SpotlightAlertSuspicious: true,
-			ExcludeShares:       []string{"IPC$", "print$"},
+			ExcludeShares:            []string{"IPC$", "print$"},
 		},
 	}
 }

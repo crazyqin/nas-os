@@ -367,7 +367,7 @@ func (s *UnifiedScraper) parseFilename(filename string) (title string, year, sea
 		`(?i)\b(x264|x265|h\.?264|h\.?265|HEVC|AVC|AV1|AAC|DD5\.?1|DDP5\.?1|DTS-HD|DTS|TrueHD|Atmos)\b`,
 		`(?i)\b(NF|AMZN|HMAX|APTV|DSNP|HULU|iTunes|MA)\b`, // 发行商标识
 		`(?i)\b(RARBG|YIFY|SPARKS|MARS|FGT|TBS|BOOM)\b`,   // 发布组
-		`(?i)\b(REPACK|PROPER|EXTENDED|UNCUT|REMUX)\b`,   // 版本标识
+		`(?i)\b(REPACK|PROPER|EXTENDED|UNCUT|REMUX)\b`,    // 版本标识
 	}
 
 	for _, pattern := range qualityPatterns {
@@ -632,19 +632,19 @@ func (s *DoubanScraper) convertSubjectToTV(subject *doubanSubject) *DoubanTVResu
 	}
 
 	return &DoubanTVResult{
-		ID:            subject.ID,
-		Name:          subject.Title,
-		OriginalName:  subject.OriginalTitle,
-		Overview:      subject.Summary,
-		Rating:        subject.Rating.Average,
-		VoteCount:     subject.Rating.NumRaters,
-		FirstAirDate:  subject.Year,
-		Genres:        subject.Genres,
-		Cast:          cast,
-		PosterPath:    subject.Images.Large,
-		Seasons:       subject.SeasonsCount,
-		Episodes:      subject.EpisodesCount,
-		Source:        "douban",
+		ID:           subject.ID,
+		Name:         subject.Title,
+		OriginalName: subject.OriginalTitle,
+		Overview:     subject.Summary,
+		Rating:       subject.Rating.Average,
+		VoteCount:    subject.Rating.NumRaters,
+		FirstAirDate: subject.Year,
+		Genres:       subject.Genres,
+		Cast:         cast,
+		PosterPath:   subject.Images.Large,
+		Seasons:      subject.SeasonsCount,
+		Episodes:     subject.EpisodesCount,
+		Source:       "douban",
 	}
 }
 
@@ -739,17 +739,17 @@ type doubanSearchResponse struct {
 }
 
 type doubanSubject struct {
-	ID            string   `json:"id"`
-	Title         string   `json:"title"`
-	OriginalTitle string   `json:"original_title"`
-	Summary       string   `json:"summary"`
-	Year          string   `json:"year"`
+	ID            string `json:"id"`
+	Title         string `json:"title"`
+	OriginalTitle string `json:"original_title"`
+	Summary       string `json:"summary"`
+	Year          string `json:"year"`
 	Rating        struct {
 		Average   float64 `json:"average"`
 		NumRaters int     `json:"numRaters"`
 	} `json:"rating"`
-	Genres  []string `json:"genres"`
-	Images  struct {
+	Genres []string `json:"genres"`
+	Images struct {
 		Large  string `json:"large"`
 		Medium string `json:"medium"`
 		Small  string `json:"small"`
@@ -800,12 +800,12 @@ func cleanTitleString(title string) string {
 
 // BatchScrapeResult 批量刮削结果
 type BatchScrapeResult struct {
-	Total    int                    `json:"total"`
-	Success  int                    `json:"success"`
-	Failed   int                    `json:"failed"`
-	Results  []*UnifiedMetadata     `json:"results"`
-	Errors   []BatchScrapeError     `json:"errors,omitempty"`
-	Duration time.Duration          `json:"duration"`
+	Total    int                `json:"total"`
+	Success  int                `json:"success"`
+	Failed   int                `json:"failed"`
+	Results  []*UnifiedMetadata `json:"results"`
+	Errors   []BatchScrapeError `json:"errors,omitempty"`
+	Duration time.Duration      `json:"duration"`
 }
 
 // BatchScrapeError 批量刮削错误

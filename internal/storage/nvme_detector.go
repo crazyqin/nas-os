@@ -20,9 +20,9 @@ type DeviceType int
 
 const (
 	DeviceTypeUnknown DeviceType = iota
-	DeviceTypeNVMe    // NVMe SSD
-	DeviceTypeSSD     // SATA/SAS SSD
-	DeviceTypeHDD     // 机械硬盘
+	DeviceTypeNVMe               // NVMe SSD
+	DeviceTypeSSD                // SATA/SAS SSD
+	DeviceTypeHDD                // 机械硬盘
 )
 
 func (d DeviceType) String() string {
@@ -41,32 +41,32 @@ func (d DeviceType) String() string {
 // DeviceInfo 设备信息
 type DeviceInfo struct {
 	// 基本信息
-	Name         string     `json:"name"`         // 设备名称，如 /dev/nvme0n1
-	Path         string     `json:"path"`         // 设备路径
-	Type         DeviceType `json:"type"`         // 设备类型
-	Model        string     `json:"model"`        // 型号
-	Serial       string     `json:"serial"`       // 序列号
-	Vendor       string     `json:"vendor"`       // 厂商
+	Name   string     `json:"name"`   // 设备名称，如 /dev/nvme0n1
+	Path   string     `json:"path"`   // 设备路径
+	Type   DeviceType `json:"type"`   // 设备类型
+	Model  string     `json:"model"`  // 型号
+	Serial string     `json:"serial"` // 序列号
+	Vendor string     `json:"vendor"` // 厂商
 
 	// 性能参数
-	SizeBytes    uint64     `json:"sizeBytes"`    // 容量（字节）
-	SizeGB       float64    `json:"sizeGB"`       // 容量（GB）
-	BlockSize    uint64     `json:"blockSize"`    // 块大小
+	SizeBytes uint64  `json:"sizeBytes"` // 容量（字节）
+	SizeGB    float64 `json:"sizeGB"`    // 容量（GB）
+	BlockSize uint64  `json:"blockSize"` // 块大小
 
 	// 性能指标（估算或实测）
-	ReadSpeedMB  uint64     `json:"readSpeedMB"`  // 读取速度 MB/s
-	WriteSpeedMB uint64     `json:"writeSpeedMB"` // 写入速度 MB/s
-	IOPS         uint64     `json:"iops"`         // IOPS（估算）
+	ReadSpeedMB  uint64 `json:"readSpeedMB"`  // 读取速度 MB/s
+	WriteSpeedMB uint64 `json:"writeSpeedMB"` // 写入速度 MB/s
+	IOPS         uint64 `json:"iops"`         // IOPS（估算）
 
 	// SMART 信息
-	SmartAvailable bool     `json:"smartAvailable"` // SMART 是否可用
-	Temperature    int      `json:"temperature"`    // 温度（摄氏度）
-	PowerOnHours   uint64   `json:"powerOnHours"`  // 已开机小时数
-	HealthPercent  int      `json:"healthPercent"` // 健康百分比
+	SmartAvailable bool   `json:"smartAvailable"` // SMART 是否可用
+	Temperature    int    `json:"temperature"`    // 温度（摄氏度）
+	PowerOnHours   uint64 `json:"powerOnHours"`   // 已开机小时数
+	HealthPercent  int    `json:"healthPercent"`  // 健康百分比
 
 	// NVMe 特有属性
-	NVMeController string   `json:"nvmeController,omitempty"` // NVMe 控制器名称
-	NVMeNamespace  string   `json:"nvmeNamespace,omitempty"`  // NVMe 命名空间
+	NVMeController string `json:"nvmeController,omitempty"` // NVMe 控制器名称
+	NVMeNamespace  string `json:"nvmeNamespace,omitempty"`  // NVMe 命名空间
 
 	// 分层推荐
 	RecommendedRole DeviceRole `json:"recommendedRole"` // 推荐角色
@@ -76,12 +76,12 @@ type DeviceInfo struct {
 type DeviceRole int
 
 const (
-	RoleUnknown    DeviceRole = iota
-	RoleMetadata   // 元数据专用（NVMe首选）
-	RoleCache      // 缓存层（SSD/NVMe）
-	RoleHotData    // 热数据存储
-	RoleBulkData   // 大容量数据存储（HDD）
-	RoleSpare      // 热备盘
+	RoleUnknown  DeviceRole = iota
+	RoleMetadata            // 元数据专用（NVMe首选）
+	RoleCache               // 缓存层（SSD/NVMe）
+	RoleHotData             // 热数据存储
+	RoleBulkData            // 大容量数据存储（HDD）
+	RoleSpare               // 热备盘
 )
 
 func (r DeviceRole) String() string {
@@ -103,9 +103,9 @@ func (r DeviceRole) String() string {
 
 // NVMeDetector NVMe/SSD 检测器
 type NVMeDetector struct {
-	devices    map[string]*DeviceInfo
-	mu         sync.RWMutex
-	lastScan   time.Time
+	devices      map[string]*DeviceInfo
+	mu           sync.RWMutex
+	lastScan     time.Time
 	scanInterval time.Duration
 }
 

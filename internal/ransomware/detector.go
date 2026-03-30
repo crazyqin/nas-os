@@ -51,7 +51,7 @@ type AnomalyDetector interface {
 // ProtectionStrategy 防护策略接口
 type ProtectionStrategy interface {
 	// Execute 执行防护动作
- Execute(assessment *ThreatAssessment) (*ProtectionEvent, error)
+	Execute(assessment *ThreatAssessment) (*ProtectionEvent, error)
 
 	// CreateSnapshot 创建保护快照
 	CreateSnapshot(volume string) (string, error)
@@ -429,7 +429,7 @@ func (d *Detector) decideAction(assessment *ThreatAssessment) ProtectionAction {
 
 // BuiltInAnomalyDetector 内置异常检测器
 type BuiltInAnomalyDetector struct {
-	level   DetectionLevel
+	level    DetectionLevel
 	patterns []BehaviorPattern
 }
 
@@ -446,40 +446,40 @@ func NewBuiltInAnomalyDetector(level DetectionLevel) *BuiltInAnomalyDetector {
 func (d *BuiltInAnomalyDetector) getDefaultPatterns() []BehaviorPattern {
 	return []BehaviorPattern{
 		{
-			PatternID: "rapid-encryption",
-			Name:      "快速加密行为",
-			Description: "短时间内大量文件被加密",
-			Severity: ThreatLevelCritical,
+			PatternID:        "rapid-encryption",
+			Name:             "快速加密行为",
+			Description:      "短时间内大量文件被加密",
+			Severity:         ThreatLevelCritical,
 			ConfidenceWeight: 90,
 			Indicators: []PatternIndicator{
 				{EventType: FileEventEncrypt, MinCount: 10, TimeWindowSec: 30, EntropyMin: 7.5},
 			},
 		},
 		{
-			PatternID: "bulk-extension-change",
-			Name:      "批量扩展名修改",
-			Description: "大量文件扩展名被修改为可疑类型",
-			Severity: ThreatLevelHigh,
+			PatternID:        "bulk-extension-change",
+			Name:             "批量扩展名修改",
+			Description:      "大量文件扩展名被修改为可疑类型",
+			Severity:         ThreatLevelHigh,
 			ConfidenceWeight: 80,
 			Indicators: []PatternIndicator{
 				{EventType: FileEventRename, MinCount: 20, TimeWindowSec: 60},
 			},
 		},
 		{
-			PatternID: "rapid-delete",
-			Name:      "快速删除",
-			Description: "短时间内大量文件被删除",
-			Severity: ThreatLevelHigh,
+			PatternID:        "rapid-delete",
+			Name:             "快速删除",
+			Description:      "短时间内大量文件被删除",
+			Severity:         ThreatLevelHigh,
 			ConfidenceWeight: 70,
 			Indicators: []PatternIndicator{
 				{EventType: FileEventDelete, MinCount: 50, TimeWindowSec: 30},
 			},
 		},
 		{
-			PatternID: "suspicious-write-pattern",
-			Name:      "可疑写入模式",
-			Description: "非正常用户行为的文件写入",
-			Severity: ThreatLevelMedium,
+			PatternID:        "suspicious-write-pattern",
+			Name:             "可疑写入模式",
+			Description:      "非正常用户行为的文件写入",
+			Severity:         ThreatLevelMedium,
 			ConfidenceWeight: 60,
 			Indicators: []PatternIndicator{
 				{EventType: FileEventModify, MinCount: 100, TimeWindowSec: 60},
@@ -491,11 +491,11 @@ func (d *BuiltInAnomalyDetector) getDefaultPatterns() []BehaviorPattern {
 // Analyze 分析事件
 func (d *BuiltInAnomalyDetector) Analyze(events []FileEvent) *ThreatAssessment {
 	assessment := &ThreatAssessment{
-		AssessmentID: uuid.New().String(),
-		Timestamp:    time.Now(),
-		Indicators:   make([]ThreatIndicator, 0),
+		AssessmentID:  uuid.New().String(),
+		Timestamp:     time.Now(),
+		Indicators:    make([]ThreatIndicator, 0),
 		AffectedFiles: make([]string, 0),
-		Details:      make(map[string]interface{}),
+		Details:       make(map[string]interface{}),
 	}
 
 	// 统计事件类型
@@ -590,7 +590,7 @@ func (d *BuiltInAnomalyDetector) matchPattern(events []FileEvent, pattern Behavi
 
 // scoreToLevel 分数转级别
 func (d *BuiltInAnomalyDetector) scoreToLevel(score int) ThreatLevel {
- thresholds := map[DetectionLevel]map[int]ThreatLevel{
+	thresholds := map[DetectionLevel]map[int]ThreatLevel{
 		DetectionLevelLow:    {50: ThreatLevelLow, 70: ThreatLevelMedium, 85: ThreatLevelHigh, 95: ThreatLevelCritical},
 		DetectionLevelMedium: {30: ThreatLevelLow, 50: ThreatLevelMedium, 70: ThreatLevelHigh, 85: ThreatLevelCritical},
 		DetectionLevelHigh:   {20: ThreatLevelLow, 35: ThreatLevelMedium, 50: ThreatLevelHigh, 70: ThreatLevelCritical},

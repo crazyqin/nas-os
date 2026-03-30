@@ -38,18 +38,18 @@ type ExpansionOptions struct {
 
 // ExpansionTask 扩容任务
 type ExpansionTask struct {
-	ID           string      `json:"id"`
-	PoolID       string      `json:"poolId"`
-	Status       TaskStatus  `json:"status"`
-	Progress     float64     `json:"progress"` // 0-100
-	StartTime    time.Time   `json:"startTime"`
-	EndTime      time.Time   `json:"endTime,omitempty"`
-	ETA          time.Time   `json:"eta,omitempty"`
-	BytesMoved   int64       `json:"bytesMoved"`
-	BytesTotal   int64       `json:"bytesTotal"`
-	AddedDevices []string    `json:"addedDevices"`
-	CurrentPhase string      `json:"currentPhase"` // adding, balancing, verifying
-	ErrorMsg     string      `json:"errorMsg,omitempty"`
+	ID           string     `json:"id"`
+	PoolID       string     `json:"poolId"`
+	Status       TaskStatus `json:"status"`
+	Progress     float64    `json:"progress"` // 0-100
+	StartTime    time.Time  `json:"startTime"`
+	EndTime      time.Time  `json:"endTime,omitempty"`
+	ETA          time.Time  `json:"eta,omitempty"`
+	BytesMoved   int64      `json:"bytesMoved"`
+	BytesTotal   int64      `json:"bytesTotal"`
+	AddedDevices []string   `json:"addedDevices"`
+	CurrentPhase string     `json:"currentPhase"` // adding, balancing, verifying
+	ErrorMsg     string     `json:"errorMsg,omitempty"`
 }
 
 // ExpansionService 扩容服务接口
@@ -75,11 +75,11 @@ type ExpansionService interface {
 
 // BtrfsExpansionService btrfs扩容实现
 type BtrfsExpansionService struct {
-	manager  *Manager
-	tasks    map[string]*ExpansionTask
-	taskMu   sync.RWMutex
-	ctx      context.Context
-	cancel   context.CancelFunc
+	manager *Manager
+	tasks   map[string]*ExpansionTask
+	taskMu  sync.RWMutex
+	ctx     context.Context
+	cancel  context.CancelFunc
 }
 
 // NewBtrfsExpansionService 创建btrfs扩容服务

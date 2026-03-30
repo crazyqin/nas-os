@@ -515,11 +515,11 @@ func (c *AppUsageCollector) GetSummary(appID string, start, end time.Time) (*App
 	}
 
 	summary := &AppUsageSummary{
-		AppID:       appID,
-		AppName:     records[0].AppName,
-		PeriodStart: start,
-		PeriodEnd:   end,
-		Alerts:      make([]UsageAlert, 0),
+		AppID:           appID,
+		AppName:         records[0].AppName,
+		PeriodStart:     start,
+		PeriodEnd:       end,
+		Alerts:          make([]UsageAlert, 0),
 		Recommendations: make([]UsageRecommendation, 0),
 	}
 
@@ -700,7 +700,7 @@ func (c *AppUsageCollector) calculateCostEstimate(cpu *CPUUsageStats, mem *Memor
 	pricing := c.config.PricingConfig
 
 	// CPU成本（核心*小时*单价）
-	hours := float64(cpu.SampleCount * c.config.CollectInterval) / 3600
+	hours := float64(cpu.SampleCount*c.config.CollectInterval) / 3600
 	cpuCost := cpu.AvgCores * hours * pricing.CPUCorePerHour
 
 	// 内存成本（GB*小时*单价）
@@ -738,12 +738,12 @@ func (c *AppUsageCollector) checkAlerts(summary *AppUsageSummary) {
 			level = "critical"
 		}
 		summary.Alerts = append(summary.Alerts, UsageAlert{
-			ID:         "cpu-high-" + summary.AppID,
-			Type:       "cpu_high",
-			Level:      level,
-			Message:    "CPU使用率超过阈值",
-			Value:      summary.CPU.PeakPercent,
-			Threshold:  c.config.CPUAlertThreshold,
+			ID:          "cpu-high-" + summary.AppID,
+			Type:        "cpu_high",
+			Level:       level,
+			Message:     "CPU使用率超过阈值",
+			Value:       summary.CPU.PeakPercent,
+			Threshold:   c.config.CPUAlertThreshold,
 			TriggeredAt: now,
 		})
 	}
@@ -755,12 +755,12 @@ func (c *AppUsageCollector) checkAlerts(summary *AppUsageSummary) {
 			level = "critical"
 		}
 		summary.Alerts = append(summary.Alerts, UsageAlert{
-			ID:         "memory-high-" + summary.AppID,
-			Type:       "memory_high",
-			Level:      level,
-			Message:    "内存使用率超过阈值",
-			Value:      summary.Memory.PeakPercent,
-			Threshold:  c.config.MemoryAlertThreshold,
+			ID:          "memory-high-" + summary.AppID,
+			Type:        "memory_high",
+			Level:       level,
+			Message:     "内存使用率超过阈值",
+			Value:       summary.Memory.PeakPercent,
+			Threshold:   c.config.MemoryAlertThreshold,
 			TriggeredAt: now,
 		})
 	}
@@ -788,11 +788,11 @@ func (c *AppUsageCollector) generateRecommendations(summary *AppUsageSummary) {
 	// 高内存使用建议扩容
 	if summary.Memory.PeakPercent > 90 {
 		summary.Recommendations = append(summary.Recommendations, UsageRecommendation{
-			Type:         "scale_up",
-			Priority:     1,
-			Title:        "建议增加内存配置",
-			Description:  "应用内存使用率接近上限，建议增加内存以避免OOM",
-			Impact:       "高风险，可能导致服务中断",
+			Type:        "scale_up",
+			Priority:    1,
+			Title:       "建议增加内存配置",
+			Description: "应用内存使用率接近上限，建议增加内存以避免OOM",
+			Impact:      "高风险，可能导致服务中断",
 			Steps: []string{
 				"分析内存使用模式",
 				"检查内存泄漏",

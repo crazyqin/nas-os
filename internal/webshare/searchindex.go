@@ -12,14 +12,14 @@ import (
 
 // SearchIndex 搜索索引
 type SearchIndex struct {
-	config     WebShareConfig
-	mu         sync.RWMutex
-	fileIndex  map[string]*IndexedFile // 相对路径 -> IndexedFile
-	nameIndex  map[string][]string     // 名称关键词 -> 路径列表
-	typeIndex  map[string][]string     // 文件类型 -> 路径列表
-	extIndex   map[string][]string     // 扩展名 -> 路径列表
-	excluded   map[string]bool         // 排除的路径
-	fileTypes  *FileTypeRegistry
+	config    WebShareConfig
+	mu        sync.RWMutex
+	fileIndex map[string]*IndexedFile // 相对路径 -> IndexedFile
+	nameIndex map[string][]string     // 名称关键词 -> 路径列表
+	typeIndex map[string][]string     // 文件类型 -> 路径列表
+	extIndex  map[string][]string     // 扩展名 -> 路径列表
+	excluded  map[string]bool         // 排除的路径
+	fileTypes *FileTypeRegistry
 }
 
 // IndexedFile 已索引的文件
@@ -109,12 +109,12 @@ func NewFileTypeRegistry() *FileTypeRegistry {
 			".sh":   "code",
 			".sql":  "code",
 			// 压缩包
-			".zip":  "archive",
-			".rar":  "archive",
-			".7z":   "archive",
-			".tar":  "archive",
-			".gz":   "archive",
-			".bz2":  "archive",
+			".zip": "archive",
+			".rar": "archive",
+			".7z":  "archive",
+			".tar": "archive",
+			".gz":  "archive",
+			".bz2": "archive",
 		},
 	}
 }

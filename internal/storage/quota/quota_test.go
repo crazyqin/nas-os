@@ -14,7 +14,7 @@ func TestGetWarningLevel(t *testing.T) {
 		expected string
 	}{
 		{50.0, WarningLevelLow},
-		{60.0, WarningLevelLow},  // 60%是low级别（阈值刚好在边界）
+		{60.0, WarningLevelLow}, // 60%是low级别（阈值刚好在边界）
 		{65.0, WarningLevelLow},
 		{80.0, WarningLevelMedium},
 		{85.0, WarningLevelMedium},
@@ -569,7 +569,7 @@ func TestManager_GetRule(t *testing.T) {
 func TestManager_ListRules(t *testing.T) {
 	storage := &mockStorageProvider{}
 	user := &mockUserProvider{
-		users:  map[string]bool{"user1": true, "user2": true},
+		users: map[string]bool{"user1": true, "user2": true},
 	}
 
 	mgr, _ := NewManager("", storage, user)

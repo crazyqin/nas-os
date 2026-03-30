@@ -17,9 +17,9 @@ func TestNewManager(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	config := WebShareConfig{
-		BaseDir:       tmpDir,
-		MaxFileSize:   100 * 1024 * 1024,
-		CacheDir:      filepath.Join(tmpDir, "cache"),
+		BaseDir:         tmpDir,
+		MaxFileSize:     100 * 1024 * 1024,
+		CacheDir:        filepath.Join(tmpDir, "cache"),
 		ShareLinkExpiry: 24 * time.Hour,
 	}
 
@@ -154,8 +154,8 @@ func TestShareLink(t *testing.T) {
 	os.WriteFile(filepath.Join(tmpDir, "share.txt"), []byte("share content"), 0644)
 
 	config := WebShareConfig{
-		BaseDir:  tmpDir,
-		CacheDir: filepath.Join(tmpDir, "cache"),
+		BaseDir:         tmpDir,
+		CacheDir:        filepath.Join(tmpDir, "cache"),
 		ShareLinkExpiry: 24 * time.Hour,
 	}
 
@@ -344,7 +344,7 @@ func TestSanitizePath(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	config := WebShareConfig{
-		BaseDir:  tmpDir,
+		BaseDir: tmpDir,
 	}
 
 	manager := NewManager(config)

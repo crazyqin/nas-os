@@ -212,8 +212,8 @@ func TestGetConfig(t *testing.T) {
 	manager := NewDiskPowerManager(ctx)
 
 	config := &DiskPowerConfig{
-		DevicePath:           "/dev/sda",
-		IdleTimeoutSeconds:   600,
+		DevicePath:            "/dev/sda",
+		IdleTimeoutSeconds:    600,
 		StandbyTimeoutSeconds: 1200,
 	}
 	manager.RegisterDisk(config)
@@ -235,8 +235,8 @@ func TestWakeUpDisk(t *testing.T) {
 	defer manager.Stop()
 
 	config := &DiskPowerConfig{
-		DevicePath:       "/dev/sda",
-		DelayWakeUpMs:   10, // Fast for testing
+		DevicePath:    "/dev/sda",
+		DelayWakeUpMs: 10, // Fast for testing
 	}
 	manager.RegisterDisk(config)
 

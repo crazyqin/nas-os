@@ -17,17 +17,17 @@ import (
 
 // Manager GPU管理器
 type Manager struct {
-	config       *GPUConfig
-	logger       *zap.Logger
-	devices      map[string]*GPUDevice // GPU设备映射
-	allocations  map[string]*GPUAllocation // 分配映射
-	mu           sync.RWMutex
-	monitor      *Monitor
-	scheduler    *Scheduler
-	nvidia       *NVIDIAProvider
-	initialized  bool
-	ctx          context.Context
-	cancel       context.CancelFunc
+	config      *GPUConfig
+	logger      *zap.Logger
+	devices     map[string]*GPUDevice     // GPU设备映射
+	allocations map[string]*GPUAllocation // 分配映射
+	mu          sync.RWMutex
+	monitor     *Monitor
+	scheduler   *Scheduler
+	nvidia      *NVIDIAProvider
+	initialized bool
+	ctx         context.Context
+	cancel      context.CancelFunc
 }
 
 // NewManager 创建GPU管理器
@@ -397,12 +397,12 @@ func (m *Manager) GetGPUStats() (*GPUStats, error) {
 // getHealthStatus 获取健康状态
 func (m *Manager) getHealthStatus() GPUHealthStatus {
 	status := GPUHealthStatus{
-		Status:     "healthy",
-		Warnings:   make([]string, 0),
-		Errors:     make([]string, 0),
-		LastCheck:  time.Now(),
-		DriverOK:   true,
-		DevicesOK:  make(map[string]bool),
+		Status:    "healthy",
+		Warnings:  make([]string, 0),
+		Errors:    make([]string, 0),
+		LastCheck: time.Now(),
+		DriverOK:  true,
+		DevicesOK: make(map[string]bool),
 	}
 
 	// 检查NVIDIA驱动

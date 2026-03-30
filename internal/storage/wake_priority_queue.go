@@ -19,10 +19,10 @@ const (
 
 // WakeRequest 唤醒请求
 type WakeRequest struct {
-	TaskID     string       // 任务ID
-	Device     string       // 设备路径
-	Priority   WakePriority // 优先级
-	RequestedAt time.Time   // 请求时间
+	TaskID      string       // 任务ID
+	Device      string       // 设备路径
+	Priority    WakePriority // 优先级
+	RequestedAt time.Time    // 请求时间
 }
 
 // WakePriorityQueue 唤醒优先级队列

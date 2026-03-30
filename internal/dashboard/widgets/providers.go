@@ -176,7 +176,7 @@ func (p *StorageIOProvider) GetData() (*StorageIOWidgetData, error) {
 	data.TotalWrite = totalWrite
 
 	// 计算速率（需要两次采样差值，这里返回累计值）
-	data.ReadRate = float64(totalRead) / 1024 / 1024 // MB
+	data.ReadRate = float64(totalRead) / 1024 / 1024   // MB
 	data.WriteRate = float64(totalWrite) / 1024 / 1024 // MB
 
 	return data, nil

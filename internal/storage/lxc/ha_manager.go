@@ -38,10 +38,10 @@ var (
 type HAState string
 
 const (
-	HAStateActive    HAState = "active"    // 活跃状态
-	HAStateStandby   HAState = "standby"   // 待机状态
-	HAStateMigrating HAState = "migrating" // 迁移中
-	HAStateFailed    HAState = "failed"    // 失败
+	HAStateActive     HAState = "active"     // 活跃状态
+	HAStateStandby    HAState = "standby"    // 待机状态
+	HAStateMigrating  HAState = "migrating"  // 迁移中
+	HAStateFailed     HAState = "failed"     // 失败
 	HAStateRecovering HAState = "recovering" // 恢复中
 )
 
@@ -57,9 +57,9 @@ const (
 type FailoverPolicy string
 
 const (
-	FailoverPolicyAuto    FailoverPolicy = "auto"    // 自动故障转移
-	FailoverPolicyManual  FailoverPolicy = "manual"  // 手动故障转移
-	FailoverPolicyQuorum  FailoverPolicy = "quorum"  // 需要仲裁确认
+	FailoverPolicyAuto   FailoverPolicy = "auto"   // 自动故障转移
+	FailoverPolicyManual FailoverPolicy = "manual" // 手动故障转移
+	FailoverPolicyQuorum FailoverPolicy = "quorum" // 需要仲裁确认
 )
 
 // ========== 数据结构定义 ==========
@@ -78,43 +78,43 @@ type HAManager struct {
 
 // HAContainer HA 容器配置
 type HAContainer struct {
-	ID             string            `json:"id"`
-	Name           string            `json:"name"`
-	PrimaryNode    string            `json:"primaryNode"`    // 主节点
-	StandbyNodes   []string          `json:"standbyNodes"`   // 备节点列表
-	State          HAState           `json:"state"`          // 当前状态
-	Mode           HAMode            `json:"mode"`           // HA 模式
-	Policy         FailoverPolicy    `json:"policy"`         // 故障转移策略
-	Priority       int               `json:"priority"`       // 优先级 (越高越重要)
-	HealthCheck    HealthCheckConfig `json:"healthCheck"`    // 健康检查配置
+	ID             string             `json:"id"`
+	Name           string             `json:"name"`
+	PrimaryNode    string             `json:"primaryNode"`    // 主节点
+	StandbyNodes   []string           `json:"standbyNodes"`   // 备节点列表
+	State          HAState            `json:"state"`          // 当前状态
+	Mode           HAMode             `json:"mode"`           // HA 模式
+	Policy         FailoverPolicy     `json:"policy"`         // 故障转移策略
+	Priority       int                `json:"priority"`       // 优先级 (越高越重要)
+	HealthCheck    HealthCheckConfig  `json:"healthCheck"`    // 健康检查配置
 	StorageVolumes []StorageVolumeRef `json:"storageVolumes"` // 关联的存储卷
-	LastFailover   time.Time         `json:"lastFailover"`   // 上次故障转移时间
-	FailoverCount  int               `json:"failoverCount"`  // 故障转移次数
-	Enabled        bool              `json:"enabled"`        // 是否启用 HA
-	CreatedAt      time.Time         `json:"createdAt"`
-	UpdatedAt      time.Time         `json:"updatedAt"`
+	LastFailover   time.Time          `json:"lastFailover"`   // 上次故障转移时间
+	FailoverCount  int                `json:"failoverCount"`  // 故障转移次数
+	Enabled        bool               `json:"enabled"`        // 是否启用 HA
+	CreatedAt      time.Time          `json:"createdAt"`
+	UpdatedAt      time.Time          `json:"updatedAt"`
 }
 
 // HANode HA 节点信息
 type HANode struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Address      string    `json:"address"`      // IP 地址
-	Port         int       `json:"port"`         // 端口
-	State        HAState   `json:"state"`        // 节点状态
-	LastHeartbeat time.Time `json:"lastHeartbeat"` // 最后心跳时间
-	Capacity     NodeCapacity `json:"capacity"`   // 容量信息
-	Priority     int       `json:"priority"`     // 节点优先级
-	StoragePools []string  `json:"storagePools"` // 可用存储池
-	Online       bool      `json:"online"`       // 是否在线
+	ID            string       `json:"id"`
+	Name          string       `json:"name"`
+	Address       string       `json:"address"`       // IP 地址
+	Port          int          `json:"port"`          // 端口
+	State         HAState      `json:"state"`         // 节点状态
+	LastHeartbeat time.Time    `json:"lastHeartbeat"` // 最后心跳时间
+	Capacity      NodeCapacity `json:"capacity"`      // 容量信息
+	Priority      int          `json:"priority"`      // 节点优先级
+	StoragePools  []string     `json:"storagePools"`  // 可用存储池
+	Online        bool         `json:"online"`        // 是否在线
 }
 
 // NodeCapacity 节点容量
 type NodeCapacity struct {
-	CPUCount    int    `json:"cpuCount"`
-	MemoryMB    uint64 `json:"memoryMB"`
-	StorageGB   uint64 `json:"storageGB"`
-	Containers  int    `json:"containers"` // 运行的容器数
+	CPUCount   int    `json:"cpuCount"`
+	MemoryMB   uint64 `json:"memoryMB"`
+	StorageGB  uint64 `json:"storageGB"`
+	Containers int    `json:"containers"` // 运行的容器数
 }
 
 // HealthCheckConfig 健康检查配置
@@ -132,44 +132,44 @@ type HealthCheckConfig struct {
 type StorageVolumeRef struct {
 	PoolName   string `json:"poolName"`
 	VolumeName string `json:"volumeName"`
-	MountPath  string `json:"mountPath"`  // 挂载路径
-	ReadOnly   bool   `json:"readOnly"`   // 是否只读
-	Shared     bool   `json:"shared"`     // 是否共享存储
+	MountPath  string `json:"mountPath"` // 挂载路径
+	ReadOnly   bool   `json:"readOnly"`  // 是否只读
+	Shared     bool   `json:"shared"`    // 是否共享存储
 }
 
 // ClusterConfig 集群配置
 type ClusterConfig struct {
-	Name              string        `json:"name"`
-	QuorumNodes       int           `json:"quorumNodes"`       // 仲裁节点数
-	FailoverTimeout   time.Duration `json:"failoverTimeout"`   // 故障转移超时
-	HeartbeatInterval time.Duration `json:"heartbeatInterval"` // 心跳间隔
+	Name               string        `json:"name"`
+	QuorumNodes        int           `json:"quorumNodes"`        // 仲裁节点数
+	FailoverTimeout    time.Duration `json:"failoverTimeout"`    // 故障转移超时
+	HeartbeatInterval  time.Duration `json:"heartbeatInterval"`  // 心跳间隔
 	EnableAutoFailover bool          `json:"enableAutoFailover"` // 启用自动故障转移
 }
 
 // HAEvent HA 事件
 type HAEvent struct {
 	Type      HAEventType `json:"type"`
-	Container string       `json:"container"`
-	Node      string       `json:"node"`
-	Timestamp time.Time    `json:"timestamp"`
-	Message   string       `json:"message"`
-	Data      interface{}  `json:"data,omitempty"`
+	Container string      `json:"container"`
+	Node      string      `json:"node"`
+	Timestamp time.Time   `json:"timestamp"`
+	Message   string      `json:"message"`
+	Data      interface{} `json:"data,omitempty"`
 }
 
 // HAEventType 事件类型
 type HAEventType string
 
 const (
-	EventContainerStarted    HAEventType = "container_started"
-	EventContainerStopped    HAEventType = "container_stopped"
-	EventContainerMigrated   HAEventType = "container_migrated"
-	EventNodeOnline          HAEventType = "node_online"
-	EventNodeOffline         HAEventType = "node_offline"
-	EventFailoverStarted     HAEventType = "failover_started"
-	EventFailoverCompleted   HAEventType = "failover_completed"
-	EventFailoverFailed      HAEventType = "failover_failed"
-	EventHealthCheckFailed   HAEventType = "health_check_failed"
-	EventStorageUnavailable  HAEventType = "storage_unavailable"
+	EventContainerStarted   HAEventType = "container_started"
+	EventContainerStopped   HAEventType = "container_stopped"
+	EventContainerMigrated  HAEventType = "container_migrated"
+	EventNodeOnline         HAEventType = "node_online"
+	EventNodeOffline        HAEventType = "node_offline"
+	EventFailoverStarted    HAEventType = "failover_started"
+	EventFailoverCompleted  HAEventType = "failover_completed"
+	EventFailoverFailed     HAEventType = "failover_failed"
+	EventHealthCheckFailed  HAEventType = "health_check_failed"
+	EventStorageUnavailable HAEventType = "storage_unavailable"
 )
 
 // FailoverResult 故障转移结果
@@ -184,14 +184,14 @@ type FailoverResult struct {
 
 // MigrationProgress 迁移进度
 type MigrationProgress struct {
-	ContainerID   string    `json:"containerId"`
-	SourceNode    string    `json:"sourceNode"`
-	TargetNode    string    `json:"targetNode"`
-	State         string    `json:"state"` // preparing, transferring, finalizing, completed, failed
-	Progress      float64   `json:"progress"` // 0-100
-	BytesTransferred uint64 `json:"bytesTransferred"`
-	StartTime     time.Time `json:"startTime"`
-	ETA           time.Time `json:"eta,omitempty"`
+	ContainerID      string    `json:"containerId"`
+	SourceNode       string    `json:"sourceNode"`
+	TargetNode       string    `json:"targetNode"`
+	State            string    `json:"state"`    // preparing, transferring, finalizing, completed, failed
+	Progress         float64   `json:"progress"` // 0-100
+	BytesTransferred uint64    `json:"bytesTransferred"`
+	StartTime        time.Time `json:"startTime"`
+	ETA              time.Time `json:"eta,omitempty"`
 }
 
 // LXCManagerInterface LXC 管理器接口（用于解耦）
@@ -233,10 +233,10 @@ func NewHAManager(configPath string, lxcManager LXCManagerInterface) (*HAManager
 // DefaultClusterConfig 默认集群配置
 func DefaultClusterConfig() *ClusterConfig {
 	return &ClusterConfig{
-		Name:              "nas-os-cluster",
-		QuorumNodes:       2,
-		FailoverTimeout:   30 * time.Second,
-		HeartbeatInterval: 5 * time.Second,
+		Name:               "nas-os-cluster",
+		QuorumNodes:        2,
+		FailoverTimeout:    30 * time.Second,
+		HeartbeatInterval:  5 * time.Second,
 		EnableAutoFailover: true,
 	}
 }
@@ -521,7 +521,7 @@ func (m *HAManager) AutoFailover(ctx context.Context, failedNode string) ([]*Fai
 
 		// 执行故障转移
 		container.State = HAStateMigrating
-		
+
 		oldPrimary := container.PrimaryNode
 		startTime := time.Now()
 
@@ -634,7 +634,7 @@ func (m *HAManager) findBestStandbyNode(container *HAContainer) string {
 // updateStandbyNodes 更新备用节点列表
 func (m *HAManager) updateStandbyNodes(current []string, removeNode, addNode string) []string {
 	result := make([]string, 0, len(current))
-	
+
 	// 移除新主节点
 	for _, node := range current {
 		if node != removeNode {

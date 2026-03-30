@@ -217,41 +217,41 @@ type LogSearchService interface {
 
 // SearchRequest 基础搜索请求
 type SearchRequest struct {
-	Query      string        `json:"query"`      // 搜索查询
-	Types      []ResultType  `json:"types"`      // 结果类型过滤
-	Limit      int           `json:"limit"`      // 每种类型限制
-	TotalLimit int           `json:"totalLimit"` // 总结果限制
-	MinScore   float64       `json:"minScore"`   // 最小匹配分数
-	IncludeRaw bool          `json:"includeRaw"` // 包含原始数据
-	Fuzzy      bool          `json:"fuzzy"`      // 模糊搜索
-	Locale     string        `json:"locale"`     // 语言环境
-	SortBy     string        `json:"sortBy"`     // 排序字段
-	SortDesc   bool          `json:"sortDesc"`   // 降序排序
+	Query      string       `json:"query"`      // 搜索查询
+	Types      []ResultType `json:"types"`      // 结果类型过滤
+	Limit      int          `json:"limit"`      // 每种类型限制
+	TotalLimit int          `json:"totalLimit"` // 总结果限制
+	MinScore   float64      `json:"minScore"`   // 最小匹配分数
+	IncludeRaw bool         `json:"includeRaw"` // 包含原始数据
+	Fuzzy      bool         `json:"fuzzy"`      // 模糊搜索
+	Locale     string       `json:"locale"`     // 语言环境
+	SortBy     string       `json:"sortBy"`     // 排序字段
+	SortDesc   bool         `json:"sortDesc"`   // 降序排序
 }
 
 // SearchResponse 基础搜索响应
 type SearchResponse struct {
-	Query       string            `json:"query"`
-	Took        time.Duration     `json:"took"`
-	Total       int               `json:"total"`
-	Results     []SearchResult    `json:"results"`
-	Suggestions []string          `json:"suggestions"`
-	Facets      map[string]int    `json:"facets"`
-	Errors      []SearchError     `json:"errors,omitempty"`
+	Query       string         `json:"query"`
+	Took        time.Duration  `json:"took"`
+	Total       int            `json:"total"`
+	Results     []SearchResult `json:"results"`
+	Suggestions []string       `json:"suggestions"`
+	Facets      map[string]int `json:"facets"`
+	Errors      []SearchError  `json:"errors,omitempty"`
 }
 
 // SearchResult 搜索结果项
 type SearchResult struct {
-	Type        ResultType `json:"type"`
-	Score       float64    `json:"score"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Path        string     `json:"path"`
-	Icon        string     `json:"icon"`
-	Category    string     `json:"category"`
-	MatchType   string     `json:"matchType"`
-	MatchField  string     `json:"matchField"`
-	RawData     any        `json:"rawData,omitempty"`
+	Type        ResultType     `json:"type"`
+	Score       float64        `json:"score"`
+	Title       string         `json:"title"`
+	Description string         `json:"description"`
+	Path        string         `json:"path"`
+	Icon        string         `json:"icon"`
+	Category    string         `json:"category"`
+	MatchType   string         `json:"matchType"`
+	MatchField  string         `json:"matchField"`
+	RawData     any            `json:"rawData,omitempty"`
 	Metadata    map[string]any `json:"metadata,omitempty"`
 }
 
@@ -294,12 +294,12 @@ type FileResult struct {
 
 // LogFilter 日志过滤条件
 type LogFilter struct {
-	Sources    []string    `json:"sources"`
-	Levels     []string    `json:"levels"`
-	Components []string    `json:"components"`
-	FromDate   *time.Time  `json:"fromDate"`
-	ToDate     *time.Time  `json:"toDate"`
-	Query      string      `json:"query"`
+	Sources    []string   `json:"sources"`
+	Levels     []string   `json:"levels"`
+	Components []string   `json:"components"`
+	FromDate   *time.Time `json:"fromDate"`
+	ToDate     *time.Time `json:"toDate"`
+	Query      string     `json:"query"`
 }
 
 // LogSource 日志源定义

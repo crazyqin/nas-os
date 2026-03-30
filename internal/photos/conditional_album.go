@@ -7,15 +7,15 @@ import (
 
 // AlbumRule defines a rule for conditional album generation
 type AlbumRule struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Type        RuleType  `json:"type"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Type        RuleType    `json:"type"`
 	Conditions  []Condition `json:"conditions"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	AutoUpdate  bool      `json:"auto_update"`
-	Active      bool      `json:"active"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
+	AutoUpdate  bool        `json:"auto_update"`
+	Active      bool        `json:"active"`
 }
 
 // RuleType defines the type of conditional album
@@ -41,32 +41,32 @@ type Condition struct {
 type Operator string
 
 const (
-	OpEquals    Operator = "equals"
-	OpContains  Operator = "contains"
-	OpInRange   Operator = "in_range"
-	OpBefore    Operator = "before"
-	OpAfter     Operator = "after"
-	OpMatches   Operator = "matches"
+	OpEquals   Operator = "equals"
+	OpContains Operator = "contains"
+	OpInRange  Operator = "in_range"
+	OpBefore   Operator = "before"
+	OpAfter    Operator = "after"
+	OpMatches  Operator = "matches"
 )
 
 // ConditionalAlbumManager manages conditional albums
 type ConditionalAlbumManager struct {
-	rules     map[string]*AlbumRule
-	albums    map[string]*ConditionalAlbum
-	storage   AlbumStorage
-	detector  FaceDetector
+	rules    map[string]*AlbumRule
+	albums   map[string]*ConditionalAlbum
+	storage  AlbumStorage
+	detector FaceDetector
 }
 
 // ConditionalAlbum represents an auto-generated album
 type ConditionalAlbum struct {
-	ID          string    `json:"id"`
-	RuleID      string    `json:"rule_id"`
-	Name        string    `json:"name"`
-	Photos      []string  `json:"photos"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	PhotoCount  int       `json:"photo_count"`
-	CoverPhoto  string    `json:"cover_photo"`
+	ID         string    `json:"id"`
+	RuleID     string    `json:"rule_id"`
+	Name       string    `json:"name"`
+	Photos     []string  `json:"photos"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	PhotoCount int       `json:"photo_count"`
+	CoverPhoto string    `json:"cover_photo"`
 }
 
 // NewConditionalAlbumManager creates a new manager
@@ -85,7 +85,7 @@ func (m *ConditionalAlbumManager) CreateRule(rule *AlbumRule) error {
 	rule.CreatedAt = time.Now()
 	rule.UpdatedAt = time.Now()
 	m.rules[rule.ID] = rule
-	
+
 	// Generate initial album
 	return m.UpdateAlbum(rule.ID)
 }
@@ -96,13 +96,13 @@ func (m *ConditionalAlbumManager) UpdateAlbum(ruleID string) error {
 	if !exists {
 		return ErrRuleNotFound
 	}
-	
+
 	// Find matching photos
 	photos, err := m.findMatchingPhotos(rule)
 	if err != nil {
 		return err
 	}
-	
+
 	// Create or update album
 	album := &ConditionalAlbum{
 		ID:         ruleID + "_album",
@@ -112,11 +112,11 @@ func (m *ConditionalAlbumManager) UpdateAlbum(ruleID string) error {
 		UpdatedAt:  time.Now(),
 		PhotoCount: len(photos),
 	}
-	
+
 	if len(photos) > 0 {
 		album.CoverPhoto = photos[0]
 	}
-	
+
 	if existing, exists := m.albums[album.ID]; exists {
 		existing.Photos = photos
 		existing.PhotoCount = len(photos)
@@ -125,7 +125,7 @@ func (m *ConditionalAlbumManager) UpdateAlbum(ruleID string) error {
 		album.CreatedAt = time.Now()
 		m.albums[album.ID] = album
 	}
-	
+
 	return m.storage.SaveAlbum(album)
 }
 
@@ -135,19 +135,19 @@ func (m *ConditionalAlbumManager) findMatchingPhotos(rule *AlbumRule) ([]string,
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var matching []string
 	for _, photoID := range allPhotos {
 		photo, err := m.storage.GetPhotoMetadata(photoID)
 		if err != nil {
 			continue
 		}
-		
+
 		if m.matchesConditions(photo, rule.Conditions) {
 			matching = append(matching, photoID)
 		}
 	}
-	
+
 	return matching, nil
 }
 
@@ -176,16 +176,16 @@ func (m *ConditionalAlbumManager) matchCondition(photo *PhotoMetadata, cond Cond
 			}
 		}
 		return cond.Operator == OpEquals && len(photo.Faces) == 0
-		
+
 	case "location":
 		return m.matchLocation(photo, cond)
-		
+
 	case "date_taken":
 		return m.matchDate(photo, cond)
-		
+
 	case "camera":
 		return m.matchCamera(photo, cond)
-		
+
 	case "object":
 		return m.matchObject(photo, cond)
 	}
@@ -279,7 +279,7 @@ func (m *ConditionalAlbumManager) GetRules() []*AlbumRule {
 // DeleteRule deletes a rule and its album
 func (m *ConditionalAlbumManager) DeleteRule(ruleID string) error {
 	delete(m.rules, ruleID)
-	
+
 	// Delete associated album
 	for albumID, album := range m.albums {
 		if album.RuleID == ruleID {

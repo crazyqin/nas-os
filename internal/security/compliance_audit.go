@@ -21,32 +21,32 @@ const (
 
 // AuditResult represents a single audit check result.
 type AuditResult struct {
-	CheckID      string        `json:"check_id"`
-	CheckName    string        `json:"check_name"`
-	Compliance   ComplianceType `json:"compliance"`
-	Status       string        `json:"status"` // pass, fail, warning, not_applicable
-	Description  string        `json:"description"`
-	Details      string        `json:"details"`
-	Timestamp    time.Time     `json:"timestamp"`
-	Remediation  string        `json:"remediation,omitempty"`
+	CheckID     string         `json:"check_id"`
+	CheckName   string         `json:"check_name"`
+	Compliance  ComplianceType `json:"compliance"`
+	Status      string         `json:"status"` // pass, fail, warning, not_applicable
+	Description string         `json:"description"`
+	Details     string         `json:"details"`
+	Timestamp   time.Time      `json:"timestamp"`
+	Remediation string         `json:"remediation,omitempty"`
 }
 
 // AuditReport represents a complete compliance audit report.
 type AuditReport struct {
-	ID           string         `json:"id"`
-	Compliance   ComplianceType `json:"compliance"`
-	Timestamp    time.Time      `json:"timestamp"`
-	Results      []AuditResult  `json:"results"`
-	Summary      AuditSummary   `json:"summary"`
+	ID         string         `json:"id"`
+	Compliance ComplianceType `json:"compliance"`
+	Timestamp  time.Time      `json:"timestamp"`
+	Results    []AuditResult  `json:"results"`
+	Summary    AuditSummary   `json:"summary"`
 }
 
 // AuditSummary contains audit statistics.
 type AuditSummary struct {
-	TotalChecks   int `json:"total_checks"`
-	Passed        int `json:"passed"`
-	Failed        int `json:"failed"`
-	Warnings      int `json:"warnings"`
-	NotApplicable int `json:"not_applicable"`
+	TotalChecks     int `json:"total_checks"`
+	Passed          int `json:"passed"`
+	Failed          int `json:"failed"`
+	Warnings        int `json:"warnings"`
+	NotApplicable   int `json:"not_applicable"`
 	ComplianceScore int `json:"compliance_score"` // 0-100
 }
 
@@ -64,17 +64,17 @@ func NewComplianceAuditor() *ComplianceAuditor {
 	ca := &ComplianceAuditor{
 		checks: make(map[ComplianceType][]AuditCheck),
 	}
-	
+
 	// Register default checks
 	ca.registerDefaultChecks()
-	
+
 	return ca
 }
 
 // registerDefaultChecks registers standard compliance checks.
 func (ca *ComplianceAuditor) registerDefaultChecks() {
 	// GDPR checks
-	ca.RegisterCheck(ComplianceGDPR, "gdpr_encryption", "Data Encryption", 
+	ca.RegisterCheck(ComplianceGDPR, "gdpr_encryption", "Data Encryption",
 		func(ctx context.Context) AuditResult {
 			return AuditResult{
 				CheckID:     "gdpr_encryption",
@@ -86,7 +86,7 @@ func (ca *ComplianceAuditor) registerDefaultChecks() {
 				Timestamp:   time.Now(),
 			}
 		})
-	
+
 	ca.RegisterCheck(ComplianceGDPR, "gdpr_access_control", "Access Control",
 		func(ctx context.Context) AuditResult {
 			return AuditResult{
@@ -99,7 +99,7 @@ func (ca *ComplianceAuditor) registerDefaultChecks() {
 				Timestamp:   time.Now(),
 			}
 		})
-	
+
 	ca.RegisterCheck(ComplianceGDPR, "gdpr_retention", "Data Retention Policy",
 		func(ctx context.Context) AuditResult {
 			return AuditResult{
@@ -113,7 +113,7 @@ func (ca *ComplianceAuditor) registerDefaultChecks() {
 				Remediation: "Configure retention policies in settings",
 			}
 		})
-	
+
 	// HIPAA checks
 	ca.RegisterCheck(ComplianceHIPAA, "hipaa_phi_encryption", "PHI Encryption",
 		func(ctx context.Context) AuditResult {
@@ -127,7 +127,7 @@ func (ca *ComplianceAuditor) registerDefaultChecks() {
 				Timestamp:   time.Now(),
 			}
 		})
-	
+
 	ca.RegisterCheck(ComplianceHIPAA, "hipaa_audit_logs", "Audit Logging",
 		func(ctx context.Context) AuditResult {
 			return AuditResult{
@@ -140,7 +140,7 @@ func (ca *ComplianceAuditor) registerDefaultChecks() {
 				Timestamp:   time.Now(),
 			}
 		})
-	
+
 	// PCI-DSS checks
 	ca.RegisterCheck(CompliancePCI, "pci_cardholder_encryption", "Cardholder Data Encryption",
 		func(ctx context.Context) AuditResult {
@@ -160,7 +160,7 @@ func (ca *ComplianceAuditor) registerDefaultChecks() {
 func (ca *ComplianceAuditor) RegisterCheck(compliance ComplianceType, checkID, checkName string, check AuditCheck) {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
-	
+
 	ca.checks[compliance] = append(ca.checks[compliance], check)
 }
 
@@ -168,23 +168,23 @@ func (ca *ComplianceAuditor) RegisterCheck(compliance ComplianceType, checkID, c
 func (ca *ComplianceAuditor) RunAudit(ctx context.Context, compliance ComplianceType) (*AuditReport, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
-	
+
 	checks, ok := ca.checks[compliance]
 	if !ok {
 		return nil, fmt.Errorf("no checks registered for compliance type: %s", compliance)
 	}
-	
+
 	report := &AuditReport{
 		ID:         fmt.Sprintf("audit-%s-%d", compliance, time.Now().Unix()),
 		Compliance: compliance,
 		Timestamp:  time.Now(),
 		Results:    make([]AuditResult, 0, len(checks)),
 	}
-	
+
 	for _, check := range checks {
 		result := check(ctx)
 		report.Results = append(report.Results, result)
-		
+
 		switch result.Status {
 		case "pass":
 			report.Summary.Passed++
@@ -197,12 +197,12 @@ func (ca *ComplianceAuditor) RunAudit(ctx context.Context, compliance Compliance
 		}
 		report.Summary.TotalChecks++
 	}
-	
+
 	// Calculate compliance score
 	if report.Summary.TotalChecks > 0 {
 		report.Summary.ComplianceScore = (report.Summary.Passed * 100) / report.Summary.TotalChecks
 	}
-	
+
 	return report, nil
 }
 
@@ -214,7 +214,7 @@ func (ca *ComplianceAuditor) RunAllAudits(ctx context.Context) ([]*AuditReport, 
 		complianceTypes = append(complianceTypes, ct)
 	}
 	ca.mu.RUnlock()
-	
+
 	reports := make([]*AuditReport, 0, len(complianceTypes))
 	for _, ct := range complianceTypes {
 		report, err := ca.RunAudit(ctx, ct)
@@ -223,7 +223,7 @@ func (ca *ComplianceAuditor) RunAllAudits(ctx context.Context) ([]*AuditReport, 
 		}
 		reports = append(reports, report)
 	}
-	
+
 	return reports, nil
 }
 
@@ -231,7 +231,7 @@ func (ca *ComplianceAuditor) RunAllAudits(ctx context.Context) ([]*AuditReport, 
 func (ca *ComplianceAuditor) GetAvailableComplianceTypes() []ComplianceType {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
-	
+
 	types := make([]ComplianceType, 0, len(ca.checks))
 	for ct := range ca.checks {
 		types = append(types, ct)

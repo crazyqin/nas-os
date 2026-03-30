@@ -201,10 +201,10 @@ func (p *Predictor) GetHistoryStats(targetID string) map[string]interface{} {
 
 	if len(records) == 0 {
 		return map[string]interface{}{
-			"count":       0,
-			"min_usage":   0,
-			"max_usage":   0,
-			"avg_usage":   0,
+			"count":        0,
+			"min_usage":    0,
+			"max_usage":    0,
+			"avg_usage":    0,
 			"first_record": nil,
 			"last_record":  nil,
 		}
@@ -222,10 +222,10 @@ func (p *Predictor) GetHistoryStats(targetID string) map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"count":       len(records),
-		"min_usage":   minUsage,
-		"max_usage":   maxUsage,
-		"avg_usage":   sumUsage / int64(len(records)),
+		"count":        len(records),
+		"min_usage":    minUsage,
+		"max_usage":    maxUsage,
+		"avg_usage":    sumUsage / int64(len(records)),
 		"first_record": records[0].Timestamp,
 		"last_record":  records[len(records)-1].Timestamp,
 	}

@@ -18,25 +18,25 @@ import (
 // FileEventMonitor 文件事件监控器
 // 使用fsnotify实时捕获文件系统事件
 type FileEventMonitor struct {
-	config          MonitorConfig
-	watcher         *fsnotify.Watcher
-	eventChan       chan FileEvent
-	internalChan    chan fsnotify.Event
-	errorChan       chan error
-	buffer          *EventBuffer
-	rateLimiter     *RateLimiter
+	config            MonitorConfig
+	watcher           *fsnotify.Watcher
+	eventChan         chan FileEvent
+	internalChan      chan fsnotify.Event
+	errorChan         chan error
+	buffer            *EventBuffer
+	rateLimiter       *RateLimiter
 	processInfoGetter ProcessInfoGetter
-	running         bool
-	mu              sync.RWMutex
-	watchedPaths    map[string]bool
-	startTime       time.Time
-	stats           MonitorStats
-	statsMu         sync.RWMutex
+	running           bool
+	mu                sync.RWMutex
+	watchedPaths      map[string]bool
+	startTime         time.Time
+	stats             MonitorStats
+	statsMu           sync.RWMutex
 }
 
 // MonitorStats 监控器统计信息
 type MonitorStats struct {
-	TotalEvents    int64     `json:"total_events"`
+	TotalEvents    int64                   `json:"total_events"`
 	EventsByType   map[FileOperation]int64 `json:"events_by_type"`
 	EventsByPath   map[string]int64        `json:"events_by_path"`
 	LastError      string                  `json:"last_error,omitempty"`
@@ -48,11 +48,11 @@ type MonitorStats struct {
 
 // EventBuffer 事件缓冲队列
 type EventBuffer struct {
-	events    []FileEvent
-	capacity  int
-	position  int
-	mu        sync.RWMutex
-	overflow  int64
+	events   []FileEvent
+	capacity int
+	position int
+	mu       sync.RWMutex
+	overflow int64
 }
 
 // RateLimiter 速率限制器
@@ -618,10 +618,10 @@ func (g *LinuxProcessInfoGetter) GetProcessInfo(filePath string) (*ProcessInfo, 
 
 	// 返回基本信息
 	return &ProcessInfo{
-		PID:   0, // 无法直接获取
-		Name:  "",
-		Path:  "",
-		User:  "",
+		PID:  0, // 无法直接获取
+		Name: "",
+		Path: "",
+		User: "",
 	}, nil
 }
 

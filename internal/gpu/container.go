@@ -10,15 +10,15 @@ import (
 // ContainerGPUConfig 容器GPU配置
 type ContainerGPUConfig struct {
 	// GPU设备分配
-	GPUIDs         []string `json:"gpuIds"`         // GPU设备ID列表
-	GPUIndices     []int    `json:"gpuIndices"`     // GPU索引列表 (如0,1)
-	GPUUUIDs       []string `json:"gpuUuids"`       // GPU UUID列表
-	GPUAll         bool     `json:"gpuAll"`         // 使用所有可用GPU
+	GPUIDs     []string `json:"gpuIds"`     // GPU设备ID列表
+	GPUIndices []int    `json:"gpuIndices"` // GPU索引列表 (如0,1)
+	GPUUUIDs   []string `json:"gpuUuids"`   // GPU UUID列表
+	GPUAll     bool     `json:"gpuAll"`     // 使用所有可用GPU
 
 	// 资源限制
-	MemoryLimit    uint64   `json:"memoryLimit"`    // 显存限制(MB), 0表示无限制
-	ComputeLimit   uint64   `json:"computeLimit"`   // 计算限制(%), 0-100, 0表示无限制
-	EnableMPS      bool     `json:"enableMps"`      // 启用MPS (Multi-Process Service)
+	MemoryLimit  uint64 `json:"memoryLimit"`  // 显存限制(MB), 0表示无限制
+	ComputeLimit uint64 `json:"computeLimit"` // 计算限制(%), 0-100, 0表示无限制
+	EnableMPS    bool   `json:"enableMps"`    // 启用MPS (Multi-Process Service)
 
 	// 设备挂载
 	DevicePaths    []string `json:"devicePaths"`    // 自定义设备路径
@@ -27,19 +27,19 @@ type ContainerGPUConfig struct {
 	IncludeModeset bool     `json:"includeModeset"` // 包含nvidia-modeset设备
 
 	// 驱动和库挂载
-	DriverVersion  string   `json:"driverVersion"`  // 驱动版本(可选)
-	CUDAVersion    string   `json:"cudaVersion"`    // CUDA版本(可选)
-	MountDriver    bool     `json:"mountDriver"`    // 挂载驱动库
-	MountCUDA      bool     `json:"mountCuda"`      // 挂载CUDA库
-	CustomLibs     []string `json:"customLibs"`     // 自定义库路径
+	DriverVersion string   `json:"driverVersion"` // 驱动版本(可选)
+	CUDAVersion   string   `json:"cudaVersion"`   // CUDA版本(可选)
+	MountDriver   bool     `json:"mountDriver"`   // 挂载驱动库
+	MountCUDA     bool     `json:"mountCuda"`     // 挂载CUDA库
+	CustomLibs    []string `json:"customLibs"`    // 自定义库路径
 
 	// 环境变量
-	EnvVars        map[string]string `json:"envVars"` // 自定义环境变量
+	EnvVars map[string]string `json:"envVars"` // 自定义环境变量
 
 	// NVIDIA Container Toolkit配置
-	NvidiaRuntime  bool     `json:"nvidiaRuntime"` // 使用nvidia运行时
-	NvidiaCDI      bool     `json:"nvidiaCdi"`     // 使用CDI规范
-	CDIAnnotation  string   `json:"cdiAnnotation"` // CDI注解
+	NvidiaRuntime bool   `json:"nvidiaRuntime"` // 使用nvidia运行时
+	NvidiaCDI     bool   `json:"nvidiaCdi"`     // 使用CDI规范
+	CDIAnnotation string `json:"cdiAnnotation"` // CDI注解
 }
 
 // DefaultContainerGPUConfig 默认容器GPU配置

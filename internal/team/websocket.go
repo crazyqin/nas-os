@@ -10,17 +10,17 @@ import (
 // Notifier 通知管理器
 type Notifier struct {
 	mu            sync.RWMutex
-	notifications map[string][]*Notification // userID -> notifications
+	notifications map[string][]*Notification               // userID -> notifications
 	subscribers   map[string]map[string]chan *Notification // userID -> clientID -> channel
-	resourceRooms map[string]map[string]bool // resourceID -> clientID set
+	resourceRooms map[string]map[string]bool               // resourceID -> clientID set
 }
 
 // NewNotifier 创建通知管理器
 func NewNotifier() *Notifier {
 	return &Notifier{
-		notifications:  make(map[string][]*Notification),
-		subscribers:    make(map[string]map[string]chan *Notification),
-		resourceRooms:  make(map[string]map[string]bool),
+		notifications: make(map[string][]*Notification),
+		subscribers:   make(map[string]map[string]chan *Notification),
+		resourceRooms: make(map[string]map[string]bool),
 	}
 }
 
@@ -29,10 +29,10 @@ func (n *Notifier) Notify(notification *Notification) {
 	if notification == nil || notification.UserID == "" {
 		return
 	}
-	
+
 	n.mu.Lock()
 	defer n.mu.Unlock()
-	
+
 	// 设置ID和时间
 	if notification.ID == "" {
 		notification.ID = generateID()
@@ -40,10 +40,10 @@ func (n *Notifier) Notify(notification *Notification) {
 	if notification.CreatedAt.IsZero() {
 		notification.CreatedAt = time.Now()
 	}
-	
+
 	// 存储通知
 	n.notifications[notification.UserID] = append(n.notifications[notification.UserID], notification)
-	
+
 	// 发送给订阅者
 	if subs, ok := n.subscribers[notification.UserID]; ok {
 		for _, ch := range subs {
@@ -60,14 +60,14 @@ func (n *Notifier) Notify(notification *Notification) {
 func (n *Notifier) Subscribe(userID, clientID string) chan *Notification {
 	n.mu.Lock()
 	defer n.mu.Unlock()
-	
+
 	ch := make(chan *Notification, 100)
-	
+
 	if n.subscribers[userID] == nil {
 		n.subscribers[userID] = make(map[string]chan *Notification)
 	}
 	n.subscribers[userID][clientID] = ch
-	
+
 	return ch
 }
 
@@ -75,7 +75,7 @@ func (n *Notifier) Subscribe(userID, clientID string) chan *Notification {
 func (n *Notifier) Unsubscribe(userID, clientID string) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
-	
+
 	if subs, ok := n.subscribers[userID]; ok {
 		if ch, ok := subs[clientID]; ok {
 			close(ch)
@@ -88,7 +88,7 @@ func (n *Notifier) Unsubscribe(userID, clientID string) {
 func (n *Notifier) JoinResource(resourceID, clientID string) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
-	
+
 	if n.resourceRooms[resourceID] == nil {
 		n.resourceRooms[resourceID] = make(map[string]bool)
 	}
@@ -99,7 +99,7 @@ func (n *Notifier) JoinResource(resourceID, clientID string) {
 func (n *Notifier) LeaveResource(resourceID, clientID string) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
-	
+
 	if room, ok := n.resourceRooms[resourceID]; ok {
 		delete(room, clientID)
 	}
@@ -109,12 +109,12 @@ func (n *Notifier) LeaveResource(resourceID, clientID string) {
 func (n *Notifier) BroadcastToResource(resourceID string, message *WSMessage) {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
-	
+
 	data, err := json.Marshal(message)
 	if err != nil {
 		return
 	}
-	
+
 	// 实际的WebSocket广播需要外部实现
 	// 这里只记录需要广播的消息
 	_ = data
@@ -124,19 +124,19 @@ func (n *Notifier) BroadcastToResource(resourceID string, message *WSMessage) {
 func (n *Notifier) GetNotifications(userID string, unreadOnly bool, limit int) []*Notification {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
-	
+
 	notifications := n.notifications[userID]
 	if notifications == nil {
 		return []*Notification{}
 	}
-	
+
 	result := make([]*Notification, 0)
 	for i := len(notifications) - 1; i >= 0 && (limit == 0 || len(result) < limit); i-- {
 		if !unreadOnly || !notifications[i].Read {
 			result = append(result, notifications[i])
 		}
 	}
-	
+
 	return result
 }
 
@@ -144,19 +144,19 @@ func (n *Notifier) GetNotifications(userID string, unreadOnly bool, limit int) [
 func (n *Notifier) MarkAsRead(userID, notificationID string) error {
 	n.mu.Lock()
 	defer n.mu.Unlock()
-	
+
 	notifications := n.notifications[userID]
 	if notifications == nil {
 		return nil
 	}
-	
+
 	for _, n := range notifications {
 		if n.ID == notificationID {
 			n.Read = true
 			return nil
 		}
 	}
-	
+
 	return nil
 }
 
@@ -164,7 +164,7 @@ func (n *Notifier) MarkAsRead(userID, notificationID string) error {
 func (n *Notifier) MarkAllAsRead(userID string) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
-	
+
 	notifications := n.notifications[userID]
 	for _, n := range notifications {
 		n.Read = true
@@ -175,7 +175,7 @@ func (n *Notifier) MarkAllAsRead(userID string) {
 func (n *Notifier) GetUnreadCount(userID string) int {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
-	
+
 	count := 0
 	notifications := n.notifications[userID]
 	for _, n := range notifications {
@@ -183,7 +183,7 @@ func (n *Notifier) GetUnreadCount(userID string) int {
 			count++
 		}
 	}
-	
+
 	return count
 }
 
@@ -191,7 +191,7 @@ func (n *Notifier) GetUnreadCount(userID string) int {
 func (n *Notifier) ClearNotifications(userID string) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
-	
+
 	delete(n.notifications, userID)
 }
 
@@ -199,11 +199,11 @@ func (n *Notifier) ClearNotifications(userID string) {
 func (n *Notifier) GetStats() map[string]interface{} {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
-	
+
 	totalNotifications := 0
 	unreadCount := 0
 	userCount := len(n.notifications)
-	
+
 	for _, notifications := range n.notifications {
 		totalNotifications += len(notifications)
 		for _, n := range notifications {
@@ -212,7 +212,7 @@ func (n *Notifier) GetStats() map[string]interface{} {
 			}
 		}
 	}
-	
+
 	return map[string]interface{}{
 		"total_notifications": totalNotifications,
 		"unread_count":        unreadCount,
@@ -223,24 +223,24 @@ func (n *Notifier) GetStats() map[string]interface{} {
 
 // WebSocketHub WebSocket连接管理中心
 type WebSocketHub struct {
-	mu            sync.RWMutex
-	connections   map[string]*WSConnection // clientID -> connection
-	userClients   map[string]map[string]bool // userID -> clientID set
-	broadcast     chan *WSBroadcast
-	register      chan *WSConnection
-	unregister    chan *WSConnection
-	stopChan      chan struct{}
-	running       bool
+	mu          sync.RWMutex
+	connections map[string]*WSConnection   // clientID -> connection
+	userClients map[string]map[string]bool // userID -> clientID set
+	broadcast   chan *WSBroadcast
+	register    chan *WSConnection
+	unregister  chan *WSConnection
+	stopChan    chan struct{}
+	running     bool
 }
 
 // WSConnection WebSocket连接
 type WSConnection struct {
-	ClientID  string
-	UserID    string
-	Username  string
-	TeamID    string
+	ClientID   string
+	UserID     string
+	Username   string
+	TeamID     string
 	ResourceID string
-	send      chan []byte
+	send       chan []byte
 }
 
 // WSBroadcast 广播消息
@@ -268,7 +268,7 @@ func (h *WebSocketHub) Run() {
 	h.mu.Lock()
 	h.running = true
 	h.mu.Unlock()
-	
+
 	for {
 		select {
 		case conn := <-h.register:
@@ -279,7 +279,7 @@ func (h *WebSocketHub) Run() {
 			}
 			h.userClients[conn.UserID][conn.ClientID] = true
 			h.mu.Unlock()
-			
+
 		case conn := <-h.unregister:
 			h.mu.Lock()
 			if _, ok := h.connections[conn.ClientID]; ok {
@@ -290,7 +290,7 @@ func (h *WebSocketHub) Run() {
 				close(conn.send)
 			}
 			h.mu.Unlock()
-			
+
 		case msg := <-h.broadcast:
 			h.mu.RLock()
 			for _, conn := range h.connections {
@@ -302,11 +302,11 @@ func (h *WebSocketHub) Run() {
 						break
 					}
 				}
-				
+
 				if excluded {
 					continue
 				}
-				
+
 				// 检查是否在目标房间
 				if msg.TeamID != "" && conn.TeamID != msg.TeamID {
 					continue
@@ -314,7 +314,7 @@ func (h *WebSocketHub) Run() {
 				if msg.ResourceID != "" && conn.ResourceID != msg.ResourceID {
 					continue
 				}
-				
+
 				select {
 				case conn.send <- msg.Message:
 				default:
@@ -322,7 +322,7 @@ func (h *WebSocketHub) Run() {
 				}
 			}
 			h.mu.RUnlock()
-			
+
 		case <-h.stopChan:
 			return
 		}
@@ -334,7 +334,7 @@ func (h *WebSocketHub) Stop() {
 	h.mu.Lock()
 	h.running = false
 	h.mu.Unlock()
-	
+
 	close(h.stopChan)
 }
 
@@ -362,7 +362,7 @@ func (h *WebSocketHub) Broadcast(teamID, resourceID string, message []byte, excl
 func (h *WebSocketHub) SendToUser(userID string, message []byte) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
-	
+
 	clients := h.userClients[userID]
 	for clientID := range clients {
 		if conn, ok := h.connections[clientID]; ok {
@@ -378,14 +378,14 @@ func (h *WebSocketHub) SendToUser(userID string, message []byte) {
 func (h *WebSocketHub) GetOnlineUsers(teamID string) []string {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
-	
+
 	users := make(map[string]bool)
 	for _, conn := range h.connections {
 		if teamID == "" || conn.TeamID == teamID {
 			users[conn.UserID] = true
 		}
 	}
-	
+
 	result := make([]string, 0, len(users))
 	for userID := range users {
 		result = append(result, userID)
@@ -404,7 +404,7 @@ func (h *WebSocketHub) GetConnectionCount() int {
 func (h *WebSocketHub) IsOnline(userID string) bool {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
-	
+
 	clients := h.userClients[userID]
 	return len(clients) > 0
 }

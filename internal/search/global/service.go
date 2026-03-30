@@ -12,13 +12,13 @@ import (
 
 // SearchResult 搜索结果
 type SearchResult struct {
-	Type     string    // 结果类型 (page/setting/file/log)
-	Title    string    // 标题
-	Path     string    // 路径/URL
-	Snippet  string    // 摘要片段
-	Score    float64   // 搜索分数
-	Icon     string    // 图标
-	LastMod  time.Time // 最后修改时间
+	Type    string    // 结果类型 (page/setting/file/log)
+	Title   string    // 标题
+	Path    string    // 路径/URL
+	Snippet string    // 摘要片段
+	Score   float64   // 搜索分数
+	Icon    string    // 图标
+	LastMod time.Time // 最后修改时间
 }
 
 // IndexItem 索引项
@@ -44,7 +44,7 @@ type GlobalSearchService struct {
 func NewGlobalSearchService(indexPath string) (*GlobalSearchService, error) {
 	// 开发阶段使用内存索引
 	// 生产环境集成Bleve
-	
+
 	return &GlobalSearchService{
 		indices:   make(map[string]*IndexItem),
 		indexPath: indexPath,
@@ -55,11 +55,11 @@ func NewGlobalSearchService(indexPath string) (*GlobalSearchService, error) {
 func (s *GlobalSearchService) Search(ctx context.Context, query string, limit int) ([]SearchResult, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	// 简化搜索实现 (开发阶段)
 	// 生产环境使用Bleve全文搜索
 	results := make([]SearchResult, 0)
-	
+
 	queryLower := strings.ToLower(query)
 	for _, item := range s.indices {
 		// 匹配标题或内容
@@ -74,12 +74,12 @@ func (s *GlobalSearchService) Search(ctx context.Context, query string, limit in
 			})
 		}
 	}
-	
+
 	// 限制结果数量
 	if len(results) > limit {
 		results = results[:limit]
 	}
-	
+
 	return results, nil
 }
 
@@ -89,7 +89,7 @@ func (s *GlobalSearchService) SearchByType(ctx context.Context, query string, ty
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 过滤类型
 	filtered := make([]SearchResult, 0)
 	for _, r := range allResults {
@@ -97,11 +97,11 @@ func (s *GlobalSearchService) SearchByType(ctx context.Context, query string, ty
 			filtered = append(filtered, r)
 		}
 	}
-	
+
 	if len(filtered) > limit {
 		filtered = filtered[:limit]
 	}
-	
+
 	return filtered, nil
 }
 
@@ -114,7 +114,7 @@ func (s *GlobalSearchService) QuickSearch(ctx context.Context, query string) ([]
 func (s *GlobalSearchService) IndexPage(ctx context.Context, id, title, path, content string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	item := &IndexItem{
 		ID:      "page:" + id,
 		Type:    "page",
@@ -131,7 +131,7 @@ func (s *GlobalSearchService) IndexPage(ctx context.Context, id, title, path, co
 func (s *GlobalSearchService) IndexSetting(ctx context.Context, id, title, path, description string, keywords []string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	item := &IndexItem{
 		ID:       "setting:" + id,
 		Type:     "setting",
@@ -149,7 +149,7 @@ func (s *GlobalSearchService) IndexSetting(ctx context.Context, id, title, path,
 func (s *GlobalSearchService) IndexFile(ctx context.Context, path, content string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	item := &IndexItem{
 		ID:      "file:" + path,
 		Type:    "file",
@@ -166,7 +166,7 @@ func (s *GlobalSearchService) IndexFile(ctx context.Context, path, content strin
 func (s *GlobalSearchService) IndexLog(ctx context.Context, id, content string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	item := &IndexItem{
 		ID:      "log:" + id,
 		Type:    "log",
@@ -213,16 +213,16 @@ func (s *GlobalSearchService) Close() error {
 func (s *GlobalSearchService) Suggestions(ctx context.Context, prefix string) []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	suggestions := make([]string, 0)
 	prefixLower := strings.ToLower(prefix)
-	
+
 	for _, item := range s.indices {
 		if strings.HasPrefix(strings.ToLower(item.Title), prefixLower) {
 			suggestions = append(suggestions, item.Title)
 		}
 	}
-	
+
 	return suggestions
 }
 
@@ -252,9 +252,9 @@ func contains(list []string, item string) bool {
 
 // KeyboardShortcut 快捷键配置
 type KeyboardShortcut struct {
-	Key      string // Cmd/Ctrl + K
-	Action   string // open_search
-	Enabled  bool
+	Key     string // Cmd/Ctrl + K
+	Action  string // open_search
+	Enabled bool
 }
 
 // DefaultShortcut 默认快捷键

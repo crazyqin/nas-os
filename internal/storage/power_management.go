@@ -13,20 +13,20 @@ import (
 type PowerState string
 
 const (
-	PowerStateActive   PowerState = "active"   // Disk is active
-	PowerStateIdle     PowerState = "idle"     // Disk is idle
-	PowerStateStandby  PowerState = "standby"  // Disk in standby
-	PowerStateSleep    PowerState = "sleep"    // Disk in sleep mode
-	PowerStateUnknown  PowerState = "unknown"  // State unknown
+	PowerStateActive  PowerState = "active"  // Disk is active
+	PowerStateIdle    PowerState = "idle"    // Disk is idle
+	PowerStateStandby PowerState = "standby" // Disk in standby
+	PowerStateSleep   PowerState = "sleep"   // Disk in sleep mode
+	PowerStateUnknown PowerState = "unknown" // State unknown
 )
 
 // PowerConfig holds power management configuration.
 type PowerConfig struct {
-	IdleTimeout      time.Duration `yaml:"idle_timeout"`      // Time before idle -> standby
-	StandbyTimeout   time.Duration `yaml:"standby_timeout"`   // Time before standby -> sleep
-	WakeupOnAccess   bool          `yaml:"wakeup_on_access"`  // Wake disk on access
+	IdleTimeout      time.Duration `yaml:"idle_timeout"`       // Time before idle -> standby
+	StandbyTimeout   time.Duration `yaml:"standby_timeout"`    // Time before standby -> sleep
+	WakeupOnAccess   bool          `yaml:"wakeup_on_access"`   // Wake disk on access
 	SmartPredictLife bool          `yaml:"smart_predict_life"` // Enable SMART lifespan prediction
-	MaxPowerCycles   int           `yaml:"max_power_cycles"`  // Max cycles per day (protect disk)
+	MaxPowerCycles   int           `yaml:"max_power_cycles"`   // Max cycles per day (protect disk)
 }
 
 // DiskPowerStatus represents power status of a disk.
@@ -72,7 +72,7 @@ func (pm *PowerManager) Stop() {
 func (pm *PowerManager) RegisterDisk(device string) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
-	
+
 	pm.statuses[device] = &DiskPowerStatus{
 		Device:         device,
 		State:          PowerStateActive,
@@ -88,7 +88,7 @@ func (pm *PowerManager) RegisterDisk(device string) {
 func (pm *PowerManager) GetStatus(device string) (*DiskPowerStatus, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
-	
+
 	status, ok := pm.statuses[device]
 	if !ok {
 		return nil, fmt.Errorf("disk %s not registered", device)
@@ -100,7 +100,7 @@ func (pm *PowerManager) GetStatus(device string) (*DiskPowerStatus, error) {
 func (pm *PowerManager) GetAllStatuses() []*DiskPowerStatus {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
-	
+
 	result := make([]*DiskPowerStatus, 0, len(pm.statuses))
 	for _, status := range pm.statuses {
 		result = append(result, status)
@@ -112,17 +112,17 @@ func (pm *PowerManager) GetAllStatuses() []*DiskPowerStatus {
 func (pm *PowerManager) WakeDisk(device string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
-	
+
 	status, ok := pm.statuses[device]
 	if !ok {
 		return fmt.Errorf("disk %s not registered", device)
 	}
-	
+
 	// Check power cycle limit
 	if status.PowerCycles >= pm.config.MaxPowerCycles && pm.config.MaxPowerCycles > 0 {
 		return fmt.Errorf("disk %s exceeded max power cycles today", device)
 	}
-	
+
 	// Transition to active
 	if status.State != PowerStateActive {
 		status.State = PowerStateActive
@@ -130,7 +130,7 @@ func (pm *PowerManager) WakeDisk(device string) error {
 		status.PowerCycles++
 	}
 	status.LastActive = time.Now()
-	
+
 	return nil
 }
 
@@ -138,12 +138,12 @@ func (pm *PowerManager) WakeDisk(device string) error {
 func (pm *PowerManager) SetIdle(device string) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
-	
+
 	status, ok := pm.statuses[device]
 	if !ok {
 		return
 	}
-	
+
 	if status.State == PowerStateActive {
 		status.State = PowerStateIdle
 		status.LastTransition = time.Now()
@@ -154,7 +154,7 @@ func (pm *PowerManager) SetIdle(device string) {
 func (pm *PowerManager) monitorLoop(ctx context.Context) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -171,24 +171,24 @@ func (pm *PowerManager) monitorLoop(ctx context.Context) {
 func (pm *PowerManager) checkTransitions() {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
-	
+
 	now := time.Now()
-	
+
 	for _, status := range pm.statuses {
 		idleDuration := now.Sub(status.LastActive)
-		
+
 		// Active -> Idle (immediate)
 		if status.State == PowerStateActive && idleDuration > 10*time.Second {
 			status.State = PowerStateIdle
 			status.LastTransition = now
 		}
-		
+
 		// Idle -> Standby
 		if status.State == PowerStateIdle && idleDuration > pm.config.IdleTimeout {
 			status.State = PowerStateStandby
 			status.LastTransition = now
 		}
-		
+
 		// Standby -> Sleep
 		if status.State == PowerStateStandby && idleDuration > pm.config.StandbyTimeout {
 			status.State = PowerStateSleep
@@ -201,12 +201,12 @@ func (pm *PowerManager) checkTransitions() {
 func (pm *PowerManager) UpdateSMARTData(device string, lifeDays int, healthScore int) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
-	
+
 	status, ok := pm.statuses[device]
 	if !ok {
 		return
 	}
-	
+
 	status.EstimatedLife = lifeDays
 	status.HealthScore = healthScore
 }
@@ -215,18 +215,18 @@ func (pm *PowerManager) UpdateSMARTData(device string, lifeDays int, healthScore
 func (pm *PowerManager) CalculatePowerCost(device string, activeWatts int, sleepWatts int, costPerKWh float64) float64 {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
-	
+
 	status, ok := pm.statuses[device]
 	if !ok {
 		return 0
 	}
-	
+
 	// Calculate time in each state (simplified)
 	sleepHours := float64(time.Since(status.LastActive).Hours())
 	if sleepHours < 0 {
 		sleepHours = 0
 	}
-	
+
 	// Power savings: (activeWatts - sleepWatts) * sleepHours / 1000 * costPerKWh
 	savings := float64(activeWatts-sleepWatts) * sleepHours / 1000.0 * costPerKWh
 	return savings

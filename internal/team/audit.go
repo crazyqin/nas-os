@@ -27,12 +27,12 @@ func NewAuditLogger(configPath string) *AuditLogger {
 		maxLogs:    100000, // 默认保留10万条日志
 		stopChan:   make(chan struct{}),
 	}
-	
+
 	// 加载配置
 	if configPath != "" {
 		al.loadConfig()
 	}
-	
+
 	return al
 }
 
@@ -42,12 +42,12 @@ func (al *AuditLogger) loadConfig() error {
 	if _, err := os.Stat(logPath); os.IsNotExist(err) {
 		return nil
 	}
-	
+
 	data, err := os.ReadFile(logPath)
 	if err != nil {
 		return err
 	}
-	
+
 	return json.Unmarshal(data, &al.logs)
 }
 
@@ -56,17 +56,17 @@ func (al *AuditLogger) saveConfig() error {
 	if al.configPath == "" {
 		return nil
 	}
-	
+
 	if err := os.MkdirAll(al.configPath, 0750); err != nil {
 		return err
 	}
-	
+
 	logPath := filepath.Join(al.configPath, "team_audit.json")
 	data, err := json.MarshalIndent(al.logs, "", "  ")
 	if err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(logPath, data, 0600)
 }
 
@@ -75,10 +75,10 @@ func (al *AuditLogger) Log(entry *TeamAuditLog) {
 	if entry == nil {
 		return
 	}
-	
+
 	al.mu.Lock()
 	defer al.mu.Unlock()
-	
+
 	// 设置ID和时间戳
 	if entry.ID == "" {
 		entry.ID = generateID()
@@ -86,17 +86,17 @@ func (al *AuditLogger) Log(entry *TeamAuditLog) {
 	if entry.Timestamp.IsZero() {
 		entry.Timestamp = time.Now()
 	}
-	
+
 	// 添加日志
 	al.logs = append(al.logs, entry)
-	
+
 	// 检查是否需要清理
 	if len(al.logs) > al.maxLogs {
 		// 保留后90%
 		keepCount := int(float64(al.maxLogs) * 0.9)
 		al.logs = al.logs[len(al.logs)-keepCount:]
 	}
-	
+
 	// 异步保存
 	go al.saveConfig()
 }
@@ -105,9 +105,9 @@ func (al *AuditLogger) Log(entry *TeamAuditLog) {
 func (al *AuditLogger) Query(options AuditQueryOptions) []*TeamAuditLog {
 	al.mu.RLock()
 	defer al.mu.RUnlock()
-	
+
 	results := make([]*TeamAuditLog, 0)
-	
+
 	for _, log := range al.logs {
 		// 应用过滤条件
 		if options.TeamID != "" && log.TeamID != options.TeamID {
@@ -131,10 +131,10 @@ func (al *AuditLogger) Query(options AuditQueryOptions) []*TeamAuditLog {
 		if options.EndTime != nil && log.Timestamp.After(*options.EndTime) {
 			continue
 		}
-		
+
 		results = append(results, log)
 	}
-	
+
 	// 应用分页
 	if options.Offset > 0 && options.Offset < len(results) {
 		results = results[options.Offset:]
@@ -142,7 +142,7 @@ func (al *AuditLogger) Query(options AuditQueryOptions) []*TeamAuditLog {
 	if options.Limit > 0 && len(results) > options.Limit {
 		results = results[:options.Limit]
 	}
-	
+
 	return results
 }
 
@@ -175,7 +175,7 @@ func (al *AuditLogger) GetResourceLogs(resourceType, resourceID string, limit in
 func (al *AuditLogger) GetStats() map[string]interface{} {
 	al.mu.RLock()
 	defer al.mu.RUnlock()
-	
+
 	// 按操作类型统计
 	actionCounts := make(map[TeamAuditAction]int)
 	// 按用户统计
@@ -183,7 +183,7 @@ func (al *AuditLogger) GetStats() map[string]interface{} {
 	// 今日统计
 	today := time.Now().Truncate(24 * time.Hour)
 	todayCount := 0
-	
+
 	for _, log := range al.logs {
 		actionCounts[log.Action]++
 		if log.UserID != "" {
@@ -193,7 +193,7 @@ func (al *AuditLogger) GetStats() map[string]interface{} {
 			todayCount++
 		}
 	}
-	
+
 	// 最近活跃用户
 	topUsers := make([]map[string]interface{}, 0)
 	for userID, count := range userCounts {
@@ -204,7 +204,7 @@ func (al *AuditLogger) GetStats() map[string]interface{} {
 			})
 		}
 	}
-	
+
 	return map[string]interface{}{
 		"total_logs":    len(al.logs),
 		"today_logs":    todayCount,
@@ -216,7 +216,7 @@ func (al *AuditLogger) GetStats() map[string]interface{} {
 // Export 导出审计日志
 func (al *AuditLogger) Export(options AuditQueryOptions, format string) ([]byte, error) {
 	logs := al.Query(options)
-	
+
 	switch format {
 	case "json":
 		return json.MarshalIndent(logs, "", "  ")
@@ -240,11 +240,11 @@ func (al *AuditLogger) Export(options AuditQueryOptions, format string) ([]byte,
 func (al *AuditLogger) CleanOldLogs(retentionDays int) int {
 	al.mu.Lock()
 	defer al.mu.Unlock()
-	
+
 	cutoff := time.Now().AddDate(0, 0, -retentionDays)
 	newLogs := make([]*TeamAuditLog, 0)
 	removed := 0
-	
+
 	for _, log := range al.logs {
 		if log.Timestamp.After(cutoff) {
 			newLogs = append(newLogs, log)
@@ -252,10 +252,10 @@ func (al *AuditLogger) CleanOldLogs(retentionDays int) int {
 			removed++
 		}
 	}
-	
+
 	al.logs = newLogs
 	al.saveConfig()
-	
+
 	return removed
 }
 
@@ -263,9 +263,9 @@ func (al *AuditLogger) CleanOldLogs(retentionDays int) int {
 func (al *AuditLogger) GetActionGroups(teamID string, startTime, endTime time.Time) map[string]int {
 	al.mu.RLock()
 	defer al.mu.RUnlock()
-	
+
 	groups := make(map[string]int)
-	
+
 	for _, log := range al.logs {
 		if teamID != "" && log.TeamID != teamID {
 			continue
@@ -276,7 +276,7 @@ func (al *AuditLogger) GetActionGroups(teamID string, startTime, endTime time.Ti
 		if !endTime.IsZero() && log.Timestamp.After(endTime) {
 			continue
 		}
-		
+
 		// 分组
 		var group string
 		switch log.Action {
@@ -296,10 +296,10 @@ func (al *AuditLogger) GetActionGroups(teamID string, startTime, endTime time.Ti
 		default:
 			group = "其他"
 		}
-		
+
 		groups[group]++
 	}
-	
+
 	return groups
 }
 
@@ -307,7 +307,7 @@ func (al *AuditLogger) GetActionGroups(teamID string, startTime, endTime time.Ti
 func (al *AuditLogger) GetDailyStats(days int) []map[string]interface{} {
 	al.mu.RLock()
 	defer al.mu.RUnlock()
-	
+
 	// 初始化每日统计
 	now := time.Now()
 	dailyStats := make([]map[string]interface{}, days)
@@ -318,7 +318,7 @@ func (al *AuditLogger) GetDailyStats(days int) []map[string]interface{} {
 			"count": 0,
 		}
 	}
-	
+
 	// 统计每日日志数
 	for _, log := range al.logs {
 		for i, stat := range dailyStats {
@@ -330,6 +330,6 @@ func (al *AuditLogger) GetDailyStats(days int) []map[string]interface{} {
 			}
 		}
 	}
-	
+
 	return dailyStats
 }

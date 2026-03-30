@@ -48,7 +48,7 @@ type TargetSysManager struct {
 	config *pkgnvmeof.NVMeOFConfig
 
 	// 已分配的端口 ID
-	portIDs map[int]bool
+	portIDs    map[int]bool
 	nextPortID int
 
 	// 运行状态
@@ -138,7 +138,7 @@ func (m *TargetSysManager) loadExistingConfig() {
 	}
 
 	// 读取已存在的端口
- portsDir, err := os.ReadDir(NVMetPortsPath)
+	portsDir, err := os.ReadDir(NVMetPortsPath)
 	if err == nil {
 		for _, entry := range portsDir {
 			if entry.IsDir() {
@@ -255,7 +255,7 @@ func (m *TargetSysManager) deleteSubsystemFromKernel(nqn string, force bool) err
 	}
 
 	// 删除允许的主机
- hostsDir, err := os.ReadDir(filepath.Join(subsysPath, NVMetHostsPath))
+	hostsDir, err := os.ReadDir(filepath.Join(subsysPath, NVMetHostsPath))
 	if err == nil {
 		for _, entry := range hostsDir {
 			_ = os.Remove(filepath.Join(subsysPath, NVMetHostsPath, entry.Name()))
@@ -446,7 +446,7 @@ func (m *TargetSysManager) DeleteListener(ctx context.Context, subsystemNQN stri
 
 // deleteListenerFromKernel 从内核删除监听器
 func (m *TargetSysManager) deleteListenerFromKernel(subsystemNQN string, listenerID string) error {
- portsDir, err := os.ReadDir(NVMetPortsPath)
+	portsDir, err := os.ReadDir(NVMetPortsPath)
 	if err != nil {
 		return nil
 	}

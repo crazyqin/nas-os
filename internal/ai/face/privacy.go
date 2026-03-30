@@ -73,7 +73,7 @@ func (pm *PrivacyManager) Initialize() error {
 // RequestConsent 请求用户知情同意
 func (pm *PrivacyManager) RequestConsent(userID string) (*ConsentInfo, error) {
 	info := &ConsentInfo{
-		Title:    "人脸识别功能知情同意",
+		Title: "人脸识别功能知情同意",
 		Content: `您即将启用人脸识别功能。请注意：
 
 1. 人脸数据仅存储在您的本地NAS设备上，不会上传到任何云端服务。
@@ -135,10 +135,10 @@ func (pm *PrivacyManager) ExportData(ctx context.Context, userID string) (*Expor
 
 	// 收集人脸数据
 	exportData := &FaceExportData{
-		UserID:    userID,
+		UserID:     userID,
 		ExportTime: time.Now(),
-		Faces:     []FaceRecord{},
-		Clusters:  []ClusterRecord{},
+		Faces:      []FaceRecord{},
+		Clusters:   []ClusterRecord{},
 	}
 
 	// TODO: 实际从存储中读取人脸数据
@@ -175,31 +175,31 @@ func (pm *PrivacyManager) GetPrivacyPolicy() *PrivacyPolicy {
 		Title: "人脸识别隐私政策",
 		Sections: []PolicySection{
 			{
-				Title: "数据存储",
+				Title:   "数据存储",
 				Content: "所有人脸数据仅存储在您的本地NAS设备上，不会上传到任何云端服务。",
 			},
 			{
-				Title: "数据用途",
+				Title:   "数据用途",
 				Content: "人脸数据仅用于自动识别和分类照片中的人物，不会用于其他目的。",
 			},
 			{
-				Title: "数据删除",
+				Title:   "数据删除",
 				Content: "您可以随时删除所有人脸数据，删除后数据将不可恢复。",
 			},
 			{
-				Title: "数据导出",
+				Title:   "数据导出",
 				Content: "您可以导出人脸数据用于备份，导出数据请妥善保管。",
 			},
 			{
-				Title: "数据共享",
+				Title:   "数据共享",
 				Content: "本功能不会与任何第三方服务共享您的数据。",
 			},
 			{
-				Title: "数据加密",
+				Title:   "数据加密",
 				Content: "人脸特征向量采用加密存储，保障数据安全。",
 			},
 		},
-		Version: DefaultPrivacyConfig.ConsentVersion,
+		Version:   DefaultPrivacyConfig.ConsentVersion,
 		UpdatedAt: time.Now(),
 	}
 }
@@ -230,16 +230,16 @@ func (pm *PrivacyManager) saveConsents() error {
 
 // 类型定义
 type ConsentInfo struct {
-	Title    string `json:"title"`
-	Content  string `json:"content"`
-	Version  string `json:"version"`
-	Purpose  string `json:"purpose"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Version string `json:"version"`
+	Purpose string `json:"purpose"`
 }
 
 type FaceExportData struct {
-	UserID     string         `json:"userId"`
-	ExportTime time.Time      `json:"exportTime"`
-	Faces      []FaceRecord   `json:"faces"`
+	UserID     string          `json:"userId"`
+	ExportTime time.Time       `json:"exportTime"`
+	Faces      []FaceRecord    `json:"faces"`
 	Clusters   []ClusterRecord `json:"clusters"`
 }
 
@@ -250,9 +250,9 @@ type FaceRecord struct {
 }
 
 type ClusterRecord struct {
-	ID        string   `json:"id"`
-	Label     string   `json:"label"`
-	FaceIDs   []string `json:"faceIds"`
+	ID      string   `json:"id"`
+	Label   string   `json:"label"`
+	FaceIDs []string `json:"faceIds"`
 }
 
 type ExportResult struct {
@@ -263,10 +263,10 @@ type ExportResult struct {
 }
 
 type PrivacyPolicy struct {
-	Title     string         `json:"title"`
+	Title     string          `json:"title"`
 	Sections  []PolicySection `json:"sections"`
-	Version   string         `json:"version"`
-	UpdatedAt time.Time      `json:"updatedAt"`
+	Version   string          `json:"version"`
+	UpdatedAt time.Time       `json:"updatedAt"`
 }
 
 type PolicySection struct {

@@ -32,11 +32,11 @@ func NewTemplateParser() *TemplateParser {
 			"join":     strings.Join,
 
 			// 数值处理
-			"add":      func(a, b int) int { return a + b },
-			"sub":      func(a, b int) int { return a - b },
-			"mul":      func(a, b int) int { return a * b },
-			"div":      func(a, b int) int { return a / b },
-			"default":  func(def, val interface{}) interface{} {
+			"add": func(a, b int) int { return a + b },
+			"sub": func(a, b int) int { return a - b },
+			"mul": func(a, b int) int { return a * b },
+			"div": func(a, b int) int { return a / b },
+			"default": func(def, val interface{}) interface{} {
 				if val == nil || val == "" || val == 0 {
 					return def
 				}
@@ -88,28 +88,28 @@ func (p *TemplateParser) ParseYAML(data []byte) (*Template, error) {
 // ComposeRenderData Compose模板渲染数据
 type ComposeRenderData struct {
 	// 基本信息
-	AppID      string            `json:"appId"`
-	AppName    string            `json:"appName"`
-	TemplateID string            `json:"templateId"`
+	AppID      string `json:"appId"`
+	AppName    string `json:"appName"`
+	TemplateID string `json:"templateId"`
 
 	// 用户自定义端口
-	Ports      map[string]int    `json:"ports"`      // name -> hostPort
+	Ports map[string]int `json:"ports"` // name -> hostPort
 
 	// 用户自定义卷路径
-	Volumes    map[string]string `json:"volumes"`    // name -> hostPath
+	Volumes map[string]string `json:"volumes"` // name -> hostPath
 
 	// 用户自定义环境变量
-	Env        map[string]string `json:"env"`        // key -> value
+	Env map[string]string `json:"env"` // key -> value
 
 	// 资源限制
-	CPU        string            `json:"cpu"`        // CPU限制
-	Memory     string            `json:"memory"`     // 内存限制
+	CPU    string `json:"cpu"`    // CPU限制
+	Memory string `json:"memory"` // 内存限制
 
 	// 网络设置
-	Network    string            `json:"network"`    // 网络名称
+	Network string `json:"network"` // 网络名称
 
 	// 其他自定义字段
-	Custom     map[string]interface{} `json:"custom"`
+	Custom map[string]interface{} `json:"custom"`
 }
 
 // RenderCompose 渲染Compose模板（使用模板引擎）

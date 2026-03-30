@@ -1,113 +1,75 @@
 {
-  "version": "v2.324.0",
-  "nextVersion": "v2.325.0",
-  "round": 102,
-  "date": "2026-03-30",
-  "timestamp": "2026-03-30T11:53:00+08:00",
-  "status": "planning",
-  "actions": {
-    "ci-cd": "pending",
-    "security-scan": "pending",
-    "compatibility-check": "pending"
+  "version": "v2.333.0",
+  "nextVersion": "v2.334.0",
+  "round": 109,
+  "date": "2026-03-31",
+  "timestamp": "2026-03-31T06:55:00+08:00",
+  "status": "dispatching",
+  "competitive_learning": {
+    "truenas_24_10": {
+      "raidz_expansion": "单盘扩展RAIDZ vdev，无需重建池",
+      "docker_compose": "从Kubernetes切换到Docker Compose，简化应用管理",
+      "fast_dedup": "内存优化重复数据删除",
+      "global_search": "全局文件搜索UI",
+      "nvme_smart": "NVMe固态硬盘健康监控"
+    },
+    "synology_dsm_73": {
+      "tiering": "热数据SSD/冷数据HDD自动迁移",
+      "ai_console": "本地敏感信息脱敏",
+      "drive_40": "共享标签、文件锁定、文件请求",
+      "ai_office": "智能内容生成、摘要、翻译",
+      "private_ai": "本地LLM支持，OpenAI兼容API"
+    },
+    "fnOS_11": {
+      "cloud_mount": "115/夸克/123/OneDrive/百度网盘原生挂载",
+      "ai_face": "Intel核显加速人脸识别",
+      "fn_connect": "免费内网穿透",
+      "qwrt_router": "NAS一键软路由",
+      "cloudflare_tunnel": "无需开放端口远程访问"
+    }
   },
   "ministries": {
     "兵部": {
-      "task": "GPU容器调度优化 + GPU Passthrough增强",
+      "task": "RAIDZ扩容API设计 + 测试覆盖率提升",
       "status": "pending",
       "priority": "P0",
-      "context": "参考TrueNAS 25.10 GPU Sharing功能，实现nas-os容器GPU共享调度；支持NVIDIA GPU挂载和资源限制"
-    },
-    "户部": {
-      "task": "存储配额告警系统 + 容量预测增强",
-      "status": "pending",
-      "priority": "P1",
-      "context": "实现存储配额告警系统，支持阈值设置和自动通知；增强容量预测功能"
-    },
-    "礼部": {
-      "task": "Webshare UI重构 + 响应式设计优化",
-      "status": "pending",
-      "priority": "P1",
-      "context": "参考TrueNAS Webshare设计，重构文件分享UI；优化移动端响应式体验"
+      "learning_from": "TrueNAS 24.10 RAIDZ Expansion"
     },
     "工部": {
-      "task": "Docker Compose增强 + App Catalog完善",
+      "task": "CI/CD检查 + Docker构建验证 + 内网穿透研究",
       "status": "pending",
       "priority": "P0",
-      "context": "增强Docker Compose管理，支持多容器编排；完善App Catalog应用商店"
+      "learning_from": "fnOS FN Connect"
     },
-    "吏部": {
-      "task": "版本更新v2.324.0 + 发行说明",
+    "礼部": {
+      "task": "Webshare UI文档 + 竞品分析更新",
       "status": "pending",
-      "priority": "P0",
-      "context": "更新版本号到v2.324.0，编写完整发行说明"
+      "priority": "P1",
+      "learning_from": "TrueNAS Webshare"
     },
     "刑部": {
-      "task": "SMB安全增强 + 限流优化",
+      "task": "安全审计 + gosec扫描 + SMB安全检查",
       "status": "pending",
       "priority": "P0",
-      "context": "增强SMB安全配置，支持IP白名单/黑名单；优化登录限流机制"
+      "learning_from": "TrueNAS 26勒索软件检测"
+    },
+    "户部": {
+      "task": "存储配额告警系统设计 + 成本分析",
+      "status": "pending",
+      "priority": "P1",
+      "learning_from": "TrueNAS Dashboard"
+    },
+    "吏部": {
+      "task": "版本号更新v2.334.0 + 第109轮协调报告",
+      "status": "pending",
+      "priority": "P0",
+      "learning_from": "版本管理最佳实践"
     }
   },
-  "competitive_insights": {
-    "truenas_25_10": {
-      "new_features": [
-        "TrueNAS Connect云管理",
-        "Multi-Systems管理控制台",
-        "Single Sign-On (SSO)",
-        "Fleet & Replication Management",
-        "App Catalogs增强",
-        "Docker Compose支持",
-        "GPU Sharing",
-        "SMB Multichannel",
-        "RDMA for iSCSI/NFS",
-        "RAID-Z Expansion",
-        "ZFS混合池支持"
-      ],
-      "learnings": [
-        "云管理平台集成",
-        "GPU资源虚拟化",
-        "多系统统一管理",
-        "应用商店生态"
-      ]
-    },
-    "truenas_26": {
-      "new_features": [
-        "Webshare with TrueSearch",
-        "Ransomware Defense增强",
-        "LXC Containers HA",
-        "SMB Stateful Failover",
-        "OpenZFS 2.4"
-      ]
-    },
-    "synology_dsm": {
-      "features": [
-        "SHR混合存储",
-        "自动热备替换",
-        "数据压缩(节省30%)",
-        "快照自动保护",
-        "加密密钥KMIP"
-      ],
-      "learnings": [
-        "混合存储池设计",
-        "自动容错机制",
-        "配额与告警系统"
-      ]
-    },
-    "feiniu_fnOS": {
-      "features": [
-        "轻量级NAS系统",
-        "Docker容器支持",
-        "SMB/NFS共享"
-      ]
-    }
-  },
-  "nextPriorities": [
-    "🔴 P0: GPU容器调度优化（兵部）",
-    "🔴 P0: Docker Compose增强（工部）",
-    "🔴 P0: SMB安全增强（刑部）",
-    "🟡 P1: 存储配额告警（户部）",
-    "🟡 P1: Webshare UI重构（礼部）"
-  ],
   "轮值顺序": "兵部 → 户部 → 礼部 → 工部 → 吏部 → 刑部 → (循环)",
-  "当前轮值": "兵部"
+  "当前轮值": "兵部",
+  "github_actions_status": {
+    "in_progress": ["Docker Publish v2.333.0", "Staged Release v2.333.0"],
+    "completed_success": ["CI/CD", "Compatibility Check", "Security Scan", "GitHub Release"]
+  }
 }

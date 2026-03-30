@@ -117,23 +117,23 @@ type EditOperation struct {
 
 // Album 相册
 type Album struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Description  string        `json:"description"`
-	UserID       string        `json:"userId"`
-	CoverPhotoID string        `json:"coverPhotoId"`
-	PhotoCount   int           `json:"photoCount"`
-	IsShared     bool          `json:"isShared"`
-	IsFavorite   bool          `json:"isFavorite"`
-	CreatedAt    time.Time     `json:"createdAt"`
-	UpdatedAt    time.Time     `json:"updatedAt"`
-	PhotoIDs     []string      `json:"photoIds,omitempty"` // 照片ID列表（智能相册使用）
-	Rules        []SmartAlbumRule `json:"rules,omitempty"` // 智能相册规则
-	MatchMode    string        `json:"matchMode,omitempty"` // 智能相册匹配模式（all/any）
-	SharedWith   []ShareTarget `json:"sharedWith,omitempty"`
-	Tags         []string      `json:"tags"`
-	Location     string        `json:"location,omitempty"`
-	ParentID     string        `json:"parentId,omitempty"` // 父相册 ID（支持嵌套相册）
+	ID           string           `json:"id"`
+	Name         string           `json:"name"`
+	Description  string           `json:"description"`
+	UserID       string           `json:"userId"`
+	CoverPhotoID string           `json:"coverPhotoId"`
+	PhotoCount   int              `json:"photoCount"`
+	IsShared     bool             `json:"isShared"`
+	IsFavorite   bool             `json:"isFavorite"`
+	CreatedAt    time.Time        `json:"createdAt"`
+	UpdatedAt    time.Time        `json:"updatedAt"`
+	PhotoIDs     []string         `json:"photoIds,omitempty"`  // 照片ID列表（智能相册使用）
+	Rules        []SmartAlbumRule `json:"rules,omitempty"`     // 智能相册规则
+	MatchMode    string           `json:"matchMode,omitempty"` // 智能相册匹配模式（all/any）
+	SharedWith   []ShareTarget    `json:"sharedWith,omitempty"`
+	Tags         []string         `json:"tags"`
+	Location     string           `json:"location,omitempty"`
+	ParentID     string           `json:"parentId,omitempty"` // 父相册 ID（支持嵌套相册）
 }
 
 // ShareTarget 分享目标

@@ -20,11 +20,11 @@ func TestNewDetector(t *testing.T) {
 		{
 			name: "custom config",
 			config: &DetectorConfig{
-				EnableDetection:   true,
-				MonitorPaths:      []string{"/tmp/test"},
-				AlertThreshold:    30,
-				AlertWindow:       time.Minute * 3,
-				MaxEventLogSize:   5000,
+				EnableDetection: true,
+				MonitorPaths:    []string{"/tmp/test"},
+				AlertThreshold:  30,
+				AlertWindow:     time.Minute * 3,
+				MaxEventLogSize: 5000,
 			},
 			want: true,
 		},

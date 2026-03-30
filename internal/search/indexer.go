@@ -87,7 +87,7 @@ type IndexState struct {
 type FileState struct {
 	ModTime int64  `json:"modTime"` // 修改时间 Unix 纳秒
 	Size    int64  `json:"size"`    // 文件大小
-	Hash    string `json:"hash"`   // 内容哈希（仅文本文件）
+	Hash    string `json:"hash"`    // 内容哈希（仅文本文件）
 	Indexed int64  `json:"indexed"` // 索引时间 Unix 纳秒
 }
 
@@ -439,14 +439,14 @@ type SettingsIndexer struct {
 
 // SettingsCategory 设置分类.
 type SettingsCategory struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Icon        string            `json:"icon"`
-	Items       []SettingsItem    `json:"items"`
-	Tags        []string          `json:"tags"`
-	Keywords    []string          `json:"keywords"`
-	Path        string            `json:"path"` // 设置页面路径
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Icon        string         `json:"icon"`
+	Items       []SettingsItem `json:"items"`
+	Tags        []string       `json:"tags"`
+	Keywords    []string       `json:"keywords"`
+	Path        string         `json:"path"` // 设置页面路径
 }
 
 // SettingsItem 设置项.
@@ -670,4 +670,3 @@ func (fi *FileIndexer) Close() error {
 	// 保存状态
 	return fi.saveState()
 }
-

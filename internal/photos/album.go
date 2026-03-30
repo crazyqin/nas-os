@@ -83,11 +83,11 @@ type AutoAlbumCriteria struct {
 
 // PhotoCategory 表示照片分类结果。
 type PhotoCategory struct {
-	ID       string            `json:"id"`
-	Name     string            `json:"name"`
-	Type     string            `json:"type"` // person, location, time, scene
-	PhotoIDs []string          `json:"photoIds"`
-	Metadata map[string]any    `json:"metadata,omitempty"`
+	ID       string         `json:"id"`
+	Name     string         `json:"name"`
+	Type     string         `json:"type"` // person, location, time, scene
+	PhotoIDs []string       `json:"photoIds"`
+	Metadata map[string]any `json:"metadata,omitempty"`
 }
 
 // ClassificationResult 表示分类结果。
@@ -627,11 +627,11 @@ type DuplicateGroup struct {
 
 // DuplicateReport 重复检测报告。
 type DuplicateReport struct {
-	TotalPhotos     int              `json:"totalPhotos"`
+	TotalPhotos     int               `json:"totalPhotos"`
 	ExactDuplicates []*DuplicateGroup `json:"exactDuplicates"`
 	SimilarPhotos   []*DuplicateGroup `json:"similarPhotos"`
 	BurstGroups     []*DuplicateGroup `json:"burstGroups"`
-	SpaceSavings    uint64           `json:"spaceSavings"`
+	SpaceSavings    uint64            `json:"spaceSavings"`
 }
 
 // BurstGroup 连拍照片组。
@@ -771,7 +771,7 @@ func (d *DuplicateDetector) selectBestPhoto(photos []*Photo) *Photo {
 func (d *DuplicateDetector) scorePhoto(photo *Photo) float64 {
 	score := 0.0
 	// 分辨率分数
-	score += float64(photo.Width * photo.Height) / 1000000.0
+	score += float64(photo.Width*photo.Height) / 1000000.0
 	// 文件大小分数
 	score += float64(photo.Size) / 1000000.0
 	// 收藏加分

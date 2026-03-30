@@ -22,9 +22,9 @@ type EmailNotifier struct {
 
 // WebhookNotifier Webhook通知器
 type WebhookNotifier struct {
-	URL       string
-	Timeout   time.Duration
-	Headers   map[string]string
+	URL     string
+	Timeout time.Duration
+	Headers map[string]string
 }
 
 // CompositeNotifier 组合通知器（支持多种通知渠道）

@@ -9,9 +9,9 @@ import (
 
 // AIAuditLogger logs AI service operations
 type AIAuditLogger struct {
-	logs     map[string]*AuditLog
-	storage  AuditStorage
-	mu       sync.RWMutex
+	logs    map[string]*AuditLog
+	storage AuditStorage
+	mu      sync.RWMutex
 }
 
 // AuditLog represents an audit log entry
@@ -73,18 +73,18 @@ func (l *AIAuditLogger) Log(ctx context.Context, entry *AuditLog) error {
 		entry.ID = generateAuditID()
 	}
 	entry.Timestamp = time.Now()
-	
+
 	l.mu.Lock()
 	l.logs[entry.ID] = entry
 	l.mu.Unlock()
-	
+
 	// Persist to storage
 	return l.storage.Save(entry)
 }
 
 // LogChat logs a chat/completion request
-func (l *AIAuditLogger) LogChat(ctx context.Context, userID, model string, 
-		tokens int, duration int64, success bool, err string) error {
+func (l *AIAuditLogger) LogChat(ctx context.Context, userID, model string,
+	tokens int, duration int64, success bool, err string) error {
 	return l.Log(ctx, &AuditLog{
 		UserID:   userID,
 		Service:  ServiceChat,
@@ -99,7 +99,7 @@ func (l *AIAuditLogger) LogChat(ctx context.Context, userID, model string,
 
 // LogFaceRecognition logs face recognition operation
 func (l *AIAuditLogger) LogFaceRecognition(ctx context.Context, userID, action string,
-		imagePath string, personID string, success bool, err string) error {
+	imagePath string, personID string, success bool, err string) error {
 	// 人脸识别涉及隐私，标记privacy_flag
 	return l.Log(ctx, &AuditLog{
 		UserID:      userID,
@@ -120,80 +120,80 @@ func (l *AIAuditLogger) Query(ctx context.Context, filter AuditFilter) ([]AuditL
 }
 
 // GetUserAuditHistory retrieves user's audit history
-func (l *AIAuditLogger) GetUserAuditHistory(ctx context.Context, userID string, 
-		limit int) ([]AuditLog, error) {
+func (l *AIAuditLogger) GetUserAuditHistory(ctx context.Context, userID string,
+	limit int) ([]AuditLog, error) {
 	filter := AuditFilter{
 		UserID: userID,
 	}
-	
+
 	logs, err := l.storage.Query(filter)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 按时间排序，取最近的记录
 	if len(logs) > limit {
 		logs = logs[:limit]
 	}
-	
+
 	return logs, nil
 }
 
 // GetServiceStats retrieves service statistics
 func (l *AIAuditLogger) GetServiceStats(ctx context.Context, service ServiceType,
-		start, end time.Time) ServiceStats {
+	start, end time.Time) ServiceStats {
 	filter := AuditFilter{
 		Service:   service,
 		StartTime: start,
 		EndTime:   end,
 	}
-	
+
 	logs, err := l.storage.Query(filter)
 	if err != nil {
 		return ServiceStats{}
 	}
-	
+
 	stats := ServiceStats{
-		Service:    service,
-		StartTime:  start,
-		EndTime:    end,
+		Service:   service,
+		StartTime: start,
+		EndTime:   end,
 	}
-	
+
 	for _, log := range logs {
 		stats.TotalRequests++
 		stats.TotalTokens += log.Tokens
 		stats.TotalDuration += log.Duration
-		
+
 		if log.Success {
 			stats.SuccessCount++
 		} else {
 			stats.ErrorCount++
 		}
-		
+
 		if log.PrivacyFlag {
 			stats.PrivacyOperations++
 		}
 	}
-	
+
 	if stats.TotalRequests > 0 {
 		stats.SuccessRate = float64(stats.SuccessCount) / float64(stats.TotalRequests) * 100
 	}
-	
+
 	return stats
 }
 
 // ServiceStats holds service statistics
 type ServiceStats struct {
-	Service          ServiceType `json:"service"`
-	StartTime        time.Time   `json:"start_time"`
-	EndTime          time.Time   `json:"end_time"`
-	TotalRequests    int         `json:"total_requests"`
-	SuccessCount     int         `json:"success_count"`
-	ErrorCount       int         `json:"error_count"`
-	TotalTokens      int         `json:"total_tokens"`
-	TotalDuration    int64       `json:"total_duration_ms"`
-	PrivacyOperations int        `json:"privacy_operations"`
-	SuccessRate      float64     `json:"success_rate"`
+	Service           ServiceType `json:"service"`
+	StartTime         time.Time   `json:"start_time"`
+	EndTime           time.Time   `json:"end_time"`
+	TotalRequests     int         `json:"total_requests"`
+	SuccessCount      int         `json:"success_count"`
+	ErrorCount        int         `json:"error_count"`
+	TotalTokens       int         `json:"total_tokens"`
+	TotalDuration     int64       `json:"total_duration_ms"`
+	PrivacyOperations int         `json:"privacy_operations"`
+	SuccessRate       float64     `json:"success_rate"`
 }
 
 // FacePrivacyAudit specifically for face recognition privacy compliance
@@ -208,7 +208,7 @@ func NewFacePrivacyAudit(logger *AIAuditLogger) *FacePrivacyAudit {
 
 // LogFaceDetection logs face detection
 func (f *FacePrivacyAudit) LogFaceDetection(ctx context.Context, userID, imagePath string,
-		numFaces int, success bool, err string) error {
+	numFaces int, success bool, err string) error {
 	return f.logger.Log(ctx, &AuditLog{
 		UserID:      userID,
 		Service:     ServiceFace,
@@ -223,7 +223,7 @@ func (f *FacePrivacyAudit) LogFaceDetection(ctx context.Context, userID, imagePa
 
 // LogPersonIdentification logs person identification
 func (f *FacePrivacyAudit) LogPersonIdentification(ctx context.Context, userID, faceID string,
-		personID string, confidence float64, success bool, err string) error {
+	personID string, confidence float64, success bool, err string) error {
 	return f.logger.Log(ctx, &AuditLog{
 		UserID:      userID,
 		Service:     ServiceFace,
@@ -238,7 +238,7 @@ func (f *FacePrivacyAudit) LogPersonIdentification(ctx context.Context, userID, 
 
 // LogPersonCreation logs new person creation
 func (f *FacePrivacyAudit) LogPersonCreation(ctx context.Context, userID, personID, name string,
-		success bool, err string) error {
+	success bool, err string) error {
 	return f.logger.Log(ctx, &AuditLog{
 		UserID:      userID,
 		Service:     ServiceFace,
@@ -252,7 +252,7 @@ func (f *FacePrivacyAudit) LogPersonCreation(ctx context.Context, userID, person
 
 // LogPersonMerge logs person merge operation
 func (f *FacePrivacyAudit) LogPersonMerge(ctx context.Context, userID, sourceID, targetID string,
-		success bool, err string) error {
+	success bool, err string) error {
 	return f.logger.Log(ctx, &AuditLog{
 		UserID:      userID,
 		Service:     ServiceFace,
@@ -267,7 +267,7 @@ func (f *FacePrivacyAudit) LogPersonMerge(ctx context.Context, userID, sourceID,
 
 // LogPersonDeletion logs person deletion
 func (f *FacePrivacyAudit) LogPersonDeletion(ctx context.Context, userID, personID string,
-		success bool, err string) error {
+	success bool, err string) error {
 	return f.logger.Log(ctx, &AuditLog{
 		UserID:      userID,
 		Service:     ServiceFace,
@@ -283,10 +283,10 @@ func (f *FacePrivacyAudit) LogPersonDeletion(ctx context.Context, userID, person
 func (f *FacePrivacyAudit) CheckCompliance(ctx context.Context, userID string) ComplianceReport {
 	// 检查用户的人脸识别操作合规性
 	filter := AuditFilter{
-		UserID: userID,
+		UserID:  userID,
 		Service: ServiceFace,
 	}
-	
+
 	logs, err := f.logger.storage.Query(filter)
 	if err != nil {
 		// Return empty report with compliant status
@@ -296,7 +296,7 @@ func (f *FacePrivacyAudit) CheckCompliance(ctx context.Context, userID string) C
 			GeneratedAt: time.Now(),
 		}
 	}
-	
+
 	report := ComplianceReport{
 		ReportID:        generateAuditID(),
 		Standard:        ComplianceGDPR,
@@ -304,7 +304,7 @@ func (f *FacePrivacyAudit) CheckCompliance(ctx context.Context, userID string) C
 		Findings:        []ComplianceFinding{},
 		Recommendations: []string{},
 	}
-	
+
 	for _, log := range logs {
 		if !log.PrivacyFlag {
 			// 人脸操作未标记隐私，不合规
@@ -313,11 +313,11 @@ func (f *FacePrivacyAudit) CheckCompliance(ctx context.Context, userID string) C
 				Description: "face operation not marked as privacy-sensitive: " + log.ID,
 				Severity:    "medium",
 			})
-			report.Recommendations = append(report.Recommendations, 
+			report.Recommendations = append(report.Recommendations,
 				"Ensure all face operations are marked as privacy-sensitive")
 		}
 	}
-	
+
 	return report
 }
 

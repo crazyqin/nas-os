@@ -17,14 +17,14 @@ import (
 
 // Detector detects ransomware activity based on file behavior patterns
 type Detector struct {
-	config       DetectorConfig
-	monitor      *FileMonitor
-	analyzer     *BehaviorAnalyzer
-	alerts       chan DetectorAlert
-	eventLog     []DetectorFileEvent
+	config          DetectorConfig
+	monitor         *FileMonitor
+	analyzer        *BehaviorAnalyzer
+	alerts          chan DetectorAlert
+	eventLog        []DetectorFileEvent
 	ransomwareSigns map[string]bool
-	mu           sync.RWMutex
-	running      bool
+	mu              sync.RWMutex
+	running         bool
 	// 增强功能组件
 	entropyAnalyzer    *EntropyAnalyzer
 	rapidChangeTracker *RapidChangeTracker
@@ -35,37 +35,37 @@ type Detector struct {
 
 // DetectorConfig for ransomware detection (internal use)
 type DetectorConfig struct {
-	EnableDetection     bool          `json:"enableDetection"`
-	MonitorPaths        []string      `json:"monitorPaths"`
-	ExcludePaths        []string      `json:"excludePaths"`
-	MaxEventLogSize     int           `json:"maxEventLogSize"`
-	AlertThreshold      int           `json:"alertThreshold"`
-	AlertWindow         time.Duration `json:"alertWindow"`
-	AutoQuarantine      bool          `json:"autoQuarantine"`
-	QuarantinePath      string        `json:"quarantinePath"`
-	ProtectedExtensions []string      `json:"protectedExtensions"`
-	SuspiciousExtensions []string     `json:"suspiciousExtensions"`
+	EnableDetection      bool          `json:"enableDetection"`
+	MonitorPaths         []string      `json:"monitorPaths"`
+	ExcludePaths         []string      `json:"excludePaths"`
+	MaxEventLogSize      int           `json:"maxEventLogSize"`
+	AlertThreshold       int           `json:"alertThreshold"`
+	AlertWindow          time.Duration `json:"alertWindow"`
+	AutoQuarantine       bool          `json:"autoQuarantine"`
+	QuarantinePath       string        `json:"quarantinePath"`
+	ProtectedExtensions  []string      `json:"protectedExtensions"`
+	SuspiciousExtensions []string      `json:"suspiciousExtensions"`
 	// 增强检测配置
-	EntropyThreshold       float64       `json:"entropyThreshold"`       // 熵值阈值（默认7.5）
-	RapidChangeThreshold   int           `json:"rapidChangeThreshold"`   // 快速变更阈值（文件数）
-	RapidChangeWindow      time.Duration `json:"rapidChangeWindow"`      // 快速变更时间窗口
-	EnableEntropyAnalysis  bool          `json:"enableEntropyAnalysis"`  // 启用熵值分析
-	EnableProcessMonitor   bool          `json:"enableProcessMonitor"`   // 启用进程监控
-	EnableAutoSnapshot     bool          `json:"enableAutoSnapshot"`     // 启用自动快照
-	SnapshotConfig         AutoSnapshotConfig `json:"snapshotConfig"`     // 快照配置
-	MaxFileSizeToAnalyze   int64         `json:"maxFileSizeToAnalyze"`   // 最大分析文件大小
+	EntropyThreshold      float64            `json:"entropyThreshold"`      // 熵值阈值（默认7.5）
+	RapidChangeThreshold  int                `json:"rapidChangeThreshold"`  // 快速变更阈值（文件数）
+	RapidChangeWindow     time.Duration      `json:"rapidChangeWindow"`     // 快速变更时间窗口
+	EnableEntropyAnalysis bool               `json:"enableEntropyAnalysis"` // 启用熵值分析
+	EnableProcessMonitor  bool               `json:"enableProcessMonitor"`  // 启用进程监控
+	EnableAutoSnapshot    bool               `json:"enableAutoSnapshot"`    // 启用自动快照
+	SnapshotConfig        AutoSnapshotConfig `json:"snapshotConfig"`        // 快照配置
+	MaxFileSizeToAnalyze  int64              `json:"maxFileSizeToAnalyze"`  // 最大分析文件大小
 }
 
 // DefaultDetectorConfig returns default detector configuration
 func DefaultDetectorConfig() *DetectorConfig {
 	return &DetectorConfig{
-		EnableDetection:  true,
-		MonitorPaths:     []string{"/data", "/home"},
-		MaxEventLogSize:  10000,
-		AlertThreshold:   50,
-		AlertWindow:      time.Minute * 5,
-		AutoQuarantine:   false,
-		QuarantinePath:   "/var/lib/nas-os/quarantine",
+		EnableDetection: true,
+		MonitorPaths:    []string{"/data", "/home"},
+		MaxEventLogSize: 10000,
+		AlertThreshold:  50,
+		AlertWindow:     time.Minute * 5,
+		AutoQuarantine:  false,
+		QuarantinePath:  "/var/lib/nas-os/quarantine",
 		ProtectedExtensions: []string{
 			".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
 			".pdf", ".jpg", ".jpeg", ".png", ".gif", ".mp4",
@@ -99,16 +99,16 @@ type DetectorFileEvent struct {
 
 // DetectorAlert represents a ransomware alert
 type DetectorAlert struct {
-	ID            string              `json:"id"`
-	Type          string              `json:"type"`
-	Title         string              `json:"title"`
-	Message       string              `json:"message"`
-	Events        []DetectorFileEvent `json:"events"`
-	RiskScore     int                 `json:"riskScore"`
-	ThreatType    string              `json:"threatType"`
-	Recommendations []string          `json:"recommendations"`
-	Timestamp     time.Time           `json:"timestamp"`
-	Acknowledged  bool                `json:"acknowledged"`
+	ID              string              `json:"id"`
+	Type            string              `json:"type"`
+	Title           string              `json:"title"`
+	Message         string              `json:"message"`
+	Events          []DetectorFileEvent `json:"events"`
+	RiskScore       int                 `json:"riskScore"`
+	ThreatType      string              `json:"threatType"`
+	Recommendations []string            `json:"recommendations"`
+	Timestamp       time.Time           `json:"timestamp"`
+	Acknowledged    bool                `json:"acknowledged"`
 }
 
 // NewDetector creates a new ransomware detector

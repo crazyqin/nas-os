@@ -23,20 +23,20 @@ type MigrationPolicyManager struct {
 // MigrationPolicy 迁移策略
 type MigrationPolicy struct {
 	// 基本信息
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	Enabled     bool         `json:"enabled"`
-	Type        PolicyType   `json:"type"`
-	Priority    int          `json:"priority"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Enabled     bool       `json:"enabled"`
+	Type        PolicyType `json:"type"`
+	Priority    int        `json:"priority"`
 
 	// 策略模式
 	Mode PolicyMode `json:"mode"`
 
 	// 调度配置
 	Schedule    ScheduleConfig `json:"schedule"`
-	NextRunTime time.Time       `json:"nextRunTime"`
-	LastRunTime time.Time       `json:"lastRunTime"`
+	NextRunTime time.Time      `json:"nextRunTime"`
+	LastRunTime time.Time      `json:"lastRunTime"`
 
 	// 迁移条件
 	Conditions MigrationConditions `json:"conditions"`
@@ -46,10 +46,10 @@ type MigrationPolicy struct {
 	TargetPool TierPoolType `json:"targetPool"`
 
 	// 限流配置
-	MaxMigrationSize  int64         `json:"maxMigrationSize"`  // 单次最大迁移量（字节）
-	MaxMigrationFiles int           `json:"maxMigrationFiles"` // 单次最大文件数
-	BandwidthLimit    int64         `json:"bandwidthLimit"`   // 带宽限制（字节/秒）
-	TimeWindow        TimeWindow    `json:"timeWindow"`       // 执行时间窗口
+	MaxMigrationSize  int64      `json:"maxMigrationSize"`  // 单次最大迁移量（字节）
+	MaxMigrationFiles int        `json:"maxMigrationFiles"` // 单次最大文件数
+	BandwidthLimit    int64      `json:"bandwidthLimit"`    // 带宽限制（字节/秒）
+	TimeWindow        TimeWindow `json:"timeWindow"`        // 执行时间窗口
 
 	// 统计
 	Stats MigrationStats `json:"stats"`
@@ -73,8 +73,8 @@ const (
 type PolicyMode string
 
 const (
-	PolicyModeAuto    PolicyMode = "auto"    // 自动调度
-	PolicyModeManual  PolicyMode = "manual"  // 手动触发
+	PolicyModeAuto     PolicyMode = "auto"     // 自动调度
+	PolicyModeManual   PolicyMode = "manual"   // 手动触发
 	PolicyModeSchedule PolicyMode = "schedule" // 定时调度
 )
 
@@ -92,9 +92,9 @@ type Duration time.Duration
 // MigrationConditions 迁移条件
 type MigrationConditions struct {
 	// 访问频率条件
-	MinAccessCount   int     `json:"minAccessCount"`   // 最小访问次数
-	MaxAccessCount   int     `json:"maxAccessCount"`   // 最大访问次数
-	AccessFrequency  float64 `json:"accessFrequency"`  // 访问频率阈值
+	MinAccessCount  int     `json:"minAccessCount"`  // 最小访问次数
+	MaxAccessCount  int     `json:"maxAccessCount"`  // 最大访问次数
+	AccessFrequency float64 `json:"accessFrequency"` // 访问频率阈值
 
 	// 时间条件
 	MinAgeDays int `json:"minAgeDays"` // 最小存活天数
@@ -119,19 +119,19 @@ type MigrationConditions struct {
 
 // TimeWindow 执行时间窗口
 type TimeWindow struct {
-	StartHour int `json:"startHour"` // 开始小时（0-23）
-	EndHour   int `json:"endHour"`   // 结束小时（0-23）
-	Days      []int `json:"days"`     // 执行的星期几（0=周日，1-6=周一到周六）
+	StartHour int   `json:"startHour"` // 开始小时（0-23）
+	EndHour   int   `json:"endHour"`   // 结束小时（0-23）
+	Days      []int `json:"days"`      // 执行的星期几（0=周日，1-6=周一到周六）
 }
 
 // MigrationStats 迁移统计
 type MigrationStats struct {
-	TotalRuns        int64     `json:"totalRuns"`
-	SuccessRuns      int64     `json:"successRuns"`
-	FailedRuns       int64     `json:"failedRuns"`
-	TotalMigrated     int64     `json:"totalMigrated"`     // 总迁移文件数
-	TotalBytesMigrated int64   `json:"totalBytesMigrated"` // 总迁移字节数
-	LastRunDuration   Duration  `json:"lastRunDuration"`
+	TotalRuns          int64    `json:"totalRuns"`
+	SuccessRuns        int64    `json:"successRuns"`
+	FailedRuns         int64    `json:"failedRuns"`
+	TotalMigrated      int64    `json:"totalMigrated"`      // 总迁移文件数
+	TotalBytesMigrated int64    `json:"totalBytesMigrated"` // 总迁移字节数
+	LastRunDuration    Duration `json:"lastRunDuration"`
 	AverageRunDuration Duration `json:"averageRunDuration"`
 }
 

@@ -16,14 +16,14 @@ import (
 
 // FileManager 文件管理器
 type FileManager struct {
-	config      WebShareConfig
-	mimeTypes   map[string]string
-	imageExts   map[string]bool
-	videoExts   map[string]bool
-	audioExts   map[string]bool
-	docExts     map[string]bool
-	thumbCache  sync.Map
-	thumbDir    string
+	config     WebShareConfig
+	mimeTypes  map[string]string
+	imageExts  map[string]bool
+	videoExts  map[string]bool
+	audioExts  map[string]bool
+	docExts    map[string]bool
+	thumbCache sync.Map
+	thumbDir   string
 }
 
 // NewFileManager 创建文件管理器

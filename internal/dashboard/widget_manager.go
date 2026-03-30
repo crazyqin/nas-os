@@ -9,9 +9,9 @@ import (
 
 // WidgetManager Widget管理器，负责widget的注册、获取和布局管理
 type WidgetManager struct {
-	mu         sync.RWMutex
-	registry   *WidgetRegistry
-	layoutMgr  *WidgetLayoutManager
+	mu          sync.RWMutex
+	registry    *WidgetRegistry
+	layoutMgr   *WidgetLayoutManager
 	definitions map[WidgetType]*WidgetDefinition
 }
 

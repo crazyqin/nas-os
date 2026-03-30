@@ -11,13 +11,13 @@ import (
 
 // Monitor GPU监控器
 type Monitor struct {
-	manager   *Manager
-	interval  int // 秒
-	logger    *zap.Logger
-	mu        sync.RWMutex
-	stopped   bool
-	ctx       context.Context
-	cancel    context.CancelFunc
+	manager  *Manager
+	interval int // 秒
+	logger   *zap.Logger
+	mu       sync.RWMutex
+	stopped  bool
+	ctx      context.Context
+	cancel   context.CancelFunc
 }
 
 // NewMonitor 创建GPU监控器

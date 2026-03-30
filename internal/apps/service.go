@@ -18,13 +18,13 @@ import (
 type Service struct {
 	mu sync.RWMutex
 
-	catalog   *Catalog           // 应用目录管理
-	installer *Installer         // 应用安装器
-	manager   ContainerManager   // 应用生命周期管理
-	repo      *Repository        // 应用仓库
+	catalog   *Catalog         // 应用目录管理
+	installer *Installer       // 应用安装器
+	manager   ContainerManager // 应用生命周期管理
+	repo      *Repository      // 应用仓库
 
-	dataDir   string             // 数据目录
-	stateFile string             // 状态文件
+	dataDir   string                       // 数据目录
+	stateFile string                       // 状态文件
 	installed map[string]*app.InstalledApp // 已安装应用
 }
 
@@ -36,7 +36,7 @@ type ContainerManager interface {
 	StopContainer(ctx context.Context, id string, timeout int) error
 	RemoveContainer(ctx context.Context, id string, force bool) error
 	GetContainerStatus(ctx context.Context, id string) (*app.ContainerStatus, error)
-	
+
 	// Compose 操作
 	ComposeUp(ctx context.Context, composePath string) error
 	ComposeDown(ctx context.Context, composePath string) error
@@ -45,10 +45,10 @@ type ContainerManager interface {
 
 // ServiceConfig 服务配置
 type ServiceConfig struct {
-	DataDir      string             // 数据目录
-	TemplateDir  string             // 模板目录（可选，默认 dataDir/templates）
-	InstallDir   string             // 安装目录（可选，默认 dataDir/compose）
-	Manager      ContainerManager   // 容器管理器（必须）
+	DataDir     string           // 数据目录
+	TemplateDir string           // 模板目录（可选，默认 dataDir/templates）
+	InstallDir  string           // 安装目录（可选，默认 dataDir/compose）
+	Manager     ContainerManager // 容器管理器（必须）
 }
 
 // NewService 创建应用服务管理器
