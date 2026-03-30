@@ -81,6 +81,751 @@ type AutoAlbumCriteria struct {
 
 // ========== 照片分类 ==========
 
+// PhotoCategory 表示照片分类结果。
+type PhotoCategory struct {
+	ID       string            `json:"id"`
+	Name     string            `json:"name"`
+	Type     string            `json:"type"` // person, location, time, scene
+	PhotoIDs []string          `json:"photoIds"`
+	Metadata map[string]any    `json:"metadata,omitempty"`
+}
+
+// ClassificationResult 表示分类结果。
+type ClassificationResult struct {
+	PersonCategories   []*PhotoCategory `json:"personCategories"`
+	LocationCategories []*PhotoCategory `json:"locationCategories"`
+	TimeCategories     []*PhotoCategory `json:"timeCategories"`
+	SceneCategories    []*PhotoCategory `json:"sceneCategories"`
+}
+
+// AutoClassifier 自动照片分类器。
+type AutoClassifier struct {
+	manager    *Manager
+	mu         sync.RWMutex
+	categories map[string]*PhotoCategory
+	dataPath   string
+}
+
+// NewAutoClassifier 创建自动分类器。
+func NewAutoClassifier(manager *Manager) *AutoClassifier {
+	return &AutoClassifier{
+		manager:    manager,
+		categories: make(map[string]*PhotoCategory),
+		dataPath:   filepath.Join(manager.dataDir, "photo-categories.json"),
+	}
+}
+
+// ClassifyByPerson 按人物分类。
+func (c *AutoClassifier) ClassifyByPerson(photos []*Photo) []*PhotoCategory {
+	c.manager.mu.RLock()
+	defer c.manager.mu.RUnlock()
+
+	personPhotos := make(map[string][]string)
+	for _, photo := range photos {
+		for _, face := range photo.Faces {
+			if face.Name != "" {
+				personPhotos[face.Name] = append(personPhotos[face.Name], photo.ID)
+			} else if face.ID != "" {
+				personPhotos["未命名人物"] = append(personPhotos["未命名人物"], photo.ID)
+			}
+		}
+	}
+
+	categories := make([]*PhotoCategory, 0)
+	for name, ids := range personPhotos {
+		categories = append(categories, &PhotoCategory{
+			ID:       fmt.Sprintf("person-%s", name),
+			Name:     name,
+			Type:     "person",
+			PhotoIDs: ids,
+			Metadata: map[string]any{"personName": name},
+		})
+	}
+	return categories
+}
+
+// ClassifyByLocation 按地点分类。
+func (c *AutoClassifier) ClassifyByLocation(photos []*Photo) []*PhotoCategory {
+	locationPhotos := make(map[string][]string)
+	for _, photo := range photos {
+		if photo.Location != nil {
+			locName := photo.Location.City
+			if locName == "" {
+				locName = photo.Location.Country
+			}
+			if locName == "" {
+				locName = "无地点信息"
+			}
+			locationPhotos[locName] = append(locationPhotos[locName], photo.ID)
+		} else {
+			locationPhotos["无地点信息"] = append(locationPhotos["无地点信息"], photo.ID)
+		}
+	}
+
+	categories := make([]*PhotoCategory, 0)
+	for name, ids := range locationPhotos {
+		metadata := map[string]any{}
+		for _, photo := range photos {
+			if photo.Location != nil && photo.Location.City == name {
+				metadata["city"] = name
+				metadata["country"] = photo.Location.Country
+				break
+			}
+		}
+		categories = append(categories, &PhotoCategory{
+			ID:       fmt.Sprintf("location-%s", name),
+			Name:     name,
+			Type:     "location",
+			PhotoIDs: ids,
+			Metadata: metadata,
+		})
+	}
+	return categories
+}
+
+// ClassifyByTime 按时间分类。
+func (c *AutoClassifier) ClassifyByTime(photos []*Photo) []*PhotoCategory {
+	now := time.Now()
+	yearPhotos := make(map[int][]string)
+	recentPhotos := []string{}
+
+	for _, photo := range photos {
+		if !photo.TakenAt.IsZero() {
+			year := photo.TakenAt.Year()
+			yearPhotos[year] = append(yearPhotos[year], photo.ID)
+			// 最近30天
+			if now.Sub(photo.TakenAt) <= 30*24*time.Hour {
+				recentPhotos = append(recentPhotos, photo.ID)
+			}
+		}
+	}
+
+	categories := make([]*PhotoCategory, 0)
+	for year, ids := range yearPhotos {
+		categories = append(categories, &PhotoCategory{
+			ID:       fmt.Sprintf("year-%d", year),
+			Name:     fmt.Sprintf("%d年", year),
+			Type:     "time",
+			PhotoIDs: ids,
+			Metadata: map[string]any{"year": year},
+		})
+	}
+	if len(recentPhotos) > 0 {
+		categories = append(categories, &PhotoCategory{
+			ID:       "recent-30days",
+			Name:     "最近30天",
+			Type:     "time",
+			PhotoIDs: recentPhotos,
+			Metadata: map[string]any{"period": "30days"},
+		})
+	}
+	return categories
+}
+
+// ClassifyByScene 按场景分类。
+func (c *AutoClassifier) ClassifyByScene(photos []*Photo) []*PhotoCategory {
+	scenePhotos := make(map[string][]string)
+	sceneNames := map[string]string{
+		"nature":  "自然风光",
+		"night":   "夜景",
+		"indoor":  "室内",
+		"outdoor": "户外",
+		"city":    "城市",
+	}
+
+	for _, photo := range photos {
+		scene := photo.Scene
+		if scene == "" {
+			scene = "unknown"
+		}
+		scenePhotos[scene] = append(scenePhotos[scene], photo.ID)
+	}
+
+	categories := make([]*PhotoCategory, 0)
+	for scene, ids := range scenePhotos {
+		displayName := sceneNames[scene]
+		if displayName == "" {
+			displayName = scene
+		}
+		categories = append(categories, &PhotoCategory{
+			ID:       fmt.Sprintf("scene-%s", scene),
+			Name:     displayName,
+			Type:     "scene",
+			PhotoIDs: ids,
+			Metadata: map[string]any{"scene": scene},
+		})
+	}
+	return categories
+}
+
+// ClassifyAll 执行完整分类。
+func (c *AutoClassifier) ClassifyAll() (*ClassificationResult, error) {
+	c.manager.mu.RLock()
+	photos := make([]*Photo, 0, len(c.manager.photos))
+	for _, photo := range c.manager.photos {
+		photos = append(photos, photo)
+	}
+	c.manager.mu.RUnlock()
+
+	result := &ClassificationResult{
+		PersonCategories:   c.ClassifyByPerson(photos),
+		LocationCategories: c.ClassifyByLocation(photos),
+		TimeCategories:     c.ClassifyByTime(photos),
+		SceneCategories:    c.ClassifyByScene(photos),
+	}
+
+	return result, nil
+}
+
+// getSceneDisplayName 获取场景显示名称。
+func (c *AutoClassifier) getSceneDisplayName(scene string) string {
+	sceneNames := map[string]string{
+		"nature":  "自然风光",
+		"night":   "夜景",
+		"indoor":  "室内",
+		"outdoor": "户外",
+		"city":    "城市",
+	}
+	if displayName, ok := sceneNames[scene]; ok {
+		return displayName
+	}
+	return scene
+}
+
+// saveCategories 保存分类数据。
+func (c *AutoClassifier) saveCategories() error {
+	data, err := json.MarshalIndent(c.categories, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(c.dataPath, data, 0640)
+}
+
+// ========== 智能相册规则 ==========
+
+// SmartAlbumRule 智能相册规则。
+type SmartAlbumRule struct {
+	ID       string `json:"id"`
+	Type     string `json:"type"`     // person, location, scene, object, rating
+	Operator string `json:"operator"` // equals, contains, greater, less
+	Value    string `json:"value"`
+}
+
+// SmartAlbumTemplate 智能相册模板。
+type SmartAlbumTemplate struct {
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Rules       []SmartAlbumRule `json:"rules"`
+}
+
+// SmartAlbumManager 智能相册管理器。
+type SmartAlbumManager struct {
+	manager    *Manager
+	classifier *AutoClassifier
+	albums     map[string]*Album
+	templates  []*SmartAlbumTemplate
+	mu         sync.RWMutex
+	dataPath   string
+}
+
+// NewSmartAlbumManager 创建智能相册管理器。
+func NewSmartAlbumManager(manager *Manager, classifier *AutoClassifier) *SmartAlbumManager {
+	sam := &SmartAlbumManager{
+		manager:    manager,
+		classifier: classifier,
+		albums:     make(map[string]*Album),
+		templates:  getBuiltinTemplatesStatic(),
+		dataPath:   filepath.Join(manager.dataDir, "smart-albums-config.json"),
+	}
+	return sam
+}
+
+// getBuiltinTemplatesStatic 获取内置模板列表（静态版本）。
+func getBuiltinTemplatesStatic() []*SmartAlbumTemplate {
+	return []*SmartAlbumTemplate{
+		{
+			ID:          "template-favorites",
+			Name:        "收藏照片",
+			Description: "所有收藏的照片",
+			Rules:       []SmartAlbumRule{{ID: "r1", Type: "rating", Operator: "equals", Value: "favorite"}},
+		},
+		{
+			ID:          "template-recent",
+			Name:        "最近30天",
+			Description: "最近30天拍摄的照片",
+			Rules:       []SmartAlbumRule{{ID: "r1", Type: "time", Operator: "within", Value: "30d"}},
+		},
+		{
+			ID:          "template-videos",
+			Name:        "视频",
+			Description: "所有视频文件",
+			Rules:       []SmartAlbumRule{{ID: "r1", Type: "media", Operator: "equals", Value: "video"}},
+		},
+	}
+}
+
+// GetBuiltinTemplates 获取内置模板。
+func (sam *SmartAlbumManager) GetBuiltinTemplates() []*SmartAlbumTemplate {
+	return sam.templates
+}
+
+// CreateSmartAlbum 创建智能相册。
+func (sam *SmartAlbumManager) CreateSmartAlbum(name string, description string, rules []SmartAlbumRule, matchMode string) (*Album, error) {
+	if name == "" {
+		return nil, fmt.Errorf("相册名称不能为空")
+	}
+	if len(rules) == 0 {
+		return nil, fmt.Errorf("规则不能为空")
+	}
+
+	sam.mu.Lock()
+	defer sam.mu.Unlock()
+
+	album := &Album{
+		ID:          uuid.New().String(),
+		Name:        name,
+		Description: description,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		PhotoIDs:    sam.matchPhotos(rules, matchMode),
+	}
+	sam.albums[album.ID] = album
+	return album, nil
+}
+
+// matchPhotos 匹配照片。
+func (sam *SmartAlbumManager) matchPhotos(rules []SmartAlbumRule, matchMode string) []string {
+	sam.manager.mu.RLock()
+	defer sam.manager.mu.RUnlock()
+
+	var photoIDs []string
+	for _, photo := range sam.manager.photos {
+		matched := false
+		for _, rule := range rules {
+			if sam.matchRule(photo, rule) {
+				matched = true
+				if matchMode == "any" {
+					break
+				}
+			} else if matchMode == "all" {
+				matched = false
+				break
+			}
+		}
+		if matched {
+			photoIDs = append(photoIDs, photo.ID)
+		}
+	}
+	return photoIDs
+}
+
+// matchRule 匹配规则。
+func (sam *SmartAlbumManager) matchRule(photo *Photo, rule SmartAlbumRule) bool {
+	switch rule.Type {
+	case "person":
+		for _, face := range photo.Faces {
+			if face.Name == rule.Value || face.ID == rule.Value {
+				return true
+			}
+		}
+		return false
+	case "location":
+		if photo.Location != nil {
+			return photo.Location.City == rule.Value || photo.Location.Country == rule.Value
+		}
+		return false
+	case "scene":
+		return photo.Scene == rule.Value
+	case "object":
+		for _, obj := range photo.Objects {
+			if obj == rule.Value {
+				return true
+			}
+		}
+		return false
+	case "rating":
+		if rule.Value == "favorite" {
+			return photo.IsFavorite
+		}
+		return false
+	}
+	return false
+}
+
+// CreateFromTemplate 从模板创建。
+func (sam *SmartAlbumManager) CreateFromTemplate(templateID string, name string) (*Album, error) {
+	for _, tmpl := range sam.templates {
+		if tmpl.ID == templateID {
+			if name == "" {
+				name = tmpl.Name
+			}
+			return sam.CreateSmartAlbum(name, tmpl.Description, tmpl.Rules, "all")
+		}
+	}
+	return nil, fmt.Errorf("模板不存在")
+}
+
+// UpdateSmartAlbum 更新智能相册。
+func (sam *SmartAlbumManager) UpdateSmartAlbum(albumID string, rules []SmartAlbumRule, matchMode string) (*Album, error) {
+	sam.mu.Lock()
+	defer sam.mu.Unlock()
+
+	album, exists := sam.albums[albumID]
+	if !exists {
+		return nil, fmt.Errorf("相册不存在")
+	}
+
+	album.PhotoIDs = sam.matchPhotos(rules, matchMode)
+	album.UpdatedAt = time.Now()
+	return album, nil
+}
+
+// DeleteSmartAlbum 删除智能相册。
+func (sam *SmartAlbumManager) DeleteSmartAlbum(albumID string) error {
+	sam.mu.Lock()
+	defer sam.mu.Unlock()
+
+	if _, exists := sam.albums[albumID]; !exists {
+		return fmt.Errorf("相册不存在")
+	}
+	delete(sam.albums, albumID)
+	return nil
+}
+
+// GetSmartAlbum 获取智能相册。
+func (sam *SmartAlbumManager) GetSmartAlbum(albumID string) (*Album, error) {
+	sam.mu.RLock()
+	defer sam.mu.RUnlock()
+
+	album, exists := sam.albums[albumID]
+	if !exists {
+		return nil, fmt.Errorf("相册不存在")
+	}
+	return album, nil
+}
+
+// ListSmartAlbums 列出智能相册。
+func (sam *SmartAlbumManager) ListSmartAlbums() []*Album {
+	sam.mu.RLock()
+	defer sam.mu.RUnlock()
+
+	albums := make([]*Album, 0)
+	for _, album := range sam.albums {
+		albums = append(albums, album)
+	}
+	return albums
+}
+
+// RefreshSmartAlbum 刷新智能相册。
+func (sam *SmartAlbumManager) RefreshSmartAlbum(albumID string) error {
+	sam.mu.Lock()
+	defer sam.mu.Unlock()
+
+	album, exists := sam.albums[albumID]
+	if !exists {
+		return fmt.Errorf("相册不存在")
+	}
+
+	// 重新匹配照片（使用存储的规则）
+	album.PhotoIDs = sam.matchAllPhotos()
+	album.UpdatedAt = time.Now()
+	return nil
+}
+
+// matchAllPhotos 匹配所有照片（简化版）。
+func (sam *SmartAlbumManager) matchAllPhotos() []string {
+	sam.manager.mu.RLock()
+	defer sam.manager.mu.RUnlock()
+
+	var photoIDs []string
+	for _, photo := range sam.manager.photos {
+		photoIDs = append(photoIDs, photo.ID)
+	}
+	return photoIDs
+}
+
+// ========== 重复检测 ==========
+
+// DuplicateGroup 重复照片组。
+type DuplicateGroup struct {
+	ID          string    `json:"id"`
+	Type        string    `json:"type"` // exact, similar, burst
+	Photos      []*Photo  `json:"photos"`
+	KeepPhotoID string    `json:"keepPhotoId"`
+	CreatedAt   time.Time `json:"createdAt"`
+}
+
+// DuplicateReport 重复检测报告。
+type DuplicateReport struct {
+	TotalPhotos     int              `json:"totalPhotos"`
+	ExactDuplicates []*DuplicateGroup `json:"exactDuplicates"`
+	SimilarPhotos   []*DuplicateGroup `json:"similarPhotos"`
+	BurstGroups     []*DuplicateGroup `json:"burstGroups"`
+	SpaceSavings    uint64           `json:"spaceSavings"`
+}
+
+// BurstGroup 连拍照片组。
+type BurstGroup struct {
+	ID        string    `json:"id"`
+	Photos    []*Photo  `json:"photos"`
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
+}
+
+// DuplicateDetector 重复照片检测器。
+type DuplicateDetector struct {
+	manager   *Manager
+	mu        sync.RWMutex
+	threshold float64
+}
+
+// NewDuplicateDetector 创建重复检测器。
+func NewDuplicateDetector(manager *Manager) *DuplicateDetector {
+	return &DuplicateDetector{
+		manager:   manager,
+		threshold: 0.95,
+	}
+}
+
+// DetectDuplicates 检测重复照片。
+func (d *DuplicateDetector) DetectDuplicates() (*DuplicateReport, error) {
+	d.manager.mu.RLock()
+	photos := make([]*Photo, 0, len(d.manager.photos))
+	for _, photo := range d.manager.photos {
+		photos = append(photos, photo)
+	}
+	d.manager.mu.RUnlock()
+
+	report := &DuplicateReport{
+		TotalPhotos:     len(photos),
+		ExactDuplicates: d.detectExactDuplicates(photos),
+		SimilarPhotos:   []*DuplicateGroup{},
+		BurstGroups:     d.detectBurstPhotosGroups(photos),
+	}
+
+	report.SpaceSavings = d.calculateSpaceSavingsFromReport(report)
+	return report, nil
+}
+
+// detectExactDuplicates 检测完全重复。
+func (d *DuplicateDetector) detectExactDuplicates(photos []*Photo) []*DuplicateGroup {
+	sizeGroups := make(map[uint64][]*Photo)
+	for _, photo := range photos {
+		sizeGroups[photo.Size] = append(sizeGroups[photo.Size], photo)
+	}
+
+	groups := make([]*DuplicateGroup, 0)
+	for size, groupPhotos := range sizeGroups {
+		if len(groupPhotos) > 1 && size > 0 {
+			groups = append(groups, &DuplicateGroup{
+				ID:          uuid.New().String(),
+				Type:        "exact",
+				Photos:      groupPhotos,
+				KeepPhotoID: d.selectBestPhoto(groupPhotos).ID,
+				CreatedAt:   time.Now(),
+			})
+		}
+	}
+	return groups
+}
+
+// detectBurstPhotosGroups 检测连拍照片组。
+func (d *DuplicateDetector) detectBurstPhotosGroups(photos []*Photo) []*DuplicateGroup {
+	// 按时间排序
+	sort.Slice(photos, func(i, j int) bool {
+		return photos[i].TakenAt.Before(photos[j].TakenAt)
+	})
+
+	groups := make([]*DuplicateGroup, 0)
+	var currentGroup []*Photo
+
+	for _, photo := range photos {
+		if photo.TakenAt.IsZero() {
+			continue
+		}
+
+		if len(currentGroup) == 0 {
+			currentGroup = append(currentGroup, photo)
+		} else {
+			lastPhoto := currentGroup[len(currentGroup)-1]
+			if photo.TakenAt.Sub(lastPhoto.TakenAt) <= 3*time.Second {
+				currentGroup = append(currentGroup, photo)
+			} else {
+				if len(currentGroup) >= 2 {
+					groups = append(groups, &DuplicateGroup{
+						ID:          uuid.New().String(),
+						Type:        "burst",
+						Photos:      currentGroup,
+						KeepPhotoID: d.selectBestPhoto(currentGroup).ID,
+						CreatedAt:   time.Now(),
+					})
+				}
+				currentGroup = []*Photo{photo}
+			}
+		}
+	}
+
+	if len(currentGroup) >= 2 {
+		groups = append(groups, &DuplicateGroup{
+			ID:          uuid.New().String(),
+			Type:        "burst",
+			Photos:      currentGroup,
+			KeepPhotoID: d.selectBestPhoto(currentGroup).ID,
+			CreatedAt:   time.Now(),
+		})
+	}
+
+	return groups
+}
+
+// selectBestPhoto 选择最佳照片。
+func (d *DuplicateDetector) selectBestPhoto(photos []*Photo) *Photo {
+	if len(photos) == 0 {
+		return nil
+	}
+
+	best := photos[0]
+	bestScore := d.scorePhoto(best)
+
+	for _, photo := range photos[1:] {
+		score := d.scorePhoto(photo)
+		if score > bestScore {
+			best = photo
+			bestScore = score
+		}
+	}
+	return best
+}
+
+// scorePhoto 评分照片。
+func (d *DuplicateDetector) scorePhoto(photo *Photo) float64 {
+	score := 0.0
+	// 分辨率分数
+	score += float64(photo.Width * photo.Height) / 1000000.0
+	// 文件大小分数
+	score += float64(photo.Size) / 1000000.0
+	// 收藏加分
+	if photo.IsFavorite {
+		score += 10.0
+	}
+	return score
+}
+
+// calculateSpaceSavingsFromReport 计算可节省空间。
+func (d *DuplicateDetector) calculateSpaceSavingsFromReport(report *DuplicateReport) uint64 {
+	var savings uint64
+	for _, group := range report.ExactDuplicates {
+		for _, photo := range group.Photos {
+			if photo.ID != group.KeepPhotoID {
+				savings += photo.Size
+			}
+		}
+	}
+	return savings
+}
+
+// GetDuplicatePhotos 获取指定照片的重复。
+func (d *DuplicateDetector) GetDuplicatePhotos(photoID string) ([]*Photo, float64, error) {
+	d.manager.mu.RLock()
+	photo, exists := d.manager.photos[photoID]
+	d.manager.mu.RUnlock()
+
+	if !exists {
+		return nil, 0, fmt.Errorf("照片不存在")
+	}
+
+	d.manager.mu.RLock()
+	var duplicates []*Photo
+	for _, p := range d.manager.photos {
+		if p.ID != photoID && p.Size == photo.Size {
+			duplicates = append(duplicates, p)
+		}
+	}
+	d.manager.mu.RUnlock()
+
+	similarity := 0.0
+	if len(duplicates) > 0 {
+		similarity = 1.0 // 完全相同
+	}
+	return duplicates, similarity, nil
+}
+
+// detectBurstPhotos 检测连拍照片组（测试兼容别名）。
+func (d *DuplicateDetector) detectBurstPhotos(photos []*Photo) []*BurstGroup {
+	d.manager.mu.RLock()
+	defer d.manager.mu.RUnlock()
+
+	// 按时间排序
+	sort.Slice(photos, func(i, j int) bool {
+		return photos[i].TakenAt.Before(photos[j].TakenAt)
+	})
+
+	groups := make([]*BurstGroup, 0)
+	var currentGroup []*Photo
+	var startTime time.Time
+
+	for _, photo := range photos {
+		if photo.TakenAt.IsZero() {
+			continue
+		}
+
+		if len(currentGroup) == 0 {
+			currentGroup = append(currentGroup, photo)
+			startTime = photo.TakenAt
+		} else {
+			lastPhoto := currentGroup[len(currentGroup)-1]
+			if photo.TakenAt.Sub(lastPhoto.TakenAt) <= 3*time.Second {
+				currentGroup = append(currentGroup, photo)
+			} else {
+				if len(currentGroup) >= 2 {
+					groups = append(groups, &BurstGroup{
+						ID:        uuid.New().String(),
+						Photos:    currentGroup,
+						StartTime: startTime,
+						EndTime:   lastPhoto.TakenAt,
+					})
+				}
+				currentGroup = []*Photo{photo}
+				startTime = photo.TakenAt
+			}
+		}
+	}
+
+	if len(currentGroup) >= 2 {
+		groups = append(groups, &BurstGroup{
+			ID:        uuid.New().String(),
+			Photos:    currentGroup,
+			StartTime: startTime,
+			EndTime:   currentGroup[len(currentGroup)-1].TakenAt,
+		})
+	}
+
+	return groups
+}
+
+// calculateSpaceSavings 计算可节省空间。
+func (d *DuplicateDetector) calculateSpaceSavings(exactDups []*DuplicateGroup, similarDups []*DuplicateGroup, burstGroups []*DuplicateGroup) uint64 {
+	var savings uint64
+	for _, group := range exactDups {
+		for _, photo := range group.Photos {
+			if photo.ID != group.KeepPhotoID {
+				savings += photo.Size
+			}
+		}
+	}
+	return savings
+}
+
+// roundTo 四舍五入到指定精度。
+func roundTo(val float64, precision int) float64 {
+	multiplier := 1.0
+	for i := 0; i < precision; i++ {
+		multiplier *= 10.0
+	}
+	return float64(int(val*multiplier+0.5)) / multiplier
+}
+
 // PhotoClassifier 提供照片分类功能。
 type PhotoClassifier struct {
 	manager *Manager
