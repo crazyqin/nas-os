@@ -56,30 +56,42 @@ type Notifier interface {
 
 // Manager 配额管理器
 type Manager struct {
-	mu            sync.RWMutex
-	rules         map[string]*QuotaRule // ruleID -> QuotaRule
-	alerts        map[string]*Alert     // alertID -> Alert
-	alertHistory  []*Alert
-	configPath    string
-	storageProv   StorageProvider
-	userProv      UserProvider
-	notifier      Notifier
-	notifyConfig  NotificationConfig
-	coolDownTrack map[string]time.Time // targetID -> last alert time
+	mu              sync.RWMutex
+	rules           map[string]*QuotaRule // ruleID -> QuotaRule
+	alerts          map[string]*Alert     // alertID -> Alert
+	alertHistory    []*Alert
+	configPath      string
+	storageProv     StorageProvider
+	userProv        UserProvider
+	notifier        Notifier
+	notifyConfig    NotificationConfig
+	coolDownTrack   map[string]time.Time // targetID -> last alert time
+	predictor       *Predictor
+	alertRuleMgr    *AlertRuleManager
+	forecastConfig  ForecastConfig
 }
 
 // NewManager 创建配额管理器
 func NewManager(configPath string, storage StorageProvider, user UserProvider) (*Manager, error) {
 	m := &Manager{
-		rules:         make(map[string]*QuotaRule),
-		alerts:        make(map[string]*Alert),
-		alertHistory:  make([]*Alert, 0),
-		configPath:    configPath,
-		storageProv:   storage,
-		userProv:      user,
-		notifyConfig:  DefaultNotificationConfig(),
-		coolDownTrack: make(map[string]time.Time),
+		rules:           make(map[string]*QuotaRule),
+		alerts:          make(map[string]*Alert),
+		alertHistory:    make([]*Alert, 0),
+		configPath:      configPath,
+		storageProv:     storage,
+		userProv:        user,
+		notifyConfig:     DefaultNotificationConfig(),
+		coolDownTrack:   make(map[string]time.Time),
+		forecastConfig:  DefaultForecastConfig(),
+		predictor:       NewPredictor(DefaultForecastConfig()),
 	}
+
+	// 初始化告警规则管理器
+	alertRulePath := ""
+	if configPath != "" {
+		alertRulePath = filepath.Join(filepath.Dir(configPath), "alert_rules.json")
+	}
+	m.alertRuleMgr, _ = NewAlertRuleManager(alertRulePath)
 
 	if configPath != "" {
 		if err := m.loadConfig(); err != nil {
@@ -320,6 +332,111 @@ func (m *Manager) getTargetUsage(rule *QuotaRule) (int64, error) {
 	}
 }
 
+// ========== 容量预测 ==========
+
+// GetPredictor 获取预测器
+func (m *Manager) GetPredictor() *Predictor {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.predictor
+}
+
+// SetForecastConfig 设置预测配置
+func (m *Manager) SetForecastConfig(config ForecastConfig) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.forecastConfig = config
+	m.predictor.SetConfig(config)
+}
+
+// GetForecastConfig 获取预测配置
+func (m *Manager) GetForecastConfig() ForecastConfig {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.forecastConfig
+}
+
+// PredictUsage 预测配额使用趋势
+func (m *Manager) PredictUsage(ruleID string) (*PredictionResult, error) {
+	m.mu.RLock()
+	rule, exists := m.rules[ruleID]
+	m.mu.RUnlock()
+
+	if !exists {
+		return nil, ErrRuleNotFound
+	}
+
+	// 记录当前使用量
+	used, err := m.getTargetUsage(rule)
+	if err != nil {
+		return nil, err
+	}
+
+	m.predictor.RecordUsage(rule.TargetID, used)
+
+	// 进行预测
+	return m.predictor.Predict(rule.ID, rule.TargetID, rule.MaxBytes)
+}
+
+// PredictAllUsage 预测所有配额使用趋势
+func (m *Manager) PredictAllUsage() []*PredictionResult {
+	m.mu.RLock()
+	rules := make([]*QuotaRule, 0, len(m.rules))
+	for _, r := range m.rules {
+		if r.Enabled {
+			rules = append(rules, r)
+		}
+	}
+	m.mu.RUnlock()
+
+	results := make([]*PredictionResult, 0)
+
+	for _, rule := range rules {
+		// 记录使用量
+		used, err := m.getTargetUsage(rule)
+		if err != nil {
+			continue
+		}
+		m.predictor.RecordUsage(rule.TargetID, used)
+
+		// 进行预测
+		result, err := m.predictor.Predict(rule.ID, rule.TargetID, rule.MaxBytes)
+		if err != nil {
+			continue
+		}
+		results = append(results, result)
+	}
+
+	return results
+}
+
+// GetUsageHistory 获取使用历史
+func (m *Manager) GetUsageHistory(targetID string) []UsageHistory {
+	return m.predictor.GetHistory(targetID)
+}
+
+// ========== 告警规则管理 ==========
+
+// GetAlertRuleManager 获取告警规则管理器
+func (m *Manager) GetAlertRuleManager() *AlertRuleManager {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.alertRuleMgr
+}
+
+// CheckAlertRules 检查告警规则
+func (m *Manager) CheckAlertRules(targetType, targetID string, currentPercent float64) []*AlertRule {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	if m.alertRuleMgr == nil {
+		return nil
+	}
+
+	return m.alertRuleMgr.ShouldAlert(targetType, targetID, currentPercent)
+}
+
 // ========== 告警管理 ==========
 
 // CheckAndAlert 检查并生成告警
@@ -344,10 +461,92 @@ func (m *Manager) CheckAndAlert() []*Alert {
 		if alert != nil {
 			newAlerts = append(newAlerts, alert)
 			m.addAlert(alert)
+
+			// 记录到告警规则管理器
+			if m.alertRuleMgr != nil {
+				m.alertRuleMgr.RecordAlert(alert.Type, rule.TargetID, int(usage.Percent))
+			}
 		}
 	}
 
 	return newAlerts
+}
+
+// CheckAndAlertWithRules 使用告警规则进行检查
+func (m *Manager) CheckAndAlertWithRules() []*Alert {
+	m.mu.RLock()
+	rules := make([]*QuotaRule, 0, len(m.rules))
+	for _, r := range m.rules {
+		if r.Enabled {
+			rules = append(rules, r)
+		}
+	}
+	m.mu.RUnlock()
+
+	newAlerts := make([]*Alert, 0)
+
+	for _, rule := range rules {
+		usage, err := m.calculateUsage(rule)
+		if err != nil {
+			continue
+		}
+
+		// 检查告警规则
+		if m.alertRuleMgr != nil {
+			matchedRules := m.alertRuleMgr.ShouldAlert(rule.TargetType, rule.TargetID, usage.Percent)
+			for _, alertRule := range matchedRules {
+				alert := m.createAlertFromRule(rule, usage, alertRule)
+				if alert != nil {
+					newAlerts = append(newAlerts, alert)
+					m.addAlert(alert)
+					m.alertRuleMgr.RecordAlert(alertRule.ID, rule.TargetID, int(usage.Percent))
+				}
+			}
+		}
+
+		// 也使用传统的评估方式
+		alert := m.evaluateUsage(rule, usage)
+		if alert != nil {
+			// 检查是否已存在类似告警
+			exists := false
+			for _, a := range newAlerts {
+				if a.Target == alert.Target && a.Type == alert.Type {
+					exists = true
+					break
+				}
+			}
+			if !exists {
+				newAlerts = append(newAlerts, alert)
+				m.addAlert(alert)
+			}
+		}
+	}
+
+	return newAlerts
+}
+
+// createAlertFromRule 根据告警规则创建告警
+func (m *Manager) createAlertFromRule(rule *QuotaRule, usage *QuotaUsage, alertRule *AlertRule) *Alert {
+	// 找到触发的最高阈值
+	triggeredThreshold := 0
+	for _, t := range alertRule.Thresholds {
+		if usage.Percent >= float64(t) && t > triggeredThreshold {
+			triggeredThreshold = t
+		}
+	}
+
+	if triggeredThreshold == 0 {
+		return nil
+	}
+
+	return &Alert{
+		ID:        generateID(),
+		Type:      string(AlertTypeWarning),
+		Target:    rule.TargetID,
+		Percent:   usage.Percent,
+		Message:   fmt.Sprintf("%s 使用量 %.1f%% (规则: %s, 阈值: %d%%)", rule.TargetID, usage.Percent, alertRule.Name, triggeredThreshold),
+		CreatedAt: time.Now(),
+	}
 }
 
 // evaluateUsage 评估使用情况并生成告警
@@ -494,10 +693,11 @@ func (m *Manager) CheckQuota(targetType, targetID string, additionalBytes int64)
 // ========== 持久化 ==========
 
 type persistentConfig struct {
-	Rules        []*QuotaRule     `json:"rules"`
-	Alerts       []*Alert         `json:"alerts"`
-	AlertHistory []*Alert         `json:"alert_history"`
-	NotifyConfig NotificationConfig `json:"notify_config"`
+	Rules         []*QuotaRule        `json:"rules"`
+	Alerts        []*Alert            `json:"alerts"`
+	AlertHistory  []*Alert            `json:"alert_history"`
+	NotifyConfig  NotificationConfig  `json:"notify_config"`
+	ForecastConfig ForecastConfig     `json:"forecast_config"`
 }
 
 func (m *Manager) loadConfig() error {
@@ -527,6 +727,10 @@ func (m *Manager) loadConfig() error {
 	}
 	m.alertHistory = pc.AlertHistory
 	m.notifyConfig = pc.NotifyConfig
+	if pc.ForecastConfig.HistoryDays > 0 {
+		m.forecastConfig = pc.ForecastConfig
+		m.predictor.SetConfig(pc.ForecastConfig)
+	}
 
 	return nil
 }
@@ -537,10 +741,11 @@ func (m *Manager) saveConfig() error {
 	}
 
 	pc := persistentConfig{
-		Rules:        make([]*QuotaRule, 0, len(m.rules)),
-		Alerts:       make([]*Alert, 0, len(m.alerts)),
-		AlertHistory: m.alertHistory,
-		NotifyConfig: m.notifyConfig,
+		Rules:         make([]*QuotaRule, 0, len(m.rules)),
+		Alerts:        make([]*Alert, 0, len(m.alerts)),
+		AlertHistory:  m.alertHistory,
+		NotifyConfig:  m.notifyConfig,
+		ForecastConfig: m.forecastConfig,
 	}
 
 	for _, r := range m.rules {
@@ -588,4 +793,18 @@ func GetDirSize(path string) (int64, error) {
 	var size int64
 	_, _ = fmt.Sscanf(string(output), "%d", &size)
 	return size, nil
+}
+
+// FormatBytes 格式化字节大小
+func FormatBytes(bytes int64) string {
+	const unit = 1024
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	div, exp := int64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.2f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }

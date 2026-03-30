@@ -2,7 +2,6 @@
 package gpu
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -182,18 +181,12 @@ func TestAllocateGPU(t *testing.T) {
 	config.GPUEnabled = true
 	config.GPUDevices = []string{} // 禁用自动检测
 
-	// 手动创建manager并禁用nvidia provider
-	mgr := &Manager{
-		config:      config,
-		logger:      logger,
-		devices:     make(map[string]*GPUDevice),
-		allocations: make(map[string]*GPUAllocation),
-		ctx:         context.Background(),
-		cancel:      func() {},
-	}
-	mgr.scheduler = NewScheduler(mgr, config.SchedulerPolicy, logger)
+	// 手动创建manager
+	mgr, err := NewManager(config, logger)
+	require.NoError(t, err)
 
 	// 添加模拟设备
+	mgr.mu.Lock()
 	mgr.devices["nvidia0"] = &GPUDevice{
 		ID:          "nvidia0",
 		Name:        "NVIDIA GeForce RTX 3080",
@@ -207,6 +200,7 @@ func TestAllocateGPU(t *testing.T) {
 		Allocated:   false,
 		DevicePath:  "/dev/nvidia0",
 	}
+	mgr.mu.Unlock()
 
 	// 测试分配
 	req := &GPUAllocation{
@@ -250,18 +244,11 @@ func TestAllocateGPUExclusive(t *testing.T) {
 	config.GPUDevices = []string{} // 禁用自动检测
 	config.SchedulerPolicy = "exclusive"
 
-	// 手动创建manager
-	mgr := &Manager{
-		config:      config,
-		logger:      logger,
-		devices:     make(map[string]*GPUDevice),
-		allocations: make(map[string]*GPUAllocation),
-		ctx:         context.Background(),
-		cancel:      func() {},
-	}
-	mgr.scheduler = NewScheduler(mgr, config.SchedulerPolicy, logger)
+	mgr, err := NewManager(config, logger)
+	require.NoError(t, err)
 
 	// 添加模拟设备
+	mgr.mu.Lock()
 	mgr.devices["nvidia0"] = &GPUDevice{
 		ID:          "nvidia0",
 		Name:        "NVIDIA GeForce RTX 3080",
@@ -274,6 +261,7 @@ func TestAllocateGPUExclusive(t *testing.T) {
 		Allocated:   false,
 		DevicePath:  "/dev/nvidia0",
 	}
+	mgr.mu.Unlock()
 
 	// 独占分配
 	req := &GPUAllocation{
@@ -302,17 +290,11 @@ func TestScheduler(t *testing.T) {
 	config := DefaultGPUConfig()
 	config.GPUEnabled = false
 
-	// 手动创建manager避免GPU检测
-	mgr := &Manager{
-		config:      config,
-		logger:      logger,
-		devices:     make(map[string]*GPUDevice),
-		allocations: make(map[string]*GPUAllocation),
-		ctx:         context.Background(),
-		cancel:      func() {},
-	}
+	mgr, err := NewManager(config, logger)
+	require.NoError(t, err)
 
 	// 添加模拟设备
+	mgr.mu.Lock()
 	mgr.devices["nvidia0"] = &GPUDevice{
 		ID:          "nvidia0",
 		Name:        "RTX 3080",
@@ -335,6 +317,7 @@ func TestScheduler(t *testing.T) {
 		Allocated:   false,
 		DevicePath:  "/dev/nvidia1",
 	}
+	mgr.mu.Unlock()
 
 	scheduler := NewScheduler(mgr, "round-robin", logger)
 
@@ -358,17 +341,11 @@ func TestSchedulerPolicies(t *testing.T) {
 	config := DefaultGPUConfig()
 	config.GPUEnabled = false
 
-	// 手动创建manager
-	mgr := &Manager{
-		config:      config,
-		logger:      logger,
-		devices:     make(map[string]*GPUDevice),
-		allocations: make(map[string]*GPUAllocation),
-		ctx:         context.Background(),
-		cancel:      func() {},
-	}
+	mgr, err := NewManager(config, logger)
+	require.NoError(t, err)
 
 	// 添加模拟设备（不同负载）
+	mgr.mu.Lock()
 	mgr.devices["nvidia0"] = &GPUDevice{
 		ID:          "nvidia0",
 		MemoryTotal: 10240,
@@ -505,17 +482,11 @@ func TestGPUStats(t *testing.T) {
 	config := DefaultGPUConfig()
 	config.GPUEnabled = false
 
-	// 手动创建manager
-	mgr := &Manager{
-		config:      config,
-		logger:      logger,
-		devices:     make(map[string]*GPUDevice),
-		allocations: make(map[string]*GPUAllocation),
-		ctx:         context.Background(),
-		cancel:      func() {},
-	}
+	mgr, err := NewManager(config, logger)
+	require.NoError(t, err)
 
 	// 添加模拟设备
+	mgr.mu.Lock()
 	mgr.devices["nvidia0"] = &GPUDevice{
 		ID:          "nvidia0",
 		MemoryTotal: 10240,
@@ -542,6 +513,7 @@ func TestGPUStats(t *testing.T) {
 		ContainerID: "container-1",
 		GPUID:       "nvidia1",
 	}
+	mgr.mu.Unlock()
 
 	stats, err := mgr.GetGPUStats()
 	require.NoError(t, err)
@@ -643,17 +615,11 @@ func TestValidateGPUConfig(t *testing.T) {
 	config := DefaultGPUConfig()
 	config.GPUEnabled = false
 
-	// 手动创建manager
-	mgr := &Manager{
-		config:      config,
-		logger:      logger,
-		devices:     make(map[string]*GPUDevice),
-		allocations: make(map[string]*GPUAllocation),
-		ctx:         context.Background(),
-		cancel:      func() {},
-	}
+	mgr, err := NewManager(config, logger)
+	require.NoError(t, err)
 
 	// 添加模拟设备
+	mgr.mu.Lock()
 	mgr.devices["nvidia0"] = &GPUDevice{
 		ID:          "nvidia0",
 		UUID:        "GPU-12345",
@@ -668,7 +634,7 @@ func TestValidateGPUConfig(t *testing.T) {
 		MemoryLimit: 4096,
 	}
 
-	err := ValidateGPUConfig(validConfig, mgr)
+	err = ValidateGPUConfig(validConfig, mgr)
 	assert.NoError(t, err)
 
 	// 无效的GPU索引
@@ -737,15 +703,8 @@ func TestMonitor(t *testing.T) {
 	config := DefaultGPUConfig()
 	config.GPUEnabled = false
 
-	// 手动创建manager
-	mgr := &Manager{
-		config:      config,
-		logger:      logger,
-		devices:     make(map[string]*GPUDevice),
-		allocations: make(map[string]*GPUAllocation),
-		ctx:         context.Background(),
-		cancel:      func() {},
-	}
+	mgr, err := NewManager(config, logger)
+	require.NoError(t, err)
 
 	monitor := NewMonitor(mgr, 5, logger)
 	assert.NotNil(t, monitor)
@@ -838,17 +797,11 @@ func TestReleaseGPUByContainer(t *testing.T) {
 	config := DefaultGPUConfig()
 	config.GPUEnabled = false
 
-	// 手动创建manager
-	mgr := &Manager{
-		config:      config,
-		logger:      logger,
-		devices:     make(map[string]*GPUDevice),
-		allocations: make(map[string]*GPUAllocation),
-		ctx:         context.Background(),
-		cancel:      func() {},
-	}
+	mgr, err := NewManager(config, logger)
+	require.NoError(t, err)
 
 	// 添加设备和分配
+	mgr.mu.Lock()
 	mgr.devices["nvidia0"] = &GPUDevice{
 		ID:          "nvidia0",
 		MemoryTotal: 10240,
@@ -880,7 +833,7 @@ func TestReleaseGPUByContainer(t *testing.T) {
 		ContainerID: "container-1",
 	}
 
-	err := mgr.ReleaseGPU(releaseReq)
+	err = mgr.ReleaseGPU(releaseReq)
 	assert.NoError(t, err)
 
 	// 验证所有设备已释放
@@ -896,17 +849,11 @@ func TestGetContainerGPUAllocations(t *testing.T) {
 	config := DefaultGPUConfig()
 	config.GPUEnabled = false
 
-	// 手动创建manager
-	mgr := &Manager{
-		config:      config,
-		logger:      logger,
-		devices:     make(map[string]*GPUDevice),
-		allocations: make(map[string]*GPUAllocation),
-		ctx:         context.Background(),
-		cancel:      func() {},
-	}
+	mgr, err := NewManager(config, logger)
+	require.NoError(t, err)
 
 	// 添加分配记录
+	mgr.mu.Lock()
 	mgr.allocations["req-1"] = &GPUAllocation{
 		RequestID:   "req-1",
 		ContainerID: "container-1",
@@ -939,15 +886,8 @@ func TestConfigImportExport(t *testing.T) {
 	config := DefaultGPUConfig()
 	config.GPUEnabled = false
 
-	// 手动创建manager
-	mgr := &Manager{
-		config:      config,
-		logger:      logger,
-		devices:     make(map[string]*GPUDevice),
-		allocations: make(map[string]*GPUAllocation),
-		ctx:         context.Background(),
-		cancel:      func() {},
-	}
+	mgr, err := NewManager(config, logger)
+	require.NoError(t, err)
 
 	// 导出配置
 	data, err := mgr.ExportConfig()

@@ -51,11 +51,14 @@ func NewManager(config *GPUConfig, logger *zap.Logger) (*Manager, error) {
 		cancel:      cancel,
 	}
 
-	// 初始化NVIDIA提供者（如果可用）
-	if nvidiaProvider, err := NewNVIDIAProvider(logger); err == nil {
-		mgr.nvidia = nvidiaProvider
-	} else {
-		logger.Warn("NVIDIA GPU provider not available", zap.Error(err))
+	// 只在明确启用且有设备路径时初始化NVIDIA提供者
+	// GPUDevices非空表示用户明确指定了GPU设备
+	if config.GPUEnabled && len(config.GPUDevices) > 0 {
+		if nvidiaProvider, err := NewNVIDIAProvider(logger); err == nil {
+			mgr.nvidia = nvidiaProvider
+		} else {
+			logger.Warn("NVIDIA GPU provider not available", zap.Error(err))
+		}
 	}
 
 	// 初始化调度器
@@ -64,8 +67,8 @@ func NewManager(config *GPUConfig, logger *zap.Logger) (*Manager, error) {
 	// 初始化监控器
 	mgr.monitor = NewMonitor(mgr, config.MonitorInterval, logger)
 
-	// 自动检测GPU设备
-	if config.GPUEnabled {
+	// 只在有NVIDIA provider时自动检测GPU设备
+	if mgr.nvidia != nil {
 		if err := mgr.detectDevices(); err != nil {
 			logger.Warn("GPU device detection failed", zap.Error(err))
 		}
@@ -208,6 +211,18 @@ func (m *Manager) GetGPU(id string) (*GPUDevice, error) {
 	return device, nil
 }
 
+// getAvailableGPUsInternal 内部方法获取可用GPU列表（不获取锁，用于调度器）
+// 注意：调用者必须已持有m.mu锁
+func (m *Manager) getAvailableGPUsInternal() []*GPUDevice {
+	var result []*GPUDevice
+	for _, device := range m.devices {
+		if device.Status == GPUStatusAvailable && !device.Allocated {
+			result = append(result, device)
+		}
+	}
+	return result
+}
+
 // AllocateGPU 分配GPU给容器/VM
 func (m *Manager) AllocateGPU(req *GPUAllocation) (*GPUAllocationResult, error) {
 	m.mu.Lock()
@@ -246,6 +261,7 @@ func (m *Manager) AllocateGPU(req *GPUAllocation) (*GPUAllocationResult, error) 
 
 	// 创建分配记录
 	req.RequestID = generateRequestID()
+	req.GPUID = device.ID // 设置GPU设备ID
 	req.MemoryLimit = memoryLimit
 	req.CUDALimit = cudaLimit
 	req.CreatedAt = time.Now()

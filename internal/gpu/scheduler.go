@@ -57,11 +57,9 @@ func (s *Scheduler) SelectGPU(req *GPUAllocation) (*GPUDevice, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	// 获取可用GPU列表
-	availableGPUs := s.manager.ListGPUs(&GPUDeviceFilter{
-		Status:   GPUStatusAvailable,
-		OnlyFree: true,
-	})
+	// 直接访问manager的devices（不通过ListGPUs避免锁冲突）
+	// 注意：调用者应该已经持有manager的锁
+	availableGPUs := s.manager.getAvailableGPUsInternal()
 
 	if len(availableGPUs) == 0 {
 		return nil, fmt.Errorf("没有可用的GPU设备")
