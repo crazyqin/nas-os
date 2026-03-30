@@ -453,7 +453,7 @@ func (h *Handlers) deleteLUNSnapshot(c *gin.Context) {
 // @Success 200 {object} Response
 // @Router /iscsi/status [get]
 func (h *Handlers) getServiceStatus(c *gin.Context) {
-	running, err := h.manager.GetStatus()
+	running, err := h.manager.GetStatus(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, fail(500, err.Error()))
 		return
@@ -474,7 +474,7 @@ func (h *Handlers) getServiceStatus(c *gin.Context) {
 // @Success 200 {object} Response
 // @Router /iscsi/start [post]
 func (h *Handlers) startService(c *gin.Context) {
-	if err := h.manager.Start(); err != nil {
+	if err := h.manager.Start(c.Request.Context()); err != nil {
 		c.JSON(http.StatusInternalServerError, fail(500, err.Error()))
 		return
 	}
@@ -489,7 +489,7 @@ func (h *Handlers) startService(c *gin.Context) {
 // @Success 200 {object} Response
 // @Router /iscsi/stop [post]
 func (h *Handlers) stopService(c *gin.Context) {
-	if err := h.manager.Stop(); err != nil {
+	if err := h.manager.Stop(c.Request.Context()); err != nil {
 		c.JSON(http.StatusInternalServerError, fail(500, err.Error()))
 		return
 	}
@@ -504,7 +504,7 @@ func (h *Handlers) stopService(c *gin.Context) {
 // @Success 200 {object} Response
 // @Router /iscsi/restart [post]
 func (h *Handlers) restartService(c *gin.Context) {
-	if err := h.manager.Restart(); err != nil {
+	if err := h.manager.Restart(c.Request.Context()); err != nil {
 		c.JSON(http.StatusInternalServerError, fail(500, err.Error()))
 		return
 	}
@@ -519,7 +519,7 @@ func (h *Handlers) restartService(c *gin.Context) {
 // @Success 200 {object} Response
 // @Router /iscsi/apply [post]
 func (h *Handlers) applyConfig(c *gin.Context) {
-	if err := h.manager.ApplyConfig(); err != nil {
+	if err := h.manager.ApplyConfig(c.Request.Context()); err != nil {
 		c.JSON(http.StatusInternalServerError, fail(500, err.Error()))
 		return
 	}

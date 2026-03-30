@@ -393,7 +393,7 @@ func (m *Manager) DNSLookup(host string, recordType string) (*DNSLookupResult, e
 
 	// TXT 记录
 	if recordType == "" || recordType == "TXT" {
-		txtRecords, err := net.LookupTXT(host)
+		txtRecords, err := resolver.LookupTXT(ctx, host)
 		if err == nil {
 			result.TXTRecords = txtRecords
 		}
@@ -418,6 +418,9 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 	}
 
 	timeout := 1 * time.Second
+	dialer := &net.Dialer{Timeout: timeout}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
 	for _, port := range ports {
 		status := PortStatus{
@@ -428,7 +431,7 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 		address := net.JoinHostPort(host, fmt.Sprintf("%d", port))
 
 		if protocol == "tcp" {
-			conn, err := net.DialTimeout("tcp", address, timeout)
+			conn, err := dialer.DialContext(ctx, "tcp", address)
 			if err == nil {
 				status.Open = true
 				_ = conn.Close()
@@ -437,7 +440,7 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 			}
 		} else {
 			// UDP 扫描
-			conn, err := net.DialTimeout("udp", address, timeout)
+			conn, err := dialer.DialContext(ctx, "udp", address)
 			if err == nil {
 				// 发送空数据包
 				_, _ = conn.Write([]byte{})
@@ -620,8 +623,13 @@ func (m *Manager) CheckConnectivity() (*ConnectivityStatus, error) {
 		Checks: make(map[string]bool),
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	resolver := net.Resolver{}
+
 	// 检查 DNS 解析
-	if _, err := net.LookupHost("google.com"); err == nil {
+	if _, err := resolver.LookupHost(ctx, "google.com"); err == nil {
 		status.Checks["dns"] = true
 	} else {
 		status.Checks["dns"] = false
@@ -634,8 +642,9 @@ func (m *Manager) CheckConnectivity() (*ConnectivityStatus, error) {
 		"208.67.222.222:53", // OpenDNS
 	}
 
+	dialer := &net.Dialer{Timeout: 2 * time.Second}
 	for _, host := range testHosts {
-		conn, err := net.DialTimeout("tcp", host, 2*time.Second)
+		conn, err := dialer.DialContext(ctx, "tcp", host)
 		if err == nil {
 			_ = conn.Close()
 			status.Checks["internet"] = true

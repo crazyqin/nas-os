@@ -20,6 +20,14 @@ const (
 	WidgetTypeNetwork WidgetType = "network"
 	// WidgetTypeCustom is a user-defined widget type.
 	WidgetTypeCustom WidgetType = "custom"
+	// WidgetTypeSystemLoad displays system load metrics.
+	WidgetTypeSystemLoad WidgetType = "system_load"
+	// WidgetTypeStorageIO displays storage I/O metrics.
+	WidgetTypeStorageIO WidgetType = "storage_io"
+	// WidgetTypeNetworkTraffic displays network traffic metrics.
+	WidgetTypeNetworkTraffic WidgetType = "network_traffic"
+	// WidgetTypeAlertSummary displays alert summary.
+	WidgetTypeAlertSummary WidgetType = "alert_summary"
 )
 
 // WidgetSize defines the size of a dashboard widget.
