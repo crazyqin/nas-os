@@ -71,16 +71,12 @@ func (api *MediaCenterAPI) ScrapeMedia(w http.ResponseWriter, r *http.Request) {
 	var result interface{}
 	var err error
 
-	// 使用 SmartMatch 或 ScrapeMedia 方法
-	if req.Filename != "" {
-		result, err = api.scraper.SmartMatch(r.Context(), req.Filename)
-	} else if req.Type == media.MediaTypeTVShow {
-		// 使用 ScrapeMedia 传入电视剧类型提示
-		result, err = api.scraper.ScrapeMedia(r.Context(), req.Title, media.ScrapeHint{MediaType: media.MediaTypeTVShow})
-	} else {
-		// 使用 ScrapeMedia 传入电影类型提示和年份
-		result, err = api.scraper.ScrapeMedia(r.Context(), req.Title, media.ScrapeHint{MediaType: media.MediaTypeMovie, Year: req.Year})
+	// 使用ScrapeMedia自动识别
+	hints := media.ScrapeHint{Title: req.Title, Year: req.Year}
+	if req.Type == media.MediaTypeTVShow {
+		hints.MediaType = media.MediaTypeTVShow
 	}
+	result, err = api.scraper.ScrapeMedia(r.Context(), req.Filename, hints)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -93,7 +89,8 @@ func (api *MediaCenterAPI) ScrapeMedia(w http.ResponseWriter, r *http.Request) {
 // BatchScrapeMedia handles batch scraping
 func (api *MediaCenterAPI) BatchScrapeMedia(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Files []string `json:"files"`
+		Files   []string `json:"files"`
+		Workers int      `json:"workers,omitempty"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -112,8 +109,7 @@ func (api *MediaCenterAPI) BatchScrapeMedia(w http.ResponseWriter, r *http.Reque
 
 // GetSources returns available metadata sources
 func (api *MediaCenterAPI) GetSources(w http.ResponseWriter, r *http.Request) {
-	// 返回配置的数据源优先级
-	sources := []string{"tmdb", "douban"}
+	sources := []string{"tmdb", "douban", "imdb"}
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"sources": sources,
 	})
