@@ -1,899 +1,881 @@
 package smb
 
 import (
+	"os"
+	"path/filepath"
+	"sync"
 	"testing"
 	"time"
+
+	"go.uber.org/zap"
 )
 
-func TestNewSecurityAuditManager(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	if sam == nil {
-		t.Fatal("NewSecurityAuditManager 返回 nil")
+// ========== SecurityManager 测试 ==========
+
+func TestNewSecurityManager(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	if sm == nil {
+		t.Fatal("SecurityManager 不应为 nil")
 	}
 
-	config := sam.GetConfig()
-	if !config.Enabled {
-		t.Error("安全审计应默认启用")
-	}
-	if !config.FileAccessAudit {
-		t.Error("文件访问审计应默认启用")
-	}
-	if !config.AnomalyDetection {
-		t.Error("异常检测应默认启用")
-	}
-	if !config.RansomwareDetection {
-		t.Error("勒索软件检测应默认启用")
-	}
-	if config.MaxRecords != 50000 {
-		t.Errorf("默认最大记录数应为 50000，实际为 %d", config.MaxRecords)
-	}
-	if config.RetentionDays != 90 {
-		t.Errorf("默认保留天数应为 90，实际为 %d", config.RetentionDays)
-	}
-}
-
-func TestSecurityAuditManager_SetConfig(t *testing.T) {
-	sam := NewSecurityAuditManager()
-
-	newConfig := SecurityAuditConfig{
-		Enabled:             true,
-		FileAccessAudit:     true,
-		AuthAudit:           true,
-		AnomalyDetection:    false,
-		RansomwareDetection: false,
-		MaxRecords:          10000,
-		RetentionDays:       30,
-		AlertThreshold:      5,
-		AlertChannels:       []string{"email"},
-		WhitelistedIPs:      []string{"192.168.1.1"},
-		WhitelistedUsers:    []string{"admin"},
+	if sm.config == nil {
+		t.Error("config 不应为 nil")
 	}
 
-	sam.SetConfig(newConfig)
-	config := sam.GetConfig()
+	if sm.bannedIPs == nil {
+		t.Error("bannedIPs 不应为 nil")
+	}
 
-	if config.MaxRecords != 10000 {
-		t.Errorf("配置更新失败，MaxRecords 应为 10000，实际为 %d", config.MaxRecords)
-	}
-	if config.AnomalyDetection != false {
-		t.Error("AnomalyDetection 应为 false")
-	}
-	if len(config.WhitelistedIPs) != 1 {
-		t.Errorf("白名单 IP 数量应为 1，实际为 %d", len(config.WhitelistedIPs))
-	}
-	if len(config.WhitelistedUsers) != 1 {
-		t.Errorf("白名单用户数量应为 1，实际为 %d", len(config.WhitelistedUsers))
+	if sm.failedAttempts == nil {
+		t.Error("failedAttempts 不应为 nil")
 	}
 }
 
-func TestSecurityAuditManager_LogFileAccess(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: false,
-		MaxRecords:      100,
-	})
+func TestCheckIPAllowed_BannedIP(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
 
-	record := FileAccessRecord{
-		ShareName: "documents",
-		FilePath:  "/documents/report.pdf",
-		Username:  "testuser",
-		ClientIP:  "192.168.1.100",
-		Action:    "read",
-		Status:    "success",
-	}
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
 
-	sam.LogFileAccess(record)
+	// 手动封禁一个IP
+	sm.mu.Lock()
+	sm.bannedIPs["192.168.1.100"] = &IPBanEntry{
+		IP:        "192.168.1.100",
+		Reason:    "test",
+		BannedAt:  time.Now(),
+		ExpiresAt: time.Now().Add(1 * time.Hour),
+	}
+	sm.mu.Unlock()
 
-	records := sam.GetFileAccessRecords(100, 0, nil)
-	if len(records) != 1 {
-		t.Fatalf("应有 1 条记录，实际为 %d", len(records))
+	// 检查封禁的IP
+	allowed, reason := sm.CheckIPAllowed("192.168.1.100")
+	if allowed {
+		t.Error("封禁的IP应该被拒绝")
 	}
-
-	if records[0].FilePath != "/documents/report.pdf" {
-		t.Errorf("文件路径应为 /documents/report.pdf，实际为 %s", records[0].FilePath)
-	}
-	if records[0].ID == "" {
-		t.Error("记录 ID 不应为空")
-	}
-	if records[0].Timestamp.IsZero() {
-		t.Error("时间戳不应为零")
+	if reason == "" {
+		t.Error("应该返回拒绝原因")
 	}
 }
 
-func TestSecurityAuditManager_LogFileAccessDisabled(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         false, // 禁用审计
-		FileAccessAudit: false,
-		MaxRecords:      100,
-	})
+func TestCheckIPAllowed_Blacklist(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
 
-	record := FileAccessRecord{
-		ShareName: "documents",
-		FilePath:  "/documents/report.pdf",
-		Username:  "testuser",
-		ClientIP:  "192.168.1.100",
-		Action:    "read",
-	}
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
 
-	sam.LogFileAccess(record)
+	// 设置黑名单
+	sm.mu.Lock()
+	sm.config.IPBlacklist = []string{"10.0.0.50", "10.0.0.51"}
+	sm.mu.Unlock()
 
-	records := sam.GetFileAccessRecords(100, 0, nil)
-	if len(records) != 0 {
-		t.Errorf("审计禁用时不应记录，实际有 %d 条", len(records))
+	allowed, _ := sm.CheckIPAllowed("10.0.0.50")
+	if allowed {
+		t.Error("黑名单IP应该被拒绝")
 	}
 }
 
-func TestSecurityAuditManager_LogSecurityEvent(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:    true,
-		MaxRecords: 100,
-	})
+func TestCheckIPAllowed_Whitelist(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
 
-	event := SecurityEvent{
-		EventType: "access",
-		Severity:  "high",
-		ShareName: "documents",
-		Username:  "testuser",
-		ClientIP:  "192.168.1.100",
-		FilePath:  "/documents/sensitive.pdf",
-		Action:    "read",
-		Status:    "detected",
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 设置白名单
+	sm.mu.Lock()
+	sm.config.IPWhitelist = []string{"192.168.1.0/24"}
+	sm.mu.Unlock()
+
+	// 白名单内的IP应该被允许
+	allowed, _ := sm.CheckIPAllowed("192.168.1.100")
+	if !allowed {
+		t.Error("白名单IP应该被允许")
 	}
 
-	sam.LogSecurityEvent(event)
-
-	events := sam.GetSecurityEvents(100, 0, nil)
-	if len(events) != 1 {
-		t.Fatalf("应有 1 条事件，实际为 %d", len(events))
-	}
-
-	if events[0].EventType != "access" {
-		t.Errorf("事件类型应为 access，实际为 %s", events[0].EventType)
-	}
-	if events[0].ID == "" {
-		t.Error("事件 ID 不应为空")
+	// 白名单外的IP应该被拒绝
+	allowed, _ = sm.CheckIPAllowed("10.0.0.1")
+	if allowed {
+		t.Error("非白名单IP应该被拒绝")
 	}
 }
 
-func TestSecurityAuditManager_MaxRecords(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: false,
-		MaxRecords:      5,
-	})
-
-	// 添加 10 条记录
-	for i := 0; i < 10; i++ {
-		sam.LogFileAccess(FileAccessRecord{
-			ShareName: "documents",
-			FilePath:  "/documents/file" + string(rune(i)),
-			Username:  "testuser",
-			ClientIP:  "192.168.1.100",
-			Action:    "read",
-		})
-	}
-
-	records := sam.GetFileAccessRecords(100, 0, nil)
-	if len(records) != 5 {
-		t.Errorf("应限制为 5 条记录，实际为 %d", len(records))
-	}
-}
-
-func TestSecurityAuditManager_FileFilters(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: false,
-		MaxRecords:      100,
-	})
-
-	// 添加多条记录
-	sam.LogFileAccess(FileAccessRecord{ShareName: "documents", Username: "user1", Action: "read", ClientIP: "192.168.1.1"})
-	sam.LogFileAccess(FileAccessRecord{ShareName: "documents", Username: "user2", Action: "write", ClientIP: "192.168.1.2"})
-	sam.LogFileAccess(FileAccessRecord{ShareName: "backup", Username: "user1", Action: "delete", ClientIP: "192.168.1.1"})
-	sam.LogFileAccess(FileAccessRecord{ShareName: "documents", Username: "user1", Action: "delete", ClientIP: "192.168.1.1"})
-
-	// 按用户筛选
-	filters := map[string]string{"username": "user1"}
-	records := sam.GetFileAccessRecords(100, 0, filters)
-	if len(records) != 3 {
-		t.Errorf("user1 应有 3 条记录，实际为 %d", len(records))
-	}
-
-	// 按共享名筛选
-	filters = map[string]string{"share_name": "documents"}
-	records = sam.GetFileAccessRecords(100, 0, filters)
-	if len(records) != 3 {
-		t.Errorf("documents 共享应有 3 条记录，实际为 %d", len(records))
-	}
-
-	// 按操作筛选
-	filters = map[string]string{"action": "delete"}
-	records = sam.GetFileAccessRecords(100, 0, filters)
-	if len(records) != 2 {
-		t.Errorf("delete 操作应有 2 条记录，实际为 %d", len(records))
-	}
-
-	// 按 IP 筛选
-	filters = map[string]string{"client_ip": "192.168.1.1"}
-	records = sam.GetFileAccessRecords(100, 0, filters)
-	if len(records) != 3 {
-		t.Errorf("IP 192.168.1.1 应有 3 条记录，实际为 %d", len(records))
-	}
-}
-
-func TestSecurityAuditManager_EventFilters(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:    true,
-		MaxRecords: 100,
-	})
-
-	// 添加多个事件
-	sam.LogSecurityEvent(SecurityEvent{EventType: "access", Severity: "high", Username: "user1"})
-	sam.LogSecurityEvent(SecurityEvent{EventType: "anomaly", Severity: "critical", Username: "user2"})
-	sam.LogSecurityEvent(SecurityEvent{EventType: "access", Severity: "low", Username: "user1"})
-	sam.LogSecurityEvent(SecurityEvent{EventType: "ransomware", Severity: "critical", Username: "user3"})
-
-	// 按类型筛选
-	filters := map[string]string{"event_type": "access"}
-	events := sam.GetSecurityEvents(100, 0, filters)
-	if len(events) != 2 {
-		t.Errorf("access 类型应有 2 条事件，实际为 %d", len(events))
-	}
-
-	// 按严重级别筛选
-	filters = map[string]string{"severity": "critical"}
-	events = sam.GetSecurityEvents(100, 0, filters)
-	if len(events) != 2 {
-		t.Errorf("critical 级别应有 2 条事件，实际为 %d", len(events))
-	}
-}
-
-func TestSecurityAuditManager_UserStats(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: false,
-		MaxRecords:      100,
-	})
-
-	// 添加多条记录
-	sam.LogFileAccess(FileAccessRecord{Username: "testuser", Action: "read", FilePath: "/file1"})
-	sam.LogFileAccess(FileAccessRecord{Username: "testuser", Action: "write", FilePath: "/file2"})
-	sam.LogFileAccess(FileAccessRecord{Username: "testuser", Action: "delete", FilePath: "/file3"})
-	sam.LogFileAccess(FileAccessRecord{Username: "otheruser", Action: "read", FilePath: "/file4"})
-
-	stats, exists := sam.GetUserAccessStats("testuser")
-	if !exists {
-		t.Fatal("testuser 统计应存在")
-	}
-
-	if stats.TotalAccess != 3 {
-		t.Errorf("总访问次数应为 3，实际为 %d", stats.TotalAccess)
-	}
-	if stats.ReadCount != 1 {
-		t.Errorf("读取次数应为 1，实际为 %d", stats.ReadCount)
-	}
-	if stats.WriteCount != 1 {
-		t.Errorf("写入次数应为 1，实际为 %d", stats.WriteCount)
-	}
-	if stats.DeleteCount != 1 {
-		t.Errorf("删除次数应为 1，实际为 %d", stats.DeleteCount)
-	}
-	if len(stats.RecentFiles) != 3 {
-		t.Errorf("最近文件数应为 3，实际为 %d", len(stats.RecentFiles))
-	}
-
-	// 检查不存在用户
-	_, exists = sam.GetUserAccessStats("nonexistent")
-	if exists {
-		t.Error("不存在用户不应有统计")
-	}
-}
-
-func TestSecurityAuditManager_IPStats(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: false,
-		MaxRecords:      100,
-	})
-
-	// 添加多条记录
-	sam.LogFileAccess(FileAccessRecord{ClientIP: "192.168.1.100", Username: "user1", Action: "read"})
-	sam.LogFileAccess(FileAccessRecord{ClientIP: "192.168.1.100", Username: "user2", Action: "write"})
-	sam.LogFileAccess(FileAccessRecord{ClientIP: "192.168.1.100", Username: "user1", Action: "delete"})
-	sam.LogFileAccess(FileAccessRecord{ClientIP: "192.168.1.200", Username: "user3", Action: "read"})
-
-	stats, exists := sam.GetIPAccessStats("192.168.1.100")
-	if !exists {
-		t.Fatal("192.168.1.100 统计应存在")
-	}
-
-	if stats.TotalAccess != 3 {
-		t.Errorf("总访问次数应为 3，实际为 %d", stats.TotalAccess)
-	}
-	if len(stats.ConnectedUsers) != 2 {
-		t.Errorf("连接用户数应为 2，实际为 %d", len(stats.ConnectedUsers))
-	}
-
-	// 检查不存在 IP
-	_, exists = sam.GetIPAccessStats("10.0.0.1")
-	if exists {
-		t.Error("不存在 IP 不应有统计")
-	}
-}
-
-func TestSecurityAuditManager_AnomalyRules(t *testing.T) {
-	sam := NewSecurityAuditManager()
-
-	// 获取默认规则
-	rules := sam.GetAnomalyRules()
-	if len(rules) == 0 {
-		t.Error("应有默认异常检测规则")
-	}
-
-	// 验证默认规则
-	var rapidDeletionFound bool
-	for _, rule := range rules {
-		if rule.ID == "rapid_deletion" {
-			rapidDeletionFound = true
-			if !rule.Enabled {
-				t.Error("rapid_deletion 规则应默认启用")
-			}
-			if rule.Severity != "high" {
-				t.Errorf("rapid_deletion 严重级别应为 high，实际为 %s", rule.Severity)
-			}
-		}
-	}
-	if !rapidDeletionFound {
-		t.Error("应存在 rapid_deletion 规则")
-	}
-
-	// 添加新规则
-	newRule := AnomalyRule{
-		ID:          "test_rule",
-		Name:        "测试规则",
-		Description: "用于测试",
-		Enabled:     true,
-		Severity:    "medium",
-		Category:    "file_operation",
-		Threshold:   5,
-		TimeWindow:  time.Minute,
-	}
-
-	sam.AddAnomalyRule(newRule)
-
-	rules = sam.GetAnomalyRules()
-	var testRuleFound bool
-	for _, rule := range rules {
-		if rule.ID == "test_rule" {
-			testRuleFound = true
-		}
-	}
-	if !testRuleFound {
-		t.Error("添加的规则应存在")
-	}
-
-	// 更新规则
-	updatedRule := AnomalyRule{
-		ID:          "test_rule",
-		Name:        "更新测试规则",
-		Description: "已更新",
-		Enabled:     true,
-		Severity:    "high",
-		Category:    "file_operation",
-		Threshold:   10,
-		TimeWindow:  time.Minute * 5,
-	}
-
-	err := sam.UpdateAnomalyRule("test_rule", updatedRule)
-	if err != nil {
-		t.Errorf("更新规则失败: %v", err)
-	}
-
-	// 删除规则
-	err = sam.DeleteAnomalyRule("test_rule")
-	if err != nil {
-		t.Errorf("删除规则失败: %v", err)
-	}
-
-	rules = sam.GetAnomalyRules()
-	for _, rule := range rules {
-		if rule.ID == "test_rule" {
-			t.Error("规则应已删除")
-		}
-	}
-
-	// 删除不存在规则
-	err = sam.DeleteAnomalyRule("nonexistent")
-	if err == nil {
-		t.Error("删除不存在规则应返回错误")
-	}
-}
-
-func TestSecurityAuditManager_RansomwareIndicators(t *testing.T) {
-	sam := NewSecurityAuditManager()
-
-	// 获取默认指标
-	indicators := sam.GetRansomwareIndicators()
-	if len(indicators) == 0 {
-		t.Error("应有默认勒索软件检测指标")
-	}
-
-	// 验证默认指标
-	var ransomwareExtFound bool
-	for _, ind := range indicators {
-		if ind.ID == "ransomware_extensions" {
-			ransomwareExtFound = true
-			if !ind.Enabled {
-				t.Error("ransomware_extensions 指标应默认启用")
-			}
-			if len(ind.FileExtensions) == 0 {
-				t.Error("应有可疑扩展名")
-			}
-			if len(ind.SuspiciousPatterns) == 0 {
-				t.Error("应有可疑文件名模式")
-			}
-		}
-	}
-	if !ransomwareExtFound {
-		t.Error("应存在 ransomware_extensions 指标")
-	}
-}
-
-func TestSecurityAuditManager_SecurityStats(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: false,
-		MaxRecords:      100,
-	})
-
-	// 添加一些记录和事件
-	for i := 0; i < 10; i++ {
-		sam.LogFileAccess(FileAccessRecord{
-			ShareName: "documents",
-			Username:  "user" + string(rune(i)),
-			Action:    "read",
-			ClientIP:  "192.168.1." + string(rune(i)),
-		})
-	}
-	sam.LogSecurityEvent(SecurityEvent{EventType: "access", Severity: "high"})
-	sam.LogSecurityEvent(SecurityEvent{EventType: "anomaly", Severity: "critical"})
-	sam.LogSecurityEvent(SecurityEvent{EventType: "ransomware", Severity: "critical"})
-
-	stats := sam.GetSecurityStats()
-	if stats == nil {
-		t.Fatal("GetSecurityStats 返回 nil")
-	}
-
-	totalEvents, ok := stats["total_events"].(int)
-	if !ok || totalEvents != 3 {
-		t.Errorf("总事件数应为 3，实际为 %v", stats["total_events"])
-	}
-
-	totalAccess, ok := stats["total_file_access"].(int)
-	if !ok || totalAccess != 10 {
-		t.Errorf("总文件访问数应为 10，实际为 %v", stats["total_file_access"])
-	}
-
-	uniqueUsers, ok := stats["unique_users"].(int)
-	if !ok || uniqueUsers == 0 {
-		t.Error("应有唯一用户")
-	}
-
-	uniqueIPs, ok := stats["unique_ips"].(int)
-	if !ok || uniqueIPs == 0 {
-		t.Error("应有唯一 IP")
-	}
-}
-
-func TestSecurityAuditManager_AlertCallback(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:    true,
-		MaxRecords: 100,
-	})
-
-	alertReceived := false
-	var receivedEvent SecurityEvent
-
-	sam.SetAlertCallback(func(event SecurityEvent) {
-		alertReceived = true
-		receivedEvent = event
-	})
-
-	// 记录高严重级别事件（应触发告警）
-	sam.LogSecurityEvent(SecurityEvent{
-		EventType: "anomaly",
-		Severity:  "high",
-		Username:  "testuser",
-	})
-
-	// 等待回调执行
-	time.Sleep(100 * time.Millisecond)
-
-	if !alertReceived {
-		t.Error("高严重级别事件应触发告警回调")
-	}
-	if receivedEvent.EventType != "anomaly" {
-		t.Errorf("接收的事件类型应为 anomaly，实际为 %s", receivedEvent.EventType)
-	}
-}
-
-func TestSecurityAuditManager_Whitelist(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: true,
-		RansomwareDetection: false,
-		MaxRecords:      100,
-		WhitelistedIPs:  []string{"192.168.1.1"},
-		WhitelistedUsers: []string{"admin"},
-	})
-
-	// 白名单用户的大量删除（不应触发异常）
-	for i := 0; i < 20; i++ {
-		sam.LogFileAccess(FileAccessRecord{
-			Username:  "admin",
-			ClientIP:  "192.168.1.1",
-			Action:    "delete",
-			FilePath:  "/file" + string(rune(i)),
-		})
-	}
-
-	// 验证无异常事件（白名单用户）
-	events := sam.GetSecurityEvents(100, 0, map[string]string{"username": "admin"})
-	for _, event := range events {
-		if event.EventType == "anomaly" {
-			t.Error("白名单用户不应触发异常告警")
-		}
-	}
-}
-
-func TestSecurityAuditManager_CleanupOldRecords(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: false,
-		MaxRecords:      100,
-		RetentionDays:   1,
-	})
-
-	// 添加旧记录
-	oldRecord := FileAccessRecord{
-		ShareName: "documents",
-		FilePath:  "/documents/old.pdf",
-		Username:  "testuser",
-		ClientIP:  "192.168.1.100",
-		Action:    "read",
-	}
-	oldRecord.Timestamp = time.Now().AddDate(0, 0, -2) // 2 天前
-	sam.LogFileAccess(oldRecord)
-
-	// 添加新记录
-	sam.LogFileAccess(FileAccessRecord{
-		ShareName: "documents",
-		FilePath:  "/documents/new.pdf",
-		Username:  "testuser",
-		ClientIP:  "192.168.1.100",
-		Action:    "read",
-	})
-
-	// 清理旧记录
-	sam.CleanupOldRecords()
-
-	records := sam.GetFileAccessRecords(100, 0, nil)
-	if len(records) != 1 {
-		t.Errorf("清理后应有 1 条记录，实际为 %d", len(records))
-	}
-
-	if len(records) > 0 && records[0].FilePath != "/documents/new.pdf" {
-		t.Errorf("保留的记录应为新记录，实际为 %s", records[0].FilePath)
-	}
-}
-
-func TestSecurityAuditManager_ResetRecentStats(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: false,
-		MaxRecords:      100,
-	})
-
-	// 添加删除记录
-	for i := 0; i < 10; i++ {
-		sam.LogFileAccess(FileAccessRecord{
-			Username: "testuser",
-			ClientIP: "192.168.1.100",
-			Action:   "delete",
-		})
-	}
-
-	stats, _ := sam.GetUserAccessStats("testuser")
-	if stats.RecentDeleteCount != 10 {
-		t.Errorf("近期删除次数应为 10，实际为 %d", stats.RecentDeleteCount)
-	}
-
-	// 重置统计
-	sam.ResetRecentStats()
-
-	stats, _ = sam.GetUserAccessStats("testuser")
-	if stats.RecentDeleteCount != 0 {
-		t.Errorf("重置后近期删除次数应为 0，实际为 %d", stats.RecentDeleteCount)
-	}
-}
-
-func TestGetFileExtension(t *testing.T) {
+func TestCheckIPAllowed_CIDR(t *testing.T) {
 	tests := []struct {
-		path     string
-		expected string
+		name    string
+		pattern string
+		ip      string
+		want    bool
 	}{
-		{"/documents/report.pdf", ".pdf"},
-		{"/documents/report.encrypted", ".encrypted"},
-		{"/documents/README_FOR_DECRYPT.txt", ".txt"},
-		{"/documents/file", ""},
-		{"/documents/.hidden", ".hidden"},
+		{"精确匹配", "192.168.1.100", "192.168.1.100", true},
+		{"精确不匹配", "192.168.1.100", "192.168.1.101", false},
+		{"CIDR /24", "192.168.1.0/24", "192.168.1.100", true},
+		{"CIDR /24 外部", "192.168.1.0/24", "192.168.2.1", false},
+		{"CIDR /16", "10.0.0.0/16", "10.0.1.1", true},
+		{"无效CIDR当作精确匹配", "invalid", "invalid", true},
 	}
 
 	for _, tt := range tests {
-		ext := getFileExtension(tt.path)
-		if ext != tt.expected {
-			t.Errorf("getFileExtension(%q) = %q，期望 %q", tt.path, ext, tt.expected)
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			configPath := filepath.Join(tmpDir, "security.json")
+			logger := zap.NewNop().Sugar()
+			sm := NewSecurityManager(configPath, logger)
+
+			sm.mu.Lock()
+			sm.config.IPWhitelist = []string{tt.pattern}
+			sm.mu.Unlock()
+
+			allowed, _ := sm.CheckIPAllowed(tt.ip)
+			if allowed != tt.want {
+				t.Errorf("CheckIPAllowed(%s, %s) = %v, want %v", tt.pattern, tt.ip, allowed, tt.want)
+			}
+		})
+	}
+}
+
+func TestCheckRateLimit(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 启用限流，设置最大连接数为2
+	sm.mu.Lock()
+	sm.config.RateLimit.Enabled = true
+	sm.config.RateLimit.MaxConnPerIP = 2
+	sm.config.RateLimit.MaxConnTotal = 100
+	sm.mu.Unlock()
+
+	// 前两个连接应该成功
+	for i := 0; i < 2; i++ {
+		allowed, _ := sm.CheckRateLimit("192.168.1.100")
+		if !allowed {
+			t.Errorf("第 %d 个连接应该被允许", i+1)
 		}
+		sm.IncrementConnection("192.168.1.100")
+	}
+
+	// 第三个连接应该被拒绝
+	allowed, _ := sm.CheckRateLimit("192.168.1.100")
+	if allowed {
+		t.Error("超过限流的连接应该被拒绝")
 	}
 }
 
-func TestGenerateEventID(t *testing.T) {
-	id1 := generateEventID()
-	id2 := generateEventID()
+func TestRecordFailedAttempt_AutoBan(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
 
-	if id1 == "" {
-		t.Error("事件 ID 不应为空")
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 设置自动封禁阈值为3
+	sm.mu.Lock()
+	sm.config.AutoBanEnabled = true
+	sm.config.AutoBanThreshold = 3
+	sm.config.AutoBanDurationMins = 30
+	sm.config.AutoBanWindowMins = 5
+	sm.mu.Unlock()
+
+	// 记录失败尝试
+	for i := 0; i < 3; i++ {
+		sm.RecordFailedAttempt("192.168.1.200", "admin", "invalid password")
 	}
-	if id1 == id2 {
-		t.Error("两次生成的 ID 应不同")
+
+	// 检查是否被封禁
+	sm.mu.RLock()
+	ban, exists := sm.bannedIPs["192.168.1.200"]
+	sm.mu.RUnlock()
+
+	if !exists {
+		t.Fatal("IP应该被自动封禁")
 	}
-	if !startsWith(id1, "evt-") {
-		t.Errorf("事件 ID 应以 evt- 开头，实际为 %s", id1)
+
+	if ban.Reason != "暴力破解检测" {
+		t.Errorf("封禁原因错误: %s", ban.Reason)
 	}
 }
 
-func startsWith(s, prefix string) bool {
-	return len(s) >= len(prefix) && s[:len(prefix)] == prefix
+func TestRecordFailedAttempt_WhitelistNotBanned(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 白名单IP不应该被自动封禁
+	sm.mu.Lock()
+	sm.config.AutoBanEnabled = true
+	sm.config.AutoBanThreshold = 3
+	sm.config.IPWhitelist = []string{"192.168.1.250"}
+	sm.mu.Unlock()
+
+	// 记录大量失败尝试
+	for i := 0; i < 5; i++ {
+		sm.RecordFailedAttempt("192.168.1.250", "admin", "invalid password")
+	}
+
+	// 白名单IP不应该被封禁
+	sm.mu.RLock()
+	_, exists := sm.bannedIPs["192.168.1.250"]
+	sm.mu.RUnlock()
+
+	if exists {
+		t.Error("白名单IP不应该被自动封禁")
+	}
 }
 
-// 测试异常检测触发
-func TestSecurityAuditManager_AnomalyDetection_RapidDeletion(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: true,
-		RansomwareDetection: false,
-		MaxRecords:      1000,
-		WhitelistedIPs:  []string{},
-		WhitelistedUsers: []string{},
-	})
+func TestBanIP(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
 
-	alertReceived := false
-	sam.SetAlertCallback(func(event SecurityEvent) {
-		alertReceived = true
-	})
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
 
-	// 快速添加大量删除记录
-	for i := 0; i < 15; i++ {
-		sam.LogFileAccess(FileAccessRecord{
-			Username:  "attacker",
-			ClientIP:  "10.0.0.1",
-			Action:    "delete",
-			FilePath:  "/documents/file" + string(rune(i)),
-			ShareName: "documents",
+	// 封禁一个IP
+	err := sm.BanIP("192.168.1.100", "test ban", 60)
+	if err != nil {
+		t.Fatalf("BanIP 失败: %v", err)
+	}
+
+	// 验证封禁
+	sm.mu.RLock()
+	ban, exists := sm.bannedIPs["192.168.1.100"]
+	sm.mu.RUnlock()
+
+	if !exists {
+		t.Fatal("IP应该被封禁")
+	}
+
+	if ban.Reason != "test ban" {
+		t.Errorf("封禁原因错误: %s", ban.Reason)
+	}
+}
+
+func TestBanIP_WhitelistForbidden(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 添加到白名单
+	sm.mu.Lock()
+	sm.config.IPWhitelist = []string{"192.168.1.100"}
+	sm.mu.Unlock()
+
+	// 尝试封禁白名单IP应该失败
+	err := sm.BanIP("192.168.1.100", "test ban", 60)
+	if err == nil {
+		t.Error("封禁白名单IP应该失败")
+	}
+}
+
+func TestUnbanIP(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 先封禁
+	sm.mu.Lock()
+	sm.bannedIPs["192.168.1.100"] = &IPBanEntry{
+		IP:        "192.168.1.100",
+		Reason:    "test",
+		ExpiresAt: time.Now().Add(1 * time.Hour),
+	}
+	sm.mu.Unlock()
+
+	// 解封
+	err := sm.UnbanIP("192.168.1.100")
+	if err != nil {
+		t.Fatalf("UnbanIP 失败: %v", err)
+	}
+
+	// 验证解封
+	sm.mu.RLock()
+	_, exists := sm.bannedIPs["192.168.1.100"]
+	sm.mu.RUnlock()
+
+	if exists {
+		t.Error("IP应该已被解封")
+	}
+}
+
+func TestUnbanIP_NotBanned(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 尝试解封未封禁的IP
+	err := sm.UnbanIP("192.168.1.100")
+	if err == nil {
+		t.Error("解封未封禁的IP应该返回错误")
+	}
+}
+
+func TestGetBannedIPs(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 添加封禁记录
+	sm.mu.Lock()
+	sm.bannedIPs["192.168.1.100"] = &IPBanEntry{
+		IP:        "192.168.1.100",
+		Reason:    "test",
+		ExpiresAt: time.Now().Add(1 * time.Hour),
+	}
+	sm.bannedIPs["192.168.1.101"] = &IPBanEntry{
+		IP:        "192.168.1.101",
+		Reason:    "test",
+		ExpiresAt: time.Now().Add(-1 * time.Hour), // 已过期
+	}
+	sm.mu.Unlock()
+
+	banned := sm.GetBannedIPs()
+
+	if len(banned) != 1 {
+		t.Errorf("应该返回1个未过期的封禁记录，实际: %d", len(banned))
+	}
+
+	if len(banned) > 0 && banned[0].IP != "192.168.1.100" {
+		t.Error("应该返回未过期的封禁记录")
+	}
+}
+
+func TestAddToWhitelist(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	err := sm.AddToWhitelist("192.168.1.100")
+	if err != nil {
+		t.Fatalf("AddToWhitelist 失败: %v", err)
+	}
+
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	if len(sm.config.IPWhitelist) != 1 {
+		t.Error("白名单应该有1个IP")
+	}
+
+	if sm.config.IPWhitelist[0] != "192.168.1.100" {
+		t.Error("白名单IP不正确")
+	}
+}
+
+func TestAddToWhitelist_Duplicate(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 添加两次相同的IP
+	sm.AddToWhitelist("192.168.1.100")
+	sm.AddToWhitelist("192.168.1.100")
+
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	if len(sm.config.IPWhitelist) != 1 {
+		t.Error("重复添加不应创建重复记录")
+	}
+}
+
+func TestRemoveFromWhitelist(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	sm.mu.Lock()
+	sm.config.IPWhitelist = []string{"192.168.1.100", "192.168.1.101"}
+	sm.mu.Unlock()
+
+	err := sm.RemoveFromWhitelist("192.168.1.100")
+	if err != nil {
+		t.Fatalf("RemoveFromWhitelist 失败: %v", err)
+	}
+
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	if len(sm.config.IPWhitelist) != 1 {
+		t.Error("白名单应该只剩1个IP")
+	}
+
+	if sm.config.IPWhitelist[0] != "192.168.1.101" {
+		t.Error("剩余IP不正确")
+	}
+}
+
+func TestAddToBlacklist(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	err := sm.AddToBlacklist("10.0.0.1")
+	if err != nil {
+		t.Fatalf("AddToBlacklist 失败: %v", err)
+	}
+
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	if len(sm.config.IPBlacklist) != 1 {
+		t.Error("黑名单应该有1个IP")
+	}
+}
+
+func TestAddToBlacklist_WhitelistConflict(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 先添加到白名单
+	sm.mu.Lock()
+	sm.config.IPWhitelist = []string{"192.168.1.100"}
+	sm.mu.Unlock()
+
+	// 尝试添加到黑名单应该失败
+	err := sm.AddToBlacklist("192.168.1.100")
+	if err == nil {
+		t.Error("白名单IP不能添加到黑名单")
+	}
+}
+
+func TestRemoveFromBlacklist(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	sm.mu.Lock()
+	sm.config.IPBlacklist = []string{"10.0.0.1", "10.0.0.2"}
+	sm.mu.Unlock()
+
+	err := sm.RemoveFromBlacklist("10.0.0.1")
+	if err != nil {
+		t.Fatalf("RemoveFromBlacklist 失败: %v", err)
+	}
+
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	if len(sm.config.IPBlacklist) != 1 {
+		t.Error("黑名单应该只剩1个IP")
+	}
+}
+
+func TestIncrementDecrementConnection(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 增加连接
+	sm.IncrementConnection("192.168.1.100")
+	sm.IncrementConnection("192.168.1.100")
+	sm.IncrementConnection("192.168.1.101")
+
+	sm.mu.RLock()
+	if sm.connCounts["192.168.1.100"] != 2 {
+		t.Errorf("IP连接计数错误: %d", sm.connCounts["192.168.1.100"])
+	}
+	if sm.totalConns != 3 {
+		t.Errorf("总连接计数错误: %d", sm.totalConns)
+	}
+	sm.mu.RUnlock()
+
+	// 减少连接
+	sm.DecrementConnection("192.168.1.100")
+
+	sm.mu.RLock()
+	if sm.connCounts["192.168.1.100"] != 1 {
+		t.Errorf("减少后IP连接计数错误: %d", sm.connCounts["192.168.1.100"])
+	}
+	if sm.totalConns != 2 {
+		t.Errorf("减少后总连接计数错误: %d", sm.totalConns)
+	}
+	sm.mu.RUnlock()
+}
+
+func TestCleanupExpiredBans(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 添加过期和未过期的封禁
+	sm.mu.Lock()
+	sm.bannedIPs["192.168.1.100"] = &IPBanEntry{
+		IP:        "192.168.1.100",
+		ExpiresAt: time.Now().Add(-1 * time.Hour), // 已过期
+	}
+	sm.bannedIPs["192.168.1.101"] = &IPBanEntry{
+		IP:        "192.168.1.101",
+		ExpiresAt: time.Now().Add(1 * time.Hour), // 未过期
+	}
+	sm.mu.Unlock()
+
+	count := sm.CleanupExpiredBans()
+
+	if count != 1 {
+		t.Errorf("应该清理1条过期记录，实际: %d", count)
+	}
+
+	sm.mu.RLock()
+	_, exists1 := sm.bannedIPs["192.168.1.100"]
+	_, exists2 := sm.bannedIPs["192.168.1.101"]
+	sm.mu.RUnlock()
+
+	if exists1 {
+		t.Error("过期记录应该被清理")
+	}
+	if !exists2 {
+		t.Error("未过期记录不应该被清理")
+	}
+}
+
+func TestLoadSaveConfig(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 修改配置
+	newConfig := &SMBSecurityConfig{
+		IPWhitelist: []string{"192.168.1.0/24"},
+		IPBlacklist: []string{"10.0.0.0/8"},
+		RateLimit: RateLimitConfig{
+			Enabled:       true,
+			MaxConnPerIP:  5,
+			MaxConnTotal:  500,
+			WindowSeconds: 60,
+		},
+		AutoBanEnabled:     true,
+		AutoBanThreshold:   5,
+		AutoBanWindowMins:  5,
+		AutoBanDurationMins: 30,
+	}
+
+	err := sm.UpdateConfig(newConfig)
+	if err != nil {
+		t.Fatalf("UpdateConfig 失败: %v", err)
+	}
+
+	// 创建新的 SecurityManager 加载配置
+	sm2 := NewSecurityManager(configPath, logger)
+
+	sm2.mu.RLock()
+	if len(sm2.config.IPWhitelist) != 1 {
+		t.Error("白名单配置未保存")
+	}
+	if len(sm2.config.IPBlacklist) != 1 {
+		t.Error("黑名单配置未保存")
+	}
+	if sm2.config.RateLimit.MaxConnPerIP != 5 {
+		t.Error("限流配置未保存")
+	}
+	sm2.mu.RUnlock()
+}
+
+func TestGetSetConfig(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// GetConfig 应该返回非nil
+	cfg := sm.GetConfig()
+	if cfg == nil {
+		t.Fatal("GetConfig 不应返回 nil")
+	}
+
+	// 默认值检查
+	if cfg.RateLimit.MaxConnPerIP != 10 {
+		t.Errorf("默认 MaxConnPerIP 应为 10，实际: %d", cfg.RateLimit.MaxConnPerIP)
+	}
+
+	if cfg.AutoBanThreshold != 5 {
+		t.Errorf("默认 AutoBanThreshold 应为 5，实际: %d", cfg.AutoBanThreshold)
+	}
+}
+
+// ========== AuditLogger 测试 ==========
+
+func TestAuditLogger_Log(t *testing.T) {
+	tmpDir := t.TempDir()
+	logPath := filepath.Join(tmpDir, "audit.json")
+
+	logger := zap.NewNop().Sugar()
+	auditLog, err := NewAuditLogger(logPath, logger)
+	if err != nil {
+		t.Fatalf("创建 AuditLogger 失败: %v", err)
+	}
+	defer auditLog.Close()
+
+	// 记录日志
+	entry := AuditLogEntry{
+		Timestamp: time.Now(),
+		EventType: "test",
+		IP:        "192.168.1.100",
+		Username:  "admin",
+		Action:    "login",
+		Result:    "success",
+	}
+
+	auditLog.Log(entry)
+
+	// 验证日志已写入
+	data, err := os.ReadFile(logPath)
+	if err != nil {
+		t.Fatalf("读取日志文件失败: %v", err)
+	}
+
+	if len(data) == 0 {
+		t.Error("日志文件不应为空")
+	}
+}
+
+func TestAuditLogger_LogAndRead(t *testing.T) {
+	tmpDir := t.TempDir()
+	logPath := filepath.Join(tmpDir, "audit.json")
+
+	logger := zap.NewNop().Sugar()
+	auditLog, err := NewAuditLogger(logPath, logger)
+	if err != nil {
+		t.Fatalf("创建 AuditLogger 失败: %v", err)
+	}
+
+	// 记录多条日志
+	for i := 0; i < 5; i++ {
+		auditLog.Log(AuditLogEntry{
+			Timestamp: time.Now(),
+			EventType: "test",
+			IP:        "192.168.1.100",
+			Username:  "admin",
+			Action:    "login",
+			Result:    "success",
 		})
 	}
 
-	time.Sleep(200 * time.Millisecond)
+	auditLog.Close()
 
-	events := sam.GetSecurityEvents(100, 0, map[string]string{"event_type": "anomaly"})
-	if len(events) == 0 {
-		t.Error("快速删除应触发异常告警")
+	// 重新打开并读取
+	auditLog2, err := NewAuditLogger(logPath, logger)
+	if err != nil {
+		t.Fatalf("重新打开 AuditLogger 失败: %v", err)
+	}
+	defer auditLog2.Close()
+
+	logs, err := auditLog2.ReadLogs(10, 0)
+	if err != nil {
+		t.Fatalf("读取日志失败: %v", err)
 	}
 
-	// 验证告警详情
-	for _, event := range events {
-		if event.Severity != "high" {
-			t.Errorf("快速删除告警严重级别应为 high，实际为 %s", event.Severity)
-		}
-		if event.DetectedBy != "anomaly_detector" {
-			t.Errorf("检测来源应为 anomaly_detector，实际为 %s", event.DetectedBy)
-		}
-	}
-}
-
-// 测试勒索软件检测
-func TestSecurityAuditManager_RansomwareDetection_SuspiciousExtension(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: true,
-		MaxRecords:      100,
-		WhitelistedIPs:  []string{},
-		WhitelistedUsers: []string{},
-	})
-
-	alertReceived := false
-	sam.SetAlertCallback(func(event SecurityEvent) {
-		alertReceived = true
-	})
-
-	// 记录可疑扩展名文件写入
-	sam.LogFileAccess(FileAccessRecord{
-		Username:  "attacker",
-		ClientIP:  "10.0.0.1",
-		Action:    "write",
-		FilePath:  "/documents/report.encrypted",
-		ShareName: "documents",
-	})
-
-	time.Sleep(200 * time.Millisecond)
-
-	events := sam.GetSecurityEvents(100, 0, map[string]string{"event_type": "ransomware"})
-	if len(events) == 0 {
-		t.Error("可疑扩展名应触发勒索软件告警")
-	}
-
-	for _, event := range events {
-		if event.Severity != "critical" {
-			t.Errorf("勒索软件告警严重级别应为 critical，实际为 %s", event.Severity)
-		}
-		if event.DetectedBy != "ransomware_detector" {
-			t.Errorf("检测来源应为 ransomware_detector，实际为 %s", event.DetectedBy)
-		}
+	if len(logs) != 5 {
+		t.Errorf("应该读取5条日志，实际: %d", len(logs))
 	}
 }
 
-// 测试勒索软件检测 - 可疑文件名模式
-func TestSecurityAuditManager_RansomwareDetection_SuspiciousPattern(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: true,
-		MaxRecords:      100,
-		WhitelistedIPs:  []string{},
-		WhitelistedUsers: []string{},
-	})
+// ========== matchIP 测试 ==========
 
-	// 记录可疑文件名模式
-	sam.LogFileAccess(FileAccessRecord{
-		Username:  "attacker",
-		ClientIP:  "10.0.0.1",
-		Action:    "create",
-		FilePath:  "/documents/README_FOR_DECRYPT.txt",
-		ShareName: "documents",
-	})
-
-	time.Sleep(200 * time.Millisecond)
-
-	events := sam.GetSecurityEvents(100, 0, map[string]string{"event_type": "ransomware"})
-	if len(events) == 0 {
-		t.Error("可疑文件名模式应触发勒索软件告警")
+func TestMatchIP(t *testing.T) {
+	tests := []struct {
+		name    string
+		ip      string
+		pattern string
+		want    bool
+	}{
+		{"精确匹配-成功", "192.168.1.1", "192.168.1.1", true},
+		{"精确匹配-失败", "192.168.1.1", "192.168.1.2", false},
+		{"CIDR /24-内部", "192.168.1.100", "192.168.1.0/24", true},
+		{"CIDR /24-外部", "192.168.2.1", "192.168.1.0/24", false},
+		{"CIDR /16-内部", "10.0.5.1", "10.0.0.0/16", true},
+		{"CIDR /16-外部", "10.1.0.1", "10.0.0.0/16", false},
+		{"CIDR /32-精确", "192.168.1.1", "192.168.1.1/32", true},
+		{"无效CIDR-精确匹配", "invalid", "invalid", true},
+		{"IPv6", "::1", "::1", true},
 	}
-}
 
-// 测试分页功能
-func TestSecurityAuditManager_Pagination(t *testing.T) {
-	sam := NewSecurityAuditManager()
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: false,
-		RansomwareDetection: false,
-		MaxRecords:      100,
-	})
-
-	// 添加 20 条记录
-	for i := 0; i < 20; i++ {
-		sam.LogFileAccess(FileAccessRecord{
-			ShareName: "documents",
-			FilePath:  "/documents/file" + string(rune(i)),
-			Username:  "testuser",
-			ClientIP:  "192.168.1.100",
-			Action:    "read",
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := matchIP(tt.ip, tt.pattern)
+			if got != tt.want {
+				t.Errorf("matchIP(%s, %s) = %v, want %v", tt.ip, tt.pattern, got, tt.want)
+			}
 		})
 	}
+}
 
-	// 测试第一页
-	page1 := sam.GetFileAccessRecords(5, 0, nil)
-	if len(page1) != 5 {
-		t.Errorf("第一页应有 5 条记录，实际为 %d", len(page1))
+// ========== ReverseScanner 测试 ==========
+
+func TestReverseScanner(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "test.txt")
+
+	// 创建测试文件
+	content := "line1\nline2\nline3\nline4\nline5\n"
+	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
+		t.Fatal(err)
 	}
 
-	// 测试第二页
-	page2 := sam.GetFileAccessRecords(5, 5, nil)
-	if len(page2) != 5 {
-		t.Errorf("第二页应有 5 条记录，实际为 %d", len(page2))
+	file, err := os.Open(filePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := NewReverseScanner(file)
+
+	var lines []string
+	for scanner.Scan() {
+		lines = append(lines, string(scanner.Bytes()))
 	}
 
-	// 测试超出范围的偏移
-	pageInvalid := sam.GetFileAccessRecords(5, 100, nil)
-	if len(pageInvalid) != 0 {
-		t.Errorf("超出范围应返回空，实际为 %d", len(pageInvalid))
+	// 反向读取应该得到倒序
+	expected := []string{"line5", "line4", "line3", "line2", "line1"}
+
+	if len(lines) != len(expected) {
+		t.Fatalf("行数错误: got %d, want %d", len(lines), len(expected))
+	}
+
+	for i, exp := range expected {
+		if lines[i] != exp {
+			t.Errorf("第 %d 行: got %q, want %q", i, lines[i], exp)
+		}
 	}
 }
 
-// 测试事件类型的详细信息
-func TestSecurityAuditManager_EventDetails(t *testing.T) {
-	sam := NewSecurityAuditManager()
+// ========== 并发安全测试 ==========
 
-	// 触发异常
-	sam.SetConfig(SecurityAuditConfig{
-		Enabled:         true,
-		FileAccessAudit: true,
-		AnomalyDetection: true,
-		RansomwareDetection: false,
-		MaxRecords:      1000,
-	})
+func TestSecurityManager_ConcurrentAccess(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
 
-	for i := 0; i < 15; i++ {
-		sam.LogFileAccess(FileAccessRecord{
-			Username:  "testuser",
-			ClientIP:  "192.168.1.100",
-			Action:    "delete",
-			FilePath:  "/file" + string(rune(i)),
-			ShareName: "documents",
-		})
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	var wg sync.WaitGroup
+
+	// 并发读
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := 0; j < 100; j++ {
+				sm.CheckIPAllowed("192.168.1.100")
+				sm.GetConfig()
+			}
+		}()
 	}
 
-	events := sam.GetSecurityEvents(100, 0, map[string]string{"event_type": "anomaly"})
-	if len(events) == 0 {
-		t.Fatal("应有异常事件")
+	// 并发写
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			for j := 0; j < 20; j++ {
+				sm.BanIP("192.168.1.100", "test", 60)
+				sm.UnbanIP("192.168.1.100")
+			}
+		}(i)
 	}
 
-	// 验证详细信息
-	details := events[0].Details
-	if details == nil {
-		t.Fatal("异常事件应有详细信息")
+	wg.Wait()
+}
+
+// ========== 边界条件测试 ==========
+
+func TestSecurityManager_EmptyIP(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	// 空IP不会被特殊处理，正常检查
+	allowed, reason := sm.CheckIPAllowed("")
+	// 无白名单时空IP会被允许（因为matchIP("", "")返回true）
+	_ = allowed
+	_ = reason
+}
+
+func TestSecurityManager_ManyFailedAttempts(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "security.json")
+
+	logger := zap.NewNop().Sugar()
+	sm := NewSecurityManager(configPath, logger)
+
+	sm.mu.Lock()
+	sm.config.AutoBanEnabled = true
+	sm.config.AutoBanThreshold = 3
+	sm.config.AutoBanWindowMins = 5
+	sm.config.AutoBanDurationMins = 30
+	sm.mu.Unlock()
+
+	// 记录超过阈值的失败尝试
+	for i := 0; i < 10; i++ {
+		sm.RecordFailedAttempt("192.168.1.200", "admin", "invalid password")
 	}
 
-	ruleID, ok := details["rule_id"].(string)
-	if !ok || ruleID == "" {
-		t.Error("详细信息应包含 rule_id")
+	// 应该只被封禁一次
+	sm.mu.RLock()
+	ban, exists := sm.bannedIPs["192.168.1.200"]
+	sm.mu.RUnlock()
+
+	if !exists {
+		t.Fatal("IP应该被封禁")
 	}
 
-	ruleName, ok := details["rule_name"].(string)
-	if !ok || ruleName == "" {
-		t.Error("详细信息应包含 rule_name")
+	// 清理过期记录后重试应该触发新的封禁
+	sm.mu.Lock()
+	sm.cleanupFailedAttemptsLocked("192.168.1.200")
+	sm.mu.Unlock()
+
+	// 重新积累失败尝试
+	for i := 0; i < 3; i++ {
+		sm.RecordFailedAttempt("192.168.1.200", "admin", "invalid password")
 	}
 
-	count, ok := details["count"].(int)
-	if !ok || count == 0 {
-		t.Error("详细信息应包含 count")
+	// 应该仍然被封禁（因为是幂等的检查）
+	sm.mu.RLock()
+	ban2, exists2 := sm.bannedIPs["192.168.1.200"]
+	sm.mu.RUnlock()
+
+	if !exists2 {
+		t.Error("IP应该仍然被封禁")
 	}
+	_ = ban
+	_ = ban2
 }

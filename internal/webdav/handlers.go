@@ -6,28 +6,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers WebDAV HTTP 处理器
+// Handlers WebDAV HTTP 处理器.
 type Handlers struct {
 	server *Server
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(srv *Server) *Handlers {
 	return &Handlers{server: srv}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	h.server.RegisterRoutes(apiGroup)
 }
 
-// GetConfig 获取 WebDAV 配置（外部调用）
+// GetConfig 获取 WebDAV 配置（外部调用）.
 func (h *Handlers) GetConfig(c *gin.Context) {
 	config := h.server.GetConfig()
 	api.OK(c, config)
 }
 
-// UpdateConfigRequest 更新配置请求
+// UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
 	Enabled       *bool   `json:"enabled"`
 	Port          *int    `json:"port"`
@@ -36,7 +36,7 @@ type UpdateConfigRequest struct {
 	MaxUploadSize *int64  `json:"max_upload_size"`
 }
 
-// UpdateConfig 更新 WebDAV 配置（外部调用）
+// UpdateConfig 更新 WebDAV 配置（外部调用）.
 func (h *Handlers) UpdateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -70,13 +70,13 @@ func (h *Handlers) UpdateConfig(c *gin.Context) {
 	api.OK(c, config)
 }
 
-// GetStatus 获取 WebDAV 服务器状态
+// GetStatus 获取 WebDAV 服务器状态.
 func (h *Handlers) GetStatus(c *gin.Context) {
 	status := h.server.GetStatus()
 	api.OK(c, status)
 }
 
-// GetLocks 获取所有锁
+// GetLocks 获取所有锁.
 func (h *Handlers) GetLocks(c *gin.Context) {
 	h.server.lockManager.mu.RLock()
 	locks := make([]*Lock, 0, len(h.server.lockManager.locks))
@@ -88,7 +88,7 @@ func (h *Handlers) GetLocks(c *gin.Context) {
 	api.OK(c, locks)
 }
 
-// DeleteLock 删除锁
+// DeleteLock 删除锁.
 func (h *Handlers) DeleteLock(c *gin.Context) {
 	token := c.Param("token")
 	if token == "" {

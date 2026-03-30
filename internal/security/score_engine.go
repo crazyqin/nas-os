@@ -10,7 +10,7 @@ import (
 
 // ========== 安全评分引擎 ==========
 
-// ScoreEngine 安全评分引擎
+// ScoreEngine 安全评分引擎.
 type ScoreEngine struct {
 	config      ScoreConfig
 	scores      map[string]*CategoryScore
@@ -18,7 +18,7 @@ type ScoreEngine struct {
 	mu          sync.RWMutex
 }
 
-// ScoreConfig 评分配置
+// ScoreConfig 评分配置.
 type ScoreConfig struct {
 	Weights        ScoreWeights  `json:"weights"`
 	ScoringRules   []ScoringRule `json:"scoring_rules"`
@@ -27,7 +27,7 @@ type ScoreConfig struct {
 	UpdateInterval time.Duration `json:"update_interval"`
 }
 
-// ScoreWeights 评分权重
+// ScoreWeights 评分权重.
 type ScoreWeights struct {
 	Authentication  float64 `json:"authentication"`   // 认证安全
 	AccessControl   float64 `json:"access_control"`   // 访问控制
@@ -37,7 +37,7 @@ type ScoreWeights struct {
 	SystemHardening float64 `json:"system_hardening"` // 系统加固
 }
 
-// DefaultScoreWeights 默认评分权重
+// DefaultScoreWeights 默认评分权重.
 func DefaultScoreWeights() ScoreWeights {
 	return ScoreWeights{
 		Authentication:  0.20,
@@ -49,7 +49,7 @@ func DefaultScoreWeights() ScoreWeights {
 	}
 }
 
-// ScoringRule 评分规则
+// ScoringRule 评分规则.
 type ScoringRule struct {
 	ID           string  `json:"id"`
 	Category     string  `json:"category"`
@@ -59,7 +59,7 @@ type ScoringRule struct {
 	MaxDeduction float64 `json:"max_deduction"`
 }
 
-// CategoryScore 分类评分
+// CategoryScore 分类评分.
 type CategoryScore struct {
 	Category    string      `json:"category"`
 	Score       float64     `json:"score"`
@@ -68,7 +68,7 @@ type CategoryScore struct {
 	LastChecked time.Time   `json:"last_checked"`
 }
 
-// ScoreItem 评分项
+// ScoreItem 评分项.
 type ScoreItem struct {
 	RuleID      string   `json:"rule_id"`
 	Name        string   `json:"name"`
@@ -79,7 +79,7 @@ type ScoreItem struct {
 	Suggestions []string `json:"suggestions,omitempty"`
 }
 
-// ScoreReport 安全评分报告
+// ScoreReport 安全评分报告.
 type ScoreReport struct {
 	OverallScore    float64                   `json:"overall_score"`
 	Grade           string                    `json:"grade"`
@@ -91,7 +91,7 @@ type ScoreReport struct {
 	ValidUntil      time.Time                 `json:"valid_until"`
 }
 
-// Recommendation 改进建议
+// Recommendation 改进建议.
 type Recommendation struct {
 	Priority    string `json:"priority"` // high, medium, low
 	Category    string `json:"category"`
@@ -100,7 +100,7 @@ type Recommendation struct {
 	Impact      string `json:"impact"` // 预期影响
 }
 
-// NewScoreEngine 创建评分引擎
+// NewScoreEngine 创建评分引擎.
 func NewScoreEngine(config ScoreConfig) *ScoreEngine {
 	if config.MaxScore == 0 {
 		config.MaxScore = 100
@@ -115,7 +115,7 @@ func NewScoreEngine(config ScoreConfig) *ScoreEngine {
 	}
 }
 
-// CalculateScore 计算安全评分
+// CalculateScore 计算安全评分.
 func (e *ScoreEngine) CalculateScore(auditManager *AuditManager, baselineManager *BaselineManager) *ScoreReport {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -153,7 +153,7 @@ func (e *ScoreEngine) CalculateScore(auditManager *AuditManager, baselineManager
 	return report
 }
 
-// calculateAuthenticationScore 计算认证安全评分
+// calculateAuthenticationScore 计算认证安全评分.
 func (e *ScoreEngine) calculateAuthenticationScore(auditManager *AuditManager, report *ScoreReport) {
 	category := &CategoryScore{
 		Category:    "authentication",
@@ -239,7 +239,7 @@ func (e *ScoreEngine) calculateAuthenticationScore(auditManager *AuditManager, r
 	report.Categories["authentication"] = category
 }
 
-// calculateAccessControlScore 计算访问控制评分
+// calculateAccessControlScore 计算访问控制评分.
 func (e *ScoreEngine) calculateAccessControlScore(auditManager *AuditManager, report *ScoreReport) {
 	category := &CategoryScore{
 		Category:    "access_control",
@@ -289,7 +289,7 @@ func (e *ScoreEngine) calculateAccessControlScore(auditManager *AuditManager, re
 	report.Categories["access_control"] = category
 }
 
-// calculateDataProtectionScore 计算数据保护评分
+// calculateDataProtectionScore 计算数据保护评分.
 func (e *ScoreEngine) calculateDataProtectionScore(report *ScoreReport) {
 	category := &CategoryScore{
 		Category:    "data_protection",
@@ -351,7 +351,7 @@ func (e *ScoreEngine) calculateDataProtectionScore(report *ScoreReport) {
 	report.Categories["data_protection"] = category
 }
 
-// calculateNetworkSecurityScore 计算网络安全评分
+// calculateNetworkSecurityScore 计算网络安全评分.
 func (e *ScoreEngine) calculateNetworkSecurityScore(report *ScoreReport) {
 	category := &CategoryScore{
 		Category:    "network_security",
@@ -412,7 +412,7 @@ func (e *ScoreEngine) calculateNetworkSecurityScore(report *ScoreReport) {
 	report.Categories["network_security"] = category
 }
 
-// calculateAuditLoggingScore 计算审计日志评分
+// calculateAuditLoggingScore 计算审计日志评分.
 func (e *ScoreEngine) calculateAuditLoggingScore(auditManager *AuditManager, report *ScoreReport) {
 	category := &CategoryScore{
 		Category:    "audit_logging",
@@ -500,7 +500,7 @@ func (e *ScoreEngine) calculateAuditLoggingScore(auditManager *AuditManager, rep
 	report.Categories["audit_logging"] = category
 }
 
-// calculateSystemHardeningScore 计算系统加固评分
+// calculateSystemHardeningScore 计算系统加固评分.
 func (e *ScoreEngine) calculateSystemHardeningScore(baselineManager *BaselineManager, report *ScoreReport) {
 	category := &CategoryScore{
 		Category:    "system_hardening",
@@ -563,7 +563,7 @@ func (e *ScoreEngine) calculateSystemHardeningScore(baselineManager *BaselineMan
 	report.Categories["system_hardening"] = category
 }
 
-// calculateOverallScore 计算总分
+// calculateOverallScore 计算总分.
 func (e *ScoreEngine) calculateOverallScore(categories map[string]*CategoryScore) float64 {
 	weights := e.config.Weights
 
@@ -595,7 +595,7 @@ func (e *ScoreEngine) calculateOverallScore(categories map[string]*CategoryScore
 	return math.Round(totalScore/totalWeight*100) / 100
 }
 
-// scoreToGrade 评分转等级
+// scoreToGrade 评分转等级.
 func (e *ScoreEngine) scoreToGrade(score float64) string {
 	switch {
 	case score >= 90:
@@ -611,7 +611,7 @@ func (e *ScoreEngine) scoreToGrade(score float64) string {
 	}
 }
 
-// analyzeStrengthsWeaknesses 分析强弱项
+// analyzeStrengthsWeaknesses 分析强弱项.
 func (e *ScoreEngine) analyzeStrengthsWeaknesses(report *ScoreReport) {
 	for name, cat := range report.Categories {
 		ratio := cat.Score / cat.MaxScore
@@ -630,7 +630,7 @@ func (e *ScoreEngine) analyzeStrengthsWeaknesses(report *ScoreReport) {
 	}
 }
 
-// getCategoryDisplayName 获取分类显示名称
+// getCategoryDisplayName 获取分类显示名称.
 func (e *ScoreEngine) getCategoryDisplayName(name string) string {
 	names := map[string]string{
 		"authentication":   "认证安全",
@@ -646,7 +646,7 @@ func (e *ScoreEngine) getCategoryDisplayName(name string) string {
 	return name
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (e *ScoreEngine) generateRecommendations(report *ScoreReport) {
 	// 根据低分项生成建议
 	for name, cat := range report.Categories {
@@ -672,7 +672,7 @@ func (e *ScoreEngine) generateRecommendations(report *ScoreReport) {
 	}
 }
 
-// GetCachedReport 获取缓存的报告
+// GetCachedReport 获取缓存的报告.
 func (e *ScoreEngine) GetCachedReport() *ScoreReport {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

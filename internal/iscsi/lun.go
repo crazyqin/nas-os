@@ -8,20 +8,20 @@ import (
 	"time"
 )
 
-// LUNManager manages Logical Unit Numbers for iSCSI targets
+// LUNManager manages Logical Unit Numbers for iSCSI targets.
 type LUNManager struct {
 	mu       sync.RWMutex
 	basePath string // Base path for file-backed LUNs
 }
 
-// NewLUNManager creates a new LUN manager
+// NewLUNManager creates a new LUN manager.
 func NewLUNManager(basePath string) *LUNManager {
 	return &LUNManager{
 		basePath: basePath,
 	}
 }
 
-// Create creates a new LUN
+// Create creates a new LUN.
 func (lm *LUNManager) Create(targetID string, input LUNInput) (*LUN, error) {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -79,7 +79,7 @@ func (lm *LUNManager) Create(targetID string, input LUNInput) (*LUN, error) {
 	return lun, nil
 }
 
-// validateInput validates LUN input
+// validateInput validates LUN input.
 func (lm *LUNManager) validateInput(input LUNInput) error {
 	if input.Name == "" {
 		return fmt.Errorf("LUN name is required")
@@ -105,7 +105,7 @@ func (lm *LUNManager) validateInput(input LUNInput) error {
 	return nil
 }
 
-// createFileBacking creates a file for file-backed LUN
+// createFileBacking creates a file for file-backed LUN.
 func (lm *LUNManager) createFileBacking(path string, size int64) error {
 	// Create directory if needed
 	dir := filepath.Dir(path)
@@ -130,7 +130,7 @@ func (lm *LUNManager) createFileBacking(path string, size int64) error {
 	return nil
 }
 
-// getBlockDeviceSize gets the size of a block device
+// getBlockDeviceSize gets the size of a block device.
 func (lm *LUNManager) getBlockDeviceSize(path string) (int64, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -146,7 +146,7 @@ func (lm *LUNManager) getBlockDeviceSize(path string) (int64, error) {
 	return info.Size(), nil
 }
 
-// Expand expands a file-backed LUN
+// Expand expands a file-backed LUN.
 func (lm *LUNManager) Expand(lun *LUN, newSize int64) error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -176,12 +176,12 @@ func (lm *LUNManager) Expand(lun *LUN, newSize int64) error {
 	return nil
 }
 
-// Shrink is not supported - returns error
+// Shrink is not supported - returns error.
 func (lm *LUNManager) Shrink(lun *LUN, newSize int64) error {
 	return ErrShrinkNotSupported
 }
 
-// CreateSnapshot creates a snapshot of a LUN
+// CreateSnapshot creates a snapshot of a LUN.
 func (lm *LUNManager) CreateSnapshot(lun *LUN, input LUNSnapshotInput) (*LUNSnapshot, error) {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -230,7 +230,7 @@ func (lm *LUNManager) CreateSnapshot(lun *LUN, input LUNSnapshotInput) (*LUNSnap
 	return snapshot, nil
 }
 
-// DeleteSnapshot removes a snapshot
+// DeleteSnapshot removes a snapshot.
 func (lm *LUNManager) DeleteSnapshot(lun *LUN, snapshotID string) error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -246,7 +246,7 @@ func (lm *LUNManager) DeleteSnapshot(lun *LUN, snapshotID string) error {
 	return fmt.Errorf("snapshot not found")
 }
 
-// Delete removes a LUN
+// Delete removes a LUN.
 func (lm *LUNManager) Delete(lun *LUN) error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -261,7 +261,7 @@ func (lm *LUNManager) Delete(lun *LUN) error {
 	return nil
 }
 
-// AssignNumber assigns a LUN number to a LUN
+// AssignNumber assigns a LUN number to a LUN.
 func (lm *LUNManager) AssignNumber(lun *LUN, number int) error {
 	if number < 0 || number > 255 {
 		return fmt.Errorf("LUN number must be 0-255")
@@ -271,7 +271,7 @@ func (lm *LUNManager) AssignNumber(lun *LUN, number int) error {
 	return nil
 }
 
-// ValidatePath checks if a path is valid for a LUN
+// ValidatePath checks if a path is valid for a LUN.
 func (lm *LUNManager) ValidatePath(path string, lunType LUNType) error {
 	if lunType == LUNTypeBlock {
 		// Check if block device exists
@@ -287,12 +287,12 @@ func (lm *LUNManager) ValidatePath(path string, lunType LUNType) error {
 	return nil
 }
 
-// generateLUNID generates a unique LUN ID
+// generateLUNID generates a unique LUN ID.
 func generateLUNID(targetID, name string) string {
 	return fmt.Sprintf("%s-%s", targetID, name)
 }
 
-// generateSnapshotID generates a unique snapshot ID
+// generateSnapshotID generates a unique snapshot ID.
 func generateSnapshotID(lunID, name string) string {
 	return fmt.Sprintf("%s-snap-%s-%d", lunID, name, time.Now().Unix())
 }

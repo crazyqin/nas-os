@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// MockFinancialDataProvider 模拟财务数据提供者
+// MockFinancialDataProvider 模拟财务数据提供者.
 type MockFinancialDataProvider struct {
 	revenue  []RevenueRecord
 	expense  []ExpenseRecord

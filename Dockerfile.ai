@@ -1,0 +1,210 @@
+# syntax=docker/dockerfile:1.4
+# NAS-OS AI Service Dockerfile (GPU-enabled)
+# 支持 NVIDIA GPU 加速的 AI 服务独立镜像
+#
+# 构建命令:
+#   docker build -f Dockerfile.ai -t ghcr.io/nas-os/nas-os-ai:latest .
+#
+# 多架构构建（GPU仅支持amd64/arm64）:
+#   docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile.ai -t ghcr.io/nas-os/nas-os-ai:latest .
+#
+# 运行示例:
+#   GPU: docker run --gpus all -p 8081:8081 ghcr.io/nas-os/nas-os-ai:latest
+#   CPU: docker run -p 8081:8081 ghcr.io/nas-os/nas-os-ai:cpu
+#
+# 镜像特性:
+# - 独立 Python AI 服务（CLIP、人脸识别、PII 脱敏）
+# - 支持 CLIP 模型 (图像语义搜索)
+# - 支持 InsightFace (人脸识别)
+# - PII 脱敏保护
+# - GPU 加速推理
+#
+# 当前版本: v2.281.0（工部维护）
+
+# ========== 构建阶段（Go 编译器，可选） ==========
+# 如果需要 nasd 的 AI 功能，取消注释以下阶段
+# FROM golang:1.26-alpine AS go-builder
+# ARG VERSION=dev
+# ARG BUILD_TIME
+# ARG REVISION
+# ARG TARGETOS
+# ARG TARGETARCH
+# WORKDIR /build
+# RUN apk add --no-cache git ca-certificates tzdata upx
+# COPY go.mod go.sum ./
+# RUN --mount=type=cache,target=/go/pkg/mod go mod download
+# COPY cmd/ internal/ pkg/ webui/ docs/swagger ./
+# ENV CGO_ENABLED=0
+# RUN --mount=type=cache,target=/root/.cache/go-build \
+#     --mount=type=cache,target=/go/pkg/mod \
+#     GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+#     go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
+#     -o nasd ./cmd/nasd && \
+#     upx --best --lzma nasd 2>/dev/null || true
+
+# ========== 运行阶段（GPU） ==========
+FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04 AS gpu-base
+
+ARG VERSION=dev
+ARG BUILD_TIME
+ARG REVISION
+
+# OCI 标签
+LABEL maintainer="NAS-OS Team"
+LABEL org.opencontainers.image.title="NAS-OS AI Service"
+LABEL org.opencontainers.image.description="NAS-OS AI Service with GPU Acceleration - CLIP, Face Recognition, PII Protection"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_TIME}"
+LABEL org.opencontainers.image.revision="${REVISION}"
+LABEL org.opencontainers.image.source="https://github.com/nas-os/nas-os"
+
+# 环境变量
+ENV DEBIAN_FRONTEND=noninteractive
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# 安装系统依赖（最小化）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    python3 \
+    python3-venv \
+    python3-pip \
+    build-essential \
+    g++ \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# 创建 Python 虚拟环境
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# 升级 pip
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# 安装 PyTorch (GPU) - 分层安装便于缓存
+RUN pip install --no-cache-dir \
+    torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+# 安装 AI 依赖
+RUN pip install --no-cache-dir \
+    ftfy regex tqdm \
+    openai-clip \
+    transformers \
+    pillow \
+    insightface \
+    onnxruntime-gpu \
+    fastapi \
+    uvicorn[standard] \
+    pydantic \
+    python-multipart
+
+# 创建目录结构
+RUN mkdir -p /etc/nas-os \
+    /var/lib/nas-os/ai \
+    /var/lib/nas-os/models/clip \
+    /var/lib/nas-os/models/face \
+    /var/log/nas-os
+
+# 复制配置文件
+COPY configs/ai.yaml /etc/nas-os/ai.yaml
+
+# 复制 AI 服务入口脚本
+COPY scripts/ai-entrypoint.py /usr/local/bin/ai-service.py
+RUN chmod +x /usr/local/bin/ai-service.py
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD curl -sf http://localhost:8081/health || exit 1
+
+# 暴露端口
+EXPOSE 8081/tcp
+
+# 设置工作目录
+WORKDIR /app
+
+# 启动命令
+ENTRYPOINT ["python3", "/usr/local/bin/ai-service.py"]
+CMD ["--config", "/etc/nas-os/ai.yaml"]
+
+# ========== 运行阶段（CPU-only） ==========
+FROM python:3.11-slim AS ai-cpu
+
+ARG VERSION=dev
+ARG BUILD_TIME
+ARG REVISION
+
+LABEL maintainer="NAS-OS Team"
+LABEL org.opencontainers.image.title="NAS-OS AI Service (CPU)"
+LABEL org.opencontainers.image.description="NAS-OS AI Service - CPU Only - CLIP, Face Recognition, PII Protection"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_TIME}"
+LABEL org.opencontainers.image.revision="${REVISION}"
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# 安装系统依赖
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    libgomp1 \
+    build-essential \
+    g++ \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# 创建虚拟环境
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# 升级 pip
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# 安装 PyTorch (CPU)
+RUN pip install --no-cache-dir \
+    torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+# 安装 AI 依赖
+RUN pip install --no-cache-dir \
+    ftfy regex tqdm \
+    openai-clip \
+    transformers \
+    pillow \
+    insightface \
+    onnxruntime \
+    fastapi \
+    uvicorn[standard] \
+    pydantic \
+    python-multipart
+
+# 创建目录结构
+RUN mkdir -p /etc/nas-os \
+    /var/lib/nas-os/ai \
+    /var/lib/nas-os/models/clip \
+    /var/lib/nas-os/models/face \
+    /var/log/nas-os
+
+# 复制配置文件
+COPY configs/ai.yaml /etc/nas-os/ai.yaml
+
+# 复制 AI 服务入口脚本
+COPY scripts/ai-entrypoint.py /usr/local/bin/ai-service.py
+RUN chmod +x /usr/local/bin/ai-service.py
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD curl -sf http://localhost:8081/health || exit 1
+
+# 暴露端口
+EXPOSE 8081/tcp
+
+# 设置工作目录
+WORKDIR /app
+
+# 启动命令
+ENTRYPOINT ["python3", "/usr/local/bin/ai-service.py"]
+CMD ["--config", "/etc/nas-os/ai.yaml"]

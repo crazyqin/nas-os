@@ -18,7 +18,7 @@ import (
 
 // ========== 安全相关常量 ==========
 
-// 允许的通知命令模式（白名单）
+// 允许的通知命令模式（白名单）.
 var allowedNotifyPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`^/usr/bin/notify-send\b`),
 	regexp.MustCompile(`^/bin/echo\b`),
@@ -26,7 +26,7 @@ var allowedNotifyPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`^/usr/local/bin/[a-zA-Z0-9_-]+$`),
 }
 
-// validateNotifyCommand 验证通知命令是否安全
+// validateNotifyCommand 验证通知命令是否安全.
 func validateNotifyCommand(cmd string) bool {
 	cmd = strings.TrimSpace(cmd)
 	if cmd == "" {
@@ -42,7 +42,7 @@ func validateNotifyCommand(cmd string) bool {
 }
 
 // sanitizeEnvValue 清理环境变量值，防止注入
-// sanitizeEnvValue 清理环境变量值，防止注入
+// sanitizeEnvValue 清理环境变量值，防止注入.
 func sanitizeEnvValue(value string) string {
 	// 移除可能导致命令注入的字符
 	replacer := strings.NewReplacer(
@@ -57,13 +57,13 @@ func sanitizeEnvValue(value string) string {
 	return replacer.Replace(value)
 }
 
-// 安全的设备路径模式
+// 安全的设备路径模式.
 var safeDevicePathRegex = regexp.MustCompile(`^/dev/[a-zA-Z0-9_\-./]+$`)
 
-// 安全的路径模式
+// 安全的路径模式.
 var safeMountPathRegex = regexp.MustCompile(`^/[a-zA-Z0-9_\-./]+$`)
 
-// validateDevicePath 验证设备路径是否安全
+// validateDevicePath 验证设备路径是否安全.
 func validateDevicePath(devicePath string) error {
 	if devicePath == "" {
 		return fmt.Errorf("device path cannot be empty")
@@ -77,7 +77,7 @@ func validateDevicePath(devicePath string) error {
 	return nil
 }
 
-// validateMountPoint 验证挂载点是否安全
+// validateMountPoint 验证挂载点是否安全.
 func validateMountPoint(mountPoint string) error {
 	if mountPoint == "" {
 		return fmt.Errorf("mount point cannot be empty")
@@ -91,7 +91,7 @@ func validateMountPoint(mountPoint string) error {
 	return nil
 }
 
-// validateFSType 验证文件系统类型是否安全
+// validateFSType 验证文件系统类型是否安全.
 func validateFSType(fsType string) error {
 	if fsType == "" {
 		return fmt.Errorf("filesystem type cannot be empty")
@@ -105,7 +105,7 @@ func validateFSType(fsType string) error {
 
 // ========== 类型定义 ==========
 
-// Manager USB 挂载管理器
+// Manager USB 挂载管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -135,7 +135,7 @@ type Manager struct {
 	handlers []EventHandler
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	// AutoMount 是否自动挂载
 	AutoMount bool `json:"autoMount"`
@@ -159,7 +159,7 @@ type Config struct {
 	IgnoreDevices []string `json:"ignoreDevices,omitempty"`
 }
 
-// Device USB 设备信息
+// Device USB 设备信息.
 type Device struct {
 	// ID 设备 ID
 	ID string `json:"id"`
@@ -210,7 +210,7 @@ type Device struct {
 	LastScan time.Time `json:"lastScan"`
 }
 
-// MountRule 挂载规则
+// MountRule 挂载规则.
 type MountRule struct {
 	// ID 规则 ID
 	ID string `json:"id"`
@@ -252,7 +252,7 @@ type MountRule struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// DeviceEvent 设备事件
+// DeviceEvent 设备事件.
 type DeviceEvent struct {
 	// Type 事件类型
 	Type EventType `json:"type"`
@@ -267,28 +267,28 @@ type DeviceEvent struct {
 	Error string `json:"error,omitempty"`
 }
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType string
 
 const (
-	// EventDeviceAdded 设备添加
+	// EventDeviceAdded 设备添加.
 	EventDeviceAdded EventType = "device_added"
-	// EventDeviceRemoved 设备移除
+	// EventDeviceRemoved 设备移除.
 	EventDeviceRemoved EventType = "device_removed"
-	// EventDeviceMounted 设备挂载
+	// EventDeviceMounted 设备挂载.
 	EventDeviceMounted EventType = "device_mounted"
-	// EventDeviceUnmounted 设备卸载
+	// EventDeviceUnmounted 设备卸载.
 	EventDeviceUnmounted EventType = "device_unmounted"
-	// EventMountFailed 挂载失败
+	// EventMountFailed 挂载失败.
 	EventMountFailed EventType = "mount_failed"
-	// EventUnmountFailed 卸载失败
+	// EventUnmountFailed 卸载失败.
 	EventUnmountFailed EventType = "unmount_failed"
 )
 
-// EventHandler 事件处理器
+// EventHandler 事件处理器.
 type EventHandler func(event DeviceEvent)
 
-// MountResult 挂载结果
+// MountResult 挂载结果.
 type MountResult struct {
 	Success    bool      `json:"success"`
 	DevicePath string    `json:"devicePath"`
@@ -300,23 +300,23 @@ type MountResult struct {
 // ========== 错误定义 ==========
 
 var (
-	// ErrDeviceNotFound 设备未找到错误
+	// ErrDeviceNotFound 设备未找到错误.
 	ErrDeviceNotFound = fmt.Errorf("设备未找到")
-	// ErrAlreadyMounted 设备已挂载错误
+	// ErrAlreadyMounted 设备已挂载错误.
 	ErrAlreadyMounted = fmt.Errorf("设备已挂载")
-	// ErrNotMounted 设备未挂载错误
+	// ErrNotMounted 设备未挂载错误.
 	ErrNotMounted = fmt.Errorf("设备未挂载")
-	// ErrFileSystemNotAllowed 文件系统类型不被允许错误
+	// ErrFileSystemNotAllowed 文件系统类型不被允许错误.
 	ErrFileSystemNotAllowed = fmt.Errorf("文件系统类型不被允许")
-	// ErrMountPointBusy 挂载点被占用错误
+	// ErrMountPointBusy 挂载点被占用错误.
 	ErrMountPointBusy = fmt.Errorf("挂载点被占用")
-	// ErrRuleNotFound 规则未找到错误
+	// ErrRuleNotFound 规则未找到错误.
 	ErrRuleNotFound = fmt.Errorf("规则未找到")
 )
 
 // ========== 构造函数 ==========
 
-// NewManager 创建 USB 挂载管理器
+// NewManager 创建 USB 挂载管理器.
 func NewManager(configPath string) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -337,7 +337,7 @@ func NewManager(configPath string) *Manager {
 	return m
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		AutoMount:          true,
@@ -354,7 +354,7 @@ func DefaultConfig() *Config {
 
 // ========== 公共方法 ==========
 
-// Start 启动监控
+// Start 启动监控.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -379,7 +379,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -392,14 +392,14 @@ func (m *Manager) Stop() {
 	m.running = false
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices() []*Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -411,7 +411,7 @@ func (m *Manager) ListDevices() []*Device {
 	return result
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *Manager) GetDevice(id string) (*Device, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -423,7 +423,7 @@ func (m *Manager) GetDevice(id string) (*Device, error) {
 	return d, nil
 }
 
-// Mount 挂载设备
+// Mount 挂载设备.
 func (m *Manager) Mount(deviceID string, mountPoint string, opts map[string]string) (*MountResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -540,7 +540,7 @@ func (m *Manager) Mount(deviceID string, mountPoint string, opts map[string]stri
 	return result, nil
 }
 
-// Unmount 卸载设备
+// Unmount 卸载设备.
 func (m *Manager) Unmount(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -587,7 +587,7 @@ func (m *Manager) Unmount(deviceID string) error {
 	return nil
 }
 
-// MountAll 挂载所有未挂载的设备
+// MountAll 挂载所有未挂载的设备.
 func (m *Manager) MountAll() []*MountResult {
 	m.mu.RLock()
 	devices := make([]*Device, 0)
@@ -609,7 +609,7 @@ func (m *Manager) MountAll() []*MountResult {
 	return results
 }
 
-// UnmountAll 卸载所有已挂载的设备
+// UnmountAll 卸载所有已挂载的设备.
 func (m *Manager) UnmountAll() []error {
 	m.mu.RLock()
 	devices := make([]*Device, 0)
@@ -631,7 +631,7 @@ func (m *Manager) UnmountAll() []error {
 
 // ========== 规则管理 ==========
 
-// AddRule 添加挂载规则
+// AddRule 添加挂载规则.
 func (m *Manager) AddRule(rule *MountRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -647,7 +647,7 @@ func (m *Manager) AddRule(rule *MountRule) error {
 	return nil
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (m *Manager) UpdateRule(id string, rule *MountRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -665,7 +665,7 @@ func (m *Manager) UpdateRule(id string, rule *MountRule) error {
 	return ErrRuleNotFound
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -681,7 +681,7 @@ func (m *Manager) DeleteRule(id string) error {
 	return ErrRuleNotFound
 }
 
-// ListRules 列出所有规则
+// ListRules 列出所有规则.
 func (m *Manager) ListRules() []*MountRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -691,7 +691,7 @@ func (m *Manager) ListRules() []*MountRule {
 	return result
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (m *Manager) GetRule(id string) (*MountRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -707,14 +707,14 @@ func (m *Manager) GetRule(id string) (*MountRule, error) {
 
 // ========== 配置管理 ==========
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *Config) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -725,7 +725,7 @@ func (m *Manager) UpdateConfig(config *Config) error {
 
 // ========== 事件处理 ==========
 
-// AddEventHandler 添加事件处理器
+// AddEventHandler 添加事件处理器.
 func (m *Manager) AddEventHandler(handler EventHandler) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -734,7 +734,7 @@ func (m *Manager) AddEventHandler(handler EventHandler) {
 
 // ========== 内部方法 ==========
 
-// scanDevices 扫描设备
+// scanDevices 扫描设备.
 func (m *Manager) scanDevices() {
 	// 获取所有块设备
 	cmd := exec.CommandContext(m.ctx, "lsblk", "-b", "-J", "-o", "NAME,PATH,LABEL,UUID,FSTYPE,SIZE,VENDOR,MODEL,SERIAL,MOUNTPOINT,HOTPLUG")
@@ -789,7 +789,7 @@ func (m *Manager) scanDevices() {
 	}
 }
 
-// monitorDevices 监控设备变化
+// monitorDevices 监控设备变化.
 func (m *Manager) monitorDevices() {
 	ticker := time.NewTicker(time.Duration(m.config.ScanInterval) * time.Second)
 	defer ticker.Stop()
@@ -804,7 +804,7 @@ func (m *Manager) monitorDevices() {
 	}
 }
 
-// processEvents 处理事件
+// processEvents 处理事件.
 func (m *Manager) processEvents() {
 	for {
 		select {
@@ -823,7 +823,7 @@ func (m *Manager) processEvents() {
 	}
 }
 
-// emitEvent 发送事件
+// emitEvent 发送事件.
 func (m *Manager) emitEvent(event DeviceEvent) {
 	select {
 	case m.eventCh <- event:
@@ -832,7 +832,7 @@ func (m *Manager) emitEvent(event DeviceEvent) {
 	}
 }
 
-// autoMountDevice 自动挂载设备
+// autoMountDevice 自动挂载设备.
 func (m *Manager) autoMountDevice(device *Device) {
 	// 检查是否在忽略列表中
 	for _, ignore := range m.config.IgnoreDevices {
@@ -865,7 +865,7 @@ func (m *Manager) autoMountDevice(device *Device) {
 	}
 }
 
-// findMatchingRule 查找匹配的规则
+// findMatchingRule 查找匹配的规则.
 func (m *Manager) findMatchingRule(device *Device) *MountRule {
 	// 按优先级排序
 	var matchedRules []*MountRule
@@ -895,7 +895,7 @@ func (m *Manager) findMatchingRule(device *Device) *MountRule {
 	return best
 }
 
-// matchRule 匹配规则
+// matchRule 匹配规则.
 func (m *Manager) matchRule(rule *MountRule, device *Device) bool {
 	// 匹配 UUID
 	if rule.MatchUUID != "" && !matchPattern(rule.MatchUUID, device.UUID) {
@@ -920,7 +920,7 @@ func (m *Manager) matchRule(rule *MountRule, device *Device) bool {
 	return true
 }
 
-// matchPattern 简单模式匹配
+// matchPattern 简单模式匹配.
 func matchPattern(pattern, value string) bool {
 	if pattern == "*" || pattern == "" {
 		return true
@@ -938,7 +938,7 @@ func matchPattern(pattern, value string) bool {
 	return strings.Contains(value, pattern)
 }
 
-// generateMountPoint 生成挂载点
+// generateMountPoint 生成挂载点.
 func (m *Manager) generateMountPoint(device *Device) string {
 	var name string
 	if device.Label != "" {
@@ -952,7 +952,7 @@ func (m *Manager) generateMountPoint(device *Device) string {
 	return filepath.Join(m.config.DefaultMountPoint, name)
 }
 
-// sanitizeMountName 清理挂载点名称
+// sanitizeMountName 清理挂载点名称.
 func sanitizeMountName(name string) string {
 	// 替换特殊字符
 	result := strings.Map(func(r rune) rune {
@@ -964,7 +964,7 @@ func sanitizeMountName(name string) string {
 	return result
 }
 
-// isFileSystemAllowed 检查文件系统是否允许
+// isFileSystemAllowed 检查文件系统是否允许.
 func (m *Manager) isFileSystemAllowed(fsType string) bool {
 	for _, allowed := range m.config.AllowedFileSystems {
 		if allowed == fsType {
@@ -974,7 +974,7 @@ func (m *Manager) isFileSystemAllowed(fsType string) bool {
 	return false
 }
 
-// buildMountOptions 构建挂载选项
+// buildMountOptions 构建挂载选项.
 func (m *Manager) buildMountOptions(fsType string, opts map[string]string) []string {
 	result := make([]string, 0)
 
@@ -995,7 +995,7 @@ func (m *Manager) buildMountOptions(fsType string, opts map[string]string) []str
 	return result
 }
 
-// sendNotification 发送通知
+// sendNotification 发送通知.
 func (m *Manager) sendNotification(device *Device, action string) {
 	if m.config.NotifyCommand == "" {
 		return
@@ -1020,7 +1020,7 @@ func (m *Manager) sendNotification(device *Device, action string) {
 	_ = cmd.Run() // #nosec G104 -- 触发脚本执行，错误已记录到日志
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (m *Manager) loadConfig() {
 	if m.configPath == "" {
 		return
@@ -1036,7 +1036,7 @@ func (m *Manager) loadConfig() {
 	_ = data
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (m *Manager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -1048,7 +1048,7 @@ func (m *Manager) saveConfig() error {
 
 // ========== LSBLK 解析 ==========
 
-// parseLSBLKOutput 解析 lsblk 输出
+// parseLSBLKOutput 解析 lsblk 输出.
 func parseLSBLKOutput(output []byte) []*Device {
 	var result []*Device
 
@@ -1109,7 +1109,7 @@ func parseLSBLKOutput(output []byte) []*Device {
 	return result
 }
 
-// extractJSONString 提取 JSON 字符串值
+// extractJSONString 提取 JSON 字符串值.
 func extractJSONString(line string) string {
 	// 查找冒号后的值
 	idx := strings.Index(line, ":")

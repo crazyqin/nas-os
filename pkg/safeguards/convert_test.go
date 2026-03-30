@@ -312,7 +312,7 @@ func TestClampUint64(t *testing.T) {
 	}
 }
 
-// Benchmark tests
+// Benchmark tests.
 func BenchmarkSafeInt64ToUint64(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, _ = SafeInt64ToUint64(int64(i))

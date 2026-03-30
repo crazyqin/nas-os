@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 插件 API 处理器
+// Handlers 插件 API 处理器.
 type Handlers struct {
 	manager *Manager
 	market  *Market
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager, market *Market) *Handlers {
 	return &Handlers{
 		manager: manager,
@@ -21,7 +21,7 @@ func NewHandlers(manager *Manager, market *Market) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	plugins := rg.Group("/plugins")
 	{
@@ -57,7 +57,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 
 // ========== 已安装插件 API ==========
 
-// list 列出已安装插件
+// list 列出已安装插件.
 func (h *Handlers) list(c *gin.Context) {
 	states := h.manager.List()
 
@@ -68,7 +68,7 @@ func (h *Handlers) list(c *gin.Context) {
 	})
 }
 
-// get 获取插件详情
+// get 获取插件详情.
 func (h *Handlers) get(c *gin.Context) {
 	pluginID := c.Param("id")
 
@@ -98,7 +98,7 @@ func (h *Handlers) get(c *gin.Context) {
 	})
 }
 
-// install 安装插件
+// install 安装插件.
 func (h *Handlers) install(c *gin.Context) {
 	var req struct {
 		Source string `json:"source" binding:"required"` // URL, 本地路径, 或插件 ID
@@ -128,7 +128,7 @@ func (h *Handlers) install(c *gin.Context) {
 	})
 }
 
-// uninstall 卸载插件
+// uninstall 卸载插件.
 func (h *Handlers) uninstall(c *gin.Context) {
 	pluginID := c.Param("id")
 
@@ -146,7 +146,7 @@ func (h *Handlers) uninstall(c *gin.Context) {
 	})
 }
 
-// enable 启用插件
+// enable 启用插件.
 func (h *Handlers) enable(c *gin.Context) {
 	pluginID := c.Param("id")
 
@@ -164,7 +164,7 @@ func (h *Handlers) enable(c *gin.Context) {
 	})
 }
 
-// disable 禁用插件
+// disable 禁用插件.
 func (h *Handlers) disable(c *gin.Context) {
 	pluginID := c.Param("id")
 
@@ -182,7 +182,7 @@ func (h *Handlers) disable(c *gin.Context) {
 	})
 }
 
-// start 启动插件
+// start 启动插件.
 func (h *Handlers) start(c *gin.Context) {
 	pluginID := c.Param("id")
 
@@ -200,7 +200,7 @@ func (h *Handlers) start(c *gin.Context) {
 	})
 }
 
-// stop 停止插件
+// stop 停止插件.
 func (h *Handlers) stop(c *gin.Context) {
 	pluginID := c.Param("id")
 
@@ -218,7 +218,7 @@ func (h *Handlers) stop(c *gin.Context) {
 	})
 }
 
-// update 更新插件
+// update 更新插件.
 func (h *Handlers) update(c *gin.Context) {
 	pluginID := c.Param("id")
 
@@ -238,7 +238,7 @@ func (h *Handlers) update(c *gin.Context) {
 	})
 }
 
-// configure 配置插件
+// configure 配置插件.
 func (h *Handlers) configure(c *gin.Context) {
 	pluginID := c.Param("id")
 
@@ -265,7 +265,7 @@ func (h *Handlers) configure(c *gin.Context) {
 	})
 }
 
-// discover 发现可用插件
+// discover 发现可用插件.
 func (h *Handlers) discover(c *gin.Context) {
 	plugins, err := h.manager.Discover()
 	if err != nil {
@@ -285,7 +285,7 @@ func (h *Handlers) discover(c *gin.Context) {
 
 // ========== 插件市场 API ==========
 
-// marketList 市场插件列表
+// marketList 市场插件列表.
 func (h *Handlers) marketList(c *gin.Context) {
 	category := c.Query("category")
 	sort := c.DefaultQuery("sort", "popular") // popular, newest, rating
@@ -333,7 +333,7 @@ func (h *Handlers) marketList(c *gin.Context) {
 	})
 }
 
-// marketSearch 搜索市场插件
+// marketSearch 搜索市场插件.
 func (h *Handlers) marketSearch(c *gin.Context) {
 	query := c.Query("q")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -374,7 +374,7 @@ func (h *Handlers) marketSearch(c *gin.Context) {
 	})
 }
 
-// marketCategories 获取分类列表
+// marketCategories 获取分类列表.
 func (h *Handlers) marketCategories(c *gin.Context) {
 	categories := []gin.H{
 		{"id": "storage", "name": "存储管理", "icon": "hard-drive"},
@@ -398,7 +398,7 @@ func (h *Handlers) marketCategories(c *gin.Context) {
 	})
 }
 
-// marketDetail 获取市场插件详情
+// marketDetail 获取市场插件详情.
 func (h *Handlers) marketDetail(c *gin.Context) {
 	pluginID := c.Param("id")
 
@@ -427,7 +427,7 @@ func (h *Handlers) marketDetail(c *gin.Context) {
 	})
 }
 
-// marketRate 插件评分
+// marketRate 插件评分.
 func (h *Handlers) marketRate(c *gin.Context) {
 	pluginID := c.Param("id")
 
@@ -467,7 +467,7 @@ func (h *Handlers) marketRate(c *gin.Context) {
 	})
 }
 
-// marketReviews 获取插件评论
+// marketReviews 获取插件评论.
 func (h *Handlers) marketReviews(c *gin.Context) {
 	pluginID := c.Param("id")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))

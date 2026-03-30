@@ -2,6 +2,7 @@ package container
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -9,7 +10,7 @@ import (
 	"time"
 )
 
-// Image 镜像信息
+// Image 镜像信息.
 type Image struct {
 	ID           string            `json:"id"`
 	Repository   string            `json:"repository"`
@@ -24,7 +25,7 @@ type Image struct {
 	OS           string            `json:"os"`
 }
 
-// ImagePullProgress 镜像拉取进度
+// ImagePullProgress 镜像拉取进度.
 type ImagePullProgress struct {
 	Status         string `json:"status"`
 	ProgressDetail struct {
@@ -35,28 +36,29 @@ type ImagePullProgress struct {
 	ID       string `json:"id"`
 }
 
-// ImageConfig 镜像创建配置
+// ImageConfig 镜像创建配置.
 type ImageConfig struct {
 	Repository string `json:"repository"`
 	Tag        string `json:"tag,omitempty"`
 	Platform   string `json:"platform,omitempty"` // "linux/amd64", "linux/arm64"
 }
 
-// ImageManager 镜像管理器
+// ImageManager 镜像管理器.
 type ImageManager struct {
 	manager *Manager
 }
 
-// NewImageManager 创建镜像管理器
+// NewImageManager 创建镜像管理器.
 func NewImageManager(mgr *Manager) *ImageManager {
 	return &ImageManager{
 		manager: mgr,
 	}
 }
 
-// ListImages 列出所有镜像
+// ListImages 列出所有镜像.
 func (im *ImageManager) ListImages() ([]*Image, error) {
-	cmd := exec.Command("docker", "images", "--format", "{{json .}}")
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "docker", "images", "--format", "{{json .}}")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出镜像：%w", err)
@@ -99,9 +101,10 @@ func (im *ImageManager) ListImages() ([]*Image, error) {
 	return images, nil
 }
 
-// GetImage 获取镜像详情
+// GetImage 获取镜像详情.
 func (im *ImageManager) GetImage(id string) (*Image, error) {
-	cmd := exec.Command("docker", "inspect", "--type", "image", "--format", "{{json .}}", id)
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "docker", "inspect", "--type", "image", "--format", "{{json .}}", id)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取镜像信息：%w", err)
@@ -162,8 +165,9 @@ func (im *ImageManager) GetImage(id string) (*Image, error) {
 	return image, nil
 }
 
-// PullImage 拉取镜像
+// PullImage 拉取镜像.
 func (im *ImageManager) PullImage(config *ImageConfig) error {
+	ctx := context.Background()
 	image := config.Repository
 	if config.Tag != "" {
 		image += ":" + config.Tag
@@ -174,7 +178,7 @@ func (im *ImageManager) PullImage(config *ImageConfig) error {
 		args = append(args, "--platform", config.Platform)
 	}
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("拉取镜像失败：%w, %s", err, string(output))
@@ -182,9 +186,10 @@ func (im *ImageManager) PullImage(config *ImageConfig) error {
 	return nil
 }
 
-// PushImage 推送镜像到仓库
+// PushImage 推送镜像到仓库.
 func (im *ImageManager) PushImage(image string) error {
-	cmd := exec.Command("docker", "push", image)
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "docker", "push", image)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("推送镜像失败：%w, %s", err, string(output))
@@ -192,8 +197,9 @@ func (im *ImageManager) PushImage(image string) error {
 	return nil
 }
 
-// RemoveImage 删除镜像
+// RemoveImage 删除镜像.
 func (im *ImageManager) RemoveImage(id string, force bool, prune bool) error {
+	ctx := context.Background()
 	args := []string{"rmi"}
 	if force {
 		args = append(args, "-f")
@@ -203,7 +209,7 @@ func (im *ImageManager) RemoveImage(id string, force bool, prune bool) error {
 	}
 	args = append(args, id)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("删除镜像失败：%w, %s", err, string(output))
@@ -211,9 +217,10 @@ func (im *ImageManager) RemoveImage(id string, force bool, prune bool) error {
 	return nil
 }
 
-// TagImage 给镜像打标签
+// TagImage 给镜像打标签.
 func (im *ImageManager) TagImage(source, target string) error {
-	cmd := exec.Command("docker", "tag", source, target)
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "docker", "tag", source, target)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("标记镜像失败：%w, %s", err, string(output))
@@ -221,8 +228,9 @@ func (im *ImageManager) TagImage(source, target string) error {
 	return nil
 }
 
-// BuildImage 构建镜像
+// BuildImage 构建镜像.
 func (im *ImageManager) BuildImage(contextPath, dockerfilePath, tag string, args map[string]string) error {
+	ctx := context.Background()
 	buildArgs := []string{"build", "-t", tag}
 	if dockerfilePath != "" {
 		buildArgs = append(buildArgs, "-f", dockerfilePath)
@@ -232,7 +240,7 @@ func (im *ImageManager) BuildImage(contextPath, dockerfilePath, tag string, args
 	}
 	buildArgs = append(buildArgs, contextPath)
 
-	cmd := exec.Command("docker", buildArgs...)
+	cmd := exec.CommandContext(ctx, "docker", buildArgs...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("构建镜像失败：%w, %s", err, string(output))
@@ -240,9 +248,10 @@ func (im *ImageManager) BuildImage(contextPath, dockerfilePath, tag string, args
 	return nil
 }
 
-// SaveImage 保存镜像到文件
+// SaveImage 保存镜像到文件.
 func (im *ImageManager) SaveImage(image, outputPath string) error {
-	cmd := exec.Command("docker", "save", "-o", outputPath, image)
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "docker", "save", "-o", outputPath, image)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("保存镜像失败：%w, %s", err, string(output))
@@ -250,9 +259,10 @@ func (im *ImageManager) SaveImage(image, outputPath string) error {
 	return nil
 }
 
-// LoadImage 从文件加载镜像
+// LoadImage 从文件加载镜像.
 func (im *ImageManager) LoadImage(inputPath string) error {
-	cmd := exec.Command("docker", "load", "-i", inputPath)
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "docker", "load", "-i", inputPath)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("加载镜像失败：%w, %s", err, string(output))
@@ -260,14 +270,15 @@ func (im *ImageManager) LoadImage(inputPath string) error {
 	return nil
 }
 
-// PruneImages 清理悬空镜像
+// PruneImages 清理悬空镜像.
 func (im *ImageManager) PruneImages(all bool) (uint64, error) {
+	ctx := context.Background()
 	args := []string{"image", "prune", "-f"}
 	if all {
 		args = append(args, "-a")
 	}
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, fmt.Errorf("清理镜像失败：%w", err)
@@ -287,9 +298,10 @@ func (im *ImageManager) PruneImages(all bool) (uint64, error) {
 	return reclaimed, nil
 }
 
-// SearchImages 搜索 Docker Hub 镜像
+// SearchImages 搜索 Docker Hub 镜像.
 func (im *ImageManager) SearchImages(term string, limit int) ([]*Image, error) {
-	cmd := exec.Command("docker", "search", "--format", "{{json .}}", "--limit", fmt.Sprintf("%d", limit), term)
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "docker", "search", "--format", "{{json .}}", "--limit", fmt.Sprintf("%d", limit), term)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("搜索镜像失败：%w", err)
@@ -328,7 +340,7 @@ func (im *ImageManager) SearchImages(term string, limit int) ([]*Image, error) {
 	return images, nil
 }
 
-// formatSize 格式化大小
+// formatSize 格式化大小.
 func formatSize(bytes uint64) string {
 	const (
 		KB = 1024

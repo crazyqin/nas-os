@@ -4,7 +4,7 @@ import "time"
 
 // ========== 防火墙类型 ==========
 
-// FirewallRule 防火墙规则
+// FirewallRule 防火墙规则.
 type FirewallRule struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -23,7 +23,7 @@ type FirewallRule struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// IPBlacklistEntry IP 黑名单条目
+// IPBlacklistEntry IP 黑名单条目.
 type IPBlacklistEntry struct {
 	IP        string     `json:"ip"`
 	Reason    string     `json:"reason"`
@@ -31,21 +31,21 @@ type IPBlacklistEntry struct {
 	CreatedAt time.Time  `json:"created_at"`
 }
 
-// IPWhitelistEntry IP 白名单条目
+// IPWhitelistEntry IP 白名单条目.
 type IPWhitelistEntry struct {
 	IP        string    `json:"ip"`
 	Reason    string    `json:"reason"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// GeoRestriction 地理位置限制
+// GeoRestriction 地理位置限制.
 type GeoRestriction struct {
 	Enabled      bool     `json:"enabled"`
 	Mode         string   `json:"mode"`          // allowlist, blocklist
 	CountryCodes []string `json:"country_codes"` // 国家代码列表
 }
 
-// FirewallConfig 防火墙配置
+// FirewallConfig 防火墙配置.
 type FirewallConfig struct {
 	Enabled        bool           `json:"enabled"`
 	DefaultPolicy  string         `json:"default_policy"` // allow, deny
@@ -56,7 +56,7 @@ type FirewallConfig struct {
 
 // ========== 失败登录保护类型 ==========
 
-// Fail2BanConfig 失败登录保护配置
+// Fail2BanConfig 失败登录保护配置.
 type Fail2BanConfig struct {
 	Enabled            bool     `json:"enabled"`
 	MaxAttempts        int      `json:"max_attempts"`         // 最大失败尝试次数
@@ -67,7 +67,7 @@ type Fail2BanConfig struct {
 	ProtectedServices  []string `json:"protected_services"`   // 保护的服务列表
 }
 
-// FailedLoginAttempt 失败登录尝试记录
+// FailedLoginAttempt 失败登录尝试记录.
 type FailedLoginAttempt struct {
 	IP        string    `json:"ip"`
 	Username  string    `json:"username"`
@@ -76,7 +76,7 @@ type FailedLoginAttempt struct {
 	Reason    string    `json:"reason"`
 }
 
-// BannedIP 被封禁的 IP
+// BannedIP 被封禁的 IP.
 type BannedIP struct {
 	IP        string    `json:"ip"`
 	Reason    string    `json:"reason"`
@@ -85,7 +85,7 @@ type BannedIP struct {
 	Attempts  int       `json:"attempts"`
 }
 
-// AccountLockout 账户锁定状态
+// AccountLockout 账户锁定状态.
 type AccountLockout struct {
 	Username    string     `json:"username"`
 	LockedAt    time.Time  `json:"locked_at"`
@@ -95,7 +95,7 @@ type AccountLockout struct {
 
 // ========== 安全审计类型 ==========
 
-// AuditLogEntry 审计日志条目
+// AuditLogEntry 审计日志条目.
 type AuditLogEntry struct {
 	ID        string                 `json:"id"`
 	Timestamp time.Time              `json:"timestamp"`
@@ -112,7 +112,7 @@ type AuditLogEntry struct {
 	Status    string                 `json:"status"`             // success, failure
 }
 
-// LoginLogEntry 登录日志条目
+// LoginLogEntry 登录日志条目.
 type LoginLogEntry struct {
 	ID        string    `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -124,7 +124,7 @@ type LoginLogEntry struct {
 	MFAMethod string    `json:"mfa_method,omitempty"`
 }
 
-// Alert 安全告警
+// Alert 安全告警.
 type Alert struct {
 	ID           string                 `json:"id"`
 	Timestamp    time.Time              `json:"timestamp"`
@@ -142,7 +142,7 @@ type Alert struct {
 
 // ========== 安全基线类型 ==========
 
-// BaselineCheckResult 基线检查结果
+// BaselineCheckResult 基线检查结果.
 type BaselineCheckResult struct {
 	CheckID     string                 `json:"check_id"`
 	Name        string                 `json:"name"`
@@ -155,7 +155,7 @@ type BaselineCheckResult struct {
 	Details     map[string]interface{} `json:"details,omitempty"`
 }
 
-// BaselineReport 基线检查报告
+// BaselineReport 基线检查报告.
 type BaselineReport struct {
 	ReportID     string                `json:"report_id"`
 	Timestamp    time.Time             `json:"timestamp"`
@@ -168,7 +168,7 @@ type BaselineReport struct {
 	Results      []BaselineCheckResult `json:"results"`
 }
 
-// Config 安全配置
+// Config 安全配置.
 type Config struct {
 	Firewall       FirewallConfig `json:"firewall"`
 	Fail2Ban       Fail2BanConfig `json:"fail2ban"`
@@ -179,19 +179,19 @@ type Config struct {
 
 // ========== 通用响应类型 ==========
 
-// Response represents a generic API response
+// Response represents a generic API response.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Success creates a success response
+// Success creates a success response.
 func Success(data interface{}) Response {
 	return Response{Code: 0, Message: "success", Data: data}
 }
 
-// Error creates an error response
+// Error creates an error response.
 func Error(code int, message string) Response {
 	return Response{Code: code, Message: message}
 }

@@ -1,0 +1,73 @@
+# Plex - 媒体服务器与流媒体平台
+#
+# 用途：
+# - 电影/电视剧管理
+# - 音乐播放
+# - 照片管理
+# - 直播电视（Plex Live TV）
+# - 远程访问（Plex Pass）
+#
+# 数据目录：
+# - /var/lib/nas-os/data/plex/config - 配置
+# - /var/lib/nas-os/data/plex/transcode - 转码缓存
+# - /var/lib/nas-os/media - 媒体文件
+
+services:
+  plex:
+    image: plexinc/pms-docker:plexpass
+    container_name: nas-plex
+    restart: unless-stopped
+    
+    # 网络模式（推荐 host，便于发现和远程访问）
+    network_mode: host
+    
+    # 或者使用桥接网络（需要额外配置）
+    # ports:
+    #   - "32400:32400"    # Web UI
+    #   - "3005:3005"      # Plex Companion
+    #   - "8324:8324"      # Plex for Roku
+    #   - "32469:32469"    # Plex DLNA Server
+    
+    volumes:
+      # 配置和转码
+      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/plex/config:/config
+      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/plex/transcode:/transcode
+      # 媒体库
+      - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}/movies:/data/movies:ro
+      - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}/tv:/data/tv:ro
+      - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}/music:/data/music:ro
+      - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}/photos:/data/photos:ro
+    
+    environment:
+      # 时区
+      TZ: ${TZ:-Asia/Shanghai}
+      # Plex Claim Token（首次启动需要，从 https://plex.tv/claim 获取）
+      PLEX_CLAIM: ${PLEX_CLAIM:-}
+      # 硬件加速（Intel QuickSync）
+      # PLEX_TRANSCODE_DEVICE: /dev/dri/card0
+    
+    # 可选：硬件加速（Intel QuickSync / NVIDIA）
+    # devices:
+    #   - /dev/dri:/dev/dri        # Intel QuickSync (VA-API)
+    #   - /dev/nvidia:/dev/nvidia  # NVIDIA GPU
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:32400/web"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    labels:
+      - "nas-os.app=plex"
+      - "nas-os.category=media"
+      - "nas-os.description=Media server with streaming and remote access"
+
+# 说明：
+# - 初次访问：http://localhost:32400/web 进行设置
+# - 需要 Plex 账号登录（免费账号可使用基本功能）
+# - Plex Pass 订阅解锁：硬件转码、Live TV、移动端离线下载等
+# - 支持 DLNA、Chromecast、Roku、Apple TV 等设备
+# - 建议使用 host 网络模式以获得最佳远程访问体验
+
+# 免费版本（无 Plex Pass）使用：
+# image: plexinc/pms-docker:public

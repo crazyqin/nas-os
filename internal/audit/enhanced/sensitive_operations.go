@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// SensitiveOperationManager 敏感操作管理器
+// SensitiveOperationManager 敏感操作管理器.
 type SensitiveOperationManager struct {
 	operations []*SensitiveOperation
 	events     []*SensitiveOperationEvent
@@ -22,7 +22,7 @@ type SensitiveOperationManager struct {
 	storageDir string
 }
 
-// SensitiveOpConfig 敏感操作配置
+// SensitiveOpConfig 敏感操作配置.
 type SensitiveOpConfig struct {
 	Enabled             bool          `json:"enabled"`
 	RequireApproval     bool          `json:"require_approval"`
@@ -33,7 +33,7 @@ type SensitiveOpConfig struct {
 	LogAllSensitive     bool          `json:"log_all_sensitive"`
 }
 
-// DefaultSensitiveOpConfig 默认敏感操作配置
+// DefaultSensitiveOpConfig 默认敏感操作配置.
 func DefaultSensitiveOpConfig() SensitiveOpConfig {
 	return SensitiveOpConfig{
 		Enabled:             true,
@@ -46,7 +46,7 @@ func DefaultSensitiveOpConfig() SensitiveOpConfig {
 	}
 }
 
-// NewSensitiveOperationManager 创建敏感操作管理器
+// NewSensitiveOperationManager 创建敏感操作管理器.
 func NewSensitiveOperationManager() *SensitiveOperationManager {
 	storageDir := "/var/log/nas-os/audit/sensitive"
 	if err := os.MkdirAll(storageDir, 0750); err != nil {
@@ -68,7 +68,7 @@ func NewSensitiveOperationManager() *SensitiveOperationManager {
 	return m
 }
 
-// initDefaultOperations 初始化默认敏感操作定义
+// initDefaultOperations 初始化默认敏感操作定义.
 func (m *SensitiveOperationManager) initDefaultOperations() {
 	defaultOps := []SensitiveOperation{
 		// 用户管理 - Critical
@@ -329,7 +329,7 @@ func (m *SensitiveOperationManager) initDefaultOperations() {
 
 // ========== 敏感操作定义管理 ==========
 
-// AddOperation 添加敏感操作定义
+// AddOperation 添加敏感操作定义.
 func (m *SensitiveOperationManager) AddOperation(op *SensitiveOperation) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -342,7 +342,7 @@ func (m *SensitiveOperationManager) AddOperation(op *SensitiveOperation) error {
 	return nil
 }
 
-// UpdateOperation 更新敏感操作定义
+// UpdateOperation 更新敏感操作定义.
 func (m *SensitiveOperationManager) UpdateOperation(op *SensitiveOperation) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -357,7 +357,7 @@ func (m *SensitiveOperationManager) UpdateOperation(op *SensitiveOperation) erro
 	return nil
 }
 
-// DeleteOperation 删除敏感操作定义
+// DeleteOperation 删除敏感操作定义.
 func (m *SensitiveOperationManager) DeleteOperation(id string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -370,7 +370,7 @@ func (m *SensitiveOperationManager) DeleteOperation(id string) {
 	}
 }
 
-// getOperationInternal 内部获取敏感操作定义（不获取锁，用于已持有锁的方法调用）
+// getOperationInternal 内部获取敏感操作定义（不获取锁，用于已持有锁的方法调用）.
 func (m *SensitiveOperationManager) getOperationInternal(id string) *SensitiveOperation {
 	for _, op := range m.operations {
 		if op.ID == id {
@@ -380,14 +380,14 @@ func (m *SensitiveOperationManager) getOperationInternal(id string) *SensitiveOp
 	return nil
 }
 
-// GetOperation 获取敏感操作定义
+// GetOperation 获取敏感操作定义.
 func (m *SensitiveOperationManager) GetOperation(id string) *SensitiveOperation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.getOperationInternal(id)
 }
 
-// ListOperations 列出所有敏感操作定义
+// ListOperations 列出所有敏感操作定义.
 func (m *SensitiveOperationManager) ListOperations() []*SensitiveOperation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -399,7 +399,7 @@ func (m *SensitiveOperationManager) ListOperations() []*SensitiveOperation {
 
 // ========== 敏感操作检测 ==========
 
-// CheckSensitive 检查操作是否为敏感操作
+// CheckSensitive 检查操作是否为敏感操作.
 func (m *SensitiveOperationManager) CheckSensitive(category OperationCategory, action OperationAction, resourcePath string) *SensitiveOperation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -426,12 +426,12 @@ func (m *SensitiveOperationManager) CheckSensitive(category OperationCategory, a
 	return nil
 }
 
-// IsSensitive 判断操作是否敏感
+// IsSensitive 判断操作是否敏感.
 func (m *SensitiveOperationManager) IsSensitive(category OperationCategory, action OperationAction, resourcePath string) bool {
 	return m.CheckSensitive(category, action, resourcePath) != nil
 }
 
-// GetSensitivityLevel 获取操作的敏感级别
+// GetSensitivityLevel 获取操作的敏感级别.
 func (m *SensitiveOperationManager) GetSensitivityLevel(category OperationCategory, action OperationAction, resourcePath string) SensitivityLevel {
 	if op := m.CheckSensitive(category, action, resourcePath); op != nil {
 		return op.SensitivityLevel
@@ -441,7 +441,7 @@ func (m *SensitiveOperationManager) GetSensitivityLevel(category OperationCatego
 
 // ========== 敏感操作事件记录 ==========
 
-// RecordEvent 记录敏感操作事件
+// RecordEvent 记录敏感操作事件.
 func (m *SensitiveOperationManager) RecordEvent(
 	operationID, operationName string,
 	userID, username, ip, sessionID, resource string,
@@ -490,7 +490,7 @@ func (m *SensitiveOperationManager) RecordEvent(
 	return event
 }
 
-// RecordApprovedEvent 记录已批准的敏感操作事件
+// RecordApprovedEvent 记录已批准的敏感操作事件.
 func (m *SensitiveOperationManager) RecordApprovedEvent(
 	operationID, operationName string,
 	userID, username, ip, sessionID, resource string,
@@ -511,7 +511,7 @@ func (m *SensitiveOperationManager) RecordApprovedEvent(
 	return event
 }
 
-// RecordBlockedEvent 记录被阻止的敏感操作事件
+// RecordBlockedEvent 记录被阻止的敏感操作事件.
 func (m *SensitiveOperationManager) RecordBlockedEvent(
 	operationID, operationName string,
 	userID, username, ip, sessionID, resource string,
@@ -530,7 +530,7 @@ func (m *SensitiveOperationManager) RecordBlockedEvent(
 
 // ========== 审批管理 ==========
 
-// CreateApprovalRequest 创建审批请求
+// CreateApprovalRequest 创建审批请求.
 func (m *SensitiveOperationManager) CreateApprovalRequest(
 	operationID string,
 	requestedBy, requestorName string,
@@ -574,7 +574,7 @@ func (m *SensitiveOperationManager) CreateApprovalRequest(
 	return approval, nil
 }
 
-// ApproveOperation 批准操作
+// ApproveOperation 批准操作.
 func (m *SensitiveOperationManager) ApproveOperation(approvalID, approvedBy, notes string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -597,7 +597,7 @@ func (m *SensitiveOperationManager) ApproveOperation(approvalID, approvedBy, not
 	return nil
 }
 
-// RejectOperation 拒绝操作
+// RejectOperation 拒绝操作.
 func (m *SensitiveOperationManager) RejectOperation(approvalID, rejectedBy, reason string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -620,7 +620,7 @@ func (m *SensitiveOperationManager) RejectOperation(approvalID, rejectedBy, reas
 	return nil
 }
 
-// GetPendingApprovals 获取待审批列表
+// GetPendingApprovals 获取待审批列表.
 func (m *SensitiveOperationManager) GetPendingApprovals() []*OperationApproval {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -639,14 +639,14 @@ func (m *SensitiveOperationManager) GetPendingApprovals() []*OperationApproval {
 	return result
 }
 
-// GetApproval 获取审批详情
+// GetApproval 获取审批详情.
 func (m *SensitiveOperationManager) GetApproval(approvalID string) *OperationApproval {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.approvals[approvalID]
 }
 
-// cleanupExpiredApprovals 清理过期审批
+// cleanupExpiredApprovals 清理过期审批.
 func (m *SensitiveOperationManager) cleanupExpiredApprovals() {
 	now := time.Now()
 	for id, approval := range m.approvals {
@@ -659,7 +659,7 @@ func (m *SensitiveOperationManager) cleanupExpiredApprovals() {
 
 // ========== 查询和统计 ==========
 
-// QueryEvents 查询敏感操作事件
+// QueryEvents 查询敏感操作事件.
 func (m *SensitiveOperationManager) QueryEvents(start, end time.Time, userID string, limit int) []*SensitiveOperationEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -686,7 +686,7 @@ func (m *SensitiveOperationManager) QueryEvents(start, end time.Time, userID str
 	return result
 }
 
-// GetSummary 获取敏感操作摘要
+// GetSummary 获取敏感操作摘要.
 func (m *SensitiveOperationManager) GetSummary(start, end time.Time) *SensitiveOpsSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -767,7 +767,7 @@ func (m *SensitiveOperationManager) GetSummary(start, end time.Time) *SensitiveO
 
 // ========== 持久化 ==========
 
-// Save 保存数据
+// Save 保存数据.
 func (m *SensitiveOperationManager) Save() error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -794,7 +794,7 @@ func (m *SensitiveOperationManager) Save() error {
 	return nil
 }
 
-// Load 加载数据
+// Load 加载数据.
 func (m *SensitiveOperationManager) Load() error {
 	// 加载敏感操作定义
 	opsData, err := os.ReadFile(filepath.Join(m.storageDir, "operations.json"))

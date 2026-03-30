@@ -1,6 +1,7 @@
 package system
 
 import (
+	"context"
 	"os"
 	"testing"
 	"time"
@@ -64,7 +65,7 @@ func TestGetDiskStats(t *testing.T) {
 	}
 	defer monitor.Close()
 
-	disks, err := monitor.GetDiskStats()
+	disks, err := monitor.GetDiskStats(context.Background())
 	if err != nil {
 		t.Fatalf("获取磁盘统计失败：%v", err)
 	}
@@ -124,7 +125,7 @@ func TestGetTopProcesses(t *testing.T) {
 	}
 	defer monitor.Close()
 
-	processes, err := monitor.GetTopProcesses(10)
+	processes, err := monitor.GetTopProcesses(context.Background(), 10)
 	if err != nil {
 		t.Fatalf("获取进程列表失败：%v", err)
 	}

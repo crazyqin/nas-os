@@ -8,13 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// BillingHandlers 计费管理 HTTP 处理器
+// BillingHandlers 计费管理 HTTP 处理器.
 type BillingHandlers struct {
 	billingManager *BillingManager
 	projectManager *Manager
 }
 
-// NewBillingHandlers 创建计费处理器
+// NewBillingHandlers 创建计费处理器.
 func NewBillingHandlers(billingMgr *BillingManager, projectMgr *Manager) *BillingHandlers {
 	return &BillingHandlers{
 		billingManager: billingMgr,
@@ -22,7 +22,7 @@ func NewBillingHandlers(billingMgr *BillingManager, projectMgr *Manager) *Billin
 	}
 }
 
-// RegisterBillingRoutes 注册计费路由
+// RegisterBillingRoutes 注册计费路由.
 func (h *BillingHandlers) RegisterBillingRoutes(router *gin.RouterGroup) {
 	// ========== 项目配额管理 ==========
 	projects := router.Group("/projects")
@@ -53,7 +53,7 @@ func (h *BillingHandlers) RegisterBillingRoutes(router *gin.RouterGroup) {
 
 // ========== 请求结构 ==========
 
-// SetQuotaRequest 设置配额请求
+// SetQuotaRequest 设置配额请求.
 type SetQuotaRequest struct {
 	ResourceType string  `json:"resource_type" binding:"required"`
 	HardLimit    int64   `json:"hard_limit" binding:"required"`
@@ -62,21 +62,21 @@ type SetQuotaRequest struct {
 	Currency     string  `json:"currency"`
 }
 
-// AllocateResourceRequest 资源分配请求
+// AllocateResourceRequest 资源分配请求.
 type AllocateResourceRequest struct {
 	ResourceType string `json:"resource_type" binding:"required"`
 	Amount       int64  `json:"amount" binding:"required"`
 	Description  string `json:"description,omitempty"`
 }
 
-// ReleaseResourceRequest 资源释放请求
+// ReleaseResourceRequest 资源释放请求.
 type ReleaseResourceRequest struct {
 	ResourceType string `json:"resource_type" binding:"required"`
 	Amount       int64  `json:"amount" binding:"required"`
 	Description  string `json:"description,omitempty"`
 }
 
-// CreateBillingRecordRequest 创建计费记录请求
+// CreateBillingRecordRequest 创建计费记录请求.
 type CreateBillingRecordRequest struct {
 	PeriodStart   time.Time      `json:"period_start" binding:"required"`
 	PeriodEnd     time.Time      `json:"period_end" binding:"required"`
@@ -85,19 +85,19 @@ type CreateBillingRecordRequest struct {
 	TaxRate       float64        `json:"tax_rate"`
 }
 
-// UpdateBillingStatusRequest 更新计费状态请求
+// UpdateBillingStatusRequest 更新计费状态请求.
 type UpdateBillingStatusRequest struct {
 	Status string     `json:"status" binding:"required"`
 	PaidAt *time.Time `json:"paid_at,omitempty"`
 }
 
-// CostAnalysisQuery 成本分析请求参数
+// CostAnalysisQuery 成本分析请求参数.
 type CostAnalysisQuery struct {
 	PeriodStart string `form:"period_start"`
 	PeriodEnd   string `form:"period_end"`
 }
 
-// UsageReportQuery 资源使用报告请求参数
+// UsageReportQuery 资源使用报告请求参数.
 type UsageReportQuery struct {
 	PeriodStart string `form:"period_start"`
 	PeriodEnd   string `form:"period_end"`
@@ -113,7 +113,7 @@ type UsageReportQuery struct {
 // @Produce json
 // @Param id path string true "项目ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /projects/{id}/quotas [get]
+// @Router /projects/{id}/quotas [get].
 func (h *BillingHandlers) listQuotas(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -136,7 +136,7 @@ func (h *BillingHandlers) listQuotas(c *gin.Context) {
 // @Param request body SetQuotaRequest true "配额设置参数"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
-// @Router /projects/{id}/quotas [post]
+// @Router /projects/{id}/quotas [post].
 func (h *BillingHandlers) setQuota(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -181,7 +181,7 @@ func (h *BillingHandlers) setQuota(c *gin.Context) {
 // @Param resource_type path string true "资源类型"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /projects/{id}/quotas/{resource_type} [get]
+// @Router /projects/{id}/quotas/{resource_type} [get].
 func (h *BillingHandlers) getQuota(c *gin.Context) {
 	projectID := c.Param("id")
 	resourceType := c.Param("resource_type")
@@ -209,7 +209,7 @@ func (h *BillingHandlers) getQuota(c *gin.Context) {
 // @Param resource_type path string true "资源类型"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /projects/{id}/quotas/{resource_type} [delete]
+// @Router /projects/{id}/quotas/{resource_type} [delete].
 func (h *BillingHandlers) deleteQuota(c *gin.Context) {
 	projectID := c.Param("id")
 	resourceType := c.Param("resource_type")
@@ -237,7 +237,7 @@ func (h *BillingHandlers) deleteQuota(c *gin.Context) {
 // @Param request body AllocateResourceRequest true "资源分配参数"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
-// @Router /projects/{id}/resources/allocate [post]
+// @Router /projects/{id}/resources/allocate [post].
 func (h *BillingHandlers) allocateResource(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -284,7 +284,7 @@ func (h *BillingHandlers) allocateResource(c *gin.Context) {
 // @Param request body ReleaseResourceRequest true "资源释放参数"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
-// @Router /projects/{id}/resources/release [post]
+// @Router /projects/{id}/resources/release [post].
 func (h *BillingHandlers) releaseResource(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -326,7 +326,7 @@ func (h *BillingHandlers) releaseResource(c *gin.Context) {
 // @Param id path string true "项目ID"
 // @Param limit query int false "限制数量" default(50)
 // @Success 200 {object} map[string]interface{}
-// @Router /projects/{id}/resources/usage [get]
+// @Router /projects/{id}/resources/usage [get].
 func (h *BillingHandlers) getQuotaUsage(c *gin.Context) {
 	projectID := c.Param("id")
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
@@ -352,7 +352,7 @@ func (h *BillingHandlers) getQuotaUsage(c *gin.Context) {
 // @Param limit query int false "限制数量" default(20)
 // @Param offset query int false "偏移量" default(0)
 // @Success 200 {object} map[string]interface{}
-// @Router /projects/{id}/billing [get]
+// @Router /projects/{id}/billing [get].
 func (h *BillingHandlers) listBillingRecords(c *gin.Context) {
 	projectID := c.Param("id")
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -377,7 +377,7 @@ func (h *BillingHandlers) listBillingRecords(c *gin.Context) {
 // @Param request body CreateBillingRecordRequest true "计费记录参数"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
-// @Router /projects/{id}/billing [post]
+// @Router /projects/{id}/billing [post].
 func (h *BillingHandlers) createBillingRecord(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -417,7 +417,7 @@ func (h *BillingHandlers) createBillingRecord(c *gin.Context) {
 // @Param billing_id path string true "计费记录ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /projects/{id}/billing/{billing_id} [get]
+// @Router /projects/{id}/billing/{billing_id} [get].
 func (h *BillingHandlers) getBillingRecord(c *gin.Context) {
 	billingID := c.Param("billing_id")
 
@@ -445,7 +445,7 @@ func (h *BillingHandlers) getBillingRecord(c *gin.Context) {
 // @Param request body UpdateBillingStatusRequest true "状态更新参数"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /projects/{id}/billing/{billing_id}/status [put]
+// @Router /projects/{id}/billing/{billing_id}/status [put].
 func (h *BillingHandlers) updateBillingStatus(c *gin.Context) {
 	billingID := c.Param("billing_id")
 
@@ -479,7 +479,7 @@ func (h *BillingHandlers) updateBillingStatus(c *gin.Context) {
 // @Param period_end query string false "结束日期 (YYYY-MM-DD)"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /projects/{id}/cost-analysis [get]
+// @Router /projects/{id}/cost-analysis [get].
 func (h *BillingHandlers) getCostAnalysis(c *gin.Context) {
 	projectID := c.Param("id")
 
@@ -537,7 +537,7 @@ func (h *BillingHandlers) getCostAnalysis(c *gin.Context) {
 // @Param period_end query string false "结束日期 (YYYY-MM-DD)"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /projects/{id}/usage-report [get]
+// @Router /projects/{id}/usage-report [get].
 func (h *BillingHandlers) getResourceUsageReport(c *gin.Context) {
 	projectID := c.Param("id")
 

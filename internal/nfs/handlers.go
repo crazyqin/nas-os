@@ -9,14 +9,14 @@ import (
 	"nas-os/internal/logging"
 )
 
-// Handlers NFS API处理器
+// Handlers NFS API处理器.
 type Handlers struct {
 	manager *Manager
 	parser  *ConfigParser
 	logger  *logging.Logger
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{
 		manager: mgr,
@@ -25,24 +25,24 @@ func NewHandlers(mgr *Manager) *Handlers {
 	}
 }
 
-// Response 通用响应
+// Response 通用响应.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// ErrorResponse 错误响应
+// ErrorResponse 错误响应.
 func ErrorResponse(code int, message string) Response {
 	return Response{Code: code, Message: message}
 }
 
-// SuccessResponse 成功响应
+// SuccessResponse 成功响应.
 func SuccessResponse(data interface{}) Response {
 	return Response{Code: 0, Message: "success", Data: data}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	nfs := api.Group("/nfs")
 	{
@@ -73,7 +73,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 // @Tags NFS
 // @Produce json
 // @Success 200 {object} Response
-// @Router /nfs/exports [get]
+// @Router /nfs/exports [get].
 func (h *Handlers) ListExports(c *gin.Context) {
 	exports, err := h.manager.ListExports()
 	if err != nil {
@@ -92,7 +92,7 @@ func (h *Handlers) ListExports(c *gin.Context) {
 // @Produce json
 // @Param export body Export true "导出配置"
 // @Success 200 {object} Response
-// @Router /nfs/exports [post]
+// @Router /nfs/exports [post].
 func (h *Handlers) CreateExport(c *gin.Context) {
 	var req Export
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -131,7 +131,7 @@ func (h *Handlers) CreateExport(c *gin.Context) {
 // @Produce json
 // @Param path path string true "导出路径"
 // @Success 200 {object} Response
-// @Router /nfs/exports/{path} [get]
+// @Router /nfs/exports/{path} [get].
 func (h *Handlers) GetExport(c *gin.Context) {
 	path := c.Param("path")
 	if path == "" {
@@ -157,7 +157,7 @@ func (h *Handlers) GetExport(c *gin.Context) {
 // @Param path path string true "导出路径"
 // @Param export body Export true "导出配置"
 // @Success 200 {object} Response
-// @Router /nfs/exports/{path} [put]
+// @Router /nfs/exports/{path} [put].
 func (h *Handlers) UpdateExport(c *gin.Context) {
 	path := c.Param("path")
 	if path == "" {
@@ -200,7 +200,7 @@ func (h *Handlers) UpdateExport(c *gin.Context) {
 // @Tags NFS
 // @Param path path string true "导出路径"
 // @Success 200 {object} Response
-// @Router /nfs/exports/{path} [delete]
+// @Router /nfs/exports/{path} [delete].
 func (h *Handlers) DeleteExport(c *gin.Context) {
 	path := c.Param("path")
 	if path == "" {
@@ -228,7 +228,7 @@ func (h *Handlers) DeleteExport(c *gin.Context) {
 // @Tags NFS
 // @Produce json
 // @Success 200 {object} Response
-// @Router /nfs/status [get]
+// @Router /nfs/status [get].
 func (h *Handlers) GetStatus(c *gin.Context) {
 	status, err := h.manager.Status()
 	if err != nil {
@@ -244,7 +244,7 @@ func (h *Handlers) GetStatus(c *gin.Context) {
 // @Summary 启动NFS服务
 // @Tags NFS
 // @Success 200 {object} Response
-// @Router /nfs/start [post]
+// @Router /nfs/start [post].
 func (h *Handlers) StartService(c *gin.Context) {
 	if err := h.manager.Start(); err != nil {
 		h.logger.Errorf("启动服务失败: %v", err)
@@ -260,7 +260,7 @@ func (h *Handlers) StartService(c *gin.Context) {
 // @Summary 停止NFS服务
 // @Tags NFS
 // @Success 200 {object} Response
-// @Router /nfs/stop [post]
+// @Router /nfs/stop [post].
 func (h *Handlers) StopService(c *gin.Context) {
 	if err := h.manager.Stop(); err != nil {
 		h.logger.Errorf("停止服务失败: %v", err)
@@ -276,7 +276,7 @@ func (h *Handlers) StopService(c *gin.Context) {
 // @Summary 重启NFS服务
 // @Tags NFS
 // @Success 200 {object} Response
-// @Router /nfs/restart [post]
+// @Router /nfs/restart [post].
 func (h *Handlers) RestartService(c *gin.Context) {
 	if err := h.manager.Restart(); err != nil {
 		h.logger.Errorf("重启服务失败: %v", err)
@@ -292,7 +292,7 @@ func (h *Handlers) RestartService(c *gin.Context) {
 // @Summary 重新加载NFS配置
 // @Tags NFS
 // @Success 200 {object} Response
-// @Router /nfs/reload [post]
+// @Router /nfs/reload [post].
 func (h *Handlers) ReloadConfig(c *gin.Context) {
 	if err := h.manager.Reload(); err != nil {
 		h.logger.Errorf("重新加载配置失败: %v", err)
@@ -309,7 +309,7 @@ func (h *Handlers) ReloadConfig(c *gin.Context) {
 // @Tags NFS
 // @Produce json
 // @Success 200 {object} Response
-// @Router /nfs/clients [get]
+// @Router /nfs/clients [get].
 func (h *Handlers) GetClients(c *gin.Context) {
 	clients, err := h.manager.GetClients()
 	if err != nil {
@@ -326,7 +326,7 @@ func (h *Handlers) GetClients(c *gin.Context) {
 // @Tags NFS
 // @Produce json
 // @Success 200 {object} Response
-// @Router /nfs/config/exports [get]
+// @Router /nfs/config/exports [get].
 func (h *Handlers) GetExportsFile(c *gin.Context) {
 	content, err := h.manager.GenerateExportsFile()
 	if err != nil {
@@ -341,7 +341,7 @@ func (h *Handlers) GetExportsFile(c *gin.Context) {
 	}))
 }
 
-// ExportRequest 创建/更新导出请求
+// ExportRequest 创建/更新导出请求.
 type ExportRequest struct {
 	Path    string   `json:"path" binding:"required"`
 	Clients []Client `json:"clients"`
@@ -357,7 +357,7 @@ type ExportRequest struct {
 	Comment string `json:"comment"`
 }
 
-// ToExport 转换为Export结构
+// ToExport 转换为Export结构.
 func (r *ExportRequest) ToExport() *Export {
 	return &Export{
 		Path:    r.Path,

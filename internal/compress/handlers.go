@@ -6,13 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 压缩 API 处理器
+// Handlers 压缩 API 处理器.
 type Handlers struct {
 	manager *Manager
 	fs      *FileSystem
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager, fs *FileSystem) *Handlers {
 	return &Handlers{
 		manager: manager,
@@ -20,7 +20,7 @@ func NewHandlers(manager *Manager, fs *FileSystem) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	compress := api.Group("/compress")
 	{
@@ -43,7 +43,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /compress/config [get]
+// @Router /compress/config [get].
 func (h *Handlers) GetConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -52,7 +52,7 @@ func (h *Handlers) GetConfig(c *gin.Context) {
 	})
 }
 
-// UpdateConfigRequest 更新配置请求
+// UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
 	Enabled           bool      `json:"enabled"`
 	DefaultAlgorithm  Algorithm `json:"default_algorithm"`
@@ -74,7 +74,7 @@ type UpdateConfigRequest struct {
 // @Produce json
 // @Param config body UpdateConfigRequest true "配置"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /compress/config [put]
+// @Router /compress/config [put].
 func (h *Handlers) UpdateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -120,7 +120,7 @@ func (h *Handlers) UpdateConfig(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /compress/stats [get]
+// @Router /compress/stats [get].
 func (h *Handlers) GetStats(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -136,7 +136,7 @@ func (h *Handlers) GetStats(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /compress/stats/reset [post]
+// @Router /compress/stats/reset [post].
 func (h *Handlers) ResetStats(c *gin.Context) {
 	h.manager.GetStats().Reset()
 
@@ -146,7 +146,7 @@ func (h *Handlers) ResetStats(c *gin.Context) {
 	})
 }
 
-// ListCompressedFilesRequest 列表请求
+// ListCompressedFilesRequest 列表请求.
 type ListCompressedFilesRequest struct {
 	Dir string `form:"dir" binding:"required"`
 }
@@ -159,7 +159,7 @@ type ListCompressedFilesRequest struct {
 // @Produce json
 // @Param dir query string true "目录路径"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /compress/files [get]
+// @Router /compress/files [get].
 func (h *Handlers) ListCompressedFiles(c *gin.Context) {
 	dir := c.Query("dir")
 	if dir == "" {
@@ -185,7 +185,7 @@ func (h *Handlers) ListCompressedFiles(c *gin.Context) {
 	})
 }
 
-// BatchCompressRequest 批量压缩请求
+// BatchCompressRequest 批量压缩请求.
 type BatchCompressRequest struct {
 	Dir       string `json:"dir" binding:"required"`
 	Recursive bool   `json:"recursive"`
@@ -199,7 +199,7 @@ type BatchCompressRequest struct {
 // @Produce json
 // @Param request body BatchCompressRequest true "请求"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /compress/batch [post]
+// @Router /compress/batch [post].
 func (h *Handlers) BatchCompress(c *gin.Context) {
 	var req BatchCompressRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -226,7 +226,7 @@ func (h *Handlers) BatchCompress(c *gin.Context) {
 	})
 }
 
-// FileRequest 压缩文件请求
+// FileRequest 压缩文件请求.
 type FileRequest struct {
 	SrcPath string `json:"src_path" binding:"required"`
 	DstPath string `json:"dst_path"`
@@ -240,7 +240,7 @@ type FileRequest struct {
 // @Produce json
 // @Param request body FileRequest true "请求"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /compress/compress [post]
+// @Router /compress/compress [post].
 func (h *Handlers) CompressFile(c *gin.Context) {
 	var req FileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -272,7 +272,7 @@ func (h *Handlers) CompressFile(c *gin.Context) {
 	})
 }
 
-// DecompressFileRequest 解压文件请求
+// DecompressFileRequest 解压文件请求.
 type DecompressFileRequest struct {
 	SrcPath string `json:"src_path" binding:"required"`
 	DstPath string `json:"dst_path" binding:"required"`
@@ -286,7 +286,7 @@ type DecompressFileRequest struct {
 // @Produce json
 // @Param request body DecompressFileRequest true "请求"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /compress/decompress [post]
+// @Router /compress/decompress [post].
 func (h *Handlers) DecompressFile(c *gin.Context) {
 	var req DecompressFileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -311,7 +311,7 @@ func (h *Handlers) DecompressFile(c *gin.Context) {
 	})
 }
 
-// AlgorithmInfo 算法信息
+// AlgorithmInfo 算法信息.
 type AlgorithmInfo struct {
 	Name        Algorithm `json:"name"`
 	Extension   string    `json:"extension"`
@@ -327,7 +327,7 @@ type AlgorithmInfo struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /compress/algorithms [get]
+// @Router /compress/algorithms [get].
 func (h *Handlers) ListAlgorithms(c *gin.Context) {
 	algorithms := []AlgorithmInfo{
 		{
@@ -360,7 +360,7 @@ func (h *Handlers) ListAlgorithms(c *gin.Context) {
 	})
 }
 
-// GetStatus 获取服务状态
+// GetStatus 获取服务状态.
 func (h *Handlers) GetStatus(c *gin.Context) {
 	config := h.manager.GetConfig()
 	stats := h.manager.GetStats()

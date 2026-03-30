@@ -19,7 +19,7 @@ import (
 )
 
 // SafeFileManager 安全文件管理器
-// 解决路径遍历漏洞和竞态条件问题
+// 解决路径遍历漏洞和竞态条件问题.
 type SafeFileManager struct {
 	baseDir           string
 	allowedExt        map[string]bool
@@ -29,7 +29,7 @@ type SafeFileManager struct {
 	sensitiveDetector *SensitiveFileDetector
 }
 
-// NewSafeFileManager 创建安全文件管理器
+// NewSafeFileManager 创建安全文件管理器.
 func NewSafeFileManager(baseDir string) *SafeFileManager {
 	// 规范化基目录路径
 	baseDir = filepath.Clean(baseDir)
@@ -54,14 +54,14 @@ func NewSafeFileManager(baseDir string) *SafeFileManager {
 	}
 }
 
-// SetAccessLogger 设置访问日志记录器
+// SetAccessLogger 设置访问日志记录器.
 func (m *SafeFileManager) SetAccessLogger(logger *AccessLogger) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.accessLogger = logger
 }
 
-// GetAccessLogger 获取访问日志记录器
+// GetAccessLogger 获取访问日志记录器.
 func (m *SafeFileManager) GetAccessLogger() *AccessLogger {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -69,7 +69,7 @@ func (m *SafeFileManager) GetAccessLogger() *AccessLogger {
 }
 
 // SafePath 验证并返回安全路径
-// 防止路径遍历攻击
+// 防止路径遍历攻击.
 func (m *SafeFileManager) SafePath(userPath string) (string, error) {
 	// 清理路径
 	cleanPath := filepath.Clean(userPath)
@@ -131,7 +131,7 @@ func (m *SafeFileManager) SafePath(userPath string) (string, error) {
 	return absFull, nil
 }
 
-// SafeRead 安全读取文件
+// SafeRead 安全读取文件.
 func (m *SafeFileManager) SafeRead(userPath string) ([]byte, error) {
 	startTime := time.Now()
 	logEntry := AccessLog{
@@ -212,7 +212,7 @@ func (m *SafeFileManager) SafeRead(userPath string) ([]byte, error) {
 	return data, nil
 }
 
-// SafeWrite 安全写入文件
+// SafeWrite 安全写入文件.
 func (m *SafeFileManager) SafeWrite(userPath string, data []byte) error {
 	startTime := time.Now()
 	logEntry := AccessLog{
@@ -277,7 +277,7 @@ func (m *SafeFileManager) SafeWrite(userPath string, data []byte) error {
 	return nil
 }
 
-// SafeDelete 安全删除文件
+// SafeDelete 安全删除文件.
 func (m *SafeFileManager) SafeDelete(userPath string) error {
 	startTime := time.Now()
 	logEntry := AccessLog{
@@ -330,7 +330,7 @@ func (m *SafeFileManager) SafeDelete(userPath string) error {
 	return nil
 }
 
-// SafeWalk 安全遍历目录
+// SafeWalk 安全遍历目录.
 func (m *SafeFileManager) SafeWalk(userPath string, walkFn func(path string, info fs.FileInfo) error) error {
 	safePath, err := m.SafePath(userPath)
 	if err != nil {
@@ -351,14 +351,14 @@ func (m *SafeFileManager) SafeWalk(userPath string, walkFn func(path string, inf
 	})
 }
 
-// AddAllowedExtension 添加允许的文件扩展名
+// AddAllowedExtension 添加允许的文件扩展名.
 func (m *SafeFileManager) AddAllowedExtension(ext string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.allowedExt[strings.ToLower(ext)] = true
 }
 
-// RemoveAllowedExtension 移除允许的文件扩展名
+// RemoveAllowedExtension 移除允许的文件扩展名.
 func (m *SafeFileManager) RemoveAllowedExtension(ext string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -377,7 +377,7 @@ func randomString(length int) string {
 
 // ========== 文件哈希校验 ==========
 
-// FileHash 文件哈希
+// FileHash 文件哈希.
 type FileHash struct {
 	Path      string
 	Hash      string
@@ -385,10 +385,10 @@ type FileHash struct {
 	Timestamp time.Time
 }
 
-// HashCalculator 哈希计算器
+// HashCalculator 哈希计算器.
 type HashCalculator struct{}
 
-// CalculateFileHash 计算文件哈希
+// CalculateFileHash 计算文件哈希.
 func (c *HashCalculator) CalculateFileHash(path string) (*FileHash, error) {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -410,7 +410,7 @@ func (c *HashCalculator) CalculateFileHash(path string) (*FileHash, error) {
 	}, nil
 }
 
-// VerifyFileIntegrity 验证文件完整性
+// VerifyFileIntegrity 验证文件完整性.
 func (c *HashCalculator) VerifyFileIntegrity(path, expectedHash string) (bool, error) {
 	fileHash, err := c.CalculateFileHash(path)
 	if err != nil {
@@ -422,13 +422,13 @@ func (c *HashCalculator) VerifyFileIntegrity(path, expectedHash string) (bool, e
 
 // ========== 文件权限检查 ==========
 
-// PermissionChecker 权限检查器
+// PermissionChecker 权限检查器.
 type PermissionChecker struct {
 	maxFileMode os.FileMode // 最大允许的文件权限
 	maxDirMode  os.FileMode // 最大允许的目录权限
 }
 
-// NewPermissionChecker 创建权限检查器
+// NewPermissionChecker 创建权限检查器.
 func NewPermissionChecker() *PermissionChecker {
 	return &PermissionChecker{
 		maxFileMode: 0644, // 文件最大权限：rw-r--r--
@@ -436,7 +436,7 @@ func NewPermissionChecker() *PermissionChecker {
 	}
 }
 
-// PermissionIssue 权限问题
+// PermissionIssue 权限问题.
 type PermissionIssue struct {
 	Path        string
 	CurrentMode os.FileMode
@@ -445,7 +445,7 @@ type PermissionIssue struct {
 	Message     string
 }
 
-// CheckFilePermission 检查文件权限
+// CheckFilePermission 检查文件权限.
 func (c *PermissionChecker) CheckFilePermission(path string) (*PermissionIssue, error) {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -490,7 +490,7 @@ func (c *PermissionChecker) CheckFilePermission(path string) (*PermissionIssue, 
 	return issue, nil
 }
 
-// FixPermission 修复文件权限
+// FixPermission 修复文件权限.
 func (c *PermissionChecker) FixPermission(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -509,13 +509,13 @@ func (c *PermissionChecker) FixPermission(path string) error {
 
 // ========== 敏感文件检测 ==========
 
-// SensitiveFileDetector 敏感文件检测器
+// SensitiveFileDetector 敏感文件检测器.
 type SensitiveFileDetector struct {
 	sensitivePatterns []*regexp.Regexp
 	sensitiveContent  []*regexp.Regexp
 }
 
-// NewSensitiveFileDetector 创建敏感文件检测器
+// NewSensitiveFileDetector 创建敏感文件检测器.
 func NewSensitiveFileDetector() *SensitiveFileDetector {
 	return &SensitiveFileDetector{
 		sensitivePatterns: []*regexp.Regexp{
@@ -557,7 +557,7 @@ func NewSensitiveFileDetector() *SensitiveFileDetector {
 	}
 }
 
-// SensitiveFileResult 敏感文件检测结果
+// SensitiveFileResult 敏感文件检测结果.
 type SensitiveFileResult struct {
 	Path          string
 	FileNameMatch string   // 匹配的文件名模式
@@ -565,7 +565,7 @@ type SensitiveFileResult struct {
 	Severity      string
 }
 
-// Detect 检测敏感文件
+// Detect 检测敏感文件.
 func (d *SensitiveFileDetector) Detect(path string) (*SensitiveFileResult, error) {
 	result := &SensitiveFileResult{
 		Path:     path,
@@ -605,7 +605,7 @@ func (d *SensitiveFileDetector) Detect(path string) (*SensitiveFileResult, error
 	return result, nil
 }
 
-// isTextFile 判断是否为文本文件
+// isTextFile 判断是否为文本文件.
 func isTextFile(path string) bool {
 	textExts := map[string]bool{
 		".txt": true, ".json": true, ".xml": true, ".yaml": true, ".yml": true,
@@ -621,7 +621,7 @@ func isTextFile(path string) bool {
 
 // ========== 访问日志记录 ==========
 
-// AccessLog 访问日志
+// AccessLog 访问日志.
 type AccessLog struct {
 	Timestamp    time.Time `json:"timestamp"`
 	Operation    string    `json:"operation"` // read, write, delete, walk
@@ -635,7 +635,7 @@ type AccessLog struct {
 	SecurityRisk string    `json:"security_risk,omitempty"` // 安全风险标记
 }
 
-// AccessLogger 访问日志记录器
+// AccessLogger 访问日志记录器.
 type AccessLogger struct {
 	logs    []AccessLog
 	mu      sync.RWMutex
@@ -644,7 +644,7 @@ type AccessLogger struct {
 	enabled bool
 }
 
-// NewAccessLogger 创建访问日志记录器
+// NewAccessLogger 创建访问日志记录器.
 func NewAccessLogger(logFile string, maxLogs int) *AccessLogger {
 	return &AccessLogger{
 		logs:    make([]AccessLog, 0),
@@ -654,7 +654,7 @@ func NewAccessLogger(logFile string, maxLogs int) *AccessLogger {
 	}
 }
 
-// Log 记录访问日志
+// Log 记录访问日志.
 func (l *AccessLogger) Log(log AccessLog) {
 	if !l.enabled {
 		return
@@ -682,7 +682,7 @@ func (l *AccessLogger) Log(log AccessLog) {
 	}
 }
 
-// writeToFile 写入日志文件
+// writeToFile 写入日志文件.
 func (l *AccessLogger) writeToFile(log AccessLog) {
 	data, err := json.Marshal(log)
 	if err != nil {
@@ -701,7 +701,7 @@ func (l *AccessLogger) writeToFile(log AccessLog) {
 	_, _ = f.Write([]byte("\n"))
 }
 
-// GetLogs 获取日志
+// GetLogs 获取日志.
 func (l *AccessLogger) GetLogs(limit int) []AccessLog {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -714,7 +714,7 @@ func (l *AccessLogger) GetLogs(limit int) []AccessLog {
 	return append([]AccessLog{}, l.logs[start:]...)
 }
 
-// GetRecentFailures 获取最近的失败操作
+// GetRecentFailures 获取最近的失败操作.
 func (l *AccessLogger) GetRecentFailures(count int) []AccessLog {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -728,7 +728,7 @@ func (l *AccessLogger) GetRecentFailures(count int) []AccessLog {
 	return failures
 }
 
-// GetSecurityRisks 获取有安全风险的日志
+// GetSecurityRisks 获取有安全风险的日志.
 func (l *AccessLogger) GetSecurityRisks() []AccessLog {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -742,21 +742,21 @@ func (l *AccessLogger) GetSecurityRisks() []AccessLog {
 	return risks
 }
 
-// Clear 清空日志
+// Clear 清空日志.
 func (l *AccessLogger) Clear() {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.logs = make([]AccessLog, 0)
 }
 
-// Enable 启用日志
+// Enable 启用日志.
 func (l *AccessLogger) Enable() {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.enabled = true
 }
 
-// Disable 禁用日志
+// Disable 禁用日志.
 func (l *AccessLogger) Disable() {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -765,7 +765,7 @@ func (l *AccessLogger) Disable() {
 
 // ========== 增强的安全审计 ==========
 
-// AuditResult 审计结果
+// AuditResult 审计结果.
 type AuditResult struct {
 	Path              string
 	Issues            []string
@@ -775,14 +775,14 @@ type AuditResult struct {
 	SensitiveFileInfo *SensitiveFileResult
 }
 
-// SecurityAuditor 安全审计器
+// SecurityAuditor 安全审计器.
 type SecurityAuditor struct {
 	manager           *SafeFileManager
 	permChecker       *PermissionChecker
 	sensitiveDetector *SensitiveFileDetector
 }
 
-// NewSecurityAuditor 创建安全审计器
+// NewSecurityAuditor 创建安全审计器.
 func NewSecurityAuditor(manager *SafeFileManager) *SecurityAuditor {
 	return &SecurityAuditor{
 		manager:           manager,
@@ -791,7 +791,7 @@ func NewSecurityAuditor(manager *SafeFileManager) *SecurityAuditor {
 	}
 }
 
-// AuditPath 审计路径安全性
+// AuditPath 审计路径安全性.
 func (a *SecurityAuditor) AuditPath(ctx context.Context, userPath string) (*AuditResult, error) {
 	result := &AuditResult{
 		Path:      userPath,
@@ -845,7 +845,7 @@ func (a *SecurityAuditor) AuditPath(ctx context.Context, userPath string) (*Audi
 	return result, nil
 }
 
-// AuditDirectory 审计目录安全性
+// AuditDirectory 审计目录安全性.
 func (a *SecurityAuditor) AuditDirectory(ctx context.Context, dirPath string) ([]*AuditResult, error) {
 	safePath, err := a.manager.SafePath(dirPath)
 	if err != nil {
@@ -879,7 +879,7 @@ func (a *SecurityAuditor) AuditDirectory(ctx context.Context, dirPath string) ([
 	return results, err
 }
 
-// FixPermissions 修复目录下所有文件权限
+// FixPermissions 修复目录下所有文件权限.
 func (a *SecurityAuditor) FixPermissions(ctx context.Context, dirPath string) (int, []error) {
 	safePath, err := a.manager.SafePath(dirPath)
 	if err != nil {

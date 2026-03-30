@@ -7,14 +7,14 @@ import (
 	"time"
 )
 
-// Manager 系统服务管理器
+// Manager 系统服务管理器.
 type Manager struct {
 	services map[string]*Service
 	mu       sync.RWMutex
 	backend  ServiceBackend
 }
 
-// Service 服务配置
+// Service 服务配置.
 type Service struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -24,7 +24,7 @@ type Service struct {
 	UnitFile    string `json:"unitFile,omitempty"`
 }
 
-// Status 服务状态
+// Status 服务状态.
 type Status struct {
 	Running   bool          `json:"running"`
 	PID       int           `json:"pid,omitempty"`
@@ -35,10 +35,10 @@ type Status struct {
 	StartedAt time.Time     `json:"startedAt,omitempty"`
 }
 
-// ServiceStatus 服务状态（兼容别名）
+// ServiceStatus 服务状态（兼容别名）.
 type ServiceStatus = Status //nolint:revive // 向后兼容别名
 
-// Backend 服务后端接口
+// Backend 服务后端接口.
 type Backend interface {
 	// Start 启动服务
 	Start(name string) error
@@ -62,10 +62,10 @@ type Backend interface {
 	Get(name string) (*Service, error)
 }
 
-// ServiceBackend 服务后端接口（兼容别名）
+// ServiceBackend 服务后端接口（兼容别名）.
 type ServiceBackend = Backend //nolint:revive // 向后兼容别名
 
-// 预定义的常用服务
+// 预定义的常用服务.
 var defaultServices = map[string]*Service{
 	"smbd": {
 		Name:        "smbd",
@@ -159,7 +159,7 @@ var defaultServices = map[string]*Service{
 	},
 }
 
-// NewManager 创建服务管理器
+// NewManager 创建服务管理器.
 func NewManager() (*Manager, error) {
 	backend, err := NewSystemdBackend()
 	if err != nil {
@@ -189,7 +189,7 @@ func NewManager() (*Manager, error) {
 	return m, nil
 }
 
-// NewManagerWithBackend 使用自定义后端创建管理器（用于测试）
+// NewManagerWithBackend 使用自定义后端创建管理器（用于测试）.
 func NewManagerWithBackend(backend ServiceBackend) (*Manager, error) {
 	if backend == nil {
 		return nil, fmt.Errorf("后端不能为空")
@@ -213,7 +213,7 @@ func NewManagerWithBackend(backend ServiceBackend) (*Manager, error) {
 	return m, nil
 }
 
-// Start 启动服务
+// Start 启动服务.
 func (m *Manager) Start(name string) error {
 	m.mu.RLock()
 	_, exists := m.services[name]
@@ -233,7 +233,7 @@ func (m *Manager) Start(name string) error {
 	return nil
 }
 
-// Stop 停止服务
+// Stop 停止服务.
 func (m *Manager) Stop(name string) error {
 	m.mu.RLock()
 	_, exists := m.services[name]
@@ -253,7 +253,7 @@ func (m *Manager) Stop(name string) error {
 	return nil
 }
 
-// Restart 重启服务
+// Restart 重启服务.
 func (m *Manager) Restart(name string) error {
 	m.mu.RLock()
 	_, exists := m.services[name]
@@ -275,7 +275,7 @@ func (m *Manager) Restart(name string) error {
 	return nil
 }
 
-// Status 获取服务状态
+// Status 获取服务状态.
 func (m *Manager) Status(name string) (*ServiceStatus, error) {
 	m.mu.RLock()
 	svc, exists := m.services[name]
@@ -299,7 +299,7 @@ func (m *Manager) Status(name string) (*ServiceStatus, error) {
 	return status, nil
 }
 
-// Enable 启用服务开机自启
+// Enable 启用服务开机自启.
 func (m *Manager) Enable(name string) error {
 	m.mu.RLock()
 	svc, exists := m.services[name]
@@ -321,7 +321,7 @@ func (m *Manager) Enable(name string) error {
 	return nil
 }
 
-// Disable 禁用服务开机自启
+// Disable 禁用服务开机自启.
 func (m *Manager) Disable(name string) error {
 	m.mu.RLock()
 	svc, exists := m.services[name]
@@ -343,7 +343,7 @@ func (m *Manager) Disable(name string) error {
 	return nil
 }
 
-// List 列出所有服务
+// List 列出所有服务.
 func (m *Manager) List() ([]*Service, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -359,7 +359,7 @@ func (m *Manager) List() ([]*Service, error) {
 	return result, nil
 }
 
-// Get 获取单个服务信息
+// Get 获取单个服务信息.
 func (m *Manager) Get(name string) (*Service, error) {
 	m.mu.RLock()
 	svc, exists := m.services[name]
@@ -392,7 +392,7 @@ func (m *Manager) Get(name string) (*Service, error) {
 	return &svcCopy, nil
 }
 
-// Refresh 刷新单个服务状态
+// Refresh 刷新单个服务状态.
 func (m *Manager) Refresh(name string) error {
 	m.mu.RLock()
 	_, exists := m.services[name]
@@ -423,7 +423,7 @@ func (m *Manager) Refresh(name string) error {
 	return nil
 }
 
-// RefreshAll 刷新所有服务状态
+// RefreshAll 刷新所有服务状态.
 func (m *Manager) RefreshAll() error {
 	m.mu.RLock()
 	names := make([]string, 0, len(m.services))
@@ -442,7 +442,7 @@ func (m *Manager) RefreshAll() error {
 	return lastErr
 }
 
-// Register 注册新服务
+// Register 注册新服务.
 func (m *Manager) Register(svc *Service) error {
 	if svc == nil {
 		return fmt.Errorf("服务不能为空")
@@ -472,7 +472,7 @@ func (m *Manager) Register(svc *Service) error {
 	return nil
 }
 
-// Unregister 注销服务
+// Unregister 注销服务.
 func (m *Manager) Unregister(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -485,7 +485,7 @@ func (m *Manager) Unregister(name string) error {
 	return nil
 }
 
-// IsRunning 检查服务是否运行中
+// IsRunning 检查服务是否运行中.
 func (m *Manager) IsRunning(name string) (bool, error) {
 	m.mu.RLock()
 	_, exists := m.services[name]
@@ -498,7 +498,7 @@ func (m *Manager) IsRunning(name string) (bool, error) {
 	return m.backend.IsRunning(name)
 }
 
-// IsEnabled 检查服务是否开机自启
+// IsEnabled 检查服务是否开机自启.
 func (m *Manager) IsEnabled(name string) (bool, error) {
 	m.mu.RLock()
 	_, exists := m.services[name]
@@ -511,7 +511,7 @@ func (m *Manager) IsEnabled(name string) (bool, error) {
 	return m.backend.IsEnabled(name)
 }
 
-// GetRunningCount 获取运行中的服务数量
+// GetRunningCount 获取运行中的服务数量.
 func (m *Manager) GetRunningCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -525,7 +525,7 @@ func (m *Manager) GetRunningCount() int {
 	return count
 }
 
-// GetEnabledCount 获取开机自启的服务数量
+// GetEnabledCount 获取开机自启的服务数量.
 func (m *Manager) GetEnabledCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

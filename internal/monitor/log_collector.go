@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-// LogCollector 日志收集器
+// LogCollector 日志收集器.
 type LogCollector struct {
 	mu      sync.RWMutex
 	config  *LogCollectorConfig
@@ -28,7 +28,7 @@ type LogCollector struct {
 	wg      sync.WaitGroup
 }
 
-// LogCollectorConfig 日志收集器配置
+// LogCollectorConfig 日志收集器配置.
 type LogCollectorConfig struct {
 	DataDir       string        `json:"dataDir"`       // 数据存储目录
 	MaxSize       int64         `json:"maxSize"`       // 单文件最大大小 (字节)
@@ -41,7 +41,7 @@ type LogCollectorConfig struct {
 	IndexInterval time.Duration `json:"indexInterval"` // 索引间隔
 }
 
-// LogSource 日志源
+// LogSource 日志源.
 type LogSource struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -53,43 +53,43 @@ type LogSource struct {
 	LastReadAt  time.Time `json:"lastReadAt"`
 }
 
-// LogType 日志类型
+// LogType 日志类型.
 type LogType string
 
-// 日志类型常量
+// 日志类型常量.
 const (
-	// LogTypeSystem 系统日志
+	// LogTypeSystem 系统日志.
 	LogTypeSystem LogType = "system"
-	// LogTypeApp 应用日志
+	// LogTypeApp 应用日志.
 	LogTypeApp LogType = "app"
-	// LogTypeAudit 审计日志
+	// LogTypeAudit 审计日志.
 	LogTypeAudit LogType = "audit"
-	// LogTypeError 错误日志
+	// LogTypeError 错误日志.
 	LogTypeError LogType = "error"
-	// LogTypeAccess 访问日志
+	// LogTypeAccess 访问日志.
 	LogTypeAccess LogType = "access"
-	// LogTypeCustom 自定义日志
+	// LogTypeCustom 自定义日志.
 	LogTypeCustom LogType = "custom"
 )
 
-// LogFormat 日志格式
+// LogFormat 日志格式.
 type LogFormat string
 
-// 日志格式常量
+// 日志格式常量.
 const (
-	// LogFormatJSON JSON 格式
+	// LogFormatJSON JSON 格式.
 	LogFormatJSON LogFormat = "json"
-	// LogFormatText 纯文本格式
+	// LogFormatText 纯文本格式.
 	LogFormatText LogFormat = "text"
-	// LogFormatSyslog Syslog 格式
+	// LogFormatSyslog Syslog 格式.
 	LogFormatSyslog LogFormat = "syslog"
-	// LogFormatApache Apache 格式
+	// LogFormatApache Apache 格式.
 	LogFormatApache LogFormat = "apache"
-	// LogFormatNginx Nginx 格式
+	// LogFormatNginx Nginx 格式.
 	LogFormatNginx LogFormat = "nginx"
 )
 
-// LogEntry 日志条目
+// LogEntry 日志条目.
 type LogEntry struct {
 	ID        string                 `json:"id"`
 	Timestamp time.Time              `json:"timestamp"`
@@ -101,7 +101,7 @@ type LogEntry struct {
 	Raw       string                 `json:"raw,omitempty"`
 }
 
-// LogStorage 日志存储接口
+// LogStorage 日志存储接口.
 type LogStorage interface {
 	Write(entry *LogEntry) error
 	Query(filter *LogQueryFilter) ([]*LogEntry, int64, error)
@@ -109,7 +109,7 @@ type LogStorage interface {
 	Close() error
 }
 
-// LogQueryFilter 日志查询过滤条件
+// LogQueryFilter 日志查询过滤条件.
 type LogQueryFilter struct {
 	StartTime    *time.Time             `json:"startTime,omitempty"`
 	EndTime      *time.Time             `json:"endTime,omitempty"`
@@ -124,14 +124,14 @@ type LogQueryFilter struct {
 	Order        string                 `json:"order"` // "asc" or "desc"
 }
 
-// LogIndexer 日志索引器
+// LogIndexer 日志索引器.
 type LogIndexer struct {
 	mu        sync.RWMutex
 	index     map[string][]*LogEntry
 	timeIndex map[string][]string // 时间索引
 }
 
-// NewLogCollector 创建日志收集器
+// NewLogCollector 创建日志收集器.
 func NewLogCollector(config *LogCollectorConfig) (*LogCollector, error) {
 	if config.DataDir == "" {
 		config.DataDir = "/var/log/nas-os"
@@ -176,7 +176,7 @@ func NewLogCollector(config *LogCollectorConfig) (*LogCollector, error) {
 	return collector, nil
 }
 
-// addDefaultSources 添加默认日志源
+// addDefaultSources 添加默认日志源.
 func (lc *LogCollector) addDefaultSources() {
 	sources := []*LogSource{
 		{
@@ -218,7 +218,7 @@ func (lc *LogCollector) addDefaultSources() {
 	}
 }
 
-// Start 启动日志收集
+// Start 启动日志收集.
 func (lc *LogCollector) Start() {
 	lc.wg.Add(1)
 	go lc.collectLoop()
@@ -232,7 +232,7 @@ func (lc *LogCollector) Start() {
 	}
 }
 
-// Stop 停止日志收集
+// Stop 停止日志收集.
 func (lc *LogCollector) Stop() {
 	close(lc.stopCh)
 	lc.wg.Wait()
@@ -242,7 +242,7 @@ func (lc *LogCollector) Stop() {
 	}
 }
 
-// AddSource 添加日志源
+// AddSource 添加日志源.
 func (lc *LogCollector) AddSource(source *LogSource) error {
 	if source.ID == "" {
 		return fmt.Errorf("日志源 ID 不能为空")
@@ -257,7 +257,7 @@ func (lc *LogCollector) AddSource(source *LogSource) error {
 	return nil
 }
 
-// RemoveSource 移除日志源
+// RemoveSource 移除日志源.
 func (lc *LogCollector) RemoveSource(id string) {
 	lc.mu.Lock()
 	defer lc.mu.Unlock()
@@ -265,7 +265,7 @@ func (lc *LogCollector) RemoveSource(id string) {
 	delete(lc.logDirs, id)
 }
 
-// GetSources 获取日志源列表
+// GetSources 获取日志源列表.
 func (lc *LogCollector) GetSources() []*LogSource {
 	lc.mu.RLock()
 	defer lc.mu.RUnlock()
@@ -278,7 +278,7 @@ func (lc *LogCollector) GetSources() []*LogSource {
 	return sources
 }
 
-// collectLoop 收集循环
+// collectLoop 收集循环.
 func (lc *LogCollector) collectLoop() {
 	defer lc.wg.Done()
 
@@ -295,7 +295,7 @@ func (lc *LogCollector) collectLoop() {
 	}
 }
 
-// collectLogs 收集日志
+// collectLogs 收集日志.
 func (lc *LogCollector) collectLogs() {
 	lc.mu.RLock()
 	sources := make([]*LogSource, 0, len(lc.logDirs))
@@ -325,7 +325,7 @@ func (lc *LogCollector) collectLogs() {
 	}
 }
 
-// readLogFile 读取日志文件
+// readLogFile 读取日志文件.
 func (lc *LogCollector) readLogFile(source *LogSource) ([]*LogEntry, error) {
 	file, err := os.Open(source.Path)
 	if err != nil {
@@ -362,7 +362,7 @@ func (lc *LogCollector) readLogFile(source *LogSource) ([]*LogEntry, error) {
 	return entries, scanner.Err()
 }
 
-// parseLine 解析日志行
+// parseLine 解析日志行.
 func (lc *LogCollector) parseLine(line string, source *LogSource) *LogEntry {
 	switch source.Format {
 	case LogFormatJSON:
@@ -374,7 +374,7 @@ func (lc *LogCollector) parseLine(line string, source *LogSource) *LogEntry {
 	}
 }
 
-// parseJSONLine 解析 JSON 格式日志
+// parseJSONLine 解析 JSON 格式日志.
 func (lc *LogCollector) parseJSONLine(line string, source *LogSource) *LogEntry {
 	var data map[string]interface{}
 	if err := json.Unmarshal([]byte(line), &data); err != nil {
@@ -426,7 +426,7 @@ func (lc *LogCollector) parseJSONLine(line string, source *LogSource) *LogEntry 
 	return entry
 }
 
-// parseSyslogLine 解析 Syslog 格式日志
+// parseSyslogLine 解析 Syslog 格式日志.
 func (lc *LogCollector) parseSyslogLine(line string, source *LogSource) *LogEntry {
 	// Syslog 格式: Mon Jan 2 15:04:05 hostname process[pid]: message
 	// 示例: Mar 15 10:00:00 nas-os sshd[1234]: Accepted password for user
@@ -492,7 +492,7 @@ func (lc *LogCollector) parseSyslogLine(line string, source *LogSource) *LogEntr
 	return entry
 }
 
-// parseTextLine 解析纯文本日志
+// parseTextLine 解析纯文本日志.
 func (lc *LogCollector) parseTextLine(line string, source *LogSource) *LogEntry {
 	entry := &LogEntry{
 		ID:        generateLogID(),
@@ -509,7 +509,7 @@ func (lc *LogCollector) parseTextLine(line string, source *LogSource) *LogEntry 
 	return entry
 }
 
-// detectLevel 检测日志级别
+// detectLevel 检测日志级别.
 func (lc *LogCollector) detectLevel(message string) string {
 	lower := strings.ToLower(message)
 
@@ -529,7 +529,7 @@ func (lc *LogCollector) detectLevel(message string) string {
 	return "info"
 }
 
-// Query 查询日志
+// Query 查询日志.
 func (lc *LogCollector) Query(filter *LogQueryFilter) ([]*LogEntry, int64, error) {
 	if filter.Limit == 0 {
 		filter.Limit = 100
@@ -541,7 +541,7 @@ func (lc *LogCollector) Query(filter *LogQueryFilter) ([]*LogEntry, int64, error
 	return lc.storage.Query(filter)
 }
 
-// QueryByTimeRange 按时间范围查询
+// QueryByTimeRange 按时间范围查询.
 func (lc *LogCollector) QueryByTimeRange(start, end time.Time, limit int) ([]*LogEntry, error) {
 	filter := &LogQueryFilter{
 		StartTime: &start,
@@ -554,7 +554,7 @@ func (lc *LogCollector) QueryByTimeRange(start, end time.Time, limit int) ([]*Lo
 	return entries, err
 }
 
-// QueryByLevel 按级别查询
+// QueryByLevel 按级别查询.
 func (lc *LogCollector) QueryByLevel(level string, limit int) ([]*LogEntry, error) {
 	filter := &LogQueryFilter{
 		Level: level,
@@ -566,7 +566,7 @@ func (lc *LogCollector) QueryByLevel(level string, limit int) ([]*LogEntry, erro
 	return entries, err
 }
 
-// Search 搜索日志
+// Search 搜索日志.
 func (lc *LogCollector) Search(query string, limit int) ([]*LogEntry, error) {
 	filter := &LogQueryFilter{
 		Message: query,
@@ -578,7 +578,7 @@ func (lc *LogCollector) Search(query string, limit int) ([]*LogEntry, error) {
 	return entries, err
 }
 
-// SearchRegex 正则搜索
+// SearchRegex 正则搜索.
 func (lc *LogCollector) SearchRegex(pattern string, limit int) ([]*LogEntry, error) {
 	filter := &LogQueryFilter{
 		MessageRegex: pattern,
@@ -590,7 +590,7 @@ func (lc *LogCollector) SearchRegex(pattern string, limit int) ([]*LogEntry, err
 	return entries, err
 }
 
-// cleanupLoop 清理循环
+// cleanupLoop 清理循环.
 func (lc *LogCollector) cleanupLoop() {
 	defer lc.wg.Done()
 
@@ -607,13 +607,13 @@ func (lc *LogCollector) cleanupLoop() {
 	}
 }
 
-// cleanupOldLogs 清理旧日志
+// cleanupOldLogs 清理旧日志.
 func (lc *LogCollector) cleanupOldLogs() {
 	before := time.Now().Add(-lc.config.MaxAge)
 	_ = lc.storage.DeleteOlderThan(before)
 }
 
-// indexLoop 索引循环
+// indexLoop 索引循环.
 func (lc *LogCollector) indexLoop() {
 	defer lc.wg.Done()
 
@@ -630,7 +630,7 @@ func (lc *LogCollector) indexLoop() {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (lc *LogCollector) GetStats() map[string]interface{} {
 	return map[string]interface{}{
 		"sources":     len(lc.logDirs),
@@ -639,7 +639,7 @@ func (lc *LogCollector) GetStats() map[string]interface{} {
 	}
 }
 
-// NewLogIndexer 创建日志索引器
+// NewLogIndexer 创建日志索引器.
 func NewLogIndexer() *LogIndexer {
 	return &LogIndexer{
 		index:     make(map[string][]*LogEntry),
@@ -647,7 +647,7 @@ func NewLogIndexer() *LogIndexer {
 	}
 }
 
-// Index 索引日志条目
+// Index 索引日志条目.
 func (li *LogIndexer) Index(entry *LogEntry) {
 	li.mu.Lock()
 	defer li.mu.Unlock()
@@ -663,7 +663,7 @@ func (li *LogIndexer) Index(entry *LogEntry) {
 	li.timeIndex[hourKey] = append(li.timeIndex[hourKey], entry.ID)
 }
 
-// Optimize 优化索引
+// Optimize 优化索引.
 func (li *LogIndexer) Optimize() {
 	li.mu.Lock()
 	defer li.mu.Unlock()
@@ -682,7 +682,7 @@ func (li *LogIndexer) Optimize() {
 	}
 }
 
-// GetStats 获取索引统计
+// GetStats 获取索引统计.
 func (li *LogIndexer) GetStats() map[string]interface{} {
 	li.mu.RLock()
 	defer li.mu.RUnlock()
@@ -699,20 +699,20 @@ func (li *LogIndexer) GetStats() map[string]interface{} {
 	}
 }
 
-// FileLogStorage 文件日志存储
+// FileLogStorage 文件日志存储.
 type FileLogStorage struct {
 	dataDir string
 	mu      sync.RWMutex
 }
 
-// NewFileLogStorage 创建文件日志存储
+// NewFileLogStorage 创建文件日志存储.
 func NewFileLogStorage(dataDir string) *FileLogStorage {
 	return &FileLogStorage{
 		dataDir: dataDir,
 	}
 }
 
-// Write 写入日志
+// Write 写入日志.
 func (s *FileLogStorage) Write(entry *LogEntry) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -736,7 +736,7 @@ func (s *FileLogStorage) Write(entry *LogEntry) error {
 	return err
 }
 
-// Query 查询日志
+// Query 查询日志.
 func (s *FileLogStorage) Query(filter *LogQueryFilter) ([]*LogEntry, int64, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -778,7 +778,7 @@ func (s *FileLogStorage) Query(filter *LogQueryFilter) ([]*LogEntry, int64, erro
 	return entries[start:end], total, nil
 }
 
-// getLogFiles 获取日志文件列表
+// getLogFiles 获取日志文件列表.
 func (s *FileLogStorage) getLogFiles(filter *LogQueryFilter) []string {
 	files, _ := filepath.Glob(filepath.Join(s.dataDir, "logs-*.jsonl"))
 
@@ -813,7 +813,7 @@ func (s *FileLogStorage) getLogFiles(filter *LogQueryFilter) []string {
 	return result
 }
 
-// queryFile 查询单个文件
+// queryFile 查询单个文件.
 func (s *FileLogStorage) queryFile(filename string, filter *LogQueryFilter) ([]*LogEntry, error) {
 	f, err := os.Open(filename)
 	if err != nil {
@@ -848,7 +848,7 @@ func (s *FileLogStorage) queryFile(filename string, filter *LogQueryFilter) ([]*
 	return entries, scanner.Err()
 }
 
-// matchFilter 匹配过滤条件
+// matchFilter 匹配过滤条件.
 func (s *FileLogStorage) matchFilter(entry *LogEntry, filter *LogQueryFilter, re *regexp.Regexp) bool {
 	// 时间过滤
 	if filter.StartTime != nil && entry.Timestamp.Before(*filter.StartTime) {
@@ -886,7 +886,7 @@ func (s *FileLogStorage) matchFilter(entry *LogEntry, filter *LogQueryFilter, re
 	return true
 }
 
-// DeleteOlderThan 删除旧日志
+// DeleteOlderThan 删除旧日志.
 func (s *FileLogStorage) DeleteOlderThan(before time.Time) error {
 	files, _ := filepath.Glob(filepath.Join(s.dataDir, "logs-*.jsonl"))
 
@@ -913,7 +913,7 @@ func (s *FileLogStorage) DeleteOlderThan(before time.Time) error {
 	return nil
 }
 
-// compressFile 压缩文件
+// compressFile 压缩文件.
 func (s *FileLogStorage) compressFile(filename string) error {
 	f, err := os.Open(filename)
 	if err != nil {
@@ -939,12 +939,12 @@ func (s *FileLogStorage) compressFile(filename string) error {
 	return os.Remove(filename)
 }
 
-// Close 关闭存储
+// Close 关闭存储.
 func (s *FileLogStorage) Close() error {
 	return nil
 }
 
-// generateLogID 生成日志 ID
+// generateLogID 生成日志 ID.
 func generateLogID() string {
 	return fmt.Sprintf("log-%d", time.Now().UnixNano())
 }

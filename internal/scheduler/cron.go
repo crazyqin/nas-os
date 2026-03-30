@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// CronExpression Cron 表达式解析器
+// CronExpression Cron 表达式解析器.
 type CronExpression struct {
 	second     field
 	minute     field
@@ -23,14 +23,14 @@ type field struct {
 	values map[int]bool
 }
 
-// CronParseOptions 解析选项
+// CronParseOptions 解析选项.
 type CronParseOptions struct {
 	Second    bool // 是否包含秒字段
 	Location  *time.Location
 	AllowYear bool // 是否允许年字段
 }
 
-// NewCronExpression 创建 Cron 表达式
+// NewCronExpression 创建 Cron 表达式.
 func NewCronExpression(expression string, opts ...CronParseOptions) (*CronExpression, error) {
 	options := CronParseOptions{
 		Second:   true,
@@ -114,14 +114,14 @@ func NewCronExpression(expression string, opts ...CronParseOptions) (*CronExpres
 	return cron, nil
 }
 
-// newField 创建字段
+// newField 创建字段.
 func newField(value int) field {
 	f := field{values: make(map[int]bool)}
 	f.values[value] = true
 	return f
 }
 
-// newFieldAll 创建包含所有值的字段
+// newFieldAll 创建包含所有值的字段.
 func newFieldAll(min, max int) field {
 	f := field{values: make(map[int]bool)}
 	for i := min; i <= max; i++ {
@@ -130,7 +130,7 @@ func newFieldAll(min, max int) field {
 	return f
 }
 
-// parseField 解析字段
+// parseField 解析字段.
 func parseField(s string, min, max int) (field, error) {
 	f := field{values: make(map[int]bool)}
 
@@ -145,7 +145,7 @@ func parseField(s string, min, max int) (field, error) {
 	return f, nil
 }
 
-// parseFieldPart 解析字段部分
+// parseFieldPart 解析字段部分.
 func parseFieldPart(s string, min, max int, f *field) error {
 	// 处理特殊值
 	switch s {
@@ -186,7 +186,7 @@ func parseFieldPart(s string, min, max int, f *field) error {
 	return nil
 }
 
-// parseStep 解析步长
+// parseStep 解析步长.
 func parseStep(s string, min, max int, f *field) error {
 	parts := strings.Split(s, "/")
 	if len(parts) != 2 {
@@ -241,7 +241,7 @@ func parseStep(s string, min, max int, f *field) error {
 	return nil
 }
 
-// parseRange 解析范围
+// parseRange 解析范围.
 func parseRange(s string, min, max int, f *field) error {
 	parts := strings.Split(s, "-")
 	if len(parts) != 2 {
@@ -271,7 +271,7 @@ func parseRange(s string, min, max int, f *field) error {
 	return nil
 }
 
-// Next 计算下次执行时间
+// Next 计算下次执行时间.
 func (c *CronExpression) Next(t time.Time) time.Time {
 	// 转换到指定时区
 	if c.location != nil {
@@ -292,7 +292,7 @@ func (c *CronExpression) Next(t time.Time) time.Time {
 	return time.Time{} // 没有找到匹配的时间
 }
 
-// Prev 计算上次执行时间
+// Prev 计算上次执行时间.
 func (c *CronExpression) Prev(t time.Time) time.Time {
 	if c.location != nil {
 		t = t.In(c.location)
@@ -309,7 +309,7 @@ func (c *CronExpression) Prev(t time.Time) time.Time {
 	return time.Time{}
 }
 
-// match 检查时间是否匹配
+// match 检查时间是否匹配.
 func (c *CronExpression) match(t time.Time) bool {
 	return c.second.values[t.Second()] &&
 		c.minute.values[t.Minute()] &&
@@ -320,7 +320,7 @@ func (c *CronExpression) match(t time.Time) bool {
 		c.year.values[t.Year()]
 }
 
-// NextN 计算接下来 N 次执行时间
+// NextN 计算接下来 N 次执行时间.
 func (c *CronExpression) NextN(t time.Time, n int) []time.Time {
 	result := make([]time.Time, 0, n)
 	next := t
@@ -336,7 +336,7 @@ func (c *CronExpression) NextN(t time.Time, n int) []time.Time {
 	return result
 }
 
-// String 返回表达式字符串
+// String 返回表达式字符串.
 func (c *CronExpression) String() string {
 	return fmt.Sprintf("CronExpression(second=%v, minute=%v, hour=%v, day=%v, month=%v, weekday=%v)",
 		getKeys(c.second.values),
@@ -355,14 +355,14 @@ func getKeys(m map[int]bool) []int {
 	return keys
 }
 
-// IsValidCron validates if a cron expression is valid
+// IsValidCron validates if a cron expression is valid.
 func IsValidCron(expression string, withSecond bool) bool {
 	opts := CronParseOptions{Second: withSecond}
 	_, err := NewCronExpression(expression, opts)
 	return err == nil
 }
 
-// CronPresets defines common cron expression presets
+// CronPresets defines common cron expression presets.
 var CronPresets = map[string]string{
 	"every_minute":       "0 * * * *",
 	"every_hour":         "0 0 * * *",
@@ -382,13 +382,13 @@ var CronPresets = map[string]string{
 	"last_day_of_month":  "0 0 0 L * *",
 }
 
-// GetPreset 获取预设表达式
+// GetPreset 获取预设表达式.
 func GetPreset(name string) (string, bool) {
 	expr, ok := CronPresets[name]
 	return expr, ok
 }
 
-// DescribeCron 描述 Cron 表达式
+// DescribeCron 描述 Cron 表达式.
 func DescribeCron(expression string) string {
 	// 简单的描述生成
 	parts := strings.Fields(expression)
@@ -425,7 +425,7 @@ func DescribeCron(expression string) string {
 	return desc
 }
 
-// ParseDuration 解析持续时间字符串
+// ParseDuration 解析持续时间字符串.
 func ParseDuration(s string) (time.Duration, error) {
 	// 支持格式: 1s, 1m, 1h, 1d, 1w
 	if len(s) == 0 {

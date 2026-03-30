@@ -1,6 +1,7 @@
 package downloader
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -270,7 +271,7 @@ func TestTransmissionClient_GetSession(t *testing.T) {
 	defer server.Close()
 
 	client := NewTransmissionClient(server.URL, "", "")
-	err := client.getSession()
+	err := client.getSession(context.Background())
 
 	if err != nil {
 		t.Errorf("getSession() returned error: %v", err)
@@ -285,7 +286,7 @@ func TestTransmissionClient_GetSessionAlreadySet(t *testing.T) {
 	client := NewTransmissionClient("http://localhost:9091", "", "")
 	client.session = "existing-session"
 
-	err := client.getSession()
+	err := client.getSession(context.Background())
 
 	if err != nil {
 		t.Errorf("getSession() returned error: %v", err)
@@ -321,7 +322,7 @@ func TestTransmissionClient_doRequestWithAuth(t *testing.T) {
 	defer server.Close()
 
 	client := NewTransmissionClient(server.URL, "testuser", "testpass")
-	resp, err := client.doRequest("session-stats", nil)
+	resp, err := client.doRequest(context.Background(), "session-stats", nil)
 
 	if err != nil {
 		t.Errorf("doRequest() returned error: %v", err)
@@ -334,7 +335,7 @@ func TestTransmissionClient_doRequestWithAuth(t *testing.T) {
 
 func TestTransmissionClient_AddTorrent_InvalidURL(t *testing.T) {
 	client := NewTransmissionClient("http://localhost:99999", "", "")
-	_, _, err := client.AddTorrent("https://example.com/test.torrent", "/downloads")
+	_, _, err := client.AddTorrent(context.Background(), "https://example.com/test.torrent", "/downloads")
 
 	if err == nil {
 		t.Error("AddTorrent should fail with invalid URL")
@@ -343,7 +344,7 @@ func TestTransmissionClient_AddTorrent_InvalidURL(t *testing.T) {
 
 func TestTransmissionClient_GetTorrents_InvalidURL(t *testing.T) {
 	client := NewTransmissionClient("http://localhost:99999", "", "")
-	_, err := client.GetTorrents()
+	_, err := client.GetTorrents(context.Background())
 
 	if err == nil {
 		t.Error("GetTorrents should fail with invalid URL")
@@ -352,7 +353,7 @@ func TestTransmissionClient_GetTorrents_InvalidURL(t *testing.T) {
 
 func TestQBittorrentClient_login_InvalidURL(t *testing.T) {
 	client := NewQBittorrentClient("http://localhost:99999", "", "")
-	err := client.login()
+	err := client.login(context.Background())
 
 	if err == nil {
 		t.Error("login should fail with invalid URL")
@@ -361,7 +362,7 @@ func TestQBittorrentClient_login_InvalidURL(t *testing.T) {
 
 func TestQBittorrentClient_AddTorrent_InvalidURL(t *testing.T) {
 	client := NewQBittorrentClient("http://localhost:99999", "", "")
-	err := client.AddTorrent("magnet:?xt=urn:btih:test", "/downloads")
+	err := client.AddTorrent(context.Background(), "magnet:?xt=urn:btih:test", "/downloads")
 
 	if err == nil {
 		t.Error("AddTorrent should fail with invalid URL")
@@ -370,7 +371,7 @@ func TestQBittorrentClient_AddTorrent_InvalidURL(t *testing.T) {
 
 func TestQBittorrentClient_GetTorrents_InvalidURL(t *testing.T) {
 	client := NewQBittorrentClient("http://localhost:99999", "", "")
-	_, err := client.GetTorrents()
+	_, err := client.GetTorrents(context.Background())
 
 	if err == nil {
 		t.Error("GetTorrents should fail with invalid URL")
@@ -400,7 +401,7 @@ func TestQBittorrentClient_login_Success(t *testing.T) {
 	defer server.Close()
 
 	client := NewQBittorrentClient(server.URL, "admin", "password")
-	err := client.login()
+	err := client.login(context.Background())
 
 	if err != nil {
 		t.Errorf("login() returned error: %v", err)
@@ -427,7 +428,7 @@ func TestQBittorrentClient_logout(t *testing.T) {
 	defer server.Close()
 
 	client := NewQBittorrentClient(server.URL, "admin", "password")
-	err := client.Logout()
+	err := client.Logout(context.Background())
 
 	if err != nil {
 		t.Errorf("Logout() returned error: %v", err)
@@ -463,7 +464,7 @@ func TestQBittorrentClient_doRequest(t *testing.T) {
 	defer server.Close()
 
 	client := NewQBittorrentClient(server.URL, "admin", "password")
-	resp, err := client.doRequest("GET", "/test", nil)
+	resp, err := client.doRequest(context.Background(), "GET", "/test", nil)
 
 	if err != nil {
 		t.Errorf("doRequest() returned error: %v", err)
@@ -510,7 +511,7 @@ func TestTransmissionTorrentGetResponse_Structure(t *testing.T) {
 
 func TestTransmissionClient_StartTorrent_InvalidURL(t *testing.T) {
 	client := NewTransmissionClient("http://localhost:99999", "", "")
-	err := client.StartTorrent(1)
+	err := client.StartTorrent(context.Background(), 1)
 
 	if err == nil {
 		t.Error("StartTorrent should fail with invalid URL")
@@ -519,7 +520,7 @@ func TestTransmissionClient_StartTorrent_InvalidURL(t *testing.T) {
 
 func TestTransmissionClient_StopTorrent_InvalidURL(t *testing.T) {
 	client := NewTransmissionClient("http://localhost:99999", "", "")
-	err := client.StopTorrent(1)
+	err := client.StopTorrent(context.Background(), 1)
 
 	if err == nil {
 		t.Error("StopTorrent should fail with invalid URL")
@@ -528,7 +529,7 @@ func TestTransmissionClient_StopTorrent_InvalidURL(t *testing.T) {
 
 func TestTransmissionClient_RemoveTorrent_InvalidURL(t *testing.T) {
 	client := NewTransmissionClient("http://localhost:99999", "", "")
-	err := client.RemoveTorrent(1, false)
+	err := client.RemoveTorrent(context.Background(), 1, false)
 
 	if err == nil {
 		t.Error("RemoveTorrent should fail with invalid URL")
@@ -537,7 +538,7 @@ func TestTransmissionClient_RemoveTorrent_InvalidURL(t *testing.T) {
 
 func TestTransmissionClient_GetSessionStats_InvalidURL(t *testing.T) {
 	client := NewTransmissionClient("http://localhost:99999", "", "")
-	_, err := client.GetSessionStats()
+	_, err := client.GetSessionStats(context.Background())
 
 	if err == nil {
 		t.Error("GetSessionStats should fail with invalid URL")
@@ -546,7 +547,7 @@ func TestTransmissionClient_GetSessionStats_InvalidURL(t *testing.T) {
 
 func TestQBittorrentClient_PauseTorrent_InvalidURL(t *testing.T) {
 	client := NewQBittorrentClient("http://localhost:99999", "", "")
-	err := client.PauseTorrent("abc123")
+	err := client.PauseTorrent(context.Background(), "abc123")
 
 	if err == nil {
 		t.Error("PauseTorrent should fail with invalid URL")
@@ -555,7 +556,7 @@ func TestQBittorrentClient_PauseTorrent_InvalidURL(t *testing.T) {
 
 func TestQBittorrentClient_ResumeTorrent_InvalidURL(t *testing.T) {
 	client := NewQBittorrentClient("http://localhost:99999", "", "")
-	err := client.ResumeTorrent("abc123")
+	err := client.ResumeTorrent(context.Background(), "abc123")
 
 	if err == nil {
 		t.Error("ResumeTorrent should fail with invalid URL")
@@ -564,7 +565,7 @@ func TestQBittorrentClient_ResumeTorrent_InvalidURL(t *testing.T) {
 
 func TestQBittorrentClient_DeleteTorrent_InvalidURL(t *testing.T) {
 	client := NewQBittorrentClient("http://localhost:99999", "", "")
-	err := client.DeleteTorrent("abc123", false)
+	err := client.DeleteTorrent(context.Background(), "abc123", false)
 
 	if err == nil {
 		t.Error("DeleteTorrent should fail with invalid URL")
@@ -573,7 +574,7 @@ func TestQBittorrentClient_DeleteTorrent_InvalidURL(t *testing.T) {
 
 func TestQBittorrentClient_SetDownloadLimit_InvalidURL(t *testing.T) {
 	client := NewQBittorrentClient("http://localhost:99999", "", "")
-	err := client.SetDownloadLimit("abc123", 1024000)
+	err := client.SetDownloadLimit(context.Background(), "abc123", 1024000)
 
 	if err == nil {
 		t.Error("SetDownloadLimit should fail with invalid URL")
@@ -582,7 +583,7 @@ func TestQBittorrentClient_SetDownloadLimit_InvalidURL(t *testing.T) {
 
 func TestQBittorrentClient_SetUploadLimit_InvalidURL(t *testing.T) {
 	client := NewQBittorrentClient("http://localhost:99999", "", "")
-	err := client.SetUploadLimit("abc123", 512000)
+	err := client.SetUploadLimit(context.Background(), "abc123", 512000)
 
 	if err == nil {
 		t.Error("SetUploadLimit should fail with invalid URL")
@@ -591,7 +592,7 @@ func TestQBittorrentClient_SetUploadLimit_InvalidURL(t *testing.T) {
 
 func TestQBittorrentClient_GetTransferInfo_InvalidURL(t *testing.T) {
 	client := NewQBittorrentClient("http://localhost:99999", "", "")
-	_, err := client.GetTransferInfo()
+	_, err := client.GetTransferInfo(context.Background())
 
 	if err == nil {
 		t.Error("GetTransferInfo should fail with invalid URL")
@@ -600,7 +601,7 @@ func TestQBittorrentClient_GetTransferInfo_InvalidURL(t *testing.T) {
 
 func TestQBittorrentClient_GetTorrentByHash_InvalidURL(t *testing.T) {
 	client := NewQBittorrentClient("http://localhost:99999", "", "")
-	_, err := client.GetTorrentByHash("abc123")
+	_, err := client.GetTorrentByHash(context.Background(), "abc123")
 
 	if err == nil {
 		t.Error("GetTorrentByHash should fail with invalid URL")
@@ -618,7 +619,7 @@ func TestTransmissionClient_GetTorrentByHash_NotFound(t *testing.T) {
 	defer server.Close()
 
 	client := NewTransmissionClient(server.URL, "", "")
-	_, err := client.GetTorrentByHash("nonexistent")
+	_, err := client.GetTorrentByHash(context.Background(), "nonexistent")
 
 	if err == nil {
 		t.Error("GetTorrentByHash should return error for nonexistent hash")
@@ -638,7 +639,7 @@ func TestQBittorrentClient_GetTorrentByHash_Success(t *testing.T) {
 	defer server.Close()
 
 	client := NewQBittorrentClient(server.URL, "", "")
-	info, err := client.GetTorrentByHash("abc123")
+	info, err := client.GetTorrentByHash(context.Background(), "abc123")
 
 	if err != nil {
 		t.Errorf("GetTorrentByHash returned error: %v", err)
@@ -662,7 +663,7 @@ func TestQBittorrentClient_GetTorrentByHash_EmptyResult(t *testing.T) {
 	defer server.Close()
 
 	client := NewQBittorrentClient(server.URL, "", "")
-	_, err := client.GetTorrentByHash("nonexistent")
+	_, err := client.GetTorrentByHash(context.Background(), "nonexistent")
 
 	if err == nil {
 		t.Error("GetTorrentByHash should return error for empty result")

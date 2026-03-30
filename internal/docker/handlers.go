@@ -8,19 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers Docker 处理器
+// Handlers Docker 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建 Docker 处理器
+// NewHandlers 创建 Docker 处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{
 		manager: mgr,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	docker := r.Group("/docker")
 	{
@@ -68,7 +68,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Success 200 {object} api.Response{data=[]Container}
 // @Failure 500 {object} api.Response
 // @Router /docker/containers [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listContainers(c *gin.Context) {
 	all := c.Query("all") == "true"
 
@@ -92,7 +92,7 @@ func (h *Handlers) listContainers(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /docker/containers [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createContainer(c *gin.Context) {
 	var req struct {
 		Name    string                 `json:"name" binding:"required"`
@@ -124,7 +124,7 @@ func (h *Handlers) createContainer(c *gin.Context) {
 // @Success 200 {object} api.Response{data=Container}
 // @Failure 404 {object} api.Response
 // @Router /docker/containers/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getContainer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -148,7 +148,7 @@ func (h *Handlers) getContainer(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /docker/containers/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) removeContainer(c *gin.Context) {
 	id := c.Param("id")
 	force := c.Query("force") == "true"
@@ -171,7 +171,7 @@ func (h *Handlers) removeContainer(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /docker/containers/{id}/start [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) startContainer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -193,7 +193,7 @@ func (h *Handlers) startContainer(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /docker/containers/{id}/stop [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) stopContainer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -215,7 +215,7 @@ func (h *Handlers) stopContainer(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /docker/containers/{id}/restart [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) restartContainer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -237,7 +237,7 @@ func (h *Handlers) restartContainer(c *gin.Context) {
 // @Success 200 {object} api.Response{data=ContainerStats}
 // @Failure 500 {object} api.Response
 // @Router /docker/containers/{id}/stats [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getContainerStats(c *gin.Context) {
 	id := c.Param("id")
 
@@ -264,7 +264,7 @@ func (h *Handlers) getContainerStats(c *gin.Context) {
 // @Success 200 {object} api.Response{data=map[string]string}
 // @Failure 500 {object} api.Response
 // @Router /docker/containers/{id}/logs [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getContainerLogs(c *gin.Context) {
 	id := c.Param("id")
 
@@ -298,7 +298,7 @@ func (h *Handlers) getContainerLogs(c *gin.Context) {
 // @Success 200 {object} api.Response{data=[]Image}
 // @Failure 500 {object} api.Response
 // @Router /docker/images [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listImages(c *gin.Context) {
 	images, err := h.manager.ListImages()
 	if err != nil {
@@ -320,7 +320,7 @@ func (h *Handlers) listImages(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /docker/images/pull [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) pullImage(c *gin.Context) {
 	var req struct {
 		Image string `json:"image" binding:"required"`
@@ -350,7 +350,7 @@ func (h *Handlers) pullImage(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /docker/images/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) removeImage(c *gin.Context) {
 	id := c.Param("id")
 	force := c.Query("force") == "true"
@@ -372,7 +372,7 @@ func (h *Handlers) removeImage(c *gin.Context) {
 // @Success 200 {object} api.Response{data=[]Network}
 // @Failure 500 {object} api.Response
 // @Router /docker/networks [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listNetworks(c *gin.Context) {
 	networks, err := h.manager.ListNetworks()
 	if err != nil {
@@ -391,7 +391,7 @@ func (h *Handlers) listNetworks(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=[]AppCatalog}
 // @Router /docker/apps [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getAppCatalog(c *gin.Context) {
 	apps := h.manager.GetAppCatalog()
 	api.OK(c, apps)
@@ -408,7 +408,7 @@ func (h *Handlers) getAppCatalog(c *gin.Context) {
 // @Failure 404 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /docker/apps/{name}/install [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) installApp(c *gin.Context) {
 	name := c.Param("name")
 
@@ -465,7 +465,7 @@ func (h *Handlers) installApp(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=map[string]bool}
 // @Router /docker/status [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getStatus(c *gin.Context) {
 	running := h.manager.IsRunning()
 
@@ -483,7 +483,7 @@ func (h *Handlers) getStatus(c *gin.Context) {
 // @Success 200 {object} api.Response{data=[]Volume}
 // @Failure 500 {object} api.Response
 // @Router /docker/volumes [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listVolumes(c *gin.Context) {
 	volumes, err := h.manager.ListVolumes()
 	if err != nil {
@@ -505,7 +505,7 @@ func (h *Handlers) listVolumes(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /docker/volumes [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createVolume(c *gin.Context) {
 	var req struct {
 		Name   string            `json:"name"`
@@ -537,7 +537,7 @@ func (h *Handlers) createVolume(c *gin.Context) {
 // @Success 200 {object} api.Response{data=Volume}
 // @Failure 404 {object} api.Response
 // @Router /docker/volumes/{name} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -561,7 +561,7 @@ func (h *Handlers) getVolume(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /docker/volumes/{name} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) removeVolume(c *gin.Context) {
 	name := c.Param("name")
 	force := c.Query("force") == "true"

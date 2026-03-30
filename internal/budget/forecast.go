@@ -14,70 +14,70 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrInsufficientHistory 历史数据不足无法进行预测错误
+	// ErrInsufficientHistory 历史数据不足无法进行预测错误.
 	ErrInsufficientHistory = errors.New("历史数据不足，无法进行预测")
-	// ErrInvalidForecastParams 无效的预测参数错误
+	// ErrInvalidForecastParams 无效的预测参数错误.
 	ErrInvalidForecastParams = errors.New("无效的预测参数")
-	// ErrForecastNotFound 预测不存在错误
+	// ErrForecastNotFound 预测不存在错误.
 	ErrForecastNotFound = errors.New("预测不存在")
 )
 
 // ========== 预测类型定义 ==========
 
-// ForecastMethod 预测方法
+// ForecastMethod 预测方法.
 type ForecastMethod string
 
 // 预测方法常量，定义可用的预测算法。
 const (
-	// ForecastMethodMovingAverage represents moving average forecast method
+	// ForecastMethodMovingAverage represents moving average forecast method.
 	ForecastMethodMovingAverage ForecastMethod = "moving_average" // 移动平均
-	// ForecastMethodExponential represents exponential smoothing forecast method
+	// ForecastMethodExponential represents exponential smoothing forecast method.
 	ForecastMethodExponential ForecastMethod = "exponential" // 指数平滑
-	// ForecastMethodLinear represents linear regression forecast method
+	// ForecastMethodLinear represents linear regression forecast method.
 	ForecastMethodLinear ForecastMethod = "linear" // 线性回归
-	// ForecastMethodSeasonal represents seasonal forecast method
+	// ForecastMethodSeasonal represents seasonal forecast method.
 	ForecastMethodSeasonal ForecastMethod = "seasonal" // 季节性预测
-	// ForecastMethodARIMA represents ARIMA model forecast method
+	// ForecastMethodARIMA represents ARIMA model forecast method.
 	ForecastMethodARIMA ForecastMethod = "arima" // ARIMA模型
-	// ForecastMethodProphet represents Prophet model forecast method
+	// ForecastMethodProphet represents Prophet model forecast method.
 	ForecastMethodProphet ForecastMethod = "prophet" // Prophet模型
 )
 
-// ForecastPeriod 预测周期
+// ForecastPeriod 预测周期.
 type ForecastPeriod string
 
 // 预测周期常量，定义预测的时间粒度。
 const (
-	// ForecastPeriodDaily represents daily forecast period
+	// ForecastPeriodDaily represents daily forecast period.
 	ForecastPeriodDaily ForecastPeriod = "daily"
-	// ForecastPeriodWeekly represents weekly forecast period
+	// ForecastPeriodWeekly represents weekly forecast period.
 	ForecastPeriodWeekly ForecastPeriod = "weekly"
-	// ForecastPeriodMonthly represents monthly forecast period
+	// ForecastPeriodMonthly represents monthly forecast period.
 	ForecastPeriodMonthly ForecastPeriod = "monthly"
-	// ForecastPeriodQuarter represents quarterly forecast period
+	// ForecastPeriodQuarter represents quarterly forecast period.
 	ForecastPeriodQuarter ForecastPeriod = "quarter"
-	// ForecastPeriodYearly represents yearly forecast period
+	// ForecastPeriodYearly represents yearly forecast period.
 	ForecastPeriodYearly ForecastPeriod = "yearly"
 )
 
-// ForecastConfidence 预测置信度
+// ForecastConfidence 预测置信度.
 type ForecastConfidence string
 
 // 预测置信度常量，定义预测的置信区间级别。
 const (
-	// ConfidenceLow represents 80% confidence interval
+	// ConfidenceLow represents 80% confidence interval.
 	ConfidenceLow ForecastConfidence = "low" // 80%置信区间
-	// ConfidenceMedium represents 90% confidence interval
+	// ConfidenceMedium represents 90% confidence interval.
 	ConfidenceMedium ForecastConfidence = "medium" // 90%置信区间
-	// ConfidenceHigh represents 95% confidence interval
+	// ConfidenceHigh represents 95% confidence interval.
 	ConfidenceHigh ForecastConfidence = "high" // 95%置信区间
-	// ConfidenceVeryHigh represents 99% confidence interval
+	// ConfidenceVeryHigh represents 99% confidence interval.
 	ConfidenceVeryHigh ForecastConfidence = "very_high" // 99%置信区间
 )
 
 // ========== 预测数据结构 ==========
 
-// ForecastRequest 预测请求
+// ForecastRequest 预测请求.
 type ForecastRequest struct {
 	BudgetID      string             `json:"budget_id" binding:"required"`
 	Method        ForecastMethod     `json:"method"`
@@ -89,7 +89,7 @@ type ForecastRequest struct {
 	HistoryDays   int                `json:"history_days"`   // 历史数据天数
 }
 
-// ForecastResult 预测结果
+// ForecastResult 预测结果.
 type ForecastResult struct {
 	ID          string             `json:"id"`
 	BudgetID    string             `json:"budget_id"`
@@ -114,7 +114,7 @@ type ForecastResult struct {
 	Accuracy ForecastAccuracy `json:"accuracy"`
 }
 
-// ForecastPoint 预测数据点
+// ForecastPoint 预测数据点.
 type ForecastPoint struct {
 	Date         time.Time `json:"date"`
 	PeriodLabel  string    `json:"period_label"` // 周期标签（如 "2026-03"）
@@ -126,7 +126,7 @@ type ForecastPoint struct {
 	Contributors []string  `json:"contributors"` // 影响因素
 }
 
-// ForecastSummary 预测汇总
+// ForecastSummary 预测汇总.
 type ForecastSummary struct {
 	TotalPredicted    float64 `json:"total_predicted"`    // 总预测值
 	AveragePredicted  float64 `json:"average_predicted"`  // 平均预测值
@@ -141,7 +141,7 @@ type ForecastSummary struct {
 	BudgetVariance    float64 `json:"budget_variance"`    // 预算偏差
 }
 
-// ForecastModelInfo 预测模型信息
+// ForecastModelInfo 预测模型信息.
 type ForecastModelInfo struct {
 	Method          string                 `json:"method"`
 	Parameters      map[string]interface{} `json:"parameters"`
@@ -152,7 +152,7 @@ type ForecastModelInfo struct {
 	Weights         map[string]float64     `json:"weights"`  // 特征权重
 }
 
-// ForecastRecommendation 预测建议
+// ForecastRecommendation 预测建议.
 type ForecastRecommendation struct {
 	Type        string  `json:"type"`     // budget_adjust, alert, optimize
 	Priority    string  `json:"priority"` // high, medium, low
@@ -163,7 +163,7 @@ type ForecastRecommendation struct {
 	Reason      string  `json:"reason"` // 原因说明
 }
 
-// ForecastAccuracy 预测准确度
+// ForecastAccuracy 预测准确度.
 type ForecastAccuracy struct {
 	MAPE            float64   `json:"mape"`             // 平均绝对百分比误差
 	MAE             float64   `json:"mae"`              // 平均绝对误差
@@ -175,7 +175,7 @@ type ForecastAccuracy struct {
 
 // ========== 历史数据结构 ==========
 
-// HistoricalDataPoint 历史数据点
+// HistoricalDataPoint 历史数据点.
 type HistoricalDataPoint struct {
 	Date     time.Time              `json:"date"`
 	Amount   float64                `json:"amount"`
@@ -184,7 +184,7 @@ type HistoricalDataPoint struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// HistoricalStats 历史统计
+// HistoricalStats 历史统计.
 type HistoricalStats struct {
 	Count         int       `json:"count"`
 	Mean          float64   `json:"mean"`
@@ -202,7 +202,7 @@ type HistoricalStats struct {
 
 // ========== 预测引擎 ==========
 
-// ForecastEngine 预测引擎
+// ForecastEngine 预测引擎.
 type ForecastEngine struct {
 	mu            sync.RWMutex
 	historyStore  HistoryStore
@@ -210,7 +210,7 @@ type ForecastEngine struct {
 	forecastCache map[string]*ForecastResult
 }
 
-// ForecastConfig 预测配置
+// ForecastConfig 预测配置.
 type ForecastConfig struct {
 	DefaultMethod      ForecastMethod     `json:"default_method"`
 	DefaultPeriod      ForecastPeriod     `json:"default_period"`
@@ -223,13 +223,13 @@ type ForecastConfig struct {
 	SeasonalityEnabled bool               `json:"seasonality_enabled"`
 }
 
-// HistoryStore 历史数据存储接口
+// HistoryStore 历史数据存储接口.
 type HistoryStore interface {
 	GetHistoricalData(ctx context.Context, budgetID string, start, end time.Time) ([]HistoricalDataPoint, error)
 	GetBudgetInfo(ctx context.Context, budgetID string) (*Budget, error)
 }
 
-// NewForecastEngine 创建预测引擎
+// NewForecastEngine 创建预测引擎.
 func NewForecastEngine(historyStore HistoryStore, config ForecastConfig) *ForecastEngine {
 	if config.DefaultMethod == "" {
 		config.DefaultMethod = ForecastMethodExponential
@@ -257,7 +257,7 @@ func NewForecastEngine(historyStore HistoryStore, config ForecastConfig) *Foreca
 	}
 }
 
-// GenerateForecast 生成预测
+// GenerateForecast 生成预测.
 func (fe *ForecastEngine) GenerateForecast(ctx context.Context, req ForecastRequest) (*ForecastResult, error) {
 	fe.mu.Lock()
 	defer fe.mu.Unlock()
@@ -357,7 +357,7 @@ func (fe *ForecastEngine) GenerateForecast(ctx context.Context, req ForecastRequ
 	return result, nil
 }
 
-// calculateHistoricalStats 计算历史统计
+// calculateHistoricalStats 计算历史统计.
 func (fe *ForecastEngine) calculateHistoricalStats(history []HistoricalDataPoint) HistoricalStats {
 	if len(history) == 0 {
 		return HistoricalStats{}
@@ -407,7 +407,7 @@ func (fe *ForecastEngine) calculateHistoricalStats(history []HistoricalDataPoint
 	return stats
 }
 
-// movingAverageForecast 移动平均预测
+// movingAverageForecast 移动平均预测.
 func (fe *ForecastEngine) movingAverageForecast(history []HistoricalDataPoint, req ForecastRequest, stats HistoricalStats) []ForecastPoint {
 	points := []ForecastPoint{}
 	windowSize := 7 // 移动平均窗口
@@ -448,7 +448,7 @@ func (fe *ForecastEngine) movingAverageForecast(history []HistoricalDataPoint, r
 	return points
 }
 
-// exponentialSmoothingForecast 指数平滑预测
+// exponentialSmoothingForecast 指数平滑预测.
 func (fe *ForecastEngine) exponentialSmoothingForecast(history []HistoricalDataPoint, req ForecastRequest, stats HistoricalStats) []ForecastPoint {
 	points := []ForecastPoint{}
 	alpha := 0.3 // 平滑系数
@@ -483,7 +483,7 @@ func (fe *ForecastEngine) exponentialSmoothingForecast(history []HistoricalDataP
 	return points
 }
 
-// linearRegressionForecast 线性回归预测
+// linearRegressionForecast 线性回归预测.
 func (fe *ForecastEngine) linearRegressionForecast(history []HistoricalDataPoint, req ForecastRequest, stats HistoricalStats) []ForecastPoint {
 	points := []ForecastPoint{}
 	n := len(history)
@@ -524,7 +524,7 @@ func (fe *ForecastEngine) linearRegressionForecast(history []HistoricalDataPoint
 	return points
 }
 
-// seasonalForecast 季节性预测
+// seasonalForecast 季节性预测.
 func (fe *ForecastEngine) seasonalForecast(history []HistoricalDataPoint, req ForecastRequest, stats HistoricalStats) []ForecastPoint {
 	points := []ForecastPoint{}
 
@@ -580,13 +580,13 @@ func (fe *ForecastEngine) seasonalForecast(history []HistoricalDataPoint, req Fo
 	return points
 }
 
-// arimaForecast ARIMA预测（简化实现）
+// arimaForecast ARIMA预测（简化实现）.
 func (fe *ForecastEngine) arimaForecast(history []HistoricalDataPoint, req ForecastRequest, stats HistoricalStats) []ForecastPoint {
 	// 简化的ARIMA实现，实际应用中应使用专业库
 	return fe.exponentialSmoothingForecast(history, req, stats)
 }
 
-// calculateSummary 计算预测汇总
+// calculateSummary 计算预测汇总.
 func (fe *ForecastEngine) calculateSummary(points []ForecastPoint, budget *Budget, stats HistoricalStats) ForecastSummary {
 	if len(points) == 0 {
 		return ForecastSummary{}
@@ -653,7 +653,7 @@ func (fe *ForecastEngine) calculateSummary(points []ForecastPoint, budget *Budge
 	}
 }
 
-// generateRecommendations 生成预测建议
+// generateRecommendations 生成预测建议.
 func (fe *ForecastEngine) generateRecommendations(points []ForecastPoint, budget *Budget, stats HistoricalStats) []ForecastRecommendation {
 	recommendations := []ForecastRecommendation{}
 
@@ -708,7 +708,7 @@ func (fe *ForecastEngine) generateRecommendations(points []ForecastPoint, budget
 	return recommendations
 }
 
-// calculateAccuracy 计算预测准确度
+// calculateAccuracy 计算预测准确度.
 func (fe *ForecastEngine) calculateAccuracy(history []HistoricalDataPoint, method ForecastMethod) ForecastAccuracy {
 	// 使用历史数据回测计算准确度
 	if len(history) < 10 {
@@ -851,7 +851,7 @@ func (fe *ForecastEngine) formatPeriod(t time.Time, period ForecastPeriod) strin
 	}
 }
 
-// GetCachedForecast 获取缓存的预测
+// GetCachedForecast 获取缓存的预测.
 func (fe *ForecastEngine) GetCachedForecast(budgetID string) (*ForecastResult, bool) {
 	fe.mu.RLock()
 	defer fe.mu.RUnlock()
@@ -860,7 +860,7 @@ func (fe *ForecastEngine) GetCachedForecast(budgetID string) (*ForecastResult, b
 	return result, exists
 }
 
-// ClearCache 清除缓存
+// ClearCache 清除缓存.
 func (fe *ForecastEngine) ClearCache() {
 	fe.mu.Lock()
 	defer fe.mu.Unlock()
@@ -870,7 +870,7 @@ func (fe *ForecastEngine) ClearCache() {
 
 // ========== 趋势分析 ==========
 
-// TrendAnalysis 趋势分析
+// TrendAnalysis 趋势分析.
 type TrendAnalysis struct {
 	BudgetID    string           `json:"budget_id"`
 	AnalyzedAt  time.Time        `json:"analyzed_at"`
@@ -881,7 +881,7 @@ type TrendAnalysis struct {
 	Projections []ProjectionInfo `json:"projections"`
 }
 
-// TrendInfo 趋势信息
+// TrendInfo 趋势信息.
 type TrendInfo struct {
 	Direction    string  `json:"direction"`    // up, down, stable
 	Strength     float64 `json:"strength"`     // 0-1
@@ -890,7 +890,7 @@ type TrendInfo struct {
 	Confidence   float64 `json:"confidence"`   // 置信度
 }
 
-// PatternInfo 模式信息
+// PatternInfo 模式信息.
 type PatternInfo struct {
 	Type        string  `json:"type"` // seasonal, weekly, monthly
 	Description string  `json:"description"`
@@ -899,7 +899,7 @@ type PatternInfo struct {
 	LowTime     string  `json:"low_time,omitempty"`
 }
 
-// AnomalyInfo 异常信息
+// AnomalyInfo 异常信息.
 type AnomalyInfo struct {
 	Date          time.Time `json:"date"`
 	Expected      float64   `json:"expected"`
@@ -909,7 +909,7 @@ type AnomalyInfo struct {
 	PossibleCause string    `json:"possible_cause,omitempty"`
 }
 
-// ProjectionInfo 投影信息
+// ProjectionInfo 投影信息.
 type ProjectionInfo struct {
 	TargetDate      time.Time `json:"target_date"`
 	TargetAmount    float64   `json:"target_amount"`
@@ -919,7 +919,7 @@ type ProjectionInfo struct {
 	GapPercent      float64   `json:"gap_percent"`
 }
 
-// AnalyzeTrend 分析趋势
+// AnalyzeTrend 分析趋势.
 func (fe *ForecastEngine) AnalyzeTrend(ctx context.Context, budgetID string, days int) (*TrendAnalysis, error) {
 	fe.mu.RLock()
 	defer fe.mu.RUnlock()

@@ -38,7 +38,7 @@ const (
 	StatusSeeding DownloadStatus = "seeding" // 做种中
 )
 
-// DownloadTask 下载任务
+// DownloadTask 下载任务.
 type DownloadTask struct {
 	ID           string         `json:"id"`
 	Name         string         `json:"name"`
@@ -70,7 +70,7 @@ type DownloadTask struct {
 	SpeedLimit *SpeedLimitConfig `json:"speed_limit,omitempty"`
 }
 
-// ScheduleConfig 计划任务配置
+// ScheduleConfig 计划任务配置.
 type ScheduleConfig struct {
 	StartTime string `json:"start_time"` // HH:MM 格式
 	EndTime   string `json:"end_time"`   // HH:MM 格式
@@ -78,14 +78,14 @@ type ScheduleConfig struct {
 	Enabled   bool   `json:"enabled"`
 }
 
-// SpeedLimitConfig 限速配置
+// SpeedLimitConfig 限速配置.
 type SpeedLimitConfig struct {
 	DownloadLimit int64 `json:"download_limit"` // 下载限速 (KB/s), 0=不限
 	UploadLimit   int64 `json:"upload_limit"`   // 上传限速 (KB/s), 0=不限
 	Enabled       bool  `json:"enabled"`
 }
 
-// CreateTaskRequest 创建任务请求
+// CreateTaskRequest 创建任务请求.
 type CreateTaskRequest struct {
 	URL        string            `json:"url"`
 	Name       string            `json:"name,omitempty"`
@@ -95,14 +95,14 @@ type CreateTaskRequest struct {
 	SpeedLimit *SpeedLimitConfig `json:"speed_limit,omitempty"`
 }
 
-// UpdateTaskRequest 更新任务请求
+// UpdateTaskRequest 更新任务请求.
 type UpdateTaskRequest struct {
 	Status     DownloadStatus    `json:"status,omitempty"`
 	SpeedLimit *SpeedLimitConfig `json:"speed_limit,omitempty"`
 	Schedule   *ScheduleConfig   `json:"schedule,omitempty"`
 }
 
-// TaskStats 任务统计
+// TaskStats 任务统计.
 type TaskStats struct {
 	TotalTasks    int   `json:"total_tasks"`
 	Downloading   int   `json:"downloading"`
@@ -114,7 +114,7 @@ type TaskStats struct {
 	TotalUploaded int64 `json:"total_uploaded"`
 }
 
-// PeerInfo 节点信息
+// PeerInfo 节点信息.
 type PeerInfo struct {
 	IP       string  `json:"ip"`
 	Port     int     `json:"port"`
@@ -123,7 +123,7 @@ type PeerInfo struct {
 	Speed    int64   `json:"speed"`
 }
 
-// TrackerInfo Tracker 信息
+// TrackerInfo Tracker 信息.
 type TrackerInfo struct {
 	URL        string    `json:"url"`
 	Status     string    `json:"status"`

@@ -35,14 +35,14 @@ var (
 
 // ========== 模板管理器 ==========
 
-// TemplateManager 模板管理器
+// TemplateManager 模板管理器.
 type TemplateManager struct {
 	mu        sync.RWMutex
 	templates map[string]*ReportTemplate
 	dataDir   string
 }
 
-// NewTemplateManager 创建模板管理器
+// NewTemplateManager 创建模板管理器.
 func NewTemplateManager(dataDir string) (*TemplateManager, error) {
 	tm := &TemplateManager{
 		templates: make(map[string]*ReportTemplate),
@@ -65,7 +65,7 @@ func NewTemplateManager(dataDir string) (*TemplateManager, error) {
 	return tm, nil
 }
 
-// loadTemplates 加载模板
+// loadTemplates 加载模板.
 func (tm *TemplateManager) loadTemplates() error {
 	files, err := filepath.Glob(filepath.Join(tm.dataDir, "*.json"))
 	if err != nil {
@@ -89,7 +89,7 @@ func (tm *TemplateManager) loadTemplates() error {
 	return nil
 }
 
-// saveTemplate 保存模板到文件
+// saveTemplate 保存模板到文件.
 func (tm *TemplateManager) saveTemplate(template *ReportTemplate) error {
 	data, err := json.MarshalIndent(template, "", "  ")
 	if err != nil {
@@ -100,13 +100,13 @@ func (tm *TemplateManager) saveTemplate(template *ReportTemplate) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// deleteTemplateFile 删除模板文件
+// deleteTemplateFile 删除模板文件.
 func (tm *TemplateManager) deleteTemplateFile(id string) error {
 	path := filepath.Join(tm.dataDir, id+".json")
 	return os.Remove(path)
 }
 
-// CreateTemplate 创建模板
+// CreateTemplate 创建模板.
 func (tm *TemplateManager) CreateTemplate(input TemplateInput, createdBy string) (*ReportTemplate, error) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -148,7 +148,7 @@ func (tm *TemplateManager) CreateTemplate(input TemplateInput, createdBy string)
 	return template, nil
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (tm *TemplateManager) GetTemplate(id string) (*ReportTemplate, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -161,7 +161,7 @@ func (tm *TemplateManager) GetTemplate(id string) (*ReportTemplate, error) {
 	return template, nil
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (tm *TemplateManager) ListTemplates(templateType TemplateType, publicOnly bool) []*ReportTemplate {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -182,7 +182,7 @@ func (tm *TemplateManager) ListTemplates(templateType TemplateType, publicOnly b
 	return result
 }
 
-// UpdateTemplate 更新模板
+// UpdateTemplate 更新模板.
 func (tm *TemplateManager) UpdateTemplate(id string, input TemplateInput) (*ReportTemplate, error) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -219,7 +219,7 @@ func (tm *TemplateManager) UpdateTemplate(id string, input TemplateInput) (*Repo
 	return template, nil
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (tm *TemplateManager) DeleteTemplate(id string) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -238,7 +238,7 @@ func (tm *TemplateManager) DeleteTemplate(id string) error {
 	return tm.deleteTemplateFile(id)
 }
 
-// GetDefaultTemplate 获取默认模板
+// GetDefaultTemplate 获取默认模板.
 func (tm *TemplateManager) GetDefaultTemplate(templateType TemplateType) *ReportTemplate {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -252,7 +252,7 @@ func (tm *TemplateManager) GetDefaultTemplate(templateType TemplateType) *Report
 	return nil
 }
 
-// initDefaultTemplates 初始化默认模板
+// initDefaultTemplates 初始化默认模板.
 func (tm *TemplateManager) initDefaultTemplates() {
 	// 检查是否已有默认模板
 	if len(tm.templates) > 0 {

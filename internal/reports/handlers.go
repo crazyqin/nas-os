@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 报表 HTTP 处理器
+// Handlers 报表 HTTP 处理器.
 type Handlers struct {
 	templateManager   *TemplateManager
 	generator         *ReportGenerator
@@ -23,7 +23,7 @@ type Handlers struct {
 	enhancedReportAPI *ResourceReportEnhancedAPI     // v2.76.0 资源报告增强
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(tm *TemplateManager, gen *ReportGenerator, sm *ScheduleManager, exp *Exporter) *Handlers {
 	// 默认成本配置
 	costConfig := StorageCostConfig{
@@ -50,7 +50,7 @@ func NewHandlers(tm *TemplateManager, gen *ReportGenerator, sm *ScheduleManager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	// ========== 模板管理 ==========
 	templates := apiGroup.Group("/report-templates")

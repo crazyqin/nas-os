@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// OAuth2Provider OAuth2 提供商配置
+// OAuth2Provider OAuth2 提供商配置.
 type OAuth2Provider struct {
 	Name         string   `json:"name"`
 	ClientID     string   `json:"client_id"`
@@ -28,7 +28,7 @@ type OAuth2Provider struct {
 	Enabled      bool     `json:"enabled"`
 }
 
-// OAuth2Token OAuth2 令牌
+// OAuth2Token OAuth2 令牌.
 type OAuth2Token struct {
 	AccessToken  string    `json:"access_token"`
 	TokenType    string    `json:"token_type"`
@@ -36,7 +36,7 @@ type OAuth2Token struct {
 	ExpiresAt    time.Time `json:"expires_at"`
 }
 
-// OAuth2UserInfo OAuth2 用户信息
+// OAuth2UserInfo OAuth2 用户信息.
 type OAuth2UserInfo struct {
 	ID        string `json:"id"`
 	Email     string `json:"email"`
@@ -46,7 +46,7 @@ type OAuth2UserInfo struct {
 	Provider  string `json:"provider"`
 }
 
-// OAuth2State OAuth2 状态（防止 CSRF）
+// OAuth2State OAuth2 状态（防止 CSRF）.
 type OAuth2State struct {
 	State     string    `json:"state"`
 	Provider  string    `json:"provider"`
@@ -54,7 +54,7 @@ type OAuth2State struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// OAuth2Manager OAuth2 管理器
+// OAuth2Manager OAuth2 管理器.
 type OAuth2Manager struct {
 	mu         sync.RWMutex
 	providers  map[string]*OAuth2Provider
@@ -63,17 +63,17 @@ type OAuth2Manager struct {
 }
 
 var (
-	// ErrOAuth2ProviderNotFound indicates the OAuth2 provider was not found
+	// ErrOAuth2ProviderNotFound indicates the OAuth2 provider was not found.
 	ErrOAuth2ProviderNotFound = errors.New("OAuth2 提供商未找到")
-	// ErrOAuth2StateInvalid indicates the OAuth2 state is invalid or expired
+	// ErrOAuth2StateInvalid indicates the OAuth2 state is invalid or expired.
 	ErrOAuth2StateInvalid = errors.New("OAuth2 状态无效或已过期")
-	// ErrOAuth2TokenInvalid indicates the OAuth2 token is invalid
+	// ErrOAuth2TokenInvalid indicates the OAuth2 token is invalid.
 	ErrOAuth2TokenInvalid = errors.New("OAuth2 令牌无效")
-	// ErrOAuth2UserInfoFailed indicates failed to get user info
+	// ErrOAuth2UserInfoFailed indicates failed to get user info.
 	ErrOAuth2UserInfoFailed = errors.New("获取用户信息失败")
 )
 
-// NewOAuth2Manager 创建 OAuth2 管理器
+// NewOAuth2Manager 创建 OAuth2 管理器.
 func NewOAuth2Manager() *OAuth2Manager {
 	return &OAuth2Manager{
 		providers: make(map[string]*OAuth2Provider),
@@ -84,7 +84,7 @@ func NewOAuth2Manager() *OAuth2Manager {
 	}
 }
 
-// RegisterProvider 注册 OAuth2 提供商
+// RegisterProvider 注册 OAuth2 提供商.
 func (m *OAuth2Manager) RegisterProvider(provider OAuth2Provider) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -93,7 +93,7 @@ func (m *OAuth2Manager) RegisterProvider(provider OAuth2Provider) error {
 	return nil
 }
 
-// GetProvider 获取 OAuth2 提供商
+// GetProvider 获取 OAuth2 提供商.
 func (m *OAuth2Manager) GetProvider(name string) (*OAuth2Provider, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -105,7 +105,7 @@ func (m *OAuth2Manager) GetProvider(name string) (*OAuth2Provider, error) {
 	return provider, nil
 }
 
-// ListProviders 列出所有已启用的提供商
+// ListProviders 列出所有已启用的提供商.
 func (m *OAuth2Manager) ListProviders() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -119,7 +119,7 @@ func (m *OAuth2Manager) ListProviders() []string {
 	return providers
 }
 
-// GenerateAuthURL 生成 OAuth2 授权 URL
+// GenerateAuthURL 生成 OAuth2 授权 URL.
 func (m *OAuth2Manager) GenerateAuthURL(providerName, redirect string) (string, error) {
 	provider, err := m.GetProvider(providerName)
 	if err != nil {
@@ -159,7 +159,7 @@ func (m *OAuth2Manager) GenerateAuthURL(providerName, redirect string) (string, 
 	return authURL, nil
 }
 
-// ValidateState 验证 OAuth2 状态
+// ValidateState 验证 OAuth2 状态.
 func (m *OAuth2Manager) ValidateState(state string) (*OAuth2State, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -180,7 +180,7 @@ func (m *OAuth2Manager) ValidateState(state string) (*OAuth2State, error) {
 	return s, nil
 }
 
-// ExchangeCode 使用授权码交换令牌
+// ExchangeCode 使用授权码交换令牌.
 func (m *OAuth2Manager) ExchangeCode(ctx context.Context, providerName, code string) (*OAuth2Token, error) {
 	provider, err := m.GetProvider(providerName)
 	if err != nil {
@@ -234,7 +234,7 @@ func (m *OAuth2Manager) ExchangeCode(ctx context.Context, providerName, code str
 	return token, nil
 }
 
-// GetUserInfo 获取用户信息
+// GetUserInfo 获取用户信息.
 func (m *OAuth2Manager) GetUserInfo(ctx context.Context, providerName string, token *OAuth2Token) (*OAuth2UserInfo, error) {
 	provider, err := m.GetProvider(providerName)
 	if err != nil {
@@ -267,7 +267,7 @@ func (m *OAuth2Manager) GetUserInfo(ctx context.Context, providerName string, to
 	return &userInfo, nil
 }
 
-// RefreshToken 刷新令牌
+// RefreshToken 刷新令牌.
 func (m *OAuth2Manager) RefreshToken(ctx context.Context, providerName, refreshToken string) (*OAuth2Token, error) {
 	provider, err := m.GetProvider(providerName)
 	if err != nil {
@@ -319,7 +319,7 @@ func (m *OAuth2Manager) RefreshToken(ctx context.Context, providerName, refreshT
 	return token, nil
 }
 
-// cleanupStates 清理过期状态
+// cleanupStates 清理过期状态.
 func (m *OAuth2Manager) cleanupStates() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -333,7 +333,7 @@ func (m *OAuth2Manager) cleanupStates() {
 
 // ========== 预定义提供商配置 ==========
 
-// GetGoogleOAuth2Config 获取 Google OAuth2 配置
+// GetGoogleOAuth2Config 获取 Google OAuth2 配置.
 func GetGoogleOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {
 	return OAuth2Provider{
 		Name:         "google",
@@ -348,7 +348,7 @@ func GetGoogleOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Pro
 	}
 }
 
-// GetGitHubOAuth2Config 获取 GitHub OAuth2 配置
+// GetGitHubOAuth2Config 获取 GitHub OAuth2 配置.
 func GetGitHubOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {
 	return OAuth2Provider{
 		Name:         "github",
@@ -363,7 +363,7 @@ func GetGitHubOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Pro
 	}
 }
 
-// GetMicrosoftOAuth2Config 获取 Microsoft OAuth2 配置
+// GetMicrosoftOAuth2Config 获取 Microsoft OAuth2 配置.
 func GetMicrosoftOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {
 	return OAuth2Provider{
 		Name:         "microsoft",
@@ -378,7 +378,7 @@ func GetMicrosoftOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2
 	}
 }
 
-// GetWeChatOAuth2Config 获取微信 OAuth2 配置
+// GetWeChatOAuth2Config 获取微信 OAuth2 配置.
 func GetWeChatOAuth2Config(appID, appSecret, redirectURL string) OAuth2Provider {
 	return OAuth2Provider{
 		Name:         "wechat",

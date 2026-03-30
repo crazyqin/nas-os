@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// RateLimiter implements a token bucket rate limiter
+// RateLimiter implements a token bucket rate limiter.
 type RateLimiter struct {
 	rate       float64 // tokens per second
 	burst      int     // max tokens
@@ -23,7 +23,7 @@ type RateLimiter struct {
 	logger *zap.Logger
 }
 
-// NewRateLimiter creates a new rate limiter
+// NewRateLimiter creates a new rate limiter.
 func NewRateLimiter(rate float64, burst int, logger *zap.Logger) *RateLimiter {
 	return &RateLimiter{
 		rate:       rate,
@@ -34,7 +34,7 @@ func NewRateLimiter(rate float64, burst int, logger *zap.Logger) *RateLimiter {
 	}
 }
 
-// Allow checks if a request is allowed
+// Allow checks if a request is allowed.
 func (r *RateLimiter) Allow() bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -61,14 +61,14 @@ func (r *RateLimiter) Allow() bool {
 	return false
 }
 
-// Wait blocks until a token is available
+// Wait blocks until a token is available.
 func (r *RateLimiter) Wait() {
 	for !r.Allow() {
 		time.Sleep(time.Millisecond * 10)
 	}
 }
 
-// WaitTimeout waits for a token with timeout
+// WaitTimeout waits for a token with timeout.
 func (r *RateLimiter) WaitTimeout(timeout time.Duration) bool {
 	deadline := time.Now().Add(timeout)
 	for time.Now().Before(deadline) {
@@ -80,7 +80,7 @@ func (r *RateLimiter) WaitTimeout(timeout time.Duration) bool {
 	return false
 }
 
-// Stats returns limiter statistics
+// Stats returns limiter statistics.
 func (r *RateLimiter) Stats() RateLimiterStats {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -95,7 +95,7 @@ func (r *RateLimiter) Stats() RateLimiterStats {
 	}
 }
 
-// RateLimiterStats holds rate limiter statistics
+// RateLimiterStats holds rate limiter statistics.
 type RateLimiterStats struct {
 	Rate    float64 `json:"rate"`
 	Burst   int     `json:"burst"`
@@ -105,21 +105,21 @@ type RateLimiterStats struct {
 	Denied  int64   `json:"denied"`
 }
 
-// SetRate updates the rate limit
+// SetRate updates the rate limit.
 func (r *RateLimiter) SetRate(rate float64) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.rate = rate
 }
 
-// SetBurst updates the burst size
+// SetBurst updates the burst size.
 func (r *RateLimiter) SetBurst(burst int) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.burst = burst
 }
 
-// Reset resets the limiter state
+// Reset resets the limiter state.
 func (r *RateLimiter) Reset() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -130,7 +130,7 @@ func (r *RateLimiter) Reset() {
 	r.denied = 0
 }
 
-// SlidingWindowLimiter implements a sliding window rate limiter
+// SlidingWindowLimiter implements a sliding window rate limiter.
 type SlidingWindowLimiter struct {
 	windowSize  time.Duration
 	maxRequests int
@@ -145,7 +145,7 @@ type SlidingWindowLimiter struct {
 	logger *zap.Logger
 }
 
-// NewSlidingWindowLimiter creates a new sliding window rate limiter
+// NewSlidingWindowLimiter creates a new sliding window rate limiter.
 func NewSlidingWindowLimiter(
 	windowSize time.Duration,
 	maxRequests int,
@@ -159,7 +159,7 @@ func NewSlidingWindowLimiter(
 	}
 }
 
-// Allow checks if a request is allowed
+// Allow checks if a request is allowed.
 func (r *SlidingWindowLimiter) Allow() bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -190,7 +190,7 @@ func (r *SlidingWindowLimiter) Allow() bool {
 	return false
 }
 
-// Stats returns limiter statistics
+// Stats returns limiter statistics.
 func (r *SlidingWindowLimiter) Stats() SlidingWindowStats {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -205,7 +205,7 @@ func (r *SlidingWindowLimiter) Stats() SlidingWindowStats {
 	}
 }
 
-// SlidingWindowStats holds sliding window limiter statistics
+// SlidingWindowStats holds sliding window limiter statistics.
 type SlidingWindowStats struct {
 	WindowSize  time.Duration `json:"window_size"`
 	MaxRequests int           `json:"max_requests"`

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// TestPingOptionsDefaults 测试 Ping 选项默认值
+// TestPingOptionsDefaults 测试 Ping 选项默认值.
 func TestPingOptionsDefaults(t *testing.T) {
 	// 测试默认值设置
 	opts := PingOptions{}
@@ -17,7 +17,7 @@ func TestPingOptionsDefaults(t *testing.T) {
 	}
 }
 
-// TestPingResultFields 测试 Ping 结果字段
+// TestPingResultFields 测试 Ping 结果字段.
 func TestPingResultFields(t *testing.T) {
 	result := &PingResult{
 		Host:        "192.168.1.1",
@@ -39,7 +39,7 @@ func TestPingResultFields(t *testing.T) {
 	}
 }
 
-// TestParsePingOutput 测试解析 Ping 输出
+// TestParsePingOutput 测试解析 Ping 输出.
 func TestParsePingOutput(t *testing.T) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -111,7 +111,7 @@ rtt min/avg/max/mdev = 0.100/0.200/0.300/0.100 ms`,
 	}
 }
 
-// TestTracerouteHop 测试路由跳结构
+// TestTracerouteHop 测试路由跳结构.
 func TestTracerouteHop(t *testing.T) {
 	hop := TracerouteHop{
 		Hop:     1,
@@ -131,7 +131,7 @@ func TestTracerouteHop(t *testing.T) {
 	}
 }
 
-// TestTracerouteResult 测试路由追踪结果
+// TestTracerouteResult 测试路由追踪结果.
 func TestTracerouteResult(t *testing.T) {
 	result := &TracerouteResult{
 		Host: "8.8.8.8",
@@ -150,7 +150,7 @@ func TestTracerouteResult(t *testing.T) {
 	}
 }
 
-// TestParseTracerouteOutput 测试解析 Traceroute 输出
+// TestParseTracerouteOutput 测试解析 Traceroute 输出.
 func TestParseTracerouteOutput(t *testing.T) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -181,7 +181,7 @@ func TestParseTracerouteOutput(t *testing.T) {
 	}
 }
 
-// TestDNSLookupResult 测试 DNS 查询结果
+// TestDNSLookupResult 测试 DNS 查询结果.
 func TestDNSLookupResult(t *testing.T) {
 	result := &DNSLookupResult{
 		Host:      "example.com",
@@ -198,7 +198,7 @@ func TestDNSLookupResult(t *testing.T) {
 	}
 }
 
-// TestMXRecord 测试 MX 记录
+// TestMXRecord 测试 MX 记录.
 func TestMXRecord(t *testing.T) {
 	mx := MXRecord{
 		Preference: 10,
@@ -210,7 +210,7 @@ func TestMXRecord(t *testing.T) {
 	}
 }
 
-// TestNSRecord 测试 NS 记录
+// TestNSRecord 测试 NS 记录.
 func TestNSRecord(t *testing.T) {
 	ns := NSRecord{
 		Host: "ns1.example.com",
@@ -221,7 +221,7 @@ func TestNSRecord(t *testing.T) {
 	}
 }
 
-// TestPortScanResult 测试端口扫描结果
+// TestPortScanResult 测试端口扫描结果.
 func TestPortScanResult(t *testing.T) {
 	result := &PortScanResult{
 		Host: "192.168.1.1",
@@ -240,7 +240,7 @@ func TestPortScanResult(t *testing.T) {
 	}
 }
 
-// TestPortStatus 测试端口状态
+// TestPortStatus 测试端口状态.
 func TestPortStatus(t *testing.T) {
 	status := PortStatus{
 		Port:     443,
@@ -257,7 +257,7 @@ func TestPortStatus(t *testing.T) {
 	}
 }
 
-// TestIdentifyService 测试服务识别
+// TestIdentifyService 测试服务识别.
 func TestIdentifyService(t *testing.T) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -286,7 +286,7 @@ func TestIdentifyService(t *testing.T) {
 	}
 }
 
-// TestDiagnosticResult 测试诊断结果
+// TestDiagnosticResult 测试诊断结果.
 func TestDiagnosticResult(t *testing.T) {
 	result := &DiagnosticResult{
 		Success: true,
@@ -304,7 +304,7 @@ func TestDiagnosticResult(t *testing.T) {
 	}
 }
 
-// TestConnectivityStatus 测试连接状态
+// TestConnectivityStatus 测试连接状态.
 func TestConnectivityStatus(t *testing.T) {
 	status := &ConnectivityStatus{
 		Connected: true,
@@ -323,7 +323,7 @@ func TestConnectivityStatus(t *testing.T) {
 	}
 }
 
-// TestARPEntry 测试 ARP 条目
+// TestARPEntry 测试 ARP 条目.
 func TestARPEntry(t *testing.T) {
 	entry := ARPEntry{
 		IP:        "192.168.1.1",
@@ -339,7 +339,7 @@ func TestARPEntry(t *testing.T) {
 	}
 }
 
-// TestParseDigOutput 测试解析 Dig 输出
+// TestParseDigOutput 测试解析 Dig 输出.
 func TestParseDigOutput(t *testing.T) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -368,7 +368,7 @@ example.com.		300	IN	A	93.184.216.34
 	}
 }
 
-// TestParseDigOutputEmpty 测试解析空 Dig 输出
+// TestParseDigOutputEmpty 测试解析空 Dig 输出.
 func TestParseDigOutputEmpty(t *testing.T) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -382,7 +382,7 @@ func TestParseDigOutputEmpty(t *testing.T) {
 	}
 }
 
-// TestDiagnosticResultDetails 测试诊断结果详情
+// TestDiagnosticResultDetails 测试诊断结果详情.
 func TestDiagnosticResultDetails(t *testing.T) {
 	result := &DiagnosticResult{
 		Success: true,
@@ -399,7 +399,7 @@ func TestDiagnosticResultDetails(t *testing.T) {
 	}
 }
 
-// TestPingOutputParsingWithDifferentFormats 测试不同格式的 Ping 输出解析
+// TestPingOutputParsingWithDifferentFormats 测试不同格式的 Ping 输出解析.
 func TestPingOutputParsingWithDifferentFormats(t *testing.T) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -419,7 +419,7 @@ func TestPingOutputParsingWithDifferentFormats(t *testing.T) {
 	}
 }
 
-// TestTracerouteParseWithLocalhost 测试解析包含 localhost 的 traceroute 输出
+// TestTracerouteParseWithLocalhost 测试解析包含 localhost 的 traceroute 输出.
 func TestTracerouteParseWithLocalhost(t *testing.T) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -444,7 +444,7 @@ func TestTracerouteParseWithLocalhost(t *testing.T) {
 	}
 }
 
-// TestPortScanProtocolDefault 测试端口扫描协议默认值
+// TestPortScanProtocolDefault 测试端口扫描协议默认值.
 func TestPortScanProtocolDefault(t *testing.T) {
 	// 测试协议默认值逻辑
 	protocol := ""
@@ -457,7 +457,7 @@ func TestPortScanProtocolDefault(t *testing.T) {
 	}
 }
 
-// TestPingCountDefault 测试 Ping 计数默认值
+// TestPingCountDefault 测试 Ping 计数默认值.
 func TestPingCountDefault(t *testing.T) {
 	opts := PingOptions{}
 
@@ -471,7 +471,7 @@ func TestPingCountDefault(t *testing.T) {
 	}
 }
 
-// TestPingTimeoutDefault 测试 Ping 超时默认值
+// TestPingTimeoutDefault 测试 Ping 超时默认值.
 func TestPingTimeoutDefault(t *testing.T) {
 	opts := PingOptions{}
 
@@ -485,7 +485,7 @@ func TestPingTimeoutDefault(t *testing.T) {
 	}
 }
 
-// TestTracerouteMaxHopsDefault 测试 Traceroute 最大跳数默认值
+// TestTracerouteMaxHopsDefault 测试 Traceroute 最大跳数默认值.
 func TestTracerouteMaxHopsDefault(t *testing.T) {
 	maxHops := 0
 
@@ -499,7 +499,7 @@ func TestTracerouteMaxHopsDefault(t *testing.T) {
 	}
 }
 
-// TestPacketLossCalculation 测试丢包率计算
+// TestPacketLossCalculation 测试丢包率计算.
 func TestPacketLossCalculation(t *testing.T) {
 	tests := []struct {
 		sent         int
@@ -529,7 +529,7 @@ func TestPacketLossCalculation(t *testing.T) {
 	}
 }
 
-// TestParseTracepathOutputWithNoReply 测试解析包含 no reply 的 tracepath 输出
+// TestParseTracepathOutputWithNoReply 测试解析包含 no reply 的 tracepath 输出.
 func TestParseTracepathOutputWithNoReply(t *testing.T) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -555,7 +555,7 @@ func TestParseTracepathOutputWithNoReply(t *testing.T) {
 	}
 }
 
-// TestPortScanMultiplePorts 测试多端口扫描结果
+// TestPortScanMultiplePorts 测试多端口扫描结果.
 func TestPortScanResultMultiplePorts(t *testing.T) {
 	result := &PortScanResult{
 		Host: "192.168.1.1",
@@ -580,7 +580,7 @@ func TestPortScanResultMultiplePorts(t *testing.T) {
 	}
 }
 
-// TestDNSLookupResultWithMXRecords 测试带 MX 记录的 DNS 查询结果
+// TestDNSLookupResultWithMXRecords 测试带 MX 记录的 DNS 查询结果.
 func TestDNSLookupResultWithMXRecords(t *testing.T) {
 	result := &DNSLookupResult{
 		Host:      "example.com",
@@ -607,7 +607,7 @@ func TestDNSLookupResultWithMXRecords(t *testing.T) {
 	}
 }
 
-// TestStringContainForParsing 测试字符串包含检查
+// TestStringContainForParsing 测试字符串包含检查.
 func TestStringContainForParsing(t *testing.T) {
 	output := "4 packets transmitted, 4 received, 0% packet loss"
 
@@ -621,7 +621,7 @@ func TestStringContainForParsing(t *testing.T) {
 	}
 }
 
-// TestTracerouteHopWithMultipleRTT 测试带多个 RTT 的路由跳
+// TestTracerouteHopWithMultipleRTT 测试带多个 RTT 的路由跳.
 func TestTracerouteHopWithMultipleRTT(t *testing.T) {
 	hop := TracerouteHop{
 		Hop:  1,
@@ -637,7 +637,7 @@ func TestTracerouteHopWithMultipleRTT(t *testing.T) {
 	}
 }
 
-// TestParsePortsEmpty 测试空端口字符串解析
+// TestParsePortsEmpty 测试空端口字符串解析.
 func TestParsePortsEmpty(t *testing.T) {
 	// 这个方法在 docker/manager.go 中，但我们测试类似的逻辑
 	ports := ""
@@ -646,7 +646,7 @@ func TestParsePortsEmpty(t *testing.T) {
 	}
 }
 
-// TestServiceIdentificationAllPorts 测试所有已知端口的服务识别
+// TestServiceIdentificationAllPorts 测试所有已知端口的服务识别.
 func TestServiceIdentificationAllPorts(t *testing.T) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -682,7 +682,7 @@ func TestServiceIdentificationAllPorts(t *testing.T) {
 	}
 }
 
-// TestDiagnosticResultWithError 测试带错误的诊断结果
+// TestDiagnosticResultWithError 测试带错误的诊断结果.
 func TestDiagnosticResultWithError(t *testing.T) {
 	result := &DiagnosticResult{
 		Success: false,
@@ -698,7 +698,7 @@ func TestDiagnosticResultWithError(t *testing.T) {
 	}
 }
 
-// BenchmarkParsePingOutput 基准测试 Ping 输出解析
+// BenchmarkParsePingOutput 基准测试 Ping 输出解析.
 func BenchmarkParsePingOutput(b *testing.B) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -714,7 +714,7 @@ rtt min/avg/max/mdev = 0.123/0.456/0.789/0.123 ms`
 	}
 }
 
-// BenchmarkIdentifyService 基准测试服务识别
+// BenchmarkIdentifyService 基准测试服务识别.
 func BenchmarkIdentifyService(b *testing.B) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -724,7 +724,7 @@ func BenchmarkIdentifyService(b *testing.B) {
 	}
 }
 
-// BenchmarkParseDigOutput 基准测试 Dig 输出解析
+// BenchmarkParseDigOutput 基准测试 Dig 输出解析.
 func BenchmarkParseDigOutput(b *testing.B) {
 	mgr := NewManager("/tmp/test-network")
 
@@ -738,7 +738,7 @@ example.com.		300	IN	A	93.184.216.35`
 	}
 }
 
-// TestNetworkDiagnoseStructure 测试网络诊断结构
+// TestNetworkDiagnoseStructure 测试网络诊断结构.
 func TestNetworkDiagnoseStructure(t *testing.T) {
 	// 测试综合诊断结果结构
 	results := map[string]interface{}{

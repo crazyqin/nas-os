@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Metrics 存储分层监控指标
+// Metrics 存储分层监控指标.
 type Metrics struct {
 	mu sync.RWMutex
 
@@ -26,7 +26,7 @@ type Metrics struct {
 	startTime time.Time
 }
 
-// TierMetrics 存储层指标
+// TierMetrics 存储层指标.
 type TierMetrics struct {
 	// 容量
 	TotalBytes     int64   `json:"totalBytes"`
@@ -56,7 +56,7 @@ type TierMetrics struct {
 	LastUpdated time.Time `json:"lastUpdated"`
 }
 
-// MigrationMetrics 迁移指标
+// MigrationMetrics 迁移指标.
 type MigrationMetrics struct {
 	// 任务统计
 	TotalTasks     int64 `json:"totalTasks"`
@@ -85,7 +85,7 @@ type MigrationMetrics struct {
 	LastMigrationTime time.Time `json:"lastMigrationTime"`
 }
 
-// PolicyMigrationMetrics 策略迁移指标
+// PolicyMigrationMetrics 策略迁移指标.
 type PolicyMigrationMetrics struct {
 	PolicyID          string    `json:"policyId"`
 	ExecutionCount    int64     `json:"executionCount"`
@@ -97,7 +97,7 @@ type PolicyMigrationMetrics struct {
 	AverageDurationMs int64     `json:"averageDurationMs"`
 }
 
-// PolicyMetrics 策略指标
+// PolicyMetrics 策略指标.
 type PolicyMetrics struct {
 	PolicyID     string    `json:"policyId"`
 	Enabled      bool      `json:"enabled"`
@@ -108,7 +108,7 @@ type PolicyMetrics struct {
 	FailureCount int64     `json:"failureCount"`
 }
 
-// AccessMetrics 访问指标
+// AccessMetrics 访问指标.
 type AccessMetrics struct {
 	// 总体统计
 	TotalFiles      int64 `json:"totalFiles"`
@@ -132,7 +132,7 @@ type AccessMetrics struct {
 	LastUpdated time.Time `json:"lastUpdated"`
 }
 
-// NewMetrics 创建监控指标实例
+// NewMetrics 创建监控指标实例.
 func NewMetrics() *Metrics {
 	return &Metrics{
 		tierMetrics: make(map[TierType]*TierMetrics),
@@ -147,7 +147,7 @@ func NewMetrics() *Metrics {
 
 // ==================== 存储层指标 ====================
 
-// UpdateTierMetrics 更新存储层指标
+// UpdateTierMetrics 更新存储层指标.
 func (m *Metrics) UpdateTierMetrics(tierType TierType, stats *TierStats) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -169,7 +169,7 @@ func (m *Metrics) UpdateTierMetrics(tierType TierType, stats *TierStats) {
 	metrics.LastUpdated = time.Now()
 }
 
-// GetTierMetrics 获取存储层指标
+// GetTierMetrics 获取存储层指标.
 func (m *Metrics) GetTierMetrics(tierType TierType) *TierMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -180,7 +180,7 @@ func (m *Metrics) GetTierMetrics(tierType TierType) *TierMetrics {
 	return &TierMetrics{}
 }
 
-// GetAllTierMetrics 获取所有存储层指标
+// GetAllTierMetrics 获取所有存储层指标.
 func (m *Metrics) GetAllTierMetrics() map[TierType]*TierMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -192,7 +192,7 @@ func (m *Metrics) GetAllTierMetrics() map[TierType]*TierMetrics {
 	return result
 }
 
-// RecordTierIO 记录存储层 I/O
+// RecordTierIO 记录存储层 I/O.
 func (m *Metrics) RecordTierIO(tierType TierType, readBytes, writeBytes int64, readOps, writeOps int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -209,7 +209,7 @@ func (m *Metrics) RecordTierIO(tierType TierType, readBytes, writeBytes int64, r
 	metrics.WriteOps += int64(writeOps)
 }
 
-// RecordTierMigration 记录存储层迁移
+// RecordTierMigration 记录存储层迁移.
 func (m *Metrics) RecordTierMigration(tierType TierType, filesIn, filesOut, bytesIn, bytesOut int64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -228,7 +228,7 @@ func (m *Metrics) RecordTierMigration(tierType TierType, filesIn, filesOut, byte
 
 // ==================== 迁移指标 ====================
 
-// RecordMigrationStart 记录迁移开始
+// RecordMigrationStart 记录迁移开始.
 func (m *Metrics) RecordMigrationStart() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -237,7 +237,7 @@ func (m *Metrics) RecordMigrationStart() {
 	m.migrationMetrics.RunningTasks++
 }
 
-// RecordMigrationComplete 记录迁移完成
+// RecordMigrationComplete 记录迁移完成.
 func (m *Metrics) RecordMigrationComplete(task *MigrateTask, durationMs int64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -267,7 +267,7 @@ func (m *Metrics) RecordMigrationComplete(task *MigrateTask, durationMs int64) {
 	}
 }
 
-// RecordMigrationFailure 记录迁移失败
+// RecordMigrationFailure 记录迁移失败.
 func (m *Metrics) RecordMigrationFailure(task *MigrateTask) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -289,7 +289,7 @@ func (m *Metrics) RecordMigrationFailure(task *MigrateTask) {
 	}
 }
 
-// GetMigrationMetrics 获取迁移指标
+// GetMigrationMetrics 获取迁移指标.
 func (m *Metrics) GetMigrationMetrics() *MigrationMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -298,7 +298,7 @@ func (m *Metrics) GetMigrationMetrics() *MigrationMetrics {
 
 // ==================== 策略指标 ====================
 
-// UpdatePolicyMetrics 更新策略指标
+// UpdatePolicyMetrics 更新策略指标.
 func (m *Metrics) UpdatePolicyMetrics(policyID string, enabled bool, lastRun, nextRun time.Time) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -314,7 +314,7 @@ func (m *Metrics) UpdatePolicyMetrics(policyID string, enabled bool, lastRun, ne
 	metrics.NextRunTime = nextRun
 }
 
-// RecordPolicyExecution 记录策略执行
+// RecordPolicyExecution 记录策略执行.
 func (m *Metrics) RecordPolicyExecution(policyID string, success bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -333,7 +333,7 @@ func (m *Metrics) RecordPolicyExecution(policyID string, success bool) {
 	}
 }
 
-// GetPolicyMetrics 获取策略指标
+// GetPolicyMetrics 获取策略指标.
 func (m *Metrics) GetPolicyMetrics(policyID string) *PolicyMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -344,7 +344,7 @@ func (m *Metrics) GetPolicyMetrics(policyID string) *PolicyMetrics {
 	return &PolicyMetrics{}
 }
 
-// GetAllPolicyMetrics 获取所有策略指标
+// GetAllPolicyMetrics 获取所有策略指标.
 func (m *Metrics) GetAllPolicyMetrics() map[string]*PolicyMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -358,7 +358,7 @@ func (m *Metrics) GetAllPolicyMetrics() map[string]*PolicyMetrics {
 
 // ==================== 访问指标 ====================
 
-// UpdateAccessMetrics 更新访问指标
+// UpdateAccessMetrics 更新访问指标.
 func (m *Metrics) UpdateAccessMetrics(stats *AccessStats) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -373,7 +373,7 @@ func (m *Metrics) UpdateAccessMetrics(stats *AccessStats) {
 	m.accessMetrics.LastUpdated = time.Now()
 }
 
-// GetAccessMetrics 获取访问指标
+// GetAccessMetrics 获取访问指标.
 func (m *Metrics) GetAccessMetrics() *AccessMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -382,7 +382,7 @@ func (m *Metrics) GetAccessMetrics() *AccessMetrics {
 
 // ==================== 汇总统计 ====================
 
-// GetSummary 获取汇总统计
+// GetSummary 获取汇总统计.
 func (m *Metrics) GetSummary() *MetricsSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -416,7 +416,7 @@ func (m *Metrics) GetSummary() *MetricsSummary {
 	return summary
 }
 
-// MetricsSummary 指标汇总
+// MetricsSummary 指标汇总.
 type MetricsSummary struct {
 	Uptime              time.Duration             `json:"uptime"`
 	TotalTiers          int                       `json:"totalTiers"`
@@ -433,7 +433,7 @@ type MetricsSummary struct {
 
 // ==================== Prometheus 格式导出 ====================
 
-// ExportPrometheus 导出 Prometheus 格式指标
+// ExportPrometheus 导出 Prometheus 格式指标.
 func (m *Metrics) ExportPrometheus() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -550,34 +550,34 @@ func max(a, b int64) int64 {
 	return b
 }
 
-// MetricsCollector 指标收集器接口
+// MetricsCollector 指标收集器接口.
 type MetricsCollector interface {
 	CollectTierMetrics() map[TierType]*TierMetrics
 	CollectMigrationMetrics() *MigrationMetrics
 	CollectAccessMetrics() *AccessMetrics
 }
 
-// AtomicCounter 原子计数器
+// AtomicCounter 原子计数器.
 type AtomicCounter struct {
 	value int64
 }
 
-// Increment 增加计数
+// Increment 增加计数.
 func (c *AtomicCounter) Increment() {
 	atomic.AddInt64(&c.value, 1)
 }
 
-// IncrementBy 增加指定值
+// IncrementBy 增加指定值.
 func (c *AtomicCounter) IncrementBy(n int64) {
 	atomic.AddInt64(&c.value, n)
 }
 
-// Get 获取当前值
+// Get 获取当前值.
 func (c *AtomicCounter) Get() int64 {
 	return atomic.LoadInt64(&c.value)
 }
 
-// Reset 重置计数器
+// Reset 重置计数器.
 func (c *AtomicCounter) Reset() {
 	atomic.StoreInt64(&c.value, 0)
 }

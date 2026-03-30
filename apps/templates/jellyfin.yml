@@ -1,0 +1,28 @@
+# Jellyfin 媒体服务器
+# 自由开源的媒体系统，支持电影、电视剧、音乐
+version: '3.8'
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    ports:
+      - "8096:8096"  # Web界面
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - /mnt/media:/media:ro  # 媒体库（只读挂载）
+    environment:
+      - TZ=Asia/Shanghai
+      - PUID=1000
+      - PGID=1000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8096/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  jellyfin-config:
+  jellyfin-cache:

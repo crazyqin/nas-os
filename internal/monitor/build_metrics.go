@@ -18,7 +18,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
-// BuildMetrics CI/CD 构建指标
+// BuildMetrics CI/CD 构建指标.
 type BuildMetrics struct {
 	// 构建时间指标
 	BuildDuration *prometheus.HistogramVec
@@ -68,7 +68,7 @@ type BuildMetrics struct {
 	stats *BuildStats
 }
 
-// BuildStats 构建统计
+// BuildStats 构建统计.
 type BuildStats struct {
 	TotalBuilds      int64
 	SuccessfulBuilds int64
@@ -80,7 +80,7 @@ type BuildStats struct {
 	CacheMissCount   int64
 }
 
-// NewBuildMetrics 创建构建指标
+// NewBuildMetrics 创建构建指标.
 func NewBuildMetrics(namespace string) *BuildMetrics {
 	if namespace == "" {
 		namespace = "nas_os"
@@ -276,7 +276,7 @@ func NewBuildMetrics(namespace string) *BuildMetrics {
 	}
 }
 
-// RecordBuild 记录构建
+// RecordBuild 记录构建.
 func (bm *BuildMetrics) RecordBuild(job, platform, branch string, duration float64, success bool) {
 	bm.BuildDuration.WithLabelValues(job, platform, branch).Observe(duration)
 	bm.BuildTotal.WithLabelValues(job, platform, branch).Inc()
@@ -297,14 +297,14 @@ func (bm *BuildMetrics) RecordBuild(job, platform, branch string, duration float
 	}
 }
 
-// RecordCacheHit 记录缓存命中
+// RecordCacheHit 记录缓存命中.
 func (bm *BuildMetrics) RecordCacheHit(cacheType, job string) {
 	bm.CacheHits.WithLabelValues(cacheType, job).Inc()
 	bm.stats.CacheHitCount++
 	bm.updateCacheHitRate()
 }
 
-// RecordCacheMiss 记录缓存未命中
+// RecordCacheMiss 记录缓存未命中.
 func (bm *BuildMetrics) RecordCacheMiss(cacheType, job string) {
 	bm.CacheMisses.WithLabelValues(cacheType, job).Inc()
 	bm.stats.CacheMissCount++
@@ -319,7 +319,7 @@ func (bm *BuildMetrics) updateCacheHitRate() {
 	}
 }
 
-// RecordDeploy 记录部署
+// RecordDeploy 记录部署.
 func (bm *BuildMetrics) RecordDeploy(environment, version string, duration float64, success bool) {
 	bm.DeployDuration.WithLabelValues(environment, version).Observe(duration)
 	bm.DeployTotal.WithLabelValues(environment, version).Inc()
@@ -331,12 +331,12 @@ func (bm *BuildMetrics) RecordDeploy(environment, version string, duration float
 	}
 }
 
-// RecordRollback 记录回滚
+// RecordRollback 记录回滚.
 func (bm *BuildMetrics) RecordRollback(environment, fromVersion, toVersion string) {
 	bm.DeployRollback.WithLabelValues(environment, fromVersion, toVersion).Inc()
 }
 
-// RecordTest 记录测试
+// RecordTest 记录测试.
 func (bm *BuildMetrics) RecordTest(testType, suite string, duration float64, passed, failed, skipped int, coverage float64) {
 	bm.TestDuration.WithLabelValues(testType, suite).Observe(duration)
 	bm.TestTotal.WithLabelValues(testType, suite).Inc()
@@ -348,7 +348,7 @@ func (bm *BuildMetrics) RecordTest(testType, suite string, duration float64, pas
 	}
 }
 
-// RecordSecurityScan 记录安全扫描
+// RecordSecurityScan 记录安全扫描.
 func (bm *BuildMetrics) RecordSecurityScan(scanner, scanType string, duration float64, critical, high, medium, low int) {
 	bm.SecurityScanDuration.WithLabelValues(scanner, scanType).Observe(duration)
 	bm.SecurityScanTotal.WithLabelValues(scanner, scanType).Inc()
@@ -360,7 +360,7 @@ func (bm *BuildMetrics) RecordSecurityScan(scanner, scanType string, duration fl
 	bm.SecurityHighCount.Set(float64(high))
 }
 
-// RecordImageBuild 记录镜像构建
+// RecordImageBuild 记录镜像构建.
 func (bm *BuildMetrics) RecordImageBuild(image, platform string, duration float64, size int64, layers int) {
 	bm.ImageBuildDuration.WithLabelValues(image, platform).Observe(duration)
 	bm.ImageBuildTotal.WithLabelValues(image, platform).Inc()
@@ -368,27 +368,27 @@ func (bm *BuildMetrics) RecordImageBuild(image, platform string, duration float6
 	bm.ImageLayers.WithLabelValues(image, "latest").Set(float64(layers))
 }
 
-// SetVersionInfo 设置版本信息
+// SetVersionInfo 设置版本信息.
 func (bm *BuildMetrics) SetVersionInfo(version, commit, branch string) {
 	bm.VersionInfo.WithLabelValues(version, commit, branch).Set(1)
 }
 
-// SetBuildInfo 设置构建信息
+// SetBuildInfo 设置构建信息.
 func (bm *BuildMetrics) SetBuildInfo(goVersion, platform, builtAt string) {
 	bm.BuildInfo.WithLabelValues(goVersion, platform, builtAt).Set(1)
 }
 
-// SetDeployHealthScore 设置部署健康评分
+// SetDeployHealthScore 设置部署健康评分.
 func (bm *BuildMetrics) SetDeployHealthScore(score float64) {
 	bm.DeployHealthScore.Set(score)
 }
 
-// GetStats 获取构建统计
+// GetStats 获取构建统计.
 func (bm *BuildMetrics) GetStats() BuildStats {
 	return *bm.stats
 }
 
-// CalculateBuildSuccessRate 计算构建成功率
+// CalculateBuildSuccessRate 计算构建成功率.
 func (bm *BuildMetrics) CalculateBuildSuccessRate() float64 {
 	if bm.stats.TotalBuilds == 0 {
 		return 0

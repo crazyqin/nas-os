@@ -10,7 +10,7 @@ import (
 
 // ========== 分时电价配置 ==========
 
-// TimeOfDay 时段类型
+// TimeOfDay 时段类型.
 type TimeOfDay string
 
 const (
@@ -24,14 +24,14 @@ const (
 	TimeOfDayCritical TimeOfDay = "critical" // 尖峰
 )
 
-// TimeSlot 时段定义
+// TimeSlot 时段定义.
 type TimeSlot struct {
 	StartHour int       `json:"start_hour"` // 开始小时 (0-23)
 	EndHour   int       `json:"end_hour"`   // 结束小时 (0-23)
 	Type      TimeOfDay `json:"type"`       // 时段类型
 }
 
-// SeasonType 季节类型
+// SeasonType 季节类型.
 type SeasonType string
 
 const (
@@ -47,7 +47,7 @@ const (
 	SeasonDefault SeasonType = "default" // 默认
 )
 
-// SeasonalPrice 季节电价
+// SeasonalPrice 季节电价.
 type SeasonalPrice struct {
 	Season      SeasonType `json:"season"`
 	PeakPrice   float64    `json:"peak_price"`   // 峰时电价 (元/kWh)
@@ -56,7 +56,7 @@ type SeasonalPrice struct {
 	CritPrice   float64    `json:"crit_price"`   // 尖峰电价 (元/kWh)
 }
 
-// ElectricityTariff 电价配置
+// ElectricityTariff 电价配置.
 type ElectricityTariff struct {
 	ID             string          `json:"id"`
 	Name           string          `json:"name"`
@@ -70,7 +70,7 @@ type ElectricityTariff struct {
 	UpdatedAt      time.Time       `json:"updated_at"`
 }
 
-// GetTimeOfDay 获取指定时间的时段类型
+// GetTimeOfDay 获取指定时间的时段类型.
 func (t *ElectricityTariff) GetTimeOfDay(hour int, season SeasonType) TimeOfDay {
 	for _, slot := range t.TimeSlots {
 		if slot.StartHour <= slot.EndHour {
@@ -87,7 +87,7 @@ func (t *ElectricityTariff) GetTimeOfDay(hour int, season SeasonType) TimeOfDay 
 	return TimeOfDayFlat
 }
 
-// GetPrice 获取指定时段的电价
+// GetPrice 获取指定时段的电价.
 func (t *ElectricityTariff) GetPrice(timeOfDay TimeOfDay, season SeasonType) float64 {
 	for _, sp := range t.SeasonalPrices {
 		if sp.Season == season {
@@ -128,7 +128,7 @@ func (t *ElectricityTariff) GetPrice(timeOfDay TimeOfDay, season SeasonType) flo
 
 // ========== 设备功耗 ==========
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -146,7 +146,7 @@ const (
 	DeviceTypeOther DeviceType = "other" // 其他
 )
 
-// PowerProfile 功耗配置
+// PowerProfile 功耗配置.
 type PowerProfile struct {
 	ID                string     `json:"id"`
 	DeviceName        string     `json:"device_name"`
@@ -163,7 +163,7 @@ type PowerProfile struct {
 	UpdatedAt         time.Time  `json:"updated_at"`
 }
 
-// PowerReading 功耗读数
+// PowerReading 功耗读数.
 type PowerReading struct {
 	DeviceID   string    `json:"device_id"`
 	DeviceName string    `json:"device_name"`
@@ -173,7 +173,7 @@ type PowerReading struct {
 	Source     string    `json:"source"`      // 数据来源 (sensor/manual/estimated)
 }
 
-// PowerUsageRecord 用电记录
+// PowerUsageRecord 用电记录.
 type PowerUsageRecord struct {
 	ID             string    `json:"id"`
 	DeviceID       string    `json:"device_id"`
@@ -189,7 +189,7 @@ type PowerUsageRecord struct {
 
 // ========== 电费计算 ==========
 
-// ElectricityCostConfig 电费计算配置
+// ElectricityCostConfig 电费计算配置.
 type ElectricityCostConfig struct {
 	TariffID           string  `json:"tariff_id"`
 	Region             string  `json:"region"`
@@ -200,7 +200,7 @@ type ElectricityCostConfig struct {
 	DiscountRate       float64 `json:"discount_rate"`        // 折扣率
 }
 
-// ElectricityCostResult 电费计算结果
+// ElectricityCostResult 电费计算结果.
 type ElectricityCostResult struct {
 	ID                 string            `json:"id"`
 	DeviceID           string            `json:"device_id"`
@@ -229,7 +229,7 @@ type ElectricityCostResult struct {
 	GeneratedAt        time.Time         `json:"generated_at"`
 }
 
-// HourlyCost 小时成本
+// HourlyCost 小时成本.
 type HourlyCost struct {
 	Hour      int       `json:"hour"`
 	Date      time.Time `json:"date"`
@@ -239,7 +239,7 @@ type HourlyCost struct {
 	Cost      float64   `json:"cost"`
 }
 
-// DailyCost 日成本
+// DailyCost 日成本.
 type DailyCost struct {
 	Date            time.Time `json:"date"`
 	TotalEnergyKWh  float64   `json:"total_energy_kwh"`
@@ -248,7 +248,7 @@ type DailyCost struct {
 	ValleyEnergyKWh float64   `json:"valley_energy_kwh"`
 }
 
-// ElectricityBill 电费账单
+// ElectricityBill 电费账单.
 type ElectricityBill struct {
 	ID                string                `json:"id"`
 	BillNumber        string                `json:"bill_number"`        // 账单号
@@ -273,7 +273,7 @@ type ElectricityBill struct {
 	GeneratedAt       time.Time             `json:"generated_at"`
 }
 
-// MeterReading 抄表读数
+// MeterReading 抄表读数.
 type MeterReading struct {
 	MeterID      string    `json:"meter_id"`
 	MeterName    string    `json:"meter_name"`
@@ -282,7 +282,7 @@ type MeterReading struct {
 	EnergyUsed   float64   `json:"energy_used"`   // 本期用电 (kWh)
 }
 
-// DeviceCostBreakdown 设备成本分解
+// DeviceCostBreakdown 设备成本分解.
 type DeviceCostBreakdown struct {
 	DeviceID       string     `json:"device_id"`
 	DeviceName     string     `json:"device_name"`
@@ -292,7 +292,7 @@ type DeviceCostBreakdown struct {
 	PercentOfTotal float64    `json:"percent_of_total"`
 }
 
-// ElectricityTrendPoint 电费趋势点
+// ElectricityTrendPoint 电费趋势点.
 type ElectricityTrendPoint struct {
 	Date           time.Time `json:"date"`
 	Cost           float64   `json:"cost"`
@@ -302,7 +302,7 @@ type ElectricityTrendPoint struct {
 
 // ========== 成本预测 ==========
 
-// ElectricityForecast 电费预测
+// ElectricityForecast 电费预测.
 type ElectricityForecast struct {
 	ID                   string                          `json:"id"`
 	Period               ReportPeriod                    `json:"period"`               // 预测周期
@@ -319,7 +319,7 @@ type ElectricityForecast struct {
 	GeneratedAt          time.Time                       `json:"generated_at"`
 }
 
-// MonthlyForecast 月度预测
+// MonthlyForecast 月度预测.
 type MonthlyForecast struct {
 	Month           time.Time `json:"month"`
 	PredictedKWh    float64   `json:"predicted_kwh"`
@@ -329,7 +329,7 @@ type MonthlyForecast struct {
 	SeasonFactor    float64   `json:"season_factor"`
 }
 
-// ElectricitySavingsOpportunity 电费节省机会
+// ElectricitySavingsOpportunity 电费节省机会.
 type ElectricitySavingsOpportunity struct {
 	ID               string  `json:"id"`
 	Type             string  `json:"type"` // load_shift/efficiency/schedule
@@ -343,14 +343,14 @@ type ElectricitySavingsOpportunity struct {
 
 // ========== 电费计算器 ==========
 
-// ElectricityCostCalculator 电费计算器
+// ElectricityCostCalculator 电费计算器.
 type ElectricityCostCalculator struct {
 	config   ElectricityCostConfig
 	tariff   ElectricityTariff
 	profiles map[string]PowerProfile
 }
 
-// NewElectricityCostCalculator 创建电费计算器
+// NewElectricityCostCalculator 创建电费计算器.
 func NewElectricityCostCalculator(config ElectricityCostConfig, tariff ElectricityTariff) *ElectricityCostCalculator {
 	return &ElectricityCostCalculator{
 		config:   config,
@@ -359,23 +359,23 @@ func NewElectricityCostCalculator(config ElectricityCostConfig, tariff Electrici
 	}
 }
 
-// AddPowerProfile 添加设备功耗配置
+// AddPowerProfile 添加设备功耗配置.
 func (c *ElectricityCostCalculator) AddPowerProfile(profile PowerProfile) {
 	c.profiles[profile.ID] = profile
 }
 
-// RemovePowerProfile 移除设备功耗配置
+// RemovePowerProfile 移除设备功耗配置.
 func (c *ElectricityCostCalculator) RemovePowerProfile(profileID string) {
 	delete(c.profiles, profileID)
 }
 
-// GetPowerProfile 获取设备功耗配置
+// GetPowerProfile 获取设备功耗配置.
 func (c *ElectricityCostCalculator) GetPowerProfile(profileID string) (PowerProfile, bool) {
 	profile, ok := c.profiles[profileID]
 	return profile, ok
 }
 
-// ListPowerProfiles 列出所有设备功耗配置
+// ListPowerProfiles 列出所有设备功耗配置.
 func (c *ElectricityCostCalculator) ListPowerProfiles() []PowerProfile {
 	profiles := make([]PowerProfile, 0, len(c.profiles))
 	for _, p := range c.profiles {
@@ -387,7 +387,7 @@ func (c *ElectricityCostCalculator) ListPowerProfiles() []PowerProfile {
 	return profiles
 }
 
-// Calculate 计算指定设备的电费
+// Calculate 计算指定设备的电费.
 func (c *ElectricityCostCalculator) Calculate(deviceID string, readings []PowerReading, period ReportPeriod) *ElectricityCostResult {
 	profile, hasProfile := c.profiles[deviceID]
 
@@ -503,7 +503,7 @@ func (c *ElectricityCostCalculator) Calculate(deviceID string, readings []PowerR
 	return result
 }
 
-// CalculateAll 计算所有设备的电费
+// CalculateAll 计算所有设备的电费.
 func (c *ElectricityCostCalculator) CalculateAll(readings []PowerReading, period ReportPeriod) map[string]*ElectricityCostResult {
 	results := make(map[string]*ElectricityCostResult)
 
@@ -519,7 +519,7 @@ func (c *ElectricityCostCalculator) CalculateAll(readings []PowerReading, period
 	return results
 }
 
-// EstimateFromProfile 从功耗配置估算电费
+// EstimateFromProfile 从功耗配置估算电费.
 func (c *ElectricityCostCalculator) EstimateFromProfile(profileID string, days int) *ElectricityCostResult {
 	profile, ok := c.profiles[profileID]
 	if !ok {
@@ -581,7 +581,7 @@ func (c *ElectricityCostCalculator) EstimateFromProfile(profileID string, days i
 	return result
 }
 
-// GenerateBill 生成电费账单
+// GenerateBill 生成电费账单.
 func (c *ElectricityCostCalculator) GenerateBill(results map[string]*ElectricityCostResult, period ReportPeriod, customerName string) *ElectricityBill {
 	bill := &ElectricityBill{
 		ID:              "bill_" + time.Now().Format("20060102150405"),
@@ -651,7 +651,7 @@ func (c *ElectricityCostCalculator) GenerateBill(results map[string]*Electricity
 	return bill
 }
 
-// Forecast 预测未来电费
+// Forecast 预测未来电费.
 func (c *ElectricityCostCalculator) Forecast(historical []ElectricityTrendPoint, months int) *ElectricityForecast {
 	if len(historical) < 2 {
 		return nil
@@ -707,7 +707,7 @@ func (c *ElectricityCostCalculator) Forecast(historical []ElectricityTrendPoint,
 	return forecast
 }
 
-// calculateGrowthRate 计算增长率
+// calculateGrowthRate 计算增长率.
 func (c *ElectricityCostCalculator) calculateGrowthRate(historical []ElectricityTrendPoint) float64 {
 	if len(historical) < 2 {
 		return 0
@@ -733,7 +733,7 @@ func (c *ElectricityCostCalculator) calculateGrowthRate(historical []Electricity
 	return growthRate
 }
 
-// calculateSeasonalFactors 计算季节因子
+// calculateSeasonalFactors 计算季节因子.
 func (c *ElectricityCostCalculator) calculateSeasonalFactors(historical []ElectricityTrendPoint) map[SeasonType]float64 {
 	factors := make(map[SeasonType]float64)
 	seasonTotals := make(map[SeasonType]float64)
@@ -777,7 +777,7 @@ func (c *ElectricityCostCalculator) calculateSeasonalFactors(historical []Electr
 	return factors
 }
 
-// identifySavingsOpportunities 识别节省机会
+// identifySavingsOpportunities 识别节省机会.
 func (c *ElectricityCostCalculator) identifySavingsOpportunities(historical []ElectricityTrendPoint, forecast *ElectricityForecast) []ElectricitySavingsOpportunity {
 	opportunities := make([]ElectricitySavingsOpportunity, 0)
 
@@ -836,29 +836,29 @@ func (c *ElectricityCostCalculator) identifySavingsOpportunities(historical []El
 	return opportunities
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (c *ElectricityCostCalculator) UpdateConfig(config ElectricityCostConfig) {
 	c.config = config
 }
 
-// UpdateTariff 更新电价配置
+// UpdateTariff 更新电价配置.
 func (c *ElectricityCostCalculator) UpdateTariff(tariff ElectricityTariff) {
 	c.tariff = tariff
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (c *ElectricityCostCalculator) GetConfig() ElectricityCostConfig {
 	return c.config
 }
 
-// GetTariff 获取电价配置
+// GetTariff 获取电价配置.
 func (c *ElectricityCostCalculator) GetTariff() ElectricityTariff {
 	return c.tariff
 }
 
 // ========== 辅助函数 ==========
 
-// getSeason 获取季节
+// getSeason 获取季节.
 func getSeason(t time.Time) SeasonType {
 	month := t.Month()
 	switch {
@@ -875,7 +875,7 @@ func getSeason(t time.Time) SeasonType {
 
 // ========== 默认电价配置 ==========
 
-// DefaultTariffs 默认电价配置
+// DefaultTariffs 默认电价配置.
 var DefaultTariffs = map[string]ElectricityTariff{
 	"beijing_general": {
 		ID:           "beijing_general",

@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 配额管理 HTTP 处理器
+// Handlers 配额管理 HTTP 处理器.
 type Handlers struct {
 	manager   *Manager
 	monitor   *Monitor
@@ -18,7 +18,7 @@ type Handlers struct {
 	reportGen *ReportGenerator
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	monitor := NewMonitor(mgr, mgr.alertConfig)
 	cleanup := NewCleanupManager(mgr)
@@ -32,7 +32,7 @@ func NewHandlers(mgr *Manager) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	// ========== v2.1.0 新增配额管理 API ==========
 	quotasV2 := api.Group("/quotas")
@@ -150,19 +150,19 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 // ========== 通用响应 ==========
 
-// Response 通用 API 响应结构
+// Response 通用 API 响应结构.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Success 返回成功响应
+// Success 返回成功响应.
 func Success(data interface{}) Response {
 	return Response{Code: 0, Message: "success", Data: data}
 }
 
-// Error 返回错误响应
+// Error 返回错误响应.
 func Error(code int, message string) Response {
 	return Response{Code: code, Message: message}
 }
@@ -181,7 +181,7 @@ func Error(code int, message string) Response {
 // @Param groupname query string false "组名"
 // @Success 200 {object} Response{data=[]Quota}
 // @Router /quotas [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listQuotas(c *gin.Context) {
 	quotaType := c.Query("type")
 	volumeName := c.Query("volume")
@@ -232,7 +232,7 @@ func (h *Handlers) listQuotas(c *gin.Context) {
 // @Failure 404 {object} Response
 // @Failure 409 {object} Response
 // @Router /quotas [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createQuota(c *gin.Context) {
 	var req QuotaInput
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -268,7 +268,7 @@ func (h *Handlers) createQuota(c *gin.Context) {
 // @Success 200 {object} Response{data=Quota}
 // @Failure 404 {object} Response
 // @Router /quotas/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getQuota(c *gin.Context) {
 	id := c.Param("id")
 	quota, err := h.manager.GetQuota(id)
@@ -291,7 +291,7 @@ func (h *Handlers) getQuota(c *gin.Context) {
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
 // @Router /quotas/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) updateQuota(c *gin.Context) {
 	id := c.Param("id")
 	var req QuotaInput
@@ -326,7 +326,7 @@ func (h *Handlers) updateQuota(c *gin.Context) {
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
 // @Router /quotas/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deleteQuota(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteQuota(id); err != nil {
@@ -350,7 +350,7 @@ func (h *Handlers) deleteQuota(c *gin.Context) {
 // @Success 200 {object} Response{data=QuotaUsage}
 // @Failure 404 {object} Response
 // @Router /quotas/{id}/usage [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getQuotaUsage(c *gin.Context) {
 	id := c.Param("id")
 	usage, err := h.manager.GetUsage(id)
@@ -796,7 +796,7 @@ func (h *Handlers) exportReport(c *gin.Context) {
 
 // ========== Webhook 配置 API ==========
 
-// WebhookConfigRequest Webhook 配置请求
+// WebhookConfigRequest Webhook 配置请求.
 type WebhookConfigRequest struct {
 	Enabled     bool     `json:"enabled"`
 	WebhookURLs []string `json:"webhook_urls"`
@@ -879,7 +879,7 @@ func (h *Handlers) testWebhook(c *gin.Context) {
 
 // ========== 报告调度 API ==========
 
-// ScheduleConfigRequest 报告调度配置请求
+// ScheduleConfigRequest 报告调度配置请求.
 type ScheduleConfigRequest struct {
 	ReportRequest
 	Schedule   string `json:"schedule"`    // cron 表达式（秒级）
@@ -925,21 +925,21 @@ func (h *Handlers) cancelSchedule(c *gin.Context) {
 
 // ========== v2.1.0 新增 API 处理函数 ==========
 
-// UserQuotaInput 用户配额输入
+// UserQuotaInput 用户配额输入.
 type UserQuotaInput struct {
 	VolumeName string `json:"volume_name" binding:"required"`
 	HardLimit  uint64 `json:"hard_limit" binding:"required"`
 	SoftLimit  uint64 `json:"soft_limit"`
 }
 
-// GroupQuotaInput 组配额输入
+// GroupQuotaInput 组配额输入.
 type GroupQuotaInput struct {
 	VolumeName string `json:"volume_name" binding:"required"`
 	HardLimit  uint64 `json:"hard_limit" binding:"required"`
 	SoftLimit  uint64 `json:"soft_limit"`
 }
 
-// DirectoryQuotaInput 目录配额输入
+// DirectoryQuotaInput 目录配额输入.
 type DirectoryQuotaInput struct {
 	Path       string `json:"path" binding:"required"`
 	VolumeName string `json:"volume_name"`
@@ -947,7 +947,7 @@ type DirectoryQuotaInput struct {
 	SoftLimit  uint64 `json:"soft_limit"`
 }
 
-// UserQuotaResponse 用户配额响应
+// UserQuotaResponse 用户配额响应.
 type UserQuotaResponse struct {
 	Username     string      `json:"username"`
 	VolumeName   string      `json:"volume_name"`
@@ -961,7 +961,7 @@ type UserQuotaResponse struct {
 	Usage        *QuotaUsage `json:"usage,omitempty"`
 }
 
-// GroupQuotaResponse 组配额响应
+// GroupQuotaResponse 组配额响应.
 type GroupQuotaResponse struct {
 	GroupName    string      `json:"group_name"`
 	VolumeName   string      `json:"volume_name"`
@@ -975,7 +975,7 @@ type GroupQuotaResponse struct {
 	Usage        *QuotaUsage `json:"usage,omitempty"`
 }
 
-// DirectoryQuotaResponse 目录配额响应
+// DirectoryQuotaResponse 目录配额响应.
 type DirectoryQuotaResponse struct {
 	Path         string      `json:"path"`
 	VolumeName   string      `json:"volume_name"`
@@ -989,7 +989,7 @@ type DirectoryQuotaResponse struct {
 	Usage        *QuotaUsage `json:"usage,omitempty"`
 }
 
-// listUserQuotas 列出所有用户配额
+// listUserQuotas 列出所有用户配额.
 func (h *Handlers) listUserQuotas(c *gin.Context) {
 	username := c.Query("username")
 	volumeName := c.Query("volume")
@@ -1047,7 +1047,7 @@ func (h *Handlers) listUserQuotas(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(responses))
 }
 
-// setUserQuota 设置用户配额
+// setUserQuota 设置用户配额.
 func (h *Handlers) setUserQuota(c *gin.Context) {
 	username := c.Param("id")
 	var req UserQuotaInput
@@ -1110,7 +1110,7 @@ func (h *Handlers) setUserQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(quota))
 }
 
-// deleteUserQuota 删除用户配额
+// deleteUserQuota 删除用户配额.
 func (h *Handlers) deleteUserQuota(c *gin.Context) {
 	username := c.Param("id")
 	volumeName := c.Query("volume")
@@ -1138,7 +1138,7 @@ func (h *Handlers) deleteUserQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(map[string]string{"status": "deleted"}))
 }
 
-// listGroupQuotas 列出所有组配额
+// listGroupQuotas 列出所有组配额.
 func (h *Handlers) listGroupQuotas(c *gin.Context) {
 	groupName := c.Query("groupname")
 	volumeName := c.Query("volume")
@@ -1196,7 +1196,7 @@ func (h *Handlers) listGroupQuotas(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(responses))
 }
 
-// setGroupQuota 设置组配额
+// setGroupQuota 设置组配额.
 func (h *Handlers) setGroupQuota(c *gin.Context) {
 	groupName := c.Param("id")
 	var req GroupQuotaInput
@@ -1259,7 +1259,7 @@ func (h *Handlers) setGroupQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(quota))
 }
 
-// deleteGroupQuota 删除组配额
+// deleteGroupQuota 删除组配额.
 func (h *Handlers) deleteGroupQuota(c *gin.Context) {
 	groupName := c.Param("id")
 	volumeName := c.Query("volume")
@@ -1287,7 +1287,7 @@ func (h *Handlers) deleteGroupQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(map[string]string{"status": "deleted"}))
 }
 
-// listDirectoryQuotas 列出所有目录配额
+// listDirectoryQuotas 列出所有目录配额.
 func (h *Handlers) listDirectoryQuotas(c *gin.Context) {
 	volumeName := c.Query("volume")
 
@@ -1331,7 +1331,7 @@ func (h *Handlers) listDirectoryQuotas(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(responses))
 }
 
-// setDirectoryQuota 设置目录配额
+// setDirectoryQuota 设置目录配额.
 func (h *Handlers) setDirectoryQuota(c *gin.Context) {
 	var req DirectoryQuotaInput
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -1380,7 +1380,7 @@ func (h *Handlers) setDirectoryQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(quota))
 }
 
-// deleteDirectoryQuota 删除目录配额
+// deleteDirectoryQuota 删除目录配额.
 func (h *Handlers) deleteDirectoryQuota(c *gin.Context) {
 	quotaID := c.Param("id")
 
@@ -1392,7 +1392,7 @@ func (h *Handlers) deleteDirectoryQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(map[string]string{"status": "deleted"}))
 }
 
-// getQuotaAlerts 获取配额预警列表
+// getQuotaAlerts 获取配额预警列表.
 func (h *Handlers) getQuotaAlerts(c *gin.Context) {
 	alertType := c.Query("type")
 	status := c.Query("status")
@@ -1434,7 +1434,7 @@ func (h *Handlers) getQuotaAlerts(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(alerts))
 }
 
-// getQuotaReport 获取配额使用报告
+// getQuotaReport 获取配额使用报告.
 func (h *Handlers) getQuotaReport(c *gin.Context) {
 	reportType := c.DefaultQuery("type", "summary")
 	volumeName := c.Query("volume")

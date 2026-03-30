@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Service USB 挂载服务
+// Service USB 挂载服务.
 type Service struct {
 	Manager  *Manager
 	Handlers *Handlers
 }
 
-// NewService 创建 USB 挂载服务
+// NewService 创建 USB 挂载服务.
 func NewService(configPath string) *Service {
 	manager := NewManager(configPath)
 	handlers := NewHandlers(manager)
@@ -24,7 +24,7 @@ func NewService(configPath string) *Service {
 	}
 }
 
-// Initialize 初始化服务
+// Initialize 初始化服务.
 func (s *Service) Initialize() error {
 	if err := s.Manager.Start(); err != nil {
 		return err
@@ -34,20 +34,20 @@ func (s *Service) Initialize() error {
 	return nil
 }
 
-// Close 关闭服务
+// Close 关闭服务.
 func (s *Service) Close() {
 	s.Manager.Stop()
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (s *Service) RegisterRoutes(r *gin.RouterGroup) {
 	s.Handlers.RegisterRoutes(r)
 }
 
-// DefaultConfigPath 默认配置路径
+// DefaultConfigPath 默认配置路径.
 const DefaultConfigPath = "/var/lib/nas-os/usb-mount-config.json"
 
-// InitializeService 初始化 USB 挂载服务（便捷函数）
+// InitializeService 初始化 USB 挂载服务（便捷函数）.
 func InitializeService() *Service {
 	svc := NewService(DefaultConfigPath)
 	if err := svc.Initialize(); err != nil {

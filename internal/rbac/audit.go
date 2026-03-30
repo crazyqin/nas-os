@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// AuditLogger 审计日志记录器接口
+// AuditLogger 审计日志记录器接口.
 type AuditLogger interface {
 	LogPermissionGrant(userID, username, targetUserID, permission string)
 	LogPermissionRevoke(userID, username, targetUserID, permission string)
@@ -19,20 +19,20 @@ type AuditLogger interface {
 	LogShareACLChange(userID, username, shareName string, changes map[string]interface{})
 }
 
-// AuditLevel 审计级别
+// AuditLevel 审计级别.
 type AuditLevel string
 
-// 审计级别常量
+// 审计级别常量.
 const (
 	AuditLevelInfo    AuditLevel = "info"
 	AuditLevelWarning AuditLevel = "warning"
 	AuditLevelError   AuditLevel = "error"
 )
 
-// AuditCategory 审计分类
+// AuditCategory 审计分类.
 type AuditCategory string
 
-// 审计分类常量
+// 审计分类常量.
 const (
 	AuditCategoryPermission AuditCategory = "permission"
 	AuditCategoryRole       AuditCategory = "role"
@@ -42,7 +42,7 @@ const (
 	AuditCategoryShare      AuditCategory = "share"
 )
 
-// AuditEvent 审计事件
+// AuditEvent 审计事件.
 type AuditEvent struct {
 	Timestamp  time.Time              `json:"timestamp"`
 	Level      AuditLevel             `json:"level"`
@@ -64,13 +64,13 @@ type AuditEvent struct {
 	Details    map[string]interface{} `json:"details,omitempty"`
 }
 
-// DefaultAuditLogger 默认 RBAC 审计日志记录器实现
+// DefaultAuditLogger 默认 RBAC 审计日志记录器实现.
 type DefaultAuditLogger struct {
 	logChan chan *AuditEvent
 	handler func(event *AuditEvent)
 }
 
-// NewAuditLogger 创建 RBAC 审计日志记录器
+// NewAuditLogger 创建 RBAC 审计日志记录器.
 func NewAuditLogger(bufferSize int, handler func(event *AuditEvent)) *DefaultAuditLogger {
 	logger := &DefaultAuditLogger{
 		logChan: make(chan *AuditEvent, bufferSize),
@@ -91,7 +91,7 @@ func (l *DefaultAuditLogger) processLoop() {
 	}
 }
 
-// Log 异步记录审计事件
+// Log 异步记录审计事件.
 func (l *DefaultAuditLogger) Log(event *AuditEvent) {
 	if event.Timestamp.IsZero() {
 		event.Timestamp = time.Now()
@@ -104,7 +104,7 @@ func (l *DefaultAuditLogger) Log(event *AuditEvent) {
 	}
 }
 
-// LogSync 同步记录审计事件
+// LogSync 同步记录审计事件.
 func (l *DefaultAuditLogger) LogSync(event *AuditEvent) {
 	if event.Timestamp.IsZero() {
 		event.Timestamp = time.Now()
@@ -115,14 +115,14 @@ func (l *DefaultAuditLogger) LogSync(event *AuditEvent) {
 	}
 }
 
-// Close 关闭日志记录器
+// Close 关闭日志记录器.
 func (l *DefaultAuditLogger) Close() {
 	close(l.logChan)
 }
 
 // ========== 审计方法实现 ==========
 
-// LogPermissionGrant 记录权限授予
+// LogPermissionGrant 记录权限授予.
 func (l *DefaultAuditLogger) LogPermissionGrant(operatorID, operatorName, targetUserID, permission string) {
 	l.Log(&AuditEvent{
 		Timestamp:  time.Now(),
@@ -137,7 +137,7 @@ func (l *DefaultAuditLogger) LogPermissionGrant(operatorID, operatorName, target
 	})
 }
 
-// LogPermissionRevoke 记录权限撤销
+// LogPermissionRevoke 记录权限撤销.
 func (l *DefaultAuditLogger) LogPermissionRevoke(operatorID, operatorName, targetUserID, permission string) {
 	l.Log(&AuditEvent{
 		Timestamp:  time.Now(),
@@ -152,7 +152,7 @@ func (l *DefaultAuditLogger) LogPermissionRevoke(operatorID, operatorName, targe
 	})
 }
 
-// LogRoleChange 记录角色变更
+// LogRoleChange 记录角色变更.
 func (l *DefaultAuditLogger) LogRoleChange(operatorID, operatorName, targetUserID, oldRole, newRole string) {
 	level := AuditLevelInfo
 	if newRole == string(RoleAdmin) || oldRole == string(RoleAdmin) {
@@ -173,7 +173,7 @@ func (l *DefaultAuditLogger) LogRoleChange(operatorID, operatorName, targetUserI
 	})
 }
 
-// LogPolicyCreate 记录策略创建
+// LogPolicyCreate 记录策略创建.
 func (l *DefaultAuditLogger) LogPolicyCreate(operatorID, operatorName, policyName string) {
 	l.Log(&AuditEvent{
 		Timestamp:  time.Now(),
@@ -187,7 +187,7 @@ func (l *DefaultAuditLogger) LogPolicyCreate(operatorID, operatorName, policyNam
 	})
 }
 
-// LogPolicyUpdate 记录策略更新
+// LogPolicyUpdate 记录策略更新.
 func (l *DefaultAuditLogger) LogPolicyUpdate(operatorID, operatorName, policyID string, changes map[string]interface{}) {
 	l.Log(&AuditEvent{
 		Timestamp: time.Now(),
@@ -202,7 +202,7 @@ func (l *DefaultAuditLogger) LogPolicyUpdate(operatorID, operatorName, policyID 
 	})
 }
 
-// LogPolicyDelete 记录策略删除
+// LogPolicyDelete 记录策略删除.
 func (l *DefaultAuditLogger) LogPolicyDelete(operatorID, operatorName, policyID string) {
 	l.Log(&AuditEvent{
 		Timestamp: time.Now(),
@@ -216,7 +216,7 @@ func (l *DefaultAuditLogger) LogPolicyDelete(operatorID, operatorName, policyID 
 	})
 }
 
-// LogAccessCheck 记录访问检查（可选，通常只在失败时记录）
+// LogAccessCheck 记录访问检查（可选，通常只在失败时记录）.
 func (l *DefaultAuditLogger) LogAccessCheck(userID, resource, action string, allowed bool, reason string) {
 	level := AuditLevelInfo
 	if !allowed {
@@ -241,7 +241,7 @@ func (l *DefaultAuditLogger) LogAccessCheck(userID, resource, action string, all
 	})
 }
 
-// LogGroupPermissionChange 记录组权限变更
+// LogGroupPermissionChange 记录组权限变更.
 func (l *DefaultAuditLogger) LogGroupPermissionChange(operatorID, operatorName, groupID string, permissions []string) {
 	l.Log(&AuditEvent{
 		Timestamp: time.Now(),
@@ -256,7 +256,7 @@ func (l *DefaultAuditLogger) LogGroupPermissionChange(operatorID, operatorName, 
 	})
 }
 
-// LogShareACLChange 记录共享 ACL 变更
+// LogShareACLChange 记录共享 ACL 变更.
 func (l *DefaultAuditLogger) LogShareACLChange(operatorID, operatorName, shareName string, changes map[string]interface{}) {
 	l.Log(&AuditEvent{
 		Timestamp:  time.Now(),
@@ -273,19 +273,19 @@ func (l *DefaultAuditLogger) LogShareACLChange(operatorID, operatorName, shareNa
 
 // ========== 审计中间件 ==========
 
-// AuditMiddleware 审计中间件
+// AuditMiddleware 审计中间件.
 type AuditMiddleware struct {
 	logger *DefaultAuditLogger
 }
 
-// NewAuditMiddleware 创建审计中间件
+// NewAuditMiddleware 创建审计中间件.
 func NewAuditMiddleware(logger *DefaultAuditLogger) *AuditMiddleware {
 	return &AuditMiddleware{
 		logger: logger,
 	}
 }
 
-// WrapManager 包装 RBAC 管理器，添加审计日志
+// WrapManager 包装 RBAC 管理器，添加审计日志.
 func (am *AuditMiddleware) WrapManager(m *Manager) *AuditedManager {
 	return &AuditedManager{
 		Manager: m,
@@ -293,13 +293,13 @@ func (am *AuditMiddleware) WrapManager(m *Manager) *AuditedManager {
 	}
 }
 
-// AuditedManager 带审计日志的 RBAC 管理器
+// AuditedManager 带审计日志的 RBAC 管理器.
 type AuditedManager struct {
 	*Manager
 	logger *DefaultAuditLogger
 }
 
-// SetUserRole 设置用户角色（带审计）
+// SetUserRole 设置用户角色（带审计）.
 func (am *AuditedManager) SetUserRole(operatorID, operatorName, userID, username string, role Role) error {
 	// 获取旧角色
 	oldRole := RoleGuest
@@ -316,7 +316,7 @@ func (am *AuditedManager) SetUserRole(operatorID, operatorName, userID, username
 	return nil
 }
 
-// GrantPermissionWithAudit 授予权限（带审计）
+// GrantPermissionWithAudit 授予权限（带审计）.
 func (am *AuditedManager) GrantPermissionWithAudit(operatorID, operatorName, userID, username, permission string) error {
 	err := am.GrantPermission(userID, username, permission)
 	if err != nil {
@@ -327,7 +327,7 @@ func (am *AuditedManager) GrantPermissionWithAudit(operatorID, operatorName, use
 	return nil
 }
 
-// RevokePermissionWithAudit 撤销权限（带审计）
+// RevokePermissionWithAudit 撤销权限（带审计）.
 func (am *AuditedManager) RevokePermissionWithAudit(operatorID, operatorName, userID, permission string) error {
 	err := am.RevokePermission(userID, permission)
 	if err != nil {
@@ -338,7 +338,7 @@ func (am *AuditedManager) RevokePermissionWithAudit(operatorID, operatorName, us
 	return nil
 }
 
-// CreatePolicyWithAudit 创建策略（带审计）
+// CreatePolicyWithAudit 创建策略（带审计）.
 func (am *AuditedManager) CreatePolicyWithAudit(operatorID, operatorName, name, description string, effect PolicyEffect, principals, resources, actions []string, priority int) (*Policy, error) {
 	policy, err := am.CreatePolicy(name, description, effect, principals, resources, actions, priority)
 	if err != nil {
@@ -349,7 +349,7 @@ func (am *AuditedManager) CreatePolicyWithAudit(operatorID, operatorName, name, 
 	return policy, nil
 }
 
-// DeletePolicyWithAudit 删除策略（带审计）
+// DeletePolicyWithAudit 删除策略（带审计）.
 func (am *AuditedManager) DeletePolicyWithAudit(operatorID, operatorName, policyID string) error {
 	err := am.DeletePolicy(policyID)
 	if err != nil {
@@ -362,7 +362,7 @@ func (am *AuditedManager) DeletePolicyWithAudit(operatorID, operatorName, policy
 
 // ========== 审计统计 ==========
 
-// AuditStats 审计统计
+// AuditStats 审计统计.
 type AuditStats struct {
 	TotalEvents       int            `json:"total_events"`
 	PermissionGrants  int            `json:"permission_grants"`
@@ -376,14 +376,14 @@ type AuditStats struct {
 	RecentEvents      []*AuditEvent  `json:"recent_events"`
 }
 
-// OperatorStat 操作者统计
+// OperatorStat 操作者统计.
 type OperatorStat struct {
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
 	Count    int    `json:"count"`
 }
 
-// AuditStatsCollector 审计统计收集器
+// AuditStatsCollector 审计统计收集器.
 type AuditStatsCollector struct {
 	events        []*AuditEvent
 	maxEvents     int
@@ -392,7 +392,7 @@ type AuditStatsCollector struct {
 	levelCount    map[string]int
 }
 
-// NewAuditStatsCollector 创建审计统计收集器
+// NewAuditStatsCollector 创建审计统计收集器.
 func NewAuditStatsCollector(maxEvents int) *AuditStatsCollector {
 	return &AuditStatsCollector{
 		events:        make([]*AuditEvent, 0, maxEvents),
@@ -403,7 +403,7 @@ func NewAuditStatsCollector(maxEvents int) *AuditStatsCollector {
 	}
 }
 
-// Record 记录事件
+// Record 记录事件.
 func (c *AuditStatsCollector) Record(event *AuditEvent) {
 	// 添加到事件列表
 	c.events = append(c.events, event)
@@ -428,7 +428,7 @@ func (c *AuditStatsCollector) Record(event *AuditEvent) {
 	}
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (c *AuditStatsCollector) GetStats() *AuditStats {
 	stats := &AuditStats{
 		TotalEvents:  len(c.events),

@@ -11,7 +11,7 @@ import (
 )
 
 // EnhancedMFAManager 增强版双因素认证管理器
-// 支持 TOTP Secret 加密存储、登录失败限制、会话管理
+// 支持 TOTP Secret 加密存储、登录失败限制、会话管理.
 type EnhancedMFAManager struct {
 	mu                sync.RWMutex
 	configs           map[string]*MFAConfig // userID -> MFAConfig
@@ -26,7 +26,7 @@ type EnhancedMFAManager struct {
 	passwordValidator *PasswordValidator
 }
 
-// EnhancedMFAConfig 增强版 MFA 配置
+// EnhancedMFAConfig 增强版 MFA 配置.
 type EnhancedMFAConfig struct {
 	ConfigPath        string
 	Issuer            string
@@ -37,7 +37,7 @@ type EnhancedMFAConfig struct {
 	PasswordPolicy    PasswordPolicy
 }
 
-// NewEnhancedMFAManager 创建增强版 MFA 管理器
+// NewEnhancedMFAManager 创建增强版 MFA 管理器.
 func NewEnhancedMFAManager(cfg EnhancedMFAConfig) (*EnhancedMFAManager, error) {
 	m := &EnhancedMFAManager{
 		configs:    make(map[string]*MFAConfig),
@@ -112,7 +112,7 @@ func NewEnhancedMFAManager(cfg EnhancedMFAConfig) (*EnhancedMFAManager, error) {
 	return m, nil
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (m *EnhancedMFAManager) loadConfig() error {
 	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
 		return nil
@@ -145,7 +145,7 @@ func (m *EnhancedMFAManager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (m *EnhancedMFAManager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -183,7 +183,7 @@ func (m *EnhancedMFAManager) saveConfig() error {
 
 // ========== TOTP 相关 ==========
 
-// SetupTOTP 设置 TOTP
+// SetupTOTP 设置 TOTP.
 func (m *EnhancedMFAManager) SetupTOTP(userID, username string) (*TOTPSetup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -213,7 +213,7 @@ func (m *EnhancedMFAManager) SetupTOTP(userID, username string) (*TOTPSetup, err
 	return setup, nil
 }
 
-// EnableTOTP 启用 TOTP
+// EnableTOTP 启用 TOTP.
 func (m *EnhancedMFAManager) EnableTOTP(userID, code string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -246,7 +246,7 @@ func (m *EnhancedMFAManager) EnableTOTP(userID, code string) error {
 	return nil
 }
 
-// DisableTOTP 禁用 TOTP
+// DisableTOTP 禁用 TOTP.
 func (m *EnhancedMFAManager) DisableTOTP(userID, verifyCode string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -281,14 +281,14 @@ func (m *EnhancedMFAManager) DisableTOTP(userID, verifyCode string) error {
 
 // ========== 密码验证 ==========
 
-// ValidatePassword 验证密码
+// ValidatePassword 验证密码.
 func (m *EnhancedMFAManager) ValidatePassword(password string, userInfo ...string) PasswordValidationResult {
 	return m.passwordValidator.Validate(password, userInfo...)
 }
 
 // ========== 登录失败限制 ==========
 
-// CheckLoginAllowed 检查是否允许登录
+// CheckLoginAllowed 检查是否允许登录.
 func (m *EnhancedMFAManager) CheckLoginAllowed(username, ip string) (bool, string) {
 	// 检查用户锁定
 	if locked, until := m.loginTracker.IsLocked(username); locked {
@@ -305,46 +305,46 @@ func (m *EnhancedMFAManager) CheckLoginAllowed(username, ip string) (bool, strin
 	return true, ""
 }
 
-// RecordLoginAttempt 记录登录尝试
+// RecordLoginAttempt 记录登录尝试.
 func (m *EnhancedMFAManager) RecordLoginAttempt(username, ip string, success bool) {
 	m.loginTracker.RecordAttempt(username, ip, success)
 }
 
-// GetRemainingLoginAttempts 获取剩余登录尝试次数
+// GetRemainingLoginAttempts 获取剩余登录尝试次数.
 func (m *EnhancedMFAManager) GetRemainingLoginAttempts(username string) int {
 	return m.loginTracker.GetRemainingAttempts(username)
 }
 
-// UnlockUser 解锁用户
+// UnlockUser 解锁用户.
 func (m *EnhancedMFAManager) UnlockUser(username string) {
 	m.loginTracker.Unlock(username)
 }
 
 // ========== 会话管理 ==========
 
-// CreateSession 创建会话
+// CreateSession 创建会话.
 func (m *EnhancedMFAManager) CreateSession(userID, username, ip, userAgent string, roles, groups []string) (*Session, error) {
 	return m.sessionManager.CreateSession(userID, username, ip, userAgent, roles, groups)
 }
 
-// ValidateSession 验证会话
+// ValidateSession 验证会话.
 func (m *EnhancedMFAManager) ValidateSession(token string) (*Session, error) {
 	return m.sessionManager.ValidateSession(token)
 }
 
-// InvalidateSession 使会话失效
+// InvalidateSession 使会话失效.
 func (m *EnhancedMFAManager) InvalidateSession(token string) error {
 	return m.sessionManager.InvalidateSession(token)
 }
 
-// InvalidateUserSessions 使用户所有会话失效
+// InvalidateUserSessions 使用户所有会话失效.
 func (m *EnhancedMFAManager) InvalidateUserSessions(userID string) error {
 	return m.sessionManager.InvalidateUserSessions(userID)
 }
 
 // ========== MFA 验证 ==========
 
-// VerifyMFA 验证 MFA
+// VerifyMFA 验证 MFA.
 func (m *EnhancedMFAManager) VerifyMFA(userID, mfaType, code string) error {
 	m.mu.RLock()
 	cfg := m.configs[userID]
@@ -381,7 +381,7 @@ func (m *EnhancedMFAManager) VerifyMFA(userID, mfaType, code string) error {
 	}
 }
 
-// GetStatus 获取 MFA 状态
+// GetStatus 获取 MFA 状态.
 func (m *EnhancedMFAManager) GetStatus(userID string) *MFAStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -412,7 +412,7 @@ func (m *EnhancedMFAManager) GetStatus(userID string) *MFAStatus {
 	}
 }
 
-// GenerateBackupCodes 生成备份码
+// GenerateBackupCodes 生成备份码.
 func (m *EnhancedMFAManager) GenerateBackupCodes(userID string, count int) ([]string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -433,7 +433,7 @@ func (m *EnhancedMFAManager) GenerateBackupCodes(userID string, count int) ([]st
 	return codes, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *EnhancedMFAManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

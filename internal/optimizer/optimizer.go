@@ -11,7 +11,7 @@ import (
 	"nas-os/pkg/safeguards"
 )
 
-// PerformanceOptimizer 性能优化器
+// PerformanceOptimizer 性能优化器.
 type PerformanceOptimizer struct {
 	mu          sync.RWMutex
 	cache       *cache.Manager
@@ -21,7 +21,7 @@ type PerformanceOptimizer struct {
 	initialized bool
 }
 
-// Config 优化配置
+// Config 优化配置.
 type Config struct {
 	// 缓存配置
 	CacheEnabled  bool          `json:"cache_enabled"`
@@ -46,7 +46,7 @@ type Config struct {
 	WorkerPoolSize int `json:"worker_pool_size"`
 }
 
-// Stats 性能统计
+// Stats 性能统计.
 type Stats struct {
 	// 缓存统计
 	CacheHits     int64   `json:"cache_hits"`
@@ -73,7 +73,7 @@ type Stats struct {
 	TimeSaved     time.Duration `json:"time_saved"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		CacheEnabled:  true,
@@ -95,7 +95,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewOptimizer 创建性能优化器
+// NewOptimizer 创建性能优化器.
 func NewOptimizer(cfg *Config, logger *zap.Logger) *PerformanceOptimizer {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -129,13 +129,13 @@ func NewOptimizer(cfg *Config, logger *zap.Logger) *PerformanceOptimizer {
 	return opt
 }
 
-// tuneGC 优化 GC 参数
+// tuneGC 优化 GC 参数.
 func (opt *PerformanceOptimizer) tuneGC() {
 	// 设置 GC 目标：100% 增长才触发 GC（默认值）
 	runtime.GC()
 }
 
-// startMonitoring 启动性能监控
+// startMonitoring 启动性能监控.
 func (opt *PerformanceOptimizer) startMonitoring() {
 	ticker := time.NewTicker(opt.config.GCInterval)
 	defer ticker.Stop()
@@ -150,7 +150,7 @@ func (opt *PerformanceOptimizer) startMonitoring() {
 	}
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (opt *PerformanceOptimizer) updateStats() {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
@@ -191,12 +191,12 @@ func (opt *PerformanceOptimizer) updateStats() {
 	}
 }
 
-// GetCache 获取缓存管理器
+// GetCache 获取缓存管理器.
 func (opt *PerformanceOptimizer) GetCache() *cache.Manager {
 	return opt.cache
 }
 
-// CacheGet 从缓存获取（带统计）
+// CacheGet 从缓存获取（带统计）.
 func (opt *PerformanceOptimizer) CacheGet(key string) (interface{}, bool) {
 	if opt.cache == nil {
 		return nil, false
@@ -204,7 +204,7 @@ func (opt *PerformanceOptimizer) CacheGet(key string) (interface{}, bool) {
 	return opt.cache.Get(key)
 }
 
-// CacheSet 设置缓存（带统计）
+// CacheSet 设置缓存（带统计）.
 func (opt *PerformanceOptimizer) CacheSet(key string, value interface{}) {
 	if opt.cache == nil {
 		return
@@ -212,7 +212,7 @@ func (opt *PerformanceOptimizer) CacheSet(key string, value interface{}) {
 	opt.cache.Set(key, value)
 }
 
-// CacheDelete 删除缓存
+// CacheDelete 删除缓存.
 func (opt *PerformanceOptimizer) CacheDelete(key string) {
 	if opt.cache == nil {
 		return
@@ -220,7 +220,7 @@ func (opt *PerformanceOptimizer) CacheDelete(key string) {
 	opt.cache.Delete(key)
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (opt *PerformanceOptimizer) GetStats() *Stats {
 	opt.mu.RLock()
 	defer opt.mu.RUnlock()
@@ -229,7 +229,7 @@ func (opt *PerformanceOptimizer) GetStats() *Stats {
 	return &stats
 }
 
-// OptimizeQuery 优化查询（缓存结果）
+// OptimizeQuery 优化查询（缓存结果）.
 func (opt *PerformanceOptimizer) OptimizeQuery(key string, queryFn func() (interface{}, error)) (interface{}, error) {
 	// 尝试从缓存获取
 	if val, ok := opt.CacheGet(key); ok {
@@ -252,7 +252,7 @@ func (opt *PerformanceOptimizer) OptimizeQuery(key string, queryFn func() (inter
 	return result, nil
 }
 
-// BatchProcess 批处理优化
+// BatchProcess 批处理优化.
 func (opt *PerformanceOptimizer) BatchProcess(items []interface{}, processFn func(interface{}) error) error {
 	if !opt.config.BatchEnabled {
 		// 不启用批处理，逐个处理
@@ -288,7 +288,7 @@ func (opt *PerformanceOptimizer) BatchProcess(items []interface{}, processFn fun
 	return nil
 }
 
-// WorkerPool 工作池
+// WorkerPool 工作池.
 func (opt *PerformanceOptimizer) WorkerPool(jobs <-chan func(), results chan<- interface{}) {
 	poolSize := opt.config.WorkerPoolSize
 	var wg sync.WaitGroup
@@ -307,7 +307,7 @@ func (opt *PerformanceOptimizer) WorkerPool(jobs <-chan func(), results chan<- i
 	close(results)
 }
 
-// ForceGC 强制 GC（谨慎使用）
+// ForceGC 强制 GC（谨慎使用）.
 func (opt *PerformanceOptimizer) ForceGC() {
 	start := time.Now()
 	runtime.GC()
@@ -319,17 +319,17 @@ func (opt *PerformanceOptimizer) ForceGC() {
 	// log.Printf("GC completed in %v", time.Since(start))
 }
 
-// Stop 停止优化器
+// Stop 停止优化器.
 func (opt *PerformanceOptimizer) Stop() {
 	close(opt.stopChan)
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (opt *PerformanceOptimizer) GetConfig() *Config {
 	return opt.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (opt *PerformanceOptimizer) UpdateConfig(cfg *Config) {
 	opt.mu.Lock()
 	defer opt.mu.Unlock()

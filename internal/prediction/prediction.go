@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 预测管理器
+// Manager 预测管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -35,7 +35,7 @@ type Manager struct {
 	initialized bool
 }
 
-// Config 预测配置
+// Config 预测配置.
 type Config struct {
 	// 数据收集间隔
 	CollectionInterval time.Duration `json:"collectionInterval"`
@@ -60,7 +60,7 @@ type Config struct {
 	EnableAutoAdvice bool `json:"enableAutoAdvice"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		CollectionInterval:   5 * time.Minute,
@@ -74,7 +74,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// HistoryStore 历史数据存储
+// HistoryStore 历史数据存储.
 type HistoryStore struct {
 	mu sync.RWMutex
 
@@ -85,7 +85,7 @@ type HistoryStore struct {
 	GlobalData *GlobalHistory
 }
 
-// VolumeHistory 卷历史数据
+// VolumeHistory 卷历史数据.
 type VolumeHistory struct {
 	VolumeName string `json:"volumeName"`
 
@@ -102,7 +102,7 @@ type VolumeHistory struct {
 	LastUpdated time.Time `json:"lastUpdated"`
 }
 
-// UsageRecord 使用率记录
+// UsageRecord 使用率记录.
 type UsageRecord struct {
 	Timestamp time.Time `json:"timestamp"`
 	UsedGB    float64   `json:"usedGB"`
@@ -110,14 +110,14 @@ type UsageRecord struct {
 	UsageRate float64   `json:"usageRate"` // 百分比
 }
 
-// CapacityRecord 容量记录
+// CapacityRecord 容量记录.
 type CapacityRecord struct {
 	Timestamp time.Time `json:"timestamp"`
 	TotalGB   float64   `json:"totalGB"`
 	FreeGB    float64   `json:"freeGB"`
 }
 
-// IORecord I/O 记录
+// IORecord I/O 记录.
 type IORecord struct {
 	Timestamp time.Time `json:"timestamp"`
 	ReadMBps  float64   `json:"readMBps"`
@@ -125,7 +125,7 @@ type IORecord struct {
 	IOPS      uint64    `json:"iops"`
 }
 
-// GlobalHistory 全局历史数据
+// GlobalHistory 全局历史数据.
 type GlobalHistory struct {
 	// 总容量历史
 	TotalCapacityHistory []CapacityRecord `json:"totalCapacityHistory"`
@@ -134,7 +134,7 @@ type GlobalHistory struct {
 	LastUpdated time.Time `json:"lastUpdated"`
 }
 
-// Model 预测模型
+// Model 预测模型.
 type Model struct {
 	mu sync.RWMutex
 
@@ -153,7 +153,7 @@ type Model struct {
 	lastTrained time.Time
 }
 
-// AnomalyDetector 异常检测器
+// AnomalyDetector 异常检测器.
 type AnomalyDetector struct {
 	mu sync.RWMutex
 
@@ -171,7 +171,7 @@ type AnomalyDetector struct {
 	sensitivity float64
 }
 
-// Anomaly 异常记录
+// Anomaly 异常记录.
 type Anomaly struct {
 	Timestamp   time.Time `json:"timestamp"`
 	Type        string    `json:"type"`        // "usage_spike", "usage_drop", "growth_rate", etc.
@@ -182,7 +182,7 @@ type Anomaly struct {
 	Description string    `json:"description"` // 人类可读描述
 }
 
-// Advisor 优化建议生成器
+// Advisor 优化建议生成器.
 type Advisor struct {
 	mu sync.RWMutex
 
@@ -193,7 +193,7 @@ type Advisor struct {
 	advices []Advice
 }
 
-// AdviceRule 建议规则
+// AdviceRule 建议规则.
 type AdviceRule struct {
 	Name      string `json:"name"`
 	Condition func(*Result) bool
@@ -202,7 +202,7 @@ type AdviceRule struct {
 	Category  string `json:"category"` // "capacity", "performance", "cost", "security"
 }
 
-// Advice 优化建议
+// Advice 优化建议.
 type Advice struct {
 	ID          string    `json:"id"`
 	Timestamp   time.Time `json:"timestamp"`
@@ -216,7 +216,7 @@ type Advice struct {
 	Applied     bool      `json:"applied"`     // 是否已应用
 }
 
-// Result 预测结果
+// Result 预测结果.
 type Result struct {
 	VolumeName string `json:"volumeName"`
 
@@ -251,14 +251,14 @@ type Result struct {
 	Confidence float64 `json:"confidence"` // 0-1
 }
 
-// PredictedPoint 预测数据点
+// PredictedPoint 预测数据点.
 type PredictedPoint struct {
 	Date      time.Time `json:"date"`
 	UsageGB   float64   `json:"usageGB"`
 	UsageRate float64   `json:"usageRate"` // 预计使用率 %
 }
 
-// NewManager 创建预测管理器
+// NewManager 创建预测管理器.
 func NewManager(cfg *Config) (*Manager, error) {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -298,7 +298,7 @@ func NewManager(cfg *Config) (*Manager, error) {
 	return m, nil
 }
 
-// validateConfig 验证配置
+// validateConfig 验证配置.
 func validateConfig(cfg *Config) error {
 	if cfg.CollectionInterval < time.Minute {
 		return fmt.Errorf("数据收集间隔不能小于1分钟")
@@ -318,7 +318,7 @@ func validateConfig(cfg *Config) error {
 	return nil
 }
 
-// getDefaultAdviceRules 获取默认建议规则
+// getDefaultAdviceRules 获取默认建议规则.
 func getDefaultAdviceRules() []AdviceRule {
 	return []AdviceRule{
 		{
@@ -419,7 +419,7 @@ func getDefaultAdviceRules() []AdviceRule {
 	}
 }
 
-// startCollection 启动数据收集
+// startCollection 启动数据收集.
 func (m *Manager) startCollection() {
 	ticker := time.NewTicker(m.getCollectionInterval())
 	defer ticker.Stop()
@@ -434,20 +434,20 @@ func (m *Manager) startCollection() {
 	}
 }
 
-// getCollectionInterval 安全获取收集间隔
+// getCollectionInterval 安全获取收集间隔.
 func (m *Manager) getCollectionInterval() time.Duration {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config.CollectionInterval
 }
 
-// collectData 收集数据（由外部调用 RecordUsage 触发）
+// collectData 收集数据（由外部调用 RecordUsage 触发）.
 func (m *Manager) collectData() {
 	// 清理过期历史数据
 	m.cleanupOldHistory()
 }
 
-// cleanupOldHistory 清理过期历史数据
+// cleanupOldHistory 清理过期历史数据.
 func (m *Manager) cleanupOldHistory() {
 	m.history.mu.Lock()
 	defer m.history.mu.Unlock()
@@ -491,7 +491,7 @@ func (m *Manager) cleanupOldHistory() {
 	}
 }
 
-// RecordUsage 记录使用数据
+// RecordUsage 记录使用数据.
 func (m *Manager) RecordUsage(volumeName string, usedGB, totalGB float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -537,7 +537,7 @@ func (m *Manager) RecordUsage(volumeName string, usedGB, totalGB float64) error 
 	return nil
 }
 
-// RecordIO 记录IO数据
+// RecordIO 记录IO数据.
 func (m *Manager) RecordIO(volumeName string, readMBps, writeMBps float64, iops uint64) error {
 	m.history.mu.Lock()
 	defer m.history.mu.Unlock()
@@ -569,7 +569,7 @@ func (m *Manager) RecordIO(volumeName string, readMBps, writeMBps float64, iops 
 	return nil
 }
 
-// detectAnomaly 检测异常
+// detectAnomaly 检测异常.
 func (m *Manager) detectAnomaly(volumeName string, currentValue float64) {
 	m.anomalyDetector.mu.Lock()
 	defer m.anomalyDetector.mu.Unlock()
@@ -619,7 +619,7 @@ func (m *Manager) detectAnomaly(volumeName string, currentValue float64) {
 	}
 }
 
-// Predict 预测存储使用
+// Predict 预测存储使用.
 func (m *Manager) Predict(volumeName string) (*Result, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -676,7 +676,7 @@ func (m *Manager) Predict(volumeName string) (*Result, error) {
 	return result, nil
 }
 
-// trainModel 训练预测模型
+// trainModel 训练预测模型.
 func (m *Manager) trainModel(history *VolumeHistory) error {
 	m.model.mu.Lock()
 	defer m.model.mu.Unlock()
@@ -728,7 +728,7 @@ func (m *Manager) trainModel(history *VolumeHistory) error {
 	return nil
 }
 
-// updateAnomalyBaseline 更新异常检测基线
+// updateAnomalyBaseline 更新异常检测基线.
 func (m *Manager) updateAnomalyBaseline(records []UsageRecord) {
 	if len(records) < 10 {
 		return
@@ -757,7 +757,7 @@ func (m *Manager) updateAnomalyBaseline(records []UsageRecord) {
 	m.anomalyDetector.mu.Unlock()
 }
 
-// analyzeTrend 分析趋势
+// analyzeTrend 分析趋势.
 func (m *Manager) analyzeTrend(history *VolumeHistory) (string, float64) {
 	records := history.UsageHistory
 	if len(records) < 2 {
@@ -785,7 +785,7 @@ func (m *Manager) analyzeTrend(history *VolumeHistory) (string, float64) {
 	}
 }
 
-// predictFuture 预测未来使用
+// predictFuture 预测未来使用.
 func (m *Manager) predictFuture(result *Result, latest UsageRecord) {
 	m.model.mu.RLock()
 	slope := m.model.slope
@@ -848,7 +848,7 @@ func (m *Manager) predictFuture(result *Result, latest UsageRecord) {
 	}
 }
 
-// getAnomalies 获取异常
+// getAnomalies 获取异常.
 func (m *Manager) getAnomalies(volumeName string) []Anomaly {
 	m.anomalyDetector.mu.RLock()
 	defer m.anomalyDetector.mu.RUnlock()
@@ -865,7 +865,7 @@ func (m *Manager) getAnomalies(volumeName string) []Anomaly {
 	return anomalies
 }
 
-// generateAdvices 生成优化建议
+// generateAdvices 生成优化建议.
 func (m *Manager) generateAdvices(result *Result) []Advice {
 	m.advisor.mu.Lock()
 	defer m.advisor.mu.Unlock()
@@ -885,7 +885,7 @@ func (m *Manager) generateAdvices(result *Result) []Advice {
 	return advices
 }
 
-// GetHistory 获取历史数据
+// GetHistory 获取历史数据.
 func (m *Manager) GetHistory(volumeName string, days int) ([]UsageRecord, error) {
 	m.history.mu.RLock()
 	defer m.history.mu.RUnlock()
@@ -906,7 +906,7 @@ func (m *Manager) GetHistory(volumeName string, days int) ([]UsageRecord, error)
 	return records, nil
 }
 
-// ListVolumes 列出所有有历史数据的卷
+// ListVolumes 列出所有有历史数据的卷.
 func (m *Manager) ListVolumes() []string {
 	m.history.mu.RLock()
 	defer m.history.mu.RUnlock()
@@ -919,19 +919,19 @@ func (m *Manager) ListVolumes() []string {
 	return volumes
 }
 
-// Stop 停止预测管理器
+// Stop 停止预测管理器.
 func (m *Manager) Stop() {
 	close(m.stopChan)
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *Config) error {
 	if err := validateConfig(cfg); err != nil {
 		return err
@@ -944,7 +944,7 @@ func (m *Manager) UpdateConfig(cfg *Config) error {
 	return nil
 }
 
-// GetAllPredictions 获取所有卷的预测
+// GetAllPredictions 获取所有卷的预测.
 func (m *Manager) GetAllPredictions() (map[string]*Result, error) {
 	volumes := m.ListVolumes()
 	results := make(map[string]*Result)
@@ -960,17 +960,17 @@ func (m *Manager) GetAllPredictions() (map[string]*Result, error) {
 	return results, nil
 }
 
-// PredictedPoints 返回预测数据点数量
+// PredictedPoints 返回预测数据点数量.
 func (r *Result) PredictedPoints() int {
 	return len(r.PredictedUsage)
 }
 
-// HasWarning 是否有预警
+// HasWarning 是否有预警.
 func (r *Result) HasWarning() bool {
 	return r.WarningInDays > 0 && r.WarningInDays <= 30
 }
 
-// IsCritical 是否处于危险状态
+// IsCritical 是否处于危险状态.
 func (r *Result) IsCritical() bool {
 	return r.CriticalInDays > 0 && r.CriticalInDays <= 14
 }

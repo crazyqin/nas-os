@@ -1,6 +1,6 @@
 package ftp
 
-// Config FTP 服务器配置
+// Config FTP 服务器配置.
 type Config struct {
 	Enabled        bool              `json:"enabled"`
 	Port           int               `json:"port"`            // FTP 端口 (默认 21)
@@ -14,7 +14,7 @@ type Config struct {
 	VirtualDirs    map[string]string `json:"virtual_dirs"`    // 虚拟目录映射: 虚拟路径 -> 实际路径
 }
 
-// BandwidthConfig 带宽限制配置
+// BandwidthConfig 带宽限制配置.
 type BandwidthConfig struct {
 	Enabled      bool  `json:"enabled"`
 	DownloadKBps int64 `json:"download_kbps"` // 下载速率限制 (KB/s), 0 表示无限制
@@ -22,7 +22,7 @@ type BandwidthConfig struct {
 	PerUser      bool  `json:"per_user"`      // 是否按用户独立限制
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:        false,

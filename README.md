@@ -4,15 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-<<<<<<< HEAD
->  **最新版本**: v2.296.0 Stable (2026-03-30)
+> **最新版本**: v2.314.0 Stable (2026-03-29)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.296.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
-=======
->  **最新版本**: v2.296.0 Stable (2026-03-30)
-> **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.296.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
->>>>>>> c2d6135 (feat: 第39轮开发 - SMB/NFS会话审计、竞品分析、版本更新v2.296.0)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.314.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -63,6 +57,18 @@
 | 💾 智能备份 | 增量备份/多压缩算法/加密/版本管理 | ✅ 完成 |
 | ☁️ 网盘挂载 | 多云存储挂载/本地化访问/透明读写 | ✅ 完成 |
 | 🔐 AI 脱敏 | PII 智能识别/隐私保护/多提供商支持 | ✅ 完成 |
+| 🔒 WriteOnce | 不可变存储/防篡改/合规归档 | ✅ 新增 |
+| 🛡️ AMFA | 智能多重验证/自适应安全策略 | ✅ 新增 |
+| 🚫 自动封锁 | SMB/NFS 防暴力破解/自动封禁 | ✅ 新增 |
+| 🔥 Hot Spare | 热备盘自动切换/RAID自愈 | ✅ 新增 |
+| 📊 Fusion Pool | 智能分层存储/热冷数据分离 | ✅ 新增 |
+| 📈 SSD健康监控 | 寿命预测/三级预警/健康评分 | ✅ 新增 |
+| 🤖 AI相册 | CLIP以文搜图/智能照片搜索 | ✅ 完成 |
+| 🧑 **人脸识别** | **本地AI人脸检测/聚类/人物相册** | ✅ **重磅发布** |
+| 🌐 内网穿透 | 远程访问/零配置 | ✅ 新增 |
+| 🔐 **数据遮罩** | **AI训练数据脱敏/隐私保护** | ✅ **新增** |
+| 💰 **成本分析** | **存储成本统计/趋势预测** | ✅ **新增** |
+| 🤖 AI服务独立镜像 | GPU加速推理/CLIP模型/本地LLM | ✅ 新增 |
 
 ## 快速开始
 
@@ -71,17 +77,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.296.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.255.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.296.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.255.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.296.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.255.0/nasd-linux-armv7
 
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
@@ -94,7 +100,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.296.0
+docker pull ghcr.io/crazyqin/nas-os:v2.255.0
 
 
 # 运行容器
@@ -104,7 +110,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.296.0
+  ghcr.io/crazyqin/nas-os:v2.255.0
 
 
 # 查看日志
@@ -181,7 +187,77 @@ sudo nasd
 | PUT | /api/v1/config | 更新配置 |
 | POST | /api/v1/config/reload | 重载配置 |
 
+### WriteOnce 不可变存储
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/immutable | 列出不可变记录 |
+| POST | /api/v1/immutable | 锁定路径（创建不可变快照） |
+| GET | /api/v1/immutable/:id | 获取记录详情 |
+| DELETE | /api/v1/immutable/:id | 解锁路径 |
+| POST | /api/v1/immutable/:id/extend | 延长锁定时间 |
+| POST | /api/v1/immutable/:id/restore | 从快照恢复 |
+| GET | /api/v1/immutable/status | 获取路径锁定状态 |
+| GET | /api/v1/immutable/statistics | 获取统计信息 |
+| POST | /api/v1/immutable/check-ransomware | 检查防勒索保护 |
+| POST | /api/v1/immutable/quick-lock | 快速锁定 |
+| POST | /api/v1/immutable/batch-lock | 批量锁定 |
+
 完整 API 文档请查看 [docs/API_GUIDE.md](docs/API_GUIDE.md)
+
+## 🏆 差异化优势
+
+### 独家功能（竞品无）
+
+| 功能 | 说明 | 竞品状态 |
+|------|------|----------|
+| 🔒 **WriteOnce** | 不可变存储(WORM)，防篡改/防勒索，合规归档 | 群晖/飞牛/TrueNAS 均无 |
+| 📊 **Fusion Pool** | 智能热冷数据分层，SSD缓存+HDD容量 | TrueNAS无，飞牛无 |
+
+### 领先功能
+
+| 功能 | 说明 | 竞品对比 |
+|------|------|----------|
+| 🔥 **Hot Spare** | 热备盘自动故障切换，RAID自愈 | 飞牛fnOS无此功能 |
+| 📈 **SSD三级预警** | 寿命预测+健康评分+预警通知 | 领先竞品方案 |
+| ☁️ **多云挂载** | 阿里云/腾讯云/AWS/GDrive/OneDrive统一挂载 | 竞品需额外付费 |
+
+### 即将推出
+
+| 功能 | 说明 | 预计发布 |
+|------|------|----------|
+| 🌐 **内网穿透** | 免费内网穿透服务，零配置远程访问 | v2.276.0 |
+| 🤖 **AI相册增强** | 人脸识别/场景分类，对标飞牛fnOS | v2.276.0 |
+| 🧠 **私有云AI服务** | 本地LLM推理、AI去识别化，对标群晖DSM 7.3 | v2.285.0 |
+| 💾 **RAIDZ扩展** | 存储池在线扩容，单盘扩展无需重建，对标TrueNAS 24.10 | v2.320.0 |
+
+### 竞品对比矩阵
+
+| 功能特性 | nas-os | 飞牛fnOS | 群晖DSM 7.3 | TrueNAS Scale |
+|---------|:------:|:--------:|:-----------:|:-------------:|
+| **WriteOnce不可变存储** | ✅ | ❌ | ❌ | ❌ |
+| **OpenAI兼容API** | ✅ **独家** | ❌ | ❌ | ❌ |
+| **Fusion Pool智能分层** | ✅ | ❌ | ✅ Tiering | ❌ |
+| **勒索软件检测** | ✅ | ❌ | ❌ | ✅ |
+| **私有云AI服务** | ✅ Ollama | ❌ | ✅ 本地LLM | ❌ |
+| **Hot Spare热备盘** | ✅ | ❌ | ✅ | ✅ |
+| **SSD健康三级预警** | ✅ | ✅ | ✅ | ✅ |
+| **多云存储挂载** | ✅ | ✅ | ✅ | ❌ |
+| **AI数据脱敏** | ✅ | ❌ | ✅ | ❌ |
+| **AI相册-以文搜图** | ✅ | ✅ | ✅ | ❌ |
+| **内网穿透(免费)** | ✅ | ✅ FN Connect | ❌ | ❌ |
+| **智能影视** | ✅ | ✅ 海报墙+刮削 | ✅ | ❌ |
+| **Docker Compose网页管理** | ✅ | ✅ | ✅ | ✅ K8s |
+| **按需唤醒硬盘** | 📋 规划中 | ✅ | ❌ | ❌ |
+| AI人脸识别 | ✅ **重磅发布** | ✅ | ✅ | ❌ |
+| RAID管理 | ✅ | ✅ | ✅ | ✅ ZFS |
+| 快照管理 | ✅ | ✅ | ✅ | ✅ |
+| Docker支持 | ✅ | ✅ | ✅ | ✅ K8s |
+| 影视库 | ✅ | ✅ | ✅ | ❌ |
+| 相册备份 | ✅ | ✅ | ✅ | ❌ |
+| 虚拟机管理 | ✅ | ❌ | ✅ | ✅ |
+| 价格 | **免费** | 免费 | 付费硬件 | 免费 |
+
+> 详细竞品分析请查看 [docs/COMPETITOR_ANALYSIS.md](docs/COMPETITOR_ANALYSIS.md)
 
 ## 项目结构
 
@@ -273,12 +349,12 @@ nas-os/
 | **v2.42.0** | **Stable** | **2026-03-15** | **测试修复/CI优化/Swagger文档** | ✅ 已发布 |
 | **v2.44.0** | **Stable** | **2026-03-15** | **测试修复/文档完善** | ✅ 已发布 |
 | **v2.61.0** | **Stable** | **2026-03-15** | **文档体系完善/用户指南优化/API文档补充** | ✅ 已发布 |
-| **v2.296.0** | **Stable** | **2026-03-20** | **代码质量提升/Lint修复/安全加固/六部协同** | ✅ 已发布 |
-| **v2.296.0** | **Stable** | **2026-03-21** | **依赖更新/安全增强/文档同步** | ✅ **已发布** |
-| **v2.296.0** | **Stable** | **2026-03-30** | **网盘挂载/AI脱敏/智能分层** | ✅ **已发布** |
-| **v2.296.0** | **Stable** | **2026-03-21** | **版本迭代/六部协同维护** | ✅ **已发布** |
+| **v2.253.289** | **Stable** | **2026-03-20** | **代码质量提升/Lint修复/安全加固/六部协同** | ✅ 已发布 |
+| **v2.253.289** | **Stable** | **2026-03-21** | **依赖更新/安全增强/文档同步** | ✅ **已发布** |
+| **v2.253.289** | **Stable** | **2026-03-24** | **网盘挂载/AI脱敏/智能分层** | ✅ **已发布** |
+| **v2.253.289** | **Stable** | **2026-03-21** | **版本迭代/六部协同维护** | ✅ **已发布** |
 
-## v2.296.0 新增功能
+## v2.253.289 新增功能
 
 | 功能 | 说明 |
 |------|------|
@@ -287,7 +363,7 @@ nas-os/
 | 🤖 多 AI 提供商 | 支持 OpenAI、Google、Azure、百度、本地 LLM 多种 AI 服务接入 |
 | 🗂️ 智能存储分层 | 热/温/冷数据自动分层，SSD 缓存加速，云存储归档 |
 
-## v2.296.0 新增功能
+## v2.253.289 新增功能
 
 | 功能 | 说明 |
 |------|------|
@@ -297,7 +373,7 @@ nas-os/
 | 📊 六部协同 | 兵部/刑部/礼部/工部/吏部/户部自动化开发流程 |
 | 📚 文档同步 | 版本号一致性维护，CHANGELOG 规范化 |
 
-## v2.296.0 新增功能
+## v2.253.289 新增功能
 
 | 功能 | 说明 |
 |------|------|

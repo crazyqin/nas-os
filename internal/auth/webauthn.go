@@ -9,7 +9,7 @@ import (
 )
 
 // WebAuthnManager WebAuthn 管理器（简化版本）
-// 注意：完整的 WebAuthn 实现需要前端配合和 HTTPS 环境
+// 注意：完整的 WebAuthn 实现需要前端配合和 HTTPS 环境.
 type WebAuthnManager struct {
 	mu          sync.RWMutex
 	credentials map[string][]*WebAuthnCredential // userID -> credentials
@@ -18,7 +18,7 @@ type WebAuthnManager struct {
 	rpName      string
 }
 
-// WebAuthnSession WebAuthn 会话
+// WebAuthnSession WebAuthn 会话.
 type WebAuthnSession struct {
 	UserID     string
 	Username   string
@@ -27,14 +27,14 @@ type WebAuthnSession struct {
 	IsRegister bool
 }
 
-// WebAuthnConfig WebAuthn 配置
+// WebAuthnConfig WebAuthn 配置.
 type WebAuthnConfig struct {
 	RPDisplayName string
 	RPID          string
 	RPOrigins     []string
 }
 
-// NewWebAuthnManager 创建 WebAuthn 管理器
+// NewWebAuthnManager 创建 WebAuthn 管理器.
 func NewWebAuthnManager(cfg WebAuthnConfig) (*WebAuthnManager, error) {
 	return &WebAuthnManager{
 		credentials: make(map[string][]*WebAuthnCredential),
@@ -44,7 +44,7 @@ func NewWebAuthnManager(cfg WebAuthnConfig) (*WebAuthnManager, error) {
 	}, nil
 }
 
-// generateChallenge 生成挑战
+// generateChallenge 生成挑战.
 func generateChallenge() (string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -53,7 +53,7 @@ func generateChallenge() (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
-// generateSessionID 生成会话 ID
+// generateSessionID 生成会话 ID.
 func generateSessionID() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
@@ -62,7 +62,7 @@ func generateSessionID() (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
-// BeginRegistration 开始注册流程
+// BeginRegistration 开始注册流程.
 func (m *WebAuthnManager) BeginRegistration(userID, username, displayName string) (string, interface{}, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -109,7 +109,7 @@ func (m *WebAuthnManager) BeginRegistration(userID, username, displayName string
 	return sessionID, options, nil
 }
 
-// FinishRegistration 完成注册流程
+// FinishRegistration 完成注册流程.
 func (m *WebAuthnManager) FinishRegistration(sessionID string, responseData interface{}) (*WebAuthnCredential, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -154,7 +154,7 @@ func (m *WebAuthnManager) FinishRegistration(sessionID string, responseData inte
 	return credential, nil
 }
 
-// BeginAuthentication 开始认证流程
+// BeginAuthentication 开始认证流程.
 func (m *WebAuthnManager) BeginAuthentication(userID string) (string, interface{}, error) {
 	m.mu.RLock()
 	creds := m.credentials[userID]
@@ -204,7 +204,7 @@ func (m *WebAuthnManager) BeginAuthentication(userID string) (string, interface{
 	return sessionID, options, nil
 }
 
-// FinishAuthentication 完成认证流程
+// FinishAuthentication 完成认证流程.
 func (m *WebAuthnManager) FinishAuthentication(sessionID string, responseData interface{}) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -234,14 +234,14 @@ func (m *WebAuthnManager) FinishAuthentication(sessionID string, responseData in
 	return session.UserID, nil
 }
 
-// GetCredentials 获取用户的凭据列表
+// GetCredentials 获取用户的凭据列表.
 func (m *WebAuthnManager) GetCredentials(userID string) []*WebAuthnCredential {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.credentials[userID]
 }
 
-// RemoveCredential 移除凭据
+// RemoveCredential 移除凭据.
 func (m *WebAuthnManager) RemoveCredential(userID, credentialID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

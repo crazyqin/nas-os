@@ -10,14 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 日志 API 处理器
+// Handlers 日志 API 处理器.
 type Handlers struct {
 	searcher *LogSearcher
 	manager  *LogManager
 	path     string
 }
 
-// NewHandlers 创建日志处理器
+// NewHandlers 创建日志处理器.
 func NewHandlers(logPath string, manager *LogManager) *Handlers {
 	return &Handlers{
 		searcher: NewLogSearcher(logPath),
@@ -26,7 +26,7 @@ func NewHandlers(logPath string, manager *LogManager) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	api := r.Group("/api/v1")
 	{
@@ -48,7 +48,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// Response 通用响应
+// Response 通用响应.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -69,7 +69,7 @@ type Response struct {
 // @Param limit query int false "结果限制" default(100)
 // @Param offset query int false "偏移量" default(0)
 // @Success 200 {object} Response
-// @Router /api/v1/logs [get]
+// @Router /api/v1/logs [get].
 func (h *Handlers) searchLogs(c *gin.Context) {
 	config := &SearchConfig{
 		Path:      h.path,
@@ -131,7 +131,7 @@ func (h *Handlers) searchLogs(c *gin.Context) {
 // @Param level query string false "日志级别过滤"
 // @Param keyword query string false "关键词过滤"
 // @Success 200
-// @Router /api/v1/logs/stream [get]
+// @Router /api/v1/logs/stream [get].
 func (h *Handlers) streamLogs(c *gin.Context) {
 	config := &SearchConfig{
 		Path:    h.path,
@@ -186,7 +186,7 @@ func (h *Handlers) streamLogs(c *gin.Context) {
 // @Tags logs
 // @Produce json
 // @Success 200 {object} Response
-// @Router /api/v1/logs/stats [get]
+// @Router /api/v1/logs/stats [get].
 func (h *Handlers) getStats(c *gin.Context) {
 	stats, err := h.searcher.GetStats(h.path)
 	if err != nil {
@@ -210,7 +210,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 // @Tags logs
 // @Produce json
 // @Success 200 {object} Response
-// @Router /api/v1/logs/files [get]
+// @Router /api/v1/logs/files [get].
 func (h *Handlers) listFiles(c *gin.Context) {
 	files := make([]gin.H, 0)
 
@@ -261,7 +261,7 @@ func (h *Handlers) listFiles(c *gin.Context) {
 // @Param name path string true "文件名"
 // @Param lines query int false "行数限制" default(100)
 // @Success 200 {object} Response
-// @Router /api/v1/logs/files/{name} [get]
+// @Router /api/v1/logs/files/{name} [get].
 func (h *Handlers) getFileContent(c *gin.Context) {
 	name := c.Param("name")
 	lines := 100
@@ -305,7 +305,7 @@ func (h *Handlers) getFileContent(c *gin.Context) {
 // @Tags logs
 // @Produce json
 // @Success 200 {object} Response
-// @Router /api/v1/loggers [get]
+// @Router /api/v1/loggers [get].
 func (h *Handlers) listLoggers(c *gin.Context) {
 	if h.manager == nil {
 		c.JSON(http.StatusOK, Response{
@@ -345,7 +345,7 @@ func (h *Handlers) listLoggers(c *gin.Context) {
 // @Produce json
 // @Param name path string true "日志记录器名称"
 // @Success 200 {object} Response
-// @Router /api/v1/loggers/{name} [get]
+// @Router /api/v1/loggers/{name} [get].
 func (h *Handlers) getLoggerInfo(c *gin.Context) {
 	name := c.Param("name")
 
@@ -385,7 +385,7 @@ func (h *Handlers) getLoggerInfo(c *gin.Context) {
 // @Param name path string true "日志记录器名称"
 // @Param body body setLevelRequest true "日志级别"
 // @Success 200 {object} Response
-// @Router /api/v1/loggers/{name}/level [put]
+// @Router /api/v1/loggers/{name}/level [put].
 func (h *Handlers) setLoggerLevel(c *gin.Context) {
 	name := c.Param("name")
 
@@ -438,7 +438,7 @@ type setLevelRequest struct {
 // @Tags logs
 // @Produce json
 // @Success 200 {object} Response
-// @Router /api/v1/logs/rotate [post]
+// @Router /api/v1/logs/rotate [post].
 func (h *Handlers) forceRotate(c *gin.Context) {
 	if h.manager == nil || h.manager.GetRotator() == nil {
 		c.JSON(http.StatusBadRequest, Response{
@@ -469,7 +469,7 @@ func (h *Handlers) forceRotate(c *gin.Context) {
 // @Tags logs
 // @Produce json
 // @Success 200 {object} Response
-// @Router /api/v1/logs/rotator/status [get]
+// @Router /api/v1/logs/rotator/status [get].
 func (h *Handlers) getRotatorStatus(c *gin.Context) {
 	if h.manager == nil || h.manager.GetRotator() == nil {
 		c.JSON(http.StatusOK, Response{

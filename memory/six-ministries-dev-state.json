@@ -1,56 +1,113 @@
 {
-  "version": "v2.253.269",
-  "round": 20,
-  "timestamp": "2026-03-24T01:22:00Z",
-  "status": "completed",
+  "version": "v2.324.0",
+  "nextVersion": "v2.325.0",
+  "round": 102,
+  "date": "2026-03-30",
+  "timestamp": "2026-03-30T11:53:00+08:00",
+  "status": "planning",
   "actions": {
     "ci-cd": "pending",
-    "docker-publish": "pending",
     "security-scan": "pending",
-    "github-release": "pending"
+    "compatibility-check": "pending"
   },
-  "release": "https://github.com/crazyqin/nas-os/releases/tag/v2.253.269",
   "ministries": {
-    "libu": {
-      "name": "吏部",
-      "task": "版本管理",
-      "status": "done",
-      "result": "版本号更新 v2.253.268 → v2.253.269"
+    "兵部": {
+      "task": "GPU容器调度优化 + GPU Passthrough增强",
+      "status": "pending",
+      "priority": "P0",
+      "context": "参考TrueNAS 25.10 GPU Sharing功能，实现nas-os容器GPU共享调度；支持NVIDIA GPU挂载和资源限制"
     },
-    "bingbu": {
-      "name": "兵部",
-      "task": "代码质量",
-      "status": "done",
-      "result": "go vet 0错误，go build通过，82包测试全部通过"
+    "户部": {
+      "task": "存储配额告警系统 + 容量预测增强",
+      "status": "pending",
+      "priority": "P1",
+      "context": "实现存储配额告警系统，支持阈值设置和自动通知；增强容量预测功能"
     },
-    "hubu": {
-      "name": "户部",
-      "task": "资源统计",
-      "status": "done",
-      "result": "743源文件，417,436行代码，270测试文件，263依赖"
+    "礼部": {
+      "task": "Webshare UI重构 + 响应式设计优化",
+      "status": "pending",
+      "priority": "P1",
+      "context": "参考TrueNAS Webshare设计，重构文件分享UI；优化移动端响应式体验"
     },
-    "libu-docs": {
-      "name": "礼部",
-      "task": "文档维护",
-      "status": "done",
-      "result": "README/CHANGELOG 版本同步至 v2.253.269"
+    "工部": {
+      "task": "Docker Compose增强 + App Catalog完善",
+      "status": "pending",
+      "priority": "P0",
+      "context": "增强Docker Compose管理，支持多容器编排；完善App Catalog应用商店"
     },
-    "gongbu": {
-      "name": "工部",
-      "task": "DevOps",
-      "status": "done",
-      "result": "5个工作流正常，Go 1.26一致"
+    "吏部": {
+      "task": "版本更新v2.324.0 + 发行说明",
+      "status": "pending",
+      "priority": "P0",
+      "context": "更新版本号到v2.324.0，编写完整发行说明"
     },
-    "xingbu": {
-      "name": "刑部",
-      "task": "安全合规",
-      "status": "done",
-      "result": "go mod verify通过"
+    "刑部": {
+      "task": "SMB安全增强 + 限流优化",
+      "status": "pending",
+      "priority": "P0",
+      "context": "增强SMB安全配置，支持IP白名单/黑名单；优化登录限流机制"
     }
   },
-  "changes": {
-    "files": 5,
-    "insertions": 6,
-    "deletions": 6
-  }
+  "competitive_insights": {
+    "truenas_25_10": {
+      "new_features": [
+        "TrueNAS Connect云管理",
+        "Multi-Systems管理控制台",
+        "Single Sign-On (SSO)",
+        "Fleet & Replication Management",
+        "App Catalogs增强",
+        "Docker Compose支持",
+        "GPU Sharing",
+        "SMB Multichannel",
+        "RDMA for iSCSI/NFS",
+        "RAID-Z Expansion",
+        "ZFS混合池支持"
+      ],
+      "learnings": [
+        "云管理平台集成",
+        "GPU资源虚拟化",
+        "多系统统一管理",
+        "应用商店生态"
+      ]
+    },
+    "truenas_26": {
+      "new_features": [
+        "Webshare with TrueSearch",
+        "Ransomware Defense增强",
+        "LXC Containers HA",
+        "SMB Stateful Failover",
+        "OpenZFS 2.4"
+      ]
+    },
+    "synology_dsm": {
+      "features": [
+        "SHR混合存储",
+        "自动热备替换",
+        "数据压缩(节省30%)",
+        "快照自动保护",
+        "加密密钥KMIP"
+      ],
+      "learnings": [
+        "混合存储池设计",
+        "自动容错机制",
+        "配额与告警系统"
+      ]
+    },
+    "feiniu_fnOS": {
+      "features": [
+        "轻量级NAS系统",
+        "Docker容器支持",
+        "SMB/NFS共享"
+      ]
+    }
+  },
+  "nextPriorities": [
+    "🔴 P0: GPU容器调度优化（兵部）",
+    "🔴 P0: Docker Compose增强（工部）",
+    "🔴 P0: SMB安全增强（刑部）",
+    "🟡 P1: 存储配额告警（户部）",
+    "🟡 P1: Webshare UI重构（礼部）"
+  ],
+  "轮值顺序": "兵部 → 户部 → 礼部 → 工部 → 吏部 → 刑部 → (循环)",
+  "当前轮值": "兵部"
 }

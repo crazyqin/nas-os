@@ -18,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// CacheBackend 定义缓存后端接口
+// CacheBackend 定义缓存后端接口.
 type CacheBackend interface {
 	Get(ctx context.Context, key string) ([]byte, bool)
 	Set(ctx context.Context, key string, value []byte, ttl time.Duration)
@@ -27,7 +27,7 @@ type CacheBackend interface {
 	Clear(ctx context.Context)
 }
 
-// MemoryCache 内存缓存实现
+// MemoryCache 内存缓存实现.
 type MemoryCache struct {
 	mu      sync.RWMutex
 	entries map[string]*cacheEntry
@@ -40,7 +40,7 @@ type cacheEntry struct {
 	expiresAt time.Time
 }
 
-// NewMemoryCache 创建内存缓存
+// NewMemoryCache 创建内存缓存.
 func NewMemoryCache(maxSize int, ttl time.Duration) *MemoryCache {
 	mc := &MemoryCache{
 		entries: make(map[string]*cacheEntry),
@@ -130,13 +130,13 @@ func (m *MemoryCache) Clear(_ context.Context) {
 	m.entries = make(map[string]*cacheEntry)
 }
 
-// RedisCacheBackend Redis 缓存实现
+// RedisCacheBackend Redis 缓存实现.
 type RedisCacheBackend struct {
 	client *redis.Client
 	prefix string
 }
 
-// NewRedisCacheBackend 创建 Redis 缓存后端
+// NewRedisCacheBackend 创建 Redis 缓存后端.
 func NewRedisCacheBackend(addr, password string, db int) (*RedisCacheBackend, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     addr,
@@ -192,12 +192,12 @@ func (r *RedisCacheBackend) Clear(ctx context.Context) {
 	}
 }
 
-// Close 关闭 Redis 连接
+// Close 关闭 Redis 连接.
 func (r *RedisCacheBackend) Close() error {
 	return r.client.Close()
 }
 
-// CacheConfig 缓存中间件配置
+// CacheConfig 缓存中间件配置.
 type CacheConfig struct {
 	// 缓存后端（内存或 Redis）
 	Backend CacheBackend
@@ -242,7 +242,7 @@ type CacheConfig struct {
 	KeyPrefix string
 }
 
-// DefaultCacheConfig 默认缓存配置
+// DefaultCacheConfig 默认缓存配置.
 func DefaultCacheConfig() *CacheConfig {
 	return &CacheConfig{
 		Backend:            NewMemoryCache(1000, 5*time.Minute),
@@ -259,7 +259,7 @@ func DefaultCacheConfig() *CacheConfig {
 	}
 }
 
-// CacheMiddleware 创建缓存中间件
+// CacheMiddleware 创建缓存中间件.
 func CacheMiddleware(config ...*CacheConfig) gin.HandlerFunc {
 	cfg := DefaultCacheConfig()
 	if len(config) > 0 && config[0] != nil {
@@ -446,7 +446,7 @@ func CacheMiddleware(config ...*CacheConfig) gin.HandlerFunc {
 	}
 }
 
-// cachedResponse 缓存的响应数据
+// cachedResponse 缓存的响应数据.
 type cachedResponse struct {
 	StatusCode  int               `json:"statusCode"`
 	Headers     map[string]string `json:"headers"`
@@ -456,7 +456,7 @@ type cachedResponse struct {
 	CreatedAt   time.Time         `json:"createdAt"`
 }
 
-// cacheResponseWriter 用于捕获响应的写入器
+// cacheResponseWriter 用于捕获响应的写入器.
 type cacheResponseWriter struct {
 	gin.ResponseWriter
 	body       *bytes.Buffer
@@ -478,7 +478,7 @@ func (w *cacheResponseWriter) WriteString(s string) (int, error) {
 	return w.ResponseWriter.WriteString(s)
 }
 
-// generateCacheKey 生成缓存键
+// generateCacheKey 生成缓存键.
 func generateCacheKey(c *gin.Context, prefix string) string {
 	var builder strings.Builder
 
@@ -506,13 +506,13 @@ func generateCacheKey(c *gin.Context, prefix string) string {
 	return builder.String()
 }
 
-// generateETag 生成 ETag
+// generateETag 生成 ETag.
 func generateETag(data []byte) string {
 	hash := sha256.Sum256(data)
 	return `"` + hex.EncodeToString(hash[:8]) + `"`
 }
 
-// shouldCache 判断是否应该缓存响应
+// shouldCache 判断是否应该缓存响应.
 func shouldCache(statusCode int, allowedCodes []int) bool {
 	for _, code := range allowedCodes {
 		if statusCode == code {
@@ -522,7 +522,7 @@ func shouldCache(statusCode int, allowedCodes []int) bool {
 	return false
 }
 
-// isHopByHopHeader 判断是否为逐跳头
+// isHopByHopHeader 判断是否为逐跳头.
 func isHopByHopHeader(header string) bool {
 	h := strings.ToLower(header)
 	hopByHop := []string{
@@ -546,14 +546,14 @@ func isHopByHopHeader(header string) bool {
 
 // ==================== 缓存控制 API ====================
 
-// CacheManager 缓存管理器
+// CacheManager 缓存管理器.
 type CacheManager struct {
 	backends map[string]CacheBackend
 	mu       sync.RWMutex
 	logger   *zap.Logger
 }
 
-// NewCacheManager 创建缓存管理器
+// NewCacheManager 创建缓存管理器.
 func NewCacheManager(logger *zap.Logger) *CacheManager {
 	return &CacheManager{
 		backends: make(map[string]CacheBackend),
@@ -561,28 +561,28 @@ func NewCacheManager(logger *zap.Logger) *CacheManager {
 	}
 }
 
-// AddBackend 添加缓存后端
+// AddBackend 添加缓存后端.
 func (cm *CacheManager) AddBackend(name string, backend CacheBackend) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	cm.backends[name] = backend
 }
 
-// GetBackend 获取缓存后端
+// GetBackend 获取缓存后端.
 func (cm *CacheManager) GetBackend(name string) CacheBackend {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	return cm.backends[name]
 }
 
-// RemoveBackend 移除缓存后端
+// RemoveBackend 移除缓存后端.
 func (cm *CacheManager) RemoveBackend(name string) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	delete(cm.backends, name)
 }
 
-// Invalidate 使缓存失效
+// Invalidate 使缓存失效.
 func (cm *CacheManager) Invalidate(ctx context.Context, pattern string) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -598,7 +598,7 @@ func (cm *CacheManager) Invalidate(ctx context.Context, pattern string) {
 	}
 }
 
-// Clear 清空所有缓存
+// Clear 清空所有缓存.
 func (cm *CacheManager) Clear(ctx context.Context) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -613,21 +613,21 @@ func (cm *CacheManager) Clear(ctx context.Context) {
 
 // ==================== 缓存失效策略 ====================
 
-// InvalidationStrategy 缓存失效策略
+// InvalidationStrategy 缓存失效策略.
 type InvalidationStrategy int
 
 const (
-	// InvalidationTTL TTL 失效
+	// InvalidationTTL TTL 失效.
 	InvalidationTTL InvalidationStrategy = iota
-	// InvalidationManual 手动失效
+	// InvalidationManual 手动失效.
 	InvalidationManual
-	// InvalidationEvent 事件驱动失效
+	// InvalidationEvent 事件驱动失效.
 	InvalidationEvent
-	// InvalidationWrite 写时失效
+	// InvalidationWrite 写时失效.
 	InvalidationWrite
 )
 
-// CachePolicy 缓存策略
+// CachePolicy 缓存策略.
 type CachePolicy struct {
 	Name         string               `json:"name"`
 	PathPatterns []string             `json:"pathPatterns"`
@@ -640,7 +640,7 @@ type CachePolicy struct {
 	MaxBodySize  int64                `json:"maxBodySize"` // 最大缓存体大小（字节）
 }
 
-// DefaultCachePolicies 默认缓存策略
+// DefaultCachePolicies 默认缓存策略.
 var DefaultCachePolicies = []CachePolicy{
 	{
 		Name:         "static",
@@ -681,13 +681,13 @@ var DefaultCachePolicies = []CachePolicy{
 	},
 }
 
-// PolicyManager 策略管理器
+// PolicyManager 策略管理器.
 type PolicyManager struct {
 	policies map[string]CachePolicy
 	mu       sync.RWMutex
 }
 
-// NewPolicyManager 创建策略管理器
+// NewPolicyManager 创建策略管理器.
 func NewPolicyManager() *PolicyManager {
 	pm := &PolicyManager{
 		policies: make(map[string]CachePolicy),
@@ -701,21 +701,21 @@ func NewPolicyManager() *PolicyManager {
 	return pm
 }
 
-// AddPolicy 添加策略
+// AddPolicy 添加策略.
 func (pm *PolicyManager) AddPolicy(policy CachePolicy) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	pm.policies[policy.Name] = policy
 }
 
-// RemovePolicy 移除策略
+// RemovePolicy 移除策略.
 func (pm *PolicyManager) RemovePolicy(name string) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	delete(pm.policies, name)
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (pm *PolicyManager) GetPolicy(name string) (CachePolicy, bool) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -723,7 +723,7 @@ func (pm *PolicyManager) GetPolicy(name string) (CachePolicy, bool) {
 	return policy, ok
 }
 
-// MatchPolicy 匹配请求的策略
+// MatchPolicy 匹配请求的策略.
 func (pm *PolicyManager) MatchPolicy(method, path string) (CachePolicy, bool) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -752,7 +752,7 @@ func (pm *PolicyManager) MatchPolicy(method, path string) (CachePolicy, bool) {
 	return CachePolicy{}, false
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (pm *PolicyManager) ListPolicies() []CachePolicy {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -772,7 +772,7 @@ func (pm *PolicyManager) ListPolicies() []CachePolicy {
 
 // ==================== 缓存失效事件 ====================
 
-// CacheInvalidationEvent 缓存失效事件
+// CacheInvalidationEvent 缓存失效事件.
 type CacheInvalidationEvent struct {
 	Type      string    `json:"type"`     // create, update, delete
 	Resource  string    `json:"resource"` // users, volumes, shares
@@ -780,20 +780,20 @@ type CacheInvalidationEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// InvalidationBus 失效事件总线
+// InvalidationBus 失效事件总线.
 type InvalidationBus struct {
 	subscribers []chan CacheInvalidationEvent
 	mu          sync.RWMutex
 }
 
-// NewInvalidationBus 创建失效事件总线
+// NewInvalidationBus 创建失效事件总线.
 func NewInvalidationBus() *InvalidationBus {
 	return &InvalidationBus{
 		subscribers: make([]chan CacheInvalidationEvent, 0),
 	}
 }
 
-// Subscribe 订阅失效事件
+// Subscribe 订阅失效事件.
 func (b *InvalidationBus) Subscribe() chan CacheInvalidationEvent {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -803,7 +803,7 @@ func (b *InvalidationBus) Subscribe() chan CacheInvalidationEvent {
 	return ch
 }
 
-// Unsubscribe 取消订阅
+// Unsubscribe 取消订阅.
 func (b *InvalidationBus) Unsubscribe(ch chan CacheInvalidationEvent) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -817,7 +817,7 @@ func (b *InvalidationBus) Unsubscribe(ch chan CacheInvalidationEvent) {
 	}
 }
 
-// Publish 发布失效事件
+// Publish 发布失效事件.
 func (b *InvalidationBus) Publish(event CacheInvalidationEvent) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -833,7 +833,7 @@ func (b *InvalidationBus) Publish(event CacheInvalidationEvent) {
 
 // ==================== 缓存统计 ====================
 
-// CacheStats 缓存统计
+// CacheStats 缓存统计.
 type CacheStats struct {
 	Hits       int64   `json:"hits"`
 	Misses     int64   `json:"misses"`
@@ -844,7 +844,7 @@ type CacheStats struct {
 	AvgLatency int64   `json:"avgLatencyNs"` // 纳秒
 }
 
-// StatsCollector 统计收集器
+// StatsCollector 统计收集器.
 type StatsCollector struct {
 	hits       int64
 	misses     int64
@@ -856,7 +856,7 @@ type StatsCollector struct {
 	maxSamples int
 }
 
-// NewStatsCollector 创建统计收集器
+// NewStatsCollector 创建统计收集器.
 func NewStatsCollector(maxSamples int) *StatsCollector {
 	if maxSamples <= 0 {
 		maxSamples = 10000
@@ -867,7 +867,7 @@ func NewStatsCollector(maxSamples int) *StatsCollector {
 	}
 }
 
-// RecordHit 记录命中
+// RecordHit 记录命中.
 func (s *StatsCollector) RecordHit(latencyNs int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -875,7 +875,7 @@ func (s *StatsCollector) RecordHit(latencyNs int64) {
 	s.recordLatency(latencyNs)
 }
 
-// RecordMiss 记录未命中
+// RecordMiss 记录未命中.
 func (s *StatsCollector) RecordMiss(latencyNs int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -883,21 +883,21 @@ func (s *StatsCollector) RecordMiss(latencyNs int64) {
 	s.recordLatency(latencyNs)
 }
 
-// RecordSet 记录设置
+// RecordSet 记录设置.
 func (s *StatsCollector) RecordSet() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.sets++
 }
 
-// RecordDelete 记录删除
+// RecordDelete 记录删除.
 func (s *StatsCollector) RecordDelete() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.deletes++
 }
 
-// RecordEviction 记录驱逐
+// RecordEviction 记录驱逐.
 func (s *StatsCollector) RecordEviction() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -911,7 +911,7 @@ func (s *StatsCollector) recordLatency(latencyNs int64) {
 	s.latencies = append(s.latencies, latencyNs)
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (s *StatsCollector) GetStats() CacheStats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -945,7 +945,7 @@ func (s *StatsCollector) GetStats() CacheStats {
 	}
 }
 
-// Reset 重置统计
+// Reset 重置统计.
 func (s *StatsCollector) Reset() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -959,7 +959,7 @@ func (s *StatsCollector) Reset() {
 
 // ==================== 缓存控制处理器 ====================
 
-// CacheHandlers 缓存 API 处理器
+// CacheHandlers 缓存 API 处理器.
 type CacheHandlers struct {
 	manager         *CacheManager
 	policyManager   *PolicyManager
@@ -967,7 +967,7 @@ type CacheHandlers struct {
 	invalidationBus *InvalidationBus
 }
 
-// NewCacheHandlers 创建缓存处理器
+// NewCacheHandlers 创建缓存处理器.
 func NewCacheHandlers(
 	manager *CacheManager,
 	policyManager *PolicyManager,
@@ -987,7 +987,7 @@ func NewCacheHandlers(
 // @Tags cache
 // @Produce json
 // @Success 200 {object} CacheStats
-// @Router /api/v1/cache/stats [get]
+// @Router /api/v1/cache/stats [get].
 func (h *CacheHandlers) GetStats(c *gin.Context) {
 	stats := h.statsCollector.GetStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -1001,7 +1001,7 @@ func (h *CacheHandlers) GetStats(c *gin.Context) {
 // @Tags cache
 // @Param backend query string false "后端名称（可选，不传则清空所有）"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/cache/clear [post]
+// @Router /api/v1/cache/clear [post].
 func (h *CacheHandlers) ClearCache(c *gin.Context) {
 	backend := c.Query("backend")
 
@@ -1030,7 +1030,7 @@ func (h *CacheHandlers) ClearCache(c *gin.Context) {
 // @Tags cache
 // @Param pattern query string true "缓存键模式"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/cache/invalidate [post]
+// @Router /api/v1/cache/invalidate [post].
 func (h *CacheHandlers) InvalidateCache(c *gin.Context) {
 	pattern := c.Query("pattern")
 	if pattern == "" {
@@ -1055,7 +1055,7 @@ func (h *CacheHandlers) InvalidateCache(c *gin.Context) {
 // @Tags cache
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/cache/policies [get]
+// @Router /api/v1/cache/policies [get].
 func (h *CacheHandlers) ListPolicies(c *gin.Context) {
 	policies := h.policyManager.ListPolicies()
 	c.JSON(http.StatusOK, gin.H{
@@ -1070,7 +1070,7 @@ func (h *CacheHandlers) ListPolicies(c *gin.Context) {
 // @Accept json
 // @Param policy body CachePolicy true "缓存策略"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/cache/policies [post]
+// @Router /api/v1/cache/policies [post].
 func (h *CacheHandlers) AddPolicy(c *gin.Context) {
 	var policy CachePolicy
 	if err := c.ShouldBindJSON(&policy); err != nil {
@@ -1095,7 +1095,7 @@ func (h *CacheHandlers) AddPolicy(c *gin.Context) {
 // @Tags cache
 // @Param name path string true "策略名称"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/cache/policies/{name} [delete]
+// @Router /api/v1/cache/policies/{name} [delete].
 func (h *CacheHandlers) DeletePolicy(c *gin.Context) {
 	name := c.Param("name")
 	h.policyManager.RemovePolicy(name)
@@ -1106,7 +1106,7 @@ func (h *CacheHandlers) DeletePolicy(c *gin.Context) {
 	})
 }
 
-// RegisterCacheRoutes 注册缓存路由
+// RegisterCacheRoutes 注册缓存路由.
 func RegisterCacheRoutes(r *gin.RouterGroup, handlers *CacheHandlers) {
 	cache := r.Group("/cache")
 	{

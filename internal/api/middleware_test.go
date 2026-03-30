@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -34,19 +35,19 @@ func TestErrorHandler(t *testing.T) {
 
 	// 测试 panic 恢复
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/panic", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/panic", nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 
 	// 测试错误处理
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/error", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "GET", "/error", nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	// 测试正常请求
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/normal", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "GET", "/normal", nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -62,7 +63,7 @@ func TestRequestID(t *testing.T) {
 	})
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -80,7 +81,7 @@ func TestRequestID_FromHeader(t *testing.T) {
 	})
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	req.Header.Set("X-Request-ID", "custom-id")
 	router.ServeHTTP(w, req)
 
@@ -97,7 +98,7 @@ func TestCORS(t *testing.T) {
 
 	// 测试允许的源（DefaultCORSConfig 只允许 localhost:8080 和 127.0.0.1:8080）
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	req.Header.Set("Origin", "http://localhost:8080")
 	router.ServeHTTP(w, req)
 
@@ -106,7 +107,7 @@ func TestCORS(t *testing.T) {
 
 	// 测试不允许的源（不设置 Access-Control-Allow-Origin 头）
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/test", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	req.Header.Set("Origin", "http://example.com")
 	router.ServeHTTP(w, req)
 
@@ -115,7 +116,7 @@ func TestCORS(t *testing.T) {
 
 	// 测试预检请求（使用允许的源）
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("OPTIONS", "/test", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "OPTIONS", "/test", nil)
 	req.Header.Set("Origin", "http://localhost:8080")
 	router.ServeHTTP(w, req)
 
@@ -140,7 +141,7 @@ func TestCORS_RestrictedOrigins(t *testing.T) {
 
 	// 测试允许的源
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	req.Header.Set("Origin", "http://example.com")
 	router.ServeHTTP(w, req)
 
@@ -156,7 +157,7 @@ func TestSecurityHeaders(t *testing.T) {
 	})
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, "nosniff", w.Header().Get("X-Content-Type-Options"))
@@ -174,14 +175,14 @@ func TestRequestSizeLimit(t *testing.T) {
 
 	// 测试小请求
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/test", nil)
 	req.ContentLength = 50
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	// 测试大请求
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", "/test", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "POST", "/test", nil)
 	req.ContentLength = 200
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusRequestEntityTooLarge, w.Code)
@@ -196,7 +197,7 @@ func TestCacheControl(t *testing.T) {
 	})
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Contains(t, w.Header().Get("Cache-Control"), "max-age=3600")
@@ -211,7 +212,7 @@ func TestNoCache(t *testing.T) {
 	})
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/test", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, "no-cache, no-store, must-revalidate", w.Header().Get("Cache-Control"))
@@ -227,7 +228,7 @@ func TestHealthCheck(t *testing.T) {
 
 	// 测试健康检查
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/health", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/health", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -235,7 +236,7 @@ func TestHealthCheck(t *testing.T) {
 
 	// 测试其他路由
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/test", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -257,7 +258,7 @@ func TestTimeout(t *testing.T) {
 
 	// 测试快速请求
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/fast", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/fast", nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 }

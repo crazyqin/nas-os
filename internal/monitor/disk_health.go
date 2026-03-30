@@ -4,6 +4,7 @@ package monitor
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -16,7 +17,7 @@ import (
 	"nas-os/pkg/safeguards"
 )
 
-// DiskHealthMonitor 磁盘健康监控器
+// DiskHealthMonitor 磁盘健康监控器.
 type DiskHealthMonitor struct {
 	mu           sync.RWMutex
 	disks        map[string]*DiskHealthInfo
@@ -25,7 +26,7 @@ type DiskHealthMonitor struct {
 	stopCh       chan struct{}
 }
 
-// DiskHealthInfo 磁盘健康信息
+// DiskHealthInfo 磁盘健康信息.
 type DiskHealthInfo struct {
 	Device          string                    `json:"device"`
 	Model           string                    `json:"model"`
@@ -45,24 +46,24 @@ type DiskHealthInfo struct {
 	Warnings        []string                  `json:"warnings,omitempty"`
 }
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus string
 
-// 健康状态常量
+// 健康状态常量.
 const (
-	// HealthStatusHealthy 健康
+	// HealthStatusHealthy 健康.
 	HealthStatusHealthy HealthStatus = "healthy"
-	// HealthStatusWarning 警告
+	// HealthStatusWarning 警告.
 	HealthStatusWarning HealthStatus = "warning"
-	// HealthStatusDegraded 性能下降
+	// HealthStatusDegraded 性能下降.
 	HealthStatusDegraded HealthStatus = "degraded"
-	// HealthStatusFailed 失败
+	// HealthStatusFailed 失败.
 	HealthStatusFailed HealthStatus = "failed"
-	// HealthStatusUnknown 未知
+	// HealthStatusUnknown 未知.
 	HealthStatusUnknown HealthStatus = "unknown"
 )
 
-// SMARTAttribute SMART 属性
+// SMARTAttribute SMART 属性.
 type SMARTAttribute struct {
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
@@ -75,7 +76,7 @@ type SMARTAttribute struct {
 	IsCritical  bool   `json:"isCritical"`
 }
 
-// DiskError 磁盘错误
+// DiskError 磁盘错误.
 type DiskError struct {
 	Type      string    `json:"type"` // smart, io, temperature, etc.
 	Code      string    `json:"code"`
@@ -84,7 +85,7 @@ type DiskError struct {
 	Count     uint64    `json:"count"`
 }
 
-// SMARTThresholdConfig SMART 阈值配置
+// SMARTThresholdConfig SMART 阈值配置.
 type SMARTThresholdConfig struct {
 	// 温度阈值
 	TempWarning  int `json:"tempWarning"`  // 温度警告阈值
@@ -102,7 +103,7 @@ type SMARTThresholdConfig struct {
 	AttributeWeights map[string]float64 `json:"attributeWeights"`
 }
 
-// DefaultSMARTThresholds 默认 SMART 阈值
+// DefaultSMARTThresholds 默认 SMART 阈值.
 func DefaultSMARTThresholds() *SMARTThresholdConfig {
 	return &SMARTThresholdConfig{
 		TempWarning:               50,
@@ -125,7 +126,7 @@ func DefaultSMARTThresholds() *SMARTThresholdConfig {
 	}
 }
 
-// NewDiskHealthMonitor 创建磁盘健康监控器
+// NewDiskHealthMonitor 创建磁盘健康监控器.
 func NewDiskHealthMonitor(alertMgr *AlertingManager) *DiskHealthMonitor {
 	return &DiskHealthMonitor{
 		disks:        make(map[string]*DiskHealthInfo),
@@ -134,7 +135,7 @@ func NewDiskHealthMonitor(alertMgr *AlertingManager) *DiskHealthMonitor {
 	}
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *DiskHealthMonitor) Start(checkInterval time.Duration) {
 	m.checkTicker = time.NewTicker(checkInterval)
 	go func() {
@@ -152,7 +153,7 @@ func (m *DiskHealthMonitor) Start(checkInterval time.Duration) {
 	}()
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *DiskHealthMonitor) Stop() {
 	if m.checkTicker != nil {
 		m.checkTicker.Stop()
@@ -160,7 +161,7 @@ func (m *DiskHealthMonitor) Stop() {
 	close(m.stopCh)
 }
 
-// CheckAllDisks 检查所有磁盘
+// CheckAllDisks 检查所有磁盘.
 func (m *DiskHealthMonitor) CheckAllDisks() error {
 	devices, err := m.listBlockDevices()
 	if err != nil {
@@ -184,7 +185,7 @@ func (m *DiskHealthMonitor) CheckAllDisks() error {
 	return nil
 }
 
-// GetDiskHealth 获取磁盘健康信息
+// GetDiskHealth 获取磁盘健康信息.
 func (m *DiskHealthMonitor) GetDiskHealth(device string) (*DiskHealthInfo, error) {
 	m.mu.RLock()
 	info, exists := m.disks[device]
@@ -198,7 +199,7 @@ func (m *DiskHealthMonitor) GetDiskHealth(device string) (*DiskHealthInfo, error
 	return m.checkDisk(device)
 }
 
-// GetAllDisksHealth 获取所有磁盘健康信息
+// GetAllDisksHealth 获取所有磁盘健康信息.
 func (m *DiskHealthMonitor) GetAllDisksHealth() []*DiskHealthInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -210,7 +211,7 @@ func (m *DiskHealthMonitor) GetAllDisksHealth() []*DiskHealthInfo {
 	return result
 }
 
-// checkDisk 检查单个磁盘
+// checkDisk 检查单个磁盘.
 func (m *DiskHealthMonitor) checkDisk(device string) (*DiskHealthInfo, error) {
 	info := &DiskHealthInfo{
 		Device:          device,
@@ -241,9 +242,9 @@ func (m *DiskHealthMonitor) checkDisk(device string) (*DiskHealthInfo, error) {
 	return info, nil
 }
 
-// getBasicInfo 获取基本信息
+// getBasicInfo 获取基本信息.
 func (m *DiskHealthMonitor) getBasicInfo(info *DiskHealthInfo) error {
-	cmd := exec.Command("smartctl", "-i", info.Device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-i", info.Device)
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("获取磁盘信息失败: %w", err)
@@ -301,10 +302,10 @@ func (m *DiskHealthMonitor) getBasicInfo(info *DiskHealthInfo) error {
 	return nil
 }
 
-// getSMARTAttributes 获取 SMART 属性
+// getSMARTAttributes 获取 SMART 属性.
 func (m *DiskHealthMonitor) getSMARTAttributes(info *DiskHealthInfo) error {
 	// 获取 SMART 属性
-	cmd := exec.Command("smartctl", "-A", "-H", info.Device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-A", "-H", info.Device)
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("获取 SMART 属性失败: %w", err)
@@ -411,7 +412,7 @@ func (m *DiskHealthMonitor) getSMARTAttributes(info *DiskHealthInfo) error {
 	return nil
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (m *DiskHealthMonitor) calculateHealthScore(info *DiskHealthInfo) {
 	thresholds := DefaultSMARTThresholds()
 	score := 100.0
@@ -487,7 +488,7 @@ func (m *DiskHealthMonitor) calculateHealthScore(info *DiskHealthInfo) {
 	}
 }
 
-// evaluateHealthAlerts 评估健康告警
+// evaluateHealthAlerts 评估健康告警.
 func (m *DiskHealthMonitor) evaluateHealthAlerts(info *DiskHealthInfo) {
 	if m.alertManager == nil {
 		return
@@ -548,12 +549,12 @@ func (m *DiskHealthMonitor) evaluateHealthAlerts(info *DiskHealthInfo) {
 	}
 }
 
-// listBlockDevices 列出块设备
+// listBlockDevices 列出块设备.
 func (m *DiskHealthMonitor) listBlockDevices() ([]string, error) {
 	var devices []string
 
 	// 使用 lsblk 列出设备
-	cmd := exec.Command("lsblk", "-d", "-n", "-o", "NAME,TYPE")
+	cmd := exec.CommandContext(context.Background(), "lsblk", "-d", "-n", "-o", "NAME,TYPE")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出块设备: %w", err)
@@ -572,21 +573,21 @@ func (m *DiskHealthMonitor) listBlockDevices() ([]string, error) {
 	return devices, nil
 }
 
-// RunShortTest 运行短测试
+// RunShortTest 运行短测试.
 func (m *DiskHealthMonitor) RunShortTest(device string) error {
-	cmd := exec.Command("smartctl", "-t", "short", device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-t", "short", device)
 	return cmd.Run()
 }
 
-// RunLongTest 运行长测试
+// RunLongTest 运行长测试.
 func (m *DiskHealthMonitor) RunLongTest(device string) error {
-	cmd := exec.Command("smartctl", "-t", "long", device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-t", "long", device)
 	return cmd.Run()
 }
 
-// GetTestStatus 获取测试状态
+// GetTestStatus 获取测试状态.
 func (m *DiskHealthMonitor) GetTestStatus(device string) (string, error) {
-	cmd := exec.Command("smartctl", "-l", "selftest", device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-l", "selftest", device)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -603,7 +604,7 @@ func (m *DiskHealthMonitor) GetTestStatus(device string) (string, error) {
 	return "unknown", nil
 }
 
-// ExportSMARTData 导出 SMART 数据为 JSON
+// ExportSMARTData 导出 SMART 数据为 JSON.
 func (m *DiskHealthMonitor) ExportSMARTData(device string) ([]byte, error) {
 	info, err := m.GetDiskHealth(device)
 	if err != nil {
@@ -613,7 +614,7 @@ func (m *DiskHealthMonitor) ExportSMARTData(device string) ([]byte, error) {
 	return json.MarshalIndent(info, "", "  ")
 }
 
-// GetDiskSummary 获取磁盘摘要
+// GetDiskSummary 获取磁盘摘要.
 func (m *DiskHealthMonitor) GetDiskSummary() *DiskHealthSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -661,7 +662,7 @@ func (m *DiskHealthMonitor) GetDiskSummary() *DiskHealthSummary {
 	return summary
 }
 
-// DiskHealthSummary 磁盘健康摘要
+// DiskHealthSummary 磁盘健康摘要.
 type DiskHealthSummary struct {
 	TotalDisks  int `json:"totalDisks"`
 	Healthy     int `json:"healthy"`

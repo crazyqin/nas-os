@@ -7,13 +7,32 @@ run:
 linters:
   default: none
   enable:
-    - govet
-    - errcheck
-    - staticcheck
-    - ineffassign
-    - misspell
-    - revive
-    - unused
+    # 核心检查
+    - govet          # Go 静态分析
+    - errcheck       # 未检查的错误
+    - staticcheck    # 静态检查
+    - ineffassign    # 无效赋值
+    - misspell       # 拼写检查
+    - revive         # 代码风格
+    - unused         # 未使用的代码
+    # 注意: gofmt/goimports 移至 formatters 部分 (v2格式变更)
+    - prealloc       # 预分配优化
+    - bodyclose      # HTTP body 未关闭
+    - dogsled        # 过多空白标识符
+    - dupl           # 重复代码检测
+    # 注意: gosimple 和 exportloopref 在 golangci-lint v2 中已移除
+    # gosimple 已合并到 staticcheck, exportloopref 已内置到 govet
+    - gochecknoinits # 检查 init 函数
+    - gocognit       # 认知复杂度
+    - gocyclo        # 圈复杂度
+    - godot          # 注释句号检查
+    - goprintffuncname # printf 函数命名
+    - nakedret       # 裸返回
+    - noctx          # 无 context 的 HTTP 请求
+    - rowserrcheck   # SQL rows.Err 检查
+    - sqlclosecheck  # SQL rows/stmt 关闭检查
+    - unconvert      # 不必要的类型转换
+    - unparam        # 未使用的参数
 
   settings:
     errcheck:
@@ -29,6 +48,30 @@ linters:
           arguments:
             - "disableStutteringCheck"
 
+    gocyclo:
+      min-complexity: 60
+
+    gocognit:
+      min-complexity: 120
+
+    dupl:
+      threshold: 400
+
+    goconst:
+      min-len: 3
+      min-occurrences: 4
+
+    prealloc:
+      simple: true
+      range-loops: true
+      for-loops: false
+
+    godot:
+      scope: declarations
+      exclude:
+        - "no-paragraph"
+      capital: false
+
   exclusions:
     generated: lax
     paths:
@@ -39,6 +82,11 @@ linters:
       - path: _test\.go
         linters:
           - errcheck
+          - gochecknoinits
+      # 非测试文件中的 init 函数也允许（用于注册等场景）
+      - path: api/middleware/response_time\.go
+        linters:
+          - gochecknoinits
       # 生成的代码跳过检查
       - path: docs/swagger/docs\.go
         linters:
@@ -143,6 +191,50 @@ linters:
         linters:
           - errcheck
         text: "load|save|json.Unmarshal"
+      # internal/network/tunnel: 网络连接操作允许忽略错误（清理/超时场景）
+      - path: internal/network/tunnel/
+        linters:
+          - errcheck
+        text: "Close|SetReadDeadline|SetWriteDeadline|SetDeadline|WriteToUDP|Write|Encode|Connect|SendToPeer"
+      # internal/ai/api: HTTP响应写入允许忽略错误
+      - path: internal/ai/api/
+        linters:
+          - errcheck
+        text: "Encode|Write"
+      # pkg/storage/tiering/migrator.go: 文件迁移清理操作允许忽略错误
+      - path: pkg/storage/tiering/migrator\.go
+        linters:
+          - errcheck
+        text: "src.Close|dst.Close|os.Remove|ProcessQueue"
+      # internal/directplay: 直链播放模块允许忽略fmt.Sscanf错误
+      - path: internal/directplay/
+        linters:
+          - errcheck
+        text: "fmt.Sscanf"
+      # internal/ai: AI模块注释风格放宽
+      - path: internal/ai/
+        linters:
+          - godot
+      # internal/media: 媒体模块注释风格放宽
+      - path: internal/media/
+        linters:
+          - godot
+      # internal/directplay: 直链播放模块注释风格放宽
+      - path: internal/directplay/
+        linters:
+          - godot
+      # internal/tunnel: 隧道模块注释风格放宽
+      - path: internal/tunnel/
+        linters:
+          - godot
+      # internal/photos: 照片模块注释风格放宽
+      - path: internal/photos/
+        linters:
+          - godot
+      # pkg/storage: 存储模块注释风格放宽
+      - path: pkg/storage/
+        linters:
+          - godot
 
 formatters:
   enable:

@@ -4,6 +4,7 @@ package benchmark
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"mime/multipart"
@@ -209,124 +210,124 @@ func setupAPIBenchmarkRouter() *gin.Engine {
 
 // ========== API 响应时间基准测试 ==========
 
-// BenchmarkAPI_Health 健康检查端点
+// BenchmarkAPI_Health 健康检查端点.
 func BenchmarkAPI_Health(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/health", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/health", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
 }
 
-// BenchmarkAPI_SystemInfo 系统信息端点
+// BenchmarkAPI_SystemInfo 系统信息端点.
 func BenchmarkAPI_SystemInfo(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/system/info", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/system/info", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
 }
 
-// BenchmarkAPI_StorageVolumes 存储卷列表端点
+// BenchmarkAPI_StorageVolumes 存储卷列表端点.
 func BenchmarkAPI_StorageVolumes(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/storage/volumes", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
 }
 
-// BenchmarkAPI_StorageVolumeDetail 存储卷详情端点
+// BenchmarkAPI_StorageVolumeDetail 存储卷详情端点.
 func BenchmarkAPI_StorageVolumeDetail(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/storage/volumes/data", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes/data", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
 }
 
-// BenchmarkAPI_FilesList 文件列表端点
+// BenchmarkAPI_FilesList 文件列表端点.
 func BenchmarkAPI_FilesList(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/files/list?path=/home", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/files/list?path=/home", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
 }
 
-// BenchmarkAPI_Users 用户列表端点
+// BenchmarkAPI_Users 用户列表端点.
 func BenchmarkAPI_Users(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/users", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/users", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
 }
 
-// BenchmarkAPI_Shares 共享列表端点
+// BenchmarkAPI_Shares 共享列表端点.
 func BenchmarkAPI_Shares(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/shares", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/shares", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
 }
 
-// BenchmarkAPI_PerformanceMetrics 性能指标端点
+// BenchmarkAPI_PerformanceMetrics 性能指标端点.
 func BenchmarkAPI_PerformanceMetrics(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/performance/metrics", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/performance/metrics", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
 }
 
-// BenchmarkAPI_Search 搜索端点
+// BenchmarkAPI_Search 搜索端点.
 func BenchmarkAPI_Search(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		body := bytes.NewBufferString(`{"query":"test","type":"files"}`)
-		req, _ := http.NewRequest("POST", "/api/v1/search", body)
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/search", body)
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
 }
 
-// BenchmarkAPI_CreateVolume 创建卷端点
+// BenchmarkAPI_CreateVolume 创建卷端点.
 func BenchmarkAPI_CreateVolume(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		body := bytes.NewBufferString(`{"name":"test-vol","devices":["/dev/sda1","/dev/sdb1"],"profile":"raid1"}`)
-		req, _ := http.NewRequest("POST", "/api/v1/storage/volumes", body)
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/storage/volumes", body)
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -335,7 +336,7 @@ func BenchmarkAPI_CreateVolume(b *testing.B) {
 
 // ========== 存储操作基准测试 ==========
 
-// BenchmarkStorage_VolumeJSONEncode 卷 JSON 编码
+// BenchmarkStorage_VolumeJSONEncode 卷 JSON 编码.
 func BenchmarkStorage_VolumeJSONEncode(b *testing.B) {
 	vol := &storage.Volume{
 		Name:        "data",
@@ -356,7 +357,7 @@ func BenchmarkStorage_VolumeJSONEncode(b *testing.B) {
 	}
 }
 
-// BenchmarkStorage_VolumeJSONDecode 卷 JSON 解码
+// BenchmarkStorage_VolumeJSONDecode 卷 JSON 解码.
 func BenchmarkStorage_VolumeJSONDecode(b *testing.B) {
 	data := []byte(`{"name":"data","uuid":"test-uuid","devices":["/dev/sda1","/dev/sdb1"],"size":2000000000000,"used":1000000000000,"free":1000000000000,"data_profile":"raid1","meta_profile":"raid1","mount_point":"/mnt/data","status":{"healthy":true}}`)
 
@@ -367,7 +368,7 @@ func BenchmarkStorage_VolumeJSONDecode(b *testing.B) {
 	}
 }
 
-// BenchmarkStorage_VolumeListEncode 卷列表 JSON 编码
+// BenchmarkStorage_VolumeListEncode 卷列表 JSON 编码.
 func BenchmarkStorage_VolumeListEncode(b *testing.B) {
 	volumes := make([]*storage.Volume, 100)
 	for i := 0; i < 100; i++ {
@@ -386,7 +387,7 @@ func BenchmarkStorage_VolumeListEncode(b *testing.B) {
 	}
 }
 
-// BenchmarkStorage_SubVolumeCreate 子卷创建
+// BenchmarkStorage_SubVolumeCreate 子卷创建.
 func BenchmarkStorage_SubVolumeCreate(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -401,7 +402,7 @@ func BenchmarkStorage_SubVolumeCreate(b *testing.B) {
 	}
 }
 
-// BenchmarkStorage_SnapshotCreate 快照创建
+// BenchmarkStorage_SnapshotCreate 快照创建.
 func BenchmarkStorage_SnapshotCreate(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
@@ -418,33 +419,33 @@ func BenchmarkStorage_SnapshotCreate(b *testing.B) {
 
 // ========== 并发 API 基准测试 ==========
 
-// BenchmarkAPI_ConcurrentHealth 并发健康检查
+// BenchmarkAPI_ConcurrentHealth 并发健康检查.
 func BenchmarkAPI_ConcurrentHealth(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			req, _ := http.NewRequest("GET", "/api/v1/health", nil)
+			req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/health", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 		}
 	})
 }
 
-// BenchmarkAPI_ConcurrentVolumes 并发卷列表
+// BenchmarkAPI_ConcurrentVolumes 并发卷列表.
 func BenchmarkAPI_ConcurrentVolumes(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			req, _ := http.NewRequest("GET", "/api/v1/storage/volumes", nil)
+			req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 		}
 	})
 }
 
-// BenchmarkAPI_ConcurrentFilesList 并发文件列表
+// BenchmarkAPI_ConcurrentFilesList 并发文件列表.
 func BenchmarkAPI_ConcurrentFilesList(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 	paths := []string{"/", "/home", "/var", "/tmp", "/data"}
@@ -453,7 +454,7 @@ func BenchmarkAPI_ConcurrentFilesList(b *testing.B) {
 		i := 0
 		for pb.Next() {
 			path := paths[i%len(paths)]
-			req, _ := http.NewRequest("GET", "/api/v1/files/list?path="+path, nil)
+			req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/files/list?path="+path, nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			i++
@@ -461,7 +462,7 @@ func BenchmarkAPI_ConcurrentFilesList(b *testing.B) {
 	})
 }
 
-// BenchmarkAPI_ConcurrentSearch 并发搜索
+// BenchmarkAPI_ConcurrentSearch 并发搜索.
 func BenchmarkAPI_ConcurrentSearch(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
@@ -469,7 +470,7 @@ func BenchmarkAPI_ConcurrentSearch(b *testing.B) {
 		i := 0
 		for pb.Next() {
 			body := bytes.NewBufferString(`{"query":"test` + string(rune(i%100)) + `","type":"files"}`)
-			req, _ := http.NewRequest("POST", "/api/v1/search", body)
+			req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/search", body)
 			req.Header.Set("Content-Type", "application/json")
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
@@ -478,7 +479,7 @@ func BenchmarkAPI_ConcurrentSearch(b *testing.B) {
 	})
 }
 
-// BenchmarkAPI_MixedWorkload 混合工作负载
+// BenchmarkAPI_MixedWorkload 混合工作负载.
 func BenchmarkAPI_MixedWorkload(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
@@ -488,16 +489,16 @@ func BenchmarkAPI_MixedWorkload(b *testing.B) {
 			var req *http.Request
 			switch i % 5 {
 			case 0:
-				req, _ = http.NewRequest("GET", "/api/v1/health", nil)
+				req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/health", nil)
 			case 1:
-				req, _ = http.NewRequest("GET", "/api/v1/storage/volumes", nil)
+				req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 			case 2:
-				req, _ = http.NewRequest("GET", "/api/v1/files/list", nil)
+				req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/files/list", nil)
 			case 3:
-				req, _ = http.NewRequest("GET", "/api/v1/performance/metrics", nil)
+				req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/performance/metrics", nil)
 			case 4:
 				body := bytes.NewBufferString(`{"query":"test","type":"files"}`)
-				req, _ = http.NewRequest("POST", "/api/v1/search", body)
+				req, _ = http.NewRequestWithContext(context.Background(), "POST", "/api/v1/search", body)
 				req.Header.Set("Content-Type", "application/json")
 			}
 			w := httptest.NewRecorder()
@@ -509,22 +510,22 @@ func BenchmarkAPI_MixedWorkload(b *testing.B) {
 
 // ========== 文件上传基准测试 ==========
 
-// BenchmarkAPI_FileUpload_1KB 1KB 文件上传
+// BenchmarkAPI_FileUpload_1KB 1KB 文件上传.
 func BenchmarkAPI_FileUpload_1KB(b *testing.B) {
 	benchmarkFileUpload(b, 1024)
 }
 
-// BenchmarkAPI_FileUpload_10KB 10KB 文件上传
+// BenchmarkAPI_FileUpload_10KB 10KB 文件上传.
 func BenchmarkAPI_FileUpload_10KB(b *testing.B) {
 	benchmarkFileUpload(b, 10*1024)
 }
 
-// BenchmarkAPI_FileUpload_100KB 100KB 文件上传
+// BenchmarkAPI_FileUpload_100KB 100KB 文件上传.
 func BenchmarkAPI_FileUpload_100KB(b *testing.B) {
 	benchmarkFileUpload(b, 100*1024)
 }
 
-// BenchmarkAPI_FileUpload_1MB 1MB 文件上传
+// BenchmarkAPI_FileUpload_1MB 1MB 文件上传.
 func BenchmarkAPI_FileUpload_1MB(b *testing.B) {
 	benchmarkFileUpload(b, 1024*1024)
 }
@@ -565,7 +566,7 @@ func benchmarkFileUpload(b *testing.B, size int) {
 		file.Close()
 		writer.Close()
 
-		req, _ := http.NewRequest("POST", "/api/v1/files/upload?path=/tmp", body)
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/files/upload?path=/tmp", body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -574,7 +575,7 @@ func benchmarkFileUpload(b *testing.B, size int) {
 
 // ========== 响应处理基准测试 ==========
 
-// BenchmarkAPI_ResponseSuccess 成功响应构建
+// BenchmarkAPI_ResponseSuccess 成功响应构建.
 func BenchmarkAPI_ResponseSuccess(b *testing.B) {
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
@@ -592,7 +593,7 @@ func BenchmarkAPI_ResponseSuccess(b *testing.B) {
 	}
 }
 
-// BenchmarkAPI_ResponseError 错误响应构建
+// BenchmarkAPI_ResponseError 错误响应构建.
 func BenchmarkAPI_ResponseError(b *testing.B) {
 	response := api.Error(400, "Bad request")
 
@@ -602,7 +603,7 @@ func BenchmarkAPI_ResponseError(b *testing.B) {
 	}
 }
 
-// BenchmarkAPI_ResponsePageData 分页数据响应
+// BenchmarkAPI_ResponsePageData 分页数据响应.
 func BenchmarkAPI_ResponsePageData(b *testing.B) {
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
@@ -627,20 +628,20 @@ func BenchmarkAPI_ResponsePageData(b *testing.B) {
 
 // ========== 内存分配基准测试 ==========
 
-// BenchmarkAPI_MemoryAllocation_HTTPRequest HTTP 请求内存分配
+// BenchmarkAPI_MemoryAllocation_HTTPRequest HTTP 请求内存分配.
 func BenchmarkAPI_MemoryAllocation_HTTPRequest(b *testing.B) {
 	router := setupAPIBenchmarkRouter()
 
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/storage/volumes", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
 }
 
-// BenchmarkAPI_MemoryAllocation_JSONMarshal JSON 序列化内存分配
+// BenchmarkAPI_MemoryAllocation_JSONMarshal JSON 序列化内存分配.
 func BenchmarkAPI_MemoryAllocation_JSONMarshal(b *testing.B) {
 	data := gin.H{
 		"volumes": []gin.H{
@@ -656,7 +657,7 @@ func BenchmarkAPI_MemoryAllocation_JSONMarshal(b *testing.B) {
 	}
 }
 
-// BenchmarkAPI_MemoryAllocation_Response 响应对象内存分配
+// BenchmarkAPI_MemoryAllocation_Response 响应对象内存分配.
 func BenchmarkAPI_MemoryAllocation_Response(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()

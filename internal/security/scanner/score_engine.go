@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// ScoreEngine 安全评分引擎
+// ScoreEngine 安全评分引擎.
 type ScoreEngine struct {
 	categories  []ScoreCategory
 	history     []ScoreHistory
@@ -18,13 +18,13 @@ type ScoreEngine struct {
 	storagePath string
 }
 
-// ScoreEngineConfig 评分引擎配置
+// ScoreEngineConfig 评分引擎配置.
 type ScoreEngineConfig struct {
 	HistoryRetention int `json:"history_retention"` // 历史记录保留天数
 	MaxHistoryCount  int `json:"max_history_count"` // 最大历史记录数
 }
 
-// DefaultScoreEngineConfig 默认评分引擎配置
+// DefaultScoreEngineConfig 默认评分引擎配置.
 func DefaultScoreEngineConfig() ScoreEngineConfig {
 	return ScoreEngineConfig{
 		HistoryRetention: 90,
@@ -32,7 +32,7 @@ func DefaultScoreEngineConfig() ScoreEngineConfig {
 	}
 }
 
-// NewScoreEngine 创建安全评分引擎
+// NewScoreEngine 创建安全评分引擎.
 func NewScoreEngine(config ScoreEngineConfig) *ScoreEngine {
 	storagePath := "/var/lib/nas-os/security/scores"
 	if err := os.MkdirAll(storagePath, 0750); err != nil {
@@ -53,7 +53,7 @@ func NewScoreEngine(config ScoreEngineConfig) *ScoreEngine {
 	return engine
 }
 
-// getDefaultScoreCategories 获取默认评分类别
+// getDefaultScoreCategories 获取默认评分类别.
 func getDefaultScoreCategories() []ScoreCategory {
 	return []ScoreCategory{
 		{
@@ -101,7 +101,7 @@ func getDefaultScoreCategories() []ScoreCategory {
 
 // ========== 评分计算 ==========
 
-// CalculateScore 计算综合安全评分
+// CalculateScore 计算综合安全评分.
 func (se *ScoreEngine) CalculateScore(
 	permissionResult *PermissionCheckResult,
 	scanReport *FileScanReport,
@@ -183,7 +183,7 @@ func (se *ScoreEngine) CalculateScore(
 	return score
 }
 
-// calculatePermissionScore 计算权限评分
+// calculatePermissionScore 计算权限评分.
 func (se *ScoreEngine) calculatePermissionScore(result *PermissionCheckResult) int {
 	if result == nil || result.TotalChecked == 0 {
 		return 100
@@ -206,7 +206,7 @@ func (se *ScoreEngine) calculatePermissionScore(result *PermissionCheckResult) i
 	return score
 }
 
-// calculateSensitiveDataScore 计算敏感数据评分
+// calculateSensitiveDataScore 计算敏感数据评分.
 func (se *ScoreEngine) calculateSensitiveDataScore(report *FileScanReport) int {
 	if report == nil {
 		return 100
@@ -225,7 +225,7 @@ func (se *ScoreEngine) calculateSensitiveDataScore(report *FileScanReport) int {
 	return score
 }
 
-// calculateVulnerabilityScore 计算漏洞评分
+// calculateVulnerabilityScore 计算漏洞评分.
 func (se *ScoreEngine) calculateVulnerabilityScore(result *VulnerabilityScanResult) int {
 	if result == nil {
 		return 100
@@ -246,7 +246,7 @@ func (se *ScoreEngine) calculateVulnerabilityScore(result *VulnerabilityScanResu
 	return score
 }
 
-// calculateConfigurationScore 计算配置评分
+// calculateConfigurationScore 计算配置评分.
 func (se *ScoreEngine) calculateConfigurationScore(report *FileScanReport) int {
 	if report == nil {
 		return 100
@@ -265,7 +265,7 @@ func (se *ScoreEngine) calculateConfigurationScore(report *FileScanReport) int {
 	return score
 }
 
-// calculateMalwareScore 计算恶意软件评分
+// calculateMalwareScore 计算恶意软件评分.
 func (se *ScoreEngine) calculateMalwareScore(report *FileScanReport) int {
 	if report == nil {
 		return 100
@@ -284,7 +284,7 @@ func (se *ScoreEngine) calculateMalwareScore(report *FileScanReport) int {
 	return score
 }
 
-// collectFindings 收集发现
+// collectFindings 收集发现.
 func (se *ScoreEngine) collectFindings(
 	permissionResult *PermissionCheckResult,
 	scanReport *FileScanReport,
@@ -364,14 +364,14 @@ func (se *ScoreEngine) collectFindings(
 
 // ========== 类别管理 ==========
 
-// AddCategory 添加评分类别
+// AddCategory 添加评分类别.
 func (se *ScoreEngine) AddCategory(category ScoreCategory) {
 	se.mu.Lock()
 	defer se.mu.Unlock()
 	se.categories = append(se.categories, category)
 }
 
-// UpdateCategory 更新评分类别
+// UpdateCategory 更新评分类别.
 func (se *ScoreEngine) UpdateCategory(category ScoreCategory) {
 	se.mu.Lock()
 	defer se.mu.Unlock()
@@ -384,7 +384,7 @@ func (se *ScoreEngine) UpdateCategory(category ScoreCategory) {
 	}
 }
 
-// RemoveCategory 移除评分类别
+// RemoveCategory 移除评分类别.
 func (se *ScoreEngine) RemoveCategory(categoryID string) {
 	se.mu.Lock()
 	defer se.mu.Unlock()
@@ -397,7 +397,7 @@ func (se *ScoreEngine) RemoveCategory(categoryID string) {
 	}
 }
 
-// GetCategories 获取所有评分类别
+// GetCategories 获取所有评分类别.
 func (se *ScoreEngine) GetCategories() []ScoreCategory {
 	se.mu.RLock()
 	defer se.mu.RUnlock()
@@ -409,7 +409,7 @@ func (se *ScoreEngine) GetCategories() []ScoreCategory {
 
 // ========== 历史记录 ==========
 
-// addToHistory 添加到历史记录
+// addToHistory 添加到历史记录.
 func (se *ScoreEngine) addToHistory(score *SecurityScore) {
 	historyEntry := ScoreHistory{
 		Date:     score.CalculatedAt,
@@ -429,7 +429,7 @@ func (se *ScoreEngine) addToHistory(score *SecurityScore) {
 	se.saveHistory()
 }
 
-// GetHistory 获取历史记录
+// GetHistory 获取历史记录.
 func (se *ScoreEngine) GetHistory(limit int) []ScoreHistory {
 	se.mu.RLock()
 	defer se.mu.RUnlock()
@@ -449,7 +449,7 @@ func (se *ScoreEngine) GetHistory(limit int) []ScoreHistory {
 	return history
 }
 
-// GetHistoryByDateRange 获取日期范围内的历史记录
+// GetHistoryByDateRange 获取日期范围内的历史记录.
 func (se *ScoreEngine) GetHistoryByDateRange(start, end time.Time) []ScoreHistory {
 	se.mu.RLock()
 	defer se.mu.RUnlock()
@@ -467,7 +467,7 @@ func (se *ScoreEngine) GetHistoryByDateRange(start, end time.Time) []ScoreHistor
 
 // ========== 趋势分析 ==========
 
-// GetTrendAnalysis 获取趋势分析
+// GetTrendAnalysis 获取趋势分析.
 func (se *ScoreEngine) GetTrendAnalysis(days int) map[string]interface{} {
 	se.mu.RLock()
 	defer se.mu.RUnlock()
@@ -541,7 +541,7 @@ func (se *ScoreEngine) GetTrendAnalysis(days int) map[string]interface{} {
 
 // ========== 报告生成 ==========
 
-// GenerateScoreReport 生成评分报告
+// GenerateScoreReport 生成评分报告.
 func (se *ScoreEngine) GenerateScoreReport(score *SecurityScore) map[string]interface{} {
 	report := map[string]interface{}{
 		"overall_score": score.OverallScore,
@@ -586,7 +586,7 @@ func (se *ScoreEngine) GenerateScoreReport(score *SecurityScore) map[string]inte
 	return report
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (se *ScoreEngine) generateRecommendations(score *SecurityScore) []string {
 	recommendations := make([]string, 0)
 
@@ -625,7 +625,7 @@ func (se *ScoreEngine) generateRecommendations(score *SecurityScore) []string {
 
 // ========== 持久化 ==========
 
-// saveHistory 保存历史记录
+// saveHistory 保存历史记录.
 func (se *ScoreEngine) saveHistory() {
 	filename := filepath.Join(se.storagePath, "history.json")
 
@@ -637,7 +637,7 @@ func (se *ScoreEngine) saveHistory() {
 	_ = os.WriteFile(filename, data, 0600)
 }
 
-// loadHistory 加载历史记录
+// loadHistory 加载历史记录.
 func (se *ScoreEngine) loadHistory() {
 	filename := filepath.Join(se.storagePath, "history.json")
 

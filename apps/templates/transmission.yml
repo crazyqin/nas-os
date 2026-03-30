@@ -1,0 +1,32 @@
+# Transmission 下载器
+# 轻量级 BitTorrent 客户端
+version: '3.8'
+
+services:
+  transmission:
+    image: linuxserver/transmission:latest
+    container_name: transmission
+    restart: unless-stopped
+    ports:
+      - "9091:9091"  # Web界面
+      - "51413:51413"  # BT端口
+      - "51413:51413/udp"
+    volumes:
+      - transmission-config:/config
+      - /mnt/downloads:/downloads  # 下载目录
+      - /mnt/watch:/watch  # 监控目录（自动添加种子）
+    environment:
+      - TZ=Asia/Shanghai
+      - PUID=1000
+      - PGID=1000
+      - TRANSMISSION_WEB_HOME=/usr/share/transmission/web
+      - USER=${TRANSMISSION_USER:-admin}
+      - PASS=${TRANSMISSION_PASS:-changeme}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  transmission-config:

@@ -14,21 +14,21 @@ import (
 	"time"
 )
 
-// MessagePriority 消息优先级
+// MessagePriority 消息优先级.
 type MessagePriority int
 
 const (
-	// PriorityLow 低优先级消息，最后处理
+	// PriorityLow 低优先级消息，最后处理.
 	PriorityLow MessagePriority = 0
-	// PriorityNormal 普通优先级消息，默认优先级
+	// PriorityNormal 普通优先级消息，默认优先级.
 	PriorityNormal MessagePriority = 1
-	// PriorityHigh 高优先级消息，优先处理
+	// PriorityHigh 高优先级消息，优先处理.
 	PriorityHigh MessagePriority = 2
-	// PriorityCritical 关键优先级消息，最高优先级，永不丢弃
+	// PriorityCritical 关键优先级消息，最高优先级，永不丢弃.
 	PriorityCritical MessagePriority = 3
 )
 
-// String 返回优先级字符串
+// String 返回优先级字符串.
 func (p MessagePriority) String() string {
 	switch p {
 	case PriorityLow:
@@ -44,7 +44,7 @@ func (p MessagePriority) String() string {
 	}
 }
 
-// Message 消息结构
+// Message 消息结构.
 type Message struct {
 	ID          string          `json:"id"`
 	Type        string          `json:"type"`
@@ -60,7 +60,7 @@ type Message struct {
 	Correlation string          `json:"correlation,omitempty"` // 关联 ID
 }
 
-// MessageQueueConfig 消息队列配置
+// MessageQueueConfig 消息队列配置.
 type MessageQueueConfig struct {
 	// MaxSize 队列最大容量
 	MaxSize int `json:"maxSize"`
@@ -88,7 +88,7 @@ type MessageQueueConfig struct {
 	RetryDelay time.Duration `json:"retryDelay"`
 }
 
-// DefaultMessageQueueConfig 默认消息队列配置
+// DefaultMessageQueueConfig 默认消息队列配置.
 var DefaultMessageQueueConfig = &MessageQueueConfig{
 	MaxSize:               10000,
 	HighPrioritySize:      1000,
@@ -104,7 +104,7 @@ var DefaultMessageQueueConfig = &MessageQueueConfig{
 	RetryDelay:            100 * time.Millisecond,
 }
 
-// PriorityQueue 优先级队列
+// PriorityQueue 优先级队列.
 type PriorityQueue struct {
 	high     chan *Message
 	normal   chan *Message
@@ -113,7 +113,7 @@ type PriorityQueue struct {
 	config   *MessageQueueConfig
 }
 
-// NewPriorityQueue 创建优先级队列
+// NewPriorityQueue 创建优先级队列.
 func NewPriorityQueue(config *MessageQueueConfig) *PriorityQueue {
 	if config == nil {
 		config = DefaultMessageQueueConfig
@@ -128,7 +128,7 @@ func NewPriorityQueue(config *MessageQueueConfig) *PriorityQueue {
 	}
 }
 
-// Push 推送消息
+// Push 推送消息.
 func (pq *PriorityQueue) Push(msg *Message) error {
 	var targetChan chan *Message
 
@@ -151,7 +151,7 @@ func (pq *PriorityQueue) Push(msg *Message) error {
 	}
 }
 
-// Pop 弹出消息（按优先级）
+// Pop 弹出消息（按优先级）.
 func (pq *PriorityQueue) Pop() *Message {
 	// 按优先级顺序检查
 	select {
@@ -177,7 +177,7 @@ func (pq *PriorityQueue) Pop() *Message {
 	}
 }
 
-// PopWithTimeout 带超时的弹出
+// PopWithTimeout 带超时的弹出.
 func (pq *PriorityQueue) PopWithTimeout(timeout time.Duration) *Message {
 	timer := time.NewTimer(timeout)
 	defer timer.Stop()
@@ -206,12 +206,12 @@ func (pq *PriorityQueue) PopWithTimeout(timeout time.Duration) *Message {
 	}
 }
 
-// Len 获取队列长度
+// Len 获取队列长度.
 func (pq *PriorityQueue) Len() int {
 	return len(pq.critical) + len(pq.high) + len(pq.normal) + len(pq.low)
 }
 
-// Stats 获取队列统计
+// Stats 获取队列统计.
 func (pq *PriorityQueue) Stats() QueueStats {
 	return QueueStats{
 		CriticalCount: len(pq.critical),
@@ -227,7 +227,7 @@ func (pq *PriorityQueue) Stats() QueueStats {
 	}
 }
 
-// QueueStats 队列统计
+// QueueStats 队列统计.
 type QueueStats struct {
 	CriticalCount int `json:"criticalCount"`
 	CriticalCap   int `json:"criticalCap"`
@@ -241,7 +241,7 @@ type QueueStats struct {
 	TotalCap      int `json:"totalCap"`
 }
 
-// Deduplicator 消息去重器
+// Deduplicator 消息去重器.
 type Deduplicator struct {
 	cache     map[string]*dedupEntry
 	mu        sync.RWMutex
@@ -256,7 +256,7 @@ type dedupEntry struct {
 	count     int
 }
 
-// NewDeduplicator 创建去重器
+// NewDeduplicator 创建去重器.
 func NewDeduplicator(ttl time.Duration, maxSize int) *Deduplicator {
 	if maxSize <= 0 {
 		maxSize = 100000
@@ -274,7 +274,7 @@ func NewDeduplicator(ttl time.Duration, maxSize int) *Deduplicator {
 	return d
 }
 
-// Check 检查消息是否重复
+// Check 检查消息是否重复.
 func (d *Deduplicator) Check(msg *Message) bool {
 	if msg.Hash == "" {
 		msg.Hash = d.computeHash(msg)
@@ -302,7 +302,7 @@ func (d *Deduplicator) Check(msg *Message) bool {
 	return false
 }
 
-// computeHash 计算消息哈希
+// computeHash 计算消息哈希.
 func (d *Deduplicator) computeHash(msg *Message) string {
 	// 使用消息类型、数据和来源计算哈希
 	hasher := sha256.New()
@@ -317,7 +317,7 @@ func (d *Deduplicator) computeHash(msg *Message) string {
 	return hex.EncodeToString(hasher.Sum(nil))[:16]
 }
 
-// evictOldest 清理最旧的条目
+// evictOldest 清理最旧的条目.
 func (d *Deduplicator) evictOldest() {
 	var oldestKey string
 	var oldestTime time.Time
@@ -334,7 +334,7 @@ func (d *Deduplicator) evictOldest() {
 	}
 }
 
-// cleanup 定期清理过期条目
+// cleanup 定期清理过期条目.
 func (d *Deduplicator) cleanup() {
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
@@ -351,7 +351,7 @@ func (d *Deduplicator) cleanup() {
 	}
 }
 
-// Stats 获取去重统计
+// Stats 获取去重统计.
 func (d *Deduplicator) Stats() DedupStats {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -364,7 +364,7 @@ func (d *Deduplicator) Stats() DedupStats {
 	}
 }
 
-// DedupStats 去重统计
+// DedupStats 去重统计.
 type DedupStats struct {
 	CacheSize int   `json:"cacheSize"`
 	MaxSize   int   `json:"maxSize"`
@@ -372,7 +372,7 @@ type DedupStats struct {
 	MissCount int64 `json:"missCount"`
 }
 
-// BackpressureController 背压控制器
+// BackpressureController 背压控制器.
 type BackpressureController struct {
 	config           *MessageQueueConfig
 	currentLoad      float64
@@ -384,17 +384,17 @@ type BackpressureController struct {
 	throttleDuration time.Duration
 }
 
-// BackpressureState 背压状态
+// BackpressureState 背压状态.
 type BackpressureState int
 
 const (
-	// StateNormal 正常状态，队列负载正常
+	// StateNormal 正常状态，队列负载正常.
 	StateNormal BackpressureState = iota
-	// StateWarning 警告状态，队列负载较高
+	// StateWarning 警告状态，队列负载较高.
 	StateWarning
-	// StateCritical 临界状态，队列即将满载
+	// StateCritical 临界状态，队列即将满载.
 	StateCritical
-	// StateThrottled 限流状态，需要限流处理
+	// StateThrottled 限流状态，需要限流处理.
 	StateThrottled
 )
 
@@ -413,7 +413,7 @@ func (s BackpressureState) String() string {
 	}
 }
 
-// NewBackpressureController 创建背压控制器
+// NewBackpressureController 创建背压控制器.
 func NewBackpressureController(config *MessageQueueConfig) *BackpressureController {
 	return &BackpressureController{
 		config:           config,
@@ -422,7 +422,7 @@ func NewBackpressureController(config *MessageQueueConfig) *BackpressureControll
 	}
 }
 
-// Check 检查背压状态
+// Check 检查背压状态.
 func (bc *BackpressureController) Check(queueLen, queueCap int) BackpressureState {
 	if !bc.config.EnableBackpressure {
 		return StateNormal
@@ -455,7 +455,7 @@ func (bc *BackpressureController) Check(queueLen, queueCap int) BackpressureStat
 	return bc.state
 }
 
-// ShouldDrop 是否应该丢弃消息
+// ShouldDrop 是否应该丢弃消息.
 func (bc *BackpressureController) ShouldDrop(msg *Message) bool {
 	bc.mu.RLock()
 	defer bc.mu.RUnlock()
@@ -482,7 +482,7 @@ func (bc *BackpressureController) ShouldDrop(msg *Message) bool {
 	}
 }
 
-// Throttle 限流等待
+// Throttle 限流等待.
 func (bc *BackpressureController) Throttle() {
 	bc.mu.RLock()
 	state := bc.state
@@ -494,19 +494,19 @@ func (bc *BackpressureController) Throttle() {
 	}
 }
 
-// RecordDrop 记录丢弃
+// RecordDrop 记录丢弃.
 func (bc *BackpressureController) RecordDrop() {
 	atomic.AddInt64(&bc.droppedCount, 1)
 }
 
-// OnStateChange 设置状态变更回调
+// OnStateChange 设置状态变更回调.
 func (bc *BackpressureController) OnStateChange(fn func(old, new BackpressureState)) {
 	bc.mu.Lock()
 	defer bc.mu.Unlock()
 	bc.onStateChange = fn
 }
 
-// Stats 获取背压统计
+// Stats 获取背压统计.
 func (bc *BackpressureController) Stats() BackpressureStats {
 	bc.mu.RLock()
 	defer bc.mu.RUnlock()
@@ -520,7 +520,7 @@ func (bc *BackpressureController) Stats() BackpressureStats {
 	}
 }
 
-// BackpressureStats 背压统计
+// BackpressureStats 背压统计.
 type BackpressureStats struct {
 	State            string  `json:"state"`
 	CurrentLoad      float64 `json:"currentLoad"`
@@ -529,7 +529,7 @@ type BackpressureStats struct {
 	ThrottleDuration string  `json:"throttleDuration"`
 }
 
-// EnhancedMessageQueue 增强消息队列
+// EnhancedMessageQueue 增强消息队列.
 type EnhancedMessageQueue struct {
 	config        *MessageQueueConfig
 	priorityQueue *PriorityQueue
@@ -545,7 +545,7 @@ type EnhancedMessageQueue struct {
 	dedupedCount  int64
 }
 
-// NewEnhancedMessageQueue 创建增强消息队列
+// NewEnhancedMessageQueue 创建增强消息队列.
 func NewEnhancedMessageQueue(config *MessageQueueConfig) *EnhancedMessageQueue {
 	if config == nil {
 		config = DefaultMessageQueueConfig
@@ -569,7 +569,7 @@ func NewEnhancedMessageQueue(config *MessageQueueConfig) *EnhancedMessageQueue {
 	return emq
 }
 
-// Push 推送消息
+// Push 推送消息.
 func (emq *EnhancedMessageQueue) Push(msg *Message) error {
 	// 设置默认值
 	if msg.ID == "" {
@@ -633,7 +633,7 @@ func (emq *EnhancedMessageQueue) Push(msg *Message) error {
 	return nil
 }
 
-// Pop 弹出消息
+// Pop 弹出消息.
 func (emq *EnhancedMessageQueue) Pop() *Message {
 	msg := emq.priorityQueue.Pop()
 	if msg == nil {
@@ -656,7 +656,7 @@ func (emq *EnhancedMessageQueue) Pop() *Message {
 	return msg
 }
 
-// PopWithTimeout 带超时弹出
+// PopWithTimeout 带超时弹出.
 func (emq *EnhancedMessageQueue) PopWithTimeout(timeout time.Duration) *Message {
 	msg := emq.priorityQueue.PopWithTimeout(timeout)
 	if msg == nil {
@@ -678,14 +678,14 @@ func (emq *EnhancedMessageQueue) PopWithTimeout(timeout time.Duration) *Message 
 	return msg
 }
 
-// Ack 确认消息
+// Ack 确认消息.
 func (emq *EnhancedMessageQueue) Ack(messageID string) {
 	emq.mu.Lock()
 	defer emq.mu.Unlock()
 	delete(emq.pending, messageID)
 }
 
-// Nack 否认消息（重新入队）
+// Nack 否认消息（重新入队）.
 func (emq *EnhancedMessageQueue) Nack(messageID string) error {
 	emq.mu.Lock()
 	msg, exists := emq.pending[messageID]
@@ -712,17 +712,17 @@ func (emq *EnhancedMessageQueue) Nack(messageID string) error {
 	return emq.Push(msg)
 }
 
-// Start 启动消息处理
+// Start 启动消息处理.
 func (emq *EnhancedMessageQueue) Start() {
 	go emq.process()
 }
 
-// Stop 停止消息处理
+// Stop 停止消息处理.
 func (emq *EnhancedMessageQueue) Stop() {
 	close(emq.stopChan)
 }
 
-// process 消息处理循环
+// process 消息处理循环.
 func (emq *EnhancedMessageQueue) process() {
 	for {
 		select {
@@ -737,17 +737,17 @@ func (emq *EnhancedMessageQueue) process() {
 	}
 }
 
-// OnMessage 设置消息处理回调
+// OnMessage 设置消息处理回调.
 func (emq *EnhancedMessageQueue) OnMessage(fn func(*Message)) {
 	emq.onMessage = fn
 }
 
-// OnDropped 设置丢弃回调
+// OnDropped 设置丢弃回调.
 func (emq *EnhancedMessageQueue) OnDropped(fn func(*Message, string)) {
 	emq.onDropped = fn
 }
 
-// Stats 获取队列统计
+// Stats 获取队列统计.
 func (emq *EnhancedMessageQueue) Stats() EnhancedQueueStats {
 	emq.mu.RLock()
 	pendingCount := len(emq.pending)
@@ -774,7 +774,7 @@ func (emq *EnhancedMessageQueue) Stats() EnhancedQueueStats {
 	return stats
 }
 
-// EnhancedQueueStats 增强队列统计
+// EnhancedQueueStats 增强队列统计.
 type EnhancedQueueStats struct {
 	Queue        QueueStats         `json:"queue"`
 	SentCount    int64              `json:"sentCount"`
@@ -785,7 +785,7 @@ type EnhancedQueueStats struct {
 	Backpressure *BackpressureStats `json:"backpressure,omitempty"`
 }
 
-// BatchPush 批量推送消息
+// BatchPush 批量推送消息.
 func (emq *EnhancedMessageQueue) BatchPush(messages []*Message) (int, []error) {
 	var errors []error
 	successCount := 0
@@ -801,7 +801,7 @@ func (emq *EnhancedMessageQueue) BatchPush(messages []*Message) (int, []error) {
 	return successCount, errors
 }
 
-// BatchPop 批量弹出消息
+// BatchPop 批量弹出消息.
 func (emq *EnhancedMessageQueue) BatchPop(maxCount int) []*Message {
 	var messages []*Message
 
@@ -828,7 +828,7 @@ func (emq *EnhancedMessageQueue) BatchPop(maxCount int) []*Message {
 	return messages
 }
 
-// Flush 清空队列
+// Flush 清空队列.
 func (emq *EnhancedMessageQueue) Flush() int {
 	count := 0
 	for {
@@ -841,12 +841,12 @@ func (emq *EnhancedMessageQueue) Flush() int {
 	return count
 }
 
-// generateMessageID 生成消息 ID
+// generateMessageID 生成消息 ID.
 func generateMessageID() string {
 	return fmt.Sprintf("msg-%d-%s", time.Now().UnixNano(), randomString(8))
 }
 
-// randomString 生成随机字符串（使用 crypto/rand 安全随机数）
+// randomString 生成随机字符串（使用 crypto/rand 安全随机数）.
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, n)
@@ -862,7 +862,7 @@ func randomString(n int) string {
 	return string(b)
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrQueueFull          = fmt.Errorf("队列已满")
 	ErrMessageExpired     = fmt.Errorf("消息已过期")

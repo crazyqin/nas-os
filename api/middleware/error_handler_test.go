@@ -2,6 +2,7 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -10,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TestErrorHandlerMiddleware tests the error handler middleware
+// TestErrorHandlerMiddleware tests the error handler middleware.
 func TestErrorHandlerMiddleware(t *testing.T) {
 	router := gin.New()
 	router.Use(ErrorHandlerMiddleware())
@@ -24,7 +25,7 @@ func TestErrorHandlerMiddleware(t *testing.T) {
 	})
 
 	// Test error response
-	req := httptest.NewRequest("GET", "/error", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/error", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -33,7 +34,7 @@ func TestErrorHandlerMiddleware(t *testing.T) {
 	}
 
 	// Test OK response
-	req = httptest.NewRequest("GET", "/ok", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/ok", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -42,7 +43,7 @@ func TestErrorHandlerMiddleware(t *testing.T) {
 	}
 }
 
-// TestErrorHandlerPanic tests panic recovery
+// TestErrorHandlerPanic tests panic recovery.
 func TestErrorHandlerPanic(t *testing.T) {
 	router := gin.New()
 	router.Use(ErrorHandlerMiddleware())
@@ -51,7 +52,7 @@ func TestErrorHandlerPanic(t *testing.T) {
 		panic("test panic")
 	})
 
-	req := httptest.NewRequest("GET", "/panic", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/panic", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -60,7 +61,7 @@ func TestErrorHandlerPanic(t *testing.T) {
 	}
 }
 
-// TestErrorHandlerDebugMode tests debug mode
+// TestErrorHandlerDebugMode tests debug mode.
 func TestErrorHandlerDebugMode(t *testing.T) {
 	config := ErrorHandlerConfig{
 		DebugMode: true,
@@ -74,7 +75,7 @@ func TestErrorHandlerDebugMode(t *testing.T) {
 		panic("test panic")
 	})
 
-	req := httptest.NewRequest("GET", "/panic", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/panic", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -87,7 +88,7 @@ func TestErrorHandlerDebugMode(t *testing.T) {
 	_ = response // avoid unused variable error
 }
 
-// TestAPIError tests APIError structure
+// TestAPIError tests APIError structure.
 func TestAPIError(t *testing.T) {
 	err := APIError{
 		Code:      CodeBadRequest,
@@ -105,7 +106,7 @@ func TestAPIError(t *testing.T) {
 	}
 }
 
-// TestErrorResponder tests the error responder
+// TestErrorResponder tests the error responder.
 func TestErrorResponder(t *testing.T) {
 	router := gin.New()
 	responder := NewErrorResponder()
@@ -157,7 +158,7 @@ func TestErrorResponder(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		req := httptest.NewRequest("GET", tt.path, nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", tt.path, nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -167,7 +168,7 @@ func TestErrorResponder(t *testing.T) {
 	}
 }
 
-// TestHelperFunctions tests helper functions
+// TestHelperFunctions tests helper functions.
 func TestHelperFunctions(t *testing.T) {
 	router := gin.New()
 
@@ -208,7 +209,7 @@ func TestHelperFunctions(t *testing.T) {
 	})
 
 	// Just verify they work without panic
-	req := httptest.NewRequest("GET", "/bad-request", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/bad-request", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -217,7 +218,7 @@ func TestHelperFunctions(t *testing.T) {
 	}
 }
 
-// TestMapErrorToStatus tests error to status mapping
+// TestMapErrorToStatus tests error to status mapping.
 func TestMapErrorToStatus(t *testing.T) {
 	tests := []struct {
 		err      error
@@ -241,7 +242,7 @@ func TestMapErrorToStatus(t *testing.T) {
 	}
 }
 
-// TestRecoverMiddleware tests recover middleware
+// TestRecoverMiddleware tests recover middleware.
 func TestRecoverMiddleware(t *testing.T) {
 	router := gin.New()
 	router.Use(RecoverMiddleware())
@@ -255,7 +256,7 @@ func TestRecoverMiddleware(t *testing.T) {
 	})
 
 	// Test panic recovery
-	req := httptest.NewRequest("GET", "/panic", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/panic", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -264,7 +265,7 @@ func TestRecoverMiddleware(t *testing.T) {
 	}
 
 	// Test normal request
-	req = httptest.NewRequest("GET", "/ok", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/ok", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -273,7 +274,7 @@ func TestRecoverMiddleware(t *testing.T) {
 	}
 }
 
-// TestCustomErrorHandler tests custom error handler
+// TestCustomErrorHandler tests custom error handler.
 func TestCustomErrorHandler(t *testing.T) {
 	config := ErrorHandlerConfig{
 		LogErrors: false,
@@ -292,7 +293,7 @@ func TestCustomErrorHandler(t *testing.T) {
 		c.Error(errors.New("test error"))
 	})
 
-	req := httptest.NewRequest("GET", "/error", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/error", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -301,7 +302,7 @@ func TestCustomErrorHandler(t *testing.T) {
 	}
 }
 
-// TestAPIErrorFromJSON tests JSON parsing
+// TestAPIErrorFromJSON tests JSON parsing.
 func TestAPIErrorFromJSON(t *testing.T) {
 	jsonData := `{"code":400,"message":"Bad request","requestId":"req-123"}`
 
@@ -325,7 +326,7 @@ func TestAPIErrorFromJSON(t *testing.T) {
 	}
 }
 
-// TestWriteJSON tests WriteJSON helper
+// TestWriteJSON tests WriteJSON helper.
 func TestWriteJSON(t *testing.T) {
 	router := gin.New()
 
@@ -333,7 +334,7 @@ func TestWriteJSON(t *testing.T) {
 		WriteJSON(c, http.StatusOK, map[string]string{"hello": "world"})
 	})
 
-	req := httptest.NewRequest("GET", "/json", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/json", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -342,7 +343,7 @@ func TestWriteJSON(t *testing.T) {
 	}
 }
 
-// TestWriteError tests WriteError helper
+// TestWriteError tests WriteError helper.
 func TestWriteError(t *testing.T) {
 	router := gin.New()
 
@@ -350,7 +351,7 @@ func TestWriteError(t *testing.T) {
 		WriteError(c, http.StatusBadRequest, 400, "Bad request")
 	})
 
-	req := httptest.NewRequest("GET", "/error", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/error", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -359,7 +360,7 @@ func TestWriteError(t *testing.T) {
 	}
 }
 
-// BenchmarkErrorHandlerMiddleware benchmarks the middleware
+// BenchmarkErrorHandlerMiddleware benchmarks the middleware.
 func BenchmarkErrorHandlerMiddleware(b *testing.B) {
 	router := gin.New()
 	router.Use(ErrorHandlerMiddleware())
@@ -367,7 +368,7 @@ func BenchmarkErrorHandlerMiddleware(b *testing.B) {
 		c.Status(http.StatusOK)
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -376,7 +377,7 @@ func BenchmarkErrorHandlerMiddleware(b *testing.B) {
 	}
 }
 
-// BenchmarkErrorResponder benchmarks error responses
+// BenchmarkErrorResponder benchmarks error responses.
 func BenchmarkErrorResponder(b *testing.B) {
 	router := gin.New()
 	responder := NewErrorResponder()
@@ -385,7 +386,7 @@ func BenchmarkErrorResponder(b *testing.B) {
 		responder.BadRequest(c, "test error")
 	})
 
-	req := httptest.NewRequest("GET", "/error", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/error", nil)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

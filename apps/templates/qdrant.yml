@@ -1,0 +1,48 @@
+# Qdrant - 高性能向量数据库
+#
+# 用途：
+# - AI/LLM 向量存储
+# - 语义搜索
+# - RAG 应用
+# - 相似度检索
+#
+# 数据目录：/var/lib/nas-os/data/qdrant
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nas-qdrant
+    restart: unless-stopped
+    
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC API
+    
+    volumes:
+      # 数据持久化
+      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/qdrant:/qdrant/storage
+      # 配置文件（可选）
+      - ${NAS_CONFIG_DIR:-/var/lib/nas-os/config}/qdrant/config.yaml:/qdrant/config/production.yaml:ro
+    
+    environment:
+      # 性能优化
+      QDRANT__LOG_LEVEL: INFO
+      # 内存限制
+      QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS: 4
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    labels:
+      - "nas-os.app=qdrant"
+      - "nas-os.category=ai"
+      - "nas-os.description=High-performance vector database for AI/LLM applications"
+
+# 说明：
+# - Qdrant 支持 REST API 和 gRPC API
+# - REST API 端口 6333 用于 HTTP 请求
+# - gRPC API 端口 6334 用于高性能批量操作
+# - 默认 Web UI 可通过 http://localhost:6333/dashboard 访问

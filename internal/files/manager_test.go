@@ -577,7 +577,7 @@ func TestGenerateRandomToken_Length(t *testing.T) {
 	}
 }
 
-// createTestJPEG 创建测试用的 JPEG 图片数据
+// createTestJPEG 创建测试用的 JPEG 图片数据.
 func createTestJPEG(width, height int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	for y := 0; y < height; y++ {
@@ -591,7 +591,7 @@ func createTestJPEG(width, height int) []byte {
 	return buf.Bytes()
 }
 
-// createTestPNG 创建测试用的 PNG 图片数据
+// createTestPNG 创建测试用的 PNG 图片数据.
 func createTestPNG(width, height int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	for y := 0; y < height; y++ {

@@ -112,7 +112,10 @@ func DefaultTranscodeConfig() TranscodeConfig {
 
 // GetVideoInfo 获取视频信息
 func (t *Transcoder) GetVideoInfo(path string) (*VideoInfo, error) {
-	cmd := exec.Command(t.ffprobePath,
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, t.ffprobePath,
 		"-v", "quiet",
 		"-print_format", "json",
 		"-show_format",

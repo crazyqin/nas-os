@@ -12,7 +12,7 @@ import (
 	"nas-os/internal/tiering"
 )
 
-// MockTieringManager 模拟分层管理器
+// MockTieringManager 模拟分层管理器.
 type MockTieringManager struct {
 	tiers    map[tiering.TierType]*tiering.TierConfig
 	policies map[string]*tiering.Policy
@@ -21,7 +21,7 @@ type MockTieringManager struct {
 	mu       sync.RWMutex
 }
 
-// NewMockTieringManager 创建模拟分层管理器
+// NewMockTieringManager 创建模拟分层管理器.
 func NewMockTieringManager() *MockTieringManager {
 	m := &MockTieringManager{
 		tiers:    make(map[tiering.TierType]*tiering.TierConfig),
@@ -67,14 +67,14 @@ func NewMockTieringManager() *MockTieringManager {
 	return m
 }
 
-// GetTier 获取存储层配置
+// GetTier 获取存储层配置.
 func (m *MockTieringManager) GetTier(tierType tiering.TierType) (*tiering.TierConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.tiers[tierType], nil
 }
 
-// ListTiers 列出所有存储层
+// ListTiers 列出所有存储层.
 func (m *MockTieringManager) ListTiers() ([]*tiering.TierConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -89,7 +89,7 @@ func (m *MockTieringManager) ListTiers() ([]*tiering.TierConfig, error) {
 	return tiers, nil
 }
 
-// CreatePolicy 创建分层策略
+// CreatePolicy 创建分层策略.
 func (m *MockTieringManager) CreatePolicy(policy *tiering.Policy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -99,14 +99,14 @@ func (m *MockTieringManager) CreatePolicy(policy *tiering.Policy) error {
 	return nil
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (m *MockTieringManager) GetPolicy(id string) (*tiering.Policy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.policies[id], nil
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (m *MockTieringManager) ListPolicies() ([]*tiering.Policy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -117,7 +117,7 @@ func (m *MockTieringManager) ListPolicies() ([]*tiering.Policy, error) {
 	return policies, nil
 }
 
-// Migrate 执行迁移
+// Migrate 执行迁移.
 func (m *MockTieringManager) Migrate(ctx context.Context, req *tiering.MigrateRequest) (*tiering.MigrateTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -139,14 +139,14 @@ func (m *MockTieringManager) Migrate(ctx context.Context, req *tiering.MigrateRe
 	return task, nil
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *MockTieringManager) GetStats() (*tiering.AccessStats, error) {
 	return m.stats, nil
 }
 
 // ========== 存储分层集成测试 ==========
 
-// TestTiering_TierConfigurations 测试存储层配置
+// TestTiering_TierConfigurations 测试存储层配置.
 func TestTiering_TierConfigurations(t *testing.T) {
 	manager := NewMockTieringManager()
 
@@ -210,7 +210,7 @@ func TestTiering_TierConfigurations(t *testing.T) {
 	}
 }
 
-// TestTiering_ListTiers 测试列出所有存储层
+// TestTiering_ListTiers 测试列出所有存储层.
 func TestTiering_ListTiers(t *testing.T) {
 	manager := NewMockTieringManager()
 
@@ -231,7 +231,7 @@ func TestTiering_ListTiers(t *testing.T) {
 	}
 }
 
-// TestTiering_PolicyLifecycle 测试策略生命周期
+// TestTiering_PolicyLifecycle 测试策略生命周期.
 func TestTiering_PolicyLifecycle(t *testing.T) {
 	manager := NewMockTieringManager()
 
@@ -284,7 +284,7 @@ func TestTiering_PolicyLifecycle(t *testing.T) {
 	}
 }
 
-// TestTiering_Migration 测试数据迁移
+// TestTiering_Migration 测试数据迁移.
 func TestTiering_Migration(t *testing.T) {
 	manager := NewMockTieringManager()
 	ctx := context.Background()
@@ -320,7 +320,7 @@ func TestTiering_Migration(t *testing.T) {
 	}
 }
 
-// TestTiering_PolicyActions 测试策略动作类型
+// TestTiering_PolicyActions 测试策略动作类型.
 func TestTiering_PolicyActions(t *testing.T) {
 	actions := []tiering.PolicyAction{
 		tiering.PolicyActionMove,
@@ -353,7 +353,7 @@ func TestTiering_PolicyActions(t *testing.T) {
 	}
 }
 
-// TestTiering_AccessFrequency 测试访问频率分类
+// TestTiering_AccessFrequency 测试访问频率分类.
 func TestTiering_AccessFrequency(t *testing.T) {
 	frequencies := []tiering.AccessFrequency{
 		tiering.AccessFrequencyHot,
@@ -390,7 +390,7 @@ func TestTiering_AccessFrequency(t *testing.T) {
 	}
 }
 
-// TestTiering_TierStats 测试存储层统计
+// TestTiering_TierStats 测试存储层统计.
 func TestTiering_TierStats(t *testing.T) {
 	manager := NewMockTieringManager()
 
@@ -404,7 +404,7 @@ func TestTiering_TierStats(t *testing.T) {
 	}
 }
 
-// TestTiering_ConcurrentAccess 测试并发访问
+// TestTiering_ConcurrentAccess 测试并发访问.
 func TestTiering_ConcurrentAccess(t *testing.T) {
 	manager := NewMockTieringManager()
 	done := make(chan bool, 20)
@@ -434,7 +434,7 @@ func TestTiering_ConcurrentAccess(t *testing.T) {
 	}
 }
 
-// TestTiering_MigrateStatus 测试迁移状态
+// TestTiering_MigrateStatus 测试迁移状态.
 func TestTiering_MigrateStatus(t *testing.T) {
 	statuses := []tiering.MigrateStatus{
 		tiering.MigrateStatusPending,
@@ -458,7 +458,7 @@ func TestTiering_MigrateStatus(t *testing.T) {
 	}
 }
 
-// TestTiering_ScheduleTypes 测试调度类型
+// TestTiering_ScheduleTypes 测试调度类型.
 func TestTiering_ScheduleTypes(t *testing.T) {
 	scheduleTypes := []tiering.ScheduleType{
 		tiering.ScheduleTypeManual,
@@ -481,7 +481,7 @@ func TestTiering_ScheduleTypes(t *testing.T) {
 	}
 }
 
-// TestTiering_DefaultConfig 测试默认配置
+// TestTiering_DefaultConfig 测试默认配置.
 func TestTiering_DefaultConfig(t *testing.T) {
 	config := tiering.DefaultPolicyEngineConfig()
 
@@ -510,7 +510,7 @@ func TestTiering_DefaultConfig(t *testing.T) {
 	}
 }
 
-// TestTiering_FileAccessRecord 测试文件访问记录
+// TestTiering_FileAccessRecord 测试文件访问记录.
 func TestTiering_FileAccessRecord(t *testing.T) {
 	now := time.Now()
 	record := tiering.FileAccessRecord{
@@ -540,7 +540,7 @@ func TestTiering_FileAccessRecord(t *testing.T) {
 
 // ========== 性能测试 ==========
 
-// BenchmarkTiering_GetTier 性能测试：获取存储层
+// BenchmarkTiering_GetTier 性能测试：获取存储层.
 func BenchmarkTiering_GetTier(b *testing.B) {
 	manager := NewMockTieringManager()
 	b.ResetTimer()
@@ -550,7 +550,7 @@ func BenchmarkTiering_GetTier(b *testing.B) {
 	}
 }
 
-// BenchmarkTiering_CreatePolicy 性能测试：创建策略
+// BenchmarkTiering_CreatePolicy 性能测试：创建策略.
 func BenchmarkTiering_CreatePolicy(b *testing.B) {
 	manager := NewMockTieringManager()
 	b.ResetTimer()
@@ -564,7 +564,7 @@ func BenchmarkTiering_CreatePolicy(b *testing.B) {
 	}
 }
 
-// BenchmarkTiering_Migrate 性能测试：迁移操作
+// BenchmarkTiering_Migrate 性能测试：迁移操作.
 func BenchmarkTiering_Migrate(b *testing.B) {
 	manager := NewMockTieringManager()
 	ctx := context.Background()

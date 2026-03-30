@@ -13,7 +13,7 @@ import (
 	"nas-os/internal/automation/trigger"
 )
 
-// Workflow 定义一个自动化工作流
+// Workflow 定义一个自动化工作流.
 type Workflow struct {
 	ID           string          `json:"id"`
 	Name         string          `json:"name"`
@@ -29,20 +29,20 @@ type Workflow struct {
 	FailCount    int             `json:"fail_count"`
 }
 
-// ExecutionStatus 执行状态
+// ExecutionStatus 执行状态.
 type ExecutionStatus string
 
-// 执行状态常量
+// 执行状态常量.
 const (
-	// ExecutionStatusRunning 执行中状态
+	// ExecutionStatusRunning 执行中状态.
 	ExecutionStatusRunning ExecutionStatus = "running"
-	// ExecutionStatusSuccess 执行成功状态
+	// ExecutionStatusSuccess 执行成功状态.
 	ExecutionStatusSuccess ExecutionStatus = "success"
-	// ExecutionStatusFailed 执行失败状态
+	// ExecutionStatusFailed 执行失败状态.
 	ExecutionStatusFailed ExecutionStatus = "failed"
 )
 
-// ExecutionRecord 执行记录
+// ExecutionRecord 执行记录.
 type ExecutionRecord struct {
 	WorkflowID  string                 `json:"workflow_id"`
 	StartedAt   time.Time              `json:"started_at"`
@@ -53,14 +53,14 @@ type ExecutionRecord struct {
 	ActionIndex int                    `json:"action_index"` // 失败时的动作索引
 }
 
-// ExecutionHistory 执行历史管理器
+// ExecutionHistory 执行历史管理器.
 type ExecutionHistory struct {
 	records map[string][]ExecutionRecord // workflowID -> records
 	mu      sync.RWMutex
 	maxSize int // 每个工作流最多保留的记录数
 }
 
-// NewExecutionHistory 创建执行历史管理器
+// NewExecutionHistory 创建执行历史管理器.
 func NewExecutionHistory(maxSize int) *ExecutionHistory {
 	if maxSize <= 0 {
 		maxSize = 100 // 默认保留 100 条
@@ -71,7 +71,7 @@ func NewExecutionHistory(maxSize int) *ExecutionHistory {
 	}
 }
 
-// AddRecord 添加执行记录
+// AddRecord 添加执行记录.
 func (h *ExecutionHistory) AddRecord(record ExecutionRecord) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -87,7 +87,7 @@ func (h *ExecutionHistory) AddRecord(record ExecutionRecord) {
 	h.records[record.WorkflowID] = records
 }
 
-// GetRecords 获取指定工作流的执行记录
+// GetRecords 获取指定工作流的执行记录.
 func (h *ExecutionHistory) GetRecords(workflowID string, limit int) []ExecutionRecord {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -99,7 +99,7 @@ func (h *ExecutionHistory) GetRecords(workflowID string, limit int) []ExecutionR
 	return records
 }
 
-// GetRecentRecords 获取最近的执行记录（所有工作流）
+// GetRecentRecords 获取最近的执行记录（所有工作流）.
 func (h *ExecutionHistory) GetRecentRecords(limit int) []ExecutionRecord {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -124,14 +124,14 @@ func (h *ExecutionHistory) GetRecentRecords(limit int) []ExecutionRecord {
 	return allRecords
 }
 
-// ClearRecords 清除指定工作流的执行记录
+// ClearRecords 清除指定工作流的执行记录.
 func (h *ExecutionHistory) ClearRecords(workflowID string) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	delete(h.records, workflowID)
 }
 
-// WorkflowEngine 工作流引擎
+// WorkflowEngine 工作流引擎.
 type WorkflowEngine struct {
 	workflows   map[string]*Workflow
 	mu          sync.RWMutex
@@ -141,7 +141,7 @@ type WorkflowEngine struct {
 	history     *ExecutionHistory // 执行历史
 }
 
-// NewWorkflowEngine 创建新的工作流引擎
+// NewWorkflowEngine 创建新的工作流引擎.
 func NewWorkflowEngine() *WorkflowEngine {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &WorkflowEngine{
@@ -152,7 +152,7 @@ func NewWorkflowEngine() *WorkflowEngine {
 	}
 }
 
-// NewWorkflowEngineWithStorage 创建带持久化的工作流引擎
+// NewWorkflowEngineWithStorage 创建带持久化的工作流引擎.
 func NewWorkflowEngineWithStorage(storagePath string) (*WorkflowEngine, error) {
 	engine := NewWorkflowEngine()
 	engine.storagePath = storagePath
@@ -170,7 +170,7 @@ func NewWorkflowEngineWithStorage(storagePath string) (*WorkflowEngine, error) {
 	return engine, nil
 }
 
-// loadFromStorage 从存储加载工作流
+// loadFromStorage 从存储加载工作流.
 func (e *WorkflowEngine) loadFromStorage() error {
 	if e.storagePath == "" {
 		return nil
@@ -206,7 +206,7 @@ func (e *WorkflowEngine) loadFromStorage() error {
 	return nil
 }
 
-// saveToStorage 保存工作流到存储
+// saveToStorage 保存工作流到存储.
 func (e *WorkflowEngine) saveToStorage(wf *Workflow) error {
 	if e.storagePath == "" {
 		return nil
@@ -221,7 +221,7 @@ func (e *WorkflowEngine) saveToStorage(wf *Workflow) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// deleteFromStorage 从存储删除工作流
+// deleteFromStorage 从存储删除工作流.
 func (e *WorkflowEngine) deleteFromStorage(id string) error {
 	if e.storagePath == "" {
 		return nil
@@ -234,7 +234,7 @@ func (e *WorkflowEngine) deleteFromStorage(id string) error {
 	return os.Remove(path)
 }
 
-// CreateWorkflow 创建工作流
+// CreateWorkflow 创建工作流.
 func (e *WorkflowEngine) CreateWorkflow(wf *Workflow) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -256,7 +256,7 @@ func (e *WorkflowEngine) CreateWorkflow(wf *Workflow) error {
 	return nil
 }
 
-// UpdateWorkflow 更新工作流
+// UpdateWorkflow 更新工作流.
 func (e *WorkflowEngine) UpdateWorkflow(id string, wf *Workflow) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -277,7 +277,7 @@ func (e *WorkflowEngine) UpdateWorkflow(id string, wf *Workflow) error {
 	return nil
 }
 
-// DeleteWorkflow 删除工作流
+// DeleteWorkflow 删除工作流.
 func (e *WorkflowEngine) DeleteWorkflow(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -295,7 +295,7 @@ func (e *WorkflowEngine) DeleteWorkflow(id string) error {
 	return nil
 }
 
-// GetWorkflow 获取工作流
+// GetWorkflow 获取工作流.
 func (e *WorkflowEngine) GetWorkflow(id string) (*Workflow, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -308,7 +308,7 @@ func (e *WorkflowEngine) GetWorkflow(id string) (*Workflow, error) {
 	return wf, nil
 }
 
-// ListWorkflows 列出所有工作流
+// ListWorkflows 列出所有工作流.
 func (e *WorkflowEngine) ListWorkflows() []*Workflow {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -320,7 +320,7 @@ func (e *WorkflowEngine) ListWorkflows() []*Workflow {
 	return result
 }
 
-// EnableWorkflow 启用工作流
+// EnableWorkflow 启用工作流.
 func (e *WorkflowEngine) EnableWorkflow(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -335,7 +335,7 @@ func (e *WorkflowEngine) EnableWorkflow(id string) error {
 	return nil
 }
 
-// DisableWorkflow 禁用工作流
+// DisableWorkflow 禁用工作流.
 func (e *WorkflowEngine) DisableWorkflow(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -350,7 +350,7 @@ func (e *WorkflowEngine) DisableWorkflow(id string) error {
 	return nil
 }
 
-// ExecuteWorkflow 执行工作流
+// ExecuteWorkflow 执行工作流.
 func (e *WorkflowEngine) ExecuteWorkflow(id string, eventData map[string]interface{}) error {
 	e.mu.Lock()
 	wf, exists := e.workflows[id]
@@ -426,7 +426,7 @@ func (e *WorkflowEngine) ExecuteWorkflow(id string, eventData map[string]interfa
 	return execErr
 }
 
-// GetExecutionHistory 获取执行历史
+// GetExecutionHistory 获取执行历史.
 func (e *WorkflowEngine) GetExecutionHistory(workflowID string, limit int) []ExecutionRecord {
 	if workflowID != "" {
 		return e.history.GetRecords(workflowID, limit)
@@ -434,12 +434,12 @@ func (e *WorkflowEngine) GetExecutionHistory(workflowID string, limit int) []Exe
 	return e.history.GetRecentRecords(limit)
 }
 
-// ClearExecutionHistory 清除执行历史
+// ClearExecutionHistory 清除执行历史.
 func (e *WorkflowEngine) ClearExecutionHistory(workflowID string) {
 	e.history.ClearRecords(workflowID)
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *WorkflowEngine) Start() error {
 	// 启动触发器监控
 	for _, wf := range e.workflows {
@@ -458,13 +458,13 @@ func (e *WorkflowEngine) Start() error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *WorkflowEngine) Stop() error {
 	e.cancel()
 	return nil
 }
 
-// ExportWorkflow 导出工作流为 JSON
+// ExportWorkflow 导出工作流为 JSON.
 func (e *WorkflowEngine) ExportWorkflow(id string) ([]byte, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -477,7 +477,7 @@ func (e *WorkflowEngine) ExportWorkflow(id string) ([]byte, error) {
 	return json.MarshalIndent(wf, "", "  ")
 }
 
-// ImportWorkflow 从 JSON 导入工作流
+// ImportWorkflow 从 JSON 导入工作流.
 func (e *WorkflowEngine) ImportWorkflow(data []byte) (*Workflow, error) {
 	var wf Workflow
 	if err := json.Unmarshal(data, &wf); err != nil {

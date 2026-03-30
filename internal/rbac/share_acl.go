@@ -14,37 +14,37 @@ import (
 
 // ========== 共享访问控制类型 ==========
 
-// ShareType 共享类型
+// ShareType 共享类型.
 type ShareType string
 
 const (
-	// ShareTypeSMB SMB 共享
+	// ShareTypeSMB SMB 共享.
 	ShareTypeSMB ShareType = "smb"
-	// ShareTypeNFS NFS 共享
+	// ShareTypeNFS NFS 共享.
 	ShareTypeNFS ShareType = "nfs"
-	// ShareTypeFTP FTP 共享
+	// ShareTypeFTP FTP 共享.
 	ShareTypeFTP ShareType = "ftp"
-	// ShareTypeWebDAV WebDAV 共享
+	// ShareTypeWebDAV WebDAV 共享.
 	ShareTypeWebDAV ShareType = "webdav"
 )
 
-// AccessLevel 访问级别
+// AccessLevel 访问级别.
 type AccessLevel string
 
 const (
-	// AccessNone 无权限
+	// AccessNone 无权限.
 	AccessNone AccessLevel = "none"
-	// AccessRead 只读
+	// AccessRead 只读.
 	AccessRead AccessLevel = "read"
-	// AccessWrite 读写
+	// AccessWrite 读写.
 	AccessWrite AccessLevel = "write"
-	// AccessFull 完全控制
+	// AccessFull 完全控制.
 	AccessFull AccessLevel = "full"
-	// AccessCustom 自定义权限
+	// AccessCustom 自定义权限.
 	AccessCustom AccessLevel = "custom"
 )
 
-// ShareACL 共享访问控制条目
+// ShareACL 共享访问控制条目.
 type ShareACL struct {
 	ID           string      `json:"id"`
 	ShareName    string      `json:"share_name"`
@@ -58,7 +58,7 @@ type ShareACL struct {
 	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
-// ACLEntry 访问控制条目
+// ACLEntry 访问控制条目.
 type ACLEntry struct {
 	ID            string        `json:"id"`
 	PrincipalType PrincipalType `json:"principal_type"` // user, group, everyone
@@ -73,19 +73,19 @@ type ACLEntry struct {
 	CreatedBy     string        `json:"created_by"` // 创建者用户ID
 }
 
-// PrincipalType 主体类型
+// PrincipalType 主体类型.
 type PrincipalType string
 
 const (
-	// PrincipalUser 用户主体
+	// PrincipalUser 用户主体.
 	PrincipalUser PrincipalType = "user"
-	// PrincipalGroup 用户组主体
+	// PrincipalGroup 用户组主体.
 	PrincipalGroup PrincipalType = "group"
-	// PrincipalEveryone 所有人主体
+	// PrincipalEveryone 所有人主体.
 	PrincipalEveryone PrincipalType = "everyone"
 )
 
-// SharePermission 共享权限检查结果
+// SharePermission 共享权限检查结果.
 type SharePermission struct {
 	ShareName   string      `json:"share_name"`
 	UserID      string      `json:"user_id"`
@@ -95,12 +95,12 @@ type SharePermission struct {
 	Inherited   bool        `json:"inherited"`
 }
 
-// ShareACLConfig 共享 ACL 配置
+// ShareACLConfig 共享 ACL 配置.
 type ShareACLConfig struct {
 	ConfigPath string `json:"config_path"`
 }
 
-// ShareACLManager 共享 ACL 管理器
+// ShareACLManager 共享 ACL 管理器.
 type ShareACLManager struct {
 	mu     sync.RWMutex
 	config ShareACLConfig
@@ -108,7 +108,7 @@ type ShareACLManager struct {
 	rb     *Manager             // RBAC 管理器
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrShareNotFound      = errors.New("共享不存在")
 	ErrACLEntryExists     = errors.New("ACL 条目已存在")
@@ -116,7 +116,7 @@ var (
 	ErrInvalidAccessLevel = errors.New("无效的访问级别")
 )
 
-// NewShareACLManager 创建共享 ACL 管理器
+// NewShareACLManager 创建共享 ACL 管理器.
 func NewShareACLManager(config ShareACLConfig, rbacManager *Manager) (*ShareACLManager, error) {
 	m := &ShareACLManager{
 		config: config,
@@ -135,7 +135,7 @@ func NewShareACLManager(config ShareACLConfig, rbacManager *Manager) (*ShareACLM
 
 // ========== 共享 ACL 管理 ==========
 
-// CreateShareACL 创建共享 ACL
+// CreateShareACL 创建共享 ACL.
 func (m *ShareACLManager) CreateShareACL(shareName string, shareType ShareType, path, description string, defaultLevel AccessLevel) (*ShareACL, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -180,7 +180,7 @@ func (m *ShareACLManager) CreateShareACL(shareName string, shareType ShareType, 
 	return acl, nil
 }
 
-// GetShareACL 获取共享 ACL
+// GetShareACL 获取共享 ACL.
 func (m *ShareACLManager) GetShareACL(shareName string) (*ShareACL, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -193,7 +193,7 @@ func (m *ShareACLManager) GetShareACL(shareName string) (*ShareACL, error) {
 	return acl, nil
 }
 
-// UpdateShareACL 更新共享 ACL 基本信息
+// UpdateShareACL 更新共享 ACL 基本信息.
 func (m *ShareACLManager) UpdateShareACL(shareName, description string, defaultLevel AccessLevel, enabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -214,7 +214,7 @@ func (m *ShareACLManager) UpdateShareACL(shareName, description string, defaultL
 	return nil
 }
 
-// DeleteShareACL 删除共享 ACL
+// DeleteShareACL 删除共享 ACL.
 func (m *ShareACLManager) DeleteShareACL(shareName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -230,7 +230,7 @@ func (m *ShareACLManager) DeleteShareACL(shareName string) error {
 	return nil
 }
 
-// ListShareACLs 列出所有共享 ACL
+// ListShareACLs 列出所有共享 ACL.
 func (m *ShareACLManager) ListShareACLs() []*ShareACL {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -244,7 +244,7 @@ func (m *ShareACLManager) ListShareACLs() []*ShareACL {
 
 // ========== ACL 条目管理 ==========
 
-// AddACLEntry 添加 ACL 条目
+// AddACLEntry 添加 ACL 条目.
 func (m *ShareACLManager) AddACLEntry(shareName string, principalType PrincipalType, principalID, principalName string, accessLevel AccessLevel, createdBy string) (*ACLEntry, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -293,7 +293,7 @@ func (m *ShareACLManager) AddACLEntry(shareName string, principalType PrincipalT
 	return entry, nil
 }
 
-// UpdateACLEntry 更新 ACL 条目
+// UpdateACLEntry 更新 ACL 条目.
 func (m *ShareACLManager) UpdateACLEntry(shareName, entryID string, accessLevel AccessLevel) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -317,7 +317,7 @@ func (m *ShareACLManager) UpdateACLEntry(shareName, entryID string, accessLevel 
 	return ErrACLEntryNotFound
 }
 
-// RemoveACLEntry 移除 ACL 条目
+// RemoveACLEntry 移除 ACL 条目.
 func (m *ShareACLManager) RemoveACLEntry(shareName, entryID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -346,7 +346,7 @@ func (m *ShareACLManager) RemoveACLEntry(shareName, entryID string) error {
 	return nil
 }
 
-// DisableACLEntry 禁用 ACL 条目
+// DisableACLEntry 禁用 ACL 条目.
 func (m *ShareACLManager) DisableACLEntry(shareName, entryID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -372,7 +372,7 @@ func (m *ShareACLManager) DisableACLEntry(shareName, entryID string) error {
 
 // ========== 权限检查 ==========
 
-// CheckShareAccess 检查用户对共享的访问权限
+// CheckShareAccess 检查用户对共享的访问权限.
 func (m *ShareACLManager) CheckShareAccess(userID, username, shareName string) *SharePermission {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -468,7 +468,7 @@ func (m *ShareACLManager) CheckShareAccess(userID, username, shareName string) *
 	return result
 }
 
-// GetUserShares 获取用户可访问的共享列表
+// GetUserShares 获取用户可访问的共享列表.
 func (m *ShareACLManager) GetUserShares(userID, username string) []*SharePermission {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -489,7 +489,7 @@ func (m *ShareACLManager) GetUserShares(userID, username string) []*SharePermiss
 	return result
 }
 
-// CanRead 检查读权限
+// CanRead 检查读权限.
 func (m *ShareACLManager) CanRead(userID, username, shareName string) bool {
 	perm := m.CheckShareAccess(userID, username, shareName)
 	return perm.AccessLevel == AccessRead ||
@@ -497,13 +497,13 @@ func (m *ShareACLManager) CanRead(userID, username, shareName string) bool {
 		perm.AccessLevel == AccessFull
 }
 
-// CanWrite 检查写权限
+// CanWrite 检查写权限.
 func (m *ShareACLManager) CanWrite(userID, username, shareName string) bool {
 	perm := m.CheckShareAccess(userID, username, shareName)
 	return perm.AccessLevel == AccessWrite || perm.AccessLevel == AccessFull
 }
 
-// CanFullControl 检查完全控制权限
+// CanFullControl 检查完全控制权限.
 func (m *ShareACLManager) CanFullControl(userID, username, shareName string) bool {
 	perm := m.CheckShareAccess(userID, username, shareName)
 	return perm.AccessLevel == AccessFull
@@ -565,7 +565,7 @@ func (m *ShareACLManager) save() error {
 
 // ========== SMB 兼容层 ==========
 
-// ToSMBACL 转换为 SMB ACL 格式
+// ToSMBACL 转换为 SMB ACL 格式.
 func (acl *ShareACL) ToSMBACL() map[string]interface{} {
 	result := map[string]interface{}{
 		"share_name":  acl.ShareName,
@@ -613,7 +613,7 @@ func (acl *ShareACL) ToSMBACL() map[string]interface{} {
 
 // ========== NFS 兼容层 ==========
 
-// ToNFSExports 转换为 NFS exports 格式
+// ToNFSExports 转换为 NFS exports 格式.
 func (acl *ShareACL) ToNFSExports() []map[string]interface{} {
 	result := make([]map[string]interface{}, 0)
 

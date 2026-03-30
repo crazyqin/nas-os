@@ -11,24 +11,24 @@ import (
 	"time"
 )
 
-// 常量定义
+// 常量定义.
 const (
-	// DefaultStopTimeout 默认停止超时时间（秒）
+	// DefaultStopTimeout 默认停止超时时间（秒）.
 	DefaultStopTimeout = 10
-	// DefaultLogTail 默认日志行数
+	// DefaultLogTail 默认日志行数.
 	DefaultLogTail = 100
-	// DefaultStatsTimeout 默认统计超时时间
+	// DefaultStatsTimeout 默认统计超时时间.
 	DefaultStatsTimeout = 5 * time.Second
-	// DefaultRestartPolicy 默认重启策略
+	// DefaultRestartPolicy 默认重启策略.
 	DefaultRestartPolicy = "unless-stopped"
 )
 
-// Manager 容器管理器
+// Manager 容器管理器.
 type Manager struct {
 	socketPath string
 }
 
-// Container 容器信息
+// Container 容器信息.
 type Container struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -48,7 +48,7 @@ type Container struct {
 	RestartPolicy string            `json:"restartPolicy"`
 }
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	HostIP        string `json:"hostIp"`
 	HostPort      string `json:"hostPort"`
@@ -56,7 +56,7 @@ type PortMapping struct {
 	Protocol      string `json:"protocol"`
 }
 
-// String 返回端口映射的字符串表示
+// String 返回端口映射的字符串表示.
 func (p *PortMapping) String() string {
 	if p.HostIP != "" {
 		return p.HostIP + ":" + p.HostPort + ":" + p.ContainerPort + "/" + p.Protocol
@@ -64,7 +64,7 @@ func (p *PortMapping) String() string {
 	return p.HostPort + ":" + p.ContainerPort + "/" + p.Protocol
 }
 
-// VolumeMount 卷挂载
+// VolumeMount 卷挂载.
 type VolumeMount struct {
 	Source      string `json:"source"`
 	Destination string `json:"destination"`
@@ -72,7 +72,7 @@ type VolumeMount struct {
 	RW          bool   `json:"rw"`
 }
 
-// String 返回卷挂载的字符串表示
+// String 返回卷挂载的字符串表示.
 func (v *VolumeMount) String() string {
 	if v.Mode != "" {
 		return v.Source + ":" + v.Destination + ":" + v.Mode
@@ -80,7 +80,7 @@ func (v *VolumeMount) String() string {
 	return v.Source + ":" + v.Destination
 }
 
-// Stats 容器实时统计
+// Stats 容器实时统计.
 type Stats struct {
 	CPUUsage   float64   `json:"cpuUsage"`
 	MemUsage   uint64    `json:"memUsage"`
@@ -94,7 +94,7 @@ type Stats struct {
 	Timestamp  time.Time `json:"timestamp"`
 }
 
-// MemoryPercent 计算内存使用百分比
+// MemoryPercent 计算内存使用百分比.
 func (s *Stats) MemoryPercent() float64 {
 	if s.MemLimit == 0 {
 		return 0.0
@@ -102,7 +102,7 @@ func (s *Stats) MemoryPercent() float64 {
 	return float64(s.MemUsage) / float64(s.MemLimit) * 100
 }
 
-// Config 容器创建配置
+// Config 容器创建配置.
 type Config struct {
 	Name        string            `json:"name"`
 	Image       string            `json:"image"`
@@ -120,14 +120,14 @@ type Config struct {
 	TTY         bool              `json:"tty,omitempty"`
 }
 
-// Log 容器日志
+// Log 容器日志.
 type Log struct {
 	Timestamp time.Time `json:"timestamp"`
 	Line      string    `json:"line"`
 	Source    string    `json:"source"` // "stdout" or "stderr"
 }
 
-// NewManager 创建容器管理器
+// NewManager 创建容器管理器.
 func NewManager() (*Manager, error) {
 	socketPath := os.Getenv("DOCKER_HOST")
 	if socketPath == "" {
@@ -139,7 +139,7 @@ func NewManager() (*Manager, error) {
 	}, nil
 }
 
-// IsRunning 检查 Docker 是否运行
+// IsRunning 检查 Docker 是否运行.
 func (m *Manager) IsRunning() bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -147,7 +147,7 @@ func (m *Manager) IsRunning() bool {
 	return cmd.Run() == nil
 }
 
-// GetVersion 获取 Docker 版本信息
+// GetVersion 获取 Docker 版本信息.
 func (m *Manager) GetVersion() (map[string]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -186,14 +186,14 @@ func (m *Manager) GetVersion() (map[string]string, error) {
 	}, nil
 }
 
-// ListContainers 列出容器
+// ListContainers 列出容器.
 func (m *Manager) ListContainers(all bool) ([]*Container, error) {
 	args := []string{"ps", "--format", "{{json .}}"}
 	if all {
 		args = []string{"ps", "-a", "--format", "{{json .}}"}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.Output()
@@ -232,7 +232,7 @@ func (m *Manager) ListContainers(all bool) ([]*Container, error) {
 	return containers, nil
 }
 
-// GetContainer 获取容器详情
+// GetContainer 获取容器详情.
 func (m *Manager) GetContainer(id string) (*Container, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -340,7 +340,7 @@ func (m *Manager) GetContainer(id string) (*Container, error) {
 	return container, nil
 }
 
-// CreateContainer 创建容器
+// CreateContainer 创建容器.
 func (m *Manager) CreateContainer(config *Config) (*Container, error) {
 	args := []string{"run", "-d"}
 
@@ -405,7 +405,7 @@ func (m *Manager) CreateContainer(config *Config) (*Container, error) {
 		args = append(args, config.Command...)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
@@ -417,7 +417,7 @@ func (m *Manager) CreateContainer(config *Config) (*Container, error) {
 	return m.GetContainer(containerID)
 }
 
-// StartContainer 启动容器
+// StartContainer 启动容器.
 func (m *Manager) StartContainer(id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -429,7 +429,7 @@ func (m *Manager) StartContainer(id string) error {
 	return nil
 }
 
-// StopContainer 停止容器
+// StopContainer 停止容器.
 func (m *Manager) StopContainer(id string, timeout int) error {
 	args := []string{"stop"}
 	if timeout > 0 {
@@ -437,7 +437,7 @@ func (m *Manager) StopContainer(id string, timeout int) error {
 	}
 	args = append(args, id)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout+10)*time.Second)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
@@ -447,7 +447,7 @@ func (m *Manager) StopContainer(id string, timeout int) error {
 	return nil
 }
 
-// RestartContainer 重启容器
+// RestartContainer 重启容器.
 func (m *Manager) RestartContainer(id string, timeout int) error {
 	args := []string{"restart"}
 	if timeout > 0 {
@@ -455,7 +455,7 @@ func (m *Manager) RestartContainer(id string, timeout int) error {
 	}
 	args = append(args, id)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout+10)*time.Second)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
@@ -465,7 +465,7 @@ func (m *Manager) RestartContainer(id string, timeout int) error {
 	return nil
 }
 
-// RemoveContainer 删除容器
+// RemoveContainer 删除容器.
 func (m *Manager) RemoveContainer(id string, force bool, removeVolumes bool) error {
 	args := []string{"rm"}
 	if force {
@@ -486,7 +486,7 @@ func (m *Manager) RemoveContainer(id string, force bool, removeVolumes bool) err
 	return nil
 }
 
-// GetContainerStats 获取容器实时统计
+// GetContainerStats 获取容器实时统计.
 func (m *Manager) GetContainerStats(id string) (*Stats, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultStatsTimeout)
 	defer cancel()
@@ -555,7 +555,7 @@ func (m *Manager) GetContainerStats(id string) (*Stats, error) {
 	return stats, nil
 }
 
-// GetContainerLogs 获取容器日志
+// GetContainerLogs 获取容器日志.
 func (m *Manager) GetContainerLogs(id string, tail int, follow bool) ([]Log, error) {
 	args := []string{"logs"}
 	if tail <= 0 {
@@ -567,7 +567,7 @@ func (m *Manager) GetContainerLogs(id string, tail int, follow bool) ([]Log, err
 	}
 	args = append(args, id)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := cmd.CombinedOutput()
@@ -588,7 +588,7 @@ func (m *Manager) GetContainerLogs(id string, tail int, follow bool) ([]Log, err
 	return logs, nil
 }
 
-// parseSize 解析大小字符串
+// parseSize 解析大小字符串.
 func parseSize(s string) uint64 {
 	s = strings.TrimSpace(s)
 	s = strings.ReplaceAll(s, " ", "")
@@ -620,7 +620,7 @@ func parseSize(s string) uint64 {
 	}
 }
 
-// Validate 验证容器配置
+// Validate 验证容器配置.
 func (c *Config) Validate() error {
 	if c.Name == "" {
 		return fmt.Errorf("name is required")

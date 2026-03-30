@@ -57,8 +57,12 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
     -o nasctl ./cmd/nasctl
 
-# UPX 压缩
-RUN upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped"
+# UPX 压缩（armv7 跳过：QEMU 下极慢）
+RUN if [ "${TARGETARCH}" != "arm" ] || [ "${TARGETVARIANT}" != "v7" ]; then \
+      upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped"; \
+    else \
+      echo "Skipping UPX for armv7"; \
+    fi
 
 # ========== 运行阶段 ==========
 FROM alpine:3.21

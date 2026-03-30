@@ -376,7 +376,8 @@ func TestOptimizer_QueryWithTiming(t *testing.T) {
 
 	rows, err := opt.QueryWithTiming("SELECT * FROM test_table")
 	assert.NoError(t, err)
-	rows.Close()
+	assert.NoError(t, rows.Err())
+	defer rows.Close()
 
 	stats := opt.Stats()
 	assert.Equal(t, int64(1), stats.QueryCount)

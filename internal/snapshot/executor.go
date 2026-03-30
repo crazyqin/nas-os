@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// 危险命令黑名单 - 扩展版本
+// 危险命令黑名单 - 扩展版本.
 var dangerousCommands = []string{
 	// 文件系统破坏
 	"rm -rf /",
@@ -89,7 +89,7 @@ var dangerousCommands = []string{
 	"exec ",
 }
 
-// validateScript 验证脚本内容安全性
+// validateScript 验证脚本内容安全性.
 func validateScript(script string) error {
 	lowerScript := strings.ToLower(script)
 	for _, dangerous := range dangerousCommands {
@@ -104,19 +104,19 @@ func validateScript(script string) error {
 	return nil
 }
 
-// Executor 快照执行器
+// Executor 快照执行器.
 type Executor struct {
 	storageMgr StorageManager
 }
 
-// NewExecutor 创建执行器
+// NewExecutor 创建执行器.
 func NewExecutor(storageMgr StorageManager) *Executor {
 	return &Executor{
 		storageMgr: storageMgr,
 	}
 }
 
-// Execute 执行快照创建
+// Execute 执行快照创建.
 func (e *Executor) Execute(policy *Policy) (string, error) {
 	// 生成快照名称
 	snapshotName := e.generateSnapshotName(policy)
@@ -155,7 +155,7 @@ func (e *Executor) Execute(policy *Policy) (string, error) {
 	return snapshotName, nil
 }
 
-// generateSnapshotName 生成快照名称
+// generateSnapshotName 生成快照名称.
 func (e *Executor) generateSnapshotName(policy *Policy) string {
 	timestamp := time.Now().Format("20060102-150405")
 
@@ -173,7 +173,7 @@ func (e *Executor) generateSnapshotName(policy *Policy) string {
 	return name
 }
 
-// runScript 执行脚本
+// runScript 执行脚本.
 func (e *Executor) runScript(script string, timeoutSeconds int) error {
 	// 安全验证：检查脚本是否包含危险命令
 	if err := validateScript(script); err != nil {
@@ -208,7 +208,7 @@ func (e *Executor) runScript(script string, timeoutSeconds int) error {
 	return nil
 }
 
-// ExecutionResult 执行结果
+// ExecutionResult 执行结果.
 type ExecutionResult struct {
 	SnapshotName string    `json:"snapshotName"`
 	VolumeName   string    `json:"volumeName"`

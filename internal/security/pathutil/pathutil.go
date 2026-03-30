@@ -9,15 +9,15 @@ import (
 	"strings"
 )
 
-// ErrPathTraversal 路径遍历攻击错误
+// ErrPathTraversal 路径遍历攻击错误.
 var ErrPathTraversal = errors.New("path traversal detected")
 
-// ErrInvalidPath 无效路径错误
+// ErrInvalidPath 无效路径错误.
 var ErrInvalidPath = errors.New("invalid path")
 
 // SafePath 验证用户提供的路径是否在基目录内
 // 防止路径遍历攻击 (../ 等)
-// 返回清理后的绝对路径，如果路径逃出基目录则返回错误
+// 返回清理后的绝对路径，如果路径逃出基目录则返回错误.
 func SafePath(baseDir, userPath string) (string, error) {
 	// 清理基目录
 	baseDir = filepath.Clean(baseDir)
@@ -86,7 +86,7 @@ func SafePath(baseDir, userPath string) (string, error) {
 	return absFull, nil
 }
 
-// SafePathMust 安全路径验证，出错时 panic
+// SafePathMust 安全路径验证，出错时 panic.
 func SafePathMust(baseDir, userPath string) string {
 	path, err := SafePath(baseDir, userPath)
 	if err != nil {
@@ -96,7 +96,7 @@ func SafePathMust(baseDir, userPath string) string {
 }
 
 // ValidatePath 验证路径是否包含危险字符
-// 用于简单的路径验证，不需要基目录
+// 用于简单的路径验证，不需要基目录.
 func ValidatePath(path string) error {
 	if path == "" {
 		return ErrInvalidPath
@@ -115,12 +115,12 @@ func ValidatePath(path string) error {
 	return nil
 }
 
-// SafeJoin 安全地连接路径，防止路径遍历
+// SafeJoin 安全地连接路径，防止路径遍历.
 func SafeJoin(baseDir, userPath string) (string, error) {
 	return SafePath(baseDir, userPath)
 }
 
-// IsWithinBase 检查路径是否在基目录内
+// IsWithinBase 检查路径是否在基目录内.
 func IsWithinBase(baseDir, targetPath string) bool {
 	absBase, err := filepath.Abs(filepath.Clean(baseDir))
 	if err != nil {

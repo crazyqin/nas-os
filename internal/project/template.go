@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Template 项目模板
+// Template 项目模板.
 type Template struct {
 	ID          string                 `json:"id"`
 	Name        string                 `json:"name"`
@@ -24,7 +24,7 @@ type Template struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// TemplateConfig 模板配置
+// TemplateConfig 模板配置.
 type TemplateConfig struct {
 	// 默认项目设置
 	DefaultName        string `json:"default_name,omitempty"`
@@ -53,14 +53,14 @@ type TemplateConfig struct {
 	Notifications TemplateNotifications `json:"notifications,omitempty"`
 }
 
-// TemplateRole 模板角色
+// TemplateRole 模板角色.
 type TemplateRole struct {
 	Name        string   `json:"name"`
 	Permissions []string `json:"permissions,omitempty"`
 	IsDefault   bool     `json:"is_default,omitempty"`
 }
 
-// TemplateMilestone 模板里程碑
+// TemplateMilestone 模板里程碑.
 type TemplateMilestone struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
@@ -68,7 +68,7 @@ type TemplateMilestone struct {
 	Duration    int    `json:"duration"`    // 持续天数
 }
 
-// TemplateTask 模板任务
+// TemplateTask 模板任务.
 type TemplateTask struct {
 	Title          string       `json:"title"`
 	Description    string       `json:"description,omitempty"`
@@ -79,7 +79,7 @@ type TemplateTask struct {
 	AssigneeRole   string       `json:"assignee_role,omitempty"` // 按角色分配
 }
 
-// TemplateWorkflow 模板工作流
+// TemplateWorkflow 模板工作流.
 type TemplateWorkflow struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description,omitempty"`
@@ -87,7 +87,7 @@ type TemplateWorkflow struct {
 	Triggers    []WorkflowTrigger `json:"triggers,omitempty"`
 }
 
-// WorkflowStep 工作流步骤
+// WorkflowStep 工作流步骤.
 type WorkflowStep struct {
 	Name       string            `json:"name"`
 	Action     string            `json:"action"`
@@ -96,14 +96,14 @@ type WorkflowStep struct {
 	Auto       bool              `json:"auto,omitempty"`
 }
 
-// WorkflowTrigger 工作流触发器
+// WorkflowTrigger 工作流触发器.
 type WorkflowTrigger struct {
 	Event   string `json:"event"`
 	Step    int    `json:"step"`
 	Enabled bool   `json:"enabled"`
 }
 
-// TemplateNotifications 模板通知配置
+// TemplateNotifications 模板通知配置.
 type TemplateNotifications struct {
 	OnTaskAssigned    bool `json:"on_task_assigned"`
 	OnTaskCompleted   bool `json:"on_task_completed"`
@@ -112,14 +112,14 @@ type TemplateNotifications struct {
 	OnProjectComplete bool `json:"on_project_complete"`
 }
 
-// TemplateManager 模板管理器
+// TemplateManager 模板管理器.
 type TemplateManager struct {
 	mu        sync.RWMutex
 	templates map[string]*Template
 	manager   *Manager
 }
 
-// NewTemplateManager 创建模板管理器
+// NewTemplateManager 创建模板管理器.
 func NewTemplateManager(mgr *Manager) *TemplateManager {
 	return &TemplateManager{
 		templates: make(map[string]*Template),
@@ -127,7 +127,7 @@ func NewTemplateManager(mgr *Manager) *TemplateManager {
 	}
 }
 
-// CreateTemplate 创建模板
+// CreateTemplate 创建模板.
 func (tm *TemplateManager) CreateTemplate(name, description, category, createdBy string, isPublic bool, config TemplateConfig) (*Template, error) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -150,7 +150,7 @@ func (tm *TemplateManager) CreateTemplate(name, description, category, createdBy
 	return template, nil
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (tm *TemplateManager) GetTemplate(id string) (*Template, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -162,7 +162,7 @@ func (tm *TemplateManager) GetTemplate(id string) (*Template, error) {
 	return template, nil
 }
 
-// UpdateTemplate 更新模板
+// UpdateTemplate 更新模板.
 func (tm *TemplateManager) UpdateTemplate(id string, updates map[string]interface{}) (*Template, error) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -191,7 +191,7 @@ func (tm *TemplateManager) UpdateTemplate(id string, updates map[string]interfac
 	return template, nil
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (tm *TemplateManager) DeleteTemplate(id string) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -204,7 +204,7 @@ func (tm *TemplateManager) DeleteTemplate(id string) error {
 	return nil
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (tm *TemplateManager) ListTemplates(userID, category string, publicOnly bool) []*Template {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -229,7 +229,7 @@ func (tm *TemplateManager) ListTemplates(userID, category string, publicOnly boo
 	return result
 }
 
-// ApplyTemplate 应用模板创建项目
+// ApplyTemplate 应用模板创建项目.
 func (tm *TemplateManager) ApplyTemplate(templateID, projectName, projectKey, ownerID, createdBy string) (*Project, error) {
 	template, err := tm.GetTemplate(templateID)
 	if err != nil {
@@ -249,7 +249,7 @@ func (tm *TemplateManager) ApplyTemplate(templateID, projectName, projectKey, ow
 	return project, nil
 }
 
-// applyMilestones 应用里程碑
+// applyMilestones 应用里程碑.
 func (tm *TemplateManager) applyMilestones(projectID string, template *Template, createdBy string) {
 	now := time.Now()
 	for _, ms := range template.Config.DefaultMilestones {
@@ -261,7 +261,7 @@ func (tm *TemplateManager) applyMilestones(projectID string, template *Template,
 	}
 }
 
-// applyTasks 应用任务
+// applyTasks 应用任务.
 func (tm *TemplateManager) applyTasks(projectID string, template *Template, createdBy string) {
 	for _, task := range template.Config.DefaultTasks {
 		priority := task.Priority
@@ -275,7 +275,7 @@ func (tm *TemplateManager) applyTasks(projectID string, template *Template, crea
 	}
 }
 
-// ExportTemplate 导出模板为JSON
+// ExportTemplate 导出模板为JSON.
 func (tm *TemplateManager) ExportTemplate(id string) ([]byte, error) {
 	template, err := tm.GetTemplate(id)
 	if err != nil {
@@ -285,7 +285,7 @@ func (tm *TemplateManager) ExportTemplate(id string) ([]byte, error) {
 	return json.MarshalIndent(template, "", "  ")
 }
 
-// ImportTemplate 从JSON导入模板
+// ImportTemplate 从JSON导入模板.
 func (tm *TemplateManager) ImportTemplate(data []byte, createdBy string) (*Template, error) {
 	var template Template
 	if err := json.Unmarshal(data, &template); err != nil {
@@ -305,7 +305,7 @@ func (tm *TemplateManager) ImportTemplate(data []byte, createdBy string) (*Templ
 	return &template, nil
 }
 
-// CloneTemplate 克隆模板
+// CloneTemplate 克隆模板.
 func (tm *TemplateManager) CloneTemplate(id, newName, createdBy string) (*Template, error) {
 	original, err := tm.GetTemplate(id)
 	if err != nil {
@@ -322,17 +322,17 @@ func (tm *TemplateManager) CloneTemplate(id, newName, createdBy string) (*Templa
 	)
 }
 
-// GetTemplatesByCategory 按分类获取模板
+// GetTemplatesByCategory 按分类获取模板.
 func (tm *TemplateManager) GetTemplatesByCategory(category string) []*Template {
 	return tm.ListTemplates("", category, true)
 }
 
-// GetPublicTemplates 获取公开模板
+// GetPublicTemplates 获取公开模板.
 func (tm *TemplateManager) GetPublicTemplates() []*Template {
 	return tm.ListTemplates("", "", true)
 }
 
-// GetUserTemplates 获取用户模板
+// GetUserTemplates 获取用户模板.
 func (tm *TemplateManager) GetUserTemplates(userID string) []*Template {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -346,7 +346,7 @@ func (tm *TemplateManager) GetUserTemplates(userID string) []*Template {
 	return result
 }
 
-// sortTemplates 按时间排序模板
+// sortTemplates 按时间排序模板.
 func (tm *TemplateManager) sortTemplates(templates []*Template) {
 	n := len(templates)
 	for i := 0; i < n-1; i++ {
@@ -360,7 +360,7 @@ func (tm *TemplateManager) sortTemplates(templates []*Template) {
 
 // 预定义模板
 
-// GetDefaultTemplates 获取系统默认模板
+// GetDefaultTemplates 获取系统默认模板.
 func GetDefaultTemplates() []*Template {
 	now := time.Now()
 	return []*Template{
@@ -452,7 +452,7 @@ func GetDefaultTemplates() []*Template {
 	}
 }
 
-// InitializeDefaultTemplates 初始化默认模板
+// InitializeDefaultTemplates 初始化默认模板.
 func (tm *TemplateManager) InitializeDefaultTemplates() {
 	for _, template := range GetDefaultTemplates() {
 		tm.mu.Lock()

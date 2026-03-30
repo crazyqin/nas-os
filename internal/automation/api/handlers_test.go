@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -12,12 +13,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func setupTestAPI() (*AutomationAPI, *mux.Router) {
+func setupTestAPI() (*mux.Router, *AutomationAPI) {
 	eng := engine.NewWorkflowEngine()
 	api := NewAutomationAPI(eng)
 	router := mux.NewRouter()
 	api.RegisterRoutes(router)
-	return api, router
+	return router, api
 }
 
 func TestNewAutomationAPI(t *testing.T) {
@@ -29,9 +30,9 @@ func TestNewAutomationAPI(t *testing.T) {
 }
 
 func TestListWorkflows(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/workflows", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/workflows", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -46,9 +47,9 @@ func TestListWorkflows(t *testing.T) {
 }
 
 func TestGetStats(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/stats", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/stats", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -68,9 +69,9 @@ func TestGetStats(t *testing.T) {
 }
 
 func TestGetWorkflowNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/workflows/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/workflows/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -80,9 +81,9 @@ func TestGetWorkflowNotFound(t *testing.T) {
 }
 
 func TestDeleteWorkflowNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("DELETE", "/api/automation/workflows/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/automation/workflows/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -92,9 +93,9 @@ func TestDeleteWorkflowNotFound(t *testing.T) {
 }
 
 func TestListTemplates(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/templates", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -114,9 +115,9 @@ func TestListTemplates(t *testing.T) {
 }
 
 func TestListTemplateCategories(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/templates/categories", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates/categories", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -135,9 +136,9 @@ func TestListTemplateCategories(t *testing.T) {
 }
 
 func TestGetTemplateNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/templates/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -147,9 +148,9 @@ func TestGetTemplateNotFound(t *testing.T) {
 }
 
 func TestCreateWorkflowInvalidJSON(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("POST", "/api/automation/workflows", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -161,7 +162,7 @@ func TestCreateWorkflowInvalidJSON(t *testing.T) {
 // =============== 新增测试用例 ===============
 
 func TestCreateWorkflowSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "Test Workflow",
@@ -181,7 +182,7 @@ func TestCreateWorkflowSuccess(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -201,7 +202,7 @@ func TestCreateWorkflowSuccess(t *testing.T) {
 }
 
 func TestCreateWorkflowInvalidTriggerType(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "Test Workflow",
@@ -214,7 +215,7 @@ func TestCreateWorkflowInvalidTriggerType(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -226,7 +227,7 @@ func TestCreateWorkflowInvalidTriggerType(t *testing.T) {
 }
 
 func TestCreateWorkflowMissingTriggerType(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "Test Workflow",
@@ -239,7 +240,7 @@ func TestCreateWorkflowMissingTriggerType(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -250,7 +251,7 @@ func TestCreateWorkflowMissingTriggerType(t *testing.T) {
 }
 
 func TestCreateWorkflowInvalidActionType(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "Test Workflow",
@@ -268,7 +269,7 @@ func TestCreateWorkflowInvalidActionType(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -279,7 +280,7 @@ func TestCreateWorkflowInvalidActionType(t *testing.T) {
 }
 
 func TestCreateWorkflowMissingActionType(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "Test Workflow",
@@ -297,7 +298,7 @@ func TestCreateWorkflowMissingActionType(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -308,7 +309,7 @@ func TestCreateWorkflowMissingActionType(t *testing.T) {
 }
 
 func TestGetWorkflowSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 先创建一个工作流
 	workflowReq := WorkflowRequest{
@@ -323,7 +324,7 @@ func TestGetWorkflowSuccess(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -337,7 +338,7 @@ func TestGetWorkflowSuccess(t *testing.T) {
 	workflowID := created["id"].(string)
 
 	// 获取工作流
-	req = httptest.NewRequest("GET", "/api/automation/workflows/"+workflowID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/workflows/"+workflowID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -356,7 +357,7 @@ func TestGetWorkflowSuccess(t *testing.T) {
 }
 
 func TestUpdateWorkflowSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 先创建一个工作流
 	workflowReq := WorkflowRequest{
@@ -371,7 +372,7 @@ func TestUpdateWorkflowSuccess(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -397,7 +398,7 @@ func TestUpdateWorkflowSuccess(t *testing.T) {
 	}
 
 	body, _ = json.Marshal(updateReq)
-	req = httptest.NewRequest("PUT", "/api/automation/workflows/"+workflowID, bytes.NewReader(body))
+	req = httptest.NewRequestWithContext(context.Background(), "PUT", "/api/automation/workflows/"+workflowID, bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -417,7 +418,7 @@ func TestUpdateWorkflowSuccess(t *testing.T) {
 }
 
 func TestUpdateWorkflowNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	updateReq := WorkflowRequest{
 		Name:        "Updated Workflow",
@@ -428,7 +429,7 @@ func TestUpdateWorkflowNotFound(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(updateReq)
-	req := httptest.NewRequest("PUT", "/api/automation/workflows/nonexistent", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/automation/workflows/nonexistent", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -439,9 +440,9 @@ func TestUpdateWorkflowNotFound(t *testing.T) {
 }
 
 func TestUpdateWorkflowInvalidJSON(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("PUT", "/api/automation/workflows/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/automation/workflows/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -451,7 +452,7 @@ func TestUpdateWorkflowInvalidJSON(t *testing.T) {
 }
 
 func TestDeleteWorkflowSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 先创建一个工作流
 	workflowReq := WorkflowRequest{
@@ -466,7 +467,7 @@ func TestDeleteWorkflowSuccess(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -480,7 +481,7 @@ func TestDeleteWorkflowSuccess(t *testing.T) {
 	workflowID := created["id"].(string)
 
 	// 删除工作流
-	req = httptest.NewRequest("DELETE", "/api/automation/workflows/"+workflowID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/automation/workflows/"+workflowID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -489,7 +490,7 @@ func TestDeleteWorkflowSuccess(t *testing.T) {
 	}
 
 	// 验证删除后无法获取
-	req = httptest.NewRequest("GET", "/api/automation/workflows/"+workflowID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/workflows/"+workflowID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -499,7 +500,7 @@ func TestDeleteWorkflowSuccess(t *testing.T) {
 }
 
 func TestToggleWorkflowEnable(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 创建一个禁用的工作流
 	workflowReq := WorkflowRequest{
@@ -514,7 +515,7 @@ func TestToggleWorkflowEnable(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -528,7 +529,7 @@ func TestToggleWorkflowEnable(t *testing.T) {
 	workflowID := created["id"].(string)
 
 	// 切换状态（启用）
-	req = httptest.NewRequest("POST", "/api/automation/workflows/"+workflowID+"/toggle", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows/"+workflowID+"/toggle", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -537,7 +538,7 @@ func TestToggleWorkflowEnable(t *testing.T) {
 	}
 
 	// 验证状态已改变
-	req = httptest.NewRequest("GET", "/api/automation/workflows/"+workflowID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/workflows/"+workflowID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -550,7 +551,7 @@ func TestToggleWorkflowEnable(t *testing.T) {
 }
 
 func TestToggleWorkflowDisable(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 创建一个启用的工作流
 	workflowReq := WorkflowRequest{
@@ -565,7 +566,7 @@ func TestToggleWorkflowDisable(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -579,7 +580,7 @@ func TestToggleWorkflowDisable(t *testing.T) {
 	workflowID := created["id"].(string)
 
 	// 切换状态（禁用）
-	req = httptest.NewRequest("POST", "/api/automation/workflows/"+workflowID+"/toggle", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows/"+workflowID+"/toggle", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -588,7 +589,7 @@ func TestToggleWorkflowDisable(t *testing.T) {
 	}
 
 	// 验证状态已改变
-	req = httptest.NewRequest("GET", "/api/automation/workflows/"+workflowID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/workflows/"+workflowID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -601,9 +602,9 @@ func TestToggleWorkflowDisable(t *testing.T) {
 }
 
 func TestToggleWorkflowNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("POST", "/api/automation/workflows/nonexistent/toggle", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows/nonexistent/toggle", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -613,7 +614,7 @@ func TestToggleWorkflowNotFound(t *testing.T) {
 }
 
 func TestExecuteWorkflowSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 创建一个启用的工作流
 	workflowReq := WorkflowRequest{
@@ -628,7 +629,7 @@ func TestExecuteWorkflowSuccess(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -642,7 +643,7 @@ func TestExecuteWorkflowSuccess(t *testing.T) {
 	workflowID := created["id"].(string)
 
 	// 执行工作流
-	req = httptest.NewRequest("POST", "/api/automation/workflows/"+workflowID+"/execute", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows/"+workflowID+"/execute", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -652,9 +653,9 @@ func TestExecuteWorkflowSuccess(t *testing.T) {
 }
 
 func TestExecuteWorkflowNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("POST", "/api/automation/workflows/nonexistent/execute", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows/nonexistent/execute", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -664,7 +665,7 @@ func TestExecuteWorkflowNotFound(t *testing.T) {
 }
 
 func TestExecuteWorkflowWithEventData(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 创建一个启用的工作流
 	workflowReq := WorkflowRequest{
@@ -679,7 +680,7 @@ func TestExecuteWorkflowWithEventData(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -697,7 +698,7 @@ func TestExecuteWorkflowWithEventData(t *testing.T) {
 		"test_key": "test_value",
 	}
 	body, _ = json.Marshal(eventData)
-	req = httptest.NewRequest("POST", "/api/automation/workflows/"+workflowID+"/execute", bytes.NewReader(body))
+	req = httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows/"+workflowID+"/execute", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -708,7 +709,7 @@ func TestExecuteWorkflowWithEventData(t *testing.T) {
 }
 
 func TestExportWorkflowSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 先创建一个工作流
 	workflowReq := WorkflowRequest{
@@ -723,7 +724,7 @@ func TestExportWorkflowSuccess(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -737,7 +738,7 @@ func TestExportWorkflowSuccess(t *testing.T) {
 	workflowID := created["id"].(string)
 
 	// 导出工作流
-	req = httptest.NewRequest("GET", "/api/automation/workflows/export/"+workflowID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/workflows/export/"+workflowID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -751,9 +752,9 @@ func TestExportWorkflowSuccess(t *testing.T) {
 }
 
 func TestExportWorkflowNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/workflows/export/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/workflows/export/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -763,7 +764,7 @@ func TestExportWorkflowNotFound(t *testing.T) {
 }
 
 func TestImportWorkflowSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 创建一个简单的导入数据
 	// 注意：由于 trigger 和 actions 的 JSON 序列化限制，我们使用最小化的工作流
@@ -775,7 +776,7 @@ func TestImportWorkflowSuccess(t *testing.T) {
 	}
 
 	importBody, _ := json.Marshal(importData)
-	req := httptest.NewRequest("POST", "/api/automation/workflows/import", bytes.NewReader(importBody))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows/import", bytes.NewReader(importBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -788,9 +789,9 @@ func TestImportWorkflowSuccess(t *testing.T) {
 }
 
 func TestImportWorkflowInvalidJSON(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("POST", "/api/automation/workflows/import", bytes.NewReader([]byte("invalid")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows/import", bytes.NewReader([]byte("invalid")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -801,10 +802,10 @@ func TestImportWorkflowInvalidJSON(t *testing.T) {
 }
 
 func TestGetTemplateSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 使用预置模板 ID
-	req := httptest.NewRequest("GET", "/api/automation/templates/tpl_backup_daily", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates/tpl_backup_daily", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -823,9 +824,9 @@ func TestGetTemplateSuccess(t *testing.T) {
 }
 
 func TestValidateTemplateSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/templates/tpl_backup_daily/validate", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates/tpl_backup_daily/validate", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -844,9 +845,9 @@ func TestValidateTemplateSuccess(t *testing.T) {
 }
 
 func TestValidateTemplateNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/templates/nonexistent/validate", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates/nonexistent/validate", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -856,9 +857,9 @@ func TestValidateTemplateNotFound(t *testing.T) {
 }
 
 func TestGetTemplateParamsSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/templates/tpl_backup_daily/params", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates/tpl_backup_daily/params", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -877,9 +878,9 @@ func TestGetTemplateParamsSuccess(t *testing.T) {
 }
 
 func TestGetTemplateParamsNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/templates/nonexistent/params", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates/nonexistent/params", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -889,7 +890,7 @@ func TestGetTemplateParamsNotFound(t *testing.T) {
 }
 
 func TestUseTemplateSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	params := map[string]string{
 		"source_path":    "/data/source",
@@ -898,7 +899,7 @@ func TestUseTemplateSuccess(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(params)
-	req := httptest.NewRequest("POST", "/api/automation/templates/tpl_backup_daily/use", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/templates/tpl_backup_daily/use", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -918,9 +919,9 @@ func TestUseTemplateSuccess(t *testing.T) {
 }
 
 func TestUseTemplateNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("POST", "/api/automation/templates/nonexistent/use", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/templates/nonexistent/use", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -930,9 +931,9 @@ func TestUseTemplateNotFound(t *testing.T) {
 }
 
 func TestExportTemplateSuccess(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/templates/export/tpl_backup_daily", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates/export/tpl_backup_daily", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -946,9 +947,9 @@ func TestExportTemplateSuccess(t *testing.T) {
 }
 
 func TestExportTemplateNotFound(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/templates/export/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates/export/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -958,9 +959,9 @@ func TestExportTemplateNotFound(t *testing.T) {
 }
 
 func TestExportAllTemplates(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("GET", "/api/automation/templates/export-all", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/templates/export-all", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -984,9 +985,9 @@ func TestExportAllTemplates(t *testing.T) {
 }
 
 func TestImportTemplateInvalidJSON(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
-	req := httptest.NewRequest("POST", "/api/automation/templates/import", bytes.NewReader([]byte("invalid")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/templates/import", bytes.NewReader([]byte("invalid")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -997,7 +998,7 @@ func TestImportTemplateInvalidJSON(t *testing.T) {
 }
 
 func TestGetStatsWithWorkflows(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	// 创建多个工作流
 	for i := 0; i < 3; i++ {
@@ -1013,7 +1014,7 @@ func TestGetStatsWithWorkflows(t *testing.T) {
 		}
 
 		body, _ := json.Marshal(workflowReq)
-		req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+		req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -1024,7 +1025,7 @@ func TestGetStatsWithWorkflows(t *testing.T) {
 	}
 
 	// 获取统计
-	req := httptest.NewRequest("GET", "/api/automation/stats", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/automation/stats", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -1045,7 +1046,7 @@ func TestGetStatsWithWorkflows(t *testing.T) {
 }
 
 func TestCreateWorkflowWithFileTrigger(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "File Watch Workflow",
@@ -1062,7 +1063,7 @@ func TestCreateWorkflowWithFileTrigger(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -1073,7 +1074,7 @@ func TestCreateWorkflowWithFileTrigger(t *testing.T) {
 }
 
 func TestCreateWorkflowWithEventTrigger(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "Event Workflow",
@@ -1090,7 +1091,7 @@ func TestCreateWorkflowWithEventTrigger(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -1101,7 +1102,7 @@ func TestCreateWorkflowWithEventTrigger(t *testing.T) {
 }
 
 func TestCreateWorkflowWithWebhookTrigger(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "Webhook Workflow",
@@ -1120,7 +1121,7 @@ func TestCreateWorkflowWithWebhookTrigger(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -1131,7 +1132,7 @@ func TestCreateWorkflowWithWebhookTrigger(t *testing.T) {
 }
 
 func TestCreateWorkflowWithVariousActions(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "Multi Action Workflow",
@@ -1192,7 +1193,7 @@ func TestCreateWorkflowWithVariousActions(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -1225,7 +1226,7 @@ func TestRegisterRoutes(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		req := httptest.NewRequest(tc.method, tc.path, nil)
+		req := httptest.NewRequestWithContext(context.Background(), tc.method, tc.path, nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -1236,7 +1237,7 @@ func TestRegisterRoutes(t *testing.T) {
 }
 
 func TestCreateWorkflowEmptyTrigger(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "No Trigger Workflow",
@@ -1247,7 +1248,7 @@ func TestCreateWorkflowEmptyTrigger(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -1259,7 +1260,7 @@ func TestCreateWorkflowEmptyTrigger(t *testing.T) {
 }
 
 func TestCreateWorkflowEmptyActions(t *testing.T) {
-	_, router := setupTestAPI()
+	router, _ := setupTestAPI()
 
 	workflowReq := WorkflowRequest{
 		Name:        "No Actions Workflow",
@@ -1273,7 +1274,7 @@ func TestCreateWorkflowEmptyActions(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(workflowReq)
-	req := httptest.NewRequest("POST", "/api/automation/workflows", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/automation/workflows", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

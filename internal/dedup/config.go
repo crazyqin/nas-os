@@ -7,27 +7,27 @@ import (
 	"time"
 )
 
-// ChunkSize 块大小常量
+// ChunkSize 块大小常量.
 const (
 	DefaultChunkSize = 4 * 1024         // 4KB 默认块大小
 	MinChunkSize     = 512              // 最小块大小
 	MaxChunkSize     = 64 * 1024 * 1024 // 最大块大小 64MB
 )
 
-// Strategy 去重策略
+// Strategy 去重策略.
 type Strategy string
 
-// 去重策略常量
+// 去重策略常量.
 const (
 	StrategyInline Strategy = "inline" // 内联去重 - 写入时实时去重
 	StrategyBatch  Strategy = "batch"  // 批量去重 - 定期批量处理
 	StrategyHybrid Strategy = "hybrid" // 混合模式 - 结合内联和批量
 )
 
-// RetentionPolicy 保留策略
+// RetentionPolicy 保留策略.
 type RetentionPolicy string
 
-// 保留策略常量
+// 保留策略常量.
 const (
 	RetentionKeepOldest  RetentionPolicy = "keep_oldest"  // 保留最旧的文件
 	RetentionKeepNewest  RetentionPolicy = "keep_newest"  // 保留最新的文件
@@ -36,10 +36,10 @@ const (
 	RetentionManual      RetentionPolicy = "manual"       // 手动选择
 )
 
-// Action 去重操作类型
+// Action 去重操作类型.
 type Action string
 
-// 去重操作类型常量
+// 去重操作类型常量.
 const (
 	ActionReport   Action = "report"   // 仅报告
 	ActionSoftlink Action = "softlink" // 创建软链接
@@ -47,17 +47,17 @@ const (
 	ActionRemove   Action = "remove"   // 直接删除重复文件
 )
 
-// Mode 去重模式
+// Mode 去重模式.
 type Mode string
 
-// 去重模式常量
+// 去重模式常量.
 const (
 	ModeFile  Mode = "file"  // 文件级去重
 	ModeChunk Mode = "chunk" // 块级去重
 	ModeAuto  Mode = "auto"  // 自动选择
 )
 
-// ChunkStoreConfig 块存储配置
+// ChunkStoreConfig 块存储配置.
 type ChunkStoreConfig struct {
 	Enabled    bool   `json:"enabled"`
 	BasePath   string `json:"basePath"`
@@ -65,7 +65,7 @@ type ChunkStoreConfig struct {
 	CleanupAge int    `json:"cleanupAge"` // 清理超过此天数未访问的块 (0 = 不清理)
 }
 
-// Config 去重配置
+// Config 去重配置.
 type Config struct {
 	// 基本配置
 	Enabled     bool  `json:"enabled"`
@@ -103,7 +103,7 @@ type Config struct {
 	CreateBackup     bool `json:"createBackup"`     // 创建备份
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:         true,
@@ -135,7 +135,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Validate 验证配置
+// Validate 验证配置.
 func (c *Config) Validate() error {
 	if c.ChunkSize < MinChunkSize {
 		c.ChunkSize = MinChunkSize
@@ -186,7 +186,7 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// LoadConfig 从文件加载配置
+// LoadConfig 从文件加载配置.
 func LoadConfig(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -202,7 +202,7 @@ func LoadConfig(path string) (*Config, error) {
 	return config, nil
 }
 
-// SaveConfig 保存配置到文件
+// SaveConfig 保存配置到文件.
 func (c *Config) SaveConfig(path string) error {
 	_ = c.Validate()
 	data, err := json.MarshalIndent(c, "", "  ")
@@ -212,7 +212,7 @@ func (c *Config) SaveConfig(path string) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// Clone 克隆配置
+// Clone 克隆配置.
 func (c *Config) Clone() *Config {
 	data, _ := json.Marshal(c)
 	newConfig := &Config{}
@@ -220,7 +220,7 @@ func (c *Config) Clone() *Config {
 	return newConfig
 }
 
-// Policy 去重策略（运行时策略）
+// Policy 去重策略（运行时策略）.
 type Policy struct {
 	Mode          Mode            `json:"mode"`          // 去重模式
 	Action        Action          `json:"action"`        // 去重操作
@@ -231,7 +231,7 @@ type Policy struct {
 	DryRun        bool            `json:"dryRun"`        // 试运行模式
 }
 
-// DefaultPolicy 默认策略
+// DefaultPolicy 默认策略.
 func DefaultPolicy() *Policy {
 	return &Policy{
 		Mode:          ModeFile,
@@ -244,7 +244,7 @@ func DefaultPolicy() *Policy {
 	}
 }
 
-// ToPolicy 从配置创建策略
+// ToPolicy 从配置创建策略.
 func (c *Config) ToPolicy() *Policy {
 	return &Policy{
 		Mode:          c.DedupMode,
@@ -257,7 +257,7 @@ func (c *Config) ToPolicy() *Policy {
 	}
 }
 
-// ScheduleConfig 调度配置
+// ScheduleConfig 调度配置.
 type ScheduleConfig struct {
 	Enabled  bool          `json:"enabled"`
 	Cron     string        `json:"cron"`
@@ -265,7 +265,7 @@ type ScheduleConfig struct {
 	Timeout  time.Duration `json:"timeout"`
 }
 
-// DefaultScheduleConfig 默认调度配置
+// DefaultScheduleConfig 默认调度配置.
 func DefaultScheduleConfig() *ScheduleConfig {
 	return &ScheduleConfig{
 		Enabled:  false,

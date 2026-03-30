@@ -11,7 +11,7 @@ import (
 
 // ========== 复制管理器基准测试 ==========
 
-// BenchmarkReplicationManager_CreateTask 创建任务性能测试
+// BenchmarkReplicationManager_CreateTask 创建任务性能测试.
 func BenchmarkReplicationManager_CreateTask(b *testing.B) {
 	mgr := setupTestReplicationManager(b)
 	defer mgr.Stop()
@@ -31,7 +31,7 @@ func BenchmarkReplicationManager_CreateTask(b *testing.B) {
 	}
 }
 
-// BenchmarkReplicationManager_ListTasks 列出任务性能测试
+// BenchmarkReplicationManager_ListTasks 列出任务性能测试.
 func BenchmarkReplicationManager_ListTasks(b *testing.B) {
 	mgr := setupTestReplicationManager(b)
 	defer mgr.Stop()
@@ -54,7 +54,7 @@ func BenchmarkReplicationManager_ListTasks(b *testing.B) {
 	}
 }
 
-// BenchmarkReplicationManager_GetTask 获取任务性能测试
+// BenchmarkReplicationManager_GetTask 获取任务性能测试.
 func BenchmarkReplicationManager_GetTask(b *testing.B) {
 	mgr := setupTestReplicationManager(b)
 	defer mgr.Stop()
@@ -80,7 +80,7 @@ func BenchmarkReplicationManager_GetTask(b *testing.B) {
 	}
 }
 
-// BenchmarkReplicationManager_ConcurrentAccess 并发访问测试
+// BenchmarkReplicationManager_ConcurrentAccess 并发访问测试.
 func BenchmarkReplicationManager_ConcurrentAccess(b *testing.B) {
 	mgr := setupTestReplicationManager(b)
 	defer mgr.Stop()
@@ -117,7 +117,7 @@ func BenchmarkReplicationManager_ConcurrentAccess(b *testing.B) {
 
 // ========== 冲突检测基准测试 ==========
 
-// BenchmarkConflictDetector_Detect 检测冲突性能测试
+// BenchmarkConflictDetector_Detect 检测冲突性能测试.
 func BenchmarkConflictDetector_Detect(b *testing.B) {
 	detector := NewConflictDetector(ConflictNewerWins)
 
@@ -143,7 +143,7 @@ func BenchmarkConflictDetector_Detect(b *testing.B) {
 	}
 }
 
-// BenchmarkConflictDetector_Resolve 解决冲突性能测试
+// BenchmarkConflictDetector_Resolve 解决冲突性能测试.
 func BenchmarkConflictDetector_Resolve(b *testing.B) {
 	detector := NewConflictDetector(ConflictNewerWins)
 
@@ -164,7 +164,7 @@ func BenchmarkConflictDetector_Resolve(b *testing.B) {
 
 // ========== rsync 输出解析基准测试 ==========
 
-// BenchmarkRsyncOutput_Parse 解析 rsync 输出性能测试
+// BenchmarkRsyncOutput_Parse 解析 rsync 输出性能测试.
 func BenchmarkRsyncOutput_Parse(b *testing.B) {
 	output := `sending incremental file list
 file1.txt
@@ -196,7 +196,7 @@ Number of regular files transferred: 3`
 
 // ========== 调度计算基准测试 ==========
 
-// BenchmarkSchedule_CalculateNext 计算下次同步时间性能测试
+// BenchmarkSchedule_CalculateNext 计算下次同步时间性能测试.
 func BenchmarkSchedule_CalculateNext(b *testing.B) {
 	mgr := setupTestReplicationManager(b)
 	defer mgr.Stop()
@@ -214,7 +214,7 @@ func BenchmarkSchedule_CalculateNext(b *testing.B) {
 
 // ========== 统计信息基准测试 ==========
 
-// BenchmarkStats_GetStats 获取统计信息性能测试
+// BenchmarkStats_GetStats 获取统计信息性能测试.
 func BenchmarkStats_GetStats(b *testing.B) {
 	mgr := setupTestReplicationManager(b)
 	defer mgr.Stop()
@@ -239,7 +239,7 @@ func BenchmarkStats_GetStats(b *testing.B) {
 
 // ========== 内存分配基准测试 ==========
 
-// BenchmarkMemory_Task 任务结构体内存分配
+// BenchmarkMemory_Task 任务结构体内存分配.
 func BenchmarkMemory_Task(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
@@ -267,7 +267,7 @@ func BenchmarkMemory_Task(b *testing.B) {
 	}
 }
 
-// BenchmarkMemory_ConflictInfo 冲突信息内存分配
+// BenchmarkMemory_ConflictInfo 冲突信息内存分配.
 func BenchmarkMemory_ConflictInfo(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
@@ -284,7 +284,7 @@ func BenchmarkMemory_ConflictInfo(b *testing.B) {
 	}
 }
 
-// BenchmarkMemory_Config 配置结构体内存分配
+// BenchmarkMemory_Config 配置结构体内存分配.
 func BenchmarkMemory_Config(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -298,7 +298,7 @@ func BenchmarkMemory_Config(b *testing.B) {
 	}
 }
 
-// BenchmarkMemory_TaskSlice 任务切片内存分配
+// BenchmarkMemory_TaskSlice 任务切片内存分配.
 func BenchmarkMemory_TaskSlice(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -313,7 +313,7 @@ func BenchmarkMemory_TaskSlice(b *testing.B) {
 	}
 }
 
-// BenchmarkMemory_TaskMap 任务 Map 内存分配
+// BenchmarkMemory_TaskMap 任务 Map 内存分配.
 func BenchmarkMemory_TaskMap(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -328,7 +328,7 @@ func BenchmarkMemory_TaskMap(b *testing.B) {
 
 // ========== 并发锁基准测试 ==========
 
-// BenchmarkReplicationMutex_Read 读锁性能
+// BenchmarkReplicationMutex_Read 读锁性能.
 func BenchmarkReplicationMutex_Read(b *testing.B) {
 	var mu sync.RWMutex
 	tasks := make(map[string]*Task)
@@ -345,7 +345,7 @@ func BenchmarkReplicationMutex_Read(b *testing.B) {
 	}
 }
 
-// BenchmarkReplicationMutex_Write 写锁性能
+// BenchmarkReplicationMutex_Write 写锁性能.
 func BenchmarkReplicationMutex_Write(b *testing.B) {
 	var mu sync.RWMutex
 	tasks := make(map[string]*Task)
@@ -358,7 +358,7 @@ func BenchmarkReplicationMutex_Write(b *testing.B) {
 	}
 }
 
-// BenchmarkReplicationMutex_Parallel 并行读写测试
+// BenchmarkReplicationMutex_Parallel 并行读写测试.
 func BenchmarkReplicationMutex_Parallel(b *testing.B) {
 	var mu sync.RWMutex
 	tasks := make(map[string]*Task)
@@ -385,7 +385,7 @@ func BenchmarkReplicationMutex_Parallel(b *testing.B) {
 	})
 }
 
-// setupTestReplicationManager 设置测试复制管理器
+// setupTestReplicationManager 设置测试复制管理器.
 func setupTestReplicationManager(b *testing.B) *Manager {
 	configPath := filepath.Join(b.TempDir(), "replication-config.json")
 

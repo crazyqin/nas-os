@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// LoginAttempt 登录尝试记录
+// LoginAttempt 登录尝试记录.
 type LoginAttempt struct {
 	Username  string    `json:"username"`
 	IP        string    `json:"ip"`
@@ -13,7 +13,7 @@ type LoginAttempt struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// LoginAttemptTracker 登录尝试跟踪器
+// LoginAttemptTracker 登录尝试跟踪器.
 type LoginAttemptTracker struct {
 	mu                sync.RWMutex
 	attempts          map[string]*UserAttempts // username -> attempts
@@ -25,7 +25,7 @@ type LoginAttemptTracker struct {
 	ipLockoutDuration time.Duration            // IP 锁定时长
 }
 
-// UserAttempts 用户登录尝试记录
+// UserAttempts 用户登录尝试记录.
 type UserAttempts struct {
 	Attempts    []time.Time `json:"attempts"`
 	LockedUntil *time.Time  `json:"locked_until,omitempty"`
@@ -33,14 +33,14 @@ type UserAttempts struct {
 	FailedCount int         `json:"failed_count"`
 }
 
-// IPAttempts IP 登录尝试记录
+// IPAttempts IP 登录尝试记录.
 type IPAttempts struct {
 	Attempts    []time.Time `json:"attempts"`
 	LockedUntil *time.Time  `json:"locked_until,omitempty"`
 	FailedCount int         `json:"failed_count"`
 }
 
-// LoginAttemptConfig 登录尝试配置
+// LoginAttemptConfig 登录尝试配置.
 type LoginAttemptConfig struct {
 	MaxAttempts       int           `json:"max_attempts"`        // 用户最大尝试次数（默认 5）
 	LockoutDuration   time.Duration `json:"lockout_duration"`    // 锁定时长（默认 15 分钟）
@@ -49,7 +49,7 @@ type LoginAttemptConfig struct {
 	IPLockoutDuration time.Duration `json:"ip_lockout_duration"` // IP 锁定时长（默认 1 小时）
 }
 
-// DefaultLoginAttemptConfig 默认配置
+// DefaultLoginAttemptConfig 默认配置.
 var DefaultLoginAttemptConfig = LoginAttemptConfig{
 	MaxAttempts:       5,
 	LockoutDuration:   15 * time.Minute,
@@ -58,7 +58,7 @@ var DefaultLoginAttemptConfig = LoginAttemptConfig{
 	IPLockoutDuration: 1 * time.Hour,
 }
 
-// NewLoginAttemptTracker 创建登录尝试跟踪器
+// NewLoginAttemptTracker 创建登录尝试跟踪器.
 func NewLoginAttemptTracker(config LoginAttemptConfig) *LoginAttemptTracker {
 	return &LoginAttemptTracker{
 		attempts:          make(map[string]*UserAttempts),
@@ -71,7 +71,7 @@ func NewLoginAttemptTracker(config LoginAttemptConfig) *LoginAttemptTracker {
 	}
 }
 
-// RecordAttempt 记录登录尝试
+// RecordAttempt 记录登录尝试.
 func (t *LoginAttemptTracker) RecordAttempt(username, ip string, success bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -137,7 +137,7 @@ func (t *LoginAttemptTracker) RecordAttempt(username, ip string, success bool) {
 	}
 }
 
-// IsLocked 检查用户是否被锁定
+// IsLocked 检查用户是否被锁定.
 func (t *LoginAttemptTracker) IsLocked(username string) (bool, time.Time) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -154,7 +154,7 @@ func (t *LoginAttemptTracker) IsLocked(username string) (bool, time.Time) {
 	return false, time.Time{}
 }
 
-// IsIPLocked 检查 IP 是否被锁定
+// IsIPLocked 检查 IP 是否被锁定.
 func (t *LoginAttemptTracker) IsIPLocked(ip string) (bool, time.Time) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -171,7 +171,7 @@ func (t *LoginAttemptTracker) IsIPLocked(ip string) (bool, time.Time) {
 	return false, time.Time{}
 }
 
-// GetFailedAttempts 获取用户失败尝试次数
+// GetFailedAttempts 获取用户失败尝试次数.
 func (t *LoginAttemptTracker) GetFailedAttempts(username string) int {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -182,7 +182,7 @@ func (t *LoginAttemptTracker) GetFailedAttempts(username string) int {
 	return 0
 }
 
-// GetRemainingAttempts 获取剩余尝试次数
+// GetRemainingAttempts 获取剩余尝试次数.
 func (t *LoginAttemptTracker) GetRemainingAttempts(username string) int {
 	failed := t.GetFailedAttempts(username)
 	remaining := t.maxAttempts - failed
@@ -192,7 +192,7 @@ func (t *LoginAttemptTracker) GetRemainingAttempts(username string) int {
 	return remaining
 }
 
-// ResetAttempts 重置用户的登录尝试记录
+// ResetAttempts 重置用户的登录尝试记录.
 func (t *LoginAttemptTracker) ResetAttempts(username string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -204,7 +204,7 @@ func (t *LoginAttemptTracker) ResetAttempts(username string) {
 	}
 }
 
-// Unlock 手动解锁用户
+// Unlock 手动解锁用户.
 func (t *LoginAttemptTracker) Unlock(username string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -215,7 +215,7 @@ func (t *LoginAttemptTracker) Unlock(username string) {
 	}
 }
 
-// UnlockIP 手动解锁 IP
+// UnlockIP 手动解锁 IP.
 func (t *LoginAttemptTracker) UnlockIP(ip string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -226,7 +226,7 @@ func (t *LoginAttemptTracker) UnlockIP(ip string) {
 	}
 }
 
-// Cleanup 清理过期记录
+// Cleanup 清理过期记录.
 func (t *LoginAttemptTracker) Cleanup() {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -250,7 +250,7 @@ func (t *LoginAttemptTracker) Cleanup() {
 	}
 }
 
-// cleanupUserAttempts 清理用户过期的尝试记录
+// cleanupUserAttempts 清理用户过期的尝试记录.
 func (t *LoginAttemptTracker) cleanupUserAttempts(userAttempts *UserAttempts, now time.Time) {
 	windowStart := now.Add(-t.attemptWindow)
 	validAttempts := make([]time.Time, 0)
@@ -270,7 +270,7 @@ func (t *LoginAttemptTracker) cleanupUserAttempts(userAttempts *UserAttempts, no
 	}
 }
 
-// cleanupIPAttempts 清理 IP 过期的尝试记录
+// cleanupIPAttempts 清理 IP 过期的尝试记录.
 func (t *LoginAttemptTracker) cleanupIPAttempts(ipAttempts *IPAttempts, now time.Time) {
 	windowStart := now.Add(-t.attemptWindow)
 	validAttempts := make([]time.Time, 0)
@@ -290,7 +290,7 @@ func (t *LoginAttemptTracker) cleanupIPAttempts(ipAttempts *IPAttempts, now time
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (t *LoginAttemptTracker) GetStats() map[string]interface{} {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -321,7 +321,7 @@ func (t *LoginAttemptTracker) GetStats() map[string]interface{} {
 	}
 }
 
-// GetLockoutInfo 获取用户锁定信息
+// GetLockoutInfo 获取用户锁定信息.
 func (t *LoginAttemptTracker) GetLockoutInfo(username string) map[string]interface{} {
 	t.mu.RLock()
 	defer t.mu.RUnlock()

@@ -410,7 +410,7 @@ func TestGetCache(t *testing.T) {
 	}
 }
 
-// 测试错误
+// 测试错误.
 var ErrTestError = &testError{}
 
 type testError struct{}

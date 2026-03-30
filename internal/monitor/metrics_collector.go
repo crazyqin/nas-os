@@ -7,7 +7,7 @@ import (
 	"nas-os/pkg/safeguards"
 )
 
-// MetricsCollector 指标收集器
+// MetricsCollector 指标收集器.
 type MetricsCollector struct {
 	mu         sync.RWMutex
 	manager    *Manager
@@ -19,7 +19,7 @@ type MetricsCollector struct {
 	running    bool
 }
 
-// CollectedMetrics 收集的指标
+// CollectedMetrics 收集的指标.
 type CollectedMetrics struct {
 	Timestamp    time.Time `json:"timestamp"`
 	CPUUsage     float64   `json:"cpu_usage"`
@@ -37,7 +37,7 @@ type CollectedMetrics struct {
 	HealthScore   float64       `json:"health_score"`
 }
 
-// DiskMetric 磁盘指标
+// DiskMetric 磁盘指标.
 type DiskMetric struct {
 	Device       string  `json:"device"`
 	MountPoint   string  `json:"mount_point"`
@@ -48,7 +48,7 @@ type DiskMetric struct {
 	WriteBytes   uint64  `json:"write_bytes"`
 }
 
-// NetworkMetric 网络指标
+// NetworkMetric 网络指标.
 type NetworkMetric struct {
 	RXBytes   uint64 `json:"rx_bytes"`
 	TXBytes   uint64 `json:"tx_bytes"`
@@ -56,7 +56,7 @@ type NetworkMetric struct {
 	TXPackets uint64 `json:"tx_packets"`
 }
 
-// TrendData 趋势数据
+// TrendData 趋势数据.
 type TrendData struct {
 	StartTime  time.Time    `json:"start_time"`
 	EndTime    time.Time    `json:"end_time"`
@@ -66,7 +66,7 @@ type TrendData struct {
 	Data       []TrendPoint `json:"data"`
 }
 
-// TrendSummary 趋势摘要
+// TrendSummary 趋势摘要.
 type TrendSummary struct {
 	CPUAvg    float64 `json:"cpu_avg"`
 	CPUMax    float64 `json:"cpu_max"`
@@ -80,7 +80,7 @@ type TrendSummary struct {
 	PeakTime  string  `json:"peak_time"`
 }
 
-// TrendPoint 趋势点
+// TrendPoint 趋势点.
 type TrendPoint struct {
 	Timestamp   time.Time `json:"timestamp"`
 	CPUUsage    float64   `json:"cpu_usage"`
@@ -90,7 +90,7 @@ type TrendPoint struct {
 	LoadAvg     float64   `json:"load_avg"`
 }
 
-// NewMetricsCollector 创建指标收集器
+// NewMetricsCollector 创建指标收集器.
 func NewMetricsCollector(manager *Manager, scorer *HealthScorer) *MetricsCollector {
 	return &MetricsCollector{
 		manager:    manager,
@@ -102,7 +102,7 @@ func NewMetricsCollector(manager *Manager, scorer *HealthScorer) *MetricsCollect
 	}
 }
 
-// Start 启动收集
+// Start 启动收集.
 func (mc *MetricsCollector) Start() {
 	mc.mu.Lock()
 	if mc.running {
@@ -115,7 +115,7 @@ func (mc *MetricsCollector) Start() {
 	go mc.collectLoop()
 }
 
-// Stop 停止收集
+// Stop 停止收集.
 func (mc *MetricsCollector) Stop() {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -128,7 +128,7 @@ func (mc *MetricsCollector) Stop() {
 	}
 }
 
-// collectLoop 收集循环
+// collectLoop 收集循环.
 func (mc *MetricsCollector) collectLoop() {
 	ticker := time.NewTicker(mc.interval)
 	defer ticker.Stop()
@@ -143,7 +143,7 @@ func (mc *MetricsCollector) collectLoop() {
 	}
 }
 
-// collect 执行收集
+// collect 执行收集.
 func (mc *MetricsCollector) collect() {
 	metric := &CollectedMetrics{
 		Timestamp: time.Now(),
@@ -210,7 +210,7 @@ func (mc *MetricsCollector) collect() {
 	mc.mu.Unlock()
 }
 
-// GetTrendData 获取趋势数据
+// GetTrendData 获取趋势数据.
 func (mc *MetricsCollector) GetTrendData(duration time.Duration, interval time.Duration) *TrendData {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -323,22 +323,22 @@ func (mc *MetricsCollector) GetTrendData(duration time.Duration, interval time.D
 	}
 }
 
-// GetHourlyTrend 获取小时趋势
+// GetHourlyTrend 获取小时趋势.
 func (mc *MetricsCollector) GetHourlyTrend() *TrendData {
 	return mc.GetTrendData(time.Hour, time.Minute*5)
 }
 
-// GetDailyTrend 获取日趋势
+// GetDailyTrend 获取日趋势.
 func (mc *MetricsCollector) GetDailyTrend() *TrendData {
 	return mc.GetTrendData(24*time.Hour, time.Minute*15)
 }
 
-// GetWeeklyTrend 获取周趋势
+// GetWeeklyTrend 获取周趋势.
 func (mc *MetricsCollector) GetWeeklyTrend() *TrendData {
 	return mc.GetTrendData(7*24*time.Hour, time.Hour)
 }
 
-// GetLatestMetrics 获取最新指标
+// GetLatestMetrics 获取最新指标.
 func (mc *MetricsCollector) GetLatestMetrics() *CollectedMetrics {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -350,7 +350,7 @@ func (mc *MetricsCollector) GetLatestMetrics() *CollectedMetrics {
 	return mc.metrics[len(mc.metrics)-1]
 }
 
-// GetMetricsHistory 获取历史指标
+// GetMetricsHistory 获取历史指标.
 func (mc *MetricsCollector) GetMetricsHistory(limit int) []*CollectedMetrics {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -366,7 +366,7 @@ func (mc *MetricsCollector) GetMetricsHistory(limit int) []*CollectedMetrics {
 	return result
 }
 
-// ResourceUsageReport 资源使用报告
+// ResourceUsageReport 资源使用报告.
 type ResourceUsageReport struct {
 	GeneratedAt     time.Time        `json:"generated_at"`
 	Period          string           `json:"period"`
@@ -378,14 +378,14 @@ type ResourceUsageReport struct {
 	Recommendations []string         `json:"recommendations"`
 }
 
-// SystemReportInfo 系统报告信息
+// SystemReportInfo 系统报告信息.
 type SystemReportInfo struct {
 	Hostname      string `json:"hostname"`
 	Uptime        string `json:"uptime"`
 	UptimeSeconds uint64 `json:"uptime_seconds"`
 }
 
-// ResourceSummary 资源摘要
+// ResourceSummary 资源摘要.
 type ResourceSummary struct {
 	CPU       ResourceMetric `json:"cpu"`
 	Memory    ResourceMetric `json:"memory"`
@@ -394,7 +394,7 @@ type ResourceSummary struct {
 	Network   NetworkSummary `json:"network"`
 }
 
-// ResourceMetric 资源指标
+// ResourceMetric 资源指标.
 type ResourceMetric struct {
 	Used    uint64  `json:"used"`
 	Total   uint64  `json:"total"`
@@ -404,7 +404,7 @@ type ResourceMetric struct {
 	Status  string  `json:"status"`
 }
 
-// NetworkSummary 网络摘要
+// NetworkSummary 网络摘要.
 type NetworkSummary struct {
 	RXBytes   uint64 `json:"rx_bytes"`
 	TXBytes   uint64 `json:"tx_bytes"`
@@ -412,7 +412,7 @@ type NetworkSummary struct {
 	TXPackets uint64 `json:"tx_packets"`
 }
 
-// TrendAnalysis 趋势分析
+// TrendAnalysis 趋势分析.
 type TrendAnalysis struct {
 	CPUTrend    string  `json:"cpu_trend"`
 	MemoryTrend string  `json:"memory_trend"`
@@ -421,7 +421,7 @@ type TrendAnalysis struct {
 	HealthGrade string  `json:"health_grade"`
 }
 
-// DiskAnalysis 磁盘分析
+// DiskAnalysis 磁盘分析.
 type DiskAnalysis struct {
 	Device       string  `json:"device"`
 	MountPoint   string  `json:"mount_point"`
@@ -433,14 +433,14 @@ type DiskAnalysis struct {
 	Status       string  `json:"status"`
 }
 
-// AlertSummary 告警摘要
+// AlertSummary 告警摘要.
 type AlertSummary struct {
 	Type     string `json:"type"`
 	Count    int    `json:"count"`
 	LastTime string `json:"last_time"`
 }
 
-// GenerateResourceReport 生成资源使用报告
+// GenerateResourceReport 生成资源使用报告.
 func (mc *MetricsCollector) GenerateResourceReport(period string) *ResourceUsageReport {
 	report := &ResourceUsageReport{
 		GeneratedAt:     time.Now(),
@@ -559,7 +559,7 @@ func (mc *MetricsCollector) GenerateResourceReport(period string) *ResourceUsage
 	return report
 }
 
-// getResourceStatus 获取资源状态
+// getResourceStatus 获取资源状态.
 func getResourceStatus(percent, warning, critical float64) string {
 	if percent >= critical {
 		return "critical"
@@ -569,7 +569,7 @@ func getResourceStatus(percent, warning, critical float64) string {
 	return "healthy"
 }
 
-// analyzeTrend 分析趋势
+// analyzeTrend 分析趋势.
 func analyzeTrend(data []TrendPoint, metric string) string {
 	if len(data) < 2 {
 		return "insufficient_data"
@@ -600,7 +600,7 @@ func analyzeTrend(data []TrendPoint, metric string) string {
 	return "stable"
 }
 
-// BackupMonitoringData 备份监控数据 (v2.59.0)
+// BackupMonitoringData 备份监控数据 (v2.59.0).
 type BackupMonitoringData struct {
 	Timestamp          time.Time `json:"timestamp"`
 	TotalBackups       int       `json:"total_backups"`
@@ -619,7 +619,7 @@ type BackupMonitoringData struct {
 	Errors             []string  `json:"errors,omitempty"`
 }
 
-// DiskHealthMetrics 磁盘健康指标 (v2.59.0)
+// DiskHealthMetrics 磁盘健康指标 (v2.59.0).
 type DiskHealthMetrics struct {
 	Timestamp          time.Time            `json:"timestamp"`
 	TotalDisks         int                  `json:"total_disks"`
@@ -634,7 +634,7 @@ type DiskHealthMetrics struct {
 	Summary            DiskHealthSummaryV25 `json:"summary"`
 }
 
-// DiskHealthMetric 单个磁盘健康指标
+// DiskHealthMetric 单个磁盘健康指标.
 type DiskHealthMetric struct {
 	Device             string    `json:"device"`
 	Model              string    `json:"model"`
@@ -651,7 +651,7 @@ type DiskHealthMetric struct {
 	LastCheck          time.Time `json:"last_check"`
 }
 
-// DiskHealthSummaryV25 磁盘健康摘要
+// DiskHealthSummaryV25 磁盘健康摘要.
 type DiskHealthSummaryV25 struct {
 	MaxTemperature int    `json:"max_temperature"`
 	MinTemperature int    `json:"min_temperature"`
@@ -660,7 +660,7 @@ type DiskHealthSummaryV25 struct {
 	HDDCount       int    `json:"hdd_count"`
 }
 
-// ExtendedMetrics 扩展指标 (v2.59.0)
+// ExtendedMetrics 扩展指标 (v2.59.0).
 type ExtendedMetrics struct {
 	Timestamp       time.Time             `json:"timestamp"`
 	System          *CollectedMetrics     `json:"system"`
@@ -673,7 +673,7 @@ type ExtendedMetrics struct {
 	Recommendations []string              `json:"recommendations,omitempty"`
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (mc *MetricsCollector) generateRecommendations(report *ResourceUsageReport) []string {
 	recs := make([]string, 0)
 
@@ -710,7 +710,7 @@ func (mc *MetricsCollector) generateRecommendations(report *ResourceUsageReport)
 	return recs
 }
 
-// CollectBackupMetrics 收集备份指标 (v2.59.0)
+// CollectBackupMetrics 收集备份指标 (v2.59.0).
 func (mc *MetricsCollector) CollectBackupMetrics() *BackupMonitoringData {
 	metrics := &BackupMonitoringData{
 		Timestamp: time.Now(),
@@ -753,7 +753,7 @@ func (mc *MetricsCollector) CollectBackupMetrics() *BackupMonitoringData {
 	return metrics
 }
 
-// BackupStats 备份统计信息
+// BackupStats 备份统计信息.
 type BackupStats struct {
 	TotalCount       int
 	FullCount        int
@@ -768,7 +768,7 @@ type BackupStats struct {
 	OldestBackup     *BackupInfo
 }
 
-// BackupInfo 备份信息
+// BackupInfo 备份信息.
 type BackupInfo struct {
 	Timestamp time.Time
 	Size      uint64
@@ -776,7 +776,7 @@ type BackupInfo struct {
 	Path      string
 }
 
-// evaluateBackupHealth 评估备份健康状态
+// evaluateBackupHealth 评估备份健康状态.
 func (mc *MetricsCollector) evaluateBackupHealth(metrics *BackupMonitoringData) bool {
 	// 无备份则不健康
 	if metrics.TotalBackups == 0 {
@@ -802,7 +802,7 @@ func (mc *MetricsCollector) evaluateBackupHealth(metrics *BackupMonitoringData) 
 	return true
 }
 
-// CollectDiskHealthMetrics 收集磁盘健康指标 (v2.59.0)
+// CollectDiskHealthMetrics 收集磁盘健康指标 (v2.59.0).
 func (mc *MetricsCollector) CollectDiskHealthMetrics() *DiskHealthMetrics {
 	metrics := &DiskHealthMetrics{
 		Timestamp: time.Now(),
@@ -909,7 +909,7 @@ func (mc *MetricsCollector) CollectDiskHealthMetrics() *DiskHealthMetrics {
 	return metrics
 }
 
-// CollectExtendedMetrics 收集扩展指标 (v2.59.0)
+// CollectExtendedMetrics 收集扩展指标 (v2.59.0).
 func (mc *MetricsCollector) CollectExtendedMetrics() *ExtendedMetrics {
 	ext := &ExtendedMetrics{
 		Timestamp:       time.Now(),
@@ -948,7 +948,7 @@ func (mc *MetricsCollector) CollectExtendedMetrics() *ExtendedMetrics {
 	return ext
 }
 
-// calculateOverallStatus 计算总体状态
+// calculateOverallStatus 计算总体状态.
 func (mc *MetricsCollector) calculateOverallStatus(ext *ExtendedMetrics) string {
 	// 有严重告警
 	if ext.CriticalAlerts > 0 {
@@ -978,7 +978,7 @@ func (mc *MetricsCollector) calculateOverallStatus(ext *ExtendedMetrics) string 
 	return "healthy"
 }
 
-// generateExtendedRecommendations 生成扩展建议
+// generateExtendedRecommendations 生成扩展建议.
 func (mc *MetricsCollector) generateExtendedRecommendations(ext *ExtendedMetrics) []string {
 	recs := make([]string, 0)
 
@@ -1028,14 +1028,14 @@ func (mc *MetricsCollector) generateExtendedRecommendations(ext *ExtendedMetrics
 	return recs
 }
 
-// GetBackupMetricsHistory 获取备份指标历史
+// GetBackupMetricsHistory 获取备份指标历史.
 func (mc *MetricsCollector) GetBackupMetricsHistory(limit int) []*BackupMonitoringData {
 	// 这个方法可以扩展为从持久化存储读取历史数据
 	// 目前返回空列表
 	return make([]*BackupMonitoringData, 0)
 }
 
-// GetDiskHealthTrend 获取磁盘健康趋势
+// GetDiskHealthTrend 获取磁盘健康趋势.
 func (mc *MetricsCollector) GetDiskHealthTrend(duration time.Duration) map[string][]DiskHealthMetric {
 	// 这个方法可以扩展为从持久化存储读取历史趋势
 	// 目前返回空 map

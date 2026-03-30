@@ -11,10 +11,10 @@ import (
 	"time"
 )
 
-// ConflictStrategy 冲突解决策略
+// ConflictStrategy 冲突解决策略.
 type ConflictStrategy string
 
-// 冲突解决策略常量
+// 冲突解决策略常量.
 const (
 	ConflictSourceWins ConflictStrategy = "source_wins" // 源端优先
 	ConflictTargetWins ConflictStrategy = "target_wins" // 目标端优先
@@ -25,7 +25,7 @@ const (
 	ConflictManual     ConflictStrategy = "manual"      // 手动解决
 )
 
-// ConflictInfo 冲突信息
+// ConflictInfo 冲突信息.
 type ConflictInfo struct {
 	ID             string           `json:"id"`
 	TaskID         string           `json:"task_id"`
@@ -45,13 +45,13 @@ type ConflictInfo struct {
 	ResolvedAt     time.Time        `json:"resolved_at,omitempty"`
 }
 
-// ConflictDetector 冲突检测器
+// ConflictDetector 冲突检测器.
 type ConflictDetector struct {
 	defaultStrategy ConflictStrategy
 	conflicts       map[string]*ConflictInfo
 }
 
-// NewConflictDetector 创建冲突检测器
+// NewConflictDetector 创建冲突检测器.
 func NewConflictDetector(strategy ConflictStrategy) *ConflictDetector {
 	return &ConflictDetector{
 		defaultStrategy: strategy,
@@ -59,7 +59,7 @@ func NewConflictDetector(strategy ConflictStrategy) *ConflictDetector {
 	}
 }
 
-// DetectConflict 检测文件冲突
+// DetectConflict 检测文件冲突.
 func (d *ConflictDetector) DetectConflict(task *Task, relativePath string) (*ConflictInfo, error) {
 	sourcePath := filepath.Join(task.SourcePath, relativePath)
 	targetPath := filepath.Join(task.TargetPath, relativePath)
@@ -176,7 +176,7 @@ func (d *ConflictDetector) DetectConflict(task *Task, relativePath string) (*Con
 	}, nil
 }
 
-// ResolveConflict 解决冲突
+// ResolveConflict 解决冲突.
 func (d *ConflictDetector) ResolveConflict(conflict *ConflictInfo) error {
 	switch conflict.Strategy {
 	case ConflictSourceWins:
@@ -207,7 +207,7 @@ func (d *ConflictDetector) ResolveConflict(conflict *ConflictInfo) error {
 	}
 }
 
-// resolveSourceWins 源端优先解决
+// resolveSourceWins 源端优先解决.
 func (d *ConflictDetector) resolveSourceWins(conflict *ConflictInfo) error {
 	// 备份目标文件（可选）
 	if conflict.Strategy == ConflictRename {
@@ -228,14 +228,14 @@ func (d *ConflictDetector) resolveSourceWins(conflict *ConflictInfo) error {
 	return nil
 }
 
-// resolveTargetWins 目标端优先解决
+// resolveTargetWins 目标端优先解决.
 func (d *ConflictDetector) resolveTargetWins(conflict *ConflictInfo) error {
 	conflict.Resolved = true
 	conflict.ResolvedAt = time.Now()
 	return nil
 }
 
-// resolveRename 重命名解决
+// resolveRename 重命名解决.
 func (d *ConflictDetector) resolveRename(conflict *ConflictInfo) error {
 	// 重命名目标文件
 	ext := filepath.Ext(conflict.TargetPath)
@@ -260,7 +260,7 @@ func (d *ConflictDetector) resolveRename(conflict *ConflictInfo) error {
 	return nil
 }
 
-// calculateFileHash 计算文件哈希（使用 SHA256）
+// calculateFileHash 计算文件哈希（使用 SHA256）.
 func (d *ConflictDetector) calculateFileHash(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -276,7 +276,7 @@ func (d *ConflictDetector) calculateFileHash(filePath string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// GetConflicts 获取所有冲突
+// GetConflicts 获取所有冲突.
 func (d *ConflictDetector) GetConflicts(taskID string) []*ConflictInfo {
 	var conflicts []*ConflictInfo
 	for _, c := range d.conflicts {
@@ -287,17 +287,17 @@ func (d *ConflictDetector) GetConflicts(taskID string) []*ConflictInfo {
 	return conflicts
 }
 
-// AddConflict 添加冲突
+// AddConflict 添加冲突.
 func (d *ConflictDetector) AddConflict(conflict *ConflictInfo) {
 	d.conflicts[conflict.ID] = conflict
 }
 
-// generateConflictID 生成冲突 ID
+// generateConflictID 生成冲突 ID.
 func generateConflictID() string {
 	return fmt.Sprintf("conflict-%d", time.Now().UnixNano())
 }
 
-// copyFile 复制文件
+// copyFile 复制文件.
 func copyFile(src, dst string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {

@@ -3,11 +3,11 @@
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 #
-# Go 版本: 1.26（与 go.mod 保持一致）
+# Go 版本: 1.25（与 go.mod 保持一致）
 #
 # 功能特性:
 # - 支持 minimal（distroless，约 15-18MB）和 full（alpine，约 35-40MB）两种镜像
-# - 同时推送到 GHCR 和 Docker Hub
+# - 推送到 GHCR（Docker Hub 待仓库创建后启用）
 # - Matrix 策略并行构建多架构（解决超时问题）
 # - Go 模块缓存 + 构建缓存双重优化
 # - Cosign keyless 签名 + SBOM 生成
@@ -43,11 +43,11 @@ on:
           - arm/v7
 
 env:
-  GO_VERSION: '1.26'
+  GO_VERSION: '1.25'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  # Docker Hub 配置
-  DOCKERHUB_IMAGE: nasos/nas-os
+  # Docker Hub 配置（仓库创建后启用）
+  # DOCKERHUB_IMAGE: nasos/nas-os
   # 缓存版本号（每次修改 Dockerfile 或 workflow 时递增）
   CACHE_VERSION: 'v13'
   # Node.js 24 支持
@@ -109,7 +109,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     needs: [changes]
     if: needs.changes.outputs.docker-changed == 'true' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
-    timeout-minutes: 15
+    timeout-minutes: ${{ matrix.timeout || 15 }}
     strategy:
       fail-fast: false
       matrix:
@@ -126,6 +126,7 @@ jobs:
             docker_platform: linux/arm/v7
             runner: ubuntu-latest
             suffix: armv7
+            timeout: 35
     outputs:
       amd64-digest: ${{ steps.build.outputs.digest }}
       arm64-digest: ${{ steps.build.outputs.digest }}
@@ -137,30 +138,31 @@ jobs:
       # 仅 armv7 需要 QEMU
       - name: 设置 QEMU
         if: matrix.platform == 'armv7'
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: arm
       
       - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       
       - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         if: github.event_name != 'pull_request'
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: 登录 Docker Hub
-        uses: docker/login-action@v3
-        if: github.event_name != 'pull_request'
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Docker Hub 登录（仓库创建后启用）
+      # - name: 登录 Docker Hub
+      #   uses: docker/login-action@v4
+      #   if: github.event_name != 'pull_request'
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 设置 Go 环境
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -183,7 +185,7 @@ jobs:
 
       - name: 构建并推送单架构镜像
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
@@ -191,7 +193,6 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.SHORT_SHA }}-${{ matrix.suffix }}
-            ${{ env.DOCKERHUB_IMAGE }}:${{ steps.sha.outputs.SHORT_SHA }}-${{ matrix.suffix }}
           # 架构专用缓存
           cache-from: |
             type=gha,scope=${{ env.CACHE_VERSION }}-${{ matrix.platform }}
@@ -219,26 +220,26 @@ jobs:
     timeout-minutes: 10
     outputs:
       digest: ${{ steps.merge.outputs.digest }}
-      short-sha: ${{ steps.meta.outputs.version }}
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
       
       - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       
       - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: 登录 Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Docker Hub 登录（仓库创建后启用）
+      # - name: 登录 Docker Hub
+      #   uses: docker/login-action@v4
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 提取短 SHA
         id: sha
@@ -264,66 +265,63 @@ jobs:
             org.opencontainers.image.description=Home NAS Management System
             org.opencontainers.image.vendor=NAS-OS Team
 
-      - name: 提取元数据 (Docker Hub)
-        id: meta-dockerhub
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.DOCKERHUB_IMAGE }}
-          tags: |
-            type=ref,event=branch,suffix=-{{ sha }}
-            type=ref,event=branch,enable=${{ github.ref == 'refs/heads/master' }},suffix=
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha,prefix=,suffix=,format=short
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
-            type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version != '' }}
-          labels: |
-            org.opencontainers.image.title=NAS-OS
-            org.opencontainers.image.description=Home NAS Management System
-            org.opencontainers.image.vendor=NAS-OS Team
+      # Docker Hub 元数据（仓库创建后启用）
+      # - name: 提取元数据 (Docker Hub)
+      #   id: meta-dockerhub
+      #   uses: docker/metadata-action@v5
+      #   with:
+      #     images: ${{ env.DOCKERHUB_IMAGE }}
+      #     tags: |
+      #       type=ref,event=branch,suffix=-{{ sha }}
+      #       type=ref,event=branch,enable=${{ github.ref == 'refs/heads/master' }},suffix=
+      #       type=ref,event=pr
+      #       type=semver,pattern={{version}}
+      #       type=semver,pattern={{major}}.{{minor}}
+      #       type=semver,pattern={{major}}
+      #       type=sha,prefix=,suffix=,format=short
+      #       type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+      #       type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version != '' }}
+      #     labels: |
+      #       org.opencontainers.image.title=NAS-OS
+      #       org.opencontainers.image.description=Home NAS Management System
+      #       org.opencontainers.image.vendor=NAS-OS Team
 
       - name: 创建并推送多架构 Manifest
         id: merge
         run: |
           SHORT_SHA="${{ steps.sha.outputs.SHORT_SHA }}"
-          
-          # 创建 manifest list
+
+          # 创建 manifest list (仅 GHCR)
           docker buildx imagetools create -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
-          
-          # 推送到 Docker Hub
-          docker buildx imagetools create -t ${{ env.DOCKERHUB_IMAGE }}:${SHORT_SHA} \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
-          
-          # 获取 digest
-          DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} --format '{{.Digest}}')
+
+          # Docker Hub 推送（仓库创建后启用）
+          # docker buildx imagetools create -t ${{ env.DOCKERHUB_IMAGE }}:${SHORT_SHA} \
+          #   ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
+          #   ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
+          #   ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
+
+          # 获取 digest（兼容不同 buildx 输出格式）
+          DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} --raw | sha256sum | awk '{print "sha256:" $1}')
+          if [ -z "$DIGEST" ]; then
+            echo "❌ 无法解析 manifest digest"
+            exit 1
+          fi
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
           echo "✅ Manifest 创建完成: $DIGEST"
-          
+
           # 为其他标签创建 manifest
-          for TAG in $(echo "${{ steps.meta.outputs.tags }}" | tr '\n' ' '); do
+          while IFS= read -r TAG; do
+            [ -z "$TAG" ] && continue
             if [ "$TAG" != "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}" ]; then
               docker buildx imagetools create -t "$TAG" \
                 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
                 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7 || true
+                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
             fi
-          done
-          
-          for TAG in $(echo "${{ steps.meta-dockerhub.outputs.tags }}" | tr '\n' ' '); do
-            if [ "$TAG" != "${{ env.DOCKERHUB_IMAGE }}:${SHORT_SHA}" ]; then
-              docker buildx imagetools create -t "$TAG" \
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7 || true
-            fi
-          done
+          done <<< "${{ steps.meta.outputs.tags }}"
 
       - name: 生成镜像信息
         run: |
@@ -332,11 +330,6 @@ jobs:
           echo "**GHCR 镜像地址:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Docker Hub 镜像地址:**" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.DOCKERHUB_IMAGE }}:${{ steps.sha.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**支持平台:** \`amd64\`, \`arm64\`, \`arm/v7\`" >> $GITHUB_STEP_SUMMARY
@@ -355,7 +348,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -367,7 +360,7 @@ jobs:
       - name: 安装 Syft (SBOM 生成)
         uses: anchore/sbom-action/download-syft@v0
 
-      - name: 获取镜像摘要
+      - name: 获取 digest
         id: digest
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
@@ -375,8 +368,8 @@ jobs:
           # 使用 merge-manifest 输出的 digest
           DIGEST="${{ needs.merge-manifest.outputs.digest }}"
           if [ -z "$DIGEST" ]; then
-            echo "⚠️ 从 merge-manifest 获取 digest 失败，尝试 imagetools"
-            DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA --format '{{.Digest}}' 2>/dev/null || echo "")
+            echo "⚠️ 从 merge-manifest 获取 digest 失败，尝试标准 inspect 输出解析"
+            DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA | sed -n 's/^Digest:[[:space:]]*//p' | head -n1)
           fi
           if [ -z "$DIGEST" ]; then
             echo "❌ 无法获取镜像 digest"
@@ -435,7 +428,7 @@ jobs:
         uses: actions/checkout@v5
       
       - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -482,5 +475,81 @@ jobs:
           else
             echo "⚠️ 扫描结果文件未生成，跳过上传" >> $GITHUB_STEP_SUMMARY
           fi
+
+# ========== AI 服务镜像构建（可选） ==========
+# 当 internal/ai 或 Dockerfile.ai 变更时触发
+  build-ai:
+    name: 构建 AI 服务镜像
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: |
+      (needs.changes.outputs.docker-changed == 'true' || github.event_name == 'workflow_dispatch') &&
+      (github.event_name != 'workflow_dispatch' || vars.ENABLE_AI_BUILD == 'true')
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: gpu
+            platforms: linux/amd64
+            suffix: gpu
+          - variant: cpu
+            platforms: linux/amd64,linux/arm64
+            suffix: cpu
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v5
+      
+      - name: 设置 QEMU
+        if: matrix.variant == 'cpu'
+        uses: docker/setup-qemu-action@v4
+      
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      
+      - name: 登录 GitHub Container Registry
+        uses: docker/login-action@v4
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: 提取短 SHA
+        id: sha
+        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      # v2.255.0: 优化AI镜像构建缓存
+      - name: 构建 AI 服务镜像 (${{ matrix.variant }})
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile.ai
+          target: ${{ matrix.variant == 'cpu' && 'ai-cpu' || '' }}
+          platforms: ${{ matrix.platforms }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:${{ steps.sha.outputs.SHORT_SHA }}-${{ matrix.suffix }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:latest-${{ matrix.suffix }}
+          # v2.255.0: 增强缓存
+          cache-from: |
+            type=gha,scope=ai-${{ matrix.variant }}-${{ env.CACHE_VERSION }}
+            type=gha,scope=ai-${{ matrix.variant }}
+          cache-to: type=gha,scope=ai-${{ matrix.variant }}-${{ env.CACHE_VERSION }},mode=max
+          build-args: |
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
+            VERSION=${{ github.ref_name }}
+            REVISION=${{ github.sha }}
+            GOPROXY=${{ env.GOPROXY }}
+          provenance: false
+          sbom: false
+
+      - name: 生成构建摘要
+        run: |
+          echo "## 🤖 AI 服务镜像已发布 (${{ matrix.variant }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai:latest-${{ matrix.suffix }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
 # 注意：Docker Compose 测试已在 ci-cd.yml 中执行，此 workflow 专注于镜像构建和发布

@@ -16,7 +16,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// SecurityConfig 安全配置
+// SecurityConfig 安全配置.
 type SecurityConfig struct {
 	AllowedOrigins  []string
 	CSRFKey         []byte
@@ -24,7 +24,7 @@ type SecurityConfig struct {
 	RateLimitRPS    int // 每秒请求数
 }
 
-// DefaultSecurityConfig 默认安全配置
+// DefaultSecurityConfig 默认安全配置.
 func DefaultSecurityConfig() *SecurityConfig {
 	// CSRFKey 从环境变量读取
 	csrfKey := os.Getenv("NAS_CSRF_KEY")
@@ -51,7 +51,7 @@ func DefaultSecurityConfig() *SecurityConfig {
 	}
 }
 
-// loggerMiddleware 结构化日志中间件
+// loggerMiddleware 结构化日志中间件.
 func loggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 生成请求追踪 ID
@@ -102,7 +102,7 @@ func loggerMiddleware() gin.HandlerFunc {
 	}
 }
 
-// corsMiddleware CORS 跨域中间件 (加固版)
+// corsMiddleware CORS 跨域中间件 (加固版).
 func corsMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
@@ -141,7 +141,7 @@ func corsMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	}
 }
 
-// securityHeadersMiddleware 安全头中间件
+// securityHeadersMiddleware 安全头中间件.
 func securityHeadersMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 防止 MIME 类型嗅探
@@ -172,7 +172,7 @@ func securityHeadersMiddleware() gin.HandlerFunc {
 }
 
 // rateLimitMiddleware 简单的速率限制中间件
-// 生产环境建议使用 redis 或 memcached 实现分布式限流
+// 生产环境建议使用 redis 或 memcached 实现分布式限流.
 func rateLimitMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	if !config.EnableRateLimit {
 		return func(c *gin.Context) { c.Next() }
@@ -214,7 +214,7 @@ func rateLimitMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	}
 }
 
-// csrfMiddleware CSRF 保护中间件
+// csrfMiddleware CSRF 保护中间件.
 func csrfMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 只对状态修改操作进行验证
@@ -259,7 +259,7 @@ func csrfMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	}
 }
 
-// setCSRFToken 设置 CSRF token cookie
+// setCSRFToken 设置 CSRF token cookie.
 func setCSRFToken(c *gin.Context, config *SecurityConfig) {
 	// 生成新的 CSRF token
 	token := generateCSRFToken(config.CSRFKey)
@@ -270,7 +270,7 @@ func setCSRFToken(c *gin.Context, config *SecurityConfig) {
 	c.Set("csrfToken", token)
 }
 
-// generateCSRFToken 生成 CSRF token
+// generateCSRFToken 生成 CSRF token.
 func generateCSRFToken(key []byte) string {
 	// 使用 UUID 作为 token，结合密钥增加安全性
 	timestamp := time.Now().Unix()
@@ -280,7 +280,7 @@ func generateCSRFToken(key []byte) string {
 	return fmt.Sprintf("%d-%s", timestamp, random)
 }
 
-// validateCSRFToken 验证 CSRF token
+// validateCSRFToken 验证 CSRF token.
 func validateCSRFToken(token, expectedToken string, key []byte) bool {
 	if token == "" || expectedToken == "" {
 		return false
@@ -289,7 +289,7 @@ func validateCSRFToken(token, expectedToken string, key []byte) bool {
 	return subtle.ConstantTimeCompare([]byte(token), []byte(expectedToken)) == 1
 }
 
-// auditLogMiddleware 审计日志中间件 (记录关键操作)
+// auditLogMiddleware 审计日志中间件 (记录关键操作).
 func auditLogMiddleware() gin.HandlerFunc {
 	// 需要审计的敏感操作路径
 	sensitivePaths := []string{
@@ -392,7 +392,7 @@ func auditLogMiddleware() gin.HandlerFunc {
 	}
 }
 
-// inputValidationMiddleware 输入验证中间件
+// inputValidationMiddleware 输入验证中间件.
 func inputValidationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 验证 Content-Type

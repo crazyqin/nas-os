@@ -3,6 +3,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// 全局配置
+// 全局配置.
 var (
 	configFile string
 	outputFmt  string
@@ -22,13 +23,13 @@ var (
 	quiet      bool
 )
 
-// 输出格式常量
+// 输出格式常量.
 const (
 	OutputText = "text"
 	OutputJSON = "json"
 )
 
-// API 配置
+// API 配置.
 var apiBaseURL = "http://localhost:8080/api/v1"
 
 func main() {
@@ -761,25 +762,27 @@ type Status struct {
 
 // ========== API 调用函数 ==========
 
-// apiRequest 通用 API 请求函数
+// apiRequest 通用 API 请求函数.
 func apiRequest(method, path string, body interface{}) ([]byte, error) {
 	var req *http.Request
 	var err error
 
 	url := apiBaseURL + path
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
 	if body != nil {
 		jsonData, err := json.Marshal(body)
 		if err != nil {
 			return nil, err
 		}
-		req, err = http.NewRequest(method, url, bytes.NewReader(jsonData))
+		req, err = http.NewRequestWithContext(ctx, method, url, bytes.NewReader(jsonData))
 		if err != nil {
 			return nil, err
 		}
 		req.Header.Set("Content-Type", "application/json")
 	} else {
-		req, err = http.NewRequest(method, url, nil)
+		req, err = http.NewRequestWithContext(ctx, method, url, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -804,7 +807,7 @@ func apiRequest(method, path string, body interface{}) ([]byte, error) {
 	return respBody, nil
 }
 
-// API 响应结构
+// API 响应结构.
 type APIResponse struct {
 	Code    int             `json:"code"`
 	Message string          `json:"message"`

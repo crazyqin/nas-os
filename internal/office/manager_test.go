@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// MockFileAccessor 模拟文件访问器
+// MockFileAccessor 模拟文件访问器.
 type MockFileAccessor struct {
 	files map[string]*FileInfo
 }

@@ -7,19 +7,19 @@ import (
 )
 
 const (
-	// HighlightStart is the start tag for highlighting
+	// HighlightStart is the start tag for highlighting.
 	HighlightStart = "<mark>"
-	// HighlightEnd is the end tag for highlighting
+	// HighlightEnd is the end tag for highlighting.
 	HighlightEnd = "</mark>"
 )
 
-// Highlighter 高亮处理器
+// Highlighter 高亮处理器.
 type Highlighter struct {
 	startTag string
 	endTag   string
 }
 
-// NewHighlighter 创建高亮处理器
+// NewHighlighter 创建高亮处理器.
 func NewHighlighter() *Highlighter {
 	return &Highlighter{
 		startTag: HighlightStart,
@@ -27,7 +27,7 @@ func NewHighlighter() *Highlighter {
 	}
 }
 
-// HighlightText 高亮文本中的关键词
+// HighlightText 高亮文本中的关键词.
 func (h *Highlighter) HighlightText(text, query string) string {
 	if text == "" || query == "" {
 		return text
@@ -60,7 +60,7 @@ func (h *Highlighter) HighlightText(text, query string) string {
 	return result
 }
 
-// HighlightWithContext 高亮并显示上下文
+// HighlightWithContext 高亮并显示上下文.
 func (h *Highlighter) HighlightWithContext(text, query string, contextLen int) []string {
 	if text == "" || query == "" {
 		return nil
@@ -139,7 +139,7 @@ func (h *Highlighter) HighlightWithContext(text, query string, contextLen int) [
 	return fragments
 }
 
-// ExtractSnippet 提取摘要
+// ExtractSnippet 提取摘要.
 func ExtractSnippet(text string, maxLen int) string {
 	if len(text) <= maxLen {
 		return text
@@ -157,14 +157,14 @@ func ExtractSnippet(text string, maxLen int) string {
 	return snippet + "..."
 }
 
-// CleanHighlight 清理高亮标签
+// CleanHighlight 清理高亮标签.
 func CleanHighlight(text string) string {
 	text = strings.ReplaceAll(text, HighlightStart, "")
 	text = strings.ReplaceAll(text, HighlightEnd, "")
 	return text
 }
 
-// FormatHighlight 格式化高亮结果为纯文本
+// FormatHighlight 格式化高亮结果为纯文本.
 func FormatHighlight(text string) string {
 	text = strings.ReplaceAll(text, HighlightStart, "**")
 	text = strings.ReplaceAll(text, HighlightEnd, "**")

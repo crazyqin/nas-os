@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler provides HTTP handlers for performance monitoring
+// Handler provides HTTP handlers for performance monitoring.
 type Handler struct {
 	monitor    *ResourceMonitor
 	analyzer   *PerformanceAnalyzer
@@ -16,7 +16,7 @@ type Handler struct {
 	logger     *zap.Logger
 }
 
-// CacheStatsData holds cache statistics for API response
+// CacheStatsData holds cache statistics for API response.
 type CacheStatsData struct {
 	Hits      int64   `json:"hits"`
 	Misses    int64   `json:"misses"`
@@ -28,7 +28,7 @@ type CacheStatsData struct {
 	MaxSize   int     `json:"max_size"`
 }
 
-// PerformanceStats holds all performance statistics
+// PerformanceStats holds all performance statistics.
 type PerformanceStats struct {
 	APIResponseTimeP95    int64   `json:"api_response_time_p95"`
 	APIResponseTimeP50    int64   `json:"api_response_time_p50"`
@@ -55,7 +55,7 @@ type PerformanceStats struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// SlowQueryResponse represents a slow query in API response
+// SlowQueryResponse represents a slow query in API response.
 type SlowQueryResponse struct {
 	Query     string    `json:"query"`
 	Duration  string    `json:"duration"`
@@ -63,7 +63,7 @@ type SlowQueryResponse struct {
 	Source    string    `json:"source"`
 }
 
-// HotspotResponse represents a hotspot in API response
+// HotspotResponse represents a hotspot in API response.
 type HotspotResponse struct {
 	Name        string  `json:"name"`
 	Type        string  `json:"type"`
@@ -73,7 +73,7 @@ type HotspotResponse struct {
 	Percent     float64 `json:"percent"`
 }
 
-// BottleneckResponse represents a bottleneck in API response
+// BottleneckResponse represents a bottleneck in API response.
 type BottleneckResponse struct {
 	Resource    string    `json:"resource"`
 	Severity    string    `json:"severity"`
@@ -83,7 +83,7 @@ type BottleneckResponse struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-// NewHandler creates a new performance handler
+// NewHandler creates a new performance handler.
 func NewHandler(
 	monitor *ResourceMonitor,
 	analyzer *PerformanceAnalyzer,
@@ -98,7 +98,7 @@ func NewHandler(
 	}
 }
 
-// NewHandlers creates handlers from perf.Manager (compatibility wrapper)
+// NewHandlers creates handlers from perf.Manager (compatibility wrapper).
 func NewHandlers(mgr *Manager) *Handler {
 	// Create minimal monitor and analyzer for compatibility
 	monitor := NewResourceMonitor(5*time.Second, 100, nil)
@@ -112,7 +112,7 @@ func NewHandlers(mgr *Manager) *Handler {
 	}
 }
 
-// RegisterRoutes registers performance monitoring routes
+// RegisterRoutes registers performance monitoring routes.
 func (h *Handler) RegisterRoutes(router gin.IRouter) {
 	perf := router.Group("/api/performance")
 	{
@@ -126,13 +126,13 @@ func (h *Handler) RegisterRoutes(router gin.IRouter) {
 	}
 }
 
-// GetStats returns current performance statistics
+// GetStats returns current performance statistics.
 func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.collectStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// GetSlowQueries returns slow query log
+// GetSlowQueries returns slow query log.
 func (h *Handler) GetSlowQueries(c *gin.Context) {
 	queries := h.analyzer.GetSlowQueries()
 
@@ -152,7 +152,7 @@ func (h *Handler) GetSlowQueries(c *gin.Context) {
 	})
 }
 
-// GetHotspots returns performance hotspots
+// GetHotspots returns performance hotspots.
 func (h *Handler) GetHotspots(c *gin.Context) {
 	hotspots := h.analyzer.AnalyzeHotspots()
 
@@ -174,7 +174,7 @@ func (h *Handler) GetHotspots(c *gin.Context) {
 	})
 }
 
-// GetBottlenecks returns detected bottlenecks
+// GetBottlenecks returns detected bottlenecks.
 func (h *Handler) GetBottlenecks(c *gin.Context) {
 	bottlenecks := h.analyzer.GetBottlenecks()
 
@@ -189,13 +189,13 @@ func (h *Handler) GetBottlenecks(c *gin.Context) {
 	})
 }
 
-// GetHealth returns system health status
+// GetHealth returns system health status.
 func (h *Handler) GetHealth(c *gin.Context) {
 	health := h.monitor.GetHealth()
 	c.JSON(http.StatusOK, health)
 }
 
-// Analyze triggers performance analysis
+// Analyze triggers performance analysis.
 func (h *Handler) Analyze(c *gin.Context) {
 	cpu := h.monitor.GetCPUStats()
 	mem := h.monitor.GetMemoryStats()
@@ -214,7 +214,7 @@ func (h *Handler) Analyze(c *gin.Context) {
 	})
 }
 
-// ExportReport exports performance report
+// ExportReport exports performance report.
 func (h *Handler) ExportReport(c *gin.Context) {
 	stats := h.collectStats()
 
@@ -232,7 +232,7 @@ func (h *Handler) ExportReport(c *gin.Context) {
 	c.JSON(http.StatusOK, report)
 }
 
-// collectStats collects all performance statistics
+// collectStats collects all performance statistics.
 func (h *Handler) collectStats() *PerformanceStats {
 	cpuStats := h.monitor.GetCPUStats()
 	memStats := h.monitor.GetMemoryStats()
@@ -295,7 +295,7 @@ func (h *Handler) collectStats() *PerformanceStats {
 	}
 }
 
-// PerformanceMiddleware creates a middleware to track API performance
+// PerformanceMiddleware creates a middleware to track API performance.
 func PerformanceMiddleware(analyzer *PerformanceAnalyzer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()

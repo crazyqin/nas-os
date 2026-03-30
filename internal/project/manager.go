@@ -8,21 +8,21 @@ import (
 	"github.com/google/uuid"
 )
 
-// 错误定义
+// 错误定义.
 var (
-	// ErrTaskNotFound 任务不存在错误
+	// ErrTaskNotFound 任务不存在错误.
 	ErrTaskNotFound = errors.New("任务不存在")
-	// ErrMilestoneNotFound 里程碑不存在错误
+	// ErrMilestoneNotFound 里程碑不存在错误.
 	ErrMilestoneNotFound = errors.New("里程碑不存在")
-	// ErrProjectNotFound 项目不存在错误
+	// ErrProjectNotFound 项目不存在错误.
 	ErrProjectNotFound = errors.New("项目不存在")
-	// ErrInvalidStatus 无效状态错误
+	// ErrInvalidStatus 无效状态错误.
 	ErrInvalidStatus = errors.New("无效的状态")
-	// ErrPermissionDenied 权限不足错误
+	// ErrPermissionDenied 权限不足错误.
 	ErrPermissionDenied = errors.New("权限不足")
 )
 
-// Manager 项目管理器
+// Manager 项目管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	tasks      map[string]*Task
@@ -32,7 +32,7 @@ type Manager struct {
 	history    map[string][]*TaskHistory
 }
 
-// NewManager 创建项目管理器
+// NewManager 创建项目管理器.
 func NewManager() *Manager {
 	return &Manager{
 		tasks:      make(map[string]*Task),
@@ -45,7 +45,7 @@ func NewManager() *Manager {
 
 // ========== 项目管理 ==========
 
-// CreateProject 创建项目
+// CreateProject 创建项目.
 func (m *Manager) CreateProject(name, key, description, ownerID, createdBy string) (*Project, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -68,7 +68,7 @@ func (m *Manager) CreateProject(name, key, description, ownerID, createdBy strin
 	return project, nil
 }
 
-// GetProject 获取项目
+// GetProject 获取项目.
 func (m *Manager) GetProject(id string) (*Project, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -80,7 +80,7 @@ func (m *Manager) GetProject(id string) (*Project, error) {
 	return project, nil
 }
 
-// UpdateProject 更新项目
+// UpdateProject 更新项目.
 func (m *Manager) UpdateProject(id string, updates map[string]interface{}) (*Project, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -106,7 +106,7 @@ func (m *Manager) UpdateProject(id string, updates map[string]interface{}) (*Pro
 	return project, nil
 }
 
-// DeleteProject 删除项目
+// DeleteProject 删除项目.
 func (m *Manager) DeleteProject(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -132,7 +132,7 @@ func (m *Manager) DeleteProject(id string) error {
 	return nil
 }
 
-// ListProjects 列出项目
+// ListProjects 列出项目.
 func (m *Manager) ListProjects(userID string, limit, offset int) []*Project {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -160,7 +160,7 @@ func (m *Manager) ListProjects(userID string, limit, offset int) []*Project {
 
 // ========== 里程碑管理 ==========
 
-// CreateMilestone 创建里程碑
+// CreateMilestone 创建里程碑.
 func (m *Manager) CreateMilestone(name, description, projectID, createdBy string, dueDate *time.Time) (*Milestone, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -186,7 +186,7 @@ func (m *Manager) CreateMilestone(name, description, projectID, createdBy string
 	return milestone, nil
 }
 
-// GetMilestone 获取里程碑
+// GetMilestone 获取里程碑.
 func (m *Manager) GetMilestone(id string) (*Milestone, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -198,7 +198,7 @@ func (m *Manager) GetMilestone(id string) (*Milestone, error) {
 	return milestone, nil
 }
 
-// UpdateMilestone 更新里程碑
+// UpdateMilestone 更新里程碑.
 func (m *Manager) UpdateMilestone(id string, updates map[string]interface{}) (*Milestone, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -231,7 +231,7 @@ func (m *Manager) UpdateMilestone(id string, updates map[string]interface{}) (*M
 	return milestone, nil
 }
 
-// DeleteMilestone 删除里程碑
+// DeleteMilestone 删除里程碑.
 func (m *Manager) DeleteMilestone(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,7 +252,7 @@ func (m *Manager) DeleteMilestone(id string) error {
 	return nil
 }
 
-// ListMilestones 列出里程碑
+// ListMilestones 列出里程碑.
 func (m *Manager) ListMilestones(projectID string) []*Milestone {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -270,7 +270,7 @@ func (m *Manager) ListMilestones(projectID string) []*Milestone {
 
 // ========== 任务管理 ==========
 
-// CreateTask 创建任务
+// CreateTask 创建任务.
 func (m *Manager) CreateTask(title, description, projectID, reporterID string, priority TaskPriority) (*Task, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -304,7 +304,7 @@ func (m *Manager) CreateTask(title, description, projectID, reporterID string, p
 	return task, nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *Manager) GetTask(id string) (*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -316,7 +316,7 @@ func (m *Manager) GetTask(id string) (*Task, error) {
 	return task, nil
 }
 
-// UpdateTask 更新任务
+// UpdateTask 更新任务.
 func (m *Manager) UpdateTask(id, userID string, updates map[string]interface{}) (*Task, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -379,7 +379,7 @@ func (m *Manager) UpdateTask(id, userID string, updates map[string]interface{}) 
 	return task, nil
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (m *Manager) DeleteTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -404,7 +404,7 @@ func (m *Manager) DeleteTask(id string) error {
 	return nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (m *Manager) ListTasks(filter TaskFilter) []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -433,7 +433,7 @@ func (m *Manager) ListTasks(filter TaskFilter) []*Task {
 	return result[offset:end]
 }
 
-// GetTaskStats 获取任务统计
+// GetTaskStats 获取任务统计.
 func (m *Manager) GetTaskStats(projectID string) TaskStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -481,7 +481,7 @@ func (m *Manager) GetTaskStats(projectID string) TaskStats {
 
 // ========== 评论管理 ==========
 
-// AddComment 添加评论
+// AddComment 添加评论.
 func (m *Manager) AddComment(taskID, userID, content string) (*TaskComment, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -504,7 +504,7 @@ func (m *Manager) AddComment(taskID, userID, content string) (*TaskComment, erro
 	return comment, nil
 }
 
-// GetComments 获取任务评论
+// GetComments 获取任务评论.
 func (m *Manager) GetComments(taskID string) []*TaskComment {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -513,7 +513,7 @@ func (m *Manager) GetComments(taskID string) []*TaskComment {
 
 // ========== 历史记录 ==========
 
-// recordHistory 记录历史
+// recordHistory 记录历史.
 func (m *Manager) recordHistory(taskID, field, oldValue, newValue, userID string) {
 	entry := &TaskHistory{
 		ID:        uuid.New().String(),
@@ -527,7 +527,7 @@ func (m *Manager) recordHistory(taskID, field, oldValue, newValue, userID string
 	m.history[taskID] = append(m.history[taskID], entry)
 }
 
-// GetHistory 获取任务历史
+// GetHistory 获取任务历史.
 func (m *Manager) GetHistory(taskID string) []*TaskHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

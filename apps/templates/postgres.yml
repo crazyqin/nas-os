@@ -1,0 +1,91 @@
+# PostgreSQL - 高级关系型数据库
+#
+# 用途：
+# - 应用数据库
+# - 数据持久化
+# - 支持复杂查询和事务
+#
+# 数据目录：/var/lib/nas-os/data/postgres
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nas-postgres
+    restart: unless-stopped
+    
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nasadmin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-naspass123}
+      POSTGRES_DB: ${POSTGRES_DB:-nasdb}
+      # 性能优化
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    
+    ports:
+      - "5432:5432"
+    
+    volumes:
+      # 数据持久化
+      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/postgres:/var/lib/postgresql/data
+      # 初始化脚本
+      - ${NAS_CONFIG_DIR:-/var/lib/nas-os/config}/postgres/init:/docker-entrypoint-initdb.d:ro
+    
+    # 健康检查（v2.292.0 优化）
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nasadmin} -d ${POSTGRES_DB:-nasdb} -h localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    # 日志聚合配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    # 网络隔离
+    networks:
+      - nas-app-network
+    
+    labels:
+      - "nas-os.app=postgres"
+      - "nas-os.category=database"
+      - "nas-os.description=Advanced relational database"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+
+# ==================== 网络配置 ====================
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# 可选：PostgreSQL 管理 UI (pgAdmin)
+# pgadmin:
+#   image: dpage/pgadmin4:latest
+#   container_name: nas-pgadmin
+#   restart: unless-stopped
+#   environment:
+#     PGADMIN_DEFAULT_EMAIL: admin@nas.local
+#     PGADMIN_DEFAULT_PASSWORD: admin123
+#     PGADMIN_LISTEN_PORT: 5050
+#   ports:
+#     - "5050:5050"
+#   volumes:
+#     - ${NAS_DATA_DIR}/pgadmin:/var/lib/pgadmin
+#   depends_on:
+#     - postgres

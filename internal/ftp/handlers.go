@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers FTP API 处理器
+// Handlers FTP API 处理器.
 type Handlers struct {
 	server *Server
 }
 
-// NewHandlers 创建 FTP handlers
+// NewHandlers 创建 FTP handlers.
 func NewHandlers(server *Server) *Handlers {
 	return &Handlers{server: server}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	ftp := api.Group("/ftp")
 	{
@@ -34,7 +34,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ftp/config [get]
+// @Router /ftp/config [get].
 func (h *Handlers) GetConfig(c *gin.Context) {
 	if h.server == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -59,7 +59,7 @@ func (h *Handlers) GetConfig(c *gin.Context) {
 // @Produce json
 // @Param config body Config true "配置"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ftp/config [put]
+// @Router /ftp/config [put].
 func (h *Handlers) UpdateConfig(c *gin.Context) {
 	if h.server == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -100,7 +100,7 @@ func (h *Handlers) UpdateConfig(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ftp/status [get]
+// @Router /ftp/status [get].
 func (h *Handlers) GetStatus(c *gin.Context) {
 	if h.server == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -124,7 +124,7 @@ func (h *Handlers) GetStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ftp/start [post]
+// @Router /ftp/start [post].
 func (h *Handlers) Start(c *gin.Context) {
 	if h.server == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -157,7 +157,7 @@ func (h *Handlers) Start(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ftp/restart [post]
+// @Router /ftp/restart [post].
 func (h *Handlers) Restart(c *gin.Context) {
 	if h.server == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{

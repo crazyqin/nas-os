@@ -1,0 +1,353 @@
+# NAS-OS 勒索软件检测告警规则
+# v2.308.0 新增（工部维护）
+#
+# 功能特性：
+# - 文件批量删除/修改检测
+# - 异常文件扩展名检测
+# - 高频加密写入检测
+# - 可疑进程行为检测
+# - 快照异常删除检测
+# - 用户异常行为检测
+#
+# 告警分级：
+# - critical: 可能正在遭受勒索攻击，立即响应
+# - warning: 可疑行为，需要关注和验证
+# - info: 潜在风险提示，建议检查
+
+groups:
+  # ==================== 文件行为检测 ====================
+  - name: ransomware-file-detection
+    rules:
+      # 批量文件删除检测
+      - alert: MassFileDeletionDetected
+        expr: rate(nas_file_deletions_total[5m]) > 100
+        for: 1m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: mass-deletion
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "检测到批量文件删除"
+          description: "用户 {{ $labels.user }} 在 {{ $labels.share }} 每5分钟删除 {{ $value | printf \"%.0f\" }} 个文件，可能遭受勒索攻击"
+      
+      # 批量文件修改检测
+      - alert: MassFileModificationDetected
+        expr: rate(nas_file_modifications_total[5m]) > 200
+        for: 1m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: mass-modification
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "检测到批量文件修改"
+          description: "用户 {{ $labels.user }} 在 {{ $labels.share }} 每5分钟修改 {{ $value | printf \"%.0f\" }} 个文件，疑似加密行为"
+      
+      # 异常扩展名文件创建（勒索软件加密标记）
+      - alert: RansomwareExtensionDetected
+        expr: increase(nas_file_suspicious_extensions_total[5m]) > 10
+        for: 0m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: encryption-mark
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "检测到勒索软件加密扩展名"
+          description: "检测到 {{ $value }} 个可疑加密扩展名（如 .encrypted, .locked, .ransom），立即检查用户 {{ $labels.user }}"
+      
+      # 高频写入速率异常（加密写入特征）
+      - alert: HighWriteRateAnomaly
+        expr: rate(nas_file_write_bytes_total[1m]) > 104857600 and rate(nas_file_creates_total[1m]) > 50
+        for: 30s
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: encryption-write
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "检测到高频加密写入模式"
+          description: "用户 {{ $labels.user }} 写入速率 {{ $value | humanize1024 }}B/s 并创建大量文件，疑似勒索加密"
+
+  # ==================== 快照保护检测 ====================
+  - name: ransomware-snapshot-protection
+    rules:
+      # 快照异常删除检测
+      - alert: SnapshotMassDeletionDetected
+        expr: increase(nas_snapshot_deletions_total[1h]) > 10
+        for: 0m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: snapshot-destroy
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "检测到快照批量删除"
+          description: "短时间内删除 {{ $value }} 个快照，可能是勒索软件清除恢复点"
+      
+      # 快照删除速率异常
+      - alert: SnapshotDeletionRateAnomaly
+        expr: rate(nas_snapshot_deletions_total[10m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: ransomware-detection
+          attack_type: snapshot-destroy
+        annotations:
+          summary: "快照删除速率异常"
+          description: "快照删除速率 {{ $value | printf \"%.2f\" }} 次/10分钟，建议检查操作日志"
+      
+      # 快照空间异常减少
+      - alert: SnapshotSpaceDropAnomaly
+        expr: deriv(nas_snapshot_total_size_bytes[30m]) < -1073741824
+        for: 5m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: snapshot-destroy
+        annotations:
+          summary: "快照空间异常减少"
+          description: "快照空间在30分钟内减少超过1GB，可能被恶意删除"
+
+  # ==================== 用户行为检测 ====================
+  - name: ransomware-user-behavior
+    rules:
+      # 异常访问模式检测
+      - alert: AbnormalAccessPatternDetected
+        expr: rate(nas_user_file_access_total{access_type="read"}[5m]) / rate(nas_user_file_access_total{access_type="write"}[5m]) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: ransomware-detection
+          attack_type: abnormal-pattern
+        annotations:
+          summary: "检测到异常访问模式"
+          description: "用户 {{ $labels.user }} 写入远多于读取（读写比 {{ $value | printf \"%.2f\" }}），可能是加密行为"
+      
+      # 新用户异常高频写入
+      - alert: NewUserHighWriteActivity
+        expr: nas_user_write_rate_total > 100 and nas_user_account_age_hours < 24
+        for: 5m
+        labels:
+          severity: warning
+          component: ransomware-detection
+          attack_type: new-user-abuse
+        annotations:
+          summary: "新账户高频写入活动"
+          description: "新用户账户（<24小时）高频写入 {{ $value | printf \"%.0f\" }} 文件/分钟，建议验证身份"
+      
+      # 非活跃用户突然活跃
+      - alert: InactiveUserSuddenlyActive
+        expr: nas_user_file_operations_total > 100 and nas_user_inactive_days > 30
+        for: 1m
+        labels:
+          severity: warning
+          component: ransomware-detection
+          attack_type: account-compromise
+        annotations:
+          summary: "长期不活跃用户突然活跃"
+          description: "用户 {{ $labels.user }} 已{{ $labels.inactive_days }}天未活动，突然大量文件操作，可能账户被盗"
+
+  # ==================== 进程行为检测 ====================
+  - name: ransomware-process-detection
+    rules:
+      # 可疑进程检测
+      - alert: SuspiciousProcessDetected
+        expr: nas_suspicious_process_score > 80
+        for: 0m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: malicious-process
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "检测到可疑进程"
+          description: "进程 {{ $labels.process_name }} (PID: {{ $labels.pid }}) 可疑评分 {{ $value }}，行为特征：{{ $labels.suspicion_reasons }}"
+      
+      # 进程文件操作异常
+      - alert: ProcessFileOperationAnomaly
+        expr: rate(nas_process_file_operations_total[5m]) > 500
+        for: 1m
+        labels:
+          severity: warning
+          component: ransomware-detection
+          attack_type: process-abuse
+        annotations:
+          summary: "进程文件操作异常"
+          description: "进程 {{ $labels.process_name }} 高频文件操作 {{ $value | printf \"%.0f\" }} 次/5分钟"
+      
+      # 未知进程大量写入
+      - alert: UnknownProcessHighWrite
+        expr: rate(nas_process_write_bytes_total{process_trusted="false"}[5m]) > 52428800
+        for: 30s
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: untrusted-process
+        annotations:
+          summary: "未知进程大量写入"
+          description: "未信任进程 {{ $labels.process_name }} 写入 {{ $value | humanize1024 }}B/5分钟"
+
+  # ==================== 网络行为检测 ====================
+  - name: ransomware-network-detection
+    rules:
+      # 异常外联检测（数据外泄）
+      - alert: AbnormalOutboundConnection
+        expr: rate(nas_outbound_connections_total{destination="external"}[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          component: ransomware-detection
+          attack_type: data-exfiltration
+        annotations:
+          summary: "异常外联连接"
+          description: "检测到 {{ $value | printf \"%.0f\" }} 次/5分钟外部连接，可能存在数据外泄"
+      
+      # 大量数据外传
+      - alert: MassDataExfiltration
+        expr: rate(nas_network_sent_bytes_total{destination="external"}[10m]) > 1073741824
+        for: 5m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: data-exfiltration
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "大量数据外传"
+          description: "向外部传输 {{ $value | humanize1024 }}B/10分钟，疑似数据外泄"
+      
+      # Tor/匿名网络连接
+      - alert: TorNetworkConnectionDetected
+        expr: nas_tor_connection_detected == 1
+        for: 0m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: anonymous-network
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "检测到Tor网络连接"
+          description: "检测到Tor/匿名网络连接，勒索软件常用匿名网络通信"
+
+  # ==================== 勒索软件特征检测 ====================
+  - name: ransomware-signature-detection
+    rules:
+      # 勒索软件文件特征
+      - alert: RansomwareFileSignatureDetected
+        expr: nas_ransomware_signature_match > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: signature-match
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "勒索软件文件特征匹配"
+          description: "检测到勒索软件特征文件 {{ $labels.filename }}，匹配家族：{{ $labels.ransomware_family }}"
+      
+      # 勒索信检测
+      - alert: RansomNoteDetected
+        expr: nas_ransom_note_detected == 1
+        for: 0m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: ransom-note
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "检测到勒索信文件"
+          description: "在 {{ $labels.path }} 检测到勒索信文件 {{ $labels.filename }}"
+      
+      # 已知勒索软件家族扩展名
+      - alert: KnownRansomwareExtension
+        expr: nas_known_ransomware_extension_count > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: known-extension
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "已知勒索软件扩展名"
+          description: "检测到 {{ $value }} 个已知勒索家族扩展名（如 .WannaCry, .Locky, .CryptoLocker）"
+
+  # ==================== 综合风险评估 ====================
+  - name: ransomware-risk-assessment
+    rules:
+      # 综合风险评分
+      - alert: RansomwareRiskScoreHigh
+        expr: nas_ransomware_risk_score > 70
+        for: 1m
+        labels:
+          severity: warning
+          component: ransomware-detection
+          attack_type: risk-elevation
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "勒索攻击风险评分升高"
+          description: "综合风险评分 {{ $value }}，建议检查系统状态和用户行为"
+      
+      - alert: RansomwareRiskScoreCritical
+        expr: nas_ransomware_risk_score > 90
+        for: 30s
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: imminent-attack
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "勒索攻击风险极高"
+          description: "综合风险评分 {{ $value }}，可能正在遭受攻击，立即响应"
+      
+      # 多指标触发
+      - alert: MultipleRansomwareIndicators
+        expr: count(nas_ransomware_indicator_active) > 3
+        for: 0m
+        labels:
+          severity: critical
+          component: ransomware-detection
+          attack_type: multi-indicator
+          runbook: "https://docs.nas-os.io/runbook/ransomware-response"
+        annotations:
+          summary: "多个勒索攻击指标触发"
+          description: "{{ $value }} 个勒索检测指标同时触发，攻击概率极高"
+
+  # ==================== 响应动作建议 ====================
+  - name: ransomware-response-guidance
+    rules:
+      # 建议隔离用户
+      - alert: RecommendUserIsolation
+        expr: nas_ransomware_risk_score > 80 and nas_user_file_operations_rate > 100
+        for: 1m
+        labels:
+          severity: warning
+          component: ransomware-response
+          action: isolate-user
+        annotations:
+          summary: "建议隔离可疑用户"
+          description: "用户 {{ $labels.user }} 高风险+高频操作，建议立即限制账户访问"
+      
+      # 建议锁定共享
+      - alert: RecommendShareLockdown
+        expr: rate(nas_file_suspicious_extensions_total{share}[5m]) > 20
+        for: 30s
+        labels:
+          severity: critical
+          component: ransomware-response
+          action: lock-share
+        annotations:
+          summary: "建议锁定受影响共享"
+          description: "共享 {{ $labels.share }} 检测到大量可疑扩展名，建议立即锁定"
+      
+      # 建议暂停服务
+      - alert: RecommendServicePause
+        expr: nas_ransomware_risk_score > 95
+        for: 0m
+        labels:
+          severity: critical
+          component: ransomware-response
+          action: pause-service
+        annotations:
+          summary: "建议暂停文件服务"
+          description: "风险评分超过95分，建议立即暂停 SMB/NFS 服务防止进一步破坏"

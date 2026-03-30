@@ -184,7 +184,8 @@ func (ss *StreamServer) runHLSStream(session *StreamSession) {
 
 // buildHLSArgs 构建 HLS 转码参数
 func (ss *StreamServer) buildHLSArgs(inputPath, playlistPath, segmentPattern string) []string {
-	args := []string{"-i", inputPath}
+	args := make([]string, 0, 18)
+	args = append(args, "-i", inputPath)
 
 	// 硬件加速
 	switch strings.ToLower(ss.config.HWAccel) {
@@ -439,7 +440,8 @@ func (ss *StreamServer) TranscodeStream(ctx context.Context, inputPath string, c
 
 // buildTranscodeArgs 构建转码参数
 func (ss *StreamServer) buildTranscodeArgs(inputPath string, config StreamConfig) []string {
-	args := []string{"-i", inputPath}
+	args := make([]string, 0, 18)
+	args = append(args, "-i", inputPath)
 
 	// 视频编码
 	args = append(args, "-c:v", "libx264", "-preset", "fast")
@@ -534,7 +536,8 @@ func (ss *StreamServer) runDASHStream(session *StreamSession) {
 
 // buildDASHArgs 构建 DASH 转码参数
 func (ss *StreamServer) buildDASHArgs(inputPath, manifestPath, outputDir string) []string {
-	args := []string{"-i", inputPath}
+	args := make([]string, 0, 18)
+	args = append(args, "-i", inputPath)
 
 	// 视频编码
 	args = append(args,
@@ -611,7 +614,8 @@ func (ss *StreamServer) CreateAdaptiveHLS(sourcePath, outputDir string, qualitie
 // runAdaptiveHLS 运行自适应 HLS 流
 func (ss *StreamServer) runAdaptiveHLS(session *StreamSession, qualities []AdaptiveStream) {
 	// 构建复杂的 ffmpeg 命令（多输出）
-	args := []string{"-i", session.SourcePath}
+	args := make([]string, 0, 2+24*len(qualities))
+	args = append(args, "-i", session.SourcePath)
 
 	for _, q := range qualities {
 		// 输出参数

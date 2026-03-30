@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TransferHandlers 传输日志 API 处理器
+// TransferHandlers 传输日志 API 处理器.
 type TransferHandlers struct {
 	logger *TransferLogger
 	server *Server
 }
 
-// NewTransferHandlers 创建传输日志处理器
+// NewTransferHandlers 创建传输日志处理器.
 func NewTransferHandlers(logger *TransferLogger, server *Server) *TransferHandlers {
 	return &TransferHandlers{
 		logger: logger,
@@ -21,7 +21,7 @@ func NewTransferHandlers(logger *TransferLogger, server *Server) *TransferHandle
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *TransferHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	transfers := api.Group("/sftp/transfers")
 	{
@@ -33,7 +33,7 @@ func (h *TransferHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// ListTransfersRequest 列表请求
+// ListTransfersRequest 列表请求.
 type ListTransfersRequest struct {
 	Username  string `form:"username"`
 	Direction string `form:"direction"`
@@ -44,7 +44,7 @@ type ListTransfersRequest struct {
 	Offset    int    `form:"offset"`
 }
 
-// ListTransfers 获取传输日志列表
+// ListTransfers 获取传输日志列表.
 func (h *TransferHandlers) ListTransfers(c *gin.Context) {
 	if h.logger == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -110,12 +110,12 @@ func (h *TransferHandlers) ListTransfers(c *gin.Context) {
 	})
 }
 
-// GetStatsRequest 统计请求
+// GetStatsRequest 统计请求.
 type GetStatsRequest struct {
 	Period string `form:"period"`
 }
 
-// GetStats 获取传输统计
+// GetStats 获取传输统计.
 func (h *TransferHandlers) GetStats(c *gin.Context) {
 	if h.logger == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -137,7 +137,7 @@ func (h *TransferHandlers) GetStats(c *gin.Context) {
 	})
 }
 
-// ClearLogs 清除传输日志
+// ClearLogs 清除传输日志.
 func (h *TransferHandlers) ClearLogs(c *gin.Context) {
 	if h.logger == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -161,7 +161,7 @@ func (h *TransferHandlers) ClearLogs(c *gin.Context) {
 	})
 }
 
-// GetConfig 获取日志配置
+// GetConfig 获取日志配置.
 func (h *TransferHandlers) GetConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -172,12 +172,12 @@ func (h *TransferHandlers) GetConfig(c *gin.Context) {
 	})
 }
 
-// UpdateConfigRequest 更新配置请求
+// UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
 	Enabled bool `json:"enabled"`
 }
 
-// UpdateConfig 更新日志配置
+// UpdateConfig 更新日志配置.
 func (h *TransferHandlers) UpdateConfig(c *gin.Context) {
 	if h.logger == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -207,7 +207,7 @@ func (h *TransferHandlers) UpdateConfig(c *gin.Context) {
 	})
 }
 
-// parsePeriod 解析周期字符串
+// parsePeriod 解析周期字符串.
 func parsePeriod(period string) time.Duration {
 	switch period {
 	case "1h":

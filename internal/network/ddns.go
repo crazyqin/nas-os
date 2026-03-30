@@ -10,24 +10,24 @@ import (
 	"time"
 )
 
-// DDNSProvider DDNS 服务商接口
+// DDNSProvider DDNS 服务商接口.
 type DDNSProvider interface {
 	Update(domain, ip string) error
 }
 
-// ListDDNS 列出所有 DDNS 配置
+// ListDDNS 列出所有 DDNS 配置.
 func (m *Manager) ListDDNS() []*DDNSConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var configs []*DDNSConfig
+	configs := make([]*DDNSConfig, 0, len(m.ddnsConfigs))
 	for _, cfg := range m.ddnsConfigs {
 		configs = append(configs, cfg)
 	}
 	return configs
 }
 
-// GetDDNS 获取单个 DDNS 配置
+// GetDDNS 获取单个 DDNS 配置.
 func (m *Manager) GetDDNS(domain string) (*DDNSConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -39,7 +39,7 @@ func (m *Manager) GetDDNS(domain string) (*DDNSConfig, error) {
 	return cfg, nil
 }
 
-// AddDDNS 添加 DDNS 配置
+// AddDDNS 添加 DDNS 配置.
 func (m *Manager) AddDDNS(config DDNSConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -68,7 +68,7 @@ func (m *Manager) AddDDNS(config DDNSConfig) error {
 	return nil
 }
 
-// UpdateDDNS 更新 DDNS 配置
+// UpdateDDNS 更新 DDNS 配置.
 func (m *Manager) UpdateDDNS(domain string, config DDNSConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -90,7 +90,7 @@ func (m *Manager) UpdateDDNS(domain string, config DDNSConfig) error {
 	return nil
 }
 
-// DeleteDDNS 删除 DDNS 配置
+// DeleteDDNS 删除 DDNS 配置.
 func (m *Manager) DeleteDDNS(domain string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -107,7 +107,7 @@ func (m *Manager) DeleteDDNS(domain string) error {
 	return nil
 }
 
-// EnableDDNS 启用/禁用 DDNS
+// EnableDDNS 启用/禁用 DDNS.
 func (m *Manager) EnableDDNS(domain string, enabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -125,7 +125,7 @@ func (m *Manager) EnableDDNS(domain string, enabled bool) error {
 	return nil
 }
 
-// RefreshDDNS 手动刷新 DDNS
+// RefreshDDNS 手动刷新 DDNS.
 func (m *Manager) RefreshDDNS(domain string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -170,7 +170,7 @@ func (m *Manager) RefreshDDNS(domain string) error {
 	return nil
 }
 
-// getPublicIP 获取公网 IP
+// getPublicIP 获取公网 IP.
 func (m *Manager) getPublicIP(iface string) (string, error) {
 	// 使用多个 IP 检测服务，提高可用性
 	services := []string{
@@ -182,7 +182,12 @@ func (m *Manager) getPublicIP(iface string) (string, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
 
 	for _, service := range services {
-		resp, err := client.Get(service)
+		ctx := context.Background()
+		req, err := http.NewRequestWithContext(ctx, "GET", service, nil)
+		if err != nil {
+			continue
+		}
+		resp, err := client.Do(req)
 		if err != nil {
 			continue
 		}
@@ -202,19 +207,19 @@ func (m *Manager) getPublicIP(iface string) (string, error) {
 	return "", fmt.Errorf("无法获取公网 IP")
 }
 
-// getDDNSProvider 获取 DDNS 服务商实现
+// getDDNSProvider 获取 DDNS 服务商实现.
 func (m *Manager) getDDNSProvider(provider, token, secret string) (DDNSProvider, error) {
 	return m.getDDNSProviderEx(provider, token, secret, "")
 }
 
 // ========== DuckDNS 实现 ==========
 
-// DuckDNSProvider DuckDNS 服务提供商实现
+// DuckDNSProvider DuckDNS 服务提供商实现.
 type DuckDNSProvider struct {
 	Token string
 }
 
-// Update 更新 DuckDNS 域名解析记录
+// Update 更新 DuckDNS 域名解析记录.
 func (p *DuckDNSProvider) Update(domain, ip string) error {
 	// DuckDNS API - 使用 POST 请求避免 token 出现在 URL 日志中
 	formData := url.Values{}
@@ -222,13 +227,13 @@ func (p *DuckDNSProvider) Update(domain, ip string) error {
 	formData.Set("token", p.Token)
 	formData.Set("ip", ip)
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "https://www.duckdns.org/update", strings.NewReader(formData.Encode()))
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://www.duckdns.org/update", strings.NewReader(formData.Encode()))
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	client := &http.Client{Timeout: 30 * time.Second}
+	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -249,19 +254,20 @@ func (p *DuckDNSProvider) Update(domain, ip string) error {
 
 // ========== No-IP 实现 ==========
 
-// NoIPProvider No-IP 服务提供商实现
+// NoIPProvider No-IP 服务提供商实现.
 type NoIPProvider struct {
 	Token  string // 用户名
 	Secret string // 密码
 }
 
-// Update 更新 No-IP 域名解析记录
+// Update 更新 No-IP 域名解析记录.
 func (p *NoIPProvider) Update(domain, ip string) error {
 	// No-IP 使用 Basic Auth
 	url := fmt.Sprintf("https://dynupdate.no-ip.com/nic/update?hostname=%s&myip=%s",
 		domain, ip)
 
-	req, err := http.NewRequest("GET", url, nil)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return err
 	}
@@ -289,7 +295,7 @@ func (p *NoIPProvider) Update(domain, ip string) error {
 	return fmt.Errorf("No-IP 更新失败: %s", response)
 }
 
-// StartDDNSWorker 启动 DDNS 后台更新任务
+// StartDDNSWorker 启动 DDNS 后台更新任务.
 func (m *Manager) StartDDNSWorker() {
 	go func() {
 		ticker := time.NewTicker(5 * time.Minute)
@@ -317,7 +323,7 @@ func (m *Manager) StartDDNSWorker() {
 	}()
 }
 
-// parseTime 解析时间字符串
+// parseTime 解析时间字符串.
 func (m *Manager) parseTime(timeStr string) time.Time {
 	if timeStr == "" {
 		return time.Time{}

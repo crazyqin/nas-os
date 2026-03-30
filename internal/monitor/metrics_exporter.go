@@ -23,7 +23,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// MetricsExporter Prometheus 指标导出器
+// MetricsExporter Prometheus 指标导出器.
 type MetricsExporter struct {
 	mu sync.RWMutex
 
@@ -52,7 +52,7 @@ type MetricsExporter struct {
 	stopCh  chan struct{}
 }
 
-// MetricsExporterConfig 导出器配置
+// MetricsExporterConfig 导出器配置.
 type MetricsExporterConfig struct {
 	Namespace string // 命名空间，默认 "nas_os"
 	Subsystem string // 子系统名
@@ -60,7 +60,7 @@ type MetricsExporterConfig struct {
 	Path      string // 指标路径，默认 "/metrics"
 }
 
-// SystemMetrics 系统指标
+// SystemMetrics 系统指标.
 type SystemMetrics struct {
 	CPUUsage  prometheus.Gauge
 	CPUIdle   prometheus.Gauge
@@ -90,7 +90,7 @@ type SystemMetrics struct {
 	FileDescriptor prometheus.Gauge
 }
 
-// StorageMetrics 存储指标
+// StorageMetrics 存储指标.
 type StorageMetrics struct {
 	DiskTotal        *prometheus.GaugeVec
 	DiskUsed         *prometheus.GaugeVec
@@ -119,7 +119,7 @@ type StorageMetrics struct {
 	QuotaUsage *prometheus.GaugeVec
 }
 
-// BackupMetrics 备份指标 (Prometheus 指标容器)
+// BackupMetrics 备份指标 (Prometheus 指标容器).
 type BackupMetrics struct {
 	BackupTotal     *prometheus.GaugeVec
 	BackupSize      *prometheus.GaugeVec
@@ -135,7 +135,7 @@ type BackupMetrics struct {
 	RestoreStatus   *prometheus.GaugeVec
 }
 
-// ServiceMetrics 服务指标
+// ServiceMetrics 服务指标.
 type ServiceMetrics struct {
 	ServiceStatus      *prometheus.GaugeVec
 	ServiceUptime      *prometheus.GaugeVec
@@ -154,7 +154,7 @@ type ServiceMetrics struct {
 	UserActive   prometheus.Gauge
 }
 
-// CustomMetrics 自定义指标容器
+// CustomMetrics 自定义指标容器.
 type CustomMetrics struct {
 	mu         sync.RWMutex
 	gauges     map[string]*prometheus.GaugeVec
@@ -163,7 +163,7 @@ type CustomMetrics struct {
 	summaries  map[string]*prometheus.SummaryVec
 }
 
-// AggregatedStats 聚合统计
+// AggregatedStats 聚合统计.
 type AggregatedStats struct {
 	mu           sync.RWMutex
 	lastUpdate   time.Time
@@ -181,7 +181,7 @@ type AggregatedStats struct {
 	dataPoints     int
 }
 
-// NewMetricsExporter 创建指标导出器
+// NewMetricsExporter 创建指标导出器.
 func NewMetricsExporter(config MetricsExporterConfig) *MetricsExporter {
 	if config.Namespace == "" {
 		config.Namespace = "nas_os"
@@ -225,7 +225,7 @@ func NewMetricsExporter(config MetricsExporterConfig) *MetricsExporter {
 	return exporter
 }
 
-// initSystemMetrics 初始化系统指标
+// initSystemMetrics 初始化系统指标.
 func (e *MetricsExporter) initSystemMetrics() {
 	ns := e.namespace
 	sub := e.subsystem
@@ -326,7 +326,7 @@ func (e *MetricsExporter) initSystemMetrics() {
 	}
 }
 
-// initStorageMetrics 初始化存储指标
+// initStorageMetrics 初始化存储指标.
 func (e *MetricsExporter) initStorageMetrics() {
 	ns := e.namespace
 	sub := e.subsystem
@@ -444,7 +444,7 @@ func (e *MetricsExporter) initStorageMetrics() {
 	}
 }
 
-// initBackupMetrics 初始化备份指标
+// initBackupMetrics 初始化备份指标.
 func (e *MetricsExporter) initBackupMetrics() {
 	ns := e.namespace
 	sub := e.subsystem
@@ -507,7 +507,7 @@ func (e *MetricsExporter) initBackupMetrics() {
 	}
 }
 
-// initServiceMetrics 初始化服务指标
+// initServiceMetrics 初始化服务指标.
 func (e *MetricsExporter) initServiceMetrics() {
 	ns := e.namespace
 	sub := e.subsystem
@@ -581,7 +581,7 @@ func (e *MetricsExporter) initServiceMetrics() {
 	}
 }
 
-// registerMetrics 注册所有指标到注册表
+// registerMetrics 注册所有指标到注册表.
 func (e *MetricsExporter) registerMetrics() {
 	// 注册系统指标
 	e.registry.MustRegister(
@@ -668,7 +668,7 @@ func (e *MetricsExporter) registerMetrics() {
 	)
 }
 
-// Start 启动导出器
+// Start 启动导出器.
 func (e *MetricsExporter) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -713,7 +713,7 @@ func (e *MetricsExporter) Start() error {
 	return nil
 }
 
-// Stop 停止导出器
+// Stop 停止导出器.
 func (e *MetricsExporter) Stop() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -738,7 +738,7 @@ func (e *MetricsExporter) Stop() error {
 
 // ========== 更新系统指标 ==========
 
-// UpdateCPU 更新 CPU 指标
+// UpdateCPU 更新 CPU 指标.
 func (e *MetricsExporter) UpdateCPU(usage, idle, user, system, iowait float64) {
 	e.systemMetrics.CPUUsage.Set(usage)
 	e.systemMetrics.CPUIdle.Set(idle)
@@ -749,7 +749,7 @@ func (e *MetricsExporter) UpdateCPU(usage, idle, user, system, iowait float64) {
 	e.updateAggregatedCPU(usage)
 }
 
-// UpdateMemory 更新内存指标
+// UpdateMemory 更新内存指标.
 func (e *MetricsExporter) UpdateMemory(total, used, free, cached, buffers uint64, usage float64) {
 	e.systemMetrics.MemoryTotal.Set(float64(total))
 	e.systemMetrics.MemoryUsed.Set(float64(used))
@@ -761,7 +761,7 @@ func (e *MetricsExporter) UpdateMemory(total, used, free, cached, buffers uint64
 	e.updateAggregatedMemory(usage)
 }
 
-// UpdateSwap 更新 Swap 指标
+// UpdateSwap 更新 Swap 指标.
 func (e *MetricsExporter) UpdateSwap(total, used, free uint64, usage float64) {
 	e.systemMetrics.SwapTotal.Set(float64(total))
 	e.systemMetrics.SwapUsed.Set(float64(used))
@@ -769,14 +769,14 @@ func (e *MetricsExporter) UpdateSwap(total, used, free uint64, usage float64) {
 	e.systemMetrics.SwapUsage.Set(usage)
 }
 
-// UpdateLoad 更新系统负载
+// UpdateLoad 更新系统负载.
 func (e *MetricsExporter) UpdateLoad(load1, load5, load15 float64) {
 	e.systemMetrics.Load1.Set(load1)
 	e.systemMetrics.Load5.Set(load5)
 	e.systemMetrics.Load15.Set(load15)
 }
 
-// UpdateSystem 更新系统状态
+// UpdateSystem 更新系统状态.
 func (e *MetricsExporter) UpdateSystem(uptime uint64, processes, threads, fds int) {
 	e.systemMetrics.Uptime.Set(float64(uptime))
 	e.systemMetrics.ProcessCount.Set(float64(processes))
@@ -786,7 +786,7 @@ func (e *MetricsExporter) UpdateSystem(uptime uint64, processes, threads, fds in
 
 // ========== 更新存储指标 ==========
 
-// UpdateDisk 更新磁盘指标
+// UpdateDisk 更新磁盘指标.
 func (e *MetricsExporter) UpdateDisk(device, mountpoint string, total, used, free uint64, usage float64) {
 	labels := prometheus.Labels{"device": device, "mountpoint": mountpoint}
 	e.storageMetrics.DiskTotal.With(labels).Set(float64(total))
@@ -797,7 +797,7 @@ func (e *MetricsExporter) UpdateDisk(device, mountpoint string, total, used, fre
 	e.updateAggregatedDisk(usage)
 }
 
-// UpdateDiskIO 更新磁盘 I/O 指标
+// UpdateDiskIO 更新磁盘 I/O 指标.
 func (e *MetricsExporter) UpdateDiskIO(device string, readBytes, writeBytes, readOps, writeOps uint64, readLatency, writeLatency float64) {
 	labels := prometheus.Labels{"device": device}
 	e.storageMetrics.DiskReadBytes.With(labels).Set(float64(readBytes))
@@ -808,7 +808,7 @@ func (e *MetricsExporter) UpdateDiskIO(device string, readBytes, writeBytes, rea
 	e.storageMetrics.DiskWriteLatency.With(labels).Set(writeLatency)
 }
 
-// UpdateVolume 更新卷指标
+// UpdateVolume 更新卷指标.
 func (e *MetricsExporter) UpdateVolume(volume, volumeType string, total, used, free uint64, usage float64, healthy bool) {
 	labels := prometheus.Labels{"volume": volume, "type": volumeType}
 	e.storageMetrics.VolumeTotal.With(labels).Set(float64(total))
@@ -823,7 +823,7 @@ func (e *MetricsExporter) UpdateVolume(volume, volumeType string, total, used, f
 	e.storageMetrics.VolumeHealth.With(labels).Set(healthValue)
 }
 
-// UpdateStoragePool 更新存储池指标
+// UpdateStoragePool 更新存储池指标.
 func (e *MetricsExporter) UpdateStoragePool(pool string, total, used, free uint64, healthy bool) {
 	labels := prometheus.Labels{"pool": pool}
 	e.storageMetrics.StoragePoolTotal.With(labels).Set(float64(total))
@@ -837,7 +837,7 @@ func (e *MetricsExporter) UpdateStoragePool(pool string, total, used, free uint6
 	e.storageMetrics.StoragePoolHealth.With(labels).Set(healthValue)
 }
 
-// UpdateQuota 更新配额指标
+// UpdateQuota 更新配额指标.
 func (e *MetricsExporter) UpdateQuota(user, volume string, used, limit uint64) {
 	labels := prometheus.Labels{"user": user, "volume": volume}
 	e.storageMetrics.QuotaUsed.With(labels).Set(float64(used))
@@ -849,7 +849,7 @@ func (e *MetricsExporter) UpdateQuota(user, volume string, used, limit uint64) {
 
 // ========== 更新备份指标 ==========
 
-// UpdateBackup 更新备份指标
+// UpdateBackup 更新备份指标.
 func (e *MetricsExporter) UpdateBackup(backupType, id string, size uint64, duration float64, status bool, files int, speed float64) {
 	idLabels := prometheus.Labels{"type": backupType, "id": id}
 	e.backupMetrics.BackupSize.With(idLabels).Set(float64(size))
@@ -864,19 +864,19 @@ func (e *MetricsExporter) UpdateBackup(backupType, id string, size uint64, durat
 	e.backupMetrics.BackupSpeed.With(idLabels).Set(speed)
 }
 
-// RecordBackupRun 记录备份运行
+// RecordBackupRun 记录备份运行.
 func (e *MetricsExporter) RecordBackupRun(backupType string, timestamp time.Time) {
 	e.backupMetrics.BackupLastRun.With(prometheus.Labels{"type": backupType}).Set(float64(timestamp.Unix()))
 }
 
-// RecordBackupError 记录备份错误
+// RecordBackupError 记录备份错误.
 func (e *MetricsExporter) RecordBackupError(backupType string, timestamp time.Time) {
 	e.backupMetrics.BackupLastError.With(prometheus.Labels{"type": backupType}).Set(float64(timestamp.Unix()))
 }
 
 // ========== 更新服务指标 ==========
 
-// UpdateServiceStatus 更新服务状态
+// UpdateServiceStatus 更新服务状态.
 func (e *MetricsExporter) UpdateServiceStatus(service string, running bool, uptime uint64, restarts int) {
 	labels := prometheus.Labels{"service": service}
 
@@ -889,40 +889,40 @@ func (e *MetricsExporter) UpdateServiceStatus(service string, running bool, upti
 	e.serviceMetrics.ServiceRestarts.With(labels).Set(float64(restarts))
 }
 
-// UpdateServiceMetrics 更新服务指标
+// UpdateServiceMetrics 更新服务指标.
 func (e *MetricsExporter) UpdateServiceMetrics(service string, connections int, latency float64) {
 	labels := prometheus.Labels{"service": service}
 	e.serviceMetrics.ServiceConnections.With(labels).Set(float64(connections))
 	e.serviceMetrics.ServiceLatency.With(labels).Set(latency)
 }
 
-// RecordServiceError 记录服务错误
+// RecordServiceError 记录服务错误.
 func (e *MetricsExporter) RecordServiceError(service, errorType string) {
 	e.serviceMetrics.ServiceErrors.WithLabelValues(service, errorType).Inc()
 }
 
-// RecordAPIRequest 记录 API 请求
+// RecordAPIRequest 记录 API 请求.
 func (e *MetricsExporter) RecordAPIRequest(method, endpoint, status string, duration float64) {
 	e.serviceMetrics.APIRequests.WithLabelValues(method, endpoint, status).Inc()
 	e.serviceMetrics.APILatency.WithLabelValues(method, endpoint).Observe(duration)
 }
 
-// IncAPIInFlight 增加正在处理的请求数
+// IncAPIInFlight 增加正在处理的请求数.
 func (e *MetricsExporter) IncAPIInFlight() {
 	e.serviceMetrics.APIInFlight.Inc()
 }
 
-// DecAPIInFlight 减少正在处理的请求数
+// DecAPIInFlight 减少正在处理的请求数.
 func (e *MetricsExporter) DecAPIInFlight() {
 	e.serviceMetrics.APIInFlight.Dec()
 }
 
-// RecordAPIError 记录 API 错误
+// RecordAPIError 记录 API 错误.
 func (e *MetricsExporter) RecordAPIError(method, endpoint, errorType string) {
 	e.serviceMetrics.APIErrors.WithLabelValues(method, endpoint, errorType).Inc()
 }
 
-// UpdateUserMetrics 更新用户指标
+// UpdateUserMetrics 更新用户指标.
 func (e *MetricsExporter) UpdateUserMetrics(total, active int, sessions map[string]int) {
 	e.serviceMetrics.UserTotal.Set(float64(total))
 	e.serviceMetrics.UserActive.Set(float64(active))
@@ -934,7 +934,7 @@ func (e *MetricsExporter) UpdateUserMetrics(total, active int, sessions map[stri
 
 // ========== 自定义指标 ==========
 
-// RegisterCustomGauge 注册自定义 Gauge
+// RegisterCustomGauge 注册自定义 Gauge.
 func (e *MetricsExporter) RegisterCustomGauge(name, help string, labels []string) (*prometheus.GaugeVec, error) {
 	e.customMetrics.mu.Lock()
 	defer e.customMetrics.mu.Unlock()
@@ -955,7 +955,7 @@ func (e *MetricsExporter) RegisterCustomGauge(name, help string, labels []string
 	return gauge, nil
 }
 
-// RegisterCustomCounter 注册自定义 Counter
+// RegisterCustomCounter 注册自定义 Counter.
 func (e *MetricsExporter) RegisterCustomCounter(name, help string, labels []string) (*prometheus.CounterVec, error) {
 	e.customMetrics.mu.Lock()
 	defer e.customMetrics.mu.Unlock()
@@ -976,7 +976,7 @@ func (e *MetricsExporter) RegisterCustomCounter(name, help string, labels []stri
 	return counter, nil
 }
 
-// RegisterCustomHistogram 注册自定义 Histogram
+// RegisterCustomHistogram 注册自定义 Histogram.
 func (e *MetricsExporter) RegisterCustomHistogram(name, help string, labels []string, buckets []float64) (*prometheus.HistogramVec, error) {
 	e.customMetrics.mu.Lock()
 	defer e.customMetrics.mu.Unlock()
@@ -998,7 +998,7 @@ func (e *MetricsExporter) RegisterCustomHistogram(name, help string, labels []st
 	return histogram, nil
 }
 
-// GetCustomGauge 获取自定义 Gauge
+// GetCustomGauge 获取自定义 Gauge.
 func (e *MetricsExporter) GetCustomGauge(name string) (*prometheus.GaugeVec, bool) {
 	e.customMetrics.mu.RLock()
 	defer e.customMetrics.mu.RUnlock()
@@ -1006,7 +1006,7 @@ func (e *MetricsExporter) GetCustomGauge(name string) (*prometheus.GaugeVec, boo
 	return gauge, exists
 }
 
-// GetCustomCounter 获取自定义 Counter
+// GetCustomCounter 获取自定义 Counter.
 func (e *MetricsExporter) GetCustomCounter(name string) (*prometheus.CounterVec, bool) {
 	e.customMetrics.mu.RLock()
 	defer e.customMetrics.mu.RUnlock()
@@ -1052,7 +1052,7 @@ func (e *MetricsExporter) updateAggregatedDisk(usage float64) {
 	e.aggregatedStats.lastUpdate = time.Now()
 }
 
-// GetAggregatedStats 获取聚合统计
+// GetAggregatedStats 获取聚合统计.
 func (e *MetricsExporter) GetAggregatedStats() AggregatedStats {
 	e.aggregatedStats.mu.RLock()
 	defer e.aggregatedStats.mu.RUnlock()
@@ -1072,7 +1072,7 @@ func (e *MetricsExporter) GetAggregatedStats() AggregatedStats {
 	}
 }
 
-// ResetAggregatedStats 重置聚合统计
+// ResetAggregatedStats 重置聚合统计.
 func (e *MetricsExporter) ResetAggregatedStats() {
 	e.aggregatedStats.mu.Lock()
 	defer e.aggregatedStats.mu.Unlock()
@@ -1088,14 +1088,14 @@ func (e *MetricsExporter) ResetAggregatedStats() {
 	e.aggregatedStats.lastUpdate = time.Now()
 }
 
-// IsRunning 检查是否正在运行
+// IsRunning 检查是否正在运行.
 func (e *MetricsExporter) IsRunning() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.running
 }
 
-// GetEndpoint 获取指标端点
+// GetEndpoint 获取指标端点.
 func (e *MetricsExporter) GetEndpoint() string {
 	return fmt.Sprintf("http://localhost:%d%s", e.port, e.path)
 }

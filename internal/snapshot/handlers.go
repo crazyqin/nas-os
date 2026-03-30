@@ -8,19 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 快照策略 API 处理器
+// Handlers 快照策略 API 处理器.
 type Handlers struct {
 	policyManager *PolicyManager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(pm *PolicyManager) *Handlers {
 	return &Handlers{
 		policyManager: pm,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	snapshots := r.Group("/snapshots")
 	{
@@ -56,7 +56,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Param enabled query string false "是否启用 (true/false)"
 // @Success 200 {object} api.Response{data=[]Policy}
 // @Router /snapshots/policies [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) listPolicies(c *gin.Context) {
 	volumeName := c.Query("volume")
 	policyType := c.Query("type")
@@ -95,7 +95,7 @@ func (h *Handlers) listPolicies(c *gin.Context) {
 // @Success 200 {object} api.Response{data=Policy}
 // @Failure 404 {object} api.Response
 // @Router /snapshots/policies/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) getPolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -118,7 +118,7 @@ func (h *Handlers) getPolicy(c *gin.Context) {
 // @Success 200 {object} api.Response{data=Policy}
 // @Failure 400 {object} api.Response
 // @Router /snapshots/policies [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) createPolicy(c *gin.Context) {
 	var policy Policy
 	if err := c.ShouldBindJSON(&policy); err != nil {
@@ -145,7 +145,7 @@ func (h *Handlers) createPolicy(c *gin.Context) {
 // @Success 200 {object} api.Response{data=Policy}
 // @Failure 400 {object} api.Response
 // @Router /snapshots/policies/{id} [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) updatePolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -173,7 +173,7 @@ func (h *Handlers) updatePolicy(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 400 {object} api.Response
 // @Router /snapshots/policies/{id} [delete]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) deletePolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -195,7 +195,7 @@ func (h *Handlers) deletePolicy(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 400 {object} api.Response
 // @Router /snapshots/policies/{id}/enable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) enablePolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -217,7 +217,7 @@ func (h *Handlers) enablePolicy(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 400 {object} api.Response
 // @Router /snapshots/policies/{id}/disable [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) disablePolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -239,7 +239,7 @@ func (h *Handlers) disablePolicy(c *gin.Context) {
 // @Success 200 {object} api.Response{data=map[string]interface{}}
 // @Failure 500 {object} api.Response
 // @Router /snapshots/policies/{id}/execute [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *Handlers) executePolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -257,7 +257,7 @@ func (h *Handlers) executePolicy(c *gin.Context) {
 
 // ========== 调度信息 ==========
 
-// getScheduleInfo 获取策略调度信息
+// getScheduleInfo 获取策略调度信息.
 func (h *Handlers) getScheduleInfo(c *gin.Context) {
 	id := c.Param("id")
 
@@ -270,7 +270,7 @@ func (h *Handlers) getScheduleInfo(c *gin.Context) {
 	api.OK(c, jobInfo)
 }
 
-// listSchedules 列出所有调度任务
+// listSchedules 列出所有调度任务.
 func (h *Handlers) listSchedules(c *gin.Context) {
 	jobs := h.policyManager.GetScheduler().ListJobs()
 	api.OK(c, jobs)
@@ -278,7 +278,7 @@ func (h *Handlers) listSchedules(c *gin.Context) {
 
 // ========== 清理预览 ==========
 
-// cleanupPreview 清理预览
+// cleanupPreview 清理预览.
 func (h *Handlers) cleanupPreview(c *gin.Context) {
 	id := c.Param("id")
 
@@ -299,7 +299,7 @@ func (h *Handlers) cleanupPreview(c *gin.Context) {
 
 // ========== 辅助端点 ==========
 
-// GetPolicyStats 获取策略统计
+// GetPolicyStats 获取策略统计.
 func (h *Handlers) GetPolicyStats(c *gin.Context) {
 	id := c.Param("id")
 
@@ -340,7 +340,7 @@ func (h *Handlers) GetPolicyStats(c *gin.Context) {
 	api.OK(c, stats)
 }
 
-// ValidateCron 验证 cron 表达式
+// ValidateCron 验证 cron 表达式.
 func (h *Handlers) ValidateCron(c *gin.Context) {
 	var req struct {
 		Expression string `json:"expression" binding:"required"`
@@ -359,7 +359,7 @@ func (h *Handlers) ValidateCron(c *gin.Context) {
 	})
 }
 
-// GetPresetPolicies 获取预设策略模板
+// GetPresetPolicies 获取预设策略模板.
 func (h *Handlers) GetPresetPolicies(c *gin.Context) {
 	presets := []PolicyTemplate{
 		{
@@ -412,7 +412,7 @@ func (h *Handlers) GetPresetPolicies(c *gin.Context) {
 	api.OK(c, presets)
 }
 
-// PolicyTemplate 策略模板
+// PolicyTemplate 策略模板.
 type PolicyTemplate struct {
 	Name        string           `json:"name"`
 	Description string           `json:"description"`

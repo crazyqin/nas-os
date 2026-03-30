@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers HTTP 处理器
+// Handlers HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	prediction := r.Group("/prediction")
 	{
@@ -32,13 +32,13 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// VolumeListResponse 卷列表响应
+// VolumeListResponse 卷列表响应.
 type VolumeListResponse struct {
 	Volumes []VolumeInfo `json:"volumes"`
 	Count   int          `json:"count"`
 }
 
-// VolumeInfo 卷信息
+// VolumeInfo 卷信息.
 type VolumeInfo struct {
 	Name         string    `json:"name"`
 	LastUpdated  time.Time `json:"lastUpdated"`
@@ -48,14 +48,14 @@ type VolumeInfo struct {
 	UsageRate    float64   `json:"usageRate"`
 }
 
-// Response 预测响应
+// Response 预测响应.
 type Response struct {
 	Success bool    `json:"success"`
 	Data    *Result `json:"data,omitempty"`
 	Error   string  `json:"error,omitempty"`
 }
 
-// HistoryResponse 历史数据响应
+// HistoryResponse 历史数据响应.
 type HistoryResponse struct {
 	Success bool          `json:"success"`
 	Data    []UsageRecord `json:"data,omitempty"`
@@ -63,20 +63,20 @@ type HistoryResponse struct {
 	Error   string        `json:"error,omitempty"`
 }
 
-// RecordRequest 记录请求
+// RecordRequest 记录请求.
 type RecordRequest struct {
 	UsedGB  float64 `json:"usedGB" binding:"required"`
 	TotalGB float64 `json:"totalGB" binding:"required"`
 }
 
-// ConfigResponse 配置响应
+// ConfigResponse 配置响应.
 type ConfigResponse struct {
 	Success bool    `json:"success"`
 	Data    *Config `json:"data,omitempty"`
 	Error   string  `json:"error,omitempty"`
 }
 
-// UpdateConfigRequest 更新配置请求
+// UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
 	CollectionInterval   string  `json:"collectionInterval"`
 	HistoryRetentionDays int     `json:"historyRetentionDays"`
@@ -87,7 +87,7 @@ type UpdateConfigRequest struct {
 	EnableAutoAdvice     bool    `json:"enableAutoAdvice"`
 }
 
-// AllPredictionsResponse 全量预测响应
+// AllPredictionsResponse 全量预测响应.
 type AllPredictionsResponse struct {
 	Success bool               `json:"success"`
 	Data    map[string]*Result `json:"data,omitempty"`
@@ -95,13 +95,13 @@ type AllPredictionsResponse struct {
 	Error   string             `json:"error,omitempty"`
 }
 
-// AdviceSummary 建议摘要
+// AdviceSummary 建议摘要.
 type AdviceSummary struct {
 	VolumeName string   `json:"volumeName"`
 	Advices    []Advice `json:"advices"`
 }
 
-// AllAdvicesResponse 全部建议响应
+// AllAdvicesResponse 全部建议响应.
 type AllAdvicesResponse struct {
 	Success bool            `json:"success"`
 	Data    []AdviceSummary `json:"data,omitempty"`
@@ -115,7 +115,7 @@ type AllAdvicesResponse struct {
 // @Tags prediction
 // @Produce json
 // @Success 200 {object} VolumeListResponse
-// @Router /prediction/volumes [get]
+// @Router /prediction/volumes [get].
 func (h *Handlers) ListVolumes(c *gin.Context) {
 	volumeNames := h.manager.ListVolumes()
 
@@ -151,7 +151,7 @@ func (h *Handlers) ListVolumes(c *gin.Context) {
 // @Param name path string true "卷名称"
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
-// @Router /prediction/volumes/{name} [get]
+// @Router /prediction/volumes/{name} [get].
 func (h *Handlers) GetPrediction(c *gin.Context) {
 	volumeName := c.Param("name")
 
@@ -179,7 +179,7 @@ func (h *Handlers) GetPrediction(c *gin.Context) {
 // @Param days query int false "天数" default(7)
 // @Success 200 {object} HistoryResponse
 // @Failure 404 {object} HistoryResponse
-// @Router /prediction/volumes/{name}/history [get]
+// @Router /prediction/volumes/{name}/history [get].
 func (h *Handlers) GetHistory(c *gin.Context) {
 	volumeName := c.Param("name")
 	days := 7
@@ -215,7 +215,7 @@ func (h *Handlers) GetHistory(c *gin.Context) {
 // @Param request body RecordRequest true "使用数据"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
-// @Router /prediction/volumes/{name}/record [post]
+// @Router /prediction/volumes/{name}/record [post].
 func (h *Handlers) RecordUsage(c *gin.Context) {
 	volumeName := c.Param("name")
 
@@ -248,7 +248,7 @@ func (h *Handlers) RecordUsage(c *gin.Context) {
 // @Tags prediction
 // @Produce json
 // @Success 200 {object} AllPredictionsResponse
-// @Router /prediction/all [get]
+// @Router /prediction/all [get].
 func (h *Handlers) GetAllPredictions(c *gin.Context) {
 	results, err := h.manager.GetAllPredictions()
 	if err != nil {
@@ -272,7 +272,7 @@ func (h *Handlers) GetAllPredictions(c *gin.Context) {
 // @Tags prediction
 // @Produce json
 // @Success 200 {object} ConfigResponse
-// @Router /prediction/config [get]
+// @Router /prediction/config [get].
 func (h *Handlers) GetConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, ConfigResponse{
 		Success: true,
@@ -289,7 +289,7 @@ func (h *Handlers) GetConfig(c *gin.Context) {
 // @Param request body UpdateConfigRequest true "配置数据"
 // @Success 200 {object} ConfigResponse
 // @Failure 400 {object} ConfigResponse
-// @Router /prediction/config [put]
+// @Router /prediction/config [put].
 func (h *Handlers) UpdateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -345,7 +345,7 @@ func (h *Handlers) UpdateConfig(c *gin.Context) {
 // @Tags prediction
 // @Produce json
 // @Success 200 {object} AllAdvicesResponse
-// @Router /prediction/advices [get]
+// @Router /prediction/advices [get].
 func (h *Handlers) GetAllAdvices(c *gin.Context) {
 	results, err := h.manager.GetAllPredictions()
 	if err != nil {

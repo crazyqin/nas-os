@@ -10,22 +10,22 @@ import (
 	"go.uber.org/zap"
 )
 
-// logger 全局日志记录器
+// logger 全局日志记录器.
 var logger *zap.SugaredLogger
 
-// SetLogger 设置日志记录器
+// SetLogger 设置日志记录器.
 func SetLogger(l *zap.SugaredLogger) {
 	logger = l
 }
 
-// logInfo 记录信息日志
+// logInfo 记录信息日志.
 func logInfo(msg string, fields ...interface{}) {
 	if logger != nil {
 		logger.Infow(msg, fields...)
 	}
 }
 
-// logError 记录错误日志
+// logError 记录错误日志.
 func logError(msg string, err error, fields ...interface{}) {
 	if logger != nil {
 		allFields := append(fields, "error", err)
@@ -33,17 +33,17 @@ func logError(msg string, err error, fields ...interface{}) {
 	}
 }
 
-// ConfigParser SMB 配置解析器
+// ConfigParser SMB 配置解析器.
 type ConfigParser struct {
 	configPath string
 }
 
-// NewConfigParser 创建配置解析器
+// NewConfigParser 创建配置解析器.
 func NewConfigParser(configPath string) *ConfigParser {
 	return &ConfigParser{configPath: configPath}
 }
 
-// ParseSmbConf 解析 smb.conf 文件
+// ParseSmbConf 解析 smb.conf 文件.
 func (p *ConfigParser) ParseSmbConf() (map[string]*Share, *Config, error) {
 	file, err := os.Open(p.configPath)
 	if err != nil {
@@ -103,7 +103,7 @@ func (p *ConfigParser) ParseSmbConf() (map[string]*Share, *Config, error) {
 	return shares, config, nil
 }
 
-// parseGlobalConfig 解析全局配置
+// parseGlobalConfig 解析全局配置.
 func (p *ConfigParser) parseGlobalConfig(config *Config, key, value string) {
 	switch key {
 	case "workgroup":
@@ -173,10 +173,41 @@ func (p *ConfigParser) parseGlobalConfig(config *Config, key, value string) {
 		config.ClientMinProtocol = value
 	case "client max protocol":
 		config.ClientMaxProtocol = value
+	// 性能优化选项
+	case "aio read size":
+		config.AIOReadSize = parseIntValue(value)
+		config.EnableAIO = config.AIOReadSize > 0
+	case "aio write size":
+		config.AIOWriteSize = parseIntValue(value)
+		config.EnableAIO = config.AIOWriteSize > 0 || config.EnableAIO
+	case "write cache size":
+		config.WriteCacheSize = parseIntValue(value)
+	case "max xmit":
+		config.MaxXmit = parseIntValue(value)
+	case "deadtime":
+		config.Deadtime = parseIntValue(value)
+	case "keepalive":
+		config.Keepalive = parseIntValue(value)
+	case "max open files":
+		config.MaxOpenFiles = parseIntValue(value)
+	case "use sendfile":
+		config.UseSendfile = (value == "yes")
+	case "strict allocate":
+		config.StrictAllocate = (value == "yes")
+	case "large readwrite":
+		config.LargeReadwrite = (value == "yes")
+	case "min receivefile size":
+		config.MinReceivefileSize = parseIntValue(value)
+	case "max stat cache size":
+		config.MaxStatCacheSize = parseIntValue(value)
+	case "getwd cache":
+		config.GetwdCache = (value == "yes")
+	case "kernel oplocks":
+		config.KernelOplocks = (value == "yes")
 	}
 }
 
-// parseShareConfig 解析共享配置
+// parseShareConfig 解析共享配置.
 func (p *ConfigParser) parseShareConfig(share *Share, key, value string) {
 	switch key {
 	case "path":
@@ -234,7 +265,7 @@ func (p *ConfigParser) parseShareConfig(share *Share, key, value string) {
 	}
 }
 
-// parseUserList 解析用户列表
+// parseUserList 解析用户列表.
 func parseUserList(value string) []string {
 	if value == "" {
 		return nil
@@ -250,7 +281,7 @@ func parseUserList(value string) []string {
 	return users
 }
 
-// parseVetoFiles 解析隐藏文件列表
+// parseVetoFiles 解析隐藏文件列表.
 func parseVetoFiles(value string) []string {
 	if value == "" {
 		return nil
@@ -271,7 +302,7 @@ func parseVetoFiles(value string) []string {
 	return files
 }
 
-// GenerateSmbConf 生成 smb.conf 内容
+// GenerateSmbConf 生成 smb.conf 内容.
 func GenerateSmbConf(config *Config, shares map[string]*Share) string {
 	var sb strings.Builder
 
@@ -324,6 +355,52 @@ func GenerateSmbConf(config *Config, shares map[string]*Share) string {
 		sb.WriteString("    load printers = no\n")
 		sb.WriteString("    printing = bsd\n")
 		sb.WriteString("    printcap name = /dev/null\n")
+	}
+
+	// 性能优化配置（参考 TrueNAS）
+	if config.SocketOptions != "" {
+		fmt.Fprintf(&sb, "    socket options = %s\n", config.SocketOptions)
+	}
+	if config.EnableAIO {
+		if config.AIOReadSize > 0 {
+			fmt.Fprintf(&sb, "    aio read size = %d\n", config.AIOReadSize)
+		}
+		if config.AIOWriteSize > 0 {
+			fmt.Fprintf(&sb, "    aio write size = %d\n", config.AIOWriteSize)
+		}
+	}
+	if config.MaxXmit > 0 {
+		fmt.Fprintf(&sb, "    max xmit = %d\n", config.MaxXmit)
+	}
+	if config.Deadtime > 0 {
+		fmt.Fprintf(&sb, "    deadtime = %d\n", config.Deadtime)
+	}
+	if config.Keepalive > 0 {
+		fmt.Fprintf(&sb, "    keepalive = %d\n", config.Keepalive)
+	}
+	if config.MaxOpenFiles > 0 {
+		fmt.Fprintf(&sb, "    max open files = %d\n", config.MaxOpenFiles)
+	}
+	if config.UseSendfile {
+		sb.WriteString("    use sendfile = yes\n")
+	}
+	if config.StrictAllocate {
+		sb.WriteString("    strict allocate = yes\n")
+	}
+	if config.LargeReadwrite {
+		sb.WriteString("    large readwrite = yes\n")
+	}
+	if config.MinReceivefileSize > 0 {
+		fmt.Fprintf(&sb, "    min receivefile size = %d\n", config.MinReceivefileSize)
+	}
+	if config.MaxStatCacheSize > 0 {
+		fmt.Fprintf(&sb, "    max stat cache size = %d\n", config.MaxStatCacheSize)
+	}
+	if config.GetwdCache {
+		sb.WriteString("    getwd cache = yes\n")
+	}
+	if config.KernelOplocks {
+		sb.WriteString("    kernel oplocks = yes\n")
 	}
 
 	sb.WriteString("\n")
@@ -391,7 +468,7 @@ func GenerateSmbConf(config *Config, shares map[string]*Share) string {
 	return sb.String()
 }
 
-// boolToYesNo 将布尔值转换为 yes/no 字符串
+// boolToYesNo 将布尔值转换为 yes/no 字符串.
 func boolToYesNo(b bool) string {
 	if b {
 		return "yes"
@@ -399,7 +476,7 @@ func boolToYesNo(b bool) string {
 	return "no"
 }
 
-// WriteSmbConf 写入 smb.conf 文件
+// WriteSmbConf 写入 smb.conf 文件.
 func WriteSmbConf(configPath string, config *Config, shares map[string]*Share) error {
 	// 确保目录存在
 	dir := filepath.Dir(configPath)
@@ -425,7 +502,7 @@ func WriteSmbConf(configPath string, config *Config, shares map[string]*Share) e
 	return nil
 }
 
-// BackupSmbConf 备份 smb.conf 文件
+// BackupSmbConf 备份 smb.conf 文件.
 func BackupSmbConf(configPath string) error {
 	// 检查文件是否存在
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
@@ -447,7 +524,7 @@ func BackupSmbConf(configPath string) error {
 	return nil
 }
 
-// ValidateShareConfig 验证共享配置
+// ValidateShareConfig 验证共享配置.
 func ValidateShareConfig(share *Share) error {
 	if share.Name == "" {
 		return fmt.Errorf("共享名称不能为空")
@@ -478,7 +555,7 @@ func ValidateShareConfig(share *Share) error {
 	return nil
 }
 
-// validateOctalMask 验证八进制权限掩码
+// validateOctalMask 验证八进制权限掩码.
 func validateOctalMask(mask string) error {
 	if len(mask) != 4 {
 		return fmt.Errorf("掩码长度必须为4位")
@@ -493,7 +570,7 @@ func validateOctalMask(mask string) error {
 	return nil
 }
 
-// ValidateConfig 验证全局配置
+// ValidateConfig 验证全局配置.
 func ValidateConfig(config *Config) error {
 	// 验证 workgroup
 	if config.Workgroup != "" && len(config.Workgroup) > 15 {
@@ -520,4 +597,11 @@ func ValidateConfig(config *Config) error {
 	}
 
 	return nil
+}
+
+// parseIntValue 解析整数值.
+func parseIntValue(value string) int {
+	var result int
+	_, _ = fmt.Sscanf(value, "%d", &result)
+	return result
 }

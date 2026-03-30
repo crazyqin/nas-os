@@ -18,19 +18,19 @@ import (
 
 // ========== 导出器 ==========
 
-// Exporter 报表导出器
+// Exporter 报表导出器.
 type Exporter struct {
 	dataDir string
 }
 
-// NewExporter 创建导出器
+// NewExporter 创建导出器.
 func NewExporter(dataDir string) *Exporter {
 	_ = os.MkdirAll(dataDir, 0750)
 	_ = os.MkdirAll(filepath.Join(dataDir, "outputs"), 0750)
 	return &Exporter{dataDir: dataDir}
 }
 
-// Export 导出报表
+// Export 导出报表.
 func (e *Exporter) Export(report *GeneratedReport, format ExportFormat, outputPath string, options ExportOptions) (*ExportResult, error) {
 	if outputPath == "" {
 		outputPath = e.generateOutputPath(format)
@@ -78,7 +78,7 @@ func (e *Exporter) Export(report *GeneratedReport, format ExportFormat, outputPa
 	}, nil
 }
 
-// ExportToFile 导出到文件（自动检测格式）
+// ExportToFile 导出到文件（自动检测格式）.
 func (e *Exporter) ExportToFile(report *GeneratedReport, filePath string, options ExportOptions) (*ExportResult, error) {
 	ext := strings.ToLower(filepath.Ext(filePath))
 
@@ -101,7 +101,7 @@ func (e *Exporter) ExportToFile(report *GeneratedReport, filePath string, option
 	return e.Export(report, format, filePath, options)
 }
 
-// ExportToBytes 导出到字节数组
+// ExportToBytes 导出到字节数组.
 func (e *Exporter) ExportToBytes(report *GeneratedReport, format ExportFormat, options ExportOptions) ([]byte, error) {
 	switch format {
 	case ExportJSON:
@@ -377,14 +377,14 @@ func (e *Exporter) exportPDF(report *GeneratedReport, path string, options Expor
 	return nil
 }
 
-// hasPDFConverter 检查是否有 PDF 转换工具
+// hasPDFConverter 检查是否有 PDF 转换工具.
 func (e *Exporter) hasPDFConverter() bool {
 	// 检查 wkhtmltopdf 是否存在
 	_, err := os.Stat("/usr/bin/wkhtmltopdf")
 	return err == nil
 }
 
-// runCommand 运行命令
+// runCommand 运行命令.
 func (e *Exporter) runCommand(cmd string) error {
 	// 简化实现，实际应使用 exec.Command
 	return nil
@@ -476,7 +476,7 @@ func (e *Exporter) formatValue(val interface{}) string {
 
 // ========== 批量导出 ==========
 
-// ExportMultiple 批量导出多种格式
+// ExportMultiple 批量导出多种格式.
 func (e *Exporter) ExportMultiple(report *GeneratedReport, formats []ExportFormat, baseDir string, options ExportOptions) ([]*ExportResult, error) {
 	results := make([]*ExportResult, 0, len(formats))
 
@@ -499,7 +499,7 @@ func (e *Exporter) ExportMultiple(report *GeneratedReport, formats []ExportForma
 	return results, nil
 }
 
-// GetSupportedFormats 获取支持的导出格式
+// GetSupportedFormats 获取支持的导出格式.
 func (e *Exporter) GetSupportedFormats() []ExportFormat {
 	return []ExportFormat{
 		ExportJSON,
@@ -510,7 +510,7 @@ func (e *Exporter) GetSupportedFormats() []ExportFormat {
 	}
 }
 
-// GetFormatInfo 获取格式信息
+// GetFormatInfo 获取格式信息.
 func (e *Exporter) GetFormatInfo(format ExportFormat) map[string]string {
 	info := map[string]string{
 		string(ExportJSON):  "JSON - 数据交换格式，适合程序处理",

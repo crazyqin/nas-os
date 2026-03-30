@@ -11,7 +11,7 @@ import (
 	"nas-os/internal/storage"
 )
 
-// TestMain 测试入口，管理测试生命周期
+// TestMain 测试入口，管理测试生命周期.
 func TestMain(m *testing.M) {
 	// 设置测试环境
 	setup()
@@ -25,19 +25,19 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-// setup 初始化测试环境
+// setup 初始化测试环境.
 func setup() {
 	fmt.Println("🔧 初始化集成测试环境...")
 }
 
-// teardown 清理测试环境
+// teardown 清理测试环境.
 func teardown() {
 	fmt.Println("🧹 清理集成测试环境...")
 }
 
 // ========== 配置测试 ==========
 
-// TestRAIDConfigurations 测试 RAID 配置
+// TestRAIDConfigurations 测试 RAID 配置.
 func TestRAIDConfigurations(t *testing.T) {
 	configs := storage.RAIDConfigs
 
@@ -72,7 +72,7 @@ func TestRAIDConfigurations(t *testing.T) {
 	}
 }
 
-// TestSnapshotConfig 测试快照配置
+// TestSnapshotConfig 测试快照配置.
 func TestSnapshotConfig(t *testing.T) {
 	config := storage.DefaultSnapshotConfig
 
@@ -87,7 +87,7 @@ func TestSnapshotConfig(t *testing.T) {
 
 // ========== 数据结构测试 ==========
 
-// TestVolumeStruct 测试 Volume 数据结构
+// TestVolumeStruct 测试 Volume 数据结构.
 func TestVolumeStruct(t *testing.T) {
 	vol := &storage.Volume{
 		Name:        "data",
@@ -117,7 +117,7 @@ func TestVolumeStruct(t *testing.T) {
 	}
 }
 
-// TestSubVolumeStruct 测试 SubVolume 数据结构
+// TestSubVolumeStruct 测试 SubVolume 数据结构.
 func TestSubVolumeStruct(t *testing.T) {
 	subvol := &storage.SubVolume{
 		ID:       256,
@@ -137,7 +137,7 @@ func TestSubVolumeStruct(t *testing.T) {
 	}
 }
 
-// TestSnapshotStruct 测试 Snapshot 数据结构
+// TestSnapshotStruct 测试 Snapshot 数据结构.
 func TestSnapshotStruct(t *testing.T) {
 	now := time.Now()
 	snap := &storage.Snapshot{
@@ -161,7 +161,7 @@ func TestSnapshotStruct(t *testing.T) {
 	}
 }
 
-// TestVolumeStatus 测试 VolumeStatus
+// TestVolumeStatus 测试 VolumeStatus.
 func TestVolumeStatus(t *testing.T) {
 	status := storage.VolumeStatus{
 		BalanceRunning: false,
@@ -180,7 +180,7 @@ func TestVolumeStatus(t *testing.T) {
 
 // ========== 并发安全测试 ==========
 
-// TestConcurrentRAIDConfigAccess 测试并发访问 RAID 配置
+// TestConcurrentRAIDConfigAccess 测试并发访问 RAID 配置.
 func TestConcurrentRAIDConfigAccess(t *testing.T) {
 	done := make(chan bool, 10)
 
@@ -199,7 +199,7 @@ func TestConcurrentRAIDConfigAccess(t *testing.T) {
 
 // ========== 性能测试 ==========
 
-// BenchmarkRAIDConfig 性能测试：RAID 配置查询
+// BenchmarkRAIDConfig 性能测试：RAID 配置查询.
 func BenchmarkRAIDConfig(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -207,7 +207,7 @@ func BenchmarkRAIDConfig(b *testing.B) {
 	}
 }
 
-// BenchmarkVolumeCreation 性能测试：创建 Volume 对象
+// BenchmarkVolumeCreation 性能测试：创建 Volume 对象.
 func BenchmarkVolumeCreation(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

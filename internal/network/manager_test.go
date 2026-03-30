@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -13,7 +14,7 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
-// TestNewManagerBasic 测试创建管理器基本功能
+// TestNewManagerBasic 测试创建管理器基本功能.
 func TestNewManagerBasic(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 	if mgr == nil {
@@ -37,7 +38,7 @@ func TestNewManagerBasic(t *testing.T) {
 	}
 }
 
-// TestDDNSConfig 测试 DDNS 配置
+// TestDDNSConfig 测试 DDNS 配置.
 func TestDDNSConfig(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -113,7 +114,7 @@ func TestDDNSConfig(t *testing.T) {
 	}
 }
 
-// TestDDNSValidation 测试 DDNS 验证
+// TestDDNSValidation 测试 DDNS 验证.
 func TestDDNSValidation(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -148,7 +149,7 @@ func TestDDNSValidation(t *testing.T) {
 	}
 }
 
-// TestPortForward 测试端口转发
+// TestPortForward 测试端口转发.
 func TestPortForward(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -216,7 +217,7 @@ func TestPortForward(t *testing.T) {
 	}
 }
 
-// TestPortForwardValidation 测试端口转发验证
+// TestPortForwardValidation 测试端口转发验证.
 func TestPortForwardValidation(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -258,7 +259,7 @@ func TestPortForwardValidation(t *testing.T) {
 	}
 }
 
-// TestFirewallRule 测试防火墙规则
+// TestFirewallRule 测试防火墙规则.
 func TestFirewallRule(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -326,7 +327,7 @@ func TestFirewallRule(t *testing.T) {
 	}
 }
 
-// TestFirewallValidation 测试防火墙验证
+// TestFirewallValidation 测试防火墙验证.
 func TestFirewallValidation(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -355,7 +356,7 @@ func TestFirewallValidation(t *testing.T) {
 	}
 }
 
-// TestHandlers 测试 HTTP 处理器
+// TestHandlers 测试 HTTP 处理器.
 func TestHandlers(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 	handlers := NewHandlers(mgr)
@@ -366,7 +367,7 @@ func TestHandlers(t *testing.T) {
 
 	// 测试列出 DDNS
 	t.Run("ListDDNS", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/api/v1/network/ddns", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/network/ddns", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -378,7 +379,7 @@ func TestHandlers(t *testing.T) {
 	// 测试添加 DDNS
 	t.Run("AddDDNS", func(t *testing.T) {
 		body := `{"provider":"duckdns","domain":"handler-test.duckdns.org","token":"test-token"}`
-		req, _ := http.NewRequest("POST", "/api/v1/network/ddns", strings.NewReader(body))
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/network/ddns", strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -390,7 +391,7 @@ func TestHandlers(t *testing.T) {
 
 	// 测试获取 DDNS
 	t.Run("GetDDNS", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/api/v1/network/ddns/handler-test.duckdns.org", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/network/ddns/handler-test.duckdns.org", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -401,7 +402,7 @@ func TestHandlers(t *testing.T) {
 
 	// 测试列出端口转发
 	t.Run("ListPortForwards", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/api/v1/network/portforwards", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/network/portforwards", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -413,7 +414,7 @@ func TestHandlers(t *testing.T) {
 	// 测试添加端口转发
 	t.Run("AddPortForward", func(t *testing.T) {
 		body := `{"name":"test-forward","externalPort":9090,"protocol":"tcp","internalIp":"192.168.1.50","internalPort":9090,"enabled":false}`
-		req, _ := http.NewRequest("POST", "/api/v1/network/portforwards", strings.NewReader(body))
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/network/portforwards", strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -425,7 +426,7 @@ func TestHandlers(t *testing.T) {
 
 	// 测试列出防火墙规则
 	t.Run("ListFirewallRules", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/api/v1/network/firewall/rules", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/network/firewall/rules", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -437,7 +438,7 @@ func TestHandlers(t *testing.T) {
 	// 测试添加防火墙规则
 	t.Run("AddFirewallRule", func(t *testing.T) {
 		body := `{"name":"test-rule","action":"accept","direction":"in","protocol":"tcp","destPort":"443","enabled":false}`
-		req, _ := http.NewRequest("POST", "/api/v1/network/firewall/rules", strings.NewReader(body))
+		req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/network/firewall/rules", strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -448,7 +449,7 @@ func TestHandlers(t *testing.T) {
 	})
 }
 
-// TestDuckDNSProvider 测试 DuckDNS Provider
+// TestDuckDNSProvider 测试 DuckDNS Provider.
 func TestDuckDNSProvider(t *testing.T) {
 	provider := &DuckDNSProvider{Token: "test-token"}
 
@@ -463,7 +464,7 @@ func TestDuckDNSProvider(t *testing.T) {
 	}
 }
 
-// TestDefaultValues 测试默认值设置
+// TestDefaultValues 测试默认值设置.
 func TestDefaultValues(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -514,7 +515,7 @@ func TestDefaultValues(t *testing.T) {
 	}
 }
 
-// BenchmarkListDDNS 测试列出 DDNS 性能
+// BenchmarkListDDNS 测试列出 DDNS 性能.
 func BenchmarkListDDNS(b *testing.B) {
 	mgr := NewManager("/tmp/test-network-config")
 
@@ -533,7 +534,7 @@ func BenchmarkListDDNS(b *testing.B) {
 	}
 }
 
-// BenchmarkAddPortForward 测试添加端口转发性能
+// BenchmarkAddPortForward 测试添加端口转发性能.
 func BenchmarkAddPortForward(b *testing.B) {
 	mgr := NewManager("/tmp/test-network-config")
 

@@ -12,7 +12,7 @@ import (
 
 // ========== v2.76.0 资源报告增强辅助函数 ==========
 
-// FormatBytes 格式化字节为人类可读格式
+// FormatBytes 格式化字节为人类可读格式.
 func FormatBytes(bytes uint64) string {
 	const (
 		KB = 1024
@@ -38,7 +38,7 @@ func FormatBytes(bytes uint64) string {
 	}
 }
 
-// FormatBytesShort 格式化字节为简短格式
+// FormatBytesShort 格式化字节为简短格式.
 func FormatBytesShort(bytes uint64) string {
 	const (
 		KB = 1024
@@ -61,12 +61,12 @@ func FormatBytesShort(bytes uint64) string {
 	}
 }
 
-// FormatPercent 格式化百分比
+// FormatPercent 格式化百分比.
 func FormatPercent(value float64) string {
 	return roundStr(value, 2) + "%"
 }
 
-// FormatDuration 格式化持续时间
+// FormatDuration 格式化持续时间.
 func FormatDuration(seconds int64) string {
 	if seconds < 0 {
 		return "-"
@@ -93,17 +93,17 @@ func FormatDuration(seconds int64) string {
 	}
 }
 
-// FormatTimestamp 格式化时间戳
+// FormatTimestamp 格式化时间戳.
 func FormatTimestamp(t time.Time) string {
 	return t.Format("2006-01-02 15:04:05")
 }
 
-// FormatDate 格式化日期
+// FormatDate 格式化日期.
 func FormatDate(t time.Time) string {
 	return t.Format("2006-01-02")
 }
 
-// CalculateGrowthRate 计算增长率
+// CalculateGrowthRate 计算增长率.
 func CalculateGrowthRate(oldValue, newValue uint64, days float64) float64 {
 	if oldValue == 0 || days == 0 {
 		return 0
@@ -111,18 +111,18 @@ func CalculateGrowthRate(oldValue, newValue uint64, days float64) float64 {
 	return (float64(newValue) - float64(oldValue)) / float64(oldValue) / days * 100
 }
 
-// PredictLinear 线性预测
+// PredictLinear 线性预测.
 func PredictLinear(currentValue uint64, dailyGrowth float64, days int) uint64 {
 	return uint64(float64(currentValue) + dailyGrowth*float64(days))
 }
 
-// PredictExponential 指数预测
+// PredictExponential 指数预测.
 func PredictExponential(currentValue uint64, dailyRate float64, days int) uint64 {
 	factor := math.Pow(1+dailyRate, float64(days))
 	return uint64(float64(currentValue) * factor)
 }
 
-// CalculateDaysToCapacity 计算到达容量的天数
+// CalculateDaysToCapacity 计算到达容量的天数.
 func CalculateDaysToCapacity(currentUsed, totalCapacity uint64, dailyGrowth float64) int {
 	if dailyGrowth <= 0 {
 		return -1 // 无限
@@ -137,7 +137,7 @@ func CalculateDaysToCapacity(currentUsed, totalCapacity uint64, dailyGrowth floa
 	return int(math.Ceil(days))
 }
 
-// CalculateRecommendedExpansion 计算建议扩容量
+// CalculateRecommendedExpansion 计算建议扩容量.
 func CalculateRecommendedExpansion(currentUsed, totalCapacity uint64, forecastMonths int, growthRate float64) uint64 {
 	if growthRate <= 0 {
 		return 0
@@ -161,7 +161,7 @@ func CalculateRecommendedExpansion(currentUsed, totalCapacity uint64, forecastMo
 	return uint64(needed)
 }
 
-// CalculateEfficiencyScore 计算效率评分
+// CalculateEfficiencyScore 计算效率评分.
 func CalculateEfficiencyScore(usagePercent float64) float64 {
 	// 使用率在 60-80% 之间效率最高
 	if usagePercent >= 60 && usagePercent <= 80 {
@@ -177,7 +177,7 @@ func CalculateEfficiencyScore(usagePercent float64) float64 {
 	return round((100-usagePercent)/20*50+50, 2)
 }
 
-// CalculateHealthScore 计算健康评分
+// CalculateHealthScore 计算健康评分.
 func CalculateHealthScore(cpuUsage, memoryUsage, diskUsage float64) int {
 	// CPU 评分
 	cpuScore := 100 - int(cpuUsage/2)
@@ -200,12 +200,12 @@ func CalculateHealthScore(cpuUsage, memoryUsage, diskUsage float64) int {
 	return (cpuScore + memScore + diskScore) / 3
 }
 
-// GenerateReportID 生成报告ID
+// GenerateReportID 生成报告ID.
 func GenerateReportID(prefix string) string {
 	return prefix + "_" + time.Now().Format("20060102150405")
 }
 
-// SafeDivide 安全除法
+// SafeDivide 安全除法.
 func SafeDivide(a, b float64) float64 {
 	if b == 0 {
 		return 0
@@ -213,7 +213,7 @@ func SafeDivide(a, b float64) float64 {
 	return a / b
 }
 
-// SafeDivideUint 安全除法（uint64）
+// SafeDivideUint 安全除法（uint64）.
 func SafeDivideUint(a, b uint64) float64 {
 	if b == 0 {
 		return 0
@@ -221,7 +221,7 @@ func SafeDivideUint(a, b uint64) float64 {
 	return float64(a) / float64(b)
 }
 
-// Clamp 将值限制在范围内
+// Clamp 将值限制在范围内.
 func Clamp(value, min, max float64) float64 {
 	if value < min {
 		return min
@@ -232,7 +232,7 @@ func Clamp(value, min, max float64) float64 {
 	return value
 }
 
-// MinFloat 返回最小值
+// MinFloat 返回最小值.
 func MinFloat(a, b float64) float64 {
 	if a < b {
 		return a
@@ -240,7 +240,7 @@ func MinFloat(a, b float64) float64 {
 	return b
 }
 
-// MaxFloat 返回最大值
+// MaxFloat 返回最大值.
 func MaxFloat(a, b float64) float64 {
 	if a > b {
 		return a
@@ -248,7 +248,7 @@ func MaxFloat(a, b float64) float64 {
 	return b
 }
 
-// MinUint 返回最小值（uint64）
+// MinUint 返回最小值（uint64）.
 func MinUint(a, b uint64) uint64 {
 	if a < b {
 		return a
@@ -256,7 +256,7 @@ func MinUint(a, b uint64) uint64 {
 	return b
 }
 
-// MaxUint 返回最大值（uint64）
+// MaxUint 返回最大值（uint64）.
 func MaxUint(a, b uint64) uint64 {
 	if a > b {
 		return a
@@ -266,7 +266,7 @@ func MaxUint(a, b uint64) uint64 {
 
 // ========== 统计计算函数 ==========
 
-// CalculateAverage 计算平均值
+// CalculateAverage 计算平均值.
 func CalculateAverage(values []float64) float64 {
 	if len(values) == 0 {
 		return 0
@@ -279,7 +279,7 @@ func CalculateAverage(values []float64) float64 {
 	return sum / float64(len(values))
 }
 
-// CalculateMedian 计算中位数
+// CalculateMedian 计算中位数.
 func CalculateMedian(values []float64) float64 {
 	if len(values) == 0 {
 		return 0
@@ -299,7 +299,7 @@ func CalculateMedian(values []float64) float64 {
 	return sorted[n/2]
 }
 
-// CalculateStdDev 计算标准差
+// CalculateStdDev 计算标准差.
 func CalculateStdDev(values []float64) float64 {
 	if len(values) == 0 {
 		return 0
@@ -315,7 +315,7 @@ func CalculateStdDev(values []float64) float64 {
 	return math.Sqrt(variance)
 }
 
-// CalculatePercentile 计算百分位数
+// CalculatePercentile 计算百分位数.
 func CalculatePercentile(values []float64, percentile float64) float64 {
 	if len(values) == 0 {
 		return 0
@@ -340,7 +340,7 @@ func CalculatePercentile(values []float64, percentile float64) float64 {
 
 // ========== 趋势分析函数 ==========
 
-// TrendDirection 趋势方向
+// TrendDirection 趋势方向.
 type TrendDirection string
 
 const (
@@ -354,7 +354,7 @@ const (
 	TrendUnknown TrendDirection = "unknown"
 )
 
-// AnalyzeTrend 分析趋势
+// AnalyzeTrend 分析趋势.
 func AnalyzeTrend(values []float64) TrendDirection {
 	if len(values) < 2 {
 		return TrendUnknown
@@ -379,7 +379,7 @@ func AnalyzeTrend(values []float64) TrendDirection {
 	return TrendStable
 }
 
-// CalculateTrendSlope 计算趋势斜率（简单线性回归）
+// CalculateTrendSlope 计算趋势斜率（简单线性回归）.
 func CalculateTrendSlope(values []float64) float64 {
 	n := float64(len(values))
 	if n < 2 {
