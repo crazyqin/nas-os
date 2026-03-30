@@ -3,6 +3,7 @@ package session
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -512,9 +513,12 @@ func TestManager_Events(t *testing.T) {
 	manager, err := NewManager("/tmp/test-session-events.json")
 	require.NoError(t, err)
 
+	var mu sync.Mutex
 	var receivedEvent SessionEvent
 	manager.SetEventHandler(func(e SessionEvent) {
+		mu.Lock()
 		receivedEvent = e
+		mu.Unlock()
 	})
 
 	// 添加会话应该触发事件
@@ -531,8 +535,10 @@ func TestManager_Events(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 
 	// 验证事件
+	mu.Lock()
 	assert.Equal(t, "connect", receivedEvent.Type)
 	assert.Equal(t, "event-test", receivedEvent.SessionID)
+	mu.Unlock()
 
 	// 断开会话应该触发事件
 	err = manager.KickSession("event-test", "测试断开")

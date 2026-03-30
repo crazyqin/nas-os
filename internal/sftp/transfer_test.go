@@ -1,8 +1,11 @@
 package sftp
 
 import (
+	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // ========== TransferLog 测试 ==========
@@ -230,11 +233,14 @@ func TestTransferLog_ConcurrentAccess(t *testing.T) {
 	}
 
 	done := make(chan bool)
+	var mu sync.Mutex
 
-	// 并发修改
+	// 并发修改（使用互斥锁保护）
 	for i := 0; i < 10; i++ {
 		go func(i int) {
+			mu.Lock()
 			log.FileSize += int64(i)
+			mu.Unlock()
 			done <- true
 		}(i)
 	}
@@ -244,7 +250,8 @@ func TestTransferLog_ConcurrentAccess(t *testing.T) {
 		<-done
 	}
 
-	// 注意：这不是线程安全的测试，只是验证数据结构
+	// 验证并发安全：最终值应该是 0+1+2+...+9 = 45
+	assert.Equal(t, int64(45), log.FileSize)
 }
 
 // ========== JSON 序列化测试 ==========
