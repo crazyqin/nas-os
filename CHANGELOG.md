@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
+格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
+版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
+
+---
+
+## [v2.323.0] - 2026-03-30
+
+### 新增
+- 🔄 第99轮开发启动
+- 📋 **竞品学习文档** (docs/COMPETITOR_ANALYSIS.md):
+  - 群晖DSM: Photos/Audio Station/Drive/Cloud Sync/Presto/Hybrid Share
+  - Unraid: 灵活硬盘混用、Docker管理、VM直通、Community Apps
+  - TrueNAS: OpenZFS自愈合、NVMe-oF、企业级监控
+  - ASUSTOR: NAS Selector、RAID Calculator、All-Flash方案
+
+### 改进
+- 📚 ROADMAP.md进度状态更新 (吏部)
+- 📚 CHANGELOG.md版本同步更新 (吏部)
+- 📚 API文档整理规范化 (吏部)
+
+---
+
+## [v2.323.0] - 2026-03-30 (六部协同 - 第99轮)
+
+### 吏部任务完成
+- 📚 ROADMAP.md进度状态更新
+- 📚 CHANGELOG.md版本同步
+- 📋 竞品学习文档编写
+- 📋 API模块索引整理
+
+### 礼部协同
+- 📚 竞品分析文档同步
+
+---
+
 ## [v2.253.289] - 2026-03-24
 
 ### 六部协同开发 - 第39轮
@@ -62,37 +97,3 @@ All notable changes to this project will be documented in this file.
 - **礼部**: README/docs/swagger.json 版本同步
 - **工部**: CI/CD配置正常
 - **刑部**: go mod verify通过
-
----
-
-## [v2.253.284] - 2026-03-24
-
-### 六部协同开发 - 第34轮
-- 版本号更新 v2.253.283 → v2.253.284
-
----
-
-## [v2.253.283] - 2026-03-24
-
-### 六部协同开发 - 第33轮
-- **吏部**: 版本号更新 v2.253.282 → v2.253.283
-- **礼部**: README/docs 文档版本同步，下载链接更新
-- 六部协同例行维护，代码质量检查通过
-
----
-
-## [v2.253.282] - 2026-03-24
-
-### 六部协同开发 - 第32轮
-- **吏部**: 版本号更新 v2.253.280 → v2.253.282
-- **礼部**: README/docs 文档版本同步，下载链接更新
-- 六部协同例行维护，代码质量检查通过
-
----
-
-## [v2.253.280] - 2026-03-24
-
-### 六部协同开发 - 第30轮
-- **吏部**: 版本号更新 v2.253.279 → v2.253.280
-- **礼部**: README/docs 文档版本同步，下载链接更新
-- 六部协同例行维护，代码质量检查通过
