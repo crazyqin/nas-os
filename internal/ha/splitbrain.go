@@ -4,7 +4,6 @@
 package ha
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"sync"

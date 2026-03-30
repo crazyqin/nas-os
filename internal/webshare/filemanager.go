@@ -2,7 +2,6 @@
 package webshare
 
 import (
-	"bytes"
 	"image"
 	"image/jpeg"
 	"image/png"

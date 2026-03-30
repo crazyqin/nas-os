@@ -590,7 +590,7 @@ func (m *Manager) GetSnapshots(path string) ([]SnapshotInfo, error) {
 
 // AddSnapshot 添加快照记录
 func (m *Manager) AddSnapshot(path, name, description string) (*SnapshotInfo, error) {
-	absPath, err := m.sanitizePath(path)
+	sanitizedPath, err := m.sanitizePath(path)
 	if err != nil {
 		return nil, err
 	}
@@ -598,19 +598,19 @@ func (m *Manager) AddSnapshot(path, name, description string) (*SnapshotInfo, er
 	snapshot := SnapshotInfo{
 		ID:          fmt.Sprintf("snap-%d", time.Now().UnixNano()),
 		Name:        name,
-		Path:        absPath,
+		Path:        sanitizedPath,
 		CreatedAt:   time.Now(),
 		Description: description,
 		IsReadOnly:  true,
 	}
 
 	// 计算大小
-	if info, err := os.Stat(absPath); err == nil {
+	if info, err := os.Stat(sanitizedPath); err == nil {
 		snapshot.Size = info.Size()
 	}
 
 	m.mu.Lock()
-	m.snapshots[absPath] = append(m.snapshots[absPath], snapshot)
+	m.snapshots[sanitizedPath] = append(m.snapshots[sanitizedPath], snapshot)
 	m.mu.Unlock()
 
 	return &snapshot, nil
@@ -620,8 +620,8 @@ func (m *Manager) AddSnapshot(path, name, description string) (*SnapshotInfo, er
 
 // StartUpload 开始上传
 func (m *Manager) StartUpload(fileName string, size int64, targetPath string) (*UploadProgress, error) {
-	absPath, err := m.sanitizePath(targetPath)
-	if err != nil {
+	// 验证目标路径有效性
+	if _, err := m.sanitizePath(targetPath); err != nil {
 		return nil, err
 	}
 
@@ -1134,8 +1134,8 @@ func (h *HTTPHandler) SearchFiles(c *gin.Context) {
 
 	path := c.Query("path")
 	fileType := c.Query("type")
-	minSize, _ := c.GetInt("minSize")
-	maxSize, _ := c.GetInt("maxSize")
+	minSize := int64(c.GetInt("minSize"))
+	maxSize := int64(c.GetInt("maxSize"))
 
 	results, err := h.manager.SearchFiles(query, path, fileType, int64(minSize), int64(maxSize))
 	if err != nil {
