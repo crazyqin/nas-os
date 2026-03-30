@@ -176,7 +176,11 @@ func (sm *SecurityManager) saveConfig() error {
 	sm.mu.RLock()
 	cfg := sm.config
 	sm.mu.RUnlock()
+	return sm.saveConfigFrom(cfg)
+}
 
+// saveConfigFrom 从指定配置保存（已持有锁的外部调用）.
+func (sm *SecurityManager) saveConfigFrom(cfg *SMBSecurityConfig) error {
 	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		return fmt.Errorf("序列化配置失败: %w", err)
@@ -491,11 +495,11 @@ func (sm *SecurityManager) GetBannedIPs() []*IPBanEntry {
 // AddToWhitelist 添加IP到白名单.
 func (sm *SecurityManager) AddToWhitelist(ip string) error {
 	sm.mu.Lock()
-	defer sm.mu.Unlock()
 
 	// 检查是否已在白名单
 	for _, existing := range sm.config.IPWhitelist {
 		if existing == ip {
+			sm.mu.Unlock()
 			return nil // 已存在
 		}
 	}
@@ -505,36 +509,42 @@ func (sm *SecurityManager) AddToWhitelist(ip string) error {
 	// 从封禁列表中移除
 	delete(sm.bannedIPs, ip)
 
+	// 复制配置后释放锁，再保存（避免死锁）
+	cfg := sm.config
+	sm.mu.Unlock()
+
 	sm.logger.Infow("IP已添加到白名单", "ip", ip)
-	return sm.saveConfig()
+	return sm.saveConfigFrom(cfg)
 }
 
 // RemoveFromWhitelist 从白名单移除IP.
 func (sm *SecurityManager) RemoveFromWhitelist(ip string) error {
 	sm.mu.Lock()
-	defer sm.mu.Unlock()
 
 	for i, existing := range sm.config.IPWhitelist {
 		if existing == ip {
 			sm.config.IPWhitelist = append(
 				sm.config.IPWhitelist[:i],
 				sm.config.IPWhitelist[i+1:]...)
+			cfg := sm.config
+			sm.mu.Unlock()
 			sm.logger.Infow("IP已从白名单移除", "ip", ip)
-			return sm.saveConfig()
+			return sm.saveConfigFrom(cfg)
 		}
 	}
 
+	sm.mu.Unlock()
 	return fmt.Errorf("IP不在白名单中: %s", ip)
 }
 
 // AddToBlacklist 添加IP到黑名单.
 func (sm *SecurityManager) AddToBlacklist(ip string) error {
 	sm.mu.Lock()
-	defer sm.mu.Unlock()
 
 	// 检查是否在白名单
 	for _, whiteIP := range sm.config.IPWhitelist {
 		if whiteIP == ip {
+			sm.mu.Unlock()
 			return fmt.Errorf("IP在白名单中，不能添加到黑名单: %s", ip)
 		}
 	}
@@ -542,30 +552,36 @@ func (sm *SecurityManager) AddToBlacklist(ip string) error {
 	// 检查是否已在黑名单
 	for _, existing := range sm.config.IPBlacklist {
 		if existing == ip {
+			sm.mu.Unlock()
 			return nil // 已存在
 		}
 	}
 
 	sm.config.IPBlacklist = append(sm.config.IPBlacklist, ip)
+	cfg := sm.config
+	sm.mu.Unlock()
+
 	sm.logger.Infow("IP已添加到黑名单", "ip", ip)
-	return sm.saveConfig()
+	return sm.saveConfigFrom(cfg)
 }
 
 // RemoveFromBlacklist 从黑名单移除IP.
 func (sm *SecurityManager) RemoveFromBlacklist(ip string) error {
 	sm.mu.Lock()
-	defer sm.mu.Unlock()
 
 	for i, existing := range sm.config.IPBlacklist {
 		if existing == ip {
 			sm.config.IPBlacklist = append(
 				sm.config.IPBlacklist[:i],
 				sm.config.IPBlacklist[i+1:]...)
+			cfg := sm.config
+			sm.mu.Unlock()
 			sm.logger.Infow("IP已从黑名单移除", "ip", ip)
-			return sm.saveConfig()
+			return sm.saveConfigFrom(cfg)
 		}
 	}
 
+	sm.mu.Unlock()
 	return fmt.Errorf("IP不在黑名单中: %s", ip)
 }
 
