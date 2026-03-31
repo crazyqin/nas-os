@@ -674,6 +674,224 @@
 }
 
 /* ========================================
+   新增：触摸手势增强
+   ======================================== */
+/* 长按菜单 */
+.touch-context-menu {
+  position: fixed;
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-2);
+  z-index: 999;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.touch-context-menu.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.touch-context-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  min-height: 48px;
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.touch-context-item:hover,
+.touch-context-item:active {
+  background: var(--bg-tertiary);
+}
+
+/* 滑动操作提示 */
+.swipe-action-hint {
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-primary);
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.swipe-revealed .swipe-action-hint {
+  opacity: 1;
+}
+
+/* ========================================
+   新增：大屏平板优化
+   ======================================== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* 平板模式：缩小侧边栏 */
+  .sidebar {
+    width: 200px;
+  }
+  
+  .main-content {
+    margin-left: 200px;
+  }
+  
+  .nav-item {
+    padding: var(--space-2) var(--space-3);
+    font-size: 14px;
+  }
+  
+  /* 卡片网格适配 */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .chart-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ========================================
+   新增：折叠屏/超大手机优化
+   ======================================== */
+@media (min-width: 600px) and (max-width: 768px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .stat-card {
+    padding: var(--space-2);
+  }
+  
+  .stat-value {
+    font-size: 16px;
+  }
+}
+
+/* ========================================
+   新增：底部导航手势区域
+   ======================================== */
+.mobile-bottom-nav-gesture-area {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: transparent;
+  z-index: 99;
+}
+
+/* ========================================
+   新增：输入框触摸优化
+   ======================================== */
+@media (hover: none) and (pointer: coarse) {
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 16px; /* 防止 iOS 自动缩放 */
+    min-height: 44px;
+    padding: var(--space-3);
+  }
+  
+  /* 搜索框优化 */
+  .search-input {
+    border-radius: var(--radius-full);
+    padding-left: var(--space-6);
+  }
+  
+  /* 清除按钮 */
+  .input-clear-btn {
+    position: absolute;
+    right: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ========================================
+   新增：下拉刷新指示器
+   ======================================== */
+.pull-refresh-indicator {
+  position: fixed;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background: var(--surface-color);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: top 0.2s ease;
+}
+
+.pull-refresh-indicator.pulling {
+  top: 20px;
+}
+
+.pull-refresh-indicator.loading {
+  top: 20px;
+}
+
+.pull-refresh-indicator svg {
+  animation: rotate 1s linear infinite;
+}
+
+/* ========================================
+   新增：虚拟列表优化
+   ======================================== */
+.virtual-list-container {
+  height: 100%;
+  overflow-y: auto;
+  contain: strict;
+}
+
+.virtual-list-item {
+  contain: layout style paint;
+}
+
+/* ========================================
+   新增：快速滚动优化
+   ======================================== */
+.fast-scroll-mode .card,
+.fast-scroll-mode .table-container {
+  will-change: transform;
+}
+
+/* ========================================
+   新增：触摸反馈动画
+   ======================================== */
+@media (hover: none) and (pointer: coarse) {
+  .btn:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+  
+  .nav-item:active,
+  .mobile-nav-item:active {
+    transform: scale(0.98);
+    background: var(--color-primary-light);
+  }
+  
+  .card:active {
+    transform: scale(0.99);
+  }
+}
+
+/* ========================================
    Accessibility Improvements
    ======================================== */
 /* 焦点样式 */

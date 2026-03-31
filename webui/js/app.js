@@ -1,8 +1,37 @@
 /**
  * NAS-OS Web UI Application
- * Version: 2.0
- * Features: Dark Mode, ECharts Visualization, PWA, WebSocket Notifications
+ * Version: 2.1 - Performance Optimized
+ * Features: Dark Mode, ECharts Visualization, PWA, WebSocket Notifications, Skeleton Screen
  */
+
+// ============================================
+// 骨架屏管理
+// ============================================
+const SkeletonManager = {
+    init() {
+        // 页面加载完成后隐藏骨架屏
+        window.addEventListener('load', () => {
+            this.hide();
+        });
+        
+        // 如果加载时间超过 3秒，自动隐藏
+        setTimeout(() => {
+            if (document.getElementById('skeleton-screen')) {
+                this.hide();
+            }
+        }, 3000);
+    },
+    
+    hide() {
+        const skeleton = document.getElementById('skeleton-screen');
+        if (skeleton) {
+            skeleton.classList.add('fade-out');
+            setTimeout(() => {
+                skeleton.remove();
+            }, 300);
+        }
+    }
+};
 
 // ============================================
 // 全局配置
@@ -769,12 +798,15 @@ const MobileMenu = {
 // 初始化
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
+    // 隐藏骨架屏
+    SkeletonManager.init();
+
     // 初始化主题
     ThemeManager.init();
 
-    // 初始化图表
+    // 初始化图表（延迟加载，不阻塞首屏）
     if (document.getElementById('cpu-chart')) {
-        ChartManager.init();
+        setTimeout(() => ChartManager.init(), 100);
     }
 
     // 初始化通知系统
@@ -785,6 +817,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 初始化移动端菜单
     MobileMenu.init();
+
+    // 初始化国际化
+    if (window.I18n) {
+        I18n.init();
+    }
 
     // 主题切换按钮
     const themeToggle = document.getElementById('theme-toggle');
