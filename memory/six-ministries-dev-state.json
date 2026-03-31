@@ -1,24 +1,32 @@
 {
-  "version": "v2.333.0",
-  "nextVersion": "v2.334.0",
-  "round": 109,
+  "version": "v2.337.0",
+  "nextVersion": "v2.338.0",
+  "round": 113,
   "date": "2026-03-31",
-  "timestamp": "2026-03-31T06:55:00+08:00",
+  "timestamp": "2026-03-31T09:55:00+08:00",
   "status": "dispatching",
   "competitive_learning": {
-    "truenas_24_10": {
-      "raidz_expansion": "单盘扩展RAIDZ vdev，无需重建池",
-      "docker_compose": "从Kubernetes切换到Docker Compose，简化应用管理",
-      "fast_dedup": "内存优化重复数据删除",
-      "global_search": "全局文件搜索UI",
-      "nvme_smart": "NVMe固态硬盘健康监控"
+    "truenas_25_04": {
+      "lxc_containers": "Linux系统容器(LXC)，轻量隔离，实验性功能",
+      "classic_vm": "经典虚拟化回归，虚拟机管理增强",
+      "nfs_rdma": "NFS over RDMA支持，企业级特性",
+      "zfs_fast_dedup": "ZFS快速重复数据删除，内存优化",
+      "versioned_api": "JSON-RPC 2.0 WebSocket API，版本化API",
+      "user_api_keys": "用户关联API密钥管理",
+      "stig_compliance": "STIG合规与安全焦点增强"
     },
-    "synology_dsm_73": {
-      "tiering": "热数据SSD/冷数据HDD自动迁移",
-      "ai_console": "本地敏感信息脱敏",
-      "drive_40": "共享标签、文件锁定、文件请求",
-      "ai_office": "智能内容生成、摘要、翻译",
-      "private_ai": "本地LLM支持，OpenAI兼容API"
+    "synology_dsm": {
+      "ai_advisor": "网站AI顾问，获取规格和推荐",
+      "data_management": "全面数据管理，从边缘到数据中心",
+      "fortune500": "Fortune 500一半企业使用"
+    },
+    "terraMaster_tos6": {
+      "traid": "TRAID灵活磁盘阵列管理",
+      "terrasync": "TerraSync多平台同步",
+      "cloud_mount": "云盘原生挂载",
+      "ai_nas": "AI NAS功能",
+      "terra_photos": "Terra Photos相册管理",
+      "smb_multichannel": "SMB Multichannel多通道"
     },
     "fnOS_11": {
       "cloud_mount": "115/夸克/123/OneDrive/百度网盘原生挂载",
@@ -30,37 +38,37 @@
   },
   "ministries": {
     "兵部": {
-      "task": "RAIDZ扩容API设计 + 测试覆盖率提升",
+      "task": "LXC容器框架研究 + ZFS Fast Dedup调研",
       "status": "pending",
       "priority": "P0",
-      "learning_from": "TrueNAS 24.10 RAIDZ Expansion"
+      "learning_from": "TrueNAS 25.04 LXC/ZFS Fast Dedup"
     },
     "工部": {
-      "task": "CI/CD检查 + Docker构建验证 + 内网穿透研究",
+      "task": "NFS RDMA研究 + API版本化设计",
       "status": "pending",
       "priority": "P0",
-      "learning_from": "fnOS FN Connect"
+      "learning_from": "TrueNAS 25.04 NFS RDMA/Versioned API"
     },
     "礼部": {
-      "task": "Webshare UI文档 + 竞品分析更新",
+      "task": "AI Advisor调研 + WebUI优化建议",
       "status": "pending",
       "priority": "P1",
-      "learning_from": "TrueNAS Webshare"
+      "learning_from": "Synology AI Advisor"
     },
     "刑部": {
-      "task": "安全审计 + gosec扫描 + SMB安全检查",
+      "task": "STIG合规研究 + 安全审计增强",
       "status": "pending",
       "priority": "P0",
-      "learning_from": "TrueNAS 26勒索软件检测"
+      "learning_from": "TrueNAS 25.04 STIG Compliance"
     },
     "户部": {
-      "task": "存储配额告警系统设计 + 成本分析",
+      "task": "成本分析看板 + 存储配额告警",
       "status": "pending",
       "priority": "P1",
       "learning_from": "TrueNAS Dashboard"
     },
     "吏部": {
-      "task": "版本号更新v2.334.0 + 第109轮协调报告",
+      "task": "版本号更新v2.338.0 + 第113轮协调",
       "status": "pending",
       "priority": "P0",
       "learning_from": "版本管理最佳实践"
@@ -69,7 +77,7 @@
   "轮值顺序": "兵部 → 户部 → 礼部 → 工部 → 吏部 → 刑部 → (循环)",
   "当前轮值": "兵部",
   "github_actions_status": {
-    "in_progress": ["Docker Publish v2.333.0", "Staged Release v2.333.0"],
-    "completed_success": ["CI/CD", "Compatibility Check", "Security Scan", "GitHub Release"]
+    "in_progress": ["Docker Publish v2.337.0", "Staged Release v2.337.0", "CI/CD master"],
+    "completed_success": ["Security Scan", "Compatibility Check", "GitHub Release v2.337.0"]
   }
 }
