@@ -16,9 +16,9 @@ import (
 
 // SceneRecognizer provides scene recognition for photos
 type SceneRecognizer struct {
-	config      *ModelConfig
-	initialized bool
-	mu          sync.RWMutex
+	config       *ModelConfig
+	initialized  bool
+	mu           sync.RWMutex
 
 	// Scene categories with keywords
 	sceneKeywords map[string][]string
@@ -47,26 +47,26 @@ func NewSceneRecognizer(config *ModelConfig) (*SceneRecognizer, error) {
 // initSceneKeywords initializes scene keyword mappings
 func (sr *SceneRecognizer) initSceneKeywords() {
 	sr.sceneKeywords = map[string][]string{
-		"beach":    {"sand", "ocean", "sea", "waves", "beach", "shore", "coastline", "tropical"},
+		"beach": {"sand", "ocean", "sea", "waves", "beach", "shore", "coastline", "tropical"},
 		"mountain": {"mountain", "peak", "summit", "ridge", "alpine", "snow", "cliff"},
-		"city":     {"building", "skyscraper", "street", "urban", "downtown", "city", "architecture"},
-		"forest":   {"forest", "trees", "woods", "jungle", "greenery", "wilderness"},
-		"desert":   {"desert", "sand", "dunes", "arid", "canyon"},
-		"lake":     {"lake", "pond", "water", "reflection", "calm"},
-		"river":    {"river", "stream", "creek", "waterfall", "rapids"},
-		"snow":     {"snow", "winter", "ice", "frost", "cold"},
-		"flower":   {"flower", "bloom", "garden", "petals", "blossom"},
-		"sunset":   {"sunset", "dusk", "twilight", "golden hour", "evening"},
-		"sunrise":  {"sunrise", "dawn", "morning", "first light"},
-		"night":    {"night", "stars", "moonlight", "dark", "evening"},
-		"indoor":   {"interior", "room", "home", "furniture", "indoor"},
-		"food":     {"food", "dish", "cuisine", "meal", "cooking", "restaurant"},
+		"city": {"building", "skyscraper", "street", "urban", "downtown", "city", "architecture"},
+		"forest": {"forest", "trees", "woods", "jungle", "greenery", "wilderness"},
+		"desert": {"desert", "sand", "dunes", "arid", "canyon"},
+		"lake": {"lake", "pond", "water", "reflection", "calm"},
+		"river": {"river", "stream", "creek", "waterfall", "rapids"},
+		"snow": {"snow", "winter", "ice", "frost", "cold"},
+		"flower": {"flower", "bloom", "garden", "petals", "blossom"},
+		"sunset": {"sunset", "dusk", "twilight", "golden hour", "evening"},
+		"sunrise": {"sunrise", "dawn", "morning", "first light"},
+		"night": {"night", "stars", "moonlight", "dark", "evening"},
+		"indoor": {"interior", "room", "home", "furniture", "indoor"},
+		"food": {"food", "dish", "cuisine", "meal", "cooking", "restaurant"},
 		"portrait": {"face", "person", "portrait", "selfie"},
-		"pet":      {"dog", "cat", "pet", "animal", "puppy", "kitten"},
-		"wedding":  {"wedding", "bride", "groom", "ceremony", "marriage"},
-		"sports":   {"sports", "game", "athletic", "stadium", "fitness"},
-		"concert":  {"concert", "music", "stage", "performance", "band"},
-		"travel":   {"landmark", "monument", "tourism", "sightseeing", "vacation"},
+		"pet": {"dog", "cat", "pet", "animal", "puppy", "kitten"},
+		"wedding": {"wedding", "bride", "groom", "ceremony", "marriage"},
+		"sports": {"sports", "game", "athletic", "stadium", "fitness"},
+		"concert": {"concert", "music", "stage", "performance", "band"},
+		"travel": {"landmark", "monument", "tourism", "sightseeing", "vacation"},
 	}
 }
 
@@ -84,9 +84,9 @@ func (sr *SceneRecognizer) initMoodColors() {
 			{R: 152, G: 251, B: 152, A: 255}, // Pale green
 		},
 		"energetic": {
-			{R: 255, G: 69, B: 0, A: 255},  // Orange red
-			{R: 255, G: 165, B: 0, A: 255}, // Orange
-			{R: 255, G: 255, B: 0, A: 255}, // Yellow
+			{R: 255, G: 69, B: 0, A: 255},    // Orange red
+			{R: 255, G: 165, B: 0, A: 255},   // Orange
+			{R: 255, G: 255, B: 0, A: 255},   // Yellow
 		},
 		"melancholic": {
 			{R: 70, G: 130, B: 180, A: 255},  // Steel blue
@@ -104,11 +104,6 @@ func (sr *SceneRecognizer) RecognizeScene(ctx context.Context, img image.Image) 
 		Objects:    make([]ObjectInfo, 0),
 		Colors:     make([]ColorInfo, 0),
 	}
-
-	bounds := img.Bounds()
-	// 图片尺寸用于后续分析
-	_ = bounds.Dx()
-	_ = bounds.Dy()
 
 	// 1. Extract colors
 	colors := sr.extractColors(img, 5)
@@ -412,7 +407,7 @@ func (sr *SceneRecognizer) analyzeComposition(img image.Image) map[string]float6
 	return map[string]float64{
 		"center_weight": centerRegion / 65535.0,
 		"corner_weight": cornerRegions / 65535.0,
-		"balance":       math.Abs(centerRegion-cornerRegions) / 65535.0,
+		"balance":       math.Abs(centerRegion - cornerRegions) / 65535.0,
 	}
 }
 

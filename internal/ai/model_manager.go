@@ -626,6 +626,7 @@ func (m *ResourceMonitor) GetGPUInfo() ([]GPUInfo, error) {
 
 // GetMemoryInfo returns system memory information
 func (m *ResourceMonitor) GetMemoryInfo() (*MemoryInfo, error) {
+	// Read /proc/meminfo
 	data, err := os.ReadFile("/proc/meminfo")
 	if err != nil {
 		return nil, err
@@ -639,23 +640,16 @@ func (m *ResourceMonitor) GetMemoryInfo() (*MemoryInfo, error) {
 			continue
 		}
 
-		value := uint64(parseInt(parts[1])) * 1024
+		value := parseInt(parts[1])
 		switch parts[0] {
 		case "MemTotal:":
-			info.Total = value
+			info.Total = uint64(value) * 1024
 		case "MemAvailable:":
-			info.Available = value
-		case "SwapTotal:":
-			info.SwapTotal = value
-		case "SwapFree:":
-			info.SwapUsed = info.SwapTotal - value
+			info.Available = uint64(value) * 1024
 		}
 	}
 
 	info.Used = info.Total - info.Available
-	if info.Total > 0 {
-		info.Usage = float64(info.Used) / float64(info.Total) * 100
-	}
 	return info, nil
 }
 
@@ -668,6 +662,8 @@ type GPUInfo struct {
 	MemoryFree  int64  `json:"memoryFree"`
 	Utilization int    `json:"utilization"`
 }
+
+// MemoryInfo is defined in advisor.go
 
 // Helper functions
 func formatSpeed(bytesPerSec float64) string {
