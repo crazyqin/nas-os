@@ -19,43 +19,43 @@ import (
 // ========== 常量定义 ==========
 
 const (
-	// NVMetConfigPath nvmet configfs 路径
+	// NVMetConfigPath is the nvmet configfs path.
 	NVMetConfigPath = "/sys/kernel/config/nvmet"
-	// NVMetSubsystemsPath 子系统路径
+	// NVMetSubsystemsPath is the subsystems path.
 	NVMetSubsystemsPath = "/sys/kernel/config/nvmet/subsystems"
-	// NVMetPortsPath 端口路径
+	// NVMetPortsPath is the ports path.
 	NVMetPortsPath = "/sys/kernel/config/nvmet/ports"
-	// NVMetHostsPath 主机路径（子系统下）
+	// NVMetHostsPath is the hosts path under subsystem.
 	NVMetHostsPath = "allowed_hosts"
 
-	// 默认端口
+	// DefaultTargetPort is the default NVMe-oF port.
 	DefaultTargetPort = 4420
-	// 默认块大小
+	// DefaultBlockSize is the default block size.
 	DefaultBlockSize = 512
 )
 
 // ========== TargetSysManager ==========
 
-// TargetSysManager NVMe-oF Target 系统管理器
-// 实际封装 Linux 内核 nvmet 模块
+// TargetSysManager manages NVMe-oF Target system.
+// It wraps the Linux kernel nvmet module.
 type TargetSysManager struct {
 	mu sync.RWMutex
 
-	// pkg 层管理器
+	// pkgManager is the pkg layer manager.
 	pkgManager *pkgnvmeof.TargetManager
 
-	// 配置
+	// config is the NVMe-oF configuration.
 	config *pkgnvmeof.NVMeOFConfig
 
-	// 已分配的端口 ID
+	// portIDs tracks allocated port IDs.
 	portIDs    map[int]bool
 	nextPortID int
 
-	// 运行状态
+	// running indicates if the manager is running.
 	running bool
 }
 
-// NewTargetSysManager 创建 Target 系统管理器
+// NewTargetSysManager creates a new Target system manager.
 func NewTargetSysManager(config *pkgnvmeof.NVMeOFConfig) (*TargetSysManager, error) {
 	if config == nil {
 		config = pkgnvmeof.DefaultNVMeOFConfig()
@@ -84,7 +84,7 @@ func NewTargetSysManager(config *pkgnvmeof.NVMeOFConfig) (*TargetSysManager, err
 	return m, nil
 }
 
-// checkNVMetAvailable 检查 nvmet 模块是否可用
+// checkNVMetAvailable checks if nvmet module is available.
 func (m *TargetSysManager) checkNVMetAvailable() error {
 	// 检查 configfs 是否挂载
 	if _, err := os.Stat("/sys/kernel/config"); err != nil {
@@ -106,7 +106,7 @@ func (m *TargetSysManager) checkNVMetAvailable() error {
 	return nil
 }
 
-// loadModule 加载内核模块
+// loadModule loads a kernel module.
 func (m *TargetSysManager) loadModule(module string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -119,7 +119,7 @@ func (m *TargetSysManager) loadModule(module string) error {
 	return nil
 }
 
-// loadExistingConfig 加载现有配置
+// loadExistingConfig loads existing configuration.
 func (m *TargetSysManager) loadExistingConfig() {
 	// 读取已存在的子系统
 	subsysDir, err := os.ReadDir(NVMetSubsystemsPath)
@@ -152,7 +152,7 @@ func (m *TargetSysManager) loadExistingConfig() {
 	}
 }
 
-// readAllowAnyHost 读取子系统是否允许任意主机
+// readAllowAnyHost reads if subsystem allows any host.
 func (m *TargetSysManager) readAllowAnyHost(nqn string) bool {
 	path := filepath.Join(NVMetSubsystemsPath, nqn, "attr_allow_any_host")
 	data, err := os.ReadFile(path)
@@ -162,7 +162,7 @@ func (m *TargetSysManager) readAllowAnyHost(nqn string) bool {
 	return strings.TrimSpace(string(data)) == "1"
 }
 
-// extractNameFromNQN 从 NQN 提取名称
+// extractNameFromNQN extracts name from NQN.
 func extractNameFromNQN(nqn string) string {
 	parts := strings.Split(nqn, ":")
 	if len(parts) > 0 {
@@ -173,7 +173,7 @@ func extractNameFromNQN(nqn string) string {
 
 // ========== 子系统管理 ==========
 
-// CreateSubsystem 创建子系统
+// CreateSubsystem creates a subsystem.
 func (m *TargetSysManager) CreateSubsystem(ctx context.Context, req *pkgnvmeof.CreateSubsystemRequest) (*pkgnvmeof.Subsystem, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -194,7 +194,7 @@ func (m *TargetSysManager) CreateSubsystem(ctx context.Context, req *pkgnvmeof.C
 	return subsystem, nil
 }
 
-// createSubsystemInKernel 在内核创建子系统
+// createSubsystemInKernel creates subsystem in kernel.
 func (m *TargetSysManager) createSubsystemInKernel(subsystem *pkgnvmeof.Subsystem) error {
 	subsysPath := filepath.Join(NVMetSubsystemsPath, subsystem.NQN)
 
@@ -216,13 +216,13 @@ func (m *TargetSysManager) createSubsystemInKernel(subsystem *pkgnvmeof.Subsyste
 	return nil
 }
 
-// DeleteSubsystem 删除子系统
+// DeleteSubsystem deletes a subsystem.
 func (m *TargetSysManager) DeleteSubsystem(ctx context.Context, nqn string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	// 先在内核删除
-	if err := m.deleteSubsystemFromKernel(nqn, force); err != nil {
+	if err := m.deleteSubsystemFromKernel(nqn); err != nil {
 		return fmt.Errorf("failed to delete subsystem from kernel: %w", err)
 	}
 
@@ -230,8 +230,8 @@ func (m *TargetSysManager) DeleteSubsystem(ctx context.Context, nqn string, forc
 	return m.pkgManager.DeleteSubsystem(ctx, nqn, force)
 }
 
-// deleteSubsystemFromKernel 从内核删除子系统
-func (m *TargetSysManager) deleteSubsystemFromKernel(nqn string, force bool) error {
+// deleteSubsystemFromKernel deletes subsystem from kernel.
+func (m *TargetSysManager) deleteSubsystemFromKernel(nqn string) error {
 	subsysPath := filepath.Join(NVMetSubsystemsPath, nqn)
 
 	// 检查是否存在
@@ -268,7 +268,7 @@ func (m *TargetSysManager) deleteSubsystemFromKernel(nqn string, force bool) err
 
 // ========== 命名空间管理 ==========
 
-// CreateNamespace 创建命名空间
+// CreateNamespace creates a namespace.
 func (m *TargetSysManager) CreateNamespace(ctx context.Context, subsystemNQN string, req *pkgnvmeof.CreateNamespaceRequest) (*pkgnvmeof.Namespace, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -289,7 +289,7 @@ func (m *TargetSysManager) CreateNamespace(ctx context.Context, subsystemNQN str
 	return namespace, nil
 }
 
-// createNamespaceInKernel 在内核创建命名空间
+// createNamespaceInKernel creates namespace in kernel.
 func (m *TargetSysManager) createNamespaceInKernel(subsystemNQN string, namespace *pkgnvmeof.Namespace) error {
 	subsysPath := filepath.Join(NVMetSubsystemsPath, subsystemNQN)
 	nsidStr := strconv.FormatUint(uint64(namespace.NSID), 10)
@@ -310,8 +310,10 @@ func (m *TargetSysManager) createNamespaceInKernel(subsystemNQN string, namespac
 	if namespace.BlockSize > 0 {
 		blockSizePath := filepath.Join(nsPath, "block_size")
 		blockSizeStr := strconv.FormatUint(uint64(namespace.BlockSize), 10)
+		// set block size (optional) - failure does not affect creation
 		if err := os.WriteFile(blockSizePath, []byte(blockSizeStr), 0o644); err != nil {
-			// 块大小设置失败不影响创建
+			// log warning but continue
+			_ = err // explicitly ignore
 		}
 	}
 
@@ -326,7 +328,7 @@ func (m *TargetSysManager) createNamespaceInKernel(subsystemNQN string, namespac
 	return nil
 }
 
-// DeleteNamespace 删除命名空间
+// DeleteNamespace deletes a namespace.
 func (m *TargetSysManager) DeleteNamespace(ctx context.Context, subsystemNQN string, nsid uint32) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -340,7 +342,7 @@ func (m *TargetSysManager) DeleteNamespace(ctx context.Context, subsystemNQN str
 	return m.pkgManager.DeleteNamespace(ctx, subsystemNQN, nsid)
 }
 
-// deleteNamespaceFromKernel 从内核删除命名空间
+// deleteNamespaceFromKernel deletes namespace from kernel.
 func (m *TargetSysManager) deleteNamespaceFromKernel(subsystemNQN string, nsid uint32) error {
 	subsysPath := filepath.Join(NVMetSubsystemsPath, subsystemNQN)
 	nsidStr := strconv.FormatUint(uint64(nsid), 10)
@@ -356,7 +358,7 @@ func (m *TargetSysManager) deleteNamespaceFromKernel(subsystemNQN string, nsid u
 
 // ========== 监听器管理 ==========
 
-// CreateListener 创建监听器（端口）
+// CreateListener creates a listener (port).
 func (m *TargetSysManager) CreateListener(ctx context.Context, subsystemNQN string, req *pkgnvmeof.CreateListenerRequest) (*pkgnvmeof.Listener, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -377,7 +379,7 @@ func (m *TargetSysManager) CreateListener(ctx context.Context, subsystemNQN stri
 	return listener, nil
 }
 
-// createListenerInKernel 在内核创建监听器
+// createListenerInKernel creates listener in kernel.
 func (m *TargetSysManager) createListenerInKernel(subsystemNQN string, listener *pkgnvmeof.Listener) error {
 	// 分配端口 ID
 	portID := m.allocatePortID()
@@ -416,7 +418,7 @@ func (m *TargetSysManager) createListenerInKernel(subsystemNQN string, listener 
 	return nil
 }
 
-// allocatePortID 分配端口 ID
+// allocatePortID allocates port ID.
 func (m *TargetSysManager) allocatePortID() int {
 	for {
 		if !m.portIDs[m.nextPortID] {
@@ -429,7 +431,7 @@ func (m *TargetSysManager) allocatePortID() int {
 	}
 }
 
-// DeleteListener 删除监听器
+// DeleteListener deletes a listener.
 func (m *TargetSysManager) DeleteListener(ctx context.Context, subsystemNQN string, listenerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -441,14 +443,17 @@ func (m *TargetSysManager) DeleteListener(ctx context.Context, subsystemNQN stri
 
 	// 在内核删除需要先找到端口 ID
 	// 简化实现：遍历所有端口找到匹配的
-	return m.deleteListenerFromKernel(subsystemNQN, listenerID)
+	return m.deleteListenerFromKernel(subsystemNQN)
 }
 
-// deleteListenerFromKernel 从内核删除监听器
-func (m *TargetSysManager) deleteListenerFromKernel(subsystemNQN string, listenerID string) error {
+// deleteListenerFromKernel deletes listener from kernel.
+func (m *TargetSysManager) deleteListenerFromKernel(subsystemNQN string) error {
 	portsDir, err := os.ReadDir(NVMetPortsPath)
 	if err != nil {
-		return nil
+		if os.IsNotExist(err) {
+			return nil // no ports to delete
+		}
+		return fmt.Errorf("failed to read ports directory: %w", err)
 	}
 
 	for _, entry := range portsDir {
@@ -458,8 +463,10 @@ func (m *TargetSysManager) deleteListenerFromKernel(subsystemNQN string, listene
 		portID := entry.Name()
 		linkPath := filepath.Join(NVMetPortsPath, portID, "subsystems", subsystemNQN)
 
-		// 取消链接
-		_ = os.Remove(linkPath)
+		// remove link - ignore error if not exists
+		if err := os.Remove(linkPath); err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("failed to remove subsystem link for port %s: %w", portID, err)
+		}
 	}
 
 	return nil
@@ -467,7 +474,7 @@ func (m *TargetSysManager) deleteListenerFromKernel(subsystemNQN string, listene
 
 // ========== 主机管理 ==========
 
-// AddHost 添加允许的主机
+// AddHost adds allowed host.
 func (m *TargetSysManager) AddHost(ctx context.Context, subsystemNQN string, req *pkgnvmeof.AddHostRequest) (*pkgnvmeof.Host, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -488,7 +495,7 @@ func (m *TargetSysManager) AddHost(ctx context.Context, subsystemNQN string, req
 	return host, nil
 }
 
-// addHostInKernel 在内核添加主机
+// addHostInKernel adds host in kernel.
 func (m *TargetSysManager) addHostInKernel(subsystemNQN string, hostNQN string) error {
 	subsysPath := filepath.Join(NVMetSubsystemsPath, subsystemNQN)
 	hostPath := filepath.Join(subsysPath, NVMetHostsPath, hostNQN)
@@ -496,7 +503,7 @@ func (m *TargetSysManager) addHostInKernel(subsystemNQN string, hostNQN string) 
 	return os.MkdirAll(hostPath, 0o755)
 }
 
-// RemoveHost 移除主机
+// RemoveHost removes host.
 func (m *TargetSysManager) RemoveHost(ctx context.Context, subsystemNQN string, hostNQN string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -510,7 +517,7 @@ func (m *TargetSysManager) RemoveHost(ctx context.Context, subsystemNQN string, 
 	return m.removeHostFromKernel(subsystemNQN, hostNQN)
 }
 
-// removeHostFromKernel 从内核移除主机
+// removeHostFromKernel removes host from kernel.
 func (m *TargetSysManager) removeHostFromKernel(subsystemNQN string, hostNQN string) error {
 	subsysPath := filepath.Join(NVMetSubsystemsPath, subsystemNQN)
 	hostPath := filepath.Join(subsysPath, NVMetHostsPath, hostNQN)
@@ -520,7 +527,7 @@ func (m *TargetSysManager) removeHostFromKernel(subsystemNQN string, hostNQN str
 
 // ========== 状态和统计 ==========
 
-// Start 启动 Target 服务
+// Start starts Target service.
 func (m *TargetSysManager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -550,7 +557,7 @@ func (m *TargetSysManager) Start(ctx context.Context) error {
 	return m.pkgManager.Start(ctx)
 }
 
-// Stop 停止 Target 服务
+// Stop stops Target service.
 func (m *TargetSysManager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -563,7 +570,7 @@ func (m *TargetSysManager) Stop() error {
 	return m.pkgManager.Stop()
 }
 
-// hasRDMAListeners 检查是否有 RDMA 监听器
+// hasRDMAListeners checks if there are RDMA listeners.
 func (m *TargetSysManager) hasRDMAListeners() bool {
 	for _, subsys := range m.pkgManager.ListSubsystems() {
 		for _, listener := range subsys.Listeners {
@@ -575,7 +582,7 @@ func (m *TargetSysManager) hasRDMAListeners() bool {
 	return false
 }
 
-// hasTCPListeners 检查是否有 TCP 监听器
+// hasTCPListeners checks if there are TCP listeners.
 func (m *TargetSysManager) hasTCPListeners() bool {
 	for _, subsys := range m.pkgManager.ListSubsystems() {
 		for _, listener := range subsys.Listeners {
@@ -587,24 +594,24 @@ func (m *TargetSysManager) hasTCPListeners() bool {
 	return false
 }
 
-// GetSubsystem 获取子系统
+// GetSubsystem gets subsystem.
 func (m *TargetSysManager) GetSubsystem(nqn string) (*pkgnvmeof.Subsystem, error) {
 	return m.pkgManager.GetSubsystem(nqn)
 }
 
-// ListSubsystems 列出子系统
+// ListSubsystems lists subsystems.
 func (m *TargetSysManager) ListSubsystems() []*pkgnvmeof.Subsystem {
 	return m.pkgManager.ListSubsystems()
 }
 
-// GetStats 获取统计
+// GetStats gets statistics.
 func (m *TargetSysManager) GetStats() *pkgnvmeof.TargetStats {
 	return m.pkgManager.GetStats()
 }
 
 // ========== 辅助方法 ==========
 
-// GetDeviceInfo 获取 NVMe 设备信息
+// GetDeviceInfo gets NVMe device information.
 func (m *TargetSysManager) GetDeviceInfo(devicePath string) (size uint64, blockSize uint32, err error) {
 	// 检查设备是否存在
 	if _, err = os.Stat(devicePath); err != nil {
@@ -646,7 +653,7 @@ func (m *TargetSysManager) GetDeviceInfo(devicePath string) (size uint64, blockS
 	return size, blockSize, nil
 }
 
-// ValidateDevicePath 验证设备路径是否可用于 NVMe-oF
+// ValidateDevicePath validates if device path is usable for NVMe-oF.
 func (m *TargetSysManager) ValidateDevicePath(devicePath string) error {
 	// 检查路径是否以 /dev/ 开头
 	if !strings.HasPrefix(devicePath, "/dev/") {

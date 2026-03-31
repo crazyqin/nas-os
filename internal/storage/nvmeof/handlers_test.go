@@ -2,6 +2,7 @@ package nvmeof
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -24,9 +25,11 @@ func TestManagerAndHandlers(t *testing.T) {
 	r := gin.New()
 	NewHandlers(mgr).RegisterRoutes(r.Group("/api/v1"))
 
+	ctx := context.Background()
+
 	// create target
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodPost, "/api/v1/nvmeof/targets", mustJSON(t, map[string]interface{}{
+	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/api/v1/nvmeof/targets", mustJSON(t, map[string]interface{}{
 		"name":      "prod-target",
 		"address":   "10.0.0.10",
 		"port":      4420,
@@ -55,13 +58,13 @@ func TestManagerAndHandlers(t *testing.T) {
 
 	// service start
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest(http.MethodPost, "/api/v1/nvmeof/start", nil)
+	req, _ = http.NewRequestWithContext(ctx, http.MethodPost, "/api/v1/nvmeof/start", nil)
 	r.ServeHTTP(w, req)
 	require.Equal(t, http.StatusOK, w.Code)
 
 	// create initiator
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest(http.MethodPost, "/api/v1/nvmeof/initiators", mustJSON(t, map[string]interface{}{
+	req, _ = http.NewRequestWithContext(ctx, http.MethodPost, "/api/v1/nvmeof/initiators", mustJSON(t, map[string]interface{}{
 		"name":      "client-a",
 		"targetNqn": created.Data.NQN,
 		"address":   "10.0.0.11",
@@ -80,7 +83,7 @@ func TestManagerAndHandlers(t *testing.T) {
 
 	// connect initiator
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest(http.MethodPost, "/api/v1/nvmeof/initiators/"+createdInitiator.Data.ID+"/connect", nil)
+	req, _ = http.NewRequestWithContext(ctx, http.MethodPost, "/api/v1/nvmeof/initiators/"+createdInitiator.Data.ID+"/connect", nil)
 	r.ServeHTTP(w, req)
 	require.Equal(t, http.StatusOK, w.Code)
 	var connected struct {
@@ -93,7 +96,7 @@ func TestManagerAndHandlers(t *testing.T) {
 
 	// status
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest(http.MethodGet, "/api/v1/nvmeof/status", nil)
+	req, _ = http.NewRequestWithContext(ctx, http.MethodGet, "/api/v1/nvmeof/status", nil)
 	r.ServeHTTP(w, req)
 	require.Equal(t, http.StatusOK, w.Code)
 }
