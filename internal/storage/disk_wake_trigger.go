@@ -452,6 +452,9 @@ func (t *DiskWakeTrigger) recordAccess(diskPath string) {
 			HourlyAccess: make(map[int]int),
 		}
 		t.accessPatterns[diskPath] = pattern
+	} else if pattern.HourlyAccess == nil {
+		// 确保 map 已初始化
+		pattern.HourlyAccess = make(map[int]int)
 	}
 
 	pattern.AccessCount++
