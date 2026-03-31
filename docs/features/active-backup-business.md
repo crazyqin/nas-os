@@ -1,96 +1,109 @@
 # Active Backup for Business 设计
 
-> 对标群晖DSM Active Backup for Business
-
-## 概述
-
-企业级备份解决方案，支持物理机、虚拟机、云服务备份。
+## 功能概述
+对标群晖DSM Active Backup for Business，实现物理/虚拟机集中备份。
 
 ## API设计
 
-### 备份任务管理
-
+### 备份任务API
 ```
-GET    /api/v1/backup/tasks                   # 备份任务列表
-POST   /api/v1/backup/tasks                   # 创建备份任务
-PUT    /api/v1/backup/tasks/:id               # 更新任务
-DELETE /api/v1/backup/tasks/:id               # 删除任务
-POST   /api/v1/backup/tasks/:id/run           # 执行备份
-GET    /api/v1/backup/tasks/:id/status        # 任务状态
-```
-
-### 备份目标类型
-
-```
-GET    /api/v1/backup/targets                 # 备份目标列表
-POST   /api/v1/backup/targets/physical        # 添加物理机
-POST   /api/v1/backup/targets/vm              # 添加虚拟机
-POST   /api/v1/backup/targets/cloud           # 添加云服务
+GET  /api/v1/backup/abb/tasks               - 获取备份任务列表
+POST /api/v1/backup/abb/tasks               - 创建备份任务
+GET  /api/v1/backup/abb/tasks/:id           - 获取任务详情
+PUT  /api/v1/backup/abb/tasks/:id           - 更新任务
+DELETE /api/v1/backup/abb/tasks/:id         - 删除任务
+POST /api/v1/backup/abb/tasks/:id/run       - 执行备份
+POST /api/v1/backup/abb/tasks/:id/restore   - 执行恢复
 ```
 
-### 恢复管理
-
+### 备份代理API
 ```
-GET    /api/v1/backup/recovery-points         # 恢复点列表
-POST   /api/v1/backup/recover                 # 执行恢复
-GET    /api/v1/backup/recover/:id/status      # 恢复状态
+GET  /api/v1/backup/abb/agents              - 获取代理列表
+POST /api/v1/backup/abb/agents/register     - 注册代理
+DELETE /api/v1/backup/abb/agents/:id        - 移除代理
+GET  /api/v1/backup/abb/agents/:id/status   - 获取代理状态
+```
+
+### 备份目标API
+```
+GET  /api/v1/backup/abb/targets             - 获取备份目标
+POST /api/v1/backup/abb/targets             - 添加备份目标
 ```
 
 ## 数据模型
 
+### 备份任务
 ```go
-type BackupTask struct {
-    ID           string       `json:"id"`
-    Name         string       `json:"name"`
-    TargetType   string       `json:"target_type"` // physical, vm, cloud
-    Target       BackupTarget `json:"target"`
-    Schedule     Schedule     `json:"schedule"`
-    Retention    Retention    `json:"retention"`
-    Compression  bool         `json:"compression"`
-    Encryption   bool         `json:"encryption"`
-    Status       string       `json:"status"`
-    LastRun      time.Time    `json:"last_run"`
-    NextRun      time.Time    `json:"next_run"`
-}
-
-type BackupTarget struct {
-    ID       string `json:"id"`
-    Name     string `json:"name"`
-    Type     string `json:"type"`
-    Host     string `json:"host"`
-    Port     int    `json:"port"`
-    Username string `json:"username"`
-    OS       string `json:"os"` // windows, linux, macos
-}
-
-type Retention struct {
-    Daily   int `json:"daily"`   // 保留天数
-    Weekly  int `json:"weekly"`  // 保留周数
-    Monthly int `json:"monthly"` // 保留月数
-}
-
-type RecoveryPoint struct {
-    ID        string    `json:"id"`
-    TaskID    string    `json:"task_id"`
-    Timestamp time.Time `json:"timestamp"`
-    Size      int64     `json:"size"`
-    Type      string    `json:"type"` // full, incremental
-    Status    string    `json:"status"`
+type ABBackupTask struct {
+    ID           string        `json:"id"`
+    Name         string        `json:"name"`
+    Type         string        `json:"type"` // full, incremental
+    Target       BackupTarget  `json:"target"`
+    Schedule     ScheduleSpec  `json:"schedule"`
+    RPO          time.Duration `json:"rpo"` // 恢复点目标
+    RTO          time.Duration `json:"rto"` // 恢复时间目标
+    Retention    RetentionPolicy `json:"retention"`
+    Compression  string        `json:"compression"`
+    Encryption   bool          `json:"encryption"`
+    Status       string        `json:"status"`
+    LastRun      time.Time     `json:"last_run"`
+    NextRun      time.Time     `json:"next_run"`
 }
 ```
 
-## 功能特性
+### 备份代理
+```go
+type BackupAgent struct {
+    ID           string    `json:"id"`
+    Name         string    `json:"name"`
+    Type         string    `json:"type"` // windows, linux, mac, vm
+    IP           string    `json:"ip"`
+    Port         int       `json:"port"`
+    Version      string    `json:"version"`
+    Status       string    `json:"status"` // online, offline
+    LastContact  time.Time `json:"last_contact"`
+}
+```
 
-1. **多平台支持**: Windows、Linux、MacOS物理机
-2. **VM备份**: VMware、Hyper-V虚拟机快照
-3. **增量备份**: 智能增量备份节省空间
-4. **加密传输**: AES-256加密传输存储
-5. **RPO/RTO**: 自定义恢复点目标
-6. **压缩存储**: 多算法压缩节省空间
+## 支持的备份类型
+
+| 类型 | 说明 |
+|------|------|
+| Windows Agent | Windows物理机备份 |
+| Linux Agent | Linux物理机备份 |
+| macOS Agent | macOS物理机备份 |
+| VMware VM | VMware虚拟机备份 |
+| Hyper-V VM | Hyper-V虚拟机备份 |
+| KVM/QEMU VM | Linux KVM虚拟机备份 |
+
+## 代理安装脚本
+
+### Linux Agent
+```bash
+curl -fsSL https://nas-server:8080/api/v1/backup/abb/agents/install.sh | bash
+```
+
+### Windows Agent
+```powershell
+Invoke-WebRequest -Uri "https://nas-server:8080/api/v1/backup/abb/agents/install.ps1" | PowerShell
+```
 
 ## 实现要点
 
-- 备份代理客户端设计
-- rsync/borg备份引擎
-- 增量备份块级去重
-- 任务调度cron系统
+1. **增量备份**: 基于块级变化的增量备份
+2. **压缩传输**: 支持lz4/zstd压缩
+3. **加密存储**: AES-256加密
+4. **多目标**: 支持本地/NFS/S3多目标
+5. **即时恢复**: 支持快照即时恢复
+
+## WebUI展示
+- 任务管理界面
+- 代理状态监控
+- 备份进度可视化
+- 恢复操作界面
+
+## 版本计划
+- v2.362.0: API设计完成
+- v2.370.0: Linux Agent实现
+- v2.380.0: Windows Agent实现
+- v2.390.0: VM备份实现

@@ -1,79 +1,99 @@
-# 成本分析优化 v2
+# 成本分析增强设计
 
-> 存储成本可视化与预测增强
-
-## 概述
-
-增强成本分析模块，提供详细成本可视化、容量预测、节省建议。
+## 功能概述
+增强存储成本分析模块，提供更精细的成本统计和预测。
 
 ## API设计
 
-### 成本分析
-
+### 成本统计API
 ```
-GET    /api/v1/cost/analysis                 # 成本概览
-GET    /api/v1/cost/by-user                  # 用户成本统计
-GET    /api/v1/cost/by-directory             # 目录成本统计
-GET    /api/v1/cost/trends                   # 成本趋势
-GET    /api/v1/cost/predictions              # 容量预测
-GET    /api/v1/cost/savings                  # 节省建议
-GET    /api/v1/cost/efficiency               # 效率评分
+GET  /api/v1/cost/summary                  - 成本总览
+GET  /api/v1/cost/by-user                  - 按用户统计
+GET  /api/v1/cost/by-directory             - 按目录统计
+GET  /api/v1/cost/by-volume                - 按卷统计
+GET  /api/v1/cost/trends                   - 成本趋势
+GET  /api/v1/cost/predictions              - 成本预测
 ```
 
-### 成本报告
-
+### 成本优化建议API
 ```
-GET    /api/v1/cost/reports/daily            # 日报告
-GET    /api/v1/cost/reports/weekly           # 周报告
-GET    /api/v1/cost/reports/monthly          # 月报告
-POST   /api/v1/cost/reports/export           # 导出报告
+GET  /api/v1/cost/suggestions              - 获取优化建议
+POST /api/v1/cost/suggestions/:id/apply    - 应用建议
+```
+
+### 效率评分API
+```
+GET  /api/v1/cost/efficiency               - 效率评分
+GET  /api/v1/cost/efficiency/report        - 效率报告
 ```
 
 ## 数据模型
 
+### 成本统计
 ```go
-type CostAnalysis struct {
-    TotalStorage    int64   `json:"total_storage"` // 总容量(bytes)
-    UsedStorage     int64   `json:"used_storage"`
-    CostPerGB       float64 `json:"cost_per_gb"`   // 每GB成本
-    MonthlyCost     float64 `json:"monthly_cost"`
-    ProjectedCost   float64 `json:"projected_cost"` // 预计成本
-    SavingsOpportunity float64 `json:"savings_opportunity"`
-}
-
-type UserCost struct {
-    UserID       string  `json:"user_id"`
-    StorageUsed  int64   `json:"storage_used"`
-    Cost         float64 `json:"cost"`
-    Efficiency   float64 `json:"efficiency"` // 0-100评分
-}
-
-type CostPrediction struct {
-    Date         time.Time `json:"date"`
-    PredictedUse int64     `json:"predicted_use"`
-    PredictedCost float64  `json:"predicted_cost"`
-    Confidence   float64   `json:"confidence"` // 0-1
-}
-
-type SavingsSuggestion struct {
-    Type        string  `json:"type"` // dedupe, compression, archive
-    Description string  `json:"description"`
-    Savings     float64 `json:"savings"` // 估算节省
-    Impact      string  `json:"impact"` // low, medium, high
+type CostSummary struct {
+    TotalSize          float64   `json:"total_size"` // GB
+    TotalCost          float64   `json:"total_cost"` // 元
+    StorageCost        float64   `json:"storage_cost"`
+    CompressionSavings float64   `json:"compression_savings"`
+    DedupSavings       float64   `json:"dedup_savings"`
+    EfficiencyScore    float64   `json:"efficiency_score"` // 0-100
+    CostPerGB          float64   `json:"cost_per_gb"`
+    Trend              string    `json:"trend"` // up, down, stable
 }
 ```
 
-## 功能特性
+### 用户成本
+```go
+type UserCost struct {
+    UserID       string    `json:"user_id"`
+    UsageSize    float64   `json:"usage_size"` // GB
+    UsageCost    float64   `json:"usage_cost"`
+    QuotaLimit   float64   `json:"quota_limit"`
+    QuotaUsed    float64   `json:"quota_used"`
+    Efficiency   float64   `json:"efficiency"`
+}
+```
 
-1. **多维度统计**: 用户、目录、文件类型
-2. **趋势预测**: 30天容量趋势预测
-3. **效率评分**: 存储效率评分系统
-4. **节省建议**: 智能节省建议生成
-5. **可视化报告**: 图表化成本报告
-6. **导出功能**: Excel/PDF报告导出
+### 成本预测
+```go
+type CostPrediction struct {
+    Month          string    `json:"month"`
+    PredictedSize  float64   `json:"predicted_size"`
+    PredictedCost  float64   `json:"predicted_cost"`
+    GrowthRate     float64   `json:"growth_rate"` // %/月
+    Confidence     float64   `json:"confidence"` // 0-1
+}
+```
 
-## 实现要点
+## 成本计算规则
 
-- 基于历史数据的时间序列预测
-- 存储效率算法 (去重率、压缩率)
-- 成本计算模型 (硬件+电费)
+| 存储类型 | 单价 (元/GB/月) | 说明 |
+|----------|-----------------|------|
+| SSD热数据 | 0.5 | 高性能存储 |
+| HDD冷数据 | 0.1 | 大容量存储 |
+| 云归档 | 0.05 | 云存储成本 |
+| 压缩存储 | -30% | 压缩节省 |
+
+## 优化建议类型
+
+1. **数据迁移**: 将冷数据迁移到低成本存储
+2. **压缩启用**: 启用压缩节省空间
+3. **去重优化**: 优化去重策略
+4. **配额调整**: 调整用户配额
+5. **清理建议**: 清理过期/重复数据
+
+## WebUI展示
+
+- 成本仪表板
+- 用户成本排行
+- 目录成本分布
+- 趋势预测图表
+- 优化建议列表
+
+## 版本计划
+
+- v2.362.0: API设计完成
+- v2.365.0: 用户/目录统计实现
+- v2.370.0: 预测和建议实现
+- v2.375.0: WebUI集成
