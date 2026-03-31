@@ -134,7 +134,7 @@ func (m *KeyManager) CreateKey(userID string, req APIKeyCreateRequest) (*APIKeyC
 
 	// 验证请求
 	if len(req.Name) < 3 {
-		return nil, fmt.Errorf("密钥名称至少 3 个字符")
+		return nil, errors.New("密钥名称至少 3 个字符")
 	}
 
 	// 生成密钥
@@ -351,7 +351,7 @@ func (m *KeyManager) UpdateKey(keyID string, userID string, req APIKeyUpdateRequ
 	// 更新字段
 	if req.Name != nil {
 		if len(*req.Name) < 3 {
-			return fmt.Errorf("密钥名称至少 3 个字符")
+			return errors.New("密钥名称至少 3 个字符")
 		}
 		key.Name = *req.Name
 	}
