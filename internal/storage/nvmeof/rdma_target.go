@@ -95,7 +95,7 @@ func (m *RDMATargetSysManager) checkRDMAAvailable() error {
 	}
 
 	// 检查 nvmet 目录是否存在
-	if _, err := os.Stat(pkgnvmeof.NVMetConfigPath); err != nil {
+	if _, err := os.Stat(NVMetConfigPath); err != nil {
 		// 尝试加载 nvmet 模块
 		if err := m.loadModule("nvmet"); err != nil {
 			return fmt.Errorf("nvmet module not loaded: %w", err)
