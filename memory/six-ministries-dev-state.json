@@ -1,83 +1,41 @@
 {
-  "version": "v2.337.0",
-  "nextVersion": "v2.338.0",
+  "version": "v2.338.0",
   "round": 113,
   "date": "2026-03-31",
-  "timestamp": "2026-03-31T09:55:00+08:00",
-  "status": "dispatching",
+  "timestamp": "2026-03-31T10:00:00+08:00",
+  "status": "completed",
+  "commit": "f9e17b6c",
+  "github_actions_status": {
+    "triggered": ["Compatibility Check", "Security Scan", "CI/CD", "Docker Publish"],
+    "previous_in_progress": ["Docker Publish v2.337.0"]
+  },
   "competitive_learning": {
     "truenas_25_04": {
-      "lxc_containers": "Linux系统容器(LXC)，轻量隔离，实验性功能",
-      "classic_vm": "经典虚拟化回归，虚拟机管理增强",
-      "nfs_rdma": "NFS over RDMA支持，企业级特性",
-      "zfs_fast_dedup": "ZFS快速重复数据删除，内存优化",
-      "versioned_api": "JSON-RPC 2.0 WebSocket API，版本化API",
-      "user_api_keys": "用户关联API密钥管理",
-      "stig_compliance": "STIG合规与安全焦点增强"
+      "lxc_containers": "Linux系统容器(LXC)，轻量隔离",
+      "nfs_rdma": "NFS over RDMA企业级支持",
+      "zfs_fast_dedup": "ZFS快速重复数据删除",
+      "versioned_api": "JSON-RPC 2.0 WebSocket API",
+      "stig_compliance": "STIG合规增强"
     },
     "synology_dsm": {
-      "ai_advisor": "网站AI顾问，获取规格和推荐",
-      "data_management": "全面数据管理，从边缘到数据中心",
-      "fortune500": "Fortune 500一半企业使用"
+      "ai_advisor": "网站AI顾问智能推荐"
     },
     "terraMaster_tos6": {
-      "traid": "TRAID灵活磁盘阵列管理",
-      "terrasync": "TerraSync多平台同步",
-      "cloud_mount": "云盘原生挂载",
-      "ai_nas": "AI NAS功能",
-      "terra_photos": "Terra Photos相册管理",
-      "smb_multichannel": "SMB Multichannel多通道"
-    },
-    "fnOS_11": {
-      "cloud_mount": "115/夸克/123/OneDrive/百度网盘原生挂载",
-      "ai_face": "Intel核显加速人脸识别",
-      "fn_connect": "免费内网穿透",
-      "qwrt_router": "NAS一键软路由",
-      "cloudflare_tunnel": "无需开放端口远程访问"
+      "traid": "TRAID灵活阵列",
+      "terrasync": "TerraSync多平台同步"
     }
   },
-  "ministries": {
-    "兵部": {
-      "task": "LXC容器框架研究 + ZFS Fast Dedup调研",
-      "status": "pending",
-      "priority": "P0",
-      "learning_from": "TrueNAS 25.04 LXC/ZFS Fast Dedup"
-    },
-    "工部": {
-      "task": "NFS RDMA研究 + API版本化设计",
-      "status": "pending",
-      "priority": "P0",
-      "learning_from": "TrueNAS 25.04 NFS RDMA/Versioned API"
-    },
-    "礼部": {
-      "task": "AI Advisor调研 + WebUI优化建议",
-      "status": "pending",
-      "priority": "P1",
-      "learning_from": "Synology AI Advisor"
-    },
-    "刑部": {
-      "task": "STIG合规研究 + 安全审计增强",
-      "status": "pending",
-      "priority": "P0",
-      "learning_from": "TrueNAS 25.04 STIG Compliance"
-    },
-    "户部": {
-      "task": "成本分析看板 + 存储配额告警",
-      "status": "pending",
-      "priority": "P1",
-      "learning_from": "TrueNAS Dashboard"
-    },
-    "吏部": {
-      "task": "版本号更新v2.338.0 + 第113轮协调",
-      "status": "pending",
-      "priority": "P0",
-      "learning_from": "版本管理最佳实践"
-    }
+  "ministries_reports": {
+    "兵部": { "file": ".six-ministries/bingbu-round113.md", "status": "done" },
+    "工部": { "file": ".six-ministries/gongbu-round113.md", "status": "done" },
+    "礼部": { "file": ".six-ministries/libu-round113.md", "status": "done" },
+    "刑部": { "file": ".six-ministries/xingbu-round113.md", "status": "done" },
+    "户部": { "file": ".six-ministries/hubu-round113.md", "status": "done" },
+    "吏部": { "file": ".six-ministries/libu-pm-round113.md", "status": "done" }
   },
-  "轮值顺序": "兵部 → 户部 → 礼部 → 工部 → 吏部 → 刑部 → (循环)",
-  "当前轮值": "兵部",
-  "github_actions_status": {
-    "in_progress": ["Docker Publish v2.337.0", "Staged Release v2.337.0", "CI/CD master"],
-    "completed_success": ["Security Scan", "Compatibility Check", "GitHub Release v2.337.0"]
-  }
+  "next_priority_tasks": [
+    { "task": "API版本化框架", "priority": "P0", "department": "工部" },
+    { "task": "MFA模块", "priority": "P0", "department": "刑部" },
+    { "task": "配额多级告警", "priority": "P0", "department": "户部" }
+  ]
 }
