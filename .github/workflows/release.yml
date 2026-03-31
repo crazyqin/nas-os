@@ -15,7 +15,7 @@
 # - 并行化二进制构建
 # - 增加版本信息嵌入
 #
-# 当前版本: v2.254.0（工部维护）
+# 当前版本: v2.254.1（工部维护）
 
 name: GitHub Release
 
@@ -175,8 +175,8 @@ jobs:
           COMMIT="${{ github.sha }}"
           BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
           
-          # v2.286.0: 修复 LDFLAGS 格式问题
-          LDFLAGS="-s -w"
+          # v2.286.0: 修复 LDFLAGS 格式问题 - 添加版本信息嵌入
+          LDFLAGS="-s -w -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildTime=$BUILD_TIME"
           
           # 并行构建 nasd 和 nasctl
           echo "🔧 构建 nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}..."

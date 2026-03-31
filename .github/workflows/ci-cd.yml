@@ -23,7 +23,7 @@
 # - 增加测试结果缓存
 # - 构建与测试并行执行
 #
-# 当前版本: v2.254.0（工部维护）
+# 当前版本: v2.254.1（工部维护）
 
 name: CI/CD
 
@@ -608,18 +608,21 @@ jobs:
           echo "   最低阈值：${THRESHOLD}%"
           echo "   警告阈值：${WARN_THRESHOLD}%"
           
+          # v2.254.1: 使用 awk 替代 bc，避免 bc 失败时的误判
           # 检查是否低于最低阈值
-          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l 2>/dev/null || echo "1") )); then
+          if awk 'BEGIN { exit !(ARGV[1] >= ARGV[2]) }' "$COVERAGE" "$THRESHOLD"; then
+            echo "✅ 覆盖率达标: ${COVERAGE}% >= ${THRESHOLD}%"
+          else
             echo "❌ 覆盖率低于最低阈值 ${THRESHOLD}%"
             exit 1
           fi
           
           # 检查是否低于警告阈值
-          if (( $(echo "$COVERAGE < $WARN_THRESHOLD" | bc -l 2>/dev/null || echo "1") )); then
+          if awk 'BEGIN { exit !(ARGV[1] >= ARGV[2]) }' "$COVERAGE" "$WARN_THRESHOLD"; then
+            echo "✅ 覆盖率高于警告阈值"
+          else
             echo "⚠️ 覆盖率低于警告阈值 ${WARN_THRESHOLD}%，建议增加测试"
           fi
-          
-          echo "✅ 覆盖率达标"
 
   # ========== 集成测试 ==========
   test-integration:
