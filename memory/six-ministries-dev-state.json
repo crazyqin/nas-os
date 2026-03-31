@@ -1,41 +1,38 @@
 {
-  "version": "v2.338.0",
-  "round": 113,
+  "version": "v2.348.0",
+  "round": 114,
   "date": "2026-03-31",
-  "timestamp": "2026-03-31T10:00:00+08:00",
+  "timestamp": "2026-03-31T17:20:00+08:00",
   "status": "completed",
-  "commit": "f9e17b6c",
+  "commit": "711f5b3",
+  "release": "https://github.com/crazyqin/nas-os/releases/tag/v2.348.0",
   "github_actions_status": {
-    "triggered": ["Compatibility Check", "Security Scan", "CI/CD", "Docker Publish"],
-    "previous_in_progress": ["Docker Publish v2.337.0"]
+    "triggered": ["CI/CD", "Docker Publish", "Security Scan"],
+    "failed": ["Compatibility Check (investigating)"]
   },
   "competitive_learning": {
     "truenas_25_04": {
-      "lxc_containers": "Linux系统容器(LXC)，轻量隔离",
-      "nfs_rdma": "NFS over RDMA企业级支持",
-      "zfs_fast_dedup": "ZFS快速重复数据删除",
-      "versioned_api": "JSON-RPC 2.0 WebSocket API",
-      "stig_compliance": "STIG合规增强"
+      "api_versioning": "JSON-RPC 2.0 WebSocket API",
+      "stig_compliance": "安全配置增强"
     },
-    "synology_dsm": {
+    "synology_dsm_73": {
       "ai_advisor": "网站AI顾问智能推荐"
     },
-    "terraMaster_tos6": {
-      "traid": "TRAID灵活阵列",
-      "terrasync": "TerraSync多平台同步"
+    "cloudflare_tunnel": {
+      "outbound_only": "无需公网IP内网穿透"
     }
   },
   "ministries_reports": {
-    "兵部": { "file": ".six-ministries/bingbu-round113.md", "status": "done" },
-    "工部": { "file": ".six-ministries/gongbu-round113.md", "status": "done" },
-    "礼部": { "file": ".six-ministries/libu-round113.md", "status": "done" },
-    "刑部": { "file": ".six-ministries/xingbu-round113.md", "status": "done" },
-    "户部": { "file": ".six-ministries/hubu-round113.md", "status": "done" },
-    "吏部": { "file": ".six-ministries/libu-pm-round113.md", "status": "done" }
+    "兵部": { "file": ".six-ministries/bingbu-round114.md", "status": "timeout" },
+    "工部": { "file": "internal/api/version.go", "status": "done" },
+    "礼部": { "file": ".six-ministries/libu-round114.md", "status": "done" },
+    "刑部": { "file": "internal/auth/apikey/", "status": "done" },
+    "户部": { "file": ".six-ministries/hubu-round114.md", "status": "done" },
+    "吏部": { "status": "skipped" }
   },
   "next_priority_tasks": [
-    { "task": "API版本化框架", "priority": "P0", "department": "工部" },
-    { "task": "MFA模块", "priority": "P0", "department": "刑部" },
-    { "task": "配额多级告警", "priority": "P0", "department": "户部" }
+    { "task": "修复 Compatibility Check", "priority": "P0", "department": "工部" },
+    { "task": "ZFS Fast Dedup 实现", "priority": "P1", "department": "兵部" },
+    { "task": "MFA模块增强", "priority": "P0", "department": "刑部" }
   ]
 }

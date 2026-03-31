@@ -18,6 +18,7 @@ type APIKey struct {
 	RateLimit   int       `json:"rate_limit"`   // 每分钟请求限制
 	ExpiresAt   *time.Time `json:"expires_at"`  // 过期时间（可选）
 	CreatedAt   time.Time `json:"created_at"`   // 创建时间
+	UpdatedAt   *time.Time `json:"updated_at"`  // 更新时间
 	LastUsedAt  *time.Time `json:"last_used_at"` // 最后使用时间
 	UsedCount   int64     `json:"used_count"`   // 使用次数统计
 	Enabled     bool      `json:"enabled"`      // 是否启用

@@ -32,6 +32,8 @@ const (
 type AudioCodec string
 
 const (
+	// AudioNone indicates no audio codec detected
+	AudioNone AudioCodec = "none"
 	// AudioAAC represents AAC audio codec
 	AudioAAC AudioCodec = "aac"
 	// AudioAC3 represents AC3/Dolby Digital audio codec

@@ -380,7 +380,8 @@ func (m *KeyManager) UpdateKey(keyID string, userID string, req APIKeyUpdateRequ
 		key.SourceIPs = req.SourceIPs
 	}
 
-	key.UpdatedAt = time.Now()
+	now := time.Now()
+	key.UpdatedAt = &now
 
 	// 保存
 	if err := m.saveConfig(); err != nil {
