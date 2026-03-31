@@ -140,6 +140,52 @@
 
 ## 三、TrueNAS 竞品分析
 
+### TrueNAS 25.10.2 Goldeye (2026年2月 - 最新稳定版)
+
+#### 产品定位
+- **100,000+成功部署** - 最广泛使用的TrueNAS版本
+- **年度稳定版** - 将作为2026年主要稳定版本
+
+#### 25.10.2 核心更新
+
+##### 1. OpenZFS 2.3.4
+- **可预测性能改进** - 稳定的IO性能
+- **ZFS rewrite** - 支持池数据重分布
+- **空间效率改进** - 更好的空间报告
+
+##### 2. TrueNAS Connect (新增)
+- **Foundation (免费)** - 基础远程管理、SSL证书配置
+- **Plus (付费)** - 复制管理、Webshare扩展、勒索防护增强
+- **Business (Q2发布)** - 多环境可见性、集中管理控制台
+- **价值**: 企业功能分层付费，自建硬件也可享用
+
+##### 3. NVMe over Fabrics + Terabit Ethernet
+- **NVMe-oF** - 下一代块存储
+- **400GbE+ RDMA** - 极致网络性能
+- **R60平台** - 60GB/s带宽、<0.2ms延迟
+
+##### 4. 安全与合规
+- **STIG完成** - 国防级安全配置
+- **FIPS 140 (Enterprise)** - 加密合规
+- **审计日志增强** - API审计改进
+
+##### 5. 虚拟化改进
+- **VM导入导出** - 更好的VM管理
+- **Apps Pool迁移** - 应用池可迁移
+- **Data Hypervisor (Enterprise)** - HA VMs with ZFS
+
+#### nas-os 应对策略
+
+| 功能 | TrueNAS 25.10 | nas-os | 状态 |
+|------|---------------|--------|------|
+| TrueNAS Connect | ✅ 分层订阅 | 📋 规划 | 评估付费功能分层模式 |
+| NVMe-oF | ✅ 支持 | 📋 P1 | 规划NVMe-oF支持 |
+| OpenZFS rewrite | ✅ 支持 | 📋 P1 | 借鉴池重分布机制 |
+| WebShare | ✅ Plus功能 | 🚧 开发 | 已有基础WebShare |
+| 勒索防护 | ✅ Connect Plus | ✅ 已实现 | 勒索检测模块已上线 |
+
+---
+
 ### TrueNAS 24.10 Electric Eel (2024年10月正式版)
 
 #### 产品定位
