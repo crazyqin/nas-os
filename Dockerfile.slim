@@ -1,0 +1,63 @@
+# NAS-OS Slim Docker Image
+# 精简镜像，减少体积，优化构建缓存
+
+# Build stage - 使用多阶段构建减小最终镜像体积
+FROM golang:1.25-alpine AS builder
+
+# 安装构建依赖
+RUN apk add --no-cache git make gcc musl-dev
+
+WORKDIR /build
+
+# 优化层缓存 - 先复制依赖文件
+COPY go.mod go.sum ./
+RUN go mod download
+
+# 复制源代码
+COPY . .
+
+# 构建精简二进制
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -ldflags="-s -w -X main.version=$(cat VERSION)" \
+    -trimpath \
+    -o nasd ./cmd/nasd
+
+# Final stage - 最小基础镜像
+FROM alpine:3.19
+
+# 安装运行时依赖（仅必需）
+RUN apk add --no-cache \
+    ca-certificates \
+    tzdata \
+    && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# 复制二进制文件
+COPY --from=builder /build/nasd /app/nasd
+
+# 复制必要配置
+COPY configs/config.yaml /app/configs/
+
+# 创建数据目录
+RUN mkdir -p /data /config /var/log/nas-os
+
+# 设置权限
+RUN chmod 0755 /app/nasd
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+
+# 非root用户运行（安全最佳实践）
+RUN addgroup -g 1000 nasos && \
+    adduser -u 1000 -G nasos -D nasos && \
+    chown -R nasos:nasos /app /data /config /var/log/nas-os
+
+USER nasos
+
+EXPOSE 8080
+
+VOLUME ["/data", "/config"]
+
+ENTRYPOINT ["/app/nasd"]
