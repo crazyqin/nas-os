@@ -15,15 +15,7 @@ const (
 	WakePriorityHigh   WakePriority = 2
 )
 
-// WakeRequest 唤醒请求
-type WakeRequest struct {
-	ID        string       `json:"id"`
-	Priority  WakePriority `json:"priority"`
-	DiskID    string       `json:"diskId"`
-	Reason    string       `json:"reason"`
-	CreatedAt int64        `json:"createdAt"`
-	index     int
-}
+// Note: WakeRequest is defined in disk_wake_trigger.go
 
 // WakePriorityQueue 唤醒优先级队列
 type WakePriorityQueue struct {
@@ -92,13 +84,13 @@ func (pq *WakePriorityQueue) RemoveByID(id string) bool {
 	return false
 }
 
-// GetByDiskID 获取指定磁盘的请求列表
-func (pq *WakePriorityQueue) GetByDiskID(diskID string) []*WakeRequest {
+// GetByDiskPath 获取指定磁盘的请求列表
+func (pq *WakePriorityQueue) GetByDiskPath(diskPath string) []*WakeRequest {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
 	result := make([]*WakeRequest, 0)
 	for _, item := range pq.items {
-		if item.DiskID == diskID {
+		if item.DiskPath == diskPath {
 			result = append(result, item)
 		}
 	}
