@@ -1,0 +1,180 @@
+/* NAS-OS Performance Optimizations */
+/* Critical CSS for fast initial render */
+
+/* 骨架屏样式 */
+.skeleton-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-secondary);
+  z-index: 9998;
+  transition: opacity 0.3s ease;
+}
+
+.skeleton-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.skeleton-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 240px;
+  background: var(--surface-color);
+  border-right: 1px solid var(--surface-border);
+  padding: 1.5rem;
+}
+
+.skeleton-logo {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.skeleton-nav-item {
+  height: 40px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-main {
+  margin-left: 240px;
+  padding: 2rem;
+}
+
+.skeleton-card {
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-title {
+  height: 24px;
+  width: 200px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.skeleton-text {
+  height: 16px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-stat-card {
+  height: 100px;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+}
+
+@media (max-width: 1024px) {
+  .skeleton-sidebar { display: none; }
+  .skeleton-main { margin-left: 0; }
+  .skeleton-stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .skeleton-stat-grid { grid-template-columns: 1fr; }
+}
+
+/* 加载指示器 */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--surface-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* 按钮加载状态 */
+.btn.loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  top: 50%;
+  left: 50%;
+  margin: -8px 0 0 -8px;
+}
+
+/* 懒加载图片 */
+.lazy-image {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lazy-image.loaded {
+  opacity: 1;
+}
+
+/* 内容占位符 */
+.content-placeholder {
+  min-height: 100px;
+  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 资源预加载提示 */
+preload-hint {
+  display: none;
+}
+
+/* 虚拟滚动容器 */
+.virtual-scroll-container {
+  overflow-y: auto;
+  contain: strict;
+}
+
+/* 减少动画（用户偏好） */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-screen,
+  .loading-spinner,
+  .btn.loading::after,
+  .content-placeholder {
+    animation: none !important;
+  }
+}
+
+/* GPU 加速优化 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* 节流动画帧 */
+.throttled-animation {
+  animation-duration: 0.3s !important;
+}

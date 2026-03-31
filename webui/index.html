@@ -9,11 +9,23 @@
     <meta name="apple-mobile-web-app-title" content="NAS-OS">
     <meta name="description" content="NAS-OS 家用 NAS 操作系统管理界面">
     <title>NAS-OS 管理界面</title>
+    
+    <!-- 预加载关键资源 -->
+    <link rel="preload" href="css/design-system.css" as="style">
+    <link rel="preload" href="css/mobile.css" as="style">
+    <link rel="preload" href="css/performance.css" as="style">
+    <link rel="preload" href="js/app.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" as="script" crossorigin>
+    
+    <!-- 图标和 PWA -->
     <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
     <link rel="apple-touch-icon" href="../brand/logo/logo-192.png">
     <link rel="manifest" href="manifest.json">
+    
+    <!-- CSS 样式表 -->
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/performance.css">
     <style>
         .stat-grid {
             display: grid;
@@ -96,6 +108,31 @@
     </style>
 </head>
 <body>
+    <!-- 骨架屏（快速首次渲染） -->
+    <div id="skeleton-screen" class="skeleton-screen">
+        <div class="skeleton-sidebar">
+            <div class="skeleton-logo"></div>
+            <div class="skeleton-nav-item"></div>
+            <div class="skeleton-nav-item"></div>
+            <div class="skeleton-nav-item"></div>
+            <div class="skeleton-nav-item"></div>
+            <div class="skeleton-nav-item"></div>
+            <div class="skeleton-nav-item"></div>
+            <div class="skeleton-nav-item"></div>
+        </div>
+        <div class="skeleton-main">
+            <div class="skeleton-card">
+                <div class="skeleton-title"></div>
+            </div>
+            <div class="skeleton-stat-grid">
+                <div class="skeleton-stat-card"></div>
+                <div class="skeleton-stat-card"></div>
+                <div class="skeleton-stat-card"></div>
+                <div class="skeleton-stat-card"></div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-header">
