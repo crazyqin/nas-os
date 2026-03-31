@@ -2,6 +2,7 @@
 package apikey
 
 import (
+	"errors"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -128,7 +129,7 @@ func (m *KeyManager) CreateKey(userID string, req APIKeyCreateRequest) (*APIKeyC
 	// 检查用户密钥数量限制
 	keyCount := len(m.userKeys[userID])
 	if keyCount >= m.policy.MaxKeysPerUser {
-		return nil, fmt.Errorf(ErrMaxKeysExceeded)
+		return nil, errors.New(ErrMaxKeysExceeded)
 	}
 
 	// 验证请求
@@ -228,7 +229,7 @@ func (m *KeyManager) generateKey() (string, string) {
 func (m *KeyManager) ValidateKey(rawKey string, sourceIP string) (*APIKey, error) {
 	// 检查密钥格式
 	if !strings.HasPrefix(rawKey, "nas_") || len(rawKey) < m.policy.MinKeyLength+4 {
-		return nil, fmt.Errorf(ErrKeyFormatInvalid)
+		return nil, errors.New(ErrKeyFormatInvalid)
 	}
 
 	// 计算哈希
@@ -241,17 +242,17 @@ func (m *KeyManager) ValidateKey(rawKey string, sourceIP string) (*APIKey, error
 	// 查找密钥
 	keyID, exists := m.keyHashes[hashStr]
 	if !exists {
-		return nil, fmt.Errorf(ErrKeyInvalid)
+		return nil, errors.New(ErrKeyInvalid)
 	}
 
 	key, exists := m.keys[keyID]
 	if !exists {
-		return nil, fmt.Errorf(ErrKeyNotFound)
+		return nil, errors.New(ErrKeyNotFound)
 	}
 
 	// 检查状态
 	if !key.Enabled {
-		return nil, fmt.Errorf(ErrKeyDisabled)
+		return nil, errors.New(ErrKeyDisabled)
 	}
 
 	// 检查过期
@@ -259,7 +260,7 @@ func (m *KeyManager) ValidateKey(rawKey string, sourceIP string) (*APIKey, error
 		if m.policy.AutoDisableExpired {
 			key.Enabled = false
 		}
-		return nil, fmt.Errorf(ErrKeyExpired)
+		return nil, errors.New(ErrKeyExpired)
 	}
 
 	// 检查源 IP
@@ -268,7 +269,7 @@ func (m *KeyManager) ValidateKey(rawKey string, sourceIP string) (*APIKey, error
 		if m.policy.EnableAudit && m.auditLogger != nil {
 			m.auditLogger.LogAPIKeyEvent("key_validate", keyID, key.UserID, sourceIP, "failure", ErrIPNotAllowed, nil)
 		}
-		return nil, fmt.Errorf(ErrIPNotAllowed)
+		return nil, errors.New(ErrIPNotAllowed)
 	}
 
 	return key, nil
@@ -304,7 +305,7 @@ func (m *KeyManager) GetKey(keyID string) (*APIKeySummary, error) {
 
 	key, exists := m.keys[keyID]
 	if !exists {
-		return nil, fmt.Errorf(ErrKeyNotFound)
+		return nil, errors.New(ErrKeyNotFound)
 	}
 
 	return m.toSummary(key), nil
@@ -339,12 +340,12 @@ func (m *KeyManager) UpdateKey(keyID string, userID string, req APIKeyUpdateRequ
 
 	key, exists := m.keys[keyID]
 	if !exists {
-		return fmt.Errorf(ErrKeyNotFound)
+		return errors.New(ErrKeyNotFound)
 	}
 
 	// 验证所有权
 	if key.UserID != userID {
-		return fmt.Errorf(ErrPermissionDenied)
+		return errors.New(ErrPermissionDenied)
 	}
 
 	// 更新字段
@@ -405,12 +406,12 @@ func (m *KeyManager) DeleteKey(keyID string, userID string) error {
 
 	key, exists := m.keys[keyID]
 	if !exists {
-		return fmt.Errorf(ErrKeyNotFound)
+		return errors.New(ErrKeyNotFound)
 	}
 
 	// 验证所有权
 	if key.UserID != userID {
-		return fmt.Errorf(ErrPermissionDenied)
+		return errors.New(ErrPermissionDenied)
 	}
 
 	// 删除
