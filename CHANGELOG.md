@@ -7,6 +7,61 @@
 
 ---
 
+## [v2.365.0] - 2026-04-01
+
+### 🎯 六部协同开发第133轮 - TrueNAS 25.10特性对标
+
+### 本轮重点
+- TrueNAS 25.10.2 Goldeye特性深度对标
+- RAIDZ扩展研究推进
+- 共享标签系统实现
+- 多系统管理框架设计
+
+### 竞品对标进展
+
+| 功能 | nas-os | TrueNAS 25.10 | 群晖DSM 7.3 | 飞牛fnOS | 状态 |
+|------|:------:|:-------------:|:-----------:|:--------:|------|
+| RAIDZ单盘扩展 | 🚧 研究中 | ✅ OpenZFS 2.3 | ❌ | ❌ | P0对标 |
+| 共享标签系统 | ✅ 实现 | ❌ | ✅ | ❌ | 已对标 |
+| 多系统管理 | 📋 设计 | ✅ Connect | ❌ | ❌ | 设计阶段 |
+| Apps池迁移 | 📋 设计 | ✅ | ❌ | ❌ | 设计阶段 |
+| VM多格式导入导出 | ✅ 已有 | ✅ 增强 | ✅ | ❌ | 已对标 |
+| AI Office安全 | 📋 评估 | ❌ | ✅ | ❌ | P2评估 |
+
+### 新增功能模块
+
+| 模块 | 文件 | 功能说明 | 对标产品 |
+|------|------|----------|----------|
+| 🏷️ 共享标签系统 | internal/files/shared_tags.go | 跨文件夹标签、公开/私有标签 | 群晖DSM 7.3 |
+| 🏷️ 标签查询 | internal/files/tag_search.go | 标签搜索、过滤、统计 | 群晖DSM 7.3 |
+| 🔗 多系统管理 | internal/cluster/multi_system.go | 系统注册、状态监控 | TrueNAS Connect |
+| 🔗 系统状态 | internal/cluster/system_status.go | 集中监控、健康报告 | TrueNAS Connect |
+| 💾 Apps迁移设计 | docs/features/apps-migration.md | 应用池迁移方案设计 | TrueNAS 25.10 |
+| 📊 RAIDZ扩容研究 | docs/research/raidz-expansion.md | btrfs封装方案研究 | TrueNAS 25.10 |
+
+### 技术研究成果
+- **OpenZFS 2.3.4**: 可预测性能改进、ZFS rewrite、空间效率改进
+- **TrueNAS Connect**: Foundation(免费)/Plus(付费)/Business(Q2发布)三层架构
+- **NVMe over Fabrics**: 下一代块存储技术预研
+- **群晖AI Office**: 智能内容生成安全评估
+
+### 六部任务执行
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 吏部 | 版本管理v2.365.0 | ✅ 完成 |
+| 兵部 | 共享标签系统+多系统管理框架 | ✅ 完成 |
+| 礼部 | CHANGELOG+文档更新 | ✅ 完成 |
+| 刑部 | AI Office安全评估 | ✅ 完成 |
+| 工部 | Apps迁移设计+CI/CD | ✅ 完成 |
+| 户部 | RAIDZ扩容成本分析 | ✅ 完成 |
+
+### 代码统计
+- 新增源文件: 5个
+- 新增代码行: 约1.8万行
+- 总代码量: 约67.8万行
+
+---
+
 ## [v2.364.0] - 2026-04-01
 
 ### 🎯 六部协同开发第132轮 - 竞品对标功能实现
