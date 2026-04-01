@@ -200,8 +200,8 @@ func (h *HotSpareManager) AddHotSpare(device, volumeName string) (*HotSpare, err
 
 	h.hotSpares[device] = hs
 
-	// 发送事件
-	h.emitEvent(HotSpareEvent{
+	// 发送事件 (调用者已持有锁)
+	h.emitEventUnlocked(HotSpareEvent{
 		Type:       "added",
 		HotSpareID: hs.ID,
 		Device:     device,
@@ -230,8 +230,8 @@ func (h *HotSpareManager) RemoveHotSpare(device string) error {
 
 	delete(h.hotSpares, device)
 
-	// 发送事件
-	h.emitEvent(HotSpareEvent{
+	// 发送事件 (调用者已持有锁)
+	h.emitEventUnlocked(HotSpareEvent{
 		Type:       "removed",
 		HotSpareID: hs.ID,
 		Device:     device,

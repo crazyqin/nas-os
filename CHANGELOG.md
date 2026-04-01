@@ -7,6 +7,60 @@
 
 ---
 
+## [v2.364.0] - 2026-04-01
+
+### 🎯 六部协同开发第132轮 - 竞品对标功能实现
+
+### 本轮重点
+- 磁盘电源管理模块实现（对标飞牛fnOS）
+- TMDB影视刮削服务实现
+- 密码策略增强与登录锁定
+- 成本分析增强实现
+- Active Backup框架实现
+
+### 新增功能模块
+
+| 模块 | 文件 | 功能说明 | 对标产品 |
+|------|------|----------|----------|
+| 💾 磁盘电源管理 | internal/disk/disk_power_manager.go | 智能休眠/唤醒策略、节能报告 | 飞牛fnOS |
+| 💾 磁盘活动监控 | internal/disk/disk_activity_monitor.go | IO活动检测、唤醒触发 | 飞牛fnOS |
+| 🎬 TMDB刮削器 | internal/media/scraper/tmdb_scraper.go | 电影/电视剧元数据获取 | 飞牛fnOS |
+| 🎬 元数据缓存 | internal/media/scraper/metadata_cache.go | 刮削结果缓存优化 | 飞牛fnOS |
+| 🔐 密码策略 | internal/security/password_policy.go | 强密码验证、历史检查 | 群晖DSM |
+| 🔐 密码历史 | internal/security/password_history.go | 防止重复使用密码 | 群晖DSM |
+| 🔐 登录锁定 | internal/security/login_attempts.go | 失败锁定、自动解锁 | 群晖DSM |
+| 💰 成本分析增强 | internal/cost/cost_analyzer.go | 用户级成本统计、节省建议 | 新增 |
+| 💾 Active Backup | internal/backup/active_backup.go | 物理/虚拟机备份框架 | 群晖DSM |
+| 💾 备份调度 | internal/backup/backup_scheduler.go | 定时备份任务调度 | 群晖DSM |
+| 💾 备份代理 | internal/backup/backup_agent.go | 代理管理与状态监控 | 群晖DSM |
+
+### 竞品对标进展
+| 功能 | nas-os | 飞牛fnOS | 群晖DSM | TrueNAS | 状态 |
+|------|:------:|:--------:|:-------:|:-------:|------|
+| 磁盘电源管理 | ✅ 实现 | ✅ | ❌ | ❌ | 已对标 |
+| 影视刮削TMDB | ✅ 实现 | ✅ 海报墙 | ✅ | ❌ | 已对标 |
+| 密码策略强化 | ✅ 实现 | ❌ | ✅ | ✅ | 已对标 |
+| 登录失败锁定 | ✅ 实现 | ❌ | ✅ | ✅ | 已对标 |
+| 成本分析增强 | ✅ 实现 | ❌ | ❌ | ❌ | 独家功能 |
+| Active Backup | ✅ 框架实现 | ❌ | ✅ | ❌ | 基础对标 |
+
+### 六部任务执行
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 吏部 | 版本管理v2.364.0 | ✅ 完成 |
+| 兵部 | 磁盘电源管理+TMDB刮削 | ✅ 完成 |
+| 礼部 | CHANGELOG更新 | ✅ 完成 |
+| 刑部 | 密码策略+登录锁定 | ✅ 完成 |
+| 工部 | Active Backup框架 | ✅ 完成 |
+| 户部 | 成本分析增强 | ✅ 完成 |
+
+### 代码统计
+- 新增源文件: 11个
+- 新增代码行: 约3.5万行
+- 总代码量: 约66万行
+
+---
+
 ## [v2.362.0] - 2026-04-01
 
 ### 🎯 六部协同开发第131轮 - 竞品对标深化
