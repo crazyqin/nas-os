@@ -320,6 +320,12 @@ func TestSpaceHistory(t *testing.T) {
 	tmpDir := t.TempDir()
 	manager := &Manager{}
 	sa := NewSpaceAnalyzer(manager, tmpDir)
+	
+	// 确保在测试结束前关闭可能的资源，避免清理失败
+	t.Cleanup(func() {
+		// 清理可能的历史记录文件
+		_ = os.RemoveAll(filepath.Join(tmpDir, "space_history.json"))
+	})
 
 	// 添加测试记录
 	vol := &Volume{
