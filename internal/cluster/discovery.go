@@ -3,6 +3,7 @@
 package cluster
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/json"
@@ -94,17 +95,11 @@ type NodeInfo struct {
 	Capabilities []string          `json:"capabilities,omitempty"`
 	Labels       map[string]string `json:"labels,omitempty"`
 
-	// 服务信息
+	// 服务信息（引用 dashboard_aggregator.go 中的定义）
 	Services []ServiceInfo `json:"services,omitempty"`
 }
 
-// ServiceInfo 服务信息
-type ServiceInfo struct {
-	Name    string `json:"name"`
-	Status  string `json:"status"` // running, stopped, error
-	Port    int    `json:"port,omitempty"`
-	Version string `json:"version,omitempty"`
-}
+// ServiceInfo 在 dashboard_aggregator.go 中定义
 
 // DiscoveryService 节点发现与注册服务
 type DiscoveryService struct {
@@ -408,7 +403,7 @@ func (ds *DiscoveryService) registerNode(endpoint NodeEndpoint) {
 
 	body, _ := json.Marshal(payload)
 
-	req, err := http.NewRequestWithContext(ctx, "POST", url, body)
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(body))
 	if err != nil {
 		ds.logger.Debug("创建注册请求失败", zap.Error(err))
 		return
@@ -489,7 +484,7 @@ func (ds *DiscoveryService) sendHeartbeat(node *NodeInfo) {
 
 	body, _ := json.Marshal(payload)
 
-	req, err := http.NewRequestWithContext(ctx, "POST", url, body)
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(body))
 	if err != nil {
 		return
 	}

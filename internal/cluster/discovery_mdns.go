@@ -4,7 +4,6 @@ package cluster
 import (
 	"context"
 	"fmt"
-	"net"
 	"strconv"
 	"strings"
 	"sync"
