@@ -186,6 +186,21 @@ func (m *ImmutableManager) saveRecords() error {
 	}
 	m.mu.RUnlock()
 
+	return m.writeRecordsToFile(records)
+}
+
+// saveRecordsInternal 保存记录（内部方法，调用者已持有锁）.
+func (m *ImmutableManager) saveRecordsInternal() error {
+	records := make([]*ImmutableRecord, 0, len(m.records))
+	for _, r := range m.records {
+		records = append(records, r)
+	}
+
+	return m.writeRecordsToFile(records)
+}
+
+// writeRecordsToFile 将记录写入文件.
+func (m *ImmutableManager) writeRecordsToFile(records []*ImmutableRecord) error {
 	data, err := json.MarshalIndent(records, "", "  ")
 	if err != nil {
 		return fmt.Errorf("序列化记录失败: %w", err)
@@ -244,7 +259,7 @@ func (m *ImmutableManager) cleanup() {
 	}
 
 	if changed {
-		_ = m.saveRecords()
+		_ = m.saveRecordsInternal()
 	}
 }
 

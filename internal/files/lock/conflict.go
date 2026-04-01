@@ -666,13 +666,11 @@ func (cd *ConflictDetector) resolveForceAcquire(conflict *ConflictRecord, resolv
 		return errors.New("lock manager not available")
 	}
 
-	// 记录解决者（用于审计）
-	conflict.mu.Lock()
+	// 记录解决者（用于审计）- 调用者已持有锁，无需再加锁
 	if conflict.Metadata == nil {
 		conflict.Metadata = make(map[string]interface{})
 	}
 	conflict.Metadata["force_acquired_by"] = resolvedBy
-	conflict.mu.Unlock()
 
 	// 强制释放现有锁
 	for _, lockID := range conflict.RelatedLocks {
@@ -725,13 +723,11 @@ func (cd *ConflictDetector) resolveVersion(conflict *ConflictRecord, resolvedBy 
 
 func (cd *ConflictDetector) resolveIgnore(conflict *ConflictRecord, resolvedBy string) {
 	conflict.Status = ConflictStatusIgnored
-	// 记录忽略者（用于审计）
-	conflict.mu.Lock()
+	// 记录忽略者（用于审计）- 调用者已持有锁，无需再加锁
 	if conflict.Metadata == nil {
 		conflict.Metadata = make(map[string]interface{})
 	}
 	conflict.Metadata["ignored_by"] = resolvedBy
-	conflict.mu.Unlock()
 }
 
 func (cd *ConflictDetector) addToActiveIndex(filePath, conflictID string) {
