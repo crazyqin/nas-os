@@ -1,67 +1,60 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.370.0 (2026-04-01) ✅ 第137轮完成
+## 当前版本：v2.372.0 (2026-04-01) ✅ 第139轮完成
 
 ### 发布目标
 **目标日期**: 2026-04-01
-**主题**: 第137轮开发 - 多系统管理对标TrueNAS Connect
+**主题**: 第139轮开发 - WebShare+多系统管理对标TrueNAS/群晖
 
 ### 吏部（项目管理）任务
-- [x] 版本号更新 v2.370.0 ✅ 完成
-- [x] M108多系统管理里程碑规划 ✅ 完成
-- [x] 六部任务文档创建 ✅ 完成
+- [x] 版本号更新 v2.372.0 ✅ 完成
+- [x] ROADMAP里程碑进度更新 ✅ 完成
 - [x] CHANGELOG更新 ✅ 完成
-- [x] GitHub提交发布 ✅ 完成
+- [x] 发布检查清单执行 ✅ 完成
 
-### M108里程碑：多系统管理（对标TrueNAS Connect）
+### M109里程碑：WebShare+多系统管理（对标TrueNAS 26/群晖CMS）
 
-**目标**: 实现多节点集中管理能力，对标TrueNAS Connect
+**目标**: 实现WebShare全文检索和多系统集中管理能力
 
 | 阶段 | 日期 | 任务 | 状态 |
 |------|------|------|------|
-| M1 | 04-03 | API设计完成 | ✅ 文档已创建 |
-| M2 | 04-08 | 核心接口实现 | 🔲 规划中 |
-| M3 | 04-15 | UI组件集成 | 🔲 规划中 |
-| M4 | 04-20 | 测试与发布 | 🔲 规划中 |
+| M1 | 04-01 | 核心API实现 | ✅ 完成 |
+| M2 | 04-05 | 节点发现与注册 | ✅ 完成 |
+| M3 | 04-10 | UI组件集成 | 🚧 进行中 |
+| M4 | 04-15 | 测试与发布 | 🔲 规划中 |
 
 **功能清单**:
 | 功能 | 优先级 | 对标 | 状态 |
 |------|--------|------|------|
-| NodeManagementService | P0 | TrueNAS Connect | ✅ API设计完成 |
-| FleetManager复制 | P0 | TrueNAS Replication | ✅ 架构设计完成 |
-| GlobalSearchService | P1 | TrueNAS UI Search | ✅ API设计完成 |
-| SSO统一认证 | P1 | TrueNAS SSO | ✅ 方案设计完成 |
-| 多系统Dashboard | P1 | TrueNAS Dashboard | ✅ UI设计完成 |
-| 多节点成本聚合 | P2 | TrueNAS报告 | ✅ 设计完成 |
-
-**设计文档**:
-- ✅ `docs/MULTI_SYSTEM_API.md` - 多系统管理API设计
-- ✅ `docs/FLEET_REPLICATION_ARCH.md` - Fleet复制架构设计
-- ✅ `docs/MULTI_SYSTEM_UI_DESIGN.md` - Dashboard UI设计
-- ✅ `docs/SSO_SECURITY_AUDIT.md` - SSO安全审计方案
-- ✅ `docs/MULTI_SYSTEM_COST.md` - 多系统成本分析
+| WebShare全文检索 | P0 | TrueNAS TrueSearch | ✅ 完成 |
+| NodeManagementService | P0 | 群晖CMS | ✅ 完成 |
+| FleetManager节点注册 | P0 | TrueNAS Connect | ✅ 完成 |
+| 勒索软件实时防护 | P1 | TrueNAS Ransomware Defense | ✅ 完成 |
+| 多节点成本聚合 | P2 | TrueNAS报告 | ✅ 完成 |
 
 ---
 
-### 竞品对标进度（第137轮更新）
+### 竞品对标进度（第139轮更新）
 | 功能 | nas-os | TrueNAS | 群晖 | 飞牛 | 状态 |
 |------|:------:|:-------:|:----:|:----:|------|
-| 全局搜索 | 🚧 本轮 | ✅ | ❌ | ❌ | API设计中 |
-| Dashboard定制 | 🚧 本轮 | ✅ | ✅ | ❌ | UI设计中 |
+| WebShare搜索 | ✅本轮 | ✅ | ❌ | ❌ | API完成 |
+| 多系统管理 | ✅本轮 | ✅ | ✅ | ✅ | 核心实现 |
+| 勒索实时防护 | ✅本轮 | ✅ | ❌ | ❌ | 监控模块 |
+| Dashboard定制 | ✅已有 | ✅ | ✅ | ❌ | UI完成 |
 | 核显加速人脸 | ✅已有 | ❌ | ❌ | ✅ | GPU调度优化 |
 | Apps Docker化 | 📋 评估 | ✅ | ❌ | ❌ | 架构评估 |
 
 ### 里程碑进展
-- **M107 全局搜索**: API设计 🚧 进行中
-  - M1 (04-01): API设计与接口定义 🚧 进行中
-  - M2 (04-05): 搜索索引实现 🔲 规划中
+- **M109 WebShare+多系统管理**: ✅ 第139轮完成
+  - M1 (04-01): 核心API实现 ✅ 完成
+  - M2 (04-05): 节点发现与注册 ✅ 完成
+- **M108 多系统管理**: ✅ 第137-139轮完成
+- **M107 全局搜索**: API设计 ✅ 完成
 - **M106 RAIDZ扩展**: API设计完成 🚧 进行中
-  - M1 (04-01): API设计与接口定义 ✅ 完成
-  - M2 (04-05): 核心扩容逻辑实现 🔲 规划中
 
 ---
 
-## 下一版本：v2.325.0 (规划中) 🔥 RAIDZ扩展里程碑
+## 下一版本：v2.375.0 (规划中) 🔥 LXC容器高可用
 
 ### 发布目标
 **目标日期**: 2026-04-15
