@@ -466,13 +466,41 @@ func (m *Migrator) TierCapacity(tier Tier) (*TierLocation, error) {
 		return nil, err
 	}
 
-	capacity := stat.Blocks * uint64(stat.Bsize)
-	used := (stat.Blocks - stat.Bfree) * uint64(stat.Bsize)
+	// G115 fix: 安全转换避免整数溢出
+	// stat.Bsize 是 int64，需要安全转换为 uint64
+	// syscall.Statfs_t 在 Linux arm64: Bsize int64, Blocks uint64
+	const maxInt64 = uint64(1<<63 - 1)
+	
+	// 安全转换 Bsize (int64 -> uint64)
+	var bsize uint64
+	if stat.Bsize < 0 {
+		bsize = 0 // 异常值，使用0防止负数转换溢出
+	} else {
+		bsize = uint64(stat.Bsize)
+	}
+	
+	// 计算容量和已用空间（使用uint64避免中间溢出）
+	capacityRaw := stat.Blocks * bsize
+	usedRaw := (stat.Blocks - stat.Bfree) * bsize
+	
+	// 安全转换：限制在int64范围内
+	var capacity, used int64
+	if capacityRaw > maxInt64 {
+		capacity = int64(maxInt64)
+	} else {
+		capacity = int64(capacityRaw)
+	}
+	
+	if usedRaw > maxInt64 {
+		used = int64(maxInt64)
+	} else {
+		used = int64(usedRaw)
+	}
 
 	return &TierLocation{
 		Tier:     tier,
 		Path:     basePath,
-		Capacity: int64(capacity),
-		Used:     int64(used),
+		Capacity: capacity,
+		Used:     used,
 	}, nil
 }

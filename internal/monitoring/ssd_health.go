@@ -480,9 +480,12 @@ func (m *SSDHealthMonitor) mapSMARTAttribute(health *SSDHealth, attr *SMARTAttr)
 	case 190: // Airflow_Temperature_Cel
 		fallthrough
 	case 194: // Temperature_Celsius
-		// 安全转换：温度值通常在 -40 到 200 范围内
-		if attr.Raw <= 200 {
-			health.Temperature = int(attr.Raw)
+		// G115 fix: 安全转换温度值，防止溢出
+		// 温度值通常在 -40 到 200 范围内，但SMART Raw值可能包含其他数据
+		// 提取最低字节作为温度值（SMART标准做法）
+		tempRaw := attr.Raw & 0xFF // 取最低字节
+		if tempRaw <= 200 {
+			health.Temperature = int(tempRaw)
 		} else {
 			health.Temperature = 200 // 限制最大值
 		}
@@ -724,20 +727,29 @@ func (m *SSDHealthMonitor) predictLife(health *SSDHealth) {
 		return
 	}
 
-	// 日均写入量
+	// 日均写入量 - G115 fix: 安全转换避免溢出
 	writeRatePerDay := uint64(float64(totalWriteIncrease) / days)
 
 	// 估算剩余寿命 (假设 TBW 为总写入量 / (1 - 健康百分比) * 健康百分比)
 	// 简化：使用当前写入速率估算
-	if health.HealthPercent > 0 && writeRatePerDay > 0 {
-		// 假设 TBW 已用比例与健康百分比对应
-		estimatedRemainingWrites := uint64(float64(health.TotalWrites) / health.LifeUsedPercent * health.HealthPercent)
+	if health.HealthPercent > 0 && writeRatePerDay > 0 && health.LifeUsedPercent > 0 {
+		// G115 fix: 使用float64计算避免整数溢出
+		estimatedRemainingWritesFloat := float64(health.TotalWrites) / health.LifeUsedPercent * health.HealthPercent
+		
 		// 安全转换：限制剩余天数在合理范围内
+		const maxRemainingDays = 36500 // 100年上限
 		var remainingDays int
-		if estimatedRemainingWrites/writeRatePerDay > uint64(36500) { // 100 年
-			remainingDays = 36500
-		} else {
-			remainingDays = int(estimatedRemainingWrites / writeRatePerDay)
+		
+		if writeRatePerDay > 0 {
+			remainingDaysFloat := estimatedRemainingWritesFloat / float64(writeRatePerDay)
+			// 安全转换：确保不溢出int范围
+			if remainingDaysFloat > float64(maxRemainingDays) {
+				remainingDays = maxRemainingDays
+			} else if remainingDaysFloat < 0 {
+				remainingDays = 0 // 防止负数
+			} else {
+				remainingDays = int(remainingDaysFloat)
+			}
 		}
 
 		// 置信度基于历史数据量
