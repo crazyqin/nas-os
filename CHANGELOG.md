@@ -7,6 +7,70 @@
 
 ---
 
+## [v2.370.0] - 2026-04-01
+
+### 🎯 六部协同开发第137轮 - 多系统管理对标TrueNAS Connect
+
+### 本轮重点
+- 多系统管理API设计（对标TrueNAS Connect）
+- Fleet复制架构设计（对标TrueNAS Replication）
+- SSO统一认证方案（对标TrueNAS SSO）
+- 多系统Dashboard UI原型（对标TrueNAS Dashboard widget化）
+- 多节点成本聚合分析
+- M108里程碑规划启动
+
+### 竞品调研成果（TrueNAS 25.10）
+
+| 功能特性 | nas-os | TrueNAS 25.10 | 群晖DSM | 飞牛fnOS | 差距分析 |
+|---------|:------:|:-------------:|:-------:|:--------:|----------|
+| **多系统管理** | 🚧 设计中 | ✅ Connect/TrueCommand | ✅ CMS | ❌ | 优势机会 |
+| **全局搜索** | ✅ API设计 | ✅ UI Search | ❌ | ❌ | 优势机会 |
+| **RAIDZ扩展** | 🚧 API设计 | ✅ Expansion | ❌ | ❌ | 对标进行中 |
+| **Dashboard定制** | ✅ UI设计 | ✅ Widget化 | ✅ | ❌ | 优势机会 |
+| **SSO认证** | ✅ 方案设计 | ✅ SSO/RBAC | ✅ | ❌ | 对标进行中 |
+| **SMB多通道** | 🔲 规划中 | ✅ Multichannel | ✅ | ❌ | 需开发 |
+| **App沙箱** | 🔲 规划中 | ✅ LXC/Docker Sandbox | ❌ | ❌ | 需评估 |
+| **GPU共享** | ✅ 已实现 | ✅ | ❌ | ✅核显 | 已对标 |
+
+### 六部任务分配（第137轮）
+
+| 部门 | 任务 | 优先级 | 产出文档 | 状态 |
+|------|------|--------|----------|------|
+| **兵部** | 多系统管理API设计 | P0 | docs/MULTI_SYSTEM_API.md | ✅ 完成 |
+| **工部** | Fleet复制架构设计 | P0 | docs/FLEET_REPLICATION_ARCH.md | ✅ 完成 |
+| **礼部** | Dashboard UI原型 | P1 | docs/MULTI_SYSTEM_UI_DESIGN.md | ✅ 完成 |
+| **刑部** | SSO安全审计方案 | P1 | docs/SSO_SECURITY_AUDIT.md | ✅ 完成 |
+| **户部** | 多系统成本分析 | P2 | docs/MULTI_SYSTEM_COST.md | ✅ 完成 |
+| **吏部** | M108里程碑规划 | P0 | ROADMAP更新 | ✅ 完成 |
+
+### 新增设计文档
+- `docs/MULTI_SYSTEM_API.md`: 多系统管理API设计（NodeManagementService、FleetManager、GlobalSearchService）
+- `docs/FLEET_REPLICATION_ARCH.md`: Fleet复制架构设计（任务队列、调度器、进度追踪、带宽自适应）
+- `docs/MULTI_SYSTEM_UI_DESIGN.md`: Dashboard UI设计（NodeCard、GlobalSearchBar、NodeSwitcher、FleetTaskProgress）
+- `docs/SSO_SECURITY_AUDIT.md`: SSO安全审计方案（OAuth2/SAML/LDAP集成、跨节点权限同步、审计日志）
+- `docs/MULTI_SYSTEM_COST.md`: 多系统成本分析（成本聚合、对比报告、趋势预测、优化建议）
+
+### M108里程碑规划
+- **目标**: 实现多节点集中管理能力，对标TrueNAS Connect
+- **节点**:
+  - M1 (04-03): API设计完成 ✅
+  - M2 (04-08): 核心接口实现 🔲
+  - M3 (04-15): UI组件集成 🔲
+  - M4 (04-20): 测试与发布 🔲
+
+### nas-os差异化优势确认
+- **WriteOnce不可变存储**: 竞品均无，独家优势
+- **Fusion Pool智能分层**: TrueNAS无，群晖有Tiering
+- **AI以文搜图**: 本地CLIP推理，领先飞牛/群晖
+- **多云存储挂载**: 6+平台统一访问
+
+### 代码统计
+- 总代码量: 约67.8万行
+- 六部协同轮次: 第137轮
+- 设计文档: 5个新增
+
+---
+
 ## [v2.369.0] - 2026-04-01
 
 ### 🎯 六部协同开发第136轮 - 竞品对标深化
