@@ -1,20 +1,49 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.369.0 (2026-04-01) 🔄 第136轮进行中
+## 当前版本：v2.370.0 (2026-04-01) ✅ 第137轮完成
 
 ### 发布目标
 **目标日期**: 2026-04-01
-**主题**: 第136轮开发 - 竞品对标深化(全局搜索+Dashboard优化+GPU调度)
+**主题**: 第137轮开发 - 多系统管理对标TrueNAS Connect
 
 ### 吏部（项目管理）任务
-- [x] 版本号更新 v2.369.0
-- [ ] 全局搜索API框架设计 🚧 进行中（兵部）
-- [ ] Dashboard widget可定制化设计 🚧 进行中（礼部）
-- [ ] G115整数溢出修复 🚧 进行中（刑部）
-- [ ] 内网穿透计费方案 🚧 进行中（户部）
-- [ ] CHANGELOG更新
+- [x] 版本号更新 v2.370.0 ✅ 完成
+- [x] M108多系统管理里程碑规划 ✅ 完成
+- [x] 六部任务文档创建 ✅ 完成
+- [x] CHANGELOG更新 ✅ 完成
+- [x] GitHub提交发布 ✅ 完成
 
-### 竞品对标进度
+### M108里程碑：多系统管理（对标TrueNAS Connect）
+
+**目标**: 实现多节点集中管理能力，对标TrueNAS Connect
+
+| 阶段 | 日期 | 任务 | 状态 |
+|------|------|------|------|
+| M1 | 04-03 | API设计完成 | ✅ 文档已创建 |
+| M2 | 04-08 | 核心接口实现 | 🔲 规划中 |
+| M3 | 04-15 | UI组件集成 | 🔲 规划中 |
+| M4 | 04-20 | 测试与发布 | 🔲 规划中 |
+
+**功能清单**:
+| 功能 | 优先级 | 对标 | 状态 |
+|------|--------|------|------|
+| NodeManagementService | P0 | TrueNAS Connect | ✅ API设计完成 |
+| FleetManager复制 | P0 | TrueNAS Replication | ✅ 架构设计完成 |
+| GlobalSearchService | P1 | TrueNAS UI Search | ✅ API设计完成 |
+| SSO统一认证 | P1 | TrueNAS SSO | ✅ 方案设计完成 |
+| 多系统Dashboard | P1 | TrueNAS Dashboard | ✅ UI设计完成 |
+| 多节点成本聚合 | P2 | TrueNAS报告 | ✅ 设计完成 |
+
+**设计文档**:
+- ✅ `docs/MULTI_SYSTEM_API.md` - 多系统管理API设计
+- ✅ `docs/FLEET_REPLICATION_ARCH.md` - Fleet复制架构设计
+- ✅ `docs/MULTI_SYSTEM_UI_DESIGN.md` - Dashboard UI设计
+- ✅ `docs/SSO_SECURITY_AUDIT.md` - SSO安全审计方案
+- ✅ `docs/MULTI_SYSTEM_COST.md` - 多系统成本分析
+
+---
+
+### 竞品对标进度（第137轮更新）
 | 功能 | nas-os | TrueNAS | 群晖 | 飞牛 | 状态 |
 |------|:------:|:-------:|:----:|:----:|------|
 | 全局搜索 | 🚧 本轮 | ✅ | ❌ | ❌ | API设计中 |
