@@ -1,8 +1,23 @@
 # NAS-OS 文档中心
 
-> **版本**: v2.253.284
-> **发布日期**: 2026-03-24
+> **版本**: v2.373.0
+> **发布日期**: 2026-04-02
 > **项目**: NAS-OS 家用 NAS 系统
+
+---
+
+## 🏆 差异化优势（竞品对标）
+
+nas-os 拥有四大独家功能，竞品（TrueNAS/群晖/飞牛）均无：
+
+| 功能 | 文档 | 说明 |
+|------|------|------|
+| 🔒 **WriteOnce** | [writeonce-guide.md](writeonce-guide.md) | 不可变存储(WORM)，防勒索/合规归档 |
+| 🤖 **本地LLM服务** | [ai-service-guide.md](ai-service-guide.md) | Ollama集成，OpenAI兼容API |
+| 🔐 **AI数据脱敏** | [ai-api-reference.md](ai-api-reference.md) | PII智能识别，隐私保护 |
+| 🛡️ **勒索实时防护** | [RANSOMWARE_DEFENSE.md](RANSOMWARE_DEFENSE.md) | SMB行为监控 + 诱饵文件检测 |
+
+> 详细竞品分析: [COMPETITIVE_ANALYSIS_2026Q2.md](COMPETITIVE_ANALYSIS_2026Q2.md)
 
 ---
 
