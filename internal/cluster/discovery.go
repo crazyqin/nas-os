@@ -99,8 +99,6 @@ type NodeInfo struct {
 	Services []ServiceInfo `json:"services,omitempty"`
 }
 
-// ServiceInfo 在 dashboard_aggregator.go 中定义
-
 // DiscoveryService 节点发现与注册服务
 type DiscoveryService struct {
 	config    DiscoveryConfig
