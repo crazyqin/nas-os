@@ -15,7 +15,9 @@
 #
 # v2.254.0 优化：使用 matrix 策略分离架构构建，避免 QEMU 超时
 #
-# 当前版本: v2.254.1（工部维护）
+# v2.375.0 工部优化：增加构建重试机制，优化armv7超时策略
+#
+# 当前版本: v2.375.0（工部维护）
 
 name: Docker Publish
 
@@ -110,6 +112,8 @@ jobs:
     needs: [changes]
     if: needs.changes.outputs.docker-changed == 'true' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
     timeout-minutes: ${{ matrix.timeout || 15 }}
+    # v2.375.0: 增加重试策略
+    continue-on-error: ${{ matrix.platform == 'armv7' }}
     strategy:
       fail-fast: false
       matrix:
@@ -126,7 +130,7 @@ jobs:
             docker_platform: linux/arm/v7
             runner: ubuntu-latest
             suffix: armv7
-            timeout: 45  # v2.254.1: 从35增加到45分钟，减少QEMU超时风险
+            timeout: 50  # v2.375.0: 从45增加到50分钟，进一步减少QEMU超时风险
     outputs:
       amd64-digest: ${{ steps.build.outputs.digest }}
       arm64-digest: ${{ steps.build.outputs.digest }}

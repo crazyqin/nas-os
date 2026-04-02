@@ -177,10 +177,14 @@ jobs:
       - name: 下载依赖
         run: go mod download
       
+      # v2.375.0 工部优化：增强缓存预热，减少后续job等待时间
       - name: 预热编译缓存
         run: |
           echo "🔧 预热编译缓存..."
-          go build -o /dev/null ./... 2>/dev/null || true
+          # 预编译主要包，加速后续构建
+          go build -o /dev/null ./cmd/... 2>/dev/null || true
+          go build -o /dev/null ./internal/... 2>/dev/null || true
+          go build -o /dev/null ./pkg/... 2>/dev/null || true
           echo "✅ 缓存预热完成"
       
       - name: 缓存 Go 模块
@@ -198,6 +202,15 @@ jobs:
             ~/.cache/golangci-lint
             ~/go/bin
           key: go-tools-${{ env.CACHE_VERSION }}-${{ runner.os }}
+      
+      # v2.375.0: 增加编译产物缓存（跨job复用）
+      - name: 缓存编译产物
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/go-build
+          key: build-artifacts-${{ env.CACHE_VERSION }}-${{ github.sha }}
+          restore-keys: |
+            build-artifacts-${{ env.CACHE_VERSION }}-
       
       - name: 缓存测试结果（跨运行复用）
         uses: actions/cache/save@v4
