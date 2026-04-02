@@ -1,10 +1,9 @@
 // Package storage RAIDZ Expansion API
-// 兵部 Round 141 - RAIDZ Expansion API设计（对标TrueNAS 24.10）
+// 兵部 Round 142 - RAIDZ Expansion API设计（对标TrueNAS 24.10）
 package storage
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -20,8 +19,7 @@ type RAIDZExpansionHandlers struct {
 }
 
 // NewRAIDZExpansionHandlers 创建处理器
-func NewRAIDZExpansionHandlers(poolMgr *ZPoolManager) *RAIDZExpansionHandlers {
-	service := NewRAIDZExpansionService(poolMgr)
+func NewRAIDZExpansionHandlers(service *RAIDZExpansionService) *RAIDZExpansionHandlers {
 	return &RAIDZExpansionHandlers{
 		service: service,
 	}
@@ -37,10 +35,19 @@ func (h *RAIDZExpansionHandlers) RegisterRoutes(r *gin.RouterGroup) {
 		// 获取扩展状态
 		raidzGroup.GET("/status/:pool", h.getExpansionStatus)
 		
+		// 获取所有活跃任务
+		raidzGroup.GET("/tasks", h.getAllActiveTasks)
+		
 		// 开始扩展
 		raidzGroup.POST("/start", h.startExpansion)
 		
-		// 取消扩展（如果正在进行）
+		// 暂停扩展
+		raidzGroup.POST("/pause/:pool", h.pauseExpansion)
+		
+		// 恢复扩展
+		raidzGroup.POST("/resume/:pool", h.resumeExpansion)
+		
+		// 取消扩展
 		raidzGroup.POST("/cancel/:pool", h.cancelExpansion)
 		
 		// 获取可用磁盘列表
@@ -51,6 +58,9 @@ func (h *RAIDZExpansionHandlers) RegisterRoutes(r *gin.RouterGroup) {
 		
 		// 预估时间和容量
 		raidzGroup.POST("/estimate", h.estimateExpansion)
+		
+		// 检查服务状态
+		raidzGroup.GET("/service-status", h.getServiceStatus)
 	}
 }
 
@@ -61,7 +71,7 @@ func (h *RAIDZExpansionHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Param pool path string true "ZFS池名称"
-// @Success 200 {object} api.Response{data=ExpansionEligibility} "成功"
+// @Success 200 {object} api.Response{data=ExpansionEligibilityResult} "成功"
 // @Failure 400 {object} api.Response "池不存在"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /storage/raidz-expansion/eligibility/{pool} [get]
@@ -92,7 +102,7 @@ func (h *RAIDZExpansionHandlers) checkEligibility(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param pool path string true "ZFS池名称"
-// @Success 200 {object} api.Response{data=RAIDZExpansionStatus} "成功"
+// @Success 200 {object} api.Response{data=ExpansionTask} "成功"
 // @Router /storage/raidz-expansion/status/{pool} [get]
 // @Security BearerAuth
 func (h *RAIDZExpansionHandlers) getExpansionStatus(c *gin.Context) {
@@ -111,21 +121,43 @@ func (h *RAIDZExpansionHandlers) getExpansionStatus(c *gin.Context) {
 	api.OK(c, status)
 }
 
+// getAllActiveTasks 获取所有活跃任务
+// @Summary 获取所有活跃扩展任务
+// @Description 获取所有正在进行的RAIDZ扩展任务列表
+// @Tags storage
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response{data=[]ExpansionTask} "成功"
+// @Router /storage/raidz-expansion/tasks [get]
+// @Security BearerAuth
+func (h *RAIDZExpansionHandlers) getAllActiveTasks(c *gin.Context) {
+	tasks := h.service.GetAllActiveTasks()
+	api.OK(c, tasks)
+}
+
+// StartExpansionRequest 开始扩展请求
+type StartExpansionRequest struct {
+	PoolName string `json:"pool_name" binding:"required"` // ZFS池名称
+	NewDisk  string `json:"new_disk" binding:"required"`  // 新磁盘路径
+	Force    bool   `json:"force"`                        // 强制执行
+	Confirm  bool   `json:"confirm"`                      // 确认执行
+}
+
 // startExpansion 开始RAIDZ扩展
 // @Summary 开始RAIDZ扩展
 // @Description 启动RAIDZ vdev的单盘扩容操作（需确认）
 // @Tags storage
 // @Accept json
 // @Produce json
-// @Param request body RAIDZExpansionRequest true "扩展请求"
-// @Success 200 {object} api.Response{data=RAIDZExpansionStatus} "扩展已启动"
+// @Param request body StartExpansionRequest true "扩展请求"
+// @Success 200 {object} api.Response{data=ExpansionTask} "扩展已启动"
 // @Failure 400 {object} api.Response "参数错误"
 // @Failure 409 {object} api.Response "池已有扩展任务进行中"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /storage/raidz-expansion/start [post]
 // @Security BearerAuth
 func (h *RAIDZExpansionHandlers) startExpansion(c *gin.Context) {
-	var req RAIDZExpansionRequest
+	var req StartExpansionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		api.BadRequest(c, "请求格式错误: "+err.Error())
 		return
@@ -136,8 +168,8 @@ func (h *RAIDZExpansionHandlers) startExpansion(c *gin.Context) {
 		api.BadRequest(c, "池名称不能为空")
 		return
 	}
-	if req.NewDiskID == "" {
-		api.BadRequest(c, "新磁盘ID不能为空")
+	if req.NewDisk == "" {
+		api.BadRequest(c, "新磁盘路径不能为空")
 		return
 	}
 	if !req.Confirm {
@@ -150,18 +182,74 @@ func (h *RAIDZExpansionHandlers) startExpansion(c *gin.Context) {
 	
 	// 检查是否有正在进行的扩展
 	currentStatus, _ := h.service.GetExpansionStatus(req.PoolName)
-	if currentStatus != nil && currentStatus.Status == "expanding" {
+	if currentStatus != nil && currentStatus.Status == StatusRunning {
 		c.JSON(http.StatusConflict, api.Error(api.CodeConflict, "池已有扩展任务正在进行中"))
 		return
 	}
 	
-	status, err := h.service.StartExpansion(ctx, &req)
+	task, err := h.service.StartExpansion(ctx, req.PoolName, req.NewDisk, req.Force)
 	if err != nil {
 		api.InternalError(c, "启动扩展失败: "+err.Error())
 		return
 	}
 	
-	api.OKWithMessage(c, "RAIDZ扩展已启动", status)
+	api.OKWithMessage(c, "RAIDZ扩展已启动", task)
+}
+
+// pauseExpansion 暂停扩展
+// @Summary 暂停RAIDZ扩展
+// @Description 暂停指定池正在进行的RAIDZ扩展操作
+// @Tags storage
+// @Accept json
+// @Produce json
+// @Param pool path string true "ZFS池名称"
+// @Success 200 {object} api.Response "扩展已暂停"
+// @Failure 400 {object} api.Response "池名称为空"
+// @Failure 404 {object} api.Response "无正在进行的扩展"
+// @Router /storage/raidz-expansion/pause/{pool} [post]
+// @Security BearerAuth
+func (h *RAIDZExpansionHandlers) pauseExpansion(c *gin.Context) {
+	poolName := c.Param("pool")
+	if poolName == "" {
+		api.BadRequest(c, "池名称不能为空")
+		return
+	}
+	
+	if err := h.service.PauseExpansion(poolName); err != nil {
+		api.BadRequest(c, "暂停失败: "+err.Error())
+		return
+	}
+	
+	status, _ := h.service.GetExpansionStatus(poolName)
+	api.OKWithMessage(c, "扩展任务已暂停", status)
+}
+
+// resumeExpansion 恢复扩展
+// @Summary 恢复RAIDZ扩展
+// @Description 恢复指定池已暂停的RAIDZ扩展操作
+// @Tags storage
+// @Accept json
+// @Produce json
+// @Param pool path string true "ZFS池名称"
+// @Success 200 {object} api.Response{data=ExpansionTask} "扩展已恢复"
+// @Failure 400 {object} api.Response "池名称为空"
+// @Failure 404 {object} api.Response "无暂停的扩展"
+// @Router /storage/raidz-expansion/resume/{pool} [post]
+// @Security BearerAuth
+func (h *RAIDZExpansionHandlers) resumeExpansion(c *gin.Context) {
+	poolName := c.Param("pool")
+	if poolName == "" {
+		api.BadRequest(c, "池名称不能为空")
+		return
+	}
+	
+	if err := h.service.ResumeExpansion(poolName); err != nil {
+		api.BadRequest(c, "恢复失败: "+err.Error())
+		return
+	}
+	
+	status, _ := h.service.GetExpansionStatus(poolName)
+	api.OKWithMessage(c, "扩展任务已恢复", status)
 }
 
 // cancelExpansion 取消正在进行的扩展
@@ -183,20 +271,14 @@ func (h *RAIDZExpansionHandlers) cancelExpansion(c *gin.Context) {
 		return
 	}
 	
-	// 检查当前状态
-	status, err := h.service.GetExpansionStatus(poolName)
-	if err != nil || status.Status != "expanding" {
-		api.NotFound(c, "该池无正在进行的扩展任务")
+	if err := h.service.CancelExpansion(poolName); err != nil {
+		api.BadRequest(c, "取消失败: "+err.Error())
 		return
 	}
 	
-	// TODO: 实现取消逻辑
-	// 实际需要调用 zpool cancel 或类似命令
-	
 	api.OKWithMessage(c, "扩展任务已取消", gin.H{
-		"pool":     poolName,
-		"status":   "cancelled",
-		"progress": status.Progress,
+		"pool":   poolName,
+		"status": StatusCancelled,
 	})
 }
 
@@ -207,7 +289,7 @@ func (h *RAIDZExpansionHandlers) cancelExpansion(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param minSize query int false "最小容量要求(GB)" default(0)
-// @Success 200 {object} api.Response "成功"
+// @Success 200 {object} api.Response{data=[]AvailableDiskInfo} "成功"
 // @Router /storage/raidz-expansion/available-disks [get]
 // @Security BearerAuth
 func (h *RAIDZExpansionHandlers) getAvailableDisks(c *gin.Context) {
@@ -218,25 +300,17 @@ func (h *RAIDZExpansionHandlers) getAvailableDisks(c *gin.Context) {
 		}
 	}
 	
-	// TODO: 实现磁盘发现逻辑
-	// 需要调用系统命令查找未使用的磁盘
-	// 使用 lsblk、fdisk -l 或 smartctl --scan
+	ctx := c.Request.Context()
 	
-	disks := []AvailableDisk{
-		// 示例数据，实际需要动态获取
-		{
-			ID:        "disk-sda",
-			Path:      "/dev/sda",
-			Model:     "Samsung SSD 870 EVO",
-			SizeGB:    500,
-			Interface: "SATA",
-			Healthy:   true,
-		},
+	disks, err := h.service.ListAvailableDisks(ctx)
+	if err != nil {
+		api.InternalError(c, "获取磁盘列表失败: "+err.Error())
+		return
 	}
 	
 	// 过滤最小容量
 	if minSize > 0 {
-		filtered := make([]AvailableDisk, 0)
+		filtered := make([]AvailableDiskInfo, 0)
 		for _, disk := range disks {
 			if disk.SizeGB >= minSize {
 				filtered = append(filtered, disk)
@@ -255,7 +329,7 @@ func (h *RAIDZExpansionHandlers) getAvailableDisks(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param limit query int false "返回数量限制" default(20)
-// @Success 200 {object} api.Response "成功"
+// @Success 200 {object} api.Response{data=[]ExpansionTask} "成功"
 // @Router /storage/raidz-expansion/history [get]
 // @Security BearerAuth
 func (h *RAIDZExpansionHandlers) getExpansionHistory(c *gin.Context) {
@@ -266,12 +340,10 @@ func (h *RAIDZExpansionHandlers) getExpansionHistory(c *gin.Context) {
 		}
 	}
 	
-	// TODO: 实现历史记录查询
-	// 需要持久化存储扩展记录
-	
+	history := h.service.GetTaskHistory(limit)
 	api.OK(c, gin.H{
-		"total":   0,
-		"records": []ExpansionHistory{},
+		"total":   len(history),
+		"records": history,
 		"limit":   limit,
 	})
 }
@@ -283,7 +355,7 @@ func (h *RAIDZExpansionHandlers) getExpansionHistory(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body EstimateRequest true "预估请求"
-// @Success 200 {object} api.Response{data=ExpansionEstimate} "成功"
+// @Success 200 {object} api.Response{data=ExpansionEstimateResult} "成功"
 // @Router /storage/raidz-expansion/estimate [post]
 // @Security BearerAuth
 func (h *RAIDZExpansionHandlers) estimateExpansion(c *gin.Context) {
@@ -303,71 +375,75 @@ func (h *RAIDZExpansionHandlers) estimateExpansion(c *gin.Context) {
 		return
 	}
 	
-	// 预估时间（简化计算）
-	// OpenZFS RAIDZ扩展：每TB约30分钟重平衡
-	pool, _ := h.service.pools.GetPool(req.PoolName)
-	usedTB := float64(pool.Used) / (1024 * 1024 * 1024 * 1024)
-	estimatedMinutes := int(usedTB * 30)
+	// 预估时间
+	estimatedTime, err := h.service.EstimateExpansionTime(ctx, req.PoolName)
+	if err != nil {
+		estimatedTime = 0 // 使用默认估算
+	}
 	
-	estimate := ExpansionEstimate{
-		PoolName:            req.PoolName,
-		CurrentCapacityGB:   int(pool.Available / (1024 * 1024 * 1024)),
-		CapacityGainGB:      int(eligibility.CapacityGain / (1024 * 1024 * 1024)),
-		NewCapacityGB:       int(eligibility.CapacityGain + pool.Used) / (1024 * 1024 * 1024),
-		EstimatedDuration:   fmt.Sprintf("%d分钟", estimatedMinutes),
-		EstimatedMinutes:    estimatedMinutes,
-		PreChecksPassed:     len(getPassedChecks(eligibility.PreChecks)),
-		PreChecksFailed:     len(getFailedChecks(eligibility.PreChecks)),
-		Warnings:            eligibility.Warnings,
-		Eligible:            eligibility.Eligible,
+	estimate := ExpansionEstimateResult{
+		PoolName:          req.PoolName,
+		CurrentCapacityGB: int(eligibility.CurrentCapacity / (1024 * 1024 * 1024)),
+		CapacityGainGB:    int(eligibility.CapacityGain / (1024 * 1024 * 1024)),
+		NewCapacityGB:     int(eligibility.NewCapacity / (1024 * 1024 * 1024)),
+		EstimatedTime:     estimatedTime.String(),
+		EstimatedMinutes:  int(estimatedTime.Minutes()),
+		RAIDZLevel:        eligibility.RAIDZLevel,
+		CurrentWidth:      eligibility.CurrentWidth,
+		NewWidth:          eligibility.NewWidth,
+		PreChecksPassed:   countPassedChecks(eligibility.PreChecks),
+		PreChecksFailed:   countFailedChecks(eligibility.PreChecks),
+		Warnings:          eligibility.Warnings,
+		Eligible:          eligibility.Eligible,
+		DiskRequirements:  eligibility.DiskRequirements,
 	}
 	
 	api.OK(c, estimate)
 }
 
+// getServiceStatus 获取服务状态
+// @Summary 获取RAIDZ扩展服务状态
+// @Description 检查RAIDZ扩展服务是否可用
+// @Tags storage
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response "成功"
+// @Router /storage/raidz-expansion/service-status [get]
+// @Security BearerAuth
+func (h *RAIDZExpansionHandlers) getServiceStatus(c *gin.Context) {
+	available := h.service.IsAvailable()
+	
+	activeCount := len(h.service.GetAllActiveTasks())
+	
+	api.OK(c, gin.H{
+		"available":      available,
+		"active_tasks":   activeCount,
+		"service_status": "running",
+	})
+}
+
 // 辅助函数
-func getPassedChecks(checks []PreCheckResult) []PreCheckResult {
-	passed := make([]PreCheckResult, 0)
+func countPassedChecks(checks []PreCheckResult) int {
+	count := 0
 	for _, check := range checks {
 		if check.Passed {
-			passed = append(passed, check)
+			count++
 		}
 	}
-	return passed
+	return count
 }
 
-func getFailedChecks(checks []PreCheckResult) []PreCheckResult {
-	failed := make([]PreCheckResult, 0)
+func countFailedChecks(checks []PreCheckResult) int {
+	count := 0
 	for _, check := range checks {
 		if !check.Passed {
-			failed = append(failed, check)
+			count++
 		}
 	}
-	return failed
+	return count
 }
 
-// 类型定义
-
-// AvailableDisk 可用磁盘
-type AvailableDisk struct {
-	ID        string `json:"id"`         // 磁盘唯一ID
-	Path      string `json:"path"`       // 设备路径
-	Model     string `json:"model"`      // 型号
-	SizeGB    int    `json:"size_gb"`    // 容量(GB)
-	Interface string `json:"interface"`  // 接口类型(SATA/NVMe)
-	Healthy   bool   `json:"healthy"`    // SMART健康状态
-}
-
-// ExpansionHistory 扩展历史记录
-type ExpansionHistory struct {
-	PoolName     string    `json:"pool_name"`
-	OldCapacity  uint64    `json:"old_capacity"`
-	NewCapacity  uint64    `json:"new_capacity"`
-	Duration     string    `json:"duration"`
-	StartedAt    time.Time `json:"started_at"`
-	CompletedAt  time.Time `json:"completed_at"`
-	Status       string    `json:"status"`
-}
+// 类型定义（补充 handlers 专用类型）
 
 // EstimateRequest 预估请求
 type EstimateRequest struct {
@@ -375,16 +451,20 @@ type EstimateRequest struct {
 	NewDiskID string `json:"new_disk_id"`
 }
 
-// ExpansionEstimate 扩展预估结果
-type ExpansionEstimate struct {
-	PoolName          string   `json:"pool_name"`
-	CurrentCapacityGB int      `json:"current_capacity_gb"`
-	CapacityGainGB    int      `json:"capacity_gain_gb"`
-	NewCapacityGB     int      `json:"new_capacity_gb"`
-	EstimatedDuration string   `json:"estimated_duration"`
-	EstimatedMinutes  int      `json:"estimated_minutes"`
-	PreChecksPassed   int      `json:"pre_checks_passed"`
-	PreChecksFailed   int      `json:"pre_checks_failed"`
-	Warnings          []string `json:"warnings"`
-	Eligible          bool     `json:"eligible"`
+// ExpansionEstimateResult 扩展预估结果
+type ExpansionEstimateResult struct {
+	PoolName          string            `json:"pool_name"`
+	CurrentCapacityGB int               `json:"current_capacity_gb"`
+	CapacityGainGB    int               `json:"capacity_gain_gb"`
+	NewCapacityGB     int               `json:"new_capacity_gb"`
+	EstimatedTime     string            `json:"estimated_time"`
+	EstimatedMinutes  int               `json:"estimated_minutes"`
+	RAIDZLevel        string            `json:"raidz_level"`
+	CurrentWidth      int               `json:"current_width"`
+	NewWidth          int               `json:"new_width"`
+	PreChecksPassed   int               `json:"pre_checks_passed"`
+	PreChecksFailed   int               `json:"pre_checks_failed"`
+	Warnings          []string          `json:"warnings"`
+	Eligible          bool              `json:"eligible"`
+	DiskRequirements  DiskRequirements  `json:"disk_requirements"`
 }

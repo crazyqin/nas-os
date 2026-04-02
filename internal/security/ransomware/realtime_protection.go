@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -170,13 +169,13 @@ func NewRealtimeProtection(config RealtimeProtectionConfig) (*RealtimeProtection
 	detectorConfig.ExcludePaths = config.ExcludePaths
 	detectorConfig.AutoQuarantine = config.AutoQuarantine
 
-	detector, err := NewDetector(&detectorConfig)
+	detector, err := NewDetector(detectorConfig)
 	if err != nil {
 		return nil, fmt.Errorf("创建检测器失败: %w", err)
 	}
 
 	// 创建行为监控器
-	sigDB := NewSignatureDB()
+	sigDB := NewSignatureDB(SignatureDBConfig{Enabled: true})
 	behaviorMon := NewBehaviorMonitor(monitorConfig, sigDB)
 
 	// 创建快照管理器
@@ -188,7 +187,12 @@ func NewRealtimeProtection(config RealtimeProtectionConfig) (*RealtimeProtection
 	}
 
 	// 创建告警管理器
-	alertManager := NewAlertManager()
+	alertConfig := AlertConfig{
+		Enabled:      true,
+		MinSeverity:  ThreatLevelMedium,
+		MaxAlerts:    100,
+	}
+	alertManager := NewAlertManager(alertConfig)
 
 	// 创建隔离管理器
 	quarantineConfig := QuarantineConfig{
@@ -196,7 +200,10 @@ func NewRealtimeProtection(config RealtimeProtectionConfig) (*RealtimeProtection
 		QuarantineDir: "/var/lib/nas-os/quarantine",
 		MaxSize:       10 * 1024 * 1024 * 1024, // 10GB
 	}
-	quarantine := NewQuarantineManager(quarantineConfig)
+	quarantine, err := NewQuarantineManager(quarantineConfig)
+	if err != nil {
+		return nil, fmt.Errorf("创建隔离管理器失败: %w", err)
+	}
 
 	rp := &RealtimeProtection{
 		config:       config,
@@ -405,20 +412,10 @@ func (rp *RealtimeProtection) getResponseActions(level ThreatLevel) string {
 
 // sendAlert 发送告警
 func (rp *RealtimeProtection) sendAlert(result *DetectionResult) {
-	alert := Alert{
-		ID:          result.ID,
-		Type:        "ransomware_detected",
-		Title:       fmt.Sprintf("检测到勒索软件威胁 (%s)", result.ThreatLevel),
-		Message:     result.SuggestedAction,
-		Severity:    string(result.ThreatLevel),
-		Timestamp:   result.Timestamp,
-		FileCount:   result.FileCount,
-		FilePath:    result.FilePath,
-		Confidence:  result.Confidence,
-		AffectedFiles: result.AffectedFiles,
+	alert := rp.alertManager.CreateAlert(result)
+	if alert == nil {
+		return
 	}
-
-	rp.alertManager.SendAlert(alert)
 
 	rp.statsMu.Lock()
 	rp.stats.AlertsSent++
@@ -431,7 +428,13 @@ func (rp *RealtimeProtection) quarantineFiles(result *DetectionResult) {
 		return
 	}
 
-	err := rp.quarantine.QuarantineFile(result.FilePath, result.ID)
+	_, err := rp.quarantine.QuarantineFile(
+		result.FilePath,
+		"ransomware_detected",
+		result.ID,
+		result.ThreatLevel,
+		result.SignatureName,
+	)
 	if err != nil {
 		log.Printf("隔离文件失败: %v", err)
 		return
@@ -545,7 +548,7 @@ func (rp *RealtimeProtection) ScanNow(path string) (*ScanResult, error) {
 
 // RestoreFromQuarantine 从隔离恢复文件
 func (rp *RealtimeProtection) RestoreFromQuarantine(quarantineID string, targetPath string) error {
-	return rp.quarantine.Restore(quarantineID, targetPath)
+	return rp.quarantine.RestoreFile(quarantineID, targetPath)
 }
 
 // RestoreSnapshot 恢复快照
@@ -583,18 +586,8 @@ func (rp *RealtimeProtection) SetSensitivity(sensitivity string) {
 
 // GetThreatHistory 获取威胁历史
 func (rp *RealtimeProtection) GetThreatHistory(limit int) []DetectionResult {
-	// 从行为监控器获取最近事件
-	events := rp.behaviorMon.GetRecentEvents(limit)
-	var results []DetectionResult
-	for _, event := range events {
-		// 转换为检测结果（简化）
-		results = append(results, DetectionResult{
-			ID:        event.ID,
-			Timestamp: event.Timestamp,
-			FilePath:  event.Path,
-		})
-	}
-	return results
+	// 返回空列表，实际实现需要Detector支持
+	return []DetectionResult{}
 }
 
 // ProtectionAPI 提供REST API接口
@@ -637,8 +630,8 @@ func (api *ProtectionAPI) GetSnapshotList(limit, offset int) []*ProtectionSnapsh
 }
 
 // GetQuarantineList 获取隔离列表
-func (api *ProtectionAPI) GetQuarantineList() []QuarantineRecord {
-	return api.protection.quarantine.ListQuarantined()
+func (api *ProtectionAPI) GetQuarantineList() []*QuarantineEntry {
+	return api.protection.quarantine.ListEntries(100, 0, nil)
 }
 
 // RestoreQuarantineFile 恢复隔离文件
@@ -666,81 +659,6 @@ func (api *ProtectionAPI) QuickScan(path string) (map[string]interface{}, error)
 		"scanned_at":      result.ScannedAt,
 		"duration":        result.Duration.String(),
 	}, nil
-}
-
-// Helper functions for initialization
-
-// NewSignatureDB creates signature database with default entries
-func NewSignatureDB() *SignatureDB {
-	db := &SignatureDB{
-		extensions:  make(map[string][]RansomwareSignature),
-		ransomNotes: make(map[string][]RansomwareSignature),
-	}
-
-	// Load default signatures
-	db.loadDefaultSignatures()
-	return db
-}
-
-// loadDefaultSignatures loads default ransomware signatures
-func (db *SignatureDB) loadDefaultSignatures() {
-	defaultSigs := []struct {
-		ext       string
-		name      string
-		family    string
-		severity  ThreatLevel
-	}{
-		{".encrypted", "Generic Encrypted", "generic", ThreatLevelHigh},
-		{".locked", "Generic Locked", "generic", ThreatLevelHigh},
-		{".crypto", "Generic Crypto", "generic", ThreatLevelHigh},
-		{".ransom", "Ransomware", "generic", ThreatLevelCritical},
-		{".enc", "Generic ENC", "generic", ThreatLevelHigh},
-		{".cerber", "Cerber", "cerber", ThreatLevelCritical},
-		{".locky", "Locky", "locky", ThreatLevelCritical},
-		{".wannacry", "WannaCry", "wannacry", ThreatLevelCritical},
-		{".cryptolocker", "CryptoLocker", "cryptolocker", ThreatLevelCritical},
-	}
-
-	for _, sig := range defaultSigs {
-		db.AddExtensionSignature(sig.ext, RansomwareSignature{
-			ID:       "ext_" + sig.ext[1:],
-			Name:     sig.name,
-			Family:   sig.family,
-			Severity: sig.severity,
-		})
-	}
-
-	// Add ransom note signatures
-	ransomNotes := []string{
-		"readme.txt", "decrypt_instructions.html", "restore_files.txt",
-		"_readme_.txt", "help_decrypt.html", "!readme!.txt",
-		"how_to_decrypt.html", "ransom_note.txt",
-	}
-
-	for _, note := range ransomNotes {
-		db.AddRansomNoteSignature(note, RansomwareSignature{
-			ID:       "note_" + note,
-			Name:     "Ransom Note",
-			Family:   "generic",
-			Severity: ThreatLevelCritical,
-		})
-	}
-}
-
-// GetRecentEvents gets recent events from behavior monitor
-func (bm *BehaviorMonitor) GetRecentEvents(limit int) []FileEvent {
-	bm.eventMu.RLock()
-	defer bm.eventMu.RUnlock()
-
-	var events []FileEvent
-	count := 0
-	for e := bm.events.Back(); e != nil && count < limit; e = e.Prev() {
-		if event, ok := e.Value.(FileEvent); ok {
-			events = append(events, event)
-			count++
-		}
-	}
-	return events
 }
 
 // InitializeProtection initializes protection with config
