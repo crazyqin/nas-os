@@ -17,6 +17,7 @@ import (
 	"nas-os/internal/downloader"
 	"nas-os/internal/files"
 	ftp "nas-os/internal/ftp"
+	"nas-os/internal/hardware"
 	"nas-os/internal/iscsi"
 	"nas-os/internal/lock"
 	"nas-os/internal/monitor"
@@ -713,6 +714,14 @@ func (s *Server) setupRoutes() {
 		if s.nvmeofMgr != nil {
 			nvmeof.NewHandlers(s.nvmeofMgr).RegisterRoutes(api)
 		}
+
+		// ========== NVMe硬件监控 ==========
+		// 兵部 Round 141 - S.M.A.R.T. UI集成
+		hardware.NewNVMeHandlers().RegisterRoutes(api)
+
+		// ========== RAIDZ扩展管理 ==========
+		// 兵部 Round 141 - 对标TrueNAS 24.10
+		storage.NewRAIDZExpansionHandlers(nil).RegisterRoutes(api)
 
 		// ========== 插件系统 ==========
 		if s.pluginMgr != nil {
