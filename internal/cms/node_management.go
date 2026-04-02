@@ -143,7 +143,7 @@ func (nms *NodeManagementService) AddCommand(deviceID string, command NodeComman
 	nms.mu.Lock()
 	defer nms.mu.Unlock()
 
-	command.Priority = command.Priority
+	// 设置默认优先级
 	if command.Priority == 0 {
 		command.Priority = 5
 	}

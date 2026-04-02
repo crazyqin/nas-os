@@ -88,12 +88,14 @@ func NewFleetManager(config FleetConfig, logger *zap.Logger) (*FleetManager, err
 	// 创建任务分发器
 	taskDispatcher, err := NewTaskDispatcher(config, logger)
 	if err != nil {
+		cancel()
 		return nil, fmt.Errorf("创建任务分发器失败: %w", err)
 	}
 
 	// 创建状态聚合器
 	statusAggr, err := NewStatusAggregator(config, logger)
 	if err != nil {
+		cancel()
 		return nil, fmt.Errorf("创建状态聚合器失败: %w", err)
 	}
 
