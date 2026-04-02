@@ -4,7 +4,19 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
 #
-# 当前版本: v2.253.284（工部维护）
+# 快速部署：
+#   docker compose up -d                    # 启动服务
+#   docker compose logs -f                  # 查看日志
+#   docker compose down                     # 停止服务
+#
+# 对标 TrueNAS Docker Apps 简化部署：
+#   ./apps/deploy.sh --list                 # 列出可用应用
+#   ./apps/deploy.sh plex                   # 一键部署 Plex
+#   ./apps/deploy.sh --stack media_center   # 部署家庭影院组合
+#
+# v2.374.0 工部优化：简化部署流程 + 应用模板系统
+#
+# 当前版本: v2.374.0（工部维护）
 
 services:
   nas-os:
@@ -17,7 +29,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.253.283"
+      - "nas-os.version=2.374.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
