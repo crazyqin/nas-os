@@ -14,7 +14,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -596,24 +595,20 @@ func (m *RAIDZExpansionManager) GetDiskInfo(ctx context.Context, diskPath string
 	}
 
 	// 检查磁盘是否存在
-	stat, err := os.Stat(diskPath)
-	if os.IsNotExist(err) {
+	if _, err := os.Stat(diskPath); os.IsNotExist(err) {
 		return nil, ErrDiskNotFound
 	}
 
-	// 获取磁盘大小
-	if fileInfo, err := stat.Sys().(*syscall.Stat_t); err == false {
-		// 尝试通过 blockdev 获取大小
-		cmd := exec.CommandContext(ctx, "blockdev", "--getsize64", diskPath)
-		output, err := cmd.Output()
-		if err == nil {
-			info.Size, _ = strconv.ParseUint(strings.TrimSpace(string(output)), 10, 64)
-		}
+	// 获取磁盘大小（通过 blockdev）
+	cmd := exec.CommandContext(ctx, "blockdev", "--getsize64", diskPath)
+	output, err := cmd.Output()
+	if err == nil {
+		info.Size, _ = strconv.ParseUint(strings.TrimSpace(string(output)), 10, 64)
 	}
 
 	// 获取磁盘类型（通过 lsblk）
-	cmd := exec.CommandContext(ctx, "lsblk", "-d", "-n", "-o", "TYPE,ROTA,MODEL,SERIAL", diskPath)
-	output, err := cmd.Output()
+	cmd = exec.CommandContext(ctx, "lsblk", "-d", "-n", "-o", "TYPE,ROTA,MODEL,SERIAL", diskPath)
+	output, err = cmd.Output()
 	if err == nil {
 		fields := strings.Fields(string(output))
 		if len(fields) >= 4 {
