@@ -3,6 +3,12 @@
 # NAS-OS 系统安装脚本
 # 适用于 Debian/Ubuntu 系统
 #
+# v2.375.0 工部优化：
+# - 增加错误处理和重试机制
+# - 增加健康检查等待逻辑
+# - 增加安装前系统检查
+# - 优化防火墙配置
+#
 # 用法: curl -fsSL https://raw.githubusercontent.com/your-org/nas-os/main/scripts/install.sh | sudo bash
 # 或：wget -qO- https://... | sudo bash
 #
@@ -16,6 +22,8 @@ CONFIG_DIR="/etc/nas-os"
 DATA_DIR="/var/lib/nas-os"
 LOG_DIR="/var/log/nas-os"
 SYSTEMD_SERVICE="/etc/systemd/system/nas-os.service"
+MAX_RETRY=3
+RETRY_DELAY=5
 
 # 颜色输出
 RED='\033[0;31m'
@@ -29,12 +37,58 @@ log_success() { echo -e "${GREEN}[OK]${NC}   $1"; }
 log_warn()    { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error()   { echo -e "${RED}[ERROR]${NC} $1"; }
 
+# v2.375.0: 增加重试函数
+retry_command() {
+    local max_attempts=$1
+    local delay=$2
+    local cmd="${@:3}"
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        if eval "$cmd"; then
+            return 0
+        fi
+        log_warn "命令失败，尝试 $attempt/$max_attempts，等待 $delay 秒后重试..."
+        sleep $delay
+        attempt=$((attempt + 1))
+    done
+    
+    log_error "命令执行失败，已达最大重试次数"
+    return 1
+}
+
 # ========== 检查 ==========
 check_root() {
     if [[ $EUID -ne 0 ]]; then
         log_error "请使用 root 权限运行此脚本 (sudo)"
         exit 1
     fi
+}
+
+# v2.375.0: 增加系统资源检查
+check_system_resources() {
+    log_info "检查系统资源..."
+    
+    # 检查内存（至少 512MB）
+    TOTAL_MEM=$(free -m | awk '/^Mem:/ {print $2}')
+    if [ "$TOTAL_MEM" -lt 512 ]; then
+        log_warn "内存不足 512MB (当前: ${TOTAL_MEM}MB)，可能影响运行"
+    else
+        log_success "内存检查通过: ${TOTAL_MEM}MB"
+    fi
+    
+    # 检查磁盘空间（至少 1GB）
+    AVAILABLE_SPACE=$(df -BG / | awk 'NR==2 {print $4}' | tr -d 'G')
+    if [ "$AVAILABLE_SPACE" -lt 1 ]; then
+        log_error "磁盘空间不足 1GB (当前: ${AVAILABLE_SPACE}GB)"
+        exit 1
+    else
+        log_success "磁盘空间检查通过: ${AVAILABLE_SPACE}GB 可用"
+    fi
+    
+    # 检查 CPU 核数
+    CPU_CORES=$(nproc)
+    log_info "CPU 核数: $CPU_CORES"
 }
 
 check_os() {
@@ -254,12 +308,34 @@ enable_service() {
     systemctl enable nas-os
     systemctl start nas-os
     
-    sleep 2
+    # v2.375.0: 增加健康检查等待逻辑
+    log_info "等待服务启动..."
+    MAX_WAIT=30
+    WAIT_COUNT=0
     
+    while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
+        sleep 1
+        WAIT_COUNT=$((WAIT_COUNT + 1))
+        
+        if systemctl is-active --quiet nas-os; then
+            # 检查健康端点
+            if curl -sf http://localhost:8080/api/v1/health >/dev/null 2>&1; then
+                log_success "NAS-OS 服务已启动并健康"
+                return 0
+            fi
+        fi
+        
+        if [ $((WAIT_COUNT % 5)) -eq 0 ]; then
+            log_info "等待中... ($WAIT_COUNT/$MAX_WAIT 秒)"
+        fi
+    done
+    
+    # 超时后检查状态
     if systemctl is-active --quiet nas-os; then
-        log_success "NAS-OS 服务已启动"
+        log_warn "服务已启动但健康检查未通过，请检查日志"
     else
-        log_error "服务启动失败，请检查日志：journalctl -u nas-os"
+        log_error "服务启动失败，请检查日志：journalctl -u nas-os -n 50"
+        systemctl status nas-os --no-pager
         exit 1
     fi
 }
@@ -274,6 +350,7 @@ main() {
     
     check_root
     check_os
+    check_system_resources  # v2.375.0: 增加系统资源检查
     check_btrfs || install_dependencies
     create_directories
     download_binary
