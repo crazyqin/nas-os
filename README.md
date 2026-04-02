@@ -8,6 +8,19 @@
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
+## 🌟 四大独家功能（竞品均无）
+
+| # | 功能 | 说明 | 价值 |
+|---|------|------|------|
+| 1 | 🔒 **WriteOnce不可变存储** | WORM文件系统，防篡改/防勒索，合规归档 | 企业数据安全壁垒 |
+| 2 | 🤖 **本地LLM服务** | Ollama集成 + OpenAI兼容API，本地AI推理 | 私有化AI，零数据外泄 |
+| 3 | 🔐 **AI数据脱敏** | PII智能识别，隐私保护，多提供商支持 | AI训练数据安全 |
+| 4 | 🛡️ **勒索实时防护** | WriteOnce + SMB行为监控 + 诱饵文件检测 | 实时防护，一键还原 |
+
+> 💡 **竞品对标**: 群晖DSM、飞牛fnOS、TrueNAS均无上述四大功能 → [详细分析](docs/COMPETITIVE_ANALYSIS_2026Q2.md)
+
+---
+
 ## 特性
 
 ### 核心功能 ✅

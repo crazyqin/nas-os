@@ -1,0 +1,37 @@
+{
+  "round": 141,
+  "version": "v2.374.0",
+  "date": "2026-04-02",
+  "status": "in_progress",
+  "ci_status": "running",
+  "departments": {
+    "兵部": {
+      "status": "pending",
+      "task": "RAIDZ Expansion API + NVMe SMART"
+    },
+    "工部": {
+      "status": "pending",
+      "task": "CI/CD稳定性 + Docker简化"
+    },
+    "刑部": {
+      "status": "pending",
+      "task": "安全扫描 + 漏洞修复"
+    },
+    "户部": {
+      "status": "pending",
+      "task": "多节点成本分析"
+    },
+    "礼部": {
+      "status": "pending",
+      "task": "竞品文档更新"
+    },
+    "吏部": {
+      "status": "pending",
+      "task": "版本协调 + 测试验证"
+    }
+  },
+  "completed_tasks": [
+    "fix: go vet警告修复"
+  ],
+  "current_priority": "等待CI完成后发布v2.374.0"
+}
