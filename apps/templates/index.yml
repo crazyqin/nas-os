@@ -1,0 +1,339 @@
+# NAS-OS Docker 应用模板目录
+# 对标 TrueNAS Docker Apps 简化部署体验
+#
+# 使用方式：
+#   1. Web UI 选择应用一键部署
+#   2. CLI: ./apps/deploy.sh <app-name>
+#   3. Docker Compose: docker compose -f apps/templates/<app>.yml up -d
+#
+# v2.374.0 工部优化：简化应用部署流程
+
+metadata:
+  version: "2.374.0"
+  updated: "2026-04-02"
+  maintainer: "工部"
+
+categories:
+  media:
+    name: "媒体服务"
+    description: "影音播放、媒体管理"
+    icon: "🎬"
+    apps:
+      - plex
+      - jellyfin
+      - homeassistant
+
+  storage:
+    name: "存储服务"
+    description: "文件存储、云盘同步"
+    icon: "💾"
+    apps:
+      - nextcloud
+      - vaultwarden
+
+  database:
+    name: "数据库"
+    description: "数据存储、缓存服务"
+    icon: "🗄️"
+    apps:
+      - postgres
+      - redis
+      - qdrant
+
+  network:
+    name: "网络服务"
+    description: "代理、负载均衡、下载"
+    icon: "🌐"
+    apps:
+      - nginx
+      - portainer
+      - transmission
+
+apps:
+  # ==================== 媒体服务 ====================
+  plex:
+    name: "Plex"
+    category: media
+    description: "全能媒体服务器，支持电影、音乐、照片"
+    icon: "🎬"
+    template: plex.yml
+    ports:
+      - "32400:32400"
+    requirements:
+      cpu: "2.0"
+      memory: "1G"
+    features:
+      - "电影/音乐/照片管理"
+      - "硬件转码（Intel/NVIDIA）"
+      - "远程访问"
+      - "移动端同步"
+    license: "免费（部分功能需订阅）"
+    website: "https://www.plex.tv"
+    popularity: 5
+
+  jellyfin:
+    name: "Jellyfin"
+    category: media
+    description: "开源媒体服务器，完全免费"
+    icon: "📺"
+    template: jellyfin.yml
+    ports:
+      - "8096:8096"
+    requirements:
+      cpu: "1.0"
+      memory: "512M"
+    features:
+      - "电影/音乐管理"
+      - "硬件转码"
+      - "完全开源免费"
+      - "Live TV 支持"
+    license: "开源免费"
+    website: "https://jellyfin.org"
+    popularity: 4
+
+  homeassistant:
+    name: "Home Assistant"
+    category: media
+    description: "智能家居自动化平台"
+    icon: "🏠"
+    template: homeassistant.yml
+    ports:
+      - "8123:8123"
+    requirements:
+      cpu: "1.0"
+      memory: "512M"
+    features:
+      - "智能家居控制"
+      - "1000+ 集成"
+      - "自动化规则"
+      - "语音助手"
+    license: "开源免费"
+    website: "https://www.home-assistant.io"
+    popularity: 5
+
+  # ==================== 存储服务 ====================
+  nextcloud:
+    name: "Nextcloud"
+    category: storage
+    description: "私有云盘，文件同步与协作"
+    icon: "☁️"
+    template: nextcloud.yml
+    ports:
+      - "8081:80"
+    requirements:
+      cpu: "1.0"
+      memory: "512M"
+    dependencies:
+      - postgres
+      - redis
+    features:
+      - "文件存储同步"
+      - "日历/联系人"
+      - "在线办公"
+      - "端到端加密"
+    license: "开源免费"
+    website: "https://nextcloud.com"
+    popularity: 5
+
+  vaultwarden:
+    name: "Vaultwarden"
+    category: storage
+    description: "密码管理器，Bitwarden 轻量版"
+    icon: "🔐"
+    template: vaultwarden.yml
+    ports:
+      - "3012:3012"
+    requirements:
+      cpu: "0.5"
+      memory: "128M"
+    features:
+      - "密码管理"
+      - "两步验证"
+      - "安全分享"
+      - "跨平台同步"
+    license: "开源免费"
+    website: "https://github.com/dani-garcia/vaultwarden"
+    popularity: 4
+
+  # ==================== 数据库 ====================
+  postgres:
+    name: "PostgreSQL"
+    category: database
+    description: "企业级关系数据库"
+    icon: "🐘"
+    template: postgres.yml
+    ports:
+      - "5432:5432"
+    requirements:
+      cpu: "1.0"
+      memory: "512M"
+    features:
+      - "ACID 事务"
+      - "JSON 支持"
+      - "高可用复制"
+      - "扩展插件"
+    license: "开源免费"
+    website: "https://www.postgresql.org"
+    popularity: 5
+
+  redis:
+    name: "Redis"
+    category: database
+    description: "高性能内存数据库/缓存"
+    icon: "⚡"
+    template: redis.yml
+    ports:
+      - "6379:6379"
+    requirements:
+      cpu: "0.5"
+      memory: "256M"
+    features:
+      - "高速缓存"
+      - "消息队列"
+      - "发布订阅"
+      - "数据结构丰富"
+    license: "开源免费"
+    website: "https://redis.io"
+    popularity: 5
+
+  qdrant:
+    name: "Qdrant"
+    category: database
+    description: "向量数据库，AI 语义搜索"
+    icon: "🧠"
+    template: qdrant.yml
+    ports:
+      - "6333:6333"
+    requirements:
+      cpu: "1.0"
+      memory: "512M"
+    features:
+      - "向量搜索"
+      - "AI 集成"
+      - "过滤查询"
+      - "持久化存储"
+    license: "开源免费"
+    website: "https://qdrant.tech"
+    popularity: 3
+
+  # ==================== 网络服务 ====================
+  nginx:
+    name: "Nginx"
+    category: network
+    description: "高性能 Web 服务器/反向代理"
+    icon: "🌐"
+    template: nginx.yml
+    ports:
+      - "80:80"
+      - "443:443"
+    requirements:
+      cpu: "0.5"
+      memory: "128M"
+    features:
+      - "反向代理"
+      - "负载均衡"
+      - "SSL/TLS"
+      - "静态文件服务"
+    license: "开源免费"
+    website: "https://nginx.org"
+    popularity: 5
+
+  portainer:
+    name: "Portainer"
+    category: network
+    description: "Docker 容器管理 Web UI"
+    icon: "🐳"
+    template: portainer.yml
+    ports:
+      - "9443:9443"
+    requirements:
+      cpu: "0.5"
+      memory: "256M"
+    features:
+      - "容器管理"
+      - "镜像管理"
+      - "网络配置"
+      - "用户权限"
+    license: "开源免费"
+    website: "https://www.portainer.io"
+    popularity: 5
+
+  transmission:
+    name: "Transmission"
+    category: network
+    description: "轻量级 BitTorrent 客户端"
+    icon: "⬇️"
+    template: transmission.yml
+    ports:
+      - "9091:9091"
+    requirements:
+      cpu: "0.5"
+      memory: "128M"
+    features:
+      - "BT 下载"
+      - "Web UI"
+      - "加密传输"
+      - "速度限制"
+    license: "开源免费"
+    website: "https://transmissionbt.com"
+    popularity: 3
+
+# ==================== 推荐组合 ====================
+recommended_stacks:
+  media_center:
+    name: "家庭影院"
+    description: "媒体服务器组合"
+    apps:
+      - plex
+      - transmission
+    estimated_resources:
+      cpu: "2.5"
+      memory: "1.2G"
+
+  private_cloud:
+    name: "私有云盘"
+    description: "文件存储协作组合"
+    apps:
+      - nextcloud
+      - postgres
+      - redis
+    estimated_resources:
+      cpu: "2.5"
+      memory: "1.5G"
+
+  smart_home:
+    name: "智能家居"
+    description: "Home Assistant + 数据库"
+    apps:
+      - homeassistant
+      - postgres
+    estimated_resources:
+      cpu: "2.0"
+      memory: "1G"
+
+  password_manager:
+    name: "密码管理"
+    description: "独立密码管理服务"
+    apps:
+      - vaultwarden
+    estimated_resources:
+      cpu: "0.5"
+      memory: "128M"
+
+  ai_stack:
+    name: "AI 服务栈"
+    description: "向量数据库 + AI 服务"
+    apps:
+      - qdrant
+      - redis
+    estimated_resources:
+      cpu: "1.5"
+      memory: "768M"
+
+# ==================== 部署建议 ====================
+deployment_tips:
+  - "首次部署建议先部署数据库服务（postgres/redis）"
+  - "媒体服务建议启用硬件转码以降低 CPU 占用"
+  - "网络服务（nginx/portainer）建议部署在主节点"
+  - "所有服务均支持一键更新：docker compose pull && docker compose up -d"
+  - "日志聚合到 /var/lib/nas-os/logs/apps/ 目录"
