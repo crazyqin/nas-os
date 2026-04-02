@@ -6,6 +6,26 @@ import (
 	"time"
 )
 
+// WakeRequest 唤醒请求
+type WakeRequest struct {
+	ID        string
+	DiskPath  string
+	Priority  WakePriority
+	Type      WakeRequestType
+	Reason    string
+	Timestamp time.Time
+	index     int // heap index
+}
+
+// WakeRequestType 唤醒请求类型
+type WakeRequestType int
+
+const (
+	WakeRequestImmediate  WakeRequestType = 0 // 立即唤醒
+	WakeRequestBatched    WakeRequestType = 1 // 批量唤醒
+	WakeRequestScheduled  WakeRequestType = 2 // 定时唤醒
+)
+
 // WakeTrigger 磁盘唤醒触发器
 type WakeTrigger struct {
 	sleepManager *DiskSleepManager

@@ -223,7 +223,7 @@ func (a *EnergyAnalyzer) GenerateAnnualReport(stats []EnergyStats) EnergyReport 
 
 // EstimateSavings 估算节能潜力
 func (a *EnergyAnalyzer) EstimateSavings(diskCount int, avgSleepHoursPerDay float64) EnergyStats {
-	totalActiveHours := float64(a.config.HoursPerDay - avgSleepHoursPerDay)
+	totalActiveHours := float64(a.config.HoursPerDay) - avgSleepHoursPerDay
 	totalSleepHours := avgSleepHoursPerDay
 	
 	// 每日节能
@@ -232,11 +232,12 @@ func (a *EnergyAnalyzer) EstimateSavings(diskCount int, avgSleepHoursPerDay floa
 	// 月度节能
 	monthlySavings := dailySavings * float64(a.config.DaysPerMonth)
 	
-	// 年度节能
-	annualSavings := monthlySavings * 12
+	// 年度节能（用于统计，暂不返回）
+	_ = monthlySavings * 12
 	
 	return EnergyStats{
 		Device:      fmt.Sprintf("%d disks", diskCount),
+		ActiveHours: totalActiveHours * float64(diskCount),
 		SleepHours:  totalSleepHours * float64(diskCount),
 		SavingsKWh:  dailySavings,
 		SavingsYuan: dailySavings * a.config.ElectricityRatePerKWh,

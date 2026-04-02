@@ -252,7 +252,7 @@ func (m *DiskSleepManager) executeSleep(device string) error {
 func (m *DiskSleepManager) executeWake(device string) error {
 	// 通过读取磁盘来唤醒
 	readPath := filepath.Join("/dev", filepath.Base(device))
-	_, err := os.ReadFile(readPath)
+	_, _ = os.ReadFile(readPath)
 	// 即使读取失败，磁盘也可能已被唤醒
 	return nil
 }
