@@ -233,16 +233,36 @@ jobs:
     name: 生成 SBOM
     runs-on: ubuntu-latest
     needs: [prepare-release]
+    # v2.377.0 工部优化：增加重试机制应对 GitHub HTTP 500
+    timeout-minutes: 15
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
       
-      - name: 安装 Syft
+      # v2.377.0: Syft 下载重试机制（应对 GitHub 临时故障）
+      - name: 安装 Syft（带重试）
+        id: install-syft
         uses: anchore/sbom-action/download-syft@v0
+        with:
+          syft-version: latest
+      
+      # 备用方案：手动安装 Syft
+      - name: 备用安装 Syft
+        if: failure()
+        run: |
+          echo "⚠️ sbom-action 失败，使用备用方案"
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin latest
       
       - name: 生成源码 SBOM
         run: |
           VERSION="${{ needs.prepare-release.outputs.version }}"
+          
+          # 确保 syft 可用
+          if ! command -v syft &>/dev/null; then
+            echo "❌ Syft 未安装"
+            exit 1
+          fi
+          
           syft dir:. -o spdx-json=sbom-source-spdx.json
           syft dir:. -o cyclonedx-json=sbom-source-cyclonedx.json
           

@@ -10,9 +10,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -576,6 +578,308 @@ func (m *RAIDZExpansionManager) ValidateDisk(ctx context.Context, diskPath strin
 	}
 
 	return nil
+}
+
+// ValidateDiskSimple 简单验证磁盘是否可用于扩展（接口实现）
+func (m *RAIDZExpansionManager) ValidateDiskSimple(ctx context.Context, diskPath string) error {
+	return m.ValidateDisk(ctx, diskPath)
+}
+
+// GetDiskInfo 获取磁盘详细信息
+func (m *RAIDZExpansionManager) GetDiskInfo(ctx context.Context, diskPath string) (*DiskInfo, error) {
+	if !m.available {
+		return nil, ErrZFSNotAvailable
+	}
+
+	info := &DiskInfo{
+		Path: diskPath,
+	}
+
+	// 检查磁盘是否存在
+	stat, err := os.Stat(diskPath)
+	if os.IsNotExist(err) {
+		return nil, ErrDiskNotFound
+	}
+
+	// 获取磁盘大小
+	if fileInfo, err := stat.Sys().(*syscall.Stat_t); err == false {
+		// 尝试通过 blockdev 获取大小
+		cmd := exec.CommandContext(ctx, "blockdev", "--getsize64", diskPath)
+		output, err := cmd.Output()
+		if err == nil {
+			info.Size, _ = strconv.ParseUint(strings.TrimSpace(string(output)), 10, 64)
+		}
+	}
+
+	// 获取磁盘类型（通过 lsblk）
+	cmd := exec.CommandContext(ctx, "lsblk", "-d", "-n", "-o", "TYPE,ROTA,MODEL,SERIAL", diskPath)
+	output, err := cmd.Output()
+	if err == nil {
+		fields := strings.Fields(string(output))
+		if len(fields) >= 4 {
+			info.Type = fields[0]
+			info.Rotational = fields[1] == "1"
+			info.Model = fields[2]
+			info.Serial = fields[3]
+		}
+	}
+
+	// 检查是否在 ZFS 中使用
+	cmd = exec.CommandContext(ctx, "zpool", "status", "-P")
+	output, err = cmd.Output()
+	if err == nil {
+		info.InUse = strings.Contains(string(output), diskPath)
+	}
+
+	return info, nil
+}
+
+// DiskInfo 磁盘信息
+type DiskInfo struct {
+	Path        string `json:"path"`
+	Size        uint64 `json:"size"`
+	Type        string `json:"type"`        // disk, part, rom
+	Rotational  bool   `json:"rotational"`  // 是否旋转盘
+	Model       string `json:"model"`
+	Serial      string `json:"serial"`
+	InUse       bool   `json:"inUse"`       // 是否在 ZFS 中使用
+	Available   bool   `json:"available"`   // 是否可用
+	HealthState string `json:"healthState"` // 健康、警告、错误
+}
+
+// RecommendDiskForExpansion 推荐适合扩展的磁盘
+func (m *RAIDZExpansionManager) RecommendDiskForExpansion(ctx context.Context, poolName string) ([]DiskRecommendation, error) {
+	if !m.available {
+		return nil, ErrZFSNotAvailable
+	}
+
+	// 获取池信息以确定现有磁盘大小
+	poolInfo, err := m.GetPoolExpansionInfo(ctx, poolName)
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取现有磁盘大小（取最小值作为参考）
+	var minDiskSize uint64
+	for _, vdev := range poolInfo.Vdevs {
+		// 假设每个磁盘大小相近
+		if poolInfo.TotalSize > 0 && vdev.Width > 0 {
+			avgSize := poolInfo.TotalSize / uint64(vdev.Width)
+			if minDiskSize == 0 || avgSize < minDiskSize {
+				minDiskSize = avgSize
+			}
+		}
+	}
+
+	// 列出可用磁盘
+	availableDisks, err := m.ListAvailableDisks(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 评估每个磁盘
+	var recommendations []DiskRecommendation
+	for _, diskPath := range availableDisks {
+		diskInfo, err := m.GetDiskInfo(ctx, diskPath)
+		if err != nil {
+			continue
+		}
+
+		rec := DiskRecommendation{
+			DiskInfo: diskInfo,
+			Score:    m.calculateDiskScore(diskInfo, minDiskSize),
+		}
+
+		// 判断是否推荐
+		if diskInfo.Size >= minDiskSize && !diskInfo.InUse {
+			rec.Recommended = true
+			rec.Reason = "磁盘大小匹配，状态良好"
+		} else if diskInfo.Size < minDiskSize {
+			rec.Recommended = false
+			rec.Reason = "磁盘太小，可能导致容量浪费"
+		} else if diskInfo.InUse {
+			rec.Recommended = false
+			rec.Reason = "磁盘已在使用"
+		}
+
+		recommendations = append(recommendations, rec)
+	}
+
+	// 按推荐分数排序
+	sort.Slice(recommendations, func(i, j int) bool {
+		return recommendations[i].Score > recommendations[j].Score
+	})
+
+	return recommendations, nil
+}
+
+// DiskRecommendation 磁盘推荐
+type DiskRecommendation struct {
+	DiskInfo    *DiskInfo `json:"diskInfo"`
+	Recommended bool      `json:"recommended"`
+	Score       int       `json:"score"` // 0-100 推荐分数
+	Reason      string    `json:"reason"`
+}
+
+// calculateDiskScore 计算磁盘推荐分数
+func (m *RAIDZExpansionManager) calculateDiskScore(info *DiskInfo, targetSize uint64) int {
+	score := 100
+
+	// 大小匹配度
+	if info.Size > 0 && targetSize > 0 {
+		sizeRatio := float64(info.Size) / float64(targetSize)
+		if sizeRatio >= 0.95 && sizeRatio <= 1.05 {
+			// 完美匹配
+			score += 20
+		} else if sizeRatio > 1.5 {
+			// 过大，浪费
+			score -= 10
+		} else if sizeRatio < 0.9 {
+			// 过小
+			score -= 30
+		}
+	}
+
+	// NVMe vs HDD
+	if !info.Rotational {
+		score += 15 // NVMe 更优
+	}
+
+	// 健康状态
+	switch info.HealthState {
+	case "healthy":
+		score += 10
+	case "warning":
+		score -= 20
+	case "error":
+		score -= 50
+	}
+
+	// 确保分数在 0-100 范围内
+	if score < 0 {
+		score = 0
+	}
+	if score > 100 {
+		score = 100
+	}
+
+	return score
+}
+
+// GetExpansionPreview 获取扩展预览（不实际执行）
+func (m *RAIDZExpansionManager) GetExpansionPreview(ctx context.Context, poolName string, newDisk string) (*ExpansionPreview, error) {
+	if !m.available {
+		return nil, ErrZFSNotAvailable
+	}
+
+	// 获取池信息
+	poolInfo, err := m.GetPoolExpansionInfo(ctx, poolName)
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取新磁盘信息
+	diskInfo, err := m.GetDiskInfo(ctx, newDisk)
+	if err != nil {
+		return nil, err
+	}
+
+	// 计算扩展后的容量
+	preview := &ExpansionPreview{
+		PoolName:        poolName,
+		NewDisk:         newDisk,
+		DiskInfo:        diskInfo,
+		OriginalSize:    poolInfo.TotalSize,
+		OriginalWidth:   0,
+		NewWidth:        0,
+		OriginalDataDisks: 0,
+		NewDataDisks:    0,
+		Warnings:        []string{},
+	}
+
+	// 计算宽度变化
+	for _, vdev := range poolInfo.Vdevs {
+		if vdev.VdevType == "raidz1" || vdev.VdevType == "raidz2" || vdev.VdevType == "raidz3" {
+			preview.OriginalWidth = vdev.Width
+			preview.NewWidth = vdev.Width + 1
+			preview.OriginalDataDisks = vdev.DataDisks
+			preview.NewDataDisks = vdev.DataDisks + 1
+			preview.RAIDZLevel = vdev.VdevType
+			preview.ParityDisks = vdev.ParityDisks
+		}
+	}
+
+	// 估算新容量
+	if preview.NewWidth > 0 && diskInfo.Size > 0 {
+		// 简化计算：假设所有磁盘大小相近
+		preview.EstimatedNewSize = diskInfo.Size * uint64(preview.NewDataDisks)
+		preview.CapacityGain = preview.EstimatedNewSize - poolInfo.AllocatedSize
+
+		// 计算效率变化
+		preview.OriginalEfficiency = float64(preview.OriginalDataDisks) / float64(preview.OriginalWidth)
+		preview.NewEfficiency = float64(preview.NewDataDisks) / float64(preview.NewWidth)
+	}
+
+	// 添加警告
+	if diskInfo.Size < poolInfo.TotalSize/uint64(preview.OriginalWidth) {
+		preview.Warnings = append(preview.Warnings,
+			"新磁盘比现有磁盘小，可能导致容量不均衡")
+	}
+	if preview.NewEfficiency < preview.OriginalEfficiency {
+		preview.Warnings = append(preview.Warnings,
+			fmt.Sprintf("扩展后存储效率将从 %.2f%% 降至 %.2f%%",
+				preview.OriginalEfficiency*100, preview.NewEfficiency*100))
+	}
+
+	// 估算时间
+	preview.EstimatedDuration, _ = m.EstimateExpansionTime(ctx, poolName)
+
+	// 检查是否可恢复效率
+	preview.EfficiencyRecoveryOptions = []EfficiencyRecoveryOption{
+		{
+			Method:        "后续添加更多磁盘",
+			Description:   "继续扩展 RAIDZ 阵列可恢复效率",
+			RecoveryRate:  0.05,
+			EstimatedTime: "每次扩展约需要相同时间",
+		},
+		{
+			Method:        "创建新池迁移数据",
+			Description:   "创建具有更高效率的新池并迁移数据",
+			RecoveryRate:  preview.OriginalEfficiency - preview.NewEfficiency,
+			EstimatedTime: "取决于数据量",
+		},
+	}
+
+	return preview, nil
+}
+
+// ExpansionPreview 扩展预览
+type ExpansionPreview struct {
+	PoolName           string                  `json:"poolName"`
+	NewDisk            string                  `json:"newDisk"`
+	DiskInfo           *DiskInfo               `json:"diskInfo"`
+	OriginalSize       uint64                  `json:"originalSize"`
+	EstimatedNewSize   uint64                  `json:"estimatedNewSize"`
+	CapacityGain       uint64                  `json:"capacityGain"`
+	OriginalWidth      int                     `json:"originalWidth"`
+	NewWidth           int                     `json:"newWidth"`
+	OriginalDataDisks  int                     `json:"originalDataDisks"`
+	NewDataDisks       int                     `json:"newDataDisks"`
+	ParityDisks        int                     `json:"parityDisks"`
+	RAIDZLevel         string                  `json:"raidzLevel"`
+	OriginalEfficiency float64                 `json:"originalEfficiency"`
+	NewEfficiency      float64                 `json:"newEfficiency"`
+	EstimatedDuration  time.Duration           `json:"estimatedDuration"`
+	Warnings           []string                `json:"warnings"`
+	EfficiencyRecoveryOptions []EfficiencyRecoveryOption `json:"efficiencyRecoveryOptions"`
+}
+
+// EfficiencyRecoveryOption 效率恢复选项
+type EfficiencyRecoveryOption struct {
+	Method        string  `json:"method"`
+	Description   string  `json:"description"`
+	RecoveryRate  float64 `json:"recoveryRate"`
+	EstimatedTime string  `json:"estimatedTime"`
 }
 
 // StartExpansion 开始 RAIDZ 扩展

@@ -1,7 +1,7 @@
 # NAS系统功能对比矩阵
 
-> 更新时间: 2026-03-29
-> 对比版本: nas-os v2.315.0 | TrueNAS CE 25.10 | 群晖 DSM 7.3 | 飞牛 fnOS
+> 更新时间: 2026-04-02
+> 对比版本: nas-os v2.377.0 | TrueNAS SCALE 24.10 (Electric Eel) | 群晖 DSM 7.3 | 飞牛 fnOS
 
 ---
 
