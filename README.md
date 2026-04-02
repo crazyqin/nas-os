@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.378.0 Stable (2026-04-02)
+> **最新版本**: v2.379.0 Stable (2026-04-02)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -14,8 +14,8 @@
 |---|------|------|------|
 | 1 | 🔒 **WriteOnce不可变存储** | WORM文件系统，防篡改/防勒索，合规归档 | 企业数据安全壁垒 |
 | 2 | 🤖 **本地LLM服务** | Ollama集成 + OpenAI兼容API，本地AI推理 | 私有化AI，零数据外泄 |
-| 3 | 🔐 **AI数据脱敏** | PII智能识别，隐私保护，多提供商支持 | AI训练数据安全 |
-| 4 | 🛡️ **勒索实时防护** | WriteOnce + SMB行为监控 + 诱饵文件检测 | 实时防护，一键还原 |
+| 3 | 🔐 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | 智能相册，超越人脸识别 |
+| 4 | ☁️ **多云存储挂载** | 阿里云/腾讯云/AWS/GDrive/OneDrive统一挂载 | 云本地化，竞品覆盖最广 |
 
 > 💡 **竞品对标**: 群晖DSM、飞牛fnOS、TrueNAS均无上述四大功能 → [详细分析](docs/COMPETITIVE_ANALYSIS_2026Q2.md)
 
@@ -225,8 +225,8 @@ sudo nasd
 |------|------|----------|----------|
 | 🔒 **WriteOnce** | 不可变存储(WORM)，防篡改/防勒索，合规归档 | 群晖/飞牛/TrueNAS均无 | 企业合规、数据安全壁垒 |
 | 🤖 **本地LLM服务** | Ollama集成，OpenAI兼容API，本地AI推理 | 群晖有本地LLM，飞牛/TrueNAS无 | 私有化AI能力，零数据外泄 |
-| 🔐 **AI数据脱敏** | PII智能识别/隐私保护，多提供商支持 | 群晖有AI Console，飞牛/TrueNAS无 | AI训练数据隐私保护 |
-| 🛡️ **勒索实时防护** | WriteOnce + SMB行为监控 + 诱饵文件检测 | TrueNAS有Connect Plus，群晖/飞牛无 | 实时防护，一键还原 |
+| 🔐 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | 飞牛/群晖仅人脸，TrueNAS无 | 智能相册，超越人脸识别 |
+| ☁️ **多云存储挂载** | 阿里/腾讯/AWS/GDrive/OneDrive 6+平台统一挂载 | 群晖有限，飞牛网盘，TrueNAS无 | 云本地化，覆盖最广 |
 
 ### ⭐ 领先功能
 
@@ -235,8 +235,8 @@ sudo nasd
 | 📊 **Fusion Pool** | 智能热冷数据分层，SSD缓存+HDD容量 | TrueNAS无，群晖有Tiering |
 | 🔥 **Hot Spare** | 热备盘自动故障切换，RAID自愈 | 飞牛fnOS无此功能 |
 | 📈 **SSD三级预警** | 寿命预测+健康评分+预警通知 | 领先竞品方案 |
-| ☁️ **多云挂载** | 阿里云/腾讯云/AWS/GDrive/OneDrive统一挂载 | 竞品需额外付费 |
-| 🤖 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | 飞牛有人脸，群晖有人脸，TrueNAS无 |
+| 🤖 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | 飞牛/群晖仅人脸，TrueNAS无 |
+| 🛡️ **勒索防护** | WriteOnce + SMB行为监控 | TrueNAS规划中，竞品无 |
 
 ### 📋 P0对标规划（对标TrueNAS 24.10）
 
@@ -250,26 +250,26 @@ sudo nasd
 
 ### 竞品对比矩阵
 
-#### 🏆 三大独家功能（竞品均无）
+#### 🏆 四大独家功能（竞品均无）
 
 | 功能 | nas-os | 飞牛fnOS | 群晖DSM 7.3 | TrueNAS 25.10 | 价值主张 |
 |-----|:------:|:--------:|:-----------:|:-------------:|----------|
 | 🔒 **WriteOnce不可变存储** | ✅ **独家** | ❌ | ❌ | ❌ | 防勒索、合规归档、一键还原 |
-| 📊 **Fusion Pool智能分层** | ✅ **独家** | ❌ | ✅ Tiering | ❌ | 热数据SSD加速+冷数据HDD省钱 |
-| 🤖 **AI相册-以文搜图** | ✅ | ✅ 人脸 | ✅ 人脸 | ❌ | 自然语言搜索，本地CLIP推理 |
+| 🤖 **本地LLM服务** | ✅ **独家** | ❌ | ✅ 本地LLM | ❌ | OpenAI兼容API，私有化AI |
+| 🔐 **AI以文搜图（CLIP）** | ✅ **独家** | ✅ 人脸 | ✅ 人脸 | ❌ | 自然语言搜索，本地推理 |
+| ☁️ **多云存储挂载** | ✅ **6+平台** | ✅ 网盘 | ⚠️ 有限 | ❌ | 阿里/腾讯/AWS/GDrive全覆盖 |
 
 #### ⭐ 领先功能对比
 
 | 功能特性 | nas-os | 飞牛fnOS | 群晖DSM 7.3 | TrueNAS 25.10 |
 |---------|:------:|:--------:|:-----------:|:-------------:|
 | **RAIDZ扩展/单盘扩容** | 📋 P0规划 | ❌ | ❌ | ✅ **OpenZFS 2.3原生** |
-| **勒索软件检测** | ✅ | ❌ | ❌ | ✅ Connect Plus |
+| **勒索软件检测** | ✅ WriteOnce | ❌ | ❌ | ✅ Connect Plus |
 | **私有云AI服务** | ✅ Ollama | ❌ | ✅ 本地LLM | ❌ |
 | **OpenAI兼容API** | ✅ **独家** | ❌ | ❌ | ❌ |
-| **多系统集中管理** | ❌ | ✅ FN Connect | ✅ DSM群管 | ✅ **Connect Business** |
+| **多系统集中管理** | ✅ CMS | ✅ FN Connect | ✅ DSM群管 | ✅ **Connect Business** |
 | **Hot Spare热备盘** | ✅ | ❌ | ✅ | ✅ |
 | **SSD健康三级预警** | ✅ | ✅ | ✅ | ✅ NVMe S.M.A.R.T |
-| **多云存储挂载** | ✅ 6+平台 | ✅ 百度/115/夸克 | ✅ 有限 | ❌ |
 | **AI数据脱敏** | ✅ | ❌ | ✅ AI Console | ❌ |
 | **内网穿透(免费)** | ✅ | ✅ FN Connect | ❌ | ❌ Connect需订阅 |
 | **智能影视** | ✅ | ✅ 海报墙+刮削 | ✅ | ❌ |
