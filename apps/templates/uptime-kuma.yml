@@ -1,0 +1,121 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                        Uptime Kuma - 服务监控面板                              ║
+# ║                    自托管服务状态监控，类似 UptimeRobot                          ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     louislam/uptime-kuma:latest
+# 类别:     监控服务
+# 官网:     https://uptime.kuma.pet
+# 许可证:   开源免费 (MIT)
+#
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • HTTP/HTTPS 监控
+# • TCP/UDP 端口监控
+# • Ping 监控
+# • DNS 查询监控
+# • Docker 容器监控
+# • 状态页面
+# • 多通知渠道（Telegram/Discord/Email等）
+# • SSL 证书到期提醒
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# /var/lib/nas-os/data/uptime-kuma/ - 应用数据
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 一键启动:
+#    $ docker compose -f apps/templates/uptime-kuma.yml up -d
+#
+# 2. 访问 Web UI:
+#    http://localhost:3001
+#
+# 3. 创建管理员账号
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# UPTIME_KUMA_PORT - 服务端口（默认 3001）
+#
+# v2.388.0 工部优化：应用模板标准化
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: nas-uptime-kuma
+    restart: unless-stopped
+    
+    ports:
+      - "3001:3001"
+    
+    volumes:
+      - uptime-kuma-data:/app/data
+      # Docker 监控（可选）
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - UPTIME_KUMA_PORT=3001
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    labels:
+      - "nas-os.app=uptime-kuma"
+      - "nas-os.category=monitoring"
+      - "nas-os.description=Self-hosted monitoring tool like UptimeRobot"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+    
+    networks:
+      - nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
+volumes:
+  uptime-kuma-data:
+    driver: local
+    labels:
+      - "nas-os.app=uptime-kuma"
+      - "nas-os.volume=data"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 说明
+# ─────────────────────────────────────────────────────────────────────────────
+# • 访问地址：http://localhost:3001
+# • 首次访问创建管理员账号
+# • 支持多种通知渠道配置
+# • 可监控 Docker 容器状态
+# • 轻量级服务，资源占用低

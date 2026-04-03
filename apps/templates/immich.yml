@@ -1,0 +1,314 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                      Immich - 自托管照片与视频管理平台                         ║
+# ║                    Google Photos 开源替代，AI 相册管理                         ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     ghcr.io/immich-app/immich-server:latest
+# 类别:     媒体服务
+# 官网:     https://immich.app
+# 许可证:   开源免费 (MIT)
+#
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • 照片/视频自动备份
+# • AI 人脸识别与相册
+# • 元数据索引与搜索
+# • 地理位置地图
+# • 共享相册
+# • Live Photos 支持
+# • 移动端 App
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# /var/lib/nas-os/data/immich/upload    - 上传文件
+# /var/lib/nas-os/data/immich/db        - 数据库文件
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 首次部署（一键启动）:
+#    $ docker compose -f apps/templates/immich.yml up -d
+#
+# 2. 访问 Web UI:
+#    http://localhost:2283
+#
+# 3. 创建管理员账号并开始使用
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# DB_PASSWORD     - 数据库密码（建议修改默认值）
+# TZ              - 时区设置
+#
+# v2.388.0 工部优化：应用模板标准化
+
+services:
+  # ─── 主服务 ───────────────────────────────────────────────────────────────
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:latest
+    container_name: nas-immich-server
+    restart: unless-stopped
+    command: ["start.sh", "immich"]
+    
+    volumes:
+      - immich-upload:/usr/src/app/upload
+      - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}/photos:/usr/src/app/external:ro
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - DB_HOSTNAME=immich-db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=${DB_PASSWORD:-immich123}
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=immich-redis
+      - DB_PORT=5432
+      - REDIS_PORT=6379
+    
+    ports:
+      - "2283:3001"
+    
+    depends_on:
+      immich-db:
+        condition: service_healthy
+      immich-redis:
+        condition: service_healthy
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/server-info/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    labels:
+      - "nas-os.app=immich"
+      - "nas-os.category=media"
+      - "nas-os.description=Self-hosted photo and video management"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+    
+    networks:
+      - nas-app-network
+
+  # ─── 微服务 ───────────────────────────────────────────────────────────────
+  immich-microservices:
+    image: ghcr.io/immich-app/immich-server:latest
+    container_name: nas-immich-microservices
+    restart: unless-stopped
+    command: ["start.sh", "microservices"]
+    
+    volumes:
+      - immich-upload:/usr/src/app/upload
+      - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}/photos:/usr/src/app/external:ro
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - DB_HOSTNAME=immich-db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=${DB_PASSWORD:-immich123}
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=immich-redis
+    
+    depends_on:
+      immich-db:
+        condition: service_healthy
+      immich-redis:
+        condition: service_healthy
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "nas-os.app=immich"
+      - "nas-os.component=microservices"
+    
+    networks:
+      - nas-app-network
+
+  # ─── 机器学习服务 ───────────────────────────────────────────────────────────
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:latest
+    container_name: nas-immich-ml
+    restart: unless-stopped
+    
+    volumes:
+      - immich-model-cache:/cache
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 3G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/ping"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "nas-os.app=immich"
+      - "nas-os.component=machine-learning"
+    
+    networks:
+      - nas-app-network
+
+  # ─── 数据库 ───────────────────────────────────────────────────────────────
+  immich-db:
+    image: tensorchord/pgvecto.rs:pg14
+    container_name: nas-immich-db
+    restart: unless-stopped
+    
+    volumes:
+      - immich-db:/var/lib/postgresql/data
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-immich123}
+      - POSTGRES_DB=immich
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d immich"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "nas-os.app=immich"
+      - "nas-os.component=database"
+    
+    networks:
+      - nas-app-network
+
+  # ─── 缓存 ───────────────────────────────────────────────────────────────────
+  immich-redis:
+    image: redis:7-alpine
+    container_name: nas-immich-redis
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "nas-os.app=immich"
+      - "nas-os.component=redis"
+    
+    networks:
+      - nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
+volumes:
+  immich-upload:
+    driver: local
+    labels:
+      - "nas-os.app=immich"
+      - "nas-os.volume=upload"
+  
+  immich-db:
+    driver: local
+    labels:
+      - "nas-os.app=immich"
+      - "nas-os.volume=database"
+  
+  immich-model-cache:
+    driver: local
+    labels:
+      - "nas-os.app=immich"
+      - "nas-os.volume=model-cache"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 说明
+# ─────────────────────────────────────────────────────────────────────────────
+# • 首次访问：http://localhost:2283 创建管理员账号
+# • 支持移动端 App（iOS/Android）
+# • AI 功能需要机器学习服务
+# • 建议配置至少 4GB 内存
+# • 支持硬件加速（需配置 GPU）

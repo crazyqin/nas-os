@@ -1,0 +1,334 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                      Paperless-ngx - 文档管理系统                              ║
+# ║                    自动扫描、OCR、索引和归档纸质文档                            ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     ghcr.io/paperless-ngx/paperless-ngx:latest
+# 类别:     办公服务
+# 官网:     https://docs.paperless-ngx.com
+# 许可证:   开源免费 (GPLv3)
+#
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • OCR 文字识别
+# • 自动分类标签
+# • 全文搜索
+# • 文档自动导入
+# • 多格式导出
+# • 邮件自动处理
+# • API 集成
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# /var/lib/nas-os/data/paperless/data    - 应用数据
+# /var/lib/nas-os/data/paperless/media   - 文档存储
+# /var/lib/nas-os/data/paperless/consume - 导入目录
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 生成密钥:
+#    $ export PAPERLESS_SECRET_KEY=$(openssl rand -hex 32)
+#
+# 2. 启动服务:
+#    $ docker compose -f apps/templates/paperless.yml up -d
+#
+# 3. 创建管理员:
+#    $ docker exec nas-paperless python manage.py createsuperuser
+#
+# 4. 访问 Web UI:
+#    http://localhost:8010
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# PAPERLESS_SECRET_KEY    - 应用密钥（必须设置）
+# PAPERLESS_ADMIN_USER    - 管理员用户名
+# PAPERLESS_ADMIN_PASSWORD - 管理员密码
+# PAPERLESS_OCR_LANGUAGE   - OCR 语言（默认 chi_sim+eng）
+#
+# v2.388.0 工部优化：应用模板标准化
+
+services:
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: nas-paperless
+    restart: unless-stopped
+    
+    depends_on:
+      paperless-db:
+        condition: service_healthy
+      paperless-redis:
+        condition: service_healthy
+      paperless-gotenberg:
+        condition: service_started
+      paperless-tika:
+        condition: service_started
+    
+    ports:
+      - "8010:8000"
+    
+    volumes:
+      - paperless-data:/usr/src/paperless/data
+      - paperless-media:/usr/src/paperless/media
+      - paperless-consume:/usr/src/paperless/consume
+      - paperless-export:/usr/src/paperless/export
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      # ─── 核心配置 ─────────────────────────────────────────────────────────
+      - PAPERLESS_SECRET_KEY=${PAPERLESS_SECRET_KEY:-change-this-to-random-key}
+      - PAPERLESS_URL=${PAPERLESS_URL:-http://localhost:8010}
+      
+      # ─── 数据库配置 ───────────────────────────────────────────────────────
+      - PAPERLESS_DBHOST=paperless-db
+      - PAPERLESS_DBPORT=5432
+      - PAPERLESS_DBNAME=paperless
+      - PAPERLESS_DBUSER=paperless
+      - PAPERLESS_DBPASS=${DB_PASSWORD:-paperless123}
+      
+      # ─── Redis 配置 ───────────────────────────────────────────────────────
+      - PAPERLESS_REDIS=redis://paperless-redis:6379
+      
+      # ─── OCR 配置 ─────────────────────────────────────────────────────────
+      - PAPERLESS_OCR_LANGUAGE=${PAPERLESS_OCR_LANGUAGE:-chi_sim+eng}
+      - PAPERLESS_OCR_MODE=skip
+      
+      # ─── 安全配置 ─────────────────────────────────────────────────────────
+      - PAPERLESS_ADMIN_USER=${PAPERLESS_ADMIN_USER:-admin}
+      - PAPERLESS_ADMIN_PASSWORD=${PAPERLESS_ADMIN_PASSWORD:-admin123}
+      
+      # ─── 文件处理 ─────────────────────────────────────────────────────────
+      - PAPERLESS_FILENAME_FORMAT={created_year}/{document_type}/{title}
+      - PAPERLESS_CONSUMER_DELETE_DUPLICATES=true
+      - PAPERLESS_CONSUMER_RECURSIVE=true
+      - PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS=true
+      
+      # ─── 性能优化 ─────────────────────────────────────────────────────────
+      - PAPERLESS_WORKER_TIMEOUT=1800
+      - PAPERLESS_TIKA_ENABLED=true
+      - PAPERLESS_TIKA_ENDPOINT=http://paperless-tika:9998
+      - PAPERLESS_GOTENBERG_ENABLED=true
+      - PAPERLESS_GOTENBERG_ENDPOINT=http://paperless-gotenberg:3000
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    labels:
+      - "nas-os.app=paperless"
+      - "nas-os.category=office"
+      - "nas-os.description=Document management system with OCR"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+    
+    networks:
+      - nas-app-network
+
+  # ─── 数据库 ───────────────────────────────────────────────────────────────
+  paperless-db:
+    image: postgres:16-alpine
+    container_name: nas-paperless-db
+    restart: unless-stopped
+    
+    volumes:
+      - paperless-db-data:/var/lib/postgresql/data
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - POSTGRES_USER=paperless
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-paperless123}
+      - POSTGRES_DB=paperless
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperless -d paperless"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "nas-os.app=paperless"
+      - "nas-os.component=database"
+    
+    networks:
+      - nas-app-network
+
+  # ─── 缓存 ───────────────────────────────────────────────────────────────────
+  paperless-redis:
+    image: redis:7-alpine
+    container_name: nas-paperless-redis
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "nas-os.app=paperless"
+      - "nas-os.component=redis"
+    
+    networks:
+      - nas-app-network
+
+  # ─── 文档转换服务 ─────────────────────────────────────────────────────────
+  paperless-gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: nas-paperless-gotenberg
+    restart: unless-stopped
+    
+    # Gotenberg 镜像默认以 gotenberg 用户运行
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "nas-os.app=paperless"
+      - "nas-os.component=gotenberg"
+    
+    networks:
+      - nas-app-network
+
+  # ─── Tika 文档解析 ───────────────────────────────────────────────────────
+  paperless-tika:
+    image: apache/tika:latest-full
+    container_name: nas-paperless-tika
+    restart: unless-stopped
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "nas-os.app=paperless"
+      - "nas-os.component=tika"
+    
+    networks:
+      - nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
+volumes:
+  paperless-data:
+    driver: local
+    labels:
+      - "nas-os.app=paperless"
+      - "nas-os.volume=data"
+  
+  paperless-media:
+    driver: local
+    labels:
+      - "nas-os.app=paperless"
+      - "nas-os.volume=media"
+  
+  paperless-consume:
+    driver: local
+    labels:
+      - "nas-os.app=paperless"
+      - "nas-os.volume=consume"
+  
+  paperless-export:
+    driver: local
+    labels:
+      - "nas-os.app=paperless"
+      - "nas-os.volume=export"
+  
+  paperless-db-data:
+    driver: local
+    labels:
+      - "nas-os.app=paperless"
+      - "nas-os.volume=database"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 说明
+# ─────────────────────────────────────────────────────────────────────────────
+# • 访问地址：http://localhost:8010
+# • 将文件放入 consume 目录自动导入处理
+# • OCR 语言：chi_sim（简体中文）、eng（英文）、chi_tra（繁体中文）
+# • 支持邮件自动处理和 webhook 集成
+# • 建议配置至少 4GB 内存
