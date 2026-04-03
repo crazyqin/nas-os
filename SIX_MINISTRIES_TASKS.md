@@ -1,121 +1,131 @@
-# 第148轮六部协同开发任务
+# 第155轮六部协同开发任务
 
 ## 版本信息
-**版本**: v2.384.0
+**版本**: v2.387.0 → v2.388.0
 **发布日期**: 2026-04-03
+**状态**: 六部任务已分派，等待完成
 
-## 竞品调研总结（第148轮更新）
+## 司礼监调度
+- **兵部**: Run ID d08db5d7 - NVMe健康+电源管理
+- **工部**: Run ID 6c90f799 - Docker优化+CI/CD
+- **刑部**: Run ID 898acda5 - 安全审计Round105
+- **户部**: Run ID f6b9b88c - 成本聚合+RAIDZ计算器
+- **礼部**: Run ID 07bba52a - 文档更新
 
-### 群晖 DSM 优势
-| 功能 | 说明 | nas-os现状 |
-|------|------|------------|
-| Synology Photos | AI相册+人脸识别+地图视图 | ✅ 已有但需增强 |
-| Cloud Sync | 多云同步(Google/Dropbox等) | ⚠️ 有基础实现 |
-| Drive | 文件同步+版本控制+共享 | ⚠️ 有webshare |
-| Office | 协作文档/表格/幻灯片 | ❌ 缺失 |
-| Chat | 团队通讯 | ❌ 缺失 |
-| Hyper Backup | 多目标备份+增量+加密 | ✅ 已有备份 |
-| VM Manager | 虚拟机管理 | ⚠️ 有容器管理 |
-| 高可用集群 | 主备切换+会话保持 | ⚠️ 有基础HA |
+## 竞品调研更新（司礼监汇总）
 
-### TrueNAS Scale 优势
-| 功能 | 说明 | nas-os现状 |
-|------|------|------------|
-| OpenZFS 2.4 | RAIDZ扩展+混合池 | ✅ Fusion Pool |
-| Apps | Docker化应用商店 | ⚠️ 有appstore |
-| 勒索防护 | 实时检测+快照保护 | ✅ 已实现 |
-| 企业监控 | Prometheus+Grafana | ✅ 已有监控 |
+### TrueNAS 25.10 Goldeye（最新版本）
+| 新功能 | 说明 | nas-os对标状态 |
+|--------|------|---------------|
+| **NVMe over Fabric** | NVMe/TCP + RDMA支持 | 📋 规划中 |
+| **400GbE网络** | terabit Ethernet性能 | ⚠️ 需驱动更新 |
+| **VM Secure Boot** | 虚机安全启动增强 | ✅ 容器已有 |
+| **NVIDIA Blackwell GPU** | 新架构GPU支持 | ✅ GPU调度已有 |
+| **Direct I/O** | ZFS性能优化 | ✅ 已支持 |
+| **应用池自动迁移** | Docker迁移优化 | ✅ 已实现 |
+| **SMART→Scrutiny转型** | 灵活磁盘监控 | ⚠️ 需增强 |
 
-### 飞牛fnOS 优势
-| 功能 | 说明 | nas-os现状 |
-|------|------|------------|
-| FN Connect | 云端多系统管理 | ❌ 缺失 |
-| 按需唤醒硬盘 | 省电特性 | ❌ 缺失 |
-| Intel核显加速 | AI人脸识别 | ✅ 已有 |
+### TrueNAS 24.10 Electric Eel（对比基准）
+| 功能 | nas-os状态 | 开发优先级 |
+|------|------------|------------|
+| **RAIDZ Expansion** | 📋 P0规划 | 最高优先 |
+| **Docker Apps简化** | ✅ 已有 | 体验优化 |
+| **Global Search** | ✅ 已实现 | 完成 |
+| **Dashboard重构** | ✅ 已有 | Widget扩展 |
+| **NVMe SMART UI** | ⚠️ 部分实现 | P0 |
+
+### 群晖 DSM 7.3
+- 完整应用生态系统
+- Photos/Drive/Office协作套件
+- 企业级备份方案
+
+### 飞牛 fnOS
+- 按需唤醒硬盘（节能特性）
+- Intel核显加速AI
+- FN Connect云端管理
 
 ---
 
-## 本轮开发优先级
+## 本轮开发优先级（第155轮）
 
-### P0 - 核心功能对标
-1. **照片管理增强** - 对标Synology Photos（地图视图、时间轴、智能相册）
-2. **RAIDZ单盘扩展** - 对标TrueNAS 24.10 RAIDZ Expansion
+### P0 - 核心对标（必须完成）
+1. **NVMe S.M.A.R.T. UI完善** - 健康预测、三级预警、寿命展示
+2. **磁盘智能电源管理** - 对标飞牛按需唤醒
 
-### P1 - 协作与同步
-3. **Cloud Sync增强** - 多云同步支持（Google Drive/OneDrive/Dropbox）
-4. **Drive文件同步** - 桌面同步客户端协议
+### P1 - 功能增强
+3. **RAIDZ Expansion API设计深化** - 为M106做准备
+4. **照片管理优化** - 地图视图、时间轴增强
+5. **Docker部署体验优化** - 参考TrueNAS简化流程
 
-### P2 - 生态完善
-5. **应用商店增强** - 更多预配置应用模板
-6. **内网穿透优化** - 稳定性提升
+### P2 - 文档完善
+6. **用户指南更新** - RAIDZ扩展、NVMe监控
+7. **竞品对比文档维护** - 保持最新
 
 ---
 
 ## 六部任务分配
 
-### 兵部（软件工程）
-**任务**: RAIDZ单盘扩展API + 照片管理增强
-- RAIDZ Expansion接口实现（封装OpenZFS命令）
-- 照片地图视图API（EXIF GPS解析）
-- 时间轴聚合查询优化
-- 智能相册条件扩展
+### 🪖 兵部（软件工程）
+**任务**: NVMe S.M.A.R.T. UI + 磁盘电源管理
+- NVMe健康检测数据收集完善
+- 前端展示NVMe寿命预测
+- 三级预警机制实现
+- 磁盘智能电源管理（standby/spindown策略）
 
-**交付**: internal/zfs/raidz_expansion.go + internal/album/ 增强
+**交付**: internal/disk/nvme_health.go + internal/disk/power_mgmt.go
 
-### 工部（DevOps）
-**任务**: Cloud Sync多云同步
-- Google Drive API集成
-- OneDrive API集成
-- Dropbox API集成
-- 同步任务调度优化
+### 🔧 工部（DevOps）
+**任务**: CI/CD保障 + Docker体验优化
+- 监控CI状态
+- Docker部署流程优化
+- 应用模板标准化
+- Compose YAML向导设计
 
-**交付**: internal/cloudsync/ 多云provider实现
+**交付**: docker-compose优化 + 应用模板扩展
 
-### 刑部（安全）
-**任务**: 同步安全审计
-- 云服务OAuth安全配置
-- 敏感文件同步过滤
-- 同步日志审计增强
-- API密钥安全存储
+### ⚖️ 刑部（安全合规）
+**任务**: 安全审计持续
+- CodeQL扫描跟进
+- 漏洞修复验证
+- 安全报告更新
 
-**交付**: internal/cloudsync/security.go + 审计日志
+**交付**: SECURITY_AUDIT更新
 
-### 户部（财务）
-**任务**: 云存储成本计算
-- 各云服务商存储成本对比
-- 同步流量计费
-- 成本优化建议引擎
+### 💰 户部（财务运营）
+**任务**: 成本分析优化
+- 多节点成本聚合报告
+- RAIDZ扩容成本计算器设计
+- 云vs自建成本对比更新
 
-**交付**: internal/cost/cloud_cost.go
+**交付**: internal/cost/ 增强
 
-### 礼部（品牌）
-**任务**: 文档更新
-- RAIDZ扩展使用指南
-- 照片管理功能文档
-- Cloud Sync配置指南
-- 竞品对比更新
+### 📜 礼部（品牌内容）
+**任务**: 文档完善
+- RAIDZ Expansion用户指南草案
+- NVMe S.M.A.R.T.使用说明
+- 四大独家功能宣传文案优化
 
 **交付**: docs/ 目录更新
 
-### 吏部（项目）
-**任务**: 发布协调
-- 版本号更新v2.384.0
+### 📋 吏部（项目管理）
+**任务**: 版本发布协调
+- v2.387.0版本号更新
 - CHANGELOG编写
-- 测试计划制定
-- 发布检查清单
+- Milestone M106进度跟踪
+- 六部进度同步
 
-**交付**: CHANGELOG.md + 发布流程
+**交付**: VERSION + CHANGELOG.md
 
 ---
 
 ## 时间要求
 
-- 各部完成时间：2小时内
+- 各部完成时间：本轮内
 - 提交格式：git commit message标注部门
-- 司礼监汇总提交：所有部门完成后统一提交
+- 司礼监汇总提交：各部完成后统一提交GitHub
 
 ---
 
 ## 版本目标
 
-**v2.384.0**: 第148轮六部协同开发 - RAIDZ扩展+照片管理对标TrueNAS/群晖
+**v2.387.0**: 第155轮六部协同开发 - NVMe监控增强+磁盘电源管理对标竞品
