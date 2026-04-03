@@ -9,7 +9,6 @@ import (
 	"math"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -17,7 +16,6 @@ import (
 	"time"
 
 	"github.com/rwcarlsen/goexif/exif"
-	"github.com/rwcarlsen/goexif/gps"
 )
 
 // ========== GPS 解析和地图聚合 ==========
@@ -90,10 +88,12 @@ func (g *GPSExtractor) getGPSAltitude(x *exif.Exif) (float64, error) {
 		return 0, err
 	}
 
-	alt, err := tag.Rat2(0)
+	// Rat2 返回 (num, denom, error)
+	num, denom, err := tag.Rat2(0)
 	if err != nil {
 		return 0, err
 	}
+	alt := float64(num) / float64(denom)
 
 	// 检查海拔参考（海平面以上/以下）
 	refTag, err := x.Get(exif.GPSAltitudeRef)
@@ -176,18 +176,13 @@ func (g *GPSExtractor) ExtractCameraModel(filePath string) (*CameraInfo, error) 
 
 	// 提取光圈
 	if apertureTag, err := x.Get(exif.FNumber); err == nil {
-		num, _ := apertureTag.Rat2(0)
-		camera.Aperture = fmt.Sprintf("f/%.1f", num)
+		num, denom, _ := apertureTag.Rat2(0)
+		camera.Aperture = fmt.Sprintf("f/%.1f", float64(num)/float64(denom))
 	}
 
 	// 提取快门速度
 	if shutterTag, err := x.Get(exif.ExposureTime); err == nil {
-		num, denom, _ := shutterTag.Rat(0)
-		if denom > num {
-			camera.ShutterSpeed = fmt.Sprintf("1/%d", denom/num)
-		} else {
-			camera.ShutterSpeed = fmt.Sprintf("%d/%d", num, denom)
-		}
+		camera.ShutterSpeed = string(shutterTag.Val)
 	}
 
 	// 提取 ISO
@@ -197,8 +192,8 @@ func (g *GPSExtractor) ExtractCameraModel(filePath string) (*CameraInfo, error) 
 
 	// 提取焦距
 	if focalTag, err := x.Get(exif.FocalLength); err == nil {
-		focal, _ := focalTag.Rat2(0)
-		camera.FocalLength = fmt.Sprintf("%.0fmm", focal)
+		num, denom, _ := focalTag.Rat2(0)
+		camera.FocalLength = fmt.Sprintf("%.0fmm", float64(num)/float64(denom))
 	}
 
 	return camera, nil
@@ -234,7 +229,7 @@ type MapCluster struct {
 	PhotoCount  int       `json:"photoCount"`
 	PhotoIDs    []string  `json:"photoIds"`
 	Bounds      GeoBounds `json:"bounds"`
-	DateRange   DateRange `json:"dateRange,omitempty"`
+	DateRange   *DateRange `json:"dateRange,omitempty"`
 	PlaceName   string    `json:"placeName,omitempty"`
 	Thumbnails  []string  `json:"thumbnails,omitempty"`
 }
@@ -364,7 +359,7 @@ func (m *MapAggregator) AggregateByRegion(ctx context.Context, zoomLevel int, bo
 
 		// 设置时间范围
 		if !minTime.IsZero() && !maxTime.IsZero() {
-			cluster.DateRange = DateRange{Start: minTime, End: maxTime}
+			cluster.DateRange = &DateRange{Start: minTime, End: maxTime}
 		}
 
 		// 获取地名
@@ -471,18 +466,6 @@ type TimelineAggregator struct {
 // NewTimelineAggregator 创建时间轴聚合器
 func NewTimelineAggregator(manager *Manager) *TimelineAggregator {
 	return &TimelineAggregator{manager: manager}
-}
-
-// TimelineGroup 时间轴分组
-type TimelineGroup struct {
-	Key         string     `json:"key"`         // 分组键：年、月、日
-	DisplayTime string     `json:"displayTime"` // 显示时间
-	PhotoCount  int        `json:"photoCount"`
-	Photos      []*Photo   `json:"photos,omitempty"`
-	StartTime   time.Time  `json:"startTime"`
-	EndTime     time.Time  `json:"endTime"`
-	Location    string     `json:"location,omitempty"` // 主要地点
-	CoverPhoto  string     `json:"coverPhoto,omitempty"`
 }
 
 // AggregateByTime 按时间聚合照片

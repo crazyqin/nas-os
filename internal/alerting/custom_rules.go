@@ -55,16 +55,6 @@ const (
 	OpNotEqual     Operator = "!="
 )
 
-// AlertLevel 告警级别
-type AlertLevel string
-
-const (
-	LevelInfo     AlertLevel = "info"
-	LevelWarning  AlertLevel = "warning"
-	LevelCritical AlertLevel = "critical"
-	LevelEmergency AlertLevel = "emergency"
-)
-
 // ========== 错误定义 ==========
 
 var (
@@ -153,7 +143,7 @@ func NewCustomAlertRule(name string, group RuleGroup, metric MetricType) *Custom
 		Group:     group,
 		Metric:    metric,
 		Enabled:   true,
-		Level:     LevelWarning,
+		Level:     AlertLevelWarning,
 		Operator:  OpGreaterThan,
 		Duration:  60, // 默认持续1分钟
 		CreatedAt: time.Now(),
@@ -440,7 +430,7 @@ func (mgr *CustomRuleManager) addDefaultTemplates() {
 			Operator:  OpGreaterThan,
 			Threshold: 80,
 			Duration:  300, // 5分钟
-			Level:     LevelWarning,
+			Level:     AlertLevelWarning,
 			Enabled:   false, // 模板默认禁用
 			Labels:    map[string]string{"template": "true"},
 		},
@@ -452,7 +442,7 @@ func (mgr *CustomRuleManager) addDefaultTemplates() {
 			Operator:  OpGreaterThan,
 			Threshold: 95,
 			Duration:  60,
-			Level:     LevelCritical,
+			Level:     AlertLevelCritical,
 			Enabled:   false,
 			Labels:    map[string]string{"template": "true"},
 		},
@@ -466,7 +456,7 @@ func (mgr *CustomRuleManager) addDefaultTemplates() {
 			Operator:  OpGreaterThan,
 			Threshold: 85,
 			Duration:  300,
-			Level:     LevelWarning,
+			Level:     AlertLevelWarning,
 			Enabled:   false,
 			Labels:    map[string]string{"template": "true"},
 		},
@@ -480,7 +470,7 @@ func (mgr *CustomRuleManager) addDefaultTemplates() {
 			Operator:  OpGreaterThan,
 			Threshold: 85,
 			Duration:  0, // 立即告警
-			Level:     LevelWarning,
+			Level:     AlertLevelWarning,
 			Enabled:   false,
 			Labels:    map[string]string{"template": "true"},
 		},
@@ -492,7 +482,7 @@ func (mgr *CustomRuleManager) addDefaultTemplates() {
 			Operator:  OpGreaterThan,
 			Threshold: 95,
 			Duration:  0,
-			Level:     LevelCritical,
+			Level:     AlertLevelCritical,
 			Enabled:   false,
 			Labels:    map[string]string{"template": "true"},
 		},
@@ -506,7 +496,7 @@ func (mgr *CustomRuleManager) addDefaultTemplates() {
 			Operator:  OpGreaterThan,
 			Threshold: 100, // 100ms
 			Duration:  180,
-			Level:     LevelWarning,
+			Level:     AlertLevelWarning,
 			Enabled:   false,
 			Labels:    map[string]string{"template": "true"},
 		},
@@ -520,7 +510,7 @@ func (mgr *CustomRuleManager) addDefaultTemplates() {
 			Operator:  OpGreaterThan,
 			Threshold: 70, // 70度
 			Duration:  120,
-			Level:     LevelWarning,
+			Level:     AlertLevelWarning,
 			Enabled:   false,
 			Labels:    map[string]string{"template": "true"},
 		},

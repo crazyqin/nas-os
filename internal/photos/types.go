@@ -201,12 +201,25 @@ type PhotoQuery struct {
 	Offset     int       `json:"offset"`
 }
 
+// DateRange 时间范围
+type DateRange struct {
+	Start time.Time `json:"start"`
+	End   time.Time `json:"end"`
+}
+
 // TimelineGroup 时间线分组
 type TimelineGroup struct {
-	Period   string   `json:"period"` // 2026-03, 2026-03-12
-	Photos   []*Photo `json:"photos"`
-	Count    int      `json:"count"`
-	Location string   `json:"location,omitempty"`
+	Key         string     `json:"key"`         // 分组键：年、月、日
+	Period      string     `json:"period"`      // 2026-03, 2026-03-12 (兼容旧字段)
+	DisplayTime string     `json:"displayTime"` // 显示时间
+	PhotoCount  int        `json:"photoCount"`
+	Count       int        `json:"count"`       // 兼容旧字段
+	Photos      []*Photo   `json:"photos,omitempty"`
+	StartTime   time.Time  `json:"startTime"`
+	EndTime     time.Time  `json:"endTime"`
+	DateRange   *DateRange `json:"dateRange,omitempty"`
+	Location    string     `json:"location,omitempty"` // 主要地点
+	CoverPhoto  string     `json:"coverPhoto,omitempty"`
 }
 
 // Person 人物（人脸识别结果）
