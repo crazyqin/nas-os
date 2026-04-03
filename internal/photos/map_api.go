@@ -88,8 +88,7 @@ func (g *GPSExtractor) getGPSAltitude(x *exif.Exif) (float64, error) {
 		return 0, err
 	}
 
-	// Rat2 返回 (num, denom, error)
-	num, denom, err := tag.Rat2(0)
+num, denom, err := tag.Rat2(0)
 	if err != nil {
 		return 0, err
 	}
@@ -104,7 +103,7 @@ func (g *GPSExtractor) getGPSAltitude(x *exif.Exif) (float64, error) {
 		}
 	}
 
-	return alt, nil
+	return float64(alt), nil
 }
 
 // ExtractDateTime 提取拍摄时间
@@ -176,13 +175,13 @@ func (g *GPSExtractor) ExtractCameraModel(filePath string) (*CameraInfo, error) 
 
 	// 提取光圈
 	if apertureTag, err := x.Get(exif.FNumber); err == nil {
-		num, denom, _ := apertureTag.Rat2(0)
+num, denom, _ := apertureTag.Rat2(0)
 		camera.Aperture = fmt.Sprintf("f/%.1f", float64(num)/float64(denom))
 	}
 
 	// 提取快门速度
 	if shutterTag, err := x.Get(exif.ExposureTime); err == nil {
-		camera.ShutterSpeed = string(shutterTag.Val)
+camera.ShutterSpeed = string(shutterTag.Val)
 	}
 
 	// 提取 ISO
@@ -192,7 +191,7 @@ func (g *GPSExtractor) ExtractCameraModel(filePath string) (*CameraInfo, error) 
 
 	// 提取焦距
 	if focalTag, err := x.Get(exif.FocalLength); err == nil {
-		num, denom, _ := focalTag.Rat2(0)
+num, denom, _ := focalTag.Rat2(0)
 		camera.FocalLength = fmt.Sprintf("%.0fmm", float64(num)/float64(denom))
 	}
 
@@ -204,6 +203,12 @@ type GPSInfo struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 	Altitude  float64 `json:"altitude,omitempty"`
+}
+
+// DateRange 日期范围
+type DateRange struct {
+	Start time.Time `json:"start"`
+	End   time.Time `json:"end"`
 }
 
 // CameraInfo 相机信息
