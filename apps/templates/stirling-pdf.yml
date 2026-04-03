@@ -1,0 +1,131 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                     Stirling-PDF - PDF 工具集                                  ║
+# ║                    全面 PDF 操作：转换、合并、编辑、压缩                          ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     frooodle/s-pdf:latest
+# 类别:     办公服务
+# 官网:     https://github.com/Stirling-Tools/Stirling-PDF
+# 许可证:   开源免费 (MIT)
+#
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • PDF 合并/拆分/旋转
+# • PDF 转图片/图片转 PDF
+# • PDF 转 Word/Excel/PPT
+# • OCR 文字识别
+# • PDF 压缩
+# • 添加/移除水印
+# • 签名和表单
+# • 元数据编辑
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# /var/lib/nas-os/data/stirling-pdf/ - 配置文件
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 一键启动:
+#    $ docker compose -f apps/templates/stirling-pdf.yml up -d
+#
+# 2. 访问 Web UI:
+#    http://localhost:8080
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# 无必需环境变量
+#
+# v2.388.0 工部优化：应用模板标准化
+
+services:
+  stirling-pdf:
+    image: frooodle/s-pdf:latest
+    container_name: nas-stirling-pdf
+    restart: unless-stopped
+    
+    ports:
+      - "8080:8080"
+    
+    volumes:
+      - stirling-pdf-config:/configs
+      - stirling-pdf-logs:/logs
+      # OCR 配置（可选）
+      # - ./ocrConfigs:/usr/share/tessdata
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      # 安全配置（可选）
+      # - SECURITY_ENABLE_LOGIN=true
+      # - SECURITY_CSRF_TOKEN=true
+      # 系统配置
+      - SYSTEM_MAXFILESIZE=100
+      - SYSTEM_METADATAPARAMETER=true
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    labels:
+      - "nas-os.app=stirling-pdf"
+      - "nas-os.category=office"
+      - "nas-os.description=PDF manipulation toolkit"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+    
+    networks:
+      - nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
+volumes:
+  stirling-pdf-config:
+    driver: local
+    labels:
+      - "nas-os.app=stirling-pdf"
+      - "nas-os.volume=config"
+  
+  stirling-pdf-logs:
+    driver: local
+    labels:
+      - "nas-os.app=stirling-pdf"
+      - "nas-os.volume=logs"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 说明
+# ─────────────────────────────────────────────────────────────────────────────
+# • 访问地址：http://localhost:8080
+# • 无需登录，直接使用
+# • 所有操作在本地执行，数据不上传云端
+# • OCR 需额外配置 tessdata
+# • 轻量级服务，资源占用低

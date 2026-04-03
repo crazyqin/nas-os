@@ -1,0 +1,186 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                         Gitea - 自托管 Git 服务                                  ║
+# ║                    轻量级 Git 服务，GitHub 替代方案                               ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     gitea/gitea:latest
+# 类别:     开发服务
+# 官网:     https://gitea.io
+# 许可证:   开源免费 (MIT)
+#
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • Git 仓库托管
+# • Issue 追踪
+# • Pull Request
+# • Wiki 文档
+# • CI/CD 集成
+# • SSH/GPG 密钥管理
+# • Webhooks
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# /var/lib/nas-os/data/gitea/ - 数据与配置
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 一键启动:
+#    $ docker compose -f apps/templates/gitea.yml up -d
+#
+# 2. 访问 Web UI:
+#    http://localhost:3000
+#
+# 3. 首次访问进行初始化配置
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# GITEA_DB_PASSWORD - 数据库密码
+#
+# v2.388.0 工部优化：应用模板标准化
+
+services:
+  gitea-server:
+    image: gitea/gitea:latest
+    container_name: nas-gitea
+    restart: unless-stopped
+    
+    depends_on:
+      gitea-db:
+        condition: service_healthy
+    
+    ports:
+      - "3000:3000"   # Web UI
+      - "222:22"      # SSH
+    
+    volumes:
+      - gitea-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      # ─── 数据库配置 ─────────────────────────────────────────────────────
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=gitea-db:5432
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=gitea
+      - GITEA__database__PASSWD=${GITEA_DB_PASSWORD:-gitea123}
+      
+      # ─── 服务器配置 ───────────────────────────────────────────────────────
+      - GITEA__server__ROOT_URL=http://localhost:3000
+      - GITEA__server__SSH_DOMAIN=localhost
+      - GITEA__server__SSH_PORT=222
+      - GITEA__server__START_SSH_SERVER=false
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    labels:
+      - "nas-os.app=gitea"
+      - "nas-os.category=development"
+      - "nas-os.description=Self-hosted Git service"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+    
+    networks:
+      - nas-app-network
+
+  # ─── 数据库 ───────────────────────────────────────────────────────────────
+  gitea-db:
+    image: postgres:16-alpine
+    container_name: nas-gitea-db
+    restart: unless-stopped
+    
+    volumes:
+      - gitea-db-data:/var/lib/postgresql/data
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - POSTGRES_USER=gitea
+      - POSTGRES_PASSWORD=${GITEA_DB_PASSWORD:-gitea123}
+      - POSTGRES_DB=gitea
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gitea -d gitea"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "nas-os.app=gitea"
+      - "nas-os.component=database"
+    
+    networks:
+      - nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
+volumes:
+  gitea-data:
+    driver: local
+    labels:
+      - "nas-os.app=gitea"
+      - "nas-os.volume=data"
+  
+  gitea-db-data:
+    driver: local
+    labels:
+      - "nas-os.app=gitea"
+      - "nas-os.volume=database"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 说明
+# ─────────────────────────────────────────────────────────────────────────────
+# • 访问地址：http://localhost:3000
+# • SSH 端口：222（git clone ssh://git@localhost:222/user/repo.git）
+# • 首次访问进行初始化配置
+# • 支持 Docker/Actions CI/CD
+# • 轻量级服务，适合个人或小团队

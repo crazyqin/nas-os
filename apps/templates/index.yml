@@ -9,8 +9,8 @@
 # v2.374.0 工部优化：简化应用部署流程
 
 metadata:
-  version: "2.387.0"
-  updated: "2026-04-03"
+  version: "2.388.0"
+  updated: "2026-04-04"
   maintainer: "工部"
 
 categories:
@@ -22,6 +22,7 @@ categories:
       - plex
       - jellyfin
       - homeassistant
+      - immich
 
   storage:
     name: "存储服务"
@@ -30,6 +31,8 @@ categories:
     apps:
       - nextcloud
       - vaultwarden
+      - syncthing
+      - filebrowser
 
   database:
     name: "数据库"
@@ -48,6 +51,36 @@ categories:
       - nginx
       - portainer
       - transmission
+      - adguard
+
+  office:
+    name: "办公服务"
+    description: "文档处理、知识管理"
+    icon: "📝"
+    apps:
+      - paperless
+      - stirling-pdf
+
+  development:
+    name: "开发服务"
+    description: "代码仓库、CI/CD"
+    icon: "💻"
+    apps:
+      - gitea
+
+  automation:
+    name: "自动化服务"
+    description: "工作流自动化、任务调度"
+    icon: "⚡"
+    apps:
+      - n8n
+
+  monitoring:
+    name: "监控服务"
+    description: "状态监控、告警通知"
+    icon: "📊"
+    apps:
+      - uptime-kuma
 
 apps:
   # ==================== 媒体服务 ====================

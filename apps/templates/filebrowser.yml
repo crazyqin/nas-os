@@ -1,0 +1,130 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                      FileBrowser - Web 文件管理                                 ║
+# ║                    网页文件浏览器，在线管理文件                                    ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     filebrowser/filebrowser:latest
+# 类别:     存储服务
+# 官网:     https://filebrowser.org
+# 许可证:   开源免费 (Apache 2.0)
+#
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • 文件浏览与下载
+# • 文件上传与删除
+# • 文件编辑（文本编辑器）
+# • 文件搜索
+# • 用户权限管理
+# • 文件分享链接
+# • 多语言支持
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# 挂载现有目录即可使用
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 一键启动:
+#    $ docker compose -f apps/templates/filebrowser.yml up -d
+#
+# 2. 访问 Web UI:
+#    http://localhost:8082
+#
+# 3. 默认账号：admin/admin
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# FILEBROWSER_ROOT - 根目录路径
+#
+# v2.388.0 工部优化：应用模板标准化
+
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: nas-filebrowser
+    restart: unless-stopped
+    
+    ports:
+      - "8082:80"
+    
+    volumes:
+      - filebrowser-db:/database
+      - filebrowser-config:/config
+      # 挂载文件目录
+      - ${FILEBROWSER_ROOT:-/var/lib/nas-os/data}:/srv:rw
+      # 可添加多个目录
+      # - ${NAS_MEDIA_DIR:-/var/lib/nas-os/media}:/srv/media:ro
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      # 可选配置
+      # - FB_NOAUTH=false
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 32M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    labels:
+      - "nas-os.app=filebrowser"
+      - "nas-os.category=storage"
+      - "nas-os.description=Web-based file manager"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+    
+    networks:
+      - nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
+volumes:
+  filebrowser-db:
+    driver: local
+    labels:
+      - "nas-os.app=filebrowser"
+      - "nas-os.volume=database"
+  
+  filebrowser-config:
+    driver: local
+    labels:
+      - "nas-os.app=filebrowser"
+      - "nas-os.volume=config"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 说明
+# ─────────────────────────────────────────────────────────────────────────────
+# • 访问地址：http://localhost:8082
+# • 默认账号：admin / admin（首次登录后修改密码）
+# • 超轻量级服务，内存仅需 32MB
+# • 支持多用户权限管理
+# • 支持文件分享链接生成

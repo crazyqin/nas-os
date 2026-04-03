@@ -1,0 +1,146 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                        N8n - 工作流自动化平台                                    ║
+# ║                    自托管 Zapier 替代，可视化自动化                              ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     n8nio/n8n:latest
+# 类别:     自动化服务
+# 官网:     https://n8n.io
+# 许可证:   开源免费 (Fair-code)
+#
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • 可视化工作流编辑
+# • 400+ 集成节点
+# • Webhook 触发器
+# • 定时任务
+# • JavaScript/Python 自定义脚本
+# • API 集成
+# • 自定义节点开发
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# /var/lib/nas-os/data/n8n/ - 工作流数据
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 一键启动:
+#    $ docker compose -f apps/templates/n8n.yml up -d
+#
+# 2. 访问 Web UI:
+#    http://localhost:5678
+#
+# 3. 创建管理员账号并开始创建工作流
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# N8N_ENCRYPTION_KEY - 数据加密密钥（建议设置）
+# WEBHOOK_URL        - 外部访问 URL
+#
+# v2.388.0 工部优化：应用模板标准化
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nas-n8n
+    restart: unless-stopped
+    
+    ports:
+      - "5678:5678"
+    
+    volumes:
+      - n8n-data:/home/node/.n8n
+    
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      # ─── 核心配置 ─────────────────────────────────────────────────────────
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678}
+      
+      # ─── 加密配置 ─────────────────────────────────────────────────────────
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-change-this-key}
+      
+      # ─── 安全配置 ─────────────────────────────────────────────────────────
+      - N8N_BASIC_AUTH_ACTIVE=false
+      # - N8N_BASIC_AUTH_USER=admin
+      # - N8N_BASIC_AUTH_PASSWORD=admin123
+      
+      # ─── 执行配置 ─────────────────────────────────────────────────────────
+      - EXECUTIONS_PROCESS=main
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=all
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
+      - EXECUTIONS_DATA_SAVE_ON_MANUAL_EXECUTION=true
+      
+      # ─── 数据库配置（可选）────────────────────────────────────────────────
+      # - DB_TYPE=postgresdb
+      # - DB_POSTGRESDB_HOST=n8n-db
+      # - DB_POSTGRESDB_PORT=5432
+      # - DB_POSTGRESDB_DATABASE=n8n
+      # - DB_POSTGRESDB_USER=n8n
+      # - DB_POSTGRESDB_PASSWORD=${DB_PASSWORD:-n8n123}
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    labels:
+      - "nas-os.app=n8n"
+      - "nas-os.category=automation"
+      - "nas-os.description=Workflow automation platform"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+    
+    networks:
+      - nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
+volumes:
+  n8n-data:
+    driver: local
+    labels:
+      - "nas-os.app=n8n"
+      - "nas-os.volume=data"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 说明
+# ─────────────────────────────────────────────────────────────────────────────
+# • 访问地址：http://localhost:5678
+# • 首次访问设置账号
+# • 400+ 内置集成节点
+# • 可自定义 JavaScript/Python 脚本
+# • 支持 Webhook 和定时触发
+# • 生产环境建议配置 PostgreSQL 数据库
