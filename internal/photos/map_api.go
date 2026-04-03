@@ -205,12 +205,6 @@ type GPSInfo struct {
 	Altitude  float64 `json:"altitude,omitempty"`
 }
 
-// DateRange 日期范围
-type DateRange struct {
-	Start time.Time `json:"start"`
-	End   time.Time `json:"end"`
-}
-
 // CameraInfo 相机信息
 type CameraInfo struct {
 	Make         string `json:"make,omitempty"`
