@@ -657,13 +657,16 @@ const (
 	AlertLevelWarning AlertLevel = "warning"
 	// AlertLevelInfo 信息级别：仅供参考
 	AlertLevelInfo AlertLevel = "info"
+	// AlertLevelEmergency 紧急级别：最高优先级
+	AlertLevelEmergency AlertLevel = "emergency"
 )
 
 // AlertLevelPriority 告警级别优先级映射
 var AlertLevelPriority = map[AlertLevel]int{
-	AlertLevelCritical: 3,
-	AlertLevelWarning:  2,
-	AlertLevelInfo:     1,
+	AlertLevelEmergency: 4,
+	AlertLevelCritical:  3,
+	AlertLevelWarning:   2,
+	AlertLevelInfo:      1,
 }
 
 // generateGroupID 生成分组ID
