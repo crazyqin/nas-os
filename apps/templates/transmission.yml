@@ -1,32 +1,129 @@
-# Transmission 下载器
-# 轻量级 BitTorrent 客户端
-version: '3.8'
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                         Transmission - BT 下载客户端                          ║
+# ║                    轻量级 BitTorrent 客户端，Web UI                            ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     linuxserver/transmission:latest
+# 类别:     网络服务
+# 官网:     https://transmissionbt.com
+# 许可证:   开源免费 (MIT)
+#
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • BitTorrent 下载
+# • Web UI 管理
+# • 加密传输
+# • 速度限制
+# • 种子监控目录
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# /var/lib/nas-os/data/transmission/config - 配置文件
+# /var/lib/nas-os/downloads              - 下载目录
+# /var/lib/nas-os/watch                  - 种子监控目录
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 设置登录密码:
+#    $ export TRANSMISSION_PASS=your_password
+#
+# 2. 启动服务:
+#    $ docker compose -f apps/templates/transmission.yml up -d
+#
+# 3. 访问 Web UI:
+#    http://localhost:9091
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# TRANSMISSION_USER  - Web UI 用户名（默认 admin）
+# TRANSMISSION_PASS  - Web UI 密码（建议修改）
+# NAS_DOWNLOAD_DIR   - 下载目录
+# TZ                 - 时区设置
+#
+# v2.387.0 工部优化：应用模板标准化
 
 services:
   transmission:
     image: linuxserver/transmission:latest
-    container_name: transmission
+    container_name: nas-transmission
     restart: unless-stopped
+    
+    # ─── 网络配置 ─────────────────────────────────────────────────────────────
     ports:
-      - "9091:9091"  # Web界面
-      - "51413:51413"  # BT端口
+      - "9091:9091"
+      - "51413:51413"
       - "51413:51413/udp"
+    
+    # ─── 存储挂载 ─────────────────────────────────────────────────────────────
     volumes:
       - transmission-config:/config
-      - /mnt/downloads:/downloads  # 下载目录
-      - /mnt/watch:/watch  # 监控目录（自动添加种子）
+      - ${NAS_DOWNLOAD_DIR:-/var/lib/nas-os/downloads}:/downloads
+      - ${NAS_WATCH_DIR:-/var/lib/nas-os/watch}:/watch
+    
+    # ─── 环境变量 ─────────────────────────────────────────────────────────────
     environment:
-      - TZ=Asia/Shanghai
+      - TZ=${TZ:-Asia/Shanghai}
       - PUID=1000
       - PGID=1000
       - TRANSMISSION_WEB_HOME=/usr/share/transmission/web
       - USER=${TRANSMISSION_USER:-admin}
       - PASS=${TRANSMISSION_PASS:-changeme}
+    
+    # ─── 健康检查 ─────────────────────────────────────────────────────────────
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
+    
+    # ─── 资源限制 ─────────────────────────────────────────────────────────────
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    # ─── 日志配置 ─────────────────────────────────────────────────────────────
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    # ─── 服务标签 ─────────────────────────────────────────────────────────────
+    labels:
+      - "nas-os.app=transmission"
+      - "nas-os.category=network"
+      - "nas-os.description=Lightweight BitTorrent client with Web UI"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+    
+    # ─── 网络隔离 ─────────────────────────────────────────────────────────────
+    networks:
+      - nas-app-network
 
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
 volumes:
   transmission-config:
+    driver: local
+    labels:
+      - "nas-os.app=transmission"
+      - "nas-os.volume=config"

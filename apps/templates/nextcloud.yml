@@ -1,53 +1,242 @@
-# Nextcloud 私有云盘
-# 自建私有云存储，支持文件、日历、联系人同步
-version: '3.8'
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                         Nextcloud - 私有云盘                                  ║
+# ║                    自建云存储，文件同步与协作平台                               ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     nextcloud:latest
+# 类别:     存储服务
+# 官网:     https://nextcloud.com
+# 许可证:   开源免费 (AGPL)
+#
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • 文件存储与同步
+# • 日历与联系人管理
+# • 在线办公 (OnlyOffice/Collabora)
+# • 端到端加密
+# • 移动端支持 (iOS/Android)
+# • 扩展插件生态
+#
+# 📦 依赖服务
+# ─────────────────────────────────────────────────────────────────────────────
+# • nextcloud-db     - MariaDB 数据库
+# • nextcloud-redis  - Redis 缓存
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# /var/lib/nas-os/data/nextcloud/    - 应用数据
+# /var/lib/nas-os/data/nextcloud-db/ - 数据库数据
+# /var/lib/nas-os/data/nextcloud-redis/ - 缓存数据
+# /mnt/storage/                       - 外部存储（可选）
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 部署依赖数据库（首次）:
+#    $ docker compose -f apps/templates/postgres.yml up -d
+#    $ docker compose -f apps/templates/redis.yml up -d
+#
+# 2. 设置管理员密码:
+#    $ export MYSQL_PASSWORD=your_secure_password
+#    $ export MYSQL_ROOT_PASSWORD=your_root_password
+#
+# 3. 启动服务:
+#    $ docker compose -f apps/templates/nextcloud.yml up -d
+#
+# 4. 初始化向导:
+#    访问 http://localhost:8081 完成初始配置
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# MYSQL_PASSWORD      - 数据库密码（必须修改）
+# MYSQL_ROOT_PASSWORD - root 密码（必须修改）
+# TZ                  - 时区设置
+#
+# v2.387.0 工部优化：应用模板标准化
 
 services:
   nextcloud:
     image: nextcloud:latest
-    container_name: nextcloud
+    container_name: nas-nextcloud
     restart: unless-stopped
+    
+    # ─── 网络配置 ─────────────────────────────────────────────────────────────
     ports:
-      - "8081:80"  # Web界面
+      - "8081:80"
+    
+    # ─── 存储挂载 ─────────────────────────────────────────────────────────────
     volumes:
       - nextcloud-data:/var/www/html
-      - /mnt/storage:/data  # 存储目录
+      - ${NAS_MEDIA_DIR:-/mnt/storage}:/data:ro
+    
+    # ─── 环境变量 ─────────────────────────────────────────────────────────────
     environment:
-      - TZ=Asia/Shanghai
+      - TZ=${TZ:-Asia/Shanghai}
       - MYSQL_HOST=nextcloud-db
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-changeme}
       - REDIS_HOST=nextcloud-redis
+    
+    # ─── 服务依赖 ─────────────────────────────────────────────────────────────
     depends_on:
-      - nextcloud-db
-      - nextcloud-redis
+      nextcloud-db:
+        condition: service_healthy
+      nextcloud-redis:
+        condition: service_healthy
+    
+    # ─── 健康检查 ─────────────────────────────────────────────────────────────
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/status.php"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
+    
+    # ─── 资源限制 ─────────────────────────────────────────────────────────────
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # ─── 日志配置 ─────────────────────────────────────────────────────────────
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    # ─── 服务标签 ─────────────────────────────────────────────────────────────
+    labels:
+      - "nas-os.app=nextcloud"
+      - "nas-os.category=storage"
+      - "nas-os.description=Private cloud storage and collaboration"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+    
+    # ─── 网络隔离 ─────────────────────────────────────────────────────────────
+    networks:
+      - nas-app-network
 
+  # ─── MariaDB 数据库 ───────────────────────────────────────────────────────────
   nextcloud-db:
     image: mariadb:10.11
-    container_name: nextcloud-db
+    container_name: nas-nextcloud-db
     restart: unless-stopped
+    
     volumes:
       - nextcloud-db-data:/var/lib/mysql
+    
     environment:
+      - TZ=${TZ:-Asia/Shanghai}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-changeme}
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-changeme}
+    
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    labels:
+      - "nas-os.app=nextcloud-db"
+      - "nas-os.category=database"
+      - "nas-os.description=Nextcloud database"
+    
+    networks:
+      - nas-app-network
 
+  # ─── Redis 缓存 ───────────────────────────────────────────────────────────────
   nextcloud-redis:
-    image: redis:alpine
-    container_name: nextcloud-redis
+    image: redis:7-alpine
+    container_name: nas-nextcloud-redis
     restart: unless-stopped
+    
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    
     volumes:
       - nextcloud-redis-data:/data
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+    
+    labels:
+      - "nas-os.app=nextcloud-redis"
+      - "nas-os.category=cache"
+      - "nas-os.description=Nextcloud cache"
+    
+    networks:
+      - nas-app-network
 
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
 volumes:
   nextcloud-data:
+    driver: local
+    labels:
+      - "nas-os.app=nextcloud"
+      - "nas-os.volume=data"
+  
   nextcloud-db-data:
+    driver: local
+    labels:
+      - "nas-os.app=nextcloud"
+      - "nas-os.volume=database"
+  
   nextcloud-redis-data:
+    driver: local
+    labels:
+      - "nas-os.app=nextcloud"
+      - "nas-os.volume=cache"

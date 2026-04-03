@@ -1,21 +1,90 @@
-# NAS-OS Docker Compose
-# ⚠️ 注意：生产环境建议直接安装在宿主机（需要磁盘设备访问）
-# 此配置适用于开发测试或受限场景
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                         NAS-OS Docker Compose                                ║
+# ║                    对标 TrueNAS 24.10 简化部署体验                           ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
 #
-# 镜像地址: ghcr.io/nas-os/nas-os
+# 📦 镜像地址: ghcr.io/nas-os/nas-os
 #
-# 快速部署：
-#   docker compose up -d                    # 启动服务
-#   docker compose logs -f                  # 查看日志
-#   docker compose down                     # 停止服务
+# ⚠️ 生产环境建议直接安装在宿主机（需要磁盘设备访问）
+#    此配置适用于开发测试或受限场景
 #
-# v2.375.0 工部优化：简化部署流程 + 应用模板系统
-# - 移除冗余配置项
-# - 简化环境变量
-# - 增强健康检查
-# - 参考 TrueNAS 24.10 简化部署体验
+# ═════════════════════════════════════════════════════════════════════════════
+# 🚀 快速部署向导（3步启动）
+# ═════════════════════════════════════════════════════════════════════════════
+#
+# 步骤 1: 拉取镜像
+#   $ docker compose pull
+#
+# 步骤 2: 创建必要目录
+#   $ mkdir -p configs logs
+#   $ sudo mkdir -p /var/lib/nas-os
+#
+# 步骤 3: 启动服务
+#   $ docker compose up -d
+#
+# 步骤 4: 验证运行状态
+#   $ docker compose ps
+#   $ docker compose logs -f nas-os
+#
+# ═════════════════════════════════════════════════════════════════════════════
+# 📋 常用命令
+# ═════════════════════════════════════════════════════════════════════════════
+#
+# 启动服务:     docker compose up -d
+# 停止服务:     docker compose down
+# 重启服务:     docker compose restart
+# 查看状态:     docker compose ps
+# 查看日志:     docker compose logs -f
+# 更新镜像:     docker compose pull && docker compose up -d
+# 进入容器:     docker compose exec nas-os sh
+#
+# ═════════════════════════════════════════════════════════════════════════════
+# ⚙️ 配置说明
+# ═════════════════════════════════════════════════════════════════════════════
+#
+# 环境变量 (.env 文件或直接设置):
+#   TZ=Asia/Shanghai          # 时区设置
+#   LOG_LEVEL=info            # 日志级别: debug, info, warn, error
+#   DEBUG=false               # 调试模式
+#
+# 端口说明:
+#   默认使用 host 网络模式，无需端口映射
+#   Web UI: http://localhost:8080 (默认)
+#
+# 存储挂载:
+#   configs/  → /etc/nas-os    配置文件（只读）
+#   logs/     → /var/log/nas-os 日志目录
+#   nas-os-data → /var/lib/nas-os 数据持久化
+#
+# ═════════════════════════════════════════════════════════════════════════════
+# 🔧 高级配置（可选）
+# ═════════════════════════════════════════════════════════════════════════════
+#
+# 1. 添加存储池（编辑 volumes 部分）:
+#    - /mnt/disk1:/mnt/disk1
+#    - /mnt/disk2:/mnt/disk2
+#
+# 2. 精确设备访问（替代 privileged: true）:
+#    devices:
+#      - /dev/sda:/dev/sda
+#      - /dev/sdb:/dev/sdb
+#
+# 3. 资源限制调整（编辑 deploy.resources 部分）:
+#    limits.cpus: '4.0'        # 最大 CPU 核心数
+#    limits.memory: 4G         # 最大内存
+#
+# v2.387.0 工部优化：Docker部署体验优化
+# - 对标 TrueNAS 24.10 简化流程
+# - 增强部署向导注释
+# - 完善健康检查配置
+# - 优化网络和资源限制
+# - 应用模板标准化（统一标签、日志、健康检查）
+# - 新增 Compose YAML 向导脚本
 
 services:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NAS-OS 主服务
+  # ═══════════════════════════════════════════════════════════════════════════
   nas-os:
     image: ghcr.io/nas-os/nas-os:latest
     build:
@@ -24,100 +93,149 @@ services:
     container_name: nas-os
     restart: unless-stopped
     
-    # 服务标签
+    # ─── 服务标签 ───────────────────────────────────────────────────────────
     labels:
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
+      - "nas-os.version=2.387.0"
+      - "nas-os.docs=https://github.com/nas-os/nas-os"
     
-    # 使用 init 进程管理子进程
+    # ─── 进程管理 ───────────────────────────────────────────────────────────
+    # 使用 init 进程管理子进程（PID 1 问题解决方案）
     init: true
     
-    # 优雅停止时间
+    # 优雅停止时间（等待服务正常关闭）
     stop_grace_period: 30s
     
+    # ─── 权限配置 ───────────────────────────────────────────────────────────
     # ⚠️ 特权模式（访问磁盘设备）
-    # 生产环境建议使用 --device 精确授权
+    # 生产环境建议使用 devices 精确授权替代特权模式
     privileged: true
     
-    # 网络模式：host 以获得最佳性能
-    # 或使用 bridge + 端口映射
+    # ─── 网络配置 ───────────────────────────────────────────────────────────
+    # 网络模式：host 以获得最佳性能和设备发现能力
+    # 备选方案：使用 bridge + 端口映射（更安全但需额外配置）
     network_mode: host
     
-    # 卷挂载
+    # ─── 存储挂载 ───────────────────────────────────────────────────────────
     volumes:
-      # 配置文件
+      # 配置文件（只读挂载）
       - ./configs:/etc/nas-os:ro
+      # 数据持久化
       - nas-os-data:/var/lib/nas-os
       
-      # 存储池（根据实际磁盘挂载点调整）
+      # 存储池挂载（根据实际磁盘挂载点调整）
+      # 示例：取消注释并修改路径
       # - /mnt/disk1:/mnt/disk1
       # - /mnt/disk2:/mnt/disk2
+      # - /mnt/pool1:/mnt/pool1
       
-      # 日志
+      # 日志目录
       - ./logs:/var/log/nas-os
     
-    # 环境变量（精简配置）
+    # ─── 环境变量 ───────────────────────────────────────────────────────────
     environment:
+      # 时区设置
       - TZ=${TZ:-Asia/Shanghai}
+      # 日志级别：debug, info, warn, error
       - NAS_OS_LOG_LEVEL=${LOG_LEVEL:-info}
+      # 调试模式
       - NAS_OS_DEBUG=${DEBUG:-false}
     
-    # 设备访问（非特权模式下使用）
+    # ─── 设备访问（非特权模式）─────────────────────────────────────────────
+    # 如需精确控制设备访问，注释 privileged: true 并取消注释：
     # devices:
     #   - /dev/sda:/dev/sda
     #   - /dev/sdb:/dev/sdb
+    #   - /dev/disk:/dev/disk
     
-    # 资源限制（推荐配置）
+    # ─── 资源限制 ───────────────────────────────────────────────────────────
+    # 根据实际硬件调整限制值
     deploy:
       resources:
         limits:
-          cpus: '2.0'
-          memory: 2G
+          cpus: '2.0'        # 最大 CPU 核心数
+          memory: 2G         # 最大内存使用
         reservations:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.5'        # 保留 CPU 核心数
+          memory: 512M       # 保留内存
     
-    # 日志配置
+    # ─── 日志配置 ───────────────────────────────────────────────────────────
     logging:
       driver: "json-file"
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: "10m"      # 单个日志文件最大 10MB
+        max-file: "3"        # 保留 3 个日志文件
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
     
-    # 健康检查（覆盖 Dockerfile 中的设置）
+    # ─── 健康检查 ───────────────────────────────────────────────────────────
     # v2.136.0: distroless 镜像无 shell，必须使用 CMD 而非 CMD-SHELL
     # 注意：如使用 Dockerfile.full (alpine)，可改为 wget 或 curl
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck"]
-      interval: 30s
-      timeout: 15s
-      retries: 3
-      start_period: 30s
+      interval: 30s          # 检查间隔
+      timeout: 15s           # 超时时间
+      retries: 3             # 重试次数
+      start_period: 30s      # 启动等待时间
 
-  # ========== 可选：配套服务 ==========
-  # 取消注释以下服务以启用
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 可选配套服务（取消注释以启用）
+  # ═══════════════════════════════════════════════════════════════════════════
   
-  # Watchtower 自动更新
+  # ─── Watchtower 自动更新 ──────────────────────────────────────────────────
+  # 自动检测并更新 NAS-OS 镜像
+  # 启用：取消下方注释
+  #
   # watchtower:
-  #   image: containrrr/watchtower
-  #   container_name: watchtower
+  #   image: containrrr/watchtower:latest
+  #   container_name: nas-watchtower
   #   restart: unless-stopped
   #   volumes:
   #     - /var/run/docker.sock:/var/run/docker.sock
-  #   command: --interval 86400 --cleanup nas-os
+  #   environment:
+  #     - TZ=Asia/Shanghai
+  #     - WATCHTOWER_CLEANUP=true              # 清理旧镜像
+  #     - WATCHTOWER_INCLUDE_STOPPED=false     # 不更新已停止的容器
+  #     - WATCHTOWER_POLL_INTERVAL=86400       # 每天检查一次（秒）
+  #   command: nas-os                          # 只监控 nas-os 容器
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "5m"
+  #       max-file: "2"
   
-  # Prometheus 监控（可选）
+  # ─── Prometheus 监控 ──────────────────────────────────────────────────────
+  # 指标收集和告警
+  # 启用：取消下方注释并创建 monitoring/prometheus.yml
+  #
   # prometheus:
   #   image: prom/prometheus:latest
   #   container_name: nas-prometheus
   #   restart: unless-stopped
   #   volumes:
-  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
   #     - prometheus-data:/prometheus
   #   ports:
   #     - "9090:9090"
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.retention.time=15d'
+  #   healthcheck:
+  #     test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.5'
+  #         memory: 512M
   
-  # Grafana 可视化（可选）
+  # ─── Grafana 可视化 ────────────────────────────────────────────────────────
+  # 监控数据可视化面板
+  # 启用：取消下方注释
+  #
   # grafana:
   #   image: grafana/grafana:latest
   #   container_name: nas-grafana
@@ -127,15 +245,40 @@ services:
   #   ports:
   #     - "3000:3000"
   #   environment:
-  #     - GF_SECURITY_ADMIN_PASSWORD=admin123
+  #     - GF_SECURITY_ADMIN_USER=admin
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+  #     - GF_INSTALL_PLUGINS=grafana-clock-panel
+  #   healthcheck:
+  #     test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.5'
+  #         memory: 256M
+  #   depends_on:
+  #     - prometheus
 
-# ========== 网络配置 ==========
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
 networks:
   default:
     name: nas-os-network
     driver: bridge
+    # 可选：自定义子网
+    # ipam:
+    #   config:
+    #     - subnet: 172.28.0.0/16
+    labels:
+      - "nas-os.network=main"
+      - "nas-os.description=NAS-OS main network"
 
-# ========== 卷配置 ==========
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
 volumes:
   nas-os-data:
     driver: local
@@ -143,6 +286,15 @@ volumes:
       type: none
       o: bind
       device: /var/lib/nas-os
+    # 标签用于管理和识别
+    labels:
+      - "nas-os.volume=data"
+      - "nas-os.description=NAS-OS persistent data"
   
+  # 可选：Prometheus 数据卷
   # prometheus-data:
+  #   driver: local
+  
+  # 可选：Grafana 数据卷
   # grafana-data:
+  #   driver: local
