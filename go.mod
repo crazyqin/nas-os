@@ -1,6 +1,6 @@
 module nas-os
 
-go 1.25.0
+go 1.26
 
 require (
 	bazil.org/fuse v0.0.0-20230120002735-62a210ff1fd5

@@ -2,7 +2,7 @@
 # 精简镜像，减少体积，优化构建缓存
 
 # Build stage - 使用多阶段构建减小最终镜像体积
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 # 安装构建依赖
 RUN apk add --no-cache git make gcc musl-dev
