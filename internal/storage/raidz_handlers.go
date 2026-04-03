@@ -135,8 +135,8 @@ func (h *RAIDZExpansionHandlers) getAllActiveTasks(c *gin.Context) {
 	api.OK(c, tasks)
 }
 
-// StartExpansionRequest 开始扩展请求
-type StartExpansionRequest struct {
+// StartExpansionReq 开始扩展请求（旧版API）
+type StartExpansionReq struct {
 	PoolName string `json:"pool_name" binding:"required"` // ZFS池名称
 	NewDisk  string `json:"new_disk" binding:"required"`  // 新磁盘路径
 	Force    bool   `json:"force"`                        // 强制执行
@@ -149,7 +149,7 @@ type StartExpansionRequest struct {
 // @Tags storage
 // @Accept json
 // @Produce json
-// @Param request body StartExpansionRequest true "扩展请求"
+// @Param request body StartExpansionReq true "扩展请求"
 // @Success 200 {object} api.Response{data=ExpansionTask} "扩展已启动"
 // @Failure 400 {object} api.Response "参数错误"
 // @Failure 409 {object} api.Response "池已有扩展任务进行中"
@@ -157,7 +157,7 @@ type StartExpansionRequest struct {
 // @Router /storage/raidz-expansion/start [post]
 // @Security BearerAuth
 func (h *RAIDZExpansionHandlers) startExpansion(c *gin.Context) {
-	var req StartExpansionRequest
+	var req StartExpansionReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		api.BadRequest(c, "请求格式错误: "+err.Error())
 		return

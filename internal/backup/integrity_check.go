@@ -264,7 +264,7 @@ const (
 // Recommendation 建议.
 type Recommendation struct {
 	// Type 建议类型
-	Type RecommendationType `json:"type"`
+	Type IntegrityRecommendationType `json:"type"`
 
 	// Priority 优先级
 	Priority int `json:"priority"`
@@ -279,20 +279,20 @@ type Recommendation struct {
 	AffectedItems int64 `json:"affectedItems"`
 }
 
-// RecommendationType 建议类型.
-type RecommendationType string
+// IntegrityRecommendationType 建议类型.
+type IntegrityRecommendationType string
 
 const (
-	// RecommendationRestore 建议恢复
-	RecommendationRestore RecommendationType = "restore"
-	// RecommendationRebackup 建议重新备份
-	RecommendationRebackup RecommendationType = "rebackup"
-	// RecommendationIgnore 建议忽略
-	RecommendationIgnore RecommendationType = "ignore"
-	// RecommendationVerify 建议验证
-	RecommendationVerify RecommendationType = "verify"
-	// RecommendationRepair 建议修复
-	RecommendationRepair RecommendationType = "repair"
+	// IntegrityRecommendationRestore 建议恢复
+	IntegrityRecommendationRestore IntegrityRecommendationType = "restore"
+	// IntegrityRecommendationRebackup 建议重新备份
+	IntegrityRecommendationRebackup IntegrityRecommendationType = "rebackup"
+	// IntegrityRecommendationIgnore 建议忽略
+	IntegrityRecommendationIgnore IntegrityRecommendationType = "ignore"
+	// IntegrityRecommendationVerify 建议验证
+	IntegrityRecommendationVerify IntegrityRecommendationType = "verify"
+	// IntegrityRecommendationRepair 建议修复
+	IntegrityRecommendationRepair IntegrityRecommendationType = "repair"
 )
 
 // IntegrityCheckManager 完整性校验管理器.
@@ -508,7 +508,7 @@ func (m *IntegrityCheckManager) runCheck(ctx context.Context, job *IntegrityChec
 	// 执行校验
 	var corruptedItems []CorruptedItem
 	var checkedFiles, checkedBytes int64
-	var corruptedFiles, corruptedBlocks int64
+	var corruptedFiles, corruptedBlocks, corruptedBytes int64
 
 	startTime := time.Now()
 
@@ -541,6 +541,7 @@ func (m *IntegrityCheckManager) runCheck(ctx context.Context, job *IntegrityChec
 		if item != nil && item.CorruptionType != "" {
 			corruptedItems = append(corruptedItems, *item)
 			corruptedFiles++
+			corruptedBytes += item.Size
 			if item.CorruptionType == CorruptionBlock {
 				corruptedBlocks++
 			}
@@ -819,7 +820,7 @@ func (m *IntegrityCheckManager) getBackupPath(backupTaskID string) (string, erro
 		if err != nil {
 			return "", err
 		}
-		return config.TargetPath, nil
+		return config.Destination, nil
 	}
 
 	// 默认路径
@@ -921,7 +922,7 @@ func (m *IntegrityCheckManager) generateRecommendations(report *IntegrityCheckRe
 
 	if len(report.CorruptedItems) == 0 {
 		recommendations = append(recommendations, Recommendation{
-			Type:        RecommendationIgnore,
+			Type:        IntegrityRecommendationIgnore,
 			Priority:    0,
 			Action:      "无操作",
 			Description: "备份数据完整，无需修复操作",
@@ -944,7 +945,7 @@ func (m *IntegrityCheckManager) generateRecommendations(report *IntegrityCheckRe
 
 	if criticalCount > 0 {
 		recommendations = append(recommendations, Recommendation{
-			Type:          RecommendationRestore,
+			Type:          IntegrityRecommendationRestore,
 			Priority:      1,
 			Action:        "立即恢复",
 			Description:   fmt.Sprintf("发现 %d 个严重损坏项，建议立即从其他备份恢复", criticalCount),
@@ -954,7 +955,7 @@ func (m *IntegrityCheckManager) generateRecommendations(report *IntegrityCheckRe
 
 	if highCount > 0 {
 		recommendations = append(recommendations, Recommendation{
-			Type:          RecommendationRebackup,
+			Type:          IntegrityRecommendationRebackup,
 			Priority:      2,
 			Action:        "重新备份",
 			Description:   fmt.Sprintf("发现 %d 个高损坏项，建议重新执行备份", highCount),
@@ -964,7 +965,7 @@ func (m *IntegrityCheckManager) generateRecommendations(report *IntegrityCheckRe
 
 	if report.Summary.CorruptionRate > 10.0 {
 		recommendations = append(recommendations, Recommendation{
-			Type:          RecommendationVerify,
+			Type:          IntegrityRecommendationVerify,
 			Priority:      3,
 			Action:        "深度验证",
 			Description:   "损坏率超过10%，建议对所有数据进行深度验证",
