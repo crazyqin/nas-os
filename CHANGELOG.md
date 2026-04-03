@@ -7,6 +7,53 @@
 
 ---
 
+## [v2.384.0] - 2026-04-03
+
+### 🎯 六部协同开发第152轮 - 司礼监调度！UI Search + 告警增强对标TrueNAS/群晖
+
+#### 司礼监调度
+- 竞品调研：TrueNAS 25.10 UI Search、群晖Active Insight告警分组深度分析
+- 六部任务：兵部UI Search、工部告警增强、刑部安全评估、户部成本报表、礼部文档、吏部版本管理
+- Actions状态：✅ 全部成功（Docker Publish、GitHub Release、Security Scan）
+
+#### 竞品对标成果
+| 功能 | TrueNAS 25.10 | 群晖 DSM | nas-os状态 | 本轮目标 |
+|------|---------------|----------|------------|----------|
+| **UI Search** | 界面内快速搜索 | ❌ | ❌ 缺失 | ✅ **已完成** |
+| **Active Insight告警分组** | ❌ | 告警规则分组+静默 | ⚠️ 基础告警 | ✅ **已完成** |
+| **Multi-Systems** | TrueNAS Connect | CMS | ✅ CMS已实现 | 保持 |
+| **LXC容器** | 沙箱容器支持 | ❌ | ❌ 仅Docker | 本轮评估 |
+
+#### 新增功能
+| 功能 | 文件 | 说明 |
+|------|------|------|
+| 🔍 **UI Search API** | `internal/search/ui_search.go` | 界面内快速搜索，支持用户/共享/应用/设置范围 |
+| 📊 **告警分组管理** | `internal/alerting/alert_groups.go` | 存储/网络/系统/安全四大分组，静默时段配置 |
+| 🔒 **安全评估文档** | `docs/FILE_LOCK_SECURITY.md` | 文件锁定安全设计（防死锁） |
+| 📋 **LXC评估文档** | `docs/LXC_CONTAINER_SECURITY_EVAL.md` | LXC容器隔离安全性分析 |
+
+#### API端点新增
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /api/v1/search/ui | UI搜索（支持多范围分组结果） |
+| GET | /api/v1/alerting/groups | 获取告警分组列表 |
+| POST | /api/v1/alerting/groups | 创建告警分组 |
+| PUT | /api/v1/alerting/groups/:id | 更新告警分组 |
+| DELETE | /api/v1/alerting/groups/:id | 删除告警分组 |
+| POST | /api/v1/alerting/silence | 配置告警静默时段 |
+
+#### 竞品对比矩阵更新
+| 功能 | nas-os | TrueNAS | 群晖 | 飞牛 |
+|------|:------:|:-------:|:----:|:----:|
+| UI Search | ✅ **本轮实现** | ✅ | ❌ | ❌ |
+| 告警分组 | ✅ **本轮实现** | ❌ | ✅ Active Insight | ❌ |
+| 多系统管理 | ✅ CMS | ✅ Connect | ✅ CMS | ✅ FN Connect |
+| WriteOnce不可变 | ✅ **独家** | ❌ | ❌ | ❌ |
+| 本地LLM服务 | ✅ **独家** | ❌ | ✅ | ❌ |
+| AI以文搜图 | ✅ **独家** | ❌ | ✅ 人脸 | ✅ |
+
+---
+
 ## [v2.381.0] - 2026-04-03
 
 ### 🎯 六部协同开发第150轮 - 司礼监调度！按需唤醒硬盘完整实现
