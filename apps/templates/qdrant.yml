@@ -1,12 +1,43 @@
-# Qdrant - 高性能向量数据库
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                         Qdrant - 高性能向量数据库                              ║
+# ║                    AI/LLM 向量存储，语义搜索，RAG 应用                          ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
 #
-# 用途：
-# - AI/LLM 向量存储
-# - 语义搜索
-# - RAG 应用
-# - 相似度检索
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     qdrant/qdrant:latest
+# 类别:     数据库/AI
+# 官网:     https://qdrant.tech
+# 许可证:   开源免费 (Apache 2.0)
 #
-# 数据目录：/var/lib/nas-os/data/qdrant
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • 向量搜索
+# • AI/LLM 集成
+# • RAG 应用支持
+# • 过滤查询
+# • 持久化存储
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# /var/lib/nas-os/data/qdrant/ - 持久化数据
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 快速启动:
+#    $ docker compose -f apps/templates/qdrant.yml up -d
+#
+# 2. 访问 Web UI:
+#    http://localhost:6333/dashboard
+#
+# 3. REST API:
+#    http://localhost:6333
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# TZ - 时区设置
+#
+# v2.387.0 工部优化：应用模板标准化
 
 services:
   qdrant:
@@ -14,35 +45,81 @@ services:
     container_name: nas-qdrant
     restart: unless-stopped
     
+    # ─── 网络配置 ─────────────────────────────────────────────────────────────
     ports:
-      - "6333:6333"   # REST API
-      - "6334:6334"   # gRPC API
+      - "6333:6333"
+      - "6334:6334"
     
+    # ─── 存储挂载 ─────────────────────────────────────────────────────────────
     volumes:
-      # 数据持久化
-      - ${NAS_DATA_DIR:-/var/lib/nas-os/data}/qdrant:/qdrant/storage
-      # 配置文件（可选）
-      - ${NAS_CONFIG_DIR:-/var/lib/nas-os/config}/qdrant/config.yaml:/qdrant/config/production.yaml:ro
+      - qdrant-data:/qdrant/storage
     
+    # ─── 环境变量 ─────────────────────────────────────────────────────────────
     environment:
-      # 性能优化
-      QDRANT__LOG_LEVEL: INFO
-      # 内存限制
-      QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS: 4
+      - TZ=${TZ:-Asia/Shanghai}
+      - QDRANT__LOG_LEVEL=INFO
+      - QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS=4
     
+    # ─── 健康检查 ─────────────────────────────────────────────────────────────
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:6333/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
     
+    # ─── 资源限制 ─────────────────────────────────────────────────────────────
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    
+    # ─── 日志配置 ─────────────────────────────────────────────────────────────
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    # ─── 服务标签 ─────────────────────────────────────────────────────────────
     labels:
       - "nas-os.app=qdrant"
       - "nas-os.category=ai"
       - "nas-os.description=High-performance vector database for AI/LLM applications"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
+    
+    # ─── 网络隔离 ─────────────────────────────────────────────────────────────
+    networks:
+      - nas-app-network
 
-# 说明：
-# - Qdrant 支持 REST API 和 gRPC API
-# - REST API 端口 6333 用于 HTTP 请求
-# - gRPC API 端口 6334 用于高性能批量操作
-# - 默认 Web UI 可通过 http://localhost:6333/dashboard 访问
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  nas-app-network:
+    external: true
+    name: nas-app-network
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
+volumes:
+  qdrant-data:
+    driver: local
+    labels:
+      - "nas-os.app=qdrant"
+      - "nas-os.volume=data"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 说明
+# ─────────────────────────────────────────────────────────────────────────────
+# • REST API 端口 6333 用于 HTTP 请求
+# • gRPC API 端口 6334 用于高性能批量操作
+# • Web UI: http://localhost:6333/dashboard

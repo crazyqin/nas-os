@@ -1,26 +1,110 @@
-# Home Assistant 智能家居平台
-# 开源智能家居自动化系统
-version: '3.8'
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                         Home Assistant - 智能家居平台                         ║
+# ║                    开源智能家居自动化，1000+ 集成                              ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# 📋 应用信息
+# ─────────────────────────────────────────────────────────────────────────────
+# 镜像:     homeassistant/home-assistant:stable
+# 类别:     媒体服务/智能家居
+# 官网:     https://www.home-assistant.io
+# 许可证:   开源免费 (Apache 2.0)
+#
+# ✨ 功能特性
+# ─────────────────────────────────────────────────────────────────────────────
+# • 智能家居控制
+# • 1000+ 设备集成
+# • 自动化规则
+# • 语音助手
+# • 本地隐私保护
+#
+# 💾 数据目录
+# ─────────────────────────────────────────────────────────────────────────────
+# /var/lib/nas-os/data/homeassistant/ - 配置和数据
+#
+# 🚀 部署向导
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 快速启动:
+#    $ docker compose -f apps/templates/homeassistant.yml up -d
+#
+# 2. 访问 Web UI:
+#    http://localhost:8123
+#
+# 🔧 环境变量
+# ─────────────────────────────────────────────────────────────────────────────
+# TZ - 时区设置
+#
+# ⚠️ 注意事项
+# ─────────────────────────────────────────────────────────────────────────────
+# • 使用 host 网络模式以发现本地设备
+# • 需要特权模式访问硬件设备
+#
+# v2.387.0 工部优化：应用模板标准化
 
 services:
   homeassistant:
     image: homeassistant/home-assistant:stable
-    container_name: homeassistant
+    container_name: nas-homeassistant
     restart: unless-stopped
-    ports:
-      - "8123:8123"  # Web界面
+    
+    # ─── 网络配置 ─────────────────────────────────────────────────────────────
+    # 使用 host 模式便于发现本地智能设备
+    network_mode: host
+    
+    # ─── 存储挂载 ─────────────────────────────────────────────────────────────
     volumes:
       - homeassistant-config:/config
       - /etc/localtime:/etc/localtime:ro
+    
+    # ─── 环境变量 ─────────────────────────────────────────────────────────────
     environment:
-      - TZ=Asia/Shanghai
-    privileged: true  # 需要访问硬件设备
-    network_mode: host  # 方便发现本地设备
+      - TZ=${TZ:-Asia/Shanghai}
+    
+    # ─── 权限配置 ─────────────────────────────────────────────────────────────
+    # 需要访问硬件设备（Zigbee、Z-Wave 等）
+    privileged: true
+    
+    # ─── 健康检查 ─────────────────────────────────────────────────────────────
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8123"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
+    
+    # ─── 资源限制 ─────────────────────────────────────────────────────────────
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    
+    # ─── 日志配置 ─────────────────────────────────────────────────────────────
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service,app"
+        tag: "{{.Name}}/{{.ImageName}}"
+    
+    # ─── 服务标签 ─────────────────────────────────────────────────────────────
+    labels:
+      - "nas-os.app=homeassistant"
+      - "nas-os.category=smart-home"
+      - "nas-os.description=Open-source smart home automation platform"
+      - "nas-os.healthcheck.enabled=true"
+      - "nas-os.logging.enabled=true"
 
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
 volumes:
   homeassistant-config:
+    driver: local
+    labels:
+      - "nas-os.app=homeassistant"
+      - "nas-os.volume=config"
