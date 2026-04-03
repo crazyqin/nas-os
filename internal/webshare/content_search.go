@@ -5,7 +5,6 @@ package webshare
 import (
 	"context"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -728,7 +727,7 @@ func (css *ContentSearchService) calculateScore(query string, idx *ContentIndex,
 	}
 	
 	// 关键词匹配
-	for _, kw := range idx.Keyword {
+	for _, kw := range idx.Keywords {
 		if strings.Contains(strings.ToLower(kw), query) {
 			score += 20
 		}
