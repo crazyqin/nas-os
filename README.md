@@ -288,6 +288,38 @@ sudo nasd
 | **按需唤醒硬盘** | ✅ v2.381.0 | ✅ | ❌ | ❌ |
 | **价格** | **免费** | 免费 | 付费硬件 | **免费+Connect订阅** |
 
+#### 🆚 三大核心功能详细对比
+
+**RAIDZ扩展对比** → [详细指南](docs/RAIDZ_EXPANSION_USER_GUIDE.md)
+
+| 功能 | nas-os | TrueNAS 24.10 | 飞牛fnOS | 群晖 |
+|------|:------:|:-------------:|:--------:|:----:|
+| 单盘扩容 | ✅ RAID1/10 | ✅ RAIDZ1/2/3 | ❌ | ❌ |
+| 在线操作 | ✅ | ✅ | ❌ | ❌ |
+| 中断恢复 | 📋 | ✅ | ❌ | ❌ |
+| WebUI进度 | ✅ | ✅ 完善 | ❌ | ❌ |
+
+**照片管理对比** → [详细指南](docs/PHOTO_MANAGEMENT.md)
+
+| 功能 | nas-os | 飞牛fnOS | 群晖Photos | TrueNAS |
+|------|:------:|:--------:|:----------:|:-------:|
+| 以文搜图 | ✅ **独家** | ❌ | ❌ | ❌ |
+| 人脸识别 | ✅ 本地AI | ✅ | ✅ | ❌ |
+| 地图视图 | ✅ | ✅ | ✅ | ❌ |
+| 智能相册 | ✅ | ✅ | ✅ | ❌ |
+
+**云同步对比** → [详细指南](docs/CLOUD_SYNC_GUIDE.md)
+
+| 功能 | nas-os | 群晖Cloud Sync | 飞牛fnOS | TrueNAS |
+|------|:------:|:--------------:|:--------:|:-------:|
+| Google Drive | ✅ | ✅ | ✅ | ❌ |
+| OneDrive | ✅ | ✅ | ✅ | ❌ |
+| 阿里云OSS | ✅ | ✅ | ✅ | ❌ |
+| 腾讯云COS | ✅ **独家** | ❌ | ✅ | ❌ |
+| 双向同步 | ✅ | ✅ | ✅ | ❌ |
+| 加密传输 | ✅ AES-256 | ✅ | ❌ | ❌ |
+| 冲突策略 | ✅ 6种 | ✅ 3种 | ❌ | ❌ |
+
 > 详细竞品分析请查看 [docs/COMPETITOR_ANALYSIS.md](docs/COMPETITOR_ANALYSIS.md)
 > **差异化策略**: 以WriteOnce建立安全壁垒，以Fusion Pool优化成本效率，以AI相册领先用户体验
 > **新对标**: TrueNAS 25.10 RAIDZ扩展(OpenZFS 2.3)、群晖DSM 7.3共享标签(TrueNAS Connect Business多系统管理)
