@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.380.0 Stable (2026-04-03)
+> **最新版本**: v2.385.0 Stable (2026-04-03)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -12,10 +12,10 @@
 
 | # | 功能 | 说明 | 价值 |
 |---|------|------|------|
-| 1 | 🔒 **WriteOnce不可变存储** | WORM文件系统，防篡改/防勒索，合规归档 | 企业数据安全壁垒 |
-| 2 | 🤖 **本地LLM服务** | Ollama集成 + OpenAI兼容API，本地AI推理 | 私有化AI，零数据外泄 |
-| 3 | 🔐 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | 智能相册，超越人脸识别 |
-| 4 | ☁️ **多云存储挂载** | 阿里云/腾讯云/AWS/GDrive/OneDrive统一挂载 | 云本地化，竞品覆盖最广 |
+| 1 | 🔒 **WriteOnce不可变存储** | WORM文件系统，防篡改/防勒索，合规归档 | **企业数据安全终极防线** - 金融/医疗/政务必备 |
+| 2 | 🤖 **本地LLM服务** | Ollama集成 + OpenAI兼容API，本地AI推理 | **私有化AI能力** - 零数据外泄，智能对话/文档处理 |
+| 3 | 🔐 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | **超越人脸识别** - "海边日落"、"孩子笑脸"精准匹配 |
+| 4 | ☁️ **多云存储挂载** | 阿里云/腾讯云/AWS/GDrive/OneDrive统一挂载 | **云本地化** - 6+平台透明读写，覆盖最广 |
 
 > 💡 **竞品对标**: 群晖DSM、飞牛fnOS、TrueNAS均无上述四大功能 → [详细分析](docs/COMPETITIVE_ANALYSIS_2026Q2.md)
 
@@ -223,10 +223,10 @@ sudo nasd
 
 | 功能 | 说明 | 竞品状态 | 价值主张 |
 |------|------|----------|----------|
-| 🔒 **WriteOnce** | 不可变存储(WORM)，防篡改/防勒索，合规归档 | 群晖/飞牛/TrueNAS均无 | 企业合规、数据安全壁垒 |
-| 🤖 **本地LLM服务** | Ollama集成，OpenAI兼容API，本地AI推理 | 群晖有本地LLM，飞牛/TrueNAS无 | 私有化AI能力，零数据外泄 |
-| 🔐 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | 飞牛/群晖仅人脸，TrueNAS无 | 智能相册，超越人脸识别 |
-| ☁️ **多云存储挂载** | 阿里/腾讯/AWS/GDrive/OneDrive 6+平台统一挂载 | 群晖有限，飞牛网盘，TrueNAS无 | 云本地化，覆盖最广 |
+| 🔒 **WriteOnce** | 不可变存储(WORM)，防篡改/防勒索，合规归档 | 群晖/飞牛/TrueNAS均无 | **企业数据安全终极防线** - 金融/医疗/政务必备 |
+| 🤖 **本地LLM服务** | Ollama集成，OpenAI兼容API，本地AI推理 | 群晖有本地LLM，飞牛/TrueNAS无 | **私有化AI能力** - 零数据外泄 |
+| 🔐 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | 飞牛/群晖仅人脸，TrueNAS无 | **超越人脸识别** - 自然语言精准匹配 |
+| ☁️ **多云存储挂载** | 阿里/腾讯/AWS/GDrive/OneDrive 6+平台统一挂载 | 群晖有限，飞牛网盘，TrueNAS无 | **云本地化** - 覆盖最广 |
 
 ### ⭐ 领先功能
 
