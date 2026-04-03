@@ -11,6 +11,13 @@
 
 ### 🎯 六部协同开发第153轮 - 礼部轮值！竞品文档更新 + CHANGELOG维护
 
+#### 🆕 新增功能
+| 功能 | 文件 | 说明 |
+|------|------|------|
+| 📊 **文件活动监控** | `internal/audit/file_activity_monitor.go` | 实时文件操作追踪，支持创建/修改/删除/访问事件记录，对标群晖Active Insight |
+| ⚙️ **自定义事件规则** | `internal/automation/event_rules.go` | 用户自定义监控规则，支持路径过滤、事件类型筛选、告警触发条件配置 |
+| 🖥️ **Fleet多节点监控增强** | `internal/cms/fleet_monitor.go` | 多节点集中监控，健康状态聚合、跨节点告警联动、资源利用率统计 |
+
 #### 礼部报告
 - 竞品对比文档更新: `docs/COMPETITIVE_ANALYSIS_2026Q2.md` → v2.385.0
 - RAIDZ扩展对标信息增强: 添加应对策略、技术方案进度
