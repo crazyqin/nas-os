@@ -260,6 +260,11 @@ func (m *Manager) validateProviderConfig(config *ProviderConfig) error {
 			return fmt.Errorf("refresh token 不能为空")
 		}
 
+	case ProviderDropbox:
+		if config.RefreshToken == "" {
+			return fmt.Errorf("refresh token 不能为空")
+		}
+
 	// 中国网盘验证
 	case Provider115:
 		if config.AccessToken == "" {
