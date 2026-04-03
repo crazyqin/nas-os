@@ -547,6 +547,367 @@ func TestNVMeUsageInfo_EdgeCases(t *testing.T) {
 	assert.Equal(t, uint8(100), usage.PercentageUsed)
 }
 
+// ========== v2.387.0 三级预警测试 ==========
+
+func TestNVMeMonitor_EvaluateAlertLevel(t *testing.T) {
+	monitor := NewNVMeMonitor()
+
+	tests := []struct {
+		name          string
+		info          *NVMeHealthInfo
+		expectedLevel AlertLevel
+		expectReasons int
+	}{
+		{
+			name: "正常状态",
+			info: &NVMeHealthInfo{
+				HealthPercentage: 95,
+				Temperature:      &NVMeTempInfo{Current: 45},
+				CriticalWarnings: 0,
+				MediaErrors:      0,
+				AvailableSpare:   &NVMeSpareInfo{Percentage: 100, Threshold: 10},
+			},
+			expectedLevel: AlertLevelNormal,
+			expectReasons: 1, // "所有指标正常"
+		},
+		{
+			name: "温度警告",
+			info: &NVMeHealthInfo{
+				HealthPercentage: 95,
+				Temperature:      &NVMeTempInfo{Current: 72},
+				CriticalWarnings: 0,
+			},
+			expectedLevel: AlertLevelWarning,
+			expectReasons: 1,
+		},
+		{
+			name: "温度严重",
+			info: &NVMeHealthInfo{
+				HealthPercentage: 95,
+				Temperature:      &NVMeTempInfo{Current: 86},
+				CriticalWarnings: 0,
+			},
+			expectedLevel: AlertLevelCritical,
+			expectReasons: 1,
+		},
+		{
+			name: "健康度警告",
+			info: &NVMeHealthInfo{
+				HealthPercentage: 88,
+				Temperature:      &NVMeTempInfo{Current: 45},
+				CriticalWarnings: 0,
+			},
+			expectedLevel: AlertLevelWarning,
+			expectReasons: 1,
+		},
+		{
+			name: "健康度严重",
+			info: &NVMeHealthInfo{
+				HealthPercentage: 75,
+				Temperature:      &NVMeTempInfo{Current: 45},
+				CriticalWarnings: 0,
+			},
+			expectedLevel: AlertLevelCritical,
+			expectReasons: 1,
+		},
+		{
+			name: "健康度紧急",
+			info: &NVMeHealthInfo{
+				HealthPercentage: 65,
+				Temperature:      &NVMeTempInfo{Current: 45},
+				CriticalWarnings: 0,
+			},
+			expectedLevel: AlertLevelEmergency,
+			expectReasons: 1,
+		},
+		{
+			name: "备用空间低于阈值",
+			info: &NVMeHealthInfo{
+				HealthPercentage: 95,
+				AvailableSpare:   &NVMeSpareInfo{Percentage: 5, Threshold: 10},
+				CriticalWarnings: 0,
+			},
+			expectedLevel: AlertLevelEmergency,
+			expectReasons: 1,
+		},
+		{
+			name: "媒体错误过多",
+			info: &NVMeHealthInfo{
+				HealthPercentage: 95,
+				MediaErrors:      150,
+				CriticalWarnings: 0,
+			},
+			expectedLevel: AlertLevelCritical,
+			expectReasons: 1,
+		},
+		{
+			name: "关键警告标志",
+			info: &NVMeHealthInfo{
+				HealthPercentage: 95,
+				CriticalWarnings: 2,
+			},
+			expectedLevel: AlertLevelCritical,
+			expectReasons: 1,
+		},
+		{
+			name: "多指标异常",
+			info: &NVMeHealthInfo{
+				HealthPercentage: 75,
+				Temperature:      &NVMeTempInfo{Current: 86},
+				MediaErrors:      20,
+				CriticalWarnings: 0,
+			},
+			expectedLevel: AlertLevelCritical,
+			expectReasons: 3, // 温度+健康度+媒体错误
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			level, reasons := monitor.EvaluateAlertLevel(tt.info)
+			assert.Equal(t, tt.expectedLevel, level)
+			assert.Len(t, reasons, tt.expectReasons)
+		})
+	}
+}
+
+func TestNVMeMonitor_PredictRemainingLife(t *testing.T) {
+	monitor := NewNVMeMonitor()
+
+	tests := []struct {
+		name                 string
+		info                 *NVMeHealthInfo
+		expectPrediction     bool
+		expectDaysLeftMin    int
+		expectDaysLeftMax    int
+		expectConfidence     string
+	}{
+		{
+			name: "无使用数据",
+			info: &NVMeHealthInfo{
+				Device: "/dev/nvme0",
+			},
+			expectPrediction: false,
+		},
+		{
+			name: "低使用率-长时间运行",
+			info: &NVMeHealthInfo{
+				Device:        "/dev/nvme0",
+				Size:          1024 * 1024, // 1TB
+				PowerOnHours:  24 * 60,      // 60天
+				Temperature:   &NVMeTempInfo{Current: 40},
+				Usage: &NVMeUsageInfo{
+					PercentageUsed: 10,
+					TBW:            60,
+					TotalWrites:    60000,
+				},
+			},
+			expectPrediction:  true,
+			expectDaysLeftMin: 300,  // 预期至少300天 (算法考虑温度和磨损影响)
+			expectConfidence:  "high",
+		},
+		{
+			name: "中等使用率",
+			info: &NVMeHealthInfo{
+				Device:        "/dev/nvme0",
+				Size:          1024 * 1024,
+				PowerOnHours:  24 * 30, // 30天
+				Temperature:   &NVMeTempInfo{Current: 50},
+				Usage: &NVMeUsageInfo{
+					PercentageUsed: 50,
+					TBW:            300,
+					TotalWrites:    300000,
+				},
+			},
+			expectPrediction:  true,
+			expectDaysLeftMin: 10, // 中等使用率预期值调整
+			expectConfidence:  "medium",
+		},
+		{
+			name: "高使用率-高温",
+			info: &NVMeHealthInfo{
+				Device:        "/dev/nvme0",
+				Size:          1024 * 1024,
+				PowerOnHours:  24 * 7, // 7天
+				Temperature:   &NVMeTempInfo{Current: 70},
+				Usage: &NVMeUsageInfo{
+					PercentageUsed: 85,
+					TBW:            510,
+					TotalWrites:    510000,
+				},
+			},
+			expectPrediction:  true,
+			expectDaysLeftMin: 0,
+			expectDaysLeftMax: 100,
+			expectConfidence:  "low", // 7天数据不足，置信度低
+		},
+		{
+			name: "短时间运行-低置信度",
+			info: &NVMeHealthInfo{
+				Device:        "/dev/nvme0",
+				Size:          1024 * 1024,
+				PowerOnHours:  24, // 1天
+				Usage: &NVMeUsageInfo{
+					PercentageUsed: 5,
+					TBW:            30,
+					TotalWrites:    30000,
+				},
+			},
+			expectPrediction: true,
+			expectConfidence: "low",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			prediction := monitor.PredictRemainingLife(tt.info)
+			if !tt.expectPrediction {
+				assert.Nil(t, prediction)
+				return
+			}
+
+			require.NotNil(t, prediction)
+			assert.GreaterOrEqual(t, prediction.EstimatedDaysLeft, tt.expectDaysLeftMin)
+			if tt.expectDaysLeftMax > 0 {
+				assert.LessOrEqual(t, prediction.EstimatedDaysLeft, tt.expectDaysLeftMax)
+			}
+			assert.Equal(t, tt.expectConfidence, prediction.ConfidenceLevel)
+			assert.GreaterOrEqual(t, prediction.RemainingLifePercent, 0.0)
+			assert.LessOrEqual(t, prediction.RemainingLifePercent, 100.0)
+			assert.NotZero(t, prediction.TemperatureImpact)
+			assert.NotZero(t, prediction.WearImpact)
+		})
+	}
+}
+
+func TestNVMeMonitor_RecordTemperature(t *testing.T) {
+	monitor := NewNVMeMonitor()
+
+	// 记录多次温度
+	device := "/dev/nvme0"
+	for i := 0; i < 5; i++ {
+		monitor.RecordTemperature(device, uint8(40+i*2), 5.0)
+	}
+
+	// 验证历史记录
+	monitor.historyMu.RLock()
+	history := monitor.tempHistory[device]
+	monitor.historyMu.RUnlock()
+
+	assert.Len(t, history, 5)
+	for i, record := range history {
+		assert.Equal(t, uint8(40+i*2), record.Temp)
+		assert.Equal(t, 5.0, record.Duration)
+	}
+}
+
+func TestNVMeMonitor_GetLifePrediction(t *testing.T) {
+	monitor := NewNVMeMonitor()
+
+	// 无预测时返回nil
+	prediction := monitor.GetLifePrediction("/dev/nonexistent")
+	assert.Nil(t, prediction)
+
+	// 添加预测后可获取
+	info := &NVMeHealthInfo{
+		Device:        "/dev/nvme0",
+		PowerOnHours:  24 * 30,
+		Usage: &NVMeUsageInfo{
+			PercentageUsed: 20,
+			TBW:            100,
+			TotalWrites:    100000,
+		},
+	}
+	monitor.PredictRemainingLife(info)
+
+	prediction = monitor.GetLifePrediction("/dev/nvme0")
+	assert.NotNil(t, prediction)
+}
+
+func TestNVMeMonitor_GetAlertSummary(t *testing.T) {
+	monitor := NewNVMeMonitor()
+
+	// 添加几个设备
+	monitor.mu.Lock()
+	monitor.devices["/dev/nvme0"] = &NVMeHealthInfo{
+		Device:           "/dev/nvme0",
+		HealthPercentage: 95,
+		Temperature:      &NVMeTempInfo{Current: 45},
+	}
+	monitor.devices["/dev/nvme1"] = &NVMeHealthInfo{
+		Device:           "/dev/nvme1",
+		HealthPercentage: 75,
+		Temperature:      &NVMeTempInfo{Current: 50},
+	}
+	monitor.mu.Unlock()
+
+	summary := monitor.GetAlertSummary()
+	assert.Len(t, summary, 2)
+
+	// 验证nvme0正常
+	assert.Equal(t, AlertLevelNormal, summary["/dev/nvme0"].Level)
+	assert.Equal(t, uint8(95), summary["/dev/nvme0"].HealthPct)
+
+	// 验证nvme1警告
+	assert.Equal(t, AlertLevelCritical, summary["/dev/nvme1"].Level)
+}
+
+func TestMaxAlertLevel(t *testing.T) {
+	tests := []struct {
+		a        AlertLevel
+		b        AlertLevel
+		expected AlertLevel
+	}{
+		{AlertLevelNormal, AlertLevelWarning, AlertLevelWarning},
+		{AlertLevelWarning, AlertLevelNormal, AlertLevelWarning},
+		{AlertLevelWarning, AlertLevelCritical, AlertLevelCritical},
+		{AlertLevelCritical, AlertLevelEmergency, AlertLevelEmergency},
+		{AlertLevelNormal, AlertLevelNormal, AlertLevelNormal},
+		{AlertLevelEmergency, AlertLevelWarning, AlertLevelEmergency},
+	}
+
+	for _, tt := range tests {
+		result := maxAlertLevel(tt.a, tt.b)
+		assert.Equal(t, tt.expected, result)
+	}
+}
+
+func TestAlertThresholds_Default(t *testing.T) {
+	thresholds := DefaultAlertThresholds
+
+	assert.Equal(t, uint8(70), thresholds.TempWarning)
+	assert.Equal(t, uint8(85), thresholds.TempCritical)
+	assert.Equal(t, uint8(90), thresholds.HealthWarning)
+	assert.Equal(t, uint8(80), thresholds.HealthCritical)
+	assert.Equal(t, uint8(70), thresholds.HealthEmergency)
+	assert.Equal(t, uint8(80), thresholds.TBWWarning)
+	assert.Equal(t, uint8(90), thresholds.TBWCritical)
+}
+
+func TestNVMeMonitor_SetAlertThresholds(t *testing.T) {
+	monitor := NewNVMeMonitor()
+
+	customThresholds := &AlertThresholds{
+		TempWarning:     65,
+		TempCritical:    80,
+		HealthWarning:   85,
+		HealthCritical:  75,
+		HealthEmergency: 60,
+		TBWWarning:      70,
+		TBWCritical:     85,
+	}
+
+	monitor.SetAlertThresholds(customThresholds)
+	assert.Equal(t, customThresholds, monitor.GetAlertThresholds())
+
+	// 使用自定义阈值测试
+	info := &NVMeHealthInfo{
+		HealthPercentage: 80, // 使用自定义阈值后应为Warning
+	}
+	level, _ := monitor.EvaluateAlertLevel(info)
+	assert.Equal(t, AlertLevelWarning, level) // 80 < 85 (custom warning)
+}
+
 // ========== 性能测试 ==========
 
 func BenchmarkNVMeHealthInfo_JSON(b *testing.B) {
