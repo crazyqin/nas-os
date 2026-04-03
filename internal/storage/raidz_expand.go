@@ -752,10 +752,9 @@ func CalculateCapacityGain(raidzLevel string, widthBefore int, diskSizeGB float6
 	// 扩展前数据盘数
 	dataDisksBefore := widthBefore - parity
 
-	// 扩展后数据盘数
-	dataDisksAfter := dataDisksBefore + 1
+	// 容量增益 = 新增数据盘容量（扩展后增加1个数据盘）
+	_ = dataDisksBefore + 1 // dataDisksAfter
 
-	// 容量增益 = 新增数据盘容量
 	return diskSizeGB
 }
 

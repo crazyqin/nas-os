@@ -465,8 +465,9 @@ func (m *StorageTrendManager) aggregateByWeek(records []StorageHistoryRecord) []
 				avgFree += r.FreeSize
 			}
 			n := float64(len(weekRecords))
+			_, weekNum := lastRecord.Timestamp.ISOWeek()
 			aggRecord := StorageHistoryRecord{
-				ID:          fmt.Sprintf("agg-week-%d", lastRecord.Timestamp.ISOWeek()),
+				ID:          fmt.Sprintf("agg-week-%d", weekNum),
 				PoolID:      lastRecord.PoolID,
 				PoolName:    lastRecord.PoolName,
 				Timestamp:   lastRecord.Timestamp,

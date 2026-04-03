@@ -189,8 +189,8 @@ func (h *RAIDZExpandHandlers) getSummary(c *gin.Context) {
 
 // ========== 扩展操作API ==========
 
-// StartExpansionRequest 开始扩展请求
-type StartExpansionRequest struct {
+// StartExpansionReqV2 开始扩展请求（V2 API）
+type StartExpansionReqV2 struct {
 	PoolName      string            `json:"poolName" binding:"required"`      // 存储池名称
 	VdevName      string            `json:"vdevName"`                         // VDEV名称（可选）
 	NewDisk       string            `json:"newDisk" binding:"required"`       // 新磁盘路径
@@ -206,14 +206,14 @@ type StartExpansionRequest struct {
 // @Tags storage/raidz-expand
 // @Accept json
 // @Produce json
-// @Param request body StartExpansionRequest true "扩展配置"
+// @Param request body StartExpansionReqV2 true "扩展配置"
 // @Success 202 {object} api.Response{data=RAIDZExpandProgress} "任务已接受"
 // @Failure 400 {object} api.Response "参数错误"
 // @Failure 409 {object} api.Response "已有扩展任务运行中"
 // @Router /raidz-expand/start [post]
 // @Security BearerAuth
 func (h *RAIDZExpandHandlers) startExpansion(c *gin.Context) {
-	var req StartExpansionRequest
+	var req StartExpansionReqV2
 	if err := api.BindAndValidate(c, &req); err != nil {
 		api.BadRequest(c, err.Error())
 		return
@@ -230,12 +230,12 @@ func (h *RAIDZExpandHandlers) startExpansion(c *gin.Context) {
 	task := &ExpansionTask{
 		ID:          generateTaskID(req.PoolName),
 		PoolName:    req.PoolName,
-		NewDevice:   req.NewDisk,
+		NewDisk:     req.NewDisk,
 		RAIDZLevel:  req.RAIDZLevel,
 		Status:      StatusPreparing,
 		CanPause:    true,
-		CanResume:   false,
 		CanCancel:   true,
+		CanResume:   false,
 		StartTime:   time.Now(),
 		Metadata:    req.Metadata,
 	}
@@ -766,13 +766,6 @@ func (h *RAIDZExpandHandlers) getPhaseDetails(c *gin.Context) {
 	api.OK(c, phases)
 }
 
-// ========== 辅助函数 ==========
-
-// generateTaskID 生成任务ID
-func generateTaskID(poolName string) string {
-	return "expand-" + poolName + "-" + time.Now().Format("20060102-150405")
-}
-
 // getParityCount 获取奇偶校验盘数
 func getParityCount(raidzLevel string) int {
 	switch raidzLevel {
@@ -787,36 +780,4 @@ func getParityCount(raidzLevel string) int {
 	}
 }
 
-// ExpansionTask 扩展任务（从raidz_expand.go引用）
-// 这里重新定义以确保handlers可独立编译
-type ExpansionTask struct {
-	ID          string
-	PoolName    string
-	NewDevice   string
-	RAIDZLevel  string
-	Progress    float64
-	BytesProcessed uint64
-	TotalBytes  uint64
-	SpeedMBps   float64
-	Status      ExpansionStatus
-	CanPause    bool
-	CanResume   bool
-	CanCancel   bool
-	StartTime   time.Time
-	Errors      []string
-	Warnings    []string
-	Metadata    map[string]string
-}
-
-// ExpansionStatus 扩展状态
-type ExpansionStatus string
-
-const (
-	StatusIdle       ExpansionStatus = "idle"
-	StatusPreparing  ExpansionStatus = "preparing"
-	StatusRunning    ExpansionStatus = "running"
-	StatusPaused     ExpansionStatus = "paused"
-	StatusCompleted  ExpansionStatus = "completed"
-	StatusFailed     ExpansionStatus = "failed"
-	StatusCancelled  ExpansionStatus = "cancelled"
-)
+// ExpansionTask 和 ExpansionStatus 定义在 raidz_service.go
