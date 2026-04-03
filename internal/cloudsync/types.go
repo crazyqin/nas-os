@@ -16,6 +16,7 @@ const (
 	ProviderAWSS3        ProviderType = "aws_s3"
 	ProviderGoogleDrive  ProviderType = "google_drive"
 	ProviderOneDrive     ProviderType = "onedrive"
+	ProviderDropbox      ProviderType = "dropbox"
 	ProviderBackblazeB2  ProviderType = "backblaze_b2"
 	ProviderWebDAV       ProviderType = "webdav"
 	ProviderS3Compatible ProviderType = "s3_compatible" // 通用 S3 兼容存储
@@ -340,6 +341,12 @@ func SupportedProviders() []ProviderInfo {
 			Name:        "OneDrive",
 			Description: "Microsoft OneDrive",
 			Features:    []string{"upload", "download", "delete", "list", "share"},
+		},
+		{
+			Type:        ProviderDropbox,
+			Name:        "Dropbox",
+			Description: "Dropbox 云存储",
+			Features:    []string{"upload", "download", "delete", "list", "share", "multipart"},
 		},
 		{
 			Type:        ProviderBackblazeB2,

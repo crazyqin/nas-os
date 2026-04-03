@@ -1877,6 +1877,8 @@ func NewProvider(ctx context.Context, cfg *ProviderConfig) (Provider, error) {
 		return NewGoogleDriveProvider(cfg)
 	case ProviderOneDrive:
 		return NewOneDriveProvider(cfg)
+	case ProviderDropbox:
+		return NewDropboxProvider(cfg)
 	case ProviderS3Compatible:
 		return NewS3Provider(ctx, cfg, ProviderS3Compatible)
 	// 中国网盘提供商

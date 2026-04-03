@@ -320,12 +320,6 @@ func TestSpaceHistory(t *testing.T) {
 	tmpDir := t.TempDir()
 	manager := &Manager{}
 	sa := NewSpaceAnalyzer(manager, tmpDir)
-	
-	// 确保在测试结束前关闭可能的资源，避免清理失败
-	t.Cleanup(func() {
-		// 清理可能的历史记录文件
-		_ = os.RemoveAll(filepath.Join(tmpDir, "space_history.json"))
-	})
 
 	// 添加测试记录
 	vol := &Volume{
@@ -343,6 +337,9 @@ func TestSpaceHistory(t *testing.T) {
 
 	sa.recordAnalysis("test", vol, dist)
 
+	// 等待异步保存完成
+	time.Sleep(100 * time.Millisecond)
+
 	// 验证记录已添加
 	if len(sa.history.Records) != 1 {
 		t.Errorf("历史记录数量错误: got %d, want 1", len(sa.history.Records))
@@ -356,6 +353,12 @@ func TestSpaceHistory(t *testing.T) {
 
 	if len(records) != 1 {
 		t.Errorf("获取历史记录数量错误: got %d, want 1", len(records))
+	}
+
+	// 验证历史数据已持久化
+	sa2 := NewSpaceAnalyzer(manager, tmpDir)
+	if len(sa2.history.Records) != 1 {
+		t.Errorf("历史记录持久化失败: got %d records, want 1", len(sa2.history.Records))
 	}
 }
 
