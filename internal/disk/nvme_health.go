@@ -1,6 +1,6 @@
 // Package disk 提供NVMe健康监控功能
-// Version: v1.0.0 - NVMe S.M.A.R.T增强监控
-// 参考 TrueNAS 24.10 NVMe S.M.A.R.T测试功能实现
+// Version: v2.387.0 - NVMe S.M.A.R.T增强监控 + 三级预警 + 健康预测
+// 参考 TrueNAS 25.10 NVMe S.M.A.R.T测试功能实现
 package disk
 
 import (
@@ -8,12 +8,54 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
+
+// AlertLevel 三级预警等级枚举 - 对标TrueNAS 25.10
+type AlertLevel string
+
+const (
+	// AlertLevelNormal 正常状态
+	AlertLevelNormal AlertLevel = "normal"
+	// AlertLevelWarning 警告级别 - 需要关注
+	AlertLevelWarning AlertLevel = "warning"
+	// AlertLevelCritical 严重级别 - 需要尽快处理
+	AlertLevelCritical AlertLevel = "critical"
+	// AlertLevelEmergency 紧急级别 - 需要立即处理
+	AlertLevelEmergency AlertLevel = "emergency"
+)
+
+// AlertThresholds 预警阈值配置
+type AlertThresholds struct {
+	// 温度阈值 (摄氏度)
+	TempWarning  uint8 `json:"temp_warning"`  // 70°C
+	TempCritical uint8 `json:"temp_critical"` // 85°C
+
+	// 健康度阈值 (百分比)
+	HealthWarning    uint8 `json:"health_warning"`    // 90%
+	HealthCritical   uint8 `json:"health_critical"`   // 80%
+	HealthEmergency  uint8 `json:"health_emergency"`  // 70%
+
+	// 写入量阈值 (TBW百分比)
+	TBWWarning  uint8 `json:"tbw_warning"`  // 80%
+	TBWCritical uint8 `json:"tbw_critical"` // 90%
+}
+
+// DefaultAlertThresholds 默认预警阈值
+var DefaultAlertThresholds = &AlertThresholds{
+	TempWarning:     70,
+	TempCritical:    85,
+	HealthWarning:    90,
+	HealthCritical:  80,
+	HealthEmergency: 70,
+	TBWWarning:       80,
+	TBWCritical:      90,
+}
 
 // NVMeHealthInfo NVMe健康信息.
 type NVMeHealthInfo struct {
@@ -31,6 +73,11 @@ type NVMeHealthInfo struct {
 	HealthPercentage uint8        `json:"healthPercentage"` // 0-100
 	Status           DiskStatus   `json:"status"`
 	HealthScore      *HealthScore `json:"healthScore,omitempty"`
+
+	// 三级预警 - v2.387.0
+	AlertLevel       AlertLevel     `json:"alertLevel"`       // 当前预警等级
+	AlertReasons     []string       `json:"alertReasons"`     // 预警原因列表
+	AlertThresholds  *AlertThresholds `json:"alertThresholds,omitempty"` // 使用的阈值配置
 
 	// NVMe SMART属性
 	Temperature      *NVMeTempInfo  `json:"temperature,omitempty"`
@@ -82,6 +129,38 @@ type NVMeUsageInfo struct {
 	TotalReads       float64 `json:"totalReads"`       // 总读取量(GB)
 	WearLevel        string  `json:"wearLevel"`        // low/medium/high
 	EstimatedLife    string  `json:"estimatedLife"`    // 预估剩余寿命
+
+	// 寿命预测增强 - v2.387.0
+	LifePrediction   *NVMeLifePrediction `json:"lifePrediction,omitempty"`   // 寿命预测
+	EstimatedTBW     float64             `json:"estimatedTBW,omitempty"`    // 预估TBW总容量
+	TBWUsedPercent   float64             `json:"tbwUsedPercent,omitempty"` // TBW使用百分比
+}
+
+// NVMeLifePrediction NVMe寿命预测 - 基于写入量、温度历史、磨损程度
+type NVMeLifePrediction struct {
+	// 预测结果
+	RemainingLifePercent float64   `json:"remainingLifePercent"` // 剩余寿命百分比
+	EstimatedDaysLeft    int       `json:"estimatedDaysLeft"`    // 预估剩余天数
+	EstimatedEndDate     time.Time `json:"estimatedEndDate"`     // 预估寿命终结日期
+	ConfidenceLevel      string    `json:"confidenceLevel"`     // 预测置信度: high/medium/low
+
+	// 预测因子
+	WriteAmplificationFactor float64 `json:"writeAmplificationFactor"` // 写放大因子
+	AverageDailyWrites       float64 `json:"averageDailyWrites"`     // 平均每日写入量(GB)
+	TemperatureImpact        float64 `json:"temperatureImpact"`      // 温度对寿命的影响系数 (0-1)
+	WearImpact               float64 `json:"wearImpact"`             // 磨损程度影响系数 (0-1)
+
+	// 历史数据
+	TemperatureHistory      []TempRecord `json:"temperatureHistory,omitempty"` // 温度历史
+	WeeklyWriteRates        []float64    `json:"weeklyWriteRates,omitempty"`  // 每周写入率历史
+	PredictionLastUpdated   time.Time    `json:"predictionLastUpdated"`
+}
+
+// TempRecord 温度历史记录
+type TempRecord struct {
+	Timestamp time.Time `json:"timestamp"`
+	Temp      uint8     `json:"temp"`
+	Duration  float64   `json:"duration"` // 持续时间(分钟)
 }
 
 // NVMeSpareInfo NVMe备用空间信息.
@@ -124,14 +203,38 @@ type NVMeMonitor struct {
 	devices   map[string]*NVMeHealthInfo
 	testQueue map[string]*NVMeTestResult // 正在运行的测试
 	mu        sync.RWMutex
+
+	// v2.387.0 增强
+	alertThresholds  *AlertThresholds           // 预警阈值
+	lifePredictions map[string]*NVMeLifePrediction // 设备寿命预测缓存
+	predictionMu    sync.RWMutex
+	tempHistory     map[string][]TempRecord     // 设备温度历史
+	historyMu       sync.RWMutex
 }
 
 // NewNVMeMonitor 创建NVMe监控器.
 func NewNVMeMonitor() *NVMeMonitor {
 	return &NVMeMonitor{
-		devices:   make(map[string]*NVMeHealthInfo),
-		testQueue: make(map[string]*NVMeTestResult),
+		devices:         make(map[string]*NVMeHealthInfo),
+		testQueue:       make(map[string]*NVMeTestResult),
+		alertThresholds: DefaultAlertThresholds,
+		lifePredictions:  make(map[string]*NVMeLifePrediction),
+		tempHistory:      make(map[string][]TempRecord),
 	}
+}
+
+// SetAlertThresholds 设置预警阈值.
+func (m *NVMeMonitor) SetAlertThresholds(thresholds *AlertThresholds) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.alertThresholds = thresholds
+}
+
+// GetAlertThresholds 获取预警阈值.
+func (m *NVMeMonitor) GetAlertThresholds() *AlertThresholds {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.alertThresholds
 }
 
 // ScanNVMeDevices 扫描NVMe设备.
@@ -206,9 +309,10 @@ func (m *NVMeMonitor) GetNVMeHealth(device string) (*NVMeHealthInfo, error) {
 // collectNVMeHealth 收集NVMe健康数据.
 func (m *NVMeMonitor) collectNVMeHealth(device string) (*NVMeHealthInfo, error) {
 	info := &NVMeHealthInfo{
-		Device:    device,
-		LastCheck: time.Now(),
-		Status:    StatusUnknown,
+		Device:          device,
+		LastCheck:       time.Now(),
+		Status:          StatusUnknown,
+		AlertThresholds: m.alertThresholds,
 	}
 
 	// 1. 使用 nvme-cli 获取 SMART 数据
@@ -222,6 +326,39 @@ func (m *NVMeMonitor) collectNVMeHealth(device string) (*NVMeHealthInfo, error) 
 
 	// 3. 计算健康评分
 	m.calculateNVMeHealthScore(info)
+
+	// 4. v2.387.0: 三级预警评估
+	alertLevel, alertReasons := m.EvaluateAlertLevel(info)
+	info.AlertLevel = alertLevel
+	info.AlertReasons = alertReasons
+
+	// 5. v2.387.0: 寿命预测
+	prediction := m.PredictRemainingLife(info)
+	if prediction != nil && info.Usage != nil {
+		info.Usage.LifePrediction = prediction
+	}
+
+	// 6. 根据预警等级调整状态
+	switch alertLevel {
+	case AlertLevelEmergency:
+		info.Status = StatusCritical
+		info.OverallHealth = "emergency"
+	case AlertLevelCritical:
+		info.Status = StatusCritical
+		info.OverallHealth = "critical"
+	case AlertLevelWarning:
+		if info.Status != StatusCritical {
+			info.Status = StatusWarning
+			info.OverallHealth = "warn"
+		}
+	case AlertLevelNormal:
+		// 保持原有状态
+	}
+
+	// 7. 记录温度历史
+	if info.Temperature != nil {
+		m.RecordTemperature(device, info.Temperature.Current, 5.0) // 默认5分钟周期
+	}
 
 	return info, nil
 }
@@ -982,4 +1119,317 @@ func (m *NVMeMonitor) ClearCache(device string) {
 	} else {
 		delete(m.devices, device)
 	}
+}
+
+// ==================== v2.387.0 三级预警 + 寿命预测增强 ====================
+
+// EvaluateAlertLevel 评估三级预警等级.
+func (m *NVMeMonitor) EvaluateAlertLevel(info *NVMeHealthInfo) (AlertLevel, []string) {
+	m.mu.RLock()
+	thresholds := m.alertThresholds
+	m.mu.RUnlock()
+
+	var reasons []string
+	alertLevel := AlertLevelNormal
+
+	// 1. 温度预警检查
+	if info.Temperature != nil {
+		temp := info.Temperature.Current
+		if temp >= thresholds.TempCritical {
+			alertLevel = maxAlertLevel(alertLevel, AlertLevelCritical)
+			reasons = append(reasons, fmt.Sprintf("温度严重过高: %d°C >= %d°C (Critical)", temp, thresholds.TempCritical))
+		} else if temp >= thresholds.TempWarning {
+			alertLevel = maxAlertLevel(alertLevel, AlertLevelWarning)
+			reasons = append(reasons, fmt.Sprintf("温度偏高: %d°C >= %d°C (Warning)", temp, thresholds.TempWarning))
+		}
+	}
+
+	// 2. 健康度预警检查
+	healthPct := info.HealthPercentage
+	if healthPct < thresholds.HealthEmergency {
+		alertLevel = maxAlertLevel(alertLevel, AlertLevelEmergency)
+		reasons = append(reasons, fmt.Sprintf("健康度紧急: %d%% < %d%% (Emergency)", healthPct, thresholds.HealthEmergency))
+	} else if healthPct < thresholds.HealthCritical {
+		alertLevel = maxAlertLevel(alertLevel, AlertLevelCritical)
+		reasons = append(reasons, fmt.Sprintf("健康度严重: %d%% < %d%% (Critical)", healthPct, thresholds.HealthCritical))
+	} else if healthPct < thresholds.HealthWarning {
+		alertLevel = maxAlertLevel(alertLevel, AlertLevelWarning)
+		reasons = append(reasons, fmt.Sprintf("健康度警告: %d%% < %d%% (Warning)", healthPct, thresholds.HealthWarning))
+	}
+
+	// 3. TBW写入量预警检查
+	if info.Usage != nil && info.Usage.TBWUsedPercent > 0 {
+		tbwPct := info.Usage.TBWUsedPercent
+		if tbwPct >= float64(thresholds.TBWCritical) {
+			alertLevel = maxAlertLevel(alertLevel, AlertLevelCritical)
+			reasons = append(reasons, fmt.Sprintf("TBW写入量严重: %.1f%% >= %d%% (Critical)", tbwPct, thresholds.TBWCritical))
+		} else if tbwPct >= float64(thresholds.TBWWarning) {
+			alertLevel = maxAlertLevel(alertLevel, AlertLevelWarning)
+			reasons = append(reasons, fmt.Sprintf("TBW写入量警告: %.1f%% >= %d%% (Warning)", tbwPct, thresholds.TBWWarning))
+		}
+	}
+
+	// 4. 关键警告检查
+	if info.CriticalWarnings > 0 {
+		alertLevel = maxAlertLevel(alertLevel, AlertLevelCritical)
+		reasons = append(reasons, fmt.Sprintf("检测到 %d 个关键警告标志", info.CriticalWarnings))
+	}
+
+	// 5. 媒体错误检查
+	if info.MediaErrors > 100 {
+		alertLevel = maxAlertLevel(alertLevel, AlertLevelCritical)
+		reasons = append(reasons, fmt.Sprintf("媒体错误过多: %d 次", info.MediaErrors))
+	} else if info.MediaErrors > 10 {
+		alertLevel = maxAlertLevel(alertLevel, AlertLevelWarning)
+		reasons = append(reasons, fmt.Sprintf("媒体错误: %d 次", info.MediaErrors))
+	}
+
+	// 6. 备用空间检查
+	if info.AvailableSpare != nil {
+		spare := info.AvailableSpare.Percentage
+		threshold := info.AvailableSpare.Threshold
+		if spare < threshold {
+			alertLevel = maxAlertLevel(alertLevel, AlertLevelEmergency)
+			reasons = append(reasons, fmt.Sprintf("备用空间低于阈值: %d%% < %d%%", spare, threshold))
+		} else if spare < 20 {
+			alertLevel = maxAlertLevel(alertLevel, AlertLevelWarning)
+			reasons = append(reasons, fmt.Sprintf("备用空间偏低: %d%%", spare))
+		}
+	}
+
+	if len(reasons) == 0 {
+		reasons = append(reasons, "所有指标正常")
+	}
+
+	return alertLevel, reasons
+}
+
+// maxAlertLevel 返回两个预警等级中更高的一个.
+func maxAlertLevel(a, b AlertLevel) AlertLevel {
+	levels := map[AlertLevel]int{
+		AlertLevelNormal:    0,
+		AlertLevelWarning:   1,
+		AlertLevelCritical:  2,
+		AlertLevelEmergency: 3,
+	}
+	if levels[b] > levels[a] {
+		return b
+	}
+	return a
+}
+
+// PredictRemainingLife 预测NVMe剩余寿命.
+// 基于写入量、温度历史、磨损程度综合计算.
+func (m *NVMeMonitor) PredictRemainingLife(info *NVMeHealthInfo) *NVMeLifePrediction {
+	if info.Usage == nil {
+		return nil
+	}
+
+	prediction := &NVMeLifePrediction{
+		PredictionLastUpdated: time.Now(),
+		ConfidenceLevel:       "medium",
+		TemperatureHistory:    []TempRecord{},
+		WeeklyWriteRates:      []float64{},
+	}
+
+	// 获取或初始化历史数据
+	m.historyMu.Lock()
+	if m.tempHistory == nil {
+		m.tempHistory = make(map[string][]TempRecord)
+	}
+	tempHist := m.tempHistory[info.Device]
+	m.historyMu.Unlock()
+
+	// 1. 计算写入量预测
+	usage := info.Usage
+	pctUsed := float64(usage.PercentageUsed)
+	remainingPct := 100.0 - pctUsed
+
+	// 估算TBW容量 (基于已使用百分比)
+	var estimatedTBW float64
+	if usage.TBW > 0 && pctUsed > 0 {
+		estimatedTBW = usage.TBW / (pctUsed / 100.0)
+	} else {
+		// 根据容量估算 (通常消费级 1TB = 600TBW)
+		estimatedTBW = float64(info.Size/1024/1024) * 600.0 / 1024.0 // 假设600TBW/1TB
+	}
+
+	// 保存估算TBW到Usage结构
+	usage.EstimatedTBW = estimatedTBW
+
+	// 计算TBW使用百分比
+	if estimatedTBW > 0 {
+		tbwPct := (usage.TBW / estimatedTBW) * 100.0
+		prediction.RemainingLifePercent = math.Max(0, 100.0-tbwPct)
+		usage.TBWUsedPercent = tbwPct
+	} else {
+		prediction.RemainingLifePercent = remainingPct
+	}
+
+	// 2. 计算温度影响系数 (高温会加速NAND磨损)
+	var tempImpact float64 = 1.0
+	if info.Temperature != nil {
+		temp := float64(info.Temperature.Current)
+		// 温度在40°C以下影响最小，每升高10°C影响增加约15%
+		if temp > 40 {
+			tempImpact = 1.0 + ((temp-40.0)/10.0)*0.15
+		}
+		// 读取温度历史
+		if len(tempHist) > 0 {
+			var avgTemp float64
+			var totalDuration float64
+			for _, record := range tempHist {
+				avgTemp += float64(record.Temp) * record.Duration
+				totalDuration += record.Duration
+			}
+			if totalDuration > 0 {
+				avgTemp /= totalDuration
+				if avgTemp > 50 {
+					tempImpact *= 1.0 + ((avgTemp-50.0)/10.0)*0.1
+				}
+			}
+		}
+	}
+	prediction.TemperatureImpact = tempImpact
+
+	// 3. 计算磨损程度影响系数
+	wearImpact := 1.0 + (pctUsed / 100.0) * 0.5 // 使用越多，磨损加速
+	prediction.WearImpact = wearImpact
+
+	// 4. 计算平均每日写入量 (基于开机时间)
+	var avgDailyWrites float64
+	if info.PowerOnHours > 0 {
+		totalWritesGB := usage.TotalWrites
+		hours := float64(info.PowerOnHours)
+		days := hours / 24.0
+		if days > 0 {
+			avgDailyWrites = totalWritesGB / days
+		}
+	}
+	prediction.AverageDailyWrites = avgDailyWrites
+
+	// 5. 估算写放大因子 (通常SSD写放大在1.1-3.0之间)
+	// 简化计算：基于随机/顺序写入比例
+	writeAmp := 1.5 // 默认假设
+	if info.HostWriteCommands > 0 && info.HostReadCommands > 0 {
+		// 读写比可能影响写放大
+		ratio := float64(info.HostWriteCommands) / float64(info.HostReadCommands+info.HostWriteCommands)
+		if ratio > 0.5 {
+			writeAmp = 1.5 + (ratio-0.5)*2.0 // 高写入比例意味着更高的写放大
+		}
+	}
+	prediction.WriteAmplificationFactor = writeAmp
+
+	// 6. 综合计算剩余天数
+	// 公式: 剩余TBW / (日均写入 * 写放大 * 温度影响 * 磨损影响)
+	var estimatedDays int
+	if avgDailyWrites > 0 {
+		remainingTBW := estimatedTBW - usage.TBW
+		if remainingTBW > 0 {
+			effectiveDailyWrites := avgDailyWrites * writeAmp * tempImpact * wearImpact
+			daysLeft := (remainingTBW * 1024) / effectiveDailyWrites // TB转GB计算
+			estimatedDays = int(daysLeft)
+			if estimatedDays < 0 {
+				estimatedDays = 0
+			}
+		}
+	} else {
+		// 无写入数据，基于使用百分比估算
+		// 假设SSD寿命3-5年
+		estimatedDays = int(remainingPct / 100.0 * 365.0 * 4.0)
+	}
+
+	prediction.EstimatedDaysLeft = estimatedDays
+	prediction.EstimatedEndDate = time.Now().AddDate(0, 0, estimatedDays)
+
+	// 7. 确定置信度
+	if info.PowerOnHours > 24*30 { // 超过1个月的数据
+		prediction.ConfidenceLevel = "high"
+	} else if info.PowerOnHours > 24*7 { // 超过1周的数据
+		prediction.ConfidenceLevel = "medium"
+	} else {
+		prediction.ConfidenceLevel = "low"
+	}
+
+	// 8. 更新预估寿命描述
+	switch {
+	case prediction.RemainingLifePercent > 80:
+		usage.EstimatedLife = ">5年"
+	case prediction.RemainingLifePercent > 60:
+		usage.EstimatedLife = "3-5年"
+	case prediction.RemainingLifePercent > 40:
+		usage.EstimatedLife = "1-3年"
+	case prediction.RemainingLifePercent > 20:
+		usage.EstimatedLife = "6-12月"
+	case prediction.RemainingLifePercent > 10:
+		usage.EstimatedLife = "3-6月"
+	default:
+		usage.EstimatedLife = "<3月"
+	}
+
+	// 缓存预测结果
+	m.predictionMu.Lock()
+	m.lifePredictions[info.Device] = prediction
+	m.predictionMu.Unlock()
+
+	return prediction
+}
+
+// RecordTemperature 记录温度历史 (用于寿命预测).
+func (m *NVMeMonitor) RecordTemperature(device string, temp uint8, durationMinutes float64) {
+	m.historyMu.Lock()
+	defer m.historyMu.Unlock()
+
+	record := TempRecord{
+		Timestamp: time.Now(),
+		Temp:      temp,
+		Duration:  durationMinutes,
+	}
+
+	// 保留最近7天的数据
+	maxRecords := 7 * 24 * 60 / 5 // 每5分钟一条，7天
+	records := m.tempHistory[device]
+	records = append(records, record)
+	if len(records) > maxRecords {
+		records = records[len(records)-maxRecords:]
+	}
+	m.tempHistory[device] = records
+}
+
+// GetLifePrediction 获取设备的寿命预测.
+func (m *NVMeMonitor) GetLifePrediction(device string) *NVMeLifePrediction {
+	m.predictionMu.RLock()
+	defer m.predictionMu.RUnlock()
+	return m.lifePredictions[device]
+}
+
+// GetAlertSummary 获取所有NVMe设备的预警摘要.
+func (m *NVMeMonitor) GetAlertSummary() map[string]struct {
+	Level    AlertLevel
+	Reasons  []string
+	HealthPct uint8
+} {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	summary := make(map[string]struct {
+		Level    AlertLevel
+		Reasons  []string
+		HealthPct uint8
+	})
+
+	for device, info := range m.devices {
+		level, reasons := m.EvaluateAlertLevel(info)
+		summary[device] = struct {
+			Level    AlertLevel
+			Reasons  []string
+			HealthPct uint8
+		}{
+			Level:     level,
+			Reasons:   reasons,
+			HealthPct: info.HealthPercentage,
+		}
+	}
+
+	return summary
 }
