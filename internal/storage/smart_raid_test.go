@@ -10,7 +10,8 @@ func TestCalculateTiers(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
 	}
-	manager, err := NewSmartRAIDManager("")
+	// 在 short 模式检查之后创建 manager，避免权限问题
+	manager, err := NewSmartRAIDManager(t.TempDir())
 	if err != nil {
 		t.Fatalf("创建 SmartRAID 管理器失败: %v", err)
 	}
@@ -88,7 +89,7 @@ func TestSelectRAIDConfig(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
 	}
-	manager, err := NewSmartRAIDManager("")
+	manager, err := NewSmartRAIDManager(t.TempDir())
 	if err != nil {
 		t.Fatalf("创建 SmartRAID 管理器失败: %v", err)
 	}
@@ -153,7 +154,7 @@ func TestGetRAIDEfficiency(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
 	}
-	manager, err := NewSmartRAIDManager("")
+	manager, err := NewSmartRAIDManager(t.TempDir())
 	if err != nil {
 		t.Fatalf("创建 SmartRAID 管理器失败: %v", err)
 	}
@@ -191,7 +192,7 @@ func TestCalculateCapacity(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
 	}
-	manager, err := NewSmartRAIDManager("")
+	manager, err := NewSmartRAIDManager(t.TempDir())
 	if err != nil {
 		t.Fatalf("创建 SmartRAID 管理器失败: %v", err)
 	}
@@ -275,7 +276,7 @@ func TestExpansionPlan(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
 	}
-	manager, err := NewSmartRAIDManager("")
+	manager, err := NewSmartRAIDManager(t.TempDir())
 	if err != nil {
 		t.Fatalf("创建 SmartRAID 管理器失败: %v", err)
 	}
