@@ -1,487 +1,437 @@
+// Package vm 提供虚拟机管理 API 接口
 package vm
 
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
+	"time"
 
 	"go.uber.org/zap"
 )
 
-// Handler VM HTTP 处理器.
-type Handler struct {
-	manager         *Manager
-	isoManager      *ISOManager
-	snapshotManager *SnapshotManager
-	logger          *zap.Logger
+// Handlers VM API 处理器
+type Handlers struct {
+	manager *Manager
+	logger  *zap.Logger
 }
 
-// NewHandler 创建 VM 处理器.
-func NewHandler(manager *Manager, isoManager *ISOManager, snapshotManager *SnapshotManager, logger *zap.Logger) *Handler {
-	return &Handler{
-		manager:         manager,
-		isoManager:      isoManager,
-		snapshotManager: snapshotManager,
-		logger:          logger,
+// NewHandlers 创建 VM API 处理器
+func NewHandlers(manager *Manager, logger *zap.Logger) *Handlers {
+	return &Handlers{
+		manager: manager,
+		logger:  logger,
 	}
 }
 
-// RegisterRoutes 注册路由（保留用于标准 HTTP ServeMux）.
-func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/v1/vms", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
-			h.HandleCreateVM(w, r)
-			return
-		}
-		h.HandleListVMs(w, r)
-	})
-	mux.HandleFunc("/api/v1/vms/", h.HandleVM)
-	mux.HandleFunc("/api/v1/vm-isos", h.HandleListISOs)
-	mux.HandleFunc("/api/v1/vm-isos/", h.HandleISO)
-	mux.HandleFunc("/api/v1/vm-snapshots", h.HandleListSnapshots)
-	mux.HandleFunc("/api/v1/vm-snapshots/", h.HandleSnapshot)
-	mux.HandleFunc("/api/v1/vm-templates", h.HandleListTemplates)
-	mux.HandleFunc("/api/v1/vm-usb-devices", h.HandleUSBDevices)
-	mux.HandleFunc("/api/v1/vm-pci-devices", h.HandlePCIDevices)
-}
-
-// HandleListVMs 导出方法供 Gin 使用.
-func (h *Handler) HandleListVMs(w http.ResponseWriter, r *http.Request) {
-	h.handleListVMs(w, r)
-}
-
-// HandleCreateVM 导出方法供 Gin 使用.
-func (h *Handler) HandleCreateVM(w http.ResponseWriter, r *http.Request) {
-	h.handleCreateVM(w, r)
-}
-
-// HandleVM 导出方法供 Gin 使用.
-func (h *Handler) HandleVM(w http.ResponseWriter, r *http.Request) {
-	h.handleVM(w, r)
-}
-
-// HandleListISOs 导出方法供 Gin 使用.
-func (h *Handler) HandleListISOs(w http.ResponseWriter, r *http.Request) {
-	h.handleListISOs(w, r)
-}
-
-// HandleISO 导出方法供 Gin 使用.
-func (h *Handler) HandleISO(w http.ResponseWriter, r *http.Request) {
-	h.handleISO(w, r)
-}
-
-// HandleListSnapshots 导出方法供 Gin 使用.
-func (h *Handler) HandleListSnapshots(w http.ResponseWriter, r *http.Request) {
-	h.handleListSnapshots(w, r)
-}
-
-// HandleSnapshot 导出方法供 Gin 使用.
-func (h *Handler) HandleSnapshot(w http.ResponseWriter, r *http.Request) {
-	h.handleSnapshot(w, r)
-}
-
-// HandleListTemplates 导出方法供 Gin 使用.
-func (h *Handler) HandleListTemplates(w http.ResponseWriter, r *http.Request) {
-	h.handleListTemplates(w, r)
-}
-
-// HandleUSBDevices 导出方法供 Gin 使用.
-func (h *Handler) HandleUSBDevices(w http.ResponseWriter, r *http.Request) {
-	h.handleUSBDevices(w, r)
-}
-
-// HandlePCIDevices 导出方法供 Gin 使用.
-func (h *Handler) HandlePCIDevices(w http.ResponseWriter, r *http.Request) {
-	h.handlePCIDevices(w, r)
-}
-
-// VM 管理
-
-func (h *Handler) handleListVMs(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
+// NewHandler 兼容旧代码的创建函数
+func NewHandler(vmMgr *Manager, isoMgr *ISOManager, snapshotMgr *SnapshotManager, logger *zap.Logger) *Handlers {
+	return &Handlers{
+		manager: vmMgr,
+		logger:  logger,
 	}
+}
 
+// RegisterRoutes 注册路由
+func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
+	// VM 管理
+	mux.HandleFunc("GET /api/v1/vms", h.ListVMs)
+	mux.HandleFunc("POST /api/v1/vms", h.CreateVM)
+	mux.HandleFunc("GET /api/v1/vms/{id}", h.GetVM)
+	mux.HandleFunc("PUT /api/v1/vms/{id}", h.UpdateVM)
+	mux.HandleFunc("DELETE /api/v1/vms/{id}", h.DeleteVM)
+	mux.HandleFunc("POST /api/v1/vms/{id}/start", h.StartVM)
+	mux.HandleFunc("POST /api/v1/vms/{id}/stop", h.StopVM)
+	mux.HandleFunc("POST /api/v1/vms/{id}/restart", h.RestartVM)
+	mux.HandleFunc("GET /api/v1/vms/{id}/stats", h.GetVMStats)
+	mux.HandleFunc("GET /api/v1/vms/{id}/vnc", h.GetVNCConnection)
+
+	// 模板管理
+	mux.HandleFunc("GET /api/v1/vm/templates", h.ListTemplates)
+	mux.HandleFunc("GET /api/v1/vm/templates/{id}", h.GetTemplate)
+	mux.HandleFunc("POST /api/v1/vm/templates", h.CreateTemplate)
+	mux.HandleFunc("DELETE /api/v1/vm/templates/{id}", h.DeleteTemplate)
+
+	// ISO 管理
+	mux.HandleFunc("GET /api/v1/vm/isos", h.ListISOs)
+	mux.HandleFunc("POST /api/v1/vm/isos", h.UploadISO)
+	mux.HandleFunc("DELETE /api/v1/vm/isos/{id}", h.DeleteISO)
+
+	// 硬件设备
+	mux.HandleFunc("GET /api/v1/vm/usb-devices", h.ListUSBDevices)
+	mux.HandleFunc("GET /api/v1/vm/pci-devices", h.ListPCIDevices)
+}
+
+// ListVMs 列出所有虚拟机
+func (h *Handlers) ListVMs(w http.ResponseWriter, r *http.Request) {
 	vms := h.manager.ListVMs()
 	h.jsonResponse(w, vms)
 }
 
-func (h *Handler) handleVM(w http.ResponseWriter, r *http.Request) {
-	vmID := r.URL.Path[len("/api/v1/vms/"):]
-	if vmID == "" {
-		http.Error(w, "VM ID required", http.StatusBadRequest)
+// CreateVM 创建虚拟机
+func (h *Handlers) CreateVM(w http.ResponseWriter, r *http.Request) {
+	var config Config
+	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
+		h.errorResponse(w, http.StatusBadRequest, "无效的请求体: "+err.Error())
 		return
 	}
 
-	switch r.Method {
-	case http.MethodGet:
-		h.getVM(w, r, vmID)
-	case http.MethodPut:
-		h.updateVM(w, r, vmID)
-	case http.MethodPost:
-		h.vmAction(w, r, vmID)
-	case http.MethodDelete:
-		h.deleteVM(w, r, vmID)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (h *Handler) getVM(w http.ResponseWriter, r *http.Request, vmID string) {
-	vm, err := h.manager.GetVM(vmID)
+	vm, err := h.manager.CreateVM(r.Context(), config)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		h.logger.Error("创建 VM 失败", zap.Error(err))
+		h.errorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	h.jsonResponse(w, vm)
 }
 
-func (h *Handler) updateVM(w http.ResponseWriter, r *http.Request, vmID string) {
+// GetVM 获取虚拟机详情
+func (h *Handlers) GetVM(w http.ResponseWriter, r *http.Request) {
+	vmID := r.PathValue("id")
+	vm, err := h.manager.GetVM(vmID)
+	if err != nil {
+		h.errorResponse(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	h.jsonResponse(w, vm)
+}
+
+// UpdateVM 更新虚拟机配置
+func (h *Handlers) UpdateVM(w http.ResponseWriter, r *http.Request) {
+	vmID := r.PathValue("id")
+
 	var config Config
 	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		h.errorResponse(w, http.StatusBadRequest, "无效的请求体: "+err.Error())
 		return
 	}
 
 	vm, err := h.manager.UpdateVM(r.Context(), vmID, config)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		h.logger.Error("更新 VM 失败", zap.Error(err), zap.String("vmId", vmID))
+		h.errorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	h.jsonResponse(w, vm)
 }
 
-func (h *Handler) vmAction(w http.ResponseWriter, r *http.Request, vmID string) {
-	var action struct {
-		Action string `json:"action"`
-		Force  bool   `json:"force"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&action); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	var err error
-	switch action.Action {
-	case "start":
-		err = h.manager.StartVM(r.Context(), vmID)
-	case "stop":
-		err = h.manager.StopVM(r.Context(), vmID, action.Force)
-	case "restart":
-		err = h.manager.StopVM(r.Context(), vmID, action.Force)
-		if err == nil {
-			err = h.manager.StartVM(r.Context(), vmID)
-		}
-	case "delete":
-		err = h.manager.DeleteVM(r.Context(), vmID, action.Force)
-	case "vnc":
-		conn, e := h.manager.GetVNCConnection(vmID)
-		if e != nil {
-			err = e
-		} else {
-			h.jsonResponse(w, conn)
-			return
-		}
-	default:
-		http.Error(w, "Unknown action: "+action.Action, http.StatusBadRequest)
-		return
-	}
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	h.jsonResponse(w, map[string]string{"status": "success"})
-}
-
-func (h *Handler) deleteVM(w http.ResponseWriter, r *http.Request, vmID string) {
+// DeleteVM 删除虚拟机
+func (h *Handlers) DeleteVM(w http.ResponseWriter, r *http.Request) {
+	vmID := r.PathValue("id")
 	force := r.URL.Query().Get("force") == "true"
 
 	err := h.manager.DeleteVM(r.Context(), vmID, force)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.logger.Error("删除 VM 失败", zap.Error(err), zap.String("vmId", vmID))
+		h.errorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	h.jsonResponse(w, map[string]string{"status": "success"})
+	h.jsonResponse(w, map[string]string{"message": "VM 已删除"})
 }
 
-// ISO 管理
+// StartVM 启动虚拟机
+func (h *Handlers) StartVM(w http.ResponseWriter, r *http.Request) {
+	vmID := r.PathValue("id")
 
-func (h *Handler) handleListISOs(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	isos := h.isoManager.ListISOs()
-	h.jsonResponse(w, isos)
-}
-
-func (h *Handler) handleISO(w http.ResponseWriter, r *http.Request) {
-	isoID := r.URL.Path[len("/api/v1/vm-isos/"):]
-	if isoID == "" {
-		http.Error(w, "ISO ID required", http.StatusBadRequest)
-		return
-	}
-
-	switch r.Method {
-	case http.MethodGet:
-		h.getISO(w, r, isoID)
-	case http.MethodDelete:
-		h.deleteISO(w, r, isoID)
-	case http.MethodPost:
-		h.isoAction(w, r, isoID)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (h *Handler) getISO(w http.ResponseWriter, r *http.Request, isoID string) {
-	iso, err := h.isoManager.GetISO(isoID)
+	err := h.manager.StartVM(r.Context(), vmID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		h.logger.Error("启动 VM 失败", zap.Error(err), zap.String("vmId", vmID))
+		h.errorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	h.jsonResponse(w, iso)
+	h.jsonResponse(w, map[string]string{"message": "VM 已启动"})
 }
 
-func (h *Handler) deleteISO(w http.ResponseWriter, r *http.Request, isoID string) {
-	err := h.isoManager.DeleteISO(isoID)
+// StopVM 停止虚拟机
+func (h *Handlers) StopVM(w http.ResponseWriter, r *http.Request) {
+	vmID := r.PathValue("id")
+	force := r.URL.Query().Get("force") == "true"
+
+	err := h.manager.StopVM(r.Context(), vmID, force)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.logger.Error("停止 VM 失败", zap.Error(err), zap.String("vmId", vmID))
+		h.errorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	h.jsonResponse(w, map[string]string{"status": "success"})
+	h.jsonResponse(w, map[string]string{"message": "VM 已停止"})
 }
 
-func (h *Handler) isoAction(w http.ResponseWriter, r *http.Request, isoID string) {
-	var action struct {
-		Action string `json:"action"`
-	}
+// RestartVM 重启虚拟机
+func (h *Handlers) RestartVM(w http.ResponseWriter, r *http.Request) {
+	vmID := r.PathValue("id")
 
-	if err := json.NewDecoder(r.Body).Decode(&action); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	switch action.Action {
-	case "download":
-		// 异步下载
-		go func() {
-			_, err := h.isoManager.DownloadISO(r.Context(), isoID, nil)
-			if err != nil {
-				h.logger.Error("ISO 下载失败", zap.Error(err))
-			}
-		}()
-		h.jsonResponse(w, map[string]string{"status": "downloading"})
-	default:
-		http.Error(w, "Unknown action: "+action.Action, http.StatusBadRequest)
-	}
-}
-
-// 快照管理
-
-func (h *Handler) handleListSnapshots(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	vmID := r.URL.Query().Get("vmId")
-	var snapshots []*Snapshot
-
-	if vmID != "" {
-		snapshots = h.snapshotManager.ListSnapshots(vmID)
-	} else {
-		// 返回所有快照
-		h.jsonResponse(w, map[string]interface{}{"snapshots": "query vmId required"})
-		return
-	}
-
-	h.jsonResponse(w, snapshots)
-}
-
-func (h *Handler) handleSnapshot(w http.ResponseWriter, r *http.Request) {
-	snapshotID := r.URL.Path[len("/api/v1/vm-snapshots/"):]
-	if snapshotID == "" {
-		http.Error(w, "Snapshot ID required", http.StatusBadRequest)
-		return
-	}
-
-	switch r.Method {
-	case http.MethodGet:
-		h.getSnapshot(w, r, snapshotID)
-	case http.MethodPost:
-		h.snapshotAction(w, r, snapshotID)
-	case http.MethodDelete:
-		h.deleteSnapshot(w, r, snapshotID)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (h *Handler) getSnapshot(w http.ResponseWriter, r *http.Request, snapshotID string) {
-	snapshot, err := h.snapshotManager.GetSnapshot(snapshotID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-
-	h.jsonResponse(w, snapshot)
-}
-
-func (h *Handler) snapshotAction(w http.ResponseWriter, r *http.Request, snapshotID string) {
-	var action struct {
-		Action string `json:"action"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&action); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	switch action.Action {
-	case "restore":
-		err := h.snapshotManager.RestoreSnapshot(r.Context(), snapshotID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 先停止
+	if err := h.manager.StopVM(r.Context(), vmID, false); err != nil {
+		if !strings.Contains(err.Error(), "已停止") {
+			h.errorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		h.jsonResponse(w, map[string]string{"status": "restoring"})
-	default:
-		http.Error(w, "Unknown action: "+action.Action, http.StatusBadRequest)
 	}
+
+	// 再启动
+	if err := h.manager.StartVM(r.Context(), vmID); err != nil {
+		h.errorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	h.jsonResponse(w, map[string]string{"message": "VM 已重启"})
 }
 
-func (h *Handler) deleteSnapshot(w http.ResponseWriter, r *http.Request, snapshotID string) {
-	err := h.snapshotManager.DeleteSnapshot(r.Context(), snapshotID)
+// GetVMStats 获取虚拟机统计信息
+func (h *Handlers) GetVMStats(w http.ResponseWriter, r *http.Request) {
+	vmID := r.PathValue("id")
+
+	stats, err := h.manager.GetStats(vmID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.errorResponse(w, http.StatusNotFound, err.Error())
 		return
 	}
 
-	h.jsonResponse(w, map[string]string{"status": "success"})
+	h.jsonResponse(w, stats)
 }
 
-// 模板管理
+// GetVNCConnection 获取 VNC 连接信息
+func (h *Handlers) GetVNCConnection(w http.ResponseWriter, r *http.Request) {
+	vmID := r.PathValue("id")
 
-func (h *Handler) handleListTemplates(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	conn, err := h.manager.GetVNCConnection(vmID)
+	if err != nil {
+		h.errorResponse(w, http.StatusNotFound, err.Error())
 		return
 	}
 
+	h.jsonResponse(w, conn)
+}
+
+// ListTemplates 列出 VM 模板
+func (h *Handlers) ListTemplates(w http.ResponseWriter, r *http.Request) {
 	templates := h.manager.ListTemplates()
 	h.jsonResponse(w, templates)
 }
 
-// 硬件设备
+// GetTemplate 获取模板详情
+func (h *Handlers) GetTemplate(w http.ResponseWriter, r *http.Request) {
+	templateID := r.PathValue("id")
 
-func (h *Handler) handleUSBDevices(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	tpl, err := h.manager.GetTemplate(templateID)
+	if err != nil {
+		h.errorResponse(w, http.StatusNotFound, err.Error())
 		return
 	}
 
+	h.jsonResponse(w, tpl)
+}
+
+// CreateTemplate 创建模板
+func (h *Handlers) CreateTemplate(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Name        string            `json:"name"`
+		Description string            `json:"description"`
+		Type        Type              `json:"type"`
+		CPU         int               `json:"cpu"`
+		Memory      uint64            `json:"memory"`
+		DiskSize    uint64            `json:"diskSize"`
+		Network     string            `json:"network"`
+		OS          string            `json:"os"`
+		Tags        map[string]string `json:"tags"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.errorResponse(w, http.StatusBadRequest, "无效的请求体")
+		return
+	}
+
+	tpl, err := h.manager.CreateTemplate(req.Name, req.Description, req.Type, req.CPU, req.Memory, req.DiskSize, req.Network, req.OS, req.Tags)
+	if err != nil {
+		h.errorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	h.jsonResponse(w, tpl)
+}
+
+// DeleteTemplate 删除模板
+func (h *Handlers) DeleteTemplate(w http.ResponseWriter, r *http.Request) {
+	templateID := r.PathValue("id")
+
+	err := h.manager.DeleteTemplate(templateID)
+	if err != nil {
+		h.errorResponse(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	h.jsonResponse(w, map[string]string{"message": "模板已删除"})
+}
+
+// ListISOs 列出 ISO 镜像
+func (h *Handlers) ListISOs(w http.ResponseWriter, r *http.Request) {
+	isos := h.manager.ListISOs()
+	h.jsonResponse(w, isos)
+}
+
+// UploadISO 上传 ISO 镜像（返回上传 URL）
+func (h *Handlers) UploadISO(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Name string `json:"name"`
+		URL  string `json:"url"` // 可选：从 URL 下载
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.errorResponse(w, http.StatusBadRequest, "无效的请求体")
+		return
+	}
+
+	if req.URL != "" {
+		// 从 URL 下载
+		iso, err := h.manager.DownloadISO(r.Context(), req.Name, req.URL)
+		if err != nil {
+			h.errorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		h.jsonResponse(w, iso)
+		return
+	}
+
+	// 返回上传信息
+	uploadInfo := h.manager.GetUploadInfo(req.Name)
+	h.jsonResponse(w, uploadInfo)
+}
+
+// DeleteISO 删除 ISO 镜像
+func (h *Handlers) DeleteISO(w http.ResponseWriter, r *http.Request) {
+	isoID := r.PathValue("id")
+
+	err := h.manager.DeleteISO(isoID)
+	if err != nil {
+		h.errorResponse(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	h.jsonResponse(w, map[string]string{"message": "ISO 已删除"})
+}
+
+// ListUSBDevices 列出可用 USB 设备
+func (h *Handlers) ListUSBDevices(w http.ResponseWriter, r *http.Request) {
 	devices, err := h.manager.ListUSBDevices()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.errorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	h.jsonResponse(w, devices)
 }
 
-func (h *Handler) handlePCIDevices(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+// ListPCIDevices 列出可用 PCIe 设备
+func (h *Handlers) ListPCIDevices(w http.ResponseWriter, r *http.Request) {
 	devices, err := h.manager.ListPCIDevices()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.errorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	h.jsonResponse(w, devices)
 }
 
-// 辅助函数
-
-func (h *Handler) jsonResponse(w http.ResponseWriter, data interface{}) {
+// jsonResponse 返回 JSON 响应
+func (h *Handlers) jsonResponse(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		http.Error(w, "encode error", http.StatusInternalServerError)
-		return
-	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(data)
 }
 
-// CreateVMRequest 创建 VM 请求.
-type CreateVMRequest struct {
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Type        string            `json:"type"`
-	CPU         int               `json:"cpu"`
-	Memory      int               `json:"memory"`
-	DiskSize    int               `json:"diskSize"`
-	Network     string            `json:"network"`
-	ISOPath     string            `json:"isoPath"`
-	VNCEnabled  bool              `json:"vncEnabled"`
-	USBDevices  []string          `json:"usbDevices"`
-	PCIDevices  []string          `json:"pciDevices"`
-	Tags        map[string]string `json:"tags"`
+// errorResponse 返回错误响应
+func (h *Handlers) errorResponse(w http.ResponseWriter, code int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]string{
+		"error":   http.StatusText(code),
+		"message": message,
+		"time":    time.Now().Format(time.RFC3339),
+	})
 }
 
-// handleCreateVM 创建 VM（单独的处理函数）.
-func (h *Handler) handleCreateVM(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
+// parseIntParam 解析整数参数
+func parseIntParam(r *http.Request, key string, defaultValue int) int {
+	val := r.URL.Query().Get(key)
+	if val == "" {
+		return defaultValue
 	}
-
-	var req CreateVMRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	vmType := TypeLinux
-	switch req.Type {
-	case "windows":
-		vmType = TypeWindows
-	case "other":
-		vmType = TypeOther
-	}
-
-	config := Config{
-		Name:        req.Name,
-		Description: req.Description,
-		Type:        vmType,
-		CPU:         req.CPU,
-		Memory:      uint64(req.Memory),
-		DiskSize:    uint64(req.DiskSize),
-		Network:     req.Network,
-		ISOPath:     req.ISOPath,
-		VNCEnabled:  req.VNCEnabled,
-		USBDevices:  req.USBDevices,
-		PCIDevices:  req.PCIDevices,
-		Tags:        req.Tags,
-	}
-
-	vm, err := h.manager.CreateVM(r.Context(), config)
+	result, err := strconv.Atoi(val)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return defaultValue
 	}
+	return result
+}
 
-	w.WriteHeader(http.StatusCreated)
-	h.jsonResponse(w, vm)
+// ========== 兼容旧代码的方法别名 ==========
+
+// HandleListVMs 兼容方法
+func (h *Handlers) HandleListVMs(w http.ResponseWriter, r *http.Request) {
+	h.ListVMs(w, r)
+}
+
+// HandleCreateVM 兼容方法
+func (h *Handlers) HandleCreateVM(w http.ResponseWriter, r *http.Request) {
+	h.CreateVM(w, r)
+}
+
+// HandleVM 兼容方法（GET/PUT/DELETE）
+func (h *Handlers) HandleVM(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		h.GetVM(w, r)
+	case "PUT", "POST":
+		h.UpdateVM(w, r)
+	case "DELETE":
+		h.DeleteVM(w, r)
+	}
+}
+
+// HandleListISOs 兼容方法
+func (h *Handlers) HandleListISOs(w http.ResponseWriter, r *http.Request) {
+	h.ListISOs(w, r)
+}
+
+// HandleISO 兼容方法
+func (h *Handlers) HandleISO(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		h.ListISOs(w, r)
+	case "POST":
+		h.UploadISO(w, r)
+	case "DELETE":
+		h.DeleteISO(w, r)
+	}
+}
+
+// HandleListSnapshots 兼容方法（返回空数组）
+func (h *Handlers) HandleListSnapshots(w http.ResponseWriter, r *http.Request) {
+	h.jsonResponse(w, []interface{}{})
+}
+
+// HandleSnapshot 兼容方法（返回未实现）
+func (h *Handlers) HandleSnapshot(w http.ResponseWriter, r *http.Request) {
+	h.errorResponse(w, http.StatusNotImplemented, "快照功能待实现")
+}
+
+// HandleListTemplates 兼容方法
+func (h *Handlers) HandleListTemplates(w http.ResponseWriter, r *http.Request) {
+	h.ListTemplates(w, r)
+}
+
+// HandleUSBDevices 兼容方法
+func (h *Handlers) HandleUSBDevices(w http.ResponseWriter, r *http.Request) {
+	h.ListUSBDevices(w, r)
+}
+
+// HandlePCIDevices 兼容方法
+func (h *Handlers) HandlePCIDevices(w http.ResponseWriter, r *http.Request) {
+	h.ListPCIDevices(w, r)
 }
