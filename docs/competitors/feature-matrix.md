@@ -1,7 +1,7 @@
 # NAS系统功能对比矩阵
 
-> 更新时间: 2026-04-02
-> 对比版本: nas-os v2.377.0 | TrueNAS SCALE 24.10 (Electric Eel) | 群晖 DSM 7.3 | 飞牛 fnOS
+> 更新时间: 2026-04-04
+> 对比版本: nas-os v2.388.0 | TrueNAS CE 25.10 (Electric Eel) | 群晖 DSM 7.3 | 飞牛 fnOS
 
 ---
 
@@ -27,7 +27,7 @@
 | Docker支持 | ✅ | ✅ Docker原生 | ✅ Container Manager | ✅ |
 | Kubernetes | 📋 计划中 | ⚠️ 已弃用(Docker替代) | ✅ | ❌ |
 | LXC容器 | ✅ | ✅ 25.10新增 | ❌ | ❌ |
-| 应用商店 | ✅ 20+模板 | ✅ TrueCharts | ✅ 套件中心 | ✅ |
+| 应用商店 | ✅ **30+模板** | ✅ TrueCharts | ✅ 套件中心 | ✅ |
 | GPU虚拟化 | 🚧 开发中 | ✅ GPU Sharing | ✅ | ⚠️ 基础 |
 
 ### 远程访问
