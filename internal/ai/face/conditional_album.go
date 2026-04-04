@@ -200,7 +200,7 @@ func (m *ConditionalAlbumManager) CreateRule(ctx context.Context, rule *Conditio
 
 	// Trigger album generation if enabled
 	if rule.Enabled {
-		go m.generateAlbum(context.Background(), rule.ID)
+		go func() { _ = m.generateAlbum(context.Background(), rule.ID) }()
 	}
 
 	return nil
@@ -222,7 +222,7 @@ func (m *ConditionalAlbumManager) UpdateRule(ctx context.Context, rule *Conditio
 
 	// Regenerate album if enabled
 	if rule.Enabled {
-		go m.generateAlbum(context.Background(), rule.ID)
+		go func() { _ = m.generateAlbum(context.Background(), rule.ID) }()
 	}
 
 	return nil

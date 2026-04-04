@@ -50,10 +50,14 @@ func (l *UsageLogger) Log(usage APIKeyUsage) {
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
-	f.Write(data)
-	f.WriteString("\n")
+	if _, err := f.Write(data); err != nil {
+		return
+	}
+	if _, err := f.WriteString("\n"); err != nil {
+		return
+	}
 }
 
 // rotateIfNeeded 检查并执行日志轮转
@@ -77,7 +81,7 @@ func (l *UsageLogger) rotateLog() {
 			oldPath = l.logPath + "." + string(rune('0'+i))
 		}
 		newPath := l.logPath + "." + string(rune('0'+i+1))
-		os.Rename(oldPath, newPath)
+		_ = os.Rename(oldPath, newPath) // 忽略轮转错误，继续处理下一个
 	}
 }
 
