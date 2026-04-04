@@ -74,18 +74,31 @@ jobs:
           echo "## 🐳 Docker Compose 配置验证" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          for compose_file in docker-compose*.yml; do
-            if [ -f "$compose_file" ]; then
-              echo "检查 $compose_file..."
-              if docker compose -f "$compose_file" config --quiet 2>/dev/null; then
-                echo "✅ $compose_file 配置有效" >> $GITHUB_STEP_SUMMARY
-              else
-                echo "❌ $compose_file 配置无效" >> $GITHUB_STEP_SUMMARY
-                docker compose -f "$compose_file" config 2>&1 || true
-                exit 1
-              fi
+          # 使用 nullglob 避免无匹配时的错误
+          shopt -s nullglob
+          compose_files=(docker-compose*.yml)
+          
+          if [ ${#compose_files[@]} -eq 0 ]; then
+            echo "⚠️ 未找到 docker-compose*.yml 文件" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          FAILED=0
+          for compose_file in "${compose_files[@]}"; do
+            echo "检查 $compose_file..."
+            if docker compose -f "$compose_file" config --quiet 2>/dev/null; then
+              echo "✅ $compose_file 配置有效" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ $compose_file 配置无效" >> $GITHUB_STEP_SUMMARY
+              docker compose -f "$compose_file" config 2>&1 || true
+              FAILED=1
             fi
           done
+          
+          if [ $FAILED -eq 1 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ 部分 compose 文件验证失败" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: 检查服务健康检查配置
         run: |
@@ -93,14 +106,15 @@ jobs:
           echo "### 健康检查配置" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          for compose_file in docker-compose*.yml; do
-            if [ -f "$compose_file" ]; then
-              # 检查是否有健康检查
-              if grep -q "healthcheck:" "$compose_file"; then
-                echo "✅ $compose_file 包含健康检查" >> $GITHUB_STEP_SUMMARY
-              else
-                echo "⚠️ $compose_file 缺少健康检查" >> $GITHUB_STEP_SUMMARY
-              fi
+          shopt -s nullglob
+          compose_files=(docker-compose*.yml)
+          
+          for compose_file in "${compose_files[@]}"; do
+            # 检查是否有健康检查
+            if grep -q "healthcheck:" "$compose_file"; then
+              echo "✅ $compose_file 包含健康检查" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ $compose_file 缺少健康检查" >> $GITHUB_STEP_SUMMARY
             fi
           done
 

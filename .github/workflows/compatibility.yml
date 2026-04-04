@@ -190,7 +190,12 @@ jobs:
       - name: 验证依赖安全
         run: |
           go install golang.org/x/vuln/cmd/govulncheck@latest
-          govulncheck ./... || echo "⚠️ 发现已知漏洞，请检查上方输出"
+          # govulncheck 返回非零表示发现漏洞，但不应该导致 workflow 失败
+          if govulncheck ./... 2>&1; then
+            echo "✅ 未发现已知漏洞"
+          else
+            echo "⚠️ 发现已知漏洞或检查失败，请检查上方输出"
+          fi
 
       - name: 检查间接依赖
         run: |
@@ -214,7 +219,16 @@ jobs:
         run: |
           echo "=== 验证 Docker Compose 文件语法 ==="
           
-          for compose_file in docker-compose*.yml; do
+          # 使用 nullglob 避免无匹配时的错误
+          shopt -s nullglob
+          compose_files=(docker-compose*.yml)
+          
+          if [ ${#compose_files[@]} -eq 0 ]; then
+            echo "⚠️ 未找到 docker-compose*.yml 文件"
+            exit 0
+          fi
+          
+          for compose_file in "${compose_files[@]}"; do
             echo "检查: $compose_file"
             if docker compose -f "$compose_file" config --quiet 2>/dev/null; then
               echo "✅ $compose_file 语法正确"
@@ -228,37 +242,67 @@ jobs:
         run: |
           echo "=== 验证 Dockerfile 语法 ==="
           
-          for dockerfile in Dockerfile*; do
+          # 检查是否有 Dockerfile
+          shopt -s nullglob
+          dockerfiles=(Dockerfile*)
+          
+          if [ ${#dockerfiles[@]} -eq 0 ]; then
+            echo "⚠️ 未找到 Dockerfile"
+            echo "未找到 Dockerfile 文件" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          for dockerfile in "${dockerfiles[@]}"; do
             echo "检查: $dockerfile"
-            if docker build --no-cache --dry-run -f "$dockerfile" . 2>/dev/null; then
-              echo "✅ $dockerfile 语法正确"
+            # 使用 hadolint 或 docker build 检查语法
+            # 注意：docker build 没有 --dry-run 选项，改用 --target=placeholder 提前失败
+            if docker build -f "$dockerfile" --target placeholder . 2>&1 | grep -q "target placeholder"; then
+              echo "⚠️ $dockerfile 语法检查跳过（无 dry-run 支持）"
             else
-              echo "⚠️ $dockerfile 可能有警告"
+              echo "✅ $dockerfile 文件存在"
             fi
-          done || echo "Dockerfile 检查完成"
+          done
+          echo "Dockerfile 检查完成"
 
       - name: 生成验证报告
         run: |
           echo "## 🐳 Docker 配置验证" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| 文件 | 状态 |" >> $GITHUB_STEP_SUMMARY
-          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
           
-          for compose_file in docker-compose*.yml; do
-            if docker compose -f "$compose_file" config --quiet 2>/dev/null; then
-              echo "| $compose_file | ✅ |" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "| $compose_file | ❌ |" >> $GITHUB_STEP_SUMMARY
-            fi
-          done
+          # 使用 nullglob 处理空匹配
+          shopt -s nullglob
+          compose_files=(docker-compose*.yml)
+          dockerfiles=(Dockerfile*)
           
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Dockerfile | 状态 |" >> $GITHUB_STEP_SUMMARY
-          echo "|------------|------|" >> $GITHUB_STEP_SUMMARY
+          if [ ${#compose_files[@]} -gt 0 ]; then
+            echo "### Docker Compose 文件" >> $GITHUB_STEP_SUMMARY
+            echo "| 文件 | 状态 |" >> $GITHUB_STEP_SUMMARY
+            echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+            
+            for compose_file in "${compose_files[@]}"; do
+              if docker compose -f "$compose_file" config --quiet 2>/dev/null; then
+                echo "| $compose_file | ✅ |" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "| $compose_file | ❌ |" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+          else
+            echo "⚠️ 未找到 docker-compose*.yml 文件" >> $GITHUB_STEP_SUMMARY
+          fi
           
-          for dockerfile in Dockerfile*; do
-            echo "| $dockerfile | ✅ |" >> $GITHUB_STEP_SUMMARY
-          done
+          if [ ${#dockerfiles[@]} -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Dockerfile 文件" >> $GITHUB_STEP_SUMMARY
+            echo "| Dockerfile | 状态 |" >> $GITHUB_STEP_SUMMARY
+            echo "|------------|------|" >> $GITHUB_STEP_SUMMARY
+            
+            for dockerfile in "${dockerfiles[@]}"; do
+              echo "| $dockerfile | ✅ 存在 |" >> $GITHUB_STEP_SUMMARY
+            done
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ 未找到 Dockerfile 文件" >> $GITHUB_STEP_SUMMARY
+          fi
 
   # ========== 汇总报告 ==========
   compatibility-summary:
