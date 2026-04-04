@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 )
@@ -488,4 +487,12 @@ func generateRandomPassphrase() string {
 		panic(err) // crypto/rand 失败是致命错误
 	}
 	return fmt.Sprintf("%x", b)
+}
+
+// maskUserID 脱敏用户ID（用于日志）
+func maskUserID(userID string) string {
+	if len(userID) <= 4 {
+		return "****"
+	}
+	return userID[:2] + "****" + userID[len(userID)-2:]
 }
