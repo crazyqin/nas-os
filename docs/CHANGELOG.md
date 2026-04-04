@@ -1,3 +1,25 @@
+## v2.391.0 (2026-04-04) - 第159轮六部协同
+
+### 🏛️ 六部轮值开发
+- **兵部**：WebShare内容索引搜索架构设计（学习TrueNAS TrueSearch）
+- **礼部**：竞品对标矩阵深化（飞牛FN Connect/群晖共享标签）
+- **刑部**：SMB服务安全审计，Spotlight技术预研
+- **户部**：项目资源统计（1,188源文件/490K+行代码/352测试文件）
+- **吏部**：版本更新v2.391.0，轮值记录创建
+
+### 🔍 竞品对标深化
+| 功能 | nas-os | TrueNAS 26 | 学习方向 |
+|------|:------:|:----------:|----------|
+| WebShare全文搜索 | ⚠️文件名 | ✅TrueSearch | **P0对标** |
+| SMB Spotlight | ❌ | ✅macOS集成 | **P0预研** |
+| SMB Stateful Failover | ❌ | ✅企业HA | **P1评估** |
+
+### 📝 文档新增
+- `docs/six-ministries/round-159.md` - 第159轮任务分配
+- `docs/features/webshare-content-search-design.md` - 内容索引搜索设计
+- `docs/security/smb-security-audit.md` - SMB安全审计报告
+- `docs/RESOURCE_REPORT_v2.391.0.md` - 项目资源统计
+
 ## v2.390.0 (2026-04-04) - 第158轮六部协同
 
 ### 🏛️ 礼部轮值开发
