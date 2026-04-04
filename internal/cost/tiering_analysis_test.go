@@ -149,13 +149,13 @@ func TestGetReason(t *testing.T) {
 	for _, tt := range tests {
 		pattern := AccessPattern{}
 		reason := analyzer.getReason(pattern, tt.tier)
-		if !contains(reason, tt.expected) {
+		if !tieringContains(reason, tt.expected) {
 			t.Errorf("tier %s: reason should contain '%s', got '%s'", tt.tier, tt.expected, reason)
 		}
 	}
 }
 
-func contains(s, substr string) bool {
+func tieringContains(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
 			return true
