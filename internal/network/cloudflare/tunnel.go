@@ -533,6 +533,7 @@ func (tm *TunnelManager) checkConnection() {
 	metricsURL := fmt.Sprintf("http://localhost:%d/metrics", tm.config.MetricsPort)
 	resp, err := tm.httpClient.Get(metricsURL)
 	if err == nil && resp.StatusCode == 200 {
+		_ = resp.Body.Close() // 关闭响应体
 		tm.mu.Lock()
 		tm.state = TunnelStateConnected
 		tm.connected = true
