@@ -95,7 +95,7 @@ func (a *IntelGPUAccelerator) Initialize(ctx context.Context) error {
 	// For now, we simulate the detection
 	available := a.detectIntelGPU()
 	if !available {
-		return fmt.Errorf("Intel GPU not available")
+		return fmt.Errorf("intel GPU not available")
 	}
 
 	a.available = true
