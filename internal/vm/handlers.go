@@ -65,6 +65,10 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 
 // ListVMs 列出所有虚拟机
 func (h *Handlers) ListVMs(w http.ResponseWriter, r *http.Request) {
+	if h.manager == nil {
+		h.jsonResponse(w, []interface{}{})
+		return
+	}
 	vms := h.manager.ListVMs()
 	h.jsonResponse(w, vms)
 }
@@ -212,6 +216,10 @@ func (h *Handlers) GetVNCConnection(w http.ResponseWriter, r *http.Request) {
 
 // ListTemplates 列出 VM 模板
 func (h *Handlers) ListTemplates(w http.ResponseWriter, r *http.Request) {
+	if h.manager == nil {
+		h.jsonResponse(w, []interface{}{})
+		return
+	}
 	templates := h.manager.ListTemplates()
 	h.jsonResponse(w, templates)
 }
@@ -272,6 +280,10 @@ func (h *Handlers) DeleteTemplate(w http.ResponseWriter, r *http.Request) {
 
 // ListISOs 列出 ISO 镜像
 func (h *Handlers) ListISOs(w http.ResponseWriter, r *http.Request) {
+	if h.manager == nil {
+		h.jsonResponse(w, []interface{}{})
+		return
+	}
 	isos := h.manager.ListISOs()
 	h.jsonResponse(w, isos)
 }
@@ -319,6 +331,10 @@ func (h *Handlers) DeleteISO(w http.ResponseWriter, r *http.Request) {
 
 // ListUSBDevices 列出可用 USB 设备
 func (h *Handlers) ListUSBDevices(w http.ResponseWriter, r *http.Request) {
+	if h.manager == nil {
+		h.jsonResponse(w, []interface{}{})
+		return
+	}
 	devices, err := h.manager.ListUSBDevices()
 	if err != nil {
 		h.errorResponse(w, http.StatusInternalServerError, err.Error())
@@ -330,6 +346,10 @@ func (h *Handlers) ListUSBDevices(w http.ResponseWriter, r *http.Request) {
 
 // ListPCIDevices 列出可用 PCIe 设备
 func (h *Handlers) ListPCIDevices(w http.ResponseWriter, r *http.Request) {
+	if h.manager == nil {
+		h.jsonResponse(w, []interface{}{})
+		return
+	}
 	devices, err := h.manager.ListPCIDevices()
 	if err != nil {
 		h.errorResponse(w, http.StatusInternalServerError, err.Error())
@@ -435,3 +455,15 @@ func (h *Handlers) HandleUSBDevices(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) HandlePCIDevices(w http.ResponseWriter, r *http.Request) {
 	h.ListPCIDevices(w, r)
 }
+
+// ========== 小写方法名别名（测试兼容） ==========
+
+func (h *Handlers) handleListVMs(w http.ResponseWriter, r *http.Request) { h.HandleListVMs(w, r) }
+func (h *Handlers) handleListISOs(w http.ResponseWriter, r *http.Request) { h.HandleListISOs(w, r) }
+func (h *Handlers) handleListSnapshots(w http.ResponseWriter, r *http.Request) { h.HandleListSnapshots(w, r) }
+func (h *Handlers) handleListTemplates(w http.ResponseWriter, r *http.Request) { h.HandleListTemplates(w, r) }
+func (h *Handlers) handleUSBDevices(w http.ResponseWriter, r *http.Request) { h.HandleUSBDevices(w, r) }
+func (h *Handlers) handlePCIDevices(w http.ResponseWriter, r *http.Request) { h.HandlePCIDevices(w, r) }
+func (h *Handlers) handleISO(w http.ResponseWriter, r *http.Request) { h.HandleISO(w, r) }
+func (h *Handlers) handleVM(w http.ResponseWriter, r *http.Request) { h.HandleVM(w, r) }
+func (h *Handlers) handleCreateVM(w http.ResponseWriter, r *http.Request) { h.HandleCreateVM(w, r) }

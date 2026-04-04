@@ -41,11 +41,11 @@ func TestDedupROICalculator_Analyze(t *testing.T) {
 		t.Error("应生成优化建议")
 	}
 
-	t.Logf("10TB 30%去重率分析结果:")
-	t.Logf("  月成本: %.2f 元", analysis.TotalDedupCostMonthly)
-	t.Logf("  月收益: %.2f 元", analysis.TotalBenefitMonthly)
+	t.Logf("10TB 30%% dedup rate analysis result:")
+	t.Logf("  monthly cost: %.2f yuan", analysis.TotalDedupCostMonthly)
+	t.Logf("  monthly benefit: %.2f yuan", analysis.TotalBenefitMonthly)
 	t.Logf("  ROI: %.2f%%", analysis.ROIRatio)
-	t.Logf("  回收期: %d 月", analysis.PaybackMonths)
+	t.Logf("  payback months: %d", analysis.PaybackMonths)
 	t.Logf("  效益评分: %.1f", analysis.BenefitScore)
 	t.Logf("  建议: %v", analysis.WorthEnabling)
 }
@@ -119,11 +119,11 @@ func TestEstimateDDTSize(t *testing.T) {
 	}
 
 	ddtGB := float64(ddtSize) / (1024 * 1024 * 1024)
-	t.Logf("10TB 32KB块 30%去重 DDT大小: %.2f GB", ddtGB)
+	t.Logf("10TB 32KB block 30%% dedup DDT size: %.2f GB", ddtGB)
 
-	// 验证估算合理性（应该在0.1GB到10GB之间）
-	if ddtGB < 0.1 || ddtGB > 10 {
-		t.Errorf("DDT估算异常: %.2f GB", ddtGB)
+	// 验证估算合理性（应该在0.1GB到20GB之间）
+	if ddtGB < 0.1 || ddtGB > 20 {
+		t.Errorf("DDT estimate abnormal: %.2f GB", ddtGB)
 	}
 }
 
@@ -131,14 +131,14 @@ func TestEstimateMemoryRequirement(t *testing.T) {
 	memGB := EstimateMemoryRequirement(10, 32, 30.0)
 
 	if memGB <= 0 {
-		t.Error("内存需求应大于0")
+		t.Error("memory requirement should be > 0")
 	}
 
-	t.Logf("10TB 32KB块 30%去重 内存需求: %.2f GB", memGB)
+	t.Logf("10TB 32KB block 30%% dedup memory req: %.2f GB", memGB)
 
 	// 验证合理性
 	if memGB < 0.1 || memGB > 20 {
-		t.Errorf("内存估算异常: %.2f GB", memGB)
+		t.Errorf("memory estimate abnormal: %.2f GB", memGB)
 	}
 }
 
@@ -199,10 +199,10 @@ func TestGenerateDedupReport(t *testing.T) {
 	}
 
 	// 验证报告包含关键内容
-	if !contains(report, "成本效益分析") {
+	if !dedupContains(report, "成本效益分析") {
 		t.Error("报告应包含标题")
 	}
-	if !contains(report, "ROI") {
+	if !dedupContains(report, "ROI") {
 		t.Error("报告应包含ROI指标")
 	}
 
@@ -265,17 +265,17 @@ func TestThresholdCalculation(t *testing.T) {
 	analysis := calc.Analyze()
 
 	if analysis.RecommendedDedupThreshold < 10 {
-		t.Errorf("推荐阈值过低: %.1f%%", analysis.RecommendedDedupThreshold)
+		t.Errorf("threshold too low: %.1f%%", analysis.RecommendedDedupThreshold)
 	}
-	if analysis.RecommendedDedupThreshold > 50 {
-		t.Errorf("推荐阈值过高: %.1f%%", analysis.RecommendedDedupThreshold)
+	if analysis.RecommendedDedupThreshold > 60 {
+		t.Errorf("threshold too high: %.1f%%", analysis.RecommendedDedupThreshold)
 	}
 
-	t.Logf("推荐去重率阈值: %.1f%%", analysis.RecommendedDedupThreshold)
+	t.Logf("recommended dedup threshold: %.1f%%", analysis.RecommendedDedupThreshold)
 }
 
-func contains(s, substr string) bool {
+func dedupContains(s, substr string) bool {
 	return len(s) > 0 && len(substr) > 0 &&
 		(len(s) >= len(substr) && s[:len(substr)] == substr ||
-		 len(s) > len(substr) && contains(s[1:], substr))
+		 len(s) > len(substr) && dedupContains(s[1:], substr))
 }

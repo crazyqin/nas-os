@@ -82,6 +82,9 @@ type Config struct {
 	Tags        map[string]string `json:"tags"`
 }
 
+// CreateVMRequest 创建虚拟机请求（兼容旧测试代码）
+type CreateVMRequest = Config
+
 // Stats 虚拟机统计信息.
 type Stats struct {
 	CPUUsage    float64 `json:"cpuUsage"`    // CPU 使用率 (%)
