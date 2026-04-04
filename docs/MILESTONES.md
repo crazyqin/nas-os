@@ -4,6 +4,74 @@
 
 ---
 
+## v2.393.0 - 2026-04-04 ✅
+
+### 第162轮六部协同开发
+- **司礼监轮值** - TrueNAS 25.10 Goldeye竞品对标 + NVMe-oF设计
+- **竞品发现** - NVMe over Fabric、VM Secure Boot、SMART改革
+- **NVMe-oF设计** - NVMe/TCP + NVMe/RDMA原型实现
+- **VM导入增强** - QCOW2/QED/RAW/VDI/VHDX/VMDK6格式支持
+- **SMART改革** - cron任务替代内置调度，灵活监控
+- **六部轮值** - 兵部/工部/礼部/刑部/户部/吏部协同开发
+
+### 六部协同
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 兵部 | NVMe-oF设计 + VM导入增强 | ✅ |
+| 工部 | SMART监控灵活性改造 | ✅ |
+| 礼部 | CHANGELOG更新、竞品矩阵深化 | ✅ |
+| 刑部 | VM Secure Boot安全设计 | ✅ |
+| 户部 | 成本分析模块检查 | ✅ |
+|吏部 | 版本更新v2.393.0、里程碑记录 | ✅ |
+
+### 竞品对标发现（TrueNAS 25.10 Goldeye）
+- NVMe over Fabric: NVMe/TCP (Community) + NVMe/RDMA (Enterprise)
+- VM Secure Boot: 虚拟机安全启动支持
+- VM多格式导入: QCOW2/QED/RAW/VDI/VHDX/VMDK
+- NVIDIA Open GPU: Blackwell架构GPU支持
+- SMART监控改革: cron任务替代内置调度
+- 400GbE支持: 高速网络驱动更新
+- Direct I/O: ZFS Direct I/O虚拟化优化
+
+### 项目统计
+- Go 源文件：1,192+ 个
+- 代码总行数：510,000+ 行
+- 测试文件：352+ 个
+- 依赖模块：269 个
+
+---
+
+## v2.392.0 - 2026-04-04 ✅
+
+### 第161轮六部协同开发
+- **司礼监轮值** - 竞品对标深化 + Spotlight搜索设计
+- **Actions修复** - VM handler测试兼容性修复
+- **Spotlight原型** - SMB全文搜索服务实现
+- **六部轮值** - 兵部/工部/礼部/刑部/户部/吏部协同开发
+
+### 六部协同
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 兵部 | Spotlight搜索服务原型 | ✅ |
+| 工部 | 磁盘电源管理检查 | ✅ |
+| 礼部 | CHANGELOG更新、竞品矩阵深化 | ✅ |
+| 刑部 | SMB安全审计文档完善 | ✅ |
+| 户部 | 成本分析模块检查 | ✅ |
+|吏部 | 版本更新v2.392.0、里程碑记录 | ✅ |
+
+### 竞品对标发现
+- TrueNAS Scale 25.10: SMB Spotlight、Custom Dashboards、Multi-Systems
+- 群晖 DSM 7.3: Active Backup for Business
+- 飞牛 fnOS: 按需唤醒硬盘（已实现）
+
+### 项目统计
+- Go 源文件：1,188+ 个
+- 代码总行数：500,000+ 行
+- 测试文件：352+ 个
+- 依赖模块：269 个
+
+---
+
 ## v2.391.0 - 2026-04-04 🚧
 
 ### 第159轮六部协同开发
