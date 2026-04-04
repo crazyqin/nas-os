@@ -5,6 +5,8 @@ package disk
 
 import (
 	"context"
+	"fmt"
+	"sort"
 	"sync"
 	"time"
 )
@@ -518,5 +520,266 @@ func DefaultSleepPolicy() *SleepPolicy {
 		SleepThreshold:   30 * time.Minute,
 		Enabled:          true,
 		ExcludedDisks:    []string{},
+		MaxWakePerHour:   5,
 	}
+}
+
+// ==================== v2.388.0 API扩展方法 ====================
+
+// GetAllPolicies 获取所有策略
+func (pm *PowerManager) GetAllPolicies() map[string]*SleepPolicy {
+	pm.mu.RLock()
+	defer pm.mu.RUnlock()
+
+	result := make(map[string]*SleepPolicy)
+	for k, v := range pm.policies {
+		result[k] = v
+	}
+	return result
+}
+
+// DeletePolicy 删除策略
+func (pm *PowerManager) DeletePolicy(policyID string) error {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	if policyID == pm.config.DefaultPolicy {
+		return fmt.Errorf("cannot delete default policy")
+	}
+
+	if _, exists := pm.policies[policyID]; !exists {
+		return fmt.Errorf("policy not found: %s", policyID)
+	}
+
+	delete(pm.policies, policyID)
+	return nil
+}
+
+// ForceSleep 强制休眠磁盘
+func (pm *PowerManager) ForceSleep(diskID string) error {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	status, ok := pm.statuses[diskID]
+	if !ok {
+		return fmt.Errorf("disk not registered: %s", diskID)
+	}
+
+	pm.transitionDisk(diskID, PowerStateSleep)
+	status.LastActivity = time.Now().Add(-pm.config.CheckInterval * 10) // 设置为很久之前
+
+	return nil
+}
+
+// ForceStandby 强制待机磁盘
+func (pm *PowerManager) ForceStandby(diskID string) error {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	status, ok := pm.statuses[diskID]
+	if !ok {
+		return fmt.Errorf("disk not registered: %s", diskID)
+	}
+
+	pm.transitionDisk(diskID, PowerStateStandby)
+	status.LastActivity = time.Now().Add(-pm.config.CheckInterval * 5)
+
+	return nil
+}
+
+// GetWakeQueue 获取唤醒队列
+func (pm *PowerManager) GetWakeQueue() map[string][]WakeRequest {
+	pm.wakeQueueMu.Lock()
+	defer pm.wakeQueueMu.Unlock()
+
+	result := make(map[string][]WakeRequest)
+	for k, v := range pm.wakeQueue {
+		result[k] = v
+	}
+	return result
+}
+
+// AddWakeRequest 添加唤醒请求
+func (pm *PowerManager) AddWakeRequest(req WakeRequest) error {
+	pm.wakeQueueMu.Lock()
+	defer pm.wakeQueueMu.Unlock()
+
+	pm.wakeQueue[req.DiskID] = append(pm.wakeQueue[req.DiskID], req)
+
+	// 按优先级排序
+	sort.Slice(pm.wakeQueue[req.DiskID], func(i, j int) bool {
+		return pm.wakeQueue[req.DiskID][i].Priority > pm.wakeQueue[req.DiskID][j].Priority
+	})
+
+	return nil
+}
+
+// ClearWakeQueue 清除唤醒队列
+func (pm *PowerManager) ClearWakeQueue(diskID string) {
+	pm.wakeQueueMu.Lock()
+	defer pm.wakeQueueMu.Unlock()
+
+	if diskID == "" {
+		pm.wakeQueue = make(map[string][]WakeRequest)
+	} else {
+		delete(pm.wakeQueue, diskID)
+	}
+}
+
+// GetEnergyStatistics 获取能耗统计数据
+func (pm *PowerManager) GetEnergyStatistics() *EnergyStatistics {
+	pm.mu.RLock()
+	defer pm.mu.RUnlock()
+
+	return pm.energyStats
+}
+
+// GetHourlyEnergyStats 获取小时级能耗统计
+func (pm *PowerManager) GetHourlyEnergyStats(limit int) []HourlyEnergyStat {
+	pm.energyStats.mu.RLock()
+	defer pm.energyStats.mu.RUnlock()
+
+	stats := pm.energyStats.HourlyStats
+	if limit <= 0 || limit > len(stats) {
+		limit = len(stats)
+	}
+
+	start := len(stats) - limit
+	if start < 0 {
+		start = 0
+	}
+
+	result := make([]HourlyEnergyStat, limit)
+	copy(result, stats[start:])
+	return result
+}
+
+// GetDiskEnergyStat 获取单磁盘能耗统计
+func (pm *PowerManager) GetDiskEnergyStat(diskID string) *DiskEnergyStat {
+	pm.energyStats.mu.RLock()
+	defer pm.energyStats.mu.RUnlock()
+
+	return pm.energyStats.DiskStats[diskID]
+}
+
+// GetBusinessHours 获取业务时段配置
+func (pm *PowerManager) GetBusinessHours() []BusinessPeriod {
+	pm.mu.RLock()
+	defer pm.mu.RUnlock()
+
+	return pm.businessHours
+}
+
+// SetBusinessHours 设置业务时段配置
+func (pm *PowerManager) SetBusinessHours(periods []BusinessPeriod) {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	pm.businessHours = periods
+}
+
+// SmartScheduleConfig 智能调度配置返回结构
+type SmartScheduleConfig struct {
+	EnableWakeOnDemand    bool    `json:"enableWakeOnDemand"`
+	EnableSmartScheduling bool    `json:"enableSmartScheduling"`
+	DefaultDiskPowerWatts float64 `json:"defaultDiskPowerWatts"`
+	WakePowerSpikeWatts   float64 `json:"wakePowerSpikeWatts"`
+	WakeDurationSeconds   float64 `json:"wakeDurationSeconds"`
+}
+
+// GetSmartScheduleConfig 获取智能调度配置
+func (pm *PowerManager) GetSmartScheduleConfig() SmartScheduleConfig {
+	pm.mu.RLock()
+	defer pm.mu.RUnlock()
+
+	return SmartScheduleConfig{
+		EnableWakeOnDemand:    pm.config.EnableWakeOnDemand,
+		EnableSmartScheduling: pm.config.EnableSmartScheduling,
+		DefaultDiskPowerWatts: pm.config.DefaultDiskPowerWatts,
+		WakePowerSpikeWatts:   pm.config.WakePowerSpikeWatts,
+		WakeDurationSeconds:   pm.config.WakeDurationSeconds,
+	}
+}
+
+// UpdateSmartScheduleConfig 更新智能调度配置
+func (pm *PowerManager) UpdateSmartScheduleConfig(enableWakeOnDemand, enableSmartScheduling bool,
+	defaultDiskPowerWatts, wakePowerSpikeWatts, wakeDurationSeconds float64) {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	pm.config.EnableWakeOnDemand = enableWakeOnDemand
+	pm.config.EnableSmartScheduling = enableSmartScheduling
+	pm.config.DefaultDiskPowerWatts = defaultDiskPowerWatts
+	pm.config.WakePowerSpikeWatts = wakePowerSpikeWatts
+	pm.config.WakeDurationSeconds = wakeDurationSeconds
+}
+
+// GetConfig 获取电源管理配置
+func (pm *PowerManager) GetConfig() PowerConfig {
+	pm.mu.RLock()
+	defer pm.mu.RUnlock()
+
+	return *pm.config
+}
+
+// UpdateConfig 更新电源管理配置
+func (pm *PowerManager) UpdateConfig(cfg *PowerConfig) {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	if cfg.CheckInterval > 0 {
+		pm.config.CheckInterval = cfg.CheckInterval
+	}
+	if cfg.DefaultPolicy != "" {
+		pm.config.DefaultPolicy = cfg.DefaultPolicy
+	}
+	pm.config.EnableMonitoring = cfg.EnableMonitoring
+	pm.config.EnableWakeOnDemand = cfg.EnableWakeOnDemand
+	pm.config.EnableSmartScheduling = cfg.EnableSmartScheduling
+	if cfg.DefaultDiskPowerWatts > 0 {
+		pm.config.DefaultDiskPowerWatts = cfg.DefaultDiskPowerWatts
+	}
+	if cfg.WakePowerSpikeWatts > 0 {
+		pm.config.WakePowerSpikeWatts = cfg.WakePowerSpikeWatts
+	}
+	if cfg.WakeDurationSeconds > 0 {
+		pm.config.WakeDurationSeconds = cfg.WakeDurationSeconds
+	}
+}
+
+// UnregisterDisk 取消磁盘注册
+func (pm *PowerManager) UnregisterDisk(diskID string) error {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	if _, exists := pm.statuses[diskID]; !exists {
+		return fmt.Errorf("disk not registered: %s", diskID)
+	}
+
+	delete(pm.statuses, diskID)
+	pm.energyStats.mu.Lock()
+	delete(pm.energyStats.DiskStats, diskID)
+	pm.energyStats.mu.Unlock()
+
+	return nil
+}
+
+// GetPredictionStats 获取预测统计（用于预测下次唤醒）
+func (pm *PowerManager) GetPredictionStats() map[string]time.Time {
+	pm.mu.RLock()
+	defer pm.mu.RUnlock()
+
+	predictions := make(map[string]time.Time)
+	for diskID, status := range pm.statuses {
+		if status.PredictedNextWake.IsZero() {
+			// 基于历史活动预测下次唤醒
+			avgIdle := status.IdleDuration
+			if avgIdle > 0 {
+				predictions[diskID] = time.Now().Add(avgIdle)
+			}
+		} else {
+			predictions[diskID] = status.PredictedNextWake
+		}
+	}
+	return predictions
 }

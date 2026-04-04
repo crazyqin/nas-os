@@ -1433,3 +1433,19 @@ func (m *NVMeMonitor) GetAlertSummary() map[string]struct {
 
 	return summary
 }
+
+// GetTemperatureHistory 获取设备温度历史
+func (m *NVMeMonitor) GetTemperatureHistory(device string) []TempRecord {
+	m.historyMu.RLock()
+	defer m.historyMu.RUnlock()
+
+	history := m.tempHistory[device]
+	if history == nil {
+		return []TempRecord{}
+	}
+
+	// 返回副本
+	result := make([]TempRecord, len(history))
+	copy(result, history)
+	return result
+}
