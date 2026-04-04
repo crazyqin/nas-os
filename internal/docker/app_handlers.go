@@ -467,8 +467,14 @@ func (h *AppHandlers) getRatings(c *gin.Context) {
 	}
 
 	sortby := c.DefaultQuery("sort", "recent")
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
-	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if err != nil || limit < 1 || limit > 100 {
+		limit = 20 // 安全默认值
+	}
+	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if err != nil || offset < 0 || offset > 10000 {
+		offset = 0 // 安全默认值
+	}
 
 	ratings := h.ratingManager.GetRatings(templateID, sortby, limit, offset)
 
