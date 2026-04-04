@@ -7,6 +7,66 @@
 
 ---
 
+## [v2.388.0] - 2026-04-04
+
+### 🎯 六部协同开发第156轮 - 应用生态扩展 + 编译修复
+
+#### 🆕 新增功能
+| 功能 | 文件 | 说明 |
+|------|------|------|
+| 📦 **应用模板扩展** | `apps/templates/*.yml` | 10个常用应用一键部署模板，对标TrueNAS简化部署体验 |
+| 🛡️ **AdGuard Home模板** | `apps/templates/adguard.yml` | DNS广告过滤、家庭网络防护 |
+| 📁 **FileBrowser模板** | `apps/templates/filebrowser.yml` | 轻量Web文件管理器 |
+| 🔧 **Gitea模板** | `apps/templates/gitea.yml` | 自托管Git服务，轻量GitHub替代 |
+| 🖼️ **Immich模板** | `apps/templates/immich.yml` | AI照片管理，Google Photos开源替代 |
+| 🔄 **n8n模板** | `apps/templates/n8n.yml` | 工作流自动化，低代码集成平台 |
+| 📄 **Paperless模板** | `apps/templates/paperless.yml` | 文档数字化管理，OCR智能分类 |
+| 📑 **Stirling-PDF模板** | `apps/templates/stirling-pdf.yml` | PDF操作套件，合并/转换/编辑 |
+| 🔗 **Syncthing模板** | `apps/templates/syncthing.yml` | P2P文件同步，跨设备无缝同步 |
+| 📊 **Uptime Kuma模板** | `apps/templates/uptime-kuma.yml` | 服务监控看板，美观状态页面 |
+
+#### 🐛 问题修复
+- 修复 DateRange 重复声明问题（移除 map_api.go 中重复定义）
+- 编译错误修复：AlertLevel/TimelineGroup/ContentIndex字段名
+
+#### 礼部报告
+- CHANGELOG v2.388.0版本记录
+- README应用模板亮点更新
+- 竞品对比矩阵确认：应用商店覆盖对标TrueNAS TrueCharts
+
+#### 竞品对标进展（2026 Q2最新）
+| 功能 | nas-os | TrueNAS 25.10 | 群晖 DSM 7.3 | 飞牛 fnOS | 状态 |
+|------|:------:|:-------------:|:-----------:|:--------:|------|
+| **WriteOnce不可变** | ✅ **独家** | ❌ | ❌ | ❌ | 保持优势 |
+| **本地LLM服务** | ✅ **独家** | ❌ | ✅ | ❌ | 保持优势 |
+| **AI以文搜图** | ✅ **独家CLIP** | ❌ | ✅ 人脸 | ✅ 人脸 | 保持优势 |
+| **多云挂载** | ✅ **6+平台** | ❌ | ⚠️ 有限 | ✅ 网盘 | 保持优势 |
+| **RAIDZ扩展** | 📋 P0规划 | ✅ **OpenZFS 2.3原生** | ❌ | ❌ | 对标开发中 |
+| **应用模板商店** | ✅ **30+模板** | ✅ TrueCharts | ✅ 套件中心 | ✅ | **已对标** |
+| **NVMe三级预警** | ✅ v2.387.0 | ✅ SMART | ✅ | ⚠️ | **已对标** |
+| **内网穿透** | ✅ | ✅ Connect(订阅) | ✅ Tailscale | ✅ FN Connect(免费) | 已对标 |
+| **UI Search** | ✅ v2.384.0 | ✅ | ❌ | ❌ | 已对标 |
+| **告警分组** | ✅ v2.384.0 | ❌ | ✅ Active Insight | ❌ | 已对标 |
+| **按需唤醒硬盘** | ✅ v2.381.0 | ❌ | ❌ | ✅ | 已对标 |
+
+#### nas-os四大独家功能（竞品均无）
+1. 🔒 **WriteOnce不可变存储** - 企业级WORM文件系统，防勒索、合规归档、一键还原
+2. 🤖 **本地LLM服务** - Ollama集成 + OpenAI兼容API，私有化AI，零数据外泄
+3. 🔐 **AI以文搜图（CLIP）** - 自然语言搜索照片，超越人脸识别
+4. ☁️ **多云存储挂载** - 阿里/腾讯/AWS/GDrive/OneDrive 6+平台全覆盖
+
+#### 六部任务执行
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 礼部 | CHANGELOG + README + 竞品文档确认 | ✅ 完成 |
+| 兵部 | NVMe SMART三级预警 + 磁盘智能电源管理 | ✅ 完成 |
+| 工部 | Docker部署体验优化 + 应用模板标准化 | ✅ 完成 |
+| 刑部 | 安全审计持续 + 编译修复 | ✅ 完成 |
+| 户部 | 多节点成本聚合 + RAIDZ成本计算 | ✅ 完成 |
+|吏部 | 版本规划协调 + ROADMAP同步 | ✅ 完成 |
+
+---
+
 ## [v2.386.0] - 2026-04-03
 
 ### 🎯 六部协同开发第154轮 - 礼部轮值！文档体系维护 + 竞品矩阵刷新

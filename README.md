@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.387.0 Stable (2026-04-03)
+> **最新版本**: v2.388.0 Stable (2026-04-04)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -85,6 +85,11 @@
 | 📊 **文件活动监控** | **实时文件操作追踪/事件记录/对标群晖Active Insight** | ✅ **v2.385.0新增** |
 | ⚙️ **自定义事件规则** | **用户自定义监控规则/路径过滤/告警触发** | ✅ **v2.385.0新增** |
 | 🖥️ **Fleet多节点监控** | **多节点集中监控/健康聚合/跨节点告警联动** | ✅ **v2.385.0新增** |
+| 📦 **应用模板商店** | **30+常用应用一键部署模板/对标TrueNAS TrueCharts** | ✅ **v2.388.0重磅** |
+| 🛡️ **AdGuard Home** | **DNS广告过滤/家庭网络防护/一键部署** | ✅ **v2.388.0新增** |
+| 🖼️ **Immich** | **AI照片管理/Google Photos开源替代/一键部署** | ✅ **v2.388.0新增** |
+| 🔄 **n8n** | **工作流自动化/低代码集成平台/一键部署** | ✅ **v2.388.0新增** |
+| 📄 **Paperless** | **文档数字化管理/OCR智能分类/一键部署** | ✅ **v2.388.0新增** |
 
 ## 快速开始
 
