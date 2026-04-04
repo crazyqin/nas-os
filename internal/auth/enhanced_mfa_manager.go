@@ -4,8 +4,10 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -133,8 +135,8 @@ func (m *EnhancedMFAManager) loadConfig() error {
 		if cfg.TOTPSecret != "" && m.encryption != nil {
 			decrypted, err := m.encryption.Decrypt(cfg.TOTPSecret)
 			if err != nil {
-				// 记录警告但继续加载
-				fmt.Printf("警告：解密用户 %s 的 TOTP Secret 失败：%v\n", userID, err)
+				// 记录警告但继续加载（脱敏用户ID）
+				slog.Warn("解密用户TOTP Secret失败", "user_id", maskUserID(userID), "error", err)
 			} else {
 				cfg.TOTPSecret = decrypted
 			}

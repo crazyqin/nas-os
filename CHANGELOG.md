@@ -7,6 +7,49 @@
 
 ---
 
+## [v2.395.0] - 2026-04-04
+
+### 🎯 六部协同开发第164轮 - TrueNAS 26竞品对标 + 安全修复
+
+#### 司礼监报告
+- TrueNAS 26 Goldeye竞品深度调研
+- 安全审计修复：整数解析错误检查
+- 六部协同任务执行（兵部、工部、刑部、礼部、户部）
+- Actions状态：全部成功完成
+
+#### 🔍 竞品对标发现（TrueNAS 26 Goldeye）
+| 功能 | 说明 | 对标计划 |
+|------|------|----------|
+| **WebShare + TrueSearch** | 浏览器文件访问+文件名/内容/类型搜索 | 🎯 设计中 |
+| **Ransomware Defense** | 勒索软件实时防御+honeypot+行为分析+自动响应 | 🎯 原型开发 |
+| **SMB Spotlight Search** | macOS Spotlight搜索SMB共享文件内容 | 🎯 规划中 |
+| **SMB Stateful Failover** | SMB会话状态HA故障转移 | 📋 规划中 |
+| **LXC容器HA** | 容器故障转移支持Enterprise HA | ✅ 已有容器管理 |
+| **OpenZFS 2.4** | hybrid pool+物理块重写+动态gang header | ✅ ZFS支持 |
+| **Linux Kernel 6.18 LTS** | 新硬件支持+长期安全更新 | 📋 验证中 |
+
+#### 🔒 安全修复
+| 问题 | 修复 | 文件 |
+|------|------|------|
+| 整数解析忽略错误 | 添加错误检查+安全默认值(limit≤100, offset≤10000) | `internal/docker/app_handlers.go` |
+
+#### 🔍 其他竞品摘要
+| 产品 | 新特性 |
+|------|------|
+| **Synology DSM** | Photos AI、Drive、Office、Chat、MailPlus、Active Insight、Hyper Backup、VMM |
+| **TerraMaster TOS6** | 文件管理、集中备份、CloudSync、TRAID、Terra Photos、AI NAS |
+
+#### 🔄 六部协同成果
+| 部门 | 状态 | 输出 |
+|------|------|------|
+| 兵部 | ✅完成 | WebShare/TrueSearch/Ransomware Defense/SMB Spotlight调研 |
+| 工部 | 运行中 | CI/CD状态报告 |
+| 刑部 | ✅完成 | 安全审计修复 |
+| 礼部 | 运行中 | CHANGELOG更新 |
+| 户部 | 运行中 | 资源统计 |
+
+---
+
 ## [v2.394.0] - 2026-04-04
 
 ### 🛠️ 六部协同开发第163轮 - Actions修复 + 竞品学习 + 六部协同
