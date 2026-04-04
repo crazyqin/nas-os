@@ -7,6 +7,119 @@
 
 ---
 
+## [v2.393.0] - 2026-04-04
+
+### 🎯 六部协同开发第162轮 - 司礼监轮值！TrueNAS 25.10竞品对标 + NVMe-oF设计
+
+#### 司礼监报告
+- TrueNAS 25.10 Goldeye竞品深度对标（NVMe over Fabric、VM Secure Boot等）
+- NVMe over Fabric设计文档与原型实现
+- VM多格式导入增强（QCOW2/QED/RAW/VDI/VHDX/VMDK）
+- SMART监控灵活性改造设计
+- VM Secure Boot安全设计
+- 六部协同任务分配与执行
+
+#### 🔍 竞品对标发现（TrueNAS 25.10 Goldeye）
+| 功能 | 说明 | 对标计划 |
+|------|------|----------|
+| **NVMe over Fabric** | NVMe/TCP + NVMe/RDMA高性能存储网络 | 🎯 本轮设计 |
+| **VM多格式导入** | QCOW2/QED/RAW/VDI/VHDX/VMDK支持 | 🎯 本轮实现 |
+| **VM Secure Boot** | 虚拟机安全启动支持 | 🎯 本轮设计 |
+| **NVIDIA Open GPU** | Blackwell架构GPU支持 | ✅ 已有GPU调度 |
+| **Direct I/O** | ZFS Direct I/O虚拟化优化 | 📋 规划中 |
+| **400GbE支持** | 高速网络驱动更新 | 📋 驱动验证 |
+| **应用池迁移** | 自动迁移Docker应用 | ✅ 已有应用管理 |
+| **SMART监控改革** | cron任务替代内置调度 | 🎯 本轮设计 |
+
+#### 📝 文档新增
+| 文档 | 路径 | 说明 |
+|------|------|------|
+| NVMe-oF设计 | `docs/design/nvme-of-design.md` | 对标TrueNAS 25.10 NVMe/TCP/RDMA |
+| VM导入增强设计 | `docs/design/vm-import-enhanced.md` | 多格式磁盘导入支持 |
+| SMART监控改造 | `docs/operations/smart-monitoring.md` | cron任务灵活调度 |
+| VM Secure Boot | `docs/security/vm-secure-boot.md` | 虚拟机安全启动设计 |
+| 第162轮任务分配 | `docs/tasks/round-162-task-allocation.md` | 六部协同任务清单 |
+
+#### ✨ 功能新增
+| 功能 | 模块 | 说明 |
+|------|------|------|
+| NVMe-oF Target | `internal/storage/nvme-of.go` | NVMe over Fabric服务原型 |
+| Subsystem管理 | `internal/storage/nvme-of.go` | Subsystem/Namespace配置 |
+| VM导入增强 | `internal/vm/import-enhanced.go` | 6种磁盘格式导入支持 |
+| SMART灵活监控 | `internal/storage/smart-flexible.go` | cron任务调度替代内置 |
+
+#### 📊 六部协同汇总
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 兵部 | NVMe-oF设计 + VM导入增强 + SMART改造 | ✅ |
+| 工部 | SMART监控灵活性改造 | ✅ |
+| 礼部 | CHANGELOG更新、竞品矩阵深化 | ✅ |
+| 刑部 | VM Secure Boot安全设计 | ✅ |
+| 户部 | 成本分析模块检查 | ✅ |
+|吏部 | 版本更新v2.393.0、里程碑记录 | ✅ |
+
+#### 🚀 TrueNAS 25.10 vs nas-os对标矩阵
+| 功能 | TrueNAS 25.10 | nas-os v2.393.0 | 对标建议 |
+|------|---------------|-----------------|----------|
+| NVMe/TCP | ✅ Community | 📋 Phase1设计 | M108实现 |
+| NVMe/RDMA | ✅ Enterprise | 📋 Phase2规划 | M109实现 |
+| VM多格式导入 | ✅ 6格式 | ✅ 设计完成 | M108实现 |
+| VM Secure Boot | ✅ | 📋 设计完成 | M108实现 |
+| Direct I/O | ✅ | 📋 规划中 | P1开发 |
+| 400GbE | ✅ | ⚠️ 驱动验证 | 兼容检查 |
+
+---
+
+## [v2.392.0] - 2026-04-04
+
+### 🎯 六部协同开发第161轮 - 司礼监轮值！竞品对标深化 + Spotlight搜索设计
+
+#### 司礼监报告
+- CI/CD Actions异常修复（VM handler测试兼容性）
+- 竞品调研深化（TrueNAS Scale 25.10、群晖 DSM 7.3、飞牛 fnOS）
+- WebShare Spotlight搜索设计文档
+- Spotlight搜索服务原型实现
+- 六部协同任务分配与执行
+
+#### 🐛 Bug修复
+| 问题 | 说明 | 影响 |
+|------|------|------|
+| VM handler测试失败 | handlers不检查HTTP方法，由mux完成验证 | Compatibility Check |
+
+#### 📝 文档新增
+| 文档 | 路径 | 说明 |
+|------|------|------|
+| Spotlight搜索设计 | `docs/design/webshare-spotlight-design.md` | 对标TrueNAS SMB Spotlight |
+| 第161轮任务分配 | `docs/tasks/round-161-task-allocation.md` | 六部协同任务清单 |
+
+#### ✨ 功能新增
+| 功能 | 模块 | 说明 |
+|------|------|------|
+| Spotlight搜索服务 | `internal/search/spotlight.go` | SMB全文搜索原型 |
+| 搜索语法解析 | `internal/search/spotlight.go` | name:type:size:date过滤 |
+| Spotlight属性映射 | `internal/search/spotlight.go` | macOS Finder兼容 |
+
+#### 🔍 竞品对标发现（第161轮）
+| 产品 | 特性 | 对标计划 |
+|------|------|----------|
+| TrueNAS Scale 25.10 | SMB Spotlight全文搜索 | 🎯 本轮设计 |
+| TrueNAS Scale 25.10 | Custom Dashboards自定义仪表盘 | 📋 规划中 |
+| TrueNAS Scale 25.10 | Multi-Systems多系统管理 | 📋 规划中 |
+| 群晖 DSM 7.3 | Active Backup for Business | 📋 规划中 |
+| 飞牛 fnOS | 按需唤醒硬盘节能 | ✅ 已实现 |
+
+#### 📊 六部协同汇总
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 兵部 | Spotlight搜索服务原型 | ✅ |
+| 工部 | 磁盘电源管理（已完善） | ✅ |
+| 礼部 | CHANGELOG更新、竞品矩阵 | ✅ |
+| 刑部 | SMB安全审计文档完善 | ✅ |
+| 户部 | 成本分析模块检查 | ✅ |
+|吏部 | 版本更新、里程碑记录 | ✅ |
+
+---
+
 ## [v2.390.0] - 2026-04-04
 
 ### 🎯 六部协同开发第158轮 - 礼部轮值！竞品对标更新 + ZFS Dedup指南
