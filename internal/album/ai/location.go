@@ -297,7 +297,7 @@ func (lc *LocationClusterer) nominatimReverseGeocode(ctx context.Context, lat, l
 // googleReverseGeocode uses Google Maps Geocoding API
 func (lc *LocationClusterer) googleReverseGeocode(ctx context.Context, lat, lng float64) (*PlaceInfo, error) {
 	if lc.geocodingAPIKey == "" {
-		return nil, fmt.Errorf("Google API key not configured")
+		return nil, fmt.Errorf("google API key not configured")
 	}
 
 	url := fmt.Sprintf("https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&key=%s", lat, lng, lc.geocodingAPIKey)
@@ -354,7 +354,7 @@ func (lc *LocationClusterer) googleReverseGeocode(ctx context.Context, lat, lng 
 // baiduReverseGeocode uses Baidu Maps API
 func (lc *LocationClusterer) baiduReverseGeocode(ctx context.Context, lat, lng float64) (*PlaceInfo, error) {
 	if lc.geocodingAPIKey == "" {
-		return nil, fmt.Errorf("Baidu API key not configured")
+		return nil, fmt.Errorf("baidu API key not configured")
 	}
 
 	apiURL := fmt.Sprintf("https://api.map.baidu.com/reverse_geocoding/v3/?output=json&coordtype=wgs84ll&location=%f,%f&ak=%s", lat, lng, lc.geocodingAPIKey)
@@ -521,7 +521,7 @@ func (lc *LocationClusterer) nominatimSearch(ctx context.Context, query string) 
 // googleSearch uses Google Places API for location search
 func (lc *LocationClusterer) googleSearch(ctx context.Context, query string) ([]PlaceInfo, error) {
 	if lc.geocodingAPIKey == "" {
-		return nil, fmt.Errorf("Google API key not configured")
+		return nil, fmt.Errorf("google API key not configured")
 	}
 
 	url := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/textsearch/json?query=%s&key=%s", url.QueryEscape(query), lc.geocodingAPIKey)
