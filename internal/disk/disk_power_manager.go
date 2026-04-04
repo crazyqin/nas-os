@@ -1,11 +1,13 @@
 // Package disk provides disk power management functionality.
 // Implements intelligent disk sleep/wake patterns inspired by飞牛fnOS.
-// Version: v2.387.0 - 按需唤醒 + 智能调度 + 能耗统计API增强
+// Version: v2.399.0 - 实际磁盘状态转换命令执行 + standby/spindown智能调度
 package disk
 
 import (
 	"context"
 	"fmt"
+	"os/exec"
+	"strings"
 	"sort"
 	"sync"
 	"time"
@@ -87,6 +89,234 @@ type PowerManager struct {
 	wakeQueueMu    sync.Mutex
 	pendingWakes   map[string]context.CancelFunc // 待取消的唤醒任务
 	businessHours  []BusinessPeriod             // 业务高峰时段配置
+
+	// v2.399.0: 实际命令执行支持
+	executor       DiskPowerExecutor          // 磁盘电源命令执行器
+	executorMu     sync.RWMutex
+}
+
+// DiskPowerExecutor 磁盘电源状态转换命令执行接口
+type DiskPowerExecutor interface {
+	// Standby 让磁盘进入待机状态 (轻度休眠，快速唤醒)
+	Standby(diskID string) error
+	// Sleep 让磁盘进入深度休眠 (spindown，需要较长时间唤醒)
+	Sleep(diskID string) error
+	// Wake 唤醒磁盘
+	Wake(diskID string) error
+	// CheckPowerState 检查磁盘当前电源状态
+	CheckPowerState(diskID string) (PowerState, error)
+}
+
+// HdparmExecutor 使用hdparm实现磁盘电源管理（适用于ATA/SATA磁盘）
+type HdparmExecutor struct{}
+
+// NewHdparmExecutor 创建hdparm执行器
+func NewHdparmExecutor() *HdparmExecutor {
+	return &HdparmExecutor{}
+}
+
+// Standby 执行hdparm -y让磁盘进入待机状态
+func (e *HdparmExecutor) Standby(diskID string) error {
+	// hdparm -y: 立即将磁盘进入待机模式
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "hdparm", "-y", diskID)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("hdparm standby失败: %w, output: %s", err, string(output))
+	}
+	return nil
+}
+
+// Sleep 执行hdparm -Y让磁盘进入深度休眠
+func (e *HdparmExecutor) Sleep(diskID string) error {
+	// hdparm -Y: 立即将磁盘进入睡眠模式（完全停止）
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "hdparm", "-Y", diskID)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("hdparm sleep失败: %w, output: %s", err, string(output))
+	}
+	return nil
+}
+
+// Wake 唤醒磁盘 - 读取磁盘状态即可唤醒
+func (e *HdparmExecutor) Wake(diskID string) error {
+	// 通过读取磁盘状态唤醒（hdparm -C会触发唤醒）
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "hdparm", "-C", diskID)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		// 唤醒可能需要更长时间，允许超时后继续
+		if strings.Contains(string(output), "drive state is:") {
+			return nil // 状态检查成功，说明已唤醒
+		}
+		return fmt.Errorf("hdparm wake失败: %w, output: %s", err, string(output))
+	}
+	return nil
+}
+
+// CheckPowerState 使用hdparm -C检查磁盘电源状态
+func (e *HdparmExecutor) CheckPowerState(diskID string) (PowerState, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "hdparm", "-C", diskID)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		// 检查状态失败可能意味着磁盘在休眠中
+		if strings.Contains(err.Error(), "timeout") || strings.Contains(string(output), "unknown") {
+			return PowerStateUnknown, nil
+		}
+		return PowerStateUnknown, fmt.Errorf("检查电源状态失败: %w", err)
+	}
+
+	// 解析hdparm -C输出
+	outputStr := string(output)
+	if strings.Contains(outputStr, "active/idle") {
+		return PowerStateActive, nil
+	} else if strings.Contains(outputStr, "standby") {
+		return PowerStateStandby, nil
+	} else if strings.Contains(outputStr, "sleeping") {
+		return PowerStateSleep, nil
+	}
+
+	return PowerStateUnknown, nil
+}
+
+// PowerStateUnknown 未知状态
+const PowerStateUnknown PowerState = "unknown"
+
+// ScsiExecutor 使用sg_start实现SCSI/SAS磁盘电源管理
+type ScsiExecutor struct{}
+
+// NewScsiExecutor 创建SCSI执行器
+func NewScsiExecutor() *ScsiExecutor {
+	return &ScsiExecutor{}
+}
+
+// Standby SCSI磁盘待机
+func (e *ScsiExecutor) Standby(diskID string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// sg_start --stop: 停止磁盘旋转
+	cmd := exec.CommandContext(ctx, "sg_start", "--stop", diskID)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("sg_start standby失败: %w, output: %s", err, string(output))
+	}
+	return nil
+}
+
+// Sleep SCSI磁盘深度休眠
+func (e *ScsiExecutor) Sleep(diskID string) error {
+	// SCSI使用相同的stop命令，但可以设置更长的power condition
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "sg_start", "--stop", "--power-condition=3", diskID)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("sg_start sleep失败: %w, output: %s", err, string(output))
+	}
+	return nil
+}
+
+// Wake SCSI磁盘唤醒
+func (e *ScsiExecutor) Wake(diskID string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// sg_start --start: 启动磁盘旋转
+	cmd := exec.CommandContext(ctx, "sg_start", "--start", diskID)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("sg_start wake失败: %w, output: %s", err, string(output))
+	}
+	return nil
+}
+
+// CheckPowerState SCSI磁盘电源状态检查
+func (e *ScsiExecutor) CheckPowerState(diskID string) (PowerState, error) {
+	// SCSI磁盘状态检查较复杂，简化处理
+	return PowerStateUnknown, nil
+}
+
+// MultiExecutor 组合执行器，根据磁盘类型选择合适的工具
+type MultiExecutor struct {
+	hdparm *HdparmExecutor
+	scsi   *ScsiExecutor
+}
+
+// NewMultiExecutor 创建组合执行器
+func NewMultiExecutor() *MultiExecutor {
+	return &MultiExecutor{
+		hdparm: NewHdparmExecutor(),
+		scsi:   NewScsiExecutor(),
+	}
+}
+
+// detectDiskType 检测磁盘类型
+func detectDiskType(diskID string) string {
+	// 栓查磁盘类型：ATA/SATA vs SCSI/SAS
+	// 规则：/dev/sd* 通常使用hdparm，/dev/sg* 或 SCSI设备使用sg_start
+	if strings.HasPrefix(diskID, "/dev/sd") {
+		// 进一步检查是否支持hdparm
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, "hdparm", "-I", diskID)
+		_, err := cmd.CombinedOutput()
+		if err == nil {
+			return "ata"
+		}
+	}
+	if strings.HasPrefix(diskID, "/dev/sg") {
+		return "scsi"
+	}
+	// 默认使用hdparm尝试
+	return "ata"
+}
+
+// Standby 根据磁盘类型选择执行器
+func (e *MultiExecutor) Standby(diskID string) error {
+	diskType := detectDiskType(diskID)
+	if diskType == "scsi" {
+		return e.scsi.Standby(diskID)
+	}
+	return e.hdparm.Standby(diskID)
+}
+
+// Sleep 根据磁盘类型选择执行器
+func (e *MultiExecutor) Sleep(diskID string) error {
+	diskType := detectDiskType(diskID)
+	if diskType == "scsi" {
+		return e.scsi.Sleep(diskID)
+	}
+	return e.hdparm.Sleep(diskID)
+}
+
+// Wake 根据磁盘类型选择执行器
+func (e *MultiExecutor) Wake(diskID string) error {
+	diskType := detectDiskType(diskID)
+	if diskType == "scsi" {
+		return e.scsi.Wake(diskID)
+	}
+	return e.hdparm.Wake(diskID)
+}
+
+// CheckPowerState 根据磁盘类型选择执行器
+func (e *MultiExecutor) CheckPowerState(diskID string) (PowerState, error) {
+	diskType := detectDiskType(diskID)
+	if diskType == "scsi" {
+		return e.scsi.CheckPowerState(diskID)
+	}
+	return e.hdparm.CheckPowerState(diskID)
 }
 
 // PowerConfig holds power management configuration.
