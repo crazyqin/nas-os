@@ -1,5 +1,95 @@
 # NAS-OS 项目里程碑
 
+## v2.389.0 (2026-04-04) 🚀 第157轮开发 - TrueNAS 26对标
+
+**主题**: TrueNAS 26 + 群晖Active Insight竞品对标 + 六部协同开发
+
+### 司礼监调度
+- 竞品调研：TrueNAS 26深度分析（WebShare TrueSearch、Ransomware Defense、SMB Spotlight、SMB Stateful Failover、LXC）
+- 群晖调研：Active Insight文件活动监控、自定义事件规则、Fleet多节点监控
+- Actions状态确认：2个运行中（Docker Publish、Staged Release）
+- 新功能规划：SMB Spotlight、WebShare内容搜索、勒索监控联动
+
+### 竞品对标成果
+| 竞品 | 核心新特性 | nas-os状态 |
+|------|------------|------------|
+| **TrueNAS 26** | WebShare TrueSearch全文搜索 | 📋 P0规划 |
+| **TrueNAS 26** | Ransomware Defense勒索防护 | ✅ WriteOnce+监控联动 |
+| **TrueNAS 26** | SMB Spotlight macOS集成 | 📋 P0规划 |
+| **TrueNAS 26** | SMB Stateful Failover | 📋 P1规划 |
+| **TrueNAS 26** | LXC容器完整支持 | 📋 评估中 |
+| **群晖Active Insight** | 文件活动监控 | ✅ v2.385.0已实现 |
+| **群晖Active Insight** | 自定义事件规则 | ✅ v2.385.0已实现 |
+| **群晖Active Insight** | Fleet多节点监控 | ✅ v2.385.0已实现 |
+
+### nas-os四大独家功能（TrueNAS 26均无）
+1. 🔒 **WriteOnce不可变存储** - WORM文件系统，防勒索、合规归档
+2. 🤖 **本地LLM服务** - Ollama集成 + OpenAI兼容API
+3. 🔐 **AI以文搜图** - CLIP本地推理，自然语言搜索
+4. ☁️ **多云存储挂载** - 阿里/腾讯/AWS/GDrive/OneDrive全覆盖
+
+### 六部协同任务（第157轮）
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 司礼监 | TrueNAS 26竞品调研 + 六部调度 | ✅ 完成 |
+| 兵部 | SMB Spotlight Search开发 | 🔄 运行中 |
+| 兵部 | WebShare内容搜索增强 | 🔄 运行中 |
+| 工部 | LXC容器需求评估 | 🔄 运行中 |
+| 刑部 | WriteOnce + 监控联动设计 | 🔄 运行中 |
+| 户部 | RAIDZ成本计算器设计 | 🔄 运行中 |
+| 礼部 | TrueNAS 26对比宣传文案 | ✅ 完成 |
+| 吏部 | v2.389.0版本规划 | ✅ 完成 |
+
+### v2.389.0功能清单
+| 序号 | 功能 | 对标 | 优先级 | 状态 |
+|------|------|------|--------|------|
+| 1 | SMB Spotlight Search | TrueNAS 26 macOS | P0 | 🔄 开发 |
+| 2 | WebShare内容索引搜索 | TrueNAS 26 TrueSearch | P0 | 🔄 开发 |
+| 3 | 勒索监控联动 | TrueNAS 26 Ransomware | P1 | 🔄 设计 |
+| 4 | RAIDZ成本计算器 | TrueNAS 24.10 | P1 | 🔄 设计 |
+| 5 | LXC容器评估 | TrueNAS 26 | P2 | 🔄 评估 |
+
+### 版本时间规划
+- v2.389.0 Alpha: 2026-04-15
+- v2.389.0 Stable: 2026-04-20
+
+---
+
+## v2.388.0 (2026-04-03) 🚀 第156轮开发 - 应用模板商店
+
+**主题**: 30+应用模板商店 + AdGuard Home + Immich + n8n + Paperless
+
+### 重磅功能发布
+- 📦 **应用模板商店**: 30+常用应用一键部署模板，对标TrueNAS TrueCharts
+- 🛡️ **AdGuard Home**: DNS广告过滤、家庭网络防护、一键部署
+- 🖼️ **Immich**: AI照片管理、Google Photos开源替代、一键部署
+- 🔄 **n8n**: 工作流自动化、低代码集成平台、一键部署
+- 📄 **Paperless**: 文档数字化管理、OCR智能分类、一键部署
+
+### 六部协同任务
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 司礼监 | 应用模板商店规划 + 六部调度 | ✅ 完成 |
+| 兵部 | 应用模板实现 | ✅ 完成 |
+| 工部 | Docker部署模板 | ✅ 完成 |
+| 礼部 | 文档更新 | ✅ 完成 |
+| 刑部 | 代码质量修复 | ✅ 完成 |
+| 户部 | 项目统计 | ✅ 完成 |
+| 吏部 | 版本发布v2.388.0 | ✅ 完成 |
+
+---
+
+## v2.385.0 (2026-04-01) 🚀 群晖Active Insight对标
+
+**主题**: 文件活动监控 + 自定义事件规则 + Fleet多节点监控
+
+### 核心功能
+- 📊 **文件活动监控**: 实时文件操作追踪，对标群晖Active Insight
+- ⚙️ **自定义事件规则**: 用户自定义监控规则，路径过滤+告警触发
+- 🖥️ **Fleet多节点监控**: 多节点集中监控，健康聚合+跨节点告警联动
+
+---
+
 ## v2.378.0 (2026-04-02) 🚀 第147轮开发
 
 **主题**: 竞品深度调研 + 六部协同开发 + 新功能规划
