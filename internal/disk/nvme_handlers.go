@@ -34,6 +34,19 @@ func (h *NVMeHandlers) RegisterRoutes(r *gin.RouterGroup) {
 		nvme.GET("/:device/temperature", h.getNVMeTemperature)
 		nvme.GET("/:device/usage", h.getNVMeUsage)
 
+		// v2.388.0: 三级预警和寿命预测
+		nvme.GET("/:device/alert", h.getNVMeAlertStatus)
+		nvme.GET("/:device/life-prediction", h.getNVMeLifePrediction)
+		nvme.GET("/:device/alert-history", h.getNVMeAlertHistory)
+		nvme.GET("/alerts/summary", h.getNVMeAlertSummary)
+
+		// 预警阈值配置
+		nvme.GET("/alert-thresholds", h.getAlertThresholds)
+		nvme.PUT("/alert-thresholds", h.updateAlertThresholds)
+
+		// 温度历史
+		nvme.GET("/:device/temperature-history", h.getNVMeTemperatureHistory)
+
 		// 测试接口
 		nvme.POST("/:device/test", h.runNVMeTest)
 		nvme.GET("/:device/test", h.getTestStatus)
@@ -601,12 +614,15 @@ func (h *NVMeHandlers) getNVMeSummary(c *gin.Context) {
 		HealthyCount     int     `json:"healthyCount"`
 		WarningCount     int     `json:"warningCount"`
 		CriticalCount    int     `json:"criticalCount"`
+		EmergencyCount   int     `json:"emergencyCount"`
 		AvgTemperature   float64 `json:"avgTemperature"`
 		AvgHealthPercent float64 `json:"avgHealthPercent"`
 		TotalTBW         float64 `json:"totalTBW"`
 		TotalCapacity    uint64  `json:"totalCapacity"`
+		AlertsByLevel    map[AlertLevel]int `json:"alertsByLevel"`
 	}{}
 
+	summary.AlertsByLevel = make(map[AlertLevel]int)
 	var totalTemp float64
 	var tempCount int
 	var totalHealth float64
@@ -623,6 +639,9 @@ func (h *NVMeHandlers) getNVMeSummary(c *gin.Context) {
 		case StatusCritical:
 			summary.CriticalCount++
 		}
+
+		// 三级预警统计
+		summary.AlertsByLevel[dev.AlertLevel]++
 
 		if dev.Temperature != nil {
 			totalTemp += float64(dev.Temperature.Current)
@@ -651,6 +670,327 @@ func (h *NVMeHandlers) getNVMeSummary(c *gin.Context) {
 			"summary":    summary,
 			"devices":    devices,
 			"lastUpdate": time.Now(),
+		},
+	})
+}
+
+// ==================== v2.388.0 三级预警 + 寿命预测 API ====================
+
+// getNVMeAlertStatus 获取NVMe预警状态
+// @Summary 获取NVMe预警状态
+// @Description 获取指定NVMe设备的三级预警状态详情
+// @Tags nvme
+// @Accept json
+// @Produce json
+// @Param device path string true "设备路径"
+// @Success 200 {object} map[string]interface{} "成功"
+// @Router /nvme/{device}/alert [get]
+// @Security BearerAuth.
+func (h *NVMeHandlers) getNVMeAlertStatus(c *gin.Context) {
+	device := c.Param("device")
+	if device == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "设备路径不能为空",
+		})
+		return
+	}
+
+	if len(device) < 5 || device[:5] != "/dev/" {
+		device = "/dev/" + device
+	}
+
+	info, err := h.monitor.GetNVMeHealth(device)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// 获取推荐建议
+	recommendations := []string{}
+	if info.HealthScore != nil {
+		recommendations = info.HealthScore.Recommendations
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": gin.H{
+			"device":        info.Device,
+			"alertLevel":    info.AlertLevel,
+			"alertReasons":  info.AlertReasons,
+			"healthPct":     info.HealthPercentage,
+			"thresholds":    info.AlertThresholds,
+			"recommendations": recommendations,
+			"timestamp":     info.LastCheck,
+		},
+	})
+}
+
+// getNVMeLifePrediction 获取NVMe寿命预测
+// @Summary 获取NVMe寿命预测
+// @Description 获取指定NVMe设备的剩余寿命预测数据
+// @Tags nvme
+// @Accept json
+// @Produce json
+// @Param device path string true "设备路径"
+// @Success 200 {object} map[string]interface{} "成功"
+// @Router /nvme/{device}/life-prediction [get]
+// @Security BearerAuth.
+func (h *NVMeHandlers) getNVMeLifePrediction(c *gin.Context) {
+	device := c.Param("device")
+	if device == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "设备路径不能为空",
+		})
+		return
+	}
+
+	if len(device) < 5 || device[:5] != "/dev/" {
+		device = "/dev/" + device
+	}
+
+	info, err := h.monitor.GetNVMeHealth(device)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	prediction := h.monitor.GetLifePrediction(device)
+	if prediction == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "无寿命预测数据",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": gin.H{
+			"device":                info.Device,
+			"model":                 info.Model,
+			"healthPercentage":      info.HealthPercentage,
+			"prediction":            prediction,
+			"usage":                 info.Usage,
+			"powerOnHours":          info.PowerOnHours,
+			"lastCheck":             info.LastCheck,
+		},
+	})
+}
+
+// getNVMeAlertHistory 获取NVMe预警历史
+// @Summary 获取NVMe预警历史
+// @Description 获取指定NVMe设备的预警事件历史记录
+// @Tags nvme
+// @Accept json
+// @Produce json
+// @Param device path string true "设备路径"
+// @Param limit query int false "返回数量限制" default(100)
+// @Success 200 {object} map[string]interface{} "成功"
+// @Router /nvme/{device}/alert-history [get]
+// @Security BearerAuth.
+func (h *NVMeHandlers) getNVMeAlertHistory(c *gin.Context) {
+	device := c.Param("device")
+	if device == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "设备路径不能为空",
+		})
+		return
+	}
+
+	if len(device) < 5 || device[:5] != "/dev/" {
+		device = "/dev/" + device
+	}
+
+	// 获取温度历史作为预警参考
+	tempHistory := h.monitor.GetTemperatureHistory(device)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": gin.H{
+			"device":       device,
+			"temperatureHistory": tempHistory,
+			"lastPrediction": h.monitor.GetLifePrediction(device),
+		},
+	})
+}
+
+// getNVMeAlertSummary 获取所有NVMe预警摘要
+// @Summary 获取所有NVMe预警摘要
+// @Description 获取所有NVMe设备的预警状态汇总
+// @Tags nvme
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "成功"
+// @Router /nvme/alerts/summary [get]
+// @Security BearerAuth.
+func (h *NVMeHandlers) getNVMeAlertSummary(c *gin.Context) {
+	summary := h.monitor.GetAlertSummary()
+
+	// 计算各级别数量
+	levelCount := map[AlertLevel]int{
+		AlertLevelNormal:    0,
+		AlertLevelWarning:   0,
+		AlertLevelCritical:  0,
+		AlertLevelEmergency: 0,
+	}
+
+	for _, data := range summary {
+		levelCount[data.Level]++
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": gin.H{
+			"summary":      summary,
+			"levelCounts":  levelCount,
+			"totalDevices": len(summary),
+			"timestamp":    time.Now(),
+		},
+	})
+}
+
+// getAlertThresholds 获取预警阈值配置
+// @Summary 获取预警阈值配置
+// @Description 获取当前的三级预警阈值配置
+// @Tags nvme
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "成功"
+// @Router /nvme/alert-thresholds [get]
+// @Security BearerAuth.
+func (h *NVMeHandlers) getAlertThresholds(c *gin.Context) {
+	thresholds := h.monitor.GetAlertThresholds()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    thresholds,
+	})
+}
+
+// alertThresholdsRequest 预警阈值请求
+type alertThresholdsRequest struct {
+	TempWarning     uint8 `json:"tempWarning"`
+	TempCritical    uint8 `json:"tempCritical"`
+	HealthWarning   uint8 `json:"healthWarning"`
+	HealthCritical  uint8 `json:"healthCritical"`
+	HealthEmergency uint8 `json:"healthEmergency"`
+	TBWWarning      uint8 `json:"tbwWarning"`
+	TBWCritical     uint8 `json:"tbwCritical"`
+}
+
+// updateAlertThresholds 更新预警阈值配置
+// @Summary 更新预警阈值配置
+// @Description 更新三级预警阈值配置
+// @Tags nvme
+// @Accept json
+// @Produce json
+// @Param request body alertThresholdsRequest true "阈值配置"
+// @Success 200 {object} map[string]interface{} "成功"
+// @Router /nvme/alert-thresholds [put]
+// @Security BearerAuth.
+func (h *NVMeHandlers) updateAlertThresholds(c *gin.Context) {
+	var req alertThresholdsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	thresholds := &AlertThresholds{
+		TempWarning:     req.TempWarning,
+		TempCritical:    req.TempCritical,
+		HealthWarning:   req.HealthWarning,
+		HealthCritical:  req.HealthCritical,
+		HealthEmergency: req.HealthEmergency,
+		TBWWarning:      req.TBWWarning,
+		TBWCritical:     req.TBWCritical,
+	}
+
+	h.monitor.SetAlertThresholds(thresholds)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "预警阈值已更新",
+		"data":    thresholds,
+	})
+}
+
+// getNVMeTemperatureHistory 获取NVMe温度历史
+// @Summary 获取NVMe温度历史
+// @Description 获取指定NVMe设备的温度历史记录
+// @Tags nvme
+// @Accept json
+// @Produce json
+// @Param device path string true "设备路径"
+// @Param limit query int false "返回数量限制" default(100)
+// @Success 200 {object} map[string]interface{} "成功"
+// @Router /nvme/{device}/temperature-history [get]
+// @Security BearerAuth.
+func (h *NVMeHandlers) getNVMeTemperatureHistory(c *gin.Context) {
+	device := c.Param("device")
+	if device == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "设备路径不能为空",
+		})
+		return
+	}
+
+	if len(device) < 5 || device[:5] != "/dev/" {
+		device = "/dev/" + device
+	}
+
+	history := h.monitor.GetTemperatureHistory(device)
+
+	// 计算温度统计
+	var avgTemp, minTemp, maxTemp float64
+	var totalDuration float64
+	if len(history) > 0 {
+		minTemp = float64(history[0].Temp)
+		maxTemp = float64(history[0].Temp)
+		for _, record := range history {
+			avgTemp += float64(record.Temp) * record.Duration
+			totalDuration += record.Duration
+			if float64(record.Temp) < minTemp {
+				minTemp = float64(record.Temp)
+			}
+			if float64(record.Temp) > maxTemp {
+				maxTemp = float64(record.Temp)
+			}
+		}
+		if totalDuration > 0 {
+			avgTemp /= totalDuration
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": gin.H{
+			"device":   device,
+			"history":  history,
+			"stats": gin.H{
+				"avgTemp": avgTemp,
+				"minTemp": minTemp,
+				"maxTemp": maxTemp,
+				"recordCount": len(history),
+			},
 		},
 	})
 }

@@ -590,6 +590,20 @@ func (rp *RealtimeProtection) GetThreatHistory(limit int) []DetectionResult {
 	return []DetectionResult{}
 }
 
+// GetConfig 获取配置
+func (rp *RealtimeProtection) GetConfig() RealtimeProtectionConfig {
+	rp.mu.RLock()
+	defer rp.mu.RUnlock()
+	return rp.config
+}
+
+// UpdateConfig 更新配置
+func (rp *RealtimeProtection) UpdateConfig(config RealtimeProtectionConfig) {
+	rp.mu.Lock()
+	defer rp.mu.Unlock()
+	rp.config = config
+}
+
 // ProtectionAPI 提供REST API接口
 type ProtectionAPI struct {
 	protection *RealtimeProtection
