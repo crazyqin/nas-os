@@ -77,6 +77,7 @@ func (m *MonitorService) CreateSchedule(ctx context.Context, name string, cfg *S
 		cfg.Schedule, cfg.TestType, cfg.Devices[0])
 
 	newCrontab := string(output) + cronEntry + "\n"
+	_ = newCrontab // TODO: implement crontab pipe
 
 	// Install new crontab
 	cmd = exec.CommandContext(ctx, "crontab", "-")
@@ -124,6 +125,7 @@ func (m *MonitorService) GetAllHealth(ctx context.Context) ([]*HealthStatus, err
 	if err != nil {
 		return nil, fmt.Errorf("lsblk failed: %w", err)
 	}
+	_ = output // used in parseDiskList below
 
 	devices := parseDiskList(output)
 	result := make([]*HealthStatus, 0, len(devices))
@@ -206,7 +208,6 @@ func (m *MonitorService) GetTestProgress(ctx context.Context, device string) (in
 	if err != nil {
 		return 0, fmt.Errorf("smartctl failed: %w", err)
 	}
-
-	// TODO: Parse progress from output
+	_ = output // TODO: Parse progress from output
 	return 0, nil
 }

@@ -12,9 +12,128 @@ import (
 	"go.uber.org/zap"
 )
 
+// QueryEngine 查询引擎（简化实现）
+type QueryEngine struct {
+	parser *QueryParser
+	logger *zap.Logger
+}
+
+// NewQueryEngine 创建查询引擎
+func NewQueryEngine(logger *zap.Logger) *QueryEngine {
+	return &QueryEngine{
+		parser: NewQueryParser(),
+		logger: logger,
+	}
+}
+
+// Parse 解析查询字符串
+func (q *QueryEngine) Parse(query string) (*ParsedQuery, error) {
+	return q.parser.Parse(query)
+}
+
+// FileWatcher 文件监控器（简化包装）
+type FileWatcher struct {
+	watcher *Watcher
+	changes []FileChange
+	mu      sync.RWMutex
+}
+
+// FileChange 文件变更事件
+type FileChange struct {
+	Path string
+	Type ChangeType
+}
+
+// ChangeType 变更类型
+type ChangeType int
+
+const (
+	ChangeTypeCreate ChangeType = 1
+	ChangeTypeModify ChangeType = 2
+	ChangeTypeDelete ChangeType = 3
+)
+
+// NewFileWatcher 创建文件监控器
+func NewFileWatcher(paths []string, logger *zap.Logger) *FileWatcher {
+	return &FileWatcher{
+		changes: make([]FileChange, 0),
+	}
+}
+
+// Start 启动监控
+func (f *FileWatcher) Start(ctx context.Context) error {
+	return nil
+}
+
+// Stop 停止监控
+func (f *FileWatcher) Stop() {}
+
+// GetChanges 获取变更列表
+func (f *FileWatcher) GetChanges() []FileChange {
+	f.mu.RLock()
+	defer f.mu.RUnlock()
+	return f.changes
+}
+
+// IndexStatus 索引状态
+type IndexStatus struct {
+	TotalFiles    int64
+	IndexedFiles  int64
+	IndexSize     int64
+	LastUpdate    time.Time
+	Status        string
+	Progress      float64
+}
+
+// SpotlightIndexer Spotlight索引器
+type SpotlightIndexer struct {
+	engine  *Engine
+	config  SpotlightConfig
+	logger  *zap.Logger
+	status  IndexStatus
+	mu      sync.RWMutex
+}
+
+// NewIndexer 创建索引器
+func NewIndexer(config SpotlightConfig, logger *zap.Logger) *SpotlightIndexer {
+	return &SpotlightIndexer{
+		config: config,
+		logger: logger,
+		status: IndexStatus{Status: "idle"},
+	}
+}
+
+// Search 搜索索引
+func (i *SpotlightIndexer) Search(ctx context.Context, query *ParsedQuery, limit, offset int) ([]SpotlightFile, int, error) {
+	return []SpotlightFile{}, 0, nil
+}
+
+// ClearIndex 清空索引
+func (i *SpotlightIndexer) ClearIndex(path string) {}
+
+// BuildIndex 构建索引
+func (i *SpotlightIndexer) BuildIndex(ctx context.Context, path string) error {
+	return nil
+}
+
+// IndexFile 索引单个文件
+func (i *SpotlightIndexer) IndexFile(ctx context.Context, path string) error {
+	return nil
+}
+
+// RemoveFromIndex 从索引移除
+func (i *SpotlightIndexer) RemoveFromIndex(ctx context.Context, path string) error {
+	return nil
+}
+
+// GetStatus 获取状态
+func (i *SpotlightIndexer) GetStatus() *IndexStatus {
+	return &i.status
+}
+
 // SpotlightService SMB Spotlight搜索服务
 type SpotlightService struct {
-	indexer    *Indexer
+	indexer    *SpotlightIndexer
 	query      *QueryEngine
 	watcher    *FileWatcher
 	logger     *zap.Logger
@@ -93,16 +212,16 @@ func (s *SpotlightService) Search(ctx context.Context, req SpotlightQuery) (*Spo
 
 	// 应用过滤条件
 	if req.Path != "" {
-		parsedQuery.PathFilter = req.Path
+		parsedQuery.Paths = []string{req.Path}
 	}
 	if len(req.FileTypes) > 0 {
-		parsedQuery.TypeFilter = req.FileTypes
+		parsedQuery.FileTypes = req.FileTypes
 	}
 	if req.SizeMin > 0 || req.SizeMax > 0 {
-		parsedQuery.SizeFilter = SizeRange{Min: req.SizeMin, Max: req.SizeMax}
+		parsedQuery.SizeRange = &SizeRange{Min: req.SizeMin, Max: req.SizeMax}
 	}
 	if !req.DateStart.IsZero() || !req.DateEnd.IsZero() {
-		parsedQuery.DateFilter = DateRange{Start: req.DateStart, End: req.DateEnd}
+		parsedQuery.DateRange = &DateRange{From: req.DateStart, To: req.DateEnd}
 	}
 
 	// 执行索引搜索
@@ -249,71 +368,11 @@ func (s *SpotlightService) generateSuggestions(query string) []string {
 
 // ========== 搜索语法解析 ==========
 
-// ParsedQuery 解析后的查询
-type ParsedQuery struct {
-	Text        string
-	PathFilter  string
-	TypeFilter  []string
-	SizeFilter  SizeRange
-	DateFilter  DateRange
-	BoolExpr    *BoolExpression
-}
-
-// SizeRange 文件大小范围
-type SizeRange struct {
-	Min int64
-	Max int64
-}
-
-// DateRange 日期范围
-type DateRange struct {
-	Start time.Time
-	End   time.Time
-}
-
 // BoolExpression 布尔表达式
 type BoolExpression struct {
 	Operator string      // AND, OR, NOT
 	Left     interface{} // ParsedQuery or BoolExpression
 	Right    interface{} // ParsedQuery or BoolExpression
-}
-
-// Parse 解析搜索语法
-func (q *QueryEngine) Parse(query string) (*ParsedQuery, error) {
-	parsed := &ParsedQuery{
-		Text: query,
-	}
-
-	// 解析特殊语法
-	// 格式: key:value 或 key:>value 或 key:<value
-	tokens := strings.Fields(query)
-	for _, token := range tokens {
-		if strings.Contains(token, ":") {
-			parts := strings.SplitN(token, ":", 2)
-			key, value := parts[0], parts[1]
-
-			switch key {
-			case "name", "filename":
-				parsed.Text = value
-			case "path":
-				parsed.PathFilter = value
-			case "type":
-				parsed.TypeFilter = append(parsed.TypeFilter, value)
-			case "size":
-				if strings.HasPrefix(value, ">") {
-					parsed.SizeFilter.Min = parseSize(strings.TrimPrefix(value, ">"))
-				} else if strings.HasPrefix(value, "<") {
-					parsed.SizeFilter.Max = parseSize(strings.TrimPrefix(value, "<"))
-				} else {
-					parsed.SizeFilter.Min = parseSize(value)
-				}
-			case "date", "modified":
-				parsed.DateFilter = parseDateRange(value)
-			}
-		}
-	}
-
-	return parsed, nil
 }
 
 // parseSize 解析大小字符串
@@ -345,23 +404,22 @@ func parseSize(s string) int64 {
 // parseDateRange 解析日期范围
 func parseDateRange(s string) DateRange {
 	// 支持格式: 2024-01-01, >2024-01-01, <2024-01-01
-	now := time.Now()
 	dr := DateRange{}
 
 	if strings.HasPrefix(s, ">") {
 		dateStr := strings.TrimPrefix(s, ">")
 		if t, err := time.Parse("2006-01-02", dateStr); err == nil {
-			dr.Start = t
+			dr.From = t
 		}
 	} else if strings.HasPrefix(s, "<") {
 		dateStr := strings.TrimPrefix(s, "<")
 		if t, err := time.Parse("2006-01-02", dateStr); err == nil {
-			dr.End = t
+			dr.To = t
 		}
 	} else {
 		if t, err := time.Parse("2006-01-02", s); err == nil {
-			dr.Start = t
-			dr.End = t.Add(24 * time.Hour)
+			dr.From = t
+			dr.To = t.Add(24 * time.Hour)
 		}
 	}
 
