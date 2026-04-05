@@ -1,29 +1,22 @@
 {
-  "round": 171,
-  "version": "v2.403.0",
+  "round": 173,
+  "version": "v2.405.0",
   "date": "2026-04-05",
   "status": "completed",
-  "ci_status": "pending_trigger",
+  "ci_status": "success",
+  "last_release": "v2.404.0",
   "departments": {
-    "兵部": {"status": "done", "task": "SMB Spotlight集成模块+macOS兼容"},
-    "工部": {"status": "done", "task": "编译验证通过+CI检查"},
-    "刑部": {"status": "done", "task": "go vet安全审计通过"},
-    "礼部": {"status": "done", "task": "CHANGELOG更新v2.403.0"},
-    "户部": {"status": "done", "task": "项目统计: 1202源文件/66.8万行"},
-    "吏部": {"status": "done", "task": "VERSION更新v2.403.0"}
+    "兵部": {"status": "done", "task": "竞品调研深化+新功能设计"},
+    "工部": {"status": "done", "task": "CI验证+Docker优化建议"},
+    "刑部": {"status": "done", "task": "安全审计Round173"},
+    "礼部": {"status": "done", "task": "CHANGELOG更新v2.405.0"},
+    "户部": {"status": "done", "task": "资源统计报告"},
+    "吏部": {"status": "done", "task": "版本发布协调"}
   },
-  "completed_tasks": [
-    "SMB Spotlight集成模块(spotlight_integration.go)",
-    "macOS Spotlight属性映射(kMDItem*)",
-    "内容全文搜索增强",
-    "中文分词支持",
-    "索引状态API",
-    "竞品对标TrueNAS SMB Spotlight"
-  ],
-  "stats": {
-    "go_files": 1202,
-    "code_lines": 668139,
-    "test_files": 364
+  "competitive_research": {
+    "fnos": "飞牛fnOS - 按需唤醒硬盘、Intel核显加速、FN Connect内网穿透",
+    "synology": "群晖DSM - Photos AI、Drive同步、Active Backup、SHR",
+    "truenas": "TrueNAS - NVMe-oF、Ransomware Defense、RAIDZ Expansion"
   },
-  "current_priority": "提交代码+触发CI+发布v2.403.0"
+  "next_priority": "P0: RAIDZ Expansion M106 + 按需唤醒硬盘设计"
 }
