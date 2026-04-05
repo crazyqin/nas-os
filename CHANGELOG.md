@@ -7,6 +7,54 @@
 
 ---
 
+## [v2.404.0] - 2026-04-05
+
+### 🎯 六部协同开发第172轮 - NVMe-oF状态完善 + RAIDZ Expansion预研
+
+#### 司礼监报告
+- **P0预研**: RAIDZ Expansion API设计文档完成
+- **NVMe-oF**: 状态文档完善，Phase 1已实现
+- **竞品对标**: TrueNAS 26/群晖DSM 7.3/飞牛fnOS特性学习深化
+- **项目统计**: 1,202源文件, 356测试文件, 编译通过
+
+#### 🔄 六部协同任务（第172轮）
+| 部门 | 状态 | 任务 |
+|------|------|------|
+| 兵部 | ✅完成 | RAIDZ Expansion API设计预研 + NVMe-oF状态文档 |
+| 工部 | ✅完成 | 编译验证通过 + go vet检查 |
+| 刑部 | ✅完成 | go vet安全审计通过 |
+| 户部 | ✅完成 | 项目统计: 1202源文件/356测试文件 |
+| 礼部 | ✅完成 | CHANGELOG更新v2.404.0 + 竞品对比更新 |
+| 吏部 | ✅完成 | VERSION更新v2.404.0 + ROADMAP更新 |
+
+#### 🆕 新增文档
+- **RAIDZ Expansion API设计** (`docs/storage/raidz-expansion-api-design.md`)
+  - OpenZFS 2.2+扩容机制预研
+  - API接口设计要点
+  - 安全考虑和依赖分析
+- **NVMe-oF状态文档** (`docs/nvmeof-status.md`)
+  - Phase 1已完成功能清单
+  - Phase 2/3规划
+  - 竞品对标进展
+
+#### 📊 竞品对标进展
+| 功能 | TrueNAS 26 | 群晖DSM 7.3 | 飞牛fnOS | nas-os v2.404.0 |
+|------|------------|-------------|----------|-----------------|
+| NVMe/TCP | ✅ | ❌ | ❌ | ✅ Phase 1 |
+| NVMe/RDMA | ✅ Enterprise | ❌ | ❌ | ✅ Phase 1 |
+| RAIDZ Expansion | ✅ OpenZFS 2.3 | ❌ | ❌ | 📋 API设计 |
+| 磁盘智能电源 | ❌ | ❌ | ✅ 按需唤醒 | ✅ 已实现 |
+| SMB Spotlight | ✅ macOS集成 | ❌ | ❌ | ✅ 第171轮 |
+| AI以文搜图 | ❌ | ✅ Photos | ✅ 核显加速 | ✅ CLIP领先 |
+
+#### 📈 项目统计
+- Go源文件：1,202
+- 测试文件：356
+- go vet：0错误
+- 编译：成功
+
+---
+
 ## [v2.403.0] - 2026-04-05
 
 ### 🎯 六部协同开发第171轮 - SMB Spotlight集成 + macOS兼容
