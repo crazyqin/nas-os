@@ -61,6 +61,10 @@ func (d *Dictionary) loadDefaultWords() {
 		"类型", "扩展", "名称", "路径", "位置", "时间", "日期", "今天", "昨天",
 		"明天", "本周", "本月", "本年", "最近", "最新", "历史", "旧版", "新版",
 		"重要", "紧急", "临时", "永久", "公开", "私有", "共享", "加密", "解密",
+		// 新增常用词
+		"管理", "处理器", "服务", "功能", "界面", "操作", "执行", "运行",
+		"监控", "检测", "分析", "处理", "结果", "输出", "输入", "转换",
+		"支持", "兼容", "优化", "性能", "稳定", "可靠", "安全", "高效",
 		// 文件类型相关
 		"文本", "表格", "演示", "幻灯片", "PDF", "Word", "Excel", "PPT",
 		"图片", "JPEG", "PNG", "GIF", "BMP", "TIFF", "RAW", "SVG", "WEBP",
@@ -156,17 +160,18 @@ func (s *Segmenter) Segment(text string) []string {
 	var chineseBuffer string
 	var englishBuffer string
 
-	for i := 0; i < len(text); i++ {
-		char := text[i]
+	// 使用rune处理UTF-8
+	runes := []rune(text)
 
+	for _, r := range runes {
 		// 检查是否为中文字符
-		if isChineseChar(char) {
+		if isChineseRune(r) {
 			// 先处理之前积累的英文
 			if englishBuffer != "" {
 				result = append(result, englishBuffer)
 				englishBuffer = ""
 			}
-			chineseBuffer += string(char)
+			chineseBuffer += string(r)
 		} else {
 			// 先处理之前积累的中文
 			if chineseBuffer != "" {
@@ -176,20 +181,20 @@ func (s *Segmenter) Segment(text string) []string {
 			}
 
 			// 英文/数字/符号处理
-			if char == ' ' || char == '\t' || char == '\n' {
+			if r == ' ' || r == '\t' || r == '\n' {
 				if englishBuffer != "" {
 					result = append(result, englishBuffer)
 					englishBuffer = ""
 				}
-			} else if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') {
-				englishBuffer += string(char)
+			} else if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') {
+				englishBuffer += string(r)
 			} else {
 				// 特殊符号
 				if englishBuffer != "" {
 					result = append(result, englishBuffer)
 					englishBuffer = ""
 				}
-				result = append(result, string(char))
+				result = append(result, string(r))
 			}
 		}
 	}
@@ -209,20 +214,21 @@ func (s *Segmenter) Segment(text string) []string {
 // segmentChinese 中文分词 - 正向最大匹配
 func (s *Segmenter) segmentChinese(text string) []string {
 	var result []string
+	runes := []rune(text)
 	pos := 0
 
-	for pos < len(text) {
+	for pos < len(runes) {
 		// 尝试匹配最长词汇
 		maxMatch := ""
 		matchLen := 0
 
 		// 从最大词长度开始递减尝试
 		for l := s.maxWordLen; l >= 2; l-- {
-			if pos+l > len(text) {
+			if pos+l > len(runes) {
 				continue
 			}
 
-			sub := text[pos : pos+l]
+			sub := string(runes[pos : pos+l])
 			if s.dict.HasWord(sub) {
 				maxMatch = sub
 				matchLen = l
@@ -235,7 +241,7 @@ func (s *Segmenter) segmentChinese(text string) []string {
 			pos += matchLen
 		} else {
 			// 单字切分
-			result = append(result, string(text[pos]))
+			result = append(result, string(runes[pos]))
 			pos++
 		}
 	}
@@ -253,7 +259,8 @@ func (s *Segmenter) SegmentReverse(text string) []string {
 	}
 
 	var result []string
-	pos := len(text)
+	runes := []rune(text)
+	pos := len(runes)
 
 	for pos > 0 {
 		maxMatch := ""
@@ -264,7 +271,7 @@ func (s *Segmenter) SegmentReverse(text string) []string {
 				continue
 			}
 
-			sub := text[pos-l : pos]
+			sub := string(runes[pos-l : pos])
 			if s.dict.HasWord(sub) {
 				maxMatch = sub
 				matchLen = l
@@ -276,7 +283,7 @@ func (s *Segmenter) SegmentReverse(text string) []string {
 			result = append([]string{maxMatch}, result...)
 			pos -= matchLen
 		} else {
-			result = append([]string{string(text[pos-1])}, result...)
+			result = append([]string{string(runes[pos-1])}, result...)
 			pos--
 		}
 	}
@@ -371,6 +378,15 @@ func isChineseChar(c byte) bool {
 	// 中文字符的第一个字节在 0x81-0xFE 范围内
 	// 简化判断：检查是否在高位范围
 	return c >= 0x80
+}
+
+// isChineseRune 判断rune是否为中文字符
+func isChineseRune(r rune) bool {
+	// CJK统一汉字范围
+	// 0x4E00-0x9FFF: CJK统一汉字
+	// 0x3400-0x4DBF: CJK扩展A
+	// 0x20000-0x2A6DF: CJK扩展B (需要特殊处理)
+	return r >= 0x4E00 && r <= 0x9FFF || r >= 0x3400 && r <= 0x4DBF
 }
 
 // NormalizeText 文本规范化
