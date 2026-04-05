@@ -1,22 +1,22 @@
 {
-  "round": 173,
-  "version": "v2.405.0",
+  "round": 174,
+  "version": "v2.406.0",
   "date": "2026-04-05",
-  "status": "completed",
-  "ci_status": "success",
-  "last_release": "v2.404.0",
+  "status": "in_progress",
+  "ci_status": "pending",
+  "last_release": "v2.405.0",
   "departments": {
-    "兵部": {"status": "done", "task": "竞品调研深化+新功能设计"},
-    "工部": {"status": "done", "task": "CI验证+Docker优化建议"},
-    "刑部": {"status": "done", "task": "安全审计Round173"},
-    "礼部": {"status": "done", "task": "CHANGELOG更新v2.405.0"},
-    "户部": {"status": "done", "task": "资源统计报告"},
-    "吏部": {"status": "done", "task": "版本发布协调"}
+    "兵部": {"status": "pending", "task": "按需唤醒硬盘详细设计+RAIDZ Expansion API完善"},
+    "工部": {"status": "pending", "task": "CI验证+编译验证"},
+    "刑部": {"status": "pending", "task": "安全审计Round174"},
+    "礼部": {"status": "pending", "task": "CHANGELOG更新v2.406.0"},
+    "户部": {"status": "pending", "task": "项目统计报告"},
+    "吏部": {"status": "pending", "task": "VERSION+ROADMAP更新"}
   },
   "competitive_research": {
-    "fnos": "飞牛fnOS - 按需唤醒硬盘、Intel核显加速、FN Connect内网穿透",
-    "synology": "群晖DSM - Photos AI、Drive同步、Active Backup、SHR",
-    "truenas": "TrueNAS - NVMe-oF、Ransomware Defense、RAIDZ Expansion"
+    "fnos": "飞牛fnOS 1.1 - 按需唤醒硬盘(智能检测访问模式自动休眠/唤醒)、Intel核显加速、FN Connect免费内网穿透",
+    "synology": "群晖DSM 7.3 - Photos AI、Drive 4.0同步、Active Backup、Tiering分层存储",
+    "truenas": "TrueNAS 26 - NVMe-oF、Ransomware Defense、RAIDZ Expansion(OpenZFS 2.3)、WebShare TrueSearch"
   },
-  "next_priority": "P0: RAIDZ Expansion M106 + 按需唤醒硬盘设计"
+  "next_priority": "P0: 按需唤醒硬盘实现 + RAIDZ Expansion API"
 }
