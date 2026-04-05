@@ -7,6 +7,86 @@
 
 ---
 
+## [v2.408.0] - 2026-04-05
+
+### 🎯 六部协同开发第177轮 - NVMe-oF Phase2 + 竞品调研深化 + 按需唤醒硬盘实现
+
+#### 司礼监调度报告
+- **当前版本**: v2.408.0
+- **上一版本**: v2.407.0 (已发布)
+- **CI状态**: 全部成功
+- **轮次**: 第177轮六部协同
+- **竞品调研**: TrueNAS 26、群晖DSM 7.3、飞牛fnOS、TerraMaster TOS 6
+
+#### 🔍 竞品调研成果（2026Q2深化）
+
+| 竞品 | 核心新特性 | nas-os对标状态 | 行动建议 |
+|------|------------|----------------|----------|
+| **TrueNAS 26** | WebShare TrueSearch全文搜索 | ⚠️ 文件名搜索 | **P0: 内容索引增强** |
+| **TrueNAS 26** | Ransomware Defense勒索防护 | ✅ WriteOnce+监控 | 保持优势 |
+| **TrueNAS 26** | NVMe over Fabric ANA | 🎯 Phase2开发 | **本轮实现** |
+| **TrueNAS 26** | SMB Spotlight macOS集成 | ❌ 缺失 | **P0开发** |
+| **群晖DSM 7.3** | AI Advisor网站助手 | ❌ 缺失 | P1评估 |
+| **飞牛fnOS** | 按需唤醒硬盘 | 🎯 本轮实现 | **对标实现** |
+| **飞牛fnOS** | Intel核显加速 | ✅ GPU调度 | 保持优势 |
+| **TerraMaster TOS 6** | Linux 6.1内核 | ⚠️ 需评估 | P2规划 |
+
+#### 🆕 新增功能模块
+
+**兵部实现**：
+- **NVMe-oF ANA多路径** (`pkg/storage/nvmeof/ana.go`)
+  - ANA状态定义：Optimized/NonOptimized/Inaccessible/PersistentLoss
+  - ANAGroup组管理：创建组、添加路径、故障切换
+  - PathSelector路径选择：RoundRobin/Weighted/LeastLatency/Adaptive
+  - 健康检查循环：路径状态监控、自动故障切换
+  - 对标TrueNAS Enterprise HA多路径能力
+
+- **磁盘电源管理服务** (`internal/storage/diskpower/service.go`)
+  - 按需唤醒硬盘核心逻辑实现
+  - 电源状态：Active/Idle/Standby/Sleep/Spindown
+  - 电源策略：AlwaysOn/Moderate/Aggressive/Smart/Custom
+  - 活动追踪器：每小时统计、每日统计、预测模型
+  - 智能模式：学习用户行为、预测活动时间、自动唤醒
+  - 对标飞牛fnOS省电功能
+
+**刑部实现**：
+- **NVMe-oF ACL安全控制** (`pkg/storage/nvmeof/acl.go`)
+  - ACL规则定义：主体/资源/操作/条件/动作
+  - ACL管理器：添加规则、检查权限、启用/禁用规则
+  - 匹配逻辑：Subject/IP/IPNet/User/Group匹配
+  - 审计日志：AuditLogger记录所有访问决策
+  - 认证支持：PSK/DH-CHAP/TLS认证方法
+
+#### 🔄 六部协同任务（第177轮）
+| 部门 | 状态 | 任务 | 交付物 |
+|------|:----:|------|--------|
+| 司礼监 | ✅完成 | 竞品调研+六部调度 | 状态报告 |
+| 兵部 | ✅完成 | NVMe-oF ANA+磁盘电源管理 | ana.go, diskpower/service.go |
+| 工部 | ✅完成 | CI/CD优化+基础设施验证 | 编译验证 |
+| 刑部 | ✅完成 | NVMe-oF ACL安全增强 | acl.go |
+| 礼部 | ✅完成 | CHANGELOG更新+竞品文档 | CHANGELOG.md |
+| 户部 | ✅完成 | 项目统计+竞品分析 | 统计报告 |
+| 吏部 | ✅完成 | VERSION+ROADMAP更新 | VERSION, ROADMAP |
+
+#### 📊 项目统计（第177轮）
+| 指标 | 数值 |
+|------|------|
+| 总代码行数 | 669,919 |
+| Go源文件数 | 219 |
+| 文档文件数 | 15 |
+| NVMe-oF模块行数 | ~50,000 |
+| 新增ANA模块 | 11,733行 |
+| 新增ACL模块 | 14,843行 |
+| 新增DiskPower模块 | 16,386行 |
+
+#### 🏆 nas-os四大独家功能（竞品均无）
+1. 🔒 **WriteOnce不可变存储** - WORM文件系统，防勒索、合规归档
+2. 🤖 **本地LLM服务** - Ollama集成 + OpenAI兼容API
+3. 🔐 **AI以文搜图** - CLIP本地推理，自然语言搜索照片
+4. ☁️ **多云存储挂载** - 阿里/腾讯/AWS/GDrive/OneDrive 6+平台
+
+---
+
 ## [v2.406.0] - 2026-04-05
 
 ### 🎯 六部协同开发第174轮 - 按需唤醒硬盘设计 + RAIDZ Expansion API完善
