@@ -241,7 +241,8 @@ func TestAnomalyDetector(t *testing.T) {
 			activity: &FileActivity{
 				EventType: ActivityRead,
 				User:      "normal",
-				Timestamp: time.Now(),
+				// 使用工作时间（10:00）避免非工作时间误判
+				Timestamp: time.Date(2024, 1, 15, 10, 0, 0, 0, time.UTC),
 			},
 			expect: false,
 		},
@@ -251,7 +252,8 @@ func TestAnomalyDetector(t *testing.T) {
 				EventType: ActivityCreate,
 				User:      "suspicious",
 				FileType:  ".exe",
-				Timestamp: time.Now(),
+				// 使用工作时间避免非工作时间误判
+				Timestamp: time.Date(2024, 1, 15, 10, 0, 0, 0, time.UTC),
 			},
 			expect: true,
 		},
@@ -261,7 +263,8 @@ func TestAnomalyDetector(t *testing.T) {
 				EventType: ActivityModify,
 				User:      "malware",
 				FileType:  ".encrypted",
-				Timestamp: time.Now(),
+				// 使用工作时间避免非工作时间误判
+				Timestamp: time.Date(2024, 1, 15, 10, 0, 0, 0, time.UTC),
 			},
 			expect: true,
 		},
