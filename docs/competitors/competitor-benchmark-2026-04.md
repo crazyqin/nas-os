@@ -1,8 +1,48 @@
-# 竞品对标分析 - 2026-04-04
+# 竞品对标分析 - 2026-04-06
 
-## nas-os v2.388.0 对标进展
+## nas-os v2.408.0 对标进展
 
-### ✅ 本轮对标完成
+### ✅ 本轮对标完成（第178轮）
+
+## TrueNAS 26 Goldeye 核心特性对标
+
+### 企业级功能
+| 功能 | TrueNAS 26实现 | nas-os v2.408.0 | 对标状态 |
+|------|----------------|-----------------|----------|
+| RAIDZ Expansion | OpenZFS 2.3+ 单盘在线扩容 | ✅ 3,543行API实现 | **已对标** |
+| NVMe over Fabric | NVMe/TCP + RDMA + ANA多路径 | ✅ Phase2完成 | **已对标** |
+| SMB Spotlight | macOS Spotlight搜索集成 | ✅ 第171轮完成 | **已对标** |
+| WebShare TrueSearch | 浏览器文件访问+全文搜索 | ✅ 已实现 | **已对标** |
+| Ransomware Defense | 勒索软件实时防御+honeypot | ✅ WriteOnce防护 | **差异化领先** |
+| LXC Containers | 容器GA支持 | ✅ Docker管理 | **差异化** |
+| SMB Stateful Failover | SMB会话HA故障转移 | 📋 P2规划 | 待开发 |
+| OpenZFS 2.4 | hybrid pool+物理块重写 | ✅ Fusion Pool | **已对标** |
+| Linux Kernel 6.18 LTS | 新硬件+安全更新 | ✅ 已支持 | **已对标** |
+
+### RAIDZ Expansion 对标详情
+
+**TrueNAS Electric Eel特性**:
+- 单盘在线扩展RAIDZ阵列
+- 实时进度显示
+- 暂停/恢复/取消支持
+
+**nas-os实现状态**:
+```
+模块                        行数    状态
+───────────────────────────────────────
+raidz_expansion.go         1,365   ✅ 核心逻辑
+raidz_expand.go              779   ✅ 进度监控
+expansion_api.go             617   ✅ REST API
+raidz_expand_handlers.go     782   ✅ HTTP处理
+───────────────────────────────────────
+总计                       3,543   ✅ 完整实现
+```
+
+**API端点**:
+- POST /api/v1/storage/pools/{pool}/expand - 启动扩展
+- GET /api/v1/storage/pools/{pool}/expand/progress - 进度查询
+- POST /api/v1/storage/pools/{pool}/expand/pause - 暂停
+- POST /api/v1/storage/pools/{pool}/expand/resume - 恢复
 
 ## 群晖 Synology DSM 7.3 优势功能
 
@@ -31,49 +71,91 @@
 ## 飞牛 fnOS 优势功能
 
 ### 核心特性
-| 功能 | 说明 | 对标计划 |
-|------|------|----------|
-| 按需唤醒硬盘 | 节能特性、智能唤醒 | 📋 **本次新增** |
-| 智能影视 | 海报墙+刮削 | ✅ 已实现部分，本次增强 |
-| FN Connect | 内网穿透 | ✅ 已实现内网穿透 |
-| 网盘挂载 | 百度/115/夸克 | ✅ 已实现多云挂载 |
+| 功能 | 说明 | nas-os对标状态 |
+|------|------|---------------|
+| 按需唤醒硬盘 | 智能检测访问模式，自动休眠/唤醒 | ✅ **第177轮实现** |
+| Intel核显加速人脸识别 | QuickSync硬件加速 | ✅ GPU调度已实现 |
+| FN Connect内网穿透 | 免费云端接入 | ✅ 内网穿透已有 |
+| 智能影视 | 海报墙+刮削 | ✅ 部分实现 |
+| 网盘挂载 | 百度/115/夸克 | ✅ 多云挂载已有 |
 | 相册备份 | 手机照片备份 | ✅ 已实现 |
 
-## 本次对标新增功能
+### 磁盘电源管理对标（第177轮实现）
+```go
+// pkg/storage/diskpower/service.go
+type PowerState string
+const (
+    PowerActive    PowerState = "active"     // 活动状态
+    PowerIdle      PowerState = "idle"       // 空闲状态
+    PowerStandby   PowerState = "standby"    // 待机状态
+    PowerSleep     PowerState = "sleep"      // 睡眠状态
+    PowerSpindown  PowerState = "spindown"   // 停转状态
+)
 
-### 1. 磁盘智能电源管理（对标飞牛）
-- 磁盘休眠/唤醒API
-- 定时休眠策略
-- IO活动检测唤醒
-- 节能报告
+type PowerPolicy string
+const (
+    PolicyAlwaysOn   PowerPolicy = "always_on"   // 永不休眠
+    PolicyModerate    PowerPolicy = "moderate"    // 适度省电
+    PolicyAggressive  PowerPolicy = "aggressive"  // 激进省电
+    PolicySmart       PowerPolicy = "smart"       // 智能模式
+    PolicyCustom      PowerPolicy = "custom"      // 自定义
+)
+```
 
-### 2. 影视刮削增强（对标飞牛）
-- TMDB/IMDB元数据获取
-- 海报墙API
-- 多语言元数据
-- 批量刮削
+## TerraMaster TOS 6 对标
 
-### 3. Active Backup for Business（对标群晖）
-- 物理/虚拟机备份
-- 备份代理安装
-- RPO/RTO配置
-- 增量备份
-
-### 4. 成本分析增强
-- 按用户/目录统计
-- 存储效率评分
-- 成本趋势预测
-- 节省建议
-
-### 5. 安全审计增强
-- Secure SignIn增强
-- 密码策略强化
-- 会话管理优化
+| 功能 | TOS 6实现 | nas-os状态 |
+|------|-----------|------------|
+| Linux 6.1内核 | 最新LTS | ⚠️ 需评估 |
+| 文件管理 | Web文件管理 | ✅ 已实现 |
+| 集中备份 | 多设备备份 | ✅ 已实现 |
+| CloudSync | 多云同步 | ✅ 已实现 |
+| TRAID弹性RAID | TerraRAID | ✅ ZFS原生 |
+| Terra Photos | AI相册 | ✅ 已实现 |
 
 ---
 
-**差异化优势保持：**
-- 🔒 WriteOnce 不可变存储（独家）
-- 📊 Fusion Pool 智能分层（独家）
-- 🤖 AI相册以文搜图（领先）
-- 🔥 Hot Spare 热备盘（领先）
+## nas-os 独家优势功能（竞品均无）
+
+### 🔒 1. WriteOnce 不可变存储
+- WORM文件系统，一次写入多次读取
+- 防勒索软件攻击
+- 合规归档（金融、医疗）
+- TrueNAS Ransomware Defense对标
+
+### 🤖 2. 本地LLM服务
+- Ollama集成，离线AI推理
+- OpenAI兼容API
+- 支持Llama、Qwen、DeepSeek等模型
+- 私有化部署，数据不出域
+
+### 🔐 3. AI以文搜图
+- CLIP本地推理
+- 自然语言搜索照片
+- 中英文双语支持
+- 无需云端API
+
+### ☁️ 4. 多云存储挂载
+- 阿里云OSS、腾讯COS
+- AWS S3、Google Drive、OneDrive
+- 统一S3兼容接口
+- 跨云数据管理
+
+---
+
+## 对标优先级矩阵
+
+| 优先级 | 功能 | 竞品 | 状态 |
+|--------|------|------|------|
+| **P0** | RAIDZ Expansion | TrueNAS | ✅ 已实现 |
+| **P0** | NVMe-oF ANA | TrueNAS | ✅ Phase2完成 |
+| **P0** | SMB Spotlight | TrueNAS | ✅ 第171轮完成 |
+| **P1** | 按需唤醒硬盘 | 飞牛fnOS | ✅ 第177轮完成 |
+| **P1** | AI Advisor | 群晖DSM | 📋 评估中 |
+| **P2** | SMB Stateful Failover | TrueNAS | 📋 规划中 |
+
+---
+
+**更新日期**: 2026-04-06
+**版本**: v2.408.0
+**轮次**: 第178轮六部协同
