@@ -7,67 +7,51 @@
 
 ---
 
-## [v2.407.0] - 2026-04-05
+## [v2.406.0] - 2026-04-05
 
-### 🎯 六部协同开发第175轮 - 竞品调研深化 + RAIDZ Expansion API设计
+### 🎯 六部协同开发第174轮 - 按需唤醒硬盘设计 + RAIDZ Expansion API完善
 
 #### 司礼监调度报告
-- **当前版本**: v2.407.0
-- **上一版本**: v2.406.0
-- **CI状态**: 编译通过、go vet通过
-- **轮次**: 第175轮六部协同
+- **当前版本**: v2.406.0
+- **上一版本**: v2.405.0 (已发布)
+- **CI状态**: 全部成功
+- **轮次**: 第174轮六部协同
 
-#### 📊 竞品调研深化（本轮重点）
+#### 🆕 新增设计文档
+- **磁盘电源管理设计** (`docs/storage/disk-power-management-design.md`)
+  - 对标飞牛fnOS按需唤醒硬盘功能
+  - 智能休眠策略：访问模式检测、空闲计时
+  - REST API设计：DiskPowerState, PowerPolicy
+  - 实现计划：M1监控服务→M2 API→M3 WebUI→M4测试
 
-**TrueNAS 24.10 Electric Eel 核心特性对标：**
-| 特性 | TrueNAS实现 | nas-os状态 | 优先级 |
-|------|-------------|-----------|--------|
-| RAIDZ Expansion | OpenZFS单盘扩容 | 📋 API设计中 | P0 |
-| Docker Apps迁移 | 从K8s迁移到Docker | ✅ 已有Docker架构 | 完成 |
-| TrueCloud Backup | Storj云端备份 | 📋 P1规划 | 中 |
-| Global Search | 全局UI搜索 | ✅ WebShare已实现 | 完成 |
-| Dashboard重设计 | widgets+定制化 | ✅ 已实现 | 完成 |
-| NVMe S.M.A.R.T. UI | UI支持测试 | ✅ 已实现 | 完成 |
+- **RAIDZ Expansion API完善** (`docs/storage/raidz-expansion-api-design.md`)
+  - OpenZFS 2.2+扩容机制预研
+  - ExpansionRequest/ExpansionProgress数据结构
+  - 实现计划：M1 API→M2核心逻辑→M3 WebUI→M4测试
 
-**TrueNAS 25.10 Goldeye 核心特性对标：**
-| 特性 | TrueNAS实现 | nas-os状态 | 优先级 |
-|------|-------------|-----------|--------|
-| NVMe over Fabric | NVMe/TCP + RDMA | ✅ Phase 1完成 | 增强 |
-| 400GbE网络支持 | 高速网络驱动 | 📋 P2规划 | 低 |
-| VM Secure Boot | 安全启动支持 | 📋 预研中 | P1 |
-| 多格式磁盘导入 | QCOW2/VMDK等 | 📋 P1规划 | 中 |
-| NVIDIA Open GPU | Blackwell架构 | ✅ GPU调度已有 | 完成 |
-
-**群晖Synology DSM 核心特性对标：**
-| 特性 | DSM实现 | nas-os状态 | 优先级 |
-|------|---------|-----------|--------|
-| Synology Photos AI | 智能相册+人脸识别 | ✅ 已实现 | 完成 |
-| Drive同步 | 多设备文件同步 | 📋 P1设计 | 高 |
-| Hybrid Share | 本地+云端混合存储 | 📋 P2规划 | 中 |
-| Active Backup | 整机备份方案 | 📋 P1设计 | 高 |
-| Active Insight | 集群监控平台 | ✅ FleetManager已有 | 完成 |
-| High Availability | 主备集群HA | 📋 P2规划 | 中 |
-
-#### 🔄 六部协同任务（第175轮）
+#### 🔄 六部协同任务（第174轮）
 | 部门 | 状态 | 任务 |
 |------|------|------|
-| 兵部 | ✅完成 | RAIDZ Expansion API设计文档完善 |
-| 工部 | ✅完成 | CI验证通过 + NVMe-oF状态文档 |
-| 刑部 | ✅完成 | 安全审计通过 + VM Secure Boot预研文档 |
-| 礼部 | ✅完成 | CHANGELOG更新v2.407.0 |
-| 户部 | ✅完成 | 项目统计: 1201源文件/66.8万行/355测试 |
-| 吏部 | ✅完成 | VERSION更新v2.407.0 |
+| 兵部 | ✅完成 | 按需唤醒硬盘设计+RAIDZ Expansion API完善 |
+| 工部 | ✅完成 | CI验证+编译验证 |
+| 刑部 | ✅完成 | 安全审计Round174 |
+| 礼部 | ✅完成 | CHANGELOG更新v2.406.0 |
+| 户部 | ✅完成 | 项目统计报告 |
+| 吏部 | ✅完成 | VERSION+ROADMAP更新 |
+
+#### 📊 竞品对标进展
+| 功能 | 飞牛fnOS | 群晖DSM | TrueNAS | nas-os v2.406.0 |
+|------|:--------:|:-------:|:-------:|:---------------:|
+| 按需唤醒硬盘 | ✅ | ❌ | ❌ | 📋 设计完成 |
+| RAIDZ Expansion | ❌ | ❌ | ✅ | 📋 API设计 |
+| NVMe-oF | ❌ | ❌ | ✅ | ✅ Phase1 |
+| Photos AI | ❌ | ✅ | ❌ | ✅ 已实现 |
+| 内网穿透 | ✅ FN Connect | ❌ | ✅ | 🚧 开发中 |
 
 #### 🛡️ 安全审计摘要
 - go vet扫描通过
-- 编译验证成功
-- 无安全警告
-
-#### 📈 项目统计
-- 源文件: 1,201个Go文件
-- 代码行数: 668,114行
-- 测试文件: 355个
-- 编译状态: ✅ 通过
+- CI全部成功
+- 无硬编码敏感信息
 
 ---
 
