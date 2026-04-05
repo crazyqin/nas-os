@@ -1,1 +1,22 @@
-{"round":164,"version":"v2.395.0","date":"2026-04-04","status":"completing","ci_status":"idle","departments":{"兵部":{"status":"done","task":"TrueNAS26竞品调研"},"工部":{"status":"running","task":"CI/CD报告"},"刑部":{"status":"done","task":"安全修复"},"礼部":{"status":"running","task":"CHANGELOG"},"户部":{"status":"running","task":"资源统计"}},"completed_tasks":["整数解析错误修复","版本更新v2.395.0","CHANGELOG更新","竞品调研TrueNAS26/Synology/TerraMaster"],"current_priority":"等待子代理完成后提交"}
+{
+  "round": 171,
+  "version": "v2.403.0",
+  "date": "2026-04-05",
+  "status": "in_progress",
+  "ci_status": "pending",
+  "departments": {
+    "兵部": {"status": "working", "task": "SMB Spotlight设计+WebShare内容搜索"},
+    "工部": {"status": "working", "task": "CI验证+Docker优化"},
+    "刑部": {"status": "working", "task": "安全审计Round171"},
+    "礼部": {"status": "working", "task": "CHANGELOG更新v2.403.0"},
+    "户部": {"status": "working", "task": "项目统计"},
+    "吏部": {"status": "working", "task": "VERSION更新v2.403.0"}
+  },
+  "priority_tasks": [
+    "P0: SMB Spotlight Search设计(macOS集成)",
+    "P0: WebShare内容索引搜索增强",
+    "P1: WriteOnce+勒索监控联动设计",
+    "竞品学习: TrueNAS 26/群晖DSM/飞牛fnOS"
+  ],
+  "current_priority": "P0核心对标开发"
+}
