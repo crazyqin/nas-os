@@ -50,6 +50,8 @@ type ParsedQuery struct {
 	Raw string `json:"raw"`
 	// 搜索关键词
 	Terms []string `json:"terms"`
+	// 关键词（中文分词结果）
+	Keywords []string `json:"keywords"`
 	// 必须包含的词（+前缀）
 	MustTerms []string `json:"mustTerms"`
 	// 排除词（-前缀）
@@ -72,6 +74,10 @@ type ParsedQuery struct {
 	ExactMatch bool `json:"exactMatch"`
 	// 布尔操作符
 	Operator QueryOperator `json:"operator"`
+	// 操作符列表（用于语义搜索）
+	Operators []string `json:"operators"`
+	// 搜索文本（用于全文搜索）
+	Text string `json:"text"`
 }
 
 // QueryOperator 查询操作符.
