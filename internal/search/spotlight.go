@@ -336,9 +336,9 @@ func (s *SpotlightService) semanticSearchFallback(ctx context.Context, query str
 
 	// 使用扩展词搜索
 	parsedQuery := &ParsedQuery{
-		Text:      strings.Join(expandedTerms, " "),
+		Raw:       strings.Join(expandedTerms, " "),
+		Terms:     expandedTerms,
 		Keywords:  expandedTerms,
-		Operators: []string{"OR"},
 	}
 
 	files, total, _ := s.indexer.Search(ctx, parsedQuery, limit, 0)

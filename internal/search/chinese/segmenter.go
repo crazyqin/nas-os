@@ -488,3 +488,10 @@ func (s *Segmenter) SetMaxWordLen(len int) {
 	defer s.mu.Unlock()
 	s.maxWordLen = len
 }
+
+// GetMaxWordLen 获取最大词长度
+func (s *Segmenter) GetMaxWordLen() int {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.maxWordLen
+}
