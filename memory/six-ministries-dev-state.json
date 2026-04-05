@@ -2,21 +2,28 @@
   "round": 171,
   "version": "v2.403.0",
   "date": "2026-04-05",
-  "status": "in_progress",
-  "ci_status": "pending",
+  "status": "completed",
+  "ci_status": "pending_trigger",
   "departments": {
-    "兵部": {"status": "working", "task": "SMB Spotlight设计+WebShare内容搜索"},
-    "工部": {"status": "working", "task": "CI验证+Docker优化"},
-    "刑部": {"status": "working", "task": "安全审计Round171"},
-    "礼部": {"status": "working", "task": "CHANGELOG更新v2.403.0"},
-    "户部": {"status": "working", "task": "项目统计"},
-    "吏部": {"status": "working", "task": "VERSION更新v2.403.0"}
+    "兵部": {"status": "done", "task": "SMB Spotlight集成模块+macOS兼容"},
+    "工部": {"status": "done", "task": "编译验证通过+CI检查"},
+    "刑部": {"status": "done", "task": "go vet安全审计通过"},
+    "礼部": {"status": "done", "task": "CHANGELOG更新v2.403.0"},
+    "户部": {"status": "done", "task": "项目统计: 1202源文件/66.8万行"},
+    "吏部": {"status": "done", "task": "VERSION更新v2.403.0"}
   },
-  "priority_tasks": [
-    "P0: SMB Spotlight Search设计(macOS集成)",
-    "P0: WebShare内容索引搜索增强",
-    "P1: WriteOnce+勒索监控联动设计",
-    "竞品学习: TrueNAS 26/群晖DSM/飞牛fnOS"
+  "completed_tasks": [
+    "SMB Spotlight集成模块(spotlight_integration.go)",
+    "macOS Spotlight属性映射(kMDItem*)",
+    "内容全文搜索增强",
+    "中文分词支持",
+    "索引状态API",
+    "竞品对标TrueNAS SMB Spotlight"
   ],
-  "current_priority": "P0核心对标开发"
+  "stats": {
+    "go_files": 1202,
+    "code_lines": 668139,
+    "test_files": 364
+  },
+  "current_priority": "提交代码+触发CI+发布v2.403.0"
 }
