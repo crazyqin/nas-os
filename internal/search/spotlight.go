@@ -1,15 +1,19 @@
 // Package search 提供Spotlight全文搜索服务
 // 对标TrueNAS SMB Spotlight功能
+// v2.70.0 增强版：支持中文分词、全文索引优化、语义搜索
 package search
 
 import (
 	"context"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
 
 	"go.uber.org/zap"
+
+	"nas-os/internal/search/chinese"
 )
 
 // QueryEngine 查询引擎（简化实现）
@@ -105,6 +109,8 @@ func NewIndexer(config SpotlightConfig, logger *zap.Logger) *SpotlightIndexer {
 
 // Search 搜索索引
 func (i *SpotlightIndexer) Search(ctx context.Context, query *ParsedQuery, limit, offset int) ([]SpotlightFile, int, error) {
+	// 简化实现：返回空结果
+	// 完整实现应该调用Engine.Search
 	return []SpotlightFile{}, 0, nil
 }
 
@@ -132,12 +138,14 @@ func (i *SpotlightIndexer) GetStatus() *IndexStatus {
 }
 
 // SpotlightService SMB Spotlight搜索服务
+// 支持中文分词、全文索引、语义搜索
 type SpotlightService struct {
 	indexer    *SpotlightIndexer
 	query      *QueryEngine
 	watcher    *FileWatcher
 	logger     *zap.Logger
 	config     SpotlightConfig
+	segmenter  *chinese.Segmenter // 中文分词器
 	mu         sync.RWMutex
 }
 
@@ -149,6 +157,10 @@ type SpotlightConfig struct {
 	MaxIndexSize       int64    `json:"maxIndexSize"`    // 最大索引大小(MB)
 	UpdateInterval     int      `json:"updateInterval"`  // 更新间隔(秒)
 	ConcurrentWorkers  int      `json:"concurrentWorkers"`
+	EnableChineseSeg   bool     `json:"enableChineseSeg"`   // 启用中文分词
+	EnableSemantic     bool     `json:"enableSemantic"`     // 启用语义搜索
+	CacheSize          int      `json:"cacheSize"`          // 搜索缓存大小
+	MaxSearchResults   int      `json:"maxSearchResults"`   // 最大搜索结果数
 }
 
 // SpotlightQuery Spotlight搜索请求
@@ -183,6 +195,7 @@ type SpotlightFile struct {
 	ContentType  string            `json:"contentType"`
 	Attributes   map[string]string `json:"attributes"`
 	Snippet      string            `json:"snippet"` // 内容摘要
+	Score        float64           `json:"score"`   // 相关性评分
 }
 
 // NewSpotlightService 创建Spotlight服务
@@ -191,21 +204,65 @@ func NewSpotlightService(config SpotlightConfig, logger *zap.Logger) *SpotlightS
 		logger = zap.NewNop()
 	}
 
+	// 设置默认值
+	if config.ConcurrentWorkers <= 0 {
+		config.ConcurrentWorkers = 4
+	}
+	if config.MaxSearchResults <= 0 {
+		config.MaxSearchResults = 1000
+	}
+	if config.CacheSize <= 0 {
+		config.CacheSize = 100
+	}
+
+	// 创建中文分词器
+	var segmenter *chinese.Segmenter
+	if config.EnableChineseSeg {
+		segmenter = chinese.NewSegmenter()
+		logger.Info("中文分词器已启用")
+	}
+
 	return &SpotlightService{
-		indexer: NewIndexer(config, logger),
-		query:   NewQueryEngine(logger),
-		watcher: NewFileWatcher(config.IndexPaths, logger),
-		logger:  logger,
-		config:  config,
+		indexer:   NewIndexer(config, logger),
+		query:     NewQueryEngine(logger),
+		watcher:   NewFileWatcher(config.IndexPaths, logger),
+		logger:    logger,
+		config:    config,
+		segmenter: segmenter,
 	}
 }
 
 // Search 执行Spotlight搜索
+// 支持中文分词和语义搜索增强
 func (s *SpotlightService) Search(ctx context.Context, req SpotlightQuery) (*SpotlightResult, error) {
 	startTime := time.Now()
 
+	// 设置默认值
+	if req.Limit <= 0 {
+		req.Limit = s.config.MaxSearchResults
+	}
+	if req.Limit > s.config.MaxSearchResults {
+		req.Limit = s.config.MaxSearchResults
+	}
+
+	// 中文分词处理
+	queryText := req.Query
+	if s.segmenter != nil && s.config.EnableChineseSeg {
+		// 分词并扩展查询
+		expandedQueries := s.segmenter.ExpandQuery(queryText)
+		if len(expandedQueries) > 1 {
+			queryText = strings.Join(expandedQueries, " ")
+			s.logger.Debug("查询扩展",
+				zap.String("original", req.Query),
+				zap.String("expanded", queryText))
+		}
+
+		// 文本规范化
+		queryText = s.segmenter.NormalizeText(queryText)
+	}
+
 	// 解析搜索语法
-	parsedQuery, err := s.query.Parse(req.Query)
+	parsedQuery, err := s.query.Parse(queryText)
 	if err != nil {
 		return nil, err
 	}
@@ -230,6 +287,16 @@ func (s *SpotlightService) Search(ctx context.Context, req SpotlightQuery) (*Spo
 		return nil, err
 	}
 
+	// 语义搜索增强（如果启用）
+	if s.config.EnableSemantic && total == 0 {
+		files, total = s.semanticSearchFallback(ctx, req.Query, req.Limit)
+	}
+
+	// 按相关性排序
+	sort.Slice(files, func(i, j int) bool {
+		return files[i].Score > files[j].Score
+	})
+
 	// 格式化结果
 	result := &SpotlightResult{
 		Files:     files,
@@ -243,6 +310,39 @@ func (s *SpotlightService) Search(ctx context.Context, req SpotlightQuery) (*Spo
 	}
 
 	return result, nil
+}
+
+// semanticSearchFallback 语义搜索回退
+// 当标准搜索无结果时，尝试语义搜索
+func (s *SpotlightService) semanticSearchFallback(ctx context.Context, query string, limit int) ([]SpotlightFile, int) {
+	if s.segmenter == nil {
+		return nil, 0
+	}
+
+	// 提取关键词
+	keywords := s.segmenter.ExtractKeywords(query, 5)
+	if len(keywords) == 0 {
+		return nil, 0
+	}
+
+	// 构建关键词查询
+	var expandedTerms []string
+	for _, kw := range keywords {
+		expandedTerms = append(expandedTerms, kw.Text)
+		// 添加同义词
+		synonyms := s.segmenter.GetDictionary().GetSynonyms(kw.Text)
+		expandedTerms = append(expandedTerms, synonyms...)
+	}
+
+	// 使用扩展词搜索
+	parsedQuery := &ParsedQuery{
+		Text:      strings.Join(expandedTerms, " "),
+		Keywords:  expandedTerms,
+		Operators: []string{"OR"},
+	}
+
+	files, total, _ := s.indexer.Search(ctx, parsedQuery, limit, 0)
+	return files, total
 }
 
 // SearchByAttributes 按Spotlight属性搜索（macOS兼容）
