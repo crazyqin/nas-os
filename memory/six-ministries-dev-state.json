@@ -1,90 +1,83 @@
 {
-  "round": 177,
-  "version": "v2.408.0",
-  "date": "2026-04-05",
-  "status": "completed",
+  "round": 181,
+  "version": "v2.411.0",
+  "date": "2026-04-06",
+  "status": "in_progress",
   "ci_status": "all_success",
-  "last_release": "v2.407.0",
+  "last_release": "v2.410.0",
   "competitive_research": {
     "fnos": {
       "features": ["按需唤醒硬盘", "Intel核显加速人脸识别", "FN Connect免费内网穿透"],
-      "priority": "按需唤醒硬盘 P0实现",
+      "priority": "按需唤醒硬盘已实现v2.381.0",
       "new_insights": ["飞牛强调节能省电", "核显加速是差异化卖点"]
     },
     "synology": {
       "features": ["Photos AI智能相册", "Drive同步", "Active Backup整机备份", "AI Advisor网站助手"],
       "priority": "Photos AI已实现, Drive/Backup P1规划",
-      "new_insights": ["AI Advisor是2026新特性", "网站智能助手提升用户体验"]
+      "new_insights": ["AI Advisor是2026新特性", "群晖DSM 7.3共享标签系统"]
     },
     "truenas": {
-      "features": ["NVMe over Fabric", "RAIDZ Expansion", "Ransomware Defense", "AI工作负载加速", "WebShare TrueSearch", "SMB Spotlight"],
-      "priority": "NVMe-oF Phase1完成, Phase2规划中",
+      "features": ["NVMe over Fabric", "RAIDZ Expansion", "Ransomware Defense", "WebShare TrueSearch", "SMB Spotlight"],
+      "priority": "NVMe-oF Phase2开发中, RAIDZ Expansion P0规划",
       "new_insights": ["TrueNAS 26强化内容搜索", "SMB Spotlight对标macOS体验"]
-    },
-    "terramaster": {
-      "features": ["Linux 6.1内核", "TRAID灵活阵列", "Terra Photos", "Terra Search"],
-      "priority": "内核升级评估",
-      "new_insights": ["TOS 6新文件管理", "TRAID类似btrfs"]
     }
   },
   "departments": {
     "兵部": {
       "status": "assigned",
-      "task": "NVMe-oF Phase2 ANA多路径实现 + 按需唤醒硬盘核心逻辑",
-      "details": ["nvmeof_ana.go实现ANA多路径", "diskpower实现硬盘唤醒策略", "对标飞牛省电功能"],
-      "assigned": "2026-04-05T15:05:00Z"
+      "task": "RAIDZ Expansion API设计完善 + NVMe-oF Phase2 ANA多路径",
+      "details": ["RAIDZ扩容API框架", "NVMe-oF ANA多路径实现", "对标TrueNAS 25.10"],
+      "assigned": "2026-04-06T15:00:00Z"
     },
     "工部": {
       "status": "assigned",
-      "task": "CI/CD优化 + Docker构建性能提升 + NVMe-oF基础设施",
-      "details": ["构建缓存优化", "多架构镜像加速", "nvmeof依赖包"],
-      "assigned": "2026-04-05T15:05:00Z"
+      "task": "CI/CD稳定性保障 + Docker构建优化",
+      "details": ["构建缓存优化", "多架构镜像加速", "依赖更新检查"],
+      "assigned": "2026-04-06T15:00:00Z"
     },
     "刑部": {
       "status": "assigned",
-      "task": "安全审计Round177 + NVMe-oF安全增强(ACL/认证)",
-      "details": ["NVMe-oF访问控制", "认证机制设计", "golangci-lint修复"],
-      "assigned": "2026-04-05T15:05:00Z"
+      "task": "安全审计Round181 + WriteOnce合规验证",
+      "details": ["代码安全扫描", "WriteOnce审计日志", "合规报告"],
+      "assigned": "2026-04-06T15:00:00Z"
     },
     "礼部": {
       "status": "assigned",
-      "task": "CHANGELOG更新v2.408.0 + 竞品功能对标文档整理",
-      "details": ["竞品调研报告更新", "README四大独家功能强调", "发布说明撰写"],
-      "assigned": "2026-04-05T15:05:00Z"
+      "task": "CHANGELOG更新v2.411.0 + README竞品对标更新",
+      "details": ["版本发布说明", "竞品对比矩阵更新", "文档同步"],
+      "assigned": "2026-04-06T15:00:00Z"
     },
     "户部": {
       "status": "assigned",
-      "task": "项目统计 + 竞品价格/功能矩阵分析",
-      "details": ["代码行数统计", "竞品定价分析", "功能对比矩阵"],
-      "assigned": "2026-04-05T15:05:00Z"
+      "task": "项目统计 + 存储成本分析优化",
+      "details": ["代码行数统计", "成本趋势分析", "资源使用报告"],
+      "assigned": "2026-04-06T15:00:00Z"
     },
     "吏部": {
       "status": "assigned",
-      "task": "VERSION更新v2.408.0 + ROADMAP里程碑调整",
-      "details": ["版本号更新", "里程碑文档同步", "ROADMAP.md更新"],
-      "assigned": "2026-04-05T15:05:00Z"
+      "task": "VERSION更新v2.411.0 + MILESTONES里程碑记录",
+      "details": ["版本号更新", "里程碑文档同步", "六部协调"],
+      "assigned": "2026-04-06T15:00:00Z"
     }
   },
   "deliverables": {
-    "nvmeof_ana": "pkg/storage/nvmeof/ana.go",
-    "nvmeof_acl": "pkg/storage/nvmeof/acl.go",
-    "disk_power_impl": "internal/storage/diskpower/service.go",
+    "version": "VERSION",
     "changelog": "CHANGELOG.md",
-    "version": "VERSION"
+    "milestones": "MILESTONES.md"
   },
-  "next_priority": "P0: NVMe-oF Phase2 + 按需唤醒硬盘实现",
+  "next_priority": "P0: RAIDZ Expansion API + NVMe-oF Phase2",
   "competitive_insights": {
     "key_learnings": [
-      "TrueNAS 26强化内容搜索和勒索防护",
-      "群晖AI Advisor是新卖点",
-      "飞牛省电功能是家庭用户痛点",
-      "TerraMaster TOS 6升级Linux 6.1内核"
+      "TrueNAS 26 WebShare TrueSearch全文搜索",
+      "TrueNAS 25.10 NVMe-oF + VM多格式导入",
+      "群晖DSM 7.3共享标签系统",
+      "飞牛按需唤醒硬盘已对标实现"
     ],
     "action_items": [
-      "NVMe-oF Phase2对标TrueNAS",
-      "按需唤醒硬盘对标飞牛",
-      "AI Advisor评估开发价值",
-      "内核升级评估"
+      "RAIDZ Expansion API优先开发",
+      "NVMe-oF Phase2继续开发",
+      "SMB Spotlight评估开发",
+      "WebShare内容搜索增强"
     ]
   }
 }
