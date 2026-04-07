@@ -1,10 +1,11 @@
 {
-  "round": 182,
-  "version": "v2.412.0",
+  "round": 183,
+  "version": "v2.413.0",
   "date": "2026-04-07",
   "status": "in_progress",
-  "ci_status": "all_success",
-  "last_release": "v2.411.0",
+  "start_time": "2026-04-07T09:57:00",
+  "ci_status": "pending",
+  "last_release": "v2.412.0",
   "competitive_research": {
     "fnos": {
       "features": ["按需唤醒硬盘", "Intel核显加速人脸识别", "FN Connect免费内网穿透"],
@@ -16,62 +17,55 @@
     },
     "truenas": {
       "features": ["NVMe over Fabric TCP+RDMA", "RAIDZ Expansion", "VM Secure Boot", "Direct I/O", "NVIDIA Open GPU", "SMART cron改革"],
-      "nas_os_status": "NVMe-oF Phase2完成，RAIDZ Expansion API实现，其他P1规划"
+      "nas_os_status": "NVMe-oF Phase2完成，RAIDZ Expansion API实现，其他P1规划中"
     }
   },
   "departments": {
     "兵部": {
-      "status": "assigned",
-      "task": "Direct I/O预研 + VM Secure Boot评估 + NVIDIA GPU支持调研",
-      "details": ["Direct I/O ZFS虚拟化优化预研", "VM Secure Boot安全启动设计", "NVIDIA Open GPU Blackwell架构评估"],
+      "status": "pending",
+      "task": "待下一轮分配",
       "priority": "P1"
     },
     "工部": {
-      "status": "assigned",
-      "task": "SMART监控cron模式实现 + CI稳定性",
-      "details": ["SMART测试迁移到cron任务", "磁盘健康监控灵活化", "CI验证"],
+      "status": "pending",
+      "task": "待下一轮分配",
       "priority": "P0"
     },
     "刑部": {
-      "status": "assigned",
-      "task": "安全审计Round182 + VM Secure Boot安全评估",
-      "details": ["govulncheck扫描", "VM Secure Boot安全风险评估", "合规报告"],
+      "status": "pending",
+      "task": "待下一轮分配",
       "priority": "P0"
     },
     "礼部": {
-      "status": "assigned",
-      "task": "CHANGELOG v2.412.0 + 竞品对比矩阵更新",
-      "details": ["版本发布说明", "TrueNAS 25.10/26新特性对标", "群晖DSM 7.3 AI Console评估"],
+      "status": "pending",
+      "task": "待下一轮分配",
       "priority": "P0"
     },
     "户部": {
-      "status": "assigned",
-      "task": "项目统计更新 + 存储成本分析",
-      "details": ["代码行数统计", "存储成本趋势", "资源使用报告"],
+      "status": "pending",
+      "task": "待下一轮分配",
       "priority": "P1"
     },
     "吏部": {
-      "status": "assigned",
-      "task": "VERSION更新 + MILESTONES里程碑记录",
-      "details": ["版本号v2.412.0", "M106 RAIDZ Expansion进度", "里程碑文档同步"],
+      "status": "pending",
+      "task": "待下一轮分配",
       "priority": "P0"
     }
   },
-  "next_priority": "P0: SMART监控cron改革 + 安全审计Round182",
+  "next_priority": "P0: SMART监控cron实现 + CI验证",
+  "completed_rounds": [181, 182],
   "competitive_insights": {
     "key_learnings": [
-      "TrueNAS 25.10 SMART监控从内置改为cron任务模式（更灵活）",
-      "TrueNAS 25.10 VM Secure Boot新特性",
-      "TrueNAS 25.10 NVIDIA Open GPU支持Blackwell架构",
-      "TrueNAS 25.10 Direct I/O ZFS虚拟化优化",
-      "群晖DSM 7.3 AI Console管理第三方AI",
-      "群晖DSM 7.3 共享标签系统Drive 4.0"
+      "TrueNAS 25.10 SMART监控从内置改为cron任务模式（设计完成）",
+      "TrueNAS 25.10 VM Secure Boot新特性（安全评估完成）",
+      "TrueNAS 25.10 NVIDIA Open GPU支持Blackwell架构（可行性评估）",
+      "TrueNAS 25.10 Direct I/O ZFS虚拟化优化（预研完成）"
     ],
     "action_items": [
-      "SMART监控cron模式实现（对标TrueNAS 25.10）",
-      "VM Secure Boot预研评估",
-      "Direct I/O优化预研",
-      "AI Console评估（对标群晖）"
+      "SMART监控cron模式实现（M108里程碑）",
+      "Direct I/O优化开发（P1）",
+      "VM Secure Boot实现（P1）",
+      "NVIDIA GPU支持扩展（P1）"
     ]
   }
 }
