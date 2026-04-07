@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAIDZ扩容 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .raidz-container { max-width: 1400px; margin: 0 auto; }
+
+        /* 扩容向导步骤 */
+        .wizard-steps {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .wizard-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--surface-border);
+            z-index: 0;
+        }
+        .wizard-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .wizard-step-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--surface-color);
+            border: 2px solid var(--surface-border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            transition: all 0.3s;
+        }
+        .wizard-step.active .wizard-step-indicator {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: white;
+        }
+        .wizard-step.completed .wizard-step-indicator {
+            background: var(--color-success);
+            border-color: var(--color-success);
+            color: white;
+        }
+        .wizard-step-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .wizard-step.active .wizard-step-label {
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        /* 磁盘选择网格 */
+        .disk-select-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .disk-select-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 2px solid var(--surface-border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .disk-select-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+        }
+        .disk-select-card.selected {
+            border-color: var(--color-primary);
+            background: rgba(var(--color-primary-rgb), 0.05);
+        }
+        .disk-select-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: var(--surface-border);
+        }
+        .disk-select-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .disk-select-path {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .disk-select-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+        }
+        .disk-select-card.selected .disk-select-status {
+            background: var(--color-primary);
+            color: white;
+        }
+        .disk-select-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .disk-detail-item {
+            font-size: 12px;
+        }
+        .disk-detail-label {
+            color: var(--text-muted);
+        }
+        .disk-detail-value {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* 进度显示 */
+        .progress-section {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--surface-border);
+            margin-bottom: 1.5rem;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .progress-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .progress-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .progress-status-badge.running {
+            background: var(--color-primary);
+            color: white;
+        }
+        .progress-status-badge.paused {
+            background: var(--color-warning);
+            color: white;
+        }
+        .progress-status-badge.completed {
+            background: var(--color-success);
+            color: white;
+        }
+        .progress-status-badge.failed {
+            background: var(--color-error);
+            color: white;
+        }
+
+        /* 主进度条 */
+        .main-progress {
+            margin-bottom: 1.5rem;
+        }
+        .main-progress-bar {
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .main-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+            border-radius: 12px;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .main-progress-percent {
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .main-progress-info {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .progress-info-item {
+            text-align: center;
+        }
+        .progress-info-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        .progress-info-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* 阶段进度 */
+        .phases-container {
+            margin-top: 1.5rem;
+        }
+        .phase-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        .phase-item.running {
+            background: rgba(var(--color-primary-rgb), 0.1);
+            border-left: 3px solid var(--color-primary);
+        }
+        .phase-item.completed {
+            background: rgba(var(--color-success-rgb), 0.1);
+            border-left: 3px solid var(--color-success);
+        }
+        .phase-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .phase-indicator.pending {
+            background: var(--surface-border);
+            color: var(--text-muted);
+        }
+        .phase-indicator.running {
+            background: var(--color-primary);
+            color: white;
+        }
+        .phase-indicator.completed {
+            background: var(--color-success);
+            color: white;
+        }
+        .phase-content {
+            flex: 1;
+        }
+        .phase-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .phase-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .phase-mini-bar {
+            width: 120px;
+            height: 8px;
+            background: var(--surface-border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .phase-mini-fill {
+            height: 100%;
+            background: var(--color-primary);
+            transition: width 0.3s;
+        }
+
+        /* 磁盘槽位可视化 */
+        .disk-slots-visual {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+        .disk-slot-box {
+            width: 80px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            border: 2px solid;
+        }
+        .disk-slot-box.original {
+            background: rgba(var(--color-success-rgb), 0.1);
+            border-color: var(--color-success);
+            color: var(--color-success);
+        }
+        .disk-slot-box.new {
+            background: rgba(var(--color-primary-rgb), 0.1);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .disk-slot-label {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* 容量计算器 */
+        .capacity-calculator {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--surface-border);
+            margin-bottom: 1.5rem;
+        }
+        .calculator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .calculator-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .calculator-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .calc-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .calc-input-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .calc-input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--surface-border);
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--bg-tertiary);
+        }
+        .calc-input:focus {
+            border-color: var(--color-primary);
+            outline: none;
+        }
+        .calculator-result {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .result-card {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .result-card.highlight {
+            background: rgba(var(--color-success-rgb), 0.1);
+            border: 1px solid var(--color-success);
+        }
+        .result-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        .result-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .result-card.highlight .result-value {
+            color: var(--color-success);
+        }
+
+        /* 扩容历史 */
+        .history-section {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--surface-border);
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .history-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        .history-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .history-pool {
+            font-weight: 500;
+        }
+        .history-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .history-status {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .disk-select-grid, .main-progress-info, .calculator-inputs, .calculator-result {
+                grid-template-columns: 1fr;
+            }
+            .wizard-steps {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .wizard-steps::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="../index.html">仪表盘</a>
+                <a href="storage.html">存储管理</a>
+                <a href="#" class="active">RAIDZ扩容</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="container raidz-container">
+            <!-- 页面标题 -->
+            <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="margin-bottom: 0.25rem;">🔄 RAIDZ 单盘扩容</h1>
+                    <p class="text-muted" style="margin: 0;">向现有RAIDZ组添加新磁盘，无需重建存储池</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="showHistoryModal()">📜 历史记录</button>
+                    <button class="btn btn-secondary" onclick="refreshStatus()">🔄 刷新</button>
+                    <button class="btn btn-primary" onclick="startWizard()">➕ 开始扩容</button>
+                </div>
+            </div>
+
+            <!-- 当前任务状态 -->
+            <div class="progress-section" id="active-task-section" style="display: none;">
+                <div class="progress-header">
+                    <div class="progress-title">当前扩容任务</div>
+                    <div class="progress-status-badge" id="task-status-badge">运行中</div>
+                </div>
+
+                <!-- 磁盘槽位可视化 -->
+                <div class="disk-slots-visual" id="disk-slots-visual">
+                    <!-- 动态填充 -->
+                </div>
+
+                <!-- 主进度条 -->
+                <div class="main-progress">
+                    <div class="main-progress-bar">
+                        <div class="main-progress-fill" id="progress-fill" style="width: 0%;">
+                            <span class="main-progress-percent" id="progress-percent">0%</span>
+                        </div>
+                    </div>
+                    <div class="main-progress-info">
+                        <div class="progress-info-item">
+                            <div class="progress-info-label">已处理</div>
+                            <div class="progress-info-value" id="bytes-done">0 GB</div>
+                        </div>
+                        <div class="progress-info-item">
+                            <div class="progress-info-label">总数据</div>
+                            <div class="progress-info-value" id="bytes-total">0 GB</div>
+                        </div>
+                        <div class="progress-info-item">
+                            <div class="progress-info-label">当前速度</div>
+                            <div class="progress-info-value" id="speed-mbps">0 MB/s</div>
+                        </div>
+                        <div class="progress-info-item">
+                            <div class="progress-info-label">预估剩余</div>
+                            <div class="progress-info-value" id="eta-time">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 阶段进度 -->
+                <div class="phases-container" id="phases-container">
+                    <!-- 动态填充 -->
+                </div>
+
+                <!-- 操作按钮 -->
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    <button class="btn btn-secondary" id="pause-btn" onclick="pauseExpansion()">⏸️ 暂停</button>
+                    <button class="btn btn-secondary" id="resume-btn" onclick="resumeExpansion()" style="display: none;">▶️ 继续</button>
+                    <button class="btn btn-danger" id="cancel-btn" onclick="cancelExpansion()">✖️ 取消</button>
+                </div>
+            </div>
+
+            <!-- 空状态（无活跃任务） -->
+            <div class="empty-state" id="empty-state">
+                <div class="empty-state-icon">🔄</div>
+                <p>暂无活跃的RAIDZ扩容任务</p>
+                <button class="btn btn-primary" onclick="startWizard()">➕ 开始新的扩容</button>
+            </div>
+
+            <!-- 容量计算器 -->
+            <div class="capacity-calculator">
+                <div class="calculator-header">
+                    <div class="calculator-title">📊 容量计算器</div>
+                    <button class="btn btn-sm btn-secondary" onclick="resetCalculator()">重置</button>
+                </div>
+                <div class="calculator-inputs">
+                    <div class="calc-input-group">
+                        <label class="calc-input-label">RAIDZ级别</label>
+                        <select class="calc-input" id="calc-raidz-level" onchange="calculateCapacity()">
+                            <option value="raidz1">RAIDZ1 (单校验)</option>
+                            <option value="raidz2">RAIDZ2 (双校验)</option>
+                            <option value="raidz3">RAIDZ3 (三校验)</option>
+                        </select>
+                    </div>
+                    <div class="calc-input-group">
+                        <label class="calc-input-label">当前宽度（盘数）</label>
+                        <input type="number" class="calc-input" id="calc-width" value="4" min="3" max="15" onchange="calculateCapacity()">
+                    </div>
+                    <div class="calc-input-group">
+                        <label class="calc-input-label">单盘容量 (GB)</label>
+                        <input type="number" class="calc-input" id="calc-disk-size" value="1000" min="100" onchange="calculateCapacity()">
+                    </div>
+                </div>
+                <div class="calculator-result">
+                    <div class="result-card">
+                        <div class="result-label">扩展前可用容量</div>
+                        <div class="result-value" id="capacity-before">3000 GB</div>
+                    </div>
+                    <div class="result-card highlight">
+                        <div class="result-label">扩展后可用容量</div>
+                        <div class="result-value" id="capacity-after">4000 GB</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">扩展前效率</div>
+                        <div class="result-value" id="efficiency-before">75%</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">扩展后效率</div>
+                        <div class="result-value" id="efficiency-after">80%</div>
+                    </div>
+                    <div class="result-card highlight">
+                        <div class="result-label">容量增益</div>
+                        <div class="result-value" id="capacity-gain">+1000 GB</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">奇偶校验盘</div>
+                        <div class="result-value" id="parity-disks">1</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速摘要 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div class="stat-card">
+                    <div class="stat-card-icon">📦</div>
+                    <div class="stat-card-value" id="summary-active">0</div>
+                    <div class="stat-card-label">活跃任务</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon">✅</div>
+                    <div class="stat-card-value" id="summary-completed">0</div>
+                    <div class="stat-card-label">已完成扩容</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon">💿</div>
+                    <div class="stat-card-value" id="summary-disks">0</div>
+                    <div class="stat-card-label">可用磁盘</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon">⚡</div>
+                    <div class="stat-card-value" id="summary-supported">-</div>
+                    <div class="stat-card-label">系统支持</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 扩容向导模态框 -->
+    <div class="modal-overlay" id="wizard-modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <div class="modal-title">🔄 RAIDZ 扩容向导</div>
+                <button class="modal-close" onclick="closeWizard()">×</button>
+            </div>
+
+            <!-- 向导步骤指示器 -->
+            <div class="wizard-steps">
+                <div class="wizard-step" data-step="1">
+                    <div class="wizard-step-indicator">1</div>
+                    <div class="wizard-step-label">选择池</div>
+                </div>
+                <div class="wizard-step" data-step="2">
+                    <div class="wizard-step-indicator">2</div>
+                    <div class="wizard-step-label">选择磁盘</div>
+                </div>
+                <div class="wizard-step" data-step="3">
+                    <div class="wizard-step-indicator">3</div>
+                    <div class="wizard-step-label">验证确认</div>
+                </div>
+                <div class="wizard-step" data-step="4">
+                    <div class="wizard-step-indicator">4</div>
+                    <div class="wizard-step-label">开始扩容</div>
+                </div>
+            </div>
+
+            <!-- 步骤内容 -->
+            <div id="wizard-step-content">
+                <!-- 步骤1: 选择池 -->
+                <div class="wizard-content" id="step-1-content">
+                    <h3 style="margin-bottom: 1rem;">选择要扩容的存储池</h3>
+                    <p class="text-muted" style="margin-bottom: 1rem;">仅显示支持扩容的单RAIDZ VDEV池</p>
+                    <div class="disk-select-grid" id="pool-select-grid">
+                        <!-- 动态填充 -->
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; justify-content: end; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="closeWizard()">取消</button>
+                        <button class="btn btn-primary" id="step1-next" onclick="nextStep()" disabled>下一步</button>
+                    </div>
+                </div>
+
+                <!-- 步骤2: 选择磁盘 -->
+                <div class="wizard-content" id="step-2-content" style="display: none;">
+                    <h3 style="margin-bottom: 1rem;">选择新磁盘</h3>
+                    <p class="text-muted" style="margin-bottom: 1rem;">选择一个未使用的磁盘添加到RAIDZ组</p>
+                    <div class="disk-select-grid" id="disk-select-grid">
+                        <!-- 动态填充 -->
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; justify-content: end; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="prevStep()">上一步</button>
+                        <button class="btn btn-primary" id="step2-next" onclick="nextStep()" disabled>下一步</button>
+                    </div>
+                </div>
+
+                <!-- 步骤3: 验证确认 -->
+                <div class="wizard-content" id="step-3-content" style="display: none;">
+                    <h3 style="margin-bottom: 1rem;">验证并确认</h3>
+                    <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <div class="text-muted" style="font-size: 12px;">存储池</div>
+                                <div style="font-weight: 600;" id="confirm-pool">-</div>
+                            </div>
+                            <div>
+                                <div class="text-muted" style="font-size: 12px;">RAIDZ级别</div>
+                                <div style="font-weight: 600;" id="confirm-raidz">-</div>
+                            </div>
+                            <div>
+                                <div class="text-muted" style="font-size: 12px;">当前宽度</div>
+                                <div style="font-weight: 600;" id="confirm-width-before">-</div>
+                            </div>
+                            <div>
+                                <div class="text-muted" style="font-size: 12px;">扩展后宽度</div>
+                                <div style="font-weight: 600;" id="confirm-width-after">-</div>
+                            </div>
+                            <div>
+                                <div class="text-muted" style="font-size: 12px;">新磁盘</div>
+                                <div style="font-weight: 600;" id="confirm-disk">-</div>
+                            </div>
+                            <div>
+                                <div class="text-muted" style="font-size: 12px;">磁盘容量</div>
+                                <div style="font-weight: 600;" id="confirm-disk-size">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 检查结果 -->
+                    <div style="margin-bottom: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem;">预检结果</h4>
+                        <div id="validation-checks">
+                            <!-- 动态填充 -->
+                        </div>
+                    </div>
+
+                    <!-- 预估信息 -->
+                    <div style="background: rgba(var(--color-success-rgb), 0.1); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                            <div style="text-align: center;">
+                                <div class="text-muted" style="font-size: 12px;">预估时间</div>
+                                <div style="font-weight: 600; color: var(--color-success);" id="estimate-time">-</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div class="text-muted" style="font-size: 12px;">容量增益</div>
+                                <div style="font-weight: 600; color: var(--color-success);" id="estimate-capacity">-</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div class="text-muted" style="font-size: 12px;">效率提升</div>
+                                <div style="font-weight: 600; color: var(--color-success);" id="estimate-efficiency">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem; display: flex; justify-content: end; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="prevStep()">上一步</button>
+                        <button class="btn btn-primary" id="step3-next" onclick="nextStep()">确认并开始</button>
+                    </div>
+                </div>
+
+                <!-- 步骤4: 执行 -->
+                <div class="wizard-content" id="step-4-content" style="display: none;">
+                    <h3 style="margin-bottom: 1rem;">扩容已启动</h3>
+                    <div style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 48px; margin-bottom: 1rem;">🔄</div>
+                        <p style="font-size: 16px; color: var(--text-secondary);">RAIDZ扩容任务已成功启动</p>
+                        <p class="text-muted" style="margin-top: 0.5rem;">请在主页面查看进度详情</p>
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; justify-content: center;">
+                        <button class="btn btn-primary" onclick="closeWizard()">关闭向导</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 历史记录模态框 -->
+    <div class="modal-overlay" id="history-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📜 扩容历史记录</div>
+                <button class="modal-close" onclick="closeHistoryModal()">×</button>
+            </div>
+            <div class="history-section">
+                <div id="history-list">
+                    <!-- 动态填充 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/raidz-expand.js"></script>
+</body>
+</html>
