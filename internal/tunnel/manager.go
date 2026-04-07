@@ -52,7 +52,8 @@ type Manager struct {
 	// NAT 检测
 	detector NATDetector
 
-	// 事件回调
+	// 事件回调（独立锁避免死锁）
+	callbacksMu   sync.RWMutex
 	eventCallbacks []EventCallback
 
 	// 统计信息
@@ -414,22 +415,26 @@ func (m *Manager) ListTunnels() []TunnelStatus {
 
 // OnEvent 注册事件回调
 func (m *Manager) OnEvent(callback EventCallback) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	m.callbacksMu.Lock()
+	defer m.callbacksMu.Unlock()
 	m.eventCallbacks = append(m.eventCallbacks, callback)
 }
 
-// emitEvent 发送事件
+// emitEvent 发送事件（使用独立锁避免死锁）
 func (m *Manager) emitEvent(event Event) {
 	event.Timestamp = time.Now()
 
-	m.mu.RLock()
+	// 使用独立的回调锁，避免与主锁冲突
+	m.callbacksMu.RLock()
 	callbacks := make([]EventCallback, len(m.eventCallbacks))
 	copy(callbacks, m.eventCallbacks)
-	m.mu.RUnlock()
+	m.callbacksMu.RUnlock()
 
+	// 异步执行回调避免阻塞
 	for _, cb := range callbacks {
-		go cb(event)
+		go func(callback EventCallback) {
+			callback(event)
+		}(cb)
 	}
 }
 
