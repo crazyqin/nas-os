@@ -10,26 +10,72 @@ import (
 )
 
 // ============================================================================
+// 类型定义 - 本包独立类型
+// ============================================================================
+
+// HealthStatus NVMe健康状态 (从 internal/hardware/nvme 复制以避免循环导入)
+type HealthStatus struct {
+	Device          string    // 设备路径
+	Temperature     int       // 温度 (摄氏度)
+	PercentUsed     float64   // 已用寿命百分比
+	AvailableSpare  float64   // 可用备用空间百分比
+	CriticalWarning int       // 关键警告标志
+	DataUnitsWrite  uint64    // 写入数据单位
+	MediaErrors     uint64    // 媒体错误数
+}
+
+// PredictedLife 预测寿命结果
+type PredictedLife struct {
+	RemainingDays    int       `json:"remainingDays"`    // 预计剩余天数
+	EstimatedEndDate time.Time `json:"estimatedEndDate"` // 预计失效日期
+	WriteRatePerDay  uint64    `json:"writeRatePerDay"`  // 日均写入量
+	LifeDecayRate    float64   `json:"lifeDecayRate"`    // 寿命衰减率(%/天)
+	Confidence       float64   `json:"confidence"`       // 置信度 (0-1)
+	Method           string    `json:"method"`           // 预测方法
+}
+
+// AlertLevel 告警级别
+type AlertLevel string
+
+const (
+	AlertLevelNone      AlertLevel = "none"
+	AlertLevelWarning   AlertLevel = "warning"
+	AlertLevelCritical  AlertLevel = "critical"
+	AlertLevelEmergency AlertLevel = "emergency"
+)
+
+// HealthStatusType 健康状态类型
+type HealthStatusType string
+
+const (
+	HealthStatusHealthy   HealthStatusType = "healthy"
+	HealthStatusWarning   HealthStatusType = "warning"
+	HealthStatusCritical  HealthStatusType = "critical"
+	HealthStatusEmergency HealthStatusType = "emergency"
+	HealthStatusUnknown   HealthStatusType = "unknown"
+)
+
+// ============================================================================
 // 寿命预测模块
 // ============================================================================
 
 // LifePredictor NVMe寿命预测器
 type LifePredictor struct {
-	config      *PredictionConfig
-	history     map[string][]*HistoryPoint
-	models      map[string]*PredictionModel
-	mu          sync.RWMutex
-	minSamples  int
-	optimalSamples int
+	config          *PredictionConfig
+	history         map[string][]*HistoryPoint
+	models          map[string]*PredictionModel
+	mu              sync.RWMutex
+	minSamples      int
+	optimalSamples  int
 }
 
 // PredictionConfig 预测配置
 type PredictionConfig struct {
 	Enabled          bool    `json:"enabled"`
-	MinSamples       int     `json:"minSamples"`       // 最小样本数 (默认10)
-	OptimalSamples   int     `json:"optimalSamples"`   // 最优样本数 (默认1440)
-	MaxConfidence    float64 `json:"maxConfidence"`    // 最大置信度 (默认0.85)
-	PredictionWindow int     `json:"predictionWindow"` // 预测窗口天数
+	MinSamples       int     `json:"minSamples"`
+	OptimalSamples   int     `json:"optimalSamples"`
+	MaxConfidence    float64 `json:"maxConfidence"`
+	PredictionWindow int     `json:"predictionWindow"`
 }
 
 // DefaultPredictionConfig 默认预测配置
@@ -37,7 +83,7 @@ func DefaultPredictionConfig() *PredictionConfig {
 	return &PredictionConfig{
 		Enabled:          true,
 		MinSamples:       10,
-		OptimalSamples:   1440, // 30天 × 48次/天
+		OptimalSamples:   1440,
 		MaxConfidence:    0.85,
 		PredictionWindow: 365,
 	}
@@ -45,22 +91,22 @@ func DefaultPredictionConfig() *PredictionConfig {
 
 // HistoryPoint 历史数据点
 type HistoryPoint struct {
-	Timestamp       time.Time `json:"timestamp"`
-	PercentUsed     float64   `json:"percentUsed"`     // 寿命已用百分比
-	AvailableSpare  float64   `json:"availableSpare"`  // 可用备用空间
-	Temperature     int       `json:"temperature"`     // 温度
-	TotalWrites     uint64    `json:"totalWrites"`     // 总写入量(字节)
-	MediaErrors     uint64    `json:"mediaErrors"`     // 媒体错误
-	HealthScore     float64   `json:"healthScore"`     // 健康评分
+	Timestamp    time.Time `json:"timestamp"`
+	PercentUsed  float64   `json:"percentUsed"`
+	AvailableSpare float64 `json:"availableSpare"`
+	Temperature  int       `json:"temperature"`
+	TotalWrites  uint64    `json:"totalWrites"`
+	MediaErrors  uint64    `json:"mediaErrors"`
+	HealthScore  float64   `json:"healthScore"`
 }
 
 // PredictionModel 预测模型
 type PredictionModel struct {
-	Device           string    `json:"device"`
-	WriteRatePerDay  uint64    `json:"writeRatePerDay"`  // 日均写入量
-	LifeDecayRate    float64   `json:"lifeDecayRate"`    // 寿命衰减率(%/天)
-	LastCalculated   time.Time `json:"lastCalculated"`
-	SampleCount      int       `json:"sampleCount"`
+	Device          string    `json:"device"`
+	WriteRatePerDay uint64    `json:"writeRatePerDay"`
+	LifeDecayRate   float64   `json:"lifeDecayRate"`
+	LastCalculated  time.Time `json:"lastCalculated"`
+	SampleCount     int       `json:"sampleCount"`
 }
 
 // NewLifePredictor 创建寿命预测器
@@ -69,10 +115,10 @@ func NewLifePredictor(config *PredictionConfig) *LifePredictor {
 		config = DefaultPredictionConfig()
 	}
 	return &LifePredictor{
-		config:      config,
-		history:     make(map[string][]*HistoryPoint),
-		models:      make(map[string]*PredictionModel),
-		minSamples:  config.MinSamples,
+		config:         config,
+		history:        make(map[string][]*HistoryPoint),
+		models:         make(map[string]*PredictionModel),
+		minSamples:     config.MinSamples,
 		optimalSamples: config.OptimalSamples,
 	}
 }
@@ -83,21 +129,19 @@ func (p *LifePredictor) AddHistoryPoint(device string, health *HealthStatus) {
 	defer p.mu.Unlock()
 
 	point := &HistoryPoint{
-		Timestamp:      time.Now(),
-		PercentUsed:    health.PercentUsed,
+		Timestamp:     time.Now(),
+		PercentUsed:   health.PercentUsed,
 		AvailableSpare: health.AvailableSpare,
-		Temperature:    health.Temperature,
-		TotalWrites:    health.DataUnitsWrite,
-		MediaErrors:    health.MediaErrors,
+		Temperature:   health.Temperature,
+		TotalWrites:   health.DataUnitsWrite,
+		MediaErrors:   health.MediaErrors,
 	}
 
-	// 计算健康评分
 	point.HealthScore = CalculateHealthScore(health)
 
 	history := p.history[device]
 	history = append(history, point)
 
-	// 限制历史数据量
 	maxPoints := p.optimalSamples * 2
 	if len(history) > maxPoints {
 		history = history[len(history)-maxPoints:]
@@ -114,37 +158,29 @@ func (p *LifePredictor) Predict(device string) *PredictedLife {
 
 	if len(history) < p.minSamples {
 		return &PredictedLife{
-			RemainingDays:    -1, // 未知
-			Confidence:       0,
-			Method:           "insufficient_data",
+			RemainingDays: -1,
+			Confidence:    0,
+			Method:        "insufficient_data",
 		}
 	}
 
-	// 计算写入速率
 	writeRate := p.calculateWriteRate(history)
-
-	// 计算寿命衰减速率
 	lifeDecayRate := p.calculateLifeDecayRate(history)
 
-	// 获取当前寿命状态
 	lastPoint := history[len(history)-1]
 	remainingPercent := 100.0 - lastPoint.PercentUsed
 
-	// 预测剩余天数
 	var remainingDays int
 	if lifeDecayRate > 0 {
 		remainingDaysFloat := remainingPercent / lifeDecayRate
-		// 安全转换，防止溢出
 		if remainingDaysFloat > 36500 {
-			remainingDays = 36500 // 最大100年
+			remainingDays = 36500
 		} else if remainingDaysFloat < 0 {
 			remainingDays = 0
 		} else {
 			remainingDays = int(remainingDaysFloat)
 		}
 	} else if writeRate > 0 {
-		// 如果无法计算衰减率，使用写入速率估算
-		// 假设TBW为总写入量的某个倍数
 		estimatedTBW := float64(lastPoint.TotalWrites) / lastPoint.PercentUsed * 100
 		remainingWrites := estimatedTBW - float64(lastPoint.TotalWrites)
 		remainingDaysFloat := remainingWrites / float64(writeRate)
@@ -156,10 +192,9 @@ func (p *LifePredictor) Predict(device string) *PredictedLife {
 			remainingDays = int(remainingDaysFloat)
 		}
 	} else {
-		remainingDays = -1 // 无法预测
+		remainingDays = -1
 	}
 
-	// 计算置信度
 	confidence := p.calculateConfidence(len(history))
 
 	return &PredictedLife{
@@ -178,7 +213,6 @@ func (p *LifePredictor) calculateWriteRate(history []*HistoryPoint) uint64 {
 		return 0
 	}
 
-	// 计算总写入增量
 	var totalWriteIncrease uint64
 	for i := 1; i < len(history); i++ {
 		if history[i].TotalWrites > history[i-1].TotalWrites {
@@ -186,7 +220,6 @@ func (p *LifePredictor) calculateWriteRate(history []*HistoryPoint) uint64 {
 		}
 	}
 
-	// 计算时间跨度
 	duration := history[len(history)-1].Timestamp.Sub(history[0].Timestamp)
 	days := duration.Hours() / 24
 
@@ -194,7 +227,6 @@ func (p *LifePredictor) calculateWriteRate(history []*HistoryPoint) uint64 {
 		return 0
 	}
 
-	// 日均写入量 - 安全转换
 	writeRateFloat := float64(totalWriteIncrease) / days
 	if writeRateFloat > float64(math.MaxUint64) {
 		return math.MaxUint64
@@ -208,7 +240,6 @@ func (p *LifePredictor) calculateLifeDecayRate(history []*HistoryPoint) float64 
 		return 0
 	}
 
-	// 计算寿命消耗增量
 	var totalLifeIncrease float64
 	for i := 1; i < len(history); i++ {
 		if history[i].PercentUsed > history[i-1].PercentUsed {
@@ -216,7 +247,6 @@ func (p *LifePredictor) calculateLifeDecayRate(history []*HistoryPoint) float64 
 		}
 	}
 
-	// 计算时间跨度
 	duration := history[len(history)-1].Timestamp.Sub(history[0].Timestamp)
 	days := duration.Hours() / 24
 
@@ -247,61 +277,15 @@ func (p *LifePredictor) GetHistory(device string) []*HistoryPoint {
 // 异常检测模块
 // ============================================================================
 
-// AnomalyDetector 异常检测器
-type AnomalyDetector struct {
-	config       *AnomalyConfig
-	baselines    map[string]*Baseline
-	anomalies    map[string][]*Anomaly
-	mu           sync.RWMutex
-}
-
-// AnomalyConfig 异常检测配置
-type AnomalyConfig struct {
-	WriteSpikeThreshold  float64 `json:"writeSpikeThreshold"`  // 写入突发阈值(倍数)
-	TempSpikeThreshold   float64 `json:"tempSpikeThreshold"`   // 温度突发阈值(度)
-	LifeJumpThreshold    float64 `json:"lifeJumpThreshold"`    // 寿命跳跃阈值(%)
-	AnomalyWindow        int     `json:"anomalyWindow"`        // 异常检测窗口(分钟)
-}
-
-// DefaultAnomalyConfig 默认异常检测配置
-func DefaultAnomalyConfig() *AnomalyConfig {
-	return &AnomalyConfig{
-		WriteSpikeThreshold:  3.0,  // 3倍基线
-		TempSpikeThreshold:   10.0, // 10度跳跃
-		LifeJumpThreshold:    1.0,  // 1%跳跃
-		AnomalyWindow:        5,    // 5分钟窗口
-	}
-}
-
-// Baseline 基线数据
-type Baseline struct {
-	Device          string    `json:"device"`
-	AvgWriteRate    uint64    `json:"avgWriteRate"`    // 平均写入速率
-	AvgTemperature  int       `json:"avgTemperature"`  // 平均温度
-	AvgLifeDecay    float64   `json:"avgLifeDecay"`    // 平均寿命衰减
-	LastUpdate      time.Time `json:"lastUpdate"`
-}
-
-// Anomaly 异常事件
-type Anomaly struct {
-	Device      string        `json:"device"`
-	Type        AnomalyType   `json:"type"`
-	Severity    AnomalyLevel  `json:"severity"`
-	Value       interface{}   `json:"value"`
-	Baseline    interface{}   `json:"baseline"`
-	Description string        `json:"description"`
-	Timestamp   time.Time     `json:"timestamp"`
-}
-
 // AnomalyType 异常类型
 type AnomalyType string
 
 const (
-	AnomalyWriteSpike  AnomalyType = "write_spike"  // 写入突发
-	AnomalyTempSpike   AnomalyType = "temp_spike"   // 温度突发
-	AnomalyLifeJump    AnomalyType = "life_jump"    // 寿命跳跃
-	AnomalyMediaError  AnomalyType = "media_error"  // 媒体错误
-	AnomalySpareLow    AnomalyType = "spare_low"    // 备用空间低
+	AnomalyWriteSpike AnomalyType = "write_spike"
+	AnomalyTempSpike  AnomalyType = "temp_spike"
+	AnomalyLifeJump   AnomalyType = "life_jump"
+	AnomalyMediaError AnomalyType = "media_error"
+	AnomalySpareLow   AnomalyType = "spare_low"
 )
 
 // AnomalyLevel 异常级别
@@ -314,6 +298,52 @@ const (
 	AnomalyHigh   AnomalyLevel = "high"
 	AnomalySevere AnomalyLevel = "severe"
 )
+
+// Anomaly 异常事件
+type Anomaly struct {
+	Device      string      `json:"device"`
+	Type        AnomalyType `json:"type"`
+	Severity    AnomalyLevel `json:"severity"`
+	Value       interface{} `json:"value"`
+	Baseline    interface{} `json:"baseline"`
+	Description string      `json:"description"`
+	Timestamp   time.Time   `json:"timestamp"`
+}
+
+// AnomalyDetector 异常检测器
+type AnomalyDetector struct {
+	config    *AnomalyConfig
+	baselines map[string]*Baseline
+	anomalies map[string][]*Anomaly
+	mu        sync.RWMutex
+}
+
+// AnomalyConfig 异常检测配置
+type AnomalyConfig struct {
+	WriteSpikeThreshold float64 `json:"writeSpikeThreshold"`
+	TempSpikeThreshold  float64 `json:"tempSpikeThreshold"`
+	LifeJumpThreshold   float64 `json:"lifeJumpThreshold"`
+	AnomalyWindow       int     `json:"anomalyWindow"`
+}
+
+// DefaultAnomalyConfig 默认异常检测配置
+func DefaultAnomalyConfig() *AnomalyConfig {
+	return &AnomalyConfig{
+		WriteSpikeThreshold: 3.0,
+		TempSpikeThreshold:  10.0,
+		LifeJumpThreshold:   1.0,
+		AnomalyWindow:       5,
+	}
+}
+
+// Baseline 基线数据
+type Baseline struct {
+	Device         string    `json:"device"`
+	AvgWriteRate   uint64    `json:"avgWriteRate"`
+	AvgTemperature int       `json:"avgTemperature"`
+	AvgLifeDecay   float64   `json:"avgLifeDecay"`
+	LastUpdate     time.Time `json:"lastUpdate"`
+}
 
 // NewAnomalyDetector 创建异常检测器
 func NewAnomalyDetector(config *AnomalyConfig) *AnomalyDetector {
@@ -336,21 +366,18 @@ func (d *AnomalyDetector) UpdateBaseline(device string, history []*HistoryPoint)
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	// 计算平均写入速率
 	var totalWrites uint64
 	for _, p := range history {
 		totalWrites += p.TotalWrites
 	}
 	avgWrites := totalWrites / uint64(len(history))
 
-	// 计算平均温度
 	var totalTemp int
 	for _, p := range history {
 		totalTemp += p.Temperature
 	}
 	avgTemp := totalTemp / len(history)
 
-	// 计算平均寿命衰减
 	var totalLife float64
 	for _, p := range history {
 		totalLife += p.PercentUsed
@@ -459,11 +486,9 @@ func (d *AnomalyDetector) Detect(device string, health *HealthStatus) []*Anomaly
 		})
 	}
 
-	// 存储异常记录
 	d.mu.Lock()
 	deviceAnomalies := d.anomalies[device]
 	deviceAnomalies = append(deviceAnomalies, anomalies...)
-	// 保留最近100条
 	if len(deviceAnomalies) > 100 {
 		deviceAnomalies = deviceAnomalies[len(deviceAnomalies)-100:]
 	}
@@ -484,80 +509,69 @@ func (d *AnomalyDetector) GetAnomalies(device string) []*Anomaly {
 // 综合健康评估模块
 // ============================================================================
 
-// HealthEvaluator 健康评估器
-type HealthEvaluator struct {
-	predictor    *LifePredictor
-	detector     *AnomalyDetector
-	config       *EvaluationConfig
-}
-
-// EvaluationConfig 评估配置
-type EvaluationConfig struct {
-	Thresholds   *ThresholdConfig   `json:"thresholds"`
-	Prediction   *PredictionConfig  `json:"prediction"`
-	Anomaly      *AnomalyConfig     `json:"anomaly"`
+// ComprehensiveHealth 全面健康评估
+type ComprehensiveHealth struct {
+	Device          string           `json:"device"`
+	HealthScore     float64          `json:"healthScore"`
+	Status          HealthStatusType `json:"status"`
+	AlertLevel      AlertLevel       `json:"alertLevel"`
+	AlertMessage    string           `json:"alertMessage"`
+	PredictedLife   *PredictedLife   `json:"predictedLife"`
+	Anomalies      []*Anomaly       `json:"anomalies"`
+	RiskFactors     []string         `json:"riskFactors"`
+	Recommendations []string         `json:"recommendations"`
+	Timestamp       time.Time        `json:"timestamp"`
 }
 
 // ThresholdConfig 阈值配置
 type ThresholdConfig struct {
-	LifespanWarning   float64 `json:"lifespanWarning"`   // 寿命警告阈值
-	LifespanCritical  float64 `json:"lifespanCritical"`  // 寿命严重阈值
-	LifespanEmergency float64 `json:"lifespanEmergency"` // 寿命紧急阈值
-	TemperatureWarning  int    `json:"temperatureWarning"`  // 温度警告阈值
-	TemperatureCritical int    `json:"temperatureCritical"` // 温度严重阈值
-	SpareWarning      float64 `json:"spareWarning"`      // 备用空间警告阈值
-	SpareCritical     float64 `json:"spareCritical"`     // 备用空间严重阈值
-	DaysWarning       int     `json:"daysWarning"`       // 剩余天数警告阈值
-	DaysCritical      int     `json:"daysCritical"`      // 剩余天数严重阈值
+	LifespanWarning    float64 `json:"lifespanWarning"`
+	LifespanCritical   float64 `json:"lifespanCritical"`
+	LifespanEmergency  float64 `json:"lifespanEmergency"`
+	TemperatureWarning int     `json:"temperatureWarning"`
+	TemperatureCritical int    `json:"temperatureCritical"`
+	SpareWarning       float64 `json:"spareWarning"`
+	SpareCritical      float64 `json:"spareCritical"`
+	DaysWarning        int     `json:"daysWarning"`
+	DaysCritical       int     `json:"daysCritical"`
 }
 
 // DefaultThresholdConfig 默认阈值配置
 func DefaultThresholdConfig() *ThresholdConfig {
 	return &ThresholdConfig{
-		LifespanWarning:    80,
-		LifespanCritical:   90,
-		LifespanEmergency:  95,
+		LifespanWarning:     80,
+		LifespanCritical:    90,
+		LifespanEmergency:   95,
 		TemperatureWarning:  60,
 		TemperatureCritical: 70,
-		SpareWarning:       20,
-		SpareCritical:      10,
-		DaysWarning:        180,
-		DaysCritical:       90,
+		SpareWarning:        20,
+		SpareCritical:       10,
+		DaysWarning:         180,
+		DaysCritical:        90,
 	}
 }
 
-// ComprehensiveHealth 全面健康评估
-type ComprehensiveHealth struct {
-	Device          string           `json:"device"`
-	HealthScore     float64          `json:"healthScore"`     // 综合健康评分
-	Status          HealthStatusType `json:"status"`          // 状态
-	AlertLevel      AlertLevel       `json:"alertLevel"`      // 告警级别
-	AlertMessage    string           `json:"alertMessage"`    // 告警消息
-	PredictedLife   *PredictedLife   `json:"predictedLife"`   // 寿命预测
-	Anomalies      []*Anomaly       `json:"anomalies"`       // 异常事件
-	RiskFactors     []string         `json:"riskFactors"`     // 风险因素
-	Recommendations []string         `json:"recommendations"` // 建议
-	Timestamp       time.Time        `json:"timestamp"`
+// EvaluationConfig 评估配置
+type EvaluationConfig struct {
+	Thresholds *ThresholdConfig  `json:"thresholds"`
+	Prediction *PredictionConfig `json:"prediction"`
+	Anomaly    *AnomalyConfig    `json:"anomaly"`
 }
 
-// HealthStatusType 健康状态类型
-type HealthStatusType string
-
-const (
-	HealthStatusHealthy   HealthStatusType = "healthy"
-	HealthStatusWarning   HealthStatusType = "warning"
-	HealthStatusCritical  HealthStatusType = "critical"
-	HealthStatusEmergency HealthStatusType = "emergency"
-	HealthStatusUnknown   HealthStatusType = "unknown"
-)
+// HealthEvaluator 健康评估器
+type HealthEvaluator struct {
+	predictor *LifePredictor
+	detector  *AnomalyDetector
+	config    *EvaluationConfig
+}
 
 // NewHealthEvaluator 创建健康评估器
 func NewHealthEvaluator(config *EvaluationConfig) *HealthEvaluator {
 	if config == nil {
 		config = &EvaluationConfig{
-			Thresholds:   DefaultThresholdConfig(),
-			Prediction:   DefaultPredictionConfig(),
-			Anomaly:      DefaultAnomalyConfig(),
+			Thresholds: DefaultThresholdConfig(),
+			Prediction: DefaultPredictionConfig(),
+			Anomaly:    DefaultAnomalyConfig(),
 		}
 	}
 	return &HealthEvaluator{
@@ -569,33 +583,18 @@ func NewHealthEvaluator(config *EvaluationConfig) *HealthEvaluator {
 
 // Evaluate 执行全面健康评估
 func (e *HealthEvaluator) Evaluate(device string, health *HealthStatus, history []*HistoryPoint) *ComprehensiveHealth {
-	// 添加历史数据
-	for _, p := range history {
-		e.predictor.AddHistoryPoint(device, health)
-	}
+	// 添加当前健康状态作为新数据点
+	e.predictor.AddHistoryPoint(device, health)
 
-	// 更新基线
 	e.detector.UpdateBaseline(device, history)
 
-	// 计算健康评分
 	healthScore := CalculateHealthScore(health)
-
-	// 执行寿命预测
 	predictedLife := e.predictor.Predict(device)
-
-	// 检测异常
 	anomalies := e.detector.Detect(device, health)
 
-	// 评估告警级别
 	alertLevel, alertMessage := e.evaluateAlertLevel(health, predictedLife, anomalies)
-
-	// 确定状态
 	status := e.determineStatus(alertLevel, healthScore)
-
-	// 识别风险因素
 	riskFactors := e.identifyRiskFactors(health, predictedLife, anomalies)
-
-	// 生成建议
 	recommendations := e.generateRecommendations(status, riskFactors)
 
 	return &ComprehensiveHealth{
@@ -616,7 +615,6 @@ func (e *HealthEvaluator) Evaluate(device string, health *HealthStatus, history 
 func (e *HealthEvaluator) evaluateAlertLevel(health *HealthStatus, predicted *PredictedLife, anomalies []*Anomaly) (AlertLevel, string) {
 	th := e.config.Thresholds
 
-	// 检查紧急条件
 	if health.PercentUsed >= th.LifespanEmergency {
 		return AlertLevelEmergency, "NVMe寿命即将耗尽，请立即更换！"
 	}
@@ -630,7 +628,6 @@ func (e *HealthEvaluator) evaluateAlertLevel(health *HealthStatus, predicted *Pr
 		return AlertLevelEmergency, "预计30天内寿命耗尽，请立即更换！"
 	}
 
-	// 检查严重条件
 	if health.PercentUsed >= th.LifespanCritical {
 		return AlertLevelCritical, "NVMe寿命已使用超过90%，请尽快更换！"
 	}
@@ -644,7 +641,6 @@ func (e *HealthEvaluator) evaluateAlertLevel(health *HealthStatus, predicted *Pr
 		return AlertLevelCritical, "预计90天内寿命耗尽，请尽快更换！"
 	}
 
-	// 检查警告条件
 	if health.PercentUsed >= th.LifespanWarning {
 		return AlertLevelWarning, "NVMe寿命已使用超过80%，建议准备更换！"
 	}
@@ -658,7 +654,6 @@ func (e *HealthEvaluator) evaluateAlertLevel(health *HealthStatus, predicted *Pr
 		return AlertLevelWarning, "预计180天内寿命耗尽，建议准备更换！"
 	}
 
-	// 检查异常事件
 	for _, a := range anomalies {
 		if a.Severity == AnomalySevere || a.Severity == AnomalyHigh {
 			return AlertLevelWarning, a.Description
@@ -765,24 +760,14 @@ func (e *HealthEvaluator) generateRecommendations(status HealthStatusType, riskF
 func CalculateHealthScore(health *HealthStatus) float64 {
 	score := 100.0
 
-	// 1. 寿命因子 (权重40%)
 	lifeScore := (100.0 - health.PercentUsed) * 0.4
-
-	// 2. 备用空间因子 (权重30%)
 	spareScore := health.AvailableSpare * 0.3
-
-	// 3. 温度因子 (权重15%)
 	tempScore := calculateTempScore(health.Temperature) * 0.15
-
-	// 4. 媒体错误因子 (权重10%)
 	errorScore := calculateErrorScore(health.MediaErrors) * 0.10
-
-	// 5. 警告标志因子 (权重5%)
 	warningScore := float64(1-health.CriticalWarning/255) * 100 * 0.05
 
 	score = lifeScore + spareScore + tempScore + errorScore + warningScore
 
-	// 确保评分在0-100范围内
 	if score < 0 {
 		score = 0
 	}
@@ -799,13 +784,13 @@ func calculateTempScore(temp int) float64 {
 		return 100
 	}
 	if temp <= 60 {
-		return 100 - float64(temp-50)*2 // 50-60: 100-80
+		return 100 - float64(temp-50)*2
 	}
 	if temp <= 70 {
-		return 80 - float64(temp-60)*4 // 60-70: 80-40
+		return 80 - float64(temp-60)*4
 	}
 	if temp <= 80 {
-		return 40 - float64(temp-70)*4 // 70-80: 40-0
+		return 40 - float64(temp-70)*4
 	}
 	return 0
 }
@@ -816,12 +801,12 @@ func calculateErrorScore(errors uint64) float64 {
 		return 100
 	}
 	if errors <= 5 {
-		return 100 - float64(errors)*10 // 0-5: 100-50
+		return 100 - float64(errors)*10
 	}
 	if errors <= 10 {
-		return 50 - float64(errors-5)*5 // 5-10: 50-25
+		return 50 - float64(errors-5)*5
 	}
-	return 25 - float64(errors-10)*2.5 // 10+: 递减
+	return 25 - float64(errors-10)*2.5
 }
 
 // PredictWithContext 带上下文的预测
