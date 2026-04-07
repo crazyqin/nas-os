@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART 定时任务 - NAS-OS</title>
+    <link rel="stylesheet" href="../../css/design-system.css">
+    <link rel="stylesheet" href="../../css/mobile.css">
+    <style>
+        /* SMART Cron 专用样式 */
+        .smart-cron-container {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 汇总卡片 */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .summary-card:hover {
+            border-color: var(--primary-color);
+        }
+
+        .summary-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .summary-card.active {
+            border-color: var(--success-color);
+            background: var(--success-bg);
+        }
+
+        .summary-card.warning {
+            border-color: var(--warning-color);
+            background: var(--warning-bg);
+        }
+
+        .summary-card.error {
+            border-color: var(--danger-color);
+            background: var(--danger-bg);
+        }
+
+        /* 任务列表 */
+        .task-list-panel {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .task-table th,
+        .task-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .task-table th {
+            background: var(--table-header-bg);
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .task-table tr:hover td {
+            background: var(--table-row-hover);
+        }
+
+        .task-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .task-schedule {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .task-schedule-human {
+            color: var(--primary-color);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .task-devices {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .device-tag {
+            padding: 2px 8px;
+            background: var(--tag-bg);
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .task-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .task-status.enabled {
+            background: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .task-status.disabled {
+            background: var(--neutral-bg);
+            color: var(--text-secondary);
+        }
+
+        .task-status.running {
+            background: var(--info-bg);
+            color: var(--info-color);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--btn-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-icon.danger:hover {
+            background: var(--danger-color);
+        }
+
+        /* 创建任务按钮 */
+        .btn-primary {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--btn-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        /* 任务编辑模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            width: 600px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            padding: 8px;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .modal-close:hover {
+            background: var(--border-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-checkbox input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+        }
+
+        .cron-presets {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .cron-preset-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--btn-bg);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cron-preset-btn:hover {
+            background: var(--primary-bg);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .cron-preview {
+            margin-top: 8px;
+            padding: 12px;
+            background: var(--info-bg);
+            border-radius: 8px;
+            color: var(--info-color);
+            font-size: 13px;
+        }
+
+        .device-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .device-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .device-option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .device-option.selected {
+            border-color: var(--primary-color);
+            background: var(--primary-bg);
+        }
+
+        .device-option input {
+            margin-right: 8px;
+            accent-color: var(--primary-color);
+        }
+
+        .device-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* 执行状态面板 */
+        .execution-panel {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .execution-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .execution-item:last-child {
+            border-bottom: none;
+        }
+
+        .execution-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .execution-task {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .execution-time {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .execution-progress {
+            margin-top: 12px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border-color);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.success {
+            background: var(--success-color);
+        }
+
+        .progress-fill.error {
+            background: var(--danger-color);
+        }
+
+        .execution-status {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        /* 检查结果面板 */
+        .results-panel {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .results-filter {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .results-table th {
+            background: var(--table-header-bg);
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .result-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+        }
+
+        .result-status.passed {
+            background: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .result-status.warning {
+            background: var(--warning-bg);
+            color: var(--warning-color);
+        }
+
+        .result-status.failed {
+            background: var(--danger-bg);
+            color: var(--danger-color);
+        }
+
+        /* 告警历史面板 */
+        .alerts-panel {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .alert-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .alert-icon.warning {
+            background: var(--warning-bg);
+            color: var(--warning-color);
+        }
+
+        .alert-icon.critical {
+            background: var(--danger-bg);
+            color: var(--danger-color);
+        }
+
+        .alert-icon.info {
+            background: var(--info-bg);
+            color: var(--info-color);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-message {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .alert-details {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* 标签页 */
+        .tabs-container {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-item {
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-item:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-item.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            padding: 40px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .empty-desc {
+            font-size: 14px;
+        }
+
+        /* Toast 通知 */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-color: var(--success-color);
+        }
+
+        .toast.error {
+            border-color: var(--danger-color);
+        }
+
+        /* 加载状态 */
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            gap: 12px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .smart-cron-container {
+                padding: 16px;
+            }
+
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .tabs-container {
+                flex-wrap: wrap;
+            }
+
+            .modal {
+                width: 95vw;
+            }
+
+            .device-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .task-table th:nth-child(3),
+            .task-table td:nth-child(3),
+            .task-table th:nth-child(5),
+            .task-table td:nth-child(5) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="smart-cron-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">SMART 定时任务</h1>
+            <div class="page-actions">
+                <button class="btn-secondary" onclick="SmartCron.refreshAll()">
+                    ↻ 刷新
+                </button>
+                <button class="btn-primary" onclick="SmartCron.showCreateModal()">
+                    + 新建任务
+                </button>
+            </div>
+        </div>
+
+        <!-- 汇总卡片 -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="summary-value" id="total-tasks">0</div>
+                <div class="summary-label">任务总数</div>
+            </div>
+            <div class="summary-card active">
+                <div class="summary-value" id="active-tasks">0</div>
+                <div class="summary-label">运行中</div>
+            </div>
+            <div class="summary-card warning">
+                <div class="summary-value" id="warning-tasks">0</div>
+                <div class="summary-label">有告警</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value" id="last-run">-</div>
+                <div class="summary-label">上次执行</div>
+            </div>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="tabs-container">
+            <div class="tab-item active" data-tab="tasks" onclick="SmartCron.switchTab('tasks')">
+                任务配置
+            </div>
+            <div class="tab-item" data-tab="execution" onclick="SmartCron.switchTab('execution')">
+                执行状态
+            </div>
+            <div class="tab-item" data-tab="results" onclick="SmartCron.switchTab('results')">
+                检查结果
+            </div>
+            <div class="tab-item" data-tab="alerts" onclick="SmartCron.switchTab('alerts')">
+                告警历史
+            </div>
+        </div>
+
+        <!-- 任务配置面板 -->
+        <div class="tab-content" id="tab-tasks">
+            <div class="task-list-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">任务列表</h2>
+                    <div class="panel-actions">
+                        <select class="filter-select" onchange="SmartCron.filterTasks(this.value)">
+                            <option value="all">全部任务</option>
+                            <option value="enabled">已启用</option>
+                            <option value="disabled">已禁用</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <table class="task-table" id="task-table">
+                    <thead>
+                        <tr>
+                            <th>任务名称</th>
+                            <th>测试类型</th>
+                            <th>执行时间</th>
+                            <th>目标设备</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-list">
+                        <!-- 任务列表将通过 JS 动态生成 -->
+                    </tbody>
+                </table>
+
+                <div class="empty-state" id="tasks-empty" style="display: none;">
+                    <div class="empty-icon">📋</div>
+                    <div class="empty-title">暂无定时任务</div>
+                    <div class="empty-desc">点击"新建任务"创建 SMART 检测定时任务</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 执行状态面板 -->
+        <div class="tab-content" id="tab-execution" style="display: none;">
+            <div class="execution-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">当前执行</h2>
+                </div>
+                
+                <div id="execution-list">
+                    <!-- 执行项将通过 JS 动态生成 -->
+                </div>
+
+                <div class="empty-state" id="execution-empty">
+                    <div class="empty-icon">⚡</div>
+                    <div class="empty-title">当前无执行任务</div>
+                    <div class="empty-desc">定时任务将在预定时间自动执行</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 检查结果面板 -->
+        <div class="tab-content" id="tab-results" style="display: none;">
+            <div class="results-panel">
+                <div class="results-filter">
+                    <select class="filter-select" id="filter-device" onchange="SmartCron.filterResults()">
+                        <option value="all">全部设备</option>
+                    </select>
+                    <select class="filter-select" id="filter-status" onchange="SmartCron.filterResults()">
+                        <option value="all">全部结果</option>
+                        <option value="passed">通过</option>
+                        <option value="warning">警告</option>
+                        <option value="failed">失败</option>
+                    </select>
+                    <select class="filter-select" id="filter-type" onchange="SmartCron.filterResults()">
+                        <option value="all">全部类型</option>
+                        <option value="short">短测试</option>
+                        <option value="long">长测试</option>
+                    </select>
+                </div>
+
+                <table class="results-table" id="results-table">
+                    <thead>
+                        <tr>
+                            <th>执行时间</th>
+                            <th>设备</th>
+                            <th>测试类型</th>
+                            <th>结果</th>
+                            <th>健康分数</th>
+                            <th>详情</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-list">
+                        <!-- 结果列表将通过 JS 动态生成 -->
+                    </tbody>
+                </table>
+
+                <div class="empty-state" id="results-empty" style="display: none;">
+                    <div class="empty-icon">✓</div>
+                    <div class="empty-title">暂无检查结果</div>
+                    <div class="empty-desc">执行定时任务后将显示检查结果</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 告警历史面板 -->
+        <div class="tab-content" id="tab-alerts" style="display: none;">
+            <div class="alerts-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">告警记录</h2>
+                    <div class="panel-actions">
+                        <select class="filter-select" id="filter-severity" onchange="SmartCron.filterAlerts()">
+                            <option value="all">全部级别</option>
+                            <option value="critical">严重</option>
+                            <option value="warning">警告</option>
+                            <option value="info">信息</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="alerts-list">
+                    <!-- 告警列表将通过 JS 动态生成 -->
+                </div>
+
+                <div class="empty-state" id="alerts-empty" style="display: none;">
+                    <div class="empty-icon">🔔</div>
+                    <div class="empty-title">暂无告警记录</div>
+                    <div class="empty-desc">系统运行正常，无磁盘健康告警</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建/编辑任务模态框 -->
+    <div class="modal-overlay" id="task-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">新建 SMART 定时任务</h2>
+                <button class="modal-close" onclick="SmartCron.hideModal()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="task-form">
+                    <div class="form-group">
+                        <label class="form-label">任务名称</label>
+                        <input type="text" class="form-input" id="task-name" 
+                            placeholder="例如: 每周NVMe健康检查" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">测试类型</label>
+                        <select class="form-select" id="test-type" required>
+                            <option value="short">短测试 (约2分钟)</option>
+                            <option value="long">长测试 (完整扫描)</option>
+                            <option value="conveyance">运输测试</option>
+                            <option value="offline">离线测试</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">执行时间 (Cron 表达式)</label>
+                        <input type="text" class="form-input" id="cron-expression" 
+                            placeholder="例如: 0 2 * * 0" required>
+                        
+                        <div class="cron-presets">
+                            <button type="button" class="cron-preset-btn" 
+                                onclick="SmartCron.setCronPreset('0 2 * * 0')">每周日凌晨2点</button>
+                            <button type="button" class="cron-preset-btn" 
+                                onclick="SmartCron.setCronPreset('0 3 * * *')">每日凌晨3点</button>
+                            <button type="button" class="cron-preset-btn" 
+                                onclick="SmartCron.setCronPreset('0 4 * * 6')">每周六凌晨4点</button>
+                            <button type="button" class="cron-preset-btn" 
+                                onclick="SmartCron.setCronPreset('0 0 1 * *')">每月1号</button>
+                            <button type="button" class="cron-preset-btn" 
+                                onclick="SmartCron.setCronPreset('0 */6 * * *')">每6小时</button>
+                        </div>
+                        
+                        <div class="cron-preview" id="cron-preview">
+                            表达式含义: 每周日凌晨 2:00 执行
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">目标设备</label>
+                        <div class="device-selector" id="device-selector">
+                            <!-- 设备选项将通过 JS 动态生成 -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="task-enabled" checked>
+                            <span>立即启用此任务</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="notify-on-warning">
+                            <span>发现警告时通知</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="notify-on-fail" checked>
+                            <span>发现失败时通知</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="SmartCron.hideModal()">
+                    取消
+                </button>
+                <button type="button" class="btn-primary" onclick="SmartCron.saveTask()">
+                    保存任务
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div class="toast" id="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- SMART Cron JS 模块 -->
+    <script src="../../js/smart-cron.js"></script>
+    <script>
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            SmartCron.init();
+        });
+    </script>
+</body>
+</html>
