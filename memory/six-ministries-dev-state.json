@@ -1,83 +1,77 @@
 {
-  "round": 181,
-  "version": "v2.411.0",
-  "date": "2026-04-06",
+  "round": 182,
+  "version": "v2.412.0",
+  "date": "2026-04-07",
   "status": "in_progress",
   "ci_status": "all_success",
-  "last_release": "v2.410.0",
+  "last_release": "v2.411.0",
   "competitive_research": {
     "fnos": {
       "features": ["按需唤醒硬盘", "Intel核显加速人脸识别", "FN Connect免费内网穿透"],
-      "priority": "按需唤醒硬盘已实现v2.381.0",
-      "new_insights": ["飞牛强调节能省电", "核显加速是差异化卖点"]
+      "nas_os_status": "按需唤醒硬盘已实现v2.381.0，GPU调度已有"
     },
     "synology": {
-      "features": ["Photos AI智能相册", "Drive同步", "Active Backup整机备份", "AI Advisor网站助手"],
-      "priority": "Photos AI已实现, Drive/Backup P1规划",
-      "new_insights": ["AI Advisor是2026新特性", "群晖DSM 7.3共享标签系统"]
+      "features": ["Photos AI智能相册", "Drive同步", "Active Backup", "AI Console", "共享标签系统"],
+      "nas_os_status": "Photos AI已实现，Drive/Backup P1规划"
     },
     "truenas": {
-      "features": ["NVMe over Fabric", "RAIDZ Expansion", "Ransomware Defense", "WebShare TrueSearch", "SMB Spotlight"],
-      "priority": "NVMe-oF Phase2开发中, RAIDZ Expansion P0规划",
-      "new_insights": ["TrueNAS 26强化内容搜索", "SMB Spotlight对标macOS体验"]
+      "features": ["NVMe over Fabric TCP+RDMA", "RAIDZ Expansion", "VM Secure Boot", "Direct I/O", "NVIDIA Open GPU", "SMART cron改革"],
+      "nas_os_status": "NVMe-oF Phase2完成，RAIDZ Expansion API实现，其他P1规划"
     }
   },
   "departments": {
     "兵部": {
       "status": "assigned",
-      "task": "RAIDZ Expansion API设计完善 + NVMe-oF Phase2 ANA多路径",
-      "details": ["RAIDZ扩容API框架", "NVMe-oF ANA多路径实现", "对标TrueNAS 25.10"],
-      "assigned": "2026-04-06T15:00:00Z"
+      "task": "Direct I/O预研 + VM Secure Boot评估 + NVIDIA GPU支持调研",
+      "details": ["Direct I/O ZFS虚拟化优化预研", "VM Secure Boot安全启动设计", "NVIDIA Open GPU Blackwell架构评估"],
+      "priority": "P1"
     },
     "工部": {
       "status": "assigned",
-      "task": "CI/CD稳定性保障 + Docker构建优化",
-      "details": ["构建缓存优化", "多架构镜像加速", "依赖更新检查"],
-      "assigned": "2026-04-06T15:00:00Z"
+      "task": "SMART监控cron模式实现 + CI稳定性",
+      "details": ["SMART测试迁移到cron任务", "磁盘健康监控灵活化", "CI验证"],
+      "priority": "P0"
     },
     "刑部": {
       "status": "assigned",
-      "task": "安全审计Round181 + WriteOnce合规验证",
-      "details": ["代码安全扫描", "WriteOnce审计日志", "合规报告"],
-      "assigned": "2026-04-06T15:00:00Z"
+      "task": "安全审计Round182 + VM Secure Boot安全评估",
+      "details": ["govulncheck扫描", "VM Secure Boot安全风险评估", "合规报告"],
+      "priority": "P0"
     },
     "礼部": {
       "status": "assigned",
-      "task": "CHANGELOG更新v2.411.0 + README竞品对标更新",
-      "details": ["版本发布说明", "竞品对比矩阵更新", "文档同步"],
-      "assigned": "2026-04-06T15:00:00Z"
+      "task": "CHANGELOG v2.412.0 + 竞品对比矩阵更新",
+      "details": ["版本发布说明", "TrueNAS 25.10/26新特性对标", "群晖DSM 7.3 AI Console评估"],
+      "priority": "P0"
     },
     "户部": {
       "status": "assigned",
-      "task": "项目统计 + 存储成本分析优化",
-      "details": ["代码行数统计", "成本趋势分析", "资源使用报告"],
-      "assigned": "2026-04-06T15:00:00Z"
+      "task": "项目统计更新 + 存储成本分析",
+      "details": ["代码行数统计", "存储成本趋势", "资源使用报告"],
+      "priority": "P1"
     },
     "吏部": {
       "status": "assigned",
-      "task": "VERSION更新v2.411.0 + MILESTONES里程碑记录",
-      "details": ["版本号更新", "里程碑文档同步", "六部协调"],
-      "assigned": "2026-04-06T15:00:00Z"
+      "task": "VERSION更新 + MILESTONES里程碑记录",
+      "details": ["版本号v2.412.0", "M106 RAIDZ Expansion进度", "里程碑文档同步"],
+      "priority": "P0"
     }
   },
-  "deliverables": {
-    "version": "VERSION",
-    "changelog": "CHANGELOG.md",
-    "milestones": "MILESTONES.md"
-  },
-  "next_priority": "P0: RAIDZ Expansion API + NVMe-oF Phase2",
+  "next_priority": "P0: SMART监控cron改革 + 安全审计Round182",
   "competitive_insights": {
     "key_learnings": [
-      "TrueNAS 26 WebShare TrueSearch全文搜索",
-      "TrueNAS 25.10 NVMe-oF + VM多格式导入",
-      "群晖DSM 7.3共享标签系统",
-      "飞牛按需唤醒硬盘已对标实现"
+      "TrueNAS 25.10 SMART监控从内置改为cron任务模式（更灵活）",
+      "TrueNAS 25.10 VM Secure Boot新特性",
+      "TrueNAS 25.10 NVIDIA Open GPU支持Blackwell架构",
+      "TrueNAS 25.10 Direct I/O ZFS虚拟化优化",
+      "群晖DSM 7.3 AI Console管理第三方AI",
+      "群晖DSM 7.3 共享标签系统Drive 4.0"
     ],
     "action_items": [
-      "RAIDZ Expansion API优先开发",
-      "NVMe-oF Phase2继续开发",
-      "SMB Spotlight评估开发",
-      "WebShare内容搜索增强"
+      "SMART监控cron模式实现（对标TrueNAS 25.10）",
+      "VM Secure Boot预研评估",
+      "Direct I/O优化预研",
+      "AI Console评估（对标群晖）"
     ]
   }
 }
