@@ -25,7 +25,7 @@ on:
       - '.github/workflows/benchmark.yml'
 
 env:
-  GO_VERSION: '1.26'
+  GO_VERSION: '1.26.1'
   CACHE_VERSION: 'v13'
   GOPROXY: 'https://proxy.golang.org,direct'
 

@@ -2,9 +2,9 @@
   "round": 183,
   "version": "v2.413.0",
   "date": "2026-04-07",
-  "status": "in_progress",
-  "start_time": "2026-04-07T09:57:00",
-  "ci_status": "pending",
+  "status": "dispatching",
+  "start_time": "2026-04-07T10:56:00",
+  "ci_status": "success",
   "last_release": "v2.412.0",
   "competitive_research": {
     "fnos": {
@@ -17,52 +17,85 @@
     },
     "truenas": {
       "features": ["NVMe over Fabric TCP+RDMA", "RAIDZ Expansion", "VM Secure Boot", "Direct I/O", "NVIDIA Open GPU", "SMART cron改革"],
-      "nas_os_status": "NVMe-oF Phase2完成，RAIDZ Expansion API实现，其他P1规划中"
+      "nas_os_status": "NVMe-oF Phase2完成，RAIDZ Expansion API实现，SMART cron设计中"
     }
   },
   "departments": {
     "兵部": {
-      "status": "pending",
-      "task": "待下一轮分配",
-      "priority": "P1"
+      "status": "assigned",
+      "task": "竞品持续跟踪 + 代码质量检查",
+      "priority": "P1",
+      "details": [
+        "跟踪TrueNAS/群晖/飞牛最新动态",
+        "go vet/go build全项目检查",
+        "发现潜在问题"
+      ]
     },
     "工部": {
-      "status": "pending",
-      "task": "待下一轮分配",
-      "priority": "P0"
+      "status": "assigned",
+      "task": "SMART cron实现（API层）",
+      "priority": "P0",
+      "details": [
+        "新增 /api/v1/hardware/smart/cron-config API",
+        "支持多任务配置（不同设备组+不同周期）",
+        "集成robfig/cron框架",
+        "复用 internal/backup/scheduler.go 框架"
+      ]
     },
     "刑部": {
-      "status": "pending",
-      "task": "待下一轮分配",
-      "priority": "P0"
+      "status": "assigned",
+      "task": "SMART cron测试用例",
+      "priority": "P0",
+      "details": [
+        "API单元测试",
+        "集成测试",
+        "边界条件测试",
+        "安全测试"
+      ]
     },
     "礼部": {
-      "status": "pending",
-      "task": "待下一轮分配",
-      "priority": "P0"
+      "status": "assigned",
+      "task": "SMART cron WebUI界面",
+      "priority": "P0",
+      "details": [
+        "配置界面设计",
+        "任务列表展示",
+        "状态监控页面",
+        "用户指南文档"
+      ]
     },
     "户部": {
-      "status": "pending",
-      "task": "待下一轮分配",
-      "priority": "P1"
+      "status": "assigned",
+      "task": "成本预算评估",
+      "priority": "P1",
+      "details": [
+        "SMART cron资源消耗评估",
+        "AI模块运行成本分析",
+        "版本发布成本统计"
+      ]
     },
     "吏部": {
-      "status": "pending",
-      "task": "待下一轮分配",
-      "priority": "P0"
+      "status": "assigned",
+      "task": "项目里程碑更新",
+      "priority": "P0",
+      "details": [
+        "更新M108里程碑进度",
+        "整理开发日志",
+        "版本规划调整"
+      ]
     }
   },
-  "next_priority": "P0: SMART监控cron实现 + CI验证",
+  "next_priority": "P0: SMART cron实现（工部+刑部+礼部）",
   "completed_rounds": [181, 182],
   "competitive_insights": {
     "key_learnings": [
-      "TrueNAS 25.10 SMART监控从内置改为cron任务模式（设计完成）",
+      "TrueNAS 25.10 SMART监控从内置改为cron任务模式（设计完成，工部实现中）",
       "TrueNAS 25.10 VM Secure Boot新特性（安全评估完成）",
       "TrueNAS 25.10 NVIDIA Open GPU支持Blackwell架构（可行性评估）",
       "TrueNAS 25.10 Direct I/O ZFS虚拟化优化（预研完成）"
     ],
     "action_items": [
-      "SMART监控cron模式实现（M108里程碑）",
+      "SMART监控cron模式实现（M108里程碑，工部执行中）",
       "Direct I/O优化开发（P1）",
       "VM Secure Boot实现（P1）",
       "NVIDIA GPU支持扩展（P1）"
