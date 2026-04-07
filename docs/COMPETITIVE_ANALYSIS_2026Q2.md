@@ -1,8 +1,8 @@
-# 竞品调研报告 - 2026-04-05 (v2.397.0 更新版)
+# 竞品调研报告 - 2026-04-07 (v2.419.0 更新版)
 
 ## 调研对象
 - TrueNAS 26 (2026年度版) - **最新深度分析**
-- TrueNAS SCALE 24.10 (Electric Eel) - 历史版本参考
+- TrueNAS SCALE 25.10 (Goldeye) - 2026-04发布版本
 - 群晖 DSM 7.x + Active Insight - **最新特性分析**
 - 飞牛 fnOS
 
