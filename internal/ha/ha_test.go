@@ -209,7 +209,7 @@ func TestPerformInitialElection(t *testing.T) {
 				NodeID:  "node-1",
 				Address: "127.0.0.1",
 				Peers: []PeerNode{
-					{ID: "node-2", Address: "127.0.0.1", Priority: 100},
+					{ID: "node-2", Address: "127.0.0.1", Priority: 150}, // node-1默认Priority=100
 				},
 			},
 			expectedPrimary: "node-2",
