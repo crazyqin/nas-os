@@ -499,8 +499,8 @@ func TestHAManagerStartStop(t *testing.T) {
 		t.Fatalf("创建 HA 管理器失败: %v", err)
 	}
 
-	// 启动
-	ctx := context.Background()
+	// 启动（ctx在HAManager内部已创建，不需要传入）
+	_ = ctx // ctx 在其他测试中可用，这里仅用于生命周期管理
 	err = mgr.Start()
 	if err != nil {
 		t.Fatalf("启动 HA 管理器失败: %v", err)
