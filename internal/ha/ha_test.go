@@ -9,10 +9,17 @@ import (
 	"go.uber.org/zap"
 )
 
+// testApplyDefaults 应用默认值并使用临时目录（用于测试）
+func testApplyDefaults(t *testing.T, config *HAConfig) *HAConfig {
+	config = ApplyHADefaults(config)
+	config.DataDir = t.TempDir()
+	return config
+}
+
 func TestNewHAManager(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &HAConfig{
+	config := testApplyDefaults(t, &HAConfig{
 		ClusterName:     "test-cluster",
 		NodeID:          "node-1",
 		NodeName:        "node-1",
@@ -23,7 +30,7 @@ func TestNewHAManager(t *testing.T) {
 		Peers: []PeerNode{
 			{ID: "node-2", Name: "node-2", Address: "127.0.0.1", Port: 8081, Priority: 50},
 		},
-	}
+	})
 
 	mgr, err := NewHAManager(config, logger)
 	if err != nil {
@@ -217,7 +224,7 @@ func TestPerformInitialElection(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			config := ApplyHADefaults(tt.config)
+			config := testApplyDefaults(t, tt.config)
 			mgr, err := NewHAManager(config, logger)
 			if err != nil {
 				t.Fatalf("创建 HA 管理器失败: %v", err)
@@ -239,14 +246,13 @@ func TestPerformInitialElection(t *testing.T) {
 func TestIsPrimary(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &HAConfig{
+	config := testApplyDefaults(t, &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
-	}
-	config = ApplyHADefaults(config)
+	})
 
 	mgr, err := NewHAManager(config, logger)
 	if err != nil {
@@ -264,7 +270,7 @@ func TestIsPrimary(t *testing.T) {
 func TestGetStatus(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &HAConfig{
+	config := testApplyDefaults(t, &HAConfig{
 		NodeID:      "node-1",
 		NodeName:    "node-1",
 		Address:     "127.0.0.1",
@@ -273,8 +279,7 @@ func TestGetStatus(t *testing.T) {
 		Peers: []PeerNode{
 			{ID: "node-2", Name: "node-2", Address: "127.0.0.1", Port: 8081, Priority: 50},
 		},
-	}
-	config = ApplyHADefaults(config)
+	})
 
 	mgr, err := NewHAManager(config, logger)
 	if err != nil {
@@ -301,15 +306,14 @@ func TestGetStatus(t *testing.T) {
 func TestGetNodes(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &HAConfig{
+	config := testApplyDefaults(t, &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 			{ID: "node-3", Address: "127.0.0.1", Priority: 30},
 		},
-	}
-	config = ApplyHADefaults(config)
+	})
 
 	mgr, err := NewHAManager(config, logger)
 	if err != nil {
@@ -326,14 +330,13 @@ func TestGetNodes(t *testing.T) {
 func TestUpdateNodeHeartbeat(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &HAConfig{
+	config := testApplyDefaults(t, &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
-	}
-	config = ApplyHADefaults(config)
+	})
 
 	mgr, err := NewHAManager(config, logger)
 	if err != nil {
@@ -366,14 +369,13 @@ func TestUpdateNodeHeartbeat(t *testing.T) {
 func TestGetEvents(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &HAConfig{
+	config := testApplyDefaults(t, &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
-	}
-	config = ApplyHADefaults(config)
+	})
 
 	mgr, err := NewHAManager(config, logger)
 	if err != nil {
@@ -449,15 +451,14 @@ func TestHAEventTypes(t *testing.T) {
 func TestManualFailover(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &HAConfig{
+	config := testApplyDefaults(t, &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
 		FailoverEnabled: true,
-	}
-	config = ApplyHADefaults(config)
+	})
 
 	mgr, err := NewHAManager(config, logger)
 	if err != nil {
@@ -483,7 +484,7 @@ func TestHAManagerStartStop(t *testing.T) {
 	logger := zap.NewNop()
 	ctx := context.Background()
 
-	config := &HAConfig{
+	config := testApplyDefaults(t, &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
 		Port:    8080,
@@ -492,8 +493,7 @@ func TestHAManagerStartStop(t *testing.T) {
 		},
 		HeartbeatInterval: 100 * time.Millisecond,
 		HeartbeatTimeout:  500 * time.Millisecond,
-	}
-	config = ApplyHADefaults(config)
+	})
 
 	mgr, err := NewHAManager(config, logger)
 	if err != nil {
@@ -526,15 +526,14 @@ func TestHAManagerStartStop(t *testing.T) {
 func TestGetQuorumStatus(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &HAConfig{
+	config := testApplyDefaults(t, &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
 		QuorumRequired: 2,
-	}
-	config = ApplyHADefaults(config)
+	})
 
 	mgr, err := NewHAManager(config, logger)
 	if err != nil {
@@ -555,14 +554,16 @@ func TestGetQuorumStatus(t *testing.T) {
 func BenchmarkGetStatus(b *testing.B) {
 	logger := zap.NewNop()
 
-	config := &HAConfig{
+	// 基准测试不使用 testApplyDefaults，因为 b.N 可能很大
+	tmpDir := b.TempDir()
+	config := ApplyHADefaults(&HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
-	}
-	config = ApplyHADefaults(config)
+	})
+	config.DataDir = tmpDir
 
 	mgr, _ := NewHAManager(config, logger)
 	mgr.performInitialElection()
@@ -576,14 +577,15 @@ func BenchmarkGetStatus(b *testing.B) {
 func BenchmarkUpdateNodeHeartbeat(b *testing.B) {
 	logger := zap.NewNop()
 
-	config := &HAConfig{
+	tmpDir := b.TempDir()
+	config := ApplyHADefaults(&HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
-	}
-	config = ApplyHADefaults(config)
+	})
+	config.DataDir = tmpDir
 
 	mgr, _ := NewHAManager(config, logger)
 
