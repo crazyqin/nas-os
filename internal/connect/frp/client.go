@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 
@@ -530,7 +531,7 @@ func (c *Client) handleData(msg *Message) {
 // forwardData 转发数据
 func (c *Client) forwardData(session *TunnelSession, dataMsg DataMessage) {
 	cfg := session.config
-	localAddr := fmt.Sprintf("%s:%d", cfg.LocalIP, cfg.LocalPort)
+	localAddr := net.JoinHostPort(cfg.LocalIP, strconv.Itoa(cfg.LocalPort))
 	
 	conn, err := net.DialTimeout("tcp", localAddr, 10*time.Second)
 	if err != nil {

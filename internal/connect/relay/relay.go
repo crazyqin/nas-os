@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 
@@ -496,7 +497,7 @@ func mustMarshal(v interface{}) json.RawMessage {
 
 // DialLocalService 连接本地服务
 func (r *RelayClient) DialLocalService(localIP string, localPort int) (net.Conn, error) {
-	addr := fmt.Sprintf("%s:%d", localIP, localPort)
+	addr := net.JoinHostPort(localIP, strconv.Itoa(localPort))
 	return net.DialTimeout("tcp", addr, 10*time.Second)
 }
 
