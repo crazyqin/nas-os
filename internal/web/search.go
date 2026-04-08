@@ -66,6 +66,10 @@ type GlobalSearchConfig struct {
 	HistoryMaxItems  int       `json:"history_max_items"`
 	IndexPath        string    `json:"index_path"`
 	SearchTimeoutMs  int       `json:"search_timeout_ms"`
+	DefaultLimit     int       `json:"default_limit"`     // 默认每页数量
+	MaxLimit         int       `json:"max_limit"`         // 最大每页数量
+	CacheResults     bool      `json:"cache_results"`     // 缓存搜索结果
+	CacheExpirySec   int       `json:"cache_expiry_sec"`  // 缓存过期时间(秒)
 }
 
 // GlobalSearchService provides global search functionality.
@@ -86,11 +90,15 @@ func NewGlobalSearchService(configPath string, logger *zap.Logger) (*GlobalSearc
 	}
 
 	config := &GlobalSearchConfig{
-		MaxResults:      50,
-		EnableHistory:   true,
-		HistoryMaxItems: 100,
-		IndexPath:       "/var/lib/nas-os/search-index",
-		SearchTimeoutMs: 500,
+		MaxResults:       50,
+		EnableHistory:    true,
+		HistoryMaxItems:  100,
+		IndexPath:        "/var/lib/nas-os/search-index",
+		SearchTimeoutMs:  500,
+		DefaultLimit:     20,
+		MaxLimit:         100,
+		CacheResults:     true,
+		CacheExpirySec:   60,
 	}
 
 	s := &GlobalSearchService{
@@ -126,35 +134,132 @@ func (s *GlobalSearchService) initDefaultQuickNav() {
 	}
 }
 
+// SearchRequest 增强搜索请求（支持分页、排序）
+type SearchRequest struct {
+	Query      string         `json:"query"`      // 搜索关键词
+	Categories []SearchCategory `json:"categories"` // 搜索类别
+	Offset     int            `json:"offset"`     // 分页偏移
+	Limit      int            `json:"limit"`      // 每页数量
+	SortBy     string         `json:"sortBy"`     // 排序字段 (score, title, last_updated)
+	SortDesc   bool           `json:"sortDesc"`   // 降序排序
+	Fuzzy      bool           `json:"fuzzy"`      // 模糊搜索
+	ExactMatch bool           `json:"exactMatch"` // 精确匹配
+	Tags       []string       `json:"tags"`       // 标签过滤
+}
+
+// SearchResponse 增强搜索响应（支持分页统计）
+type SearchResponse struct {
+	Query     string       `json:"query"`
+	Results   []SearchItem `json:"results"`
+	Total     int          `json:"total"`      // 总结果数
+	Offset    int          `json:"offset"`     // 当前偏移
+	Limit     int          `json:"limit"`      // 每页数量
+	Truncated bool         `json:"truncated"`  // 是否截断
+	Took      int64        `json:"took"`       // 查询耗时(ms)
+	Facets    map[string]int `json:"facets"`    // 分类统计
+	Suggestions []string   `json:"suggestions"` // 搜索建议
+}
+
 // Search performs global search across all categories.
 func (s *GlobalSearchService) Search(ctx context.Context, query string, categories []SearchCategory) ([]SearchItem, error) {
+	req := SearchRequest{
+		Query:      query,
+		Categories: categories,
+		Offset:     0,
+		Limit:      s.config.MaxResults,
+		SortBy:     "score",
+		SortDesc:   true,
+	}
+	resp, err := s.SearchAdvanced(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Results, nil
+}
+
+// SearchAdvanced 高级搜索（支持分页、排序、过滤）
+func (s *GlobalSearchService) SearchAdvanced(ctx context.Context, req SearchRequest) (*SearchResponse, error) {
+	startTime := time.Now()
+	
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	if query == "" {
-		return []SearchItem{}, nil
+	response := &SearchResponse{
+		Query:     req.Query,
+		Facets:    make(map[string]int),
+		Suggestions: make([]string, 0),
 	}
 
-	query = strings.ToLower(query)
-	results := []SearchItem{}
+	if req.Query == "" {
+		response.Results = []SearchItem{}
+		return response, nil
+	}
+
+	// 设置默认值
+	if req.Limit <= 0 {
+		req.Limit = s.config.MaxResults
+	}
+	if req.Limit > 100 {
+		req.Limit = 100 // 最大100条/页
+	}
+	if req.Offset < 0 {
+		req.Offset = 0
+	}
+
+	query := strings.ToLower(req.Query)
+	allResults := []SearchItem{}
 
 	// Search in specified categories (or all if empty)
-	searchCategories := categories
+	searchCategories := req.Categories
 	if len(searchCategories) == 0 {
-		searchCategories = []SearchCategory{CategorySettings, CategoryFiles, CategoryApps, CategoryUsers, CategoryShares}
+		searchCategories = []SearchCategory{CategorySettings, CategoryFiles, CategoryApps, CategoryUsers, CategoryShares, CategoryLogs}
 	}
 
 	for _, cat := range searchCategories {
 		items := s.index[cat]
 		for _, item := range items {
-			// Simple matching: title or description contains query
-			titleMatch := strings.Contains(strings.ToLower(item.Title), query)
-			descMatch := strings.Contains(strings.ToLower(item.Description), query)
-			tagMatch := false
+			// 匹配计算
+			var titleMatch, descMatch, tagMatch bool
+			
+			if req.ExactMatch {
+				// 精确匹配
+				titleMatch = strings.EqualFold(item.Title, req.Query)
+				descMatch = strings.Contains(strings.ToLower(item.Description), query)
+			} else if req.Fuzzy {
+				// 模糊匹配 - 允许部分匹配
+				titleMatch = strings.Contains(strings.ToLower(item.Title), query) || 
+				             len(query) >= 3 && strings.Contains(query, strings.ToLower(item.Title))
+				descMatch = strings.Contains(strings.ToLower(item.Description), query)
+			} else {
+				// 默认匹配
+				titleMatch = strings.Contains(strings.ToLower(item.Title), query)
+				descMatch = strings.Contains(strings.ToLower(item.Description), query)
+			}
+			
+			// 标签匹配
 			for _, tag := range item.Tags {
 				if strings.Contains(strings.ToLower(tag), query) {
 					tagMatch = true
 					break
+				}
+			}
+
+			// 标签过滤
+			if len(req.Tags) > 0 {
+				tagFilterMatch := false
+				for _, filterTag := range req.Tags {
+					for _, itemTag := range item.Tags {
+						if strings.EqualFold(itemTag, filterTag) {
+							tagFilterMatch = true
+							break
+						}
+					}
+					if tagFilterMatch {
+						break
+					}
+				}
+				if !tagFilterMatch && (titleMatch || descMatch || tagMatch) {
+					continue // 不符合标签过滤
 				}
 			}
 
@@ -163,31 +268,130 @@ func (s *GlobalSearchService) Search(ctx context.Context, query string, categori
 				score := 0.5
 				if titleMatch {
 					score += 0.3
+					if strings.EqualFold(item.Title, req.Query) {
+						score += 0.2 // 精确匹配加分
+					}
 				}
 				if tagMatch {
 					score += 0.2
 				}
+				if descMatch {
+					score += 0.1
+				}
 				item.Score = score
-				results = append(results, item)
+				allResults = append(allResults, item)
+				
+				// 分类统计
+				response.Facets[string(cat)]++
 			}
 		}
 	}
 
-	// Sort by score (descending) and limit results
-	if len(results) > s.config.MaxResults {
-		results = results[:s.config.MaxResults]
+	// 排序
+	s.sortSearchItems(allResults, req.SortBy, req.SortDesc)
+
+	response.Total = len(allResults)
+	
+	// 分页
+	start := req.Offset
+	end := req.Offset + req.Limit
+	
+	if start >= len(allResults) {
+		response.Results = []SearchItem{}
+		response.Truncated = false
+	} else {
+		if end > len(allResults) {
+			end = len(allResults)
+			response.Truncated = false
+		} else {
+			response.Truncated = end < len(allResults)
+		}
+		response.Results = allResults[start:end]
 	}
+	
+	response.Offset = req.Offset
+	response.Limit = req.Limit
+	response.Took = time.Since(startTime).Milliseconds()
+
+	// 生成搜索建议
+	response.Suggestions = s.generateSuggestions(query, allResults)
 
 	// Record search history
 	if s.config.EnableHistory {
-		s.recordHistory(query, len(results))
+		s.recordHistory(req.Query, response.Total)
 	}
 
 	s.logger.Info("Global search completed",
-		zap.String("query", query),
-		zap.Int("results", len(results)))
+		zap.String("query", req.Query),
+		zap.Int("total", response.Total),
+		zap.Int("returned", len(response.Results)),
+		zap.Int64("tookMs", response.Took))
 
-	return results, nil
+	return response, nil
+}
+
+// sortSearchItems 排序搜索结果
+func (s *GlobalSearchService) sortSearchItems(items []SearchItem, sortBy string, desc bool) {
+	if sortBy == "" {
+		sortBy = "score"
+	}
+	
+	// 使用冒泡排序（简化实现）
+	for i := 0; i < len(items)-1; i++ {
+		for j := i + 1; j < len(items); j++ {
+			var less bool
+			
+			switch sortBy {
+			case "score":
+				less = items[i].Score < items[j].Score
+			case "title":
+				less = strings.ToLower(items[i].Title) < strings.ToLower(items[j].Title)
+			case "last_updated":
+				less = items[i].LastUpdated.Before(items[j].LastUpdated)
+			default:
+				less = items[i].Score < items[j].Score
+			}
+			
+			// 降序时反转比较
+			if desc {
+				less = !less
+			}
+			
+			if less {
+				items[i], items[j] = items[j], items[i]
+			}
+		}
+	}
+}
+
+// generateSuggestions 生成搜索建议
+func (s *GlobalSearchService) generateSuggestions(query string, results []SearchItem) []string {
+	suggestions := make([]string, 0)
+	
+	// 从结果标题提取建议
+	for _, item := range results {
+		titleLower := strings.ToLower(item.Title)
+		if strings.HasPrefix(titleLower, query) && titleLower != query {
+			suggestions = append(suggestions, item.Title)
+		}
+		if len(suggestions) >= 5 {
+			break
+		}
+	}
+	
+	// 从历史记录提取建议
+	s.mu.RLock()
+	for _, entry := range s.history {
+		if strings.HasPrefix(strings.ToLower(entry.Query), query) && entry.Query != query {
+			suggestions = append(suggestions, entry.Query)
+		}
+		if len(suggestions) >= 10 {
+			break
+		}
+	}
+	s.mu.RUnlock()
+	
+	return suggestions
 }
 
 // recordHistory records a search query in history.
