@@ -1,6 +1,60 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.429.0 (2026-04-09) 🚀 第200轮里程碑
+## 当前版本：v2.430.0 (2026-04-09) 🚀 第201轮迭代
+
+### 发布目标
+**目标日期**: 2026-04-09
+**主题**: 第201轮迭代 - TrueSearch预研推进 + HA测试修复 + 安全审计
+
+### 六部任务进度（第201轮）
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 司礼监 | 六部调度 + 版本发布 | ✅ 完成 |
+| 兵部 | TrueSearch全文索引预研 | 📋 规划中 |
+| 户部 | 项目统计更新 | ✅ 完成 |
+| 礼部 | CHANGELOG更新 + ROADMAP更新 | ✅ 完成 |
+| 工部 | CI验证 + HA测试修复 | 🚧 进行中 |
+| 刑部 | 安全审计Round201 | 📋 规划中 |
+| 吏部 | VERSION更新v2.430.0 + ROADMAP更新 | ✅ 完成 |
+
+### 竞品调研成果（第200轮 - TrueNAS 26）
+| 竞品 | 最新版本 | 核心特性 | nas-os状态 | 本轮行动 |
+|------|---------|---------|-----------|---------|
+| TrueNAS | 26 Goldeye | WebShare+TrueSearch、Ransomware Defense、SMB Stateful Failover | ✅ 已对标 | TrueSearch预研 |
+| TrueNAS | 25.10 | NVMe-oF TCP/RDMA、ZFS Fast Dedup | ✅ Phase2完成 | 持续优化 |
+| 群晖DSM | 7.3+ | AI Advisor、Active Insight、Photos AI | ✅ 已有AI服务 | 持续对标 |
+| 飞牛fnOS | FN Connect | 内网穿透免费服务 | 🚧 开发中 | P0重点开发 |
+| 铁威马 | TOS 7 | 新内核、SSD NAS存储 | 📋 持续关注 | 观察学习 |
+
+### TrueNAS 26对标分析
+| 功能 | TrueNAS 26 | nas-os状态 | 优先级 |
+|------|------------|------------|--------|
+| WebShare + TrueSearch | ✅ 全文索引 | ✅ WebShare已有 | P0增强 |
+| Ransomware Defense | ✅ 蜜罐+行为分析 | ✅ 已有勒索检测 | 保持优势 |
+| SMB Stateful Failover | ✅ HA会话保持 | 📋 P2规划 | 预研 |
+| SMB Spotlight Search | ✅ macOS支持 | ✅ 已有 | 完成 |
+| Containers HA | ✅ LXC故障转移 | ✅ Docker已有 | 差异化 |
+| OpenZFS 2.4 | ✅ Hybrid pool | 📋 P1评估 | 技术预研 |
+| Passkey认证 | ✅ 无密码认证 | 📋 P1规划 | 设计预研 |
+
+### 内网穿透服务开发规划（P0）
+| 阶段 | 任务 | 状态 | 负责部门 |
+|------|------|------|----------|
+| M1 | 技术选型(frp/nps)与架构设计 | 🚧 进行中 | 工部 |
+| M2 | 核心穿透服务实现 | 📋 规划中 | 兵部 |
+| M3 | WebUI管理界面 | 📋 规划中 | 礼部 |
+| M4 | 安全审计与测试 | 📋 规划中 | 刑部 |
+| M5 | 发布与文档 | 📋 规划中 | 吏部 |
+
+### nas-os四大独家功能（竞品均无）
+1. 🔒 **WriteOnce不可变存储** - WORM文件系统，防勒索、合规归档
+2. 🤖 **本地LLM服务** - Ollama集成 + OpenAI兼容API
+3. 🔐 **AI以文搜图** - CLIP本地推理，自然语言搜索照片
+4. ☁️ **多云存储挂载** - 阿里/腾讯/AWS/GDrive/OneDrive全覆盖
+
+---
+
+## 上期版本：v2.429.0 (2026-04-09) ✅ 第200轮里程碑完成
 
 ### 发布目标
 **目标日期**: 2026-04-09
@@ -45,12 +99,6 @@
 | M3 | WebUI管理界面 | 📋 规划中 | 礼部 |
 | M4 | 安全审计与测试 | 📋 规划中 | 刑部 |
 | M5 | 发布与文档 | 📋 规划中 | 吏部 |
-
-### nas-os四大独家功能（竞品均无）
-1. 🔒 **WriteOnce不可变存储** - WORM文件系统，防勒索、合规归档
-2. 🤖 **本地LLM服务** - Ollama集成 + OpenAI兼容API
-3. 🔐 **AI以文搜图** - CLIP本地推理，自然语言搜索照片
-4. ☁️ **多云存储挂载** - 阿里/腾讯/AWS/GDrive/OneDrive全覆盖
 
 ---
 
