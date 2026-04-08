@@ -104,10 +104,10 @@ func EncodeMessage(msgType MessageType, payload interface{}) ([]byte, error) {
 		}
 	}
 	
-	// 消息头: 2字节类型 + 6字节长度(实际用8字节)
-	header := make([]byte, 8)
+	// 消息头: 2字节类型 + 8字节长度
+	header := make([]byte, 10)
 	binary.BigEndian.PutUint16(header[0:2], uint16(msgType))
-	binary.BigEndian.PutUint64(header[2:8], uint64(len(body)))
+	binary.BigEndian.PutUint64(header[2:10], uint64(len(body)))
 	
 	if len(body) > 0 {
 		return append(header, body...), nil
@@ -171,12 +171,12 @@ func DecodeMessage(msg *Message) (interface{}, error) {
 
 // ParseHeader 解析消息头
 func ParseHeader(header []byte) (MessageType, uint64, error) {
-	if len(header) < 8 {
+	if len(header) < 10 {
 		return 0, 0, errors.New("header too short")
 	}
 	
 	msgType := MessageType(binary.BigEndian.Uint16(header[0:2]))
-	msgLen := binary.BigEndian.Uint64(header[2:8])
+	msgLen := binary.BigEndian.Uint64(header[2:10])
 	
 	return msgType, msgLen, nil
 }

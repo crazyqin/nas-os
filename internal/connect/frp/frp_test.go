@@ -162,7 +162,7 @@ func TestProtocolMessageEncoding(t *testing.T) {
 	require.NoError(t, err)
 	
 	// 验证消息格式
-	msgType, msgLen, err := ParseHeader(data[:8])
+	msgType, msgLen, err := ParseHeader(data[:10])
 	require.NoError(t, err)
 	
 	assert.Equal(t, MsgTypeAuth, msgType)
@@ -172,7 +172,7 @@ func TestProtocolMessageEncoding(t *testing.T) {
 	msg := &Message{
 		Type: msgType,
 		Len:  msgLen,
-		Data: data[8:],
+		Data: data[10:],
 	}
 	
 	decoded, err := DecodeMessage(msg)
@@ -198,7 +198,7 @@ func TestProtocolTunnelMessage(t *testing.T) {
 	data, err := EncodeMessage(MsgTypeNewProxy, tunnelReq)
 	require.NoError(t, err)
 	
-	msgType, msgLen, err := ParseHeader(data[:8])
+	msgType, msgLen, err := ParseHeader(data[:10])
 	require.NoError(t, err)
 	
 	assert.Equal(t, MsgTypeNewProxy, msgType)
@@ -207,7 +207,7 @@ func TestProtocolTunnelMessage(t *testing.T) {
 	msg := &Message{
 		Type: msgType,
 		Len:  msgLen,
-		Data: data[8:],
+		Data: data[10:],
 	}
 	
 	decoded, err := DecodeMessage(msg)
@@ -230,7 +230,7 @@ func TestProtocolDataMessage(t *testing.T) {
 	encoded, err := EncodeMessage(MsgTypeData, dataMsg)
 	require.NoError(t, err)
 	
-	msgType, msgLen, err := ParseHeader(encoded[:8])
+	msgType, msgLen, err := ParseHeader(encoded[:10])
 	require.NoError(t, err)
 	
 	assert.Equal(t, MsgTypeData, msgType)
@@ -239,7 +239,7 @@ func TestProtocolDataMessage(t *testing.T) {
 	msg := &Message{
 		Type: msgType,
 		Len:  msgLen,
-		Data: encoded[8:],
+		Data: encoded[10:],
 	}
 	
 	decoded, err := DecodeMessage(msg)
