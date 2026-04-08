@@ -1,0 +1,128 @@
+# NAT Pierce Server - 内网穿透中继服务
+# 用于 NAT 穿透的中继服务器，支持 TCP/UDP 打洞
+#
+# ═════════════════════════════════════════════════════════════════════════════
+# 🚀 部署向导
+# ═════════════════════════════════════════════════════════════════════════════
+#
+# 步骤 1: 构建镜像
+#   $ docker compose build
+#
+# 步骤 2: 创建配置文件
+#   $ cp config.example.yaml config.yaml
+#   $ 编辑 config.yaml 设置服务器地址和端口
+#
+# 步骤 3: 启动服务
+#   $ docker compose up -d
+#
+# 步骤 4: 查看日志
+#   $ docker compose logs -f natpierce-server
+#
+# ═════════════════════════════════════════════════════════════════════════════
+# ⚙️ 配置说明
+# ═════════════════════════════════════════════════════════════════════════════
+#
+# 端口说明:
+#   7000/tcp   - 控制端口（客户端连接）
+#   7001/udp   - 打洞端口（NAT 穿透）
+#   10000-20000/udp - 数据端口范围（可调整）
+#
+# 网络要求:
+#   - 服务器需要有公网 IP
+#   - 控制端口 7000 需对外开放
+#   - UDP 端口范围需要可访问
+#
+# v2.387.0 工部新增：内网穿透服务 Docker Compose 配置
+
+services:
+  natpierce-server:
+    build:
+      context: ../../
+      dockerfile: deploy/natpierce-server/Dockerfile
+    image: ghcr.io/nas-os/natpierce-server:latest
+    container_name: natpierce-server
+    restart: unless-stopped
+    
+    # ─── 服务标签 ───────────────────────────────────────────────────────────
+    labels:
+      - "nas-os.service=natpierce-server"
+      - "nas-os.description=NAT Pierce Relay Server"
+      - "nas-os.maintainer=工部"
+      - "nas-os.version=2.387.0"
+    
+    # ─── 网络配置 ───────────────────────────────────────────────────────────
+    # 使用 host 网络模式以获得最佳性能
+    # 备选方案：使用 bridge + 端口映射
+    network_mode: host
+    
+    # ─── 端口映射（bridge 模式时使用）────────────────────────────────────────
+    # 如不使用 host 网络，取消下方注释：
+    # ports:
+    #   - "7000:7000/tcp"      # 控制端口
+    #   - "7001:7001/udp"      # 打洞端口
+    #   - "10000-20000:10000-20000/udp"  # 数据端口范围
+    
+    # ─── 存储挂载 ───────────────────────────────────────────────────────────
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - natpierce-data:/app/data
+      - ./logs:/app/logs
+    
+    # ─── 环境变量 ───────────────────────────────────────────────────────────
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    
+    # ─── 资源限制 ───────────────────────────────────────────────────────────
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    # ─── 日志配置 ───────────────────────────────────────────────────────────
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        labels: "service,app"
+        tag: "{{.Name}}"
+    
+    # ─── 健康检查 ───────────────────────────────────────────────────────────
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "7000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # ─── 安全配置 ───────────────────────────────────────────────────────────
+    # 非 root 用户运行（镜像已配置）
+    # user: natpierce
+    
+    # ─── 优雅停止 ───────────────────────────────────────────────────────────
+    stop_grace_period: 15s
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 网络配置
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  default:
+    name: natpierce-network
+    driver: bridge
+    labels:
+      - "nas-os.network=natpierce"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 卷配置
+# ══════════════════════════════════════════════════════════════════════════════
+volumes:
+  natpierce-data:
+    driver: local
+    labels:
+      - "nas-os.volume=natpierce-data"
+      - "nas-os.description=NAT Pierce persistent data"
