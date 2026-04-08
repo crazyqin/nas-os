@@ -983,20 +983,104 @@ a:hover { color: var(--color-primary-hover); }
 }
 
 /* ========================================
-   Stats Cards (Dark Mode Support)
+   Stats Cards (Dark Mode Support) - 现代化卡片设计 v3.0
+   fnOS风格参考：大图标、渐变色彩、圆角设计
    ======================================== */
 .stat-card {
   color: white;
   transition: transform var(--transition-base), box-shadow var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="dark"] .stat-card {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 现代化大图标统计卡片 */
+.stat-card-modern {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #1D4ED8 100%);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 100px;
+}
+
+.stat-card-modern.green {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+}
+
+.stat-card-modern.orange {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+}
+
+.stat-card-modern.purple {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+}
+
+.stat-card-modern.red {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+}
+
+.stat-card-modern.cyan {
+  background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+}
+
+.stat-card-icon-large {
+  font-size: 48px;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.stat-card-content {
+  flex: 1;
+}
+
+.stat-card-value-large {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.stat-card-label-modern {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.stat-card-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.stat-card-trend.up {
+  color: #4ADE80;
+}
+
+.stat-card-trend.down {
+  color: #FCA5A5;
 }
 
 /* ========================================
@@ -1015,4 +1099,373 @@ a:hover { color: var(--color-primary-hover); }
 .nav-item.active {
   background: var(--color-primary-light);
   color: var(--color-primary);
+}
+
+/* ========================================
+   现代化快捷操作面板 - fnOS风格参考
+   ======================================== */
+.quick-actions-modern {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.quick-action-card {
+  background: var(--surface-color);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px solid var(--surface-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-action-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(37, 99, 235, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-primary);
+}
+
+.quick-action-card:hover::after {
+  opacity: 1;
+}
+
+.quick-action-card:active {
+  transform: scale(0.98);
+}
+
+.quick-action-icon-modern {
+  font-size: 36px;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.quick-action-card:hover .quick-action-icon-modern {
+  transform: scale(1.1);
+}
+
+.quick-action-label-modern {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.quick-action-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+/* 快捷操作分组 */
+.quick-actions-group {
+  margin-bottom: 24px;
+}
+
+.quick-actions-group-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 圆形快捷按钮 (fnOS风格) */
+.quick-action-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+}
+
+.quick-action-circle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
+}
+
+.quick-action-circle.success {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.quick-action-circle.warning {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+}
+
+.quick-action-circle.danger {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* ========================================
+   现代化仪表盘布局 - fnOS风格参考
+   ======================================== */
+.dashboard-modern {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dashboard-header-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.dashboard-title-modern {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 仪表盘网格布局 */
+.dashboard-grid-modern {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+/* 网格项尺寸预设 */
+.grid-col-4 { grid-column: span 4; }
+.grid-col-6 { grid-column: span 6; }
+.grid-col-8 { grid-column: span 8; }
+.grid-col-12 { grid-column: span 12; }
+
+/* 现代化面板卡片 */
+.panel-modern {
+  background: var(--surface-color);
+  border-radius: 16px;
+  border: 1px solid var(--surface-border);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.panel-modern:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.panel-header-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.panel-title-modern {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-body-modern {
+  padding: 20px;
+}
+
+/* 状态指示器 */
+.status-indicator-modern {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-success-bg);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-success);
+}
+
+.status-indicator-modern.warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.status-indicator-modern.error {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.status-dot-modern {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-modern 2s infinite;
+}
+
+@keyframes pulse-modern {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+/* 服务状态卡片 */
+.service-card-modern {
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.service-card-modern:hover {
+  background: var(--color-primary-light);
+}
+
+.service-icon-modern {
+  font-size: 24px;
+}
+
+.service-name-modern {
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.service-status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* 响应式网格调整 */
+@media (max-width: 1200px) {
+  .grid-col-4 { grid-column: span 6; }
+  .grid-col-8 { grid-column: span 6; }
+  .quick-actions-modern { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .grid-col-4, .grid-col-6, .grid-col-8 { grid-column: span 12; }
+  .quick-actions-modern { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-modern { padding: 16px; }
+  .dashboard-title-modern { font-size: 20px; }
+}
+
+@media (max-width: 480px) {
+  .quick-actions-modern { grid-template-columns: 1fr; }
+  .quick-action-card { min-height: 80px; padding: 16px; }
+  .quick-action-icon-modern { font-size: 28px; }
+}
+
+/* ========================================
+   数据可视化卡片 (fnOS风格)
+   ======================================== */
+.data-visual-card {
+  background: var(--surface-color);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid var(--surface-border);
+}
+
+.data-visual-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.data-visual-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.data-visual-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.data-visual-chart {
+  height: 120px;
+  position: relative;
+}
+
+/* 进度环 */
+.progress-ring {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.progress-ring-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  position: relative;
+}
+
+.progress-ring-fill {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--color-primary) calc(var(--progress) * 100%),
+    var(--bg-tertiary) calc(var(--progress) * 100%)
+  );
+  transition: background 0.3s ease;
+}
+
+.progress-ring-center {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: var(--surface-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
 }

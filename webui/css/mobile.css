@@ -674,7 +674,175 @@
 }
 
 /* ========================================
-   新增：触摸手势增强
+   现代化移动端仪表盘 - fnOS风格参考
+   ======================================== */
+/* 移动端卡片布局优化 */
+.mobile-dashboard-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 大卡片样式 (fnOS风格) */
+.mobile-stat-card-large {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  border-radius: 16px;
+  padding: 20px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mobile-stat-card-large.green {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+}
+
+.mobile-stat-card-large.orange {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+}
+
+.mobile-stat-card-large.purple {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+}
+
+.mobile-stat-icon {
+  font-size: 40px;
+  opacity: 0.9;
+}
+
+.mobile-stat-content {
+  flex: 1;
+}
+
+.mobile-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.mobile-stat-label {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+/* 移动端快捷操作 (fnOS风格) */
+.mobile-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background: var(--surface-color);
+  border-radius: 16px;
+  border: 1px solid var(--surface-border);
+}
+
+.mobile-quick-action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-quick-action-item:hover {
+  background: var(--color-primary-light);
+  transform: scale(1.05);
+}
+
+.mobile-quick-action-item:active {
+  transform: scale(0.95);
+}
+
+.mobile-quick-action-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.mobile-quick-action-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* 移动端信息卡片 */
+.mobile-info-card {
+  background: var(--surface-color);
+  border-radius: 16px;
+  border: 1px solid var(--surface-border);
+  overflow: hidden;
+}
+
+.mobile-info-card-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--surface-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-info-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mobile-info-card-body {
+  padding: 16px;
+}
+
+.mobile-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.mobile-info-row:last-child {
+  border-bottom: none;
+}
+
+.mobile-info-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.mobile-info-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* 移动端图表容器 */
+.mobile-chart-container {
+  background: var(--surface-color);
+  border-radius: 16px;
+  border: 1px solid var(--surface-border);
+  padding: 16px;
+  height: 180px;
+}
+
+.mobile-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.mobile-chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ========================================
+   移动端触摸手势增强
    ======================================== */
 /* 长按菜单 */
 .touch-context-menu {
