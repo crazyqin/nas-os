@@ -635,7 +635,7 @@ func (c *FastDedupROICalculator) generateSuggestions(analysis *FastDedupAnalysis
 		"💡 使用高耐久度SSD（如企业级NVMe）作为DDT缓存")
 
 	// 性能优化建议
-	if analysis.SSDCacheHitRate < 80 {
+	if analysis.Config.SSDCacheHitRate < 80 {
 		suggestions = append(suggestions,
 			"💡 优化DDT缓存策略提高命中率，目标>85%")
 	}
