@@ -97,7 +97,8 @@ type WorkConnRequest struct {
 func EncodeMessage(msgType MessageType, payload interface{}) ([]byte, error) {
 	var body []byte
 	if payload != nil {
-		body, err := json.Marshal(payload)
+		var err error
+		body, err = json.Marshal(payload)
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal payload: %w", err)
 		}

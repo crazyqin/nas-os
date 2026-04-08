@@ -430,7 +430,7 @@ func (a *TunnelCostAnalyzer) AnalyzeTunnelCost(ctx context.Context, deviceID str
 	report := &TunnelCostReport{
 		ID:          generateReportID(),
 		GeneratedAt: time.Now(),
-		TimeRange:   TimeRange{Start: usage.CollectedAt.Add(-24 * time.Hour), End: usage.CollectedAt},
+		TimeRange:   TimeRange{StartTime: usage.CollectedAt.Add(-24 * time.Hour), EndTime: usage.CollectedAt},
 		UsageStats:  usage,
 	}
 
@@ -499,7 +499,7 @@ func (a *TunnelCostAnalyzer) estimateMonthlyCost(usage TunnelUsageStats) float64
 
 	// 按连接时长比例调整
 	hoursInMonth := 30 * 24
-	usageRatio := usage.ConnectionHours / hoursInMonth
+	usageRatio := usage.ConnectionHours / float64(hoursInMonth)
 	if usageRatio > 1 {
 		usageRatio = 1
 	}

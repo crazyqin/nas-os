@@ -1,18 +1,29 @@
 # Cost 模块
 
-> 版本: v2.90.0 | 户部 - 财务运营
+> 版本: v2.95.0 | 户部 - 财务运营
 
 ## 概述
 
-`internal/cost` 模块提供 NAS-OS 系统的成本计算和管理功能，支持资源定价、成本追踪、预算管理、成本优化等核心能力。
+`internal/cost` 模块提供 NAS-OS 系统的成本计算和管理功能，支持资源定价、成本追踪、预算管理、成本优化、内网穿透成本分析等核心能力。
 
 ## 模块结构
 
 ```
 internal/cost/
-├── types.go        # 成本相关类型定义
-├── calculator.go   # 成本计算器和定价模型
-└── README.md       # 模块说明文档
+├── types.go              # 成本相关类型定义
+├── calculator.go         # 成本计算器和定价模型
+├── cost_analyzer.go      # 存储成本分析器
+├── cloud_compare.go      # 云存储成本对比
+├── storage_efficiency.go # 存储效率统计（对标群晖）
+├── tunnel_cost.go        # 内网穿透成本分析
+├── multi_node.go         # 多节点成本聚合
+├── tiering_roi.go        # 分层存储ROI分析
+├── raidz_calculator.go   # RAID-Z成本计算
+├── dedup_roi_calculator.go # 去重ROI计算器
+├── energy_analysis.go    # 能耗成本分析
+├── tiering_analysis.go   # 分层存储分析
+├── dashboard.go          # 成本仪表盘
+├── README.md             # 模块说明文档
 ```
 
 ## 核心功能
@@ -109,6 +120,67 @@ summary, _ := calculator.CalculateTotalCost(ctx, targetID, start, end)
 suggestions := calculator.GenerateOptimizationSuggestions(ctx, targetID, start, end)
 ```
 
+### 7. 内网穿透成本分析（新增）
+
+内网穿透服务成本分析模块，支持竞品对比和定价参考：
+
+```go
+// 创建穿透成本分析器
+analyzer := NewTunnelCostAnalyzer(DefaultTunnelCostConfig())
+
+// 分析穿透使用成本
+usage := TunnelUsageStats{
+    DeviceID:          "nas-001",
+    AvgBandwidthMbps:  5.0,
+    TotalTrafficGB:    30.0,
+    P2PSuccessRate:    60.0,
+    RelayUsagePercent: 40.0,
+}
+report, _ := analyzer.AnalyzeTunnelCost(ctx, "nas-001", usage)
+
+// 获取竞品定价对比
+comparisons := report.CompetitorComparison
+// 包含：飞牛FN Connect（免费）、群晖QuickConnect（免费）、
+//       Cloudflare Tunnel（免费）、Tailscale（免费）
+
+// 计算服务定价参考
+cost := analyzer.CalculateServiceCost("free", 5.0, 30.0)
+```
+
+**竞品定价参考**：
+
+| 服务商 | 定价 | 带宽限制 | 流量限制 |
+|-------|-----|---------|---------|
+| 飞牛FN Connect | 免费 | ~10Mbps | ~100GB/月 |
+| 群晖QuickConnect | 免费 | ~5Mbps | ~50GB/月 |
+| Cloudflare Tunnel | 免费 | 无限制 | 无限制 |
+| Tailscale | 免费 | 无限制 | 无限制 |
+
+**成本估算**：
+
+- 免费用户：约 ¥2-4/月（P2P优化后）
+- 付费用户：约 ¥10-15/月
+
+### 8. 存储效率分析（对标群晖）
+
+```go
+// 创建效率监控服务
+service := NewEfficiencyMonitorService(DefaultEfficiencyMonitorConfig())
+service.Start()
+
+// 获取存储效率统计
+stats, _ := service.GetEfficiencyStats("default-pool")
+
+// 效率指标
+fmt.Printf("去重比率: %.2fx\n", stats.DedupRatio)
+fmt.Printf("压缩比率: %.2fx\n", stats.CompressionRatio)
+fmt.Printf("综合效率评分: %.1f\n", stats.OverallEfficiencyScore)
+fmt.Printf("月度成本节省: ¥%.2f\n", stats.CostSavedMonthly)
+
+// 获取优化建议
+recommendations := service.GetRecommendations("default-pool")
+```
+
 ## 与其他模块的集成
 
 ### internal/reports 集成
@@ -176,6 +248,7 @@ cost:
 
 | 版本 | 日期 | 变更 |
 |-----|-----|-----|
+| v2.95.0 | 2026-04-08 | 新增内网穿透成本分析模块（tunnel_cost.go） |
 | v2.90.0 | 2024-03-28 | 初始版本 |
 
 ---
