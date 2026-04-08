@@ -3,10 +3,8 @@
 package cost
 
 import (
-	"context"
 	"fmt"
 	"math"
-	"sync"
 	"time"
 )
 
@@ -395,8 +393,8 @@ func (c *FleetCostCalculator) Analyze() *FleetCostAnalysis {
 	// 单节点独立管理总成本
 	standaloneBaseCost := c.config.BaseNodeCostMonthly * float64(c.config.NodeCount)
 	standaloneOpsCost := c.config.OpsStaffCostMonthly // 每节点需要独立运维
-	standaloneBackupCost := 300.0 * float64(c.config.NodeCount)
-	standaloneMonitoringCost := 50.0 * float64(c.config.NodeCount)
+	standaloneBackupCost = 300.0 * float64(c.config.NodeCount)
+	standaloneMonitoringCost = 50.0 * float64(c.config.NodeCount)
 	standaloneNetworkCost := c.config.AvgNodeBandwidthCost * float64(c.config.NodeCount)
 
 	analysis.StandaloneTotalCost = standaloneBaseCost + standaloneOpsCost + standaloneBackupCost +
