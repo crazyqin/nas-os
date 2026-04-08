@@ -280,6 +280,8 @@ func (m *MultichannelManager) getInterfaceType(name string, flags net.Flags) str
 
 	// 根据名称判断类型
 	switch {
+	case name == "lo":
+		return "loopback"
 	case strings.HasPrefix(name, "eth"), strings.HasPrefix(name, "en"):
 		return "ethernet"
 	case strings.HasPrefix(name, "wlan"), strings.HasPrefix(name, "wl"):
