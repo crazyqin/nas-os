@@ -2,6 +2,7 @@
 package ha
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -10,7 +11,6 @@ import (
 
 func TestNewHAManager(t *testing.T) {
 	logger := zap.NewNop()
-	tmpDir := t.TempDir()
 
 	config := &HAConfig{
 		ClusterName:     "test-cluster",
@@ -18,7 +18,6 @@ func TestNewHAManager(t *testing.T) {
 		NodeName:        "node-1",
 		Address:         "127.0.0.1",
 		Port:            8080,
-		DataDir:         tmpDir,
 		HeartbeatInterval: 3 * time.Second,
 		HeartbeatTimeout:  10 * time.Second,
 		Peers: []PeerNode{
@@ -209,7 +208,7 @@ func TestPerformInitialElection(t *testing.T) {
 				NodeID:  "node-1",
 				Address: "127.0.0.1",
 				Peers: []PeerNode{
-					{ID: "node-2", Address: "127.0.0.1", Priority: 150}, // node-1默认Priority=100
+					{ID: "node-2", Address: "127.0.0.1", Priority: 100},
 				},
 			},
 			expectedPrimary: "node-2",
@@ -218,8 +217,6 @@ func TestPerformInitialElection(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tmpDir := t.TempDir()
-			tt.config.DataDir = tmpDir
 			config := ApplyHADefaults(tt.config)
 			mgr, err := NewHAManager(config, logger)
 			if err != nil {
@@ -241,12 +238,10 @@ func TestPerformInitialElection(t *testing.T) {
 
 func TestIsPrimary(t *testing.T) {
 	logger := zap.NewNop()
-	tmpDir := t.TempDir()
 
 	config := &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
-		DataDir: tmpDir,
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
@@ -268,7 +263,6 @@ func TestIsPrimary(t *testing.T) {
 
 func TestGetStatus(t *testing.T) {
 	logger := zap.NewNop()
-	tmpDir := t.TempDir()
 
 	config := &HAConfig{
 		NodeID:      "node-1",
@@ -276,7 +270,6 @@ func TestGetStatus(t *testing.T) {
 		Address:     "127.0.0.1",
 		Port:        8080,
 		ClusterName: "test-cluster",
-		DataDir:     tmpDir,
 		Peers: []PeerNode{
 			{ID: "node-2", Name: "node-2", Address: "127.0.0.1", Port: 8081, Priority: 50},
 		},
@@ -307,12 +300,10 @@ func TestGetStatus(t *testing.T) {
 
 func TestGetNodes(t *testing.T) {
 	logger := zap.NewNop()
-	tmpDir := t.TempDir()
 
 	config := &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
-		DataDir: tmpDir,
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 			{ID: "node-3", Address: "127.0.0.1", Priority: 30},
@@ -334,12 +325,10 @@ func TestGetNodes(t *testing.T) {
 
 func TestUpdateNodeHeartbeat(t *testing.T) {
 	logger := zap.NewNop()
-	tmpDir := t.TempDir()
 
 	config := &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
-		DataDir: tmpDir,
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
@@ -376,12 +365,10 @@ func TestUpdateNodeHeartbeat(t *testing.T) {
 
 func TestGetEvents(t *testing.T) {
 	logger := zap.NewNop()
-	tmpDir := t.TempDir()
 
 	config := &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
-		DataDir: tmpDir,
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
@@ -461,12 +448,10 @@ func TestHAEventTypes(t *testing.T) {
 
 func TestManualFailover(t *testing.T) {
 	logger := zap.NewNop()
-	tmpDir := t.TempDir()
 
 	config := &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
-		DataDir: tmpDir,
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
@@ -495,19 +480,55 @@ func TestManualFailover(t *testing.T) {
 }
 
 func TestHAManagerStartStop(t *testing.T) {
-	// 跳过此测试：Start/Stop存在goroutine同步问题导致超时
-	// 待后续修复
-	t.Skip("HA Manager Start/Stop存在goroutine同步问题，暂时跳过")
-}
-
-func TestGetQuorumStatus(t *testing.T) {
 	logger := zap.NewNop()
-	tmpDir := t.TempDir()
+	ctx := context.Background()
 
 	config := &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
-		DataDir: tmpDir,
+		Port:    8080,
+		Peers: []PeerNode{
+			{ID: "node-2", Address: "127.0.0.1", Port: 8081, Priority: 50},
+		},
+		HeartbeatInterval: 100 * time.Millisecond,
+		HeartbeatTimeout:  500 * time.Millisecond,
+	}
+	config = ApplyHADefaults(config)
+
+	mgr, err := NewHAManager(config, logger)
+	if err != nil {
+		t.Fatalf("创建 HA 管理器失败: %v", err)
+	}
+
+	// 启动（ctx在HAManager内部已创建，用于生命周期管理）
+	_ = ctx
+	err = mgr.Start()
+	if err != nil {
+		t.Fatalf("启动 HA 管理器失败: %v", err)
+	}
+
+	// 等待一小段时间
+	time.Sleep(200 * time.Millisecond)
+
+	// 检查状态
+	status := mgr.GetStatus()
+	if status == nil {
+		t.Error("状态为 nil")
+	}
+
+	// 停止
+	err = mgr.Stop()
+	if err != nil {
+		t.Fatalf("停止 HA 管理器失败: %v", err)
+	}
+}
+
+func TestGetQuorumStatus(t *testing.T) {
+	logger := zap.NewNop()
+
+	config := &HAConfig{
+		NodeID:  "node-1",
+		Address: "127.0.0.1",
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
@@ -533,12 +554,10 @@ func TestGetQuorumStatus(t *testing.T) {
 // 基准测试
 func BenchmarkGetStatus(b *testing.B) {
 	logger := zap.NewNop()
-	tmpDir := b.TempDir()
 
 	config := &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
-		DataDir: tmpDir,
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
@@ -556,12 +575,10 @@ func BenchmarkGetStatus(b *testing.B) {
 
 func BenchmarkUpdateNodeHeartbeat(b *testing.B) {
 	logger := zap.NewNop()
-	tmpDir := b.TempDir()
 
 	config := &HAConfig{
 		NodeID:  "node-1",
 		Address: "127.0.0.1",
-		DataDir: tmpDir,
 		Peers: []PeerNode{
 			{ID: "node-2", Address: "127.0.0.1", Priority: 50},
 		},
