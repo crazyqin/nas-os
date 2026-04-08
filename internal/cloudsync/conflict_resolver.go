@@ -166,7 +166,7 @@ func (r *ConflictResolver) ExecuteRename(ctx context.Context, conflict *Conflict
 
 	// 2. 下载远程版本到新位置
 	remoteOriginal := filepath.Join(r.task.RemotePath, conflict.Path)
-	remoteNew := filepath.Join(r.task.RemotePath, remoteRenamed)
+	_ = filepath.Join(r.task.RemotePath, remoteRenamed) // remoteNew: remote path for renamed version (用于后续同步)
 
 	// 先下载远程版本到临时位置
 	tempPath := filepath.Join(r.task.LocalPath, ".temp_"+remoteRenamed)
