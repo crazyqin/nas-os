@@ -1,28 +1,35 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.438.0 (2026-04-09) 🚀 第211轮迭代
+## 当前版本：v2.439.0 (2026-04-09) 🚀 第212轮迭代
 
 ### 发布目标
 **目标日期**: 2026-04-09
-**主题**: 第211轮六部协同开发 - 竞品学习深化 + FRP WebUI前端推进
+**主题**: 第212轮六部协同开发 - NVMe增强健康监控 + FRP WebUI完善
 
-### 六部任务进度（第211轮）
+### 六部任务进度（第212轮）
 | 部门 | 任务 | 状态 |
 |------|------|------|
 | 司礼监 | 六部调度 + 竞品学习 + 版本发布 | ✅ 完成 |
-| 兵部 | FRP WebUI前端+RAIDZ Expansion | 🚧 进行中 |
-| 户部 | 项目统计(1234文件/68.6万行) | ✅ 完成 |
-| 礼部 | CHANGELOG v2.438.0 | ✅ 完成 |
-| 工部 | CI验证(go build/vet通过) | ✅ 完成 |
-| 刑部 | 安全审计Round211 | 📋 规划中 |
-| 吏部 | VERSION更新v2.438.0 + ROADMAP更新 | ✅ 完成 |
+| 兵部 | FRP WebUI前端完善 | 📋 规划中 |
+| 户部 | 项目统计 | 📋 规划中 |
+| 礼部 | CHANGELOG更新 | 📋 规划中 |
+| 工部 | CI验证 | 📋 规划中 |
+| 刑部 | 安全审计Round212 | 📋 规划中 |
+| 吼部 | VERSION更新v2.439.0 + ROADMAP更新 | ✅ 完成 |
 
-### 竞品调研成果（第209轮深化）
+### 第211轮成果总结
+- ✅ NVMe增强健康监控（三级预警、TBW寿命预测）
+- ✅ RAID成本分析增强（冗余成本计算）
+- ✅ 安全审计Round211完成（1444问题扫描）
+- ✅ 项目统计：1236文件/68.7万行代码
+- ⏱️ FRP WebUI前端（继续推进）
+
+### 竞品调研成果（持续更新）
 | 竞品 | 最新版本 | 核心特性 | nas-os状态 | 本轮行动 |
 |------|---------|---------|-----------|---------|
-| TrueNAS | 26 Goldeye | WebShare+TrueSearch | ✅ 已对标 | 性能达标 |
+| TrueNAS | 25.10 CE | NVMe-oF、RAIDZ Expansion、TrueCommand | ✅ NVMe-oF对标完成 | RAIDZ UI开发 |
 | 真NAS | 25.10 | NVMe-oF、GPU、ZFS Direct I/O | ✅ NVMe-oF对标 | GPU优势保持 |
-| 群晖DSM | 7.3+ | Photos AI、Drive同步 | ✅ AI服务领先 | Drive预研 |
+| 群晖DSM | 7.3+ | Photos AI、Drive同步、Active Insight | ✅ AI服务领先 | Drive预研 |
 | 飞牛fnOS | FN Connect | 免费内网穿透+WebUI | ✅ FRP后端完成 | **前端开发中** |
 | 铁威马 | TOS 6 | TerraSearch、TerraSync | ✅ WebShare已有 | TerraSync对标 |
 
