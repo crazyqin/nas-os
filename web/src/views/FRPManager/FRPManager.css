@@ -1,0 +1,420 @@
+/**
+ * FRP WebUI 样式
+ * 对标飞牛FN Connect WebUI
+ */
+
+.frp-manager {
+  padding: 24px;
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+.frp-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  font-size: 16px;
+  color: #666;
+}
+
+/* Header */
+.frp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.frp-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.frp-icon {
+  font-size: 28px;
+}
+
+.ws-status {
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.ws-status.connected {
+  color: #52c41a;
+}
+
+.ws-status.disconnected {
+  color: #ff4d4f;
+}
+
+.frp-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  color: #666;
+  border: 1px solid #d9d9d9;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.btn-small {
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.btn-success {
+  background: #52c41a;
+  color: white;
+}
+
+.btn-warning {
+  background: #faad14;
+  color: white;
+}
+
+.btn-danger {
+  background: #ff4d4f;
+  color: white;
+}
+
+/* Tabs */
+.frp-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.frp-tabs button {
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.3s ease;
+}
+
+.frp-tabs button:hover {
+  color: #667eea;
+}
+
+.frp-tabs button.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+  font-weight: 500;
+}
+
+/* Tunnel Table */
+.tunnel-table, .client-table {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-collapse: collapse;
+}
+
+.tunnel-table th, .client-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 500;
+  color: #8c8c8c;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.tunnel-table td, .client-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+.tunnel-table tr:hover, .client-table tr:hover {
+  background: #fafafa;
+}
+
+.error-row {
+  background: #fff2f0 !important;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.type-tcp { background: #e6f7ff; color: #1890ff; }
+.type-udp { background: #f6ffed; color: #52c41a; }
+.type-http { background: #fff7e6; color: #fa8c16; }
+.type-https { background: #f9f0ff; color: #722ed1; }
+.type-stcp { background: #fff1f0; color: #ff4d4f; }
+.type-xtcp { background: #e6fffb; color: #13c2c2; }
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Node Grid */
+.node-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.node-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.node-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.node-card.online {
+  border-left: 4px solid #52c41a;
+}
+
+.node-card.offline {
+  border-left: 4px solid #ff4d4f;
+}
+
+.node-card.maintenance {
+  border-left: 4px solid #faad14;
+}
+
+.node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.node-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+.node-status {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.node-status.online {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.node-status.offline {
+  background: #fff2f0;
+  color: #ff4d4f;
+}
+
+.node-status.maintenance {
+  background: #fff7e6;
+  color: #fa8c16;
+}
+
+.node-info {
+  color: #666;
+  font-size: 13px;
+}
+
+.node-region {
+  margin-bottom: 8px;
+}
+
+.node-host {
+  font-family: monospace;
+  background: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.node-metrics {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+}
+
+.empty-state p {
+  color: #8c8c8c;
+  margin-bottom: 20px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  width: 480px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin: 0 0 24px 0;
+  font-size: 20px;
+  color: #1a1a1a;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .frp-manager {
+    padding: 16px;
+  }
+  
+  .frp-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .frp-actions {
+    width: 100%;
+  }
+  
+  .frp-actions button {
+    flex: 1;
+  }
+  
+  .tunnel-table, .client-table {
+    font-size: 12px;
+  }
+  
+  .tunnel-table th, .tunnel-table td,
+  .client-table th, .client-table td {
+    padding: 12px 8px;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
