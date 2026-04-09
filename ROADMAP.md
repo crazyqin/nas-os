@@ -1,41 +1,41 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.441.0 (2026-04-10) 🚀 第212轮迭代完成
+## 当前版本：v2.442.0 (2026-04-10) 🚀 第213轮迭代完成
 
 ### 发布目标
 **目标日期**: 2026-04-10
-**主题**: 第212轮六部协同开发 - CI修复 + 竞品学习深化 + FRP前端推进
+**主题**: 第213轮六部协同开发 - FRP WebUI前端 + 存储健康仪表盘 + 告警中心
 
-### 六部任务进度（第212轮）
+### 六部任务进度（第213轮）
 | 部门 | 任务 | 状态 |
 |------|------|------|
-| 司礼监 | 六部调度 + CI修复 + 竞品学习 + 版本发布 | ✅ 完成 |
-| 兵部 | NVMe健康监控修复 | ✅ 完成 |
-| 户部 | 项目统计(1236文件/68.8万行) | ✅ 完成 |
-| 礼部 | CHANGELOG v2.441.0 + ROADMAP更新 | ✅ 完成 |
-| 工部 | CI验证 + 兼容性修复 | ✅ 完成 |
-| 刑部 | 安全审计Round212 | ✅ 完成 |
-| 吏部 | VERSION更新v2.441.0 | ✅ 完成 |
+| 司礼监 | 六部调度 + 竞品调研 + 版本发布 | ✅ 完成 |
+| 兵部 | FRP WebUI前端开发(440行) | ✅ 完成 |
+| 户部 | 项目统计(1239文件/688K行) | ✅ 完成 |
+| 礼部 | CHANGELOG v2.442.0 + ROADMAP更新 | ✅ 完成 |
+| 工部 | CI验证 + 构建通过 | ✅ 完成 |
+| 刑部 | 安全审计Round213 | ✅ 完成 |
+| 吏部 | VERSION更新v2.442.0 | ✅ 完成 |
 
-### 第212轮成果总结
-- ✅ NVMe健康监控类型引用错误修复
-- ✅ reports包重复类型声明修复
+### 第213轮成果总结
+- ✅ FRP WebUI前端界面完成（对标飞牛FN Connect）
+- ✅ 存储健康仪表盘完成（对标群晖Storage Analyzer）
+- ✅ 告警管理中心前端完成（对标TrueNAS Alert）
 - ✅ CI/CD + Compatibility Check + Docker Publish + Security Scan全部通过
-- ✅ 竞品调研深化（飞牛fnOS/TrueNAS/群晖DSM）
-- ✅ 项目统计：1236文件/687,683行代码
+- ✅ 项目统计：1239文件/688,483行代码（+3文件/+800行）
 
 ### 竞品调研成果（持续更新）
 | 竞品 | 最新版本 | 核心特性 | nas-os状态 | 本轮行动 |
 |------|---------|---------|-----------|---------|
-| TrueNAS | 25.10 CE | NVMe-oF、RAIDZ Expansion、TrueCommand | ✅ NVMe-oF对标完成 | RAIDZ UI开发 |
+| TrueNAS | 25.10 CE | NVMe-oF、RAIDZ Expansion、Alert System | ✅ NVMe-oF对标完成 | **告警前端完成** |
 | 真NAS | 25.10 | NVMe-oF、GPU、ZFS Direct I/O | ✅ NVMe-oF对标 | GPU优势保持 |
-| 群晖DSM | 7.3+ | Photos AI、Drive同步、Active Insight | ✅ AI服务领先 | Drive预研 |
-| 飞牛fnOS | FN Connect | 免费内网穿透+WebUI | ✅ FRP后端完成 | **前端开发中** |
+| 群晖DSM | 7.3+ | Photos AI、Drive同步、Storage Analyzer | ✅ AI服务领先 | **仪表盘完成** |
+| 飞牛fnOS | FN Connect | 免费内网穿透+WebUI | ✅ FRP后端完成 | **前端开发完成** |
 | 铁威马 | TOS 6 | TerraSearch、TerraSync | ✅ WebShare已有 | TerraSync对标 |
 
 ---
 
-## 上期版本：v2.439.0 (2026-04-09) ✅ 第211轮迭代完成
+## 上期版本：v2.441.0 (2026-04-10) ✅ 第212轮迭代完成
 
 ### 发布目标
 **目标日期**: 2026-04-09
