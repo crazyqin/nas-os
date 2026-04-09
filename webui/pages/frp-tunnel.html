@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内网穿透 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        /* FRP隧道管理专用样式 */
+        .frp-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .frp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .frp-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .frp-title-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #1D4ED8 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .frp-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .frp-title-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--color-success-bg);
+            color: var(--color-success);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .frp-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* 统计卡片 */
+        .frp-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .frp-stat-card {
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all var(--transition-base);
+        }
+
+        .frp-stat-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .frp-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .frp-stat-icon.connected {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .frp-stat-icon.tunnels {
+            background: var(--color-info-bg);
+            color: var(--color-info);
+        }
+
+        .frp-stat-icon.traffic {
+            background: var(--color-warning-bg);
+            color: var(--color-warning);
+        }
+
+        .frp-stat-icon.nodes {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: white;
+        }
+
+        .frp-stat-content {
+            flex: 1;
+        }
+
+        .frp-stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .frp-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* 隧道列表 */
+        .tunnel-section {
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .tunnel-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tunnel-section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tunnel-count {
+            background: var(--bg-tertiary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .tunnel-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 隧道表格 */
+        .tunnel-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tunnel-table th {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--surface-border);
+        }
+
+        .tunnel-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--surface-border);
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .tunnel-table tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        .tunnel-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tunnel-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .tunnel-icon.http {
+            background: var(--color-info-bg);
+            color: var(--color-info);
+        }
+
+        .tunnel-icon.tcp {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .tunnel-icon.stcp {
+            background: var(--color-warning-bg);
+            color: var(--color-warning);
+        }
+
+        .tunnel-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .tunnel-status.running {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .tunnel-status.stopped {
+            background: var(--color-gray-100);
+            color: var(--text-muted);
+        }
+
+        .tunnel-status.error {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+
+        .tunnel-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .tunnel-status.running .tunnel-status-dot {
+            background: var(--color-success);
+            animation: pulse 2s infinite;
+        }
+
+        .tunnel-status.stopped .tunnel-status-dot {
+            background: var(--text-muted);
+        }
+
+        .tunnel-status.error .tunnel-status-dot {
+            background: var(--color-error);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .tunnel-url {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .tunnel-url:hover {
+            text-decoration: underline;
+        }
+
+        .tunnel-traffic {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .tunnel-traffic-bar {
+            width: 80px;
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .tunnel-traffic-bar-fill {
+            height: 100%;
+            background: var(--color-info);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        /* 节点选择区域 */
+        .node-section {
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .node-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .node-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .node-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .node-card.selected {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .node-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .node-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .node-region-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .node-region-badge.cn {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .node-region-badge.us {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+
+        .node-region-badge.eu {
+            background: #D1FAE5;
+            color: #059669;
+        }
+
+        .node-stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .node-stat {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: var(--surface-color);
+            border-radius: 8px;
+        }
+
+        .node-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .node-stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .node-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .node-status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .node-status-indicator.online {
+            background: var(--color-success);
+            box-shadow: 0 0 8px var(--color-success);
+        }
+
+        .node-status-indicator.offline {
+            background: var(--color-error);
+        }
+
+        /* 快速连接面板 */
+        .quick-connect-panel {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #1D4ED8 100%);
+            border-radius: 16px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .quick-connect-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quick-connect-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .quick-connect-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quick-connect-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .quick-connect-input {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all var(--transition-fast);
+        }
+
+        .quick-connect-input:focus {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .quick-connect-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .quick-connect-btn {
+            background: white;
+            color: var(--color-primary);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .quick-connect-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+        }
+
+        /* 创建隧道模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-base);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: transform var(--transition-base);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            transition: all var(--transition-fast);
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--color-primary);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--surface-border);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: var(--bg-tertiary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-state-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        /* 实时状态WebSocket指示器 */
+        .ws-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .ws-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-success);
+            animation: pulse 2s infinite;
+        }
+
+        .ws-status-dot.disconnected {
+            background: var(--color-error);
+            animation: none;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .frp-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-connect-form {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .frp-container {
+                padding: 16px;
+            }
+
+            .frp-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .tunnel-table {
+                display: block;
+            }
+
+            .tunnel-table th, .tunnel-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .quick-connect-form {
+                grid-template-columns: 1fr;
+            }
+
+            .node-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="frp-container">
+        <!-- 头部 -->
+        <div class="frp-header">
+            <div class="frp-title">
+                <div class="frp-title-icon">🔗</div>
+                <h1>内网穿透</h1>
+                <div class="frp-title-badge" id="connection-badge">
+                    <span class="tunnel-status-dot running"></span>
+                    已连接
+                </div>
+            </div>
+            <div class="frp-controls">
+                <div class="ws-status" id="ws-status">
+                    <span class="ws-status-dot"></span>
+                    <span>实时更新</span>
+                </div>
+                <button class="btn btn-primary" onclick="openCreateModal()">
+                    <span>＋</span> 创建隧道
+                </button>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="frp-stats">
+            <div class="frp-stat-card">
+                <div class="frp-stat-icon connected">✓</div>
+                <div class="frp-stat-content">
+                    <div class="frp-stat-label">活跃连接</div>
+                    <div class="frp-stat-value" id="active-connections">0</div>
+                </div>
+            </div>
+            <div class="frp-stat-card">
+                <div class="frp-stat-icon tunnels">⚡</div>
+                <div class="frp-stat-content">
+                    <div class="frp-stat-label">运行隧道</div>
+                    <div class="frp-stat-value" id="running-tunnels">0</div>
+                </div>
+            </div>
+            <div class="frp-stat-card">
+                <div class="frp-stat-icon traffic">📊</div>
+                <div class="frp-stat-content">
+                    <div class="frp-stat-label">流量统计</div>
+                    <div class="frp-stat-value" id="traffic-total">0 MB</div>
+                </div>
+            </div>
+            <div class="frp-stat-card">
+                <div class="frp-stat-icon nodes">🌐</div>
+                <div class="frp-stat-content">
+                    <div class="frp-stat-label">可用节点</div>
+                    <div class="frp-stat-value" id="available-nodes">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速连接面板 -->
+        <div class="quick-connect-panel">
+            <div class="quick-connect-title">
+                <span>⚡</span>
+                一键连接
+            </div>
+            <div class="quick-connect-form">
+                <div class="quick-connect-field">
+                    <label class="quick-connect-label">本地端口</label>
+                    <input type="number" class="quick-connect-input" id="quick-local-port" placeholder="如: 80" value="80">
+                </div>
+                <div class="quick-connect-field">
+                    <label class="quick-connect-label">隧道类型</label>
+                    <select class="quick-connect-input" id="quick-tunnel-type">
+                        <option value="http">HTTP</option>
+                        <option value="tcp">TCP</option>
+                        <option value="https">HTTPS</option>
+                    </select>
+                </div>
+                <div class="quick-connect-field">
+                    <label class="quick-connect-label">选择节点</label>
+                    <select class="quick-connect-input" id="quick-node">
+                        <option value="">自动选择最优</option>
+                    </select>
+                </div>
+                <button class="quick-connect-btn" onclick="quickConnect()">
+                    <span>🔗</span> 立即连接
+                </button>
+            </div>
+        </div>
+
+        <!-- 隧道列表 -->
+        <div class="tunnel-section">
+            <div class="tunnel-section-header">
+                <div class="tunnel-section-title">
+                    <span>📋</span>
+                    隧道列表
+                    <span class="tunnel-count" id="tunnel-count">共 0 个</span>
+                </div>
+                <div class="tunnel-actions">
+                    <button class="btn btn-secondary" onclick="refreshTunnels()">刷新</button>
+                    <button class="btn btn-danger" onclick="disconnectAll()">断开全部</button>
+                </div>
+            </div>
+
+            <!-- 隧道表格 -->
+            <table class="tunnel-table" id="tunnel-table">
+                <thead>
+                    <tr>
+                        <th>隧道名称</th>
+                        <th>类型</th>
+                        <th>状态</th>
+                        <th>本地地址</th>
+                        <th>公网地址</th>
+                        <th>流量</th>
+                        <th>节点</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tunnel-list">
+                    <!-- 动态填充 -->
+                </tbody>
+            </table>
+
+            <!-- 空状态 -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-state-icon">🔗</div>
+                <div class="empty-state-title">暂无隧道</div>
+                <div class="empty-state-desc">点击上方"创建隧道"或使用"一键连接"快速开始</div>
+                <button class="btn btn-primary" onclick="openCreateModal()">创建隧道</button>
+            </div>
+        </div>
+
+        <!-- 节点列表 -->
+        <div class="node-section">
+            <div class="tunnel-section-header">
+                <div class="tunnel-section-title">
+                    <span>🌐</span>
+                    穿透节点
+                    <span class="tunnel-count" id="node-count">共 0 个节点</span>
+                </div>
+                <div class="tunnel-actions">
+                    <button class="btn btn-secondary" onclick="healthCheckNodes()">健康检查</button>
+                </div>
+            </div>
+            <div class="node-grid" id="node-grid">
+                <!-- 动态填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建隧道模态框 -->
+    <div class="modal-overlay" id="create-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">创建隧道</div>
+                <div class="modal-close" onclick="closeCreateModal()">✕</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">隧道名称</label>
+                    <input type="text" class="form-input" id="tunnel-name" placeholder="如: web-ui">
+                    <span class="form-hint">便于识别的隧道名称</span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">隧道类型</label>
+                        <select class="form-select" id="tunnel-type">
+                            <option value="http">HTTP</option>
+                            <option value="tcp">TCP</option>
+                            <option value="https">HTTPS</option>
+                            <option value="stcp">STCP (P2P加密)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">节点选择</label>
+                        <select class="form-select" id="tunnel-node">
+                            <option value="">自动选择最优</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">本地IP</label>
+                        <input type="text" class="form-input" id="tunnel-local-ip" value="127.0.0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">本地端口</label>
+                        <input type="number" class="form-input" id="tunnel-local-port" placeholder="如: 80">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">远程端口 (TCP)</label>
+                        <input type="number" class="form-input" id="tunnel-remote-port" placeholder="可选">
+                        <span class="form-hint">仅TCP/UDP类型需要</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">子域名 (HTTP)</label>
+                        <input type="text" class="form-input" id="tunnel-subdomain" placeholder="可选">
+                        <span class="form-hint">仅HTTP类型需要</span>
+                    </div>
+                </div>
+                <div class="form-group" id="stcp-key-group" style="display: none;">
+                    <label class="form-label">STCP密钥</label>
+                    <input type="text" class="form-input" id="tunnel-stcp-key" placeholder="访问密钥">
+                    <span class="form-hint">P2P加密隧道的访问密钥</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCreateModal()">取消</button>
+                <button class="btn btn-primary" onclick="createTunnel()">创建并启动</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="../js/frp-manager.js"></script>
+</body>
+</html>
