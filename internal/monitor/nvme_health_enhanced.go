@@ -4,9 +4,7 @@
 package monitor
 
 import (
-	"context"
 	"fmt"
-	"math"
 	"strings"
 	"sync"
 	"time"
@@ -79,11 +77,11 @@ type NVMeHealthScoreEnhanced struct {
 	Grade             string           `json:"grade"`            // A/B/C/D/F
 	
 	// 分项评分 (基于剩余寿命、温度、错误计数)
-	LifeScore         ComponentScore   `json:"lifeScore"`        // 寿命评分 (权重40%)
-	TemperatureScore  ComponentScore   `json:"temperatureScore"` // 温度评分 (权重25%)
-	ErrorScore        ComponentScore   `json:"errorScore"`       // 错误评分 (权重20%)
-	SpareScore        ComponentScore   `json:"spareScore"`       // 备用块评分 (权重10%)
-	StabilityScore    ComponentScore   `json:"stabilityScore"`   // 稳定性评分 (权重5%)
+	LifeScore         disk.ComponentScore   `json:"lifeScore"`        // 寿命评分 (权重40%)
+	TemperatureScore  disk.ComponentScore   `json:"temperatureScore"` // 温度评分 (权重25%)
+	ErrorScore        disk.ComponentScore   `json:"errorScore"`       // 错误评分 (权重20%)
+	SpareScore        disk.ComponentScore   `json:"spareScore"`       // 备用块评分 (权重10%)
+	StabilityScore    disk.ComponentScore   `json:"stabilityScore"`   // 稳定性评分 (权重5%)
 	
 	// 三级预警状态
 	AlertLevel        string           `json:"alertLevel"`
@@ -161,11 +159,11 @@ func (m *NVMeEnhancedMonitor) CheckNVMeDevice(device string) (*NVMeHealthScoreEn
 		Stability:   0.05,
 	}
 	
-	score.TotalScore = score.LifeScore.Score * weights.Life +
-		score.TemperatureScore.Score * weights.Temperature +
-		score.ErrorScore.Score * weights.Error +
-		score.SpareScore.Score * weights.Spare +
-		score.StabilityScore.Score * weights.Stability
+	score.TotalScore = float64(score.LifeScore.Score) * weights.Life +
+		float64(score.TemperatureScore.Score) * weights.Temperature +
+		float64(score.ErrorScore.Score) * weights.Error +
+		float64(score.SpareScore.Score) * weights.Spare +
+		float64(score.StabilityScore.Score) * weights.Stability
 	
 	// 确定等级
 	score.Grade = scoreToGrade(score.TotalScore)
@@ -194,8 +192,8 @@ func (m *NVMeEnhancedMonitor) CheckNVMeDevice(device string) (*NVMeHealthScoreEn
 }
 
 // calculateLifeScore 计算寿命评分 (基于TBW)
-func (m *NVMeEnhancedMonitor) calculateLifeScore(info *disk.NVMeHealthInfo, tbwSpec *disk.TBWSpec) ComponentScore {
-	score := ComponentScore{
+func (m *NVMeEnhancedMonitor) calculateLifeScore(info *disk.NVMeHealthInfo, tbwSpec *disk.TBWSpec) disk.ComponentScore {
+	score := disk.ComponentScore{
 		Weight: 0.40,
 	}
 	
@@ -254,8 +252,8 @@ func (m *NVMeEnhancedMonitor) calculateLifeScore(info *disk.NVMeHealthInfo, tbwS
 }
 
 // calculateTemperatureScore 计算温度评分
-func (m *NVMeEnhancedMonitor) calculateTemperatureScore(info *disk.NVMeHealthInfo) ComponentScore {
-	score := ComponentScore{
+func (m *NVMeEnhancedMonitor) calculateTemperatureScore(info *disk.NVMeHealthInfo) disk.ComponentScore {
+	score := disk.ComponentScore{
 		Weight: 0.25,
 	}
 	
@@ -297,8 +295,8 @@ func (m *NVMeEnhancedMonitor) calculateTemperatureScore(info *disk.NVMeHealthInf
 }
 
 // calculateErrorScore 计算错误评分
-func (m *NVMeEnhancedMonitor) calculateErrorScore(info *disk.NVMeHealthInfo) ComponentScore {
-	score := ComponentScore{
+func (m *NVMeEnhancedMonitor) calculateErrorScore(info *disk.NVMeHealthInfo) disk.ComponentScore {
+	score := disk.ComponentScore{
 		Weight: 0.20,
 	}
 	
@@ -351,8 +349,8 @@ func (m *NVMeEnhancedMonitor) calculateErrorScore(info *disk.NVMeHealthInfo) Com
 }
 
 // calculateSpareScore 计算备用块评分
-func (m *NVMeEnhancedMonitor) calculateSpareScore(info *disk.NVMeHealthInfo) ComponentScore {
-	score := ComponentScore{
+func (m *NVMeEnhancedMonitor) calculateSpareScore(info *disk.NVMeHealthInfo) disk.ComponentScore {
+	score := disk.ComponentScore{
 		Weight: 0.10,
 	}
 	
@@ -390,8 +388,8 @@ func (m *NVMeEnhancedMonitor) calculateSpareScore(info *disk.NVMeHealthInfo) Com
 }
 
 // calculateStabilityScore 计算稳定性评分
-func (m *NVMeEnhancedMonitor) calculateStabilityScore(device string) ComponentScore {
-	score := ComponentScore{
+func (m *NVMeEnhancedMonitor) calculateStabilityScore(device string) disk.ComponentScore {
+	score := disk.ComponentScore{
 		Weight: 0.05,
 	}
 	
@@ -869,8 +867,8 @@ func (m *NVMeEnhancedMonitor) GenerateSummaryReport() (*NVMeSummaryReport, error
 		totalHealthScore += dev.TotalScore
 		healthCount++
 		
-		if dev.TemperatureScore.Value > 0 {
-			totalTemp += dev.TemperatureScore.Value
+		if tempVal, ok := dev.TemperatureScore.Value.(float64); ok && tempVal > 0 {
+			totalTemp += tempVal
 			tempCount++
 		}
 		
