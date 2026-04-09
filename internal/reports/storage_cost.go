@@ -1942,17 +1942,6 @@ type CostTrendPrediction struct {
 	BudgetWarningLevel  string               `json:"budget_warning_level"` // none/warning/critical
 }
 
-// CostTrendDataPoint 成本趋势数据点.
-type CostTrendDataPoint struct {
-	Date              time.Time `json:"date"`
-	TotalCost         float64   `json:"total_cost"`
-	CapacityCost      float64   `json:"capacity_cost"`
-	RedundancyCost    float64   `json:"redundancy_cost"`
-	UsedGB            float64   `json:"used_gb"`
-	RawGB             float64   `json:"raw_gb"`
-	Growth            float64   `json:"growth"`         // 相比上月增长率
-}
-
 // CostPrediction 成本预测.
 type CostPrediction struct {
 	Date              time.Time `json:"date"`
@@ -1963,8 +1952,8 @@ type CostPrediction struct {
 	UpperBound        float64   `json:"upper_bound"`    // 上限
 }
 
-// CostOptimizationRecommendation 成本优化建议（v2.211.0增强）.
-type CostOptimizationRecommendation struct {
+// CostOptimizationRecommendationEnhanced 成本优化建议（v2.211.0增强）.
+type CostOptimizationRecommendationEnhanced struct {
 	ID                  string    `json:"id"`
 	Type                string    `json:"type"`             // raid_optimize/compress_enable/dedup_enable/tier_migration/cleanup/expand/shrink
 	Priority            int       `json:"priority"`         // 1-10
@@ -2028,7 +2017,7 @@ type EnhancedStorageCostReport struct {
 	TrendPrediction     *CostTrendPrediction `json:"trend_prediction,omitempty"`
 
 	// 优化建议
-	Recommendations     []CostOptimizationRecommendation `json:"recommendations"`
+	Recommendations     []CostOptimizationRecommendationEnhanced `json:"recommendations"`
 
 	// 执行摘要
 	ExecutiveSummary    EnhancedCostSummary `json:"executive_summary"`
