@@ -1,0 +1,27 @@
+govulncheck: loading packages: 
+There are errors with the provided package patterns:
+
+/home/mrafter/nas-os/internal/reports/storage_cost.go:1946:6: CostTrendDataPoint redeclared in this block
+/home/mrafter/nas-os/internal/reports/cost_analysis.go:741:6: 	other declaration of CostTrendDataPoint
+/home/mrafter/nas-os/internal/reports/storage_cost.go:1967:6: CostOptimizationRecommendation redeclared in this block
+/home/mrafter/nas-os/internal/reports/cost_dashboard.go:261:6: 	other declaration of CostOptimizationRecommendation
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:82:20: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:83:20: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:84:20: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:85:20: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:86:20: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:197:100: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:257:84: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:300:78: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:354:78: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:393:70: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:198:11: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:258:11: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:301:11: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:355:11: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:394:11: undefined: ComponentScore
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:7:2: "context" imported and not used
+/home/mrafter/nas-os/internal/monitor/nvme_health_enhanced.go:9:2: "math" imported and not used
+
+For details on package patterns, see https://pkg.go.dev/cmd/go#hdr-Package_lists_and_patterns.
+

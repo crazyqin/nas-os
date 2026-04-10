@@ -8,3 +8,17 @@ var BuildTime = "unknown"
 
 // Commit is the git commit hash
 var Commit = "unknown"
+
+// GetVersion returns the current version string
+func GetVersion() string {
+	return Version
+}
+
+// GetBuildInfo returns build information as a map
+func GetBuildInfo() map[string]string {
+	return map[string]string{
+		"version":     Version,
+		"build_date":  BuildTime,
+		"git_commit":  Commit,
+	}
+}
