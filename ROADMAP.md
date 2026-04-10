@@ -1,36 +1,44 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.442.0 (2026-04-10) 🚀 第213轮迭代完成
+## 当前版本：v2.443.0 (2026-04-10) 🚀 第214轮迭代完成
 
 ### 发布目标
 **目标日期**: 2026-04-10
-**主题**: 第213轮六部协同开发 - FRP WebUI前端 + 存储健康仪表盘 + 告警中心
+**主题**: 第214轮六部协同开发 - 文档更新 + 竞品对比深化
 
-### 六部任务进度（第213轮）
+### 六部任务进度（第214轮）
 | 部门 | 任务 | 状态 |
 |------|------|------|
-| 司礼监 | 六部调度 + 竞品调研 + 版本发布 | ✅ 完成 |
-| 兵部 | FRP WebUI前端开发(440行) | ✅ 完成 |
-| 户部 | 项目统计(1239文件/688K行) | ✅ 完成 |
-| 礼部 | CHANGELOG v2.442.0 + ROADMAP更新 | ✅ 完成 |
+| 司礼监 | 六部调度 + 版本发布 | ✅ 完成 |
+| 兵部 | 继续前端模块优化 | 📋 规划中 |
+| 户部 | 项目统计维护 | ✅ 完成 |
+| 礼部 | CHANGELOG + ROADMAP + USER_GUIDE更新 | ✅ 完成 |
 | 工部 | CI验证 + 构建通过 | ✅ 完成 |
-| 刑部 | 安全审计Round213 | ✅ 完成 |
-| 吏部 | VERSION更新v2.442.0 | ✅ 完成 |
+| 刑部 | 安全审计维护 | ✅ 完成 |
+| 吏部 | VERSION更新v2.443.0 | ✅ 完成 |
 
-### 第213轮成果总结
-- ✅ FRP WebUI前端界面完成（对标飞牛FN Connect）
-- ✅ 存储健康仪表盘完成（对标群晖Storage Analyzer）
-- ✅ 告警管理中心前端完成（对标TrueNAS Alert）
-- ✅ CI/CD + Compatibility Check + Docker Publish + Security Scan全部通过
-- ✅ 项目统计：1239文件/688,483行代码（+3文件/+800行）
+### 第214轮成果总结
+- ✅ CHANGELOG.md更新至v2.443.0
+- ✅ USER_GUIDE.md新增FRP WebUI使用说明
+- ✅ ROADMAP.md竞品对比矩阵更新
+- ✅ nas-os四大独家差异化优势总结
+
+### nas-os四大独家功能（竞品均无）🌟
+
+| 功能 | nas-os实现 | TrueNAS | 群晖DSM | 飞牛fnOS | 铁威马 | 优势说明 |
+|------|-----------|:-------:|:-------:|:--------:|:------:|---------|
+| **WriteOnce不可变存储** | ✅ WORM文件系统 | ❌ | ❌ | ❌ | ❌ | 防勒索、合规归档、审计日志 |
+| **本地LLM服务** | ✅ Ollama集成 | ❌ | ✅ (仅部分) | ❌ | ❌ | OpenAI兼容API、数据不出域 |
+| **AI以文搜图** | ✅ CLIP本地推理 | ❌ | ✅ 仅人脸 | ❌ 仅人脸 | ❌ | 自然语言搜索照片、语义理解 |
+| **多云存储挂载** | ✅ 6+平台覆盖 | ❌ | ❌ | ✅ 有限 | ❌ | 阿里/腾讯/AWS/GDrive/OneDrive |
 
 ### 竞品调研成果（持续更新）
 | 竞品 | 最新版本 | 核心特性 | nas-os状态 | 本轮行动 |
 |------|---------|---------|-----------|---------|
-| TrueNAS | 25.10 CE | NVMe-oF、RAIDZ Expansion、Alert System | ✅ NVMe-oF对标完成 | **告警前端完成** |
+| TrueNAS | 25.10 CE | NVMe-oF、RAIDZ Expansion、Alert System | ✅ NVMe-oF对标完成 | 告警前端完成 |
 | 真NAS | 25.10 | NVMe-oF、GPU、ZFS Direct I/O | ✅ NVMe-oF对标 | GPU优势保持 |
-| 群晖DSM | 7.3+ | Photos AI、Drive同步、Storage Analyzer | ✅ AI服务领先 | **仪表盘完成** |
-| 飞牛fnOS | FN Connect | 免费内网穿透+WebUI | ✅ FRP后端完成 | **前端开发完成** |
+| 群晖DSM | 7.3+ | Photos AI、Drive同步、Storage Analyzer | ✅ AI服务领先 | 仪表盘完成 |
+| 飞牛fnOS | FN Connect | 免费内网穿透+WebUI | ✅ FRP后端完成 | 前端开发完成 |
 | 铁威马 | TOS 6 | TerraSearch、TerraSync | ✅ WebShare已有 | TerraSync对标 |
 
 ---
