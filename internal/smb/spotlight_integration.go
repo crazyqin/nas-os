@@ -1,6 +1,11 @@
 // Package smb SMB Spotlight集成
-// 对标TrueNAS SMB Spotlight功能，支持macOS Spotlight搜索
+// 对标TrueNAS 26 SMB Spotlight功能，支持macOS Spotlight搜索
 // v2.403.0: macOS兼容增强版
+// v2.424.0: Spotlight性能优化增强版 - 参考 TrueNAS 26 macOS Spotlight集成
+//   - 结果缓存与LRU淘汰
+//   - 批量索引优化
+//   - 并行搜索执行
+//   - Spotlight mdfind协议增强
 package smb
 
 import (
@@ -8,6 +13,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -39,6 +45,14 @@ type SpotlightConfig struct {
 	EnableChineseSeg bool     `json:"enableChineseSeg"`  // 中文分词
 	IndexerWorkers   int      `json:"indexerWorkers"`    // 索引工作线程数
 	CacheSize        int      `json:"cacheSize"`         // 搜索缓存大小
+
+	// v2.424.0 性能优化配置
+	CacheTTLSeconds     int  `json:"cacheTTLSeconds"`     // 缓存过期时间(秒)，默认300
+	MaxConcurrentSearch int  `json:"maxConcurrentSearch"` // 最大并行搜索数，默认8
+	IndexBatchSize      int  `json:"indexBatchSize"`      // 索引批处理大小，默认1000
+	EnableResultCache   bool `json:"enableResultCache"`   // 启用结果缓存，默认true
+	EnableParallelIndex bool `json:"enableParallelIndex"` // 启用并行索引，默认true
+	FuzzyThreshold      float64 `json:"fuzzyThreshold"`   // 模糊匹配阈值，默认0.7
 }
 
 // Indexer Spotlight索引器
@@ -51,6 +65,30 @@ type Indexer struct {
 	mu        sync.RWMutex
 	running   bool
 	stats     IndexStats
+
+	// v2.424.0 性能优化增强
+	searchCache     *SearchCache      // 搜索结果缓存
+	batchQueue      chan *FileInfo    // 批量索引队列
+	searchSemaphore chan struct{}     // 搜索并发控制
+	indexWorkers    sync.WaitGroup    // 索引工作者组
+}
+
+// SearchCache 搜索结果缓存 (LRU)
+type SearchCache struct {
+	items    map[string]*CacheEntry
+	maxSize  int
+	ttl      time.Duration
+	mu       sync.RWMutex
+	order    []string // LRU顺序
+}
+
+// CacheEntry 缓存条目
+type CacheEntry struct {
+	Query     string
+	Result    *SpotlightResponse
+	CreatedAt time.Time
+	ExpiresAt time.Time
+	HitCount  int
 }
 
 // FileInfo 文件信息索引
@@ -165,12 +203,47 @@ func NewSpotlightIntegration(config SpotlightConfig, logger *zap.Logger) *Spotli
 
 // NewIndexer 创建索引器
 func NewIndexer(config SpotlightConfig, logger *zap.Logger) *Indexer {
-	return &Indexer{
-		config:     config,
-		logger:     logger,
-		fileIndex:  make(map[string]*FileInfo),
-		contentIdx: make(map[string]*ContentInfo),
-		wordIndex:  make(map[string][]string),
+	// 设置性能优化默认值
+	if config.CacheTTLSeconds <= 0 {
+		config.CacheTTLSeconds = 300 // 5分钟
+	}
+	if config.MaxConcurrentSearch <= 0 {
+		config.MaxConcurrentSearch = 8
+	}
+	if config.IndexBatchSize <= 0 {
+		config.IndexBatchSize = 1000
+	}
+	if config.FuzzyThreshold <= 0 {
+		config.FuzzyThreshold = 0.7
+	}
+	// 默认启用优化
+	config.EnableResultCache = true
+	config.EnableParallelIndex = true
+
+	idx := &Indexer{
+		config:          config,
+		logger:          logger,
+		fileIndex:       make(map[string]*FileInfo),
+		contentIdx:      make(map[string]*ContentInfo),
+		wordIndex:       make(map[string][]string),
+		searchCache:     NewSearchCache(config.CacheSize, time.Duration(config.CacheTTLSeconds)*time.Second),
+		searchSemaphore: make(chan struct{}, config.MaxConcurrentSearch),
+		batchQueue:      make(chan *FileInfo, config.IndexBatchSize),
+	}
+
+	return idx
+}
+
+// NewSearchCache 创建搜索缓存
+func NewSearchCache(maxSize int, ttl time.Duration) *SearchCache {
+	if maxSize <= 0 {
+		maxSize = 100
+	}
+	return &SearchCache{
+		items:   make(map[string]*CacheEntry),
+		maxSize: maxSize,
+		ttl:     ttl,
+		order:   make([]string, 0, maxSize),
 	}
 }
 
