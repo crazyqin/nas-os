@@ -1,22 +1,10 @@
 package version
 
-// Version information
-const (
-	Version   = "2.443.0"
-	BuildDate = "2026-04-10"
-	GitCommit = "v2.442.0"
-)
+// Version is the current version of the application
+const Version = "2.444.0"
 
-// GetVersion returns the current version
-func GetVersion() string {
-	return Version
-}
+// BuildTime is the time when the application was built
+var BuildTime = "unknown"
 
-// GetBuildInfo returns build information
-func GetBuildInfo() map[string]string {
-	return map[string]string{
-		"version":    Version,
-		"build_date": BuildDate,
-		"git_commit": GitCommit,
-	}
-}
+// Commit is the git commit hash
+var Commit = "unknown"
