@@ -60,10 +60,6 @@ jobs:
         with:
           path: ~/.cache/go-build
           key: ${{ env.CACHE_VERSION }}-security-build-${{ hashFiles('go.sum') }}
-          restore-keys: |
-            ${{ env.CACHE_VERSION }}-security-build-
-            ${{ env.CACHE_VERSION }}-build-
-
       - name: Install gosec
         run: go install github.com/securego/gosec/v2/cmd/gosec@latest
 
@@ -148,9 +144,6 @@ jobs:
         with:
           path: ~/.cache/go-build
           key: ${{ env.CACHE_VERSION }}-dep-check-${{ hashFiles('go.sum') }}
-          restore-keys: |
-            ${{ env.CACHE_VERSION }}-dep-check-
-
       - name: Check for outdated dependencies
         run: |
           go list -u -m all | grep -v "indirect" || true
