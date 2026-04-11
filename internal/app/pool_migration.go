@@ -215,6 +215,94 @@ type PoolMigrationManager struct {
 	eventHandlers   []MigrationEventHandler
 	logger          MigrationLogger
 	storage         MigrationStorage
+	
+	// 健康检查和验证器
+	healthChecker   PoolHealthChecker
+	appValidator    AppMigrationValidator
+	appController   AppController
+	
+	// 进度追踪
+	progressTracker *ProgressTracker
+}
+
+// PoolHealthChecker 存储池健康检查器接口
+type PoolHealthChecker interface {
+	CheckPoolHealth(poolID string) (*PoolHealthStatus, error)
+	GetPoolCapacity(poolID string) (*PoolCapacityInfo, error)
+	IsPoolAvailable(poolID string) bool
+}
+
+// PoolHealthStatus 存储池健康状态
+type PoolHealthStatus struct {
+	PoolID       string    `json:"poolId"`
+	Healthy      bool      `json:"healthy"`
+	Status       string    `json:"status"`
+	HealthScore  float64   `json:"healthScore"`  // 0-100
+	Errors       []string  `json:"errors"`
+	Warnings     []string  `json:"warnings"`
+	LastChecked  time.Time `json:"lastChecked"`
+}
+
+// PoolCapacityInfo 存储池容量信息
+type PoolCapacityInfo struct {
+	PoolID        string `json:"poolId"`
+	TotalBytes    uint64 `json:"totalBytes"`
+	UsedBytes     uint64 `json:"usedBytes"`
+	AvailableBytes uint64 `json:"availableBytes"`
+	UsedPercent   float64 `json:"usedPercent"`
+}
+
+// AppMigrationValidator 应用迁移验证器接口
+type AppMigrationValidator interface {
+	ValidateAppMigration(appID string, sourcePoolID, targetPoolID string) (*AppMigrationValidation, error)
+	CheckAppDependencies(appID string) ([]string, error)
+	GetAppStorageUsage(appID string) (*AppStorageUsage, error)
+}
+
+// AppMigrationValidation 应用迁移验证结果
+type AppMigrationValidation struct {
+	AppID           string `json:"appId"`
+	CanMigrate      bool   `json:"canMigrate"`
+	Reason          string `json:"reason,omitempty"`
+	RequiresStop    bool   `json:"requiresStop"`
+	EstimatedTime   int64  `json:"estimatedTime"` // 秒
+	DataSize        uint64 `json:"dataSize"`
+	VolumeCount     int    `json:"volumeCount"`
+}
+
+// AppStorageUsage 应用存储使用情况
+type AppStorageUsage struct {
+	AppID       string            `json:"appId"`
+	Volumes     []VolumeUsage     `json:"volumes"`
+	TotalSize   uint64            `json:"totalSize"`
+	ConfigSize  uint64            `json:"configSize"`
+}
+
+// VolumeUsage 卷使用情况
+type VolumeUsage struct {
+	VolumeName  string `json:"volumeName"`
+	Path        string `json:"path"`
+	SizeBytes   uint64 `json:"sizeBytes"`
+	BindMount   bool   `json:"bindMount"`
+}
+
+// AppController 应用控制器接口
+type AppController interface {
+	StopApp(appID string) error
+	StartApp(appID string) error
+	GetAppStatus(appID string) (string, error)
+	GetAppPool(appID string) (string, error)
+	UpdateAppPool(appID string, poolID string) error
+	ListAppsOnPool(poolID string) ([]string, error)
+}
+
+// ProgressTracker 进度追踪器
+type ProgressTracker struct {
+	transferred    uint64
+	speed          uint64
+	startTime      time.Time
+	lastUpdate     time.Time
+	bytesPerUpdate uint64
 }
 
 // MigrationEventHandler 迁移事件处理器
@@ -252,7 +340,72 @@ func NewPoolMigrationManager(logger MigrationLogger, storage MigrationStorage) *
 		eventHandlers:  make([]MigrationEventHandler, 0),
 		logger:         logger,
 		storage:        storage,
+		progressTracker: &ProgressTracker{},
 	}
+}
+
+// SetHealthChecker 设置健康检查器
+func (m *PoolMigrationManager) SetHealthChecker(checker PoolHealthChecker) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.healthChecker = checker
+}
+
+// SetAppValidator 设置应用验证器
+func (m *PoolMigrationManager) SetAppValidator(validator AppMigrationValidator) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.appValidator = validator
+}
+
+// SetAppController 设置应用控制器
+func (m *PoolMigrationManager) SetAppController(controller AppController) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.appController = controller
+}
+
+// getHealthChecker 获取健康检查器
+func (m *PoolMigrationManager) getHealthChecker() PoolHealthChecker {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.healthChecker
+}
+
+// getAppValidator 获取应用验证器
+func (m *PoolMigrationManager) getAppValidator() AppMigrationValidator {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.appValidator
+}
+
+// getAppController 获取应用控制器
+func (m *PoolMigrationManager) getAppController() AppController {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.appController
+}
+
+// listAppsOnPool 获取池上的应用列表
+func (m *PoolMigrationManager) listAppsOnPool(poolID string) ([]string, error) {
+	controller := m.getAppController()
+	if controller == nil {
+		return nil, errors.New("app controller not configured")
+	}
+	return controller.ListAppsOnPool(poolID)
+}
+
+// isAppOnPool 检查应用是否在指定池上
+func (m *PoolMigrationManager) isAppOnPool(appID string, poolID string) bool {
+	controller := m.getAppController()
+	if controller == nil {
+		return false
+	}
+	appPool, err := controller.GetAppPool(appID)
+	if err != nil {
+		return false
+	}
+	return appPool == poolID
 }
 
 // RegisterEventHandler 注册事件处理器
@@ -488,22 +641,206 @@ func (m *PoolMigrationManager) executeMigration(config *MigrationConfig, record 
 	m.emitMigrationComplete(record)
 }
 
+// PoolHealthChecker 存储池健康检查器接口
+type PoolHealthChecker interface {
+	CheckPoolHealth(poolID string) (*PoolHealthStatus, error)
+	GetPoolCapacity(poolID string) (*PoolCapacityInfo, error)
+	IsPoolAvailable(poolID string) bool
+}
+
+// PoolHealthStatus 存储池健康状态
+type PoolHealthStatus struct {
+	PoolID       string    `json:"poolId"`
+	Healthy      bool      `json:"healthy"`
+	Status       string    `json:"status"`
+	HealthScore  float64   `json:"healthScore"`  // 0-100
+	Errors       []string  `json:"errors"`
+	Warnings     []string  `json:"warnings"`
+	LastChecked  time.Time `json:"lastChecked"`
+}
+
+// PoolCapacityInfo 存储池容量信息
+type PoolCapacityInfo struct {
+	PoolID        string `json:"poolId"`
+	TotalBytes    uint64 `json:"totalBytes"`
+	UsedBytes     uint64 `json:"usedBytes"`
+	AvailableBytes uint64 `json:"availableBytes"`
+	UsedPercent   float64 `json:"usedPercent"`
+}
+
+// AppMigrationValidator 应用迁移验证器接口
+type AppMigrationValidator interface {
+	ValidateAppMigration(appID string, sourcePoolID, targetPoolID string) (*AppMigrationValidation, error)
+	CheckAppDependencies(appID string) ([]string, error)
+	GetAppStorageUsage(appID string) (*AppStorageUsage, error)
+}
+
+// AppMigrationValidation 应用迁移验证结果
+type AppMigrationValidation struct {
+	AppID           string `json:"appId"`
+	CanMigrate      bool   `json:"canMigrate"`
+	Reason          string `json:"reason,omitempty"`
+	RequiresStop    bool   `json:"requiresStop"`
+	EstimatedTime   int64  `json:"estimatedTime"` // 秒
+	DataSize        uint64 `json:"dataSize"`
+	VolumeCount     int    `json:"volumeCount"`
+}
+
+// AppStorageUsage 应用存储使用情况
+type AppStorageUsage struct {
+	AppID       string            `json:"appId"`
+	Volumes     []VolumeUsage     `json:"volumes"`
+	TotalSize   uint64            `json:"totalSize"`
+	ConfigSize  uint64            `json:"configSize"`
+}
+
+// VolumeUsage 卷使用情况
+type VolumeUsage struct {
+	VolumeName  string `json:"volumeName"`
+	Path        string `json:"path"`
+	SizeBytes   uint64 `json:"sizeBytes"`
+	BindMount   bool   `json:"bindMount"`
+}
+
 // phasePrepareAndValidate 准备和验证阶段
 func (m *PoolMigrationManager) phasePrepareAndValidate(config *MigrationConfig, record *MigrationRecord) error {
 	m.updateProgress(record, MigrationPhaseValidate, 0)
 	
-	// TODO: 实现以下验证逻辑
+	// 获取健康检查器和验证器
+	healthChecker := m.getHealthChecker()
+	appValidator := m.getAppValidator()
+	
+	if healthChecker == nil || appValidator == nil {
+		return errors.New("health checker or app validator not configured")
+	}
+	
 	// 1. 验证源存储池状态和健康度
+	sourceHealth, err := healthChecker.CheckPoolHealth(config.SourcePoolID)
+	if err != nil {
+		return fmt.Errorf("failed to check source pool health: %w", err)
+	}
+	if !sourceHealth.Healthy || sourceHealth.HealthScore < 50 {
+		record.Progress.Warnings = append(record.Progress.Warnings,
+			fmt.Sprintf("Source pool health degraded: score %.1f", sourceHealth.HealthScore))
+		if sourceHealth.HealthScore < 30 {
+			return ErrSourcePoolNotHealthy
+		}
+	}
+	m.updateProgress(record, MigrationPhaseValidate, 1)
+	
 	// 2. 验证目标存储池状态和健康度
+	targetHealth, err := healthChecker.CheckPoolHealth(config.TargetPoolID)
+	if err != nil {
+		return fmt.Errorf("failed to check target pool health: %w", err)
+	}
+	if !targetHealth.Healthy || targetHealth.HealthScore < 50 {
+		return ErrTargetPoolNotHealthy
+	}
+	if !healthChecker.IsPoolAvailable(config.TargetPoolID) {
+		return errors.New("target pool is not available for migration")
+	}
+	m.updateProgress(record, MigrationPhaseValidate, 2)
+	
 	// 3. 检查目标存储池空间是否足够
+	targetCapacity, err := healthChecker.GetPoolCapacity(config.TargetPoolID)
+	if err != nil {
+		return fmt.Errorf("failed to get target pool capacity: %w", err)
+	}
+	
+	// 计算需要迁移的总数据量
+	var totalDataSize uint64
+	var appsToMigrate []string
+	
+	if len(config.AppIDs) == 0 {
+		// 迁移池上所有应用
+		appsToMigrate, err = m.listAppsOnPool(config.SourcePoolID)
+		if err != nil {
+			return fmt.Errorf("failed to list apps on source pool: %w", err)
+		}
+	} else {
+		appsToMigrate = config.AppIDs
+	}
+	
+	for _, appID := range appsToMigrate {
+		usage, err := appValidator.GetAppStorageUsage(appID)
+		if err != nil {
+			record.Progress.Warnings = append(record.Progress.Warnings,
+				fmt.Sprintf("Failed to get storage usage for app %s: %v", appID, err))
+			continue
+		}
+		totalDataSize += usage.TotalSize
+	}
+	
+	// 检查空间是否足够（预留 10% 缓冲）
+	requiredSpace := totalDataSize + uint64(float64(totalDataSize)*0.1)
+	if targetCapacity.AvailableBytes < requiredSpace {
+		return ErrInsufficientSpace
+	}
+	
+	record.Progress.BytesTotal = totalDataSize
+	record.Progress.AppsTotal = len(appsToMigrate)
+	m.updateProgress(record, MigrationPhaseValidate, 3)
+	
 	// 4. 验证应用是否支持迁移
+	var unsupportedApps []string
+	for _, appID := range appsToMigrate {
+		validation, err := appValidator.ValidateAppMigration(appID, config.SourcePoolID, config.TargetPoolID)
+		if err != nil {
+			record.Progress.Warnings = append(record.Progress.Warnings,
+				fmt.Sprintf("Failed to validate app %s: %v", appID, err))
+			continue
+		}
+		if !validation.CanMigrate {
+			unsupportedApps = append(unsupportedApps, appID)
+			record.Progress.Errors = append(record.Progress.Errors, MigrationErrorInfo{
+				Time:    time.Now(),
+				AppID:   appID,
+				Message: validation.Reason,
+				Code:    "APP_NOT_SUPPORTED",
+			})
+		}
+	}
+	
+	if len(unsupportedApps) > 0 && len(unsupportedApps) == len(appsToMigrate) {
+		return ErrAppNotSupported
+	}
+	
+	// 跳过不支持的应用
+	record.Progress.AppsSkipped = len(unsupportedApps)
+	m.updateProgress(record, MigrationPhaseValidate, 4)
+	
 	// 5. 检查应用依赖关系
+	for _, appID := range appsToMigrate {
+		deps, err := appValidator.CheckAppDependencies(appID)
+		if err != nil {
+			continue
+		}
+		
+		// 检查依赖是否在同一池上
+		for _, depID := range deps {
+			if !m.isAppOnPool(depID, config.SourcePoolID) {
+				record.Progress.Warnings = append(record.Progress.Warnings,
+					fmt.Sprintf("App %s depends on %s which is not on source pool", appID, depID))
+			}
+		}
+	}
+	
+	m.updateProgress(record, MigrationPhaseValidate, 5)
 	
 	// 创建检查点
 	checkpoint := m.createCheckpoint(record, MigrationPhaseValidate)
+	checkpoint.Data["appsToMigrate"] = appsToMigrate
+	checkpoint.Data["totalDataSize"] = totalDataSize
+	checkpoint.Data["sourceHealth"] = sourceHealth
+	checkpoint.Data["targetHealth"] = targetHealth
 	m.saveCheckpoint(checkpoint)
 	
-	m.updateProgress(record, MigrationPhaseValidate, 5)
+	m.logger.Info("Validation phase completed",
+		"appsToMigrate", len(appsToMigrate),
+		"appsSkipped", len(unsupportedApps),
+		"totalDataSize", totalDataSize,
+	)
+	
 	return nil
 }
 
