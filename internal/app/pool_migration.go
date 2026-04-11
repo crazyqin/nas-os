@@ -344,7 +344,9 @@ func (m *PoolMigrationManager) CancelMigration(ctx context.Context, id string, r
 	if rollback {
 		m.activeMigration.Status = MigrationStatusRollingBack
 		m.activeMigration.CancelReason = "user_cancelled"
-		go m.performRollback(m.activeMigration)
+		go func() {
+		_ = m.performRollback(m.activeMigration)
+	}()
 	} else {
 		now := time.Now()
 		m.activeMigration.Status = MigrationStatusFailed
