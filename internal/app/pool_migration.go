@@ -642,10 +642,56 @@ func (m *PoolMigrationManager) handleMigrationFailure(record *MigrationRecord, e
 	m.mu.Unlock()
 	
 	m.saveMigrationRecord(record)
-	m.emitMigrationFailed(record, err)
-	
-	if autoRollback {
-		m.performRollback(record)
+}
+
+// ========== 辅助函数 ==========
+
+// emitMigrationStart 发射迁移开始事件
+func (m *PoolMigrationManager) emitMigrationStart(record *MigrationRecord) {
+	for _, h := range m.eventHandlers {
+		h.OnMigrationStart(record)
+	}
+}
+
+// emitMigrationComplete 发射迁移完成事件
+func (m *PoolMigrationManager) emitMigrationComplete(record *MigrationRecord) {
+	for _, h := range m.eventHandlers {
+		h.OnMigrationComplete(record)
+	}
+}
+
+// emitRollbackComplete 发射回滚完成事件
+func (m *PoolMigrationManager) emitRollbackComplete(record *MigrationRecord) {
+	for _, h := range m.eventHandlers {
+		h.OnRollbackComplete(record)
+	}
+}
+
+// emitMigrationProgress 发射迁移进度事件
+func (m *PoolMigrationManager) emitMigrationProgress(record *MigrationRecord, progress *MigrationProgress) {
+	for _, h := range m.eventHandlers {
+		h.OnMigrationProgress(record, progress)
+	}
+}
+
+// emitMigrationFailed 发射迁移失败事件
+func (m *PoolMigrationManager) emitMigrationFailed(record *MigrationRecord, err error) {
+	for _, h := range m.eventHandlers {
+		h.OnMigrationFailed(record, err)
+	}
+}
+
+// emitRollbackStart 发射回滚开始事件
+func (m *PoolMigrationManager) emitRollbackStart(record *MigrationRecord) {
+	for _, h := range m.eventHandlers {
+		h.OnRollbackStart(record)
+	}
+}
+
+// saveMigrationRecord 保存迁移记录
+func (m *PoolMigrationManager) saveMigrationRecord(record *MigrationRecord) {
+	if m.storage != nil {
+		m.storage.SaveMigrationRecord(record)
 	}
 }
 
@@ -657,51 +703,6 @@ func (m *PoolMigrationManager) updateProgress(record *MigrationRecord, phase Mig
 	record.Progress.Percent = percent
 	m.emitMigrationProgress(record, &record.Progress)
 }
-
-// saveMigrationRecord 保存迁移记录
-func (m *PoolMigrationManager) saveMigrationRecord(record *MigrationRecord) error {
-	return m.storage.SaveMigrationRecord(record)
-}
-
-// ========== 事件发射方法 ==========
-
-func (m *PoolMigrationManager) emitMigrationStart(record *MigrationRecord) {
-	for _, h := range m.eventHandlers {
-		h.OnMigrationStart(record)
-	}
-}
-
-func (m *PoolMigrationManager) emitMigrationProgress(record *MigrationRecord, progress *MigrationProgress) {
-	for _, h := range m.eventHandlers {
-		h.OnMigrationProgress(record, progress)
-	}
-}
-
-func (m *PoolMigrationManager) emitMigrationComplete(record *MigrationRecord) {
-	for _, h := range m.eventHandlers {
-		h.OnMigrationComplete(record)
-	}
-}
-
-func (m *PoolMigrationManager) emitMigrationFailed(record *MigrationRecord, err error) {
-	for _, h := range m.eventHandlers {
-		h.OnMigrationFailed(record, err)
-	}
-}
-
-func (m *PoolMigrationManager) emitRollbackStart(record *MigrationRecord) {
-	for _, h := range m.eventHandlers {
-		h.OnRollbackStart(record)
-	}
-}
-
-func (m *PoolMigrationManager) emitRollbackComplete(record *MigrationRecord) {
-	for _, h := range m.eventHandlers {
-		h.OnRollbackComplete(record)
-	}
-}
-
-// ========== 辅助函数 ==========
 
 // generateMigrationID 生成迁移ID
 func generateMigrationID() string {
