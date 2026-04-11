@@ -67,10 +67,6 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: compatibility-${{ runner.os }}-${{ runner.arch }}-go${{ matrix.go-version }}-${{ hashFiles('go.sum') }}
-          restore-keys: |
-            compatibility-${{ runner.os }}-${{ runner.arch }}-go${{ matrix.go-version }}-
-            compatibility-${{ runner.os }}-${{ runner.arch }}-
-
       - name: 验证 go.mod 版本
         run: |
           MOD_VERSION=$(grep -E '^go [0-9]' go.mod | awk '{print $2}')

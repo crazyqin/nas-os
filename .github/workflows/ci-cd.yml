@@ -209,42 +209,6 @@ jobs:
         with:
           path: ~/.cache/go-build
           key: build-artifacts-${{ env.CACHE_VERSION }}-${{ github.sha }}
-          restore-keys: |
-            build-artifacts-${{ env.CACHE_VERSION }}-
-      
-      - name: 缓存测试结果（跨运行复用）
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/.cache/go-test
-          key: go-test-${{ env.CACHE_VERSION }}-${{ hashFiles('**/*_test.go') }}
-          restore-keys: |
-            go-test-${{ env.CACHE_VERSION }}-
-      
-      - name: 缓存统计报告
-        run: |
-          echo "## 📦 缓存统计" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| 缓存类型 | 大小 | 文件数 |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|------|--------|" >> $GITHUB_STEP_SUMMARY
-          
-          # Go 模块缓存
-          if [ -d ~/go/pkg/mod ]; then
-            MOD_SIZE=$(du -sh ~/go/pkg/mod 2>/dev/null | cut -f1)
-            MOD_COUNT=$(find ~/go/pkg/mod -type f 2>/dev/null | wc -l)
-            echo "| Go 模块 | $MOD_SIZE | $MOD_COUNT |" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          # Go 编译缓存
-          if [ -d ~/.cache/go-build ]; then
-            BUILD_SIZE=$(du -sh ~/.cache/go-build 2>/dev/null | cut -f1)
-            BUILD_COUNT=$(find ~/.cache/go-build -type f 2>/dev/null | wc -l)
-            echo "| Go 编译 | $BUILD_SIZE | $BUILD_COUNT |" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ 缓存预热完成"
-
   # ========== 代码质量（并行执行） ==========
   lint:
     name: 代码检查
@@ -262,9 +226,6 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: ${{ needs.prepare.outputs.go-cache-key }}
-          restore-keys: |
-            go-${{ env.CACHE_VERSION }}-
-
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
@@ -278,9 +239,6 @@ jobs:
             ~/.cache/golangci-lint
             ~/go/bin
           key: go-tools-${{ env.CACHE_VERSION }}-${{ runner.os }}
-          restore-keys: |
-            go-tools-${{ env.CACHE_VERSION }}-
-
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
         continue-on-error: true
@@ -320,9 +278,6 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: ${{ needs.prepare.outputs.go-cache-key }}
-          restore-keys: |
-            go-${{ env.CACHE_VERSION }}-
-
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
@@ -403,9 +358,6 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: ${{ needs.prepare.outputs.go-cache-key }}
-          restore-keys: |
-            go-${{ env.CACHE_VERSION }}-
-
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
@@ -417,9 +369,6 @@ jobs:
         with:
           path: ~/.cache/go-test
           key: go-test-${{ env.CACHE_VERSION }}-${{ hashFiles('**/*_test.go') }}
-          restore-keys: |
-            go-test-${{ env.CACHE_VERSION }}-
-
       - name: 安装 CGO 依赖
         run: sudo apt-get update && sudo apt-get install -y gcc libc6-dev
 
@@ -658,9 +607,6 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: ${{ needs.prepare.outputs.go-cache-key }}
-          restore-keys: |
-            go-${{ env.CACHE_VERSION }}-
-
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
@@ -749,9 +695,6 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: ${{ needs.prepare.outputs.go-cache-key }}
-          restore-keys: |
-            go-${{ env.CACHE_VERSION }}-
-
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
@@ -764,46 +707,6 @@ jobs:
         with:
           path: ~/.cache/go-build
           key: ${{ env.CACHE_VERSION }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('go.sum') }}
-          restore-keys: |
-            ${{ env.CACHE_VERSION }}-build-${{ matrix.os }}-${{ matrix.arch }}-
-            ${{ env.CACHE_VERSION }}-build-
-      
-      - name: 编译
-        env:
-          GOOS: ${{ matrix.os }}
-          GOARCH: ${{ matrix.arch }}
-          GOARM: ${{ matrix.arm }}
-          CGO_ENABLED: 0
-        run: |
-          BINARY_NAME="nasd-${{ matrix.os }}-${{ matrix.arch }}"
-          if [ -n "${{ matrix.arm }}" ]; then
-            BINARY_NAME="${BINARY_NAME}v${{ matrix.arm }}"
-          fi
-          
-          # v2.254.0: 添加版本信息嵌入
-          VERSION="${{ github.ref_name }}"
-          COMMIT="${{ github.sha }}"
-          BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
-          LDFLAGS="-w -s -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildTime=$BUILD_TIME"
-          
-          go build -ldflags="$LDFLAGS" -trimpath -o "${BINARY_NAME}" ./cmd/nasd
-          echo "✅ 编译成功: ${BINARY_NAME}"
-          ls -lh "${BINARY_NAME}"
-      
-      - name: 生成校验和
-        run: |
-          sha256sum nasd-* > checksums.txt
-          cat checksums.txt
-      
-      - name: 上传构建产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: nas-os-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.arm && format('v{0}', matrix.arm) || '' }}
-          path: |
-            nasd-*
-            checksums.txt
-          retention-days: 7
-
   # ========== Docker Compose 测试 ==========
   docker-compose-test:
     name: Docker Compose 测试
