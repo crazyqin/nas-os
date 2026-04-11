@@ -149,6 +149,45 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: ${{ env.CACHE_VERSION }}-go-modules-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('**/go.sum') }}
+      
+      - name: 安装 Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      
+      - name: 构建二进制文件
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          BINARY_NAME="nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
+          CTL_NAME="nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
+          
+          # 设置 GOARM for ARM builds
+          if [ -n "${{ matrix.arm }}" ]; then
+            export GOARM="${{ matrix.arm }}"
+          fi
+          
+          # 构建 nasd
+          go build -trimpath -ldflags "-s -w -X main.Version=${VERSION#v}" -o "$BINARY_NAME" ./cmd/nasd
+          
+          # 构建 nasctl
+          go build -trimpath -ldflags "-s -w -X main.Version=${VERSION#v}" -o "$CTL_NAME" ./cmd/nasctl
+          
+          echo "✅ 构建完成: $BINARY_NAME, $CTL_NAME"
+          
+          # 生成校验和
+          sha256sum "$BINARY_NAME" "$CTL_NAME" > "checksums-${{ matrix.os }}-${{ matrix.arch }}.txt"
+      
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}
+            nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}
+            checksums-${{ matrix.os }}-${{ matrix.arch }}.txt
+          retention-days: 90
+  
   # ========== 生成 SBOM ==========
   generate-sbom:
     name: 生成 SBOM
