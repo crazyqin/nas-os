@@ -352,13 +352,15 @@ func (d *SnapshotAnomalyDetector) detectSizeIncrease(dataset string, snapshots [
 			continue
 		}
 
+		// 计算时间差（分钟）
+		timeDiff := current.Created.Sub(prev.Created).Minutes()
+
 		// 计算增长百分比
 		increaseRate := float64(current.Used - prev.Used) / float64(prev.Used) * 100
 
 		// 检测异常突增
 		if increaseRate >= d.thresholds.SizeIncreasePercent {
 			// 勒索攻击特征：短时间内大量数据变化
-			timeDiff := current.Created.Sub(prev.Created).Minutes()
 
 			threatLevel := ThreatLevelCritical
 			if timeDiff > 60 { // 超过1小时的变化可能是正常操作
