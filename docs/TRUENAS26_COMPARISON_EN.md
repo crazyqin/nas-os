@@ -1,17 +1,21 @@
-# TrueNAS 26 vs nas-os v2.388.0 Comparison
+# TrueNAS 26 vs nas-os v2.450.0 Comparison
 
 ## 📊 Feature Comparison Matrix
 
-| Feature | TrueNAS 26 | nas-os v2.388.0 | Winner |
+| Feature | TrueNAS 26 | nas-os v2.450.0 | Winner |
 |----------|------------|-----------------|--------|
 | **WebShare Content Search** | ✅ TrueSearch full-text | ✅ Filename search, content planned | TrueNAS |
 | **Ransomware Protection** | ✅ Ransomware Defense monitoring | ✅ **WriteOnce WORM immutable storage** | **nas-os** |
-| **SMB Spotlight** | ✅ macOS Spotlight integration | 📋 Planned | TrueNAS |
+| **SMB Spotlight** | ✅ macOS Spotlight integration | 📋 Phase1 development | TrueNAS |
 | **SMB Stateful Failover** | ✅ Enterprise HA support | 📋 Planned | TrueNAS |
+| **Containers HA** | ✅ Container auto-migration | 🚧 App Pool Migration in dev | TrueNAS |
 | **LXC Containers** | ✅ Full support | ❌ Docker only | TrueNAS |
+| **OpenZFS Version** | ✅ OpenZFS 2.4 | ✅ btrfs + ZFS optional | Differentiated |
 | **Local LLM Service** | ❌ None | ✅ **Ollama + OpenAI-compatible API** | **nas-os** |
 | **AI Text-to-Image Search** | ❌ None | ✅ **CLIP local inference** | **nas-os** |
 | **Multi-Cloud Mount** | ❌ None | ✅ **6+ platforms covered** | **nas-os** |
+| **NVMe over Fabric** | ✅ TCP + RDMA | ✅ **Phase2 complete** | Tie |
+| **VM Secure Boot** | ✅ VM secure boot | 📋 Under research | TrueNAS |
 | **Open Source Free** | ✅ | ✅ | Tie |
 | **Enterprise Subscription** | ⚠️ Connect requires subscription | ✅ Completely free | **nas-os** |
 | **Hardware Lock-in** | ⚠️ Enterprise needs official hardware | ✅ Any x86/ARM hardware | **nas-os** |
@@ -76,9 +80,12 @@
 
 | Feature | Description | nas-os Plan |
 |---------|-------------|-------------|
-| **WebShare TrueSearch** | Full-text content search | v2.389.0 development |
-| **SMB Spotlight** | macOS Spotlight integration | v2.389.0 development |
-| **SMB Stateful Failover** | Enterprise HA failover | v2.390.0 planned |
+| **WebShare TrueSearch** | Full-text content search, quick file locate | v2.450.0 research |
+| **SMB Spotlight** | macOS Spotlight integration, Finder search | Phase1 development |
+| **SMB Stateful Failover** | Enterprise HA failover, zero downtime | v2.452.0 planned |
+| **Containers HA** | Container high availability auto-migration | App Pool Migration in dev |
+| **OpenZFS 2.4** | Latest ZFS features, RAIDZ Expansion optimized | btrfs + ZFS dual-track |
+| **VM Secure Boot** | VM secure boot, anti-Bootkit protection | Under research |
 | **LXC Containers** | Lightweight container support | Under evaluation |
 
 ---
@@ -118,12 +125,14 @@
 
 | Version | nas-os Planned Features | TrueNAS Benchmark |
 |---------|------------------------|-------------------|
-| v2.389.0 | SMB Spotlight, WebShare content search | TrueSearch benchmark |
-| v2.390.0 | SMB Stateful Failover | Enterprise HA benchmark |
-| v2.391.0 | RAIDZ Expansion UI | OpenZFS 2.3 benchmark |
+| v2.450.0 | SMB Spotlight Phase1, TrueSearch research | TrueSearch benchmark starts |
+| v2.451.0 | WebShare content search, TrueSearch impl | TrueSearch benchmark done |
+| v2.452.0 | SMB Stateful Failover | Enterprise HA benchmark |
+| v2.453.0 | App Pool Migration complete | Containers HA benchmark |
+| v2.454.0 | RAIDZ Expansion UI optimized | OpenZFS 2.4 benchmark |
 
 ---
 
-**Update Date**: 2026-04-04  
-**nas-os Version**: v2.388.0  
+**Update Date**: 2026-04-11  
+**nas-os Version**: v2.450.0  
 **TrueNAS Version**: 26.1

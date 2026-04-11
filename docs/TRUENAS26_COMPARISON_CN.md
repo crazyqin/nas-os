@@ -1,17 +1,21 @@
-# TrueNAS 26 vs nas-os v2.388.0 对比分析
+# TrueNAS 26 vs nas-os v2.450.0 对比分析
 
 ## 📊 核心功能对比矩阵
 
-| 功能特性 | TrueNAS 26 | nas-os v2.388.0 | 优势方 |
+| 功能特性 | TrueNAS 26 | nas-os v2.450.0 | 优势方 |
 |----------|------------|-----------------|--------|
 | **WebShare内容搜索** | ✅ TrueSearch全文搜索 | ✅ 文件名搜索，内容搜索规划中 | TrueNAS |
 | **勒索软件防护** | ✅ Ransomware Defense监控响应 | ✅ **WriteOnce WORM不可变存储** | **nas-os** |
-| **SMB Spotlight** | ✅ macOS Spotlight集成 | 📋 规划中 | TrueNAS |
+| **SMB Spotlight** | ✅ macOS Spotlight集成 | 📋 Phase1开发中 | TrueNAS |
 | **SMB Stateful Failover** | ✅ 企业HA支持 | 📋 规划中 | TrueNAS |
+| **Containers HA** | ✅ 容器高可用自动迁移 | 🚧 App Pool Migration开发中 | TrueNAS |
 | **LXC容器** | ✅ 完整支持 | ❌ 仅Docker | TrueNAS |
+| **OpenZFS版本** | ✅ OpenZFS 2.4 | ✅ btrfs + ZFS可选 | 差异化 |
 | **本地LLM服务** | ❌ 无 | ✅ **Ollama + OpenAI兼容API** | **nas-os** |
 | **AI以文搜图** | ❌ 无 | ✅ **CLIP本地推理** | **nas-os** |
 | **多云挂载** | ❌ 无 | ✅ **6+平台全覆盖** | **nas-os** |
+| **NVMe over Fabric** | ✅ TCP + RDMA | ✅ **Phase2完成** | 平手 |
+| **VM Secure Boot** | ✅ 虚拟机安全启动 | 📋 预研中 | TrueNAS |
 | **开源免费** | ✅ | ✅ | 平手 |
 | **企业订阅** | ⚠️ Connect需订阅 | ✅ 完全免费 | **nas-os** |
 | **硬件锁定** | ⚠️ Enterprise需官方硬件 | ✅ 任意x86/ARM硬件 | **nas-os** |
@@ -76,9 +80,12 @@
 
 | 功能 | 说明 | nas-os规划 |
 |------|------|------------|
-| **WebShare TrueSearch** | 全文内容搜索 | v2.389.0开发 |
-| **SMB Spotlight** | macOS Spotlight集成 | v2.389.0开发 |
-| **SMB Stateful Failover** | 企业HA故障转移 | v2.390.0规划 |
+| **WebShare TrueSearch** | 全文内容搜索，文件快速定位 | v2.450.0预研 |
+| **SMB Spotlight** | macOS Spotlight集成，Finder搜索 | Phase1开发中 |
+| **SMB Stateful Failover** | 企业HA故障转移，零中断切换 | v2.452.0规划 |
+| **Containers HA** | 容器高可用自动迁移 | App Pool Migration开发中 |
+| **OpenZFS 2.4** | 最新ZFS特性，RAIDZ Expansion优化 | btrfs + ZFS双轨 |
+| **VM Secure Boot** | 虚拟机安全启动，防Bootkit攻击 | 预研评估中 |
 | **LXC容器** | 轻量级容器支持 | 评估中 |
 
 ---
@@ -118,12 +125,14 @@
 
 | 版本 | nas-os规划功能 | 对标TrueNAS |
 |------|----------------|-------------|
-| v2.389.0 | SMB Spotlight、WebShare内容搜索 | TrueSearch对标 |
-| v2.390.0 | SMB Stateful Failover | 企业HA对标 |
-| v2.391.0 | RAIDZ Expansion UI | OpenZFS 2.3对标 |
+| v2.450.0 | SMB Spotlight Phase1、TrueSearch预研 | TrueSearch对标启动 |
+| v2.451.0 | WebShare内容搜索、TrueSearch实现 | TrueSearch对标完成 |
+| v2.452.0 | SMB Stateful Failover | 企业HA对标 |
+| v2.453.0 | App Pool Migration完成 | Containers HA对标 |
+| v2.454.0 | RAIDZ Expansion UI优化 | OpenZFS 2.4对标 |
 
 ---
 
-**更新日期**: 2026-04-04  
-**nas-os版本**: v2.388.0  
+**更新日期**: 2026-04-11  
+**nas-os版本**: v2.450.0  
 **TrueNAS版本**: 26.1
