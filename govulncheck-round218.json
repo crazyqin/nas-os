@@ -1,0 +1,8 @@
+govulncheck: loading packages: 
+There are errors with the provided package patterns:
+
+/home/mrafter/clawd/nas-os/internal/security/ransomware/snapshot_anomaly.go:390:29: undefined: timeDiff
+/home/mrafter/clawd/nas-os/internal/security/ransomware/snapshot_anomaly.go:403:44: undefined: timeDiff
+
+For details on package patterns, see https://pkg.go.dev/cmd/go#hdr-Package_lists_and_patterns.
+
