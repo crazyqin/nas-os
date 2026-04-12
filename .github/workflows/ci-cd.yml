@@ -707,6 +707,43 @@ jobs:
         with:
           path: ~/.cache/go-build
           key: ${{ env.CACHE_VERSION }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('go.sum') }}
+      
+      - name: 编译
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          GOARM: ${{ matrix.arm }}
+          CGO_ENABLED: 0
+        run: |
+          BINARY_NAME="nasd-${{ matrix.os }}-${{ matrix.arch }}"
+          if [ -n "${{ matrix.arm }}" ]; then
+            BINARY_NAME="${BINARY_NAME}v${{ matrix.arm }}"
+          fi
+          
+          # v2.254.0: 添加版本信息嵌入
+          VERSION="${{ github.ref_name }}"
+          COMMIT="${{ github.sha }}"
+          BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
+          LDFLAGS="-w -s -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildTime=$BUILD_TIME"
+          
+          go build -ldflags="$LDFLAGS" -trimpath -o "${BINARY_NAME}" ./cmd/nasd
+          echo "✅ 编译成功: ${BINARY_NAME}"
+          ls -lh "${BINARY_NAME}"
+      
+      - name: 生成校验和
+        run: |
+          sha256sum nasd-* > checksums.txt
+          cat checksums.txt
+      
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: nas-os-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.arm && format('v{0}', matrix.arm) || '' }}
+          path: |
+            nasd-*
+            checksums.txt
+          retention-days: 7
+
   # ========== Docker Compose 测试 ==========
   docker-compose-test:
     name: Docker Compose 测试
@@ -809,6 +846,14 @@ jobs:
       - name: 整合校验和
         run: |
           echo "📦 整合构建产物..."
+          
+          if [ ! -d "artifacts" ] || [ -z "$(ls -A artifacts 2>/dev/null)" ]; then
+            echo "⚠️ artifacts 目录为空或不存在，跳过整合"
+            echo "## ⚠️ 构建产物整合跳过" >> $GITHUB_STEP_SUMMARY
+            echo "未找到匹配的构建产物" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
           cd artifacts
           
           # 合并所有校验和文件
@@ -835,14 +880,17 @@ jobs:
           echo "| 平台 | 文件大小 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|----------|" >> $GITHUB_STEP_SUMMARY
           
-          for dir in artifacts/nas-os-*; do
-            platform=$(basename "$dir")
-            binary=$(ls "$dir"/nasd-* 2>/dev/null | head -1)
-            if [ -n "$binary" ]; then
-              size=$(ls -lh "$binary" | awk '{print $5}')
-              echo "| $platform | $size |" >> $GITHUB_STEP_SUMMARY
-            fi
-          done
+          if [ -d "artifacts" ]; then
+            for dir in artifacts/nas-os-*; do
+              [ -d "$dir" ] || continue
+              platform=$(basename "$dir")
+              binary=$(ls "$dir"/nasd-* 2>/dev/null | head -1)
+              if [ -n "$binary" ]; then
+                size=$(ls -lh "$binary" | awk '{print $5}')
+                echo "| $platform | $size |" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+          fi
 
   # ========== 构建汇总 ==========
   build-summary:
