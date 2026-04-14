@@ -11,8 +11,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"nas-os/internal/monitor"
 )
 
 // TemplateType 模板类型
@@ -531,17 +529,28 @@ func (te *TemplateEngine) renderString(tmplStr string, vars *AlertVars) (string,
 	return buf.String(), nil
 }
 
+// MonitorAlert is a minimal interface to break the import cycle with internal/monitor.
+// The caller should pass *monitor.Alert which implicitly satisfies this interface.
+type MonitorAlert interface {
+	GetID() string
+	GetType() string
+	GetLevel() string
+	GetMessage() string
+	GetSource() string
+	GetTimestamp() time.Time
+}
+
 // RenderAlertVarsFromMonitor 从监控Alert转换为渲染变量
-func RenderAlertVarsFromMonitor(alert *monitor.Alert, hostName, hostIP string, extra map[string]interface{}) *AlertVars {
+func RenderAlertVarsFromMonitor(alert MonitorAlert, hostName, hostIP string, extra map[string]interface{}) *AlertVars {
 	vars := &AlertVars{
-		AlertID:    alert.ID,
-		AlertName:  alert.Type,
+		AlertID:    alert.GetID(),
+		AlertName:  alert.GetType(),
 		HostName:   hostName,
 		HostIP:     hostIP,
-		Level:      AlertLevel(alert.Level),
-		Message:    alert.Message,
-		Source:     alert.Source,
-		Timestamp:  alert.Timestamp,
+		Level:      AlertLevel(alert.GetLevel()),
+		Message:    alert.GetMessage(),
+		Source:     alert.GetSource(),
+		Timestamp:  alert.GetTimestamp(),
 		Tags:       make(map[string]string),
 		Extra:     extra,
 	}

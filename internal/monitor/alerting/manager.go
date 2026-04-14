@@ -213,7 +213,7 @@ func (m *Manager) GetStatus() map[string]interface{} {
 
 // QuickSend 快速发送告警（直接渲染并发送）
 func (m *Manager) QuickSend(ctx context.Context, chType ChannelType, target, templateID string, vars *AlertVars) error {
-	ch := &Channel{
+	_ = &Channel{
 		ID:       fmt.Sprintf("quick-%d", time.Now().UnixNano()),
 		Type:     chType,
 		Target:   target,
