@@ -774,9 +774,6 @@ func (m *Manager) parseAuthData(data []byte) (*ParsedAuthData, error) {
 	return p, nil
 }
 
-func sha256HashImpl(s string) []byte {
-	return nil // overridden by crypto.go init()
-}
 
 // Sha256Hash computes SHA-256 of a string (exported for tests).
 func Sha256Hash(s string) []byte {
