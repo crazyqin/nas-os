@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"nas-os/internal/monitor/alerting"
 )
 
 // Manager 监控管理器.
@@ -554,22 +556,8 @@ func (m *Manager) GetHostname() string {
 
 // --- 告警增强系统集成 (Round228) ---
 
-import (
-	"bufio"
-	"context"
-	"fmt"
-	"os"
-	"os/exec"
-	"runtime"
-	"strconv"
-	"strings"
-	"time"
-
-	"nas-os/internal/monitor/alerting"
-)
-
-// AlertManager 增强版告警管理器（兼容原接口）
-type AlertManager struct {
+// EnhancedAlertManager 增强版告警管理器（兼容原接口）
+type EnhancedAlertManager struct {
 	// 原有的 AlertingManager
 	legacy *AlertingManager
 	// 新的增强管理器
@@ -578,8 +566,8 @@ type AlertManager struct {
 	hostIP   string
 }
 
-// NewAlertManager 创建增强告警管理器
-func NewAlertManager() (*AlertManager, error) {
+// NewEnhancedAlertManager 创建增强告警管理器
+func NewEnhancedAlertManager() (*EnhancedAlertManager, error) {
 	hostname, _ := os.Hostname()
 	hostIP := getLocalIP()
 
@@ -597,7 +585,7 @@ func NewAlertManager() (*AlertManager, error) {
 	// 设置默认渠道和规则
 	setupDefaultRoutes(enhanced)
 
-	am := &AlertManager{
+	am := &EnhancedAlertManager{
 		legacy:   NewAlertingManager(),
 		enhanced: enhanced,
 		hostname: hostname,
@@ -679,7 +667,7 @@ func setupDefaultRoutes(m *alerting.Manager) {
 }
 
 // SendAlert 发送告警（兼容原接口）
-func (am *AlertManager) SendAlert(ctx context.Context, alertType, level, message, source string, extra map[string]interface{}) error {
+func (am *EnhancedAlertManager) SendAlert(ctx context.Context, alertType, level, message, source string, extra map[string]interface{}) error {
 	vars := &alerting.AlertVars{
 		AlertID:    fmt.Sprintf("alert-%d", time.Now().UnixNano()),
 		AlertName:  alertType,
@@ -716,22 +704,22 @@ func (am *AlertManager) SendAlert(ctx context.Context, alertType, level, message
 }
 
 // SendCriticalAlert 发送严重告警
-func (am *AlertManager) SendCriticalAlert(ctx context.Context, alertType, message, source string) error {
+func (am *EnhancedAlertManager) SendCriticalAlert(ctx context.Context, alertType, message, source string) error {
 	return am.SendAlert(ctx, alertType, "critical", message, source, nil)
 }
 
 // SendWarningAlert 发送警告告警
-func (am *AlertManager) SendWarningAlert(ctx context.Context, alertType, message, source string) error {
+func (am *EnhancedAlertManager) SendWarningAlert(ctx context.Context, alertType, message, source string) error {
 	return am.SendAlert(ctx, alertType, "warning", message, source, nil)
 }
 
 // SendInfoAlert 发送信息告警
-func (am *AlertManager) SendInfoAlert(ctx context.Context, alertType, message, source string) error {
+func (am *EnhancedAlertManager) SendInfoAlert(ctx context.Context, alertType, message, source string) error {
 	return am.SendAlert(ctx, alertType, "info", message, source, nil)
 }
 
 // QuickNotify 快速通知（直接发送，不经过聚合）
-func (am *AlertManager) QuickNotify(ctx context.Context, chType alerting.ChannelType, target, templateID string, level alerting.AlertLevel, alertName, message string) error {
+func (am *EnhancedAlertManager) QuickNotify(ctx context.Context, chType alerting.ChannelType, target, templateID string, level alerting.AlertLevel, alertName, message string) error {
 	vars := &alerting.AlertVars{
 		AlertID:   fmt.Sprintf("quick-%d", time.Now().UnixNano()),
 		AlertName: alertName,
@@ -748,7 +736,7 @@ func (am *AlertManager) QuickNotify(ctx context.Context, chType alerting.Channel
 }
 
 // GetAlertingStatus 获取告警系统状态
-func (am *AlertManager) GetAlertingStatus() map[string]interface{} {
+func (am *EnhancedAlertManager) GetAlertingStatus() map[string]interface{} {
 	status := am.enhanced.GetStatus()
 	status["hostname"] = am.hostname
 	status["hostIP"] = am.hostIP
@@ -762,7 +750,7 @@ func (am *AlertManager) GetAlertingStatus() map[string]interface{} {
 }
 
 // Stop 停止告警管理器
-func (am *AlertManager) Stop() {
+func (am *EnhancedAlertManager) Stop() {
 	am.enhanced.Stop()
 }
 
