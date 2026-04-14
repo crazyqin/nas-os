@@ -298,7 +298,6 @@ func TestHandler_DeleteTaskNotFound(t *testing.T) {
 
 func TestHandler_StartTask(t *testing.T) {
 	m, router := setupTestHandler(t)
-	defer m.Close()
 
 	task, _ := m.CreateTask(CreateTaskRequest{URL: "https://example.com/test.zip", Name: "Test"})
 
@@ -309,6 +308,12 @@ func TestHandler_StartTask(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("StartTask status = %d, expected 200", w.Code)
 	}
+
+	// Close manager first (cancels context, signals goroutines to stop)
+	m.Close()
+	// Wait briefly for async download goroutine to fully exit and release files
+	// This prevents "TempDir RemoveAll cleanup: directory not empty" on arm platforms
+	time.Sleep(100 * time.Millisecond)
 }
 
 func TestHandler_StartTaskNotFound(t *testing.T) {
