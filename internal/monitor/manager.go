@@ -551,3 +551,232 @@ func (m *Manager) getLoadAverage() ([]float64, error) {
 func (m *Manager) GetHostname() string {
 	return m.hostname
 }
+
+// --- 告警增强系统集成 (Round228) ---
+
+import (
+	"bufio"
+	"context"
+	"fmt"
+	"os"
+	"os/exec"
+	"runtime"
+	"strconv"
+	"strings"
+	"time"
+
+	"nas-os/internal/monitor/alerting"
+)
+
+// AlertManager 增强版告警管理器（兼容原接口）
+type AlertManager struct {
+	// 原有的 AlertingManager
+	legacy *AlertingManager
+	// 新的增强管理器
+	enhanced *alerting.Manager
+	hostname string
+	hostIP   string
+}
+
+// NewAlertManager 创建增强告警管理器
+func NewAlertManager() (*AlertManager, error) {
+	hostname, _ := os.Hostname()
+	hostIP := getLocalIP()
+
+	// 初始化增强系统
+	cfg := alerting.DefaultManagerConfig()
+	cfg.EnableAggregation = true
+	cfg.EnableAggregation = true
+	cfg.AggregationWindow = 5 * time.Minute
+	cfg.EnableRouting = true
+	cfg.EnableTemplates = true
+
+	enhanced := alerting.NewManager(cfg)
+	enhanced.Start()
+
+	// 设置默认渠道和规则
+	setupDefaultRoutes(enhanced)
+
+	am := &AlertManager{
+		legacy:   NewAlertingManager(),
+		enhanced: enhanced,
+		hostname: hostname,
+		hostIP:   hostIP,
+	}
+
+	// 设置增强系统发送回调
+	enhanced.SetOnSend(func(channelID string, vars *alerting.AlertVars) error {
+		fmt.Printf("[AlertManager] 发送告警到 %s: %s\n", channelID, vars.AlertName)
+		return nil
+	})
+
+	return am, nil
+}
+
+// setupDefaultRoutes 设置默认路由规则
+func setupDefaultRoutes(m *alerting.Manager) {
+	router := m.GetRouter()
+
+	// 添加渠道
+	channels := []*alerting.Channel{
+		{
+			ID:       "email-default",
+			Name:     "默认邮件",
+			Type:     alerting.ChannelEmail,
+			Target:   "admin@nas-os.local",
+			Template: "email_html_default",
+			Enabled:  true,
+		},
+		{
+			ID:       "webhook-default",
+			Name:     "默认Webhook",
+			Type:     alerting.ChannelWebhook,
+			Target:   "http://localhost:8080/webhooks/alerts",
+			Template: "webhook_default",
+			Enabled:  true,
+		},
+	}
+
+	for _, ch := range channels {
+		_ = router.AddChannel(ch)
+	}
+
+	// 添加路由规则
+	rules := []*alerting.RouteRule{
+		{
+			ID:                "critical-all",
+			Name:              "严重告警全部通知",
+			Priority:          1,
+			Enabled:           true,
+			Levels:            []alerting.AlertLevel{alerting.AlertLevelCritical},
+			Channels:          []string{"email-default", "webhook-default"},
+			SuppressionWindow: 10 * time.Minute,
+		},
+		{
+			ID:                "warning-storage",
+			Name:              "存储警告通知",
+			Priority:          2,
+			Enabled:           true,
+			Levels:            []alerting.AlertLevel{alerting.AlertLevelWarning},
+			ServiceTypes:      []string{"storage", "disk"},
+			Channels:          []string{"email-default"},
+			SuppressionWindow: 30 * time.Minute,
+		},
+		{
+			ID:                "info-brief",
+			Name:              "信息告警简化通知",
+			Priority:          3,
+			Enabled:           true,
+			Levels:            []alerting.AlertLevel{alerting.AlertLevelInfo},
+			Channels:          []string{"webhook-default"},
+			SuppressionWindow: 1 * time.Hour,
+		},
+	}
+
+	for _, rule := range rules {
+		_ = router.AddRule(rule)
+	}
+}
+
+// SendAlert 发送告警（兼容原接口）
+func (am *AlertManager) SendAlert(ctx context.Context, alertType, level, message, source string, extra map[string]interface{}) error {
+	vars := &alerting.AlertVars{
+		AlertID:    fmt.Sprintf("alert-%d", time.Now().UnixNano()),
+		AlertName:  alertType,
+		HostName:   am.hostname,
+		HostIP:     am.hostIP,
+		Level:      alerting.AlertLevel(level),
+		Message:    message,
+		Source:    source,
+		Timestamp: time.Now(),
+		Tags:      make(map[string]string),
+		Extra:     extra,
+	}
+
+	// 设置额外字段
+	if extra != nil {
+		if metric, ok := extra["metric"].(string); ok {
+			vars.Metric = metric
+		}
+		if value, ok := extra["value"].(float64); ok {
+			vars.Value = value
+		}
+		if threshold, ok := extra["threshold"].(float64); ok {
+			vars.Threshold = threshold
+		}
+		if unit, ok := extra["unit"].(string); ok {
+			vars.Unit = unit
+		}
+		if serviceType, ok := extra["serviceType"].(string); ok {
+			vars.ServiceType = serviceType
+		}
+	}
+
+	return am.enhanced.ProcessAlert(ctx, vars)
+}
+
+// SendCriticalAlert 发送严重告警
+func (am *AlertManager) SendCriticalAlert(ctx context.Context, alertType, message, source string) error {
+	return am.SendAlert(ctx, alertType, "critical", message, source, nil)
+}
+
+// SendWarningAlert 发送警告告警
+func (am *AlertManager) SendWarningAlert(ctx context.Context, alertType, message, source string) error {
+	return am.SendAlert(ctx, alertType, "warning", message, source, nil)
+}
+
+// SendInfoAlert 发送信息告警
+func (am *AlertManager) SendInfoAlert(ctx context.Context, alertType, message, source string) error {
+	return am.SendAlert(ctx, alertType, "info", message, source, nil)
+}
+
+// QuickNotify 快速通知（直接发送，不经过聚合）
+func (am *AlertManager) QuickNotify(ctx context.Context, chType alerting.ChannelType, target, templateID string, level alerting.AlertLevel, alertName, message string) error {
+	vars := &alerting.AlertVars{
+		AlertID:   fmt.Sprintf("quick-%d", time.Now().UnixNano()),
+		AlertName: alertName,
+		HostName:  am.hostname,
+		HostIP:    am.hostIP,
+		Level:     level,
+		Message:   message,
+		Source:    "nas-os",
+		Timestamp: time.Now(),
+		Tags:      make(map[string]string),
+	}
+
+	return am.enhanced.QuickSend(ctx, chType, target, templateID, vars)
+}
+
+// GetAlertingStatus 获取告警系统状态
+func (am *AlertManager) GetAlertingStatus() map[string]interface{} {
+	status := am.enhanced.GetStatus()
+	status["hostname"] = am.hostname
+	status["hostIP"] = am.hostIP
+	status["legacy"] = map[string]interface{}{
+		"totalAlerts":   len(am.legacy.GetAlerts(0, 0, nil)),
+		"activeAlerts":  len(am.legacy.GetActiveAlerts()),
+		"subscribers":   len(am.legacy.GetSubscribers()),
+		"rules":         len(am.legacy.GetRules()),
+	}
+	return status
+}
+
+// Stop 停止告警管理器
+func (am *AlertManager) Stop() {
+	am.enhanced.Stop()
+}
+
+// getLocalIP 获取本机IP
+func getLocalIP() string {
+	// 简单实现，返回第一个非lo的IP
+	cmd := exec.Command("hostname", "-I")
+	output, err := cmd.Output()
+	if err != nil {
+		return "127.0.0.1"
+	}
+	ips := strings.Fields(string(output))
+	if len(ips) > 0 {
+		return ips[0]
+	}
+	return "127.0.0.1"
+}

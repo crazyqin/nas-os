@@ -30,11 +30,33 @@
 | **AI以文搜图** | ✅ CLIP | ❌ | 🟡仅人脸 | ❌ |
 | **多云存储挂载** | ✅ 6+平台 | ❌ | ❌ | 🟡有限 |
 
+#### 🚀 礼部 - Passkey 文档与竞品对标
+- 📝 创建 `docs/features/passkey-prd.md` — Passkey/WebAuthn PRD 文档
+  - 背景动机、用户故事、技术架构（ASCII 架构图、注册/认证流程图）
+  - 安全设计（Challenge 防重放、Sign Count 防克隆、设备绑定）
+  - 浏览器兼容性矩阵、落后指标定义
+- 📝 创建 `docs/features/passkey-user-guide.md` — Passkey 用户指南
+  - 注册/登录/管理 Passkey 图文教程
+  - FAQ 与故障排查
+- 📝 创建 `docs/competitive/passkey-comparison.md` — Passkey 竞品对标报告
+  - nas-os vs 群晖 DSM vs TrueNAS 26 vs 飞牛 fnOS 全面对比
+  - nas-os 六大差异化优势
+- 更新 `CHANGELOG.md` — v2.457.0 补充 Passkey 条目
+
+#### 🎯 本轮亮点功能
+
+| 功能 | 类型 | 说明 |
+|------|------|------|
+| 🚀 **Passkey 无密码登录** | 新功能 PRD | WebAuthn 标准实现，完全自研无厂商绑定 |
+| 🔧 **监控告警增强** | 优化 | Passkey Prometheus 指标集成 |
+| ⚡ **SMB 性能优化** | 优化 | Stateful Failover Phase3 负载均衡 |
+
 #### 🚀 六部任务分配（第228轮）
 
 | 部门 | 任务 | 状态 |
 |------|------|------|
 | 兵部 | TestHandler_StartTask异步goroutine退出修复 | ✅ 完成 |
+| 礼部 | Passkey PRD + 用户指南 + 竞品对标 | ✅ 完成 |
 | 吏部 | v2.457.0版本发布 | ✅ 完成 |
 
 ---
