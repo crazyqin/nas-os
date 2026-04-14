@@ -10,6 +10,31 @@ import (
 	"time"
 )
 
+// AlertTemplate 告警模板
+type AlertTemplate struct {
+	ID               string        `json:"id"`
+	Name             string        `json:"name"`
+	Description      string        `json:"description"`
+	Severity         AlertSeverity `json:"severity"`
+	Category         AlertCategory `json:"category"`
+	MessageTemplate  string        `json:"messageTemplate"`
+}
+
+// 扩展 AlertSeverity 常量（补充 activity.go 未定义的级别）
+const (
+	AlertSeverityInfo     AlertSeverity = "info"
+	AlertSeverityWarning  AlertSeverity = "warning"
+	AlertSeverityCritical AlertSeverity = "critical"
+)
+
+// AlertCategory 告警分类
+type AlertCategory string
+
+const (
+	AlertCategoryStorage AlertCategory = "storage"
+	AlertCategoryDisk    AlertCategory = "disk"
+)
+
 // AlertingManager 告警管理器.
 type AlertingManager struct {
 	mu           sync.RWMutex
