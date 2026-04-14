@@ -3,12 +3,6 @@
 package passkey
 
 import (
-	"crypto/sha256"
-	"encoding/base64"
-	"encoding/json"
-	"fmt"
-	"net/http"
-
 	"nas-os/internal/api"
 	"nas-os/internal/auth"
 
@@ -21,8 +15,8 @@ import (
 // RegisterStartRequest starts a registration ceremony.
 type RegisterStartRequest struct {
 	Username    string `json:"username" binding:"required"`
-	DisplayName string `json:"displayName" binding:"required"`
-	// UserID is optional; if not provided, a new UUID is generated.
+	DisplayName string `json:"displayName"`
+	// UserID is optional; if not provided, derived from username lookup.
 	UserID string `json:"userId"`
 }
 
@@ -56,10 +50,10 @@ type AuthStartRequest struct {
 
 // AuthStartResponse is returned by the auth-start endpoint.
 type AuthStartResponse struct {
-	SessionID  string                 `json:"sessionId"`
-	Options    map[string]interface{} `json:"options"`
-	ExpiresIn  int                    `json:"expiresIn"`
-	AutoFill   bool                   `json:"autoFill"` // true if browser will auto-select credential
+	SessionID string                 `json:"sessionId"`
+	Options   map[string]interface{} `json:"options"`
+	ExpiresIn int                    `json:"expiresIn"`
+	AutoFill  bool                   `json:"autoFill"` // true if browser will auto-select credential
 }
 
 // AuthFinishRequest completes an authentication ceremony.
@@ -70,22 +64,22 @@ type AuthFinishRequest struct {
 
 // AuthFinishResponse is returned after successful authentication.
 type AuthFinishResponse struct {
-	UserID      string               `json:"userId"`
-	Username    string               `json:"username"`
-	AuthInfo    *AuthenticatorInfo   `json:"authInfo,omitempty"`
-	NewAuthTime string               `json:"newAuthTime"`
+	UserID     string `json:"userId"`
+	Username   string `json:"username"`
+	NewAuthTime string `json:"newAuthTime"`
+	DeviceType  string `json:"deviceType"`
 }
 
 // CredentialInfo represents a stored passkey for the UI.
 type CredentialInfo struct {
-	ID              string  `json:"id"`
-	Name            string  `json:"name"`
-	DeviceType      string  `json:"deviceType"`
-	Transport       []string `json:"transport"`
-	IsPasskey       bool    `json:"isPasskey"`
-	BackupState     string  `json:"backupState"`
-	CreatedAt       string  `json:"createdAt"`
-	LastUsedAt      string  `json:"lastUsedAt,omitempty"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	DeviceType  string   `json:"deviceType"`
+	Transport   []string `json:"transport"`
+	IsPasskey   bool     `json:"isPasskey"`
+	BackupState string   `json:"backupState"`
+	CreatedAt   string   `json:"createdAt"`
+	LastUsedAt  string   `json:"lastUsedAt,omitempty"`
 }
 
 // ========== Handlers ==========
@@ -136,18 +130,13 @@ func (h *Handlers) RegisterStart(c *gin.Context) {
 		return
 	}
 
-	userID := req.UserID
-	if userID == "" {
-		userID = uuid.New().String()
-	}
-
 	// Look up user to verify they exist
 	user, err := h.userService.GetUserByUsername(req.Username)
 	if err != nil {
 		api.Unauthorized(c, "user not found")
 		return
 	}
-	userID = user.ID // Use actual user ID
+	userID := user.ID
 
 	displayName := req.DisplayName
 	if displayName == "" {
@@ -207,8 +196,8 @@ func (h *Handlers) AuthStart(c *gin.Context) {
 	userID := req.UserID
 	if userID == "" && req.Username != "" {
 		// Look up user by username
-		user, err := h.userService.GetUserByUsername(req.Username)
-		if err != nil {
+		user, lookupErr := h.userService.GetUserByUsername(req.Username)
+		if lookupErr != nil {
 			api.Unauthorized(c, "user not found")
 			return
 		}
@@ -253,16 +242,21 @@ func (h *Handlers) AuthFinish(c *gin.Context) {
 	// Look up user info
 	var username string
 	if h.userService != nil {
-		if user, err := h.userService.GetUserByID(userID); err == nil {
+		if user, lookupErr := h.userService.GetUserByID(userID); lookupErr == nil {
 			username = user.Username
 		}
+	}
+
+	deviceType := ""
+	if authInfo != nil {
+		deviceType = authInfo.DeviceType
 	}
 
 	api.OK(c, AuthFinishResponse{
 		UserID:      userID,
 		Username:    username,
-		AuthInfo:    authInfo,
-		NewAuthTime: authInfo.NewAuthTime,
+		NewAuthTime: "now",
+		DeviceType:  deviceType,
 	})
 }
 
@@ -285,14 +279,14 @@ func (h *Handlers) ListCredentials(c *gin.Context) {
 			lastUsed = cred.LastUsedAt.Format("2006-01-02T15:04:05Z")
 		}
 		result[i] = CredentialInfo{
-			ID:         cred.ID,
-			Name:       cred.Name,
-			DeviceType: cred.DeviceType,
-			Transport:  cred.Transport,
-			IsPasskey:  cred.IsPasskey,
+			ID:          cred.ID,
+			Name:        cred.Name,
+			DeviceType:  cred.DeviceType,
+			Transport:   cred.Transport,
+			IsPasskey:   cred.IsPasskey,
 			BackupState: cred.BackupState,
-			CreatedAt:  cred.CreatedAt.Format("2006-01-02T15:04:05Z"),
-			LastUsedAt: lastUsed,
+			CreatedAt:   cred.CreatedAt.Format("2006-01-02T15:04:05Z"),
+			LastUsedAt:  lastUsed,
 		}
 	}
 
@@ -370,3 +364,6 @@ func (h *Handlers) RequireAuth(handler gin.HandlerFunc) gin.HandlerFunc {
 		handler(c)
 	}
 }
+
+// Ensure uuid import is used
+var _ = uuid.New
