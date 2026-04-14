@@ -37,6 +37,7 @@ type Manager struct {
 	configFile string
 	ctx        context.Context
 	cancel     context.CancelFunc
+	wg         sync.WaitGroup // 跟踪后台下载goroutine
 
 	// 回调函数
 	onTaskUpdate func(*DownloadTask)
@@ -356,11 +357,18 @@ func (m *Manager) StartTask(id string) error {
 	m.mu.Unlock()
 
 	// 根据类型启动不同的下载逻辑
+	m.wg.Add(1)
 	switch task.Type {
 	case TypeHTTP, TypeFTP:
-		go m.downloadHTTP(m.ctx, task)
+		go func() {
+			defer m.wg.Done()
+			m.downloadHTTP(m.ctx, task)
+		}()
 	case TypeBT, TypeMagnet:
-		go m.downloadBittorrent(m.ctx, task)
+		go func() {
+			defer m.wg.Done()
+			m.downloadBittorrent(m.ctx, task)
+		}()
 	}
 
 	if m.onTaskUpdate != nil {
@@ -918,5 +926,6 @@ func (m *Manager) saveTasks() error {
 // Close 关闭管理器.
 func (m *Manager) Close() {
 	m.cancel()
+	m.wg.Wait()
 	_ = m.saveTasks()
 }
