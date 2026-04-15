@@ -300,7 +300,7 @@ func TestTemplate_RenderSlashPattern(t *testing.T) {
 		Timestamp: time.Now(),
 	}
 
-	subject, body, err := engine.Render("email_default", vars)
+	_, body, err := engine.Render("email_default", vars)
 	require.NoError(t, err)
 	assert.Contains(t, body, vars.Message)
 	assert.NotContains(t, body, "{{.")
