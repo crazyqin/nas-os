@@ -1,23 +1,27 @@
-# 竞品对比矩阵 - TrueNAS 26对标分析
+# 竞品对比矩阵 - TrueNAS Community 25.10对标分析
 
-**更新日期**: 2026-04-11  
-**nas-os版本**: v2.453.0  
-**竞品版本**: TrueNAS 26.1 / DSM 7.3 / fnOS 3.2
+**更新日期**: 2026-04-16  
+**nas-os版本**: v2.458.0  
+**竞品版本**: TrueNAS Community 25.10 / DSM 7.3 / fnOS 3.2
 
 ---
 
-## 📊 TrueNAS 26核心新特性对标
+## 📊 TrueNAS Community 25.10核心新特性对标
 
-| 功能 | TrueNAS 26 | nas-os v2.453.0 | 对标状态 | 行动计划 |
-|------|------------|-----------------|----------|----------|
-| **WebShare + TrueSearch** | ✅ 全文内容搜索 | 📋 TrueSearch预研启动 | 🟡跟进 | v2.453预研 |
+| 功能 | TrueNAS 25.10 | nas-os v2.458.0 | 对标状态 | 行动计划 |
+|------|--------------|-----------------|----------|----------|
+| **WebShare + TrueSearch** | ✅ 全文内容搜索 | 🚧 TrueSearch开发中 | 🟡跟进 | v2.459深化 |
 | **Ransomware Defense** | ✅ 监控+响应 | ✅ WriteOnce WORM | 🟢领先 | 保持差异化优势 |
-| **SMB Stateful Failover** | ✅ 企业HA零中断 | 🚧 架构预研中 | 🔴落后 | v2.454对标 |
-| **SMB Spotlight** | ✅ macOS Finder集成 | 🚧 Phase1开发 | 🟡跟进 | 本轮继续开发 |
-| **Containers HA** | ✅ App Pool自动迁移 | 🚧 App Pool Migration | 🟡跟进 | P0优先开发 |
-| **OpenZFS 2.4** | ✅ RAIDZ Expansion优化 | ✅ btrfs+ZFS双轨可选 | 🟢持平 | 双轨并行 |
+| **SMB Stateful Failover** | ✅ 企业HA零中断 | ✅ Phase3负载均衡完成 | 🟢持平 | 整合测试 |
+| **SMB Spotlight** | ✅ macOS Finder集成 | 🚧 Phase1完成 | 🟡跟进 | Phase2规划 |
+| **Containers HA** | ✅ App Pool自动迁移 | ✅ Docker HA已有 | 🟢持平 | 保持优势 |
+| **LXC Sandboxes** | ✅ 容器隔离安全运行 | 📋 预研完成 | 🟡跟进 | v2.459评估 |
+| **OpenZFS 2.4** | ✅ RAIDZ Expansion优化 | ✅ RAIDZ Expansion UI完成 | 🟢持平 | 保持双轨 |
 | **NVMe over Fabric** | ✅ TCP + RDMA | ✅ Phase2完成 | 🟢持平 | 保持优势 |
 | **VM Secure Boot** | ✅ 虚拟机安全启动 | 📋 预研中 | 🔴落后 | 安全评估 |
+| **Fast Failover** | ✅ 1200盘扩展HA | ✅ Phase3含 | 🟢持平 | 整合测试 |
+| **GPU Sharing** | ✅ App池GPU共享 | ✅ 已实现 | 🟢持平 | 保持优势 |
+| **RAIDZ Expansion** | ✅ 单盘在线扩容 | ✅ API+UI完成 | 🟢持平 | 引导式体验优化 |
 
 ---
 
@@ -38,7 +42,7 @@
 | 功能 | DSM 7.3 | nas-os v2.453.0 | 对标状态 | 行动计划 |
 |------|----------|-----------------|----------|----------|
 | **Photos AI** | ✅ 智能相册人脸识别 | ✅ AI以文搜图领先 | 🟢领先 | 差异化优势 |
-| **Drive同步** | ✅ 多设备文件同步 | 📋 P1规划中 | 🔴落后 | 设计预研 |
+| **Drive同步** | ✅ 多设备文件同步 | ✅ Drive Sync Phase1完成 | 🟡跟进 | v2.459增强协作功能 |
 | **Active Backup** | ✅ 整机备份方案 | 📋 P1规划中 | 🔴落后 | 设计预研 |
 | **Hyper Backup** | ✅ 多目的地备份 | ✅ 已有实现 | 🟢持平 | 保持优势 |
 | **Hybrid Share** | ✅ 云混合存储 | 📋 P2评估 | 🔴落后 | 需研究 |
