@@ -219,7 +219,7 @@ func TestVerifyAuthentication(t *testing.T) {
 	challenge := ""
 	mgr.mu.RLock()
 	challenge = mgr.sessions[sessionID].Challenge
-	mgr.mu.Unlock()
+	mgr.mu.RUnlock()
 
 	// Simulate browser auth response
 	clientData := map[string]interface{}{
