@@ -15,15 +15,16 @@
 # - 覆盖率趋势追踪和徽章生成
 # - Docker Compose 集成测试
 #
-# v2.455.0 工部优化：
-# - 移除 prepare job 中的冗余预热编译（节省 ~90s，下游 job 自行编译）
-# - 将 lint/codeql 依赖从 prepare 改为 changes（减少串行层级）
-# - 优化 CGO 依赖安装：缓存 apt 包，避免每次 apt-get update
-# - 测试分片优化：增加 -p 4 并行编译，缩短分片执行时间
-# - 移除 build-artifacts 冗余 job，build 直接上传整合产物
-# - docker-compose-test 不再阻塞 build-summary
+# v2.374.0 工部优化：
+# - CI稳定性增强：增加重试机制和错误处理
+# - 测试分片增加到6个，智能分配测试包
+# - 增加编译产物跨job缓存
+# - 优化缓存key策略，提高命中率
+# - 并行化代码检查（lint+codeql并行执行）
+# - 增加测试结果缓存
+# - 构建与测试并行执行
 #
-# 当前版本: v2.455.0（工部维护）
+# 当前版本: v2.374.0（工部维护）
 
 name: CI/CD
 
@@ -124,8 +125,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [changes]
     if: needs.changes.outputs.go-changed == 'true' || github.event_name == 'workflow_dispatch'
-    # v2.455.0: 移除冗余预热后，prepare 耗时从 ~5min 降到 ~2min
-    timeout-minutes: 3
+    timeout-minutes: 5
     outputs:
       go-cache-key: ${{ steps.go-cache.outputs.cache-key }}
       has-integration-tests: ${{ steps.check-tests.outputs.has_integration_tests }}
@@ -177,9 +177,15 @@ jobs:
       - name: 下载依赖
         run: go mod download
       
-      # v2.455.0: 移除冗余预热编译。下游 job 恢复缓存后会自行编译，
-      # 此处预热只增加 prepare 耗时（~90s），但缓存命中率提升有限
-      # 因为每个 job 的编译目标不同，缓存在 prepare 编译的产物无法完全命中
+      # v2.375.0 工部优化：增强缓存预热，减少后续job等待时间
+      - name: 预热编译缓存
+        run: |
+          echo "🔧 预热编译缓存..."
+          # 预编译主要包，加速后续构建
+          go build -o /dev/null ./cmd/... 2>/dev/null || true
+          go build -o /dev/null ./internal/... 2>/dev/null || true
+          go build -o /dev/null ./pkg/... 2>/dev/null || true
+          echo "✅ 缓存预热完成"
       
       - name: 缓存 Go 模块
         uses: actions/cache/save@v4
@@ -207,19 +213,24 @@ jobs:
   lint:
     name: 代码检查
     runs-on: ubuntu-latest
-    needs: [changes]
+    needs: [prepare]
     timeout-minutes: 15
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
 
-      # v2.455.0: 自行设置 Go + 缓存（不再依赖 prepare）
+      - name: 恢复 Go 缓存
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ needs.prepare.outputs.go-cache-key }}
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
-          cache-dependency-path: go.sum
+          cache: false
 
       - name: 恢复 Go 工具缓存
         uses: actions/cache/restore@v4
@@ -251,7 +262,7 @@ jobs:
   codeql:
     name: CodeQL 分析
     runs-on: ubuntu-latest
-    needs: [changes]
+    needs: [prepare]
     timeout-minutes: 20
     permissions:
       contents: read
@@ -260,13 +271,18 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v5
 
-      # v2.455.0: 自行设置 Go + 缓存（不再依赖 prepare）
+      - name: 恢复 Go 缓存
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ needs.prepare.outputs.go-cache-key }}
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
-          cache-dependency-path: go.sum
+          cache: false
 
       - name: 初始化 CodeQL
         uses: github/codeql-action/init@v4
@@ -285,7 +301,7 @@ jobs:
   dependency-scan:
     name: 依赖安全扫描
     runs-on: ubuntu-latest
-    needs: [changes]
+    needs: [prepare]
     timeout-minutes: 10
     permissions:
       contents: read
@@ -353,19 +369,10 @@ jobs:
         with:
           path: ~/.cache/go-test
           key: go-test-${{ env.CACHE_VERSION }}-${{ hashFiles('**/*_test.go') }}
-      # v2.455.0: 缓存 CGO 依赖，避免每次 apt-get update（~15s）
-      - name: 缓存 CGO 依赖
-        id: cache-cgo
-        uses: actions/cache@v4
-        with:
-          path: /tmp/cgo-deps
-          key: cgo-deps-v1
       - name: 安装 CGO 依赖
-        if: steps.cache-cgo.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update && sudo apt-get install -y gcc libc6-dev
-          mkdir -p /tmp/cgo-deps
-          dpkg -l gcc libc6-dev > /tmp/cgo-deps/installed.txt 2>/dev/null || true
+        run: sudo apt-get update && sudo apt-get install -y gcc libc6-dev
+
+      - name: 准备测试环境
         run: |
           echo "🔧 准备测试环境..."
           mkdir -p ${{ env.TEST_DATA_DIR }}
@@ -407,8 +414,8 @@ jobs:
             echo "📦 分片 ${{ matrix.shard }} 测试包数量: $(echo "$SHARD_PKGS" | wc -l) / $TOTAL"
             echo "$SHARD_PKGS"
             
-            # v2.455.0: 增加 -p 4 并行编译包，加速多包测试
-            go test -v -race -count=1 -p 4 -coverprofile=coverage-shard-${{ matrix.shard }}.out -covermode=atomic -timeout 10m $SHARD_PKGS 2>&1 | tee test-output-${{ matrix.shard }}.txt
+            # v2.254.0: 使用 -count=1 禁用测试缓存
+            go test -v -race -count=1 -coverprofile=coverage-shard-${{ matrix.shard }}.out -covermode=atomic -timeout 10m $SHARD_PKGS 2>&1 | tee test-output-${{ matrix.shard }}.txt
       
       - name: 上传分片测试结果
         if: always()
