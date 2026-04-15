@@ -90,15 +90,42 @@ func NewTemplateEngine() *TemplateEngine {
 
 // registerFuncs 注册自定义函数
 func (te *TemplateEngine) registerFuncs() {
-	te.funcMap["upper"] = strings.ToUpper
-	te.funcMap["lower"] = strings.ToLower
+	te.funcMap["upper"] = func(v interface{}) string { return strings.ToUpper(fmt.Sprint(v)) }
+	te.funcMap["lower"] = func(v interface{}) string { return strings.ToLower(fmt.Sprint(v)) }
 	te.funcMap["title"] = strings.Title
 	te.funcMap["trim"] = strings.TrimSpace
 	te.funcMap["replace"] = strings.ReplaceAll
 	te.funcMap["contains"] = strings.Contains
 	te.funcMap["printf"] = fmt.Sprintf
 	te.funcMap["json"] = te.jsonMarshal
-	te.funcMap["time"] = te.formatTime
+	te.funcMap["time"] = func(args ...interface{}) (string, error) {
+		if len(args) < 1 {
+			return "", fmt.Errorf("time: need at least 1 arg")
+		}
+		var t time.Time
+		switch v := args[0].(type) {
+		case time.Time:
+			t = v
+		case string:
+			parsed, err := time.Parse(time.RFC3339, v)
+			if err != nil {
+				parsed, err = time.Parse("2006-01-02 15:04:05", v)
+				if err != nil {
+					return v, nil // fallback: return as-is
+				}
+			}
+			t = parsed
+		default:
+			return "", fmt.Errorf("time: first arg must be time.Time or string, got %T", args[0])
+		}
+		layout := "2006-01-02 15:04:05"
+		if len(args) >= 2 {
+			if l, ok := args[1].(string); ok {
+				layout = l
+			}
+		}
+		return t.Format(layout), nil
+	}
 	te.funcMap["levelEmoji"] = te.levelEmoji
 	te.funcMap["levelColor"] = te.levelColor
 	te.funcMap["levelIcon"] = te.levelIcon

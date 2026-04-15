@@ -1,0 +1,46 @@
+# /etc/systemd/system/cloud-sync.service
+# Cloud Drive Sync 后台同步守护进程
+# 安装: sudo cp cloud-sync.service /etc/systemd/system/
+# 启用: sudo systemctl enable cloud-sync
+# 启动: sudo systemctl start cloud-sync
+# 状态: sudo systemctl status cloud-sync
+
+[Unit]
+Description=NAS-OS Cloud Drive Sync Daemon
+Documentation=https://github.com/nas-os/nas-os
+After=network-online.target nas-os.service
+Wants=network-online.target
+PartOf=nas-os.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/nasd sync --config /etc/nas-os/sync.conf
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# 运行用户
+User=nas-os
+Group=nas-os
+
+# 安全加固
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/nas-os /var/log/nas-os
+ReadOnlyPaths=/etc/nas-os
+
+# 资源限制
+LimitNOFILE=65536
+MemoryMax=512M
+CPUQuota=200%
+
+# 日志
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cloud-sync
+
+[Install]
+WantedBy=multi-user.target

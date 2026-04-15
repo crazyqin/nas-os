@@ -1,0 +1,18 @@
+# /etc/logrotate.d/nas-os-sync
+# Cloud Drive Sync 日志轮转配置
+# 安装: sudo cp nas-os-sync /etc/logrotate.d/
+
+/var/log/nas-os/sync.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0644 nas-os nas-os
+    sharedscripts
+    postrotate
+        # 通知守护进程重新打开日志文件
+        systemctl reload cloud-sync.service >/dev/null 2>&1 || true
+    endscript
+}

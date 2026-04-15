@@ -381,7 +381,7 @@ func TestTemplate_ComplexTemplate(t *testing.T) {
 - 时间: {{.Timestamp | time "2006-01-02 15:04:05"}}
 
 {{if .Tags}}标签:
-{{range $k, $v := .Tags}}  [$k]: $v
+{{range $k, $v := .Tags}}  {{$k}}: {{$v}}
 {{end}}{{end}}`,
 		Enabled: true,
 	}
@@ -550,7 +550,10 @@ func TestTemplate_RenderAllBuiltinTemplates(t *testing.T) {
 		t.Run(string(tmpl.Type)+"_"+tmpl.ID, func(t *testing.T) {
 			subject, body, err := engine.Render(tmpl.ID, vars)
 			require.NoError(t, err, "模板 %s 渲染失败", tmpl.ID)
-			assert.NotEmpty(t, subject, "subject不应为空")
+			// subject可以为空（webhook/telegram等非邮件模板）
+			if tmpl.Subject != "" {
+				assert.NotEmpty(t, subject, "subject不应为空")
+			}
 			assert.NotEmpty(t, body, "body不应为空")
 			assert.NotContains(t, body, "{{.", "模板变量未完全解析")
 		})
