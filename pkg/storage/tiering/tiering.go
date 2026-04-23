@@ -4,6 +4,8 @@ package tiering
 
 import (
 	"context"
+	"crypto/rand"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -304,14 +306,21 @@ func (m *Manager) runTieringJob(ctx context.Context) {
 }
 
 func generateTaskID() string {
-	return time.Now().Format("20060102150405") + "-" + randomString(8)
+	return fmt.Sprintf("%d-%s", time.Now().UnixNano(), randomString(8))
 }
 
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
-	for i := range b {
-		b[i] = letters[time.Now().Nanosecond()%len(letters)]
+	randBytes := make([]byte, n)
+	if _, err := rand.Read(randBytes); err == nil {
+		for i := range b {
+			b[i] = letters[int(randBytes[i])%len(letters)]
+		}
+	} else {
+		for i := range b {
+			b[i] = letters[time.Now().Nanosecond()%len(letters)]
+		}
 	}
 	return string(b)
 }
