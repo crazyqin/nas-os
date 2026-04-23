@@ -6,6 +6,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -781,3 +782,23 @@ func getParityCount(raidzLevel string) int {
 }
 
 // ExpansionTask 和 ExpansionStatus 定义在 raidz_service.go
+
+// formatDuration 格式化时长（秒 → 可读字符串）
+func formatDuration(seconds int64) string {
+	if seconds < 60 {
+		return fmt.Sprintf("%ds", seconds)
+	}
+	minutes := seconds / 60
+	secs := seconds % 60
+	if minutes < 60 {
+		return fmt.Sprintf("%dm %ds", minutes, secs)
+	}
+	hours := minutes / 60
+	mins := minutes % 60
+	if hours < 24 {
+		return fmt.Sprintf("%dh %dm", hours, mins)
+	}
+	days := hours / 24
+	hrs := hours % 24
+	return fmt.Sprintf("%dd %dh", days, hrs)
+}

@@ -183,8 +183,8 @@ func (m *RAIDZExpandMonitor) StartMonitoring(ctx context.Context, task *Expansio
 	m.calculateETA(progress)
 
 	// 格式化时间显示
-	progress.ElapsedFormatted = formatDuration(progress.Elapsed)
-	progress.ETAFormatted = formatDuration(progress.ETASeconds)
+	progress.ElapsedFormatted = FormatDuration(progress.Elapsed)
+	progress.ETAFormatted = FormatDuration(progress.ETASeconds)
 
 	// 存储活跃进度
 	m.activeProgress[task.PoolName] = progress
@@ -276,8 +276,8 @@ func (m *RAIDZExpandMonitor) UpdateProgress(poolName string, task *ExpansionTask
 	m.calculateETA(progress)
 
 	// 格式化显示
-	progress.ElapsedFormatted = formatDuration(progress.Elapsed)
-	progress.ETAFormatted = formatDuration(progress.ETASeconds)
+	progress.ElapsedFormatted = FormatDuration(progress.Elapsed)
+	progress.ETAFormatted = FormatDuration(progress.ETASeconds)
 
 	// 更新阶段进度
 	m.updatePhaseProgress(progress)
@@ -596,8 +596,8 @@ func (m *RAIDZExpandMonitor) extractWidthAfter(task *ExpansionTask) int {
 	return m.extractWidthBefore(task) + 1
 }
 
-// formatDuration 格式化时长
-func formatDuration(seconds int64) string {
+// FormatDuration 格式化时长（导出供其他模块使用）
+func FormatDuration(seconds int64) string {
 	if seconds <= 0 {
 		return "-"
 	}
