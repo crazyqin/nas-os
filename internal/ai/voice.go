@@ -4,15 +4,16 @@ package ai
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
@@ -380,7 +381,8 @@ func (vc *VoiceController) ProcessVoice(ctx context.Context, audioData []byte, l
 	var confidence float64
 
 	if vc.speechToText != nil && vc.speechToText.IsAvailable() {
-		text, confidence, err := vc.speechToText.Transcribe(ctx, audioData, language)
+		var err error
+		text, confidence, err = vc.speechToText.Transcribe(ctx, audioData, language)
 		if err != nil {
 			return nil, fmt.Errorf("语音识别失败: %w", err)
 		}
