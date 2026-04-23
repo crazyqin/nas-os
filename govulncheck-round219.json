@@ -1,7 +1,0 @@
-govulncheck: loading packages: 
-There are errors with the provided package patterns:
-
-/home/mrafter/clawd/nas-os/internal/security/ransomware/snapshot_anomaly.go:362:12: no new variables on left side of :=
-
-For details on package patterns, see https://pkg.go.dev/cmd/go#hdr-Package_lists_and_patterns.
-
