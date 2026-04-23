@@ -379,9 +379,9 @@ func (vc *VoiceController) ProcessVoice(ctx context.Context, audioData []byte, l
 	// 1. 语音转文本
 	var text string
 	var confidence float64
+	var err error
 
 	if vc.speechToText != nil && vc.speechToText.IsAvailable() {
-		var err error
 		text, confidence, err = vc.speechToText.Transcribe(ctx, audioData, language)
 		if err != nil {
 			return nil, fmt.Errorf("语音识别失败: %w", err)

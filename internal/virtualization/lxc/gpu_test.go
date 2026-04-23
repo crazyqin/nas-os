@@ -39,9 +39,10 @@ func TestGPUPassthroughConfigValidation(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "invalid config - no GPU identifier",
+			name: "invalid config - negative GPUIndex and no other identifier",
 			config: &GPUPassthroughConfig{
-				Vendor: "nvidia",
+				GPUIndex: -1,
+				Vendor:   "nvidia",
 			},
 			wantErr: true,
 		},
@@ -166,11 +167,12 @@ func TestGetDeviceName(t *testing.T) {
 			name: "with PCIAddress",
 			config: &GPUPassthroughConfig{
 				PCIAddress: "0000:01:00.0",
+				GPUIndex:   -1, // 需要设置为负数避免默认值干扰
 			},
-			expected: "gpu-0000-01-00-0",
+			expected: "gpu-0000-01-00.0", // 替换冒号后保留点号
 		},
 		{
-			name:     "empty config",
+			name: "empty config (defaults to GPUIndex 0)",
 			config:   &GPUPassthroughConfig{},
 			expected: "gpu0",
 		},
@@ -211,13 +213,14 @@ func TestGetNVIDIAVisibleDevices(t *testing.T) {
 			name: "with PCIAddress",
 			config: &GPUPassthroughConfig{
 				PCIAddress: "0000:01:00.0",
+				GPUIndex:   -1, // 需要设置为负数避免默认值干扰
 			},
 			expected: "0000:01:00.0",
 		},
 		{
-			name:     "empty config",
+			name: "empty config (defaults to GPUIndex 0)",
 			config:   &GPUPassthroughConfig{},
-			expected: "all",
+			expected: "0", // GPUIndex=0 默认返回 "0"
 		},
 	}
 

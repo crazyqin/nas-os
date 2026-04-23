@@ -222,7 +222,7 @@ func (vmgm *VMGPUManager) bindToVFIO(pciAddr string) error {
 		fmt.Sprintf("echo '%s' > %s", pciAddr, unbindPath))
 	unbindCmd.Run() // 忽略错误，可能已经解绑
 
-	probePath := fmt.Sprintf("/sys/bus/pci/drivers/vfio-pci/bind", pciAddr)
+	probePath := "/sys/bus/pci/drivers/vfio-pci/bind"
 	probeCmd := exec.Command("sh", "-c",
 		fmt.Sprintf("echo '%s' > %s", pciAddr, probePath))
 	if err := probeCmd.Run(); err != nil {
@@ -248,7 +248,7 @@ func (vmgm *VMGPUManager) unbindFromVFIO(pciAddr, vendor string) error {
 	}
 
 	// 从VFIO解绑
-	unbindPath := fmt.Sprintf("/sys/bus/pci/drivers/vfio-pci/unbind", pciAddr)
+	unbindPath := "/sys/bus/pci/drivers/vfio-pci/unbind"
 	unbindCmd := exec.Command("sh", "-c",
 		fmt.Sprintf("echo '%s' > %s", pciAddr, unbindPath))
 	unbindCmd.Run()
