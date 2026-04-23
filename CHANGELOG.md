@@ -7,6 +7,39 @@
 
 ---
 
+## [v2.459.0] - 2026-04-24
+
+### 🎯 第231轮六部协同开发 - RAIDZ Expansion WebUI + SMB Spotlight + 竞品分析
+
+#### 司礼监调度报告
+- **当前版本**: v2.459.0
+- **上一版本**: v2.458.0
+- **轮次**: 第231轮六部协同
+- **主题**: RAIDZ Expansion WebUI完成 + SMB Spotlight Search + 竞品分析更新
+
+#### 🚀 兵部 - RAIDZ Expansion WebUI
+- **RAIDZ Expansion WebUI**
+  - 引导式扩容流程完整实现
+  - 实时进度展示与状态跟踪
+  - 风险提示与确认机制
+  - 与后端API (`internal/storage/raidz.go`) 完整对接
+
+#### 🔧 工部 - SMB Spotlight Search
+- **SMB Spotlight Search RPC/API**
+  - 文件快速搜索服务
+  - SMB共享文件索引与检索
+  - RPC接口设计与实现
+  - 性能优化与缓存策略
+
+#### 📊 礼部 - 竞品分析Round231更新
+- **竞品分析文档更新**
+  - TrueNAS Scale 最新功能对比
+  - Unraid 新特性跟踪
+  - 群晖 DSM 7.2 功能评估
+  - 市场定位与技术路线调整建议
+
+---
+
 ## [v2.458.0] - 2026-04-16
 
 ### 🎯 第229轮六部协同开发 - Drive Sync Phase1 + RAIDZ Expansion UI
