@@ -467,11 +467,17 @@ func (m *StatefulFailoverManager) syncStateToPeers() {
 		_ = peer
 	}
 
-	m.eventCh <- FailoverEvent{
-		Type:      EventStateSynced,
-		Timestamp: time.Now(),
-		NodeID:    m.localNode.NodeID,
-		Message:   fmt.Sprintf("已同步 %d 个会话到对等节点", len(sessions)),
+	// 检查context是否已取消，避免send on closed channel
+	select {
+	case <-m.ctx.Done():
+		return
+	default:
+		m.eventCh <- FailoverEvent{
+			Type:      EventStateSynced,
+			Timestamp: time.Now(),
+			NodeID:    m.localNode.NodeID,
+			Message:   fmt.Sprintf("已同步 %d 个会话到对等节点", len(sessions)),
+		}
 	}
 }
 
