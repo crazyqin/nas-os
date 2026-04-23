@@ -100,7 +100,7 @@ func TestVerifyRegistration(t *testing.T) {
 	// Minimal authData: 32-byte RP hash (SHA-256 of "localhost") + flags + counter + AAGUID + credID_len + credID
 	rpIDHash := sha256.Sum256([]byte("localhost"))
 	rpHash := rpIDHash[:] // 正确的RP ID hash
-	flags := byte(0x41)   // UP + AT flags
+	flags := byte(0x45)   // UP + UV + AT flags (passkey requires UV)
 	counter := []byte{0, 0, 0, 1}
 	aaguid := make([]byte, 16)
 	credIDBytes := []byte("test-cred-id-12345678")
