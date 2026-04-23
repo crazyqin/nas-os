@@ -743,8 +743,8 @@ func (m *Manager) parseAuthData(data []byte) (*ParsedAuthData, error) {
 	// AAGUID and credential data (variable length)
 	offset := 37
 
-	// If AT flag (bit 5) is set, attested credential data is present
-	if (p.Flags & 0x04) != 0 {
+	// If AT flag (bit 6, 0x40) is set, attested credential data is present
+	if (p.Flags & 0x40) != 0 {
 		if len(data) < offset+16 {
 			return nil, fmt.Errorf("authData too short for attested credential data")
 		}
