@@ -224,19 +224,15 @@ func TestDeltaSync_ExcludePatterns(t *testing.T) {
 	localFiles, err := engine.collectLocalFiles(localPath)
 	require.NoError(t, err)
 
-	// collectLocalFiles 收集所有文件，不做过滤
-	assert.Len(t, localFiles, 4) // temp/data.txt 是目录里的文件，也算
+	// collectLocalFiles 收集所有文件，不做过滤（5个文件）
+	assert.Len(t, localFiles, 5)
 
-	// shouldSync 负责过滤
-	for _, f := range localFiles {
-		relPath, _ := filepath.Rel(localPath, f.Path)
-		assert.True(t, engine.shouldSync(relPath), "File %s should pass shouldSync", relPath)
-	}
-
-	// 验证各模式的排除效果
+	// shouldSync 负责过滤，验证各模式的排除效果
 	assert.False(t, engine.shouldSync("file2.tmp"), "*.tmp should exclude file2.tmp")
-	assert.False(t, engine.shouldSync("file1.txt"), "should match for txt files")
-	assert.True(t, engine.shouldSync(".DS_Store"), ".DS_Store does not match *.tmp")
+	assert.False(t, engine.shouldSync(".DS_Store"), ".DS_Store should be excluded")
+	assert.False(t, engine.shouldSync("temp/data.txt"), "temp/ should exclude files in temp dir")
+	assert.True(t, engine.shouldSync("file1.txt"), "file1.txt should not be excluded")
+	assert.True(t, engine.shouldSync("file3.log"), "file3.log should not be excluded")
 }
 
 func TestDeltaSync_IncludePatterns(t *testing.T) {

@@ -2,6 +2,7 @@ package passkey
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -96,9 +97,10 @@ func TestVerifyRegistration(t *testing.T) {
 	}
 	clientDataJSON := base64.RawURLEncoding.EncodeToString(mustJSON(clientData))
 
-	// Minimal authData: 32-byte RP hash + flags + counter + AAGUID + credID_len + credID
-	rpHash := make([]byte, 32) // simplified
-	flags := byte(0x41)         // UP + AT flags
+	// Minimal authData: 32-byte RP hash (SHA-256 of "localhost") + flags + counter + AAGUID + credID_len + credID
+	rpIDHash := sha256.Sum256([]byte("localhost"))
+	rpHash := rpIDHash[:] // 正确的RP ID hash
+	flags := byte(0x41)   // UP + AT flags
 	counter := []byte{0, 0, 0, 1}
 	aaguid := make([]byte, 16)
 	credIDBytes := []byte("test-cred-id-12345678")
@@ -229,8 +231,9 @@ func TestVerifyAuthentication(t *testing.T) {
 	}
 	clientDataJSON := base64.RawURLEncoding.EncodeToString(mustJSON(clientData))
 
-	// AuthData with only RP hash + flags + counter
-	rpHash := make([]byte, 32)
+	// AuthData with correct RP hash (SHA-256 of "localhost") + flags + counter
+	rpIDHash := sha256.Sum256([]byte("localhost"))
+	rpHash := rpIDHash[:]
 	flags := byte(0x01) // UP only
 	counter := []byte{0, 0, 0, 2}
 	authData := append(rpHash, flags)
@@ -266,7 +269,8 @@ func TestVerifyAuthenticationChallengeMismatch(t *testing.T) {
 	}
 	clientDataJSON := base64.RawURLEncoding.EncodeToString(mustJSON(clientData))
 
-	rpHash := make([]byte, 32)
+	rpIDHash := sha256.Sum256([]byte("localhost"))
+	rpHash := rpIDHash[:]
 	flags := byte(0x01)
 	counter := []byte{0, 0, 0, 2}
 	authData := append(rpHash, flags)
@@ -305,7 +309,8 @@ func TestVerifyAuthenticationOriginNotAllowed(t *testing.T) {
 	}
 	clientDataJSON := base64.RawURLEncoding.EncodeToString(mustJSON(clientData))
 
-	rpHash := make([]byte, 32)
+	rpIDHash := sha256.Sum256([]byte("localhost"))
+	rpHash := rpIDHash[:]
 	flags := byte(0x01)
 	counter := []byte{0, 0, 0, 2}
 	authData := append(rpHash, flags)
@@ -448,8 +453,9 @@ func registerCredential(t *testing.T, mgr *Manager, userID, username, displayNam
 	}
 	clientDataJSON := base64.RawURLEncoding.EncodeToString(mustJSON(clientData))
 
-	// Build authData with AT flag set
-	rpHash := make([]byte, 32)
+	// Build authData with AT flag set - use correct RP ID hash
+	rpIDHash := sha256.Sum256([]byte("localhost"))
+	rpHash := rpIDHash[:]
 	flags := byte(0x45) // UP + AT + UV flags
 	counter := []byte{0, 0, 0, 1}
 	aaguid := make([]byte, 16)
