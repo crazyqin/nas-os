@@ -55,6 +55,8 @@
 |------|------|--------|------|------|
 | SMB Spotlight Search | TrueNAS 26 macOS | P0 | 🔄 测试中 | 80% |
 | WebShare内容索引搜索 | TrueNAS 26 TrueSearch | P0 | 🔄 开发 | 60% |
+| SMB Multichannel | TrueNAS 26 Stateful Failover | P1 | 📋 规划 | 0% |
+| SMB Auditing | TrueNAS 26 SMB Session | P1 | 📋 规划 | 0% |
 | 勒索监控联动 | TrueNAS 26 Ransomware | P1 | 🔄 设计 | 40% |
 | RAIDZ成本计算器 | TrueNAS 24.10 | P1 | 🔄 设计 | 30% |
 | LXC容器评估 | TrueNAS 26 | P2 | 🔄 评估 | 20% |
@@ -62,20 +64,43 @@
 #### 下一步计划
 1. 完成SMB Spotlight macOS客户端测试
 2. WebShare内容索引性能优化
-3. 勒索监控联动原型实现
+3. SMB Multichannel多通道设计（对标TrueNAS 26）
+4. SMB Auditing审计日志架构设计
+5. 勒索监控联动原型实现
 
 ### v2.389.0功能清单
 | 序号 | 功能 | 对标 | 优先级 | 状态 |
 |------|------|------|--------|------|
 | 1 | SMB Spotlight Search | TrueNAS 26 macOS | P0 | 🔄 开发 |
 | 2 | WebShare内容索引搜索 | TrueNAS 26 TrueSearch | P0 | 🔄 开发 |
-| 3 | 勒索监控联动 | TrueNAS 26 Ransomware | P1 | 🔄 设计 |
-| 4 | RAIDZ成本计算器 | TrueNAS 24.10 | P1 | 🔄 设计 |
-| 5 | LXC容器评估 | TrueNAS 26 | P2 | 🔄 评估 |
+| 3 | SMB Multichannel | TrueNAS 26 Stateful Failover | P1 | 📋 规划 |
+| 4 | SMB Auditing | TrueNAS 26 SMB Session | P1 | 📋 规划 |
+| 5 | 勒索监控联动 | TrueNAS 26 Ransomware | P1 | 🔄 设计 |
+| 6 | RAIDZ成本计算器 | TrueNAS 24.10 | P1 | 🔄 设计 |
+| 7 | LXC容器评估 | TrueNAS 26 | P2 | 🔄 评估 |
 
 ### 版本时间规划
 - v2.389.0 Alpha: 2026-04-15
-- v2.389.0 Stable: 2026-04-20
+- v2.389.0 Beta (SMB Multichannel/Auditing): 2026-04-25
+- v2.389.0 Stable: 2026-04-30
+
+### SMB Multichannel 规划要点
+**对标**: TrueNAS 26 SMB Stateful Failover  
+**核心功能**: 多通道并发传输，提升带宽利用率  
+**技术要点**:
+- 多网卡绑定支持
+- RDMA优化（可选）
+- 会话状态同步
+- 负载均衡策略
+
+### SMB Auditing 规划要点
+**对标**: TrueNAS 26 SMB Session监控  
+**核心功能**: SMB操作审计日志，安全合规  
+**技术要点**:
+- 操作日志记录（读/写/删除）
+- 用户会话追踪
+- 异常操作告警
+- 审计报告导出
 
 ---
 
