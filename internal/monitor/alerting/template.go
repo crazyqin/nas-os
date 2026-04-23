@@ -6,10 +6,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 	"sync"
+	ttemplate "text/template"
 	"time"
 )
 
@@ -72,16 +72,16 @@ type AlertTemplate struct {
 
 // TemplateEngine 告警模板引擎
 type TemplateEngine struct {
-	mu       sync.RWMutex
+	mu        sync.RWMutex
 	templates map[string]*AlertTemplate
-	funcMap   template.FuncMap
+	funcMap   ttemplate.FuncMap // text template funcMap (no escaping)
 }
 
 // NewTemplateEngine 创建模板引擎
 func NewTemplateEngine() *TemplateEngine {
 	te := &TemplateEngine{
 		templates: make(map[string]*AlertTemplate),
-		funcMap:   make(template.FuncMap),
+		funcMap:   make(ttemplate.FuncMap),
 	}
 	te.registerFuncs()
 	te.registerDefaultTemplates()
@@ -288,7 +288,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
   "source": "{{.Source}}",
   "serviceType": "{{.ServiceType}}",
   "tags": {{.Tags | json}},
-  "timestamp": "{{.Timestamp | time "2006-01-02T15:04:05Z07:00"}}"
+  "timestamp": "{{.Timestamp | time}}"
 }`,
 			IsHTML:  false,
 			Enabled: true,
@@ -543,7 +543,7 @@ func (te *TemplateEngine) RenderToBytes(tmplID string, vars *AlertVars) ([]byte,
 
 // renderString 渲染单个字符串模板
 func (te *TemplateEngine) renderString(tmplStr string, vars *AlertVars) (string, error) {
-	tmpl, err := template.New("alert").Funcs(te.funcMap).Parse(tmplStr)
+	tmpl, err := ttemplate.New("alert").Funcs(te.funcMap).Parse(tmplStr)
 	if err != nil {
 		return "", fmt.Errorf("解析模板失败: %w", err)
 	}
