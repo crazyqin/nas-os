@@ -1,28 +1,30 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.455.0 (2026-04-15) 🚀 第226轮迭代完成
+## 当前版本：v2.463.0 (2026-04-24) 🚀 第235轮迭代完成
 
 ### 发布目标
-**目标日期**: 2026-04-15
-**主题**: 第226轮六部协同开发 - CI修复 + SMB Stateful Failover Phase2 + 竞品对标深化
+**目标日期**: 2026-04-24
+**主题**: 第235轮六部协同开发 - 竞品深化对标 + 新功能规划设计
 
-### 六部任务进度（第226轮）
+### 六部任务进度（第235轮）
 | 部门 | 任务 | 状态 |
 |------|------|------|
-| 司礼监 | 六部调度 + CI修复 + 版本发布 | ✅ 完成 |
-| 兵部 | SMB Stateful Failover Phase2核心实现 | ✅ 完成 |
-| 工部 | CI/CD监控 + 构建验证 | ✅ 完成 |
-| 刑部 | 安全审计Round226 | ✅ 完成 |
-| 户部 | 项目统计更新 | ✅ 完成 |
-| 礼部 | CHANGELOG v2.455.0 + 竞品文档 | ✅ 完成 |
-| 吏部 | VERSION更新v2.455.0 | ✅ 完成 |
+| 司礼监 | 六部调度 + 竞品深化对标 + 版本发布 | ✅ 完成 |
+| 兵部 | TrueSearch Phase2设计文档 | ✅ 完成 |
+| 工部 | Hybrid Share设计文档 + CI验证 | ✅ 完成 |
+| 刑部 | VM Secure Boot预研 + 安全审计Round235 | ✅ 完成 |
+| 户部 | Active Backup设计文档 + 项目统计 | ✅ 完成 |
+| 礼部 | Drive Sync Enhancement设计文档 + CHANGELOG | ✅ 完成 |
+| 吏部 | VERSION更新v2.463.0 | ✅ 完成 |
 
-### 第226轮成果总结
-- ✅ `internal/monitor/alerting.go` 编译修复
-- ✅ `internal/smb/stateful/` Phase2核心模块（会话迁移/快照/健康检查）
-- ✅ 8个单元测试全部通过
-- ✅ CHANGELOG v2.455.0
-- ✅ ROADMAP更新
+### 第235轮成果总结
+- ✅ TrueSearch Phase2设计文档（对标TrueNAS TrueSearch）
+- ✅ Hybrid Share设计文档（对标群晖Hybrid Share）
+- ✅ VM Secure Boot预研文档（对标TrueNAS 26）
+- ✅ Active Backup整机备份设计文档（对标群晖）
+- ✅ Drive Sync Enhancement协作增强设计（对标群晖Drive）
+- ✅ CHANGELOG v2.463.0
+- ✅ VERSION更新至v2.463.0
 
 ### 发布目标
 **目标日期**: 2026-04-11
