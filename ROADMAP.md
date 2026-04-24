@@ -1,30 +1,31 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.463.0 (2026-04-24) 🚀 第235轮迭代完成
+## 当前版本：v2.464.0 (2026-04-24) 🚀 第236轮迭代完成
 
 ### 发布目标
 **目标日期**: 2026-04-24
-**主题**: 第235轮六部协同开发 - 竞品深化对标 + 新功能规划设计
+**主题**: 群晖DSM 7.3深度对标 + TrueNAS 27预研
 
-### 六部任务进度（第235轮）
+### 六部任务进度（第236轮）
 | 部门 | 任务 | 状态 |
 |------|------|------|
-| 司礼监 | 六部调度 + 竞品深化对标 + 版本发布 | ✅ 完成 |
-| 兵部 | TrueSearch Phase2设计文档 | ✅ 完成 |
-| 工部 | Hybrid Share设计文档 + CI验证 | ✅ 完成 |
-| 刑部 | VM Secure Boot预研 + 安全审计Round235 | ✅ 完成 |
-| 户部 | Active Backup设计文档 + 项目统计 | ✅ 完成 |
-| 礼部 | Drive Sync Enhancement设计文档 + CHANGELOG | ✅ 完成 |
-| 吏部 | VERSION更新v2.463.0 | ✅ 完成 |
+| 司礼监 | 六部调度 + 竞品调研 + 版本发布 | ✅ 完成 |
+| 兵部 | Synology Drive对标设计 | ✅ 完成 |
+| 工部 | SMB Spotlight设计 + CI验证 | ✅ 完成 |
+| 刑部 | Active Insight对标 + 安全审计Round236 | ✅ 完成 |
+| 户部 | Hybrid Share设计 + 成本分析 | ✅ 完成 |
+| 礼部 | 竞品文档更新 + CHANGELOG | ✅ 完成 |
+| 吏部 | VERSION更新v2.464.0 + 项目统计 | ✅ 完成 |
 
-### 第235轮成果总结
-- ✅ TrueSearch Phase2设计文档（对标TrueNAS TrueSearch）
-- ✅ Hybrid Share设计文档（对标群晖Hybrid Share）
-- ✅ VM Secure Boot预研文档（对标TrueNAS 26）
-- ✅ Active Backup整机备份设计文档（对标群晖）
-- ✅ Drive Sync Enhancement协作增强设计（对标群晖Drive）
-- ✅ CHANGELOG v2.463.0
-- ✅ VERSION更新至v2.463.0
+### 第236轮成果总结
+- ✅ 群晖DSM 7.3八大核心功能深度分析
+- ✅ TrueNAS 27预研章节（OpenZFS 2.5、NVMe-oF增强）
+- ✅ Synology Drive对标设计文档
+- ✅ SMB Spotlight设计文档
+- ✅ Active Insight/Fleet监控对标设计
+- ✅ Hybrid Share混合云存储设计
+- ✅ 安全审计Round236
+- ✅ VERSION更新至v2.464.0
 
 ### 发布目标
 **目标日期**: 2026-04-11
