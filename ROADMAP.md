@@ -1,31 +1,52 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.464.0 (2026-04-24) 🚀 第236轮迭代完成
+## 当前版本：v2.467.0 (2026-04-24) 🚀 第239轮迭代完成
 
 ### 发布目标
 **目标日期**: 2026-04-24
-**主题**: 群晖DSM 7.3深度对标 + TrueNAS 27预研
+**主题**: TrueNAS 25.10 + 群晖DSM 7.3深度对标 + 六部协同开发
 
-### 六部任务进度（第236轮）
+### 六部任务进度（第239轮）
 | 部门 | 任务 | 状态 |
 |------|------|------|
 | 司礼监 | 六部调度 + 竞品调研 + 版本发布 | ✅ 完成 |
-| 兵部 | Synology Drive对标设计 | ✅ 完成 |
-| 工部 | SMB Spotlight设计 + CI验证 | ✅ 完成 |
-| 刑部 | Active Insight对标 + 安全审计Round236 | ✅ 完成 |
-| 户部 | Hybrid Share设计 + 成本分析 | ✅ 完成 |
-| 礼部 | 竞品文档更新 + CHANGELOG | ✅ 完成 |
-| 吏部 | VERSION更新v2.464.0 + 项目统计 | ✅ 完成 |
+| 兵部 | NVMe-oF设计 + Presto对标分析 | ✅ 完成 |
+| 工部 | 高速网络设计 + VM格式扩展设计 | ✅ 完成 |
+| 刑部 | VM Secure Boot设计 + 安全审计Round239 | ✅ 完成 |
+| 户部 | NVMe-oF成本分析 + Presto硬件需求 | ✅ 完成 |
+| 礼部 | Audio Station设计 + UI改进建议 | ✅ 完成 |
+| 吏部 | VERSION更新v2.467.0 + MILESTONES更新 | ✅ 完成 |
 
-### 第236轮成果总结
-- ✅ 群晖DSM 7.3八大核心功能深度分析
-- ✅ TrueNAS 27预研章节（OpenZFS 2.5、NVMe-oF增强）
-- ✅ Synology Drive对标设计文档
-- ✅ SMB Spotlight设计文档
-- ✅ Active Insight/Fleet监控对标设计
-- ✅ Hybrid Share混合云存储设计
-- ✅ 安全审计Round236
-- ✅ VERSION更新至v2.464.0
+### 第239轮成果总结
+- ✅ TrueNAS 25.10 Goldeye NVMe-oF设计文档
+- ✅ 群晖 Presto 传输加速对标分析
+- ✅ 400GbE高速网络设计文档
+- ✅ VM多格式导入导出扩展设计
+- ✅ VM Secure Boot安全设计文档
+- ✅ Audio Station功能设计
+- ✅ UI改进建议（Updates/Users界面优化）
+- ✅ NVMe-oF成本效益分析
+- ✅ Presto硬件需求分析
+- ✅ 安全审计Round239
+- ✅ VERSION更新至v2.467.0
+
+### 竞品对标成果（TrueNAS 25.10）
+| 功能 | TrueNAS 25.10 | nas-os对标 | 状态 |
+|------|---------------|------------|------|
+| NVMe over Fabric | NVMe/TCP + RDMA | TurboNVMe | ✅设计完成 |
+| 400GbE网络 | Terabit支持 | 高速网络模块 | ✅设计完成 |
+| VM Secure Boot | UEFI安全启动 | SecureBoot模块 | ✅设计完成 |
+| VM多格式 | QCOW2/VMDK/VHDX等 | Format扩展 | ✅设计完成 |
+| NVIDIA GPU | Blackwell支持 | AI服务增强 | 📋规划 |
+
+### 竞品对标成果（群晖DSM 7.3）
+| 功能 | 群晖DSM 7.3 | nas-os对标 | 状态 |
+|------|-------------|------------|------|
+| Presto | 传输加速 | TurboSync | ✅设计完成 |
+| Audio Station | 音乐管理 | MusicHub | ✅设计完成 |
+| Hybrid Share | 混合云存储 | ✅云挂载已有 | 保持优势 |
+| Synology Tiering | 存储分层 | ✅Fusion Pool已有 | 保持优势 |
+| Secure SignIn | 安全认证 | ✅AMFA已有 | 保持优势 |
 
 ### 发布目标
 **目标日期**: 2026-04-11
