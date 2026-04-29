@@ -7,6 +7,51 @@
 
 ---
 
+## [v2.470.0] - 2026-04-30
+
+### 新功能与增强
+
+#### 📤 File Request 文件收集
+- 通过安全链接收集文件，无需共享账号
+- 支持文件数量限制、大小限制、过期时间
+- 支持撤销请求、上传统计
+- 对标群晖 DSM 7.3 File Request 功能
+
+#### 📊 Alert Digest 告警摘要
+- 批量告警收集，定时生成摘要发送
+- 支持多通道配置（email/telegram/webhook）
+- 按严重级别过滤，告警确认机制
+- 减少告警疲劳，提升运维效率
+
+#### 💾 Immutable Backup 不可变备份
+- Write-Once 备份保护，到期前不可修改/删除
+- SHA-256 完整性校验
+- 完整审计日志，满足合规要求
+- 支持保留期延长
+- 对标 TrueNAS Immutable Backup 功能
+
+#### 🖥️ Storage Health Dashboard 存储健康仪表盘
+- 统一磁盘 SMART 健康监控
+- 存储池状态聚合（健康/降级/故障）
+- 容量趋势预测（线性回归）
+- 自动告警生成（温度/坏道/容量预警）
+- 对标群晖 Storage Manager / TrueNAS Dashboard
+
+### 维护更新
+- 清理 8 个无用的内部文档文件（backup/security/auth 模块）
+- 清理 124MB 编译产物 nasd 二进制
+- 新增 41 个单元测试，全部通过
+
+### 测试覆盖
+| 模块 | 测试数 | 状态 |
+|------|--------|------|
+| filerequest | 8 | ✅ PASS |
+| alertdigest | 9 | ✅ PASS |
+| healthdashboard | 10 | ✅ PASS |
+| immutablebackup | 14 | ✅ PASS |
+
+---
+
 ## [v2.469.0] - 2026-04-29
 
 ### 新功能与增强
