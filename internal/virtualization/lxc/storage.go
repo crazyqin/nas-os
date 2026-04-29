@@ -1,434 +1,463 @@
+// Package lxc 沙箱存储管理模块
+// 提供沙箱专用的存储池、存储卷和快照管理功能
 package lxc
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
+	"sync"
+	"time"
+
+	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
-// StorageManager handles LXC storage pool and volume operations.
-type StorageManager struct {
-	manager *Manager
+// SandboxStorageBackend 沙箱存储后端类型
+type SandboxStorageBackend string
+
+const (
+	SandboxBackendZFS   SandboxStorageBackend = "zfs"    // ZFS 文件系统
+	SandboxBackendBtrfs SandboxStorageBackend = "btrfs"  // Btrfs 文件系统
+	SandboxBackendDir   SandboxStorageBackend = "dir"    // 普通目录
+	SandboxBackendLVM   SandboxStorageBackend = "lvm"    // LVM 逻辑卷
+)
+
+// SandboxVolumeStatus 沙箱存储卷状态
+type SandboxVolumeStatus string
+
+const (
+	SandboxVolumeReady   SandboxVolumeStatus = "ready"
+	SandboxVolumeInUse   SandboxVolumeStatus = "in_use"
+	SandboxVolumeError   SandboxVolumeStatus = "error"
+	SandboxVolumeDeleted SandboxVolumeStatus = "deleted"
+)
+
+// SandboxStoragePool 沙箱存储池
+type SandboxStoragePool struct {
+	ID        string                `json:"id"`
+	Name      string                `json:"name"`       // 存储池名称
+	Backend   SandboxStorageBackend `json:"backend"`    // 存储后端
+	Path      string                `json:"path"`       // 存储池根路径
+	TotalSize int64                 `json:"total_size"` // 总容量（字节）
+	UsedSize  int64                 `json:"used_size"`  // 已用空间（字节）
+	Volumes   []string              `json:"volumes"`    // 包含的卷 ID 列表
+	Labels    map[string]string     `json:"labels"`
+	CreatedAt time.Time             `json:"created_at"`
+	UpdatedAt time.Time             `json:"updated_at"`
 }
 
-// NewStorageManager creates a new StorageManager.
-func NewStorageManager(manager *Manager) *StorageManager {
-	return &StorageManager{manager: manager}
+// SandboxStorageVolume 沙箱存储卷
+type SandboxStorageVolume struct {
+	ID         string              `json:"id"`
+	Name       string              `json:"name"`        // 卷名称
+	PoolID     string              `json:"pool_id"`     // 所属存储池 ID
+	Size       int64               `json:"size"`        // 卷大小（字节）
+	UsedSize   int64               `json:"used_size"`   // 已用空间
+	Path       string              `json:"path"`        // 卷在宿主机上的路径
+	Status     SandboxVolumeStatus `json:"status"`      // 卷状态
+	SandboxID  string              `json:"sandbox_id"`  // 关联的沙箱 ID（空表示未挂载）
+	MountPoint string              `json:"mount_point"` // 挂载到沙箱的路径
+	CreatedAt  time.Time           `json:"created_at"`
+	UpdatedAt  time.Time           `json:"updated_at"`
 }
 
-// ListPools lists all storage pools.
-func (s *StorageManager) ListPools(ctx context.Context) ([]*StoragePool, error) {
-	cmd := s.manager.cmd("storage", "list", "--format", "json")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("failed to list storage pools: %w", err)
-	}
-
-	var raw []struct {
-		Name        string            `json:"name"`
-		Description string            `json:"description"`
-		Driver      string            `json:"driver"`
-		UsedBy      []string          `json:"used_by"`
-		Config      map[string]string `json:"config"`
-		Status      string            `json:"status"`
-	}
-
-	if err := json.Unmarshal(output, &raw); err != nil {
-		return nil, fmt.Errorf("failed to parse storage pool list: %w", err)
-	}
-
-	var pools []*StoragePool
-	for _, r := range raw {
-		pool := &StoragePool{
-			Name:        r.Name,
-			Description: r.Description,
-			Driver:      r.Driver,
-			InUse:       len(r.UsedBy) > 0,
-			Config:      r.Config,
-		}
-
-		// Parse size info from config
-		if size, ok := r.Config["size"]; ok {
-			pool.TotalSize = parseSize(size)
-		}
-		if used, ok := r.Config["used"]; ok {
-			pool.UsedSize = parseSize(used)
-		}
-		if pool.TotalSize > pool.UsedSize {
-			pool.Available = pool.TotalSize - pool.UsedSize
-		}
-
-		pools = append(pools, pool)
-	}
-
-	return pools, nil
+// SandboxSnapshot 沙箱存储快照
+type SandboxSnapshot struct {
+	ID        string            `json:"id"`
+	VolumeID  string            `json:"volume_id"`   // 所属卷 ID
+	Name      string            `json:"name"`        // 快照名称
+	Size      int64             `json:"size"`        // 快照大小
+	Path      string            `json:"path"`        // 快照路径
+	ParentID  string            `json:"parent_id"`   // 父快照 ID（用于增量快照）
+	Labels    map[string]string `json:"labels"`
+	CreatedAt time.Time         `json:"created_at"`
 }
 
-// GetPool retrieves a specific storage pool.
-func (s *StorageManager) GetPool(ctx context.Context, name string) (*StoragePool, error) {
-	cmd := s.manager.cmd("storage", "show", name, "--format", "json")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get storage pool %s: %w", name, err)
+// SandboxStorageManagerConfig 沙箱存储管理器配置
+type SandboxStorageManagerConfig struct {
+	DefaultBackend SandboxStorageBackend `json:"default_backend"` // 默认存储后端
+	DefaultPool    string                `json:"default_pool"`    // 默认存储池名
+	DataDir        string                `json:"data_dir"`        // 数据目录
+	EnableQuota    bool                  `json:"enable_quota"`    // 是否启用磁盘配额
+}
+
+// SandboxStorageManager 沙箱存储管理器
+type SandboxStorageManager struct {
+	mu        sync.RWMutex
+	pools     map[string]*SandboxStoragePool
+	volumes   map[string]*SandboxStorageVolume
+	snapshots map[string]*SandboxSnapshot
+	config    *SandboxStorageManagerConfig
+	logger    *zap.Logger
+	dataDir   string
+}
+
+// NewSandboxStorageManager 创建沙箱存储管理器
+func NewSandboxStorageManager(dataDir string, logger *zap.Logger) (*SandboxStorageManager, error) {
+	if logger == nil {
+		logger = zap.NewNop()
 	}
 
-	var raw struct {
-		Name        string            `json:"name"`
-		Description string            `json:"description"`
-		Driver      string            `json:"driver"`
-		UsedBy      []string          `json:"used_by"`
-		Config      map[string]string `json:"config"`
+	if dataDir == "" {
+		dataDir = "/var/lib/nas-os/lxc/storage"
 	}
 
-	if err := json.Unmarshal(output, &raw); err != nil {
-		return nil, fmt.Errorf("failed to parse storage pool info: %w", err)
+	sm := &SandboxStorageManager{
+		pools:     make(map[string]*SandboxStoragePool),
+		volumes:   make(map[string]*SandboxStorageVolume),
+		snapshots: make(map[string]*SandboxSnapshot),
+		config: &SandboxStorageManagerConfig{
+			DefaultBackend: SandboxBackendDir,
+			DefaultPool:    "default",
+			DataDir:        dataDir,
+			EnableQuota:    true,
+		},
+		logger:  logger,
+		dataDir: dataDir,
 	}
 
-	pool := &StoragePool{
-		Name:        raw.Name,
-		Description: raw.Description,
-		Driver:      raw.Driver,
-		InUse:       len(raw.UsedBy) > 0,
-		Config:      raw.Config,
+	// 确保数据目录存在
+	if err := os.MkdirAll(dataDir, 0755); err != nil {
+		return nil, fmt.Errorf("创建存储数据目录失败: %w", err)
 	}
 
-	if size, ok := raw.Config["size"]; ok {
-		pool.TotalSize = parseSize(size)
+	// 初始化默认存储池
+	if err := sm.initDefaultPool(); err != nil {
+		return nil, fmt.Errorf("初始化默认存储池失败: %w", err)
 	}
-	if used, ok := raw.Config["used"]; ok {
-		pool.UsedSize = parseSize(used)
+
+	return sm, nil
+}
+
+// CreateVolume 创建沙箱存储卷
+func (sm *SandboxStorageManager) CreateVolume(ctx context.Context, name, poolID string, size int64) (*SandboxStorageVolume, error) {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	pool, exists := sm.pools[poolID]
+	if !exists {
+		return nil, fmt.Errorf("存储池 %s 不存在", poolID)
 	}
-	if pool.TotalSize > pool.UsedSize {
-		pool.Available = pool.TotalSize - pool.UsedSize
+
+	// 检查空间是否充足
+	available := pool.TotalSize - pool.UsedSize
+	if available < size {
+		return nil, fmt.Errorf("存储池空间不足: 需要 %d 字节，可用 %d 字节", size, available)
 	}
+
+	id := uuid.New().String()
+	volumePath := filepath.Join(pool.Path, "volumes", id)
+
+	// 创建卷目录（实际实现中根据后端类型执行不同操作）
+	if err := os.MkdirAll(volumePath, 0755); err != nil {
+		return nil, fmt.Errorf("创建存储卷目录失败: %w", err)
+	}
+
+	now := time.Now()
+	volume := &SandboxStorageVolume{
+		ID:        id,
+		Name:      name,
+		PoolID:    poolID,
+		Size:      size,
+		Path:      volumePath,
+		Status:    SandboxVolumeReady,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	sm.volumes[id] = volume
+	pool.Volumes = append(pool.Volumes, id)
+	pool.UpdatedAt = now
+
+	sm.logger.Info("沙箱存储卷创建成功",
+		zap.String("id", id),
+		zap.String("name", name),
+		zap.Int64("size", size),
+		zap.String("pool", poolID))
+
+	return volume, nil
+}
+
+// MountVolume 挂载存储卷到沙箱
+func (sm *SandboxStorageManager) MountVolume(ctx context.Context, volumeID, sandboxID, mountPoint string) error {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	volume, exists := sm.volumes[volumeID]
+	if !exists {
+		return fmt.Errorf("存储卷 %s 不存在", volumeID)
+	}
+
+	if volume.Status == SandboxVolumeDeleted {
+		return fmt.Errorf("存储卷 %s 已删除", volumeID)
+	}
+
+	// 检查卷是否已被其他沙箱挂载
+	if volume.SandboxID != "" && volume.SandboxID != sandboxID {
+		return fmt.Errorf("存储卷 %s 已挂载到沙箱 %s", volumeID, volume.SandboxID)
+	}
+
+	// 实际挂载操作（通过 LXC 配置或 mount namespace）
+	// lxc.mount.entry = /path/to/volume /mount/point none bind,create=dir 0 0
+
+	volume.SandboxID = sandboxID
+	volume.MountPoint = mountPoint
+	volume.Status = SandboxVolumeInUse
+	volume.UpdatedAt = time.Now()
+
+	sm.logger.Info("存储卷挂载成功",
+		zap.String("volume_id", volumeID),
+		zap.String("sandbox_id", sandboxID),
+		zap.String("mount_point", mountPoint))
+
+	return nil
+}
+
+// UnmountVolume 从沙箱卸载存储卷
+func (sm *SandboxStorageManager) UnmountVolume(ctx context.Context, volumeID string) error {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	volume, exists := sm.volumes[volumeID]
+	if !exists {
+		return fmt.Errorf("存储卷 %s 不存在", volumeID)
+	}
+
+	if volume.SandboxID == "" {
+		return fmt.Errorf("存储卷 %s 未挂载", volumeID)
+	}
+
+	volume.SandboxID = ""
+	volume.MountPoint = ""
+	volume.Status = SandboxVolumeReady
+	volume.UpdatedAt = time.Now()
+
+	sm.logger.Info("存储卷已卸载", zap.String("volume_id", volumeID))
+	return nil
+}
+
+// DeleteVolume 删除存储卷
+func (sm *SandboxStorageManager) DeleteVolume(ctx context.Context, volumeID string) error {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	volume, exists := sm.volumes[volumeID]
+	if !exists {
+		return fmt.Errorf("存储卷 %s 不存在", volumeID)
+	}
+
+	if volume.Status == SandboxVolumeInUse {
+		return fmt.Errorf("存储卷 %s 正在使用中，请先卸载", volumeID)
+	}
+
+	// 清理相关快照
+	for snapID, snap := range sm.snapshots {
+		if snap.VolumeID == volumeID {
+			delete(sm.snapshots, snapID)
+		}
+	}
+
+	// 清理文件系统
+	if err := os.RemoveAll(volume.Path); err != nil {
+		sm.logger.Warn("清理存储卷目录失败", zap.String("path", volume.Path), zap.Error(err))
+	}
+
+	volume.Status = SandboxVolumeDeleted
+	sm.logger.Info("存储卷已删除", zap.String("volume_id", volumeID), zap.String("name", volume.Name))
+	return nil
+}
+
+// Snapshot 创建沙箱存储快照
+func (sm *SandboxStorageManager) Snapshot(ctx context.Context, volumeID, name string, labels map[string]string) (*SandboxSnapshot, error) {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	volume, exists := sm.volumes[volumeID]
+	if !exists {
+		return nil, fmt.Errorf("存储卷 %s 不存在", volumeID)
+	}
+
+	if volume.Status == SandboxVolumeDeleted {
+		return nil, fmt.Errorf("存储卷 %s 已删除", volumeID)
+	}
+
+	id := uuid.New().String()
+	snapPath := filepath.Join(sm.dataDir, "snapshots", id)
+
+	// 创建快照目录
+	if err := os.MkdirAll(snapPath, 0755); err != nil {
+		return nil, fmt.Errorf("创建快照目录失败: %w", err)
+	}
+
+	// 实际实现中根据后端执行快照：
+	// ZFS:   zfs snapshot pool/volume@snapshot_name
+	// Btrfs: btrfs subvolume snapshot -r /volume /snapshot
+	// Dir:   rsync -a /volume/ /snapshot/ 或 cp --reflink=always
+
+	// 查找最近的父快照（用于增量链）
+	var parentID string
+	for _, snap := range sm.snapshots {
+		if snap.VolumeID == volumeID {
+			parentID = snap.ID
+		}
+	}
+
+	now := time.Now()
+	snapshot := &SandboxSnapshot{
+		ID:        id,
+		VolumeID:  volumeID,
+		Name:      name,
+		Path:      snapPath,
+		ParentID:  parentID,
+		Labels:    labels,
+		CreatedAt: now,
+	}
+
+	sm.snapshots[id] = snapshot
+
+	sm.logger.Info("沙箱快照创建成功",
+		zap.String("id", id),
+		zap.String("name", name),
+		zap.String("volume_id", volumeID),
+		zap.String("parent_id", parentID))
+
+	return snapshot, nil
+}
+
+// ListVolumes 列出存储池中的所有卷
+func (sm *SandboxStorageManager) ListVolumes(poolID string) []*SandboxStorageVolume {
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	result := make([]*SandboxStorageVolume, 0)
+	for _, vol := range sm.volumes {
+		if poolID == "" || vol.PoolID == poolID {
+			result = append(result, vol)
+		}
+	}
+	return result
+}
+
+// ListSnapshots 列出卷的所有快照
+func (sm *SandboxStorageManager) ListSnapshots(volumeID string) []*SandboxSnapshot {
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	result := make([]*SandboxSnapshot, 0)
+	for _, snap := range sm.snapshots {
+		if volumeID == "" || snap.VolumeID == volumeID {
+			result = append(result, snap)
+		}
+	}
+	return result
+}
+
+// GetPool 获取存储池信息
+func (sm *SandboxStorageManager) GetPool(poolID string) (*SandboxStoragePool, error) {
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	pool, exists := sm.pools[poolID]
+	if !exists {
+		return nil, fmt.Errorf("存储池 %s 不存在", poolID)
+	}
+	return pool, nil
+}
+
+// CreatePool 创建存储池
+func (sm *SandboxStorageManager) CreatePool(ctx context.Context, name string, backend SandboxStorageBackend, path string, totalSize int64) (*SandboxStoragePool, error) {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	id := uuid.New().String()
+	poolPath := filepath.Join(sm.dataDir, "pools", id)
+
+	if path != "" {
+		poolPath = path
+	}
+
+	if err := os.MkdirAll(poolPath, 0755); err != nil {
+		return nil, fmt.Errorf("创建存储池目录失败: %w", err)
+	}
+
+	now := time.Now()
+	pool := &SandboxStoragePool{
+		ID:        id,
+		Name:      name,
+		Backend:   backend,
+		Path:      poolPath,
+		TotalSize: totalSize,
+		UsedSize:  0,
+		Volumes:   []string{},
+		Labels:    make(map[string]string),
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	sm.pools[id] = pool
+
+	sm.logger.Info("沙箱存储池创建成功",
+		zap.String("id", id),
+		zap.String("name", name),
+		zap.String("backend", string(backend)))
 
 	return pool, nil
 }
 
-// CreatePool creates a new storage pool.
-func (s *StorageManager) CreatePool(ctx context.Context, config *StoragePoolCreateConfig) (*StoragePool, error) {
-	if err := config.Validate(); err != nil {
-		return nil, fmt.Errorf("invalid config: %w", err)
+// initDefaultPool 初始化默认存储池
+func (sm *SandboxStorageManager) initDefaultPool() error {
+	defaultPath := filepath.Join(sm.dataDir, "pools", "default")
+	if err := os.MkdirAll(defaultPath, 0755); err != nil {
+		return err
 	}
 
-	args := []string{"storage", "create", config.Name, config.Driver}
-
-	// Add source
-	if config.Source != "" {
-		args = append(args, "--config", fmt.Sprintf("source=%s", config.Source))
-	}
-
-	// Add size
-	if config.Size > 0 {
-		args = append(args, "--config", fmt.Sprintf("size=%dGB", config.Size))
-	}
-
-	// Add additional config
-	for k, v := range config.Config {
-		args = append(args, "--config", fmt.Sprintf("%s=%s", k, v))
-	}
-
-	cmd := s.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create storage pool: %w, output: %s", err, string(output))
-	}
-
-	return s.GetPool(ctx, config.Name)
-}
-
-// DeletePool deletes a storage pool.
-func (s *StorageManager) DeletePool(ctx context.Context, name string, force bool) error {
-	args := []string{"storage", "delete", name}
-	if force {
-		args = append(args, "--force")
-	}
-
-	cmd := s.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to delete storage pool: %w, output: %s", err, string(output))
-	}
-	return nil
-}
-
-// ListVolumes lists all volumes in a storage pool.
-func (s *StorageManager) ListVolumes(ctx context.Context, poolName string) ([]*StorageVolume, error) {
-	cmd := s.manager.cmd("storage", "volume", "list", poolName, "--format", "json")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("failed to list volumes: %w", err)
-	}
-
-	var raw []struct {
-		Name        string            `json:"name"`
-		Description string            `json:"description"`
-		Type        string            `json:"type"`
-		UsedBy      []string          `json:"used_by"`
-		Config      map[string]string `json:"config"`
-	}
-
-	if err := json.Unmarshal(output, &raw); err != nil {
-		return nil, fmt.Errorf("failed to parse volume list: %w", err)
-	}
-
-	var volumes []*StorageVolume
-	for _, r := range raw {
-		vol := &StorageVolume{
-			Name:        r.Name,
-			Description: r.Description,
-			Type:        r.Type,
-			Pool:        poolName,
-			InUse:       len(r.UsedBy) > 0,
-			Config:      r.Config,
+	if _, exists := sm.pools["default"]; !exists {
+		now := time.Now()
+		sm.pools["default"] = &SandboxStoragePool{
+			ID:        "default",
+			Name:      "default",
+			Backend:   SandboxBackendDir,
+			Path:      defaultPath,
+			TotalSize: 100 * 1024 * 1024 * 1024, // 默认 100GB（实际会检测磁盘）
+			Volumes:   []string{},
+			Labels:    make(map[string]string),
+			CreatedAt: now,
+			UpdatedAt: now,
 		}
-
-		if size, ok := r.Config["size"]; ok {
-			vol.Size = parseSize(size)
-		}
-
-		volumes = append(volumes, vol)
-	}
-
-	return volumes, nil
-}
-
-// GetVolume retrieves a specific volume.
-func (s *StorageManager) GetVolume(ctx context.Context, poolName, volumeName, volumeType string) (*StorageVolume, error) {
-	if volumeType == "" {
-		volumeType = "custom"
-	}
-	_ = volumeType // volumeType reserved for future use with --type flag
-
-	cmd := s.manager.cmd("storage", "volume", "show", poolName, volumeName, "--format", "json")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get volume %s: %w", volumeName, err)
-	}
-
-	var raw struct {
-		Name        string            `json:"name"`
-		Description string            `json:"description"`
-		Type        string            `json:"type"`
-		Config      map[string]string `json:"config"`
-		UsedBy      []string          `json:"used_by"`
-	}
-
-	if err := json.Unmarshal(output, &raw); err != nil {
-		return nil, fmt.Errorf("failed to parse volume info: %w", err)
-	}
-
-	vol := &StorageVolume{
-		Name:        raw.Name,
-		Description: raw.Description,
-		Type:        raw.Type,
-		Pool:        poolName,
-		InUse:       len(raw.UsedBy) > 0,
-		Config:      raw.Config,
-	}
-
-	if size, ok := raw.Config["size"]; ok {
-		vol.Size = parseSize(size)
-	}
-
-	return vol, nil
-}
-
-// CreateVolume creates a new storage volume.
-func (s *StorageManager) CreateVolume(ctx context.Context, config *StorageVolumeCreateConfig) (*StorageVolume, error) {
-	if err := config.Validate(); err != nil {
-		return nil, fmt.Errorf("invalid config: %w", err)
-	}
-
-	args := []string{"storage", "volume", "create", config.Pool, config.Name}
-
-	// Add size
-	if config.Size > 0 {
-		args = append(args, "--config", fmt.Sprintf("size=%dGB", config.Size))
-	}
-
-	// Add additional config
-	for k, v := range config.Config {
-		args = append(args, "--config", fmt.Sprintf("%s=%s", k, v))
-	}
-
-	cmd := s.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create volume: %w, output: %s", err, string(output))
-	}
-
-	return s.GetVolume(ctx, config.Pool, config.Name, config.Type)
-}
-
-// DeleteVolume deletes a storage volume.
-func (s *StorageManager) DeleteVolume(ctx context.Context, poolName, volumeName, volumeType string, force bool) error {
-	if volumeType == "" {
-		volumeType = "custom"
-	}
-	_ = volumeType // volumeType reserved for future use with --type flag
-
-	args := []string{"storage", "volume", "delete", poolName, volumeName}
-	if force {
-		args = append(args, "--force")
-	}
-
-	cmd := s.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to delete volume: %w, output: %s", err, string(output))
-	}
-	return nil
-}
-
-// AttachVolume attaches a volume to a container.
-func (s *StorageManager) AttachVolume(ctx context.Context, poolName, volumeName, container, mountPath string, readOnly bool) error {
-	args := []string{"storage", "volume", "attach", poolName, volumeName, container, mountPath}
-	if readOnly {
-		args = append(args, "--config", "readonly=true")
-	}
-
-	cmd := s.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to attach volume: %w, output: %s", err, string(output))
-	}
-	return nil
-}
-
-// DetachVolume detaches a volume from a container.
-func (s *StorageManager) DetachVolume(ctx context.Context, poolName, volumeName, container string) error {
-	args := []string{"storage", "volume", "detach", poolName, volumeName, container}
-
-	cmd := s.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to detach volume: %w, output: %s", err, string(output))
-	}
-	return nil
-}
-
-// CopyVolume copies a volume to another location.
-func (s *StorageManager) CopyVolume(ctx context.Context, srcPool, srcVolume, dstPool, dstVolume string) error {
-	args := []string{"storage", "volume", "copy",
-		fmt.Sprintf("%s/%s", srcPool, srcVolume),
-		fmt.Sprintf("%s/%s", dstPool, dstVolume),
-	}
-
-	cmd := s.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to copy volume: %w, output: %s", err, string(output))
-	}
-	return nil
-}
-
-// MoveVolume moves a volume to another location.
-func (s *StorageManager) MoveVolume(ctx context.Context, srcPool, srcVolume, dstPool, dstVolume string) error {
-	args := []string{"storage", "volume", "move",
-		fmt.Sprintf("%s/%s", srcPool, srcVolume),
-		fmt.Sprintf("%s/%s", dstPool, dstVolume),
-	}
-
-	cmd := s.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to move volume: %w, output: %s", err, string(output))
-	}
-	return nil
-}
-
-// StorageVolume represents an LXC storage volume.
-type StorageVolume struct {
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Type        string            `json:"type"` // container, image, custom
-	Pool        string            `json:"pool"`
-	Size        uint64            `json:"size"` // Size in MB
-	InUse       bool              `json:"inUse"`
-	Config      map[string]string `json:"config"`
-}
-
-// StoragePoolCreateConfig holds parameters for creating a storage pool.
-type StoragePoolCreateConfig struct {
-	Name        string            `json:"name"`
-	Driver      string            `json:"driver"` // zfs, btrfs, dir, lvm, ceph
-	Source      string            `json:"source"` // Source device/path
-	Size        uint64            `json:"size"`   // Size in GB
-	Description string            `json:"description"`
-	Config      map[string]string `json:"config"`
-}
-
-// Validate validates StoragePoolCreateConfig.
-func (c *StoragePoolCreateConfig) Validate() error {
-	if c.Name == "" {
-		return fmt.Errorf("pool name is required")
-	}
-
-	validDrivers := map[string]bool{
-		"zfs":    true,
-		"btrfs":  true,
-		"dir":    true,
-		"lvm":    true,
-		"ceph":   true,
-		"cephfs": true,
-	}
-	if !validDrivers[c.Driver] {
-		return fmt.Errorf("invalid storage driver: %s", c.Driver)
 	}
 
 	return nil
 }
 
-// StorageVolumeCreateConfig holds parameters for creating a storage volume.
-type StorageVolumeCreateConfig struct {
-	Name        string            `json:"name"`
-	Pool        string            `json:"pool"`
-	Type        string            `json:"type"` // custom, container, image
-	Size        uint64            `json:"size"` // Size in GB
-	Description string            `json:"description"`
-	Config      map[string]string `json:"config"`
-}
+// Close 关闭存储管理器
+func (sm *SandboxStorageManager) Close() error {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
 
-// Validate validates StorageVolumeCreateConfig.
-func (c *StorageVolumeCreateConfig) Validate() error {
-	if c.Name == "" {
-		return fmt.Errorf("volume name is required")
+	statePath := filepath.Join(sm.dataDir, "state.json")
+	data, err := json.MarshalIndent(struct {
+		Pools     map[string]*SandboxStoragePool     `json:"pools"`
+		Volumes   map[string]*SandboxStorageVolume   `json:"volumes"`
+		Snapshots map[string]*SandboxSnapshot        `json:"snapshots"`
+	}{
+		Pools:     sm.pools,
+		Volumes:   sm.volumes,
+		Snapshots: sm.snapshots,
+	}, "", "  ")
+
+	if err != nil {
+		sm.logger.Error("序列化存储状态失败", zap.Error(err))
+		return err
 	}
-	if c.Pool == "" {
-		return fmt.Errorf("pool name is required")
+
+	if err := os.WriteFile(statePath, data, 0644); err != nil {
+		sm.logger.Error("保存存储状态失败", zap.Error(err))
+		return err
 	}
-	// Note: Size is uint64 and cannot be negative
+
+	sm.logger.Info("沙箱存储管理器已关闭")
 	return nil
-}
-
-// DefaultStoragePool returns a default storage pool configuration.
-func DefaultStoragePool(name, driver string) *StoragePoolCreateConfig {
-	return &StoragePoolCreateConfig{
-		Name:   name,
-		Driver: driver,
-		Size:   100, // 100GB default
-	}
-}
-
-// ZFSPoolConfig returns a ZFS-specific pool configuration.
-func ZFSPoolConfig(name, source string, size uint64) *StoragePoolCreateConfig {
-	return &StoragePoolCreateConfig{
-		Name:   name,
-		Driver: "zfs",
-		Source: source,
-		Size:   size,
-		Config: map[string]string{
-			"zfs.pool_name": name,
-		},
-	}
-}
-
-// DirectoryPoolConfig returns a directory-based pool configuration.
-func DirectoryPoolConfig(name, path string) *StoragePoolCreateConfig {
-	return &StoragePoolCreateConfig{
-		Name:   name,
-		Driver: "dir",
-		Source: path,
-	}
 }

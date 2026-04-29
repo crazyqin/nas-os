@@ -64,6 +64,12 @@ func NewManager(config FileLockConfig, logger *zap.Logger) *Manager {
 		go m.autoRenewalLoop()
 	}
 
+	// 启动协作锁超时自动释放任务
+	if config.AutoRelease && config.LockTimeout > 0 {
+		m.wg.Add(1)
+		go m.autoReleaseLoop()
+	}
+
 	return m
 }
 
@@ -616,6 +622,72 @@ func (m *Manager) renewActiveLocks() {
 
 		return true
 	})
+}
+
+// autoReleaseLoop 协作锁超时自动释放循环.
+// 检查所有活跃锁，如果持有时间超过 LockTimeout 则自动释放.
+func (m *Manager) autoReleaseLoop() {
+	defer m.wg.Done()
+
+	// 使用 CleanupInterval 作为检查间隔，最小 30 秒
+	interval := m.config.CleanupInterval
+	if interval < 30*time.Second {
+		interval = 30 * time.Second
+	}
+
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-m.ctx.Done():
+			return
+		case <-ticker.C:
+			m.releaseExpiredCollabLocks()
+		}
+	}
+}
+
+// releaseExpiredCollabLocks 释放超过 LockTimeout 的协作锁.
+func (m *Manager) releaseExpiredCollabLocks() {
+	var expiredLocks []*FileLock
+	timeout := m.config.LockTimeout
+	if timeout <= 0 {
+		return
+	}
+
+	m.locks.Range(func(key, value interface{}) bool {
+		lock, ok := value.(*FileLock)
+		if !ok {
+			return true
+		}
+		if lock.Status != LockStatusActive {
+			return true
+		}
+
+		// 计算锁的持有时间
+		heldDuration := time.Since(lock.CreatedAt)
+		if heldDuration > timeout {
+			expiredLocks = append(expiredLocks, lock)
+		}
+		return true
+	})
+
+	for _, lock := range expiredLocks {
+		m.releaseLockInternal(lock)
+
+		m.logger.Info("collab lock auto-released by timeout",
+			zap.String("id", lock.ID),
+			zap.String("file", lock.FilePath),
+			zap.String("owner", lock.Owner),
+			zap.Duration("held", time.Since(lock.CreatedAt)),
+			zap.Duration("timeout", m.config.LockTimeout),
+		)
+
+		m.stats.mu.Lock()
+		m.stats.expiredLocks++
+		m.stats.mu.Unlock()
+	}
 }
 
 // SMB/NFS 集成适配器

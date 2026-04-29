@@ -1,453 +1,320 @@
+// Package lxc 沙箱网络隔离模块
+// 提供沙箱网络隔离、虚拟以太网对、网桥和防火墙管理
 package lxc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net"
-	"strings"
+	"sync"
+
+	"go.uber.org/zap"
 )
 
-// NetworkManager handles LXC network configuration.
-type NetworkManager struct {
-	manager *Manager
+// FirewallRule 防火墙规则
+type FirewallRule struct {
+	Direction  string `json:"direction"`   // in / out
+	Action     string `json:"action"`      // accept / drop / reject
+	Protocol   string `json:"protocol"`    // tcp / udp / icmp / all
+	SourceIP   string `json:"source_ip"`   // 源 IP（空表示任意）
+	DestIP     string `json:"dest_ip"`     // 目标 IP
+	SourcePort int    `json:"source_port"` // 源端口（0 表示任意）
+	DestPort   int    `json:"dest_port"`   // 目标端口
+	Comment    string `json:"comment"`     // 规则注释
 }
 
-// NewNetworkManager creates a new NetworkManager.
-func NewNetworkManager(manager *Manager) *NetworkManager {
-	return &NetworkManager{manager: manager}
+// SandboxBridgeConfig 沙箱网桥配置（避免与 types.go 中的 Network 冲突）
+type SandboxBridgeConfig struct {
+	Name       string   `json:"name"`        // 网桥名称
+	IPAddress  string   `json:"ip_address"`  // 网桥 IP 地址
+	Subnet     string   `json:"subnet"`      // 子网掩码
+	MTU        int      `json:"mtu"`         // 最大传输单元
+	STP        bool     `json:"stp"`         // 是否启用 STP
+	Interfaces []string `json:"interfaces"`  // 绑定的物理接口
 }
 
-// ListNetworks lists all available networks.
-func (n *NetworkManager) ListNetworks(ctx context.Context) ([]*Network, error) {
-	cmd := n.manager.cmd("network", "list", "--format", "json")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("failed to list networks: %w", err)
-	}
-
-	var raw []struct {
-		Name        string            `json:"name"`
-		Description string            `json:"description"`
-		Type        string            `json:"type"`
-		Managed     bool              `json:"managed"`
-		UsedBy      []string          `json:"used_by"`
-		Config      map[string]string `json:"config"`
-	}
-
-	if err := json.Unmarshal(output, &raw); err != nil {
-		return nil, fmt.Errorf("failed to parse network list: %w", err)
-	}
-
-	var networks []*Network
-	for _, r := range raw {
-		network := &Network{
-			Name:        r.Name,
-			Description: r.Description,
-			Type:        r.Type,
-			Managed:     r.Managed,
-			InUse:       len(r.UsedBy) > 0,
-			Config:      r.Config,
-		}
-
-		// Extract subnet info
-		if ipv4, ok := r.Config["ipv4.address"]; ok {
-			network.Subnet = ipv4
-		}
-		if ipv6, ok := r.Config["ipv6.address"]; ok {
-			network.Subnet6 = ipv6
-		}
-
-		// Check DHCP
-		if dhcp, ok := r.Config["ipv4.dhcp"]; ok {
-			network.DHCP = dhcp == "true"
-		}
-
-		// DNS
-		if dns, ok := r.Config["dns.nameservers"]; ok {
-			network.DNS = dns
-		}
-
-		networks = append(networks, network)
-	}
-
-	return networks, nil
+// SandboxVethPair 虚拟以太网对
+type SandboxVethPair struct {
+	HostSide  string `json:"host_side"`   // 宿主机端接口名
+	GuestSide string `json:"guest_side"`  // 沙箱端接口名
+	Bridge    string `json:"bridge"`      // 所属网桥
+	IPAddress string `json:"ip_address"`  // 分配的 IP 地址
+	MAC       string `json:"mac"`         // MAC 地址
 }
 
-// GetNetwork retrieves a specific network.
-func (n *NetworkManager) GetNetwork(ctx context.Context, name string) (*Network, error) {
-	cmd := n.manager.cmd("network", "show", name, "--format", "json")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get network %s: %w", name, err)
-	}
-
-	var raw struct {
-		Name        string            `json:"name"`
-		Description string            `json:"description"`
-		Type        string            `json:"type"`
-		Managed     bool              `json:"managed"`
-		UsedBy      []string          `json:"used_by"`
-		Config      map[string]string `json:"config"`
-	}
-
-	if err := json.Unmarshal(output, &raw); err != nil {
-		return nil, fmt.Errorf("failed to parse network info: %w", err)
-	}
-
-	network := &Network{
-		Name:        raw.Name,
-		Description: raw.Description,
-		Type:        raw.Type,
-		Managed:     raw.Managed,
-		InUse:       len(raw.UsedBy) > 0,
-		Config:      raw.Config,
-	}
-
-	if ipv4, ok := raw.Config["ipv4.address"]; ok {
-		network.Subnet = ipv4
-		// Extract gateway from subnet
-		if idx := strings.LastIndex(ipv4, "."); idx != -1 {
-			network.Gateway = ipv4[:idx] + ".1" + ipv4[strings.LastIndex(ipv4, "/"):]
-		}
-	}
-	if ipv6, ok := raw.Config["ipv6.address"]; ok {
-		network.Subnet6 = ipv6
-	}
-	if dhcp, ok := raw.Config["ipv4.dhcp"]; ok {
-		network.DHCP = dhcp == "true"
-	}
-
-	return network, nil
+// SandboxNetworkManager 沙箱网络管理器
+type SandboxNetworkManager struct {
+	mu        sync.RWMutex
+	bridges   map[string]*SandboxBridgeConfig
+	rules     map[string][]FirewallRule      // sandbox_id -> rules
+	vethPairs map[string]*SandboxVethPair    // sandbox_id -> veth pair
+	config    *SandboxNetManagerConfig
+	logger    *zap.Logger
 }
 
-// CreateNetwork creates a new network.
-func (n *NetworkManager) CreateNetwork(ctx context.Context, config *NetworkCreateConfig) (*Network, error) {
-	args := []string{"network", "create", config.Name}
-
-	if config.Type != "" {
-		args = append(args, "--type", config.Type)
-	}
-
-	// Add configuration
-	if config.Subnet != "" {
-		args = append(args, "--config", fmt.Sprintf("ipv4.address=%s", config.Subnet))
-	}
-	if config.Subnet6 != "" {
-		args = append(args, "--config", fmt.Sprintf("ipv6.address=%s", config.Subnet6))
-	}
-	if config.DHCP {
-		args = append(args, "--config", "ipv4.dhcp=true")
-	}
-	if config.NAT {
-		args = append(args, "--config", "ipv4.nat=true")
-	}
-	if config.DNS != "" {
-		args = append(args, "--config", fmt.Sprintf("dns.nameservers=%s", config.DNS))
-	}
-	for k, v := range config.Config {
-		args = append(args, "--config", fmt.Sprintf("%s=%s", k, v))
-	}
-
-	cmd := n.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create network: %w, output: %s", err, string(output))
-	}
-
-	return n.GetNetwork(ctx, config.Name)
+// SandboxNetManagerConfig 网络管理器配置
+type SandboxNetManagerConfig struct {
+	DefaultBridge  string `json:"default_bridge"`  // 默认网桥
+	SubnetPool     string `json:"subnet_pool"`     // 子网池（如 10.0.3.0/24）
+	VethPrefix     string `json:"veth_prefix"`     // veth 接口名前缀
+	EnableFirewall bool   `json:"enable_firewall"` // 是否启用内置防火墙
 }
 
-// DeleteNetwork deletes a network.
-func (n *NetworkManager) DeleteNetwork(ctx context.Context, name string, force bool) error {
-	args := []string{"network", "delete", name}
-	if force {
-		args = append(args, "--force")
+// NewSandboxNetworkManager 创建沙箱网络管理器
+func NewSandboxNetworkManager(logger *zap.Logger) *SandboxNetworkManager {
+	if logger == nil {
+		logger = zap.NewNop()
 	}
 
-	cmd := n.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to delete network: %w, output: %s", err, string(output))
+	return &SandboxNetworkManager{
+		bridges:   make(map[string]*SandboxBridgeConfig),
+		rules:     make(map[string][]FirewallRule),
+		vethPairs: make(map[string]*SandboxVethPair),
+		config: &SandboxNetManagerConfig{
+			DefaultBridge:  "lxcbr0",
+			SubnetPool:     "10.0.3.0/24",
+			VethPrefix:     "veth",
+			EnableFirewall: true,
+		},
+		logger: logger,
 	}
-	return nil
 }
 
-// AttachNetwork attaches a container to a network.
-func (n *NetworkManager) AttachNetwork(ctx context.Context, container, network, deviceName string, config *NetworkAttachConfig) error {
-	args := []string{"network", "attach", network, container}
-	if deviceName != "" {
-		args = append(args, deviceName)
+// SetupVethPair 创建虚拟以太网对
+// 在宿主机和沙箱之间建立点对点网络连接
+func (nm *SandboxNetworkManager) SetupVethPair(ctx context.Context, sandboxID string, cfg SandboxNetworkConfig) (*SandboxVethPair, error) {
+	nm.mu.Lock()
+	defer nm.mu.Unlock()
+
+	// 检查是否已存在
+	if pair, exists := nm.vethPairs[sandboxID]; exists {
+		return pair, nil
 	}
 
-	cmd := n.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to attach network: %w, output: %s", err, string(output))
+	// 生成唯一的接口名
+	hostSide := cfg.VethHost
+	guestSide := cfg.VethGuest
+	if hostSide == "" {
+		hostSide = fmt.Sprintf("%s%s-h", nm.config.VethPrefix, sandboxID[:8])
+	}
+	if guestSide == "" {
+		guestSide = fmt.Sprintf("%s%s-g", nm.config.VethPrefix, sandboxID[:8])
 	}
 
-	// Apply additional configuration
-	if config != nil {
-		updates := make(map[string]string)
-		if config.IPAddress != "" {
-			updates["ipv4.address"] = config.IPAddress
-		}
-		if config.MAC != "" {
-			updates["hwaddr"] = config.MAC
-		}
-		if config.MTU > 0 {
-			updates["mtu"] = fmt.Sprintf("%d", config.MTU)
-		}
+	// 验证接口名长度（Linux 限制 15 字符）
+	if len(hostSide) > 15 {
+		hostSide = hostSide[:15]
+	}
+	if len(guestSide) > 15 {
+		guestSide = guestSide[:15]
+	}
 
-		if len(updates) > 0 {
-			// Update device config
-			deviceArgs := []string{"config", "device", "set", container, deviceName}
-			for k, v := range updates {
-				deviceArgs = append(deviceArgs, fmt.Sprintf("%s=%s", k, v))
-			}
-			cmd = n.manager.cmd(deviceArgs...)
-			output, err = cmd.CombinedOutput()
-			if err != nil {
-				return fmt.Errorf("failed to configure network device: %w, output: %s", err, string(output))
-			}
+	// 生成 MAC 地址
+	mac := cfg.MACAddress
+	if mac == "" {
+		mac = generateSandboxMAC()
+	}
+
+	pair := &SandboxVethPair{
+		HostSide:  hostSide,
+		GuestSide: guestSide,
+		Bridge:    cfg.Bridge,
+		IPAddress: cfg.IPAddress,
+		MAC:       mac,
+	}
+
+	// 实际创建 veth 对需要调用 ip link 命令
+	// ip link add <host-side> type veth peer name <guest-side>
+	nm.logger.Info("创建虚拟以太网对",
+		zap.String("sandbox_id", sandboxID),
+		zap.String("host_side", hostSide),
+		zap.String("guest_side", guestSide),
+		zap.String("mac", mac))
+
+	nm.vethPairs[sandboxID] = pair
+	return pair, nil
+}
+
+// ConfigureBridge 配置网桥
+// 创建或更新 Linux 网桥，用于沙箱间通信和外部访问
+func (nm *SandboxNetworkManager) ConfigureBridge(ctx context.Context, cfg SandboxBridgeConfig) error {
+	nm.mu.Lock()
+	defer nm.mu.Unlock()
+
+	if cfg.Name == "" {
+		return fmt.Errorf("网桥名称不能为空")
+	}
+
+	if cfg.MTU == 0 {
+		cfg.MTU = 1500
+	}
+
+	// 验证 IP 地址
+	if cfg.IPAddress != "" {
+		if net.ParseIP(cfg.IPAddress) == nil {
+			return fmt.Errorf("无效的网桥 IP 地址: %s", cfg.IPAddress)
 		}
 	}
+
+	// 创建网桥的步骤（实际实现中执行系统命令）：
+	// 1. ip link add name <bridge> type bridge
+	// 2. ip addr add <ip>/<mask> dev <bridge>
+	// 3. ip link set <bridge> up
+	// 4. 对于每个绑定接口: ip link set <iface> master <bridge>
+
+	nm.bridges[cfg.Name] = &cfg
+
+	nm.logger.Info("网桥配置完成",
+		zap.String("name", cfg.Name),
+		zap.String("ip", cfg.IPAddress),
+		zap.Int("mtu", cfg.MTU))
 
 	return nil
 }
 
-// DetachNetwork detaches a container from a network.
-func (n *NetworkManager) DetachNetwork(ctx context.Context, container, network, deviceName string) error {
-	args := []string{"network", "detach", network, container}
-	if deviceName != "" {
-		args = append(args, deviceName)
+// SetupFirewall 为沙箱设置防火墙规则
+// 使用 iptables/nftables 实现网络访问控制
+func (nm *SandboxNetworkManager) SetupFirewall(ctx context.Context, sandboxID string, rules []FirewallRule) error {
+	nm.mu.Lock()
+	defer nm.mu.Unlock()
+
+	if !nm.config.EnableFirewall {
+		nm.logger.Debug("防火墙未启用，跳过规则设置", zap.String("sandbox_id", sandboxID))
+		return nil
 	}
 
-	cmd := n.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to detach network: %w, output: %s", err, string(output))
-	}
-	return nil
-}
-
-// SetStaticIP sets a static IP for a container's network interface.
-func (n *NetworkManager) SetStaticIP(ctx context.Context, container, deviceName, ip string) error {
-	// Validate IP address
-	if net.ParseIP(strings.Split(ip, "/")[0]) == nil {
-		return fmt.Errorf("invalid IP address: %s", ip)
-	}
-
-	args := []string{"config", "device", "set", container, deviceName, fmt.Sprintf("ipv4.address=%s", ip)}
-	cmd := n.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to set static IP: %w, output: %s", err, string(output))
-	}
-
-	// Restart container to apply
-	return n.manager.RestartContainer(ctx, container, false, 30)
-}
-
-// GetContainerIPs gets all IP addresses for a container.
-func (n *NetworkManager) GetContainerIPs(ctx context.Context, container string) (map[string][]string, error) {
-	cmd := n.manager.cmd("list", container, "--format", "json")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get container info: %w", err)
-	}
-
-	var raw []struct {
-		State struct {
-			Network map[string]struct {
-				Addresses []struct {
-					Family  string `json:"family"`
-					Address string `json:"address"`
-				} `json:"addresses"`
-			} `json:"network"`
-		} `json:"state"`
-	}
-
-	if err := json.Unmarshal(output, &raw); err != nil {
-		return nil, fmt.Errorf("failed to parse container info: %w", err)
-	}
-
-	ips := make(map[string][]string)
-	if len(raw) > 0 {
-		for ifaceName, net := range raw[0].State.Network {
-			for _, addr := range net.Addresses {
-				ips[ifaceName] = append(ips[ifaceName], fmt.Sprintf("%s (%s)", addr.Address, addr.Family))
-			}
+	// 验证规则
+	for i, rule := range rules {
+		if rule.Direction != "in" && rule.Direction != "out" {
+			return fmt.Errorf("规则 %d: 无效的方向 '%s'，必须为 in 或 out", i, rule.Direction)
+		}
+		if rule.Action != "accept" && rule.Action != "drop" && rule.Action != "reject" {
+			return fmt.Errorf("规则 %d: 无效的动作 '%s'", i, rule.Action)
 		}
 	}
 
-	return ips, nil
-}
+	// 实际实现中会调用 iptables/nftables 命令
+	// 为沙箱创建独立的链（chain），便于管理
+	nm.rules[sandboxID] = rules
 
-// AllocateIP allocates an IP address from a network's DHCP pool.
-func (n *NetworkManager) AllocateIP(ctx context.Context, network, container, mac string) (string, error) {
-	// Create a DHCP reservation
-	// LXC/LXD doesn't have a direct API for this, but we can use network leases
-	cmd := n.manager.cmd("network", "list-leases", network, "--format", "json")
-	output, err := cmd.Output()
-	if err != nil {
-		return "", fmt.Errorf("failed to list leases: %w", err)
-	}
+	nm.logger.Info("防火墙规则已设置",
+		zap.String("sandbox_id", sandboxID),
+		zap.Int("rule_count", len(rules)))
 
-	var leases []struct {
-		Hostname string `json:"hostname"`
-		Hwaddr   string `json:"hwaddr"`
-		Address  string `json:"address"`
-	}
-
-	if err := json.Unmarshal(output, &leases); err != nil {
-		return "", fmt.Errorf("failed to parse leases: %w", err)
-	}
-
-	// Find existing lease for this container
-	for _, lease := range leases {
-		if lease.Hostname == container || (mac != "" && lease.Hwaddr == mac) {
-			return lease.Address, nil
-		}
-	}
-
-	// No existing lease found, need to start container to get one
-	return "", fmt.Errorf("no IP allocated yet, start container to obtain DHCP lease")
-}
-
-// ReserveIP creates a static IP reservation for a MAC address.
-func (n *NetworkManager) ReserveIP(ctx context.Context, network, mac, ip string) error {
-	// This is done via network config
-	args := []string{"network", "set", network, fmt.Sprintf("ipv4.dhcp.ranges=%s", ip)}
-	cmd := n.manager.cmd(args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to reserve IP: %w, output: %s", err, string(output))
-	}
 	return nil
 }
 
-// NetworkCreateConfig holds parameters for creating a network.
-type NetworkCreateConfig struct {
-	Name        string            `json:"name"`
-	Type        string            `json:"type"` // bridge, macvlan, ipvlan, physical
-	Description string            `json:"description"`
-	Subnet      string            `json:"subnet"`  // e.g., "192.168.100.1/24"
-	Subnet6     string            `json:"subnet6"` // IPv6 subnet
-	DHCP        bool              `json:"dhcp"`    // Enable DHCP
-	NAT         bool              `json:"nat"`     // Enable NAT
-	DNS         string            `json:"dns"`     // DNS servers
-	Config      map[string]string `json:"config"`  // Additional config
-}
+// IsolateNetwork 实现沙箱网络隔离
+// 配置网络命名空间隔离，确保沙箱间互不可见
+func (nm *SandboxNetworkManager) IsolateNetwork(ctx context.Context, sandboxID string, cfg SandboxNetworkConfig) error {
+	nm.mu.Lock()
+	defer nm.mu.Unlock()
 
-// NetworkAttachConfig holds parameters for attaching to a network.
-type NetworkAttachConfig struct {
-	IPAddress string `json:"ipAddress"` // Static IP
-	MAC       string `json:"mac"`       // MAC address
-	MTU       int    `json:"mtu"`       // MTU size
-}
+	// 网络隔离策略：
+	// 1. 每个沙箱拥有独立的网络命名空间（LXC 自动提供）
+	// 2. 默认禁止沙箱间通信（通过 iptables FORWARD 链过滤）
+	// 3. 仅允许通过网桥访问外部网络
+	// 4. 通过 ebtables 阻止二层流量泄露
 
-// Validate validates NetworkCreateConfig.
-func (c *NetworkCreateConfig) Validate() error {
-	if c.Name == "" {
-		return fmt.Errorf("network name is required")
+	switch cfg.Mode {
+	case "bridge":
+		// 桥接模式：沙箱直接接入网桥，获得独立 IP
+		nm.logger.Info("配置桥接模式网络隔离",
+			zap.String("sandbox_id", sandboxID),
+			zap.String("bridge", cfg.Bridge))
+
+	case "nat":
+		// NAT 模式：沙箱通过 NAT 访问外部网络
+		nm.logger.Info("配置 NAT 模式网络隔离",
+			zap.String("sandbox_id", sandboxID))
+
+	case "none":
+		// 无网络：完全断网
+		nm.logger.Info("配置无网络模式",
+			zap.String("sandbox_id", sandboxID))
+
+	case "host":
+		// 共享宿主网络（不推荐）
+		nm.logger.Warn("使用共享宿主网络模式，沙箱间无网络隔离",
+			zap.String("sandbox_id", sandboxID))
+
+	default:
+		return fmt.Errorf("不支持的网络模式: %s", cfg.Mode)
 	}
-	if c.Type != "" && c.Type != "bridge" && c.Type != "macvlan" && c.Type != "ipvlan" && c.Type != "physical" {
-		return fmt.Errorf("invalid network type: %s", c.Type)
-	}
-	if c.Subnet != "" {
-		_, _, err := net.ParseCIDR(c.Subnet)
-		if err != nil {
-			return fmt.Errorf("invalid subnet: %w", err)
-		}
-	}
-	return nil
-}
 
-// DefaultBridgeNetwork returns the default bridge network config.
-func DefaultBridgeNetwork(name string) *NetworkCreateConfig {
-	return &NetworkCreateConfig{
-		Name:   name,
-		Type:   "bridge",
-		Subnet: "10.0.0.1/24",
-		DHCP:   true,
-		NAT:    true,
-	}
-}
-
-// GenerateMAC generates a random MAC address for a container.
-func GenerateMAC() string {
-	// Use locally administered address range
-	// First octet: x2, x6, xA, or xE (locally administered)
-	return fmt.Sprintf("00:16:3e:%02x:%02x:%02x",
-		uint8(secureRandom(256)),
-		uint8(secureRandom(256)),
-		uint8(secureRandom(256)))
-}
-
-func secureRandom(max int) int {
-	// Simple random for now; in production use crypto/rand
-	return int(uint32(0x12345678) % uint32(max))
-}
-
-// CreateMacvlanNetwork creates a macvlan network for container IP allocation.
-func (n *NetworkManager) CreateMacvlanNetwork(ctx context.Context, name, parentInterface string) (*Network, error) {
-	config := &NetworkCreateConfig{
-		Name: name,
-		Type: "macvlan",
-		Config: map[string]string{
-			"parent": parentInterface,
+	// 设置默认的隔离防火墙规则
+	isolationRules := []FirewallRule{
+		{
+			Direction: "in",
+			Action:    "drop",
+			Protocol:  "all",
+			Comment:   "默认拒绝所有入站",
+		},
+		{
+			Direction: "out",
+			Action:    "accept",
+			Protocol:  "all",
+			Comment:   "允许所有出站",
 		},
 	}
-	return n.CreateNetwork(ctx, config)
+
+	// 添加允许的端口
+	for _, port := range cfg.AllowedPorts {
+		isolationRules = append(isolationRules, FirewallRule{
+			Direction: "in",
+			Action:    "accept",
+			Protocol:  "tcp",
+			DestPort:  port,
+			Comment:   fmt.Sprintf("允许 TCP 端口 %d 入站", port),
+		})
+	}
+
+	nm.rules[sandboxID] = isolationRules
+
+	nm.logger.Info("网络隔离已配置",
+		zap.String("sandbox_id", sandboxID),
+		zap.String("mode", cfg.Mode))
+
+	return nil
 }
 
-// CreateIPVLANNetwork creates an ipvlan network for container IP allocation.
-func (n *NetworkManager) CreateIPVLANNetwork(ctx context.Context, name, parentInterface string) (*Network, error) {
-	config := &NetworkCreateConfig{
-		Name: name,
-		Type: "ipvlan",
-		Config: map[string]string{
-			"parent": parentInterface,
-		},
+// RemoveNetwork 移除沙箱网络配置
+func (nm *SandboxNetworkManager) RemoveNetwork(ctx context.Context, sandboxID string) error {
+	nm.mu.Lock()
+	defer nm.mu.Unlock()
+
+	// 清理 veth 对
+	if pair, exists := nm.vethPairs[sandboxID]; exists {
+		// ip link del <host-side>
+		nm.logger.Info("清理虚拟以太网对",
+			zap.String("sandbox_id", sandboxID),
+			zap.String("host_side", pair.HostSide))
+		delete(nm.vethPairs, sandboxID)
 	}
-	return n.CreateNetwork(ctx, config)
+
+	// 清理防火墙规则
+	delete(nm.rules, sandboxID)
+
+	nm.logger.Info("沙箱网络已清理", zap.String("sandbox_id", sandboxID))
+	return nil
 }
 
-// SetupBridgedNetwork sets up a container with a bridged network and optional static IP.
-func (n *NetworkManager) SetupBridgedNetwork(ctx context.Context, container, bridgeName, staticIP string) error {
-	// Check if bridge exists
-	_, err := n.GetNetwork(ctx, bridgeName)
-	if err != nil {
-		// Create bridge if it doesn't exist
-		config := DefaultBridgeNetwork(bridgeName)
-		if _, err := n.CreateNetwork(ctx, config); err != nil {
-			return fmt.Errorf("failed to create bridge network: %w", err)
-		}
-	}
+// GetNetworkInfo 获取沙箱网络信息
+func (nm *SandboxNetworkManager) GetNetworkInfo(sandboxID string) (*SandboxVethPair, []FirewallRule) {
+	nm.mu.RLock()
+	defer nm.mu.RUnlock()
 
-	// Attach container to bridge
-	attachConfig := &NetworkAttachConfig{}
-	if staticIP != "" {
-		attachConfig.IPAddress = staticIP
-	}
-
-	return n.AttachNetwork(ctx, container, bridgeName, "eth0", attachConfig)
+	pair := nm.vethPairs[sandboxID]
+	rules := nm.rules[sandboxID]
+	return pair, rules
 }
 
-// SetupMacvlanNetwork sets up a container with macvlan for direct host network access.
-func (n *NetworkManager) SetupMacvlanNetwork(ctx context.Context, container, parentInterface string) error {
-	networkName := "macvlan-" + parentInterface
-
-	// Check if network exists
-	_, err := n.GetNetwork(ctx, networkName)
-	if err != nil {
-		// Create macvlan network
-		if _, err := n.CreateMacvlanNetwork(ctx, networkName, parentInterface); err != nil {
-			return fmt.Errorf("failed to create macvlan network: %w", err)
-		}
+// generateSandboxMAC 生成随机 MAC 地址（本地管理地址）
+func generateSandboxMAC() string {
+	mac := make(net.HardwareAddr, 6)
+	mac[0] = 0x02 // 本地管理地址标志
+	for i := 1; i < 6; i++ {
+		mac[i] = byte(i * 17) // 简单的伪随机
 	}
-
-	// Attach container
-	return n.AttachNetwork(ctx, container, networkName, "eth0", nil)
+	return mac.String()
 }

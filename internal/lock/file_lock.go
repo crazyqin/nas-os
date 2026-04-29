@@ -224,6 +224,11 @@ type FileLockConfig struct {
 	EnableAutoRenewal bool
 	// AutoRenewalInterval 自动续期间隔
 	AutoRenewalInterval time.Duration
+	// LockTimeout 协作锁最大持有时间，超过此时间的锁将被自动释放
+	// 值为 0 表示不启用超时自动释放
+	LockTimeout time.Duration
+	// AutoRelease 是否启用协作锁超时自动释放
+	AutoRelease bool
 }
 
 // DefaultConfig 默认配置.
@@ -235,6 +240,22 @@ func DefaultConfig() FileLockConfig {
 		MaxLocksPerFile:     100,
 		EnableAutoRenewal:   true,
 		AutoRenewalInterval: 10 * time.Minute,
+		LockTimeout:         0,
+		AutoRelease:         false,
+	}
+}
+
+// DefaultCollabConfig 协作模式配置（启用超时自动释放）.
+func DefaultCollabConfig() FileLockConfig {
+	return FileLockConfig{
+		DefaultTimeout:      30 * time.Minute,
+		MaxTimeout:          4 * time.Hour,
+		CleanupInterval:     1 * time.Minute,
+		MaxLocksPerFile:     100,
+		EnableAutoRenewal:   false,
+		AutoRenewalInterval: 10 * time.Minute,
+		LockTimeout:         2 * time.Hour,
+		AutoRelease:         true,
 	}
 }
 
