@@ -3,8 +3,10 @@ package selfheal
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -12,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	_ "modernc.org/sqlite"
 )
 
 // ========== Mock Checker ==========
@@ -588,7 +591,7 @@ func TestHandlers_GetConfig(t *testing.T) {
 func TestHandlers_UpdateConfig(t *testing.T) {
 	r, _ := setupHandlers(t)
 
-	body := `{"default_action":"auto","check_interval":"10m","enabled":true}`
+	body := `{"default_action":"auto","check_interval":600000000000,"enabled":true}`
 	req := httptest.NewRequest(http.MethodPut, "/api/v1/self-heal/config", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
@@ -805,7 +808,7 @@ func TestStore_GetHistory_DefaultLimit(t *testing.T) {
 
 	records, err := store.GetHistory(0)
 	require.NoError(t, err)
-	assert.NotNil(t, records)
+	assert.Len(t, records, 0) // 空表返回空结果
 }
 
 // ========== Integration Test ==========
@@ -858,4 +861,28 @@ func BenchmarkManager_RunAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		m.RunAll(context.Background())
 	}
+}
+
+// ========== Test Helpers ==========
+
+// setupTestStore 创建临时 SQLite 测试存储.
+func setupTestStore(t *testing.T) (*Store, func()) {
+	t.Helper()
+
+	tmpFile, err := os.CreateTemp("", "selfheal_test_*.db")
+	require.NoError(t, err)
+	_ = tmpFile.Close()
+
+	db, err := sql.Open("sqlite", tmpFile.Name())
+	require.NoError(t, err)
+
+	store := NewStore(db, nil)
+	require.NoError(t, store.Init())
+
+	cleanup := func() {
+		_ = db.Close()
+		_ = os.Remove(tmpFile.Name())
+	}
+
+	return store, cleanup
 }

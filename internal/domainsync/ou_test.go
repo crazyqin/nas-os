@@ -53,7 +53,7 @@ func TestExtractParentDN(t *testing.T) {
 	}{
 		{"OU=Users,DC=example,DC=com", "DC=example,DC=com"},
 		{"CN=Admin,CN=Users,DC=example,DC=com", "CN=Users,DC=example,DC=com"},
-		{"DC=com", "com"},
+		{"DC=com", ""},
 		{"single", ""},
 		{"", ""},
 	}

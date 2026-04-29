@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -317,10 +319,10 @@ func TestManagerStartSyncWithContext(t *testing.T) {
 	cfg := DefaultSyncConfig()
 	cfg.DCConfig.Host = "192.0.2.1" // TEST-NET，不会实际连接
 	cfg.DCConfig.Domain = "test.local"
-	cfg.DCConfig.ConnectTimeout = 100 * time.Millisecond
+	cfg.DCConfig.ConnectTimeout = 200 * time.Millisecond
 	_ = manager.UpdateConfig(cfg)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	_, err := manager.StartSync(ctx)

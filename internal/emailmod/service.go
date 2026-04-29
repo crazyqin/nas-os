@@ -2,6 +2,7 @@ package emailmod
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -47,7 +48,7 @@ func (m *Manager) Store() *Store {
 // CreatePolicy 创建审核策略.
 func (m *Manager) CreatePolicy(input PolicyInput) (*Policy, error) {
 	if len(input.Reviewers) == 0 {
-		return nil, fmt.Errorf(ErrEmptyReviewers)
+		return nil, errors.New(ErrEmptyReviewers)
 	}
 
 	// 设置默认值
@@ -91,7 +92,7 @@ func (m *Manager) GetPolicy(id string) (*Policy, error) {
 		return nil, err
 	}
 	if p == nil {
-		return nil, fmt.Errorf(ErrPolicyNotFound)
+		return nil, errors.New(ErrPolicyNotFound)
 	}
 	return p, nil
 }
@@ -108,11 +109,11 @@ func (m *Manager) UpdatePolicy(id string, input PolicyInput) (*Policy, error) {
 		return nil, err
 	}
 	if existing == nil {
-		return nil, fmt.Errorf(ErrPolicyNotFound)
+		return nil, errors.New(ErrPolicyNotFound)
 	}
 
 	if len(input.Reviewers) == 0 {
-		return nil, fmt.Errorf(ErrEmptyReviewers)
+		return nil, errors.New(ErrEmptyReviewers)
 	}
 
 	// 更新字段
@@ -226,15 +227,15 @@ func (m *Manager) Approve(queueID, reviewerID, reviewerName, comment string) (*Q
 		return nil, err
 	}
 	if item == nil {
-		return nil, fmt.Errorf(ErrQueueItemNotFound)
+		return nil, errors.New(ErrQueueItemNotFound)
 	}
 	if item.Status != StatusPending {
-		return nil, fmt.Errorf(ErrAlreadyReviewed)
+		return nil, errors.New(ErrAlreadyReviewed)
 	}
 
 	// 验证审核人是否是当前级别的审核人
 	if !m.isReviewer(item, reviewerID, item.CurrentLevel) {
-		return nil, fmt.Errorf(ErrNotCurrentReviewer)
+		return nil, errors.New(ErrNotCurrentReviewer)
 	}
 
 	// 记录审核
@@ -290,15 +291,15 @@ func (m *Manager) Reject(queueID, reviewerID, reviewerName, comment string) (*Qu
 		return nil, err
 	}
 	if item == nil {
-		return nil, fmt.Errorf(ErrQueueItemNotFound)
+		return nil, errors.New(ErrQueueItemNotFound)
 	}
 	if item.Status != StatusPending {
-		return nil, fmt.Errorf(ErrAlreadyReviewed)
+		return nil, errors.New(ErrAlreadyReviewed)
 	}
 
 	// 验证审核人
 	if !m.isReviewer(item, reviewerID, item.CurrentLevel) {
-		return nil, fmt.Errorf(ErrNotCurrentReviewer)
+		return nil, errors.New(ErrNotCurrentReviewer)
 	}
 
 	// 记录审核
@@ -347,7 +348,7 @@ func (m *Manager) GetQueueItem(id string) (*QueueItem, error) {
 		return nil, err
 	}
 	if item == nil {
-		return nil, fmt.Errorf(ErrQueueItemNotFound)
+		return nil, errors.New(ErrQueueItemNotFound)
 	}
 	return item, nil
 }

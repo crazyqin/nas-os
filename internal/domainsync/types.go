@@ -117,6 +117,7 @@ type SyncResult struct {
 	Errors   []SyncError `json:"errors,omitempty"`
 	Message  string      `json:"message,omitempty"`
 	Progress int         `json:"progress"` // 0-100 进度
+	Success  bool        `json:"success"`  // 是否成功
 }
 
 // SyncError 同步错误.

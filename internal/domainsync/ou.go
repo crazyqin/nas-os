@@ -1,8 +1,10 @@
 package domainsync
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
+	"net"
 	"strings"
 	"time"
 
@@ -91,7 +93,13 @@ func (d *OUDiscoverer) connect() (*ldap.Conn, error) {
 		}
 		conn, err = ldap.DialTLS("tcp", addr, tlsCfg)
 	} else {
-		conn, err = ldap.Dial("tcp", addr)
+		dialer := &net.Dialer{Timeout: timeout}
+		netConn, dialErr := dialer.DialContext(context.Background(), "tcp", addr)
+		if dialErr != nil {
+			return nil, dialErr
+		}
+		conn = ldap.NewConn(netConn, false)
+		conn.Start()
 	}
 	if err != nil {
 		return nil, err

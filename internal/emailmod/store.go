@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -198,7 +199,7 @@ func (s *Store) UpdatePolicy(p *Policy) error {
 	}
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
-		return fmt.Errorf(ErrPolicyNotFound)
+		return errors.New(ErrPolicyNotFound)
 	}
 	return nil
 }
@@ -212,7 +213,7 @@ func (s *Store) DeletePolicy(id string) error {
 	}
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
-		return fmt.Errorf(ErrPolicyNotFound)
+		return errors.New(ErrPolicyNotFound)
 	}
 	return nil
 }
@@ -380,7 +381,7 @@ func (s *Store) UpdateQueueItem(item *QueueItem) error {
 	}
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
-		return fmt.Errorf(ErrQueueItemNotFound)
+		return errors.New(ErrQueueItemNotFound)
 	}
 	return nil
 }
