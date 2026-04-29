@@ -1,8 +1,8 @@
 # 竞品对比矩阵 - TrueNAS Community 25.10对标分析
 
-**更新日期**: 2026-04-16  
-**nas-os版本**: v2.458.0  
-**竞品版本**: TrueNAS Community 25.10 / DSM 7.3 / fnOS 3.2
+**更新日期**: 2026-04-29  
+**nas-os版本**: v2.463.0  
+**竞品版本**: TrueNAS Community 25.10 / DSM 7.3 / fnOS 3.2 / Unraid 7.1
 
 ---
 
@@ -10,7 +10,7 @@
 
 | 功能 | TrueNAS 25.10 | nas-os v2.458.0 | 对标状态 | 行动计划 |
 |------|--------------|-----------------|----------|----------|
-| **WebShare + TrueSearch** | ✅ 全文内容搜索 | 🚧 TrueSearch开发中 | 🟡跟进 | v2.459深化 |
+| **WebShare + TrueSearch** | ✅ 全文内容搜索 | ✅ Phase2完成(内容索引+多语言) | 🟢对标 | Phase3元数据搜索 |
 | **Ransomware Defense** | ✅ 监控+响应 | ✅ WriteOnce WORM | 🟢领先 | 保持差异化优势 |
 | **SMB Stateful Failover** | ✅ 企业HA零中断 | ✅ Phase3负载均衡完成 | 🟢持平 | 整合测试 |
 | **SMB Spotlight** | ✅ macOS Finder集成 | 🚧 Phase1完成 | 🟡跟进 | Phase2规划 |
@@ -18,7 +18,7 @@
 | **LXC Sandboxes** | ✅ 容器隔离安全运行 | 📋 预研完成 | 🟡跟进 | v2.459评估 |
 | **OpenZFS 2.4** | ✅ RAIDZ Expansion优化 | ✅ RAIDZ Expansion UI完成 | 🟢持平 | 保持双轨 |
 | **NVMe over Fabric** | ✅ TCP + RDMA | ✅ Phase2完成 | 🟢持平 | 保持优势 |
-| **VM Secure Boot** | ✅ 虚拟机安全启动 | 📋 预研中 | 🔴落后 | 安全评估 |
+| **VM Secure Boot** | ✅ 虚拟机安全启动 | 🚧 SecureBootManager开发中 | 🟡跟进 | v2.463 API+UI |
 | **Fast Failover** | ✅ 1200盘扩展HA | ✅ Phase3含 | 🟢持平 | 整合测试 |
 | **GPU Sharing** | ✅ App池GPU共享 | ✅ 已实现 | 🟢持平 | 保持优势 |
 | **RAIDZ Expansion** | ✅ 单盘在线扩容 | ✅ API+UI完成 | 🟢持平 | 引导式体验优化 |
@@ -142,10 +142,51 @@
 
 ---
 
+## 🔥 最新竞品动态 (2026-04-29更新)
+
+### TrueNAS 25.10+ 进展
+- **TrueSearch正式上线**: 全文内容搜索已在25.10 GA中稳定运行，支持PDF/Office/Markdown
+- **Containers HA成熟**: App Pool自动迁移已在生产环境验证，故障切换时间<30s
+- **LXC Sandboxes**: 已进入Beta，支持应用隔离运行，安全模型类似Docker但更轻量
+- **OpenZFS 2.4**: Fast Dedup在大规模部署中内存占用优化40%
+
+### 群晖DSM 7.3+ 动态
+- **Active Backup增强**: 新增对Kubernetes集群备份支持
+- **AI Manager**: DSM新增AI功能管理面板，整合Photos/Drive/Surveillance的AI能力
+- **C2 Identity**: 云端身份管理服务上线，企业混合云场景增强
+
+### 飞牛fnOS 3.2+ 动态
+- **FN Connect 2.0**: 内网穿透升级，支持UDP加速和P2P直连
+- **应用商店扩容**: 第三方应用数量增长30%，新增Docker Compose一键部署
+- **社区生态**: 国内社区活跃度持续上升，教程和插件生态逐步完善
+
+### Unraid 7.1 新加入对标
+- **定价调整**: 7.x改为订阅制，社区反响两极化
+- **Docker增强**: 原生Docker Compose支持终于上线
+- **ZFS支持**: 从实验性转为正式支持，但仍以btrfs为主推
+- **虚拟化**: 基于QEMU/KVM，GPU直通体验较好
+
+---
+
+## 📈 nas-os v2.463.0进展更新
+
+| 功能 | 本轮状态 | 说明 |
+|------|----------|------|
+| **TrueSearch Phase2** | ✅完成 | 内容索引+多语言分词+增量索引，对标TrueNAS |
+| **VM Secure Boot** | 🚧开发中 | SecureBootManager模块+TPM集成设计完成，进入编码 |
+| **SMB Spotlight** | 🚧Phase2进行中 | macOS Finder集成深化 |
+| **Drive Sync** | 🚧Phase2进行中 | 协作功能增强 |
+
+---
+
 ## 🔗 相关文档
 
 - [TrueNAS 26对比中文版](../TRUENAS26_COMPARISON_CN.md)
 - [TrueNAS 26对比英文版](../TRUENAS26_COMPARISON_EN.md)
 - [TrueSearch设计文档](../truesearch-design.md)
+- [TrueSearch Phase2设计文档](design/truesearch-phase2-design.md)
+- [VM Secure Boot设计文档](design/vm-secure-boot-design.md)
+- [VM Secure Boot用户指南](user-guide/vm-secure-boot.md)
+- [TrueSearch使用指南](user-guide/true-search.md)
 - [SMB Spotlight Phase1](../smb-spotlight-phase1.md)
 - [WebShare分析](../webshare-truesearch-analysis.md)

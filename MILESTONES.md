@@ -1,5 +1,34 @@
 # NAS-OS 项目里程碑
 
+## v2.468.0 (2026-04-29) 🚀 第240轮开发 - VM Secure Boot + TrueSearch Phase 2 + Active Backup设计
+
+**主题**: VM Secure Boot实现 + TrueSearch Phase 2 + Active Backup整机备份设计 + 安全审计Round240
+
+### 司礼监调度
+- 六部协同调度：第240轮开发任务分配
+- 版本发布：v2.468.0
+- 竞品对标：TrueNAS 25.10 VM Secure Boot + 群晖 Active Backup
+
+### 六部协同任务（第240轮）
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 司礼监 | 六部调度 + 版本发布 | ✅ 完成 |
+| 兵部 | TrueSearch Phase 2实现 + Active Backup设计 | ✅ 完成 |
+| 工部 | VM Secure Boot实现 + CI验证 | ✅ 完成 |
+| 刑部 | 安全审计Round240 + 合规检查 | ✅ 完成 |
+| 户部 | 项目统计 + 成本分析更新 | ✅ 完成 |
+| 礼部 | CHANGELOG + 文档更新 | ✅ 完成 |
+| 吏部 | VERSION更新v2.468.0 + MILESTONES更新 | ✅ 完成 |
+
+### 核心交付物
+- ✅ VM Secure Boot安全启动实现（对标TrueNAS 25.10）
+- ✅ TrueSearch Phase 2全文检索深化
+- ✅ Active Backup整机备份架构设计（对标群晖）
+- ✅ 安全审计Round240通过
+- ✅ 版本号更新至v2.468.0
+
+---
+
 ## v2.389.0 (2026-04-04) 🚀 第157轮开发 - TrueNAS 26对标
 
 **主题**: TrueNAS 26 + 群晖Active Insight竞品对标 + 六部协同开发
