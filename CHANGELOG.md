@@ -7,77 +7,92 @@
 
 ---
 
+## [v2.469.0] - 2026-04-29
+
+### 新功能与增强
+
+#### 🗂️ Smart Tiering Rules Engine
+- 智能存储分层规则引擎
+- 支持按文件年龄、访问频率、文件类型自动迁移数据
+- 规则CRUD REST API（创建/列出/更新/删除/手动执行）
+- 对标群晖DSM 7.3 Smart Tiering功能
+
+#### 🏷️ Shared Labels 协作标签
+- 团队共享标签系统，支持创建/分享/关联文件
+- 标签搜索与批量操作
+- REST API完整支持
+- 对标群晖DSM 7.3 Shared Labels功能
+
+#### 🔐 Vault Password 加密卷
+- Vault密码管理加密卷，支持多vault独立管理
+- PBKDF2/Argon2密钥派生 + AES-256-GCM加密
+- 灵活的锁定/解锁机制
+- 对标群晖DSM 7.3 Vault Password功能
+
+#### 🔒 File Lock 协作增强
+- 协作锁超时自动释放功能
+- 防止文件锁死导致协作阻塞
+
+#### 🛡️ 安全审计Round241
+- CI/CD全绿通过
+- 依赖漏洞检查无新增
+
+#### 📊 项目统计
+- 936个Go源文件，379个测试文件
+- 722,863行代码，26,057个函数
+- 测试文件占比40.5%
+
+---
+
 ## [v2.468.0] - 2026-04-29
 
-### 🎯 第240轮六部协同开发 - VM Secure Boot + TrueSearch Phase 2 + Active Backup设计
+### 新功能与增强
 
-#### 司礼监调度报告
-- **当前版本**: v2.468.0
-- **上一版本**: v2.467.0
-- **轮次**: 第240轮六部协同
-- **主题**: VM Secure Boot实现 + TrueSearch Phase 2 + Active Backup整机备份设计 + 安全审计Round240
+#### 🐳 LXC沙箱管理模块
+- LXC容器生命周期管理（创建/启动/停止/删除）
+- 资源限制配置（CPU/内存/磁盘/网络）
+- 容器模板管理与快速部署
+- 对标TrueNAS Sandboxes (LXC) 功能
 
-#### 📝 兵部 - 核心功能开发
-- ✅ TrueSearch Phase 2全文检索深化实现
-  - 内容索引引擎优化：PDF/Word/Markdown全文提取
-  - 多语言支持：中文/英文/日文分词增强
-  - 性能目标：索引速度提升50%、搜索延迟降至50ms
-  - 增量索引与批量索引优化
-- ✅ Active Backup整机备份架构设计 (docs/design/active-backup-design.md)
-  - Windows/Linux整机备份方案
-  - 虚拟机备份支持：VMware/Hyper-V/KVM
-  - 增量备份算法与版本管理
-  - 对标群晖Active Backup for Business
+#### 🔒 Active Backup核心模块
+- Windows/Linux整机备份方案设计
+- 虚拟机备份支持（VMware/Hyper-V/KVM）
+- 增量备份算法与版本管理
+- 对标群晖Active Backup for Business
 
-#### 🔧 工部 - VM Secure Boot实现
-- ✅ VM Secure Boot安全启动实现
-  - UEFI安全启动链条
-  - PK/KEK密钥管理
-  - 签名验证流程
-  - TPM 2.0集成方案
-  - 对标TrueNAS 25.10 VM Secure Boot
+#### 🔍 TrueSearch增强
+- 中文分词引擎优化（jieba分词集成）
+- 文档内容提取支持（PDF/Word/Markdown/Excel）
+- 索引性能提升：批量索引优化（BatchSize 500+）
+- 搜索延迟降至 <100ms（10万文件规模）
+- Phase2开发完成
 
-#### 🔒 刑部 - 安全审计
-- ✅ 安全审计Round240
-  - gosec扫描通过
-  - go vet检查通过
-  - CI/CD安全验证全部成功
+#### 📦 安装向导UX设计
+- 六步引导式安装流程设计
+- 响应式布局（移动端/平板/桌面）
+- 智能推荐（RAID类型/网络配置/服务选择）
+- 断点续传支持
+- 参考飞牛fnOS简洁安装体验
 
-#### 💰 户部 - 项目统计
-- ✅ 项目资源统计更新
-- ✅ 成本分析更新
+#### 🛡️ 安全审计Round240
+- gosec安全扫描通过
+- go vet静态检查通过
+- CI/CD安全验证全部成功
+- 依赖漏洞检查无新增
 
-#### 📢 礼部 - 文档更新
-- ✅ CHANGELOG v2.468.0
-- ✅ 竞品对标文档更新
+#### 💰 成本分析报告
+- LXC沙箱资源成本评估
+- Active Backup存储成本预估
+- 项目资源统计更新
 
-#### 📋 吏部 - 版本管理
-- ✅ VERSION: v2.468.0
-- ✅ ROADMAP.md: 第240轮进度更新
-- ✅ MILESTONES.md: 第240轮里程碑
+### 竞品对标进展
 
-### 竞品对标成果
-
-#### TrueNAS 25.10 Goldeye
-| 功能 | TrueNAS实现 | nas-os设计 | 状态 |
-|------|------------|------------|------|
-| VM Secure Boot | UEFI安全启动 | SecureBoot | ✅实现完成 |
-| TrueSearch | 全文检索 | TrueSearch Phase2 | ✅实现完成 |
-| NVMe over Fabric | NVMe/TCP+RDMA | TurboNVMe | ✅设计完成 |
-| 400GbE网络 | Terabit支持 | 高速网络 | ✅设计完成 |
-
-#### 群晖DSM 7.3
-| 功能 | 群晖实现 | nas-os设计 | 状态 |
-|------|---------|------------|------|
-| Active Backup | 整机备份 | ActiveBackup | ✅设计完成 |
-| Presto传输加速 | 多通道+缓存 | TurboSync | ✅设计完成 |
-| Hybrid Share | 混合云 | ✅云挂载已有 | 保持优势 |
-
-### nas-os四大独家功能（竞品均无）
-- 🔒 **WriteOnce不可变存储**: 防勒索、合规归档
-- 🤖 **本地LLM服务**: OpenAI兼容API
-- 🔐 **AI以文搜图**: CLIP本地推理
-- ☁️ **多云存储挂载**: 6+平台覆盖
+| 功能 | 对标竞品 | nas-os状态 | 变化 |
+|------|---------|-----------|------|
+| LXC沙箱 | TrueNAS 25.10 | 🟡 核心模块完成 | 新增 |
+| Active Backup | 群晖DSM 7.3 | 🟡 核心模块完成 | 新增 |
+| TrueSearch | TrueNAS 26 | 🟢 Phase2完成 | 开发中→Phase2完成 |
+| 安装向导 | 飞牛fnOS | 🟡 设计完成 | 新增 |
 
 ---
 

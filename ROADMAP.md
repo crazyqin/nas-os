@@ -1,28 +1,37 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.468.0 (2026-04-29) 🚀 第240轮迭代完成
+## 当前版本：v2.469.0 (2026-04-29) 🚀 第241轮迭代完成
 
 ### 发布目标
 **目标日期**: 2026-04-29
-**主题**: VM Secure Boot + TrueSearch Phase 2 + Active Backup设计 + 安全审计Round240
+**主题**: Smart Tiering Rules Engine + Shared Labels + Vault Password
 
-### 六部任务进度（第240轮）
+### 六部任务进度（第241轮）
 | 部门 | 任务 | 状态 |
 |------|------|------|
-| 司礼监 | 六部调度 + 版本发布 | ✅ 完成 |
-| 兵部 | TrueSearch Phase 2实现 + Active Backup设计 | ✅ 完成 |
-| 工部 | VM Secure Boot实现 + CI验证 | ✅ 完成 |
-| 刑部 | 安全审计Round240 + 合规检查 | ✅ 完成 |
-| 户部 | 项目统计 + 成本分析更新 | ✅ 完成 |
-| 礼部 | CHANGELOG + 文档更新 | ✅ 完成 |
-| 吏部 | VERSION更新v2.468.0 + MILESTONES更新 | ✅ 完成 |
+| 司礼监 | 六部调度 + 竞品分析 + 版本发布 | ✅ 完成 |
+| 兵部 | Smart Tiering Rules Engine实现 | ✅ 完成 |
+| 工部 | Shared Labels协作标签 + File Lock增强 | ✅ 完成 |
+| 刑部 | Vault Password加密卷 + 安全审计 | ✅ 完成 |
+| 户部 | 项目代码统计 | ✅ 完成 |
+| 礼部 | CHANGELOG + 竞品文档更新 | ✅ 完成 |
+| 吏部 | VERSION更新v2.469.0 + ROADMAP更新 | ✅ 完成 |
 
-### 第240轮成果总结
-- ✅ VM Secure Boot安全启动实现（对标TrueNAS 25.10）
-- ✅ TrueSearch Phase 2全文检索深化
-- ✅ Active Backup整机备份架构设计（对标群晖）
-- ✅ 安全审计Round240
-- ✅ VERSION更新至v2.468.0
+### 第241轮成果总结
+- ✅ Smart Tiering Rules Engine（智能存储分层规则引擎）
+- ✅ Shared Labels 协作标签系统
+- ✅ Vault Password 加密卷管理
+- ✅ File Lock 协作锁超时自动释放
+- ✅ 安全审计Round241通过
+- ✅ VERSION更新至v2.469.0
+
+### 竞品学习成果（第241轮）
+| 竞品功能 | 来源 | nas-os对标 | 状态 |
+|----------|------|------------|------|
+| Smart Tiering Rules | 群晖DSM 7.3 | Rules Engine | ✅ 完成 |
+| Shared Labels | 群晖DSM 7.3 | 协作标签系统 | ✅ 完成 |
+| Vault Password | 群晖DSM 7.3 | 加密卷管理 | ✅ 完成 |
+| File Lock协作 | 群晖DSM 7.3 | 超时自动释放 | ✅ 完成 |
 
 ### 竞品对标成果（TrueNAS 25.10）
 | 功能 | TrueNAS 25.10 | nas-os对标 | 状态 |
