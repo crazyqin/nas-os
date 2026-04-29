@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.470.0 Stable (2026-04-30)
+> **最新版本**: v2.471.0 Stable (2026-04-30)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -94,6 +94,9 @@
 | 📊 **Alert Digest** | **告警摘要/批量通知/多通道配置** | ✅ **v2.470.0新增** |
 | 💾 **Immutable Backup** | **不可变备份/SHA-256校验/审计日志/合规归档** | ✅ **v2.470.0新增** |
 | 🖥️ **Storage Health Dashboard** | **统一健康监控/容量趋势预测/SMART告警** | ✅ **v2.470.0新增** |
+| 🤖 **AI Console** | **本地LLM集成/隐私数据自动脱敏/OpenAI兼容API** | ✅ **v2.471.0新增** |
+| 📧 **Email Moderation** | **邮件审核管控/多级审核策略/审计追踪** | ✅ **v2.471.0新增** |
+| 🔄 **Smart Domain Sync** | **选择性OU同步/最小权限原则** | ✅ **v2.471.0新增** |
 
 ## 快速开始
 
@@ -102,17 +105,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.468.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.471.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.468.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.471.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.468.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.471.0/nasd-linux-armv7
 
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
@@ -125,7 +128,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.468.0
+docker pull ghcr.io/crazyqin/nas-os:v2.471.0
 
 
 # 运行容器
@@ -135,7 +138,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.468.0
+  ghcr.io/crazyqin/nas-os:v2.471.0
 
 
 # 查看日志
