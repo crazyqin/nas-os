@@ -1,34 +1,28 @@
 # NAS-OS 路线图
 
-## 当前版本：v2.467.0 (2026-04-24) 🚀 第239轮迭代完成
+## 当前版本：v2.468.0 (2026-04-29) 🚀 第240轮迭代完成
 
 ### 发布目标
-**目标日期**: 2026-04-24
-**主题**: TrueNAS 25.10 + 群晖DSM 7.3深度对标 + 六部协同开发
+**目标日期**: 2026-04-29
+**主题**: VM Secure Boot + TrueSearch Phase 2 + Active Backup设计 + 安全审计Round240
 
-### 六部任务进度（第239轮）
+### 六部任务进度（第240轮）
 | 部门 | 任务 | 状态 |
 |------|------|------|
-| 司礼监 | 六部调度 + 竞品调研 + 版本发布 | ✅ 完成 |
-| 兵部 | NVMe-oF设计 + Presto对标分析 | ✅ 完成 |
-| 工部 | 高速网络设计 + VM格式扩展设计 | ✅ 完成 |
-| 刑部 | VM Secure Boot设计 + 安全审计Round239 | ✅ 完成 |
-| 户部 | NVMe-oF成本分析 + Presto硬件需求 | ✅ 完成 |
-| 礼部 | Audio Station设计 + UI改进建议 | ✅ 完成 |
-| 吏部 | VERSION更新v2.467.0 + MILESTONES更新 | ✅ 完成 |
+| 司礼监 | 六部调度 + 版本发布 | ✅ 完成 |
+| 兵部 | TrueSearch Phase 2实现 + Active Backup设计 | ✅ 完成 |
+| 工部 | VM Secure Boot实现 + CI验证 | ✅ 完成 |
+| 刑部 | 安全审计Round240 + 合规检查 | ✅ 完成 |
+| 户部 | 项目统计 + 成本分析更新 | ✅ 完成 |
+| 礼部 | CHANGELOG + 文档更新 | ✅ 完成 |
+| 吏部 | VERSION更新v2.468.0 + MILESTONES更新 | ✅ 完成 |
 
-### 第239轮成果总结
-- ✅ TrueNAS 25.10 Goldeye NVMe-oF设计文档
-- ✅ 群晖 Presto 传输加速对标分析
-- ✅ 400GbE高速网络设计文档
-- ✅ VM多格式导入导出扩展设计
-- ✅ VM Secure Boot安全设计文档
-- ✅ Audio Station功能设计
-- ✅ UI改进建议（Updates/Users界面优化）
-- ✅ NVMe-oF成本效益分析
-- ✅ Presto硬件需求分析
-- ✅ 安全审计Round239
-- ✅ VERSION更新至v2.467.0
+### 第240轮成果总结
+- ✅ VM Secure Boot安全启动实现（对标TrueNAS 25.10）
+- ✅ TrueSearch Phase 2全文检索深化
+- ✅ Active Backup整机备份架构设计（对标群晖）
+- ✅ 安全审计Round240
+- ✅ VERSION更新至v2.468.0
 
 ### 竞品对标成果（TrueNAS 25.10）
 | 功能 | TrueNAS 25.10 | nas-os对标 | 状态 |
