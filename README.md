@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.471.0 Stable (2026-04-30)
+> **最新版本**: v2.472.0 Stable (2026-04-30)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -97,6 +97,7 @@
 | 🤖 **AI Console** | **本地LLM集成/隐私数据自动脱敏/OpenAI兼容API** | ✅ **v2.471.0新增** |
 | 📧 **Email Moderation** | **邮件审核管控/多级审核策略/审计追踪** | ✅ **v2.471.0新增** |
 | 🔄 **Smart Domain Sync** | **选择性OU同步/最小权限原则** | ✅ **v2.471.0新增** |
+| 🔌 **NVMe over Fabric** | **NVMe-oF/TCP目标管理/子系统/命名空间/端口/主机访问控制** | ✅ **v2.472.0新增** |
 
 ## 快速开始
 
@@ -105,12 +106,12 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.471.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.472.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.471.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.472.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 

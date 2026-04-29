@@ -374,6 +374,57 @@ func (m *Manager) ListSubsystems() []*Subsystem {
 	return result
 }
 
+// RevokeHost removes a host NQN from the subsystem's allowed list.
+func (m *Manager) RevokeHost(ctx context.Context, subsystemNQN, hostNQN string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	subsys, exists := m.subsystems[subsystemNQN]
+	if !exists {
+		return fmt.Errorf("subsystem %s not found", subsystemNQN)
+	}
+
+	newHosts := make([]string, 0, len(subsys.Hosts))
+	found := false
+	for _, h := range subsys.Hosts {
+		if h == hostNQN {
+			found = true
+		} else {
+			newHosts = append(newHosts, h)
+		}
+	}
+
+	if !found {
+		return fmt.Errorf("host %s not found in subsystem %s", hostNQN, subsystemNQN)
+	}
+
+	subsys.Hosts = newHosts
+	subsys.UpdatedAt = time.Now()
+
+	m.logger.Info("Revoked host from subsystem",
+		zap.String("subsystem", subsystemNQN),
+		zap.String("host", hostNQN))
+
+	return m.saveConfig()
+}
+
+// ListPorts returns all configured ports.
+func (m *Manager) ListPorts() []*Port {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	result := make([]*Port, 0, len(m.ports))
+	for _, p := range m.ports {
+		result = append(result, p)
+	}
+	return result
+}
+
+// RemoveHost is an alias for RevokeHost.
+func (m *Manager) RemoveHost(ctx context.Context, subsystemNQN, hostNQN string) error {
+	return m.RevokeHost(ctx, subsystemNQN, hostNQN)
+}
+
 // GetStats returns NVMe-oF statistics.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
