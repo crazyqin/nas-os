@@ -13,9 +13,9 @@ import (
 
 // CertChecker 证书有效期检查器.
 type CertChecker struct {
-	certPaths  []string // 证书文件路径
-	domains    []string // 要检查的域名（通过 TLS 连接）
-	warnDays   int      // 提前多少天告警
+	certPaths []string // 证书文件路径
+	domains   []string // 要检查的域名（通过 TLS 连接）
+	warnDays  int      // 提前多少天告警
 }
 
 // NewCertChecker 创建证书检查器.
@@ -140,14 +140,6 @@ func (c *CertChecker) checkLocalCert(certPath string) map[string]interface{} {
 		return info
 	}
 
-	// 读取证书
-	certPEM, err := os.ReadFile(certPath)
-	if err != nil {
-		info["status"] = "error"
-		info["message"] = fmt.Sprintf("无法读取证书: %v", err)
-		return info
-	}
-
 	// 尝试加载证书
 	keyPath := c.findKeyPath(certPath)
 	if keyPath == "" {
@@ -169,8 +161,7 @@ func (c *CertChecker) checkLocalCert(certPath string) map[string]interface{} {
 		return info
 	}
 
-	// 解析证书（需要 crypto/x509）
-	// 简化实现：使用文件修改时间估算
+	// 简化实现：确认文件可加载
 	stat, _ := os.Stat(certPath)
 	info["size"] = stat.Size()
 	info["modified"] = stat.ModTime().Format(time.RFC3339)
@@ -193,8 +184,9 @@ func (c *CertChecker) checkRemoteCert(domain string) map[string]interface{} {
 	}
 
 	// 建立 TLS 连接
+	dialer := &net.Dialer{Timeout: 10 * time.Second}
 	conn, err := tls.DialWithDialer(
-		&netDialer{timeout: 10 * time.Second},
+		dialer,
 		"tcp", addr,
 		&tls.Config{InsecureSkipVerify: true},
 	)
@@ -258,13 +250,4 @@ func (c *CertChecker) findKeyPath(certPath string) string {
 		}
 	}
 	return ""
-}
-
-// netDialer 网络拨号器封装.
-type netDialer struct {
-	timeout time.Duration
-}
-
-func (d *netDialer) Dial(network, address string) (net.Conn, error) {
-	return net.DialTimeout(network, address, d.timeout)
 }

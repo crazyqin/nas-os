@@ -111,6 +111,7 @@ func (e *SyncEngine) SyncOnce(ctx context.Context) (*SyncResult, error) {
 	e.mu.Unlock()
 
 	result.Status = SyncStatusCompleted
+	result.Success = true
 	result.Message = "同步完成"
 
 	return result, nil

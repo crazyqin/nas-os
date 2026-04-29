@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	_ "modernc.org/sqlite" // 纯 Go SQLite 驱动
 )
 
 // Store 持久化存储（SQLite）.
