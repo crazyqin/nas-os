@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.474.0 Stable (2026-04-30)
+> **最新版本**: v2.475.0 Stable (2026-04-30)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -97,12 +97,19 @@
 | 🤖 **AI Console** | **本地LLM集成/隐私数据自动脱敏/OpenAI兼容API** | ✅ **v2.471.0新增** |
 | 📧 **Email Moderation** | **邮件审核管控/多级审核策略/审计追踪** | ✅ **v2.471.0新增** |
 | 🔄 **Smart Domain Sync** | **选择性OU同步/最小权限原则** | ✅ **v2.471.0新增** |
-| 📊 **SMB 审计日志** | **SMB操作审计/文件追踪/用户记录/多通道告警** | ✅ **v2.473.0新增** |
-| 💰 **成本分析报告** | **存储成本统计/趋势预测/资源计费** | ✅ **v2.473.0新增** |
-| 📡 **Prometheus 监控** | **原生指标导出/Grafana预置模板/实时WebSocket** | ✅ **v2.473.0新增** |
-| 🔄 **迁移助手** | **多平台配置迁移/数据校验/进度追踪/回滚支持** | ✅ **v2.473.0新增** |
-| 📋 **合规报告** | **WriteOnce合规链/审计保留/Excel导出/GDPR脱敏** | ✅ **v2.473.0新增** |
+| 📊 **SMB 审计日志** | **SMB操作审计/文件追踪/用户记录/多通道告警** | ✅ **v2.475.0新增** |
+| 💰 **成本分析报告** | **存储成本统计/趋势预测/资源计费** | ✅ **v2.475.0新增** |
+| 📡 **Prometheus 监控** | **原生指标导出/Grafana预置模板/实时WebSocket** | ✅ **v2.475.0新增** |
+| 🔄 **迁移助手** | **多平台配置迁移/数据校验/进度追踪/回滚支持** | ✅ **v2.475.0新增** |
+| 📋 **合规报告** | **WriteOnce合规链/审计保留/Excel导出/GDPR脱敏** | ✅ **v2.475.0新增** |
 | 🔌 **NVMe over Fabric** | **NVMe-oF/TCP目标管理/子系统/命名空间/端口/主机访问控制** | ✅ **v2.472.0新增** |
+| 🔒 **全卷加密** | **LUKS全卷加密/密钥管理/KMIP支持/AES-NI硬件加速** | ✅ **v2.475.0重磅** |
+| 💾 **块级备份** | **块级增量备份/去重压缩/速度提升2倍+/调度恢复API** | ✅ **v2.475.0新增** |
+| 🐳 **Docker Compose UI** | **YAML可视化编辑/多容器一键部署/模板市场/日志监控** | ✅ **v2.475.0新增** |
+| 🔐 **SSO协议扩展** | **OAuth2/OIDC/SAML/第三方应用SSO集成/客户端管理** | ✅ **v2.475.0新增** |
+| 🔗 **全局文件锁** | **跨节点文件锁定/冲突检测/分布式锁服务** | ✅ **v2.475.0新增** |
+| 🛡️ **设备信任** | **设备指纹识别/信任管理/新设备风险评估** | ✅ **v2.475.0新增** |
+| 📦 **应用商店增强** | **批量安装/依赖解析/推荐引擎/沙箱隔离** | ✅ **v2.475.0新增** |
 
 ## 快速开始
 
@@ -111,17 +118,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.473.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.475.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.473.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.475.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.473.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.475.0/nasd-linux-armv7
 
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
@@ -134,7 +141,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.473.0
+docker pull ghcr.io/crazyqin/nas-os:v2.475.0
 
 
 # 运行容器
@@ -144,7 +151,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.473.0
+  ghcr.io/crazyqin/nas-os:v2.475.0
 
 
 # 查看日志

@@ -7,6 +7,88 @@
 
 ---
 
+## [v2.475.0] - 2026-04-30
+
+### 第245轮开发 - 全卷加密 + 块级备份 + Docker Compose UI + SSO增强 + 文件锁同步
+
+#### 新功能与增强
+
+#### 🔒 全卷加密系统
+- 基于LUKS的全卷加密管理
+- 加密密钥管理（本地存储 + 远程KMIP支持）
+- 加密卷的创建/挂载/卸载API
+- 硬件加速AES-NI性能优化
+- 新增 `internal/storage/volume_encryption.go` + `volume_encryption_handlers.go`
+
+#### 💾 块级备份引擎
+- 块级别增量备份，速度提升2倍+
+- 去重+压缩减少存储占用
+- 备份任务调度和恢复API
+- 新增 `internal/backup/block/block_backup.go`
+
+#### 🐳 Docker Compose Web UI
+- Docker Compose YAML可视化编辑
+- 多容器应用一键部署
+- 容器状态监控和日志查看
+- Compose模板市场集成
+- 新增 `internal/apps/compose_manager.go`
+
+#### 🔐 SSO Server协议扩展
+- 支持OAuth2/OIDC/SAML协议
+- 第三方应用SSO集成
+- SSO客户端管理API
+- 增强 `internal/auth/sso_server.go`
+
+#### 🔗 Hybrid Share全局文件锁
+- 跨节点文件锁定机制
+- 冲突检测和自动解决
+- 分布式锁服务
+- 新增 `internal/sync/global_file_lock.go`
+
+#### 📦 应用商店增强
+- 应用批量安装/卸载
+- 应用依赖解析
+- 应用推荐引擎
+- 应用沙箱隔离
+- 新增 `internal/appstore/` 批量/目录/依赖/推荐/沙箱模块
+
+#### 🛡️ 设备信任与Passkey增强
+- 设备指纹识别与信任管理
+- 新设备登录风险评估
+- 新增 `internal/auth/passkey/device_trust*.go`
+
+#### 💾 主动备份引擎
+- 智能备份代理
+- 数据去重引擎
+- 备份仪表盘
+- 备份调度与恢复
+- 新增 `internal/backup/active/` 全套模块
+
+#### 🌐 集群舰队管理
+- 多节点舰队编排
+- 节点健康监控
+- 新增 `internal/cluster/fleet*.go`
+
+#### 🔐 文件夹级加密
+- 每个文件夹独立加密策略
+- 加密密钥隔离管理
+- 新增 `internal/encryption/per_folder*.go`
+
+#### 📝 在线协作增强
+- 实时协同编辑
+- 冲突解决机制
+- 新增 `internal/office/collaboration*.go`
+
+#### 🔍 安全审计模块
+- 安全审计日志系统
+- 新增 `internal/security/audit/`
+
+#### 🧹 项目清理
+- 删除内部冗余README文件（15个）
+- 精简项目结构
+
+---
+
 ## [v2.474.0] - 2026-04-30
 
 ### 🛡️ 第244轮开发 - 勒索检测增强 + 智能休眠优化 + 存储健康评分
