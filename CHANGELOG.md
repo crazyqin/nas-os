@@ -1,3 +1,76 @@
+## [v2.479.0] - 2026-05-01
+
+### 第249轮开发 - 混合闪存池 + 引导告警 + 成本优化 + 用户权限模板 + WORM合规 + Scrub避峰
+
+#### 竞品调研
+- 更新TrueNAS 26 / TrueNAS V160 / 群晖DSM 7.3 / 飞牛fnOS竞品动态分析
+- TrueNAS 26发布Beta，重点：OpenZFS 2.4混合闪存池、Guided Alerts引导告警、WebShare+TrueSearch、定时Scrub避峰
+- TrueNAS V160企业硬件发布：400GbE、768GB DDR5、24TiB混合缓存
+- 竞品报告更新至2026年5月
+
+#### 新功能与增强
+
+##### 🔀 混合闪存池智能分层（对标 TrueNAS 26 OpenZFS 2.4 Hybrid Flash Pool）
+- NVMe SSD + HDD 混合存储自动分层，热数据提升到SSD，冷数据降级到HDD
+- 三级分层：Hot（NVMe SSD）/ Warm / Cold（HDD）
+- 文件热度评分算法：访问频率40% + 最近访问30% + 读写量30%
+- 可配置提升/降级阈值、扫描间隔、文件大小过滤
+- 支持SSD作为SLOG和L2ARC缓存加速
+- 实时热度图和分层统计API
+- HTTP API: `/api/v1/hybridpool/*`
+
+##### 🧭 引导式告警系统（对标 TrueNAS 26 Guided Alerts）
+- 每条告警附带分步排查引导、修复步骤、根因分析
+- 菜单指示器：UI菜单自动显示告警数量和最严重等级
+- 告警去重：同资源同类型告警自动合并更新
+- 内置规则：SMART_WARNING / POOL_DEGRADED / DISK_SPACE_LOW
+- 支持自动修复标记（AutoFix）
+- 四级状态流转：Open → Acknowledged → In Progress → Resolved
+- HTTP API: `/api/v1/guided-alerts/*`
+
+##### 💰 存储成本优化分析（差异化优势，竞品均无此功能）
+- 多介质成本画像：NVMe/SSD/HDD/Cloud 每TB每月成本分析
+- 智能优化建议：冷数据迁移、低使用率压缩、长期未访问归档
+- 去重/压缩/归档潜力估算
+- 优化建议按节省金额排序
+- 支持自定义存储分配数据输入
+- HTTP API: `/api/v1/cost-optimizer/*`
+
+##### 👤 用户权限模板系统（对标群晖简化用户管理）
+- 5个内置模板：家庭用户/办公用户/媒体用户/开发者/管理员
+- 每个模板包含权限集合和配额限制（存储/文件数/带宽/会话）
+- 支持自定义模板创建、编辑、删除
+- 模板应用记录追踪
+- 内置模板不可修改/删除保护
+- HTTP API: `/api/v1/perm-templates/*`
+
+##### 📋 WORM合规报告（差异化优势，竞品均无此功能）
+- Write Once Read Many 不可变存储保护
+- 四种保留级别：Compliance / Governance / Legal / Audit
+- SHA-256完整性校验和定期验证
+- 过期自动检测和状态更新
+- 合规报告生成：文件统计、完整性评分、违规记录
+- HTTP API: `/api/v1/worm/*`
+
+##### ⏰ Scrub智能避峰调度（对标 TrueNAS 26 Scheduled Scrub）
+- 业务高峰窗口配置：按星期和时段定义高峰
+- 内置三个默认高峰窗口：上午工作/下午工作/晚间使用
+- 安静时段配置（默认凌晨1-6点）
+- 高峰自动暂停Scrub，过后自动恢复
+- IO负载和CPU阈值检测
+- 连续延迟次数追踪
+- HTTP API: 集成到ZFS Scrub调度器
+
+#### 测试
+- 所有新模块通过编译和单元测试
+- hybridpool: 4 tests PASS
+- costoptimizer: 2 tests PASS
+- guidedalert: 4 tests PASS
+- permtemplate: 4 tests PASS
+- wormreport: 4 tests PASS
+
+---
+
 ## [v2.478.0] - 2026-05-01
 
 ### 第248轮开发 - NVMe-oF TLS加密 + 访问审计 + 存储效率统计 + CI修复
