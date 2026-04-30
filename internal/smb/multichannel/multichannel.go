@@ -332,8 +332,15 @@ func (m *SMBMultichannelManager) ReleaseChannels(clientIP string) {
 func (m *SMBMultichannelManager) GetStats() *MultichannelStats {
 	m.stats.mu.Lock()
 	defer m.stats.mu.Unlock()
-	stats := *m.stats
-	return &stats
+	stats := &MultichannelStats{
+		TotalConnections:  m.stats.TotalConnections,
+		ActiveGroups:      m.stats.ActiveGroups,
+		TotalBandwidth:    m.stats.TotalBandwidth,
+		UtilizedBandwidth: m.stats.UtilizedBandwidth,
+		FailoverCount:     m.stats.FailoverCount,
+		AvgLatency:        m.stats.AvgLatency,
+	}
+	return stats
 }
 
 func (m *SMBMultichannelManager) healthCheckLoop() {
