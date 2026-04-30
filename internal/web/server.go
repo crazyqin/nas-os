@@ -9,6 +9,8 @@ import (
 
 	"nas-os/internal/ai"
 	"nas-os/internal/ai_classify"
+	alertremediation "nas-os/internal/alertremediation"
+	"nas-os/internal/acl"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
 	"nas-os/internal/cloudsync"
@@ -24,6 +26,7 @@ import (
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
 	"nas-os/internal/notify"
+	"nas-os/internal/notifychannel"
 	"nas-os/internal/office"
 	"nas-os/internal/optimizer"
 	"nas-os/internal/perf"
@@ -31,7 +34,10 @@ import (
 	"nas-os/internal/plugin"
 	"nas-os/internal/project"
 	"nas-os/internal/quota"
+	"nas-os/internal/ransommldetect"
+	"nas-os/internal/recyclecleaner"
 	"nas-os/internal/replication"
+	"nas-os/internal/s3"
 	"nas-os/internal/search"
 	sftp "nas-os/internal/sftp"
 	"nas-os/internal/shares"
@@ -40,12 +46,17 @@ import (
 	"nas-os/internal/storage/nvmeof"
 	"nas-os/internal/system"
 	"nas-os/internal/tags"
+	"nas-os/internal/tiering"
 	"nas-os/internal/trash"
 	"nas-os/internal/tunnel"
+	"nas-os/internal/ups"
 	"nas-os/internal/users"
 	"nas-os/internal/versioning"
 	"nas-os/internal/vm"
 	"nas-os/internal/webdav"
+	"nas-os/internal/webhook"
+	"nas-os/internal/wol"
+	"nas-os/internal/zfs"
 
 	_ "nas-os/docs/swagger" // Swagger 文档
 
@@ -107,6 +118,20 @@ type Server struct {
 	tunnelService *tunnel.TunnelService
 	frpManager    *tunnel.FRPManager
 	aiSvc         *ai.AIService
+	// v2.476.0 新增模块
+	alertEngine    *alertremediation.RemediationEngine
+	smartTierHdl   *tiering.SmartTieringHandler
+	recycleHdl     *shares.RecycleHandlers
+	scrubScheduler *zfs.ScrubScheduler
+	s3PolicyHdl    *s3.PolicyHandlers
+	// v2.477.0 新增模块
+	upsMgr         *ups.Manager
+	wolMgr         *wol.Manager
+	aclMgr         *acl.Manager
+	webhookMgr     *webhook.Manager
+	ransomDetector *ransommldetect.Detector
+	recycleCleaner *recyclecleaner.Manager
+	notifyChanMgr  *notifychannel.Manager
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -295,6 +320,75 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	} else {
 		log.Println("✅ 私有云AI服务就绪")
 	}
+
+	// ========== v2.476.0 新增模块 ==========
+
+	// 初始化引导式告警修复引擎（对标 TrueNAS 26 Guided Alerts）
+	alertEngine := alertremediation.NewEngine(logger)
+	log.Println("✅ 引导式告警修复引擎就绪")
+
+	// 初始化智能分层规则引擎（对标群晖 Smarter Tiering）
+	tierMgr := tiering.NewManager("/etc/nas-os/tiering.json", tiering.PolicyEngineConfig{})
+	tierRulesEngine := tiering.NewRulesEngine(tierMgr, "/var/lib/nas-os/tiering")
+	smartTierEngine := tiering.NewAutoTierEngine(tierMgr, tierRulesEngine, "/var/lib/nas-os/tiering")
+	costAnalyzer := tiering.NewCostAnalyzer(tierMgr)
+	smartTierHdl := tiering.NewSmartTieringHandler(smartTierEngine, costAnalyzer)
+	log.Println("✅ 智能分层规则引擎就绪")
+
+	// 初始化SMB共享回收站（对标群晖回收站）
+	recycleHdl := shares.NewRecycleHandlers(smbMgr)
+	log.Println("✅ SMB共享回收站就绪")
+
+	// 初始化ZFS智能Scrub调度器（对标 TrueNAS 26 智能Scrub）
+	scrubConfig := zfs.DefaultScrubScheduleConfig()
+	scrubScheduler := zfs.NewScrubScheduler("tank", scrubConfig)
+	scrubScheduler.Start()
+	log.Println("✅ ZFS智能Scrub调度器就绪")
+
+	// 初始化S3策略与管理API（对标 TrueNAS V160 S3增强）
+	var s3PolicyHdl *s3.PolicyHandlers
+	// S3管理器已通过现有S3 handlers注册，这里复用
+	s3Mgr, err := s3.NewManager("/var/lib/nas-os/s3", "/var/lib/nas-os/s3-data")
+	if err != nil {
+		log.Printf("⚠️ S3管理器初始化警告：%v", err)
+		s3PolicyHdl = nil
+	} else {
+		s3PolicyHdl = s3.NewPolicyHandlers(s3Mgr)
+		log.Println("✅ S3策略管理模块就绪")
+	}
+
+	// ========== v2.477.0 新增模块 ==========
+
+	// 初始化UPS电源监控（对标群晖 UPS 支持）
+	upsMgr := ups.NewManager(ups.DefaultUPSConfig())
+	upsMgr.Start()
+	log.Println("✅ UPS电源监控已启动")
+
+	// 初始化网络唤醒 WOL（对标群晖 WOL）
+	wolMgr := wol.NewManager()
+	log.Println("✅ 网络唤醒模块就绪")
+
+	// 初始化细粒度 ACL 权限控制（对标群晖 ACL）
+	aclMgr := acl.NewManager()
+	log.Println("✅ 细粒度ACL权限控制就绪")
+
+	// 初始化 Webhook 通知集成（对标群晖 Webhook 通知）
+	webhookMgr := webhook.NewManager()
+	log.Println("✅ Webhook通知集成就绪")
+
+	// 初始化 ML 勒索检测引擎（对标群晖 勒索防护增强）
+	ransomDetector := ransommldetect.NewDetector(ransommldetect.DefaultDetectorConfig())
+	ransomDetector.Start()
+	log.Println("✅ ML勒索检测引擎已启动")
+
+	// 初始化回收站自动清理（对标群晖 回收站策略）
+	recycleCleaner := recyclecleaner.NewManager()
+	recycleCleaner.Start()
+	log.Println("✅ 回收站自动清理已启动")
+
+	// 初始化多渠道通知管理（对标群晖 多通知渠道）
+	notifyChanMgr := notifychannel.NewManager()
+	log.Println("✅ 多渠道通知管理就绪")
 
 	// 初始化版本控制管理器
 	versioningMgr, err := versioning.NewManager("/etc/nas-os/versioning-config.json", nil)
@@ -495,6 +589,20 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			return tunnel.NewFRPManager(cfg, logger)
 		}(),
 		aiSvc: aiSvc,
+		// v2.476.0 新增模块
+		alertEngine:    alertEngine,
+		smartTierHdl:   smartTierHdl,
+		recycleHdl:     recycleHdl,
+		scrubScheduler: scrubScheduler,
+		s3PolicyHdl:    s3PolicyHdl,
+		// v2.477.0 新增模块
+		upsMgr:         upsMgr,
+		wolMgr:         wolMgr,
+		aclMgr:         aclMgr,
+		webhookMgr:     webhookMgr,
+		ransomDetector: ransomDetector,
+		recycleCleaner: recycleCleaner,
+		notifyChanMgr:  notifyChanMgr,
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -839,6 +947,58 @@ func (s *Server) setupRoutes() {
 			tunnelHandler := tunnel.NewWebUIHandler(s.frpManager, s.tunnelService, s.logger)
 			tunnelHandler.RegisterRoutes(api)
 		}
+
+		// ========== v2.476.0 新增路由 ==========
+
+		// 引导式告警修复（对标 TrueNAS 26 Guided Alerts）
+		if s.alertEngine != nil {
+			alertHandlers := alertremediation.NewHandlers(s.alertEngine, s.logger)
+			alertHandlers.RegisterRoutes(api)
+		}
+
+		// 智能分层规则（对标群晖 Smarter Tiering）
+		if s.smartTierHdl != nil {
+			s.smartTierHdl.RegisterRoutes(api)
+		}
+
+		// SMB共享回收站（对标群晖回收站）
+		if s.recycleHdl != nil {
+			s.recycleHdl.RegisterRoutes(api)
+		}
+
+		// ZFS智能Scrub调度（对标 TrueNAS 26 智能Scrub）
+		if s.scrubScheduler != nil {
+			scrubHdl := zfs.NewScrubHandler(s.scrubScheduler)
+			scrubHdl.RegisterRoutes(api)
+		}
+
+		// S3策略与管理API增强（对标 TrueNAS V160 S3增强）
+		if s.s3PolicyHdl != nil {
+			s.s3PolicyHdl.RegisterRoutes(s.engine)
+		}
+
+		// ========== v2.477.0 新增路由 ==========
+
+		// UPS电源监控 API
+		ups.NewHandlers(s.upsMgr).RegisterRoutes(api)
+
+		// 网络唤醒 WOL API
+		wol.NewHandlers(s.wolMgr).RegisterRoutes(api)
+
+		// 细粒度 ACL 权限 API
+		acl.NewHandlers(s.aclMgr).RegisterRoutes(api)
+
+		// Webhook 通知 API
+		webhook.NewHandlers(s.webhookMgr).RegisterRoutes(api)
+
+		// ML 勒索检测 API
+		ransommldetect.NewHandlers(s.ransomDetector).RegisterRoutes(api)
+
+		// 回收站自动清理 API
+		recyclecleaner.NewHandlers(s.recycleCleaner).RegisterRoutes(api)
+
+		// 多渠道通知管理 API
+		notifychannel.NewHandlers(s.notifyChanMgr).RegisterRoutes(api)
 
 		// ========== 媒体中心 ==========
 		// if s.mediaMgr != nil {
