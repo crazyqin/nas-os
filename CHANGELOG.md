@@ -1,3 +1,63 @@
+## [v2.477.0] - 2026-05-01
+
+### 第247轮开发 - SMB多通道 + 无Root管理 + LXC沙箱 + 智能迁移 + 合规仪表盘 + 预算告警 + CI修复
+
+#### Bug修复
+
+##### 🔧 CI 兼容性测试修复
+- 修复 `TestManagerStartStop` 在 ARM 平台上因 TempDir 清理竞争导致的间歇性失败
+- `StatefulFailoverManager` 增加 `sync.WaitGroup` 等待所有后台 goroutine 退出
+- `eventProcessor` 改用 `ctx.Done()` + select 模式避免 channel 关闭后 panic
+
+#### 新功能与增强
+
+##### 🌐 SMB 多通道聚合（对标 TrueNAS Multichannel SMB）
+- 多网卡/多连接并行传输，聚合带宽提升 SMB 传输速度
+- 四种负载均衡策略：Round Robin / Least Load / Hash / Adaptive
+- 自动网卡检测和 RSS（Receive Side Scaling）支持
+- 实时通道健康监控和自动故障切换
+- Jumbo Frame (MTU 9000) 自动检测，万兆网卡识别
+- 通道评分算法：带宽 40% + 延迟 30% + 丢包率 30%
+
+##### 👤 无 Root 管理员（对标 TrueNAS Rootless Admin）
+- 管理员无需 root 权限即可执行管理操作
+- sudoers 自动生成，命令白名单控制
+- 细粒度权限管理：按资源类型授权（storage/network/docker 等）
+- 并发会话限制，自动过期清理
+- 完整审计日志记录所有操作
+
+##### 📦 LXC 容器沙箱（对标 TrueNAS LXC Sandboxes）
+- 轻量级应用隔离运行环境
+- 内置模板：Ubuntu 24.04 / Alpine 3.20 / Debian 12
+- CPU / 内存 / 磁盘资源限制（cgroup v2）
+- 端口映射和卷挂载支持
+- 容器统计监控（CPU/内存/网络/PID）
+- 导出容器配置为 JSON
+
+##### 🔄 智能数据迁移（对标群晖 Data Migration）
+- 支持复制/移动/同步/复制校验四种迁移模式
+- SHA-256 校验确保数据完整性
+- 可配置重试策略（默认3次，5秒间隔）
+- 文件过滤：include/exclude 模式匹配
+- 带宽限制和并发控制
+- 迁移历史记录和统计
+
+##### 🛡️ 合规仪表盘（对标群晖 Security Advisor + TrueNAS STIG）
+- 统一安全合规评分（0-100分）
+- 11项内置合规检查，覆盖 CIS / STIG / GDPR 框架
+- 按类别统计：访问控制/网络安全/存储安全/审计/加密/更新/备份/密码
+- 评分趋势追踪，自动定期检查
+- 支持注册自定义合规检查项
+- 自动修复能力（可选）
+
+##### 💰 预算告警管理（对标群晖 Storage Analyzer）
+- 多级预算：总存储/用户/共享/应用/备份/云存储
+- 三级告警：80% 警告 / 95% 严重 / 100% 超限
+- 成本估算和趋势分析
+- 预算周期：日/周/月/年
+- 告警确认和批量管理
+- JSON 格式报告导出
+
 ## [v2.476.0] - 2026-05-01
 
 ### 第246轮开发 - UPS电源监控 + 网络唤醒 + 细粒度ACL + Webhook通知 + ML勒索检测 + 回收站自动清理 + 多渠道通知
