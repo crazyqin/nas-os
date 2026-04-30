@@ -24,6 +24,7 @@ type StatefulFailoverManager struct {
 	ctx         context.Context
 	cancel      context.CancelFunc
 	snapshotDir string
+	wg          sync.WaitGroup // 追踪后台goroutine
 }
 
 // StatefulFailoverConfig Stateful Failover配置
@@ -179,6 +180,7 @@ func (m *StatefulFailoverManager) Start() error {
 	}
 
 	// 启动后台goroutine
+	m.wg.Add(4)
 	go m.snapshotLoop()
 	go m.stateSyncLoop()
 	go m.healthCheckLoop()
@@ -196,6 +198,8 @@ func (m *StatefulFailoverManager) Stop() error {
 		_ = err
 	}
 
+	// 等待所有后台goroutine退出后再关闭eventCh
+	m.wg.Wait()
 	close(m.eventCh)
 	return nil
 }
@@ -418,6 +422,7 @@ func (m *StatefulFailoverManager) loadPersistedState() error {
 
 // snapshotLoop 定期快照
 func (m *StatefulFailoverManager) snapshotLoop() {
+	defer m.wg.Done()
 	ticker := time.NewTicker(m.config.SnapshotInterval)
 	defer ticker.Stop()
 
@@ -433,6 +438,7 @@ func (m *StatefulFailoverManager) snapshotLoop() {
 
 // stateSyncLoop 状态同步循环
 func (m *StatefulFailoverManager) stateSyncLoop() {
+	defer m.wg.Done()
 	ticker := time.NewTicker(m.config.SyncInterval)
 	defer ticker.Stop()
 
@@ -483,6 +489,7 @@ func (m *StatefulFailoverManager) syncStateToPeers() {
 
 // healthCheckLoop 健康检查循环
 func (m *StatefulFailoverManager) healthCheckLoop() {
+	defer m.wg.Done()
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 
@@ -529,15 +536,28 @@ func (m *StatefulFailoverManager) checkPeerHealth() {
 
 // eventProcessor 事件处理器
 func (m *StatefulFailoverManager) eventProcessor() {
-	for event := range m.eventCh {
-		// 记录事件到日志
-		eventJSON, _ := json.Marshal(event)
-		logFile := filepath.Join(m.config.StateDir, "events.log")
-		f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0640)
-		if err == nil {
-			f.WriteString(string(eventJSON) + "\n")
-			f.Close()
+	defer m.wg.Done()
+	for {
+		select {
+		case <-m.ctx.Done():
+			return
+		case event, ok := <-m.eventCh:
+			if !ok {
+				return
+			}
+			m.writeEvent(event)
 		}
+	}
+}
+
+// writeEvent 写入事件日志
+func (m *StatefulFailoverManager) writeEvent(event FailoverEvent) {
+	eventJSON, _ := json.Marshal(event)
+	logFile := filepath.Join(m.config.StateDir, "events.log")
+	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0640)
+	if err == nil {
+		f.WriteString(string(eventJSON) + "\n")
+		f.Close()
 	}
 }
 
