@@ -166,6 +166,9 @@ func TestHandlerReindex(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("expected status 200, got %d", w.Code)
 	}
+
+	// 等待异步reindex goroutine完成，避免TempDir清理时索引未关闭
+	time.Sleep(500 * time.Millisecond)
 }
 
 func TestHandlerIndexFiles(t *testing.T) {
