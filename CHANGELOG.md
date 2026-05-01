@@ -1,3 +1,86 @@
+## [v2.480.0] - 2026-05-01
+
+### 第250轮开发 - RDMA高性能网络 + 自定义监控仪表盘 + S3对象存储网关 + 用户引导系统 + 智能配额管理 + 数据保留策略引擎
+
+#### 竞品调研
+- 调研 TrueNAS 25.10 Community Edition：RDMA for iSCSI/NFS、Custom Dashboards、S3 Object Storage、LXC沙箱、HA Apps
+- 调研群晖 DSM：Active Backup、Drive、SMB多通道、SSO、简化用户管理
+- 调研飞牛 fnOS：轻量化设计、Docker应用生态
+- 竞品报告更新至2026年5月
+
+#### 新功能与增强
+
+##### ⚡ RDMA高性能网络模块（对标 TrueNAS RDMA for iSCSI/NFS）
+- RoCE (RDMA over Converged Ethernet) 连接管理
+- iSCSI 和 NFS 的 RDMA 加速支持
+- 多路径IO (MPIO)：自动故障切换和负载均衡
+- 实时监控：延迟、带宽、丢包率、队列深度
+- 自动降级：RDMA不可用时回退到TCP
+- 速率限制和拥塞控制
+- HTTP API: `/api/v1/rdma/*`
+
+##### 📊 自定义监控仪表盘（对标 TrueNAS Custom Dashboards）
+- 可配置布局仪表盘系统，支持多仪表盘
+- 预置Widget：CPU、内存、磁盘IO、网络流量、存储池、温度、UPS、Docker、ZFS健康
+- Widget配置：位置、大小、刷新间隔、数据源、阈值告警
+- 多数据源支持：Prometheus、内置指标、SNMP、自定义HTTP
+- 仪表盘导入/导出（JSON格式）
+- 预置3个默认仪表盘：系统概览、存储监控、网络监控
+- 数据采样和24小时历史记录
+- HTTP API: `/api/v1/dashboard/*`
+
+##### 🪣 S3对象存储网关（对标 TrueNAS S3 / MinIO）
+- S3兼容API，将本地存储暴露为对象存储
+- 基本操作：CreateBucket、PutObject、GetObject、DeleteObject、ListObjects
+- 存储桶策略：公开/私有/自定义
+- 多租户隔离：每个用户独立命名空间
+- 存储桶配额：容量上限、对象数量上限
+- 访问审计日志和流量统计
+- 生命周期管理：自动过期删除、存储类别转换
+- HTTP API: `/api/v1/s3/*`
+
+##### 🎯 用户引导与快速入门系统（对标群晖简化UX）
+- 首次安装引导向导：分步初始化流程
+- 5步引导：存储池创建 → 网络配置 → 用户创建 → 共享设置 → 应用安装
+- 每步前置条件检查、验证、回滚
+- 快速入门卡片系统：常用操作快捷入口
+- 新手教程：SMB共享、Docker应用、照片备份、远程访问
+- 引导进度追踪和跳过机制
+- HTTP API: `/api/v1/onboarding/*`
+
+##### 📐 存储配额智能管理（差异化功能，超越竞品）
+- 多层级配额：用户级、组级、共享级、项目级
+- 配额策略：硬限制、软限制、弹性自动扩容
+- 使用量预测：基于历史趋势预测配额用尽时间
+- 多阈值告警：50%/75%/90%/100%
+- 配额继承：组→用户，项目→共享
+- 历史统计：按天/周/月
+- 配额模板：家庭1TB、办公500GB、媒体2TB
+- 智能清理建议：大文件、重复文件、长期未访问
+- HTTP API: `/api/v1/quota/*`
+
+##### 📋 数据保留策略引擎（差异化功能，超越竞品）
+- 策略定义：按文件类型、路径、大小、年龄、标签
+- 执行模式：自动删除、归档冷存储、通知管理员、移入回收站
+- 法律保留（Legal Hold）：合规期间文件不可删除
+- 保留期限：7天/30天/90天/1年/永久
+- 策略优先级和覆盖机制
+- 完整审计轨迹
+- 策略模拟：执行前预览影响范围
+- 合规报告：覆盖率、即将过期、违规文件
+- HTTP API: `/api/v1/retention/*`
+
+#### 测试
+- 所有新模块通过编译和单元测试
+- rdma: 10 tests PASS
+- customdash: 11 tests PASS
+- s3gateway: 7 tests PASS
+- onboarding: 10 tests PASS
+- smartquota: 6 tests PASS
+- retention: 7 tests PASS
+
+---
+
 ## [v2.479.0] - 2026-05-01
 
 ### 第249轮开发 - 混合闪存池 + 引导告警 + 成本优化 + 用户权限模板 + WORM合规 + Scrub避峰
