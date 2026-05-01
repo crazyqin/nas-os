@@ -9,17 +9,24 @@ import (
 
 	"nas-os/internal/ai"
 	"nas-os/internal/ai_classify"
+	"nas-os/internal/activebackup"
 	alertremediation "nas-os/internal/alertremediation"
 	"nas-os/internal/acl"
+	"nas-os/internal/audiostation"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
 	"nas-os/internal/cloudsync"
 	"nas-os/internal/dedup"
+	"nas-os/internal/diskbench"
 	"nas-os/internal/docker"
 	"nas-os/internal/downloader"
+	"nas-os/internal/drdrill"
+	"nas-os/internal/drivesync"
+	"nas-os/internal/fasttransfer"
 	"nas-os/internal/files"
 	ftp "nas-os/internal/ftp"
 	"nas-os/internal/hardware"
+	"nas-os/internal/healthscore"
 	"nas-os/internal/iscsi"
 	"nas-os/internal/lock"
 	"nas-os/internal/monitor"
@@ -38,9 +45,13 @@ import (
 	"nas-os/internal/recyclecleaner"
 	"nas-os/internal/replication"
 	"nas-os/internal/s3"
+	"nas-os/internal/s3gateway"
+	"nas-os/internal/scheduler"
 	"nas-os/internal/search"
+	"nas-os/internal/scrubsched"
 	sftp "nas-os/internal/sftp"
 	"nas-os/internal/shares"
+	"nas-os/internal/smartmigrate"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/storage/nvmeof"
@@ -53,6 +64,7 @@ import (
 	"nas-os/internal/users"
 	"nas-os/internal/versioning"
 	"nas-os/internal/vm"
+	"nas-os/internal/vmimport"
 	"nas-os/internal/webdav"
 	"nas-os/internal/webhook"
 	"nas-os/internal/wol"
@@ -133,6 +145,20 @@ type Server struct {
 	recycleCleaner *recyclecleaner.Manager
 	notifyChanMgr  *notifychannel.Manager
 	// mediaMgr      *media.LibraryManager
+	// v2.481.0 新增模块
+	activeBackupMgr *activebackup.Manager
+	audioStationMgr *audiostation.Manager
+	drDrillMgr      *drdrill.Manager
+	driveSyncMgr    *drivesync.Manager
+	scrubSchedMgr   *scrubsched.Manager
+	vmImportMgr     *vmimport.Manager
+	s3Gateway       *s3gateway.Gateway
+	schedulerMgr    *scheduler.Scheduler
+	smartMigrateMgr *smartmigrate.SmartMigrateManager
+	// v2.481.0 竞品对标新增模块
+	diskbenchMgr    *diskbench.BenchmarkManager
+	healthscoreMgr  *healthscore.Manager
+	fastTransferMgr *fasttransfer.TransferManager
 }
 
 // NewServer 创建 Web 服务器.
@@ -496,6 +522,101 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// mediaMgr.AddMetadataProvider(media.NewTMDBProvider("", "zh-CN"))
 	// mediaMgr.AddMetadataProvider(media.NewDoubanProvider(""))
 
+	// ========== v2.481.0 新增模块 ==========
+
+	// 初始化整机备份管理器（对标群晖 Active Backup for Business）
+	activeBackupMgr, err := activebackup.NewManager("/etc/nas-os/activebackup.json")
+	if err != nil {
+		log.Printf("⚠️ 整机备份管理初始化警告：%v", err)
+		activeBackupMgr = nil
+	} else {
+		log.Println("✅ 整机备份管理模块就绪")
+	}
+
+	// 初始化音乐中心管理器（对标群晖 Audio Station）
+	audioStationMgr, err := audiostation.NewManager("/etc/nas-os/audiostation.json", []string{"/mnt/music"})
+	if err != nil {
+		log.Printf("⚠️ 音乐中心初始化警告：%v", err)
+		audioStationMgr = nil
+	} else {
+		log.Println("✅ 音乐中心模块就绪")
+	}
+
+	// 初始化容灾演练管理器（对标群晖 DR Drill）
+	drDrillMgr := drdrill.NewManager(logger, nil, nil)
+	log.Println("✅ 容灾演练模块就绪")
+
+	// 初始化 Drive Sync 管理器（对标群晖 Drive Sync）
+	driveSyncMgr := drivesync.NewManager("/etc/nas-os/drivesync.json", drivesync.VersionConfig{})
+	log.Println("✅ Drive Sync 模块就绪")
+
+	// 初始化智能Scrub调度管理器（对标 TrueNAS 26 智能Scrub）
+	scrubSchedMgr := scrubsched.NewManager("/etc/nas-os/scrubsched.json", nil, nil, nil, nil, nil)
+	scrubSchedMgr.Start()
+	log.Println("✅ 智能Scrub调度管理器就绪")
+
+	// 初始化虚拟机导入导出管理器
+	vmImportMgr, err := vmimport.NewManager("/var/lib/nas-os/vmimport", "/var/lib/nas-os/vmimport/meta")
+	if err != nil {
+		log.Printf("⚠️ 虚拟机导入导出初始化警告：%v", err)
+		vmImportMgr = nil
+	} else {
+		log.Println("✅ 虚拟机导入导出模块就绪")
+	}
+
+	// 初始化S3对象存储网关（对标 MinIO/S3 兼容层）
+	s3Gateway := s3gateway.NewGateway(s3gateway.GatewayConfig{
+		StorageRoot: "/var/lib/nas-os/s3-gateway",
+		Region:      "us-east-1",
+	})
+	log.Println("✅ S3对象存储网关就绪")
+
+	// 初始化定时任务调度器
+	schedulerCfg := &scheduler.Config{
+		MaxConcurrentTasks: 10,
+		StoragePath:        "/var/lib/nas-os/scheduler",
+	}
+	schedulerMgr, err := scheduler.NewScheduler(schedulerCfg)
+	if err != nil {
+		log.Printf("⚠️ 定时任务调度器初始化警告：%v", err)
+		schedulerMgr = nil
+	} else {
+		log.Println("✅ 定时任务调度器就绪")
+	}
+
+	// 初始化智能迁移管理器（对标群晖智能数据迁移）
+	smartMigrateCfg := &smartmigrate.MigrateConfig{
+		MaxConcurrent:  4,
+		ChunkSizeMB:    64,
+		VerifyChecksum: true,
+		PreservePerms:  true,
+		RetryCount:     3,
+		RetryDelaySec:  5,
+	}
+	smartMigrateMgr := smartmigrate.NewSmartMigrateManager(smartMigrateCfg)
+	log.Println("✅ 智能迁移管理器就绪")
+
+	// 初始化磁盘性能测试管理器（对标群晖 Presto Benchmark）
+	diskbenchMgr := diskbench.NewBenchmarkManager("/tmp/nas-bench")
+	log.Println("✅ 磁盘性能测试模块就绪")
+
+	// 初始化系统健康评分管理器（对标 TrueNAS Dashboard）
+	healthscoreMgr := healthscore.NewManager(&healthscore.Config{CheckIntervalSec: 300})
+	healthscoreMgr.RegisterChecker(&healthscore.DiskUsageChecker{MountPoint: "/", WarningPct: 80, CriticalPct: 95})
+	healthscoreMgr.RegisterChecker(&healthscore.MemoryChecker{})
+	healthscoreMgr.RegisterChecker(&healthscore.ServiceChecker{Services: []string{"smb", "nfs", "docker"}})
+	healthscoreMgr.RegisterChecker(&healthscore.TemperatureChecker{WarningC: 70, CriticalC: 85})
+	log.Println("✅ 系统健康评分模块就绪")
+
+	// 初始化高速传输管理器（对标群晖 Presto File Server）
+	fastTransferMgr := fasttransfer.NewTransferManager(&fasttransfer.Config{
+		MaxConcurrent: 4,
+		CompressLevel: 6,
+		EncryptAES:    true,
+		ChunkSizeMB:   64,
+	})
+	log.Println("✅ 高速传输模块就绪")
+
 	s := &Server{
 		engine:        engine,
 		logger:        logger,
@@ -604,6 +725,19 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		recycleCleaner: recycleCleaner,
 		notifyChanMgr:  notifyChanMgr,
 		// mediaMgr:      mediaMgr,
+		// v2.481.0 新增模块
+		activeBackupMgr: activeBackupMgr,
+		audioStationMgr: audioStationMgr,
+		drDrillMgr:      drDrillMgr,
+		driveSyncMgr:    driveSyncMgr,
+		scrubSchedMgr:   scrubSchedMgr,
+		vmImportMgr:     vmImportMgr,
+		s3Gateway:       s3Gateway,
+		schedulerMgr:    schedulerMgr,
+		smartMigrateMgr: smartMigrateMgr,
+		diskbenchMgr:    diskbenchMgr,
+		healthscoreMgr:  healthscoreMgr,
+		fastTransferMgr: fastTransferMgr,
 	}
 
 	// 设置 WebDAV 认证函数
@@ -999,6 +1133,54 @@ func (s *Server) setupRoutes() {
 
 		// 多渠道通知管理 API
 		notifychannel.NewHandlers(s.notifyChanMgr).RegisterRoutes(api)
+
+		// ========== v2.481.0 新增路由 ==========
+
+		// 整机备份 API（对标群晖 Active Backup for Business）
+		if s.activeBackupMgr != nil {
+			activebackup.NewHandlers(s.activeBackupMgr).RegisterRoutes(api)
+		}
+
+		// 音乐中心 API（对标群晖 Audio Station）
+		if s.audioStationMgr != nil {
+			audiostation.NewHandlers(s.audioStationMgr).RegisterRoutes(api)
+		}
+
+		// 容灾演练 API（对标群晖 DR Drill）
+		if s.drDrillMgr != nil {
+			drdrill.NewHandlers(s.drDrillMgr, s.logger).RegisterRoutes(api)
+		}
+
+		// Drive Sync API（对标群晖 Drive Sync）
+		if s.driveSyncMgr != nil {
+			drivesync.NewHandler(s.driveSyncMgr).RegisterRoutes(api)
+		}
+
+		// 智能Scrub调度 API（对标 TrueNAS 26 智能Scrub）
+		if s.scrubSchedMgr != nil {
+			scrubsched.NewHandlers(s.scrubSchedMgr).RegisterRoutes(api)
+		}
+
+		// 虚拟机导入导出 API
+		if s.vmImportMgr != nil {
+			vmimport.NewHandlers(s.vmImportMgr).RegisterRoutes(api)
+		}
+
+		// S3对象存储网关 API
+		if s.s3Gateway != nil {
+			s3Handler := s3gateway.NewHandler(s.s3Gateway)
+			s3Handler.RegisterRoutes(api)
+		}
+
+		// 定时任务调度器 API
+		if s.schedulerMgr != nil {
+			scheduler.NewHandlers(s.schedulerMgr).RegisterRoutes(api)
+		}
+
+		// 智能迁移 API
+		if s.smartMigrateMgr != nil {
+			smartmigrate.NewHandlers(s.smartMigrateMgr).RegisterRoutes(api)
+		}
 
 		// ========== 媒体中心 ==========
 		// if s.mediaMgr != nil {
