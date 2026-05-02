@@ -512,17 +512,16 @@ func identifyLicenseFromContent(content string) string {
 		return "MIT"
 	case strings.Contains(lower, "permission is hereby granted, free of charge"):
 		return "MIT"
-	case strings.Contains(lower, "gnu general public license") && strings.Contains(lower, "version 3"):
-		if strings.Contains(lower, "affero") {
-			return "AGPL-3.0"
-		}
-		return "GPL-3.0"
-	case strings.Contains(lower, "gnu general public license") && strings.Contains(lower, "version 2"):
-		return "GPL-2.0"
+	case strings.Contains(lower, "affero") && strings.Contains(lower, "general public license"):
+		return "AGPL-3.0"
 	case strings.Contains(lower, "gnu lesser general public license") && strings.Contains(lower, "version 3"):
 		return "LGPL-3.0"
 	case strings.Contains(lower, "gnu lesser general public license") && strings.Contains(lower, "version 2"):
 		return "LGPL-2.1"
+	case strings.Contains(lower, "gnu general public license") && strings.Contains(lower, "version 3"):
+		return "GPL-3.0"
+	case strings.Contains(lower, "gnu general public license") && strings.Contains(lower, "version 2"):
+		return "GPL-2.0"
 	case strings.Contains(lower, "mozilla public license") && strings.Contains(lower, "2.0"):
 		return "MPL-2.0"
 	case strings.Contains(lower, "bsd 3-clause") || strings.Contains(lower, "redistribution and use in source and binary"):
