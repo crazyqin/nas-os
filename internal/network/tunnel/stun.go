@@ -136,7 +136,7 @@ func (c *STUNClient) querySTUNServer(ctx context.Context, server string) (net.IP
 	}
 
 	// Resolve server address
-	addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", host, port))
+	addr, err := net.ResolveUDPAddr("udp", net.JoinHostPort(host, fmt.Sprintf("%d", port)))
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to resolve STUN server: %w", err)
 	}

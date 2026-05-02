@@ -323,7 +323,7 @@ func (fi *FailoverIntegration) isNodeUnhealthy(node *FailoverNode) bool {
 
 // tcpProbeNode TCP探活节点
 func (fi *FailoverIntegration) tcpProbeNode(node *FailoverNode) bool {
-	addr := fmt.Sprintf("%s:%d", node.Address, node.Port)
+	addr := net.JoinHostPort(node.Address, fmt.Sprintf("%d", node.Port))
 	ctx, cancel := context.WithTimeout(fi.ctx, 3*time.Second)
 	defer cancel()
 
