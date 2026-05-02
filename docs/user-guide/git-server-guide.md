@@ -135,6 +135,15 @@ git add .gitattributes
 ### Q: 支持 CI/CD 吗？
 Webhook 可以触发外部 CI/CD 系统（Jenkins、Drone 等）。未来版本将内置轻量 CI。
 
+---
+
+## 相关指南
+
+- [整机备份与灾难恢复](backup-disaster-recovery-guide.md) — Git 仓库数据自动保护
+- [Smart Cron 定时任务](smart-cron.md) — 配合 Webhook 实现自动化
+- [LXC 容器沙箱](lxc-sandbox-guide.md) — 在沙箱中测试 CI/CD 流程
+- [VPN Server](vpn-server-guide.md) — 安全远程访问 Git Server
+
 ## API 参考
 
 ### 仓库管理

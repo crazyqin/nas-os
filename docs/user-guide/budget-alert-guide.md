@@ -1,6 +1,6 @@
 # 预算告警管理指南
 
-> **版本**: v2.477.0+ | **适用版本**: NAS-OS v2.477.0 及以上
+> **版本**: v2.482.0 | **适用版本**: NAS-OS v2.477.0 及以上
 
 ## 概述
 
@@ -122,3 +122,12 @@ curl http://localhost:8080/api/v1/budgets/alerts
 3. **定期审查**：每月检查成本汇总，优化存储使用
 4. **关联通知**：配置告警通知渠道，确保及时收到预警
 5. **成本核算**：定期更新 `cost_per_gb` 反映实际存储成本
+
+---
+
+## 相关指南
+
+- [智能配额与数据保留](quota-retention-guide.md) — 配额管理与数据生命周期
+- [合规仪表盘](compliance-dashboard-guide.md) — 存储合规检查与安全评分
+- [监控仪表板](dashboard-guide.md) — 系统整体健康监控
+- [分布式监控](distributed-monitoring-guide.md) — 多节点统一监控

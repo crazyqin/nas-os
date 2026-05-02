@@ -202,3 +202,12 @@ curl -X PUT http://localhost:8080/api/v1/rdp/settings \
     "max_file_size_mb": 2048
   }'
 ```
+
+---
+
+## 相关指南
+
+- [VPN Server](vpn-server-guide.md) — 配合 VPN 实现加密远程访问
+- [NAT 穿透](natpierce.md) — 从外网访问 NAS 上的远程桌面
+- [LXC 容器沙箱](lxc-sandbox-guide.md) — 在沙箱中测试远程连接
+- [合规仪表盘](compliance-dashboard-guide.md) — 远程会话审计与合规检查

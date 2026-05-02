@@ -4,6 +4,35 @@
 
 ---
 
+## 🚀 快速入门
+
+新用户按以下顺序阅读，10 分钟上手 NAS-OS：
+
+1. [监控仪表板](dashboard-guide.md) — 了解系统状态和健康评分
+2. [Fusion Pool 存储分层](fusion-pool-guide.md) — 配置存储池
+3. [DriveSync 文件同步](DriveSync.md) — 多设备文件同步
+4. [整机备份与灾难恢复](backup-disaster-recovery-guide.md) — 数据安全保障
+5. [TrueSearch 全文搜索](true-search.md) — 快速找到任何文件
+
+## 🔧 常见操作速查
+
+| 我想要… | 查看指南 |
+|---------|----------|
+| 远程访问家里的电脑 | [远程桌面网关](remote-desktop-guide.md) |
+| 从外网安全访问 NAS | [VPN Server](vpn-server-guide.md) / [NAT 穿透](natpierce.md) |
+| 自托管代码仓库 | [Git Server](git-server-guide.md) |
+| 听音乐 | [Audio Station](audio-station-guide.md) |
+| 搜索文件 | [TrueSearch 全文搜索](true-search.md) |
+| 同步多台设备文件 | [DriveSync](DriveSync.md) |
+| 监控硬盘健康 | [NVMe 健康监控](nvme-health-guide.md) / [Scrub 调度](scrub-scheduling-guide.md) |
+| 加密敏感数据 | [加密存储](encryption-guide.md) |
+| 设置存储配额 | [智能配额与数据保留](quota-retention-guide.md) |
+| 管理预算和成本 | [预算告警管理](budget-alert-guide.md) |
+| 安全合规检查 | [合规仪表盘](compliance-dashboard-guide.md) |
+| 隔离运行应用 | [LXC 容器沙箱](lxc-sandbox-guide.md) |
+
+---
+
 ## 存储与数据管理
 
 | 指南 | 说明 |
@@ -53,6 +82,15 @@
 | [无 Root 管理员](rootless-admin-guide.md) | 命令白名单 / 细粒度权限 / 审计日志 |
 | [合规仪表盘](compliance-dashboard-guide.md) | CIS/STIG/GDPR 合规检查 / 安全评分 |
 | [预算告警管理](budget-alert-guide.md) | 多级预算 / 三级告警 / 成本分析 |
+
+---
+
+## 📖 文档导航提示
+
+- **[NAT 穿透](natpierce.md)** 与 **[VPN Server](vpn-server-guide.md)** 配合使用，实现安全外网访问
+- **[远程桌面网关](remote-desktop-guide.md)** 配合 **[VPN](vpn-server-guide.md)** 可实现加密远程办公
+- **[Git Server](git-server-guide.md)** 的 Webhook 可触发 **[Smart Cron](smart-cron.md)** 自动化任务
+- **[LXC 容器沙箱](lxc-sandbox-guide.md)** 适合在隔离环境中测试应用，不影响主系统
 
 ---
 
