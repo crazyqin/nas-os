@@ -123,7 +123,7 @@ func (c *ClamAVClient) dial() (net.Conn, error) {
 	if c.config.Transport == TransportSocket {
 		return net.Dial("unix", c.config.Socket)
 	}
-	addr := fmt.Sprintf("%s:%d", c.config.Host, c.config.Port)
+	addr := net.JoinHostPort(c.config.Host, fmt.Sprintf("%d", c.config.Port))
 	return net.Dial("tcp", addr)
 }
 

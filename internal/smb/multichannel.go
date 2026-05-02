@@ -503,7 +503,7 @@ func (m *MultichannelManager) checkChannelHealth(channel *SMBChannel) int {
 func (m *MultichannelManager) testSMBConnection(ip string, port int) bool {
 	// 简化的连接测试
 	timeout := time.Second * 2
-	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", ip, port), timeout)
+	conn, err := net.DialTimeout("tcp", net.JoinHostPort(ip, fmt.Sprintf("%d", port)), timeout)
 	if err != nil {
 		return false
 	}

@@ -282,7 +282,7 @@ func (m *Manager) CreatePort(ctx context.Context, transport, address string, por
 
 	// Start TCP listener
 	if transport == "tcp" {
-		listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", address, port))
+		listener, err := net.Listen("tcp", net.JoinHostPort(address, fmt.Sprintf("%d", port)))
 		if err != nil {
 			return nil, fmt.Errorf("failed to start listener: %w", err)
 		}
