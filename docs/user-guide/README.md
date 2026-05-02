@@ -1,6 +1,6 @@
 # NAS-OS 用户指南索引
 
-> **更新日期**: 2026-05-02 | **适用版本**: v2.481.0
+> **更新日期**: 2026-05-02 | **适用版本**: v2.482.0
 
 ---
 
@@ -39,6 +39,9 @@
 
 | 指南 | 说明 |
 |------|------|
+| [VPN Server](vpn-server-guide.md) | WireGuard/OpenVPN VPN 服务配置 |
+| [Git Server](git-server-guide.md) | 自托管 Git 仓库管理 |
+| [远程桌面网关](remote-desktop-guide.md) | 浏览器 RDP/VNC 远程访问 |
 | [NAT 穿透](natpierce.md) | 外网访问 NAS |
 | [NAT 隧道](../USER_GUIDE_NAT_TUNNEL.md) | Cloudflare Tunnel 配置 |
 
@@ -53,4 +56,4 @@
 
 ---
 
-*索引版本：v2.481.0 | 最后更新：2026-05-02*
+*索引版本：v2.482.0 | 最后更新：2026-05-02*

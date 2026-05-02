@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.477.0 Stable (2026-05-01)
+> **最新版本**: v2.482.0 Stable (2026-05-02)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -119,6 +119,12 @@
 | 🔗 **全局文件锁** | **跨节点文件锁定/冲突检测/分布式锁服务** | ✅ **v2.475.0新增** |
 | 🛡️ **设备信任** | **设备指纹识别/信任管理/新设备风险评估** | ✅ **v2.475.0新增** |
 | 📦 **应用商店增强** | **批量安装/依赖解析/推荐引擎/沙箱隔离** | ✅ **v2.475.0新增** |
+| 🌐 **VPN Server** | WireGuard/OpenVPN内置/用户授权/连接监控 | ✅ **v2.482.0新增** |
+| 📦 **Git Server** | 自托管Git仓库/Webhook/SSH+HTTP/权限管理 | ✅ **v2.482.0新增** |
+| 🖥️ **远程桌面网关** | 浏览器RDP/VNC/剪贴板同步/文件传输 | ✅ **v2.482.0新增** |
+| 🏠 **家庭仪表盘** | 智能家居+NAS统一面板/可配置Widget | ✅ **v2.482.0新增** |
+| 💰 **成本预测** | 存储成本趋势预测/优化建议/多维分析 | ✅ **v2.482.0新增** |
+| 📊 **预算管理** | 企业级存储预算/审批流程/超支告警 | ✅ **v2.482.0新增** |
 
 ## 快速开始
 
