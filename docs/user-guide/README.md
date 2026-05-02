@@ -15,6 +15,8 @@
 | [NVMe 健康监控](nvme-health-guide.md) | NVMe SSD 状态监控与预警 |
 | [磁盘电源管理](disk-power-guide.md) | 硬盘休眠与节能策略 |
 | [Scrub 智能调度](scrub-scheduling-guide.md) | 数据校验避峰调度 |
+| [加密存储](encryption-guide.md) | Vault 加密卷 / 文件夹级加密 / AES-256-GCM |
+| [智能数据迁移](smart-migrate-guide.md) | 跨存储池迁移 / SHA-256 校验 / 带宽控制 |
 
 ## 数据同步与备份
 
@@ -39,6 +41,15 @@
 |------|------|
 | [NAT 穿透](natpierce.md) | 外网访问 NAS |
 | [NAT 隧道](../USER_GUIDE_NAT_TUNNEL.md) | Cloudflare Tunnel 配置 |
+
+## 系统管理与安全
+
+| 指南 | 说明 |
+|------|------|
+| [LXC 容器沙箱](lxc-sandbox-guide.md) | 轻量级隔离环境 / 内置模板 / 资源限制 |
+| [无 Root 管理员](rootless-admin-guide.md) | 命令白名单 / 细粒度权限 / 审计日志 |
+| [合规仪表盘](compliance-dashboard-guide.md) | CIS/STIG/GDPR 合规检查 / 安全评分 |
+| [预算告警管理](budget-alert-guide.md) | 多级预算 / 三级告警 / 成本分析 |
 
 ---
 
