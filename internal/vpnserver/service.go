@@ -26,6 +26,9 @@ type Service struct {
 	// Active connections
 	sessions map[string]*ConnectionSession
 
+	// Fail2Ban 安全防护
+	fail2ban *Fail2Ban
+
 	// Network config
 	dnsConfig *DNSConfig
 	natConfig *NATConfig
@@ -38,11 +41,12 @@ type Service struct {
 // NewService creates a new VPN server service.
 func NewService() *Service {
 	return &Service{
-		wgInterfaces:  make(map[string]*WireGuardInterface),
+		wgInterfaces:   make(map[string]*WireGuardInterface),
 		openvpnClients: make(map[string]*OpenVPNClient),
-		users:         make(map[string]*VPNUser),
-		devices:       make(map[string]*VPNDevice),
-		sessions:      make(map[string]*ConnectionSession),
+		users:          make(map[string]*VPNUser),
+		devices:        make(map[string]*VPNDevice),
+		sessions:       make(map[string]*ConnectionSession),
+		fail2ban:       NewFail2Ban(),
 		dnsConfig: &DNSConfig{
 			PrimaryDNS:   "8.8.8.8",
 			SecondaryDNS: "8.8.4.4",
@@ -854,6 +858,38 @@ func (s *Service) MarshalJSON() ([]byte, error) {
 		Users:         s.users,
 		Devices:       s.devices,
 	})
+}
+
+// ==================== Fail2Ban 管理 ====================
+
+// GetFail2BanStatus 获取 Fail2Ban 状态
+func (s *Service) GetFail2BanStatus() Fail2BanStatus {
+	return s.fail2ban.GetStatus()
+}
+
+// Fail2BanUnblock 手动解封指定IP
+func (s *Service) Fail2BanUnblock(ip string) error {
+	return s.fail2ban.Unblock(ip)
+}
+
+// RecordLoginFail 记录登录失败（供其他模块调用）
+func (s *Service) RecordLoginFail(ip, username string) {
+	s.fail2ban.RecordFailAttempt(ip, username)
+}
+
+// IsIPBanned 检查IP是否被封禁
+func (s *Service) IsIPBanned(ip string) bool {
+	return s.fail2ban.IsBanned(ip)
+}
+
+// AddFail2BanWhiteList 将IP加入白名单
+func (s *Service) AddFail2BanWhiteList(ip string) {
+	s.fail2ban.AddToWhiteList(ip)
+}
+
+// RemoveFail2BanWhiteList 将IP从白名单移除
+func (s *Service) RemoveFail2BanWhiteList(ip string) error {
+	return s.fail2ban.RemoveFromWhiteList(ip)
 }
 
 // ==================== Deep Copy Helpers ====================

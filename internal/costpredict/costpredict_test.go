@@ -121,7 +121,7 @@ func newTestPredictor() *Predictor {
 			Project:       "ProjectA",
 			StorageType:   StorageTypeSSD,
 			Cost:          float64(1000 + i*200),
-			UsedCapacity:  int64(1000000000 + i*100000000),
+			UsedCapacity:  int64(1000000000 + i*800000000),
 			TotalCapacity: 5000000000,
 		})
 	}
