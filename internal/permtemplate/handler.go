@@ -88,15 +88,15 @@ func (h *Handler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
 }
 
-// ApplyRequest 应用请求
-type ApplyRequest struct {
+// SingleApplyRequest 单用户应用请求
+type SingleApplyRequest struct {
 	UserID string `json:"userId" binding:"required"`
 }
 
 // Apply 应用模板
 func (h *Handler) Apply(c *gin.Context) {
 	id := c.Param("id")
-	var req ApplyRequest
+	var req SingleApplyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
