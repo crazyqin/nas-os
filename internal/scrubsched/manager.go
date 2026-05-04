@@ -75,6 +75,7 @@ type Manager struct {
 	ioHistory    map[string][]*IOLoad      // poolID -> IO负载历史
 	scheduler    *Scheduler                // 调度引擎
 	analyzer     *IOAnalyzer               // IO分析器
+	persister    *Persister                // 持久化管理器
 	poolProvider PoolProvider              // 存储池接口
 	scrubExec    ScrubExecutor             // Scrub执行器
 	ioCollector  IOCollector               // IO采集器
@@ -115,12 +116,24 @@ func (m *Manager) Start() {
 	m.running = true
 	m.mu.Unlock()
 
+	// 启动持久化（会自动加载历史数据）
+	if m.persister != nil {
+		m.persister.Start()
+	}
+
 	// 启动调度引擎
 	go m.scheduler.Start()
 	// 启动IO分析器
 	go m.analyzer.Start()
 
 	log.Println("[scrubsched] 智能Scrub调度管理器已启动")
+}
+
+// SetPersister 设置持久化管理器.
+func (m *Manager) SetPersister(p *Persister) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.persister = p
 }
 
 // Stop 停止管理器.
@@ -133,6 +146,12 @@ func (m *Manager) Stop() {
 	}
 	m.running = false
 	close(m.stopCh)
+
+	// 停止持久化（会自动保存一次）
+	if m.persister != nil {
+		m.persister.Stop()
+	}
+
 	log.Println("[scrubsched] 智能Scrub调度管理器已停止")
 }
 

@@ -306,7 +306,7 @@ func (c *Catalog) loadBuiltinTemplates() {
 					RestartPolicy: "unless-stopped",
 				},
 			},
-			Notes: "默认密码: nas123456，请及时修改",
+			Notes: "⚠️ 默认密码 nas123456，首次部署后务必修改！建议通过环境变量覆盖 POSTGRES_PASSWORD",
 		},
 		{
 			ID:          "redis",

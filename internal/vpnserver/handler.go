@@ -30,6 +30,9 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/vpnserver/dns", h.handleDNS)
 	mux.HandleFunc("/api/v1/vpnserver/nat", h.handleNAT)
 	mux.HandleFunc("/api/v1/vpnserver/config/", h.handleConfig)
+	mux.HandleFunc("/api/v1/vpnserver/fail2ban/status", h.handleFail2BanStatus)
+	mux.HandleFunc("/api/v1/vpnserver/fail2ban/unblock", h.handleFail2BanUnblock)
+	mux.HandleFunc("/api/v1/vpnserver/fail2ban/whitelist", h.handleFail2BanWhiteList)
 }
 
 // writeJSON writes a JSON response with the given status code.
@@ -520,5 +523,66 @@ func (h *Handler) handleConfig(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(config))
 	default:
 		writeError(w, http.StatusBadRequest, "unknown protocol: "+protocol)
+	}
+}
+
+// ==================== Fail2Ban Handlers ====================
+
+// handleFail2BanStatus handles GET /api/v1/vpnserver/fail2ban/status.
+func (h *Handler) handleFail2BanStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	status := h.service.fail2ban.GetStatus()
+	writeSuccess(w, status)
+}
+
+// handleFail2BanUnblock handles POST /api/v1/vpnserver/fail2ban/unblock.
+func (h *Handler) handleFail2BanUnblock(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	var req struct {
+		IP string `json:"ip"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.IP == "" {
+		writeError(w, http.StatusBadRequest, "invalid request: ip required")
+		return
+	}
+	if err := h.service.fail2ban.Unblock(req.IP); err != nil {
+		writeError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	writeSuccess(w, nil)
+}
+
+// handleFail2BanWhiteList handles POST /api/v1/vpnserver/fail2ban/whitelist.
+func (h *Handler) handleFail2BanWhiteList(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	var req struct {
+		IP     string `json:"ip"`
+		Action string `json:"action"` // "add" or "remove"
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.IP == "" {
+		writeError(w, http.StatusBadRequest, "invalid request: ip required")
+		return
+	}
+	switch req.Action {
+	case "add":
+		h.service.fail2ban.AddToWhiteList(req.IP)
+		writeSuccess(w, nil)
+	case "remove":
+		if err := h.service.fail2ban.RemoveFromWhiteList(req.IP); err != nil {
+			writeError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		writeSuccess(w, nil)
+	default:
+		writeError(w, http.StatusBadRequest, "action must be 'add' or 'remove'")
 	}
 }

@@ -1,0 +1,121 @@
+# syntax=docker/dockerfile:1.4
+# NAS-OS Dockerfile.optimized
+# 基于 Alpine 的轻量多阶段构建，最终镜像 < 200MB
+# 比 distroless 版本多一个 shell，方便调试
+#
+# 构建命令:
+#   docker build -f Dockerfile.optimized -t ghcr.io/nas-os/nas-os:alpine .
+#   docker build -f Dockerfile.optimized --build-arg VERSION=v1.0.0 -t ghcr.io/nas-os/nas-os:v1.0.0-alpine .
+#
+# 多架构构建:
+#   docker buildx build -f Dockerfile.optimized --platform linux/amd64,linux/arm64 -t ghcr.io/nas-os/nas-os:alpine .
+
+# ========== 阶段一: Go 构建 ==========
+FROM golang:1.26-alpine AS builder
+
+ARG VERSION=dev
+ARG BUILD_TIME
+ARG REVISION
+ARG TARGETOS
+ARG TARGETARCH
+
+WORKDIR /build
+
+# 安装最小构建依赖
+RUN apk add --no-cache git ca-certificates tzdata upx
+
+# 复制 go mod（利用 Docker 缓存层）
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
+# 复制源码
+COPY cmd/ ./cmd/
+COPY internal/ ./internal/
+COPY pkg/ ./pkg/
+COPY webui/ ./webui/
+COPY configs/ ./configs/
+
+# 静态编译
+ENV CGO_ENABLED=0
+
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
+    -o nasd ./cmd/nasd && \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
+    -o nasctl ./cmd/nasctl && \
+    # UPX 压缩减小体积
+    upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX压缩跳过"
+
+# ========== 阶段二: 健康检查工具 ==========
+FROM golang:1.26-alpine AS healthcheck-builder
+
+COPY <<EOF /tmp/health.go
+package main
+
+import (
+	"net/http"
+	"os"
+)
+
+func main() {
+	resp, err := http.Get("http://localhost:8080/api/v1/health")
+	if err != nil || resp.StatusCode != 200 {
+		os.Exit(1)
+	}
+	resp.Body.Close()
+}
+EOF
+RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /healthcheck /tmp/health.go
+
+# ========== 阶段三: 运行时（Alpine，< 200MB） ==========
+FROM alpine:3.20
+
+ARG VERSION=dev
+ARG BUILD_TIME
+ARG REVISION
+
+# OCI 标签
+LABEL maintainer="NAS-OS Team"
+LABEL org.opencontainers.image.title="NAS-OS"
+LABEL org.opencontainers.image.description="Home NAS Management System - Alpine Runtime"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_TIME}"
+LABEL org.opencontainers.image.revision="${REVISION}"
+LABEL org.opencontainers.image.source="https://github.com/nas-os/nas-os"
+
+# 安装最小运行时依赖
+RUN apk add --no-cache \
+    ca-certificates \
+    tzdata \
+    && rm -rf /var/cache/apk/*
+
+# 复制编译产物
+COPY --from=builder --chmod=755 /build/nasd /usr/local/bin/nasd
+COPY --from=builder --chmod=755 /build/nasctl /usr/local/bin/nasctl
+COPY --from=healthcheck-builder --chmod=755 /healthcheck /usr/local/bin/healthcheck
+
+# 复制默认配置
+COPY --from=builder --chmod=644 /build/configs/default.yaml /etc/nas-os/config.yaml
+
+# 复制 Web UI 静态文件
+COPY --from=builder --chmod=644 /build/webui/ /usr/share/nas-os/webui/
+
+# 创建数据目录
+RUN mkdir -p /var/lib/nas-os/data /var/lib/nas-os/scrub /var/log/nas-os
+
+# 暴露端口
+EXPOSE 8080/tcp
+EXPOSE 445/tcp 139/tcp
+EXPOSE 2049/tcp 111/tcp 111/udp
+EXPOSE 20048/tcp
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD ["/usr/local/bin/healthcheck"]
+
+ENTRYPOINT ["nasd"]
+CMD ["--config", "/etc/nas-os/config.yaml"]

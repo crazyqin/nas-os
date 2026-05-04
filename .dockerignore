@@ -2,41 +2,54 @@
 .git
 .gitignore
 .gitattributes
+.gitmodules
 
-# Documentation
+# Documentation（保留 swagger）
 *.md
 !README.md
 docs/
 !docs/swagger/
 
-# Development
+# IDE / 编辑器
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+*.iml
+.project
+.classpath
+.settings/
 .air.toml
-tmp/
 
-# Build artifacts
+# 开发临时文件
+tmp/
+temp/
+
+# 构建产物
 nasd
 nasctl
 *.exe
-*.exe~
 *.dll
 *.so
 *.dylib
-coverage.out
-coverage*.out
-coverage*.html
-gosec-report*.sarif
-gosec-report*.json
-gosec-scan*.json
+*.test
 
-# Test files
+# 测试相关
 *_test.go
 tests/
 test/
+coverage.out
+coverage*.out
+coverage*.html
+
+# 安全扫描报告
+gosec-report*.sarif
+gosec-report*.json
+gosec-scan*.json
+govulncheck*.json
+SECURITY_AUDIT*.md
+*.sarif
 
 # CI/CD
 .github/
@@ -45,42 +58,29 @@ test/
 Makefile
 Makefile.*
 
-# Docker
+# Docker 元文件（防止递归）
 Dockerfile*
 docker-compose*.yml
 .docker/
 
-# Logs and temporary files
+# 日志
 logs/
 *.log
-tmp/
-temp/
 
-# OS
+# OS 文件
 .DS_Store
 Thumbs.db
 
-# Backup and reports
+# 备份和报告
 *.bak
 reports/
-*.sarif
-backup
+backup/
 
-# Security audit files
-SECURITY_AUDIT*.md
-govulncheck*.json
-
-# Coverage reports
-coverage_*.out
-
-# Test binaries
-*.test
-
-# Node modules
+# Node modules（webui 不需要 node 构建）
 webui/node_modules/
 
-# IDE
-*.iml
-.project
-.classpath
-.settings/
+# 监控配置（运行时通过卷挂载）
+monitoring/
+
+# 部署脚本（不需要在镜像中）
+deploy/

@@ -59,6 +59,16 @@ func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.setCurrency(w, r)
 	case path == "convert" && r.Method == http.MethodGet:
 		h.convertCost(w, r)
+	case path == "trend/report" && r.Method == http.MethodGet:
+		h.trendReport(w, r)
+	case path == "trend/moving-averages" && r.Method == http.MethodGet:
+		h.movingAverages(w, r)
+	case path == "trend/seasonality" && r.Method == http.MethodGet:
+		h.seasonality(w, r)
+	case path == "trend/anomalies" && r.Method == http.MethodGet:
+		h.anomalies(w, r)
+	case path == "trend/accuracy" && r.Method == http.MethodGet:
+		h.predictionAccuracy(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -377,5 +387,93 @@ func (h *Handlers) convertCost(w http.ResponseWriter, r *http.Request) {
 		"original_cny":  amount,
 		"target":        currency,
 		"converted":     converted,
+	})
+}
+
+// ========== 趋势分析端点 ==========
+
+// trendReport 趋势分析报告.
+func (h *Handlers) trendReport(w http.ResponseWriter, r *http.Request) {
+	periods := 3
+	if p := r.URL.Query().Get("periods"); p != "" {
+		if v, err := strconv.Atoi(p); err == nil && v > 0 {
+			periods = v
+		}
+	}
+	analyzer := NewTrendAnalyzer(h.predictor)
+	report, err := analyzer.GenerateTrendReport(periods)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, report)
+}
+
+// movingAverages 移动平均分析.
+func (h *Handlers) movingAverages(w http.ResponseWriter, r *http.Request) {
+	analyzer := NewTrendAnalyzer(h.predictor)
+	results, err := analyzer.AnalyzeMovingAverages()
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"moving_averages": results,
+		"total":           len(results),
+	})
+}
+
+// seasonality 季节性检测.
+func (h *Handlers) seasonality(w http.ResponseWriter, r *http.Request) {
+	analyzer := NewTrendAnalyzer(h.predictor)
+	results, err := analyzer.DetectSeasonality()
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"seasonality": results,
+		"total":       len(results),
+	})
+}
+
+// anomalies 成本异常检测.
+func (h *Handlers) anomalies(w http.ResponseWriter, r *http.Request) {
+	threshold := 0.2
+	if t := r.URL.Query().Get("threshold"); t != "" {
+		if v, err := strconv.ParseFloat(t, 64); err == nil && v > 0 {
+			threshold = v
+		}
+	}
+	analyzer := NewTrendAnalyzer(h.predictor)
+	results, err := analyzer.DetectAnomalies(threshold)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"anomalies": results,
+		"total":     len(results),
+		"threshold": threshold,
+	})
+}
+
+// predictionAccuracy 预测精度验证.
+func (h *Handlers) predictionAccuracy(w http.ResponseWriter, r *http.Request) {
+	trainRatio := 0.7
+	if t := r.URL.Query().Get("train_ratio"); t != "" {
+		if v, err := strconv.ParseFloat(t, 64); err == nil && v > 0 && v < 1 {
+			trainRatio = v
+		}
+	}
+	analyzer := NewTrendAnalyzer(h.predictor)
+	results, err := analyzer.ValidatePredictionAccuracy(trainRatio)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"accuracy":    results,
+		"train_ratio": trainRatio,
 	})
 }
