@@ -1,6 +1,6 @@
 # NAS-OS 用户指南索引
 
-> **更新日期**: 2026-05-02 | **适用版本**: v2.482.0
+> **更新日期**: 2026-05-05 | **适用版本**: v2.483.0
 
 ---
 
@@ -25,6 +25,8 @@
 | 搜索文件 | [TrueSearch 全文搜索](true-search.md) |
 | 同步多台设备文件 | [DriveSync](DriveSync.md) |
 | 监控硬盘健康 | [NVMe 健康监控](nvme-health-guide.md) / [Scrub 调度](scrub-scheduling-guide.md) |
+| 智能存储分层 | [Smart Tier 智能分层](smart-tier-guide.md) |
+| 资源耗尽预测 | [资源预测告警](resource-prediction-guide.md) |
 | 加密敏感数据 | [加密存储](encryption-guide.md) |
 | 设置存储配额 | [智能配额与数据保留](quota-retention-guide.md) |
 | 管理预算和成本 | [预算告警管理](budget-alert-guide.md) |
@@ -46,6 +48,8 @@
 | [Scrub 智能调度](scrub-scheduling-guide.md) | 数据校验避峰调度 |
 | [加密存储](encryption-guide.md) | Vault 加密卷 / 文件夹级加密 / AES-256-GCM |
 | [智能数据迁移](smart-migrate-guide.md) | 跨存储池迁移 / SHA-256 校验 / 带宽控制 |
+| [Smart Tier 智能分层](smart-tier-guide.md) | I/O 模式感知 / 预取预测 / 自适应阈值 / 批量迁移 |
+| [资源预测告警](resource-prediction-guide.md) | 线性回归预测 / 四级告警 / 置信度评分 |
 
 ## 数据同步与备份
 
@@ -94,4 +98,4 @@
 
 ---
 
-*索引版本：v2.482.0 | 最后更新：2026-05-02*
+*索引版本：v2.483.0 | 最后更新：2026-05-05*
