@@ -206,8 +206,8 @@ GET /api/v1/volumes/:name/scrub/status
 
 ## 相关文档
 
-- [管理员指南](../ADMIN_GUIDE_v2.5.0.md) - 存储配置
-- [快照策略指南](../SNAPSHOT_POLICY_GUIDE.md) - 自动快照配置
+- [存储管理指南](home-dashboard-guide.md) - 存储配置
+- [快照调度指南](scrub-scheduling-guide.md) - 数据完整性检查
 
 ---
 

@@ -87,7 +87,7 @@
 | [Git Server](git-server-guide.md) | 自托管 Git 仓库管理 |
 | [远程桌面网关](remote-desktop-guide.md) | 浏览器 RDP/VNC 远程访问 |
 | [NAT 穿透](natpierce.md) | 外网访问 NAS |
-| [NAT 隧道](../USER_GUIDE_NAT_TUNNEL.md) | Cloudflare Tunnel 配置 |
+| [NAT 穿透](natpierce.md) | Cloudflare Tunnel / frp / 无需公网 IP |
 
 ## 系统管理与安全
 
@@ -114,7 +114,7 @@
 - **[Git Server](git-server-guide.md)** 的 Webhook 可触发 **[Smart Cron](smart-cron.md)** 自动化任务
 - **[LXC 容器沙箱](lxc-sandbox-guide.md)** 适合在隔离环境中测试应用，不影响主系统
 
-- **[人脸识别](face-recognition-guide.md)** 配合 **[AI 相册](../photos-guide.md)** 实现智能照片整理
+- **[人脸识别](face-recognition-guide.md)** 配合 AI 相册实现智能照片整理
 - **[AI Console](ai-console-guide.md)** 为所有 AI 功能提供隐私脱敏保护
 - **[家庭仪表盘](home-dashboard-guide.md)** 是统一监控入口，聚合各模块数据
 

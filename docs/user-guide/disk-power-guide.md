@@ -243,8 +243,8 @@ POST /api/v1/hardware/disk-power/config
 
 ## 相关文档
 
-- [DISK_SPIN_DOWN_SECURITY.md](../DISK_SPIN_DOWN_SECURITY.md) - 安全评估报告
-- [RANSOMWARE_DEFENSE.md](../RANSOMWARE_DEFENSE.md) - 勒索防护白皮书
+- [安全加固指南](encryption-guide.md) - 数据加密与安全
+- [合规仪表盘](compliance-dashboard-guide.md) - 安全合规检查
 
 ---
 

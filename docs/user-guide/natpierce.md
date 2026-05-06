@@ -453,10 +453,9 @@ nasctl tunnel register --name "NAS-Office"
 
 ## 相关文档
 
-- [网络配置指南](../NETWORK_API.md)
-- [安全最佳实践](../SECURITY_RESPONSE.md)
-- [故障排除](../TROUBLESHOOTING.md)
-- [API 参考](../API_GUIDE.md)
+- [加密存储指南](encryption-guide.md)
+- [合规仪表盘](compliance-dashboard-guide.md)
+- [健康评分指南](healthscore-guide.md)
 
 ## 获取帮助
 

@@ -226,8 +226,8 @@ cpu_alert:
 ## 相关文档
 
 - [Dashboard API 文档](../api/dashboard-api.md)
-- [性能监控指南](PERFORMANCE_MONITORING_GUIDE.md)
-- [告警配置指南](../user-guide/audit-guide.md)
+- [健康评分指南](healthscore-guide.md)
+- [分布式监控指南](distributed-monitoring-guide.md)
 
 ---
 
