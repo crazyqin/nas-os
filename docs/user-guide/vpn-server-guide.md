@@ -104,7 +104,7 @@ WireGuard 内核级实现，CPU 占用极低（< 1%）。OpenVPN 稍高，但对
 
 - [远程桌面网关](remote-desktop-guide.md) — 配合 VPN 实现加密远程办公
 - [NAT 穿透](natpierce.md) — 无需公网 IP 即可外网访问 NAS
-- [NAT 隧道](../USER_GUIDE_NAT_TUNNEL.md) — Cloudflare Tunnel 配置
+- [NAT 穿透](natpierce.md) — Cloudflare Tunnel / frp / 无需公网 IP
 - [合规仪表盘](compliance-dashboard-guide.md) — VPN 连接审计与合规检查
 
 ## API 参考

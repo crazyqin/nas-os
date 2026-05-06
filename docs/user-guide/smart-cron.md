@@ -221,9 +221,9 @@ A: 编辑任务，从目标设备列表中移除该设备，或创建单独任�
 
 ## 相关文档
 
-- [NVMe SMART 监控指南](../nvme-smart-guide.md)
-- [SMART 监控运维手册](../operations/smart-monitoring.md)
-- [磁盘健康检测 API 文档](../api/disk-health.md)
+- [NVMe SMART 监控指南](nvme-health-guide.md)
+- [健康评分指南](healthscore-guide.md)
+- [磁盘健康检测 API 文档](../api/health-api.md)
 
 ---
 
