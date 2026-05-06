@@ -35,6 +35,10 @@
 | 整理家庭照片 | [人脸识别与人物相册](face-recognition-guide.md) |
 | 自定义监控面板 | [家庭仪表盘](home-dashboard-guide.md) |
 | AI 对话隐私保护 | [AI Console 隐私脱敏](ai-console-guide.md) |
+| 测试磁盘性能 | [磁盘性能基准测试](diskbench-guide.md) |
+| 高速文件传输 | [快速传输](fasttransfer-guide.md) |
+| 查看系统健康 | [系统健康评分](healthscore-guide.md) |
+| 许可证合规审查 | [许可证合规扫描](licensescan-guide.md) |
 
 ---
 
@@ -53,6 +57,8 @@
 | [智能数据迁移](smart-migrate-guide.md) | 跨存储池迁移 / SHA-256 校验 / 带宽控制 |
 | [Smart Tier 智能分层](smart-tier-guide.md) | I/O 模式感知 / 预取预测 / 自适应阈值 / 批量迁移 |
 | [资源预测告警](resource-prediction-guide.md) | 线性回归预测 / 四级告警 / 置信度评分 |
+| [磁盘性能基准测试](diskbench-guide.md) | 顺序/随机读写 / IOPS / 延迟 / 多盘对比 |
+| [系统健康评分](healthscore-guide.md) | 多维度健康检查 / 0-100评分 / 定期巡检 |
 
 ## 数据同步与备份
 
@@ -70,6 +76,8 @@
 | [监控仪表板](dashboard-guide.md) | 自定义监控与健康评分 |
 | [分布式监控](distributed-monitoring-guide.md) | 多节点统一监控 |
 | [Smart Cron 定时任务](smart-cron.md) | 智能定时任务管理 |
+| [快速传输](fasttransfer-guide.md) | AES加密 / 智能压缩 / 带宽控制 / 并发传输 |
+| [许可证合规扫描](licensescan-guide.md) | Docker/Go依赖扫描 / 白黑灰名单 / 合规报告 |
 
 ## 网络与远程访问
 
@@ -92,6 +100,10 @@
 | [家庭仪表盘](home-dashboard-guide.md) | 可配置Widget / 多布局 / Widget市场 / WebSocket实时刷新 |
 | [AI Console 隐私脱敏](ai-console-guide.md) | 多模型管理 / PII自动脱敏 / 审计日志 |
 | [人脸识别与人物相册](face-recognition-guide.md) | 人脸检测 / 特征提取 / 智能聚类 / Intel QSV加速 |
+| [磁盘性能基准测试](diskbench-guide.md) | 顺序/随机读写 / IOPS / 延迟测量 / 多盘对比 |
+| [快速传输](fasttransfer-guide.md) | AES加密 / 智能压缩 / 带宽控制 / 并发传输 |
+| [系统健康评分](healthscore-guide.md) | 多维度检查 / 0-100评分 / 三级状态 |
+| [许可证合规扫描](licensescan-guide.md) | Docker/Go依赖扫描 / 白黑灰名单 / 合规报告 |
 
 ---
 
