@@ -36,6 +36,10 @@
 | 自定义监控面板 | [家庭仪表盘](home-dashboard-guide.md) |
 | AI 对话隐私保护 | [AI Console 隐私脱敏](ai-console-guide.md) |
 | 测试磁盘性能 | [磁盘性能基准测试](diskbench-guide.md) |
+| 团队即时通讯 | [Chat 即时通讯](chat-guide.md) |
+| 网络诊断测速 | [网络测速](speedtest-guide.md) |
+| 管理云存储成本 | [云存储成本分析](cost-dashboard-guide.md) |
+| SMB多网卡加速 | [SMB 多通道](smb-multichannel-guide.md) |
 | 高速文件传输 | [快速传输](fasttransfer-guide.md) |
 | 查看系统健康 | [系统健康评分](healthscore-guide.md) |
 | 许可证合规审查 | [许可证合规扫描](licensescan-guide.md) |
@@ -78,8 +82,7 @@
 | [Smart Cron 定时任务](smart-cron.md) | 智能定时任务管理 |
 | [快速传输](fasttransfer-guide.md) | AES加密 / 智能压缩 / 带宽控制 / 并发传输 |
 | [许可证合规扫描](licensescan-guide.md) | Docker/Go依赖扫描 / 白黑灰名单 / 合规报告 |
-
-## 网络与远程访问
+| [Chat 即时通讯](chat-guide.md) | 私聊/群组/频道 / 消息管理 / 表情反应 / 未读跟踪 |
 
 | 指南 | 说明 |
 |------|------|
@@ -88,6 +91,8 @@
 | [远程桌面网关](remote-desktop-guide.md) | 浏览器 RDP/VNC 远程访问 |
 | [NAT 穿透](natpierce.md) | 外网访问 NAS |
 | [NAT 穿透](natpierce.md) | Cloudflare Tunnel / frp / 无需公网 IP |
+| [网络测速](speedtest-guide.md) | Ping / Traceroute / DNS查询 / 端口扫描 |
+| [SMB 多通道](smb-multichannel-guide.md) | 多网卡聚合 / 四种负载均衡 / 健康监控 / 故障切换 |
 
 ## 系统管理与安全
 
@@ -97,6 +102,7 @@
 | [无 Root 管理员](rootless-admin-guide.md) | 命令白名单 / 细粒度权限 / 审计日志 |
 | [合规仪表盘](compliance-dashboard-guide.md) | CIS/STIG/GDPR 合规检查 / 安全评分 |
 | [预算告警管理](budget-alert-guide.md) | 多级预算 / 三级告警 / 成本分析 |
+| [云存储成本分析](cost-dashboard-guide.md) | 多云提供商 / 成本报告 / 趋势分析 / 优化建议 / 预算告警 |
 | [家庭仪表盘](home-dashboard-guide.md) | 可配置Widget / 多布局 / Widget市场 / WebSocket实时刷新 |
 | [AI Console 隐私脱敏](ai-console-guide.md) | 多模型管理 / PII自动脱敏 / 审计日志 |
 | [人脸识别与人物相册](face-recognition-guide.md) | 人脸检测 / 特征提取 / 智能聚类 / Intel QSV加速 |
@@ -117,6 +123,10 @@
 - **[人脸识别](face-recognition-guide.md)** 配合 AI 相册实现智能照片整理
 - **[AI Console](ai-console-guide.md)** 为所有 AI 功能提供隐私脱敏保护
 - **[家庭仪表盘](home-dashboard-guide.md)** 是统一监控入口，聚合各模块数据
+- **[Chat 即时通讯](chat-guide.md)** 对标群晖 Chat，本地化团队通讯
+- **[网络测速](speedtest-guide.md)** Ping/Traceroute/DNS/端口扫描一体化诊断
+- **[云存储成本分析](cost-dashboard-guide.md)** 多云统一成本管理与优化
+- **[SMB 多通道](smb-multichannel-guide.md)** 多网卡聚合提升文件传输带宽
 
 ---
 
