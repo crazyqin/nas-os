@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.484.0 Stable (2026-05-09)
+> **最新版本**: v2.484.0 Stable (2026-05-06)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -125,6 +125,10 @@
 | 🏠 **家庭仪表盘** | 智能家居+NAS统一面板/可配置Widget | ✅ **v2.482.0新增** |
 | 💰 **成本预测** | 存储成本趋势预测/优化建议/多维分析 | ✅ **v2.482.0新增** |
 | 📊 **预算管理** | 企业级存储预算/审批流程/超支告警 | ✅ **v2.482.0新增** |
+| 💬 **Chat即时通讯** | WebSocket实时消息/群组/频道/消息搜索/未读计数 | ✅ **v2.484.0新增** |
+| ⚡ **SMB Multichannel增强** | 多通道并行传输/带宽监控/会话管理 | ✅ **v2.484.0新增** |
+| 🌐 **网络测速** | 下载/上传/延迟测试/历史记录/服务器管理 | ✅ **v2.484.0新增** |
+| ☁️ **云存储成本分析** | 多云费用追踪/对比分析/优化建议/告警 | ✅ **v2.484.0新增** |
 
 ## 快速开始
 
