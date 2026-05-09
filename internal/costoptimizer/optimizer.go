@@ -10,78 +10,6 @@ import (
 	"time"
 )
 
-// StorageTier 存储介质类型
-type StorageTier string
-
-const (
-	TierNVMe  StorageTier = "nvme"
-	TierSSD   StorageTier = "ssd"
-	TierHDD   StorageTier = "hdd"
-	TierCloud StorageTier = "cloud"
-	TierTape  StorageTier = "tape"
-)
-
-// CostProfile 成本画像（每TB每月）
-type CostProfile struct {
-	Tier          StorageTier `json:"tier"`
-	CostPerTBMonth float64    `json:"costPerTBMonth"` // 元/TB/月
-	ReadIOPS      int64       `json:"readIOPS"`       // 读IOPS上限
-	WriteIOPS     int64       `json:"writeIOPS"`      // 写IOPS上限
-	Bandwidth     int64       `json:"bandwidthMBs"`   // 带宽MB/s
-	LatencyMs     float64     `json:"latencyMs"`      // 平均延迟ms
-}
-
-// DefaultCostProfiles 默认成本画像
-var DefaultCostProfiles = map[StorageTier]CostProfile{
-	TierNVMe:  {TierNVMe, 150, 500000, 300000, 7000, 0.1},
-	TierSSD:   {TierSSD, 80, 100000, 50000, 3000, 0.2},
-	TierHDD:   {TierHDD, 15, 200, 150, 200, 10},
-	TierCloud: {TierCloud, 50, 10000, 5000, 1000, 50},
-}
-
-// StorageAllocation 存储分配
-type StorageAllocation struct {
-	Path         string      `json:"path"`
-	Tier         StorageTier `json:"tier"`
-	SizeBytes    int64       `json:"sizeBytes"`
-	UsedBytes    int64       `json:"usedBytes"`
-	AccessCount  int64       `json:"accessCount"`  // 月访问次数
-	ReadBytes    int64       `json:"readBytes"`    // 月读取量
-	WriteBytes   int64       `json:"writeBytes"`   // 月写入量
-	HotDataRatio float64     `json:"hotDataRatio"` // 热数据比例
-}
-
-// OptimizationSuggestion 优化建议
-type OptimizationSuggestion struct {
-	ID          string        `json:"id"`
-	Type        string        `json:"type"` // migrate|dedup|compress|archive|cleanup
-	Priority    string        `json:"priority"` // high|medium|low
-	Title       string        `json:"title"`
-	Description string        `json:"description"`
-	SourcePath  string        `json:"sourcePath"`
-	TargetTier  StorageTier   `json:"targetTier,omitempty"`
-	SavingsPerMonth float64   `json:"savingsPerMonth"` // 预计每月节省(元)
-	SavingsPercent  float64   `json:"savingsPercent"`  // 节省百分比
-	Effort      string        `json:"effort"` // 自动|手动|半自动
-	Action      string        `json:"action"` // 建议操作
-}
-
-// CostReport 成本报告
-type CostReport struct {
-	GeneratedAt       time.Time              `json:"generatedAt"`
-	TotalMonthlyCost  float64                `json:"totalMonthlyCost"`  // 当前月总成本
-	OptimizedCost     float64                `json:"optimizedCost"`    // 优化后月成本
-	TotalSavings      float64                `json:"totalSavings"`     // 可节省金额
-	SavingsPercent    float64                `json:"savingsPercent"`   // 节省百分比
-	CostByTier        map[StorageTier]float64 `json:"costByTier"`      // 各层级成本
-	Allocations       []StorageAllocation    `json:"allocations"`
-	Suggestions       []OptimizationSuggestion `json:"suggestions"`
-	WastedSpace       int64                  `json:"wastedSpace"`      // 浪费空间(字节)
-	DedupPotential    int64                  `json:"dedupPotential"`   // 去重潜力(字节)
-	CompressPotential int64                  `json:"compressPotential"` // 压缩潜力(字节)
-	ArchivePotential  int64                  `json:"archivePotential"`  // 归档潜力(字节)
-}
-
 // CostOptimizer 存储成本优化器
 type CostOptimizer struct {
 	profiles    map[StorageTier]CostProfile
@@ -134,12 +62,13 @@ func (co *CostOptimizer) GenerateReport() *CostReport {
 		report.SavingsPercent = (report.TotalSavings / report.TotalMonthlyCost) * 100
 	}
 
-	// 分析浪费空间和潜力
-	report.WastedSpace = co.calculateWastedSpace()
-	report.DedupPotential = co.estimateDedupPotential()
-	report.CompressPotential = co.estimateCompressPotential()
-	report.ArchivePotential = co.estimateArchivePotential()
 	report.Allocations = co.allocations
+
+	// 分析浪费空间
+	wasted := co.calculateWastedSpace()
+	report.WasteAnalysis = &WasteAnalysis{
+		TotalWastedBytes: wasted,
+	}
 
 	return report
 }
