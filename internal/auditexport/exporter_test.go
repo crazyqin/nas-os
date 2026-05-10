@@ -209,8 +209,8 @@ func TestExportFilter(t *testing.T) {
 		t.Fatalf("解析 JSON 失败: %v", err)
 	}
 
-	// 应该有 5 条记录：read, delete, login(failed), login(success), config
-	// start=11:00, end=14:00 是闭区间，包含端点
+	// 应该有 5 条记录：login(10:00), read, delete, login(13:00 failed), login(13:10 success), config
+	// 其中 login 有 3 条在范围内
 	if len(entries) != 5 {
 		t.Fatalf("时间范围过滤: 期望 5 条，实际 %d 条", len(entries))
 	}
@@ -229,15 +229,15 @@ func TestExportFilter(t *testing.T) {
 		t.Errorf("用户过滤: 期望李四，实际 %s", entries2[0].UserName)
 	}
 
-	// 测试操作类型过滤
+	// 测试操作类型过滤 (login: 10:00, 13:00, 13:10, 2:30, 17:00 = 5条)
 	filter3 := ExportFilter{
 		Actions: []string{"login"},
 	}
 	data3, _ := e.ExportJSON(filter3)
 	var entries3 []AuditEntry
 	json.Unmarshal(data3, &entries3)
-	if len(entries3) != 4 {
-		t.Fatalf("操作过滤: 期望 4 条 login，实际 %d 条", len(entries3))
+	if len(entries3) != 5 {
+		t.Fatalf("操作过滤: 期望 5 条 login，实际 %d 条", len(entries3))
 	}
 
 	// 测试结果过滤
@@ -310,12 +310,12 @@ func TestComplianceReport(t *testing.T) {
 	if len(report.TopUsers) == 0 {
 		t.Error("TopUsers 不应为空")
 	}
-	// user001 有 5 条记录，应该排第一
+	// user001 有 4 条记录（login×3 + read×1），应该排第一
 	if report.TopUsers[0].UserID != "user001" {
 		t.Errorf("TopUsers[0]: 期望 user001, 实际 %s", report.TopUsers[0].UserID)
 	}
-	if report.TopUsers[0].ActionCount != 5 {
-		t.Errorf("user001 ActionCount: 期望 5, 实际 %d", report.TopUsers[0].ActionCount)
+	if report.TopUsers[0].ActionCount != 4 {
+		t.Errorf("user001 ActionCount: 期望 4, 实际 %d", report.TopUsers[0].ActionCount)
 	}
 }
 
