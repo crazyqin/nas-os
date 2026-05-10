@@ -1,3 +1,60 @@
+## [v2.487.0] - 2026-05-10
+
+### 户部轮值 - Data Integrity BLAKE2b修复 + 新模块类型定义
+
+#### Bug修复
+- 🐛 修复 `crypto/blake2b` 导入错误 → 改用 `golang.org/x/crypto/blake2b`（Go 1.26+ 标准库不含 blake2b）
+
+#### 新增模块类型
+- 📦 `internal/dataintegrity/` - 数据完整性校验模块（BLAKE2b/SHA256/SHA512/CRC32 校验和计算、文件验证、损坏修复建议、完整性报告）
+- 📦 `internal/nvmeof/` 健康监控 - NVMe温度监控、寿命预测、性能基准测试
+- 📦 `internal/lxcmanager/types.go` - LXC容器管理器类型定义
+- 📦 `internal/storageplanner/types.go` - 存储规划器类型定义
+
+#### 质量检查
+- ✅ `go vet ./...` 全部通过
+- ✅ `go test ./...` 全部通过
+- 版本号更新至 v2.487.0
+
+---
+
+## [v2.485.0] - 2026-05-06
+
+### 第257轮开发 - 安全评分 + 审计报告（扩展v2.484.0）
+
+#### 新功能与增强
+- 🔒 安全评分模块 - 系统安全态势评分/多维度安全检查/等级评分(A-F)/历史趋势/改进建议
+- 📋 审计报告模块 - 安全审计报告生成/发现管理/合规检查(CIS/STIG/GDPR)/审计事件日志/安全扫描/JSONL导出
+
+#### 安全评分详情 (SecurityScore)
+- 多分类加权评分：网络/存储/认证/加密/备份等维度
+- 五级评分体系：A/B/C/D/F等级映射
+- 安全检查注册与执行：pass/fail/warning三态
+- 评分历史记录与趋势分析
+- 智能改进建议：按优先级(high/medium/low)排序
+- HTTP API: `/api/v1/security/*`
+
+#### 审计报告详情 (AuditReport)
+- 报告生成：自动汇总未解决发现，计算评分，生成摘要
+- 发现管理：添加/更新/解决/严重级别(Critical/High/Medium/Low/Info)
+- 合规检查：CIS/STIG/GDPR标准逐项检查
+- 审计事件日志：用户操作/资源访问/IP/结果记录
+- 安全扫描：漏洞检测/端口扫描/配置检查
+- 事件导出：按时间/用户/操作类型筛选导出
+- HTTP API: `/api/v1/audit/*`
+
+#### 文档
+- 新增安全评分用户指南
+- 新增审计报告用户指南
+
+#### 技术改进
+- 新增 internal/securityscore 模块 (4个文件, 712行)
+- 新增 internal/auditreport 模块 (4个文件, 1211行)
+- 全部模块附带完整单元测试
+- 版本号更新至 v2.485.0
+
+---
+
 ## [v2.484.0] - 2026-05-06
 
 ### 第256轮开发 - Chat即时通讯 + SMB Multichannel + 网络测速 + 云存储成本分析
