@@ -40,6 +40,8 @@
 | 网络诊断测速 | [网络测速](speedtest-guide.md) |
 | 管理云存储成本 | [云存储成本分析](cost-dashboard-guide.md) |
 | SMB多网卡加速 | [SMB 多通道](smb-multichannel-guide.md) |
+| 系统安全评分 | [安全评分](security-score-guide.md) |
+| 安全审计报告 | [审计报告](audit-report-guide.md) |
 | 高速文件传输 | [快速传输](fasttransfer-guide.md) |
 | 查看系统健康 | [系统健康评分](healthscore-guide.md) |
 | 许可证合规审查 | [许可证合规扫描](licensescan-guide.md) |
@@ -110,6 +112,8 @@
 | [快速传输](fasttransfer-guide.md) | AES加密 / 智能压缩 / 带宽控制 / 并发传输 |
 | [系统健康评分](healthscore-guide.md) | 多维度检查 / 0-100评分 / 三级状态 |
 | [许可证合规扫描](licensescan-guide.md) | Docker/Go依赖扫描 / 白黑灰名单 / 合规报告 |
+| [安全评分](security-score-guide.md) | 系统安全态势评分 / 多维度检查 / A-F等级 / 历史趋势 / 改进建议 |
+| [审计报告](audit-report-guide.md) | 安全审计报告 / 合规检查(CIS/STIG/GDPR) / 事件日志 / 安全扫描 |
 
 ---
 
@@ -127,7 +131,9 @@
 - **[网络测速](speedtest-guide.md)** Ping/Traceroute/DNS/端口扫描一体化诊断
 - **[云存储成本分析](cost-dashboard-guide.md)** 多云统一成本管理与优化
 - **[SMB 多通道](smb-multichannel-guide.md)** 多网卡聚合提升文件传输带宽
+- **[安全评分](security-score-guide.md)** 系统安全态势实时评估，及时发现安全退化
+- **[审计报告](audit-report-guide.md)** 全面安全审计，满足 CIS/STIG/GDPR 合规要求
 
 ---
 
-*索引版本：v2.483.0 | 最后更新：2026-05-06*
+*索引版本：v2.485.0 | 最后更新：2026-05-07*
