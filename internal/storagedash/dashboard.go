@@ -76,12 +76,15 @@ func (d *Dashboard) fetchOverview() (*StorageOverview, error) {
 
 	var allPools []PoolSummary
 	var allTiers []TierSummary
+	poolErrs := 0
+	tierErrs := 0
 
 	// 从所有注册的数据源收集存储池数据
 	for _, provider := range d.poolProviders {
 		pools, err := provider()
 		if err != nil {
 			d.logger.Warn("获取存储池数据失败", zap.Error(err))
+			poolErrs++
 			continue
 		}
 		allPools = append(allPools, pools...)
@@ -92,9 +95,16 @@ func (d *Dashboard) fetchOverview() (*StorageOverview, error) {
 		tiers, err := provider()
 		if err != nil {
 			d.logger.Warn("获取分层数据失败", zap.Error(err))
+			tierErrs++
 			continue
 		}
 		allTiers = append(allTiers, tiers...)
+	}
+
+	// 全部失败时返回错误
+	totalProviders := len(d.poolProviders) + len(d.tierProviders)
+	if totalProviders > 0 && poolErrs == len(d.poolProviders) && tierErrs == len(d.tierProviders) {
+		return nil, fmt.Errorf("所有数据源均获取失败")
 	}
 
 	// 汇总计算
