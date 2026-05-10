@@ -81,7 +81,7 @@ func (e *Engine) AddRule(rule TierRule) error {
 	}
 	rule.UpdatedAt = now
 	if !rule.Enabled {
-		rule.Enabled = true // 默认启用
+		// 尊重调用方设置，不强制启用
 	}
 
 	e.rules = append(e.rules, rule)
