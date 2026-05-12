@@ -1,3 +1,4 @@
+// Package speedtest 提供 REST API 处理器
 package speedtest
 
 import (
@@ -7,103 +8,166 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 速度测试 HTTP 处理器
+// response 标准响应.
+type response struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
+// Handlers 网络测速 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建新的速度测试处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册速度测试路由
-func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
-	speedtest := rg.Group("/speedtest")
+// RegisterRoutes 注册路由.
+func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
+	st := r.Group("/network/speedtest")
 	{
-		speedtest.POST("/network", h.runNetworkTest)
-		speedtest.POST("/disk", h.runDiskTest)
-		speedtest.POST("/full", h.runFullTest)
-		speedtest.GET("/history", h.getHistory)
-		speedtest.DELETE("/history", h.clearHistory)
-		speedtest.GET("/latest", h.getLatest)
+		st.POST("/run", h.RunTest)
+		st.POST("/run/download", h.RunDownloadTest)
+		st.POST("/run/upload", h.RunUploadTest)
+		st.POST("/run/latency", h.RunLatencyTest)
+		st.GET("/servers", h.ListServers)
+		st.POST("/servers", h.AddServer)
+		st.DELETE("/servers/:id", h.RemoveServer)
+		st.GET("/history", h.GetHistory)
+		st.GET("/stats", h.GetStats)
+		st.DELETE("/history", h.ClearHistory)
 	}
 }
 
-func (h *Handlers) runNetworkTest(c *gin.Context) {
-	result, err := h.manager.RunNetworkTest()
+// ========== 测试接口 ==========
+
+// RunTest 运行完整测速.
+func (h *Handlers) RunTest(c *gin.Context) {
+	var req RunTestRequest
+	// 请求体是可选的
+	_ = c.ShouldBindJSON(&req)
+
+	result, err := h.manager.RunTest(req.ServerID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"code": 0, "data": result})
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "test completed", Data: result})
 }
 
-func (h *Handlers) runDiskTest(c *gin.Context) {
-	var req struct {
-		TargetPath string `json:"target_path"`
+// RunDownloadTest 仅测试下载.
+func (h *Handlers) RunDownloadTest(c *gin.Context) {
+	var req RunTestRequest
+	_ = c.ShouldBindJSON(&req)
+
+	result, err := h.manager.RunDownloadTest(req.ServerID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
 	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "download test completed", Data: result})
+}
+
+// RunUploadTest 仅测试上传.
+func (h *Handlers) RunUploadTest(c *gin.Context) {
+	var req RunTestRequest
+	_ = c.ShouldBindJSON(&req)
+
+	result, err := h.manager.RunUploadTest(req.ServerID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "upload test completed", Data: result})
+}
+
+// RunLatencyTest 仅测试延迟.
+func (h *Handlers) RunLatencyTest(c *gin.Context) {
+	var req RunTestRequest
+	_ = c.ShouldBindJSON(&req)
+
+	result, err := h.manager.RunLatencyTest(req.ServerID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "latency test completed", Data: result})
+}
+
+// ========== 服务器接口 ==========
+
+// ListServers 列出服务器.
+func (h *Handlers) ListServers(c *gin.Context) {
+	servers := h.manager.ListServers()
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"total":   len(servers),
+			"servers": servers,
+		},
+	})
+}
+
+// AddServer 添加服务器.
+func (h *Handlers) AddServer(c *gin.Context) {
+	var req AddServerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
-		return
-	}
-	if req.TargetPath == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "target_path 不能为空"})
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
 		return
 	}
 
-	result, err := h.manager.RunDiskTest(req.TargetPath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"code": 0, "data": result})
+	server := h.manager.AddServer(req)
+	c.JSON(http.StatusCreated, response{Code: 0, Message: "created", Data: server})
 }
 
-func (h *Handlers) runFullTest(c *gin.Context) {
-	var req struct {
-		TargetPath string `json:"target_path"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
-		return
-	}
-	if req.TargetPath == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "target_path 不能为空"})
+// RemoveServer 移除服务器.
+func (h *Handlers) RemoveServer(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.manager.RemoveServer(id); err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
 		return
 	}
 
-	result, err := h.manager.RunFullTest(req.TargetPath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"code": 0, "data": result})
+	c.JSON(http.StatusOK, response{Code: 0, Message: "removed"})
 }
 
-func (h *Handlers) getHistory(c *gin.Context) {
-	limitStr := c.Query("limit")
-	limit := 10 // 默认返回 10 条
-	if limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			limit = l
-		}
+// ========== 历史接口 ==========
+
+// GetHistory 获取历史记录.
+func (h *Handlers) GetHistory(c *gin.Context) {
+	limitStr := c.DefaultQuery("limit", "50")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 50
 	}
 
 	history := h.manager.GetHistory(limit)
-	c.JSON(http.StatusOK, gin.H{"code": 0, "data": history})
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"total":   len(history),
+			"history": history,
+		},
+	})
 }
 
-func (h *Handlers) clearHistory(c *gin.Context) {
+// GetStats 获取统计数据.
+func (h *Handlers) GetStats(c *gin.Context) {
+	stats := h.manager.GetStats()
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: stats})
+}
+
+// ClearHistory 清除历史记录.
+func (h *Handlers) ClearHistory(c *gin.Context) {
 	h.manager.ClearHistory()
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "历史记录已清空"})
-}
-
-func (h *Handlers) getLatest(c *gin.Context) {
-	result := h.manager.GetLatestResult()
-	if result == nil {
-		c.JSON(http.StatusOK, gin.H{"code": 0, "data": nil, "message": "暂无测试记录"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"code": 0, "data": result})
+	c.JSON(http.StatusOK, response{Code: 0, Message: "history cleared"})
 }
