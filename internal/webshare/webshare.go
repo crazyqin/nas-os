@@ -4,6 +4,7 @@
 package webshare
 
 import (
+	"archive/zip"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -921,9 +922,7 @@ func (h *HTTPHandler) DownloadFile(c *gin.Context) {
 
 	if info.IsDir() {
 		// 目录下载 - 创建 ZIP
-		c.Header("Content-Type", "application/zip")
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.zip", filepath.Base(absPath)))
-		// TODO: 实现 ZIP 打包下载
+		h.downloadDirAsZip(c, absPath, filepath.Base(absPath))
 		return
 	}
 
@@ -931,6 +930,67 @@ func (h *HTTPHandler) DownloadFile(c *gin.Context) {
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filepath.Base(absPath)))
 	c.Header("Content-Type", h.manager.fileManager.GetMimeType(filepath.Base(absPath)))
 	c.File(absPath)
+}
+
+// downloadDirAsZip 将目录打包为 ZIP 下载
+func (h *HTTPHandler) downloadDirAsZip(c *gin.Context, dirPath, baseName string) {
+	c.Header("Content-Type", "application/zip")
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.zip", baseName))
+
+	zipWriter := zip.NewWriter(c.Writer)
+	defer zipWriter.Close()
+
+	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// 获取相对路径
+		relPath, err := filepath.Rel(dirPath, path)
+		if err != nil {
+			return err
+		}
+
+		// 跳过根目录
+		if relPath == "." {
+			return nil
+		}
+
+		// 创建 ZIP 文件头
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+		header.Name = filepath.ToSlash(relPath)
+		header.Method = zip.Deflate
+
+		// 如果是目录，添加斜杠
+		if info.IsDir() {
+			header.Name += "/"
+			_, err = zipWriter.CreateHeader(header)
+			return err
+		}
+
+		// 创建文件写入器
+		writer, err := zipWriter.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		// 打开并写入文件
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		_, err = io.Copy(writer, file)
+		return err
+	})
+
+	if err != nil {
+		log.Printf("ZIP打包失败: %v", err)
+	}
 }
 
 // GetThumbnail 获取缩略图
