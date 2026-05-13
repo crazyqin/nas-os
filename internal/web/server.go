@@ -30,6 +30,7 @@ import (
 	"nas-os/internal/healthscore"
 	"nas-os/internal/iscsi"
 	"nas-os/internal/lock"
+	"nas-os/internal/logcenter"
 	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
@@ -166,6 +167,8 @@ type Server struct {
 	thermalMgr     *thermal.Manager
 	fileindexMgr   *fileindex.Indexer
 	webterminalMgr *webterminal.Manager
+	// v2.490.0 新增模块
+	logcenterMgr   *logcenter.Manager
 }
 
 // NewServer 创建 Web 服务器.
@@ -639,6 +642,10 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	webterminalMgr := webterminal.NewManager(logger)
 	log.Println("✅ Web终端模块就绪")
 
+	// 初始化日志中心管理器（对标群晖 Log Center）
+	logcenterMgr := logcenter.NewManager(logger, logcenter.DefaultConfig())
+	log.Println("✅ 日志中心模块就绪")
+
 	s := &Server{
 		engine:        engine,
 		logger:        logger,
@@ -764,6 +771,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		thermalMgr:     thermalMgr,
 		fileindexMgr:   fileindexMgr,
 		webterminalMgr: webterminalMgr,
+		// v2.490.0 新增模块
+		logcenterMgr:   logcenterMgr,
 	}
 
 	// 设置 WebDAV 认证函数
@@ -1223,6 +1232,11 @@ func (s *Server) setupRoutes() {
 		// Web终端 API（WebSocket SSH终端）
 		if s.webterminalMgr != nil {
 			webterminal.NewHandlers(s.logger, s.webterminalMgr).RegisterRoutes(api)
+		}
+
+		// 日志中心 API（对标群晖 Log Center）
+		if s.logcenterMgr != nil {
+			logcenter.NewHandlers(s.logger, s.logcenterMgr).RegisterRoutes(api)
 		}
 
 		// ========== 媒体中心 ==========
