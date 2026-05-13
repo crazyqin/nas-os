@@ -23,6 +23,7 @@ import (
 	"nas-os/internal/drdrill"
 	"nas-os/internal/drivesync"
 	"nas-os/internal/fasttransfer"
+	"nas-os/internal/fileindex"
 	"nas-os/internal/files"
 	ftp "nas-os/internal/ftp"
 	"nas-os/internal/hardware"
@@ -57,6 +58,7 @@ import (
 	"nas-os/internal/storage/nvmeof"
 	"nas-os/internal/system"
 	"nas-os/internal/tags"
+	"nas-os/internal/thermal"
 	"nas-os/internal/tiering"
 	"nas-os/internal/trash"
 	"nas-os/internal/tunnel"
@@ -66,6 +68,7 @@ import (
 	"nas-os/internal/vm"
 	"nas-os/internal/vmimport"
 	"nas-os/internal/webdav"
+	"nas-os/internal/webterminal"
 	"nas-os/internal/webhook"
 	"nas-os/internal/wol"
 	"nas-os/internal/zfs"
@@ -159,6 +162,10 @@ type Server struct {
 	diskbenchMgr    *diskbench.BenchmarkManager
 	healthscoreMgr  *healthscore.Manager
 	fastTransferMgr *fasttransfer.TransferManager
+	// v2.485.0 新增模块
+	thermalMgr     *thermal.Manager
+	fileindexMgr   *fileindex.Indexer
+	webterminalMgr *webterminal.Manager
 }
 
 // NewServer 创建 Web 服务器.
@@ -617,6 +624,21 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	})
 	log.Println("✅ 高速传输模块就绪")
 
+	// 初始化温控管理器（系统散热与温控管理）
+	thermalMgr := thermal.NewManager(logger)
+	if err := thermalMgr.LoadZones(); err != nil {
+		log.Printf("⚠️ 温控管理加载警告：%v", err)
+	}
+	log.Println("✅ 温控管理模块就绪")
+
+	// 初始化文件索引器（全文索引与搜索）
+	fileindexMgr := fileindex.NewIndexer(logger, "/mnt")
+	log.Println("✅ 文件索引模块就绪")
+
+	// 初始化Web终端管理器（WebSocket SSH终端）
+	webterminalMgr := webterminal.NewManager(logger)
+	log.Println("✅ Web终端模块就绪")
+
 	s := &Server{
 		engine:        engine,
 		logger:        logger,
@@ -738,6 +760,10 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		diskbenchMgr:    diskbenchMgr,
 		healthscoreMgr:  healthscoreMgr,
 		fastTransferMgr: fastTransferMgr,
+		// v2.485.0 新增模块
+		thermalMgr:     thermalMgr,
+		fileindexMgr:   fileindexMgr,
+		webterminalMgr: webterminalMgr,
 	}
 
 	// 设置 WebDAV 认证函数
@@ -1180,6 +1206,23 @@ func (s *Server) setupRoutes() {
 		// 智能迁移 API
 		if s.smartMigrateMgr != nil {
 			smartmigrate.NewHandlers(s.smartMigrateMgr).RegisterRoutes(api)
+		}
+
+		// ========== v2.485.0 新增路由 ==========
+
+		// 温控管理 API（系统散热与温控管理）
+		if s.thermalMgr != nil {
+			thermal.NewHandlers(s.logger, s.thermalMgr).RegisterRoutes(api)
+		}
+
+		// 文件索引 API（全文索引与搜索）
+		if s.fileindexMgr != nil {
+			fileindex.NewHandlers(s.logger, s.fileindexMgr).RegisterRoutes(api)
+		}
+
+		// Web终端 API（WebSocket SSH终端）
+		if s.webterminalMgr != nil {
+			webterminal.NewHandlers(s.logger, s.webterminalMgr).RegisterRoutes(api)
 		}
 
 		// ========== 媒体中心 ==========
