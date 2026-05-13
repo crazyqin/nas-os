@@ -61,17 +61,18 @@ func (d *Dashboard) GetOverview() (*StorageOverview, error) {
 	d.mu.RUnlock()
 
 	// 缓存失效，重新获取
-	return d.fetchOverview()
+	result, _, err := d.fetchOverview()
+	return result, err
 }
 
 // fetchOverview 从数据源获取存储概览
-func (d *Dashboard) fetchOverview() (*StorageOverview, error) {
+func (d *Dashboard) fetchOverview() (*StorageOverview, bool, error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
 	// 二次检查（避免并发重复拉取）
 	if d.cachedOverview != nil && time.Since(d.cacheTime) < d.cacheTTL {
-		return d.cachedOverview, nil
+		return d.cachedOverview, false, nil
 	}
 
 	var allPools []PoolSummary
@@ -101,10 +102,11 @@ func (d *Dashboard) fetchOverview() (*StorageOverview, error) {
 		allTiers = append(allTiers, tiers...)
 	}
 
-	// 全部失败时返回错误
+	// 全部失败时返回空概览
 	totalProviders := len(d.poolProviders) + len(d.tierProviders)
-	if totalProviders > 0 && poolErrs == len(d.poolProviders) && tierErrs == len(d.tierProviders) {
-		return nil, fmt.Errorf("所有数据源均获取失败")
+	allFailed := totalProviders > 0 && poolErrs == len(d.poolProviders) && tierErrs == len(d.tierProviders)
+	if allFailed {
+		d.logger.Warn("所有数据源均获取失败，返回空概览")
 	}
 
 	// 汇总计算
@@ -130,7 +132,7 @@ func (d *Dashboard) fetchOverview() (*StorageOverview, error) {
 	d.cachedOverview = overview
 	d.cacheTime = time.Now()
 
-	return overview, nil
+	return overview, allFailed, nil
 }
 
 // evaluateHealth 根据存储池状态和使用率评估健康等级
@@ -345,9 +347,12 @@ func (d *Dashboard) RefreshCache() error {
 	d.mu.Unlock()
 
 	// 重新拉取数据填充缓存
-	_, err := d.fetchOverview()
+	_, allFailed, err := d.fetchOverview()
 	if err != nil {
 		return fmt.Errorf("刷新缓存失败: %w", err)
+	}
+	if allFailed {
+		return fmt.Errorf("所有数据源均获取失败")
 	}
 
 	d.logger.Info("缓存已刷新")
