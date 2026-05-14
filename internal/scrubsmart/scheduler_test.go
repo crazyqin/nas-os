@@ -245,11 +245,12 @@ func TestSchedulerIOThreshold(t *testing.T) {
 	s.mu.Lock()
 	s.state = StateRunning
 	// 设置 IO 负载超过阈值
-	s.ioLoad = &IOLoad{
+	s.ioLoadOverride = &IOLoad{
 		ReadMBps:  200.0, // 超过 100 阈值
 		WriteMBps: 10.0,
 		Timestamp: time.Now(),
 	}
+	s.ioLoad = s.ioLoadOverride
 	s.mu.Unlock()
 
 	// 调用 tick 触发 IO 检查（tick 内部自行加锁）

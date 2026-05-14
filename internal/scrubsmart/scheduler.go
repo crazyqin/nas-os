@@ -31,6 +31,7 @@ type Scheduler struct {
 	logger      *zap.Logger
 	progress    *ScrubProgress
 	ioLoad      *IOLoad
+	ioLoadOverride *IOLoad // 测试用：非 nil 时跳过真实 IO 读取
 	lastError   string
 	cancelCtx   context.CancelFunc
 	wg          sync.WaitGroup
@@ -380,6 +381,10 @@ func (s *Scheduler) updateProgressLocked() {
 
 // updateIOLoad 更新 IO 负载.
 func (s *Scheduler) updateIOLoad() {
+	if s.ioLoadOverride != nil {
+		s.ioLoad = s.ioLoadOverride
+		return
+	}
 	load, err := s.readIOLoad()
 	if err != nil {
 		s.logger.Debug("读取 IO 负载失败", zap.Error(err))
