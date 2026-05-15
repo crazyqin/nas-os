@@ -1,34 +1,34 @@
 package netprobe
 
 import (
-\t"testing"
+	"testing"
 )
 
 func TestNewManager(t *testing.T) {
-\tcfg := &Config{Enabled: true, Interval: 60}
-\tm := NewManager(cfg)
-\tif m == nil {
-\t\tt.Fatal("NewManager returned nil")
-\t}
+	cfg := &Config{Enabled: true, Interval: 60}
+	m := NewManager(cfg)
+	if m == nil {
+		t.Fatal("NewManager returned nil")
+	}
 }
 
 func TestManagerStartStop(t *testing.T) {
-\tcfg := &Config{Enabled: true, Interval: 60}
-\tm := NewManager(cfg)
-\t
-\terr := m.Start()
-\tif err != nil {
-\t\tt.Fatalf("Start failed: %v", err)
-\t}
-\tif !m.IsRunning() {
-\t\tt.Fatal("Manager should be running")
-\t}
-\t
-\terr = m.Stop()
-\tif err != nil {
-\t\tt.Fatalf("Stop failed: %v", err)
-\t}
-\tif m.IsRunning() {
-\t\tt.Fatal("Manager should be stopped")
-\t}
+	cfg := &Config{Enabled: true, Interval: 60}
+	m := NewManager(cfg)
+	
+	err := m.Start()
+	if err != nil {
+		t.Fatalf("Start failed: %v", err)
+	}
+	if !m.IsRunning() {
+		t.Fatal("Manager should be running")
+	}
+	
+	err = m.Stop()
+	if err != nil {
+		t.Fatalf("Stop failed: %v", err)
+	}
+	if m.IsRunning() {
+		t.Fatal("Manager should be stopped")
+	}
 }

@@ -1,51 +1,51 @@
 package sysbackup
 
 import (
-\t"sync"
+	"sync"
 )
 
 // 系统备份模块 - 配置备份与恢复
 type Manager struct {
-\tmu      sync.RWMutex
-\tconfig  *Config
-\trunning bool
+	mu      sync.RWMutex
+	config  *Config
+	running bool
 }
 
 // Config 配置
 type Config struct {
-\tEnabled     bool   `json:"enabled"`
-\tInterval    int    `json:"interval"`
+	Enabled     bool   `json:"enabled"`
+	Interval    int    `json:"interval"`
 }
 
 // NewManager 创建管理器
 func NewManager(cfg *Config) *Manager {
-\treturn &Manager{
-\t\tconfig: cfg,
-\t}
+	return &Manager{
+		config: cfg,
+	}
 }
 
 // Start 启动
 func (m *Manager) Start() error {
-\tm.mu.Lock()
-\tdefer m.mu.Unlock()
-\tif m.running {
-\t\treturn nil
-\t}
-\tm.running = true
-\treturn nil
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.running {
+		return nil
+	}
+	m.running = true
+	return nil
 }
 
 // Stop 停止
 func (m *Manager) Stop() error {
-\tm.mu.Lock()
-\tdefer m.mu.Unlock()
-\tm.running = false
-\treturn nil
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.running = false
+	return nil
 }
 
 // IsRunning 运行状态
 func (m *Manager) IsRunning() bool {
-\tm.mu.RLock()
-\tdefer m.mu.RUnlock()
-\treturn m.running
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.running
 }
