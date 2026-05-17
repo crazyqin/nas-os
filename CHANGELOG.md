@@ -1,49 +1,31 @@
-## [v2.491.0] - 2026-05-15
+## [v2.491.0] - 2026-05-17
 
-### Smart Dedup智能去重 + CloudSync多云同步 + Health Probe健康探针 + Security Audit Reporter安全审计报告
+### 通知中心 REST API（工部轮值 - 对标群晖 Notification Center）
 
 #### 新功能与增强
 
-##### 🔄 Smart Dedup 智能去重模块
-- 基于内容哈希的文件级智能去重
-- 块级去重支持，节省存储空间50%+
-- 去重策略配置：全量/增量/选择性去重
-- 去重报告：空间节省统计、重复文件分析
-- 自动去重调度与手动触发
-- 去重回滚支持，保障数据安全
-- HTTP API: `/api/v1/smartdedup/*`
+##### 🔔 通知中心 API
+- 新增 Gin HTTP 处理器，提供完整的通知中心 REST API
+- 支持通知发送、历史记录查询、渠道管理、规则管理、模板管理
+- 统计接口支持时间范围过滤
+- 渠道测试接口，支持验证渠道配置
+- 规则测试接口，支持模拟通知匹配
 
-##### ☁️ CloudSync Manager 多云同步管理器
-- 统一多云存储同步管理：阿里云/腾讯云/AWS/GDrive/OneDrive/百度网盘
-- 智能同步策略：实时/定时/事件触发三种模式
-- 冲突解决引擎：6种策略可选（保留两者/覆盖/重命名等）
-- 同步队列管理：优先级排序、带宽控制、断点续传
-- 多维度监控：同步延迟/成功率/带宽使用实时统计
-- HTTP API: `/api/v1/cloudsync/*`
-
-##### 🏥 Health Probe 健康探针系统
-- 系统健康状态全面检测：CPU/内存/磁盘/网络/服务
-- 多级探针配置：快速检测/深度检测/自定义检测
-- 健康评分算法：0-100分，自动评级(Healthy/Degraded/Unhealthy)
-- 探针调度器：定时执行/手动触发/事件驱动
-- 健康趋势分析：历史数据可视化，异常自动告警
-- HTTP API: `/api/v1/healthprobe/*`
-
-##### 🛡️ Security Audit Reporter 安全审计报告
-- 自动化安全审计报告生成
-- 合规检查框架：CIS/STIG/GDPR全覆盖
-- 审计发现管理：发现记录/优先级/修复建议/跟踪状态
-- 安全评分系统：多维度评分/等级划分/趋势分析
-- 审计事件日志：用户操作/资源访问/安全事件完整记录
-- 报告导出：PDF/Excel/JSON格式，支持定时自动发送
-- HTTP API: `/api/v1/securityaudit/*`
+##### 📡 API 端点
+- `POST /api/v1/notifications` - 发送通知
+- `GET /api/v1/notifications/history` - 查询历史记录
+- `GET /api/v1/notifications/stats` - 获取统计信息
+- `GET/POST/PUT/DELETE /api/v1/notifications/channels` - 渠道 CRUD
+- `POST /api/v1/notifications/channels/:id/test` - 测试渠道
+- `GET/POST/PUT/DELETE /api/v1/notifications/rules` - 规则 CRUD
+- `POST /api/v1/notifications/rules/:id/toggle` - 切换规则状态
+- `GET/POST/PUT/DELETE /api/v1/notifications/templates` - 模板 CRUD
+- `POST /api/v1/notifications/templates/:id/render` - 渲染模板
 
 #### 技术改进
-- 新增 internal/smartdedup 模块
-- 新增 internal/cloudsync 模块
-- 新增 internal/healthprobe 模块
-- 新增 internal/securityaudit 模块
-- 版本号更新至 v2.491.0
+- 集成到 Web 服务器路由
+- 与现有 notification 模块无缝对接
+- 支持多渠道推送（邮件、Webhook、WebSocket、企业微信、钉钉、Telegram）
 
 ---
 
