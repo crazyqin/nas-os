@@ -31,6 +31,7 @@ import (
 	"nas-os/internal/iscsi"
 	"nas-os/internal/lock"
 	"nas-os/internal/logcenter"
+	"nas-os/internal/notification"
 	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
@@ -169,6 +170,8 @@ type Server struct {
 	webterminalMgr *webterminal.Manager
 	// v2.490.0 新增模块
 	logcenterMgr   *logcenter.Manager
+	// v2.491.0 新增模块
+	notificationSvc *notification.Service
 }
 
 // NewServer 创建 Web 服务器.
@@ -646,6 +649,14 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	logcenterMgr := logcenter.NewManager(logger, logcenter.DefaultConfig())
 	log.Println("✅ 日志中心模块就绪")
 
+	// 初始化通知中心服务（对标群晖 Notification Center）
+	notificationSvc, err := notification.NewService(nil)
+	if err != nil {
+		log.Printf("⚠️ 通知中心初始化失败: %v", err)
+	} else {
+		log.Println("✅ 通知中心模块就绪")
+	}
+
 	s := &Server{
 		engine:        engine,
 		logger:        logger,
@@ -773,6 +784,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		webterminalMgr: webterminalMgr,
 		// v2.490.0 新增模块
 		logcenterMgr:   logcenterMgr,
+		// v2.491.0 新增模块
+		notificationSvc: notificationSvc,
 	}
 
 	// 设置 WebDAV 认证函数
@@ -1237,6 +1250,12 @@ func (s *Server) setupRoutes() {
 		// 日志中心 API（对标群晖 Log Center）
 		if s.logcenterMgr != nil {
 			logcenter.NewHandlers(s.logger, s.logcenterMgr).RegisterRoutes(api)
+		}
+
+		// ========== 通知中心 ==========
+		// v2.491.0 工部新增 - 对标群晖 Notification Center
+		if s.notificationSvc != nil {
+			notification.NewGinHandler(s.notificationSvc).RegisterRoutes(api)
 		}
 
 		// ========== 媒体中心 ==========
