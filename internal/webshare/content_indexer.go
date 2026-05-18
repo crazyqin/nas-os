@@ -285,8 +285,7 @@ func (ci *ContentIndexer) indexFile(ctx context.Context, filePath string, forceR
 	}
 
 	// 创建元数据
-	metadata := ci.metadataPool.Get().(*FileMetadata)
-	defer ci.metadataPool.Put(metadata)
+	metadata := &FileMetadata{}
 
 	// 重置元数据
 	*metadata = FileMetadata{
@@ -547,7 +546,7 @@ func (ci *ContentIndexer) detectLanguage(text string) string {
 		}
 	}
 
-	if chineseCount > englishCount*2 {
+	if chineseCount > englishCount {
 		return "zh"
 	} else if englishCount > 0 {
 		return "en"
