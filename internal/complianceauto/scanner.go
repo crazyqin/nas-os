@@ -4,7 +4,6 @@ package complianceauto
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 )
