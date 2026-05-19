@@ -4,7 +4,6 @@ package zerotrust
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
