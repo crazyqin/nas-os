@@ -228,7 +228,7 @@ func (e *Engine) EvaluateAccess(ctx context.Context, req *AccessRequest) (*Acces
 		Allowed:   true,
 		Reason:    "access granted",
 		SessionID: session.ID,
-		ExpiresAt: session.ExpiresAt,
+		ExpiresAt: &session.ExpiresAt,
 		RuleID:    rule.ID,
 	}, nil
 }
