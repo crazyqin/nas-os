@@ -12,6 +12,8 @@
 name: Compatibility Check
 
 on:
+  push:
+    branches: [master, develop]
   pull_request:
     branches: [master, develop]
   workflow_dispatch:
@@ -58,7 +60,15 @@ jobs:
 
       - name: 测试检查
         run: |
-          go test -short ./... 2>&1 || echo "⚠️ 部分测试失败"
+          echo "## 🧪 Go ${{ matrix.go-version }} 测试结果" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if go test -short ./... 2>&1; then
+            echo "✅ 测试全部通过" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ 部分测试失败（非阻塞）" >> $GITHUB_STEP_SUMMARY
+            echo "测试失败不阻塞兼容性检查，但需要关注" >> $GITHUB_STEP_SUMMARY
+          fi
 
   # ========== Docker Compose 配置验证 ==========
   compose-check:
