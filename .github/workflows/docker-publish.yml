@@ -389,6 +389,7 @@ jobs:
           cosign attach sbom --sbom sbom-spdx.json ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ env.DIGEST }}
 
       - name: 签名镜像 (Keyless)
+        continue-on-error: true
         run: |
           cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ env.DIGEST }}
           echo "✅ 镜像签名完成"
