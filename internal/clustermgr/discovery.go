@@ -347,7 +347,8 @@ func (d *ServiceDiscoverer) checkService(service *ServiceInfo) {
 
 // checkHTTP HTTP健康检查.
 func (d *ServiceDiscoverer) checkHTTP(service *ServiceInfo) bool {
-	url := fmt.Sprintf("http://%s:%d%s", service.Address, service.Port, d.config.HealthCheckPath)
+	host := net.JoinHostPort(service.Address, fmt.Sprintf("%d", service.Port))
+	url := fmt.Sprintf("http://%s%s", host, d.config.HealthCheckPath)
 
 	client := &http.Client{
 		Timeout: d.config.HealthCheckTimeout,
@@ -370,7 +371,7 @@ func (d *ServiceDiscoverer) checkGRPC(service *ServiceInfo) bool {
 
 // checkTCP TCP健康检查.
 func (d *ServiceDiscoverer) checkTCP(service *ServiceInfo) bool {
-	addr := fmt.Sprintf("%s:%d", service.Address, service.Port)
+	addr := net.JoinHostPort(service.Address, fmt.Sprintf("%d", service.Port))
 	conn, err := net.DialTimeout("tcp", addr, d.config.HealthCheckTimeout)
 	if err != nil {
 		return false

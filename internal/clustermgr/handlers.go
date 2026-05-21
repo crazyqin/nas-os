@@ -316,7 +316,7 @@ func (h *Handlers) registerService(c *gin.Context) {
 	c.JSON(http.StatusOK, response{
 		Code:    0,
 		Message: "服务注册成功",
-		Data:    service,
+		Data:    &service,
 	})
 }
 
