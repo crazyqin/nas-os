@@ -1,6 +1,11 @@
 ## [v2.492.0] - 2026-05-21
 
-### 邮件服务、活动洞察、双因素认证（对标群晖/TrueNAS）
+### 修复类型重复定义 + 新增邮件服务/活动洞察/双因素认证
+
+#### 编译修复
+- 修复 complianceauto 包 Remediator 类型重复定义（types.go 与 remediator.go 冲突）
+- 修复 containerorch 包 HealthChecker 类型重复定义（types.go 与 healthchecker.go 冲突）
+- 移除 types.go 中的桩实现，保留完整实现文件
 
 #### 新功能与增强
 

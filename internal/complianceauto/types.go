@@ -3,7 +3,6 @@
 package complianceauto
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -272,30 +271,4 @@ func (s *ComplianceStats) UpdateScore(newScore float64) {
 	}
 }
 
-// Remediator 合规修复器
-type Remediator struct{}
 
-// NewRemediator 创建修复器
-func NewRemediator() *Remediator {
-	return &Remediator{}
-}
-
-// GetRemediations 获取修复建议列表
-func (r *Remediator) GetRemediations(scan *ComplianceScan) []RemediationAction {
-	return nil
-}
-
-// GetRemediation 获取单个修复建议
-func (r *Remediator) GetRemediation(id string) (*RemediationAction, error) {
-	return nil, fmt.Errorf("remediation not found: %s", id)
-}
-
-// ExecuteRemediation 执行单个修复
-func (r *Remediator) ExecuteRemediation(id string) (*RemediationAction, error) {
-	return nil, fmt.Errorf("remediation not found: %s", id)
-}
-
-// ExecuteAll 批量执行修复
-func (r *Remediator) ExecuteAll(scan *ComplianceScan, maxSeverity SeverityLevel, dryRun bool) ([]RemediationAction, error) {
-	return nil, nil
-}
