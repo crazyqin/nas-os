@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.490.61 Stable (2026-05-12)
+> **最新版本**: v2.492.0 Stable (2026-05-21)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -98,6 +98,9 @@
 | 📧 **Email Moderation** | **邮件审核管控/多级审核策略/审计追踪** | ✅ **v2.490.61新增** |
 | 🔄 **Smart Domain Sync** | **选择性OU同步/最小权限原则** | ✅ **v2.490.61新增** |
 | 📊 **SMB 审计日志** | **SMB操作审计/文件追踪/用户记录/多通道告警** | ✅ **v2.490.61新增** |
+| 📧 **邮件服务** | **SMTP/IMAP服务/域名管理/用户配额/对标群晖MailPlus** | ✅ **v2.492.0新增** |
+| 📊 **活动洞察** | **设备健康监控/实时指标采集/多级告警/对标群晖Active Insight** | ✅ **v2.492.0新增** |
+| 🔐 **双因素认证** | **TOTP/HOTP支持/二维码生成/备份码管理/对标TrueNAS 2FA** | ✅ **v2.492.0新增** |
 | 🌐 **SMB 多通道聚合** | **多网卡并行传输/自适应负载均衡/自动故障切换** | ✅ **v2.490.61新增** |
 | 👤 **无 Root 管理员** | **Rootless Admin/命令白名单/审计日志/对标TrueNAS** | ✅ **v2.490.61新增** |
 | 📦 **LXC 容器沙箱** | **轻量级隔离环境/资源限制/内置模板/对标TrueNAS** | ✅ **v2.490.61新增** |
