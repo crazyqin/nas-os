@@ -329,43 +329,4 @@ func (s *ZeroTrustStats) GetSnapshot() *ZeroTrustStats {
 	}
 }
 
-// AuditLogger 审计日志记录器
-type AuditLogger struct {
-	path string
-}
 
-// NewAuditLogger 创建审计日志记录器
-func NewAuditLogger(path string) (*AuditLogger, error) {
-	return &AuditLogger{path: path}, nil
-}
-
-// LogAccessDenied 记录访问拒绝
-func (a *AuditLogger) LogAccessDenied(req *AccessRequest, reason string) {}
-
-// LogAccessGranted 记录访问允许
-func (a *AuditLogger) LogAccessGranted(req *AccessRequest, ruleID, sessionID string) {}
-
-// LogPolicyViolation 记录策略违规
-func (a *AuditLogger) LogPolicyViolation(req *AccessRequest, policyID, reason string) {}
-
-// LogAuditEvent 记录审计事件
-func (a *AuditLogger) LogAuditEvent(req *AccessRequest, policyID, event string) {}
-
-// LogSessionRevoked 记录会话撤销
-func (a *AuditLogger) LogSessionRevoked(sessionID, subjectID string) {}
-
-// LogPolicyChange 记录策略变更
-func (a *AuditLogger) LogPolicyChange(action, policyID, policyName string) {}
-
-// Close 关闭审计日志
-func (a *AuditLogger) Close() error { return nil }
-
-// GetLogs 获取审计日志
-func (a *AuditLogger) GetLogs(page, pageSize int, eventType, severity, subjectID, allowed string) interface{} {
-	return map[string]interface{}{
-		"logs":      []interface{}{},
-		"total":     0,
-		"page":      page,
-		"pageSize":  pageSize,
-	}
-}
