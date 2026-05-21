@@ -278,7 +278,7 @@ type ComplianceDashboard struct {
 	LastAuditTime        *time.Time               `json:"last_audit_time,omitempty"`
 	LastAuditScore       int                      `json:"last_audit_score"`
 	StandardsStatus      []StandardStatusItem     `json:"standards_status"`
-	BaselineStatusItems  []BaselineStatusItem     `json:"baseline_status"`
+	BaselineStatusItems  []BaselineStatusItem     `json:"baseline_status_items"`
 	RecentAlerts         []AuditAlert             `json:"recent_alerts"`
 	ComplianceTrend      []TrendDataPoint         `json:"compliance_trend"`
 }

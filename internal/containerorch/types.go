@@ -3,6 +3,7 @@
 package containerorch
 
 import (
+	"context"
 	"sync"
 	"time"
 )
@@ -499,4 +500,44 @@ func (s *ClusterStats) GetSnapshot() *ClusterStats {
 		TotalServices:        s.TotalServices,
 		LastUpdated:          s.LastUpdated,
 	}
+}
+
+// HealthChecker 容器健康检查器
+type HealthChecker struct {
+	manager *Manager
+	stopCh  chan struct{}
+}
+
+// NewHealthChecker 创建健康检查器
+func NewHealthChecker(manager *Manager) *HealthChecker {
+	return &HealthChecker{
+		manager: manager,
+		stopCh:  make(chan struct{}),
+	}
+}
+
+// Start 启动健康检查
+func (h *HealthChecker) Start(ctx context.Context) {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-h.stopCh:
+			return
+		case <-ticker.C:
+			h.check()
+		}
+	}
+}
+
+// Stop 停止健康检查
+func (h *HealthChecker) Stop() {
+	close(h.stopCh)
+}
+
+// check 执行一次健康检查
+func (h *HealthChecker) check() {
+	// 健康检查逻辑
 }
