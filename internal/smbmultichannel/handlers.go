@@ -39,6 +39,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		smb.GET("/sessions/:id/stats", h.GetSessionStats)
 		smb.GET("/stats", h.GetThroughputStats)
 		smb.GET("/bandwidth/history", h.GetBandwidthHistory)
+
+		// 增强功能路由
+		smb.GET("/channel/stats", h.GetChannelStats)
+		smb.GET("/channel/health", h.GetChannelHealth)
+		smb.GET("/audit", h.ListAuditEntries)
+		smb.POST("/enable", h.EnableMultichannel)
+		smb.POST("/disable", h.DisableMultichannel)
+		smb.POST("/load-balance-mode", h.SetLoadBalanceMode)
 	}
 }
 
@@ -169,5 +177,81 @@ func (h *Handlers) GetBandwidthHistory(c *gin.Context) {
 			"total":   len(history),
 			"history": history,
 		},
+	})
+}
+
+// ========== 增强功能接口 ==========
+
+// GetChannelStats 获取通道统计信息.
+func (h *Handlers) GetChannelStats(c *gin.Context) {
+	stats := h.manager.GetChannelStats()
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: stats})
+}
+
+// GetChannelHealth 获取通道健康状态.
+func (h *Handlers) GetChannelHealth(c *gin.Context) {
+	health := h.manager.GetChannelHealth()
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"total":  len(health),
+			"health": health,
+		},
+	})
+}
+
+// ListAuditEntries 获取审计日志.
+func (h *Handlers) ListAuditEntries(c *gin.Context) {
+	limitStr := c.DefaultQuery("limit", "100")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 100
+	}
+
+	entries := h.manager.ListAuditEntries(limit)
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: AuditLogResponse{
+			Total:   len(entries),
+			Entries: entries,
+		},
+	})
+}
+
+// EnableMultichannel 启用 Multichannel.
+func (h *Handlers) EnableMultichannel(c *gin.Context) {
+	clientIP := c.ClientIP()
+	result := h.manager.EnableMultichannel(clientIP)
+	c.JSON(http.StatusOK, response{Code: 0, Message: result.Message, Data: result})
+}
+
+// DisableMultichannel 禁用 Multichannel.
+func (h *Handlers) DisableMultichannel(c *gin.Context) {
+	clientIP := c.ClientIP()
+	result := h.manager.DisableMultichannel(clientIP)
+	c.JSON(http.StatusOK, response{Code: 0, Message: result.Message, Data: result})
+}
+
+// SetLoadBalanceMode 设置负载均衡模式.
+func (h *Handlers) SetLoadBalanceMode(c *gin.Context) {
+	var req SetLoadBalanceModeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	clientIP := c.ClientIP()
+	err := h.manager.SetLoadBalanceMode(req.Mode, clientIP)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "load balance mode updated",
+		Data: gin.H{"mode": req.Mode},
 	})
 }
