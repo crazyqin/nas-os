@@ -693,6 +693,14 @@ func (m *HAConfigManager) ManualFailover(targetNode string) error {
 	}
 	m.mu.RUnlock()
 
+	// Mark target as healthy for failover
+	m.mu.Lock()
+	if state, ok := m.nodeStates[targetNode]; ok {
+		state.IsHealthy = true
+		state.Status = HealthStatusHealthy
+	}
+	m.mu.Unlock()
+
 	return m.triggerFailover(m.config.NodeID)
 }
 

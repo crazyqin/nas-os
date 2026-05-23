@@ -17,24 +17,43 @@ type Manager struct {
 	channels     map[string]*ChannelInfo
 	sessions     map[string]*MultichannelSession
 	history      []BandwidthHistoryItem
+	health       map[string]*ChannelHealth
+	auditLog     []AuditEntry
+	stats        *ChannelStats
 	mu           sync.RWMutex
 	maxHistory   int
+	maxAudit     int
 }
 
 // NewManager 创建 SMB Multichannel 管理器.
 func NewManager() *Manager {
-	return &Manager{
+	m := &Manager{
 		config: &ChannelConfig{
-			Enabled:        false,
-			MaxChannels:    4,
-			InterfaceNames: []string{},
-			MinSpeed:       1000, // 1 Gbps
+			Enabled:         false,
+			MaxChannels:     4,
+			InterfaceNames:  []string{},
+			MinSpeed:        1000, // 1 Gbps
+			MinBandwidth:    100,  // 100 Mbps
+			LoadBalanceMode: "round-robin",
+			JumboFrames:     false,
+			RDMAEnabled:     false,
 		},
 		channels:   make(map[string]*ChannelInfo),
 		sessions:   make(map[string]*MultichannelSession),
 		history:    make([]BandwidthHistoryItem, 0),
+		health:     make(map[string]*ChannelHealth),
+		auditLog:   make([]AuditEntry, 0),
+		stats: &ChannelStats{
+			PerChannelBandwidth: make(map[string]int),
+		},
 		maxHistory: 1440, // 24h at 1-min intervals
+		maxAudit:   10000,
 	}
+
+	// 记录初始化审计
+	m.addAuditEntry("system", "127.0.0.1", "SMB Multichannel manager initialized")
+
+	return m
 }
 
 // ========== 配置管理 ==========
@@ -76,10 +95,32 @@ func (m *Manager) UpdateConfig(req UpdateConfigRequest) (*ChannelConfig, error) 
 		}
 		m.config.MinSpeed = *req.MinSpeed
 	}
+	if req.MinBandwidth != nil {
+		if *req.MinBandwidth < 0 {
+			return nil, fmt.Errorf("min_bandwidth must be non-negative")
+		}
+		m.config.MinBandwidth = *req.MinBandwidth
+	}
+	if req.LoadBalanceMode != nil {
+		validModes := map[string]bool{"round-robin": true, "weighted": true, "hash": true}
+		if !validModes[*req.LoadBalanceMode] {
+			return nil, fmt.Errorf("invalid load_balance_mode: %s (must be round-robin, weighted, or hash)", *req.LoadBalanceMode)
+		}
+		m.config.LoadBalanceMode = *req.LoadBalanceMode
+	}
+	if req.JumboFrames != nil {
+		m.config.JumboFrames = *req.JumboFrames
+	}
+	if req.RDMAEnabled != nil {
+		m.config.RDMAEnabled = *req.RDMAEnabled
+	}
 
 	cfg := *m.config
 	cfg.InterfaceNames = make([]string, len(m.config.InterfaceNames))
 	copy(cfg.InterfaceNames, m.config.InterfaceNames)
+
+	m.addAuditEntry("system", "127.0.0.1", "Config updated")
+
 	return &cfg, nil
 }
 
@@ -422,4 +463,201 @@ func (m *Manager) SimulateTraffic() {
 	if len(m.history) > m.maxHistory {
 		m.history = m.history[len(m.history)-m.maxHistory:]
 	}
+}
+
+// ========== 增强功能 ==========
+
+// GetChannelConfig 获取完整通道配置（增强版）.
+func (m *Manager) GetChannelConfig() *ChannelConfig {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	cfg := *m.config
+	if m.config.InterfaceNames != nil {
+		cfg.InterfaceNames = make([]string, len(m.config.InterfaceNames))
+		copy(cfg.InterfaceNames, m.config.InterfaceNames)
+	}
+	return &cfg
+}
+
+// UpdateChannelConfig 更新通道配置（增强版）.
+func (m *Manager) UpdateChannelConfig(req UpdateConfigRequest) (*ChannelConfig, error) {
+	return m.UpdateConfig(req)
+}
+
+// GetChannelStats 获取通道统计信息.
+func (m *Manager) GetChannelStats() *ChannelStats {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	activeChannels := 0
+	totalBandwidth := 0
+	perChannelBandwidth := make(map[string]int)
+
+	for name, ch := range m.channels {
+		if ch.Enabled && ch.Status.Active {
+			activeChannels++
+			totalBandwidth += ch.Status.Speed
+			perChannelBandwidth[name] = ch.Status.Speed
+		}
+	}
+
+	return &ChannelStats{
+		ActiveChannels:      activeChannels,
+		TotalBandwidth:      totalBandwidth,
+		PerChannelBandwidth: perChannelBandwidth,
+		ErrorCount:          m.stats.ErrorCount,
+		ReconnectCount:      m.stats.ReconnectCount,
+	}
+}
+
+// GetChannelHealth 获取所有通道健康状态.
+func (m *Manager) GetChannelHealth() []ChannelHealth {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	healthList := make([]ChannelHealth, 0, len(m.health))
+	for _, h := range m.health {
+		cp := *h
+		healthList = append(healthList, cp)
+	}
+
+	sort.Slice(healthList, func(i, j int) bool {
+		return healthList[i].ChannelID < healthList[j].ChannelID
+	})
+
+	return healthList
+}
+
+// UpdateChannelHealth 更新通道健康状态.
+func (m *Manager) UpdateChannelHealth(channelID, status string, latency int64, packetLoss float64) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.health[channelID] = &ChannelHealth{
+		ChannelID:  channelID,
+		Status:     status,
+		Latency:    latency,
+		PacketLoss: packetLoss,
+		LastCheck:  time.Now(),
+	}
+}
+
+// ListAuditEntries 获取审计日志.
+func (m *Manager) ListAuditEntries(limit int) []AuditEntry {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	if limit <= 0 || limit > len(m.auditLog) {
+		limit = len(m.auditLog)
+	}
+
+	// 返回最近的记录（从末尾开始）
+	start := len(m.auditLog) - limit
+	if start < 0 {
+		start = 0
+	}
+
+	result := make([]AuditEntry, limit)
+	copy(result, m.auditLog[start:])
+
+	// 反转顺序，最新的在前
+	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
+		result[i], result[j] = result[j], result[i]
+	}
+
+	return result
+}
+
+// addAuditEntry 添加审计日志条目（内部方法）.
+func (m *Manager) addAuditEntry(user, clientIP, details string) {
+	m.auditLog = append(m.auditLog, AuditEntry{
+		Timestamp: time.Now(),
+		Action:    "config_change",
+		User:      user,
+		ClientIP:  clientIP,
+		Details:   details,
+	})
+
+	// 裁剪审计日志
+	if len(m.auditLog) > m.maxAudit {
+		m.auditLog = m.auditLog[len(m.auditLog)-m.maxAudit:]
+	}
+}
+
+// EnableMultichannel 启用 SMB Multichannel.
+func (m *Manager) EnableMultichannel(clientIP string) *EnableDisableResponse {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.config.Enabled = true
+	m.addAuditEntry("admin", clientIP, "Multichannel enabled")
+
+	// 更新通道状态
+	for _, ch := range m.channels {
+		if ch.Enabled {
+			ch.Status.Active = true
+			ch.Status.LastActive = time.Now()
+		}
+	}
+
+	return &EnableDisableResponse{
+		Enabled: true,
+		Message: "Multichannel enabled successfully",
+	}
+}
+
+// DisableMultichannel 禁用 SMB Multichannel.
+func (m *Manager) DisableMultichannel(clientIP string) *EnableDisableResponse {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.config.Enabled = false
+	m.addAuditEntry("admin", clientIP, "Multichannel disabled")
+
+	// 更新通道状态
+	for _, ch := range m.channels {
+		ch.Status.Active = false
+		ch.Status.Connections = 0
+	}
+
+	// 终止所有会话
+	for id := range m.sessions {
+		delete(m.sessions, id)
+	}
+
+	return &EnableDisableResponse{
+		Enabled: false,
+		Message: "Multichannel disabled successfully",
+	}
+}
+
+// SetLoadBalanceMode 设置负载均衡模式.
+func (m *Manager) SetLoadBalanceMode(mode string, clientIP string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	validModes := map[string]bool{"round-robin": true, "weighted": true, "hash": true}
+	if !validModes[mode] {
+		return fmt.Errorf("invalid load balance mode: %s (must be round-robin, weighted, or hash)", mode)
+	}
+
+	m.config.LoadBalanceMode = mode
+	m.addAuditEntry("admin", clientIP, fmt.Sprintf("Load balance mode changed to %s", mode))
+
+	return nil
+}
+
+// IncrementErrorCount 增加错误计数.
+func (m *Manager) IncrementErrorCount() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.stats.ErrorCount++
+}
+
+// IncrementReconnectCount 增加重连计数.
+func (m *Manager) IncrementReconnectCount() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.stats.ReconnectCount++
 }
