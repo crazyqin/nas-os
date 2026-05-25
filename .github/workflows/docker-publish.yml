@@ -60,7 +60,7 @@ env:
 # 权限配置 - 最小权限原则
 permissions:
   contents: read           # 读取代码
-  packages: write          # 推送镜像到 GHCR
+  packages: write          # 推送镜像到 GHCR（包含读取权限）
   security-events: write   # 上传安全扫描结果
   id-token: write          # OIDC token 用于 keyless 签名
   attestations: write      # 写入 attestations
@@ -81,6 +81,8 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       
       - name: 检测变更
         uses: dorny/paths-filter@v4
@@ -288,6 +290,8 @@ jobs:
 
       - name: 创建并推送多架构 Manifest
         id: merge
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           SHORT_SHA="${{ steps.sha.outputs.SHORT_SHA }}"
 
