@@ -216,13 +216,14 @@ func (rm *ResourceMonitor) Start(ctx context.Context) error {
 // Stop 停止监控
 func (rm *ResourceMonitor) Stop() {
 	rm.mu.Lock()
-	defer rm.mu.Unlock()
-
 	if rm.cancel != nil {
 		rm.cancel()
 		rm.cancel = nil
-		<-rm.stopped
 	}
+	rm.mu.Unlock()
+
+	// 等待 loop 退出（不在锁内等待，避免死锁）
+	<-rm.stopped
 }
 
 // GetLatest 获取最新快照
