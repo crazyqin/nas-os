@@ -1,3 +1,69 @@
+## [v2.493.0] - 2026-05-26
+
+### 竞品功能对标：磁盘健康仪表盘 / NVMe Fabric / 应用迁移 / 集中备份 / 混合云 / Passkey
+
+#### Bug 修复
+- 修复 wanguard GetThreatRecords 类型不匹配（[]*ThreatRecord → []ThreatRecord）
+
+#### 新功能
+
+##### 🔍 磁盘健康仪表盘 (Disk Scrutiny)
+- 对标 TrueNAS Scrutiny 集成，SMART 监控仪表盘
+- 磁盘注册与管理（SATA/SAS/NVMe/USB）
+- SMART 属性实时监控与健康评分
+- 引导式告警规则（温度过高/健康度下降时给出解决建议）
+- 历史趋势数据记录（每分钟快照，保留24小时）
+- 告警规则可扩展
+
+##### 🌐 NVMe Fabric 存储网络
+- 对标 TrueNAS 25.10 NVMe over Fabric
+- NVMe/TCP 传输支持
+- NVMe/RDMA 传输支持
+- 目标创建/删除/查询
+- 命名空间管理（最大数量限制）
+- 主机连接/断开管理
+- 连接统计（IOPS/带宽/延迟）
+
+##### 📦 应用池迁移 (App Migrate)
+- 对标 TrueNAS 25.10 应用池自动迁移
+- 应用从源池迁移到目标池
+- 迁移进度跟踪
+- 失败回滚支持
+- 并发迁移冲突检测
+- 迁移时间估算
+
+##### 💾 集中备份控制台 (Backup Console)
+- 对标群晖 Active Backup for Business
+- 多平台备份源注册（Windows/Linux/macOS/VMware/Hyper-V/K8s）
+- 备份任务调度（全量/增量/差异）
+- 备份执行与进度跟踪
+- 恢复点管理与保留策略
+- 去重率/压缩率统计
+- 备份仪表盘
+
+##### ☁️ 混合云同步 (Hybrid Cloud)
+- 混合云存储管理
+- 本地与云端数据同步
+
+##### 🔐 Passkey 无密码认证
+- FIDO2/Passkey 认证支持
+- 免密码安全登录
+
+##### ⚡ 电源事件监控 (Power Event)
+- 电源事件检测与告警
+- UPS 联动保护
+
+##### 🛡️ 网络威胁防护 (Wanguard)
+- 网络流量威胁检测
+- IP 黑白名单管理
+- 自动封禁与速率限制
+
+##### 🔄 智能备份策略 (Smart Backup)
+- 智能备份策略引擎
+- 自动备份调度
+
+---
+
 ## [v2.492.0] - 2026-05-21
 
 ### 修复类型重复定义 + 新增邮件服务/活动洞察/双因素认证
