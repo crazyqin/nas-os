@@ -192,9 +192,33 @@ type NodeHealth struct {
 func (h *NodeHealth) GetSnapshot() *NodeHealth {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
-	// 创建副本
-	snapshot := *h
-	return &snapshot
+	return &NodeHealth{
+		CPUUsage:       h.CPUUsage,
+		CPUTemp:        h.CPUTemp,
+		LoadAvg1:       h.LoadAvg1,
+		LoadAvg5:       h.LoadAvg5,
+		LoadAvg15:      h.LoadAvg15,
+		MemoryUsage:    h.MemoryUsage,
+		MemoryUsed:     h.MemoryUsed,
+		MemoryTotal:    h.MemoryTotal,
+		SwapUsage:      h.SwapUsage,
+		DiskUsage:      h.DiskUsage,
+		DiskUsed:       h.DiskUsed,
+		DiskTotal:      h.DiskTotal,
+		DiskReadRate:   h.DiskReadRate,
+		DiskWriteRate:  h.DiskWriteRate,
+		NetworkIn:      h.NetworkIn,
+		NetworkOut:     h.NetworkOut,
+		NetworkInRate:  h.NetworkInRate,
+		NetworkOutRate: h.NetworkOutRate,
+		NetworkErrors:  h.NetworkErrors,
+		Uptime:         h.Uptime,
+		Processes:      h.Processes,
+		Temperature:    h.Temperature,
+		DiskHealth:     h.DiskHealth,
+		DiskTemp:       h.DiskTemp,
+		CollectedAt:    h.CollectedAt,
+	}
 }
 
 // Update 更新健康信息.
@@ -580,8 +604,30 @@ func (s *ClusterStats) Update(nodes []*ClusterNode) {
 func (s *ClusterStats) GetSnapshot() *ClusterStats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	snapshot := *s
-	return &snapshot
+	return &ClusterStats{
+		TotalNodes:       s.TotalNodes,
+		OnlineNodes:      s.OnlineNodes,
+		OfflineNodes:     s.OfflineNodes,
+		MaintenanceNodes: s.MaintenanceNodes,
+		TotalCPU:         s.TotalCPU,
+		UsedCPU:          s.UsedCPU,
+		TotalMemory:      s.TotalMemory,
+		UsedMemory:       s.UsedMemory,
+		TotalDisk:        s.TotalDisk,
+		UsedDisk:         s.UsedDisk,
+		TotalTasks:       s.TotalTasks,
+		RunningTasks:     s.RunningTasks,
+		CompletedTasks:   s.CompletedTasks,
+		FailedTasks:      s.FailedTasks,
+		ActiveAlerts:     s.ActiveAlerts,
+		CriticalAlerts:   s.CriticalAlerts,
+		WarningAlerts:    s.WarningAlerts,
+		ActiveSyncs:      s.ActiveSyncs,
+		TotalSynced:      s.TotalSynced,
+		Uptime:           s.Uptime,
+		StartTime:        s.StartTime,
+		UpdatedAt:        s.UpdatedAt,
+	}
 }
 
 // ClusterConfig 集群配置.
