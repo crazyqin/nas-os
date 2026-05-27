@@ -748,7 +748,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 能源管理模块就绪")
 
 	// 初始化文件同步（对标群晖 Drive Sync）
-	fileSyncMgr = filesync.NewSyncManager(logger, "/var/lib/nas-os/filesync")
+	fileSyncMgr := filesync.NewSyncManager(logger, "/var/lib/nas-os/filesync")
 	log.Println("✅ 文件同步模块就绪")
 
 	// 初始化网络哨兵（对标群晖网络工具增强）
@@ -780,7 +780,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ SSO Hub模块就绪")
 
 	// 初始化监控中心（对标群晖 Surveillance Station）
-	surveillanceMgr = surveillance.NewSurveillanceManager(logger, "/var/lib/nas-os/surveillance")
+	surveillanceMgr := surveillance.NewSurveillanceManager(logger, "/var/lib/nas-os/surveillance")
 	log.Println("✅ 监控中心模块就绪")
 
 	// 初始化统一搜索（对标群晖 Universal Search 增强）

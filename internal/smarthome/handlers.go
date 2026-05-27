@@ -1,604 +1,547 @@
 package smarthome
 
 import (
+	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
-
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 )
 
-// Handler 智能家居HTTP处理器
+// Handler handles HTTP requests for smart home
 type Handler struct {
 	manager *Manager
-	logger  *zap.Logger
 }
 
-// NewHandler 创建智能家居HTTP处理器
-func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
-	if logger == nil {
-		logger = zap.NewNop()
-	}
-	return &Handler{manager: manager, logger: logger}
+// NewHandler creates a new smart home handler
+func NewHandler(manager *Manager) *Handler {
+	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册智能家居API路由
-func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
-	sh := rg.Group("/smarthome")
-	{
-		// 设备管理
-		sh.POST("/devices", h.AddDevice)
-		sh.GET("/devices", h.ListDevices)
-		sh.GET("/devices/:id", h.GetDevice)
-		sh.PUT("/devices/:id", h.UpdateDevice)
-		sh.DELETE("/devices/:id", h.DeleteDevice)
-		sh.PUT("/devices/:id/state", h.UpdateDeviceState)
-		sh.GET("/devices/room/:room_id", h.ListDevicesByRoom)
-		sh.GET("/devices/type/:type", h.ListDevicesByType)
+// RegisterRoutes registers the HTTP routes
+func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/v1/smarthome/devices", h.handleDevices)
+	mux.HandleFunc("/api/v1/smarthome/device/", h.handleDevice)
+	mux.HandleFunc("/api/v1/smarthome/devices/room/", h.handleDevicesByRoom)
+	mux.HandleFunc("/api/v1/smarthome/devices/type/", h.handleDevicesByType)
+	mux.HandleFunc("/api/v1/smarthome/rooms", h.handleRooms)
+	mux.HandleFunc("/api/v1/smarthome/room/", h.handleRoom)
+	mux.HandleFunc("/api/v1/smarthome/groups", h.handleGroups)
+	mux.HandleFunc("/api/v1/smarthome/group/", h.handleGroup)
+	mux.HandleFunc("/api/v1/smarthome/scenes", h.handleScenes)
+	mux.HandleFunc("/api/v1/smarthome/scene/", h.handleScene)
+	mux.HandleFunc("/api/v1/smarthome/tasks", h.handleTasks)
+	mux.HandleFunc("/api/v1/smarthome/task/", h.handleTask)
+	mux.HandleFunc("/api/v1/smarthome/energy/stats", h.handleEnergyStats)
+	mux.HandleFunc("/api/v1/smarthome/energy/device/", h.handleDeviceEnergyStats)
+	mux.HandleFunc("/api/v1/smarthome/dashboard", h.handleDashboard)
+	mux.HandleFunc("/api/v1/smarthome/discover", h.handleDiscover)
+	mux.HandleFunc("/api/v1/smarthome/events", h.handleEvents)
+}
 
-		// 房间管理
-		sh.POST("/rooms", h.AddRoom)
-		sh.GET("/rooms", h.ListRooms)
-		sh.GET("/rooms/:id", h.GetRoom)
-		sh.PUT("/rooms/:id", h.UpdateRoom)
-		sh.DELETE("/rooms/:id", h.DeleteRoom)
+func jsonOK(w http.ResponseWriter, data any) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+}
 
-		// 分组管理
-		sh.POST("/groups", h.AddGroup)
-		sh.GET("/groups", h.ListGroups)
-		sh.GET("/groups/:id", h.GetGroup)
-		sh.PUT("/groups/:id", h.UpdateGroup)
-		sh.DELETE("/groups/:id", h.DeleteGroup)
-		sh.POST("/groups/:id/devices/:device_id", h.AddDeviceToGroup)
-		sh.DELETE("/groups/:id/devices/:device_id", h.RemoveDeviceFromGroup)
-
-		// 自动化场景
-		sh.POST("/scenes", h.AddScene)
-		sh.GET("/scenes", h.ListScenes)
-		sh.GET("/scenes/:id", h.GetScene)
-		sh.PUT("/scenes/:id", h.UpdateScene)
-		sh.DELETE("/scenes/:id", h.DeleteScene)
-		sh.POST("/scenes/:id/execute", h.ExecuteScene)
-		sh.POST("/scenes/:id/enable", h.EnableScene)
-		sh.POST("/scenes/:id/disable", h.DisableScene)
-
-		// 定时任务
-		sh.POST("/tasks", h.AddScheduledTask)
-		sh.GET("/tasks", h.ListScheduledTasks)
-		sh.GET("/tasks/:id", h.GetScheduledTask)
-		sh.PUT("/tasks/:id", h.UpdateScheduledTask)
-		sh.DELETE("/tasks/:id", h.DeleteScheduledTask)
-
-		// 能耗统计
-		sh.GET("/energy/stats", h.GetEnergyStats)
-		sh.GET("/energy/device/:device_id", h.GetDeviceEnergyStats)
-
-		// 仪表盘
-		sh.GET("/dashboard", h.GetDashboard)
-
-		// 设备发现
-		sh.POST("/discover", h.DiscoverDevices)
-
-		// 事件
-		sh.GET("/events", h.GetEvents)
-	}
+func jsonErr(w http.ResponseWriter, code int, msg string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]string{"error": msg})
 }
 
 // ============================================================
-// 设备管理 Handlers
+// 设备管理
 // ============================================================
 
-// AddDevice handles POST /api/v1/smarthome/devices
-func (h *Handler) AddDevice(c *gin.Context) {
-	var device Device
-	if err := c.ShouldBindJSON(&device); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.manager.AddDevice(&device); err != nil {
-		if err == ErrDeviceExists {
-			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func (h *Handler) handleDevices(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		devices := h.manager.ListDevices()
+		jsonOK(w, map[string]any{"devices": devices, "total": len(devices)})
+	case http.MethodPost:
+		var device Device
+		if err := json.NewDecoder(r.Body).Decode(&device); err != nil {
+			jsonErr(w, http.StatusBadRequest, err.Error())
+			return
 		}
+		if err := h.manager.AddDevice(&device); err != nil {
+			if err == ErrDeviceExists {
+				jsonErr(w, http.StatusConflict, err.Error())
+			} else {
+				jsonErr(w, http.StatusBadRequest, err.Error())
+			}
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		jsonOK(w, device)
+	default:
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+func (h *Handler) handleDevice(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimPrefix(r.URL.Path, "/api/v1/smarthome/device/")
+	if id == "" {
+		jsonErr(w, http.StatusBadRequest, "device id required")
 		return
 	}
-
-	c.JSON(http.StatusCreated, device)
+	switch r.Method {
+	case http.MethodGet:
+		device, err := h.manager.GetDevice(id)
+		if err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, device)
+	case http.MethodPut:
+		var update Device
+		if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
+			jsonErr(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if err := h.manager.UpdateDevice(id, &update); err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, map[string]string{"message": "device updated"})
+	case http.MethodDelete:
+		if err := h.manager.DeleteDevice(id); err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, map[string]string{"message": "device deleted"})
+	default:
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// GetDevice handles GET /api/v1/smarthome/devices/:id
-func (h *Handler) GetDevice(c *gin.Context) {
-	id := c.Param("id")
-	device, err := h.manager.GetDevice(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+func (h *Handler) handleDevicesByRoom(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
-	c.JSON(http.StatusOK, device)
-}
-
-// ListDevices handles GET /api/v1/smarthome/devices
-func (h *Handler) ListDevices(c *gin.Context) {
-	devices := h.manager.ListDevices()
-	c.JSON(http.StatusOK, gin.H{
-		"devices": devices,
-		"total":   len(devices),
-	})
-}
-
-// ListDevicesByRoom handles GET /api/v1/smarthome/devices/room/:room_id
-func (h *Handler) ListDevicesByRoom(c *gin.Context) {
-	roomID := c.Param("room_id")
+	roomID := strings.TrimPrefix(r.URL.Path, "/api/v1/smarthome/devices/room/")
 	devices := h.manager.ListDevicesByRoom(roomID)
-	c.JSON(http.StatusOK, gin.H{
-		"devices": devices,
-		"total":   len(devices),
-	})
+	jsonOK(w, map[string]any{"devices": devices, "total": len(devices)})
 }
 
-// ListDevicesByType handles GET /api/v1/smarthome/devices/type/:type
-func (h *Handler) ListDevicesByType(c *gin.Context) {
-	deviceType := DeviceType(c.Param("type"))
+func (h *Handler) handleDevicesByType(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	deviceType := DeviceType(strings.TrimPrefix(r.URL.Path, "/api/v1/smarthome/devices/type/"))
 	devices := h.manager.ListDevicesByType(deviceType)
-	c.JSON(http.StatusOK, gin.H{
-		"devices": devices,
-		"total":   len(devices),
-	})
-}
-
-// UpdateDevice handles PUT /api/v1/smarthome/devices/:id
-func (h *Handler) UpdateDevice(c *gin.Context) {
-	id := c.Param("id")
-	var update Device
-	if err := c.ShouldBindJSON(&update); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.manager.UpdateDevice(id, &update); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "device updated"})
-}
-
-// DeleteDevice handles DELETE /api/v1/smarthome/devices/:id
-func (h *Handler) DeleteDevice(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeleteDevice(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "device deleted"})
-}
-
-// UpdateDeviceState handles PUT /api/v1/smarthome/devices/:id/state
-func (h *Handler) UpdateDeviceState(c *gin.Context) {
-	id := c.Param("id")
-	var state map[string]any
-	if err := c.ShouldBindJSON(&state); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.manager.UpdateDeviceState(id, state); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "device state updated"})
+	jsonOK(w, map[string]any{"devices": devices, "total": len(devices)})
 }
 
 // ============================================================
-// 房间管理 Handlers
+// 房间管理
 // ============================================================
 
-// AddRoom handles POST /api/v1/smarthome/rooms
-func (h *Handler) AddRoom(c *gin.Context) {
-	var room Room
-	if err := c.ShouldBindJSON(&room); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func (h *Handler) handleRooms(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		rooms := h.manager.ListRooms()
+		jsonOK(w, map[string]any{"rooms": rooms, "total": len(rooms)})
+	case http.MethodPost:
+		var room Room
+		if err := json.NewDecoder(r.Body).Decode(&room); err != nil {
+			jsonErr(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if err := h.manager.AddRoom(&room); err != nil {
+			if err == ErrRoomExists {
+				jsonErr(w, http.StatusConflict, err.Error())
+			} else {
+				jsonErr(w, http.StatusBadRequest, err.Error())
+			}
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		jsonOK(w, room)
+	default:
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+func (h *Handler) handleRoom(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimPrefix(r.URL.Path, "/api/v1/smarthome/room/")
+	if id == "" {
+		jsonErr(w, http.StatusBadRequest, "room id required")
+		return
+	}
+	switch r.Method {
+	case http.MethodGet:
+		room, err := h.manager.GetRoom(id)
+		if err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, room)
+	case http.MethodPut:
+		var update Room
+		if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
+			jsonErr(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if err := h.manager.UpdateRoom(id, &update); err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, map[string]string{"message": "room updated"})
+	case http.MethodDelete:
+		if err := h.manager.DeleteRoom(id); err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, map[string]string{"message": "room deleted"})
+	default:
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// ============================================================
+// 分组管理
+// ============================================================
+
+func (h *Handler) handleGroups(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		groups := h.manager.ListGroups()
+		jsonOK(w, map[string]any{"groups": groups, "total": len(groups)})
+	case http.MethodPost:
+		var group Group
+		if err := json.NewDecoder(r.Body).Decode(&group); err != nil {
+			jsonErr(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if err := h.manager.AddGroup(&group); err != nil {
+			if err == ErrGroupExists {
+				jsonErr(w, http.StatusConflict, err.Error())
+			} else {
+				jsonErr(w, http.StatusBadRequest, err.Error())
+			}
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		jsonOK(w, group)
+	default:
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+func (h *Handler) handleGroup(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, "/api/v1/smarthome/group/")
+	parts := strings.Split(path, "/")
+	id := parts[0]
+	if id == "" {
+		jsonErr(w, http.StatusBadRequest, "group id required")
 		return
 	}
 
-	if err := h.manager.AddRoom(&room); err != nil {
-		if err == ErrRoomExists {
-			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// /api/v1/smarthome/group/{id}/devices/{device_id}
+	if len(parts) >= 3 && parts[1] == "devices" {
+		deviceID := parts[2]
+		switch r.Method {
+		case http.MethodPost:
+			if err := h.manager.AddDeviceToGroup(deviceID, id); err != nil {
+				jsonErr(w, http.StatusNotFound, err.Error())
+				return
+			}
+			jsonOK(w, map[string]string{"message": "device added to group"})
+		case http.MethodDelete:
+			if err := h.manager.RemoveDeviceFromGroup(deviceID, id); err != nil {
+				jsonErr(w, http.StatusNotFound, err.Error())
+				return
+			}
+			jsonOK(w, map[string]string{"message": "device removed from group"})
+		default:
+			jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
 		}
 		return
 	}
 
-	c.JSON(http.StatusCreated, room)
-}
-
-// GetRoom handles GET /api/v1/smarthome/rooms/:id
-func (h *Handler) GetRoom(c *gin.Context) {
-	id := c.Param("id")
-	room, err := h.manager.GetRoom(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, room)
-}
-
-// ListRooms handles GET /api/v1/smarthome/rooms
-func (h *Handler) ListRooms(c *gin.Context) {
-	rooms := h.manager.ListRooms()
-	c.JSON(http.StatusOK, gin.H{
-		"rooms": rooms,
-		"total": len(rooms),
-	})
-}
-
-// UpdateRoom handles PUT /api/v1/smarthome/rooms/:id
-func (h *Handler) UpdateRoom(c *gin.Context) {
-	id := c.Param("id")
-	var update Room
-	if err := c.ShouldBindJSON(&update); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.manager.UpdateRoom(id, &update); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "room updated"})
-}
-
-// DeleteRoom handles DELETE /api/v1/smarthome/rooms/:id
-func (h *Handler) DeleteRoom(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeleteRoom(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "room deleted"})
-}
-
-// ============================================================
-// 分组管理 Handlers
-// ============================================================
-
-// AddGroup handles POST /api/v1/smarthome/groups
-func (h *Handler) AddGroup(c *gin.Context) {
-	var group Group
-	if err := c.ShouldBindJSON(&group); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.manager.AddGroup(&group); err != nil {
-		if err == ErrGroupExists {
-			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	switch r.Method {
+	case http.MethodGet:
+		group, err := h.manager.GetGroup(id)
+		if err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
 		}
-		return
-	}
-
-	c.JSON(http.StatusCreated, group)
-}
-
-// GetGroup handles GET /api/v1/smarthome/groups/:id
-func (h *Handler) GetGroup(c *gin.Context) {
-	id := c.Param("id")
-	group, err := h.manager.GetGroup(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, group)
-}
-
-// ListGroups handles GET /api/v1/smarthome/groups
-func (h *Handler) ListGroups(c *gin.Context) {
-	groups := h.manager.ListGroups()
-	c.JSON(http.StatusOK, gin.H{
-		"groups": groups,
-		"total":  len(groups),
-	})
-}
-
-// UpdateGroup handles PUT /api/v1/smarthome/groups/:id
-func (h *Handler) UpdateGroup(c *gin.Context) {
-	id := c.Param("id")
-	var update Group
-	if err := c.ShouldBindJSON(&update); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.manager.UpdateGroup(id, &update); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "group updated"})
-}
-
-// DeleteGroup handles DELETE /api/v1/smarthome/groups/:id
-func (h *Handler) DeleteGroup(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeleteGroup(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "group deleted"})
-}
-
-// AddDeviceToGroup handles POST /api/v1/smarthome/groups/:id/devices/:device_id
-func (h *Handler) AddDeviceToGroup(c *gin.Context) {
-	groupID := c.Param("id")
-	deviceID := c.Param("device_id")
-
-	if err := h.manager.AddDeviceToGroup(deviceID, groupID); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "device added to group"})
-}
-
-// RemoveDeviceFromGroup handles DELETE /api/v1/smarthome/groups/:id/devices/:device_id
-func (h *Handler) RemoveDeviceFromGroup(c *gin.Context) {
-	groupID := c.Param("id")
-	deviceID := c.Param("device_id")
-
-	if err := h.manager.RemoveDeviceFromGroup(deviceID, groupID); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "device removed from group"})
-}
-
-// ============================================================
-// 自动化场景 Handlers
-// ============================================================
-
-// AddScene handles POST /api/v1/smarthome/scenes
-func (h *Handler) AddScene(c *gin.Context) {
-	var scene Scene
-	if err := c.ShouldBindJSON(&scene); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.manager.AddScene(&scene); err != nil {
-		if err == ErrSceneExists {
-			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		jsonOK(w, group)
+	case http.MethodPut:
+		var update Group
+		if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
+			jsonErr(w, http.StatusBadRequest, err.Error())
+			return
 		}
-		return
-	}
-
-	c.JSON(http.StatusCreated, scene)
-}
-
-// GetScene handles GET /api/v1/smarthome/scenes/:id
-func (h *Handler) GetScene(c *gin.Context) {
-	id := c.Param("id")
-	scene, err := h.manager.GetScene(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, scene)
-}
-
-// ListScenes handles GET /api/v1/smarthome/scenes
-func (h *Handler) ListScenes(c *gin.Context) {
-	scenes := h.manager.ListScenes()
-	c.JSON(http.StatusOK, gin.H{
-		"scenes": scenes,
-		"total":  len(scenes),
-	})
-}
-
-// UpdateScene handles PUT /api/v1/smarthome/scenes/:id
-func (h *Handler) UpdateScene(c *gin.Context) {
-	id := c.Param("id")
-	var update Scene
-	if err := c.ShouldBindJSON(&update); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.manager.UpdateScene(id, &update); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "scene updated"})
-}
-
-// DeleteScene handles DELETE /api/v1/smarthome/scenes/:id
-func (h *Handler) DeleteScene(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeleteScene(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "scene deleted"})
-}
-
-// ExecuteScene handles POST /api/v1/smarthome/scenes/:id/execute
-func (h *Handler) ExecuteScene(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.ExecuteScene(id); err != nil {
-		if err == ErrSceneNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		} else if err == ErrSceneDisabled {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if err := h.manager.UpdateGroup(id, &update); err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
 		}
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "scene executed"})
-}
-
-// EnableScene handles POST /api/v1/smarthome/scenes/:id/enable
-func (h *Handler) EnableScene(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.EnableScene(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "scene enabled"})
-}
-
-// DisableScene handles POST /api/v1/smarthome/scenes/:id/disable
-func (h *Handler) DisableScene(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DisableScene(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "scene disabled"})
-}
-
-// ============================================================
-// 定时任务 Handlers
-// ============================================================
-
-// AddScheduledTask handles POST /api/v1/smarthome/tasks
-func (h *Handler) AddScheduledTask(c *gin.Context) {
-	var task ScheduledTask
-	if err := c.ShouldBindJSON(&task); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.manager.AddScheduledTask(&task); err != nil {
-		if err == ErrTaskExists {
-			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		jsonOK(w, map[string]string{"message": "group updated"})
+	case http.MethodDelete:
+		if err := h.manager.DeleteGroup(id); err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
 		}
-		return
+		jsonOK(w, map[string]string{"message": "group deleted"})
+	default:
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
 	}
-
-	c.JSON(http.StatusCreated, task)
-}
-
-// GetScheduledTask handles GET /api/v1/smarthome/tasks/:id
-func (h *Handler) GetScheduledTask(c *gin.Context) {
-	id := c.Param("id")
-	task, err := h.manager.GetScheduledTask(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, task)
-}
-
-// ListScheduledTasks handles GET /api/v1/smarthome/tasks
-func (h *Handler) ListScheduledTasks(c *gin.Context) {
-	tasks := h.manager.ListScheduledTasks()
-	c.JSON(http.StatusOK, gin.H{
-		"tasks": tasks,
-		"total": len(tasks),
-	})
-}
-
-// UpdateScheduledTask handles PUT /api/v1/smarthome/tasks/:id
-func (h *Handler) UpdateScheduledTask(c *gin.Context) {
-	id := c.Param("id")
-	var update ScheduledTask
-	if err := c.ShouldBindJSON(&update); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.manager.UpdateScheduledTask(id, &update); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "task updated"})
-}
-
-// DeleteScheduledTask handles DELETE /api/v1/smarthome/tasks/:id
-func (h *Handler) DeleteScheduledTask(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeleteScheduledTask(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "task deleted"})
 }
 
 // ============================================================
-// 能耗统计 Handlers
+// 自动化场景
 // ============================================================
 
-// GetEnergyStats handles GET /api/v1/smarthome/energy/stats
-func (h *Handler) GetEnergyStats(c *gin.Context) {
+func (h *Handler) handleScenes(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		scenes := h.manager.ListScenes()
+		jsonOK(w, map[string]any{"scenes": scenes, "total": len(scenes)})
+	case http.MethodPost:
+		var scene Scene
+		if err := json.NewDecoder(r.Body).Decode(&scene); err != nil {
+			jsonErr(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if err := h.manager.AddScene(&scene); err != nil {
+			if err == ErrSceneExists {
+				jsonErr(w, http.StatusConflict, err.Error())
+			} else {
+				jsonErr(w, http.StatusBadRequest, err.Error())
+			}
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		jsonOK(w, scene)
+	default:
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+func (h *Handler) handleScene(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, "/api/v1/smarthome/scene/")
+	parts := strings.Split(path, "/")
+	id := parts[0]
+	if id == "" {
+		jsonErr(w, http.StatusBadRequest, "scene id required")
+		return
+	}
+
+	// /api/v1/smarthome/scene/{id}/execute|enable|disable
+	if len(parts) >= 2 {
+		action := parts[1]
+		switch action {
+		case "execute":
+			if r.Method != http.MethodPost {
+				jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+				return
+			}
+			if err := h.manager.ExecuteScene(id); err != nil {
+				if err == ErrSceneNotFound {
+					jsonErr(w, http.StatusNotFound, err.Error())
+				} else if err == ErrSceneDisabled {
+					jsonErr(w, http.StatusBadRequest, err.Error())
+				} else {
+					jsonErr(w, http.StatusInternalServerError, err.Error())
+				}
+				return
+			}
+			jsonOK(w, map[string]string{"message": "scene executed"})
+			return
+		case "enable":
+			if r.Method != http.MethodPost {
+				jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+				return
+			}
+			if err := h.manager.EnableScene(id); err != nil {
+				jsonErr(w, http.StatusNotFound, err.Error())
+				return
+			}
+			jsonOK(w, map[string]string{"message": "scene enabled"})
+			return
+		case "disable":
+			if r.Method != http.MethodPost {
+				jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+				return
+			}
+			if err := h.manager.DisableScene(id); err != nil {
+				jsonErr(w, http.StatusNotFound, err.Error())
+				return
+			}
+			jsonOK(w, map[string]string{"message": "scene disabled"})
+			return
+		}
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		scene, err := h.manager.GetScene(id)
+		if err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, scene)
+	case http.MethodPut:
+		var update Scene
+		if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
+			jsonErr(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if err := h.manager.UpdateScene(id, &update); err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, map[string]string{"message": "scene updated"})
+	case http.MethodDelete:
+		if err := h.manager.DeleteScene(id); err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, map[string]string{"message": "scene deleted"})
+	default:
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// ============================================================
+// 定时任务
+// ============================================================
+
+func (h *Handler) handleTasks(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		tasks := h.manager.ListScheduledTasks()
+		jsonOK(w, map[string]any{"tasks": tasks, "total": len(tasks)})
+	case http.MethodPost:
+		var task ScheduledTask
+		if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+			jsonErr(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if err := h.manager.AddScheduledTask(&task); err != nil {
+			if err == ErrTaskExists {
+				jsonErr(w, http.StatusConflict, err.Error())
+			} else {
+				jsonErr(w, http.StatusBadRequest, err.Error())
+			}
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		jsonOK(w, task)
+	default:
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+func (h *Handler) handleTask(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimPrefix(r.URL.Path, "/api/v1/smarthome/task/")
+	if id == "" {
+		jsonErr(w, http.StatusBadRequest, "task id required")
+		return
+	}
+	switch r.Method {
+	case http.MethodGet:
+		task, err := h.manager.GetScheduledTask(id)
+		if err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, task)
+	case http.MethodPut:
+		var update ScheduledTask
+		if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
+			jsonErr(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if err := h.manager.UpdateScheduledTask(id, &update); err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, map[string]string{"message": "task updated"})
+	case http.MethodDelete:
+		if err := h.manager.DeleteScheduledTask(id); err != nil {
+			jsonErr(w, http.StatusNotFound, err.Error())
+			return
+		}
+		jsonOK(w, map[string]string{"message": "task deleted"})
+	default:
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// ============================================================
+// 能耗统计
+// ============================================================
+
+func (h *Handler) handleEnergyStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
 	stats := h.manager.GetEnergyStats()
-	c.JSON(http.StatusOK, stats)
+	jsonOK(w, stats)
 }
 
-// GetDeviceEnergyStats handles GET /api/v1/smarthome/energy/device/:device_id
-func (h *Handler) GetDeviceEnergyStats(c *gin.Context) {
-	deviceID := c.Param("device_id")
+func (h *Handler) handleDeviceEnergyStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	deviceID := strings.TrimPrefix(r.URL.Path, "/api/v1/smarthome/energy/device/")
 	stats, err := h.manager.GetDeviceEnergyStats(deviceID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		jsonErr(w, http.StatusNotFound, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, stats)
+	jsonOK(w, stats)
 }
 
 // ============================================================
-// 仪表盘 Handlers
+// 仪表盘
 // ============================================================
 
-// GetDashboard handles GET /api/v1/smarthome/dashboard
-func (h *Handler) GetDashboard(c *gin.Context) {
+func (h *Handler) handleDashboard(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
 	summary := h.manager.GetDashboardSummary()
-	c.JSON(http.StatusOK, summary)
+	jsonOK(w, summary)
 }
 
 // ============================================================
-// 设备发现 Handlers
+// 设备发现
 // ============================================================
 
-// DiscoverDevices handles POST /api/v1/smarthome/discover
-func (h *Handler) DiscoverDevices(c *gin.Context) {
+func (h *Handler) handleDiscover(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
 	discovered := h.manager.DiscoverDevices()
-	c.JSON(http.StatusOK, gin.H{
-		"devices": discovered,
-		"total":   len(discovered),
-	})
+	jsonOK(w, map[string]any{"devices": discovered, "total": len(discovered)})
 }
 
 // ============================================================
-// 事件 Handlers
+// 事件
 // ============================================================
 
-// GetEvents handles GET /api/v1/smarthome/events
-func (h *Handler) GetEvents(c *gin.Context) {
-	limit := 50 // 默认返回50条
+func (h *Handler) handleEvents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		jsonErr(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	limit := 50
 	events := h.manager.GetEvents(limit)
-	c.JSON(http.StatusOK, gin.H{
-		"events": events,
-		"total":  len(events),
-	})
+	jsonOK(w, map[string]any{"events": events, "total": len(events)})
 }
 
 // ============================================================
-// 能耗统计方法
+// Manager 扩展方法（能耗统计、仪表盘）
 // ============================================================
 
 // GetEnergyStats 获取总能耗统计
@@ -654,7 +597,6 @@ func (m *Manager) GetDeviceEnergyStats(deviceID string) (*EnergyStats, error) {
 
 	stats.AvgPowerW = totalPower / float64(len(readings))
 
-	// 计算今日、本周、本月能耗
 	today := time.Now().Truncate(24 * time.Hour)
 	weekAgo := today.AddDate(0, 0, -7)
 	monthAgo := today.AddDate(0, -1, 0)
@@ -688,7 +630,6 @@ func (m *Manager) GetDashboardSummary() *DashboardSummary {
 		UpdatedAt:     time.Now(),
 	}
 
-	// 设备统计
 	for _, d := range m.devices {
 		switch d.Status {
 		case DeviceStatusOnline:
@@ -702,14 +643,12 @@ func (m *Manager) GetDashboardSummary() *DashboardSummary {
 		}
 	}
 
-	// 场景统计
 	for _, s := range m.scenes {
 		if s.Enabled {
 			summary.ActiveScenes++
 		}
 	}
 
-	// 能耗统计
 	today := time.Now().Truncate(24 * time.Hour)
 	for _, readings := range m.energyData {
 		for _, r := range readings {
@@ -720,7 +659,6 @@ func (m *Manager) GetDashboardSummary() *DashboardSummary {
 		}
 	}
 
-	// 最近事件
 	eventCount := 10
 	if len(m.events) < eventCount {
 		eventCount = len(m.events)
