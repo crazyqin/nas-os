@@ -2,235 +2,324 @@ package reverseproxy
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"strings"
 )
 
-// Handler handles reverse proxy HTTP requests
+// Handler REST API handler (v1)
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new reverse proxy handler
+// NewHandler creates a REST API handler
 func NewHandler(manager *Manager) *Handler {
-	return &Handler{
-		manager: manager,
-	}
+	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers reverse proxy API routes
-func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/v1/reverse-proxy/proxies", h.handleProxies)
-	mux.HandleFunc("/api/v1/reverse-proxy/proxies/", h.handleProxyByID)
-	mux.HandleFunc("/api/v1/reverse-proxy/stats", h.handleStats)
-	mux.HandleFunc("/api/v1/reverse-proxy/reload", h.handleReload)
-}
-
+// handleProxies handles list (GET) and create (POST) for /proxies
 func (h *Handler) handleProxies(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		h.listProxies(w, r)
+		proxies := h.manager.ListProxies()
+		respondJSON(w, proxies)
 	case http.MethodPost:
-		h.createProxy(w, r)
-	default:
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-	}
-}
-
-func (h *Handler) listProxies(w http.ResponseWriter, r *http.Request) {
-	proxies := h.manager.ListProxies()
-	writeJSON(w, http.StatusOK, proxies)
-}
-
-func (h *Handler) createProxy(w http.ResponseWriter, r *http.Request) {
-	var req CreateProxyRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid request body")
-		return
-	}
-
-	if req.Name == "" {
-		writeError(w, http.StatusBadRequest, "name is required")
-		return
-	}
-	if req.Domain == "" {
-		writeError(w, http.StatusBadRequest, "domain is required")
-		return
-	}
-	if req.TargetURL == "" {
-		writeError(w, http.StatusBadRequest, "target_url is required")
-		return
-	}
-
-	proxy, err := h.manager.CreateProxy(req)
-	if err != nil {
-		writeError(w, http.StatusConflict, err.Error())
-		return
-	}
-	writeJSON(w, http.StatusCreated, proxy)
-}
-
-func (h *Handler) handleProxyByID(w http.ResponseWriter, r *http.Request) {
-	// Extract proxy ID from path: /api/v1/reverse-proxy/proxies/{id}
-	path := r.URL.Path
-	prefix := "/api/v1/reverse-proxy/proxies/"
-	if !strings.HasPrefix(path, prefix) {
-		writeError(w, http.StatusBadRequest, "invalid path")
-		return
-	}
-
-	remaining := strings.TrimPrefix(path, prefix)
-	parts := strings.Split(remaining, "/")
-	id := parts[0]
-
-	if id == "" {
-		writeError(w, http.StatusBadRequest, "proxy ID is required")
-		return
-	}
-
-	// Check for sub-resource: /rules
-	if len(parts) > 1 && parts[1] == "rules" {
-		h.handleProxyRules(w, r, id)
-		return
-	}
-
-	switch r.Method {
-	case http.MethodGet:
-		h.getProxy(w, r, id)
-	case http.MethodPut:
-		h.updateProxy(w, r, id)
-	case http.MethodDelete:
-		h.deleteProxy(w, r, id)
-	default:
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-	}
-}
-
-func (h *Handler) getProxy(w http.ResponseWriter, r *http.Request, id string) {
-	proxy, err := h.manager.GetProxy(id)
-	if err != nil {
-		writeError(w, http.StatusNotFound, err.Error())
-		return
-	}
-	writeJSON(w, http.StatusOK, proxy)
-}
-
-func (h *Handler) updateProxy(w http.ResponseWriter, r *http.Request, id string) {
-	var req UpdateProxyRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid request body")
-		return
-	}
-
-	if err := h.manager.UpdateProxy(id, req); err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			writeError(w, http.StatusNotFound, err.Error())
-		} else {
-			writeError(w, http.StatusBadRequest, err.Error())
+		var req CreateProxyRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
 		}
-		return
+		if req.Name == "" || req.Domain == "" || req.TargetURL == "" {
+			http.Error(w, "name, domain and target_url are required", http.StatusBadRequest)
+			return
+		}
+		proxy, err := h.manager.CreateProxy(req)
+		if err != nil {
+			if err.Error() == fmt.Sprintf("proxy with domain '%s' already exists", req.Domain) {
+				http.Error(w, err.Error(), http.StatusConflict)
+				return
+			}
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		respondJSON(w, proxy)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
-
-	proxy, err := h.manager.GetProxy(id)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	writeJSON(w, http.StatusOK, proxy)
 }
 
-func (h *Handler) deleteProxy(w http.ResponseWriter, r *http.Request, id string) {
-	if err := h.manager.DeleteProxy(id); err != nil {
-		writeError(w, http.StatusNotFound, err.Error())
+// handleProxyByID handles get/update/delete for /proxies/{id}
+func (h *Handler) handleProxyByID(w http.ResponseWriter, r *http.Request) {
+	// Extract ID from path: /api/v1/reverse-proxy/proxies/{id}[/rules]
+	path := r.URL.Path
+	// Trim prefix
+	trimmed := path[len("/api/v1/reverse-proxy/proxies/"):]
+
+	// Check if this is a rules request
+	if idx := indexOf(trimmed, "/rules"); idx >= 0 {
+		proxyID := trimmed[:idx]
+		h.handleRules(w, r, proxyID)
 		return
 	}
-	writeJSON(w, http.StatusOK, SuccessResponse{Success: true})
-}
 
-func (h *Handler) handleProxyRules(w http.ResponseWriter, r *http.Request, proxyID string) {
+	id := trimmed
+
 	switch r.Method {
 	case http.MethodGet:
-		h.getRules(w, r, proxyID)
-	case http.MethodPost:
-		h.addRule(w, r, proxyID)
+		proxy, err := h.manager.GetProxy(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		respondJSON(w, proxy)
+	case http.MethodPut:
+		var req UpdateProxyRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+		if err := h.manager.UpdateProxy(id, req); err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		proxy, _ := h.manager.GetProxy(id)
+		respondJSON(w, proxy)
+	case http.MethodDelete:
+		if err := h.manager.DeleteProxy(id); err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		respondJSON(w, SuccessResponse{Success: true, Message: "deleted"})
 	default:
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
-func (h *Handler) getRules(w http.ResponseWriter, r *http.Request, proxyID string) {
-	rules, err := h.manager.GetRules(proxyID)
-	if err != nil {
-		writeError(w, http.StatusNotFound, err.Error())
-		return
+// handleRules handles rules for a proxy
+func (h *Handler) handleRules(w http.ResponseWriter, r *http.Request, proxyID string) {
+	switch r.Method {
+	case http.MethodGet:
+		rules, err := h.manager.GetRules(proxyID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		respondJSON(w, rules)
+	case http.MethodPost:
+		var req AddRuleRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+		rule := ProxyRule{
+			Path:          req.Path,
+			TargetURL:     req.TargetURL,
+			LoadBalancing: req.LoadBalancing,
+			RateLimit:     req.RateLimit,
+		}
+		if err := h.manager.AddRule(proxyID, rule); err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		respondJSON(w, rule)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
-	writeJSON(w, http.StatusOK, rules)
 }
 
-func (h *Handler) addRule(w http.ResponseWriter, r *http.Request, proxyID string) {
-	var req AddRuleRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid request body")
-		return
-	}
-
-	if req.Path == "" {
-		writeError(w, http.StatusBadRequest, "path is required")
-		return
-	}
-	if req.TargetURL == "" {
-		writeError(w, http.StatusBadRequest, "target_url is required")
-		return
-	}
-
-	rule := ProxyRule{
-		Path:          req.Path,
-		TargetURL:     req.TargetURL,
-		LoadBalancing: req.LoadBalancing,
-		HealthCheck:   req.HealthCheck,
-		RateLimit:     req.RateLimit,
-		IPWhitelist:   req.IPWhitelist,
-	}
-
-	if err := h.manager.AddRule(proxyID, rule); err != nil {
-		writeError(w, http.StatusNotFound, err.Error())
-		return
-	}
-	writeJSON(w, http.StatusCreated, rule)
-}
-
+// handleStats handles stats request
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
 	stats := h.manager.GetStats()
-	writeJSON(w, http.StatusOK, stats)
+	respondJSON(w, stats)
 }
 
+// handleReload handles config reload
 func (h *Handler) handleReload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	if err := h.manager.ReloadConfig(); err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	writeJSON(w, http.StatusOK, SuccessResponse{Success: true})
+	h.manager.ReloadConfig()
+	respondJSON(w, SuccessResponse{Success: true, Message: "config reloaded"})
 }
 
-func writeJSON(w http.ResponseWriter, status int, data interface{}) {
+func indexOf(s, substr string) int {
+	for i := 0; i+len(substr) <= len(s); i++ {
+		if s[i:i+len(substr)] == substr {
+			return i
+		}
+	}
+	return -1
+}
+
+// ReverseProxyHandler 反向代理HTTP处理器
+type ReverseProxyHandler struct {
+	manager *ReverseProxyManager
+}
+
+// NewReverseProxyHandler 创建处理器
+func NewReverseProxyHandler(manager *ReverseProxyManager) *ReverseProxyHandler {
+	return &ReverseProxyHandler{manager: manager}
+}
+
+// RegisterRoutes 注册路由
+func (h *ReverseProxyHandler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/reverseproxy/add", h.handleAddProxy)
+	mux.HandleFunc("/api/reverseproxy/remove", h.handleRemoveProxy)
+	mux.HandleFunc("/api/reverseproxy/update", h.handleUpdateProxy)
+	mux.HandleFunc("/api/reverseproxy/get", h.handleGetProxy)
+	mux.HandleFunc("/api/reverseproxy/list", h.handleListProxies)
+	mux.HandleFunc("/api/reverseproxy/enable", h.handleEnableProxy)
+	mux.HandleFunc("/api/reverseproxy/disable", h.handleDisableProxy)
+	mux.HandleFunc("/api/reverseproxy/stats", h.handleGetStats)
+}
+
+// handleAddProxy 处理添加代理请求
+func (h *ReverseProxyHandler) handleAddProxy(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var rule ProxyRule
+	if err := json.NewDecoder(r.Body).Decode(&rule); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.AddProxy(&rule); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	respondJSON(w, rule)
+}
+
+// handleRemoveProxy 处理移除代理请求
+func (h *ReverseProxyHandler) handleRemoveProxy(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.RemoveProxy(req.ID); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	respondJSON(w, map[string]string{"status": "removed"})
+}
+
+// handleUpdateProxy 处理更新代理请求
+func (h *ReverseProxyHandler) handleUpdateProxy(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		ID   string     `json:"id"`
+		Rule ProxyRule  `json:"rule"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.UpdateProxy(req.ID, &req.Rule); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	respondJSON(w, map[string]string{"status": "updated"})
+}
+
+// handleGetProxy 处理获取代理请求
+func (h *ReverseProxyHandler) handleGetProxy(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "ID is required", http.StatusBadRequest)
+		return
+	}
+
+	proxy, err := h.manager.GetProxy(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	respondJSON(w, proxy)
+}
+
+// handleListProxies 处理列出代理请求
+func (h *ReverseProxyHandler) handleListProxies(w http.ResponseWriter, r *http.Request) {
+	proxies := h.manager.ListProxies()
+	respondJSON(w, proxies)
+}
+
+// handleEnableProxy 处理启用代理请求
+func (h *ReverseProxyHandler) handleEnableProxy(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.EnableProxy(req.ID); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	respondJSON(w, map[string]string{"status": "enabled"})
+}
+
+// handleDisableProxy 处理禁用代理请求
+func (h *ReverseProxyHandler) handleDisableProxy(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.DisableProxy(req.ID); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	respondJSON(w, map[string]string{"status": "disabled"})
+}
+
+// handleGetStats 处理获取统计请求
+func (h *ReverseProxyHandler) handleGetStats(w http.ResponseWriter, r *http.Request) {
+	stats := h.manager.GetStats()
+	respondJSON(w, stats)
+}
+
+// respondJSON 响应JSON
+func respondJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
-}
-
-func writeError(w http.ResponseWriter, status int, message string) {
-	writeJSON(w, status, ErrorResponse{
-		Error:   http.StatusText(status),
-		Message: message,
-	})
 }

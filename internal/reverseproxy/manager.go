@@ -8,10 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager manages reverse proxy configurations
+// Manager manages reverse proxy configurations (REST API oriented)
 type Manager struct {
-	mu     sync.RWMutex
-	proxies map[string]ReverseProxy
+	mu      sync.RWMutex
+	proxies map[string]*ReverseProxy
 	rules   map[string][]ProxyRule // proxyID -> rules
 	stats   ProxyStats
 }
@@ -19,13 +19,11 @@ type Manager struct {
 // NewManager creates a new reverse proxy manager with mock data
 func NewManager() *Manager {
 	m := &Manager{
-		proxies: make(map[string]ReverseProxy),
+		proxies: make(map[string]*ReverseProxy),
 		rules:   make(map[string][]ProxyRule),
 	}
 
-	// Add some mock proxies
 	m.addMockProxies()
-
 	return m
 }
 
@@ -41,7 +39,7 @@ func (m *Manager) addMockProxies() {
 	}
 
 	for _, mp := range mockProxies {
-		proxy := ReverseProxy{
+		proxy := &ReverseProxy{
 			ID:         uuid.New().String(),
 			Name:       mp.name,
 			Domain:     mp.domain,
@@ -62,7 +60,6 @@ func (m *Manager) addMockProxies() {
 		}
 	}
 
-	// Update stats
 	m.stats = ProxyStats{
 		TotalProxies:    len(m.proxies),
 		ActiveProxies:   len(m.proxies),
@@ -77,14 +74,13 @@ func (m *Manager) CreateProxy(req CreateProxyRequest) (*ReverseProxy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	// Check for duplicate domain
 	for _, p := range m.proxies {
 		if p.Domain == req.Domain {
 			return nil, fmt.Errorf("proxy with domain '%s' already exists", req.Domain)
 		}
 	}
 
-	proxy := ReverseProxy{
+	proxy := &ReverseProxy{
 		ID:         uuid.New().String(),
 		Name:       req.Name,
 		Domain:     req.Domain,
@@ -105,7 +101,7 @@ func (m *Manager) CreateProxy(req CreateProxyRequest) (*ReverseProxy, error) {
 	m.rules[proxy.ID] = []ProxyRule{}
 	m.updateStats()
 
-	return &proxy, nil
+	return proxy, nil
 }
 
 // UpdateProxy updates an existing reverse proxy
@@ -122,7 +118,6 @@ func (m *Manager) UpdateProxy(id string, req UpdateProxyRequest) error {
 		proxy.Name = *req.Name
 	}
 	if req.Domain != nil {
-		// Check for duplicate domain
 		for pid, p := range m.proxies {
 			if pid != id && p.Domain == *req.Domain {
 				return fmt.Errorf("proxy with domain '%s' already exists", *req.Domain)
@@ -147,7 +142,6 @@ func (m *Manager) UpdateProxy(id string, req UpdateProxyRequest) error {
 	}
 
 	proxy.UpdatedAt = time.Now()
-	m.proxies[id] = proxy
 	m.updateStats()
 
 	return nil
@@ -178,7 +172,7 @@ func (m *Manager) GetProxy(id string) (*ReverseProxy, error) {
 	if !ok {
 		return nil, fmt.Errorf("proxy not found: %s", id)
 	}
-	return &proxy, nil
+	return proxy, nil
 }
 
 // ListProxies returns all configured proxies
@@ -188,17 +182,13 @@ func (m *Manager) ListProxies() []ReverseProxy {
 
 	proxies := make([]ReverseProxy, 0, len(m.proxies))
 	for _, p := range m.proxies {
-		proxies = append(proxies, p)
+		proxies = append(proxies, *p)
 	}
 	return proxies
 }
 
-// ReloadConfig reloads the proxy configuration (mock implementation)
+// ReloadConfig reloads the proxy configuration
 func (m *Manager) ReloadConfig() error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	// Mock: simulate config reload
 	return nil
 }
 
