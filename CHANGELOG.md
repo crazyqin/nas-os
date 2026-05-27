@@ -1,3 +1,22 @@
+## [v2.502.0] - 2026-05-28
+
+### 新增6个功能模块 - 竞品功能对标
+
+#### 新功能
+
+- 📦 **Container Registry** - 私有容器镜像仓库 / OCI Distribution Spec / 镜像存储 / Tag管理 / 垃圾回收
+- 🔗 **Network Bond Manager** - LACP/802.3ad网卡绑定 / 7种绑定模式 / 健康检测 / 自动故障转移
+- 📡 **MQTT Broker** - IoT消息代理 / QoS 0-2 / 持久会话 / 遗嘱消息 / 通配符匹配
+- ⚡ **Smart Cache Warming** - 智能缓存预热 / LRU/LFU/ARC策略 / 热点预测 / 定时预热
+- 🛡️ **Disaster Recovery Planner** - 灾难恢复编排 / RTO/RPO监控 / 自动故障转移 / DR测试
+- 🎥 **WebRTC Streaming** - 实时流媒体 / P2P连接 / 媒体录制 / 信令管理
+
+#### 修复
+
+- 🔧 修复 clustermanager go vet lock 拷贝问题（NodeHealth/ClusterStats）
+
+---
+
 ## [v2.501.0] - 2026-05-28
 
 ### 新增8个功能模块 + 修复测试
