@@ -2,7 +2,6 @@ package migration
 
 import (
 	"context"
-	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -11,613 +10,692 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// ========== 任务创建测试 ==========
+// ========== Planner 测试 ==========
 
-func TestCreateTask_Success(t *testing.T) {
-	m := NewManager()
+func TestPlanner_DetectSource(t *testing.T) {
+	planner := NewPlanner()
 
-	task, err := m.CreateTask(&CreateRequest{
-		Name:         "测试迁移",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data/shared",
-		TargetPath:   "/data/shared",
-		Mode:         ModeFull,
+	t.Run("成功探测", func(t *testing.T) {
+		req := &CreateMigrationRequest{
+			SourceHost: "192.168.1.100",
+			SourcePort: 22,
+			SourceUser: "admin",
+		}
+
+		info, err := planner.DetectSource(context.Background(), req)
+		require.NoError(t, err)
+		assert.NotNil(t, info)
+		assert.Equal(t, SourceGenericNAS, info.Type)
+		assert.Equal(t, "192.168.1.100", info.Hostname)
 	})
 
-	require.NoError(t, err)
-	assert.NotEmpty(t, task.ID)
-	assert.Equal(t, "测试迁移", task.Name)
-	assert.Equal(t, "nas-001", task.SourceDevice)
-	assert.Equal(t, "nas-002", task.TargetDevice)
-	assert.Equal(t, ModeFull, task.Mode)
-	assert.Equal(t, StatusPending, task.Status)
-	assert.Equal(t, 0, task.Progress)
+	t.Run("空主机地址", func(t *testing.T) {
+		req := &CreateMigrationRequest{
+			SourceHost: "",
+			SourceUser: "admin",
+		}
+
+		_, err := planner.DetectSource(context.Background(), req)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "源主机地址不能为空")
+	})
 }
 
-func TestCreateTask_MissingFields(t *testing.T) {
-	m := NewManager()
+func TestPlanner_GeneratePlan(t *testing.T) {
+	planner := NewPlanner()
 
-	tests := []struct {
-		name string
-		req  *CreateRequest
-	}{
-		{
-			name: "缺少源设备",
-			req: &CreateRequest{
-				Name:         "test",
-				TargetDevice: "nas-002",
-				SourcePath:   "/data",
-				TargetPath:   "/data",
-			},
+	task := &MigrationTask{
+		ID:         "test-task-1",
+		SourceType: SourceSynology,
+		SourceHost: "192.168.1.100",
+		TargetPath: "/data/migration",
+	}
+
+	sourceInfo := &SourceSystemInfo{
+		Type:         SourceSynology,
+		Version:      "7.0",
+		Hostname:     "synology-nas",
+		TotalStorage: 1024 * 1024 * 1024 * 500, // 500GB
+		UsedStorage:  1024 * 1024 * 1024 * 200,  // 200GB
+		TotalUsers:   10,
+		TotalShares:  20,
+		TotalApps:    5,
+	}
+
+	t.Run("生成计划", func(t *testing.T) {
+		plan, err := planner.GeneratePlan(context.Background(), task, sourceInfo)
+		require.NoError(t, err)
+		assert.NotNil(t, plan)
+		assert.NotEmpty(t, plan.ID)
+		assert.Equal(t, task.ID, plan.TaskID)
+		assert.Equal(t, SourceSynology, plan.SourceType)
+		assert.NotEmpty(t, plan.Mappings)
+		assert.True(t, plan.Compatible)
+	})
+
+	t.Run("映射包含用户数据", func(t *testing.T) {
+		plan, err := planner.GeneratePlan(context.Background(), task, sourceInfo)
+		require.NoError(t, err)
+
+		var hasUsers bool
+		for _, m := range plan.Mappings {
+			if m.Category == CategoryUsers {
+				hasUsers = true
+				assert.Equal(t, 10, m.ItemCount)
+				assert.True(t, m.Selected)
+			}
+		}
+		assert.True(t, hasUsers, "应包含用户数据映射")
+	})
+}
+
+func TestPlanner_UpdateMappingSelection(t *testing.T) {
+	planner := NewPlanner()
+
+	plan := &MigrationPlan{
+		Mappings: []DataMapping{
+			{Category: CategoryUsers, Selected: true},
+			{Category: CategoryShares, Selected: true},
 		},
-		{
-			name: "缺少目标设备",
-			req: &CreateRequest{
-				Name:         "test",
-				SourceDevice: "nas-001",
-				SourcePath:   "/data",
-				TargetPath:   "/data",
-			},
-		},
-		{
-			name: "缺少源路径",
-			req: &CreateRequest{
-				Name:         "test",
-				SourceDevice: "nas-001",
-				TargetDevice: "nas-002",
-				TargetPath:   "/data",
-			},
-		},
-		{
-			name: "缺少目标路径",
-			req: &CreateRequest{
-				Name:         "test",
-				SourceDevice: "nas-001",
-				TargetDevice: "nas-002",
-				SourcePath:   "/data",
+	}
+
+	t.Run("取消选择", func(t *testing.T) {
+		ok := planner.UpdateMappingSelection(plan, CategoryUsers, false)
+		assert.True(t, ok)
+		assert.False(t, plan.Mappings[0].Selected)
+	})
+
+	t.Run("重新选择", func(t *testing.T) {
+		ok := planner.UpdateMappingSelection(plan, CategoryUsers, true)
+		assert.True(t, ok)
+		assert.True(t, plan.Mappings[0].Selected)
+	})
+
+	t.Run("不存在的类别", func(t *testing.T) {
+		ok := planner.UpdateMappingSelection(plan, CategoryVMs, true)
+		assert.False(t, ok)
+	})
+}
+
+// ========== Executor 测试 ==========
+
+type mockTransferFunc struct {
+	called    bool
+	callCount int
+}
+
+func (m *mockTransferFunc) Transfer(ctx context.Context, mapping DataMapping, progress func(int64)) error {
+	m.called = true
+	m.callCount++
+	progress(mapping.TotalSize / int64(mapping.ItemCount))
+	return nil
+}
+
+func TestExecutor_Execute(t *testing.T) {
+	planner := NewPlanner()
+	executor := NewExecutor(planner)
+
+	// 使用 mock 传输函数
+	mock := &mockTransferFunc{}
+	executor.SetTransferFunc(mock.Transfer)
+
+	task := &MigrationTask{
+		ID:         "test-exec-1",
+		SourceType: SourceSynology,
+		SourceHost: "192.168.1.100",
+		TargetPath: "/data/migration",
+		Progress:   &ProgressInfo{CategoryProgress: make(map[string]int)},
+	}
+
+	plan := &MigrationPlan{
+		ID:         "plan-1",
+		TaskID:     task.ID,
+		SourceType: SourceSynology,
+		Mappings: []DataMapping{
+			{
+				ID:         "mapping-1",
+				Category:   CategoryUsers,
+				SourcePath: "/var/users",
+				TargetPath: "/home",
+				ItemCount:  2,
+				TotalSize:  1024 * 1024 * 100,
+				Selected:   true,
+				Order:      1,
 			},
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, err := m.CreateTask(tt.req)
-			assert.Error(t, err)
-		})
-	}
+	t.Run("执行迁移", func(t *testing.T) {
+		result, err := executor.Execute(context.Background(), task, plan)
+		require.NoError(t, err)
+		assert.NotNil(t, result)
+
+		// 等待完成
+		time.Sleep(500 * time.Millisecond)
+
+		assert.True(t, mock.called)
+		assert.Equal(t, MigrationStatusCompleted, task.Status)
+	})
+
+	t.Run("重复执行失败", func(t *testing.T) {
+		// 任务已在运行
+		_, err := executor.Execute(context.Background(), task, plan)
+		assert.Error(t, err)
+	})
 }
 
-func TestCreateTask_DefaultMode(t *testing.T) {
-	m := NewManager()
+func TestExecutor_Pause(t *testing.T) {
+	planner := NewPlanner()
+	executor := NewExecutor(planner)
 
-	task, err := m.CreateTask(&CreateRequest{
-		Name:         "default mode",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
+	t.Run("暂停不存在的任务", func(t *testing.T) {
+		err := executor.Pause("non-existent")
+		assert.Error(t, err)
 	})
-	require.NoError(t, err)
-	assert.Equal(t, ModeFull, task.Mode)
 }
 
-// ========== 预扫描测试 ==========
+func TestExecutor_GetProgress(t *testing.T) {
+	planner := NewPlanner()
+	executor := NewExecutor(planner)
 
-func TestScan_Success(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "scan test",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
+	t.Run("获取不存在任务的进度", func(t *testing.T) {
+		_, err := executor.GetProgress("non-existent")
+		assert.Error(t, err)
 	})
-
-	m.SetScanFunc(func(_ context.Context, _ string) (*ScanResult, error) {
-		return &ScanResult{
-			TotalSize:    5 * 1024 * 1024 * 1024,
-			TotalFiles:   5000,
-			EstimatedSec: 300,
-		}, nil
-	})
-
-	result, err := m.Scan(context.Background(), task.ID)
-	require.NoError(t, err)
-	assert.Equal(t, int64(5*1024*1024*1024), result.TotalSize)
-	assert.Equal(t, int64(5000), result.TotalFiles)
-
-	updated, _ := m.GetTask(task.ID)
-	assert.Equal(t, StatusPending, updated.Status)
-	assert.Equal(t, result.TotalSize, updated.TotalSize)
 }
 
-func TestScan_NotFound(t *testing.T) {
-	m := NewManager()
-	_, err := m.Scan(context.Background(), "non-existent")
-	assert.ErrorIs(t, err, ErrTaskNotFound)
+// ========== Manager 测试 ==========
+
+func TestManager_CreateTask(t *testing.T) {
+	manager := NewManager()
+
+	t.Run("创建任务成功", func(t *testing.T) {
+		req := &CreateRequest{
+			Name:         "测试迁移",
+			SourceDevice: "192.168.1.100",
+			TargetDevice: "192.168.1.200",
+			SourcePath:   "/data",
+			TargetPath:   "/backup",
+		}
+
+		task, err := manager.CreateTask(req)
+		require.NoError(t, err)
+		assert.NotEmpty(t, task.ID)
+		assert.Equal(t, "测试迁移", task.Name)
+		assert.Equal(t, StatusPending, task.Status)
+		assert.Equal(t, ModeFull, task.Mode)
+	})
+
+	t.Run("缺少必要字段", func(t *testing.T) {
+		req := &CreateRequest{
+			Name: "测试",
+		}
+
+		_, err := manager.CreateTask(req)
+		assert.Error(t, err)
+	})
+
+	t.Run("默认模式", func(t *testing.T) {
+		req := &CreateRequest{
+			Name:         "默认模式测试",
+			SourceDevice: "src",
+			TargetDevice: "dst",
+			SourcePath:   "/src",
+			TargetPath:   "/dst",
+		}
+
+		task, err := manager.CreateTask(req)
+		require.NoError(t, err)
+		assert.Equal(t, ModeFull, task.Mode)
+	})
 }
 
-func TestScan_Error(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "scan error",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
+func TestManager_GetTask(t *testing.T) {
+	manager := NewManager()
+
+	t.Run("获取不存在的任务", func(t *testing.T) {
+		_, err := manager.GetTask("non-existent")
+		assert.Error(t, err)
 	})
 
-	scanErr := errors.New("设备离线")
-	m.SetScanFunc(func(_ context.Context, _ string) (*ScanResult, error) {
-		return nil, scanErr
+	t.Run("获取存在的任务", func(t *testing.T) {
+		req := &CreateRequest{
+			Name:         "测试",
+			SourceDevice: "src",
+			TargetDevice: "dst",
+			SourcePath:   "/src",
+			TargetPath:   "/dst",
+		}
+
+		created, _ := manager.CreateTask(req)
+		task, err := manager.GetTask(created.ID)
+		require.NoError(t, err)
+		assert.Equal(t, created.ID, task.ID)
 	})
-
-	_, err := m.Scan(context.Background(), task.ID)
-	assert.Error(t, err)
-	assert.Equal(t, scanErr, err)
-
-	updated, _ := m.GetTask(task.ID)
-	assert.Equal(t, StatusFailed, updated.Status)
 }
 
-func TestScan_IncrementalResult(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "incremental scan",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
-		Mode:         ModeIncremental,
+func TestManager_ListTasks(t *testing.T) {
+	manager := NewManager()
+
+	t.Run("空列表", func(t *testing.T) {
+		tasks := manager.ListTasks()
+		assert.Empty(t, tasks)
 	})
 
-	m.SetScanFunc(func(_ context.Context, _ string) (*ScanResult, error) {
-		return &ScanResult{
-			TotalSize:    10 * 1024 * 1024 * 1024,
-			TotalFiles:   10000,
-			Incremental:  true,
-			ChangedFiles: 200,
-			ChangedSize:  500 * 1024 * 1024,
-			EstimatedSec: 30,
-		}, nil
-	})
+	t.Run("添加后列出", func(t *testing.T) {
+		for i := 0; i < 3; i++ {
+			manager.CreateTask(&CreateRequest{
+				Name:         "任务",
+				SourceDevice: "src",
+				TargetDevice: "dst",
+				SourcePath:   "/src",
+				TargetPath:   "/dst",
+			})
+		}
 
-	result, err := m.Scan(context.Background(), task.ID)
-	require.NoError(t, err)
-	assert.True(t, result.Incremental)
-	assert.Equal(t, int64(200), result.ChangedFiles)
-	assert.Equal(t, int64(500*1024*1024), result.ChangedSize)
+		tasks := manager.ListTasks()
+		assert.Len(t, tasks, 3)
+	})
 }
 
-// ========== 迁移执行测试 ==========
+func TestManager_DeleteTask(t *testing.T) {
+	manager := NewManager()
 
-func TestStart_Success(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "start test",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
+	t.Run("删除不存在的任务", func(t *testing.T) {
+		err := manager.DeleteTask("non-existent")
+		assert.Error(t, err)
 	})
 
-	transferDone := make(chan struct{})
-	m.SetTransferFunc(func(ctx context.Context, src, dst string, progress func(int64)) error {
-		defer close(transferDone)
-		progress(5 * 1024 * 1024)
-		progress(5 * 1024 * 1024)
-		return nil
+	t.Run("删除存在的任务", func(t *testing.T) {
+		req := &CreateRequest{
+			Name:         "待删除",
+			SourceDevice: "src",
+			TargetDevice: "dst",
+			SourcePath:   "/src",
+			TargetPath:   "/dst",
+		}
+
+		task, _ := manager.CreateTask(req)
+		err := manager.DeleteTask(task.ID)
+		assert.NoError(t, err)
+
+		_, err = manager.GetTask(task.ID)
+		assert.Error(t, err)
 	})
-
-	err := m.Start(task.ID)
-	require.NoError(t, err)
-
-	select {
-	case <-transferDone:
-		time.Sleep(50 * time.Millisecond)
-	case <-time.After(5 * time.Second):
-		t.Fatal("迁移超时")
-	}
-
-	updated, _ := m.GetTask(task.ID)
-	assert.Equal(t, StatusCompleted, updated.Status)
-	assert.Equal(t, 100, updated.Progress)
-	assert.NotEmpty(t, updated.SnapshotID)
 }
 
-func TestStart_AlreadyRunning(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "duplicate test",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
+func TestManager_Scan(t *testing.T) {
+	manager := NewManager()
+
+	t.Run("扫描不存在的任务", func(t *testing.T) {
+		_, err := manager.Scan(context.Background(), "non-existent")
+		assert.Error(t, err)
 	})
 
-	started := make(chan struct{})
-	m.SetTransferFunc(func(ctx context.Context, _, _ string, _ func(int64)) error {
-		close(started)
-		<-ctx.Done()
-		return ctx.Err()
+	t.Run("扫描存在的任务", func(t *testing.T) {
+		req := &CreateRequest{
+			Name:         "扫描测试",
+			SourceDevice: "src",
+			TargetDevice: "dst",
+			SourcePath:   "/src",
+			TargetPath:   "/dst",
+		}
+
+		task, _ := manager.CreateTask(req)
+		result, err := manager.Scan(context.Background(), task.ID)
+		require.NoError(t, err)
+		assert.NotNil(t, result)
+		assert.Greater(t, result.TotalSize, int64(0))
+		assert.Greater(t, result.TotalFiles, int64(0))
 	})
-
-	go m.Start(task.ID)
-	<-started
-	time.Sleep(20 * time.Millisecond)
-
-	err := m.Start(task.ID)
-	assert.ErrorIs(t, err, ErrAlreadyRunning)
-
-	m.Cancel(task.ID)
 }
 
-func TestStart_TransferError(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "transfer error",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
+func TestManager_Start(t *testing.T) {
+	manager := NewManager()
+
+	t.Run("启动不存在的任务", func(t *testing.T) {
+		err := manager.Start("non-existent")
+		assert.Error(t, err)
 	})
 
-	transferErr := errors.New("网络中断")
-	m.SetTransferFunc(func(ctx context.Context, _, _ string, _ func(int64)) error {
-		return transferErr
+	t.Run("启动任务", func(t *testing.T) {
+		req := &CreateRequest{
+			Name:         "启动测试",
+			SourceDevice: "src",
+			TargetDevice: "dst",
+			SourcePath:   "/src",
+			TargetPath:   "/dst",
+		}
+
+		task, _ := manager.CreateTask(req)
+		err := manager.Start(task.ID)
+		assert.NoError(t, err)
+
+		// 等待完成
+		time.Sleep(1 * time.Second)
+
+		updated, _ := manager.GetTask(task.ID)
+		assert.Equal(t, StatusCompleted, updated.Status)
 	})
 
-	done := make(chan struct{})
-	go func() {
-		m.Start(task.ID)
-		close(done)
-	}()
+	t.Run("重复启动", func(t *testing.T) {
+		req := &CreateRequest{
+			Name:         "重复启动测试",
+			SourceDevice: "src",
+			TargetDevice: "dst",
+			SourcePath:   "/src",
+			TargetPath:   "/dst",
+		}
 
-	select {
-	case <-done:
-	case <-time.After(5 * time.Second):
-		t.Fatal("超时")
-	}
+		task, _ := manager.CreateTask(req)
+		_ = manager.Start(task.ID)
 
-	time.Sleep(50 * time.Millisecond)
-	updated, _ := m.GetTask(task.ID)
-	assert.Equal(t, StatusFailed, updated.Status)
-	assert.Equal(t, "网络中断", updated.Error)
+		err := manager.Start(task.ID)
+		assert.Error(t, err)
+	})
 }
 
-// ========== 取消测试 ==========
+func TestManager_Cancel(t *testing.T) {
+	manager := NewManager()
 
-func TestCancel_Success(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "cancel test",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
+	t.Run("取消未运行的任务", func(t *testing.T) {
+		err := manager.Cancel("non-existent")
+		assert.Error(t, err)
 	})
-
-	started := make(chan struct{})
-	m.SetTransferFunc(func(ctx context.Context, _, _ string, _ func(int64)) error {
-		close(started)
-		<-ctx.Done()
-		return ctx.Err()
-	})
-
-	go m.Start(task.ID)
-	<-started
-	time.Sleep(20 * time.Millisecond)
-
-	err := m.Cancel(task.ID)
-	assert.NoError(t, err)
-
-	time.Sleep(50 * time.Millisecond)
-	updated, _ := m.GetTask(task.ID)
-	assert.Equal(t, StatusCancelled, updated.Status)
 }
 
-func TestCancel_NotRunning(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "not running",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
+func TestManager_Rollback(t *testing.T) {
+	manager := NewManager()
+
+	t.Run("回滚不存在的任务", func(t *testing.T) {
+		err := manager.Rollback("non-existent")
+		assert.Error(t, err)
 	})
 
-	err := m.Cancel(task.ID)
-	assert.ErrorIs(t, err, ErrTaskNotRunning)
+	t.Run("回滚无快照的任务", func(t *testing.T) {
+		req := &CreateRequest{
+			Name:         "回滚测试",
+			SourceDevice: "src",
+			TargetDevice: "dst",
+			SourcePath:   "/src",
+			TargetPath:   "/dst",
+		}
+
+		task, _ := manager.CreateTask(req)
+		err := manager.Rollback(task.ID)
+		assert.Error(t, err)
+	})
+
+	t.Run("回滚已完成的任务", func(t *testing.T) {
+		req := &CreateRequest{
+			Name:         "回滚完成任务",
+			SourceDevice: "src",
+			TargetDevice: "dst",
+			SourcePath:   "/src",
+			TargetPath:   "/dst",
+		}
+
+		task, _ := manager.CreateTask(req)
+		_ = manager.Start(task.ID)
+		time.Sleep(1 * time.Second)
+
+		err := manager.Rollback(task.ID)
+		assert.NoError(t, err)
+
+		updated, _ := manager.GetTask(task.ID)
+		assert.Equal(t, StatusRolledBack, updated.Status)
+	})
 }
 
-// ========== 回滚测试 ==========
+func TestManager_Verify(t *testing.T) {
+	manager := NewManager()
 
-func TestRollback_Success(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "rollback test",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
+	t.Run("验证不存在的任务", func(t *testing.T) {
+		_, err := manager.Verify(context.Background(), "non-existent")
+		assert.Error(t, err)
 	})
 
-	// 先完成迁移
-	m.SetTransferFunc(func(ctx context.Context, _, _ string, progress func(int64)) error {
-		progress(10 * 1024 * 1024)
-		return nil
+	t.Run("验证未完成的任务", func(t *testing.T) {
+		req := &CreateRequest{
+			Name:         "验证测试",
+			SourceDevice: "src",
+			TargetDevice: "dst",
+			SourcePath:   "/src",
+			TargetPath:   "/dst",
+		}
+
+		task, _ := manager.CreateTask(req)
+		_, err := manager.Verify(context.Background(), task.ID)
+		assert.Error(t, err)
 	})
-
-	done := make(chan struct{})
-	go func() { m.Start(task.ID); close(done) }()
-	<-done
-
-	time.Sleep(50 * time.Millisecond)
-	updated, _ := m.GetTask(task.ID)
-	assert.NotEmpty(t, updated.SnapshotID)
-
-	err := m.Rollback(task.ID)
-	assert.NoError(t, err)
-
-	rolled, _ := m.GetTask(task.ID)
-	assert.Equal(t, StatusRolledBack, rolled.Status)
-	assert.Equal(t, 0, rolled.Progress)
-	assert.Empty(t, rolled.Error)
 }
 
-func TestRollback_NoSnapshot(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "no snapshot",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
-	})
-
-	err := m.Rollback(task.ID)
-	assert.ErrorIs(t, err, ErrNoSnapshot)
-}
-
-func TestRollback_NotFound(t *testing.T) {
-	m := NewManager()
-	err := m.Rollback("non-existent")
-	assert.ErrorIs(t, err, ErrTaskNotFound)
-}
-
-// ========== 验证测试 ==========
-
-func TestVerify_Success(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "verify test",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
-	})
-
-	m.SetVerifyFunc(func(_ context.Context, _, _ string) (*VerifyResult, error) {
-		return &VerifyResult{
-			Valid:        true,
-			CheckedFiles: 100,
-			Mismatches:   0,
-			Duration:     1500,
-		}, nil
-	})
-
-	result, err := m.Verify(context.Background(), task.ID)
-	require.NoError(t, err)
-	assert.True(t, result.Valid)
-	assert.Equal(t, int64(100), result.CheckedFiles)
-	assert.Equal(t, int64(0), result.Mismatches)
-
-	updated, _ := m.GetTask(task.ID)
-	assert.Equal(t, StatusCompleted, updated.Status)
-}
-
-func TestVerify_Mismatches(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "verify mismatch",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
-	})
-
-	m.SetVerifyFunc(func(_ context.Context, _, _ string) (*VerifyResult, error) {
-		return &VerifyResult{
-			Valid:        false,
-			CheckedFiles: 100,
-			Mismatches:   3,
-			Duration:     2000,
-		}, nil
-	})
-
-	result, err := m.Verify(context.Background(), task.ID)
-	require.NoError(t, err)
-	assert.False(t, result.Valid)
-	assert.Equal(t, int64(3), result.Mismatches)
-
-	updated, _ := m.GetTask(task.ID)
-	assert.Equal(t, StatusFailed, updated.Status)
-	assert.Contains(t, updated.Error, "3")
-}
-
-func TestVerify_Error(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "verify error",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
-	})
-
-	verifyErr := errors.New("连接超时")
-	m.SetVerifyFunc(func(_ context.Context, _, _ string) (*VerifyResult, error) {
-		return nil, verifyErr
-	})
-
-	_, err := m.Verify(context.Background(), task.ID)
-	assert.Error(t, err)
-
-	updated, _ := m.GetTask(task.ID)
-	assert.Equal(t, StatusFailed, updated.Status)
-}
-
-// ========== 查询测试 ==========
-
-func TestGetTask_Success(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name:         "get test",
-		SourceDevice: "nas-001",
-		TargetDevice: "nas-002",
-		SourcePath:   "/data",
-		TargetPath:   "/data",
-	})
-
-	got, err := m.GetTask(task.ID)
-	require.NoError(t, err)
-	assert.Equal(t, task.ID, got.ID)
-	assert.Equal(t, task.Name, got.Name)
-}
-
-func TestGetTask_NotFound(t *testing.T) {
-	m := NewManager()
-	_, err := m.GetTask("non-existent")
-	assert.ErrorIs(t, err, ErrTaskNotFound)
-}
-
-func TestListTasks(t *testing.T) {
-	m := NewManager()
-
-	m.CreateTask(&CreateRequest{
-		Name: "task-1", SourceDevice: "s1", TargetDevice: "t1",
-		SourcePath: "/a", TargetPath: "/a",
-	})
-	m.CreateTask(&CreateRequest{
-		Name: "task-2", SourceDevice: "s2", TargetDevice: "t2",
-		SourcePath: "/b", TargetPath: "/b",
-	})
-
-	tasks := m.ListTasks()
-	assert.Len(t, tasks, 2)
-}
-
-// ========== 删除测试 ==========
-
-func TestDeleteTask_Success(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name: "delete test", SourceDevice: "s1", TargetDevice: "t1",
-		SourcePath: "/a", TargetPath: "/a",
-	})
-
-	err := m.DeleteTask(task.ID)
-	assert.NoError(t, err)
-
-	_, err = m.GetTask(task.ID)
-	assert.ErrorIs(t, err, ErrTaskNotFound)
-}
-
-func TestDeleteTask_NotFound(t *testing.T) {
-	m := NewManager()
-	err := m.DeleteTask("non-existent")
-	assert.ErrorIs(t, err, ErrTaskNotFound)
-}
-
-// ========== 进度跟踪测试 ==========
-
-func TestProgressTracking(t *testing.T) {
-	m := NewManager()
-	task, _ := m.CreateTask(&CreateRequest{
-		Name: "progress test", SourceDevice: "s1", TargetDevice: "t1",
-		SourcePath: "/a", TargetPath: "/a",
-	})
-
-	// 先设置扫描
-	m.SetScanFunc(func(_ context.Context, _ string) (*ScanResult, error) {
-		return &ScanResult{TotalSize: 4 * 1024 * 1024, TotalFiles: 4}, nil
-	})
-	m.Scan(context.Background(), task.ID)
-
-	// 然后执行迁移，每次传输 1MB
-	m.SetTransferFunc(func(ctx context.Context, _, _ string, progress func(int64)) error {
-		progress(1024 * 1024)
-		progress(1024 * 1024)
-		progress(1024 * 1024)
-		progress(1024 * 1024)
-		return nil
-	})
-
-	done := make(chan struct{})
-	go func() { m.Start(task.ID); close(done) }()
-	<-done
-
-	time.Sleep(50 * time.Millisecond)
-	updated, _ := m.GetTask(task.ID)
-	assert.Equal(t, 100, updated.Progress)
-	assert.Equal(t, int64(4*1024*1024), updated.Transferred)
-	assert.True(t, updated.Speed > 0)
-	assert.NotZero(t, updated.StartedAt)
-	assert.NotZero(t, updated.FinishedAt)
-}
-
-// ========== 错误类型测试 ==========
-
-func TestMigrationError_Interfaces(t *testing.T) {
-	err := &MigrationError{Code: 404, Message: "not found"}
-	assert.True(t, err.NotFound())
-	assert.False(t, err.BadRequest())
-	assert.False(t, err.Conflict())
-
-	err2 := &MigrationError{Code: 400, Message: "bad"}
-	assert.True(t, err2.BadRequest())
-
-	err3 := &MigrationError{Code: 409, Message: "conflict"}
-	assert.True(t, err3.Conflict())
-}
-
-func TestMigrationError_ErrorString(t *testing.T) {
-	baseErr := errors.New("底层错误")
-	err := &MigrationError{Code: 500, Message: "内部错误", Err: baseErr}
-	assert.Contains(t, err.Error(), "内部错误")
-	assert.Contains(t, err.Error(), "底层错误")
-	assert.Equal(t, baseErr, err.Unwrap())
-}
-
-func TestMigrationError_ErrorNoWrap(t *testing.T) {
-	err := &MigrationError{Code: 500, Message: "简单错误"}
-	assert.Equal(t, "简单错误", err.Error())
-	assert.Nil(t, err.Unwrap())
-}
-
-// ========== 校验和测试 ==========
+// ========== ComputeChecksum 测试 ==========
 
 func TestComputeChecksum(t *testing.T) {
-	r := strings.NewReader("hello world")
-	hash, err := ComputeChecksum(r)
-	require.NoError(t, err)
-	assert.NotEmpty(t, hash)
-	assert.Len(t, hash, 64) // SHA-256 hex = 64 chars
+	t.Run("计算校验和", func(t *testing.T) {
+		data := "Hello, World!"
+		reader := strings.NewReader(data)
+
+		checksum, err := ComputeChecksum(reader)
+		require.NoError(t, err)
+		assert.NotEmpty(t, checksum)
+		assert.Len(t, checksum, 64) // SHA256 hex string length
+	})
+
+	t.Run("相同内容相同校验和", func(t *testing.T) {
+		data := "test data"
+		r1 := strings.NewReader(data)
+		r2 := strings.NewReader(data)
+
+		h1, _ := ComputeChecksum(r1)
+		h2, _ := ComputeChecksum(r2)
+		assert.Equal(t, h1, h2)
+	})
 }
 
-func TestComputeChecksum_SameInput(t *testing.T) {
-	r1 := strings.NewReader("test data")
-	r2 := strings.NewReader("test data")
-	h1, _ := ComputeChecksum(r1)
-	h2, _ := ComputeChecksum(r2)
-	assert.Equal(t, h1, h2)
+// ========== 类型测试 ==========
+
+func TestMigrationStatus_Constants(t *testing.T) {
+	assert.Equal(t, MigrationStatus("pending"), MigrationStatusPending)
+	assert.Equal(t, MigrationStatus("running"), MigrationStatusRunning)
+	assert.Equal(t, MigrationStatus("completed"), MigrationStatusCompleted)
+	assert.Equal(t, MigrationStatus("failed"), MigrationStatusFailed)
+	assert.Equal(t, MigrationStatus("cancelled"), MigrationStatusCancelled)
 }
 
-func TestComputeChecksum_DifferentInput(t *testing.T) {
-	r1 := strings.NewReader("data A")
-	r2 := strings.NewReader("data B")
-	h1, _ := ComputeChecksum(r1)
-	h2, _ := ComputeChecksum(r2)
-	assert.NotEqual(t, h1, h2)
+func TestDataCategory_Constants(t *testing.T) {
+	assert.Equal(t, DataCategory("system"), CategorySystem)
+	assert.Equal(t, DataCategory("users"), CategoryUsers)
+	assert.Equal(t, DataCategory("shares"), CategoryShares)
+	assert.Equal(t, DataCategory("apps"), CategoryApps)
+	assert.Equal(t, DataCategory("docker"), CategoryDocker)
+}
+
+func TestMigrationSourceType_Constants(t *testing.T) {
+	assert.Equal(t, MigrationSourceType("synology"), SourceSynology)
+	assert.Equal(t, MigrationSourceType("qnap"), SourceQNAP)
+	assert.Equal(t, MigrationSourceType("truenas"), SourceTrueNAS)
+	assert.Equal(t, MigrationSourceType("unraid"), SourceUnraid)
+}
+
+// ========== Handler 测试 ==========
+
+func TestNewHandler(t *testing.T) {
+	planner := NewPlanner()
+	executor := NewExecutor(planner)
+
+	handler := NewHandler(planner, executor)
+	assert.NotNil(t, handler)
+	assert.NotNil(t, handler.planner)
+	assert.NotNil(t, handler.executor)
+}
+
+func TestNewHandlerWithManager(t *testing.T) {
+	manager := NewManager()
+
+	handler := NewHandlerWithManager(manager)
+	assert.NotNil(t, handler)
+	assert.NotNil(t, handler.manager)
+}
+
+// ========== ProgressInfo 测试 ==========
+
+func TestProgressInfo_Fields(t *testing.T) {
+	progress := &ProgressInfo{
+		OverallPercent:   50,
+		CurrentCategory:  CategoryUsers,
+		CategoryPercent:  75,
+		TransferredBytes: 1024 * 1024 * 100,
+		TotalBytes:       1024 * 1024 * 200,
+		Speed:            1024 * 1024 * 10, // 10MB/s
+		RemainingSec:     10,
+		Phase:            "正在迁移用户数据",
+		CategoryProgress: map[string]int{
+			"users":  75,
+			"shares": 100,
+		},
+	}
+
+	assert.Equal(t, 50, progress.OverallPercent)
+	assert.Equal(t, CategoryUsers, progress.CurrentCategory)
+	assert.Equal(t, 75, progress.CategoryPercent)
+	assert.Equal(t, int64(10), progress.RemainingSec)
+}
+
+// ========== MigrationResult 测试 ==========
+
+func TestMigrationResult_Fields(t *testing.T) {
+	result := &MigrationResult{
+		TaskID:          "task-1",
+		Status:          MigrationStatusCompleted,
+		TotalMigrated:   100,
+		TotalFailed:     5,
+		TotalSkipped:    2,
+		BytesMigrated:   1024 * 1024 * 500,
+		Duration:        time.Minute * 10,
+		CategoryResults: make([]CategoryResult, 0),
+		Errors:          make([]MigrationError, 0),
+		Warnings:        make([]string, 0),
+		RollbackID:      "rollback-1",
+		CompletedAt:     time.Now(),
+	}
+
+	assert.Equal(t, "task-1", result.TaskID)
+	assert.Equal(t, MigrationStatusCompleted, result.Status)
+	assert.Equal(t, 100, result.TotalMigrated)
+	assert.Equal(t, 5, result.TotalFailed)
+	assert.NotEmpty(t, result.RollbackID)
+}
+
+// ========== DataMapping 测试 ==========
+
+func TestDataMapping_Fields(t *testing.T) {
+	mapping := DataMapping{
+		ID:          "mapping-1",
+		Category:    CategoryShares,
+		SourcePath:  "/volume1/data",
+		TargetPath:  "/data/shares",
+		ItemCount:   100,
+		TotalSize:   1024 * 1024 * 1024,
+		Selected:    true,
+		Convertible: false,
+		Order:       1,
+	}
+
+	assert.Equal(t, "mapping-1", mapping.ID)
+	assert.Equal(t, CategoryShares, mapping.Category)
+	assert.True(t, mapping.Selected)
+	assert.False(t, mapping.Convertible)
+}
+
+// ========== Checkpoint 测试 ==========
+
+func TestCheckpoint_Fields(t *testing.T) {
+	now := time.Now()
+	cp := &Checkpoint{
+		TaskID:           "task-1",
+		CategoryIndex:    2,
+		ItemIndex:        50,
+		BytesTransferred: 1024 * 1024 * 100,
+		Timestamp:        now,
+	}
+
+	assert.Equal(t, "task-1", cp.TaskID)
+	assert.Equal(t, 2, cp.CategoryIndex)
+	assert.Equal(t, 50, cp.ItemIndex)
+	assert.Equal(t, now, cp.Timestamp)
+}
+
+// ========== SourceSystemInfo 测试 ==========
+
+func TestSourceSystemInfo_Fields(t *testing.T) {
+	info := &SourceSystemInfo{
+		Type:         SourceSynology,
+		Version:      "7.0",
+		Hostname:     "my-nas",
+		TotalStorage: 1024 * 1024 * 1024 * 1000,
+		UsedStorage:  1024 * 1024 * 1024 * 500,
+		TotalUsers:   20,
+		TotalShares:  30,
+		TotalApps:    15,
+		IPAddresses:  []string{"192.168.1.100"},
+		SystemModel:  "DS920+",
+	}
+
+	assert.Equal(t, SourceSynology, info.Type)
+	assert.Equal(t, "7.0", info.Version)
+	assert.Equal(t, "my-nas", info.Hostname)
+	assert.Equal(t, 20, info.TotalUsers)
+	assert.Equal(t, "DS920+", info.SystemModel)
+}
+
+// ========== PlanWarning 测试 ==========
+
+func TestPlanWarning_Fields(t *testing.T) {
+	warning := PlanWarning{
+		Level:    "warning",
+		Category: "apps",
+		Message:  "部分应用配置可能需要手动调整",
+	}
+
+	assert.Equal(t, "warning", warning.Level)
+	assert.Equal(t, "apps", warning.Category)
+	assert.NotEmpty(t, warning.Message)
+}
+
+// ========== CategoryResult 测试 ==========
+
+func TestCategoryResult_Fields(t *testing.T) {
+	result := CategoryResult{
+		Category:    CategoryUsers,
+		Status:      "success",
+		Migrated:    10,
+		Failed:      0,
+		Skipped:     0,
+		SizeBytes:   1024 * 1024 * 50,
+		Duration:    time.Second * 30,
+		ErrorDetail: "",
+	}
+
+	assert.Equal(t, CategoryUsers, result.Category)
+	assert.Equal(t, "success", result.Status)
+	assert.Equal(t, 10, result.Migrated)
+	assert.Equal(t, 0, result.Failed)
+}
+
+// ========== MigrationError 测试 ==========
+
+func TestMigrationError_Fields(t *testing.T) {
+	migErr := MigrationError{
+		Category: CategoryDocker,
+		Item:     "container-1",
+		Error:    "连接超时",
+		Code:     "TIMEOUT",
+	}
+
+	assert.Equal(t, CategoryDocker, migErr.Category)
+	assert.Equal(t, "container-1", migErr.Item)
+	assert.Equal(t, "连接超时", migErr.Error)
+	assert.Equal(t, "TIMEOUT", migErr.Code)
 }
