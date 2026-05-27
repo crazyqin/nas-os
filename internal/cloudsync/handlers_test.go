@@ -166,7 +166,8 @@ func TestCloudSyncHandlers_ListProviders(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(0), resp["code"])
 
-	data := resp["tasks"].([]interface{})
+	data, ok := resp["data"].([]interface{})
+	require.True(t, ok, "data should be an array")
 	assert.Len(t, data, 3)
 }
 
@@ -468,7 +469,7 @@ func TestCloudSyncHandlers_GetProvidersInfo(t *testing.T) {
 	assert.Equal(t, float64(0), resp["code"])
 
 	// 验证返回提供商信息列表
-	data, ok := resp["tasks"].([]interface{})
+	data, ok := resp["data"].([]interface{})
 	require.True(t, ok, "data should be an array")
 	assert.Greater(t, len(data), 0)
 }
