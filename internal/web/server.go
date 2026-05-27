@@ -75,6 +75,27 @@ import (
 	"nas-os/internal/wol"
 	"nas-os/internal/zfs"
 
+	// v2.498.0 新增模块
+	"nas-os/internal/appcenter"
+	"nas-os/internal/backupverify"
+	"nas-os/internal/collabdocs"
+	"nas-os/internal/containresmon"
+	"nas-os/internal/dataclassify"
+	"nas-os/internal/digitalwellbeing"
+	"nas-os/internal/dlp"
+	"nas-os/internal/edgecompute"
+	"nas-os/internal/energymanager"
+	"nas-os/internal/filesync"
+	"nas-os/internal/netsentinel"
+	"nas-os/internal/networkmap"
+	"nas-os/internal/photoenhance"
+	"nas-os/internal/privacyvault"
+	"nas-os/internal/remotedesktop"
+	"nas-os/internal/smarthome"
+	"nas-os/internal/ssohub"
+	"nas-os/internal/surveillance"
+	"nas-os/internal/unifiedsearch"
+
 	_ "nas-os/docs/swagger" // Swagger 文档
 
 	"github.com/gin-gonic/gin"
@@ -172,6 +193,26 @@ type Server struct {
 	logcenterMgr   *logcenter.Manager
 	// v2.491.0 新增模块
 	notificationSvc *notification.Service
+	// v2.498.0 新增模块
+	appCenterMgr       *appcenter.AppStore
+	backupVerifyMgr    *backupverify.Manager
+	collabDocsMgr      *collabdocs.Manager
+	containResMonMgr   *containresmon.Manager
+	dataClassifyMgr    *dataclassify.Manager
+	wellbeingMgr       *digitalwellbeing.Manager
+	dlpMgr             *dlp.Manager
+	edgeComputeMgr     *edgecompute.Manager
+	energyMgr          *energymanager.Manager
+	fileSyncMgr        *filesync.SyncManager
+	netSentinelMgr     *netsentinel.Manager
+	networkMapMgr      *networkmap.Manager
+	photoEnhanceMgr    *photoenhance.Manager
+	privacyVaultMgr    *privacyvault.Manager
+	remoteDesktopMgr   *remotedesktop.Manager
+	smartHomeMgr       *smarthome.Manager
+	ssoHubMgr          *ssohub.Manager
+	surveillanceMgr    *surveillance.SurveillanceManager
+	unifiedSearchMgr   *unifiedsearch.Manager
 }
 
 // NewServer 创建 Web 服务器.
@@ -657,6 +698,84 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		log.Println("✅ 通知中心模块就绪")
 	}
 
+	// ========== v2.498.0 新增模块初始化 ==========
+
+	// 初始化应用中心（对标群晖 Package Center）
+	appCenterMgr := appcenter.NewAppStore(logger, "/var/lib/nas-os/appcenter")
+	log.Println("✅ 应用中心模块就绪")
+
+	// 初始化备份验证（对标群晖 Active Backup 验证）
+	backupVerifyMgr := backupverify.NewManager(&backupverify.Config{Enabled: true, AutoVerifyEnabled: true})
+	log.Println("✅ 备份验证模块就绪")
+
+	// 初始化协作文档（对标群晖 Office）
+	collabDocsMgr := collabdocs.NewManager(&collabdocs.Config{Enabled: true, MaxDocuments: 1000, CollaborationEnabled: true})
+	log.Println("✅ 协作文档模块就绪")
+
+	// 初始化容器资源监控（对标群晖 Container Manager 增强）
+	containResMonMgr := containresmon.NewManager(&containresmon.Config{Enabled: true, MonitorIntervalSec: 30})
+	log.Println("✅ 容器资源监控模块就绪")
+
+	// 初始化数据分类（对标群晖 AI 分类）
+	dataClassifyMgr := dataclassify.NewManager(&dataclassify.Config{Enabled: true, AutoClassify: true, DetectPII: true})
+	log.Println("✅ 数据分类模块就绪")
+
+	// 初始化数字健康（竞品独有功能）
+	wellbeingMgr := digitalwellbeing.NewManager(&digitalwellbeing.Config{Enabled: true, TrackingEnabled: true, BreakReminder: 60})
+	log.Println("✅ 数字健康模块就绪")
+
+	// 初始化数据防泄漏 DLP（竞品独有功能）
+	dlpMgr := dlp.NewManager(&dlp.Config{Enabled: true, ScanIntervalHours: 24})
+	log.Println("✅ 数据防泄漏模块就绪")
+
+	// 初始化边缘计算（竞品独有功能）
+	edgeComputeMgr := edgecompute.NewManager(&edgecompute.Config{Enabled: true, MaxFunctions: 50, WasmEnabled: true})
+	log.Println("✅ 边缘计算模块就绪")
+
+	// 初始化能源管理（对标群晖电源管理增强）
+	energyMgr := energymanager.NewManager(&energymanager.Config{Enabled: true, MonitoringInterval: 60, ElectricityRate: 0.55, Currency: "CNY"})
+	log.Println("✅ 能源管理模块就绪")
+
+	// 初始化文件同步（对标群晖 Drive Sync）
+	fileSyncMgr = filesync.NewSyncManager(logger, "/var/lib/nas-os/filesync")
+	log.Println("✅ 文件同步模块就绪")
+
+	// 初始化网络哨兵（对标群晖网络工具增强）
+	netSentinelMgr := netsentinel.NewManager(&netsentinel.Config{Enabled: true, MonitorInterval: 60})
+	log.Println("✅ 网络哨兵模块就绪")
+
+	// 初始化网络拓扑（对标群晖网络地图）
+	networkMapMgr := networkmap.NewManager(&networkmap.Config{Enabled: true, AutoDiscover: true, BandwidthMonitor: true})
+	log.Println("✅ 网络拓扑模块就绪")
+
+	// 初始化照片增强（对标群晖 Photos AI）
+	photoEnhanceMgr := photoenhance.NewManager(&photoenhance.Config{Enabled: true})
+	log.Println("✅ 照片增强模块就绪")
+
+	// 初始化隐私保险库（竞品独有功能）
+	privacyVaultMgr := privacyvault.NewManager(&privacyvault.Config{Enabled: true, DefaultAlgorithm: "AES-256-GCM", MaxVaults: 100})
+	log.Println("✅ 隐私保险库模块就绪")
+
+	// 初始化远程桌面（竞品独有功能）
+	remoteDesktopMgr := remotedesktop.NewManager(&remotedesktop.Config{Enabled: true, MaxSessions: 10, WebSocketPort: 8443})
+	log.Println("✅ 远程桌面模块就绪")
+
+	// 初始化智能家居（竞品独有功能）
+	smartHomeMgr := smarthome.NewManager(&smarthome.Config{Enabled: true, MatterEnabled: true, MQTTBroker: "localhost", MQTTPort: 1883})
+	log.Println("✅ 智能家居模块就绪")
+
+	// 初始化 SSO Hub（竞品独有功能）
+	ssoHubMgr := ssohub.NewManager(&ssohub.Config{Enabled: true, SessionTimeoutMin: 480, MaxSessions: 100})
+	log.Println("✅ SSO Hub模块就绪")
+
+	// 初始化监控中心（对标群晖 Surveillance Station）
+	surveillanceMgr = surveillance.NewSurveillanceManager(logger, "/var/lib/nas-os/surveillance")
+	log.Println("✅ 监控中心模块就绪")
+
+	// 初始化统一搜索（对标群晖 Universal Search 增强）
+	unifiedSearchMgr := unifiedsearch.NewManager(&unifiedsearch.Config{Enabled: true, IndexPath: "/var/lib/nas-os/search-index", MaxResults: 100, SemanticEnabled: true})
+	log.Println("✅ 统一搜索模块就绪")
+
 	s := &Server{
 		engine:        engine,
 		logger:        logger,
@@ -786,6 +905,26 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		logcenterMgr:   logcenterMgr,
 		// v2.491.0 新增模块
 		notificationSvc: notificationSvc,
+		// v2.498.0 新增模块
+		appCenterMgr:     appCenterMgr,
+		backupVerifyMgr:  backupVerifyMgr,
+		collabDocsMgr:    collabDocsMgr,
+		containResMonMgr: containResMonMgr,
+		dataClassifyMgr:  dataClassifyMgr,
+		wellbeingMgr:     wellbeingMgr,
+		dlpMgr:           dlpMgr,
+		edgeComputeMgr:   edgeComputeMgr,
+		energyMgr:        energyMgr,
+		fileSyncMgr:      fileSyncMgr,
+		netSentinelMgr:   netSentinelMgr,
+		networkMapMgr:    networkMapMgr,
+		photoEnhanceMgr:  photoEnhanceMgr,
+		privacyVaultMgr:  privacyVaultMgr,
+		remoteDesktopMgr: remoteDesktopMgr,
+		smartHomeMgr:     smartHomeMgr,
+		ssoHubMgr:        ssoHubMgr,
+		surveillanceMgr:  surveillanceMgr,
+		unifiedSearchMgr: unifiedSearchMgr,
 	}
 
 	// 设置 WebDAV 认证函数
@@ -1257,6 +1396,76 @@ func (s *Server) setupRoutes() {
 		if s.notificationSvc != nil {
 			notification.NewGinHandler(s.notificationSvc).RegisterRoutes(api)
 		}
+
+		// ========== v2.498.0 新增路由 ==========
+
+		// 应用中心（对标群晖 Package Center）
+		if s.appCenterMgr != nil {
+			appcenter.NewHandler(s.appCenterMgr, s.logger).RegisterRoutes(api)
+		}
+
+		// 文件同步（对标群晖 Drive Sync）
+		if s.fileSyncMgr != nil {
+			filesync.NewHandler(s.fileSyncMgr, s.logger).RegisterRoutes(api)
+		}
+
+		// 监控中心（对标群晖 Surveillance Station）
+		if s.surveillanceMgr != nil {
+			surveillance.NewHandler(s.surveillanceMgr, s.logger).RegisterRoutes(api)
+		}
+
+		// http.ServeMux 桥接：注册使用标准库的模块
+		newMux := http.NewServeMux()
+		if s.backupVerifyMgr != nil {
+			backupverify.NewHandler(s.backupVerifyMgr).RegisterRoutes(newMux)
+		}
+		if s.collabDocsMgr != nil {
+			collabdocs.NewHandler(s.collabDocsMgr).RegisterRoutes(newMux)
+		}
+		if s.containResMonMgr != nil {
+			containresmon.NewHandler(s.containResMonMgr).RegisterRoutes(newMux)
+		}
+		if s.dataClassifyMgr != nil {
+			dataclassify.NewHandler(s.dataClassifyMgr).RegisterRoutes(newMux)
+		}
+		if s.wellbeingMgr != nil {
+			digitalwellbeing.NewHandler(s.wellbeingMgr).RegisterRoutes(newMux)
+		}
+		if s.dlpMgr != nil {
+			dlp.NewHandler(s.dlpMgr).RegisterRoutes(newMux)
+		}
+		if s.edgeComputeMgr != nil {
+			edgecompute.NewHandler(s.edgeComputeMgr).RegisterRoutes(newMux)
+		}
+		if s.energyMgr != nil {
+			energymanager.NewHandler(s.energyMgr).RegisterRoutes(newMux)
+		}
+		if s.netSentinelMgr != nil {
+			netsentinel.NewHandler(s.netSentinelMgr).RegisterRoutes(newMux)
+		}
+		if s.networkMapMgr != nil {
+			networkmap.NewHandler(s.networkMapMgr).RegisterRoutes(newMux)
+		}
+		if s.photoEnhanceMgr != nil {
+			photoenhance.NewHandler(s.photoEnhanceMgr).RegisterRoutes(newMux)
+		}
+		if s.privacyVaultMgr != nil {
+			privacyvault.NewHandler(s.privacyVaultMgr).RegisterRoutes(newMux)
+		}
+		if s.remoteDesktopMgr != nil {
+			remotedesktop.NewHandler(s.remoteDesktopMgr).RegisterRoutes(newMux)
+		}
+		if s.smartHomeMgr != nil {
+			smarthome.NewHandler(s.smartHomeMgr).RegisterRoutes(newMux)
+		}
+		if s.ssoHubMgr != nil {
+			ssohub.NewHandler(s.ssoHubMgr).RegisterRoutes(newMux)
+		}
+		if s.unifiedSearchMgr != nil {
+			unifiedsearch.NewHandler(s.unifiedSearchMgr).RegisterRoutes(newMux)
+		}
+		// 挂载 ServeMux 作为 gin fallback
+		s.engine.NoRoute(gin.WrapH(newMux))
 
 		// ========== 媒体中心 ==========
 		// if s.mediaMgr != nil {

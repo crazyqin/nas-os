@@ -4,114 +4,271 @@ import (
 	"testing"
 )
 
-func testManager() *Manager {
-	return NewManager(Config{
-		MQTTBroker: "localhost:1883",
-		MaxEvents:  100,
-	})
-}
-
 func TestNewManager(t *testing.T) {
-	m := testManager()
-	if m == nil {
+	config := &Config{
+		Enabled:          true,
+		MatterEnabled:    true,
+		HomeKitEnabled:   true,
+		MQTTBroker:       "localhost",
+		MQTTPort:         1883,
+		DiscoveryEnabled: true,
+	}
+	
+	manager := NewManager(config)
+	if manager == nil {
 		t.Fatal("NewManager returned nil")
 	}
-	if m.devices == nil {
-		t.Error("devices map not initialized")
+}
+
+func TestManagerStartStop(t *testing.T) {
+	config := &Config{
+		Enabled: true,
+	}
+	
+	manager := NewManager(config)
+	
+	if err := manager.Start(); err != nil {
+		t.Fatalf("Start failed: %v", err)
+	}
+	
+	manager.Stop()
+}
+
+func TestDefaultRooms(t *testing.T) {
+	config := &Config{
+		Enabled: true,
+	}
+	
+	manager := NewManager(config)
+	manager.initDefaultRooms()
+	
+	rooms := manager.rooms
+	
+	expectedRooms := []string{"living_room", "bedroom", "kitchen", "bathroom", "study", "garage", "garden"}
+	
+	for _, name := range expectedRooms {
+		if _, ok := rooms[name]; !ok {
+			t.Errorf("Missing default room: %s", name)
+		}
 	}
 }
 
 func TestAddDevice(t *testing.T) {
-	m := testManager()
-	dev := &Device{
-		ID:       "light-001",
-		Name:     "客厅灯",
-		Type:     DeviceTypeLight,
-		Protocol: ProtocolZigbee,
-		RoomID:   "room-1",
+	config := &Config{
+		Enabled: true,
 	}
-	if err := m.AddDevice(dev); err != nil {
+	
+	manager := NewManager(config)
+	
+	device := &Device{
+		Name:     "Living Room Light",
+		Type:     DeviceLight,
+		Protocol: ProtocolMatter,
+		Room:     "living_room",
+		Properties: map[string]interface{}{
+			"brightness": 100,
+			"color":      "#FFFFFF",
+		},
+	}
+	
+	if err := manager.AddDevice(device); err != nil {
 		t.Fatalf("AddDevice failed: %v", err)
 	}
-	got, err := m.GetDevice("light-001")
-	if err != nil {
-		t.Fatalf("GetDevice failed: %v", err)
+	
+	if device.ID == "" {
+		t.Error("Device ID not generated")
 	}
-	if got.Name != "客厅灯" {
-		t.Errorf("expected name '客厅灯', got '%s'", got.Name)
-	}
-}
-
-func TestAddDuplicateDevice(t *testing.T) {
-	m := testManager()
-	dev := &Device{ID: "d1", Name: "test", Type: DeviceTypeSensor, Protocol: ProtocolMQTT}
-	m.AddDevice(dev)
-	if err := m.AddDevice(dev); err == nil {
-		t.Error("expected error for duplicate device")
+	
+	if device.State != StateOnline {
+		t.Errorf("Expected state online, got %s", device.State)
 	}
 }
 
-func TestDeleteDevice(t *testing.T) {
-	m := testManager()
-	dev := &Device{ID: "d1", Name: "test", Type: DeviceTypeSensor, Protocol: ProtocolMQTT}
-	m.AddDevice(dev)
-	if err := m.DeleteDevice("d1"); err != nil {
-		t.Fatalf("DeleteDevice failed: %v", err)
-	}
-	if _, err := m.GetDevice("d1"); err == nil {
-		t.Error("expected error after delete")
-	}
-}
-
-func TestListDevices(t *testing.T) {
-	m := testManager()
-	m.AddDevice(&Device{ID: "d1", Name: "灯", Type: DeviceTypeLight, Protocol: ProtocolMQTT})
-	m.AddDevice(&Device{ID: "d2", Name: "传感器", Type: DeviceTypeSensor, Protocol: ProtocolMQTT})
-	list := m.ListDevices()
-	if len(list) != 2 {
-		t.Errorf("expected 2 devices, got %d", len(list))
-	}
-}
-
-func TestDeviceCount(t *testing.T) {
-	m := testManager()
-	m.AddDevice(&Device{ID: "d1", Name: "灯", Type: DeviceTypeLight, Protocol: ProtocolMQTT, Status: DeviceStatusOnline})
-	m.AddDevice(&Device{ID: "d2", Name: "传感器", Type: DeviceTypeSensor, Protocol: ProtocolMQTT, Status: DeviceStatusOffline})
-	total, online, offline := m.GetDeviceCount()
-	if total != 2 {
-		t.Errorf("expected 2 total, got %d", total)
-	}
-	if online != 1 {
-		t.Errorf("expected 1 online, got %d", online)
-	}
-	if offline != 1 {
-		t.Errorf("expected 1 offline, got %d", offline)
-	}
-}
-
-func TestAddRoom(t *testing.T) {
-	m := testManager()
-	room := &Room{ID: "room-1", Name: "客厅"}
-	if err := m.AddRoom(room); err != nil {
-		t.Fatalf("AddRoom failed: %v", err)
-	}
-	if _, err := m.GetRoom("room-1"); err != nil {
-		t.Fatalf("GetRoom failed: %v", err)
-	}
-}
-
-func TestScene(t *testing.T) {
-	scene := Scene{
-		ID:      "scene-001",
-		Name:    "回家模式",
+func TestRemoveDevice(t *testing.T) {
+	config := &Config{
 		Enabled: true,
-		Trigger: Trigger{Type: TriggerTypeTime, TimeStr: "18:00"},
-		Actions: []Action{{Type: ActionTypeDeviceControl, DeviceID: "light-001"}},
 	}
-	if scene.ID != "scene-001" {
-		t.Error("scene ID mismatch")
+	
+	manager := NewManager(config)
+	
+	device := &Device{
+		Name:     "Test Device",
+		Type:     DeviceLight,
+		Protocol: ProtocolMatter,
 	}
-	if !scene.Enabled {
-		t.Error("scene should be enabled")
+	
+	manager.AddDevice(device)
+	
+	if err := manager.RemoveDevice(device.ID); err != nil {
+		t.Fatalf("RemoveDevice failed: %v", err)
+	}
+	
+	// Try to get removed device
+	_, err := manager.GetDevice(device.ID)
+	if err == nil {
+		t.Error("Expected error for removed device")
+	}
+}
+
+func TestControlDevice(t *testing.T) {
+	config := &Config{
+		Enabled: true,
+	}
+	
+	manager := NewManager(config)
+	
+	device := &Device{
+		Name:       "Test Light",
+		Type:       DeviceLight,
+		Protocol:   ProtocolMatter,
+		Properties: make(map[string]interface{}),
+	}
+	
+	manager.AddDevice(device)
+	
+	// Control device
+	err := manager.controlDevice(device.ID, map[string]interface{}{
+		"brightness": 50,
+		"power":      true,
+	})
+	
+	if err != nil {
+		t.Fatalf("controlDevice failed: %v", err)
+	}
+	
+	// Verify properties
+	updated, _ := manager.GetDevice(device.ID)
+	if updated.Properties["brightness"] != 50 {
+		t.Errorf("Expected brightness 50, got %v", updated.Properties["brightness"])
+	}
+}
+
+func TestAddScene(t *testing.T) {
+	config := &Config{
+		Enabled: true,
+	}
+	
+	manager := NewManager(config)
+	
+	scene := &Scene{
+		Name:        "Movie Night",
+		Description: "Dim lights for movie watching",
+		Devices: []SceneDevice{
+			{
+				DeviceID: "light1",
+				Properties: map[string]interface{}{
+					"brightness": 20,
+				},
+			},
+		},
+	}
+	
+	if err := manager.AddScene(scene); err != nil {
+		t.Fatalf("AddScene failed: %v", err)
+	}
+	
+	if scene.ID == "" {
+		t.Error("Scene ID not generated")
+	}
+}
+
+func TestAddAutomation(t *testing.T) {
+	config := &Config{
+		Enabled: true,
+	}
+	
+	manager := NewManager(config)
+	
+	auto := &Automation{
+		Name:        "Good Morning",
+		Description: "Turn on lights at sunrise",
+		Enabled:     true,
+		Triggers: []Trigger{
+			{
+				Type: "time",
+				Config: map[string]interface{}{
+					"cron": "0 7 * * *",
+				},
+			},
+		},
+		Actions: []Action{
+			{
+				Type:     "device",
+				TargetID: "light1",
+				Properties: map[string]interface{}{
+					"power":      true,
+					"brightness": 100,
+				},
+			},
+		},
+	}
+	
+	if err := manager.AddAutomation(auto); err != nil {
+		t.Fatalf("AddAutomation failed: %v", err)
+	}
+	
+	if auto.ID == "" {
+		t.Error("Automation ID not generated")
+	}
+}
+
+func TestDeviceTypes(t *testing.T) {
+	types := []DeviceType{
+		DeviceLight, DeviceSwitch, DeviceSensor, DeviceThermostat,
+		DeviceCamera, DeviceLock, DeviceSpeaker, DeviceTV,
+		DeviceBlind, DeviceFan, DeviceAirPurifier, DeviceHumidifier,
+		DeviceRobotVacuum, DeviceDoorbell, DeviceGarage, DeviceIrrigation,
+	}
+	
+	for _, dt := range types {
+		if string(dt) == "" {
+			t.Errorf("Empty device type: %v", dt)
+		}
+	}
+}
+
+func TestProtocols(t *testing.T) {
+	protocols := []Protocol{
+		ProtocolMatter, ProtocolHomeKit, ProtocolZigbee, ProtocolZWave,
+		ProtocolMQTT, ProtocolWiFi, ProtocolBluetooth,
+	}
+	
+	for _, p := range protocols {
+		if string(p) == "" {
+			t.Errorf("Empty protocol: %v", p)
+		}
+	}
+}
+
+func TestGetStats(t *testing.T) {
+	config := &Config{
+		Enabled:        true,
+		MatterEnabled:  true,
+		MQTTBroker:     "localhost",
+	}
+	
+	manager := NewManager(config)
+	
+	// Add some devices
+	manager.AddDevice(&Device{
+		Name:     "Light 1",
+		Type:     DeviceLight,
+		Protocol: ProtocolMatter,
+	})
+	
+	manager.AddDevice(&Device{
+		Name:     "Light 2",
+		Type:     DeviceLight,
+		Protocol: ProtocolMatter,
+	})
+	
+	stats := manager.GetStats()
+	
+	if stats["total_devices"] != 2 {
+		t.Errorf("Expected 2 devices, got %v", stats["total_devices"])
+	}
+	
+	if stats["online_devices"] != 2 {
+		t.Errorf("Expected 2 online devices, got %v", stats["online_devices"])
 	}
 }

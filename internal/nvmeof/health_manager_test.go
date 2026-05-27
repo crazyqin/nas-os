@@ -319,7 +319,7 @@ func TestUpdateWritePattern(t *testing.T) {
 // ============================================================
 
 func TestStartBenchmark(t *testing.T) {
-	_, _, router := setupHealthTest(t)
+	hm, _, router := setupHealthTest(t)
 
 	tmpDir := t.TempDir()
 	body := `{
@@ -341,6 +341,9 @@ func TestStartBenchmark(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotEmpty(t, result.ID)
 	assert.True(t, result.Status == "pending" || result.Status == "running")
+
+	// 等待异步benchmark完成，避免TempDir清理竞争
+	hm.WaitForBenchmarks()
 }
 
 func TestStartBenchmarkInvalidSize(t *testing.T) {
