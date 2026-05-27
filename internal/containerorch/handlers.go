@@ -1,559 +1,303 @@
-// Package containerorch 提供 K3s 轻量级容器编排功能
 package containerorch
 
 import (
+	"encoding/json"
 	"net/http"
-	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
-// Handlers 容器编排 API 处理器.
-type Handlers struct {
-	manager *Manager
+type ContainerOrchHandler struct {
+	manager *ContainerOrchManager
 }
 
-// NewHandlers 创建处理器.
-func NewHandlers(manager *Manager) *Handlers {
-	return &Handlers{manager: manager}
+func NewContainerOrchHandler(manager *ContainerOrchManager) *ContainerOrchHandler {
+	return &ContainerOrchHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由.
-func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
-	co := r.Group("/container-orch")
-	{
-		// 集群统计
-		co.GET("/stats", h.getStats)
-
-		// 容器管理
-		co.GET("/containers", h.listContainers)
-		co.POST("/containers", h.createContainer)
-		co.GET("/containers/:id", h.getContainer)
-		co.POST("/containers/:id/start", h.startContainer)
-		co.POST("/containers/:id/stop", h.stopContainer)
-		co.POST("/containers/:id/restart", h.restartContainer)
-		co.DELETE("/containers/:id", h.removeContainer)
-		co.GET("/containers/:id/logs", h.getContainerLogs)
-
-		// Pod 管理
-		co.GET("/pods", h.listPods)
-		co.POST("/pods", h.createPod)
-		co.GET("/pods/:id", h.getPod)
-		co.POST("/pods/:id/start", h.startPod)
-		co.POST("/pods/:id/stop", h.stopPod)
-		co.DELETE("/pods/:id", h.removePod)
-
-		// Deployment 管理
-		co.GET("/deployments", h.listDeployments)
-		co.POST("/deployments", h.createDeployment)
-		co.GET("/deployments/:id", h.getDeployment)
-		co.PUT("/deployments/:id/scale", h.scaleDeployment)
-		co.DELETE("/deployments/:id", h.deleteDeployment)
-
-		// Service 管理
-		co.GET("/services", h.listServices)
-		co.POST("/services", h.createService)
-		co.GET("/services/:id", h.getService)
-		co.DELETE("/services/:id", h.deleteService)
-	}
+func (h *ContainerOrchHandler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/containers", h.handleListContainers)
+	mux.HandleFunc("/api/container/create", h.handleCreateContainer)
+	mux.HandleFunc("/api/container/get", h.handleGetContainer)
+	mux.HandleFunc("/api/container/start", h.handleStartContainer)
+	mux.HandleFunc("/api/container/stop", h.handleStopContainer)
+	mux.HandleFunc("/api/container/restart", h.handleRestartContainer)
+	mux.HandleFunc("/api/container/remove", h.handleRemoveContainer)
+	mux.HandleFunc("/api/networks", h.handleListNetworks)
+	mux.HandleFunc("/api/network/create", h.handleCreateNetwork)
+	mux.HandleFunc("/api/network/remove", h.handleRemoveNetwork)
+	mux.HandleFunc("/api/volumes", h.handleListVolumes)
+	mux.HandleFunc("/api/volume/create", h.handleCreateVolume)
+	mux.HandleFunc("/api/volume/remove", h.handleRemoveVolume)
+	mux.HandleFunc("/api/stacks", h.handleListStacks)
+	mux.HandleFunc("/api/stack/deploy", h.handleDeployStack)
+	mux.HandleFunc("/api/stack/remove", h.handleRemoveStack)
+	mux.HandleFunc("/api/container/stats", h.handleGetStats)
 }
 
-// response 标准响应.
-type response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
+func writeJSON(w http.ResponseWriter, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
 }
 
-// ==================== 集群统计 ====================
-
-// getStats 获取集群统计.
-func (h *Handlers) getStats(c *gin.Context) {
-	stats := h.manager.GetStats()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    stats,
-	})
-}
-
-// ==================== 容器管理 ====================
-
-// listContainers 列出容器.
-func (h *Handlers) listContainers(c *gin.Context) {
-	containers := h.manager.ListContainers()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
-			"total":      len(containers),
-			"containers": containers,
-		},
-	})
-}
-
-// createContainer 创建容器.
-func (h *Handlers) createContainer(c *gin.Context) {
-	var req CreateContainerRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
+func (h *ContainerOrchHandler) handleListContainers(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success", "data": h.manager.ListContainers()})
+}
 
-	container, err := h.manager.CreateContainer(&req)
+func (h *ContainerOrchHandler) handleCreateContainer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var ctr Container
+	if err := json.NewDecoder(r.Body).Decode(&ctr); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
+		return
+	}
+	created, err := h.manager.CreateContainer(&ctr)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusCreated, response{
-		Code:    0,
-		Message: "container created",
-		Data:    container,
-	})
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success", "data": created})
 }
 
-// getContainer 获取容器.
-func (h *Handlers) getContainer(c *gin.Context) {
-	id := c.Param("id")
-	container, ok := h.manager.GetContainer(id)
-	if !ok {
-		c.JSON(http.StatusNotFound, response{
-			Code:    404,
-			Message: "container not found",
-		})
+func (h *ContainerOrchHandler) handleGetContainer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    container,
-	})
-}
-
-// startContainer 启动容器.
-func (h *Handlers) startContainer(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.StartContainer(id); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "缺少id参数"})
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "container started",
-	})
+	ctr, err := h.manager.GetContainer(id)
+	if err != nil {
+		writeJSON(w, map[string]interface{}{"code": 404, "message": err.Error()})
+		return
+	}
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success", "data": ctr})
 }
 
-// stopContainer 停止容器.
-func (h *Handlers) stopContainer(c *gin.Context) {
-	id := c.Param("id")
-
+func (h *ContainerOrchHandler) handleStartContainer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	var req struct {
-		Timeout *int `json:"timeout"`
+		ID string `json:"id"`
 	}
-	c.ShouldBindJSON(&req)
-
-	if err := h.manager.StopContainer(id, req.Timeout); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "container stopped",
-	})
+	if err := h.manager.StartContainer(req.ID); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
+		return
+	}
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success"})
 }
 
-// restartContainer 重启容器.
-func (h *Handlers) restartContainer(c *gin.Context) {
-	id := c.Param("id")
-
+func (h *ContainerOrchHandler) handleStopContainer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	var req struct {
-		Timeout *int `json:"timeout"`
+		ID string `json:"id"`
 	}
-	c.ShouldBindJSON(&req)
-
-	if err := h.manager.RestartContainer(id, req.Timeout); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "container restarted",
-	})
-}
-
-// removeContainer 删除容器.
-func (h *Handlers) removeContainer(c *gin.Context) {
-	id := c.Param("id")
-	force, _ := strconv.ParseBool(c.Query("force"))
-
-	if err := h.manager.RemoveContainer(id, force); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+	if err := h.manager.StopContainer(req.ID); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "container removed",
-	})
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success"})
 }
 
-// getContainerLogs 获取容器日志.
-func (h *Handlers) getContainerLogs(c *gin.Context) {
-	id := c.Param("id")
-
-	// 解析查询参数
-	opts := &LogOptions{
-		Follow:     c.Query("follow") == "true",
-		Timestamps: c.Query("timestamps") == "true",
+func (h *ContainerOrchHandler) handleRestartContainer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
-	if tail := c.Query("tail"); tail != "" {
-		if n, err := strconv.Atoi(tail); err == nil {
-			opts.Tail = n
-		}
+	var req struct {
+		ID string `json:"id"`
 	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
+		return
+	}
+	if err := h.manager.RestartContainer(req.ID); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
+		return
+	}
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success"})
+}
 
-	logs, err := h.manager.GetContainerLogs(id, opts)
+func (h *ContainerOrchHandler) handleRemoveContainer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		ID    string `json:"id"`
+		Force bool   `json:"force"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
+		return
+	}
+	if err := h.manager.RemoveContainer(req.ID, req.Force); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
+		return
+	}
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success"})
+}
+
+func (h *ContainerOrchHandler) handleListNetworks(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success", "data": h.manager.ListNetworks()})
+}
+
+func (h *ContainerOrchHandler) handleCreateNetwork(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var net Network
+	if err := json.NewDecoder(r.Body).Decode(&net); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
+		return
+	}
+	created, err := h.manager.CreateNetwork(&net)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
-			"containerId": id,
-			"logs":        logs,
-		},
-	})
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success", "data": created})
 }
 
-// ==================== Pod 管理 ====================
-
-// listPods 列出 Pod.
-func (h *Handlers) listPods(c *gin.Context) {
-	namespace := c.Query("namespace")
-	pods := h.manager.ListPods(namespace)
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
-			"total": len(pods),
-			"pods":  pods,
-		},
-	})
-}
-
-// createPod 创建 Pod.
-func (h *Handlers) createPod(c *gin.Context) {
-	var req CreatePodRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
+func (h *ContainerOrchHandler) handleRemoveNetwork(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	var req struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
+		return
+	}
+	if err := h.manager.RemoveNetwork(req.ID); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
+		return
+	}
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success"})
+}
 
-	pod, err := h.manager.CreatePod(&req)
+func (h *ContainerOrchHandler) handleListVolumes(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success", "data": h.manager.ListVolumes()})
+}
+
+func (h *ContainerOrchHandler) handleCreateVolume(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var vol Volume
+	if err := json.NewDecoder(r.Body).Decode(&vol); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
+		return
+	}
+	created, err := h.manager.CreateVolume(&vol)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusCreated, response{
-		Code:    0,
-		Message: "pod created",
-		Data:    pod,
-	})
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success", "data": created})
 }
 
-// getPod 获取 Pod.
-func (h *Handlers) getPod(c *gin.Context) {
-	id := c.Param("id")
-	pod, ok := h.manager.GetPod(id)
-	if !ok {
-		c.JSON(http.StatusNotFound, response{
-			Code:    404,
-			Message: "pod not found",
-		})
+func (h *ContainerOrchHandler) handleRemoveVolume(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    pod,
-	})
-}
-
-// startPod 启动 Pod.
-func (h *Handlers) startPod(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.StartPod(id); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+	var req struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "pod started",
-	})
-}
-
-// stopPod 停止 Pod.
-func (h *Handlers) stopPod(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.StopPod(id); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+	if err := h.manager.RemoveVolume(req.ID); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "pod stopped",
-	})
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success"})
 }
 
-// removePod 删除 Pod.
-func (h *Handlers) removePod(c *gin.Context) {
-	id := c.Param("id")
-	force, _ := strconv.ParseBool(c.Query("force"))
-
-	if err := h.manager.RemovePod(id, force); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+func (h *ContainerOrchHandler) handleListStacks(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "pod removed",
-	})
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success", "data": h.manager.ListStacks()})
 }
 
-// ==================== Deployment 管理 ====================
-
-// listDeployments 列出 Deployment.
-func (h *Handlers) listDeployments(c *gin.Context) {
-	namespace := c.Query("namespace")
-	deployments := h.manager.ListDeployments(namespace)
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
-			"total":        len(deployments),
-			"deployments":  deployments,
-		},
-	})
-}
-
-// createDeployment 创建 Deployment.
-func (h *Handlers) createDeployment(c *gin.Context) {
-	var req CreateDeploymentRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
+func (h *ContainerOrchHandler) handleDeployStack(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	deployment, err := h.manager.CreateDeployment(&req)
+	var stack Stack
+	if err := json.NewDecoder(r.Body).Decode(&stack); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
+		return
+	}
+	deployed, err := h.manager.DeployStack(&stack)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusCreated, response{
-		Code:    0,
-		Message: "deployment created",
-		Data:    deployment,
-	})
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success", "data": deployed})
 }
 
-// getDeployment 获取 Deployment.
-func (h *Handlers) getDeployment(c *gin.Context) {
-	id := c.Param("id")
-	deployment, ok := h.manager.GetDeployment(id)
-	if !ok {
-		c.JSON(http.StatusNotFound, response{
-			Code:    404,
-			Message: "deployment not found",
-		})
+func (h *ContainerOrchHandler) handleRemoveStack(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    deployment,
-	})
+	var req struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})
+		return
+	}
+	if err := h.manager.RemoveStack(req.ID); err != nil {
+		writeJSON(w, map[string]interface{}{"code": 500, "message": err.Error()})
+		return
+	}
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success"})
 }
 
-// ScaleRequest 扩缩容请求.
-type ScaleRequest struct {
-	Replicas int `json:"replicas"` // 目标副本数
-}
-
-// scaleDeployment 扩缩容 Deployment.
-func (h *Handlers) scaleDeployment(c *gin.Context) {
-	id := c.Param("id")
-	var req ScaleRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
+func (h *ContainerOrchHandler) handleGetStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	if err := h.manager.ScaleDeployment(id, req.Replicas); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "deployment scaled",
-	})
-}
-
-// deleteDeployment 删除 Deployment.
-func (h *Handlers) deleteDeployment(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeleteDeployment(id); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "deployment deleted",
-	})
-}
-
-// ==================== Service 管理 ====================
-
-// listServices 列出 Service.
-func (h *Handlers) listServices(c *gin.Context) {
-	namespace := c.Query("namespace")
-	services := h.manager.ListServices(namespace)
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
-			"total":    len(services),
-			"services": services,
-		},
-	})
-}
-
-// createService 创建 Service.
-func (h *Handlers) createService(c *gin.Context) {
-	var req CreateServiceRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
-		return
-	}
-
-	service, err := h.manager.CreateService(&req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusCreated, response{
-		Code:    0,
-		Message: "service created",
-		Data:    service,
-	})
-}
-
-// getService 获取 Service.
-func (h *Handlers) getService(c *gin.Context) {
-	id := c.Param("id")
-	service, ok := h.manager.GetService(id)
-	if !ok {
-		c.JSON(http.StatusNotFound, response{
-			Code:    404,
-			Message: "service not found",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    service,
-	})
-}
-
-// deleteService 删除 Service.
-func (h *Handlers) deleteService(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeleteService(id); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "service deleted",
-	})
+	writeJSON(w, map[string]interface{}{"code": 0, "message": "success", "data": h.manager.GetStats()})
 }

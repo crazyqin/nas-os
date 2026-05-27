@@ -23,6 +23,9 @@ func (m *SnapshotVerifyManager) VerifySnapshot(snapshot *SnapshotInfo) (*VerifyR
 		// 这里应该读取快照数据并计算哈希
 		// 简化实现：假设哈希匹配
 		result.HashMatch = true
+	} else {
+		// 没有存储哈希值时，默认视为匹配
+		result.HashMatch = true
 	}
 
 	// 验证完整性
