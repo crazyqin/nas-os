@@ -72,6 +72,12 @@ func (e *Executor) Execute(ctx context.Context, task *MigrationTask, plan *Migra
 		return nil, fmt.Errorf("任务 %s 已在运行中", task.ID)
 	}
 
+	// 检查任务是否已完成，不允许重复执行
+	if task.Status == MigrationStatusCompleted {
+		e.mu.Unlock()
+		return nil, fmt.Errorf("任务 %s 已完成，无法重复执行", task.ID)
+	}
+
 	// 创建可取消的上下文
 	taskCtx, cancel := context.WithCancel(ctx)
 

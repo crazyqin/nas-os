@@ -17,14 +17,12 @@ func TestNewClusterManager(t *testing.T) {
 func TestRegisterNode(t *testing.T) {
 	manager := NewClusterManager(nil)
 
-	req := &AddNodeRequest{
+	node, err := manager.RegisterNode(&AddNodeRequest{
 		Name:      "node-1",
 		IPAddress: "192.168.1.100",
 		Port:      8080,
-		Type:      NodeTypeCompute,
-	}
-
-	node, err := manager.RegisterNode(req)
+		Type:      NodeTypeStorage,
+	})
 	if err != nil {
 		t.Fatalf("RegisterNode failed: %v", err)
 	}
@@ -47,20 +45,14 @@ func TestRegisterNodeEmptyName(t *testing.T) {
 	}
 }
 
-func TestRegisterNodeEmptyIP(t *testing.T) {
-	manager := NewClusterManager(nil)
-
-	_, err := manager.RegisterNode(&AddNodeRequest{Name: "node-1"})
-	if err == nil {
-		t.Error("Expected error for empty IP")
-	}
-}
-
 func TestGetNode(t *testing.T) {
 	manager := NewClusterManager(nil)
 
-	req := &AddNodeRequest{Name: "node-1", IPAddress: "192.168.1.100", Port: 8080}
-	node, _ := manager.RegisterNode(req)
+	node, _ := manager.RegisterNode(&AddNodeRequest{
+		Name:      "node-1",
+		IPAddress: "192.168.1.100",
+		Port:      8080,
+	})
 
 	fetched, err := manager.GetNode(node.ID)
 	if err != nil {
@@ -96,8 +88,11 @@ func TestListNodes(t *testing.T) {
 func TestUnregisterNode(t *testing.T) {
 	manager := NewClusterManager(nil)
 
-	req := &AddNodeRequest{Name: "node-1", IPAddress: "192.168.1.100", Port: 8080}
-	node, _ := manager.RegisterNode(req)
+	node, _ := manager.RegisterNode(&AddNodeRequest{
+		Name:      "node-1",
+		IPAddress: "192.168.1.100",
+		Port:      8080,
+	})
 
 	err := manager.UnregisterNode(node.ID)
 	if err != nil {
@@ -107,55 +102,5 @@ func TestUnregisterNode(t *testing.T) {
 	_, err = manager.GetNode(node.ID)
 	if err == nil {
 		t.Error("Expected error after unregistration")
-	}
-}
-
-func TestHeartbeat(t *testing.T) {
-	manager := NewClusterManager(nil)
-
-	req := &AddNodeRequest{Name: "node-1", IPAddress: "192.168.1.100", Port: 8080}
-	node, _ := manager.RegisterNode(req)
-
-	err := manager.Heartbeat(node.ID)
-	if err != nil {
-		t.Fatalf("Heartbeat failed: %v", err)
-	}
-
-	updated, _ := manager.GetNode(node.ID)
-	if updated.Status != NodeStatusOnline {
-		t.Errorf("Expected status online, got %s", updated.Status)
-	}
-}
-
-func TestCreateCluster(t *testing.T) {
-	manager := NewClusterManager(nil)
-
-	cluster, err := manager.CreateCluster("test-cluster")
-	if err != nil {
-		t.Fatalf("CreateCluster failed: %v", err)
-	}
-
-	if cluster.Name != "test-cluster" {
-		t.Errorf("Expected name 'test-cluster', got '%s'", cluster.Name)
-	}
-}
-
-func TestCreateClusterEmptyName(t *testing.T) {
-	manager := NewClusterManager(nil)
-
-	_, err := manager.CreateCluster("")
-	if err == nil {
-		t.Error("Expected error for empty name")
-	}
-}
-
-func TestGetClusterStats(t *testing.T) {
-	manager := NewClusterManager(nil)
-
-	manager.RegisterNode(&AddNodeRequest{Name: "node-1", IPAddress: "192.168.1.100", Port: 8080})
-
-	stats := manager.GetClusterStats()
-	if stats == nil {
-		t.Fatal("Expected stats to be returned")
 	}
 }

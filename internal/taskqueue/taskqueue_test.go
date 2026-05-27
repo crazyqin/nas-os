@@ -2,10 +2,11 @@ package taskqueue
 
 import (
 	"testing"
+	"time"
 )
 
 func TestNewManager(t *testing.T) {
-	cfg := &Config{Enabled: true, Interval: 60}
+	cfg := &Config{Enabled: true, PollInterval: 60 * time.Second}
 	m := NewManager(cfg)
 	if m == nil {
 		t.Fatal("NewManager returned nil")
@@ -13,7 +14,7 @@ func TestNewManager(t *testing.T) {
 }
 
 func TestManagerStartStop(t *testing.T) {
-	cfg := &Config{Enabled: true, Interval: 60}
+	cfg := &Config{Enabled: true, PollInterval: 60 * time.Second}
 	m := NewManager(cfg)
 	
 	err := m.Start()

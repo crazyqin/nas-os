@@ -575,7 +575,7 @@ func TestMigrationResult_Fields(t *testing.T) {
 		BytesMigrated:   1024 * 1024 * 500,
 		Duration:        time.Minute * 10,
 		CategoryResults: make([]CategoryResult, 0),
-		Errors:          make([]MigrationError, 0),
+		Errors:          make([]MigrationErrorDetail, 0),
 		Warnings:        make([]string, 0),
 		RollbackID:      "rollback-1",
 		CompletedAt:     time.Now(),
@@ -686,8 +686,8 @@ func TestCategoryResult_Fields(t *testing.T) {
 
 // ========== MigrationError 测试 ==========
 
-func TestMigrationError_Fields(t *testing.T) {
-	migErr := MigrationError{
+func TestMigrationErrorDetail_Fields(t *testing.T) {
+	migErr := MigrationErrorDetail{
 		Category: CategoryDocker,
 		Item:     "container-1",
 		Error:    "连接超时",

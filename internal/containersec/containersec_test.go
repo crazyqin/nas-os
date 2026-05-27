@@ -230,9 +230,8 @@ func TestPolicyEngine_GenerateRemediation(t *testing.T) {
 	result := &ScanResult{
 		Vulns: []Vulnerability{
 			{
-				CVE:          CVE{ID: "CVE-2024-0001"},
+				CVE:          CVE{ID: "CVE-2024-0001", Version: "1.0.0"},
 				InstalledPkg: "pkg1",
-				Version:      "1.0.0",
 			},
 		},
 	}
