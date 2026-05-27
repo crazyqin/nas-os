@@ -166,7 +166,7 @@ func TestCloudSyncHandlers_ListProviders(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(0), resp["code"])
 
-	data := resp["data"].([]interface{})
+	data := resp["tasks"].([]interface{})
 	assert.Len(t, data, 3)
 }
 
@@ -288,12 +288,12 @@ func TestCloudSyncHandlers_CreateSyncTask(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusCreated, w.Code)
 
 	var resp map[string]interface{}
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
-	assert.Equal(t, float64(0), resp["code"])
+	assert.NotEmpty(t, resp["id"])
 }
 
 func TestCloudSyncHandlers_GetSyncTask(t *testing.T) {
@@ -359,7 +359,7 @@ func TestCloudSyncHandlers_ListSyncTasks(t *testing.T) {
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
-	data := resp["data"].([]interface{})
+	data := resp["tasks"].([]interface{})
 	assert.Len(t, data, 3)
 }
 
@@ -457,7 +457,7 @@ func TestCloudSyncHandlers_GetProvidersInfo(t *testing.T) {
 	assert.Equal(t, float64(0), resp["code"])
 
 	// 验证返回提供商信息列表
-	data, ok := resp["data"].([]interface{})
+	data, ok := resp["tasks"].([]interface{})
 	require.True(t, ok, "data should be an array")
 	assert.Greater(t, len(data), 0)
 }

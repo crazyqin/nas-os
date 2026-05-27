@@ -224,7 +224,7 @@ func TestAssetSummary(t *testing.T) {
 	m := newTestManager()
 	summary := m.GetAssetSummary()
 	assert.Equal(t, 2, summary["total"])
-	assert.Equal(t, 2, summary["groups"]) // 0 groups
+	assert.Equal(t, 0, summary["groups"])
 }
 
 func TestHardwareInventory(t *testing.T) {
