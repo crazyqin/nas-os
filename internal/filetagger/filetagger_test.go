@@ -931,16 +931,17 @@ func TestDetectMIME(t *testing.T) {
 	tests := []struct {
 		path     string
 		expected string
+		altMIME  string // 不同环境mime包可能返回不同值
 	}{
-		{"photo.jpg", "image/jpeg"},
-		{"doc.pdf", "application/pdf"},
-		{"song.mp3", "audio/mpeg"},
-		{"unknown.xyz", "chemical/x-xyz"},
+		{"photo.jpg", "image/jpeg", ""},
+		{"doc.pdf", "application/pdf", ""},
+		{"song.mp3", "audio/mpeg", ""},
+		{"unknown.xyz", "chemical/x-xyz", "application/octet-stream"},
 	}
 
 	for _, tt := range tests {
 		result := DetectMIME(tt.path)
-		if result != tt.expected {
+		if result != tt.expected && (tt.altMIME == "" || result != tt.altMIME) {
 			t.Errorf("DetectMIME(%q) = %q, want %q", tt.path, result, tt.expected)
 		}
 	}
