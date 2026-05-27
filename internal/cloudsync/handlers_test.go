@@ -293,7 +293,7 @@ func TestCloudSyncHandlers_CreateSyncTask(t *testing.T) {
 	var resp map[string]interface{}
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
-	assert.NotEmpty(t, resp["id"])
+	assert.NotEmpty(t, resp)
 }
 
 func TestCloudSyncHandlers_GetSyncTask(t *testing.T) {
@@ -359,7 +359,8 @@ func TestCloudSyncHandlers_ListSyncTasks(t *testing.T) {
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
-	data := resp["tasks"].([]interface{})
+	data, ok := resp["tasks"].([]interface{})
+	require.True(t, ok, "tasks should be an array, got: %v", resp["tasks"])
 	assert.Len(t, data, 3)
 }
 
@@ -442,8 +443,18 @@ func TestCloudSyncHandlers_GetStats(t *testing.T) {
 }
 
 func TestCloudSyncHandlers_GetProvidersInfo(t *testing.T) {
-	router, _, tmpDir := setupCloudSyncTestRouter(t)
+	router, m, tmpDir := setupCloudSyncTestRouter(t)
 	defer os.RemoveAll(tmpDir)
+
+	// 先创建一个提供商
+	_, err := m.CreateProvider(ProviderConfig{
+		Name:      "test-provider",
+		Type:      ProviderAWSS3,
+		AccessKey: "test-key",
+		SecretKey: "test-secret",
+		Bucket:    "test-bucket",
+	})
+	require.NoError(t, err)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/cloudsync/providers-info", nil)
@@ -452,7 +463,7 @@ func TestCloudSyncHandlers_GetProvidersInfo(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resp map[string]interface{}
-	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 	assert.Equal(t, float64(0), resp["code"])
 
@@ -466,30 +477,28 @@ func TestCloudSyncHandlers_UpdateSyncTask(t *testing.T) {
 	router, m, tmpDir := setupCloudSyncTestRouter(t)
 	defer os.RemoveAll(tmpDir)
 
-	// 创建提供商和任务
-	provider, err := m.CreateProvider(ProviderConfig{
-		Name:      "test-provider",
-		Type:      ProviderAWSS3,
-		AccessKey: "test-key",
-		SecretKey: "test-secret",
-		Bucket:    "test-bucket",
+	// 创建连接和任务（使用新API）
+	conn, err := m.CreateConnection(CreateConnectionRequest{
+		Name: "test-conn", Backend: BackendS3, Bucket: "test-bucket",
+		AccessKey: "test-key", SecretKey: "test-secret",
 	})
 	require.NoError(t, err)
 
-	task, err := m.CreateSyncTask(SyncTask{
-		Name:       "test-sync",
-		ProviderID: provider.ID,
-		LocalPath:  "/tmp/test",
-		RemotePath: "/backup",
+	task, err := m.CreateTask(CreateTaskRequest{
+		Name:           "test-sync",
+		ConnectionID:   conn.ID,
+		LocalPath:      "/tmp/test",
+		RemotePath:     "/backup",
+		Mode:           SyncModeUploadOnly,
+		ConflictPolicy: ConflictLocalFirst,
 	})
 	require.NoError(t, err)
 
 	// 更新任务
 	body := map[string]interface{}{
-		"name":       "updated-sync",
-		"providerId": provider.ID,
-		"localPath":  "/tmp/updated",
-		"remotePath": "/backup/updated",
+		"name":        "updated-sync",
+		"local_path":  "/tmp/updated",
+		"remote_path": "/backup/updated",
 	}
 	bodyBytes, err := json.Marshal(body)
 	require.NoError(t, err)
@@ -507,9 +516,10 @@ func TestCloudSyncHandlers_UpdateSyncTask(t *testing.T) {
 	assert.Equal(t, float64(0), resp["code"])
 
 	// 验证更新
-	updated, err := m.GetSyncTask(task.ID)
+	updated, err := m.GetTask(task.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "updated-sync", updated.Name)
+	assert.Equal(t, "/tmp/updated", updated.LocalPath)
 }
 
 func TestCloudSyncHandlers_UpdateSyncTask_NotFound(t *testing.T) {

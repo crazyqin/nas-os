@@ -639,7 +639,7 @@ func TestGetSyncStats(t *testing.T) {
 	})
 
 	stats := mgr.GetSyncStats()
-	assert.Equal(t, 2, stats.TotalTasks)
+	assert.Equal(t, int64(2), stats.TotalTasks)
 }
 
 func TestGetSyncLogs(t *testing.T) {
@@ -771,7 +771,7 @@ func TestHandlerCreateTask(t *testing.T) {
 		"connection_id": "` + conn.ID + `",
 		"local_path": "/volume1/photos",
 		"remote_path": "photos/",
-		"mode": "upload_only",
+		"mode": "upload",
 		"conflict_policy": "local_first"
 	}`
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/cloudsync/tasks", bytes.NewBufferString(body))
@@ -841,9 +841,11 @@ func TestHandlerGetSyncStats(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var stats SyncStats
-	json.Unmarshal(w.Body.Bytes(), &stats)
-	assert.Equal(t, 1, stats.TotalTasks)
+	var resp map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &resp)
+	data, _ := resp["data"].(map[string]interface{})
+	totalTasks, _ := data["total_tasks"].(float64)
+	assert.Equal(t, float64(1), totalTasks)
 }
 
 func TestHandlerGetStorageUsage(t *testing.T) {

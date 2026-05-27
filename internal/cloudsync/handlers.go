@@ -55,6 +55,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 
 		// 同步控制
 		sync.POST("/tasks/:id/start", h.StartSync)
+		sync.POST("/tasks/:id/run", h.StartSync)
 		sync.POST("/tasks/:id/pause", h.PauseSync)
 		sync.POST("/tasks/:id/resume", h.ResumeSync)
 		sync.POST("/tasks/:id/stop", h.StopSync)
@@ -62,6 +63,8 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 		// 状态和统计
 		sync.GET("/tasks/:id/status", h.GetSyncStatus)
 		sync.GET("/stats", h.GetSyncStats)
+		sync.GET("/providers-info", h.GetProvidersInfo)
+		sync.GET("/statuses", h.GetAllStatuses)
 		sync.GET("/logs", h.GetSyncLogs)
 		sync.GET("/connections/:id/usage", h.GetStorageUsage)
 
@@ -300,17 +303,17 @@ func (h *Handler) UpdateTask(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "error": err.Error()})
 		return
 	}
 
 	task, err := h.manager.UpdateTask(id, req)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"code": -1, "error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
 // DeleteTask 处理 DELETE /api/v1/cloudsync/tasks/:id
@@ -334,7 +337,7 @@ func (h *Handler) StartSync(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "sync started"})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "sync started"})
 }
 
 // PauseSync 处理 POST /api/v1/cloudsync/tasks/:id/pause
@@ -382,10 +385,46 @@ func (h *Handler) GetSyncStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status)
 }
 
+// GetAllStatuses 处理 GET /api/v1/cloudsync/statuses
+func (h *Handler) GetAllStatuses(c *gin.Context) {
+	statuses := h.manager.GetAllSyncStatuses()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "statuses": statuses, "total": len(statuses)})
+}
+
 // GetSyncStats 处理 GET /api/v1/cloudsync/stats
 func (h *Handler) GetSyncStats(c *gin.Context) {
 	stats := h.manager.GetSyncStats()
-	c.JSON(http.StatusOK, stats)
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": stats})
+}
+
+// GetProvidersInfo 处理 GET /api/v1/cloudsync/providers-info
+func (h *Handler) GetProvidersInfo(c *gin.Context) {
+	providers := h.manager.ListProviders()
+	allTasks := h.manager.ListTasks()
+	type providerInfo struct {
+		ID        string `json:"id"`
+		Name      string `json:"name"`
+		Type      string `json:"type"`
+		Enabled   bool   `json:"enabled"`
+		TaskCount int    `json:"taskCount"`
+	}
+	result := make([]providerInfo, 0)
+	for _, p := range providers {
+		count := 0
+		for _, t := range allTasks {
+			if t.ProviderID == p.ID {
+				count++
+			}
+		}
+		result = append(result, providerInfo{
+			ID:        p.ID,
+			Name:      p.Name,
+			Type:      string(p.Type),
+			Enabled:   p.Enabled,
+			TaskCount: count,
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": result})
 }
 
 // GetSyncLogs 处理 GET /api/v1/cloudsync/logs
