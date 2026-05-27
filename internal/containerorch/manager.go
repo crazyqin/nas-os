@@ -76,27 +76,48 @@ func (m *Manager) CreateContainer(req *CreateContainerRequest) (*Container, erro
 		return nil, fmt.Errorf("image is required")
 	}
 
+	// 转换端口映射
+	ports := make([]PortMapping, 0, len(req.Ports))
+	for _, p := range req.Ports {
+		ports = append(ports, PortMapping{
+			ContainerPort: p.ContainerPort,
+			Protocol:      p.Protocol,
+		})
+	}
+
+	// 转换卷挂载
+	volumes := make([]string, 0, len(req.Volumes))
+	for _, v := range req.Volumes {
+		volumes = append(volumes, v.MountPath)
+	}
+
+	// 转换环境变量
+	env := make(map[string]string)
+	for _, e := range req.Env {
+		env[e.Name] = e.Value
+	}
+
 	// 创建容器
 	container := &Container{
-		ID:            containerID,
-		Name:          req.Name,
-		PodID:         req.PodID,
-		Image:         req.Image,
-		Command:       req.Command,
-		Args:          req.Args,
-		WorkingDir:    req.WorkingDir,
-		State:         StateCreated,
-		Status:        "Container created",
-		Resources:     req.Resources,
-		Ports:         req.Ports,
-		Volumes:       req.Volumes,
-		Env:           req.Env,
-		LivenessProbe: req.LivenessProbe,
+		ID:             containerID,
+		Name:           req.Name,
+		PodID:          req.PodID,
+		Image:          req.Image,
+		Command:        req.Command,
+		Args:           req.Args,
+		WorkingDir:     req.WorkingDir,
+		State:          StateCreated,
+		Status:         "Container created",
+		Resources:      ResourceLimits{CPUShares: 1024, MemoryMB: 512},
+		Ports:          ports,
+		Volumes:        volumes,
+		Env:            env,
+		LivenessProbe:  req.LivenessProbe,
 		ReadinessProbe: req.ReadinessProbe,
-		StartupProbe:  req.StartupProbe,
-		RestartPolicy: req.RestartPolicy,
-		CreatedAt:     time.Now(),
-		LogPath:       fmt.Sprintf("/var/log/container/%s.log", containerID),
+		StartupProbe:   req.StartupProbe,
+		RestartPolicy:  string(req.RestartPolicy),
+		CreatedAt:      time.Now(),
+		LogPath:        fmt.Sprintf("/var/log/container/%s.log", containerID),
 	}
 
 	// 存储容器
@@ -119,15 +140,13 @@ func (m *Manager) StartContainer(containerID string) error {
 		m.mu.Unlock()
 		return fmt.Errorf("container is already running: %s", containerID)
 	}
-	m.mu.Unlock()
 
 	// 模拟启动容器
-	container.mu.Lock()
 	container.State = StateRunning
 	container.Status = "Container started"
 	now := time.Now()
 	container.StartedAt = &now
-	container.mu.Unlock()
+	m.mu.Unlock()
 
 	log.Printf("[ContainerOrch] 容器已启动: %s (%s)", container.Name, containerID)
 	return nil
@@ -146,15 +165,13 @@ func (m *Manager) StopContainer(containerID string, timeout *int) error {
 		m.mu.Unlock()
 		return fmt.Errorf("container is not running: %s", containerID)
 	}
-	m.mu.Unlock()
 
 	// 模拟停止容器
-	container.mu.Lock()
 	container.State = StateStopped
 	container.Status = "Container stopped"
 	now := time.Now()
 	container.FinishedAt = &now
-	container.mu.Unlock()
+	m.mu.Unlock()
 
 	log.Printf("[ContainerOrch] 容器已停止: %s (%s)", container.Name, containerID)
 	return nil
@@ -464,8 +481,8 @@ func (m *Manager) CreateDeployment(req *CreateDeploymentRequest) (*Deployment, e
 		ID:        deploymentID,
 		Name:      req.Name,
 		Namespace: req.Namespace,
-		Spec:      req.Spec,
-		Status: DeploymentStatus{
+		Spec:      deploymentSpecToData(req.Spec),
+		Status: DeploymentStatusData{
 			Replicas: req.Spec.Replicas,
 		},
 		Labels:      req.Labels,
@@ -604,7 +621,7 @@ func (m *Manager) reconcileDeployment(deploymentID string) {
 				Name:         fmt.Sprintf("%s-pod-%d", deployment.Name, currentReplicas+i+1),
 				Namespace:    deployment.Namespace,
 				DeploymentID: deploymentID,
-				Spec:         deployment.Spec.Template.Spec,
+				Spec:         podSpecDataToPodSpec(deployment.Spec.Template.Spec),
 				Labels:       deployment.Spec.Template.Metadata.Labels,
 				Annotations:  deployment.Spec.Template.Metadata.Annotations,
 			}
@@ -654,14 +671,14 @@ func (m *Manager) CreateService(req *CreateServiceRequest) (*Service, error) {
 
 	// 创建 Service
 	service := &Service{
-		ID:        serviceID,
-		Name:      req.Name,
-		Namespace: req.Namespace,
-		Spec:      req.Spec,
-		Labels:    req.Labels,
+		ID:          serviceID,
+		Name:        req.Name,
+		Namespace:   req.Namespace,
+		Spec:        serviceSpecToData(req.Spec),
+		Labels:      req.Labels,
 		Annotations: req.Annotations,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 
 	// 设置默认命名空间

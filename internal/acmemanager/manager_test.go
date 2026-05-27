@@ -54,8 +54,8 @@ func TestRequestCertificate(t *testing.T) {
 		t.Errorf("Expected domain 'example.com', got '%s'", cert.Domain)
 	}
 
-	if cert.Status != "pending" {
-		t.Errorf("Expected status 'pending', got '%s'", cert.Status)
+	if cert.Status != "valid" {
+		t.Errorf("Expected status 'valid', got '%s'", cert.Status)
 	}
 
 	// 测试空域名

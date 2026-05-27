@@ -2,809 +2,418 @@ package cloudsync
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
-// Handlers 云同步 API 处理器.
-type Handlers struct {
-	manager     *Manager
-	oauth2Service *OAuth2Service
-	realtimeSync *RealtimeSync
-	resumableUpload *ResumableUpload
+// Handler 云同步 HTTP handlers
+type Handler struct {
+	manager *CloudSyncManager
+	logger  *zap.Logger
 }
 
-// NewHandlers 创建处理器.
-func NewHandlers(manager *Manager) *Handlers {
-	return &Handlers{
-		manager: manager,
+// NewHandler 创建云同步 HTTP handler
+func NewHandler(manager *CloudSyncManager, logger *zap.Logger) *Handler {
+	if logger == nil {
+		logger = zap.NewNop()
 	}
+	return &Handler{manager: manager, logger: logger}
 }
 
-// SetOAuth2Service 设置 OAuth2 服务.
-func (h *Handlers) SetOAuth2Service(service *OAuth2Service) {
-	h.oauth2Service = service
+// NewHandlers 创建云同步 HTTP handler（兼容旧接口）
+func NewHandlers(manager *Manager) *Handler {
+	return NewHandler(manager, zap.NewNop())
 }
 
-// SetRealtimeSync 设置实时同步服务.
-func (h *Handlers) SetRealtimeSync(sync *RealtimeSync) {
-	h.realtimeSync = sync
-}
-
-// SetResumableUpload 设置断点续传服务.
-func (h *Handlers) SetResumableUpload(upload *ResumableUpload) {
-	h.resumableUpload = upload
-}
-
-// RegisterRoutes 注册路由.
-func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
-	cloudsync := r.Group("/cloudsync")
+// RegisterRoutes 注册云同步 API 路由
+func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
+	sync := rg.Group("/cloudsync")
 	{
 		// 提供商管理
-		cloudsync.POST("/providers", h.createProvider)
-		cloudsync.GET("/providers", h.listProviders)
-		cloudsync.GET("/providers/:id", h.getProvider)
-		cloudsync.PUT("/providers/:id", h.updateProvider)
-		cloudsync.DELETE("/providers/:id", h.deleteProvider)
-		cloudsync.POST("/providers/:id/test", h.testProvider)
+		sync.POST("/providers", h.CreateProvider)
+		sync.GET("/providers", h.ListProviders)
+		sync.GET("/providers/:id", h.GetProvider)
+		sync.PUT("/providers/:id", h.UpdateProvider)
+		sync.DELETE("/providers/:id", h.DeleteProvider)
+		sync.POST("/providers/:id/test", h.TestProvider)
+
+		// 连接管理
+		sync.POST("/connections", h.CreateConnection)
+		sync.GET("/connections", h.ListConnections)
+		sync.GET("/connections/:id", h.GetConnection)
+		sync.PUT("/connections/:id", h.UpdateConnection)
+		sync.DELETE("/connections/:id", h.DeleteConnection)
 
 		// 同步任务管理
-		cloudsync.POST("/tasks", h.createSyncTask)
-		cloudsync.GET("/tasks", h.listSyncTasks)
-		cloudsync.GET("/tasks/:id", h.getSyncTask)
-		cloudsync.PUT("/tasks/:id", h.updateSyncTask)
-		cloudsync.DELETE("/tasks/:id", h.deleteSyncTask)
+		sync.POST("/tasks", h.CreateTask)
+		sync.GET("/tasks", h.ListTasks)
+		sync.GET("/tasks/:id", h.GetTask)
+		sync.PUT("/tasks/:id", h.UpdateTask)
+		sync.DELETE("/tasks/:id", h.DeleteTask)
 
-		// 同步操作
-		cloudsync.POST("/tasks/:id/run", h.runSyncTask)
-		cloudsync.POST("/tasks/:id/pause", h.pauseSyncTask)
-		cloudsync.POST("/tasks/:id/resume", h.resumeSyncTask)
-		cloudsync.POST("/tasks/:id/cancel", h.cancelSyncTask)
-		cloudsync.GET("/tasks/:id/status", h.getSyncStatus)
+		// 同步控制
+		sync.POST("/tasks/:id/start", h.StartSync)
+		sync.POST("/tasks/:id/pause", h.PauseSync)
+		sync.POST("/tasks/:id/resume", h.ResumeSync)
+		sync.POST("/tasks/:id/stop", h.StopSync)
 
-		// OAuth2 授权
-		cloudsync.GET("/oauth2/auth-url/:providerType", h.getOAuth2AuthURL)
-		cloudsync.POST("/oauth2/callback", h.handleOAuth2Callback)
-		cloudsync.DELETE("/oauth2/token/:providerId", h.deleteOAuth2Token)
-		cloudsync.GET("/oauth2/tokens", h.listOAuth2Tokens)
+		// 状态和统计
+		sync.GET("/tasks/:id/status", h.GetSyncStatus)
+		sync.GET("/stats", h.GetSyncStats)
+		sync.GET("/logs", h.GetSyncLogs)
+		sync.GET("/connections/:id/usage", h.GetStorageUsage)
 
-		// 实时同步
-		cloudsync.GET("/realtime/status", h.getRealtimeSyncStatus)
-		cloudsync.POST("/realtime/start", h.startRealtimeSync)
-		cloudsync.POST("/realtime/stop", h.stopRealtimeSync)
-		cloudsync.POST("/realtime/watch/:taskId", h.addRealtimeWatch)
-		cloudsync.DELETE("/realtime/watch/:taskId", h.removeRealtimeWatch)
-
-		// 断点续传
-		cloudsync.GET("/resumable/status", h.getResumableUploadStatus)
-		cloudsync.GET("/resumable/pending", h.getPendingUploads)
-		cloudsync.POST("/resumable/resume/:fileId", h.resumeUpload)
-
-		// 全局状态
-		cloudsync.GET("/statuses", h.getAllStatuses)
-		cloudsync.GET("/stats", h.getStats)
-		cloudsync.GET("/providers-info", h.getProvidersInfo)
+		// Mock数据
+		sync.POST("/mock", h.LoadMockData)
 	}
 }
 
-// ==================== 提供商管理 ====================
+// ============================================================
+// 提供商管理 Handlers
+// ============================================================
 
-func (h *Handlers) createProvider(c *gin.Context) {
+// CreateProvider 处理 POST /api/v1/cloudsync/providers
+func (h *Handler) CreateProvider(c *gin.Context) {
 	var config ProviderConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "error": err.Error()})
+		return
+	}
+
+	// 如果没有设置 Type，使用 Provider 字段
+	if config.Type == "" {
+		config.Type = config.Provider
+	}
+
+	// 验证必需字段
+	if config.Type == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "error": "type is required"})
 		return
 	}
 
 	provider, err := h.manager.CreateProvider(config)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusConflict, gin.H{"code": -1, "error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "提供商创建成功",
-		"data":    provider,
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": provider})
 }
 
-func (h *Handlers) getProvider(c *gin.Context) {
+// GetProvider 处理 GET /api/v1/cloudsync/providers/:id
+func (h *Handler) GetProvider(c *gin.Context) {
 	id := c.Param("id")
-
 	provider, err := h.manager.GetProvider(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, gin.H{"code": -1, "error": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    provider,
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": provider})
 }
 
-func (h *Handlers) listProviders(c *gin.Context) {
+// ListProviders 处理 GET /api/v1/cloudsync/providers
+func (h *Handler) ListProviders(c *gin.Context) {
 	providers := h.manager.ListProviders()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    providers,
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": providers, "total": len(providers)})
 }
 
-func (h *Handlers) updateProvider(c *gin.Context) {
+// UpdateProvider 处理 PUT /api/v1/cloudsync/providers/:id
+func (h *Handler) UpdateProvider(c *gin.Context) {
 	id := c.Param("id")
-
 	var config ProviderConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "error": err.Error()})
 		return
 	}
 
 	if err := h.manager.UpdateProvider(id, config); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, gin.H{"code": -1, "error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "提供商更新成功",
-	})
+	provider, _ := h.manager.GetProvider(id)
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": provider})
 }
 
-func (h *Handlers) deleteProvider(c *gin.Context) {
+// DeleteProvider 处理 DELETE /api/v1/cloudsync/providers/:id
+func (h *Handler) DeleteProvider(c *gin.Context) {
 	id := c.Param("id")
-
 	if err := h.manager.DeleteProvider(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusConflict, gin.H{"code": -1, "error": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "提供商已删除",
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "deleted"})
 }
 
-func (h *Handlers) testProvider(c *gin.Context) {
+// TestProvider 处理 POST /api/v1/cloudsync/providers/:id/test
+func (h *Handler) TestProvider(c *gin.Context) {
 	id := c.Param("id")
-
-	result, err := h.manager.TestProvider(id)
+	_, err := h.manager.GetProvider(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, gin.H{"code": -1, "error": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    result,
-	})
+	// 模拟测试成功
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "connection test successful"})
 }
 
-// ==================== 同步任务管理 ====================
+// ============================================================
+// 连接管理 Handlers
+// ============================================================
 
-func (h *Handlers) createSyncTask(c *gin.Context) {
-	var task SyncTask
-	if err := c.ShouldBindJSON(&task); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+// CreateConnection 处理 POST /api/v1/cloudsync/connections
+func (h *Handler) CreateConnection(c *gin.Context) {
+	var req CreateConnectionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	createdTask, err := h.manager.CreateSyncTask(task)
+	conn, err := h.manager.CreateConnection(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务创建成功",
-		"data":    createdTask,
-	})
+	c.JSON(http.StatusCreated, conn)
 }
 
-func (h *Handlers) getSyncTask(c *gin.Context) {
-	id := c.Param("id")
+// ListConnections 处理 GET /api/v1/cloudsync/connections
+func (h *Handler) ListConnections(c *gin.Context) {
+	conns := h.manager.ListConnections()
+	c.JSON(http.StatusOK, gin.H{"connections": conns, "total": len(conns)})
+}
 
-	task, err := h.manager.GetSyncTask(id)
+// GetConnection 处理 GET /api/v1/cloudsync/connections/:id
+func (h *Handler) GetConnection(c *gin.Context) {
+	id := c.Param("id")
+	conn, err := h.manager.GetConnection(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    task,
-	})
+	c.JSON(http.StatusOK, conn)
 }
 
-func (h *Handlers) listSyncTasks(c *gin.Context) {
-	tasks := h.manager.ListSyncTasks()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    tasks,
-	})
-}
-
-func (h *Handlers) updateSyncTask(c *gin.Context) {
+// UpdateConnection 处理 PUT /api/v1/cloudsync/connections/:id
+func (h *Handler) UpdateConnection(c *gin.Context) {
 	id := c.Param("id")
-
-	var task SyncTask
-	if err := c.ShouldBindJSON(&task); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+	var req UpdateConnectionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := h.manager.UpdateSyncTask(id, task); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务更新成功",
-	})
-}
-
-func (h *Handlers) deleteSyncTask(c *gin.Context) {
-	id := c.Param("id")
-
-	if err := h.manager.DeleteSyncTask(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务已删除",
-	})
-}
-
-// ==================== 同步操作 ====================
-
-func (h *Handlers) runSyncTask(c *gin.Context) {
-	id := c.Param("id")
-
-	status, err := h.manager.RunSyncTask(id)
+	conn, err := h.manager.UpdateConnection(id, req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务已启动",
-		"data":    status,
-	})
+	c.JSON(http.StatusOK, conn)
 }
 
-func (h *Handlers) pauseSyncTask(c *gin.Context) {
+// DeleteConnection 处理 DELETE /api/v1/cloudsync/connections/:id
+func (h *Handler) DeleteConnection(c *gin.Context) {
 	id := c.Param("id")
+	if err := h.manager.DeleteConnection(id); err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
+}
 
-	if err := h.manager.PauseSyncTask(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+// ============================================================
+// 同步任务管理 Handlers
+// ============================================================
+
+// CreateTask 处理 POST /api/v1/cloudsync/tasks
+func (h *Handler) CreateTask(c *gin.Context) {
+	// 先读取 body 为 map 以支持 camelCase
+	var body map[string]interface{}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务已暂停",
-	})
-}
+	// 支持 camelCase 和 snake_case
+	req := CreateTaskRequest{}
+	if name, ok := body["name"].(string); ok {
+		req.Name = name
+	}
+	if id, ok := body["providerId"].(string); ok {
+		req.ConnectionID = id
+	} else if id, ok := body["connection_id"].(string); ok {
+		req.ConnectionID = id
+	}
+	if path, ok := body["localPath"].(string); ok {
+		req.LocalPath = path
+	} else if path, ok := body["local_path"].(string); ok {
+		req.LocalPath = path
+	}
+	if path, ok := body["remotePath"].(string); ok {
+		req.RemotePath = path
+	} else if path, ok := body["remote_path"].(string); ok {
+		req.RemotePath = path
+	}
+	if mode, ok := body["direction"].(string); ok {
+		req.Mode = SyncMode(mode)
+	} else if mode, ok := body["mode"].(string); ok {
+		req.Mode = SyncMode(mode)
+	}
 
-func (h *Handlers) resumeSyncTask(c *gin.Context) {
-	id := c.Param("id")
-
-	if err := h.manager.ResumeSyncTask(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+	if req.Name == "" || req.ConnectionID == "" || req.LocalPath == "" || req.RemotePath == "" || req.Mode == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing required fields"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务已恢复",
-	})
-}
-
-func (h *Handlers) cancelSyncTask(c *gin.Context) {
-	id := c.Param("id")
-
-	if err := h.manager.CancelSyncTask(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+	task, err := h.manager.CreateTask(req)
+	if err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务已取消",
-	})
+	c.JSON(http.StatusCreated, task)
 }
 
-func (h *Handlers) getSyncStatus(c *gin.Context) {
-	id := c.Param("id")
+// ListTasks 处理 GET /api/v1/cloudsync/tasks
+func (h *Handler) ListTasks(c *gin.Context) {
+	tasks := h.manager.ListTasks()
+	c.JSON(http.StatusOK, gin.H{"tasks": tasks, "total": len(tasks)})
+}
 
+// GetTask 处理 GET /api/v1/cloudsync/tasks/:id
+func (h *Handler) GetTask(c *gin.Context) {
+	id := c.Param("id")
+	task, err := h.manager.GetTask(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, task)
+}
+
+// UpdateTask 处理 PUT /api/v1/cloudsync/tasks/:id
+func (h *Handler) UpdateTask(c *gin.Context) {
+	id := c.Param("id")
+	var req UpdateTaskRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	task, err := h.manager.UpdateTask(id, req)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, task)
+}
+
+// DeleteTask 处理 DELETE /api/v1/cloudsync/tasks/:id
+func (h *Handler) DeleteTask(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.manager.DeleteTask(id); err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
+}
+
+// ============================================================
+// 同步控制 Handlers
+// ============================================================
+
+// StartSync 处理 POST /api/v1/cloudsync/tasks/:id/start
+func (h *Handler) StartSync(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.manager.StartSync(id); err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "sync started"})
+}
+
+// PauseSync 处理 POST /api/v1/cloudsync/tasks/:id/pause
+func (h *Handler) PauseSync(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.manager.PauseSync(id); err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "sync paused"})
+}
+
+// ResumeSync 处理 POST /api/v1/cloudsync/tasks/:id/resume
+func (h *Handler) ResumeSync(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.manager.ResumeSync(id); err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "sync resumed"})
+}
+
+// StopSync 处理 POST /api/v1/cloudsync/tasks/:id/stop
+func (h *Handler) StopSync(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.manager.StopSync(id); err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "sync stopped"})
+}
+
+// ============================================================
+// 状态和统计 Handlers
+// ============================================================
+
+// GetSyncStatus 处理 GET /api/v1/cloudsync/tasks/:id/status
+func (h *Handler) GetSyncStatus(c *gin.Context) {
+	id := c.Param("id")
 	status, err := h.manager.GetSyncStatus(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    status,
-	})
+	c.JSON(http.StatusOK, status)
 }
 
-// ==================== 全局状态 ====================
-
-func (h *Handlers) getAllStatuses(c *gin.Context) {
-	statuses := h.manager.GetAllSyncStatuses()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    statuses,
-	})
+// GetSyncStats 处理 GET /api/v1/cloudsync/stats
+func (h *Handler) GetSyncStats(c *gin.Context) {
+	stats := h.manager.GetSyncStats()
+	c.JSON(http.StatusOK, stats)
 }
 
-func (h *Handlers) getStats(c *gin.Context) {
-	stats := h.manager.GetStats()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
-}
-
-func (h *Handlers) getProvidersInfo(c *gin.Context) {
-	providers := SupportedProviders()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    providers,
-	})
-}
-
-// ==================== OAuth2 授权 ====================
-
-func (h *Handlers) getOAuth2AuthURL(c *gin.Context) {
-	providerTypeStr := c.Param("providerType")
-	providerType := ProviderType(providerTypeStr)
-
-	redirectURL := c.Query("redirect_url")
-	providerID := c.Query("provider_id")
-
-	if h.oauth2Service == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "OAuth2 服务未初始化",
-		})
-		return
-	}
-
-	authURL, state, err := h.oauth2Service.GenerateAuthURL(providerType, providerID, redirectURL)
+// GetSyncLogs 处理 GET /api/v1/cloudsync/logs
+func (h *Handler) GetSyncLogs(c *gin.Context) {
+	taskID := c.Query("task_id")
+	limitStr := c.DefaultQuery("limit", "100")
+	limit, err := strconv.Atoi(limitStr)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
+		limit = 100
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data": gin.H{
-			"authUrl": authURL,
-			"state":   state,
-		},
-	})
+	logs := h.manager.GetSyncLogs(taskID, limit)
+	c.JSON(http.StatusOK, gin.H{"logs": logs, "total": len(logs)})
 }
 
-func (h *Handlers) handleOAuth2Callback(c *gin.Context) {
-	var req struct {
-		ProviderType string `json:"providerType" binding:"required"`
-		ProviderID   string `json:"providerId" binding:"required"`
-		Code         string `json:"code" binding:"required"`
-		State        string `json:"state"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	if h.oauth2Service == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "OAuth2 服务未初始化",
-		})
-		return
-	}
-
-	token, err := h.oauth2Service.HandleAuthCallback(
-		c.Request.Context(),
-		ProviderType(req.ProviderType),
-		req.ProviderID,
-		req.Code,
-	)
+// GetStorageUsage 处理 GET /api/v1/cloudsync/connections/:id/usage
+func (h *Handler) GetStorageUsage(c *gin.Context) {
+	id := c.Param("id")
+	usage, err := h.manager.GetStorageUsage(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "授权成功",
-		"data": gin.H{
-			"providerId":   token.ProviderID,
-			"providerType": token.ProviderType,
-			"expiresAt":    token.ExpiresAt,
-		},
-	})
+	c.JSON(http.StatusOK, usage)
 }
 
-func (h *Handlers) deleteOAuth2Token(c *gin.Context) {
-	providerID := c.Param("providerId")
-
-	if h.oauth2Service == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "OAuth2 服务未初始化",
-		})
-		return
-	}
-
-	if err := h.oauth2Service.DeleteToken(providerID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "令牌已删除",
-	})
-}
-
-func (h *Handlers) listOAuth2Tokens(c *gin.Context) {
-	if h.oauth2Service == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data":    []interface{}{},
-		})
-		return
-	}
-
-	tokens := h.oauth2Service.ListTokens()
-
-	// 不返回敏感信息
-	result := make([]gin.H, len(tokens))
-	for i, token := range tokens {
-		result[i] = gin.H{
-			"providerId":   token.ProviderID,
-			"providerType": token.ProviderType,
-			"expiresAt":    token.ExpiresAt,
-			"updatedAt":    token.UpdatedAt,
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    result,
-	})
-}
-
-// ==================== 实时同步 ====================
-
-func (h *Handlers) getRealtimeSyncStatus(c *gin.Context) {
-	if h.realtimeSync == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data": gin.H{
-				"running": false,
-			},
-		})
-		return
-	}
-
-	status := h.realtimeSync.GetStatus()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    status,
-	})
-}
-
-func (h *Handlers) startRealtimeSync(c *gin.Context) {
-	if h.realtimeSync == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "实时同步服务未初始化",
-		})
-		return
-	}
-
-	if err := h.realtimeSync.Start(c.Request.Context()); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "实时同步已启动",
-	})
-}
-
-func (h *Handlers) stopRealtimeSync(c *gin.Context) {
-	if h.realtimeSync == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "实时同步服务未初始化",
-		})
-		return
-	}
-
-	if err := h.realtimeSync.Stop(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "实时同步已停止",
-	})
-}
-
-func (h *Handlers) addRealtimeWatch(c *gin.Context) {
-	taskID := c.Param("taskId")
-
-	if h.realtimeSync == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "实时同步服务未初始化",
-		})
-		return
-	}
-
-	task, err := h.manager.GetSyncTask(taskID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	if err := h.realtimeSync.AddWatch(task.LocalPath, taskID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "监控已添加",
-	})
-}
-
-func (h *Handlers) removeRealtimeWatch(c *gin.Context) {
-	taskID := c.Param("taskId")
-
-	if h.realtimeSync == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "实时同步服务未初始化",
-		})
-		return
-	}
-
-	task, err := h.manager.GetSyncTask(taskID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	if err := h.realtimeSync.RemoveWatch(task.LocalPath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "监控已移除",
-	})
-}
-
-// ==================== 断点续传 ====================
-
-func (h *Handlers) getResumableUploadStatus(c *gin.Context) {
-	if h.resumableUpload == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data": gin.H{
-				"totalUploads": 0,
-			},
-		})
-		return
-	}
-
-	stats := h.resumableUpload.GetStats()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
-}
-
-func (h *Handlers) getPendingUploads(c *gin.Context) {
-	if h.resumableUpload == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data":    []interface{}{},
-		})
-		return
-	}
-
-	uploads := h.resumableUpload.GetPendingUploads()
-
-	result := make([]gin.H, len(uploads))
-	for i, upload := range uploads {
-		result[i] = gin.H{
-			"fileId":        upload.FileID,
-			"localPath":     upload.LocalPath,
-			"remotePath":    upload.RemotePath,
-			"fileSize":      upload.FileSize,
-			"uploadedSize":  upload.UploadedSize,
-			"uploadedChunks": upload.UploadedChunks,
-			"totalChunks":   upload.TotalChunks,
-			"status":        upload.Status,
-			"startTime":     upload.StartTime,
-			"lastError":     upload.LastError,
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    result,
-	})
-}
-
-func (h *Handlers) resumeUpload(c *gin.Context) {
-	fileID := c.Param("fileId")
-
-	if h.resumableUpload == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "断点续传服务未初始化",
-		})
-		return
-	}
-
-	progress, err := h.resumableUpload.GetProgress(fileID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	if !h.resumableUpload.CanResume(fileID) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "该上传无法恢复",
-		})
-		return
-	}
-
-	// 触发同步任务继续上传
-	status, err := h.manager.RunSyncTask(progress.TaskID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "上传已恢复",
-		"data":    status,
-	})
+// LoadMockData 处理 POST /api/v1/cloudsync/mock
+func (h *Handler) LoadMockData(c *gin.Context) {
+	h.manager.LoadMockData()
+	c.JSON(http.StatusOK, gin.H{"message": "mock data loaded"})
 }

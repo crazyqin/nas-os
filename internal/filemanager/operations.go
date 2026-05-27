@@ -112,7 +112,7 @@ func (ops *Operations) Rename(oldPath, newName string, userID string) (*FileOper
 	}
 
 	op := ops.createOperation(OpRename, []string{cleanPath}, newPath, userID)
-	go ops.executeRename(op, newName)
+	ops.executeRename(op, newName)
 
 	return op, nil
 }

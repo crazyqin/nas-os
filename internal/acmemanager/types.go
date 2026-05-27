@@ -105,31 +105,18 @@ func (m *ACMEManager) RequestCertificate(domain string) (*Certificate, error) {
 	cert := &Certificate{
 		ID:        fmt.Sprintf("cert_%d", time.Now().UnixNano()),
 		Domain:    domain,
-		Status:    "pending",
+		Status:    "valid",
 		Issuer:    "Let's Encrypt",
+		NotBefore: time.Now(),
+		NotAfter:  time.Now().Add(90 * 24 * time.Hour),
+		Serial:    fmt.Sprintf("%x", time.Now().UnixNano()),
 		CreatedAt: time.Now(),
 		AutoRenew: m.config.AutoRenew,
 	}
 
 	m.certs[cert.ID] = cert
 
-	// 模拟证书颁发过程
-	go m.issueCertificate(cert)
-
 	return cert, nil
-}
-
-// issueCertificate 颁发证书
-func (m *ACMEManager) issueCertificate(cert *Certificate) {
-	time.Sleep(2 * time.Second)
-
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	cert.Status = "valid"
-	cert.NotBefore = time.Now()
-	cert.NotAfter = time.Now().Add(90 * 24 * time.Hour)
-	cert.Serial = fmt.Sprintf("%x", time.Now().UnixNano())
 }
 
 // GetCertificate 获取证书
