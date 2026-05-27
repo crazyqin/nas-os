@@ -374,14 +374,31 @@ func (m *Manager) GetAssetSummary() map[string]interface{} {
 		byStatus[a.Status]++
 	}
 
+	// 内联计算 aging 和 warranty_expired，避免递归 RLock
+	now := time.Now()
+	agingDeadline := now.AddDate(-5, 0, 0)
+	agingCount := 0
+	warrantyExpiredCount := 0
+	for _, a := range m.assets {
+		if a.Status == StatusDecommissioned {
+			continue
+		}
+		if !a.PurchaseDate.IsZero() && a.PurchaseDate.Before(agingDeadline) {
+			agingCount++
+		}
+		if !a.WarrantyEnd.IsZero() && a.WarrantyEnd.Before(now) {
+			warrantyExpiredCount++
+		}
+	}
+
 	return map[string]interface{}{
-		"total":       len(m.assets),
-		"by_type":     byType,
-		"by_status":   byStatus,
-		"groups":      len(m.groups),
-		"schedules":   len(m.schedules),
-		"aging":       len(m.GetAgingAssets(5)),
-		"warranty_expired": len(m.GetExpiredWarranty()),
+		"total":             len(m.assets),
+		"by_type":           byType,
+		"by_status":         byStatus,
+		"groups":            len(m.groups),
+		"schedules":         len(m.schedules),
+		"aging":             agingCount,
+		"warranty_expired":  warrantyExpiredCount,
 	}
 }
 

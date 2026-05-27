@@ -71,6 +71,21 @@ func (m *CloudSyncManager) CreateProvider(config ProviderConfig) (*ProviderItem,
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
+	// 验证必填字段
+	if config.Name == "" {
+		return nil, fmt.Errorf("provider name is required")
+	}
+	switch config.Type {
+	case ProviderAWSS3, ProviderS3, ProviderS3Compatible, ProviderAliyunOSS, ProviderTencentCOS, ProviderBackblazeB2:
+		if config.AccessKey == "" || config.SecretKey == "" || config.Bucket == "" {
+			return nil, fmt.Errorf("access_key, secret_key and bucket are required for %s", config.Type)
+		}
+	case ProviderWebDAV:
+		if config.Endpoint == "" {
+			return nil, fmt.Errorf("endpoint is required for WebDAV provider")
+		}
+	}
+
 	provider := &ProviderItem{
 		ID:        uuid.New().String(),
 		Name:      config.Name,
@@ -131,6 +146,9 @@ func (m *CloudSyncManager) CreateSyncTask(task SyncTask) (*SyncTask, error) {
 	if task.Status == "" {
 		task.Status = StatusIdle
 	}
+	if !task.Enabled {
+		task.Enabled = true
+	}
 	if task.ConflictStrategy == "" {
 		task.ConflictStrategy = ConflictStrategyNewer
 	}
@@ -138,6 +156,14 @@ func (m *CloudSyncManager) CreateSyncTask(task SyncTask) (*SyncTask, error) {
 	task.UpdatedAt = time.Now()
 
 	m.tasks[task.ID] = &task
+
+	// 创建初始状态
+	m.status[task.ID] = &SyncStatus{
+		TaskID:    task.ID,
+		TaskName:  task.Name,
+		Status:    StatusIdle,
+		StartedAt: nil,
+	}
 
 	if err := m.saveConfig(); err != nil {
 		m.logger.Warn("failed to save config", zap.Error(err))

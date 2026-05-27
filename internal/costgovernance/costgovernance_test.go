@@ -230,7 +230,7 @@ func TestAnalyzerPredictCost(t *testing.T) {
 	require.NoError(t, err)
 	assert.Len(t, predictions, 7)
 	// 趋势上升，预测值应大于最后数据点
-	assert.Greater(t, predictions[6].Cost, 1000+9*50)
+	assert.Greater(t, predictions[6].Cost, float64(1000+9*50))
 }
 
 func TestAnalyzerDetectAnomalies(t *testing.T) {

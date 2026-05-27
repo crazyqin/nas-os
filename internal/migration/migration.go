@@ -243,6 +243,7 @@ func (m *Manager) Start(taskID string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	m.mu.Lock()
 	m.cancels[taskID] = cancel
+	task.Status = StatusMigrating
 	m.mu.Unlock()
 
 	go m.runMigration(ctx, task)
@@ -250,7 +251,6 @@ func (m *Manager) Start(taskID string) error {
 }
 
 func (m *Manager) runMigration(ctx context.Context, task *Task) {
-	task.Status = StatusMigrating
 	task.StartedAt = time.Now()
 
 	var transferred int64
@@ -339,6 +339,10 @@ func (m *Manager) Verify(ctx context.Context, taskID string) (*VerifyResult, err
 	m.mu.RUnlock()
 	if !ok {
 		return nil, ErrTaskNotFound
+	}
+
+	if task.Status != StatusCompleted {
+		return nil, ErrTaskNotCompleted
 	}
 
 	task.Status = StatusVerifying

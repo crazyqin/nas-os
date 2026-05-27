@@ -318,8 +318,6 @@ func (m *SmartHDDManager) ResolveAlert(id string) error {
 
 // checkDiskHealth 检查磁盘健康
 func (m *SmartHDDManager) checkDiskHealth(disk *DiskInfo) {
-	previousHealth := disk.Health
-
 	// 检查温度
 	if disk.Temperature >= m.config.TempThreshold {
 		disk.Health = HealthCritical
@@ -353,7 +351,7 @@ func (m *SmartHDDManager) checkDiskHealth(disk *DiskInfo) {
 	}
 
 	// 如果没有问题，标记为健康
-	if disk.Health == HealthUnknown || (previousHealth == HealthUnknown && disk.Health == "") {
+	if disk.Health == HealthUnknown || disk.Health == "" {
 		disk.Health = HealthGood
 	}
 }
