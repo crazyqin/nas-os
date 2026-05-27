@@ -10,7 +10,7 @@ import (
 )
 
 func setupTest(t *testing.T) (*SurveillanceManager, *Handler) {
-	logger, _ zap.NewDevelopment()
+	logger, _ := zap.NewDevelopment()
 	manager := NewSurveillanceManager(logger, "/tmp/surveillance-test")
 	handler := NewHandler(manager, logger)
 	return manager, handler
