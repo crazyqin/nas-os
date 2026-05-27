@@ -95,6 +95,11 @@ import (
 	"nas-os/internal/ssohub"
 	"nas-os/internal/surveillance"
 	"nas-os/internal/unifiedsearch"
+	"nas-os/internal/zfspool"
+	"nas-os/internal/dockergui"
+	"nas-os/internal/gpumonitor"
+	"nas-os/internal/vmmanager"
+	"nas-os/internal/sysdashboard"
 
 	_ "nas-os/docs/swagger" // Swagger 文档
 
@@ -213,6 +218,12 @@ type Server struct {
 	ssoHubMgr          *ssohub.Manager
 	surveillanceMgr    *surveillance.SurveillanceManager
 	unifiedSearchMgr   *unifiedsearch.Manager
+	// v2.499.0 竞品对标新增模块
+	zfsPoolMgr         *zfspool.Manager
+	dockerGuiMgr       *dockergui.Manager
+	gpuMonitorMgr      *gpumonitor.Monitor
+	vmManagerMgr       *vmmanager.Manager
+	sysDashboardMgr    *sysdashboard.Manager
 }
 
 // NewServer 创建 Web 服务器.
