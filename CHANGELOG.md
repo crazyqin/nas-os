@@ -1,3 +1,87 @@
+## [v2.496.0] - 2026-05-27
+
+### 竞品功能全面对标：AI照片增强 / 智能家居 / VPN客户端 / ZFS高级管理 / 网络扫描 / 下载站
+
+#### 新功能
+
+##### 🖼️ AI照片增强 (AIPhoto)
+- AI图像降噪与超分辨率放大
+- 智能裁剪与构图优化
+- 批量处理队列管理
+- 对标群晖Synology Photos AI功能
+
+##### 📋 预算规划系统 (BudgetPlan)
+- 多维度预算创建与对比
+- 智能成本预测与趋势分析
+- 费用追踪与分类统计
+- 预算执行报告生成
+
+##### ⬇️ 下载站 (DownloadStation)
+- BT/HTTP多协议下载支持
+- 下载队列管理与限速
+- RSS订阅自动下载
+- 对标群晖Download Station
+
+##### 📁 文件管理器 (FileManager)
+- 文件浏览与批量操作
+- 文件预览与缩略图
+- 文件分享与权限管理
+- 对标群晖File Station
+
+##### 🔍 网络扫描 (NetScan)
+- 局域网设备自动发现
+- 端口扫描与服务识别
+- 网络拓扑可视化
+- 对标群晖Network Scanner
+
+##### 📸 照片时间线 (PhotoTimeline)
+- 时间线视图浏览照片
+- 智能相册创建与管理
+- 照片去重检测
+- 地点与标签筛选
+
+##### 🛡️ 安全顾问 (SecurityAdvisor)
+- 系统安全扫描与评分
+- 安全风险检测与建议
+- 合规性检查报告
+- 对标群晖Security Advisor
+
+##### 🏠 智能家居 (SmartHome)
+- 多协议设备管理（MQTT/Zigbee/HTTP）
+- 自动化规则引擎
+- 场景与设备分组
+- 设备状态监控与能耗统计
+
+##### 📊 任务看板 (TaskBoard)
+- 看板式任务管理
+- 任务分配与优先级
+- 进度追踪与统计
+- 团队协作支持
+
+##### 🎨 主题引擎 (ThemeEngine)
+- 自定义主题与配色方案
+- 深色/浅色模式切换
+- 主题导入导出
+- 布局自定义
+
+##### 🔐 VPN客户端 (VPNClient)
+- OpenVPN/WireGuard/L2TP多协议
+- VPN连接管理与状态监控
+- 流量统计与限速
+- 对标群晖VPN Client
+
+##### 💾 ZFS高级管理 (ZFSEnhanced)
+- ZFS存储池高级管理
+- 数据完整性检查与修复
+- 性能调优与缓存配置
+- 快照管理与回滚
+
+#### 修复
+- 修复 zfsenhanced types.go 语法错误（缺少 struct 关键字）
+- 修复 filemanager browser.go uint32/uint64 类型不匹配
+- 修复 zfsenhanced integrity.go int/int64 类型不匹配
+- 修复 zfsenhanced snapshot.go 缺少 strconv 导入
+
 ## [v2.495.0] - 2026-05-27
 
 ### 竞品功能深度对标：容器恢复 / 数据溯源 / 文件标签 / 智能通知 / 存储分析 / 应用反馈
