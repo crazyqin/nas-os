@@ -35,6 +35,7 @@ type HealthManager struct {
 	// 性能基准测试
 	benchResults map[string]*BenchmarkResult // id -> result
 	benchRunning map[string]bool             // id -> running
+	benchWg      sync.WaitGroup              // 等待所有benchmark完成
 
 	// 依赖
 	nvmeManager *Manager
@@ -510,6 +511,7 @@ func (hm *HealthManager) StartBenchmark(ctx context.Context, cfg BenchmarkConfig
 	hm.mu.Unlock()
 
 	// 异步执行基准测试
+	hm.benchWg.Add(1)
 	go hm.runBenchmark(result)
 
 	return result, nil
@@ -517,6 +519,7 @@ func (hm *HealthManager) StartBenchmark(ctx context.Context, cfg BenchmarkConfig
 
 // runBenchmark 执行基准测试
 func (hm *HealthManager) runBenchmark(result *BenchmarkResult) {
+	defer hm.benchWg.Done()
 	result.Status = "running"
 	cfg := result.Config
 
@@ -806,6 +809,11 @@ func (hm *HealthManager) ListBenchmarkResults() []*BenchmarkResult {
 		results = append(results, r)
 	}
 	return results
+}
+
+// WaitForBenchmarks 等待所有异步基准测试完成（测试用）
+func (hm *HealthManager) WaitForBenchmarks() {
+	hm.benchWg.Wait()
 }
 
 // contains 检查字符串切片是否包含目标字符串
