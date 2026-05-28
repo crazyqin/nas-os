@@ -1,169 +1,254 @@
+// Package smartnotify 提供智能通知中心功能，支持多渠道通知、规则引擎、优先级分级、免打扰等。
 package smartnotify
 
-import (
-	"sync"
-	"time"
-)
+import "time"
 
-// Priority represents notification priority levels
-type Priority int
+// NotifyChannel 通知渠道
+type NotifyChannel string
 
 const (
-	PriorityLow Priority = iota
-	PriorityMedium
-	PriorityHigh
-	PriorityCritical
+	ChannelEmail     NotifyChannel = "email"
+	ChannelSMS       NotifyChannel = "sms"
+	ChannelWeChat    NotifyChannel = "wechat"
+	ChannelDingTalk  NotifyChannel = "dingtalk"
+	ChannelTelegram  NotifyChannel = "telegram"
+	ChannelWebhook   NotifyChannel = "webhook"
+	ChannelPush      NotifyChannel = "push"
 )
 
-func (p Priority) String() string {
+// NotifyPriority 通知优先级
+type NotifyPriority int
+
+const (
+	PriorityLow      NotifyPriority = 0
+	PriorityNormal   NotifyPriority = 1
+	PriorityImportant NotifyPriority = 2
+	PriorityUrgent   NotifyPriority = 3
+)
+
+// PriorityName 获取优先级名称
+func PriorityName(p NotifyPriority) string {
 	switch p {
+	case PriorityUrgent:
+		return "紧急"
+	case PriorityImportant:
+		return "重要"
+	case PriorityNormal:
+		return "普通"
 	case PriorityLow:
-		return "low"
-	case PriorityMedium:
-		return "medium"
-	case PriorityHigh:
-		return "high"
-	case PriorityCritical:
-		return "critical"
+		return "低"
 	default:
-		return "unknown"
+		return "未知"
 	}
 }
 
-// ParsePriority parses string to Priority
-func ParsePriority(s string) Priority {
-	switch s {
-	case "low":
-		return PriorityLow
-	case "medium":
-		return PriorityMedium
-	case "high":
-		return PriorityHigh
-	case "critical":
-		return PriorityCritical
-	default:
-		return PriorityMedium
-	}
-}
-
-// Channel represents notification delivery channel
-type Channel string
+// NotifyStatus 通知状态
+type NotifyStatus string
 
 const (
-	ChannelEmail     Channel = "email"
-	ChannelWebhook   Channel = "webhook"
-	ChannelTelegram  Channel = "telegram"
-	ChannelDiscord   Channel = "discord"
-	ChannelWeChat    Channel = "wecom"
-	ChannelDingTalk  Channel = "dingtalk"
-	ChannelSMS       Channel = "sms"
+	StatusPending   NotifyStatus = "pending"
+	StatusSending   NotifyStatus = "sending"
+	StatusSent      NotifyStatus = "sent"
+	StatusDelivered NotifyStatus = "delivered"
+	StatusFailed    NotifyStatus = "failed"
+	StatusSilenced  NotifyStatus = "silenced"
+	StatusEscalated NotifyStatus = "escalated"
 )
 
-// NotificationStatus represents the delivery status
-type NotificationStatus string
+// RuleOperator 规则操作符
+type RuleOperator string
 
 const (
-	StatusPending   NotificationStatus = "pending"
-	StatusSending   NotificationStatus = "sending"
-	StatusDelivered NotificationStatus = "delivered"
-	StatusFailed    NotificationStatus = "failed"
-	StatusAggregated NotificationStatus = "aggregated"
+	OpEquals     RuleOperator = "equals"
+	OpNotEquals  RuleOperator = "not_equals"
+	OpContains   RuleOperator = "contains"
+	OpGreaterThan RuleOperator = "gt"
+	OpLessThan   RuleOperator = "lt"
+	OpRegex      RuleOperator = "regex"
 )
 
-// Notification represents a notification message
+// AggregateType 聚合类型
+type AggregateType string
+
+const (
+	AggregateNone  AggregateType = "none"
+	AggregateCount AggregateType = "count"
+	AggregateTime  AggregateType = "time"
+)
+
+// Notification 通知消息
 type Notification struct {
-	ID           string             `json:"id"`
-	Title        string             `json:"title"`
-	Content      string             `json:"content"`
-	Priority     Priority           `json:"priority"`
-	Source       string             `json:"source"`   // source module name
-	Labels       map[string]string  `json:"labels"`
-	Status       NotificationStatus `json:"status"`
-	IsAggregated bool               `json:"is_aggregated,omitempty"` // true if this is an aggregated notification
-	CreatedAt    time.Time          `json:"created_at"`
-	UpdatedAt    time.Time          `json:"updated_at"`
+	ID         string            `json:"id"`
+	Title      string            `json:"title" binding:"required"`
+	Content    string            `json:"content" binding:"required"`
+	Priority   NotifyPriority    `json:"priority"`
+	Channels   []NotifyChannel   `json:"channels"`
+	Tags       map[string]string `json:"tags,omitempty"`
+	Source     string            `json:"source,omitempty"`
+	TemplateID string            `json:"template_id,omitempty"`
+	Variables  map[string]string `json:"variables,omitempty"`
+	Status     NotifyStatus      `json:"status"`
+	RetryCount int               `json:"retry_count"`
+	CreatedAt  time.Time         `json:"created_at"`
+	UpdatedAt  time.Time         `json:"updated_at"`
+	SentAt     *time.Time        `json:"sent_at,omitempty"`
 }
 
-// RoutingRule defines how notifications are routed
-type RoutingRule struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Priority    []Priority        `json:"priority"`      // match these priorities
-	SourceMatch []string          `json:"source_match"`  // match these sources (glob patterns)
-	Channels    []Channel         `json:"channels"`      // deliver to these channels
-	Recipients  []string          `json:"recipients"`    // recipient identifiers
-	TimeWindow  *TimeWindow       `json:"time_window"`   // optional time constraint
-	Enabled     bool              `json:"enabled"`
+// NotifyRule 通知规则
+type NotifyRule struct {
+	ID          string          `json:"id"`
+	Name        string          `json:"name" binding:"required"`
+	Description string          `json:"description,omitempty"`
+	Enabled     bool            `json:"enabled"`
+	Priority    NotifyPriority  `json:"priority"`
+	Conditions  []RuleCondition `json:"conditions" binding:"required,min=1"`
+	Channels    []NotifyChannel `json:"channels" binding:"required,min=1"`
+	Aggregate   AggregateConfig `json:"aggregate,omitempty"`
+	Silence     SilenceConfig   `json:"silence,omitempty"`
+	Escalation  EscalationConfig `json:"escalation,omitempty"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
-// TimeWindow defines a time-based routing constraint
-type TimeWindow struct {
-	Start  string `json:"start"`  // HH:MM format
-	End    string `json:"end"`    // HH:MM format
-	Days   []int  `json:"days"`   // 0=Sunday, 1=Monday, ..., 6=Saturday
-	Timezone string `json:"timezone"`
+// RuleCondition 规则条件
+type RuleCondition struct {
+	Field    string       `json:"field" binding:"required"`
+	Operator RuleOperator `json:"operator" binding:"required"`
+	Value    string       `json:"value" binding:"required"`
 }
 
-// QuietHours represents do-not-disturb configuration
-type QuietHours struct {
-	Enabled  bool   `json:"enabled"`
-	Start    string `json:"start"`    // HH:MM format
-	End      string `json:"end"`      // HH:MM format
-	Timezone string `json:"timezone"`
-	Override []Priority `json:"override"` // priorities that can break quiet hours
+// AggregateConfig 聚合配置
+type AggregateConfig struct {
+	Type     AggregateType `json:"type"`
+	Window   time.Duration `json:"window,omitempty"`
+	MaxCount int           `json:"max_count,omitempty"`
 }
 
-// AggregationConfig defines notification aggregation rules
-type AggregationConfig struct {
-	Enabled    bool          `json:"enabled"`
-	Window     time.Duration `json:"window"`      // aggregation time window
-	MaxCount   int           `json:"max_count"`    // max notifications before flush
-	GroupBy    []string      `json:"group_by"`     // group by these fields (source, priority, labels)
+// SilenceConfig 免打扰配置
+type SilenceConfig struct {
+	Enabled   bool        `json:"enabled"`
+	StartTime string      `json:"start_time,omitempty"` // HH:MM 格式
+	EndTime   string      `json:"end_time,omitempty"`   // HH:MM 格式
+	Days      []time.Weekday `json:"days,omitempty"`
 }
 
-// RetryConfig defines retry behavior for failed deliveries
-type RetryConfig struct {
-	MaxRetries  int           `json:"max_retries"`
-	InitialWait time.Duration `json:"initial_wait"`
-	MaxWait     time.Duration `json:"max_wait"`
-	Multiplier  float64       `json:"multiplier"`
+// EscalationConfig 升级策略配置
+type EscalationConfig struct {
+	Enabled      bool            `json:"enabled"`
+	Timeout      time.Duration   `json:"timeout,omitempty"`
+	MaxLevel     int             `json:"max_level,omitempty"`
+	Channels     []NotifyChannel `json:"channels,omitempty"`
 }
 
-// DeliveryResult represents the result of a notification delivery attempt
-type DeliveryResult struct {
-	NotificationID string             `json:"notification_id"`
-	Channel        Channel            `json:"channel"`
-	Recipient      string             `json:"recipient"`
-	Status         NotificationStatus `json:"status"`
-	Error          string             `json:"error,omitempty"`
-	SentAt         time.Time          `json:"sent_at"`
-	RetryCount     int                `json:"retry_count"`
+// NotifyTemplate 通知模板
+type NotifyTemplate struct {
+	ID        string            `json:"id"`
+	Name      string            `json:"name" binding:"required"`
+	Channel   NotifyChannel     `json:"channel"`
+	Title     string            `json:"title" binding:"required"`
+	Content   string            `json:"content" binding:"required"`
+	Variables []string          `json:"variables,omitempty"`
+	CreatedAt time.Time         `json:"created_at"`
+	UpdatedAt time.Time         `json:"updated_at"`
 }
 
-// UserPreference stores per-user notification preferences
-type UserPreference struct {
-	UserID       string            `json:"user_id"`
-	Channels     []Channel         `json:"channels"`      // preferred channels
-	QuietHours   *QuietHours       `json:"quiet_hours"`
-	MinPriority  Priority          `json:"min_priority"`  // ignore below this priority
-	Labels       map[string]string `json:"labels"`        // filter by labels
+// NotifyHistory 通知历史
+type NotifyHistory struct {
+	ID          string          `json:"id"`
+	NotifyID    string          `json:"notify_id"`
+	RuleID      string          `json:"rule_id,omitempty"`
+	Title       string          `json:"title"`
+	Content     string          `json:"content"`
+	Priority    NotifyPriority  `json:"priority"`
+	Channel     NotifyChannel   `json:"channel"`
+	Status      NotifyStatus    `json:"status"`
+	Error       string          `json:"error,omitempty"`
+	RetryCount  int             `json:"retry_count"`
+	Escalated   bool            `json:"escalated"`
+	CreatedAt   time.Time       `json:"created_at"`
+	DeliveredAt *time.Time      `json:"delivered_at,omitempty"`
 }
 
-// DeliveryFunc is a function that delivers a notification to a channel
-type DeliveryFunc func(channel Channel, recipient string, notif *Notification) error
-
-// AggregationKey is used to group notifications for aggregation
-type AggregationKey struct {
-	Source   string
-	Priority Priority
-	LabelKey string
+// NotifyStats 通知统计
+type NotifyStats struct {
+	TotalSent     int            `json:"total_sent"`
+	TotalFailed   int            `json:"total_failed"`
+	TotalSilenced int            `json:"total_silenced"`
+	ByChannel     map[NotifyChannel]int `json:"by_channel"`
+	ByPriority    map[string]int        `json:"by_priority"`
+	AvgLatency    time.Duration  `json:"avg_latency"`
 }
 
-// PendingAggregation holds notifications waiting to be aggregated
-type PendingAggregation struct {
-	Key           AggregationKey
-	Notifications []*Notification
-	CreatedAt     time.Time
-	Timer         *time.Timer
-	mu            sync.Mutex
+// ChannelConfig 渠道配置
+type ChannelConfig struct {
+	Channel NotifyChannel `json:"channel"`
+	Enabled bool          `json:"enabled"`
+	Config  interface{}   `json:"config,omitempty"`
+}
+
+// SmartNotifyConfig 智能通知配置
+type SmartNotifyConfig struct {
+	Enabled        bool            `json:"enabled"`
+	DefaultChannels []NotifyChannel `json:"default_channels"`
+	MaxRetries     int             `json:"max_retries"`
+	RetryInterval  time.Duration   `json:"retry_interval"`
+	MaxHistory     int             `json:"max_history"`
+	Deduplication  bool            `json:"deduplication"`
+	DedupWindow    time.Duration   `json:"dedup_window"`
+}
+
+// DefaultSmartNotifyConfig 默认配置
+func DefaultSmartNotifyConfig() *SmartNotifyConfig {
+	return &SmartNotifyConfig{
+		Enabled: true,
+		DefaultChannels: []NotifyChannel{
+			ChannelEmail,
+			ChannelPush,
+		},
+		MaxRetries:    3,
+		RetryInterval: 5 * time.Minute,
+		MaxHistory:    10000,
+		Deduplication: true,
+		DedupWindow:   5 * time.Minute,
+	}
+}
+
+// ValidChannels 获取所有有效渠道
+func ValidChannels() []NotifyChannel {
+	return []NotifyChannel{
+		ChannelEmail,
+		ChannelSMS,
+		ChannelWeChat,
+		ChannelDingTalk,
+		ChannelTelegram,
+		ChannelWebhook,
+		ChannelPush,
+	}
+}
+
+// IsValidChannel 检查渠道是否有效
+func IsValidChannel(ch NotifyChannel) bool {
+	for _, c := range ValidChannels() {
+		if c == ch {
+			return true
+		}
+	}
+	return false
+}
+
+// ChannelName 获取渠道中文名称
+func ChannelName(ch NotifyChannel) string {
+	names := map[NotifyChannel]string{
+		ChannelEmail:    "邮件",
+		ChannelSMS:      "短信",
+		ChannelWeChat:   "微信",
+		ChannelDingTalk: "钉钉",
+		ChannelTelegram: "Telegram",
+		ChannelWebhook:  "Webhook",
+		ChannelPush:     "推送",
+	}
+	if name, ok := names[ch]; ok {
+		return name
+	}
+	return string(ch)
 }

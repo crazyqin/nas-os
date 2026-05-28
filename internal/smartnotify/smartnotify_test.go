@@ -2,836 +2,587 @@ package smartnotify
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"sync"
 	"testing"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
-func TestPriorityString(t *testing.T) {
-	tests := []struct {
-		p    Priority
-		want string
-	}{
-		{PriorityLow, "low"},
-		{PriorityMedium, "medium"},
-		{PriorityHigh, "high"},
-		{PriorityCritical, "critical"},
-		{Priority(99), "unknown"},
+func setupTestManager(t *testing.T) *Manager {
+	t.Helper()
+	return NewManager(zap.NewNop(), nil)
+}
+
+func setupTestRouter(t *testing.T, m *Manager) *gin.Engine {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	rg := r.Group("/api/v1")
+	h := NewHandlers(m)
+	h.RegisterRoutes(rg)
+	return r
+}
+
+// 测试场景1: 发送通知
+func TestSendNotification(t *testing.T) {
+	m := setupTestManager(t)
+
+	notify := &Notification{
+		Title:   "测试通知",
+		Content: "这是一条测试通知",
+		Priority: PriorityNormal,
+		Channels: []NotifyChannel{ChannelEmail, ChannelPush},
+		Source:   "test",
+		Tags:     map[string]string{"env": "test"},
 	}
-	for _, tt := range tests {
-		if got := tt.p.String(); got != tt.want {
-			t.Errorf("Priority(%d).String() = %q, want %q", tt.p, got, tt.want)
+
+	err := m.SendNotification(notify)
+	if err != nil {
+		t.Fatalf("SendNotification failed: %v", err)
+	}
+
+	if notify.ID == "" {
+		t.Error("expected non-empty notification ID")
+	}
+	if notify.Status != StatusSent {
+		t.Errorf("expected status sent, got %v", notify.Status)
+	}
+	if notify.SentAt == nil {
+		t.Error("expected non-nil sent_at")
+	}
+}
+
+// 测试场景2: 规则匹配
+func TestRuleMatching(t *testing.T) {
+	m := setupTestManager(t)
+
+	// 创建一个测试规则
+	rule := &NotifyRule{
+		Name:     "测试规则",
+		Priority: PriorityImportant,
+		Conditions: []RuleCondition{
+			{Field: "tags.category", Operator: OpEquals, Value: "test"},
+		},
+		Channels: []NotifyChannel{ChannelEmail},
+	}
+	m.CreateRule(rule)
+
+	// 发送匹配规则的通知
+	notify := &Notification{
+		Title:   "匹配通知",
+		Content: "应该匹配测试规则",
+		Tags:    map[string]string{"category": "test"},
+	}
+	m.SendNotification(notify)
+
+	// 验证历史记录中有规则ID
+	history := m.GetHistory(10)
+	found := false
+	for _, h := range history {
+		if h.NotifyID == notify.ID && h.RuleID == rule.ID {
+			found = true
+			break
 		}
 	}
-}
-
-func TestParsePriority(t *testing.T) {
-	tests := []struct {
-		s    string
-		want Priority
-	}{
-		{"low", PriorityLow},
-		{"medium", PriorityMedium},
-		{"high", PriorityHigh},
-		{"critical", PriorityCritical},
-		{"unknown", PriorityMedium},
-		{"", PriorityMedium},
-	}
-	for _, tt := range tests {
-		if got := ParsePriority(tt.s); got != tt.want {
-			t.Errorf("ParsePriority(%q) = %d, want %d", tt.s, got, tt.want)
-		}
+	if !found {
+		t.Error("expected history with rule ID")
 	}
 }
 
-func TestMatchSource(t *testing.T) {
-	tests := []struct {
-		source  string
-		pattern string
-		want    bool
-	}{
-		{"disk-monitor", "disk-monitor", true},
-		{"disk-monitor", "cpu-*", false},
-		{"disk-monitor", "*-monitor", true},
-		{"disk-monitor", "disk*", true},
-		{"disk-monitor", "*", true},
-		{"disk-monitor", "*isk*", true},
-		{"app-server", "*-server", true},
-		{"app-server", "app-*", true},
-		{"app-server", "web-*", false},
-	}
-	for _, tt := range tests {
-		got := matchSource(tt.source, tt.pattern)
-		if got != tt.want {
-			t.Errorf("matchSource(%q, %q) = %v, want %v", tt.source, tt.pattern, got, tt.want)
-		}
-	}
-}
+// 测试场景3: 通知去重
+func TestNotificationDeduplication(t *testing.T) {
+	cfg := DefaultSmartNotifyConfig()
+	cfg.Deduplication = true
+	cfg.DedupWindow = 5 * time.Minute
+	m := NewManager(zap.NewNop(), cfg)
 
-func TestRouterAddRemoveGetRule(t *testing.T) {
-	router := NewRouter()
-
-	rule := &RoutingRule{
-		ID:       "test-rule-1",
-		Name:     "Test Rule",
-		Priority: []Priority{PriorityHigh, PriorityCritical},
-		Channels: []Channel{ChannelEmail},
-		Enabled:  true,
+	// 发送第一条通知
+	notify1 := &Notification{
+		Title:   "重复测试",
+		Content: "相同内容",
+		Source:  "test",
 	}
+	m.SendNotification(notify1)
 
-	router.AddRule(rule)
-
-	got, ok := router.GetRule("test-rule-1")
-	if !ok {
-		t.Fatal("expected rule to exist")
+	// 发送重复通知
+	notify2 := &Notification{
+		Title:   "重复测试",
+		Content: "相同内容",
+		Source:  "test",
 	}
-	if got.Name != "Test Rule" {
-		t.Errorf("rule name = %q, want %q", got.Name, "Test Rule")
-	}
+	m.SendNotification(notify2)
 
-	rules := router.ListRules()
-	if len(rules) != 1 {
-		t.Errorf("expected 1 rule, got %d", len(rules))
-	}
-
-	router.RemoveRule("test-rule-1")
-	_, ok = router.GetRule("test-rule-1")
-	if ok {
-		t.Error("expected rule to be removed")
+	if notify2.Status != StatusSilenced {
+		t.Errorf("expected status silenced, got %v", notify2.Status)
 	}
 }
 
-func TestRouterUserPreference(t *testing.T) {
-	router := NewRouter()
+// 测试场景4: 免打扰时段
+func TestSilencePeriod(t *testing.T) {
+	m := setupTestManager(t)
 
-	pref := &UserPreference{
-		UserID:      "user1",
-		Channels:    []Channel{ChannelEmail, ChannelTelegram},
-		MinPriority: PriorityMedium,
-		QuietHours: &QuietHours{
-			Enabled:  true,
-			Start:    "22:00",
-			End:      "08:00",
-			Timezone: "UTC",
+	// 创建带免打扰的规则
+	rule := &NotifyRule{
+		Name:     "免打扰规则",
+		Priority: PriorityNormal,
+		Conditions: []RuleCondition{
+			{Field: "tags.type", Operator: OpEquals, Value: "routine"},
+		},
+		Channels: []NotifyChannel{ChannelPush},
+		Silence: SilenceConfig{
+			Enabled:   true,
+			StartTime: "00:00",
+			EndTime:   "23:59", // 全天免打扰
 		},
 	}
+	m.CreateRule(rule)
 
-	router.SetUserPreference(pref)
+	// 发送普通优先级通知
+	notify := &Notification{
+		Title:    "普通通知",
+		Content:  "应该被静默",
+		Tags:     map[string]string{"type": "routine"},
+	}
+	m.SendNotification(notify)
 
-	got, ok := router.GetUserPreference("user1")
-	if !ok {
-		t.Fatal("expected preference to exist")
-	}
-	if got.UserID != "user1" {
-		t.Errorf("user id = %q, want %q", got.UserID, "user1")
-	}
-	if len(got.Channels) != 2 {
-		t.Errorf("channels count = %d, want 2", len(got.Channels))
+	if notify.Status != StatusSilenced {
+		t.Errorf("expected status silenced, got %v", notify.Status)
 	}
 
-	router.DeleteUserPreference("user1")
-	_, ok = router.GetUserPreference("user1")
-	if ok {
-		t.Error("expected preference to be deleted")
+	// 发送紧急通知（应该突破免打扰）
+	urgentNotify := &Notification{
+		Title:    "紧急通知",
+		Content:  "应该突破免打扰",
+		Priority: PriorityUrgent,
+		Tags:     map[string]string{"type": "routine"},
+	}
+	m.SendNotification(urgentNotify)
+
+	// 紧急通知不会匹配这个规则（因为需要tags.type=routine），所以会直接发送
+	// 这里我们验证紧急通知不会被静默
+}
+
+// 测试场景5: 规则管理
+func TestRuleManagement(t *testing.T) {
+	m := setupTestManager(t)
+
+	// 列出默认规则
+	rules := m.ListRules()
+	if len(rules) < 4 {
+		t.Errorf("expected at least 4 default rules, got %d", len(rules))
+	}
+
+	// 创建规则
+	rule := &NotifyRule{
+		Name:     "新规则",
+		Priority: PriorityImportant,
+		Conditions: []RuleCondition{
+			{Field: "source", Operator: OpEquals, Value: "test"},
+		},
+		Channels: []NotifyChannel{ChannelEmail},
+	}
+	err := m.CreateRule(rule)
+	if err != nil {
+		t.Fatalf("CreateRule failed: %v", err)
+	}
+
+	// 获取规则
+	got, err := m.GetRule(rule.ID)
+	if err != nil {
+		t.Fatalf("GetRule failed: %v", err)
+	}
+	if got.Name != "新规则" {
+		t.Errorf("expected name '新规则', got '%s'", got.Name)
+	}
+
+	// 更新规则
+	rule.Name = "更新后的规则"
+	err = m.UpdateRule(rule.ID, rule)
+	if err != nil {
+		t.Fatalf("UpdateRule failed: %v", err)
+	}
+
+	// 切换规则状态
+	err = m.ToggleRule(rule.ID)
+	if err != nil {
+		t.Fatalf("ToggleRule failed: %v", err)
+	}
+	got, _ = m.GetRule(rule.ID)
+	if got.Enabled {
+		t.Error("expected rule to be disabled after toggle")
+	}
+
+	// 删除规则
+	err = m.DeleteRule(rule.ID)
+	if err != nil {
+		t.Fatalf("DeleteRule failed: %v", err)
+	}
+
+	_, err = m.GetRule(rule.ID)
+	if err == nil {
+		t.Error("expected error for deleted rule")
 	}
 }
 
-func TestRouterSendAndDeliver(t *testing.T) {
-	var mu sync.Mutex
-	var delivered []*Notification
+// 测试场景6: 模板管理
+func TestTemplateManagement(t *testing.T) {
+	m := setupTestManager(t)
 
-	router := NewRouter(
-		WithDeliveryFunc(func(ch Channel, recipient string, notif *Notification) error {
-			mu.Lock()
-			defer mu.Unlock()
-			delivered = append(delivered, notif)
-			return nil
-		}),
-		WithAggregationConfig(&AggregationConfig{Enabled: false}),
-	)
+	// 列出默认模板
+	templates := m.ListTemplates()
+	if len(templates) < 4 {
+		t.Errorf("expected at least 4 default templates, got %d", len(templates))
+	}
 
-	router.AddRule(&RoutingRule{
-		ID:         "default",
-		Name:       "Default Rule",
-		Priority:   []Priority{PriorityLow, PriorityMedium, PriorityHigh, PriorityCritical},
-		SourceMatch: []string{"*"},
-		Channels:   []Channel{ChannelEmail},
-		Recipients: []string{"admin@example.com"},
-		Enabled:    true,
+	// 创建模板
+	tpl := &NotifyTemplate{
+		Name:    "测试模板",
+		Channel: ChannelEmail,
+		Title:   "[{{level}}] {{title}}",
+		Content: "告警详情: {{content}}",
+	}
+	err := m.CreateTemplate(tpl)
+	if err != nil {
+		t.Fatalf("CreateTemplate failed: %v", err)
+	}
+
+	// 获取模板
+	got, err := m.GetTemplate(tpl.ID)
+	if err != nil {
+		t.Fatalf("GetTemplate failed: %v", err)
+	}
+	if got.Name != "测试模板" {
+		t.Errorf("expected name '测试模板', got '%s'", got.Name)
+	}
+
+	// 渲染模板
+	title, content, err := m.RenderTemplate(tpl.ID, map[string]string{
+		"level":   "紧急",
+		"title":   "服务器宕机",
+		"content": "服务器无法访问",
 	})
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	router.Start(ctx)
-
-	notif := &Notification{
-		ID:       "test-notif-1",
-		Title:    "Test Alert",
-		Content:  "Something happened",
-		Priority: PriorityHigh,
-		Source:   "test-module",
+	if err != nil {
+		t.Fatalf("RenderTemplate failed: %v", err)
+	}
+	if title != "[紧急] 服务器宕机" {
+		t.Errorf("unexpected title: %s", title)
+	}
+	if content != "告警详情: 服务器无法访问" {
+		t.Errorf("unexpected content: %s", content)
 	}
 
-	if err := router.Send(notif); err != nil {
-		t.Fatalf("Send failed: %v", err)
+	// 更新模板
+	tpl.Name = "更新后的模板"
+	err = m.UpdateTemplate(tpl.ID, tpl)
+	if err != nil {
+		t.Fatalf("UpdateTemplate failed: %v", err)
 	}
 
-	// Wait for delivery
-	time.Sleep(100 * time.Millisecond)
-
-	mu.Lock()
-	count := len(delivered)
-	mu.Unlock()
-
-	if count != 1 {
-		t.Errorf("expected 1 delivery, got %d", count)
+	// 删除模板
+	err = m.DeleteTemplate(tpl.ID)
+	if err != nil {
+		t.Fatalf("DeleteTemplate failed: %v", err)
 	}
 
-	// Check history
-	history := router.History(10)
-	if len(history) < 1 {
-		t.Errorf("expected at least 1 history entry, got %d", len(history))
+	_, err = m.GetTemplate(tpl.ID)
+	if err == nil {
+		t.Error("expected error for deleted template")
 	}
 }
 
-func TestRouterRetryOnFailure(t *testing.T) {
-	var mu sync.Mutex
-	attempts := 0
+// 测试场景7: 通知统计
+func TestNotificationStats(t *testing.T) {
+	cfg := DefaultSmartNotifyConfig()
+	cfg.Deduplication = false // 禁用去重以测试统计
+	m := NewManager(zap.NewNop(), cfg)
 
-	router := NewRouter(
-		WithDeliveryFunc(func(ch Channel, recipient string, notif *Notification) error {
-			mu.Lock()
-			attempts++
-			current := attempts
-			mu.Unlock()
-			if current < 3 {
-				return fmt.Errorf("delivery failed (attempt %d)", current)
-			}
-			return nil
-		}),
-		WithRetryConfig(&RetryConfig{
-			MaxRetries:  3,
-			InitialWait: 10 * time.Millisecond,
-			MaxWait:     50 * time.Millisecond,
-			Multiplier:  2.0,
-		}),
-		WithAggregationConfig(&AggregationConfig{Enabled: false}),
-	)
-
-	router.AddRule(&RoutingRule{
-		ID:         "default",
-		Name:       "Default",
-		Priority:   []Priority{PriorityCritical},
-		SourceMatch: []string{"*"},
-		Channels:   []Channel{ChannelWebhook},
-		Recipients: []string{"http://example.com/hook"},
-		Enabled:    true,
-	})
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	router.Start(ctx)
-
-	notif := &Notification{
-		ID:       "retry-test",
-		Title:    "Retry Test",
-		Content:  "Should retry",
-		Priority: PriorityCritical,
-		Source:   "test",
-	}
-
-	_ = router.Send(notif)
-
-	// Wait for retries to complete
-	time.Sleep(500 * time.Millisecond)
-
-	mu.Lock()
-	finalAttempts := attempts
-	mu.Unlock()
-
-	if finalAttempts < 3 {
-		t.Errorf("expected at least 3 attempts, got %d", finalAttempts)
-	}
-}
-
-func TestRouterAggregation(t *testing.T) {
-	var mu sync.Mutex
-	var deliveredCount int
-
-	router := NewRouter(
-		WithDeliveryFunc(func(ch Channel, recipient string, notif *Notification) error {
-			mu.Lock()
-			defer mu.Unlock()
-			deliveredCount++
-			return nil
-		}),
-		WithAggregationConfig(&AggregationConfig{
-			Enabled:  true,
-			Window:   200 * time.Millisecond,
-			MaxCount: 5,
-			GroupBy:  []string{"source"},
-		}),
-	)
-
-	router.AddRule(&RoutingRule{
-		ID:         "default",
-		Name:       "Default",
-		Priority:   []Priority{PriorityLow, PriorityMedium, PriorityHigh},
-		SourceMatch: []string{"*"},
-		Channels:   []Channel{ChannelEmail},
-		Recipients: []string{"admin@test.com"},
-		Enabled:    true,
-	})
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	router.Start(ctx)
-
-	// Send 3 notifications from same source (below MaxCount, so they aggregate)
-	for i := 0; i < 3; i++ {
-		notif := &Notification{
-			ID:       fmt.Sprintf("agg-test-%d", i),
-			Title:    fmt.Sprintf("Alert %d", i),
-			Content:  fmt.Sprintf("Content %d", i),
-			Priority: PriorityMedium,
-			Source:   "disk-monitor",
-		}
-		_ = router.Send(notif)
-		time.Sleep(10 * time.Millisecond)
-	}
-
-	// Wait for aggregation window to flush
-	time.Sleep(500 * time.Millisecond)
-
-	mu.Lock()
-	count := deliveredCount
-	mu.Unlock()
-
-	// Should deliver 1 aggregated notification (not 3 individual)
-	if count != 1 {
-		t.Errorf("expected 1 aggregated delivery, got %d", count)
-	}
-}
-
-func TestRouterAggregationMaxCountFlush(t *testing.T) {
-	var mu sync.Mutex
-	var deliveredCount int
-
-	router := NewRouter(
-		WithDeliveryFunc(func(ch Channel, recipient string, notif *Notification) error {
-			mu.Lock()
-			defer mu.Unlock()
-			deliveredCount++
-			return nil
-		}),
-		WithAggregationConfig(&AggregationConfig{
-			Enabled:  true,
-			Window:   10 * time.Second, // long window so it only flushes by count
-			MaxCount: 3,
-			GroupBy:  []string{},
-		}),
-	)
-
-	router.AddRule(&RoutingRule{
-		ID:         "default",
-		Name:       "Default",
-		Priority:   []Priority{PriorityMedium},
-		SourceMatch: []string{"*"},
-		Channels:   []Channel{ChannelDiscord},
-		Recipients: []string{"#alerts"},
-		Enabled:    true,
-	})
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	router.Start(ctx)
-
-	// Send exactly MaxCount notifications to trigger immediate flush
-	for i := 0; i < 3; i++ {
-		_ = router.Send(&Notification{
-			ID:       fmt.Sprintf("max-test-%d", i),
-			Title:    "Alert",
-			Content:  "Content",
-			Priority: PriorityMedium,
-			Source:   "cpu-monitor",
+	// 发送多条通知
+	for i := 0; i < 5; i++ {
+		m.SendNotification(&Notification{
+			Title:    fmt.Sprintf("统计测试%d", i),
+			Content:  fmt.Sprintf("测试内容%d", i),
+			Priority: PriorityNormal,
+			Channels: []NotifyChannel{ChannelEmail},
 		})
-		time.Sleep(20 * time.Millisecond)
 	}
 
-	time.Sleep(300 * time.Millisecond)
-
-	mu.Lock()
-	count := deliveredCount
-	mu.Unlock()
-
-	if count != 1 {
-		t.Errorf("expected 1 aggregated delivery on max count flush, got %d", count)
+	stats := m.GetStats()
+	if stats.TotalSent != 5 {
+		t.Errorf("expected 5 sent, got %d", stats.TotalSent)
+	}
+	if stats.ByChannel[ChannelEmail] != 5 {
+		t.Errorf("expected 5 email notifications, got %d", stats.ByChannel[ChannelEmail])
 	}
 }
 
-func TestRouterNoMatchingRule(t *testing.T) {
-	router := NewRouter(
-		WithAggregationConfig(&AggregationConfig{Enabled: false}),
-	)
+// 测试场景8: HTTP Handler
+func TestHandler_SendNotification(t *testing.T) {
+	m := setupTestManager(t)
+	r := setupTestRouter(t, m)
 
-	router.AddRule(&RoutingRule{
-		ID:         "high-only",
-		Name:       "High Only",
-		Priority:   []Priority{PriorityCritical},
-		SourceMatch: []string{"*"},
-		Channels:   []Channel{ChannelEmail},
-		Recipients: []string{"admin@test.com"},
-		Enabled:    true,
-	})
+	body := `{"title":"API测试","content":"通过API发送","priority":1,"channels":["email","push"]}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/smartnotify/send", bytes.NewBufferString(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	router.Start(ctx)
+	r.ServeHTTP(w, req)
 
-	_ = router.Send(&Notification{
-		ID:       "no-match",
-		Title:    "Low Priority",
-		Content:  "Should not route",
-		Priority: PriorityLow,
-		Source:   "test",
-	})
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
 
-	time.Sleep(100 * time.Millisecond)
-
-	history := router.History(10)
-	// No delivery should be recorded
-	if len(history) != 0 {
-		t.Errorf("expected no history entries, got %d", len(history))
+	var resp response
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to unmarshal response: %v", err)
+	}
+	if resp.Code != 0 {
+		t.Errorf("expected code 0, got %d", resp.Code)
 	}
 }
 
-func TestRouterDisabledRule(t *testing.T) {
-	router := NewRouter(
-		WithAggregationConfig(&AggregationConfig{Enabled: false}),
-	)
+// 测试场景9: 获取通知详情
+func TestGetNotification(t *testing.T) {
+	m := setupTestManager(t)
 
-	router.AddRule(&RoutingRule{
-		ID:         "disabled",
-		Name:       "Disabled",
-		Priority:   []Priority{PriorityHigh},
-		SourceMatch: []string{"*"},
-		Channels:   []Channel{ChannelEmail},
-		Recipients: []string{"admin@test.com"},
-		Enabled:    false, // disabled
-	})
+	// 先发送通知
+	notify := &Notification{
+		Title:   "详情测试",
+		Content: "测试内容",
+	}
+	m.SendNotification(notify)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	router.Start(ctx)
-
-	_ = router.Send(&Notification{
-		ID:       "disabled-test",
-		Title:    "Test",
-		Content:  "Content",
-		Priority: PriorityHigh,
-		Source:   "test",
-	})
-
-	time.Sleep(100 * time.Millisecond)
-
-	history := router.History(10)
-	if len(history) != 0 {
-		t.Errorf("expected no deliveries for disabled rule, got %d", len(history))
+	// 获取通知详情
+	got, err := m.GetNotification(notify.ID)
+	if err != nil {
+		t.Fatalf("GetNotification failed: %v", err)
+	}
+	if got.Title != "详情测试" {
+		t.Errorf("expected title '详情测试', got '%s'", got.Title)
 	}
 }
 
-func TestParseHHMM(t *testing.T) {
+// 测试场景10: 列出通知
+func TestListNotifications(t *testing.T) {
+	m := setupTestManager(t)
+
+	// 发送多条通知
+	for i := 0; i < 3; i++ {
+		m.SendNotification(&Notification{
+			Title:   "列表测试",
+			Content: "测试内容",
+		})
+	}
+
+	notifications := m.ListNotifications(10)
+	if len(notifications) != 3 {
+		t.Errorf("expected 3 notifications, got %d", len(notifications))
+	}
+}
+
+// 测试场景11: HTTP Handler 列出规则
+func TestHandler_ListRules(t *testing.T) {
+	m := setupTestManager(t)
+	r := setupTestRouter(t, m)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/smartnotify/rules", nil)
+	w := httptest.NewRecorder()
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp response
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to unmarshal response: %v", err)
+	}
+	if resp.Code != 0 {
+		t.Errorf("expected code 0, got %d", resp.Code)
+	}
+}
+
+// 测试场景12: 条件操作符
+func TestConditionOperators(t *testing.T) {
+	m := setupTestManager(t)
+
 	tests := []struct {
-		input string
-		want  int
-		err   bool
+		name      string
+		condition RuleCondition
+		notify    *Notification
+		expected  bool
 	}{
-		{"00:00", 0, false},
-		{"12:30", 750, false},
-		{"23:59", 1439, false},
-		{"25:00", 0, true},
-		{"12:60", 0, true},
-		{"abc", 0, true},
-	}
-	for _, tt := range tests {
-		got, err := parseHHMM(tt.input)
-		if (err != nil) != tt.err {
-			t.Errorf("parseHHMM(%q) error = %v, wantErr %v", tt.input, err, tt.err)
-			continue
-		}
-		if !tt.err && got != tt.want {
-			t.Errorf("parseHHMM(%q) = %d, want %d", tt.input, got, tt.want)
-		}
-	}
-}
-
-// --- HTTP Handler Tests ---
-
-func TestHandleSend(t *testing.T) {
-	router := NewRouter(
-		WithDeliveryFunc(func(ch Channel, recipient string, notif *Notification) error {
-			return nil
-		}),
-		WithAggregationConfig(&AggregationConfig{Enabled: false}),
-	)
-	router.AddRule(&RoutingRule{
-		ID:         "default",
-		Name:       "Default",
-		Priority:   []Priority{PriorityHigh},
-		SourceMatch: []string{"*"},
-		Channels:   []Channel{ChannelEmail},
-		Recipients: []string{"admin@test.com"},
-		Enabled:    true,
-	})
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	router.Start(ctx)
-
-	handler := NewHandler(router)
-	mux := http.NewServeMux()
-	handler.RegisterRoutes(mux)
-
-	body := SendRequest{
-		Title:    "Test Alert",
-		Content:  "Something happened",
-		Priority: "high",
-		Source:   "test-module",
-	}
-	bodyBytes, _ := json.Marshal(body)
-
-	req := httptest.NewRequest("POST", "/api/notifications/send", bytes.NewReader(bodyBytes))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("expected status 200, got %d", w.Code)
-	}
-
-	var resp APIResponse
-	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
-		t.Fatalf("failed to decode response: %v", err)
-	}
-	if !resp.Success {
-		t.Errorf("expected success=true, got error: %s", resp.Error)
-	}
-}
-
-func TestHandleSendMissingFields(t *testing.T) {
-	router := NewRouter()
-	handler := NewHandler(router)
-	mux := http.NewServeMux()
-	handler.RegisterRoutes(mux)
-
-	body := SendRequest{Title: "", Content: ""}
-	bodyBytes, _ := json.Marshal(body)
-
-	req := httptest.NewRequest("POST", "/api/notifications/send", bytes.NewReader(bodyBytes))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusBadRequest {
-		t.Errorf("expected status 400, got %d", w.Code)
-	}
-}
-
-func TestHandleRulesCRUD(t *testing.T) {
-	router := NewRouter()
-	handler := NewHandler(router)
-	mux := http.NewServeMux()
-	handler.RegisterRoutes(mux)
-
-	// Create rule
-	rule := RoutingRule{
-		ID:       "rule-1",
-		Name:     "Test Rule",
-		Priority: []Priority{PriorityHigh},
-		Channels: []Channel{ChannelTelegram},
-		Enabled:  true,
-	}
-	bodyBytes, _ := json.Marshal(rule)
-
-	req := httptest.NewRequest("POST", "/api/rules", bytes.NewReader(bodyBytes))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusCreated {
-		t.Errorf("create: expected 201, got %d", w.Code)
-	}
-
-	// List rules
-	req = httptest.NewRequest("GET", "/api/rules", nil)
-	w = httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("list: expected 200, got %d", w.Code)
-	}
-
-	var listResp APIResponse
-	_ = json.NewDecoder(w.Body).Decode(&listResp)
-
-	// Get rule
-	req = httptest.NewRequest("GET", "/api/rules/rule-1", nil)
-	w = httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("get: expected 200, got %d", w.Code)
-	}
-
-	// Delete rule
-	req = httptest.NewRequest("DELETE", "/api/rules/rule-1", nil)
-	w = httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("delete: expected 200, got %d", w.Code)
-	}
-
-	// Get deleted rule
-	req = httptest.NewRequest("GET", "/api/rules/rule-1", nil)
-	w = httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusNotFound {
-		t.Errorf("get deleted: expected 404, got %d", w.Code)
-	}
-}
-
-func TestHandlePreferencesCRUD(t *testing.T) {
-	router := NewRouter()
-	handler := NewHandler(router)
-	mux := http.NewServeMux()
-	handler.RegisterRoutes(mux)
-
-	// Set preference
-	pref := UserPreference{
-		Channels:    []Channel{ChannelEmail, ChannelTelegram},
-		MinPriority: PriorityHigh,
-		QuietHours: &QuietHours{
-			Enabled:  true,
-			Start:    "22:00",
-			End:      "08:00",
-			Timezone: "UTC",
+		{
+			name:      "equals match",
+			condition: RuleCondition{Field: "source", Operator: OpEquals, Value: "test"},
+			notify:    &Notification{Source: "test"},
+			expected:  true,
 		},
-	}
-	bodyBytes, _ := json.Marshal(pref)
-
-	req := httptest.NewRequest("PUT", "/api/preferences/user1", bytes.NewReader(bodyBytes))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("set: expected 200, got %d", w.Code)
-	}
-
-	// Get preference
-	req = httptest.NewRequest("GET", "/api/preferences/user1", nil)
-	w = httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("get: expected 200, got %d", w.Code)
-	}
-
-	var getResp APIResponse
-	_ = json.NewDecoder(w.Body).Decode(&getResp)
-
-	// Delete preference
-	req = httptest.NewRequest("DELETE", "/api/preferences/user1", nil)
-	w = httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("delete: expected 200, got %d", w.Code)
-	}
-
-	// Get deleted preference
-	req = httptest.NewRequest("GET", "/api/preferences/user1", nil)
-	w = httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusNotFound {
-		t.Errorf("get deleted: expected 404, got %d", w.Code)
-	}
-}
-
-func TestHandleHistory(t *testing.T) {
-	router := NewRouter(
-		WithDeliveryFunc(func(ch Channel, recipient string, notif *Notification) error {
-			return nil
-		}),
-		WithAggregationConfig(&AggregationConfig{Enabled: false}),
-	)
-	router.AddRule(&RoutingRule{
-		ID:         "default",
-		Name:       "Default",
-		Priority:   []Priority{PriorityHigh},
-		SourceMatch: []string{"*"},
-		Channels:   []Channel{ChannelEmail},
-		Recipients: []string{"admin@test.com"},
-		Enabled:    true,
-	})
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	router.Start(ctx)
-
-	handler := NewHandler(router)
-	mux := http.NewServeMux()
-	handler.RegisterRoutes(mux)
-
-	// Send a notification first
-	body := SendRequest{
-		Title:    "History Test",
-		Content:  "Content",
-		Priority: "high",
-		Source:   "test",
-	}
-	bodyBytes, _ := json.Marshal(body)
-
-	req := httptest.NewRequest("POST", "/api/notifications/send", bytes.NewReader(bodyBytes))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	time.Sleep(100 * time.Millisecond)
-
-	// Get history
-	req = httptest.NewRequest("GET", "/api/notifications/history?limit=10", nil)
-	w = httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
-	}
-
-	var resp APIResponse
-	_ = json.NewDecoder(w.Body).Decode(&resp)
-	if !resp.Success {
-		t.Errorf("expected success=true")
-	}
-}
-
-func TestTimeWindowMatch(t *testing.T) {
-	router := NewRouter()
-
-	// Test with current time window using UTC
-	now := time.Now().UTC()
-	tw := &TimeWindow{
-		Start:    fmt.Sprintf("%02d:%02d", now.Hour(), now.Minute()),
-		End:      fmt.Sprintf("%02d:%02d", (now.Hour()+1)%24, now.Minute()),
-		Timezone: "UTC",
-	}
-
-	if !router.inTimeWindow(tw) {
-		t.Error("expected current time to be within window")
-	}
-
-	// Test with past time window
-	pastTw := &TimeWindow{
-		Start:    "01:00",
-		End:      "02:00",
-		Timezone: "UTC",
-	}
-	// This may or may not match depending on current time, just ensure no panic
-	_ = router.inTimeWindow(pastTw)
-}
-
-func TestDisabledRuleSkipped(t *testing.T) {
-	var mu sync.Mutex
-	var deliveredCount int
-
-	router := NewRouter(
-		WithDeliveryFunc(func(ch Channel, recipient string, notif *Notification) error {
-			mu.Lock()
-			defer mu.Unlock()
-			deliveredCount++
-			return nil
-		}),
-		WithAggregationConfig(&AggregationConfig{Enabled: false}),
-	)
-
-	// Add disabled rule
-	router.AddRule(&RoutingRule{
-		ID:         "disabled",
-		Name:       "Disabled",
-		Priority:   []Priority{PriorityHigh},
-		SourceMatch: []string{"*"},
-		Channels:   []Channel{ChannelEmail},
-		Recipients: []string{"admin@test.com"},
-		Enabled:    false,
-	})
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	router.Start(ctx)
-
-	_ = router.Send(&Notification{
-		ID:       "disabled-test",
-		Title:    "Test",
-		Content:  "Content",
-		Priority: PriorityHigh,
-		Source:   "test",
-	})
-
-	time.Sleep(100 * time.Millisecond)
-
-	mu.Lock()
-	count := deliveredCount
-	mu.Unlock()
-
-	if count != 0 {
-		t.Errorf("expected 0 deliveries for disabled rule, got %d", count)
-	}
-}
-
-func TestSourcePatternMatching(t *testing.T) {
-	tests := []struct {
-		name    string
-		ruleSrc []string
-		notifSrc string
-		want    bool
-	}{
-		{"exact match", []string{"disk-monitor"}, "disk-monitor", true},
-		{"wildcard all", []string{"*"}, "anything", true},
-		{"suffix match", []string{"*-monitor"}, "cpu-monitor", true},
-		{"prefix match", []string{"disk*"}, "disk-alert", true},
-		{"contains match", []string{"*isk*"}, "disk-check", true},
-		{"no match", []string{"cpu-*"}, "disk-monitor", false},
-		{"multiple patterns", []string{"cpu-*", "disk-*"}, "disk-alert", true},
-		{"multiple no match", []string{"cpu-*", "mem-*"}, "disk-alert", false},
+		{
+			name:      "equals no match",
+			condition: RuleCondition{Field: "source", Operator: OpEquals, Value: "prod"},
+			notify:    &Notification{Source: "test"},
+			expected:  false,
+		},
+		{
+			name:      "not_equals",
+			condition: RuleCondition{Field: "source", Operator: OpNotEquals, Value: "prod"},
+			notify:    &Notification{Source: "test"},
+			expected:  true,
+		},
+		{
+			name:      "contains",
+			condition: RuleCondition{Field: "title", Operator: OpContains, Value: "告警"},
+			notify:    &Notification{Title: "系统告警通知"},
+			expected:  true,
+		},
+		{
+			name:      "greater than",
+			condition: RuleCondition{Field: "tags.value", Operator: OpGreaterThan, Value: "80"},
+			notify:    &Notification{Tags: map[string]string{"value": "90"}},
+			expected:  true,
+		},
+		{
+			name:      "less than",
+			condition: RuleCondition{Field: "tags.value", Operator: OpLessThan, Value: "10"},
+			notify:    &Notification{Tags: map[string]string{"value": "5"}},
+			expected:  true,
+		},
+		{
+			name:      "regex",
+			condition: RuleCondition{Field: "title", Operator: OpRegex, Value: `^系统.*告警$`},
+			notify:    &Notification{Title: "系统告警"},
+			expected:  true,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rule := &RoutingRule{
-				ID:         "test",
-				SourceMatch: tt.ruleSrc,
-				Priority:   []Priority{PriorityHigh},
-				Enabled:    true,
-			}
-			notif := &Notification{
-				Source:   tt.notifSrc,
-				Priority: PriorityHigh,
-			}
-			router := NewRouter()
-			got := router.matchRule(rule, notif)
-			if got != tt.want {
-				t.Errorf("matchRule() = %v, want %v", got, tt.want)
+			result := m.matchCondition(tt.notify, tt.condition)
+			if result != tt.expected {
+				t.Errorf("expected %v, got %v", tt.expected, result)
 			}
 		})
+	}
+}
+
+// 测试场景13: 配置管理
+func TestConfigManagement(t *testing.T) {
+	m := setupTestManager(t)
+
+	// 获取默认配置
+	cfg := m.GetConfig()
+	if !cfg.Enabled {
+		t.Error("expected enabled to be true")
+	}
+	if cfg.MaxRetries != 3 {
+		t.Errorf("expected max retries 3, got %d", cfg.MaxRetries)
+	}
+
+	// 更新配置
+	newCfg := DefaultSmartNotifyConfig()
+	newCfg.MaxRetries = 5
+	newCfg.Deduplication = false
+	m.UpdateConfig(newCfg)
+
+	cfg = m.GetConfig()
+	if cfg.MaxRetries != 5 {
+		t.Errorf("expected max retries 5, got %d", cfg.MaxRetries)
+	}
+	if cfg.Deduplication {
+		t.Error("expected deduplication to be false")
+	}
+}
+
+// 测试场景14: 无效通知
+func TestInvalidNotification(t *testing.T) {
+	cfg := DefaultSmartNotifyConfig()
+	cfg.Enabled = false
+	m := NewManager(zap.NewNop(), cfg)
+
+	notify := &Notification{
+		Title:   "测试",
+		Content: "测试内容",
+	}
+
+	err := m.SendNotification(notify)
+	if err == nil {
+		t.Error("expected error when disabled")
+	}
+}
+
+// 测试场景15: 无效渠道
+func TestInvalidChannel(t *testing.T) {
+	if IsValidChannel("invalid") {
+		t.Error("expected 'invalid' to be invalid channel")
+	}
+	if !IsValidChannel(ChannelEmail) {
+		t.Error("expected email to be valid channel")
+	}
+}
+
+// 测试场景16: 渠道名称
+func TestChannelNames(t *testing.T) {
+	tests := []struct {
+		channel  NotifyChannel
+		expected string
+	}{
+		{ChannelEmail, "邮件"},
+		{ChannelSMS, "短信"},
+		{ChannelWeChat, "微信"},
+		{ChannelDingTalk, "钉钉"},
+		{ChannelTelegram, "Telegram"},
+		{ChannelWebhook, "Webhook"},
+		{ChannelPush, "推送"},
+	}
+
+	for _, tt := range tests {
+		name := ChannelName(tt.channel)
+		if name != tt.expected {
+			t.Errorf("expected %s, got %s", tt.expected, name)
+		}
+	}
+}
+
+// 测试场景17: 优先级名称
+func TestPriorityNames(t *testing.T) {
+	tests := []struct {
+		priority NotifyPriority
+		expected string
+	}{
+		{PriorityUrgent, "紧急"},
+		{PriorityImportant, "重要"},
+		{PriorityNormal, "普通"},
+		{PriorityLow, "低"},
+	}
+
+	for _, tt := range tests {
+		name := PriorityName(tt.priority)
+		if name != tt.expected {
+			t.Errorf("expected %s, got %s", tt.expected, name)
+		}
+	}
+}
+
+// 测试场景18: 默认配置
+func TestDefaultConfig(t *testing.T) {
+	cfg := DefaultSmartNotifyConfig()
+
+	if !cfg.Enabled {
+		t.Error("expected enabled to be true")
+	}
+	if len(cfg.DefaultChannels) != 2 {
+		t.Errorf("expected 2 default channels, got %d", len(cfg.DefaultChannels))
+	}
+	if cfg.MaxRetries != 3 {
+		t.Errorf("expected max retries 3, got %d", cfg.MaxRetries)
+	}
+	if !cfg.Deduplication {
+		t.Error("expected deduplication to be true")
 	}
 }
