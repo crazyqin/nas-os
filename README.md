@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.508.0 Stable (2026-05-28)
+> **最新版本**: v2.509.0 Stable (2026-05-29)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -157,6 +157,12 @@
 | 🏗️ **Enclosure Management** | SES-3/SGPIO机箱管理，指示灯/温控/电源 | ✅ **v2.508.0新增** |
 | 🔀 **SAS Multipath** | SAS多路径故障切换与负载均衡 | ✅ **v2.508.0新增** |
 | 🧠 **Disk Health AI** | AI驱动磁盘故障预测与健康评分 | ✅ **v2.508.0新增** |
+| ♻️ **智能文件生命周期** | 文件老化分析/自动归档/智能清理/存储回收 | ✅ **v2.509.0新增** |
+| ⚖️ **磁盘磨损均衡** | SMART监控/磨损均衡策略/磁盘轮换/寿命预测 | ✅ **v2.509.0新增** |
+| 🔍 **统一搜索门户** | 跨模块全局搜索/快捷操作/智能推荐 | ✅ **v2.509.0新增** |
+| 📊 **存储健康评分** | 多维度健康评估/趋势分析/智能预警 | ✅ **v2.509.0新增** |
+| 🔒 **合规快照审计** | 快照完整性验证/合规性检查/篡改检测 | ✅ **v2.509.0新增** |
+| 💿 **系统克隆备份** | 全盘克隆/增量镜像/系统恢复/PXE部署 | ✅ **v2.509.0新增** |
 
 ## 快速开始
 
