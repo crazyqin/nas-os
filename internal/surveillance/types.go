@@ -224,3 +224,26 @@ type SurveillanceStats struct {
 	TodayEvents      int     `json:"todayEvents"`
 	ActiveStreams    int     `json:"activeStreams"`
 }
+
+// 兼容性别名 - 保持向后兼容
+type SurveillanceManager = Manager
+
+// MotionEvent 移动侦测事件
+type MotionEvent struct {
+	ID         string    `json:"id"`
+	CameraID   string    `json:"cameraId"`
+	Confidence float64   `json:"confidence"`
+	Region     string    `json:"region"`
+	Timestamp  time.Time `json:"timestamp"`
+}
+
+// NewSurveillanceManager 兼容旧接口
+func NewSurveillanceManager(logger interface{}, dataPath string) *Manager {
+	m, _ := NewManager(dataPath)
+	return m
+}
+
+// NewHandler 兼容旧接口
+func NewHandler(manager *Manager, logger interface{}) *Handlers {
+	return NewHandlers(manager)
+}
