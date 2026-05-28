@@ -270,7 +270,7 @@ func (m *Manager) SendWakeOnLAN(req *WoLRequest) error {
 	}
 
 	// 发送 UDP 包
-	addr := fmt.Sprintf("%s:%d", broadcast, port)
+	addr := net.JoinHostPort(broadcast, fmt.Sprintf("%d", port))
 	conn, err := net.Dial("udp4", addr)
 	if err != nil {
 		return fmt.Errorf("failed to dial UDP: %w", err)
