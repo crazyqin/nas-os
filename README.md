@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.494.0 Stable (2026-05-27)
+> **最新版本**: v2.509.0 Stable (2026-05-29)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -18,6 +18,16 @@
 | 4 | ☁️ **多云存储挂载** | 阿里云/腾讯云/AWS/GDrive/OneDrive统一挂载 | **云本地化** - 6+平台透明读写，覆盖最广 |
 
 > 💡 **竞品对标**: 群晖DSM、飞牛fnOS、TrueNAS均无上述四大功能 → [详细分析](docs/COMPETITIVE_ANALYSIS_2026Q2.md)
+
+### 💾 企业级存储核心
+
+| # | 功能 | 说明 | 价值 |
+|---|------|------|------|
+| 1 | 💾 **RAID-Z Expansion** | 在线扩展RAID-Z vdev，不停机添加磁盘 | **存储弹性** - 突破传统RAID容量限制 |
+| 2 | 🔄 **dRAID分布式热备** | 分布式热备RAID，加速重建 | **数据安全** - 重建时间缩短80% |
+| 3 | 🏗️ **Enclosure Management** | SES-3/SGPIO机箱管理，指示灯/温控/电源 | **硬件掌控** - 企业级硬件管理 |
+| 4 | 🔀 **SAS Multipath** | SAS多路径故障切换与负载均衡 | **高可用** - 消除单点故障 |
+| 5 | 🧠 **Disk Health AI** | AI驱动磁盘故障预测与健康评分 | **预防性维护** - 提前30天预警 |
 
 ---
 
@@ -142,6 +152,17 @@
 | ☁️ **CloudSync Manager** | 6+云平台统一管理/智能同步策略/冲突解决引擎 | ✅ **v2.491.0新增** |
 | 🏥 **Health Probe健康探针** | 系统全面检测/健康评分/趋势分析/自动告警 | ✅ **v2.491.0新增** |
 | 🛡️ **Security Audit Reporter** | 自动化审计/CIS/STIG/GDPR合规/多格式导出 | ✅ **v2.491.0新增** |
+| 💾 **RAID-Z Expansion** | 在线扩展RAID-Z vdev，不停机添加磁盘 | ✅ **v2.508.0新增** |
+| 🔄 **dRAID分布式热备** | 分布式热备RAID，加速重建 | ✅ **v2.508.0新增** |
+| 🏗️ **Enclosure Management** | SES-3/SGPIO机箱管理，指示灯/温控/电源 | ✅ **v2.508.0新增** |
+| 🔀 **SAS Multipath** | SAS多路径故障切换与负载均衡 | ✅ **v2.508.0新增** |
+| 🧠 **Disk Health AI** | AI驱动磁盘故障预测与健康评分 | ✅ **v2.508.0新增** |
+| ♻️ **智能文件生命周期** | 文件老化分析/自动归档/智能清理/存储回收 | ✅ **v2.509.0新增** |
+| ⚖️ **磁盘磨损均衡** | SMART监控/磨损均衡策略/磁盘轮换/寿命预测 | ✅ **v2.509.0新增** |
+| 🔍 **统一搜索门户** | 跨模块全局搜索/快捷操作/智能推荐 | ✅ **v2.509.0新增** |
+| 📊 **存储健康评分** | 多维度健康评估/趋势分析/智能预警 | ✅ **v2.509.0新增** |
+| 🔒 **合规快照审计** | 快照完整性验证/合规性检查/篡改检测 | ✅ **v2.509.0新增** |
+| 💿 **系统克隆备份** | 全盘克隆/增量镜像/系统恢复/PXE部署 | ✅ **v2.509.0新增** |
 
 ## 快速开始
 
