@@ -5,14 +5,11 @@ import (
 	"fmt"
 	"testing"
 	"time"
-
-	"go.uber.org/zap"
 )
 
 func newTestManager(t *testing.T) *Manager {
 	t.Helper()
-	logger, _ := zap.NewDevelopment()
-	return NewManager(logger)
+	return NewManager()
 }
 
 func TestNewManager(t *testing.T) {
