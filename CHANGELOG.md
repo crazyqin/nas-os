@@ -1,3 +1,51 @@
+## [v2.513.0] - 2026-05-29
+
+### 新增6个功能模块 + 测试修复
+
+#### 🏠 家庭实验室管理器 (HomeLab)
+- 统一管理Docker/VM/Compose/K3s/Systemd服务
+- 服务模板市场（Nextcloud/Jellyfin/Home Assistant/Vaultwarden等）
+- 编排栈管理，一键启停多服务
+- 资源监控统计
+- 对标群晖Container Manager + TrueNAS Apps
+
+#### ♻️ 智能回收清理 (SmartRecycle)
+- 自动识别大文件/重复文件/过期文件/临时文件/空文件
+- 智能评分系统，优先推荐清理高收益项
+- 批量清理与回收报告
+- 对标群晖Storage Analyzer
+
+#### 📜 数字遗产管理 (DigitalLegacy)
+- 受益人管理（添加/验证/授权）
+- 遗产计划创建与封印
+- 遗嘱触发检测（不活跃天数触发）
+- 访问日志审计
+- 独家功能，竞品无对标
+
+#### 🔒 隐私评分系统 (PrivacyScore)
+- 9项安全检查（加密/访问控制/备份/分享/泄露/合规/认证）
+- A-F等级评分
+- 分类别统计与改进建议
+- 对标群晖Security Advisor
+
+#### 🏷️ 智能标签系统 (SmartTag)
+- AI自动分类文件（照片/视频/文档/音乐/代码）
+- 自定义分类规则
+- 批量分类与标签搜索
+- 独家功能，竞品无对标
+
+#### 👨‍👩‍👧‍👦 家庭仪表板 (FamilyDashboard)
+- 家庭成员管理（角色/配额）
+- 家务任务与积分系统
+- 零花钱管理
+- 家庭便签
+- 屏幕时间控制
+- 对标群晖Moments家庭功能
+
+#### 🐛 Bug修复
+- 修复privacyvault Destroy后GetVault仍返回数据的问题
+- 修复smartbackupsched TestRunBackup测试不稳定
+
 ## [v2.512.0] - 2026-05-29
 
 ### 新增30+功能模块 + 系统优化

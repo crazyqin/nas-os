@@ -168,6 +168,9 @@ func (e *Engine) Destroy(vaultID string) error {
 
 	vault.Status = StatusDestroyed
 
+	// 从存储中彻底移除
+	delete(e.vaults, vaultID)
+
 	// 清除所有关联数据
 	delete(e.vaultKeys, vaultID)
 	delete(e.secrets, vaultID)
