@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.507.0 Stable (2026-05-28)
+> **最新版本**: v2.508.0 Stable (2026-05-28)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -152,11 +152,11 @@
 | ☁️ **CloudSync Manager** | 6+云平台统一管理/智能同步策略/冲突解决引擎 | ✅ **v2.491.0新增** |
 | 🏥 **Health Probe健康探针** | 系统全面检测/健康评分/趋势分析/自动告警 | ✅ **v2.491.0新增** |
 | 🛡️ **Security Audit Reporter** | 自动化审计/CIS/STIG/GDPR合规/多格式导出 | ✅ **v2.491.0新增** |
-| 💾 **RAID-Z Expansion** | 在线扩展RAID-Z vdev，不停机添加磁盘 | ✅ **v2.507.0新增** |
-| 🔄 **dRAID分布式热备** | 分布式热备RAID，加速重建 | ✅ **v2.507.0新增** |
-| 🏗️ **Enclosure Management** | SES-3/SGPIO机箱管理，指示灯/温控/电源 | ✅ **v2.507.0新增** |
-| 🔀 **SAS Multipath** | SAS多路径故障切换与负载均衡 | ✅ **v2.507.0新增** |
-| 🧠 **Disk Health AI** | AI驱动磁盘故障预测与健康评分 | ✅ **v2.507.0新增** |
+| 💾 **RAID-Z Expansion** | 在线扩展RAID-Z vdev，不停机添加磁盘 | ✅ **v2.508.0新增** |
+| 🔄 **dRAID分布式热备** | 分布式热备RAID，加速重建 | ✅ **v2.508.0新增** |
+| 🏗️ **Enclosure Management** | SES-3/SGPIO机箱管理，指示灯/温控/电源 | ✅ **v2.508.0新增** |
+| 🔀 **SAS Multipath** | SAS多路径故障切换与负载均衡 | ✅ **v2.508.0新增** |
+| 🧠 **Disk Health AI** | AI驱动磁盘故障预测与健康评分 | ✅ **v2.508.0新增** |
 
 ## 快速开始
 

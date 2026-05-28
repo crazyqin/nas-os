@@ -1,328 +1,178 @@
-// Package smartpricing 提供智能存储定价分析功能
+// Package smartpricing - 智能定价分析 HTTP API 处理器
 package smartpricing
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
-// Handlers 智能定价 API 处理器.
-type Handlers struct {
-	analyzer  *Analyzer
-	optimizer *Optimizer
+// Handler 智能定价分析 HTTP 处理器
+type Handler struct {
+	manager *Manager
+	logger  *zap.Logger
 }
 
-// NewHandlers 创建处理器.
-func NewHandlers(analyzer *Analyzer, optimizer *Optimizer) *Handlers {
-	return &Handlers{
-		analyzer:  analyzer,
-		optimizer: optimizer,
+// NewHandler 创建新的 HTTP 处理器
+func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+	return &Handler{
+		manager: manager,
+		logger:  logger,
 	}
 }
 
-// RegisterRoutes 注册路由.
-func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
-	sp := r.Group("/smart-pricing")
+// RegisterRoutes 注册 API 路由
+func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
+	smartpricing := rg.Group("/smartpricing")
 	{
-		// 成本分析
-		sp.POST("/analyze", h.analyze)
-
-		// 方案优化
-		sp.POST("/optimize", h.optimize)
-
-		// 方案管理
-		sp.GET("/plans", h.listPlans)
-		sp.GET("/plans/:id", h.getPlan)
-		sp.POST("/plans", h.addPlan)
-
-		// 方案比较
-		sp.POST("/compare", h.comparePlans)
-
-		// 报告生成
-		sp.POST("/report/monthly", h.generateMonthlyReport)
-		sp.POST("/report/annual", h.generateAnnualReport)
+		smartpricing.GET("/plans", h.GetPlans)
+		smartpricing.POST("/compare", h.CompareCost)
+		smartpricing.GET("/recommendations", h.GetRecommendations)
+		smartpricing.GET("/trends", h.GetCostTrends)
 	}
 }
 
-// response 标准响应.
-type response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
+// GetPlans 获取存储方案列表
+// GET /api/smartpricing/plans
+func (h *Handler) GetPlans(c *gin.Context) {
+	h.logger.Info("Getting storage plans")
 
-// AnalyzeRequest 成本分析请求.
-type AnalyzeRequest struct {
-	CapacityGB int64          `json:"capacityGB"` // 容量需求（GB）
-	Tier       StorageTier    `json:"tier"`       // 存储层级
-	Replica    ReplicaPolicy  `json:"replica"`    // 副本策略
-	Workload   WorkloadType   `json:"workload"`   // 工作负载类型
-}
+	plans := h.manager.GetPlans()
 
-// analyze 成本分析接口.
-func (h *Handlers) analyze(c *gin.Context) {
-	var req AnalyzeRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
-		return
-	}
-
-	// 设置默认值
-	if req.Tier == "" {
-		req.Tier = TierHybrid
-	}
-	if req.Replica == "" {
-		req.Replica = ReplicaNone
-	}
-	if req.Workload == "" {
-		req.Workload = WorkloadMixed
-	}
-
-	analysis, err := h.analyzer.Analyze(req.CapacityGB, req.Tier, req.Replica, req.Workload)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "analysis completed",
-		Data:    analysis,
-	})
-}
-
-// optimize 优化推荐接口.
-func (h *Handlers) optimize(c *gin.Context) {
-	var req OptimizeRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
-		return
-	}
-
-	result, err := h.optimizer.Optimize(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "optimization completed",
-		Data:    result,
-	})
-}
-
-// listPlans 获取所有方案.
-func (h *Handlers) listPlans(c *gin.Context) {
-	plans := h.analyzer.GetPlans()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
-			"total": len(plans),
-			"plans": plans,
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"plans":       plans,
+			"total":       len(plans),
+			"generated_at": time.Now(),
 		},
 	})
 }
 
-// getPlan 获取单个方案.
-func (h *Handlers) getPlan(c *gin.Context) {
-	id := c.Param("id")
-	plan, ok := h.analyzer.FindPlan(id)
-	if !ok {
-		c.JSON(http.StatusNotFound, response{
-			Code:    404,
-			Message: "plan not found",
-		})
-		return
-	}
+// CompareCost 成本对比
+// POST /api/smartpricing/compare
+func (h *Handler) CompareCost(c *gin.Context) {
+	h.logger.Info("Comparing storage costs")
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    plan,
-	})
-}
-
-// AddPlanRequest 添加方案请求.
-type AddPlanRequest struct {
-	ID             string        `json:"id"`
-	Name           string        `json:"name"`
-	Tier           StorageTier   `json:"tier"`
-	Replica        ReplicaPolicy `json:"replica"`
-	UnitPrice      float64       `json:"unitPrice"`
-	MinCapacity    int64         `json:"minCapacity"`
-	MaxCapacity    int64         `json:"maxCapacity"`
-	IOPSLimit      int           `json:"iopsLimit"`
-	ThroughputMB   int           `json:"throughputMB"`
-	ReadLatencyMs  float64       `json:"readLatencyMs"`
-	WriteLatencyMs float64       `json:"writeLatencyMs"`
-	MonthlyBaseFee float64       `json:"monthlyBaseFee"`
-	TransferFee    float64       `json:"transferFee"`
-	Description    string        `json:"description"`
-}
-
-// addPlan 添加自定义方案.
-func (h *Handlers) addPlan(c *gin.Context) {
-	var req AddPlanRequest
+	var req CostCompareRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
+		h.logger.Error("Invalid request", zap.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid request: " + err.Error(),
 		})
 		return
 	}
 
-	if req.ID == "" || req.Name == "" {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "id and name are required",
-		})
-		return
-	}
-
-	plan := PricingPlan{
-		ID:             req.ID,
-		Name:           req.Name,
-		Tier:           req.Tier,
-		Replica:        req.Replica,
-		UnitPrice:      req.UnitPrice,
-		MinCapacity:    req.MinCapacity,
-		MaxCapacity:    req.MaxCapacity,
-		IOPSLimit:      req.IOPSLimit,
-		ThroughputMB:   req.ThroughputMB,
-		ReadLatencyMs:  req.ReadLatencyMs,
-		WriteLatencyMs: req.WriteLatencyMs,
-		MonthlyBaseFee: req.MonthlyBaseFee,
-		TransferFee:    req.TransferFee,
-		Description:    req.Description,
-	}
-
-	h.analyzer.AddPlan(plan)
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "plan added",
-		Data:    plan,
-	})
-}
-
-// CompareRequest 方案比较请求.
-type CompareRequest struct {
-	CapacityGB int64    `json:"capacityGB"` // 容量需求（GB）
-	PlanIDs    []string `json:"planIDs"`    // 要比较的方案ID列表
-}
-
-// comparePlans 方案比较接口.
-func (h *Handlers) comparePlans(c *gin.Context) {
-	var req CompareRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
-		return
-	}
-
-	if len(req.PlanIDs) == 0 {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "planIDs is required",
-		})
-		return
-	}
-
-	results, err := h.analyzer.ComparePlans(req.CapacityGB, req.PlanIDs)
+	result, err := h.manager.CompareCost(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
+		h.logger.Error("Failed to compare costs", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to compare costs: " + err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "comparison completed",
-		Data: gin.H{
-			"capacityGB": req.CapacityGB,
-			"total":      len(results),
-			"comparisons": results,
-		},
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    result,
 	})
 }
 
-// ReportRequest 报告生成请求.
-type ReportRequest struct {
-	CapacityGB int64        `json:"capacityGB"` // 总容量
-	UsedGB     int64        `json:"usedGB"`     // 已用容量
-	Tier       StorageTier  `json:"tier"`       // 主要存储层级
-	Replica    ReplicaPolicy `json:"replica"`   // 副本策略
-}
+// GetRecommendations 获取优化建议
+// GET /api/smartpricing/recommendations
+func (h *Handler) GetRecommendations(c *gin.Context) {
+	h.logger.Info("Getting optimization recommendations")
 
-// generateMonthlyReport 生成月度报告.
-func (h *Handlers) generateMonthlyReport(c *gin.Context) {
-	var req ReportRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
-		return
+	// 从查询参数获取参数
+	storageGB := 1000.0 // 默认1TB
+	if v := c.Query("storage_gb"); v != "" {
+		if _, err := fmt.Sscanf(v, "%f", &storageGB); err != nil {
+			storageGB = 1000.0
+		}
 	}
 
-	report, err := GenerateMonthlyReport(h.analyzer, req.CapacityGB, req.UsedGB, req.Tier, req.Replica)
+	currentProvider := StorageProvider(c.DefaultQuery("provider", "aws_s3"))
+	currentTier := StorageTier(c.DefaultQuery("tier", "standard"))
+	monthlyCost := 0.0
+	if v := c.Query("monthly_cost"); v != "" {
+		if _, err := fmt.Sscanf(v, "%f", &monthlyCost); err != nil {
+			monthlyCost = 0.0
+		}
+	}
+
+	result, err := h.manager.GetRecommendations(storageGB, currentProvider, currentTier, monthlyCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
+		h.logger.Error("Failed to get recommendations", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to get recommendations: " + err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "monthly report generated",
-		Data:    report,
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    result,
 	})
 }
 
-// generateAnnualReport 生成年度报告.
-func (h *Handlers) generateAnnualReport(c *gin.Context) {
-	var req ReportRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
-		return
+// GetCostTrends 获取成本趋势
+// GET /api/smartpricing/trends
+func (h *Handler) GetCostTrends(c *gin.Context) {
+	h.logger.Info("Getting cost trends")
+
+	var req CostTrendRequest
+
+	// 从查询参数获取
+	provider := c.Query("provider")
+	if provider != "" {
+		req.Provider = StorageProvider(provider)
 	}
 
-	report, err := GenerateAnnualReport(h.analyzer, req.CapacityGB, req.UsedGB, req.Tier, req.Replica)
+	tier := c.Query("tier")
+	if tier != "" {
+		req.Tier = StorageTier(tier)
+	}
+
+	// 默认最近12个月
+	now := time.Now()
+	req.EndDate = now
+	req.StartDate = now.AddDate(-1, 0, 0)
+
+	if v := c.Query("start_date"); v != "" {
+		if t, err := time.Parse("2006-01-02", v); err == nil {
+			req.StartDate = t
+		}
+	}
+
+	if v := c.Query("end_date"); v != "" {
+		if t, err := time.Parse("2006-01-02", v); err == nil {
+			req.EndDate = t
+		}
+	}
+
+	req.Interval = c.DefaultQuery("interval", "monthly")
+
+	result, err := h.manager.GetCostTrends(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
+		h.logger.Error("Failed to get cost trends", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to get cost trends: " + err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "annual report generated",
-		Data:    report,
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    result,
 	})
 }
