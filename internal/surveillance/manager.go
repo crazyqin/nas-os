@@ -695,3 +695,29 @@ func (m *Manager) ListSchedules(cameraID string) []*RecordingSchedule {
 
 	return schedules
 }
+
+// ReportMotion 报告移动侦测事件.
+func (m *Manager) ReportMotion(event *MotionEvent) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if event.ID == "" {
+		event.ID = fmt.Sprintf("motion-%d", time.Now().UnixNano())
+	}
+	if event.Timestamp.IsZero() {
+		event.Timestamp = time.Now()
+	}
+	return nil
+}
+
+// GetTimeline 获取摄像头时间线.
+func (m *Manager) GetTimeline(cameraID string, t time.Time) map[string]interface{} {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	return map[string]interface{}{
+		"camera_id": cameraID,
+		"date":      t.Format("2006-01-02"),
+		"events":    []interface{}{},
+	}
+}
