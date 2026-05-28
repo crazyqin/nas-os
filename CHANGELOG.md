@@ -1,3 +1,166 @@
+## [v2.505.0] - 2026-05-29
+
+### 新增30+功能模块 + 系统优化
+
+#### 🛡️ 系统资源守护 (SysResGuard)
+- 自动监控磁盘/内存/CPU使用率
+- 阈值告警与趋势预测
+- 自动清理临时文件与GC优化
+- 对标群晖 Active Insight + TrueNAS Alert System
+
+#### 📢 智能通知聚合 (SmartNotification)
+- 多通道通知（邮件/WebSocket/Webhook/短信/APP推送）
+- 智能去重与通知分组
+- 静默规则与优先级队列
+- 通知摘要与统计分析
+- 对标群晖 Notification Center + TrueNAS Alert Service
+
+#### 📄 文件时光机 (FileTimeMachine)
+- 文件版本快照与回滚
+- 批量回滚与文件锁保护
+- 快照策略管理
+- 对标群晖 Snapshot Replication + TrueNAS Snapshots
+
+#### 🗄️ 智能归档 (SmartArchive)
+- 冷热数据自动分层存储
+- 存储层健康检查
+- 数据迁移与成本优化
+- 对标群晖 Tiering + TrueNAS Storage Pool
+
+#### 🔍 AI OCR文字识别 (AIOCR)
+- 图片文字识别与提取
+- 多语言OCR支持
+- 对标群晖 OCR + 第三方OCR服务
+
+#### 🔎 AI语义搜索 (AISearch)
+- 语义搜索引擎
+- 自然语言查询
+- 对标群晖 Universal Search
+
+#### 🎬 AI视频工作室 (AIVideoStudio)
+- 智能视频转码与场景检测
+- 视频摘要生成与字幕自动生成
+- H.264/H.265/AV1多编码支持
+- 对标群晖 Surveillance Station + TrueNAS Media
+
+#### 🔔 告警聚合器 (AlertAggregator)
+- 跨模块告警聚合与去重
+- 告警升级与抑制
+- 关联分析与根因定位
+
+#### 📅 日历服务 (CalendarService)
+- 个人/家庭日历管理
+- 事件提醒与重复事件
+- CalDAV协议支持
+
+#### 🎨 协作白板 (CollabWhiteboard)
+- 实时协作白板
+- 多人同时编辑
+- 画笔/图形/文字工具
+
+#### 📊 数据血缘 (DataLineage)
+- 文件来源追踪与修改历史
+- 数据流向与依赖图谱
+- PII检测与生命周期报告
+- 对标群晖 File Station + TrueNAS Data Services
+
+#### 🚪 开发者门户 (DevPortal)
+- Git仓库托管与代码浏览
+- CI/CD流水线与代码审查
+- Docker构建与API文档生成
+- 开发者密钥管理与Webhook集成
+
+#### ⚖️ 分布式调度器 (DistScheduler)
+- CPU/内存/IO感知调度
+- 资源分配与负载均衡
+- 对标K8s调度器
+
+#### 🤖 边缘AI (EdgeAI)
+- 本地AI推理引擎
+- 模型管理与推理任务调度
+- 对标群晖 AI
+
+#### ✍️ 电子签名 (eSignature)
+- 文档电子签名
+- 签名验证与审计
+
+#### 💰 家庭财务中心 (FamilyFinance)
+- 收支管理与预算规划
+- 财务分析与报表
+- 对标记账软件
+
+#### 🎬 家庭影院 (HomeTheater)
+- 家庭影院系统
+- 媒体库管理与播放控制
+- 对标群晖 Video Station + Plex
+
+#### 📚 知识库 (KnowledgeBase)
+- 个人知识库管理
+- 笔记/文档/收藏整理
+- 全文搜索与标签分类
+
+#### ⚖️ 负载均衡器 (LoadBalancer)
+- 服务负载均衡
+- 健康检查与故障转移
+- 对标Nginx/HAProxy
+
+#### 🔌 微服务网格 (MicroSvcMesh)
+- 服务发现与注册
+- 熔断器与限流器
+- 对标Istio/Linkerd
+
+#### 🚀 NAS网关 (NASGateway)
+- 统一网关引擎
+- 路由管理与协议转换
+- API聚合与负载均衡
+
+#### 🗺️ 网络拓扑 (NetworkTopology)
+- 网络拓扑发现与可视化
+- 设备监控与链路状态
+- 对标群晖 Network Manager
+
+#### 🧠 离线AI (OfflineAI)
+- 离线AI对话引擎
+- 多轮对话与历史管理
+- 流式响应与本地推理
+
+#### 🏠 个人门户 (PersonalPortal)
+- 个人门户仪表盘
+- 布局管理与组件渲染
+- 对标群晖 DSM桌面
+
+#### 📋 项目看板 (ProjectBoard)
+- 敏捷项目管理
+- Sprint规划与燃尽图
+- 速度统计与任务追踪
+
+#### 🔧 远程协助 (RemoteAssist)
+- 远程桌面协助
+- 操作审计与会话管理
+- 对标群晖 Remote Desktop
+
+#### 📤 智能分享 (SmartShare)
+- 智能文件分享
+- 访问控制与过期管理
+- 对标群晖 File Station分享
+
+#### 📹 智能监控 (SmartSurveillance)
+- 智能视频监控
+- 移动侦测与告警
+- 对标群晖 Surveillance Station
+
+#### 🛡️ 威胁情报 (ThreatIntel)
+- 威胁情报引擎
+- 多源情报聚合与威胁评分
+- 对标商业威胁情报平台
+
+#### 📱 Web应用托管 (WebAppHost)
+- Web应用容器化托管
+- 自动部署与版本管理
+- 对标Docker + Traefik
+
+---
+
 ## [v2.504.0] - 2026-05-28
 
 ### 新增7个AI与智能运维功能模块
