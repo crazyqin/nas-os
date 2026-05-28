@@ -27,7 +27,7 @@ func TestNewTieringEngine(t *testing.T) {
 func TestDefaultTieringConfig(t *testing.T) {
 	config := DefaultTieringConfig()
 
-	if config.CheckInterval != 5*time.Minute {
+	if config.CheckInterval != "5m" {
 		t.Errorf("期望 CheckInterval=5m, 实际 %v", config.CheckInterval)
 	}
 
@@ -43,7 +43,7 @@ func TestDefaultTieringConfig(t *testing.T) {
 func TestDefaultHeatTrackingConfig(t *testing.T) {
 	config := DefaultHeatTrackingConfig()
 
-	if config.WindowSize != 1*time.Hour {
+	if config.WindowSize != "1h" {
 		t.Errorf("期望 WindowSize=1h, 实际 %v", config.WindowSize)
 	}
 
@@ -230,14 +230,14 @@ func TestUpdateConfig(t *testing.T) {
 
 	newConfig := TieringConfig{
 		Enabled:               true,
-		CheckInterval:         10 * time.Minute,
+		CheckInterval:         "10m",
 		MaxConcurrentMigrates: 8,
 		SSDCapacityThreshold:  0.9,
 	}
 
 	engine.UpdateConfig(newConfig)
 
-	if engine.config.CheckInterval != 10*time.Minute {
+	if engine.config.CheckInterval != "10m" {
 		t.Errorf("期望 CheckInterval=10m, 实际 %v", engine.config.CheckInterval)
 	}
 
