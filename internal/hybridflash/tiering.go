@@ -21,6 +21,8 @@ type TieringEngine struct {
 	completedTasks   []*MigrateTask
 	cancel           context.CancelFunc
 	ctx              context.Context
+	checkInterval    time.Duration
+	heatCheckInterval time.Duration
 }
 
 // BlockHeatTracker 块热度追踪器.
@@ -44,16 +46,29 @@ type HeatThresholds struct {
 // NewTieringEngine 创建新的分层引擎.
 func NewTieringEngine(config TieringConfig, heatConfig HeatTrackingConfig) *TieringEngine {
 	ctx, cancel := context.WithCancel(context.Background())
+	
+	// 解析间隔
+	checkInterval, _ := time.ParseDuration(config.CheckInterval)
+	if checkInterval == 0 {
+		checkInterval = 5 * time.Minute
+	}
+	heatCheckInterval, _ := time.ParseDuration(heatConfig.HeatCheckInterval)
+	if heatCheckInterval == 0 {
+		heatCheckInterval = 1 * time.Minute
+	}
+	
 	return &TieringEngine{
-		config:         config,
-		heatConfig:     heatConfig,
-		pools:          make(map[string]*HybridPool),
-		blockTracker:   NewBlockHeatTracker(heatConfig),
-		migrationQueue: make(chan *MigrateTask, 100),
-		runningTasks:   make(map[string]*MigrateTask),
-		completedTasks: make([]*MigrateTask, 0),
-		ctx:            ctx,
-		cancel:         cancel,
+		config:            config,
+		heatConfig:        heatConfig,
+		pools:             make(map[string]*HybridPool),
+		blockTracker:      NewBlockHeatTracker(heatConfig),
+		migrationQueue:    make(chan *MigrateTask, 100),
+		runningTasks:      make(map[string]*MigrateTask),
+		completedTasks:    make([]*MigrateTask, 0),
+		ctx:               ctx,
+		cancel:            cancel,
+		checkInterval:     checkInterval,
+		heatCheckInterval: heatCheckInterval,
 	}
 }
 
@@ -94,8 +109,8 @@ func (e *TieringEngine) Stop() {
 
 // monitorLoop 监控循环.
 func (e *TieringEngine) monitorLoop() {
-	ticker := time.NewTicker(e.config.CheckInterval)
-	heatTicker := time.NewTicker(e.config.HeatCheckInterval)
+	ticker := time.NewTicker(e.checkInterval)
+	heatTicker := time.NewTicker(e.heatCheckInterval)
 	defer ticker.Stop()
 	defer heatTicker.Stop()
 
@@ -400,6 +415,18 @@ func (e *TieringEngine) evictOldBlocks() {
 	for i := 0; i < removeCount; i++ {
 		delete(e.blockTracker.blocks, blocks[i].BlockID)
 	}
+}
+
+// getBlock 获取块记录.
+func (bt *BlockHeatTracker) getBlock(blockID string) (*BlockAccessRecord, error) {
+	bt.mu.RLock()
+	defer bt.mu.RUnlock()
+
+	block, exists := bt.blocks[blockID]
+	if !exists {
+		return nil, fmt.Errorf("块 %s 不存在", blockID)
+	}
+	return block, nil
 }
 
 // RegisterPool 注册混合池.

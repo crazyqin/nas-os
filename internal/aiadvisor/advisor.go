@@ -1,558 +1,745 @@
+// Package aiadvisor 提供 AI 智能顾问功能，集成 Ollama 本地 LLM
 package aiadvisor
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math"
-	"os"
-	"path/filepath"
-	"sort"
+	"net"
+	"net/http"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/disk"
+	"github.com/shirou/gopsutil/v3/host"
+	"github.com/shirou/gopsutil/v3/load"
+	"github.com/shirou/gopsutil/v3/mem"
+	psnet "github.com/shirou/gopsutil/v3/net"
 	"go.uber.org/zap"
 )
 
-// Advisor AI存储优化顾问核心.
-type Advisor struct {
-	mu              sync.RWMutex
-	logger          *zap.Logger
-	scanResult      *ScanResult
-	recommendations []Recommendation
-	capacityHistory []CapacityDataPoint
-	config          *ScanConfig
-	nextRecID       int
+// ========== 错误定义 ==========
+
+var (
+	ErrEmptyMessage     = errors.New("消息不能为空")
+	ErrOllamaUnavail    = errors.New("Ollama 服务不可用")
+	ErrEmptyDiagnosis   = errors.New("诊断日志内容不能为空")
+	ErrSessionNotFound  = errors.New("会话不存在")
+)
+
+// ========== 配置 ==========
+
+// Config AI 顾问配置.
+type Config struct {
+	// OllamaEndpoint Ollama API 地址.
+	OllamaEndpoint string `json:"ollama_endpoint"`
+	// Model 使用的模型名称.
+	Model string `json:"model"`
+	// Temperature 生成温度，越低越确定.
+	Temperature float64 `json:"temperature"`
+	// MaxHistoryMessages 每个会话最大历史消息数.
+	MaxHistoryMessages int `json:"max_history_messages"`
+	// RequestTimeout 请求超时时间.
+	RequestTimeout time.Duration `json:"request_timeout"`
+	// MaxTokens 最大生成 token 数.
+	MaxTokens int `json:"max_tokens"`
 }
 
-// NewAdvisor 创建AI存储优化顾问.
-func NewAdvisor(logger *zap.Logger, cfg *ScanConfig) *Advisor {
+// DefaultConfig 返回默认配置.
+func DefaultConfig() *Config {
+	return &Config{
+		OllamaEndpoint:     "http://localhost:11434",
+		Model:              "qwen2.5:7b",
+		Temperature:        0.7,
+		MaxHistoryMessages: 20,
+		RequestTimeout:     60 * time.Second,
+		MaxTokens:          2048,
+	}
+}
+
+// ========== 消息类型 ==========
+
+// Message 对话消息.
+type Message struct {
+	Role    string `json:"role"`    // system, user, assistant
+	Content string `json:"content"`
+}
+
+// ChatRequest 聊天请求.
+type ChatRequest struct {
+	Message   string `json:"message"`
+	SessionID string `json:"session_id,omitempty"`
+}
+
+// ChatResponse 聊天响应.
+type ChatResponse struct {
+	Answer    string    `json:"answer"`
+	SessionID string    `json:"session_id"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Suggestion 功能推荐.
+type Suggestion struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Category    string `json:"category"` // performance, security, storage, backup, network
+	Priority    int    `json:"priority"` // 1=高, 2=中, 3=低
+	Action      string `json:"action"`
+}
+
+// DiagnoseRequest 故障诊断请求.
+type DiagnoseRequest struct {
+	LogContent string `json:"log_content"`
+	Service    string `json:"service,omitempty"`
+}
+
+// DiagnoseResponse 故障诊断响应.
+type DiagnoseResponse struct {
+	Problem    string   `json:"problem"`
+	Cause      string   `json:"cause"`
+	Solutions  []string `json:"solutions"`
+	Severity   string   `json:"severity"` // critical, warning, info
+	Timestamp  time.Time `json:"timestamp"`
+}
+
+// SystemContext 系统上下文信息.
+type SystemContext struct {
+	Hostname    string    `json:"hostname"`
+	OS          string    `json:"os"`
+	Arch        string    `json:"arch"`
+	CPUUsage    float64   `json:"cpu_usage"`
+	CPUCores    int       `json:"cpu_cores"`
+	MemTotal    uint64    `json:"mem_total"`
+	MemUsed     uint64    `json:"mem_used"`
+	MemUsage    float64   `json:"mem_usage"`
+	SwapTotal   uint64    `json:"swap_total"`
+	SwapUsed    uint64    `json:"swap_used"`
+	LoadAvg1    float64   `json:"load_avg_1"`
+	LoadAvg5    float64   `json:"load_avg_5"`
+	LoadAvg15   float64   `json:"load_avg_15"`
+	Uptime      uint64    `json:"uptime_seconds"`
+	Disks       []DiskInfo `json:"disks"`
+	Networks    []NetInfo  `json:"networks"`
+	Timestamp   time.Time `json:"timestamp"`
+}
+
+// DiskInfo 磁盘信息.
+type DiskInfo struct {
+	Mountpoint  string  `json:"mountpoint"`
+	Device      string  `json:"device"`
+	FSType      string  `json:"fstype"`
+	Total       uint64  `json:"total"`
+	Used        uint64  `json:"used"`
+	Free        uint64  `json:"free"`
+	UsagePct    float64 `json:"usage_pct"`
+}
+
+// NetInfo 网络接口信息.
+type NetInfo struct {
+	Name      string `json:"name"`
+	IP        string `json:"ip"`
+	BytesSent uint64 `json:"bytes_sent"`
+	BytesRecv uint64 `json:"bytes_recv"`
+	Up        bool   `json:"up"`
+}
+
+// ========== Ollama API 类型 ==========
+
+// ollamaRequest Ollama chat API 请求.
+type ollamaRequest struct {
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
+	Stream   bool      `json:"stream"`
+	Options  ollamaOptions `json:"options,omitempty"`
+}
+
+// ollamaOptions Ollama 生成选项.
+type ollamaOptions struct {
+	Temperature float64 `json:"temperature,omitempty"`
+	NumPredict  int     `json:"num_predict,omitempty"`
+}
+
+// ollamaResponse Ollama chat API 响应.
+type ollamaResponse struct {
+	Model     string  `json:"model"`
+	Message   Message `json:"message"`
+	Done      bool    `json:"done"`
+	TotalDur  int64   `json:"total_duration"`
+	EvalCount int     `json:"eval_count"`
+}
+
+// ollamaTagsResponse Ollama tags API 响应.
+type ollamaTagsResponse struct {
+	Models []ollamaModel `json:"models"`
+}
+
+// ollamaModel Ollama 模型信息.
+type ollamaModel struct {
+	Name string `json:"name"`
+}
+
+// ========== 核心服务 ==========
+
+// Advisor AI 智能顾问核心服务.
+type Advisor struct {
+	mu       sync.RWMutex
+	config   *Config
+	logger   *zap.Logger
+	client   *http.Client
+	sessions map[string][]Message // sessionID -> history
+}
+
+// NewAdvisor 创建 AI 智能顾问.
+func NewAdvisor(cfg *Config, logger *zap.Logger) *Advisor {
+	if cfg == nil {
+		cfg = DefaultConfig()
+	}
 	if logger == nil {
 		logger = zap.NewNop()
 	}
-	if cfg == nil {
-		cfg = DefaultScanConfig()
+	if cfg.OllamaEndpoint == "" {
+		cfg.OllamaEndpoint = "http://localhost:11434"
 	}
+	if cfg.Model == "" {
+		cfg.Model = "qwen2.5:7b"
+	}
+	if cfg.Temperature == 0 {
+		cfg.Temperature = 0.7
+	}
+	if cfg.MaxHistoryMessages == 0 {
+		cfg.MaxHistoryMessages = 20
+	}
+	if cfg.RequestTimeout == 0 {
+		cfg.RequestTimeout = 60 * time.Second
+	}
+	if cfg.MaxTokens == 0 {
+		cfg.MaxTokens = 2048
+	}
+
 	return &Advisor{
-		logger:    logger,
-		config:    cfg,
-		nextRecID: 1,
+		config:   cfg,
+		logger:   logger,
+		client:   &http.Client{Timeout: cfg.RequestTimeout},
+		sessions: make(map[string][]Message),
 	}
 }
 
-// IsScanning 检查是否正在扫描.
-func (a *Advisor) IsScanning() bool {
-	// 简单实现：检查是否有扫描结果的时间戳但还没完成
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	return false // 简化版，使用互斥锁保证并发安全
-}
-
-// Scan 启动存储扫描.
-func (a *Advisor) Scan(cfg *ScanConfig) (*ScanResult, error) {
-	if cfg == nil {
-		cfg = a.config
+// Chat 聊天接口.
+func (a *Advisor) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, error) {
+	if req.Message == "" {
+		return nil, ErrEmptyMessage
 	}
 
-	startTime := time.Now()
-	a.logger.Info("开始存储扫描", zap.String("path", cfg.RootPath))
-
-	// 验证路径
-	if _, err := os.Stat(cfg.RootPath); os.IsNotExist(err) {
-		return nil, ErrInvalidPath
+	sessionID := req.SessionID
+	if sessionID == "" {
+		sessionID = fmt.Sprintf("session-%d", time.Now().UnixNano())
 	}
 
-	result := &ScanResult{
-		RootPath:         cfg.RootPath,
-		ScanStartedAt:    startTime,
-		ExtensionSummary: make(map[string]ExtStat),
-	}
+	// 收集系统上下文
+	sysCtx := a.collectSystemContext()
 
-	dirSizes := make(map[string]int64)
-	dirFileCounts := make(map[string]int64)
-	fileHashes := make(map[string][]FileInfo) // hash -> files
+	// 构建消息列表
+	messages := a.buildChatMessages(sessionID, req.Message, sysCtx)
 
-	// 遍历文件系统
-	err := filepath.Walk(cfg.RootPath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return nil // 跳过无法访问的文件
-		}
-
-		// 检查深度
-		relPath, _ := filepath.Rel(cfg.RootPath, path)
-		depth := strings.Count(relPath, string(os.PathSeparator))
-		if depth > cfg.MaxDepth {
-			if info.IsDir() {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-
-		if info.IsDir() {
-			result.TotalDirs++
-			return nil
-		}
-
-		result.TotalFiles++
-		result.TotalSizeBytes += info.Size()
-
-		// 更新扩展名统计
-		ext := strings.ToLower(filepath.Ext(path))
-		if ext == "" {
-			ext = "(无扩展名)"
-		}
-		stat := result.ExtensionSummary[ext]
-		stat.Count++
-		stat.TotalBytes += info.Size()
-		result.ExtensionSummary[ext] = stat
-
-		// 更新目录大小
-		dir := filepath.Dir(path)
-		dirSizes[dir] += info.Size()
-		dirFileCounts[dir]++
-
-		// 获取访问时间
-		atime := getAccessTime(info)
-		daysSince := int(time.Since(atime).Hours() / 24)
-
-		fi := FileInfo{
-			Path:         path,
-			Size:         info.Size(),
-			ModTime:      info.ModTime(),
-			AccessTime:   atime,
-			Extension:    ext,
-			DaysSinceUse: daysSince,
-		}
-
-		// 大文件检测
-		if info.Size() >= int64(cfg.LargeFileThresholdMB)*1024*1024 {
-			result.LargeFiles = append(result.LargeFiles, fi)
-		}
-
-		// 长期未访问文件检测
-		if daysSince >= cfg.StaleDays {
-			result.StaleFiles = append(result.StaleFiles, fi)
-		}
-
-		// 重复文件检测（只对文件大小 > 0 的文件）
-		if cfg.EnableDedupCheck && info.Size() > 0 {
-			hash, err := fileHash(path)
-			if err == nil {
-				fi.Hash = hash
-				fileHashes[hash] = append(fileHashes[hash], fi)
-			}
-		}
-
-		return nil
-	})
-
+	// 调用 Ollama
+	answer, err := a.callOllama(ctx, messages)
 	if err != nil {
-		a.logger.Warn("扫描过程中出现错误", zap.Error(err))
+		return nil, err
 	}
 
-	// 处理重复文件
-	for hash, files := range fileHashes {
-		if len(files) > 1 {
-			group := DuplicateGroup{
-				Hash:        hash,
-				Size:        files[0].Size,
-				Count:       len(files),
-				Files:       files,
-				WastedBytes: int64(len(files)-1) * files[0].Size,
-			}
-			result.DuplicateGroups = append(result.DuplicateGroups, group)
-			result.DuplicateWaste += group.WastedBytes
-		}
-	}
+	// 保存历史
+	a.addToHistory(sessionID, Message{Role: "user", Content: req.Message})
+	a.addToHistory(sessionID, Message{Role: "assistant", Content: answer})
 
-	// 按大小排序大文件
-	sort.Slice(result.LargeFiles, func(i, j int) bool {
-		return result.LargeFiles[i].Size > result.LargeFiles[j].Size
-	})
-
-	// 按天数排序陈旧文件
-	sort.Slice(result.StaleFiles, func(i, j int) bool {
-		return result.StaleFiles[i].DaysSinceUse > result.StaleFiles[j].DaysSinceUse
-	})
-
-	// 生成Top目录统计
-	for dir, size := range dirSizes {
-		result.TopDirsBySize = append(result.TopDirsBySize, DirSizeStat{
-			Path:      dir,
-			TotalSize: size,
-			FileCount: int(dirFileCounts[dir]),
-		})
-	}
-	sort.Slice(result.TopDirsBySize, func(i, j int) bool {
-		return result.TopDirsBySize[i].TotalSize > result.TopDirsBySize[j].TotalSize
-	})
-	if len(result.TopDirsBySize) > 20 {
-		result.TopDirsBySize = result.TopDirsBySize[:20]
-	}
-
-	result.ScanFinishedAt = time.Now()
-	result.DurationSeconds = result.ScanFinishedAt.Sub(result.ScanStartedAt).Seconds()
-
-	a.mu.Lock()
-	a.scanResult = result
-	a.mu.Unlock()
-
-	// 自动生成建议
-	recs := a.generateRecommendations(result)
-	a.mu.Lock()
-	a.recommendations = recs
-	a.mu.Unlock()
-
-	a.logger.Info("存储扫描完成",
-		zap.Int("files", result.TotalFiles),
-		zap.Int64("total_size", result.TotalSizeBytes),
-		zap.Int("large_files", len(result.LargeFiles)),
-		zap.Int("stale_files", len(result.StaleFiles)),
-		zap.Int("dup_groups", len(result.DuplicateGroups)),
-		zap.Int("recommendations", len(recs)),
-	)
-
-	return result, nil
-}
-
-// GetRecommendations 获取优化建议列表.
-func (a *Advisor) GetRecommendations() ([]Recommendation, error) {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	if a.scanResult == nil {
-		return nil, ErrNoScanData
-	}
-	recs := make([]Recommendation, len(a.recommendations))
-	copy(recs, a.recommendations)
-	return recs, nil
-}
-
-// GetReport 获取优化报告.
-func (a *Advisor) GetReport() (*OptimizationReport, error) {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	if a.scanResult == nil {
-		return nil, ErrNoScanData
-	}
-
-	totalSaving := int64(0)
-	for _, r := range a.recommendations {
-		totalSaving += r.EstimatedSaving
-	}
-
-	savingPct := 0.0
-	if a.scanResult.TotalSizeBytes > 0 {
-		savingPct = float64(totalSaving) / float64(a.scanResult.TotalSizeBytes) * 100
-	}
-
-	return &OptimizationReport{
-		ScanSummary: ScanResultSummary{
-			TotalFiles:     a.scanResult.TotalFiles,
-			TotalSizeBytes: a.scanResult.TotalSizeBytes,
-			LargeFileCount: len(a.scanResult.LargeFiles),
-			StaleFileCount: len(a.scanResult.StaleFiles),
-			DuplicateCount: len(a.scanResult.DuplicateGroups),
-			DuplicateWaste: a.scanResult.DuplicateWaste,
-		},
-		Recommendations:      a.recommendations,
-		TotalEstimatedSaving: totalSaving,
-		SavingPercent:        round2(savingPct),
-		GeneratedAt:          time.Now(),
+	return &ChatResponse{
+		Answer:    answer,
+		SessionID: sessionID,
+		Timestamp: time.Now(),
 	}, nil
 }
 
-// GetCapacityForecast 获取容量预测.
-func (a *Advisor) GetCapacityForecast(predictMonths int) (*CapacityForecast, error) {
-	a.mu.RLock()
-	history := make([]CapacityDataPoint, len(a.capacityHistory))
-	copy(history, a.capacityHistory)
-	a.mu.RUnlock()
-
-	if len(history) < 2 {
-		return nil, ErrInsufficientHistory
-	}
-
-	if predictMonths <= 0 {
-		predictMonths = 12
-	}
-
-	// 按时间排序
-	sort.Slice(history, func(i, j int) bool {
-		return history[i].Timestamp.Before(history[j].Timestamp)
-	})
-
-	latest := history[len(history)-1]
-	totalTB := float64(latest.TotalBytes) / (1024 * 1024 * 1024 * 1024)
-	usedTB := float64(latest.UsedBytes) / (1024 * 1024 * 1024 * 1024)
-	usagePct := 0.0
-	if totalTB > 0 {
-		usagePct = usedTB / totalTB * 100
-	}
-
-	// 线性回归计算增长率
-	monthlyGB, monthlyPct := calculateCapacityGrowthRate(history)
-
-	// 计算剩余可用空间
-	remainingGB := (totalTB - usedTB) * 1024
-	daysUntilFull := math.MaxFloat64
-	if monthlyGB > 0 {
-		daysUntilFull = remainingGB / monthlyGB * 30
-	}
-
-	// 生成预测
-	predictions := make([]PredictionPoint, 0, predictMonths)
-	predictedUsed := usedTB
-	for i := 1; i <= predictMonths; i++ {
-		date := time.Now().AddDate(0, i, 0)
-		if monthlyPct > 0 {
-			predictedUsed *= (1 + monthlyPct/100)
-		} else {
-			predictedUsed += monthlyGB / 1024
-		}
-		predictedPct := 0.0
-		if totalTB > 0 {
-			predictedPct = predictedUsed / totalTB * 100
-		}
-		predictions = append(predictions, PredictionPoint{
-			Date:        date,
-			PredictedTB: round2(predictedUsed),
-			UsagePct:    round2(predictedPct),
-		})
-	}
-
-	urgency := "normal"
-	if daysUntilFull < 90 {
-		urgency = "critical"
-	} else if daysUntilFull < 180 {
-		urgency = "warning"
-	}
-
-	return &CapacityForecast{
-		CurrentUsedBytes:  latest.UsedBytes,
-		CurrentTotalBytes: latest.TotalBytes,
-		UsagePercent:      round2(usagePct),
-		MonthlyGrowthGB:   round2(monthlyGB),
-		MonthlyGrowthPct:  round2(monthlyPct),
-		DaysUntilFull:     round2(daysUntilFull),
-		Predictions:       predictions,
-		UrgencyLevel:      urgency,
-		GeneratedAt:       time.Now(),
-	}, nil
+// GetSuggestions 获取功能推荐.
+func (a *Advisor) GetSuggestions(ctx context.Context) ([]Suggestion, error) {
+	sysCtx := a.collectSystemContext()
+	return a.generateSuggestions(sysCtx), nil
 }
 
-// AddCapacityData 添加容量历史数据点.
-func (a *Advisor) AddCapacityData(point CapacityDataPoint) {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	a.capacityHistory = append(a.capacityHistory, point)
+// Diagnose 故障诊断.
+func (a *Advisor) Diagnose(ctx context.Context, req *DiagnoseRequest) (*DiagnoseResponse, error) {
+	if req.LogContent == "" {
+		return nil, ErrEmptyDiagnosis
+	}
+
+	// 收集系统上下文
+	sysCtx := a.collectSystemContext()
+
+	// 构建诊断消息
+	messages := a.buildDiagnoseMessages(req, sysCtx)
+
+	// 调用 Ollama
+	answer, err := a.callOllama(ctx, messages)
+	if err != nil {
+		return nil, err
+	}
+
+	// 解析诊断结果
+	resp := a.parseDiagnosis(answer, req.LogContent)
+	return resp, nil
 }
 
-// ApplyRecommendation 应用某个建议.
-func (a *Advisor) ApplyRecommendation(id string) (*Recommendation, error) {
+// GetSystemContext 获取当前系统上下文.
+func (a *Advisor) GetSystemContext() *SystemContext {
+	return a.collectSystemContext()
+}
+
+// ClearSession 清除会话历史.
+func (a *Advisor) ClearSession(sessionID string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
+	delete(a.sessions, sessionID)
+}
 
-	for i := range a.recommendations {
-		if a.recommendations[i].ID == id {
-			if a.recommendations[i].Applied {
-				return &a.recommendations[i], nil // 已应用
-			}
-			now := time.Now()
-			a.recommendations[i].Applied = true
-			a.recommendations[i].AppliedAt = &now
-			a.logger.Info("应用优化建议", zap.String("id", id), zap.String("title", a.recommendations[i].Title))
-			return &a.recommendations[i], nil
-		}
+// HealthCheck 检查 Ollama 服务健康状态.
+func (a *Advisor) HealthCheck(ctx context.Context) error {
+	url := fmt.Sprintf("%s/api/tags", a.config.OllamaEndpoint)
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return err
 	}
-	return nil, ErrRecommendationNotFound
+
+	resp, err := a.client.Do(httpReq)
+	if err != nil {
+		return ErrOllamaUnavail
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return ErrOllamaUnavail
+	}
+	return nil
 }
 
 // ========== 内部方法 ==========
 
-// generateRecommendations 基于扫描结果生成优化建议.
-func (a *Advisor) generateRecommendations(result *ScanResult) []Recommendation {
-	recs := make([]Recommendation, 0)
-	nextID := func() string {
-		id := fmt.Sprintf("rec-%04d", a.nextRecID)
-		a.nextRecID++
-		return id
+// collectSystemContext 收集系统上下文信息.
+func (a *Advisor) collectSystemContext() *SystemContext {
+	ctx := &SystemContext{
+		Timestamp: time.Now(),
+		Arch:      runtime.GOARCH,
+		OS:        runtime.GOOS,
 	}
 
-	// 1. 去重建议
-	if result.DuplicateWaste > 0 {
-		recs = append(recs, Recommendation{
-			ID:              nextID(),
-			Type:            RecTypeDedup,
-			Title:           "重复文件去重",
-			Description:     fmt.Sprintf("检测到 %d 组重复文件，去重可节省约 %s 空间", len(result.DuplicateGroups), formatBytes(result.DuplicateWaste)),
-			Priority:        1,
-			EstimatedSaving: result.DuplicateWaste,
-		})
+	// 主机信息
+	if h, err := host.Info(); err == nil {
+		ctx.Hostname = h.Hostname
+		ctx.Uptime = h.Uptime
 	}
 
-	// 2. 冷数据归档建议
-	if len(result.StaleFiles) > 0 {
-		var staleSize int64
-		targetFiles := make([]string, 0, len(result.StaleFiles))
-		for _, f := range result.StaleFiles {
-			staleSize += f.Size
-			if len(targetFiles) < 100 { // 限制列表大小
-				targetFiles = append(targetFiles, f.Path)
+	// CPU 使用率
+	if percents, err := cpu.Percent(500*time.Millisecond, false); err == nil && len(percents) > 0 {
+		ctx.CPUUsage = math.Round(percents[0]*100) / 100
+	}
+	ctx.CPUCores = runtime.NumCPU()
+
+	// 负载
+	if avg, err := load.Avg(); err == nil {
+		ctx.LoadAvg1 = math.Round(avg.Load1*100) / 100
+		ctx.LoadAvg5 = math.Round(avg.Load5*100) / 100
+		ctx.LoadAvg15 = math.Round(avg.Load15*100) / 100
+	}
+
+	// 内存
+	if vmem, err := mem.VirtualMemory(); err == nil {
+		ctx.MemTotal = vmem.Total
+		ctx.MemUsed = vmem.Used
+		ctx.MemUsage = math.Round(vmem.UsedPercent*100) / 100
+	}
+	if swap, err := mem.SwapMemory(); err == nil {
+		ctx.SwapTotal = swap.Total
+		ctx.SwapUsed = swap.Used
+	}
+
+	// 磁盘
+	if parts, err := disk.Partitions(false); err == nil {
+		seen := make(map[string]bool)
+		for _, p := range parts {
+			if seen[p.Mountpoint] {
+				continue
 			}
-		}
-		recs = append(recs, Recommendation{
-			ID:              nextID(),
-			Type:            RecTypeStaleArchive,
-			Title:           "长期未访问文件归档",
-			Description:     fmt.Sprintf("%d 个文件超过 %d 天未访问，共 %s，建议迁移到冷存储", len(result.StaleFiles), a.config.StaleDays, formatBytes(staleSize)),
-			Priority:        2,
-			EstimatedSaving: staleSize / 2, // 归档后热存储节省约50%空间
-			TargetFiles:     targetFiles,
-		})
-	}
-
-	// 3. 大文件审查建议
-	if len(result.LargeFiles) > 0 {
-		var largeSize int64
-		targetFiles := make([]string, 0, len(result.LargeFiles))
-		for _, f := range result.LargeFiles {
-			largeSize += f.Size
-			if len(targetFiles) < 50 {
-				targetFiles = append(targetFiles, f.Path)
+			seen[p.Mountpoint] = true
+			usage, err := disk.Usage(p.Mountpoint)
+			if err != nil {
+				continue
 			}
-		}
-		recs = append(recs, Recommendation{
-			ID:              nextID(),
-			Type:            RecTypeLargeFile,
-			Title:           "大文件审查",
-			Description:     fmt.Sprintf("%d 个文件超过 %d MB，共 %s，建议审查是否需要保留", len(result.LargeFiles), a.config.LargeFileThresholdMB, formatBytes(largeSize)),
-			Priority:        2,
-			EstimatedSaving: largeSize / 10, // 预计可清理约10%
-			TargetFiles:     targetFiles,
-		})
-	}
-
-	// 4. 压缩建议（针对可压缩文件类型）
-	compressibleBytes := int64(0)
-	compressibleExts := map[string]bool{".log": true, ".txt": true, ".csv": true, ".json": true, ".xml": true, ".yaml": true, ".yml": true, ".md": true, ".html": true, ".css": true, ".js": true}
-	for ext, stat := range result.ExtensionSummary {
-		if compressibleExts[ext] {
-			compressibleBytes += stat.TotalBytes
-		}
-	}
-	if compressibleBytes > 0 {
-		recs = append(recs, Recommendation{
-			ID:              nextID(),
-			Type:            RecTypeCompress,
-			Title:           "文本文件压缩",
-			Description:     fmt.Sprintf("检测到 %s 可压缩文本文件，启用压缩可节省约30%%空间", formatBytes(compressibleBytes)),
-			Priority:        3,
-			EstimatedSaving: compressibleBytes * 30 / 100,
-		})
-	}
-
-	// 5. 分层存储策略建议
-	if result.TotalSizeBytes > 0 && len(result.StaleFiles) > 0 {
-		var coldDataSize int64
-		for _, f := range result.StaleFiles {
-			coldDataSize += f.Size
-		}
-		if coldDataSize > 0 {
-			// 找到最大的目录作为目标路径
-			targetPath := ""
-			if len(result.TopDirsBySize) > 0 {
-				targetPath = result.TopDirsBySize[0].Path
+			if usage.Total == 0 {
+				continue
 			}
-			recs = append(recs, Recommendation{
-				ID:              nextID(),
-				Type:            RecTypeTierMigration,
-				Title:           "分层存储迁移",
-				Description:     fmt.Sprintf("建议将 %s 冷数据迁移到低成本存储层，热数据保留在高性能存储", formatBytes(coldDataSize)),
-				Priority:        2,
-				EstimatedSaving: coldDataSize * 60 / 100, // 冷存储成本约40%热存储
-				TargetPath:      targetPath,
+			ctx.Disks = append(ctx.Disks, DiskInfo{
+				Mountpoint: p.Mountpoint,
+				Device:     p.Device,
+				FSType:     p.Fstype,
+				Total:      usage.Total,
+				Used:       usage.Used,
+				Free:       usage.Free,
+				UsagePct:   math.Round(usage.UsedPercent*100) / 100,
 			})
 		}
 	}
 
-	// 按优先级排序
-	sort.Slice(recs, func(i, j int) bool {
-		return recs[i].Priority < recs[j].Priority
+	// 网络
+	if interfaces, err := net.Interfaces(); err == nil {
+		for _, iface := range interfaces {
+			if iface.Name == "lo" {
+				continue
+			}
+			addrs, err := iface.Addrs()
+			if err != nil || len(addrs) == 0 {
+				continue
+			}
+			ip := ""
+			for _, addr := range addrs {
+				addrStr := addr.String()
+				if strings.Contains(addrStr, ".") && !strings.HasPrefix(addrStr, "127.") {
+					ip = addrStr
+					break
+				}
+			}
+			if ip == "" {
+				continue
+			}
+			up := iface.Flags&net.FlagUp != 0
+			var bytesSent, bytesRecv uint64
+			if counters, err := psnet.IOCounters(true); err == nil {
+				for _, c := range counters {
+					if c.Name == iface.Name {
+						bytesSent = c.BytesSent
+						bytesRecv = c.BytesRecv
+						break
+					}
+				}
+			}
+			ctx.Networks = append(ctx.Networks, NetInfo{
+				Name:      iface.Name,
+				IP:        ip,
+				BytesSent: bytesSent,
+				BytesRecv: bytesRecv,
+				Up:        up,
+			})
+		}
+	}
+
+	return ctx
+}
+
+// buildChatMessages 构建聊天消息列表.
+func (a *Advisor) buildChatMessages(sessionID, userMsg string, sysCtx *SystemContext) []Message {
+	msgs := []Message{
+		{
+			Role: "system",
+			Content: `你是 NAS-OS 系统的智能顾问助手。你可以帮助用户：
+1. 查询系统状态（CPU、内存、磁盘、网络）
+2. 推荐 NAS 功能和优化建议
+3. 诊断故障并提供修复方案
+
+回答规则：
+- 简洁准确，直接回答问题
+- 基于实际系统数据回答，不要臆测
+- 使用中文回答
+- 对复杂问题给出分步骤建议`,
+		},
+	}
+
+	// 系统上下文注入
+	ctxJSON, _ := json.Marshal(sysCtx)
+	msgs = append(msgs, Message{
+		Role:    "system",
+		Content: fmt.Sprintf("当前系统状态（JSON）：%s", string(ctxJSON)),
 	})
 
-	return recs
+	// 历史消息
+	a.mu.RLock()
+	hist := a.sessions[sessionID]
+	a.mu.RUnlock()
+
+	start := 0
+	if len(hist) > a.config.MaxHistoryMessages {
+		start = len(hist) - a.config.MaxHistoryMessages
+	}
+	msgs = append(msgs, hist[start:]...)
+
+	// 当前用户消息
+	msgs = append(msgs, Message{Role: "user", Content: userMsg})
+
+	return msgs
 }
 
-// ========== 辅助函数 ==========
+// buildDiagnoseMessages 构建诊断消息列表.
+func (a *Advisor) buildDiagnoseMessages(req *DiagnoseRequest, sysCtx *SystemContext) []Message {
+	serviceHint := ""
+	if req.Service != "" {
+		serviceHint = fmt.Sprintf("（相关服务: %s）", req.Service)
+	}
 
-// fileHash 计算文件SHA256哈希（读取前64KB用于快速去重）.
-func fileHash(path string) (string, error) {
-	f, err := os.Open(path)
+	ctxJSON, _ := json.Marshal(sysCtx)
+
+	return []Message{
+		{
+			Role: "system",
+			Content: `你是 NAS 系统故障诊断专家。分析用户提供的日志内容，给出：
+1. 问题描述（problem）
+2. 原因分析（cause）  
+3. 解决方案列表（solutions），每个方案一个步骤
+4. 严重程度（severity）：critical / warning / info
+
+请用 JSON 格式回复，格式如下：
+{"problem": "...", "cause": "...", "solutions": ["步骤1", "步骤2"], "severity": "warning"}`,
+		},
+		{
+			Role:    "system",
+			Content: fmt.Sprintf("当前系统状态：%s", string(ctxJSON)),
+		},
+		{
+			Role: "user",
+			Content: fmt.Sprintf("请分析以下日志%s并给出诊断：\n\n%s", serviceHint, req.LogContent),
+		},
+	}
+}
+
+// callOllama 调用 Ollama API.
+func (a *Advisor) callOllama(ctx context.Context, messages []Message) (string, error) {
+	url := fmt.Sprintf("%s/api/chat", a.config.OllamaEndpoint)
+
+	reqBody := ollamaRequest{
+		Model:    a.config.Model,
+		Messages: messages,
+		Stream:   false,
+		Options: ollamaOptions{
+			Temperature: a.config.Temperature,
+			NumPredict:  a.config.MaxTokens,
+		},
+	}
+
+	bodyBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("序列化请求失败: %w", err)
 	}
-	defer f.Close()
 
-	h := sha256.New()
-	// 读取前64KB + 文件大小作为去重依据
-	buf := make([]byte, 64*1024)
-	n, err := io.ReadFull(f, buf)
-	if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
-		return "", err
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(bodyBytes))
+	if err != nil {
+		return "", fmt.Errorf("创建请求失败: %w", err)
 	}
-	h.Write(buf[:n])
+	httpReq.Header.Set("Content-Type", "application/json")
 
-	return hex.EncodeToString(h.Sum(nil)), nil
+	resp, err := a.client.Do(httpReq)
+	if err != nil {
+		if ctx.Err() != nil {
+			return "", fmt.Errorf("请求超时: %w", err)
+		}
+		return "", fmt.Errorf("Ollama 调用失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("Ollama 返回错误 (status=%d): %s", resp.StatusCode, string(body))
+	}
+
+	var ollamaResp ollamaResponse
+	if err := json.NewDecoder(resp.Body).Decode(&ollamaResp); err != nil {
+		return "", fmt.Errorf("解析 Ollama 响应失败: %w", err)
+	}
+
+	return ollamaResp.Message.Content, nil
 }
 
-// getAccessTime 获取文件访问时间.
-func getAccessTime(info os.FileInfo) time.Time {
-	// 使用修改时间作为访问时间的近似
-	return info.ModTime()
+// addToHistory 添加消息到会话历史.
+func (a *Advisor) addToHistory(sessionID string, msg Message) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	hist := a.sessions[sessionID]
+	hist = append(hist, msg)
+
+	// 限制历史长度
+	maxLen := a.config.MaxHistoryMessages * 2
+	if len(hist) > maxLen {
+		hist = hist[len(hist)-a.config.MaxHistoryMessages:]
+	}
+
+	a.sessions[sessionID] = hist
 }
 
-// calculateCapacityGrowthRate 基于历史数据计算月均增长率.
-func calculateCapacityGrowthRate(history []CapacityDataPoint) (monthlyGB float64, monthlyPct float64) {
-	if len(history) < 2 {
-		return 0, 0
+// generateSuggestions 基于系统状态生成推荐.
+func (a *Advisor) generateSuggestions(sysCtx *SystemContext) []Suggestion {
+	var suggestions []Suggestion
+	id := 0
+	nextID := func() string {
+		id++
+		return fmt.Sprintf("sug-%04d", id)
 	}
 
-	n := float64(len(history))
-	var sumX, sumY, sumXY, sumX2 float64
-	firstTime := history[0].Timestamp
-	for _, p := range history {
-		x := p.Timestamp.Sub(firstTime).Hours() / 24 / 30 // 月数
-		y := float64(p.UsedBytes) / (1024 * 1024 * 1024)   // GB
-		sumX += x
-		sumY += y
-		sumXY += x * y
-		sumX2 += x * x
+	// CPU 相关建议
+	if sysCtx.CPUUsage > 80 {
+		suggestions = append(suggestions, Suggestion{
+			ID:          nextID(),
+			Title:       "CPU 使用率过高",
+			Description: fmt.Sprintf("当前 CPU 使用率 %.1f%%，建议检查高占用进程", sysCtx.CPUUsage),
+			Category:    "performance",
+			Priority:    1,
+			Action:      "查看进程列表并优化",
+		})
 	}
 
-	denom := n*sumX2 - sumX*sumX
-	if denom == 0 {
-		return 0, 0
+	// 内存相关建议
+	if sysCtx.MemUsage > 85 {
+		suggestions = append(suggestions, Suggestion{
+			ID:          nextID(),
+			Title:       "内存使用率过高",
+			Description: fmt.Sprintf("当前内存使用率 %.1f%%，可能导致系统变慢或 OOM", sysCtx.MemUsage),
+			Category:    "performance",
+			Priority:    1,
+			Action:      "考虑增加内存或优化服务配置",
+		})
+	} else if sysCtx.MemUsage > 70 {
+		suggestions = append(suggestions, Suggestion{
+			ID:          nextID(),
+			Title:       "内存使用率偏高",
+			Description: fmt.Sprintf("当前内存使用率 %.1f%%，建议关注内存占用情况", sysCtx.MemUsage),
+			Category:    "performance",
+			Priority:    2,
+			Action:      "监控内存使用趋势",
+		})
 	}
 
-	slope := (n*sumXY - sumX*sumY) / denom // GB/月
-	avgUsedGB := sumY / n
-
-	monthlyGB = slope
-	if avgUsedGB > 0 {
-		monthlyPct = slope / avgUsedGB * 100
+	// 磁盘相关建议
+	for _, d := range sysCtx.Disks {
+		if d.UsagePct > 90 {
+			suggestions = append(suggestions, Suggestion{
+				ID:          nextID(),
+				Title:       fmt.Sprintf("磁盘 %s 空间不足", d.Mountpoint),
+				Description: fmt.Sprintf("磁盘使用率 %.1f%%，剩余 %.2f GB", d.UsagePct, float64(d.Free)/(1024*1024*1024)),
+				Category:    "storage",
+				Priority:    1,
+				Action:      "清理无用文件或扩容存储",
+			})
+		} else if d.UsagePct > 80 {
+			suggestions = append(suggestions, Suggestion{
+				ID:          nextID(),
+				Title:       fmt.Sprintf("磁盘 %s 空间预警", d.Mountpoint),
+				Description: fmt.Sprintf("磁盘使用率 %.1f%%，建议提前规划存储空间", d.UsagePct),
+				Category:    "storage",
+				Priority:    2,
+				Action:      "检查并清理大文件、旧快照",
+			})
+		}
 	}
-	if monthlyGB < 0 {
-		monthlyGB = 0
-		monthlyPct = 0
+
+	// 负载相关建议
+	if sysCtx.LoadAvg1 > float64(sysCtx.CPUCores)*2 {
+		suggestions = append(suggestions, Suggestion{
+			ID:          nextID(),
+			Title:       "系统负载过高",
+			Description: fmt.Sprintf("1分钟负载 %.2f，超过 CPU 核心数 %d 的 2 倍", sysCtx.LoadAvg1, sysCtx.CPUCores),
+			Category:    "performance",
+			Priority:    1,
+			Action:      "检查是否有异常进程或计划任务",
+		})
 	}
 
-	return monthlyGB, monthlyPct
+	// 备份建议（通用）
+	suggestions = append(suggestions, Suggestion{
+		ID:          nextID(),
+		Title:       "定期备份建议",
+		Description: "建议启用自动快照和异地备份策略，保护数据安全",
+		Category:    "backup",
+		Priority:    2,
+		Action:      "配置定时快照和备份计划",
+	})
+
+	// 安全建议（通用）
+	suggestions = append(suggestions, Suggestion{
+		ID:          nextID(),
+		Title:       "安全加固建议",
+		Description: "建议启用防火墙、SSH 密钥认证、定期更新系统补丁",
+		Category:    "security",
+		Priority:    2,
+		Action:      "检查安全配置并加固",
+	})
+
+	return suggestions
 }
 
-// formatBytes 格式化字节数为可读字符串.
-func formatBytes(bytes int64) string {
+// parseDiagnosis 解析 AI 诊断结果.
+func (a *Advisor) parseDiagnosis(answer, logContent string) *DiagnoseResponse {
+	resp := &DiagnoseResponse{
+		Timestamp: time.Now(),
+		Severity:  "info",
+	}
+
+	// 尝试解析 JSON 根式响应
+	trimmed := strings.TrimSpace(answer)
+	// 查找 JSON 块
+	jsonStart := strings.Index(trimmed, "{")
+	jsonEnd := strings.LastIndex(trimmed, "}")
+	if jsonStart >= 0 && jsonEnd > jsonStart {
+		jsonStr := trimmed[jsonStart : jsonEnd+1]
+		var parsed struct {
+			Problem   string   `json:"problem"`
+			Cause     string   `json:"cause"`
+			Solutions []string `json:"solutions"`
+			Severity  string   `json:"severity"`
+		}
+		if err := json.Unmarshal([]byte(jsonStr), &parsed); err == nil {
+			resp.Problem = parsed.Problem
+			resp.Cause = parsed.Cause
+			resp.Solutions = parsed.Solutions
+			if parsed.Severity != "" {
+				resp.Severity = parsed.Severity
+			}
+			return resp
+		}
+	}
+
+	// JSON 解析失败时，基于日志关键词做基础诊断
+	resp.Problem = "系统日志异常"
+	resp.Cause = answer
+	resp.Solutions = []string{"请查看完整日志了解详细信息", "根据 AI 分析的建议进行排查"}
+	resp.Severity = a.detectSeverity(logContent)
+
+	return resp
+}
+
+// detectSeverity 基于关键词检测严重程度.
+func (a *Advisor) detectSeverity(log string) string {
+	lower := strings.ToLower(log)
+
+	criticalKeywords := []string{"panic", "fatal", "critical", "oom", "kernel panic", "segfault", "硬件故障"}
+	for _, kw := range criticalKeywords {
+		if strings.Contains(lower, kw) {
+			return "critical"
+		}
+	}
+
+	warningKeywords := []string{"error", "fail", "warning", "warn", "timeout", "refused", "denied"}
+	for _, kw := range warningKeywords {
+		if strings.Contains(lower, kw) {
+			return "warning"
+		}
+	}
+
+	return "info"
+}
+
+// formatBytes 格式化字节数.
+func formatBytes(b uint64) string {
 	const (
 		KB = 1024
 		MB = KB * 1024
@@ -560,16 +747,16 @@ func formatBytes(bytes int64) string {
 		TB = GB * 1024
 	)
 	switch {
-	case bytes >= TB:
-		return fmt.Sprintf("%.2f TB", float64(bytes)/float64(TB))
-	case bytes >= GB:
-		return fmt.Sprintf("%.2f GB", float64(bytes)/float64(GB))
-	case bytes >= MB:
-		return fmt.Sprintf("%.2f MB", float64(bytes)/float64(MB))
-	case bytes >= KB:
-		return fmt.Sprintf("%.2f KB", float64(bytes)/float64(KB))
+	case b >= TB:
+		return fmt.Sprintf("%.2f TB", float64(b)/float64(TB))
+	case b >= GB:
+		return fmt.Sprintf("%.2f GB", float64(b)/float64(GB))
+	case b >= MB:
+		return fmt.Sprintf("%.2f MB", float64(b)/float64(MB))
+	case b >= KB:
+		return fmt.Sprintf("%.2f KB", float64(b)/float64(KB))
 	default:
-		return fmt.Sprintf("%d B", bytes)
+		return fmt.Sprintf("%d B", b)
 	}
 }
 
