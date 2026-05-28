@@ -212,7 +212,7 @@ type Server struct {
 	netSentinelMgr     *netsentinel.Manager
 	networkMapMgr      *networkmap.Manager
 	photoEnhanceMgr    *photoenhance.Manager
-	privacyVaultMgr    *privacyvault.Manager
+	privacyVaultMgr    *privacyvault.Engine
 	remoteDesktopMgr   *remotedesktop.Manager
 	smartHomeMgr       *smarthome.Manager
 	ssoHubMgr          *ssohub.Manager
@@ -764,7 +764,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 照片增强模块就绪")
 
 	// 初始化隐私保险库（竞品独有功能）
-	privacyVaultMgr := privacyvault.NewManager(&privacyvault.Config{Enabled: true, DefaultAlgorithm: "AES-256-GCM", MaxVaults: 100})
+	privacyVaultMgr := privacyvault.NewEngine(&privacyvault.PrivacyVaultConfig{Enabled: true, DefaultAlgorithm: "AES-256-GCM", MaxVaults: 100})
 	log.Println("✅ 隐私保险库模块就绪")
 
 	// 初始化远程桌面（竞品独有功能）
