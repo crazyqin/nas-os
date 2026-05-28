@@ -7,7 +7,9 @@
 # - 全量发布
 # - 支持手动回滚
 #
-# 当前版本: v1.0.1（工部维护）
+# v2.0.0: 采用 Matrix 策略分架构并行构建，解决 QEMU 超时问题
+#
+# 当前版本: v2.0.0（工部维护）
 
 name: Staged Release
 
@@ -37,11 +39,17 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  CACHE_VERSION: 'v13'
+  GOPROXY: 'https://proxy.golang.org,direct'
 
 permissions:
   contents: write
   packages: write
   id-token: write
+
+concurrency:
+  group: staged-release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   # ========== 阶段 0: 准备发布 ==========
@@ -65,7 +73,6 @@ jobs:
             VERSION="${GITHUB_REF#refs/tags/}"
           fi
           
-          # 检查是否为预发布版本
           if [[ "$VERSION" =~ -rc|-beta|-alpha|-canary ]]; then
             IS_CANARY="true"
           else
@@ -73,7 +80,7 @@ jobs:
           fi
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "is_canary=$IS_CANARY" >> $GITHUB_OUTPUT
+          echo "is-canary=$IS_CANARY" >> $GITHUB_OUTPUT
           
           echo "📦 版本: $VERSION"
           echo "🚀 Canary: $IS_CANARY"
@@ -119,13 +126,25 @@ jobs:
           echo "| 测试 | ✅ 通过 |" >> $GITHUB_STEP_SUMMARY
           echo "| Docker Compose | ✅ 通过 |" >> $GITHUB_STEP_SUMMARY
 
-  # ========== 阶段 2: Canary 发布 ==========
-  canary-release:
-    name: Canary 发布
-    runs-on: ubuntu-latest
+  # ========== 阶段 2: Canary 单架构构建 (Matrix 并行) ==========
+  canary-build:
+    name: Canary 构建 ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
     needs: [prepare, pre-check]
     if: needs.prepare.outputs.is-canary != 'true' && github.event.inputs.skip_canary != 'true'
-    timeout-minutes: 20
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: amd64
+            docker_platform: linux/amd64
+            runner: ubuntu-latest
+            suffix: amd64
+          - platform: arm64
+            docker_platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            suffix: arm64
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
@@ -134,23 +153,86 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       - name: 登录 GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: 构建 Canary 镜像
+      - name: 设置 Go 环境
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Go 模块缓存
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-canary-${{ matrix.platform }}-${{ hashFiles('**/go.sum') }}
+
+      - name: 提取短 SHA
+        id: sha
+        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: 构建并推送单架构镜像
         uses: docker/build-push-action@v7
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          file: ./Dockerfile
+          platforms: ${{ matrix.docker_platform }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:canary
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-canary
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:canary-${{ matrix.suffix }}
+          cache-from: |
+            type=gha,scope=${{ env.CACHE_VERSION }}-canary-${{ matrix.platform }}
+            type=gha,scope=${{ env.CACHE_VERSION }}-${{ matrix.platform }}
+          cache-to: type=gha,scope=${{ env.CACHE_VERSION }}-canary-${{ matrix.platform }},mode=max
+          build-args: |
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
+            VERSION=${{ needs.prepare.outputs.version }}-canary
+            REVISION=${{ github.sha }}
+          outputs: type=docker,dest=/tmp/canary-${{ matrix.suffix }}.tar
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: canary-${{ matrix.suffix }}
+          path: /tmp/canary-${{ matrix.suffix }}.tar
+          retention-days: 1
+
+  # ========== 阶段 2b: 合并 Canary 多架构 Manifest ==========
+  canary-merge:
+    name: 合并 Canary 镜像
+    runs-on: ubuntu-latest
+    needs: [prepare, canary-build]
+    timeout-minutes: 10
+    steps:
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: 登录 GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: 创建并推送多架构 Manifest
+        run: |
+          VERSION="${{ needs.prepare.outputs.version }}"
+          
+          docker buildx imagetools create -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:canary \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:canary-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:canary-arm64
+          
+          docker buildx imagetools create -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION}-canary \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:canary-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:canary-arm64
+          
+          echo "✅ Canary 多架构镜像已合并"
 
       - name: 创建 Canary Release
         uses: softprops/action-gh-release@v1
@@ -169,19 +251,20 @@ jobs:
           echo "**版本:** ${{ needs.prepare.outputs.version }}-canary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**镜像:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:canary\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**平台:** amd64, arm64" >> $GITHUB_STEP_SUMMARY
 
   # ========== 阶段 3: 观察期 ==========
   observe:
     name: 观察期
     runs-on: ubuntu-latest
-    needs: [prepare, canary-release]
-    if: needs.canary-release.result == 'success'
-    timeout-minutes: 1440  # 24小时
+    needs: [prepare, canary-merge]
+    if: needs.canary-merge.result == 'success'
+    timeout-minutes: 1440
     steps:
       - name: 等待观察期
         run: |
           OBSERVE_HOURS="${{ github.event.inputs.observe_hours || '24' }}"
-          OBSERVE_SECONDS=$((OBSERVE_HOURS * 3600))
           
           echo "## ⏳ 观察期" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -190,7 +273,7 @@ jobs:
           echo "Canary 版本: ${{ needs.prepare.outputs.version }}-canary" >> $GITHUB_STEP_SUMMARY
           
           # 实际等待 (生产环境)
-          # sleep $OBSERVE_SECONDS
+          # sleep $((OBSERVE_HOURS * 3600))
           
           # 测试环境: 等待 1 分钟
           echo "⚠️ 测试模式: 等待 1 分钟而非 ${OBSERVE_HOURS} 小时"
@@ -199,38 +282,121 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ 观察期结束，准备全量发布" >> $GITHUB_STEP_SUMMARY
 
-  # ========== 阶段 4: 全量发布 ==========
-  full-release:
-    name: 全量发布
-    runs-on: ubuntu-latest
+  # ========== 阶段 4: 全量单架构构建 (Matrix 并行) ==========
+  full-build:
+    name: 全量构建 ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
     needs: [prepare, observe]
     if: needs.observe.result == 'success'
-    timeout-minutes: 30
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: amd64
+            docker_platform: linux/amd64
+            runner: ubuntu-latest
+            suffix: amd64
+          - platform: arm64
+            docker_platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            suffix: arm64
+          - platform: armv7
+            docker_platform: linux/arm/v7
+            runner: ubuntu-latest
+            suffix: armv7
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
+
+      - name: 设置 QEMU
+        if: matrix.platform == 'armv7'
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm
 
       - name: 设置 Docker Buildx
         uses: docker/setup-buildx-action@v4
 
       - name: 登录 GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: 构建多架构镜像
+      - name: 设置 Go 环境
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Go 模块缓存
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-full-${{ matrix.platform }}-${{ hashFiles('**/go.sum') }}
+
+      - name: 构建并推送单架构镜像
         uses: docker/build-push-action@v7
         with:
           context: .
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          file: ./Dockerfile
+          platforms: ${{ matrix.docker_platform }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:release-${{ matrix.suffix }}
+          cache-from: |
+            type=gha,scope=${{ env.CACHE_VERSION }}-full-${{ matrix.platform }}
+            type=gha,scope=${{ env.CACHE_VERSION }}-${{ matrix.platform }}
+          cache-to: type=gha,scope=${{ env.CACHE_VERSION }}-full-${{ matrix.platform }},mode=max
+          build-args: |
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
+            VERSION=${{ needs.prepare.outputs.version }}
+            REVISION=${{ github.sha }}
+          outputs: type=docker,dest=/tmp/release-${{ matrix.suffix }}.tar
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.suffix }}
+          path: /tmp/release-${{ matrix.suffix }}.tar
+          retention-days: 1
+
+  # ========== 阶段 4b: 合并全量多架构 Manifest ==========
+  full-merge:
+    name: 合并全量镜像
+    runs-on: ubuntu-latest
+    needs: [prepare, full-build]
+    timeout-minutes: 10
+    steps:
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: 登录 GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: 创建并推送多架构 Manifest
+        run: |
+          VERSION="${{ needs.prepare.outputs.version }}"
+          
+          docker buildx imagetools create -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:release-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:release-arm64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:release-armv7
+          
+          docker buildx imagetools create -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:release-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:release-arm64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:release-armv7
+          
+          echo "✅ 全量多架构镜像已合并"
 
       - name: 创建正式 Release
         uses: softprops/action-gh-release@v1
@@ -249,6 +415,8 @@ jobs:
           echo "**版本:** ${{ needs.prepare.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**镜像:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**平台:** amd64, arm64, arm/v7" >> $GITHUB_STEP_SUMMARY
 
   # ========== 回滚支持 ==========
   rollback:
@@ -264,6 +432,4 @@ jobs:
           echo "## 🔄 回滚发布" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**目标版本:** $TARGET_VERSION" >> $GITHUB_STEP_SUMMARY
-          
-          # 在实际环境中，这里会触发重新发布指定版本
           echo "⚠️ 请手动触发 release.yml 重新发布 $TARGET_VERSION"
