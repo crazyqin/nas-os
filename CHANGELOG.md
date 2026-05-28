@@ -1,3 +1,52 @@
+## [v2.507.0] - 2026-05-28
+
+### 新增5个企业级存储核心功能模块
+
+#### 💾 RAID-Z Expansion（在线RAID-Z扩展）
+- 向现有RAID-Z vdev在线添加新磁盘
+- 数据自动重新分布，不停机
+- 扩展进度实时监控
+- 扩展前磁盘兼容性检查
+- 对标 TrueNAS 25.10 RAID-Z Expansion
+
+#### 🔄 dRAID（分布式热备RAID）
+- 分布式热备空间分配
+- 加速重建过程（分布式并行重建）
+- dRAID 拓扑管理
+- 与 ZFS 存储池深度集成
+- 对标 TrueNAS dRAID
+
+#### 🏗️ Enclosure Management（机箱管理）
+- SES-3 设备发现与监控
+- SGPIO 硬盘指示灯控制
+- 温度/风扇/电压传感器监控
+- 电源状态管理
+- 机箱拓扑可视化
+- 对标群晖 Storage Manager 硬件监控
+
+#### 🔀 SAS Multipath（SAS多路径）
+- SAS 设备多路径发现
+- 自动故障切换（failover）
+- 负载均衡策略（round-robin, least-pending）
+- 路径健康监控
+- 对标群晖 High Availability 路径管理
+
+#### 🧠 Disk Health AI（智能磁盘诊断）
+- SMART 数据采集与 AI 分析
+- 磁盘故障预测（提前30天预警）
+- 磁盘健康评分算法
+- 性能趋势分析与生命周期评估
+- 对标群晖 Storage Manager 健康检查
+
+#### 🔌 Fibre Channel Target
+- FC Target 模式配置管理
+- FC LUN 管理（创建/删除/映射）
+- FC 端口管理（WWPN/WWNN）
+- FC 会话监控与性能统计
+- 对标 TrueNAS Fibre Channel
+
+---
+
 ## [v2.506.0] - 2026-05-28
 
 ### 新增6个AI智能化与生态集成功能模块
