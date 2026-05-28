@@ -1,374 +1,226 @@
-// Package surveillance - 监控中心模块
-// 对标群晖 Surveillance Station，支持摄像头管理、录像、移动侦测、时间线回放
 package surveillance
 
 import (
-	"context"
-	"fmt"
-	"sync"
 	"time"
-
-	"go.uber.org/zap"
 )
 
-// Camera 摄像头信息
+// CameraStatus 摄像头状态.
+type CameraStatus string
+
+const (
+	CameraStatusOnline  CameraStatus = "online"
+	CameraStatusOffline CameraStatus = "offline"
+	CameraStatusError   CameraStatus = "error"
+)
+
+// RecordingMode 录制模式.
+type RecordingMode string
+
+const (
+	RecordingModeContinuous RecordingMode = "continuous"
+	RecordingModeMotion     RecordingMode = "motion"
+	RecordingModeSchedule   RecordingMode = "schedule"
+	RecordingModeManual     RecordingMode = "manual"
+)
+
+// EventSeverity 事件严重程度.
+type EventSeverity string
+
+const (
+	EventSeverityInfo     EventSeverity = "info"
+	EventSeverityWarning  EventSeverity = "warning"
+	EventSeverityCritical EventSeverity = "critical"
+)
+
+// EventType 事件类型.
+type EventType string
+
+const (
+	EventTypeMotion      EventType = "motion"
+	EventTypeCameraOnline  EventType = "camera_online"
+	EventTypeCameraOffline EventType = "camera_offline"
+	EventTypeRecordingStart EventType = "recording_start"
+	EventTypeRecordingStop  EventType = "recording_stop"
+	EventTypeStorageFull    EventType = "storage_full"
+	EventTypeCustom         EventType = "custom"
+)
+
+// Camera 摄像头配置.
 type Camera struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Protocol    string            `json:"protocol"` // rtsp, onvif, hls
-	URL         string            `json:"url"`
-	Location    string            `json:"location"`
-	Status      string            `json:"status"` // online, offline, error
-	Resolution  string            `json:"resolution"`
-	Codec       string            `json:"codec"`
-	FPS         int               `json:"fps"`
-	BitrateKbps int               `json:"bitrate_kbps"`
-	MotionEnabled bool            `json:"motion_enabled"`
-	MotionSensitivity int         `json:"motion_sensitivity"` // 1-100
-	RecordingMode string          `json:"recording_mode"` // continuous, motion, schedule
-	StoragePath string            `json:"storage_path"`
-	Tags        map[string]string `json:"tags,omitempty"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID            string       `json:"id"`
+	Name          string       `json:"name"`
+	URI           string       `json:"uri"`           // RTSP URI
+	ONVIFEndpoint string       `json:"onvifEndpoint"` // ONVIF 地址
+	Username      string       `json:"username,omitempty"`
+	Password      string       `json:"password,omitempty"`
+	Status        CameraStatus `json:"status"`
+	Resolution    string       `json:"resolution"` // 如 "1920x1080"
+	FPS           int          `json:"fps"`
+	Codec         string       `json:"codec"` // 如 "h264", "h265"
+	Location      string       `json:"location,omitempty"`
+	Group         string       `json:"group,omitempty"`
+	Enabled       bool         `json:"enabled"`
+	CreatedAt     time.Time    `json:"createdAt"`
+	UpdatedAt     time.Time    `json:"updatedAt"`
 }
 
-// Recording 录像记录
-type Recording struct {
-	ID          string    `json:"id"`
-	CameraID    string    `json:"camera_id"`
-	StartTime   time.Time `json:"start_time"`
-	EndTime     time.Time `json:"end_time"`
-	Duration    int       `json:"duration_sec"`
-	FileSize    int64     `json:"file_size_bytes"`
-	FilePath    string    `json:"file_path"`
-	HasMotion   bool      `json:"has_motion"`
-	MotionEvents []MotionEvent `json:"motion_events,omitempty"`
+// RecordingJob 录制任务.
+type RecordingJob struct {
+	ID         string        `json:"id"`
+	CameraID   string        `json:"cameraId"`
+	Mode       RecordingMode `json:"mode"`
+	StartTime  time.Time     `json:"startTime"`
+	EndTime    *time.Time    `json:"endTime,omitempty"`
+	FilePath   string        `json:"filePath"`
+	FileSize   int64         `json:"fileSize"`
+	Duration   int64         `json:"duration"` // 秒
+	Status     string        `json:"status"`   // recording, completed, failed
+	CreatedAt  time.Time     `json:"createdAt"`
 }
 
-// MotionEvent 移动侦测事件
-type MotionEvent struct {
-	ID          string    `json:"id"`
-	CameraID    string    `json:"camera_id"`
-	Timestamp   time.Time `json:"timestamp"`
-	Duration    int       `json:"duration_sec"`
-	Confidence  float64   `json:"confidence"` // 0-1
-	Region      string    `json:"region"`     // detection region
-	SnapshotURL string    `json:"snapshot_url,omitempty"`
-	Handled     bool      `json:"handled"`
+// MotionDetectionConfig 移动侦测配置.
+type MotionDetectionConfig struct {
+	CameraID       string             `json:"cameraId"`
+	Enabled        bool               `json:"enabled"`
+	Sensitivity    int                `json:"sensitivity"` // 1-100
+	Regions        []MotionRegion     `json:"regions"`
+	Cooldown       int                `json:"cooldown"`       // 秒
+	TriggerActions []TriggerAction    `json:"triggerActions"`
 }
 
-// RecordingSchedule 录像计划
-type RecordingSchedule struct {
+// MotionRegion 移动侦测区域.
+type MotionRegion struct {
+	ID       string    `json:"id"`
+	Name     string    `json:"name"`
+	X        int       `json:"x"`
+	Y        int       `json:"y"`
+	Width    int       `json:"width"`
+	Height   int       `json:"height"`
+	Enabled  bool      `json:"enabled"`
+}
+
+// TriggerAction 触发动作.
+type TriggerAction struct {
+	Type     string `json:"type"` // notify, record, snapshot
+	Config   map[string]interface{} `json:"config,omitempty"`
+}
+
+// SurveillanceEvent 监控事件.
+type SurveillanceEvent struct {
 	ID        string          `json:"id"`
-	CameraID  string          `json:"camera_id"`
-	Name      string          `json:"name"`
-	Enabled   bool            `json:"enabled"`
-	Type      string          `json:"type"` // continuous, motion, schedule
-	Schedules []ScheduleSlot  `json:"schedules"`
-	Retention int             `json:"retention_days"` // 保留天数
+	CameraID  string          `json:"cameraId"`
+	Type      EventType       `json:"type"`
+	Severity  EventSeverity   `json:"severity"`
+	Message   string          `json:"message"`
+	ImageURL  string          `json:"imageUrl,omitempty"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp time.Time       `json:"timestamp"`
 }
 
-// ScheduleSlot 时间段
-type ScheduleSlot struct {
-	DayOfWeek int    `json:"day_of_week"` // 0=Sunday
-	StartTime string `json:"start_time"`  // HH:MM
-	EndTime   string `json:"end_time"`
+// RecordingSchedule 录制计划.
+type RecordingSchedule struct {
+	ID       string        `json:"id"`
+	CameraID string        `json:"cameraId"`
+	Name     string        `json:"name"`
+	Mode     RecordingMode `json:"mode"`
+	// Cron 表达式或时间段
+	DaysOfWeek []int     `json:"daysOfWeek"` // 0=周日, 1=周一, ...
+	StartTime  string    `json:"startTime"`  // HH:MM
+	EndTime    string    `json:"endTime"`    // HH:MM
+	Enabled    bool      `json:"enabled"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
 
-// StorageQuota 存储配额
+// StreamSession 流媒体会话.
+type StreamSession struct {
+	ID        string    `json:"id"`
+	CameraID  string    `json:"cameraId"`
+	ClientID  string    `json:"clientId"`
+	Protocol  string    `json:"protocol"` // rtsp, rtmp, hls, webrtc
+	URL       string    `json:"url"`
+	StartTime time.Time `json:"startTime"`
+	Active    bool      `json:"active"`
+}
+
+// PlaybackQuery 回放查询.
+type PlaybackQuery struct {
+	CameraID  string    `json:"cameraId"`
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
+	EventOnly bool      `json:"eventOnly"` // 只返回有事件的片段
+}
+
+// PlaybackSegment 回放片段.
+type PlaybackSegment struct {
+	ID        string    `json:"id"`
+	CameraID  string    `json:"cameraId"`
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
+	FilePath  string    `json:"filePath"`
+	FileSize  int64     `json:"fileSize"`
+	HasMotion bool      `json:"hasMotion"`
+	Events    []string  `json:"events"` // 关联的事件ID
+}
+
+// ExportRequest 导出请求.
+type ExportRequest struct {
+	CameraID  string    `json:"cameraId"`
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
+	Format    string    `json:"format"` // mp4, avi, mkv
+}
+
+// ExportJob 导出任务.
+type ExportJob struct {
+	ID         string    `json:"id"`
+	CameraID   string    `json:"cameraId"`
+	StartTime  time.Time `json:"startTime"`
+	EndTime    time.Time `json:"endTime"`
+	Format     string    `json:"format"`
+	FilePath   string    `json:"filePath"`
+	FileSize   int64     `json:"fileSize"`
+	Status     string    `json:"status"` // pending, processing, completed, failed
+	Progress   int       `json:"progress"`
+	CreatedAt  time.Time `json:"createdAt"`
+	CompletedAt *time.Time `json:"completedAt,omitempty"`
+}
+
+// StorageQuota 存储配额.
 type StorageQuota struct {
-	CameraID       string `json:"camera_id"`
-	TotalBytes     int64  `json:"total_bytes"`
-	UsedBytes      int64  `json:"used_bytes"`
-	AvailableBytes int64  `json:"available_bytes"`
-	RecordingDays  int    `json:"recording_days"`
+	CameraID       string `json:"cameraId"`
+	MaxSizeGB      int    `json:"maxSizeGb"`
+	UsedSizeGB     int    `json:"usedSizeGb"`
+	RetentionDays  int    `json:"retentionDays"`
+	AutoDelete     bool   `json:"autoDelete"`
 }
 
-// SurveillanceManager 监控管理器
-type SurveillanceManager struct {
-	mu          sync.RWMutex
-	logger      *zap.Logger
-	storagePath string
-
-	cameras    map[string]*Camera
-	recordings map[string][]*Recording // cameraID -> recordings
-	motions    map[string][]*MotionEvent
-	schedules  map[string][]*RecordingSchedule
-	quotas     map[string]*StorageQuota
-
-	// 录像控制
-	recordingCtx    context.Context
-	recordingCancel context.CancelFunc
+// PTZCommand PTZ 控制命令.
+type PTZCommand struct {
+	CameraID string `json:"cameraId"`
+	Action   string `json:"action"` // pan, tilt, zoom, stop, go_preset
+	Speed    int    `json:"speed"`  // 1-100
+	PresetID string `json:"presetId,omitempty"`
 }
 
-// NewSurveillanceManager 创建监控管理器
-func NewSurveillanceManager(logger *zap.Logger, storagePath string) *SurveillanceManager {
-	ctx, cancel := context.WithCancel(context.Background())
-	return &SurveillanceManager{
-		logger:          logger,
-		storagePath:     storagePath,
-		cameras:         make(map[string]*Camera),
-		recordings:      make(map[string][]*Recording),
-		motions:         make(map[string][]*MotionEvent),
-		schedules:       make(map[string][]*RecordingSchedule),
-		quotas:          make(map[string]*StorageQuota),
-		recordingCtx:    ctx,
-		recordingCancel: cancel,
-	}
+// ONVIFDiscoveryResult ONVIF 发现结果.
+type ONVIFDiscoveryResult struct {
+	IPAddress    string `json:"ipAddress"`
+	Port         int    `json:"port"`
+	Manufacturer string `json:"manufacturer"`
+	Model        string `json:"model"`
+	SerialNumber string `json:"serialNumber"`
+	Endpoint     string `json:"endpoint"`
 }
 
-// AddCamera 添加摄像头
-func (sm *SurveillanceManager) AddCamera(ctx context.Context, cam *Camera) error {
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-
-	if cam.ID == "" {
-		cam.ID = fmt.Sprintf("cam-%d", time.Now().UnixNano())
-	}
-	if _, exists := sm.cameras[cam.ID]; exists {
-		return fmt.Errorf("camera %s already exists", cam.ID)
-	}
-
-	cam.Status = "offline"
-	cam.CreatedAt = time.Now()
-	cam.UpdatedAt = time.Now()
-	sm.cameras[cam.ID] = cam
-
-	sm.logger.Info("摄像头已添加", zap.String("id", cam.ID), zap.String("name", cam.Name))
-	return nil
-}
-
-// UpdateCamera 更新摄像头
-func (sm *SurveillanceManager) UpdateCamera(ctx context.Context, cam *Camera) error {
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-
-	existing, exists := sm.cameras[cam.ID]
-	if !exists {
-		return fmt.Errorf("camera %s not found", cam.ID)
-	}
-
-	cam.CreatedAt = existing.CreatedAt
-	cam.UpdatedAt = time.Now()
-	sm.cameras[cam.ID] = cam
-	return nil
-}
-
-// RemoveCamera 移除摄像头
-func (sm *SurveillanceManager) RemoveCamera(ctx context.Context, cameraID string) error {
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-
-	if _, exists := sm.cameras[cameraID]; !exists {
-		return fmt.Errorf("camera %s not found", cameraID)
-	}
-
-	delete(sm.cameras, cameraID)
-	delete(sm.recordings, cameraID)
-	delete(sm.motions, cameraID)
-	delete(sm.schedules, cameraID)
-	delete(sm.quotas, cameraID)
-
-	sm.logger.Info("摄像头已移除", zap.String("id", cameraID))
-	return nil
-}
-
-// GetCamera 获取摄像头
-func (sm *SurveillanceManager) GetCamera(ctx context.Context, cameraID string) (*Camera, error) {
-	sm.mu.RLock()
-	defer sm.mu.RUnlock()
-
-	cam, exists := sm.cameras[cameraID]
-	if !exists {
-		return nil, fmt.Errorf("camera %s not found", cameraID)
-	}
-	return cam, nil
-}
-
-// ListCameras 列出所有摄像头
-func (sm *SurveillanceManager) ListCameras(ctx context.Context) []*Camera {
-	sm.mu.RLock()
-	defer sm.mu.RUnlock()
-
-	cameras := make([]*Camera, 0, len(sm.cameras))
-	for _, cam := range sm.cameras {
-		cameras = append(cameras, cam)
-	}
-	return cameras
-}
-
-// StartRecording 开始录像
-func (sm *SurveillanceManager) StartRecording(ctx context.Context, cameraID string) error {
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-
-	cam, exists := sm.cameras[cameraID]
-	if !exists {
-		return fmt.Errorf("camera %s not found", cameraID)
-	}
-
-	cam.Status = "recording"
-	cam.UpdatedAt = time.Now()
-
-	recording := &Recording{
-		ID:        fmt.Sprintf("rec-%d", time.Now().UnixNano()),
-		CameraID:  cameraID,
-		StartTime: time.Now(),
-	}
-	sm.recordings[cameraID] = append(sm.recordings[cameraID], recording)
-
-	sm.logger.Info("录像已开始", zap.String("camera", cameraID))
-	return nil
-}
-
-// StopRecording 停止录像
-func (sm *SurveillanceManager) StopRecording(ctx context.Context, cameraID string) error {
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-
-	cam, exists := sm.cameras[cameraID]
-	if !exists {
-		return fmt.Errorf("camera %s not found", cameraID)
-	}
-
-	cam.Status = "online"
-	cam.UpdatedAt = time.Now()
-
-	recordings := sm.recordings[cameraID]
-	if len(recordings) > 0 {
-		last := recordings[len(recordings)-1]
-		if last.EndTime.IsZero() {
-			last.EndTime = time.Now()
-			last.Duration = int(last.EndTime.Sub(last.StartTime).Seconds())
-		}
-	}
-
-	sm.logger.Info("录像已停止", zap.String("camera", cameraID))
-	return nil
-}
-
-// GetRecordings 获取录像列表
-func (sm *SurveillanceManager) GetRecordings(ctx context.Context, cameraID string, start, end time.Time) []*Recording {
-	sm.mu.RLock()
-	defer sm.mu.RUnlock()
-
-	recordings := sm.recordings[cameraID]
-	var result []*Recording
-	for _, rec := range recordings {
-		if !rec.StartTime.Before(start) && !rec.StartTime.After(end) {
-			result = append(result, rec)
-		}
-	}
-	return result
-}
-
-// ReportMotion 上报移动侦测
-func (sm *SurveillanceManager) ReportMotion(ctx context.Context, event *MotionEvent) error {
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-
-	if _, exists := sm.cameras[event.CameraID]; !exists {
-		return fmt.Errorf("camera %s not found", event.CameraID)
-	}
-
-	if event.ID == "" {
-		event.ID = fmt.Sprintf("motion-%d", time.Now().UnixNano())
-	}
-	event.Timestamp = time.Now()
-
-	sm.motions[event.CameraID] = append(sm.motions[event.CameraID], event)
-
-	sm.logger.Info("移动侦测事件",
-		zap.String("camera", event.CameraID),
-		zap.Float64("confidence", event.Confidence))
-	return nil
-}
-
-// GetMotionEvents 获取移动侦测事件
-func (sm *SurveillanceManager) GetMotionEvents(ctx context.Context, cameraID string, start, end time.Time) []*MotionEvent {
-	sm.mu.RLock()
-	defer sm.mu.RUnlock()
-
-	events := sm.motions[cameraID]
-	var result []*MotionEvent
-	for _, evt := range events {
-		if !evt.Timestamp.Before(start) && !evt.Timestamp.After(end) {
-			result = append(result, evt)
-		}
-	}
-	return result
-}
-
-// SetRecordingSchedule 设置录像计划
-func (sm *SurveillanceManager) SetRecordingSchedule(ctx context.Context, schedule *RecordingSchedule) error {
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-
-	if _, exists := sm.cameras[schedule.CameraID]; !exists {
-		return fmt.Errorf("camera %s not found", schedule.CameraID)
-	}
-
-	if schedule.ID == "" {
-		schedule.ID = fmt.Sprintf("sched-%d", time.Now().UnixNano())
-	}
-
-	sm.schedules[schedule.CameraID] = append(sm.schedules[schedule.CameraID], schedule)
-	return nil
-}
-
-// GetStorageQuota 获取存储配额
-func (sm *SurveillanceManager) GetStorageQuota(ctx context.Context, cameraID string) (*StorageQuota, error) {
-	sm.mu.RLock()
-	defer sm.mu.RUnlock()
-
-	quota, exists := sm.quotas[cameraID]
-	if !exists {
-		return &StorageQuota{
-			CameraID:       cameraID,
-			TotalBytes:     100 * 1024 * 1024 * 1024, // 100GB default
-			UsedBytes:      0,
-			AvailableBytes: 100 * 1024 * 1024 * 1024,
-			RecordingDays:  30,
-		}, nil
-	}
-	return quota, nil
-}
-
-// GetTimeline 获取时间线数据
-func (sm *SurveillanceManager) GetTimeline(ctx context.Context, cameraID string, date time.Time) map[string]interface{} {
-	sm.mu.RLock()
-	defer sm.mu.RUnlock()
-
-	startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
-	endOfDay := startOfDay.Add(24 * time.Hour)
-
-	recordings := sm.recordings[cameraID]
-	motions := sm.motions[cameraID]
-
-	var dayRecordings []*Recording
-	for _, rec := range recordings {
-		if !rec.StartTime.Before(startOfDay) && !rec.StartTime.After(endOfDay) {
-			dayRecordings = append(dayRecordings, rec)
-		}
-	}
-
-	var dayMotions []*MotionEvent
-	for _, evt := range motions {
-		if !evt.Timestamp.Before(startOfDay) && !evt.Timestamp.After(endOfDay) {
-			dayMotions = append(dayMotions, evt)
-		}
-	}
-
-	return map[string]interface{}{
-		"date":       date.Format("2006-01-02"),
-		"camera_id":  cameraID,
-		"recordings": dayRecordings,
-		"motions":    dayMotions,
-	}
-}
-
-// Stop 停止监控管理器
-func (sm *SurveillanceManager) Stop() {
-	sm.recordingCancel()
-	sm.logger.Info("监控管理器已停止")
+// SurveillanceStats 监控统计.
+type SurveillanceStats struct {
+	TotalCameras     int     `json:"totalCameras"`
+	OnlineCameras    int     `json:"onlineCameras"`
+	OfflineCameras   int     `json:"offlineCameras"`
+	ActiveRecordings int     `json:"activeRecordings"`
+	TotalRecordings  int     `json:"totalRecordings"`
+	StorageUsedGB    float64 `json:"storageUsedGb"`
+	StorageTotalGB   float64 `json:"storageTotalGb"`
+	TodayEvents      int     `json:"todayEvents"`
+	ActiveStreams    int     `json:"activeStreams"`
 }
