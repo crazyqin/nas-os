@@ -1,759 +1,505 @@
+// Package containerorch 提供容器编排功能，对标 TrueNAS 应用编排能力
 package containerorch
 
 import (
-	"fmt"
-	"sync"
 	"time"
 )
 
-// ContainerOrchManager 容器编排管理器
-type ContainerOrchManager struct {
-	mu         sync.RWMutex
-	containers map[string]*Container
-	networks   map[string]*Network
-	volumes    map[string]*Volume
-	stacks     map[string]*Stack
-	config     *OrchConfig
+// ========== 容器编排核心类型 ==========
+
+// OrchestrationProject 编排项目
+type OrchestrationProject struct {
+	ID          string                    `json:"id"`
+	Name        string                    `json:"name"`
+	Description string                    `json:"description,omitempty"`
+	Namespace   string                    `json:"namespace"`
+	Services    map[string]*ServiceConfig `json:"services"`
+	Networks    map[string]*NetworkConfig `json:"networks,omitempty"`
+	Volumes     map[string]*VolumeConfig  `json:"volumes,omitempty"`
+	Status      ProjectStatus             `json:"status"`
+	CreatedAt   time.Time                 `json:"created_at"`
+	UpdatedAt   time.Time                 `json:"updated_at"`
+	Labels      map[string]string         `json:"labels,omitempty"`
 }
 
-type OrchConfig struct {
-	DefaultRegistry string `json:"default_registry"`
-	AutoRestart     bool   `json:"auto_restart"`
-	MaxContainers   int    `json:"max_containers"`
-}
+// ProjectStatus 项目状态
+type ProjectStatus string
 
-type Container struct {
-	ID             string               `json:"id"`
-	Name           string               `json:"name"`
-	PodID          string               `json:"podId,omitempty"`
-	Image          string               `json:"image"`
-	Command        []string             `json:"command,omitempty"`
-	Args           []string             `json:"args,omitempty"`
-	WorkingDir     string               `json:"workingDir,omitempty"`
-	Status         ContainerStatus      `json:"status"`
-	State          string               `json:"state"`
-	Ports          []PortMapping        `json:"ports"`
-	Env            map[string]string    `json:"env"`
-	Volumes        []string             `json:"volumes"`
-	Networks       []string             `json:"networks"`
-	Labels         map[string]string    `json:"labels"`
-	CreatedAt      time.Time            `json:"created_at"`
-	StartedAt      *time.Time           `json:"started_at,omitempty"`
-	FinishedAt     *time.Time           `json:"finished_at,omitempty"`
-	RestartCount   int                  `json:"restart_count"`
-	Health         string               `json:"health"`
-	Resources      ResourceLimits       `json:"resources"`
-	LivenessProbe  *HealthCheck         `json:"livenessProbe,omitempty"`
-	ReadinessProbe *HealthCheck         `json:"readinessProbe,omitempty"`
-	StartupProbe   *HealthCheck         `json:"startupProbe,omitempty"`
-	RestartPolicy  string               `json:"restartPolicy,omitempty"`
-	LogPath        string               `json:"logPath,omitempty"`
-}
-
-type ContainerStatus string
 const (
-	StatusCreated  ContainerStatus = "created"
-	StatusRunning  ContainerStatus = "running"
-	StatusStopped  ContainerStatus = "stopped"
-	StatusPaused   ContainerStatus = "paused"
-	StatusFailed   ContainerStatus = "failed"
-	StateCreated   string = "created"
-	StateRunning   string = "running"
-	StateStopped   string = "stopped"
+	ProjectStatusCreating  ProjectStatus = "creating"
+	ProjectStatusRunning   ProjectStatus = "running"
+	ProjectStatusStopped   ProjectStatus = "stopped"
+	ProjectStatusUpdating  ProjectStatus = "updating"
+	ProjectStatusError     ProjectStatus = "error"
+	ProjectStatusPartial   ProjectStatus = "partial"
+	ProjectStatusScaling   ProjectStatus = "scaling"
+	ProjectStatusHealing   ProjectStatus = "healing"
 )
 
+// ServiceConfig 服务配置
+type ServiceConfig struct {
+	Name          string                    `json:"name"`
+	Image         string                    `json:"image"`
+	Tag           string                    `json:"tag,omitempty"`
+	Command       []string                  `json:"command,omitempty"`
+	Entrypoint    []string                  `json:"entrypoint,omitempty"`
+	Environment   map[string]string         `json:"environment,omitempty"`
+	Ports         []PortMapping             `json:"ports,omitempty"`
+	Volumes       []VolumeMount             `json:"volumes,omitempty"`
+	Networks      []string                  `json:"networks,omitempty"`
+	DependsOn     []ServiceDependency       `json:"depends_on,omitempty"`
+	HealthCheck   *HealthCheckConfig        `json:"health_check,omitempty"`
+	Resources     *ResourceLimits           `json:"resources,omitempty"`
+	Deploy        *DeployConfig             `json:"deploy,omitempty"`
+	RestartPolicy RestartPolicy             `json:"restart_policy,omitempty"`
+	Labels        map[string]string         `json:"labels,omitempty"`
+	Privileged    bool                      `json:"privileged,omitempty"`
+	CapAdd        []string                  `json:"cap_add,omitempty"`
+	CapDrop       []string                  `json:"cap_drop,omitempty"`
+	Status        ServiceStatus             `json:"status"`
+	ContainerIDs  []string                  `json:"container_ids,omitempty"`
+	Instances     int                       `json:"instances"`
+	DesiredCount  int                       `json:"desired_count"`
+}
+
+// ServiceStatus 服务状态
+type ServiceStatus string
+
+const (
+	ServiceStatusPending   ServiceStatus = "pending"
+	ServiceStatusCreating  ServiceStatus = "creating"
+	ServiceStatusRunning   ServiceStatus = "running"
+	ServiceStatusStopped   ServiceStatus = "stopped"
+	ServiceStatusError     ServiceStatus = "error"
+	ServiceStatusScaling   ServiceStatus = "scaling"
+	ServiceStatusUnhealthy ServiceStatus = "unhealthy"
+	ServiceStatusHealing   ServiceStatus = "healing"
+)
+
+// PortMapping 端口映射
 type PortMapping struct {
 	HostPort      int    `json:"host_port"`
 	ContainerPort int    `json:"container_port"`
-	Protocol      string `json:"protocol"`
-	HostIP        string `json:"host_ip"`
+	Protocol      string `json:"protocol,omitempty"` // tcp, udp
+	HostIP        string `json:"host_ip,omitempty"`
 }
 
+// VolumeMount 卷挂载
+type VolumeMount struct {
+	Source      string `json:"source"`
+	Target      string `json:"target"`
+	ReadOnly    bool   `json:"read_only,omitempty"`
+	Type        string `json:"type,omitempty"` // bind, volume, tmpfs
+	BindOptions *BindOptions `json:"bind_options,omitempty"`
+}
+
+// BindOptions 绑定挂载选项
+type BindOptions struct {
+	Propagation string `json:"propagation,omitempty"` // rshared, shared, slave, private
+}
+
+// ServiceDependency 服务依赖
+type ServiceDependency struct {
+	ServiceName string        `json:"service_name"`
+	Condition   string        `json:"condition"` // service_started, service_healthy, service_completed_successfully
+	Restart     bool          `json:"restart,omitempty"`
+	Timeout     time.Duration `json:"timeout,omitempty"`
+}
+
+// HealthCheckConfig 健康检查配置
+type HealthCheckConfig struct {
+	Test        []string      `json:"test"`
+	Interval    time.Duration `json:"interval"`
+	Timeout     time.Duration `json:"timeout"`
+	Retries     int           `json:"retries"`
+	StartPeriod time.Duration `json:"start_period"`
+	Disable     bool          `json:"disable,omitempty"`
+}
+
+// HealthStatus 健康状态
+type HealthStatus string
+
+const (
+	HealthStatusHealthy   HealthStatus = "healthy"
+	HealthStatusUnhealthy HealthStatus = "unhealthy"
+	HealthStatusStarting  HealthStatus = "starting"
+	HealthStatusNone      HealthStatus = "none"
+)
+
+// ResourceLimits 资源限制
 type ResourceLimits struct {
-	CPUShares  int         `json:"cpu_shares"`
-	MemoryMB   int         `json:"memory_mb"`
-	MemorySwap int         `json:"memory_swap_mb"`
-	Requests   ResourceList `json:"requests,omitempty"`
+	CPU    *CPULimit    `json:"cpu,omitempty"`
+	Memory *MemoryLimit `json:"memory,omitempty"`
+	IO     *IOLimit     `json:"io,omitempty"`
+	PidsLimit *int       `json:"pids_limit,omitempty"`
+}
+
+// CPULimit CPU 限制
+type CPULimit struct {
+	Cores       float64 `json:"cores"`       // CPU 核数
+	Shares      int     `json:"shares"`       // CPU shares (相对权重)
+	Quota       int     `json:"quota"`        // CPU CFS quota (微秒)
+	Period      int     `json:"period"`       // CPU CFS period (微秒)
+	CpusetCpus  string  `json:"cpuset_cpus"`  // 绑定到特定 CPU 核
+	RealtimePeriod  int `json:"realtime_period,omitempty"`
+	RealtimeRuntime int `json:"realtime_runtime,omitempty"`
+}
+
+// MemoryLimit 内存限制
+type MemoryLimit struct {
+	Limit       int64  `json:"limit"`       // 内存限制 (字节)
+	Reservation int64  `json:"reservation"` // 内存预留 (字节)
+	Swap        int64  `json:"swap"`        // Swap 限制 (字节)
+	Kernel      int64  `json:"kernel"`      // 内核内存限制 (字节)
+	Swappiness  int    `json:"swappiness"`  // Swappiness (0-100)
+}
+
+// IOLimit IO 限制
+type IOLimit struct {
+	DeviceReadBps   int64 `json:"device_read_bps"`   // 读取带宽限制 (字节/秒)
+	DeviceWriteBps  int64 `json:"device_write_bps"`  // 写入带宽限制 (字节/秒)
+	DeviceReadIOps  int64 `json:"device_read_iops"`  // 读取 IOPS 限制
+	DeviceWriteIOps int64 `json:"device_write_iops"` // 写入 IOPS 限制
+}
+
+// DeployConfig 部署配置
+type DeployConfig struct {
+	Replicas      int                  `json:"replicas"`
+	AutoScale     *AutoScalePolicy     `json:"auto_scale,omitempty"`
+	UpdateConfig  *UpdateConfig        `json:"update_config,omitempty"`
+	RollbackConfig *RollbackConfig     `json:"rollback_config,omitempty"`
+	Placement     []PlacementConstraint `json:"placement,omitempty"`
+	Labels        map[string]string    `json:"labels,omitempty"`
+}
+
+// AutoScalePolicy 自动扩缩容策略
+type AutoScalePolicy struct {
+	Enabled     bool              `json:"enabled"`
+	MinReplicas int               `json:"min_replicas"`
+	MaxReplicas int               `json:"max_replicas"`
+	Metrics     []ScalingMetric   `json:"metrics"`
+	Cooldown    time.Duration     `json:"cooldown"`
+	ScaleUp     *ScaleRules       `json:"scale_up,omitempty"`
+	ScaleDown   *ScaleRules       `json:"scale_down,omitempty"`
+}
+
+// ScalingMetric 扩缩容指标
+type ScalingMetric struct {
+	Type     string  `json:"type"`     // cpu, memory, requests_per_second, custom
+	Target   float64 `json:"target"`   // 目标值
+	Current  float64 `json:"current"`  // 当前值
+	Window   time.Duration `json:"window"` // 采样窗口
+}
+
+// ScaleRules 扩缩容规则
+type ScaleRules struct {
+	StepSize      int           `json:"step_size"`      // 每次扩缩容数量
+	StepPercent   int           `json:"step_percent"`   // 每次扩缩容百分比
+	Stabilization time.Duration `json:"stabilization"`  // 稳定窗口
+}
+
+// UpdateConfig 更新配置
+type UpdateConfig struct {
+	Parallelism   int           `json:"parallelism"`
+	Delay         time.Duration `json:"delay"`
+	FailureAction string        `json:"failure_action"` // pause, continue, rollback
+	Order         string        `json:"order"`          // stop-first, start-first
+	Monitor       time.Duration `json:"monitor"`
+	MaxFailureRatio float64     `json:"max_failure_ratio"`
+}
+
+// RollbackConfig 回滚配置
+type RollbackConfig struct {
+	Parallelism   int           `json:"parallelism"`
+	Delay         time.Duration `json:"delay"`
+	FailureAction string        `json:"failure_action"`
+	Order         string        `json:"order"`
+	Monitor       time.Duration `json:"monitor"`
+	MaxFailureRatio float64     `json:"max_failure_ratio"`
+}
+
+// PlacementConstraint 放置约束
+type PlacementConstraint struct {
+	Type       string `json:"type"`       // node.role, node.platform.os, etc.
+	Operator   string `json:"operator"`   // ==, !=
+	Value      string `json:"value"`
 }
 
 // RestartPolicy 重启策略
 type RestartPolicy string
 
 const (
-	RestartPolicyAlways    RestartPolicy = "Always"
-	RestartPolicyOnFailure RestartPolicy = "OnFailure"
-	RestartPolicyNever     RestartPolicy = "Never"
+	RestartPolicyAlways    RestartPolicy = "always"
+	RestartPolicyOnFailure RestartPolicy = "on-failure"
+	RestartPolicyUnlessStop RestartPolicy = "unless-stopped"
+	RestartPolicyNo        RestartPolicy = "no"
 )
 
-// PodSpec Pod规格 (用于请求)
-type PodSpec struct {
-	Containers   []ContainerSpec    `json:"containers"`
-	NodeSelector map[string]string  `json:"nodeSelector,omitempty"`
-}
-
-// DeploymentSpec 部署规格
-type DeploymentSpec struct {
-	Replicas int        `json:"replicas"`
-	Template PodTemplate `json:"template"`
-}
-
-// ServiceSpec 服务规格 (用于请求)
-type ServiceSpec struct {
-	Type      ServiceType       `json:"type"`
-	ClusterIP string            `json:"clusterIp,omitempty"`
-	Ports     []ServicePort     `json:"ports"`
-	Selector  map[string]string `json:"selector"`
-}
-
-type Network struct {
-	ID       string            `json:"id"`
-	Name     string            `json:"name"`
-	Driver   string            `json:"driver"`
-	Subnet   string            `json:"subnet"`
-	Gateway  string            `json:"gateway"`
-	Labels   map[string]string `json:"labels"`
-	CreatedAt time.Time        `json:"created_at"`
-}
-
-type Volume struct {
-	ID        string            `json:"id"`
-	Name      string            `json:"name"`
-	Driver    string            `json:"driver"`
-	Mountpoint string           `json:"mountpoint"`
-	Labels    map[string]string `json:"labels"`
-	Size      int64             `json:"size_bytes"`
-	CreatedAt time.Time         `json:"created_at"`
-}
-
-type Stack struct {
-	ID         string            `json:"id"`
+// NetworkConfig 网络配置
+type NetworkConfig struct {
 	Name       string            `json:"name"`
-	Services   []StackService    `json:"services"`
-	Networks   []string          `json:"networks"`
-	Volumes    []string          `json:"volumes"`
-	Status     string            `json:"status"`
-	Labels     map[string]string `json:"labels"`
-	CreatedAt  time.Time         `json:"created_at"`
-	UpdatedAt  time.Time         `json:"updated_at"`
+	Driver     string            `json:"driver"` // bridge, host, overlay, macvlan
+	Internal   bool              `json:"internal,omitempty"`
+	Attachable bool              `json:"attachable,omitempty"`
+	IPAM       *IPAMConfig       `json:"ipam,omitempty"`
+	Labels     map[string]string `json:"labels,omitempty"`
+	Options    map[string]string `json:"options,omitempty"`
 }
 
-type StackService struct {
-	Name      string            `json:"name"`
-	Image     string            `json:"image"`
-	Replicas  int               `json:"replicas"`
-	Ports     []PortMapping     `json:"ports"`
-	Env       map[string]string `json:"env"`
-	Volumes   []string          `json:"volumes"`
-	Networks  []string          `json:"networks"`
+// IPAMConfig IPAM 配置
+type IPAMConfig struct {
+	Driver string       `json:"driver,omitempty"`
+	Config []IPAMPool   `json:"config,omitempty"`
 }
 
-func NewContainerOrchManager(config *OrchConfig) *ContainerOrchManager {
-	if config == nil {
-		config = &OrchConfig{
-			DefaultRegistry: "docker.io",
-			AutoRestart:     true,
-			MaxContainers:   100,
-		}
-	}
-	return &ContainerOrchManager{
-		containers: make(map[string]*Container),
-		networks:   make(map[string]*Network),
-		volumes:    make(map[string]*Volume),
-		stacks:     make(map[string]*Stack),
-		config:     config,
-	}
+// IPAMPool IPAM 地址池
+type IPAMPool struct {
+	Subnet  string `json:"subnet"`
+	Gateway string `json:"gateway,omitempty"`
+	IPRange string `json:"ip_range,omitempty"`
 }
 
-func (m *ContainerOrchManager) CreateContainer(req *Container) (*Container, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if req.Name == "" {
-		return nil, fmt.Errorf("容器名称不能为空")
-	}
-	if req.Image == "" {
-		return nil, fmt.Errorf("镜像不能为空")
-	}
-
-	if len(m.containers) >= m.config.MaxContainers {
-		return nil, fmt.Errorf("已达到最大容器数量限制: %d", m.config.MaxContainers)
-	}
-
-	// 检查名称唯一性
-	for _, c := range m.containers {
-		if c.Name == req.Name {
-			return nil, fmt.Errorf("容器名称已存在: %s", req.Name)
-		}
-	}
-
-	req.ID = fmt.Sprintf("ctr_%d", time.Now().UnixNano())
-	req.Status = StatusCreated
-	req.State = "created"
-	req.CreatedAt = time.Now()
-	if req.Env == nil {
-		req.Env = make(map[string]string)
-	}
-	if req.Labels == nil {
-		req.Labels = make(map[string]string)
-	}
-
-	m.containers[req.ID] = req
-	return req, nil
+// VolumeConfig 卷配置
+type VolumeConfig struct {
+	Name       string            `json:"name"`
+	Driver     string            `json:"driver"` // local, nfs, cifs
+	DriverOpts map[string]string `json:"driver_opts,omitempty"`
+	Labels     map[string]string `json:"labels,omitempty"`
+	External   bool              `json:"external,omitempty"`
 }
 
-func (m *ContainerOrchManager) StartContainer(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+// ========== 日志聚合类型 ==========
 
-	ctr, exists := m.containers[id]
-	if !exists {
-		return fmt.Errorf("容器不存在: %s", id)
-	}
-
-	if ctr.Status == StatusRunning {
-		return fmt.Errorf("容器已在运行")
-	}
-
-	ctr.Status = StatusRunning
-	ctr.State = "running"
-	now := time.Now()
-	ctr.StartedAt = &now
-	return nil
-}
-
-func (m *ContainerOrchManager) StopContainer(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	ctr, exists := m.containers[id]
-	if !exists {
-		return fmt.Errorf("容器不存在: %s", id)
-	}
-
-	if ctr.Status == StatusStopped {
-		return fmt.Errorf("容器已停止")
-	}
-
-	ctr.Status = StatusStopped
-	ctr.State = "stopped"
-	now := time.Now()
-	ctr.FinishedAt = &now
-	return nil
-}
-
-func (m *ContainerOrchManager) RestartContainer(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	ctr, exists := m.containers[id]
-	if !exists {
-		return fmt.Errorf("容器不存在: %s", id)
-	}
-
-	ctr.Status = StatusRunning
-	ctr.State = "running"
-	ctr.RestartCount++
-	now := time.Now()
-	ctr.StartedAt = &now
-	return nil
-}
-
-func (m *ContainerOrchManager) RemoveContainer(id string, force bool) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	ctr, exists := m.containers[id]
-	if !exists {
-		return fmt.Errorf("容器不存在: %s", id)
-	}
-
-	if ctr.Status == StatusRunning && !force {
-		return fmt.Errorf("容器正在运行中，使用 force=true 强制删除")
-	}
-
-	delete(m.containers, id)
-	return nil
-}
-
-func (m *ContainerOrchManager) GetContainer(id string) (*Container, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	ctr, exists := m.containers[id]
-	if !exists {
-		return nil, fmt.Errorf("容器不存在: %s", id)
-	}
-	return ctr, nil
-}
-
-func (m *ContainerOrchManager) ListContainers() []*Container {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	ctrs := make([]*Container, 0, len(m.containers))
-	for _, c := range m.containers {
-		ctrs = append(ctrs, c)
-	}
-	return ctrs
-}
-
-func (m *ContainerOrchManager) CreateNetwork(net *Network) (*Network, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if net.Name == "" {
-		return nil, fmt.Errorf("网络名称不能为空")
-	}
-
-	for _, n := range m.networks {
-		if n.Name == net.Name {
-			return nil, fmt.Errorf("网络名称已存在: %s", net.Name)
-		}
-	}
-
-	net.ID = fmt.Sprintf("net_%d", time.Now().UnixNano())
-	net.CreatedAt = time.Now()
-	if net.Labels == nil {
-		net.Labels = make(map[string]string)
-	}
-
-	m.networks[net.ID] = net
-	return net, nil
-}
-
-func (m *ContainerOrchManager) ListNetworks() []*Network {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	nets := make([]*Network, 0, len(m.networks))
-	for _, n := range m.networks {
-		nets = append(nets, n)
-	}
-	return nets
-}
-
-func (m *ContainerOrchManager) RemoveNetwork(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.networks[id]; !exists {
-		return fmt.Errorf("网络不存在: %s", id)
-	}
-
-	delete(m.networks, id)
-	return nil
-}
-
-func (m *ContainerOrchManager) CreateVolume(vol *Volume) (*Volume, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if vol.Name == "" {
-		return nil, fmt.Errorf("卷名称不能为空")
-	}
-
-	for _, v := range m.volumes {
-		if v.Name == vol.Name {
-			return nil, fmt.Errorf("卷名称已存在: %s", vol.Name)
-		}
-	}
-
-	vol.ID = fmt.Sprintf("vol_%d", time.Now().UnixNano())
-	vol.CreatedAt = time.Now()
-	if vol.Labels == nil {
-		vol.Labels = make(map[string]string)
-	}
-
-	m.volumes[vol.ID] = vol
-	return vol, nil
-}
-
-func (m *ContainerOrchManager) ListVolumes() []*Volume {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	vols := make([]*Volume, 0, len(m.volumes))
-	for _, v := range m.volumes {
-		vols = append(vols, v)
-	}
-	return vols
-}
-
-func (m *ContainerOrchManager) RemoveVolume(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.volumes[id]; !exists {
-		return fmt.Errorf("卷不存在: %s", id)
-	}
-
-	delete(m.volumes, id)
-	return nil
-}
-
-func (m *ContainerOrchManager) DeployStack(stack *Stack) (*Stack, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if stack.Name == "" {
-		return nil, fmt.Errorf("栈名称不能为空")
-	}
-
-	for _, s := range m.stacks {
-		if s.Name == stack.Name {
-			return nil, fmt.Errorf("栈名称已存在: %s", stack.Name)
-		}
-	}
-
-	stack.ID = fmt.Sprintf("stack_%d", time.Now().UnixNano())
-	stack.Status = "deploying"
-	stack.CreatedAt = time.Now()
-	stack.UpdatedAt = time.Now()
-	if stack.Labels == nil {
-		stack.Labels = make(map[string]string)
-	}
-
-	m.stacks[stack.ID] = stack
-
-	// 模拟部署完成
-	go func() {
-		time.Sleep(1 * time.Second)
-		m.mu.Lock()
-		defer m.mu.Unlock()
-		stack.Status = "running"
-		stack.UpdatedAt = time.Now()
-	}()
-
-	return stack, nil
-}
-
-func (m *ContainerOrchManager) ListStacks() []*Stack {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	stacks := make([]*Stack, 0, len(m.stacks))
-	for _, s := range m.stacks {
-		stacks = append(stacks, s)
-	}
-	return stacks
-}
-
-func (m *ContainerOrchManager) RemoveStack(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	stack, exists := m.stacks[id]
-	if !exists {
-		return fmt.Errorf("栈不存在: %s", id)
-	}
-
-	if stack.Status == "running" {
-		return fmt.Errorf("栈正在运行中，请先停止")
-	}
-
-	delete(m.stacks, id)
-	return nil
-}
-
-func (m *ContainerOrchManager) GetStats() map[string]interface{} {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	running := 0
-	stopped := 0
-	for _, c := range m.containers {
-		if c.Status == StatusRunning {
-			running++
-		} else {
-			stopped++
-		}
-	}
-
-	return map[string]interface{}{
-		"total_containers": len(m.containers),
-		"running":          running,
-		"stopped":          stopped,
-		"networks":         len(m.networks),
-		"volumes":          len(m.volumes),
-		"stacks":           len(m.stacks),
-	}
-}
-
-// ========== Kubernetes 风格类型 ==========
-
-// Pod Pod定义
-type Pod struct {
-	mu           sync.RWMutex    `json:"-"`
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Namespace    string            `json:"namespace"`
-	DeploymentID string            `json:"deploymentId,omitempty"`
-	NodeID       string            `json:"nodeId,omitempty"`
-	HostIP       string            `json:"hostIp,omitempty"`
-	PodIP        string            `json:"podIp,omitempty"`
-	Phase        PodPhase          `json:"phase"`
-	Spec         PodSpec           `json:"spec"`
-	Labels       map[string]string `json:"labels,omitempty"`
-	Annotations  map[string]string `json:"annotations,omitempty"`
-	Containers   []*Container      `json:"containers"`
-	CreatedAt    time.Time         `json:"created_at"`
-	StartedAt    *time.Time        `json:"started_at,omitempty"`
-	FinishedAt   *time.Time        `json:"finished_at,omitempty"`
-	UpdatedAt    time.Time         `json:"updated_at"`
-}
-
-// PodPhase Pod阶段
-type PodPhase string
-
-const (
-	PodPending   PodPhase = "pending"
-	PodRunning   PodPhase = "running"
-	PodSucceeded PodPhase = "succeeded"
-	PodFailed    PodPhase = "failed"
-	PodUnknown   PodPhase = "unknown"
-)
-
-// PodStatus Pod状态 (兼容)
-type PodStatus = PodPhase
-
-// Deployment 部署定义
-type Deployment struct {
-	ID          string               `json:"id"`
-	Name        string               `json:"name"`
-	Namespace   string               `json:"namespace"`
-	Spec        DeploymentSpecData   `json:"spec"`
-	Labels      map[string]string    `json:"labels,omitempty"`
-	Annotations map[string]string    `json:"annotations,omitempty"`
-	Status      DeploymentStatusData `json:"status"`
-	CreatedAt   time.Time            `json:"created_at"`
-	UpdatedAt   time.Time            `json:"updated_at"`
-}
-
-// DeploymentSpecData 部署规格数据
-type DeploymentSpecData struct {
-	Replicas int                  `json:"replicas"`
-	Selector map[string]string    `json:"selector,omitempty"`
-	Template DeploymentTemplate   `json:"template"`
-}
-
-// DeploymentTemplate 部署模板
-type DeploymentTemplate struct {
-	Metadata TemplateMetadata `json:"metadata"`
-	Spec     PodSpecData      `json:"spec"`
-}
-
-// TemplateMetadata 模板元数据
-type TemplateMetadata struct {
+// LogEntry 日志条目
+type LogEntry struct {
+	Timestamp   time.Time         `json:"timestamp"`
+	Service     string            `json:"service"`
+	ContainerID string            `json:"container_id"`
+	Stream      string            `json:"stream"` // stdout, stderr
+	Message     string            `json:"message"`
 	Labels      map[string]string `json:"labels,omitempty"`
-	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
-// PodSpecData Pod规格数据
-type PodSpecData struct {
-	Containers []ContainerSpec `json:"containers"`
+// LogQuery 日志查询参数
+type LogQuery struct {
+	Services    []string  `json:"services,omitempty"`
+	Since       time.Time `json:"since,omitempty"`
+	Until       time.Time `json:"until,omitempty"`
+	Stream      string    `json:"stream,omitempty"` // stdout, stderr, all
+	Tail        int       `json:"tail,omitempty"`
+	Follow      bool      `json:"follow,omitempty"`
+	Timestamps  bool      `json:"timestamps,omitempty"`
+	Pattern     string    `json:"pattern,omitempty"`
+	Limit       int       `json:"limit,omitempty"`
 }
 
-// DeploymentStatusData 部署状态数据
-type DeploymentStatusData struct {
-	Replicas           int    `json:"replicas"`
-	ReadyReplicas      int    `json:"readyReplicas,omitempty"`
-	AvailableReplicas  int    `json:"availableReplicas,omitempty"`
-	Status             string `json:"status,omitempty"`
+// LogStream 日志流
+type LogStream struct {
+	Entries chan LogEntry `json:"-"`
+	Error   error        `json:"-"`
+	Close   func()       `json:"-"`
 }
 
-// DeploymentStatus 部署状态 (兼容)
-type DeploymentStatus = DeploymentStatusData
+// ========== 依赖排序类型 ==========
 
-const (
-	DeploymentStatusProgressing = "progressing"
-	DeploymentStatusAvailable   = "available"
-	DeploymentStatusFailed      = "failed"
-)
-
-// PodTemplate Pod模板
-type PodTemplate struct {
-	Metadata TemplateMetadata `json:"metadata"`
-	Spec     PodSpecData      `json:"spec"`
+// DependencyGraph 依赖图
+type DependencyGraph struct {
+	Nodes map[string]*DependencyNode
+	Edges map[string][]string // node -> dependencies
 }
 
-// ContainerSpec 容器规格
-type ContainerSpec struct {
-	Name      string               `json:"name"`
-	Image     string               `json:"image"`
-	Ports     []ContainerPort      `json:"ports,omitempty"`
-	Env       []EnvVar             `json:"env,omitempty"`
-	Resources *ResourceRequirements `json:"resources,omitempty"`
-	Volumes   []VolumeMount        `json:"volumes,omitempty"`
-	HealthCheck *HealthCheck       `json:"health_check,omitempty"`
+// DependencyNode 依赖节点
+type DependencyNode struct {
+	Name         string
+	Service      *ServiceConfig
+	Dependencies []string
+	Dependents   []string
+	Visited      bool
+	InStack      bool
 }
 
-// Service 服务定义
-type Service struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Namespace   string            `json:"namespace"`
-	Spec        ServiceSpecData   `json:"spec"`
-	Labels      map[string]string `json:"labels,omitempty"`
-	Annotations map[string]string `json:"annotations,omitempty"`
-	Status      ServiceStatus     `json:"status"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+// StartupOrder 启动顺序
+type StartupOrder struct {
+	Stages [][]string `json:"stages"` // 每个阶段可以并行启动的服务
+	Total  int        `json:"total"`
 }
 
-// ServiceSpecData 服务规格数据
-type ServiceSpecData struct {
-	Type      ServiceType   `json:"type"`
-	ClusterIP string        `json:"clusterIp,omitempty"`
-	Ports     []ServicePort `json:"ports"`
-	Selector  map[string]string `json:"selector"`
+// ========== 健康监控类型 ==========
+
+// HealthReport 健康报告
+type HealthReport struct {
+	ProjectID   string                    `json:"project_id"`
+	Timestamp   time.Time                 `json:"timestamp"`
+	Services    map[string]*ServiceHealth  `json:"services"`
+	Overall     HealthStatus               `json:"overall"`
+	Uptime      time.Duration              `json:"uptime"`
+	Issues      []HealthIssue              `json:"issues,omitempty"`
 }
 
-// ServiceType 服务类型
-type ServiceType string
-
-const (
-	ServiceTypeClusterIP    ServiceType = "ClusterIP"
-	ServiceTypeNodePort     ServiceType = "NodePort"
-	ServiceTypeLoadBalancer ServiceType = "LoadBalancer"
-	ServiceClusterIP        = ServiceTypeClusterIP
-)
-
-// ServiceStatus 服务状态
-type ServiceStatus string
-
-const (
-	ServiceStatusActive  ServiceStatus = "active"
-	ServiceStatusPending ServiceStatus = "pending"
-	ServiceStatusFailed  ServiceStatus = "failed"
-)
-
-// ServicePort 服务端口
-type ServicePort struct {
-	Name       string `json:"name"`
-	Port       int    `json:"port"`
-	TargetPort int    `json:"target_port"`
-	NodePort   int    `json:"node_port,omitempty"`
-	Protocol   string `json:"protocol"`
+// ServiceHealth 服务健康状态
+type ServiceHealth struct {
+	ServiceName string                   `json:"service_name"`
+	Status      HealthStatus             `json:"status"`
+	Instances   []InstanceHealth         `json:"instances"`
+	LastCheck   time.Time                `json:"last_check"`
+	Uptime      time.Duration            `json:"uptime"`
+	Restarts    int                      `json:"restarts"`
+	Issues      []HealthIssue            `json:"issues,omitempty"`
 }
 
-// ContainerPort 容器端口
-type ContainerPort struct {
-	Name          string `json:"name,omitempty"`
-	ContainerPort int    `json:"container_port"`
-	Protocol      string `json:"protocol,omitempty"`
+// InstanceHealth 实例健康状态
+type InstanceHealth struct {
+	ContainerID string       `json:"container_id"`
+	Status      HealthStatus `json:"status"`
+	CPU         float64      `json:"cpu_percent"`
+	Memory      int64        `json:"memory_bytes"`
+	Uptime      time.Duration `json:"uptime"`
+	Restarts    int          `json:"restarts"`
 }
 
-// EnvVar 环境变量
-type EnvVar struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+// HealthIssue 健康问题
+type HealthIssue struct {
+	Service     string    `json:"service"`
+	ContainerID string    `json:"container_id,omitempty"`
+	Type        string    `json:"type"` // unhealthy, high_cpu, high_memory, restart_loop, oom
+	Severity    string    `json:"severity"` // warning, critical
+	Message     string    `json:"message"`
+	Timestamp   time.Time `json:"timestamp"`
+	Resolved    bool      `json:"resolved"`
 }
 
-// ResourceRequirements 资源需求
-type ResourceRequirements struct {
-	Limits   ResourceList `json:"limits,omitempty"`
-	Requests ResourceList `json:"requests,omitempty"`
+// ========== 拓扑排序辅助类型 ==========
+
+// TopologicalSorter 拓扑排序器
+type TopologicalSorter struct {
+	graph    *DependencyGraph
+	result   []string
+	visited  map[string]bool
+	recStack map[string]bool
+	hasCycle bool
+	cyclePath []string
 }
 
-// ResourceList 资源列表
-type ResourceList struct {
-	CPU    string `json:"cpu,omitempty"`
-	Memory string `json:"memory,omitempty"`
+// ========== API 请求/响应类型 ==========
+
+// CreateProjectRequest 创建项目请求
+type CreateProjectRequest struct {
+	Name        string                    `json:"name" binding:"required"`
+	Description string                    `json:"description,omitempty"`
+	Namespace   string                    `json:"namespace"`
+	Services    map[string]*ServiceConfig `json:"services"`
+	Networks    map[string]*NetworkConfig `json:"networks,omitempty"`
+	Volumes     map[string]*VolumeConfig  `json:"volumes,omitempty"`
+	Labels      map[string]string         `json:"labels,omitempty"`
 }
 
-// VolumeMount 卷挂载
-type VolumeMount struct {
-	Name      string `json:"name"`
-	MountPath string `json:"mount_path"`
-	ReadOnly  bool   `json:"read_only,omitempty"`
+// UpdateProjectRequest 更新项目请求
+type UpdateProjectRequest struct {
+	Name        *string                    `json:"name,omitempty"`
+	Description *string                    `json:"description,omitempty"`
+	Services    map[string]*ServiceConfig  `json:"services,omitempty"`
+	Networks    map[string]*NetworkConfig  `json:"networks,omitempty"`
+	Volumes     map[string]*VolumeConfig   `json:"volumes,omitempty"`
+	Labels      map[string]string          `json:"labels,omitempty"`
 }
 
-// HealthCheck 健康检查
-type HealthCheck struct {
-	Type     string `json:"type"`     // http, tcp, exec
-	Path     string `json:"path,omitempty"`
-	Port     int    `json:"port,omitempty"`
-	Command  string `json:"command,omitempty"`
-	Interval int    `json:"interval_seconds,omitempty"`
-	Timeout  int    `json:"timeout_seconds,omitempty"`
+// ScaleServiceRequest 扩缩容请求
+type ScaleServiceRequest struct {
+	Replicas int  `json:"replicas" binding:"required,min=0"`
+	Force    bool `json:"force,omitempty"`
 }
 
-// ClusterStats 集群统计
-type ClusterStats struct {
-	mu               sync.RWMutex `json:"-"`
-	TotalPods        int          `json:"total_pods"`
-	PendingPods      int          `json:"pending_pods"`
-	RunningPods      int          `json:"running_pods"`
-	SucceededPods    int          `json:"succeeded_pods"`
-	FailedPods       int          `json:"failed_pods"`
-	TotalServices    int          `json:"total_services"`
-	TotalDeployments int          `json:"total_deployments"`
-	TotalContainers  int          `json:"total_containers"`
-	LastUpdated      time.Time    `json:"last_updated"`
+// UpdateHealthCheckRequest 更新健康检查请求
+type UpdateHealthCheckRequest struct {
+	ServiceName string             `json:"service_name" binding:"required"`
+	HealthCheck *HealthCheckConfig `json:"health_check" binding:"required"`
 }
 
-// GetSnapshot 获取统计快照
-func (s *ClusterStats) GetSnapshot() *ClusterStats {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return &ClusterStats{
-		TotalPods:        s.TotalPods,
-		PendingPods:      s.PendingPods,
-		RunningPods:      s.RunningPods,
-		SucceededPods:    s.SucceededPods,
-		FailedPods:       s.FailedPods,
-		TotalServices:    s.TotalServices,
-		TotalDeployments: s.TotalDeployments,
-		TotalContainers:  s.TotalContainers,
-		LastUpdated:      s.LastUpdated,
-	}
+// UpdateResourceLimitsRequest 更新资源限制请求
+type UpdateResourceLimitsRequest struct {
+	ServiceName string          `json:"service_name" binding:"required"`
+	Resources   *ResourceLimits `json:"resources" binding:"required"`
 }
 
-// ==================== 类型转换函数 ====================
-
-// podSpecToDeploymentTemplate 将 PodSpec 转换为 DeploymentTemplate
-func podSpecToDeploymentTemplate(spec PodSpec) DeploymentTemplate {
-	containers := make([]ContainerSpec, len(spec.Containers))
-	copy(containers, spec.Containers)
-	return DeploymentTemplate{
-		Spec: PodSpecData{
-			Containers: containers,
-		},
-	}
+// UpdateAutoScaleRequest 更新自动扩缩容请求
+type UpdateAutoScaleRequest struct {
+	ServiceName string          `json:"service_name" binding:"required"`
+	AutoScale   *AutoScalePolicy `json:"auto_scale" binding:"required"`
 }
 
-// deploymentSpecToData 将 DeploymentSpec 转换为 DeploymentSpecData
-func deploymentSpecToData(spec DeploymentSpec) DeploymentSpecData {
-	return DeploymentSpecData{
-		Replicas: spec.Replicas,
-		Template: DeploymentTemplate{
-			Metadata: spec.Template.Metadata,
-			Spec:     spec.Template.Spec,
-		},
-	}
+// ProjectStats 项目统计
+type ProjectStats struct {
+	ProjectID      string        `json:"project_id"`
+	TotalServices  int           `json:"total_services"`
+	RunningServices int          `json:"running_services"`
+	TotalInstances int           `json:"total_instances"`
+	RunningInstances int         `json:"running_instances"`
+	TotalCPU       float64       `json:"total_cpu_percent"`
+	TotalMemory    int64         `json:"total_memory_bytes"`
+	Uptime         time.Duration `json:"uptime"`
 }
 
-// podSpecDataToPodSpec 将 PodSpecData 转换为 PodSpec
-func podSpecDataToPodSpec(data PodSpecData) PodSpec {
-	containers := make([]ContainerSpec, len(data.Containers))
-	copy(containers, data.Containers)
-	return PodSpec{
-		Containers: containers,
-	}
+// AutoScaleEvent 扩缩容事件
+type AutoScaleEvent struct {
+	ID          string    `json:"id"`
+	ProjectID   string    `json:"project_id"`
+	ServiceName string    `json:"service_name"`
+	Action      string    `json:"action"` // scale_up, scale_down
+	From        int       `json:"from"`
+	To          int       `json:"to"`
+	Reason      string    `json:"reason"`
+	Timestamp   time.Time `json:"timestamp"`
+	Success     bool      `json:"success"`
+	Error       string    `json:"error,omitempty"`
 }
 
-// serviceSpecToData 将 ServiceSpec 转换为 ServiceSpecData
-func serviceSpecToData(spec ServiceSpec) ServiceSpecData {
-	ports := make([]ServicePort, len(spec.Ports))
-	copy(ports, spec.Ports)
-	selector := make(map[string]string)
-	for k, v := range spec.Selector {
-		selector[k] = v
-	}
-	return ServiceSpecData{
-		Type:      spec.Type,
-		ClusterIP: spec.ClusterIP,
-		Ports:     ports,
-		Selector:  selector,
-	}
+// ContainerMetrics 容器指标
+type ContainerMetrics struct {
+	ContainerID string    `json:"container_id"`
+	ServiceName string    `json:"service_name"`
+	Timestamp   time.Time `json:"timestamp"`
+	CPU         CPUMetrics `json:"cpu"`
+	Memory      MemoryMetrics `json:"memory"`
+	Network     NetworkMetrics `json:"network"`
+	IO          IOMetrics  `json:"io"`
+}
+
+// CPUMetrics CPU 指标
+type CPUMetrics struct {
+	Percent float64 `json:"percent"`
+	Usage   int64   `json:"usage"`
+	System  int64   `json:"system"`
+	ThrottlePeriods int `json:"throttle_periods"`
+	ThrottleTime    int `json:"throttle_time"`
+}
+
+// MemoryMetrics 内存指标
+type MemoryMetrics struct {
+	Usage     int64   `json:"usage"`
+	MaxUsage  int64   `json:"max_usage"`
+	Limit     int64   `json:"limit"`
+	Percent   float64 `json:"percent"`
+	Cache     int64   `json:"cache"`
+	RSS       int64   `json:"rss"`
+	Swap      int64   `json:"swap"`
+}
+
+// NetworkMetrics 网络指标
+type NetworkMetrics struct {
+	RxBytes   int64 `json:"rx_bytes"`
+	TxBytes   int64 `json:"tx_bytes"`
+	RxPackets int64 `json:"rx_packets"`
+	TxPackets int64 `json:"tx_packets"`
+	RxErrors  int64 `json:"rx_errors"`
+	TxErrors  int64 `json:"tx_errors"`
+	RxDropped int64 `json:"rx_dropped"`
+	TxDropped int64 `json:"tx_dropped"`
+}
+
+// IOMetrics IO 指标
+type IOMetrics struct {
+	ReadBytes  int64 `json:"read_bytes"`
+	WriteBytes int64 `json:"write_bytes"`
+	ReadOps    int64 `json:"read_ops"`
+	WriteOps   int64 `json:"write_ops"`
 }

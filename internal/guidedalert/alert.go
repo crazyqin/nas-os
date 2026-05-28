@@ -1,335 +1,270 @@
 // Package guidedalert 提供引导式告警系统
-// 对标 TrueNAS 26 Guided Alerts
-// 每条告警附带排查步骤、修复引导、根因分析，菜单指示器引导用户
 package guidedalert
 
 import (
 	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 )
 
-// AlertSeverity 告警等级
-type AlertSeverity string
-
-const (
-	SeverityInfo     AlertSeverity = "info"
-	SeverityWarning  AlertSeverity = "warning"
-	SeverityCritical AlertSeverity = "critical"
-	SeverityFatal    AlertSeverity = "fatal"
-)
-
-// AlertStatus 告警状态
-type AlertStatus string
-
-const (
-	StatusOpen       AlertStatus = "open"
-	StatusAcknowledged AlertStatus = "acknowledged"
-	StatusInProgress AlertStatus = "in_progress"
-	StatusResolved   AlertStatus = "resolved"
-	StatusSuppressed AlertStatus = "suppressed"
-)
-
-// GuidedStep 引导步骤
-type GuidedStep struct {
-	StepNumber    int    `json:"stepNumber"`
-	Title         string `json:"title"`
-	Description   string `json:"description"`
-	Action        string `json:"action"`        // CLI命令或API调用
-	ExpectedResult string `json:"expectedResult"` // 期望结果
-	IsOptional    bool   `json:"isOptional"`
-	AutoFix       bool   `json:"autoFix"`       // 是否支持自动修复
-}
-
-// RootCause 根因分析
-type RootCause struct {
-	Pattern     string  `json:"pattern"`     // 匹配模式
-	Probability float64 `json:"probability"` // 可能性百分比
-	Category    string  `json:"category"`    // hardware|software|config|network
-	Description string  `json:"description"`
-	Fix         string  `json:"fix"`
-}
-
-// GuidedAlert 引导式告警
-type GuidedAlert struct {
-	ID            string        `json:"id"`
-	Code          string        `json:"code"`          // 告警代码如 SMART_WARN
-	Title         string        `json:"title"`
-	Message       string        `json:"message"`
-	Severity      AlertSeverity `json:"severity"`
-	Status        AlertStatus   `json:"status"`
-	Source        string        `json:"source"`        // 来源模块
-	Component     string        `json:"component"`     // 组件 disk|pool|network|service
-	ResourceID    string        `json:"resourceId"`    // 关联资源ID
-	MenuPath      []string      `json:"menuPath"`      // 菜单路径，用于UI导航 ["存储", "磁盘管理", "sda"]
-	GuidedSteps   []GuidedStep  `json:"guidedSteps"`   // 排查引导步骤
-	RootCauses    []RootCause   `json:"rootCauses"`    // 根因分析
-	DocsURL       string        `json:"docsUrl"`       // 相关文档URL
-	CreatedAt     time.Time     `json:"createdAt"`
-	UpdatedAt     time.Time     `json:"updatedAt"`
-	ResolvedAt    *time.Time    `json:"resolvedAt,omitempty"`
-	AckedBy       string        `json:"ackedBy,omitempty"`
-	AutoFixable   bool          `json:"autoFixable"`   // 是否支持自动修复
-}
-
-// AlertRule 告警规则
-type AlertRule struct {
-	Code        string        `json:"code"`
-	Title       string        `json:"title"`
-	Severity    AlertSeverity `json:"severity"`
-	Component   string        `json:"component"`
-	GuidedSteps []GuidedStep  `json:"guidedSteps"`
-	RootCauses  []RootCause   `json:"rootCauses"`
-	DocsURL     string        `json:"docsUrl"`
-	AutoFixable bool          `json:"autoFixable"`
-	MenuPathFn  func(resourceID string) []string `json:"-"` // 动态菜单路径
-}
-
-// GuidedAlertManager 引导告警管理器
-type GuidedAlertManager struct {
+// Manager 引导式告警管理器
+type Manager struct {
 	alerts  map[string]*GuidedAlert
 	rules   map[string]*AlertRule
 	mu      sync.RWMutex
 	counter int64
+	logger  *slog.Logger
 }
 
 // NewManager 创建管理器
-func NewManager() *GuidedAlertManager {
-	m := &GuidedAlertManager{
+func NewManager(logger *slog.Logger) *Manager {
+	if logger == nil {
+		logger = slog.Default()
+	}
+	m := &Manager{
 		alerts: make(map[string]*GuidedAlert),
 		rules:  make(map[string]*AlertRule),
+		logger: logger,
 	}
 	m.registerBuiltinRules()
 	return m
 }
 
 // RegisterRule 注册告警规则
-func (m *GuidedAlertManager) RegisterRule(rule *AlertRule) {
+func (m *Manager) RegisterRule(rule *AlertRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.rules[rule.Code] = rule
+	m.rules[rule.Name] = rule
+	m.logger.Info("registered alert rule", "name", rule.Name)
 }
 
 // Fire 触发告警
-func (m *GuidedAlertManager) Fire(code, message, resourceID string) *GuidedAlert {
+func (m *Manager) Fire(ruleName, message string) *GuidedAlert {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	rule, ok := m.rules[code]
-	if !ok {
-		// 未知告警代码，创建基础告警
+
+	rule, exists := m.rules[ruleName]
+	if !exists {
+		m.logger.Warn("unknown rule, creating basic alert", "rule", ruleName)
 		m.counter++
 		alert := &GuidedAlert{
 			ID:        fmt.Sprintf("GA-%d", m.counter),
-			Code:      code,
-			Title:     code,
+			Title:     ruleName,
 			Message:   message,
 			Severity:  SeverityWarning,
-			Status:    StatusOpen,
-			Component: "unknown",
+			Category:  CategoryStorage,
 			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
 		}
 		m.alerts[alert.ID] = alert
 		return alert
 	}
-	// 检查是否已存在相同资源的同类型告警
-	for _, existing := range m.alerts {
-		if existing.Code == code && existing.ResourceID == resourceID && existing.Status != StatusResolved {
-			existing.Message = message
-			existing.UpdatedAt = time.Now()
-			return existing
-		}
-	}
+
 	m.counter++
-	var menuPath []string
-	if rule.MenuPathFn != nil {
-		menuPath = rule.MenuPathFn(resourceID)
-	}
 	alert := &GuidedAlert{
-		ID:            fmt.Sprintf("GA-%d", m.counter),
-		Code:          code,
-		Title:         rule.Title,
-		Message:       message,
-		Severity:      rule.Severity,
-		Status:        StatusOpen,
-		Component:     rule.Component,
-		ResourceID:    resourceID,
-		MenuPath:      menuPath,
-		GuidedSteps:   rule.GuidedSteps,
-		RootCauses:    rule.RootCauses,
-		DocsURL:       rule.DocsURL,
-		AutoFixable:   rule.AutoFixable,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		ID:                   fmt.Sprintf("GA-%d", m.counter),
+		Title:                rule.Name,
+		Message:              message,
+		Severity:             rule.Severity,
+		Category:             rule.Category,
+		CreatedAt:            time.Now(),
+		TroubleshootingGuide: rule.TroubleshootingGuide,
 	}
 	m.alerts[alert.ID] = alert
+
+	// 告警关联分析
+	m.correlateAlerts(alert)
+
+	m.logger.Info("alert fired",
+		"id", alert.ID,
+		"rule", ruleName,
+		"severity", alert.Severity,
+		"category", alert.Category,
+	)
 	return alert
 }
 
+// correlateAlerts 关联分析：同类别未确认告警合并
+func (m *Manager) correlateAlerts(newAlert *GuidedAlert) {
+	for _, existing := range m.alerts {
+		if existing.ID == newAlert.ID {
+			continue
+		}
+		if existing.Category == newAlert.Category && !existing.Acknowledged {
+			newAlert.RelatedAlertIDs = append(newAlert.RelatedAlertIDs, existing.ID)
+			existing.RelatedAlertIDs = append(existing.RelatedAlertIDs, newAlert.ID)
+		}
+	}
+}
+
 // Acknowledge 确认告警
-func (m *GuidedAlertManager) Acknowledge(id, user string) error {
+func (m *Manager) Acknowledge(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	alert, ok := m.alerts[id]
 	if !ok {
 		return fmt.Errorf("alert %s not found", id)
 	}
-	alert.Status = StatusAcknowledged
-	alert.AckedBy = user
-	alert.UpdatedAt = time.Now()
+	alert.Acknowledged = true
+	m.logger.Info("alert acknowledged", "id", id)
 	return nil
 }
 
-// Resolve 解决告警
-func (m *GuidedAlertManager) Resolve(id string) error {
+// Silence 静音告警
+func (m *Manager) Silence(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	alert, ok := m.alerts[id]
 	if !ok {
 		return fmt.Errorf("alert %s not found", id)
 	}
-	now := time.Now()
-	alert.Status = StatusResolved
-	alert.ResolvedAt = &now
-	alert.UpdatedAt = now
+	alert.Silenced = true
+	m.logger.Info("alert silenced", "id", id)
 	return nil
-}
-
-// List 获取告警列表
-func (m *GuidedAlertManager) List(status AlertStatus, severity AlertSeverity) []*GuidedAlert {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	var result []*GuidedAlert
-	for _, alert := range m.alerts {
-		if status != "" && alert.Status != status {
-			continue
-		}
-		if severity != "" && alert.Severity != severity {
-			continue
-		}
-		result = append(result, alert)
-	}
-	return result
 }
 
 // Get 获取单个告警
-func (m *GuidedAlertManager) Get(id string) (*GuidedAlert, bool) {
+func (m *Manager) Get(id string) (*GuidedAlert, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	alert, ok := m.alerts[id]
 	return alert, ok
 }
 
-// MenuIndicator 菜单指示器
-type MenuIndicator struct {
-	Path       []string `json:"path"`       // 菜单路径
-	AlertCount int      `json:"alertCount"` // 告警数量
-	MaxSeverity AlertSeverity `json:"maxSeverity"` // 最严重等级
-}
-
-// GetMenuIndicators 获取菜单指示器（UI用）
-func (m *GuidedAlertManager) GetMenuIndicators() []MenuIndicator {
+// List 获取告警列表
+func (m *Manager) List() []*GuidedAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	indicators := make(map[string]*MenuIndicator)
+	result := make([]*GuidedAlert, 0, len(m.alerts))
 	for _, alert := range m.alerts {
-		if alert.Status == StatusResolved || alert.Status == StatusSuppressed {
-			continue
-		}
-		if len(alert.MenuPath) == 0 {
-			continue
-		}
-		key := ""
-		for _, p := range alert.MenuPath {
-			key += p + "/"
-		}
-		ind, ok := indicators[key]
-		if !ok {
-			ind = &MenuIndicator{Path: alert.MenuPath}
-			indicators[key] = ind
-		}
-		ind.AlertCount++
-		if severityOrder(alert.Severity) > severityOrder(ind.MaxSeverity) {
-			ind.MaxSeverity = alert.Severity
-		}
-	}
-	result := make([]MenuIndicator, 0, len(indicators))
-	for _, ind := range indicators {
-		result = append(result, *ind)
+		result = append(result, alert)
 	}
 	return result
 }
 
-func severityOrder(s AlertSeverity) int {
-	switch s {
-	case SeverityInfo:
-		return 0
-	case SeverityWarning:
-		return 1
-	case SeverityCritical:
-		return 2
-	case SeverityFatal:
-		return 3
-	default:
-		return -1
+// Summary 获取告警汇总
+func (m *Manager) Summary() *AlertSummary {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	summary := &AlertSummary{
+		ByCategory: make(map[Category]int),
+		BySeverity: make(map[Severity]int),
 	}
+	for _, alert := range m.alerts {
+		summary.Total++
+		summary.ByCategory[alert.Category]++
+		summary.BySeverity[alert.Severity]++
+	}
+	return summary
+}
+
+// GetRules 获取所有规则
+func (m *Manager) GetRules() []*AlertRule {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	result := make([]*AlertRule, 0, len(m.rules))
+	for _, rule := range m.rules {
+		result = append(result, rule)
+	}
+	return result
 }
 
 // registerBuiltinRules 注册内置告警规则
-func (m *GuidedAlertManager) registerBuiltinRules() {
-	m.rules["SMART_WARNING"] = &AlertRule{
-		Code:      "SMART_WARNING",
-		Title:     "磁盘SMART健康告警",
-		Severity:  SeverityWarning,
-		Component: "disk",
-		GuidedSteps: []GuidedStep{
-			{StepNumber: 1, Title: "查看磁盘详情", Description: "检查SMART详细指标", Action: "smartctl -a /dev/{disk}", ExpectedResult: "查看Reallocated_Sector_Ct等关键指标"},
-			{StepNumber: 2, Title: "运行自检", Description: "执行磁盘短自检", Action: "smartctl -t short /dev/{disk}", ExpectedResult: "自检应在2分钟内完成"},
-			{StepNumber: 3, Title: "检查日志", Description: "查看系统日志中的磁盘错误", Action: "dmesg | grep {disk}", ExpectedResult: "无I/O error或坏扇区记录"},
-			{StepNumber: 4, Title: "备份数据", Description: "立即备份该磁盘上的重要数据", IsOptional: false},
-			{StepNumber: 5, Title: "更换磁盘", Description: "如坏扇区持续增长，准备更换磁盘", IsOptional: true},
-		},
-		RootCauses: []RootCause{
-			{Pattern: "Reallocated_Sector_Ct", Probability: 80, Category: "hardware", Description: "磁盘坏扇区重分配，磁盘即将故障", Fix: "更换磁盘"},
-			{Pattern: "Current_Pending_Sector", Probability: 60, Category: "hardware", Description: "待处理坏扇区", Fix: "运行长自检尝试修复，持续增长则更换"},
-			{Pattern: "UDMA_CRC_Error_Count", Probability: 30, Category: "hardware", Description: "SATA线缆或接口问题", Fix: "更换SATA线缆"},
-		},
-		AutoFixable: false,
-		MenuPathFn: func(resourceID string) []string {
-			return []string{"存储", "磁盘管理", resourceID}
+func (m *Manager) registerBuiltinRules() {
+	m.rules["smart_warning"] = &AlertRule{
+		Name:     "smart_warning",
+		Condition: "disk SMART health check failed",
+		Severity: SeverityWarning,
+		Category: CategoryHardware,
+		TroubleshootingGuide: &TroubleshootingGuide{
+			Title:       "磁盘SMART健康告警排查",
+			Description: "磁盘SMART检测到潜在问题，需要及时处理",
+			Steps: []TroubleshootingStep{
+				{Order: 1, Description: "查看磁盘SMART详情", Command: "smartctl -a /dev/sdX", ExpectedResult: "检查Reallocated_Sector_Ct等指标"},
+				{Order: 2, Description: "运行磁盘短自检", Command: "smartctl -t short /dev/sdX", ExpectedResult: "自检应在2分钟内完成"},
+				{Order: 3, Description: "检查系统日志", Command: "dmesg | grep sdX", ExpectedResult: "无I/O error记录"},
+				{Order: 4, Description: "备份重要数据", ExpectedResult: "数据已安全备份"},
+			},
+			DocsURL: "https://docs.nas-os.com/guides/smart-monitoring",
 		},
 	}
 
-	m.rules["POOL_DEGRADED"] = &AlertRule{
-		Code:      "POOL_DEGRADED",
-		Title:     "存储池降级",
-		Severity:  SeverityCritical,
-		Component: "pool",
-		GuidedSteps: []GuidedStep{
-			{StepNumber: 1, Title: "检查池状态", Description: "查看存储池详细状态", Action: "zpool status {pool}", ExpectedResult: "查看DEGRADED设备"},
-			{StepNumber: 2, Title: "替换故障设备", Description: "如有备用盘，执行替换", Action: "zpool replace {pool} {old} {new}", ExpectedResult: "池开始 resilver"},
-			{StepNumber: 3, Title: "监控Resilver", Description: "等待数据重建完成", Action: "zpool status {pool}", ExpectedResult: "resilver完成，状态变为ONLINE"},
-		},
-		AutoFixable: false,
-		MenuPathFn: func(resourceID string) []string {
-			return []string{"存储", "存储池管理", resourceID}
+	m.rules["pool_degraded"] = &AlertRule{
+		Name:     "pool_degraded",
+		Condition: "storage pool status is DEGRADED",
+		Severity: SeverityCritical,
+		Category: CategoryStorage,
+		TroubleshootingGuide: &TroubleshootingGuide{
+			Title:       "存储池降级排查",
+			Description: "存储池处于降级状态，数据冗余受损",
+			Steps: []TroubleshootingStep{
+				{Order: 1, Description: "检查池状态", Command: "zpool status tank", ExpectedResult: "查看DEGRADED设备"},
+				{Order: 2, Description: "替换故障设备", Command: "zpool replace tank old new", ExpectedResult: "池开始resilver"},
+				{Order: 3, Description: "监控重建进度", Command: "zpool status tank", ExpectedResult: "resilver完成后状态ONLINE"},
+			},
 		},
 	}
 
-	m.rules["DISK_SPACE_LOW"] = &AlertRule{
-		Code:      "DISK_SPACE_LOW",
-		Title:     "磁盘空间不足",
-		Severity:  SeverityWarning,
-		Component: "storage",
-		GuidedSteps: []GuidedStep{
-			{StepNumber: 1, Title: "查看使用情况", Description: "检查各目录占用", Action: "df -h && du -sh /*", ExpectedResult: "定位大文件和目录"},
-			{StepNumber: 2, Title: "清理临时文件", Description: "删除不必要的临时文件", Action: "rm -rf /tmp/* /var/tmp/*", AutoFix: true},
-			{StepNumber: 3, Title: "清理Docker", Description: "清理未使用的Docker资源", Action: "docker system prune -af", AutoFix: true},
-			{StepNumber: 4, Title: "扩容存储", Description: "如需更多空间，考虑扩容", IsOptional: true},
+	m.rules["disk_space_low"] = &AlertRule{
+		Name:     "disk_space_low",
+		Condition: "disk usage exceeds 90%",
+		Severity: SeverityWarning,
+		Category: CategoryStorage,
+		TroubleshootingGuide: &TroubleshootingGuide{
+			Title:       "磁盘空间不足排查",
+			Description: "存储空间即将耗尽，需要清理或扩容",
+			Steps: []TroubleshootingStep{
+				{Order: 1, Description: "查看空间使用", Command: "df -h", ExpectedResult: "定位高占用分区"},
+				{Order: 2, Description: "查找大文件", Command: "du -sh /* | sort -rh | head", ExpectedResult: "找到占用空间最大的目录"},
+				{Order: 3, Description: "清理临时文件", Command: "rm -rf /tmp/* /var/tmp/*", ExpectedResult: "释放临时空间"},
+			},
 		},
-		AutoFixable: true,
-		MenuPathFn: func(resourceID string) []string {
-			return []string{"存储", "存储池管理"}
+	}
+
+	m.rules["network_down"] = &AlertRule{
+		Name:     "network_down",
+		Condition: "network interface is down",
+		Severity: SeverityCritical,
+		Category: CategoryNetwork,
+		TroubleshootingGuide: &TroubleshootingGuide{
+			Title:       "网络连接故障排查",
+			Description: "网络接口断开，需要检查物理连接和配置",
+			Steps: []TroubleshootingStep{
+				{Order: 1, Description: "检查接口状态", Command: "ip link show", ExpectedResult: "查看接口是否UP"},
+				{Order: 2, Description: "检查网线连接", ExpectedResult: "确认网线插好"},
+				{Order: 3, Description: "重启网络服务", Command: "systemctl restart networking", ExpectedResult: "服务重启成功"},
+			},
+		},
+	}
+
+	m.rules["high_cpu"] = &AlertRule{
+		Name:     "high_cpu",
+		Condition: "CPU usage exceeds 90% for 5 minutes",
+		Severity: SeverityWarning,
+		Category: CategoryPerformance,
+		TroubleshootingGuide: &TroubleshootingGuide{
+			Title:       "CPU高负载排查",
+			Description: "CPU持续高负载，需要排查占用进程",
+			Steps: []TroubleshootingStep{
+				{Order: 1, Description: "查看CPU占用", Command: "top -bn1 | head -20", ExpectedResult: "找到高占用进程"},
+				{Order: 2, Description: "检查进程详情", Command: "ps aux --sort=-%cpu | head", ExpectedResult: "确认进程是否正常"},
+			},
+		},
+	}
+
+	m.rules["security_breach"] = &AlertRule{
+		Name:     "security_breach",
+		Condition: "suspicious login attempts detected",
+		Severity: SeverityCritical,
+		Category: CategorySecurity,
+		TroubleshootingGuide: &TroubleshootingGuide{
+			Title:       "安全告警排查",
+			Description: "检测到可疑登录尝试，需要检查安全状态",
+			Steps: []TroubleshootingStep{
+				{Order: 1, Description: "查看登录日志", Command: "journalctl -u sshd | grep Failed", ExpectedResult: "分析失败登录来源"},
+				{Order: 2, Description: "检查防火墙", Command: "iptables -L -n", ExpectedResult: "确认规则正确"},
+				{Order: 3, Description: "封禁可疑IP", Command: "iptables -A INPUT -s x.x.x.x -j DROP", ExpectedResult: "阻止恶意访问"},
+			},
 		},
 	}
 }

@@ -1,1060 +1,794 @@
-// Package datalifecycle 数据生命周期管理模块
+// Package datalifecycle - 数据生命周期管理器
+// 支持数据归档、数据迁移、数据清理策略、自动分层存储
 package datalifecycle
 
 import (
-	"context"
 	"fmt"
-	"path/filepath"
-	"sort"
-	"strings"
+	"log"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
-	"go.uber.org/zap"
 )
 
-// ========== 每层级每 GB 月度成本（元） ==========
-
-var tierCostPerGB = map[Tier]float64{
-	TierHot:     0.50,
-	TierWarm:    0.20,
-	TierCold:    0.08,
-	TierArchive: 0.03,
-}
-
-// Manager 数据生命周期管理器.
+// Manager 数据生命周期管理器
 type Manager struct {
-	mu        sync.RWMutex
-	auditMu   sync.Mutex
-	store     Store
-	logger    *zap.Logger
-	policies  map[string]*LifecyclePolicy
-	retPolicies map[string]*RetentionPolicy
-	lineages  map[string]*DataLineage
-	items     map[string]*DataItem
-	audits    []*AuditEvent
-	costSugs  []*CostSuggestion
-	migrations []*MigrationRecord
-	running   bool
-	stopCh    chan struct{}
+	mu sync.RWMutex
+
+	// 策略管理
+	policies map[string]*LifecyclePolicy
+
+	// 数据记录
+	records map[string]*DataRecord
+
+	// 合规保留
+	holds map[string]*ComplianceHold
+
+	// 迁移任务
+	migrations map[string]*DataMigration
+
+	// 销毁记录
+	destructions map[string]*DestructionRecord
+
+	// 策略模板
+	templates map[string]*PolicyTemplate
+
+	// 审计日志
+	auditLog []LifecycleAuditEntry
+
+	// 模块状态
+	enabled bool
 }
 
-// NewManager 创建数据生命周期管理器.
-func NewManager(store Store, logger *zap.Logger) *Manager {
-	if logger == nil {
-		logger = zap.NewNop()
-	}
+// NewManager 创建数据生命周期管理器
+func NewManager() *Manager {
 	return &Manager{
-		store:       store,
-		logger:      logger,
-		policies:    make(map[string]*LifecyclePolicy),
-		retPolicies: make(map[string]*RetentionPolicy),
-		lineages:    make(map[string]*DataLineage),
-		items:       make(map[string]*DataItem),
-		audits:      make([]*AuditEvent, 0),
-		costSugs:    make([]*CostSuggestion, 0),
-		migrations:  make([]*MigrationRecord, 0),
-		stopCh:      make(chan struct{}),
+		policies:     make(map[string]*LifecyclePolicy),
+		records:      make(map[string]*DataRecord),
+		holds:        make(map[string]*ComplianceHold),
+		migrations:   make(map[string]*DataMigration),
+		destructions: make(map[string]*DestructionRecord),
+		templates:    make(map[string]*PolicyTemplate),
+		auditLog:     make([]LifecycleAuditEntry, 0),
+		enabled:      true,
 	}
 }
 
-// Start 启动管理器.
-func (m *Manager) Start() {
-	m.mu.Lock()
-	if m.running {
-		m.mu.Unlock()
-		return
-	}
-	m.running = true
-	m.mu.Unlock()
+// ============================================================
+// 策略管理
+// ============================================================
 
-	m.logger.Info("datalifecycle manager started")
-}
-
-// Stop 停止管理器.
-func (m *Manager) Stop() {
+// CreatePolicy 创建生命周期策略
+func (m *Manager) CreatePolicy(policy LifecyclePolicy) (*LifecyclePolicy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	if !m.running {
-		return
+	if policy.ID == "" {
+		policy.ID = uuid.New().String()
 	}
-	m.running = false
-	close(m.stopCh)
-	m.logger.Info("datalifecycle manager stopped")
+
+	if _, exists := m.policies[policy.ID]; exists {
+		return nil, fmt.Errorf("策略 %s 已存在", policy.ID)
+	}
+
+	policy.CreatedAt = time.Now()
+	policy.UpdatedAt = time.Now()
+	m.policies[policy.ID] = &policy
+
+	m.addAuditEntry("create_policy", policy.ID, fmt.Sprintf("创建策略: %s", policy.Name), true)
+
+	log.Printf("[数据生命周期] 创建策略: %s - %s", policy.ID, policy.Name)
+	return &policy, nil
 }
 
-// ========== 生命周期策略管理 ==========
+// GetPolicy 获取策略
+func (m *Manager) GetPolicy(id string) (*LifecyclePolicy, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 
-// CreatePolicy 创建生命周期策略.
-func (m *Manager) CreatePolicy(req CreatePolicyRequest) (*LifecyclePolicy, error) {
-	// 验证动作
-	for _, a := range req.Actions {
-		if !IsValidAction(a.Type) {
-			return nil, ErrInvalidAction
-		}
-		if a.Type == ActionTierDown || a.Type == ActionTierUp {
-			if !IsValidTier(a.TargetTier) {
-				return nil, ErrInvalidTier
-			}
-		}
+	policy, exists := m.policies[id]
+	if !exists {
+		return nil, fmt.Errorf("策略 %s 不存在", id)
 	}
-	if req.SourceTier != "" && !IsValidTier(req.SourceTier) {
-		return nil, ErrInvalidTier
-	}
-
-	now := time.Now()
-	policy := &LifecyclePolicy{
-		ID:          uuid.New().String(),
-		Name:        req.Name,
-		Description: req.Description,
-		Enabled:     req.Enabled,
-		Priority:    req.Priority,
-		PathPattern: req.PathPattern,
-		Extensions:  req.Extensions,
-		MinSize:     req.MinSize,
-		MaxSize:     req.MaxSize,
-		Tags:        req.Tags,
-		SourceTier:  req.SourceTier,
-		TriggerDays: req.TriggerDays,
-		Schedule:    req.Schedule,
-		Actions:     req.Actions,
-		CreatedAt:   now,
-		UpdatedAt:   now,
-	}
-
-	m.mu.Lock()
-	m.policies[policy.ID] = policy
-	m.mu.Unlock()
-
-	if m.store != nil {
-		if err := m.store.SavePolicy(policy); err != nil {
-			m.logger.Warn("failed to persist policy", zap.Error(err))
-		}
-	}
-
-	// 审计
-	m.addAuditEvent(EventRetentionPolicy, "", fmt.Sprintf("创建策略: %s (%s)", policy.Name, policy.ID), "", policy.ID)
-
-	m.logger.Info("lifecycle policy created",
-		zap.String("id", policy.ID),
-		zap.String("name", policy.Name),
-	)
-
 	return policy, nil
 }
 
-// GetPolicy 获取生命周期策略.
-func (m *Manager) GetPolicy(id string) (*LifecyclePolicy, error) {
-	m.mu.RLock()
-	p, ok := m.policies[id]
-	m.mu.RUnlock()
-	if !ok {
-		return nil, ErrPolicyNotFound
-	}
-	return p, nil
-}
-
-// ListPolicies 列出所有生命周期策略.
-func (m *Manager) ListPolicies() []*LifecyclePolicy {
+// ListPolicies 列出策略
+func (m *Manager) ListPolicies(enabled *bool) []*LifecyclePolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	policies := make([]*LifecyclePolicy, 0, len(m.policies))
-	for _, p := range m.policies {
-		policies = append(policies, p)
-	}
-	sort.Slice(policies, func(i, j int) bool {
-		return policies[i].Priority < policies[j].Priority
-	})
-	return policies
-}
-
-// UpdatePolicy 更新生命周期策略.
-func (m *Manager) UpdatePolicy(id string, req CreatePolicyRequest) (*LifecyclePolicy, error) {
-	m.mu.Lock()
-	p, ok := m.policies[id]
-	if !ok {
-		m.mu.Unlock()
-		return nil, ErrPolicyNotFound
-	}
-
-	p.Name = req.Name
-	p.Description = req.Description
-	p.Enabled = req.Enabled
-	p.Priority = req.Priority
-	p.PathPattern = req.PathPattern
-	p.Extensions = req.Extensions
-	p.MinSize = req.MinSize
-	p.MaxSize = req.MaxSize
-	p.Tags = req.Tags
-	p.SourceTier = req.SourceTier
-	p.TriggerDays = req.TriggerDays
-	p.Schedule = req.Schedule
-	p.Actions = req.Actions
-	p.UpdatedAt = time.Now()
-	m.mu.Unlock()
-
-	if m.store != nil {
-		if err := m.store.SavePolicy(p); err != nil {
-			m.logger.Warn("failed to persist policy update", zap.Error(err))
-		}
-	}
-
-	m.addAuditEvent(EventRetentionPolicy, "", fmt.Sprintf("更新策略: %s (%s)", p.Name, p.ID), "", p.ID)
-	return p, nil
-}
-
-// DeletePolicy 删除生命周期策略.
-func (m *Manager) DeletePolicy(id string) error {
-	m.mu.Lock()
-	p, ok := m.policies[id]
-	if !ok {
-		m.mu.Unlock()
-		return ErrPolicyNotFound
-	}
-	delete(m.policies, id)
-	m.mu.Unlock()
-
-	if m.store != nil {
-		if err := m.store.DeletePolicy(id); err != nil {
-			m.logger.Warn("failed to delete policy from store", zap.Error(err))
-		}
-	}
-
-	m.addAuditEvent(EventRetentionPolicy, "", fmt.Sprintf("删除策略: %s (%s)", p.Name, p.ID), "", p.ID)
-	return nil
-}
-
-// ========== 数据项管理 ==========
-
-// RegisterDataItem 注册数据项.
-func (m *Manager) RegisterDataItem(item *DataItem) error {
-	if item.Path == "" {
-		return ErrPathRequired
-	}
-	if item.ID == "" {
-		item.ID = uuid.New().String()
-	}
-	if !IsValidTier(item.CurrentTier) {
-		item.CurrentTier = TierHot
-	}
-	now := time.Now()
-	if item.CreatedAt.IsZero() {
-		item.CreatedAt = now
-	}
-	if item.ModifiedAt.IsZero() {
-		item.ModifiedAt = now
-	}
-	if item.AccessedAt.IsZero() {
-		item.AccessedAt = now
-	}
-
-	m.mu.Lock()
-	m.items[item.ID] = item
-	m.mu.Unlock()
-
-	if m.store != nil {
-		_ = m.store.SaveDataItem(item)
-	}
-
-	return nil
-}
-
-// GetDataItem 获取数据项.
-func (m *Manager) GetDataItem(id string) (*DataItem, error) {
-	m.mu.RLock()
-	item, ok := m.items[id]
-	m.mu.RUnlock()
-	if !ok {
-		return nil, fmt.Errorf("数据项不存在: %s", id)
-	}
-	return item, nil
-}
-
-// ListDataItems 列出数据项.
-func (m *Manager) ListDataItems(pathPrefix string, tier Tier) []*DataItem {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	var result []*DataItem
-	for _, item := range m.items {
-		if pathPrefix != "" && !strings.HasPrefix(item.Path, pathPrefix) {
+	var result []*LifecyclePolicy
+	for _, policy := range m.policies {
+		if enabled != nil && policy.Enabled != *enabled {
 			continue
 		}
-		if tier != "" && item.CurrentTier != tier {
-			continue
-		}
-		result = append(result, item)
+		result = append(result, policy)
 	}
 	return result
 }
 
-// ========== 策略评估与执行 ==========
+// UpdatePolicy 更新策略
+func (m *Manager) UpdatePolicy(id string, policy LifecyclePolicy) (*LifecyclePolicy, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
-// EvaluatePolicy 评估策略匹配的数据项.
-func (m *Manager) EvaluatePolicy(ctx context.Context, policyID string, dryRun bool) (*EvaluateResult, error) {
+	existing, exists := m.policies[id]
+	if !exists {
+		return nil, fmt.Errorf("策略 %s 不存在", id)
+	}
+
+	policy.ID = id
+	policy.CreatedAt = existing.CreatedAt
+	policy.UpdatedAt = time.Now()
+	m.policies[id] = &policy
+
+	m.addAuditEntry("update_policy", id, fmt.Sprintf("更新策略: %s", policy.Name), true)
+
+	log.Printf("[数据生命周期] 更新策略: %s", id)
+	return &policy, nil
+}
+
+// DeletePolicy 删除策略
+func (m *Manager) DeletePolicy(id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.policies[id]; !exists {
+		return fmt.Errorf("策略 %s 不存在", id)
+	}
+
+	delete(m.policies, id)
+	m.addAuditEntry("delete_policy", id, "删除策略", true)
+
+	log.Printf("[数据生命周期] 删除策略: %s", id)
+	return nil
+}
+
+// ============================================================
+// 数据记录管理
+// ============================================================
+
+// CreateRecord 创建数据记录
+func (m *Manager) CreateRecord(record DataRecord) (*DataRecord, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if record.ID == "" {
+		record.ID = uuid.New().String()
+	}
+
+	if _, exists := m.records[record.ID]; exists {
+		return nil, fmt.Errorf("记录 %s 已存在", record.ID)
+	}
+
+	record.CreatedAt = time.Now()
+	record.ModifiedAt = time.Now()
+	record.LastAccessedAt = time.Now()
+	record.CurrentPhase = PhaseActive
+	record.CurrentTier = TierHot
+	m.records[record.ID] = &record
+
+	m.addAuditEntry("create_record", record.ID, fmt.Sprintf("创建记录: %s", record.Path), true)
+
+	log.Printf("[数据生命周期] 创建记录: %s - %s", record.ID, record.Path)
+	return &record, nil
+}
+
+// GetRecord 获取数据记录
+func (m *Manager) GetRecord(id string) (*DataRecord, error) {
 	m.mu.RLock()
-	policy, ok := m.policies[policyID]
-	m.mu.RUnlock()
-	if !ok {
-		return nil, ErrPolicyNotFound
+	defer m.mu.RUnlock()
+
+	record, exists := m.records[id]
+	if !exists {
+		return nil, fmt.Errorf("记录 %s 不存在", id)
 	}
-	if !policy.Enabled {
-		return nil, ErrPolicyDisabled
+	return record, nil
+}
+
+// ListRecords 列出数据记录
+func (m *Manager) ListRecords(phase LifecyclePhase, tier StorageTier) []*DataRecord {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var result []*DataRecord
+	for _, record := range m.records {
+		if phase != "" && record.CurrentPhase != phase {
+			continue
+		}
+		if tier != "" && record.CurrentTier != tier {
+			continue
+		}
+		result = append(result, record)
+	}
+	return result
+}
+
+// ============================================================
+// 阶段转换
+// ============================================================
+
+// TransitionPhase 转换阶段
+func (m *Manager) TransitionPhase(recordID string, targetPhase LifecyclePhase, reason string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	record, exists := m.records[recordID]
+	if !exists {
+		return fmt.Errorf("记录 %s 不存在", recordID)
 	}
 
-	// 查找匹配的数据项
-	matched := m.matchItems(ctx, policy)
-
-	result := &EvaluateResult{
-		MatchedItems: len(matched),
-		DryRun:       dryRun,
+	// 验证转换合法性
+	fromOrder, fromExists := PhaseOrder[record.CurrentPhase]
+	toOrder, toExists := PhaseOrder[targetPhase]
+	if !fromExists || !toExists {
+		return fmt.Errorf("无效的阶段转换")
 	}
 
-	if dryRun {
-		// 干跑模式：只返回匹配结果
-		for _, item := range matched {
-			for _, action := range policy.Actions {
-				result.Actions = append(result.Actions, fmt.Sprintf("%s: %s -> %s", action.Type, item.Path, action.TargetTier))
+	// 阶段只能向前或保持
+	if toOrder < fromOrder {
+		return fmt.Errorf("不能从 %s 回退到 %s", record.CurrentPhase, targetPhase)
+	}
+
+	// 记录转换历史
+	transition := PhaseTransition{
+		FromPhase: record.CurrentPhase,
+		ToPhase:   targetPhase,
+		Timestamp: time.Now(),
+		Reason:    reason,
+	}
+
+	record.PhaseHistory = append(record.PhaseHistory, transition)
+	record.CurrentPhase = targetPhase
+	record.ModifiedAt = time.Now()
+
+	// 根据阶段更新存储层
+	switch targetPhase {
+	case PhaseActive:
+		record.CurrentTier = TierHot
+	case PhaseReference:
+		record.CurrentTier = TierWarm
+	case PhaseArchive:
+		record.CurrentTier = TierCold
+	case PhaseRetained, PhaseExpired:
+		record.CurrentTier = TierArchive
+	}
+
+	m.addAuditEntry("phase_change", recordID, fmt.Sprintf("阶段转换: %s -> %s, 原因: %s", transition.FromPhase, targetPhase, reason), true)
+
+	log.Printf("[数据生命周期] 阶段转换: %s: %s -> %s", recordID, record.CurrentPhase, targetPhase)
+	return nil
+}
+
+// ============================================================
+// 合规保留
+// ============================================================
+
+// CreateHold 创建合规保留
+func (m *Manager) CreateHold(hold ComplianceHold) (*ComplianceHold, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if hold.ID == "" {
+		hold.ID = uuid.New().String()
+	}
+
+	if _, exists := m.holds[hold.ID]; exists {
+		return nil, fmt.Errorf("合规保留 %s 已存在", hold.ID)
+	}
+
+	hold.CreatedAt = time.Now()
+	hold.Active = true
+	m.holds[hold.ID] = &hold
+
+	// 更新关联记录
+	for _, path := range hold.FilePaths {
+		for _, record := range m.records {
+			if record.Path == path {
+				record.HoldIDs = append(record.HoldIDs, hold.ID)
 			}
 		}
-		return result, nil
 	}
 
-	// 实际执行
-	for _, item := range matched {
-		select {
-		case <-ctx.Done():
-			return result, ctx.Err()
-		default:
+	m.addAuditEntry("hold_create", hold.ID, fmt.Sprintf("创建合规保留: %s", hold.Name), true)
+
+	log.Printf("[数据生命周期] 创建合规保留: %s - %s", hold.ID, hold.Name)
+	return &hold, nil
+}
+
+// ReleaseHold 释放合规保留
+func (m *Manager) ReleaseHold(id string, releasedBy string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	hold, exists := m.holds[id]
+	if !exists {
+		return fmt.Errorf("合规保留 %s 不存在", id)
+	}
+
+	if !hold.Active {
+		return fmt.Errorf("合规保留 %s 已释放", id)
+	}
+
+	now := time.Now()
+	hold.Active = false
+	hold.ReleasedAt = &now
+	hold.ReleasedBy = releasedBy
+
+	// 更新关联记录
+	for _, record := range m.records {
+		var newHoldIDs []string
+		for _, holdID := range record.HoldIDs {
+			if holdID != id {
+				newHoldIDs = append(newHoldIDs, holdID)
+			}
+		}
+		record.HoldIDs = newHoldIDs
+	}
+
+	m.addAuditEntry("hold_release", id, fmt.Sprintf("释放合规保留, 操作人: %s", releasedBy), true)
+
+	log.Printf("[数据生命周期] 释放合规保留: %s", id)
+	return nil
+}
+
+// ListHolds 列出合规保留
+func (m *Manager) ListHolds(active *bool) []*ComplianceHold {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var result []*ComplianceHold
+	for _, hold := range m.holds {
+		if active != nil && hold.Active != *active {
+			continue
+		}
+		result = append(result, hold)
+	}
+	return result
+}
+
+// ============================================================
+// 数据迁移
+// ============================================================
+
+// CreateMigration 创建迁移任务
+func (m *Manager) CreateMigration(migration DataMigration) (*DataMigration, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if migration.ID == "" {
+		migration.ID = uuid.New().String()
+	}
+
+	migration.Status = MigrationPending
+	migration.CreatedAt = time.Now()
+	m.migrations[migration.ID] = &migration
+
+	m.addAuditEntry("migrate", migration.ID, fmt.Sprintf("创建迁移任务: %s -> %s", migration.SourceTier, migration.TargetTier), true)
+
+	log.Printf("[数据生命周期] 创建迁移任务: %s", migration.ID)
+	return &migration, nil
+}
+
+// StartMigration 启动迁移
+func (m *Manager) StartMigration(id string) error {
+	m.mu.Lock()
+	migration, exists := m.migrations[id]
+	if !exists {
+		m.mu.Unlock()
+		return fmt.Errorf("迁移任务 %s 不存在", id)
+	}
+
+	if migration.Status != MigrationPending {
+		m.mu.Unlock()
+		return fmt.Errorf("迁移任务 %s 状态不是待执行", id)
+	}
+
+	migration.Status = MigrationRunning
+	migration.StartedAt = time.Now()
+	m.mu.Unlock()
+
+	// 异步执行迁移
+	go m.executeMigration(id)
+
+	log.Printf("[数据生命周期] 启动迁移: %s", id)
+	return nil
+}
+
+// executeMigration 执行迁移
+func (m *Manager) executeMigration(id string) {
+	m.mu.RLock()
+	migration, exists := m.migrations[id]
+	if !exists {
+		m.mu.RUnlock()
+		return
+	}
+	m.mu.RUnlock()
+
+	// 模拟迁移过程
+	for i := 0; i < len(migration.Files); i++ {
+		m.mu.Lock()
+		migration.ProcessedFiles++
+		migration.ProcessedBytes += migration.Files[i].Size
+		migration.Files[i].Status = "completed"
+		m.mu.Unlock()
+
+		time.Sleep(10 * time.Millisecond) // 模拟处理时间
+	}
+
+	m.mu.Lock()
+	migration.Status = MigrationCompleted
+	migration.CompletedAt = time.Now()
+	m.mu.Unlock()
+
+	m.addAuditEntry("migrate", id, "迁移完成", true)
+
+	log.Printf("[数据生命周期] 迁移完成: %s", id)
+}
+
+// GetMigration 获取迁移任务
+func (m *Manager) GetMigration(id string) (*DataMigration, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	migration, exists := m.migrations[id]
+	if !exists {
+		return nil, fmt.Errorf("迁移任务 %s 不存在", id)
+	}
+	return migration, nil
+}
+
+// ListMigrations 列出迁移任务
+func (m *Manager) ListMigrations(status MigrationStatus) []*DataMigration {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var result []*DataMigration
+	for _, migration := range m.migrations {
+		if status != "" && migration.Status != status {
+			continue
+		}
+		result = append(result, migration)
+	}
+	return result
+}
+
+// ============================================================
+// 数据销毁
+// ============================================================
+
+// CreateDestruction 创建销毁记录
+func (m *Manager) CreateDestruction(destruction DestructionRecord) (*DestructionRecord, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if destruction.ID == "" {
+		destruction.ID = uuid.New().String()
+	}
+
+	destruction.Status = DestructionPending
+	destruction.CreatedAt = time.Now()
+
+	// 检查合规保留
+	for _, filePath := range destruction.FilePaths {
+		for _, hold := range m.holds {
+			if hold.Active {
+				for _, holdPath := range hold.FilePaths {
+					if holdPath == filePath {
+						destruction.HoldID = hold.ID
+						destruction.RequiresApproval = true
+						break
+					}
+				}
+			}
+		}
+	}
+
+	m.destructions[destruction.ID] = &destruction
+
+	m.addAuditEntry("destroy", destruction.ID, fmt.Sprintf("创建销毁记录, 文件数: %d", len(destruction.FilePaths)), true)
+
+	log.Printf("[数据生命周期] 创建销毁记录: %s", destruction.ID)
+	return &destruction, nil
+}
+
+// ApproveDestruction 批准销毁
+func (m *Manager) ApproveDestruction(id string, approvedBy string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	destruction, exists := m.destructions[id]
+	if !exists {
+		return fmt.Errorf("销毁记录 %s 不存在", id)
+	}
+
+	if destruction.Status != DestructionPending {
+		return fmt.Errorf("销毁记录 %s 状态不是待处理", id)
+	}
+
+	now := time.Now()
+	destruction.Status = DestructionApproved
+	destruction.ApprovedAt = &now
+	destruction.ApprovedBy = approvedBy
+
+	m.addAuditEntry("destroy", id, fmt.Sprintf("批准销毁, 操作人: %s", approvedBy), true)
+
+	log.Printf("[数据生命周期] 批准销毁: %s", id)
+	return nil
+}
+
+// ExecuteDestruction 执行销毁
+func (m *Manager) ExecuteDestruction(id string) error {
+	m.mu.Lock()
+	destruction, exists := m.destructions[id]
+	if !exists {
+		m.mu.Unlock()
+		return fmt.Errorf("销毁记录 %s 不存在", id)
+	}
+
+	if destruction.Status != DestructionApproved {
+		m.mu.Unlock()
+		return fmt.Errorf("销毁记录 %s 未批准", id)
+	}
+
+	destruction.Status = DestructionInProgress
+	m.mu.Unlock()
+
+	// 模拟销毁过程
+	time.Sleep(100 * time.Millisecond)
+
+	m.mu.Lock()
+	destruction.Status = DestructionCompleted
+	destruction.DestroyedSize = destruction.TotalSize
+	now := time.Now()
+	destruction.CompletedAt = &now
+
+	// 生成销毁证书
+	cert := &DestructionCertification{
+		ID:            uuid.New().String(),
+		DestructionID: id,
+		IssuedAt:      now,
+		Method:        destruction.Method,
+		FileCount:     len(destruction.FilePaths),
+		TotalSize:     destruction.TotalSize,
+		VerifiedBy:    "system",
+		Signature:     "mock-signature",
+	}
+	destruction.Certification = cert
+	m.mu.Unlock()
+
+	m.addAuditEntry("destroy", id, "销毁完成", true)
+
+	log.Printf("[数据生命周期] 销毁完成: %s", id)
+	return nil
+}
+
+// GetDestruction 获取销毁记录
+func (m *Manager) GetDestruction(id string) (*DestructionRecord, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	destruction, exists := m.destructions[id]
+	if !exists {
+		return nil, fmt.Errorf("销毁记录 %s 不存在", id)
+	}
+	return destruction, nil
+}
+
+// ============================================================
+// 策略模板
+// ============================================================
+
+// CreateTemplate 创建策略模板
+func (m *Manager) CreateTemplate(template PolicyTemplate) (*PolicyTemplate, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if template.ID == "" {
+		template.ID = uuid.New().String()
+	}
+
+	if _, exists := m.templates[template.ID]; exists {
+		return nil, fmt.Errorf("模板 %s 已存在", template.ID)
+	}
+
+	template.CreatedAt = time.Now()
+	m.templates[template.ID] = &template
+
+	log.Printf("[数据生命周期] 创建模板: %s - %s", template.ID, template.Name)
+	return &template, nil
+}
+
+// ListTemplates 列出策略模板
+func (m *Manager) ListTemplates() []*PolicyTemplate {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var result []*PolicyTemplate
+	for _, template := range m.templates {
+		result = append(result, template)
+	}
+	return result
+}
+
+// ============================================================
+// 批量操作
+// ============================================================
+
+// BatchApplyPolicy 批量应用策略
+func (m *Manager) BatchApplyPolicy(req BatchApplyRequest) (*BatchApplyResult, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	policy, exists := m.policies[req.PolicyID]
+	if !exists {
+		return nil, fmt.Errorf("策略 %s 不存在", req.PolicyID)
+	}
+
+	result := &BatchApplyResult{}
+
+	// 查找匹配的记录
+	for _, record := range m.records {
+		matched := false
+		for _, path := range req.Paths {
+			if record.Path == path {
+				matched = true
+				break
+			}
 		}
 
-		recs := m.executeActions(ctx, item, policy)
-		result.Details = append(result.Details, recs...)
+		if matched {
+			result.TotalFiles++
+			if record.PolicyID != "" && !req.Force {
+				result.SkippedFiles++
+			} else {
+				record.PolicyID = policy.ID
+				record.ModifiedAt = time.Now()
+				result.AppliedFiles++
+			}
+		}
 	}
 
+	m.addAuditEntry("apply_policy", req.PolicyID, fmt.Sprintf("批量应用策略, 成功: %d, 跳过: %d", result.AppliedFiles, result.SkippedFiles), true)
+
+	log.Printf("[数据生命周期] 批量应用策略: %s, 结果: %+v", req.PolicyID, result)
 	return result, nil
 }
 
-// matchItems 根据策略条件匹配数据项.
-func (m *Manager) matchItems(_ context.Context, policy *LifecyclePolicy) []*DataItem {
+// ============================================================
+// 访问分析
+// ============================================================
+
+// GenerateAccessReport 生成访问分析报告
+func (m *Manager) GenerateAccessReport() *AccessAnalysisReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var matched []*DataItem
-	now := time.Now()
-
-	for _, item := range m.items {
-		// 路径匹配
-		if policy.PathPattern != "" {
-			if !matchPathPattern(policy.PathPattern, item.Path, item.Name) {
-				continue
-			}
-		}
-
-		// 扩展名过滤
-		if len(policy.Extensions) > 0 {
-			ext := strings.ToLower(filepath.Ext(item.Name))
-			found := false
-			for _, e := range policy.Extensions {
-				if strings.ToLower(e) == ext {
-					found = true
-					break
-				}
-			}
-			if !found {
-				continue
-			}
-		}
-
-		// 大小过滤
-		if policy.MinSize > 0 && item.Size < policy.MinSize {
-			continue
-		}
-		if policy.MaxSize > 0 && item.Size > policy.MaxSize {
-			continue
-		}
-
-		// 源层级过滤
-		if policy.SourceTier != "" && item.CurrentTier != policy.SourceTier {
-			continue
-		}
-
-		// 标签过滤
-		if len(policy.Tags) > 0 {
-			if !hasAnyTag(item.Tags, policy.Tags) {
-				continue
-			}
-		}
-
-		// 访问时间条件
-		if policy.TriggerDays > 0 {
-			threshold := now.AddDate(0, 0, -policy.TriggerDays)
-			if item.AccessedAt.After(threshold) {
-				continue
-			}
-		}
-
-		matched = append(matched, item)
-	}
-
-	return matched
-}
-
-// executeActions 执行策略动作.
-func (m *Manager) executeActions(_ context.Context, item *DataItem, policy *LifecyclePolicy) []*MigrationRecord {
-	var records []*MigrationRecord
-
-	for _, action := range policy.Actions {
-		rec := &MigrationRecord{
-			ID:         uuid.New().String(),
-			FilePath:   item.Path,
-			SourceTier: item.CurrentTier,
-			TargetTier: action.TargetTier,
-			Action:     action.Type,
-			PolicyID:   policy.ID,
-			Status:     "completed",
-			BytesMoved: item.Size,
-			StartedAt:  time.Now(),
-		}
-
-		switch action.Type {
-		case ActionTierDown, ActionTierUp:
-			if action.TargetTier != "" && action.TargetTier != item.CurrentTier {
-				oldTier := item.CurrentTier
-				item.CurrentTier = action.TargetTier
-				rec.CompletedAt = time.Now()
-				m.addAuditEvent(EventMigration, item.Path,
-					fmt.Sprintf("数据迁移: %s -> %s (策略: %s)", oldTier, action.TargetTier, policy.Name),
-					"", policy.ID)
-			}
-		case ActionArchive:
-			oldTier := item.CurrentTier
-			item.CurrentTier = TierArchive
-			rec.TargetTier = TierArchive
-			rec.CompletedAt = time.Now()
-			m.addAuditEvent(EventArchive, item.Path,
-				fmt.Sprintf("数据归档: %s -> archive (策略: %s)", oldTier, policy.Name),
-				"", policy.ID)
-		case ActionCompress:
-			rec.CompletedAt = time.Now()
-			m.addAuditEvent(EventCompress, item.Path,
-				fmt.Sprintf("数据压缩 (策略: %s)", policy.Name),
-				"", policy.ID)
-		case ActionDelete:
-			rec.Status = "completed"
-			rec.CompletedAt = time.Now()
-			m.addAuditEvent(EventDelete, item.Path,
-				fmt.Sprintf("数据删除 (策略: %s)", policy.Name),
-				"", policy.ID)
-		case ActionNotify:
-			rec.CompletedAt = time.Now()
-		case ActionSnapshot:
-			rec.CompletedAt = time.Now()
-		}
-
-		m.mu.Lock()
-		m.migrations = append(m.migrations, rec)
-		m.mu.Unlock()
-
-		if m.store != nil {
-			_ = m.store.SaveMigration(rec)
-		}
-
-		records = append(records, rec)
-	}
-
-	return records
-}
-
-// ========== 保留策略管理 ==========
-
-// CreateRetentionPolicy 创建保留策略.
-func (m *Manager) CreateRetentionPolicy(req CreateRetentionPolicyRequest) (*RetentionPolicy, error) {
-	now := time.Now()
-	policy := &RetentionPolicy{
-		ID:            uuid.New().String(),
-		Name:          req.Name,
-		Description:   req.Description,
-		Enabled:       req.Enabled,
-		Mode:          req.Mode,
-		RetentionDays: req.RetentionDays,
-		MaxVersions:   req.MaxVersions,
-		MaxSizeBytes:  req.MaxSizeBytes,
-		MaxCount:      req.MaxCount,
-		PathPattern:   req.PathPattern,
-		Extensions:    req.Extensions,
-		CreatedAt:     now,
-		UpdatedAt:     now,
-	}
-
-	m.mu.Lock()
-	m.retPolicies[policy.ID] = policy
-	m.mu.Unlock()
-
-	if m.store != nil {
-		_ = m.store.SaveRetentionPolicy(policy)
-	}
-
-	m.addAuditEvent(EventRetentionPolicy, "", fmt.Sprintf("创建保留策略: %s (%s)", policy.Name, policy.ID), "", policy.ID)
-	return policy, nil
-}
-
-// GetRetentionPolicy 获取保留策略.
-func (m *Manager) GetRetentionPolicy(id string) (*RetentionPolicy, error) {
-	m.mu.RLock()
-	p, ok := m.retPolicies[id]
-	m.mu.RUnlock()
-	if !ok {
-		return nil, ErrPolicyNotFound
-	}
-	return p, nil
-}
-
-// ListRetentionPolicies 列出所有保留策略.
-func (m *Manager) ListRetentionPolicies() []*RetentionPolicy {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	policies := make([]*RetentionPolicy, 0, len(m.retPolicies))
-	for _, p := range m.retPolicies {
-		policies = append(policies, p)
-	}
-	return policies
-}
-
-// DeleteRetentionPolicy 删除保留策略.
-func (m *Manager) DeleteRetentionPolicy(id string) error {
-	m.mu.Lock()
-	if _, ok := m.retPolicies[id]; !ok {
-		m.mu.Unlock()
-		return ErrPolicyNotFound
-	}
-	delete(m.retPolicies, id)
-	m.mu.Unlock()
-
-	if m.store != nil {
-		_ = m.store.DeleteRetentionPolicy(id)
-	}
-
-	return nil
-}
-
-// EnforceRetentionPolicy 执行保留策略，返回被清理的数据项列表.
-func (m *Manager) EnforceRetentionPolicy(ctx context.Context, policyID string) ([]string, error) {
-	m.mu.RLock()
-	policy, ok := m.retPolicies[policyID]
-	m.mu.RUnlock()
-	if !ok {
-		return nil, ErrPolicyNotFound
-	}
-	if !policy.Enabled {
-		return nil, ErrPolicyDisabled
-	}
-
-	// 匹配数据项
-	m.mu.RLock()
-	var matched []*DataItem
-	now := time.Now()
-	for _, item := range m.items {
-		if !m.matchRetentionPolicy(item, policy) {
-			continue
-		}
-
-		switch policy.Mode {
-		case RetentionModeTime:
-			if policy.RetentionDays > 0 {
-				threshold := now.AddDate(0, 0, -policy.RetentionDays)
-				if item.ModifiedAt.Before(threshold) {
-					matched = append(matched, item)
-				}
-			}
-		case RetentionModeSpace:
-			// 空间模式下，匹配所有项，后续按大小排序删除
-			matched = append(matched, item)
-		case RetentionModeCount:
-			// 数量模式下，匹配所有项，后续按时间排序保留最新的
-			matched = append(matched, item)
-		default:
-			matched = append(matched, item)
-		}
-	}
-	m.mu.RUnlock()
-
-	var removed []string
-
-	switch policy.Mode {
-	case RetentionModeSpace:
-		sort.Slice(matched, func(i, j int) bool {
-			return matched[i].AccessedAt.Before(matched[j].AccessedAt)
-		})
-		var totalSize int64
-		for _, item := range matched {
-			totalSize += item.Size
-		}
-		for _, item := range matched {
-			if totalSize <= policy.MaxSizeBytes {
-				break
-			}
-			select {
-			case <-ctx.Done():
-				return removed, ctx.Err()
-			default:
-			}
-			removed = append(removed, item.Path)
-			totalSize -= item.Size
-			m.addAuditEvent(EventDelete, item.Path,
-				fmt.Sprintf("保留策略空间清理: %s", policy.Name), "", policy.ID)
-		}
-
-	case RetentionModeCount:
-		sort.Slice(matched, func(i, j int) bool {
-			return matched[i].ModifiedAt.Before(matched[j].ModifiedAt)
-		})
-		if policy.MaxCount > 0 && len(matched) > policy.MaxCount {
-			toRemove := matched[:len(matched)-policy.MaxCount]
-			for _, item := range toRemove {
-				select {
-				case <-ctx.Done():
-					return removed, ctx.Err()
-				default:
-				}
-				removed = append(removed, item.Path)
-				m.addAuditEvent(EventDelete, item.Path,
-					fmt.Sprintf("保留策略数量清理: %s", policy.Name), "", policy.ID)
-			}
-		}
-
-	default:
-		for _, item := range matched {
-			select {
-			case <-ctx.Done():
-				return removed, ctx.Err()
-			default:
-			}
-			removed = append(removed, item.Path)
-			m.addAuditEvent(EventDelete, item.Path,
-				fmt.Sprintf("保留策略时间清理: %s", policy.Name), "", policy.ID)
-		}
-	}
-
-	return removed, nil
-}
-
-// matchRetentionPolicy 检查数据项是否匹配保留策略.
-func (m *Manager) matchRetentionPolicy(item *DataItem, policy *RetentionPolicy) bool {
-	if policy.PathPattern != "" {
-		if matched, _ := filepath.Match(policy.PathPattern, item.Path); !matched {
-			if matched, _ := filepath.Match(policy.PathPattern, item.Name); !matched {
-				return false
-			}
-		}
-	}
-	if len(policy.Extensions) > 0 {
-		ext := strings.ToLower(filepath.Ext(item.Name))
-		found := false
-		for _, e := range policy.Extensions {
-			if strings.ToLower(e) == ext {
-				found = true
-				break
-			}
-		}
-		if !found {
-			return false
-		}
-	}
-	return true
-}
-
-// ========== 数据血缘追踪 ==========
-
-// CreateLineage 创建数据血缘记录.
-func (m *Manager) CreateLineage(req CreateLineageRequest) (*DataLineage, error) {
-	if req.FilePath == "" {
-		return nil, ErrPathRequired
-	}
-
-	lineage := &DataLineage{
-		ID:         uuid.New().String(),
-		FilePath:   req.FilePath,
-		SourcePath: req.SourcePath,
-		Operation:  req.Operation,
-		Operator:   req.Operator,
-		Timestamp:  time.Now(),
-		Metadata:   req.Metadata,
-	}
-
-	m.mu.Lock()
-	m.lineages[lineage.ID] = lineage
-	m.mu.Unlock()
-
-	if m.store != nil {
-		_ = m.store.SaveLineage(lineage)
-	}
-
-	m.addAuditEvent(EventLineageUpdate, req.FilePath,
-		fmt.Sprintf("血缘记录: %s -> %s (%s)", req.SourcePath, req.FilePath, req.Operation),
-		req.Operator, "")
-
-	return lineage, nil
-}
-
-// GetLineage 获取血缘记录.
-func (m *Manager) GetLineage(id string) (*DataLineage, error) {
-	m.mu.RLock()
-	l, ok := m.lineages[id]
-	m.mu.RUnlock()
-	if !ok {
-		return nil, ErrLineageNotFound
-	}
-	return l, nil
-}
-
-// GetLineageByPath 按路径获取血缘记录.
-func (m *Manager) GetLineageByPath(filePath string) []*DataLineage {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	var result []*DataLineage
-	for _, l := range m.lineages {
-		if l.FilePath == filePath || l.SourcePath == filePath {
-			result = append(result, l)
-		}
-	}
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].Timestamp.Before(result[j].Timestamp)
-	})
-	return result
-}
-
-// GetLineageGraph 获取数据血缘关系图.
-func (m *Manager) GetLineageGraph(filePath string) *LineageGraph {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	graph := &LineageGraph{}
-	nodeMap := make(map[string]*LineageNode)
-
-	// 收集所有相关记录
-	var all []*DataLineage
-	for _, l := range m.lineages {
-		if l.FilePath == filePath || l.SourcePath == filePath {
-			all = append(all, l)
-		}
-	}
-
-	// 递归扩展（找上下游）
-	visited := make(map[string]bool)
-	queue := []string{filePath}
-	for len(queue) > 0 {
-		path := queue[0]
-		queue = queue[1:]
-		if visited[path] {
-			continue
-		}
-		visited[path] = true
-
-		for _, l := range m.lineages {
-			if l.FilePath == path || l.SourcePath == path {
-				if !visited[l.FilePath] {
-					queue = append(queue, l.FilePath)
-				}
-				if l.SourcePath != "" && !visited[l.SourcePath] {
-					queue = append(queue, l.SourcePath)
-				}
-				all = append(all, l)
-			}
-		}
-	}
-
-	// 构建节点
-	for _, l := range all {
-		if _, ok := nodeMap[l.FilePath]; !ok {
-			nodeMap[l.FilePath] = &LineageNode{
-				FilePath:  l.FilePath,
-				Timestamp: l.Timestamp,
-				Operation: l.Operation,
-			}
-		}
-		if l.SourcePath != "" {
-			if _, ok := nodeMap[l.SourcePath]; !ok {
-				nodeMap[l.SourcePath] = &LineageNode{
-					FilePath: l.SourcePath,
-				}
-			}
-		}
-	}
-
-	// 构建父子关系
-	for _, l := range all {
-		if l.SourcePath != "" {
-			parent, ok := nodeMap[l.SourcePath]
-			if ok {
-				child := nodeMap[l.FilePath]
-				child.Parent = l.SourcePath
-				parent.Children = append(parent.Children, child)
-			}
-		}
-	}
-
-	// 根节点
-	graph.Root = nodeMap[filePath]
-	graph.All = make([]*LineageNode, 0, len(nodeMap))
-	for _, n := range nodeMap {
-		graph.All = append(graph.All, n)
-	}
-
-	return graph
-}
-
-// DeleteLineage 删除血缘记录.
-func (m *Manager) DeleteLineage(id string) error {
-	m.mu.Lock()
-	if _, ok := m.lineages[id]; !ok {
-		m.mu.Unlock()
-		return ErrLineageNotFound
-	}
-	delete(m.lineages, id)
-	m.mu.Unlock()
-
-	if m.store != nil {
-		_ = m.store.DeleteLineage(id)
-	}
-	return nil
-}
-
-// ========== 存储成本优化 ==========
-
-// AnalyzeCosts 分析存储成本并生成优化建议.
-func (m *Manager) AnalyzeCosts(ctx context.Context) *CostSummary {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	summary := &CostSummary{
-		ByTier:      make(map[Tier]TierCost),
+	report := &AccessAnalysisReport{
 		GeneratedAt: time.Now(),
+		TierStats:   make(map[StorageTier]*TierStatistics),
+		PhaseStats:  make(map[LifecyclePhase]int),
 	}
 
-	for _, item := range m.items {
-		select {
-		case <-ctx.Done():
-			return summary
-		default:
+	// 统计各层信息
+	for _, record := range m.records {
+		report.TotalFiles++
+		report.TotalSize += record.Size
+		report.PhaseStats[record.CurrentPhase]++
+
+		if _, exists := report.TierStats[record.CurrentTier]; !exists {
+			report.TierStats[record.CurrentTier] = &TierStatistics{
+				Tier: record.CurrentTier,
+			}
 		}
-
-		summary.TotalItems++
-		summary.TotalSize += item.Size
-
-		cost := calculateCost(item.Size, item.CurrentTier)
-		summary.TotalCost += cost
-
-		tc := summary.ByTier[item.CurrentTier]
-		tc.Tier = item.CurrentTier
-		tc.ItemCount++
-		tc.TotalSize += item.Size
-		tc.Cost += cost
-		summary.ByTier[item.CurrentTier] = tc
-
-		// 生成优化建议
-		sug := m.generateSuggestion(item, cost)
-		if sug != nil {
-			summary.Suggestions = append(summary.Suggestions, sug)
-			summary.TotalSavings += sug.Savings
-		}
+		tierStat := report.TierStats[record.CurrentTier]
+		tierStat.FileCount++
+		tierStat.TotalSize += record.Size
 	}
 
-	// 保存建议
-	m.costSugs = summary.Suggestions
-	if m.store != nil {
-		for _, s := range summary.Suggestions {
-			_ = m.store.SaveCostSuggestion(s)
+	// 生成分层建议
+	for _, record := range m.records {
+		if record.AccessCount < 10 && record.CurrentTier == TierHot {
+			report.Suggestions = append(report.Suggestions, TierSuggestion{
+				Path:            record.Path,
+				CurrentTier:     record.CurrentTier,
+				RecommendedTier: TierWarm,
+				Reason:          "访问频率低，建议迁移到温存储",
+				Priority:        1,
+			})
 		}
 	}
 
-	if summary.TotalSavings > 0 {
-		m.addAuditEvent(EventCostAlert, "",
-			fmt.Sprintf("发现可优化项: %d 个, 预计节省: %.2f 元/月", len(summary.Suggestions), summary.TotalSavings),
-			"", "")
-	}
-
-	return summary
+	log.Printf("[数据生命周期] 生成访问分析报告, 文件数: %d", report.TotalFiles)
+	return report
 }
 
-// generateSuggestion 为单个数据项生成成本优化建议.
-func (m *Manager) generateSuggestion(item *DataItem, currentCost float64) *CostSuggestion {
-	now := time.Now()
+// ============================================================
+// 审计日志
+// ============================================================
 
-	// 根据访问频率推荐层级
-	var suggestedTier Tier
-	var reason string
-
-	daysSinceAccess := now.Sub(item.AccessedAt).Hours() / 24
-
-	switch {
-	case daysSinceAccess < 7:
-		if item.CurrentTier != TierHot {
-			suggestedTier = TierHot
-			reason = "近7天内频繁访问，建议提升到热数据层"
-		}
-	case daysSinceAccess < 30:
-		if item.CurrentTier == TierHot {
-			suggestedTier = TierWarm
-			reason = "近30天内有访问，建议迁移到温数据层降低成本"
-		} else if item.CurrentTier != TierWarm {
-			suggestedTier = TierWarm
-			reason = "近30天内有访问，建议迁移到温数据层"
-		}
-	case daysSinceAccess < 90:
-		if item.CurrentTier == TierHot || item.CurrentTier == TierWarm {
-			suggestedTier = TierCold
-			reason = "超过30天未访问，建议迁移到冷数据层"
-		}
-	default:
-		if item.CurrentTier != TierArchive {
-			suggestedTier = TierArchive
-			reason = "超过90天未访问，建议归档以最大化节省成本"
-		}
-	}
-
-	if suggestedTier == "" || suggestedTier == item.CurrentTier {
-		return nil
-	}
-
-	suggestedCost := calculateCost(item.Size, suggestedTier)
-
-	return &CostSuggestion{
-		ID:            uuid.New().String(),
-		FilePath:      item.Path,
-		CurrentTier:   item.CurrentTier,
-		SuggestedTier: suggestedTier,
-		CurrentCost:   currentCost,
-		SuggestedCost: suggestedCost,
-		Savings:       currentCost - suggestedCost,
-		Reason:        reason,
-		CreatedAt:     now,
-	}
-}
-
-// ListCostSuggestions 列出成本优化建议.
-func (m *Manager) ListCostSuggestions() []*CostSuggestion {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	result := make([]*CostSuggestion, len(m.costSugs))
-	copy(result, m.costSugs)
-	return result
-}
-
-// ========== 审计日志 ==========
-
-// ListAuditEvents 列出审计事件.
-func (m *Manager) ListAuditEvents(eventType EventType, limit int) []*AuditEvent {
-	m.auditMu.Lock()
-	defer m.auditMu.Unlock()
-
-	if limit <= 0 {
-		limit = 100
-	}
-
-	var result []*AuditEvent
-	for i := len(m.audits) - 1; i >= 0; i-- {
-		if eventType != "" && m.audits[i].EventType != eventType {
-			continue
-		}
-		result = append(result, m.audits[i])
-		if len(result) >= limit {
-			break
-		}
-	}
-	return result
-}
-
-// addAuditEvent 添加审计事件（需持有锁或在锁外调用后自行持久化）.
-func (m *Manager) addAuditEvent(eventType EventType, filePath, details, operator, policyID string) {
-	event := &AuditEvent{
+// addAuditEntry 添加审计日志
+func (m *Manager) addAuditEntry(action, target, details string, success bool) {
+	entry := LifecycleAuditEntry{
 		ID:        uuid.New().String(),
-		EventType: eventType,
-		FilePath:  filePath,
-		Details:   details,
-		Operator:  operator,
-		PolicyID:  policyID,
 		Timestamp: time.Now(),
+		Action:    action,
+		Target:    target,
+		Details:   details,
+		Operator:  "system",
+		Success:   success,
 	}
-
-	m.auditMu.Lock()
-	m.audits = append(m.audits, event)
-	m.auditMu.Unlock()
-
-	if m.store != nil {
-		_ = m.store.SaveAuditEvent(event)
-	}
+	m.auditLog = append(m.auditLog, entry)
 }
 
-// GetMigrations 获取迁移记录.
-func (m *Manager) GetMigrations(policyID string, limit int) []*MigrationRecord {
+// GetAuditLog 获取审计日志
+func (m *Manager) GetAuditLog(limit int) []LifecycleAuditEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	if limit <= 0 {
-		limit = 100
+	if limit <= 0 || limit > len(m.auditLog) {
+		limit = len(m.auditLog)
 	}
 
-	var result []*MigrationRecord
-	for i := len(m.migrations) - 1; i >= 0; i-- {
-		if policyID != "" && m.migrations[i].PolicyID != policyID {
-			continue
-		}
-		result = append(result, m.migrations[i])
-		if len(result) >= limit {
-			break
-		}
+	// 返回最近的日志
+	start := len(m.auditLog) - limit
+	if start < 0 {
+		start = 0
 	}
-	return result
+	return m.auditLog[start:]
 }
 
-// ========== 辅助函数 ==========
+// ============================================================
+// 状态查询
+// ============================================================
 
-// matchPathPattern 匹配路径模式，支持 ** 递归匹配.
-func matchPathPattern(pattern, path, name string) bool {
-	// 处理 ** 通配符
-	if strings.Contains(pattern, "**") {
-		prefix := strings.TrimSuffix(pattern, "**")
-		prefix = strings.TrimSuffix(prefix, "/")
-		if strings.HasPrefix(path, prefix) {
-			return true
+// GetStatus 获取模块状态
+func (m *Manager) GetStatus() *LifecycleStatus {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	status := &LifecycleStatus{
+		Enabled:           m.enabled,
+		TotalPolicies:     len(m.policies),
+		TotalRecords:      len(m.records),
+		PhaseDistribution: make(map[LifecyclePhase]int),
+		TierDistribution:  make(map[StorageTier]int),
+	}
+
+	// 统计活跃策略
+	for _, policy := range m.policies {
+		if policy.Enabled {
+			status.ActivePolicies++
 		}
 	}
-	// 标准 glob 匹配
-	if m, _ := filepath.Match(pattern, path); m {
-		return true
-	}
-	if m, _ := filepath.Match(pattern, name); m {
-		return true
-	}
-	return false
-}
 
-// calculateCost 计算存储成本.
-func calculateCost(sizeBytes int64, tier Tier) float64 {
-	costPerGB, ok := tierCostPerGB[tier]
-	if !ok {
-		costPerGB = tierCostPerGB[TierHot]
-	}
-	sizeGB := float64(sizeBytes) / (1024 * 1024 * 1024)
-	return sizeGB * costPerGB
-}
-
-// hasAnyTag 检查是否包含任一标签.
-func hasAnyTag(itemTags, requiredTags []string) bool {
-	tagSet := make(map[string]bool, len(itemTags))
-	for _, t := range itemTags {
-		tagSet[strings.ToLower(t)] = true
-	}
-	for _, t := range requiredTags {
-		if tagSet[strings.ToLower(t)] {
-			return true
+	// 统计活跃保留
+	for _, hold := range m.holds {
+		if hold.Active {
+			status.ActiveHolds++
 		}
 	}
-	return false
+
+	// 统计运行中的迁移
+	for _, migration := range m.migrations {
+		if migration.Status == MigrationRunning {
+			status.RunningMigrations++
+		}
+	}
+
+	// 统计待销毁
+	for _, destruction := range m.destructions {
+		if destruction.Status == DestructionPending || destruction.Status == DestructionApproved {
+			status.PendingDestructions++
+		}
+	}
+
+	// 阶段和层级分布
+	for _, record := range m.records {
+		status.PhaseDistribution[record.CurrentPhase]++
+		status.TierDistribution[record.CurrentTier]++
+	}
+
+	return status
 }

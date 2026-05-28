@@ -7,13 +7,13 @@ import (
 // Analyzer SMART 数据分析器
 type Analyzer struct {
 	// 关键 SMART 属性权重配置
-	weights map[int]float64
+	weights map[uint8]float64
 }
 
 // NewAnalyzer 创建分析器
 func NewAnalyzer() *Analyzer {
 	return &Analyzer{
-		weights: map[int]float64{
+		weights: map[uint8]float64{
 			5:   25.0,  // Reallocated Sectors Count（重分配扇区计数）- 高权重
 			187: 15.0,  // Reported Uncorrectable Errors（报告的不可纠正错误）
 			188: 10.0,  // Command Timeout（命令超时）

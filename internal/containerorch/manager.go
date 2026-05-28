@@ -1,843 +1,1059 @@
-// Package containerorch 提供 K3s 轻量级容器编排功能
+// Package containerorch 提供容器编排核心业务逻辑
 package containerorch
 
 import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
-// Manager 容器编排管理器.
+// ========== 常量 ==========
+
+const (
+	// 默认健康检查间隔
+	DefaultHealthCheckInterval = 30 * time.Second
+	// 默认健康检查超时
+	DefaultHealthCheckTimeout = 10 * time.Second
+	// 默认重启次数限制
+	DefaultMaxRestarts = 3
+	// 默认扩缩容冷却时间
+	DefaultScaleCooldown = 5 * time.Minute
+	// 最大实例数
+	MaxInstances = 100
+)
+
+// ========== 错误类型 ==========
+
+// NotFoundError 资源未找到错误
+type NotFoundError struct {
+	Resource string
+	ID       string
+}
+
+func (e *NotFoundError) Error() string {
+	return fmt.Sprintf("%s %q not found", e.Resource, e.ID)
+}
+
+// DependencyError 依赖错误
+type DependencyError struct {
+	Message string
+}
+
+func (e *DependencyError) Error() string {
+	return fmt.Sprintf("dependency error: %s", e.Message)
+}
+
+// ValidationError 验证错误
+type ValidationError struct {
+	Field   string
+	Message string
+}
+
+func (e *ValidationError) Error() string {
+	return fmt.Sprintf("validation error on %s: %s", e.Field, e.Message)
+}
+
+// ScaleError 扩缩容错误
+type ScaleError struct {
+	Service string
+	Message string
+}
+
+func (e *ScaleError) Error() string {
+	return fmt.Sprintf("scale error for service %s: %s", e.Service, e.Message)
+}
+
+// ========== Manager ==========
+
+// Manager 容器编排管理器
 type Manager struct {
-	mu          sync.RWMutex
-	containers  map[string]*Container  // id -> container
-	pods        map[string]*Pod        // id -> pod
-	deployments map[string]*Deployment // id -> deployment
-	services    map[string]*Service    // id -> service
-	stats       ClusterStats
-	scheduler   *Scheduler
-	healthCheck *HealthChecker
-	nodeID      string // 当前节点 ID
+	projects     map[string]*OrchestrationProject
+	healthChecks map[string]*HealthReport
+	scaleEvents  []AutoScaleEvent
+	logStreams   map[string]*LogStream
+	mu           sync.RWMutex
+	ctx          context.Context
+	cancel       context.CancelFunc
+	stopCh       chan struct{}
 }
 
-// NewManager 创建容器编排管理器.
-func NewManager(nodeID string) *Manager {
-	m := &Manager{
-		containers:  make(map[string]*Container),
-		pods:        make(map[string]*Pod),
-		deployments: make(map[string]*Deployment),
-		services:    make(map[string]*Service),
-		nodeID:      nodeID,
+// NewManager 创建容器编排管理器
+func NewManager() *Manager {
+	ctx, cancel := context.WithCancel(context.Background())
+	return &Manager{
+		projects:     make(map[string]*OrchestrationProject),
+		healthChecks: make(map[string]*HealthReport),
+		scaleEvents:  make([]AutoScaleEvent, 0),
+		logStreams:   make(map[string]*LogStream),
+		ctx:          ctx,
+		cancel:       cancel,
+		stopCh:       make(chan struct{}),
 	}
-
-	// 初始化调度器
-	m.scheduler = NewScheduler(m)
-
-	// 初始化健康检查器
-	m.healthCheck = NewHealthChecker(m)
-
-	return m
 }
 
-// Start 启动管理器.
-func (m *Manager) Start(ctx context.Context) error {
-	log.Printf("[ContainerOrch] 启动容器编排管理器，节点: %s", m.nodeID)
+// ========== 项目 CRUD ==========
 
-	// 启动健康检查
-	go m.healthCheck.Start(ctx)
-
-	// 启动调度器
-	go m.scheduler.Start(ctx)
-
-	return nil
-}
-
-// Stop 停止管理器.
-func (m *Manager) Stop() {
-	log.Printf("[ContainerOrch] 停止容器编排管理器")
-	m.healthCheck.Stop()
-	m.scheduler.Stop()
-}
-
-// ==================== 容器生命周期管理 ====================
-
-// CreateContainer 创建容器.
-func (m *Manager) CreateContainer(req *CreateContainerRequest) (*Container, error) {
+// CreateProject 创建编排项目
+func (m *Manager) CreateProject(req CreateProjectRequest) (*OrchestrationProject, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	// 生成容器 ID
-	containerID := generateID("container")
-
-	// 验证镜像
-	if req.Image == "" {
-		return nil, fmt.Errorf("image is required")
-	}
-
-	// 转换端口映射
-	ports := make([]PortMapping, 0, len(req.Ports))
-	for _, p := range req.Ports {
-		ports = append(ports, PortMapping{
-			ContainerPort: p.ContainerPort,
-			Protocol:      p.Protocol,
-		})
-	}
-
-	// 转换卷挂载
-	volumes := make([]string, 0, len(req.Volumes))
-	for _, v := range req.Volumes {
-		volumes = append(volumes, v.MountPath)
-	}
-
-	// 转换环境变量
-	env := make(map[string]string)
-	for _, e := range req.Env {
-		env[e.Name] = e.Value
-	}
-
-	// 创建容器
-	container := &Container{
-		ID:             containerID,
-		Name:           req.Name,
-		PodID:          req.PodID,
-		Image:          req.Image,
-		Command:        req.Command,
-		Args:           req.Args,
-		WorkingDir:     req.WorkingDir,
-		State:          StateCreated,
-		Status:         "Container created",
-		Resources:      ResourceLimits{CPUShares: 1024, MemoryMB: 512},
-		Ports:          ports,
-		Volumes:        volumes,
-		Env:            env,
-		LivenessProbe:  req.LivenessProbe,
-		ReadinessProbe: req.ReadinessProbe,
-		StartupProbe:   req.StartupProbe,
-		RestartPolicy:  string(req.RestartPolicy),
-		CreatedAt:      time.Now(),
-		LogPath:        fmt.Sprintf("/var/log/container/%s.log", containerID),
-	}
-
-	// 存储容器
-	m.containers[containerID] = container
-
-	log.Printf("[ContainerOrch] 容器已创建: %s (%s)", container.Name, containerID)
-	return container, nil
-}
-
-// StartContainer 启动容器.
-func (m *Manager) StartContainer(containerID string) error {
-	m.mu.Lock()
-	container, ok := m.containers[containerID]
-	if !ok {
-		m.mu.Unlock()
-		return fmt.Errorf("container not found: %s", containerID)
-	}
-
-	if container.State == StateRunning {
-		m.mu.Unlock()
-		return fmt.Errorf("container is already running: %s", containerID)
-	}
-
-	// 模拟启动容器
-	container.State = StateRunning
-	container.Status = "Container started"
-	now := time.Now()
-	container.StartedAt = &now
-	m.mu.Unlock()
-
-	log.Printf("[ContainerOrch] 容器已启动: %s (%s)", container.Name, containerID)
-	return nil
-}
-
-// StopContainer 停止容器.
-func (m *Manager) StopContainer(containerID string, timeout *int) error {
-	m.mu.Lock()
-	container, ok := m.containers[containerID]
-	if !ok {
-		m.mu.Unlock()
-		return fmt.Errorf("container not found: %s", containerID)
-	}
-
-	if container.State != StateRunning {
-		m.mu.Unlock()
-		return fmt.Errorf("container is not running: %s", containerID)
-	}
-
-	// 模拟停止容器
-	container.State = StateStopped
-	container.Status = "Container stopped"
-	now := time.Now()
-	container.FinishedAt = &now
-	m.mu.Unlock()
-
-	log.Printf("[ContainerOrch] 容器已停止: %s (%s)", container.Name, containerID)
-	return nil
-}
-
-// RestartContainer 重启容器.
-func (m *Manager) RestartContainer(containerID string, timeout *int) error {
-	// 停止容器
-	if err := m.StopContainer(containerID, timeout); err != nil {
-		// 如果容器未运行，忽略错误
-		if container, ok := m.containers[containerID]; ok && container.State == StateStopped {
-			// 继续启动
-		} else {
-			return err
+	// 验证服务名称
+	for name := range req.Services {
+		if !isValidServiceName(name) {
+			return nil, &ValidationError{
+				Field:   "services",
+				Message: fmt.Sprintf("invalid service name: %s", name),
+			}
 		}
 	}
 
-	// 启动容器
-	if err := m.StartContainer(containerID); err != nil {
-		return err
+	// 设置默认值
+	if req.Namespace == "" {
+		req.Namespace = "default"
 	}
 
-	// 增加重启计数
-	m.mu.Lock()
-	if container, ok := m.containers[containerID]; ok {
-		container.RestartCount++
-	}
-	m.mu.Unlock()
-
-	return nil
-}
-
-// RemoveContainer 删除容器.
-func (m *Manager) RemoveContainer(containerID string, force bool) error {
-	m.mu.Lock()
-	container, ok := m.containers[containerID]
-	if !ok {
-		m.mu.Unlock()
-		return fmt.Errorf("container not found: %s", containerID)
-	}
-
-	// 如果容器正在运行且未强制删除，报错
-	if container.State == StateRunning && !force {
-		m.mu.Unlock()
-		return fmt.Errorf("container is running, use force to remove: %s", containerID)
-	}
-	m.mu.Unlock()
-
-	// 如果正在运行，先停止
-	if container.State == StateRunning {
-		if err := m.StopContainer(containerID, nil); err != nil && !force {
-			return err
+	// 初始化服务状态
+	for name, svc := range req.Services {
+		svc.Name = name
+		svc.Status = ServiceStatusPending
+		if svc.DesiredCount == 0 {
+			svc.DesiredCount = 1
+		}
+		if svc.Deploy != nil && svc.Deploy.Replicas > 0 {
+			svc.DesiredCount = svc.Deploy.Replicas
+		}
+		if svc.Resources == nil {
+			svc.Resources = &ResourceLimits{
+				CPU:    &CPULimit{Cores: 1, Shares: 1024},
+				Memory: &MemoryLimit{Limit: 512 * 1024 * 1024}, // 512MB
+			}
 		}
 	}
 
-	// 删除容器
-	m.mu.Lock()
-	delete(m.containers, containerID)
-	m.mu.Unlock()
-
-	log.Printf("[ContainerOrch] 容器已删除: %s (%s)", container.Name, containerID)
-	return nil
-}
-
-// GetContainer 获取容器.
-func (m *Manager) GetContainer(containerID string) (*Container, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	container, ok := m.containers[containerID]
-	return container, ok
-}
-
-// ListContainers 列出所有容器.
-func (m *Manager) ListContainers() []*Container {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	containers := make([]*Container, 0, len(m.containers))
-	for _, c := range m.containers {
-		containers = append(containers, c)
-	}
-	return containers
-}
-
-// GetContainerLogs 获取容器日志.
-func (m *Manager) GetContainerLogs(containerID string, opts *LogOptions) (string, error) {
-	m.mu.RLock()
-	container, ok := m.containers[containerID]
-	m.mu.RUnlock()
-
-	if !ok {
-		return "", fmt.Errorf("container not found: %s", containerID)
-	}
-
-	// 模拟返回日志
-	log.Printf("[ContainerOrch] 获取容器日志: %s", containerID)
-	return fmt.Sprintf("[%s] Container %s logs\n", time.Now().Format(time.RFC3339), container.Name), nil
-}
-
-// ==================== Pod 管理 ====================
-
-// CreatePod 创建 Pod.
-func (m *Manager) CreatePod(req *CreatePodRequest) (*Pod, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	// 生成 Pod ID
-	podID := generateID("pod")
-
-	// 创建 Pod
-	pod := &Pod{
-		ID:           podID,
-		Name:         req.Name,
-		Namespace:    req.Namespace,
-		DeploymentID: req.DeploymentID,
-		Spec:         req.Spec,
-		Phase:        PodPending,
-		Labels:       req.Labels,
-		Annotations:  req.Annotations,
-		Containers:   make([]*Container, 0),
-		CreatedAt:    time.Now(),
-	}
-
-	// 设置默认命名空间
-	if pod.Namespace == "" {
-		pod.Namespace = "default"
-	}
-
-	// 存储 Pod
-	m.pods[podID] = pod
-
-	// 更新统计
-	m.stats.mu.Lock()
-	m.stats.TotalPods++
-	m.stats.PendingPods++
-	m.stats.LastUpdated = time.Now()
-	m.stats.mu.Unlock()
-
-	log.Printf("[ContainerOrch] Pod 已创建: %s/%s (%s)", pod.Namespace, pod.Name, podID)
-	return pod, nil
-}
-
-// StartPod 启动 Pod.
-func (m *Manager) StartPod(podID string) error {
-	m.mu.Lock()
-	pod, ok := m.pods[podID]
-	if !ok {
-		m.mu.Unlock()
-		return fmt.Errorf("pod not found: %s", podID)
-	}
-
-	if pod.Phase == PodRunning {
-		m.mu.Unlock()
-		return fmt.Errorf("pod is already running: %s", podID)
-	}
-	m.mu.Unlock()
-
-	// 调度 Pod 到节点
-	nodeID, err := m.scheduler.SchedulePod(pod)
-	if err != nil {
-		return fmt.Errorf("failed to schedule pod: %w", err)
-	}
-
-	// 启动 Pod 中的所有容器
-	pod.mu.Lock()
-	pod.NodeID = nodeID
-	pod.Phase = PodRunning
-	pod.HostIP = fmt.Sprintf("192.168.1.%d", hashString(nodeID)%254+1)
-	pod.PodIP = fmt.Sprintf("10.42.%d.%d", hashString(podID)%254+1, hashString(podID+"pod")%254+1)
-	now := time.Now()
-	pod.StartedAt = &now
-	pod.mu.Unlock()
-
-	// 启动所有容器
-	for _, container := range pod.Containers {
-		if err := m.StartContainer(container.ID); err != nil {
-			log.Printf("[ContainerOrch] 启动容器失败: %s, 错误: %v", container.ID, err)
-		}
-	}
-
-	// 更新统计
-	m.stats.mu.Lock()
-	m.stats.PendingPods--
-	m.stats.RunningPods++
-	m.stats.LastUpdated = time.Now()
-	m.stats.mu.Unlock()
-
-	log.Printf("[ContainerOrch] Pod 已启动: %s/%s (%s), 节点: %s", pod.Namespace, pod.Name, podID, nodeID)
-	return nil
-}
-
-// StopPod 停止 Pod.
-func (m *Manager) StopPod(podID string) error {
-	m.mu.Lock()
-	pod, ok := m.pods[podID]
-	if !ok {
-		m.mu.Unlock()
-		return fmt.Errorf("pod not found: %s", podID)
-	}
-
-	if pod.Phase != PodRunning {
-		m.mu.Unlock()
-		return fmt.Errorf("pod is not running: %s", podID)
-	}
-	m.mu.Unlock()
-
-	// 停止所有容器
-	for _, container := range pod.Containers {
-		if err := m.StopContainer(container.ID, nil); err != nil {
-			log.Printf("[ContainerOrch] 停止容器失败: %s, 错误: %v", container.ID, err)
-		}
-	}
-
-	// 更新 Pod 状态
-	pod.mu.Lock()
-	pod.Phase = PodSucceeded
-	now := time.Now()
-	pod.FinishedAt = &now
-	pod.mu.Unlock()
-
-	// 更新统计
-	m.stats.mu.Lock()
-	m.stats.RunningPods--
-	m.stats.SucceededPods++
-	m.stats.LastUpdated = time.Now()
-	m.stats.mu.Unlock()
-
-	log.Printf("[ContainerOrch] Pod 已停止: %s/%s (%s)", pod.Namespace, pod.Name, podID)
-	return nil
-}
-
-// RemovePod 删除 Pod.
-func (m *Manager) RemovePod(podID string, force bool) error {
-	m.mu.Lock()
-	pod, ok := m.pods[podID]
-	if !ok {
-		m.mu.Unlock()
-		return fmt.Errorf("pod not found: %s", podID)
-	}
-
-	// 如果 Pod 正在运行且未强制删除，报错
-	if pod.Phase == PodRunning && !force {
-		m.mu.Unlock()
-		return fmt.Errorf("pod is running, use force to remove: %s", podID)
-	}
-	m.mu.Unlock()
-
-	// 如果正在运行，先停止
-	if pod.Phase == PodRunning {
-		if err := m.StopPod(podID); err != nil && !force {
-			return err
-		}
-	}
-
-	// 删除所有容器
-	for _, container := range pod.Containers {
-		if err := m.RemoveContainer(container.ID, force); err != nil {
-			log.Printf("[ContainerOrch] 删除容器失败: %s, 错误: %v", container.ID, err)
-		}
-	}
-
-	// 删除 Pod
-	m.mu.Lock()
-	delete(m.pods, podID)
-	m.stats.mu.Lock()
-	m.stats.TotalPods--
-	m.stats.mu.Unlock()
-	m.stats.LastUpdated = time.Now()
-	m.mu.Unlock()
-
-	log.Printf("[ContainerOrch] Pod 已删除: %s/%s (%s)", pod.Namespace, pod.Name, podID)
-	return nil
-}
-
-// GetPod 获取 Pod.
-func (m *Manager) GetPod(podID string) (*Pod, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	pod, ok := m.pods[podID]
-	return pod, ok
-}
-
-// ListPods 列出所有 Pod.
-func (m *Manager) ListPods(namespace string) []*Pod {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	pods := make([]*Pod, 0)
-	for _, p := range m.pods {
-		if namespace == "" || p.Namespace == namespace {
-			pods = append(pods, p)
-		}
-	}
-	return pods
-}
-
-// ==================== Deployment 管理 ====================
-
-// CreateDeployment 创建 Deployment.
-func (m *Manager) CreateDeployment(req *CreateDeploymentRequest) (*Deployment, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	// 生成 Deployment ID
-	deploymentID := generateID("deploy")
-
-	// 创建 Deployment
-	deployment := &Deployment{
-		ID:        deploymentID,
-		Name:      req.Name,
-		Namespace: req.Namespace,
-		Spec:      deploymentSpecToData(req.Spec),
-		Status: DeploymentStatusData{
-			Replicas: req.Spec.Replicas,
-		},
-		Labels:      req.Labels,
-		Annotations: req.Annotations,
+	project := &OrchestrationProject{
+		ID:          uuid.New().String(),
+		Name:        req.Name,
+		Description: req.Description,
+		Namespace:   req.Namespace,
+		Services:    req.Services,
+		Networks:    req.Networks,
+		Volumes:     req.Volumes,
+		Status:      ProjectStatusCreating,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
+		Labels:      req.Labels,
 	}
 
-	// 设置默认命名空间
-	if deployment.Namespace == "" {
-		deployment.Namespace = "default"
+	// 验证依赖关系
+	if err := m.validateDependencies(project); err != nil {
+		return nil, err
 	}
 
-	// 设置默认副本数
-	if deployment.Spec.Replicas <= 0 {
-		deployment.Spec.Replicas = 1
-	}
-
-	// 存储 Deployment
-	m.deployments[deploymentID] = deployment
-
-	// 更新统计
-	m.stats.mu.Lock()
-	m.stats.TotalDeployments++
-	m.stats.LastUpdated = time.Now()
-	m.stats.mu.Unlock()
-
-	log.Printf("[ContainerOrch] Deployment 已创建: %s/%s (%s)", deployment.Namespace, deployment.Name, deploymentID)
-	return deployment, nil
+	m.projects[project.ID] = project
+	return project, nil
 }
 
-// ScaleDeployment 扩缩容 Deployment.
-func (m *Manager) ScaleDeployment(deploymentID string, replicas int) error {
-	if replicas < 0 {
-		return fmt.Errorf("replicas cannot be negative")
-	}
+// GetProject 获取项目
+func (m *Manager) GetProject(id string) (*OrchestrationProject, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 
-	m.mu.Lock()
-	deployment, ok := m.deployments[deploymentID]
+	project, ok := m.projects[id]
 	if !ok {
-		m.mu.Unlock()
-		return fmt.Errorf("deployment not found: %s", deploymentID)
+		return nil, &NotFoundError{Resource: "project", ID: id}
+	}
+	return project, nil
+}
+
+// ListProjects 列出所有项目
+func (m *Manager) ListProjects(namespace string) []*OrchestrationProject {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	projects := make([]*OrchestrationProject, 0, len(m.projects))
+	for _, p := range m.projects {
+		if namespace == "" || p.Namespace == namespace {
+			projects = append(projects, p)
+		}
 	}
 
-	oldReplicas := deployment.Spec.Replicas
-	deployment.Spec.Replicas = replicas
-	deployment.UpdatedAt = time.Now()
-	m.mu.Unlock()
+	sort.Slice(projects, func(i, j int) bool {
+		return projects[i].CreatedAt.After(projects[j].CreatedAt)
+	})
 
-	log.Printf("[ContainerOrch] Deployment 扩缩容: %s, %d -> %d", deploymentID, oldReplicas, replicas)
+	return projects
+}
 
-	// 根据副本数调整 Pod
-	go m.reconcileDeployment(deploymentID)
+// UpdateProject 更新项目
+func (m *Manager) UpdateProject(id string, req UpdateProjectRequest) (*OrchestrationProject, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
+	project, ok := m.projects[id]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: id}
+	}
+
+	if req.Name != nil {
+		project.Name = *req.Name
+	}
+	if req.Description != nil {
+		project.Description = *req.Description
+	}
+	if req.Services != nil {
+		// 初始化新服务
+		for name, svc := range req.Services {
+			svc.Name = name
+			if existing, ok := project.Services[name]; ok {
+				// 保留现有状态
+				svc.Status = existing.Status
+				svc.ContainerIDs = existing.ContainerIDs
+				svc.Instances = existing.Instances
+			} else {
+				svc.Status = ServiceStatusPending
+			}
+			if svc.Deploy != nil && svc.Deploy.Replicas > 0 {
+				svc.DesiredCount = svc.Deploy.Replicas
+			} else {
+				svc.DesiredCount = 1
+			}
+		}
+		project.Services = req.Services
+	}
+	if req.Networks != nil {
+		project.Networks = req.Networks
+	}
+	if req.Volumes != nil {
+		project.Volumes = req.Volumes
+	}
+	if req.Labels != nil {
+		project.Labels = req.Labels
+	}
+
+	project.UpdatedAt = time.Now()
+	project.Status = ProjectStatusUpdating
+
+	return project, nil
+}
+
+// DeleteProject 删除项目
+func (m *Manager) DeleteProject(id string, force bool) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	project, ok := m.projects[id]
+	if !ok {
+		return &NotFoundError{Resource: "project", ID: id}
+	}
+
+	// 检查是否所有服务已停止
+	if !force && project.Status == ProjectStatusRunning {
+		return &ValidationError{
+			Field:   "status",
+			Message: "project is still running, use force=true to delete",
+		}
+	}
+
+	// 清理资源
+	delete(m.projects, id)
+	delete(m.healthChecks, id)
 	return nil
 }
 
-// DeleteDeployment 删除 Deployment.
-func (m *Manager) DeleteDeployment(deploymentID string) error {
+// ========== 服务生命周期 ==========
+
+// StartProject 启动项目
+func (m *Manager) StartProject(id string) (*OrchestrationProject, error) {
 	m.mu.Lock()
-	deployment, ok := m.deployments[deploymentID]
+	defer m.mu.Unlock()
+
+	project, ok := m.projects[id]
 	if !ok {
-		m.mu.Unlock()
-		return fmt.Errorf("deployment not found: %s", deploymentID)
-	}
-	m.mu.Unlock()
-
-	// 删除所有关联的 Pod
-	for _, pod := range m.pods {
-		if pod.DeploymentID == deploymentID {
-			if err := m.RemovePod(pod.ID, true); err != nil {
-				log.Printf("[ContainerOrch] 删除 Pod 失败: %s, 错误: %v", pod.ID, err)
-			}
-		}
+		return nil, &NotFoundError{Resource: "project", ID: id}
 	}
 
-	// 删除 Deployment
-	m.mu.Lock()
-	delete(m.deployments, deploymentID)
-	m.stats.mu.Lock()
-	m.stats.TotalDeployments--
-	m.stats.mu.Unlock()
-	m.stats.LastUpdated = time.Now()
-	m.mu.Unlock()
-
-	log.Printf("[ContainerOrch] Deployment 已删除: %s/%s (%s)", deployment.Namespace, deployment.Name, deploymentID)
-	return nil
-}
-
-// GetDeployment 获取 Deployment.
-func (m *Manager) GetDeployment(deploymentID string) (*Deployment, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	deployment, ok := m.deployments[deploymentID]
-	return deployment, ok
-}
-
-// ListDeployments 列出所有 Deployment.
-func (m *Manager) ListDeployments(namespace string) []*Deployment {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	deployments := make([]*Deployment, 0)
-	for _, d := range m.deployments {
-		if namespace == "" || d.Namespace == namespace {
-			deployments = append(deployments, d)
-		}
-	}
-	return deployments
-}
-
-// reconcileDeployment 协调 Deployment 状态.
-func (m *Manager) reconcileDeployment(deploymentID string) {
-	m.mu.RLock()
-	deployment, ok := m.deployments[deploymentID]
-	m.mu.RUnlock()
-
-	if !ok {
-		return
+	// 计算启动顺序
+	order, err := m.calculateStartupOrder(project)
+	if err != nil {
+		return nil, err
 	}
 
-	// 获取当前关联的 Pod
-	currentPods := make([]*Pod, 0)
-	for _, pod := range m.pods {
-		if pod.DeploymentID == deploymentID {
-			currentPods = append(currentPods, pod)
-		}
-	}
-
-	targetReplicas := deployment.Spec.Replicas
-	currentReplicas := len(currentPods)
-
-	if currentReplicas < targetReplicas {
-		// 需要扩容
-		for i := 0; i < targetReplicas-currentReplicas; i++ {
-			podReq := &CreatePodRequest{
-				Name:         fmt.Sprintf("%s-pod-%d", deployment.Name, currentReplicas+i+1),
-				Namespace:    deployment.Namespace,
-				DeploymentID: deploymentID,
-				Spec:         podSpecDataToPodSpec(deployment.Spec.Template.Spec),
-				Labels:       deployment.Spec.Template.Metadata.Labels,
-				Annotations:  deployment.Spec.Template.Metadata.Annotations,
-			}
-
-			pod, err := m.CreatePod(podReq)
-			if err != nil {
-				log.Printf("[ContainerOrch] 创建 Pod 失败: %v", err)
+	// 按阶段启动服务
+	project.Status = ProjectStatusRunning
+	for _, stage := range order.Stages {
+		for _, serviceName := range stage {
+			svc, ok := project.Services[serviceName]
+			if !ok {
 				continue
 			}
-
-			// 启动 Pod
-			if err := m.StartPod(pod.ID); err != nil {
-				log.Printf("[ContainerOrch] 启动 Pod 失败: %v", err)
+			svc.Status = ServiceStatusRunning
+			svc.Instances = svc.DesiredCount
+			// 生成模拟容器 ID
+			for i := 0; i < svc.Instances; i++ {
+				containerID := uuid.New().String()[:12]
+				svc.ContainerIDs = append(svc.ContainerIDs, containerID)
 			}
 		}
-	} else if currentReplicas > targetReplicas {
-		// 需要缩容
-		for i := 0; i < currentReplicas-targetReplicas; i++ {
-			if i < len(currentPods) {
-				if err := m.RemovePod(currentPods[i].ID, true); err != nil {
-					log.Printf("[ContainerOrch] 删除 Pod 失败: %v", err)
+	}
+
+	project.UpdatedAt = time.Now()
+	return project, nil
+}
+
+// StopProject 停止项目
+func (m *Manager) StopProject(id string) (*OrchestrationProject, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	project, ok := m.projects[id]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: id}
+	}
+
+	project.Status = ProjectStatusStopped
+	for _, svc := range project.Services {
+		svc.Status = ServiceStatusStopped
+		svc.ContainerIDs = nil
+		svc.Instances = 0
+	}
+
+	project.UpdatedAt = time.Now()
+	return project, nil
+}
+
+// RestartProject 重启项目
+func (m *Manager) RestartProject(id string) (*OrchestrationProject, error) {
+	if _, err := m.StopProject(id); err != nil {
+		return nil, err
+	}
+	return m.StartProject(id)
+}
+
+// ScaleService 扩缩容服务
+func (m *Manager) ScaleService(projectID, serviceName string, replicas int) (*ServiceConfig, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if replicas < 0 {
+		return nil, &ScaleError{
+			Service: serviceName,
+			Message: "replicas cannot be negative",
+		}
+	}
+	if replicas > MaxInstances {
+		return nil, &ScaleError{
+			Service: serviceName,
+			Message: fmt.Sprintf("replicas cannot exceed %d", MaxInstances),
+		}
+	}
+
+	project, ok := m.projects[projectID]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: projectID}
+	}
+
+	svc, ok := project.Services[serviceName]
+	if !ok {
+		return nil, &NotFoundError{Resource: "service", ID: serviceName}
+	}
+
+	oldCount := svc.Instances
+	svc.DesiredCount = replicas
+	svc.Instances = replicas
+	svc.Status = ServiceStatusRunning
+
+	// 更新容器 ID
+	if replicas > oldCount {
+		// 扩容：添加新容器
+		for i := oldCount; i < replicas; i++ {
+			containerID := uuid.New().String()[:12]
+			svc.ContainerIDs = append(svc.ContainerIDs, containerID)
+		}
+	} else if replicas < oldCount {
+		// 缩容：移除多余容器
+		svc.ContainerIDs = svc.ContainerIDs[:replicas]
+	}
+
+	project.UpdatedAt = time.Now()
+
+	// 记录扩缩容事件
+	event := AutoScaleEvent{
+		ID:          uuid.New().String(),
+		ProjectID:   projectID,
+		ServiceName: serviceName,
+		Action:      "scale",
+		From:        oldCount,
+		To:          replicas,
+		Reason:      "manual",
+		Timestamp:   time.Now(),
+		Success:     true,
+	}
+	m.scaleEvents = append(m.scaleEvents, event)
+
+	return svc, nil
+}
+
+// ========== 依赖管理 ==========
+
+// validateDependencies 验证服务依赖
+func (m *Manager) validateDependencies(project *OrchestrationProject) error {
+	graph := m.buildDependencyGraph(project)
+
+	// 检查循环依赖
+	sorter := &TopologicalSorter{
+		graph:    graph,
+		visited:  make(map[string]bool),
+		recStack: make(map[string]bool),
+	}
+
+	if sorter.HasCycle() {
+		return &DependencyError{
+			Message: fmt.Sprintf("circular dependency detected: %s", strings.Join(sorter.CyclePath(), " -> ")),
+		}
+	}
+
+	return nil
+}
+
+// buildDependencyGraph 构建依赖图
+func (m *Manager) buildDependencyGraph(project *OrchestrationProject) *DependencyGraph {
+	graph := &DependencyGraph{
+		Nodes: make(map[string]*DependencyNode),
+		Edges: make(map[string][]string),
+	}
+
+	// 添加节点
+	for name, svc := range project.Services {
+		node := &DependencyNode{
+			Name:    name,
+			Service: svc,
+		}
+		graph.Nodes[name] = node
+		graph.Edges[name] = make([]string, 0)
+	}
+
+	// 添加边
+	for name, svc := range project.Services {
+		for _, dep := range svc.DependsOn {
+			if _, ok := project.Services[dep.ServiceName]; ok {
+				graph.Edges[name] = append(graph.Edges[name], dep.ServiceName)
+				graph.Nodes[dep.ServiceName].Dependents = append(
+					graph.Nodes[dep.ServiceName].Dependents, name)
+			}
+		}
+	}
+
+	return graph
+}
+
+// calculateStartupOrder 计算启动顺序
+func (m *Manager) calculateStartupOrder(project *OrchestrationProject) (*StartupOrder, error) {
+	graph := m.buildDependencyGraph(project)
+
+	// 使用拓扑排序
+	order, err := m.topologicalSort(graph)
+	if err != nil {
+		return nil, err
+	}
+
+	// 按层级分组
+	levels := m.calculateLevels(graph, order)
+
+	startupOrder := &StartupOrder{
+		Stages: levels,
+		Total:  len(order),
+	}
+
+	return startupOrder, nil
+}
+
+// topologicalSort 拓扑排序
+func (m *Manager) topologicalSort(graph *DependencyGraph) ([]string, error) {
+	// 计算入度
+	inDegree := make(map[string]int)
+	for name := range graph.Nodes {
+		inDegree[name] = 0
+	}
+	for _, deps := range graph.Edges {
+		for _, dep := range deps {
+			inDegree[dep]++
+		}
+	}
+
+	// 使用 Kahn 算法
+	queue := make([]string, 0)
+	for name, degree := range inDegree {
+		if degree == 0 {
+			queue = append(queue, name)
+		}
+	}
+
+	result := make([]string, 0, len(graph.Nodes))
+	for len(queue) > 0 {
+		node := queue[0]
+		queue = queue[1:]
+		result = append(result, node)
+
+		// 更新依赖此节点的节点的入度
+		for _, dep := range graph.Edges[node] {
+			inDegree[dep]--
+			if inDegree[dep] == 0 {
+				queue = append(queue, dep)
+			}
+		}
+	}
+
+	// 检查是否有循环
+	if len(result) != len(graph.Nodes) {
+		return nil, &DependencyError{
+			Message: "circular dependency detected",
+		}
+	}
+
+	return result, nil
+}
+
+// calculateLevels 计算层级
+func (m *Manager) calculateLevels(graph *DependencyGraph, order []string) [][]string {
+	levels := make([][]string, 0)
+	levelMap := make(map[string]int)
+
+	// 计算每个节点的层级
+	for _, node := range order {
+		maxLevel := -1
+		for _, dep := range graph.Edges[node] {
+			if level, ok := levelMap[dep]; ok && level > maxLevel {
+				maxLevel = level
+			}
+		}
+		levelMap[node] = maxLevel + 1
+
+		// 确保有足够的层级
+		for len(levels) <= levelMap[node] {
+			levels = append(levels, make([]string, 0))
+		}
+		levels[levelMap[node]] = append(levels[levelMap[node]], node)
+	}
+
+	return levels
+}
+
+// HasCycle 检查是否有循环依赖
+func (s *TopologicalSorter) HasCycle() bool {
+	for name := range s.graph.Nodes {
+		if !s.visited[name] {
+			if s.detectCycle(name) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// detectCycle 检测循环
+func (s *TopologicalSorter) detectCycle(node string) bool {
+	s.visited[node] = true
+	s.recStack[node] = true
+
+	for _, dep := range s.graph.Edges[node] {
+		if !s.visited[dep] {
+			if s.detectCycle(dep) {
+				s.cyclePath = append([]string{node}, s.cyclePath...)
+				return true
+			}
+		} else if s.recStack[dep] {
+			s.cyclePath = []string{dep, node}
+			return true
+		}
+	}
+
+	s.recStack[node] = false
+	return false
+}
+
+// CyclePath 获取循环路径
+func (s *TopologicalSorter) CyclePath() []string {
+	return s.cyclePath
+}
+
+// GetStartupOrder 获取启动顺序
+func (m *Manager) GetStartupOrder(projectID string) (*StartupOrder, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	project, ok := m.projects[projectID]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: projectID}
+	}
+
+	return m.calculateStartupOrder(project)
+}
+
+// ========== 健康检查 ==========
+
+// GetHealthReport 获取健康报告
+func (m *Manager) GetHealthReport(projectID string) (*HealthReport, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	project, ok := m.projects[projectID]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: projectID}
+	}
+
+	report, ok := m.healthChecks[projectID]
+	if !ok {
+		// 创建新的健康报告
+		report = &HealthReport{
+			ProjectID: projectID,
+			Timestamp: time.Now(),
+			Services:  make(map[string]*ServiceHealth),
+			Overall:   HealthStatusNone,
+		}
+		m.healthChecks[projectID] = report
+	}
+
+	// 更新服务健康状态
+	for name, svc := range project.Services {
+		health := &ServiceHealth{
+			ServiceName: name,
+			Status:      HealthStatusNone,
+			LastCheck:   time.Now(),
+			Instances:   make([]InstanceHealth, 0),
+		}
+
+		// 根据服务状态推断健康状态
+		switch svc.Status {
+		case ServiceStatusRunning:
+			health.Status = HealthStatusHealthy
+		case ServiceStatusError, ServiceStatusUnhealthy:
+			health.Status = HealthStatusUnhealthy
+		case ServiceStatusCreating, ServiceStatusScaling:
+			health.Status = HealthStatusStarting
+		}
+
+		// 为每个容器实例创建健康状态
+		for _, containerID := range svc.ContainerIDs {
+			instance := InstanceHealth{
+				ContainerID: containerID,
+				Status:      health.Status,
+				CPU:         0.5,  // 模拟数据
+				Memory:      128 * 1024 * 1024, // 128MB
+				Uptime:      time.Since(project.CreatedAt),
+			}
+			health.Instances = append(health.Instances, instance)
+		}
+
+		report.Services[name] = health
+	}
+
+	// 计算整体健康状态
+	overallStatus := HealthStatusHealthy
+	for _, health := range report.Services {
+		if health.Status == HealthStatusUnhealthy {
+			overallStatus = HealthStatusUnhealthy
+			break
+		}
+		if health.Status == HealthStatusStarting {
+			overallStatus = HealthStatusStarting
+		}
+	}
+	report.Overall = overallStatus
+
+	return report, nil
+}
+
+// UpdateServiceHealthCheck 更新服务健康检查配置
+func (m *Manager) UpdateServiceHealthCheck(projectID, serviceName string, config *HealthCheckConfig) (*ServiceConfig, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	project, ok := m.projects[projectID]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: projectID}
+	}
+
+	svc, ok := project.Services[serviceName]
+	if !ok {
+		return nil, &NotFoundError{Resource: "service", ID: serviceName}
+	}
+
+	svc.HealthCheck = config
+	project.UpdatedAt = time.Now()
+
+	return svc, nil
+}
+
+// UpdateServiceResources 更新服务资源限制
+func (m *Manager) UpdateServiceResources(projectID, serviceName string, limits *ResourceLimits) (*ServiceConfig, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	project, ok := m.projects[projectID]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: projectID}
+	}
+
+	svc, ok := project.Services[serviceName]
+	if !ok {
+		return nil, &NotFoundError{Resource: "service", ID: serviceName}
+	}
+
+	svc.Resources = limits
+	project.UpdatedAt = time.Now()
+
+	return svc, nil
+}
+
+// ========== 自动扩缩容 ==========
+
+// UpdateAutoScalePolicy 更新自动扩缩容策略
+func (m *Manager) UpdateAutoScalePolicy(projectID, serviceName string, policy *AutoScalePolicy) (*ServiceConfig, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	project, ok := m.projects[projectID]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: projectID}
+	}
+
+	svc, ok := project.Services[serviceName]
+	if !ok {
+		return nil, &NotFoundError{Resource: "service", ID: serviceName}
+	}
+
+	if svc.Deploy == nil {
+		svc.Deploy = &DeployConfig{Replicas: svc.DesiredCount}
+	}
+	svc.Deploy.AutoScale = policy
+	project.UpdatedAt = time.Now()
+
+	return svc, nil
+}
+
+// EvaluateAutoScale 评估是否需要扩缩容
+func (m *Manager) EvaluateAutoScale(projectID, serviceName string, metrics *ContainerMetrics) (*AutoScaleEvent, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	project, ok := m.projects[projectID]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: projectID}
+	}
+
+	svc, ok := project.Services[serviceName]
+	if !ok {
+		return nil, &NotFoundError{Resource: "service", ID: serviceName}
+	}
+
+	if svc.Deploy == nil || svc.Deploy.AutoScale == nil || !svc.Deploy.AutoScale.Enabled {
+		return nil, nil
+	}
+
+	policy := svc.Deploy.AutoScale
+	currentReplicas := svc.Instances
+	newReplicas := currentReplicas
+	reason := ""
+
+	// 评估每个指标
+	for _, metric := range policy.Metrics {
+		switch metric.Type {
+		case "cpu":
+			if metrics.CPU.Percent > metric.Target {
+				newReplicas = currentReplicas + policy.ScaleUp.StepSize
+				reason = fmt.Sprintf("CPU usage %.2f%% exceeds target %.2f%%", metrics.CPU.Percent, metric.Target)
+			}
+		case "memory":
+			if metrics.Memory.Percent > metric.Target {
+				newReplicas = currentReplicas + policy.ScaleUp.StepSize
+				reason = fmt.Sprintf("Memory usage %.2f%% exceeds target %.2f%%", metrics.Memory.Percent, metric.Target)
+			}
+		}
+	}
+
+	// 检查是否需要缩容
+	if newReplicas == currentReplicas {
+		shouldScaleDown := true
+		for _, metric := range policy.Metrics {
+			switch metric.Type {
+			case "cpu":
+				if metrics.CPU.Percent > metric.Target*0.5 {
+					shouldScaleDown = false
+				}
+			case "memory":
+				if metrics.Memory.Percent > metric.Target*0.5 {
+					shouldScaleDown = false
 				}
 			}
 		}
-	}
-
-	// 更新 Deployment 状态
-	m.mu.Lock()
-	if dep, ok := m.deployments[deploymentID]; ok {
-		dep.Status.Replicas = targetReplicas
-		dep.Status.ReadyReplicas = targetReplicas // 简化处理
-		dep.Status.AvailableReplicas = targetReplicas
-		dep.UpdatedAt = time.Now()
-	}
-	m.mu.Unlock()
-}
-
-// ==================== Service 管理 ====================
-
-// CreateService 创建 Service.
-func (m *Manager) CreateService(req *CreateServiceRequest) (*Service, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	// 生成 Service ID
-	serviceID := generateID("svc")
-
-	// 创建 Service
-	service := &Service{
-		ID:          serviceID,
-		Name:        req.Name,
-		Namespace:   req.Namespace,
-		Spec:        serviceSpecToData(req.Spec),
-		Labels:      req.Labels,
-		Annotations: req.Annotations,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-	}
-
-	// 设置默认命名空间
-	if service.Namespace == "" {
-		service.Namespace = "default"
-	}
-
-	// 设置默认类型
-	if service.Spec.Type == "" {
-		service.Spec.Type = ServiceClusterIP
-	}
-
-	// 分配 ClusterIP
-	if service.Spec.ClusterIP == "" {
-		service.Spec.ClusterIP = fmt.Sprintf("10.43.%d.%d", hashString(serviceID)%254+1, hashString(serviceID+"svc")%254+1)
-	}
-
-	// 存储 Service
-	m.services[serviceID] = service
-
-	// 更新统计
-	m.stats.mu.Lock()
-	m.stats.TotalServices++
-	m.stats.LastUpdated = time.Now()
-	m.stats.mu.Unlock()
-
-	log.Printf("[ContainerOrch] Service 已创建: %s/%s (%s), 类型: %s, ClusterIP: %s",
-		service.Namespace, service.Name, serviceID, service.Spec.Type, service.Spec.ClusterIP)
-	return service, nil
-}
-
-// DeleteService 删除 Service.
-func (m *Manager) DeleteService(serviceID string) error {
-	m.mu.Lock()
-	service, ok := m.services[serviceID]
-	if !ok {
-		m.mu.Unlock()
-		return fmt.Errorf("service not found: %s", serviceID)
-	}
-
-	delete(m.services, serviceID)
-	m.stats.mu.Lock()
-	m.stats.TotalServices--
-	m.stats.mu.Unlock()
-	m.stats.LastUpdated = time.Now()
-	m.mu.Unlock()
-
-	log.Printf("[ContainerOrch] Service 已删除: %s/%s (%s)", service.Namespace, service.Name, serviceID)
-	return nil
-}
-
-// GetService 获取 Service.
-func (m *Manager) GetService(serviceID string) (*Service, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	service, ok := m.services[serviceID]
-	return service, ok
-}
-
-// ListServices 列出所有 Service.
-func (m *Manager) ListServices(namespace string) []*Service {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	services := make([]*Service, 0)
-	for _, s := range m.services {
-		if namespace == "" || s.Namespace == namespace {
-			services = append(services, s)
+		if shouldScaleDown && currentReplicas > policy.MinReplicas {
+			newReplicas = currentReplicas - policy.ScaleDown.StepSize
+			reason = "low resource utilization"
 		}
 	}
-	return services
-}
 
-// ==================== 统计 ====================
-
-// GetStats 获取集群统计.
-func (m *Manager) GetStats() *ClusterStats {
-	return m.stats.GetSnapshot()
-}
-
-// ==================== 辅助函数 ====================
-
-// CreateContainerRequest 创建容器请求.
-type CreateContainerRequest struct {
-	Name           string               `json:"name"`
-	PodID          string               `json:"podId"`
-	Image          string               `json:"image"`
-	Command        []string             `json:"command"`
-	Args           []string             `json:"args"`
-	WorkingDir     string               `json:"workingDir"`
-	Resources      ResourceRequirements `json:"resources"`
-	Ports          []ContainerPort      `json:"ports"`
-	Volumes        []VolumeMount        `json:"volumes"`
-	Env            []EnvVar             `json:"env"`
-	LivenessProbe  *HealthCheck         `json:"livenessProbe,omitempty"`
-	ReadinessProbe *HealthCheck         `json:"readinessProbe,omitempty"`
-	StartupProbe   *HealthCheck         `json:"startupProbe,omitempty"`
-	RestartPolicy  RestartPolicy        `json:"restartPolicy"`
-}
-
-// CreatePodRequest 创建 Pod 请求.
-type CreatePodRequest struct {
-	Name         string            `json:"name"`
-	Namespace    string            `json:"namespace"`
-	DeploymentID string            `json:"deploymentId"`
-	Spec         PodSpec           `json:"spec"`
-	Labels       map[string]string `json:"labels"`
-	Annotations  map[string]string `json:"annotations"`
-}
-
-// CreateDeploymentRequest 创建 Deployment 请求.
-type CreateDeploymentRequest struct {
-	Name        string            `json:"name"`
-	Namespace   string            `json:"namespace"`
-	Spec        DeploymentSpec    `json:"spec"`
-	Labels      map[string]string `json:"labels"`
-	Annotations map[string]string `json:"annotations"`
-}
-
-// CreateServiceRequest 创建 Service 请求.
-type CreateServiceRequest struct {
-	Name        string            `json:"name"`
-	Namespace   string            `json:"namespace"`
-	Spec        ServiceSpec       `json:"spec"`
-	Labels      map[string]string `json:"labels"`
-	Annotations map[string]string `json:"annotations"`
-}
-
-// LogOptions 日志选项.
-type LogOptions struct {
-	Follow     bool  `json:"follow"`     // 是否跟踪
-	Tail       int   `json:"tail"`       // 返回最后 N 行
-	Timestamps bool  `json:"timestamps"` // 是否显示时间戳
-	SinceTime  *time.Time `json:"sinceTime"` // 起始时间
-}
-
-// generateID 生成唯一 ID.
-func generateID(prefix string) string {
-	return fmt.Sprintf("%s-%d-%s", prefix, time.Now().UnixNano(), randomString(6))
-}
-
-// randomString 生成随机字符串.
-func randomString(n int) string {
-	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letters[time.Now().UnixNano()%int64(len(letters))]
-		time.Sleep(time.Nanosecond)
+	// 限制范围
+	if newReplicas < policy.MinReplicas {
+		newReplicas = policy.MinReplicas
 	}
-	return string(b)
+	if newReplicas > policy.MaxReplicas {
+		newReplicas = policy.MaxReplicas
+	}
+
+	// 如果没有变化，返回 nil
+	if newReplicas == currentReplicas {
+		return nil, nil
+	}
+
+	// 执行扩缩容
+	svc.Instances = newReplicas
+	svc.DesiredCount = newReplicas
+
+	// 更新容器 ID
+	if newReplicas > currentReplicas {
+		for i := currentReplicas; i < newReplicas; i++ {
+			containerID := uuid.New().String()[:12]
+			svc.ContainerIDs = append(svc.ContainerIDs, containerID)
+		}
+	} else {
+		svc.ContainerIDs = svc.ContainerIDs[:newReplicas]
+	}
+
+	event := AutoScaleEvent{
+		ID:          uuid.New().String(),
+		ProjectID:   projectID,
+		ServiceName: serviceName,
+		Action:      "scale",
+		From:        currentReplicas,
+		To:          newReplicas,
+		Reason:      reason,
+		Timestamp:   time.Now(),
+		Success:     true,
+	}
+	m.scaleEvents = append(m.scaleEvents, event)
+
+	log.Printf("AutoScale: %s/%s scaled from %d to %d replicas (reason: %s)",
+		projectID, serviceName, currentReplicas, newReplicas, reason)
+
+	return &event, nil
 }
 
-// hashString 字符串哈希.
-func hashString(s string) int {
-	h := 0
-	for _, c := range s {
-		h = h*31 + int(c)
+// GetAutoScaleEvents 获取扩缩容事件历史
+func (m *Manager) GetAutoScaleEvents(projectID string, limit int) []AutoScaleEvent {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	events := make([]AutoScaleEvent, 0)
+	for _, event := range m.scaleEvents {
+		if projectID == "" || event.ProjectID == projectID {
+			events = append(events, event)
+		}
 	}
-	if h < 0 {
-		h = -h
+
+	// 按时间倒序
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].Timestamp.After(events[j].Timestamp)
+	})
+
+	if limit > 0 && len(events) > limit {
+		events = events[:limit]
 	}
-	return h
+
+	return events
+}
+
+// ========== 日志聚合 ==========
+
+// GetServiceLogs 获取服务日志
+func (m *Manager) GetServiceLogs(projectID string, query LogQuery) ([]LogEntry, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	project, ok := m.projects[projectID]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: projectID}
+	}
+
+	// 确定要查询的服务
+	services := query.Services
+	if len(services) == 0 {
+		// 查询所有服务
+		services = make([]string, 0, len(project.Services))
+		for name := range project.Services {
+			services = append(services, name)
+		}
+	}
+
+	// 模拟日志数据
+	entries := make([]LogEntry, 0)
+	now := time.Now()
+
+	for _, serviceName := range services {
+		svc, ok := project.Services[serviceName]
+		if !ok {
+			continue
+		}
+
+		// 为每个容器生成模拟日志
+		for _, containerID := range svc.ContainerIDs {
+			entry := LogEntry{
+				Timestamp:   now.Add(-time.Duration(len(entries)) * time.Minute),
+				Service:     serviceName,
+				ContainerID: containerID,
+				Stream:      "stdout",
+				Message:     fmt.Sprintf("[%s] Service %s is running", containerID[:8], serviceName),
+			}
+			entries = append(entries, entry)
+		}
+	}
+
+	// 应用 tail 限制
+	if query.Tail > 0 && len(entries) > query.Tail {
+		entries = entries[len(entries)-query.Tail:]
+	}
+
+	// 应用时间过滤
+	if !query.Since.IsZero() {
+		filtered := make([]LogEntry, 0)
+		for _, entry := range entries {
+			if entry.Timestamp.After(query.Since) {
+				filtered = append(filtered, entry)
+			}
+		}
+		entries = filtered
+	}
+
+	return entries, nil
+}
+
+// StreamServiceLogs 流式获取服务日志
+func (m *Manager) StreamServiceLogs(projectID string, query LogQuery) (*LogStream, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	project, ok := m.projects[projectID]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: projectID}
+	}
+
+	stream := &LogStream{
+		Entries: make(chan LogEntry, 100),
+		Close:   func() {},
+	}
+
+	// 启动 goroutine 模拟日志流
+	go func() {
+		defer close(stream.Entries)
+
+		ticker := time.NewTicker(1 * time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-m.ctx.Done():
+				return
+			case <-ticker.C:
+				// 生成模拟日志
+				for serviceName, svc := range project.Services {
+					if len(query.Services) > 0 {
+						found := false
+						for _, s := range query.Services {
+							if s == serviceName {
+								found = true
+								break
+							}
+						}
+						if !found {
+							continue
+						}
+					}
+
+					for _, containerID := range svc.ContainerIDs {
+						entry := LogEntry{
+							Timestamp:   time.Now(),
+							Service:     serviceName,
+							ContainerID: containerID,
+							Stream:      "stdout",
+							Message:     fmt.Sprintf("[%s] heartbeat", containerID[:8]),
+						}
+						stream.Entries <- entry
+					}
+				}
+			}
+		}
+	}()
+
+	return stream, nil
+}
+
+// ========== 统计 ==========
+
+// GetProjectStats 获取项目统计
+func (m *Manager) GetProjectStats(projectID string) (*ProjectStats, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	project, ok := m.projects[projectID]
+	if !ok {
+		return nil, &NotFoundError{Resource: "project", ID: projectID}
+	}
+
+	stats := &ProjectStats{
+		ProjectID: projectID,
+	}
+
+	for _, svc := range project.Services {
+		stats.TotalServices++
+		if svc.Status == ServiceStatusRunning {
+			stats.RunningServices++
+		}
+		stats.TotalInstances += svc.DesiredCount
+		stats.RunningInstances += svc.Instances
+
+		if svc.Resources != nil {
+			if svc.Resources.CPU != nil {
+				stats.TotalCPU += svc.Resources.CPU.Cores * float64(svc.Instances)
+			}
+			if svc.Resources.Memory != nil {
+				stats.TotalMemory += svc.Resources.Memory.Limit * int64(svc.Instances)
+			}
+		}
+	}
+
+	stats.Uptime = time.Since(project.CreatedAt)
+
+	return stats, nil
+}
+
+// ========== 辅助函数 ==========
+
+// isValidServiceName 验证服务名称
+func isValidServiceName(name string) bool {
+	if len(name) == 0 || len(name) > 63 {
+		return false
+	}
+	// 只允许小写字母、数字、连字符
+	for _, c := range name {
+		if !((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-') {
+			return false
+		}
+	}
+	// 不能以连字符开头或结尾
+	if name[0] == '-' || name[len(name)-1] == '-' {
+		return false
+	}
+	return true
+}
+
+// Stop 停止管理器
+func (m *Manager) Stop() {
+	m.cancel()
+	close(m.stopCh)
 }

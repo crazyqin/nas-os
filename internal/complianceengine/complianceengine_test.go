@@ -1,212 +1,356 @@
 package complianceengine
 
 import (
-	"context"
 	"testing"
 	"time"
 )
 
-func TestRunAudit(t *testing.T) {
-	engine := NewEngine(nil)
-	
-	report := engine.RunAudit(context.Background())
-	if report == nil {
-		t.Fatal("expected report, got nil")
+func TestNewManager(t *testing.T) {
+	config := EngineConfig{
+		Enabled:       true,
+		AutoScan:      true,
+		MaxConcurrent: 5,
 	}
-	if report.TotalRules == 0 {
-		t.Error("expected some rules to be checked")
+	m := NewManager(config)
+	if m == nil {
+		t.Fatal("expected manager, got nil")
 	}
-	if report.Score < 0 || report.Score > 100 {
-		t.Errorf("score should be 0-100, got %.1f", report.Score)
+	cfg := m.GetConfig()
+	if !cfg.Enabled {
+		t.Error("expected enabled config")
 	}
-}
-
-func TestReportScoring(t *testing.T) {
-	engine := NewEngine(nil)
-	
-	// 添加一个自定义规则
-	engine.RegisterRule(&Rule{
-		ID:       "custom-pass",
-		Name:     "Custom Pass",
-		Category: "test",
-		Severity: LevelPass,
-		Enabled:  true,
-	}, func(ctx context.Context, rule *Rule) *CheckResult {
-		return &CheckResult{
-			RuleID:  rule.ID,
-			RuleName: rule.Name,
-			Category: rule.Category,
-			Status:  StatusDone,
-			Level:   LevelPass,
-			Message: "pass",
-			CheckedAt: time.Now(),
-		}
-	})
-	
-	report := engine.RunAudit(context.Background())
-	if report.Passed == 0 {
-		t.Error("expected at least one pass")
+	if cfg.MaxConcurrent != 5 {
+		t.Errorf("expected max concurrent 5, got %d", cfg.MaxConcurrent)
 	}
 }
 
-func TestCustomRule(t *testing.T) {
-	engine := NewEngine(nil)
-	
-	engine.RegisterRule(&Rule{
-		ID:          "test-001",
-		Name:        "Test Rule",
-		Category:    "test",
-		Severity:    LevelFail,
-		Description: "Test rule",
+func TestMgrCreateRule(t *testing.T) {
+	m := NewManager(EngineConfig{})
+
+	rule, err := m.CreateRule(ComplianceRule{
+		Standard:    StandardCIS,
+		Category:    CategoryAccessControl,
+		Severity:    SeverityHigh,
+		Title:       "测试规则",
+		Description: "测试描述",
+		Requirement: "必须启用访问控制",
+		Remediation: "启用 ACL",
 		Enabled:     true,
-	}, func(ctx context.Context, rule *Rule) *CheckResult {
-		return &CheckResult{
-			RuleID:    rule.ID,
-			RuleName:  rule.Name,
-			Category:  rule.Category,
-			Status:    StatusDone,
-			Level:     LevelFail,
-			Message:   "test failure",
-			CheckedAt: time.Now(),
-		}
 	})
-	
-	report := engine.RunAudit(context.Background())
-	found := false
-	for _, r := range report.Results {
-		if r.RuleID == "test-001" {
-			found = true
-			if r.Level != LevelFail {
-				t.Errorf("expected fail level, got %s", r.Level)
-			}
-		}
+	if err != nil {
+		t.Fatalf("create rule failed: %v", err)
 	}
-	if !found {
-		t.Error("expected test-001 in results")
+	if rule.ID == "" {
+		t.Error("expected rule ID")
+	}
+	if rule.CreatedAt.IsZero() {
+		t.Error("expected CreatedAt to be set")
 	}
 }
 
-func TestRuleEnableDisable(t *testing.T) {
-	engine := NewEngine(nil)
-	
-	engine.RegisterRule(&Rule{
-		ID:      "toggle-001",
-		Name:    "Toggle Rule",
-		Enabled: true,
-	}, func(ctx context.Context, rule *Rule) *CheckResult {
-		return &CheckResult{
-			RuleID: rule.ID,
-			Status: StatusDone,
-			Level:  LevelPass,
-			CheckedAt: time.Now(),
-		}
-	})
-	
-	// 禁用规则
-	engine.DisableRule("toggle-001")
-	
-	report := engine.RunAudit(context.Background())
-	for _, r := range report.Results {
-		if r.RuleID == "toggle-001" {
-			t.Error("disabled rule should not be checked")
-		}
-	}
-	
-	// 重新启用
-	engine.EnableRule("toggle-001")
-	report = engine.RunAudit(context.Background())
-	found := false
-	for _, r := range report.Results {
-		if r.RuleID == "toggle-001" {
-			found = true
-		}
-	}
-	if !found {
-		t.Error("re-enabled rule should be checked")
-	}
-}
+func TestGetRule(t *testing.T) {
+	m := NewManager(EngineConfig{})
 
-func TestNotificationCallback(t *testing.T) {
-	engine := NewEngine(nil)
-	
-	notified := false
-	engine.SetNotifyFunc(func(report *AuditReport) {
-		notified = true
-	})
-	
-	// 添加一个会失败的规则
-	engine.RegisterRule(&Rule{
-		ID:       "notify-test",
-		Name:     "Notify Test",
+	rule, _ := m.CreateRule(ComplianceRule{
+		Standard: StandardCIS,
+		Category: CategoryAuditLogging,
+		Severity: SeverityMedium,
+		Title:    "审计日志规则",
 		Enabled:  true,
-	}, func(ctx context.Context, rule *Rule) *CheckResult {
-		return &CheckResult{
-			RuleID:    rule.ID,
-			Status:    StatusDone,
-			Level:     LevelCritical,
-			Message:   "critical issue",
-			CheckedAt: time.Now(),
-		}
 	})
-	
-	engine.RunAudit(context.Background())
-	if !notified {
-		t.Error("expected notification for critical issue")
+
+	fetched, err := m.GetRule(rule.ID)
+	if err != nil {
+		t.Fatalf("get rule failed: %v", err)
+	}
+	if fetched.Title != "审计日志规则" {
+		t.Errorf("expected title '审计日志规则', got '%s'", fetched.Title)
+	}
+
+	_, err = m.GetRule("nonexistent")
+	if err == nil {
+		t.Error("expected error for nonexistent rule")
 	}
 }
 
-func TestReportHistory(t *testing.T) {
-	engine := NewEngine(nil)
-	
-	// 运行多次审计
-	for i := 0; i < 3; i++ {
-		engine.RunAudit(context.Background())
+func TestMgrListRules(t *testing.T) {
+	m := NewManager(EngineConfig{})
+
+	m.CreateRule(ComplianceRule{Standard: StandardCIS, Category: CategoryAccessControl, Title: "rule1", Enabled: true})
+	m.CreateRule(ComplianceRule{Standard: StandardGDPR, Category: CategoryDataProtection, Title: "rule2", Enabled: true})
+	m.CreateRule(ComplianceRule{Standard: StandardCIS, Category: CategoryNetworkSecurity, Title: "rule3", Enabled: true})
+
+	// 列出所有
+	all := m.ListRules("", "")
+	if len(all) != 3 {
+		t.Errorf("expected 3 rules, got %d", len(all))
 	}
-	
-	reports := engine.GetReports(10)
-	if len(reports) != 3 {
-		t.Errorf("expected 3 reports, got %d", len(reports))
+
+	// 按标准过滤
+	cisRules := m.ListRules(StandardCIS, "")
+	if len(cisRules) != 2 {
+		t.Errorf("expected 2 CIS rules, got %d", len(cisRules))
+	}
+
+	// 按类别过滤
+	dpRules := m.ListRules("", CategoryDataProtection)
+	if len(dpRules) != 1 {
+		t.Errorf("expected 1 data protection rule, got %d", len(dpRules))
 	}
 }
 
-func TestGetLatestReport(t *testing.T) {
-	engine := NewEngine(nil)
-	
-	if engine.GetLatestReport() != nil {
-		t.Error("expected nil for no reports")
+func TestUpdateRule(t *testing.T) {
+	m := NewManager(EngineConfig{})
+
+	rule, _ := m.CreateRule(ComplianceRule{
+		Standard: StandardCIS,
+		Title:    "原始标题",
+		Enabled:  true,
+	})
+
+	updated, err := m.UpdateRule(rule.ID, ComplianceRule{
+		Standard: StandardCIS,
+		Title:    "更新后标题",
+		Enabled:  false,
+	})
+	if err != nil {
+		t.Fatalf("update rule failed: %v", err)
 	}
-	
-	engine.RunAudit(context.Background())
-	report := engine.GetLatestReport()
-	if report == nil {
-		t.Error("expected report after audit")
+	if updated.Title != "更新后标题" {
+		t.Errorf("expected updated title, got '%s'", updated.Title)
+	}
+	if updated.Enabled {
+		t.Error("expected rule to be disabled")
+	}
+	if updated.CreatedAt != rule.CreatedAt {
+		t.Error("expected CreatedAt to be preserved")
 	}
 }
 
-func TestGetRules(t *testing.T) {
-	engine := NewEngine(nil)
-	rules := engine.GetRules()
-	if len(rules) == 0 {
-		t.Error("expected default rules")
+func TestDeleteRule(t *testing.T) {
+	m := NewManager(EngineConfig{})
+
+	rule, _ := m.CreateRule(ComplianceRule{Standard: StandardCIS, Title: "delete me", Enabled: true})
+
+	err := m.DeleteRule(rule.ID)
+	if err != nil {
+		t.Fatalf("delete rule failed: %v", err)
+	}
+
+	_, err = m.GetRule(rule.ID)
+	if err == nil {
+		t.Error("expected error after deletion")
 	}
 }
 
-func TestAuditSummary(t *testing.T) {
-	engine := NewEngine(nil)
-	
-	report := engine.RunAudit(context.Background())
-	if report.Summary == "" {
-		t.Error("expected non-empty summary")
+func TestMgrStartScan(t *testing.T) {
+	m := NewManager(EngineConfig{})
+
+	// 添加规则
+	m.CreateRule(ComplianceRule{
+		Standard: StandardCIS,
+		Category: CategoryAccessControl,
+		Severity: SeverityHigh,
+		Title:    "访问控制",
+		Enabled:  true,
+	})
+	m.CreateRule(ComplianceRule{
+		Standard: StandardCIS,
+		Category: CategoryDataProtection,
+		Severity: SeverityCritical,
+		Title:    "数据保护",
+		Enabled:  true,
+	})
+
+	scan, err := m.StartScan([]ComplianceStandard{StandardCIS})
+	if err != nil {
+		t.Fatalf("start scan failed: %v", err)
+	}
+	if scan.ID == "" {
+		t.Error("expected scan ID")
+	}
+	if scan.Status != StatusRunning {
+		t.Errorf("expected running status, got '%s'", scan.Status)
+	}
+
+	// 等待扫描完成
+	time.Sleep(500 * time.Millisecond)
+
+	fetched, err := m.GetScan(scan.ID)
+	if err != nil {
+		t.Fatalf("get scan failed: %v", err)
+	}
+	if fetched.Status != StatusCompleted {
+		t.Errorf("expected completed, got '%s'", fetched.Status)
+	}
+	if fetched.Score < 0 || fetched.Score > 100 {
+		t.Errorf("score should be 0-100, got %.1f", fetched.Score)
 	}
 }
 
-func TestEngineStartStop(t *testing.T) {
-	config := DefaultEngineConfig()
-	config.AutoRun = true
-	config.RunInterval = 100 * time.Millisecond
-	
-	engine := NewEngine(config)
-	engine.Start()
-	time.Sleep(50 * time.Millisecond)
-	engine.Stop()
+func TestListScans(t *testing.T) {
+	m := NewManager(EngineConfig{})
+	m.CreateRule(ComplianceRule{Standard: StandardCIS, Category: CategoryAccessControl, Title: "r1", Enabled: true})
+
+	m.StartScan([]ComplianceStandard{StandardCIS})
+	time.Sleep(300 * time.Millisecond)
+
+	scans := m.ListScans("")
+	if len(scans) == 0 {
+		t.Error("expected at least 1 scan")
+	}
+}
+
+func TestMgrGenerateReport(t *testing.T) {
+	m := NewManager(EngineConfig{})
+	m.CreateRule(ComplianceRule{
+		Standard: StandardCIS,
+		Category: CategoryAccessControl,
+		Severity: SeverityHigh,
+		Title:    "访问控制",
+		Enabled:  true,
+	})
+
+	scan, _ := m.StartScan([]ComplianceStandard{StandardCIS})
+	time.Sleep(500 * time.Millisecond)
+
+	report, err := m.GenerateReport(scan.ID, FormatJSON)
+	if err != nil {
+		t.Fatalf("generate report failed: %v", err)
+	}
+	if report.ID == "" {
+		t.Error("expected report ID")
+	}
+	if report.Format != FormatJSON {
+		t.Errorf("expected JSON format, got '%s'", report.Format)
+	}
+	if report.Summary.TotalChecks == 0 {
+		t.Error("expected some checks in summary")
+	}
+}
+
+func TestGapAnalysis(t *testing.T) {
+	m := NewManager(EngineConfig{})
+	m.CreateRule(ComplianceRule{
+		Standard:    StandardGDPR,
+		Category:    CategoryDataProtection,
+		Severity:    SeverityCritical,
+		Title:       "数据加密",
+		Enabled:     true,
+	})
+
+	analysis, err := m.PerformGapAnalysis([]ComplianceStandard{StandardGDPR})
+	if err != nil {
+		t.Fatalf("gap analysis failed: %v", err)
+	}
+	if analysis.ID == "" {
+		t.Error("expected analysis ID")
+	}
+	if analysis.Score < 0 || analysis.Score > 100 {
+		t.Errorf("score should be 0-100, got %.1f", analysis.Score)
+	}
+}
+
+func TestAlertManagement(t *testing.T) {
+	m := NewManager(EngineConfig{})
+	m.CreateRule(ComplianceRule{
+		Standard: StandardCIS,
+		Category: CategoryDataProtection,
+		Severity: SeverityCritical,
+		Title:    "数据保护",
+		Enabled:  true,
+	})
+
+	// 触发扫描以生成告警
+	scan, _ := m.StartScan([]ComplianceStandard{StandardCIS})
+	time.Sleep(500 * time.Millisecond)
+
+	alerts := m.ListAlerts("", "")
+	_ = scan
+
+	// 如果有告警，测试确认和解决
+	if len(alerts) > 0 {
+		alert := alerts[0]
+
+		err := m.AcknowledgeAlert(alert.ID)
+		if err != nil {
+			t.Fatalf("acknowledge alert failed: %v", err)
+		}
+
+		fetched, _ := m.GetAlert(alert.ID)
+		if fetched.Status != "acknowledged" {
+			t.Errorf("expected acknowledged, got '%s'", fetched.Status)
+		}
+
+		err = m.ResolveAlert(alert.ID)
+		if err != nil {
+			t.Fatalf("resolve alert failed: %v", err)
+		}
+	}
+}
+
+func TestTaskManagement(t *testing.T) {
+	m := NewManager(EngineConfig{})
+
+	task, err := m.CreateTask(RemediationTask{
+		RuleID:      "rule-1",
+		Title:       "修复任务",
+		Description: "修复描述",
+		Priority:    SeverityHigh,
+		Commands:    []string{"echo fix"},
+	})
+	if err != nil {
+		t.Fatalf("create task failed: %v", err)
+	}
+	if task.ID == "" {
+		t.Error("expected task ID")
+	}
+	if task.Status != TaskPending {
+		t.Errorf("expected pending, got '%s'", task.Status)
+	}
+
+	// 更新状态
+	err = m.UpdateTaskStatus(task.ID, TaskCompleted, "修复完成")
+	if err != nil {
+		t.Fatalf("update task failed: %v", err)
+	}
+
+	fetched, _ := m.GetTask(task.ID)
+	if fetched.Status != TaskCompleted {
+		t.Errorf("expected completed, got '%s'", fetched.Status)
+	}
+	if fetched.CompletedAt == nil {
+		t.Error("expected CompletedAt to be set")
+	}
+}
+
+func TestStats(t *testing.T) {
+	m := NewManager(EngineConfig{})
+	m.CreateRule(ComplianceRule{Standard: StandardCIS, Category: CategoryAccessControl, Title: "r1", Enabled: true})
+
+	m.StartScan([]ComplianceStandard{StandardCIS})
+	time.Sleep(500 * time.Millisecond)
+
+	stats := m.GetStats()
+	if stats.TotalScans == 0 {
+		t.Error("expected at least 1 scan")
+	}
+}
+
+func TestConfigUpdate(t *testing.T) {
+	m := NewManager(EngineConfig{Enabled: false})
+
+	cfg := m.GetConfig()
+	if cfg.Enabled {
+		t.Error("expected disabled")
+	}
+
+	m.UpdateConfig(EngineConfig{Enabled: true, AutoScan: true})
+	cfg = m.GetConfig()
+	if !cfg.Enabled {
+		t.Error("expected enabled after update")
+	}
+	if !cfg.AutoScan {
+		t.Error("expected auto scan enabled")
+	}
 }

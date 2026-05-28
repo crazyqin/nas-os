@@ -15,7 +15,7 @@ func TestNewAnalyzer(t *testing.T) {
 	}
 
 	// 检查关键属性权重是否配置
-	criticalAttrs := []int{5, 187, 188, 197, 198, 9}
+	criticalAttrs := []uint8{5, 187, 188, 197, 198, 9}
 	for _, id := range criticalAttrs {
 		if _, exists := analyzer.weights[id]; !exists {
 			t.Errorf("缺少属性 %d 的权重配置", id)

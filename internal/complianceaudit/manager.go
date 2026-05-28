@@ -179,13 +179,17 @@ func (m *Manager) runScheduler() {
 
 // RunFullScan 执行完整的合规扫描
 func (m *Manager) RunFullScan(ctx context.Context) *ComplianceReport {
+	// 先在锁内拷贝需要的数据，避免嵌套 RLock 导致死锁
 	m.mu.RLock()
 	checks := make([]ComplianceCheck, 0, len(m.checks))
 	for _, c := range m.checks {
 		checks = append(checks, c)
 	}
-	config := m.GetConfig()
+	standards := make([]ComplianceStandard, len(m.config.Standards))
+	copy(standards, m.config.Standards)
 	m.mu.RUnlock()
+
+	config := &ScanConfig{Standards: standards}
 
 	report := &ComplianceReport{
 		ID:          fmt.Sprintf("report_%d", time.Now().Unix()),
