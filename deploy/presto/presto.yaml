@@ -1,0 +1,104 @@
+# NAS-OS Presto 高速文件传输配置
+# 版本: v2.400.0
+#
+# 对标群晖 Presto File Server
+
+presto:
+  # 启用 Presto 服务
+  enabled: true
+
+  # 监听端口
+  port: 8090
+
+  # 监听地址
+  host: 0.0.0.0
+
+  # 传输配置
+  transfer:
+    # 最大并发传输数
+    max_concurrent: 4
+
+    # 压缩级别 (0-9, 0=不压缩, 9=最大压缩)
+    compress_level: 6
+
+    # 启用 AES 加密
+    encrypt_aes: true
+
+    # 分块大小 (MB)
+    chunk_size_mb: 64
+
+    # 带宽限制 (MB/s, 0=不限速)
+    bandwidth_mbps: 0
+
+    # 传输超时 (秒)
+    timeout: 3600
+
+    # 重试次数
+    retry_count: 3
+
+    # 重试间隔 (秒)
+    retry_interval: 30
+
+  # 存储配置
+  storage:
+    # 传输临时目录
+    temp_dir: /tmp/presto
+
+    # 传输完成后的校验
+    verify_checksum: true
+
+    # 校验算法 (md5, sha256)
+    checksum_algorithm: sha256
+
+  # 日志配置
+  logging:
+    # 日志级别
+    level: info
+
+    # 传输日志
+    transfer_log: true
+
+    # 性能日志
+    performance_log: true
+
+  # 监控配置
+  metrics:
+    # 启用 Prometheus 指标
+    enabled: true
+
+    # 指标路径
+    path: /metrics
+
+    # 指标前缀
+    prefix: presto_
+
+  # 安全配置
+  security:
+    # 启用 TLS
+    tls_enabled: false
+
+    # TLS 证书路径
+    tls_cert_file: /etc/nas-os/tls/presto.crt
+
+    # TLS 私钥路径
+    tls_key_file: /etc/nas-os/tls/presto.key
+
+    # 认证方式 (none, token, basic)
+    auth_type: token
+
+    # API Token
+    api_token: ""
+
+  # 通知配置
+  notifications:
+    # 启用传输完成通知
+    on_complete: true
+
+    # 启用传输失败通知
+    on_failure: true
+
+    # 通知方式 (email, webhook)
+    method: email
+
+    # Webhook URL
+    webhook_url: ""

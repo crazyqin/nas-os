@@ -1,0 +1,217 @@
+# NAS-OS Presto 高速传输 Prometheus 告警规则
+# 版本: v2.400.0
+#
+# 告警分级:
+# - critical: 需要立即处理，传输服务中断或数据丢失风险
+# - warning: 需要关注，可能影响传输性能
+# - info: 信息性告警，供运维参考
+
+groups:
+  # ==================== Presto 传输服务告警 ====================
+  - name: presto-transfer
+    rules:
+      # 传输速度告警
+      - alert: PrestoTransferSpeedLow
+        expr: presto_transfer_speed_mbps < 10
+        for: 5m
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 传输速度过低"
+          description: "当前传输速度 {{ $value | printf \"%.1f\" }} MB/s，低于 10 MB/s 阈值，持续 5 分钟"
+
+      - alert: PrestoTransferSpeedCritical
+        expr: presto_transfer_speed_mbps < 1
+        for: 2m
+        labels:
+          severity: critical
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 传输速度极低"
+          description: "当前传输速度 {{ $value | printf \"%.1f\" }} MB/s，低于 1 MB/s，可能存在问题"
+
+      # 传输成功率告警
+      - alert: PrestoTransferSuccessRateLow
+        expr: (presto_transfers_completed_total / (presto_transfers_completed_total + presto_transfers_failed_total)) * 100 < 95
+        for: 10m
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 传输成功率偏低"
+          description: "传输成功率 {{ $value | printf \"%.1f\" }}%，低于 95% 阈值，持续 10 分钟"
+
+      - alert: PrestoTransferSuccessRateCritical
+        expr: (presto_transfers_completed_total / (presto_transfers_completed_total + presto_transfers_failed_total)) * 100 < 80
+        for: 5m
+        labels:
+          severity: critical
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 传输成功率严重下降"
+          description: "传输成功率 {{ $value | printf \"%.1f\" }}%，低于 80%，需要立即排查"
+
+      # 传输错误率告警
+      - alert: PrestoTransferErrorRateHigh
+        expr: rate(presto_transfers_failed_total[5m]) / rate(presto_transfers_total[5m]) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 传输错误率偏高"
+          description: "传输错误率 {{ $value | printf \"%.1f\" }}%，超过 5% 阈值"
+
+      - alert: PrestoTransferErrorRateCritical
+        expr: rate(presto_transfers_failed_total[5m]) / rate(presto_transfers_total[5m]) * 100 > 20
+        for: 2m
+        labels:
+          severity: critical
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 传输错误率过高"
+          description: "传输错误率 {{ $value | printf \"%.1f\" }}%，超过 20%，需要立即处理"
+
+      # 并发传输数告警
+      - alert: PrestoConcurrentTransfersHigh
+        expr: presto_transfers_running > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 并发传输数过高"
+          description: "当前并发传输数 {{ $value }}，超过 10 个，可能影响性能"
+
+      # 传输队列积压告警
+      - alert: PrestoTransferQueueBacklog
+        expr: presto_transfers_pending > 20
+        for: 10m
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 传输队列积压"
+          description: "待处理传输任务 {{ $value }} 个，超过 20 个，队列积压"
+
+      # 传输超时告警
+      - alert: PrestoTransferTimeout
+        expr: presto_transfers_timeout_total > 0
+        for: 1m
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 传输出现超时"
+          description: "检测到传输超时事件，可能存在网络或性能问题"
+
+      # 压缩效率告警
+      - alert: PrestoCompressionRatioLow
+        expr: presto_compression_ratio < 0.3
+        for: 10m
+        labels:
+          severity: info
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 压缩效率偏低"
+          description: "压缩率 {{ $value | printf \"%.2f\" }}，低于 0.3，可考虑调整压缩级别"
+
+  # ==================== Presto 资源使用告警 ====================
+  - name: presto-resources
+    rules:
+      # 内存使用告警
+      - alert: PrestoMemoryUsageHigh
+        expr: process_resident_memory_bytes{job="presto"} / 1024 / 1024 > 2048
+        for: 5m
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 内存使用过高"
+          description: "Presto 进程内存使用 {{ $value | printf \"%.0f\" }} MB，超过 2GB"
+
+      # CPU 使用告警
+      - alert: PrestoCPUUsageHigh
+        expr: rate(process_cpu_seconds_total{job="presto"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto CPU 使用过高"
+          description: "Presto 进程 CPU 使用率 {{ $value | printf \"%.1f\" }}%，超过 80%"
+
+      # 文件描述符告警
+      - alert: PrestoFileDescriptorsHigh
+        expr: process_open_fds{job="presto"} / process_max_fds{job="presto"} * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 文件描述符使用过高"
+          description: "文件描述符使用率 {{ $value | printf \"%.1f\" }}%，超过 80%"
+
+      # Goroutine 数量告警
+      - alert: PrestoGoroutinesHigh
+        expr: go_goroutines{job="presto"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto Goroutine 数量过高"
+          description: "当前 Goroutine 数量 {{ $value }}，超过 1000，可能存在泄漏"
+
+  # ==================== Presto 服务可用性告警 ====================
+  - name: presto-availability
+    rules:
+      # 服务存活告警
+      - alert: PrestoServiceDown
+        expr: up{job="presto"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 服务宕机"
+          description: "Presto 服务不可用，需要立即检查"
+
+      # 健康检查失败告警
+      - alert: PrestoHealthCheckFailed
+        expr: presto_health_status == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 健康检查失败"
+          description: "Presto 健康检查持续失败，服务可能异常"
+
+      # 服务重启告警
+      - alert: PrestoServiceRestarted
+        expr: changes(process_start_time_seconds{job="presto"}[1h]) > 0
+        labels:
+          severity: warning
+          component: presto
+          service: fasttransfer
+        annotations:
+          summary: "Presto 服务发生重启"
+          description: "Presto 服务在过去 1 小时内重启，可能存在稳定性问题"

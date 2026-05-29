@@ -1,0 +1,259 @@
+# NAS-OS Presto 高速文件传输 Docker Compose
+# 对标群晖 Presto File Server
+#
+# 使用方式:
+#   docker compose -f deploy/presto/docker-compose.presto.yml up -d
+#
+# 包含:
+#   - Presto 传输服务 (fasttransfer)
+#   - Prometheus 监控
+#   - Grafana 可视化
+#   - Alertmanager 告警
+#
+# v2.400.0 工部部署
+
+services:
+  # ==================== Presto 传输服务 ====================
+  presto:
+    image: ${NAS_OS_IMAGE:-ghcr.io/nas-os/nas-os:latest}
+    container_name: nas-presto
+    restart: unless-stopped
+
+    # 使用 init 进程管理子进程
+    init: true
+
+    # 优雅停止时间
+    stop_grace_period: 60s
+
+    # 网络模式：host 以获得最佳性能
+    network_mode: host
+
+    # 卷挂载
+    volumes:
+      # 配置文件
+      - ${CONFIG_PATH:-./configs}:/etc/nas-os:ro
+      # Presto 数据持久化
+      - presto-data:/var/lib/nas-os/presto
+      # 传输源目录（根据实际路径调整）
+      - ${TRANSFER_SRC_PATH:-/mnt/transfer/src}:/mnt/transfer/src
+      # 传输目标目录（根据实际路径调整）
+      - ${TRANSFER_DST_PATH:-/mnt/transfer/dst}:/mnt/transfer/dst
+      # 日志
+      - ${LOG_PATH:-./logs}:/var/log/nas-os
+
+    # 环境变量
+    environment:
+      - NAS_OS_CONFIG=/etc/nas-os/config.yaml
+      - TZ=${TZ:-Asia/Shanghai}
+      # Presto 配置
+      - PRESTO_ENABLED=true
+      - PRESTO_PORT=8090
+      - PRESTO_MAX_CONCURRENT=${PRESTO_MAX_CONCURRENT:-4}
+      - PRESTO_COMPRESS_LEVEL=${PRESTO_COMPRESS_LEVEL:-6}
+      - PRESTO_ENCRYPT_AES=${PRESTO_ENCRYPT_AES:-true}
+      - PRESTO_CHUNK_SIZE_MB=${PRESTO_CHUNK_SIZE_MB:-64}
+      - PRESTO_BANDWIDTH_MBPS=${PRESTO_BANDWIDTH_MBPS:-0}
+      # Prometheus 指标
+      - NAS_OS_METRICS_ENABLED=true
+      - NAS_OS_METRICS_PORT=8080
+      # 日志级别
+      - NAS_OS_LOG_LEVEL=${LOG_LEVEL:-info}
+
+    # 资源限制（根据实际硬件调整）
+    deploy:
+      resources:
+        limits:
+          cpus: '${PRESTO_CPU_LIMIT:-4.0}'
+          memory: ${PRESTO_MEMORY_LIMIT:-4G}
+        reservations:
+          cpus: '${PRESTO_CPU_RESERVATION:-1.0}'
+          memory: ${PRESTO_MEMORY_RESERVATION:-1G}
+
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        labels: "service"
+        tag: "{{.Name}}/{{.ID}}"
+
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+
+    # 标签
+    labels:
+      - "nas-os.app=presto"
+      - "nas-os.category=transfer"
+      - "nas-os.description=Presto High-Speed File Transfer"
+      - "nas-os.maintainer=工部"
+
+  # ==================== Prometheus 监控 ====================
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: nas-presto-prometheus
+    restart: unless-stopped
+
+    networks:
+      - presto-monitoring
+
+    ports:
+      - "${PROMETHEUS_PORT:-9091}:9090"
+
+    volumes:
+      - ./monitoring/prometheus-presto.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts-presto.yml:/etc/prometheus/alerts-presto.yml:ro
+      - prometheus-data:/prometheus
+
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}'
+      - '--storage.tsdb.retention.size=${PROMETHEUS_RETENTION_SIZE:-5GB}'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ==================== Grafana 可视化 ====================
+  grafana:
+    image: grafana/grafana:11.2.2
+    container_name: nas-presto-grafana
+    restart: unless-stopped
+
+    networks:
+      - presto-monitoring
+
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-presto123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+    depends_on:
+      prometheus:
+        condition: service_healthy
+
+  # ==================== Alertmanager 告警管理 ====================
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: nas-presto-alertmanager
+    restart: unless-stopped
+
+    networks:
+      - presto-monitoring
+
+    ports:
+      - "${ALERTMANAGER_PORT:-9094}:9093"
+
+    volumes:
+      - ./monitoring/alertmanager-presto.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9093/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+# ==================== 网络配置 ====================
+networks:
+  presto-monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
+    labels:
+      - "nas-os.network=presto-monitoring"
+
+# ==================== 卷配置 ====================
+volumes:
+  presto-data:
+    driver: local
+    labels:
+      - "nas-os.volume=presto-data"
+      - "nas-os.description=Presto persistent data"
+
+  prometheus-data:
+    driver: local
+
+  grafana-data:
+    driver: local
+
+  alertmanager-data:
+    driver: local

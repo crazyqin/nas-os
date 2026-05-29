@@ -1,0 +1,65 @@
+# NAS-OS Presto 高速传输 Prometheus 监控配置
+# 版本: v2.400.0
+#
+# 监控目标:
+# - Presto 传输服务指标
+# - Node Exporter 系统指标
+# - cAdvisor 容器指标
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'nas-presto'
+    environment: 'production'
+
+# 告警规则文件
+rule_files:
+  - 'alerts-presto.yml'
+
+# 告警管理器配置
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+      timeout: 10s
+      api_version: v2
+
+# 抓取配置
+scrape_configs:
+  # ==================== Presto 传输服务 ====================
+  - job_name: 'presto'
+    static_configs:
+      - targets: ['localhost:8080']
+        labels:
+          service: 'presto'
+          component: 'fasttransfer'
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    scheme: http
+
+  # ==================== Presto API 指标 ====================
+  - job_name: 'presto-api'
+    static_configs:
+      - targets: ['localhost:8090']
+        labels:
+          service: 'presto-api'
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # ==================== Node Exporter (系统指标) ====================
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+        labels:
+          instance: 'presto-server'
+    scrape_interval: 15s
+
+  # ==================== cAdvisor (容器指标) ====================
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['localhost:8081']
+    scrape_interval: 30s
