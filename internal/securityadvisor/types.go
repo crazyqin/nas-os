@@ -670,6 +670,7 @@ func DefaultManagerConfig() ManagerConfig {
 
 // ScanConfig 扫描器配置
 type ScanConfig struct {
+	Enabled         bool     `json:"enabled"`
 	WeakPasswords   bool     `json:"weak_passwords"`
 	OpenPorts       bool     `json:"open_ports"`
 	FilePermissions bool     `json:"file_permissions"`
@@ -684,6 +685,7 @@ type ScanConfig struct {
 // DefaultScanConfig 默认扫描配置
 func DefaultScanConfig() ScanConfig {
 	return ScanConfig{
+		Enabled:         true,
 		WeakPasswords:   true,
 		OpenPorts:       true,
 		FilePermissions: true,
@@ -729,7 +731,7 @@ type PortRiskConfig struct {
 func DefaultPortRiskConfig() PortRiskConfig {
 	return PortRiskConfig{
 		HighRiskPorts:   []int{21, 23, 25, 135, 139, 445, 1433, 3306, 3389, 5432, 5900, 6379},
-		MediumRiskPorts: []int{110, 143, 993, 995, 1521, 5432, 8080, 8443, 9090},
+		MediumRiskPorts: []int{80, 110, 143, 443, 993, 995, 1521, 5432, 8080, 8443, 9090},
 	}
 }
 
@@ -737,6 +739,7 @@ func DefaultPortRiskConfig() PortRiskConfig {
 type CriticalFileConfig struct {
 	Paths          []string `json:"paths"`
 	MaxPermission  string   `json:"max_permission"`
+	RequiredOwner  string   `json:"required_owner"`
 }
 
 // DefaultCriticalFileConfig 默认关键文件配置
@@ -747,6 +750,7 @@ func DefaultCriticalFileConfig() CriticalFileConfig {
 			"/etc/ssh/sshd_config", "/etc/crontab",
 		},
 		MaxPermission: "0644",
+		RequiredOwner: "root",
 	}
 }
 
@@ -763,6 +767,44 @@ func DefaultSSLCheckConfig() SSLCheckConfig {
 		Domains:      []string{},
 		WarningDays:  30,
 		CriticalDays: 7,
+	}
+}
+
+// UpdateCheckConfig 系统更新检查配置
+type UpdateCheckConfig struct {
+	Enabled      bool `json:"enabled"`
+	CheckSecurity bool `json:"check_security"`
+	CheckBugfix   bool `json:"check_bugfix"`
+	AutoUpdate    bool `json:"auto_update"`
+}
+
+// DefaultUpdateCheckConfig 默认系统更新检查配置
+func DefaultUpdateCheckConfig() UpdateCheckConfig {
+	return UpdateCheckConfig{
+		Enabled:      true,
+		CheckSecurity: true,
+		CheckBugfix:   true,
+		AutoUpdate:    false,
+	}
+}
+
+// MalwareScanConfig 恶意软件扫描配置
+type MalwareScanConfig struct {
+	Enabled      bool     `json:"enabled"`
+	ScanPaths    []string `json:"scan_paths"`
+	ExcludePaths []string `json:"exclude_paths"`
+	MaxFileSize  int64    `json:"max_file_size"`
+	QuickScan    bool     `json:"quick_scan"`
+}
+
+// DefaultMalwareScanConfig 默认恶意软件扫描配置
+func DefaultMalwareScanConfig() MalwareScanConfig {
+	return MalwareScanConfig{
+		Enabled:      true,
+		ScanPaths:    []string{"/home", "/tmp", "/var"},
+		ExcludePaths: []string{"/proc", "/sys", "/dev"},
+		MaxFileSize:  100 * 1024 * 1024,
+		QuickScan:    true,
 	}
 }
 
