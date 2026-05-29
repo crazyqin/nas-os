@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setupTestHandler(t *testing.T) (*Handlers, *Manager, *gin.Engine) {
+func setupTestHandler(t *testing.T) (*Handler, *Manager, *gin.Engine) {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
 
@@ -21,7 +21,7 @@ func setupTestHandler(t *testing.T) (*Handlers, *Manager, *gin.Engine) {
 	}
 
 	mgr := NewManager(config)
-	handler := NewHandlers(mgr)
+	handler := NewHandler(mgr)
 
 	router := gin.New()
 	api := router.Group("/api/v1")
@@ -44,7 +44,7 @@ func TestCreateRule(t *testing.T) {
 		"remediation": "启用访问控制功能",
 		"enabled": true
 	}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/compliance/rules", bytes.NewBufferString(body))
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/complianceengine/rules", bytes.NewBufferString(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -53,15 +53,19 @@ func TestCreateRule(t *testing.T) {
 		t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
 	}
 
-	var rule ComplianceRule
-	if err := json.Unmarshal(w.Body.Bytes(), &rule); err != nil {
+	var resp struct {
+		Code    int            `json:"code"`
+		Message string         `json:"message"`
+		Data    ComplianceRule `json:"data"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("unmarshal failed: %v", err)
 	}
-	if rule.ID != "test-rule-001" {
-		t.Errorf("expected ID test-rule-001, got %s", rule.ID)
+	if resp.Data.ID != "test-rule-001" {
+		t.Errorf("expected ID test-rule-001, got %s", resp.Data.ID)
 	}
-	if rule.Standard != StandardCIS {
-		t.Errorf("expected standard cis, got %s", rule.Standard)
+	if resp.Data.Standard != StandardCIS {
+		t.Errorf("expected standard cis, got %s", resp.Data.Standard)
 	}
 }
 
@@ -84,7 +88,7 @@ func TestListRules(t *testing.T) {
 		Enabled:  true,
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/compliance/rules", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/complianceengine/rules", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -93,14 +97,15 @@ func TestListRules(t *testing.T) {
 	}
 
 	var resp struct {
-		Rules []*ComplianceRule `json:"rules"`
-		Total int               `json:"total"`
+		Code    int               `json:"code"`
+		Message string            `json:"message"`
+		Data    []*ComplianceRule `json:"data"`
 	}
 	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("unmarshal failed: %v", err)
 	}
-	if resp.Total != 2 {
-		t.Errorf("expected 2 rules, got %d", resp.Total)
+	if len(resp.Data) != 2 {
+		t.Errorf("expected 2 rules, got %d", len(resp.Data))
 	}
 }
 
@@ -116,23 +121,27 @@ func TestStartScan(t *testing.T) {
 		Enabled:  true,
 	})
 
-	body := `{"standards": ["cis"]}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/compliance/scans", bytes.NewBufferString(body))
+	body := `{"standard": "cis"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/complianceengine/scan", bytes.NewBufferString(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	if w.Code != http.StatusCreated {
-		t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
 	}
 
-	var scan ComplianceScan
-	if err := json.Unmarshal(w.Body.Bytes(), &scan); err != nil {
+	var resp struct {
+		Code    int            `json:"code"`
+		Message string         `json:"message"`
+		Data    ComplianceScan `json:"data"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("unmarshal failed: %v", err)
 	}
 	// 扫描可能已完成或运行中，取决于执行速度
-	if scan.Status != StatusRunning && scan.Status != StatusCompleted {
-		t.Errorf("expected status running or completed, got %s", scan.Status)
+	if resp.Data.Status != StatusRunning && resp.Data.Status != StatusCompleted {
+		t.Errorf("expected status running or completed, got %s", resp.Data.Status)
 	}
 }
 
@@ -151,7 +160,7 @@ func TestGenerateReport(t *testing.T) {
 	scan, _ := mgr.StartScan([]ComplianceStandard{StandardCIS})
 
 	body := `{"scanId": "` + scan.ID + `", "format": "json"}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/compliance/reports", bytes.NewBufferString(body))
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/complianceengine/reports", bytes.NewBufferString(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -160,19 +169,23 @@ func TestGenerateReport(t *testing.T) {
 		t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
 	}
 
-	var report ComplianceReport
-	if err := json.Unmarshal(w.Body.Bytes(), &report); err != nil {
+	var resp struct {
+		Code    int               `json:"code"`
+		Message string            `json:"message"`
+		Data    ComplianceReport  `json:"data"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("unmarshal failed: %v", err)
 	}
-	if report.ScanID != scan.ID {
-		t.Errorf("expected scanId %s, got %s", scan.ID, report.ScanID)
+	if resp.Data.ScanID != scan.ID {
+		t.Errorf("expected scanId %s, got %s", scan.ID, resp.Data.ScanID)
 	}
 }
 
-func TestGetStats(t *testing.T) {
+func TestGetTrends(t *testing.T) {
 	_, _, router := setupTestHandler(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/compliance/stats", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/complianceengine/trends", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -180,8 +193,12 @@ func TestGetStats(t *testing.T) {
 		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
 	}
 
-	var stats ComplianceStats
-	if err := json.Unmarshal(w.Body.Bytes(), &stats); err != nil {
+	var resp struct {
+		Code    int              `json:"code"`
+		Message string           `json:"message"`
+		Data    ComplianceStats  `json:"data"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("unmarshal failed: %v", err)
 	}
 }

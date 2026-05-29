@@ -1,464 +1,683 @@
 package spotlight
 
 import (
+	"context"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 	"time"
-	"unicode"
 
+	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
+	"github.com/blevesearch/bleve/v2/analysis/analyzer/simple"
+	"github.com/blevesearch/bleve/v2/mapping"
 	"go.uber.org/zap"
 )
 
-// NewManager 创建管理器
-func NewManager(logger *zap.Logger) *Manager {
-	return &Manager{
-		logger:    logger,
-		index:     newIndex(),
-		tokenizer: newTokenizer(),
-		config:    DefaultConfig(),
-		stopCh:    make(chan struct{}),
-	}
+// IndexStatus 索引状态
+type IndexStatus struct {
+	Status       string    `json:"status"`
+	TotalFiles   int64     `json:"totalFiles"`
+	IndexedFiles int64     `json:"indexedFiles"`
+	IndexSize    int64     `json:"indexSize"`
+	LastUpdate   time.Time `json:"lastUpdate"`
+	Progress     float64   `json:"progress"`
 }
 
-// NewManagerWithConfig 使用自定义配置创建管理器
-func NewManagerWithConfig(logger *zap.Logger, config *SpotlightConfig) *Manager {
-	m := NewManager(logger)
-	if config != nil {
-		m.config = config
-	}
-	return m
+// Indexer 内容索引器
+type Indexer struct {
+	config     EngineConfig
+	logger     *zap.Logger
+	index      bleve.Index
+	mu         sync.RWMutex
+	status     IndexStatus
+	textExts   map[string]bool
+	excludeMap map[string]bool
+	indexing   bool
+	stopChan   chan struct{}
 }
 
-// newTokenizer 创建分词器
-func newTokenizer() *tokenizer {
-	return &tokenizer{
-		stopWords: defaultStopWords(),
+// NewIndexer 创建索引器
+func NewIndexer(config EngineConfig, logger *zap.Logger) (*Indexer, error) {
+	if logger == nil {
+		logger = zap.NewNop()
 	}
+
+	// 确保索引目录存在
+	indexDir := filepath.Dir(config.IndexPath)
+	if err := os.MkdirAll(indexDir, 0750); err != nil {
+		return nil, fmt.Errorf("创建索引目录失败: %w", err)
+	}
+
+	// 构建文本扩展名映射
+	textExts := make(map[string]bool)
+	for _, ext := range config.TextExtensions {
+		textExts[strings.ToLower(ext)] = true
+	}
+
+	// 构建排除路径映射
+	excludeMap := make(map[string]bool)
+	for _, p := range config.ExcludePaths {
+		excludeMap[p] = true
+	}
+
+	idx := &Indexer{
+		config:     config,
+		logger:     logger,
+		textExts:   textExts,
+		excludeMap: excludeMap,
+		stopChan:   make(chan struct{}),
+		status:     IndexStatus{Status: "idle"},
+	}
+
+	// 打开或创建索引
+	index, err := idx.openOrCreateIndex()
+	if err != nil {
+		return nil, fmt.Errorf("初始化索引失败: %w", err)
+	}
+	idx.index = index
+
+	return idx, nil
 }
 
-// defaultStopWords 默认停用词
-func defaultStopWords() map[string]bool {
-	words := []string{
-		// 英文停用词
-		"a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
-		"have", "has", "had", "do", "does", "did", "will", "would", "could",
-		"should", "may", "might", "shall", "can", "need", "dare", "ought",
-		"used", "to", "of", "in", "for", "on", "with", "at", "by", "from",
-		"up", "about", "into", "through", "during", "before", "after",
-		"above", "below", "between", "out", "off", "over", "under", "again",
-		"further", "then", "once", "here", "there", "when", "where", "why",
-		"how", "all", "each", "every", "both", "few", "more", "most", "other",
-		"some", "such", "no", "nor", "not", "only", "own", "same", "so",
-		"than", "too", "very", "s", "t", "just", "don", "now",
-		// 中文停用词
-		"的", "了", "在", "是", "我", "有", "和", "就", "不", "人", "都",
-		"一", "一个", "上", "也", "很", "到", "说", "要", "去", "你",
-		"会", "着", "没有", "看", "好", "自己", "这",
+// openOrCreateIndex 打开或创建索引
+func (idx *Indexer) openOrCreateIndex() (bleve.Index, error) {
+	// 尝试打开已有索引
+	index, err := bleve.Open(idx.config.IndexPath)
+	if err == nil {
+		idx.logger.Info("打开已有索引", zap.String("path", idx.config.IndexPath))
+		return index, nil
 	}
-	stop := make(map[string]bool, len(words))
-	for _, w := range words {
-		stop[w] = true
+
+	// 创建新索引
+	idx.logger.Info("创建新索引", zap.String("path", idx.config.IndexPath))
+	mapping := idx.createIndexMapping()
+	index, err = bleve.New(idx.config.IndexPath, mapping)
+	if err != nil {
+		return nil, fmt.Errorf("创建索引失败: %w", err)
 	}
-	return stop
+
+	return index, nil
 }
 
-// IndexDocument 索引单个文档
-func (m *Manager) IndexDocument(doc *Document) error {
-	m.index.mu.Lock()
-	defer m.index.mu.Unlock()
+// createIndexMapping 创建索引映射
+func (idx *Indexer) createIndexMapping() mapping.IndexMapping {
+	docMapping := bleve.NewDocumentMapping()
 
-	if doc.ID == "" {
-		doc.ID = generateDocID(doc.Path)
-	}
-	doc.IndexedAt = time.Now()
+	// Path 字段 - 精确匹配
+	pathMapping := bleve.NewTextFieldMapping()
+	pathMapping.Analyzer = keyword.Name
+	pathMapping.Store = true
+	pathMapping.Index = true
+	docMapping.AddFieldMappingsAt("path", pathMapping)
 
-	// 如果文档已存在，先删除旧索引
-	if _, exists := m.index.docs[doc.ID]; exists {
-		m.removeFromIndexLocked(doc.ID)
-	}
+	// Name 字段 - 支持部分匹配
+	nameMapping := bleve.NewTextFieldMapping()
+	nameMapping.Analyzer = simple.Name
+	nameMapping.Store = true
+	nameMapping.Index = true
+	docMapping.AddFieldMappingsAt("name", nameMapping)
 
-	// 存储文档
-	m.index.docs[doc.ID] = doc
+	// Ext 字段 - 精确匹配
+	extMapping := bleve.NewTextFieldMapping()
+	extMapping.Analyzer = keyword.Name
+	extMapping.Store = true
+	extMapping.Index = true
+	docMapping.AddFieldMappingsAt("ext", extMapping)
 
-	// 索引文件名
-	nameTokens := m.tokenizer.tokenize(doc.Name)
-	for _, token := range nameTokens {
-		m.addToIndex(token, doc.ID, "name", 1)
-	}
+	// Content 字段 - 全文搜索
+	contentMapping := bleve.NewTextFieldMapping()
+	contentMapping.Store = true
+	contentMapping.Index = true
+	contentMapping.IncludeTermVectors = true
+	docMapping.AddFieldMappingsAt("content", contentMapping)
 
-	// 索引内容
-	var contentTokens []string
-	if doc.Content != "" {
-		contentTokens = m.tokenizer.tokenize(doc.Content)
-		for i, token := range contentTokens {
-			m.addToIndex(token, doc.ID, "content", i)
-		}
-	}
+	// Size 字段
+	sizeMapping := bleve.NewNumericFieldMapping()
+	sizeMapping.Store = true
+	sizeMapping.Index = true
+	docMapping.AddFieldMappingsAt("size", sizeMapping)
 
-	// 索引标签
-	for _, tag := range doc.Tags {
-		tagTokens := m.tokenizer.tokenize(tag)
-		for _, token := range tagTokens {
-			m.addToIndex(token, doc.ID, "tags", 0)
-		}
-	}
+	// ModTime 字段
+	modTimeMapping := bleve.NewDateTimeFieldMapping()
+	modTimeMapping.Store = true
+	modTimeMapping.Index = true
+	docMapping.AddFieldMappingsAt("modTime", modTimeMapping)
 
-	// 索引扩展名
-	if doc.Extension != "" {
-		ext := strings.ToLower(strings.TrimPrefix(doc.Extension, "."))
-		m.addToIndex(ext, doc.ID, "extension", 0)
-	}
+	// IsDir 字段
+	isDirMapping := bleve.NewBooleanFieldMapping()
+	isDirMapping.Store = true
+	isDirMapping.Index = true
+	docMapping.AddFieldMappingsAt("isDir", isDirMapping)
 
-	m.logger.Debug("document indexed",
-		zap.String("id", doc.ID),
-		zap.String("path", doc.Path),
-		zap.Int("name_tokens", len(nameTokens)),
-		zap.Int("content_tokens", len(contentTokens)))
+	// MimeType 字段
+	mimeTypeMapping := bleve.NewTextFieldMapping()
+	mimeTypeMapping.Analyzer = keyword.Name
+	mimeTypeMapping.Store = true
+	mimeTypeMapping.Index = true
+	docMapping.AddFieldMappingsAt("mimeType", mimeTypeMapping)
 
+	// Protocol 字段
+	protocolMapping := bleve.NewTextFieldMapping()
+	protocolMapping.Analyzer = keyword.Name
+	protocolMapping.Store = true
+	protocolMapping.Index = true
+	docMapping.AddFieldMappingsAt("protocol", protocolMapping)
+
+	// Keywords 字段
+	keywordsMapping := bleve.NewTextFieldMapping()
+	keywordsMapping.Store = true
+	keywordsMapping.Index = true
+	docMapping.AddFieldMappingsAt("keywords", keywordsMapping)
+
+	indexMapping := bleve.NewIndexMapping()
+	indexMapping.DefaultMapping = docMapping
+	indexMapping.DefaultAnalyzer = "standard"
+
+	return indexMapping
+}
+
+// Start 启动索引器
+func (idx *Indexer) Start(ctx context.Context) error {
+	idx.mu.Lock()
+	idx.status.Status = "ready"
+	idx.mu.Unlock()
+
+	idx.logger.Info("索引器已启动")
 	return nil
 }
 
-// IndexDocuments 批量索引文档
-func (m *Manager) IndexDocuments(docs []*Document) (int, error) {
-	indexed := 0
-	for _, doc := range docs {
-		if err := m.IndexDocument(doc); err != nil {
-			m.logger.Error("failed to index document",
-				zap.String("path", doc.Path),
-				zap.Error(err))
-			continue
-		}
-		indexed++
+// Stop 停止索引器
+func (idx *Indexer) Stop() {
+	close(idx.stopChan)
+	if idx.index != nil {
+		idx.index.Close()
 	}
-	return indexed, nil
+	idx.logger.Info("索引器已停止")
 }
 
-// RemoveDocument 删除文档索引
-func (m *Manager) RemoveDocument(docID string) error {
-	m.index.mu.Lock()
-	defer m.index.mu.Unlock()
-
-	if _, exists := m.index.docs[docID]; !exists {
+// IndexFile 索引单个文件
+func (idx *Indexer) IndexFile(ctx context.Context, path string) error {
+	// 检查是否排除
+	if idx.shouldExclude(path) {
 		return nil
 	}
 
-	m.removeFromIndexLocked(docID)
-	delete(m.index.docs, docID)
+	info, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("获取文件信息失败: %w", err)
+	}
 
-	m.logger.Debug("document removed from index", zap.String("id", docID))
+	entry := IndexEntry{
+		Path:       path,
+		Name:       info.Name(),
+		Ext:        strings.ToLower(filepath.Ext(path)),
+		Size:       info.Size(),
+		ModTime:    info.ModTime(),
+		IsDir:      info.IsDir(),
+		MimeType:   getMimeType(filepath.Ext(path)),
+		Protocol:   detectProtocol(path),
+		Attributes: make(map[string]string),
+	}
+
+	// 索引文件内容
+	if !info.IsDir() && idx.shouldIndexContent(path, info.Size()) {
+		content, err := idx.readFileContent(path)
+		if err == nil {
+			entry.Content = content
+			entry.Keywords = extractKeywords(content)
+		}
+	}
+
+	// 添加到索引
+	if err := idx.index.Index(path, entry); err != nil {
+		return fmt.Errorf("索引文件失败: %w", err)
+	}
+
+	idx.mu.Lock()
+	idx.status.IndexedFiles++
+	idx.mu.Unlock()
+
 	return nil
 }
 
-// GetDocument 获取文档
-func (m *Manager) GetDocument(docID string) (*Document, bool) {
-	m.index.mu.RLock()
-	defer m.index.mu.RUnlock()
-
-	doc, exists := m.index.docs[docID]
-	return doc, exists
-}
-
-// GetStats 获取索引统计
-func (m *Manager) GetStats() *IndexStats {
-	m.index.mu.RLock()
-	defer m.index.mu.RUnlock()
-
-	stats := &IndexStats{
-		TotalDocuments:  len(m.index.docs),
-		TotalTerms:      len(m.index.index),
-		DocumentsByType: make(map[FileType]int),
+// IndexDirectory 索引目录
+func (idx *Indexer) IndexDirectory(ctx context.Context, root string) error {
+	idx.mu.Lock()
+	if idx.indexing {
+		idx.mu.Unlock()
+		return fmt.Errorf("索引正在进行中")
 	}
+	idx.indexing = true
+	idx.status.Status = "indexing"
+	idx.mu.Unlock()
 
-	var totalSize int64
-	var lastIndexed time.Time
+	defer func() {
+		idx.mu.Lock()
+		idx.indexing = false
+		idx.status.Status = "ready"
+		idx.mu.Unlock()
+	}()
 
-	for _, doc := range m.index.docs {
-		totalSize += doc.Size
-		stats.DocumentsByType[doc.FileType]++
-		if doc.IndexedAt.After(lastIndexed) {
-			lastIndexed = doc.IndexedAt
-		}
-	}
+	startTime := time.Now()
+	batch := idx.index.NewBatch()
+	count := 0
+	totalCount := int64(0)
 
-	stats.IndexSize = totalSize
-	stats.LastIndexedAt = lastIndexed
-
-	return stats
-}
-
-// addToIndex 添加到倒排索引
-func (m *Manager) addToIndex(term, docID, field string, position int) {
-	if term == "" {
-		return
-	}
-
-	term = strings.ToLower(term)
-
-	if _, exists := m.index.index[term]; !exists {
-		m.index.index[term] = make(map[string]positions)
-	}
-
-	pos := m.index.index[term][docID]
-	pos.Fields = appendUnique(pos.Fields, field)
-	pos.Count++
-	pos.Positions = append(pos.Positions, position)
-	m.index.index[term][docID] = pos
-
-	// 添加到前缀树
-	m.index.trieRoot.insert(term)
-}
-
-// removeFromIndexLocked 从索引中删除文档（需要持有锁）
-func (m *Manager) removeFromIndexLocked(docID string) {
-	for term, postings := range m.index.index {
-		if _, exists := postings[docID]; exists {
-			delete(postings, docID)
-			if len(postings) == 0 {
-				delete(m.index.index, term)
-			}
-		}
-	}
-}
-
-// splitByLanguage 按语言分割文本
-func splitByLanguage(text string) []string {
-	var segments []string
-	var current strings.Builder
-	var currentIsCJK bool
-
-	for i, r := range []rune(text) {
-		isCJK := isCJKRune(r)
-		if i == 0 {
-			currentIsCJK = isCJK
-		}
-
-		if isCJK != currentIsCJK && current.Len() > 0 {
-			segments = append(segments, current.String())
-			current.Reset()
-			currentIsCJK = isCJK
-		}
-
-		if isCJK || !unicode.IsSpace(r) {
-			current.WriteRune(r)
-		} else if current.Len() > 0 {
-			current.WriteRune(r)
-		}
-	}
-
-	if current.Len() > 0 {
-		segments = append(segments, current.String())
-	}
-
-	return segments
-}
-
-// isCJK 检查字符串是否包含CJK字符
-func isCJK(s string) bool {
-	for _, r := range []rune(s) {
-		if isCJKRune(r) {
-			return true
-		}
-	}
-	return false
-}
-
-// isCJKRune 检查字符是否是CJK字符
-func isCJKRune(r rune) bool {
-	return (r >= 0x4E00 && r <= 0x9FFF) || // CJK Unified Ideographs
-		(r >= 0x3400 && r <= 0x4DBF) || // CJK Unified Ideographs Extension A
-		(r >= 0x20000 && r <= 0x2A6DF) || // CJK Unified Ideographs Extension B
-		(r >= 0x2A700 && r <= 0x2CEAF) || // CJK Unified Ideographs Extensions C-F
-		(r >= 0xF900 && r <= 0xFAFF) || // CJK Compatibility Ideographs
-		(r >= 0x2F800 && r <= 0x2FA1F) // CJK Compatibility Ideographs Supplement
-}
-
-// tokenizeCJK 中文分词
-func tokenizeCJK(text string) []string {
-	runes := []rune(text)
-	var tokens []string
-
-	// 单字符切分
-	for _, r := range runes {
-		if !unicode.IsSpace(r) {
-			tokens = append(tokens, string(r))
-		}
-	}
-
-	// bigram 切分
-	for i := 0; i < len(runes)-1; i++ {
-		if !unicode.IsSpace(runes[i]) && !unicode.IsSpace(runes[i+1]) {
-			tokens = append(tokens, string(runes[i:i+2]))
-		}
-	}
-
-	return tokens
-}
-
-// tokenizeEnglish 英文分词
-func tokenizeEnglish(text string) []string {
-	// 按空格和标点分割
-	fields := strings.FieldsFunc(text, func(r rune) bool {
-		return unicode.IsSpace(r) || unicode.IsPunct(r)
-	})
-
-	var tokens []string
-	for _, field := range fields {
-		// 转小写
-		token := strings.ToLower(field)
-		if len(token) > 0 {
-			tokens = append(tokens, token)
-			// 添加词干（简单实现：去掉常见后缀）
-			if stem := simpleStem(token); stem != token {
-				tokens = append(tokens, stem)
-			}
-		}
-	}
-
-	return tokens
-}
-
-// simpleStem 简单词干提取
-func simpleStem(word string) string {
-	suffixes := []string{"ing", "tion", "sion", "ment", "ness", "able", "ible", "ful", "less", "ous", "ive", "ly", "ed", "er", "es", "s"}
-
-	for _, suffix := range suffixes {
-		if strings.HasSuffix(word, suffix) && len(word)-len(suffix) >= 3 {
-			return strings.TrimSuffix(word, suffix)
-		}
-	}
-	return word
-}
-
-// insert 向前缀树插入词项
-func (n *trieNode) insert(term string) {
-	node := n
-	for _, r := range term {
-		if _, exists := node.children[r]; !exists {
-			node.children[r] = newTrieNode()
-		}
-		node = node.children[r]
-	}
-	node.isEnd = true
-	node.count++
-	if !contains(node.terms, term) {
-		node.terms = append(node.terms, term)
-	}
-}
-
-// search 前缀搜索
-func (n *trieNode) search(prefix string, limit int) []Suggestion {
-	node := n
-	for _, r := range prefix {
-		if _, exists := node.children[r]; !exists {
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
 			return nil
 		}
-		node = node.children[r]
-	}
 
-	var suggestions []Suggestion
-	node.collect(prefix, &suggestions, limit)
+		// 检查上下文
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
 
-	// 按分数排序
-	sortSuggestions(suggestions)
-	if len(suggestions) > limit {
-		suggestions = suggestions[:limit]
-	}
+		// 检查排除
+		if idx.shouldExclude(path) {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
 
-	return suggestions
-}
+		entry := IndexEntry{
+			Path:       path,
+			Name:       info.Name(),
+			Ext:        strings.ToLower(filepath.Ext(path)),
+			Size:       info.Size(),
+			ModTime:    info.ModTime(),
+			IsDir:      info.IsDir(),
+			MimeType:   getMimeType(filepath.Ext(path)),
+			Protocol:   detectProtocol(path),
+			Attributes: make(map[string]string),
+		}
 
-// collect 收集前缀树中的词项
-func (n *trieNode) collect(prefix string, suggestions *[]Suggestion, limit int) {
-	if len(*suggestions) >= limit {
-		return
-	}
+		// 索引内容
+		if !info.IsDir() && idx.shouldIndexContent(path, info.Size()) {
+			content, err := idx.readFileContent(path)
+			if err == nil {
+				entry.Content = content
+				entry.Keywords = extractKeywords(content)
+			}
+		}
 
-	if n.isEnd {
-		for _, term := range n.terms {
-			*suggestions = append(*suggestions, Suggestion{
-				Text:  term,
-				Score: float64(n.count),
-				Type:  "completion",
-			})
+		if err := batch.Index(path, entry); err != nil {
+			idx.logger.Warn("添加到批次失败",
+				zap.String("path", path),
+				zap.Error(err))
+		}
+
+		count++
+		totalCount++
+
+		// 批量提交
+		if count >= idx.config.BatchSize {
+			if err := idx.index.Batch(batch); err != nil {
+				idx.logger.Error("批量索引失败", zap.Error(err))
+			}
+			batch = idx.index.NewBatch()
+			count = 0
+		}
+
+		return nil
+	})
+
+	// 提交剩余批次
+	if count > 0 {
+		if err := idx.index.Batch(batch); err != nil {
+			idx.logger.Error("最终批次索引失败", zap.Error(err))
 		}
 	}
 
-	for r, child := range n.children {
-		child.collect(prefix+string(r), suggestions, limit)
+	idx.mu.Lock()
+	idx.status.TotalFiles = totalCount
+	idx.status.IndexedFiles = totalCount
+	idx.status.LastUpdate = time.Now()
+	idx.mu.Unlock()
+
+	// 更新索引大小
+	if info, err := os.Stat(idx.config.IndexPath); err == nil {
+		idx.mu.Lock()
+		idx.status.IndexSize = info.Size()
+		idx.mu.Unlock()
 	}
+
+	took := time.Since(startTime)
+	idx.logger.Info("目录索引完成",
+		zap.String("root", root),
+		zap.Int64("total", totalCount),
+		zap.Duration("took", took))
+
+	if err != nil && err != context.Canceled {
+		return fmt.Errorf("索引目录失败: %w", err)
+	}
+
+	return nil
 }
 
-// appendUnique 追加不重复字符串
-func appendUnique(slice []string, s string) []string {
-	for _, v := range slice {
-		if v == s {
-			return slice
+// RemoveFromIndex 从索引中移除
+func (idx *Indexer) RemoveFromIndex(ctx context.Context, path string) error {
+	return idx.index.Delete(path)
+}
+
+// Search 执行搜索
+func (idx *Indexer) Search(ctx context.Context, query *ParsedQuery, limit, offset int) ([]IndexEntry, int, error) {
+	// 构建 Bleve 查询
+	bleveQuery := idx.buildBleveQuery(query)
+
+	// 创建搜索请求
+	searchReq := bleve.NewSearchRequestOptions(bleveQuery, limit, offset, false)
+	searchReq.Highlight = bleve.NewHighlight()
+	searchReq.Highlight.Fields = []string{"name", "content"}
+
+	// 设置返回字段
+	searchReq.Fields = []string{"path", "name", "ext", "size", "modTime", "isDir", "mimeType", "protocol", "keywords"}
+
+	// 执行搜索
+	result, err := idx.index.Search(searchReq)
+	if err != nil {
+		return nil, 0, fmt.Errorf("搜索失败: %w", err)
+	}
+
+	// 解析结果
+	entries := make([]IndexEntry, 0, len(result.Hits))
+	for _, hit := range result.Hits {
+		entry := IndexEntry{
+			Path:  hit.ID,
+			Score: hit.Score,
+		}
+
+		if name, ok := hit.Fields["name"].(string); ok {
+			entry.Name = name
+		}
+		if ext, ok := hit.Fields["ext"].(string); ok {
+			entry.Ext = ext
+		}
+		if size, ok := hit.Fields["size"].(float64); ok {
+			entry.Size = int64(size)
+		}
+		if modTime, ok := hit.Fields["modTime"].(string); ok {
+			if t, err := time.Parse(time.RFC3339, modTime); err == nil {
+				entry.ModTime = t
+			}
+		}
+		if isDir, ok := hit.Fields["isDir"].(bool); ok {
+			entry.IsDir = isDir
+		}
+		if mimeType, ok := hit.Fields["mimeType"].(string); ok {
+			entry.MimeType = mimeType
+		}
+		if protocol, ok := hit.Fields["protocol"].(string); ok {
+			entry.Protocol = Protocol(protocol)
+		}
+
+		entries = append(entries, entry)
+	}
+
+	return entries, int(result.Total), nil
+}
+
+// RebuildIndex 重建索引
+func (idx *Indexer) RebuildIndex(ctx context.Context) error {
+	idx.mu.Lock()
+	defer idx.mu.Unlock()
+
+	// 关闭现有索引
+	if idx.index != nil {
+		idx.index.Close()
+	}
+
+	// 删除索引目录
+	os.RemoveAll(idx.config.IndexPath)
+
+	// 重新创建索引
+	index, err := idx.openOrCreateIndex()
+	if err != nil {
+		return err
+	}
+	idx.index = index
+
+	// 重新索引所有路径
+	for _, path := range idx.config.IndexPaths {
+		if err := idx.IndexDirectory(ctx, path); err != nil {
+			idx.logger.Error("重建索引失败",
+				zap.String("path", path),
+				zap.Error(err))
 		}
 	}
-	return append(slice, s)
+
+	return nil
 }
 
-// contains 检查切片是否包含字符串
-func contains(slice []string, s string) bool {
-	for _, v := range slice {
-		if v == s {
+// GetStatus 获取索引状态
+func (idx *Indexer) GetStatus() IndexStatus {
+	idx.mu.RLock()
+	defer idx.mu.RUnlock()
+	return idx.status
+}
+
+// GetIndexedCount 获取已索引文件数
+func (idx *Indexer) GetIndexedCount() int64 {
+	idx.mu.RLock()
+	defer idx.mu.RUnlock()
+	return idx.status.IndexedFiles
+}
+
+// buildBleveQuery 构建 Bleve 查询
+func (idx *Indexer) buildBleveQuery(query *ParsedQuery) bleve.Query {
+	var queries []bleve.Query
+
+	// 主查询
+	if query.Raw != "" {
+		matchQuery := bleve.NewMatchQuery(query.Raw)
+		matchQuery.SetFuzziness(1)
+		matchQuery.SetPrefix(3)
+		queries = append(queries, matchQuery)
+	}
+
+	// 路径过滤
+	if len(query.Paths) > 0 {
+		pathQueries := make([]bleve.Query, len(query.Paths))
+		for i, path := range query.Paths {
+			prefixQuery := bleve.NewPrefixQuery(path)
+			prefixQuery.SetField("path")
+			pathQueries[i] = prefixQuery
+		}
+		queries = append(queries, bleve.NewDisjunctionQuery(pathQueries...))
+	}
+
+	// 文件类型过滤
+	if len(query.FileTypes) > 0 {
+		typeQueries := make([]bleve.Query, len(query.FileTypes))
+		for i, ext := range query.FileTypes {
+			if !strings.HasPrefix(ext, ".") {
+				ext = "." + ext
+			}
+			termQuery := bleve.NewTermQuery(ext)
+			termQuery.SetField("ext")
+			typeQueries[i] = termQuery
+		}
+		queries = append(queries, bleve.NewDisjunctionQuery(typeQueries...))
+	}
+
+	// 大小范围过滤
+	if query.SizeRange != nil {
+		minSize := float64(query.SizeRange.Min)
+		maxSize := float64(query.SizeRange.Max)
+		rangeQuery := bleve.NewNumericRangeQuery(&minSize, &maxSize)
+		rangeQuery.SetField("size")
+		queries = append(queries, rangeQuery)
+	}
+
+	// 日期范围过滤
+	if query.DateRange != nil {
+		rangeQuery := bleve.NewDateRangeQuery(query.DateRange.From, query.DateRange.To)
+		rangeQuery.SetField("modTime")
+		queries = append(queries, rangeQuery)
+	}
+
+	// 组合查询
+	if len(queries) > 1 {
+		return bleve.NewConjunctionQuery(queries...)
+	}
+	if len(queries) == 1 {
+		return queries[0]
+	}
+
+	// 默认空查询
+	return bleve.NewMatchAllQuery()
+}
+
+// shouldExclude 是否应该排除
+func (idx *Indexer) shouldExclude(path string) bool {
+	// 检查排除路径
+	if idx.excludeMap[path] {
+		return true
+	}
+
+	// 检查隐藏目录
+	for _, part := range strings.Split(path, string(os.PathSeparator)) {
+		if strings.HasPrefix(part, ".") && part != "." {
 			return true
 		}
 	}
+
 	return false
 }
 
-// sortSuggestions 排序搜索建议
-func sortSuggestions(suggestions []Suggestion) {
-	// 简单冒泡排序，按分数降序
-	for i := 0; i < len(suggestions)-1; i++ {
-		for j := 0; j < len(suggestions)-i-1; j++ {
-			if suggestions[j].Score < suggestions[j+1].Score {
-				suggestions[j], suggestions[j+1] = suggestions[j+1], suggestions[j]
-			}
-		}
+// shouldIndexContent 是否应该索引内容
+func (idx *Indexer) shouldIndexContent(path string, size int64) bool {
+	if !idx.config.EnableContentIndex {
+		return false
 	}
+	if size > idx.config.MaxContentIndexSize {
+		return false
+	}
+	ext := strings.ToLower(filepath.Ext(path))
+	return idx.textExts[ext]
 }
 
-// generateDocID 生成文档ID
-func generateDocID(path string) string {
-	// 使用路径作为ID
-	return path
+// readFileContent 读取文件内容
+func (idx *Indexer) readFileContent(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	buf := make([]byte, idx.config.MaxContentIndexSize)
+	n, err := file.Read(buf)
+	if err != nil && err != io.EOF {
+		return "", err
+	}
+
+	return string(buf[:n]), nil
 }
 
-// Close 关闭管理器
-func (m *Manager) Close() {
-	close(m.stopCh)
+// getMimeType 获取 MIME 类型
+func getMimeType(ext string) string {
+	mimeTypes := map[string]string{
+		".txt":  "text/plain",
+		".md":   "text/markdown",
+		".json": "application/json",
+		".yaml": "application/x-yaml",
+		".yml":  "application/x-yaml",
+		".xml":  "application/xml",
+		".html": "text/html",
+		".css":  "text/css",
+		".js":   "application/javascript",
+		".ts":   "application/typescript",
+		".go":   "text/x-go",
+		".py":   "text/x-python",
+		".pdf":  "application/pdf",
+		".doc":  "application/msword",
+		".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		".xls":  "application/vnd.ms-excel",
+		".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		".jpg":  "image/jpeg",
+		".jpeg": "image/jpeg",
+		".png":  "image/png",
+		".gif":  "image/gif",
+		".mp4":  "video/mp4",
+		".mp3":  "audio/mpeg",
+		".zip":  "application/zip",
+		".tar":  "application/x-tar",
+		".gz":   "application/gzip",
+	}
+	if mt, ok := mimeTypes[strings.ToLower(ext)]; ok {
+		return mt
+	}
+	return "application/octet-stream"
 }
 
-// IndexDocument 索引单个文档（Tokenizer 方法）
-func (t *tokenizer) tokenize(text string) []string {
-	// 分离中英文
-	segments := splitByLanguage(text)
-	var tokens []string
+// detectProtocol 检测协议类型
+func detectProtocol(path string) Protocol {
+	// 基于路径特征检测协议
+	if strings.HasPrefix(path, "smb://") || strings.HasPrefix(path, "\\\\") {
+		return ProtocolSMB
+	}
+	if strings.HasPrefix(path, "nfs://") || strings.HasPrefix(path, "/net/") {
+		return ProtocolNFS
+	}
+	if strings.HasPrefix(path, "afp://") {
+		return ProtocolAFP
+	}
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		return ProtocolHTTP
+	}
+	// 默认 SMB（NAS 常用）
+	return ProtocolSMB
+}
 
-	for _, seg := range segments {
-		if isCJK(seg) {
-			tokens = append(tokens, tokenizeCJK(seg)...)
-		} else {
-			tokens = append(tokens, tokenizeEnglish(seg)...)
+// extractKeywords 提取关键词
+func extractKeywords(content string) []string {
+	keywords := make([]string, 0)
+	wordCount := make(map[string]int)
+
+	// 简单分词
+	words := strings.Fields(strings.ToLower(content))
+	stopWords := getStopWords()
+
+	for _, word := range words {
+		// 清理标点
+		word = strings.Trim(word, ".,;:!?\"'()[]{}<>")
+		if len(word) >= 3 && !stopWords[word] {
+			wordCount[word]++
 		}
 	}
 
-	// 过滤停用词和短词
-	var filtered []string
-	for _, token := range tokens {
-		token = strings.ToLower(strings.TrimSpace(token))
-		if len(token) < 2 {
-			continue
+	// 选择高频词
+	for word, count := range wordCount {
+		if count >= 2 {
+			keywords = append(keywords, word)
 		}
-		if len(token) > 100 {
-			continue
+		if len(keywords) >= 20 {
+			break
 		}
-		if t.stopWords[token] {
-			continue
-		}
-		filtered = append(filtered, token)
 	}
 
-	return filtered
+	return keywords
+}
+
+// getStopWords 获取停用词
+func getStopWords() map[string]bool {
+	stopWords := make(map[string]bool)
+	words := []string{
+		"the", "a", "an", "is", "are", "was", "were", "be", "been",
+		"have", "has", "had", "do", "does", "did", "will", "would",
+		"could", "should", "may", "might", "can", "to", "of", "in",
+		"for", "on", "with", "at", "by", "from", "as", "into",
+		"and", "but", "or", "if", "not", "no", "this", "that",
+	}
+	for _, w := range words {
+		stopWords[w] = true
+	}
+	return stopWords
 }

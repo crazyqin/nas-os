@@ -221,6 +221,178 @@ func (c *Collector) GetWarnings() []string {
 	return warnings
 }
 
+// GetHealthScore calculates the overall health score.
+func (c *Collector) GetHealthScore() *HealthScore {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	var storageScore, cpuScore, memoryScore, networkScore int
+	var diskCount int
+
+	// Calculate storage score from disk health
+	for _, d := range c.disks {
+		storageScore += d.HealthScore
+		diskCount++
+	}
+	if diskCount > 0 {
+		storageScore = storageScore / diskCount
+	}
+
+	// Calculate pool health impact
+	for _, p := range c.pools {
+		switch p.Status {
+		case PoolDegraded:
+			storageScore = storageScore * 80 / 100
+		case PoolFaulted:
+			storageScore = storageScore * 50 / 100
+		}
+	}
+
+	// Get CPU, memory, network scores from system metrics
+	cpuScore = 85 // Placeholder
+	memoryScore = 90 // Placeholder
+	networkScore = 95 // Placeholder
+
+	overall := (storageScore + cpuScore + memoryScore + networkScore) / 4
+
+	return &HealthScore{
+		Overall:   overall,
+		Storage:   storageScore,
+		CPU:       cpuScore,
+		Memory:    memoryScore,
+		Network:   networkScore,
+		UpdatedAt: time.Now(),
+		Details: map[string]interface{}{
+			"disk_count":  diskCount,
+			"pool_count":  len(c.pools),
+			"alert_count": c.getAlertCount(),
+		},
+	}
+}
+
+// GetRealTimeMetrics returns current system metrics.
+func (c *Collector) GetRealTimeMetrics() []*HealthMetric {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	metrics := make([]*HealthMetric, 0)
+
+	// Add storage metrics
+	for _, d := range c.disks {
+		status := "normal"
+		if d.HealthScore < 50 {
+			status = "critical"
+		} else if d.HealthScore < 70 {
+			status = "warning"
+		}
+
+		metrics = append(metrics, &HealthMetric{
+			Name:      "disk_health_" + d.Device,
+			Value:     float64(d.HealthScore),
+			Unit:      "score",
+			Status:    status,
+			Threshold: 70,
+			Timestamp: d.LastCheck,
+		})
+
+		metrics = append(metrics, &HealthMetric{
+			Name:      "disk_temp_" + d.Device,
+			Value:     float64(d.Temperature),
+			Unit:      "celsius",
+			Status:    getTemperatureStatus(d.Temperature),
+			Threshold: 55,
+			Timestamp: d.LastCheck,
+		})
+	}
+
+	// Add pool metrics
+	for _, p := range c.pools {
+		metrics = append(metrics, &HealthMetric{
+			Name:      "pool_usage_" + p.ID,
+			Value:     p.UsagePercent,
+			Unit:      "percent",
+			Status:    getUsageStatus(p.UsagePercent),
+			Threshold: 90,
+			Timestamp: time.Now(),
+		})
+	}
+
+	return metrics
+}
+
+// GetTrends returns trend data for the specified period.
+func (c *Collector) GetTrends(period string) []*TrendSeries {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	var days int
+	switch period {
+	case "7d":
+		days = 7
+	case "30d":
+		days = 30
+	case "90d":
+		days = 90
+	default:
+		days = 7
+	}
+
+	// Calculate cutoff time
+	cutoff := time.Now().AddDate(0, 0, -days)
+
+	// Build storage usage trend
+	storageTrend := &TrendSeries{
+		Metric: "storage_usage",
+		Unit:   "GB",
+		Period: period,
+		Points: make([]*TrendDataPoint, 0),
+	}
+
+	for _, t := range c.trends {
+		if t.Timestamp.After(cutoff) {
+			storageTrend.Points = append(storageTrend.Points, &TrendDataPoint{
+				Timestamp: t.Timestamp,
+				Value:     float64(t.UsedGB),
+			})
+		}
+	}
+
+	return []*TrendSeries{storageTrend}
+}
+
+func (c *Collector) getAlertCount() int {
+	count := 0
+	for _, d := range c.disks {
+		count += len(d.Warnings)
+	}
+	for _, p := range c.pools {
+		if p.Status != PoolHealthy {
+			count++
+		}
+	}
+	return count
+}
+
+func getTemperatureStatus(temp int) string {
+	if temp > 60 {
+		return "critical"
+	}
+	if temp > 55 {
+		return "warning"
+	}
+	return "normal"
+}
+
+func getUsageStatus(percent float64) string {
+	if percent > 95 {
+		return "critical"
+	}
+	if percent > 90 {
+		return "warning"
+	}
+	return "normal"
+}
+
 // PredictCapacity forecasts when a pool will be full based on current trends.
 func (c *Collector) PredictCapacity(poolID string, days int) (projectedGB int64, err error) {
 	c.mu.RLock()
