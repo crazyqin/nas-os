@@ -132,6 +132,8 @@ func TestPipelineLifecycle(t *testing.T) {
 	// 不能停止已停止的
 	err = mgr.StopPipeline("pipe-lc")
 	assert.ErrorIs(t, err, ErrPipelineNotRunning)
+
+	mgr.Wait() // 等待后台 goroutine 完成
 }
 
 func TestDeleteRunningPipeline(t *testing.T) {
@@ -143,6 +145,7 @@ func TestDeleteRunningPipeline(t *testing.T) {
 	assert.ErrorIs(t, err, ErrPipelineRunning)
 
 	require.NoError(t, mgr.StopPipeline("pipe-del"))
+	mgr.Wait() // 等待后台 goroutine 完成
 	require.NoError(t, mgr.DeletePipeline("pipe-del"))
 
 	_, err = mgr.GetPipeline("pipe-del")
@@ -192,6 +195,8 @@ func TestUpdateRunningPipeline(t *testing.T) {
 
 	err := mgr.UpdatePipeline("pipe-updr", &Pipeline{Name: "Nope"})
 	assert.ErrorIs(t, err, ErrPipelineRunning)
+
+	mgr.Wait() // 等待后台 goroutine 完成
 }
 
 func TestListPipelinesWithFilter(t *testing.T) {
@@ -208,6 +213,8 @@ func TestListPipelinesWithFilter(t *testing.T) {
 	// 按标签过滤
 	tagged := mgr.ListPipelines("", "etl")
 	assert.Len(t, tagged, 2)
+
+	mgr.Wait() // 等待后台 goroutine 完成
 }
 
 func TestInvalidSourceType(t *testing.T) {
@@ -275,6 +282,8 @@ func TestStats(t *testing.T) {
 	data := resp["data"].(map[string]interface{})
 	assert.Equal(t, float64(1), data["total_pipelines"])
 	assert.Equal(t, float64(1), data["running_pipelines"])
+
+	mgr.Wait() // 等待后台 goroutine 完成
 }
 
 func TestPipelineHealth(t *testing.T) {

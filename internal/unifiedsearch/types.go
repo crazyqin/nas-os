@@ -1,265 +1,270 @@
-// Package unifiedsearch provides cross-platform unified search for NAS-OS
-// Features: Full-text search across files/photos/emails/notes, semantic search, filters
-// Competitor benchmark: 对标群晖Universal Search, 超越飞牛/TrueNAS搜索能力
+// Package unifiedsearch 提供统一全文搜索功能，支持文件名、文件内容、EXIF、标签、元数据的全文索引与搜索。
+// 参考群晖 Universal Search 实现，支持多类型搜索、模糊搜索、布尔查询、过滤器、高亮摘要等。
 package unifiedsearch
 
 import (
-	"context"
-	"fmt"
-	"sync"
 	"time"
 )
 
-// SearchScope defines what to search
-type SearchScope string
+// IndexStatus 索引状态
+type IndexStatus string
 
 const (
-	ScopeAll       SearchScope = "all"
-	ScopeFiles     SearchScope = "files"
-	ScopePhotos    SearchScope = "photos"
-	ScopeEmails    SearchScope = "emails"
-	ScopeNotes     SearchScope = "notes"
-	ScopeCalendar  SearchScope = "calendar"
-	ScopeContacts  SearchScope = "contacts"
-	ScopeApps      SearchScope = "apps"
+	IndexStatusIdle     IndexStatus = "idle"
+	IndexStatusBuilding IndexStatus = "building"
+	IndexStatusPaused   IndexStatus = "paused"
+	IndexStatusError    IndexStatus = "error"
 )
 
-// SearchMode defines search algorithm
-type SearchMode string
+// ContentType 内容类型
+type ContentType string
 
 const (
-	ModeKeyword  SearchMode = "keyword"  // Traditional keyword search
-	ModeSemantic SearchMode = "semantic" // AI-powered semantic search
-	ModeFuzzy    SearchMode = "fuzzy"    // Fuzzy matching
-	ModeRegex    SearchMode = "regex"    // Regular expression
+	ContentTypeFile    ContentType = "file"
+	ContentTypePhoto   ContentType = "photo"
+	ContentTypeDocument ContentType = "document"
+	ContentTypeVideo   ContentType = "video"
+	ContentTypeMusic   ContentType = "music"
 )
 
-// SortOrder defines result sorting
+// BooleanOp 布尔操作符
+type BooleanOp string
+
+const (
+	BooleanAND BooleanOp = "AND"
+	BooleanOR  BooleanOp = "OR"
+	BooleanNOT BooleanOp = "NOT"
+)
+
+// SortOrder 排序方式
 type SortOrder string
 
 const (
 	SortRelevance SortOrder = "relevance"
-	SortDate      SortOrder = "date"
-	SortName      SortOrder = "name"
-	SortSize      SortOrder = "size"
-	SortType      SortOrder = "type"
+	SortDateDesc  SortOrder = "date_desc"
+	SortDateAsc   SortOrder = "date_asc"
+	SortSizeDesc  SortOrder = "size_desc"
+	SortSizeAsc   SortOrder = "size_asc"
+	SortNameAsc   SortOrder = "name_asc"
+	SortNameDesc  SortOrder = "name_desc"
 )
 
-// SearchResult represents a single search result
+// IndexTaskType 索引任务类型
+type IndexTaskType string
+
+const (
+	TaskTypeFull       IndexTaskType = "full"
+	TaskTypeIncremental IndexTaskType = "incremental"
+	TaskTypeDelete     IndexTaskType = "delete"
+)
+
+// IndexTaskStatus 索引任务状态
+type IndexTaskStatus string
+
+const (
+	TaskStatusPending    IndexTaskStatus = "pending"
+	TaskStatusRunning    IndexTaskStatus = "running"
+	TaskStatusCompleted  IndexTaskStatus = "completed"
+	TaskStatusFailed     IndexTaskStatus = "failed"
+	TaskStatusCancelled  IndexTaskStatus = "cancelled"
+)
+
+// SearchIndex 搜索索引条目
+type SearchIndex struct {
+	ID          string            `json:"id"`
+	Path        string            `json:"path"`
+	Name        string            `json:"name"`
+	Extension   string            `json:"extension,omitempty"`
+	ContentType ContentType       `json:"content_type"`
+	MimeType    string            `json:"mime_type,omitempty"`
+	Size        int64             `json:"size"`
+	Content     string            `json:"content,omitempty"`     // 提取的文本内容
+	Tags        []string          `json:"tags,omitempty"`
+	Metadata    map[string]string `json:"metadata,omitempty"`    // EXIF、音频标签等
+	Highlights  map[string]string `json:"highlights,omitempty"`  // 字段 -> 高亮片段
+	Score       float64           `json:"score,omitempty"`       // 相关度评分
+	CreatedAt   time.Time         `json:"created_at"`
+	ModifiedAt  time.Time         `json:"modified_at"`
+	IndexedAt   time.Time         `json:"indexed_at"`
+}
+
+// SearchResult 搜索结果
 type SearchResult struct {
-	ID          string                 `json:"id"`
-	Title       string                 `json:"title"`
-	Description string                 `json:"description"`
-	Path        string                 `json:"path"`
-	Type        string                 `json:"type"` // file, photo, email, note, etc.
-	MimeType    string                 `json:"mime_type"`
-	Size        int64                  `json:"size"`
-	Score       float64                `json:"score"` // Relevance score 0-1
-	Highlight   string                 `json:"highlight"`
-	Thumbnail   string                 `json:"thumbnail"`
-	Metadata    map[string]interface{} `json:"metadata"`
-	Tags        []string               `json:"tags"`
-	CreatedAt   time.Time              `json:"created_at"`
-	ModifiedAt  time.Time              `json:"modified_at"`
-	Source      string                 `json:"source"` // Which module provided this result
+	ID          string            `json:"id"`
+	Path        string            `json:"path"`
+	Name        string            `json:"name"`
+	Extension   string            `json:"extension,omitempty"`
+	ContentType ContentType       `json:"content_type"`
+	MimeType    string            `json:"mime_type,omitempty"`
+	Size        int64             `json:"size"`
+	Tags        []string          `json:"tags,omitempty"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
+	Summary     string            `json:"summary,omitempty"`     // 内容摘要
+	Highlights  map[string]string `json:"highlights,omitempty"`  // 高亮匹配
+	Score       float64           `json:"score"`                 // 相关度评分
+	CreatedAt   time.Time         `json:"created_at"`
+	ModifiedAt  time.Time         `json:"modified_at"`
 }
 
-// SearchRequest represents a search query
-type SearchRequest struct {
-	Query      string            `json:"query"`
-	Scope      SearchScope       `json:"scope"`
-	Mode       SearchMode        `json:"mode"`
-	Sort       SortOrder         `json:"sort"`
-	Filters    map[string]string `json:"filters"`
-	Tags       []string          `json:"tags"`
-	DateFrom   *time.Time        `json:"date_from"`
-	DateTo     *time.Time        `json:"date_to"`
-	SizeMin    *int64            `json:"size_min"`
-	SizeMax    *int64            `json:"size_max"`
-	Page       int               `json:"page"`
-	PageSize   int               `json:"page_size"`
-	SortAsc    bool              `json:"sort_asc"`
-	Highlight  bool              `json:"highlight"`
-	Facets     bool              `json:"facets"`
+// SearchQuery 搜索查询
+type SearchQuery struct {
+	Query       string            `json:"query" binding:"required"`
+	Types       []ContentType     `json:"types,omitempty"`       // 按内容类型过滤
+	Tags        []string          `json:"tags,omitempty"`        // 按标签过滤
+	Path        string            `json:"path,omitempty"`        // 路径前缀过滤
+	DateFrom    *time.Time        `json:"date_from,omitempty"`   // 日期范围开始
+	DateTo      *time.Time        `json:"date_to,omitempty"`     // 日期范围结束
+	SizeMin     *int64            `json:"size_min,omitempty"`    // 最小文件大小
+	SizeMax     *int64            `json:"size_max,omitempty"`    // 最大文件大小
+	BooleanOp   BooleanOp         `json:"boolean_op,omitempty"`  // 布尔操作符
+	SortBy      SortOrder         `json:"sort_by,omitempty"`     // 排序方式
+	Page        int               `json:"page,omitempty"`        // 页码（从1开始）
+	PageSize    int               `json:"page_size,omitempty"`   // 每页大小
+	Highlight   bool              `json:"highlight,omitempty"`   // 是否高亮
+	Fuzzy       bool              `json:"fuzzy,omitempty"`       // 模糊搜索
+	FuzzyLevel  int               `json:"fuzzy_level,omitempty"` // 模糊级别 1-2
 }
 
-// SearchResponse represents search results
+// SearchResponse 搜索响应
 type SearchResponse struct {
-	Query       string                 `json:"query"`
-	TotalHits   int                    `json:"total_hits"`
-	Results     []*SearchResult        `json:"results"`
-	Facets      map[string][]FacetItem `json:"facets"`
-	Suggestions []string               `json:"suggestions"`
-	SearchTime  int64                  `json:"search_time_ms"`
-	Page        int                    `json:"page"`
-	PageSize    int                    `json:"page_size"`
-	HasMore     bool                   `json:"has_more"`
+	Query      string          `json:"query"`
+	Total      int             `json:"total"`
+	Page       int             `json:"page"`
+	PageSize   int             `json:"page_size"`
+	TotalPages int             `json:"total_pages"`
+	Results    []SearchResult  `json:"results"`
+	Suggestions []string       `json:"suggestions,omitempty"` // 搜索建议
+	TimeMs     int64           `json:"time_ms"`               // 搜索耗时
 }
 
-// FacetItem represents a facet value and count
-type FacetItem struct {
-	Value string `json:"value"`
+// Filter 搜索过滤器
+type Filter struct {
+	Types      []ContentType `json:"types,omitempty"`
+	Tags       []string      `json:"tags,omitempty"`
+	PathPrefix string        `json:"path_prefix,omitempty"`
+	DateFrom   *time.Time    `json:"date_from,omitempty"`
+	DateTo     *time.Time    `json:"date_to,omitempty"`
+	SizeMin    *int64        `json:"size_min,omitempty"`
+	SizeMax    *int64        `json:"size_max,omitempty"`
+}
+
+// IndexTask 索引任务
+type IndexTask struct {
+	ID          string          `json:"id"`
+	Type        IndexTaskType   `json:"type"`
+	Status      IndexTaskStatus `json:"status"`
+	Path        string          `json:"path,omitempty"`        // 索引路径
+	TotalFiles  int             `json:"total_files"`           // 总文件数
+	IndexedFiles int            `json:"indexed_files"`         // 已索引文件数
+	FailedFiles int             `json:"failed_files"`          // 失败文件数
+	Error       string          `json:"error,omitempty"`
+	StartedAt   *time.Time      `json:"started_at,omitempty"`
+	CompletedAt *time.Time      `json:"completed_at,omitempty"`
+	CreatedAt   time.Time       `json:"created_at"`
+}
+
+// IndexStats 索引统计信息
+type IndexStats struct {
+	Status         IndexStatus `json:"status"`
+	TotalDocuments int         `json:"total_documents"`
+	TotalSize      int64       `json:"total_size"`     // 索引总大小（字节）
+	LastIndexedAt  *time.Time  `json:"last_indexed_at,omitempty"`
+	IndexVersion   int         `json:"index_version"`
+	ContentTypes   map[ContentType]int `json:"content_types"` // 各类型数量
+}
+
+// SearchHistory 搜索历史
+type SearchHistory struct {
+	ID        string    `json:"id"`
+	Query     string    `json:"query"`
+	ResultCount int     `json:"result_count"`
+	SearchedAt time.Time `json:"searched_at"`
+}
+
+// HotSearch 热门搜索
+type HotSearch struct {
+	Query string `json:"query"`
 	Count int    `json:"count"`
 }
 
-// IndexEntry represents an indexed document
-type IndexEntry struct {
-	ID         string                 `json:"id"`
-	Content    string                 `json:"content"`
-	Title      string                 `json:"title"`
-	Path       string                 `json:"path"`
-	Type       string                 `json:"type"`
-	MimeType   string                 `json:"mime_type"`
-	Size       int64                  `json:"size"`
-	Tags       []string               `json:"tags"`
-	Metadata   map[string]interface{} `json:"metadata"`
-	Source     string                 `json:"source"`
-	IndexedAt  time.Time              `json:"indexed_at"`
-	ModifiedAt time.Time              `json:"modified_at"`
+// IndexRequest 索引请求
+type IndexRequest struct {
+	Path string `json:"path" binding:"required"`
 }
 
-// IndexStats represents index statistics
-type IndexStats struct {
-	TotalEntries  int64            `json:"total_entries"`
-	EntriesByType map[string]int64 `json:"entries_by_type"`
-	IndexSize     int64            `json:"index_size_bytes"`
-	LastIndexed   time.Time        `json:"last_indexed"`
-	IndexHealth   string           `json:"index_health"`
+// IndexResponse 索引响应
+type IndexResponse struct {
+	TaskID  string `json:"task_id"`
+	Message string `json:"message"`
 }
 
-// Config holds unified search configuration
-type Config struct {
-	Enabled         bool     `json:"enabled"`
-	IndexPath       string   `json:"index_path"`
-	MaxResults      int      `json:"max_results"`
-	IndexBatchSize  int      `json:"index_batch_size"`
-	SemanticEnabled bool     `json:"semantic_enabled"`
-	FuzzyThreshold  float64  `json:"fuzzy_threshold"`
-	SupportedContentTypes []string `json:"supported_content_types"`
-	ExcludePatterns []string `json:"exclude_patterns"`
+// UpdateIndexRequest 更新索引请求
+type UpdateIndexRequest struct {
+	ID      string            `json:"id" binding:"required"`
+	Name    string            `json:"name,omitempty"`
+	Tags    []string          `json:"tags,omitempty"`
+	Content string            `json:"content,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// Manager manages unified search
-type Manager struct {
-	config    *Config
-	index     map[string]*IndexEntry
-	mu        sync.RWMutex
-	ctx       context.Context
-	cancel    context.CancelFunc
-	stats     *IndexStats
+// SuggestRequest 搜索建议请求
+type SuggestRequest struct {
+	Query string `json:"query" binding:"required"`
+	Limit int    `json:"limit,omitempty"`
 }
 
-// NewManager creates a new unified search manager
-func NewManager(config *Config) *Manager {
-	ctx, cancel := context.WithCancel(context.Background())
-	return &Manager{
-		config: config,
-		index:  make(map[string]*IndexEntry),
-		ctx:    ctx,
-		cancel: cancel,
-		stats: &IndexStats{
-			EntriesByType: make(map[string]int64),
-			IndexHealth:   "healthy",
-		},
+// SuggestResponse 搜索建议响应
+type SuggestResponse struct {
+	Suggestions []string `json:"suggestions"`
+}
+
+// DefaultSearchQuery 默认搜索查询参数
+func DefaultSearchQuery() SearchQuery {
+	return SearchQuery{
+		Page:       1,
+		PageSize:   20,
+		BooleanOp:  BooleanAND,
+		SortBy:     SortRelevance,
+		Highlight:  true,
+		FuzzyLevel: 1,
 	}
 }
 
-// Index adds or updates an entry in the search index
-func (m *Manager) Index(entry *IndexEntry) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	entry.IndexedAt = time.Now()
-	m.index[entry.ID] = entry
-	m.stats.TotalEntries = int64(len(m.index))
-	m.stats.EntriesByType[entry.Type]++
-	m.stats.LastIndexed = time.Now()
-	return nil
-}
-
-// Search performs a search across all indexed content
-func (m *Manager) Search(req *SearchRequest) (*SearchResponse, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	start := time.Now()
-	var results []*SearchResult
-
-	for _, entry := range m.index {
-		if m.matchesQuery(entry, req) {
-			result := &SearchResult{
-				ID:         entry.ID,
-				Title:      entry.Title,
-				Path:       entry.Path,
-				Type:       entry.Type,
-				MimeType:   entry.MimeType,
-				Size:       entry.Size,
-				Tags:       entry.Tags,
-				Metadata:   entry.Metadata,
-				CreatedAt:  entry.ModifiedAt,
-				ModifiedAt: entry.ModifiedAt,
-				Source:     entry.Source,
-				Score:      m.calculateScore(entry, req),
-			}
-			results = append(results, result)
-		}
+// DefaultIndexStats 默认索引统计
+func DefaultIndexStats() *IndexStats {
+	return &IndexStats{
+		Status:       IndexStatusIdle,
+		ContentTypes: make(map[ContentType]int),
+		IndexVersion: 1,
 	}
-
-	return &SearchResponse{
-		Query:      req.Query,
-		TotalHits:  len(results),
-		Results:    results,
-		SearchTime: time.Since(start).Milliseconds(),
-		Page:       req.Page,
-		PageSize:   req.PageSize,
-	}, nil
 }
 
-// Remove removes an entry from the index
-func (m *Manager) Remove(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.index[id]; !exists {
-		return fmt.Errorf("entry not found: %s", id)
-	}
-
-	delete(m.index, id)
-	m.stats.TotalEntries = int64(len(m.index))
-	return nil
-}
-
-// GetStats returns index statistics
-func (m *Manager) GetStats() *IndexStats {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.stats
-}
-
-// RebuildIndex rebuilds the entire search index
-func (m *Manager) RebuildIndex(ctx context.Context) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	m.index = make(map[string]*IndexEntry)
-	m.stats.TotalEntries = 0
-	m.stats.EntriesByType = make(map[string]int64)
-	m.stats.LastIndexed = time.Now()
-	return nil
-}
-
-func (m *Manager) matchesQuery(entry *IndexEntry, req *SearchRequest) bool {
-	if req.Scope != ScopeAll && req.Scope != SearchScope(entry.Type) {
+// IsValidContentType 检查内容类型是否有效
+func IsValidContentType(ct ContentType) bool {
+	switch ct {
+	case ContentTypeFile, ContentTypePhoto, ContentTypeDocument, ContentTypeVideo, ContentTypeMusic:
+		return true
+	default:
 		return false
 	}
-	return true
 }
 
-func (m *Manager) calculateScore(entry *IndexEntry, req *SearchRequest) float64 {
-	return 0.8
+// IsValidSortOrder 检查排序方式是否有效
+func IsValidSortOrder(so SortOrder) bool {
+	switch so {
+	case SortRelevance, SortDateDesc, SortDateAsc, SortSizeDesc, SortSizeAsc, SortNameAsc, SortNameDesc:
+		return true
+	default:
+		return false
+	}
 }
 
-// Stop stops the search manager
-func (m *Manager) Stop() {
-	m.cancel()
+// IsValidBooleanOp 检查布尔操作符是否有效
+func IsValidBooleanOp(op BooleanOp) bool {
+	switch op {
+	case BooleanAND, BooleanOR, BooleanNOT:
+		return true
+	default:
+		return false
+	}
 }
