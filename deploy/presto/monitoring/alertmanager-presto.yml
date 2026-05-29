@@ -1,0 +1,98 @@
+# NAS-OS Presto Alertmanager 配置
+# 版本: v2.400.0
+#
+# 告警路由和通知配置
+
+global:
+  smtp_smarthost: '${SMTP_HOST:-smtp.example.com}:${SMTP_PORT:-587}'
+  smtp_from: '${SMTP_FROM:-nas-os@example.com}'
+  smtp_auth_username: '${SMTP_USER:-nas-os@example.com}'
+  smtp_auth_password: '${SMTP_PASSWORD:-changeme}'
+  smtp_require_tls: true
+
+# 告警模板
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# 告警路由
+route:
+  # 默认接收器
+  receiver: 'nas-presto-alerts'
+  
+  # 分组策略
+  group_by: ['alertname', 'severity', 'component']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+  # 子路由
+  routes:
+    # 严重告警 - 立即通知
+    - match:
+        severity: critical
+      receiver: 'nas-presto-critical'
+      group_wait: 10s
+      repeat_interval: 1h
+
+    # 警告告警
+    - match:
+        severity: warning
+      receiver: 'nas-presto-alerts'
+      repeat_interval: 4h
+
+    # 信息告警
+    - match:
+        severity: info
+      receiver: 'nas-presto-alerts'
+      repeat_interval: 12h
+
+# 接收器配置
+receivers:
+  # 默认接收器
+  - name: 'nas-presto-alerts'
+    email_configs:
+      - to: '${ALERT_EMAIL:-admin@example.com}'
+        send_resolved: true
+        headers:
+          subject: '[NAS-OS Presto] {{ .GroupLabels.alertname }}'
+    
+    # Webhook（可选）
+    # webhook_configs:
+    #   - url: 'http://localhost:5001/webhook'
+    #     send_resolved: true
+
+  # 严重告警接收器
+  - name: 'nas-presto-critical'
+    email_configs:
+      - to: '${ALERT_EMAIL_CRITICAL:-admin@example.com}'
+        send_resolved: true
+        headers:
+          subject: '[NAS-OS Presto] 🚨 严重告警: {{ .GroupLabels.alertname }}'
+
+    # 企业微信（可选）
+    # wechat_configs:
+    #   - corp_id: '${WECHAT_CORP_ID}'
+    #     to_party: '${WECHAT_TO_PARTY}'
+    #     agent_id: '${WECHAT_AGENT_ID}'
+    #     api_secret: '${WECHAT_API_SECRET}'
+
+    # 钉钉（可选）
+    # webhook_configs:
+    #   - url: 'http://localhost:8060/dingtalk/ops/send'
+    #     send_resolved: true
+
+# 抑制规则
+inhibit_rules:
+  # 当 critical 告警触发时，抑制同名的 warning 告警
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'component']
+
+  # 当服务宕机时，抑制所有其他告警
+  - source_match:
+      alertname: 'PrestoServiceDown'
+    target_match_re:
+      alertname: 'Presto.*'
+    equal: ['instance']
