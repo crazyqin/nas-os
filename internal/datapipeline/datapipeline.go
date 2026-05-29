@@ -17,6 +17,7 @@ type Manager struct {
 	config     *ManagerConfig
 	dataFile   string
 	stopCh     map[string]chan struct{}
+	wg         sync.WaitGroup // 追踪后台 goroutine
 }
 
 // NewManager 创建管理器
@@ -187,9 +188,17 @@ func (m *Manager) StartPipeline(id string) error {
 	case ScheduleCron, ScheduleRealtime:
 		stopCh := make(chan struct{})
 		m.stopCh[id] = stopCh
-		go m.runScheduled(id, stopCh)
+		m.wg.Add(1)
+		go func() {
+			defer m.wg.Done()
+			m.runScheduled(id, stopCh)
+		}()
 	case ScheduleManual, ScheduleOnce:
-		go m.executePipeline(id, "manual")
+		m.wg.Add(1)
+		go func() {
+			defer m.wg.Done()
+			m.executePipeline(id, "manual")
+		}()
 	}
 
 	return m.save()
@@ -296,11 +305,20 @@ func (m *Manager) RetryDLQEntry(entryID string) error {
 	for i, entry := range m.dlq {
 		if entry.ID == entryID {
 			m.dlq = append(m.dlq[:i], m.dlq[i+1:]...)
-			go m.executePipeline(entry.PipelineID, "dlq_retry")
+			m.wg.Add(1)
+			go func() {
+				defer m.wg.Done()
+				m.executePipeline(entry.PipelineID, "dlq_retry")
+			}()
 			return m.save()
 		}
 	}
 	return ErrExecutionNotFound
+}
+
+// Wait 等待所有后台 goroutine 完成
+func (m *Manager) Wait() {
+	m.wg.Wait()
 }
 
 // ClearDLQ 清空死信队列
@@ -419,15 +437,15 @@ func (m *Manager) GetPipelineHealth(id string) (map[string]interface{}, error) {
 	}
 
 	return map[string]interface{}{
-		"pipeline_id":    id,
-		"name":           p.Name,
-		"status":         p.Status,
-		"success_rate":   successRate,
+		"pipeline_id":     id,
+		"name":            p.Name,
+		"status":          p.Status,
+		"success_rate":    successRate,
 		"avg_duration_ms": avgDuration,
-		"total_runs":     p.RunCount,
-		"dlq_entries":    dlqCount,
-		"last_success":   p.LastSuccess,
-		"last_error":     p.LastError,
+		"total_runs":      p.RunCount,
+		"dlq_entries":     dlqCount,
+		"last_success":    p.LastSuccess,
+		"last_error":      p.LastError,
 	}, nil
 }
 
@@ -577,9 +595,9 @@ func (m *Manager) load() error {
 		return err
 	}
 	var stored struct {
-		Pipelines  map[string]*Pipeline   `json:"pipelines"`
+		Pipelines  map[string]*Pipeline    `json:"pipelines"`
 		Executions map[string][]*Execution `json:"executions"`
-		DLQ        []*DLQEntry            `json:"dlq"`
+		DLQ        []*DLQEntry             `json:"dlq"`
 	}
 	if err := json.Unmarshal(data, &stored); err != nil {
 		return err
