@@ -18,11 +18,15 @@ type response struct {
 // Handlers 审计报告模块 API 处理器.
 type Handlers struct {
 	manager *Manager
+	engine  *ReportEngine
 }
 
 // NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
-	return &Handlers{manager: manager}
+	return &Handlers{
+		manager: manager,
+		engine:  NewReportEngine(manager),
+	}
 }
 
 // RegisterRoutes 注册路由到 /api/v1/audit 路由组.
@@ -45,6 +49,9 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		audit.GET("/compliance/status", h.getComplianceStatus)
 		audit.GET("/compliance/checks", h.listComplianceChecks)
 
+		// 合规报告（新增）
+		audit.POST("/compliance/generate", h.generateComplianceReport)
+
 		// 审计日志
 		audit.GET("/events", h.queryEvents)
 		audit.POST("/events/export", h.exportEvents)
@@ -52,6 +59,22 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		// 安全扫描
 		audit.POST("/scan", h.runSecurityScan)
 		audit.GET("/scan/:id", h.getScanResults)
+
+		// 风险评分（新增）
+		audit.GET("/risk-score", h.getRiskScores)
+		audit.GET("/risk-score/:user_id", h.getUserRiskScore)
+
+		// 异常检测（新增）
+		audit.GET("/anomalies", h.getAnomalies)
+		audit.GET("/anomalies/analyze", h.analyzeAccessPattern)
+
+		// 导出（新增）
+		audit.POST("/export", h.exportReport)
+		audit.POST("/export/compliance", h.exportComplianceReport)
+		audit.POST("/export/risk", h.exportRiskReport)
+
+		// 综合报告（新增）
+		audit.POST("/comprehensive", h.generateComprehensiveReport)
 	}
 }
 
@@ -217,6 +240,154 @@ func (h *Handlers) exportEvents(c *gin.Context) {
 			"events": events,
 		},
 	})
+}
+
+// ========== 合规报告 Handlers (新增) ==========
+
+func (h *Handlers) generateComplianceReport(c *gin.Context) {
+	var req struct {
+		Standard string `json:"standard" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	report, err := h.engine.GenerateComplianceReport(ComplianceStandard(req.Standard))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "generated", Data: report})
+}
+
+// ========== 风险评分 Handlers (新增) ==========
+
+func (h *Handlers) getRiskScores(c *gin.Context) {
+	results := h.engine.CalculateRiskScores()
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"total":  len(results),
+			"scores": results,
+		},
+	})
+}
+
+func (h *Handlers) getUserRiskScore(c *gin.Context) {
+	userID := c.Param("user_id")
+	result := h.engine.CalculateUserRisk(userID)
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: result})
+}
+
+// ========== 异常检测 Handlers (新增) ==========
+
+func (h *Handlers) getAnomalies(c *gin.Context) {
+	anomalies := h.engine.DetectAnomalies()
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"total":     len(anomalies),
+			"anomalies": anomalies,
+		},
+	})
+}
+
+func (h *Handlers) analyzeAccessPattern(c *gin.Context) {
+	userID := c.Query("user_id")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "user_id is required"})
+		return
+	}
+
+	pattern := h.engine.AnalyzeAccessPattern(userID)
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: pattern})
+}
+
+// ========== 导出 Handlers (新增) ==========
+
+func (h *Handlers) exportReport(c *gin.Context) {
+	var req ExportRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	result, err := h.engine.ExportReport(req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "exported", Data: result})
+}
+
+func (h *Handlers) exportComplianceReport(c *gin.Context) {
+	var req struct {
+		Standard string       `json:"standard" binding:"required"`
+		Format   ExportFormat `json:"format" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	// 先生成报告
+	report, err := h.engine.GenerateComplianceReport(ComplianceStandard(req.Standard))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	result, err := h.engine.ExportComplianceReport(report, req.Format)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "exported", Data: result})
+}
+
+func (h *Handlers) exportRiskReport(c *gin.Context) {
+	var req struct {
+		Format ExportFormat `json:"format" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	result, err := h.engine.ExportRiskReport(req.Format)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "exported", Data: result})
+}
+
+// ========== 综合报告 Handlers (新增) ==========
+
+func (h *Handlers) generateComprehensiveReport(c *gin.Context) {
+	var req struct {
+		Title  string `json:"title" binding:"required"`
+		Period string `json:"period" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	report, err := h.engine.GenerateComprehensiveReport(req.Title, req.Period)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "generated", Data: report})
 }
 
 // ========== 安全扫描 Handlers ==========
