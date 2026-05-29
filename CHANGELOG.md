@@ -1,3 +1,49 @@
+## [v2.515.0] - 2026-05-29
+
+### 新增6大企业级存储与网络模块
+
+#### 🔌 RDMA 网络优化器 (RDMAOptimizer)
+- InfiniBand/RoCE/iWARP 设备管理
+- RDMA 连接与队列对管理
+- 自动性能优化与延迟调优
+- Numa 感知与中断聚合
+- 对标 TrueNAS RDMA 支持
+
+#### 📡 SMB 多通道 (SMBMultiChannel)
+- 多通道会话与连接管理
+- 5种负载均衡算法（轮询/最少连接/带宽/延迟/自适应）
+- 自动故障转移与通道重平衡
+- 网络接口自动检测
+- 对标 TrueNAS Multichannel SMB
+
+#### 🔄 Syncthing 集成 (SyncthingIntegration)
+- Syncthing 设备与同步文件夹管理
+- 版本控制（简单/交错/外部/回收站）
+- 增量/全量/差异/实时同步模式
+- 文件系统监控与自动扫描
+- 对标 TrueNAS Syncthing 集成
+
+#### 💾 iSCSI/FC 存储管理 (ISCSIManager)
+- iSCSI 目标/门户/LUN 管理
+- 光纤通道端口管理
+- CHAP 认证与安全配置
+- SAN 存储统一管理
+- 对标 TrueNAS iSCSI/Fibre Channel
+
+#### ☁️ 云同步管理器 (CloudSyncManager)
+- 10+云存储提供商支持（AWS/Azure/GCS/阿里云/腾讯云等）
+- 双向/镜像/增量同步模式
+- 加密传输与压缩
+- 同步历史与统计
+- 对标群晖 Cloud Sync
+
+#### 🖥️ 集群监控 (FleetMonitor)
+- 多设备统一监控
+- 实时指标收集与存储
+- 智能告警规则引擎
+- 健康评分与状态评估
+- 对标群晖 Active Insight
+
 ## [v2.514.0] - 2026-05-29
 
 ### 新增6大企业级安全与管理模块
