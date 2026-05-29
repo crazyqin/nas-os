@@ -287,8 +287,11 @@ func (inc *IncrementalIndexer) processFileChange(change FileChange) error {
 	info, err := os.Stat(change.Path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			// 文件不存在，从索引中移除
-			return inc.indexer.RemoveFromIndex(inc.ctx, change.Path)
+			// 文件不存在，尝试从索引中移除
+			if inc.indexer != nil && inc.indexer.index != nil {
+				return inc.indexer.RemoveFromIndex(inc.ctx, change.Path)
+			}
+			return nil
 		}
 		return fmt.Errorf("获取文件信息失败: %w", err)
 	}
@@ -304,8 +307,10 @@ func (inc *IncrementalIndexer) processFileChange(change FileChange) error {
 	}
 
 	// 索引文件
-	if err := inc.indexer.IndexFile(inc.ctx, change.Path); err != nil {
-		return fmt.Errorf("索引文件失败: %w", err)
+	if inc.indexer != nil {
+		if err := inc.indexer.IndexFile(inc.ctx, change.Path); err != nil {
+			return fmt.Errorf("索引文件失败: %w", err)
+		}
 	}
 
 	// 更新监控状态
@@ -319,11 +324,13 @@ func (inc *IncrementalIndexer) processFileChange(change FileChange) error {
 
 // processFileDelete 处理文件删除
 func (inc *IncrementalIndexer) processFileDelete(change FileChange) error {
-	if err := inc.indexer.RemoveFromIndex(inc.ctx, change.Path); err != nil {
-		// 文件可能已经不在索引中
-		inc.logger.Debug("从索引移除文件失败",
-			zap.String("path", change.Path),
-			zap.Error(err))
+	if inc.indexer != nil && inc.indexer.index != nil {
+		if err := inc.indexer.RemoveFromIndex(inc.ctx, change.Path); err != nil {
+			// 文件可能已经不在索引中
+			inc.logger.Debug("从索引移除文件失败",
+				zap.String("path", change.Path),
+				zap.Error(err))
+		}
 	}
 
 	inc.mu.Lock()
@@ -402,10 +409,12 @@ func (inc *IncrementalIndexer) scanForChanges() {
 
 // shouldSkip 是否应该跳过
 func (inc *IncrementalIndexer) shouldSkip(path string) bool {
-	// 检查隐藏文件
-	base := filepath.Base(path)
-	if strings.HasPrefix(base, ".") && base != "." {
-		return true
+	// 检查隐藏文件/目录
+	parts := strings.Split(path, string(os.PathSeparator))
+	for _, part := range parts {
+		if part != "" && strings.HasPrefix(part, ".") && part != "." {
+			return true
+		}
 	}
 
 	// 检查排除路径
