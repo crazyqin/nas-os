@@ -361,27 +361,74 @@ func (t *trieNode) search(prefix string, limit int) []Suggestion {
 	return results
 }
 
+// isCJK 检测是否为 CJK 字符
+func isCJK(r rune) bool {
+	return (r >= 0x4E00 && r <= 0x9FFF) || // CJK Unified Ideographs
+		(r >= 0x3400 && r <= 0x4DBF) || // CJK Extension A
+		(r >= 0x20000 && r <= 0x2A6DF) || // CJK Extension B
+		(r >= 0xF900 && r <= 0xFAFF) || // CJK Compatibility Ideographs
+		(r >= 0x2F800 && r <= 0x2FA1F) // CJK Compatibility Ideographs Supplement
+}
+
+// isPunctuation 检测是否为分隔符（空格/标点）
+func isPunctuation(r rune) bool {
+	switch r {
+	case ' ', '\t', '\n', '\r', ',', '.', ';', '!', '?', ':', '/', '\\', '(', ')', '[', ']', '{', '}', '"', '\'', '-', '_', '@', '#', '$', '%', '^', '&', '*', '+', '=', '<', '>', '|', '~', '`':
+		return true
+	}
+	return false
+}
+
 // tokenize 分词
 func (t *tokenizer) tokenize(text string) []string {
 	if text == "" {
 		return nil
 	}
-	// 简单分词：按空格和标点分割
+
 	words := make([]string, 0)
-	current := make([]rune, 0)
-	for _, r := range text {
-		if r == ' ' || r == '\t' || r == '\n' || r == ',' || r == '.' || r == ';' {
-			if len(current) > 0 {
-				words = append(words, string(current))
-				current = current[:0]
+	runes := []rune(text)
+	length := len(runes)
+
+	i := 0
+	for i < length {
+		r := runes[i]
+
+		// 跳过分隔符
+		if isPunctuation(r) {
+			i++
+			continue
+		}
+
+		// CJK 字符段：生成 bigram 滑动窗口
+		if isCJK(r) {
+			cjkStart := i
+			for i < length && isCJK(runes[i]) {
+				i++
 			}
-		} else {
-			current = append(current, r)
+			cjkSegment := runes[cjkStart:i]
+
+			// 生成 bigrams
+			for j := 0; j < len(cjkSegment)-1; j++ {
+				words = append(words, string(cjkSegment[j:j+2]))
+			}
+			// 单字符也加入（如果只有一个 CJK 字符）
+			if len(cjkSegment) == 1 {
+				words = append(words, string(cjkSegment))
+			}
+			continue
+		}
+
+		// 非 CJK 字符段（英文等）：按标点分割
+		wordStart := i
+		for i < length && !isPunctuation(runes[i]) && !isCJK(runes[i]) {
+			i++
+		}
+		word := string(runes[wordStart:i])
+		if word != "" {
+			words = append(words, word)
 		}
 	}
-	if len(current) > 0 {
-		words = append(words, string(current))
-	}
+
 	return words
 }
 
@@ -407,11 +454,16 @@ func sortSuggestions(suggestions []Suggestion) {
 	}
 }
 
-// addToIndex 添加到倒排索引
+// addToIndex 添加到倒排索引（外部调用，加锁版本）
 func (m *Manager) addToIndex(term, docID, field string, position int) {
 	m.index.mu.Lock()
 	defer m.index.mu.Unlock()
 
+	m.addToIndexLocked(term, docID, field, position)
+}
+
+// addToIndexLocked 添加到倒排索引（内部调用，不加锁版本，调用方需确保已持有锁）
+func (m *Manager) addToIndexLocked(term, docID, field string, position int) {
 	if m.index.index[term] == nil {
 		m.index.index[term] = make(map[string]positions)
 	}
