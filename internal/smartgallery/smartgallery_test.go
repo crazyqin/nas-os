@@ -1,6 +1,7 @@
 package smartgallery
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
