@@ -134,7 +134,7 @@ func (c *SearchCache) Clear() {
 }
 
 // GenerateKey 生成缓存键
-func (c *SearchCache) GenerateKey(req SearchRequest) string {
+func (c *SearchCache) GenerateKey(req interface{}) string {
 	// 将请求序列化为 JSON 并计算哈希
 	data, _ := json.Marshal(req)
 	hash := sha256.Sum256(data)

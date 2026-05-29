@@ -239,7 +239,7 @@ func (m *Manager) matchesFilters(doc *Document, req *SearchRequest) bool {
 	// 标签过滤
 	if len(req.Tags) > 0 {
 		for _, tag := range req.Tags {
-			if !contains(doc.Tags, tag) {
+			if !containsTag(doc.Tags, tag) {
 				return false
 			}
 		}
@@ -597,7 +597,7 @@ func (m *Manager) SearchByTags(tags []string, limit int) []*Document {
 	for _, doc := range m.index.docs {
 		matched := true
 		for _, tag := range tags {
-			if !contains(doc.Tags, tag) {
+			if !containsTag(doc.Tags, tag) {
 				matched = false
 				break
 			}
