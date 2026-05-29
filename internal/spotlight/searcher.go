@@ -665,20 +665,20 @@ func (m *Manager) RebuildIndex() error {
 
 		nameTokens := m.tokenizer.tokenize(doc.Name)
 		for _, token := range nameTokens {
-			m.addToIndex(token, doc.ID, "name", 1)
+			m.addToIndexLocked(token, doc.ID, "name", 1)
 		}
 
 		if doc.Content != "" {
 			contentTokens := m.tokenizer.tokenize(doc.Content)
 			for i, token := range contentTokens {
-				m.addToIndex(token, doc.ID, "content", i)
+				m.addToIndexLocked(token, doc.ID, "content", i)
 			}
 		}
 
 		for _, tag := range doc.Tags {
 			tagTokens := m.tokenizer.tokenize(tag)
 			for _, token := range tagTokens {
-				m.addToIndex(token, doc.ID, "tags", 0)
+				m.addToIndexLocked(token, doc.ID, "tags", 0)
 			}
 		}
 	}
