@@ -3,6 +3,7 @@ package smarttiering
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -291,5 +292,4 @@ func (h *Handler) GetTierSummary(c *gin.Context) {
 	c.JSON(http.StatusOK, summary)
 }
 
-// time import needed for RegisterFile handler
-import "time"
+

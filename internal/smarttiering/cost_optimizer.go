@@ -174,7 +174,7 @@ func (co *CostOptimizer) GetBudgetStatus(ctx context.Context) (used float64, bud
 // EstimateMigrationCost 估算迁移成本
 func (co *CostOptimizer) EstimateMigrationCost(ctx context.Context, migrations []CostRecommendation) (float64, error) {
 	totalCost := 0.0
-	for _, m := range migrations {
+	for _, _ = range migrations {
 		if ctx.Err() != nil {
 			return 0, ctx.Err()
 		}

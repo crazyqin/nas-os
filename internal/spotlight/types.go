@@ -2,6 +2,7 @@
 package spotlight
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -197,4 +198,203 @@ type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
+}
+
+// IndexDocument 索引单个文档
+func (m *Manager) IndexDocument(doc *Document) error {
+	m.index.mu.Lock()
+	defer m.index.mu.Unlock()
+
+	if doc.ID == "" {
+		doc.ID = doc.Path
+	}
+	doc.IndexedAt = time.Now()
+	m.index.docs[doc.ID] = doc
+
+	// 简单的关键词索引
+	terms := m.tokenizeQuery(doc.Name + " " + doc.Content)
+	for _, term := range terms {
+		if m.index.index[term] == nil {
+			m.index.index[term] = make(map[string]positions)
+		}
+		m.index.index[term][doc.ID] = positions{
+			Fields: []string{"name", "content"},
+			Count:  1,
+		}
+	}
+	return nil
+}
+
+// IndexDocuments 批量索引文档
+func (m *Manager) IndexDocuments(docs []*Document) (int, error) {
+	indexed := 0
+	for _, doc := range docs {
+		if err := m.IndexDocument(doc); err != nil {
+			return indexed, err
+		}
+		indexed++
+	}
+	return indexed, nil
+}
+
+// RemoveDocument 删除文档
+func (m *Manager) RemoveDocument(id string) error {
+	m.index.mu.Lock()
+	defer m.index.mu.Unlock()
+
+	if _, ok := m.index.docs[id]; !ok {
+		return fmt.Errorf("document not found: %s", id)
+	}
+
+	// 从倒排索引中移除
+	for term, docMap := range m.index.index {
+		delete(docMap, id)
+		if len(docMap) == 0 {
+			delete(m.index.index, term)
+		}
+	}
+
+	delete(m.index.docs, id)
+	return nil
+}
+
+// GetDocument 获取文档
+func (m *Manager) GetDocument(id string) (*Document, bool) {
+	m.index.mu.RLock()
+	defer m.index.mu.RUnlock()
+
+	doc, ok := m.index.docs[id]
+	if !ok {
+		return nil, false
+	}
+	result := *doc
+	return &result, true
+}
+
+// GetStats 获取索引统计
+func (m *Manager) GetStats() map[string]interface{} {
+	m.index.mu.RLock()
+	defer m.index.mu.RUnlock()
+
+	return map[string]interface{}{
+		"total_documents": len(m.index.docs),
+		"total_terms":    len(m.index.index),
+		"config":         m.config,
+	}
+}
+
+// search 在前缀树中搜索
+func (t *trieNode) search(prefix string, limit int) []Suggestion {
+	results := make([]Suggestion, 0)
+	if t == nil {
+		return results
+	}
+
+	node := t
+	for _, ch := range prefix {
+		child, ok := node.children[ch]
+		if !ok {
+			return results
+		}
+		node = child
+	}
+
+	// 收集所有以 prefix 开头的词
+	var collect func(n *trieNode)
+	collect = func(n *trieNode) {
+		if len(results) >= limit {
+			return
+		}
+		if n.isEnd {
+			for _, term := range n.terms {
+				results = append(results, Suggestion{
+					Text:  term,
+					Score: float64(n.count),
+					Type:  "completion",
+				})
+			}
+		}
+		for _, child := range n.children {
+			collect(child)
+		}
+	}
+	collect(node)
+	return results
+}
+
+// tokenize 分词
+func (t *tokenizer) tokenize(text string) []string {
+	if text == "" {
+		return nil
+	}
+	// 简单分词：按空格和标点分割
+	words := make([]string, 0)
+	current := make([]rune, 0)
+	for _, r := range text {
+		if r == ' ' || r == '\t' || r == '\n' || r == ',' || r == '.' || r == ';' {
+			if len(current) > 0 {
+				words = append(words, string(current))
+				current = current[:0]
+			}
+		} else {
+			current = append(current, r)
+		}
+	}
+	if len(current) > 0 {
+		words = append(words, string(current))
+	}
+	return words
+}
+
+// containsTag 检查字符串切片是否包含指定字符串
+func containsTag(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
+}
+
+// sortSuggestions 排序建议
+func sortSuggestions(suggestions []Suggestion) {
+	// 按分数降序排序
+	for i := 0; i < len(suggestions)-1; i++ {
+		for j := i + 1; j < len(suggestions); j++ {
+			if suggestions[j].Score > suggestions[i].Score {
+				suggestions[i], suggestions[j] = suggestions[j], suggestions[i]
+			}
+		}
+	}
+}
+
+// addToIndex 添加到倒排索引
+func (m *Manager) addToIndex(term, docID, field string, position int) {
+	m.index.mu.Lock()
+	defer m.index.mu.Unlock()
+
+	if m.index.index[term] == nil {
+		m.index.index[term] = make(map[string]positions)
+	}
+	pos, ok := m.index.index[term][docID]
+	if !ok {
+		pos = positions{Fields: []string{field}, Count: 1, Positions: []int{position}}
+	} else {
+		pos.Count++
+		pos.Positions = append(pos.Positions, position)
+		if !containsString(pos.Fields, field) {
+			pos.Fields = append(pos.Fields, field)
+		}
+	}
+	m.index.index[term][docID] = pos
+}
+
+// containsString 检查字符串切片是否包含指定字符串
+func containsString(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }

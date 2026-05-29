@@ -49,8 +49,13 @@ type IndexEntry struct {
 	Score        float64           `json:"score,omitempty"`
 }
 
-// SearchRequest 搜索请求
-type SearchRequest struct {
+// EngineSearchRequest 引擎搜索请求
+// 用于 macOS Spotlight 协议兼容的搜索
+// 与 types.go 中的 SearchRequest (Web API) 分开
+
+
+
+type EngineSearchRequest struct {
 	Query      string    `json:"query"`
 	Path       string    `json:"path,omitempty"`
 	Protocols  []Protocol `json:"protocols,omitempty"`
@@ -252,7 +257,7 @@ func (e *Engine) Stop() {
 }
 
 // Search 执行搜索
-func (e *Engine) Search(ctx context.Context, req SearchRequest) (*SearchResponse, error) {
+func (e *Engine) Search(ctx context.Context, req EngineSearchRequest) (*SearchResponse, error) {
 	startTime := time.Now()
 
 	// 设置默认值

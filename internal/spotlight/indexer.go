@@ -14,6 +14,7 @@ import (
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/simple"
 	"github.com/blevesearch/bleve/v2/mapping"
+	blevequery "github.com/blevesearch/bleve/v2/search/query"
 	"go.uber.org/zap"
 )
 
@@ -471,8 +472,8 @@ func (idx *Indexer) GetIndexedCount() int64 {
 }
 
 // buildBleveQuery 构建 Bleve 查询
-func (idx *Indexer) buildBleveQuery(query *ParsedQuery) bleve.Query {
-	var queries []bleve.Query
+func (idx *Indexer) buildBleveQuery(query *ParsedQuery) blevequery.Query {
+	var queries []blevequery.Query
 
 	// 主查询
 	if query.Raw != "" {
@@ -484,7 +485,7 @@ func (idx *Indexer) buildBleveQuery(query *ParsedQuery) bleve.Query {
 
 	// 路径过滤
 	if len(query.Paths) > 0 {
-		pathQueries := make([]bleve.Query, len(query.Paths))
+		pathQueries := make([]blevequery.Query, len(query.Paths))
 		for i, path := range query.Paths {
 			prefixQuery := bleve.NewPrefixQuery(path)
 			prefixQuery.SetField("path")
@@ -495,7 +496,7 @@ func (idx *Indexer) buildBleveQuery(query *ParsedQuery) bleve.Query {
 
 	// 文件类型过滤
 	if len(query.FileTypes) > 0 {
-		typeQueries := make([]bleve.Query, len(query.FileTypes))
+		typeQueries := make([]blevequery.Query, len(query.FileTypes))
 		for i, ext := range query.FileTypes {
 			if !strings.HasPrefix(ext, ".") {
 				ext = "." + ext
