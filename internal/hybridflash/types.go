@@ -6,6 +6,8 @@
 // - 混合池管理：SSD 作为 L2ARC/SLOG 加速层
 // - 迁移调度：低峰时段自动迁移，避免影响业务
 // - 效率报告：分层命中率、性能提升、空间利用率
+// - 池性能监控：实时 IOPS/吞吐/延迟分层统计
+// - 容量规划：闪存/HDD 比例建议
 package hybridflash
 
 import (
@@ -229,6 +231,29 @@ type IOMetric struct {
 	P99Latency     float64   `json:"p99Latency"`     // ms
 }
 
+// TierIOPSStats 分层 IOPS 统计.
+type TierIOPSStats struct {
+	FlashType  FlashType `json:"flashType"`
+	ReadIOPS   int64     `json:"readIops"`
+	WriteIOPS  int64     `json:"writeIops"`
+	TotalIOPS  int64     `json:"totalIops"`
+}
+
+// TierLatencyStats 分层延迟统计.
+type TierLatencyStats struct {
+	FlashType  FlashType `json:"flashType"`
+	AvgLatency float64   `json:"avgLatency"` // ms
+	P99Latency float64   `json:"p99Latency"` // ms
+}
+
+// TierThroughputStats 分层吞吐统计.
+type TierThroughputStats struct {
+	FlashType      FlashType `json:"flashType"`
+	ReadBandwidth  int64     `json:"readBandwidth"`  // MB/s
+	WriteBandwidth int64     `json:"writeBandwidth"` // MB/s
+	TotalBandwidth int64     `json:"totalBandwidth"` // MB/s
+}
+
 // IOStatistics IO 统计.
 type IOStatistics struct {
 	TotalReads      int64      `json:"totalReads"`
@@ -272,18 +297,18 @@ type MigrateError struct {
 
 // TieringConfig 分层引擎配置.
 type TieringConfig struct {
-	Enabled               bool   `json:"enabled"`
-	CheckInterval         string `json:"checkInterval"`         // 检查间隔
-	HeatCheckInterval     string `json:"heatCheckInterval"`     // 热度检查间隔
-	AutoMigrateEnabled    bool   `json:"autoMigrateEnabled"`    // 自动迁移开关
-	MaxConcurrentMigrates int    `json:"maxConcurrentMigrates"` // 最大并发迁移数
+	Enabled               bool    `json:"enabled"`
+	CheckInterval         string  `json:"checkInterval"`         // 检查间隔
+	HeatCheckInterval     string  `json:"heatCheckInterval"`     // 热度检查间隔
+	AutoMigrateEnabled    bool    `json:"autoMigrateEnabled"`    // 自动迁移开关
+	MaxConcurrentMigrates int     `json:"maxConcurrentMigrates"` // 最大并发迁移数
 	SSDCapacityThreshold  float64 `json:"ssdCapacityThreshold"` // SSD 容量阈值
-	HotThreshold          int64  `json:"hotThreshold"`          // 热数据阈值
-	WarmThreshold         int64  `json:"warmThreshold"`         // 温数据阈值
-	ColdAgeHours          int    `json:"coldAgeHours"`          // 冷数据判断时长
-	BlockSize             int64  `json:"blockSize"`             // 默认块大小
-	MigrationWindowStart  string `json:"migrationWindowStart"`  // 迁移窗口开始时间
-	MigrationWindowEnd    string `json:"migrationWindowEnd"`    // 迁移窗口结束时间
+	HotThreshold          int64   `json:"hotThreshold"`          // 热数据阈值
+	WarmThreshold         int64   `json:"warmThreshold"`         // 温数据阈值
+	ColdAgeHours          int     `json:"coldAgeHours"`          // 冷数据判断时长
+	BlockSize             int64   `json:"blockSize"`             // 默认块大小
+	MigrationWindowStart  string  `json:"migrationWindowStart"`  // 迁移窗口开始时间
+	MigrationWindowEnd    string  `json:"migrationWindowEnd"`    // 迁移窗口结束时间
 }
 
 // DefaultTieringConfig 默认分层配置.
@@ -297,8 +322,8 @@ func DefaultTieringConfig() TieringConfig {
 		SSDCapacityThreshold:  0.85,
 		HotThreshold:          100,
 		WarmThreshold:         10,
-		ColdAgeHours:          720, // 30 天
-		BlockSize:             128 * 1024, // 128KB
+		ColdAgeHours:          720,         // 30 天
+		BlockSize:             128 * 1024,  // 128KB
 		MigrationWindowStart:  "02:00",
 		MigrationWindowEnd:    "06:00",
 	}
@@ -306,23 +331,23 @@ func DefaultTieringConfig() TieringConfig {
 
 // HeatTrackingConfig 热度追踪配置.
 type HeatTrackingConfig struct {
-	Enabled          bool    `json:"enabled"`
+	Enabled           bool    `json:"enabled"`
 	HeatCheckInterval string  `json:"heatCheckInterval"` // 热度检查间隔
-	WindowSize       string  `json:"windowSize"`       // 统计窗口
-	DecayFactor      float64 `json:"decayFactor"`      // 衰减因子
-	MinSampleCount   int64   `json:"minSampleCount"`   // 最小样本数
-	MaxTrackedBlocks int     `json:"maxTrackedBlocks"` // 最大追踪块数
+	WindowSize        string  `json:"windowSize"`        // 统计窗口
+	DecayFactor       float64 `json:"decayFactor"`       // 衰减因子
+	MinSampleCount    int64   `json:"minSampleCount"`    // 最小样本数
+	MaxTrackedBlocks  int     `json:"maxTrackedBlocks"`  // 最大追踪块数
 }
 
 // DefaultHeatTrackingConfig 默认热度追踪配置.
 func DefaultHeatTrackingConfig() HeatTrackingConfig {
 	return HeatTrackingConfig{
-		Enabled:          true,
+		Enabled:           true,
 		HeatCheckInterval: "1m",
-		WindowSize:       "1h",
-		DecayFactor:      0.95,
-		MinSampleCount:   5,
-		MaxTrackedBlocks: 100000,
+		WindowSize:        "1h",
+		DecayFactor:       0.95,
+		MinSampleCount:    5,
+		MaxTrackedBlocks:  100000,
 	}
 }
 
@@ -339,7 +364,7 @@ type TieringStatus struct {
 	HDDUsagePercent float64        `json:"hddUsagePercent"`
 	HitRateL2ARC    float64        `json:"hitRateL2arc"`
 	HitRateSLOG     float64        `json:"hitRateSlog"`
-	Pools           []*HybridPool  `json:"policies"`
+	Pools           []*HybridPool  `json:"pools"`
 	Config          *TieringConfig `json:"config"`
 }
 
@@ -382,32 +407,30 @@ type TierDistStats struct {
 	AvgLatency   float64   `json:"avgLatency"`
 }
 
-// ========== 混合闪存池专用类型 ==========
-
 // HybridPoolConfig 混合闪存池配置.
 type HybridPoolConfig struct {
-	PoolName     string         `json:"poolName"`
-	FlashDevices []string       `json:"flashDevices"` // NVMe 设备路径列表
-	HDDDevices   []string       `json:"hddDevices"`   // HDD 设备路径列表
-	FlashRole    FlashRole      `json:"flashRole"`    // 闪存角色: ZIL/SLOG/Data
-	TierPolicy   *TierPolicy    `json:"tierPolicy"`   // 分层策略
-	FlashType    FlashType      `json:"flashType"`    // 闪存类型
-	Compression  bool           `json:"compression"`  // 启用压缩
-	Dedup        bool           `json:"dedup"`        // 启用去重
-	Sync         string         `json:"sync"`         // 同步模式: always/standard/disabled
-	RecordSize   int64          `json:"recordSize"`   // 记录大小（字节）
+	PoolName     string      `json:"poolName"`
+	FlashDevices []string    `json:"flashDevices"` // NVMe 设备路径列表
+	HDDDevices   []string    `json:"hddDevices"`   // HDD 设备路径列表
+	FlashRole    FlashRole   `json:"flashRole"`    // 闪存角色: ZIL/SLOG/Data
+	TierPolicy   *TierPolicy `json:"tierPolicy"`   // 分层策略
+	FlashType    FlashType   `json:"flashType"`    // 闪存类型
+	Compression  bool        `json:"compression"`  // 启用压缩
+	Dedup        bool        `json:"dedup"`        // 启用去重
+	Sync         string      `json:"sync"`         // 同步模式: always/standard/disabled
+	RecordSize   int64       `json:"recordSize"`   // 记录大小（字节）
 }
 
 // TierPolicy 分层策略.
 type TierPolicy struct {
-	HotDataThreshold   int64  `json:"hotDataThreshold"`   // 热数据访问阈值（次/小时）
-	ColdDataAge        string `json:"coldDataAge"`        // 冷数据判定时间（如 "720h"）
-	MetadataPreference string `json:"metadataPreference"` // 元数据存储偏好: flash/hdd/auto
-	AutoTiering        bool   `json:"autoTiering"`        // 启用自动分层
-	SmallFileThreshold int64  `json:"smallFileThreshold"` // 小文件阈值（字节），小于此值优先使用flash
-	RebalanceInterval  string `json:"rebalanceInterval"`  // 重平衡间隔
-	MaxFlashUsage      float64 `json:"maxFlashUsage"`     // Flash 最大使用率
-	MinHotDataRatio    float64 `json:"minHotDataRatio"`   // 最小热数据比例
+	HotDataThreshold   int64   `json:"hotDataThreshold"`   // 热数据访问阈值（次/小时）
+	ColdDataAge        string  `json:"coldDataAge"`        // 冷数据判定时间（如 "720h"）
+	MetadataPreference string  `json:"metadataPreference"` // 元数据存储偏好: flash/hdd/auto
+	AutoTiering        bool    `json:"autoTiering"`        // 启用自动分层
+	SmallFileThreshold int64   `json:"smallFileThreshold"` // 小文件阈值（字节），小于此值优先使用flash
+	RebalanceInterval  string  `json:"rebalanceInterval"`  // 重平衡间隔
+	MaxFlashUsage      float64 `json:"maxFlashUsage"`      // Flash 最大使用率
+	MinHotDataRatio    float64 `json:"minHotDataRatio"`    // 最小热数据比例
 }
 
 // DefaultTierPolicy 默认分层策略.
@@ -447,9 +470,9 @@ type PoolStatus struct {
 
 // RebalanceRequest 重平衡请求.
 type RebalanceRequest struct {
-	Force           bool   `json:"force"`           // 强制重平衡
+	Force           bool    `json:"force"`           // 强制重平衡
 	TargetFlashUsed float64 `json:"targetFlashUsed"` // 目标 Flash 使用率
-	DryRun          bool   `json:"dryRun"`          // 试运行
+	DryRun          bool    `json:"dryRun"`          // 试运行
 }
 
 // RebalanceResult 重平衡结果.
@@ -464,7 +487,16 @@ type RebalanceResult struct {
 	FlashUsageAfter float64   `json:"flashUsageAfter"`
 }
 
-// API 响应类型
+// CapacitySuggestion 容量规划建议.
+type CapacitySuggestion struct {
+	FlashCapacity int64   `json:"flashCapacity"` // 建议 Flash 容量（字节）
+	HDDCapacity   int64   `json:"hddCapacity"`   // 建议 HDD 容量（字节）
+	FlashRatio    float64 `json:"flashRatio"`    // Flash 占比建议
+	Reason        string  `json:"reason"`        // 建议理由
+	EstimatedHitRate float64 `json:"estimatedHitRate"` // 预估命中率
+}
+
+// API 响应类型.
 
 // Response 标准 API 响应.
 type Response struct {

@@ -101,6 +101,20 @@ import (
 	"nas-os/internal/vmmanager"
 	"nas-os/internal/sysdashboard"
 
+	// v2.513.0 新增模块
+	"nas-os/internal/airecommend"
+	"nas-os/internal/alertguided"
+	"nas-os/internal/audittrail"
+	"nas-os/internal/datawarehouse"
+	"nas-os/internal/filedejavu"
+	"nas-os/internal/hybridflash"
+	"nas-os/internal/lxcmkt"
+	"nas-os/internal/objectimmutable"
+	"nas-os/internal/privacyshield"
+	"nas-os/internal/selfserviceportal"
+	"nas-os/internal/smartlink"
+	"nas-os/internal/spotlight"
+
 	_ "nas-os/docs/swagger" // Swagger 文档
 
 	"github.com/gin-gonic/gin"
@@ -224,6 +238,19 @@ type Server struct {
 	gpuMonitorMgr      *gpumonitor.Monitor
 	vmManagerMgr       *vmmanager.Manager
 	sysDashboardMgr    *sysdashboard.Manager
+	// v2.513.0 新增模块
+	airRecommendMgr    *airecommend.Engine
+	alertGuidedMgr     *alertguided.Manager
+	auditTrailMgr      *audittrail.Manager
+	dataWarehouseMgr   *datawarehouse.Warehouse
+	fileDejavuMgr      *filedejavu.Detector
+	hybridFlashMgr     *hybridflash.Manager
+	lxcmktMgr          *lxcmkt.Manager
+	objectImmutableMgr *objectimmutable.Manager
+	privacyShieldMgr   *privacyshield.Shield
+	selfServiceMgr     *selfserviceportal.Portal
+	smartLinkMgr       *smartlink.Linker
+	spotlightMgr       *spotlight.Manager
 }
 
 // NewServer 创建 Web 服务器.
@@ -787,6 +814,32 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	unifiedSearchMgr := unifiedsearch.NewManager(&unifiedsearch.Config{Enabled: true, IndexPath: "/var/lib/nas-os/search-index", MaxResults: 100, SemanticEnabled: true})
 	log.Println("✅ 统一搜索模块就绪")
 
+	// v2.513.0 新增模块初始化
+	airRecommendMgr := airecommend.NewEngine(nil)
+	log.Println("✅ AI 推荐引擎就绪")
+	alertGuidedMgr := alertguided.NewManager(logger)
+	log.Println("✅ 智能告警引导就绪")
+	auditTrailMgr := audittrail.NewManager(logger)
+	log.Println("✅ 审计追踪就绪")
+	dataWarehouseMgr := datawarehouse.NewWarehouse(10000)
+	log.Println("✅ 数据仓库就绪")
+	fileDejavuMgr := filedejavu.NewDetector(nil)
+	log.Println("✅ 重复文件检测就绪")
+	hybridFlashMgr := hybridflash.NewManager(logger)
+	log.Println("✅ 混合闪存管理就绪")
+	lxcmktMgr := lxcmkt.NewManager(logger)
+	log.Println("✅ LXC 容器市场就绪")
+	objectImmutableMgr := objectimmutable.NewManager(logger)
+	log.Println("✅ WORM 不可变存储就绪")
+	privacyShieldMgr := privacyshield.NewShield()
+	log.Println("✅ 隐私保护盾就绪")
+	selfServiceMgr := selfserviceportal.NewPortal()
+	log.Println("✅ 自助服务门户就绪")
+	smartLinkMgr := smartlink.NewLinker(smartlink.SharePolicy{})
+	log.Println("✅ 智能链接就绪")
+	spotlightMgr := spotlight.NewManager(logger)
+	log.Println("✅ Spotlight 索引就绪")
+
 	s := &Server{
 		engine:        engine,
 		logger:        logger,
@@ -936,6 +989,19 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		ssoHubMgr:        ssoHubMgr,
 		surveillanceMgr:  surveillanceMgr,
 		unifiedSearchMgr: unifiedSearchMgr,
+		// v2.513.0 新增模块
+		airRecommendMgr:    airRecommendMgr,
+		alertGuidedMgr:     alertGuidedMgr,
+		auditTrailMgr:      auditTrailMgr,
+		dataWarehouseMgr:   dataWarehouseMgr,
+		fileDejavuMgr:      fileDejavuMgr,
+		hybridFlashMgr:     hybridFlashMgr,
+		lxcmktMgr:          lxcmktMgr,
+		objectImmutableMgr: objectImmutableMgr,
+		privacyShieldMgr:   privacyShieldMgr,
+		selfServiceMgr:     selfServiceMgr,
+		smartLinkMgr:       smartLinkMgr,
+		spotlightMgr:       spotlightMgr,
 	}
 
 	// 设置 WebDAV 认证函数
@@ -1474,6 +1540,44 @@ func (s *Server) setupRoutes() {
 		}
 		if s.unifiedSearchMgr != nil {
 			unifiedsearch.NewHandler(s.unifiedSearchMgr).RegisterRoutes(newMux)
+
+		// v2.513.0 新增模块路由
+		if s.airRecommendMgr != nil {
+			airecommend.NewHandler(s.airRecommendMgr).RegisterRoutes(api)
+		}
+		if s.alertGuidedMgr != nil {
+			alertguided.NewHandlers(s.logger, s.alertGuidedMgr).RegisterRoutes(api)
+		}
+		if s.auditTrailMgr != nil {
+			audittrail.NewHandlers(s.logger, s.auditTrailMgr).RegisterRoutes(api)
+		}
+		if s.dataWarehouseMgr != nil {
+			datawarehouse.NewHandler(s.dataWarehouseMgr).RegisterRoutes(api)
+		}
+		if s.fileDejavuMgr != nil {
+			filedejavu.NewHandlers().RegisterRoutes(api)
+		}
+		if s.hybridFlashMgr != nil {
+			hybridflash.NewHandlers(s.logger, s.hybridFlashMgr).RegisterRoutes(api)
+		}
+		if s.lxcmktMgr != nil {
+			lxcmkt.NewHandlers(s.logger, s.lxcmktMgr).RegisterRoutes(api)
+		}
+		if s.objectImmutableMgr != nil {
+			objectimmutable.NewHandlers(s.logger, s.objectImmutableMgr).RegisterRoutes(api)
+		}
+		if s.privacyShieldMgr != nil {
+			privacyshield.RegisterRoutes(api)
+		}
+		if s.selfServiceMgr != nil {
+			selfserviceportal.NewHandler(s.selfServiceMgr).RegisterRoutes(api)
+		}
+		if s.smartLinkMgr != nil {
+			smartlink.NewHandler(s.smartLinkMgr).RegisterRoutes(api)
+		}
+		if s.spotlightMgr != nil {
+			spotlight.NewHandlers(s.logger, s.spotlightMgr).RegisterRoutes(api)
+		}
 		}
 		// 挂载 ServeMux 作为 gin fallback
 		s.engine.NoRoute(gin.WrapH(newMux))

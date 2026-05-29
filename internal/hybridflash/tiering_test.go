@@ -101,7 +101,7 @@ func TestHeatLevelCalculation(t *testing.T) {
 	}
 }
 
-func TestGetStatus(t *testing.T) {
+func TestTieringEngineGetStatus(t *testing.T) {
 	config := DefaultTieringConfig()
 	heatConfig := DefaultHeatTrackingConfig()
 	engine := NewTieringEngine(config, heatConfig)

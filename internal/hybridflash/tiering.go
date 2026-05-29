@@ -621,6 +621,13 @@ func (e *TieringEngine) UpdateConfig(config TieringConfig) {
 	e.config = config
 }
 
+// GetHeatConfig 获取热度追踪配置.
+func (e *TieringEngine) GetHeatConfig() HeatTrackingConfig {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	return e.heatConfig
+}
+
 // UpdateHeatConfig 更新热度追踪配置.
 func (e *TieringEngine) UpdateHeatConfig(config HeatTrackingConfig) {
 	e.mu.Lock()

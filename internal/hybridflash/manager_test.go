@@ -1,17 +1,19 @@
-// Package hybridflash 提供 SSD/HDD 智能混合分层存储管理.
+// Package hybridflash 提供 SSD/HDD 智能混合分层存储管理测试.
 package hybridflash
 
 import (
 	"testing"
 	"time"
+
+	"go.uber.org/zap"
 )
 
-func TestNewHybridFlashManager(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+func TestNewManager(t *testing.T) {
+	logger := zap.NewNop()
+	manager := NewManager(logger)
 
 	if manager == nil {
-		t.Fatal("NewHybridFlashManager 返回 nil")
+		t.Fatal("NewManager 返回 nil")
 	}
 
 	if manager.pools == nil {
@@ -25,11 +27,25 @@ func TestNewHybridFlashManager(t *testing.T) {
 	if manager.rebalanceTasks == nil {
 		t.Error("rebalanceTasks 未初始化")
 	}
+
+	if manager.logger == nil {
+		t.Error("logger 未初始化")
+	}
+}
+
+func TestNewManagerNilLogger(t *testing.T) {
+	// nil logger 应使用 nop logger
+	manager := NewManager(nil)
+	if manager == nil {
+		t.Fatal("NewManager(nil) 返回 nil")
+	}
+	if manager.logger == nil {
+		t.Error("nil logger 应使用 nop logger")
+	}
 }
 
 func TestCreatePool(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	config := &HybridPoolConfig{
 		PoolName:     "test-pool",
@@ -75,8 +91,7 @@ func TestCreatePool(t *testing.T) {
 }
 
 func TestCreatePoolValidation(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	// 测试空池名
 	config := &HybridPoolConfig{
@@ -128,8 +143,7 @@ func TestCreatePoolValidation(t *testing.T) {
 }
 
 func TestCreateDuplicatePool(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	config := &HybridPoolConfig{
 		PoolName:     "test-pool",
@@ -152,8 +166,7 @@ func TestCreateDuplicatePool(t *testing.T) {
 }
 
 func TestGetPool(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	config := &HybridPoolConfig{
 		PoolName:     "test-pool",
@@ -186,8 +199,7 @@ func TestGetPool(t *testing.T) {
 }
 
 func TestListPools(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	// 空列表
 	pools := manager.ListPools()
@@ -229,8 +241,7 @@ func TestListPools(t *testing.T) {
 }
 
 func TestUpdateTierPolicy(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	config := &HybridPoolConfig{
 		PoolName:     "test-pool",
@@ -284,8 +295,7 @@ func TestUpdateTierPolicy(t *testing.T) {
 }
 
 func TestUpdateTierPolicyValidation(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	config := &HybridPoolConfig{
 		PoolName:     "test-pool",
@@ -338,8 +348,7 @@ func TestUpdateTierPolicyValidation(t *testing.T) {
 }
 
 func TestRebalance(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	config := &HybridPoolConfig{
 		PoolName:     "test-pool",
@@ -389,8 +398,7 @@ func TestRebalance(t *testing.T) {
 }
 
 func TestRebalanceDryRun(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	config := &HybridPoolConfig{
 		PoolName:     "test-pool",
@@ -430,8 +438,7 @@ func TestRebalanceDryRun(t *testing.T) {
 }
 
 func TestRecordAccess(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	config := &HybridPoolConfig{
 		PoolName:     "test-pool",
@@ -475,8 +482,7 @@ func TestRecordAccess(t *testing.T) {
 }
 
 func TestDeletePool(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	config := &HybridPoolConfig{
 		PoolName:     "test-pool",
@@ -543,12 +549,148 @@ func TestDefaultTierPolicy(t *testing.T) {
 }
 
 func TestGetRebalanceTask(t *testing.T) {
-	engine := NewTieringEngine(DefaultTieringConfig(), DefaultHeatTrackingConfig())
-	manager := NewHybridFlashManager(engine)
+	manager := NewManager(zap.NewNop())
 
 	// 获取不存在的任务
 	_, err := manager.GetRebalanceTask("non-existent")
 	if err == nil {
 		t.Error("获取不存在的任务应该返回错误")
+	}
+}
+
+func TestGetStatus(t *testing.T) {
+	manager := NewManager(zap.NewNop())
+
+	status := manager.GetStatus()
+	if status == nil {
+		t.Fatal("GetStatus 返回 nil")
+	}
+
+	if !status.Enabled {
+		t.Error("期望 Enabled=true")
+	}
+}
+
+func TestGetCapacitySuggestion(t *testing.T) {
+	manager := NewManager(zap.NewNop())
+
+	config := &HybridPoolConfig{
+		PoolName:     "test-pool",
+		FlashDevices: []string{"/dev/nvme0n1"},
+		HDDDevices:   []string{"/dev/sda"},
+		FlashRole:    FlashRoleData,
+		TierPolicy:   DefaultTierPolicy(),
+	}
+
+	pool, err := manager.CreatePool(config)
+	if err != nil {
+		t.Fatalf("创建池失败: %v", err)
+	}
+
+	// 记录一些热数据
+	for i := 0; i < 100; i++ {
+		manager.RecordAccess(pool.PoolID, "/test/hot.dat", 0, 4096, AccessPatternRandom)
+	}
+
+	suggestion, err := manager.GetCapacitySuggestion(pool.PoolID)
+	if err != nil {
+		t.Fatalf("获取容量建议失败: %v", err)
+	}
+
+	if suggestion == nil {
+		t.Fatal("容量建议不应为 nil")
+	}
+
+	if suggestion.FlashRatio < 0 || suggestion.FlashRatio > 1 {
+		t.Errorf("Flash 比例应在 0-1 之间，实际 %f", suggestion.FlashRatio)
+	}
+
+	if suggestion.Reason == "" {
+		t.Error("建议理由不应为空")
+	}
+
+	// 测试不存在的池
+	_, err = manager.GetCapacitySuggestion("non-existent")
+	if err == nil {
+		t.Error("不存在的池应返回错误")
+	}
+}
+
+func TestGetPerTierMetrics(t *testing.T) {
+	manager := NewManager(zap.NewNop())
+
+	config := &HybridPoolConfig{
+		PoolName:     "test-pool",
+		FlashDevices: []string{"/dev/nvme0n1"},
+		HDDDevices:   []string{"/dev/sda"},
+		FlashRole:    FlashRoleData,
+		TierPolicy:   DefaultTierPolicy(),
+	}
+
+	pool, err := manager.CreatePool(config)
+	if err != nil {
+		t.Fatalf("创建池失败: %v", err)
+	}
+
+	// 记录访问
+	manager.RecordAccess(pool.PoolID, "/test/data.dat", 0, 4096, AccessPatternRandom)
+
+	iops, throughput, latency, err := manager.GetPerTierMetrics(pool.PoolID)
+	if err != nil {
+		t.Fatalf("获取分层指标失败: %v", err)
+	}
+
+	if iops == nil {
+		t.Error("IOPS 统计不应为 nil")
+	}
+	if throughput == nil {
+		t.Error("吞吐统计不应为 nil")
+	}
+	if latency == nil {
+		t.Error("延迟统计不应为 nil")
+	}
+
+	// 测试不存在的池
+	_, _, _, err = manager.GetPerTierMetrics("non-existent")
+	if err == nil {
+		t.Error("不存在的池应返回错误")
+	}
+}
+
+func TestConcurrentAccess(t *testing.T) {
+	manager := NewManager(zap.NewNop())
+
+	config := &HybridPoolConfig{
+		PoolName:     "concurrent-pool",
+		FlashDevices: []string{"/dev/nvme0n1"},
+		HDDDevices:   []string{"/dev/sda"},
+		FlashRole:    FlashRoleData,
+		TierPolicy:   DefaultTierPolicy(),
+	}
+
+	pool, err := manager.CreatePool(config)
+	if err != nil {
+		t.Fatalf("创建池失败: %v", err)
+	}
+
+	// 并发读写
+	done := make(chan bool, 10)
+	for i := 0; i < 10; i++ {
+		go func(id int) {
+			defer func() { done <- true }()
+			for j := 0; j < 100; j++ {
+				manager.RecordAccess(pool.PoolID, "/test/file.dat", 0, 1024, AccessPatternRandom)
+			}
+		}(i)
+	}
+
+	for i := 0; i < 10; i++ {
+		<-done
+	}
+
+	// 验证数据一致性
+	pools := manager.ListPools()
+	if len(pools) != 1 {
+		t.Errorf("期望 1 个池，实际 %d", len(pools))
 	}
 }

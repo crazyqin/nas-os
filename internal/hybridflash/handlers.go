@@ -1,31 +1,36 @@
-// Package hybridflash 提供 SSD/HDD 智能混合分层存储管理.
+// Package hybridflash 提供 SSD/HDD 智能混合分层存储管理 HTTP API.
 package hybridflash
 
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
-// Handler API 处理器.
-type Handler struct {
-	engine  *TieringEngine
-	manager *HybridFlashManager
+// Handlers API 处理器.
+type Handlers struct {
+	logger  *zap.Logger
+	manager *Manager
 }
 
-// NewHandler 创建 API 处理器.
-func NewHandler(engine *TieringEngine) *Handler {
-	return &Handler{
-		engine:  engine,
-		manager: NewHybridFlashManager(engine),
+// NewHandlers 创建 API 处理器.
+func NewHandlers(logger *zap.Logger, mgr *Manager) *Handlers {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+	return &Handlers{
+		logger:  logger,
+		manager: mgr,
 	}
 }
 
 // RegisterRoutes 注册路由.
-func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
-	hybrid := r.Group("/hybrid-flash")
+func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
+	hybrid := rg.Group("/hybrid-flash")
 	{
 		// 混合闪存池管理
 		pools := hybrid.Group("/pools")
@@ -35,6 +40,9 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 			pools.GET("/:id/status", h.GetPoolStatus)
 			pools.PUT("/:id/tier-policy", h.UpdateTierPolicy)
 			pools.POST("/:id/rebalance", h.TriggerRebalance)
+			pools.POST("/:id/capacity-suggestion", h.GetCapacitySuggestion)
+			pools.GET("/:id/metrics", h.GetPerTierMetrics)
+			pools.DELETE("/:id", h.DeletePool)
 		}
 
 		// 分层状态
@@ -52,11 +60,6 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 		hybrid.GET("/blocks/hot", h.GetHotBlocks)
 		hybrid.GET("/blocks/cold", h.GetColdBlocks)
 
-		// 迁移管理
-		hybrid.POST("/migrate", h.TriggerMigration)
-		hybrid.GET("/migrate/tasks", h.ListMigrateTasks)
-		hybrid.GET("/migrate/tasks/:id", h.GetMigrateTask)
-
 		// 缓存策略
 		hybrid.GET("/policies", h.ListCachePolicies)
 		hybrid.POST("/policies", h.CreateCachePolicy)
@@ -69,14 +72,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 // ========== 混合闪存池管理 ==========
 
 // ListPools 列出所有混合池.
-//
-//	@Summary	列出所有混合闪存池
-//	@Description	返回所有混合存储池的状态信息
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Success	200	{object}	Response{data=[]PoolStatus}
-//	@Router		/api/v1/hybrid-flash/pools [get]
-func (h *Handler) ListPools(c *gin.Context) {
+func (h *Handlers) ListPools(c *gin.Context) {
 	pools := h.manager.ListPools()
 
 	c.JSON(http.StatusOK, Response{
@@ -87,17 +83,7 @@ func (h *Handler) ListPools(c *gin.Context) {
 }
 
 // CreatePool 创建混合池.
-//
-//	@Summary	创建混合闪存池
-//	@Description	创建新的 NVMe + HDD 混合存储池
-//	@Tags		hybrid-flash
-//	@Accept		json
-//	@Produce	json
-//	@Param		config	body		HybridPoolConfig	true	"池配置"
-//	@Success	200	{object}	Response{data=PoolStatus}
-//	@Failure	400	{object}	Response
-//	@Router		/api/v1/hybrid-flash/pools [post]
-func (h *Handler) CreatePool(c *gin.Context) {
+func (h *Handlers) CreatePool(c *gin.Context) {
 	var config HybridPoolConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
 		c.JSON(http.StatusBadRequest, Response{
@@ -124,16 +110,7 @@ func (h *Handler) CreatePool(c *gin.Context) {
 }
 
 // GetPoolStatus 获取池状态.
-//
-//	@Summary	获取混合池状态
-//	@Description	根据池ID获取详细的池状态信息
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Param		id	path		string	true	"池ID"
-//	@Success	200	{object}	Response{data=PoolStatus}
-//	@Failure	404	{object}	Response
-//	@Router		/api/v1/hybrid-flash/pools/{id}/status [get]
-func (h *Handler) GetPoolStatus(c *gin.Context) {
+func (h *Handlers) GetPoolStatus(c *gin.Context) {
 	poolID := c.Param("id")
 
 	pool, err := h.manager.GetPool(poolID)
@@ -153,19 +130,7 @@ func (h *Handler) GetPoolStatus(c *gin.Context) {
 }
 
 // UpdateTierPolicy 更新分层策略.
-//
-//	@Summary	更新分层策略
-//	@Description	更新混合池的分层策略配置
-//	@Tags		hybrid-flash
-//	@Accept		json
-//	@Produce	json
-//	@Param		id		path		string		true	"池ID"
-//	@Param		policy	body		TierPolicy	true	"分层策略"
-//	@Success	200	{object}	Response
-//	@Failure	400	{object}	Response
-//	@Failure	404	{object}	Response
-//	@Router		/api/v1/hybrid-flash/pools/{id}/tier-policy [put]
-func (h *Handler) UpdateTierPolicy(c *gin.Context) {
+func (h *Handlers) UpdateTierPolicy(c *gin.Context) {
 	poolID := c.Param("id")
 
 	var policy TierPolicy
@@ -192,19 +157,7 @@ func (h *Handler) UpdateTierPolicy(c *gin.Context) {
 }
 
 // TriggerRebalance 触发数据重平衡.
-//
-//	@Summary	触发数据重平衡
-//	@Description	手动触发混合池的数据重平衡
-//	@Tags		hybrid-flash
-//	@Accept		json
-//	@Produce	json
-//	@Param		id		path		string			true	"池ID"
-//	@Param		request	body		RebalanceRequest	true	"重平衡请求"
-//	@Success	200	{object}	Response{data=RebalanceResult}
-//	@Failure	400	{object}	Response
-//	@Failure	404	{object}	Response
-//	@Router		/api/v1/hybrid-flash/pools/{id}/rebalance [post]
-func (h *Handler) TriggerRebalance(c *gin.Context) {
+func (h *Handlers) TriggerRebalance(c *gin.Context) {
 	poolID := c.Param("id")
 
 	var req RebalanceRequest
@@ -232,18 +185,73 @@ func (h *Handler) TriggerRebalance(c *gin.Context) {
 	})
 }
 
+// DeletePool 删除混合闪存池.
+func (h *Handlers) DeletePool(c *gin.Context) {
+	poolID := c.Param("id")
+
+	if err := h.manager.DeletePool(poolID); err != nil {
+		c.JSON(http.StatusBadRequest, Response{
+			Code:    400,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Code:    0,
+		Message: "混合闪存池已删除",
+	})
+}
+
+// GetCapacitySuggestion 获取容量规划建议.
+func (h *Handlers) GetCapacitySuggestion(c *gin.Context) {
+	poolID := c.Param("id")
+
+	suggestion, err := h.manager.GetCapacitySuggestion(poolID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, Response{
+			Code:    404,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Code:    0,
+		Message: "success",
+		Data:    suggestion,
+	})
+}
+
+// GetPerTierMetrics 获取分层性能指标.
+func (h *Handlers) GetPerTierMetrics(c *gin.Context) {
+	poolID := c.Param("id")
+
+	iops, throughput, latency, err := h.manager.GetPerTierMetrics(poolID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, Response{
+			Code:    404,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"iops":       iops,
+			"throughput": throughput,
+			"latency":    latency,
+		},
+	})
+}
+
 // ========== 分层状态和配置 ==========
 
 // GetStatus 获取分层状态.
-//
-//	@Summary	获取混合分层状态
-//	@Description	返回当前分层引擎状态、运行中的任务数、缓存命中率等
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Success	200	{object}	Response{data=TieringStatus}
-//	@Router		/api/v1/hybrid-flash/status [get]
-func (h *Handler) GetStatus(c *gin.Context) {
-	status := h.engine.GetStatus()
+func (h *Handlers) GetStatus(c *gin.Context) {
+	status := h.manager.GetStatus()
 	c.JSON(http.StatusOK, Response{
 		Code:    0,
 		Message: "success",
@@ -252,17 +260,7 @@ func (h *Handler) GetStatus(c *gin.Context) {
 }
 
 // UpdateConfig 更新配置.
-//
-//	@Summary	更新分层配置
-//	@Description	更新分层引擎配置和热度追踪配置
-//	@Tags		hybrid-flash
-//	@Accept		json
-//	@Produce	json
-//	@Param		config	body		ConfigRequest	true	"配置参数"
-//	@Success	200	{object}	Response
-//	@Failure	400	{object}	Response
-//	@Router		/api/v1/hybrid-flash/config [post]
-func (h *Handler) UpdateConfig(c *gin.Context) {
+func (h *Handlers) UpdateConfig(c *gin.Context) {
 	var req ConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, Response{
@@ -273,11 +271,11 @@ func (h *Handler) UpdateConfig(c *gin.Context) {
 	}
 
 	if req.TieringConfig != nil {
-		h.engine.UpdateConfig(*req.TieringConfig)
+		h.manager.UpdateEngineConfig(*req.TieringConfig)
 	}
 
 	if req.HeatConfig != nil {
-		h.engine.UpdateHeatConfig(*req.HeatConfig)
+		h.manager.UpdateHeatConfig(*req.HeatConfig)
 	}
 
 	c.JSON(http.StatusOK, Response{
@@ -287,38 +285,26 @@ func (h *Handler) UpdateConfig(c *gin.Context) {
 }
 
 // GetConfig 获取当前配置.
-//
-//	@Summary	获取分层配置
-//	@Description	返回当前分层引擎配置和热度追踪配置
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Success	200	{object}	Response
-//	@Router		/api/v1/hybrid-flash/config [get]
-func (h *Handler) GetConfig(c *gin.Context) {
-	status := h.engine.GetStatus()
+func (h *Handlers) GetConfig(c *gin.Context) {
+	status := h.manager.GetStatus()
+	engine := h.manager.GetEngine()
+	engineConfig := engine.GetHeatConfig()
+
 	c.JSON(http.StatusOK, Response{
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
 			"tieringConfig": status.Config,
-			"heatConfig":    h.engine.heatConfig,
+			"heatConfig":    engineConfig,
 		},
 	})
 }
 
 // GetReport 获取效率报告.
-//
-//	@Summary	获取分层效率报告
-//	@Description	返回分层命中率、性能提升、空间利用率等统计
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Param		period	query		string	false	"报告周期"	default(daily)
-//	@Success	200	{object}	Response{data=EfficiencyReport}
-//	@Router		/api/v1/hybrid-flash/report [get]
-func (h *Handler) GetReport(c *gin.Context) {
+func (h *Handlers) GetReport(c *gin.Context) {
 	period := c.DefaultQuery("period", "daily")
 
-	report := h.engine.GenerateEfficiencyReport(period)
+	report := h.manager.GenerateEfficiencyReport(period)
 
 	c.JSON(http.StatusOK, Response{
 		Code:    0,
@@ -330,19 +316,10 @@ func (h *Handler) GetReport(c *gin.Context) {
 // ========== 块热度查询 ==========
 
 // GetBlockHeat 获取块热度信息.
-//
-//	@Summary	查询块热度
-//	@Description	根据块ID查询其热度级别和访问记录
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Param		id	path		string	true	"块ID"
-//	@Success	200	{object}	Response{data=BlockAccessRecord}
-//	@Failure	404	{object}	Response
-//	@Router		/api/v1/hybrid-flash/blocks/{id}/heat [get]
-func (h *Handler) GetBlockHeat(c *gin.Context) {
+func (h *Handlers) GetBlockHeat(c *gin.Context) {
 	blockID := c.Param("id")
 
-	block, err := h.engine.GetBlockHeatInfo(blockID)
+	block, err := h.manager.GetBlockHeatInfo(blockID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, Response{
 			Code:    404,
@@ -359,23 +336,15 @@ func (h *Handler) GetBlockHeat(c *gin.Context) {
 }
 
 // GetHotBlocks 获取热块列表.
-//
-//	@Summary	查询热数据块
-//	@Description	返回热度最高的数据块列表
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Param		limit	query		int	false	"返回数量"	default(10)
-//	@Success	200	{object}	Response{data=[]BlockAccessRecord}
-//	@Router		/api/v1/hybrid-flash/blocks/hot [get]
-func (h *Handler) GetHotBlocks(c *gin.Context) {
+func (h *Handlers) GetHotBlocks(c *gin.Context) {
 	limit := 10
 	if l := c.Query("limit"); l != "" {
-		if parsed, err := parseIntParam(l); err == nil && parsed > 0 {
+		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 {
 			limit = parsed
 		}
 	}
 
-	blocks := h.engine.GetHotBlocks(limit)
+	blocks := h.manager.GetHotBlocks(limit)
 
 	c.JSON(http.StatusOK, Response{
 		Code:    0,
@@ -385,23 +354,15 @@ func (h *Handler) GetHotBlocks(c *gin.Context) {
 }
 
 // GetColdBlocks 获取冷块列表.
-//
-//	@Summary	查询冷数据块
-//	@Description	返回最近最少访问的数据块列表
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Param		limit	query		int	false	"返回数量"	default(10)
-//	@Success	200	{object}	Response{data=[]BlockAccessRecord}
-//	@Router		/api/v1/hybrid-flash/blocks/cold [get]
-func (h *Handler) GetColdBlocks(c *gin.Context) {
+func (h *Handlers) GetColdBlocks(c *gin.Context) {
 	limit := 10
 	if l := c.Query("limit"); l != "" {
-		if parsed, err := parseIntParam(l); err == nil && parsed > 0 {
+		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 {
 			limit = parsed
 		}
 	}
 
-	blocks := h.engine.GetColdBlocks(limit)
+	blocks := h.manager.GetColdBlocks(limit)
 
 	c.JSON(http.StatusOK, Response{
 		Code:    0,
@@ -410,133 +371,10 @@ func (h *Handler) GetColdBlocks(c *gin.Context) {
 	})
 }
 
-// ========== 迁移管理 ==========
-
-// TriggerMigration 触发迁移.
-//
-//	@Summary	手动触发数据迁移
-//	@Description	创建一个从源层级到目标层级的迁移任务
-//	@Tags		hybrid-flash
-//	@Accept		json
-//	@Produce	json
-//	@Param		request	body		object	true	"迁移请求"
-//	@Success	200	{object}	Response{data=MigrateTask}
-//	@Failure	400	{object}	Response
-//	@Router		/api/v1/hybrid-flash/migrate [post]
-func (h *Handler) TriggerMigration(c *gin.Context) {
-	var req struct {
-		SourceTier FlashType `json:"sourceTier"`
-		TargetTier FlashType `json:"targetTier"`
-		BlockIDs   []string  `json:"blockIds"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Response{
-			Code:    400,
-			Message: "无效的请求参数: " + err.Error(),
-		})
-		return
-	}
-
-	task := &MigrateTask{
-		ID:          fmt.Sprintf("manual-%d", time.Now().UnixNano()),
-		Status:      MigrateStatusPending,
-		CreatedAt:   time.Now(),
-		SourceTier:  req.SourceTier,
-		TargetTier:  req.TargetTier,
-		TotalBlocks: int64(len(req.BlockIDs)),
-		TotalBytes:  0,
-	}
-
-	// 加入迁移队列
-	h.engine.migrationQueue <- task
-
-	c.JSON(http.StatusOK, Response{
-		Code:    0,
-		Message: "迁移任务已创建",
-		Data:    task,
-	})
-}
-
-// ListMigrateTasks 列出迁移任务.
-//
-//	@Summary	列出迁移任务
-//	@Description	返回所有迁移任务列表
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Success	200	{object}	Response{data=[]MigrateTask}
-//	@Router		/api/v1/hybrid-flash/migrate/tasks [get]
-func (h *Handler) ListMigrateTasks(c *gin.Context) {
-	h.engine.mu.RLock()
-	tasks := make([]*MigrateTask, 0)
-	for _, task := range h.engine.runningTasks {
-		tasks = append(tasks, task)
-	}
-	tasks = append(tasks, h.engine.completedTasks...)
-	h.engine.mu.RUnlock()
-
-	c.JSON(http.StatusOK, Response{
-		Code:    0,
-		Message: "success",
-		Data:    tasks,
-	})
-}
-
-// GetMigrateTask 获取迁移任务详情.
-//
-//	@Summary	查询迁移任务
-//	@Description	根据任务ID查询迁移任务详情
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Param		id	path		string	true	"任务ID"
-//	@Success	200	{object}	Response{data=MigrateTask}
-//	@Failure	404	{object}	Response
-//	@Router		/api/v1/hybrid-flash/migrate/tasks/{id} [get]
-func (h *Handler) GetMigrateTask(c *gin.Context) {
-	taskID := c.Param("id")
-
-	h.engine.mu.RLock()
-	defer h.engine.mu.RUnlock()
-
-	// 查找运行中的任务
-	if task, exists := h.engine.runningTasks[taskID]; exists {
-		c.JSON(http.StatusOK, Response{
-			Code:    0,
-			Message: "success",
-			Data:    task,
-		})
-		return
-	}
-
-	// 查找已完成的任务
-	for _, task := range h.engine.completedTasks {
-		if task.ID == taskID {
-			c.JSON(http.StatusOK, Response{
-				Code:    0,
-				Message: "success",
-				Data:    task,
-			})
-			return
-		}
-	}
-
-	c.JSON(http.StatusNotFound, Response{
-		Code:    404,
-		Message: "任务不存在",
-	})
-}
-
 // ========== 缓存策略 ==========
 
 // ListCachePolicies 列出缓存策略.
-//
-//	@Summary	列出缓存策略
-//	@Description	返回所有缓存策略配置
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Success	200	{object}	Response{data=[]CachePolicy}
-//	@Router		/api/v1/hybrid-flash/policies [get]
-func (h *Handler) ListCachePolicies(c *gin.Context) {
+func (h *Handlers) ListCachePolicies(c *gin.Context) {
 	// 返回示例策略
 	policies := []*CachePolicy{
 		{
@@ -579,17 +417,7 @@ func (h *Handler) ListCachePolicies(c *gin.Context) {
 }
 
 // CreateCachePolicy 创建缓存策略.
-//
-//	@Summary	创建缓存策略
-//	@Description	创建新的缓存策略配置
-//	@Tags		hybrid-flash
-//	@Accept		json
-//	@Produce	json
-//	@Param		policy	body		CachePolicy	true	"策略配置"
-//	@Success	200	{object}	Response{data=CachePolicy}
-//	@Failure	400	{object}	Response
-//	@Router		/api/v1/hybrid-flash/policies [post]
-func (h *Handler) CreateCachePolicy(c *gin.Context) {
+func (h *Handlers) CreateCachePolicy(c *gin.Context) {
 	var policy CachePolicy
 	if err := c.ShouldBindJSON(&policy); err != nil {
 		c.JSON(http.StatusBadRequest, Response{
@@ -613,15 +441,8 @@ func (h *Handler) CreateCachePolicy(c *gin.Context) {
 // ========== 性能指标 ==========
 
 // GetMetrics 获取性能指标.
-//
-//	@Summary	获取性能指标
-//	@Description	返回当前 IO 统计和性能指标
-//	@Tags		hybrid-flash
-//	@Produce	json
-//	@Success	200	{object}	Response{data=IOStatistics}
-//	@Router		/api/v1/hybrid-flash/metrics [get]
-func (h *Handler) GetMetrics(c *gin.Context) {
-	status := h.engine.GetStatus()
+func (h *Handlers) GetMetrics(c *gin.Context) {
+	status := h.manager.GetStatus()
 
 	// 生成示例指标
 	metrics := &IOStatistics{
@@ -660,11 +481,4 @@ func (h *Handler) GetMetrics(c *gin.Context) {
 		Message: "success",
 		Data:    metrics,
 	})
-}
-
-// parseIntParam 解析整数参数.
-func parseIntParam(s string) (int, error) {
-	var result int
-	_, err := fmt.Sscanf(s, "%d", &result)
-	return result, err
 }
