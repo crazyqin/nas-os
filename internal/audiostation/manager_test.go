@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -743,5 +744,303 @@ func TestPlayerModes(t *testing.T) {
 	nextID, _ := player.Next()
 	if nextID != "track_001" {
 		t.Errorf("列表循环应循环到第一首: %s", nextID)
+	}
+}
+
+// TestGetArtist 测试艺术家详情.
+func TestGetArtist(t *testing.T) {
+	mgr, cleanup := setupTestManager(t)
+	defer cleanup()
+
+	// 列出艺术家获取 ID
+	artists := mgr.ListArtists()
+	if len(artists) == 0 {
+		t.Fatal("期望有艺术家")
+	}
+
+	// 获取艺术家详情
+	artist, err := mgr.GetArtist(artists[0].ID)
+	if err != nil {
+		t.Fatalf("获取艺术家详情失败: %v", err)
+	}
+	if artist.Name == "" {
+		t.Error("艺术家名不应为空")
+	}
+	if artist.Albums == nil {
+		t.Error("艺术家详情应包含专辑列表")
+	}
+
+	// 不存在的艺术家
+	_, err = mgr.GetArtist("nonexistent")
+	if err != ErrArtistNotFound {
+		t.Errorf("期望 ErrArtistNotFound，实际 %v", err)
+	}
+}
+
+// TestHLSStream 测试 HLS 流媒体.
+func TestHLSStream(t *testing.T) {
+	mgr, cleanup := setupTestManager(t)
+	defer cleanup()
+
+	// 创建临时音频文件
+	tmpDir := t.TempDir()
+	for _, track := range mgr.tracks {
+		os.MkdirAll(filepath.Dir(track.FilePath), 0750)
+		os.WriteFile(track.FilePath, make([]byte, 1024), 0644)
+	}
+
+	hlsMgr := NewHLSManager(mgr, tmpDir, 10.0)
+
+	// 创建 HLS 会话
+	session, err := hlsMgr.CreateStream("track_001", "http://localhost:8080")
+	if err != nil {
+		t.Fatalf("创建 HLS 会话失败: %v", err)
+	}
+	if session.ID == "" {
+		t.Error("会话 ID 不应为空")
+	}
+	if session.Playlist == nil {
+		t.Fatal("播放列表不应为 nil")
+	}
+	if len(session.Playlist.Segments) == 0 {
+		t.Error("应有切片")
+	}
+	if session.Playlist.MasterURL == "" {
+		t.Error("Master URL 不应为空")
+	}
+
+	// 获取会话
+	got, err := hlsMgr.GetStream(session.ID)
+	if err != nil {
+		t.Fatalf("获取 HLS 会话失败: %v", err)
+	}
+	if got.ID != session.ID {
+		t.Errorf("会话 ID 不匹配")
+	}
+
+	// 生成 Master Playlist
+	master, err := hlsMgr.GenerateMasterPlaylist(session.ID)
+	if err != nil {
+		t.Fatalf("生成 Master Playlist 失败: %v", err)
+	}
+	if !strings.Contains(master, "#EXTM3U") {
+		t.Error("Master Playlist 应包含 #EXTM3U")
+	}
+	if !strings.Contains(master, "#EXT-X-STREAM-INF") {
+		t.Error("Master Playlist 应包含 #EXT-X-STREAM-INF")
+	}
+
+	// 生成 Media Playlist
+	media, err := hlsMgr.GenerateMediaPlaylist(session.ID)
+	if err != nil {
+		t.Fatalf("生成 Media Playlist 失败: %v", err)
+	}
+	if !strings.Contains(media, "#EXTM3U") {
+		t.Error("Media Playlist 应包含 #EXTM3U")
+	}
+	if !strings.Contains(media, "#EXT-X-ENDLIST") {
+		t.Error("Media Playlist 应包含 #EXT-X-ENDLIST")
+	}
+	if !strings.Contains(media, "#EXTINF") {
+		t.Error("Media Playlist 应包含 #EXTINF")
+	}
+
+	// 不存在的曲目
+	_, err = hlsMgr.CreateStream("nonexistent", "http://localhost:8080")
+	if err == nil {
+		t.Error("不存在的曲目应返回错误")
+	}
+
+	// 验证活跃会话数
+	if hlsMgr.GetActiveSessions() != 1 {
+		t.Errorf("活跃会话数期望 1，实际 %d", hlsMgr.GetActiveSessions())
+	}
+}
+
+// TestTagEditor 测试标签编辑器.
+func TestTagEditor(t *testing.T) {
+	mgr, cleanup := setupTestManager(t)
+	defer cleanup()
+
+	tagEditor := NewTagEditor(mgr)
+
+	// 更新标签
+	track, err := tagEditor.UpdateTrackTag("track_001", TagUpdateRequest{
+		Title:  "新标题",
+		Artist: "新艺术家",
+	})
+	if err != nil {
+		t.Fatalf("更新标签失败: %v", err)
+	}
+	if track.Title != "新标题" {
+		t.Errorf("标题期望 '新标题'，实际 '%s'\n", track.Title)
+	}
+	if track.Artist != "新艺术家" {
+		t.Errorf("艺术家期望 '新艺术家'，实际 '%s'\n", track.Artist)
+	}
+
+	// 验证更新后的数据
+	got, _ := mgr.GetTrack("track_001")
+	if got.Title != "新标题" {
+		t.Errorf("获取更新后的标题期望 '新标题'，实际 '%s'\n", got.Title)
+	}
+
+	// 不存在的曲目
+	_, err = tagEditor.UpdateTrackTag("nonexistent", TagUpdateRequest{Title: "test"})
+	if err != ErrTrackNotFound {
+		t.Errorf("期望 ErrTrackNotFound，实际 %v", err)
+	}
+
+	// 批量更新
+	tracks, err := tagEditor.BatchUpdateTags(
+		[]string{"track_002", "track_003"},
+		TagUpdateRequest{Genre: "NewGenre"},
+	)
+	if err != nil {
+		t.Fatalf("批量更新失败: %v", err)
+	}
+	if len(tracks) != 2 {
+		t.Errorf("批量更新后期望 2 个曲目，实际 %d", len(tracks))
+	}
+	for _, tr := range tracks {
+		if tr.Genre != "NewGenre" {
+			t.Errorf("流派期望 'NewGenre'，实际 '%s'\n", tr.Genre)
+		}
+	}
+}
+
+// TestSharePlaylist 测试分享播放列表.
+func TestSharePlaylist(t *testing.T) {
+	mgr, cleanup := setupTestManager(t)
+	defer cleanup()
+
+	// 创建播放列表
+	playlist, err := mgr.CreatePlaylist(PlaylistInput{
+		Name:     "分享测试",
+		TrackIDs: []string{"track_001"},
+	})
+	if err != nil {
+		t.Fatalf("创建播放列表失败: %v", err)
+	}
+
+	// 分享播放列表
+	shared, err := mgr.SharePlaylist(playlist.ID, 24)
+	if err != nil {
+		t.Fatalf("分享播放列表失败: %v", err)
+	}
+	if shared.ShareToken == "" {
+		t.Error("分享令牌不应为空")
+	}
+	if shared.PlaylistID != playlist.ID {
+		t.Errorf("播放列表 ID 不匹配")
+	}
+	if shared.ExpiresAt.Before(time.Now()) {
+		t.Error("过期时间应在未来")
+	}
+
+	// 不存在的播放列表
+	_, err = mgr.SharePlaylist("nonexistent", 24)
+	if err != ErrPlaylistNotFound {
+		t.Errorf("期望 ErrPlaylistNotFound，实际 %v", err)
+	}
+}
+
+// TestHLSAPIHandlers 测试 HLS API handlers.
+func TestHLSAPIHandlers(t *testing.T) {
+	router, _, mgr, cleanup := setupTestRouter(t)
+	defer cleanup()
+
+	// 创建临时音频文件
+	for _, track := range mgr.tracks {
+		os.MkdirAll(filepath.Dir(track.FilePath), 0750)
+		os.WriteFile(track.FilePath, make([]byte, 1024), 0644)
+	}
+
+	// POST /api/v1/audiostation/hls/stream/:id
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/v1/audiostation/hls/stream/track_001", nil)
+	router.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("POST /hls/stream/track_001 期望 200，实际 %d", w.Code)
+	}
+
+	// 解析响应获取 session ID
+	var resp APIResponse
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("解析响应失败: %v", err)
+	}
+
+	// GET /api/v1/audiostation/hls/status
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/api/v1/audiostation/hls/status", nil)
+	router.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("GET /hls/status 期望 200，实际 %d", w.Code)
+	}
+
+	// POST /hls/stream/:id 不存在的曲目
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", "/api/v1/audiostation/hls/stream/nonexistent", nil)
+	router.ServeHTTP(w, req)
+	if w.Code != http.StatusNotFound {
+		t.Errorf("POST /hls/stream/nonexistent 期望 404，实际 %d", w.Code)
+	}
+}
+
+// TestTagEditorAPIHandlers 测试标签编辑 API handlers.
+func TestTagEditorAPIHandlers(t *testing.T) {
+	router, _, _, cleanup := setupTestRouter(t)
+	defer cleanup()
+
+	// PUT /api/v1/audiostation/tracks/:id/tag
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("PUT", "/api/v1/audiostation/tracks/track_001/tag",
+		bytes.NewBufferString(`{"title":"API更新","artist":"API艺术家"}`))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("PUT /tracks/track_001/tag 期望 200，实际 %d", w.Code)
+	}
+
+	// PUT /tracks/:id/tag 不存在的曲目
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("PUT", "/api/v1/audiostation/tracks/nonexistent/tag",
+		bytes.NewBufferString(`{"title":"test"}`))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+	if w.Code != http.StatusNotFound {
+		t.Errorf("PUT /tracks/nonexistent/tag 期望 404，实际 %d", w.Code)
+	}
+}
+
+// TestSharePlaylistAPIHandlers 测试分享 API handlers.
+func TestSharePlaylistAPIHandlers(t *testing.T) {
+	router, _, mgr, cleanup := setupTestRouter(t)
+	defer cleanup()
+
+	// 先创建播放列表
+	playlist, _ := mgr.CreatePlaylist(PlaylistInput{
+		Name:     "API分享测试",
+		TrackIDs: []string{"track_001"},
+	})
+
+	// POST /api/v1/audiostation/playlists/:id/share
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/v1/audiostation/playlists/"+playlist.ID+"/share",
+		bytes.NewBufferString(`{"expire_hours":48}`))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("POST /playlists/:id/share 期望 200，实际 %d", w.Code)
+	}
+
+	// 分享不存在的播放列表
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", "/api/v1/audiostation/playlists/nonexistent/share",
+		bytes.NewBufferString(`{}`))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+	if w.Code != http.StatusNotFound {
+		t.Errorf("POST /playlists/nonexistent/share 期望 404，实际 %d", w.Code)
 	}
 }

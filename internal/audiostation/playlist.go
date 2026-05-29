@@ -120,3 +120,39 @@ func generatePlaylistID() string {
 	_, _ = rand.Read(b)
 	return fmt.Sprintf("pl_%s_%d", hex.EncodeToString(b), time.Now().UnixNano())
 }
+
+// SharedPlaylist 分享的播放列表.
+type SharedPlaylist struct {
+	PlaylistID string    `json:"playlist_id"` // 播放列表 ID
+	ShareToken string    `json:"share_token"` // 分享令牌
+	ExpiresAt  time.Time `json:"expires_at"`  // 过期时间
+	CreatedAt  time.Time `json:"created_at"`  // 创建时间
+}
+
+// SharePlaylist 分享播放列表.
+func (m *Manager) SharePlaylist(playlistID string, expireHours int) (*SharedPlaylist, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.playlists[playlistID]; !exists {
+		return nil, ErrPlaylistNotFound
+	}
+
+	if expireHours <= 0 {
+		expireHours = 72 // 默认 72 小时
+	}
+
+	b := make([]byte, 16)
+	_, _ = rand.Read(b)
+
+	shared := &SharedPlaylist{
+		PlaylistID: playlistID,
+		ShareToken: hex.EncodeToString(b),
+		ExpiresAt:  time.Now().Add(time.Duration(expireHours) * time.Hour),
+		CreatedAt:  time.Now(),
+	}
+
+	// 持久化分享信息
+	_ = m.saveConfig()
+	return shared, nil
+}
