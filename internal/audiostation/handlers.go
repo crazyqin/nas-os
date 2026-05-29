@@ -15,17 +15,22 @@ import (
 
 // Handlers 音乐中心 HTTP 处理器.
 type Handlers struct {
-	manager *Manager
-	scanner *Scanner
-	player  *Player
+	manager   *Manager
+	scanner   *Scanner
+	player    *Player
+	hls       *HLSManager
+	tagEditor *TagEditor
 }
 
 // NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
+	tmpDir := os.TempDir()
 	return &Handlers{
-		manager: mgr,
-		scanner: NewScanner(mgr),
-		player:  NewPlayer(mgr),
+		manager:   mgr,
+		scanner:   NewScanner(mgr),
+		player:    NewPlayer(mgr),
+		hls:       NewHLSManager(mgr, filepath.Join(tmpDir, "audiostation-hls"), 10.0),
+		tagEditor: NewTagEditor(mgr),
 	}
 }
 
@@ -66,6 +71,19 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		// ========== DLNA ==========
 		as.GET("/dlna/devices", h.listDLNADevices)
 		as.POST("/dlna/cast", h.castToDLNA)
+
+		// ========== HLS 流媒体 ==========
+		as.POST("/hls/stream/:id", h.createHLSStream)
+		as.GET("/hls/:sessionId/master.m3u8", h.getHLSMasterPlaylist)
+		as.GET("/hls/:sessionId/media.m3u8", h.getHLSMediaPlaylist)
+		as.GET("/hls/status", h.getHLSStatus)
+
+		// ========== 标签编辑 ==========
+		as.PUT("/tracks/:id/tag", h.updateTrackTag)
+		as.POST("/tracks/tag/batch", h.batchUpdateTags)
+
+		// ========== 分享 ==========
+		as.POST("/playlists/:id/share", h.sharePlaylist)
 	}
 }
 
@@ -384,4 +402,135 @@ func (h *Handlers) castToDLNA(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, APISuccess(gin.H{"status": "casting"}))
+}
+
+// ========== HLS 流媒体 API ==========
+
+// createHLSStream 创建 HLS 流媒体会话.
+func (h *Handlers) createHLSStream(c *gin.Context) {
+	id := c.Param("id")
+
+	// 验证曲目存在
+	if _, err := h.manager.GetTrack(id); err != nil {
+		c.JSON(http.StatusNotFound, APIError(404, err.Error()))
+		return
+	}
+
+	baseURL := fmt.Sprintf("http://%s", c.Request.Host)
+	session, err := h.hls.CreateStream(id, baseURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIError(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, APISuccess(session))
+}
+
+// getHLSMasterPlaylist 获取 HLS Master Playlist.
+func (h *Handlers) getHLSMasterPlaylist(c *gin.Context) {
+	sessionID := c.Param("sessionId")
+
+	m3u8, err := h.hls.GenerateMasterPlaylist(sessionID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, APIError(404, err.Error()))
+		return
+	}
+
+	c.Header("Content-Type", "application/vnd.apple.mpegurl")
+	c.Header("Cache-Control", "no-cache")
+	c.String(http.StatusOK, m3u8)
+}
+
+// getHLSMediaPlaylist 获取 HLS Media Playlist.
+func (h *Handlers) getHLSMediaPlaylist(c *gin.Context) {
+	sessionID := c.Param("sessionId")
+
+	m3u8, err := h.hls.GenerateMediaPlaylist(sessionID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, APIError(404, err.Error()))
+		return
+	}
+
+	c.Header("Content-Type", "application/vnd.apple.mpegurl")
+	c.Header("Cache-Control", "no-cache")
+	c.String(http.StatusOK, m3u8)
+}
+
+// getHLSStatus 获取 HLS 服务状态.
+func (h *Handlers) getHLSStatus(c *gin.Context) {
+	c.JSON(http.StatusOK, APISuccess(gin.H{
+		"active_sessions": h.hls.GetActiveSessions(),
+	}))
+}
+
+// ========== 标签编辑 API ==========
+
+// updateTrackTag 更新曲目标签.
+func (h *Handlers) updateTrackTag(c *gin.Context) {
+	id := c.Param("id")
+
+	var req TagUpdateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, APIError(400, err.Error()))
+		return
+	}
+
+	track, err := h.tagEditor.UpdateTrackTag(id, req)
+	if err != nil {
+		if err == ErrTrackNotFound {
+			c.JSON(http.StatusNotFound, APIError(404, err.Error()))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, APIError(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, APISuccess(track))
+}
+
+// batchUpdateTags 批量更新标签.
+func (h *Handlers) batchUpdateTags(c *gin.Context) {
+	var req struct {
+		TrackIDs []string        `json:"track_ids" binding:"required"`
+		Tags     TagUpdateRequest `json:"tags"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, APIError(400, err.Error()))
+		return
+	}
+
+	tracks, err := h.tagEditor.BatchUpdateTags(req.TrackIDs, req.Tags)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIError(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, APISuccess(gin.H{
+		"updated": len(tracks),
+		"tracks":  tracks,
+	}))
+}
+
+// ========== 分享 API ==========
+
+// sharePlaylist 分享播放列表.
+func (h *Handlers) sharePlaylist(c *gin.Context) {
+	id := c.Param("id")
+
+	var req struct {
+		ExpireHours int `json:"expire_hours"`
+	}
+	_ = c.ShouldBindJSON(&req)
+
+	shared, err := h.manager.SharePlaylist(id, req.ExpireHours)
+	if err != nil {
+		if err == ErrPlaylistNotFound {
+			c.JSON(http.StatusNotFound, APIError(404, err.Error()))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, APIError(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, APISuccess(shared))
 }

@@ -237,6 +237,31 @@ func (m *Manager) getAlbumTracks(albumID string) []*Track {
 
 // ========== 艺术家管理 ==========
 
+// GetArtist 获取艺术家详情（含专辑列表）.
+func (m *Manager) GetArtist(id string) (*Artist, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	artist, exists := m.artists[id]
+	if !exists {
+		return nil, ErrArtistNotFound
+	}
+
+	// 填充专辑列表
+	artistWithAlbums := *artist
+	albums := make([]*Album, 0)
+	for _, a := range m.albums {
+		if strings.EqualFold(a.Artist, artist.Name) {
+			albums = append(albums, a)
+		}
+	}
+	sort.Slice(albums, func(i, j int) bool {
+		return albums[i].Year > albums[j].Year
+	})
+	artistWithAlbums.Albums = albums
+	return &artistWithAlbums, nil
+}
+
 // ListArtists 列出艺术家.
 func (m *Manager) ListArtists() []*Artist {
 	m.mu.RLock()
