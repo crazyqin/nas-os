@@ -7,34 +7,22 @@ import (
 	"time"
 )
 
-// ProviderType 云存储后端类型.
-type ProviderType string
-
+// 常量别名 - 兼容 manager.go 引用
 const (
-	ProviderS3       ProviderType = "s3"
-	ProviderOSS      ProviderType = "oss"
-	ProviderB2       ProviderType = "b2"
-	ProviderOneDrive ProviderType = "onedrive"
-)
+	ProviderS3       = ProviderType("s3")
+	ProviderOSS      = ProviderType("oss")
+	ProviderB2       = ProviderType("b2")
+	ProviderOneDrive = ProviderType("onedrive")
 
-// SyncDirection 同步方向.
-type SyncDirection string
+	DirectionUpload  = SyncDirection("upload")
+	DirectionDownload = SyncDirection("download")
+	DirectionBiSync  = SyncDirection("bisync")
 
-const (
-	DirectionUpload   SyncDirection = "upload"   // 本地 → 云端
-	DirectionDownload SyncDirection = "download"  // 云端 → 本地
-	DirectionBiSync   SyncDirection = "bisync"   // 双向同步
-)
-
-// TaskStatus 任务状态.
-type TaskStatus string
-
-const (
-	StatusIdle     TaskStatus = "idle"
-	StatusSyncing  TaskStatus = "syncing"
-	StatusPaused   TaskStatus = "paused"
-	StatusError    TaskStatus = "error"
-	StatusComplete TaskStatus = "complete"
+	StatusIdle     = TaskStatus("idle")
+	StatusSyncing  = TaskStatus("syncing")
+	StatusPaused   = TaskStatus("paused")
+	StatusError    = TaskStatus("error")
+	StatusComplete = TaskStatus("completed")
 )
 
 // ConflictPolicy 冲突解决策略.
@@ -120,12 +108,12 @@ func (c *SyncConfig) Validate() error {
 
 // SyncTask 运行中的同步任务.
 type SyncTask struct {
-	Config      SyncConfig  `json:"config"`
-	Status      TaskStatus  `json:"status"`
+	Config      SyncConfig    `json:"config"`
+	Status      TaskStatus    `json:"status"`
 	Progress    *SyncProgress `json:"progress,omitempty"`
-	Error       string      `json:"error,omitempty"`
-	LastSyncAt  *time.Time  `json:"last_sync_at,omitempty"`
-	NextSyncAt  *time.Time  `json:"next_sync_at,omitempty"`
+	Error       string        `json:"error,omitempty"`
+	LastSyncAt  *time.Time    `json:"last_sync_at,omitempty"`
+	NextSyncAt  *time.Time    `json:"next_sync_at,omitempty"`
 }
 
 // SyncProgress 同步进度.

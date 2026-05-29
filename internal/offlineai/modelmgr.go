@@ -90,7 +90,11 @@ func (mm *ModelManager) Load(name string) error {
 	// 检查是否已加载
 	_, err := mm.engine.GetModel(name)
 	if err == nil {
-		return nil // 已加载
+		// 模型已在内存中，仍记录访问次数
+		mm.mu.Lock()
+		reg.LoadCount++
+		mm.mu.Unlock()
+		return nil
 	}
 
 	// 加载模型
