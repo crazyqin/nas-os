@@ -129,13 +129,7 @@ func (rt *RepairTracker) CompleteStep(alertID string, stepOrder int, output stri
 	record.CurrentStep = stepOrder + 1
 
 	// 检查是否全部完成
-	completed := 0
-	for _, s := range record.StepRecords {
-		if s.Status == StepStatusCompleted || s.Status == StepStatusSkipped {
-			completed++
-		}
-	}
-	if completed >= record.TotalSteps {
+	if rt.isAllDone(record) {
 		record.Status = RepairStatusCompleted
 		record.CompletedAt = &now
 		rt.logger.Info("repair completed", zap.String("alertId", alertID))
@@ -189,6 +183,14 @@ func (rt *RepairTracker) SkipStep(alertID string, stepOrder int) error {
 
 	step.Status = StepStatusSkipped
 	record.UpdatedAt = time.Now()
+
+	// 检查是否全部完成
+	if rt.isAllDone(record) {
+		now := time.Now()
+		record.Status = RepairStatusCompleted
+		record.CompletedAt = &now
+	}
+
 	return nil
 }
 
@@ -277,4 +279,17 @@ func (rt *RepairTracker) Remove(alertID string) {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
 	delete(rt.repairs, alertID)
+}
+
+// isAllDone 检查是否所有步骤都已完成
+func (rt *RepairTracker) isAllDone(record *RepairRecord) bool {
+	if record.TotalSteps == 0 {
+		return false
+	}
+	for _, s := range record.StepRecords {
+		if s.Status != StepStatusCompleted && s.Status != StepStatusSkipped {
+			return false
+		}
+	}
+	return true
 }
