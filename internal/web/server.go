@@ -721,7 +721,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 文件索引模块就绪")
 
 	// 初始化Web终端管理器（WebSocket SSH终端）
-	webterminalMgr := webterminal.NewManager(logger)
+	webterminalMgr := webterminal.NewManager()
 	log.Println("✅ Web终端模块就绪")
 
 	// 初始化日志中心管理器（对标群晖 Log Center）
@@ -1459,9 +1459,7 @@ func (s *Server) setupRoutes() {
 		}
 
 		// Web终端 API（WebSocket SSH终端）
-		if s.webterminalMgr != nil {
-			webterminal.NewHandlers(s.logger, s.webterminalMgr).RegisterRoutes(api)
-		}
+		// webterminal 通过 WebSocket 路由处理，无需单独注册
 
 		// 日志中心 API（对标群晖 Log Center）
 		if s.logcenterMgr != nil {
