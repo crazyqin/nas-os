@@ -9,6 +9,54 @@ import (
 	"go.uber.org/zap"
 )
 
+// 集群错误定义
+var (
+	// ErrClusterNotReady 集群未就绪
+	ErrClusterNotReady = errors.New("cluster not ready")
+	// ErrNodeNotFound 节点未找到
+	ErrNodeNotFound = errors.New("node not found")
+)
+
+// Cluster 集群实例
+// 注：此类型用于 failover.go，提供兼容定义
+type Cluster struct {
+	leader   *Node
+	nodes    map[string]*Node
+	nodesMu  sync.RWMutex
+}
+
+// GetLeader 获取 leader 节点
+func (c *Cluster) GetLeader() (*Node, error) {
+	c.nodesMu.RLock()
+	defer c.nodesMu.RUnlock()
+	if c.leader == nil {
+		return nil, errors.New("no leader elected")
+	}
+	return c.leader, nil
+}
+
+// GetNode 获取节点
+func (c *Cluster) GetNode(id string) (*Node, error) {
+	c.nodesMu.RLock()
+	defer c.nodesMu.RUnlock()
+	node, exists := c.nodes[id]
+	if !exists {
+		return nil, errors.New("node not found")
+	}
+	return node, nil
+}
+
+// GetNodes 获取所有节点
+func (c *Cluster) GetNodes() []*Node {
+	c.nodesMu.RLock()
+	defer c.nodesMu.RUnlock()
+	nodes := make([]*Node, 0, len(c.nodes))
+	for _, node := range c.nodes {
+		nodes = append(nodes, node)
+	}
+	return nodes
+}
+
 // FailoverManager 故障转移管理器.
 type FailoverManager struct {
 	cluster       *Cluster

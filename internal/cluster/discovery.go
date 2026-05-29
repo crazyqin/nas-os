@@ -17,6 +17,38 @@ import (
 	"go.uber.org/zap"
 )
 
+// NodeState 节点状态
+type NodeState string
+
+const (
+	NodeStateActive   NodeState = "active"   // 活跃
+	NodeStateInactive NodeState = "inactive" // 不活跃
+	NodeStateFailed   NodeState = "failed"   // 故障
+	NodeStateSuspect  NodeState = "suspect"  // 疑似故障
+)
+
+// NodeRole 节点角色
+type NodeRole string
+
+const (
+	NodeRoleLeader   NodeRole = "leader"   // 领导者
+	NodeRoleFollower NodeRole = "follower" // 跟随者
+	NodeRoleObserver NodeRole = "observer" // 观察者
+)
+
+// Node 集群节点
+type Node struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Address   string    `json:"address"`
+	Port      int       `json:"port"`
+	State     NodeState `json:"state"`
+	Role      NodeRole  `json:"role"`
+	Priority  int       `json:"priority"`
+	LastSeen  time.Time `json:"last_seen"`
+	JoinTime  time.Time `json:"join_time"`
+}
+
 // DiscoveryConfig 节点发现配置
 type DiscoveryConfig struct {
 	// 服务发现模式: mdns, static, api

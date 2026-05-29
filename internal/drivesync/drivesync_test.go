@@ -46,7 +46,7 @@ func TestCreateDuplicateTask(t *testing.T) {
 
 	task2 := &SyncTask{
 		ID:         "task2",
-		LocalPath:  "/home/user/docs",  // 相同路径
+		LocalPath:  "/home/user/docs", // 相同路径
 		RemotePath: "/docs",
 	}
 
@@ -57,7 +57,7 @@ func TestCreateDuplicateTask(t *testing.T) {
 	}
 }
 
-func TestDeleteTask(t *testing.T) {
+func TestDriveSyncDeleteTask(t *testing.T) {
 	mgr := NewDriveSyncManager(nil)
 
 	task := &SyncTask{
@@ -95,7 +95,7 @@ func TestStartAndCompleteSync(t *testing.T) {
 	}
 
 	got, _ := mgr.GetTask("task1")
-	if got.Status != SyncStatusSyncing {
+	if got.Status != TaskStatusSyncing {
 		t.Errorf("expected syncing status, got %v", got.Status)
 	}
 
@@ -105,11 +105,11 @@ func TestStartAndCompleteSync(t *testing.T) {
 	}
 
 	got, _ = mgr.GetTask("task1")
-	if got.Status != SyncStatusSynced {
-		t.Errorf("expected synced status, got %v", got.Status)
+	if got.Status != TaskStatusCompleted {
+		t.Errorf("expected completed status, got %v", got.Status)
 	}
-	if got.SyncedCount != 10 {
-		t.Errorf("expected 10 synced files, got %d", got.SyncedCount)
+	if got.FileCount != 10 {
+		t.Errorf("expected 10 synced files, got %d", got.FileCount)
 	}
 }
 
@@ -130,7 +130,7 @@ func TestPauseAndResumeSync(t *testing.T) {
 	}
 
 	got, _ := mgr.GetTask("task1")
-	if got.Status != SyncStatusPaused {
+	if got.Status != TaskStatusPaused {
 		t.Errorf("expected paused status, got %v", got.Status)
 	}
 
@@ -140,8 +140,8 @@ func TestPauseAndResumeSync(t *testing.T) {
 	}
 
 	got, _ = mgr.GetTask("task1")
-	if got.Status != SyncStatusPending {
-		t.Errorf("expected pending status, got %v", got.Status)
+	if got.Status != TaskStatusIdle {
+		t.Errorf("expected idle status, got %v", got.Status)
 	}
 }
 
@@ -149,12 +149,12 @@ func TestAddFileVersion(t *testing.T) {
 	mgr := NewDriveSyncManager(nil)
 
 	version := &FileVersion{
-		VersionID:  "v1",
-		FilePath:   "/docs/file.txt",
-		Size:       1024,
-		Checksum:   "abc123",
-		ModifiedBy: "user1",
-		ModifiedAt: time.Now(),
+		ID:        "v1",
+		FilePath:  "/docs/file.txt",
+		Size:      1024,
+		Checksum:  "abc123",
+		CreatedBy: "user1",
+		CreatedAt: time.Now(),
 	}
 
 	if err := mgr.AddFileVersion("/docs/file.txt", version); err != nil {
@@ -167,7 +167,7 @@ func TestAddFileVersion(t *testing.T) {
 	}
 }
 
-func TestGetStats(t *testing.T) {
+func TestDriveSyncGetStats(t *testing.T) {
 	mgr := NewDriveSyncManager(nil)
 
 	mgr.CreateTask(&SyncTask{
