@@ -102,6 +102,14 @@ type ChannelStats struct {
 	PerChannelBandwidth map[string]int     `json:"per_channel_bandwidth"`
 	ErrorCount          int64              `json:"error_count"`
 	ReconnectCount      int64              `json:"reconnect_count"`
+	BytesSent           int64              `json:"bytes_sent"`
+	BytesReceived       int64              `json:"bytes_received"`
+	OpsSent             int64              `json:"ops_sent"`
+	OpsReceived         int64              `json:"ops_received"`
+	AvgLatencyMs        float64            `json:"avg_latency_ms"`
+	ThroughputMBps      float64            `json:"throughput_mbps"`
+	Errors              int64              `json:"errors"`
+	LastActive          time.Time          `json:"last_active"`
 }
 
 // ChannelHealth 通道健康状态.
