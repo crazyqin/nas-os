@@ -51,6 +51,14 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 		tiering.GET("/metrics/history", h.GetMetricsHistory)
 		tiering.GET("/summary", h.GetTierSummary)
 	}
+
+	// 任务要求的API端点
+	smarttiering := rg.Group("/smarttiering")
+	{
+		smarttiering.GET("/stats", h.GetTieringStats)
+		smarttiering.POST("/migrate", h.TriggerMigration)
+		smarttiering.GET("/recommendations", h.GetMigrationRecommendations)
+	}
 }
 
 // GetStatus handles GET /api/v1/tiering/status.
@@ -290,6 +298,86 @@ func (h *Handler) GetMetricsHistory(c *gin.Context) {
 func (h *Handler) GetTierSummary(c *gin.Context) {
 	summary := h.manager.GetTierSummary()
 	c.JSON(http.StatusOK, summary)
+}
+
+// GetTieringStats handles GET /api/smarttiering/stats.
+// 返回分层统计信息
+func (h *Handler) GetTieringStats(c *gin.Context) {
+	metrics := h.manager.GetMetrics()
+	if metrics == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "no_data",
+			"message": "no metrics available yet",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"total_files":       metrics.TotalFiles,
+		"total_size_gb":     metrics.TotalSizeGB,
+		"tier_distribution": metrics.TierDistribution,
+		"tier_sizes_gb":     metrics.TierSizesGB,
+		"avg_heat_scores":   metrics.AvgHeatScores,
+		"hit_rates":         metrics.HitRates,
+		"migration_count":   metrics.MigrationCount,
+		"last_updated":      metrics.Timestamp,
+	})
+}
+
+// TriggerMigrationRequest 手动迁移请求
+// 触发迁移请求
+// type TriggerMigrationRequest struct {
+// 	Path     string `json:"path" binding:"required"`
+// 	FromTier string `json:"from_tier" binding:"required"`
+// 	ToTier   string `json:"to_tier" binding:"required"`
+// 	FileSize int64  `json:"file_size"`
+// }
+
+// TriggerMigration handles POST /api/smarttiering/migrate.
+// 手动触发迁移
+func (h *Handler) TriggerMigration(c *gin.Context) {
+	var req ForceMigrateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := h.manager.ForceMigrate(
+		c.Request.Context(),
+		req.Path,
+		ParseTier(req.FromTier),
+		ParseTier(req.ToTier),
+		req.FileSize,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":   "migration queued",
+		"path":      req.Path,
+		"from_tier": req.FromTier,
+		"to_tier":   req.ToTier,
+	})
+}
+
+// GetMigrationRecommendations handles GET /api/smarttiering/recommendations.
+// 返回迁移建议
+func (h *Handler) GetMigrationRecommendations(c *gin.Context) {
+	report, err := h.manager.GetCostReport(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"recommendations":     report.Recommendations,
+		"total_savings":       report.SavingsPercent,
+		"current_cost":        report.TotalCostPerMonth,
+		"optimal_cost":        report.OptimalCostPerMonth,
+		"recommendation_count": len(report.Recommendations),
+	})
 }
 
 
