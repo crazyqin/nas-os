@@ -178,6 +178,21 @@ func newTrieNode() *trieNode {
 	}
 }
 
+// NewManager 创建新的 Spotlight 管理器
+func NewManager(logger *zap.Logger) *Manager {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+	config := DefaultConfig()
+	return &Manager{
+		logger:    logger,
+		index:     newIndex(),
+		tokenizer: &tokenizer{stopWords: make(map[string]bool)},
+		config:    config,
+		stopCh:    make(chan struct{}),
+	}
+}
+
 // DefaultConfig 默认配置
 func DefaultConfig() *SpotlightConfig {
 	return &SpotlightConfig{
