@@ -1,412 +1,489 @@
+// Package smbaudit SMB审计日志 - 文件操作追踪
+// 对标群晖SMB审计功能
 package smbaudit
 
 import (
-	"encoding/csv"
 	"encoding/json"
-	"fmt"
-	"log"
-	"os"
-	"path/filepath"
-	"sort"
-	"strings"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
 )
 
-// AuditEvent 表示一条 SMB 访问审计事件
-type AuditEvent struct {
-	EventID   string `json:"event_id"`
-	Timestamp time.Time `json:"timestamp"`
-	Username  string `json:"username"`
-	ClientIP  string `json:"client_ip"`
-	ShareName string `json:"share_name"`
-	FilePath  string `json:"file_path"`
-	Action    string `json:"action"` // read/write/delete/create/rename/connect/disconnect/permission_change
-	Success   bool   `json:"success"`
-	Detail    string `json:"detail"`
-	SessionID string `json:"session_id"`
+// AuditAction 审计动作
+type AuditAction string
+
+const (
+	ActionCreate  AuditAction = "create"
+	ActionRead    AuditAction = "read"
+	ActionWrite   AuditAction = "write"
+	ActionDelete  AuditAction = "delete"
+	ActionRename  AuditAction = "rename"
+	ActionMove    AuditAction = "move"
+	ActionCopy    AuditAction = "copy"
+	ActionOpen    AuditAction = "open"
+	ActionClose   AuditAction = "close"
+	ActionLock    AuditAction = "lock"
+	ActionUnlock  AuditAction = "unlock"
+)
+
+// AuditResult 审计结果
+type AuditResult string
+
+const (
+	ResultSuccess AuditResult = "success"
+	ResultFailure AuditResult = "failure"
+	ResultDenied  AuditResult = "denied"
+)
+
+// AuditSeverity 审计严重级别
+type AuditSeverity string
+
+const (
+	SeverityInfo    AuditSeverity = "info"
+	SeverityWarning AuditSeverity = "warning"
+	SeverityError   AuditSeverity = "error"
+	SeverityCritical AuditSeverity = "critical"
+)
+
+// AuditEntry 审计条目
+type AuditEntry struct {
+	ID          string        `json:"id"`
+	Timestamp   time.Time     `json:"timestamp"`
+	UserID      string        `json:"user_id"`
+	Username    string        `json:"username"`
+	ClientIP    string        `json:"client_ip"`
+	ClientName  string        `json:"client_name,omitempty"`
+	ShareName   string        `json:"share_name"`
+	FilePath    string        `json:"file_path"`
+	Action      AuditAction   `json:"action"`
+	Result      AuditResult   `json:"result"`
+	Severity    AuditSeverity `json:"severity"`
+	
+	// 文件信息
+	FileSize    int64     `json:"file_size,omitempty"`
+	FileType    string    `json:"file_type,omitempty"`
+	OldPath     string    `json:"old_path,omitempty"` // rename/move时
+	
+	// 会话信息
+	SessionID   string `json:"session_id,omitempty"`
+	TreeID      string `json:"tree_id,omitempty"`
+	FID         string `json:"fid,omitempty"`
+	
+	// 详细信息
+	Details     string `json:"details,omitempty"`
+	ErrorMsg    string `json:"error_msg,omitempty"`
 }
 
-// AuditConfig 审计模块配置
+// AuditFilter 审计过滤器
+type AuditFilter struct {
+	Username   string         `json:"username,omitempty"`
+	ClientIP   string         `json:"client_ip,omitempty"`
+	ShareName  string         `json:"share_name,omitempty"`
+	FilePath   string         `json:"file_path,omitempty"`
+	Action     *AuditAction   `json:"action,omitempty"`
+	Result     *AuditResult   `json:"result,omitempty"`
+	Severity   *AuditSeverity `json:"severity,omitempty"`
+	StartTime  *time.Time     `json:"start_time,omitempty"`
+	EndTime    *time.Time     `json:"end_time,omitempty"`
+}
+
+// Match 检查是否匹配
+func (f *AuditFilter) Match(entry *AuditEntry) bool {
+	if f == nil {
+		return true
+	}
+
+	if f.Username != "" && entry.Username != f.Username {
+		return false
+	}
+
+	if f.ClientIP != "" && entry.ClientIP != f.ClientIP {
+		return false
+	}
+
+	if f.ShareName != "" && entry.ShareName != f.ShareName {
+		return false
+	}
+
+	if f.FilePath != "" && entry.FilePath != f.FilePath {
+		return false
+	}
+
+	if f.Action != nil && entry.Action != *f.Action {
+		return false
+	}
+
+	if f.Result != nil && entry.Result != *f.Result {
+		return false
+	}
+
+	if f.Severity != nil && entry.Severity != *f.Severity {
+		return false
+	}
+
+	if f.StartTime != nil && entry.Timestamp.Before(*f.StartTime) {
+		return false
+	}
+
+	if f.EndTime != nil && entry.Timestamp.After(*f.EndTime) {
+		return false
+	}
+
+	return true
+}
+
+// AuditConfig 审计配置
 type AuditConfig struct {
-	MaxEvents       int      `json:"max_events"`        // 最大事件数，默认 10000
-	RetentionDays   int      `json:"retention_days"`    // 保留天数，默认 90
-	EnableFileLogging bool   `json:"enable_file_logging"`
-	LogPath         string   `json:"log_path"`          // 默认 /var/log/nas-os/smb-audit.log
-	FilteredUsers   []string `json:"filtered_users"`    // 不审计的用户
-	FilteredShares  []string `json:"filtered_shares"`   // 不审计的共享
+	Enabled         bool `json:"enabled"`
+	MaxEntries      int  `json:"max_entries"`
+	RetentionDays   int  `json:"retention_days"`
+	LogToFile       bool `json:"log_file"`
+	LogToSyslog     bool `json:"log_syslog"`
+	LogToConsole    bool `json:"log_console"`
+	LogPath         string `json:"log_path"`
+	
+	// 审计规则
+	LogReads        bool `json:"log_reads"`
+	LogWrites       bool `json:"log_writes"`
+	LogDeletes      bool `json:"log_deletes"`
+	LogFailedOps    bool `json:"log_failed_ops"`
+	LogAnonymous    bool `json:"log_anonymous"`
+	
+	// 告警规则
+	AlertOnDelete   bool `json:"alert_on_delete"`
+	AlertOnFailure  bool `json:"alert_on_failure"`
+	AlertThreshold  int  `json:"alert_threshold"` // 每分钟操作数阈值
 }
 
-// Auditor SMB 访问审计器
-type Auditor struct {
-	mu           sync.RWMutex
-	config       AuditConfig
-	events       []AuditEvent
-	sessionCount int64
-	logFile      *os.File
-}
-
-// defaultConfig 返回默认配置
-func defaultConfig() AuditConfig {
-	return AuditConfig{
-		MaxEvents:     10000,
+// DefaultAuditConfig 默认配置
+func DefaultAuditConfig() *AuditConfig {
+	return &AuditConfig{
+		Enabled:       true,
+		MaxEntries:    100000,
 		RetentionDays: 90,
+		LogToFile:     true,
+		LogToSyslog:   false,
+		LogToConsole:  false,
 		LogPath:       "/var/log/nas-os/smb-audit.log",
+		LogReads:      false,
+		LogWrites:     true,
+		LogDeletes:    true,
+		LogFailedOps:  true,
+		LogAnonymous:  false,
+		AlertOnDelete: true,
+		AlertOnFailure: true,
+		AlertThreshold: 100,
 	}
 }
 
-// NewAuditor 创建一个新的审计器
-func NewAuditor(cfg *AuditConfig) *Auditor {
-	config := defaultConfig()
-	if cfg != nil {
-		if cfg.MaxEvents > 0 {
-			config.MaxEvents = cfg.MaxEvents
-		}
-		if cfg.RetentionDays > 0 {
-			config.RetentionDays = cfg.RetentionDays
-		}
-		if cfg.LogPath != "" {
-			config.LogPath = cfg.LogPath
-		}
-		config.EnableFileLogging = cfg.EnableFileLogging
-		config.FilteredUsers = cfg.FilteredUsers
-		config.FilteredShares = cfg.FilteredShares
-	}
-
-	a := &Auditor{
-		config: config,
-		events: make([]AuditEvent, 0, 1024),
-	}
-
-	if config.EnableFileLogging {
-		if err := a.openLogFile(); err != nil {
-			log.Printf("⚠️ SMB审计日志文件打开失败: %v", err)
-		}
-	}
-
-	return a
+// SMBAuditLogger SMB审计日志器
+type SMBAuditLogger struct {
+	mu      sync.RWMutex
+	config  *AuditConfig
+	entries []*AuditEntry
+	index   map[string][]int // userID -> entry indices
+	alerts  []*AuditAlert
 }
 
-// openLogFile 打开日志文件
-func (a *Auditor) openLogFile() error {
-	dir := filepath.Dir(a.config.LogPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("创建日志目录失败: %w", err)
-	}
-	f, err := os.OpenFile(a.config.LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return fmt.Errorf("打开日志文件失败: %w", err)
-	}
-	a.logFile = f
-	return nil
+// AuditAlert 审计告警
+type AuditAlert struct {
+	ID        string    `json:"id"`
+	Timestamp time.Time `json:"timestamp"`
+	Type      string    `json:"type"`
+	Message   string    `json:"message"`
+	Severity  AuditSeverity `json:"severity"`
+	EntryID   string    `json:"entry_id,omitempty"`
 }
 
-// isFiltered 检查用户或共享是否被过滤
-func (a *Auditor) isFiltered(username, shareName string) bool {
-	for _, u := range a.config.FilteredUsers {
-		if strings.EqualFold(u, username) {
-			return true
-		}
+// NewSMBAuditLogger 创建审计日志器
+func NewSMBAuditLogger(config *AuditConfig) *SMBAuditLogger {
+	if config == nil {
+		config = DefaultAuditConfig()
 	}
-	for _, s := range a.config.FilteredShares {
-		if strings.EqualFold(s, shareName) {
-			return true
-		}
+
+	return &SMBAuditLogger{
+		config:  config,
+		entries: make([]*AuditEntry, 0),
+		index:   make(map[string][]int),
+		alerts:  make([]*AuditAlert, 0),
 	}
-	return false
 }
 
-// LogEvent 记录一条审计事件
-func (a *Auditor) LogEvent(username, clientIP, shareName, filePath, action string, success bool, detail string) error {
-	if a.isFiltered(username, shareName) {
+// Log 记录审计条目
+func (l *SMBAuditLogger) Log(entry *AuditEntry) {
+	if !l.config.Enabled {
+		return
+	}
+
+	// 检查是否应该记录
+	if !l.shouldLog(entry) {
+		return
+	}
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	// 设置默认值
+	if entry.Timestamp.IsZero() {
+		entry.Timestamp = time.Now()
+	}
+
+	if entry.Severity == "" {
+		entry.Severity = l.determineSeverity(entry)
+	}
+
+	// 添加到条目列表
+	idx := len(l.entries)
+	l.entries = append(l.entries, entry)
+
+	// 更新索引
+	l.index[entry.UserID] = append(l.index[entry.UserID], idx)
+
+	// 检查是否需要告警
+	l.checkAlerts(entry)
+
+	// 清理旧条目
+	l.cleanup()
+}
+
+// shouldLog 检查是否应该记录
+func (l *SMBAuditLogger) shouldLog(entry *AuditEntry) bool {
+	// 检查操作类型
+	switch entry.Action {
+	case ActionRead:
+		if !l.config.LogReads {
+			return false
+		}
+	case ActionWrite, ActionCreate:
+		if !l.config.LogWrites {
+			return false
+		}
+	case ActionDelete:
+		if !l.config.LogDeletes {
+			return false
+		}
+	}
+
+	// 检查失败操作
+	if entry.Result != ResultSuccess && !l.config.LogFailedOps {
+		return false
+	}
+
+	// 检查匿名用户
+	if entry.Username == "anonymous" && !l.config.LogAnonymous {
+		return false
+	}
+
+	return true
+}
+
+// determineSeverity 确定严重级别
+func (l *SMBAuditLogger) determineSeverity(entry *AuditEntry) AuditSeverity {
+	// 失败操作
+	if entry.Result == ResultFailure || entry.Result == ResultDenied {
+		return SeverityWarning
+	}
+
+	// 删除操作
+	if entry.Action == ActionDelete {
+		return SeverityWarning
+	}
+
+	// 大文件操作
+	if entry.FileSize > 1024*1024*100 { // 100MB
+		return SeverityInfo
+	}
+
+	return SeverityInfo
+}
+
+// checkAlerts 检查告警
+func (l *SMBAuditLogger) checkAlerts(entry *AuditEntry) {
+	// 删除告警
+	if l.config.AlertOnDelete && entry.Action == ActionDelete {
+		alert := &AuditAlert{
+			ID:        generateAlertID(),
+			Timestamp: time.Now(),
+			Type:      "file_delete",
+			Message:   "文件删除: " + entry.FilePath + " by " + entry.Username,
+			Severity:  SeverityWarning,
+			EntryID:   entry.ID,
+		}
+		l.alerts = append(l.alerts, alert)
+	}
+
+	// 失败告警
+	if l.config.AlertOnFailure && entry.Result != ResultSuccess {
+		alert := &AuditAlert{
+			ID:        generateAlertID(),
+			Timestamp: time.Now(),
+			Type:      "operation_failure",
+			Message:   "操作失败: " + string(entry.Action) + " " + entry.FilePath,
+			Severity:  SeverityError,
+			EntryID:   entry.ID,
+		}
+		l.alerts = append(l.alerts, alert)
+	}
+}
+
+// cleanup 清理旧条目
+func (l *SMBAuditLogger) cleanup() {
+	// 检查条目数量限制
+	if len(l.entries) > l.config.MaxEntries {
+		// 移除最旧的条目
+		excess := len(l.entries) - l.config.MaxEntries
+		l.entries = l.entries[excess:]
+		
+		// 重建索引
+		l.rebuildIndex()
+	}
+}
+
+// rebuildIndex 重建索引
+func (l *SMBAuditLogger) rebuildIndex() {
+	l.index = make(map[string][]int)
+	for i, entry := range l.entries {
+		l.index[entry.UserID] = append(l.index[entry.UserID], i)
+	}
+}
+
+// Query 查询审计条目
+func (l *SMBAuditLogger) Query(filter *AuditFilter, limit, offset int) []*AuditEntry {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+
+	result := make([]*AuditEntry, 0)
+
+	for _, entry := range l.entries {
+		if filter != nil && !filter.Match(entry) {
+			continue
+		}
+		result = append(result, entry)
+	}
+
+	// 应用分页
+	if offset > 0 && offset < len(result) {
+		result = result[offset:]
+	}
+	if limit > 0 && limit < len(result) {
+		result = result[:limit]
+	}
+
+	return result
+}
+
+// GetByUser 获取用户审计条目
+func (l *SMBAuditLogger) GetByUser(userID string, limit int) []*AuditEntry {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+
+	indices, exists := l.index[userID]
+	if !exists {
 		return nil
 	}
 
-	event := AuditEvent{
-		EventID:   uuid.New().String(),
-		Timestamp: time.Now(),
-		Username:  username,
-		ClientIP:  clientIP,
-		ShareName: shareName,
-		FilePath:  filePath,
-		Action:    action,
-		Success:   success,
-		Detail:    detail,
-	}
-
-	a.mu.Lock()
-	// 超出最大事件数时移除最早的事件
-	if len(a.events) >= a.config.MaxEvents {
-		a.events = a.events[1:]
-	}
-	a.events = append(a.events, event)
-	a.sessionCount++
-	a.mu.Unlock()
-
-	// 文件日志写入
-	if a.config.EnableFileLogging && a.logFile != nil {
-		a.writeToFile(event)
-	}
-
-	return nil
-}
-
-// writeToFile 将事件写入日志文件
-func (a *Auditor) writeToFile(event AuditEvent) {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	if a.logFile == nil {
-		return
-	}
-	line := fmt.Sprintf("[%s] user=%s ip=%s share=%s file=%s action=%s success=%v detail=%s\n",
-		event.Timestamp.Format(time.RFC3339),
-		event.Username, event.ClientIP, event.ShareName,
-		event.FilePath, event.Action, event.Success, event.Detail,
-	)
-	if _, err := a.logFile.WriteString(line); err != nil {
-		log.Printf("⚠️ SMB审计日志写入失败: %v", err)
-	}
-}
-
-// GetEvents 分页获取审计事件，返回事件列表和总数
-func (a *Auditor) GetEvents(limit, offset int) ([]AuditEvent, int) {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-
-	total := len(a.events)
-	if offset >= total {
-		return []AuditEvent{}, total
-	}
-
-	end := offset + limit
-	if end > total {
-		end = total
-	}
-
-	// 返回按时间倒序排列
-	result := make([]AuditEvent, end-offset)
-	for i, j := end-1, 0; i >= offset; i, j = i-1, j+1 {
-		result[j] = a.events[i]
-	}
-	return result, total
-}
-
-// GetEventsByUser 按用户名查询事件
-func (a *Auditor) GetEventsByUser(username string, limit int) []AuditEvent {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-
-	var result []AuditEvent
-	for i := len(a.events) - 1; i >= 0 && len(result) < limit; i-- {
-		if strings.EqualFold(a.events[i].Username, username) {
-			result = append(result, a.events[i])
+	result := make([]*AuditEntry, 0)
+	for i := len(indices) - 1; i >= 0; i-- {
+		if len(result) >= limit {
+			break
 		}
+		result = append(result, l.entries[indices[i]])
 	}
+
 	return result
 }
 
-// GetEventsByShare 按共享名查询事件
-func (a *Auditor) GetEventsByShare(shareName string, limit int) []AuditEvent {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
+// GetAlerts 获取告警
+func (l *SMBAuditLogger) GetAlerts(limit int) []*AuditAlert {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
 
-	var result []AuditEvent
-	for i := len(a.events) - 1; i >= 0 && len(result) < limit; i-- {
-		if strings.EqualFold(a.events[i].ShareName, shareName) {
-			result = append(result, a.events[i])
-		}
+	if limit <= 0 || limit > len(l.alerts) {
+		limit = len(l.alerts)
 	}
-	return result
+
+	// 返回最近的告警
+	start := len(l.alerts) - limit
+	if start < 0 {
+		start = 0
+	}
+
+	return l.alerts[start:]
 }
 
-// GetEventsByTimeRange 按时间范围查询事件
-func (a *Auditor) GetEventsByTimeRange(start, end time.Time) []AuditEvent {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-
-	var result []AuditEvent
-	for _, e := range a.events {
-		if (e.Timestamp.Equal(start) || e.Timestamp.After(start)) &&
-			(e.Timestamp.Equal(end) || e.Timestamp.Before(end)) {
-			result = append(result, e)
-		}
-	}
-	// 按时间倒序
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].Timestamp.After(result[j].Timestamp)
-	})
-	return result
-}
-
-// GetEventsByAction 按操作类型查询事件
-func (a *Auditor) GetEventsByAction(action string, limit int) []AuditEvent {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-
-	var result []AuditEvent
-	for i := len(a.events) - 1; i >= 0 && len(result) < limit; i-- {
-		if strings.EqualFold(a.events[i].Action, action) {
-			result = append(result, a.events[i])
-		}
-	}
-	return result
-}
-
-// GetFailedEvents 获取所有失败的事件
-func (a *Auditor) GetFailedEvents(limit int) []AuditEvent {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-
-	var result []AuditEvent
-	for i := len(a.events) - 1; i >= 0 && len(result) < limit; i-- {
-		if !a.events[i].Success {
-			result = append(result, a.events[i])
-		}
-	}
-	return result
-}
-
-// GetAuditStats 获取审计统计信息
-func (a *Auditor) GetAuditStats() map[string]interface{} {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-
-	total := len(a.events)
-	byUser := make(map[string]int)
-	byShare := make(map[string]int)
-	byAction := make(map[string]int)
-	failedCount := 0
-
-	for _, e := range a.events {
-		byUser[e.Username]++
-		byShare[e.ShareName]++
-		byAction[e.Action]++
-		if !e.Success {
-			failedCount++
-		}
-	}
-
-	var oldest, newest *time.Time
-	if total > 0 {
-		oldest = &a.events[0].Timestamp
-		newest = &a.events[total-1].Timestamp
-	}
+// GetStats 获取统计信息
+func (l *SMBAuditLogger) GetStats() map[string]interface{} {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_events":  total,
-		"failed_events": failedCount,
-		"by_user":       byUser,
-		"by_share":      byShare,
-		"by_action":     byAction,
-		"session_count": a.sessionCount,
+		"total_entries":   len(l.entries),
+		"total_alerts":    len(l.alerts),
+		"by_action":       make(map[AuditAction]int),
+		"by_result":       make(map[AuditResult]int),
+		"by_user":         make(map[string]int),
+		"by_share":        make(map[string]int),
 	}
-	if oldest != nil {
-		stats["oldest_event"] = oldest
+
+	byAction := stats["by_action"].(map[AuditAction]int)
+	byResult := stats["by_result"].(map[AuditResult]int)
+	byUser := stats["by_user"].(map[string]int)
+	byShare := stats["by_share"].(map[string]int)
+
+	for _, entry := range l.entries {
+		byAction[entry.Action]++
+		byResult[entry.Result]++
+		byUser[entry.Username]++
+		byShare[entry.ShareName]++
 	}
-	if newest != nil {
-		stats["newest_event"] = newest
-	}
+
 	return stats
 }
 
-// ClearEvents 清理指定时间之前的事件，返回清理数量
-func (a *Auditor) ClearEvents(before time.Time) int {
-	a.mu.Lock()
-	defer a.mu.Unlock()
+// Clear 清除所有条目
+func (l *SMBAuditLogger) Clear() {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 
-	kept := make([]AuditEvent, 0, len(a.events))
-	removed := 0
-	for _, e := range a.events {
-		if e.Timestamp.Before(before) {
-			removed++
-		} else {
-			kept = append(kept, e)
-		}
-	}
-	a.events = kept
-	return removed
+	l.entries = make([]*AuditEntry, 0)
+	l.index = make(map[string][]int)
+	l.alerts = make([]*AuditAlert, 0)
 }
 
-// ExportEvents 导出指定时间范围的事件，支持 JSON 和 CSV 格式
-func (a *Auditor) ExportEvents(start, end time.Time, format string) ([]byte, error) {
-	events := a.GetEventsByTimeRange(start, end)
+// GetConfig 获取配置
+func (l *SMBAuditLogger) GetConfig() *AuditConfig {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
 
-	switch strings.ToLower(format) {
-	case "json":
-		return json.MarshalIndent(events, "", "  ")
-	case "csv":
-		var buf strings.Builder
-		w := csv.NewWriter(&buf)
-		// 写入表头
-		_ = w.Write([]string{
-			"event_id", "timestamp", "username", "client_ip",
-			"share_name", "file_path", "action", "success", "detail", "session_id",
-		})
-		for _, e := range events {
-			_ = w.Write([]string{
-				e.EventID,
-				e.Timestamp.Format(time.RFC3339),
-				e.Username,
-				e.ClientIP,
-				e.ShareName,
-				e.FilePath,
-				e.Action,
-				fmt.Sprintf("%v", e.Success),
-				e.Detail,
-				e.SessionID,
-			})
-		}
-		w.Flush()
-		if err := w.Error(); err != nil {
-			return nil, fmt.Errorf("CSV编码失败: %w", err)
-		}
-		return []byte(buf.String()), nil
-	default:
-		return nil, fmt.Errorf("不支持的导出格式: %s (仅支持 json/csv)", format)
-	}
-}
-
-// GetConfig 获取当前配置
-func (a *Auditor) GetConfig() AuditConfig {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	return a.config
+	return l.config
 }
 
 // UpdateConfig 更新配置
-func (a *Auditor) UpdateConfig(cfg AuditConfig) {
-	a.mu.Lock()
-	defer a.mu.Unlock()
+func (l *SMBAuditLogger) UpdateConfig(config *AuditConfig) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 
-	if cfg.MaxEvents > 0 {
-		a.config.MaxEvents = cfg.MaxEvents
-	}
-	if cfg.RetentionDays > 0 {
-		a.config.RetentionDays = cfg.RetentionDays
-	}
-	if cfg.LogPath != "" {
-		a.config.LogPath = cfg.LogPath
-	}
-	a.config.EnableFileLogging = cfg.EnableFileLogging
-	a.config.FilteredUsers = cfg.FilteredUsers
-	a.config.FilteredShares = cfg.FilteredShares
-
-	// 如果启用文件日志但尚未打开，尝试打开
-	if a.config.EnableFileLogging && a.logFile == nil {
-		if err := a.openLogFile(); err != nil {
-			log.Printf("⚠️ SMB审计日志文件打开失败: %v", err)
-		}
-	}
+	l.config = config
 }
 
-// Close 关闭审计器，释放资源
-func (a *Auditor) Close() {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	if a.logFile != nil {
-		a.logFile.Close()
-		a.logFile = nil
+// ExportJSON 导出为JSON
+func (l *SMBAuditLogger) ExportJSON() ([]byte, error) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+
+	return json.Marshal(l.entries)
+}
+
+// generateAlertID 生成告警ID
+func generateAlertID() string {
+	return time.Now().Format("20060102150405") + "-" + randomHex(4)
+}
+
+// randomHex 生成随机十六进制字符串
+func randomHex(n int) string {
+	const hexChars = "0123456789abcdef"
+	result := make([]byte, n)
+	for i := range result {
+		result[i] = hexChars[time.Now().UnixNano()%16]
 	}
+	return string(result)
 }
