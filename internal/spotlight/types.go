@@ -193,6 +193,11 @@ func NewManager(logger *zap.Logger) *Manager {
 	}
 }
 
+// Close 关闭管理器
+func (m *Manager) Close() {
+	close(m.stopCh)
+}
+
 // DefaultConfig 默认配置
 func DefaultConfig() *SpotlightConfig {
 	return &SpotlightConfig{
@@ -296,6 +301,25 @@ func (m *Manager) GetStats() map[string]interface{} {
 		"total_terms":    len(m.index.index),
 		"config":         m.config,
 	}
+}
+
+// insert 插入词项到前缀树
+func (t *trieNode) insert(term string) {
+	node := t
+	for _, ch := range term {
+		if node.children == nil {
+			node.children = make(map[rune]*trieNode)
+		}
+		child, ok := node.children[ch]
+		if !ok {
+			child = &trieNode{}
+			node.children[ch] = child
+		}
+		node = child
+	}
+	node.isEnd = true
+	node.terms = append(node.terms, term)
+	node.count++
 }
 
 // search 在前缀树中搜索
