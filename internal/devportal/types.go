@@ -1,456 +1,230 @@
-// Package devportal 开发者门户 - NAS 内置开发平台.
-// 提供 Git 仓库托管、代码浏览、CI/CD 流水线、代码审查、Docker 构建、
-// API 文档生成、开发者密钥管理、Webhook 与集成功能.
+// Package devportal 开发者门户 - API文档/密钥/Webhook/SDK/OAuth2管理
 package devportal
 
 import (
-	"sync"
+	"errors"
 	"time"
 )
 
-// ==================== 仓库管理 ====================
+// APIKeyStatus API密钥状态
+type APIKeyStatus string
 
-// Repository Git 仓库.
-type Repository struct {
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	Description   string    `json:"description"`
-	Owner         string    `json:"owner"`
-	Path          string    `json:"path"`
-	DefaultBranch string    `json:"default_branch"`
-	Visibility    string    `json:"visibility"` // public, private, internal
-	Language      string    `json:"language"`   // 主要编程语言
-	Topics        []string  `json:"topics,omitempty"`
-	StarCount     int       `json:"star_count"`
-	ForkCount     int       `json:"fork_count"`
-	SizeKB        int64     `json:"size_kb"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
-	ArchivedAt    *time.Time `json:"archived_at,omitempty"`
-}
+const (
+	KeyActive   APIKeyStatus = "active"
+	KeyRevoked  APIKeyStatus = "revoked"
+	KeyExpired  APIKeyStatus = "expired"
+	KeyDisabled APIKeyStatus = "disabled"
+)
 
-// CreateRepoRequest 创建仓库请求.
-type CreateRepoRequest struct {
-	Name          string   `json:"name"`
-	Description   string   `json:"description"`
-	Owner         string   `json:"owner"`
-	Visibility    string   `json:"visibility"`
-	DefaultBranch string   `json:"default_branch"`
-	Topics        []string `json:"topics,omitempty"`
-	InitREADME    bool     `json:"init_readme"` // 是否自动创建 README
-	License       string   `json:"license"`     // 许可证模板
-}
+// WebhookStatus Webhook状态
+type WebhookStatus string
 
-// ==================== 代码浏览 ====================
+const (
+	WebhookActive   WebhookStatus = "active"
+	WebhookInactive WebhookStatus = "inactive"
+	WebhookFailed   WebhookStatus = "failed"
+)
 
-// FileEntry 文件/目录条目.
-type FileEntry struct {
-	Name    string    `json:"name"`
-	Path    string    `json:"path"`
-	IsDir   bool      `json:"is_dir"`
-	Size    int64     `json:"size"`
-	Mode    string    `json:"mode"` // 文件权限
-	SHA     string    `json:"sha"`
-	ModTime time.Time `json:"mod_time"`
-}
+// WebhookEvent Webhook事件类型
+type WebhookEvent string
 
-// FileContent 文件内容.
-type FileContent struct {
-	Path     string `json:"path"`
-	Content  string `json:"content"`
-	Encoding string `json:"encoding"` // text, base64 (binary)
-	Size     int64  `json:"size"`
-	SHA      string `json:"sha"`
-	Language string `json:"language"` // 语法高亮语言
-}
+const (
+	EventServiceStart   WebhookEvent = "service.start"
+	EventServiceStop    WebhookEvent = "service.stop"
+	EventServiceError   WebhookEvent = "service.error"
+	EventAlertTrigger   WebhookEvent = "alert.trigger"
+	EventUserCreated    WebhookEvent = "user.created"
+	EventDataUploaded   WebhookEvent = "data.uploaded"
+	EventBackupComplete WebhookEvent = "backup.complete"
+)
 
-// SearchResult 代码搜索结果.
-type SearchResult struct {
-	Path       string `json:"path"`
-	LineNumber int    `json:"line_number"`
-	Line       string `json:"line"`
-	Context    string `json:"context"` // 上下文（前后各几行）
-	Score      float64 `json:"score"` // 相关度分数
-}
+// DeliveryStatus 投递状态
+type DeliveryStatus string
 
-// SearchRequest 搜索请求.
-type SearchRequest struct {
-	RepoID    string `json:"repo_id"`
-	Branch    string `json:"branch"`    // 默认 main
-	Query     string `json:"query"`
-	Path      string `json:"path"`      // 限定搜索路径
-	Extension string `json:"extension"` // 限定文件扩展名
-	Limit     int    `json:"limit"`
-	Offset    int    `json:"offset"`
-}
+const (
+	DeliveryPending DeliveryStatus = "pending"
+	DeliverySuccess DeliveryStatus = "success"
+	DeliveryFailed  DeliveryStatus = "failed"
+	DeliveryRetrying DeliveryStatus = "retrying"
+)
 
-// ==================== CI/CD 流水线 ====================
+// AppStatus 应用状态
+type AppStatus string
 
-// Pipeline 流水线定义.
-type Pipeline struct {
-	ID          string           `json:"id"`
-	RepoID      string           `json:"repo_id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Trigger     PipelineTrigger  `json:"trigger"`
-	Stages      []PipelineStage  `json:"stages"`
-	EnvVars     map[string]string `json:"env_vars,omitempty"`
-	Enabled     bool             `json:"enabled"`
-	CreatedAt   time.Time        `json:"created_at"`
-	UpdatedAt   time.Time        `json:"updated_at"`
-}
+const (
+	AppPending  AppStatus = "pending"
+	AppApproved AppStatus = "approved"
+	AppRejected AppStatus = "rejected"
+	AppDisabled AppStatus = "disabled"
+)
 
-// PipelineTrigger 流水线触发条件.
-type PipelineTrigger struct {
-	Branches   []string `json:"branches"`    // 触发分支模式
-	Events     []string `json:"events"`      // push, tag, pr, schedule
-	Cron       string   `json:"cron"`        // 定时触发（cron 表达式）
-	ManualOnly bool     `json:"manual_only"` // 仅手动触发
-}
+// OAuthGrantType OAuth2授权类型
+type OAuthGrantType string
 
-// PipelineStage 流水线阶段.
-type PipelineStage struct {
-	Name     string            `json:"name"`     // build, test, deploy 等
-	Steps    []PipelineStep    `json:"steps"`
-	DependsOn []string          `json:"depends_on,omitempty"` // 依赖的阶段
-	Parallel bool              `json:"parallel"`             // 步骤是否并行
-}
+const (
+	GrantAuthCode   OAuthGrantType = "authorization_code"
+	GrantClientCred OAuthGrantType = "client_credentials"
+	GrantRefresh    OAuthGrantType = "refresh_token"
+)
 
-// PipelineStep 流水线步骤.
-type PipelineStep struct {
-	Name    string            `json:"name"`
-	Image   string            `json:"image"`   // Docker 镜像
-	Script  []string          `json:"script"`  // 执行脚本
-	EnvVars map[string]string `json:"env_vars,omitempty"`
-	Timeout int               `json:"timeout"` // 超时秒数
-	When    string            `json:"when"`    // always, on_success, on_failure
-}
+// SDKLanguage SDK语言
+type SDKLanguage string
 
-// PipelineRun 流水线运行记录.
-type PipelineRun struct {
-	ID         string             `json:"id"`
-	PipelineID string             `json:"pipeline_id"`
-	RepoID     string             `json:"repo_id"`
-	Branch     string             `json:"branch"`
-	Commit     string             `json:"commit"`
-	Status     string             `json:"status"` // pending, running, success, failed, cancelled
-	Trigger    string             `json:"trigger"` // push, manual, schedule, tag
-	Stages     []StageRun         `json:"stages"`
-	Logs       []LogEntry         `json:"logs,omitempty"`
-	StartedAt  time.Time          `json:"started_at"`
-	FinishedAt *time.Time         `json:"finished_at,omitempty"`
-	Duration   int                `json:"duration"` // 秒
-	TriggerBy  string             `json:"trigger_by"`
-}
+const (
+	SDKPython     SDKLanguage = "python"
+	SDKGo         SDKLanguage = "go"
+	SDKJavaScript SDKLanguage = "javascript"
+)
 
-// StageRun 阶段运行记录.
-type StageRun struct {
-	Name      string     `json:"name"`
-	Status    string     `json:"status"` // pending, running, success, failed, skipped
-	StartedAt time.Time  `json:"started_at"`
-	FinishedAt *time.Time `json:"finished_at,omitempty"`
-	Duration  int        `json:"duration"` // 秒
-}
+// APIScope API权限范围
+type APIScope string
 
-// LogEntry 日志条目.
-type LogEntry struct {
-	Timestamp time.Time `json:"timestamp"`
-	Stage     string    `json:"stage"`
-	Step      string    `json:"step"`
-	Level     string    `json:"level"` // info, warn, error, debug
-	Message   string    `json:"message"`
-}
+const (
+	ScopeRead     APIScope = "read"
+	ScopeWrite    APIScope = "write"
+	ScopeAdmin    APIScope = "admin"
+	ScopeDelete   APIScope = "delete"
+	ScopeWebhook  APIScope = "webhook"
+	ScopeDevPortal APIScope = "devportal"
+)
 
-// ==================== 代码审查 / 合并请求 ====================
-
-// MergeRequest 合并请求.
-type MergeRequest struct {
-	ID          string    `json:"id"`
-	RepoID      string    `json:"repo_id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	SourceBranch string   `json:"source_branch"`
-	TargetBranch string   `json:"target_branch"`
-	Author      string    `json:"author"`
-	Assignees   []string  `json:"assignees,omitempty"`
-	Reviewers   []string  `json:"reviewers,omitempty"`
-	Status      string    `json:"status"` // open, merged, closed, draft
-	Labels      []string  `json:"labels,omitempty"`
-	Commits     int       `json:"commits"`
-	Additions   int       `json:"additions"`
-	Deletions   int       `json:"deletions"`
-	Conflicts   bool      `json:"conflicts"` // 是否有冲突
-	ApprovedBy  []string  `json:"approved_by,omitempty"`
-	MergedBy    string    `json:"merged_by,omitempty"`
-	HeadCommit  string    `json:"head_commit"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	MergedAt    *time.Time `json:"merged_at,omitempty"`
-}
-
-// ReviewComment 审查评论.
-type ReviewComment struct {
-	ID         string    `json:"id"`
-	MRID       string    `json:"mr_id"`
-	Author     string    `json:"author"`
-	Content    string    `json:"content"`
-	FilePath   string    `json:"file_path,omitempty"` // 文件路径（行内评论）
-	LineNumber int       `json:"line_number,omitempty"`
-	IsResolved bool      `json:"is_resolved"`
-	ReplyTo    string    `json:"reply_to,omitempty"` // 回复某条评论
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-}
-
-// DiffFile 文件差异.
-type DiffFile struct {
-	Path      string `json:"path"`
-	OldPath   string `json:"old_path,omitempty"`
-	Status    string `json:"status"` // added, modified, deleted, renamed
-	Additions int    `json:"additions"`
-	Deletions int    `json:"deletions"`
-	Patch     string `json:"patch"`
-}
-
-// CreateMRRequest 创建合并请求.
-type CreateMRRequest struct {
-	RepoID       string   `json:"repo_id"`
-	Title        string   `json:"title"`
-	Description  string   `json:"description"`
-	SourceBranch string   `json:"source_branch"`
-	TargetBranch string   `json:"target_branch"`
-	Author       string   `json:"author"`
-	Assignees    []string `json:"assignees,omitempty"`
-	Reviewers    []string `json:"reviewers,omitempty"`
-	Labels       []string `json:"labels,omitempty"`
-}
-
-// ==================== Docker 镜像构建 ====================
-
-// DockerBuild Docker 构建任务.
-type DockerBuild struct {
-	ID         string     `json:"id"`
-	RepoID     string     `json:"repo_id"`
-	Tag        string     `json:"tag"`
-	Dockerfile string     `json:"dockerfile"` // Dockerfile 路径
-	Context    string     `json:"context"`    // 构建上下文路径
-	Args       map[string]string `json:"args,omitempty"` // 构建参数
-	Status     string     `json:"status"` // pending, building, success, failed
-	ImageID    string     `json:"image_id,omitempty"`
-	ImageSize  int64      `json:"image_size"` // 字节
-	Logs       []string   `json:"logs,omitempty"`
-	BuildTime  int        `json:"build_time"` // 秒
-	StartedAt  time.Time  `json:"started_at"`
-	FinishedAt *time.Time `json:"finished_at,omitempty"`
-	TriggerBy  string     `json:"trigger_by"` // pipeline, manual, push
-}
-
-// DockerImage Docker 镜像信息.
-type DockerImage struct {
-	ID        string    `json:"id"`
-	RepoID    string    `json:"repo_id"`
-	Tag       string    `json:"tag"`
-	Digest    string    `json:"digest"`
-	SizeMB    int64     `json:"size_mb"`
-	Layers    int       `json:"layers"`
-	CreatedAt time.Time `json:"created_at"`
-	Labels    map[string]string `json:"labels,omitempty"`
-}
-
-// CreateBuildRequest 创建构建请求.
-type CreateBuildRequest struct {
-	RepoID     string            `json:"repo_id"`
-	Tag        string            `json:"tag"`
-	Branch     string            `json:"branch"`
-	Commit     string            `json:"commit"`
-	Dockerfile string            `json:"dockerfile"`
-	Context    string            `json:"context"`
-	Args       map[string]string `json:"args,omitempty"`
-	NoCache    bool              `json:"no_cache"`
-}
-
-// ==================== API 文档 ====================
-
-// APIDoc API 文档.
-type APIDoc struct {
-	ID        string    `json:"id"`
-	RepoID    string    `json:"repo_id"`
-	Version   string    `json:"version"`   // v1, v2
-	Title     string    `json:"title"`
-	BaseURL   string    `json:"base_url"`
-	Format    string    `json:"format"` // openapi, swagger, markdown
-	Content   string    `json:"content"` // JSON/YAML 内容
-	SourcePath string   `json:"source_path"` // 源文件路径
-	Endpoints []Endpoint `json:"endpoints"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-// Endpoint API 端点.
-type Endpoint struct {
-	Method      string   `json:"method"` // GET, POST, PUT, DELETE, PATCH
-	Path        string   `json:"path"`
-	Summary     string   `json:"summary"`
-	Description string   `json:"description"`
-	Tags        []string `json:"tags,omitempty"`
-	Deprecated  bool     `json:"deprecated"`
-}
-
-// GenerateDocRequest 生成文档请求.
-type GenerateDocRequest struct {
-	RepoID     string `json:"repo_id"`
-	Branch     string `json:"branch"`
-	SourcePath string `json:"source_path"` // 源码路径（扫描注释生成）
-	Format     string `json:"format"`      // openapi, markdown
-	Title      string `json:"title"`
-	BaseURL    string `json:"base_url"`
-}
-
-// ==================== 开发者密钥管理 ====================
-
-// APIKey 开发者 API 密钥.
+// APIKey API密钥
 type APIKey struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Key         string    `json:"key"`         // 完整密钥（仅创建时返回）
-	KeyPrefix   string    `json:"key_prefix"`  // 密钥前缀（用于展示）
-	Owner       string    `json:"owner"`
-	Permissions []string  `json:"permissions"` // read, write, admin, build, deploy
-	Scopes      []string  `json:"scopes"`      // repo:read, pipeline:write 等
-	RateLimit   int       `json:"rate_limit"`  // 每分钟请求限制
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	LastUsedAt  *time.Time `json:"last_used_at,omitempty"`
-	UsedCount   int64     `json:"used_count"`
-	Active      bool      `json:"active"`
-	CreatedAt   time.Time `json:"created_at"`
-	RevokedAt   *time.Time `json:"revoked_at,omitempty"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Key         string       `json:"key"`
+	Secret      string       `json:"secret,omitempty"`
+	OwnerID     string       `json:"owner_id"`
+	Status      APIKeyStatus `json:"status"`
+	Scopes      []APIScope   `json:"scopes"`
+	RateLimit   int          `json:"rate_limit"`    // 每分钟请求数
+	DailyQuota  int          `json:"daily_quota"`   // 每日配额
+	UsedToday   int          `json:"used_today"`
+	TotalCalls  int64        `json:"total_calls"`
+	LastUsedAt  *time.Time   `json:"last_used_at,omitempty"`
+	ExpiresAt   *time.Time   `json:"expires_at,omitempty"`
+	Description string       `json:"description,omitempty"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// CreateKeyRequest 创建密钥请求.
-type CreateKeyRequest struct {
-	Name        string    `json:"name"`
-	Owner       string    `json:"owner"`
-	Permissions []string  `json:"permissions"`
-	Scopes      []string  `json:"scopes"`
-	RateLimit   int       `json:"rate_limit"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
+// WebhookEndpoint Webhook端点
+type WebhookEndpoint struct {
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	URL         string         `json:"url"`
+	OwnerID     string         `json:"owner_id"`
+	Status      WebhookStatus  `json:"status"`
+	Events      []WebhookEvent `json:"events"`
+	Secret      string         `json:"secret"`
+	Headers     map[string]string `json:"headers,omitempty"`
+	RetryCount  int            `json:"retry_count"`
+	MaxRetries  int            `json:"max_retries"`
+	Timeout     int            `json:"timeout"` // 秒
+	TotalSent   int64          `json:"total_sent"`
+	TotalFailed int64          `json:"total_failed"`
+	LastDeliveredAt *time.Time `json:"last_delivered_at,omitempty"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
-// SSHKey SSH 公钥.
-type SSHKey struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Owner     string    `json:"owner"`
-	PublicKey string    `json:"public_key"`
-	Fingerprint string  `json:"fingerprint"`
-	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-// ==================== Webhook 与集成 ====================
-
-// Webhook 配置.
-type Webhook struct {
-	ID        string    `json:"id"`
-	RepoID    string    `json:"repo_id"`
-	URL       string    `json:"url"`
-	Secret    string    `json:"secret,omitempty"`
-	Events    []string  `json:"events"` // push, tag, mr, pipeline, build, release
-	Active    bool      `json:"active"`
-	ContentType string  `json:"content_type"` // json, form
-	InsecureSSL bool    `json:"insecure_ssl"` // 允许不安全 SSL
-	LastDelivery *WebhookDelivery `json:"last_delivery,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-// WebhookDelivery Webhook 投递记录.
+// WebhookDelivery Webhook投递记录
 type WebhookDelivery struct {
-	ID         string    `json:"id"`
-	WebhookID  string    `json:"webhook_id"`
-	Event      string    `json:"event"`
-	StatusCode int       `json:"status_code"`
-	Request    string    `json:"request"`  // 请求体
-	Response   string    `json:"response"` // 响应体
-	Duration   int       `json:"duration"` // 毫秒
-	Success    bool      `json:"success"`
-	RetryCount int       `json:"retry_count"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID         string         `json:"id"`
+	WebhookID  string         `json:"webhook_id"`
+	Event      WebhookEvent   `json:"event"`
+	URL        string         `json:"url"`
+	StatusCode int            `json:"status_code"`
+	RequestBody  string       `json:"request_body,omitempty"`
+	ResponseBody string       `json:"response_body,omitempty"`
+	Attempts   int            `json:"attempts"`
+	Status     DeliveryStatus `json:"status"`
+	Error      string         `json:"error,omitempty"`
+	Duration   int64          `json:"duration_ms"`
+	CreatedAt  time.Time      `json:"created_at"`
+	NextRetryAt *time.Time    `json:"next_retry_at,omitempty"`
 }
 
-// Integration 第三方集成.
-type Integration struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        string            `json:"type"` // slack, discord, email, telegram, custom
-	Config      map[string]string `json:"config"`
-	Events      []string          `json:"events"`
-	Enabled     bool              `json:"enabled"`
-	RepoID      string            `json:"repo_id,omitempty"` // 仓库级别集成
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+// DeveloperApp 开发者应用
+type DeveloperApp struct {
+	ID           string          `json:"id"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	OwnerID      string          `json:"owner_id"`
+	ClientID     string          `json:"client_id"`
+	ClientSecret string          `json:"client_secret"`
+	RedirectURIs []string        `json:"redirect_uris"`
+	GrantTypes   []OAuthGrantType `json:"grant_types"`
+	Scopes       []APIScope      `json:"scopes"`
+	Status       AppStatus       `json:"status"`
+	Website      string          `json:"website,omitempty"`
+	LogoURL      string          `json:"logo_url,omitempty"`
+	APIKeyID     string          `json:"api_key_id,omitempty"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
 }
 
-// CreateWebhookRequest 创建 Webhook 请求.
-type CreateWebhookRequest struct {
-	RepoID      string   `json:"repo_id"`
-	URL         string   `json:"url"`
-	Secret      string   `json:"secret"`
-	Events      []string `json:"events"`
-	ContentType string   `json:"content_type"`
-	InsecureSSL bool     `json:"insecure_ssl"`
+// OAuthToken OAuth2令牌
+type OAuthToken struct {
+	AccessToken  string    `json:"access_token"`
+	TokenType    string    `json:"token_type"`
+	ExpiresIn    int       `json:"expires_in"`
+	RefreshToken string    `json:"refresh_token,omitempty"`
+	Scope        string    `json:"scope"`
+	AppID        string    `json:"app_id"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
-// CreateIntegrationRequest 创建集成请求.
-type CreateIntegrationRequest struct {
-	Name    string            `json:"name"`
-	Type    string            `json:"type"`
-	Config  map[string]string `json:"config"`
-	Events  []string          `json:"events"`
-	RepoID  string            `json:"repo_id,omitempty"`
+// UsageRecord 使用量记录
+type UsageRecord struct {
+	Date      string `json:"date"` // YYYY-MM-DD
+	Total     int    `json:"total"`
+	Success   int    `json:"success"`
+	Failed    int    `json:"failed"`
+	AvgLatency int64 `json:"avg_latency_ms"`
 }
 
-// ==================== 统计与仪表盘 ====================
-
-// DevPortalStats 开发者门户统计.
-type DevPortalStats struct {
-	TotalRepos      int   `json:"total_repos"`
-	TotalCommits    int64 `json:"total_commits"`
-	TotalMRs        int   `json:"total_merge_requests"`
-	OpenMRs         int   `json:"open_merge_requests"`
-	TotalPipelines  int   `json:"total_pipelines"`
-	SuccessfulRuns  int   `json:"successful_runs"`
-	FailedRuns      int   `json:"failed_runs"`
-	TotalDockerBuilds int `json:"total_docker_builds"`
-	TotalAPIKeys    int   `json:"total_api_keys"`
-	TotalWebhooks   int   `json:"total_webhooks"`
-	ActiveDevelopers int  `json:"active_developers"`
+// QuotaConfig 配额配置
+type QuotaConfig struct {
+	DefaultRateLimit  int `json:"default_rate_limit"`  // 默认每分钟请求
+	DefaultDailyQuota int `json:"default_daily_quota"` // 默认每日配额
+	MaxRateLimit      int `json:"max_rate_limit"`      // 最大每分钟请求
+	MaxDailyQuota     int `json:"max_daily_quota"`     // 最大每日配额
+	MaxWebhooks       int `json:"max_webhooks"`        // 最大Webhook数
+	MaxAPIKeys        int `json:"max_api_keys"`        // 最大API密钥数
 }
 
-// ==================== Service ====================
-
-// Service 开发者门户核心服务.
-type Service struct {
-	mu           sync.RWMutex
-	repos        map[string]*Repository
-	pipelines    map[string]*Pipeline        // pipelineID -> Pipeline
-	runs         map[string][]*PipelineRun   // pipelineID -> []PipelineRun
-	mrs          map[string][]*MergeRequest  // repoID -> []MergeRequest
-	comments     map[string][]*ReviewComment // mrID -> []ReviewComment
-	builds       map[string][]*DockerBuild   // repoID -> []DockerBuild
-	images       map[string][]*DockerImage   // repoID -> []DockerImage
-	docs         map[string][]*APIDoc        // repoID -> []APIDoc
-	apiKeys      map[string]*APIKey          // keyID -> APIKey
-	keysByPrefix map[string]*APIKey          // keyPrefix -> APIKey (用于快速查找)
-	sshKeys      map[string][]*SSHKey        // owner -> []SSHKey
-	webhooks     map[string][]*Webhook       // repoID -> []Webhook
-	deliveries   map[string][]*WebhookDelivery // webhookID -> []WebhookDelivery
-	integrations map[string]*Integration     // integrationID -> Integration
-	basePath     string                      // 数据存储根路径
+// OpenAPISpec 简化的OpenAPI规范
+type OpenAPISpec struct {
+	OpenAPI    string                 `json:"openapi"`
+	Info       map[string]interface{} `json:"info"`
+	Paths      map[string]interface{} `json:"paths"`
+	Components map[string]interface{} `json:"components,omitempty"`
+	Servers    []map[string]string    `json:"servers,omitempty"`
 }
 
-// ID 生成器计数器.
-var idCounter struct {
-	mu    sync.Mutex
-	value int
+// DevPortalConfig 开发者门户配置
+type DevPortalConfig struct {
+	Quota          QuotaConfig `json:"quota"`
+	WebhookMaxRetries int     `json:"webhook_max_retries"`
+	WebhookTimeout    int     `json:"webhook_timeout"`
+	TokenExpiry       int     `json:"token_expiry"` // 秒
+	RefreshExpiry     int     `json:"refresh_expiry"` // 秒
 }
+
+var (
+	ErrAPIKeyNotFound    = errors.New("api key not found")
+	ErrAPIKeyExists      = errors.New("api key already exists")
+	ErrAPIKeyRevoked     = errors.New("api key is revoked")
+	ErrAPIKeyExpired     = errors.New("api key is expired")
+	ErrWebhookNotFound   = errors.New("webhook not found")
+	ErrWebhookExists     = errors.New("webhook already exists")
+	ErrAppNotFound       = errors.New("developer app not found")
+	ErrAppExists         = errors.New("developer app already exists")
+	ErrQuotaExceeded     = errors.New("quota exceeded")
+	ErrRateLimitExceeded = errors.New("rate limit exceeded")
+	ErrInvalidScope      = errors.New("invalid scope")
+	ErrInvalidGrantType  = errors.New("invalid grant type")
+	ErrDeliveryNotFound  = errors.New("delivery not found")
+	ErrInvalidRedirectURI = errors.New("invalid redirect uri")
+)
