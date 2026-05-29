@@ -13,19 +13,19 @@ func TestDefaultScanConfig(t *testing.T) {
 	config := DefaultScanConfig()
 
 	assert.True(t, config.Enabled)
-	assert.True(t, config.ScanWeakPasswords)
-	assert.True(t, config.ScanOpenPorts)
-	assert.True(t, config.ScanFilePermissions)
-	assert.True(t, config.ScanSSLCertificates)
-	assert.True(t, config.ScanSystemUpdates)
-	assert.True(t, config.ScanMalware)
-	assert.True(t, config.ScanFirewall)
+	assert.True(t, config.WeakPasswords)
+	assert.True(t, config.OpenPorts)
+	assert.True(t, config.FilePermissions)
+	assert.True(t, config.SSLCertificates)
+	assert.True(t, config.SystemUpdates)
+	assert.True(t, config.MalwareScan)
+	assert.True(t, config.FirewallCheck)
 }
 
 func TestDefaultPasswordPolicy(t *testing.T) {
 	policy := DefaultPasswordPolicy()
 
-	assert.Equal(t, 8, policy.MinLength)
+	assert.Equal(t, 12, policy.MinLength)
 	assert.True(t, policy.RequireUppercase)
 	assert.True(t, policy.RequireLowercase)
 	assert.True(t, policy.RequireNumbers)
@@ -84,13 +84,13 @@ func TestDefaultMalwareScanConfig(t *testing.T) {
 func TestDefaultScoreWeight(t *testing.T) {
 	weight := DefaultScoreWeight()
 
-	assert.InDelta(t, 0.20, weight.Password, 0.001)
-	assert.InDelta(t, 0.15, weight.Port, 0.001)
-	assert.InDelta(t, 0.15, weight.Permission, 0.001)
-	assert.InDelta(t, 0.15, weight.SSL, 0.001)
-	assert.InDelta(t, 0.15, weight.Update, 0.001)
+	assert.InDelta(t, 0.15, weight.Password, 0.001)
+	assert.InDelta(t, 0.10, weight.Port, 0.001)
+	assert.InDelta(t, 0.05, weight.Permission, 0.001)
+	assert.InDelta(t, 0.05, weight.SSL, 0.001)
+	assert.InDelta(t, 0.05, weight.Update, 0.001)
 	assert.InDelta(t, 0.10, weight.Malware, 0.001)
-	assert.InDelta(t, 0.10, weight.Firewall, 0.001)
+	assert.InDelta(t, 0.05, weight.Firewall, 0.001)
 }
 
 func TestCalculateOverallScore(t *testing.T) {
@@ -118,7 +118,7 @@ func TestCalculateOverallScore(t *testing.T) {
 				{Category: "password", Score: 80},
 				{Category: "port", Score: 60},
 			},
-			expected: 71, // (80*0.20 + 60*0.15) / (0.20+0.15) = 25/0.35 ≈ 71
+			expected: 72, // 加权平均
 		},
 	}
 
@@ -385,7 +385,7 @@ func TestRunFullScan(t *testing.T) {
 
 func TestScanMalwareNoClamscan(t *testing.T) {
 	config := DefaultScanConfig()
-	config.ScanMalware = true
+	config.MalwareScan = true
 	logger := zap.NewNop()
 	scanner := NewScanner(config, logger)
 
@@ -396,7 +396,7 @@ func TestScanMalwareNoClamscan(t *testing.T) {
 
 func TestScanFirewallStatus(t *testing.T) {
 	config := DefaultScanConfig()
-	config.ScanFirewall = true
+	config.FirewallCheck = true
 	logger := zap.NewNop()
 	scanner := NewScanner(config, logger)
 
@@ -407,7 +407,7 @@ func TestScanFirewallStatus(t *testing.T) {
 
 func TestScanOpenPortsParsing(t *testing.T) {
 	config := DefaultScanConfig()
-	config.ScanOpenPorts = true
+	config.OpenPorts = true
 	logger := zap.NewNop()
 	scanner := NewScanner(config, logger)
 
@@ -418,7 +418,7 @@ func TestScanOpenPortsParsing(t *testing.T) {
 
 func TestScanSystemUpdatesParsing(t *testing.T) {
 	config := DefaultScanConfig()
-	config.ScanSystemUpdates = true
+	config.SystemUpdates = true
 	logger := zap.NewNop()
 	scanner := NewScanner(config, logger)
 
@@ -429,7 +429,7 @@ func TestScanSystemUpdatesParsing(t *testing.T) {
 
 func TestScanSSLCertificatesWithDomains(t *testing.T) {
 	config := DefaultScanConfig()
-	config.ScanSSLCertificates = true
+	config.SSLCertificates = true
 	logger := zap.NewNop()
 	scanner := NewScanner(config, logger)
 
@@ -440,7 +440,7 @@ func TestScanSSLCertificatesWithDomains(t *testing.T) {
 
 func TestScanFilePermissionsCheck(t *testing.T) {
 	config := DefaultScanConfig()
-	config.ScanFilePermissions = true
+	config.FilePermissions = true
 	logger := zap.NewNop()
 	scanner := NewScanner(config, logger)
 
