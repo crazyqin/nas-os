@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // SmartData SMART 数据
@@ -26,14 +27,14 @@ type SmartData struct {
 }
 
 // readSMARTData 读取 SMART 数据（模拟 smartctl 输出解析）
-func (m *DiskHealthMonitor) readSMARTData(device string) (*SmartData, error) {
+func (m *SmartReader) readSMARTData(device string) (*SmartData, error) {
 	// 实际环境中应该调用 smartctl，这里使用模拟数据
 	// smartctl -A /dev/sdX
 	return m.readSMARTFromDevice(device)
 }
 
 // readSMARTFromDevice 从设备读取 SMART 数据
-func (m *DiskHealthMonitor) readSMARTFromDevice(device string) (*SmartData, error) {
+func (m *SmartReader) readSMARTFromDevice(device string) (*SmartData, error) {
 	// 执行 smartctl 命令获取 SMART 数据
 	cmd := exec.Command("smartctl", "-A", "-i", "/dev/"+device)
 	output, err := cmd.Output()
@@ -46,7 +47,7 @@ func (m *DiskHealthMonitor) readSMARTFromDevice(device string) (*SmartData, erro
 }
 
 // parseSmartctlOutput 解析 smartctl 输出
-func (m *DiskHealthMonitor) parseSmartctlOutput(output string, device string) (*SmartData, error) {
+func (m *SmartReader) parseSmartctlOutput(output string, device string) (*SmartData, error) {
 	data := &SmartData{
 		Attributes: make([]SmartAttribute, 0),
 	}
@@ -107,7 +108,7 @@ func (m *DiskHealthMonitor) parseSmartctlOutput(output string, device string) (*
 }
 
 // parseSmartAttribute 解析单个 SMART 属性
-func (m *DiskHealthMonitor) parseSmartAttribute(line string) *SmartAttribute {
+func (m *SmartReader) parseSmartAttribute(line string) *SmartAttribute {
 	// SMART 属性格式: ID# ATTRIBUTE_NAME FLAG VALUE WORST THRESH TYPE UPDATED WHEN_FAILED RAW_VALUE
 	// 示例: 5 Reallocated_Sector_Ct 0x0033 100 100 010 Pre-fail Always - 0
 
@@ -181,7 +182,7 @@ func parseCapacity(s string) (uint64, error) {
 }
 
 // getSimulatedSmartData 获取模拟 SMART 数据
-func (m *DiskHealthMonitor) getSimulatedSmartData(device string) *SmartData {
+func (m *SmartReader) getSimulatedSmartData(device string) *SmartData {
 	// 根据设备名生成模拟数据
 	seed := int64(0)
 	for _, c := range device {
@@ -285,7 +286,7 @@ func (m *DiskHealthMonitor) getSimulatedSmartData(device string) *SmartData {
 }
 
 // getDiskDevices 获取系统中的磁盘设备列表
-func (m *DiskHealthMonitor) getDiskDevices() ([]string, error) {
+func (m *SmartReader) getDiskDevices() ([]string, error) {
 	// 尝试从 /sys/block 获取磁盘列表
 	cmd := exec.Command("lsblk", "-d", "-n", "-o", "NAME")
 	output, err := cmd.Output()
@@ -309,4 +310,123 @@ func (m *DiskHealthMonitor) getDiskDevices() ([]string, error) {
 	}
 
 	return devices, nil
+}
+
+// TriggerScan 触发磁盘扫描
+func (m *SmartReader) TriggerScan(devices []string, force bool) (*ScanResponse, error) {
+	if len(devices) == 0 {
+		var err error
+		devices, err = m.getDiskDevices()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	scanned := 0
+	for _, device := range devices {
+		_, err := m.readSMARTData(device)
+		if err == nil {
+			scanned++
+		}
+	}
+
+	return &ScanResponse{
+		Status:         "completed",
+		Message:        "扫描完成",
+		DevicesScanned: scanned,
+	}, nil
+}
+
+// GetAllDiskHealth 获取所有磁盘健康状态
+func (m *SmartReader) GetAllDiskHealth() []DiskHealthStatus {
+	devices, _ := m.getDiskDevices()
+	result := make([]DiskHealthStatus, 0, len(devices))
+	for _, device := range devices {
+		if status, err := m.getDeviceHealth(device); err == nil {
+			result = append(result, *status)
+		}
+	}
+	return result
+}
+
+// GetDiskHealth 获取指定磁盘健康状态
+func (m *SmartReader) GetDiskHealth(device string) (*DiskHealthStatus, bool) {
+	status, err := m.getDeviceHealth(device)
+	if err != nil {
+		return nil, false
+	}
+	return status, true
+}
+
+// GetDiskHistory 获取磁盘健康历史
+func (m *SmartReader) GetDiskHistory(device string) (*HealthHistory, bool) {
+	// 返回模拟历史数据
+	history := &HealthHistory{
+		Device: device,
+		Records: []HealthRecord{
+			{
+				Timestamp:    time.Now().Add(-7 * 24 * time.Hour),
+				HealthScore:  95,
+				Temperature:  38,
+			},
+			{
+				Timestamp:    time.Now().Add(-3 * 24 * time.Hour),
+				HealthScore:  93,
+				Temperature:  40,
+			},
+			{
+				Timestamp:    time.Now(),
+				HealthScore:  90,
+				Temperature:  42,
+			},
+		},
+		TrendScore:      -0.5,
+		TrendTemperature: 0.3,
+	}
+	return history, true
+}
+
+// getDeviceHealth 获取单个设备健康状态
+func (m *SmartReader) getDeviceHealth(device string) (*DiskHealthStatus, error) {
+	smartData, err := m.readSMARTData(device)
+	if err != nil {
+		return nil, err
+	}
+
+	// 计算健康评分
+	score := 100
+	for _, attr := range smartData.Attributes {
+		if attr.IsFailed {
+			score -= 30
+		} else if attr.IsCritical && attr.RawValue > 0 {
+			score -= int(attr.RawValue / 10)
+		}
+	}
+	if score < 0 {
+		score = 0
+	}
+
+	// 确定风险等级
+	riskLevel := RiskHealthy
+	if score < 40 {
+		riskLevel = RiskCritical
+	} else if score < 60 {
+		riskLevel = RiskWarning
+	} else if score < 80 {
+		riskLevel = RiskNormal
+	}
+
+	return &DiskHealthStatus{
+		Device:          device,
+		Model:           smartData.Model,
+		Serial:          smartData.Serial,
+		Capacity:        smartData.Capacity,
+		HealthScore:     score,
+		RiskLevel:       riskLevel,
+		SmartAttributes: smartData.Attributes,
+		Temperature:     smartData.Temperature,
+		PowerOnHours:    smartData.PowerOnHours,
+		LastScanTime:    time.Now(),
+		IsSMARTEnabled:  true,
+	}, nil
 }

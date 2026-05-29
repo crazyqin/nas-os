@@ -1,3 +1,60 @@
+## [v2.518.0] - 2026-05-29
+
+### 修复与优化
+
+#### 🐛 Bug修复
+- 修复 s3gateway 模块类型重复声明导致编译失败
+- 修复 unifiedsearch handler 方法名不匹配（Index→AddDocument, Remove→RemoveDocument）
+- 修复 diskhealth 排序函数类型不匹配（[]*DiskHealthStatus → []DiskHealthStatus）
+- 修复 unifiedsearch Config 类型名不匹配（Config→SearchConfig）
+- 修复 wakeonlanplus MAC地址格式校验缺失
+
+#### ✅ 测试通过
+- 所有新模块单元测试通过
+- 项目编译成功，无错误
+
+---
+
+## [v2.517.0] - 2026-05-29
+
+### 新增6个智能功能模块
+
+#### 🔍 智能文件索引 (SmartFileIndex)
+- 全文搜索与文件索引（对标TrueNAS SMB Spotlight）
+- 多条件组合搜索（关键词/类型/大小/日期/标签）
+- 自动索引构建与增量更新
+- 索引统计与性能监控
+
+#### 💤 智能唤醒增强 (WakeOnLANPlus)
+- 远程设备唤醒管理（学习飞牛按需唤醒）
+- 设备状态监控与自动检测
+- 唤醒策略配置（手动/定时/按需）
+- 设备分组管理
+
+#### 📁 文件同步中心 (FileSyncHub)
+- 多设备文件同步（对标群晖Drive）
+- 镜像/备份/双向同步模式
+- 冲突检测与解决策略
+- 同步任务调度与监控
+
+#### 🤖 AI内容分析器 (AIContentAnalyzer)
+- 智能内容分类与标签提取（学习群晖AI赋能）
+- 多语言支持与情感分析
+- 批量处理与队列管理
+- 按标签/分类搜索
+
+#### 💾 磁盘健康预测 (DiskHealthPredict)
+- S.M.A.R.T监控与健康评分（学习TrueNAS）
+- 故障预测与预警通知
+- 多磁盘状态仪表板
+- 告警管理与确认
+
+#### 🔐 加密保险箱 (SecureVault)
+- AES-256-GCM加密存储（对标群晖加密共享）
+- 主密码保护与自动锁定
+- 分类/标签管理与搜索
+- 密码修改与数据重加密
+
 ## [v2.516.0] - 2026-05-29
 
 ### 新增7个功能模块

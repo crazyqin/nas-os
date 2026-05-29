@@ -24,6 +24,13 @@ type SecurityScore struct {
 	Level         string   `json:"level"`         // "good", "warning", "critical", "danger"
 	Grade         string   `json:"grade"`         // "A", "B", "C", "D", "F"
 	UpdatedAt     time.Time `json:"updated_at"`
+	Summary       string    `json:"summary,omitempty"`
+	Password      int       `json:"password,omitempty"`
+	Port          int       `json:"port,omitempty"`
+	Permission    int       `json:"permission,omitempty"`
+	SSL           int       `json:"ssl,omitempty"`
+	Update        int       `json:"update,omitempty"`
+	Firewall      int       `json:"firewall,omitempty"`
 }
 
 // ScoreWeight 评分权重
@@ -34,17 +41,29 @@ type ScoreWeight struct {
 	Account       float64 `json:"account"`
 	FileIntegrity float64 `json:"file_integrity"`
 	Compliance    float64 `json:"compliance"`
+	Password      float64 `json:"password"`
+	Port          float64 `json:"port"`
+	Permission    float64 `json:"permission"`
+	SSL           float64 `json:"ssl"`
+	Update        float64 `json:"update"`
+	Firewall      float64 `json:"firewall"`
 }
 
 // DefaultScoreWeight 默认评分权重
 func DefaultScoreWeight() ScoreWeight {
 	return ScoreWeight{
-		Vulnerability: 0.25,
-		Malware:       0.15,
-		Network:       0.20,
-		Account:       0.15,
-		FileIntegrity: 0.10,
-		Compliance:    0.15,
+		Vulnerability: 0.15,
+		Malware:       0.10,
+		Network:       0.10,
+		Account:       0.10,
+		FileIntegrity: 0.05,
+		Compliance:    0.05,
+		Password:      0.15,
+		Port:          0.10,
+		Permission:    0.05,
+		SSL:           0.05,
+		Update:        0.05,
+		Firewall:      0.05,
 	}
 }
 
@@ -62,6 +81,7 @@ type SecurityCheck struct {
 	Score       int           `json:"score"`    // 0-100
 	Title       string        `json:"title"`
 	Description string        `json:"description"`
+	Message     string        `json:"message,omitempty"`
 	Details     string        `json:"details,omitempty"`
 	Evidence    string        `json:"evidence,omitempty"`
 	Remediation string        `json:"remediation,omitempty"`
@@ -642,4 +662,113 @@ func DefaultManagerConfig() ManagerConfig {
 		ReportInterval:    24,
 		AlertThreshold:    60,
 	}
+}
+
+// ============================================================
+// 扫描器配置与报告（scanner.go 依赖）
+// ============================================================
+
+// ScanConfig 扫描器配置
+type ScanConfig struct {
+	WeakPasswords   bool     `json:"weak_passwords"`
+	OpenPorts       bool     `json:"open_ports"`
+	FilePermissions bool     `json:"file_permissions"`
+	SSLCertificates bool     `json:"ssl_certificates"`
+	SystemUpdates   bool     `json:"system_updates"`
+	MalwareScan     bool     `json:"malware_scan"`
+	FirewallCheck   bool     `json:"firewall_check"`
+	CriticalPaths   []string `json:"critical_paths,omitempty"`
+	ExcludePaths    []string `json:"exclude_paths,omitempty"`
+}
+
+// DefaultScanConfig 默认扫描配置
+func DefaultScanConfig() ScanConfig {
+	return ScanConfig{
+		WeakPasswords:   true,
+		OpenPorts:       true,
+		FilePermissions: true,
+		SSLCertificates: true,
+		SystemUpdates:   true,
+		MalwareScan:     true,
+		FirewallCheck:   true,
+	}
+}
+
+// SecurityReport 安全扫描报告
+type SecurityReport struct {
+	ID              string               `json:"id"`
+	ScanTime        time.Time            `json:"scan_time"`
+	Duration        time.Duration        `json:"duration"`
+	Checks          []SecurityCheck      `json:"checks"`
+	OverallScore    int                  `json:"overall_score"`
+	SecurityLevel   string               `json:"security_level"`
+	TotalIssues     int                  `json:"total_issues"`
+	CriticalIssues  int                  `json:"critical_issues"`
+	WarningIssues   int                  `json:"warning_issues"`
+	InfoIssues      int                  `json:"info_issues"`
+	Recommendations []Recommendation     `json:"recommendations"`
+	Summary         string               `json:"summary,omitempty"`
+}
+
+// PortScanResult 端口扫描结果
+type PortScanResult struct {
+	Port     int    `json:"port"`
+	Protocol string `json:"protocol"`
+	State    string `json:"state"`
+	Risk     string `json:"risk,omitempty"`
+	Service  string `json:"service,omitempty"`
+}
+
+// PortRiskConfig 端口风险配置
+type PortRiskConfig struct {
+	HighRiskPorts   []int `json:"high_risk_ports"`
+	MediumRiskPorts []int `json:"medium_risk_ports"`
+}
+
+// DefaultPortRiskConfig 默认端口风险配置
+func DefaultPortRiskConfig() PortRiskConfig {
+	return PortRiskConfig{
+		HighRiskPorts:   []int{21, 23, 25, 135, 139, 445, 1433, 3306, 3389, 5432, 5900, 6379},
+		MediumRiskPorts: []int{110, 143, 993, 995, 1521, 5432, 8080, 8443, 9090},
+	}
+}
+
+// CriticalFileConfig 关键文件配置
+type CriticalFileConfig struct {
+	Paths          []string `json:"paths"`
+	MaxPermission  string   `json:"max_permission"`
+}
+
+// DefaultCriticalFileConfig 默认关键文件配置
+func DefaultCriticalFileConfig() CriticalFileConfig {
+	return CriticalFileConfig{
+		Paths: []string{
+			"/etc/passwd", "/etc/shadow", "/etc/sudoers",
+			"/etc/ssh/sshd_config", "/etc/crontab",
+		},
+		MaxPermission: "0644",
+	}
+}
+
+// SSLCheckConfig SSL 证书检查配置
+type SSLCheckConfig struct {
+	Domains      []string `json:"domains"`
+	WarningDays  int      `json:"warning_days"`
+	CriticalDays int      `json:"critical_days"`
+}
+
+// DefaultSSLCheckConfig 默认 SSL 检查配置
+func DefaultSSLCheckConfig() SSLCheckConfig {
+	return SSLCheckConfig{
+		Domains:      []string{},
+		WarningDays:  30,
+		CriticalDays: 7,
+	}
+}
+
+// PasswordPolicy 密码策略（scanner 用）
+
+// DefaultPasswordPolicy 默认密码策略（兼容 scanner.go 调用）
+func DefaultPasswordPolicy() PasswordPolicy {
+	return DefaultAccountSecurity().PasswordPolicy
 }

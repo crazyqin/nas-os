@@ -30,7 +30,7 @@ func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req SearchRequest
+	var req SearchQuery
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
@@ -54,12 +54,12 @@ func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleIndex(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		var entry IndexEntry
+		var entry SearchIndex
 		if err := json.NewDecoder(r.Body).Decode(&entry); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
-		if err := h.manager.Index(&entry); err != nil {
+		if err := h.manager.AddDocument(&entry); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -71,7 +71,7 @@ func (h *Handler) handleIndex(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Missing id parameter", http.StatusBadRequest)
 			return
 		}
-		if err := h.manager.Remove(id); err != nil {
+		if err := h.manager.RemoveDocument(id); err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
@@ -87,7 +87,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	stats := h.manager.GetStats()
+	stats := h.manager.GetIndexStats()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(stats)
 }
@@ -98,7 +98,7 @@ func (h *Handler) handleRebuild(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	if err := h.manager.RebuildIndex(r.Context()); err != nil {
+	if err := h.manager.RebuildIndex(); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

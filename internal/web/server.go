@@ -811,7 +811,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 监控中心模块就绪")
 
 	// 初始化统一搜索（对标群晖 Universal Search 增强）
-	unifiedSearchMgr := unifiedsearch.NewManager(&unifiedsearch.Config{Enabled: true, IndexPath: "/var/lib/nas-os/search-index", MaxResults: 100, SemanticEnabled: true})
+	unifiedSearchMgr := unifiedsearch.NewManager(unifiedsearch.DefaultSearchConfig())
 	log.Println("✅ 统一搜索模块就绪")
 
 	// v2.513.0 新增模块初始化

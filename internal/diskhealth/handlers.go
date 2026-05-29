@@ -10,12 +10,12 @@ import (
 
 // Handlers 磁盘健康 API 处理器
 type Handlers struct {
-	monitor *DiskHealthMonitor
+	monitor *SmartReader
 	mu      sync.RWMutex
 }
 
 // NewHandlers 创建磁盘健康处理器
-func NewHandlers(monitor *DiskHealthMonitor) *Handlers {
+func NewHandlers(monitor *SmartReader) *Handlers {
 	return &Handlers{
 		monitor: monitor,
 	}
@@ -170,7 +170,7 @@ func (h *Handlers) triggerScan(c *gin.Context) {
 }
 
 // sortDiskHealthByScore 按健康评分排序磁盘（最差的排前面）
-func sortDiskHealthByScore(disks []*DiskHealthStatus) {
+func sortDiskHealthByScore(disks []DiskHealthStatus) {
 	// 简单的插入排序
 	for i := 1; i < len(disks); i++ {
 		key := disks[i]
