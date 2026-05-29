@@ -99,12 +99,22 @@ func TestEvaluateRiskLowRisk(t *testing.T) {
 	config := DefaultConfig()
 	engine := NewRiskEngine(config)
 
+	// 先记录一次登录建立历史，使IP成为已知IP
+	recordCtx := &LoginContext{
+		UserID:    "user1",
+		Username:  "testuser",
+		IP:        "192.168.1.1",
+		UserAgent: "Mozilla/5.0",
+		Timestamp: time.Now().Add(-1 * time.Hour),
+	}
+	engine.RecordLogin(recordCtx, true, 10)
+
 	ctx := &LoginContext{
 		UserID:    "user1",
 		Username:  "testuser",
 		IP:        "192.168.1.1",
 		UserAgent: "Mozilla/5.0",
-		Timestamp: time.Now(),
+		Timestamp: time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 12, 0, 0, 0, time.Local), // 确保在工作时间
 	}
 
 	// 创建信任设备
@@ -121,7 +131,7 @@ func TestEvaluateRiskLowRisk(t *testing.T) {
 
 	// 信任设备应该是低风险
 	if score.Level != RiskLow {
-		t.Errorf("expected RiskLow for trusted device, got %v", score.Level)
+		t.Errorf("expected RiskLow for trusted device, got %v (score=%d, factors=%v)", score.Level, score.Score, score.Factors)
 	}
 }
 
@@ -335,13 +345,24 @@ func TestEvaluateLoginLowRisk(t *testing.T) {
 	// 先信任设备
 	mgr.TrustDevice("user1", fingerprint, "192.168.1.1", "Mozilla/5.0", nil)
 
+	// 先记录一次登录建立历史，使IP成为已知IP
+	recordCtx := &LoginContext{
+		UserID:            "user1",
+		Username:          "testuser",
+		IP:                "192.168.1.1",
+		UserAgent:         "Mozilla/5.0",
+		DeviceFingerprint: fingerprint,
+		Timestamp:         time.Now().Add(-1 * time.Hour),
+	}
+	mgr.GetRiskEngine().RecordLogin(recordCtx, true, 10)
+
 	ctx := &LoginContext{
 		UserID:            "user1",
 		Username:          "testuser",
 		IP:                "192.168.1.1",
 		UserAgent:         "Mozilla/5.0",
 		DeviceFingerprint: fingerprint,
-		Timestamp:         time.Now(),
+		Timestamp:         time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 12, 0, 0, 0, time.Local), // 确保在工作时间
 	}
 
 	result := mgr.EvaluateLogin(ctx)
@@ -355,7 +376,7 @@ func TestEvaluateLoginLowRisk(t *testing.T) {
 	}
 
 	if result.RiskScore.Level != RiskLow {
-		t.Errorf("expected low risk, got %v", result.RiskScore.Level)
+		t.Errorf("expected low risk, got %v (score=%d, factors=%v)", result.RiskScore.Level, result.RiskScore.Score, result.RiskScore.Factors)
 	}
 }
 

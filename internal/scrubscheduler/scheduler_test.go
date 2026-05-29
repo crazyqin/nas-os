@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -470,23 +471,38 @@ func TestSchedulerWithCronJob(t *testing.T) {
 func TestSchedulerOutsideMaintenanceWindow(t *testing.T) {
 	s, exec := setupTestScheduler(t)
 
+	// 使用一个与当前时间不重叠的维护窗口
+	now := time.Now()
+	currentMinutes := now.Hour()*60 + now.Minute()
+	// 选择一个当前时间不在其中的窗口
+	var windowStart, windowEnd string
+	if currentMinutes < 12*60 {
+		// 当前在中午之前，使用下午窗口
+		windowStart = "18:00"
+		windowEnd = "19:00"
+	} else {
+		// 当前在中午之后，使用上午窗口
+		windowStart = "03:00"
+		windowEnd = "04:00"
+	}
+
 	sch := &ScrubSchedule{
 		PoolName: "tank",
 		Schedule: "* * * * *",
 		Enabled:  true,
 		MaintenanceWindow: MaintenanceWindow{
-			Start: "03:00",
-			End:   "04:00", // 凌晨 3-4 点
+			Start: windowStart,
+			End:   windowEnd,
 		},
 	}
 	s.AddSchedule(sch)
 
-	// 由于当前时间大概率不在 3-4 点，应该跳过
+	// 当前时间不在维护窗口内，应该跳过
 	s.onScheduleTrigger(sch.ID)
 
 	exec.mu.Lock()
 	if exec.startCalled != 0 {
-		t.Errorf("expected executor not called (outside window), got %d", exec.startCalled)
+		t.Errorf("expected executor not called (outside window %s-%s), got %d", windowStart, windowEnd, exec.startCalled)
 	}
 	exec.mu.Unlock()
 }
