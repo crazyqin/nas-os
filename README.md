@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.509.0 Stable (2026-05-29)
+> **最新版本**: v2.516.0 Stable (2026-05-29)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -163,6 +163,12 @@
 | 📊 **存储健康评分** | 多维度健康评估/趋势分析/智能预警 | ✅ **v2.509.0新增** |
 | 🔒 **合规快照审计** | 快照完整性验证/合规性检查/篡改检测 | ✅ **v2.509.0新增** |
 | 💿 **系统克隆备份** | 全盘克隆/增量镜像/系统恢复/PXE部署 | ✅ **v2.509.0新增** |
+| 🔍 **智能数据分层** | 基于访问模式/冷热分离/多层策略/对标群晖DSM 7.3 | ✅ **v2.516.0新增** |
+| 🤖 **本地AI控制台** | 本地LLM管理/多模型切换/隐私脱敏/对标群晖AI Console | ✅ **v2.516.0新增** |
+| 🔎 **TrueSearch搜索** | 亚秒级全文搜索/Spotlight兼容/语义搜索/对标TrueNAS 26 | ✅ **v2.516.0新增** |
+| 📂 **WebShare浏览器共享** | 浏览器文件管理/FIPS加密/在线预览/对标TrueNAS 26 | ✅ **v2.516.0新增** |
+| 🏷️ **共享标签系统** | 跨用户标签同步/权限控制/批量操作/对标群晖Drive 4.0 | ✅ **v2.516.0新增** |
+| 📧 **邮件审核控制** | 多级审核策略/审计追踪/违规检测/对标群晖邮件安全 | ✅ **v2.516.0新增** |
 
 ## 快速开始
 
