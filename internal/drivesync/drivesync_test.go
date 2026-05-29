@@ -5,153 +5,180 @@ import (
 	"time"
 )
 
-func TestCreateFolder(t *testing.T) {
-	m := NewDriveSyncManager()
-
-	folder := &SyncFolder{
-		ID:        "folder1",
-		Name:      "Documents",
-		LocalPath: "/data/documents",
-		DeviceID:  "device1",
-	}
-
-	err := m.CreateFolder(folder)
-	if err != nil {
-		t.Fatalf("CreateFolder failed: %v", err)
-	}
-
-	// 重复创建应该失败
-	err = m.CreateFolder(folder)
-	if err == nil {
-		t.Error("expected error for duplicate folder")
-	}
-
-	// ID为空应该失败
-	err = m.CreateFolder(&SyncFolder{})
-	if err == nil {
-		t.Error("expected error for empty ID")
+func TestNewDriveSyncManager(t *testing.T) {
+	mgr := NewDriveSyncManager(nil)
+	if mgr == nil {
+		t.Fatal("expected non-nil manager")
 	}
 }
 
-func TestDeleteFolder(t *testing.T) {
-	m := NewDriveSyncManager()
+func TestCreateAndGetTask(t *testing.T) {
+	mgr := NewDriveSyncManager(nil)
 
-	m.CreateFolder(&SyncFolder{ID: "f1", Name: "test"})
-
-	err := m.DeleteFolder("f1")
-	if err != nil {
-		t.Fatalf("DeleteFolder failed: %v", err)
+	task := &SyncTask{
+		ID:         "task1",
+		Name:       "My Documents",
+		LocalPath:  "/home/user/docs",
+		RemotePath: "/docs",
 	}
 
-	// 删除不存在的文件夹
-	err = m.DeleteFolder("f1")
-	if err == nil {
-		t.Error("expected error for non-existent folder")
-	}
-}
-
-func TestUpdateFile(t *testing.T) {
-	m := NewDriveSyncManager()
-	m.CreateFolder(&SyncFolder{ID: "f1", Name: "test", ConflictPolicy: ConflictKeepBoth})
-
-	file := &SyncFile{
-		Path:    "doc.txt",
-		Size:    1024,
-		ModTime: time.Now(),
+	if err := mgr.CreateTask(task); err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 
-	err := m.UpdateFile("f1", file)
-	if err != nil {
-		t.Fatalf("UpdateFile failed: %v", err)
+	got, exists := mgr.GetTask("task1")
+	if !exists {
+		t.Fatal("expected task to exist")
 	}
-
-	// 更新同名文件应增加版本
-	file2 := &SyncFile{
-		Path:    "doc.txt",
-		Size:    2048,
-		ModTime: time.Now(),
-	}
-	m.UpdateFile("f1", file2)
-
-	history, _ := m.GetFileVersionHistory("f1", "doc.txt")
-	if history.Version != 2 {
-		t.Errorf("expected version 2, got %d", history.Version)
+	if got.Name != "My Documents" {
+		t.Errorf("expected name 'My Documents', got %q", got.Name)
 	}
 }
 
-func TestDeviceManagement(t *testing.T) {
-	m := NewDriveSyncManager()
+func TestCreateDuplicateTask(t *testing.T) {
+	mgr := NewDriveSyncManager(nil)
 
-	device := &SyncDevice{
-		ID:   "dev1",
-		Name: "My PC",
-		Type: "desktop",
-		OS:   "Windows",
+	task1 := &SyncTask{
+		ID:         "task1",
+		LocalPath:  "/home/user/docs",
+		RemotePath: "/docs",
 	}
 
-	err := m.RegisterDevice(device)
-	if err != nil {
-		t.Fatalf("RegisterDevice failed: %v", err)
+	task2 := &SyncTask{
+		ID:         "task2",
+		LocalPath:  "/home/user/docs",  // 相同路径
+		RemotePath: "/docs",
 	}
 
-	devices := m.ListDevices(false)
-	if len(devices) != 1 {
-		t.Errorf("expected 1 device, got %d", len(devices))
-	}
+	mgr.CreateTask(task1)
 
-	// 只看在线设备
-	devices = m.ListDevices(true)
-	if len(devices) != 1 {
-		t.Errorf("expected 1 online device, got %d", len(devices))
+	if err := mgr.CreateTask(task2); err == nil {
+		t.Error("expected error for duplicate paths")
 	}
 }
 
-func TestSyncOperations(t *testing.T) {
-	m := NewDriveSyncManager()
-	m.CreateFolder(&SyncFolder{ID: "f1", Name: "test"})
+func TestDeleteTask(t *testing.T) {
+	mgr := NewDriveSyncManager(nil)
+
+	task := &SyncTask{
+		ID:         "task1",
+		LocalPath:  "/home/user/docs",
+		RemotePath: "/docs",
+	}
+
+	mgr.CreateTask(task)
+
+	if err := mgr.DeleteTask("task1"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	_, exists := mgr.GetTask("task1")
+	if exists {
+		t.Error("expected task to be deleted")
+	}
+}
+
+func TestStartAndCompleteSync(t *testing.T) {
+	mgr := NewDriveSyncManager(nil)
+
+	task := &SyncTask{
+		ID:         "task1",
+		LocalPath:  "/home/user/docs",
+		RemotePath: "/docs",
+	}
+
+	mgr.CreateTask(task)
 
 	// 开始同步
-	err := m.StartSync("f1")
-	if err != nil {
-		t.Fatalf("StartSync failed: %v", err)
+	if err := mgr.StartSync("task1"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 
-	folder, _ := m.GetFolder("f1")
-	if folder.Status != SyncSyncing {
-		t.Errorf("expected syncing status, got %s", folder.Status)
+	got, _ := mgr.GetTask("task1")
+	if got.Status != SyncStatusSyncing {
+		t.Errorf("expected syncing status, got %v", got.Status)
 	}
 
 	// 完成同步
-	m.CompleteSync("f1")
-	folder, _ = m.GetFolder("f1")
-	if folder.Status != SyncIdle {
-		t.Errorf("expected idle status, got %s", folder.Status)
+	if err := mgr.CompleteSync("task1", 10, 0); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	got, _ = mgr.GetTask("task1")
+	if got.Status != SyncStatusSynced {
+		t.Errorf("expected synced status, got %v", got.Status)
+	}
+	if got.SyncedCount != 10 {
+		t.Errorf("expected 10 synced files, got %d", got.SyncedCount)
 	}
 }
 
-func TestSyncEvents(t *testing.T) {
-	m := NewDriveSyncManager()
-	m.CreateFolder(&SyncFolder{ID: "f1", Name: "test"})
+func TestPauseAndResumeSync(t *testing.T) {
+	mgr := NewDriveSyncManager(nil)
 
-	m.UpdateFile("f1", &SyncFile{Path: "a.txt", ModTime: time.Now()})
-	m.UpdateFile("f1", &SyncFile{Path: "b.txt", ModTime: time.Now()})
+	task := &SyncTask{
+		ID:         "task1",
+		LocalPath:  "/home/user/docs",
+		RemotePath: "/docs",
+	}
 
-	events := m.GetSyncEvents("f1", 0)
-	if len(events) < 2 {
-		t.Errorf("expected at least 2 events, got %d", len(events))
+	mgr.CreateTask(task)
+
+	// 暂停
+	if err := mgr.PauseSync("task1"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	got, _ := mgr.GetTask("task1")
+	if got.Status != SyncStatusPaused {
+		t.Errorf("expected paused status, got %v", got.Status)
+	}
+
+	// 恢复
+	if err := mgr.ResumeSync("task1"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	got, _ = mgr.GetTask("task1")
+	if got.Status != SyncStatusPending {
+		t.Errorf("expected pending status, got %v", got.Status)
 	}
 }
 
-func TestSyncStats(t *testing.T) {
-	m := NewDriveSyncManager()
-	m.CreateFolder(&SyncFolder{ID: "f1", Name: "test"})
+func TestAddFileVersion(t *testing.T) {
+	mgr := NewDriveSyncManager(nil)
 
-	m.UpdateFile("f1", &SyncFile{Path: "a.txt", ModTime: time.Now()})
-	m.UpdateFile("f1", &SyncFile{Path: "b.txt", ModTime: time.Now()})
+	version := &FileVersion{
+		VersionID:  "v1",
+		FilePath:   "/docs/file.txt",
+		Size:       1024,
+		Checksum:   "abc123",
+		ModifiedBy: "user1",
+		ModifiedAt: time.Now(),
+	}
 
-	stats := m.GetSyncStats("")
-	totalFiles := stats["total_files"].(int)
-	if totalFiles != 2 {
-		t.Errorf("expected 2 total files, got %d", totalFiles)
+	if err := mgr.AddFileVersion("/docs/file.txt", version); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	versions := mgr.GetFileVersions("/docs/file.txt")
+	if len(versions) != 1 {
+		t.Errorf("expected 1 version, got %d", len(versions))
+	}
+}
+
+func TestGetStats(t *testing.T) {
+	mgr := NewDriveSyncManager(nil)
+
+	mgr.CreateTask(&SyncTask{
+		ID:         "task1",
+		LocalPath:  "/home/user/docs",
+		RemotePath: "/docs",
+	})
+
+	stats := mgr.GetStats()
+	totalTasks := stats["total_tasks"].(int)
+	if totalTasks != 1 {
+		t.Errorf("expected 1 task, got %d", totalTasks)
 	}
 }

@@ -1,8 +1,11 @@
+// Package drivesync Drive同步 - 文件同步与协作
+// 对标群晖Synology Drive
 package drivesync
 
 import (
 	"crypto/sha256"
-	"fmt"
+	"encoding/hex"
+	"errors"
 	"sync"
 	"time"
 )
@@ -11,368 +14,428 @@ import (
 type SyncStatus string
 
 const (
-	SyncIdle       SyncStatus = "idle"
-	SyncSyncing    SyncStatus = "syncing"
-	SyncPaused     SyncStatus = "paused"
-	SyncError      SyncStatus = "error"
-	SyncConflict   SyncStatus = "conflict"
+	SyncStatusPending    SyncStatus = "pending"
+	SyncStatusSyncing    SyncStatus = "syncing"
+	SyncStatusSynced     SyncStatus = "synced"
+	SyncStatusConflict   SyncStatus = "conflict"
+	SyncStatusError      SyncStatus = "error"
+	SyncStatusPaused     SyncStatus = "paused"
+)
+
+// ConflictResolution 冲突解决策略
+type ConflictResolution string
+
+const (
+	ConflictKeepLocal    ConflictResolution = "keep_local"
+	ConflictKeepRemote   ConflictResolution = "keep_remote"
+	ConflictKeepBoth     ConflictResolution = "keep_both"
+	ConflictAskUser      ConflictResolution = "ask_user"
+	ConflictLastModified ConflictResolution = "last_modified"
+)
+
+// FileVersion 文件版本
+type FileVersion struct {
+	VersionID   string    `json:"version_id"`
+	FilePath    string    `json:"file_path"`
+	Size        int64     `json:"size"`
+	Checksum    string    `json:"checksum"`
+	ModifiedBy  string    `json:"modified_by"`
+	ModifiedAt  time.Time `json:"modified_at"`
+	Comment     string    `json:"comment,omitempty"`
+	IsCurrent   bool      `json:"is_current"`
+}
+
+// SyncTask 同步任务
+type SyncTask struct {
+	ID              string             `json:"id"`
+	Name            string             `json:"name"`
+	LocalPath       string             `json:"local_path"`
+	RemotePath      string             `json:"remote_path"`
+	Status          SyncStatus         `json:"status"`
+	Direction       SyncDirection      `json:"direction"`
+	ConflictPolicy  ConflictResolution `json:"conflict_policy"`
+	Enabled         bool               `json:"enabled"`
+	LastSyncAt      time.Time          `json:"last_sync_at"`
+	NextSyncAt      time.Time          `json:"next_sync_at"`
+	SyncInterval    int                `json:"sync_interval"` // 分钟
+	LastError       string             `json:"last_error,omitempty"`
+	FileCount       int                `json:"file_count"`
+	TotalSize       int64              `json:"total_size"`
+	SyncedCount     int                `json:"synced_count"`
+	ConflictCount   int                `json:"conflict_count"`
+	CreatedAt       time.Time          `json:"created_at"`
+	UpdatedAt       time.Time          `json:"updated_at"`
+}
+
+// SyncDirection 同步方向
+type SyncDirection string
+
+const (
+	DirectionBidirectional SyncDirection = "bidirectional"
+	DirectionLocalToRemote SyncDirection = "local_to_remote"
+	DirectionRemoteToLocal SyncDirection = "remote_to_local"
 )
 
 // SyncFile 同步文件记录
 type SyncFile struct {
-	Path         string    `json:"path"`
-	Hash         string    `json:"hash"`
-	Size         int64     `json:"size"`
-	ModTime      time.Time `json:"mod_time"`
-	Version      int       `json:"version"`
-	IsDeleted    bool      `json:"is_deleted"`
-	SyncedAt     time.Time `json:"synced_at"`
+	ID           string     `json:"id"`
+	TaskID       string     `json:"task_id"`
+	FilePath     string     `json:"file_path"`
+	LocalHash    string     `json:"local_hash"`
+	RemoteHash   string     `json:"remote_hash"`
+	Size         int64      `json:"size"`
+	Status       SyncStatus `json:"status"`
+	LastSyncAt   time.Time  `json:"last_sync_at"`
+	ConflictWith string     `json:"conflict_with,omitempty"`
 }
 
-// SyncFolder 同步文件夹
-type SyncFolder struct {
-	ID                string            `json:"id"`
-	Name              string            `json:"name"`
-	LocalPath         string            `json:"local_path"`
-	RemotePath        string            `json:"remote_path"`
-	DeviceID          string            `json:"device_id"`
-	Status            SyncStatus        `json:"status"`
-	ConflictPolicy  ConflictResolution `json:"conflict_policy"`
-	Enabled           bool              `json:"enabled"`
-	SelectiveSync     bool              `json:"selective_sync"`
-	SelectivePatterns []string          `json:"selective_patterns"`
-	LastSync          time.Time         `json:"last_sync"`
-	TotalFiles        int               `json:"total_files"`
-	SyncedFiles       int               `json:"synced_files"`
-	ConflictFiles     int               `json:"conflict_files"`
-	ErrorFiles        int               `json:"error_files"`
-	CreatedAt         time.Time         `json:"created_at"`
-}
-
-// SyncEvent 同步事件
-type SyncEvent struct {
-	ID        string    `json:"id"`
-	FolderID  string    `json:"folder_id"`
-	FilePath  string    `json:"file_path"`
-	Action    string    `json:"action"` // create, update, delete, conflict
-	Status    string    `json:"status"` // success, failed, pending
-	Error     string    `json:"error,omitempty"`
-	Timestamp time.Time `json:"timestamp"`
-}
-
-// SyncDevice 同步设备
-type SyncDevice struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Type        string    `json:"type"` // desktop, mobile, server
-	OS          string    `json:"os"`
-	LastSeen    time.Time `json:"last_seen"`
-	IsOnline    bool      `json:"is_online"`
-	ClientVer   string    `json:"client_version"`
-	LinkedAt    time.Time `json:"linked_at"`
-}
-
-// DriveSyncManager 文件同步管理器 (类似群晖 Drive)
+// DriveSyncManager Drive同步管理器
 type DriveSyncManager struct {
-	mu         sync.RWMutex
-	folders    map[string]*SyncFolder
-	devices    map[string]*SyncDevice
-	files      map[string]map[string]*SyncFile // folderID -> filePath -> SyncFile
-	events     []SyncEvent
-	maxEvents  int
+	mu       sync.RWMutex
+	tasks    map[string]*SyncTask
+	files    map[string][]*SyncFile // taskID -> files
+	versions map[string][]*FileVersion // filePath -> versions
+	config   *DriveSyncConfig
 }
 
-// NewDriveSyncManager 创建文件同步管理器
-func NewDriveSyncManager() *DriveSyncManager {
+// DriveSyncConfig Drive同步配置
+type DriveSyncConfig struct {
+	MaxVersions       int  `json:"max_versions"`
+	AutoSync          bool `json:"auto_sync"`
+	SyncInterval      int  `json:"sync_interval"` // 分钟
+	MaxFileSize       int64 `json:"max_file_size"` // 字节
+	ExcludePatterns   []string `json:"exclude_patterns"`
+	EnableVersioning  bool `json:"enable_versioning"`
+	EnableConflictLog bool `json:"enable_conflict_log"`
+	BandwidthLimit    int  `json:"bandwidth_limit"` // KB/s, 0=无限
+}
+
+// DefaultDriveSyncConfig 默认配置
+func DefaultDriveSyncConfig() *DriveSyncConfig {
+	return &DriveSyncConfig{
+		MaxVersions:       32,
+		AutoSync:          true,
+		SyncInterval:      5,
+		MaxFileSize:       10 * 1024 * 1024 * 1024, // 10GB
+		EnableVersioning:  true,
+		EnableConflictLog: true,
+		BandwidthLimit:    0,
+	}
+}
+
+// NewDriveSyncManager 创建Drive同步管理器
+func NewDriveSyncManager(config *DriveSyncConfig) *DriveSyncManager {
+	if config == nil {
+		config = DefaultDriveSyncConfig()
+	}
+
 	return &DriveSyncManager{
-		folders:   make(map[string]*SyncFolder),
-		devices:   make(map[string]*SyncDevice),
-		files:     make(map[string]map[string]*SyncFile),
-		events:    make([]SyncEvent, 0),
-		maxEvents: 10000,
+		tasks:    make(map[string]*SyncTask),
+		files:    make(map[string][]*SyncFile),
+		versions: make(map[string][]*FileVersion),
+		config:   config,
 	}
 }
 
-// CreateFolder 创建同步文件夹
-func (m *DriveSyncManager) CreateFolder(folder *SyncFolder) error {
+// CreateTask 创建同步任务
+func (m *DriveSyncManager) CreateTask(task *SyncTask) error {
+	if task == nil {
+		return errors.New("task is nil")
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	if folder.ID == "" {
-		return fmt.Errorf("文件夹ID不能为空")
-	}
-	if _, exists := m.folders[folder.ID]; exists {
-		return fmt.Errorf("同步文件夹 %s 已存在", folder.ID)
-	}
-
-	folder.Status = SyncIdle
-	folder.CreatedAt = time.Now()
-	m.folders[folder.ID] = folder
-	m.files[folder.ID] = make(map[string]*SyncFile)
-	return nil
-}
-func (m *DriveSyncManager) DeleteFolder(folderID string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.folders[folderID]; !exists {
-		return fmt.Errorf("同步文件夹 %s 不存在", folderID)
-	}
-
-	delete(m.folders, folderID)
-	delete(m.files, folderID)
-	return nil
-}
-
-// GetFolder 获取同步文件夹
-func (m *DriveSyncManager) GetFolder(folderID string) (*SyncFolder, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	folder, exists := m.folders[folderID]
-	if !exists {
-		return nil, fmt.Errorf("同步文件夹 %s 不存在", folderID)
-	}
-	return folder, nil
-}
-
-// ListFolders 列出所有同步文件夹
-func (m *DriveSyncManager) ListFolders(deviceID string) []*SyncFolder {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	result := make([]*SyncFolder, 0)
-	for _, folder := range m.folders {
-		if deviceID == "" || folder.DeviceID == deviceID {
-			result = append(result, folder)
+	// 检查路径是否已存在
+	for _, existing := range m.tasks {
+		if existing.LocalPath == task.LocalPath && existing.RemotePath == task.RemotePath {
+			return errors.New("sync task already exists for these paths")
 		}
 	}
-	return result
-}
 
-// RegisterDevice 注册同步设备
-func (m *DriveSyncManager) RegisterDevice(device *SyncDevice) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	// 设置默认值
+	now := time.Now()
+	if task.CreatedAt.IsZero() {
+		task.CreatedAt = now
+	}
+	task.UpdatedAt = now
+	task.Status = SyncStatusPending
 
-	if device.ID == "" {
-		return fmt.Errorf("设备ID不能为空")
+	if task.SyncInterval == 0 {
+		task.SyncInterval = m.config.SyncInterval
 	}
 
-	device.LastSeen = time.Now()
-	device.IsOnline = true
-	device.LinkedAt = time.Now()
-	m.devices[device.ID] = device
+	if task.ConflictPolicy == "" {
+		task.ConflictPolicy = ConflictLastModified
+	}
+
+	if task.Direction == "" {
+		task.Direction = DirectionBidirectional
+	}
+
+	m.tasks[task.ID] = task
+
 	return nil
 }
 
-// UnregisterDevice 注销同步设备
-func (m *DriveSyncManager) UnregisterDevice(deviceID string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.devices[deviceID]; !exists {
-		return fmt.Errorf("设备 %s 不存在", deviceID)
-	}
-
-	delete(m.devices, deviceID)
-	return nil
-}
-
-// ListDevices 列出同步设备
-func (m *DriveSyncManager) ListDevices(onlineOnly bool) []*SyncDevice {
+// GetTask 获取同步任务
+func (m *DriveSyncManager) GetTask(id string) (*SyncTask, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]*SyncDevice, 0)
-	for _, device := range m.devices {
-		if !onlineOnly || device.IsOnline {
-			result = append(result, device)
-		}
-	}
-	return result
+	task, exists := m.tasks[id]
+	return task, exists
 }
 
-// UpdateFile 更新文件记录
-func (m *DriveSyncManager) UpdateFile(folderID string, file *SyncFile) error {
+// UpdateTask 更新同步任务
+func (m *DriveSyncManager) UpdateTask(id string, update func(*SyncTask)) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	folder, exists := m.folders[folderID]
+	task, exists := m.tasks[id]
 	if !exists {
-		return fmt.Errorf("同步文件夹 %s 不存在", folderID)
+		return errors.New("task not found: " + id)
 	}
 
-	if file.Hash == "" {
-		hash := sha256.Sum256([]byte(file.Path + file.ModTime.String()))
-		file.Hash = fmt.Sprintf("%x", hash[:8])
-	}
+	update(task)
+	task.UpdatedAt = time.Now()
 
-	if existing, ok := m.files[folderID][file.Path]; ok {
-		if existing.Hash != file.Hash {
-			file.Version = existing.Version + 1
-			if folder.ConflictPolicy == ConflictKeepBoth {
-				m.addEvent(folderID, file.Path, "conflict", "pending")
-				folder.ConflictFiles++
-			}
-		}
-	} else {
-		file.Version = 1
-		folder.TotalFiles++
-	}
-
-	file.SyncedAt = time.Now()
-	m.files[folderID][file.Path] = file
-	folder.SyncedFiles++
-
-	m.addEvent(folderID, file.Path, "update", "success")
 	return nil
 }
 
-// DeleteFile 删除文件记录
-func (m *DriveSyncManager) DeleteFile(folderID, filePath string) error {
+// DeleteTask 删除同步任务
+func (m *DriveSyncManager) DeleteTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	folder, exists := m.folders[folderID]
-	if !exists {
-		return fmt.Errorf("同步文件夹 %s 不存在", folderID)
+	if _, exists := m.tasks[id]; !exists {
+		return errors.New("task not found: " + id)
 	}
 
-	if file, ok := m.files[folderID][filePath]; ok {
-		file.IsDeleted = true
-		file.SyncedAt = time.Now()
-		folder.TotalFiles--
-		m.addEvent(folderID, filePath, "delete", "success")
-	}
+	delete(m.tasks, id)
+	delete(m.files, id)
+
 	return nil
 }
 
-// GetFileVersionHistory 获取文件版本历史
-func (m *DriveSyncManager) GetFileVersionHistory(folderID, filePath string) (*SyncFile, error) {
+// ListTasks 列出同步任务
+func (m *DriveSyncManager) ListTasks() []*SyncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	files, exists := m.files[folderID]
-	if !exists {
-		return nil, fmt.Errorf("同步文件夹 %s 不存在", folderID)
+	tasks := make([]*SyncTask, 0, len(m.tasks))
+	for _, task := range m.tasks {
+		tasks = append(tasks, task)
 	}
 
-	file, exists := files[filePath]
-	if !exists {
-		return nil, fmt.Errorf("文件 %s 不存在", filePath)
-	}
-	return file, nil
+	return tasks
 }
 
 // StartSync 开始同步
-func (m *DriveSyncManager) StartSync(folderID string) error {
+func (m *DriveSyncManager) StartSync(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	folder, exists := m.folders[folderID]
+	task, exists := m.tasks[taskID]
 	if !exists {
-		return fmt.Errorf("同步文件夹 %s 不存在", folderID)
+		return errors.New("task not found: " + taskID)
 	}
 
-	if folder.Status == SyncSyncing {
-		return fmt.Errorf("同步文件夹 %s 正在同步中", folderID)
-	}
+	task.Status = SyncStatusSyncing
+	task.UpdatedAt = time.Now()
 
-	folder.Status = SyncSyncing
-	folder.LastSync = time.Now()
-	m.addEvent(folderID, "", "sync_start", "success")
-	return nil
-}
-
-// StopSync 停止同步
-func (m *DriveSyncManager) StopSync(folderID string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	folder, exists := m.folders[folderID]
-	if !exists {
-		return fmt.Errorf("同步文件夹 %s 不存在", folderID)
-	}
-
-	folder.Status = SyncPaused
-	m.addEvent(folderID, "", "sync_stop", "success")
 	return nil
 }
 
 // CompleteSync 完成同步
-func (m *DriveSyncManager) CompleteSync(folderID string) error {
+func (m *DriveSyncManager) CompleteSync(taskID string, syncedCount, conflictCount int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	folder, exists := m.folders[folderID]
+	task, exists := m.tasks[taskID]
 	if !exists {
-		return fmt.Errorf("同步文件夹 %s 不存在", folderID)
+		return errors.New("task not found: " + taskID)
 	}
 
-	folder.Status = SyncIdle
-	folder.LastSync = time.Now()
-	m.addEvent(folderID, "", "sync_complete", "success")
+	task.Status = SyncStatusSynced
+	task.LastSyncAt = time.Now()
+	task.NextSyncAt = time.Now().Add(time.Duration(task.SyncInterval) * time.Minute)
+	task.SyncedCount = syncedCount
+	task.ConflictCount = conflictCount
+	task.UpdatedAt = time.Now()
+
 	return nil
 }
 
-// GetSyncEvents 获取同步事件
-func (m *DriveSyncManager) GetSyncEvents(folderID string, limit int) []SyncEvent {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// PauseSync 暂停同步
+func (m *DriveSyncManager) PauseSync(taskID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
-	result := make([]SyncEvent, 0)
-	for i := len(m.events) - 1; i >= 0; i-- {
-		if folderID == "" || m.events[i].FolderID == folderID {
-			result = append(result, m.events[i])
-			if limit > 0 && len(result) >= limit {
-				break
-			}
-		}
+	task, exists := m.tasks[taskID]
+	if !exists {
+		return errors.New("task not found: " + taskID)
 	}
-	return result
+
+	task.Status = SyncStatusPaused
+	task.UpdatedAt = time.Now()
+
+	return nil
 }
 
-// GetSyncStats 获取同步统计
-func (m *DriveSyncManager) GetSyncStats(folderID string) map[string]interface{} {
+// ResumeSync 恢复同步
+func (m *DriveSyncManager) ResumeSync(taskID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	task, exists := m.tasks[taskID]
+	if !exists {
+		return errors.New("task not found: " + taskID)
+	}
+
+	task.Status = SyncStatusPending
+	task.UpdatedAt = time.Now()
+
+	return nil
+}
+
+// SetSyncError 设置同步错误
+func (m *DriveSyncManager) SetSyncError(taskID string, err string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	task, exists := m.tasks[taskID]
+	if !exists {
+		return errors.New("task not found: " + taskID)
+	}
+
+	task.Status = SyncStatusError
+	task.LastError = err
+	task.UpdatedAt = time.Now()
+
+	return nil
+}
+
+// AddSyncFile 添加同步文件记录
+func (m *DriveSyncManager) AddSyncFile(taskID string, file *SyncFile) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.tasks[taskID]; !exists {
+		return errors.New("task not found: " + taskID)
+	}
+
+	file.TaskID = taskID
+	m.files[taskID] = append(m.files[taskID], file)
+
+	return nil
+}
+
+// GetSyncFiles 获取同步文件列表
+func (m *DriveSyncManager) GetSyncFiles(taskID string) []*SyncFile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	stats := make(map[string]interface{})
-	totalFolders := 0
-	totalFiles := 0
-	syncedFiles := 0
-	conflictFiles := 0
+	return m.files[taskID]
+}
 
-	for _, folder := range m.folders {
-		if folderID == "" || folder.ID == folderID {
-			totalFolders++
-			totalFiles += folder.TotalFiles
-			syncedFiles += folder.SyncedFiles
-			conflictFiles += folder.ConflictFiles
+// AddFileVersion 添加文件版本
+func (m *DriveSyncManager) AddFileVersion(filePath string, version *FileVersion) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	versions := m.versions[filePath]
+
+	// 检查是否超过最大版本数
+	if len(versions) >= m.config.MaxVersions {
+		// 移除最旧的版本
+		oldestIdx := 0
+		oldestTime := versions[0].ModifiedAt
+		for i, v := range versions {
+			if v.ModifiedAt.Before(oldestTime) {
+				oldestTime = v.ModifiedAt
+				oldestIdx = i
+			}
 		}
+		versions = append(versions[:oldestIdx], versions[oldestIdx+1:]...)
 	}
 
-	stats["total_folders"] = totalFolders
-	stats["total_files"] = totalFiles
-	stats["synced_files"] = syncedFiles
-	stats["conflict_files"] = conflictFiles
-	stats["total_devices"] = len(m.devices)
+	// 标记当前版本
+	for _, v := range versions {
+		v.IsCurrent = false
+	}
+	version.IsCurrent = true
+
+	m.versions[filePath] = append(versions, version)
+
+	return nil
+}
+
+// GetFileVersions 获取文件版本列表
+func (m *DriveSyncManager) GetFileVersions(filePath string) []*FileVersion {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	return m.versions[filePath]
+}
+
+// CalculateChecksum 计算文件校验和
+func CalculateChecksum(data []byte) string {
+	hash := sha256.Sum256(data)
+	return hex.EncodeToString(hash[:])
+}
+
+// GetStats 获取统计信息
+func (m *DriveSyncManager) GetStats() map[string]interface{} {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	stats := map[string]interface{}{
+		"total_tasks":     len(m.tasks),
+		"active_tasks":    0,
+		"paused_tasks":    0,
+		"error_tasks":     0,
+		"total_files":     0,
+		"conflict_files":  0,
+		"total_versions":  0,
+	}
+
+	for _, task := range m.tasks {
+		switch task.Status {
+		case SyncStatusSyncing, SyncStatusPending, SyncStatusSynced:
+			stats["active_tasks"] = stats["active_tasks"].(int) + 1
+		case SyncStatusPaused:
+			stats["paused_tasks"] = stats["paused_tasks"].(int) + 1
+		case SyncStatusError:
+			stats["error_tasks"] = stats["error_tasks"].(int) + 1
+		}
+		stats["total_files"] = stats["total_files"].(int) + task.FileCount
+		stats["conflict_files"] = stats["conflict_files"].(int) + task.ConflictCount
+	}
+
+	for _, files := range m.files {
+		stats["total_files"] = stats["total_files"].(int) + len(files)
+	}
+
+	for _, versions := range m.versions {
+		stats["total_versions"] = stats["total_versions"].(int) + len(versions)
+	}
 
 	return stats
 }
 
-func (m *DriveSyncManager) addEvent(folderID, filePath, action, status string) {
-	event := SyncEvent{
-		ID:        fmt.Sprintf("evt_%d", len(m.events)+1),
-		FolderID:  folderID,
-		FilePath:  filePath,
-		Action:    action,
-		Status:    status,
-		Timestamp: time.Now(),
-	}
-	m.events = append(m.events, event)
-	if len(m.events) > m.maxEvents {
-		m.events = m.events[1:]
-	}
+// GetConfig 获取配置
+func (m *DriveSyncManager) GetConfig() *DriveSyncConfig {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	return m.config
+}
+
+// UpdateConfig 更新配置
+func (m *DriveSyncManager) UpdateConfig(config *DriveSyncConfig) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.config = config
 }
