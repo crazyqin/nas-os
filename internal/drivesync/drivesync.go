@@ -10,104 +10,38 @@ import (
 	"time"
 )
 
-// SyncStatus 同步状态
-type SyncStatus string
-
-const (
-	SyncStatusPending    SyncStatus = "pending"
-	SyncStatusSyncing    SyncStatus = "syncing"
-	SyncStatusSynced     SyncStatus = "synced"
-	SyncStatusConflict   SyncStatus = "conflict"
-	SyncStatusError      SyncStatus = "error"
-	SyncStatusPaused     SyncStatus = "paused"
-)
-
-// ConflictResolution 冲突解决策略
-type ConflictResolution string
-
-const (
-	ConflictKeepLocal    ConflictResolution = "keep_local"
-	ConflictKeepRemote   ConflictResolution = "keep_remote"
-	ConflictKeepBoth     ConflictResolution = "keep_both"
-	ConflictAskUser      ConflictResolution = "ask_user"
-	ConflictLastModified ConflictResolution = "last_modified"
-)
-
-// FileVersion 文件版本
-type FileVersion struct {
-	VersionID   string    `json:"version_id"`
-	FilePath    string    `json:"file_path"`
-	Size        int64     `json:"size"`
-	Checksum    string    `json:"checksum"`
-	ModifiedBy  string    `json:"modified_by"`
-	ModifiedAt  time.Time `json:"modified_at"`
-	Comment     string    `json:"comment,omitempty"`
-	IsCurrent   bool      `json:"is_current"`
-}
-
-// SyncTask 同步任务
-type SyncTask struct {
-	ID              string             `json:"id"`
-	Name            string             `json:"name"`
-	LocalPath       string             `json:"local_path"`
-	RemotePath      string             `json:"remote_path"`
-	Status          SyncStatus         `json:"status"`
-	Direction       SyncDirection      `json:"direction"`
-	ConflictPolicy  ConflictResolution `json:"conflict_policy"`
-	Enabled         bool               `json:"enabled"`
-	LastSyncAt      time.Time          `json:"last_sync_at"`
-	NextSyncAt      time.Time          `json:"next_sync_at"`
-	SyncInterval    int                `json:"sync_interval"` // 分钟
-	LastError       string             `json:"last_error,omitempty"`
-	FileCount       int                `json:"file_count"`
-	TotalSize       int64              `json:"total_size"`
-	SyncedCount     int                `json:"synced_count"`
-	ConflictCount   int                `json:"conflict_count"`
-	CreatedAt       time.Time          `json:"created_at"`
-	UpdatedAt       time.Time          `json:"updated_at"`
-}
-
-// SyncDirection 同步方向
-type SyncDirection string
-
-const (
-	DirectionBidirectional SyncDirection = "bidirectional"
-	DirectionLocalToRemote SyncDirection = "local_to_remote"
-	DirectionRemoteToLocal SyncDirection = "remote_to_local"
-)
-
 // SyncFile 同步文件记录
 type SyncFile struct {
-	ID           string     `json:"id"`
-	TaskID       string     `json:"task_id"`
-	FilePath     string     `json:"file_path"`
-	LocalHash    string     `json:"local_hash"`
-	RemoteHash   string     `json:"remote_hash"`
-	Size         int64      `json:"size"`
-	Status       SyncStatus `json:"status"`
-	LastSyncAt   time.Time  `json:"last_sync_at"`
-	ConflictWith string     `json:"conflict_with,omitempty"`
+	ID           string         `json:"id"`
+	TaskID       string         `json:"task_id"`
+	FilePath     string         `json:"file_path"`
+	LocalHash    string         `json:"local_hash"`
+	RemoteHash   string         `json:"remote_hash"`
+	Size         int64          `json:"size"`
+	Status       FileSyncStatus `json:"status"`
+	LastSyncAt   time.Time      `json:"last_sync_at"`
+	ConflictWith string         `json:"conflict_with,omitempty"`
 }
 
 // DriveSyncManager Drive同步管理器
 type DriveSyncManager struct {
 	mu       sync.RWMutex
 	tasks    map[string]*SyncTask
-	files    map[string][]*SyncFile // taskID -> files
+	files    map[string][]*SyncFile    // taskID -> files
 	versions map[string][]*FileVersion // filePath -> versions
 	config   *DriveSyncConfig
 }
 
 // DriveSyncConfig Drive同步配置
 type DriveSyncConfig struct {
-	MaxVersions       int  `json:"max_versions"`
-	AutoSync          bool `json:"auto_sync"`
-	SyncInterval      int  `json:"sync_interval"` // 分钟
-	MaxFileSize       int64 `json:"max_file_size"` // 字节
+	MaxVersions       int      `json:"max_versions"`
+	AutoSync          bool     `json:"auto_sync"`
+	SyncInterval      int      `json:"sync_interval"` // 分钟
+	MaxFileSize       int64    `json:"max_file_size"`  // 字节
 	ExcludePatterns   []string `json:"exclude_patterns"`
-	EnableVersioning  bool `json:"enable_versioning"`
-	EnableConflictLog bool `json:"enable_conflict_log"`
-	BandwidthLimit    int  `json:"bandwidth_limit"` // KB/s, 0=无限
+	EnableVersioning  bool     `json:"enable_versioning"`
+	EnableConflictLog bool     `json:"enable_conflict_log"`
+	BandwidthLimit    int      `json:"bandwidth_limit"` // KB/s, 0=无限
 }
 
 // DefaultDriveSyncConfig 默认配置
@@ -159,18 +93,18 @@ func (m *DriveSyncManager) CreateTask(task *SyncTask) error {
 		task.CreatedAt = now
 	}
 	task.UpdatedAt = now
-	task.Status = SyncStatusPending
+	task.Status = TaskStatusIdle
 
-	if task.SyncInterval == 0 {
-		task.SyncInterval = m.config.SyncInterval
+	if task.Interval == 0 {
+		task.Interval = time.Duration(m.config.SyncInterval) * time.Minute
 	}
 
 	if task.ConflictPolicy == "" {
-		task.ConflictPolicy = ConflictLastModified
+		task.ConflictPolicy = ConflictNewerWins
 	}
 
 	if task.Direction == "" {
-		task.Direction = DirectionBidirectional
+		task.Direction = SyncBidirectional
 	}
 
 	m.tasks[task.ID] = task
@@ -241,7 +175,7 @@ func (m *DriveSyncManager) StartSync(taskID string) error {
 		return errors.New("task not found: " + taskID)
 	}
 
-	task.Status = SyncStatusSyncing
+	task.Status = TaskStatusSyncing
 	task.UpdatedAt = time.Now()
 
 	return nil
@@ -257,12 +191,12 @@ func (m *DriveSyncManager) CompleteSync(taskID string, syncedCount, conflictCoun
 		return errors.New("task not found: " + taskID)
 	}
 
-	task.Status = SyncStatusSynced
-	task.LastSyncAt = time.Now()
-	task.NextSyncAt = time.Now().Add(time.Duration(task.SyncInterval) * time.Minute)
-	task.SyncedCount = syncedCount
-	task.ConflictCount = conflictCount
-	task.UpdatedAt = time.Now()
+	task.Status = TaskStatusCompleted
+	now := time.Now()
+	task.LastSyncAt = &now
+	task.FileCount = syncedCount
+	task.ErrorCount = conflictCount
+	task.UpdatedAt = now
 
 	return nil
 }
@@ -277,7 +211,7 @@ func (m *DriveSyncManager) PauseSync(taskID string) error {
 		return errors.New("task not found: " + taskID)
 	}
 
-	task.Status = SyncStatusPaused
+	task.Status = TaskStatusPaused
 	task.UpdatedAt = time.Now()
 
 	return nil
@@ -293,7 +227,7 @@ func (m *DriveSyncManager) ResumeSync(taskID string) error {
 		return errors.New("task not found: " + taskID)
 	}
 
-	task.Status = SyncStatusPending
+	task.Status = TaskStatusIdle
 	task.UpdatedAt = time.Now()
 
 	return nil
@@ -309,7 +243,7 @@ func (m *DriveSyncManager) SetSyncError(taskID string, err string) error {
 		return errors.New("task not found: " + taskID)
 	}
 
-	task.Status = SyncStatusError
+	task.Status = TaskStatusError
 	task.LastError = err
 	task.UpdatedAt = time.Now()
 
@@ -350,21 +284,15 @@ func (m *DriveSyncManager) AddFileVersion(filePath string, version *FileVersion)
 	if len(versions) >= m.config.MaxVersions {
 		// 移除最旧的版本
 		oldestIdx := 0
-		oldestTime := versions[0].ModifiedAt
+		oldestTime := versions[0].CreatedAt
 		for i, v := range versions {
-			if v.ModifiedAt.Before(oldestTime) {
-				oldestTime = v.ModifiedAt
+			if v.CreatedAt.Before(oldestTime) {
+				oldestTime = v.CreatedAt
 				oldestIdx = i
 			}
 		}
 		versions = append(versions[:oldestIdx], versions[oldestIdx+1:]...)
 	}
-
-	// 标记当前版本
-	for _, v := range versions {
-		v.IsCurrent = false
-	}
-	version.IsCurrent = true
 
 	m.versions[filePath] = append(versions, version)
 
@@ -391,26 +319,26 @@ func (m *DriveSyncManager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_tasks":     len(m.tasks),
-		"active_tasks":    0,
-		"paused_tasks":    0,
-		"error_tasks":     0,
-		"total_files":     0,
-		"conflict_files":  0,
-		"total_versions":  0,
+		"total_tasks":    len(m.tasks),
+		"active_tasks":   0,
+		"paused_tasks":   0,
+		"error_tasks":    0,
+		"total_files":    0,
+		"conflict_files": 0,
+		"total_versions": 0,
 	}
 
 	for _, task := range m.tasks {
 		switch task.Status {
-		case SyncStatusSyncing, SyncStatusPending, SyncStatusSynced:
+		case TaskStatusSyncing, TaskStatusIdle, TaskStatusCompleted:
 			stats["active_tasks"] = stats["active_tasks"].(int) + 1
-		case SyncStatusPaused:
+		case TaskStatusPaused:
 			stats["paused_tasks"] = stats["paused_tasks"].(int) + 1
-		case SyncStatusError:
+		case TaskStatusError:
 			stats["error_tasks"] = stats["error_tasks"].(int) + 1
 		}
 		stats["total_files"] = stats["total_files"].(int) + task.FileCount
-		stats["conflict_files"] = stats["conflict_files"].(int) + task.ConflictCount
+		stats["conflict_files"] = stats["conflict_files"].(int) + task.ErrorCount
 	}
 
 	for _, files := range m.files {
