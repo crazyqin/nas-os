@@ -45,7 +45,7 @@ func TestPolicyEngine_Evaluate_AllowByUser(t *testing.T) {
 	pe := NewPolicyEngine()
 	pe.AddPolicy(&SecurityPolicy{ID: "a", Name: "a", Enabled: true, Priority: 1, Effect: PolicyAllow,
 		Conditions: PolicyCondition{Users: []string{"admin"}}})
-	d := pe.Evaluate(AccessRequest{UserID: "admin", Resource: "/api", Action: "read", Timestamp: time.Now()})
+	d := pe.Evaluate(ZTAccessRequest{UserID: "admin", Resource: "/api", Action: "read", Timestamp: time.Now()})
 	if !d.Allowed { t.Error("admin should be allowed") }
 }
 
@@ -53,7 +53,7 @@ func TestPolicyEngine_Evaluate_DefaultDeny(t *testing.T) {
 	pe := NewPolicyEngine()
 	pe.AddPolicy(&SecurityPolicy{ID: "a", Name: "a", Enabled: true, Priority: 1, Effect: PolicyAllow,
 		Conditions: PolicyCondition{Users: []string{"admin"}}})
-	d := pe.Evaluate(AccessRequest{UserID: "guest", Resource: "/api", Action: "read", Timestamp: time.Now()})
+	d := pe.Evaluate(ZTAccessRequest{UserID: "guest", Resource: "/api", Action: "read", Timestamp: time.Now()})
 	if d.Allowed { t.Error("guest should be denied") }
 	if d.PolicyID != "default" { t.Errorf("policy: %s", d.PolicyID) }
 }
@@ -62,7 +62,7 @@ func TestPolicyEngine_Evaluate_DisabledPolicy(t *testing.T) {
 	pe := NewPolicyEngine()
 	pe.AddPolicy(&SecurityPolicy{ID: "p1", Name: "d", Enabled: false, Priority: 1, Effect: PolicyAllow,
 		Conditions: PolicyCondition{Users: []string{"admin"}}})
-	d := pe.Evaluate(AccessRequest{UserID: "admin", Resource: "/api", Action: "read", Timestamp: time.Now()})
+	d := pe.Evaluate(ZTAccessRequest{UserID: "admin", Resource: "/api", Action: "read", Timestamp: time.Now()})
 	if d.Allowed { t.Error("disabled policy should not apply") }
 }
 
@@ -70,7 +70,7 @@ func TestPolicyEngine_Evaluate_ByNetwork(t *testing.T) {
 	pe := NewPolicyEngine()
 	pe.AddPolicy(&SecurityPolicy{ID: "n", Name: "n", Enabled: true, Priority: 1, Effect: PolicyAllow,
 		Conditions: PolicyCondition{Networks: []string{"192.168.1.0/24"}}})
-	r := AccessRequest{UserID: "u", Resource: "/d", Action: "read", Timestamp: time.Now()}
+	r := ZTAccessRequest{UserID: "u", Resource: "/d", Action: "read", Timestamp: time.Now()}
 	r.IP = "192.168.1.100"
 	if d := pe.Evaluate(r); !d.Allowed { t.Error("internal IP allowed") }
 	r.IP = "10.0.0.1"
@@ -81,7 +81,7 @@ func TestPolicyEngine_Evaluate_ByTimeRange(t *testing.T) {
 	pe := NewPolicyEngine()
 	pe.AddPolicy(&SecurityPolicy{ID: "t", Name: "t", Enabled: true, Priority: 1, Effect: PolicyAllow,
 		Conditions: PolicyCondition{TimeStart: "09:00", TimeEnd: "18:00"}})
-	r := AccessRequest{UserID: "u", Resource: "/d", Action: "read"}
+	r := ZTAccessRequest{UserID: "u", Resource: "/d", Action: "read"}
 	r.Timestamp = time.Date(2025, 1, 15, 14, 0, 0, 0, time.UTC)
 	if d := pe.Evaluate(r); !d.Allowed { t.Error("work hours allowed") }
 	r.Timestamp = time.Date(2025, 1, 15, 22, 0, 0, 0, time.UTC)
@@ -92,7 +92,7 @@ func TestPolicyEngine_Evaluate_ByResourcePattern(t *testing.T) {
 	pe := NewPolicyEngine()
 	pe.AddPolicy(&SecurityPolicy{ID: "r", Name: "r", Enabled: true, Priority: 1, Effect: PolicyAllow,
 		Conditions: PolicyCondition{Resources: []string{"/api/*"}}})
-	r := AccessRequest{UserID: "u", Action: "read", Timestamp: time.Now()}
+	r := ZTAccessRequest{UserID: "u", Action: "read", Timestamp: time.Now()}
 	r.Resource = "/api/users"
 	if d := pe.Evaluate(r); !d.Allowed { t.Error("/api/users allowed") }
 	r.Resource = "/admin/x"
@@ -103,7 +103,7 @@ func TestPolicyEngine_Evaluate_ChallengeEffect(t *testing.T) {
 	pe := NewPolicyEngine()
 	pe.AddPolicy(&SecurityPolicy{ID: "c", Name: "c", Enabled: true, Priority: 1, Effect: PolicyChallenge,
 		Conditions: PolicyCondition{Users: []string{"u1"}}})
-	d := pe.Evaluate(AccessRequest{UserID: "u1", Resource: "/s", Action: "read", Timestamp: time.Now()})
+	d := pe.Evaluate(ZTAccessRequest{UserID: "u1", Resource: "/s", Action: "read", Timestamp: time.Now()})
 	if d.Allowed { t.Error("challenge not allowed") }
 	if d.Effect != PolicyChallenge { t.Errorf("effect: %s", d.Effect) }
 }
@@ -115,7 +115,7 @@ func TestDeviceTrustManager_RegisterAndGet(t *testing.T) {
 	got, _ := dtm.GetDevice("dev1")
 	if got.Name != "test" { t.Errorf("name: %s", got.Name) }
 	if got.LastSeen.IsZero() { t.Error("LastSeen zero") }
-	if got.TrustLevel != TrustLevelLow { t.Errorf("trust: %s", got.TrustLevel) }
+	if got.TrustLevel != ZTTrustLevelLow { t.Errorf("trust: %s", got.TrustLevel) }
 }
 
 func TestDeviceTrustManager_RegisterValidation(t *testing.T) {
@@ -146,7 +146,7 @@ func TestDeviceTrustManager_CheckCompliance(t *testing.T) {
 	comp, _ := dtm.CheckCompliance("d1")
 	if comp.ComplianceScore != 100 { t.Errorf("score: %.0f", comp.ComplianceScore) }
 	d, _ := dtm.GetDevice("d1")
-	if d.TrustLevel != TrustLevelHigh { t.Errorf("trust: %s", d.TrustLevel) }
+	if d.TrustLevel != ZTTrustLevelHigh { t.Errorf("trust: %s", d.TrustLevel) }
 }
 
 func TestDeviceTrustManager_CheckCompliance_LowScore(t *testing.T) {
@@ -155,7 +155,7 @@ func TestDeviceTrustManager_CheckCompliance_LowScore(t *testing.T) {
 	comp, _ := dtm.CheckCompliance("d1")
 	if comp.ComplianceScore != 0 { t.Errorf("score: %.0f", comp.ComplianceScore) }
 	d, _ := dtm.GetDevice("d1")
-	if d.TrustLevel != TrustLevelUntrusted { t.Errorf("trust: %s", d.TrustLevel) }
+	if d.TrustLevel != ZTTrustLevelUntrusted { t.Errorf("trust: %s", d.TrustLevel) }
 }
 
 func TestGenerateFingerprint(t *testing.T) {
@@ -183,7 +183,7 @@ func TestContinuousAuth_CreateAndGetSession(t *testing.T) {
 	if err != nil { t.Fatalf("create: %v", err) }
 	if s.UserID != "u1" { t.Errorf("user: %s", s.UserID) }
 	if !s.Active { t.Error("should be active") }
-	if s.TrustLevel != TrustLevelMedium { t.Errorf("trust: %s", s.TrustLevel) }
+	if s.TrustLevel != ZTTrustLevelMedium { t.Errorf("trust: %s", s.TrustLevel) }
 }
 
 func TestContinuousAuth_EmptyUser(t *testing.T) {
@@ -243,16 +243,16 @@ func TestContinuousAuth_RecordOnEndedSession(t *testing.T) {
 
 func TestMicroSegmentManager_AddSegment(t *testing.T) {
 	msm := NewMicroSegmentManager()
-	if err := msm.AddSegment(&NetworkSegment{ID: "i", Name: "int", Subnets: []string{"192.168.1.0/24"}}); err != nil { t.Fatalf("add: %v", err) }
-	if err := msm.AddSegment(&NetworkSegment{ID: "b", Subnets: []string{"bad"}}); err == nil { t.Error("bad CIDR") }
-	if err := msm.AddSegment(&NetworkSegment{Subnets: []string{"10.0.0.0/8"}}); err == nil { t.Error("empty ID") }
+	if err := msm.AddSegment(&ZTNetworkSegment{ID: "i", Name: "int", Subnets: []string{"192.168.1.0/24"}}); err != nil { t.Fatalf("add: %v", err) }
+	if err := msm.AddSegment(&ZTNetworkSegment{ID: "b", Subnets: []string{"bad"}}); err == nil { t.Error("bad CIDR") }
+	if err := msm.AddSegment(&ZTNetworkSegment{Subnets: []string{"10.0.0.0/8"}}); err == nil { t.Error("empty ID") }
 }
 
 func TestMicroSegmentManager_RemoveSegment(t *testing.T) {
 	msm := NewMicroSegmentManager()
-	msm.AddSegment(&NetworkSegment{ID: "s1", Subnets: []string{"10.0.0.0/8"}})
-	msm.AddSegment(&NetworkSegment{ID: "s2", Subnets: []string{"192.168.0.0/16"}})
-	msm.AddAccessRule(&AccessRule{ID: "r1", SourceSeg: "s1", DestSeg: "s2", Protocol: "tcp", Enabled: true})
+	msm.AddSegment(&ZTNetworkSegment{ID: "s1", Subnets: []string{"10.0.0.0/8"}})
+	msm.AddSegment(&ZTNetworkSegment{ID: "s2", Subnets: []string{"192.168.0.0/16"}})
+	msm.AddAccessRule(&ZTAccessRule{ID: "r1", SourceSeg: "s1", DestSeg: "s2", Protocol: "tcp", Enabled: true})
 	if err := msm.RemoveSegment("s1"); err != nil { t.Fatalf("remove: %v", err) }
 	if len(msm.ListAccessRules()) != 0 { t.Error("rules cleaned") }
 	if err := msm.RemoveSegment("x"); err == nil { t.Error("nonexistent") }
@@ -260,25 +260,25 @@ func TestMicroSegmentManager_RemoveSegment(t *testing.T) {
 
 func TestMicroSegmentManager_AccessRules(t *testing.T) {
 	msm := NewMicroSegmentManager()
-	msm.AddSegment(&NetworkSegment{ID: "d", Subnets: []string{"10.0.1.0/24"}})
-	msm.AddSegment(&NetworkSegment{ID: "i", Subnets: []string{"192.168.1.0/24"}})
-	if err := msm.AddAccessRule(&AccessRule{ID: "r1", SourceSeg: "d", DestSeg: "i", Ports: []int{443}, Protocol: "tcp", Effect: PolicyAllow, Enabled: true}); err != nil { t.Fatalf("add: %v", err) }
-	if err := msm.AddAccessRule(&AccessRule{ID: "r2", SourceSeg: "x", DestSeg: "i"}); err == nil { t.Error("bad seg") }
+	msm.AddSegment(&ZTNetworkSegment{ID: "d", Subnets: []string{"10.0.1.0/24"}})
+	msm.AddSegment(&ZTNetworkSegment{ID: "i", Subnets: []string{"192.168.1.0/24"}})
+	if err := msm.AddAccessRule(&ZTAccessRule{ID: "r1", SourceSeg: "d", DestSeg: "i", Ports: []int{443}, Protocol: "tcp", Effect: PolicyAllow, Enabled: true}); err != nil { t.Fatalf("add: %v", err) }
+	if err := msm.AddAccessRule(&ZTAccessRule{ID: "r2", SourceSeg: "x", DestSeg: "i"}); err == nil { t.Error("bad seg") }
 	if err := msm.RemoveAccessRule("r1"); err != nil { t.Fatalf("remove: %v", err) }
 	if err := msm.RemoveAccessRule("x"); err == nil { t.Error("nonexistent") }
 }
 
 func TestMicroSegmentManager_CheckAccess_SameSegment(t *testing.T) {
 	msm := NewMicroSegmentManager()
-	msm.AddSegment(&NetworkSegment{ID: "lan", Subnets: []string{"192.168.1.0/24"}})
+	msm.AddSegment(&ZTNetworkSegment{ID: "lan", Subnets: []string{"192.168.1.0/24"}})
 	if e, _ := msm.CheckAccess("192.168.1.10", "192.168.1.20", 80, "tcp"); e != PolicyAllow { t.Error("same seg") }
 }
 
 func TestMicroSegmentManager_CheckAccess_CrossSegment(t *testing.T) {
 	msm := NewMicroSegmentManager()
-	msm.AddSegment(&NetworkSegment{ID: "d", Subnets: []string{"10.0.1.0/24"}})
-	msm.AddSegment(&NetworkSegment{ID: "i", Subnets: []string{"192.168.1.0/24"}})
-	msm.AddAccessRule(&AccessRule{ID: "r1", SourceSeg: "d", DestSeg: "i", Ports: []int{443}, Protocol: "tcp", Effect: PolicyAllow, Enabled: true})
+	msm.AddSegment(&ZTNetworkSegment{ID: "d", Subnets: []string{"10.0.1.0/24"}})
+	msm.AddSegment(&ZTNetworkSegment{ID: "i", Subnets: []string{"192.168.1.0/24"}})
+	msm.AddAccessRule(&ZTAccessRule{ID: "r1", SourceSeg: "d", DestSeg: "i", Ports: []int{443}, Protocol: "tcp", Effect: PolicyAllow, Enabled: true})
 	if e, _ := msm.CheckAccess("10.0.1.5", "192.168.1.10", 443, "tcp"); e != PolicyAllow { t.Error("443 ok") }
 	if e, _ := msm.CheckAccess("10.0.1.5", "192.168.1.10", 22, "tcp"); e != PolicyDeny { t.Error("22 deny") }
 	if e, _ := msm.CheckAccess("10.0.1.5", "192.168.1.10", 443, "udp"); e != PolicyDeny { t.Error("udp deny") }
@@ -286,15 +286,15 @@ func TestMicroSegmentManager_CheckAccess_CrossSegment(t *testing.T) {
 
 func TestMicroSegmentManager_CheckAccess_UnknownIP(t *testing.T) {
 	msm := NewMicroSegmentManager()
-	msm.AddSegment(&NetworkSegment{ID: "lan", Subnets: []string{"192.168.1.0/24"}})
+	msm.AddSegment(&ZTNetworkSegment{ID: "lan", Subnets: []string{"192.168.1.0/24"}})
 	if e, _ := msm.CheckAccess("10.0.0.1", "192.168.1.10", 80, "tcp"); e != PolicyDeny { t.Error("unknown") }
 }
 
 func TestMicroSegmentManager_DisabledRule(t *testing.T) {
 	msm := NewMicroSegmentManager()
-	msm.AddSegment(&NetworkSegment{ID: "s1", Subnets: []string{"10.0.1.0/24"}})
-	msm.AddSegment(&NetworkSegment{ID: "s2", Subnets: []string{"10.0.2.0/24"}})
-	msm.AddAccessRule(&AccessRule{ID: "r1", SourceSeg: "s1", DestSeg: "s2", Protocol: "any", Effect: PolicyAllow, Enabled: false})
+	msm.AddSegment(&ZTNetworkSegment{ID: "s1", Subnets: []string{"10.0.1.0/24"}})
+	msm.AddSegment(&ZTNetworkSegment{ID: "s2", Subnets: []string{"10.0.2.0/24"}})
+	msm.AddAccessRule(&ZTAccessRule{ID: "r1", SourceSeg: "s1", DestSeg: "s2", Protocol: "any", Effect: PolicyAllow, Enabled: false})
 	if e, _ := msm.CheckAccess("10.0.1.1", "10.0.2.1", 80, "tcp"); e != PolicyDeny { t.Error("disabled") }
 }
 
@@ -394,7 +394,7 @@ func TestComplianceReporter_GenerateReport(t *testing.T) {
 	ztm.PolicyEngine.AddPolicy(&SecurityPolicy{ID: "p1", Name: "t", Enabled: true, Priority: 1, Effect: PolicyAllow})
 	ztm.DeviceManager.RegisterDevice(&DeviceInfo{ID: "d1", Name: "d", Fingerprint: "fp1",
 		Compliance: DeviceCompliance{OSUpdated: true, FirewallEnabled: true, AntivirusActive: true, DiskEncrypted: true, PasswordStrong: true}})
-	ztm.SegmentManager.AddSegment(&NetworkSegment{ID: "s1", Subnets: []string{"10.0.0.0/8"}})
+	ztm.SegmentManager.AddSegment(&ZTNetworkSegment{ID: "s1", Subnets: []string{"10.0.0.0/8"}})
 	report := ztm.Reporter.GenerateReport("月报", time.Now().AddDate(0, -1, 0), time.Now())
 	if report.Title != "月报" { t.Errorf("title: %s", report.Title) }
 	if len(report.Sections) != 5 { t.Errorf("sections: %d", len(report.Sections)) }
@@ -419,23 +419,23 @@ func TestZeroTrustManager_ProcessAccessRequest(t *testing.T) {
 	ztm := NewZeroTrustManager()
 	ztm.PolicyEngine.AddPolicy(&SecurityPolicy{ID: "a", Name: "a", Enabled: true, Priority: 1, Effect: PolicyAllow,
 		Conditions: PolicyCondition{Users: []string{"admin"}}})
-	d := ztm.ProcessAccessRequest(AccessRequest{UserID: "admin", Resource: "/api", Action: "read", Timestamp: time.Now()})
+	d := ztm.ProcessAccessRequest(ZTAccessRequest{UserID: "admin", Resource: "/api", Action: "read", Timestamp: time.Now()})
 	if !d.Allowed { t.Error("admin allowed") }
-	d = ztm.ProcessAccessRequest(AccessRequest{UserID: "guest", Resource: "/api", Action: "read", Timestamp: time.Now()})
+	d = ztm.ProcessAccessRequest(ZTAccessRequest{UserID: "guest", Resource: "/api", Action: "read", Timestamp: time.Now()})
 	if d.Allowed { t.Error("guest denied") }
 }
 
 func TestZeroTrustManager_ProcessAccessRequest_DeviceTrust(t *testing.T) {
 	ztm := NewZeroTrustManager()
-	ztm.DeviceManager.RegisterDevice(&DeviceInfo{ID: "d1", Name: "d", Fingerprint: "fp", TrustLevel: TrustLevelUntrusted})
-	d := ztm.ProcessAccessRequest(AccessRequest{UserID: "u", DeviceID: "d1", Resource: "/api", Action: "read", Timestamp: time.Now()})
+	ztm.DeviceManager.RegisterDevice(&DeviceInfo{ID: "d1", Name: "d", Fingerprint: "fp", TrustLevel: ZTTrustLevelUntrusted})
+	d := ztm.ProcessAccessRequest(ZTAccessRequest{UserID: "u", DeviceID: "d1", Resource: "/api", Action: "read", Timestamp: time.Now()})
 	if d.Allowed { t.Error("untrusted device denied") }
 }
 
 func TestTrustLevel_String(t *testing.T) {
-	tests := []struct{ l TrustLevel; s string }{
-		{TrustLevelUntrusted, "untrusted"}, {TrustLevelLow, "low"}, {TrustLevelMedium, "medium"},
-		{TrustLevelHigh, "high"}, {TrustLevelFull, "full"}, {TrustLevel(99), "unknown"},
+	tests := []struct{ l ZTTrustLevel; s string }{
+		{ZTTrustLevelUntrusted, "untrusted"}, {ZTTrustLevelLow, "low"}, {ZTTrustLevelMedium, "medium"},
+		{ZTTrustLevelHigh, "high"}, {ZTTrustLevelFull, "full"}, {ZTTrustLevel(99), "unknown"},
 	}
 	for _, tc := range tests {
 		if tc.l.String() != tc.s { t.Errorf("%d: %s != %s", tc.l, tc.l.String(), tc.s) }
@@ -454,7 +454,7 @@ func TestSeverity_String(t *testing.T) {
 
 func TestResponseAction_String(t *testing.T) {
 	tests := []struct{ a ResponseAction; s string }{
-		{ActionLog, "log"}, {ActionAlert, "alert"}, {ActionThrottle, "throttle"},
+		{ActionLog, "log"}, {ZTActionAlert, "alert"}, {ActionThrottle, "throttle"},
 		{ActionBlock, "block"}, {ActionQuarantine, "quarantine"}, {ResponseAction(99), "unknown"},
 	}
 	for _, tc := range tests {
@@ -473,20 +473,20 @@ func TestPolicyEffect_String(t *testing.T) {
 
 func TestMicroSegmentManager_ListSorted(t *testing.T) {
 	msm := NewMicroSegmentManager()
-	msm.AddSegment(&NetworkSegment{ID: "c", Subnets: []string{"10.0.3.0/24"}})
-	msm.AddSegment(&NetworkSegment{ID: "a", Subnets: []string{"10.0.1.0/24"}})
-	msm.AddSegment(&NetworkSegment{ID: "b", Subnets: []string{"10.0.2.0/24"}})
+	msm.AddSegment(&ZTNetworkSegment{ID: "c", Subnets: []string{"10.0.3.0/24"}})
+	msm.AddSegment(&ZTNetworkSegment{ID: "a", Subnets: []string{"10.0.1.0/24"}})
+	msm.AddSegment(&ZTNetworkSegment{ID: "b", Subnets: []string{"10.0.2.0/24"}})
 	s := msm.ListSegments()
 	if s[0].ID != "a" || s[1].ID != "b" || s[2].ID != "c" { t.Error("not sorted") }
 }
 
 func TestEvaluateDeviceTrust_TimeDecay(t *testing.T) {
 	dtm := NewDeviceTrustManager()
-	dtm.RegisterDevice(&DeviceInfo{ID: "d1", Name: "d", Fingerprint: "fp", TrustLevel: TrustLevelHigh,
+	dtm.RegisterDevice(&DeviceInfo{ID: "d1", Name: "d", Fingerprint: "fp", TrustLevel: ZTTrustLevelHigh,
 		Compliance: DeviceCompliance{OSUpdated: true, FirewallEnabled: true, AntivirusActive: true, DiskEncrypted: true, PasswordStrong: true}})
 	dtm.CheckCompliance("d1") // 计算合规分数
 	trust, _ := dtm.EvaluateDeviceTrust("d1")
-	if trust != TrustLevelHigh { t.Errorf("trust: %s", trust) }
+	if trust != ZTTrustLevelHigh { t.Errorf("trust: %s", trust) }
 }
 
 func TestSecurityEventManager_SeverityFilter(t *testing.T) {

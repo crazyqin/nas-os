@@ -19,28 +19,28 @@ import (
 // 类型定义
 // ============================================================================
 
-// TrustLevel 信任等级
-type TrustLevel int
+// ZTTrustLevel 信任等级（PolicyEngine 内部使用）
+type ZTTrustLevel int
 
 const (
-	TrustLevelUntrusted TrustLevel = iota
-	TrustLevelLow
-	TrustLevelMedium
-	TrustLevelHigh
-	TrustLevelFull
+	ZTTrustLevelUntrusted ZTTrustLevel = iota
+	ZTTrustLevelLow
+	ZTTrustLevelMedium
+	ZTTrustLevelHigh
+	ZTTrustLevelFull
 )
 
-func (t TrustLevel) String() string {
+func (t ZTTrustLevel) String() string {
 	switch t {
-	case TrustLevelUntrusted:
+	case ZTTrustLevelUntrusted:
 		return "untrusted"
-	case TrustLevelLow:
+	case ZTTrustLevelLow:
 		return "low"
-	case TrustLevelMedium:
+	case ZTTrustLevelMedium:
 		return "medium"
-	case TrustLevelHigh:
+	case ZTTrustLevelHigh:
 		return "high"
-	case TrustLevelFull:
+	case ZTTrustLevelFull:
 		return "full"
 	default:
 		return "unknown"
@@ -80,7 +80,7 @@ type ResponseAction int
 
 const (
 	ActionLog       ResponseAction = iota
-	ActionAlert
+	ZTActionAlert
 	ActionThrottle
 	ActionBlock
 	ActionQuarantine
@@ -90,7 +90,7 @@ func (r ResponseAction) String() string {
 	switch r {
 	case ActionLog:
 		return "log"
-	case ActionAlert:
+	case ZTActionAlert:
 		return "alert"
 	case ActionThrottle:
 		return "throttle"
@@ -154,13 +154,13 @@ type PolicyCondition struct {
 	TimeStart   string     `json:"time_start,omitempty"`
 	TimeEnd     string     `json:"time_end,omitempty"`
 	Weekdays    []string   `json:"weekdays,omitempty"`
-	MinTrust    TrustLevel `json:"min_trust"`
+	MinTrust    ZTTrustLevel `json:"min_trust"`
 	Resources   []string   `json:"resources,omitempty"`
 	Actions     []string   `json:"actions,omitempty"`
 }
 
-// AccessRequest 访问请求
-type AccessRequest struct {
+// ZTAccessRequest 访问请求
+type ZTAccessRequest struct {
 	UserID     string    `json:"user_id"`
 	Groups     []string  `json:"groups"`
 	DeviceID   string    `json:"device_id"`
@@ -172,8 +172,8 @@ type AccessRequest struct {
 	Timestamp  time.Time `json:"timestamp"`
 }
 
-// AccessDecision 访问决策
-type AccessDecision struct {
+// ZTAccessDecision 访问决策
+type ZTAccessDecision struct {
 	Allowed    bool             `json:"allowed"`
 	Effect     PolicyEffect     `json:"effect"`
 	PolicyID   string           `json:"policy_id"`
@@ -248,7 +248,7 @@ func (pe *PolicyEngine) ListPolicies() []*SecurityPolicy {
 }
 
 // Evaluate 评估访问请求
-func (pe *PolicyEngine) Evaluate(req AccessRequest) AccessDecision {
+func (pe *PolicyEngine) Evaluate(req ZTAccessRequest) ZTAccessDecision {
 	pe.mu.RLock()
 	defer pe.mu.RUnlock()
 
@@ -262,7 +262,7 @@ func (pe *PolicyEngine) Evaluate(req AccessRequest) AccessDecision {
 
 	for _, policy := range policies {
 		if matchCondition(policy.Conditions, req) {
-			return AccessDecision{
+			return ZTAccessDecision{
 				Allowed:   policy.Effect == PolicyAllow,
 				Effect:    policy.Effect,
 				PolicyID:  policy.ID,
@@ -273,7 +273,7 @@ func (pe *PolicyEngine) Evaluate(req AccessRequest) AccessDecision {
 		}
 	}
 
-	return AccessDecision{
+	return ZTAccessDecision{
 		Allowed:   false,
 		Effect:    PolicyDeny,
 		PolicyID:  "default",
@@ -283,7 +283,7 @@ func (pe *PolicyEngine) Evaluate(req AccessRequest) AccessDecision {
 }
 
 // matchCondition 检查是否匹配策略条件
-func matchCondition(cond PolicyCondition, req AccessRequest) bool {
+func matchCondition(cond PolicyCondition, req ZTAccessRequest) bool {
 	if len(cond.Users) > 0 && !containsString(cond.Users, req.UserID) {
 		return false
 	}
@@ -358,7 +358,7 @@ type DeviceInfo struct {
 	LastSeen     time.Time         `json:"last_seen"`
 	RegisteredAt time.Time         `json:"registered_at"`
 	Compliance   DeviceCompliance  `json:"compliance"`
-	TrustLevel   TrustLevel        `json:"trust_level"`
+	TrustLevel   ZTTrustLevel        `json:"trust_level"`
 	Tags         map[string]string `json:"tags,omitempty"`
 }
 
@@ -407,7 +407,7 @@ func (dtm *DeviceTrustManager) RegisterDevice(device *DeviceInfo) error {
 	}
 	device.LastSeen = now
 	if device.TrustLevel == 0 {
-		device.TrustLevel = TrustLevelLow
+		device.TrustLevel = ZTTrustLevelLow
 	}
 	dtm.devices[device.ID] = device
 	dtm.fingerprints[device.Fingerprint] = device.ID
@@ -478,13 +478,13 @@ func (dtm *DeviceTrustManager) CheckCompliance(deviceID string) (*DeviceComplian
 	device.Compliance.LastChecked = time.Now()
 	switch {
 	case score >= 80:
-		device.TrustLevel = TrustLevelHigh
+		device.TrustLevel = ZTTrustLevelHigh
 	case score >= 60:
-		device.TrustLevel = TrustLevelMedium
+		device.TrustLevel = ZTTrustLevelMedium
 	case score >= 40:
-		device.TrustLevel = TrustLevelLow
+		device.TrustLevel = ZTTrustLevelLow
 	default:
-		device.TrustLevel = TrustLevelUntrusted
+		device.TrustLevel = ZTTrustLevelUntrusted
 	}
 	cpy := device.Compliance
 	return &cpy, nil
@@ -506,29 +506,29 @@ func GenerateFingerprint(components map[string]string) string {
 }
 
 // EvaluateDeviceTrust 评估设备信任度（综合在线时间与合规分数）
-func (dtm *DeviceTrustManager) EvaluateDeviceTrust(deviceID string) (TrustLevel, error) {
+func (dtm *DeviceTrustManager) EvaluateDeviceTrust(deviceID string) (ZTTrustLevel, error) {
 	dtm.mu.RLock()
 	defer dtm.mu.RUnlock()
 	device, exists := dtm.devices[deviceID]
 	if !exists {
-		return TrustLevelUntrusted, fmt.Errorf("设备 %s 不存在", deviceID)
+		return ZTTrustLevelUntrusted, fmt.Errorf("设备 %s 不存在", deviceID)
 	}
 	trust := device.TrustLevel
 	elapsed := time.Since(device.LastSeen)
 	switch {
 	case elapsed > 30*24*time.Hour:
-		trust = TrustLevelUntrusted
+		trust = ZTTrustLevelUntrusted
 	case elapsed > 7*24*time.Hour:
-		if trust > TrustLevelLow {
-			trust = TrustLevelLow
+		if trust > ZTTrustLevelLow {
+			trust = ZTTrustLevelLow
 		}
 	case elapsed > 24*time.Hour:
-		if trust > TrustLevelMedium {
-			trust = TrustLevelMedium
+		if trust > ZTTrustLevelMedium {
+			trust = ZTTrustLevelMedium
 		}
 	}
-	if device.Compliance.ComplianceScore < 40 && trust > TrustLevelLow {
-		trust = TrustLevelLow
+	if device.Compliance.ComplianceScore < 40 && trust > ZTTrustLevelLow {
+		trust = ZTTrustLevelLow
 	}
 	return trust, nil
 }
@@ -560,7 +560,7 @@ type Session struct {
 	LastActivity time.Time  `json:"last_activity"`
 	ExpiresAt    time.Time  `json:"expires_at"`
 	RiskScore    float64    `json:"risk_score"`
-	TrustLevel   TrustLevel `json:"trust_level"`
+	TrustLevel   ZTTrustLevel `json:"trust_level"`
 	Active       bool       `json:"active"`
 	Activities   []Activity `json:"activities"`
 }
@@ -619,7 +619,7 @@ func (ca *ContinuousAuth) CreateSession(userID, deviceID, ip, location string) (
 		LastActivity: now,
 		ExpiresAt:    now.Add(ca.sessionTimeout),
 		RiskScore:    0,
-		TrustLevel:   TrustLevelMedium,
+		TrustLevel:   ZTTrustLevelMedium,
 		Active:       true,
 		Activities:   make([]Activity, 0),
 	}
@@ -668,15 +668,15 @@ func (ca *ContinuousAuth) RecordActivity(sessionID string, activity Activity) er
 	session.RiskScore = ca.calculateRiskScore(session)
 	switch {
 	case session.RiskScore >= 80:
-		session.TrustLevel = TrustLevelUntrusted
+		session.TrustLevel = ZTTrustLevelUntrusted
 	case session.RiskScore >= 60:
-		session.TrustLevel = TrustLevelLow
+		session.TrustLevel = ZTTrustLevelLow
 	case session.RiskScore >= 40:
-		session.TrustLevel = TrustLevelMedium
+		session.TrustLevel = ZTTrustLevelMedium
 	case session.RiskScore >= 20:
-		session.TrustLevel = TrustLevelHigh
+		session.TrustLevel = ZTTrustLevelHigh
 	default:
-		session.TrustLevel = TrustLevelFull
+		session.TrustLevel = ZTTrustLevelFull
 	}
 	if session.RiskScore >= ca.maxRiskScore {
 		session.Active = false
@@ -796,8 +796,8 @@ func (ca *ContinuousAuth) CleanupExpiredSessions() int {
 // 4. 微分段
 // ============================================================================
 
-// NetworkSegment 网络分段
-type NetworkSegment struct {
+// ZTNetworkSegment 网络分段
+type ZTNetworkSegment struct {
 	ID           string   `json:"id"`
 	Name         string   `json:"name"`
 	Description  string   `json:"description"`
@@ -807,8 +807,8 @@ type NetworkSegment struct {
 	Isolation    bool     `json:"isolation"`
 }
 
-// AccessRule 网络访问规则
-type AccessRule struct {
+// ZTAccessRule 网络访问规则
+type ZTAccessRule struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
 	SourceSeg   string       `json:"source_segment"`
@@ -822,21 +822,21 @@ type AccessRule struct {
 
 // MicroSegmentManager 微分段管理器
 type MicroSegmentManager struct {
-	segments map[string]*NetworkSegment
-	rules    map[string]*AccessRule
+	segments map[string]*ZTNetworkSegment
+	rules    map[string]*ZTAccessRule
 	mu       sync.RWMutex
 }
 
 // NewMicroSegmentManager 创建微分段管理器
 func NewMicroSegmentManager() *MicroSegmentManager {
 	return &MicroSegmentManager{
-		segments: make(map[string]*NetworkSegment),
-		rules:    make(map[string]*AccessRule),
+		segments: make(map[string]*ZTNetworkSegment),
+		rules:    make(map[string]*ZTAccessRule),
 	}
 }
 
 // AddSegment 添加网络分段
-func (msm *MicroSegmentManager) AddSegment(segment *NetworkSegment) error {
+func (msm *MicroSegmentManager) AddSegment(segment *ZTNetworkSegment) error {
 	if segment.ID == "" {
 		return errors.New("分段ID不能为空")
 	}
@@ -868,7 +868,7 @@ func (msm *MicroSegmentManager) RemoveSegment(segmentID string) error {
 }
 
 // AddAccessRule 添加访问规则
-func (msm *MicroSegmentManager) AddAccessRule(rule *AccessRule) error {
+func (msm *MicroSegmentManager) AddAccessRule(rule *ZTAccessRule) error {
 	if rule.ID == "" {
 		return errors.New("规则ID不能为空")
 	}
@@ -944,10 +944,10 @@ func (msm *MicroSegmentManager) findSegmentForIP(ip string) string {
 }
 
 // ListSegments 列出所有分段
-func (msm *MicroSegmentManager) ListSegments() []*NetworkSegment {
+func (msm *MicroSegmentManager) ListSegments() []*ZTNetworkSegment {
 	msm.mu.RLock()
 	defer msm.mu.RUnlock()
-	segments := make([]*NetworkSegment, 0, len(msm.segments))
+	segments := make([]*ZTNetworkSegment, 0, len(msm.segments))
 	for _, s := range msm.segments {
 		segments = append(segments, s)
 	}
@@ -956,10 +956,10 @@ func (msm *MicroSegmentManager) ListSegments() []*NetworkSegment {
 }
 
 // ListAccessRules 列出所有访问规则
-func (msm *MicroSegmentManager) ListAccessRules() []*AccessRule {
+func (msm *MicroSegmentManager) ListAccessRules() []*ZTAccessRule {
 	msm.mu.RLock()
 	defer msm.mu.RUnlock()
-	rules := make([]*AccessRule, 0, len(msm.rules))
+	rules := make([]*ZTAccessRule, 0, len(msm.rules))
 	for _, r := range msm.rules {
 		rules = append(rules, r)
 	}
@@ -1071,7 +1071,7 @@ func (td *ThreatDetector) DetectAbnormalLogin(userID, ip, location string) *Thre
 			Severity:    SeverityHigh,
 			Timestamp:   now,
 			Evidence:    fmt.Sprintf("用户: %s, 位置数: %d, IP: %s", userID, len(recentLocations), ip),
-			Action:      ActionAlert,
+			Action:      ZTActionAlert,
 		}
 		td.addEvent(event)
 		return event
@@ -1623,15 +1623,15 @@ func NewZeroTrustManager() *ZeroTrustManager {
 }
 
 // ProcessAccessRequest 处理访问请求（完整零信任流程）
-func (ztm *ZeroTrustManager) ProcessAccessRequest(req AccessRequest) AccessDecision {
+func (ztm *ZeroTrustManager) ProcessAccessRequest(req ZTAccessRequest) ZTAccessDecision {
 	ztm.mu.RLock()
 	defer ztm.mu.RUnlock()
 
 	// 1. 检查设备信任
 	if req.DeviceID != "" {
 		trust, err := ztm.DeviceManager.EvaluateDeviceTrust(req.DeviceID)
-		if err == nil && trust < TrustLevelLow {
-			return AccessDecision{
+		if err == nil && trust < ZTTrustLevelLow {
+			return ZTAccessDecision{
 				Allowed: false, Effect: PolicyDeny, PolicyID: "device_trust",
 				Reason: fmt.Sprintf("设备信任等级不足: %s", trust), DecidedAt: time.Now(),
 			}
@@ -1642,7 +1642,7 @@ func (ztm *ZeroTrustManager) ProcessAccessRequest(req AccessRequest) AccessDecis
 	if req.UserID != "" {
 		for _, s := range ztm.SessionManager.GetUserSessions(req.UserID) {
 			if s.RiskScore >= 80 {
-				return AccessDecision{
+				return ZTAccessDecision{
 					Allowed: false, Effect: PolicyDeny, PolicyID: "session_risk",
 					Reason: fmt.Sprintf("会话风险过高: %.1f", s.RiskScore), DecidedAt: time.Now(),
 				}
@@ -1754,7 +1754,7 @@ func generateEventID(eventType, source string, t time.Time) string {
 	return hex.EncodeToString(h[:16])
 }
 
-func severityFromDecision(d AccessDecision) Severity {
+func severityFromDecision(d ZTAccessDecision) Severity {
 	if !d.Allowed {
 		return SeverityMedium
 	}

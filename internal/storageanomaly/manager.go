@@ -1,4 +1,5 @@
-// Package storageanomaly 提供存储异常检测管理核心业务逻辑
+// Package storageanomaly - 存储异常检测管理器
+// 指标收集、异常检测引擎、告警生成
 package storageanomaly
 
 import (
@@ -6,697 +7,779 @@ import (
 	"math"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
 )
 
-// AnomalyManager 存储异常检测管理器.
+// AnomalyManager 异常检测管理器
 type AnomalyManager struct {
-	config    DetectionConfig
-	baselines map[string]*StorageBaseline
-	events    map[string]*AnomalyEvent
-	history   []*AnomalyEvent
-	rules     map[string]*AnomalyRule
-	samples   map[string][]*SampleDataPoint // path -> samples
-	mu        sync.RWMutex
+	mu          sync.RWMutex
+	config      AnomalyConfig
+	rules       map[string]*AnomalyRule     // 规则
+	events      []*AnomalyEvent             // 事件列表
+	metrics     map[string][]*StorageMetrics // 设备ID -> 指标历史
+	lastAlerts  map[string]time.Time        // 规则ID -> 上次告警时间
+	alertCounts map[string]int              // 规则ID -> 告警计数
 }
 
-// NewManager 创建存储异常检测管理器.
-func NewManager() *AnomalyManager {
-	m := &AnomalyManager{
-		config: DetectionConfig{
-			Enabled:          true,
-			ScanInterval:     300,
-			DeviationFactor:  3.0,
-			MinBaselineAge:   24,
-			AutoRespond:      true,
-			AlertThreshold:   "medium",
-			MaxEventsPerHour: 100,
-		},
-		baselines: make(map[string]*StorageBaseline),
-		events:    make(map[string]*AnomalyEvent),
-		history:   make([]*AnomalyEvent, 0),
-		rules:     make(map[string]*AnomalyRule),
-		samples:   make(map[string][]*SampleDataPoint),
+// NewAnomalyManager 创建异常检测管理器
+func NewAnomalyManager(config *AnomalyConfig) *AnomalyManager {
+	cfg := DefaultAnomalyConfig()
+	if config != nil {
+		cfg = *config
 	}
 
-	// 添加默认规则
-	defaultRules := []AnomalyRule{
-		{
-			ID:          uuid.New().String(),
-			Name:        "写入速率飙升",
-			EventType:   "write_spike",
-			Enabled:     true,
-			Threshold:   3.0,
-			MinSamples:  10,
-			Description: "检测写入速率超过基线 3 倍标准差的异常",
-		},
-		{
-			ID:          uuid.New().String(),
-			Name:        "文件大小异常",
-			EventType:   "size_anomaly",
-			Enabled:     true,
-			Threshold:   3.5,
-			MinSamples:  5,
-			Description: "检测单个文件大小远超平均值的异常",
-		},
-		{
-			ID:          uuid.New().String(),
-			Name:        "访问模式异常",
-			EventType:   "access_pattern",
-			Enabled:     true,
-			Threshold:   4.0,
-			MinSamples:  20,
-			Description: "检测非正常时间段的高频访问",
-		},
-		{
-			ID:          uuid.New().String(),
-			Name:        "数据泄露检测",
-			EventType:   "data_leak",
-			Enabled:     true,
-			Threshold:   2.5,
-			MinSamples:  5,
-			Description: "检测大量数据外传行为",
-		},
-		{
-			ID:          uuid.New().String(),
-			Name:        "硬件故障预测",
-			EventType:   "hw_failure",
-			Enabled:     true,
-			Threshold:   2.0,
-			MinSamples:  30,
-			Description: "检测读写错误率上升可能的硬件故障",
-		},
-		{
-			ID:          uuid.New().String(),
-			Name:        "恶意软件行为",
-			EventType:   "malware",
-			Enabled:     true,
-			Threshold:   2.5,
-			MinSamples:  5,
-			Description: "检测典型的勒索软件加密行为模式",
-		},
+	manager := &AnomalyManager{
+		config:      cfg,
+		rules:       make(map[string]*AnomalyRule),
+		events:      make([]*AnomalyEvent, 0),
+		metrics:     make(map[string][]*StorageMetrics),
+		lastAlerts:  make(map[string]time.Time),
+		alertCounts: make(map[string]int),
 	}
 
-	for i := range defaultRules {
-		m.rules[defaultRules[i].ID] = &defaultRules[i]
-	}
+	// 初始化默认规则
+	manager.initDefaultRules()
 
-	return m
+	return manager
 }
 
-// ========== 基线管理 ==========
+// initDefaultRules 初始化默认规则
+func (m *AnomalyManager) initDefaultRules() {
+	defaults := []AnomalyRule{
+		{
+			ID:          "capacity_growth",
+			Name:        "容量增长异常",
+			Description: "检测容量异常快速增长",
+			Type:        AnomalyTypeCapacityGrowth,
+			Enabled:     true,
+			Severity:    SeverityWarning,
+			Conditions: []Condition{
+				{Field: "growth_rate", Operator: "gt", Value: m.config.CapacityGrowthThreshold},
+			},
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:          "iops_spike",
+			Name:        "IOPS峰值异常",
+			Description: "检测IOPS异常峰值",
+			Type:        AnomalyTypeIOPSSpike,
+			Enabled:     true,
+			Severity:    SeverityWarning,
+			Conditions: []Condition{
+				{Field: "iops_ratio", Operator: "gt", Value: m.config.IOPSSpikeThreshold},
+			},
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:          "latency_spike",
+			Name:        "延迟峰值异常",
+			Description: "检测延迟异常峰值",
+			Type:        AnomalyTypeLatencySpike,
+			Enabled:     true,
+			Severity:    SeverityWarning,
+			Conditions: []Condition{
+				{Field: "latency", Operator: "gt", Value: m.config.LatencySpikeThreshold},
+			},
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:          "data_corruption",
+			Name:        "数据损坏检测",
+			Description: "检测潜在的数据损坏",
+			Type:        AnomalyTypeDataCorruption,
+			Enabled:     true,
+			Severity:    SeverityCritical,
+			Conditions: []Condition{
+				{Field: "corrupted_files", Operator: "gt", Value: 0},
+			},
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:          "disk_usage_critical",
+			Name:        "磁盘使用率严重",
+			Description: "磁盘使用率超过90%",
+			Type:        AnomalyTypeCapacityGrowth,
+			Enabled:     true,
+			Severity:    SeverityCritical,
+			Conditions: []Condition{
+				{Field: "usage_percent", Operator: "gt", Value: 90.0},
+			},
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
 
-// BuildBaseline 构建或更新存储基线.
-func (m *AnomalyManager) BuildBaseline(path string) (*StorageBaseline, error) {
+	for i := range defaults {
+		m.rules[defaults[i].ID] = &defaults[i]
+	}
+}
+
+// CollectMetrics 收集存储指标
+func (m *AnomalyManager) CollectMetrics(metrics *StorageMetrics) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	samples, ok := m.samples[path]
-	if !ok || len(samples) == 0 {
-		return nil, fmt.Errorf("no samples available for path %q", path)
+	if metrics.DeviceID == "" {
+		return fmt.Errorf("设备ID不能为空")
 	}
 
-	var totalWrite, totalRead, totalFileSize float64
-	var totalAccess float64
-	writeValues := make([]float64, 0, len(samples))
-	readValues := make([]float64, 0, len(samples))
-
-	for _, s := range samples {
-		totalWrite += float64(s.WriteBytes)
-		totalRead += float64(s.ReadBytes)
-		totalFileSize += float64(s.FileCount)
-		totalAccess += float64(s.AccessOps)
-		writeValues = append(writeValues, float64(s.WriteBytes))
-		readValues = append(readValues, float64(s.ReadBytes))
+	if metrics.CollectedAt.IsZero() {
+		metrics.CollectedAt = time.Now()
 	}
 
-	n := float64(len(samples))
-	avgWrite := totalWrite / n
-	avgRead := totalRead / n
-	avgFileSize := totalFileSize / n
-	avgAccess := totalAccess / n
+	// 保存指标
+	m.metrics[metrics.DeviceID] = append(m.metrics[metrics.DeviceID], metrics)
 
-	// 计算标准差
-	stdWrite := computeStdDev(writeValues, avgWrite)
-	stdRead := computeStdDev(readValues, avgRead)
+	// 清理过期指标
+	m.cleanupOldMetrics(metrics.DeviceID)
 
-	// 文件大小和访问频率的标准差
-	fileSizes := make([]float64, len(samples))
-	accessFreqs := make([]float64, len(samples))
-	for i, s := range samples {
-		fileSizes[i] = float64(s.FileCount)
-		accessFreqs[i] = float64(s.AccessOps)
-	}
-	stdFileSize := computeStdDevFromValues(fileSizes)
-	stdAccessFreq := computeStdDevFromValues(accessFreqs)
-
-	baseline := &StorageBaseline{
-		Path:          path,
-		AvgWriteBytes:  avgWrite,
-		AvgReadBytes:   avgRead,
-		AvgFileSize:   avgFileSize,
-		AvgAccessFreq: avgAccess,
-		StdWriteBytes:  stdWrite,
-		StdReadBytes:   stdRead,
-		StdFileSize:   stdFileSize,
-		StdAccessFreq: stdAccessFreq,
-		SampleCount:   len(samples),
-		LastUpdated:   time.Now(),
-	}
-
-	m.baselines[path] = baseline
-	return baseline, nil
+	return nil
 }
 
-// GetBaseline 获取指定路径的基线.
-func (m *AnomalyManager) GetBaseline(path string) (*StorageBaseline, error) {
+// cleanupOldMetrics 清理过期指标
+func (m *AnomalyManager) cleanupOldMetrics(deviceID string) {
+	history := m.metrics[deviceID]
+	if len(history) == 0 {
+		return
+	}
+
+	cutoff := time.Now().Add(-m.config.HistoryWindow)
+	validIdx := 0
+	for _, h := range history {
+		if h.CollectedAt.After(cutoff) {
+			history[validIdx] = h
+			validIdx++
+		}
+	}
+	m.metrics[deviceID] = history[:validIdx]
+}
+
+// DetectAnomalies 检测异常
+func (m *AnomalyManager) DetectAnomalies(deviceID string) (*DetectionResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	baseline, ok := m.baselines[path]
-	if !ok {
-		return nil, fmt.Errorf("no baseline for path %q", path)
+	history, exists := m.metrics[deviceID]
+	if !exists || len(history) == 0 {
+		return &DetectionResult{
+			HasAnomaly: false,
+			Summary:    "无指标数据",
+			AnalyzedAt: time.Now(),
+		}, nil
 	}
-	cp := *baseline
-	return &cp, nil
+
+	if len(history) < m.config.MinSamples {
+		return &DetectionResult{
+			HasAnomaly: false,
+			Summary:    fmt.Sprintf("样本不足，需要至少 %d 个样本", m.config.MinSamples),
+			AnalyzedAt: time.Now(),
+		}, nil
+	}
+
+	latest := history[len(history)-1]
+	events := make([]AnomalyEvent, 0)
+
+	// 检测容量增长异常
+	if m.config.EnableCapacityGrowth {
+		capacityEvents := m.detectCapacityAnomaly(deviceID, latest, history)
+		events = append(events, capacityEvents...)
+	}
+
+	// 检测IOPS异常
+	if m.config.EnableIOPSAnomaly {
+		iopsEvents := m.detectIOPSAnomaly(deviceID, latest, history)
+		events = append(events, iopsEvents...)
+	}
+
+	// 检测延迟异常
+	if m.config.EnableLatencyAnomaly {
+		latencyEvents := m.detectLatencyAnomaly(deviceID, latest, history)
+		events = append(events, latencyEvents...)
+	}
+
+	// 检测数据损坏
+	if m.config.EnableDataCorruption {
+		corruptionEvents := m.detectDataCorruption(deviceID, latest)
+		events = append(events, corruptionEvents...)
+	}
+
+	result := &DetectionResult{
+		HasAnomaly:   len(events) > 0,
+		AnomalyCount: len(events),
+		Events:       events,
+		Summary:      m.generateSummary(events),
+		AnalyzedAt:   time.Now(),
+	}
+
+	// 保存事件到历史记录
+	for i := range events {
+		m.addEvent(&events[i])
+	}
+
+	return result, nil
 }
 
-// ListBaselines 列出所有基线.
-func (m *AnomalyManager) ListBaselines() []*StorageBaseline {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// detectCapacityAnomaly 检测容量异常
+func (m *AnomalyManager) detectCapacityAnomaly(deviceID string, latest *StorageMetrics, history []*StorageMetrics) []AnomalyEvent {
+	events := make([]AnomalyEvent, 0)
 
-	result := make([]*StorageBaseline, 0, len(m.baselines))
-	for _, b := range m.baselines {
-		cp := *b
-		result = append(result, &cp)
-	}
-	return result
-}
-
-// ========== 异常检测 ==========
-
-// DetectAnomaly 检测异常.
-func (m *AnomalyManager) DetectAnomaly(path string, data SampleDataPoint) ([]*AnomalyEvent, error) {
-	m.mu.RLock()
-	config := m.config
-	m.mu.RUnlock()
-
-	if !config.Enabled {
-		return nil, nil
-	}
-
-	baseline, err := m.GetBaseline(path)
-	if err != nil {
-		return nil, err
+	// 检查使用率是否过高
+	if latest.UsagePercent > 90 {
+		events = append(events, AnomalyEvent{
+			ID:          generateID(),
+			RuleID:      "disk_usage_critical",
+			RuleName:    "磁盘使用率严重",
+			Type:        AnomalyTypeCapacityGrowth,
+			Severity:    SeverityCritical,
+			DeviceID:    deviceID,
+			MountPoint:  latest.MountPoint,
+			Title:       "磁盘使用率过高",
+			Description: fmt.Sprintf("磁盘使用率达到 %.1f%%，超过90%%警戒线", latest.UsagePercent),
+			Metrics:     latest,
+			Suggestions: []string{
+				"清理不必要的文件",
+				"扩展存储容量",
+				"归档旧数据",
+			},
+			DetectedAt: time.Now(),
+		})
 	}
 
-	events := make([]*AnomalyEvent, 0)
+	// 检查容量增长速率
+	if len(history) >= 2 {
+		old := history[0]
+		hoursDiff := latest.CollectedAt.Sub(old.CollectedAt).Hours()
+		if hoursDiff > 0 {
+			oldUsedGB := float64(old.UsedSpace) / (1024 * 1024 * 1024)
+			newUsedGB := float64(latest.UsedSpace) / (1024 * 1024 * 1024)
+			growthRate := (newUsedGB - oldUsedGB) / oldUsedGB * 100 / (hoursDiff / 24) // 每天增长率
 
-	// 检测写入速率异常
-	dt := 1.0 // 假设 1 秒间隔
-	writeRate := float64(data.WriteBytes) / dt
-	if baseline.StdWriteBytes > 0 {
-		deviation := math.Abs(writeRate-baseline.AvgWriteBytes) / baseline.StdWriteBytes
-		if deviation >= config.DeviationFactor {
-			events = append(events, m.createEvent(
-				"write_spike",
-				classifySeverity(deviation),
-				path,
-				fmt.Sprintf("写入速率 %.2f bytes/s 超过基线 %.2f bytes/s，偏差 %.1f 倍标准差", writeRate, baseline.AvgWriteBytes, deviation),
-				writeRate,
-				baseline.AvgWriteBytes,
-				deviation,
-				"write_spike_rule",
-			))
-		}
-	} else if baseline.AvgWriteBytes > 0 {
-		// 标准差为 0 时，用均值比例检测
-		ratio := math.Abs(writeRate-baseline.AvgWriteBytes) / baseline.AvgWriteBytes
-		if ratio >= 0.5 { // 偏离均值 50% 以上
-			deviation := ratio * config.DeviationFactor
-			events = append(events, m.createEvent(
-				"write_spike",
-				classifySeverity(deviation),
-				path,
-				fmt.Sprintf("写入速率 %.2f bytes/s 显著偏离基线 %.2f bytes/s (无方差基线)", writeRate, baseline.AvgWriteBytes),
-				writeRate,
-				baseline.AvgWriteBytes,
-				deviation,
-				"write_spike_rule",
-			))
-		}
-	}
-
-	// 检测文件大小异常
-	if baseline.StdFileSize > 0 {
-		deviation := math.Abs(float64(data.FileCount)-baseline.AvgFileSize) / baseline.StdFileSize
-		if deviation >= config.DeviationFactor {
-			events = append(events, m.createEvent(
-				"size_anomaly",
-				classifySeverity(deviation),
-				path,
-				fmt.Sprintf("文件数量 %d 异常，基线 %.0f，偏差 %.1f 倍标准差", data.FileCount, baseline.AvgFileSize, deviation),
-				float64(data.FileCount),
-				baseline.AvgFileSize,
-				deviation,
-				"size_anomaly_rule",
-			))
-		}
-	} else if baseline.AvgFileSize > 0 {
-		ratio := math.Abs(float64(data.FileCount)-baseline.AvgFileSize) / baseline.AvgFileSize
-		if ratio >= 0.5 {
-			deviation := ratio * config.DeviationFactor
-			events = append(events, m.createEvent(
-				"size_anomaly",
-				classifySeverity(deviation),
-				path,
-				fmt.Sprintf("文件数量 %d 显著偏离基线 %.0f (无方差基线)", data.FileCount, baseline.AvgFileSize),
-				float64(data.FileCount),
-				baseline.AvgFileSize,
-				deviation,
-				"size_anomaly_rule",
-			))
-		}
-	}
-
-	// 检测访问频率异常
-	if baseline.StdAccessFreq > 0 {
-		deviation := math.Abs(float64(data.AccessOps)-baseline.AvgAccessFreq) / baseline.StdAccessFreq
-		if deviation >= config.DeviationFactor {
-			events = append(events, m.createEvent(
-				"access_pattern",
-				classifySeverity(deviation),
-				path,
-				fmt.Sprintf("访问频率 %d ops 异常，基线 %.0f ops，偏差 %.1f 倍标准差", data.AccessOps, baseline.AvgAccessFreq, deviation),
-				float64(data.AccessOps),
-				baseline.AvgAccessFreq,
-				deviation,
-				"access_pattern_rule",
-			))
-		}
-	} else if baseline.AvgAccessFreq > 0 {
-		ratio := math.Abs(float64(data.AccessOps)-baseline.AvgAccessFreq) / baseline.AvgAccessFreq
-		if ratio >= 0.5 {
-			deviation := ratio * config.DeviationFactor
-			events = append(events, m.createEvent(
-				"access_pattern",
-				classifySeverity(deviation),
-				path,
-				fmt.Sprintf("访问频率 %d ops 显著偏离基线 %.0f ops (无方差基线)", data.AccessOps, baseline.AvgAccessFreq),
-				float64(data.AccessOps),
-				baseline.AvgAccessFreq,
-				deviation,
-				"access_pattern_rule",
-			))
-		}
-	}
-
-	// 检测数据泄露（大量读取外传）
-	dtRead := 1.0
-	readRate := float64(data.ReadBytes) / dtRead
-	if baseline.StdReadBytes > 0 {
-		deviation := math.Abs(readRate-baseline.AvgReadBytes) / baseline.StdReadBytes
-		if deviation >= 2.5 && readRate > baseline.AvgReadBytes {
-			events = append(events, m.createEvent(
-				"data_leak",
-				classifySeverity(deviation),
-				path,
-				fmt.Sprintf("读取速率 %.2f bytes/s 异常偏高，可能存在数据外传", readRate),
-				readRate,
-				baseline.AvgReadBytes,
-				deviation,
-				"data_leak_rule",
-			))
-		}
-	} else if baseline.AvgReadBytes > 0 {
-		ratio := math.Abs(readRate-baseline.AvgReadBytes) / baseline.AvgReadBytes
-		if ratio >= 2.5 && readRate > baseline.AvgReadBytes {
-			deviation := ratio * config.DeviationFactor
-			events = append(events, m.createEvent(
-				"data_leak",
-				classifySeverity(deviation),
-				path,
-				fmt.Sprintf("读取速率 %.2f bytes/s 显著偏高 (无方差基线)，可能存在数据外传", readRate),
-				readRate,
-				baseline.AvgReadBytes,
-				deviation,
-				"data_leak_rule",
-			))
-		}
-	}
-
-	// 存储事件
-	m.mu.Lock()
-	for _, evt := range events {
-		m.events[evt.ID] = evt
-		m.history = append(m.history, evt)
-	}
-	m.mu.Unlock()
-
-	// 自动响应
-	if config.AutoRespond {
-		for _, evt := range events {
-			m.AutoRespond(evt)
-		}
-	}
-
-	return events, nil
-}
-
-// ClassifyEvent 对异常事件进行分类和严重程度评估.
-func (m *AnomalyManager) ClassifyEvent(event *AnomalyEvent) string {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	// 查找匹配的规则
-	for _, rule := range m.rules {
-		if rule.EventType == event.EventType && rule.Enabled {
-			if event.Deviation >= rule.Threshold*2 {
-				return "critical"
-			} else if event.Deviation >= rule.Threshold*1.5 {
-				return "high"
-			} else if event.Deviation >= rule.Threshold {
-				return "medium"
+			if growthRate > m.config.CapacityGrowthThreshold {
+				events = append(events, AnomalyEvent{
+					ID:          generateID(),
+					RuleID:      "capacity_growth",
+					RuleName:    "容量增长异常",
+					Type:        AnomalyTypeCapacityGrowth,
+					Severity:    SeverityWarning,
+					DeviceID:    deviceID,
+					MountPoint:  latest.MountPoint,
+					Title:       "容量增长异常",
+					Description: fmt.Sprintf("容量日增长率达到 %.1f%%，超过阈值 %.1f%%", growthRate, m.config.CapacityGrowthThreshold),
+					Metrics:     latest,
+					Suggestions: []string{
+						"检查是否有异常的写入操作",
+						"检查是否有日志文件过度增长",
+						"考虑设置容量告警",
+					},
+					DetectedAt: time.Now(),
+				})
 			}
-			return "low"
 		}
 	}
 
-	// 默认分类
-	return classifySeverity(event.Deviation)
+	return events
 }
 
-// AutoRespond 自动响应异常事件.
-func (m *AnomalyManager) AutoRespond(event *AnomalyEvent) string {
-	var response string
+// detectIOPSAnomaly 检测IOPS异常
+func (m *AnomalyManager) detectIOPSAnomaly(deviceID string, latest *StorageMetrics, history []*StorageMetrics) []AnomalyEvent {
+	events := make([]AnomalyEvent, 0)
 
-	switch event.EventType {
-	case "write_spike":
-		if event.Severity == "critical" {
-			response = "已触发限流：限制写入速率至基线的 150%"
-		} else if event.Severity == "high" {
-			response = "已发送告警通知，监控中"
-		} else {
-			response = "已记录日志，持续监控"
-		}
-	case "size_anomaly":
-		if event.Severity == "critical" || event.Severity == "high" {
-			response = "已触发文件扫描，暂停可疑写入"
-		} else {
-			response = "已记录，等待人工确认"
-		}
-	case "access_pattern":
-		if event.Severity == "critical" {
-			response = "已临时封锁来源 IP，发送安全告警"
-		} else {
-			response = "已记录异常访问，加强监控"
-		}
-	case "data_leak":
-		if event.Severity == "critical" || event.Severity == "high" {
-			response = "已触发数据外传阻断，通知管理员"
-		} else {
-			response = "已记录可疑传输，监控中"
-		}
-	case "hw_failure":
-		response = "已安排磁盘健康检查，建议备份数据"
-	case "malware":
-		if event.Severity == "critical" || event.Severity == "high" {
-			response = "已隔离可疑文件，触发全盘扫描"
-		} else {
-			response = "已记录可疑行为，发送安全告警"
-		}
-	default:
-		response = "已记录事件"
+	// 计算平均IOPS
+	var totalReadIOPS, totalWriteIOPS float64
+	for _, h := range history {
+		totalReadIOPS += h.ReadIOPS
+		totalWriteIOPS += h.WriteIOPS
+	}
+	avgReadIOPS := totalReadIOPS / float64(len(history))
+	avgWriteIOPS := totalWriteIOPS / float64(len(history))
+
+	// 检查当前IOPS是否异常
+	if avgReadIOPS > 0 && latest.ReadIOPS > avgReadIOPS*m.config.IOPSSpikeThreshold {
+		events = append(events, AnomalyEvent{
+			ID:          generateID(),
+			RuleID:      "iops_spike",
+			RuleName:    "IOPS峰值异常",
+			Type:        AnomalyTypeIOPSSpike,
+			Severity:    SeverityWarning,
+			DeviceID:    deviceID,
+			MountPoint:  latest.MountPoint,
+			Title:       "读IOPS异常峰值",
+			Description: fmt.Sprintf("当前读IOPS %.0f，是平均值 %.0f 的 %.1f 倍", latest.ReadIOPS, avgReadIOPS, latest.ReadIOPS/avgReadIOPS),
+			Metrics:     latest,
+			Suggestions: []string{
+				"检查是否有批量读取操作",
+				"检查是否有异常的访问模式",
+			},
+			DetectedAt: time.Now(),
+		})
 	}
 
+	if avgWriteIOPS > 0 && latest.WriteIOPS > avgWriteIOPS*m.config.IOPSSpikeThreshold {
+		events = append(events, AnomalyEvent{
+			ID:          generateID(),
+			RuleID:      "iops_spike",
+			RuleName:    "IOPS峰值异常",
+			Type:        AnomalyTypeIOPSSpike,
+			Severity:    SeverityWarning,
+			DeviceID:    deviceID,
+			MountPoint:  latest.MountPoint,
+			Title:       "写IOPS异常峰值",
+			Description: fmt.Sprintf("当前写IOPS %.0f，是平均值 %.0f 的 %.1f 倍", latest.WriteIOPS, avgWriteIOPS, latest.WriteIOPS/avgWriteIOPS),
+			Metrics:     latest,
+			Suggestions: []string{
+				"检查是否有批量写入操作",
+				"检查是否有数据备份任务",
+			},
+			DetectedAt: time.Now(),
+		})
+	}
+
+	return events
+}
+
+// detectLatencyAnomaly 检测延迟异常
+func (m *AnomalyManager) detectLatencyAnomaly(deviceID string, latest *StorageMetrics, history []*StorageMetrics) []AnomalyEvent {
+	events := make([]AnomalyEvent, 0)
+
+	// 计算平均延迟
+	var totalReadLatency, totalWriteLatency float64
+	count := 0
+	for _, h := range history {
+		if h.ReadLatency > 0 || h.WriteLatency > 0 {
+			totalReadLatency += h.ReadLatency
+			totalWriteLatency += h.WriteLatency
+			count++
+		}
+	}
+
+	if count == 0 {
+		return events
+	}
+
+	avgReadLatency := totalReadLatency / float64(count)
+	avgWriteLatency := totalWriteLatency / float64(count)
+
+	// 检查延迟是否异常
+	if latest.ReadLatency > m.config.LatencySpikeThreshold {
+		events = append(events, AnomalyEvent{
+			ID:          generateID(),
+			RuleID:      "latency_spike",
+			RuleName:    "延迟峰值异常",
+			Type:        AnomalyTypeLatencySpike,
+			Severity:    SeverityWarning,
+			DeviceID:    deviceID,
+			MountPoint:  latest.MountPoint,
+			Title:       "读延迟异常",
+			Description: fmt.Sprintf("读延迟 %.1fms，超过阈值 %.1fms", latest.ReadLatency, m.config.LatencySpikeThreshold),
+			Metrics:     latest,
+			Suggestions: []string{
+				"检查磁盘健康状态",
+				"检查是否有其他进程占用IO",
+			},
+			DetectedAt: time.Now(),
+		})
+	}
+
+	if latest.WriteLatency > m.config.LatencySpikeThreshold {
+		events = append(events, AnomalyEvent{
+			ID:          generateID(),
+			RuleID:      "latency_spike",
+			RuleName:    "延迟峰值异常",
+			Type:        AnomalyTypeLatencySpike,
+			Severity:    SeverityWarning,
+			DeviceID:    deviceID,
+			MountPoint:  latest.MountPoint,
+			Title:       "写延迟异常",
+			Description: fmt.Sprintf("写延迟 %.1fms，超过阈值 %.1fms", latest.WriteLatency, m.config.LatencySpikeThreshold),
+			Metrics:     latest,
+			Suggestions: []string{
+				"检查磁盘健康状态",
+				"检查RAID状态",
+			},
+			DetectedAt: time.Now(),
+		})
+	}
+
+	// 检查延迟是否显著高于平均值
+	if avgReadLatency > 0 && latest.ReadLatency > avgReadLatency*3 {
+		events = append(events, AnomalyEvent{
+			ID:          generateID(),
+			RuleID:      "latency_spike",
+			RuleName:    "延迟峰值异常",
+			Type:        AnomalyTypeLatencySpike,
+			Severity:    SeverityWarning,
+			DeviceID:    deviceID,
+			MountPoint:  latest.MountPoint,
+			Title:       "读延迟显著升高",
+			Description: fmt.Sprintf("读延迟 %.1fms，是平均值 %.1fms 的 %.1f 倍", latest.ReadLatency, avgReadLatency, latest.ReadLatency/avgReadLatency),
+			Metrics:     latest,
+			DetectedAt:  time.Now(),
+		})
+	}
+
+	if avgWriteLatency > 0 && latest.WriteLatency > avgWriteLatency*3 {
+		events = append(events, AnomalyEvent{
+			ID:          generateID(),
+			RuleID:      "latency_spike",
+			RuleName:    "延迟峰值异常",
+			Type:        AnomalyTypeLatencySpike,
+			Severity:    SeverityWarning,
+			DeviceID:    deviceID,
+			MountPoint:  latest.MountPoint,
+			Title:       "写延迟显著升高",
+			Description: fmt.Sprintf("写延迟 %.1fms，是平均值 %.1fms 的 %.1f 倍", latest.WriteLatency, avgWriteLatency, latest.WriteLatency/avgWriteLatency),
+			Metrics:     latest,
+			DetectedAt:  time.Now(),
+		})
+	}
+
+	return events
+}
+
+// detectDataCorruption 检测数据损坏
+func (m *AnomalyManager) detectDataCorruption(deviceID string, latest *StorageMetrics) []AnomalyEvent {
+	events := make([]AnomalyEvent, 0)
+
+	if latest.CorruptedFiles > 0 {
+		severity := SeverityWarning
+		if latest.CorruptedFiles > 10 {
+			severity = SeverityCritical
+		}
+
+		events = append(events, AnomalyEvent{
+			ID:          generateID(),
+			RuleID:      "data_corruption",
+			RuleName:    "数据损坏检测",
+			Type:        AnomalyTypeDataCorruption,
+			Severity:    severity,
+			DeviceID:    deviceID,
+			MountPoint:  latest.MountPoint,
+			Title:       "检测到数据损坏",
+			Description: fmt.Sprintf("发现 %d 个损坏文件", latest.CorruptedFiles),
+			Metrics:     latest,
+			Suggestions: []string{
+				"立即备份重要数据",
+				"检查磁盘健康状态",
+				"运行文件系统检查",
+				"检查RAID状态",
+			},
+			DetectedAt: time.Now(),
+		})
+	}
+
+	if latest.ErrorCount > 0 {
+		events = append(events, AnomalyEvent{
+			ID:          generateID(),
+			RuleID:      "data_corruption",
+			RuleName:    "数据损坏检测",
+			Type:        AnomalyTypeDataCorruption,
+			Severity:    SeverityWarning,
+			DeviceID:    deviceID,
+			MountPoint:  latest.MountPoint,
+			Title:       "存储错误",
+			Description: fmt.Sprintf("检测到 %d 次存储错误", latest.ErrorCount),
+			Metrics:     latest,
+			Suggestions: []string{
+				"检查磁盘SMART数据",
+				"检查连接线缆",
+			},
+			DetectedAt: time.Now(),
+		})
+	}
+
+	return events
+}
+
+// generateSummary 生成摘要
+func (m *AnomalyManager) generateSummary(events []AnomalyEvent) string {
+	if len(events) == 0 {
+		return "未发现异常"
+	}
+
+	criticalCount := 0
+	warningCount := 0
+	for _, e := range events {
+		switch e.Severity {
+		case SeverityCritical, SeverityFatal:
+			criticalCount++
+		case SeverityWarning:
+			warningCount++
+		}
+	}
+
+	if criticalCount > 0 {
+		return fmt.Sprintf("发现 %d 个严重异常和 %d 个警告", criticalCount, warningCount)
+	}
+	return fmt.Sprintf("发现 %d 个警告", warningCount)
+}
+
+// CreateRule 创建规则
+func (m *AnomalyManager) CreateRule(req *CreateRuleRequest) (*AnomalyRule, error) {
 	m.mu.Lock()
-	event.Response = response
-	m.mu.Unlock()
+	defer m.mu.Unlock()
 
-	return response
+	if req.Name == "" {
+		return nil, fmt.Errorf("规则名称不能为空")
+	}
+
+	rule := &AnomalyRule{
+		ID:          generateID(),
+		Name:        req.Name,
+		Description: req.Description,
+		Type:        req.Type,
+		Enabled:     true,
+		Severity:    req.Severity,
+		Conditions:  req.Conditions,
+		Actions:     req.Actions,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	m.rules[rule.ID] = rule
+	return rule, nil
 }
 
-// ========== 事件管理 ==========
+// GetRule 获取规则
+func (m *AnomalyManager) GetRule(id string) (*AnomalyRule, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 
-// GetEvent 获取事件详情.
+	rule, exists := m.rules[id]
+	if !exists {
+		return nil, fmt.Errorf("规则不存在: %s", id)
+	}
+
+	return rule, nil
+}
+
+// ListRules 列出规则
+func (m *AnomalyManager) ListRules() []AnomalyRule {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	rules := make([]AnomalyRule, 0, len(m.rules))
+	for _, rule := range m.rules {
+		rules = append(rules, *rule)
+	}
+
+	return rules
+}
+
+// UpdateRule 更新规则
+func (m *AnomalyManager) UpdateRule(req *UpdateRuleRequest) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	rule, exists := m.rules[req.ID]
+	if !exists {
+		return fmt.Errorf("规则不存在: %s", req.ID)
+	}
+
+	if req.Name != "" {
+		rule.Name = req.Name
+	}
+	if req.Description != "" {
+		rule.Description = req.Description
+	}
+	if req.Enabled != nil {
+		rule.Enabled = *req.Enabled
+	}
+	if req.Severity != "" {
+		rule.Severity = req.Severity
+	}
+	if req.Conditions != nil {
+		rule.Conditions = req.Conditions
+	}
+	if req.Actions != nil {
+		rule.Actions = req.Actions
+	}
+	rule.UpdatedAt = time.Now()
+
+	return nil
+}
+
+// DeleteRule 删除规则
+func (m *AnomalyManager) DeleteRule(id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.rules[id]; !exists {
+		return fmt.Errorf("规则不存在: %s", id)
+	}
+
+	delete(m.rules, id)
+	return nil
+}
+
+// GetEvent 获取事件
 func (m *AnomalyManager) GetEvent(id string) (*AnomalyEvent, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	evt, ok := m.events[id]
-	if !ok {
-		return nil, fmt.Errorf("event %q not found", id)
+	for _, event := range m.events {
+		if event.ID == id {
+			return event, nil
+		}
 	}
-	cp := *evt
-	return &cp, nil
+
+	return nil, fmt.Errorf("事件不存在: %s", id)
 }
 
-// ListEvents 列出事件.
-func (m *AnomalyManager) ListEvents(limit int, severity string, eventType string) []*AnomalyEvent {
+// ListEvents 列出事件
+func (m *AnomalyManager) ListEvents(deviceID string, severity AnomalySeverity, limit int) []AnomalyEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]*AnomalyEvent, 0)
-	for i := len(m.history) - 1; i >= 0; i-- {
-		evt := m.history[i]
-		if severity != "" && evt.Severity != severity {
+	events := make([]AnomalyEvent, 0)
+	for _, event := range m.events {
+		if deviceID != "" && event.DeviceID != deviceID {
 			continue
 		}
-		if eventType != "" && evt.EventType != eventType {
+		if severity != "" && event.Severity != severity {
 			continue
 		}
-		cp := *evt
-		result = append(result, &cp)
-		if limit > 0 && len(result) >= limit {
-			break
-		}
+		events = append(events, *event)
 	}
-	return result
+
+	// 按时间倒序
+	for i := 0; i < len(events)/2; i++ {
+		j := len(events) - 1 - i
+		events[i], events[j] = events[j], events[i]
+	}
+
+	if limit > 0 && len(events) > limit {
+		events = events[:limit]
+	}
+
+	return events
 }
 
-// ResolveEvent 标记事件已解决.
-func (m *AnomalyManager) ResolveEvent(id string) error {
+// AckEvent 确认事件
+func (m *AnomalyManager) AckEvent(eventID, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	evt, ok := m.events[id]
-	if !ok {
-		return fmt.Errorf("event %q not found", id)
+	for _, event := range m.events {
+		if event.ID == eventID {
+			now := time.Now()
+			event.AckedAt = &now
+			event.AckedBy = userID
+			return nil
+		}
 	}
 
-	now := time.Now()
-	evt.Resolved = true
-	evt.ResolvedAt = &now
-	return nil
+	return fmt.Errorf("事件不存在: %s", eventID)
 }
 
-// GetStats 获取异常统计.
+// ResolveEvent 解决事件
+func (m *AnomalyManager) ResolveEvent(eventID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	for _, event := range m.events {
+		if event.ID == eventID {
+			event.Resolved = true
+			now := time.Now()
+			event.ResolvedAt = &now
+			return nil
+		}
+	}
+
+	return fmt.Errorf("事件不存在: %s", eventID)
+}
+
+// GetStats 获取统计信息
 func (m *AnomalyManager) GetStats() *AnomalyStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	stats := &AnomalyStats{
-		TotalEvents: len(m.history),
-		BySeverity:  make(map[string]int),
-		ByType:      make(map[string]int),
+	stats := &AnomalyStats{}
+
+	for _, event := range m.events {
+		stats.TotalEvents++
+		if event.AckedAt == nil {
+			stats.UnackedEvents++
+		}
+		if !event.Resolved {
+			stats.UnresolvedEvents++
+		}
+		switch event.Severity {
+		case SeverityCritical, SeverityFatal:
+			stats.CriticalEvents++
+		case SeverityWarning:
+			stats.WarningEvents++
+		}
 	}
 
-	for _, evt := range m.history {
-		stats.BySeverity[evt.Severity]++
-		stats.ByType[evt.EventType]++
-		if !evt.Resolved {
-			stats.Unresolved++
-		}
-		if stats.LastEventTime == nil || evt.Timestamp.After(*stats.LastEventTime) {
-			stats.LastEventTime = &evt.Timestamp
+	for _, rule := range m.rules {
+		if rule.Enabled {
+			stats.ActiveRules++
 		}
 	}
 
 	return stats
 }
 
-// ========== 采样数据 ==========
+// addEvent 添加事件
+func (m *AnomalyManager) addEvent(event *AnomalyEvent) {
+	// 检查冷却时间
+	_, exists := m.rules[event.RuleID]
+	if exists {
+		lastAlert, hasLast := m.lastAlerts[event.RuleID]
+		if hasLast && time.Since(lastAlert) < m.config.AlertCooldown {
+			return
+		}
 
-// IngestSample 导入采样数据.
-func (m *AnomalyManager) IngestSample(req IngestSampleRequest) {
+		// 检查每小时告警数
+		count := m.alertCounts[event.RuleID]
+		if count >= m.config.MaxAlertsPerHour {
+			return
+		}
+	}
+
+	m.events = append(m.events, event)
+	m.lastAlerts[event.RuleID] = time.Now()
+	m.alertCounts[event.RuleID]++
+}
+
+// ResetAlertCounts 重置告警计数
+func (m *AnomalyManager) ResetAlertCounts() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	point := &SampleDataPoint{
-		Timestamp:  time.Now(),
-		WriteBytes: req.WriteBytes,
-		ReadBytes:  req.ReadBytes,
-		FileCount:  req.FileCount,
-		AccessOps:  req.AccessOps,
-	}
-
-	m.samples[req.Path] = append(m.samples[req.Path], point)
+	m.alertCounts = make(map[string]int)
 }
 
-// GetSampleCount 获取采样数量.
-func (m *AnomalyManager) GetSampleCount(path string) int {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	return len(m.samples[path])
+// generateID 生成随机ID
+func generateID() string {
+	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
-// ========== 规则管理 ==========
-
-// ListRules 列出所有规则.
-func (m *AnomalyManager) ListRules() []*AnomalyRule {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	rules := make([]*AnomalyRule, 0, len(m.rules))
-	for _, r := range m.rules {
-		cp := *r
-		rules = append(rules, &cp)
-	}
-	return rules
-}
-
-// AddRule 添加规则.
-func (m *AnomalyManager) AddRule(req AddRuleRequest) *AnomalyRule {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	rule := &AnomalyRule{
-		ID:          uuid.New().String(),
-		Name:        req.Name,
-		EventType:   req.EventType,
-		Enabled:     true,
-		Threshold:   req.Threshold,
-		MinSamples:  req.MinSamples,
-		Description: req.Description,
-	}
-
-	if rule.Threshold <= 0 {
-		rule.Threshold = 3.0
-	}
-	if rule.MinSamples <= 0 {
-		rule.MinSamples = 5
-	}
-
-	m.rules[rule.ID] = rule
-	return rule
-}
-
-// ToggleRule 启用/禁用规则.
-func (m *AnomalyManager) ToggleRule(id string, enabled bool) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	rule, ok := m.rules[id]
-	if !ok {
-		return fmt.Errorf("rule %q not found", id)
-	}
-	rule.Enabled = enabled
-	return nil
-}
-
-// RemoveRule 移除规则.
-func (m *AnomalyManager) RemoveRule(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, ok := m.rules[id]; !ok {
-		return fmt.Errorf("rule %q not found", id)
-	}
-	delete(m.rules, id)
-	return nil
-}
-
-// ========== 配置管理 ==========
-
-// GetConfig 获取配置.
-func (m *AnomalyManager) GetConfig() DetectionConfig {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.config
-}
-
-// UpdateConfig 更新配置.
-func (m *AnomalyManager) UpdateConfig(req UpdateConfigRequest) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if req.Enabled != nil {
-		m.config.Enabled = *req.Enabled
-	}
-	if req.ScanInterval != nil {
-		m.config.ScanInterval = *req.ScanInterval
-	}
-	if req.DeviationFactor != nil {
-		m.config.DeviationFactor = *req.DeviationFactor
-	}
-	if req.MinBaselineAge != nil {
-		m.config.MinBaselineAge = *req.MinBaselineAge
-	}
-	if req.AutoRespond != nil {
-		m.config.AutoRespond = *req.AutoRespond
-	}
-	if req.AlertThreshold != nil {
-		m.config.AlertThreshold = *req.AlertThreshold
-	}
-	if req.MaxEventsPerHour != nil {
-		m.config.MaxEventsPerHour = *req.MaxEventsPerHour
-	}
-}
-
-// ========== 内部方法 ==========
-
-func (m *AnomalyManager) createEvent(eventType, severity, path, description string, metric, baseline, deviation float64, source string) *AnomalyEvent {
-	return &AnomalyEvent{
-		ID:          uuid.New().String(),
-		EventType:   eventType,
-		Severity:    severity,
-		Path:        path,
-		Description: description,
-		Metric:      metric,
-		Baseline:    baseline,
-		Deviation:   deviation,
-		Source:      source,
-		Timestamp:   time.Now(),
-		Resolved:    false,
-	}
-}
-
-func classifySeverity(deviation float64) string {
-	switch {
-	case deviation >= 6.0:
-		return "critical"
-	case deviation >= 4.5:
-		return "high"
-	case deviation >= 3.0:
-		return "medium"
-	default:
-		return "low"
-	}
-}
-
-func computeStdDev(values []float64, mean float64) float64 {
+// calculateMean 计算平均值
+func calculateMean(values []float64) float64 {
 	if len(values) == 0 {
 		return 0
 	}
-	var sumSq float64
-	for _, v := range values {
-		diff := v - mean
-		sumSq += diff * diff
-	}
-	return math.Sqrt(sumSq / float64(len(values)))
-}
-
-func computeStdDevFromValues(values []float64) float64 {
-	if len(values) == 0 {
-		return 0
-	}
-	var sum float64
+	sum := 0.0
 	for _, v := range values {
 		sum += v
 	}
-	mean := sum / float64(len(values))
-	return computeStdDev(values, mean)
+	return sum / float64(len(values))
+}
+
+// calculateStdDev 计算标准差
+func calculateStdDev(values []float64) float64 {
+	if len(values) == 0 {
+		return 0
+	}
+	mean := calculateMean(values)
+	sumSquares := 0.0
+	for _, v := range values {
+		diff := v - mean
+		sumSquares += diff * diff
+	}
+	return math.Sqrt(sumSquares / float64(len(values)))
 }
