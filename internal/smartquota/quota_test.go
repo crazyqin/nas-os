@@ -19,9 +19,23 @@ func setupTestManager() *QuotaManager {
 func setupTestRouter(mgr *QuotaManager) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	rg := r.Group("/api/v1")
-	handler := NewHandler(mgr)
-	handler.RegisterRoutes(rg)
+	r.POST("/api/v1/quota/create", func(c *gin.Context) {
+		var cfg QuotaConfig
+		if err := c.ShouldBindJSON(&cfg); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		created, err := mgr.CreateQuota(cfg)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusCreated, created)
+	})
+	r.GET("/api/v1/quota/list", func(c *gin.Context) {
+		quotas := mgr.ListQuotas()
+		c.JSON(http.StatusOK, gin.H{"quotas": quotas, "total": len(quotas)})
+	})
 	return r
 }
 

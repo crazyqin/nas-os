@@ -1,3 +1,51 @@
+## [v2.530.0] - 2026-05-31
+
+### 🔧 修复 + 🆕 新功能模块 - 第251轮开发
+
+#### Bug 修复
+- **smartquota**: 修复测试文件中的类型不匹配问题，更新API调用方式
+- **ups**: 修复测试中的重复启动/停止问题
+
+#### 新增功能模块
+1. **filededup** - 文件去重引擎（对标群晖 Data Deduplication）
+   - 块级去重（4KB/64KB/256KB可配置）
+   - 哈希索引管理
+   - 去重率统计
+   - 文件恢复功能
+   - 完整 HTTP API
+
+2. **benchmarkpro** - 存储性能基准测试（对标 TrueNAS Benchmark）
+   - 磁盘IO测试（顺序/随机读写）
+   - 网络带宽测试
+   - 性能报告生成
+   - 综合评分系统
+   - 完整 HTTP API
+
+3. **smartfan** - 智能风扇控制（对标群晖 Thermal Management）
+   - 温度监控（CPU/硬盘/主板）
+   - 风扇曲线调节
+   - 节能模式（静音/性能/自动）
+   - PID控制算法
+   - 完整单元测试
+
+4. **ups** - UPS电源管理增强（对标群晖 UPS Support）
+   - UPS状态监控
+   - 电池健康评分
+   - 低电量自动关机
+   - 电源事件日志
+   - 完整单元测试
+
+5. **trafficclassifier** - 网络流量分析增强（对标群晖 Traffic Control）
+   - 带宽监控
+   - 流量分类统计
+   - QoS策略配置
+   - 自定义规则引擎
+   - 完整单元测试
+
+#### 竞品分析参考
+- 群晖 DSM 7.3: Data Deduplication、Thermal Management、UPS Support、Traffic Control
+- TrueNAS: Benchmark工具、性能测试、存储优化
+
 ## [v2.529.0] - 2026-05-31
 
 ### 🔧 修复 + 🆕 新功能模块 - 第233轮开发
