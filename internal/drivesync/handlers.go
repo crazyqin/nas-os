@@ -1,311 +1,161 @@
-// Package drivesync 提供 HTTP API handlers
+// Package drivesync 文件同步服务 - HTTP handlers
 package drivesync
 
 import (
+	"encoding/json"
 	"net/http"
-	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
-// Handler Drive Sync HTTP handler.
+// Handler HTTP 处理器
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建 HTTP handler.
+// NewHandler 创建处理器
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由.
-func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
-	sync := rg.Group("/drivesync")
-	{
-		// 同步任务
-		sync.POST("/sync", h.CreateTask)
-		sync.GET("/sync", h.ListTasks)
-		sync.GET("/sync/:id", h.GetTask)
-		sync.PUT("/sync/:id", h.UpdateTask)
-		sync.DELETE("/sync/:id", h.DeleteTask)
-		sync.POST("/sync/:id/pause", h.PauseTask)
-		sync.POST("/sync/:id/resume", h.ResumeTask)
-
-		// 文件信息和版本
-		sync.GET("/files/*path", h.GetFileInfo)
-		sync.GET("/files/*path/versions", h.GetFileVersions)
-		sync.POST("/files/*path/restore/:versionId", h.RestoreVersion)
-		sync.GET("/files/*path/diff/:v1/:v2", h.DiffVersions)
-
-		// 文件锁
-		sync.POST("/lock/*path", h.LockFile)
-		sync.DELETE("/lock/*path", h.UnlockFile)
-		sync.GET("/locks", h.ListLocks)
-
-		// 冲突
-		sync.GET("/conflicts", h.ListConflicts)
-		sync.POST("/conflicts/:id/resolve", h.ResolveConflict)
-
-		// 协作
-		sync.GET("/activity", h.GetActivities)
-
-		// 统计
-		sync.GET("/stats", h.GetStats)
-	}
+// RegisterRoutes 注册路由
+func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/drive/sync", h.handleSync)
+	mux.HandleFunc("/api/drive/status", h.handleStatus)
+	mux.HandleFunc("/api/drive/conflicts", h.handleConflicts)
+	mux.HandleFunc("/api/drive/conflicts/resolve", h.handleResolveConflict)
+	mux.HandleFunc("/api/drive/stats", h.handleStats)
+	mux.HandleFunc("/api/drive/policy", h.handlePolicy)
 }
 
-// ========== 同步任务 API ==========
-
-// CreateTask 创建同步任务.
-func (h *Handler) CreateTask(c *gin.Context) {
-	var input SyncTaskInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误: " + err.Error()})
+func (h *Handler) handleSync(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	task, err := h.manager.CreateTask(input)
+	var req struct {
+		SourcePath string `json:"source_path"`
+		TargetPath string `json:"target_path"`
+		IsDir      bool   `json:"is_dir"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	var task *SyncTask
+	var err error
+
+	if req.IsDir {
+		task, err = h.manager.SyncDirectory(r.Context(), req.SourcePath, req.TargetPath)
+	} else {
+		task, err = h.manager.SyncFile(r.Context(), req.SourcePath, req.TargetPath)
+	}
+
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusCreated, task)
+	json.NewEncoder(w).Encode(task)
 }
 
-// ListTasks 列出同步任务.
-func (h *Handler) ListTasks(c *gin.Context) {
-	tasks := h.manager.ListTasks()
-	c.JSON(http.StatusOK, gin.H{"tasks": tasks, "total": len(tasks)})
-}
+func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-// GetTask 获取任务详情.
-func (h *Handler) GetTask(c *gin.Context) {
-	id := c.Param("id")
-	task, err := h.manager.GetTask(id)
+	taskID := r.URL.Query().Get("task_id")
+	if taskID == "" {
+		http.Error(w, "task_id required", http.StatusBadRequest)
+		return
+	}
+
+	status, err := h.manager.GetSyncStatus(r.Context(), taskID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	c.JSON(http.StatusOK, task)
+
+	json.NewEncoder(w).Encode(status)
 }
 
-// UpdateTask 更新任务.
-func (h *Handler) UpdateTask(c *gin.Context) {
-	id := c.Param("id")
-	var input SyncTaskInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误: " + err.Error()})
+func (h *Handler) handleConflicts(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	task, err := h.manager.UpdateTask(id, input)
+	conflicts, err := h.manager.ListConflicts(r.Context())
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, task)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"conflicts": conflicts,
+	})
 }
 
-// DeleteTask 删除任务.
-func (h *Handler) DeleteTask(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeleteTask(id); err != nil {
-		if err == ErrSyncTaskRunning {
-			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+func (h *Handler) handleResolveConflict(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		ConflictID string `json:"conflict_id"`
+		Resolution string `json:"resolution"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.ResolveConflict(r.Context(), req.ConflictID, req.Resolution); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{"status": "resolved"})
+}
+
+func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	stats, err := h.manager.GetStats(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(stats)
+}
+
+func (h *Handler) handlePolicy(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// TODO: 返回当前策略
+		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	case http.MethodPut:
+		var policy SyncPolicy
+		if err := json.NewDecoder(r.Body).Decode(&policy); err != nil {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+			return
 		}
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "任务已删除"})
-}
 
-// PauseTask 暂停任务.
-func (h *Handler) PauseTask(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.PauseTask(id); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "任务已暂停"})
-}
-
-// ResumeTask 恢复任务.
-func (h *Handler) ResumeTask(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.ResumeTask(id); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "任务已恢复"})
-}
-
-// ========== 文件信息 API ==========
-
-// GetFileInfo 获取文件信息.
-func (h *Handler) GetFileInfo(c *gin.Context) {
-	path := c.Param("path")
-	if path == "" || path == "/" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "路径不能为空"})
-		return
-	}
-
-	// 获取版本历史
-	versions := h.manager.GetFileVersions(path)
-
-	// 获取锁信息
-	lock := h.manager.GetFileLock(path)
-
-	// 获取评论
-	comments := h.manager.GetComments(path)
-
-	info := &FileInfo{
-		Path:     path,
-		Versions: versions,
-		Lock:     lock,
-		Comments: comments,
-	}
-
-	c.JSON(http.StatusOK, info)
-}
-
-// GetFileVersions 获取文件版本历史.
-func (h *Handler) GetFileVersions(c *gin.Context) {
-	path := c.Param("path")
-	versions := h.manager.GetFileVersions(path)
-	c.JSON(http.StatusOK, gin.H{"versions": versions, "total": len(versions)})
-}
-
-// RestoreVersion 恢复文件版本.
-func (h *Handler) RestoreVersion(c *gin.Context) {
-	path := c.Param("path")
-	versionID := c.Param("versionId")
-
-	version, err := h.manager.RestoreVersion(path, versionID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "版本已恢复", "version": version})
-}
-
-// DiffVersions 版本对比.
-func (h *Handler) DiffVersions(c *gin.Context) {
-	path := c.Param("path")
-	v1 := c.Param("v1")
-	v2 := c.Param("v2")
-
-	diff, err := h.manager.DiffVersions(path, v1, v2)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, diff)
-}
-
-// ========== 文件锁 API ==========
-
-// LockFile 锁定文件.
-func (h *Handler) LockFile(c *gin.Context) {
-	path := c.Param("path")
-	var input FileLockInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误: " + err.Error()})
-		return
-	}
-
-	lock, err := h.manager.LockFile(path, input)
-	if err != nil {
-		if err == ErrFileLocked {
-			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if err := h.manager.SetPolicy(r.Context(), policy); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
-		return
+
+		json.NewEncoder(w).Encode(map[string]string{"status": "updated"})
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
-
-	c.JSON(http.StatusCreated, lock)
-}
-
-// UnlockFile 解锁文件.
-func (h *Handler) UnlockFile(c *gin.Context) {
-	path := c.Param("path")
-	userID := c.Query("user_id")
-	if userID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "缺少 user_id 参数"})
-		return
-	}
-
-	if err := h.manager.UnlockFile(path, userID); err != nil {
-		if err == ErrFileNotLocked {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		}
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "文件已解锁"})
-}
-
-// ListLocks 列出文件锁.
-func (h *Handler) ListLocks(c *gin.Context) {
-	locks := h.manager.ListLocks()
-	c.JSON(http.StatusOK, gin.H{"locks": locks, "total": len(locks)})
-}
-
-// ========== 冲突 API ==========
-
-// ListConflicts 列出冲突.
-func (h *Handler) ListConflicts(c *gin.Context) {
-	conflicts := h.manager.ListConflicts()
-	c.JSON(http.StatusOK, gin.H{"conflicts": conflicts, "total": len(conflicts)})
-}
-
-// ResolveConflict 解决冲突.
-func (h *Handler) ResolveConflict(c *gin.Context) {
-	id := c.Param("id")
-	var input ConflictResolveInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误: " + err.Error()})
-		return
-	}
-
-	resolvedBy := c.Query("resolved_by")
-	if resolvedBy == "" {
-		resolvedBy = "system"
-	}
-
-	if err := h.manager.ResolveConflict(id, input.Resolution, resolvedBy); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "冲突已解决"})
-}
-
-// ========== 协作 API ==========
-
-// GetActivities 获取活动流.
-func (h *Handler) GetActivities(c *gin.Context) {
-	limitStr := c.DefaultQuery("limit", "50")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit <= 0 {
-		limit = 50
-	}
-
-	activities := h.manager.GetActivities(limit)
-	c.JSON(http.StatusOK, gin.H{"activities": activities, "total": len(activities)})
-}
-
-// ========== 统计 API ==========
-
-// GetStats 获取同步统计.
-func (h *Handler) GetStats(c *gin.Context) {
-	stats := h.manager.GetStats()
-	c.JSON(http.StatusOK, stats)
 }

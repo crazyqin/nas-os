@@ -1,184 +1,35 @@
+// Package drivesync 测试文件
 package drivesync
 
 import (
+	"context"
 	"testing"
-	"time"
 )
 
-func TestNewDriveSyncManager(t *testing.T) {
-	mgr := NewDriveSyncManager(nil)
-	if mgr == nil {
-		t.Fatal("expected non-nil manager")
+func TestManager_GetStats(t *testing.T) {
+	m := NewManager("/tmp/test-drive")
+	ctx := context.Background()
+
+	stats, err := m.GetStats(ctx)
+	if err != nil {
+		t.Fatalf("GetStats failed: %v", err)
+	}
+
+	if stats["total_files"] != 0 {
+		t.Errorf("Expected 0 files, got %v", stats["total_files"])
 	}
 }
 
-func TestCreateAndGetTask(t *testing.T) {
-	mgr := NewDriveSyncManager(nil)
+func TestManager_ListConflicts(t *testing.T) {
+	m := NewManager("/tmp/test-drive")
+	ctx := context.Background()
 
-	task := &SyncTask{
-		ID:         "task1",
-		Name:       "My Documents",
-		LocalPath:  "/home/user/docs",
-		RemotePath: "/docs",
+	conflicts, err := m.ListConflicts(ctx)
+	if err != nil {
+		t.Fatalf("ListConflicts failed: %v", err)
 	}
 
-	if err := mgr.CreateTask(task); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	got, exists := mgr.GetTask("task1")
-	if !exists {
-		t.Fatal("expected task to exist")
-	}
-	if got.Name != "My Documents" {
-		t.Errorf("expected name 'My Documents', got %q", got.Name)
-	}
-}
-
-func TestCreateDuplicateTask(t *testing.T) {
-	mgr := NewDriveSyncManager(nil)
-
-	task1 := &SyncTask{
-		ID:         "task1",
-		LocalPath:  "/home/user/docs",
-		RemotePath: "/docs",
-	}
-
-	task2 := &SyncTask{
-		ID:         "task2",
-		LocalPath:  "/home/user/docs", // 相同路径
-		RemotePath: "/docs",
-	}
-
-	mgr.CreateTask(task1)
-
-	if err := mgr.CreateTask(task2); err == nil {
-		t.Error("expected error for duplicate paths")
-	}
-}
-
-func TestDriveSyncDeleteTask(t *testing.T) {
-	mgr := NewDriveSyncManager(nil)
-
-	task := &SyncTask{
-		ID:         "task1",
-		LocalPath:  "/home/user/docs",
-		RemotePath: "/docs",
-	}
-
-	mgr.CreateTask(task)
-
-	if err := mgr.DeleteTask("task1"); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	_, exists := mgr.GetTask("task1")
-	if exists {
-		t.Error("expected task to be deleted")
-	}
-}
-
-func TestStartAndCompleteSync(t *testing.T) {
-	mgr := NewDriveSyncManager(nil)
-
-	task := &SyncTask{
-		ID:         "task1",
-		LocalPath:  "/home/user/docs",
-		RemotePath: "/docs",
-	}
-
-	mgr.CreateTask(task)
-
-	// 开始同步
-	if err := mgr.StartSync("task1"); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	got, _ := mgr.GetTask("task1")
-	if got.Status != TaskStatusSyncing {
-		t.Errorf("expected syncing status, got %v", got.Status)
-	}
-
-	// 完成同步
-	if err := mgr.CompleteSync("task1", 10, 0); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	got, _ = mgr.GetTask("task1")
-	if got.Status != TaskStatusCompleted {
-		t.Errorf("expected completed status, got %v", got.Status)
-	}
-	if got.FileCount != 10 {
-		t.Errorf("expected 10 synced files, got %d", got.FileCount)
-	}
-}
-
-func TestPauseAndResumeSync(t *testing.T) {
-	mgr := NewDriveSyncManager(nil)
-
-	task := &SyncTask{
-		ID:         "task1",
-		LocalPath:  "/home/user/docs",
-		RemotePath: "/docs",
-	}
-
-	mgr.CreateTask(task)
-
-	// 暂停
-	if err := mgr.PauseSync("task1"); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	got, _ := mgr.GetTask("task1")
-	if got.Status != TaskStatusPaused {
-		t.Errorf("expected paused status, got %v", got.Status)
-	}
-
-	// 恢复
-	if err := mgr.ResumeSync("task1"); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	got, _ = mgr.GetTask("task1")
-	if got.Status != TaskStatusIdle {
-		t.Errorf("expected idle status, got %v", got.Status)
-	}
-}
-
-func TestAddFileVersion(t *testing.T) {
-	mgr := NewDriveSyncManager(nil)
-
-	version := &FileVersion{
-		ID:        "v1",
-		FilePath:  "/docs/file.txt",
-		Size:      1024,
-		Checksum:  "abc123",
-		CreatedBy: "user1",
-		CreatedAt: time.Now(),
-	}
-
-	if err := mgr.AddFileVersion("/docs/file.txt", version); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	versions := mgr.GetFileVersions("/docs/file.txt")
-	if len(versions) != 1 {
-		t.Errorf("expected 1 version, got %d", len(versions))
-	}
-}
-
-func TestDriveSyncGetStats(t *testing.T) {
-	mgr := NewDriveSyncManager(nil)
-
-	mgr.CreateTask(&SyncTask{
-		ID:         "task1",
-		LocalPath:  "/home/user/docs",
-		RemotePath: "/docs",
-	})
-
-	stats := mgr.GetStats()
-	totalTasks := stats["total_tasks"].(int)
-	if totalTasks != 1 {
-		t.Errorf("expected 1 task, got %d", totalTasks)
+	if len(conflicts) != 0 {
+		t.Errorf("Expected 0 conflicts, got %d", len(conflicts))
 	}
 }

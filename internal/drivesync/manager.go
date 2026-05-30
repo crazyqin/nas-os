@@ -1,517 +1,429 @@
-// Package drivesync 提供增强版文件同步功能
+// Package drivesync 文件同步服务模块
+// 学习群晖 Drive 的多端同步功能
 package drivesync
 
 import (
-	"crypto/rand"
+	"context"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
 )
 
-// Manager Drive Sync 核心管理器.
+// Manager 同步管理器
 type Manager struct {
-	mu            sync.RWMutex
-	tasks         map[string]*SyncTask       // taskID -> SyncTask
-	files         map[string]*FileInfo        // filePath -> FileInfo
-	versions      map[string][]*FileVersion   // filePath -> []FileVersion
-	conflicts     map[string]*FileConflict    // conflictID -> FileConflict
-	locks         map[string]*FileLock        // filePath -> FileLock
-	comments      map[string][]*Comment       // filePath -> []Comment
-	activities    []*Activity                 // 活动记录（最近N条）
-	maxActivities int                         // 最大活动记录数
-	configPath    string                      // 配置持久化路径
-	versionConfig VersionConfig               // 版本控制配置
-	startTime     time.Time                   // 启动时间
-	wsClients     map[string]chan WebSocketMessage // WebSocket 客户端通道
+	mu          sync.RWMutex
+	files       map[string]*SyncFile
+	tasks       map[string]*SyncTask
+	conflicts   map[string]*SyncConflict
+	policy      SyncPolicy
+	storagePath string
+	syncChan    chan *SyncTask
+	stopChan    chan struct{}
+	activities  []*Activity
+	locks       map[string]*FileLock   // filePath -> lock
+	comments    map[string][]*Comment  // filePath -> comments
+	wsListeners map[string][]chan WebSocketMessage // filePath -> listeners
 }
 
-// NewManager 创建 Drive Sync 管理器.
-func NewManager(configPath string, versionCfg VersionConfig) *Manager {
-	// 设置默认版本配置
-	if versionCfg.RetentionDays == 0 {
-		versionCfg.RetentionDays = 30
-	}
-	if versionCfg.MaxVersions == 0 {
-		versionCfg.MaxVersions = 100
-	}
-
+// NewManager 创建同步管理器
+func NewManager(storagePath string) *Manager {
 	m := &Manager{
-		tasks:         make(map[string]*SyncTask),
-		files:         make(map[string]*FileInfo),
-		versions:      make(map[string][]*FileVersion),
-		conflicts:     make(map[string]*FileConflict),
-		locks:         make(map[string]*FileLock),
-		comments:      make(map[string][]*Comment),
-		activities:    make([]*Activity, 0),
-		maxActivities: 1000,
-		configPath:    configPath,
-		versionConfig: versionCfg,
-		startTime:     time.Now(),
-		wsClients:     make(map[string]chan WebSocketMessage),
+		files:       make(map[string]*SyncFile),
+		tasks:       make(map[string]*SyncTask),
+		conflicts:   make(map[string]*SyncConflict),
+		storagePath: storagePath,
+		syncChan:    make(chan *SyncTask, 100),
+		stopChan:    make(chan struct{}),
+		locks:       make(map[string]*FileLock),
+		comments:    make(map[string][]*Comment),
+		wsListeners: make(map[string][]chan WebSocketMessage),
+		policy: SyncPolicy{
+			AutoSync:     true,
+			SyncInterval: 5 * time.Minute,
+			ConflictMode: "ask",
+			MaxFileSize:  10 * 1024 * 1024 * 1024, // 10GB
+		},
 	}
-
-	// 加载持久化配置
-	if configPath != "" {
-		_ = m.loadConfig()
-	}
-
+	go m.syncWorker()
 	return m
 }
 
-// ========== 同步任务管理 ==========
-
-// CreateTask 创建同步任务.
-func (m *Manager) CreateTask(input SyncTaskInput) (*SyncTask, error) {
+// AddSyncPath 添加同步目录
+func (m *Manager) AddSyncPath(ctx context.Context, path string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	// 设置默认值
-	if input.Direction == "" {
-		input.Direction = SyncBidirectional
-	}
-	if input.ConflictPolicy == "" {
-		input.ConflictPolicy = ConflictNewerWins
+	// 验证路径存在
+	info, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("path not found: %w", err)
 	}
 
+	if !info.IsDir() {
+		return fmt.Errorf("path is not a directory: %s", path)
+	}
+
+	// 扫描目录
+	return m.scanDirectory(path, userID)
+}
+
+// SyncFile 同步单个文件
+func (m *Manager) SyncFile(ctx context.Context, filePath string, targetPath string) (*SyncTask, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	// 检查文件是否存在
+	info, err := os.Stat(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("file not found: %w", err)
+	}
+
+	// 检查文件大小限制
+	if info.Size() > m.policy.MaxFileSize {
+		return nil, fmt.Errorf("file size exceeds limit: %d > %d", info.Size(), m.policy.MaxFileSize)
+	}
+
+	// 创建同步任务
 	task := &SyncTask{
-		ID:              generateID(),
-		Name:            input.Name,
-		LocalPath:       input.LocalPath,
-		RemotePath:      input.RemotePath,
-		DeviceID:        input.DeviceID,
-		Direction:       input.Direction,
-		ConflictPolicy:  input.ConflictPolicy,
-		Status:          TaskStatusIdle,
-		Enabled:         input.Enabled,
-		Interval:        input.Interval,
-		ExcludePatterns: input.ExcludePatterns,
-		IncludePatterns: input.IncludePatterns,
-		BandwidthLimit:  input.BandwidthLimit,
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
+		ID:         generateID(),
+		SourcePath: filePath,
+		TargetPath: targetPath,
+		Direction:  "upload",
+		Status:     "pending",
+		TotalFiles: 1,
+		StartedAt:  time.Now(),
 	}
 
 	m.tasks[task.ID] = task
+	m.syncChan <- task
 
-	// 记录活动
-	m.addActivity(ActivitySyncStarted, task.LocalPath, "", task.ID, fmt.Sprintf("创建同步任务: %s", task.Name))
-
-	_ = m.saveConfig()
 	return task, nil
 }
 
-// GetTask 获取同步任务.
-func (m *Manager) GetTask(id string) (*SyncTask, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	task, exists := m.tasks[id]
-	if !exists {
-		return nil, ErrSyncTaskNotFound
-	}
-	return task, nil
-}
-
-// ListTasks 列出所有同步任务.
-func (m *Manager) ListTasks() []*SyncTask {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	result := make([]*SyncTask, 0, len(m.tasks))
-	for _, t := range m.tasks {
-		result = append(result, t)
-	}
-	return result
-}
-
-// UpdateTask 更新同步任务.
-func (m *Manager) UpdateTask(id string, input SyncTaskInput) (*SyncTask, error) {
+// SyncDirectory 同步整个目录
+func (m *Manager) SyncDirectory(ctx context.Context, sourcePath string, targetPath string) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	task, exists := m.tasks[id]
-	if !exists {
-		return nil, ErrSyncTaskNotFound
+	task := &SyncTask{
+		ID:         generateID(),
+		SourcePath: sourcePath,
+		TargetPath: targetPath,
+		Direction:  "bidirectional",
+		Status:     "pending",
+		StartedAt:  time.Now(),
 	}
 
-	task.Name = input.Name
-	task.LocalPath = input.LocalPath
-	task.RemotePath = input.RemotePath
-	task.DeviceID = input.DeviceID
-	if input.Direction != "" {
-		task.Direction = input.Direction
-	}
-	if input.ConflictPolicy != "" {
-		task.ConflictPolicy = input.ConflictPolicy
-	}
-	task.Enabled = input.Enabled
-	task.Interval = input.Interval
-	task.ExcludePatterns = input.ExcludePatterns
-	task.IncludePatterns = input.IncludePatterns
-	task.BandwidthLimit = input.BandwidthLimit
-	task.UpdatedAt = time.Now()
-
-	_ = m.saveConfig()
-	return task, nil
-}
-
-// DeleteTask 删除同步任务.
-func (m *Manager) DeleteTask(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	task, exists := m.tasks[id]
-	if !exists {
-		return ErrSyncTaskNotFound
-	}
-
-	// 检查是否正在同步
-	if task.Status == TaskStatusSyncing {
-		return ErrSyncTaskRunning
-	}
-
-	delete(m.tasks, id)
-	_ = m.saveConfig()
-	return nil
-}
-
-// PauseTask 暂停同步任务.
-func (m *Manager) PauseTask(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	task, exists := m.tasks[id]
-	if !exists {
-		return ErrSyncTaskNotFound
-	}
-
-	if task.Status != TaskStatusSyncing && task.Status != TaskStatusIdle {
-		return ErrSyncTaskNotRunning
-	}
-
-	task.Status = TaskStatusPaused
-	task.UpdatedAt = time.Now()
-
-	_ = m.saveConfig()
-	return nil
-}
-
-// ResumeTask 恢复同步任务.
-func (m *Manager) ResumeTask(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	task, exists := m.tasks[id]
-	if !exists {
-		return ErrSyncTaskNotFound
-	}
-
-	if task.Status != TaskStatusPaused {
-		return fmt.Errorf("任务未暂停，当前状态: %s", task.Status)
-	}
-
-	task.Status = TaskStatusIdle
-	task.UpdatedAt = time.Now()
-
-	_ = m.saveConfig()
-	return nil
-}
-
-// ========== 版本管理 ==========
-
-// GetFileVersions 获取文件版本历史.
-func (m *Manager) GetFileVersions(filePath string) []*FileVersion {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	versions := m.versions[filePath]
-	if versions == nil {
-		return make([]*FileVersion, 0)
-	}
-	return versions
-}
-
-// CreateFileVersion 创建文件版本.
-func (m *Manager) CreateFileVersion(filePath string, size int64, checksum string, createdBy string) (*FileVersion, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	versions := m.versions[filePath]
-	versionNum := len(versions) + 1
-
-	expiresAt := time.Now().AddDate(0, 0, m.versionConfig.RetentionDays)
-
-	version := &FileVersion{
-		ID:          generateID(),
-		FilePath:    filePath,
-		VersionNum:  versionNum,
-		Size:        size,
-		Checksum:    checksum,
-		StoragePath: fmt.Sprintf(".versions/%s/v%d", filePath, versionNum),
-		CreatedBy:   createdBy,
-		CreatedAt:   time.Now(),
-		ExpiresAt:   &expiresAt,
-	}
-
-	m.versions[filePath] = append(m.versions[filePath], version)
-
-	// 清理过期版本
-	m.cleanupVersions(filePath)
-
-	// 记录活动
-	m.addActivity(ActivityVersionCreated, filePath, createdBy, "", fmt.Sprintf("创建版本 v%d", versionNum))
-
-	_ = m.saveConfig()
-	return version, nil
-}
-
-// RestoreVersion 恢复文件到指定版本.
-func (m *Manager) RestoreVersion(filePath string, versionID string) (*FileVersion, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	versions := m.versions[filePath]
-	for _, v := range versions {
-		if v.ID == versionID {
-			// 记录活动
-			m.addActivity(ActivityFileRestored, filePath, "", "", fmt.Sprintf("恢复到版本 v%d", v.VersionNum))
-			_ = m.saveConfig()
-			return v, nil
+	// 统计文件数量
+	fileCount := 0
+	filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
+		if err == nil && !info.IsDir() {
+			fileCount++
 		}
-	}
-
-	return nil, ErrFileVersionNotFound
-}
-
-// DiffVersions 对比两个版本的差异.
-func (m *Manager) DiffVersions(filePath string, v1ID string, v2ID string) (*VersionDiff, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	versions := m.versions[filePath]
-
-	var ver1, ver2 *FileVersion
-	for _, v := range versions {
-		if v.ID == v1ID {
-			ver1 = v
-		}
-		if v.ID == v2ID {
-			ver2 = v
-		}
-	}
-
-	if ver1 == nil || ver2 == nil {
-		return nil, ErrFileVersionNotFound
-	}
-
-	// 简化版diff：比较校验和和大小
-	diff := &VersionDiff{
-		FromVersion:  v1ID,
-		ToVersion:    v2ID,
-		FromChecksum: ver1.Checksum,
-		ToChecksum:   ver2.Checksum,
-	}
-
-	if ver1.Checksum == ver2.Checksum {
-		diff.Similarity = 1.0
-	} else {
-		// 基于大小差异估算相似度
-		sizeDiff := ver1.Size - ver2.Size
-		if sizeDiff < 0 {
-			sizeDiff = -sizeDiff
-		}
-		maxSize := ver1.Size
-		if ver2.Size > maxSize {
-			maxSize = ver2.Size
-		}
-		if maxSize > 0 {
-			diff.Similarity = 1.0 - float64(sizeDiff)/float64(maxSize)
-		}
-		diff.Modified = 1
-	}
-
-	return diff, nil
-}
-
-// cleanupVersions 清理过期和超限版本.
-func (m *Manager) cleanupVersions(filePath string) {
-	versions := m.versions[filePath]
-	if len(versions) == 0 {
-		return
-	}
-
-	now := time.Now()
-	var valid []*FileVersion
-
-	for _, v := range versions {
-		if v.ExpiresAt != nil && v.ExpiresAt.Before(now) {
-			continue // 已过期，跳过
-		}
-		valid = append(valid, v)
-	}
-
-	// 超过最大版本数，保留最新的
-	if len(valid) > m.versionConfig.MaxVersions {
-		valid = valid[len(valid)-m.versionConfig.MaxVersions:]
-	}
-
-	m.versions[filePath] = valid
-}
-
-// SetVersionLabel 设置版本标签.
-func (m *Manager) SetVersionLabel(filePath, versionID, label string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	versions := m.versions[filePath]
-	for _, v := range versions {
-		if v.ID == versionID {
-			v.Label = label
-			_ = m.saveConfig()
-			return nil
-		}
-	}
-	return ErrFileVersionNotFound
-}
-
-// SetVersionComment 设置版本注释.
-func (m *Manager) SetVersionComment(filePath, versionID, comment string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	versions := m.versions[filePath]
-	for _, v := range versions {
-		if v.ID == versionID {
-			v.Comment = comment
-			_ = m.saveConfig()
-			return nil
-		}
-	}
-	return ErrFileVersionNotFound
-}
-
-// ========== 冲突管理 ==========
-
-// CreateConflict 创建冲突记录.
-func (m *Manager) CreateConflict(taskID, filePath string, localChecksum, remoteChecksum string, localModTime, remoteModTime time.Time, localSize, remoteSize int64, localDeviceID, remoteDeviceID string) *FileConflict {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	conflict := &FileConflict{
-		ID:             generateID(),
-		TaskID:         taskID,
-		FilePath:       filePath,
-		LocalChecksum:  localChecksum,
-		RemoteChecksum: remoteChecksum,
-		LocalModTime:   localModTime,
-		RemoteModTime:  remoteModTime,
-		LocalSize:      localSize,
-		RemoteSize:     remoteSize,
-		LocalDeviceID:  localDeviceID,
-		RemoteDeviceID: remoteDeviceID,
-		Status:         ConflictStatusPending,
-		CreatedAt:      time.Now(),
-	}
-
-	m.conflicts[conflict.ID] = conflict
-
-	// 记录活动
-	m.addActivity(ActivityConflictDetected, filePath, "", taskID, "检测到文件冲突")
-
-	// 通知 WebSocket 客户端
-	m.broadcastWS(WebSocketMessage{
-		Type:    "conflict",
-		Payload: conflict,
-		Time:    time.Now(),
+		return nil
 	})
+	task.TotalFiles = fileCount
 
-	_ = m.saveConfig()
-	return conflict
+	m.tasks[task.ID] = task
+	m.syncChan <- task
+
+	return task, nil
 }
 
-// ListConflicts 列出所有冲突.
-func (m *Manager) ListConflicts() []*FileConflict {
+// GetSyncStatus 获取同步状态
+func (m *Manager) GetSyncStatus(ctx context.Context, taskID string) (*SyncTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]*FileConflict, 0, len(m.conflicts))
-	for _, c := range m.conflicts {
-		result = append(result, c)
+	task, exists := m.tasks[taskID]
+	if !exists {
+		return nil, fmt.Errorf("task not found: %s", taskID)
 	}
-	return result
+
+	return task, nil
 }
 
-// ResolveConflict 解决冲突.
-func (m *Manager) ResolveConflict(conflictID string, resolution ConflictResolution, resolvedBy string) error {
+// ListConflicts 列出冲突
+func (m *Manager) ListConflicts(ctx context.Context) ([]SyncConflict, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	conflicts := make([]SyncConflict, 0, len(m.conflicts))
+	for _, c := range m.conflicts {
+		if c.Resolution == "" {
+			conflicts = append(conflicts, *c)
+		}
+	}
+
+	return conflicts, nil
+}
+
+// ResolveConflict 解决冲突
+func (m *Manager) ResolveConflict(ctx context.Context, conflictID string, resolution string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	conflict, exists := m.conflicts[conflictID]
 	if !exists {
-		return ErrConflictNotFound
+		return fmt.Errorf("conflict not found: %s", conflictID)
 	}
 
-	now := time.Now()
+	validResolutions := map[string]bool{
+		"keep_local":  true,
+		"keep_remote": true,
+		"keep_both":   true,
+		"skip":        true,
+	}
+
+	if !validResolutions[resolution] {
+		return fmt.Errorf("invalid resolution: %s", resolution)
+	}
+
 	conflict.Resolution = resolution
-	conflict.Status = ConflictStatusResolved
-	conflict.ResolvedBy = resolvedBy
-	conflict.ResolvedAt = &now
+	conflict.ResolvedAt = time.Now()
 
-	// 如果保留双方，生成重命名路径
-	if resolution == ConflictKeepBoth {
-		ext := filepath.Ext(conflict.FilePath)
-		base := conflict.FilePath[:len(conflict.FilePath)-len(ext)]
-		conflict.RenamedPath = fmt.Sprintf("%s (conflict %s)%s", base, now.Format("20060102-150405"), ext)
-	}
-
-	// 记录活动
-	m.addActivity(ActivityConflictResolved, conflict.FilePath, resolvedBy, conflict.TaskID,
-		fmt.Sprintf("冲突已解决: %s", resolution))
-
-	// 通知 WebSocket 客户端
-	m.broadcastWS(WebSocketMessage{
-		Type:    "conflict_resolved",
-		Payload: conflict,
-		Time:    time.Now(),
-	})
-
-	_ = m.saveConfig()
 	return nil
 }
 
-// ========== 文件锁管理 ==========
+// GetFileVersions 获取文件版本历史
+func (m *Manager) GetFileVersions(ctx context.Context, filePath string) ([]SyncFile, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 
-// LockFile 锁定文件.
+	// TODO: 实现版本历史查询
+	return []SyncFile{}, nil
+}
+
+// SetPolicy 设置同步策略
+func (m *Manager) SetPolicy(ctx context.Context, policy SyncPolicy) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.policy = policy
+	return nil
+}
+
+// GetStats 获取同步统计
+func (m *Manager) GetStats(ctx context.Context) (map[string]interface{}, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	totalSize := int64(0)
+	syncedCount := 0
+	pendingCount := 0
+	conflictCount := 0
+
+	for _, file := range m.files {
+		totalSize += file.Size
+		switch file.Status {
+		case "synced":
+			syncedCount++
+		case "pending":
+			pendingCount++
+		case "conflict":
+			conflictCount++
+		}
+	}
+
+	return map[string]interface{}{
+		"total_files":    len(m.files),
+		"synced_files":   syncedCount,
+		"pending_files":  pendingCount,
+		"conflict_files": conflictCount,
+		"total_size":     totalSize,
+		"active_tasks":   len(m.tasks),
+	}, nil
+}
+
+// 内部方法
+
+func (m *Manager) scanDirectory(path string, userID string) error {
+	return filepath.Walk(path, func(filePath string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// 跳过隐藏文件
+		if info.Name()[0] == '.' {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
+		// 检查排除模式
+		if m.isExcluded(filePath) {
+			return nil
+		}
+
+		// 计算校验和
+		checksum := ""
+		if !info.IsDir() {
+			checksum = m.calculateChecksum(filePath)
+		}
+
+		file := &SyncFile{
+			ID:         generateID(),
+			Path:       filePath,
+			Name:       info.Name(),
+			Size:       info.Size(),
+			Checksum:   checksum,
+			ModifiedAt: info.ModTime(),
+			Status:     "synced",
+			OwnerID:    userID,
+			IsFolder:   info.IsDir(),
+		}
+
+		m.files[file.ID] = file
+		return nil
+	})
+}
+
+func (m *Manager) isExcluded(path string) bool {
+	for _, pattern := range m.policy.ExcludePatterns {
+		if matched, _ := filepath.Match(pattern, filepath.Base(path)); matched {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *Manager) calculateChecksum(filePath string) string {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return ""
+	}
+
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func (m *Manager) syncWorker() {
+	for {
+		select {
+		case task := <-m.syncChan:
+			m.processSyncTask(task)
+		case <-m.stopChan:
+			return
+		}
+	}
+}
+
+func (m *Manager) processSyncTask(task *SyncTask) {
+	m.mu.Lock()
+	task.Status = "running"
+	m.mu.Unlock()
+
+	log.Printf("Starting sync task: %s", task.ID)
+
+	// TODO: 实现实际同步逻辑
+	// 模拟同步进度
+	for i := 0; i <= 100; i += 10 {
+		m.mu.Lock()
+		task.Progress = float64(i) / 100.0
+		task.SyncedFiles = int(float64(task.TotalFiles) * task.Progress)
+		m.mu.Unlock()
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	m.mu.Lock()
+	task.Status = "completed"
+	task.Progress = 1.0
+	task.CompletedAt = time.Now()
+	m.mu.Unlock()
+
+	log.Printf("Sync task completed: %s", task.ID)
+}
+
+func generateID() string {
+	return fmt.Sprintf("%d", time.Now().UnixNano())
+}
+
+// Export 导出同步文件列表
+func (m *Manager) Export(ctx context.Context) ([]byte, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	files := make([]SyncFile, 0, len(m.files))
+	for _, f := range m.files {
+		files = append(files, *f)
+	}
+
+	return json.MarshalIndent(files, "", "  ")
+}
+
+// GetActivities 获取活动记录列表
+func (m *Manager) GetActivities(limit int) []*Activity {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	if limit <= 0 || limit > len(m.activities) {
+		limit = len(m.activities)
+	}
+	// 返回最新的记录
+	start := len(m.activities) - limit
+	if start < 0 {
+		start = 0
+	}
+	result := make([]*Activity, limit)
+	copy(result, m.activities[start:])
+	return result
+}
+
+// addActivity 添加活动记录
+func (m *Manager) addActivity(actType ActivityType, filePath, userID, userName, details string) {
+	activity := &Activity{
+		ID:        fmt.Sprintf("%d", time.Now().UnixNano()),
+		Type:      actType,
+		FilePath:  filePath,
+		UserID:    userID,
+		UserName:  userName,
+		Details:   details,
+		CreatedAt: time.Now(),
+	}
+	m.activities = append(m.activities, activity)
+	// 限制活动记录数量
+	if len(m.activities) > 10000 {
+		m.activities = m.activities[len(m.activities)-10000:]
+	}
+}
+
+// LockFile 锁定文件
 func (m *Manager) LockFile(filePath string, input FileLockInput) (*FileLock, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	// 检查是否已被锁定
+	// 检查文件是否已被锁定
 	if existingLock, exists := m.locks[filePath]; exists {
-		// 检查锁是否过期
-		if existingLock.ExpiresAt.After(time.Now()) {
-			return nil, ErrFileLocked
+		if time.Now().Before(existingLock.ExpiresAt) {
+			return nil, fmt.Errorf("%w: %s", ErrFileLocked, filePath)
 		}
-		// 锁已过期，自动清理
-		delete(m.locks, filePath)
 	}
 
-	// 设置默认值
+	duration := input.Duration
+	if duration <= 0 {
+		duration = 30
+	}
+
 	lockType := input.LockType
 	if lockType == "" {
 		lockType = "exclusive"
 	}
-	duration := input.Duration
-	if duration <= 0 {
-		duration = 30 // 默认30分钟
-	}
 
 	lock := &FileLock{
-		ID:        generateID(),
+		ID:        fmt.Sprintf("%d", time.Now().UnixNano()),
 		FilePath:  filePath,
 		LockedBy:  input.LockedBy,
 		LockType:  lockType,
@@ -521,88 +433,38 @@ func (m *Manager) LockFile(filePath string, input FileLockInput) (*FileLock, err
 	}
 
 	m.locks[filePath] = lock
+	m.addActivity(ActivityLockAcquired, filePath, input.LockedBy, "", "文件已锁定")
 
-	// 记录活动
-	m.addActivity(ActivityLockAcquired, filePath, input.LockedBy, "", fmt.Sprintf("文件已锁定 (%s)", lockType))
-
-	// 通知 WebSocket 客户端
-	m.broadcastWS(WebSocketMessage{
-		Type:    "lock_change",
-		Payload: lock,
-		Time:    time.Now(),
-	})
-
-	_ = m.saveConfig()
 	return lock, nil
 }
 
-// UnlockFile 解锁文件.
-func (m *Manager) UnlockFile(filePath string, userID string) error {
+// UnlockFile 解锁文件
+func (m *Manager) UnlockFile(filePath, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	lock, exists := m.locks[filePath]
 	if !exists {
-		return ErrFileNotLocked
+		return fmt.Errorf("%w: %s", ErrFileNotLocked, filePath)
 	}
 
-	// 验证锁定者（只能由锁定者解锁）
 	if lock.LockedBy != userID {
-		return fmt.Errorf("只有锁定者 %s 可以解锁", lock.LockedBy)
+		return fmt.Errorf("文件被其他用户锁定: %s", lock.LockedBy)
 	}
 
 	delete(m.locks, filePath)
-
-	// 记录活动
 	m.addActivity(ActivityLockReleased, filePath, userID, "", "文件已解锁")
 
-	// 通知 WebSocket 客户端
-	m.broadcastWS(WebSocketMessage{
-		Type:    "lock_change",
-		Payload: map[string]string{"file_path": filePath, "action": "unlocked"},
-		Time:    time.Now(),
-	})
-
-	_ = m.saveConfig()
 	return nil
 }
 
-// ListLocks 列出所有文件锁.
-func (m *Manager) ListLocks() []*FileLock {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	result := make([]*FileLock, 0, len(m.locks))
-	for _, l := range m.locks {
-		// 只返回未过期的锁
-		if l.ExpiresAt.After(time.Now()) {
-			result = append(result, l)
-		}
-	}
-	return result
-}
-
-// GetFileLock 获取文件的锁信息.
-func (m *Manager) GetFileLock(filePath string) *FileLock {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	lock, exists := m.locks[filePath]
-	if !exists || lock.ExpiresAt.Before(time.Now()) {
-		return nil
-	}
-	return lock
-}
-
-// ========== 协作（评论和活动） ==========
-
-// AddComment 添加文件评论.
+// AddComment 添加评论
 func (m *Manager) AddComment(filePath string, input CommentInput) *Comment {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	comment := &Comment{
-		ID:        generateID(),
+		ID:        fmt.Sprintf("%d", time.Now().UnixNano()),
 		FilePath:  filePath,
 		UserID:    input.UserID,
 		UserName:  input.UserName,
@@ -613,256 +475,24 @@ func (m *Manager) AddComment(filePath string, input CommentInput) *Comment {
 	}
 
 	m.comments[filePath] = append(m.comments[filePath], comment)
+	m.addActivity(ActivityCommentAdded, filePath, input.UserID, input.UserName, input.Content)
 
-	// 记录活动
-	m.addActivity(ActivityCommentAdded, filePath, input.UserID, "", fmt.Sprintf("添加评论: %s", truncate(input.Content, 50)))
-
-	// 如果有@提及，记录提及活动
-	if len(input.Mentions) > 0 {
-		m.addActivity(ActivityMentionAdded, filePath, input.UserID, "", fmt.Sprintf("@提及了 %d 人", len(input.Mentions)))
-	}
-
-	// 通知 WebSocket 客户端
-	m.broadcastWS(WebSocketMessage{
-		Type:    "comment_added",
-		Payload: comment,
-		Time:    time.Now(),
-	})
-
-	_ = m.saveConfig()
 	return comment
 }
 
-// GetComments 获取文件评论列表.
-func (m *Manager) GetComments(filePath string) []*Comment {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	comments := m.comments[filePath]
-	if comments == nil {
-		return make([]*Comment, 0)
+// broadcastWS 广播 WebSocket 消息
+func (m *Manager) broadcastWS(msg WebSocketMessage) {
+	// 不锁 mu，调用方需保证线程安全
+	filePath, _ := msg.Payload.(map[string]interface{})["file_path"].(string)
+	if filePath == "" {
+		return
 	}
-	return comments
-}
-
-// GetActivities 获取活动流.
-func (m *Manager) GetActivities(limit int) []*Activity {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	if limit <= 0 {
-		limit = 50
-	}
-	if limit > len(m.activities) {
-		limit = len(m.activities)
-	}
-
-	result := make([]*Activity, limit)
-	copy(result, m.activities[len(m.activities)-limit:])
-
-	// 反转顺序（最新的在前）
-	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
-		result[i], result[j] = result[j], result[i]
-	}
-
-	return result
-}
-
-// addActivity 添加活动记录（需要持有写锁）.
-func (m *Manager) addActivity(actType ActivityType, filePath, userID, taskID, details string) {
-	activity := &Activity{
-		ID:        generateID(),
-		Type:      actType,
-		FilePath:  filePath,
-		UserID:    userID,
-		TaskID:    taskID,
-		Details:   details,
-		CreatedAt: time.Now(),
-	}
-
-	m.activities = append(m.activities, activity)
-
-	// 限制活动记录数
-	if len(m.activities) > m.maxActivities {
-		m.activities = m.activities[len(m.activities)-m.maxActivities:]
-	}
-}
-
-// ========== 同步统计 ==========
-
-// GetStats 获取同步统计信息.
-func (m *Manager) GetStats() *SyncStats {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	stats := &SyncStats{
-		TotalTasks: len(m.tasks),
-		Uptime:     time.Since(m.startTime),
-	}
-
-	for _, t := range m.tasks {
-		switch t.Status {
-		case TaskStatusSyncing:
-			stats.ActiveTasks++
-		case TaskStatusPaused:
-			stats.PausedTasks++
-		case TaskStatusError:
-			stats.ErrorTasks++
-		}
-		stats.TotalFiles += t.FileCount
-		stats.SyncedBytes += t.SyncedBytes
-
-		if t.LastSyncAt != nil {
-			if stats.LastSyncAt == nil || t.LastSyncAt.After(*stats.LastSyncAt) {
-				stats.LastSyncAt = t.LastSyncAt
+	if listeners, exists := m.wsListeners[filePath]; exists {
+		for _, ch := range listeners {
+			select {
+			case ch <- msg:
+			default:
 			}
 		}
 	}
-
-	// 统计版本数
-	for _, versions := range m.versions {
-		stats.TotalVersions += len(versions)
-	}
-
-	// 统计活跃锁数
-	for _, l := range m.locks {
-		if l.ExpiresAt.After(time.Now()) {
-			stats.ActiveLocks++
-		}
-	}
-
-	// 统计待解决冲突
-	for _, c := range m.conflicts {
-		if c.Status == ConflictStatusPending {
-			stats.PendingConflicts++
-		}
-	}
-
-	return stats
-}
-
-// ========== WebSocket ==========
-
-// RegisterWSClient 注册 WebSocket 客户端.
-func (m *Manager) RegisterWSClient(clientID string) chan WebSocketMessage {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	ch := make(chan WebSocketMessage, 100)
-	m.wsClients[clientID] = ch
-	return ch
-}
-
-// UnregisterWSClient 注销 WebSocket 客户端.
-func (m *Manager) UnregisterWSClient(clientID string) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if ch, exists := m.wsClients[clientID]; exists {
-		close(ch)
-		delete(m.wsClients, clientID)
-	}
-}
-
-// broadcastWS 广播 WebSocket 消息（需要持有写锁）.
-func (m *Manager) broadcastWS(msg WebSocketMessage) {
-	for _, ch := range m.wsClients {
-		select {
-		case ch <- msg:
-		default:
-			// 客户端缓冲区满，跳过
-		}
-	}
-}
-
-// ========== 持久化 ==========
-
-type persistentConfig struct {
-	Tasks     map[string]*SyncTask        `json:"tasks"`
-	Versions  map[string][]*FileVersion   `json:"versions"`
-	Conflicts map[string]*FileConflict    `json:"conflicts"`
-	Locks     map[string]*FileLock        `json:"locks"`
-	Comments  map[string][]*Comment       `json:"comments"`
-}
-
-func (m *Manager) loadConfig() error {
-	if m.configPath == "" {
-		return nil
-	}
-
-	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
-		return nil
-	}
-
-	data, err := os.ReadFile(m.configPath)
-	if err != nil {
-		return fmt.Errorf("读取配置文件失败: %w", err)
-	}
-
-	var pc persistentConfig
-	if err := json.Unmarshal(data, &pc); err != nil {
-		return fmt.Errorf("解析配置文件失败: %w", err)
-	}
-
-	if pc.Tasks != nil {
-		m.tasks = pc.Tasks
-	}
-	if pc.Versions != nil {
-		m.versions = pc.Versions
-	}
-	if pc.Conflicts != nil {
-		m.conflicts = pc.Conflicts
-	}
-	if pc.Locks != nil {
-		m.locks = pc.Locks
-	}
-	if pc.Comments != nil {
-		m.comments = pc.Comments
-	}
-
-	return nil
-}
-
-func (m *Manager) saveConfig() error {
-	if m.configPath == "" {
-		return nil
-	}
-
-	pc := persistentConfig{
-		Tasks:     m.tasks,
-		Versions:  m.versions,
-		Conflicts: m.conflicts,
-		Locks:     m.locks,
-		Comments:  m.comments,
-	}
-
-	data, err := json.MarshalIndent(pc, "", "  ")
-	if err != nil {
-		return fmt.Errorf("序列化配置失败: %w", err)
-	}
-
-	if err := os.MkdirAll(filepath.Dir(m.configPath), 0750); err != nil {
-		return fmt.Errorf("创建配置目录失败: %w", err)
-	}
-
-	return os.WriteFile(m.configPath, data, 0600)
-}
-
-// ========== 工具函数 ==========
-
-// generateID 生成唯一ID.
-func generateID() string {
-	b := make([]byte, 16)
-	if _, err := rand.Read(b); err != nil {
-		return fmt.Sprintf("%d", time.Now().UnixNano())
-	}
-	return hex.EncodeToString(b)
-}
-
-// truncate 截断字符串.
-func truncate(s string, maxLen int) string {
-	if len(s) <= maxLen {
-		return s
-	}
-	return s[:maxLen] + "..."
 }
