@@ -525,6 +525,8 @@ func (hm *HealthManager) runBenchmark(result *BenchmarkResult) {
 
 	metrics := &BenchmarkMetrics{}
 	testFile := filepath.Join(cfg.DevicePath, fmt.Sprintf(".nvme-bench-%d.tmp", time.Now().UnixNano()))
+	// 确保临时文件在任何退出路径都会被清理
+	defer os.Remove(testFile)
 
 	var err error
 
@@ -574,9 +576,6 @@ func (hm *HealthManager) runBenchmark(result *BenchmarkResult) {
 	result.CompletedAt = &now
 	result.Status = "completed"
 	result.Duration = now.Sub(result.StartedAt)
-
-	// 清理临时文件
-	os.Remove(testFile)
 
 	hm.finishBenchmark(result)
 
