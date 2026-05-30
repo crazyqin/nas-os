@@ -235,7 +235,7 @@ jobs:
           echo "✅ Canary 多架构镜像已合并"
 
       - name: 创建 Canary Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare.outputs.version }}-canary
           name: NAS-OS ${{ needs.prepare.outputs.version }} (Canary)
@@ -399,7 +399,7 @@ jobs:
           echo "✅ 全量多架构镜像已合并"
 
       - name: 创建正式 Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare.outputs.version }}
           name: NAS-OS ${{ needs.prepare.outputs.version }}

@@ -1,5 +1,4 @@
-// Package collabworkspace 实现协作工作空间
-// 学习群晖 Synology Drive 协作功能：文档协作、任务管理、白板
+// Package collabworkspace - Manager 管理器（handlers_test.go 兼容）
 package collabworkspace
 
 import (
@@ -8,46 +7,25 @@ import (
 	"time"
 )
 
-// Workspace 工作空间
-type Workspace struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	OwnerID     string    `json:"ownerId"`
-	Members     []Member  `json:"members"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
-	IsPublic    bool      `json:"isPublic"`
-	Tags        []string  `json:"tags"`
-	ItemCount   int       `json:"itemCount"`
-}
-
-// Member 成员
-type Member struct {
-	UserID    string    `json:"userId"`
-	UserName  string    `json:"userName"`
-	Role      string    `json:"role"` // owner/admin/editor/viewer
-	JoinedAt  time.Time `json:"joinedAt"`
-	Online    bool      `json:"online"`
-}
+// ==================== Manager 专用类型 ====================
 
 // CollabDocument 协作文档
 type CollabDocument struct {
-	ID          string          `json:"id"`
-	WorkspaceID string          `json:"workspaceId"`
-	Title       string          `json:"title"`
-	Content     string          `json:"content"`
-	ContentType string          `json:"contentType"` // markdown/rich/text
-	Version     int             `json:"version"`
-	Editors     []ActiveEditor  `json:"editors"`
-	Comments    []Comment       `json:"comments"`
-	CreatedBy   string          `json:"createdBy"`
-	CreatedAt   time.Time       `json:"createdAt"`
-	UpdatedAt   time.Time       `json:"updatedAt"`
-	Tags        []string        `json:"tags"`
-	Locked      bool            `json:"locked"`
-	LockedBy    string          `json:"lockedBy,omitempty"`
-	Permission  string          `json:"permission"` // view/comment/edit
+	ID          string         `json:"id"`
+	WorkspaceID string         `json:"workspaceId"`
+	Title       string         `json:"title"`
+	Content     string         `json:"content"`
+	ContentType string         `json:"contentType"`
+	Version     int            `json:"version"`
+	Editors     []ActiveEditor `json:"editors"`
+	Comments    []Comment      `json:"comments"`
+	CreatedBy   string         `json:"createdBy"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+	Tags        []string       `json:"tags"`
+	Locked      bool           `json:"locked"`
+	LockedBy    string         `json:"lockedBy,omitempty"`
+	Permission  string         `json:"permission"`
 }
 
 // ActiveEditor 活跃编辑者
@@ -60,67 +38,34 @@ type ActiveEditor struct {
 	Color     string    `json:"color"`
 }
 
-// Comment 评论
-type Comment struct {
-	ID        string    `json:"id"`
-	UserID    string    `json:"userId"`
-	UserName  string    `json:"userName"`
-	Content   string    `json:"content"`
-	Position  int       `json:"position,omitempty"`
-	Resolved  bool      `json:"resolved"`
-	CreatedAt time.Time `json:"createdAt"`
-	Replies   []Comment `json:"replies,omitempty"`
-}
-
-// Task 任务
-type Task struct {
-	ID          string    `json:"id"`
-	WorkspaceID string    `json:"workspaceId"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Status      string    `json:"status"` // todo/in_progress/review/done/cancelled
-	Priority    string    `json:"priority"` // low/medium/high/urgent
-	AssigneeID  string    `json:"assigneeId"`
-	AssigneeName string   `json:"assigneeName"`
-	CreatorID   string    `json:"creatorId"`
-	DueDate     *time.Time `json:"dueDate,omitempty"`
-	Tags        []string  `json:"tags"`
-	Attachments []string  `json:"attachments"`
-	Comments    []Comment `json:"comments"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
-	CompletedAt *time.Time `json:"completedAt,omitempty"`
-	Order       int       `json:"order"`
-}
-
 // Whiteboard 白板
 type Whiteboard struct {
-	ID          string         `json:"id"`
-	WorkspaceID string         `json:"workspaceId"`
-	Title       string         `json:"title"`
-	Elements    []WbElement    `json:"elements"`
-	Collaborators []string     `json:"collaborators"`
-	CreatedBy   string         `json:"createdBy"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	UpdatedAt   time.Time      `json:"updatedAt"`
-	Width       int            `json:"width"`
-	Height      int            `json:"height"`
-	Background  string         `json:"background"`
+	ID            string      `json:"id"`
+	WorkspaceID   string      `json:"workspaceId"`
+	Title         string      `json:"title"`
+	Elements      []WbElement `json:"elements"`
+	Collaborators []string    `json:"collaborators"`
+	CreatedBy     string      `json:"createdBy"`
+	CreatedAt     time.Time   `json:"createdAt"`
+	UpdatedAt     time.Time   `json:"updatedAt"`
+	Width         int         `json:"width"`
+	Height        int         `json:"height"`
+	Background    string      `json:"background"`
 }
 
 // WbElement 白板元素
 type WbElement struct {
-	ID       string            `json:"id"`
-	Type     string            `json:"type"` // rect/circle/text/sticky/line/arrow/image
-	X        float64           `json:"x"`
-	Y        float64           `json:"y"`
-	Width    float64           `json:"width"`
-	Height   float64           `json:"height"`
-	Content  string            `json:"content"`
-	Color    string            `json:"color"`
-	Style    map[string]string `json:"style"`
-	Author   string            `json:"author"`
-	ZIndex   int               `json:"zIndex"`
+	ID      string            `json:"id"`
+	Type    string            `json:"type"`
+	X       float64           `json:"x"`
+	Y       float64           `json:"y"`
+	Width   float64           `json:"width"`
+	Height  float64           `json:"height"`
+	Content string            `json:"content"`
+	Color   string            `json:"color"`
+	Style   map[string]string `json:"style"`
+	Author  string            `json:"author"`
+	ZIndex  int               `json:"zIndex"`
 }
 
 // WorkspaceStats 工作空间统计
@@ -134,20 +79,7 @@ type WorkspaceStats struct {
 	RecentActivity   []Activity     `json:"recentActivity"`
 }
 
-// Activity 活动记录
-type Activity struct {
-	ID          string    `json:"id"`
-	WorkspaceID string    `json:"workspaceId"`
-	UserID      string    `json:"userId"`
-	UserName    string    `json:"userName"`
-	Action      string    `json:"action"`
-	Target      string    `json:"target"`
-	TargetID    string    `json:"targetId"`
-	Details     string    `json:"details"`
-	CreatedAt   time.Time `json:"createdAt"`
-}
-
-// Manager 协作管理器
+// Manager 自包含管理器
 type Manager struct {
 	mu          sync.RWMutex
 	workspaces  map[string]*Workspace
@@ -175,7 +107,6 @@ func (m *Manager) CreateWorkspace(ws *Workspace) error {
 	ws.CreatedAt = time.Now()
 	ws.UpdatedAt = time.Now()
 	m.workspaces[ws.ID] = ws
-	m.addActivity(ws.ID, ws.OwnerID, "create", "workspace", ws.ID, ws.Name)
 	return nil
 }
 
@@ -196,7 +127,7 @@ func (m *Manager) ListWorkspaces(userID string, page, pageSize int) ([]Workspace
 	defer m.mu.RUnlock()
 	var result []Workspace
 	for _, ws := range m.workspaces {
-		if userID == "" || ws.OwnerID == userID || m.isMember(ws, userID) {
+		if userID == "" || ws.OwnerID == userID {
 			result = append(result, *ws)
 		}
 	}
@@ -212,15 +143,6 @@ func (m *Manager) ListWorkspaces(userID string, page, pageSize int) ([]Workspace
 	return result[start:end], total
 }
 
-func (m *Manager) isMember(ws *Workspace, userID string) bool {
-	for _, member := range ws.Members {
-		if member.UserID == userID {
-			return true
-		}
-	}
-	return false
-}
-
 // CreateDocument 创建文档
 func (m *Manager) CreateDocument(doc *CollabDocument) error {
 	m.mu.Lock()
@@ -230,10 +152,6 @@ func (m *Manager) CreateDocument(doc *CollabDocument) error {
 	doc.CreatedAt = time.Now()
 	doc.UpdatedAt = time.Now()
 	m.documents[doc.ID] = doc
-	if ws, ok := m.workspaces[doc.WorkspaceID]; ok {
-		ws.ItemCount++
-	}
-	m.addActivity(doc.WorkspaceID, doc.CreatedBy, "create", "document", doc.ID, doc.Title)
 	return nil
 }
 
@@ -262,7 +180,6 @@ func (m *Manager) UpdateDocument(id, userID, content string) error {
 	doc.Content = content
 	doc.Version++
 	doc.UpdatedAt = time.Now()
-	m.addActivity(doc.WorkspaceID, userID, "update", "document", id, doc.Title)
 	return nil
 }
 
@@ -298,6 +215,9 @@ func (m *Manager) AddComment(docID string, comment Comment) error {
 	}
 	comment.ID = fmt.Sprintf("cmt-%d", time.Now().UnixNano())
 	comment.CreatedAt = time.Now()
+	if doc.Comments == nil {
+		doc.Comments = make([]Comment, 0)
+	}
 	doc.Comments = append(doc.Comments, comment)
 	return nil
 }
@@ -341,11 +261,10 @@ func (m *Manager) CreateTask(task *Task) error {
 	task.ID = fmt.Sprintf("task-%d", time.Now().UnixNano())
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()
-	m.tasks[task.ID] = task
-	if ws, ok := m.workspaces[task.WorkspaceID]; ok {
-		ws.ItemCount++
+	if task.Status == "" {
+		task.Status = TaskStatusTodo
 	}
-	m.addActivity(task.WorkspaceID, task.CreatorID, "create", "task", task.ID, task.Title)
+	m.tasks[task.ID] = task
 	return nil
 }
 
@@ -358,14 +277,14 @@ func (m *Manager) UpdateTask(id string, updates map[string]interface{}) error {
 		return fmt.Errorf("task not found: %s", id)
 	}
 	if s, ok := updates["status"].(string); ok {
-		task.Status = s
+		task.Status = TaskStatus(s)
 		if s == "done" {
 			now := time.Now()
 			task.CompletedAt = &now
 		}
 	}
-	if p, ok := updates["priority"].(string); ok {
-		task.Priority = p
+	if p, ok := updates["priority"].(float64); ok {
+		task.Priority = int(p)
 	}
 	if a, ok := updates["assigneeId"].(string); ok {
 		task.AssigneeID = a
@@ -381,7 +300,7 @@ func (m *Manager) ListTasks(workspaceID, status string, page, pageSize int) ([]T
 	var result []Task
 	for _, task := range m.tasks {
 		if (workspaceID == "" || task.WorkspaceID == workspaceID) &&
-			(status == "" || task.Status == status) {
+			(status == "" || string(task.Status) == status) {
 			result = append(result, *task)
 		}
 	}
@@ -411,9 +330,6 @@ func (m *Manager) CreateWhiteboard(wb *Whiteboard) error {
 		wb.Height = 1080
 	}
 	m.whiteboards[wb.ID] = wb
-	if ws, ok := m.workspaces[wb.WorkspaceID]; ok {
-		ws.ItemCount++
-	}
 	return nil
 }
 
@@ -446,35 +362,15 @@ func (m *Manager) AddWhiteboardElement(wbID string, elem WbElement) error {
 func (m *Manager) GetStats() WorkspaceStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	stats := WorkspaceStats{
+	tasksByStatus := make(map[string]int)
+	for _, task := range m.tasks {
+		tasksByStatus[string(task.Status)]++
+	}
+	return WorkspaceStats{
 		TotalWorkspaces:  len(m.workspaces),
 		TotalDocuments:   len(m.documents),
 		TotalTasks:       len(m.tasks),
 		TotalWhiteboards: len(m.whiteboards),
-		TasksByStatus:    make(map[string]int),
-	}
-	for _, task := range m.tasks {
-		stats.TasksByStatus[task.Status]++
-	}
-	stats.RecentActivity = m.activities
-	if len(stats.RecentActivity) > 20 {
-		stats.RecentActivity = stats.RecentActivity[len(stats.RecentActivity)-20:]
-	}
-	return stats
-}
-
-func (m *Manager) addActivity(wsID, userID, action, targetType, targetID, details string) {
-	m.activities = append(m.activities, Activity{
-		ID:          fmt.Sprintf("act-%d", time.Now().UnixNano()),
-		WorkspaceID: wsID,
-		UserID:      userID,
-		Action:      action,
-		Target:      targetType,
-		TargetID:    targetID,
-		Details:     details,
-		CreatedAt:   time.Now(),
-	})
-	if len(m.activities) > 1000 {
-		m.activities = m.activities[len(m.activities)-500:]
+		TasksByStatus:    tasksByStatus,
 	}
 }

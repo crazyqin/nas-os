@@ -12,7 +12,7 @@ func TestNewManager(t *testing.T) {
 	}
 }
 
-func TestCreateWorkspace(t *testing.T) {
+func TestHandlerCreateWorkspace(t *testing.T) {
 	m := NewManager()
 	ws := &Workspace{Name: "Test Workspace", OwnerID: "user1"}
 	if err := m.CreateWorkspace(ws); err != nil {
@@ -42,7 +42,7 @@ func TestGetWorkspace(t *testing.T) {
 	}
 }
 
-func TestListWorkspaces(t *testing.T) {
+func TestHandlerListWorkspaces(t *testing.T) {
 	m := NewManager()
 	for i := 0; i < 5; i++ {
 		m.CreateWorkspace(&Workspace{Name: "WS", OwnerID: "u1"})
@@ -62,7 +62,7 @@ func TestListWorkspaces(t *testing.T) {
 	_ = u1
 }
 
-func TestCreateDocument(t *testing.T) {
+func TestHandlerCreateDocument(t *testing.T) {
 	m := NewManager()
 	ws := &Workspace{Name: "WS", OwnerID: "u1"}
 	m.CreateWorkspace(ws)
@@ -104,7 +104,7 @@ func TestUpdateDocument(t *testing.T) {
 	}
 }
 
-func TestDocumentLock(t *testing.T) {
+func TestHandlerDocumentLock(t *testing.T) {
 	m := NewManager()
 	ws := &Workspace{Name: "WS", OwnerID: "u1"}
 	m.CreateWorkspace(ws)
@@ -125,14 +125,14 @@ func TestDocumentLock(t *testing.T) {
 	}
 }
 
-func TestAddComment(t *testing.T) {
+func TestHandlerAddComment(t *testing.T) {
 	m := NewManager()
 	ws := &Workspace{Name: "WS", OwnerID: "u1"}
 	m.CreateWorkspace(ws)
 	doc := &CollabDocument{WorkspaceID: ws.ID, Title: "Doc", CreatedBy: "u1"}
 	m.CreateDocument(doc)
 
-	comment := Comment{UserID: "u2", UserName: "User2", Content: "Nice!"}
+	comment := Comment{UserID: "u2", Username: "User2", Content: "Nice!"}
 	if err := m.AddComment(doc.ID, comment); err != nil {
 		t.Fatalf("AddComment failed: %v", err)
 	}
@@ -142,7 +142,7 @@ func TestAddComment(t *testing.T) {
 	}
 }
 
-func TestCreateTask(t *testing.T) {
+func TestHandlerCreateTask(t *testing.T) {
 	m := NewManager()
 	ws := &Workspace{Name: "WS", OwnerID: "u1"}
 	m.CreateWorkspace(ws)
@@ -151,8 +151,8 @@ func TestCreateTask(t *testing.T) {
 	task := &Task{
 		WorkspaceID: ws.ID,
 		Title:       "Fix bug",
-		Status:      "todo",
-		Priority:    "high",
+		Status:      TaskStatusTodo,
+		Priority:    3,
 		AssigneeID:  "u2",
 		CreatorID:   "u1",
 		DueDate:     &due,
@@ -165,7 +165,7 @@ func TestCreateTask(t *testing.T) {
 	}
 }
 
-func TestUpdateTask(t *testing.T) {
+func TestHandlerUpdateTask(t *testing.T) {
 	m := NewManager()
 	ws := &Workspace{Name: "WS", OwnerID: "u1"}
 	m.CreateWorkspace(ws)
@@ -182,7 +182,7 @@ func TestUpdateTask(t *testing.T) {
 	}
 }
 
-func TestListTasks(t *testing.T) {
+func TestHandlerListTasks(t *testing.T) {
 	m := NewManager()
 	ws := &Workspace{Name: "WS", OwnerID: "u1"}
 	m.CreateWorkspace(ws)
@@ -191,7 +191,7 @@ func TestListTasks(t *testing.T) {
 		if i%2 == 0 {
 			status = "done"
 		}
-		m.CreateTask(&Task{WorkspaceID: ws.ID, Title: "T", Status: status, CreatorID: "u1"})
+		m.CreateTask(&Task{WorkspaceID: ws.ID, Title: "T", Status: TaskStatus(status), CreatorID: "u1"})
 	}
 
 	todo, total := m.ListTasks(ws.ID, "todo", 1, 10)

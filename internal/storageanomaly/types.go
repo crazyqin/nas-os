@@ -1,107 +1,283 @@
-// Package storageanomaly 提供 AI 存储异常检测功能
+// Package storageanomaly - 存储异常检测模块
+// 基于 AI 的存储异常检测，检测异常访问模式、潜在数据损坏、异常容量增长等
 package storageanomaly
 
 import (
 	"time"
 )
 
-// AnomalyEvent 异常事件.
-type AnomalyEvent struct {
-	ID          string    `json:"id"`
-	EventType   string    `json:"event_type"`   // write_spike, size_anomaly, access_pattern, data_leak, hw_failure, malware
-	Severity    string    `json:"severity"`      // low, medium, high, critical
-	Path        string    `json:"path"`          // 关联路径
-	Description string    `json:"description"`
-	Metric      float64   `json:"metric"`        // 异常指标值
-	Baseline    float64   `json:"baseline"`      // 基线值
-	Deviation   float64   `json:"deviation"`     // 偏差倍数
-	Source      string    `json:"source"`        // 检测来源（规则名或算法名）
-	Timestamp   time.Time `json:"timestamp"`
-	Resolved    bool      `json:"resolved"`
-	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
-	Response    string    `json:"response"`      // 自动响应动作
+// ============================================================
+// 配置类型
+// ============================================================
+
+// AnomalyConfig 异常检测配置
+type AnomalyConfig struct {
+	// 检测配置
+	EnableAccessPattern  bool    `json:"enable_access_pattern"`  // 启用访问模式检测
+	EnableDataCorruption bool    `json:"enable_data_corruption"` // 启用数据损坏检测
+	EnableCapacityGrowth bool    `json:"enable_capacity_growth"` // 启用容量增长检测
+	EnableIOPSAnomaly    bool    `json:"enable_iops_anomaly"`    // 启用IOPS异常检测
+	EnableLatencyAnomaly bool    `json:"enable_latency_anomaly"` // 启用延迟异常检测
+
+	// 阈值配置
+	CapacityGrowthThreshold  float64 `json:"capacity_growth_threshold"`   // 容量增长阈值 (百分比/天), 默认 10%
+	IOPSSpikeThreshold       float64 `json:"iops_spike_threshold"`        // IOPS峰值阈值 (倍数), 默认 3倍
+	LatencySpikeThreshold    float64 `json:"latency_spike_threshold"`     // 延迟峰值阈值 (毫秒), 默认 100ms
+	AccessPatternThreshold   float64 `json:"access_pattern_threshold"`    // 访问模式阈值
+
+	// 采样配置
+	SampleInterval   time.Duration `json:"sample_interval"`    // 采样间隔, 默认 5分钟
+	HistoryWindow    time.Duration `json:"history_window"`     // 历史窗口, 默认 24小时
+	MinSamples       int           `json:"min_samples"`        // 最小样本数, 默认 20
+
+	// 告警配置
+	AlertCooldown    time.Duration `json:"alert_cooldown"`     // 告警冷却时间, 默认 1小时
+	MaxAlertsPerHour int           `json:"max_alerts_per_hour"` // 每小时最大告警数, 默认 10
 }
 
-// AnomalyRule 异常检测规则.
+// DefaultAnomalyConfig 默认异常检测配置
+func DefaultAnomalyConfig() AnomalyConfig {
+	return AnomalyConfig{
+		EnableAccessPattern:  true,
+		EnableDataCorruption: true,
+		EnableCapacityGrowth: true,
+		EnableIOPSAnomaly:    true,
+		EnableLatencyAnomaly: true,
+		CapacityGrowthThreshold:  10.0,
+		IOPSSpikeThreshold:       3.0,
+		LatencySpikeThreshold:    100.0,
+		AccessPatternThreshold:   0.8,
+		SampleInterval:           5 * time.Minute,
+		HistoryWindow:            24 * time.Hour,
+		MinSamples:               20,
+		AlertCooldown:            1 * time.Hour,
+		MaxAlertsPerHour:         10,
+	}
+}
+
+// ============================================================
+// 异常类型
+// ============================================================
+
+// AnomalyType 异常类型
+type AnomalyType string
+
+const (
+	AnomalyTypeAccessPattern  AnomalyType = "access_pattern"   // 访问模式异常
+	AnomalyTypeDataCorruption AnomalyType = "data_corruption"  // 数据损坏
+	AnomalyTypeCapacityGrowth AnomalyType = "capacity_growth"  // 容量增长异常
+	AnomalyTypeIOPSSpike      AnomalyType = "iops_spike"       // IOPS峰值异常
+	AnomalyTypeLatencySpike   AnomalyType = "latency_spike"    // 延迟峰值异常
+	AnomalyTypeDiskFailure    AnomalyType = "disk_failure"     // 磁盘故障预测
+)
+
+// ============================================================
+// 异常严重程度
+// ============================================================
+
+// AnomalySeverity 异常严重程度
+type AnomalySeverity string
+
+const (
+	SeverityInfo     AnomalySeverity = "info"     // 信息
+	SeverityWarning  AnomalySeverity = "warning"  // 警告
+	SeverityCritical AnomalySeverity = "critical" // 严重
+	SeverityFatal    AnomalySeverity = "fatal"    // 致命
+)
+
+// ============================================================
+// 存储指标类型
+// ============================================================
+
+// StorageMetrics 存储指标
+type StorageMetrics struct {
+	DeviceID      string    `json:"device_id"`      // 设备ID
+	MountPoint    string    `json:"mount_point"`    // 挂载点
+	CollectedAt   time.Time `json:"collected_at"`   // 采集时间
+
+	// 容量指标
+	TotalSpace    uint64 `json:"total_space"`     // 总空间 (字节)
+	UsedSpace     uint64 `json:"used_space"`      // 已用空间 (字节)
+	FreeSpace     uint64 `json:"free_space"`      // 可用空间 (字节)
+	UsagePercent  float64 `json:"usage_percent"`  // 使用率 (%)
+
+	// 性能指标
+	ReadIOPS      float64 `json:"read_iops"`      // 读IOPS
+	WriteIOPS     float64 `json:"write_iops"`     // 写IOPS
+	ReadLatency   float64 `json:"read_latency"`   // 读延迟 (ms)
+	WriteLatency  float64 `json:"write_latency"`  // 写延迟 (ms)
+	ReadBandwidth  float64 `json:"read_bandwidth"`  // 读带宽 (MB/s)
+	WriteBandwidth float64 `json:"write_bandwidth"` // 写带宽 (MB/s)
+
+	// 访问指标
+	AccessCount   int64  `json:"access_count"`    // 访问次数
+	UniqueUsers   int    `json:"unique_users"`    // 唯一用户数
+	HotFiles      int    `json:"hot_files"`       // 热点文件数
+
+	// 健康指标
+	ErrorCount    int64  `json:"error_count"`     // 错误次数
+	CorruptedFiles int   `json:"corrupted_files"` // 损坏文件数
+}
+
+// AccessPattern 访问模式
+type AccessPattern struct {
+	Timestamp    time.Time `json:"timestamp"`     // 时间戳
+	Operation    string    `json:"operation"`     // 操作类型 (read/write/delete)
+	FileType     string    `json:"file_type"`     // 文件类型
+	UserID       string    `json:"user_id"`       // 用户ID
+	FileSize     int64     `json:"file_size"`     // 文件大小
+	FilePath     string    `json:"file_path"`     // 文件路径
+	SourceIP     string    `json:"source_ip"`     // 源IP
+}
+
+// ============================================================
+// 异常规则类型
+// ============================================================
+
+// AnomalyRule 异常检测规则
 type AnomalyRule struct {
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	EventType   string  `json:"event_type"`
-	Enabled     bool    `json:"enabled"`
-	Threshold   float64 `json:"threshold"`    // 偏差倍数阈值
-	MinSamples  int     `json:"min_samples"`  // 最小样本数
-	Description string  `json:"description"`
+	ID          string        `json:"id"`           // 规则ID
+	Name        string        `json:"name"`         // 规则名称
+	Description string        `json:"description"`  // 描述
+	Type        AnomalyType   `json:"type"`         // 异常类型
+	Enabled     bool          `json:"enabled"`      // 是否启用
+	Severity    AnomalySeverity `json:"severity"`   // 默认严重程度
+	Conditions  []Condition   `json:"conditions"`   // 触发条件
+	Actions     []Action      `json:"actions"`      // 触发动作
+	CreatedAt   time.Time     `json:"created_at"`   // 创建时间
+	UpdatedAt   time.Time     `json:"updated_at"`   // 更新时间
 }
 
-// StorageBaseline 存储基线数据.
-type StorageBaseline struct {
-	Path           string    `json:"path"`
-	AvgWriteBytes  float64   `json:"avg_write_bytes"`  // 平均每次采样写入字节
-	AvgReadBytes   float64   `json:"avg_read_bytes"`   // 平均每次采样读取字节
-	AvgFileSize    float64   `json:"avg_file_size"`    // 平均文件数量
-	AvgAccessFreq  float64   `json:"avg_access_freq"`  // 平均访问操作数
-	StdWriteBytes  float64   `json:"std_write_bytes"`  // 写入字节标准差
-	StdReadBytes   float64   `json:"std_read_bytes"`   // 读取字节标准差
-	StdFileSize    float64   `json:"std_file_size"`    // 文件数量标准差
-	StdAccessFreq  float64   `json:"std_access_freq"`  // 访问操作数标准差
-	SampleCount    int       `json:"sample_count"`
-	LastUpdated    time.Time `json:"last_updated"`
+// Condition 触发条件
+type Condition struct {
+	Field    string      `json:"field"`    // 字段
+	Operator string      `json:"operator"` // 操作符 (gt, lt, eq, gte, lte, between)
+	Value    interface{} `json:"value"`    // 阈值
+	Duration string      `json:"duration"` // 持续时间
 }
 
-// DetectionConfig 检测配置.
-type DetectionConfig struct {
-	Enabled          bool    `json:"enabled"`
-	ScanInterval     int     `json:"scan_interval"`     // seconds
-	DeviationFactor  float64 `json:"deviation_factor"`  // 偏差倍数（默认 3.0 即 3σ）
-	MinBaselineAge   int     `json:"min_baseline_age"`  // hours, 基线最短建立时间
-	AutoRespond      bool    `json:"auto_respond"`      // 是否启用自动响应
-	AlertThreshold   string  `json:"alert_threshold"`   // 触发告警的最低级别: low/medium/high/critical
-	MaxEventsPerHour int     `json:"max_events_per_hour"`
+// Action 触发动作
+type Action struct {
+	Type     string            `json:"type"`     // 动作类型 (alert, log, webhook, email)
+	Config   map[string]string `json:"config"`   // 动作配置
 }
 
-// SampleDataPoint 采样数据点.
-type SampleDataPoint struct {
-	Timestamp  time.Time `json:"timestamp"`
-	WriteBytes int64     `json:"write_bytes"`
-	ReadBytes  int64     `json:"read_bytes"`
-	FileCount  int       `json:"file_count"`
-	AccessOps  int       `json:"access_ops"`
+// ============================================================
+// 异常事件类型
+// ============================================================
+
+// AnomalyEvent 异常事件
+type AnomalyEvent struct {
+	ID          string          `json:"id"`           // 事件ID
+	RuleID      string          `json:"rule_id"`      // 触发规则ID
+	RuleName    string          `json:"rule_name"`    // 规则名称
+	Type        AnomalyType     `json:"type"`         // 异常类型
+	Severity    AnomalySeverity `json:"severity"`     // 严重程度
+	DeviceID    string          `json:"device_id"`    // 设备ID
+	MountPoint  string          `json:"mount_point"`  // 挂载点
+	Title       string          `json:"title"`        // 事件标题
+	Description string          `json:"description"`  // 详细描述
+	Metrics     *StorageMetrics `json:"metrics"`      // 相关指标
+	Evidence    []string        `json:"evidence"`     // 证据
+	Suggestions []string        `json:"suggestions"`  // 建议操作
+	DetectedAt  time.Time       `json:"detected_at"`  // 检测时间
+	AckedAt     *time.Time      `json:"acked_at"`     // 确认时间
+	AckedBy     string          `json:"acked_by"`     // 确认人
+	Resolved    bool            `json:"resolved"`     // 是否已解决
+	ResolvedAt  *time.Time      `json:"resolved_at"`  // 解决时间
 }
 
-// AnomalyStats 异常统计.
+// ============================================================
+// 检测结果类型
+// ============================================================
+
+// DetectionResult 检测结果
+type DetectionResult struct {
+	HasAnomaly    bool             `json:"has_anomaly"`    // 是否有异常
+	AnomalyCount  int              `json:"anomaly_count"`  // 异常数量
+	Events        []AnomalyEvent   `json:"events"`         // 异常事件列表
+	Summary       string           `json:"summary"`        // 检测摘要
+	AnalyzedAt    time.Time        `json:"analyzed_at"`    // 分析时间
+}
+
+// ============================================================
+// HTTP 请求/响应类型
+// ============================================================
+
+// AnomalyResponse 异常响应
+type AnomalyResponse struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
+// EventListResponse 事件列表响应
+type EventListResponse struct {
+	Code    int            `json:"code"`
+	Message string         `json:"message"`
+	Data    []AnomalyEvent `json:"data,omitempty"`
+}
+
+// RuleListResponse 规则列表响应
+type RuleListResponse struct {
+	Code    int          `json:"code"`
+	Message string       `json:"message"`
+	Data    []AnomalyRule `json:"data,omitempty"`
+}
+
+// MetricsResponse 指标响应
+type MetricsResponse struct {
+	Code    int            `json:"code"`
+	Message string         `json:"message"`
+	Data    *StorageMetrics `json:"data,omitempty"`
+}
+
+// AnomalyStats 异常统计
 type AnomalyStats struct {
-	TotalEvents    int            `json:"total_events"`
-	BySeverity     map[string]int `json:"by_severity"`
-	ByType         map[string]int `json:"by_type"`
-	Unresolved     int            `json:"unresolved"`
-	LastEventTime  *time.Time     `json:"last_event_time,omitempty"`
+	TotalEvents     int `json:"total_events"`      // 总事件数
+	UnackedEvents   int `json:"unacked_events"`    // 未确认事件数
+	UnresolvedEvents int `json:"unresolved_events"` // 未解决事件数
+	CriticalEvents  int `json:"critical_events"`   // 严重事件数
+	WarningEvents   int `json:"warning_events"`    // 警告事件数
+	ActiveRules     int `json:"active_rules"`      // 活跃规则数
 }
 
-// AddRuleRequest 添加规则请求.
-type AddRuleRequest struct {
-	Name        string  `json:"name" binding:"required"`
-	EventType   string  `json:"event_type" binding:"required"`
-	Threshold   float64 `json:"threshold"`
-	MinSamples  int     `json:"min_samples"`
-	Description string  `json:"description"`
+// StatsResponse 统计响应
+type StatsResponse struct {
+	Code    int          `json:"code"`
+	Message string       `json:"message"`
+	Data    *AnomalyStats `json:"data,omitempty"`
 }
 
-// UpdateConfigRequest 更新配置请求.
-type UpdateConfigRequest struct {
-	Enabled          *bool    `json:"enabled,omitempty"`
-	ScanInterval     *int     `json:"scan_interval,omitempty"`
-	DeviationFactor  *float64 `json:"deviation_factor,omitempty"`
-	MinBaselineAge   *int     `json:"min_baseline_age,omitempty"`
-	AutoRespond      *bool    `json:"auto_respond,omitempty"`
-	AlertThreshold   *string  `json:"alert_threshold,omitempty"`
-	MaxEventsPerHour *int     `json:"max_events_per_hour,omitempty"`
+// CreateRuleRequest 创建规则请求
+type CreateRuleRequest struct {
+	Name        string          `json:"name"`         // 规则名称
+	Description string          `json:"description"`  // 描述
+	Type        AnomalyType     `json:"type"`         // 异常类型
+	Severity    AnomalySeverity `json:"severity"`     // 严重程度
+	Conditions  []Condition     `json:"conditions"`   // 条件
+	Actions     []Action        `json:"actions"`      // 动作
 }
 
-// IngestSampleRequest 导入采样数据请求.
-type IngestSampleRequest struct {
-	Path        string `json:"path" binding:"required"`
-	WriteBytes  int64  `json:"write_bytes"`
-	ReadBytes   int64  `json:"read_bytes"`
-	FileCount   int    `json:"file_count"`
-	AccessOps   int    `json:"access_ops"`
+// UpdateRuleRequest 更新规则请求
+type UpdateRuleRequest struct {
+	ID          string          `json:"id"`           // 规则ID
+	Name        string          `json:"name,omitempty"`
+	Description string          `json:"description,omitempty"`
+	Enabled     *bool           `json:"enabled,omitempty"`
+	Severity    AnomalySeverity `json:"severity,omitempty"`
+	Conditions  []Condition     `json:"conditions,omitempty"`
+	Actions     []Action        `json:"actions,omitempty"`
+}
+
+// AckEventRequest 确认事件请求
+type AckEventRequest struct {
+	EventID string `json:"event_id"` // 事件ID
+	UserID  string `json:"user_id"`  // 确认人
+}
+
+// ResolveEventRequest 解决事件请求
+type ResolveEventRequest struct {
+	EventID string `json:"event_id"` // 事件ID
+	Note    string `json:"note"`     // 解决备注
 }

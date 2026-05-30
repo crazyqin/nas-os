@@ -1,290 +1,472 @@
-// Package storageanomaly 提供 REST API 处理器
+// Package storageanomaly - HTTP 处理器
+// 处理存储异常检测相关的 HTTP 请求
 package storageanomaly
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
-// response 标准响应.
-type response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-// Handlers 存储异常检测 API 处理器.
-type Handlers struct {
+// AnomalyHandler HTTP 处理器
+type AnomalyHandler struct {
 	manager *AnomalyManager
 }
 
-// NewHandlers 创建处理器.
-func NewHandlers(manager *AnomalyManager) *Handlers {
-	return &Handlers{manager: manager}
+// NewAnomalyHandler 创建处理器
+func NewAnomalyHandler(manager *AnomalyManager) *AnomalyHandler {
+	return &AnomalyHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由.
-func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
-	sa := r.Group("/storage/anomaly")
-	{
-		// 基线管理
-		sa.POST("/baseline", h.BuildBaseline)
-		sa.GET("/baseline", h.ListBaselines)
-		sa.GET("/baseline/*path", h.GetBaseline)
-
-		// 异常检测
-		sa.POST("/detect", h.DetectAnomaly)
-		sa.POST("/ingest", h.IngestSample)
-
-		// 事件管理
-		sa.GET("/events", h.ListEvents)
-		sa.GET("/events/:id", h.GetEvent)
-		sa.POST("/events/:id/resolve", h.ResolveEvent)
-
-		// 规则管理
-		sa.GET("/rules", h.ListRules)
-		sa.POST("/rules", h.AddRule)
-		sa.PUT("/rules/:id/toggle", h.ToggleRule)
-		sa.DELETE("/rules/:id", h.RemoveRule)
-
-		// 配置
-		sa.GET("/config", h.GetConfig)
-		sa.PUT("/config", h.UpdateConfig)
-
-		// 统计
-		sa.GET("/stats", h.GetStats)
-	}
+// RegisterRoutes 注册路由
+func (h *AnomalyHandler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/v1/anomaly/detect", h.handleDetect)
+	mux.HandleFunc("/api/v1/anomaly/metrics/collect", h.handleCollectMetrics)
+	mux.HandleFunc("/api/v1/anomaly/metrics/get", h.handleGetMetrics)
+	mux.HandleFunc("/api/v1/anomaly/events", h.handleListEvents)
+	mux.HandleFunc("/api/v1/anomaly/event/get", h.handleGetEvent)
+	mux.HandleFunc("/api/v1/anomaly/event/ack", h.handleAckEvent)
+	mux.HandleFunc("/api/v1/anomaly/event/resolve", h.handleResolveEvent)
+	mux.HandleFunc("/api/v1/anomaly/rules", h.handleListRules)
+	mux.HandleFunc("/api/v1/anomaly/rule/create", h.handleCreateRule)
+	mux.HandleFunc("/api/v1/anomaly/rule/get", h.handleGetRule)
+	mux.HandleFunc("/api/v1/anomaly/rule/update", h.handleUpdateRule)
+	mux.HandleFunc("/api/v1/anomaly/rule/delete", h.handleDeleteRule)
+	mux.HandleFunc("/api/v1/anomaly/stats", h.handleGetStats)
 }
 
-// ========== 基线接口 ==========
-
-// BuildBaseline 构建基线.
-func (h *Handlers) BuildBaseline(c *gin.Context) {
-	var req struct {
-		Path string `json:"path" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+// handleDetect 处理异常检测请求
+func (h *AnomalyHandler) handleDetect(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet && r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	baseline, err := h.manager.BuildBaseline(req.Path)
+	var deviceID string
+
+	if r.Method == http.MethodGet {
+		deviceID = r.URL.Query().Get("device_id")
+	} else {
+		var req struct {
+			DeviceID string `json:"device_id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeJSON(w, AnomalyResponse{
+				Code:    400,
+				Message: "无效的请求体",
+			})
+			return
+		}
+		deviceID = req.DeviceID
+	}
+
+	if deviceID == "" {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "缺少device_id参数",
+		})
+		return
+	}
+
+	result, err := h.manager.DetectAnomalies(deviceID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		writeJSON(w, AnomalyResponse{
+			Code:    500,
+			Message: err.Error(),
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{Code: 0, Message: "baseline built", Data: baseline})
-}
-
-// ListBaselines 列出基线.
-func (h *Handlers) ListBaselines(c *gin.Context) {
-	baselines := h.manager.ListBaselines()
-	c.JSON(http.StatusOK, response{
+	writeJSON(w, AnomalyResponse{
 		Code:    0,
 		Message: "success",
-		Data: gin.H{
-			"total":     len(baselines),
-			"baselines": baselines,
-		},
+		Data:    result,
 	})
 }
 
-// GetBaseline 获取基线.
-func (h *Handlers) GetBaseline(c *gin.Context) {
-	path := c.Param("path")
-	if path == "" {
-		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "path is required"})
+// handleCollectMetrics 处理指标收集请求
+func (h *AnomalyHandler) handleCollectMetrics(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	baseline, err := h.manager.GetBaseline(path)
-	if err != nil {
-		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+	var metrics StorageMetrics
+	if err := json.NewDecoder(r.Body).Decode(&metrics); err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "无效的请求体",
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: baseline})
-}
-
-// ========== 检测接口 ==========
-
-// DetectAnomaly 检测异常.
-func (h *Handlers) DetectAnomaly(c *gin.Context) {
-	var req struct {
-		Path       string         `json:"path" binding:"required"`
-		SampleData SampleDataPoint `json:"sample_data"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+	if err := h.manager.CollectMetrics(&metrics); err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    500,
+			Message: err.Error(),
+		})
 		return
 	}
 
-	events, err := h.manager.DetectAnomaly(req.Path, req.SampleData)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "detection completed",
-		Data: gin.H{
-			"anomaly_count": len(events),
-			"events":        events,
-		},
-	})
-}
-
-// IngestSample 导入采样数据.
-func (h *Handlers) IngestSample(c *gin.Context) {
-	var req IngestSampleRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
-		return
-	}
-
-	h.manager.IngestSample(req)
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "sample ingested",
-		Data: gin.H{
-			"path":         req.Path,
-			"sample_count": h.manager.GetSampleCount(req.Path),
-		},
-	})
-}
-
-// ========== 事件接口 ==========
-
-// ListEvents 列出事件.
-func (h *Handlers) ListEvents(c *gin.Context) {
-	limitStr := c.DefaultQuery("limit", "50")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit <= 0 {
-		limit = 50
-	}
-	severity := c.Query("severity")
-	eventType := c.Query("type")
-
-	events := h.manager.ListEvents(limit, severity, eventType)
-	c.JSON(http.StatusOK, response{
+	writeJSON(w, AnomalyResponse{
 		Code:    0,
 		Message: "success",
-		Data: gin.H{
-			"total":  len(events),
-			"events": events,
-		},
 	})
 }
 
-// GetEvent 获取事件详情.
-func (h *Handlers) GetEvent(c *gin.Context) {
-	id := c.Param("id")
-	evt, err := h.manager.GetEvent(id)
+// handleGetMetrics 处理获取指标请求
+func (h *AnomalyHandler) handleGetMetrics(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	deviceID := r.URL.Query().Get("device_id")
+	if deviceID == "" {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "缺少device_id参数",
+		})
+		return
+	}
+
+	h.manager.mu.RLock()
+	history, exists := h.manager.metrics[deviceID]
+	h.manager.mu.RUnlock()
+
+	if !exists || len(history) == 0 {
+		writeJSON(w, MetricsResponse{
+			Code:    404,
+			Message: "无指标数据",
+		})
+		return
+	}
+
+	// 返回最新指标
+	latest := history[len(history)-1]
+	writeJSON(w, MetricsResponse{
+		Code:    0,
+		Message: "success",
+		Data:    latest,
+	})
+}
+
+// handleListEvents 处理列出事件请求
+func (h *AnomalyHandler) handleListEvents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	deviceID := r.URL.Query().Get("device_id")
+	severity := AnomalySeverity(r.URL.Query().Get("severity"))
+	limitStr := r.URL.Query().Get("limit")
+	limit := 100
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+			limit = l
+		}
+	}
+
+	events := h.manager.ListEvents(deviceID, severity, limit)
+
+	writeJSON(w, EventListResponse{
+		Code:    0,
+		Message: "success",
+		Data:    events,
+	})
+}
+
+// handleGetEvent 处理获取事件请求
+func (h *AnomalyHandler) handleGetEvent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "缺少id参数",
+		})
+		return
+	}
+
+	event, err := h.manager.GetEvent(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+		writeJSON(w, AnomalyResponse{
+			Code:    404,
+			Message: err.Error(),
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: evt})
+	writeJSON(w, AnomalyResponse{
+		Code:    0,
+		Message: "success",
+		Data:    event,
+	})
 }
 
-// ResolveEvent 标记事件已解决.
-func (h *Handlers) ResolveEvent(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.ResolveEvent(id); err != nil {
-		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+// handleAckEvent 处理确认事件请求
+func (h *AnomalyHandler) handleAckEvent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	c.JSON(http.StatusOK, response{Code: 0, Message: "event resolved"})
+	var req AckEventRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "无效的请求体",
+		})
+		return
+	}
+
+	if req.EventID == "" || req.UserID == "" {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "缺少参数",
+		})
+		return
+	}
+
+	if err := h.manager.AckEvent(req.EventID, req.UserID); err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    500,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	writeJSON(w, AnomalyResponse{
+		Code:    0,
+		Message: "success",
+	})
 }
 
-// ========== 规则接口 ==========
+// handleResolveEvent 处理解决事件请求
+func (h *AnomalyHandler) handleResolveEvent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-// ListRules 列出规则.
-func (h *Handlers) ListRules(c *gin.Context) {
+	var req ResolveEventRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "无效的请求体",
+		})
+		return
+	}
+
+	if req.EventID == "" {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "缺少event_id参数",
+		})
+		return
+	}
+
+	if err := h.manager.ResolveEvent(req.EventID); err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    500,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	writeJSON(w, AnomalyResponse{
+		Code:    0,
+		Message: "success",
+	})
+}
+
+// handleListRules 处理列出规则请求
+func (h *AnomalyHandler) handleListRules(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	rules := h.manager.ListRules()
-	c.JSON(http.StatusOK, response{
+
+	writeJSON(w, RuleListResponse{
 		Code:    0,
 		Message: "success",
-		Data: gin.H{
-			"total":  len(rules),
-			"rules":  rules,
-		},
+		Data:    rules,
 	})
 }
 
-// AddRule 添加规则.
-func (h *Handlers) AddRule(c *gin.Context) {
-	var req AddRuleRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+// handleCreateRule 处理创建规则请求
+func (h *AnomalyHandler) handleCreateRule(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	rule := h.manager.AddRule(req)
-	c.JSON(http.StatusCreated, response{Code: 0, Message: "rule created", Data: rule})
-}
-
-// ToggleRule 启用/禁用规则.
-func (h *Handlers) ToggleRule(c *gin.Context) {
-	id := c.Param("id")
-	var req struct {
-		Enabled bool `json:"enabled"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+	var req CreateRuleRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "无效的请求体",
+		})
 		return
 	}
 
-	if err := h.manager.ToggleRule(id, req.Enabled); err != nil {
-		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+	rule, err := h.manager.CreateRule(&req)
+	if err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    500,
+			Message: err.Error(),
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{Code: 0, Message: "rule updated"})
+	writeJSON(w, AnomalyResponse{
+		Code:    0,
+		Message: "success",
+		Data:    rule,
+	})
 }
 
-// RemoveRule 移除规则.
-func (h *Handlers) RemoveRule(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.RemoveRule(id); err != nil {
-		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+// handleGetRule 处理获取规则请求
+func (h *AnomalyHandler) handleGetRule(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	c.JSON(http.StatusOK, response{Code: 0, Message: "rule removed"})
-}
-
-// ========== 配置接口 ==========
-
-// GetConfig 获取配置.
-func (h *Handlers) GetConfig(c *gin.Context) {
-	config := h.manager.GetConfig()
-	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: config})
-}
-
-// UpdateConfig 更新配置.
-func (h *Handlers) UpdateConfig(c *gin.Context) {
-	var req UpdateConfigRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "缺少id参数",
+		})
 		return
 	}
 
-	h.manager.UpdateConfig(req)
-	c.JSON(http.StatusOK, response{Code: 0, Message: "config updated", Data: h.manager.GetConfig()})
+	rule, err := h.manager.GetRule(id)
+	if err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    404,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	writeJSON(w, AnomalyResponse{
+		Code:    0,
+		Message: "success",
+		Data:    rule,
+	})
 }
 
-// ========== 统计接口 ==========
+// handleUpdateRule 处理更新规则请求
+func (h *AnomalyHandler) handleUpdateRule(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-// GetStats 获取统计.
-func (h *Handlers) GetStats(c *gin.Context) {
+	var req UpdateRuleRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "无效的请求体",
+		})
+		return
+	}
+
+	if req.ID == "" {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "缺少id参数",
+		})
+		return
+	}
+
+	if err := h.manager.UpdateRule(&req); err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    500,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	writeJSON(w, AnomalyResponse{
+		Code:    0,
+		Message: "success",
+	})
+}
+
+// handleDeleteRule 处理删除规则请求
+func (h *AnomalyHandler) handleDeleteRule(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost && r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var id string
+	if r.Method == http.MethodPost {
+		var req struct {
+			ID string `json:"id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeJSON(w, AnomalyResponse{
+				Code:    400,
+				Message: "无效的请求体",
+			})
+			return
+		}
+		id = req.ID
+	} else {
+		id = r.URL.Query().Get("id")
+	}
+
+	if id == "" {
+		writeJSON(w, AnomalyResponse{
+			Code:    400,
+			Message: "缺少id参数",
+		})
+		return
+	}
+
+	if err := h.manager.DeleteRule(id); err != nil {
+		writeJSON(w, AnomalyResponse{
+			Code:    500,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	writeJSON(w, AnomalyResponse{
+		Code:    0,
+		Message: "success",
+	})
+}
+
+// handleGetStats 处理获取统计信息请求
+func (h *AnomalyHandler) handleGetStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	stats := h.manager.GetStats()
-	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: stats})
+
+	writeJSON(w, StatsResponse{
+		Code:    0,
+		Message: "success",
+		Data:    stats,
+	})
+}
+
+// writeJSON 写入JSON响应
+func writeJSON(w http.ResponseWriter, v interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(v)
 }

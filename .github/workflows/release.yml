@@ -368,7 +368,7 @@ jobs:
           ls -la release/
       
       - name: 创建 GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare-release.outputs.version }}
           name: NAS-OS ${{ needs.prepare-release.outputs.version }}
