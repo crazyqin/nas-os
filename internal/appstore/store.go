@@ -142,15 +142,6 @@ type Store struct {
 	installed map[string]*InstalledApp
 }
 
-// InstalledApp 已安装应用
-type InstalledApp struct {
-	Template    AppTemplate   `json:"template"`
-	ContainerID string        `json:"container_id"`
-	Status      string        `json:"status"`
-	InstalledAt time.Time     `json:"installed_at"`
-	CustomPorts []PortMapping `json:"custom_ports,omitempty"`
-}
-
 // NewStore 创建商店
 func NewStore() *Store {
 	s := &Store{
@@ -199,12 +190,16 @@ func (s *Store) Install(ctx context.Context, templateID string, customPorts []Po
 		return fmt.Errorf("应用已安装: %s", templateID)
 	}
 
-	s.installed[templateID] = &InstalledApp{
-		Template:    tmpl,
-		Status:      "running",
+	installed := &InstalledApp{
+		AppID:       templateID,
+		Name:        tmpl.Name,
+		Version:     tmpl.Version,
 		InstalledAt: time.Now(),
-		CustomPorts: customPorts,
+		Status:      "running",
+		IsRunning:   true,
+		AutoStart:   true,
 	}
+	s.installed[templateID] = installed
 
 	return nil
 }
