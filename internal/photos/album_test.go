@@ -11,7 +11,7 @@ import (
 
 func TestNewAutoClassifier(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	classifier := NewAutoClassifier(m)
 	if classifier == nil {
@@ -25,7 +25,7 @@ func TestNewAutoClassifier(t *testing.T) {
 
 func TestClassifyByPerson(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 
 	// 创建测试照片
@@ -111,7 +111,7 @@ func TestClassifyByPerson(t *testing.T) {
 
 func TestClassifyByLocation(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 
 	now := time.Now()
@@ -186,7 +186,7 @@ func TestClassifyByLocation(t *testing.T) {
 
 func TestClassifyByTime(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 
 	now := time.Now()
@@ -267,7 +267,7 @@ func TestClassifyByTime(t *testing.T) {
 
 func TestClassifyByScene(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 
 	now := time.Now()
@@ -337,7 +337,7 @@ func TestClassifyByScene(t *testing.T) {
 
 func TestClassifyAll(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 
 	now := time.Now()
@@ -405,7 +405,7 @@ func TestGetSceneDisplayName(t *testing.T) {
 
 func TestNewSmartAlbumManager(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 
 	sam := NewSmartAlbumManager(m, classifier)
@@ -421,7 +421,7 @@ func TestNewSmartAlbumManager(t *testing.T) {
 
 func TestCreateSmartAlbum(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -469,7 +469,7 @@ func TestCreateSmartAlbum(t *testing.T) {
 
 func TestCreateSmartAlbumWithEmptyName(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -483,7 +483,7 @@ func TestCreateSmartAlbumWithEmptyName(t *testing.T) {
 
 func TestCreateSmartAlbumWithEmptyRules(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -495,7 +495,7 @@ func TestCreateSmartAlbumWithEmptyRules(t *testing.T) {
 
 func TestCreateFromTemplate(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -511,7 +511,7 @@ func TestCreateFromTemplate(t *testing.T) {
 
 func TestCreateFromNonExistentTemplate(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -523,7 +523,7 @@ func TestCreateFromNonExistentTemplate(t *testing.T) {
 
 func TestMatchPersonRule(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -564,7 +564,7 @@ func TestMatchPersonRule(t *testing.T) {
 
 func TestMatchLocationRule(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -605,7 +605,7 @@ func TestMatchLocationRule(t *testing.T) {
 
 func TestMatchSceneRule(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -646,7 +646,7 @@ func TestMatchSceneRule(t *testing.T) {
 
 func TestMatchObjectRule(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -687,7 +687,7 @@ func TestMatchObjectRule(t *testing.T) {
 
 func TestMatchAnyMode(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -738,7 +738,7 @@ func TestMatchAnyMode(t *testing.T) {
 
 func TestUpdateSmartAlbum(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -764,7 +764,7 @@ func TestUpdateSmartAlbum(t *testing.T) {
 
 func TestDeleteSmartAlbum(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -786,7 +786,7 @@ func TestDeleteSmartAlbum(t *testing.T) {
 
 func TestListSmartAlbums(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -805,7 +805,7 @@ func TestListSmartAlbums(t *testing.T) {
 
 func TestRefreshSmartAlbum(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -840,7 +840,7 @@ func TestRefreshSmartAlbum(t *testing.T) {
 
 func TestGetBuiltinTemplates(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 
@@ -865,7 +865,7 @@ func TestGetBuiltinTemplates(t *testing.T) {
 
 func TestNewDuplicateDetector(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	detector := NewDuplicateDetector(m)
 	if detector == nil {
@@ -875,7 +875,7 @@ func TestNewDuplicateDetector(t *testing.T) {
 
 func TestDetectDuplicatesEmpty(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	detector := NewDuplicateDetector(m)
 
 	report, err := detector.DetectDuplicates()
@@ -894,7 +894,7 @@ func TestDetectDuplicatesEmpty(t *testing.T) {
 
 func TestDetectExactDuplicates(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	detector := NewDuplicateDetector(m)
 
 	// 创建测试照片文件
@@ -944,7 +944,7 @@ func TestDetectExactDuplicates(t *testing.T) {
 
 func TestDetectBurstPhotos(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	detector := NewDuplicateDetector(m)
 
 	now := time.Now()
@@ -1002,7 +1002,7 @@ func TestDetectBurstPhotos(t *testing.T) {
 
 func TestSelectBestPhoto(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	detector := NewDuplicateDetector(m)
 
 	photos := []*Photo{
@@ -1045,7 +1045,7 @@ func TestSelectBestPhoto(t *testing.T) {
 
 func TestScorePhoto(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	detector := NewDuplicateDetector(m)
 
 	photo1 := &Photo{
@@ -1078,7 +1078,7 @@ func TestScorePhoto(t *testing.T) {
 
 func TestCalculateSpaceSavings(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	detector := NewDuplicateDetector(m)
 
 	now := time.Now()
@@ -1110,7 +1110,7 @@ func TestCalculateSpaceSavings(t *testing.T) {
 
 func TestGetDuplicatePhotos(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	detector := NewDuplicateDetector(m)
 
 	// 创建测试文件
@@ -1159,7 +1159,7 @@ func TestGetDuplicatePhotos(t *testing.T) {
 
 func TestGetDuplicatePhotosNonExistent(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	detector := NewDuplicateDetector(m)
 
 	_, _, err := detector.GetDuplicatePhotos("non-existent")
@@ -1193,7 +1193,7 @@ func TestRoundTo(t *testing.T) {
 
 func TestFullWorkflow(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建测试照片
 	now := time.Now()
@@ -1297,7 +1297,7 @@ func TestFullWorkflow(t *testing.T) {
 
 func TestSaveLoadCategories(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 
 	// 创建分类
@@ -1330,7 +1330,7 @@ func TestSaveLoadCategories(t *testing.T) {
 
 func TestSaveLoadSmartAlbums(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 	classifier := NewAutoClassifier(m)
 	sam := NewSmartAlbumManager(m, classifier)
 

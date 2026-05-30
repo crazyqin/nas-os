@@ -351,11 +351,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化相册管理器
-	photosMgr, err := photos.NewManager("/var/lib/nas-os/photos")
-	if err != nil {
-		// 相册管理不可用时继续运行（记录日志）
-		photosMgr = nil
-	}
+	photosMgr := photos.NewManager("/var/lib/nas-os/photos")
 
 	// 初始化 AI 相册管理器
 	var photosAIMgr *photos.AIManager
@@ -639,7 +635,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 容灾演练模块就绪")
 
 	// 初始化 Drive Sync 管理器（对标群晖 Drive Sync）
-	driveSyncMgr := drivesync.NewManager("/etc/nas-os/drivesync.json", drivesync.VersionConfig{})
+	driveSyncMgr := drivesync.NewManager("/etc/nas-os/drivesync.json")
 	log.Println("✅ Drive Sync 模块就绪")
 
 	// 初始化智能Scrub调度管理器（对标 TrueNAS 26 智能Scrub）
@@ -1258,7 +1254,7 @@ func (s *Server) setupRoutes() {
 
 		// ========== 相册中心 ==========
 		if s.photosMgr != nil {
-			photos.NewHandlers(s.photosMgr, s.photosAIMgr).RegisterRoutes(api)
+			photos.NewHandler(s.photosMgr).RegisterRoutes(api)
 		}
 
 		// ========== 备份与同步 ==========

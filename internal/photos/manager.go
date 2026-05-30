@@ -21,6 +21,11 @@ type Manager struct {
 	persons     map[string]*Person
 	storagePath string
 	indexPath   string
+	photosDir   string       // 照片存储目录
+	dataDir     string       // 数据存储目录
+	thumbsDir   string       // 缩略图存储目录
+	cacheDir    string       // 缓存存储目录
+	config      *PhotoConfig // 配置
 }
 
 // NewManager 创建相册管理器
@@ -31,6 +36,19 @@ func NewManager(storagePath string) *Manager {
 		persons:     make(map[string]*Person),
 		storagePath: storagePath,
 		indexPath:   filepath.Join(storagePath, ".index"),
+		photosDir:   filepath.Join(storagePath, "photos"),
+		dataDir:     filepath.Join(storagePath, "data"),
+		thumbsDir:   filepath.Join(storagePath, "thumbnails"),
+		cacheDir:    filepath.Join(storagePath, "cache"),
+		config: &PhotoConfig{
+			MaxUploadSize:    100 * 1024 * 1024,
+			Enabled:          true,
+			StoragePath:      storagePath,
+			SupportedFormats: []string{".jpg", ".png", ".heic", ".mp4"},
+			ThumbnailConfig: &ThumbnailConfig{
+				Quality: 80,
+			},
+		},
 	}
 	go m.startAutoIndex()
 	return m
@@ -55,14 +73,14 @@ func (m *Manager) ImportPhoto(ctx context.Context, filePath string, userID strin
 		ID:         photoID,
 		Filename:   filepath.Base(filePath),
 		Path:       filePath,
-		Size:       info.Size(),
+		Size:       uint64(info.Size()),
 		Format:     getFormat(filePath),
 		UploadedAt: time.Now(),
 		ModifiedAt: info.ModTime(),
 		Tags:       []string{},
 		Albums:     []string{},
-		Faces:      []Face{},
-		Comments:   []Comment{},
+		Faces:      []FaceInfo{},
+		Comments:   []PhotoComment{},
 	}
 
 	// 尝试提取 EXIF 数据
@@ -184,7 +202,7 @@ func (m *Manager) SearchPhotos(ctx context.Context, query SearchQuery) (*SearchR
 }
 
 // RecognizeFaces 人脸识别
-func (m *Manager) RecognizeFaces(ctx context.Context, photoID string) ([]Face, error) {
+func (m *Manager) RecognizeFaces(ctx context.Context, photoID string) ([]FaceInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -195,14 +213,16 @@ func (m *Manager) RecognizeFaces(ctx context.Context, photoID string) ([]Face, e
 
 	// TODO: 调用人脸识别服务
 	// 这里返回模拟数据
-	faces := []Face{
+	faces := []FaceInfo{
 		{
-			PersonID:   "person_001",
-			PersonName: "Unknown",
-			X:          0.3,
-			Y:          0.2,
-			Width:      0.15,
-			Height:     0.2,
+			ID:   "face_001",
+			Name: "Unknown",
+			Bounds: Rectangle{
+				X:      30,
+				Y:      20,
+				Width:  15,
+				Height: 20,
+			},
 			Confidence: 0.95,
 		},
 	}
@@ -241,7 +261,7 @@ func (m *Manager) GetStats(ctx context.Context) (map[string]interface{}, error) 
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	totalSize := int64(0)
+	totalSize := uint64(0)
 	formatCount := make(map[string]int)
 	deviceCount := make(map[string]int)
 
@@ -318,10 +338,10 @@ func (m *Manager) matchesQuery(photo *Photo, query SearchQuery) bool {
 	}
 
 	// 日期范围
-	if !query.DateFrom.IsZero() && photo.TakenAt.Before(query.DateFrom) {
+	if query.DateFrom != nil && photo.TakenAt.Before(*query.DateFrom) {
 		return false
 	}
-	if !query.DateTo.IsZero() && photo.TakenAt.After(query.DateTo) {
+	if query.DateTo != nil && photo.TakenAt.After(*query.DateTo) {
 		return false
 	}
 
@@ -382,6 +402,24 @@ func (m *Manager) saveAlbumIndex() {
 	// TODO: 保存相册索引到磁盘
 }
 
+// savePersons 保存人物数据到磁盘
+func (m *Manager) savePersons() error {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	data, err := json.Marshal(m.persons)
+	if err != nil {
+		return fmt.Errorf("marshal persons failed: %w", err)
+	}
+
+	path := filepath.Join(m.dataDir, "persons.json")
+	if err := os.MkdirAll(m.dataDir, 0750); err != nil {
+		return fmt.Errorf("create data dir failed: %w", err)
+	}
+
+	return os.WriteFile(path, data, 0640)
+}
+
 func getFormat(filename string) string {
 	ext := filepath.Ext(filename)
 	if len(ext) > 0 {
@@ -401,4 +439,237 @@ func (m *Manager) Export(ctx context.Context) ([]byte, error) {
 	}
 
 	return json.MarshalIndent(photos, "", "  ")
+}
+
+// DeletePhoto 删除照片
+func (m *Manager) DeletePhoto(photoID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.photos[photoID]; !exists {
+		return fmt.Errorf("photo not found: %s", photoID)
+	}
+
+	delete(m.photos, photoID)
+	return nil
+}
+
+// resizeDimensions 计算缩放后的尺寸，保持宽高比
+func resizeDimensions(width, height, maxSize int) (int, int) {
+	if width <= maxSize && height <= maxSize {
+		return width, height
+	}
+
+	ratio := float64(width) / float64(height)
+	if width > height {
+		newWidth := maxSize
+		newHeight := int(float64(newWidth) / ratio)
+		return newWidth, newHeight
+	}
+	newHeight := maxSize
+	newWidth := int(float64(newHeight) * ratio)
+	return newWidth, newHeight
+}
+
+// GetPhoto 获取照片
+func (m *Manager) GetPhoto(photoID string) (*Photo, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	photo, exists := m.photos[photoID]
+	if !exists {
+		return nil, fmt.Errorf("photo not found: %s", photoID)
+	}
+	return photo, nil
+}
+
+// GetAlbum 获取相册
+func (m *Manager) GetAlbum(albumID string) (*Album, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	album, exists := m.albums[albumID]
+	if !exists {
+		return nil, fmt.Errorf("album not found: %s", albumID)
+	}
+	return album, nil
+}
+
+// GetConfig 获取配置
+func (m *Manager) GetConfig() *PhotoConfig {
+	return &PhotoConfig{
+		MaxUploadSize: 100 * 1024 * 1024, // 100MB
+		Enabled:       true,
+		StoragePath:   m.storagePath,
+	}
+}
+
+// UpdateConfig 更新配置
+func (m *Manager) UpdateConfig(config *PhotoConfig) error {
+	if config == nil {
+		return fmt.Errorf("config cannot be nil")
+	}
+	return nil
+}
+
+// CreatePerson 创建人物
+func (m *Manager) CreatePerson(name string) (*Person, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	person := &Person{
+		ID:   generateID(),
+		Name: name,
+	}
+	m.persons[person.ID] = person
+	return person, nil
+}
+
+// ListPersons 列出人物
+func (m *Manager) ListPersons() []*Person {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	persons := make([]*Person, 0, len(m.persons))
+	for _, p := range m.persons {
+		persons = append(persons, p)
+	}
+	return persons
+}
+
+// UpdatePerson 更新人物
+func (m *Manager) UpdatePerson(personID string, name string) (*Person, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	person, exists := m.persons[personID]
+	if !exists {
+		return nil, fmt.Errorf("person not found: %s", personID)
+	}
+	person.Name = name
+	return person, nil
+}
+
+// DeletePerson 删除人物
+func (m *Manager) DeletePerson(personID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.persons[personID]; !exists {
+		return fmt.Errorf("person not found: %s", personID)
+	}
+	delete(m.persons, personID)
+	return nil
+}
+
+// QueryPhotos 查询照片
+func (m *Manager) QueryPhotos(query *PhotoQuery) ([]*Photo, int, error) {
+	// 将 PhotoQuery 转换为 SearchQuery
+	sq := SearchQuery{
+		AlbumID:   query.AlbumID,
+		UserID:    query.UserID,
+		Tags:      query.Tags,
+		Scene:     query.Scene,
+		SortBy:    query.SortBy,
+		SortOrder: query.SortOrder,
+		Page:      query.Limit,
+		PageSize:  query.Offset,
+	}
+	if query.StartDate != (time.Time{}) {
+		sq.DateFrom = &query.StartDate
+	}
+	if query.EndDate != (time.Time{}) {
+		sq.DateTo = &query.EndDate
+	}
+	result, err := m.SearchPhotos(context.Background(), sq)
+	if err != nil {
+		return nil, 0, err
+	}
+	photos := make([]*Photo, len(result.Photos))
+	for i := range result.Photos {
+		photos[i] = &result.Photos[i]
+	}
+	return photos, result.Total, nil
+}
+
+// ListAlbums 列出相册
+func (m *Manager) ListAlbums(userID ...string) []*Album {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	albums := make([]*Album, 0, len(m.albums))
+	for _, a := range m.albums {
+		if len(userID) == 0 || a.OwnerID == userID[0] {
+			albums = append(albums, a)
+		}
+	}
+	return albums
+}
+
+// UpdateAlbum 更新相册
+func (m *Manager) UpdateAlbum(albumID string, name string, description string) (*Album, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	album, exists := m.albums[albumID]
+	if !exists {
+		return nil, fmt.Errorf("album not found: %s", albumID)
+	}
+	if name != "" {
+		album.Name = name
+	}
+	if description != "" {
+		album.Description = description
+	}
+	return album, nil
+}
+
+// DeleteAlbum 删除相册
+func (m *Manager) DeleteAlbum(albumID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.albums[albumID]; !exists {
+		return fmt.Errorf("album not found: %s", albumID)
+	}
+	delete(m.albums, albumID)
+	return nil
+}
+
+// RemovePhotoFromAlbum 从相册移除照片
+func (m *Manager) RemovePhotoFromAlbum(ctx context.Context, photoID string, albumID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	photo, exists := m.photos[photoID]
+	if !exists {
+		return fmt.Errorf("photo not found: %s", photoID)
+	}
+
+	for i, aid := range photo.Albums {
+		if aid == albumID {
+			photo.Albums = append(photo.Albums[:i], photo.Albums[i+1:]...)
+			return nil
+		}
+	}
+	return nil
+}
+
+// ToggleFavorite 切换收藏状态
+func (m *Manager) ToggleFavorite(photoID string) (*Photo, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	photo, exists := m.photos[photoID]
+	if !exists {
+		return nil, fmt.Errorf("photo not found: %s", photoID)
+	}
+	photo.IsFavorite = !photo.IsFavorite
+	return photo, nil
+}
+
+// saveConfig 保存配置
+func (m *Manager) saveConfig() error {
+	// 简化实现 - 配置保存到内存
+	return nil
 }

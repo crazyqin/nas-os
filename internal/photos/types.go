@@ -38,6 +38,7 @@ type Photo struct {
 	Device        *DeviceInfo     `json:"device,omitempty"`
 	DeviceModel   string          `json:"deviceModel,omitempty"` // 兼容旧字段
 	ShareInfo     *ShareInfo      `json:"shareInfo,omitempty"`
+	Comments      []PhotoComment  `json:"comments,omitempty"` // 评论列表
 	EditHistory   []EditOperation `json:"editHistory,omitempty"`
 }
 
@@ -272,4 +273,45 @@ type QualityMetrics struct {
 	Colorfulness float64 `json:"colorfulness"` // 色彩丰富度
 	Composition  float64 `json:"composition"`  // 构图评分 (基于三分法等)
 	OverallScore float32 `json:"overallScore"` // 综合质量评分 (0-100)
+}
+
+// SearchQuery 搜索查询条件
+type SearchQuery struct {
+	Keyword    string   `json:"keyword,omitempty"`    // 关键词
+	Tags       []string `json:"tags,omitempty"`       // 标签
+	AlbumID    string   `json:"albumId,omitempty"`    // 相册ID
+	UserID     string   `json:"userId,omitempty"`     // 用户ID
+	PersonName string   `json:"personName,omitempty"` // 人物名
+	Scene      string   `json:"scene,omitempty"`      // 场景
+	Format     string   `json:"format,omitempty"`     // 文件格式
+	StartDate  string   `json:"startDate,omitempty"`  // 开始日期
+	EndDate    string   `json:"endDate,omitempty"`    // 结束日期
+	SortBy     string   `json:"sortBy,omitempty"`     // 排序字段
+	Page       int      `json:"page,omitempty"`       // 页码
+	PageSize   int      `json:"pageSize,omitempty"`   // 每页数量
+	SortOrder  string   `json:"sortOrder,omitempty"`  // 排序方向
+
+	DateFrom   *time.Time `json:"dateFrom,omitempty"`   // 开始日期
+	DateTo     *time.Time `json:"dateTo,omitempty"`     // 结束日期
+	Rating     int      `json:"rating,omitempty"`     // 评分筛选
+	IsFavorite *bool    `json:"isFavorite,omitempty"` // 收藏筛选
+	DeviceModel string  `json:"deviceModel,omitempty"` // 设备型号筛选
+}
+// SearchResult 搜索结果
+type SearchResult struct {
+	Photos     []Photo `json:"photos"`               // 照片列表
+	Total      int     `json:"total"`                // 总数
+	Page       int     `json:"page"`                 // 当前页
+	PageSize   int     `json:"pageSize"`             // 每页数量
+	TotalPages int     `json:"totalPages"`           // 总页数
+}
+
+// PhotoConfig 相册配置
+type PhotoConfig struct {
+	MaxUploadSize    int64           `json:"max_upload_size"`
+	Enabled          bool            `json:"enabled"`
+	StoragePath      string          `json:"storage_path"`
+	EnableAI         bool            `json:"enable_ai"`
+	SupportedFormats []string        `json:"supported_formats"`
+	ThumbnailConfig  *ThumbnailConfig `json:"thumbnail_config,omitempty"`
 }

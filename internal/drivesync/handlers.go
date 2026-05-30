@@ -2,8 +2,9 @@
 package drivesync
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Handler HTTP 处理器
@@ -17,29 +18,28 @@ func NewHandler(manager *Manager) *Handler {
 }
 
 // RegisterRoutes 注册路由
-func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/drive/sync", h.handleSync)
-	mux.HandleFunc("/api/drive/status", h.handleStatus)
-	mux.HandleFunc("/api/drive/conflicts", h.handleConflicts)
-	mux.HandleFunc("/api/drive/conflicts/resolve", h.handleResolveConflict)
-	mux.HandleFunc("/api/drive/stats", h.handleStats)
-	mux.HandleFunc("/api/drive/policy", h.handlePolicy)
+func (h *Handler) RegisterRoutes(api *gin.RouterGroup) {
+	drive := api.Group("/drive")
+	{
+		drive.POST("/sync", h.handleSync)
+		drive.GET("/status", h.handleStatus)
+		drive.GET("/conflicts", h.handleConflicts)
+		drive.POST("/conflicts/resolve", h.handleResolveConflict)
+		drive.GET("/stats", h.handleStats)
+		drive.GET("/policy", h.handleGetPolicy)
+		drive.PUT("/policy", h.handleSetPolicy)
+	}
 }
 
-func (h *Handler) handleSync(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+func (h *Handler) handleSync(c *gin.Context) {
 	var req struct {
 		SourcePath string `json:"source_path"`
 		TargetPath string `json:"target_path"`
 		IsDir      bool   `json:"is_dir"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
@@ -47,115 +47,89 @@ func (h *Handler) handleSync(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if req.IsDir {
-		task, err = h.manager.SyncDirectory(r.Context(), req.SourcePath, req.TargetPath)
+		task, err = h.manager.SyncDirectory(c.Request.Context(), req.SourcePath, req.TargetPath)
 	} else {
-		task, err = h.manager.SyncFile(r.Context(), req.SourcePath, req.TargetPath)
+		task, err = h.manager.SyncFile(c.Request.Context(), req.SourcePath, req.TargetPath)
 	}
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(task)
+	c.JSON(http.StatusOK, task)
 }
 
-func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	taskID := r.URL.Query().Get("task_id")
+func (h *Handler) handleStatus(c *gin.Context) {
+	taskID := c.Query("task_id")
 	if taskID == "" {
-		http.Error(w, "task_id required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "task_id required"})
 		return
 	}
 
-	status, err := h.manager.GetSyncStatus(r.Context(), taskID)
+	status, err := h.manager.GetSyncStatus(c.Request.Context(), taskID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(status)
+	c.JSON(http.StatusOK, status)
 }
 
-func (h *Handler) handleConflicts(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	conflicts, err := h.manager.ListConflicts(r.Context())
+func (h *Handler) handleConflicts(c *gin.Context) {
+	conflicts, err := h.manager.ListConflicts(c.Request.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"conflicts": conflicts,
-	})
+	c.JSON(http.StatusOK, gin.H{"conflicts": conflicts})
 }
 
-func (h *Handler) handleResolveConflict(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+func (h *Handler) handleResolveConflict(c *gin.Context) {
 	var req struct {
 		ConflictID string `json:"conflict_id"`
 		Resolution string `json:"resolution"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	if err := h.manager.ResolveConflict(r.Context(), req.ConflictID, req.Resolution); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := h.manager.ResolveConflict(c.Request.Context(), req.ConflictID, req.Resolution); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{"status": "resolved"})
+	c.JSON(http.StatusOK, gin.H{"status": "resolved"})
 }
 
-func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	stats, err := h.manager.GetStats(r.Context())
+func (h *Handler) handleStats(c *gin.Context) {
+	stats, err := h.manager.GetStats(c.Request.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(stats)
+	c.JSON(http.StatusOK, stats)
 }
 
-func (h *Handler) handlePolicy(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		// TODO: 返回当前策略
-		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
-	case http.MethodPut:
-		var policy SyncPolicy
-		if err := json.NewDecoder(r.Body).Decode(&policy); err != nil {
-			http.Error(w, "Invalid request", http.StatusBadRequest)
-			return
-		}
+func (h *Handler) handleGetPolicy(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+}
 
-		if err := h.manager.SetPolicy(r.Context(), policy); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		json.NewEncoder(w).Encode(map[string]string{"status": "updated"})
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+func (h *Handler) handleSetPolicy(c *gin.Context) {
+	var policy SyncPolicy
+	if err := c.ShouldBindJSON(&policy); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
 	}
+
+	if err := h.manager.SetPolicy(c.Request.Context(), policy); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "updated"})
 }
