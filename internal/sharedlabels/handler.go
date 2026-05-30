@@ -1,4 +1,4 @@
-package smartquota
+package sharedlabels
 
 import (
 	"encoding/json"
@@ -17,29 +17,28 @@ func NewHandler(manager *Manager) *Handler {
 
 // RegisterRoutes 注册路由
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/v1/quotas", h.handleQuotas)
-	mux.HandleFunc("/api/v1/quotas/stats", h.handleStats)
-	mux.HandleFunc("/api/v1/quotas/alerts", h.handleAlerts)
-	mux.HandleFunc("/api/v1/quotas/usage", h.handleUsage)
+	mux.HandleFunc("/api/v1/labels", h.handleLabels)
+	mux.HandleFunc("/api/v1/labels/stats", h.handleStats)
+	mux.HandleFunc("/api/v1/files/labels", h.handleFileLabels)
 }
 
-func (h *Handler) handleQuotas(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleLabels(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		h.listQuotas(w, r)
+		h.listLabels(w, r)
 	case http.MethodPost:
-		h.createQuota(w, r)
+		h.createLabel(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
-func (h *Handler) listQuotas(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) listLabels(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	quotaType := QuotaType(r.URL.Query().Get("type"))
+	labelType := LabelType(r.URL.Query().Get("type"))
 	tenantID := r.URL.Query().Get("tenant_id")
 
-	quotas, err := h.manager.ListQuotas(ctx, quotaType, tenantID)
+	labels, err := h.manager.ListLabels(ctx, labelType, tenantID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -47,20 +46,20 @@ func (h *Handler) listQuotas(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"quotas": quotas,
-		"total":  len(quotas),
+		"labels": labels,
+		"total":  len(labels),
 	})
 }
 
-func (h *Handler) createQuota(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) createLabel(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var quota Quota
-	if err := json.NewDecoder(r.Body).Decode(&quota); err != nil {
+	var label Label
+	if err := json.NewDecoder(r.Body).Decode(&label); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	created, err := h.manager.CreateQuota(ctx, quota)
+	created, err := h.manager.CreateLabel(ctx, label)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -90,72 +89,76 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleFileLabels(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		h.getAlerts(w, r)
-	case http.MethodPut:
-		h.ackAlert(w, r)
+		h.getFileLabels(w, r)
+	case http.MethodPost:
+		h.applyLabel(w, r)
+	case http.MethodDelete:
+		h.removeLabel(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
-func (h *Handler) getAlerts(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) getFileLabels(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	unackedOnly := r.URL.Query().Get("unacked_only") == "true"
+	fileID := r.URL.Query().Get("file_id")
+	if fileID == "" {
+		http.Error(w, "file_id is required", http.StatusBadRequest)
+		return
+	}
 
-	alerts := h.manager.GetAlerts(ctx, unackedOnly)
+	labels, err := h.manager.GetFileLabels(ctx, fileID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"alerts": alerts,
-		"total":  len(alerts),
+		"file_id": fileID,
+		"labels":  labels,
 	})
 }
 
-func (h *Handler) ackAlert(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) applyLabel(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var req struct {
-		AlertID string `json:"alert_id"`
-		AckedBy string `json:"acked_by"`
+		FileID    string `json:"file_id"`
+		FilePath  string `json:"file_path"`
+		LabelID   string `json:"label_id"`
+		AppliedBy string `json:"applied_by"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	if err := h.manager.AckAlert(ctx, req.AlertID, req.AckedBy); err != nil {
+	if err := h.manager.ApplyLabel(ctx, req.FileID, req.FilePath, req.LabelID, req.AppliedBy); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"status": "acked"})
+	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
 
-func (h *Handler) handleUsage(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+func (h *Handler) removeLabel(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var req struct {
-		QuotaID   string `json:"quota_id"`
-		UsedBytes int64  `json:"used_bytes"`
-		UsedFiles int64  `json:"used_files"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	fileID := r.URL.Query().Get("file_id")
+	labelID := r.URL.Query().Get("label_id")
+	if fileID == "" || labelID == "" {
+		http.Error(w, "file_id and label_id are required", http.StatusBadRequest)
 		return
 	}
 
-	if err := h.manager.UpdateUsage(ctx, req.QuotaID, req.UsedBytes, req.UsedFiles); err != nil {
+	if err := h.manager.RemoveLabel(ctx, fileID, labelID); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"status": "updated"})
+	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
