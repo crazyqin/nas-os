@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func TestNewManager(t *testing.T) {
+func TestNewManagerViaHandler(t *testing.T) {
 	manager := NewManager(nil)
 
 	if manager == nil {
@@ -117,7 +117,7 @@ func TestGetPowerHistory(t *testing.T) {
 		t.Errorf("Expected 3 data points, got %d", len(history.DataPoints))
 	}
 
-	if history.AvgWatts != 51.666667 {
+	if history.AvgWatts < 51.66 || history.AvgWatts > 51.67 {
 		t.Errorf("Expected avg watts ~51.67, got %f", history.AvgWatts)
 	}
 }

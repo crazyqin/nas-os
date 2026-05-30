@@ -11,6 +11,11 @@ type PowerProfile struct {
 	Description string    `json:"description"`
 	Type        string    `json:"type"`
 	Settings    PowerSettings `json:"settings"`
+	MaxWatts    int       `json:"max_watts,omitempty"`
+	IdleWatts   int       `json:"idle_watts,omitempty"`
+	SpinDownHDD bool      `json:"spin_down_hdd,omitempty"`
+	LEDControl  bool      `json:"led_control,omitempty"`
+	FanCurve    string    `json:"fan_curve,omitempty"`
 	IsActive    bool      `json:"is_active"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
