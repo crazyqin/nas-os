@@ -1,7 +1,10 @@
 package photos
 
 import (
+	"crypto/rand"
 	"errors"
+	"fmt"
+	"sync"
 	"time"
 )
 
@@ -291,8 +294,16 @@ func (m *ConditionalAlbumManager) DeleteRule(ruleID string) error {
 }
 
 // Helper functions
+
+var idCounter uint64
+var idMu sync.Mutex
+
 func generateID() string {
-	return time.Now().Format("20060102") + "_" + randomString(8)
+	idMu.Lock()
+	idCounter++
+	id := fmt.Sprintf("%s_%08d", time.Now().Format("20060102"), idCounter)
+	idMu.Unlock()
+	return id
 }
 
 func contains(s, substr string) bool {
@@ -300,8 +311,13 @@ func contains(s, substr string) bool {
 }
 
 func randomString(n int) string {
-	// Simple implementation for now
-	return "xxxxxxxx"
+	b := make([]byte, n)
+	rand.Read(b)
+	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
+	for i := range b {
+		b[i] = letters[int(b[i])%len(letters)]
+	}
+	return string(b)
 }
 
 // Errors

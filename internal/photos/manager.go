@@ -123,6 +123,7 @@ func (m *Manager) CreateAlbum(ctx context.Context, name string, description stri
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 		OwnerID:     ownerID,
+		UserID:      ownerID,
 		Tags:        []string{},
 	}
 
@@ -156,6 +157,9 @@ func (m *Manager) AddPhotoToAlbum(ctx context.Context, photoID string, albumID s
 	}
 
 	photo.Albums = append(photo.Albums, albumID)
+	if photo.AlbumID == "" {
+		photo.AlbumID = albumID
+	}
 	album.PhotoCount++
 	album.UpdatedAt = time.Now()
 
@@ -367,6 +371,11 @@ func (m *Manager) matchesQuery(photo *Photo, query SearchQuery) bool {
 
 	// 格式
 	if query.Format != "" && photo.Format != query.Format {
+		return false
+	}
+
+	// 用户 ID
+	if query.UserID != "" && photo.UserID != query.UserID {
 		return false
 	}
 
@@ -584,14 +593,19 @@ func (m *Manager) DeletePerson(personID string) error {
 func (m *Manager) QueryPhotos(query *PhotoQuery) ([]*Photo, int, error) {
 	// 将 PhotoQuery 转换为 SearchQuery
 	sq := SearchQuery{
-		AlbumID:   query.AlbumID,
-		UserID:    query.UserID,
-		Tags:      query.Tags,
-		Scene:     query.Scene,
-		SortBy:    query.SortBy,
-		SortOrder: query.SortOrder,
-		Page:      query.Limit,
-		PageSize:  query.Offset,
+		AlbumID:    query.AlbumID,
+		UserID:     query.UserID,
+		Tags:       query.Tags,
+		Scene:      query.Scene,
+		SortBy:     query.SortBy,
+		SortOrder:  query.SortOrder,
+		IsFavorite: query.IsFavorite,
+	}
+	if query.Limit > 0 {
+		sq.PageSize = query.Limit
+	}
+	if query.Offset > 0 && query.Limit > 0 {
+		sq.Page = query.Offset/query.Limit + 1
 	}
 	if query.StartDate != (time.Time{}) {
 		sq.DateFrom = &query.StartDate
@@ -617,7 +631,7 @@ func (m *Manager) ListAlbums(userID ...string) []*Album {
 
 	albums := make([]*Album, 0, len(m.albums))
 	for _, a := range m.albums {
-		if len(userID) == 0 || a.OwnerID == userID[0] {
+		if len(userID) == 0 || a.OwnerID == userID[0] || a.UserID == userID[0] {
 			albums = append(albums, a)
 		}
 	}
@@ -667,6 +681,13 @@ func (m *Manager) RemovePhotoFromAlbum(ctx context.Context, photoID string, albu
 	for i, aid := range photo.Albums {
 		if aid == albumID {
 			photo.Albums = append(photo.Albums[:i], photo.Albums[i+1:]...)
+			if photo.AlbumID == albumID {
+				photo.AlbumID = ""
+			}
+			// Decrement album photo count
+			if album, ok := m.albums[albumID]; ok && album.PhotoCount > 0 {
+				album.PhotoCount--
+			}
 			return nil
 		}
 	}

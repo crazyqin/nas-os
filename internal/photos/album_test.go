@@ -1322,7 +1322,7 @@ func TestSaveLoadCategories(t *testing.T) {
 	}
 
 	// 验证文件存在
-	categoriesPath := filepath.Join(tmpDir, "photo-categories.json")
+	categoriesPath := filepath.Join(tmpDir, "data", "photo-categories.json")
 	if _, err := os.Stat(categoriesPath); os.IsNotExist(err) {
 		t.Error("分类文件应该存在")
 	}
@@ -1340,7 +1340,7 @@ func TestSaveLoadSmartAlbums(t *testing.T) {
 	_, _ = sam.CreateSmartAlbum("测试相册", "", rules, "all")
 
 	// 验证文件存在
-	albumsPath := filepath.Join(tmpDir, "smart-albums-config.json")
+	albumsPath := filepath.Join(tmpDir, "data", "smart-albums-config.json")
 	if _, err := os.Stat(albumsPath); os.IsNotExist(err) {
 		t.Error("智能相册文件应该存在")
 	}

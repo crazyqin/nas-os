@@ -148,6 +148,7 @@ func TestRemovePhotoFromAlbum(t *testing.T) {
 		Path:       "test.jpg",
 		UserID:     "user1",
 		AlbumID:    album.ID,
+		Albums:     []string{album.ID},
 		UploadedAt: time.Now(),
 		ModifiedAt: time.Now(),
 	}
