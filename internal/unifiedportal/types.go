@@ -1,216 +1,257 @@
-// Package unifiedportal 提供统一搜索门户功能
-// 支持跨模块全局搜索、快捷操作、智能推荐
+// Package unifiedportal 提供统一门户自定义仪表盘功能，支持仪表盘CRUD、Widget管理、主题切换、数据源聚合等。
 package unifiedportal
 
-import (
-	"fmt"
-	"sync"
-	"time"
-)
+import "time"
 
-// SearchResultType 搜索结果类型
-type SearchResultType string
+// WidgetType Widget类型枚举
+type WidgetType string
 
 const (
-	ResultTypeFile       SearchResultType = "file"
-	ResultTypeApp        SearchResultType = "app"
-	ResultTypeSetting    SearchResultType = "setting"
-	ResultTypeUser       SearchResultType = "user"
-	ResultTypeShare      SearchResultType = "share"
-	ResultTypeContainer  SearchResultType = "container"
-	ResultTypeVM         SearchResultType = "vm"
-	ResultTypeSnapshot   SearchResultType = "snapshot"
+	WidgetSystemOverview  WidgetType = "system_overview"  // 系统概览
+	WidgetStorageUsage    WidgetType = "storage_usage"    // 存储使用
+	WidgetNetworkTraffic  WidgetType = "network_traffic"  // 网络流量
+	WidgetContainerStatus WidgetType = "container_status" // 容器状态
+	WidgetAlerts          WidgetType = "alerts"           // 告警
+	WidgetCustomChart     WidgetType = "custom_chart"     // 自定义图表
 )
 
-// SearchResult 搜索结果
-type SearchResult struct {
-	ID          string           `json:"id"`
-	Type        SearchResultType `json:"type"`
-	Title       string           `json:"title"`
-	Description string           `json:"description,omitempty"`
-	Path        string           `json:"path,omitempty"`
-	Icon        string           `json:"icon,omitempty"`
-	Score       float64          `json:"score"`       // 相关性评分
-	Action      string           `json:"action"`      // 快捷操作
-	ActionURL   string           `json:"actionUrl"`   // 操作链接
-	Metadata    map[string]string `json:"metadata,omitempty"`
+// DashboardLayout 布局类型
+type DashboardLayout string
+
+const (
+	LayoutGrid       DashboardLayout = "grid"       // 网格布局
+	LayoutFree       DashboardLayout = "free"       // 自由布局
+	LayoutResponsive DashboardLayout = "responsive" // 响应式布局
+)
+
+// ThemeMode 主题模式
+type ThemeMode string
+
+const (
+	ThemeLight ThemeMode = "light" // 浅色模式
+	ThemeDark  ThemeMode = "dark"  // 暗黑模式
+	ThemeAuto  ThemeMode = "auto"  // 跟随系统
+)
+
+// WidgetPosition Widget位置
+type WidgetPosition struct {
+	X int `json:"x"` // X坐标
+	Y int `json:"y"` // Y坐标
 }
 
-// SearchRequest 搜索请求
-type SearchRequest struct {
-	Query      string   `json:"query"`
-	Types      []string `json:"types,omitempty"`      // 过滤类型
-	Limit      int      `json:"limit,omitempty"`
-	Offset     int      `json:"offset,omitempty"`
-	Category   string   `json:"category,omitempty"`   // 搜索分类
+// WidgetSize Widget大小
+type WidgetSize struct {
+	Width  int `json:"width"`  // 宽度（网格列数）
+	Height int `json:"height"` // 高度（网格行数）
 }
 
-// SearchResponse 搜索响应
-type SearchResponse struct {
-	Query       string          `json:"query"`
-	TotalCount  int             `json:"totalCount"`
-	Results     []*SearchResult `json:"results"`
-	Suggestions []string        `json:"suggestions,omitempty"`
-	Duration    time.Duration   `json:"duration"`
+// DashboardWidget 仪表盘Widget
+type DashboardWidget struct {
+	ID          string                 `json:"id"`
+	DashboardID string                 `json:"dashboard_id"`
+	Type        WidgetType             `json:"type" binding:"required"`
+	Title       string                 `json:"title"`
+	Position    WidgetPosition         `json:"position"`
+	Size        WidgetSize             `json:"size"`
+	Config      map[string]interface{} `json:"config,omitempty"` // Widget专属配置
+	DataSource  string                 `json:"data_source,omitempty"`
+	RefreshSec  int                    `json:"refresh_sec,omitempty"` // 自动刷新间隔（秒）
+	IsVisible   bool                   `json:"is_visible"`
+	CreatedAt   time.Time              `json:"created_at"`
+	UpdatedAt   time.Time              `json:"updated_at"`
 }
 
-// QuickAction 快捷操作
-type QuickAction struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Icon        string `json:"icon,omitempty"`
-	Category    string `json:"category"`
-	Action      string `json:"action"`
-	Params      map[string]string `json:"params,omitempty"`
-	Enabled     bool   `json:"enabled"`
+// PortalDashboard 仪表盘
+type PortalDashboard struct {
+	ID          string            `json:"id"`
+	Name        string            `json:"name" binding:"required"`
+	Description string            `json:"description,omitempty"`
+	Layout      DashboardLayout   `json:"layout"`
+	Widgets     []*DashboardWidget `json:"widgets,omitempty"`
+	IsDefault   bool              `json:"is_default"`
+	IsTemplate  bool              `json:"is_template"`
+	TemplateID  string            `json:"template_id,omitempty"`
+	Tags        []string          `json:"tags,omitempty"`
+	Owner       string            `json:"owner,omitempty"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// PortalConfig 门户配置
-type PortalConfig struct {
-	MaxResults       int      `json:"maxResults"`
-	EnableSuggestions bool   `json:"enableSuggestions"`
-	EnableQuickActions bool  `json:"enableQuickActions"`
-	SearchCategories []string `json:"searchCategories"`
-	ExcludeTypes     []string `json:"excludeTypes"`
+// PortalTheme 主题配置
+type PortalTheme struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name" binding:"required"`
+	Mode        ThemeMode `json:"mode"`
+	PrimaryColor string   `json:"primary_color,omitempty"`  // 主色调
+	AccentColor  string   `json:"accent_color,omitempty"`   // 强调色
+	BGColor      string   `json:"bg_color,omitempty"`       // 背景色
+	TextColor    string   `json:"text_color,omitempty"`     // 文字色
+	FontSize     string   `json:"font_size,omitempty"`      // 字体大小
+	FontFamily   string   `json:"font_family,omitempty"`    // 字体族
+	BorderRadius string   `json:"border_radius,omitempty"`  // 圆角
+	IsDark       bool     `json:"is_dark"`
+	IsDefault    bool     `json:"is_default"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
-// SearchProvider 搜索提供者接口
-type SearchProvider interface {
-	Name() string
-	Search(query string, limit int) ([]*SearchResult, error)
+// DashboardRequest 创建/更新仪表盘请求
+type DashboardRequest struct {
+	Name        string          `json:"name" binding:"required"`
+	Description string          `json:"description,omitempty"`
+	Layout      DashboardLayout `json:"layout,omitempty"`
+	Tags        []string        `json:"tags,omitempty"`
 }
 
-// Manager 统一门户管理器
-type Manager struct {
-	mu          sync.RWMutex
-	providers   map[string]SearchProvider
-	actions     map[string]*QuickAction
-	config      *PortalConfig
-	recentSearches []string
+// WidgetRequest 创建/更新Widget请求
+type WidgetRequest struct {
+	Type       WidgetType             `json:"type" binding:"required"`
+	Title      string                 `json:"title,omitempty"`
+	Position   WidgetPosition         `json:"position"`
+	Size       WidgetSize             `json:"size"`
+	Config     map[string]interface{} `json:"config,omitempty"`
+	DataSource string                 `json:"data_source,omitempty"`
+	RefreshSec int                    `json:"refresh_sec,omitempty"`
 }
 
-// NewManager 创建门户管理器
-func NewManager(config *PortalConfig) *Manager {
-	if config == nil {
-		config = &PortalConfig{
-			MaxResults:        50,
-			EnableSuggestions: true,
-			EnableQuickActions: true,
+// WidgetMoveRequest Widget移动请求
+type WidgetMoveRequest struct {
+	Position WidgetPosition `json:"position"`
+	Size     WidgetSize     `json:"size"`
+}
+
+// ThemeRequest 切换主题请求
+type ThemeRequest struct {
+	ThemeID string `json:"theme_id" binding:"required"`
+}
+
+// DashboardExport 仪表盘导出格式
+type DashboardExport struct {
+	Dashboard *PortalDashboard  `json:"dashboard"`
+	Widgets   []*DashboardWidget `json:"widgets"`
+	Version   string            `json:"version"`
+	ExportedAt time.Time        `json:"exported_at"`
+}
+
+// DataSource 数据源定义
+type DataSource struct {
+	ID       string                 `json:"id"`
+	Name     string                 `json:"name"`
+	Type     string                 `json:"type"`     // prometheus, influxdb, api, etc.
+	Endpoint string                 `json:"endpoint"`
+	Config   map[string]interface{} `json:"config,omitempty"`
+}
+
+// AggregatedMetrics 聚合指标
+type AggregatedMetrics struct {
+	System    *SystemMetrics    `json:"system,omitempty"`
+	Storage   *StorageMetrics   `json:"storage,omitempty"`
+	Network   *NetworkMetrics   `json:"network,omitempty"`
+	Container *ContainerMetrics `json:"container,omitempty"`
+	Alerts    *AlertMetrics     `json:"alerts,omitempty"`
+	Timestamp time.Time         `json:"timestamp"`
+}
+
+// SystemMetrics 系统指标
+type SystemMetrics struct {
+	CPUPercent    float64 `json:"cpu_percent"`
+	MemoryPercent float64 `json:"memory_percent"`
+	MemoryUsed    int64   `json:"memory_used"`
+	MemoryTotal   int64   `json:"memory_total"`
+	Uptime        int64   `json:"uptime"`
+	LoadAvg1      float64 `json:"load_avg_1"`
+	LoadAvg5      float64 `json:"load_avg_5"`
+	LoadAvg15     float64 `json:"load_avg_15"`
+}
+
+// StorageMetrics 存储指标
+type StorageMetrics struct {
+	TotalBytes     int64   `json:"total_bytes"`
+	UsedBytes      int64   `json:"used_bytes"`
+	FreeBytes      int64   `json:"free_bytes"`
+	UsagePercent   float64 `json:"usage_percent"`
+	IOPSRead       int64   `json:"iops_read"`
+	IOPSWrite      int64   `json:"iops_write"`
+	ThroughputRead  int64  `json:"throughput_read"`
+	ThroughputWrite int64  `json:"throughput_write"`
+}
+
+// NetworkMetrics 网络指标
+type NetworkMetrics struct {
+	BytesIn     int64   `json:"bytes_in"`
+	BytesOut    int64   `json:"bytes_out"`
+	PacketsIn   int64   `json:"packets_in"`
+	PacketsOut  int64   `json:"packets_out"`
+	Connections int     `json:"connections"`
+	Bandwidth   float64 `json:"bandwidth_mbps"`
+}
+
+// ContainerMetrics 容器指标
+type ContainerMetrics struct {
+	Total     int `json:"total"`
+	Running   int `json:"running"`
+	Stopped   int `json:"stopped"`
+	Paused    int `json:"paused"`
+	Healthy   int `json:"healthy"`
+	Unhealthy int `json:"unhealthy"`
+}
+
+// AlertMetrics 告警指标
+type AlertMetrics struct {
+	Critical int            `json:"critical"`
+	Warning  int            `json:"warning"`
+	Info     int            `json:"info"`
+	Total    int            `json:"total"`
+	Recent   []*AlertItem   `json:"recent,omitempty"`
+}
+
+// AlertItem 告警项
+type AlertItem struct {
+	ID        string    `json:"id"`
+	Level     string    `json:"level"`
+	Title     string    `json:"title"`
+	Message   string    `json:"message"`
+	Source    string    `json:"source"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// SupportedWidgetTypes 获取支持的Widget类型列表
+func SupportedWidgetTypes() []WidgetType {
+	return []WidgetType{
+		WidgetSystemOverview,
+		WidgetStorageUsage,
+		WidgetNetworkTraffic,
+		WidgetContainerStatus,
+		WidgetAlerts,
+		WidgetCustomChart,
+	}
+}
+
+// SupportedLayouts 获取支持的布局类型列表
+func SupportedLayouts() []DashboardLayout {
+	return []DashboardLayout{
+		LayoutGrid,
+		LayoutFree,
+		LayoutResponsive,
+	}
+}
+
+// IsValidWidgetType 检查Widget类型是否有效
+func IsValidWidgetType(t WidgetType) bool {
+	for _, wt := range SupportedWidgetTypes() {
+		if wt == t {
+			return true
 		}
 	}
-	return &Manager{
-		providers:      make(map[string]SearchProvider),
-		actions:        make(map[string]*QuickAction),
-		config:         config,
-		recentSearches: make([]string, 0),
-	}
+	return false
 }
 
-// RegisterProvider 注册搜索提供者
-func (m *Manager) RegisterProvider(provider SearchProvider) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.providers[provider.Name()] = provider
-}
-
-// Search 全局搜索
-func (m *Manager) Search(req *SearchRequest) *SearchResponse {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	start := time.Now()
-	results := make([]*SearchResult, 0)
-
-	if req.Limit <= 0 {
-		req.Limit = m.config.MaxResults
-	}
-
-	// 搜索所有注册的提供者
-	for _, provider := range m.providers {
-		if len(req.Types) > 0 {
-			skip := true
-			for _, t := range req.Types {
-				if t == provider.Name() {
-					skip = false
-					break
-				}
-			}
-			if skip {
-				continue
-			}
-		}
-
-		providerResults, err := provider.Search(req.Query, req.Limit)
-		if err != nil {
-			continue
-		}
-		results = append(results, providerResults...)
-	}
-
-	// 按评分排序（简化实现）
-	if len(results) > req.Limit {
-		results = results[:req.Limit]
-	}
-
-	// 记录搜索历史
-	m.recordSearch(req.Query)
-
-	return &SearchResponse{
-		Query:       req.Query,
-		TotalCount:  len(results),
-		Results:     results,
-		Suggestions: m.getSuggestions(req.Query),
-		Duration:    time.Since(start),
-	}
-}
-
-// RegisterAction 注册快捷操作
-func (m *Manager) RegisterAction(action *QuickAction) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.actions[action.ID] = action
-}
-
-// GetActions 获取所有快捷操作
-func (m *Manager) GetActions() []*QuickAction {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	actions := make([]*QuickAction, 0, len(m.actions))
-	for _, a := range m.actions {
-		if a.Enabled {
-			actions = append(actions, a)
+// IsValidLayout 检查布局类型是否有效
+func IsValidLayout(l DashboardLayout) bool {
+	for _, layout := range SupportedLayouts() {
+		if layout == l {
+			return true
 		}
 	}
-	return actions
-}
-
-// GetRecentSearches 获取最近搜索
-func (m *Manager) GetRecentSearches() []string {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.recentSearches
-}
-
-func (m *Manager) recordSearch(query string) {
-	if len(m.recentSearches) >= 20 {
-		m.recentSearches = m.recentSearches[1:]
-	}
-	m.recentSearches = append(m.recentSearches, query)
-}
-
-func (m *Manager) getSuggestions(query string) []string {
-	// 简单建议逻辑
-	suggestions := []string{}
-	for _, recent := range m.recentSearches {
-		if len(recent) > len(query) && recent[:len(query)] == query {
-			suggestions = append(suggestions, recent)
-		}
-	}
-	if len(suggestions) > 5 {
-		suggestions = suggestions[:5]
-	}
-	_ = fmt.Sprintf("search: %s", query)
-	return suggestions
+	return false
 }

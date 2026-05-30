@@ -1,391 +1,850 @@
-// Package storageqos - QoS策略管理器
-// 实现策略CRUD、I/O优先级控制、带宽限制和突发流量管理
-// 对标TrueNAS QoS调度引擎
 package storageqos
 
 import (
-	"context"
+	"bufio"
 	"fmt"
-	"math"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
-	"go.uber.org/zap"
 )
 
-// Manager QoS策略管理器
-type Manager struct {
-	mu       sync.RWMutex
-	policies map[string]*QoSPolicy  // policyID -> policy
-	metrics  map[string]*QoSMetrics // policyID -> latest metrics
-	history  map[string][]QoSMetrics // policyID -> metrics history
-	logger   *zap.Logger
-
-	// 流量令牌桶 (用于突发流量管理)
-	buckets map[string]*tokenBucket // policyID -> bucket
+// TargetManager 目标管理器
+type TargetManager struct {
+	mu      sync.RWMutex
+	targets map[string]*QoSTarget
 }
 
-// tokenBucket 令牌桶，用于突发流量控制
-type tokenBucket struct {
-	mu            sync.Mutex
-	tokens        float64   // 当前令牌数 (MB)
-	maxTokens     float64   // 最大令牌数 (MB)
-	refillRate    float64   // 补充速率 (MB/s)
-	lastRefill    time.Time // 上次补充时间
-}
-
-// refill 补充令牌
-func (b *tokenBucket) refill() {
-	now := time.Now()
-	elapsed := now.Sub(b.lastRefill).Seconds()
-	b.tokens = math.Min(b.maxTokens, b.tokens+b.refillRate*elapsed)
-	b.lastRefill = now
-}
-
-// tryConsume 尝试消费令牌，返回实际可用量
-func (b *tokenBucket) tryConsume(requestedMB float64) float64 {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	b.refill()
-
-	if b.tokens <= 0 {
-		return 0
-	}
-
-	consumed := math.Min(b.tokens, requestedMB)
-	b.tokens -= consumed
-	return consumed
-}
-
-// NewManager 创建QoS管理器
-func NewManager(logger *zap.Logger) *Manager {
-	if logger == nil {
-		logger = zap.NewNop()
-	}
-	return &Manager{
-		policies: make(map[string]*QoSPolicy),
-		metrics:  make(map[string]*QoSMetrics),
-		history:  make(map[string][]QoSMetrics),
-		buckets:  make(map[string]*tokenBucket),
-		logger:   logger,
+// NewTargetManager 创建目标管理器
+func NewTargetManager() *TargetManager {
+	return &TargetManager{
+		targets: make(map[string]*QoSTarget),
 	}
 }
 
-// CreatePolicy 创建QoS策略
-func (m *Manager) CreatePolicy(_ context.Context, req CreatePolicyRequest) (*QoSPolicy, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+// RegisterTarget 注册目标
+func (tm *TargetManager) RegisterTarget(target *QoSTarget) error {
+	tm.mu.Lock()
+	defer tm.mu.Unlock()
 
-	// 检查目标是否已有策略
-	for _, p := range m.policies {
-		if p.Target == req.Target && p.TargetType == req.TargetType {
-			return nil, fmt.Errorf("目标 %s (%s) 已存在QoS策略: %s", req.Target, req.TargetType, p.Name)
-		}
+	if target.ID == "" {
+		return fmt.Errorf("目标ID不能为空")
+	}
+	if target.Type == "" {
+		return fmt.Errorf("目标类型不能为空")
+	}
+	if target.Type != "volume" && target.Type != "share" && target.Type != "container" {
+		return fmt.Errorf("无效的目标类型: %s", target.Type)
 	}
 
-	enabled := true
-	if req.Enabled != nil {
-		enabled = *req.Enabled
-	}
-
-	now := time.Now()
-	policy := &QoSPolicy{
-		ID:          uuid.New().String(),
-		Name:        req.Name,
-		Description: req.Description,
-		Target:      req.Target,
-		TargetType:  req.TargetType,
-		Priority:    req.Priority,
-		Bandwidth:   req.Bandwidth,
-		Burst:       req.Burst,
-		Enabled:     enabled,
-		CreatedAt:   now,
-		UpdatedAt:   now,
-	}
-
-	m.policies[policy.ID] = policy
-
-	// 初始化令牌桶（如果启用突发）
-	if req.Burst.BurstEnabled {
-		m.buckets[policy.ID] = &tokenBucket{
-			tokens:     req.Burst.BurstSizeMB,
-			maxTokens:  req.Burst.BurstSizeMB,
-			refillRate: req.Burst.BurstReplenishRateMB,
-			lastRefill: now,
-		}
-	}
-
-	// 初始化指标
-	m.metrics[policy.ID] = &QoSMetrics{
-		PolicyID:  policy.ID,
-		Target:    req.Target,
-		Timestamp: now,
-	}
-
-	m.logger.Info("QoS策略已创建",
-		zap.String("id", policy.ID),
-		zap.String("name", policy.Name),
-		zap.String("target", policy.Target),
-		zap.String("priority", string(policy.Priority)),
-	)
-
-	return policy, nil
-}
-
-// GetPolicy 获取QoS策略
-func (m *Manager) GetPolicy(id string) (*QoSPolicy, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	policy, ok := m.policies[id]
-	if !ok {
-		return nil, fmt.Errorf("QoS策略不存在: %s", id)
-	}
-	return policy, nil
-}
-
-// ListPolicies 列出所有QoS策略
-func (m *Manager) ListPolicies() []QoSPolicy {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	policies := make([]QoSPolicy, 0, len(m.policies))
-	for _, p := range m.policies {
-		policies = append(policies, *p)
-	}
-	return policies
-}
-
-// UpdatePolicy 更新QoS策略
-func (m *Manager) UpdatePolicy(_ context.Context, id string, req UpdatePolicyRequest) (*QoSPolicy, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	policy, ok := m.policies[id]
-	if !ok {
-		return nil, fmt.Errorf("QoS策略不存在: %s", id)
-	}
-
-	if req.Name != nil {
-		policy.Name = *req.Name
-	}
-	if req.Description != nil {
-		policy.Description = *req.Description
-	}
-	if req.Priority != nil {
-		policy.Priority = *req.Priority
-	}
-	if req.Bandwidth != nil {
-		policy.Bandwidth = *req.Bandwidth
-	}
-	if req.Burst != nil {
-		policy.Burst = *req.Burst
-		// 更新令牌桶配置
-		if req.Burst.BurstEnabled {
-			bucket, exists := m.buckets[id]
-			if !exists {
-				m.buckets[id] = &tokenBucket{
-					tokens:     req.Burst.BurstSizeMB,
-					maxTokens:  req.Burst.BurstSizeMB,
-					refillRate: req.Burst.BurstReplenishRateMB,
-					lastRefill: time.Now(),
-				}
-			} else {
-				bucket.mu.Lock()
-				bucket.maxTokens = req.Burst.BurstSizeMB
-				bucket.refillRate = req.Burst.BurstReplenishRateMB
-				bucket.mu.Unlock()
-			}
-		} else {
-			delete(m.buckets, id)
-		}
-	}
-	if req.Enabled != nil {
-		policy.Enabled = *req.Enabled
-	}
-
-	policy.UpdatedAt = time.Now()
-	return policy, nil
-}
-
-// DeletePolicy 删除QoS策略
-func (m *Manager) DeletePolicy(_ context.Context, id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, ok := m.policies[id]; !ok {
-		return fmt.Errorf("QoS策略不存在: %s", id)
-	}
-
-	delete(m.policies, id)
-	delete(m.metrics, id)
-	delete(m.history, id)
-	delete(m.buckets, id)
-
-	m.logger.Info("QoS策略已删除", zap.String("id", id))
+	tm.targets[target.ID] = target
 	return nil
 }
 
-// GetMetrics 获取策略实时指标
-func (m *Manager) GetMetrics(id string) (*QoSMetrics, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// UnregisterTarget 注销目标
+func (tm *TargetManager) UnregisterTarget(id string) error {
+	tm.mu.Lock()
+	defer tm.mu.Unlock()
 
-	metrics, ok := m.metrics[id]
-	if !ok {
-		return nil, fmt.Errorf("策略指标不存在: %s", id)
+	if _, exists := tm.targets[id]; !exists {
+		return fmt.Errorf("目标不存在: %s", id)
 	}
-	return metrics, nil
+
+	delete(tm.targets, id)
+	return nil
 }
 
-// GetMetricsHistory 获取策略历史指标
-func (m *Manager) GetMetricsHistory(id string, from, to time.Time) (*QoSMetricsHistory, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// GetTarget 获取目标
+func (tm *TargetManager) GetTarget(id string) (*QoSTarget, error) {
+	tm.mu.RLock()
+	defer tm.mu.RUnlock()
 
-	policy, ok := m.policies[id]
-	if !ok {
-		return nil, fmt.Errorf("QoS策略不存在: %s", id)
+	target, exists := tm.targets[id]
+	if !exists {
+		return nil, fmt.Errorf("目标不存在: %s", id)
 	}
 
-	history, ok := m.history[id]
-	if !ok {
-		history = []QoSMetrics{}
-	}
+	return target, nil
+}
 
-	// 过滤时间范围
-	filtered := make([]QoSMetrics, 0)
-	for _, h := range history {
-		if h.Timestamp.After(from) && h.Timestamp.Before(to) {
-			filtered = append(filtered, h)
+// ListTargets 列出所有目标
+func (tm *TargetManager) ListTargets() []*QoSTarget {
+	tm.mu.RLock()
+	defer tm.mu.RUnlock()
+
+	targets := make([]*QoSTarget, 0, len(tm.targets))
+	for _, target := range tm.targets {
+		targets = append(targets, target)
+	}
+	return targets
+}
+
+// GetTargetsByType 按类型获取目标
+func (tm *TargetManager) GetTargetsByType(targetType string) []*QoSTarget {
+	tm.mu.RLock()
+	defer tm.mu.RUnlock()
+
+	var targets []*QoSTarget
+	for _, target := range tm.targets {
+		if target.Type == targetType {
+			targets = append(targets, target)
 		}
 	}
-
-	return &QoSMetricsHistory{
-		PolicyID: id,
-		Target:   policy.Target,
-		From:     from,
-		To:       to,
-		Samples:  filtered,
-	}, nil
+	return targets
 }
 
-// RecordIO 记录I/O操作，检查是否需要限速
-// 返回值: allowedMB - 允许通过的数据量, throttledMB - 被限速的数据量
-func (m *Manager) RecordIO(policyID string, readBytes, writeBytes int64) (allowedMB, throttledMB float64, err error) {
-	m.mu.RLock()
-	policy, ok := m.policies[policyID]
-	if !ok {
-		m.mu.RUnlock()
-		return 0, 0, fmt.Errorf("QoS策略不存在: %s", policyID)
+// MetricsCollector 指标采集器
+type MetricsCollector struct {
+	mu          sync.RWMutex
+	metrics     map[string]*QoSMetrics
+	lastStats   map[string]*DiskStats
+	stopCh      chan struct{}
+	interval    time.Duration
+}
+
+// DiskStats 磁盘统计信息
+type DiskStats struct {
+	ReadsCompleted  int64
+	ReadsMerged     int64
+	ReadSectors     int64
+	ReadTime        int64
+	WritesCompleted int64
+	WritesMerged    int64
+	WriteSectors    int64
+	WriteTime       int64
+	IOInProgress    int64
+	IOTime          int64
+	WeightedIOTime  int64
+	Timestamp       time.Time
+}
+
+// NewMetricsCollector 创建指标采集器
+func NewMetricsCollector(interval time.Duration) *MetricsCollector {
+	return &MetricsCollector{
+		metrics:   make(map[string]*QoSMetrics),
+		lastStats: make(map[string]*DiskStats),
+		stopCh:    make(chan struct{}),
+		interval:  interval,
 	}
-	metrics := m.metrics[policyID]
-	m.mu.RUnlock()
+}
 
-	if !policy.Enabled {
-		readMB := float64(readBytes) / (1024 * 1024)
-		writeMB := float64(writeBytes) / (1024 * 1024)
-		m.updateMetrics(policyID, readMB, writeMB, 0, 0)
-		return readMB + writeMB, 0, nil
-	}
+// Start 启动指标采集
+func (mc *MetricsCollector) Start() {
+	go mc.collectLoop()
+}
 
-	readMB := float64(readBytes) / (1024 * 1024)
-	writeMB := float64(writeBytes) / (1024 * 1024)
-	totalMB := readMB + writeMB
+// Stop 停止指标采集
+func (mc *MetricsCollector) Stop() {
+	close(mc.stopCh)
+}
 
-	// 检查带宽限制
-	var allowedReadMB, allowedWriteMB float64
+// collectLoop 采集循环
+func (mc *MetricsCollector) collectLoop() {
+	ticker := time.NewTicker(mc.interval)
+	defer ticker.Stop()
 
-	if policy.Bandwidth.ReadBPSLimit > 0 {
-		allowedReadMB = math.Min(readMB, policy.Bandwidth.ReadBPSLimit/60) // 每秒限制转为每采样周期
-	} else {
-		allowedReadMB = readMB
-	}
-
-	if policy.Bandwidth.WriteBPSLimit > 0 {
-		allowedWriteMB = math.Min(writeMB, policy.Bandwidth.WriteBPSLimit/60)
-	} else {
-		allowedWriteMB = writeMB
-	}
-
-	allowed := allowedReadMB + allowedWriteMB
-	throttled := totalMB - allowed
-
-	// 突发流量处理
-	if policy.Burst.BurstEnabled && throttled > 0 {
-		m.mu.RLock()
-		bucket, hasBucket := m.buckets[policyID]
-		m.mu.RUnlock()
-
-		if hasBucket {
-			burstAllowed := bucket.tryConsume(throttled)
-			allowed += burstAllowed
-			throttled -= burstAllowed
-
-			bucket.mu.Lock()
-			metrics.BurstUsedMB = bucket.maxTokens - bucket.tokens
-			bucket.mu.Unlock()
+	for {
+		select {
+		case <-mc.stopCh:
+			return
+		case <-ticker.C:
+			mc.collectAll()
 		}
 	}
-
-	if throttled > 0 {
-		metrics.ThrottleEvents++
-		metrics.ThrottledReadBytes += int64(throttled * 1024 * 1024 * (readMB / totalMB))
-		metrics.ThrottledWriteBytes += int64(throttled * 1024 * 1024 * (writeMB / totalMB))
-	}
-
-	m.updateMetrics(policyID, allowedReadMB, allowedWriteMB, 0, 0)
-	return allowed, throttled, nil
 }
 
-// updateMetrics 更新策略指标
-func (m *Manager) updateMetrics(policyID string, readMB, writeMB float64, readIOPS, writeIOPS int64) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+// collectAll 采集所有指标
+func (mc *MetricsCollector) collectAll() {
+	mc.mu.Lock()
+	defer mc.mu.Unlock()
 
-	metrics, ok := m.metrics[policyID]
-	if !ok {
+	// 从 /proc/diskstats 采集
+	stats, err := readDiskStats()
+	if err != nil {
 		return
 	}
 
-	metrics.CurrentReadBPS = readMB * 60   // 转为 MB/s (假设采样周期为1分钟的简化)
-	metrics.CurrentWriteBPS = writeMB * 60
-	metrics.CurrentReadIOPS = readIOPS
-	metrics.CurrentWriteIOPS = writeIOPS
-	metrics.Timestamp = time.Now()
+	for device, stat := range stats {
+		// 计算IOPS
+		lastStat, exists := mc.lastStats[device]
+		if !exists {
+			mc.lastStats[device] = stat
+			continue
+		}
 
-	// 记录历史（最多保留1440条，即24小时，每分钟一条）
-	history := m.history[policyID]
-	history = append(history, *metrics)
-	if len(history) > 1440 {
-		history = history[len(history)-1440:]
+		timeDiff := stat.Timestamp.Sub(lastStat.Timestamp).Seconds()
+		if timeDiff <= 0 {
+			continue
+		}
+
+		readIOPS := float64(stat.ReadsCompleted-lastStat.ReadsCompleted) / timeDiff
+		writeIOPS := float64(stat.WritesCompleted-lastStat.WritesCompleted) / timeDiff
+
+		// 计算带宽 (转换为MB/s)
+		readBW := float64(stat.ReadSectors-lastStat.ReadSectors) * 512 / 1024 / 1024 / timeDiff
+		writeBW := float64(stat.WriteSectors-lastStat.WriteSectors) * 512 / 1024 / 1024 / timeDiff
+
+		// 计算延迟
+		readLatency := int64(0)
+		if stat.ReadsCompleted > lastStat.ReadsCompleted {
+			readLatency = (stat.ReadTime - lastStat.ReadTime) / (stat.ReadsCompleted - lastStat.ReadsCompleted)
+		}
+		writeLatency := int64(0)
+		if stat.WritesCompleted > lastStat.WritesCompleted {
+			writeLatency = (stat.WriteTime - lastStat.WriteTime) / (stat.WritesCompleted - lastStat.WritesCompleted)
+		}
+		latency := (readLatency + writeLatency) / 2
+
+		// 计算利用率
+		utilization := float64(stat.IOTime-lastStat.IOTime) / (timeDiff * 1000) * 100
+		if utilization > 100 {
+			utilization = 100
+		}
+
+		mc.metrics[device] = &QoSMetrics{
+			TargetID:    device,
+			IOPS:        int64(readIOPS + writeIOPS),
+			ReadIOPS:    int64(readIOPS),
+			WriteIOPS:   int64(writeIOPS),
+			Bandwidth:   int64(readBW + writeBW),
+			ReadBW:      int64(readBW),
+			WriteBW:     int64(writeBW),
+			Latency:     latency,
+			QueueDepth:  stat.IOInProgress,
+			Utilization: utilization,
+			Timestamp:   time.Now(),
+		}
+
+		mc.lastStats[device] = stat
 	}
-	m.history[policyID] = history
 }
 
-// GetStats 获取QoS系统统计
-func (m *Manager) GetStats() map[string]interface{} {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// GetMetrics 获取指标
+func (mc *MetricsCollector) GetMetrics(targetID string) (*QoSMetrics, error) {
+	mc.mu.RLock()
+	defer mc.mu.RUnlock()
 
-	totalPolicies := len(m.policies)
-	enabledPolicies := 0
-	totalThrottleEvents := int64(0)
+	metrics, exists := mc.metrics[targetID]
+	if !exists {
+		return nil, fmt.Errorf("指标不存在: %s", targetID)
+	}
 
-	for _, p := range m.policies {
-		if p.Enabled {
-			enabledPolicies++
+	return metrics, nil
+}
+
+// GetAllMetrics 获取所有指标
+func (mc *MetricsCollector) GetAllMetrics() map[string]*QoSMetrics {
+	mc.mu.RLock()
+	defer mc.mu.RUnlock()
+
+	result := make(map[string]*QoSMetrics)
+	for k, v := range mc.metrics {
+		result[k] = v
+	}
+	return result
+}
+
+// readDiskStats 读取 /proc/diskstats
+func readDiskStats() (map[string]*DiskStats, error) {
+	file, err := os.Open("/proc/diskstats")
+	if err != nil {
+		return nil, fmt.Errorf("无法打开 /proc/diskstats: %w", err)
+	}
+	defer file.Close()
+
+	stats := make(map[string]*DiskStats)
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		fields := strings.Fields(line)
+		if len(fields) < 14 {
+			continue
+		}
+
+		device := fields[2]
+		// 跳过分区，只统计磁盘
+		if strings.Contains(device, "p") {
+			continue
+		}
+
+		readCompleted, _ := strconv.ParseInt(fields[3], 10, 64)
+		readMerged, _ := strconv.ParseInt(fields[4], 10, 64)
+		readSectors, _ := strconv.ParseInt(fields[5], 10, 64)
+		readTime, _ := strconv.ParseInt(fields[6], 10, 64)
+		writeCompleted, _ := strconv.ParseInt(fields[7], 10, 64)
+		writeMerged, _ := strconv.ParseInt(fields[8], 10, 64)
+		writeSectors, _ := strconv.ParseInt(fields[9], 10, 64)
+		writeTime, _ := strconv.ParseInt(fields[10], 10, 64)
+		ioInProgress, _ := strconv.ParseInt(fields[11], 10, 64)
+		ioTime, _ := strconv.ParseInt(fields[12], 10, 64)
+		weightedIOTime, _ := strconv.ParseInt(fields[13], 10, 64)
+
+		stats[device] = &DiskStats{
+			ReadsCompleted:  readCompleted,
+			ReadsMerged:     readMerged,
+			ReadSectors:     readSectors,
+			ReadTime:        readTime,
+			WritesCompleted: writeCompleted,
+			WritesMerged:    writeMerged,
+			WriteSectors:    writeSectors,
+			WriteTime:       writeTime,
+			IOInProgress:    ioInProgress,
+			IOTime:          ioTime,
+			WeightedIOTime:  weightedIOTime,
+			Timestamp:       time.Now(),
 		}
 	}
-	for _, met := range m.metrics {
-		totalThrottleEvents += met.ThrottleEvents
+
+	return stats, nil
+}
+
+// ViolationDetector 违规检测器
+type ViolationDetector struct {
+	mu          sync.RWMutex
+	violations  []*QoSViolation
+	manager     *QoSManager
+	collector   *MetricsCollector
+	alertFunc   func(violation *QoSViolation)
+	stopCh      chan struct{}
+}
+
+// NewViolationDetector 创建违规检测器
+func NewViolationDetector(manager *QoSManager, collector *MetricsCollector, alertFunc func(violation *QoSViolation)) *ViolationDetector {
+	return &ViolationDetector{
+		violations: make([]*QoSViolation, 0),
+		manager:    manager,
+		collector:  collector,
+		alertFunc:  alertFunc,
+		stopCh:     make(chan struct{}),
+	}
+}
+
+// Start 启动违规检测
+func (vd *ViolationDetector) Start() {
+	go vd.detectLoop()
+}
+
+// Stop 停止违规检测
+func (vd *ViolationDetector) Stop() {
+	close(vd.stopCh)
+}
+
+// detectLoop 检测循环
+func (vd *ViolationDetector) detectLoop() {
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-vd.stopCh:
+			return
+		case <-ticker.C:
+			vd.detect()
+		}
+	}
+}
+
+// detect 检测违规
+func (vd *ViolationDetector) detect() {
+	vd.mu.Lock()
+	defer vd.mu.Unlock()
+
+	policies := vd.manager.GetEnabledPolicies()
+	for _, policy := range policies {
+		// 获取目标指标
+		metrics, err := vd.collector.GetMetrics(policy.TargetID)
+		if err != nil {
+			continue
+		}
+
+		// 检查IOPS违规
+		if policy.MaxIOPS > 0 && metrics.IOPS > policy.MaxIOPS {
+			violation := &QoSViolation{
+				ID:         fmt.Sprintf("v_%d", time.Now().UnixNano()),
+				PolicyID:   policy.ID,
+				PolicyName: policy.Name,
+				TargetID:   policy.TargetID,
+				Type:       "iops_exceeded",
+				Threshold:  policy.MaxIOPS,
+				Actual:     metrics.IOPS,
+				Message:    fmt.Sprintf("IOPS超过限制: 当前 %d, 上限 %d", metrics.IOPS, policy.MaxIOPS),
+				Severity:   vd.getSeverity(metrics.IOPS, policy.MaxIOPS),
+				Timestamp:  time.Now(),
+			}
+			vd.addViolation(violation)
+		}
+
+		// 检查带宽违规
+		if policy.MaxBandwidth > 0 && metrics.Bandwidth > policy.MaxBandwidth {
+			violation := &QoSViolation{
+				ID:         fmt.Sprintf("v_%d", time.Now().UnixNano()),
+				PolicyID:   policy.ID,
+				PolicyName: policy.Name,
+				TargetID:   policy.TargetID,
+				Type:       "bandwidth_exceeded",
+				Threshold:  policy.MaxBandwidth,
+				Actual:     metrics.Bandwidth,
+				Message:    fmt.Sprintf("带宽超过限制: 当前 %d MB/s, 上限 %d MB/s", metrics.Bandwidth, policy.MaxBandwidth),
+				Severity:   vd.getSeverity(metrics.Bandwidth, policy.MaxBandwidth),
+				Timestamp:  time.Now(),
+			}
+			vd.addViolation(violation)
+		}
+
+		// 检查延迟违规
+		if policy.LatencyMax > 0 && metrics.Latency > policy.LatencyMax {
+			violation := &QoSViolation{
+				ID:         fmt.Sprintf("v_%d", time.Now().UnixNano()),
+				PolicyID:   policy.ID,
+				PolicyName: policy.Name,
+				TargetID:   policy.TargetID,
+				Type:       "latency_exceeded",
+				Threshold:  policy.LatencyMax,
+				Actual:     metrics.Latency,
+				Message:    fmt.Sprintf("延迟超过阈值: 当前 %d ms, 阈值 %d ms", metrics.Latency, policy.LatencyMax),
+				Severity:   vd.getSeverity(metrics.Latency, policy.LatencyMax),
+				Timestamp:  time.Now(),
+			}
+			vd.addViolation(violation)
+		}
+	}
+}
+
+// getSeverity 获取严重程度
+func (vd *ViolationDetector) getSeverity(actual, threshold int64) string {
+	ratio := float64(actual) / float64(threshold)
+	if ratio > 1.5 {
+		return "critical"
+	}
+	return "warning"
+}
+
+// addViolation 添加违规记录
+func (vd *ViolationDetector) addViolation(violation *QoSViolation) {
+	vd.violations = append(vd.violations, violation)
+
+	// 限制历史记录数量
+	if len(vd.violations) > vd.manager.config.ViolationHistory {
+		vd.violations = vd.violations[1:]
 	}
 
-	return map[string]interface{}{
-		"total_policies":       totalPolicies,
-		"enabled_policies":     enabledPolicies,
-		"total_throttle_events": totalThrottleEvents,
+	// 触发告警
+	if vd.alertFunc != nil {
+		vd.alertFunc(violation)
+	}
+}
+
+// GetViolations 获取违规记录
+func (vd *ViolationDetector) GetViolations() []*QoSViolation {
+	vd.mu.RLock()
+	defer vd.mu.RUnlock()
+
+	result := make([]*QoSViolation, len(vd.violations))
+	copy(result, vd.violations)
+	return result
+}
+
+// GetViolationsByPolicy 按策略获取违规记录
+func (vd *ViolationDetector) GetViolationsByPolicy(policyID string) []*QoSViolation {
+	vd.mu.RLock()
+	defer vd.mu.RUnlock()
+
+	var result []*QoSViolation
+	for _, v := range vd.violations {
+		if v.PolicyID == policyID {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+// GetUnresolvedViolations 获取未解决的违规
+func (vd *ViolationDetector) GetUnresolvedViolations() []*QoSViolation {
+	vd.mu.RLock()
+	defer vd.mu.RUnlock()
+
+	var result []*QoSViolation
+	for _, v := range vd.violations {
+		if !v.Resolved {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+// ResolveViolation 解决违规
+func (vd *ViolationDetector) ResolveViolation(id string) error {
+	vd.mu.Lock()
+	defer vd.mu.Unlock()
+
+	for _, v := range vd.violations {
+		if v.ID == id {
+			v.Resolved = true
+			now := time.Now()
+			v.ResolvedAt = &now
+			return nil
+		}
+	}
+	return fmt.Errorf("违规记录不存在: %s", id)
+}
+
+// IOController IO控制器
+type IOController struct {
+	mu       sync.RWMutex
+	limits   map[string]*IOLimit
+}
+
+// IOLimit IO限制
+type IOLimit struct {
+	TargetID    string
+	DevicePath  string
+	CGroupPath  string
+	MaxIOPS     int64
+	MaxBandwidth int64
+}
+
+// NewIOController 创建IO控制器
+func NewIOController() *IOController {
+	return &IOController{
+		limits: make(map[string]*IOLimit),
+	}
+}
+
+// SetIOPSLimit 设置IOPS限制
+func (ic *IOController) SetIOPSLimit(targetID, devicePath string, maxIOPS int64) error {
+	ic.mu.Lock()
+	defer ic.mu.Unlock()
+
+	// 尝试通过 cgroup blkio 设置限制
+	cgroupPath := fmt.Sprintf("/sys/fs/cgroup/blkio/storageqos/%s", targetID)
+	if err := os.MkdirAll(cgroupPath, 0755); err != nil {
+		return fmt.Errorf("创建cgroup目录失败: %w", err)
+	}
+
+	// 设置 blkio.throttle.read_iops_device
+	readLimitPath := filepath.Join(cgroupPath, "blkio.throttle.read_iops_device")
+	writeLimitPath := filepath.Join(cgroupPath, "blkio.throttle.write_iops_device")
+
+	// 获取设备号
+	deviceNum, err := getDeviceNumber(devicePath)
+	if err != nil {
+		return fmt.Errorf("获取设备号失败: %w", err)
+	}
+
+	limitStr := fmt.Sprintf("%s %d", deviceNum, maxIOPS)
+
+	if err := os.WriteFile(readLimitPath, []byte(limitStr), 0644); err != nil {
+		return fmt.Errorf("设置读IOPS限制失败: %w", err)
+	}
+	if err := os.WriteFile(writeLimitPath, []byte(limitStr), 0644); err != nil {
+		return fmt.Errorf("设置写IOPS限制失败: %w", err)
+	}
+
+	ic.limits[targetID] = &IOLimit{
+		TargetID:   targetID,
+		DevicePath: devicePath,
+		CGroupPath: cgroupPath,
+		MaxIOPS:    maxIOPS,
+	}
+
+	return nil
+}
+
+// SetBandwidthLimit 设置带宽限制
+func (ic *IOController) SetBandwidthLimit(targetID, devicePath string, maxBandwidth int64) error {
+	ic.mu.Lock()
+	defer ic.mu.Unlock()
+
+	// 尝试通过 cgroup blkio 设置限制
+	cgroupPath := fmt.Sprintf("/sys/fs/cgroup/blkio/storageqos/%s", targetID)
+	if err := os.MkdirAll(cgroupPath, 0755); err != nil {
+		return fmt.Errorf("创建cgroup目录失败: %w", err)
+	}
+
+	// 设置 blkio.throttle.read_bps_device
+	readLimitPath := filepath.Join(cgroupPath, "blkio.throttle.read_bps_device")
+	writeLimitPath := filepath.Join(cgroupPath, "blkio.throttle.write_bps_device")
+
+	// 获取设备号
+	deviceNum, err := getDeviceNumber(devicePath)
+	if err != nil {
+		return fmt.Errorf("获取设备号失败: %w", err)
+	}
+
+	// 转换为字节/秒
+	maxBandwidthBytes := maxBandwidth * 1024 * 1024
+	limitStr := fmt.Sprintf("%s %d", deviceNum, maxBandwidthBytes)
+
+	if err := os.WriteFile(readLimitPath, []byte(limitStr), 0644); err != nil {
+		return fmt.Errorf("设置读带宽限制失败: %w", err)
+	}
+	if err := os.WriteFile(writeLimitPath, []byte(limitStr), 0644); err != nil {
+		return fmt.Errorf("设置写带宽限制失败: %w", err)
+	}
+
+	if limit, exists := ic.limits[targetID]; exists {
+		limit.MaxBandwidth = maxBandwidth
+	} else {
+		ic.limits[targetID] = &IOLimit{
+			TargetID:     targetID,
+			DevicePath:   devicePath,
+			CGroupPath:   cgroupPath,
+			MaxBandwidth: maxBandwidth,
+		}
+	}
+
+	return nil
+}
+
+// RemoveIOLimit 移除IO限制
+func (ic *IOController) RemoveIOLimit(targetID string) error {
+	ic.mu.Lock()
+	defer ic.mu.Unlock()
+
+	limit, exists := ic.limits[targetID]
+	if !exists {
+		return fmt.Errorf("IO限制不存在: %s", targetID)
+	}
+
+	// 清理cgroup目录
+	if err := os.RemoveAll(limit.CGroupPath); err != nil {
+		return fmt.Errorf("清理cgroup目录失败: %w", err)
+	}
+
+	delete(ic.limits, targetID)
+	return nil
+}
+
+// GetIOLimit 获取IO限制
+func (ic *IOController) GetIOLimit(targetID string) (*IOLimit, error) {
+	ic.mu.RLock()
+	defer ic.mu.RUnlock()
+
+	limit, exists := ic.limits[targetID]
+	if !exists {
+		return nil, fmt.Errorf("IO限制不存在: %s", targetID)
+	}
+
+	return limit, nil
+}
+
+// ListIOLimits 列出所有IO限制
+func (ic *IOController) ListIOLimits() []*IOLimit {
+	ic.mu.RLock()
+	defer ic.mu.RUnlock()
+
+	limits := make([]*IOLimit, 0, len(ic.limits))
+	for _, limit := range ic.limits {
+		limits = append(limits, limit)
+	}
+	return limits
+}
+
+// getDeviceNumber 获取设备号
+func getDeviceNumber(devicePath string) (string, error) {
+	// 读取 /sys/block/ 下的设备信息
+	deviceName := filepath.Base(devicePath)
+	devPath := fmt.Sprintf("/sys/block/%s/dev", deviceName)
+
+	data, err := os.ReadFile(devPath)
+	if err != nil {
+		return "", fmt.Errorf("读取设备号失败: %w", err)
+	}
+
+	return strings.TrimSpace(string(data)), nil
+}
+
+// AdaptiveQoS 自适应QoS
+type AdaptiveQoS struct {
+	mu          sync.RWMutex
+	manager     *QoSManager
+	collector   *MetricsCollector
+	stopCh      chan struct{}
+}
+
+// NewAdaptiveQoS 创建自适应QoS
+func NewAdaptiveQoS(manager *QoSManager, collector *MetricsCollector) *AdaptiveQoS {
+	return &AdaptiveQoS{
+		manager:   manager,
+		collector: collector,
+		stopCh:    make(chan struct{}),
+	}
+}
+
+// Start 启动自适应QoS
+func (aq *AdaptiveQoS) Start() {
+	go aq.adaptLoop()
+}
+
+// Stop 停止自适应QoS
+func (aq *AdaptiveQoS) Stop() {
+	close(aq.stopCh)
+}
+
+// adaptLoop 自适应循环
+func (aq *AdaptiveQoS) adaptLoop() {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-aq.stopCh:
+			return
+		case <-ticker.C:
+			aq.adapt()
+		}
+	}
+}
+
+// adapt 执行自适应调整
+func (aq *AdaptiveQoS) adapt() {
+	aq.mu.Lock()
+	defer aq.mu.Unlock()
+
+	policies := aq.manager.GetEnabledPolicies()
+	for _, policy := range policies {
+		if !policy.Adaptive {
+			continue
+		}
+
+		metrics, err := aq.collector.GetMetrics(policy.TargetID)
+		if err != nil {
+			continue
+		}
+
+		// 根据利用率调整限制
+		if metrics.Utilization > 80 {
+			// 高负载 - 降低限制
+			aq.adjustLimits(policy, 0.8)
+		} else if metrics.Utilization < 30 {
+			// 低负载 - 提高限制
+			aq.adjustLimits(policy, 1.2)
+		}
+	}
+}
+
+// adjustLimits 调整限制
+func (aq *AdaptiveQoS) adjustLimits(policy *QoSPolicy, factor float64) {
+	if policy.MaxIOPS > 0 {
+		newMaxIOPS := int64(float64(policy.MaxIOPS) * factor)
+		if newMaxIOPS < 100 {
+			newMaxIOPS = 100
+		}
+		policy.MaxIOPS = newMaxIOPS
+	}
+
+	if policy.MaxBandwidth > 0 {
+		newMaxBW := int64(float64(policy.MaxBandwidth) * factor)
+		if newMaxBW < 10 {
+			newMaxBW = 10
+		}
+		policy.MaxBandwidth = newMaxBW
+	}
+
+	policy.UpdatedAt = time.Now()
+}
+
+// PriorityQueue 优先级队列
+type PriorityQueue struct {
+	mu       sync.RWMutex
+	queues   map[QoSLevel][]*IORequest
+	capacity int
+}
+
+// IORequest IO请求
+type IORequest struct {
+	TargetID  string
+	Level     QoSLevel
+	Operation string // read, write
+	Size      int64
+	Priority  int
+	Timestamp time.Time
+}
+
+// NewPriorityQueue 创建优先级队列
+func NewPriorityQueue(capacity int) *PriorityQueue {
+	return &PriorityQueue{
+		queues: map[QoSLevel][]*IORequest{
+			QoSLevelPlatinum: make([]*IORequest, 0),
+			QoSLevelGold:     make([]*IORequest, 0),
+			QoSLevelSilver:   make([]*IORequest, 0),
+			QoSLevelBronze:   make([]*IORequest, 0),
+		},
+		capacity: capacity,
+	}
+}
+
+// Enqueue 入队
+func (pq *PriorityQueue) Enqueue(req *IORequest) error {
+	pq.mu.Lock()
+	defer pq.mu.Unlock()
+
+	queue, exists := pq.queues[req.Level]
+	if !exists {
+		return fmt.Errorf("无效的优先级级别: %s", req.Level)
+	}
+
+	if len(queue) >= pq.capacity {
+		return fmt.Errorf("队列已满")
+	}
+
+	pq.queues[req.Level] = append(queue, req)
+	return nil
+}
+
+// Dequeue 出队
+func (pq *PriorityQueue) Dequeue() (*IORequest, error) {
+	pq.mu.Lock()
+	defer pq.mu.Unlock()
+
+	// 按优先级顺序出队
+	levels := []QoSLevel{QoSLevelPlatinum, QoSLevelGold, QoSLevelSilver, QoSLevelBronze}
+	for _, level := range levels {
+		queue := pq.queues[level]
+		if len(queue) > 0 {
+			req := queue[0]
+			pq.queues[level] = queue[1:]
+			return req, nil
+		}
+	}
+
+	return nil, fmt.Errorf("队列为空")
+}
+
+// GetQueueSize 获取队列大小
+func (pq *PriorityQueue) GetQueueSize(level QoSLevel) int {
+	pq.mu.RLock()
+	defer pq.mu.RUnlock()
+
+	queue, exists := pq.queues[level]
+	if !exists {
+		return 0
+	}
+
+	return len(queue)
+}
+
+// GetTotalSize 获取总大小
+func (pq *PriorityQueue) GetTotalSize() int {
+	pq.mu.RLock()
+	defer pq.mu.RUnlock()
+
+	total := 0
+	for _, queue := range pq.queues {
+		total += len(queue)
+	}
+	return total
+}
+
+// Clear 清空队列
+func (pq *PriorityQueue) Clear() {
+	pq.mu.Lock()
+	defer pq.mu.Unlock()
+
+	for level := range pq.queues {
+		pq.queues[level] = make([]*IORequest, 0)
 	}
 }

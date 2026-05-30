@@ -12,8 +12,11 @@ import (
 type EngineStatus string
 
 const (
+	// EngineStatusIdle 空闲状态
 	EngineStatusIdle    EngineStatus = "idle"
+	// EngineStatusRunning 运行状态
 	EngineStatusRunning EngineStatus = "running"
+	// EngineStatusStopped 已停止
 	EngineStatusStopped EngineStatus = "stopped"
 )
 
