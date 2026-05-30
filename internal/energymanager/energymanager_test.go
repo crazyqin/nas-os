@@ -114,13 +114,13 @@ func TestProfiles(t *testing.T) {
 		FanCurve:    "quiet",
 	}
 
-	if err := manager.CreateProfile(profile); err != nil {
+	if err := manager.SaveProfile(profile); err != nil {
 		t.Fatalf("CreateProfile failed: %v", err)
 	}
 
-	got, err := manager.GetProfile("quiet")
+	got, err := manager.FetchProfile("quiet")
 	if err != nil {
-		t.Fatalf("GetProfile failed: %v", err)
+		t.Fatalf("FetchProfile failed: %v", err)
 	}
 	if got.Name != "Quiet Mode" {
 		t.Errorf("Expected Quiet Mode, got %s", got.Name)

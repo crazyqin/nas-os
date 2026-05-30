@@ -24,7 +24,7 @@ func TestCreatePolicy(t *testing.T) {
 		Name:        "test-policy",
 		BackupType:  BackupTypeFull,
 		SourcePaths: []string{"/data"},
-		TargetIDs:   []string{"target-1"},
+		TargetPaths:   []string{"target-1"},
 	}
 
 	err := manager.CreatePolicy(policy)
@@ -58,7 +58,7 @@ func TestGetPolicy(t *testing.T) {
 		Name:        "test-policy",
 		BackupType:  BackupTypeFull,
 		SourcePaths: []string{"/data"},
-		TargetIDs:   []string{"target-1"},
+		TargetPaths:   []string{"target-1"},
 	}
 	manager.CreatePolicy(policy)
 
@@ -82,12 +82,12 @@ func TestListPolicies(t *testing.T) {
 	manager.CreatePolicy(&BackupPolicy{
 		Name:        "policy-1",
 		SourcePaths: []string{"/data1"},
-		TargetIDs:   []string{"target-1"},
+		TargetPaths:   []string{"target-1"},
 	})
 	manager.CreatePolicy(&BackupPolicy{
 		Name:        "policy-2",
 		SourcePaths: []string{"/data2"},
-		TargetIDs:   []string{"target-2"},
+		TargetPaths:   []string{"target-2"},
 	})
 
 	policies := manager.ListPolicies()
@@ -102,7 +102,7 @@ func TestUpdatePolicy(t *testing.T) {
 		Name:        "test-policy",
 		BackupType:  BackupTypeFull,
 		SourcePaths: []string{"/data"},
-		TargetIDs:   []string{"target-1"},
+		TargetPaths:   []string{"target-1"},
 	}
 	manager.CreatePolicy(policy)
 
@@ -121,7 +121,7 @@ func TestDeletePolicy(t *testing.T) {
 	policy := &BackupPolicy{
 		Name:        "test-policy",
 		SourcePaths: []string{"/data"},
-		TargetIDs:   []string{"target-1"},
+		TargetPaths:   []string{"target-1"},
 	}
 	manager.CreatePolicy(policy)
 
@@ -199,7 +199,7 @@ func TestEvaluatePolicy(t *testing.T) {
 	policy := &BackupPolicy{
 		Name:        "test-policy",
 		SourcePaths: []string{"/data"},
-		TargetIDs:   []string{"target-1"},
+		TargetPaths:   []string{"target-1"},
 	}
 	manager.CreatePolicy(policy)
 
@@ -229,7 +229,7 @@ func TestOptimizeBackupWindow(t *testing.T) {
 	policy := &BackupPolicy{
 		Name:        "test-policy",
 		SourcePaths: []string{"/data"},
-		TargetIDs:   []string{"target-1"},
+		TargetPaths:   []string{"target-1"},
 	}
 
 	optimization, err := manager.OptimizeBackupWindow(policy, nil)

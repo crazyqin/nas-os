@@ -119,6 +119,7 @@ type BackupPolicy struct {
 	Schedule    string       `json:"schedule"`
 	RPO         *RPORequirements `json:"rpo,omitempty"`
 	RTO         *RTORequirements `json:"rto,omitempty"`
+	TargetPaths []string     `json:"target_paths,omitempty"`
 	Status      BackupStatus `json:"status"`
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   time.Time    `json:"updated_at"`
@@ -132,6 +133,7 @@ type BackupExecution struct {
 	Status    BackupStatus `json:"status"`
 	StartTime time.Time    `json:"start_time"`
 	EndTime   time.Time    `json:"end_time"`
+	SizeBytes int64        `json:"size_bytes,omitempty"`
 	Error     string       `json:"error,omitempty"`
 }
 
@@ -147,6 +149,7 @@ type RTORequirements struct {
 
 // StrategyAnalysis 策略分析
 type StrategyAnalysis struct {
+	DataType        string            `json:"data_type,omitempty"`
 	DataSizeGB      float64           `json:"data_size_gb"`
 	ChangeFrequency *ChangeFrequency  `json:"change_frequency,omitempty"`
 	Requirements    *RPORequirements  `json:"requirements,omitempty"`
