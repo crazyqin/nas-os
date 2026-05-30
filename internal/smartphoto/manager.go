@@ -558,8 +558,12 @@ func (m *Manager) FindDuplicates() []*DuplicateGroup {
 			for i, p := range photos {
 				photoList[i] = *p
 			}
+			idLen := 8
+			if len(hash) < idLen {
+				idLen = len(hash)
+			}
 			groups = append(groups, &DuplicateGroup{
-				ID:        fmt.Sprintf("dup-%s", hash[:min(8, len(hash))]),
+				ID:        fmt.Sprintf("dup-%s", hash[:idLen]),
 				Hash:      hash,
 				Photos:    photoList,
 				TotalSize: totalSize,

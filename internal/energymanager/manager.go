@@ -28,9 +28,9 @@ type EnergyConfig struct {
 	ElectricityRate     float64 `json:"electricity_rate"`
 	Currency            string  `json:"currency"`
 	AlertThreshold      float64 `json:"alert_threshold"`
-	AlertThresholdW     float64 `json:"alert_threshold_w,omitempty"`
-	AutoPowerSave       bool    `json:"auto_power_save,omitempty"`
-	CarbonFactor        float64 `json:"carbon_factor,omitempty"`
+	AlertThresholdW     float64 `json:"alert_threshold_w"`
+	CarbonFactor        float64 `json:"carbon_factor"`
+	AutoPowerSave       bool    `json:"auto_power_save"`
 }
 
 // NewManager creates a new energy manager
@@ -44,9 +44,10 @@ func NewManager(config *EnergyConfig) *Manager {
 	}
 
 	return &Manager{
-		profiles:  make(map[string]*PowerProfile),
-		schedules: make(map[string]*ScheduleEntry),
-		config:    config,
+		profiles:   make(map[string]*PowerProfile),
+		schedules:  make(map[string]*ScheduleEntry),
+		config:     config,
+		powerState: PowerNormal,
 	}
 }
 
@@ -234,75 +235,17 @@ func (m *Manager) AcknowledgeAlert(id string) error {
 	return fmt.Errorf("alert not found: %s", id)
 }
 
-// CarbonMetrics represents carbon emission metrics
-type CarbonMetrics struct {
-	GridCarbonFactor float64 `json:"grid_carbon_factor"`
-	TotalCO2Kg      float64 `json:"total_co2_kg"`
-	TodayCO2Kg      float64 `json:"today_co2_kg"`
-}
-
-// GetCarbonMetrics returns carbon emission metrics
-func (m *Manager) GetCarbonMetrics() *CarbonMetrics {
-	factor := m.config.CarbonFactor
-	if factor == 0 {
-		factor = 0.5 // default grid carbon factor
-	}
-	return &CarbonMetrics{
-		GridCarbonFactor: factor,
-	}
-}
-
-// PowerReading represents a power reading
-type PowerReading struct {
-	Timestamp time.Time `json:"timestamp"`
-	Watts     float64   `json:"watts"`
-	Voltage   float64   `json:"voltage"`
-	Current   float64   `json:"current"`
-	Source    string    `json:"source"`
-}
-
-// Power source constants
-const (
-	SourceGrid string = "grid"
-	SourceBattery string = "battery"
-	SourceSolar string = "solar"
-)
-
-// Power state constants
-const (
-	PowerStandby string = "standby"
-	PowerActive  string = "active"
-	PowerSleep   string = "sleep"
-)
-
-// PowerStats represents power statistics
-type PowerStats struct {
-	CurrentWatts float64 `json:"current_watts"`
-	PowerState   string  `json:"power_state"`
-}
-
 // RecordReading records a power reading
 func (m *Manager) RecordReading(reading *PowerReading) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.currentUsage = &PowerUsage{
+
+	usage := PowerUsage{
 		Timestamp:  reading.Timestamp,
 		TotalWatts: reading.Watts,
 	}
-}
-
-// GetStats returns current power stats
-func (m *Manager) GetStats() *PowerStats {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	watts := 0.0
-	if m.currentUsage != nil {
-		watts = m.currentUsage.TotalWatts
-	}
-	return &PowerStats{
-		CurrentWatts: watts,
-		PowerState:   m.powerState,
-	}
+	m.history = append(m.history, usage)
+	m.currentUsage = &usage
 }
 
 // SetPowerState sets the power state
@@ -313,56 +256,48 @@ func (m *Manager) SetPowerState(state string) error {
 	return nil
 }
 
-// EstimateBill estimates the electricity bill
-func (m *Manager) EstimateBill(days int) *BillEstimate {
+// GetStats returns current stats
+func (m *Manager) GetStats() *EnergyStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	totalKWh := 0.0
-	for _, u := range m.history {
-		totalKWh += u.TotalWatts / 1000.0
-	}
-	if len(m.history) > 0 {
-		totalKWh = totalKWh / float64(len(m.history)) * float64(days) * 24.0
-	}
-	return &BillEstimate{
-		Days:       days,
-		TotalKWh:   totalKWh,
-		TotalCost:  totalKWh * m.config.ElectricityRate,
+
+	stats := &EnergyStats{
 		CostPerKWh: m.config.ElectricityRate,
-		Currency:   m.config.Currency,
+		PowerState:  m.powerState,
 	}
-}
-
-// BillEstimate represents a bill estimate
-type BillEstimate struct {
-	Days       int     `json:"days"`
-	TotalKWh   float64 `json:"total_kwh"`
-	TotalCost  float64 `json:"total_cost"`
-	CostPerKWh float64 `json:"cost_per_kwh"`
-	Currency   string  `json:"currency"`
-}
-
-// SaveProfile saves a profile (accepts *PowerProfile, returns error)
-func (m *Manager) SaveProfile(profile *PowerProfile) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if profile.ID == "" {
-		profile.ID = fmt.Sprintf("profile-%d", time.Now().UnixNano())
+	if m.powerState == "" {
+		stats.PowerState = PowerNormal
 	}
-	now := time.Now()
-	profile.CreatedAt = now
-	profile.UpdatedAt = now
-	m.profiles[profile.ID] = profile
-	return nil
+	if m.currentUsage != nil {
+		stats.CurrentWatts = m.currentUsage.TotalWatts
+	}
+	return stats
 }
 
-// FetchProfile returns a profile by ID (returns error if not found)
-func (m *Manager) FetchProfile(id string) (*PowerProfile, error) {
+// EstimateBill estimates the electricity bill
+func (m *Manager) EstimateBill(days int) *PowerBudget {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	profile, ok := m.profiles[id]
-	if !ok {
-		return nil, fmt.Errorf("profile not found: %s", id)
+
+	var totalWatts float64
+	for _, usage := range m.history {
+		totalWatts += usage.TotalWatts
 	}
-	return profile, nil
+	avgWatts := 0.0
+	if len(m.history) > 0 {
+		avgWatts = totalWatts / float64(len(m.history))
+	}
+	kwh := avgWatts * float64(days) * 24.0 / 1000.0
+	return &PowerBudget{
+		CostPerKWh:  m.config.ElectricityRate,
+		Currency:    m.config.Currency,
+		MonthlyCost: kwh * m.config.ElectricityRate,
+	}
+}
+
+// GetCarbonMetrics returns carbon emission metrics
+func (m *Manager) GetCarbonMetrics() *CarbonMetrics {
+	return &CarbonMetrics{
+		GridCarbonFactor: m.config.CarbonFactor,
+	}
 }

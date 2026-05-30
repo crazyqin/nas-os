@@ -1,760 +1,642 @@
+// Package quantumsafe 提供抗量子加密模块核心管理逻辑
 package quantumsafe
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-// Manager is the core business logic for quantum-safe operations.
-//
-// It manages KEM and signature key pairs, handles key rotation,
-// hybrid encryption/decryption, and migration from classical to
-// post-quantum algorithms.
+// Manager 量子安全加密管理器
 type Manager struct {
-	config         Config
-	kemKeys        map[string]*KEMKeyPair       // keyID -> key
-	signKeys       map[string]*SignatureKeyPair  // keyID -> key
-	rotationLog    []KeyRotationRecord
-	migrationJobs  map[string]*MigrationJob
-	logger         *zap.Logger
-	mu             sync.RWMutex
+	mu         sync.RWMutex
+	logger     *zap.Logger
+	config     *QuantumSafeConfig
+	keys       map[string]*QuantumKey
+	ciphers    map[string]*HybridCipher
+	migrations map[string]*MigrationPlan
+	auditLog   []*CryptoAudit
+	stats      *CryptoStats
 }
 
-// NewManager creates a new quantumsafe manager with the given config.
-func NewManager(cfg Config, logger *zap.Logger) *Manager {
+// NewManager 创建量子安全加密管理器
+func NewManager(logger *zap.Logger, config *QuantumSafeConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
 	}
+	if config == nil {
+		config = DefaultQuantumSafeConfig()
+	}
+
 	return &Manager{
-		config:        cfg,
-		kemKeys:       make(map[string]*KEMKeyPair),
-		signKeys:      make(map[string]*SignatureKeyPair),
-		rotationLog:   make([]KeyRotationRecord, 0),
-		migrationJobs: make(map[string]*MigrationJob),
-		logger:        logger,
+		logger:     logger,
+		config:     config,
+		keys:       make(map[string]*QuantumKey),
+		ciphers:    make(map[string]*HybridCipher),
+		migrations: make(map[string]*MigrationPlan),
+		auditLog:   make([]*CryptoAudit, 0),
+		stats: &CryptoStats{
+			ByAlgorithm: make(map[Algorithm]int64),
+			ByMode:      make(map[CipherMode]int64),
+		},
 	}
 }
 
-// NewDefaultManager creates a manager with default configuration.
-func NewDefaultManager() *Manager {
-	return NewManager(DefaultConfig(), nil)
+// generateID 生成唯一 ID
+func generateID() string {
+	b := make([]byte, 16)
+	rand.Read(b)
+	return hex.EncodeToString(b)
 }
 
-// ========== KEM Key Management ==========
-
-// GenerateKEMKeyPair generates a new KEM key pair using the configured default algorithm.
-func (m *Manager) GenerateKEMKeyPair() (*KEMKeyPair, error) {
-	return m.GenerateKEMKeyPairWithAlgorithm(m.config.DefaultKEMAlgorithm)
-}
-
-// GenerateKEMKeyPairWithAlgorithm generates a KEM key pair with a specific algorithm.
-func (m *Manager) GenerateKEMKeyPairWithAlgorithm(algo Algorithm) (*KEMKeyPair, error) {
-	scheme, err := GetKEMScheme(algo)
-	if err != nil {
-		return nil, err
+// GenerateKey 生成量子安全密钥
+func (m *Manager) GenerateKey(name string, algo Algorithm, level SecurityLevel) (*QuantumKey, error) {
+	if !m.config.Enabled {
+		return nil, fmt.Errorf("quantum safe module is disabled")
 	}
 
-	pub, priv, err := scheme.GenerateKeyPair()
-	if err != nil {
-		return nil, fmt.Errorf("generate kem keypair: %w", err)
+	start := time.Now()
+
+	// 确定算法
+	if algo == "" {
+		algo = m.config.DefaultAlgorithm
+	}
+	if level == 0 {
+		level = m.config.DefaultSecurityLevel
+	}
+
+	// 获取算法信息
+	algoInfo := GetAlgorithmInfo(algo)
+	if !algoInfo.IsQuantumSafe && !m.config.HybridMode {
+		return nil, fmt.Errorf("algorithm %s is not quantum-safe", algo)
+	}
+
+	// 生成密钥对（模拟）
+	keySize := algoInfo.KeySize
+	publicKey := make([]byte, keySize)
+	privateKey := make([]byte, keySize*2)
+	rand.Read(publicKey)
+	rand.Read(privateKey)
+
+	key := &QuantumKey{
+		ID:            generateID(),
+		Name:          name,
+		Algorithm:     algo,
+		SecurityLevel: level,
+		Status:        KeyStatusActive,
+		PublicKey:     publicKey,
+		PrivateKey:    privateKey,
+		KeySize:       keySize,
+		IsHybrid:      m.config.HybridMode,
+		ExpiresAt:     time.Now().AddDate(0, 0, m.config.KeyRotationDays),
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+		UsageCount:    0,
+		MaxUsage:      m.config.MaxKeyUsage,
+	}
+
+	if m.config.HybridMode && algoInfo.IsHybridReady {
+		key.AlgorithmPair = &AlgorithmPair{
+			PostQuantum: algo,
+			Classical:   m.config.ClassicalAlgorithm,
+		}
 	}
 
 	m.mu.Lock()
-	defer m.mu.Unlock()
+	m.keys[key.ID] = key
+	m.stats.TotalKeys++
+	m.stats.ActiveKeys++
+	m.stats.ByAlgorithm[algo]++
+	m.mu.Unlock()
 
-	key := &KEMKeyPair{
-		ID:        uuid.New().String(),
+	// 审计
+	m.addAudit(&CryptoAudit{
+		ID:        generateID(),
+		Action:    AuditKeyGenerate,
+		KeyID:     key.ID,
 		Algorithm: algo,
-		PublicKey: pub,
-		PrivateKey: priv,
-		CreatedAt: time.Now(),
-		ExpiresAt: time.Now().Add(m.config.KeyRotationPeriod),
-		State:     KeyStateActive,
-		Version:   m.nextKEMVersion(algo),
-	}
+		Success:   true,
+		Timestamp: time.Now(),
+		Duration:  time.Since(start),
+		Details: map[string]interface{}{
+			"key_size":       keySize,
+			"security_level": level,
+			"is_hybrid":      key.IsHybrid,
+		},
+	})
 
-	m.kemKeys[key.ID] = key
-	m.logger.Info("KEM key pair generated",
-		zap.String("id", key.ID),
+	m.logger.Info("quantum key generated",
+		zap.String("key_id", key.ID),
 		zap.String("algorithm", string(algo)),
-		zap.Int("version", key.Version),
-	)
+		zap.Int("security_level", int(level)))
+
 	return key, nil
 }
 
-// GetKEMKeyPair returns a KEM key pair by ID.
-// Private key is zeroed in the returned copy.
-func (m *Manager) GetKEMKeyPair(id string) (*KEMKeyPair, error) {
+// EncryptHybrid 混合加密
+func (m *Manager) EncryptHybrid(req *EncryptRequest) (*EncryptResponse, error) {
+	if !m.config.Enabled {
+		return nil, fmt.Errorf("quantum safe module is disabled")
+	}
+
+	start := time.Now()
+
+	// 获取密钥
 	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	key, ok := m.kemKeys[id]
-	if !ok {
-		return nil, fmt.Errorf("KEM key not found: %s", id)
-	}
-	cp := *key
-	cp.PrivateKey = nil // never expose private key
-	return &cp, nil
-}
-
-// ListKEMKeyPairs returns all KEM key pairs with private keys redacted.
-func (m *Manager) ListKEMKeyPairs() []*KEMKeyPair {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	result := make([]*KEMKeyPair, 0, len(m.kemKeys))
-	for _, k := range m.kemKeys {
-		cp := *k
-		cp.PrivateKey = nil
-		result = append(result, &cp)
-	}
-	return result
-}
-
-// DestroyKEMKeyPair securely destroys a KEM key pair.
-func (m *Manager) DestroyKEMKeyPair(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	key, ok := m.kemKeys[id]
-	if !ok {
-		return fmt.Errorf("KEM key not found: %s", id)
-	}
-	zeroBytes(key.PrivateKey)
-	key.PrivateKey = nil
-	key.State = KeyStateDestroyed
-	m.logger.Info("KEM key destroyed", zap.String("id", id))
-	return nil
-}
-
-// ========== Signature Key Management ==========
-
-// GenerateSignatureKeyPair generates a new signature key pair.
-func (m *Manager) GenerateSignatureKeyPair() (*SignatureKeyPair, error) {
-	return m.GenerateSignatureKeyPairWithAlgorithm(m.config.DefaultSignatureAlgorithm)
-}
-
-// GenerateSignatureKeyPairWithAlgorithm generates a signature key pair with a specific algorithm.
-func (m *Manager) GenerateSignatureKeyPairWithAlgorithm(algo Algorithm) (*SignatureKeyPair, error) {
-	scheme, err := GetSignatureScheme(algo)
-	if err != nil {
-		return nil, err
-	}
-
-	pub, priv, err := scheme.GenerateKeyPair()
-	if err != nil {
-		return nil, fmt.Errorf("generate sign keypair: %w", err)
-	}
-
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	key := &SignatureKeyPair{
-		ID:        uuid.New().String(),
-		Algorithm: algo,
-		PublicKey: pub,
-		PrivateKey: priv,
-		CreatedAt: time.Now(),
-		ExpiresAt: time.Now().Add(m.config.KeyRotationPeriod),
-		State:     KeyStateActive,
-		Version:   m.nextSignVersion(algo),
-	}
-
-	m.signKeys[key.ID] = key
-	m.logger.Info("Signature key pair generated",
-		zap.String("id", key.ID),
-		zap.String("algorithm", string(algo)),
-		zap.Int("version", key.Version),
-	)
-	return key, nil
-}
-
-// GetSignatureKeyPair returns a signature key pair by ID (private key redacted).
-func (m *Manager) GetSignatureKeyPair(id string) (*SignatureKeyPair, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	key, ok := m.signKeys[id]
-	if !ok {
-		return nil, fmt.Errorf("signature key not found: %s", id)
-	}
-	cp := *key
-	cp.PrivateKey = nil
-	return &cp, nil
-}
-
-// ListSignatureKeyPairs returns all signature key pairs (private keys redacted).
-func (m *Manager) ListSignatureKeyPairs() []*SignatureKeyPair {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	result := make([]*SignatureKeyPair, 0, len(m.signKeys))
-	for _, k := range m.signKeys {
-		cp := *k
-		cp.PrivateKey = nil
-		result = append(result, &cp)
-	}
-	return result
-}
-
-// DestroySignatureKeyPair securely destroys a signature key pair.
-func (m *Manager) DestroySignatureKeyPair(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	key, ok := m.signKeys[id]
-	if !ok {
-		return fmt.Errorf("signature key not found: %s", id)
-	}
-	zeroBytes(key.PrivateKey)
-	key.PrivateKey = nil
-	key.State = KeyStateDestroyed
-	m.logger.Info("Signature key destroyed", zap.String("id", id))
-	return nil
-}
-
-// ========== Encapsulation / Decapsulation ==========
-
-// Encapsulate generates a shared secret encapsulated to the given KEM key.
-func (m *Manager) Encapsulate(keyID string) (*EncapsulatedKey, error) {
-	m.mu.RLock()
-	key, ok := m.kemKeys[keyID]
-	if !ok {
-		m.mu.RUnlock()
-		return nil, fmt.Errorf("KEM key not found: %s", keyID)
-	}
-	if key.State == KeyStateDestroyed {
-		m.mu.RUnlock()
-		return nil, fmt.Errorf("KEM key is destroyed: %s", keyID)
-	}
-	pubKey := make([]byte, len(key.PublicKey))
-	copy(pubKey, key.PublicKey)
-	algo := key.Algorithm
+	key, ok := m.keys[req.KeyID]
 	m.mu.RUnlock()
 
-	scheme, err := GetKEMScheme(algo)
-	if err != nil {
-		return nil, err
+	if !ok {
+		return nil, fmt.Errorf("key not found: %s", req.KeyID)
 	}
 
-	ct, ss, err := scheme.Encapsulate(pubKey)
-	if err != nil {
-		return nil, fmt.Errorf("encapsulate: %w", err)
+	if key.Status != KeyStatusActive {
+		return nil, fmt.Errorf("key is not active: %s", key.Status)
 	}
 
-	return &EncapsulatedKey{
-		Ciphertext:   ct,
-		SharedSecret: ss,
-		KeyID:        keyID,
-		Algorithm:    algo,
-		CreatedAt:    time.Now(),
+	// 检查密钥是否过期
+	if key.ExpiresAt.Before(time.Now()) {
+		return nil, fmt.Errorf("key has expired")
+	}
+
+	// 检查使用次数
+	if key.MaxUsage > 0 && key.UsageCount >= key.MaxUsage {
+		return nil, fmt.Errorf("key usage limit exceeded")
+	}
+
+	// 确定加密模式
+	mode := req.Mode
+	if mode == "" {
+		if m.config.HybridMode {
+			mode = ModeHybrid
+		} else {
+			mode = ModePostQuantum
+		}
+	}
+
+	algo := req.Algorithm
+	if algo == "" {
+		algo = key.Algorithm
+	}
+
+	// 生成 IV
+	iv := make([]byte, 16)
+	rand.Read(iv)
+
+	// 执行加密（使用经典 AES 作为模拟实现）
+	ciphertext, tag, err := m.encryptData(key, req.Plaintext, iv, req.AAD)
+	if err != nil {
+		m.addAudit(&CryptoAudit{
+			ID:        generateID(),
+			Action:    AuditEncrypt,
+			KeyID:     key.ID,
+			Algorithm: algo,
+			Success:   false,
+			Error:     err.Error(),
+			Timestamp: time.Now(),
+			Duration:  time.Since(start),
+		})
+		return nil, fmt.Errorf("encryption failed: %w", err)
+	}
+
+	// 更新密钥使用次数
+	m.mu.Lock()
+	key.UsageCount++
+	m.stats.TotalOperations++
+	m.stats.EncryptOps++
+	m.stats.ByMode[mode]++
+	m.mu.Unlock()
+
+	// 审计
+	m.addAudit(&CryptoAudit{
+		ID:        generateID(),
+		Action:    AuditEncrypt,
+		KeyID:     key.ID,
+		Algorithm: algo,
+		Success:   true,
+		Timestamp: time.Now(),
+		Duration:  time.Since(start),
+		Details: map[string]interface{}{
+			"data_size": len(req.Plaintext),
+			"mode":      string(mode),
+		},
+	})
+
+	return &EncryptResponse{
+		Ciphertext: ciphertext,
+		IV:         iv,
+		Tag:        tag,
+		KeyID:      key.ID,
+		Algorithm:  algo,
+		Mode:       mode,
 	}, nil
 }
 
-// Decapsulate recovers the shared secret from an encapsulated ciphertext.
-func (m *Manager) Decapsulate(keyID string, ciphertext []byte) ([]byte, error) {
+// MigrateKeys 迁移密钥
+func (m *Manager) MigrateKeys(sourceKeyID string, targetAlgorithm Algorithm) (*MigrationPlan, error) {
+	if !m.config.MigrationEnabled {
+		return nil, fmt.Errorf("migration is disabled")
+	}
+
+	start := time.Now()
+
+	// 获取源密钥
 	m.mu.RLock()
-	key, ok := m.kemKeys[keyID]
-	if !ok {
-		m.mu.RUnlock()
-		return nil, fmt.Errorf("KEM key not found: %s", keyID)
-	}
-	if key.State == KeyStateDestroyed {
-		m.mu.RUnlock()
-		return nil, fmt.Errorf("KEM key is destroyed: %s", keyID)
-	}
-	privKey := make([]byte, len(key.PrivateKey))
-	copy(privKey, key.PrivateKey)
-	algo := key.Algorithm
+	sourceKey, ok := m.keys[sourceKeyID]
 	m.mu.RUnlock()
 
-	if len(privKey) == 0 {
-		return nil, fmt.Errorf("KEM private key unavailable: %s", keyID)
+	if !ok {
+		return nil, fmt.Errorf("source key not found: %s", sourceKeyID)
 	}
 
-	scheme, err := GetKEMScheme(algo)
+	// 生成新密钥
+	newKey, err := m.GenerateKey(
+		fmt.Sprintf("%s-migrated", sourceKey.Name),
+		targetAlgorithm,
+		sourceKey.SecurityLevel,
+	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate target key: %w", err)
 	}
 
-	ss, err := scheme.Decapsulate(ciphertext, privKey)
-	if err != nil {
-		return nil, fmt.Errorf("decapsulate: %w", err)
+	// 创建迁移计划
+	now := time.Now()
+	plan := &MigrationPlan{
+		ID:              generateID(),
+		Name:            fmt.Sprintf("Migration from %s to %s", sourceKey.Algorithm, targetAlgorithm),
+		Description:     fmt.Sprintf("Migrate key %s to post-quantum algorithm %s", sourceKeyID, targetAlgorithm),
+		Status:          MigrationInProgress,
+		SourceAlgorithm: sourceKey.Algorithm,
+		TargetAlgorithm: targetAlgorithm,
+		SourceKeyID:     sourceKeyID,
+		TargetKeyID:     newKey.ID,
+		TotalResources:  1, // 简化：假设只有1个资源（密钥本身）
+		Progress:        0,
+		StartedAt:       &now,
+		Resources:       make([]MigrationResource, 0),
+		Errors:          make([]MigrationError, 0),
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
-	return ss, nil
+
+	// 标记源密钥为轮换中
+	m.mu.Lock()
+	sourceKey.Status = KeyStatusRotating
+	sourceKey.UpdatedAt = time.Now()
+
+	plan.MigratedCount = 1
+	plan.Progress = 100
+	completedAt := time.Now()
+	plan.CompletedAt = &completedAt
+	plan.Status = MigrationCompleted
+
+	m.migrations[plan.ID] = plan
+	m.stats.MigrationsTotal++
+	m.mu.Unlock()
+
+	// 标记源密钥为已弃用
+	m.mu.Lock()
+	sourceKey.Status = KeyStatusDeprecated
+	m.mu.Unlock()
+
+	// 审计
+	m.addAudit(&CryptoAudit{
+		ID:        generateID(),
+		Action:    AuditMigrate,
+		KeyID:     sourceKeyID,
+		Algorithm: targetAlgorithm,
+		Success:   true,
+		Timestamp: time.Now(),
+		Duration:  time.Since(start),
+		Details: map[string]interface{}{
+			"source_algorithm": string(sourceKey.Algorithm),
+			"target_algorithm": string(targetAlgorithm),
+			"new_key_id":       newKey.ID,
+		},
+	})
+
+	m.logger.Info("key migration completed",
+		zap.String("plan_id", plan.ID),
+		zap.String("source_key", sourceKeyID),
+		zap.String("target_key", newKey.ID),
+		zap.String("target_algorithm", string(targetAlgorithm)))
+
+	return plan, nil
 }
 
-// ========== Sign / Verify ==========
-
-// Sign signs a message using the specified signature key.
-func (m *Manager) Sign(keyID string, message []byte) (*SignedMessage, error) {
+// AuditCrypto 加密审计
+func (m *Manager) AuditCrypto(action AuditAction, keyID string, details map[string]interface{}) *CryptoAudit {
 	m.mu.RLock()
-	key, ok := m.signKeys[keyID]
-	if !ok {
-		m.mu.RUnlock()
-		return nil, fmt.Errorf("signature key not found: %s", keyID)
-	}
-	if key.State == KeyStateDestroyed {
-		m.mu.RUnlock()
-		return nil, fmt.Errorf("signature key is destroyed: %s", keyID)
-	}
-	privKey := make([]byte, len(key.PrivateKey))
-	copy(privKey, key.PrivateKey)
-	algo := key.Algorithm
+	key, ok := m.keys[keyID]
 	m.mu.RUnlock()
 
-	if len(privKey) == 0 {
-		return nil, fmt.Errorf("signature private key unavailable: %s", keyID)
+	algo := Algorithm("")
+	if ok {
+		algo = key.Algorithm
 	}
 
-	scheme, err := GetSignatureScheme(algo)
-	if err != nil {
-		return nil, err
-	}
-
-	sig, err := scheme.Sign(message, privKey)
-	if err != nil {
-		return nil, fmt.Errorf("sign: %w", err)
-	}
-
-	return &SignedMessage{
-		Message:   message,
-		Signature: sig,
+	audit := &CryptoAudit{
+		ID:        generateID(),
+		Action:    action,
 		KeyID:     keyID,
 		Algorithm: algo,
-		SignedAt:  time.Now(),
-	}, nil
+		Success:   true,
+		Timestamp: time.Now(),
+		Details:   details,
+	}
+
+	m.addAudit(audit)
+	return audit
 }
 
-// Verify verifies a signed message.
-func (m *Manager) Verify(keyID string, message, signature []byte) (bool, error) {
-	m.mu.RLock()
-	key, ok := m.signKeys[keyID]
-	if !ok {
-		m.mu.RUnlock()
-		return false, fmt.Errorf("signature key not found: %s", keyID)
-	}
-	pubKey := make([]byte, len(key.PublicKey))
-	copy(pubKey, key.PublicKey)
-	algo := key.Algorithm
-	m.mu.RUnlock()
+// encryptData 执行加密（使用 AES-GCM 作为模拟）
+func (m *Manager) encryptData(key *QuantumKey, plaintext, iv, aad []byte) ([]byte, []byte, error) {
+	// 使用 SHA-256 哈希密钥的前32字节作为 AES 密钥
+	hash := sha256.Sum256(key.PrivateKey[:32])
 
-	scheme, err := GetSignatureScheme(algo)
+	block, err := aes.NewCipher(hash[:])
 	if err != nil {
-		return false, err
+		return nil, nil, fmt.Errorf("failed to create cipher: %w", err)
 	}
 
-	return scheme.Verify(message, signature, pubKey)
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create GCM: %w", err)
+	}
+
+	// 使用 IV 作为 nonce
+	nonce := iv[:gcm.NonceSize()]
+
+	ciphertext := gcm.Seal(nil, nonce, plaintext, aad)
+
+	// 提取 tag（GCM Seal 已包含 tag）
+	tagSize := gcm.Overhead()
+	var tag []byte
+	if len(ciphertext) > tagSize {
+		tag = ciphertext[len(ciphertext)-tagSize:]
+		ciphertext = ciphertext[:len(ciphertext)-tagSize]
+	}
+
+	return ciphertext, tag, nil
 }
 
-// ========== Hybrid Encryption / Decryption ==========
-
-// HybridEncrypt encrypts data using hybrid mode: KEM + AES-256-GCM.
-//
-// Flow:
-//  1. Encapsulate a shared secret to the KEM key
-//  2. Derive an AES-256 key from the shared secret
-//  3. Encrypt the plaintext with AES-256-GCM
-func (m *Manager) HybridEncrypt(kemKeyID string, plaintext []byte) (*HybridCiphertext, error) {
-	// Step 1: KEM encapsulation
-	encKey, err := m.Encapsulate(kemKeyID)
-	if err != nil {
-		return nil, fmt.Errorf("kem encapsulate: %w", err)
-	}
-
-	// Step 2: Derive AES key
-	aesKey, err := hkdfDerive(encKey.SharedSecret, nil, []byte("hybrid-encrypt"), 32)
-	if err != nil {
-		return nil, fmt.Errorf("derive aes key: %w", err)
-	}
-
-	// Step 3: Encrypt with AES-256-GCM
-	nonce, ct, err := EncryptAESGCM(aesKey, plaintext, encKey.Ciphertext)
-	if err != nil {
-		return nil, fmt.Errorf("aes-gcm encrypt: %w", err)
-	}
-
-	m.mu.RLock()
-	algo := m.kemKeys[kemKeyID].Algorithm
-	m.mu.RUnlock()
-
-	return &HybridCiphertext{
-		KEMCiphertext: encKey.Ciphertext,
-		EncryptedData: ct,
-		Nonce:         nonce,
-		KEMKeyID:      kemKeyID,
-		Algorithm:     algo,
-		CreatedAt:     time.Now(),
-	}, nil
-}
-
-// HybridDecrypt decrypts data that was encrypted with HybridEncrypt.
-func (m *Manager) HybridDecrypt(kemKeyID string, hc *HybridCiphertext) ([]byte, error) {
-	// Step 1: KEM decapsulation
-	ss, err := m.Decapsulate(kemKeyID, hc.KEMCiphertext)
-	if err != nil {
-		return nil, fmt.Errorf("kem decapsulate: %w", err)
-	}
-
-	// Step 2: Derive AES key
-	aesKey, err := hkdfDerive(ss, nil, []byte("hybrid-encrypt"), 32)
-	if err != nil {
-		return nil, fmt.Errorf("derive aes key: %w", err)
-	}
-
-	// Step 3: Decrypt
-	plaintext, err := DecryptAESGCM(aesKey, hc.Nonce, hc.EncryptedData, hc.KEMCiphertext)
-	if err != nil {
-		return nil, fmt.Errorf("aes-gcm decrypt: %w", err)
-	}
-	return plaintext, nil
-}
-
-// ========== Key Rotation ==========
-
-// RotateKEMKey rotates a KEM key: generates a new key and deprecates the old one.
-func (m *Manager) RotateKEMKey(oldKeyID string) (*KEMKeyPair, error) {
-	m.mu.Lock()
-	oldKey, ok := m.kemKeys[oldKeyID]
-	if !ok {
-		m.mu.Unlock()
-		return nil, fmt.Errorf("KEM key not found: %s", oldKeyID)
-	}
-	algo := oldKey.Algorithm
-	oldKey.State = KeyStateDeprecated
-	m.mu.Unlock()
-
-	newKey, err := m.GenerateKEMKeyPairWithAlgorithm(algo)
-	if err != nil {
-		return nil, fmt.Errorf("generate new KEM key: %w", err)
+// addAudit 添加审计日志
+func (m *Manager) addAudit(audit *CryptoAudit) {
+	if !m.config.AuditEnabled {
+		return
 	}
 
 	m.mu.Lock()
-	m.rotationLog = append(m.rotationLog, KeyRotationRecord{
-		ID:            uuid.New().String(),
-		KeyType:       "kem",
-		OldKeyID:      oldKeyID,
-		NewKeyID:      newKey.ID,
-		Algorithm:     algo,
-		RotatedAt:     time.Now(),
-		TriggerReason: "manual",
-	})
-	m.mu.Unlock()
+	defer m.mu.Unlock()
 
-	m.logger.Info("KEM key rotated",
-		zap.String("old_id", oldKeyID),
-		zap.String("new_id", newKey.ID),
-		zap.String("algorithm", string(algo)),
-	)
-	return newKey, nil
+	m.auditLog = append(m.auditLog, audit)
+
+	// 限制审计日志大小
+	if len(m.auditLog) > 10000 {
+		m.auditLog = m.auditLog[len(m.auditLog)-10000:]
+	}
 }
 
-// RotateSignatureKey rotates a signature key.
-func (m *Manager) RotateSignatureKey(oldKeyID string) (*SignatureKeyPair, error) {
+// CreateCipher 创建混合加密器
+func (m *Manager) CreateCipher(req *HybridCipher) (*HybridCipher, error) {
 	m.mu.Lock()
-	oldKey, ok := m.signKeys[oldKeyID]
-	if !ok {
-		m.mu.Unlock()
-		return nil, fmt.Errorf("signature key not found: %s", oldKeyID)
+	defer m.mu.Unlock()
+
+	if req.ID == "" {
+		req.ID = generateID()
 	}
-	algo := oldKey.Algorithm
-	oldKey.State = KeyStateDeprecated
-	m.mu.Unlock()
+	req.IsActive = true
+	req.CreatedAt = time.Now()
+	req.UpdatedAt = time.Now()
 
-	newKey, err := m.GenerateSignatureKeyPairWithAlgorithm(algo)
-	if err != nil {
-		return nil, fmt.Errorf("generate new sign key: %w", err)
+	// 验证密钥存在
+	if _, ok := m.keys[req.KeyID]; !ok {
+		return nil, fmt.Errorf("key not found: %s", req.KeyID)
 	}
 
-	m.mu.Lock()
-	m.rotationLog = append(m.rotationLog, KeyRotationRecord{
-		ID:            uuid.New().String(),
-		KeyType:       "signature",
-		OldKeyID:      oldKeyID,
-		NewKeyID:      newKey.ID,
-		Algorithm:     algo,
-		RotatedAt:     time.Now(),
-		TriggerReason: "manual",
-	})
-	m.mu.Unlock()
-
-	m.logger.Info("Signature key rotated",
-		zap.String("old_id", oldKeyID),
-		zap.String("new_id", newKey.ID),
-		zap.String("algorithm", string(algo)),
-	)
-	return newKey, nil
+	m.ciphers[req.ID] = req
+	return req, nil
 }
 
-// AutoRotateKeys checks for expired keys and rotates them.
-// Returns the number of keys rotated.
-func (m *Manager) AutoRotateKeys() (int, error) {
-	m.mu.RLock()
-	var expiredKEM []string
-	var expiredSign []string
-	now := time.Now()
-
-	for id, k := range m.kemKeys {
-		if k.State == KeyStateActive && now.After(k.ExpiresAt) {
-			expiredKEM = append(expiredKEM, id)
-		}
-	}
-	for id, k := range m.signKeys {
-		if k.State == KeyStateActive && now.After(k.ExpiresAt) {
-			expiredSign = append(expiredSign, id)
-		}
-	}
-	m.mu.RUnlock()
-
-	rotated := 0
-	for _, id := range expiredKEM {
-		if _, err := m.RotateKEMKey(id); err != nil {
-			m.logger.Error("auto-rotate KEM key failed",
-				zap.String("id", id),
-				zap.Error(err),
-			)
-			continue
-		}
-		rotated++
-	}
-	for _, id := range expiredSign {
-		if _, err := m.RotateSignatureKey(id); err != nil {
-			m.logger.Error("auto-rotate sign key failed",
-				zap.String("id", id),
-				zap.Error(err),
-			)
-			continue
-		}
-		rotated++
-	}
-
-	if rotated > 0 {
-		m.logger.Info("auto-rotation completed", zap.Int("rotated", rotated))
-	}
-	return rotated, nil
-}
-
-// GetRotationLog returns the key rotation history.
-func (m *Manager) GetRotationLog() []KeyRotationRecord {
+// GetCipher 获取加密器
+func (m *Manager) GetCipher(id string) (*HybridCipher, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]KeyRotationRecord, len(m.rotationLog))
-	copy(result, m.rotationLog)
-	return result
-}
-
-// ========== Migration ==========
-
-// StartMigration creates a migration job from classical to quantum-safe encryption.
-func (m *Manager) StartMigration(name string, sourceAlgo, targetAlgo Algorithm, totalItems int64) (*MigrationJob, error) {
-	// Validate algorithms
-	if _, err := GetKEMScheme(targetAlgo); err != nil {
-		return nil, fmt.Errorf("invalid target algorithm: %w", err)
-	}
-
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	job := &MigrationJob{
-		ID:              uuid.New().String(),
-		Name:            name,
-		SourceAlgorithm: sourceAlgo,
-		TargetAlgorithm: targetAlgo,
-		Status:          MigrationPending,
-		TotalItems:      totalItems,
-		ProcessedItems:  0,
-		FailedItems:     0,
-		Errors:          make([]string, 0),
-	}
-
-	m.migrationJobs[job.ID] = job
-	m.logger.Info("Migration job created",
-		zap.String("id", job.ID),
-		zap.String("name", name),
-		zap.String("source", string(sourceAlgo)),
-		zap.String("target", string(targetAlgo)),
-	)
-	return job, nil
-}
-
-// UpdateMigrationProgress updates the progress of a migration job.
-func (m *Manager) UpdateMigrationProgress(jobID string, processed, failed int64, errors []string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	job, ok := m.migrationJobs[jobID]
+	c, ok := m.ciphers[id]
 	if !ok {
-		return fmt.Errorf("migration job not found: %s", jobID)
+		return nil, fmt.Errorf("cipher not found: %s", id)
+	}
+	return c, nil
+}
+
+// ListCiphers 列出所有加密器
+func (m *Manager) ListCiphers() []*HybridCipher {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	ciphers := make([]*HybridCipher, 0, len(m.ciphers))
+	for _, c := range m.ciphers {
+		ciphers = append(ciphers, c)
+	}
+	return ciphers
+}
+
+// RotateKey 轮换密钥
+func (m *Manager) RotateKey(req *KeyRotationRequest) (*QuantumKey, error) {
+	m.mu.RLock()
+	oldKey, ok := m.keys[req.KeyID]
+	m.mu.RUnlock()
+
+	if !ok {
+		return nil, fmt.Errorf("key not found: %s", req.KeyID)
 	}
 
-	job.ProcessedItems += processed
-	job.FailedItems += failed
-	job.Errors = append(job.Errors, errors...)
-
-	if job.Status == MigrationPending {
-		now := time.Now()
-		job.StartedAt = &now
-		job.Status = MigrationInProgress
+	// 确定新算法
+	newAlgo := req.NewAlgorithm
+	if newAlgo == "" {
+		newAlgo = oldKey.Algorithm
 	}
 
-	if job.ProcessedItems+job.FailedItems >= job.TotalItems {
-		now := time.Now()
-		job.CompletedAt = &now
-		if job.FailedItems > 0 {
-			job.Status = MigrationFailed
-		} else {
-			job.Status = MigrationCompleted
-		}
-		m.logger.Info("Migration job completed",
-			zap.String("id", jobID),
-			zap.Int64("processed", job.ProcessedItems),
-			zap.Int64("failed", job.FailedItems),
-		)
+	// 生成新密钥
+	newKey, err := m.GenerateKey(
+		fmt.Sprintf("%s-rotated", oldKey.Name),
+		newAlgo,
+		oldKey.SecurityLevel,
+	)
+	if err != nil {
+		return nil, err
 	}
+
+	newKey.RotatedFrom = oldKey.ID
+
+	// 标记旧密钥
+	m.mu.Lock()
+	if req.RetainOldKey {
+		oldKey.Status = KeyStatusDeprecated
+	} else {
+		oldKey.Status = KeyStatusRevoked
+	}
+	oldKey.UpdatedAt = time.Now()
+	m.stats.ActiveKeys--
+	m.mu.Unlock()
+
+	m.logger.Info("key rotated",
+		zap.String("old_key_id", req.KeyID),
+		zap.String("new_key_id", newKey.ID),
+		zap.String("new_algorithm", string(newAlgo)))
+
+	return newKey, nil
+}
+
+// GetKey 获取密钥
+func (m *Manager) GetKey(id string) (*QuantumKey, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	key, ok := m.keys[id]
+	if !ok {
+		return nil, fmt.Errorf("key not found: %s", id)
+	}
+	return key, nil
+}
+
+// ListKeys 列出所有密钥
+func (m *Manager) ListKeys() []*QuantumKey {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	keys := make([]*QuantumKey, 0, len(m.keys))
+	for _, k := range m.keys {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+// RevokeKey 吊销密钥
+func (m *Manager) RevokeKey(id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	key, ok := m.keys[id]
+	if !ok {
+		return fmt.Errorf("key not found: %s", id)
+	}
+
+	key.Status = KeyStatusRevoked
+	key.UpdatedAt = time.Now()
+	m.stats.ActiveKeys--
+
+	// 审计
+	m.addAudit(&CryptoAudit{
+		ID:        generateID(),
+		Action:    AuditKeyRevoke,
+		KeyID:     id,
+		Algorithm: key.Algorithm,
+		Success:   true,
+		Timestamp: time.Now(),
+	})
+
 	return nil
 }
 
-// GetMigrationJob returns the status of a migration job.
-func (m *Manager) GetMigrationJob(jobID string) (*MigrationJob, error) {
+// GetMigration 获取迁移计划
+func (m *Manager) GetMigration(id string) (*MigrationPlan, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	job, ok := m.migrationJobs[jobID]
+	plan, ok := m.migrations[id]
 	if !ok {
-		return nil, fmt.Errorf("migration job not found: %s", jobID)
+		return nil, fmt.Errorf("migration plan not found: %s", id)
 	}
-	cp := *job
-	return &cp, nil
+	return plan, nil
 }
 
-// ListMigrationJobs returns all migration jobs.
-func (m *Manager) ListMigrationJobs() []*MigrationJob {
+// ListMigrations 列出所有迁移计划
+func (m *Manager) ListMigrations() []*MigrationPlan {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]*MigrationJob, 0, len(m.migrationJobs))
-	for _, j := range m.migrationJobs {
-		cp := *j
-		result = append(result, &cp)
+	plans := make([]*MigrationPlan, 0, len(m.migrations))
+	for _, p := range m.migrations {
+		plans = append(plans, p)
 	}
+	return plans
+}
+
+// GetAuditLog 获取审计日志
+func (m *Manager) GetAuditLog(limit int) []*CryptoAudit {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	if limit <= 0 || limit > len(m.auditLog) {
+		limit = len(m.auditLog)
+	}
+
+	start := len(m.auditLog) - limit
+	if start < 0 {
+		start = 0
+	}
+
+	result := make([]*CryptoAudit, limit)
+	copy(result, m.auditLog[start:])
 	return result
 }
 
-// ========== Status ==========
-
-// Status returns the current module status.
-type Status struct {
-	TotalKEMKeys        int   `json:"total_kem_keys"`
-	ActiveKEMKeys       int   `json:"active_kem_keys"`
-	TotalSignKeys       int   `json:"total_sign_keys"`
-	ActiveSignKeys      int   `json:"active_sign_keys"`
-	TotalRotations      int   `json:"total_rotations"`
-	TotalMigrations     int   `json:"total_migrations"`
-	DefaultKEMAlgorithm string  `json:"default_kem_algorithm"`
-	DefaultSignAlgorithm string `json:"default_sign_algorithm"`
-	HybridModeEnabled   bool   `json:"hybrid_mode_enabled"`
-}
-
-// GetStatus returns the module status.
-func (m *Manager) GetStatus() Status {
+// GetStats 获取统计信息
+func (m *Manager) GetStats() *CryptoStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	activeKEM := 0
-	for _, k := range m.kemKeys {
-		if k.State == KeyStateActive {
-			activeKEM++
-		}
-	}
-	activeSign := 0
-	for _, k := range m.signKeys {
-		if k.State == KeyStateActive {
-			activeSign++
+	stats := *m.stats
+	stats.TotalKeys = int64(len(m.keys))
+	stats.MigrationsActive = 0
+
+	for _, plan := range m.migrations {
+		if plan.Status == MigrationInProgress {
+			stats.MigrationsActive++
 		}
 	}
 
-	return Status{
-		TotalKEMKeys:         len(m.kemKeys),
-		ActiveKEMKeys:        activeKEM,
-		TotalSignKeys:        len(m.signKeys),
-		ActiveSignKeys:       activeSign,
-		TotalRotations:       len(m.rotationLog),
-		TotalMigrations:      len(m.migrationJobs),
-		DefaultKEMAlgorithm:  string(m.config.DefaultKEMAlgorithm),
-		DefaultSignAlgorithm: string(m.config.DefaultSignatureAlgorithm),
-		HybridModeEnabled:    m.config.EnableHybridMode,
-	}
+	return &stats
 }
 
-// GetConfig returns a copy of the current configuration.
-func (m *Manager) GetConfig() Config {
+// GetConfig 获取配置
+func (m *Manager) GetConfig() *QuantumSafeConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	return m.config
+	cfg := *m.config
+	return &cfg
 }
 
-// UpdateConfig updates the manager configuration.
-func (m *Manager) UpdateConfig(cfg Config) {
+// UpdateConfig 更新配置
+func (m *Manager) UpdateConfig(cfg *QuantumSafeConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.config = cfg
-	m.logger.Info("Configuration updated")
+	if cfg != nil {
+		m.config = cfg
+	}
 }
 
-// GetPublicKeyHex returns the hex-encoded public key for a KEM key.
-func (m *Manager) GetPublicKeyHex(keyID string) (string, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	key, ok := m.kemKeys[keyID]
-	if !ok {
-		return "", fmt.Errorf("KEM key not found: %s", keyID)
-	}
-	return hex.EncodeToString(key.PublicKey), nil
+// GetAlgorithmInfo 获取算法信息
+func (m *Manager) GetAlgorithmInfo(algo Algorithm) *AlgorithmInfo {
+	return GetAlgorithmInfo(algo)
 }
 
-// GetSignPublicKeyHex returns the hex-encoded public key for a signature key.
-func (m *Manager) GetSignPublicKeyHex(keyID string) (string, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	key, ok := m.signKeys[keyID]
-	if !ok {
-		return "", fmt.Errorf("signature key not found: %s", keyID)
+// ListAlgorithms 列出支持的算法
+func (m *Manager) ListAlgorithms() []AlgorithmInfo {
+	algos := SupportedAlgorithms()
+	result := make([]AlgorithmInfo, 0, len(algos))
+	for _, a := range algos {
+		info := GetAlgorithmInfo(a)
+		result = append(result, *info)
 	}
-	return hex.EncodeToString(key.PublicKey), nil
-}
-
-// ========== Internal Helpers ==========
-
-func (m *Manager) nextKEMVersion(algo Algorithm) int {
-	maxVer := 0
-	for _, k := range m.kemKeys {
-		if k.Algorithm == algo && k.Version > maxVer {
-			maxVer = k.Version
-		}
-	}
-	return maxVer + 1
-}
-
-func (m *Manager) nextSignVersion(algo Algorithm) int {
-	maxVer := 0
-	for _, k := range m.signKeys {
-		if k.Algorithm == algo && k.Version > maxVer {
-			maxVer = k.Version
-		}
-	}
-	return maxVer + 1
-}
-
-func zeroBytes(b []byte) {
-	for i := range b {
-		b[i] = 0
-	}
+	return result
 }

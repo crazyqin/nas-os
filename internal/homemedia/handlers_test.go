@@ -2,7 +2,6 @@ package homemedia
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -27,11 +26,15 @@ func TestScanMedia(t *testing.T) {
 	sourceDir := filepath.Join(tmpDir, "media")
 	os.MkdirAll(sourceDir, 0755)
 
-	// Create test files
-	testFiles := []string{"movie1.mp4", "movie2.mkv", "song1.mp3"}
-	for i, name := range testFiles {
+	// Create test files with different content
+	testFiles := map[string]string{
+		"movie1.mp4": "movie 1 content",
+		"movie2.mkv": "movie 2 content",
+		"song1.mp3":  "song 1 content",
+	}
+	for name, content := range testFiles {
 		path := filepath.Join(sourceDir, name)
-		os.WriteFile(path, []byte(fmt.Sprintf("test content %d", i)), 0644)
+		os.WriteFile(path, []byte(content), 0644)
 	}
 
 	manager := NewManager(tmpDir)
@@ -46,7 +49,19 @@ func TestScanMedia(t *testing.T) {
 		t.Fatalf("Scan failed: %v", err)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	// Wait for scan to complete (async goroutine)
+	deadline := time.After(5 * time.Second)
+	for {
+		finalStatus, ok := manager.GetScanStatus(status.ID)
+		if ok && finalStatus.Status == "completed" {
+			break
+		}
+		select {
+		case <-deadline:
+			t.Fatal("Scan did not complete in time")
+		case <-time.After(50 * time.Millisecond):
+		}
+	}
 
 	finalStatus, ok := manager.GetScanStatus(status.ID)
 	if !ok {

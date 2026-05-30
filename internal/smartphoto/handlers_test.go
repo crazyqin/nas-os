@@ -183,7 +183,7 @@ func TestImportPhotos(t *testing.T) {
 	os.MkdirAll(storageDir, 0755)
 	os.MkdirAll(sourceDir, 0755)
 
-	// Create test files
+	// Create test files with different content to avoid duplicate detection
 	testFiles := []string{"test1.jpg", "test2.png", "test3.gif"}
 	for i, name := range testFiles {
 		path := filepath.Join(sourceDir, name)

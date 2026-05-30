@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func TestNewManagerViaHandler(t *testing.T) {
+func TestNewManagerFromHandlers(t *testing.T) {
 	manager := NewManager(nil)
 
 	if manager == nil {

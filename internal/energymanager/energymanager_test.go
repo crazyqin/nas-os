@@ -103,26 +103,26 @@ func TestProfiles(t *testing.T) {
 	config := &Config{Enabled: true}
 	manager := NewManager(config)
 
-	profile := &PowerProfile{
-		ID:          "quiet",
-		Name:        "Quiet Mode",
-		Description: "Minimal noise and power",
-		MaxWatts:    100,
-		IdleWatts:   30,
-		SpinDownHDD: true,
-		LEDControl:  true,
-		FanCurve:    "quiet",
+	settings := PowerSettings{
+		HDDSpindown: 30,
+		LEDControl:   true,
+		FanMode:      "quiet",
+		WakeOnLAN:    true,
 	}
 
-	if err := manager.SaveProfile(profile); err != nil {
-		t.Fatalf("CreateProfile failed: %v", err)
+	profile := manager.CreateProfile("Quiet Mode", "Minimal noise and power", "quiet", settings)
+	if profile == nil {
+		t.Fatal("CreateProfile returned nil")
 	}
 
-	got, err := manager.FetchProfile("quiet")
-	if err != nil {
-		t.Fatalf("FetchProfile failed: %v", err)
+	got, ok := manager.GetProfile(profile.ID)
+	if !ok {
+		t.Fatal("GetProfile failed")
 	}
 	if got.Name != "Quiet Mode" {
 		t.Errorf("Expected Quiet Mode, got %s", got.Name)
+	}
+	if !got.Settings.LEDControl {
+		t.Error("Expected LEDControl to be true")
 	}
 }

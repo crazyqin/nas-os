@@ -193,6 +193,15 @@ func (c *Client) SendFile(ctx context.Context, filePath string, destPath string)
 	}
 	c.mu.RUnlock()
 
+	// 为文件传输创建新流
+	stream, err := c.conn.OpenStreamSync(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("创建传输流失败: %w", err)
+	}
+	c.mu.Lock()
+	c.stream = stream
+	c.mu.Unlock()
+
 	// 获取文件信息
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
@@ -243,6 +252,8 @@ func (c *Client) SendFile(ctx context.Context, filePath string, destPath string)
 
 	transferID, _ := ackPayload["transfer_id"].(string)
 
+	ctx, cancel := context.WithTimeout(ctx, c.config.TransferTimeout)
+
 	// 创建本地传输记录
 	transfer := &Transfer{
 		ID:           transferID,
@@ -257,6 +268,8 @@ func (c *Client) SendFile(ctx context.Context, filePath string, destPath string)
 		Encrypted:    c.config.EnableEncryption,
 		FileChecksum: checksum,
 		StartedAt:    time.Now(),
+		ctx:          ctx,
+		cancel:       cancel,
 		chunks:       chunks,
 		checksums:    make(map[int]string),
 	}
