@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.524.0 Stable (2026-05-29)
+> **最新版本**: v2.525.0 Stable (2026-05-30)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -169,6 +169,10 @@
 | 📂 **WebShare浏览器共享** | 浏览器文件管理/FIPS加密/在线预览/对标TrueNAS 26 | ✅ **v2.516.0新增** |
 | 🏷️ **共享标签系统** | 跨用户标签同步/权限控制/批量操作/对标群晖Drive 4.0 | ✅ **v2.516.0新增** |
 | 📧 **邮件审核控制** | 多级审核策略/审计追踪/违规检测/对标群晖邮件安全 | ✅ **v2.516.0新增** |
+| 🔄 **磁盘生命周期管理** | 智能磁盘故障预测/退役建议/舰队管理/预测性维护 | ✅ **v2.525.0新增** |
+| 🔍 **数字取证工具** | 事件时间线重建/证据收集/取证报告/安全审计 | ✅ **v2.525.0新增** |
+| 🌐 **GeoIP防火墙** | 基于国家/地区的访问控制/威胁情报集成/地理围栏 | ✅ **v2.525.0新增** |
+| 💡 **智能存储成本分析** | 多层级成本分析/云vs本地对比/成本优化建议/TCO报告 | ✅ **v2.525.0新增** |
 
 ## 快速开始
 
