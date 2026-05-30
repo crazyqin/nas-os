@@ -736,13 +736,13 @@ func (m *Manager) MarshalJSON() ([]byte, error) {
 		Config    *DigitalTwinConfig `json:"config"`
 		Snapshots int                `json:"snapshots_count"`
 		Twins     int                `json:"twins_count"`
-		演练s     int                `json:"演练s_count"`
+		DrDrills  int                `json:"演练s_count"`
 		Diffs     int                `json:"diffs_count"`
 	}{
 		Config:    m.config,
 		Snapshots: len(m.snapshots),
 		Twins:     len(m.twins),
-		演练s:     len(m.演练s),
+		DrDrills:  len(m.演练s),
 		Diffs:     len(m.diffs),
 	})
 }
