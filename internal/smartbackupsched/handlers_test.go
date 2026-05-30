@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -180,6 +181,9 @@ func TestRunBackup(t *testing.T) {
 	// 验证任务已创建
 	tasks := mgr.ListTasks()
 	assert.GreaterOrEqual(t, len(tasks), 1)
+
+	// 等待异步 goroutine 完成，避免 TempDir 清理失败
+	time.Sleep(200 * time.Millisecond)
 }
 
 // TestListAndGetTasks 测试任务列表和详情.
