@@ -14,6 +14,7 @@ type Photo struct {
 	UserID        string          `json:"userId"`
 	Size          uint64          `json:"size"`
 	MimeType      string          `json:"mimeType"`
+	Format        string          `json:"format,omitempty"` // jpg, png, heic, etc.
 	Width         int             `json:"width"`
 	Height        int             `json:"height"`
 	Duration      int             `json:"duration"` // 视频时长（秒），照片为 0
@@ -22,15 +23,20 @@ type Photo struct {
 	ModifiedAt    time.Time       `json:"modifiedAt"`
 	EXIF          *EXIFData       `json:"exif,omitempty"`
 	ThumbnailPath string          `json:"thumbnailPath"`
+	Thumbnail     string          `json:"thumbnail,omitempty"` // 兼容旧字段
 	IsFavorite    bool            `json:"isFavorite"`
 	IsHidden      bool            `json:"isHidden"`
+	Rating        int             `json:"rating"` // 1-5 stars
 	Tags          []string        `json:"tags"`
+	Albums        []string        `json:"albums,omitempty"` // 所属相册ID列表
 	Faces         []FaceInfo      `json:"faces,omitempty"`
 	Objects       []string        `json:"objects,omitempty"`
 	Scene         string          `json:"scene,omitempty"`
 	ColorPalette  []string        `json:"colorPalette,omitempty"`
 	Location      *LocationInfo   `json:"location,omitempty"`
+	GPS           *LocationInfo   `json:"gps,omitempty"` // 兼容旧字段
 	Device        *DeviceInfo     `json:"device,omitempty"`
+	DeviceModel   string          `json:"deviceModel,omitempty"` // 兼容旧字段
 	ShareInfo     *ShareInfo      `json:"shareInfo,omitempty"`
 	EditHistory   []EditOperation `json:"editHistory,omitempty"`
 }
@@ -121,7 +127,9 @@ type Album struct {
 	Name         string           `json:"name"`
 	Description  string           `json:"description"`
 	UserID       string           `json:"userId"`
+	OwnerID      string           `json:"ownerId,omitempty"` // 兼容旧字段
 	CoverPhotoID string           `json:"coverPhotoId"`
+	CoverPhoto   string           `json:"coverPhoto,omitempty"` // 兼容旧字段
 	PhotoCount   int              `json:"photoCount"`
 	IsShared     bool             `json:"isShared"`
 	IsFavorite   bool             `json:"isFavorite"`
@@ -230,6 +238,16 @@ type Person struct {
 	CoverPhotoID string    `json:"coverPhotoId"`
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`
+}
+
+// PhotoComment 照片评论
+type PhotoComment struct {
+	ID        string    `json:"id"`
+	PhotoID   string    `json:"photoId"`
+	UserID    string    `json:"userId"`
+	UserName  string    `json:"userName"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 // AIClassification AI 分类结果

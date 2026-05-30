@@ -1,1677 +1,181 @@
+// Package photos 智能相册管理 - HTTP handlers
 package photos
 
 import (
-	"fmt"
-	"io"
-	"math"
+	"encoding/json"
 	"net/http"
-	"os"
-	"path/filepath"
-	"sort"
 	"strconv"
-	"strings"
-	"sync"
-	"time"
-
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
-// Handlers 相册处理器
-type Handlers struct {
-	manager   *Manager
-	aiManager *AIManager
-	mu        sync.RWMutex
+// Handler HTTP 处理器
+type Handler struct {
+	manager *Manager
 }
 
-// NewHandlers 创建相册处理器
-func NewHandlers(manager *Manager, aiManager *AIManager) *Handlers {
-	return &Handlers{
-		manager:   manager,
-		aiManager: aiManager,
-	}
+// NewHandler 创建处理器
+func NewHandler(manager *Manager) *Handler {
+	return &Handler{manager: manager}
 }
 
 // RegisterRoutes 注册路由
-func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
-	photos := r.Group("/photos")
-	{
-		// 照片上传
-		photos.POST("/upload", h.uploadPhoto)
-		photos.POST("/upload/batch", h.uploadPhotoBatch)
-		photos.POST("/upload/session", h.createUploadSession)
-		photos.PUT("/upload/session/:sessionId", h.uploadSessionChunk)
-		photos.POST("/upload/session/:sessionId/complete", h.completeUploadSession)
-
-		// 照片管理
-		photos.GET("", h.listPhotos)
-		photos.GET("/:id", h.getPhoto)
-		photos.DELETE("/:id", h.deletePhoto)
-		photos.POST("/:id/favorite", h.toggleFavorite)
-		photos.PUT("/:id", h.updatePhoto)
-		photos.GET("/:id/download", h.downloadPhoto)
-
-		// 缩略图
-		photos.GET("/:id/thumbnail", h.getThumbnail)
-		photos.GET("/:id/thumbnail/:size", h.getThumbnail)
-
-		// 相册管理
-		photos.GET("/albums", h.listAlbums)
-		photos.POST("/albums", h.createAlbum)
-		photos.GET("/albums/:id", h.getAlbum)
-		photos.PUT("/albums/:id", h.updateAlbum)
-		photos.DELETE("/albums/:id", h.deleteAlbum)
-		photos.POST("/albums/:id/photos", h.addPhotoToAlbum)
-		photos.DELETE("/albums/:id/photos/:photoId", h.removePhotoFromAlbum)
-
-		// 时间线
-		photos.GET("/timeline", h.getTimeline)
-
-		// 人物
-		photos.GET("/persons", h.listPersons)
-		photos.POST("/persons", h.createPerson)
-		photos.PUT("/persons/:id", h.updatePerson)
-		photos.DELETE("/persons/:id", h.deletePerson)
-
-		// AI 相册功能
-		photos.GET("/ai/stats", h.getAIStats)
-		photos.GET("/ai/tasks", h.listAITasks)
-		photos.POST("/ai/analyze/:photoId", h.analyzePhoto)
-		photos.POST("/ai/analyze/batch", h.batchAnalyzePhotos)
-		photos.GET("/ai/smart-albums", h.listSmartAlbums)
-		photos.POST("/ai/smart-albums", h.createSmartAlbum)
-		photos.DELETE("/ai/smart-albums/:id", h.deleteSmartAlbum)
-		photos.GET("/ai/memories", h.getMemories)
-		photos.POST("/ai/reanalyze", h.reanalyzeAll)
-		photos.POST("/ai/clear", h.clearAIData)
-
-		// 搜索
-		photos.GET("/search", h.searchPhotos)
-
-		// 统计
-		photos.GET("/stats", h.getStats)
-	}
+func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/photos/import", h.handleImport)
+	mux.HandleFunc("/api/photos/search", h.handleSearch)
+	mux.HandleFunc("/api/photos/timeline", h.handleTimeline)
+	mux.HandleFunc("/api/photos/stats", h.handleStats)
+	mux.HandleFunc("/api/photos/albums", h.handleAlbums)
+	mux.HandleFunc("/api/photos/albums/create", h.handleCreateAlbum)
+	mux.HandleFunc("/api/photos/albums/add", h.handleAddToAlbum)
 }
 
-// UploadResponse 上传响应
-type UploadResponse struct {
-	PhotoID     string `json:"photoId"`
-	Filename    string `json:"filename"`
-	Size        uint64 `json:"size"`
-	ThumbnailID string `json:"thumbnailId"`
-}
-
-// uploadPhoto 上传单张照片
-// @Summary 上传照片
-// @Description 上传单张照片到相册系统
-// @Tags photos
-// @Accept multipart/form-data
-// @Produce json
-// @Param file formData file true "照片文件"
-// @Success 200 {object} api.Response{data=UploadResponse}
-// @Failure 400 {object} api.Response
-// @Failure 500 {object} api.Response
-// @Router /photos/upload [post]
-// @Security BearerAuth
-func (h *Handlers) uploadPhoto(c *gin.Context) {
-	file, header, err := c.Request.FormFile("file")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "上传文件失败：" + err.Error(),
-		})
-		return
-	}
-	defer func() { _ = file.Close() }()
-
-	// 检查文件大小
-	config := h.manager.GetConfig()
-	if header.Size > config.MaxUploadSize {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "文件大小超过限制（最大 500MB）",
-		})
-		return
-	}
-
-	// 检查文件类型
-	ext := strings.ToLower(filepath.Ext(header.Filename))
-	validFormats := config.SupportedFormats
-	isValid := false
-	for _, format := range validFormats {
-		if ext == format {
-			isValid = true
-			break
-		}
-	}
-	if !isValid {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "不支持的文件格式",
-		})
-		return
-	}
-
-	// 生成唯一文件名
-	photoID := uuid.New().String()
-	filename := photoID + ext
-	photoPath := filepath.Join(h.manager.photosDir, filename)
-
-	// 创建目标文件
-	dst, err := os.Create(photoPath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "保存文件失败：" + err.Error(),
-		})
-		return
-	}
-	defer func() { _ = dst.Close() }()
-
-	// 复制文件内容
-	written, err := io.Copy(dst, file)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "写入文件失败：" + err.Error(),
-		})
-		return
-	}
-
-	// 索引照片
-	go h.manager.indexPhoto(photoPath)
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "上传成功",
-		"data": UploadResponse{
-			PhotoID:  photoID,
-			Filename: header.Filename,
-			Size:     uint64(written),
-		},
-	})
-}
-
-// uploadPhotoBatch 批量上传照片
-func (h *Handlers) uploadPhotoBatch(c *gin.Context) {
-	form, err := c.MultipartForm()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "解析表单失败：" + err.Error(),
-		})
-		return
-	}
-
-	files := form.File["files"]
-	if len(files) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "没有上传任何文件",
-		})
-		return
-	}
-
-	config := h.manager.GetConfig()
-	uploaded := make([]UploadResponse, 0)
-	failed := make([]string, 0)
-
-	for _, fileHeader := range files {
-		// 检查文件大小
-		if fileHeader.Size > config.MaxUploadSize {
-			failed = append(failed, fileHeader.Filename+" (文件过大)")
-			continue
-		}
-
-		// 检查文件类型
-		ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
-		isValid := false
-		for _, format := range config.SupportedFormats {
-			if ext == format {
-				isValid = true
-				break
-			}
-		}
-		if !isValid {
-			failed = append(failed, fileHeader.Filename+" (格式不支持)")
-			continue
-		}
-
-		// 打开上传的文件
-		file, err := fileHeader.Open()
-		if err != nil {
-			failed = append(failed, fileHeader.Filename+" (打开失败)")
-			continue
-		}
-
-		// 生成唯一文件名
-		photoID := uuid.New().String()
-		filename := photoID + ext
-		photoPath := filepath.Join(h.manager.photosDir, filename)
-
-		// 创建目标文件
-		dst, err := os.Create(photoPath)
-		if err != nil {
-			_ = file.Close()
-			failed = append(failed, fileHeader.Filename+" (保存失败)")
-			continue
-		}
-
-		// 复制文件内容
-		written, err := io.Copy(dst, file)
-		_ = file.Close()
-		_ = dst.Close()
-
-		if err != nil {
-			failed = append(failed, fileHeader.Filename+" (写入失败)")
-			continue
-		}
-
-		// 索引照片
-		go h.manager.indexPhoto(photoPath)
-
-		uploaded = append(uploaded, UploadResponse{
-			PhotoID:  photoID,
-			Filename: fileHeader.Filename,
-			Size:     uint64(written),
-		})
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "批量上传完成",
-		"data": gin.H{
-			"uploaded": uploaded,
-			"failed":   failed,
-			"total":    len(files),
-			"success":  len(uploaded),
-			"errors":   len(failed),
-		},
-	})
-}
-
-// createUploadSession 创建上传会话（用于断点续传）
-func (h *Handlers) createUploadSession(c *gin.Context) {
-	var req struct {
-		Filename  string `json:"filename" binding:"required"`
-		TotalSize int64  `json:"totalSize" binding:"required"`
-		ChunkSize int64  `json:"chunkSize"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	sessionID := uuid.New().String()
-	chunkSize := req.ChunkSize
-	if chunkSize <= 0 {
-		chunkSize = 5 * 1024 * 1024 // 默认 5MB
-	}
-
-	// 安全转换：int64 到 int 可能溢出
-	totalChunksInt64 := (req.TotalSize + chunkSize - 1) / chunkSize
-	var totalChunks int
-	if totalChunksInt64 > int64(math.MaxInt) {
-		totalChunks = math.MaxInt
-	} else {
-		totalChunks = int(totalChunksInt64)
-	}
-
-	session := &UploadSession{
-		SessionID:      sessionID,
-		Filename:       req.Filename,
-		TotalSize:      req.TotalSize,
-		UploadedSize:   0,
-		ChunkSize:      chunkSize,
-		TotalChunks:    totalChunks,
-		UploadedChunks: make([]int, 0),
-		CreatedAt:      time.Now(),
-		ExpiresAt:      time.Now().Add(24 * time.Hour),
-		TempPath:       filepath.Join(h.manager.cacheDir, "uploads", sessionID),
-	}
-
-	// 创建临时目录
-	if err := os.MkdirAll(session.TempPath, 0750); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "创建临时目录失败：" + err.Error(),
-		})
-		return
-	}
-
-	// 保存会话信息
-	h.mu.Lock()
-	h.manager.uploadSessions[sessionID] = session
-	h.mu.Unlock()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "上传会话创建成功",
-		"data":    session,
-	})
-}
-
-// uploadSessionChunk 上传分片
-func (h *Handlers) uploadSessionChunk(c *gin.Context) {
-	sessionID := c.Param("sessionId")
-	chunkIndex, _ := strconv.Atoi(c.Query("chunk"))
-
-	h.mu.RLock()
-	session, exists := h.manager.uploadSessions[sessionID]
-	h.mu.RUnlock()
-
-	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": "上传会话不存在",
-		})
-		return
-	}
-
-	// 检查会话是否过期
-	if time.Now().After(session.ExpiresAt) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "上传会话已过期",
-		})
-		return
-	}
-
-	// 检查分片索引是否有效
-	if chunkIndex < 0 || chunkIndex >= session.TotalChunks {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "无效的分片索引",
-		})
-		return
-	}
-
-	// 获取上传的文件
-	file, _, err := c.Request.FormFile("chunk")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "读取分片数据失败：" + err.Error(),
-		})
-		return
-	}
-	defer func() { _ = file.Close() }()
-
-	// 保存分片到临时文件
-	chunkPath := filepath.Join(session.TempPath, fmt.Sprintf("chunk_%d", chunkIndex))
-	dst, err := os.Create(chunkPath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "保存分片失败：" + err.Error(),
-		})
-		return
-	}
-	defer func() { _ = dst.Close() }()
-
-	written, err := io.Copy(dst, file)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "写入分片失败：" + err.Error(),
-		})
-		return
-	}
-
-	// 更新会话状态
-	h.mu.Lock()
-	session.UploadedSize += written
-	// 检查是否已上传
-	alreadyUploaded := false
-	for _, idx := range session.UploadedChunks {
-		if idx == chunkIndex {
-			alreadyUploaded = true
-			break
-		}
-	}
-	if !alreadyUploaded {
-		session.UploadedChunks = append(session.UploadedChunks, chunkIndex)
-	}
-	h.mu.Unlock()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "分片上传成功",
-		"data": gin.H{
-			"sessionId":      sessionID,
-			"chunkIndex":     chunkIndex,
-			"chunkSize":      written,
-			"uploadedSize":   session.UploadedSize,
-			"totalSize":      session.TotalSize,
-			"uploadedChunks": len(session.UploadedChunks),
-			"totalChunks":    session.TotalChunks,
-			"progress":       float64(len(session.UploadedChunks)) / float64(session.TotalChunks) * 100,
-		},
-	})
-}
-
-// completeUploadSession 完成上传会话
-func (h *Handlers) completeUploadSession(c *gin.Context) {
-	sessionID := c.Param("sessionId")
-
-	h.mu.RLock()
-	session, exists := h.manager.uploadSessions[sessionID]
-	h.mu.RUnlock()
-
-	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": "上传会话不存在",
-		})
-		return
-	}
-
-	// 检查所有分片是否都已上传
-	if len(session.UploadedChunks) != session.TotalChunks {
-		missingChunks := make([]int, 0)
-		uploadedMap := make(map[int]bool)
-		for _, idx := range session.UploadedChunks {
-			uploadedMap[idx] = true
-		}
-		for i := 0; i < session.TotalChunks; i++ {
-			if !uploadedMap[i] {
-				missingChunks = append(missingChunks, i)
-			}
-		}
-
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "部分分片未上传",
-			"data": gin.H{
-				"missingChunks": missingChunks,
-			},
-		})
-		return
-	}
-
-	// 生成唯一文件名
-	ext := strings.ToLower(filepath.Ext(session.Filename))
-	if ext == "" {
-		ext = ".jpg"
-	}
-	photoID := uuid.New().String()
-	filename := photoID + ext
-	photoPath := filepath.Join(h.manager.photosDir, filename)
-
-	// 合并所有分片
-	finalFile, err := os.Create(photoPath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "创建目标文件失败：" + err.Error(),
-		})
-		return
-	}
-	defer func() { _ = finalFile.Close() }()
-
-	for i := 0; i < session.TotalChunks; i++ {
-		chunkPath := filepath.Join(session.TempPath, fmt.Sprintf("chunk_%d", i))
-		chunkFile, err := os.Open(chunkPath)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code":    500,
-				"message": fmt.Sprintf("打开分片 %d 失败：%s", i, err.Error()),
-			})
-			return
-		}
-		if _, copyErr := io.Copy(finalFile, chunkFile); copyErr != nil {
-			_ = chunkFile.Close()
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code":    500,
-				"message": fmt.Sprintf("合并分片 %d 失败：%s", i, copyErr.Error()),
-			})
-			return
-		}
-		_ = chunkFile.Close()
-	}
-
-	// 同步文件
-	_ = finalFile.Sync()
-
-	// 清理临时文件
-	if err := os.RemoveAll(session.TempPath); err != nil {
-		_ = err // Log error but continue
-	}
-
-	// 删除会话
-	h.mu.Lock()
-	delete(h.manager.uploadSessions, sessionID)
-	h.mu.Unlock()
-
-	// 索引照片
-	go h.manager.indexPhoto(photoPath)
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "上传完成",
-		"data": UploadResponse{
-			PhotoID:  photoID,
-			Filename: session.Filename,
-			Size:     uint64(session.TotalSize),
-		},
-	})
-}
-
-// listPhotos 列出照片
-// @Summary 列出照片
-// @Description 获取照片列表，支持分页和过滤
-// @Tags photos
-// @Accept json
-// @Produce json
-// @Param albumId query string false "相册 ID"
-// @Param userId query string false "用户 ID"
-// @Param sortBy query string false "排序字段" default(takenAt)
-// @Param sortOrder query string false "排序方向" default(desc)
-// @Param limit query int false "每页数量" default(50)
-// @Param offset query int false "偏移量" default(0)
-// @Param favorite query bool false "仅收藏"
-// @Success 200 {object} api.Response{data=object{photos=[]Photo,total=int}}
-// @Failure 500 {object} api.Response
-// @Router /photos [get]
-// @Security BearerAuth
-func (h *Handlers) listPhotos(c *gin.Context) {
-	query := &PhotoQuery{
-		AlbumID:   c.Query("albumId"),
-		UserID:    c.Query("userId"),
-		SortBy:    c.DefaultQuery("sortBy", "takenAt"),
-		SortOrder: c.DefaultQuery("sortOrder", "desc"),
-		Limit:     50,
-		Offset:    0,
-	}
-
-	if limitStr := c.Query("limit"); limitStr != "" {
-		if limit, err := strconv.Atoi(limitStr); err == nil && limit > 0 {
-			query.Limit = limit
-		}
-	}
-	if offsetStr := c.Query("offset"); offsetStr != "" {
-		if offset, err := strconv.Atoi(offsetStr); err == nil && offset >= 0 {
-			query.Offset = offset
-		}
-	}
-
-	if favoriteStr := c.Query("favorite"); favoriteStr != "" {
-		isFavorite := favoriteStr == "true"
-		query.IsFavorite = &isFavorite
-	}
-
-	photos, total, err := h.manager.QueryPhotos(query)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data": gin.H{
-			"photos": photos,
-			"total":  total,
-			"limit":  query.Limit,
-			"offset": query.Offset,
-		},
-	})
-}
-
-// getPhoto 获取照片详情
-// @Summary 获取照片详情
-// @Description 获取指定照片的详细信息
-// @Tags photos
-// @Accept json
-// @Produce json
-// @Param id path string true "照片 ID"
-// @Success 200 {object} api.Response{data=Photo}
-// @Failure 404 {object} api.Response
-// @Router /photos/{id} [get]
-// @Security BearerAuth
-func (h *Handlers) getPhoto(c *gin.Context) {
-	photoID := c.Param("id")
-
-	photo, err := h.manager.GetPhoto(photoID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    photo,
-	})
-}
-
-// deletePhoto 删除照片
-func (h *Handlers) deletePhoto(c *gin.Context) {
-	photoID := c.Param("id")
-
-	if err := h.manager.DeletePhoto(photoID); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "删除成功",
-	})
-}
-
-// toggleFavorite 切换收藏状态
-func (h *Handlers) toggleFavorite(c *gin.Context) {
-	photoID := c.Param("id")
-
-	photo, err := h.manager.ToggleFavorite(photoID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "操作成功",
-		"data":    photo,
-	})
-}
-
-// updatePhoto 更新照片信息
-func (h *Handlers) updatePhoto(c *gin.Context) {
-	photoID := c.Param("id")
-
-	var req struct {
-		Tags       []string `json:"tags"`
-		IsHidden   *bool    `json:"isHidden"`
-		IsFavorite *bool    `json:"isFavorite"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	// 获取照片并更新
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
-	photo, exists := h.manager.photos[photoID]
-	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": "照片不存在",
-		})
-		return
-	}
-
-	// 更新标签
-	if req.Tags != nil {
-		photo.Tags = req.Tags
-	}
-
-	// 更新隐藏状态
-	if req.IsHidden != nil {
-		photo.IsHidden = *req.IsHidden
-	}
-
-	// 更新收藏状态
-	if req.IsFavorite != nil {
-		photo.IsFavorite = *req.IsFavorite
-	}
-
-	// 更新修改时间
-	photo.ModifiedAt = time.Now()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "更新成功",
-		"data":    photo,
-	})
-}
-
-// downloadPhoto 下载照片
-func (h *Handlers) downloadPhoto(c *gin.Context) {
-	photoID := c.Param("id")
-
-	photo, err := h.manager.GetPhoto(photoID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	photoPath := filepath.Join(h.manager.photosDir, photo.Path)
-	c.FileAttachment(photoPath, photo.Filename)
-}
-
-// getThumbnail 获取缩略图
-func (h *Handlers) getThumbnail(c *gin.Context) {
-	photoID := c.Param("id")
-	sizeParam := c.Param("size")
-
-	// 解析尺寸参数
-	var targetSize int
-	switch sizeParam {
-	case "", "medium", "512":
-		targetSize = 512
-	case "small", "128":
-		targetSize = 128
-	case "large", "1024":
-		targetSize = 1024
-	case "original", "2048":
-		targetSize = 2048
-	default:
-		// 尝试解析数字
-		if parsed, err := strconv.Atoi(sizeParam); err == nil && parsed > 0 {
-			targetSize = parsed
-		} else {
-			targetSize = 512 // 默认中等尺寸
-		}
-	}
-
-	// 查找最匹配的缩略图文件
-	// 优先查找精确匹配，然后查找更大的尺寸
-	sizes := []int{128, 512, 1024, 2048}
-	var bestMatch string
-	var bestSize int
-
-	for _, size := range sizes {
-		thumbPath := filepath.Join(h.manager.thumbsDir, fmt.Sprintf("%s_%d.jpg", photoID, size))
-		if _, err := os.Stat(thumbPath); err == nil {
-			if size == targetSize {
-				// 精确匹配，直接返回
-				c.File(thumbPath)
-				return
-			}
-			if size >= targetSize && (bestMatch == "" || size < bestSize) {
-				bestMatch = thumbPath
-				bestSize = size
-			}
-		}
-	}
-
-	// 如果找到合适的缩略图
-	if bestMatch != "" {
-		c.File(bestMatch)
-		return
-	}
-
-	// 如果没有缩略图，返回原图
-	photo, err := h.manager.GetPhoto(photoID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": "照片不存在",
-		})
-		return
-	}
-
-	photoPath := filepath.Join(h.manager.photosDir, photo.Path)
-	c.File(photoPath)
-}
-
-// AlbumRequest 相册请求
-type AlbumRequest struct {
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description"`
-}
-
-// createAlbum 创建相册
-// @Summary 创建相册
-// @Description 创建新的相册
-// @Tags photos
-// @Accept json
-// @Produce json
-// @Param request body AlbumRequest true "相册信息"
-// @Success 200 {object} api.Response{data=Album}
-// @Failure 400 {object} api.Response
-// @Failure 500 {object} api.Response
-// @Router /photos/albums [post]
-// @Security BearerAuth
-func (h *Handlers) createAlbum(c *gin.Context) {
-	var req AlbumRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	// 从认证信息获取 userID
-	userID := getUserIDFromContext(c)
-
-	album, err := h.manager.CreateAlbum(req.Name, req.Description, userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "创建成功",
-		"data":    album,
-	})
-}
-
-// getUserIDFromContext 从上下文获取用户 ID
-func getUserIDFromContext(c *gin.Context) string {
-	// 尝试从上下文获取用户信息（通常由认证中间件设置）
-	if userID, exists := c.Get("userID"); exists {
-		if id, ok := userID.(string); ok && id != "" {
-			return id
-		}
-	}
-	if userID, exists := c.Get("userId"); exists {
-		if id, ok := userID.(string); ok && id != "" {
-			return id
-		}
-	}
-	// 尝试从 JWT claims 获取
-	if claims, exists := c.Get("claims"); exists {
-		if m, ok := claims.(map[string]interface{}); ok {
-			if sub, ok := m["sub"].(string); ok && sub != "" {
-				return sub
-			}
-			if uid, ok := m["user_id"].(string); ok && uid != "" {
-				return uid
-			}
-		}
-	}
-	// 尝试从请求头获取
-	if authHeader := c.GetHeader("X-User-ID"); authHeader != "" {
-		return authHeader
-	}
-	// 默认值
-	return "default"
-}
-
-// listAlbums 列出相册
-func (h *Handlers) listAlbums(c *gin.Context) {
-	// 从认证信息或查询参数获取 userID
-	userID := getUserIDFromContext(c)
-	if queryUserID := c.Query("userId"); queryUserID != "" {
-		userID = queryUserID
-	}
-
-	albums := h.manager.ListAlbums(userID)
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    albums,
-	})
-}
-
-// getAlbum 获取相册详情
-func (h *Handlers) getAlbum(c *gin.Context) {
-	albumID := c.Param("id")
-
-	album, err := h.manager.GetAlbum(albumID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    album,
-	})
-}
-
-// updateAlbum 更新相册
-func (h *Handlers) updateAlbum(c *gin.Context) {
-	albumID := c.Param("id")
-
-	var req AlbumRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	album, err := h.manager.UpdateAlbum(albumID, req.Name, req.Description)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "更新成功",
-		"data":    album,
-	})
-}
-
-// deleteAlbum 删除相册
-func (h *Handlers) deleteAlbum(c *gin.Context) {
-	albumID := c.Param("id")
-
-	if err := h.manager.DeleteAlbum(albumID); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "删除成功",
-	})
-}
-
-// addPhotoToAlbum 添加照片到相册
-func (h *Handlers) addPhotoToAlbum(c *gin.Context) {
-	albumID := c.Param("id")
-
-	var req struct {
-		PhotoID string `json:"photoId" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	if err := h.manager.AddPhotoToAlbum(req.PhotoID, albumID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "添加成功",
-	})
-}
-
-// removePhotoFromAlbum 从相册移除照片
-func (h *Handlers) removePhotoFromAlbum(c *gin.Context) {
-	albumID := c.Param("id")
-	photoID := c.Param("photoId")
-
-	if err := h.manager.RemovePhotoFromAlbum(photoID, albumID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "移除成功",
-	})
-}
-
-// getTimeline 获取时间线
-func (h *Handlers) getTimeline(c *gin.Context) {
-	groupBy := c.DefaultQuery("groupBy", "month")
-	userID := c.Query("userId")
-
-	timeline, err := h.manager.GetTimeline(userID, groupBy)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    timeline,
-	})
-}
-
-// listPersons 列出人物
-func (h *Handlers) listPersons(c *gin.Context) {
-	persons := h.manager.ListPersons()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    persons,
-	})
-}
-
-// createPerson 创建人物
-func (h *Handlers) createPerson(c *gin.Context) {
-	var req struct {
-		Name string `json:"name" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	person, err := h.manager.CreatePerson(req.Name)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "创建成功",
-		"data":    person,
-	})
-}
-
-// updatePerson 更新人物
-func (h *Handlers) updatePerson(c *gin.Context) {
-	personID := c.Param("id")
-
-	var req struct {
-		Name string `json:"name"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	person, err := h.manager.UpdatePerson(personID, req.Name)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "更新成功",
-		"data":    person,
-	})
-}
-
-// deletePerson 删除人物
-func (h *Handlers) deletePerson(c *gin.Context) {
-	personID := c.Param("id")
-
-	if err := h.manager.DeletePerson(personID); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "删除成功",
-	})
-}
-
-// searchPhotos 搜索照片
-// @Summary 搜索照片
-// @Description 根据关键词、标签、日期等条件搜索照片
-// @Tags photos
-// @Accept json
-// @Produce json
-// @Param q query string false "搜索关键词"
-// @Param tags query string false "标签（逗号分隔）"
-// @Param scene query string false "场景"
-// @Param person query string false "人物"
-// @Param location query string false "位置"
-// @Param startDate query string false "开始日期 (YYYY-MM-DD)"
-// @Param endDate query string false "结束日期 (YYYY-MM-DD)"
-// @Param limit query int false "每页数量" default(50)
-// @Param offset query int false "偏移量" default(0)
-// @Success 200 {object} api.Response{data=object{photos=[]Photo,total=int}}
-// @Failure 500 {object} api.Response
-// @Router /photos/search [get]
-// @Security BearerAuth
-func (h *Handlers) searchPhotos(c *gin.Context) {
-	query := c.Query("q")
-	tags := c.Query("tags")
-	scene := c.Query("scene")
-	person := c.Query("person")
-	location := c.Query("location")
-	startDate := c.Query("startDate")
-	endDate := c.Query("endDate")
-
-	limit := 50
-	if limitStr := c.Query("limit"); limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			limit = l
-		}
-	}
-
-	offset := 0
-	if offsetStr := c.Query("offset"); offsetStr != "" {
-		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
-			offset = o
-		}
-	}
-
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-
-	results := make([]*Photo, 0)
-
-	for _, photo := range h.manager.photos {
-		// 全文搜索（匹配文件名、标签、场景、物体）
-		if query != "" {
-			queryLower := strings.ToLower(query)
-			matched := false
-
-			// 匹配文件名
-			if strings.Contains(strings.ToLower(photo.Filename), queryLower) {
-				matched = true
-			}
-
-			// 匹配标签
-			for _, tag := range photo.Tags {
-				if strings.Contains(strings.ToLower(tag), queryLower) {
-					matched = true
-					break
-				}
-			}
-
-			// 匹配场景
-			if strings.Contains(strings.ToLower(photo.Scene), queryLower) {
-				matched = true
-			}
-
-			// 匹配物体
-			for _, obj := range photo.Objects {
-				if strings.Contains(strings.ToLower(obj), queryLower) {
-					matched = true
-					break
-				}
-			}
-
-			// 匹配位置
-			if photo.Location != nil {
-				if strings.Contains(strings.ToLower(photo.Location.City), queryLower) ||
-					strings.Contains(strings.ToLower(photo.Location.Country), queryLower) ||
-					strings.Contains(strings.ToLower(photo.Location.Location), queryLower) {
-					matched = true
-				}
-			}
-
-			if !matched {
-				continue
-			}
-		}
-
-		// 标签过滤
-		if tags != "" {
-			tagList := strings.Split(tags, ",")
-			hasAll := true
-			for _, t := range tagList {
-				t = strings.TrimSpace(t)
-				found := false
-				for _, pt := range photo.Tags {
-					if strings.EqualFold(pt, t) {
-						found = true
-						break
-					}
-				}
-				if !found {
-					hasAll = false
-					break
-				}
-			}
-			if !hasAll {
-				continue
-			}
-		}
-
-		// 场景过滤
-		if scene != "" && !strings.EqualFold(photo.Scene, scene) {
-			continue
-		}
-
-		// 人物过滤
-		if person != "" {
-			found := false
-			for _, face := range photo.Faces {
-				if strings.EqualFold(face.Name, person) {
-					found = true
-					break
-				}
-			}
-			if !found {
-				continue
-			}
-		}
-
-		// 位置过滤
-		if location != "" {
-			if photo.Location == nil {
-				continue
-			}
-			if !strings.Contains(strings.ToLower(photo.Location.City), strings.ToLower(location)) &&
-				!strings.Contains(strings.ToLower(photo.Location.Country), strings.ToLower(location)) &&
-				!strings.Contains(strings.ToLower(photo.Location.Location), strings.ToLower(location)) {
-				continue
-			}
-		}
-
-		// 日期范围过滤
-		if startDate != "" {
-			if start, err := time.Parse("2006-01-02", startDate); err == nil {
-				if photo.TakenAt.Before(start) {
-					continue
-				}
-			}
-		}
-
-		if endDate != "" {
-			if end, err := time.Parse("2006-01-02", endDate); err == nil {
-				if photo.TakenAt.After(end.Add(24 * time.Hour)) {
-					continue
-				}
-			}
-		}
-
-		// 排除隐藏照片
-		if photo.IsHidden {
-			continue
-		}
-
-		results = append(results, photo)
-	}
-
-	// 按拍摄时间排序
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].TakenAt.After(results[j].TakenAt)
-	})
-
-	total := len(results)
-
-	// 分页
-	if offset > 0 && offset < len(results) {
-		results = results[offset:]
-	}
-	if limit > 0 && len(results) > limit {
-		results = results[:limit]
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data": gin.H{
-			"photos": results,
-			"total":  total,
-			"limit":  limit,
-			"offset": offset,
-		},
-	})
-}
-
-// getStats 获取统计信息
-func (h *Handlers) getStats(c *gin.Context) {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-
-	totalPhotos := len(h.manager.photos)
-	totalAlbums := len(h.manager.albums)
-	totalPersons := len(h.manager.persons)
-
-	// 计算实际使用空间
-	var storageUsed uint64
-	for _, photo := range h.manager.photos {
-		storageUsed += photo.Size
-	}
-
-	// 计算缩略图空间
-	var thumbsUsed int64
-	_ = filepath.Walk(h.manager.thumbsDir, func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() {
-			thumbsUsed += info.Size()
-		}
-		return nil
-	})
-
-	// 计算缓存空间
-	var cacheUsed int64
-	_ = filepath.Walk(h.manager.cacheDir, func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() {
-			cacheUsed += info.Size()
-		}
-		return nil
-	})
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data": gin.H{
-			"totalPhotos":  totalPhotos,
-			"totalAlbums":  totalAlbums,
-			"totalPersons": totalPersons,
-			"storageUsed":  storageUsed,
-			"thumbsUsed":   uint64(thumbsUsed),
-			"cacheUsed":    uint64(cacheUsed),
-			"totalUsed":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),
-		},
-	})
-}
-
-// ==================== AI 相册相关处理器 ====================
-
-// getAIStats 获取 AI 统计信息
-func (h *Handlers) getAIStats(c *gin.Context) {
-	if h.aiManager == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data": gin.H{
-				"totalAnalyzed":      0,
-				"totalFaces":         0,
-				"sceneDistribution":  map[string]int{},
-				"objectDistribution": map[string]int{},
-			},
-		})
-		return
-	}
-
-	stats := h.aiManager.GetAIStats()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
-}
-
-// listAITasks 列出 AI 任务
-func (h *Handlers) listAITasks(c *gin.Context) {
-	status := c.Query("status")
-
-	if h.aiManager == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data":    []*AITask{},
-		})
-		return
-	}
-
-	tasks := h.aiManager.ListTasks(status)
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    tasks,
-	})
-}
-
-// analyzePhoto 分析单张照片
-func (h *Handlers) analyzePhoto(c *gin.Context) {
-	photoID := c.Param("photoId")
-
-	if h.aiManager == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "AI 管理器未初始化",
-		})
-		return
-	}
-
-	h.mu.RLock()
-	photo, exists := h.manager.photos[photoID]
-	h.mu.RUnlock()
-
-	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": "照片不存在",
-		})
-		return
-	}
-
-	photoPath := filepath.Join(h.manager.photosDir, photo.Path)
-	taskID := h.aiManager.AnalyzePhoto(photoID, photoPath)
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "分析任务已添加",
-		"data": gin.H{
-			"taskId": taskID,
-		},
-	})
-}
-
-// batchAnalyzePhotos 批量分析照片
-func (h *Handlers) batchAnalyzePhotos(c *gin.Context) {
-	if h.aiManager == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "AI 管理器未初始化",
-		})
-		return
-	}
-
-	h.mu.RLock()
-	photos := make([]*Photo, 0, len(h.manager.photos))
-	for _, photo := range h.manager.photos {
-		photos = append(photos, photo)
-	}
-	h.mu.RUnlock()
-
-	taskIDs := h.aiManager.BatchAnalyze(photos)
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "批量分析任务已添加",
-		"data": gin.H{
-			"taskCount": len(taskIDs),
-			"taskIds":   taskIDs,
-		},
-	})
-}
-
-// listSmartAlbums 列出智能相册
-func (h *Handlers) listSmartAlbums(c *gin.Context) {
-	if h.aiManager == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data":    []*SmartAlbum{},
-		})
-		return
-	}
-
-	albums := h.aiManager.ListSmartAlbums()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    albums,
-	})
-}
-
-// createSmartAlbum 创建智能相册
-func (h *Handlers) createSmartAlbum(c *gin.Context) {
-	if h.aiManager == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "AI 管理器未初始化",
-		})
+func (h *Handler) handleImport(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var req struct {
-		Name     string                 `json:"name" binding:"required"`
-		Type     string                 `json:"type" binding:"required"`
-		Criteria map[string]interface{} `json:"criteria"`
+		FilePath string `json:"file_path"`
+		UserID   string `json:"user_id"`
 	}
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
-	album, err := h.aiManager.CreateSmartAlbum(req.Name, req.Type, req.Criteria)
+	photo, err := h.manager.ImportPhoto(r.Context(), req.FilePath, req.UserID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "创建成功",
-		"data":    album,
-	})
+	json.NewEncoder(w).Encode(photo)
 }
 
-// deleteSmartAlbum 删除智能相册
-func (h *Handlers) deleteSmartAlbum(c *gin.Context) {
-	albumID := c.Param("id")
-
-	if h.aiManager == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "AI 管理器未初始化",
-		})
+func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	if err := h.aiManager.DeleteSmartAlbum(albumID); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
+	query := SearchQuery{
+		Keyword:  r.URL.Query().Get("keyword"),
+		AlbumID:  r.URL.Query().Get("album_id"),
+		Format:   r.URL.Query().Get("format"),
+		SortBy:   r.URL.Query().Get("sort_by"),
+		SortOrder: r.URL.Query().Get("sort_order"),
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "删除成功",
-	})
-}
-
-// getMemories 获取回忆列表
-func (h *Handlers) getMemories(c *gin.Context) {
-	monthDay := c.Query("date") // MM-DD 格式
-
-	if h.aiManager == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data":    []*MemoryAlbum{},
-		})
-		return
+	if page, err := strconv.Atoi(r.URL.Query().Get("page")); err == nil {
+		query.Page = page
+	}
+	if pageSize, err := strconv.Atoi(r.URL.Query().Get("page_size")); err == nil {
+		query.PageSize = pageSize
 	}
 
-	memories := h.aiManager.GetMemories(monthDay)
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    memories,
-	})
-}
-
-// reanalyzeAll 重新分析所有照片
-func (h *Handlers) reanalyzeAll(c *gin.Context) {
-	if h.aiManager == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "AI 管理器未初始化",
-		})
-		return
-	}
-
-	// 清除现有 AI 数据并重新分析
-	count, err := h.aiManager.ReanalyzeAll()
+	result, err := h.manager.SearchPhotos(r.Context(), query)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "重新分析失败：" + err.Error(),
-		})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "已重新开始分析",
-		"data": gin.H{
-			"photoCount":  count,
-			"description": fmt.Sprintf("已添加 %d 张照片到分析队列", count),
-		},
+	json.NewEncoder(w).Encode(result)
+}
+
+func (h *Handler) handleTimeline(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	groupBy := r.URL.Query().Get("group_by")
+	if groupBy == "" {
+		groupBy = "month"
+	}
+
+	timeline, err := h.manager.GetTimeline(r.Context(), groupBy)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(timeline)
+}
+
+func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	stats, err := h.manager.GetStats(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(stats)
+}
+
+func (h *Handler) handleAlbums(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// TODO: 获取相册列表
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"albums": []Album{},
 	})
 }
 
-// clearAIData 清除 AI 数据
-func (h *Handlers) clearAIData(c *gin.Context) {
-	if h.aiManager == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "AI 管理器未初始化",
-		})
+func (h *Handler) handleCreateAlbum(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// 清除 AI 内存数据
-	if err := h.aiManager.ClearAIData(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "清除 AI 数据失败：" + err.Error(),
-		})
+	var req struct {
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		OwnerID     string `json:"owner_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "AI 数据已清除",
-	})
+	album, err := h.manager.CreateAlbum(r.Context(), req.Name, req.Description, req.OwnerID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(album)
+}
+
+func (h *Handler) handleAddToAlbum(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		PhotoID string `json:"photo_id"`
+		AlbumID string `json:"album_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.AddPhotoToAlbum(r.Context(), req.PhotoID, req.AlbumID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }

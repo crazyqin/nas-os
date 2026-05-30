@@ -1,184 +1,281 @@
-// Package diskhealth 提供 SMART 磁盘健康监测和故障预测功能
+// Package diskhealth 磁盘健康监控 - HTTP handlers
 package diskhealth
 
 import (
+	"encoding/json"
 	"net/http"
-	"sync"
-
-	"github.com/gin-gonic/gin"
 )
 
-// Handlers 磁盘健康 API 处理器
-type Handlers struct {
-	monitor *SmartReader
-	mu      sync.RWMutex
+// Handler HTTP 处理器
+type Handler struct {
+	manager *Manager
 }
 
-// NewHandlers 创建磁盘健康处理器
-func NewHandlers(monitor *SmartReader) *Handlers {
-	return &Handlers{
-		monitor: monitor,
-	}
+// NewHandler 创建处理器
+func NewHandler(manager *Manager) *Handler {
+	return &Handler{manager: manager}
 }
 
 // RegisterRoutes 注册路由
-func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
-	api := r.Group("/api/v1/disk")
-	{
-		api.GET("/health", h.getAllDiskHealth)
-		api.GET("/health/:device", h.getDiskHealth)
-		api.GET("/health/:device/history", h.getDiskHistory)
-		api.POST("/health/scan", h.triggerScan)
-	}
+func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/disk/disks", h.handleDisks)
+	mux.HandleFunc("/api/disk/disks/detail", h.handleDiskDetail)
+	mux.HandleFunc("/api/disk/smart", h.handleSMART)
+	mux.HandleFunc("/api/disk/smart/test", h.handleSMARTTest)
+	mux.HandleFunc("/api/disk/pools", h.handlePools)
+	mux.HandleFunc("/api/disk/pools/create", h.handleCreatePool)
+	mux.HandleFunc("/api/disk/pools/detail", h.handlePoolDetail)
+	mux.HandleFunc("/api/disk/pools/scrub", h.handleScrub)
+	mux.HandleFunc("/api/disk/alerts", h.handleAlerts)
+	mux.HandleFunc("/api/disk/alerts/ack", h.handleAckAlert)
+	mux.HandleFunc("/api/disk/rules", h.handleRules)
+	mux.HandleFunc("/api/disk/stats", h.handleStats)
 }
 
-// getAllDiskHealth 获取所有磁盘健康状态
-// @Summary 获取所有磁盘健康状态
-// @Description 返回系统中所有磁盘的 SMART 健康状态和评分
-// @Tags disk-health
-// @Produce json
-// @Success 200 {object} DiskHealthResponse
-// @Router /api/v1/disk/health [get]
-func (h *Handlers) getAllDiskHealth(c *gin.Context) {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-
-	disks := h.monitor.GetAllDiskHealth()
-
-	// 按健康评分排序（最差的排前面）
-	sortDiskHealthByScore(disks)
-
-	c.JSON(http.StatusOK, DiskHealthResponse{
-		Code:    0,
-		Message: "success",
-		Data:    disks,
-	})
-}
-
-// getDiskHealth 获取单个磁盘健康状态
-// @Summary 获取单个磁盘健康详情
-// @Description 返回指定磁盘的详细 SMART 健康状态
-// @Tags disk-health
-// @Produce json
-// @Param device path string true "设备名称"
-// @Success 200 {object} DiskHealthResponse
-// @Failure 404 {object} DiskHealthResponse
-// @Router /api/v1/disk/health/{device} [get]
-func (h *Handlers) getDiskHealth(c *gin.Context) {
-	device := c.Param("device")
-	if device == "" {
-		c.JSON(http.StatusBadRequest, DiskHealthResponse{
-			Code:    1,
-			Message: "设备名称不能为空",
-		})
+func (h *Handler) handleDisks(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-
-	status, exists := h.monitor.GetDiskHealth(device)
-	if !exists {
-		c.JSON(http.StatusNotFound, DiskHealthResponse{
-			Code:    2,
-			Message: "未找到设备: " + device,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, DiskHealthResponse{
-		Code:    0,
-		Message: "success",
-		Data:    status,
-	})
-}
-
-// getDiskHistory 获取磁盘健康历史趋势
-// @Summary 获取磁盘健康历史
-// @Description 返回指定磁盘的健康评分历史趋势
-// @Tags disk-health
-// @Produce json
-// @Param device path string true "设备名称"
-// @Success 200 {object} DiskHealthResponse
-// @Failure 404 {object} DiskHealthResponse
-// @Router /api/v1/disk/health/{device}/history [get]
-func (h *Handlers) getDiskHistory(c *gin.Context) {
-	device := c.Param("device")
-	if device == "" {
-		c.JSON(http.StatusBadRequest, DiskHealthResponse{
-			Code:    1,
-			Message: "设备名称不能为空",
-		})
-		return
-	}
-
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-
-	history, exists := h.monitor.GetDiskHistory(device)
-	if !exists {
-		c.JSON(http.StatusNotFound, DiskHealthResponse{
-			Code:    2,
-			Message: "未找到设备历史记录: " + device,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, DiskHealthResponse{
-		Code:    0,
-		Message: "success",
-		Data:    history,
-	})
-}
-
-// triggerScan 触发手动扫描
-// @Summary 触发磁盘健康扫描
-// @Description 触发指定或所有磁盘的 SMART 扫描
-// @Tags disk-health
-// @Accept json
-// @Produce json
-// @Param request body ScanRequest true "扫描请求"
-// @Success 200 {object} DiskHealthResponse
-// @Failure 400 {object} DiskHealthResponse
-// @Router /api/v1/disk/health/scan [post]
-func (h *Handlers) triggerScan(c *gin.Context) {
-	var req ScanRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		// 如果解析失败，使用默认配置扫描所有磁盘
-		req = ScanRequest{
-			Force: true,
-		}
-	}
-
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
-	response, err := h.monitor.TriggerScan(req.Devices, req.Force)
+	disks, err := h.manager.ScanDisks(r.Context())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, DiskHealthResponse{
-			Code:    3,
-			Message: "扫描失败: " + err.Error(),
-		})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, DiskHealthResponse{
-		Code:    0,
-		Message: response.Message,
-		Data:    response,
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"disks": disks,
 	})
 }
 
-// sortDiskHealthByScore 按健康评分排序磁盘（最差的排前面）
-func sortDiskHealthByScore(disks []DiskHealthStatus) {
-	// 简单的插入排序
-	for i := 1; i < len(disks); i++ {
-		key := disks[i]
-		j := i - 1
-		for j >= 0 && disks[j].HealthScore > key.HealthScore {
-			disks[j+1] = disks[j]
-			j--
-		}
-		disks[j+1] = key
+func (h *Handler) handleDiskDetail(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "id required", http.StatusBadRequest)
+		return
+	}
+
+	disk, err := h.manager.GetDisk(r.Context(), id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(disk)
+}
+
+func (h *Handler) handleSMART(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	diskID := r.URL.Query().Get("disk_id")
+	if diskID == "" {
+		http.Error(w, "disk_id required", http.StatusBadRequest)
+		return
+	}
+
+	smart, err := h.manager.GetSMART(r.Context(), diskID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(smart)
+}
+
+func (h *Handler) handleSMARTTest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		DiskID   string `json:"disk_id"`
+		TestType string `json:"test_type"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.RunSMARTTest(r.Context(), req.DiskID, req.TestType); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{"status": "test_started"})
+}
+
+func (h *Handler) handlePools(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	pools, err := h.manager.ListPools(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"pools": pools,
+	})
+}
+
+func (h *Handler) handleCreatePool(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		Name      string   `json:"name"`
+		RAIDLevel string   `json:"raid_level"`
+		DiskIDs   []string `json:"disk_ids"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	pool, err := h.manager.CreatePool(r.Context(), req.Name, req.RAIDLevel, req.DiskIDs)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(pool)
+}
+
+func (h *Handler) handlePoolDetail(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "id required", http.StatusBadRequest)
+		return
+	}
+
+	pool, err := h.manager.GetPool(r.Context(), id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(pool)
+}
+
+func (h *Handler) handleScrub(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		PoolID string `json:"pool_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.StartScrub(r.Context(), req.PoolID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{"status": "scrub_started"})
+}
+
+func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	severity := r.URL.Query().Get("severity")
+	unackedOnly := r.URL.Query().Get("unacked_only") == "true"
+
+	alerts, err := h.manager.ListAlerts(r.Context(), severity, unackedOnly)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"alerts": alerts,
+	})
+}
+
+func (h *Handler) handleAckAlert(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		AlertID string `json:"alert_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.AckAlert(r.Context(), req.AlertID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{"status": "acked"})
+}
+
+func (h *Handler) handleRules(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var rule AlertRule
+	if err := json.NewDecoder(r.Body).Decode(&rule); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.manager.AddAlertRule(r.Context(), &rule); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{"status": "rule_added"})
+}
+
+func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	stats, err := h.manager.GetStats(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(stats)
 }
