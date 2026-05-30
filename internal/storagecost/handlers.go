@@ -2,6 +2,7 @@
 package storagecost
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -294,4 +295,149 @@ func (h *Handlers) setAlertThreshold(c *gin.Context) {
 
 	h.manager.SetAlertThreshold(req.Key, req.Value)
 	c.JSON(http.StatusOK, gin.H{"message": "告警阈值已设置"})
+}
+
+// ============================================================
+// 成本分析模块新增处理器 (任务要求)
+// ============================================================
+
+// RegisterStorageCostRoutes 注册存储成本分析路由
+func (h *Handlers) RegisterStorageCostRoutes(r *gin.RouterGroup) {
+	cost := r.Group("/storage/cost")
+	{
+		cost.POST("/records", h.addCostRecord)
+		cost.GET("/summary", h.getCostSummary)
+		cost.GET("/trend", h.getCostTrend)
+		cost.GET("/alerts", h.getCostAlerts)
+		cost.GET("/suggestions", h.getOptimizationSuggestions)
+		cost.GET("/estimate", h.estimateMonthlyCost)
+		cost.POST("/budget-alert", h.setBudgetAlert)
+		cost.GET("/export", h.exportCostReport)
+	}
+}
+
+func (h *Handlers) addCostRecord(c *gin.Context) {
+	var req CostRecord
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.manager.AddCostRecord(req); err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "成本记录已添加", "id": req.ID})
+}
+
+func (h *Handlers) getCostSummary(c *gin.Context) {
+	summary, err := h.manager.GetCostSummary()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, summary)
+}
+
+func (h *Handlers) getCostTrend(c *gin.Context) {
+	daysStr := c.DefaultQuery("days", "30")
+	days := 30
+	if _, err := fmt.Sscanf(daysStr, "%d", &days); err != nil || days <= 0 {
+		days = 30
+	}
+
+	trend, err := h.manager.GetCostTrendByDays(days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"trend": trend, "days": days})
+}
+
+func (h *Handlers) getCostAlerts(c *gin.Context) {
+	alerts, err := h.manager.GetCostAlerts()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"alerts": alerts, "total": len(alerts)})
+}
+
+func (h *Handlers) getOptimizationSuggestions(c *gin.Context) {
+	suggestions, err := h.manager.GenerateOptimizationSuggestions()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"suggestions": suggestions, "total": len(suggestions)})
+}
+
+func (h *Handlers) estimateMonthlyCost(c *gin.Context) {
+	storageType := c.DefaultQuery("type", "")
+	sizeStr := c.DefaultQuery("size", "0")
+
+	if storageType == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "缺少存储类型参数"})
+		return
+	}
+
+	var size float64
+	if _, err := fmt.Sscanf(sizeStr, "%f", &size); err != nil || size <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的存储大小参数"})
+		return
+	}
+
+	cost, err := h.manager.EstimateMonthlyCost(storageType, size)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"storage_type": storageType,
+		"size_gb":      size,
+		"monthly_cost": cost,
+	})
+}
+
+func (h *Handlers) setBudgetAlert(c *gin.Context) {
+	var req struct {
+		Threshold float64 `json:"threshold" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.manager.SetBudgetAlert(req.Threshold); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "预算告警已设置", "threshold": req.Threshold})
+}
+
+func (h *Handlers) exportCostReport(c *gin.Context) {
+	format := c.DefaultQuery("format", "csv")
+
+	data, err := h.manager.ExportCostReport(format)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	switch format {
+	case "csv":
+		c.Header("Content-Type", "text/csv")
+		c.Header("Content-Disposition", "attachment; filename=cost_report.csv")
+	case "json":
+		c.Header("Content-Type", "application/json")
+	}
+
+	c.Data(http.StatusOK, c.GetHeader("Content-Type"), data)
 }

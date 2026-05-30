@@ -386,3 +386,68 @@ type APIError struct {
 	Message string `json:"message"`
 	Details string `json:"details,omitempty"`
 }
+
+// ============================================================
+// 成本分析模块新增类型 (任务要求)
+// ============================================================
+
+// CostRecord 成本记录
+type CostRecord struct {
+	ID           string    `json:"id"`
+	VolumeID     string    `json:"volume_id"`
+	VolumeName   string    `json:"volume_name"`
+	StorageType  string    `json:"storage_type"` // SSD/HDD/NVMe/Cloud
+	CapacityGB   float64   `json:"capacity_gb"`
+	UsedGB       float64   `json:"used_gb"`
+	PricePerGB   float64   `json:"price_per_gb"`
+	MonthlyCost  float64   `json:"monthly_cost"`
+	Provider     string    `json:"provider"`
+	PurchaseDate time.Time `json:"purchase_date"`
+	WarrantyEnd  time.Time `json:"warranty_end"`
+}
+
+// CostSummary 成本汇总
+type CostSummary struct {
+	TotalMonthlyCost float64              `json:"total_monthly_cost"`
+	TotalCapacity    float64              `json:"total_capacity"`
+	UsedCapacity     float64              `json:"used_capacity"`
+	CostPerTB        float64              `json:"cost_per_tb"`
+	CostByType       map[string]float64   `json:"cost_by_type"`
+	Trend            []CostTrendPoint     `json:"trend"`
+}
+
+// CostTrendPoint 成本趋势点 (简单版本)
+type CostTrendPoint struct {
+	Date         string  `json:"date"`
+	Cost         float64 `json:"cost"`
+	Capacity     float64 `json:"capacity"`
+	UsedCapacity float64 `json:"used_capacity"`
+}
+
+// CostAlert 预算告警
+type CostAlert struct {
+	ID          string    `json:"id"`
+	Threshold   float64   `json:"threshold"`
+	CurrentCost float64   `json:"current_cost"`
+	Severity    string    `json:"severity"` // low, medium, high, critical
+	Message     string    `json:"message"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+// OptimizationSuggestion 优化建议 (新)
+type OptimizationSuggestion struct {
+	ID               string  `json:"id"`
+	Type             string  `json:"type"` // ColdStorage/Dedup/Compress/Tier
+	EstimatedSaving  float64 `json:"estimated_saving"`
+	Description      string  `json:"description"`
+	Priority         string  `json:"priority"` // low, medium, high
+}
+
+// StorageCostConfig 存储成本配置
+type StorageCostConfig struct {
+	Currency         string  `json:"currency"`          // CNY, USD
+	BudgetLimit      float64 `json:"budget_limit"`      // 预算上限
+	AlertThreshold   float64 `json:"alert_threshold"`   // 告警阈值 (0-100%)
+	DefaultPriceSSD  float64 `json:"default_price_ssd"` // SSD 默认价格/GB/月
+	DefaultPriceHDD  float64 `json:"default_price_hdd"` // HDD 默认价格/GB/月
+}
