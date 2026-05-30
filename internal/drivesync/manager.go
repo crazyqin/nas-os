@@ -21,7 +21,7 @@ type Manager struct {
 	mu          sync.RWMutex
 	files       map[string]*SyncFile
 	tasks       map[string]*SyncTask
-	conflicts   map[string]*SyncConflict
+	conflicts   map[string]*FileConflict
 	policy      SyncPolicy
 	storagePath string
 	syncChan    chan *SyncTask
@@ -37,7 +37,7 @@ func NewManager(storagePath string) *Manager {
 	m := &Manager{
 		files:       make(map[string]*SyncFile),
 		tasks:       make(map[string]*SyncTask),
-		conflicts:   make(map[string]*SyncConflict),
+		conflicts:   make(map[string]*FileConflict),
 		storagePath: storagePath,
 		syncChan:    make(chan *SyncTask, 100),
 		stopChan:    make(chan struct{}),
@@ -93,12 +93,12 @@ func (m *Manager) SyncFile(ctx context.Context, filePath string, targetPath stri
 	// 创建同步任务
 	task := &SyncTask{
 		ID:         generateID(),
-		SourcePath: filePath,
-		TargetPath: targetPath,
-		Direction:  "upload",
-		Status:     "pending",
-		TotalFiles: 1,
-		StartedAt:  time.Now(),
+		LocalPath:  filePath,
+		RemotePath: targetPath,
+		Direction:  SyncUploadOnly,
+		Status:     TaskStatusIdle,
+		FileCount:  1,
+		CreatedAt:  time.Now(),
 	}
 
 	m.tasks[task.ID] = task
@@ -116,9 +116,9 @@ func (m *Manager) SyncDirectory(ctx context.Context, sourcePath string, targetPa
 		ID:         generateID(),
 		SourcePath: sourcePath,
 		TargetPath: targetPath,
-		Direction:  "bidirectional",
-		Status:     "pending",
-		StartedAt:  time.Now(),
+		Direction:  SyncBidirectional,
+		Status:     TaskStatusIdle,
+		CreatedAt:  time.Now(),
 	}
 
 	// 统计文件数量
@@ -151,11 +151,11 @@ func (m *Manager) GetSyncStatus(ctx context.Context, taskID string) (*SyncTask, 
 }
 
 // ListConflicts 列出冲突
-func (m *Manager) ListConflicts(ctx context.Context) ([]SyncConflict, error) {
+func (m *Manager) ListConflicts(ctx context.Context) ([]FileConflict, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	conflicts := make([]SyncConflict, 0, len(m.conflicts))
+	conflicts := make([]FileConflict, 0, len(m.conflicts))
 	for _, c := range m.conflicts {
 		if c.Resolution == "" {
 			conflicts = append(conflicts, *c)
@@ -186,8 +186,9 @@ func (m *Manager) ResolveConflict(ctx context.Context, conflictID string, resolu
 		return fmt.Errorf("invalid resolution: %s", resolution)
 	}
 
-	conflict.Resolution = resolution
-	conflict.ResolvedAt = time.Now()
+	conflict.Resolution = ConflictResolution(resolution)
+	now := time.Now()
+	conflict.ResolvedAt = &now
 
 	return nil
 }
@@ -225,7 +226,7 @@ func (m *Manager) GetStats(ctx context.Context) (map[string]interface{}, error) 
 		switch file.Status {
 		case "synced":
 			syncedCount++
-		case "pending":
+		case FileStatusPending:
 			pendingCount++
 		case "conflict":
 			conflictCount++
@@ -341,7 +342,8 @@ func (m *Manager) processSyncTask(task *SyncTask) {
 	m.mu.Lock()
 	task.Status = "completed"
 	task.Progress = 1.0
-	task.CompletedAt = time.Now()
+	now := time.Now()
+	task.CompletedAt = &now
 	m.mu.Unlock()
 
 	log.Printf("Sync task completed: %s", task.ID)

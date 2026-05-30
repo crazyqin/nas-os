@@ -2,37 +2,41 @@ package dlpengine
 
 import (
 	"testing"
+
+	"go.uber.org/zap"
 )
 
-func TestNewEngine(t *testing.T) {
-	cfg := &Config{
+func TestNewManager(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+	cfg := &DLPConfig{
 		Enabled: true,
 	}
-	engine := NewEngine(cfg)
-	if engine == nil {
-		t.Fatal("NewEngine returned nil")
+	mgr := NewManager(logger, cfg)
+	if mgr == nil {
+		t.Fatal("NewManager returned nil")
 	}
 }
 
-func TestNewEngineNilConfig(t *testing.T) {
-	engine := NewEngine(nil)
-	if engine == nil {
-		t.Fatal("NewEngine with nil config returned nil")
+func TestNewManagerNilConfig(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger, nil)
+	if mgr == nil {
+		t.Fatal("NewManager with nil config returned nil")
 	}
 }
 
 func TestScanContent(t *testing.T) {
-	engine := NewEngine(&Config{Enabled: true})
-	result := engine.ScanContent("test content with no sensitive data")
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger, &DLPConfig{Enabled: true})
+	req := &ScanRequest{
+		Content:  []byte("test content with no sensitive data"),
+		Resource: "test",
+	}
+	result, err := mgr.ScanContent(req)
+	if err != nil {
+		t.Fatalf("ScanContent failed: %v", err)
+	}
 	if result == nil {
 		t.Fatal("ScanContent returned nil")
-	}
-}
-
-func TestGetEngineStatus(t *testing.T) {
-	engine := NewEngine(&Config{Enabled: true})
-	status := engine.GetStatus()
-	if status == nil {
-		t.Fatal("GetStatus returned nil")
 	}
 }

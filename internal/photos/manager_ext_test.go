@@ -1,6 +1,7 @@
 package photos
 
 import (
+	"context"
 	"testing"
 	"time"
 )
@@ -9,7 +10,7 @@ import (
 
 func TestManager_GetConfig(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	config := m.GetConfig()
 	if config == nil {
@@ -24,9 +25,9 @@ func TestManager_GetConfig(t *testing.T) {
 
 func TestManager_UpdateConfig(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
-	newConfig := &Config{
+	newConfig := &PhotoConfig{
 		MaxUploadSize:    100 * 1024 * 1024,
 		EnableAI:         true,
 		SupportedFormats: []string{".jpg", ".png"},
@@ -45,10 +46,10 @@ func TestManager_UpdateConfig(t *testing.T) {
 
 func TestManager_GetAlbum(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建相册
-	album, _ := m.CreateAlbum("测试相册", "描述", "user1")
+	album, _ := m.CreateAlbum(context.Background(), "测试相册", "描述", "user1")
 
 	// 获取相册
 	result, err := m.GetAlbum(album.ID)
@@ -63,7 +64,7 @@ func TestManager_GetAlbum(t *testing.T) {
 
 func TestManager_GetAlbum_NotFound(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	_, err := m.GetAlbum("nonexistent")
 	if err == nil {
@@ -73,7 +74,7 @@ func TestManager_GetAlbum_NotFound(t *testing.T) {
 
 func TestManager_GetPhoto(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建照片
 	photo := &Photo{
@@ -98,7 +99,7 @@ func TestManager_GetPhoto(t *testing.T) {
 
 func TestManager_GetPhoto_NotFound(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	_, err := m.GetPhoto("nonexistent")
 	if err == nil {
@@ -108,7 +109,7 @@ func TestManager_GetPhoto_NotFound(t *testing.T) {
 
 func TestManager_DeletePhoto(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建照片
 	photo := &Photo{
@@ -134,7 +135,7 @@ func TestManager_DeletePhoto(t *testing.T) {
 
 func TestManager_DeletePhoto_NotFound(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	err := m.DeletePhoto("nonexistent")
 	if err == nil {
@@ -144,7 +145,7 @@ func TestManager_DeletePhoto_NotFound(t *testing.T) {
 
 func TestManager_ListPersons(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建人物
 	m.CreatePerson("张三")
@@ -158,7 +159,7 @@ func TestManager_ListPersons(t *testing.T) {
 
 func TestManager_UpdatePerson(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建人物
 	person, _ := m.CreatePerson("张三")
@@ -176,7 +177,7 @@ func TestManager_UpdatePerson(t *testing.T) {
 
 func TestManager_DeletePerson(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建人物
 	person, _ := m.CreatePerson("张三")
@@ -195,7 +196,7 @@ func TestManager_DeletePerson(t *testing.T) {
 
 func TestManager_QueryPhotos_Filters(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建测试照片
 	now := time.Now()
@@ -262,7 +263,7 @@ func TestManager_QueryPhotos_Filters(t *testing.T) {
 
 func TestManager_QueryPhotos_Sort(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建测试照片
 	now := time.Now()
@@ -294,7 +295,7 @@ func TestManager_QueryPhotos_Sort(t *testing.T) {
 
 func TestManager_QueryPhotos_Pagination(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建测试照片
 	now := time.Now()
@@ -330,12 +331,12 @@ func TestManager_QueryPhotos_Pagination(t *testing.T) {
 
 func TestManager_ListAlbums_UserFilter(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建相册
-	m.CreateAlbum("相册1", "", "user1")
-	m.CreateAlbum("相册2", "", "user1")
-	m.CreateAlbum("相册3", "", "user2")
+	m.CreateAlbum(context.Background(), "相册1", "", "user1")
+	m.CreateAlbum(context.Background(), "相册2", "", "user1")
+	m.CreateAlbum(context.Background(), "相册3", "", "user2")
 
 	albums := m.ListAlbums("user1")
 	if len(albums) != 2 {
@@ -595,7 +596,7 @@ func TestTimelineGroup_Struct(t *testing.T) {
 
 func TestConfig_Default(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	config := m.GetConfig()
 

@@ -15,12 +15,18 @@ type SyncFile struct {
 	ID           string         `json:"id"`
 	TaskID       string         `json:"task_id"`
 	FilePath     string         `json:"file_path"`
+	Path         string         `json:"path,omitempty"`        // 兼容旧字段
+	Name         string         `json:"name,omitempty"`        // 文件名
 	LocalHash    string         `json:"local_hash"`
 	RemoteHash   string         `json:"remote_hash"`
+	Checksum     string         `json:"checksum,omitempty"`    // 文件校验和
 	Size         int64          `json:"size"`
 	Status       FileSyncStatus `json:"status"`
 	LastSyncAt   time.Time      `json:"last_sync_at"`
+	ModifiedAt   time.Time      `json:"modified_at,omitempty"` // 修改时间
 	ConflictWith string         `json:"conflict_with,omitempty"`
+	OwnerID      string         `json:"owner_id,omitempty"`    // 文件所有者ID
+	IsFolder     bool           `json:"is_folder,omitempty"`   // 是否为文件夹
 }
 
 // DriveSyncManager Drive同步管理器

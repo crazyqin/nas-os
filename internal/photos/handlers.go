@@ -2,9 +2,10 @@
 package photos
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Handler HTTP 处理器
@@ -18,164 +19,126 @@ func NewHandler(manager *Manager) *Handler {
 }
 
 // RegisterRoutes 注册路由
-func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/photos/import", h.handleImport)
-	mux.HandleFunc("/api/photos/search", h.handleSearch)
-	mux.HandleFunc("/api/photos/timeline", h.handleTimeline)
-	mux.HandleFunc("/api/photos/stats", h.handleStats)
-	mux.HandleFunc("/api/photos/albums", h.handleAlbums)
-	mux.HandleFunc("/api/photos/albums/create", h.handleCreateAlbum)
-	mux.HandleFunc("/api/photos/albums/add", h.handleAddToAlbum)
+func (h *Handler) RegisterRoutes(api *gin.RouterGroup) {
+	photos := api.Group("/photos")
+	{
+		photos.POST("/import", h.handleImport)
+		photos.GET("/search", h.handleSearch)
+		photos.GET("/timeline", h.handleTimeline)
+		photos.GET("/stats", h.handleStats)
+		photos.GET("/albums", h.handleAlbums)
+		photos.POST("/albums/create", h.handleCreateAlbum)
+		photos.POST("/albums/add", h.handleAddToAlbum)
+	}
 }
 
-func (h *Handler) handleImport(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+func (h *Handler) handleImport(c *gin.Context) {
 	var req struct {
 		FilePath string `json:"file_path"`
 		UserID   string `json:"user_id"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	photo, err := h.manager.ImportPhoto(r.Context(), req.FilePath, req.UserID)
+	photo, err := h.manager.ImportPhoto(c.Request.Context(), req.FilePath, req.UserID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(photo)
+	c.JSON(http.StatusOK, photo)
 }
 
-func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+func (h *Handler) handleSearch(c *gin.Context) {
 	query := SearchQuery{
-		Keyword:  r.URL.Query().Get("keyword"),
-		AlbumID:  r.URL.Query().Get("album_id"),
-		Format:   r.URL.Query().Get("format"),
-		SortBy:   r.URL.Query().Get("sort_by"),
-		SortOrder: r.URL.Query().Get("sort_order"),
+		Keyword:   c.Query("keyword"),
+		AlbumID:   c.Query("album_id"),
+		Format:    c.Query("format"),
+		SortBy:    c.Query("sort_by"),
+		SortOrder: c.Query("sort_order"),
 	}
 
-	if page, err := strconv.Atoi(r.URL.Query().Get("page")); err == nil {
+	if page, err := strconv.Atoi(c.Query("page")); err == nil {
 		query.Page = page
 	}
-	if pageSize, err := strconv.Atoi(r.URL.Query().Get("page_size")); err == nil {
+	if pageSize, err := strconv.Atoi(c.Query("page_size")); err == nil {
 		query.PageSize = pageSize
 	}
 
-	result, err := h.manager.SearchPhotos(r.Context(), query)
+	result, err := h.manager.SearchPhotos(c.Request.Context(), query)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(result)
+	c.JSON(http.StatusOK, result)
 }
 
-func (h *Handler) handleTimeline(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+func (h *Handler) handleTimeline(c *gin.Context) {
+	groupBy := c.DefaultQuery("group_by", "month")
 
-	groupBy := r.URL.Query().Get("group_by")
-	if groupBy == "" {
-		groupBy = "month"
-	}
-
-	timeline, err := h.manager.GetTimeline(r.Context(), groupBy)
+	timeline, err := h.manager.GetTimeline(c.Request.Context(), groupBy)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(timeline)
+	c.JSON(http.StatusOK, timeline)
 }
 
-func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	stats, err := h.manager.GetStats(r.Context())
+func (h *Handler) handleStats(c *gin.Context) {
+	stats, err := h.manager.GetStats(c.Request.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(stats)
+	c.JSON(http.StatusOK, stats)
 }
 
-func (h *Handler) handleAlbums(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// TODO: 获取相册列表
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"albums": []Album{},
-	})
+func (h *Handler) handleAlbums(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"albums": []Album{}})
 }
 
-func (h *Handler) handleCreateAlbum(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+func (h *Handler) handleCreateAlbum(c *gin.Context) {
 	var req struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 		OwnerID     string `json:"owner_id"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	album, err := h.manager.CreateAlbum(r.Context(), req.Name, req.Description, req.OwnerID)
+	album, err := h.manager.CreateAlbum(c.Request.Context(), req.Name, req.Description, req.OwnerID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(album)
+	c.JSON(http.StatusOK, album)
 }
 
-func (h *Handler) handleAddToAlbum(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+func (h *Handler) handleAddToAlbum(c *gin.Context) {
 	var req struct {
 		PhotoID string `json:"photo_id"`
 		AlbumID string `json:"album_id"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	if err := h.manager.AddPhotoToAlbum(r.Context(), req.PhotoID, req.AlbumID); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := h.manager.AddPhotoToAlbum(c.Request.Context(), req.PhotoID, req.AlbumID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }

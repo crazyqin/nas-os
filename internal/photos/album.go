@@ -2246,7 +2246,8 @@ func (e *EXIFExtractor) ExtractFullEXIF(photoID string) (*EXIFData, error) {
 	}
 
 	// 使用已有的 extractEXIF 方法
-	return e.manager.extractEXIF(filepath.Join(e.manager.photosDir, photo.Path))
+	e.manager.extractEXIF(photo, filepath.Join(e.manager.photosDir, photo.Path))
+	return photo.EXIF, nil
 }
 
 // ExtractGPS 提取 GPS 信息。

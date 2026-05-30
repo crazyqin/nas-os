@@ -164,6 +164,8 @@ type SyncTask struct {
 	Name            string           `json:"name"`                        // 任务名称
 	LocalPath       string           `json:"local_path"`                  // 本地路径
 	RemotePath      string           `json:"remote_path"`                 // 远程路径
+	SourcePath      string           `json:"source_path,omitempty"`       // 源路径（兼容）
+	TargetPath      string           `json:"target_path,omitempty"`       // 目标路径（兼容）
 	DeviceID        string           `json:"device_id"`                   // 设备标识
 	Direction       SyncDirection    `json:"direction"`                   // 同步方向
 	ConflictPolicy  ConflictResolution `json:"conflict_policy"`          // 冲突解决策略
@@ -173,8 +175,13 @@ type SyncTask struct {
 	ExcludePatterns []string         `json:"exclude_patterns,omitempty"`  // 排除模式
 	IncludePatterns []string         `json:"include_patterns,omitempty"`  // 包含模式
 	BandwidthLimit  int64            `json:"bandwidth_limit,omitempty"`   // 带宽限制（字节/秒）
+	Progress        float64          `json:"progress"`                    // 同步进度 (0-1)
+	TotalFiles      int              `json:"total_files"`                 // 总文件数
+	SyncedFiles     int              `json:"synced_files"`                // 已同步文件数
 	LastSyncAt      *time.Time       `json:"last_sync_at,omitempty"`      // 上次同步时间
 	NextSyncAt      *time.Time       `json:"next_sync_at,omitempty"`      // 下次同步时间
+	StartedAt       time.Time        `json:"started_at,omitempty"`        // 开始时间
+	CompletedAt     *time.Time       `json:"completed_at,omitempty"`      // 完成时间
 	FileCount       int              `json:"file_count"`                  // 同步文件数
 	SyncedBytes     int64            `json:"synced_bytes"`                // 已同步字节数
 	ErrorCount      int              `json:"error_count"`                 // 错误数
@@ -391,6 +398,16 @@ type DeltaSyncResponse struct {
 	NewBlocks    []BlockInfo  `json:"new_blocks"`     // 需要传输的新块
 	TotalBlocks  int          `json:"total_blocks"`   // 总块数
 	SavedBytes   int64        `json:"saved_bytes"`    // 节省的传输字节数
+}
+
+// SyncPolicy 同步策略.
+type SyncPolicy struct {
+	AutoSync     bool          `json:"auto_sync"`      // 是否自动同步
+	SyncInterval time.Duration `json:"sync_interval"`  // 同步间隔
+	ConflictMode string        `json:"conflict_mode"`  // 冲突模式：ask, keep_local, keep_remote, keep_both
+	MaxFileSize  int64         `json:"max_file_size"`  // 最大文件大小（字节）
+	BandwidthLimit int64       `json:"bandwidth_limit"` // 全局带宽限制（字节/秒）
+	ExcludePatterns []string   `json:"exclude_patterns,omitempty"` // 排除模式列表
 }
 
 // WebSocketMessage WebSocket 推送消息.

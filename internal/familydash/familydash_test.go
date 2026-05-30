@@ -2,46 +2,45 @@ package familydash
 
 import (
 	"testing"
+
+	"go.uber.org/zap"
 )
 
-func TestNewDashboard(t *testing.T) {
-	cfg := &Config{
-		Enabled: true,
-	}
-	dash := NewDashboard(cfg)
-	if dash == nil {
-		t.Fatal("NewDashboard returned nil")
+func TestNewManager(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger)
+	if mgr == nil {
+		t.Fatal("NewManager returned nil")
 	}
 }
 
-func TestNewDashboardNilConfig(t *testing.T) {
-	dash := NewDashboard(nil)
-	if dash == nil {
-		t.Fatal("NewDashboard with nil config returned nil")
+func TestNewManagerNilLogger(t *testing.T) {
+	mgr := NewManager(nil)
+	if mgr == nil {
+		t.Fatal("NewManager with nil logger returned nil")
 	}
 }
 
-func TestGetMembers(t *testing.T) {
-	dash := NewDashboard(&Config{Enabled: true})
-	members := dash.GetMembers()
+func TestListMembers(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger)
+	members := mgr.ListMembers()
 	if members == nil {
-		t.Fatal("GetMembers returned nil")
+		t.Fatal("ListMembers returned nil")
 	}
 }
 
-func TestAddMember(t *testing.T) {
-	dash := NewDashboard(&Config{Enabled: true})
-	member := &Member{Name: "测试成员", Role: "parent"}
-	err := dash.AddMember(member)
+func TestCreateMember(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger)
+	req := &CreateMemberRequest{
+		Name: "测试成员",
+	}
+	member, err := mgr.CreateMember(req)
 	if err != nil {
-		t.Fatalf("AddMember failed: %v", err)
+		t.Fatalf("CreateMember failed: %v", err)
 	}
-}
-
-func TestGetDashboardStatus(t *testing.T) {
-	dash := NewDashboard(&Config{Enabled: true})
-	status := dash.GetStatus()
-	if status == nil {
-		t.Fatal("GetStatus returned nil")
+	if member == nil {
+		t.Fatal("CreateMember returned nil")
 	}
 }

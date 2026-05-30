@@ -1,6 +1,7 @@
 package photos
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,11 +12,7 @@ func TestNewManager(t *testing.T) {
 	// 创建临时目录
 	tmpDir := t.TempDir()
 
-	m, err := NewManager(tmpDir)
-	if err != nil {
-		t.Fatalf("创建管理器失败：%v", err)
-	}
-
+	m := NewManager(tmpDir)
 	if m == nil {
 		t.Fatal("管理器不应为 nil")
 	}
@@ -34,9 +31,9 @@ func TestNewManager(t *testing.T) {
 
 func TestCreateAlbum(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
-	album, err := m.CreateAlbum("测试相册", "测试描述", "user1")
+	album, err := m.CreateAlbum(context.Background(), "测试相册", "测试描述", "user1")
 	if err != nil {
 		t.Fatalf("创建相册失败：%v", err)
 	}
@@ -62,10 +59,10 @@ func TestCreateAlbum(t *testing.T) {
 
 func TestUpdateAlbum(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建相册
-	album, _ := m.CreateAlbum("原名", "原描述", "user1")
+	album, _ := m.CreateAlbum(context.Background(), "原名", "原描述", "user1")
 
 	// 更新相册
 	updated, err := m.UpdateAlbum(album.ID, "新名", "新描述")
@@ -84,10 +81,10 @@ func TestUpdateAlbum(t *testing.T) {
 
 func TestDeleteAlbum(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建相册
-	album, _ := m.CreateAlbum("测试相册", "", "user1")
+	album, _ := m.CreateAlbum(context.Background(), "测试相册", "", "user1")
 
 	// 删除相册
 	err := m.DeleteAlbum(album.ID)
@@ -104,10 +101,10 @@ func TestDeleteAlbum(t *testing.T) {
 
 func TestAddPhotoToAlbum(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建相册
-	album, _ := m.CreateAlbum("测试相册", "", "user1")
+	album, _ := m.CreateAlbum(context.Background(), "测试相册", "", "user1")
 
 	// 创建测试照片
 	photo := &Photo{
@@ -121,7 +118,7 @@ func TestAddPhotoToAlbum(t *testing.T) {
 	m.photos[photo.ID] = photo
 
 	// 添加照片到相册
-	err := m.AddPhotoToAlbum(photo.ID, album.ID)
+	err := m.AddPhotoToAlbum(context.Background(), photo.ID, album.ID)
 	if err != nil {
 		t.Fatalf("添加照片失败：%v", err)
 	}
@@ -139,10 +136,10 @@ func TestAddPhotoToAlbum(t *testing.T) {
 
 func TestRemovePhotoFromAlbum(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建相册
-	album, _ := m.CreateAlbum("测试相册", "", "user1")
+	album, _ := m.CreateAlbum(context.Background(), "测试相册", "", "user1")
 
 	// 创建并添加照片
 	photo := &Photo{
@@ -158,7 +155,7 @@ func TestRemovePhotoFromAlbum(t *testing.T) {
 	album.PhotoCount = 1
 
 	// 移除照片
-	err := m.RemovePhotoFromAlbum(photo.ID, album.ID)
+	err := m.RemovePhotoFromAlbum(context.Background(), photo.ID, album.ID)
 	if err != nil {
 		t.Fatalf("移除照片失败：%v", err)
 	}
@@ -176,7 +173,7 @@ func TestRemovePhotoFromAlbum(t *testing.T) {
 
 func TestToggleFavorite(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建照片
 	photo := &Photo{
@@ -208,7 +205,7 @@ func TestToggleFavorite(t *testing.T) {
 
 func TestCreatePerson(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	person, err := m.CreatePerson("张三")
 	if err != nil {
@@ -228,7 +225,7 @@ func TestCreatePerson(t *testing.T) {
 
 func TestUpdatePerson(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	person, _ := m.CreatePerson("张三")
 
@@ -244,7 +241,7 @@ func TestUpdatePerson(t *testing.T) {
 
 func TestDeletePerson(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	person, _ := m.CreatePerson("张三")
 
@@ -261,7 +258,7 @@ func TestDeletePerson(t *testing.T) {
 
 func TestGetTimeline(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建测试照片
 	now := time.Now()
@@ -289,7 +286,7 @@ func TestGetTimeline(t *testing.T) {
 	}
 
 	// 获取时间线
-	timeline, err := m.GetTimeline("", "month")
+	timeline, err := m.GetTimeline(context.Background(), "month")
 	if err != nil {
 		t.Fatalf("获取时间线失败：%v", err)
 	}
@@ -301,7 +298,7 @@ func TestGetTimeline(t *testing.T) {
 
 func TestQueryPhotos(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 创建测试照片
 	photos := []*Photo{
@@ -381,7 +378,7 @@ func TestResizeDimensions(t *testing.T) {
 
 func TestSaveLoadConfig(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, _ := NewManager(tmpDir)
+	m := NewManager(tmpDir)
 
 	// 修改配置
 	m.config.EnableAI = false
