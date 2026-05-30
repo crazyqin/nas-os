@@ -739,7 +739,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 应用中心模块就绪")
 
 	// 初始化备份验证（对标群晖 Active Backup 验证）
-	backupVerifyMgr := backupverify.NewManager(&backupverify.Config{Enabled: true, AutoVerifyEnabled: true})
+	backupVerifyMgr := backupverify.NewManager("/var/lib/nas-os/backupverify")
 	log.Println("✅ 备份验证模块就绪")
 
 	// 初始化协作文档（对标群晖 Office）
