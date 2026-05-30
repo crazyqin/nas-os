@@ -1023,6 +1023,63 @@ func (m *Manager) initBuiltinTemplates() {
 			Tags:      []string{"monitoring", "builtin"},
 			CreatedAt: time.Now(),
 		},
+		{
+			ID:          "tpl-deploy",
+			Name:        "应用部署",
+			Description: "自动化应用部署流程",
+			Category:    "deployment",
+			IsBuiltin:   true,
+			Workflow: Workflow{
+				Nodes: []WorkflowNode{
+					{ID: "validate", Name: "验证配置", Type: "task", TaskType: "builtin"},
+					{ID: "build", Name: "构建应用", Type: "task", TaskType: "shell", Dependencies: []string{"validate"}},
+					{ID: "test", Name: "运行测试", Type: "task", TaskType: "shell", Dependencies: []string{"build"}},
+					{ID: "deploy", Name: "部署上线", Type: "task", TaskType: "shell", Dependencies: []string{"test"}},
+					{ID: "healthcheck", Name: "健康检查", Type: "task", TaskType: "builtin", Dependencies: []string{"deploy"}},
+				},
+			},
+			Tags:      []string{"deployment", "builtin"},
+			CreatedAt: time.Now(),
+		},
+		{
+			ID:          "tpl-etl",
+			Name:        "数据处理",
+			Description: "ETL 数据提取、转换、加载流程",
+			Category:    "data",
+			IsBuiltin:   true,
+			Workflow: Workflow{
+				Nodes: []WorkflowNode{
+					{ID: "extract", Name: "数据提取", Type: "task", TaskType: "builtin"},
+					{ID: "transform", Name: "数据转换", Type: "task", TaskType: "builtin", Dependencies: []string{"extract"}},
+					{ID: "validate", Name: "数据验证", Type: "task", TaskType: "builtin", Dependencies: []string{"transform"}},
+					{ID: "load", Name: "数据加载", Type: "task", TaskType: "builtin", Dependencies: []string{"validate"}},
+					{ID: "notify", Name: "完成通知", Type: "task", TaskType: "builtin", Dependencies: []string{"load"}},
+				},
+			},
+			Tags:      []string{"data", "etl", "builtin"},
+			CreatedAt: time.Now(),
+		},
+		{
+			ID:          "tpl-ci",
+			Name:        "CI/CD 流水线",
+			Description: "持续集成/持续部署流水线",
+			Category:    "cicd",
+			IsBuiltin:   true,
+			Workflow: Workflow{
+				Nodes: []WorkflowNode{
+					{ID: "checkout", Name: "代码检出", Type: "task", TaskType: "builtin"},
+					{ID: "lint", Name: "代码检查", Type: "task", TaskType: "builtin", Dependencies: []string{"checkout"}},
+					{ID: "unit-test", Name: "单元测试", Type: "task", TaskType: "builtin", Dependencies: []string{"checkout"}},
+					{ID: "build", Name: "构建", Type: "task", TaskType: "shell", Dependencies: []string{"lint", "unit-test"}},
+					{ID: "integration-test", Name: "集成测试", Type: "task", TaskType: "builtin", Dependencies: []string{"build"}},
+					{ID: "deploy-staging", Name: "部署到预发布", Type: "task", TaskType: "shell", Dependencies: []string{"integration-test"}},
+					{ID: "e2e-test", Name: "端到端测试", Type: "task", TaskType: "builtin", Dependencies: []string{"deploy-staging"}},
+					{ID: "deploy-prod", Name: "部署到生产", Type: "task", TaskType: "shell", Dependencies: []string{"e2e-test"}},
+				},
+			},
+			Tags:      []string{"cicd", "builtin"},
+			CreatedAt: time.Now(),
+		},
 	}
 
 	for _, t := range templates {
