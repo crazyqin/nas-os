@@ -2,11 +2,16 @@ package presto
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
+	"net"
 	"os"
 	"path/filepath"
 	"sync"
@@ -636,9 +641,51 @@ func (s *Server) sendError(stream *quic.Stream, code int, message string) {
 
 // generateSelfSignedCert 生成自签名证书
 func generateSelfSignedCert() (*tls.Certificate, error) {
-	// 使用 crypto 生成自签名证书
-	// 这里简化处理，实际应使用完整的证书生成逻辑
-	return nil, fmt.Errorf("需要配置 TLS 证书文件")
+	// 生成 RSA 私钥
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, fmt.Errorf("生成私钥失败: %w", err)
+	}
+
+	// 创建证书模板
+	now := time.Now()
+	serialNumber, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	if err != nil {
+		return nil, fmt.Errorf("生成序列号失败: %w", err)
+	}
+
+	template := x509.Certificate{
+		SerialNumber: serialNumber,
+		Subject: pkix.Name{
+			Organization: []string{"NAS-OS"},
+			CommonName:   "localhost",
+		},
+		NotBefore:             now,
+		NotAfter:              now.Add(365 * 24 * time.Hour),
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		BasicConstraintsValid: true,
+		IPAddresses:           []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("::1")},
+		DNSNames:              []string{"localhost"},
+	}
+
+	// 自签名证书
+	certDER, err := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
+	if err != nil {
+		return nil, fmt.Errorf("创建证书失败: %w", err)
+	}
+
+	cert, err := x509.ParseCertificate(certDER)
+	if err != nil {
+		return nil, fmt.Errorf("解析证书失败: %w", err)
+	}
+
+	tlsCert := &tls.Certificate{
+		Certificate: [][]byte{cert.Raw},
+		PrivateKey:  privateKey,
+	}
+
+	return tlsCert, nil
 }
 
 // 压缩解压工具函数（简化版，实际应使用 zstd 或 lz4）

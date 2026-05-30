@@ -10,12 +10,12 @@ type PowerProfile struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Type        string    `json:"type"`
+	MaxWatts    float64   `json:"max_watts"`
+	IdleWatts   float64   `json:"idle_watts"`
+	SpinDownHDD bool      `json:"spin_down_hdd"`
+	FanCurve    string    `json:"fan_curve"`
 	Settings    PowerSettings `json:"settings"`
-	MaxWatts    int       `json:"max_watts,omitempty"`
-	IdleWatts   int       `json:"idle_watts,omitempty"`
-	SpinDownHDD bool      `json:"spin_down_hdd,omitempty"`
 	LEDControl  bool      `json:"led_control,omitempty"`
-	FanCurve    string    `json:"fan_curve,omitempty"`
 	IsActive    bool      `json:"is_active"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -108,6 +108,7 @@ type EnergyStats struct {
 	AvgDailyKWh    float64       `json:"avg_daily_kwh"`
 	CurrentWatts   float64       `json:"current_watts"`
 	PeakWatts      float64       `json:"peak_watts"`
+	PowerState     string        `json:"power_state"`
 	History        []PowerHistory `json:"history"`
 }
 
@@ -120,4 +121,45 @@ type TemperatureAlert struct {
 	Severity    string    `json:"severity"`
 	Timestamp   time.Time `json:"timestamp"`
 	Acknowledged bool     `json:"acknowledged"`
+}
+
+// PowerReading represents a power reading from a source
+type PowerReading struct {
+	Timestamp time.Time `json:"timestamp"`
+	Watts     float64   `json:"watts"`
+	Voltage   float64   `json:"voltage"`
+	Current   float64   `json:"current"`
+	Source    string    `json:"source"`
+}
+
+// Power source constants
+const (
+	SourceGrid  = "grid"
+	SourceSolar = "solar"
+	SourceUPS   = "ups"
+)
+
+// Power state constants
+const (
+	PowerNormal  = "normal"
+	PowerStandby = "standby"
+	PowerSleep   = "sleep"
+	PowerOff     = "off"
+)
+
+// CarbonMetrics represents carbon emission metrics
+type CarbonMetrics struct {
+	GridCarbonFactor float64 `json:"grid_carbon_factor"`
+	DailyCO2Kg       float64 `json:"daily_co2_kg"`
+	MonthlyCO2Kg     float64 `json:"monthly_co2_kg"`
+	YearlyCO2Kg      float64 `json:"yearly_co2_kg"`
+}
+
+// PowerBudget represents a power budget estimation
+type PowerBudget struct {
+	CostPerKWh  float64 `json:"cost_per_kwh"`
+	Currency    string  `json:"currency"`
+	DailyCost   float64 `json:"daily_cost"`
+	MonthlyCost float64 `json:"monthly_cost"`
+	YearlyCost  float64 `json:"yearly_cost"`
 }

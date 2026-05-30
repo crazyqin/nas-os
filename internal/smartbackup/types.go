@@ -115,11 +115,11 @@ type BackupPolicy struct {
 	Name        string       `json:"name"`
 	Description string       `json:"description"`
 	SourcePaths []string     `json:"source_paths"`
+	TargetIDs   []string     `json:"target_ids"`
 	BackupType  BackupType   `json:"backup_type"`
 	Schedule    string       `json:"schedule"`
 	RPO         *RPORequirements `json:"rpo,omitempty"`
 	RTO         *RTORequirements `json:"rto,omitempty"`
-	TargetPaths []string     `json:"target_paths,omitempty"`
 	Status      BackupStatus `json:"status"`
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   time.Time    `json:"updated_at"`
@@ -127,14 +127,14 @@ type BackupPolicy struct {
 
 // BackupExecution 备份执行记录
 type BackupExecution struct {
-	ID        string       `json:"id"`
-	PolicyID  string       `json:"policy_id"`
-	BackupType BackupType  `json:"backup_type"`
-	Status    BackupStatus `json:"status"`
-	StartTime time.Time    `json:"start_time"`
-	EndTime   time.Time    `json:"end_time"`
-	SizeBytes int64        `json:"size_bytes,omitempty"`
-	Error     string       `json:"error,omitempty"`
+	ID         string       `json:"id"`
+	PolicyID   string       `json:"policy_id"`
+	BackupType BackupType   `json:"backup_type"`
+	Status     BackupStatus `json:"status"`
+	StartTime  time.Time    `json:"start_time"`
+	EndTime    time.Time    `json:"end_time"`
+	SizeBytes  int64        `json:"size_bytes"`
+	Error      string       `json:"error,omitempty"`
 }
 
 // RPORequirements RPO 要求
@@ -149,7 +149,7 @@ type RTORequirements struct {
 
 // StrategyAnalysis 策略分析
 type StrategyAnalysis struct {
-	DataType        string            `json:"data_type,omitempty"`
+	DataType        string            `json:"data_type"`
 	DataSizeGB      float64           `json:"data_size_gb"`
 	ChangeFrequency *ChangeFrequency  `json:"change_frequency,omitempty"`
 	Requirements    *RPORequirements  `json:"requirements,omitempty"`
