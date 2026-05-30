@@ -2,6 +2,7 @@ package smartphoto
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -184,9 +185,9 @@ func TestImportPhotos(t *testing.T) {
 
 	// Create test files
 	testFiles := []string{"test1.jpg", "test2.png", "test3.gif"}
-	for _, name := range testFiles {
+	for i, name := range testFiles {
 		path := filepath.Join(sourceDir, name)
-		os.WriteFile(path, []byte("test content"), 0644)
+		os.WriteFile(path, []byte(fmt.Sprintf("test content %d", i)), 0644)
 	}
 
 	manager := NewManager(storageDir, false)

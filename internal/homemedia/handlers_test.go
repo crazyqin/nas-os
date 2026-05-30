@@ -2,6 +2,7 @@ package homemedia
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -28,9 +29,9 @@ func TestScanMedia(t *testing.T) {
 
 	// Create test files
 	testFiles := []string{"movie1.mp4", "movie2.mkv", "song1.mp3"}
-	for _, name := range testFiles {
+	for i, name := range testFiles {
 		path := filepath.Join(sourceDir, name)
-		os.WriteFile(path, []byte("test content"), 0644)
+		os.WriteFile(path, []byte(fmt.Sprintf("test content %d", i)), 0644)
 	}
 
 	manager := NewManager(tmpDir)
