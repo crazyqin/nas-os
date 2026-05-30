@@ -17,11 +17,16 @@ type Manager struct {
 	config       *EnergyConfig
 }
 
+// Config is an alias for EnergyConfig
+type Config = EnergyConfig
+
 // EnergyConfig represents energy manager configuration
 type EnergyConfig struct {
-	ElectricityRate float64 `json:"electricity_rate"`
-	Currency        string  `json:"currency"`
-	AlertThreshold  float64 `json:"alert_threshold"`
+	Enabled             bool    `json:"enabled"`
+	MonitoringInterval  int     `json:"monitoring_interval"`
+	ElectricityRate     float64 `json:"electricity_rate"`
+	Currency            string  `json:"currency"`
+	AlertThreshold      float64 `json:"alert_threshold"`
 }
 
 // NewManager creates a new energy manager
