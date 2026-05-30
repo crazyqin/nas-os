@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.525.0 Stable (2026-05-30)
+> **最新版本**: v2.527.0 Stable (2026-05-30)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -173,6 +173,12 @@
 | 🔍 **数字取证工具** | 事件时间线重建/证据收集/取证报告/安全审计 | ✅ **v2.525.0新增** |
 | 🌐 **GeoIP防火墙** | 基于国家/地区的访问控制/威胁情报集成/地理围栏 | ✅ **v2.525.0新增** |
 | 💡 **智能存储成本分析** | 多层级成本分析/云vs本地对比/成本优化建议/TCO报告 | ✅ **v2.525.0新增** |
+| 🏠 **智能家居中枢** | MQTT/Zigbee/Z-Wave集成/自动化规则引擎/设备分组管理 | ✅ **v2.527.0新增** |
+| ⚡ **边缘计算引擎** | IoT数据采集/边缘AI推理(TFLite/ONNX)/离线缓存续传 | ✅ **v2.527.0新增** |
+| 🌱 **碳感知调度** | 电网碳强度API/碳足迹计算/绿色能源优先策略 | ✅ **v2.527.0新增** |
+| 🔧 **自愈存储** | 后台Scrub调度/Bitrot检测修复/多副本自动同步 | ✅ **v2.527.0新增** |
+| 🎭 **数字孪生** | NAS配置快照/虚拟实例/灾难恢复演练/拓扑可视化 | ✅ **v2.527.0新增** |
+| 🔐 **后量子加密** | NIST标准算法(Kyber/ML-KEM)/混合加密/密钥轮换 | ✅ **v2.527.0新增** |
 
 ## 快速开始
 
