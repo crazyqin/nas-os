@@ -2,6 +2,7 @@
 package dataprovenance
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -447,6 +448,359 @@ func TestHandlers_CleanupExpired(t *testing.T) {
 	w := httptest.NewRecorder()
 	c := createTestContext(w, "POST", "/api/v1/data-provenance/retention/cleanup", "")
 	h.cleanupExpired(c)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", w.Code)
+	}
+}
+
+func TestEngine_RecordOrigin(t *testing.T) {
+	engine := NewEngine(nil)
+
+	record, err := engine.RecordOrigin("data-1", "document", "/data/docs", "user-1", nil)
+	if err != nil {
+		t.Fatalf("RecordOrigin failed: %v", err)
+	}
+
+	if record.FileID != "data-1" {
+		t.Errorf("expected file_id=data-1, got %s", record.FileID)
+	}
+
+	// 验证数据血缘已创建
+	lineage, err := engine.TraceLineage("data-1")
+	if err != nil {
+		t.Fatalf("TraceLineage failed: %v", err)
+	}
+	if lineage.DataType != "document" {
+		t.Errorf("expected data_type=document, got %s", lineage.DataType)
+	}
+}
+
+func TestEngine_RecordOrigin_InvalidInput(t *testing.T) {
+	engine := NewEngine(nil)
+
+	_, err := engine.RecordOrigin("", "document", "/data", "user-1", nil)
+	if err != ErrInvalidInput {
+		t.Errorf("expected ErrInvalidInput, got %v", err)
+	}
+}
+
+func TestEngine_TraceLineage_NotFound(t *testing.T) {
+	engine := NewEngine(nil)
+
+	_, err := engine.TraceLineage("nonexistent")
+	if err != ErrFileNotFound {
+		t.Errorf("expected ErrFileNotFound, got %v", err)
+	}
+}
+
+func TestEngine_AuditChain(t *testing.T) {
+	engine := NewEngine(nil)
+
+	// 创建记录
+	record := &ProvenanceRecord{
+		ID:        "r1",
+		FileID:    "file-1",
+		Operation: OpCreate,
+	}
+	engine.RecordOperation(record)
+
+	// 添加到审计链
+	err := engine.AddToChain("chain-1", "r1")
+	if err != nil {
+		t.Fatalf("AddToChain failed: %v", err)
+	}
+
+	// 获取审计链
+	chain, err := engine.GetAuditChain("chain-1")
+	if err != nil {
+		t.Fatalf("GetAuditChain failed: %v", err)
+	}
+	if len(chain.Blocks) != 1 {
+		t.Errorf("expected 1 block, got %d", len(chain.Blocks))
+	}
+
+	// 添加更多记录
+	record2 := &ProvenanceRecord{
+		ID:        "r2",
+		FileID:    "file-1",
+		Operation: OpModify,
+	}
+	engine.RecordOperation(record2)
+	engine.AddToChain("chain-1", "r2")
+
+	// 验证链完整性
+	valid, err := engine.VerifyChain("chain-1")
+	if err != nil {
+		t.Fatalf("VerifyChain failed: %v", err)
+	}
+	if !valid {
+		t.Error("expected chain to be valid")
+	}
+}
+
+func TestEngine_VerifyChain_NotFound(t *testing.T) {
+	engine := NewEngine(nil)
+
+	_, err := engine.VerifyChain("nonexistent")
+	if err != ErrRecordNotFound {
+		t.Errorf("expected ErrRecordNotFound, got %v", err)
+	}
+}
+
+func TestEngine_ComplianceTag(t *testing.T) {
+	engine := NewEngine(nil)
+
+	// 创建数据来源
+	engine.RecordOrigin("data-1", "healthcare", "/data/hc", "user-1", nil)
+
+	// 添加合规标签
+	err := engine.AddComplianceTag("data-1", TagHIPAA)
+	if err != nil {
+		t.Fatalf("AddComplianceTag failed: %v", err)
+	}
+
+	// 验证标签已添加
+	lineage, _ := engine.TraceLineage("data-1")
+	if len(lineage.DataClassification) != 1 {
+		t.Errorf("expected 1 tag, got %d", len(lineage.DataClassification))
+	}
+
+	// 重复添加应成功（幂等）
+	err = engine.AddComplianceTag("data-1", TagHIPAA)
+	if err != nil {
+		t.Fatalf("AddComplianceTag idempotent failed: %v", err)
+	}
+}
+
+func TestEngine_ComplianceTag_NotFound(t *testing.T) {
+	engine := NewEngine(nil)
+
+	err := engine.AddComplianceTag("nonexistent", TagGDPR)
+	if err != ErrFileNotFound {
+		t.Errorf("expected ErrFileNotFound, got %v", err)
+	}
+}
+
+func TestEngine_ExportAuditTrail(t *testing.T) {
+	engine := NewEngine(nil)
+
+	now := time.Now()
+	records := []*ProvenanceRecord{
+		{ID: "r1", FileID: "file-1", Operation: OpCreate, UserID: "user-1", Timestamp: now.Add(-2 * time.Hour)},
+		{ID: "r2", FileID: "file-1", Operation: OpModify, UserID: "user-1", Timestamp: now.Add(-1 * time.Hour)},
+	}
+
+	for _, r := range records {
+		engine.records[r.ID] = r
+	}
+
+	// 导出JSON
+	config := &AuditTrailExport{
+		Format:    "json",
+		StartTime: now.Add(-3 * time.Hour),
+		EndTime:   now,
+	}
+
+	result, err := engine.ExportAuditTrail(config)
+	if err != nil {
+		t.Fatalf("ExportAuditTrail JSON failed: %v", err)
+	}
+	if result.TotalRecords != 2 {
+		t.Errorf("expected 2 records, got %d", result.TotalRecords)
+	}
+	if len(result.Data) == 0 {
+		t.Error("expected non-empty data")
+	}
+
+	// 导出CSV
+	config.Format = "csv"
+	result, err = engine.ExportAuditTrail(config)
+	if err != nil {
+		t.Fatalf("ExportAuditTrail CSV failed: %v", err)
+	}
+	if len(result.Data) == 0 {
+		t.Error("expected non-empty CSV data")
+	}
+
+	// 导出XML
+	config.Format = "xml"
+	result, err = engine.ExportAuditTrail(config)
+	if err != nil {
+		t.Fatalf("ExportAuditTrail XML failed: %v", err)
+	}
+	if len(result.Data) == 0 {
+		t.Error("expected non-empty XML data")
+	}
+}
+
+func TestEngine_ExportAuditTrail_InvalidFormat(t *testing.T) {
+	engine := NewEngine(nil)
+
+	config := &AuditTrailExport{
+		Format:    "pdf",
+		StartTime: time.Now().Add(-1 * time.Hour),
+		EndTime:   time.Now(),
+	}
+
+	_, err := engine.ExportAuditTrail(config)
+	if err != ErrInvalidInput {
+		t.Errorf("expected ErrInvalidInput, got %v", err)
+	}
+}
+
+func TestEngine_QueryProvenance(t *testing.T) {
+	engine := NewEngine(nil)
+
+	now := time.Now()
+	records := []*ProvenanceRecord{
+		{ID: "r1", FileID: "file-1", Operation: OpCreate, UserID: "user-1", Timestamp: now, Metadata: map[string]string{"compliance": "HIPAA"}},
+		{ID: "r2", FileID: "file-1", Operation: OpModify, UserID: "user-1", Timestamp: now, Metadata: map[string]string{"compliance": "GDPR"}},
+	}
+
+	for _, r := range records {
+		engine.RecordOperation(r)
+	}
+
+	// 无合规过滤
+	query := &ProvenanceQuery{
+		Filter: QueryFilter{FileID: "file-1"},
+	}
+	results, err := engine.QueryProvenance(query)
+	if err != nil {
+		t.Fatalf("QueryProvenance failed: %v", err)
+	}
+	if len(results) != 2 {
+		t.Errorf("expected 2 results, got %d", len(results))
+	}
+
+	// 带合规过滤
+	query.ComplianceFilter = []ComplianceTag{TagHIPAA}
+	results, err = engine.QueryProvenance(query)
+	if err != nil {
+		t.Fatalf("QueryProvenance with filter failed: %v", err)
+	}
+	if len(results) != 1 {
+		t.Errorf("expected 1 result, got %d", len(results))
+	}
+}
+
+func TestEngine_QueryProvenance_InvalidInput(t *testing.T) {
+	engine := NewEngine(nil)
+
+	_, err := engine.QueryProvenance(nil)
+	if err != ErrInvalidInput {
+		t.Errorf("expected ErrInvalidInput, got %v", err)
+	}
+}
+
+func TestHandlers_RecordOrigin(t *testing.T) {
+	engine := NewEngine(nil)
+	h := NewHandlers(engine)
+
+	body := `{"data_id": "data-1", "data_type": "document", "location": "/data/docs", "user_id": "user-1"}`
+
+	w := httptest.NewRecorder()
+	c := createTestContext(w, "POST", "/api/v1/data-provenance/origin", body)
+	h.recordOrigin(c)
+
+	if w.Code != http.StatusCreated {
+		t.Errorf("expected status 201, got %d", w.Code)
+	}
+}
+
+func TestHandlers_TraceLineage(t *testing.T) {
+	engine := NewEngine(nil)
+	engine.RecordOrigin("data-1", "document", "/data/docs", "user-1", nil)
+	h := NewHandlers(engine)
+
+	w := httptest.NewRecorder()
+	c := createTestContext(w, "GET", "/api/v1/data-provenance/trace/data-1", "")
+	c.Params = []gin.Param{{Key: "id", Value: "data-1"}}
+	h.traceLineage(c)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", w.Code)
+	}
+}
+
+func TestHandlers_TraceLineage_NotFound(t *testing.T) {
+	engine := NewEngine(nil)
+	h := NewHandlers(engine)
+
+	w := httptest.NewRecorder()
+	c := createTestContext(w, "GET", "/api/v1/data-provenance/trace/nonexistent", "")
+	c.Params = []gin.Param{{Key: "id", Value: "nonexistent"}}
+	h.traceLineage(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected status 404, got %d", w.Code)
+	}
+}
+
+func TestHandlers_VerifyChain(t *testing.T) {
+	engine := NewEngine(nil)
+	engine.RecordOperation(&ProvenanceRecord{ID: "r1", FileID: "file-1", Operation: OpCreate})
+	engine.AddToChain("chain-1", "r1")
+	h := NewHandlers(engine)
+
+	w := httptest.NewRecorder()
+	c := createTestContext(w, "GET", "/api/v1/data-provenance/verify/chain-1", "")
+	c.Params = []gin.Param{{Key: "id", Value: "chain-1"}}
+	h.verifyChain(c)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", w.Code)
+	}
+}
+
+func TestHandlers_ExportAuditTrail(t *testing.T) {
+	engine := NewEngine(nil)
+	now := time.Now()
+	engine.RecordOperation(&ProvenanceRecord{ID: "r1", FileID: "file-1", Operation: OpCreate, Timestamp: now.Add(-1 * time.Hour)})
+	h := NewHandlers(engine)
+
+	body := fmt.Sprintf(`{"format": "json", "start_time": "%s", "end_time": "%s"}`,
+		now.Add(-2*time.Hour).Format(time.RFC3339),
+		now.Format(time.RFC3339))
+
+	w := httptest.NewRecorder()
+	c := createTestContext(w, "POST", "/api/v1/data-provenance/export", body)
+	h.exportAuditTrail(c)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", w.Code)
+	}
+}
+
+func TestHandlers_AddToChain(t *testing.T) {
+	engine := NewEngine(nil)
+	engine.RecordOperation(&ProvenanceRecord{ID: "r1", FileID: "file-1", Operation: OpCreate})
+	h := NewHandlers(engine)
+
+	body := `{"record_id": "r1"}`
+
+	w := httptest.NewRecorder()
+	c := createTestContext(w, "POST", "/api/v1/data-provenance/chain/chain-1/records", body)
+	c.Params = []gin.Param{{Key: "chainId", Value: "chain-1"}}
+	h.addToChain(c)
+
+	if w.Code != http.StatusCreated {
+		t.Errorf("expected status 201, got %d", w.Code)
+	}
+}
+
+func TestHandlers_AddComplianceTag(t *testing.T) {
+	engine := NewEngine(nil)
+	engine.RecordOrigin("data-1", "document", "/data", "user-1", nil)
+	h := NewHandlers(engine)
+
+	body := `{"tag": "HIPAA"}`
+
+	w := httptest.NewRecorder()
+	c := createTestContext(w, "POST", "/api/v1/data-provenance/compliance/data-1/tags", body)
+	c.Params = []gin.Param{{Key: "dataId", Value: "data-1"}}
+	h.addComplianceTag(c)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("expected status 200, got %d", w.Code)
