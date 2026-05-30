@@ -181,6 +181,144 @@ type FileOperationCount struct {
 	Count int64 `json:"count"`
 }
 
+// ComplianceTag 合规标签类型.
+type ComplianceTag string
+
+const (
+	// TagGDPR GDPR合规标签.
+	TagGDPR ComplianceTag = "GDPR"
+	// TagHIPAA HIPAA合规标签.
+	TagHIPAA ComplianceTag = "HIPAA"
+	// TagSOX SOX合规标签.
+	TagSOX ComplianceTag = "SOX"
+	// TagPCI PCI DSS合规标签.
+	TagPCI ComplianceTag = "PCI_DSS"
+	// TagISO27001 ISO 27001合规标签.
+	TagISO27001 ComplianceTag = "ISO_27001"
+	// TagCIS CIS基准合规标签.
+	TagCIS ComplianceTag = "CIS"
+)
+
+// ComplianceScope 合规范围定义.
+type ComplianceScope struct {
+	// Tag 合规标签.
+	Tag ComplianceTag `json:"tag"`
+	// Description 范围描述.
+	Description string `json:"description"`
+	// DataCategories 数据分类.
+	DataCategories []string `json:"data_categories"`
+	// RetentionDays 保留天数.
+	RetentionDays int `json:"retention_days"`
+	// RequiresEncryption 是否需要加密.
+	RequiresEncryption bool `json:"requires_encryption"`
+}
+
+// AuditChain 审计链（区块链式结构）.
+type AuditChain struct {
+	// ChainID 链标识.
+	ChainID string `json:"chain_id"`
+	// Blocks 区块列表.
+	Blocks []AuditBlock `json:"blocks"`
+	// CreatedAt 创建时间.
+	CreatedAt time.Time `json:"created_at"`
+	// LastBlockHash 最后区块哈希.
+	LastBlockHash string `json:"last_block_hash"`
+}
+
+// AuditBlock 审计区块.
+type AuditBlock struct {
+	// Index 区块索引.
+	Index int64 `json:"index"`
+	// Timestamp 区块时间戳.
+	Timestamp time.Time `json:"timestamp"`
+	// RecordID 溯源记录ID.
+	RecordID string `json:"record_id"`
+	// Data 区块数据.
+	Data []byte `json:"data"`
+	// PreviousHash 前一区块哈希.
+	PreviousHash string `json:"previous_hash"`
+	// Hash 当前区块哈希.
+	Hash string `json:"hash"`
+}
+
+// ProvenanceQuery 高级溯源查询.
+type ProvenanceQuery struct {
+	// QueryID 查询ID.
+	QueryID string `json:"query_id"`
+	// Filter 查询过滤器.
+	Filter QueryFilter `json:"filter"`
+	// IncludeLineage 是否包含血缘关系.
+	IncludeLineage bool `json:"include_lineage"`
+	// IncludeImpact 是否包含影响分析.
+	IncludeImpact bool `json:"include_impact"`
+	// ComplianceFilter 合规标签过滤.
+	ComplianceFilter []ComplianceTag `json:"compliance_filter,omitempty"`
+}
+
+// DataLineage 数据血缘关系（扩展版）.
+type DataLineage struct {
+	// DataID 数据标识.
+	DataID string `json:"data_id"`
+	// DataType 数据类型.
+	DataType string `json:"data_type"`
+	// Origin 数据来源.
+	Origin *ProvenanceRecord `json:"origin"`
+	// Transformations 变换历史.
+	Transformations []Transformation `json:"transformations"`
+	// CurrentLocation 当前位置.
+	CurrentLocation string `json:"current_location"`
+	// DataClassification 数据分类标签.
+	DataClassification []ComplianceTag `json:"data_classification,omitempty"`
+}
+
+// Transformation 数据变换记录.
+type Transformation struct {
+	// RecordID 溯源记录ID.
+	RecordID string `json:"record_id"`
+	// Operation 操作类型.
+	Operation OperationType `json:"operation"`
+	// InputHash 输入数据哈希.
+	InputHash string `json:"input_hash"`
+	// OutputHash 输出数据哈希.
+	OutputHash string `json:"output_hash"`
+	// UserID 操作用户ID.
+	UserID string `json:"user_id"`
+	// Timestamp 变换时间.
+	Timestamp time.Time `json:"timestamp"`
+	// Description 变换描述.
+	Description string `json:"description,omitempty"`
+}
+
+// AuditTrailExport 审计导出配置.
+type AuditTrailExport struct {
+	// Format 导出格式（json, csv, xml）.
+	Format string `json:"format"`
+	// StartTime 开始时间.
+	StartTime time.Time `json:"start_time"`
+	// EndTime 结束时间.
+	EndTime time.Time `json:"end_time"`
+	// IncludeLineage 是否包含血缘关系.
+	IncludeLineage bool `json:"include_lineage"`
+	// IncludeChain 是否包含审计链验证.
+	IncludeChain bool `json:"include_chain"`
+}
+
+// AuditTrailResult 审计导出结果.
+type AuditTrailResult struct {
+	// ExportID 导出ID.
+	ExportID string `json:"export_id"`
+	// Format 导出格式.
+	Format string `json:"format"`
+	// GeneratedAt 生成时间.
+	GeneratedAt time.Time `json:"generated_at"`
+	// TotalRecords 记录总数.
+	TotalRecords int `json:"total_records"`
+	// Data 导出数据.
+	Data []byte `json:"data"`
+	// ChainVerified 审计链是否验证通过.
+	ChainVerified bool `json:"chain_verified"`
+}
+
 // RetentionPolicy 溯源数据保留策略.
 type RetentionPolicy struct {
 	// MaxAge 最大保留时间.
