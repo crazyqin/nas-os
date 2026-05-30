@@ -138,14 +138,6 @@ func (h *Handlers) StartStack(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "started"})
 }
 
-func (h *Handlers) StartStack2(c *gin.Context) {
-	if err := h.mgr.StopStack(c.Param("id")); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"code": -1, "message": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "stopped"})
-}
-
 func (h *Handlers) StopStack(c *gin.Context) {
 	if err := h.mgr.StopStack(c.Param("id")); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": -1, "message": err.Error()})

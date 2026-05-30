@@ -1,6 +1,7 @@
 package backupdedup
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -307,7 +308,7 @@ func TestConcurrentProcessing(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		go func(idx int) {
-			data := []byte("concurrent test data")
+			data := []byte(fmt.Sprintf("concurrent test data %d", idx))
 			m.ProcessFile("/test/file"+string(rune('0'+idx))+".txt", int64(len(data)), data)
 			done <- true
 		}(i)

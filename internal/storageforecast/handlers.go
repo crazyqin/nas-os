@@ -2,7 +2,6 @@ package storageforecast
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -10,12 +9,12 @@ import (
 
 // Handlers HTTP 处理器
 type Handlers struct {
-	fc *Forecast
+	mgr *Manager
 }
 
 // NewHandlers 创建 HTTP 处理器
-func NewHandlers(fc *Forecast) *Handlers {
-	return &Handlers{fc: fc}
+func NewHandlers(mgr *Manager) *Handlers {
+	return &Handlers{mgr: mgr}
 }
 
 // RegisterRoutes 注册路由
@@ -24,10 +23,14 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/pools/usage", h.handleUpdateUsage)
 	mux.HandleFunc(prefix+"/forecast", h.handleForecast)
 	mux.HandleFunc(prefix+"/forecast/all", h.handleAllForecasts)
+	mux.HandleFunc(prefix+"/trends", h.handleTrends)
+	mux.HandleFunc(prefix+"/expansion", h.handleExpansion)
+	mux.HandleFunc(prefix+"/cost", h.handleCost)
 	mux.HandleFunc(prefix+"/alerts", h.handleAlerts)
 	mux.HandleFunc(prefix+"/alerts/dismiss", h.handleDismissAlert)
 	mux.HandleFunc(prefix+"/snapshots", h.handleSnapshots)
 	mux.HandleFunc(prefix+"/stats", h.handleStats)
+	mux.HandleFunc(prefix+"/config", h.handleConfig)
 }
 
 type response struct {
@@ -46,7 +49,7 @@ func writeJSON(w http.ResponseWriter, code int, data interface{}) {
 func (h *Handlers) handlePools(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		pools := h.fc.ListPools()
+		pools := h.mgr.ListPools()
 		writeJSON(w, http.StatusOK, response{
 			Code:    200,
 			Message: "ok",
@@ -65,10 +68,27 @@ func (h *Handlers) handlePools(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		h.fc.RegisterPool(pool)
+		h.mgr.RegisterPool(pool)
 		writeJSON(w, http.StatusCreated, response{
 			Code:    201,
 			Message: "存储池注册成功",
+		})
+
+	case http.MethodDelete:
+		poolID := r.URL.Query().Get("pool_id")
+		if poolID == "" {
+			writeJSON(w, http.StatusBadRequest, response{Code: 400, Message: "pool_id 参数不能为空"})
+			return
+		}
+
+		if err := h.mgr.UnregisterPool(poolID); err != nil {
+			writeJSON(w, http.StatusNotFound, response{Code: 404, Message: err.Error()})
+			return
+		}
+
+		writeJSON(w, http.StatusOK, response{
+			Code:    200,
+			Message: "存储池已注销",
 		})
 
 	default:
@@ -92,7 +112,7 @@ func (h *Handlers) handleUpdateUsage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.fc.UpdatePoolUsage(req.PoolID, req.UsedBytes); err != nil {
+	if err := h.mgr.UpdatePoolUsage(req.PoolID, req.UsedBytes); err != nil {
 		writeJSON(w, http.StatusNotFound, response{Code: 404, Message: err.Error()})
 		return
 	}
@@ -116,7 +136,7 @@ func (h *Handlers) handleForecast(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := h.fc.GetForecast(poolID)
+	result, err := h.mgr.GetForecast(poolID)
 	if err != nil {
 		writeJSON(w, http.StatusNotFound, response{Code: 404, Message: err.Error()})
 		return
@@ -136,11 +156,103 @@ func (h *Handlers) handleAllForecasts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results := h.fc.GetAllForecasts()
+	results := h.mgr.GetAllForecasts()
 	writeJSON(w, http.StatusOK, response{
 		Code:    200,
 		Message: "ok",
 		Data:    results,
+	})
+}
+
+// handleTrends 获取趋势数据
+func (h *Handlers) handleTrends(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
+		return
+	}
+
+	poolID := r.URL.Query().Get("pool_id")
+	if poolID == "" {
+		writeJSON(w, http.StatusBadRequest, response{Code: 400, Message: "pool_id 参数不能为空"})
+		return
+	}
+
+	granularity := TimeGranularity(r.URL.Query().Get("granularity"))
+	if granularity == "" {
+		granularity = GranularityDay
+	}
+
+	hoursStr := r.URL.Query().Get("hours")
+	hours := 720 // 默认 30 天
+	if hoursStr != "" {
+		if h, err := strconv.Atoi(hoursStr); err == nil && h > 0 {
+			hours = h
+		}
+	}
+
+	duration := time.Duration(hours) * time.Hour
+	series, err := h.mgr.GetTrendSeries(poolID, granularity, duration)
+	if err != nil {
+		writeJSON(w, http.StatusNotFound, response{Code: 404, Message: err.Error()})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, response{
+		Code:    200,
+		Message: "ok",
+		Data:    series,
+	})
+}
+
+// handleExpansion 获取扩容建议
+func (h *Handlers) handleExpansion(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
+		return
+	}
+
+	poolID := r.URL.Query().Get("pool_id")
+	if poolID == "" {
+		writeJSON(w, http.StatusBadRequest, response{Code: 400, Message: "pool_id 参数不能为空"})
+		return
+	}
+
+	rec, err := h.mgr.GetExpansionRecommendation(poolID)
+	if err != nil {
+		writeJSON(w, http.StatusNotFound, response{Code: 404, Message: err.Error()})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, response{
+		Code:    200,
+		Message: "ok",
+		Data:    rec,
+	})
+}
+
+// handleCost 获取成本估算
+func (h *Handlers) handleCost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
+		return
+	}
+
+	poolID := r.URL.Query().Get("pool_id")
+	if poolID == "" {
+		writeJSON(w, http.StatusBadRequest, response{Code: 400, Message: "pool_id 参数不能为空"})
+		return
+	}
+
+	estimate, err := h.mgr.GetCostEstimate(poolID)
+	if err != nil {
+		writeJSON(w, http.StatusNotFound, response{Code: 404, Message: err.Error()})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, response{
+		Code:    200,
+		Message: "ok",
+		Data:    estimate,
 	})
 }
 
@@ -152,7 +264,7 @@ func (h *Handlers) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	showDismissed := r.URL.Query().Get("dismissed") == "true"
-	alerts := h.fc.GetAlerts(showDismissed)
+	alerts := h.mgr.GetAlerts(showDismissed)
 
 	writeJSON(w, http.StatusOK, response{
 		Code:    200,
@@ -176,7 +288,7 @@ func (h *Handlers) handleDismissAlert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.fc.DismissAlert(req.AlertID); err != nil {
+	if err := h.mgr.DismissAlert(req.AlertID); err != nil {
 		writeJSON(w, http.StatusNotFound, response{Code: 404, Message: err.Error()})
 		return
 	}
@@ -209,7 +321,7 @@ func (h *Handlers) handleSnapshots(w http.ResponseWriter, r *http.Request) {
 	}
 
 	duration := time.Duration(hours) * time.Hour
-	snapshots := h.fc.GetSnapshots(poolID, duration)
+	snapshots := h.mgr.GetSnapshots(poolID, duration)
 
 	writeJSON(w, http.StatusOK, response{
 		Code:    200,
@@ -225,7 +337,7 @@ func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stats := h.fc.GetStats()
+	stats := h.mgr.GetStats()
 	writeJSON(w, http.StatusOK, response{
 		Code:    200,
 		Message: "ok",
@@ -233,16 +345,44 @@ func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// handleConfig 管理配置
+func (h *Handlers) handleConfig(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		config := h.mgr.GetConfig()
+		writeJSON(w, http.StatusOK, response{
+			Code:    200,
+			Message: "ok",
+			Data:    config,
+		})
+
+	case http.MethodPut:
+		var config ForecastConfig
+		if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
+			writeJSON(w, http.StatusBadRequest, response{Code: 400, Message: "无效的请求"})
+			return
+		}
+		h.mgr.UpdateConfig(config)
+		writeJSON(w, http.StatusOK, response{
+			Code:    200,
+			Message: "配置已更新",
+		})
+
+	default:
+		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
+	}
+}
+
 // GetForecastSummary 获取预测摘要（用于 Dashboard）
 func (h *Handlers) GetForecastSummary() map[string]interface{} {
-	forecasts := h.fc.GetAllForecasts()
+	forecasts := h.mgr.GetAllForecasts()
 
 	summary := map[string]interface{}{
-		"total_pools":    len(forecasts),
-		"warnings":       0,
-		"critical":       0,
-		"full":           0,
-		"pools":          forecasts,
+		"total_pools": len(forecasts),
+		"warnings":    0,
+		"critical":    0,
+		"full":        0,
+		"pools":       forecasts,
 	}
 
 	for _, f := range forecasts {
@@ -257,18 +397,4 @@ func (h *Handlers) GetForecastSummary() map[string]interface{} {
 	}
 
 	return summary
-}
-
-// FormatBytes 格式化字节数
-func FormatBytes(bytes int64) string {
-	const unit = 1024
-	if bytes < unit {
-		return fmt.Sprintf("%d B", bytes)
-	}
-	div, exp := int64(unit), 0
-	for n := bytes / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }

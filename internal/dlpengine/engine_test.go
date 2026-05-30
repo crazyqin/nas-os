@@ -27,7 +27,7 @@ func TestNewManagerNilConfig(t *testing.T) {
 
 func TestScanContent(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
-	mgr := NewManager(logger, &DLPConfig{Enabled: true})
+	mgr := NewManager(logger, &DLPConfig{Enabled: true, MaxContentSize: 100 * 1024 * 1024})
 	req := &ScanRequest{
 		Content:  []byte("test content with no sensitive data"),
 		Resource: "test",
