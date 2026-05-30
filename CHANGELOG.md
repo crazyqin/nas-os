@@ -1,3 +1,36 @@
+## [v2.532.0] - 2026-05-31
+
+### 🚀 竞品对标开发 - 第252轮
+
+基于飞牛/群晖/TrueNAS竞品分析，新增4个核心功能模块：
+
+#### 新增功能模块
+1. **proactivemonitor** - 主动监控系统（对标 TrueNAS Alert System）
+   - 智能告警规则引擎
+   - 阈值监控（CPU/内存/磁盘/网络/服务）
+   - 自动修复动作
+   - 健康检查管理
+   - 告警统计与分析
+   - 完整 HTTP API
+
+2. **datamigration** - 数据迁移向导（对标群晖 Migration Assistant）
+   - 引导式迁移流程
+   - 多源支持（本地/NFS/SMB/S3/群晖）
+   - 进度追踪与估算
+   - 迁移计划管理
+   - 并发传输控制
+   - 完整 HTTP API
+
+#### 功能增强
+- **energydashboard**: 重构为统一管理器架构
+- **homelab**: 新增服务管理器，支持Docker Compose模板
+- **smartbackup**: 增强备份策略管理
+- **storageforecast**: 重构为ML预测引擎
+- **writeonce**: 新增WORM写保护功能
+- **photos**: 优化条件相册和智能搜索
+
+---
+
 ## [v2.530.0] - 2026-05-31
 
 ### 🔧 修复 + 🆕 新功能模块 - 第251轮开发
