@@ -604,10 +604,14 @@ func TestHealthManager_BenchmarkDuplicate(t *testing.T) {
 	_, err = hm.StartBenchmark(nil, cfg)
 	require.NoError(t, err)
 
-	// Second benchmark on same device should fail
+	// Second benchmark on same device should fail immediately
+	// (benchRunning is set synchronously, no sleep needed)
 	_, err = hm.StartBenchmark(nil, cfg)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "already running")
+
+	// 等待 benchmark 完成，避免 TempDir 清理失败
+	hm.WaitForBenchmarks()
 }
 
 func TestHealthManager_GetDeviceTemperatureStatus_NotFound(t *testing.T) {
