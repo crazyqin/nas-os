@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func newTestManager(t *testing.T) (*Manager, string) {
@@ -499,6 +500,7 @@ func TestImportMedia(t *testing.T) {
 	// 等待导入完成
 	// 使用轮询等待（简化测试）
 	for i := 0; i < 100; i++ {
+		time.Sleep(10 * time.Millisecond)
 		tk, ok := m.GetImportTask(task.ID)
 		if ok && tk.Status != TaskStatusPending && tk.Status != TaskStatusProcessing {
 			break
