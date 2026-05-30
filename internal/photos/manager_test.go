@@ -390,11 +390,7 @@ func TestSaveLoadConfig(t *testing.T) {
 	}
 
 	// 创建新管理器并加载
-	m2, err := NewManager(tmpDir)
-	if err != nil {
-		t.Fatalf("创建管理器失败：%v", err)
-	}
-
+	m2 := NewManager(tmpDir)
 	if m2.config.EnableAI != false {
 		t.Error("配置未正确加载")
 	}
@@ -410,11 +406,7 @@ func boolPtr(b bool) *bool {
 // 测试缩略图目录存在性
 func TestThumbnailDirExists(t *testing.T) {
 	tmpDir := t.TempDir()
-	m, err := NewManager(tmpDir)
-	if err != nil {
-		t.Fatalf("创建管理器失败：%v", err)
-	}
-
+	m := NewManager(tmpDir)
 	// 验证缩略图目录存在
 	if _, err := os.Stat(m.thumbsDir); os.IsNotExist(err) {
 		t.Error("缩略图目录应该存在")
@@ -424,10 +416,7 @@ func TestThumbnailDirExists(t *testing.T) {
 // 测试配置文件创建
 func TestConfigFileCreated(t *testing.T) {
 	tmpDir := t.TempDir()
-	_, err := NewManager(tmpDir)
-	if err != nil {
-		t.Fatalf("创建管理器失败：%v", err)
-	}
+	NewManager(tmpDir)
 
 	configPath := filepath.Join(tmpDir, "photos-config.json")
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {

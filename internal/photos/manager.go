@@ -50,6 +50,16 @@ func NewManager(storagePath string) *Manager {
 			},
 		},
 	}
+
+	// 创建必要的目录
+	os.MkdirAll(m.photosDir, 0755)
+	os.MkdirAll(m.thumbsDir, 0755)
+	os.MkdirAll(m.dataDir, 0755)
+	os.MkdirAll(m.cacheDir, 0755)
+
+	// 保存默认配置
+	m.saveConfig()
+
 	go m.startAutoIndex()
 	return m
 }
@@ -501,6 +511,14 @@ func (m *Manager) GetConfig() *PhotoConfig {
 		MaxUploadSize: 100 * 1024 * 1024, // 100MB
 		Enabled:       true,
 		StoragePath:   m.storagePath,
+		SupportedFormats: []string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic", ".heif", ".avif", ".bmp", ".tiff"},
+		ThumbnailConfig: &ThumbnailConfig{
+			Quality:     85,
+			SmallSize:   128,
+			MediumSize:  512,
+			LargeSize:   1024,
+			OriginalMax: 2048,
+		},
 	}
 }
 
@@ -670,6 +688,10 @@ func (m *Manager) ToggleFavorite(photoID string) (*Photo, error) {
 
 // saveConfig 保存配置
 func (m *Manager) saveConfig() error {
-	// 简化实现 - 配置保存到内存
-	return nil
+	configPath := filepath.Join(m.storagePath, "photos-config.json")
+	data, err := json.MarshalIndent(m.config, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(configPath, data, 0644)
 }
