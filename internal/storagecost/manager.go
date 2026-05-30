@@ -3,6 +3,8 @@
 package storagecost
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -19,6 +21,9 @@ type Manager struct {
 	// 存储资产
 	assets map[string]*StorageAsset
 
+	// 成本记录
+	costRecords map[string]*CostRecord
+
 	// 容量采样
 	capacitySamples []CapacitySample
 
@@ -30,6 +35,9 @@ type Manager struct {
 
 	// 成本趋势
 	costTrends []CostTrend
+
+	// 成本告警
+	costAlerts []CostAlert
 
 	// 优化建议缓存
 	optimizationReport *OptimizationReport
@@ -48,16 +56,21 @@ type Manager struct {
 
 	// 告警阈值
 	alertThresholds map[string]float64
+
+	// 存储成本配置
+	storageCostConfig *StorageCostConfig
 }
 
 // NewManager 创建存储成本分析管理器
 func NewManager() *Manager {
 	return &Manager{
 		assets:          make(map[string]*StorageAsset),
+		costRecords:     make(map[string]*CostRecord),
 		capacitySamples: make([]CapacitySample, 0),
 		storagePools:    make(map[string]*StoragePool),
 		budgetPlans:     make(map[string]*BudgetPlan),
 		costTrends:      make([]CostTrend, 0),
+		costAlerts:      make([]CostAlert, 0),
 		tcoConfig:       DefaultTCOConfig(),
 		forecastConfig:  DefaultForecastConfig(),
 		alertThresholds: map[string]float64{
@@ -65,6 +78,13 @@ func NewManager() *Manager {
 			"budget":      90.0,
 		},
 	}
+}
+
+// NewManagerWithConfig 创建带配置的存储成本分析管理器
+func NewManagerWithConfig(config *StorageCostConfig) *Manager {
+	mgr := NewManager()
+	mgr.storageCostConfig = config
+	return mgr
 }
 
 // ============================================================
@@ -721,4 +741,314 @@ func (m *Manager) SetAlertThreshold(key string, value float64) {
 	defer m.mu.Unlock()
 	m.alertThresholds[key] = value
 	log.Printf("[存储成本] 设置告警阈值: %s = %.2f", key, value)
+}
+
+// ============================================================
+// 成本记录管理 (新增)
+// ============================================================
+
+// AddCostRecord 添加成本记录
+func (m *Manager) AddCostRecord(record CostRecord) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if record.ID == "" {
+		record.ID = uuid.New().String()
+	}
+
+	if _, exists := m.costRecords[record.ID]; exists {
+		return fmt.Errorf("成本记录 %s 已存在", record.ID)
+	}
+
+	// 计算月度成本
+	if record.MonthlyCost == 0 {
+		record.MonthlyCost = record.CapacityGB * record.PricePerGB
+	}
+
+	m.costRecords[record.ID] = &record
+	log.Printf("[存储成本] 添加成本记录: %s - %s", record.ID, record.VolumeName)
+
+	// 检查是否需要生成告警
+	m.checkBudgetAlerts()
+
+	return nil
+}
+
+// GetCostSummary 获取成本汇总
+func (m *Manager) GetCostSummary() (*CostSummary, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	summary := &CostSummary{
+		CostByType: make(map[string]float64),
+		Trend:      make([]CostTrendPoint, 0),
+	}
+
+	for _, record := range m.costRecords {
+		summary.TotalMonthlyCost += record.MonthlyCost
+		summary.TotalCapacity += record.CapacityGB
+		summary.UsedCapacity += record.UsedGB
+		summary.CostByType[record.StorageType] += record.MonthlyCost
+	}
+
+	// 计算每TB成本
+	if summary.TotalCapacity > 0 {
+		summary.CostPerTB = (summary.TotalMonthlyCost / summary.TotalCapacity) * 1024
+	}
+
+	// 生成趋势数据 (最近30天)
+	for i := 29; i >= 0; i-- {
+		date := time.Now().AddDate(0, 0, -i)
+		dayStr := date.Format("2006-01-02")
+		summary.Trend = append(summary.Trend, CostTrendPoint{
+			Date:         dayStr,
+			Cost:         summary.TotalMonthlyCost / 30,
+			Capacity:     summary.TotalCapacity,
+			UsedCapacity: summary.UsedCapacity,
+		})
+	}
+
+	return summary, nil
+}
+
+// GetCostTrendByDays 获取成本趋势
+func (m *Manager) GetCostTrendByDays(days int) ([]CostTrendPoint, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	if days <= 0 {
+		days = 30
+	}
+
+	trend := make([]CostTrendPoint, 0, days)
+
+	// 计算总成本
+	totalCost := 0.0
+	totalCapacity := 0.0
+	usedCapacity := 0.0
+	for _, record := range m.costRecords {
+		totalCost += record.MonthlyCost
+		totalCapacity += record.CapacityGB
+		usedCapacity += record.UsedGB
+	}
+
+	for i := days - 1; i >= 0; i-- {
+		date := time.Now().AddDate(0, 0, -i)
+		dayStr := date.Format("2006-01-02")
+		trend = append(trend, CostTrendPoint{
+			Date:         dayStr,
+			Cost:         totalCost / float64(days),
+			Capacity:     totalCapacity,
+			UsedCapacity: usedCapacity,
+		})
+	}
+
+	return trend, nil
+}
+
+// GetCostAlerts 获取成本告警
+func (m *Manager) GetCostAlerts() ([]CostAlert, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	return m.costAlerts, nil
+}
+
+// checkBudgetAlerts 检查预算告警 (内部方法，调用时需持有锁)
+func (m *Manager) checkBudgetAlerts() {
+	if m.storageCostConfig == nil {
+		return
+	}
+
+	totalCost := 0.0
+	for _, record := range m.costRecords {
+		totalCost += record.MonthlyCost
+	}
+
+	threshold := m.storageCostConfig.AlertThreshold
+	if threshold <= 0 {
+		threshold = 80.0
+	}
+
+	budgetLimit := m.storageCostConfig.BudgetLimit
+	if budgetLimit > 0 {
+		usagePercent := (totalCost / budgetLimit) * 100
+		if usagePercent >= threshold {
+			severity := "medium"
+			if usagePercent >= 95 {
+				severity = "critical"
+			} else if usagePercent >= 90 {
+				severity = "high"
+			}
+
+			alert := CostAlert{
+				ID:          uuid.New().String(),
+				Threshold:   threshold,
+				CurrentCost: totalCost,
+				Severity:    severity,
+				Message:     fmt.Sprintf("当前成本 %.2f 已达预算 %.2f 的 %.1f%%", totalCost, budgetLimit, usagePercent),
+				CreatedAt:   time.Now(),
+			}
+			m.costAlerts = append(m.costAlerts, alert)
+		}
+	}
+}
+
+// GenerateOptimizationSuggestions 生成优化建议
+func (m *Manager) GenerateOptimizationSuggestions() ([]OptimizationSuggestion, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	suggestions := make([]OptimizationSuggestion, 0)
+
+	// 分析成本记录
+	for _, record := range m.costRecords {
+		usagePercent := 0.0
+		if record.CapacityGB > 0 {
+			usagePercent = (record.UsedGB / record.CapacityGB) * 100
+		}
+
+		// 低利用率 -> 冷存储建议
+		if usagePercent < 30 {
+			suggestions = append(suggestions, OptimizationSuggestion{
+				ID:              uuid.New().String(),
+				Type:            "ColdStorage",
+				EstimatedSaving: record.MonthlyCost * 0.6,
+				Description:     fmt.Sprintf("卷 %s 利用率仅 %.1f%%，建议迁移到冷存储", record.VolumeName, usagePercent),
+				Priority:        "high",
+			})
+		}
+
+		// SSD 大容量 -> 分层建议
+		if record.StorageType == "SSD" && record.CapacityGB > 1000 {
+			suggestions = append(suggestions, OptimizationSuggestion{
+				ID:              uuid.New().String(),
+				Type:            "Tier",
+				EstimatedSaving: record.MonthlyCost * 0.3,
+				Description:     fmt.Sprintf("卷 %s 使用 SSD 但容量较大，建议分层存储", record.VolumeName),
+				Priority:        "medium",
+			})
+		}
+	}
+
+	// 通用建议
+	if len(m.costRecords) > 0 {
+		suggestions = append(suggestions, OptimizationSuggestion{
+			ID:              uuid.New().String(),
+			Type:            "Dedup",
+			EstimatedSaving: 500.0,
+			Description:     "启用数据去重可节省存储空间",
+			Priority:        "medium",
+		})
+
+		suggestions = append(suggestions, OptimizationSuggestion{
+			ID:              uuid.New().String(),
+			Type:            "Compress",
+			EstimatedSaving: 300.0,
+			Description:     "启用数据压缩可降低存储成本",
+			Priority:        "low",
+		})
+	}
+
+	return suggestions, nil
+}
+
+// EstimateMonthlyCost 估算月度成本
+func (m *Manager) EstimateMonthlyCost(storageType string, sizeGB float64) (float64, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	if sizeGB <= 0 {
+		return 0, fmt.Errorf("存储大小必须大于0")
+	}
+
+	var pricePerGB float64
+
+	// 优先使用配置中的价格
+	if m.storageCostConfig != nil {
+		switch storageType {
+		case "SSD":
+			pricePerGB = m.storageCostConfig.DefaultPriceSSD
+		case "HDD":
+			pricePerGB = m.storageCostConfig.DefaultPriceHDD
+		}
+	}
+
+	// 默认价格
+	if pricePerGB <= 0 {
+		switch storageType {
+		case "SSD":
+			pricePerGB = 0.5
+		case "HDD":
+			pricePerGB = 0.1
+		case "NVMe":
+			pricePerGB = 1.0
+		case "Cloud":
+			pricePerGB = 0.2
+		default:
+			return 0, fmt.Errorf("不支持的存储类型: %s", storageType)
+		}
+	}
+
+	return sizeGB * pricePerGB, nil
+}
+
+// SetBudgetAlert 设置预算告警
+func (m *Manager) SetBudgetAlert(threshold float64) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if threshold <= 0 || threshold > 100 {
+		return fmt.Errorf("阈值必须在 0-100 之间")
+	}
+
+	if m.storageCostConfig == nil {
+		m.storageCostConfig = &StorageCostConfig{
+			Currency:       "CNY",
+			AlertThreshold: threshold,
+		}
+	} else {
+		m.storageCostConfig.AlertThreshold = threshold
+	}
+
+	log.Printf("[存储成本] 设置预算告警阈值: %.1f%%", threshold)
+	return nil
+}
+
+// ExportCostReport 导出成本报告
+func (m *Manager) ExportCostReport(format string) ([]byte, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	switch format {
+	case "csv":
+		return m.exportCSV()
+	case "json":
+		return m.exportJSON()
+	default:
+		return nil, fmt.Errorf("不支持的导出格式: %s", format)
+	}
+}
+
+// exportCSV 导出CSV格式
+func (m *Manager) exportCSV() ([]byte, error) {
+	var buf bytes.Buffer
+	buf.WriteString("ID,VolumeID,VolumeName,StorageType,CapacityGB,UsedGB,PricePerGB,MonthlyCost,Provider\n")
+
+	for _, record := range m.costRecords {
+		buf.WriteString(fmt.Sprintf("%s,%s,%s,%s,%.2f,%.2f,%.4f,%.2f,%s\n",
+			record.ID, record.VolumeID, record.VolumeName, record.StorageType,
+			record.CapacityGB, record.UsedGB, record.PricePerGB, record.MonthlyCost, record.Provider))
+	}
+
+	return buf.Bytes(), nil
+}
+
+// exportJSON 导出JSON格式
+func (m *Manager) exportJSON() ([]byte, error) {
+	records := make([]*CostRecord, 0, len(m.costRecords))
+	for _, record := range m.costRecords {
+		records = append(records, record)
+	}
+	return json.MarshalIndent(records, "", "  ")
 }
