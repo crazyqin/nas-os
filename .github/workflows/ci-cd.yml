@@ -480,18 +480,20 @@ jobs:
           go tool cover -html=coverage.out -o coverage.html || true
           
           # 提取总覆盖率
-          COVERAGE=$(go tool cover -func=coverage.out 2>/dev/null | grep total | awk '{print $3}' | tr -d '%' || echo "0")
+          COVERAGE=$(go tool cover -func=coverage.out 2>/dev/null | grep total | awk '{print $3}' | tr -d '%' | tail -1 || echo "0")
+          COVERAGE=$(echo "$COVERAGE" | tr -d '[:space:]')
+          COVERAGE=${COVERAGE:-0}
           echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
           echo "📊 测试覆盖率：${COVERAGE}%"
           
           # 生成覆盖率徽章 JSON
-          if (( $(echo "$COVERAGE >= 80" | bc -l 2>/dev/null || echo "0") )); then
+          if [ $(echo "$COVERAGE >= 80" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
             COLOR="brightgreen"
-          elif (( $(echo "$COVERAGE >= 60" | bc -l 2>/dev/null || echo "0") )); then
+          elif [ $(echo "$COVERAGE >= 60" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
             COLOR="green"
-          elif (( $(echo "$COVERAGE >= 40" | bc -l 2>/dev/null || echo "0") )); then
+          elif [ $(echo "$COVERAGE >= 40" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
             COLOR="yellow"
-          elif (( $(echo "$COVERAGE >= 20" | bc -l 2>/dev/null || echo "0") )); then
+          elif [ $(echo "$COVERAGE >= 20" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
             COLOR="orange"
           else
             COLOR="red"
