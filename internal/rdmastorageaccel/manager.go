@@ -210,6 +210,11 @@ func (m *Manager) startMonitoring() {
 	}
 }
 
+// CollectMetrics 手动触发指标收集（导出版本，供测试使用）
+func (m *Manager) CollectMetrics() {
+	m.collectMetrics()
+}
+
 // collectMetrics 收集性能指标
 func (m *Manager) collectMetrics() {
 	m.mu.Lock()
