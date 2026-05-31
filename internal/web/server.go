@@ -1580,6 +1580,7 @@ func (s *Server) setupRoutes() {
 		// 	media.NewHandlers(s.mediaMgr).RegisterRoutes(api)
 		// }
 	}
+	}
 
 	// Swagger API 文档
 	// 访问地址: http://localhost:8080/swagger/index.html
