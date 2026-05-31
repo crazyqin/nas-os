@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"path/filepath"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -15,8 +14,7 @@ import (
 func setupTest(t *testing.T) (*Manager, *gin.Engine) {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
-	mgr := NewManager(filepath.Join(t.TempDir(), "data.json"))
-	require.NoError(t, mgr.Initialize())
+	mgr := NewManager()
 	r := gin.New()
 	NewHandlers(mgr).RegisterRoutes(r.Group(""))
 	return mgr, r
@@ -46,7 +44,8 @@ func TestGetLatest(t *testing.T) {
 	var resp map[string]interface{}
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	data := resp["data"].(map[string]interface{})
-	assert.NotEmpty(t, data["grade"])
+	summary := data["summary"].(map[string]interface{})
+	assert.NotEmpty(t, summary["grade"])
 }
 
 func TestGetLatestNoReport(t *testing.T) {

@@ -479,25 +479,13 @@ jobs:
           # 生成 HTML 报告
           go tool cover -html=coverage.out -o coverage.html || true
           
-          # 提取总覆盖率
-          COVERAGE=$(go tool cover -func=coverage.out 2>/dev/null | grep total | awk '{print $3}' | tr -d '%' | tail -1 || echo "0")
-          COVERAGE=$(echo "$COVERAGE" | tr -d '[:space:]')
-          COVERAGE=${COVERAGE:-0}
+          # 提取总覆盖率（使用 awk 精确匹配最后一行 total，避免多行问题）
+          COVERAGE=$(go tool cover -func=coverage.out 2>/dev/null | awk '/^total:/ {val=$NF} END {gsub(/%/,"",val); print val+0}')
           echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
           echo "📊 测试覆盖率：${COVERAGE}%"
           
-          # 生成覆盖率徽章 JSON
-          if [ $(echo "$COVERAGE >= 80" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
-            COLOR="brightgreen"
-          elif [ $(echo "$COVERAGE >= 60" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
-            COLOR="green"
-          elif [ $(echo "$COVERAGE >= 40" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
-            COLOR="yellow"
-          elif [ $(echo "$COVERAGE >= 20" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
-            COLOR="orange"
-          else
-            COLOR="red"
-          fi
+          # 生成覆盖率徽章 JSON（用 awk 替代 bc，避免浮点语法错误）
+          COLOR=$(awk "BEGIN {c=$COVERAGE; if(c>=80) print \"brightgreen\"; else if(c>=60) print \"green\"; else if(c>=40) print \"yellow\"; else if(c>=20) print \"orange\"; else print \"red\"}")
           echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"${COLOR}\"}" > coverage-badge.json
           
           # 生成覆盖率趋势数据

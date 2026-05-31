@@ -16,19 +16,8 @@ func setupTestManager(t *testing.T) *Manager {
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "rdmastorageaccel.json")
 	m := NewManagerWithPath(configPath)
-	// 初始化指标和历史以便测试
-	m.mu.Lock()
-	for deviceID := range m.devices {
-		m.metrics[deviceID] = &PerfMetrics{
-			DeviceID:     deviceID,
-			BandwidthMBs: 10000,
-			LatencyUs:    5.0,
-			IOPS:         500000,
-		}
-		break // 只为第一个设备初始化
-	}
-	m.history = append(m.history, PerfMetrics{})
-	m.mu.Unlock()
+	// 触发一次指标收集，确保指标可用
+	m.CollectMetrics()
 	return m
 }
 
