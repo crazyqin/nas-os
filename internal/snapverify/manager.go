@@ -18,6 +18,8 @@ type SnapVerifyManager struct {
 	tests    map[string]*SnapshotTest
 	results  map[string]*TestResult
 	policies map[string]*VerifyPolicy
+	// deterministicMode 用于测试，强制所有测试结果为 passed=false
+	deterministicMode bool
 }
 
 // NewSnapVerifyManager 创建快照验证管理器
@@ -32,6 +34,13 @@ func NewSnapVerifyManager() *SnapVerifyManager {
 	m.addDefaultPolicies()
 
 	return m
+}
+
+// SetDeterministicMode 设置确定性模式（用于测试）
+func (m *SnapVerifyManager) SetDeterministicMode(enabled bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.deterministicMode = enabled
 }
 
 // addDefaultPolicies 添加默认验证策略
@@ -107,8 +116,24 @@ func (m *SnapVerifyManager) executeTest(ctx context.Context, test *SnapshotTest)
 	case <-time.After(duration):
 	}
 
+	// 检查确定性模式
+	m.mu.RLock()
+	deterministic := m.deterministicMode
+	m.mu.RUnlock()
+
 	// 生成模拟结果
-	result := m.generateTestResult(test)
+	var result *TestResult
+	if deterministic {
+		result = &TestResult{
+			TestID:   test.ID,
+			Passed:   false,
+			Errors:   []TestError{{Code: "DETERMINISTIC_FAILURE", Message: "确定性模式：模拟测试失败", Severity: SeverityHigh}},
+			Warnings: []string{},
+			Details:  map[string]interface{}{"deterministic": true},
+		}
+	} else {
+		result = m.generateTestResult(test)
+	}
 
 	m.mu.Lock()
 	test.Status = TestStatusPassed
@@ -125,11 +150,22 @@ func (m *SnapVerifyManager) executeTest(ctx context.Context, test *SnapshotTest)
 // generateTestResult 生成测试结果（模拟实现）
 func (m *SnapVerifyManager) generateTestResult(test *SnapshotTest) *TestResult {
 	result := &TestResult{
-		TestID:  test.ID,
-		Passed:  true,
-		Errors:  []TestError{},
+		TestID:   test.ID,
+		Passed:   true,
+		Errors:   []TestError{},
 		Warnings: []string{},
-		Details: make(map[string]interface{}),
+		Details:  make(map[string]interface{}),
+	}
+
+	// 确定性模式：强制所有测试失败（用于测试自动修复）
+	if m.deterministicMode {
+		result.Passed = false
+		result.Errors = append(result.Errors, TestError{
+			Code:     "DETERMINISTIC_FAILURE",
+			Message:  "确定性模式：模拟测试失败",
+			Severity: SeverityHigh,
+		})
+		return result
 	}
 
 	switch test.TestType {

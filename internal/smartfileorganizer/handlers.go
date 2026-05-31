@@ -1,117 +1,162 @@
+// Package smartfileorganizer provides HTTP handlers for the smart file organizer.
 package smartfileorganizer
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-// Handler provides HTTP handlers for smart file organization.
+// Handler smart file organizer HTTP handler
 type Handler struct {
 	organizer *Organizer
 }
 
-// NewHandler creates a new organizer HTTP handler.
-func NewHandler(o *Organizer) *Handler {
-	return &Handler{organizer: o}
+// NewHandler creates a new handler
+func NewHandler(organizer *Organizer) *Handler {
+	return &Handler{organizer: organizer}
 }
 
-// RegisterRoutes registers organizer API routes.
-func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/v1/fileorganizer/scan", h.handleScan)
-	mux.HandleFunc("/api/v1/fileorganizer/duplicates", h.handleDuplicates)
-	mux.HandleFunc("/api/v1/fileorganizer/organize", h.handleOrganize)
-	mux.HandleFunc("/api/v1/fileorganizer/stats", h.handleStats)
-	mux.HandleFunc("/api/v1/fileorganizer/rules", h.handleRules)
-	mux.HandleFunc("/api/v1/fileorganizer/category", h.handleCategory)
-}
+// RegisterRoutes registers routes
+func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
+	organizeGroup := r.Group("/smart-organize")
+	{
+		// Scan
+		organizeGroup.POST("/scan", h.HandleScan)
 
-func (h *Handler) handleScan(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
+		// Rules
+		organizeGroup.POST("/rules", h.HandleAddRule)
+		organizeGroup.GET("/rules", h.HandleGetRules)
+		organizeGroup.DELETE("/rules/:id", h.HandleRemoveRule)
+
+		// Organize
+		organizeGroup.POST("/organize", h.HandleOrganize)
+
+		// Duplicates
+		organizeGroup.GET("/duplicates", h.HandleFindDuplicates)
+
+		// Category
+		organizeGroup.GET("/category/:category", h.HandleGetByCategory)
+
+		// Stats
+		organizeGroup.GET("/stats", h.HandleGetStats)
 	}
+}
+
+// HandleScan handles scan request
+func (h *Handler) HandleScan(c *gin.Context) {
 	report, err := h.organizer.Scan()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "scan_failed",
+			"message": err.Error(),
+		})
 		return
 	}
-	writeJSON(w, http.StatusOK, report)
+
+	c.JSON(http.StatusOK, report)
 }
 
-func (h *Handler) handleDuplicates(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+// HandleAddRule handles add rule request
+func (h *Handler) HandleAddRule(c *gin.Context) {
+	var rule OrganizationRule
+	if err := c.ShouldBindJSON(&rule); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "invalid_request",
+			"message": "请求参数无效: " + err.Error(),
+		})
 		return
 	}
-	groups := h.organizer.FindDuplicates()
-	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"groups": groups,
-		"total":  len(groups),
+
+	h.organizer.AddRule(rule)
+	c.JSON(http.StatusCreated, rule)
+}
+
+// HandleGetRules handles get rules request
+func (h *Handler) HandleGetRules(c *gin.Context) {
+	rules := h.organizer.GetRules()
+	c.JSON(http.StatusOK, gin.H{
+		"rules": rules,
+		"total": len(rules),
 	})
 }
 
-func (h *Handler) handleOrganize(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+// HandleRemoveRule handles remove rule request
+func (h *Handler) HandleRemoveRule(c *gin.Context) {
+	ruleID := c.Param("id")
+	if ruleID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "missing_id",
+			"message": "规则ID不能为空",
+		})
 		return
 	}
-	dryRun := r.URL.Query().Get("dryRun") == "true"
-	report, err := h.organizer.Organize(dryRun)
+
+	if !h.organizer.RemoveRule(ruleID) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "not_found",
+			"message": "规则不存在",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "规则删除成功",
+	})
+}
+
+// HandleOrganize handles organize request
+func (h *Handler) HandleOrganize(c *gin.Context) {
+	var req struct {
+		DryRun bool `json:"dry_run"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		req.DryRun = true // Default to dry run
+	}
+
+	report, err := h.organizer.Organize(req.DryRun)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "organize_failed",
+			"message": err.Error(),
+		})
 		return
 	}
-	writeJSON(w, http.StatusOK, report)
+
+	c.JSON(http.StatusOK, report)
 }
 
-func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(w, http.StatusOK, h.organizer.GetStats())
-}
-
-func (h *Handler) handleRules(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		writeJSON(w, http.StatusOK, h.organizer.GetRules())
-	case http.MethodPost:
-		var rule OrganizationRule
-		if err := json.NewDecoder(r.Body).Decode(&rule); err != nil {
-			http.Error(w, "invalid request body", http.StatusBadRequest)
-			return
-		}
-		h.organizer.AddRule(rule)
-		writeJSON(w, http.StatusCreated, map[string]string{"status": "created", "id": rule.ID})
-	case http.MethodDelete:
-		id := r.URL.Query().Get("id")
-		if h.organizer.RemoveRule(id) {
-			writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
-		} else {
-			http.Error(w, "rule not found", http.StatusNotFound)
-		}
-	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (h *Handler) handleCategory(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	cat := FileCategory(r.URL.Query().Get("type"))
-	entries := h.organizer.GetByCategory(cat)
-	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"category": cat,
-		"files":    entries,
-		"count":    len(entries),
+// HandleFindDuplicates handles find duplicates request
+func (h *Handler) HandleFindDuplicates(c *gin.Context) {
+	groups := h.organizer.FindDuplicates()
+	c.JSON(http.StatusOK, gin.H{
+		"duplicates": groups,
+		"count":      len(groups),
 	})
 }
 
-func writeJSON(w http.ResponseWriter, status int, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+// HandleGetByCategory handles get by category request
+func (h *Handler) HandleGetByCategory(c *gin.Context) {
+	category := FileCategory(c.Param("category"))
+	if category == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "missing_category",
+			"message": "分类不能为空",
+		})
+		return
+	}
+
+	files := h.organizer.GetByCategory(category)
+	c.JSON(http.StatusOK, gin.H{
+		"files":    files,
+		"total":    len(files),
+		"category": category,
+	})
+}
+
+// HandleGetStats handles get stats request
+func (h *Handler) HandleGetStats(c *gin.Context) {
+	stats := h.organizer.GetStats()
+	c.JSON(http.StatusOK, stats)
 }
