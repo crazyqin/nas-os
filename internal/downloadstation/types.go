@@ -4,6 +4,7 @@
 package downloadstation
 
 import (
+	"strings"
 	"sync"
 	"time"
 )
@@ -247,4 +248,83 @@ type AddRSSRequest struct {
 	Title    string   `json:"title,omitempty"`
 	Interval int      `json:"interval,omitempty"` // 检查间隔（分钟）
 	Filter   RSSFilter `json:"filter,omitempty"`
+}
+
+// FileCategory 文件分类.
+type FileCategory string
+
+const (
+	CategoryDocument FileCategory = "document"  // 文档（pdf, doc, docx, txt, rtf, odt, xls, xlsx, ppt, pptx, csv）
+	CategoryVideo    FileCategory = "video"     // 视频（mp4, avi, mkv, mov, wmv, flv, webm, m4v, mpg, mpeg）
+	CategoryMusic    FileCategory = "music"     // 音乐（mp3, wav, flac, aac, ogg, wma, m4a, aiff）
+	CategoryImage    FileCategory = "image"     // 图片（jpg, jpeg, png, gif, bmp, svg, webp, tiff, ico）
+	CategoryArchive  FileCategory = "archive"   // 压缩包（zip, rar, 7z, tar, gz, bz2, xz, iso）
+	CategoryOther    FileCategory = "other"     // 其他
+)
+
+// ClassifyFile 根据文件扩展名自动分类.
+func ClassifyFile(fileName string) FileCategory {
+	ext := getExtension(fileName)
+	switch ext {
+	case ".pdf", ".doc", ".docx", ".txt", ".rtf", ".odt",
+		".xls", ".xlsx", ".ppt", ".pptx", ".csv",
+		".epub", ".mobi":
+		return CategoryDocument
+	case ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv",
+		".webm", ".m4v", ".mpg", ".mpeg", ".ts", ".vob":
+		return CategoryVideo
+	case ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma",
+		".m4a", ".aiff", ".opus":
+		return CategoryMusic
+	case ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg",
+		".webp", ".tiff", ".tif", ".ico", ".heic", ".heif":
+		return CategoryImage
+	case ".zip", ".rar", ".7z", ".tar", ".gz", ".bz2",
+		".xz", ".iso", ".dmg":
+		return CategoryArchive
+	default:
+		return CategoryOther
+	}
+}
+
+// getExtension 获取文件扩展名（小写）.
+func getExtension(fileName string) string {
+	for i := len(fileName) - 1; i >= 0; i-- {
+		if fileName[i] == '.' {
+			return strings.ToLower(fileName[i:])
+		}
+	}
+	return ""
+}
+
+// GetCategoryDir 获取分类对应的子目录名.
+func GetCategoryDir(category FileCategory) string {
+	switch category {
+	case CategoryDocument:
+		return "documents"
+	case CategoryVideo:
+		return "videos"
+	case CategoryMusic:
+		return "music"
+	case CategoryImage:
+		return "images"
+	case CategoryArchive:
+		return "archives"
+	default:
+		return "others"
+	}
+}
+
+// DownloadSchedule 下载计划.
+type DownloadSchedule struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	TaskIDs     []string  `json:"taskIds"`     // 关联的任务 ID
+	StartTime   string    `json:"startTime"`   // 开始时间 HH:MM
+	EndTime     string    `json:"endTime"`     // 结束时间 HH:MM
+	DaysOfWeek  []int     `json:"daysOfWeek"`  // 星期几（0=周日, 1=周一, ... 6=周六）
+	MaxSpeed    int64     `json:"maxSpeed"`    // 该时段速度限制（字节/秒）
+	Enabled     bool      `json:"enabled"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }

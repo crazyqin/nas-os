@@ -5,7 +5,7 @@ import (
 )
 
 func TestNewManager(t *testing.T) {
-	cfg := ComplianceConfig{Enabled: true, AutoScan: true}
+	cfg := Config{Enabled: true, AutoScan: true}
 	m := NewManager(cfg)
 	if m == nil {
 		t.Fatal("NewManager returned nil")
@@ -13,7 +13,7 @@ func TestNewManager(t *testing.T) {
 }
 
 func TestStartStop(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	if err := m.Start(); err != nil {
 		t.Fatalf("Start failed: %v", err)
 	}
@@ -26,7 +26,7 @@ func TestStartStop(t *testing.T) {
 }
 
 func TestInitDefaultChecks(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	m.Start()
 	checks := m.GetChecks("", "")
 	if len(checks) < 5 {
@@ -35,7 +35,7 @@ func TestInitDefaultChecks(t *testing.T) {
 }
 
 func TestRunScan(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	m.Start()
 
 	report, err := m.RunScan(FrameworkGDPR)
@@ -54,7 +54,7 @@ func TestRunScan(t *testing.T) {
 }
 
 func TestRunScanAll(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	m.Start()
 
 	report, err := m.RunScan("")
@@ -67,9 +67,9 @@ func TestRunScanAll(t *testing.T) {
 }
 
 func TestGetReport(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	m.Start()
-	report, _ := m.RunScan(FrameworkSOC2)
+	report, _ := m.RunScan(FrameworkISO27001)
 
 	got, err := m.GetReport(report.ID)
 	if err != nil {
@@ -86,11 +86,11 @@ func TestGetReport(t *testing.T) {
 }
 
 func TestListReports(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	m.Start()
 	m.RunScan(FrameworkGDPR)
-	m.RunScan(FrameworkSOC2)
-	m.RunScan(FrameworkHIPAA)
+	m.RunScan(FrameworkISO27001)
+	m.RunScan(FrameworkMLPS2)
 
 	reports, total := m.ListReports("", 1, 10)
 	if total != 3 {
@@ -106,7 +106,7 @@ func TestListReports(t *testing.T) {
 }
 
 func TestGetStats(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	m.Start()
 
 	stats := m.GetStats()
@@ -119,7 +119,7 @@ func TestGetStats(t *testing.T) {
 }
 
 func TestLogAuditEvent(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	m.LogAuditEvent(AuditEvent{
 		UserID:   "user1",
 		UserName: "Admin",
@@ -139,7 +139,7 @@ func TestLogAuditEvent(t *testing.T) {
 }
 
 func TestGetAuditLogFilter(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	m.LogAuditEvent(AuditEvent{UserID: "u1", Action: "login", Result: "success"})
 	m.LogAuditEvent(AuditEvent{UserID: "u2", Action: "logout", Result: "success"})
 	m.LogAuditEvent(AuditEvent{UserID: "u1", Action: "download", Result: "success"})
@@ -156,7 +156,7 @@ func TestGetAuditLogFilter(t *testing.T) {
 }
 
 func TestGetChecks(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	m.Start()
 
 	gdprChecks := m.GetChecks(FrameworkGDPR, "")
@@ -171,23 +171,23 @@ func TestGetChecks(t *testing.T) {
 }
 
 func TestGetFindings(t *testing.T) {
-	m := NewManager(ComplianceConfig{})
+	m := NewManager(Config{})
 	findings := m.GetFindings("")
 	_ = findings
 }
 
 func TestConfigCRUD(t *testing.T) {
-	m := NewManager(ComplianceConfig{Enabled: false})
+	m := NewManager(Config{Enabled: false})
 	cfg := m.GetConfig()
 	if cfg.Enabled {
 		t.Error("expected disabled")
 	}
-	m.UpdateConfig(ComplianceConfig{Enabled: true, AutoScan: true, ScanInterval: 24})
+	m.UpdateConfig(Config{Enabled: true, AutoScan: true, ScanIntervalHours: 24})
 	cfg = m.GetConfig()
 	if !cfg.Enabled {
 		t.Error("expected enabled")
 	}
-	if cfg.ScanInterval != 24 {
-		t.Errorf("expected 24, got %d", cfg.ScanInterval)
+	if cfg.ScanIntervalHours != 24 {
+		t.Errorf("expected 24, got %d", cfg.ScanIntervalHours)
 	}
 }
