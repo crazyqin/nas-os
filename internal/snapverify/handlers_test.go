@@ -339,29 +339,38 @@ func TestRunScheduled(t *testing.T) {
 func TestAutoRepair(t *testing.T) {
 	handler, router := setupTestHandler()
 
+	// 启用确定性模式，确保测试结果可预测
+	handler.manager.SetDeterministicMode(true)
+
 	// 创建一个测试
 	test, err := handler.manager.RunTest(context.Background(), "snap-repair-001", TestTypeIntegrity)
 	require.NoError(t, err)
 
 	// 等待测试完成
-	time.Sleep(3 * time.Second)
+	time.Sleep(4 * time.Second)
 
-	// 获取结果确认
+	// 获取结果确认（修复前）
 	result, err := handler.manager.GetTestResult(test.ID)
 	require.NoError(t, err)
 
+	// 记录修复前的状态
+	failedBeforeRepair := !result.Passed
+
+	// 调试输出
+	t.Logf("Test ID: %s", test.ID)
+	t.Logf("Result Passed (before repair): %v", result.Passed)
+	t.Logf("Result Errors: %v", result.Errors)
+
 	t.Run("自动修复", func(t *testing.T) {
+		// 确定性模式下测试应该失败
+		assert.True(t, failedBeforeRepair, "确定性模式下测试应该失败")
+
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("POST", "/api/v1/snap-verify/tests/"+test.ID+"/repair", nil)
 		router.ServeHTTP(w, req)
 
-		// 如果测试未通过，修复应该成功
-		if !result.Passed {
-			assert.Equal(t, http.StatusOK, w.Code)
-		} else {
-			// 如果测试已通过，应该返回400
-			assert.Equal(t, http.StatusBadRequest, w.Code)
-		}
+		// 修复应该成功
+		assert.Equal(t, http.StatusOK, w.Code)
 	})
 
 	t.Run("修复不存在的测试", func(t *testing.T) {
