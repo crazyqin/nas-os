@@ -2,359 +2,263 @@
 package smartdedup
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 智能去重 API 处理器.
+// Handlers 智能去重 HTTP 处理器.
 type Handlers struct {
-	manager *Manager
+	mgr *Manager
 }
 
-// NewHandlers 创建处理器.
-func NewHandlers(manager *Manager) *Handlers {
-	return &Handlers{manager: manager}
+// NewHandlers 创建 HTTP 处理器.
+func NewHandlers(mgr *Manager) *Handlers {
+	return &Handlers{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由.
-func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
-	sd := r.Group("/smart-dedup")
+// RegisterRoutes 注册路由到 Gin 路由组.
+func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
+	g := rg.Group("/smart-dedup")
 	{
-		// 扫描操作
-		sd.POST("/scan", h.scan)
-		sd.POST("/scan/cancel", h.cancelScan)
+		// 扫描
+		g.POST("/scan", h.Scan)
+		g.POST("/scan/cancel", h.CancelScan)
 
-		// 去重操作
-		sd.POST("/dedup", h.dedup)
-		sd.POST("/dedup/cancel", h.cancelDedup)
+		// 去重
+		g.POST("/dedup", h.Dedup)
+		g.POST("/dedup/cancel", h.CancelDedup)
 
 		// 重复组
-		sd.GET("/duplicates", h.getDuplicates)
+		g.GET("/duplicates", h.GetDuplicates)
 
 		// 统计
-		sd.GET("/stats", h.getStats)
+		g.GET("/stats", h.GetStats)
 
-		// 条目管理
-		sd.GET("/entries", h.listEntries)
-		sd.GET("/entries/:id", h.getEntry)
+		// 条目
+		g.GET("/entries", h.ListEntries)
+		g.GET("/entries/:id", h.GetEntry)
 
-		// 引用计数
-		sd.GET("/refs", h.listRefs)
-		sd.GET("/refs/:hash", h.getRef)
+		// 引用
+		g.GET("/refs", h.ListRefs)
+		g.GET("/refs/:id", h.GetRef)
 
-		// 配置管理
-		sd.GET("/config", h.getConfig)
-		sd.PUT("/config", h.updateConfig)
+		// 配置
+		g.GET("/config", h.GetConfig)
+		g.PUT("/config", h.UpdateConfig)
 
-		// 存储后端
-		sd.GET("/backend/detect", h.detectBackend)
+		// 后端检测
+		g.GET("/backend/detect", h.DetectBackend)
 	}
 }
 
-// response 标准响应.
-type response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-// ScanRequest 扫描请求.
-type ScanRequest struct {
-	Paths []string `json:"paths"`
-}
-
-// scan 扫描重复文件.
-func (h *Handlers) scan(c *gin.Context) {
+// Scan 执行去重扫描.
+func (h *Handlers) Scan(c *gin.Context) {
 	var req ScanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		// 使用默认路径
-		req.Paths = []string{}
-	}
-
-	result, err := h.manager.Scan(c.Request.Context(), req.Paths)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "invalid request: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "scan completed",
-		Data:    result,
-	})
+	result, err := h.mgr.Scan(context.Background(), req.Paths)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": result})
 }
 
-// cancelScan 取消扫描.
-func (h *Handlers) cancelScan(c *gin.Context) {
-	h.manager.CancelScan()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "scan cancelled",
-	})
+// CancelScan 取消扫描.
+func (h *Handlers) CancelScan(c *gin.Context) {
+	h.mgr.CancelScan()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "scan cancelled"})
 }
 
-// DedupRequest 去重请求.
-type DedupRequest struct {
-	Groups []DuplicateGroup `json:"groups"`
-}
-
-// dedup 执行去重.
-func (h *Handlers) dedup(c *gin.Context) {
+// Dedup 执行去重操作.
+func (h *Handlers) Dedup(c *gin.Context) {
 	var req DedupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "invalid request: " + err.Error()})
 		return
 	}
 
-	result, err := h.manager.Dedup(c.Request.Context(), req.Groups)
+	result, err := h.mgr.Dedup(context.Background(), req.Groups)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "message": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "dedup completed",
-		Data:    result,
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": result})
 }
 
-// cancelDedup 取消去重.
-func (h *Handlers) cancelDedup(c *gin.Context) {
-	h.manager.CancelDedup()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "dedup cancelled",
-	})
+// CancelDedup 取消去重.
+func (h *Handlers) CancelDedup(c *gin.Context) {
+	h.mgr.CancelDedup()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "dedup cancelled"})
 }
 
-// getDuplicates 获取重复组.
-func (h *Handlers) getDuplicates(c *gin.Context) {
-	groups := h.manager.GetDuplicateGroups()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
+// GetDuplicates 获取重复组列表.
+func (h *Handlers) GetDuplicates(c *gin.Context) {
+	groups := h.mgr.GetDuplicateGroups()
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"data": gin.H{
 			"total":  len(groups),
 			"groups": groups,
 		},
 	})
 }
 
-// getStats 获取统计.
-func (h *Handlers) getStats(c *gin.Context) {
-	stats := h.manager.GetStats()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    stats,
-	})
+// GetStats 获取统计信息.
+func (h *Handlers) GetStats(c *gin.Context) {
+	stats := h.mgr.GetStats()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": stats})
 }
 
-// listEntries 列出条目.
-func (h *Handlers) listEntries(c *gin.Context) {
-	entries := h.manager.ListEntries()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
+// ListEntries 列出所有条目.
+func (h *Handlers) ListEntries(c *gin.Context) {
+	entries := h.mgr.ListEntries()
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"data": gin.H{
 			"total":   len(entries),
 			"entries": entries,
 		},
 	})
 }
 
-// getEntry 获取条目.
-func (h *Handlers) getEntry(c *gin.Context) {
-	id := c.Param("id")
-	entry, ok := h.manager.GetEntry(id)
+// GetEntry 获取指定条目.
+func (h *Handlers) GetEntry(c *gin.Context) {
+	entry, ok := h.mgr.GetEntry(c.Param("id"))
 	if !ok {
-		c.JSON(http.StatusNotFound, response{
-			Code:    404,
-			Message: "entry not found",
-		})
+		c.JSON(http.StatusNotFound, gin.H{"code": -1, "message": "entry not found"})
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    entry,
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": entry})
 }
 
-// listRefs 列出引用计数.
-func (h *Handlers) listRefs(c *gin.Context) {
-	refs := h.manager.ListRefCounts()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
-			"total": len(refs),
-			"refs":  refs,
-		},
-	})
+// ListRefs 列出所有引用.
+func (h *Handlers) ListRefs(c *gin.Context) {
+	refs := h.mgr.ListRefCounts()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": refs})
 }
 
-// getRef 获取引用计数.
-func (h *Handlers) getRef(c *gin.Context) {
-	hash := c.Param("hash")
-	ref, ok := h.manager.GetRefCount(hash)
+// GetRef 获取指定引用.
+func (h *Handlers) GetRef(c *gin.Context) {
+	ref, ok := h.mgr.GetRefCount(c.Param("id"))
 	if !ok {
-		c.JSON(http.StatusNotFound, response{
-			Code:    404,
-			Message: "ref not found",
-		})
+		c.JSON(http.StatusNotFound, gin.H{"code": -1, "message": "ref not found"})
 		return
 	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    ref,
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": ref})
 }
 
-// getConfig 获取配置.
-func (h *Handlers) getConfig(c *gin.Context) {
-	cfg := h.manager.Config()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    cfg,
-	})
+// GetConfig 获取配置.
+func (h *Handlers) GetConfig(c *gin.Context) {
+	cfg := h.mgr.Config()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": cfg})
 }
 
-// updateConfigRequest 更新配置请求.
-type updateConfigRequest struct {
-	Enabled          *bool           `json:"enabled,omitempty"`
-	Backend          *StorageBackend `json:"backend,omitempty"`
-	Mode             *DedupMode      `json:"mode,omitempty"`
-	Action           *DedupAction    `json:"action,omitempty"`
-	ScanPaths        []string        `json:"scanPaths,omitempty"`
-	ExcludePaths     []string        `json:"excludePaths,omitempty"`
-	ExcludePatterns  []string        `json:"excludePatterns,omitempty"`
-	MinFileSize      *int64          `json:"minFileSize,omitempty"`
-	MaxFileSize      *int64          `json:"maxFileSize,omitempty"`
-	ScheduleCron     *string         `json:"scheduleCron,omitempty"`
-	ScheduleEnabled  *bool           `json:"scheduleEnabled,omitempty"`
-	RealtimeEnabled  *bool           `json:"realtimeEnabled,omitempty"`
-	MaxWorkers       *int            `json:"maxWorkers,omitempty"`
-	MaxMemoryMB      *int            `json:"maxMemoryMB,omitempty"`
-	DryRun           *bool           `json:"dryRun,omitempty"`
-	VerifyAfter      *bool           `json:"verifyAfter,omitempty"`
-}
-
-// updateConfig 更新配置.
-func (h *Handlers) updateConfig(c *gin.Context) {
+// UpdateConfig 更新配置.
+func (h *Handlers) UpdateConfig(c *gin.Context) {
 	var req updateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    400,
-			Message: "invalid request: " + err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "invalid request: " + err.Error()})
 		return
 	}
 
-	cfg := h.manager.Config()
+	cfg := h.mgr.Config()
+	// 复制一份配置
+	updated := *cfg
+
 	if req.Enabled != nil {
-		cfg.Enabled = *req.Enabled
+		updated.Enabled = *req.Enabled
 	}
 	if req.Backend != nil {
-		cfg.Backend = *req.Backend
+		updated.Backend = *req.Backend
 	}
 	if req.Mode != nil {
-		cfg.Mode = *req.Mode
+		updated.Mode = *req.Mode
 	}
 	if req.Action != nil {
-		cfg.Action = *req.Action
+		updated.Action = *req.Action
 	}
 	if req.ScanPaths != nil {
-		cfg.ScanPaths = req.ScanPaths
+		updated.ScanPaths = *req.ScanPaths
 	}
 	if req.ExcludePaths != nil {
-		cfg.ExcludePaths = req.ExcludePaths
+		updated.ExcludePaths = *req.ExcludePaths
 	}
 	if req.ExcludePatterns != nil {
-		cfg.ExcludePatterns = req.ExcludePatterns
+		updated.ExcludePatterns = *req.ExcludePatterns
 	}
 	if req.MinFileSize != nil {
-		cfg.MinFileSize = *req.MinFileSize
+		updated.MinFileSize = *req.MinFileSize
 	}
 	if req.MaxFileSize != nil {
-		cfg.MaxFileSize = *req.MaxFileSize
+		updated.MaxFileSize = *req.MaxFileSize
 	}
 	if req.ScheduleCron != nil {
-		cfg.ScheduleCron = *req.ScheduleCron
+		updated.ScheduleCron = *req.ScheduleCron
 	}
 	if req.ScheduleEnabled != nil {
-		cfg.ScheduleEnabled = *req.ScheduleEnabled
+		updated.ScheduleEnabled = *req.ScheduleEnabled
 	}
 	if req.RealtimeEnabled != nil {
-		cfg.RealtimeEnabled = *req.RealtimeEnabled
+		updated.RealtimeEnabled = *req.RealtimeEnabled
 	}
 	if req.MaxWorkers != nil {
-		cfg.MaxWorkers = *req.MaxWorkers
+		updated.MaxWorkers = *req.MaxWorkers
 	}
 	if req.MaxMemoryMB != nil {
-		cfg.MaxMemoryMB = *req.MaxMemoryMB
+		updated.MaxMemoryMB = *req.MaxMemoryMB
+	}
+	if req.HashCache != nil {
+		updated.HashCache = *req.HashCache
 	}
 	if req.DryRun != nil {
-		cfg.DryRun = *req.DryRun
+		updated.DryRun = *req.DryRun
 	}
 	if req.VerifyAfter != nil {
-		cfg.VerifyAfter = *req.VerifyAfter
+		updated.VerifyAfter = *req.VerifyAfter
+	}
+	if req.MaxRefPerFile != nil {
+		updated.MaxRefPerFile = *req.MaxRefPerFile
 	}
 
-	if err := h.manager.UpdateConfig(cfg); err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    500,
-			Message: err.Error(),
-		})
+	if err := h.mgr.UpdateConfig(&updated); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "config updated",
-		Data:    cfg,
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": &updated})
 }
 
-// detectBackend 检测存储后端.
-func (h *Handlers) detectBackend(c *gin.Context) {
+// DetectBackend 检测存储后端.
+func (h *Handlers) DetectBackend(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
-		path = "/"
+		path = "/data"
 	}
 
-	backend, err := h.manager.DetectBackend(path)
+	backend, err := h.mgr.DetectBackend(path)
 	if err != nil {
-		c.JSON(http.StatusOK, response{
-			Code:    0,
-			Message: "detection failed: " + err.Error(),
-			Data: gin.H{
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"data": gin.H{
 				"path":    path,
-				"backend": "unknown",
+				"backend": "",
+				"error":   err.Error(),
 			},
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"data": gin.H{
 			"path":    path,
 			"backend": backend,
 		},

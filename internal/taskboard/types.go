@@ -1,59 +1,57 @@
-// Package taskboard provides kanban task board management functionality.
+// Package taskboard 任务看板模块 - 管理任务、标签和统计
 package taskboard
 
 import "time"
 
-// TaskStatus 任务状态类型.
+// TaskStatus 任务状态
 type TaskStatus string
 
-// 任务状态常量.
 const (
-	StatusTodo       TaskStatus = "todo"
-	StatusInProgress TaskStatus = "in_progress"
-	StatusDone       TaskStatus = "done"
+	StatusTodo       TaskStatus = "todo"        // 待办
+	StatusInProgress TaskStatus = "in_progress" // 进行中
+	StatusDone       TaskStatus = "done"        // 已完成
 )
 
-// TaskPriority 任务优先级类型.
+// TaskPriority 任务优先级
 type TaskPriority string
 
-// 任务优先级常量.
 const (
-	PriorityLow    TaskPriority = "low"
-	PriorityMedium TaskPriority = "medium"
-	PriorityHigh   TaskPriority = "high"
-	PriorityUrgent TaskPriority = "urgent"
+	PriorityUrgent TaskPriority = "urgent" // 紧急
+	PriorityHigh   TaskPriority = "high"   // 高
+	PriorityMedium TaskPriority = "medium" // 中
+	PriorityLow    TaskPriority = "low"    // 低
 )
 
-// Board 看板.
+// Board 看板
 type Board struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Description string     `json:"description,omitempty"`
-	OwnerID     string     `json:"owner_id"`
-	TaskCount   int        `json:"task_count"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
-	CreatedBy   string     `json:"created_by"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	OwnerID     string    `json:"owner_id"`
+	TaskCount   int       `json:"task_count"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedBy   string    `json:"created_by"`
 }
 
-// TaskCard 任务卡片.
+// TaskCard 任务卡片
 type TaskCard struct {
 	ID          string       `json:"id"`
 	BoardID     string       `json:"board_id"`
 	Title       string       `json:"title"`
-	Description string       `json:"description,omitempty"`
+	Description string       `json:"description"`
 	Status      TaskStatus   `json:"status"`
 	Priority    TaskPriority `json:"priority"`
-	AssigneeID  string       `json:"assignee_id,omitempty"`
-	Labels      []string     `json:"labels,omitempty"`
 	Progress    int          `json:"progress"` // 0-100
+	AssigneeID  string       `json:"assignee_id,omitempty"`
 	DueDate     *time.Time   `json:"due_date,omitempty"`
+	Labels      []string     `json:"labels,omitempty"`
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   time.Time    `json:"updated_at"`
 	CreatedBy   string       `json:"created_by"`
 }
 
-// Label 标签.
+// Label 标签
 type Label struct {
 	ID        string    `json:"id"`
 	BoardID   string    `json:"board_id"`
@@ -62,24 +60,67 @@ type Label struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// BoardStats 看板统计.
-type BoardStats struct {
-	TotalTasks   int            `json:"total_tasks"`
-	ByStatus     map[string]int `json:"by_status"`
-	ByPriority   map[string]int `json:"by_priority"`
-	AvgProgress  float64        `json:"avg_progress"`
-	OverdueTasks int            `json:"overdue_tasks"`
+// TaskFilter 任务过滤条件
+type TaskFilter struct {
+	Status     []TaskStatus   `form:"status"`
+	Priority   []TaskPriority `form:"priority"`
+	AssigneeID string         `form:"assignee_id"`
+	Labels     []string       `form:"labels"`
+	Search     string         `form:"search"`
+	OrderBy    string         `form:"order_by"`    // priority, due_date, status, created_at
+	OrderDesc  bool           `form:"order_desc"`
+	Limit      int            `form:"limit"`
+	Offset     int            `form:"offset"`
 }
 
-// TaskFilter 任务筛选条件.
-type TaskFilter struct {
-	Status     []TaskStatus   `json:"status,omitempty"`
-	Priority   []TaskPriority `json:"priority,omitempty"`
-	AssigneeID string         `json:"assignee_id,omitempty"`
-	Labels     []string       `json:"labels,omitempty"`
-	Search     string         `json:"search,omitempty"`
-	OrderBy    string         `json:"order_by,omitempty"`
-	OrderDesc  bool           `json:"order_desc,omitempty"`
-	Limit      int            `json:"limit,omitempty"`
-	Offset     int            `json:"offset,omitempty"`
+// BoardStats 看板统计
+type BoardStats struct {
+	TotalTasks  int            `json:"total_tasks"`
+	AvgProgress float64        `json:"avg_progress"`
+	OverdueTasks int           `json:"overdue_tasks"`
+	ByStatus    map[string]int `json:"by_status"`
+	ByPriority  map[string]int `json:"by_priority"`
+}
+
+// CreateBoardRequest 创建看板请求
+type CreateBoardRequest struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
+	OwnerID     string `json:"owner_id"`
+}
+
+// CreateTaskRequest 创建任务请求
+type CreateTaskRequest struct {
+	Title       string       `json:"title" binding:"required"`
+	Description string       `json:"description"`
+	Priority    TaskPriority `json:"priority"`
+	AssigneeID  string       `json:"assignee_id"`
+	DueDate     *time.Time   `json:"due_date"`
+	Labels      []string     `json:"labels"`
+}
+
+// UpdateTaskRequest 更新任务请求
+type UpdateTaskRequest struct {
+	Title       *string       `json:"title,omitempty"`
+	Description *string       `json:"description,omitempty"`
+	Priority    *TaskPriority `json:"priority,omitempty"`
+	AssigneeID  *string       `json:"assignee_id,omitempty"`
+	DueDate     *time.Time    `json:"due_date,omitempty"`
+	Labels      []string      `json:"labels,omitempty"`
+}
+
+// MoveTaskRequest 移动任务请求
+type MoveTaskRequest struct {
+	Status TaskStatus `json:"status" binding:"required"`
+}
+
+// CreateLabelRequest 创建标签请求
+type CreateLabelRequest struct {
+	Name  string `json:"name" binding:"required"`
+	Color string `json:"color" binding:"required"`
+}
+
+// UpdateProgressRequest 更新进度请求
+type UpdateProgressRequest struct {
+	Progress int `json:"progress" binding:"required,min=0,max=100"`
 }
