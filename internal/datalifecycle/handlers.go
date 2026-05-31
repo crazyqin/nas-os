@@ -62,6 +62,12 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		// 访问分析
 		lifecycle.GET("/access-report", h.getAccessReport)
 
+		// 自动化控制
+		lifecycle.POST("/auto-migrate/run", h.runAutoMigrate)
+		lifecycle.POST("/auto-cleanup/run", h.runAutoCleanup)
+		lifecycle.PUT("/auto-migrate/toggle", h.toggleAutoMigrate)
+		lifecycle.PUT("/auto-cleanup/toggle", h.toggleAutoCleanup)
+
 		// 审计日志
 		lifecycle.GET("/audit-log", h.getAuditLog)
 
@@ -421,4 +427,46 @@ func (h *Handlers) getAuditLog(c *gin.Context) {
 func (h *Handlers) getStatus(c *gin.Context) {
 	status := h.manager.GetStatus()
 	c.JSON(http.StatusOK, status)
+}
+
+// ========== 自动化控制处理器 ==========
+
+func (h *Handlers) runAutoMigrate(c *gin.Context) {
+	h.manager.RunAutoMigrateNow()
+	c.JSON(http.StatusOK, gin.H{"message": "自动迁移已触发"})
+}
+
+func (h *Handlers) runAutoCleanup(c *gin.Context) {
+	h.manager.RunAutoCleanupNow()
+	c.JSON(http.StatusOK, gin.H{"message": "自动清理已触发"})
+}
+
+func (h *Handlers) toggleAutoMigrate(c *gin.Context) {
+	var req struct {
+		Enabled bool `json:"enabled"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	h.manager.SetAutoMigrateEnabled(req.Enabled)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "自动迁移状态已更新",
+		"enabled": req.Enabled,
+	})
+}
+
+func (h *Handlers) toggleAutoCleanup(c *gin.Context) {
+	var req struct {
+		Enabled bool `json:"enabled"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	h.manager.SetAutoCleanupEnabled(req.Enabled)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "自动清理状态已更新",
+		"enabled": req.Enabled,
+	})
 }
