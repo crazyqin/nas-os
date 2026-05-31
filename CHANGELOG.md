@@ -1,3 +1,16 @@
+## v2.543.0 (2026-06-01)
+
+### 新功能
+- Kerberos 认证管理（kerberos）：Realm 配置、Principal/Keytab/Ticket 生命周期管理、票据验证与吊销、统计信息
+- Active Directory 集成（activedirectory）：域管理、用户/组同步、同步任务追踪、自动定时同步
+- Rsync 备份管理（rsync）：同步目标管理、任务调度、SSH/本地/守护进程模式、历史记录与统计
+- IPMI 远程管理（ipmi）：设备管理、电源控制（开机/关机/重启/重置）、传感器监控、系统事件管理
+- 多 NAS 管理面板（truecommand）：NAS 系统注册、集群管理（HA/Scale/联邦）、告警管理、自定义仪表板
+
+### 改进
+- 优化 smarthub 和 gpumonitor 模块结构
+- 清理冗余 handler 文件
+
 ## v2.542.0 (2026-05-31)
 
 ### 新功能

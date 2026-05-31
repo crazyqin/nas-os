@@ -1,338 +1,176 @@
-// Package smarthub provides smart home hub functionality for NAS-OS.
-// Device discovery, protocol gateways, automation scenes, and energy monitoring.
+// Package smarthub 实现智能家居中枢模块
+// 统一管理 Zigbee/Z-Wave/WiFi/BLE 设备，支持场景自动化、语音控制、能耗监控
 package smarthub
 
 import (
+	"errors"
 	"time"
 )
 
-// ============================================================
-// 设备发现类型
-// ============================================================
+// ========== 错误定义 ==========
 
-// DiscoveryMethod 发现方式
-type DiscoveryMethod string
-
-const (
-	DiscoveryMDNS  DiscoveryMethod = "mdns"  // mDNS/Bonjour
-	DiscoverySSDP  DiscoveryMethod = "ssdp"  // SSDP/UPnP
-	DiscoveryBLE   DiscoveryMethod = "ble"   // Bluetooth LE
-	DiscoveryManual DiscoveryMethod = "manual" // 手动添加
+var (
+	ErrDeviceNotFound    = errors.New("device not found")
+	ErrDeviceOffline     = errors.New("device offline")
+	ErrSceneNotFound     = errors.New("scene not found")
+	ErrProtocolNotSupported = errors.New("protocol not supported")
+	ErrInvalidCommand    = errors.New("invalid command")
+	ErrHubNotRunning     = errors.New("hub not running")
+	ErrDuplicateDevice   = errors.New("duplicate device")
 )
 
-// DeviceStatus 设备状态
-type DeviceStatus string
+// ========== 设备协议 ==========
 
-const (
-	StatusOnline  DeviceStatus = "online"
-	StatusOffline DeviceStatus = "offline"
-	StatusUnknown DeviceStatus = "unknown"
-)
-
-// DeviceType 设备类型
-type DeviceType string
-
-const (
-	DeviceTypeLight     DeviceType = "light"
-	DeviceTypeSwitch    DeviceType = "switch"
-	DeviceTypeSensor    DeviceType = "sensor"
-	DeviceTypeThermostat DeviceType = "thermostat"
-	DeviceTypeCamera    DeviceType = "camera"
-	DeviceTypeLock      DeviceType = "lock"
-	DeviceTypePlug      DeviceType = "plug"
-	DeviceTypeOther     DeviceType = "other"
-)
-
-// Protocol 通信协议
+// Protocol 通信协议.
 type Protocol string
 
 const (
-	ProtocolZigbee Protocol = "zigbee"
-	ProtocolZWave  Protocol = "zwave"
-	ProtocolMatter Protocol = "matter"
-	ProtocolBLE    Protocol = "ble"
-	ProtocolWiFi   Protocol = "wifi"
+	ProtocolZigbee  Protocol = "zigbee"
+	ProtocolZWave   Protocol = "zwave"
+	ProtocolWiFi    Protocol = "wifi"
+	ProtocolBLE     Protocol = "ble"
+	ProtocolMatter  Protocol = "matter"
+	ProtocolThread  Protocol = "thread"
 )
 
-// Device 智能设备
-type Device struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name"`
-	Type        DeviceType      `json:"type"`
-	Protocol    Protocol        `json:"protocol"`
-	Manufacturer string         `json:"manufacturer,omitempty"`
-	Model       string          `json:"model,omitempty"`
-	FirmwareVer string          `json:"firmware_version,omitempty"`
-	MACAddress  string          `json:"mac_address,omitempty"`
-	IPAddress   string          `json:"ip_address,omitempty"`
-	RoomID      string          `json:"room_id,omitempty"`
-	GroupIDs    []string        `json:"group_ids,omitempty"`
-	Status      DeviceStatus    `json:"status"`
-	Capabilities []string       `json:"capabilities,omitempty"`
-	Properties  map[string]interface{} `json:"properties,omitempty"`
-	LastSeen    time.Time       `json:"last_seen"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
-}
+// ========== 设备类型 ==========
 
-// DeviceDiscoveryResult 设备发现结果
-type DeviceDiscoveryResult struct {
-	Devices   []*Device `json:"devices"`
-	Method    DiscoveryMethod `json:"method"`
-	ScannedAt time.Time `json:"scanned_at"`
-}
-
-// ============================================================
-// 协议网关类型
-// ============================================================
-
-// GatewayStatus 网关状态
-type GatewayStatus string
+// DeviceType 设备类型.
+type DeviceType string
 
 const (
-	GatewayRunning  GatewayStatus = "running"
-	GatewayStopped  GatewayStatus = "stopped"
-	GatewayError    GatewayStatus = "error"
+	DeviceTypeLight      DeviceType = "light"
+	DeviceTypeSwitch     DeviceType = "switch"
+	DeviceTypeSensor     DeviceType = "sensor"
+	DeviceTypeThermostat DeviceType = "thermostat"
+	DeviceTypeCamera     DeviceType = "camera"
+	DeviceTypeLock       DeviceType = "lock"
+	DeviceTypePlug       DeviceType = "plug"
+	DeviceTypeBlind      DeviceType = "blind"
+	DeviceTypeFan        DeviceType = "fan"
+	DeviceTypeSpeaker    DeviceType = "speaker"
+	DeviceTypeGateway    DeviceType = "gateway"
+	DeviceTypeOther      DeviceType = "other"
 )
 
-// ProtocolGateway 协议网关
-type ProtocolGateway struct {
+// ========== 设备状态 ==========
+
+// DeviceState 设备在线状态.
+type DeviceState string
+
+const (
+	StateOnline  DeviceState = "online"
+	StateOffline DeviceState = "offline"
+	StateUnknown DeviceState = "unknown"
+)
+
+// ========== 设备定义 ==========
+
+// Device 智能设备.
+type Device struct {
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Type        DeviceType        `json:"type"`
+	Protocol    Protocol          `json:"protocol"`
+	Room        string            `json:"room"`
+	State       DeviceState       `json:"state"`
+	Properties  map[string]string `json:"properties"`
+	Battery     int               `json:"battery"`     // 0-100, -1=不适用
+	Firmware    string            `json:"firmware"`
+	LastSeen    time.Time         `json:"last_seen"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
+	Tags        []string          `json:"tags"`
+}
+
+// ========== 场景定义 ==========
+
+// Scene 智能场景.
+type Scene struct {
 	ID          string        `json:"id"`
-	Protocol    Protocol      `json:"protocol"`
 	Name        string        `json:"name"`
-	Description string        `json:"description,omitempty"`
-	Port        int           `json:"port"`
-	Status      GatewayStatus `json:"status"`
-	DeviceCount int           `json:"device_count"`
-	Config      map[string]interface{} `json:"config,omitempty"`
-	StartedAt   *time.Time    `json:"started_at,omitempty"`
-	ErrorMsg    string        `json:"error_message,omitempty"`
+	Description string        `json:"description"`
+	Actions     []SceneAction `json:"actions"`
+	Enabled     bool          `json:"enabled"`
+	TriggerType TriggerType   `json:"trigger_type"`
+	TriggerSpec string        `json:"trigger_spec"` // cron表达式或条件
+	LastRun     time.Time     `json:"last_run"`
+	RunCount    int64         `json:"run_count"`
+	CreatedAt   time.Time     `json:"created_at"`
 }
 
-// ============================================================
-// 设备分组类型
-// ============================================================
-
-// DeviceGroup 设备分组
-type DeviceGroup struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description,omitempty"`
-	DeviceIDs   []string  `json:"device_ids"`
-	RoomID      string    `json:"room_id,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
-
-// Room 房间
-type Room struct {
-	ID        string   `json:"id"`
-	Name      string   `json:"name"`
-	DeviceIDs []string `json:"device_ids,omitempty"`
-}
-
-// ============================================================
-// 场景自动化类型
-// ============================================================
-
-// TriggerType 触发类型
+// TriggerType 触发类型.
 type TriggerType string
 
 const (
-	TriggerDeviceState TriggerType = "device_state" // 设备状态变化
-	TriggerSchedule    TriggerType = "schedule"     // 定时触发
-	TriggerCondition   TriggerType = "condition"    // 条件触发
-	TriggerManual      TriggerType = "manual"       // 手动触发
+	TriggerManual   TriggerType = "manual"
+	TriggerSchedule TriggerType = "schedule"
+	TriggerDevice   TriggerType = "device"
+	TriggerCondition TriggerType = "condition"
 )
 
-// ActionType 动作类型
-type ActionType string
-
-const (
-	ActionSetProperty  ActionType = "set_property"  // 设置属性
-	ActionRunScene     ActionType = "run_scene"     // 执行场景
-	ActionSendNotification ActionType = "send_notification" // 发送通知
-)
-
-// Scene 场景
-type Scene struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description,omitempty"`
-	Enabled     bool           `json:"enabled"`
-	Triggers    []Trigger      `json:"triggers"`
-	Actions     []Action       `json:"actions"`
-	LastRun     *time.Time     `json:"last_run,omitempty"`
-	RunCount    int            `json:"run_count"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+// SceneAction 场景动作.
+type SceneAction struct {
+	DeviceID   string            `json:"device_id"`
+	Command    string            `json:"command"`
+	Parameters map[string]string `json:"parameters"`
+	Delay      time.Duration     `json:"delay"` // 延迟执行
 }
 
-// Trigger 触发条件
-type Trigger struct {
-	Type       TriggerType    `json:"type"`
-	DeviceID   string         `json:"device_id,omitempty"`
-	Property   string         `json:"property,omitempty"`
-	Value      interface{}    `json:"value,omitempty"`
-	Schedule   string         `json:"schedule,omitempty"` // cron 表达式
-	Conditions []Condition    `json:"conditions,omitempty"`
+// ========== 自动化规则 ==========
+
+// Automation 自动化规则.
+type Automation struct {
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Enabled     bool        `json:"enabled"`
+	Conditions  []Condition `json:"conditions"`
+	Actions     []SceneAction `json:"actions"`
+	LogicOp     string      `json:"logic_op"` // "and" / "or"
+	LastTrigger time.Time   `json:"last_trigger"`
+	TriggerCount int64      `json:"trigger_count"`
+	CreatedAt   time.Time   `json:"created_at"`
 }
 
-// Condition 条件
+// Condition 触发条件.
 type Condition struct {
-	DeviceID string      `json:"device_id"`
-	Property string      `json:"property"`
-	Operator string      `json:"operator"` // eq, neq, gt, lt, gte, lte
-	Value    interface{} `json:"value"`
+	DeviceID string `json:"device_id"`
+	Property string `json:"property"`
+	Operator string `json:"operator"` // eq, neq, gt, lt, gte, lte
+	Value    string `json:"value"`
 }
 
-// Action 执行动作
-// Scene 场景定义已移至上方
+// ========== 能耗统计 ==========
 
-// Action 动作定义
-type Action struct {
-	Type       ActionType      `json:"type"`
-	DeviceID   string          `json:"device_id,omitempty"`
-	SceneID    string          `json:"scene_id,omitempty"`
-	Property   string          `json:"property,omitempty"`
-	Value      interface{}     `json:"value,omitempty"`
-	Delay      time.Duration   `json:"delay,omitempty"`
+// EnergyRecord 能耗记录.
+type EnergyRecord struct {
+	DeviceID   string    `json:"device_id"`
+	Timestamp  time.Time `json:"timestamp"`
+	Power      float64   `json:"power"`      // 瓦特
+	Energy     float64   `json:"energy"`     // 千瓦时
+	Voltage    float64   `json:"voltage"`
+	Current    float64   `json:"current"`
 }
 
-// SceneExecution 场景执行记录
-type SceneExecution struct {
-	ID        string    `json:"id"`
-	SceneID   string    `json:"scene_id"`
-	Trigger   string    `json:"trigger"`
-	Status    string    `json:"status"` // success, failed
-	Error     string    `json:"error,omitempty"`
-	StartedAt time.Time `json:"started_at"`
-	EndedAt   time.Time `json:"ended_at"`
-}
-
-// ============================================================
-// 能耗监控类型
-// ============================================================
-
-// EnergyReading 能耗读数
-type EnergyReading struct {
-	DeviceID  string    `json:"device_id"`
-	Power     float64   `json:"power"`      // 当前功率 (W)
-	Energy    float64   `json:"energy"`     // 累计电量 (kWh)
-	Voltage   float64   `json:"voltage"`    // 电压 (V)
-	Current   float64   `json:"current"`    // 电流 (A)
-	Timestamp time.Time `json:"timestamp"`
-}
-
-// EnergyStats 能耗统计
+// EnergyStats 能耗统计.
 type EnergyStats struct {
-	DeviceID      string    `json:"device_id"`
-	TotalEnergy   float64   `json:"total_energy"`    // 总电量 (kWh)
-	CurrentPower  float64   `json:"current_power"`   // 当前功率 (W)
-	AvgPower      float64   `json:"avg_power"`       // 平均功率 (W)
-	MaxPower      float64   `json:"max_power"`       // 最大功率 (W)
-	MinPower      float64   `json:"min_power"`       // 最小功率 (W)
-	DailyEnergy   float64   `json:"daily_energy"`    // 今日电量 (kWh)
-	WeeklyEnergy  float64   `json:"weekly_energy"`   // 本周电量 (kWh)
-	MonthlyEnergy float64   `json:"monthly_energy"`  // 本月电量 (kWh)
-	ReadingCount  int       `json:"reading_count"`
-	LastReading   time.Time `json:"last_reading"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	DeviceID      string  `json:"device_id"`
+	TotalEnergy   float64 `json:"total_energy"`   // 千瓦时
+	AvgPower      float64 `json:"avg_power"`       // 瓦特
+	PeakPower     float64 `json:"peak_power"`
+	DailyCost     float64 `json:"daily_cost"`      // 元
+	MonthlyCost   float64 `json:"monthly_cost"`
+	CarbonFootprint float64 `json:"carbon_footprint"` // kg CO2
 }
 
-// EnergyAlert 能耗告警
-type EnergyAlert struct {
-	ID        string    `json:"id"`
-	DeviceID  string    `json:"device_id"`
-	Type      string    `json:"type"`      // high_power, abnormal_usage
-	Message   string    `json:"message"`
-	Threshold float64   `json:"threshold"`
-	Actual    float64   `json:"actual"`
-	Level     string    `json:"level"`     // warning, critical
-	Timestamp time.Time `json:"timestamp"`
+// HubConfig 中枢配置.
+type HubConfig struct {
+	ListenAddr     string        `json:"listen_addr"`
+	ZigbeePort     string        `json:"zigbee_port"`
+	ZWavePort      string        `json:"zwave_port"`
+	MQTTBroker     string        `json:"mqtt_broker"`
+	DiscoveryInterval time.Duration `json:"discovery_interval"`
+	DeviceTimeout  time.Duration  `json:"device_timeout"`
+	EnableEnergy   bool           `json:"enable_energy"`
+	TariffPerKWh   float64        `json:"tariff_per_kwh"` // 电价
 }
-
-// ============================================================
-// 语音控制类型
-// ============================================================
-
-// VoiceCommand 语音指令
-type VoiceCommand struct {
-	ID        string    `json:"id"`
-	Text      string    `json:"text"`
-	Language  string    `json:"language"`
-	Intent    string    `json:"intent"`
-	DeviceID  string    `json:"device_id,omitempty"`
-	Action    string    `json:"action,omitempty"`
-	Value     interface{} `json:"value,omitempty"`
-	Confidence float64  `json:"confidence"`
-	Processed bool      `json:"processed"`
-	Error     string    `json:"error,omitempty"`
-	Timestamp time.Time `json:"timestamp"`
-}
-
-// VoiceResponse 语音响应
-type VoiceResponse struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-// ============================================================
-// 请求/响应类型
-// ============================================================
-
-// DiscoverDevicesRequest 设备发现请求
-type DiscoverDevicesRequest struct {
-	Methods []DiscoveryMethod `json:"methods"`
-	TimeoutSec int            `json:"timeout_sec"`
-}
-
-// CreateDeviceRequest 创建设备请求
-type CreateDeviceRequest struct {
-	Name        string   `json:"name" binding:"required"`
-	Type        DeviceType `json:"type" binding:"required"`
-	Protocol    Protocol `json:"protocol" binding:"required"`
-	Manufacturer string  `json:"manufacturer,omitempty"`
-	Model       string   `json:"model,omitempty"`
-	MACAddress  string   `json:"mac_address,omitempty"`
-	IPAddress   string   `json:"ip_address,omitempty"`
-	RoomID      string   `json:"room_id,omitempty"`
-}
-
-// UpdateDeviceRequest 更新设备请求
-type UpdateDeviceRequest struct {
-	Name     string       `json:"name,omitempty"`
-	RoomID   string       `json:"room_id,omitempty"`
-	GroupIDs []string     `json:"group_ids,omitempty"`
-}
-
-// ControlDeviceRequest 控制设备请求
-type ControlDeviceRequest struct {
-	Property string      `json:"property" binding:"required"`
-	Value    interface{} `json:"value" binding:"required"`
-}
-
-// CreateGroupRequest 创建分组请求
-type CreateGroupRequest struct {
-	Name        string   `json:"name" binding:"required"`
-	Description string   `json:"description,omitempty"`
-	DeviceIDs   []string `json:"device_ids"`
-	RoomID      string   `json:"room_id,omitempty"`
-}
-
-// CreateSceneRequest 创建场景请求
-type CreateSceneRequest struct {
-	Name        string   `json:"name" binding:"required"`
-	Description string   `json:"description,omitempty"`
-	Triggers    []Trigger `json:"triggers" binding:"required"`
-	Actions     []Action  `json:"actions" binding:"required"`
-}
-
-// VoiceCommandRequest 语音指令请求
-type VoiceCommandRequest struct {
-	Text     string `json:"text" binding:"required"`
-	Language string `json:"language"`
-}
-
-// RegisterRoutes registers smarthub API routes.
