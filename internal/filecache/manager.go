@@ -60,6 +60,11 @@ func NewManager(logger *zap.Logger, config *CacheConfig) *Manager {
 		config = DefaultCacheConfig()
 	}
 
+	// 保护 CleanupInterval 为零值的情况
+	if config.CleanupInterval <= 0 {
+		config.CleanupInterval = 10 * time.Minute
+	}
+
 	m := &Manager{
 		logger:     logger,
 		config:     config,
