@@ -344,7 +344,7 @@ func (m *Manager) GetDailyUsage(userID string, date time.Time) *DailyUsage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	
-	dayStart := date.Truncate(24 * time.Hour)
+	dayStart := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 	dayEnd := dayStart.Add(24 * time.Hour)
 	
 	usage := &DailyUsage{

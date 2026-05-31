@@ -2,6 +2,7 @@
 package mobileapi
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -10,18 +11,30 @@ import (
 
 // Handlers 移动端API处理器.
 type Handlers struct {
-	authService  *AuthService
-	pushService  *PushService
-	syncService  *SyncService
+	manager *Manager
 }
 
 // NewHandlers 创建处理器.
-func NewHandlers(authService *AuthService, pushService *PushService, syncService *SyncService) *Handlers {
+func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
+		manager: manager,
+	}
+}
+
+// NewHandlersCompat 兼容旧接口创建处理器.
+// Deprecated: 使用 NewHandlers(manager) 替代.
+func NewHandlersCompat(authService *AuthService, pushService *PushService, syncService *SyncService) *Handlers {
+	manager := &Manager{
 		authService: authService,
 		pushService: pushService,
 		syncService: syncService,
+		preferences: make(map[string]*NotificationPreference),
+		history:     make([]*NotificationHistoryItem, 0),
+		conflicts:   make(map[string]*ConflictRecord),
+		bindings:    make(map[string]*DeviceBinding),
+		maxHistory:  5000,
 	}
+	return &Handlers{manager: manager}
 }
 
 // RegisterRoutes 注册路由.
@@ -47,6 +60,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 			devices.DELETE("/:id", h.removeDevice)
 			devices.POST("/:id/block", h.blockDevice)
 			devices.POST("/:id/unblock", h.unblockDevice)
+			devices.GET("/bindings", h.listBindings)
 		}
 
 		// 远程控制（需要认证）
@@ -69,6 +83,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 			files.POST("/upload", h.uploadFile)
 			files.DELETE("/delete", h.deleteFile)
 			files.POST("/mkdir", h.createDirectory)
+			files.POST("/process-image", h.processImage)
 		}
 
 		// 推送通知（需要认证）
@@ -78,6 +93,18 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 			push.POST("/send", h.sendPush)
 			push.POST("/broadcast", h.broadcastPush)
 			push.GET("/history", h.pushHistory)
+		}
+
+		// 通知管理（需要认证）
+		notification := mobile.Group("/notifications")
+		notification.Use(h.authMiddleware())
+		{
+			notification.GET("/history", h.notificationHistory)
+			notification.GET("/unread-count", h.unreadCount)
+			notification.POST("/read", h.markNotificationsRead)
+			notification.POST("/read-all", h.markAllNotificationsRead)
+			notification.GET("/preferences", h.getNotificationPreferences)
+			notification.PUT("/preferences", h.updateNotificationPreference)
 		}
 
 		// 数据同步（需要认证）
@@ -90,6 +117,9 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 			sync.GET("/items", h.listSyncItems)
 			sync.POST("/config", h.updateSyncConfig)
 			sync.GET("/config", h.getSyncConfig)
+			sync.GET("/delta", h.syncDelta)
+			sync.GET("/conflicts", h.listConflicts)
+			sync.POST("/conflicts/:id/resolve", h.resolveConflict)
 		}
 	}
 }
@@ -126,7 +156,7 @@ func (h *Handlers) authMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString := authHeader[7:]
-		claims, err := h.authService.ValidateToken(tokenString)
+		claims, err := h.manager.authService.ValidateToken(tokenString)
 		if err != nil {
 			code := http.StatusUnauthorized
 			message := "invalid token"
@@ -188,7 +218,7 @@ func (h *Handlers) registerDevice(c *gin.Context) {
 		PushProvider: req.PushProvider,
 	}
 
-	token, err := h.authService.RegisterDevice(device)
+	token, err := h.manager.RegisterDevice(device)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response{
 			Code:    500,
@@ -224,7 +254,7 @@ func (h *Handlers) login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.authService.Authenticate(req.DeviceID, req.UserID)
+	token, err := h.manager.authService.Authenticate(req.DeviceID, req.UserID)
 	if err != nil {
 		code := http.StatusUnauthorized
 		if err == ErrDeviceBlocked {
@@ -238,7 +268,7 @@ func (h *Handlers) login(c *gin.Context) {
 	}
 
 	// 创建会话
-	session := h.authService.CreateSession(
+	session := h.manager.authService.CreateSession(
 		req.UserID,
 		req.DeviceID,
 		c.ClientIP(),
@@ -271,7 +301,7 @@ func (h *Handlers) refreshToken(c *gin.Context) {
 		return
 	}
 
-	token, err := h.authService.RefreshAccessToken(req.RefreshToken)
+	token, err := h.manager.authService.RefreshAccessToken(req.RefreshToken)
 	if err != nil {
 		code := http.StatusUnauthorized
 		message := "refresh failed"
@@ -316,7 +346,7 @@ func (h *Handlers) logout(c *gin.Context) {
 		return
 	}
 
-	if err := h.authService.RevokeToken(req.RefreshToken); err != nil {
+	if err := h.manager.authService.RevokeToken(req.RefreshToken); err != nil {
 		c.JSON(http.StatusBadRequest, response{
 			Code:    400,
 			Message: "logout failed: " + err.Error(),
@@ -333,7 +363,7 @@ func (h *Handlers) logout(c *gin.Context) {
 // listDevices 列出用户设备.
 func (h *Handlers) listDevices(c *gin.Context) {
 	userID := c.GetString("userId")
-	devices := h.authService.ListDevices(userID)
+	devices := h.manager.authService.ListDevices(userID)
 
 	c.JSON(http.StatusOK, response{
 		Code:    0,
@@ -348,7 +378,7 @@ func (h *Handlers) listDevices(c *gin.Context) {
 // getDevice 获取设备详情.
 func (h *Handlers) getDevice(c *gin.Context) {
 	deviceID := c.Param("id")
-	device, ok := h.authService.GetDevice(deviceID)
+	device, ok := h.manager.authService.GetDevice(deviceID)
 	if !ok {
 		c.JSON(http.StatusNotFound, response{
 			Code:    404,
@@ -384,7 +414,7 @@ func (h *Handlers) updateDevice(c *gin.Context) {
 		return
 	}
 
-	device, ok := h.authService.GetDevice(deviceID)
+	device, ok := h.manager.authService.GetDevice(deviceID)
 	if !ok {
 		c.JSON(http.StatusNotFound, response{
 			Code:    404,
@@ -416,7 +446,7 @@ func (h *Handlers) updateDevice(c *gin.Context) {
 func (h *Handlers) removeDevice(c *gin.Context) {
 	deviceID := c.Param("id")
 
-	if err := h.authService.RemoveDevice(deviceID); err != nil {
+	if err := h.manager.RemoveDevice(deviceID); err != nil {
 		c.JSON(http.StatusNotFound, response{
 			Code:    404,
 			Message: err.Error(),
@@ -434,7 +464,7 @@ func (h *Handlers) removeDevice(c *gin.Context) {
 func (h *Handlers) blockDevice(c *gin.Context) {
 	deviceID := c.Param("id")
 
-	if err := h.authService.BlockDevice(deviceID); err != nil {
+	if err := h.manager.authService.BlockDevice(deviceID); err != nil {
 		c.JSON(http.StatusNotFound, response{
 			Code:    404,
 			Message: err.Error(),
@@ -452,7 +482,7 @@ func (h *Handlers) blockDevice(c *gin.Context) {
 func (h *Handlers) unblockDevice(c *gin.Context) {
 	deviceID := c.Param("id")
 
-	if err := h.authService.UnblockDevice(deviceID); err != nil {
+	if err := h.manager.authService.UnblockDevice(deviceID); err != nil {
 		c.JSON(http.StatusNotFound, response{
 			Code:    404,
 			Message: err.Error(),
@@ -659,7 +689,7 @@ func (h *Handlers) sendPush(c *gin.Context) {
 		CreatedAt: time.Now(),
 	}
 
-	if err := h.pushService.Send(notification); err != nil {
+	if err := h.manager.pushService.Send(notification); err != nil {
 		c.JSON(http.StatusInternalServerError, response{
 			Code:    500,
 			Message: "send push failed: " + err.Error(),
@@ -695,7 +725,7 @@ func (h *Handlers) broadcastPush(c *gin.Context) {
 	}
 
 	userID := c.GetString("userId")
-	devices := h.authService.ListDevices(userID)
+	devices := h.manager.authService.ListDevices(userID)
 
 	sent := 0
 	for _, device := range devices {
@@ -714,7 +744,7 @@ func (h *Handlers) broadcastPush(c *gin.Context) {
 			CreatedAt: time.Now(),
 		}
 
-		if err := h.pushService.Send(notification); err == nil {
+		if err := h.manager.pushService.Send(notification); err == nil {
 			sent++
 		}
 	}
@@ -731,7 +761,7 @@ func (h *Handlers) broadcastPush(c *gin.Context) {
 
 // pushHistory 获取推送历史.
 func (h *Handlers) pushHistory(c *gin.Context) {
-	history := h.pushService.GetHistory()
+	history := h.manager.pushService.GetHistory()
 
 	c.JSON(http.StatusOK, response{
 		Code:    0,
@@ -748,7 +778,7 @@ func (h *Handlers) startSync(c *gin.Context) {
 	userID := c.GetString("userId")
 	deviceID := c.GetString("deviceId")
 
-	if err := h.syncService.StartSync(userID, deviceID); err != nil {
+	if err := h.manager.syncService.StartSync(userID, deviceID); err != nil {
 		c.JSON(http.StatusInternalServerError, response{
 			Code:    500,
 			Message: "start sync failed: " + err.Error(),
@@ -764,7 +794,7 @@ func (h *Handlers) startSync(c *gin.Context) {
 
 // stopSync 停止同步.
 func (h *Handlers) stopSync(c *gin.Context) {
-	h.syncService.StopSync()
+	h.manager.syncService.StopSync()
 
 	c.JSON(http.StatusOK, response{
 		Code:    0,
@@ -774,7 +804,7 @@ func (h *Handlers) stopSync(c *gin.Context) {
 
 // syncStatus 获取同步状态.
 func (h *Handlers) syncStatus(c *gin.Context) {
-	stats := h.syncService.GetStats()
+	stats := h.manager.syncService.GetStats()
 
 	c.JSON(http.StatusOK, response{
 		Code:    0,
@@ -786,7 +816,7 @@ func (h *Handlers) syncStatus(c *gin.Context) {
 // listSyncItems 列出同步项.
 func (h *Handlers) listSyncItems(c *gin.Context) {
 	userID := c.GetString("userId")
-	items := h.syncService.ListItems(userID)
+	items := h.manager.syncService.ListItems(userID)
 
 	c.JSON(http.StatusOK, response{
 		Code:    0,
@@ -809,7 +839,7 @@ func (h *Handlers) updateSyncConfig(c *gin.Context) {
 		return
 	}
 
-	h.syncService.UpdateConfig(&config)
+	h.manager.syncService.UpdateConfig(&config)
 
 	c.JSON(http.StatusOK, response{
 		Code:    0,
@@ -820,11 +850,238 @@ func (h *Handlers) updateSyncConfig(c *gin.Context) {
 
 // getSyncConfig 获取同步配置.
 func (h *Handlers) getSyncConfig(c *gin.Context) {
-	config := h.syncService.GetConfig()
+	config := h.manager.syncService.GetConfig()
 
 	c.JSON(http.StatusOK, response{
 		Code:    0,
 		Message: "success",
 		Data:    config,
+	})
+}
+
+// ========== 设备绑定 ==========
+
+// listBindings 列出设备绑定.
+func (h *Handlers) listBindings(c *gin.Context) {
+	userID := c.GetString("userId")
+	bindings := h.manager.ListBindings(userID)
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"total":    len(bindings),
+			"bindings": bindings,
+		},
+	})
+}
+
+// ========== 通知管理 ==========
+
+// notificationHistory 获取通知历史.
+func (h *Handlers) notificationHistory(c *gin.Context) {
+	userID := c.GetString("userId")
+	limit := 50
+	offset := 0
+
+	if v := c.Query("limit"); v != "" {
+		fmt.Sscanf(v, "%d", &limit)
+	}
+	if v := c.Query("offset"); v != "" {
+		fmt.Sscanf(v, "%d", &offset)
+	}
+
+	history := h.manager.GetNotificationHistory(userID, limit, offset)
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"total":   len(history),
+			"history": history,
+		},
+	})
+}
+
+// unreadCount 获取未读通知数量.
+func (h *Handlers) unreadCount(c *gin.Context) {
+	userID := c.GetString("userId")
+	count := h.manager.GetUnreadCount(userID)
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"count": count,
+		},
+	})
+}
+
+// markNotificationsRead 标记通知已读.
+func (h *Handlers) markNotificationsRead(c *gin.Context) {
+	var req NotificationReadRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{
+			Code:    400,
+			Message: "invalid request: " + err.Error(),
+		})
+		return
+	}
+
+	userID := c.GetString("userId")
+	count := h.manager.MarkNotificationRead(userID, req.IDs)
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "notifications marked as read",
+		Data: gin.H{
+			"count": count,
+		},
+	})
+}
+
+// markAllNotificationsRead 标记所有通知已读.
+func (h *Handlers) markAllNotificationsRead(c *gin.Context) {
+	userID := c.GetString("userId")
+	count := h.manager.MarkAllNotificationsRead(userID)
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "all notifications marked as read",
+		Data: gin.H{
+			"count": count,
+		},
+	})
+}
+
+// getNotificationPreferences 获取通知偏好.
+func (h *Handlers) getNotificationPreferences(c *gin.Context) {
+	userID := c.GetString("userId")
+	deviceID := c.GetString("deviceId")
+	prefs := h.manager.ListNotificationPreferences(userID, deviceID)
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"preferences": prefs,
+		},
+	})
+}
+
+// updateNotificationPreference 更新通知偏好.
+func (h *Handlers) updateNotificationPreference(c *gin.Context) {
+	var pref NotificationPreference
+	if err := c.ShouldBindJSON(&pref); err != nil {
+		c.JSON(http.StatusBadRequest, response{
+			Code:    400,
+			Message: "invalid request: " + err.Error(),
+		})
+		return
+	}
+
+	pref.UserID = c.GetString("userId")
+	pref.DeviceID = c.GetString("deviceId")
+	h.manager.SetNotificationPreference(&pref)
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "preference updated",
+		Data:    pref,
+	})
+}
+
+// ========== 离线同步 ==========
+
+// syncDelta 获取增量同步数据.
+func (h *Handlers) syncDelta(c *gin.Context) {
+	userID := c.GetString("userId")
+	deviceID := c.GetString("deviceId")
+
+	var lastSyncTime time.Time
+	if v := c.Query("lastSync"); v != "" {
+		lastSyncTime, _ = time.Parse(time.RFC3339, v)
+	}
+
+	delta := h.manager.GetSyncDelta(userID, deviceID, lastSyncTime)
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data:    delta,
+	})
+}
+
+// listConflicts 列出同步冲突.
+func (h *Handlers) listConflicts(c *gin.Context) {
+	userID := c.GetString("userId")
+	conflicts := h.manager.ListConflicts(userID)
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"total":     len(conflicts),
+			"conflicts": conflicts,
+		},
+	})
+}
+
+// ResolveConflictRequest 解决冲突请求.
+type ResolveConflictRequest struct {
+	Resolution ConflictResolution `json:"resolution" binding:"required"`
+}
+
+// resolveConflict 解决同步冲突.
+func (h *Handlers) resolveConflict(c *gin.Context) {
+	conflictID := c.Param("id")
+
+	var req ResolveConflictRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{
+			Code:    400,
+			Message: "invalid request: " + err.Error(),
+		})
+		return
+	}
+
+	if err := h.manager.ResolveConflict(conflictID, req.Resolution); err != nil {
+		c.JSON(http.StatusNotFound, response{
+			Code:    404,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "conflict resolved",
+	})
+}
+
+// ========== 图片处理 ==========
+
+// processImage 处理图片.
+func (h *Handlers) processImage(c *gin.Context) {
+	var req ImageProcessRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{
+			Code:    400,
+			Message: "invalid request: " + err.Error(),
+		})
+		return
+	}
+
+	// TODO: 实现图片处理逻辑
+	result := &ImageProcessResult{
+		OriginalPath:  req.Path,
+		ProcessedPath: req.Path,
+		Format:        string(req.Format),
+	}
+
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "image processed",
+		Data:    result,
 	})
 }

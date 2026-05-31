@@ -103,7 +103,7 @@ func (s *AuthService) RegisterDevice(device *MobileDevice) (*AuthToken, error) {
 	}
 
 	// 生成令牌
-	token, err := s.generateToken(device.UserID, device.ID)
+	token, err := s.generateTokenLocked(device.UserID, device.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}

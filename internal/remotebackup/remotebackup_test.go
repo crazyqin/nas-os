@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -141,9 +142,9 @@ func TestManager_ListTargets(t *testing.T) {
 	assert.Len(t, targets, 2)
 
 	// 验证脱敏
-	for _, t := range targets {
-		if t.SecretKey != "" {
-			assert.NotContains(t, t.SecretKey, "supersecret")
+	for _, tgt := range targets {
+		if tgt.SecretKey != "" {
+			assert.NotContains(t, tgt.SecretKey, "supersecret")
 		}
 	}
 }
@@ -169,7 +170,7 @@ func TestManager_GetTarget(t *testing.T) {
 
 	t.Run("获取不存在目标", func(t *testing.T) {
 		_, err := mgr.GetTarget("nonexistent")
-		assert.Error(t)
+		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "不存在")
 	})
 }
@@ -198,7 +199,7 @@ func TestManager_UpdateTarget(t *testing.T) {
 		_, err := mgr.UpdateTarget("nonexistent", &BackupTarget{
 			Name: "test",
 		})
-		assert.Error(t)
+		assert.Error(t, err)
 	})
 }
 
@@ -224,7 +225,7 @@ func TestManager_DeleteTarget(t *testing.T) {
 
 	t.Run("删除不存在", func(t *testing.T) {
 		err := mgr.DeleteTarget("nonexistent")
-		assert.Error(t)
+		assert.Error(t, err)
 	})
 
 	t.Run("删除被任务引用的目标", func(t *testing.T) {
@@ -241,7 +242,7 @@ func TestManager_DeleteTarget(t *testing.T) {
 		})
 
 		err := mgr.DeleteTarget(target.ID)
-		assert.Error(t)
+		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "仍被任务")
 	})
 }
@@ -263,7 +264,7 @@ func TestManager_TestConnection(t *testing.T) {
 
 	t.Run("测试不存在目标", func(t *testing.T) {
 		err := mgr.TestConnection("nonexistent")
-		assert.Error(t)
+		assert.Error(t, err)
 	})
 
 	t.Run("测试不完整S3配置", func(t *testing.T) {
@@ -272,7 +273,7 @@ func TestManager_TestConnection(t *testing.T) {
 			Type: TargetTypeS3,
 		})
 		err := mgr.TestConnection(target2.ID)
-		assert.Error(t)
+		assert.Error(t, err)
 	})
 
 	t.Run("测试FTP连接", func(t *testing.T) {
@@ -345,7 +346,7 @@ func TestManager_CreateJob(t *testing.T) {
 			SourcePaths: []string{"/tmp"},
 			TargetID:    target.ID,
 		})
-		assert.Error(t)
+		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "任务名称不能为空")
 	})
 
@@ -354,7 +355,7 @@ func TestManager_CreateJob(t *testing.T) {
 			Name:     "test",
 			TargetID: target.ID,
 		})
-		assert.Error(t)
+		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "源路径不能为空")
 	})
 
@@ -363,7 +364,7 @@ func TestManager_CreateJob(t *testing.T) {
 			Name:        "test",
 			SourcePaths: []string{"/tmp"},
 		})
-		assert.Error(t)
+		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "目标ID不能为空")
 	})
 
@@ -373,7 +374,7 @@ func TestManager_CreateJob(t *testing.T) {
 			SourcePaths: []string{"/tmp"},
 			TargetID:    "nonexistent",
 		})
-		assert.Error(t)
+		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "不存在")
 	})
 }
@@ -446,7 +447,7 @@ func TestManager_RunJob(t *testing.T) {
 
 	t.Run("不存在任务", func(t *testing.T) {
 		_, err := mgr.RunJob(context.Background(), "nonexistent")
-		assert.Error(t)
+		assert.Error(t, err)
 	})
 }
 
@@ -468,13 +469,13 @@ func TestManager_CancelJob(t *testing.T) {
 
 	t.Run("取消未运行任务", func(t *testing.T) {
 		err := mgr.CancelJob(job.ID)
-		assert.Error(t)
+		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "未在运行中")
 	})
 
 	t.Run("取消不存在任务", func(t *testing.T) {
 		err := mgr.CancelJob("nonexistent")
-		assert.Error(t)
+		assert.Error(t, err)
 	})
 }
 
@@ -509,7 +510,7 @@ func TestManager_ListVersions(t *testing.T) {
 
 	// 不存在任务
 	_, err = mgr.ListVersions("nonexistent")
-	assert.Error(t)
+	assert.Error(t, err)
 }
 
 func TestManager_Restore(t *testing.T) {
@@ -560,7 +561,7 @@ func TestManager_Restore(t *testing.T) {
 			JobID:       "nonexistent",
 			RestorePath: restoreDir,
 		})
-		assert.Error(t)
+		assert.Error(t, err)
 	})
 
 	t.Run("无版本恢复", func(t *testing.T) {
@@ -573,7 +574,7 @@ func TestManager_Restore(t *testing.T) {
 			JobID:       job2.ID,
 			RestorePath: restoreDir,
 		})
-		assert.Error(t)
+		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "没有可用的备份版本")
 	})
 }
@@ -608,7 +609,7 @@ func TestManager_GetRestorePoints(t *testing.T) {
 
 	t.Run("不存在任务", func(t *testing.T) {
 		_, err := mgr.GetRestorePoints("nonexistent")
-		assert.Error(t)
+		assert.Error(t, err)
 	})
 }
 
@@ -632,7 +633,7 @@ func TestManager_EncryptDecrypt(t *testing.T) {
 
 	// 错误密码
 	_, err = mgr.DecryptData(encrypted, "wrong-password")
-	assert.Error(t)
+	assert.Error(t, err)
 }
 
 func TestManager_ComputeSHA256(t *testing.T) {

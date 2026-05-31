@@ -209,3 +209,172 @@ func (s *SyncStats) GetSnapshot() *SyncStats {
 		IsSyncing:      s.IsSyncing,
 	}
 }
+
+// ========== 推送通知偏好 ==========
+
+// NotificationCategory 通知分类.
+type NotificationCategory string
+
+const (
+	CategorySystem    NotificationCategory = "system"    // 系统通知
+	CategoryBackup    NotificationCategory = "backup"    // 备份通知
+	CategorySecurity  NotificationCategory = "security"  // 安全通知
+	CategoryShare     NotificationCategory = "share"     // 分享通知
+	CategoryUpdate    NotificationCategory = "update"    // 更新通知
+	CategoryAlert     NotificationCategory = "alert"     // 告警通知
+)
+
+// NotificationPreference 通知偏好设置.
+type NotificationPreference struct {
+	UserID       string               `json:"userId"`       // 用户ID
+	DeviceID     string               `json:"deviceId"`     // 设备ID
+	Category     NotificationCategory `json:"category"`     // 通知分类
+	Enabled      bool                 `json:"enabled"`      // 是否启用
+	Sound        bool                 `json:"sound"`        // 是否播放声音
+	Vibrate      bool                 `json:"vibrate"`      // 是否震动
+	Badge        bool                 `json:"badge"`        // 是否显示角标
+	QuietStart   string               `json:"quietStart"`   // 免打扰开始时间 (HH:MM)
+	QuietEnd     string               `json:"quietEnd"`     // 免打扰结束时间 (HH:MM)
+	UpdatedAt    time.Time            `json:"updatedAt"`    // 更新时间
+}
+
+// NotificationHistoryItem 通知历史记录.
+type NotificationHistoryItem struct {
+	ID         string               `json:"id"`         // 记录ID
+	UserID     string               `json:"userId"`     // 用户ID
+	DeviceID   string               `json:"deviceId"`   // 设备ID
+	Category   NotificationCategory `json:"category"`   // 通知分类
+	Title      string               `json:"title"`      // 标题
+	Body       string               `json:"body"`       // 内容
+	Data       map[string]string    `json:"data,omitempty"` // 自定义数据
+	Read       bool                 `json:"read"`       // 是否已读
+	ReadAt     *time.Time           `json:"readAt,omitempty"` // 阅读时间
+	CreatedAt  time.Time            `json:"createdAt"`  // 创建时间
+}
+
+// NotificationReadRequest 批量标记已读请求.
+type NotificationReadRequest struct {
+	IDs     []string `json:"ids"`               // 通知ID列表
+	ReadAll bool     `json:"readAll,omitempty"` // 标记所有为已读
+}
+
+// ========== 离线同步协议 ==========
+
+// SyncConflictType 冲突类型.
+type SyncConflictType string
+
+const (
+	ConflictModify  SyncConflictType = "modify"  // 双方修改
+	ConflictDelete  SyncConflictType = "delete"  // 一方删除
+	ConflictRename  SyncConflictType = "rename"  // 重命名冲突
+)
+
+// ConflictResolution 冲突解决策略.
+type ConflictResolution string
+
+const (
+	ResolutionServer   ConflictResolution = "server"   // 以服务端为准
+	ResolutionClient   ConflictResolution = "client"   // 以客户端为准
+	ResolutionBoth     ConflictResolution = "both"     // 保留两者
+	ResolutionManual   ConflictResolution = "manual"   // 手动解决
+)
+
+// ConflictRecord 同步冲突记录.
+type ConflictRecord struct {
+	ID           string             `json:"id"`           // 冲突ID
+	ItemID       string             `json:"itemId"`       // 同步项ID
+	ConflictType SyncConflictType   `json:"conflictType"` // 冲突类型
+	ServerVersion string            `json:"serverVersion"` // 服务端版本
+	ClientVersion string            `json:"clientVersion"` // 客户端版本
+	ServerMtime  time.Time          `json:"serverMtime"`  // 服务端修改时间
+	ClientMtime  time.Time          `json:"clientMtime"`  // 客户端修改时间
+	Resolution   *ConflictResolution `json:"resolution,omitempty"` // 解决策略
+	Resolved     bool               `json:"resolved"`     // 是否已解决
+	CreatedAt    time.Time          `json:"createdAt"`    // 创建时间
+	ResolvedAt   *time.Time         `json:"resolvedAt,omitempty"` // 解决时间
+}
+
+// SyncDelta 增量同步数据.
+type SyncDelta struct {
+	LastSyncTime time.Time   `json:"lastSyncTime"` // 上次同步时间
+	Changes      []SyncChange `json:"changes"`     // 变更列表
+	HasMore      bool        `json:"hasMore"`      // 是否还有更多
+	NextToken    string      `json:"nextToken"`    // 下次分页令牌
+}
+
+// SyncChange 同步变更记录.
+type SyncChange struct {
+	Path      string    `json:"path"`      // 文件路径
+	Action    string    `json:"action"`    // 操作类型 (create/update/delete)
+	Checksum  string    `json:"checksum"`  // 文件校验和
+	Size      int64     `json:"size"`      // 文件大小
+	Mtime     time.Time `json:"mtime"`     // 修改时间
+}
+
+// ========== 移动端适配 ==========
+
+// ImageFormat 图片格式.
+type ImageFormat string
+
+const (
+	FormatJPEG ImageFormat = "jpeg"
+	FormatPNG  ImageFormat = "png"
+	FormatWebP ImageFormat = "webp"
+)
+
+// ThumbnailSize 缩略图尺寸.
+type ThumbnailSize string
+
+const (
+	ThumbSmall  ThumbnailSize = "small"  // 150x150
+	ThumbMedium ThumbnailSize = "medium" // 300x300
+	ThumbLarge  ThumbnailSize = "large"  // 600x600
+)
+
+// ImageProcessRequest 图片处理请求.
+type ImageProcessRequest struct {
+	Path       string      `json:"path"`                 // 图片路径
+	Format     ImageFormat `json:"format,omitempty"`     // 输出格式
+	MaxWidth   int         `json:"maxWidth,omitempty"`   // 最大宽度
+	MaxHeight  int         `json:"maxHeight,omitempty"`  // 最大高度
+	Quality    int         `json:"quality,omitempty"`    // 压缩质量 (1-100)
+	Thumbnail  bool        `json:"thumbnail,omitempty"`  // 生成缩略图
+	ThumbSize  ThumbnailSize `json:"thumbSize,omitempty"` // 缩略图尺寸
+}
+
+// ImageProcessResult 图片处理结果.
+type ImageProcessResult struct {
+	OriginalPath  string `json:"originalPath"`  // 原始路径
+	ProcessedPath string `json:"processedPath"` // 处理后路径
+	ThumbPath     string `json:"thumbPath,omitempty"` // 缩略图路径
+	OriginalSize  int64  `json:"originalSize"`  // 原始大小
+	ProcessedSize int64  `json:"processedSize"` // 处理后大小
+	Width         int    `json:"width"`         // 宽度
+	Height        int    `json:"height"`        // 高度
+	Format        string `json:"format"`        // 格式
+}
+
+// MobileResponse 移动端响应格式（精简版）.
+type MobileResponse struct {
+	Code    int         `json:"c"`           // 状态码
+	Message string      `json:"msg,omitempty"` // 消息
+	Data    interface{} `json:"d,omitempty"`   // 数据
+}
+
+// ========== 会话管理 ==========
+
+// DeviceBinding 设备绑定记录.
+type DeviceBinding struct {
+	ID         string    `json:"id"`         // 绑定ID
+	UserID     string    `json:"userId"`     // 用户ID
+	DeviceID   string    `json:"deviceId"`   // 设备ID
+	BoundAt    time.Time `json:"boundAt"`    // 绑定时间
+	UnboundAt  *time.Time `json:"unboundAt,omitempty"` // 解绑时间
+	Active     bool      `json:"active"`     // 是否活跃
+}
+
+// TokenRefreshRequest Token刷新请求.
+type TokenRefreshRequest struct {
+	RefreshToken string `json:"refreshToken" binding:"required"`
+	DeviceID     string `json:"deviceId" binding:"required"`
+}
