@@ -1,1024 +1,514 @@
-// Package smarthub provides smart home hub functionality for NAS-OS.
 package smarthub
 
 import (
-	"context"
 	"fmt"
+	"log"
+	"sort"
+	"strings"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
-	"go.uber.org/zap"
 )
 
-// Manager manages smart home devices, scenes, and automation.
+// Manager 智能家居中枢管理器.
 type Manager struct {
-	logger *zap.Logger
-
-	// 设备管理
-	devices    map[string]*Device
-	devicesMu  sync.RWMutex
-
-	// 协议网关
-	gateways    map[string]*ProtocolGateway
-	gatewaysMu  sync.RWMutex
-
-	// 设备分组
-	groups    map[string]*DeviceGroup
-	groupsMu  sync.RWMutex
-
-	// 房间
-	rooms    map[string]*Room
-	roomsMu  sync.RWMutex
-
-	// 场景自动化
-	scenes    map[string]*Scene
-	scenesMu  sync.RWMutex
-
-	// 能耗数据
-	energyStats    map[string]*EnergyStats
-	energyStatsMu  sync.RWMutex
-
-	// 语音命令历史
-	voiceHistory    []*VoiceCommand
-	voiceHistoryMu  sync.RWMutex
-
-	// 控制通道
-	discoverChan chan *DeviceDiscoveryResult
-	stopChan     chan struct{}
+	mu          sync.RWMutex
+	config      HubConfig
+	devices     map[string]*Device
+	scenes      map[string]*Scene
+	automations map[string]*Automation
+	energyLog   []EnergyRecord
+	running     bool
+	stopCh      chan struct{}
 }
 
-// NewManager creates a new smart home manager.
-func NewManager(logger *zap.Logger) (*Manager, error) {
-	if logger == nil {
-		logger = zap.NewNop()
+// NewManager 创建管理器.
+func NewManager(cfg HubConfig) *Manager {
+	if cfg.DeviceTimeout == 0 {
+		cfg.DeviceTimeout = 5 * time.Minute
 	}
-
-	m := &Manager{
-		logger:       logger,
-		devices:      make(map[string]*Device),
-		gateways:     make(map[string]*ProtocolGateway),
-		groups:       make(map[string]*DeviceGroup),
-		rooms:        make(map[string]*Room),
-		scenes:       make(map[string]*Scene),
-		energyStats:  make(map[string]*EnergyStats),
-		voiceHistory: make([]*VoiceCommand, 0),
-		discoverChan: make(chan *DeviceDiscoveryResult, 100),
-		stopChan:     make(chan struct{}),
+	if cfg.DiscoveryInterval == 0 {
+		cfg.DiscoveryInterval = 30 * time.Second
 	}
-
-	// 初始化默认房间
-	m.initDefaultRooms()
-
-	// 初始化默认网关
-	m.initDefaultGateways()
-
-	return m, nil
-}
-
-// initDefaultRooms initializes default rooms.
-func (m *Manager) initDefaultRooms() {
-	defaultRooms := []struct{ id, name string }{
-		{"living_room", "客厅"},
-		{"bedroom", "卧室"},
-		{"kitchen", "厨房"},
-		{"bathroom", "卫生间"},
-		{"study", "书房"},
+	if cfg.TariffPerKWh == 0 {
+		cfg.TariffPerKWh = 0.55
 	}
-	for _, r := range defaultRooms {
-		m.rooms[r.id] = &Room{
-			ID:   r.id,
-			Name: r.name,
-		}
+	return &Manager{
+		config:      cfg,
+		devices:     make(map[string]*Device),
+		scenes:      make(map[string]*Scene),
+		automations: make(map[string]*Automation),
+		stopCh:      make(chan struct{}),
 	}
 }
 
-// initDefaultGateways initializes default protocol gateways.
-func (m *Manager) initDefaultGateways() {
-	defaultGateways := []struct {
-		id       string
-		protocol Protocol
-		name     string
-		port     int
-	}{
-		{"zigbee-gw", ProtocolZigbee, "Zigbee Gateway", 8080},
-		{"zwave-gw", ProtocolZWave, "Z-Wave Gateway", 8081},
-		{"matter-gw", ProtocolMatter, "Matter Gateway", 8082},
-		{"ble-gw", ProtocolBLE, "BLE Gateway", 8083},
+// Start 启动中枢.
+func (m *Manager) Start() error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.running {
+		return nil
 	}
-	for _, gw := range defaultGateways {
-		m.gateways[gw.id] = &ProtocolGateway{
-			ID:       gw.id,
-			Protocol: gw.protocol,
-			Name:     gw.name,
-			Port:     gw.port,
-			Status:   GatewayStopped,
-		}
-	}
-}
-
-// Close stops the manager.
-func (m *Manager) Close() error {
-	close(m.stopChan)
+	m.running = true
+	m.stopCh = make(chan struct{})
+	go m.discoveryLoop()
+	go m.automationLoop()
+	go m.energyLoop()
+	log.Println("[SmartHub] 智能家居中枢已启动")
 	return nil
 }
 
-// ============================================================
-// 设备管理
-// ============================================================
-
-// ListDevices lists all devices.
-func (m *Manager) ListDevices() []*Device {
-	m.devicesMu.RLock()
-	defer m.devicesMu.RUnlock()
-
-	devices := make([]*Device, 0, len(m.devices))
-	for _, d := range m.devices {
-		devices = append(devices, d)
+// Stop 停止中枢.
+func (m *Manager) Stop() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if !m.running {
+		return
 	}
-	return devices
+	m.running = false
+	close(m.stopCh)
+	log.Println("[SmartHub] 智能家居中枢已停止")
 }
 
-// GetDevice gets a device by ID.
-func (m *Manager) GetDevice(id string) (*Device, error) {
-	m.devicesMu.RLock()
-	defer m.devicesMu.RUnlock()
-
-	device, ok := m.devices[id]
-	if !ok {
-		return nil, fmt.Errorf("device not found: %s", id)
-	}
-	return device, nil
+// IsRunning 运行状态.
+func (m *Manager) IsRunning() bool {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.running
 }
 
-// CreateDevice creates a new device.
-func (m *Manager) CreateDevice(req CreateDeviceRequest) (*Device, error) {
-	m.devicesMu.Lock()
-	defer m.devicesMu.Unlock()
+// ========== 设备管理 ==========
 
-	// Check duplicate MAC if provided
-	if req.MACAddress != "" {
-		for _, d := range m.devices {
-			if d.MACAddress == req.MACAddress {
-				return nil, fmt.Errorf("device with MAC %s already exists: %s", req.MACAddress, d.ID)
-			}
-		}
+// AddDevice 添加设备.
+func (m *Manager) AddDevice(dev *Device) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.devices[dev.ID]; exists {
+		return ErrDuplicateDevice
 	}
-
-	now := time.Now()
-	device := &Device{
-		ID:           uuid.New().String(),
-		Name:         req.Name,
-		Type:         req.Type,
-		Protocol:     req.Protocol,
-		Manufacturer: req.Manufacturer,
-		Model:        req.Model,
-		MACAddress:   req.MACAddress,
-		IPAddress:    req.IPAddress,
-		RoomID:       req.RoomID,
-		Status:       StatusOnline,
-		Properties:   make(map[string]interface{}),
-		LastSeen:     now,
-		CreatedAt:    now,
-		UpdatedAt:    now,
+	dev.State = StateOnline
+	dev.LastSeen = time.Now()
+	dev.CreatedAt = time.Now()
+	dev.UpdatedAt = time.Now()
+	if dev.Properties == nil {
+		dev.Properties = make(map[string]string)
 	}
-
-	m.devices[device.ID] = device
-	m.logger.Info("device created", zap.String("id", device.ID), zap.String("name", device.Name))
-
-	// Update room device list
-	if req.RoomID != "" {
-		m.addDeviceToRoom(device.ID, req.RoomID)
-	}
-
-	return device, nil
+	m.devices[dev.ID] = dev
+	return nil
 }
 
-// UpdateDevice updates device info.
-func (m *Manager) UpdateDevice(id string, req UpdateDeviceRequest) (*Device, error) {
-	m.devicesMu.Lock()
-	defer m.devicesMu.Unlock()
-
-	device, ok := m.devices[id]
-	if !ok {
-		return nil, fmt.Errorf("device not found: %s", id)
+// RemoveDevice 移除设备.
+func (m *Manager) RemoveDevice(id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, ok := m.devices[id]; !ok {
+		return ErrDeviceNotFound
 	}
-
-	if req.Name != "" {
-		device.Name = req.Name
-	}
-	if req.RoomID != "" {
-		// Remove from old room
-		if device.RoomID != "" {
-			m.removeDeviceFromRoom(device.ID, device.RoomID)
-		}
-		device.RoomID = req.RoomID
-		m.addDeviceToRoom(device.ID, req.RoomID)
-	}
-	if req.GroupIDs != nil {
-		device.GroupIDs = req.GroupIDs
-	}
-	device.UpdatedAt = time.Now()
-
-	return device, nil
-}
-
-// DeleteDevice deletes a device.
-func (m *Manager) DeleteDevice(id string) error {
-	m.devicesMu.Lock()
-	defer m.devicesMu.Unlock()
-
-	device, ok := m.devices[id]
-	if !ok {
-		return fmt.Errorf("device not found: %s", id)
-	}
-
-	// Remove from room
-	if device.RoomID != "" {
-		m.removeDeviceFromRoom(device.ID, device.RoomID)
-	}
-
-	// Remove from groups
-	m.groupsMu.Lock()
-	for _, group := range m.groups {
-		newIDs := make([]string, 0, len(group.DeviceIDs))
-		for _, did := range group.DeviceIDs {
-			if did != id {
-				newIDs = append(newIDs, did)
-			}
-		}
-		group.DeviceIDs = newIDs
-	}
-	m.groupsMu.Unlock()
-
 	delete(m.devices, id)
-	m.logger.Info("device deleted", zap.String("id", id))
 	return nil
 }
 
-// ControlDevice controls a device property.
-func (m *Manager) ControlDevice(id string, req ControlDeviceRequest) (*Device, error) {
-	m.devicesMu.Lock()
-	defer m.devicesMu.Unlock()
-
-	device, ok := m.devices[id]
+// GetDevice 获取设备.
+func (m *Manager) GetDevice(id string) (*Device, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	dev, ok := m.devices[id]
 	if !ok {
-		return nil, fmt.Errorf("device not found: %s", id)
+		return nil, ErrDeviceNotFound
 	}
-
-	if device.Status != StatusOnline {
-		return nil, fmt.Errorf("device is offline: %s", id)
-	}
-
-	if device.Properties == nil {
-		device.Properties = make(map[string]interface{})
-	}
-	device.Properties[req.Property] = req.Value
-	device.UpdatedAt = time.Now()
-
-	m.logger.Info("device controlled",
-		zap.String("device_id", id),
-		zap.String("property", req.Property),
-		zap.Any("value", req.Value),
-	)
-
-	return device, nil
+	return dev, nil
 }
 
-// addDeviceToRoom adds a device to a room.
-func (m *Manager) addDeviceToRoom(deviceID, roomID string) {
-	m.roomsMu.Lock()
-	defer m.roomsMu.Unlock()
-
-	room, ok := m.rooms[roomID]
-	if !ok {
-		return
-	}
-
-	for _, id := range room.DeviceIDs {
-		if id == deviceID {
-			return
-		}
-	}
-	room.DeviceIDs = append(room.DeviceIDs, deviceID)
-}
-
-// removeDeviceFromRoom removes a device from a room.
-func (m *Manager) removeDeviceFromRoom(deviceID, roomID string) {
-	m.roomsMu.Lock()
-	defer m.roomsMu.Unlock()
-
-	room, ok := m.rooms[roomID]
-	if !ok {
-		return
-	}
-
-	newIDs := make([]string, 0, len(room.DeviceIDs))
-	for _, id := range room.DeviceIDs {
-		if id != deviceID {
-			newIDs = append(newIDs, id)
-		}
-	}
-	room.DeviceIDs = newIDs
-}
-
-// ============================================================
-// 设备发现
-// ============================================================
-
-// DiscoverDevices starts device discovery.
-func (m *Manager) DiscoverDevices(ctx context.Context, req DiscoverDevicesRequest) (*DeviceDiscoveryResult, error) {
-	if req.TimeoutSec <= 0 {
-		req.TimeoutSec = 30
-	}
-
-	result := &DeviceDiscoveryResult{
-		Method:    req.Methods[0],
-		Devices:   make([]*Device, 0),
-		ScannedAt: time.Now(),
-	}
-
-	m.logger.Info("device discovery started",
-		zap.Any("methods", req.Methods),
-		zap.Int("timeout_sec", req.TimeoutSec),
-	)
-
-	// Simulate discovery - in real implementation, this would call mDNS/SSDP/BLE
-	// For now, return existing devices that match the requested protocols
-	m.devicesMu.RLock()
-	for _, device := range m.devices {
-		for _, method := range req.Methods {
-			if (method == DiscoveryMDNS && device.Protocol == ProtocolWiFi) ||
-				(method == DiscoveryBLE && device.Protocol == ProtocolBLE) ||
-				method == DiscoverySSDP {
-				result.Devices = append(result.Devices, device)
-			}
-		}
-	}
-	m.devicesMu.RUnlock()
-
-	m.logger.Info("device discovery completed", zap.Int("found", len(result.Devices)))
-	return result, nil
-}
-
-// ============================================================
-// 协议网关管理
-// ============================================================
-
-// ListGateways lists all protocol gateways.
-func (m *Manager) ListGateways() []*ProtocolGateway {
-	m.gatewaysMu.RLock()
-	defer m.gatewaysMu.RUnlock()
-
-	gateways := make([]*ProtocolGateway, 0, len(m.gateways))
-	for _, gw := range m.gateways {
-		// Update device count
-		gw.DeviceCount = m.countDevicesByProtocol(gw.Protocol)
-		gateways = append(gateways, gw)
-	}
-	return gateways
-}
-
-// GetGateway gets a gateway by ID.
-func (m *Manager) GetGateway(id string) (*ProtocolGateway, error) {
-	m.gatewaysMu.RLock()
-	defer m.gatewaysMu.RUnlock()
-
-	gw, ok := m.gateways[id]
-	if !ok {
-		return nil, fmt.Errorf("gateway not found: %s", id)
-	}
-	gw.DeviceCount = m.countDevicesByProtocol(gw.Protocol)
-	return gw, nil
-}
-
-// StartGateway starts a protocol gateway.
-func (m *Manager) StartGateway(ctx context.Context, id string) error {
-	m.gatewaysMu.Lock()
-	defer m.gatewaysMu.Unlock()
-
-	gw, ok := m.gateways[id]
-	if !ok {
-		return fmt.Errorf("gateway not found: %s", id)
-	}
-
-	if gw.Status == GatewayRunning {
-		return fmt.Errorf("gateway already running: %s", id)
-	}
-
-	now := time.Now()
-	gw.Status = GatewayRunning
-	gw.StartedAt = &now
-	gw.ErrorMsg = ""
-
-	m.logger.Info("gateway started", zap.String("id", id), zap.String("protocol", string(gw.Protocol)))
-	return nil
-}
-
-// StopGateway stops a protocol gateway.
-func (m *Manager) StopGateway(ctx context.Context, id string) error {
-	m.gatewaysMu.Lock()
-	defer m.gatewaysMu.Unlock()
-
-	gw, ok := m.gateways[id]
-	if !ok {
-		return fmt.Errorf("gateway not found: %s", id)
-	}
-
-	if gw.Status == GatewayStopped {
-		return fmt.Errorf("gateway already stopped: %s", id)
-	}
-
-	gw.Status = GatewayStopped
-	gw.StartedAt = nil
-	gw.ErrorMsg = ""
-
-	m.logger.Info("gateway stopped", zap.String("id", id))
-	return nil
-}
-
-// countDevicesByProtocol counts devices by protocol.
-func (m *Manager) countDevicesByProtocol(protocol Protocol) int {
-	m.devicesMu.RLock()
-	defer m.devicesMu.RUnlock()
-
-	count := 0
+// ListDevices 列出设备.
+func (m *Manager) ListDevices(room string, devType DeviceType) []*Device {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*Device
 	for _, d := range m.devices {
-		if d.Protocol == protocol {
-			count++
+		if room != "" && d.Room != room {
+			continue
 		}
+		if devType != "" && d.Type != devType {
+			continue
+		}
+		result = append(result, d)
 	}
-	return count
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Name < result[j].Name
+	})
+	return result
 }
 
-// ============================================================
-// 设备分组管理
-// ============================================================
-
-// ListGroups lists all device groups.
-func (m *Manager) ListGroups() []*DeviceGroup {
-	m.groupsMu.RLock()
-	defer m.groupsMu.RUnlock()
-
-	groups := make([]*DeviceGroup, 0, len(m.groups))
-	for _, g := range m.groups {
-		groups = append(groups, g)
-	}
-	return groups
-}
-
-// GetGroup gets a group by ID.
-func (m *Manager) GetGroup(id string) (*DeviceGroup, error) {
-	m.groupsMu.RLock()
-	defer m.groupsMu.RUnlock()
-
-	group, ok := m.groups[id]
+// SendCommand 发送设备命令.
+func (m *Manager) SendCommand(deviceID, command string, params map[string]string) error {
+	m.mu.RLock()
+	dev, ok := m.devices[deviceID]
+	m.mu.RUnlock()
 	if !ok {
-		return nil, fmt.Errorf("group not found: %s", id)
+		return ErrDeviceNotFound
 	}
-	return group, nil
-}
-
-// CreateGroup creates a device group.
-func (m *Manager) CreateGroup(req CreateGroupRequest) (*DeviceGroup, error) {
-	m.groupsMu.Lock()
-	defer m.groupsMu.Unlock()
-
-	now := time.Now()
-	group := &DeviceGroup{
-		ID:          uuid.New().String(),
-		Name:        req.Name,
-		Description: req.Description,
-		DeviceIDs:   req.DeviceIDs,
-		RoomID:      req.RoomID,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+	if dev.State != StateOnline {
+		return ErrDeviceOffline
 	}
-
-	m.groups[group.ID] = group
-	m.logger.Info("group created", zap.String("id", group.ID), zap.String("name", group.Name))
-	return group, nil
-}
-
-// UpdateGroup updates a device group.
-func (m *Manager) UpdateGroup(id string, req CreateGroupRequest) (*DeviceGroup, error) {
-	m.groupsMu.Lock()
-	defer m.groupsMu.Unlock()
-
-	group, ok := m.groups[id]
-	if !ok {
-		return nil, fmt.Errorf("group not found: %s", id)
+	m.mu.Lock()
+	dev.UpdatedAt = time.Now()
+	for k, v := range params {
+		dev.Properties[k] = v
 	}
-
-	if req.Name != "" {
-		group.Name = req.Name
-	}
-	if req.Description != "" {
-		group.Description = req.Description
-	}
-	if req.DeviceIDs != nil {
-		group.DeviceIDs = req.DeviceIDs
-	}
-	if req.RoomID != "" {
-		group.RoomID = req.RoomID
-	}
-	group.UpdatedAt = time.Now()
-
-	return group, nil
-}
-
-// DeleteGroup deletes a device group.
-func (m *Manager) DeleteGroup(id string) error {
-	m.groupsMu.Lock()
-	defer m.groupsMu.Unlock()
-
-	if _, ok := m.groups[id]; !ok {
-		return fmt.Errorf("group not found: %s", id)
-	}
-
-	delete(m.groups, id)
-	m.logger.Info("group deleted", zap.String("id", id))
+	m.mu.Unlock()
 	return nil
 }
 
-// ============================================================
-// 房间管理
-// ============================================================
+// ========== 场景管理 ==========
 
-// ListRooms lists all rooms.
-func (m *Manager) ListRooms() []*Room {
-	m.roomsMu.RLock()
-	defer m.roomsMu.RUnlock()
+// CreateScene 创建场景.
+func (m *Manager) CreateScene(scene *Scene) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	scene.CreatedAt = time.Now()
+	scene.Enabled = true
+	m.scenes[scene.ID] = scene
+	return nil
+}
 
-	rooms := make([]*Room, 0, len(m.rooms))
-	for _, r := range m.rooms {
+// GetScene 获取场景.
+func (m *Manager) GetScene(id string) (*Scene, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	s, ok := m.scenes[id]
+	if !ok {
+		return nil, ErrSceneNotFound
+	}
+	return s, nil
+}
+
+// DeleteScene 删除场景.
+func (m *Manager) DeleteScene(id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, ok := m.scenes[id]; !ok {
+		return ErrSceneNotFound
+	}
+	delete(m.scenes, id)
+	return nil
+}
+
+// ActivateScene 激活场景.
+func (m *Manager) ActivateScene(id string) error {
+	m.mu.Lock()
+	scene, ok := m.scenes[id]
+	if !ok {
+		m.mu.Unlock()
+		return ErrSceneNotFound
+	}
+	scene.LastRun = time.Now()
+	scene.RunCount++
+	m.mu.Unlock()
+
+	for _, action := range scene.Actions {
+		if action.Delay > 0 {
+			time.Sleep(action.Delay)
+		}
+		_ = m.SendCommand(action.DeviceID, action.Command, action.Parameters)
+	}
+	return nil
+}
+
+// ListScenes 列出场景.
+func (m *Manager) ListScenes() []*Scene {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*Scene
+	for _, s := range m.scenes {
+		result = append(result, s)
+	}
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Name < result[j].Name
+	})
+	return result
+}
+
+// ========== 自动化规则 ==========
+
+// CreateAutomation 创建自动化.
+func (m *Manager) CreateAutomation(auto *Automation) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	auto.CreatedAt = time.Now()
+	auto.Enabled = true
+	m.automations[auto.ID] = auto
+	return nil
+}
+
+// DeleteAutomation 删除自动化.
+func (m *Manager) DeleteAutomation(id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, ok := m.automations[id]; !ok {
+		return ErrDeviceNotFound
+	}
+	delete(m.automations, id)
+	return nil
+}
+
+// ListAutomations 列出自动化.
+func (m *Manager) ListAutomations() []*Automation {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*Automation
+	for _, a := range m.automations {
+		result = append(result, a)
+	}
+	return result
+}
+
+// ========== 能耗统计 ==========
+
+// GetEnergyStats 获取设备能耗统计.
+func (m *Manager) GetEnergyStats(deviceID string, since time.Time) EnergyStats {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var totalEnergy, totalPower, peakPower float64
+	var count int
+	for _, r := range m.energyLog {
+		if r.DeviceID != deviceID || r.Timestamp.Before(since) {
+			continue
+		}
+		totalEnergy += r.Energy
+		totalPower += r.Power
+		if r.Power > peakPower {
+			peakPower = r.Power
+		}
+		count++
+	}
+	avgPower := 0.0
+	if count > 0 {
+		avgPower = totalPower / float64(count)
+	}
+	dailyCost := totalEnergy * m.config.TariffPerKWh
+	return EnergyStats{
+		DeviceID:        deviceID,
+		TotalEnergy:     totalEnergy,
+		AvgPower:        avgPower,
+		PeakPower:       peakPower,
+		DailyCost:       dailyCost,
+		MonthlyCost:     dailyCost * 30,
+		CarbonFootprint: totalEnergy * 0.5703, // 中国电网碳排放因子
+	}
+}
+
+// GetTotalEnergyStats 全屋能耗统计.
+func (m *Manager) GetTotalEnergyStats(since time.Time) map[string]EnergyStats {
+	m.mu.RLock()
+	deviceIDs := make([]string, 0, len(m.devices))
+	for id := range m.devices {
+		deviceIDs = append(deviceIDs, id)
+	}
+	m.mu.RUnlock()
+
+	result := make(map[string]EnergyStats)
+	for _, id := range deviceIDs {
+		stats := m.GetEnergyStats(id, since)
+		if stats.TotalEnergy > 0 {
+			result[id] = stats
+		}
+	}
+	return result
+}
+
+// ========== 房间管理 ==========
+
+// ListRooms 列出所有房间.
+func (m *Manager) ListRooms() []string {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	roomSet := make(map[string]bool)
+	for _, d := range m.devices {
+		if d.Room != "" {
+			roomSet[d.Room] = true
+		}
+	}
+	var rooms []string
+	for r := range roomSet {
 		rooms = append(rooms, r)
 	}
+	sort.Strings(rooms)
 	return rooms
 }
 
-// CreateRoom creates a new room.
-func (m *Manager) CreateRoom(name string) (*Room, error) {
-	m.roomsMu.Lock()
-	defer m.roomsMu.Unlock()
+// ========== 统计 ==========
 
-	room := &Room{
-		ID:   uuid.New().String(),
-		Name: name,
-	}
-	m.rooms[room.ID] = room
-	return room, nil
+// HubStats 中枢统计.
+type HubStats struct {
+	TotalDevices    int            `json:"total_devices"`
+	OnlineDevices   int            `json:"online_devices"`
+	OfflineDevices  int            `json:"offline_devices"`
+	TotalScenes     int            `json:"total_scenes"`
+	TotalAutomations int           `json:"total_automations"`
+	ProtocolDist    map[string]int `json:"protocol_dist"`
+	RoomDist        map[string]int `json:"room_dist"`
 }
 
-// ============================================================
-// 场景自动化
-// ============================================================
-
-// ListScenes lists all scenes.
-func (m *Manager) ListScenes() []*Scene {
-	m.scenesMu.RLock()
-	defer m.scenesMu.RUnlock()
-
-	scenes := make([]*Scene, 0, len(m.scenes))
-	for _, s := range m.scenes {
-		scenes = append(scenes, s)
+// GetStats 获取统计信息.
+func (m *Manager) GetStats() HubStats {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	stats := HubStats{
+		ProtocolDist:     make(map[string]int),
+		RoomDist:         make(map[string]int),
+		TotalScenes:      len(m.scenes),
+		TotalAutomations: len(m.automations),
 	}
-	return scenes
-}
-
-// GetScene gets a scene by ID.
-func (m *Manager) GetScene(id string) (*Scene, error) {
-	m.scenesMu.RLock()
-	defer m.scenesMu.RUnlock()
-
-	scene, ok := m.scenes[id]
-	if !ok {
-		return nil, fmt.Errorf("scene not found: %s", id)
-	}
-	return scene, nil
-}
-
-// CreateScene creates a new scene.
-func (m *Manager) CreateScene(req CreateSceneRequest) (*Scene, error) {
-	m.scenesMu.Lock()
-	defer m.scenesMu.Unlock()
-
-	now := time.Now()
-	scene := &Scene{
-		ID:          uuid.New().String(),
-		Name:        req.Name,
-		Description: req.Description,
-		Enabled:     true,
-		Triggers:    req.Triggers,
-		Actions:     req.Actions,
-		RunCount:    0,
-		CreatedAt:   now,
-		UpdatedAt:   now,
-	}
-
-	m.scenes[scene.ID] = scene
-	m.logger.Info("scene created", zap.String("id", scene.ID), zap.String("name", scene.Name))
-	return scene, nil
-}
-
-// UpdateScene updates a scene.
-func (m *Manager) UpdateScene(id string, req CreateSceneRequest) (*Scene, error) {
-	m.scenesMu.Lock()
-	defer m.scenesMu.Unlock()
-
-	scene, ok := m.scenes[id]
-	if !ok {
-		return nil, fmt.Errorf("scene not found: %s", id)
-	}
-
-	scene.Name = req.Name
-	scene.Description = req.Description
-	scene.Triggers = req.Triggers
-	scene.Actions = req.Actions
-	scene.UpdatedAt = time.Now()
-
-	return scene, nil
-}
-
-// DeleteScene deletes a scene.
-func (m *Manager) DeleteScene(id string) error {
-	m.scenesMu.Lock()
-	defer m.scenesMu.Unlock()
-
-	if _, ok := m.scenes[id]; !ok {
-		return fmt.Errorf("scene not found: %s", id)
-	}
-
-	delete(m.scenes, id)
-	m.logger.Info("scene deleted", zap.String("id", id))
-	return nil
-}
-
-// RunScene manually runs a scene.
-func (m *Manager) RunScene(ctx context.Context, id string) (*SceneExecution, error) {
-	m.scenesMu.RLock()
-	scene, ok := m.scenes[id]
-	m.scenesMu.RUnlock()
-
-	if !ok {
-		return nil, fmt.Errorf("scene not found: %s", id)
-	}
-
-	if !scene.Enabled {
-		return nil, fmt.Errorf("scene is disabled: %s", id)
-	}
-
-	execution := &SceneExecution{
-		ID:        uuid.New().String(),
-		SceneID:   id,
-		Trigger:   "manual",
-		Status:    "success",
-		StartedAt: time.Now(),
-	}
-
-	// Execute actions
-	for _, action := range scene.Actions {
-		if err := m.executeAction(ctx, action); err != nil {
-			execution.Status = "failed"
-			execution.Error = err.Error()
-			break
+	for _, d := range m.devices {
+		stats.TotalDevices++
+		if d.State == StateOnline {
+			stats.OnlineDevices++
+		} else {
+			stats.OfflineDevices++
 		}
-	}
-
-	execution.EndedAt = time.Now()
-
-	// Update scene stats
-	m.scenesMu.Lock()
-	scene.RunCount++
-	now := time.Now()
-	scene.LastRun = &now
-	m.scenesMu.Unlock()
-
-	m.logger.Info("scene executed",
-		zap.String("scene_id", id),
-		zap.String("status", execution.Status),
-	)
-
-	return execution, nil
-}
-
-// executeAction executes a single action.
-func (m *Manager) executeAction(ctx context.Context, action Action) error {
-	switch action.Type {
-	case ActionSetProperty:
-		if action.DeviceID == "" {
-			return fmt.Errorf("device_id required for set_property")
+		stats.ProtocolDist[string(d.Protocol)]++
+		if d.Room != "" {
+			stats.RoomDist[d.Room]++
 		}
-		_, err := m.ControlDevice(action.DeviceID, ControlDeviceRequest{
-			Property: action.Property,
-			Value:    action.Value,
-		})
-		return err
-
-	case ActionRunScene:
-		if action.SceneID == "" {
-			return fmt.Errorf("scene_id required for run_scene")
-		}
-		_, err := m.RunScene(ctx, action.SceneID)
-		return err
-
-	case ActionSendNotification:
-		m.logger.Info("notification sent",
-			zap.String("message", fmt.Sprintf("%v", action.Value)),
-		)
-		return nil
-
-	default:
-		return fmt.Errorf("unknown action type: %s", action.Type)
-	}
-}
-
-// ============================================================
-// 能耗监控
-// ============================================================
-
-// GetEnergyStats gets energy stats for a device.
-func (m *Manager) GetEnergyStats(deviceID string) (*EnergyStats, error) {
-	m.energyStatsMu.RLock()
-	defer m.energyStatsMu.RUnlock()
-
-	stats, ok := m.energyStats[deviceID]
-	if !ok {
-		return nil, fmt.Errorf("no energy stats for device: %s", deviceID)
-	}
-	return stats, nil
-}
-
-// GetAllEnergyStats gets all energy stats.
-func (m *Manager) GetAllEnergyStats() []*EnergyStats {
-	m.energyStatsMu.RLock()
-	defer m.energyStatsMu.RUnlock()
-
-	stats := make([]*EnergyStats, 0, len(m.energyStats))
-	for _, s := range m.energyStats {
-		stats = append(stats, s)
 	}
 	return stats
 }
 
-// RecordEnergyReading records an energy reading.
-func (m *Manager) RecordEnergyReading(reading EnergyReading) error {
-	m.energyStatsMu.Lock()
-	defer m.energyStatsMu.Unlock()
+// ========== 内部循环 ==========
 
-	stats, ok := m.energyStats[reading.DeviceID]
-	if !ok {
-		stats = &EnergyStats{
-			DeviceID:   reading.DeviceID,
-			MinPower:   reading.Power,
-			MaxPower:   reading.Power,
+func (m *Manager) discoveryLoop() {
+	ticker := time.NewTicker(m.config.DiscoveryInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-m.stopCh:
+			return
+		case <-ticker.C:
+			m.checkDeviceHealth()
 		}
-		m.energyStats[reading.DeviceID] = stats
 	}
-
-	// Update stats
-	stats.CurrentPower = reading.Power
-	stats.TotalEnergy = reading.Energy
-	stats.LastReading = reading.Timestamp
-	stats.ReadingCount++
-
-	// Update min/max
-	if reading.Power > stats.MaxPower {
-		stats.MaxPower = reading.Power
-	}
-	if reading.Power < stats.MinPower {
-		stats.MinPower = reading.Power
-	}
-
-	// Calculate average
-	if stats.ReadingCount > 0 {
-		stats.AvgPower = (stats.AvgPower*float64(stats.ReadingCount-1) + reading.Power) / float64(stats.ReadingCount)
-	}
-
-	stats.UpdatedAt = time.Now()
-
-	// Check for high power alert
-	if reading.Power > 1000 { // Threshold: 1000W
-		m.logger.Warn("high power usage detected",
-			zap.String("device_id", reading.DeviceID),
-			zap.Float64("power", reading.Power),
-		)
-	}
-
-	return nil
 }
 
-// ============================================================
-// 语音控制
-// ============================================================
-
-// ProcessVoiceCommand processes a voice command.
-func (m *Manager) ProcessVoiceCommand(ctx context.Context, req VoiceCommandRequest) (*VoiceResponse, error) {
-	if req.Language == "" {
-		req.Language = "zh-CN"
+func (m *Manager) checkDeviceHealth() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, d := range m.devices {
+		if time.Since(d.LastSeen) > m.config.DeviceTimeout && d.State == StateOnline {
+			d.State = StateOffline
+			d.UpdatedAt = time.Now()
+		}
 	}
+}
 
-	cmd := &VoiceCommand{
-		ID:        uuid.New().String(),
-		Text:      req.Text,
-		Language:  req.Language,
-		Timestamp: time.Now(),
+func (m *Manager) automationLoop() {
+	ticker := time.NewTicker(time.Minute)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-m.stopCh:
+			return
+		case <-ticker.C:
+			m.evaluateAutomations()
+		}
 	}
+}
 
-	// Parse intent from text
-	intent, deviceID, action, value := m.parseVoiceIntent(req.Text, req.Language)
-	cmd.Intent = intent
-	cmd.DeviceID = deviceID
-	cmd.Action = action
-	cmd.Value = value
-	cmd.Confidence = 0.85 // Simulated confidence
-
-	// Execute command
-	var err error
-	var message string
-
-	switch intent {
-	case "control_device":
-		if deviceID != "" && action != "" {
-			_, err = m.ControlDevice(deviceID, ControlDeviceRequest{
-				Property: action,
-				Value:    value,
-			})
-			if err != nil {
-				message = fmt.Sprintf("操作失败: %v", err)
-			} else {
-				message = "操作成功"
-				cmd.Processed = true
+func (m *Manager) evaluateAutomations() {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	for _, auto := range m.automations {
+		if !auto.Enabled {
+			continue
+		}
+		if m.evaluateConditions(auto.Conditions, auto.LogicOp) {
+			auto.LastTrigger = time.Now()
+			auto.TriggerCount++
+			for _, action := range auto.Actions {
+				_ = m.SendCommand(action.DeviceID, action.Command, action.Parameters)
 			}
-		} else {
-			message = "未识别到有效的设备操作"
 		}
+	}
+}
 
-	case "run_scene":
-		if deviceID != "" {
-			_, err = m.RunScene(ctx, deviceID)
-			if err != nil {
-				message = fmt.Sprintf("场景执行失败: %v", err)
-			} else {
-				message = "场景已执行"
-				cmd.Processed = true
+func (m *Manager) evaluateConditions(conditions []Condition, logicOp string) bool {
+	if len(conditions) == 0 {
+		return false
+	}
+	for _, c := range conditions {
+		dev, ok := m.devices[c.DeviceID]
+		if !ok {
+			if logicOp == "and" {
+				return false
 			}
-		} else {
-			message = "未找到匹配的场景"
+			continue
 		}
-
-	case "query_status":
-		message = "设备状态查询功能开发中"
-		cmd.Processed = true
-
-	default:
-		message = "抱歉，我无法理解这个指令"
-		cmd.Confidence = 0.3
-	}
-
-	if err != nil {
-		cmd.Error = err.Error()
-	}
-
-	// Save to history
-	m.voiceHistoryMu.Lock()
-	m.voiceHistory = append(m.voiceHistory, cmd)
-	// Keep only last 100 commands
-	if len(m.voiceHistory) > 100 {
-		m.voiceHistory = m.voiceHistory[len(m.voiceHistory)-100:]
-	}
-	m.voiceHistoryMu.Unlock()
-
-	return &VoiceResponse{
-		Success: cmd.Processed,
-		Message: message,
-		Data:    cmd,
-	}, nil
-}
-
-// parseVoiceIntent parses voice command intent.
-func (m *Manager) parseVoiceIntent(text, language string) (intent, deviceID, action string, value interface{}) {
-	// Simple keyword-based parsing for demo
-	// Real implementation would use NLP/LLM
-
-	// Control commands
-	controlKeywords := map[string]struct {
-		action string
-		value  interface{}
-	}{
-		"开灯":   {"on", true},
-		"关灯":   {"on", false},
-		"打开灯":  {"on", true},
-		"关闭灯":  {"on", false},
-		"调亮":   {"brightness", 100},
-		"调暗":   {"brightness", 30},
-		"开空调":  {"on", true},
-		"关空调":  {"on", false},
-		"温度调高": {"temperature", 26},
-		"温度调低": {"temperature", 20},
-	}
-
-	for keyword, cmd := range controlKeywords {
-		if contains(text, keyword) {
-			return "control_device", "", cmd.action, cmd.value
-		}
-	}
-
-	// Scene commands
-	sceneKeywords := []string{"执行场景", "运行场景", "回家模式", "离家模式", "睡眠模式"}
-	for _, kw := range sceneKeywords {
-		if contains(text, kw) {
-			return "run_scene", "", "", nil
-		}
-	}
-
-	// Query commands
-	queryKeywords := []string{"查询", "状态", "温度", "湿度"}
-	for _, kw := range queryKeywords {
-		if contains(text, kw) {
-			return "query_status", "", "", nil
-		}
-	}
-
-	return "unknown", "", "", nil
-}
-
-// contains checks if s contains substr.
-func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsSubstr(s, substr))
-}
-
-func containsSubstr(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
+		val := dev.Properties[c.Property]
+		matched := compareValues(val, c.Operator, c.Value)
+		if logicOp == "or" && matched {
 			return true
 		}
+		if logicOp == "and" && !matched {
+			return false
+		}
 	}
-	return false
+	return logicOp == "and"
 }
 
-// GetVoiceHistory gets voice command history.
-func (m *Manager) GetVoiceHistory() []*VoiceCommand {
-	m.voiceHistoryMu.RLock()
-	defer m.voiceHistoryMu.RUnlock()
-
-	history := make([]*VoiceCommand, len(m.voiceHistory))
-	copy(history, m.voiceHistory)
-	return history
+func compareValues(actual, op, expected string) bool {
+	switch op {
+	case "eq":
+		return actual == expected
+	case "neq":
+		return actual != expected
+	case "contains":
+		return strings.Contains(actual, expected)
+	default:
+		return false
+	}
 }
 
-// ============================================================
-// 统计信息
-// ============================================================
+func (m *Manager) energyLoop() {
+	if !m.config.EnableEnergy {
+		return
+	}
+	ticker := time.NewTicker(5 * time.Minute)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-m.stopCh:
+			return
+		case <-ticker.C:
+			m.collectEnergyData()
+		}
+	}
+}
 
-// GetStats gets overall statistics.
-func (m *Manager) GetStats() map[string]interface{} {
-	m.devicesMu.RLock()
-	deviceCount := len(m.devices)
-	onlineCount := 0
+func (m *Manager) collectEnergyData() {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	for _, d := range m.devices {
-		if d.Status == StatusOnline {
-			onlineCount++
+		if d.State != StateOnline {
+			continue
+		}
+		if powerStr, ok := d.Properties["power"]; ok {
+			var power float64
+			fmt.Sscanf(powerStr, "%f", &power)
+			if power > 0 {
+				m.energyLog = append(m.energyLog, EnergyRecord{
+					DeviceID:  d.ID,
+					Timestamp: time.Now(),
+					Power:     power,
+					Energy:    power * 5.0 / 60.0 / 1000.0, // 5分钟间隔换算
+				})
+			}
 		}
 	}
-	m.devicesMu.RUnlock()
-
-	m.gatewaysMu.RLock()
-	gatewayCount := len(m.gateways)
-	runningGateways := 0
-	for _, gw := range m.gateways {
-		if gw.Status == GatewayRunning {
-			runningGateways++
-		}
+	// 保留最近30天
+	cutoff := time.Now().AddDate(0, 0, -30)
+	start := 0
+	for start < len(m.energyLog) && m.energyLog[start].Timestamp.Before(cutoff) {
+		start++
 	}
-	m.gatewaysMu.RUnlock()
-
-	m.groupsMu.RLock()
-	groupCount := len(m.groups)
-	m.groupsMu.RUnlock()
-
-	m.scenesMu.RLock()
-	sceneCount := len(m.scenes)
-	enabledScenes := 0
-	for _, s := range m.scenes {
-		if s.Enabled {
-			enabledScenes++
-		}
-	}
-	m.scenesMu.RUnlock()
-
-	m.voiceHistoryMu.RLock()
-	voiceCommandCount := len(m.voiceHistory)
-	m.voiceHistoryMu.RUnlock()
-
-	return map[string]interface{}{
-		"devices":           deviceCount,
-		"online_devices":    onlineCount,
-		"gateways":          gatewayCount,
-		"running_gateways":  runningGateways,
-		"groups":            groupCount,
-		"scenes":            sceneCount,
-		"enabled_scenes":    enabledScenes,
-		"voice_commands":    voiceCommandCount,
+	if start > 0 {
+		m.energyLog = m.energyLog[start:]
 	}
 }
