@@ -42,6 +42,14 @@ type Manager struct {
 
 // NewManager 创建新的管理器实例
 func NewManager() *Manager {
+	return NewManagerWithPath("")
+}
+
+// NewManagerWithPath 创建指定配置路径的管理器（空字符串使用默认路径）
+func NewManagerWithPath(configPath string) *Manager {
+	if configPath == "" {
+		configPath = configFilePath
+	}
 	m := &Manager{
 		devices:      make(map[string]*RDMADevice),
 		targets:      make(map[string]*StorageTarget),
@@ -51,7 +59,7 @@ func NewManager() *Manager {
 		benchmarks:   make(map[string]*BenchmarkResult),
 		healthChecks: make(map[string]*HealthCheckResult),
 		stopMonitor:  make(chan struct{}),
-		configPath:   configFilePath,
+		configPath:   configPath,
 	}
 
 	// 加载持久化配置
