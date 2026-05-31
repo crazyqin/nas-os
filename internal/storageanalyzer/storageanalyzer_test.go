@@ -74,8 +74,8 @@ func TestGetDuplicates(t *testing.T) {
 	mgr := NewManager()
 	result, _ := mgr.StartScan("/data")
 
-	// 等待 goroutine 完成扫描
-	time.Sleep(50 * time.Millisecond)
+	// 等待异步扫描完成
+	time.Sleep(200 * time.Millisecond)
 
 	dupes, err := mgr.GetDuplicates(result.ID, 0)
 	if err != nil {

@@ -815,7 +815,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ AI 推荐引擎就绪")
 	alertGuidedMgr := alertguided.NewManager(logger)
 	log.Println("✅ 智能告警引导就绪")
-	auditTrailMgr := audittrail.NewManager(logger)
+	auditTrailMgr := audittrail.NewManager()
 	log.Println("✅ 审计追踪就绪")
 	dataWarehouseMgr := datawarehouse.NewWarehouse(10000)
 	log.Println("✅ 数据仓库就绪")
@@ -1544,7 +1544,7 @@ func (s *Server) setupRoutes() {
 			alertguided.NewHandlers(s.logger, s.alertGuidedMgr).RegisterRoutes(api)
 		}
 		if s.auditTrailMgr != nil {
-			audittrail.NewHandlers(s.logger, s.auditTrailMgr).RegisterRoutes(api)
+			audittrail.NewHandler(s.auditTrailMgr).RegisterRoutes(api)
 		}
 		if s.dataWarehouseMgr != nil {
 			datawarehouse.NewHandler(s.dataWarehouseMgr).RegisterRoutes(api)
