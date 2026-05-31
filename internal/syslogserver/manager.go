@@ -407,7 +407,7 @@ func (m *Manager) matchForwardFilter(entry *SyslogEntry, filter string) bool {
 
 // sendToTarget 发送日志到目标服务器.
 func (m *Manager) sendToTarget(target *ForwardTarget, entry *SyslogEntry) {
-	addr := fmt.Sprintf("%s:%d", target.Host, target.Port)
+	addr := net.JoinHostPort(target.Host, fmt.Sprintf("%d", target.Port))
 	message := entry.Raw + "\n"
 
 	if target.Protocol == "udp" {
