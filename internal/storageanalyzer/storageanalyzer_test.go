@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -72,6 +73,9 @@ func TestListScans(t *testing.T) {
 func TestGetDuplicates(t *testing.T) {
 	mgr := NewManager()
 	result, _ := mgr.StartScan("/data")
+
+	// 等待 goroutine 完成扫描
+	time.Sleep(50 * time.Millisecond)
 
 	dupes, err := mgr.GetDuplicates(result.ID, 0)
 	if err != nil {

@@ -187,7 +187,15 @@ func (m *Manager) ResolveAnomaly(anomalyID string) error {
 // GenerateReport 生成合规报告
 func (m *Manager) GenerateReport(period string) *ComplianceReport {
 	m.mu.RLock()
-	defer m.mu.RUnlock()
+	entries := make([]AuditEntry, len(m.entries))
+	copy(entries, m.entries)
+	unresolvedAnomalies := 0
+	for _, a := range m.anomalies {
+		if !a.Resolved {
+			unresolvedAnomalies++
+		}
+	}
+	m.mu.RUnlock()
 
 	report := &ComplianceReport{
 		ID:          fmt.Sprintf("report_%d", time.Now().UnixNano()),
@@ -199,7 +207,7 @@ func (m *Manager) GenerateReport(period string) *ComplianceReport {
 	}
 
 	actionCount := make(map[string]int)
-	for _, e := range m.entries {
+	for _, e := range entries {
 		report.TotalEvents++
 		report.ByLevel[e.Level]++
 		report.BySource[e.Source]++
@@ -234,12 +242,6 @@ func (m *Manager) GenerateReport(period string) *ComplianceReport {
 	score := 100
 	if report.FailedLogins > 100 {
 		score -= 20
-	}
-	unresolvedAnomalies := 0
-	for _, a := range m.anomalies {
-		if !a.Resolved {
-			unresolvedAnomalies++
-		}
 	}
 	score -= unresolvedAnomalies * 5
 	if score < 0 {
