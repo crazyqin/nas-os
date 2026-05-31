@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 	_ "modernc.org/sqlite"
 )
 
@@ -771,6 +772,539 @@ func TestIntegration_FullFlow(t *testing.T) {
 	assert.Equal(t, 100.0, report.Summary.OverallScore)
 }
 
+// ========== Scanner Tests ==========
+
+func TestNewScanner(t *testing.T) {
+	s := NewScanner(nil)
+	assert.NotNil(t, s)
+
+	logger := zap.NewNop()
+	s = NewScanner(logger)
+	assert.NotNil(t, s)
+}
+
+func TestScanner_ScanSystemConfig(t *testing.T) {
+	s := NewScanner(nil)
+	ctx := &CheckContext{Timeout: 10 * time.Second}
+
+	result := s.ScanSystemConfig(ctx)
+	assert.NotNil(t, result)
+	assert.Equal(t, "config_audit", result.Name)
+	assert.Equal(t, StandardMLPS2, result.Standard)
+	assert.Equal(t, CategoryAccessControl, result.Category)
+	assert.NotZero(t, result.Timestamp)
+}
+
+func TestScanner_ScanFilePermissions(t *testing.T) {
+	s := NewScanner(nil)
+	ctx := &CheckContext{Timeout: 10 * time.Second}
+
+	result := s.ScanFilePermissions(ctx)
+	assert.NotNil(t, result)
+	assert.Equal(t, "file_permissions", result.Name)
+	assert.Equal(t, StandardMLPS2, result.Standard)
+	assert.NotNil(t, result.Details)
+}
+
+func TestScanner_ScanPasswordPolicy(t *testing.T) {
+	s := NewScanner(nil)
+	ctx := &CheckContext{Timeout: 10 * time.Second}
+
+	result := s.ScanPasswordPolicy(ctx)
+	assert.NotNil(t, result)
+	assert.Equal(t, "password_policy", result.Name)
+	assert.Equal(t, StandardGDPR, result.Standard)
+	assert.Equal(t, CategoryPasswordPolicy, result.Category)
+}
+
+func TestScanner_ScanNetworkExposure(t *testing.T) {
+	s := NewScanner(nil)
+	ctx := &CheckContext{Timeout: 10 * time.Second}
+
+	result := s.ScanNetworkExposure(ctx)
+	assert.NotNil(t, result)
+	assert.Equal(t, "network_exposure", result.Name)
+	assert.Equal(t, StandardISO27001, result.Standard)
+	assert.Equal(t, CategoryNetworkSecurity, result.Category)
+}
+
+func TestScanner_ScanEncryptionStatus(t *testing.T) {
+	s := NewScanner(nil)
+	ctx := &CheckContext{Timeout: 10 * time.Second}
+
+	result := s.ScanEncryptionStatus(ctx)
+	assert.NotNil(t, result)
+	assert.Equal(t, "encryption_status", result.Name)
+	assert.Equal(t, StandardGDPR, result.Standard)
+	assert.Equal(t, CategoryEncryption, result.Category)
+}
+
+func TestScanner_ScanDataProtection(t *testing.T) {
+	s := NewScanner(nil)
+	ctx := &CheckContext{Timeout: 10 * time.Second}
+
+	result := s.ScanDataProtection(ctx)
+	assert.NotNil(t, result)
+	assert.Equal(t, "gdpr_data_protection", result.Name)
+	assert.Equal(t, StandardGDPR, result.Standard)
+	assert.Equal(t, CategoryDataProtection, result.Category)
+}
+
+func TestScanner_ScanAuditLog(t *testing.T) {
+	s := NewScanner(nil)
+	ctx := &CheckContext{Timeout: 10 * time.Second}
+
+	result := s.ScanAuditLog(ctx)
+	assert.NotNil(t, result)
+	assert.Equal(t, "mlps2_audit_log", result.Name)
+	assert.Equal(t, StandardMLPS2, result.Standard)
+	assert.Equal(t, CategoryAuditLog, result.Category)
+}
+
+// ========== Policy Tests ==========
+
+func TestNewPolicyEngine(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+	assert.NotNil(t, pe)
+
+	policies := pe.ListPolicies()
+	assert.Len(t, policies, 4) // GDPR, MLPS2, ISO27001, SOC2
+}
+
+func TestPolicyEngine_GetPolicy(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	policy, ok := pe.GetPolicy(StandardGDPR)
+	assert.True(t, ok)
+	assert.NotNil(t, policy)
+	assert.Equal(t, "欧盟通用数据保护条例 (GDPR)", policy.Name)
+	assert.True(t, policy.Enabled)
+	assert.Len(t, policy.Controls, 8)
+}
+
+func TestPolicyEngine_GetPolicy_NotFound(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	_, ok := pe.GetPolicy("nonexistent")
+	assert.False(t, ok)
+}
+
+func TestPolicyEngine_ListPolicies(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	policies := pe.ListPolicies()
+	assert.Len(t, policies, 4)
+
+	names := make([]string, 0, len(policies))
+	for _, p := range policies {
+		names = append(names, string(p.Standard))
+	}
+	assert.Contains(t, names, string(StandardGDPR))
+	assert.Contains(t, names, string(StandardMLPS2))
+	assert.Contains(t, names, string(StandardISO27001))
+	assert.Contains(t, names, string(StandardSOC2))
+}
+
+func TestPolicyEngine_Evaluate(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	// 创建模拟报告
+	report := &ComplianceReport{
+		Standards: []*StandardReport{
+			{
+				Standard: StandardGDPR,
+				Score:    80,
+				Checks: []*CheckResult{
+					{Name: "test1", Standard: StandardGDPR, Category: CategoryPasswordPolicy, Status: StatusPass},
+					{Name: "test2", Standard: StandardGDPR, Category: CategoryEncryption, Status: StatusPass},
+					{Name: "test3", Standard: StandardGDPR, Category: CategoryAccessControl, Status: StatusFail},
+				},
+			},
+		},
+		Findings: make([]*Finding, 0),
+	}
+
+	result := pe.Evaluate(report, StandardGDPR)
+	assert.NotNil(t, result)
+	assert.Equal(t, StandardGDPR, result.Standard)
+	assert.NotZero(t, result.Score)
+	assert.NotZero(t, result.AssessedAt)
+}
+
+func TestPolicyEngine_EvaluateAll(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	report := &ComplianceReport{
+		Standards: make([]*StandardReport, 0),
+		Findings:  make([]*Finding, 0),
+	}
+
+	results := pe.EvaluateAll(report)
+	assert.Len(t, results, 4)
+}
+
+func TestPolicyEngine_AddPolicy(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	customPolicy := &CompliancePolicy{
+		Standard:    "custom",
+		Name:        "自定义策略",
+		Description: "测试自定义策略",
+		Enabled:     true,
+		Controls:    make([]PolicyControl, 0),
+	}
+
+	err := pe.AddPolicy(customPolicy)
+	assert.NoError(t, err)
+
+	p, ok := pe.GetPolicy("custom")
+	assert.True(t, ok)
+	assert.Equal(t, "自定义策略", p.Name)
+}
+
+func TestPolicyEngine_AddPolicy_Error(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	err := pe.AddPolicy(nil)
+	assert.Error(t, err)
+
+	err = pe.AddPolicy(&CompliancePolicy{})
+	assert.Error(t, err)
+}
+
+func TestPolicyEngine_RemovePolicy(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	pe.RemovePolicy(StandardGDPR)
+	_, ok := pe.GetPolicy(StandardGDPR)
+	assert.False(t, ok)
+}
+
+func TestPolicyEngine_EnableDisablePolicy(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	err := pe.DisablePolicy(StandardGDPR)
+	assert.NoError(t, err)
+
+	policy, _ := pe.GetPolicy(StandardGDPR)
+	assert.False(t, policy.Enabled)
+
+	err = pe.EnablePolicy(StandardGDPR)
+	assert.NoError(t, err)
+
+	policy, _ = pe.GetPolicy(StandardGDPR)
+	assert.True(t, policy.Enabled)
+}
+
+func TestPolicyEngine_EnableDisablePolicy_NotFound(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	err := pe.EnablePolicy("nonexistent")
+	assert.Error(t, err)
+
+	err = pe.DisablePolicy("nonexistent")
+	assert.Error(t, err)
+}
+
+func TestPolicyEngine_GetComplianceStatus(t *testing.T) {
+	pe := NewPolicyEngine(nil)
+
+	report := &ComplianceReport{
+		Standards: make([]*StandardReport, 0),
+		Findings:  make([]*Finding, 0),
+	}
+
+	status := pe.GetComplianceStatus(report)
+	assert.Len(t, status, 4)
+}
+
+// ========== Reporter Tests ==========
+
+func TestNewReporter(t *testing.T) {
+	r := NewReporter(nil)
+	assert.NotNil(t, r)
+}
+
+func TestReporter_GenerateFullReport(t *testing.T) {
+	r := NewReporter(nil)
+
+	report := &ComplianceReport{
+		ID:          "test_report",
+		Title:       "测试报告",
+		GeneratedAt: time.Now(),
+		Summary: &ReportSummary{
+			TotalChecks:  10,
+			Passed:       8,
+			Failed:       2,
+			OverallScore: 80.0,
+			RiskLevel:    RiskMedium,
+		},
+		Standards: []*StandardReport{
+			{
+				Standard: StandardGDPR,
+				Score:    80,
+				Checks: []*CheckResult{
+					{Name: "test1", Category: CategoryPasswordPolicy, Status: StatusPass},
+					{Name: "test2", Category: CategoryEncryption, Status: StatusFail},
+				},
+			},
+		},
+		Findings: []*Finding{
+			{ID: "f1", Title: "发现1", RiskLevel: RiskHigh, Category: CategoryEncryption, Status: StatusFail},
+		},
+		Remediations: make([]*RemediationItem, 0),
+	}
+
+	policyResults := []*PolicyResult{
+		{Standard: StandardGDPR, Score: 80, Compliant: true, AssessedAt: time.Now()},
+	}
+
+	remediations := []*RemediationItem{
+		{FindingID: "f1", Title: "修复发现1", Status: "pending", Priority: 4},
+	}
+
+	fullReport := r.GenerateFullReport(report, policyResults, remediations)
+	assert.NotNil(t, fullReport)
+	assert.NotNil(t, fullReport.Summary)
+	assert.Equal(t, 80.0, fullReport.Summary.OverallScore)
+	assert.NotNil(t, fullReport.RiskMatrix)
+	assert.NotNil(t, fullReport.Recommendations)
+}
+
+func TestReporter_ExportJSON(t *testing.T) {
+	r := NewReporter(nil)
+
+	fullReport := &FullReport{
+		Summary: &FullReportSummary{
+			OverallScore:     85.0,
+			RiskLevel:        RiskLow,
+			TotalChecks:      10,
+			Passed:           9,
+			Failed:           1,
+			ComplianceStatus: make(map[string]bool),
+			CategoryScores:   make(map[CheckCategory]float64),
+			StandardScores:   make(map[ComplianceStandard]float64),
+		},
+		GeneratedAt: time.Now(),
+	}
+
+	data, err := r.ExportJSON(fullReport)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, data)
+	assert.Contains(t, string(data), "overall_score")
+}
+
+func TestReporter_ExportMarkdown(t *testing.T) {
+	r := NewReporter(nil)
+
+	fullReport := &FullReport{
+		Summary: &FullReportSummary{
+			OverallScore:     85.0,
+			RiskLevel:        RiskLow,
+			TotalChecks:      10,
+			Passed:           9,
+			Failed:           1,
+			ComplianceStatus: map[string]bool{"gdpr": true},
+			StandardScores:   map[ComplianceStandard]float64{StandardGDPR: 85.0},
+		},
+		RiskMatrix: &RiskMatrix{
+			Critical: make([]*Finding, 0),
+			High:     []*Finding{{Title: "高风险发现"}},
+			Medium:   make([]*Finding, 0),
+			Low:      make([]*Finding, 0),
+		},
+		Recommendations: []*Recommendation{
+			{ID: "rec1", Title: "改进建议1", Priority: 3, Impact: "中等", Effort: "低", Description: "测试建议"},
+		},
+		Remediations: []*RemediationItem{
+			{Title: "修复项1", Status: "pending", Priority: 3, Description: "测试修复", Steps: []string{"步骤1", "步骤2"}},
+		},
+		GeneratedAt: time.Now(),
+	}
+
+	md := r.ExportMarkdown(fullReport)
+	assert.NotEmpty(t, md)
+	assert.Contains(t, md, "合规审计报告")
+	assert.Contains(t, md, "85.0%")
+	assert.Contains(t, md, "改进建议1")
+}
+
+// ========== Remediator Tests ==========
+
+func TestNewRemediator(t *testing.T) {
+	rm := NewRemediator(nil)
+	assert.NotNil(t, rm)
+
+	strategies := rm.GetStrategies()
+	assert.Len(t, strategies, 7)
+}
+
+func TestRemediator_GetRemediation(t *testing.T) {
+	rm := NewRemediator(nil)
+
+	result := &CheckResult{
+		Name:     "test",
+		Category: CategoryPasswordPolicy,
+		Status:   StatusFail,
+		RiskLevel: RiskHigh,
+		Message:  "密码策略不合规",
+	}
+
+	rem := rm.GetRemediation(result)
+	assert.NotNil(t, rem)
+	assert.Contains(t, rem.Title, "password_policy")
+	assert.NotEmpty(t, rem.Steps)
+	assert.Equal(t, 4, rem.Priority)
+	assert.Equal(t, 7, rem.Deadline)
+}
+
+func TestRemediator_GetRemediation_Pass(t *testing.T) {
+	rm := NewRemediator(nil)
+
+	result := &CheckResult{
+		Name:   "test",
+		Status: StatusPass,
+	}
+
+	rem := rm.GetRemediation(result)
+	assert.Nil(t, rem)
+}
+
+func TestRemediator_GetRemediation_UnknownCategory(t *testing.T) {
+	rm := NewRemediator(nil)
+
+	result := &CheckResult{
+		Name:      "test",
+		Category:  "unknown_category",
+		Status:    StatusFail,
+		RiskLevel: RiskMedium,
+		Message:   "未知类别",
+	}
+
+	rem := rm.GetRemediation(result)
+	assert.NotNil(t, rem)
+	assert.Contains(t, rem.Title, "test")
+}
+
+func TestRemediator_GenerateRemediations(t *testing.T) {
+	rm := NewRemediator(nil)
+
+	findings := []*Finding{
+		{ID: "f1", Title: "密码问题", Category: CategoryPasswordPolicy, Status: StatusFail, RiskLevel: RiskHigh},
+		{ID: "f2", Title: "加密问题", Category: CategoryEncryption, Status: StatusFail, RiskLevel: RiskMedium},
+		{ID: "f3", Title: "已通过项", Category: CategoryAccessControl, Status: StatusPass, RiskLevel: RiskLow},
+	}
+
+	items := rm.GenerateRemediations(findings)
+	assert.Len(t, items, 2) // 只有失败的项
+	assert.Equal(t, "pending", items[0].Status)
+	assert.NotEmpty(t, items[0].Steps)
+}
+
+func TestRemediator_GetAutoFixable(t *testing.T) {
+	rm := NewRemediator(nil)
+
+	// 内置策略都不是自动修复的
+	fixable := rm.GetAutoFixable(CategoryPasswordPolicy)
+	assert.Nil(t, fixable)
+}
+
+func TestRemediator_AddStrategy(t *testing.T) {
+	rm := NewRemediator(nil)
+
+	customStrategy := &RemediationStrategy{
+		Category:    "custom",
+		AutoFixable: true,
+		Steps: []RemediationStep{
+			{Order: 1, Title: "自动修复", Description: "执行自动修复", RiskLevel: "low"},
+		},
+	}
+
+	rm.AddStrategy(customStrategy)
+
+	strategies := rm.GetStrategies()
+	assert.Len(t, strategies, 8)
+}
+
+// ========== Engine Tests ==========
+
+func TestNewEngine(t *testing.T) {
+	e := NewEngine(nil, nil)
+	assert.NotNil(t, e)
+	assert.NotNil(t, e.GetManager())
+	assert.NotNil(t, e.GetScanner())
+	assert.NotNil(t, e.GetPolicyEngine())
+	assert.NotNil(t, e.GetReporter())
+	assert.NotNil(t, e.GetRemediator())
+}
+
+func TestEngine_RunFullAudit(t *testing.T) {
+	e := NewEngine(nil, nil)
+
+	// 注册 mock 检查
+	e.GetManager().RegisterCheck(newMockCheck("test1", StandardGDPR, StatusPass))
+	e.GetManager().RegisterCheck(newMockCheck("test2", StandardMLPS2, StatusFail))
+
+	result, err := e.RunFullAudit(context.Background())
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.NotNil(t, result.Report)
+	assert.NotNil(t, result.PolicyResults)
+	assert.NotNil(t, result.Remediations)
+	assert.NotNil(t, result.FullReport)
+	assert.NotZero(t, result.CompletedAt)
+}
+
+func TestEngine_RunCategoryAudit(t *testing.T) {
+	e := NewEngine(nil, nil)
+
+	// 注册密码策略检查（新名称避免与内置检查冲突）
+	e.GetManager().RegisterCheck(&builtinCheck{
+		name:        "custom_password",
+		standard:    StandardGDPR,
+		category:    CategoryPasswordPolicy,
+		description: "测试密码检查",
+		scanner:     e.GetScanner(),
+		scanFunc: func(ctx *CheckContext) *CheckResult {
+			return &CheckResult{
+				Name:     "custom_password",
+				Status:   StatusPass,
+				Category: CategoryPasswordPolicy,
+			}
+		},
+	})
+
+	report, err := e.RunCategoryAudit(context.Background(), CategoryPasswordPolicy)
+	assert.NoError(t, err)
+	assert.NotNil(t, report)
+	assert.Equal(t, 2, report.Summary.TotalChecks) // builtin password_policy + custom_password
+}
+
+func TestEngine_RunCategoryAudit_NoChecks(t *testing.T) {
+	e := NewEngine(nil, nil)
+
+	_, err := e.RunCategoryAudit(context.Background(), CategoryIncidentResponse)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "no checks found")
+}
+
+func TestBuiltinCheck_GetRemediation(t *testing.T) {
+	bc := &builtinCheck{
+		name:     "test",
+		category: CategoryPasswordPolicy,
+	}
+
+	result := &CheckResult{
+		Name:     "test",
+		Category: CategoryPasswordPolicy,
+		Status:   StatusFail,
+		RiskLevel: RiskHigh,
+	}
+
+	rem := bc.GetRemediation(result)
+	assert.NotNil(t, rem)
+}
+
 // ========== Benchmark ==========
 
 func BenchmarkManager_RunFullScan(b *testing.B) {
@@ -784,3 +1318,42 @@ func BenchmarkManager_RunFullScan(b *testing.B) {
 		m.RunFullScan(context.Background())
 	}
 }
+
+func BenchmarkScanner_ScanSystemConfig(b *testing.B) {
+	s := NewScanner(nil)
+	ctx := &CheckContext{Timeout: 10 * time.Second}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		s.ScanSystemConfig(ctx)
+	}
+}
+
+func BenchmarkPolicyEngine_Evaluate(b *testing.B) {
+	pe := NewPolicyEngine(nil)
+	report := &ComplianceReport{
+		Standards: make([]*StandardReport, 0),
+		Findings:  make([]*Finding, 0),
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		pe.Evaluate(report, StandardGDPR)
+	}
+}
+
+func BenchmarkReporter_GenerateFullReport(b *testing.B) {
+	r := NewReporter(nil)
+	report := &ComplianceReport{
+		Summary:     &ReportSummary{OverallScore: 80, TotalChecks: 10, Passed: 8, Failed: 2},
+		Standards:   make([]*StandardReport, 0),
+		Findings:    make([]*Finding, 0),
+		Remediations: make([]*RemediationItem, 0),
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r.GenerateFullReport(report, nil, nil)
+	}
+}
+
