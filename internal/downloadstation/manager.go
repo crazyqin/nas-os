@@ -23,15 +23,18 @@ import (
 type Manager struct {
 	mu          sync.RWMutex
 	tasks       map[string]*DownloadTask
+	taskURLs    map[string]string // URL -> taskID 映射，用于重复检测
 	history     []HistoryEntry
 	queue       *DownloadQueue
 	limiter     *SpeedLimiter
 	config      QueueConfig
 	feeds       map[string]*RSSFeed
 	feedItems   map[string][]RSSItem
+	schedules   map[string]*DownloadSchedule
 	ctx         context.Context
 	cancel      context.CancelFunc
 	downloadDir string
+	autoClassify bool // 是否启用自动分类
 }
 
 // NewManager 创建下载站管理器.
@@ -39,16 +42,19 @@ func NewManager(config QueueConfig) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	m := &Manager{
-		tasks:       make(map[string]*DownloadTask),
-		history:     make([]HistoryEntry, 0),
-		queue:       NewDownloadQueue(config),
-		limiter:     NewSpeedLimiter(config.MaxSpeedTotal, config.MaxSpeedPerTask),
-		config:      config,
-		feeds:       make(map[string]*RSSFeed),
-		feedItems:   make(map[string][]RSSItem),
-		ctx:         ctx,
-		cancel:      cancel,
-		downloadDir: config.DownloadDir,
+		tasks:        make(map[string]*DownloadTask),
+		taskURLs:     make(map[string]string),
+		history:      make([]HistoryEntry, 0),
+		queue:        NewDownloadQueue(config),
+		limiter:      NewSpeedLimiter(config.MaxSpeedTotal, config.MaxSpeedPerTask),
+		config:       config,
+		feeds:        make(map[string]*RSSFeed),
+		feedItems:    make(map[string][]RSSItem),
+		schedules:    make(map[string]*DownloadSchedule),
+		ctx:          ctx,
+		cancel:       cancel,
+		downloadDir:  config.DownloadDir,
+		autoClassify: true,
 	}
 
 	// 确保下载目录存在

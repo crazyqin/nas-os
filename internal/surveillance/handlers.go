@@ -1,621 +1,608 @@
 package surveillance
 
 import (
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
-// Handlers 监控处理器.
-type Handlers struct {
+// Handler HTTP 处理器
+type Handler struct {
 	manager *Manager
 }
 
-// NewHandlers 创建监控处理器.
-func NewHandlers(manager *Manager) *Handlers {
-	return &Handlers{
-		manager: manager,
-	}
+// NewHandler 创建处理器
+func NewHandler(manager *Manager) *Handler {
+	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由.
-func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
-	surveillance := r.Group("/surveillance")
-	{
-		// 摄像头管理
-		surveillance.GET("/cameras", h.listCameras)
-		surveillance.POST("/cameras", h.addCamera)
-		surveillance.GET("/cameras/:id", h.getCamera)
-		surveillance.PUT("/cameras/:id", h.updateCamera)
-		surveillance.DELETE("/cameras/:id", h.deleteCamera)
-		surveillance.GET("/cameras/discover", h.discoverCameras)
+// RegisterRoutes 注册路由
+func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
+	// 摄像头管理
+	mux.HandleFunc("/api/surveillance/cameras", h.handleCameras)
+	mux.HandleFunc("/api/surveillance/cameras/", h.handleCameraByID)
 
-		// 录制管理
-		surveillance.GET("/recordings", h.getRecordings)
-		surveillance.POST("/recordings/start", h.startRecording)
-		surveillance.POST("/recordings/:id/stop", h.stopRecording)
+	// 实时流
+	mux.HandleFunc("/api/surveillance/streams", h.handleStreams)
+	mux.HandleFunc("/api/surveillance/streams/", h.handleStreamByID)
 
-		// 事件管理
-		surveillance.GET("/events", h.getEvents)
-		surveillance.POST("/events", h.addEvent)
+	// 录像
+	mux.HandleFunc("/api/surveillance/recordings", h.handleRecordings)
+	mux.HandleFunc("/api/surveillance/recordings/", h.handleRecordingByID)
 
-		// 流媒体
-		surveillance.POST("/streams/start", h.startStream)
-		surveillance.POST("/streams/:id/stop", h.stopStream)
-		surveillance.GET("/streams/active", h.getActiveStreams)
+	// 录像计划
+	mux.HandleFunc("/api/surveillance/schedules", h.handleSchedules)
 
-		// 移动侦测
-		surveillance.GET("/motion/:cameraId", h.getMotionDetection)
-		surveillance.PUT("/motion/:cameraId", h.setMotionDetection)
+	// 移动侦测
+	mux.HandleFunc("/api/surveillance/motion", h.handleMotion)
 
-		// 回放
-		surveillance.POST("/playback/query", h.queryPlayback)
+	// 事件
+	mux.HandleFunc("/api/surveillance/events", h.handleEvents)
+	mux.HandleFunc("/api/surveillance/events/", h.handleEventByID)
 
-		// 导出
-		surveillance.POST("/exports", h.createExport)
-		surveillance.GET("/exports/:id", h.getExportJob)
+	// 联动规则
+	mux.HandleFunc("/api/surveillance/actions", h.handleActions)
 
-		// 存储配额
-		surveillance.GET("/storage/:cameraId", h.getStorageQuota)
-		surveillance.PUT("/storage/:cameraId", h.setStorageQuota)
+	// 分组
+	mux.HandleFunc("/api/surveillance/groups", h.handleGroups)
+	mux.HandleFunc("/api/surveillance/groups/", h.handleGroupByID)
 
-		// PTZ 控制
-		surveillance.POST("/ptz", h.sendPTZCommand)
+	// 存储
+	mux.HandleFunc("/api/surveillance/storage", h.handleStorage)
 
-		// 录制计划
-		surveillance.GET("/schedules", h.listSchedules)
-		surveillance.POST("/schedules", h.addSchedule)
-		surveillance.DELETE("/schedules/:id", h.deleteSchedule)
-
-		// 统计
-		surveillance.GET("/stats", h.getStats)
-	}
+	// 状态
+	mux.HandleFunc("/api/surveillance/status", h.handleStatus)
 }
 
-// listCameras 列出摄像头.
-func (h *Handlers) listCameras(c *gin.Context) {
-	cameras := h.manager.ListCameras()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    cameras,
+// ========== 通用响应 ==========
+
+// APIResponse API 响应
+type APIResponse struct {
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data,omitempty"`
+	Error   string      `json:"error,omitempty"`
+}
+
+// respondJSON 返回 JSON 响应
+func respondJSON(w http.ResponseWriter, status int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(data)
+}
+
+// respondSuccess 成功响应
+func respondSuccess(w http.ResponseWriter, data interface{}) {
+	respondJSON(w, http.StatusOK, APIResponse{
+		Success: true,
+		Data:    data,
 	})
 }
 
-// addCamera 添加摄像头.
-func (h *Handlers) addCamera(c *gin.Context) {
-	var cam Camera
-	if err := c.ShouldBindJSON(&cam); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
-		})
-		return
-	}
-
-	if err := h.manager.AddCamera(&cam); err != nil {
-		c.JSON(http.StatusConflict, gin.H{
-			"code":    409,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    cam,
+// respondError 错误响应
+func respondError(w http.ResponseWriter, status int, err string) {
+	respondJSON(w, status, APIResponse{
+		Success: false,
+		Error:   err,
 	})
 }
 
-// getCamera 获取摄像头.
-func (h *Handlers) getCamera(c *gin.Context) {
-	id := c.Param("id")
-	cam, err := h.manager.GetCamera(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
+// ========== 摄像头管理 ==========
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    cam,
-	})
+// handleCameras 处理 /api/surveillance/cameras
+func (h *Handler) handleCameras(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// 列出所有摄像头
+		cameras := h.manager.ListCameras()
+		respondSuccess(w, cameras)
+
+	case http.MethodPost:
+		// 添加摄像头
+		var cam Camera
+		if err := json.NewDecoder(r.Body).Decode(&cam); err != nil {
+			respondError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+
+		if err := h.manager.AddCamera(&cam); err != nil {
+			respondError(w, http.StatusConflict, err.Error())
+			return
+		}
+
+		respondJSON(w, http.StatusCreated, APIResponse{
+			Success: true,
+			Data:    cam,
+		})
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// updateCamera 更新摄像头.
-func (h *Handlers) updateCamera(c *gin.Context) {
-	id := c.Param("id")
-	var cam Camera
-	if err := c.ShouldBindJSON(&cam); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
-		})
+// handleCameraByID 处理 /api/surveillance/cameras/{id}
+func (h *Handler) handleCameraByID(w http.ResponseWriter, r *http.Request) {
+	// 提取 ID
+	id := r.URL.Path[len("/api/surveillance/cameras/"):]
+	if id == "" {
+		respondError(w, http.StatusBadRequest, "camera ID required")
 		return
 	}
 
-	cam.ID = id
-	if err := h.manager.UpdateCamera(&cam); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
+	switch r.Method {
+	case http.MethodGet:
+		// 获取摄像头
+		cam, err := h.manager.GetCamera(id)
+		if err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, cam)
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    cam,
-	})
+	case http.MethodPut:
+		// 更新摄像头
+		var cam Camera
+		if err := json.NewDecoder(r.Body).Decode(&cam); err != nil {
+			respondError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+		cam.ID = id
+
+		if err := h.manager.UpdateCamera(&cam); err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, cam)
+
+	case http.MethodDelete:
+		// 删除摄像头
+		if err := h.manager.RemoveCamera(id); err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, map[string]string{"deleted": id})
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// deleteCamera 删除摄像头.
-func (h *Handlers) deleteCamera(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeleteCamera(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+// ========== 实时流管理 ==========
+
+// handleStreams 处理 /api/surveillance/streams
+func (h *Handler) handleStreams(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	streams := h.manager.ListStreams()
+	respondSuccess(w, streams)
 }
 
-// discoverCameras 发现摄像头.
-func (h *Handlers) discoverCameras(c *gin.Context) {
-	results, err := h.manager.DiscoverCameras()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+// handleStreamByID 处理 /api/surveillance/streams/{cameraId}
+func (h *Handler) handleStreamByID(w http.ResponseWriter, r *http.Request) {
+	cameraID := r.URL.Path[len("/api/surveillance/streams/"):]
+	if cameraID == "" {
+		respondError(w, http.StatusBadRequest, "camera ID required")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    results,
-	})
-}
+	switch r.Method {
+	case http.MethodGet:
+		// 获取流信息
+		stream, err := h.manager.GetStream(cameraID)
+		if err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, stream)
 
-// getRecordings 获取录制列表.
-func (h *Handlers) getRecordings(c *gin.Context) {
-	cameraID := c.Query("cameraId")
-	recordings := h.manager.GetRecordings(cameraID)
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    recordings,
-	})
-}
-
-// startRecording 开始录制.
-func (h *Handlers) startRecording(c *gin.Context) {
-	var req struct {
-		CameraID string       `json:"cameraId"`
-		Mode     RecordingMode `json:"mode"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
+	case http.MethodPost:
+		// 开始流
+		stream, err := h.manager.StartStream(cameraID)
+		if err != nil {
+			respondError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		respondJSON(w, http.StatusCreated, APIResponse{
+			Success: true,
+			Data:    stream,
 		})
+
+	case http.MethodDelete:
+		// 停止流
+		h.manager.StopStream(cameraID)
+		respondSuccess(w, map[string]string{"stopped": cameraID})
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// ========== 录像管理 ==========
+
+// handleRecordings 处理 /api/surveillance/recordings
+func (h *Handler) handleRecordings(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// 列出录像
+		cameraID := r.URL.Query().Get("cameraId")
+		recordings := h.manager.ListRecordings(cameraID)
+		respondSuccess(w, recordings)
+
+	case http.MethodPost:
+		// 开始录像
+		var req struct {
+			CameraID string        `json:"cameraId"`
+			Mode     RecordingMode `json:"mode"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			respondError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+
+		recording, err := h.manager.StartRecording(req.CameraID, req.Mode)
+		if err != nil {
+			respondError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		respondJSON(w, http.StatusCreated, APIResponse{
+			Success: true,
+			Data:    recording,
+		})
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// handleRecordingByID 处理 /api/surveillance/recordings/{id}
+func (h *Handler) handleRecordingByID(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[len("/api/surveillance/recordings/"):]
+	if id == "" {
+		respondError(w, http.StatusBadRequest, "recording ID required")
 		return
 	}
 
-	job, err := h.manager.StartRecording(req.CameraID, req.Mode)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
+	switch r.Method {
+	case http.MethodGet:
+		// 获取录像
+		recording, err := h.manager.GetRecording(id)
+		if err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, recording)
+
+	case http.MethodDelete:
+		// 停止录像
+		if err := h.manager.StopRecording(id); err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, map[string]string{"stopped": id})
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// ========== 录像计划 ==========
+
+// handleSchedules 处理 /api/surveillance/schedules
+func (h *Handler) handleSchedules(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// 列出计划
+		cameraID := r.URL.Query().Get("cameraId")
+		schedules := h.manager.ListSchedules(cameraID)
+		respondSuccess(w, schedules)
+
+	case http.MethodPost:
+		// 添加计划
+		var schedule RecordingSchedule
+		if err := json.NewDecoder(r.Body).Decode(&schedule); err != nil {
+			respondError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+
+		if err := h.manager.AddSchedule(&schedule); err != nil {
+			respondError(w, http.StatusConflict, err.Error())
+			return
+		}
+
+		respondJSON(w, http.StatusCreated, APIResponse{
+			Success: true,
+			Data:    schedule,
 		})
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// ========== 移动侦测 ==========
+
+// handleMotion 处理 /api/surveillance/motion
+func (h *Handler) handleMotion(w http.ResponseWriter, r *http.Request) {
+	cameraID := r.URL.Query().Get("cameraId")
+	if cameraID == "" {
+		respondError(w, http.StatusBadRequest, "cameraId required")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    job,
-	})
+	switch r.Method {
+	case http.MethodGet:
+		// 获取配置
+		config, err := h.manager.GetMotionDetection(cameraID)
+		if err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, config)
+
+	case http.MethodPut:
+		// 更新配置
+		var config MotionDetection
+		if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
+			respondError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+		config.CameraID = cameraID
+
+		if err := h.manager.SetMotionDetection(&config); err != nil {
+			respondError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		respondSuccess(w, config)
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// stopRecording 停止录制.
-func (h *Handlers) stopRecording(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.StopRecording(id); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+// ========== 事件管理 ==========
+
+// handleEvents 处理 /api/surveillance/events
+func (h *Handler) handleEvents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
-}
-
-// getEvents 获取事件列表.
-func (h *Handlers) getEvents(c *gin.Context) {
-	cameraID := c.Query("cameraId")
-	limit := 100 // 默认限制
+	cameraID := r.URL.Query().Get("cameraId")
+	limit := 100
+	if l := r.URL.Query().Get("limit"); l != "" {
+		fmt.Sscanf(l, "%d", &limit)
+	}
 
 	events := h.manager.GetEvents(cameraID, limit)
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    events,
-	})
+	respondSuccess(w, events)
 }
 
-// addEvent 添加事件.
-func (h *Handlers) addEvent(c *gin.Context) {
+// handleEventByID 处理 /api/surveillance/events/{id}
+func (h *Handler) handleEventByID(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[len("/api/surveillance/events/"):]
+	if id == "" {
+		respondError(w, http.StatusBadRequest, "event ID required")
+		return
+	}
+
+	if r.Method != http.MethodPut {
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	// 确认事件
 	var req struct {
-		CameraID string `json:"cameraId"`
-		Message  string `json:"message"`
+		AckedBy string `json:"ackedBy"`
 	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	h.manager.AddEvent(req.CameraID, req.Message)
+	if err := h.manager.AckEvent(id, req.AckedBy); err != nil {
+		respondError(w, http.StatusNotFound, err.Error())
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
+	respondSuccess(w, map[string]string{"acked": id})
+}
+
+// ========== 联动规则 ==========
+
+// handleActions 处理 /api/surveillance/actions
+func (h *Handler) handleActions(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// 列出规则
+		cameraID := r.URL.Query().Get("cameraId")
+		rules := h.manager.ListActionRules(cameraID)
+		respondSuccess(w, rules)
+
+	case http.MethodPost:
+		// 添加规则
+		var rule ActionRule
+		if err := json.NewDecoder(r.Body).Decode(&rule); err != nil {
+			respondError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+
+		if err := h.manager.AddActionRule(&rule); err != nil {
+			respondError(w, http.StatusConflict, err.Error())
+			return
+		}
+
+		respondJSON(w, http.StatusCreated, APIResponse{
+			Success: true,
+			Data:    rule,
+		})
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// ========== 分组管理 ==========
+
+// handleGroups 处理 /api/surveillance/groups
+func (h *Handler) handleGroups(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// 列出分组
+		groups := h.manager.ListGroups()
+		respondSuccess(w, groups)
+
+	case http.MethodPost:
+		// 创建分组
+		var group CameraGroup
+		if err := json.NewDecoder(r.Body).Decode(&group); err != nil {
+			respondError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+
+		if err := h.manager.CreateGroup(&group); err != nil {
+			respondError(w, http.StatusConflict, err.Error())
+			return
+		}
+
+		respondJSON(w, http.StatusCreated, APIResponse{
+			Success: true,
+			Data:    group,
+		})
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// handleGroupByID 处理 /api/surveillance/groups/{id}
+func (h *Handler) handleGroupByID(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[len("/api/surveillance/groups/"):]
+	if id == "" {
+		respondError(w, http.StatusBadRequest, "group ID required")
+		return
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		// 获取分组
+		group, err := h.manager.GetGroup(id)
+		if err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, group)
+
+	case http.MethodPut:
+		// 更新分组
+		var group CameraGroup
+		if err := json.NewDecoder(r.Body).Decode(&group); err != nil {
+			respondError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+		group.ID = id
+
+		if err := h.manager.UpdateGroup(&group); err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, group)
+
+	case http.MethodDelete:
+		// 删除分组
+		if err := h.manager.DeleteGroup(id); err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, map[string]string{"deleted": id})
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// ========== 存储管理 ==========
+
+// handleStorage 处理 /api/surveillance/storage
+func (h *Handler) handleStorage(w http.ResponseWriter, r *http.Request) {
+	cameraID := r.URL.Query().Get("cameraId")
+	if cameraID == "" {
+		respondError(w, http.StatusBadRequest, "cameraId required")
+		return
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		// 获取配额
+		quota, err := h.manager.GetStorageQuota(cameraID)
+		if err != nil {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondSuccess(w, quota)
+
+	case http.MethodPut:
+		// 设置配额
+		var quota StorageQuota
+		if err := json.NewDecoder(r.Body).Decode(&quota); err != nil {
+			respondError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+		quota.CameraID = cameraID
+
+		if err := h.manager.SetStorageQuota(&quota); err != nil {
+			respondError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		respondSuccess(w, quota)
+
+	default:
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// ========== 系统状态 ==========
+
+// handleStatus 处理 /api/surveillance/status
+func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		respondError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	status := h.manager.GetStatus()
+	respondSuccess(w, status)
+}
+
+// ========== 中间件 ==========
+
+// LoggingMiddleware 日志中间件
+func LoggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		log.Printf("[surveillance] %s %s", r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+		log.Printf("[surveillance] %s %s completed in %v", r.Method, r.URL.Path, time.Since(start))
 	})
 }
 
-// startStream 开始流媒体.
-func (h *Handlers) startStream(c *gin.Context) {
-	var req struct {
-		CameraID string `json:"cameraId"`
-		Protocol string `json:"protocol"`
-		ClientID string `json:"clientId"`
-	}
+// CORSMiddleware CORS 中间件
+func CORSMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
-		})
-		return
-	}
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
 
-	session, err := h.manager.StartStream(req.CameraID, req.Protocol, req.ClientID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    session,
-	})
-}
-
-// stopStream 停止流媒体.
-func (h *Handlers) stopStream(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.StopStream(id); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
-}
-
-// getActiveStreams 获取活跃流.
-func (h *Handlers) getActiveStreams(c *gin.Context) {
-	streams := h.manager.GetActiveStreams()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    streams,
-	})
-}
-
-// getMotionDetection 获取移动侦测配置.
-func (h *Handlers) getMotionDetection(c *gin.Context) {
-	cameraID := c.Param("cameraId")
-	cfg, err := h.manager.GetMotionDetection(cameraID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    cfg,
-	})
-}
-
-// setMotionDetection 设置移动侦测配置.
-func (h *Handlers) setMotionDetection(c *gin.Context) {
-	cameraID := c.Param("cameraId")
-	var cfg MotionDetectionConfig
-	if err := c.ShouldBindJSON(&cfg); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
-		})
-		return
-	}
-
-	cfg.CameraID = cameraID
-	if err := h.manager.SetMotionDetection(&cfg); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
-}
-
-// queryPlayback 查询回放.
-func (h *Handlers) queryPlayback(c *gin.Context) {
-	var req PlaybackQuery
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
-		})
-		return
-	}
-
-	segments, err := h.manager.GetPlayback(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    segments,
-	})
-}
-
-// createExport 创建导出任务.
-func (h *Handlers) createExport(c *gin.Context) {
-	var req ExportRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
-		})
-		return
-	}
-
-	job, err := h.manager.CreateExport(req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    job,
-	})
-}
-
-// getExportJob 获取导出任务.
-func (h *Handlers) getExportJob(c *gin.Context) {
-	id := c.Param("id")
-	job, err := h.manager.GetExportJob(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    job,
-	})
-}
-
-// getStorageQuota 获取存储配额.
-func (h *Handlers) getStorageQuota(c *gin.Context) {
-	cameraID := c.Param("cameraId")
-	quota, err := h.manager.GetStorageQuota(cameraID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    quota,
-	})
-}
-
-// setStorageQuota 设置存储配额.
-func (h *Handlers) setStorageQuota(c *gin.Context) {
-	cameraID := c.Param("cameraId")
-	var quota StorageQuota
-	if err := c.ShouldBindJSON(&quota); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
-		})
-		return
-	}
-
-	quota.CameraID = cameraID
-	if err := h.manager.SetStorageQuota(&quota); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
-}
-
-// sendPTZCommand 发送 PTZ 命令.
-func (h *Handlers) sendPTZCommand(c *gin.Context) {
-	var cmd PTZCommand
-	if err := c.ShouldBindJSON(&cmd); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
-		})
-		return
-	}
-
-	if err := h.manager.SendPTZCommand(cmd); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
-}
-
-// listSchedules 列出录制计划.
-func (h *Handlers) listSchedules(c *gin.Context) {
-	cameraID := c.Query("cameraId")
-	schedules := h.manager.ListSchedules(cameraID)
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    schedules,
-	})
-}
-
-// addSchedule 添加录制计划.
-func (h *Handlers) addSchedule(c *gin.Context) {
-	var schedule RecordingSchedule
-	if err := c.ShouldBindJSON(&schedule); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "参数错误: " + err.Error(),
-		})
-		return
-	}
-
-	if err := h.manager.AddSchedule(&schedule); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    schedule,
-	})
-}
-
-// deleteSchedule 删除录制计划.
-func (h *Handlers) deleteSchedule(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeleteSchedule(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
-}
-
-// getStats 获取监控统计.
-func (h *Handlers) getStats(c *gin.Context) {
-	stats := h.manager.GetStats()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
-}
-
-// HealthCheck 健康检查端点.
-func (h *Handlers) HealthCheck(c *gin.Context) {
-	stats := h.manager.GetStats()
-	
-	status := "healthy"
-	if stats.OnlineCameras == 0 && stats.TotalCameras > 0 {
-		status = "degraded"
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":    status,
-		"timestamp": time.Now().Format(time.RFC3339),
-		"stats":     stats,
+		next.ServeHTTP(w, r)
 	})
 }

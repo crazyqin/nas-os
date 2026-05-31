@@ -115,6 +115,14 @@ import (
 	"nas-os/internal/smartlink"
 	"nas-os/internal/spotlight"
 
+	// v2.542.0 新增模块
+	"nas-os/internal/dlnamedia"
+	"nas-os/internal/dnsfilter"
+	"nas-os/internal/musicserver"
+	"nas-os/internal/photoai"
+	"nas-os/internal/syslogserver"
+	"nas-os/internal/digitallegacy"
+
 	_ "nas-os/docs/swagger" // Swagger 文档
 
 	"github.com/gin-gonic/gin"
@@ -230,7 +238,7 @@ type Server struct {
 	remoteDesktopMgr   *remotedesktop.Manager
 	smartHomeMgr       *smarthome.Manager
 	ssoHubMgr          *ssohub.Manager
-	surveillanceMgr    *surveillance.SurveillanceManager
+	surveillanceMgr    *surveillance.Manager
 	unifiedSearchMgr   *unifiedsearch.Manager
 	// v2.499.0 竞品对标新增模块
 	zfsPoolMgr         *zfspool.Manager
@@ -251,6 +259,13 @@ type Server struct {
 	selfServiceMgr     *selfserviceportal.Portal
 	smartLinkMgr       *smartlink.Linker
 	spotlightMgr       *spotlight.Manager
+	// v2.542.0 新增模块
+	dlnaMediaMgr       *dlnamedia.Manager
+	dnsFilterMgr       *dnsfilter.Manager
+	musicServerMgr     *musicserver.Manager
+	photoAIMgr         *photoai.Manager
+	syslogServerMgr    *syslogserver.Manager
+	digitalLegacyMgr   *digitallegacy.Manager
 }
 
 // NewServer 创建 Web 服务器.
@@ -803,7 +818,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ SSO Hub模块就绪")
 
 	// 初始化监控中心（对标群晖 Surveillance Station）
-	surveillanceMgr := surveillance.NewSurveillanceManager(logger, "/var/lib/nas-os/surveillance")
+	surveillanceMgr := surveillance.NewManager()
 	log.Println("✅ 监控中心模块就绪")
 
 	// 初始化统一搜索（对标群晖 Universal Search 增强）
@@ -834,6 +849,14 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	smartLinkMgr := smartlink.NewLinker(smartlink.SharePolicy{})
 	log.Println("✅ 智能链接就绪")
 	spotlightMgr := spotlight.NewManager(logger)
+
+	// v2.542.0 新增模块初始化
+	dlnaMediaMgr := dlnamedia.NewManager("/data/media", true)
+	dnsFilterMgr := dnsfilter.NewManager()
+	musicServerMgr := musicserver.NewManager()
+	photoAIMgr := photoai.NewManager(nil)
+	syslogServerMgr := syslogserver.NewManager()
+	digitalLegacyMgr := digitallegacy.NewManager(logger, nil, []byte("nas-os-legacy-key"))
 	log.Println("✅ Spotlight 索引就绪")
 
 	s := &Server{
@@ -998,6 +1021,12 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		selfServiceMgr:     selfServiceMgr,
 		smartLinkMgr:       smartLinkMgr,
 		spotlightMgr:       spotlightMgr,
+		dlnaMediaMgr:       dlnaMediaMgr,
+		dnsFilterMgr:       dnsFilterMgr,
+		musicServerMgr:     musicServerMgr,
+		photoAIMgr:         photoAIMgr,
+		syslogServerMgr:    syslogServerMgr,
+		digitalLegacyMgr:   digitalLegacyMgr,
 	}
 
 	// 设置 WebDAV 认证函数
@@ -1484,13 +1513,13 @@ func (s *Server) setupRoutes() {
 			filesync.NewHandler(s.fileSyncMgr, s.logger).RegisterRoutes(api)
 		}
 
-		// 监控中心（对标群晖 Surveillance Station）
-		if s.surveillanceMgr != nil {
-			surveillance.NewHandler(s.surveillanceMgr, s.logger).RegisterRoutes(api)
-		}
-
 		// http.ServeMux 桥接：注册使用标准库的模块
 		newMux := http.NewServeMux()
+
+		// 监控中心（对标群晖 Surveillance Station）
+		if s.surveillanceMgr != nil {
+			surveillance.NewHandler(s.surveillanceMgr).RegisterRoutes(newMux)
+		}
 		if s.collabDocsMgr != nil {
 			collabdocs.NewHandler(s.collabDocsMgr).RegisterRoutes(newMux)
 		}
@@ -1535,6 +1564,12 @@ func (s *Server) setupRoutes() {
 		}
 		if s.unifiedSearchMgr != nil {
 			unifiedsearch.NewHandler(s.unifiedSearchMgr).RegisterRoutes(newMux)
+		}
+
+		// v2.542.0 新增模块路由（http.ServeMux）
+		if s.photoAIMgr != nil {
+			photoai.NewHandler(s.photoAIMgr).RegisterRoutes(newMux)
+		}
 
 		// v2.513.0 新增模块路由
 		if s.airRecommendMgr != nil {
@@ -1573,13 +1608,29 @@ func (s *Server) setupRoutes() {
 		if s.spotlightMgr != nil {
 			spotlight.NewHandlers(s.logger, s.spotlightMgr).RegisterRoutes(api)
 		}
+
+		// v2.542.0 新增模块路由
+		if s.dlnaMediaMgr != nil {
+			dlnamedia.NewHandler(s.dlnaMediaMgr).RegisterRoutes(api)
+		}
+		if s.dnsFilterMgr != nil {
+			dnsfilter.NewHandlers(s.dnsFilterMgr).RegisterRoutes(api)
+		}
+		if s.musicServerMgr != nil {
+			musicserver.NewHandlers(s.musicServerMgr).RegisterRoutes(api)
+		}
+		if s.syslogServerMgr != nil {
+			syslogserver.NewHandlers(s.syslogServerMgr).RegisterRoutes(api)
+		}
+		if s.digitalLegacyMgr != nil {
+			digitallegacy.NewHandlers(s.digitalLegacyMgr).RegisterRoutes(api)
+		}
 		s.engine.NoRoute(gin.WrapH(newMux))
 
 		// ========== 媒体中心 ==========
 		// if s.mediaMgr != nil {
 		// 	media.NewHandlers(s.mediaMgr).RegisterRoutes(api)
 		// }
-	}
 	}
 
 	// Swagger API 文档

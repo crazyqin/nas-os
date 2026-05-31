@@ -1,5 +1,4 @@
-// Package compliancedashboard 实现企业合规仪表盘
-// 学习群晖合规能力，提供 GDPR/SOC2/HIPAA 合规报告和自动化审计
+// Package compliancedashboard - 合规管理器实现
 package compliancedashboard
 
 import (
@@ -8,148 +7,50 @@ import (
 	"time"
 )
 
-// ComplianceFramework 合规框架
-type ComplianceFramework string
-
-const (
-	FrameworkGDPR  ComplianceFramework = "GDPR"
-	FrameworkSOC2  ComplianceFramework = "SOC2"
-	FrameworkHIPAA ComplianceFramework = "HIPAA"
-	FrameworkISO27001 ComplianceFramework = "ISO27001"
-	FrameworkPCIDSS ComplianceFramework = "PCI-DSS"
-)
-
-// ComplianceStatus 合规状态
-type ComplianceStatus string
-
-const (
-	StatusCompliant    ComplianceStatus = "compliant"
-	StatusNonCompliant ComplianceStatus = "non_compliant"
-	StatusPartial      ComplianceStatus = "partial"
-	StatusInProgress   ComplianceStatus = "in_progress"
-	StatusNotApplicable ComplianceStatus = "not_applicable"
-)
-
-// ComplianceConfig 合规配置
-type ComplianceConfig struct {
-	Enabled            bool                   `json:"enabled"`
-	EnabledFrameworks  []ComplianceFramework  `json:"enabledFrameworks"`
-	AutoScan           bool                   `json:"autoScan"`
-	ScanInterval       int                    `json:"scanInterval"` // 小时
-	AlertThreshold     float64                `json:"alertThreshold"` // 合规分数阈值
-	NotifyEmail        string                 `json:"notifyEmail"`
-	RetentionDays      int                    `json:"retentionDays"`
-}
-
-// ComplianceCheck 合规检查项
-type ComplianceCheck struct {
-	ID          string              `json:"id"`
-	Framework   ComplianceFramework `json:"framework"`
-	Category    string              `json:"category"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Status      ComplianceStatus    `json:"status"`
-	Score       float64             `json:"score"`       // 0-100
-	MaxScore    float64             `json:"maxScore"`
-	Severity    string              `json:"severity"`    // critical/high/medium/low
-	Evidence    []string            `json:"evidence"`
-	Remediation string              `json:"remediation"`
-	LastChecked time.Time           `json:"lastChecked"`
-	CheckedBy   string              `json:"checkedBy"`
-}
-
-// ComplianceReport 合规报告
-type ComplianceReport struct {
-	ID              string              `json:"id"`
-	Framework       ComplianceFramework `json:"framework"`
-	OverallScore    float64             `json:"overallScore"`
-	MaxScore        float64             `json:"maxScore"`
-	Status          ComplianceStatus    `json:"status"`
-	TotalChecks     int                 `json:"totalChecks"`
-	PassedChecks    int                 `json:"passedChecks"`
-	FailedChecks    int                 `json:"failedChecks"`
-	PartialChecks   int                 `json:"partialChecks"`
-	Categories      []CategoryScore     `json:"categories"`
-	CriticalFindings []Finding         `json:"criticalFindings"`
-	GeneratedAt     time.Time           `json:"generatedAt"`
-	ValidUntil      time.Time           `json:"validUntil"`
-	GeneratedBy     string              `json:"generatedBy"`
-}
-
-// CategoryScore 分类分数
-type CategoryScore struct {
-	Name     string  `json:"name"`
-	Score    float64 `json:"score"`
-	MaxScore float64 `json:"maxScore"`
-	Checks   int     `json:"checks"`
-	Passed   int     `json:"passed"`
-}
-
-// Finding 发现项
-type Finding struct {
-	ID          string              `json:"id"`
-	Framework   ComplianceFramework `json:"framework"`
-	CheckID     string              `json:"checkId"`
-	Severity    string              `json:"severity"`
-	Title       string              `json:"title"`
-	Description string              `json:"description"`
-	Impact      string              `json:"impact"`
-	Remediation string              `json:"remediation"`
-	Status      string              `json:"status"` // open/remediated/accepted
-	DetectedAt  time.Time           `json:"detectedAt"`
-	ResolvedAt  *time.Time          `json:"resolvedAt,omitempty"`
-}
-
-// AuditEvent 审计事件
-type AuditEvent struct {
-	ID          string    `json:"id"`
-	Timestamp   time.Time `json:"timestamp"`
-	UserID      string    `json:"userId"`
-	UserName    string    `json:"userName"`
-	Action      string    `json:"action"`
-	Resource    string    `json:"resource"`
-	ResourceID  string    `json:"resourceId"`
-	Details     string    `json:"details"`
-	IPAddress   string    `json:"ipAddress"`
-	UserAgent   string    `json:"userAgent"`
-	Result      string    `json:"result"` // success/failure/denied
-	RiskLevel   string    `json:"riskLevel"` // low/medium/high/critical
-}
-
-// ComplianceStats 合规统计
-type ComplianceStats struct {
-	OverallScore       float64                       `json:"overallScore"`
-	FrameworkScores    map[ComplianceFramework]float64 `json:"frameworkScores"`
-	TotalChecks        int                           `json:"totalChecks"`
-	PassedChecks       int                           `json:"passedChecks"`
-	FailedChecks       int                           `json:"failedChecks"`
-	OpenFindings       int                           `json:"openFindings"`
-	CriticalFindings   int                           `json:"criticalFindings"`
-	LastScanTime       time.Time                     `json:"lastScanTime"`
-	NextScanTime       time.Time                     `json:"nextScanTime"`
-	TrendLast30Days    []ScorePoint                  `json:"trendLast30Days"`
-	RecentAuditEvents  []AuditEvent                  `json:"recentAuditEvents"`
-}
-
-// ScorePoint 分数趋势点
-type ScorePoint struct {
-	Date  time.Time `json:"date"`
-	Score float64   `json:"score"`
-}
-
-// Manager 合规管理器
+// Manager 合规管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	config      ComplianceConfig
-	checks      map[string]*ComplianceCheck
-	reports     map[string]*ComplianceReport
-	findings    map[string]*Finding
-	auditLog    []AuditEvent
-	running     bool
+	mu       sync.RWMutex
+	config   Config
+	checks   map[string]*ComplianceCheck
+	reports  map[string]*ComplianceReport
+	findings map[string]*Finding
+	auditLog []AuditEvent
+	running  bool
 }
 
-// NewManager 创建管理器
-func NewManager(cfg ComplianceConfig) *Manager {
+// AuditEvent 审计事件.
+type AuditEvent struct {
+	ID         string    `json:"id"`
+	Timestamp  time.Time `json:"timestamp"`
+	UserID     string    `json:"userId"`
+	UserName   string    `json:"userName"`
+	Action     string    `json:"action"`
+	Resource   string    `json:"resource"`
+	ResourceID string    `json:"resourceId"`
+	Details    string    `json:"details"`
+	IPAddress  string    `json:"ipAddress"`
+	UserAgent  string    `json:"userAgent"`
+	Result     string    `json:"result"`     // success/failure/denied
+	RiskLevel  string    `json:"riskLevel"` // low/medium/high/critical
+}
+
+// ComplianceStats 合规统计.
+type ComplianceStats struct {
+	OverallScore      float64                         `json:"overallScore"`
+	FrameworkScores   map[ComplianceFramework]float64 `json:"frameworkScores"`
+	TotalChecks       int                             `json:"totalChecks"`
+	PassedChecks      int                             `json:"passedChecks"`
+	FailedChecks      int                             `json:"failedChecks"`
+	OpenFindings      int                             `json:"openFindings"`
+	CriticalFindings  int                             `json:"criticalFindings"`
+	LastScanTime      time.Time                       `json:"lastScanTime"`
+	NextScanTime      time.Time                       `json:"nextScanTime"`
+	TrendLast30Days   []ScorePoint                    `json:"trendLast30Days"`
+	RecentAuditEvents []AuditEvent                    `json:"recentAuditEvents"`
+}
+
+// NewManager 创建管理器.
+func NewManager(cfg Config) *Manager {
 	return &Manager{
 		config:   cfg,
 		checks:   make(map[string]*ComplianceCheck),
@@ -158,22 +59,25 @@ func NewManager(cfg ComplianceConfig) *Manager {
 	}
 }
 
-// Start 启动合规引擎
+// Start 启动合规引擎.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.running {
-		return fmt.Errorf("compliance engine already running")
+		return ErrAlreadyRunning
 	}
 	m.running = true
 	m.initDefaultChecks()
 	return nil
 }
 
-// Stop 停止
+// Stop 停止.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if !m.running {
+		return ErrNotRunning
+	}
 	m.running = false
 	return nil
 }
@@ -184,11 +88,10 @@ func (m *Manager) initDefaultChecks() {
 		{ID: "gdpr-02", Framework: FrameworkGDPR, Category: "数据保护", Name: "数据最小化", Description: "仅收集必要数据", Status: StatusCompliant, Score: 88, MaxScore: 100, Severity: "high"},
 		{ID: "gdpr-03", Framework: FrameworkGDPR, Category: "用户权利", Name: "数据可移植性", Description: "支持数据导出", Status: StatusCompliant, Score: 92, MaxScore: 100, Severity: "high"},
 		{ID: "gdpr-04", Framework: FrameworkGDPR, Category: "用户权利", Name: "被遗忘权", Description: "支持数据删除", Status: StatusPartial, Score: 70, MaxScore: 100, Severity: "critical"},
-		{ID: "soc2-01", Framework: FrameworkSOC2, Category: "安全性", Name: "访问控制", Description: "逻辑和物理访问控制", Status: StatusCompliant, Score: 90, MaxScore: 100, Severity: "critical"},
-		{ID: "soc2-02", Framework: FrameworkSOC2, Category: "安全性", Name: "变更管理", Description: "系统变更的跟踪和审计", Status: StatusCompliant, Score: 85, MaxScore: 100, Severity: "high"},
-		{ID: "soc2-03", Framework: FrameworkSOC2, Category: "可用性", Name: "灾难恢复", Description: "灾难恢复和业务连续性", Status: StatusPartial, Score: 75, MaxScore: 100, Severity: "critical"},
-		{ID: "hipaa-01", Framework: FrameworkHIPAA, Category: "数据安全", Name: "PHI加密", Description: "健康信息加密保护", Status: StatusCompliant, Score: 93, MaxScore: 100, Severity: "critical"},
-		{ID: "hipaa-02", Framework: FrameworkHIPAA, Category: "审计", Name: "审计日志", Description: "完整的访问审计日志", Status: StatusCompliant, Score: 96, MaxScore: 100, Severity: "high"},
+		{ID: "iso-01", Framework: FrameworkISO27001, Category: "安全管理", Name: "安全策略", Description: "信息安全策略文档", Status: StatusCompliant, Score: 90, MaxScore: 100, Severity: "critical"},
+		{ID: "iso-02", Framework: FrameworkISO27001, Category: "资产管理", Name: "资产清单", Description: "IT资产清单和分类", Status: StatusCompliant, Score: 85, MaxScore: 100, Severity: "high"},
+		{ID: "mlps-01", Framework: FrameworkMLPS2, Category: "安全通信网络", Name: "网络架构", Description: "网络安全架构设计", Status: StatusCompliant, Score: 88, MaxScore: 100, Severity: "critical"},
+		{ID: "mlps-02", Framework: FrameworkMLPS2, Category: "安全区域边界", Name: "边界防护", Description: "网络边界安全防护", Status: StatusPartial, Score: 72, MaxScore: 100, Severity: "high"},
 	}
 	for i := range defaults {
 		defaults[i].LastChecked = time.Now()
@@ -197,14 +100,18 @@ func (m *Manager) initDefaultChecks() {
 	}
 }
 
-// RunScan 执行合规扫描
+// RunScan 执行合规扫描.
 func (m *Manager) RunScan(framework ComplianceFramework) (*ComplianceReport, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
+	if !m.running {
+		return nil, ErrNotRunning
+	}
+
 	report := &ComplianceReport{
-		ID:        fmt.Sprintf("rpt-%d", time.Now().UnixNano()),
-		Framework: framework,
+		ID:          fmt.Sprintf("rpt-%d", time.Now().UnixNano()),
+		Framework:   framework,
 		GeneratedAt: time.Now(),
 		ValidUntil:  time.Now().Add(30 * 24 * time.Hour),
 		GeneratedBy: "system",
@@ -225,7 +132,7 @@ func (m *Manager) RunScan(framework ComplianceFramework) (*ComplianceReport, err
 		case StatusNonCompliant:
 			report.FailedChecks++
 			if check.Severity == "critical" || check.Severity == "high" {
-				report.CriticalFindings = append(report.CriticalFindings, Finding{
+				report.Findings = append(report.Findings, Finding{
 					ID:          fmt.Sprintf("find-%d", time.Now().UnixNano()),
 					Framework:   check.Framework,
 					CheckID:     check.ID,
@@ -274,18 +181,18 @@ func (m *Manager) RunScan(framework ComplianceFramework) (*ComplianceReport, err
 	return report, nil
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (m *Manager) GetReport(id string) (*ComplianceReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	rpt, ok := m.reports[id]
 	if !ok {
-		return nil, fmt.Errorf("report not found: %s", id)
+		return nil, ErrReportNotFound
 	}
 	return rpt, nil
 }
 
-// ListReports 列出报告
+// ListReports 列出报告.
 func (m *Manager) ListReports(framework ComplianceFramework, page, pageSize int) ([]ComplianceReport, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -307,7 +214,7 @@ func (m *Manager) ListReports(framework ComplianceFramework, page, pageSize int)
 	return result[start:end], total
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() ComplianceStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -323,9 +230,10 @@ func (m *Manager) GetStats() ComplianceStats {
 		stats.TotalChecks++
 		totalScore += check.Score
 		maxScore += check.MaxScore
-		if check.Status == StatusCompliant {
+		switch check.Status {
+		case StatusCompliant:
 			stats.PassedChecks++
-		} else if check.Status == StatusNonCompliant {
+		case StatusNonCompliant:
 			stats.FailedChecks++
 		}
 	}
@@ -350,7 +258,7 @@ func (m *Manager) GetStats() ComplianceStats {
 	return stats
 }
 
-// LogAuditEvent 记录审计事件
+// LogAuditEvent 记录审计事件.
 func (m *Manager) LogAuditEvent(event AuditEvent) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -362,7 +270,7 @@ func (m *Manager) LogAuditEvent(event AuditEvent) {
 	}
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (m *Manager) GetAuditLog(userID, action string, page, pageSize int) ([]AuditEvent, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -385,7 +293,7 @@ func (m *Manager) GetAuditLog(userID, action string, page, pageSize int) ([]Audi
 	return result[start:end], total
 }
 
-// GetChecks 获取检查项列表
+// GetChecks 获取检查项列表.
 func (m *Manager) GetChecks(framework ComplianceFramework, status ComplianceStatus) []ComplianceCheck {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -399,7 +307,7 @@ func (m *Manager) GetChecks(framework ComplianceFramework, status ComplianceStat
 	return result
 }
 
-// GetFindings 获取发现项
+// GetFindings 获取发现项.
 func (m *Manager) GetFindings(status string) []Finding {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -412,15 +320,15 @@ func (m *Manager) GetFindings(status string) []Finding {
 	return result
 }
 
-// GetConfig 获取配置
-func (m *Manager) GetConfig() ComplianceConfig {
+// GetConfig 获取配置.
+func (m *Manager) GetConfig() Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
-func (m *Manager) UpdateConfig(cfg ComplianceConfig) error {
+// UpdateConfig 更新配置.
+func (m *Manager) UpdateConfig(cfg Config) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = cfg
