@@ -739,7 +739,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 应用中心模块就绪")
 
 	// 初始化备份验证（对标群晖 Active Backup 验证）
-	backupVerifyMgr := backupverify.NewManager("/var/lib/nas-os/backupverify")
+	backupVerifyMgr := backupverify.NewManager()
 	log.Println("✅ 备份验证模块就绪")
 
 	// 初始化协作文档（对标群晖 Office）
@@ -1261,6 +1261,10 @@ func (s *Server) setupRoutes() {
 		backupHandlers := backup.NewHandlers(s.backupMgr, s.syncMgr)
 		backupHandlers.RegisterRoutes(api)
 
+		// ========== 备份验证 ==========
+		if s.backupVerifyMgr != nil {
+			backupverify.NewHandler(s.backupVerifyMgr).RegisterRoutes(api)
+		}
 		// ========== 虚拟机管理 ==========
 		if s.vmMgr != nil && s.isoMgr != nil {
 			vmHandler := vm.NewHandler(s.vmMgr, s.isoMgr, s.snapshotMgr, zap.NewNop())
@@ -1487,9 +1491,6 @@ func (s *Server) setupRoutes() {
 
 		// http.ServeMux 桥接：注册使用标准库的模块
 		newMux := http.NewServeMux()
-		if s.backupVerifyMgr != nil {
-			backupverify.NewHandler(s.backupVerifyMgr).RegisterRoutes(newMux)
-		}
 		if s.collabDocsMgr != nil {
 			collabdocs.NewHandler(s.collabDocsMgr).RegisterRoutes(newMux)
 		}
@@ -1572,8 +1573,6 @@ func (s *Server) setupRoutes() {
 		if s.spotlightMgr != nil {
 			spotlight.NewHandlers(s.logger, s.spotlightMgr).RegisterRoutes(api)
 		}
-		}
-		// 挂载 ServeMux 作为 gin fallback
 		s.engine.NoRoute(gin.WrapH(newMux))
 
 		// ========== 媒体中心 ==========

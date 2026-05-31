@@ -1,224 +1,97 @@
+// Package backupverify 备份验证 - HTTP API
 package backupverify
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers backup verification HTTP handlers
-type Handlers struct {
+// Handler HTTP 处理器
+type Handler struct {
 	manager *Manager
 }
 
-// NewHandlers creates new handlers
-func NewHandlers(manager *Manager) *Handlers {
-	return &Handlers{manager: manager}
+// NewHandler 创建处理器
+func NewHandler(manager *Manager) *Handler {
+	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers HTTP routes
-func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
-	bv := api.Group("/backupverify")
+// RegisterRoutes 注册路由
+func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
+	group := router.Group("/backup-verify")
 	{
-		// Verification tasks
-		bv.POST("/tasks", h.createTask)
-		bv.GET("/tasks/:id", h.getTask)
-		bv.POST("/tasks/:id/run", h.runVerify)
-		bv.POST("/tasks/:id/restore-test", h.runRestoreTest)
-
-		// Health and reports
-		bv.GET("/health/:backupId", h.getBackupHealth)
-		bv.GET("/report", h.generateReport)
-		bv.GET("/history/:taskId", h.getVerifyHistory)
-
-		// Repair and recommendations
-		bv.POST("/repair/:backupId", h.autoRepair)
-		bv.GET("/recommendations/:backupId", h.getRecommendations)
+		group.POST("/verify", h.RunVerification)
+		group.GET("/tasks", h.ListTasks)
+		group.GET("/tasks/:id", h.GetTask)
+		group.POST("/schedules", h.AddSchedule)
+		group.GET("/schedules", h.GetSchedules)
+		group.GET("/reports/:backup_id", h.GetReport)
 	}
 }
 
-// Response API response structure
-type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-// createTask creates a new verification task
-func (h *Handlers) createTask(c *gin.Context) {
-	var task VerifyTask
-	if err := c.ShouldBindJSON(&task); err != nil {
-		c.JSON(http.StatusBadRequest, Response{
-			Code:    400,
-			Message: "Invalid request body: " + err.Error(),
-		})
+// RunVerification 启动验证
+func (h *Handler) RunVerification(c *gin.Context) {
+	var req struct {
+		BackupID   string     `json:"backup_id"`
+		BackupPath string     `json:"backup_path"`
+		Mode       VerifyMode `json:"mode"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效参数: " + err.Error()})
 		return
 	}
-
-	result, err := h.manager.CreateVerifyTask(c.Request.Context(), task)
+	if req.Mode == "" {
+		req.Mode = ModeChecksum
+	}
+	task, err := h.manager.RunVerification(req.BackupID, req.BackupPath, req.Mode)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Response{
-			Code:    500,
-			Message: "Failed to create task: " + err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusCreated, Response{
-		Code:    0,
-		Message: "success",
-		Data:    result,
-	})
+	c.JSON(http.StatusAccepted, gin.H{"code": 0, "message": "验证已启动", "data": task})
 }
 
-// getTask returns a verification task by ID
-func (h *Handlers) getTask(c *gin.Context) {
-	taskID := c.Param("id")
+// ListTasks 列出任务
+func (h *Handler) ListTasks(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": h.manager.ListTasks()})
+}
 
-	task, err := h.manager.GetTask(c.Request.Context(), taskID)
+// GetTask 获取任务
+func (h *Handler) GetTask(c *gin.Context) {
+	task, err := h.manager.GetTask(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusNotFound, Response{
-			Code:    404,
-			Message: err.Error(),
-		})
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, Response{
-		Code:    0,
-		Message: "success",
-		Data:    task,
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": task})
 }
 
-// runVerify executes a verification task
-func (h *Handlers) runVerify(c *gin.Context) {
-	taskID := c.Param("id")
+// AddSchedule 添加计划
+func (h *Handler) AddSchedule(c *gin.Context) {
+	var schedule VerifySchedule
+	if err := c.ShouldBindJSON(&schedule); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效参数"})
+		return
+	}
+	if err := h.manager.AddSchedule(&schedule); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"code": 0, "message": "计划已创建", "data": schedule})
+}
 
-	result, err := h.manager.RunVerify(c.Request.Context(), taskID)
+// GetSchedules 获取计划
+func (h *Handler) GetSchedules(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": h.manager.GetSchedules()})
+}
+
+// GetReport 获取报告
+func (h *Handler) GetReport(c *gin.Context) {
+	report, err := h.manager.GetReport(c.Param("backup_id"))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Response{
-			Code:    500,
-			Message: "Verification failed: " + err.Error(),
-		})
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, Response{
-		Code:    0,
-		Message: "success",
-		Data:    result,
-	})
-}
-
-// runRestoreTest executes a restore test
-func (h *Handlers) runRestoreTest(c *gin.Context) {
-	taskID := c.Param("id")
-
-	result, err := h.manager.RunRestoreTest(c.Request.Context(), taskID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, Response{
-			Code:    500,
-			Message: "Restore test failed: " + err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, Response{
-		Code:    0,
-		Message: "success",
-		Data:    result,
-	})
-}
-
-// getBackupHealth returns the health status of a backup
-func (h *Handlers) getBackupHealth(c *gin.Context) {
-	backupID := c.Param("backupId")
-
-	health, err := h.manager.GetBackupHealth(c.Request.Context(), backupID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, Response{
-			Code:    404,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, Response{
-		Code:    0,
-		Message: "success",
-		Data:    health,
-	})
-}
-
-// generateReport generates a verification report
-func (h *Handlers) generateReport(c *gin.Context) {
-	report, err := h.manager.GenerateReport(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, Response{
-			Code:    500,
-			Message: "Failed to generate report: " + err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, Response{
-		Code:    0,
-		Message: "success",
-		Data:    report,
-	})
-}
-
-// getVerifyHistory returns verification history for a task
-func (h *Handlers) getVerifyHistory(c *gin.Context) {
-	taskID := c.Param("taskId")
-
-	history := h.manager.GetVerifyHistory(c.Request.Context(), taskID)
-
-	c.JSON(http.StatusOK, Response{
-		Code:    0,
-		Message: "success",
-		Data:    history,
-	})
-}
-
-// autoRepair attempts to repair corrupted files
-func (h *Handlers) autoRepair(c *gin.Context) {
-	backupID := c.Param("backupId")
-
-	repaired, err := h.manager.AutoRepair(c.Request.Context(), backupID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, Response{
-			Code:    500,
-			Message: "Auto repair failed: " + err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, Response{
-		Code:    0,
-		Message: "success",
-		Data: map[string]interface{}{
-			"backup_id":      backupID,
-			"repaired_files": repaired,
-			"timestamp":      time.Now(),
-		},
-	})
-}
-
-// getRecommendations returns recommendations for a backup
-func (h *Handlers) getRecommendations(c *gin.Context) {
-	backupID := c.Param("backupId")
-
-	recommendations := h.manager.GetRecommendations(c.Request.Context(), backupID)
-
-	c.JSON(http.StatusOK, Response{
-		Code:    0,
-		Message: "success",
-		Data: map[string]interface{}{
-			"backup_id":      backupID,
-			"recommendations": recommendations,
-		},
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": report})
 }

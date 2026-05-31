@@ -1,142 +1,108 @@
 package sysdashboard
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
+func setupTest(t *testing.T) (*Manager, *gin.Engine) {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	mgr := NewManager()
+	r := gin.New()
+	rg := r.Group("/api/v1")
+	h := NewHandler(mgr)
+	h.RegisterRoutes(rg)
+	return mgr, r
+}
+
 func TestNewManager(t *testing.T) {
-	m := NewManager()
-	if m == nil {
+	mgr := NewManager()
+	if mgr == nil {
 		t.Fatal("NewManager returned nil")
 	}
 }
 
-func TestCreateDashboard(t *testing.T) {
-	m := NewManager()
-	d, err := m.CreateDashboard("主仪表盘", 3)
-	if err != nil {
-		t.Fatalf("CreateDashboard failed: %v", err)
-	}
-	if d.Name != "主仪表盘" {
-		t.Errorf("expected '主仪表盘', got '%s'", d.Name)
-	}
-	if d.Columns != 3 {
-		t.Errorf("expected 3 columns, got %d", d.Columns)
-	}
-}
-
 func TestGetDashboard(t *testing.T) {
-	m := NewManager()
-	m.CreateDashboard("test", 2)
-	dashboards := m.GetDashboards()
-	if len(dashboards) != 1 {
-		t.Errorf("expected 1 dashboard, got %d", len(dashboards))
+	mgr := NewManager()
+	data := mgr.GetDashboard()
+	if data == nil {
+		t.Fatal("GetDashboard returned nil")
+	}
+	if data.System.Hostname == "" {
+		t.Error("hostname should not be empty")
+	}
+	if len(data.Services) == 0 {
+		t.Error("services should not be empty")
+	}
+	if data.Storage.TotalSpace == 0 {
+		t.Error("total space should not be 0")
 	}
 }
 
-func TestUpdateDashboard(t *testing.T) {
-	m := NewManager()
-	d, _ := m.CreateDashboard("old-name", 2)
-	err := m.UpdateDashboard(d.ID, "new-name", 4)
-	if err != nil {
-		t.Fatalf("UpdateDashboard failed: %v", err)
-	}
-	updated, _ := m.GetDashboard(d.ID)
-	if updated.Name != "new-name" {
-		t.Errorf("expected 'new-name', got '%s'", updated.Name)
-	}
-}
-
-func TestDeleteDashboard(t *testing.T) {
-	m := NewManager()
-	d, _ := m.CreateDashboard("to-delete", 2)
-	err := m.DeleteDashboard(d.ID)
-	if err != nil {
-		t.Fatalf("DeleteDashboard failed: %v", err)
-	}
-	_, err = m.GetDashboard(d.ID)
-	if err == nil {
-		t.Fatal("expected error after deletion")
+func TestAddActivity(t *testing.T) {
+	mgr := NewManager()
+	mgr.AddActivity(RecentActivity{
+		Type:    "backup",
+		Message: "备份完成",
+		Level:   "info",
+	})
+	activities := mgr.GetActivities(10)
+	if len(activities) != 1 {
+		t.Errorf("expected 1 activity, got %d", len(activities))
 	}
 }
 
-func TestAddWidget(t *testing.T) {
-	m := NewManager()
-	d, _ := m.CreateDashboard("test", 3)
-	widget := &Widget{
-		Type:   WidgetCPUGraph,
-		Title:  "CPU使用率",
-		X:      0,
-		Y:      0,
-		Width:  2,
-		Height: 1,
+func TestAlerts(t *testing.T) {
+	mgr := NewManager()
+	mgr.AddAlert(AlertItem{
+		Level:   "warning",
+		Message: "磁盘空间不足",
+		Source:  "storage",
+	})
+	alerts := mgr.GetAlerts()
+	if len(alerts) != 1 {
+		t.Errorf("expected 1 alert, got %d", len(alerts))
 	}
-	err := m.AddWidget(d.ID, widget)
-	if err != nil {
-		t.Fatalf("AddWidget failed: %v", err)
+
+	resolved := mgr.ResolveAlert(alerts[0].ID)
+	if !resolved {
+		t.Error("expected alert to be resolved")
 	}
-	dashboard, _ := m.GetDashboard(d.ID)
-	if len(dashboard.Widgets) != 1 {
-		t.Errorf("expected 1 widget, got %d", len(dashboard.Widgets))
-	}
-	if dashboard.Widgets[0].ID == "" {
-		t.Error("widget ID should be set")
+	if len(mgr.GetAlerts()) != 0 {
+		t.Error("expected 0 alerts after resolve")
 	}
 }
 
-func TestUpdateWidget(t *testing.T) {
-	m := NewManager()
-	d, _ := m.CreateDashboard("test", 3)
-	widget := &Widget{Type: WidgetCPUGraph, Title: "CPU"}
-	m.AddWidget(d.ID, widget)
-	
-	err := m.UpdateWidget(d.ID, widget.ID, 1, 1, 3, 2)
-	if err != nil {
-		t.Fatalf("UpdateWidget failed: %v", err)
-	}
-	dashboard, _ := m.GetDashboard(d.ID)
-	w := dashboard.Widgets[0]
-	if w.X != 1 || w.Y != 1 || w.Width != 3 || w.Height != 2 {
-		t.Errorf("widget position not updated correctly")
+func TestAPIDashboard(t *testing.T) {
+	_, r := setupTest(t)
+	req, _ := http.NewRequest("GET", "/api/v1/dashboard", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
 	}
 }
 
-func TestRemoveWidget(t *testing.T) {
-	m := NewManager()
-	d, _ := m.CreateDashboard("test", 3)
-	widget := &Widget{Type: WidgetCPUGraph, Title: "CPU"}
-	m.AddWidget(d.ID, widget)
-	
-	err := m.RemoveWidget(d.ID, widget.ID)
-	if err != nil {
-		t.Fatalf("RemoveWidget failed: %v", err)
-	}
-	dashboard, _ := m.GetDashboard(d.ID)
-	if len(dashboard.Widgets) != 0 {
-		t.Errorf("expected 0 widgets, got %d", len(dashboard.Widgets))
+func TestAPIActivities(t *testing.T) {
+	_, r := setupTest(t)
+	req, _ := http.NewRequest("GET", "/api/v1/dashboard/activities?limit=10", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
 	}
 }
 
-func TestGetAlerts(t *testing.T) {
-	m := NewManager()
-	alerts := m.GetAlerts(false)
-	if len(alerts) != 0 {
-		t.Errorf("expected 0 alerts, got %d", len(alerts))
-	}
-}
-
-func TestGetSystemOverview(t *testing.T) {
-	m := NewManager()
-	overview := m.GetSystemOverview()
-	if overview == nil {
-		t.Fatal("GetSystemOverview returned nil")
-	}
-}
-
-func TestGetServices(t *testing.T) {
-	m := NewManager()
-	services := m.GetServices()
-	if services == nil {
-		t.Fatal("GetServices returned nil")
+func TestAPIAlerts(t *testing.T) {
+	_, r := setupTest(t)
+	req, _ := http.NewRequest("GET", "/api/v1/dashboard/alerts", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
 	}
 }
