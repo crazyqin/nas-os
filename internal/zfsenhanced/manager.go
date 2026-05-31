@@ -37,76 +37,76 @@ const (
 	RepairStatusFailed    RepairStatus = "failed"
 )
 type ScrubSchedulePolicy struct {
-	ID            string                `json:\"id\"`
-	Name          string                `json:\"name\"`
-	PoolName      string                `json:\"pool_name\"`
-	Strategy      ScrubScheduleStrategy `json:\"strategy\"`
-	IntervalDays  int                   `json:\"interval_days\"`
-	PreferredHour int                   `json:\"preferred_hour\"`
-	Priority      ScrubPriority         `json:\"priority\"`
-	BandwidthMBps int                   `json:\"bandwidth_mbps\"`
-	IOThreshold   int                   `json:\"io_threshold\"`
-	AutoPause     bool                  `json:\"auto_pause\"`
-	Enabled       bool                  `json:\"enabled\"`
-	LastScrub     *time.Time            `json:\"last_scrub,omitempty\"`
-	NextScrub     *time.Time            `json:\"next_scrub,omitempty\"`
-	CreatedAt     time.Time             `json:\"created_at\"`
-	UpdatedAt     time.Time             `json:\"updated_at\"`
+	ID            string                `json:"id"`
+	Name          string                `json:"name"`
+	PoolName      string                `json:"pool_name"`
+	Strategy      ScrubScheduleStrategy `json:"strategy"`
+	IntervalDays  int                   `json:"interval_days"`
+	PreferredHour int                   `json:"preferred_hour"`
+	Priority      ScrubPriority         `json:"priority"`
+	BandwidthMBps int                   `json:"bandwidth_mbps"`
+	IOThreshold   int                   `json:"io_threshold"`
+	AutoPause     bool                  `json:"auto_pause"`
+	Enabled       bool                  `json:"enabled"`
+	LastScrub     *time.Time            `json:"last_scrub,omitempty"`
+	NextScrub     *time.Time            `json:"next_scrub,omitempty"`
+	CreatedAt     time.Time             `json:"created_at"`
+	UpdatedAt     time.Time             `json:"updated_at"`
 }
 type ScrubJob struct {
-	ID        string         `json:\"id\"`
-	PolicyID  string         `json:\"policy_id\"`
-	PoolName  string         `json:\"pool_name\"`
-	Status    ScrubJobStatus `json:\"status\"`
-	Progress  float64        `json:\"progress\"`
-	StartTime time.Time      `json:\"start_time\"`
-	EndTime   *time.Time     `json:\"end_time,omitempty\"`
-	Errors    int64          `json:\"errors\"`
-	Repaired  int64          `json:\"repaired\"`
-	Bandwidth int64          `json:\"bandwidth\"`
-	ErrorMsg  string         `json:\"error_msg,omitempty\"`
+	ID        string         `json:"id"`
+	PolicyID  string         `json:"policy_id"`
+	PoolName  string         `json:"pool_name"`
+	Status    ScrubJobStatus `json:"status"`
+	Progress  float64        `json:"progress"`
+	StartTime time.Time      `json:"start_time"`
+	EndTime   *time.Time     `json:"end_time,omitempty"`
+	Errors    int64          `json:"errors"`
+	Repaired  int64          `json:"repaired"`
+	Bandwidth int64          `json:"bandwidth"`
+	ErrorMsg  string         `json:"error_msg,omitempty"`
 }
 type SnapshotLifecyclePolicy struct {
-	ID              string     `json:\"id\"`
-	Name            string     `json:\"name\"`
-	TemplateName    string     `json:\"template_name,omitempty\"`
-	PoolName        string     `json:\"pool_name\"`
-	Datasets        []string   `json:\"datasets\"`
-	Schedule        string     `json:\"schedule\"`
-	IntervalMinutes int        `json:\"interval_minutes\"`
-	RetentionCount  int        `json:\"retention_count\"`
-	RetentionDays   int        `json:\"retention_days\"`
-	Prefix          string     `json:\"prefix\"`
-	Recursive       bool       `json:\"recursive\"`
-	Enabled         bool       `json:\"enabled\"`
-	AutoCreate      bool       `json:\"auto_create\"`
-	AutoDestroy     bool       `json:\"auto_destroy\"`
-	LastRun         *time.Time `json:\"last_run,omitempty\"`
-	NextRun         *time.Time `json:\"next_run,omitempty\"`
-	CreatedAt       time.Time  `json:\"created_at\"`
-	UpdatedAt       time.Time  `json:\"updated_at\"`
+	ID              string     `json:"id"`
+	Name            string     `json:"name"`
+	TemplateName    string     `json:"template_name,omitempty"`
+	PoolName        string     `json:"pool_name"`
+	Datasets        []string   `json:"datasets"`
+	Schedule        string     `json:"schedule"`
+	IntervalMinutes int        `json:"interval_minutes"`
+	RetentionCount  int        `json:"retention_count"`
+	RetentionDays   int        `json:"retention_days"`
+	Prefix          string     `json:"prefix"`
+	Recursive       bool       `json:"recursive"`
+	Enabled         bool       `json:"enabled"`
+	AutoCreate      bool       `json:"auto_create"`
+	AutoDestroy     bool       `json:"auto_destroy"`
+	LastRun         *time.Time `json:"last_run,omitempty"`
+	NextRun         *time.Time `json:"next_run,omitempty"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
 }
 type SnapshotTemplate struct {
-	Name           string `json:\"name\"`
-	Description    string `json:\"description\"`
-	RetentionCount int    `json:\"retention_count\"`
-	RetentionDays  int    `json:\"retention_days\"`
-	Schedule       string `json:\"schedule\"`
-	Recursive      bool   `json:\"recursive\"`
+	Name           string `json:"name"`
+	Description    string `json:"description"`
+	RetentionCount int    `json:"retention_count"`
+	RetentionDays  int    `json:"retention_days"`
+	Schedule       string `json:"schedule"`
+	Recursive      bool   `json:"recursive"`
 }
 type AutoRepairTask struct {
-	ID            string        `json:\"id\"`
-	PoolName      string        `json:\"pool_name\"`
-	ErrorType     string        `json:\"error_type\"`
-	Severity      AlertSeverity `json:\"severity\"`
-	Status        RepairStatus  `json:\"status\"`
-	Priority      ScrubPriority `json:\"priority\"`
-	ErrorCount    int64         `json:\"error_count\"`
-	RepairedCount int64         `json:\"repaired_count\"`
-	StartTime     time.Time     `json:\"start_time\"`
-	EndTime       *time.Time    `json:\"end_time,omitempty\"`
-	Details       string        `json:\"details,omitempty\"`
-	ErrorMsg      string        `json:\"error_msg,omitempty\"`
+	ID            string        `json:"id"`
+	PoolName      string        `json:"pool_name"`
+	ErrorType     string        `json:"error_type"`
+	Severity      AlertSeverity `json:"severity"`
+	Status        RepairStatus  `json:"status"`
+	Priority      ScrubPriority `json:"priority"`
+	ErrorCount    int64         `json:"error_count"`
+	RepairedCount int64         `json:"repaired_count"`
+	StartTime     time.Time     `json:"start_time"`
+	EndTime       *time.Time    `json:"end_time,omitempty"`
+	Details       string        `json:"details,omitempty"`
+	ErrorMsg      string        `json:"error_msg,omitempty"`
 }
 type RepairQueue struct { mu sync.Mutex; tasks []*AutoRepairTask }
 func (rq *RepairQueue) Push(task *AutoRepairTask) {
@@ -121,28 +121,38 @@ func (rq *RepairQueue) Pop() *AutoRepairTask {
 }
 func (rq *RepairQueue) Len() int { rq.mu.Lock(); defer rq.mu.Unlock(); return len(rq.tasks) }
 type PoolAnalysis struct {
-	PoolName          string              `json:\"pool_name\"`
-	Timestamp         time.Time           `json:\"timestamp\"`
-	HealthScore       float64             `json:\"health_score\"`
-	CapacityTrend     CapacityTrend       `json:\"capacity_trend\"`
-	Fragmentation     float64             `json:\"fragmentation\"`
-	PredictedFullDate *time.Time          `json:\"predicted_full_date,omitempty\"`
-	DailyGrowthBytes  float64             `json:\"daily_growth_bytes\"`
-	CompressionStats  *CompressionStats   `json:\"compression_stats,omitempty\"`
-	DedupStats        *DedupStats         `json:\"dedup_stats,omitempty\"`
-	DiskHealth        []DiskHealthSummary `json:\"disk_health\"`
-	Recommendations   []string            `json:\"recommendations\"`
+	PoolName          string              `json:"pool_name"`
+	Timestamp         time.Time           `json:"timestamp"`
+	HealthScore       float64             `json:"health_score"`
+	CapacityTrend     CapacityTrend       `json:"capacity_trend"`
+	Fragmentation     float64             `json:"fragmentation"`
+	PredictedFullDate *time.Time          `json:"predicted_full_date,omitempty"`
+	DailyGrowthBytes  float64             `json:"daily_growth_bytes"`
+	CompressionStats  *CompressionStats   `json:"compression_stats,omitempty"`
+	DedupStats        *DedupStats         `json:"dedup_stats,omitempty"`
+	DiskHealth        []DiskHealthSummary `json:"disk_health"`
+	Recommendations   []string            `json:"recommendations"`
 }
 type DiskHealthSummary struct {
-	Name string `json:\"name\"`; Status string `json:\"status\"`; Temperature int `json:\"temperature\"`
-	PowerOnHours int64 `json:\"power_on_hours\"`; Reallocated int64 `json:\"reallocated_sectors\"`; HealthPercent float64 `json:\"health_percent\"`
+	Name            string  `json:"name"`
+	Status          string  `json:"status"`
+	Temperature     int     `json:"temperature"`
+	PowerOnHours    int64   `json:"power_on_hours"`
+	Reallocated     int64   `json:"reallocated_sectors"`
+	HealthPercent   float64 `json:"health_percent"`
 }
 type RealtimeMetrics struct {
-	PoolName string `json:\"pool_name\"`; Timestamp time.Time `json:\"timestamp\"`
-	ReadIOPS int64 `json:\"read_iops\"`; WriteIOPS int64 `json:\"write_iops\"`
-	ReadMBps float64 `json:\"read_mbps\"`; WriteMBps float64 `json:\"write_mbps\"`
-	ReadLatency float64 `json:\"read_latency_ms\"`; WriteLatency float64 `json:\"write_latency_ms\"`
-	HealthScore float64 `json:\"health_score\"`; UsedPercent float64 `json:\"used_percent\"`; Fragmentation float64 `json:\"fragmentation\"`
+	PoolName      string    `json:"pool_name"`
+	Timestamp     time.Time `json:"timestamp"`
+	ReadIOPS      int64     `json:"read_iops"`
+	WriteIOPS     int64     `json:"write_iops"`
+	ReadMBps      float64   `json:"read_mbps"`
+	WriteMBps     float64   `json:"write_mbps"`
+	ReadLatency   float64   `json:"read_latency_ms"`
+	WriteLatency  float64   `json:"write_latency_ms"`
+	HealthScore   float64   `json:"health_score"`
+	UsedPercent   float64   `json:"used_percent"`
+	Fragmentation float64   `json:"fragmentation"`
 }
 type Manager struct {
 	mu sync.RWMutex; poolMgr *PoolManager; integrityChecker *IntegrityChecker; perfMonitor *PerformanceMonitor
