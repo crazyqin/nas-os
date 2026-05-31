@@ -12,6 +12,7 @@ import (
 )
 
 // Manager 数据生命周期管理器
+// 增强功能：自动访问频率迁移、自动过期清理、自定义策略引擎
 type Manager struct {
 	mu sync.RWMutex
 
@@ -38,6 +39,40 @@ type Manager struct {
 
 	// 模块状态
 	enabled bool
+
+	// 自动化配置
+	autoMigrateEnabled  bool          // 启用自动迁移
+	autoCleanupEnabled  bool          // 启用自动清理
+	checkInterval       time.Duration // 检查间隔
+	hotThreshold        int64         // 热数据访问次数阈值
+	warmThreshold       int64         // 温数据访问次数阈值
+	coldAgeHours        int           // 冷数据判断时长（小时）
+	archiveAgeHours     int           // 归档数据判断时长（小时）
+
+	// 停止信号
+	stopCh chan struct{}
+}
+
+// AutoMigrateConfig 自动迁移配置.
+type AutoMigrateConfig struct {
+	Enabled         bool          `json:"enabled"`         // 启用自动迁移
+	CheckInterval   time.Duration `json:"checkInterval"`   // 检查间隔
+	HotThreshold    int64         `json:"hotThreshold"`    // 热数据访问次数阈值
+	WarmThreshold   int64         `json:"warmThreshold"`   // 温数据访问次数阈值
+	ColdAgeHours    int           `json:"coldAgeHours"`    // 冷数据判断时长（小时）
+	ArchiveAgeHours int           `json:"archiveAgeHours"` // 归档数据判断时长（小时）
+}
+
+// DefaultAutoMigrateConfig 默认自动迁移配置.
+func DefaultAutoMigrateConfig() AutoMigrateConfig {
+	return AutoMigrateConfig{
+		Enabled:         true,
+		CheckInterval:   1 * time.Hour,
+		HotThreshold:    100,
+		WarmThreshold:   10,
+		ColdAgeHours:    720,  // 30天
+		ArchiveAgeHours: 2160, // 90天
+	}
 }
 
 // NewManager 创建数据生命周期管理器
@@ -51,7 +86,37 @@ func NewManager() *Manager {
 		templates:    make(map[string]*PolicyTemplate),
 		auditLog:     make([]LifecycleAuditEntry, 0),
 		enabled:      true,
+		stopCh:       make(chan struct{}),
 	}
+}
+
+// NewManagerWithConfig 使用自定义配置创建数据生命周期管理器
+func NewManagerWithConfig(config AutoMigrateConfig) *Manager {
+	m := NewManager()
+	m.autoMigrateEnabled = config.Enabled
+	m.checkInterval = config.CheckInterval
+	m.hotThreshold = config.HotThreshold
+	m.warmThreshold = config.WarmThreshold
+	m.coldAgeHours = config.ColdAgeHours
+	m.archiveAgeHours = config.ArchiveAgeHours
+	return m
+}
+
+// Start 启动自动管理协程
+func (m *Manager) Start() {
+	if m.autoMigrateEnabled {
+		go m.runAutoMigrateLoop()
+	}
+	if m.autoCleanupEnabled {
+		go m.runAutoCleanupLoop()
+	}
+	log.Printf("[数据生命周期] 管理器已启动, 自动迁移: %v, 自动清理: %v", m.autoMigrateEnabled, m.autoCleanupEnabled)
+}
+
+// Stop 停止自动管理协程
+func (m *Manager) Stop() {
+	close(m.stopCh)
+	log.Printf("[数据生命周期] 管理器已停止")
 }
 
 // ============================================================
@@ -791,4 +856,238 @@ func (m *Manager) GetStatus() *LifecycleStatus {
 	}
 
 	return status
+}
+
+// ============================================================
+// 自动迁移（根据访问频率）
+// ============================================================
+
+// runAutoMigrateLoop 自动迁移循环
+func (m *Manager) runAutoMigrateLoop() {
+	ticker := time.NewTicker(m.checkInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			m.autoMigrateByAccessFrequency()
+		case <-m.stopCh:
+			return
+		}
+	}
+}
+
+// autoMigrateByAccessFrequency 根据访问频率自动迁移数据
+func (m *Manager) autoMigrateByAccessFrequency() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	now := time.Now()
+	log.Printf("[数据生命周期] 开始自动迁移检查")
+
+	for _, record := range m.records {
+		// 跳过已有合规保留的记录
+		if len(record.HoldIDs) > 0 {
+			continue
+		}
+
+		// 跳过已销毁的记录
+		if record.CurrentPhase == PhaseDestroyed || record.CurrentPhase == PhasePendingDestruction {
+			continue
+		}
+
+		age := now.Sub(record.LastAccessedAt)
+		var targetPhase LifecyclePhase
+		var reason string
+
+		// 判断应该迁移到哪个阶段
+		switch {
+		case record.AccessCount >= m.hotThreshold:
+			// 高频访问，保持/迁移到热存储
+			if record.CurrentPhase != PhaseActive {
+				targetPhase = PhaseActive
+				reason = fmt.Sprintf("访问频率高(%d次)，迁移到热存储", record.AccessCount)
+			}
+		case record.AccessCount >= m.warmThreshold:
+			// 中频访问，迁移到温存储
+			if record.CurrentPhase == PhaseActive {
+				targetPhase = PhaseReference
+				reason = fmt.Sprintf("访问频率中等(%d次)，迁移到温存储", record.AccessCount)
+			}
+		case age.Hours() >= float64(m.archiveAgeHours):
+			// 长时间未访问，归档
+			if record.CurrentPhase != PhaseArchive && record.CurrentPhase != PhaseRetained {
+				targetPhase = PhaseArchive
+				reason = fmt.Sprintf("超过%d小时未访问，归档", m.archiveAgeHours)
+			}
+		case age.Hours() >= float64(m.coldAgeHours):
+			// 一段时间未访问，迁移到冷存储
+			if record.CurrentPhase == PhaseActive || record.CurrentPhase == PhaseReference {
+				targetPhase = PhaseReference
+				reason = fmt.Sprintf("超过%d小时未访问，迁移到温存储", m.coldAgeHours)
+			}
+		}
+
+		// 执行阶段转换
+		if targetPhase != "" && targetPhase != record.CurrentPhase {
+			fromOrder, fromExists := PhaseOrder[record.CurrentPhase]
+			toOrder, toExists := PhaseOrder[targetPhase]
+			if fromExists && toExists && toOrder >= fromOrder {
+				transition := PhaseTransition{
+					FromPhase: record.CurrentPhase,
+					ToPhase:   targetPhase,
+					Timestamp: now,
+					Reason:    reason,
+				}
+				record.PhaseHistory = append(record.PhaseHistory, transition)
+				record.CurrentPhase = targetPhase
+				record.ModifiedAt = now
+
+				// 更新存储层
+				switch targetPhase {
+				case PhaseActive:
+					record.CurrentTier = TierHot
+				case PhaseReference:
+					record.CurrentTier = TierWarm
+				case PhaseArchive:
+					record.CurrentTier = TierCold
+				case PhaseRetained, PhaseExpired:
+					record.CurrentTier = TierArchive
+				}
+
+				m.addAuditEntry("auto_migrate", record.ID, reason, true)
+				log.Printf("[数据生命周期] 自动迁移: %s %s -> %s, 原因: %s", record.Path, transition.FromPhase, targetPhase, reason)
+			}
+		}
+	}
+
+	log.Printf("[数据生命周期] 自动迁移检查完成")
+}
+
+// ============================================================
+// 自动过期清理
+// ============================================================
+
+// runAutoCleanupLoop 自动清理循环
+func (m *Manager) runAutoCleanupLoop() {
+	ticker := time.NewTicker(m.checkInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			m.autoCleanupExpiredData()
+		case <-m.stopCh:
+			return
+		}
+	}
+}
+
+// autoCleanupExpiredData 自动清理过期数据
+func (m *Manager) autoCleanupExpiredData() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	now := time.Now()
+	log.Printf("[数据生命周期] 开始过期数据清理检查")
+
+	var cleanedCount int
+	for _, record := range m.records {
+		// 跳过已有合规保留的记录
+		if len(record.HoldIDs) > 0 {
+			continue
+		}
+
+		// 跳过已销毁的记录
+		if record.CurrentPhase == PhaseDestroyed {
+			continue
+		}
+
+		// 查找关联的策略
+		policy, exists := m.policies[record.PolicyID]
+		if !exists || !policy.Enabled {
+			continue
+		}
+
+		// 检查保留期是否过期
+		if policy.Retention.Type == RetentionTypeTime && policy.Retention.Duration > 0 {
+			retentionEnd := record.CreatedAt.Add(policy.Retention.Duration)
+			if now.After(retentionEnd) {
+				// 保留期已过期
+				if policy.Retention.AutoDelete {
+					// 自动删除
+					record.CurrentPhase = PhaseDestroyed
+					record.ModifiedAt = now
+					record.PhaseHistory = append(record.PhaseHistory, PhaseTransition{
+						FromPhase: record.CurrentPhase,
+						ToPhase:   PhaseDestroyed,
+						Timestamp: now,
+						Reason:    fmt.Sprintf("保留期(%v)已过期，自动删除", policy.Retention.Duration),
+						PolicyID:  policy.ID,
+					})
+					m.addAuditEntry("auto_cleanup", record.ID, fmt.Sprintf("保留期过期自动删除: %s", record.Path), true)
+					cleanedCount++
+					log.Printf("[数据生命周期] 自动清理过期数据: %s, 策略: %s", record.Path, policy.Name)
+				} else {
+					// 标记为过期
+					if record.CurrentPhase != PhaseExpired {
+						record.CurrentPhase = PhaseExpired
+						record.CurrentTier = TierArchive
+						record.ModifiedAt = now
+						record.PhaseHistory = append(record.PhaseHistory, PhaseTransition{
+							FromPhase: PhaseRetained,
+							ToPhase:   PhaseExpired,
+							Timestamp: now,
+							Reason:    fmt.Sprintf("保留期(%v)已过期", policy.Retention.Duration),
+							PolicyID:  policy.ID,
+						})
+						m.addAuditEntry("phase_change", record.ID, "保留期过期标记为expired", true)
+					}
+				}
+			}
+		}
+
+		// 检查基于版本的保留
+		if policy.Retention.Type == RetentionTypeVersion && policy.Retention.MaxVersions > 0 {
+			if record.TotalVersions > policy.Retention.MaxVersions {
+				log.Printf("[数据生命周期] 版本超限: %s, 当前: %d, 最大: %d", record.Path, record.TotalVersions, policy.Retention.MaxVersions)
+			}
+		}
+	}
+
+	if cleanedCount > 0 {
+		log.Printf("[数据生命周期] 过期数据清理完成, 清理数量: %d", cleanedCount)
+	} else {
+		log.Printf("[数据生命周期] 过期数据清理检查完成, 无需清理")
+	}
+}
+
+// ============================================================
+// 手动触发自动迁移
+// ============================================================
+
+// RunAutoMigrateNow 立即执行一次自动迁移
+func (m *Manager) RunAutoMigrateNow() {
+	m.autoMigrateByAccessFrequency()
+}
+
+// RunAutoCleanupNow 立即执行一次过期清理
+func (m *Manager) RunAutoCleanupNow() {
+	m.autoCleanupExpiredData()
+}
+
+// SetAutoMigrateEnabled 设置自动迁移开关
+func (m *Manager) SetAutoMigrateEnabled(enabled bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.autoMigrateEnabled = enabled
+	log.Printf("[数据生命周期] 自动迁移已%s", map[bool]string{true: "启用", false: "禁用"}[enabled])
+}
+
+// SetAutoCleanupEnabled 设置自动清理开关
+func (m *Manager) SetAutoCleanupEnabled(enabled bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.autoCleanupEnabled = enabled
+	log.Printf("[数据生命周期] 自动清理已%s", map[bool]string{true: "启用", false: "禁用"}[enabled])
 }

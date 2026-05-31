@@ -627,3 +627,259 @@ func TestGetStatusUnit(t *testing.T) {
 		t.Errorf("expected 1 active hold, got %d", status.ActiveHolds)
 	}
 }
+
+// ========== 自动迁移测试 ==========
+
+func TestAutoMigrateByAccessFrequency(t *testing.T) {
+	config := AutoMigrateConfig{
+		Enabled:         true,
+		CheckInterval:   1 * time.Hour,
+		HotThreshold:    100,
+		WarmThreshold:   10,
+		ColdAgeHours:    1,  // 1小时（测试用）
+		ArchiveAgeHours: 2, // 2小时（测试用）
+	}
+	m := NewManagerWithConfig(config)
+
+	// 创建记录
+	record1, _ := m.CreateRecord(DataRecord{
+		Path:        "/data/hot-file.txt",
+		AccessCount: 150, // 高频访问
+	})
+
+	record2, _ := m.CreateRecord(DataRecord{
+		Path:        "/data/warm-file.txt",
+		AccessCount: 50, // 中频访问
+	})
+
+	record3, _ := m.CreateRecord(DataRecord{
+		Path:        "/data/cold-file.txt",
+		AccessCount: 5, // 低频访问
+	})
+
+	// 手动设置 record3 的最后访问时间为 3 小时前
+	m.mu.Lock()
+	m.records[record3.ID].LastAccessedAt = time.Now().Add(-3 * time.Hour)
+	m.mu.Unlock()
+
+	// 执行自动迁移
+	m.RunAutoMigrateNow()
+
+	// 验证结果
+	r1, _ := m.GetRecord(record1.ID)
+	if r1.CurrentPhase != PhaseActive {
+		t.Errorf("record1: expected PhaseActive, got %s", r1.CurrentPhase)
+	}
+
+	r2, _ := m.GetRecord(record2.ID)
+	if r2.CurrentPhase != PhaseReference {
+		t.Errorf("record2: expected PhaseReference, got %s", r2.CurrentPhase)
+	}
+	if r2.CurrentTier != TierWarm {
+		t.Errorf("record2: expected TierWarm, got %s", r2.CurrentTier)
+	}
+
+	r3, _ := m.GetRecord(record3.ID)
+	if r3.CurrentPhase != PhaseArchive {
+		t.Errorf("record3: expected PhaseArchive, got %s", r3.CurrentPhase)
+	}
+	if r3.CurrentTier != TierCold {
+		t.Errorf("record3: expected TierCold, got %s", r3.CurrentTier)
+	}
+}
+
+func TestAutoMigrateSkipsHoldRecords(t *testing.T) {
+	m := NewManager()
+
+	// 创建有合规保留的记录
+	hold, _ := m.CreateHold(ComplianceHold{
+		Name:      "法律保留",
+		Active:    true,
+		FilePaths: []string{"/data/protected.txt"},
+	})
+
+	record, _ := m.CreateRecord(DataRecord{
+		Path:         "/data/protected.txt",
+		AccessCount:  0,
+		CurrentPhase: PhaseActive,
+		CurrentTier:  TierHot,
+		HoldIDs:      []string{hold.ID},
+	})
+
+	// 执行自动迁移
+	m.RunAutoMigrateNow()
+
+	// 验证记录未被迁移
+	r, _ := m.GetRecord(record.ID)
+	if r.CurrentPhase != PhaseActive {
+		t.Errorf("expected PhaseActive (hold protected), got %s", r.CurrentPhase)
+	}
+}
+
+// ========== 自动过期清理测试 ==========
+
+func TestAutoCleanupExpiredData(t *testing.T) {
+	m := NewManager()
+
+	// 创建保留策略（保留期1小时）
+	policy, _ := m.CreatePolicy(LifecyclePolicy{
+		Name:    "短期保留",
+		Enabled: true,
+		Type:    PolicyTypeRetention,
+		Retention: RetentionPolicy{
+			Type:       RetentionTypeTime,
+			Duration:   1 * time.Hour,
+			AutoDelete: true,
+		},
+	})
+
+	// 创建记录
+	record1, _ := m.CreateRecord(DataRecord{
+		Path:     "/data/expired-file.txt",
+		PolicyID: policy.ID,
+	})
+
+	record2, _ := m.CreateRecord(DataRecord{
+		Path:     "/data/active-file.txt",
+		PolicyID: policy.ID,
+	})
+
+	// 手动设置 record1 的创建时间为 2 小时前（模拟过期）
+	m.mu.Lock()
+	m.records[record1.ID].CreatedAt = time.Now().Add(-2 * time.Hour)
+	m.mu.Unlock()
+
+	// 执行自动清理
+	m.RunAutoCleanupNow()
+
+	// 验证结果
+	r1, _ := m.GetRecord(record1.ID)
+	if r1.CurrentPhase != PhaseDestroyed {
+		t.Errorf("record1: expected PhaseDestroyed, got %s", r1.CurrentPhase)
+	}
+
+	r2, _ := m.GetRecord(record2.ID)
+	if r2.CurrentPhase == PhaseDestroyed {
+		t.Errorf("record2: should not be destroyed yet")
+	}
+}
+
+func TestAutoCleanupSkipsHoldRecords(t *testing.T) {
+	m := NewManager()
+
+	// 创建保留策略
+	policy, _ := m.CreatePolicy(LifecyclePolicy{
+		Name:    "测试策略",
+		Enabled: true,
+		Type:    PolicyTypeRetention,
+		Retention: RetentionPolicy{
+			Type:       RetentionTypeTime,
+			Duration:   1 * time.Hour,
+			AutoDelete: true,
+		},
+	})
+
+	// 创建有合规保留的过期记录
+	hold, _ := m.CreateHold(ComplianceHold{
+		Name:      "法律保留",
+		Active:    true,
+		FilePaths: []string{"/data/protected-expired.txt"},
+	})
+
+	record, _ := m.CreateRecord(DataRecord{
+		Path:     "/data/protected-expired.txt",
+		PolicyID: policy.ID,
+		HoldIDs:  []string{hold.ID},
+	})
+
+	// 手动设置创建时间为 2 小时前
+	m.mu.Lock()
+	m.records[record.ID].CreatedAt = time.Now().Add(-2 * time.Hour)
+	m.mu.Unlock()
+
+	// 执行自动清理
+	m.RunAutoCleanupNow()
+
+	// 验证记录未被删除
+	r, _ := m.GetRecord(record.ID)
+	if r.CurrentPhase == PhaseDestroyed {
+		t.Error("should not destroy record with active hold")
+	}
+}
+
+func TestAutoCleanupNonAutoDeletePolicy(t *testing.T) {
+	m := NewManager()
+
+	// 创建保留策略（不自动删除）
+	policy, _ := m.CreatePolicy(LifecyclePolicy{
+		Name:    "不自动删除策略",
+		Enabled: true,
+		Type:    PolicyTypeRetention,
+		Retention: RetentionPolicy{
+			Type:       RetentionTypeTime,
+			Duration:   1 * time.Hour,
+			AutoDelete: false, // 不自动删除
+		},
+	})
+
+	// 创建记录
+	record, _ := m.CreateRecord(DataRecord{
+		Path:     "/data/expired-no-delete.txt",
+		PolicyID: policy.ID,
+	})
+
+	// 手动设置创建时间为 2 小时前
+	m.mu.Lock()
+	m.records[record.ID].CreatedAt = time.Now().Add(-2 * time.Hour)
+	m.mu.Unlock()
+
+	// 执行自动清理
+	m.RunAutoCleanupNow()
+
+	// 验证记录被标记为过期但未删除
+	r, _ := m.GetRecord(record.ID)
+	if r.CurrentPhase != PhaseExpired {
+		t.Errorf("expected PhaseExpired, got %s", r.CurrentPhase)
+	}
+	if r.CurrentTier != TierArchive {
+		t.Errorf("expected TierArchive, got %s", r.CurrentTier)
+	}
+}
+
+// ========== 自动迁移开关测试 ==========
+
+func TestAutoMigrateToggle(t *testing.T) {
+	m := NewManager()
+
+	if m.autoMigrateEnabled {
+		t.Error("expected autoMigrateEnabled=false by default")
+	}
+
+	m.SetAutoMigrateEnabled(true)
+	if !m.autoMigrateEnabled {
+		t.Error("expected autoMigrateEnabled=true after toggle")
+	}
+
+	m.SetAutoMigrateEnabled(false)
+	if m.autoMigrateEnabled {
+		t.Error("expected autoMigrateEnabled=false after toggle")
+	}
+}
+
+func TestAutoCleanupToggle(t *testing.T) {
+	m := NewManager()
+
+	if m.autoCleanupEnabled {
+		t.Error("expected autoCleanupEnabled=false by default")
+	}
+
+	m.SetAutoCleanupEnabled(true)
+	if !m.autoCleanupEnabled {
+		t.Error("expected autoCleanupEnabled=true after toggle")
+	}
+
+	m.SetAutoCleanupEnabled(false)
+	if m.autoCleanupEnabled {
+		t.Error("expected autoCleanupEnabled=false after toggle")
+	}
+}
