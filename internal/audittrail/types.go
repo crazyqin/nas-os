@@ -1,373 +1,183 @@
-// Package audittrail 合规审计追踪
-// 操作日志、合规报告、异常检测
+// Package audittrail 提供审计追踪功能，包括操作日志全记录、可疑行为检测、审计报告导出等。
 package audittrail
 
 import (
-	"encoding/csv"
-	"encoding/json"
-	"fmt"
-	"strings"
-	"sync"
 	"time"
 )
 
-// RiskLevel 风险级别
-type RiskLevel string
-
-const (
-	RiskLow      RiskLevel = "low"
-	RiskMedium   RiskLevel = "medium"
-	RiskHigh     RiskLevel = "high"
-	RiskCritical RiskLevel = "critical"
-)
+// ==================== 审计事件相关 ====================
 
 // AuditEvent 审计事件
 type AuditEvent struct {
-	ID         string    `json:"id"`
-	UserID     string    `json:"user_id"`
-	UserName   string    `json:"user_name"`
-	Action     string    `json:"action"`
-	Resource   string    `json:"resource"`
-	ResourceID string    `json:"resource_id"`
-	Details    string    `json:"details"`
-	IP         string    `json:"ip"`
-	UserAgent  string    `json:"user_agent"`
-	Timestamp  time.Time `json:"timestamp"`
-	RiskLevel  RiskLevel `json:"risk_level"`
+	ID          string            `json:"id"`
+	Timestamp   time.Time         `json:"timestamp"`
+	EventType   string            `json:"event_type"`   // login, logout, access, modify, delete, admin
+	Actor       Actor             `json:"actor"`
+	Resource    Resource          `json:"resource"`
+	Action      string            `json:"action"`
+	Result      string            `json:"result"`       // success, failure, denied
+	Details     string            `json:"details"`
+	IPAddress   string            `json:"ip_address"`
+	UserAgent   string            `json:"user_agent"`
+	Location    string            `json:"location,omitempty"`
+	SessionID   string            `json:"session_id,omitempty"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
+	Severity    string            `json:"severity"`     // info, warning, critical
 }
 
-// ComplianceReport 合规报告
-type ComplianceReport struct {
-	ID           string        `json:"id"`
-	Period       string        `json:"period"`
-	TotalEvents  int           `json:"total_events"`
-	RiskSummary  map[RiskLevel]int `json:"risk_summary"`
-	TopUsers     []UserCount   `json:"top_users"`
-	TopActions   []ActionCount `json:"top_actions"`
-	GeneratedAt  time.Time     `json:"generated_at"`
+// Actor 操作者
+type Actor struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`     // user, system, service
+	Role     string `json:"role"`
+	Email    string `json:"email,omitempty"`
 }
 
-// UserCount 用户操作计数
-type UserCount struct {
-	UserID   string `json:"user_id"`
-	UserName string `json:"user_name"`
-	Count    int    `json:"count"`
-}
-
-// ActionCount 操作计数
-type ActionCount struct {
-	Action string `json:"action"`
-	Count  int    `json:"count"`
-}
-
-// AlertRule 告警规则
-type AlertRule struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Condition string `json:"condition"`
-	Action    string `json:"action"`
-	Enabled   bool   `json:"enabled"`
+// Resource 资源
+type Resource struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`     // file, database, api, system
+	Path     string `json:"path,omitempty"`
+	Owner    string `json:"owner,omitempty"`
 }
 
 // EventFilter 事件过滤器
 type EventFilter struct {
-	UserID    string    `json:"user_id"`
-	Action    string    `json:"action"`
-	RiskLevel RiskLevel `json:"risk_level"`
-	StartTime time.Time `json:"start_time"`
-	EndTime   time.Time `json:"end_time"`
-	Limit     int       `json:"limit"`
+	StartTime   *time.Time `json:"start_time,omitempty"`
+	EndTime     *time.Time `json:"end_time,omitempty"`
+	EventTypes  []string   `json:"event_types,omitempty"`
+	Actors      []string   `json:"actors,omitempty"`
+	Resources   []string   `json:"resources,omitempty"`
+	Severities  []string   `json:"severities,omitempty"`
+	Limit       int        `json:"limit,omitempty"`
+	Offset      int        `json:"offset,omitempty"`
 }
 
-// ExportFormat 导出格式
-type ExportFormat string
+// ==================== 可疑行为相关 ====================
 
-const (
-	FormatJSON ExportFormat = "json"
-	FormatCSV  ExportFormat = "csv"
-)
-
-// Manager 审计追踪管理器
-type Manager struct {
-	mu        sync.RWMutex
-	events    []AuditEvent
-	reports   map[string]*ComplianceReport
-	alerts    map[string]*AlertRule
-	maxEvents int
+// SuspiciousActivity 可疑行为
+type SuspiciousActivity struct {
+	ID          string    `json:"id"`
+	Timestamp   time.Time `json:"timestamp"`
+	Type        string    `json:"type"`        // brute-force, data-exfiltration, privilege-escalation, anomaly
+	Actor       Actor     `json:"actor"`
+	Description string    `json:"description"`
+	Indicators  []string  `json:"indicators"`
+	RiskScore   float64   `json:"risk_score"`  // 0-100
+	Status      string    `json:"status"`      // detected, investigating, confirmed, false-positive
+	RelatedEvents []string `json:"related_events,omitempty"`
+	AssignedTo  string    `json:"assigned_to,omitempty"`
+	Notes       string    `json:"notes,omitempty"`
+	DetectedAt  time.Time `json:"detected_at"`
+	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
 }
 
-// NewManager 创建审计追踪管理器
-func NewManager() *Manager {
-	return &Manager{
-		events:    make([]AuditEvent, 0),
-		reports:   make(map[string]*ComplianceReport),
-		alerts:    make(map[string]*AlertRule),
-		maxEvents: 100000,
-	}
+// SuspiciousFilter 可疑行为过滤器
+type SuspiciousFilter struct {
+	StartTime *time.Time `json:"start_time,omitempty"`
+	EndTime   *time.Time `json:"end_time,omitempty"`
+	Types     []string   `json:"types,omitempty"`
+	Statuses  []string   `json:"statuses,omitempty"`
+	MinScore  *float64   `json:"min_score,omitempty"`
+	Limit     int        `json:"limit,omitempty"`
 }
 
-// LogEvent 记录审计事件
-func (m *Manager) LogEvent(event AuditEvent) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+// ==================== 审计报告相关 ====================
 
-	if event.ID == "" {
-		event.ID = fmt.Sprintf("evt_%d", time.Now().UnixNano())
-	}
-	if event.Timestamp.IsZero() {
-		event.Timestamp = time.Now()
-	}
-
-	m.events = append([]AuditEvent{event}, m.events...)
-	if len(m.events) > m.maxEvents {
-		m.events = m.events[:m.maxEvents]
-	}
+// AuditReport 审计报告
+type AuditReport struct {
+	ID          string          `json:"id"`
+	Title       string          `json:"title"`
+	Type        string          `json:"type"`     // summary, detailed, compliance
+	Period      ReportPeriod    `json:"period"`
+	Summary     ReportSummary   `json:"summary"`
+	Events      []AuditEvent    `json:"events,omitempty"`
+	Activities  []SuspiciousActivity `json:"activities,omitempty"`
+	GeneratedAt time.Time       `json:"generated_at"`
+	GeneratedBy string          `json:"generated_by"`
+	Format      string          `json:"format"`   // json, csv, pdf
 }
 
-// GetEvent 获取单个事件
-func (m *Manager) GetEvent(id string) (*AuditEvent, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	for _, e := range m.events {
-		if e.ID == id {
-			return &e, nil
-		}
-	}
-	return nil, fmt.Errorf("事件不存在: %s", id)
+// ReportPeriod 报告周期
+type ReportPeriod struct {
+	Start time.Time `json:"start"`
+	End   time.Time `json:"end"`
 }
 
-// QueryEvents 查询事件
-func (m *Manager) QueryEvents(filter EventFilter) []AuditEvent {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	result := make([]AuditEvent, 0)
-	for _, e := range m.events {
-		if filter.UserID != "" && e.UserID != filter.UserID {
-			continue
-		}
-		if filter.Action != "" && e.Action != filter.Action {
-			continue
-		}
-		if filter.RiskLevel != "" && e.RiskLevel != filter.RiskLevel {
-			continue
-		}
-		if !filter.StartTime.IsZero() && e.Timestamp.Before(filter.StartTime) {
-			continue
-		}
-		if !filter.EndTime.IsZero() && e.Timestamp.After(filter.EndTime) {
-			continue
-		}
-		result = append(result, e)
-		if filter.Limit > 0 && len(result) >= filter.Limit {
-			break
-		}
-	}
-	return result
+// ReportSummary 报告摘要
+type ReportSummary struct {
+	TotalEvents      int            `json:"total_events"`
+	EventsByType     map[string]int `json:"events_by_type"`
+	EventsBySeverity map[string]int `json:"events_by_severity"`
+	TopActors        []ActorStat    `json:"top_actors"`
+	TopResources     []ResourceStat `json:"top_resources"`
+	SuspiciousCount  int            `json:"suspicious_count"`
+	FailureRate      float64        `json:"failure_rate"`
 }
 
-// GenerateReport 生成合规报告
-func (m *Manager) GenerateReport(period string) *ComplianceReport {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	report := &ComplianceReport{
-		ID:          fmt.Sprintf("rpt_%d", time.Now().UnixNano()),
-		Period:      period,
-		RiskSummary: make(map[RiskLevel]int),
-		TopUsers:    make([]UserCount, 0),
-		TopActions:  make([]ActionCount, 0),
-		GeneratedAt: time.Now(),
-	}
-
-	userCount := make(map[string]*UserCount)
-	actionCount := make(map[string]int)
-
-	for _, e := range m.events {
-		report.TotalEvents++
-		report.RiskSummary[e.RiskLevel]++
-		actionCount[e.Action]++
-
-		uc, ok := userCount[e.UserID]
-		if !ok {
-			uc = &UserCount{UserID: e.UserID, UserName: e.UserName}
-			userCount[e.UserID] = uc
-		}
-		uc.Count++
-	}
-
-	// Top 10 users
-	topUsers := make([]*UserCount, 0, len(userCount))
-	for _, uc := range userCount {
-		topUsers = append(topUsers, uc)
-	}
-	sortByCount := func(a, b *UserCount) bool { return a.Count > b.Count }
-	for i := 0; i < len(topUsers) && i < 10; i++ {
-		for j := i + 1; j < len(topUsers); j++ {
-			if sortByCount(topUsers[j], topUsers[i]) {
-				topUsers[i], topUsers[j] = topUsers[j], topUsers[i]
-			}
-		}
-		report.TopUsers = append(report.TopUsers, *topUsers[i])
-	}
-
-	// Top 10 actions
-	type kv struct {
-		k string
-		v int
-	}
-	sorted := make([]kv, 0, len(actionCount))
-	for k, v := range actionCount {
-		sorted = append(sorted, kv{k, v})
-	}
-	for i := 0; i < len(sorted) && i < 10; i++ {
-		for j := i + 1; j < len(sorted); j++ {
-			if sorted[j].v > sorted[i].v {
-				sorted[i], sorted[j] = sorted[j], sorted[i]
-			}
-		}
-		report.TopActions = append(report.TopActions, ActionCount{
-			Action: sorted[i].k,
-			Count:  sorted[i].v,
-		})
-	}
-
-	m.reports[report.ID] = report
-	return report
+// ActorStat 操作者统计
+type ActorStat struct {
+	ActorID   string `json:"actor_id"`
+	ActorName string `json:"actor_name"`
+	Count     int    `json:"count"`
 }
 
-// GetReports 获取所有报告
-func (m *Manager) GetReports() []*ComplianceReport {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	reports := make([]*ComplianceReport, 0, len(m.reports))
-	for _, r := range m.reports {
-		reports = append(reports, r)
-	}
-	return reports
+// ResourceStat 资源统计
+type ResourceStat struct {
+	ResourceID   string `json:"resource_id"`
+	ResourceName string `json:"resource_name"`
+	Count        int    `json:"count"`
 }
 
-// AddAlertRule 添加告警规则
-func (m *Manager) AddAlertRule(rule AlertRule) AlertRule {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+// ==================== 保留策略相关 ====================
 
-	if rule.ID == "" {
-		rule.ID = fmt.Sprintf("alert_%d", time.Now().UnixNano())
-	}
-	m.alerts[rule.ID] = &rule
-	return rule
+// RetentionPolicy 保留策略
+type RetentionPolicy struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	EventTypes  []string  `json:"event_types"`
+	Severity    []string  `json:"severity,omitempty"`
+	Duration    string    `json:"duration"`    // 30d, 90d, 1y, forever
+	Action      string    `json:"action"`      // archive, delete, anonymize
+	Enabled     bool      `json:"enabled"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// UpdateAlertRule 更新告警规则
-func (m *Manager) UpdateAlertRule(id string, rule AlertRule) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	existing, ok := m.alerts[id]
-	if !ok {
-		return fmt.Errorf("告警规则不存在: %s", id)
-	}
-
-	if rule.Name != "" {
-		existing.Name = rule.Name
-	}
-	if rule.Condition != "" {
-		existing.Condition = rule.Condition
-	}
-	if rule.Action != "" {
-		existing.Action = rule.Action
-	}
-	existing.Enabled = rule.Enabled
-
-	return nil
+// RetentionStats 保留统计
+type RetentionStats struct {
+	PolicyID     string    `json:"policy_id"`
+	TotalEvents  int       `json:"total_events"`
+	Archived     int       `json:"archived"`
+	Deleted      int       `json:"deleted"`
+	Anonymized   int       `json:"anonymized"`
+	OldestEvent  time.Time `json:"oldest_event"`
+	NewestEvent  time.Time `json:"newest_event"`
+	LastRunAt    time.Time `json:"last_run_at"`
 }
 
-// DeleteAlertRule 删除告警规则
-func (m *Manager) DeleteAlertRule(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+// ==================== 导出相关 ====================
 
-	if _, ok := m.alerts[id]; !ok {
-		return fmt.Errorf("告警规则不存在: %s", id)
-	}
-	delete(m.alerts, id)
-	return nil
+// AuditExport 审计导出
+type AuditExport struct {
+	ID          string    `json:"id"`
+	Format      string    `json:"format"`      // json, csv, pdf
+	Filter      EventFilter `json:"filter"`
+	Status      string    `json:"status"`      // pending, processing, completed, failed
+	FileSize    int64     `json:"file_size,omitempty"`
+	FilePath    string    `json:"file_path,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	Error       string    `json:"error,omitempty"`
+	ExpiresAt   time.Time `json:"expires_at"`
 }
 
-// GetAlertRules 获取所有告警规则
-func (m *Manager) GetAlertRules() []AlertRule {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	rules := make([]AlertRule, 0, len(m.alerts))
-	for _, r := range m.alerts {
-		rules = append(rules, *r)
-	}
-	return rules
-}
-
-// CheckAlerts 检查告警
-func (m *Manager) CheckAlerts() []AlertRule {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	triggered := make([]AlertRule, 0)
-	for _, rule := range m.alerts {
-		if !rule.Enabled {
-			continue
-		}
-		// 简单的条件检查示例
-		if rule.Condition == "high_risk_count > 10" {
-			count := 0
-			for _, e := range m.events {
-				if e.RiskLevel == RiskHigh || e.RiskLevel == RiskCritical {
-					count++
-				}
-			}
-			if count > 10 {
-				triggered = append(triggered, *rule)
-			}
-		}
-	}
-	return triggered
-}
-
-// ExportEvents 导出事件
-func (m *Manager) ExportEvents(format ExportFormat) ([]byte, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	switch format {
-	case FormatJSON:
-		return json.MarshalIndent(m.events, "", "  ")
-	case FormatCSV:
-		var buf strings.Builder
-		w := csv.NewWriter(&buf)
-
-		// Header
-		w.Write([]string{"ID", "UserID", "UserName", "Action", "Resource", "ResourceID", "Details", "IP", "UserAgent", "Timestamp", "RiskLevel"})
-
-		for _, e := range m.events {
-			w.Write([]string{
-				e.ID,
-				e.UserID,
-				e.UserName,
-				e.Action,
-				e.Resource,
-				e.ResourceID,
-				e.Details,
-				e.IP,
-				e.UserAgent,
-				e.Timestamp.Format(time.RFC3339),
-				string(e.RiskLevel),
-			})
-		}
-		w.Flush()
-		return []byte(buf.String()), nil
-	default:
-		return nil, fmt.Errorf("不支持的格式: %s", format)
-	}
+// ExportRequest 导出请求
+type ExportRequest struct {
+	Format string      `json:"format"` // json, csv, pdf
+	Filter EventFilter `json:"filter"`
+	Async  bool        `json:"async,omitempty"`
 }

@@ -59,6 +59,19 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 		smarttiering.POST("/migrate", h.TriggerMigration)
 		smarttiering.GET("/recommendations", h.GetMigrationRecommendations)
 	}
+
+	// 任务要求的标准路由
+	tier := rg.Group("/tier")
+	{
+		tier.GET("/policies", h.ListPolicies)
+		tier.POST("/policies", h.CreatePolicy)
+		tier.DELETE("/policies/:id", h.DeletePolicyTier)
+		tier.GET("/placement", h.GetPlacement)
+		tier.GET("/placement/all", h.GetAllPlacements)
+		tier.POST("/migrate", h.TriggerMigrationTier)
+		tier.GET("/stats", h.GetTierStats)
+		tier.GET("/access-pattern", h.GetAccessPattern)
+	}
 }
 
 // GetStatus handles GET /api/v1/tiering/status.
@@ -378,6 +391,130 @@ func (h *Handler) GetMigrationRecommendations(c *gin.Context) {
 		"optimal_cost":        report.OptimalCostPerMonth,
 		"recommendation_count": len(report.Recommendations),
 	})
+}
+
+// ========== /tier 路由处理器 ==========
+
+// ListPolicies handles GET /api/v1/tier/policies
+func (h *Handler) ListPolicies(c *gin.Context) {
+	policies := h.manager.ListPolicies()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": policies})
+}
+
+// CreatePolicyRequest 创建策略请求
+type CreatePolicyRequest struct {
+	Name        string     `json:"name" binding:"required"`
+	Description string     `json:"description"`
+	Priority    int        `json:"priority"`
+	Rules       []TierRule `json:"rules"`
+}
+
+// CreatePolicy handles POST /api/v1/tier/policies
+func (h *Handler) CreatePolicy(c *gin.Context) {
+	var req CreatePolicyRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "请求参数错误: " + err.Error()})
+		return
+	}
+
+	policy := TierPolicy{
+		Name:        req.Name,
+		Description: req.Description,
+		Priority:    req.Priority,
+		Rules:       req.Rules,
+		Enabled:     true,
+	}
+
+	result, err := h.manager.CreatePolicy(policy)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"code": 0, "message": "ok", "data": result})
+}
+
+// DeletePolicyTier handles DELETE /api/v1/tier/policies/:id
+func (h *Handler) DeletePolicyTier(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.manager.DeletePolicy(id); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"code": -1, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "策略已删除"})
+}
+
+// GetPlacement handles GET /api/v1/tier/placement?path=xxx
+func (h *Handler) GetPlacement(c *gin.Context) {
+	path := c.Query("path")
+	if path == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "path 参数必填"})
+		return
+	}
+
+	placement, err := h.manager.GetPlacement(path)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"code": -1, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": placement})
+}
+
+// GetAllPlacements handles GET /api/v1/tier/placement/all
+func (h *Handler) GetAllPlacements(c *gin.Context) {
+	placements := h.manager.GetPlacements()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": placements, "count": len(placements)})
+}
+
+// TriggerMigrationTierRequest 迁移请求
+type TriggerMigrationTierRequest struct {
+	FilePath string `json:"file_path" binding:"required"`
+	FromTier string `json:"from_tier" binding:"required"`
+	ToTier   string `json:"to_tier" binding:"required"`
+	FileSize int64  `json:"file_size"`
+}
+
+// TriggerMigrationTier handles POST /api/v1/tier/migrate
+func (h *Handler) TriggerMigrationTier(c *gin.Context) {
+	var req TriggerMigrationTierRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "请求参数错误: " + err.Error()})
+		return
+	}
+
+	err := h.manager.ForceMigrate(
+		c.Request.Context(),
+		req.FilePath,
+		ParseTier(req.FromTier),
+		ParseTier(req.ToTier),
+		req.FileSize,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "迁移任务已提交"})
+}
+
+// GetTierStats handles GET /api/v1/tier/stats
+func (h *Handler) GetTierStats(c *gin.Context) {
+	stats := h.manager.GetStats()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": stats})
+}
+
+// GetAccessPattern handles GET /api/v1/tier/access-pattern?path=xxx
+func (h *Handler) GetAccessPattern(c *gin.Context) {
+	path := c.Query("path")
+	if path == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "path 参数必填"})
+		return
+	}
+
+	pattern, err := h.manager.GetAccessPattern(path)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"code": -1, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": pattern})
 }
 
 

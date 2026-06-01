@@ -404,6 +404,73 @@ func (e *Engine) ListRepos() []GitRepo {
 	return repos
 }
 
+// AddRepo adds a new repository
+func (e *Engine) AddRepo(req AddRepoRequest) (*GitRepo, error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	repo := GitRepo{
+		ID:     fmt.Sprintf("repo_%d", time.Now().UnixNano()),
+		Name:   req.Name,
+		URL:    req.URL,
+		Branch: req.Branch,
+		Path:   req.Path,
+		Auth:   req.Auth,
+		SyncPolicy: DefaultSyncPolicy(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	if repo.Branch == "" {
+		repo.Branch = "main"
+	}
+
+	state := &repoState{
+		repo:     repo,
+		localPath: fmt.Sprintf("/tmp/gitops/%s", repo.ID),
+	}
+
+	e.repos[repo.ID] = state
+	return &repo, nil
+}
+
+// DetectDrift detects configuration drift for a repo/environment
+func (e *Engine) DetectDrift(repoID string, env Environment) (*DriftDetection, error) {
+	e.mu.RLock()
+	state, exists := e.repos[repoID]
+	e.mu.RUnlock()
+
+	if !exists {
+		return nil, fmt.Errorf("repo %s not found", repoID)
+	}
+
+	// Get current sync status
+	syncStatus := e.GetSyncStatus(repoID, env)
+
+	detection := &DriftDetection{
+		ID:          fmt.Sprintf("drift_%d", time.Now().UnixNano()),
+		RepoID:      repoID,
+		Environment: env,
+		DetectedAt:  time.Now(),
+		Drifted:     false,
+		Items:       make([]DriftItem, 0),
+		Summary:     "No drift detected",
+	}
+
+	if syncStatus != nil && syncStatus.DriftDetected {
+		detection.Drifted = true
+		detection.Items = syncStatus.DriftDetails
+		detection.Summary = fmt.Sprintf("Drift detected: %d items", len(detection.Items))
+	} else if syncStatus == nil {
+		// If no sync status, assume drift since we can't confirm
+		detection.Drifted = true
+		detection.Summary = "Sync status unknown, drift possible"
+	}
+
+	_ = state // use state if needed
+	return detection, nil
+}
+
 // Helper methods
 
 func (e *Engine) getRepoState(id string) *repoState {

@@ -281,3 +281,94 @@ func DefaultConfig() Config {
 		TierCosts:     DefaultTierCosts(),
 	}
 }
+
+// ============================================================
+// 新增类型：TierPolicy, TierRule, DataPlacement, TierStats, MigrationJob, AccessPattern
+// ============================================================
+
+// TierPolicy 分层策略
+type TierPolicy struct {
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description,omitempty"`
+	Enabled     bool       `json:"enabled"`
+	Priority    int        `json:"priority"`
+	Rules       []TierRule `json:"rules"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+}
+
+// TierRule 分层规则
+type TierRule struct {
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	TargetTier  StorageTier `json:"target_tier"`
+	Conditions  []TierCondition `json:"conditions"`
+	Action      string      `json:"action"`      // promote, demote, pin
+	Enabled     bool        `json:"enabled"`
+}
+
+// TierCondition 分层条件
+type TierCondition struct {
+	Field    string `json:"field"`    // heat_score, file_size, access_count, days_since_access, content_type
+	Operator string `json:"operator"` // gt, lt, gte, lte, eq, in, contains
+	Value    string `json:"value"`
+}
+
+// DataPlacement 数据放置信息
+type DataPlacement struct {
+	FilePath       string      `json:"file_path"`
+	CurrentTier    StorageTier `json:"current_tier"`
+	RecommendedTier StorageTier `json:"recommended_tier"`
+	HeatScore      float64     `json:"heat_score"`
+	FileSize       int64       `json:"file_size"`
+	LastAccess     time.Time   `json:"last_access"`
+	AccessCount    int64       `json:"access_count"`
+	Reason         string      `json:"reason"`
+	Confidence     float64     `json:"confidence"`
+}
+
+// TierStats 分层统计
+type TierStats struct {
+	GeneratedAt       time.Time                `json:"generated_at"`
+	TotalFiles        int64                     `json:"total_files"`
+	TotalSizeGB       float64                   `json:"total_size_gb"`
+	TierDistribution  map[string]int64          `json:"tier_distribution"`
+	TierSizesGB       map[string]float64        `json:"tier_sizes_gb"`
+	AvgHeatScores     map[string]float64        `json:"avg_heat_scores"`
+	HitRates          map[string]float64        `json:"hit_rates"`
+	MigrationCount    int64                     `json:"migration_count"`
+	MigrationBytesGB  float64                   `json:"migration_bytes_gb"`
+	PolicyCount       int                       `json:"policy_count"`
+	ActiveMigrations  int                       `json:"active_migrations"`
+}
+
+// MigrationJob 迁移任务
+type MigrationJob struct {
+	ID          string      `json:"id"`
+	FilePath    string      `json:"file_path"`
+	FromTier    StorageTier `json:"from_tier"`
+	ToTier      StorageTier `json:"to_tier"`
+	FileSize    int64       `json:"file_size"`
+	Reason      string      `json:"reason"`
+	Status      string      `json:"status"` // pending, running, completed, failed
+	Progress    float64     `json:"progress"`
+	Error       string      `json:"error,omitempty"`
+	StartedAt   time.Time   `json:"started_at"`
+	CompletedAt *time.Time  `json:"completed_at,omitempty"`
+	Duration    string      `json:"duration,omitempty"`
+}
+
+// AccessPattern 访问模式
+type AccessPattern struct {
+	FilePath        string    `json:"file_path"`
+	TotalAccesses   int64     `json:"total_accesses"`
+	ReadCount       int64     `json:"read_count"`
+	WriteCount      int64     `json:"write_count"`
+	LastAccess      time.Time `json:"last_access"`
+	AvgAccessInterval float64 `json:"avg_access_interval_hours"`
+	PeakHour        int       `json:"peak_hour"`
+	Pattern         string    `json:"pattern"` // burst, steady, periodic, cold
+	HeatScore       float64   `json:"heat_score"`
+	PredictedTier   StorageTier `json:"predicted_tier"`
+}

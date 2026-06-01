@@ -503,3 +503,128 @@ type IOMetrics struct {
 	ReadOps    int64 `json:"read_ops"`
 	WriteOps   int64 `json:"write_ops"`
 }
+
+// ========== 容器编排增强类型 ==========
+
+// ComposeStack Docker Compose 栈
+type ComposeStack struct {
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	ProjectName string            `json:"project_name"`
+	ComposeFile string            `json:"compose_file"`     // YAML 内容
+	Path        string            `json:"path"`             // 文件路径
+	Services    []ComposeService  `json:"services"`
+	Status      StackStatus       `json:"status"`
+	EnvVars     map[string]string `json:"env_vars,omitempty"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
+}
+
+// StackStatus 栈状态
+type StackStatus string
+
+const (
+	StackStatusRunning  StackStatus = "running"
+	StackStatusStopped  StackStatus = "stopped"
+	StackStatusDeploying StackStatus = "deploying"
+	StackStatusError    StackStatus = "error"
+	StackStatusPartial  StackStatus = "partial"
+)
+
+// ComposeService Compose 服务
+type ComposeService struct {
+	Name      string   `json:"name"`
+	Image     string   `json:"image"`
+	Status    string   `json:"status"`
+	Ports     []string `json:"ports,omitempty"`
+	Replicas  int      `json:"replicas"`
+}
+
+// ContainerHealth 容器健康状态
+type ContainerHealth struct {
+	ContainerID   string        `json:"container_id"`
+	ServiceName   string        `json:"service_name"`
+	StackID       string        `json:"stack_id"`
+	Status        HealthStatus  `json:"status"`
+	ChecksPassed  int           `json:"checks_passed"`
+	ChecksFailed  int           `json:"checks_failed"`
+	LastCheck     time.Time     `json:"last_check"`
+	Uptime        time.Duration `json:"uptime"`
+	RestartCount  int           `json:"restart_count"`
+	CPU           float64       `json:"cpu_percent"`
+	Memory        int64         `json:"memory_bytes"`
+}
+
+// AutoScaleRule 自动扩缩容规则
+type AutoScaleRule struct {
+	ID          string        `json:"id"`
+	StackID     string        `json:"stack_id"`
+	ServiceName string        `json:"service_name"`
+	Enabled     bool          `json:"enabled"`
+	MinReplicas int           `json:"min_replicas"`
+	MaxReplicas int           `json:"max_replicas"`
+	MetricType  string        `json:"metric_type"`  // cpu, memory, requests
+	TargetValue float64       `json:"target_value"`
+	Cooldown    time.Duration `json:"cooldown"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+}
+
+// ImageCache 镜像缓存
+type ImageCache struct {
+	ImageName   string    `json:"image_name"`
+	Tag         string    `json:"tag"`
+	Digest      string    `json:"digest"`
+	Size        int64     `json:"size_bytes"`
+	LastUsed    time.Time `json:"last_used"`
+	PullCount   int       `json:"pull_count"`
+	Cached      bool      `json:"cached"`
+}
+
+// RecoveryPolicy 容器恢复策略
+type RecoveryPolicy struct {
+	ID               string        `json:"id"`
+	StackID          string        `json:"stack_id"`
+	ServiceName      string        `json:"service_name"`
+	Enabled          bool          `json:"enabled"`
+	RestartOnFailure bool          `json:"restart_on_failure"`
+	MaxRetries       int           `json:"max_retries"`
+	RetryInterval    time.Duration `json:"retry_interval"`
+	AutoRemove       bool          `json:"auto_remove"`
+	HealthCheck      bool          `json:"health_check"`
+	CreatedAt        time.Time     `json:"created_at"`
+	UpdatedAt        time.Time     `json:"updated_at"`
+}
+
+// DeployStackRequest 部署栈请求
+type DeployStackRequest struct {
+	Name        string            `json:"name" binding:"required"`
+	ComposeFile string            `json:"compose_file" binding:"required"`
+	EnvVars     map[string]string `json:"env_vars,omitempty"`
+	Pull        bool              `json:"pull"`
+}
+
+// SetAutoScaleRequest 设置自动扩缩容请求
+type SetAutoScaleRequest struct {
+	ServiceName string  `json:"service_name" binding:"required"`
+	Enabled     bool    `json:"enabled"`
+	MinReplicas int     `json:"min_replicas"`
+	MaxReplicas int     `json:"max_replicas"`
+	MetricType  string  `json:"metric_type"`
+	TargetValue float64 `json:"target_value"`
+}
+
+// CacheImageRequest 缓存镜像请求
+type CacheImageRequest struct {
+	Image string `json:"image" binding:"required"`
+	Tag   string `json:"tag"`
+}
+
+// SetRecoveryRequest 设置恢复策略请求
+type SetRecoveryRequest struct {
+	ServiceName      string `json:"service_name" binding:"required"`
+	Enabled          bool   `json:"enabled"`
+	RestartOnFailure bool   `json:"restart_on_failure"`
+	MaxRetries       int    `json:"max_retries"`
+	HealthCheck      bool   `json:"health_check"`
+}

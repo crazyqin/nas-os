@@ -5,209 +5,10 @@ package surveillance
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"sync"
 	"time"
 )
-
-// ========== 核心类型 ==========
-
-// CameraProtocol 摄像头协议
-type CameraProtocol string
-
-const (
-	ProtocolONVIF CameraProtocol = "ONVIF"
-	ProtocolRTSP  CameraProtocol = "RTSP"
-)
-
-// CameraStatus 摄像头状态
-type CameraStatus string
-
-const (
-	CameraStatusOnline  CameraStatus = "online"
-	CameraStatusOffline CameraStatus = "offline"
-	CameraStatusError   CameraStatus = "error"
-)
-
-// RecordingMode 录像模式
-type RecordingMode string
-
-const (
-	RecordingModeContinuous RecordingMode = "continuous" // 连续录像
-	RecordingModeEvent      RecordingMode = "event"      // 事件触发
-	RecordingModeSchedule   RecordingMode = "schedule"    // 计划录像
-	RecordingModeManual     RecordingMode = "manual"      // 手动录像
-)
-
-// MotionSensitivity 移动侦测灵敏度
-type MotionSensitivity string
-
-const (
-	SensitivityLow    MotionSensitivity = "low"
-	SensitivityMedium MotionSensitivity = "medium"
-	SensitivityHigh   MotionSensitivity = "high"
-)
-
-// EventType 告警事件类型
-type EventType string
-
-const (
-	EventMotionDetection EventType = "motion_detection" // 移动侦测
-	EventTampering       EventType = "tampering"        // 遮挡告警
-	EventDisconnect      EventType = "disconnect"        // 断线告警
-	EventReconnect       EventType = "reconnect"        // 恢复连接
-)
-
-// ActionTrigger 联动动作类型
-type ActionTrigger string
-
-const (
-	ActionRecord    ActionTrigger = "record"    // 触发录像
-	ActionNotify    ActionTrigger = "notify"    // 发送通知
-	ActionBuzzer    ActionTrigger = "buzzer"    // 蜂鸣报警
-	ActionSnapshot  ActionTrigger = "snapshot"  // 抓拍快照
-)
-
-// ========== 摄像头相关 ==========
-
-// Camera 摄像头配置
-type Camera struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Protocol    CameraProtocol `json:"protocol"`
-	Host        string         `json:"host"`
-	Port        int            `json:"port"`
-	StreamPath  string         `json:"streamPath"`
-	Username    string         `json:"username,omitempty"`
-	Password    string         `json:"password,omitempty"`
-	Status      CameraStatus   `json:"status"`
-	GroupID     string         `json:"groupId,omitempty"`
-	Resolution  string         `json:"resolution,omitempty"`  // 1920x1080
-	Bitrate     int            `json:"bitrate,omitempty"`     // kbps
-	FPS         int            `json:"fps,omitempty"`
-	Manufacturer string        `json:"manufacturer,omitempty"`
-	Model       string         `json:"model,omitempty"`
-	Location    string         `json:"location,omitempty"`
-	Enabled     bool           `json:"enabled"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	UpdatedAt   time.Time      `json:"updatedAt"`
-}
-
-// CameraStream 实时流信息
-type CameraStream struct {
-	CameraID    string    `json:"cameraId"`
-	StreamURL   string    `json:"streamUrl"`
-	Resolution  string    `json:"resolution"`
-	Bitrate     int       `json:"bitrate"`
-	FPS         int       `json:"fps"`
-	Codec       string    `json:"codec"`
-	StartTime   time.Time `json:"startTime"`
-}
-
-// ========== 录像相关 ==========
-
-// Recording 录像记录
-type Recording struct {
-	ID         string        `json:"id"`
-	CameraID   string        `json:"cameraId"`
-	Mode       RecordingMode `json:"mode"`
-	StartTime  time.Time     `json:"startTime"`
-	EndTime    time.Time     `json:"endTime,omitempty"`
-	Duration   time.Duration `json:"duration"`
-	FilePath   string        `json:"filePath"`
-	FileSize   int64         `json:"fileSize"`
-	Resolution string        `json:"resolution"`
-	Bitrate    int           `json:"bitrate"`
-	HasEvent   bool          `json:"hasEvent"` // 是否包含事件
-	EventIDs   []string      `json:"eventIds,omitempty"`
-	CreatedAt  time.Time     `json:"createdAt"`
-}
-
-// RecordingSchedule 录像计划
-type RecordingSchedule struct {
-	ID       string          `json:"id"`
-	CameraID string          `json:"cameraId"`
-	Mode     RecordingMode   `json:"mode"`
-	Days     []time.Weekday  `json:"days"`     // 生效的星期几
-	Start    string          `json:"start"`     // HH:MM
-	End      string          `json:"end"`       // HH:MM
-	Enabled  bool            `json:"enabled"`
-}
-
-// ========== 移动侦测 ==========
-
-// MotionDetection 移像侦测配置
-type MotionDetection struct {
-	CameraID    string            `json:"cameraId"`
-	Enabled     bool              `json:"enabled"`
-	Sensitivity MotionSensitivity `json:"sensitivity"`
-	Regions     []MotionRegion    `json:"regions"`
-	CooldownSec int               `json:"cooldownSec"` // 触发后冷却时间
-}
-
-// MotionRegion 移动侦测区域
-type MotionRegion struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	X      int    `json:"x"`
-	Y      int    `json:"y"`
-	Width  int    `json:"width"`
-	Height int    `json:"height"`
-}
-
-// ========== 告警事件 ==========
-
-// Event 告警事件
-type Event struct {
-	ID        string    `json:"id"`
-	CameraID  string    `json:"cameraId"`
-	Type      EventType `json:"type"`
-	Message   string    `json:"message"`
-	ImageURL  string    `json:"imageUrl,omitempty"`
-	Timestamp time.Time `json:"timestamp"`
-	Acked     bool      `json:"acked"` // 已确认
-	AckedBy   string    `json:"ackedBy,omitempty"`
-	AckedAt   time.Time `json:"ackedAt,omitempty"`
-}
-
-// ActionRule 事件联动规则
-type ActionRule struct {
-	ID        string        `json:"id"`
-	CameraID  string        `json:"cameraId"`
-	EventType EventType     `json:"eventType"`
-	Actions   []ActionTrigger `json:"actions"`
-	Enabled   bool          `json:"enabled"`
-}
-
-// ========== 分组和布局 ==========
-
-// CameraGroup 摄像头分组
-type CameraGroup struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description,omitempty"`
-	CameraIDs   []string `json:"cameraIds"`
-	Layout      Layout   `json:"layout"`
-	CreatedAt   time.Time `json:"createdAt"`
-}
-
-// Layout 布局配置
-type Layout struct {
-	Rows    int `json:"rows"`
-	Columns int `json:"columns"`
-}
-
-// ========== 存储管理 ==========
-
-// StorageQuota 存储配额
-type StorageQuota struct {
-	CameraID        string `json:"cameraId"`
-	MaxSizeGB       int    `json:"maxSizeGb"`       // 最大存储 GB
-	CurrentSizeGB   int    `json:"currentSizeGb"`   // 当前存储 GB
-	RetentionDays   int    `json:"retentionDays"`   // 保留天数
-	LoopRecording   bool   `json:"loopRecording"`   // 循环录像
-}
-
-// ========== Manager ==========
 
 // Manager 监控中心管理器
 type Manager struct {
@@ -217,29 +18,96 @@ type Manager struct {
 	recordings     []*Recording
 	schedules      map[string]*RecordingSchedule
 	motions        map[string]*MotionDetection
-	events         []*Event
+	events         []*MotionEvent
+	alerts         []*Alert
 	actionRules    map[string]*ActionRule
 	groups         map[string]*CameraGroup
 	quotas         map[string]*StorageQuota
+	snapshots      []*Snapshot
 	stopCh         chan struct{}
 	running        bool
-	onEvent        func(*Event) // 事件回调
+	onAlert        func(*Alert) // 告警回调
 }
 
 // NewManager 创建管理器
 func NewManager() *Manager {
-	return &Manager{
+	m := &Manager{
 		cameras:     make(map[string]*Camera),
 		streams:     make(map[string]*CameraStream),
 		recordings:  make([]*Recording, 0),
 		schedules:   make(map[string]*RecordingSchedule),
 		motions:     make(map[string]*MotionDetection),
-		events:      make([]*Event, 0),
+		events:      make([]*MotionEvent, 0),
+		alerts:      make([]*Alert, 0),
 		actionRules: make(map[string]*ActionRule),
 		groups:      make(map[string]*CameraGroup),
 		quotas:      make(map[string]*StorageQuota),
+		snapshots:   make([]*Snapshot, 0),
 		stopCh:      make(chan struct{}),
 	}
+
+	// 初始化模拟数据
+	m.initMockData()
+
+	return m
+}
+
+// generateID 生成唯一ID
+func generateID(prefix string) string {
+	return fmt.Sprintf("%s_%d_%04x", prefix, time.Now().UnixNano(), rand.Intn(0xffff))
+}
+
+// initMockData 初始化模拟数据
+func (m *Manager) initMockData() {
+	// 添加模拟摄像头
+	mockCameras := []Camera{
+		{
+			ID: "cam-001", Name: "前门摄像头", Protocol: ProtocolRTSP,
+			RTSPUrl: "rtsp://192.168.1.100:554/stream1", Host: "192.168.1.100", Port: 554,
+			StreamPath: "/stream1", Status: CameraStatusOnline, Resolution: "1920x1080",
+			FPS: 25, Bitrate: 4096, Location: "前门", Enabled: true,
+		},
+		{
+			ID: "cam-002", Name: "后院摄像头", Protocol: ProtocolRTSP,
+			RTSPUrl: "rtsp://192.168.1.101:554/stream1", Host: "192.168.1.101", Port: 554,
+			StreamPath: "/stream1", Status: CameraStatusOnline, Resolution: "1920x1080",
+			FPS: 25, Bitrate: 4096, Location: "后院", Enabled: true,
+		},
+		{
+			ID: "cam-003", Name: "车库摄像头", Protocol: ProtocolONVIF,
+			RTSPUrl: "rtsp://192.168.1.102:554/stream1", Host: "192.168.1.102", Port: 554,
+			StreamPath: "/stream1", Status: CameraStatusOffline, Resolution: "1280x720",
+			FPS: 15, Bitrate: 2048, Location: "车库", Enabled: true,
+		},
+	}
+
+	for i := range mockCameras {
+		cam := &mockCameras[i]
+		cam.CreatedAt = time.Now().Add(-time.Duration(rand.Intn(30)) * 24 * time.Hour)
+		cam.UpdatedAt = time.Now()
+		m.cameras[cam.ID] = cam
+	}
+
+	// 添加默认分组
+	m.groups["group-default"] = &CameraGroup{
+		ID:   "group-default",
+		Name: "默认分组",
+		CameraIDs: []string{"cam-001", "cam-002", "cam-003"},
+		Layout: Layout{Rows: 2, Columns: 2},
+		CreatedAt: time.Now(),
+	}
+
+	// 添加模拟告警
+	m.alerts = append(m.alerts, &Alert{
+		ID:         generateID("alert"),
+		CameraID:   "cam-001",
+		CameraName: "前门摄像头",
+		EventType:  EventMotionDetection,
+		Level:      AlertLevelWarning,
+		Message:    "检测到前门区域有移动",
+		Status:     AlertStatusPending,
+		CreatedAt:  time.Now().Add(-10 * time.Minute),
+	})
 }
 
 // ========== 摄像头管理 ==========
@@ -250,7 +118,7 @@ func (m *Manager) AddCamera(cam *Camera) error {
 	defer m.mu.Unlock()
 
 	if cam.ID == "" {
-		return fmt.Errorf("camera ID is required")
+		cam.ID = generateID("cam")
 	}
 	if _, exists := m.cameras[cam.ID]; exists {
 		return fmt.Errorf("camera %s already exists", cam.ID)
@@ -275,7 +143,7 @@ func (m *Manager) RemoveCamera(id string) error {
 		return fmt.Errorf("camera %s not found", id)
 	}
 
-	// 停止流
+	// 停止流并清理相关数据
 	delete(m.streams, id)
 	delete(m.cameras, id)
 	delete(m.motions, id)
@@ -338,11 +206,13 @@ func (m *Manager) UpdateCameraStatus(id string, status CameraStatus) error {
 	cam.Status = status
 	cam.UpdatedAt = time.Now()
 
-	// 断线/恢复事件
+	// 断线/恢复事件生成告警
 	if oldStatus == CameraStatusOnline && status == CameraStatusOffline {
-		m.addEvent(id, EventDisconnect, fmt.Sprintf("摄像头 %s 断线", cam.Name))
+		m.generateAlert(id, EventDisconnect, AlertLevelCritical,
+			fmt.Sprintf("摄像头 %s 断线", cam.Name))
 	} else if oldStatus == CameraStatusOffline && status == CameraStatusOnline {
-		m.addEvent(id, EventReconnect, fmt.Sprintf("摄像头 %s 恢复连接", cam.Name))
+		m.generateAlert(id, EventReconnect, AlertLevelInfo,
+			fmt.Sprintf("摄像头 %s 恢复连接", cam.Name))
 	}
 
 	return nil
@@ -350,7 +220,7 @@ func (m *Manager) UpdateCameraStatus(id string, status CameraStatus) error {
 
 // ========== 实时流管理 ==========
 
-// StartStream 开始实时流
+// StartStream 开始实时流（模拟）
 func (m *Manager) StartStream(cameraID string) (*CameraStream, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -363,8 +233,10 @@ func (m *Manager) StartStream(cameraID string) (*CameraStream, error) {
 		return nil, fmt.Errorf("camera %s is not online", cameraID)
 	}
 
-	// 构建流URL
-	streamURL := fmt.Sprintf("rtsp://%s:%d%s", cam.Host, cam.Port, cam.StreamPath)
+	streamURL := cam.RTSPUrl
+	if streamURL == "" {
+		streamURL = fmt.Sprintf("rtsp://%s:%d%s", cam.Host, cam.Port, cam.StreamPath)
+	}
 
 	stream := &CameraStream{
 		CameraID:   cameraID,
@@ -427,12 +299,13 @@ func (m *Manager) StartRecording(cameraID string, mode RecordingMode) (*Recordin
 	}
 
 	recording := &Recording{
-		ID:         fmt.Sprintf("rec_%s_%d", cameraID, time.Now().UnixNano()),
+		ID:         generateID("rec"),
 		CameraID:   cameraID,
 		Mode:       mode,
 		StartTime:  time.Now(),
 		Resolution: cam.Resolution,
 		Bitrate:    cam.Bitrate,
+		FilePath:   fmt.Sprintf("/recordings/%s/%s.mp4", cameraID, time.Now().Format("20060102_150405")),
 		CreatedAt:  time.Now(),
 	}
 
@@ -450,6 +323,7 @@ func (m *Manager) StopRecording(recordingID string) error {
 		if rec.ID == recordingID && rec.EndTime.IsZero() {
 			rec.EndTime = time.Now()
 			rec.Duration = rec.EndTime.Sub(rec.StartTime)
+			rec.FileSize = int64(rec.Duration.Seconds()) * int64(rec.Bitrate) * 128 // 模拟文件大小
 			log.Printf("[surveillance] recording stopped: %s (duration: %s)", recordingID, rec.Duration)
 			return nil
 		}
@@ -484,22 +358,7 @@ func (m *Manager) GetRecording(id string) (*Recording, error) {
 	return nil, fmt.Errorf("recording %s not found", id)
 }
 
-// GetRecordingsByTime 按时间范围查询录像
-func (m *Manager) GetRecordingsByTime(cameraID string, start, end time.Time) []*Recording {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	var result []*Recording
-	for _, rec := range m.recordings {
-		if rec.CameraID != cameraID {
-			continue
-		}
-		if !rec.StartTime.Before(start) && (rec.EndTime.IsZero() || !rec.EndTime.After(end)) {
-			result = append(result, rec)
-		}
-	}
-	return result
-}
+// ========== 录像计划 ==========
 
 // AddSchedule 添加录像计划
 func (m *Manager) AddSchedule(schedule *RecordingSchedule) error {
@@ -507,27 +366,15 @@ func (m *Manager) AddSchedule(schedule *RecordingSchedule) error {
 	defer m.mu.Unlock()
 
 	if schedule.ID == "" {
-		return fmt.Errorf("schedule ID is required")
+		schedule.ID = generateID("sched")
 	}
 	if _, exists := m.cameras[schedule.CameraID]; !exists {
 		return fmt.Errorf("camera %s not found", schedule.CameraID)
 	}
 
+	schedule.CreatedAt = time.Now()
 	m.schedules[schedule.ID] = schedule
 	log.Printf("[surveillance] schedule added: %s", schedule.ID)
-	return nil
-}
-
-// RemoveSchedule 删除录像计划
-func (m *Manager) RemoveSchedule(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.schedules[id]; !exists {
-		return fmt.Errorf("schedule %s not found", id)
-	}
-
-	delete(m.schedules, id)
 	return nil
 }
 
@@ -545,7 +392,7 @@ func (m *Manager) ListSchedules(cameraID string) []*RecordingSchedule {
 	return result
 }
 
-// ========== 移动侦测 ==========
+// ========== 移动侦测和AI检测 ==========
 
 // SetMotionDetection 配置移动侦测
 func (m *Manager) SetMotionDetection(config *MotionDetection) error {
@@ -557,7 +404,8 @@ func (m *Manager) SetMotionDetection(config *MotionDetection) error {
 	}
 
 	m.motions[config.CameraID] = config
-	log.Printf("[surveillance] motion detection updated: camera=%s, enabled=%v", config.CameraID, config.Enabled)
+	log.Printf("[surveillance] motion detection updated: camera=%s, enabled=%v, ai=%v",
+		config.CameraID, config.Enabled, config.AIDetection)
 	return nil
 }
 
@@ -573,77 +421,67 @@ func (m *Manager) GetMotionDetection(cameraID string) (*MotionDetection, error) 
 	return config, nil
 }
 
-// TriggerMotionEvent 触发移动侦测事件
-func (m *Manager) TriggerMotionEvent(cameraID string, region string) error {
+// SimulateMotionEvent 模拟移动侦测事件（用于演示）
+func (m *Manager) SimulateMotionEvent(cameraID string) (*MotionEvent, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	config, exists := m.motions[cameraID]
-	if !exists || !config.Enabled {
-		return fmt.Errorf("motion detection not enabled for camera %s", cameraID)
+	cam, exists := m.cameras[cameraID]
+	if !exists {
+		return nil, fmt.Errorf("camera %s not found", cameraID)
 	}
 
-	cam := m.cameras[cameraID]
-	msg := fmt.Sprintf("移动侦测触发: %s", cam.Name)
-	if region != "" {
-		msg += fmt.Sprintf(" (区域: %s)", region)
+	config, hasMotion := m.motions[cameraID]
+	isHuman := false
+	confidence := 0.5 + rand.Float64()*0.5
+
+	if hasMotion && config.AIDetection {
+		// AI人形检测模拟 - 60%概率检测到人
+		isHuman = rand.Float64() > 0.4
+		if isHuman {
+			confidence = 0.8 + rand.Float64()*0.2
+		}
 	}
 
-	m.addEvent(cameraID, EventMotionDetection, msg)
-	m.triggerActions(cameraID, EventMotionDetection)
-	return nil
-}
+	event := &MotionEvent{
+		ID:         generateID("motion"),
+		CameraID:   cameraID,
+		Confidence: confidence,
+		IsHuman:    isHuman,
+		SnapshotURL: fmt.Sprintf("/api/v1/surveillance/cameras/%s/snapshot", cameraID),
+		Timestamp:  time.Now(),
+	}
 
-// ========== 告警事件 ==========
-
-// addEvent 添加事件（内部方法，调用者需持有锁）
-func (m *Manager) addEvent(cameraID string, eventType EventType, message string) {
-	event := &Event{
-		ID:        fmt.Sprintf("evt_%s_%d", cameraID, time.Now().UnixNano()),
-		CameraID:  cameraID,
-		Type:      eventType,
-		Message:   message,
-		Timestamp: time.Now(),
+	// 如果有配置的区域，随机选择一个
+	if hasMotion && len(config.Regions) > 0 {
+		region := config.Regions[rand.Intn(len(config.Regions))]
+		event.RegionID = region.ID
+		event.RegionName = region.Name
 	}
 
 	m.events = append(m.events, event)
-	log.Printf("[surveillance] event: %s - %s", event.ID, message)
 
-	// 调用回调
-	if m.onEvent != nil {
-		go m.onEvent(event)
+	// 生成告警
+	level := AlertLevelInfo
+	msg := fmt.Sprintf("摄像头 %s 检测到移动", cam.Name)
+	if isHuman {
+		level = AlertLevelWarning
+		msg = fmt.Sprintf("摄像头 %s 检测到人形活动 (置信度: %.1f%%)", cam.Name, confidence*100)
 	}
+	m.generateAlert(cameraID, EventMotionDetection, level, msg)
+
+	log.Printf("[surveillance] motion event: camera=%s, human=%v, confidence=%.2f",
+		cameraID, isHuman, confidence)
+
+	return event, nil
 }
 
-// triggerActions 触发联动动作（内部方法，调用者需持有锁）
-func (m *Manager) triggerActions(cameraID string, eventType EventType) {
-	for _, rule := range m.actionRules {
-		if rule.CameraID == cameraID && rule.EventType == eventType && rule.Enabled {
-			for _, action := range rule.Actions {
-				switch action {
-				case ActionRecord:
-					// 触发录像
-					go func() {
-						m.StartRecording(cameraID, RecordingModeEvent)
-					}()
-				case ActionNotify:
-					log.Printf("[surveillance] notification sent for camera %s", cameraID)
-				case ActionBuzzer:
-					log.Printf("[surveillance] buzzer triggered for camera %s", cameraID)
-				case ActionSnapshot:
-					log.Printf("[surveillance] snapshot taken for camera %s", cameraID)
-				}
-			}
-		}
-	}
-}
-
-// GetEvents 获取事件列表
-func (m *Manager) GetEvents(cameraID string, limit int) []*Event {
+// GetMotionEvents 获取移动侦测事件列表
+func (m *Manager) GetMotionEvents(cameraID string, limit int) []*MotionEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var result []*Event
+	var result []*MotionEvent
 	count := 0
 	for i := len(m.events) - 1; i >= 0 && (limit <= 0 || count < limit); i-- {
 		if cameraID == "" || m.events[i].CameraID == cameraID {
@@ -654,21 +492,83 @@ func (m *Manager) GetEvents(cameraID string, limit int) []*Event {
 	return result
 }
 
-// AckEvent 确认事件
-func (m *Manager) AckEvent(eventID, ackedBy string) error {
+// ========== 告警管理 ==========
+
+// generateAlert 生成告警（内部方法，调用者需持有锁）
+func (m *Manager) generateAlert(cameraID string, eventType EventType, level AlertLevel, message string) {
+	cam, exists := m.cameras[cameraID]
+	camName := cameraID
+	if exists {
+		camName = cam.Name
+	}
+
+	alert := &Alert{
+		ID:         generateID("alert"),
+		CameraID:   cameraID,
+		CameraName: camName,
+		EventType:  eventType,
+		Level:      level,
+		Message:    message,
+		Status:     AlertStatusPending,
+		CreatedAt:  time.Now(),
+	}
+
+	m.alerts = append(m.alerts, alert)
+	log.Printf("[surveillance] alert generated: %s - %s", alert.ID, message)
+
+	// 调用回调
+	if m.onAlert != nil {
+		go m.onAlert(alert)
+	}
+}
+
+// GetAlerts 获取告警列表
+func (m *Manager) GetAlerts(cameraID string, status AlertStatus, limit int) []*Alert {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var result []*Alert
+	count := 0
+	for i := len(m.alerts) - 1; i >= 0 && (limit <= 0 || count < limit); i-- {
+		alert := m.alerts[i]
+		if cameraID != "" && alert.CameraID != cameraID {
+			continue
+		}
+		if status != "" && alert.Status != status {
+			continue
+		}
+		result = append(result, alert)
+		count++
+	}
+	return result
+}
+
+// AckAlert 确认告警
+func (m *Manager) AckAlert(alertID, ackedBy string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	for _, event := range m.events {
-		if event.ID == eventID {
-			event.Acked = true
-			event.AckedBy = ackedBy
-			event.AckedAt = time.Now()
+	for _, alert := range m.alerts {
+		if alert.ID == alertID {
+			alert.Status = AlertStatusAcked
+			alert.AckedBy = ackedBy
+			alert.AckedAt = time.Now()
+			log.Printf("[surveillance] alert acked: %s by %s", alertID, ackedBy)
 			return nil
 		}
 	}
-	return fmt.Errorf("event %s not found", eventID)
+	return fmt.Errorf("alert %s not found", alertID)
 }
+
+// SetAlertCallback 设置告警回调
+func (m *Manager) SetAlertCallback(callback func(*Alert)) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.onAlert = callback
+}
+
+// ========== 联动规则 ==========
 
 // AddActionRule 添加联动规则
 func (m *Manager) AddActionRule(rule *ActionRule) error {
@@ -676,7 +576,7 @@ func (m *Manager) AddActionRule(rule *ActionRule) error {
 	defer m.mu.Unlock()
 
 	if rule.ID == "" {
-		return fmt.Errorf("action rule ID is required")
+		rule.ID = generateID("rule")
 	}
 	if _, exists := m.cameras[rule.CameraID]; !exists {
 		return fmt.Errorf("camera %s not found", rule.CameraID)
@@ -684,19 +584,6 @@ func (m *Manager) AddActionRule(rule *ActionRule) error {
 
 	m.actionRules[rule.ID] = rule
 	log.Printf("[surveillance] action rule added: %s", rule.ID)
-	return nil
-}
-
-// RemoveActionRule 删除联动规则
-func (m *Manager) RemoveActionRule(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.actionRules[id]; !exists {
-		return fmt.Errorf("action rule %s not found", id)
-	}
-
-	delete(m.actionRules, id)
 	return nil
 }
 
@@ -714,7 +601,54 @@ func (m *Manager) ListActionRules(cameraID string) []*ActionRule {
 	return result
 }
 
-// ========== 分组和布局 ==========
+// ========== 快照 ==========
+
+// TakeSnapshot 抓取快照（模拟）
+func (m *Manager) TakeSnapshot(cameraID string) (*Snapshot, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	cam, exists := m.cameras[cameraID]
+	if !exists {
+		return nil, fmt.Errorf("camera %s not found", cameraID)
+	}
+
+	// 解析分辨率
+	width, height := 1920, 1080
+	fmt.Sscanf(cam.Resolution, "%dx%d", &width, &height)
+
+	snapshot := &Snapshot{
+		ID:        generateID("snap"),
+		CameraID:  cameraID,
+		FilePath:  fmt.Sprintf("/snapshots/%s/%s.jpg", cameraID, time.Now().Format("20060102_150405")),
+		Width:     width,
+		Height:    height,
+		Size:      int64(100 + rand.Intn(400)) * 1024, // 100-500KB
+		CreatedAt: time.Now(),
+	}
+
+	m.snapshots = append(m.snapshots, snapshot)
+	log.Printf("[surveillance] snapshot taken: %s (camera: %s)", snapshot.ID, cameraID)
+	return snapshot, nil
+}
+
+// GetSnapshots 获取快照列表
+func (m *Manager) GetSnapshots(cameraID string, limit int) []*Snapshot {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var result []*Snapshot
+	count := 0
+	for i := len(m.snapshots) - 1; i >= 0 && (limit <= 0 || count < limit); i-- {
+		if cameraID == "" || m.snapshots[i].CameraID == cameraID {
+			result = append(result, m.snapshots[i])
+			count++
+		}
+	}
+	return result
+}
+
+// ========== 分组管理 ==========
 
 // CreateGroup 创建摄像头分组
 func (m *Manager) CreateGroup(group *CameraGroup) error {
@@ -722,7 +656,7 @@ func (m *Manager) CreateGroup(group *CameraGroup) error {
 	defer m.mu.Unlock()
 
 	if group.ID == "" {
-		return fmt.Errorf("group ID is required")
+		group.ID = generateID("group")
 	}
 	if _, exists := m.groups[group.ID]; exists {
 		return fmt.Errorf("group %s already exists", group.ID)
@@ -738,19 +672,6 @@ func (m *Manager) CreateGroup(group *CameraGroup) error {
 	group.CreatedAt = time.Now()
 	m.groups[group.ID] = group
 	log.Printf("[surveillance] group created: %s (%s)", group.ID, group.Name)
-	return nil
-}
-
-// DeleteGroup 删除分组
-func (m *Manager) DeleteGroup(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.groups[id]; !exists {
-		return fmt.Errorf("group %s not found", id)
-	}
-
-	delete(m.groups, id)
 	return nil
 }
 
@@ -771,6 +692,19 @@ func (m *Manager) UpdateGroup(group *CameraGroup) error {
 	}
 
 	m.groups[group.ID] = group
+	return nil
+}
+
+// DeleteGroup 删除分组
+func (m *Manager) DeleteGroup(id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.groups[id]; !exists {
+		return fmt.Errorf("group %s not found", id)
+	}
+
+	delete(m.groups, id)
 	return nil
 }
 
@@ -826,51 +760,66 @@ func (m *Manager) GetStorageQuota(cameraID string) (*StorageQuota, error) {
 	return quota, nil
 }
 
-// CheckStorageQuota 检查存储配额
-func (m *Manager) CheckStorageQuota(cameraID string) (bool, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	quota, exists := m.quotas[cameraID]
-	if !exists {
-		return true, nil // 没有配额限制
-	}
-
-	return quota.CurrentSizeGB < quota.MaxSizeGB, nil
-}
-
-// ========== 系统管理 ==========
-
-// SetEventCallback 设置事件回调
-func (m *Manager) SetEventCallback(callback func(*Event)) {
+// CheckAndCleanStorage 检查并清理存储（循环录像）
+func (m *Manager) CheckAndCleanStorage() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	m.onEvent = callback
+	for cameraID, quota := range m.quotas {
+		if !quota.LoopRecording {
+			continue
+		}
+		if quota.CurrentSizeGB >= quota.MaxSizeGB {
+			// 模拟清理旧录像
+			log.Printf("[surveillance] cleaning old recordings for camera %s (used: %dGB, max: %dGB)",
+				cameraID, quota.CurrentSizeGB, quota.MaxSizeGB)
+			quota.CurrentSizeGB = quota.MaxSizeGB * 80 / 100 // 清理到80%
+		}
+	}
 }
 
-// GetStatus 获取系统状态
-func (m *Manager) GetStatus() map[string]interface{} {
+// ========== 统计 ==========
+
+// GetStats 获取监控系统统计
+func (m *Manager) GetStats() *SurveillanceStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	onlineCount := 0
+	stats := &SurveillanceStats{
+		TotalCameras:    len(m.cameras),
+		ActiveStreams:    len(m.streams),
+		TotalRecordings: len(m.recordings),
+		TotalEvents:     len(m.events),
+		TotalAlerts:     len(m.alerts),
+		TotalGroups:     len(m.groups),
+		TotalSchedules:  len(m.schedules),
+	}
+
+	// 统计在线摄像头
 	for _, cam := range m.cameras {
-		if cam.Status == CameraStatusOnline {
-			onlineCount++
+		switch cam.Status {
+		case CameraStatusOnline:
+			stats.OnlineCameras++
+		case CameraStatusOffline:
+			stats.OfflineCameras++
 		}
 	}
 
-	return map[string]interface{}{
-		"totalCameras":   len(m.cameras),
-		"onlineCameras":  onlineCount,
-		"offlineCameras": len(m.cameras) - onlineCount,
-		"activeStreams":   len(m.streams),
-		"totalRecordings": len(m.recordings),
-		"totalEvents":     len(m.events),
-		"totalGroups":     len(m.groups),
+	// 统计待处理告警
+	for _, alert := range m.alerts {
+		if alert.Status == AlertStatusPending {
+			stats.PendingAlerts++
+		}
 	}
+
+	// 模拟存储使用
+	stats.StorageUsedGB = float64(len(m.recordings)) * 0.5 // 每个录像约0.5GB
+	stats.StorageTotalGB = 1000.0                            // 总共1TB
+
+	return stats
 }
+
+// ========== 系统管理 ==========
 
 // Start 启动管理器
 func (m *Manager) Start() {
@@ -914,6 +863,7 @@ func (m *Manager) monitorLoop() {
 			return
 		case <-ticker.C:
 			m.checkCameraStatus()
+			m.CheckAndCleanStorage()
 		}
 	}
 }
@@ -925,9 +875,8 @@ func (m *Manager) checkCameraStatus() {
 
 	// 模拟检查摄像头在线状态
 	for _, cam := range m.cameras {
-		if cam.Enabled {
+		if cam.Enabled && cam.Status == CameraStatusOnline {
 			// 这里实际实现应该是 ping 摄像头或检查 RTSP 连接
-			// 暂时只记录日志
 			log.Printf("[surveillance] checking camera status: %s", cam.ID)
 		}
 	}

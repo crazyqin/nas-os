@@ -34,6 +34,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 		// Repositories
 		gitops.GET("/repos", h.ListRepos)
 		gitops.GET("/repos/:id", h.GetRepo)
+		gitops.POST("/repos", h.AddRepo)
 
 		// Sync
 		gitops.POST("/sync", h.TriggerSync)
@@ -47,6 +48,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 		// Drift
 		gitops.GET("/drift", h.GetDriftSummary)
 		gitops.GET("/drift/:repo_id/:env", h.GetDriftDetails)
+		gitops.POST("/drift/detect", h.DetectDrift)
 
 		// Reconcile
 		gitops.POST("/reconcile", h.TriggerReconcile)
@@ -181,4 +183,38 @@ func (h *Handler) TriggerReconcile(c *gin.Context) {
 	}()
 
 	c.JSON(http.StatusAccepted, gin.H{"message": "reconciliation triggered"})
+}
+
+// AddRepo handles POST /api/v1/gitops/repos
+func (h *Handler) AddRepo(c *gin.Context) {
+	var req AddRepoRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	repo, err := h.engine.AddRepo(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, repo)
+}
+
+// DetectDrift handles POST /api/v1/gitops/drift/detect
+func (h *Handler) DetectDrift(c *gin.Context) {
+	var req DriftDetectionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	detection, err := h.engine.DetectDrift(req.RepoID, req.Environment)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, detection)
 }

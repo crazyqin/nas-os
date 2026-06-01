@@ -379,6 +379,95 @@ type MigrationTask struct {
 	ErrorMsg      string    `json:"error_msg,omitempty"`
 }
 
+// ========== 新增类型：ZFSDataset, RAIDZExpansion, IntegrityReport ==========
+
+// ZFSDataset ZFS数据集信息
+type ZFSDataset struct {
+	Name           string            `json:"name"`
+	PoolName       string            `json:"pool_name"`
+	Type           string            `json:"type"`            // filesystem, volume
+	UsedBytes      int64             `json:"used_bytes"`
+	AvailBytes     int64             `json:"avail_bytes"`
+	ReferBytes     int64             `json:"refer_bytes"`
+	UsedPercent    float64           `json:"used_percent"`
+	MountPoint     string            `json:"mount_point"`
+	Compression    CompressionType   `json:"compression"`
+	Dedup          DedupMode         `json:"dedup"`
+	RecordSize     int               `json:"record_size"`
+	QuotaBytes     int64             `json:"quota_bytes"`
+	ReserveBytes   int64             `json:"reserve_bytes"`
+	SnapshotCount  int               `json:"snapshot_count"`
+	Clones         []string          `json:"clones,omitempty"`
+	Properties     map[string]string `json:"properties,omitempty"`
+	CreatedAt      time.Time         `json:"created_at"`
+}
+
+// RAIDZExpansion RAID-Z扩展任务
+type RAIDZExpansion struct {
+	ID             string    `json:"id"`
+	PoolName       string    `json:"pool_name"`
+	Status         string    `json:"status"`          // pending, running, completed, failed
+	OldRaidType    RaidType  `json:"old_raid_type"`
+	NewRaidType    RaidType  `json:"new_raid_type"`
+	NewDisks       []string  `json:"new_disks"`
+	Progress       float64   `json:"progress"`
+	StartTime      time.Time `json:"start_time"`
+	EndTime        time.Time `json:"end_time,omitempty"`
+	EstimatedTime  string    `json:"estimated_time,omitempty"`
+	BytesResilvered int64    `json:"bytes_resilvered"`
+	ErrorMsg       string    `json:"error_msg,omitempty"`
+}
+
+// IntegrityReport 数据完整性报告
+type IntegrityReport struct {
+	ID                 string                   `json:"id"`
+	PoolName           string                   `json:"pool_name"`
+	GeneratedAt        time.Time                `json:"generated_at"`
+	OverallStatus      string                   `json:"overall_status"` // healthy, degraded, critical
+	HealthScore        float64                  `json:"health_score"`
+	LastScrubTime      time.Time                `json:"last_scrub_time,omitempty"`
+	ScrubErrors        int64                    `json:"scrub_errors"`
+	ScrubRepaired      int64                    `json:"scrub_repaired"`
+	ChecksumErrors     int64                    `json:"checksum_errors"`
+	ReadErrors         int64                    `json:"read_errors"`
+	WriteErrors        int64                    `json:"write_errors"`
+	TotalDisks         int                      `json:"total_disks"`
+	HealthyDisks       int                      `json:"healthy_disks"`
+	DegradedDisks      int                      `json:"degraded_disks"`
+	FailedDisks        int                      `json:"failed_disks"`
+	DiskDetails        []DiskIntegrityDetail    `json:"disk_details"`
+	CheckResults       []IntegrityCheckResult   `json:"check_results,omitempty"`
+	Recommendations    []string                 `json:"recommendations,omitempty"`
+}
+
+// DiskIntegrityDetail 磁盘完整性详情
+type DiskIntegrityDetail struct {
+	Name            string  `json:"name"`
+	Path            string  `json:"path"`
+	Status          string  `json:"status"`
+	ReadErrors      int64   `json:"read_errors"`
+	WriteErrors     int64   `json:"write_errors"`
+	ChecksumErrors  int64   `json:"checksum_errors"`
+	SMARTHealth     string  `json:"smart_health"`
+	Temperature     int     `json:"temperature"`
+	PowerOnHours    int64   `json:"power_on_hours"`
+	ReallocatedSectors int64 `json:"reallocated_sectors"`
+}
+
+// SnapshotCloneRequest 快照克隆请求
+type SnapshotCloneRequest struct {
+	Dataset       string `json:"dataset" binding:"required"`
+	SnapshotName  string `json:"snapshot_name" binding:"required"`
+	TargetDataset string `json:"target_dataset" binding:"required"`
+}
+
+// ExpandRAIDZRequest RAID-Z扩展请求
+type ExpandRAIDZRequest struct {
+	PoolName   string   `json:"pool_name" binding:"required"`
+	NewDisks   []string `json:"new_disks" binding:"required,min=1"`
+	NewRaidType string  `json:"new_raid_type,omitempty"`
+}
+
 // IOBottleneck IO瓶颈分析
 type IOBottleneck struct {
 	Device        string  `json:"device"`

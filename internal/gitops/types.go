@@ -167,3 +167,45 @@ type SyncRequest struct {
 	Force       bool        `json:"force"` // force sync even if no changes
 	Revision    string      `json:"revision,omitempty"` // specific revision
 }
+
+// ========== GitOps 增强类型 ==========
+
+// DriftDetection 漂移检测结果
+type DriftDetection struct {
+	ID          string      `json:"id"`
+	RepoID      string      `json:"repo_id"`
+	Environment Environment `json:"environment"`
+	DetectedAt  time.Time   `json:"detected_at"`
+	Drifted     bool        `json:"drifted"`
+	Items       []DriftItem `json:"items,omitempty"`
+	Summary     string      `json:"summary"`
+}
+
+// RollbackRecord 回滚记录
+type RollbackRecord struct {
+	ID             string           `json:"id"`
+	DeploymentID   string           `json:"deployment_id"`
+	RepoID         string           `json:"repo_id"`
+	Environment    Environment      `json:"environment"`
+	FromRevision   string           `json:"from_revision"`
+	ToRevision     string           `json:"to_revision"`
+	Status         DeploymentStatus `json:"status"`
+	Reason         string           `json:"reason,omitempty"`
+	RolledBackAt   time.Time        `json:"rolled_back_at"`
+	CompletedAt    *time.Time       `json:"completed_at,omitempty"`
+}
+
+// AddRepoRequest 添加仓库请求
+type AddRepoRequest struct {
+	Name   string   `json:"name" binding:"required"`
+	URL    string   `json:"url" binding:"required"`
+	Branch string   `json:"branch"`
+	Path   string   `json:"path"`
+	Auth   GitAuth  `json:"auth,omitempty"`
+}
+
+// DriftDetectionRequest 漂移检测请求
+type DriftDetectionRequest struct {
+	RepoID      string      `json:"repo_id" binding:"required"`
+	Environment Environment `json:"environment" binding:"required"`
+}

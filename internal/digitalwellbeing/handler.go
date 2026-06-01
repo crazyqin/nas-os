@@ -1,248 +1,335 @@
+// Package digitalwellbeing 提供 REST API 处理器
 package digitalwellbeing
 
 import (
-	"encoding/json"
 	"net/http"
-	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
-// Handler handles HTTP requests for digital wellbeing
-type Handler struct {
+// Handlers 数字健康 API 处理器
+type Handlers struct {
 	manager *Manager
 }
 
-// NewHandler creates a new digital wellbeing handler
-func NewHandler(manager *Manager) *Handler {
-	return &Handler{manager: manager}
+// NewHandlers 创建处理器
+func NewHandlers(manager *Manager) *Handlers {
+	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
-func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/v1/wellbeing/usage", h.handleUsage)
-	mux.HandleFunc("/api/v1/wellbeing/daily", h.handleDaily)
-	mux.HandleFunc("/api/v1/wellbeing/goals", h.handleGoals)
-	mux.HandleFunc("/api/v1/wellbeing/focus", h.handleFocus)
-	mux.HandleFunc("/api/v1/wellbeing/parental", h.handleParental)
-	mux.HandleFunc("/api/v1/wellbeing/report", h.handleReport)
-	mux.HandleFunc("/api/v1/wellbeing/alerts", h.handleAlerts)
-	mux.HandleFunc("/api/v1/wellbeing/stats", h.handleStats)
-}
+// RegisterRoutes 注册路由
+func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
+	wellbeing := r.Group("/wellbeing")
+	{
+		// 屏幕时间
+		wellbeing.GET("/screen-time", h.getScreenTime)
+		wellbeing.GET("/screen-time/range", h.getScreenTimeRange)
 
-// handleUsage handles usage recording
-func (h *Handler) handleUsage(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		var record UsageRecord
-		if err := json.NewDecoder(r.Body).Decode(&record); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
-			return
-		}
-		if err := h.manager.RecordUsage(&record); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(record)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		// 使用模式分析
+		wellbeing.GET("/patterns", h.getPatterns)
+
+		// 专注模式
+		wellbeing.POST("/focus", h.startFocus)
+		wellbeing.GET("/focus", h.listFocusSessions)
+		wellbeing.GET("/focus/:id", h.getFocusSession)
+		wellbeing.PUT("/focus/:id/stop", h.stopFocus)
+
+		// 家庭成员
+		wellbeing.GET("/family", h.listMembers)
+		wellbeing.POST("/family", h.addMember)
+		wellbeing.PUT("/family/:id", h.updateMember)
+		wellbeing.DELETE("/family/:id", h.removeMember)
+
+		// 健康报告
+		wellbeing.GET("/report", h.getReport)
+
+		// 停机时间
+		wellbeing.GET("/downtime", h.getDowntime)
+		wellbeing.POST("/downtime", h.setDowntime)
+
+		// 应用限制
+		wellbeing.GET("/limits", h.getAppLimits)
+		wellbeing.POST("/limits", h.setAppLimit)
 	}
 }
 
-// handleDaily handles daily usage requests
-func (h *Handler) handleDaily(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	
-	userID := r.URL.Query().Get("user_id")
-	if userID == "" {
-		http.Error(w, "user_id is required", http.StatusBadRequest)
-		return
-	}
-	
-	dateStr := r.URL.Query().Get("date")
-	date := time.Now()
-	if dateStr != "" {
-		var err error
-		date, err = time.Parse("2006-01-02", dateStr)
-		if err != nil {
-			http.Error(w, "Invalid date format", http.StatusBadRequest)
-			return
-		}
-	}
-	
-	usage := h.manager.GetDailyUsage(userID, date)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(usage)
+// response 标准响应
+type response struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
-// handleGoals handles goals management
-func (h *Handler) handleGoals(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		userID := r.URL.Query().Get("user_id")
-		h.manager.mu.RLock()
-		goals := make([]*UsageGoal, 0)
-		for _, g := range h.manager.goals {
-			if userID == "" || g.UserID == userID {
-				goals = append(goals, g)
-			}
-		}
-		h.manager.mu.RUnlock()
-		
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"goals": goals,
-			"total": len(goals),
+// getScreenTime 获取屏幕时间
+func (h *Handlers) getScreenTime(c *gin.Context) {
+	userID := c.Query("user_id")
+	date := c.Query("date")
+
+	if userID == "" || date == "" {
+		c.JSON(http.StatusBadRequest, response{
+			Code:    1,
+			Message: "user_id and date are required",
 		})
-	case http.MethodPost:
-		var goal UsageGoal
-		if err := json.NewDecoder(r.Body).Decode(&goal); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
-			return
-		}
-		if err := h.manager.SetGoal(&goal); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(goal)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
+
+	st, err := h.manager.GetScreenTime(userID, date)
+	if err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: st})
 }
 
-// handleFocus handles focus mode management
-func (h *Handler) handleFocus(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		h.manager.mu.RLock()
-		modes := make([]*FocusMode, 0)
-		for _, m := range h.manager.focusModes {
-			modes = append(modes, m)
-		}
-		h.manager.mu.RUnlock()
-		
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"modes": modes,
-			"total": len(modes),
+// getScreenTimeRange 获取时间段内的屏幕时间
+func (h *Handlers) getScreenTimeRange(c *gin.Context) {
+	userID := c.Query("user_id")
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	if userID == "" || startDate == "" || endDate == "" {
+		c.JSON(http.StatusBadRequest, response{
+			Code:    1,
+			Message: "user_id, start_date and end_date are required",
 		})
-	case http.MethodPost:
-		var mode FocusMode
-		if err := json.NewDecoder(r.Body).Decode(&mode); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
-			return
-		}
-		if err := h.manager.EnableFocusMode(&mode); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(mode)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-// handleParental handles parental control management
-func (h *Handler) handleParental(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		userID := r.URL.Query().Get("user_id")
-		if userID == "" {
-			http.Error(w, "user_id is required", http.StatusBadRequest)
-			return
-		}
-		
-		h.manager.mu.RLock()
-		control, ok := h.manager.parental[userID]
-		h.manager.mu.RUnlock()
-		
-		if !ok {
-			http.Error(w, "No parental control found", http.StatusNotFound)
-			return
-		}
-		
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(control)
-	case http.MethodPost:
-		var control ParentalControl
-		if err := json.NewDecoder(r.Body).Decode(&control); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
-			return
-		}
-		if err := h.manager.SetParentalControl(&control); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(control)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-// handleReport handles wellness report generation
-func (h *Handler) handleReport(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
-	userID := r.URL.Query().Get("user_id")
+
+	times, err := h.manager.GetScreenTimeRange(userID, startDate, endDate)
+	if err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: times})
+}
+
+// getPatterns 获取使用模式分析
+func (h *Handlers) getPatterns(c *gin.Context) {
+	userID := c.Query("user_id")
+	period := c.DefaultQuery("period", "weekly")
+
 	if userID == "" {
-		http.Error(w, "user_id is required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, response{
+			Code:    1,
+			Message: "user_id is required",
+		})
 		return
 	}
-	
-	period := r.URL.Query().Get("period")
-	if period == "" {
-		period = "weekly"
+
+	pattern, err := h.manager.AnalyzePatterns(userID, period)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
 	}
-	
-	report := h.manager.GenerateReport(userID, period)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(report)
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: pattern})
 }
 
-// handleAlerts handles alerts listing
-func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// startFocus 开始专注会话
+func (h *Handlers) startFocus(c *gin.Context) {
+	var req struct {
+		UserID      string   `json:"user_id" binding:"required"`
+		Name        string   `json:"name" binding:"required"`
+		DurationMin int      `json:"duration_min" binding:"required"`
+		BlockedApps []string `json:"blocked_apps,omitempty"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
 		return
 	}
-	
-	userID := r.URL.Query().Get("user_id")
-	h.manager.mu.RLock()
-	alerts := make([]*WellnessAlert, 0)
-	for _, a := range h.manager.alerts {
-		if userID == "" || a.UserID == userID {
-			alerts = append(alerts, a)
-		}
+
+	session, err := h.manager.StartFocus(req.UserID, req.Name, req.DurationMin, req.BlockedApps)
+	if err != nil {
+		c.JSON(http.StatusConflict, response{Code: 1, Message: err.Error()})
+		return
 	}
-	h.manager.mu.RUnlock()
-	
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"alerts": alerts,
-		"total":  len(alerts),
-	})
+
+	c.JSON(http.StatusCreated, response{Code: 0, Message: "focus session started", Data: session})
 }
 
-// handleStats handles statistics requests
-func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// listFocusSessions 获取专注会话列表
+func (h *Handlers) listFocusSessions(c *gin.Context) {
+	userID := c.Query("user_id")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, response{
+			Code:    1,
+			Message: "user_id is required",
+		})
 		return
 	}
-	
-	stats := h.manager.GetStats()
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(stats)
+
+	sessions := h.manager.ListFocusSessions(userID)
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: sessions})
+}
+
+// getFocusSession 获取专注会话详情
+func (h *Handlers) getFocusSession(c *gin.Context) {
+	id := c.Param("id")
+	session, err := h.manager.GetFocusSession(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: session})
+}
+
+// stopFocus 停止专注会话
+func (h *Handlers) stopFocus(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.manager.StopFocus(id); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "focus session stopped"})
+}
+
+// listMembers 获取家庭成员列表
+func (h *Handlers) listMembers(c *gin.Context) {
+	members := h.manager.ListMembers()
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: members})
+}
+
+// addMember 添加家庭成员
+func (h *Handlers) addMember(c *gin.Context) {
+	var req struct {
+		Name     string `json:"name" binding:"required"`
+		Role     string `json:"role" binding:"required"`
+		AgeGroup string `json:"age_group,omitempty"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	member := h.manager.AddMember(req.Name, req.Role, req.AgeGroup)
+	c.JSON(http.StatusCreated, response{Code: 0, Message: "member added", Data: member})
+}
+
+// updateMember 更新家庭成员
+func (h *Handlers) updateMember(c *gin.Context) {
+	id := c.Param("id")
+	var req struct {
+		Name string `json:"name,omitempty"`
+		Role string `json:"role,omitempty"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	if err := h.manager.UpdateMember(id, req.Name, req.Role); err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "member updated"})
+}
+
+// removeMember 移除家庭成员
+func (h *Handlers) removeMember(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.manager.RemoveMember(id); err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "member removed"})
+}
+
+// getReport 获取健康报告
+func (h *Handlers) getReport(c *gin.Context) {
+	userID := c.Query("user_id")
+	period := c.DefaultQuery("period", "weekly")
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	if userID == "" || startDate == "" || endDate == "" {
+		c.JSON(http.StatusBadRequest, response{
+			Code:    1,
+			Message: "user_id, start_date and end_date are required",
+		})
+		return
+	}
+
+	report, err := h.manager.GetReport(userID, period, startDate, endDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: report})
+}
+
+// getDowntime 获取停机时间计划
+func (h *Handlers) getDowntime(c *gin.Context) {
+	userID := c.Query("user_id")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, response{
+			Code:    1,
+			Message: "user_id is required",
+		})
+		return
+	}
+
+	schedule := h.manager.GetDowntimeSchedule(userID)
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: schedule})
+}
+
+// setDowntime 设置停机时间计划
+func (h *Handlers) setDowntime(c *gin.Context) {
+	var req struct {
+		UserID    string   `json:"user_id" binding:"required"`
+		Enabled   bool     `json:"enabled"`
+		StartHour int      `json:"start_hour"`
+		EndHour   int      `json:"end_hour"`
+		Days      []string `json:"days"`
+		AllowApps []string `json:"allow_apps,omitempty"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	schedule := &DowntimeSchedule{
+		Enabled:   req.Enabled,
+		StartHour: req.StartHour,
+		EndHour:   req.EndHour,
+		Days:      req.Days,
+		AllowApps: req.AllowApps,
+	}
+
+	h.manager.SetDowntimeSchedule(req.UserID, schedule)
+	c.JSON(http.StatusCreated, response{Code: 0, Message: "downtime schedule set", Data: schedule})
+}
+
+// getAppLimits 获取应用限制
+func (h *Handlers) getAppLimits(c *gin.Context) {
+	userID := c.Query("user_id")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, response{
+			Code:    1,
+			Message: "user_id is required",
+		})
+		return
+	}
+
+	limits := h.manager.GetAppLimits(userID)
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: limits})
+}
+
+// setAppLimit 设置应用限制
+func (h *Handlers) setAppLimit(c *gin.Context) {
+	var req struct {
+		UserID   string `json:"user_id" binding:"required"`
+		AppName  string `json:"app_name" binding:"required"`
+		AppID    string `json:"app_id" binding:"required"`
+		DailyMin int    `json:"daily_min" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	limit := h.manager.SetAppLimit(req.UserID, req.AppName, req.AppID, req.DailyMin)
+	c.JSON(http.StatusCreated, response{Code: 0, Message: "app limit set", Data: limit})
 }
