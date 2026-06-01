@@ -46,3 +46,4 @@ credentials.json
 # 管理员密码文件
 .admin_password
 **/.admin_passwordnasctl
+nasctl
