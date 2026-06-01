@@ -1,5 +1,4 @@
 // Package digitallegacy 提供数字遗产管理功能，支持遗产计划、受益人、资产分配、紧急访问等。
-// 参考群晖数字遗产功能设计，确保数字资产在用户意外情况下能够安全传递。
 package digitallegacy
 
 import (
@@ -21,25 +20,25 @@ const (
 type TriggerType string
 
 const (
-	TriggerManual        TriggerType = "manual"         // 手动触发
-	TriggerInactivity    TriggerType = "inactivity"     // 不活跃触发
-	TriggerDeathCert     TriggerType = "death_cert"     // 死亡证明触发
-	TriggerEmergency     TriggerType = "emergency"      // 紧急触发
-	TriggerScheduled     TriggerType = "scheduled"      // 定时触发
+	TriggerManual     TriggerType = "manual"      // 手动触发
+	TriggerInactivity TriggerType = "inactivity"  // 不活跃触发
+	TriggerDeathCert  TriggerType = "death_cert"  // 死亡证明触发
+	TriggerEmergency  TriggerType = "emergency"   // 紧急触发
+	TriggerScheduled  TriggerType = "scheduled"   // 定时触发
 )
 
 // AssetType 数字资产类型
 type AssetType string
 
 const (
-	AssetTypeAccount   AssetType = "account"   // 在线账号
-	AssetTypeFile      AssetType = "file"      // 文件
-	AssetTypePassword  AssetType = "password"  // 密码
-	AssetTypeCrypto    AssetType = "crypto"    // 加密货币
-	AssetTypeDomain    AssetType = "domain"    // 域名
-	AssetTypeSocial    AssetType = "social"    // 社交媒体
-	AssetTypeEmail     AssetType = "email"     // 邮箱
-	AssetTypeOther     AssetType = "other"     // 其他
+	AssetTypeAccount  AssetType = "account"  // 在线账号
+	AssetTypeFile     AssetType = "file"     // 文件
+	AssetTypePassword AssetType = "password" // 密码
+	AssetTypeCrypto   AssetType = "crypto"   // 加密货币钱包
+	AssetTypeDomain   AssetType = "domain"   // 域名
+	AssetTypeSocial   AssetType = "social"   // 社交媒体
+	AssetTypeEmail    AssetType = "email"    // 邮箱
+	AssetTypeOther    AssetType = "other"    // 其他
 )
 
 // ContactRole 联系人角色
@@ -56,11 +55,11 @@ const (
 type VerificationMethod string
 
 const (
-	VerifyEmail     VerificationMethod = "email"     // 邮箱验证
-	VerifyPhone     VerificationMethod = "phone"     // 手机验证
-	VerifyIDCard    VerificationMethod = "id_card"   // 身份证验证
+	VerifyEmail     VerificationMethod = "email"      // 邮箱验证
+	VerifyPhone     VerificationMethod = "phone"      // 手机验证
+	VerifyIDCard    VerificationMethod = "id_card"    // 身份证验证
 	VerifyDeathCert VerificationMethod = "death_cert" // 死亡证明
-	VerifyNotary    VerificationMethod = "notary"    // 公证处验证
+	VerifyNotary    VerificationMethod = "notary"     // 公证处验证
 )
 
 // AccessLevel 访问级别
@@ -73,10 +72,28 @@ const (
 	AccessNone    AccessLevel = "none"    // 无访问
 )
 
+// HeartbeatStatus 心跳状态
+type HeartbeatStatus string
+
+const (
+	HeartbeatAlive     HeartbeatStatus = "alive"     // 存活
+	HeartbeatMissing   HeartbeatStatus = "missing"   // 缺失
+	HeartbeatConfirmed HeartbeatStatus = "confirmed" // 已确认死亡
+)
+
+// VerificationLevel 验证级别
+type VerificationLevel int
+
+const (
+	VerifyLevelPrimary   VerificationLevel = 1 // 主要联系人验证
+	VerifyLevelSecondary VerificationLevel = 2 // 次要联系人验证
+	VerifyLevelTertiary  VerificationLevel = 3 // 第三方验证（如公证处）
+)
+
 // LegacyPlan 遗产计划
 type LegacyPlan struct {
 	ID                string              `json:"id"`
-	Name              string              `json:"name" binding:"required"`
+	Name              string              `json:"name"`
 	Description       string              `json:"description,omitempty"`
 	OwnerID           string              `json:"owner_id"`
 	Status            LegacyStatus        `json:"status"`
@@ -86,6 +103,7 @@ type LegacyPlan struct {
 	Assets            []*DigitalAsset     `json:"assets,omitempty"`
 	EmergencyContacts []*EmergencyContact `json:"emergency_contacts,omitempty"`
 	WillDocument      *WillDocument       `json:"will_document,omitempty"`
+	TimeLock          *TimeLock           `json:"time_lock,omitempty"`
 	IsEncrypted       bool                `json:"is_encrypted"`
 	EncryptionKeyHash string              `json:"encryption_key_hash,omitempty"`
 	CreatedAt         time.Time           `json:"created_at"`
@@ -96,126 +114,141 @@ type LegacyPlan struct {
 
 // TriggerConditions 触发条件
 type TriggerConditions struct {
-	InactivityDays     int        `json:"inactivity_days,omitempty"`     // 不活跃天数
-	LastActiveAt       *time.Time `json:"last_active_at,omitempty"`      // 最后活跃时间
-	RequiredWitnesses  int        `json:"required_witnesses,omitempty"`  // 所需见证人数
-	RequiredVerifications int     `json:"required_verifications,omitempty"` // 所需验证数
-	ScheduledDate      *time.Time `json:"scheduled_date,omitempty"`      // 定时触发日期
-	EmergencyCode      string     `json:"emergency_code,omitempty"`      // 紧急代码
-	GracePeriodDays    int        `json:"grace_period_days,omitempty"`   // 宽限期天数
+	InactivityDays        int        `json:"inactivity_days,omitempty"`
+	LastActiveAt          *time.Time `json:"last_active_at,omitempty"`
+	RequiredWitnesses     int        `json:"required_witnesses,omitempty"`
+	RequiredVerifications int        `json:"required_verifications,omitempty"`
+	ScheduledDate         *time.Time `json:"scheduled_date,omitempty"`
+	EmergencyCode         string     `json:"emergency_code,omitempty"`
+	GracePeriodDays       int        `json:"grace_period_days,omitempty"`
+}
+
+// TimeLock 时间锁
+type TimeLock struct {
+	ID            string     `json:"id"`
+	PlanID        string     `json:"plan_id"`
+	UnlockAt      time.Time  `json:"unlock_at"`                // 解锁时间
+	IsActive      bool       `json:"is_active"`
+	UnlockedAt    *time.Time `json:"unlocked_at,omitempty"`
+	RequiredLevel int        `json:"required_level"`           // 所需验证级别
+	CreatedAt     time.Time  `json:"created_at"`
 }
 
 // Beneficiary 受益人
 type Beneficiary struct {
-	ID               string          `json:"id"`
-	PlanID           string          `json:"plan_id"`
-	ContactID        string          `json:"contact_id"`
-	Role             ContactRole     `json:"role"`
-	Name             string          `json:"name" binding:"required"`
-	Email            string          `json:"email,omitempty"`
-	Phone            string          `json:"phone,omitempty"`
-	Relationship     string          `json:"relationship,omitempty"`
-	AllocationPercent int            `json:"allocation_percent"` // 分配比例 0-100
-	AccessLevel      AccessLevel     `json:"access_level"`
-	IsVerified       bool            `json:"is_verified"`
-	VerifiedAt       *time.Time      `json:"verified_at,omitempty"`
-	CreatedAt        time.Time       `json:"created_at"`
-	UpdatedAt        time.Time       `json:"updated_at"`
+	ID                string      `json:"id"`
+	PlanID            string      `json:"plan_id"`
+	ContactID         string      `json:"contact_id"`
+	Role              ContactRole `json:"role"`
+	Name              string      `json:"name"`
+	Email             string      `json:"email,omitempty"`
+	Phone             string      `json:"phone,omitempty"`
+	Relationship      string      `json:"relationship,omitempty"`
+	AllocationPercent int         `json:"allocation_percent"`
+	AccessLevel       AccessLevel `json:"access_level"`
+	IsVerified        bool        `json:"is_verified"`
+	VerifiedAt        *time.Time  `json:"verified_at,omitempty"`
+	CreatedAt         time.Time   `json:"created_at"`
+	UpdatedAt         time.Time   `json:"updated_at"`
 }
 
 // DigitalAsset 数字资产
 type DigitalAsset struct {
-	ID              string      `json:"id"`
-	PlanID          string      `json:"plan_id"`
-	Name            string      `json:"name" binding:"required"`
-	Type            AssetType   `json:"type" binding:"required"`
-	Description     string      `json:"description,omitempty"`
-	Value           string      `json:"value,omitempty"`           // 资产价值描述
-	EncryptedData   string      `json:"encrypted_data,omitempty"`  // 加密的敏感数据
-	DataHash        string      `json:"data_hash,omitempty"`       // 数据哈希
-	StoragePath     string      `json:"storage_path,omitempty"`    // 文件存储路径
-	AccessURL       string      `json:"access_url,omitempty"`      // 访问链接
-	Username        string      `json:"username,omitempty"`        // 账号用户名
-	Notes           string      `json:"notes,omitempty"`           // 备注
-	IsEncrypted     bool        `json:"is_encrypted"`
-	AssignedTo      []string    `json:"assigned_to,omitempty"`     // 分配给的受益人ID列表
-	CreatedAt       time.Time   `json:"created_at"`
-	UpdatedAt       time.Time   `json:"updated_at"`
+	ID            string    `json:"id"`
+	PlanID        string    `json:"plan_id"`
+	Name          string    `json:"name"`
+	Type          AssetType `json:"type"`
+	Description   string    `json:"description,omitempty"`
+	Value         string    `json:"value,omitempty"`
+	EncryptedData string    `json:"encrypted_data,omitempty"`
+	DataHash      string    `json:"data_hash,omitempty"`
+	StoragePath   string    `json:"storage_path,omitempty"`
+	AccessURL     string    `json:"access_url,omitempty"`
+	Username      string    `json:"username,omitempty"`
+	Notes         string    `json:"notes,omitempty"`
+	IsEncrypted   bool      `json:"is_encrypted"`
+	AssignedTo    []string  `json:"assigned_to,omitempty"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // EmergencyContact 紧急联系人
 type EmergencyContact struct {
-	ID              string              `json:"id"`
-	PlanID          string              `json:"plan_id"`
-	Name            string              `json:"name" binding:"required"`
-	Email           string              `json:"email,omitempty"`
-	Phone           string              `json:"phone,omitempty"`
-	Relationship    string              `json:"relationship,omitempty"`
-	Role            ContactRole         `json:"role"`
-	IsPrimary       bool                `json:"is_primary"`
-	CanTriggerPlan  bool                `json:"can_trigger_plan"`  // 是否可以触发计划
-	NotifyOnTrigger bool                `json:"notify_on_trigger"` // 触发时是否通知
-	CreatedAt       time.Time           `json:"created_at"`
-	UpdatedAt       time.Time           `json:"updated_at"`
+	ID              string      `json:"id"`
+	PlanID          string      `json:"plan_id"`
+	Name            string      `json:"name"`
+	Email           string      `json:"email,omitempty"`
+	Phone           string      `json:"phone,omitempty"`
+	Relationship    string      `json:"relationship,omitempty"`
+	Role            ContactRole `json:"role"`
+	Level           int         `json:"level"` // 验证级别 1-3
+	IsPrimary       bool        `json:"is_primary"`
+	CanTriggerPlan  bool        `json:"can_trigger_plan"`
+	NotifyOnTrigger bool        `json:"notify_on_trigger"`
+	IsVerified      bool        `json:"is_verified"`
+	VerifiedAt      *time.Time  `json:"verified_at,omitempty"`
+	CreatedAt       time.Time   `json:"created_at"`
+	UpdatedAt       time.Time   `json:"updated_at"`
 }
 
 // WillDocument 遗嘱文档
 type WillDocument struct {
-	ID              string     `json:"id"`
-	PlanID          string     `json:"plan_id"`
-	Title           string     `json:"title" binding:"required"`
-	Content         string     `json:"content"`                    // 遗嘱内容
-	EncryptedContent string    `json:"encrypted_content,omitempty"` // 加密内容
-	IsEncrypted     bool       `json:"is_encrypted"`
-	FileHash        string     `json:"file_hash,omitempty"`       // 文件哈希
-	StoragePath     string     `json:"storage_path,omitempty"`    // 存储路径
-	NotarizedAt     *time.Time `json:"notarized_at,omitempty"`    // 公证时间
-	NotaryInfo      string     `json:"notary_info,omitempty"`     // 公证信息
-	CreatedAt       time.Time  `json:"created_at"`
-	UpdatedAt       time.Time  `json:"updated_at"`
+	ID               string     `json:"id"`
+	PlanID           string     `json:"plan_id"`
+	Title            string     `json:"title"`
+	Content          string     `json:"content,omitempty"`
+	EncryptedContent string     `json:"encrypted_content,omitempty"`
+	IsEncrypted      bool       `json:"is_encrypted"`
+	FileHash         string     `json:"file_hash,omitempty"`
+	StoragePath      string     `json:"storage_path,omitempty"`
+	NotarizedAt      *time.Time `json:"notarized_at,omitempty"`
+	NotaryInfo       string     `json:"notary_info,omitempty"`
+	CreatedAt        time.Time  `json:"created_at"`
+	UpdatedAt        time.Time  `json:"updated_at"`
 }
 
 // TrustContact 信任联系人
 type TrustContact struct {
-	ID              string          `json:"id"`
-	OwnerID         string          `json:"owner_id"`
-	Name            string          `json:"name" binding:"required"`
-	Email           string          `json:"email,omitempty"`
-	Phone           string          `json:"phone,omitempty"`
-	Relationship    string          `json:"relationship,omitempty"`
-	Role            ContactRole     `json:"role"`
+	ID                 string             `json:"id"`
+	OwnerID            string             `json:"owner_id"`
+	Name               string             `json:"name"`
+	Email              string             `json:"email,omitempty"`
+	Phone              string             `json:"phone,omitempty"`
+	Relationship       string             `json:"relationship,omitempty"`
+	Role               ContactRole        `json:"role"`
 	VerificationMethod VerificationMethod `json:"verification_method"`
-	IsVerified      bool            `json:"is_verified"`
-	VerifiedAt      *time.Time      `json:"verified_at,omitempty"`
-	LastContactAt   *time.Time      `json:"last_contact_at,omitempty"`
-	CreatedAt       time.Time       `json:"created_at"`
-	UpdatedAt       time.Time       `json:"updated_at"`
+	IsVerified         bool               `json:"is_verified"`
+	VerifiedAt         *time.Time         `json:"verified_at,omitempty"`
+	LastContactAt      *time.Time         `json:"last_contact_at,omitempty"`
+	CreatedAt          time.Time          `json:"created_at"`
+	UpdatedAt          time.Time          `json:"updated_at"`
 }
 
 // VerificationRequest 验证请求
 type VerificationRequest struct {
-	ID              string              `json:"id"`
-	PlanID          string              `json:"plan_id"`
-	ContactID       string              `json:"contact_id"`
-	Method          VerificationMethod  `json:"method"`
-	Status          string              `json:"status"` // pending, verified, failed
-	Code            string              `json:"code,omitempty"`
-	ExpiresAt       time.Time           `json:"expires_at"`
-	VerifiedAt      *time.Time          `json:"verified_at,omitempty"`
-	CreatedAt       time.Time           `json:"created_at"`
+	ID         string             `json:"id"`
+	PlanID     string             `json:"plan_id"`
+	ContactID  string             `json:"contact_id"`
+	Method     VerificationMethod `json:"method"`
+	Level      VerificationLevel  `json:"level"`
+	Status     string             `json:"status"` // pending, verified, failed
+	Code       string             `json:"code,omitempty"`
+	ExpiresAt  time.Time          `json:"expires_at"`
+	VerifiedAt *time.Time         `json:"verified_at,omitempty"`
+	CreatedAt  time.Time          `json:"created_at"`
 }
 
 // AccessGrant 访问授权
 type AccessGrant struct {
-	ID              string        `json:"id"`
-	PlanID          string        `json:"plan_id"`
-	BeneficiaryID   string        `json:"beneficiary_id"`
-	AssetID         string        `json:"asset_id"`
-	AccessLevel     AccessLevel   `json:"access_level"`
-	GrantedAt       time.Time     `json:"granted_at"`
-	ExpiresAt       *time.Time    `json:"expires_at,omitempty"`
-	RevokedAt       *time.Time    `json:"revoked_at,omitempty"`
-	IsActive        bool          `json:"is_active"`
+	ID            string      `json:"id"`
+	PlanID        string      `json:"plan_id"`
+	BeneficiaryID string      `json:"beneficiary_id"`
+	AssetID       string      `json:"asset_id"`
+	AccessLevel   AccessLevel `json:"access_level"`
+	GrantedAt     time.Time   `json:"granted_at"`
+	ExpiresAt     *time.Time  `json:"expires_at,omitempty"`
+	RevokedAt     *time.Time  `json:"revoked_at,omitempty"`
+	IsActive      bool        `json:"is_active"`
 }
 
 // AuditLog 审计日志
@@ -233,53 +266,83 @@ type AuditLog struct {
 
 // InactivityCheck 不活跃检测记录
 type InactivityCheck struct {
-	ID          string    `json:"id"`
-	PlanID      string    `json:"plan_id"`
-	OwnerID     string    `json:"owner_id"`
-	LastActive  time.Time `json:"last_active"`
-	DaysInactive int      `json:"days_inactive"`
-	IsTriggered bool      `json:"is_triggered"`
-	CheckedAt   time.Time `json:"checked_at"`
+	ID           string    `json:"id"`
+	PlanID       string    `json:"plan_id"`
+	OwnerID      string    `json:"owner_id"`
+	LastActive   time.Time `json:"last_active"`
+	DaysInactive int       `json:"days_inactive"`
+	IsTriggered  bool      `json:"is_triggered"`
+	CheckedAt    time.Time `json:"checked_at"`
+}
+
+// HeartbeatRecord 心跳记录
+type HeartbeatRecord struct {
+	ID        string          `json:"id"`
+	OwnerID   string          `json:"owner_id"`
+	Status    HeartbeatStatus `json:"status"`
+	CheckedAt time.Time       `json:"checked_at"`
+	ExpiresAt time.Time       `json:"expires_at"`
+	Note      string          `json:"note,omitempty"`
+}
+
+// DeathVerification 死亡验证记录
+type DeathVerification struct {
+	ID                string             `json:"id"`
+	PlanID            string             `json:"plan_id"`
+	OwnerID           string             `json:"owner_id"`
+	Status            string             `json:"status"` // pending, in_progress, confirmed, rejected
+	VerificationLevel VerificationLevel  `json:"verification_level"`
+	ConfirmerID       string             `json:"confirmer_id"`
+	ConfirmerName     string             `json:"confirmer_name"`
+	ConfirmerRelation string             `json:"confirmer_relation"`
+	Method            VerificationMethod `json:"method"`
+	Evidence          string             `json:"evidence,omitempty"`
+	Notes             string             `json:"notes,omitempty"`
+	ConfirmedAt       *time.Time         `json:"confirmed_at,omitempty"`
+	RejectedAt        *time.Time         `json:"rejected_at,omitempty"`
+	CreatedAt         time.Time          `json:"created_at"`
+	UpdatedAt         time.Time          `json:"updated_at"`
 }
 
 // LegacyPlanRequest 遗产计划请求
 type LegacyPlanRequest struct {
-	Name              string              `json:"name" binding:"required"`
-	Description       string              `json:"description,omitempty"`
-	TriggerType       TriggerType         `json:"trigger_type" binding:"required"`
-	TriggerConditions *TriggerConditions  `json:"trigger_conditions,omitempty"`
-	IsEncrypted       bool                `json:"is_encrypted"`
+	Name              string             `json:"name"`
+	Description       string             `json:"description,omitempty"`
+	TriggerType       TriggerType        `json:"trigger_type"`
+	TriggerConditions *TriggerConditions `json:"trigger_conditions,omitempty"`
+	IsEncrypted       bool               `json:"is_encrypted"`
 }
 
 // BeneficiaryRequest 受益人请求
 type BeneficiaryRequest struct {
-	Name              string      `json:"name" binding:"required"`
+	Name              string      `json:"name"`
 	Email             string      `json:"email,omitempty"`
 	Phone             string      `json:"phone,omitempty"`
 	Relationship      string      `json:"relationship,omitempty"`
-	Role              ContactRole `json:"role" binding:"required"`
+	Role              ContactRole `json:"role"`
 	AllocationPercent int         `json:"allocation_percent"`
 	AccessLevel       AccessLevel `json:"access_level"`
 }
 
 // AssetRequest 资产请求
 type AssetRequest struct {
-	Name        string    `json:"name" binding:"required"`
-	Type        AssetType `json:"type" binding:"required"`
+	Name        string    `json:"name"`
+	Type        AssetType `json:"type"`
 	Description string    `json:"description,omitempty"`
 	Value       string    `json:"value,omitempty"`
-	Data        string    `json:"data,omitempty"` // 敏感数据，将被加密
+	Data        string    `json:"data,omitempty"`
 	Notes       string    `json:"notes,omitempty"`
 	AssignedTo  []string  `json:"assigned_to,omitempty"`
 }
 
 // EmergencyContactRequest 紧急联系人请求
 type EmergencyContactRequest struct {
-	Name            string      `json:"name" binding:"required"`
+	Name            string      `json:"name"`
 	Email           string      `json:"email,omitempty"`
 	Phone           string      `json:"phone,omitempty"`
 	Relationship    string      `json:"relationship,omitempty"`
-	Role            ContactRole `json:"role" binding:"required"`
+	Role            ContactRole `json:"role"`
+	Level           int         `json:"level"`
 	IsPrimary       bool        `json:"is_primary"`
 	CanTriggerPlan  bool        `json:"can_trigger_plan"`
 	NotifyOnTrigger bool        `json:"notify_on_trigger"`
@@ -287,27 +350,45 @@ type EmergencyContactRequest struct {
 
 // WillDocumentRequest 遗嘱文档请求
 type WillDocumentRequest struct {
-	Title   string `json:"title" binding:"required"`
-	Content string `json:"content" binding:"required"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }
 
 // TriggerRequest 触发请求
 type TriggerRequest struct {
-	PlanID        string `json:"plan_id" binding:"required"`
-	EmergencyCode string `json:"emergency_code,omitempty"`
+	PlanID           string `json:"plan_id"`
+	EmergencyCode    string `json:"emergency_code,omitempty"`
 	VerificationCode string `json:"verification_code,omitempty"`
+}
+
+// TimeLockRequest 时间锁请求
+type TimeLockRequest struct {
+	UnlockAt      time.Time `json:"unlock_at"`
+	RequiredLevel int       `json:"required_level"`
+}
+
+// DeathVerificationRequest 死亡验证请求
+type DeathVerificationRequest struct {
+	ConfirmerID       string             `json:"confirmer_id"`
+	ConfirmerName     string             `json:"confirmer_name"`
+	ConfirmerRelation string             `json:"confirmer_relation"`
+	Method            VerificationMethod `json:"method"`
+	Evidence          string             `json:"evidence,omitempty"`
+	Notes             string             `json:"notes,omitempty"`
 }
 
 // DefaultLegacyConfig 默认配置
 type DefaultLegacyConfig struct {
-	InactivityDays      int  `json:"inactivity_days"`       // 默认不活跃天数
-	GracePeriodDays     int  `json:"grace_period_days"`     // 默认宽限期
-	RequiredWitnesses   int  `json:"required_witnesses"`    // 默认所需见证人数
-	EnableEncryption    bool `json:"enable_encryption"`     // 默认启用加密
-	EnableAuditLog      bool `json:"enable_audit_log"`      // 启用审计日志
-	MaxBeneficiaries    int  `json:"max_beneficiaries"`     // 最大受益人数
-	MaxAssets           int  `json:"max_assets"`            // 最大资产数
-	NotifyBeforeTrigger int  `json:"notify_before_trigger"` // 触发前通知天数
+	InactivityDays      int  `json:"inactivity_days"`
+	GracePeriodDays     int  `json:"grace_period_days"`
+	RequiredWitnesses   int  `json:"required_witnesses"`
+	EnableEncryption    bool `json:"enable_encryption"`
+	EnableAuditLog      bool `json:"enable_audit_log"`
+	MaxBeneficiaries    int  `json:"max_beneficiaries"`
+	MaxAssets           int  `json:"max_assets"`
+	NotifyBeforeTrigger int  `json:"notify_before_trigger"`
+	HeartbeatInterval   int  `json:"heartbeat_interval_hours"`
+	HeartbeatTimeout    int  `json:"heartbeat_timeout_hours"`
 }
 
 // GetDefaultConfig 获取默认配置
@@ -321,6 +402,8 @@ func GetDefaultConfig() *DefaultLegacyConfig {
 		MaxBeneficiaries:    10,
 		MaxAssets:           100,
 		NotifyBeforeTrigger: 7,
+		HeartbeatInterval:   24,
+		HeartbeatTimeout:    168, // 7 days
 	}
 }
 
@@ -359,6 +442,26 @@ func IsValidContactRole(r ContactRole) bool {
 func IsValidAccessLevel(l AccessLevel) bool {
 	switch l {
 	case AccessFull, AccessRead, AccessLimited, AccessNone:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsValidVerificationMethod 检查验证方式是否有效
+func IsValidVerificationMethod(m VerificationMethod) bool {
+	switch m {
+	case VerifyEmail, VerifyPhone, VerifyIDCard, VerifyDeathCert, VerifyNotary:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsValidVerificationLevel 检查验证级别是否有效
+func IsValidVerificationLevel(l VerificationLevel) bool {
+	switch l {
+	case VerifyLevelPrimary, VerifyLevelSecondary, VerifyLevelTertiary:
 		return true
 	default:
 		return false

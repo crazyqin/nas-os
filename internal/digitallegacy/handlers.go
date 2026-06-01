@@ -2,10 +2,10 @@
 package digitallegacy
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
-	"strconv"
-
-	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 // Handlers 数字遗产 API 处理器
@@ -19,59 +19,52 @@ func NewHandlers(manager *Manager) *Handlers {
 }
 
 // RegisterRoutes 注册路由
-func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
-	legacy := r.Group("/legacy")
-	{
-		// 遗产计划管理
-		legacy.GET("/plans", h.listPlans)
-		legacy.POST("/plans", h.createPlan)
-		legacy.GET("/plans/:id", h.getPlan)
-		legacy.PUT("/plans/:id", h.updatePlan)
-		legacy.DELETE("/plans/:id", h.deletePlan)
-		legacy.POST("/plans/:id/activate", h.activatePlan)
-		legacy.POST("/plans/:id/trigger", h.triggerPlan)
-
-		// 受益人管理
-		legacy.GET("/plans/:id/beneficiaries", h.listBeneficiaries)
-		legacy.POST("/plans/:id/beneficiaries", h.addBeneficiary)
-		legacy.PUT("/plans/:id/beneficiaries/:bid", h.updateBeneficiary)
-		legacy.DELETE("/plans/:id/beneficiaries/:bid", h.removeBeneficiary)
-
-		// 数字资产管理
-		legacy.GET("/plans/:id/assets", h.listAssets)
-		legacy.POST("/plans/:id/assets", h.addAsset)
-		legacy.PUT("/plans/:id/assets/:aid", h.updateAsset)
-		legacy.DELETE("/plans/:id/assets/:aid", h.removeAsset)
-		legacy.GET("/plans/:id/assets/:aid/decrypt", h.decryptAsset)
-
-		// 紧急联系人管理
-		legacy.GET("/plans/:id/contacts", h.listEmergencyContacts)
-		legacy.POST("/plans/:id/contacts", h.addEmergencyContact)
-		legacy.DELETE("/plans/:id/contacts/:cid", h.removeEmergencyContact)
-
-		// 遗嘱文档管理
-		legacy.GET("/plans/:id/will", h.getWillDocument)
-		legacy.POST("/plans/:id/will", h.setWillDocument)
-
-		// 信任联系人管理
-		legacy.GET("/contacts", h.listTrustContacts)
-		legacy.POST("/contacts", h.addTrustContact)
-		legacy.DELETE("/contacts/:id", h.removeTrustContact)
-
-		// 访问授权管理
-		legacy.GET("/plans/:id/access-grants", h.getAccessGrants)
-		legacy.DELETE("/access-grants/:id", h.revokeAccessGrant)
-
-		// 审计日志
-		legacy.GET("/plans/:id/audit-logs", h.getAuditLogs)
-
-		// 不活跃检查
-		legacy.POST("/check-inactivity", h.checkInactivity)
-
-		// 配置
-		legacy.GET("/config", h.getConfig)
-		legacy.PUT("/config", h.updateConfig)
+func (h *Handlers) RegisterRoutes(mux *http.ServeMux, prefix string) {
+	if prefix == "" {
+		prefix = "/api/v1/legacy"
 	}
+
+	// 遗产计划管理
+	mux.HandleFunc(prefix+"/plans", h.handlePlans)
+	mux.HandleFunc(prefix+"/plans/", h.handlePlanByID)
+	mux.HandleFunc(prefix+"/plans/activate/", h.handleActivatePlan)
+	mux.HandleFunc(prefix+"/plans/trigger/", h.handleTriggerPlan)
+
+	// 受益人管理
+	mux.HandleFunc(prefix+"/plans/beneficiaries/", h.handleBeneficiaries)
+
+	// 数字资产管理
+	mux.HandleFunc(prefix+"/plans/assets/", h.handleAssets)
+	mux.HandleFunc(prefix+"/plans/assets/decrypt/", h.handleDecryptAsset)
+
+	// 紧急联系人管理
+	mux.HandleFunc(prefix+"/plans/contacts/", h.handleEmergencyContacts)
+
+	// 死亡验证
+	mux.HandleFunc(prefix+"/plans/death-verify/", h.handleDeathVerification)
+	mux.HandleFunc(prefix+"/plans/confirm-death/", h.handleConfirmDeath)
+
+	// 时间锁
+	mux.HandleFunc(prefix+"/plans/timelock/", h.handleTimeLock)
+
+	// 心跳
+	mux.HandleFunc(prefix+"/heartbeat", h.handleHeartbeat)
+	mux.HandleFunc(prefix+"/heartbeat/status/", h.handleHeartbeatStatus)
+
+	// 信任联系人管理
+	mux.HandleFunc(prefix+"/contacts", h.handleTrustContacts)
+
+	// 访问授权管理
+	mux.HandleFunc(prefix+"/access-grants/", h.handleAccessGrants)
+
+	// 审计日志
+	mux.HandleFunc(prefix+"/audit-logs/", h.handleAuditLogs)
+
+	// 不活跃检查
+	mux.HandleFunc(prefix+"/check-inactivity", h.handleCheckInactivity)
+
+	// 配置
+	mux.HandleFunc(prefix+"/config", h.handleConfig)
 }
 
 // response 标准响应
@@ -81,620 +74,941 @@ type response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// getUserID 获取用户ID（从上下文）
-func getUserID(c *gin.Context) string {
-	// 这里应该从认证中间件获取用户ID
-	// 简化处理，返回默认值
+// writeJSON 写入 JSON 响应
+func writeJSON(w http.ResponseWriter, status int, resp response) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(resp)
+}
+
+// writeError 写入错误响应
+func writeError(w http.ResponseWriter, status int, message string) {
+	writeJSON(w, status, response{
+		Code:    status,
+		Message: message,
+	})
+}
+
+// getUserID 获取用户ID
+func getUserID(r *http.Request) string {
+	// 从请求头或上下文获取用户ID
+	if userID := r.Header.Get("X-User-ID"); userID != "" {
+		return userID
+	}
 	return "user-001"
 }
 
-// listPlans 列出遗产计划
-func (h *Handlers) listPlans(c *gin.Context) {
-	userID := getUserID(c)
-	plans := h.manager.ListPlans(userID)
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    plans,
-	})
+// parseIDFromPath 从路径中解析 ID
+func parseIDFromPath(path, prefix string) string {
+	// 移除前缀，获取 ID
+	id := strings.TrimPrefix(path, prefix)
+	id = strings.TrimSuffix(id, "/")
+	// 只取第一段
+	parts := strings.Split(id, "/")
+	if len(parts) > 0 {
+		return parts[0]
+	}
+	return id
 }
 
-// createPlan 创建遗产计划
-func (h *Handlers) createPlan(c *gin.Context) {
-	var req LegacyPlanRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
-		})
-		return
+// parseIDsFromPath 从路径中解析多个 ID
+func parseIDsFromPath(path, prefix string) (string, string) {
+	id := strings.TrimPrefix(path, prefix)
+	id = strings.TrimSuffix(id, "/")
+	parts := strings.Split(id, "/")
+	if len(parts) >= 2 {
+		return parts[0], parts[1]
 	}
-
-	userID := getUserID(c)
-	plan, err := h.manager.CreatePlan(&req, userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response{
-			Code:    1,
-			Message: err.Error(),
-		})
-		return
+	if len(parts) == 1 {
+		return parts[0], ""
 	}
-
-	c.JSON(http.StatusCreated, response{
-		Code:    0,
-		Message: "plan created",
-		Data:    plan,
-	})
+	return "", ""
 }
 
-// getPlan 获取遗产计划
-func (h *Handlers) getPlan(c *gin.Context) {
-	id := c.Param("id")
-	plan, err := h.manager.GetPlan(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
+// handlePlans 处理遗产计划列表和创建
+func (h *Handlers) handlePlans(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		userID := getUserID(r)
+		plans := h.manager.ListPlans(userID)
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "success",
+			Data:    plans,
 		})
-		return
-	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    plan,
-	})
+	case http.MethodPost:
+		var req LegacyPlanRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		userID := getUserID(r)
+		plan, err := h.manager.CreatePlan(&req, userID)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusCreated, response{
+			Code:    0,
+			Message: "plan created",
+			Data:    plan,
+		})
+
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// updatePlan 更新遗产计划
-func (h *Handlers) updatePlan(c *gin.Context) {
-	id := c.Param("id")
-	var req LegacyPlanRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
-		})
+// handlePlanByID 处理单个遗产计划的 CRUD
+func (h *Handlers) handlePlanByID(w http.ResponseWriter, r *http.Request) {
+	// 解析 ID：/plans/{id}
+	path := strings.TrimPrefix(r.URL.Path, "/api/v1/legacy/plans/")
+	parts := strings.Split(strings.TrimSuffix(path, "/"), "/")
+	if len(parts) == 0 || parts[0] == "" {
+		writeError(w, http.StatusBadRequest, "plan ID required")
+		return
+	}
+	planID := parts[0]
+
+	// 检查是否有子资源
+	if len(parts) > 1 {
+		h.handlePlanSubResource(w, r, planID, parts[1:])
 		return
 	}
 
-	plan, err := h.manager.UpdatePlan(id, &req)
-	if err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
+	switch r.Method {
+	case http.MethodGet:
+		plan, err := h.manager.GetPlan(planID)
+		if err != nil {
+			writeError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "success",
+			Data:    plan,
 		})
-		return
-	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "plan updated",
-		Data:    plan,
-	})
+	case http.MethodPut:
+		var req LegacyPlanRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		plan, err := h.manager.UpdatePlan(planID, &req)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "plan updated",
+			Data:    plan,
+		})
+
+	case http.MethodDelete:
+		if err := h.manager.DeletePlan(planID); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "plan deleted",
+		})
+
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// deletePlan 删除遗产计划
-func (h *Handlers) deletePlan(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.DeletePlan(id); err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
+// handlePlanSubResource 处理计划子资源
+func (h *Handlers) handlePlanSubResource(w http.ResponseWriter, r *http.Request, planID string, subParts []string) {
+	if len(subParts) == 0 {
+		writeError(w, http.StatusBadRequest, "sub-resource required")
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "plan deleted",
-	})
+	subResource := subParts[0]
+	switch subResource {
+	case "beneficiaries":
+		h.handleBeneficiariesByPlan(w, r, planID, subParts[1:])
+	case "assets":
+		h.handleAssetsByPlan(w, r, planID, subParts[1:])
+	case "contacts":
+		h.handleEmergencyContactsByPlan(w, r, planID, subParts[1:])
+	case "will":
+		h.handleWillByPlan(w, r, planID)
+	case "timelock":
+		h.handleTimeLockByPlan(w, r, planID)
+	case "death-verify":
+		h.handleDeathVerificationByPlan(w, r, planID)
+	case "confirm-death":
+		h.handleConfirmDeathByPlan(w, r, planID)
+	case "access-grants":
+		h.handleAccessGrantsByPlan(w, r, planID)
+	case "audit-logs":
+		h.handleAuditLogsByPlan(w, r, planID)
+	default:
+		writeError(w, http.StatusNotFound, fmt.Sprintf("unknown sub-resource: %s", subResource))
+	}
 }
 
-// activatePlan 激活遗产计划
-func (h *Handlers) activatePlan(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.ActivatePlan(id); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: err.Error(),
-		})
+// handleActivatePlan 处理激活计划
+func (h *Handlers) handleActivatePlan(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
+	planID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/plans/activate/")
+	if err := h.manager.ActivatePlan(planID); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, response{
 		Code:    0,
 		Message: "plan activated",
 	})
 }
 
-// triggerPlan 触发遗产计划
-func (h *Handlers) triggerPlan(c *gin.Context) {
-	id := c.Param("id")
+// handleTriggerPlan 处理触发计划
+func (h *Handlers) handleTriggerPlan(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	planID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/plans/trigger/")
+
 	var req TriggerRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+		return
+	}
+	req.PlanID = planID
+
+	if err := h.manager.TriggerPlan(planID, &req); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	req.PlanID = id
-	if err := h.manager.TriggerPlan(c.Request.Context(), id, &req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
+	writeJSON(w, http.StatusOK, response{
 		Code:    0,
 		Message: "plan triggered",
 	})
 }
 
-// listBeneficiaries 列出受益人
-func (h *Handlers) listBeneficiaries(c *gin.Context) {
-	planID := c.Param("id")
-	plan, err := h.manager.GetPlan(planID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
+// handleBeneficiaries 处理受益人路由
+func (h *Handlers) handleBeneficiaries(w http.ResponseWriter, r *http.Request) {
+	// 解析 planID 和 beneficiaryID
+	path := strings.TrimPrefix(r.URL.Path, "/api/v1/legacy/plans/beneficiaries/")
+	path = strings.TrimSuffix(path, "/")
+	parts := strings.Split(path, "/")
+
+	if len(parts) < 1 || parts[0] == "" {
+		writeError(w, http.StatusBadRequest, "plan ID required")
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    plan.Beneficiaries,
-	})
+	planID := parts[0]
+	h.handleBeneficiariesByPlan(w, r, planID, parts[1:])
 }
 
-// addBeneficiary 添加受益人
-func (h *Handlers) addBeneficiary(c *gin.Context) {
-	planID := c.Param("id")
-	var req BeneficiaryRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
+// handleBeneficiariesByPlan 处理计划受益人
+func (h *Handlers) handleBeneficiariesByPlan(w http.ResponseWriter, r *http.Request, planID string, subParts []string) {
+	switch r.Method {
+	case http.MethodGet:
+		beneficiaries, err := h.manager.ListBeneficiaries(planID)
+		if err != nil {
+			writeError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "success",
+			Data:    beneficiaries,
 		})
-		return
-	}
 
-	beneficiary, err := h.manager.AddBeneficiary(planID, &req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: err.Error(),
+	case http.MethodPost:
+		var req BeneficiaryRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		beneficiary, err := h.manager.AddBeneficiary(planID, &req)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusCreated, response{
+			Code:    0,
+			Message: "beneficiary added",
+			Data:    beneficiary,
 		})
-		return
-	}
 
-	c.JSON(http.StatusCreated, response{
-		Code:    0,
-		Message: "beneficiary added",
-		Data:    beneficiary,
-	})
+	case http.MethodPut:
+		if len(subParts) < 1 || subParts[0] == "" {
+			writeError(w, http.StatusBadRequest, "beneficiary ID required")
+			return
+		}
+
+		var req BeneficiaryRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		beneficiary, err := h.manager.UpdateBeneficiary(planID, subParts[0], &req)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "beneficiary updated",
+			Data:    beneficiary,
+		})
+
+	case http.MethodDelete:
+		if len(subParts) < 1 || subParts[0] == "" {
+			writeError(w, http.StatusBadRequest, "beneficiary ID required")
+			return
+		}
+
+		if err := h.manager.RemoveBeneficiary(planID, subParts[0]); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "beneficiary removed",
+		})
+
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// updateBeneficiary 更新受益人
-func (h *Handlers) updateBeneficiary(c *gin.Context) {
-	planID := c.Param("id")
-	beneficiaryID := c.Param("bid")
-	var req BeneficiaryRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
-		})
+// handleAssets 处理资产路由
+func (h *Handlers) handleAssets(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, "/api/v1/legacy/plans/assets/")
+	path = strings.TrimSuffix(path, "/")
+	parts := strings.Split(path, "/")
+
+	if len(parts) < 1 || parts[0] == "" {
+		writeError(w, http.StatusBadRequest, "plan ID required")
 		return
 	}
 
-	beneficiary, err := h.manager.UpdateBeneficiary(planID, beneficiaryID, &req)
-	if err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "beneficiary updated",
-		Data:    beneficiary,
-	})
+	planID := parts[0]
+	h.handleAssetsByPlan(w, r, planID, parts[1:])
 }
 
-// removeBeneficiary 移除受益人
-func (h *Handlers) removeBeneficiary(c *gin.Context) {
-	planID := c.Param("id")
-	beneficiaryID := c.Param("bid")
-	if err := h.manager.RemoveBeneficiary(planID, beneficiaryID); err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
+// handleAssetsByPlan 处理计划资产
+func (h *Handlers) handleAssetsByPlan(w http.ResponseWriter, r *http.Request, planID string, subParts []string) {
+	switch r.Method {
+	case http.MethodGet:
+		assets, err := h.manager.ListAssets(planID)
+		if err != nil {
+			writeError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "success",
+			Data:    assets,
 		})
-		return
-	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "beneficiary removed",
-	})
+	case http.MethodPost:
+		var req AssetRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		asset, err := h.manager.AddAsset(planID, &req)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusCreated, response{
+			Code:    0,
+			Message: "asset added",
+			Data:    asset,
+		})
+
+	case http.MethodPut:
+		if len(subParts) < 1 || subParts[0] == "" {
+			writeError(w, http.StatusBadRequest, "asset ID required")
+			return
+		}
+
+		var req AssetRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		asset, err := h.manager.UpdateAsset(planID, subParts[0], &req)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "asset updated",
+			Data:    asset,
+		})
+
+	case http.MethodDelete:
+		if len(subParts) < 1 || subParts[0] == "" {
+			writeError(w, http.StatusBadRequest, "asset ID required")
+			return
+		}
+
+		if err := h.manager.RemoveAsset(planID, subParts[0]); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "asset removed",
+		})
+
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// listAssets 列出数字资产
-func (h *Handlers) listAssets(c *gin.Context) {
-	planID := c.Param("id")
-	plan, err := h.manager.GetPlan(planID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
+// handleDecryptAsset 处理解密资产
+func (h *Handlers) handleDecryptAsset(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    plan.Assets,
-	})
-}
-
-// addAsset 添加数字资产
-func (h *Handlers) addAsset(c *gin.Context) {
-	planID := c.Param("id")
-	var req AssetRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
-		})
+	planID, assetID := parseIDsFromPath(r.URL.Path, "/api/v1/legacy/plans/assets/decrypt/")
+	if planID == "" || assetID == "" {
+		writeError(w, http.StatusBadRequest, "plan ID and asset ID required")
 		return
 	}
-
-	asset, err := h.manager.AddAsset(planID, &req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusCreated, response{
-		Code:    0,
-		Message: "asset added",
-		Data:    asset,
-	})
-}
-
-// updateAsset 更新数字资产
-func (h *Handlers) updateAsset(c *gin.Context) {
-	planID := c.Param("id")
-	assetID := c.Param("aid")
-	var req AssetRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
-		})
-		return
-	}
-
-	asset, err := h.manager.UpdateAsset(planID, assetID, &req)
-	if err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "asset updated",
-		Data:    asset,
-	})
-}
-
-// removeAsset 移除数字资产
-func (h *Handlers) removeAsset(c *gin.Context) {
-	planID := c.Param("id")
-	assetID := c.Param("aid")
-	if err := h.manager.RemoveAsset(planID, assetID); err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "asset removed",
-	})
-}
-
-// decryptAsset 解密资产数据
-func (h *Handlers) decryptAsset(c *gin.Context) {
-	planID := c.Param("id")
-	assetID := c.Param("aid")
 
 	data, err := h.manager.DecryptAssetData(planID, assetID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: err.Error(),
-		})
+		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
+	writeJSON(w, http.StatusOK, response{
 		Code:    0,
 		Message: "success",
 		Data:    map[string]string{"data": data},
 	})
 }
 
-// listEmergencyContacts 列出紧急联系人
-func (h *Handlers) listEmergencyContacts(c *gin.Context) {
-	planID := c.Param("id")
-	plan, err := h.manager.GetPlan(planID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
+// handleEmergencyContacts 处理紧急联系人路由
+func (h *Handlers) handleEmergencyContacts(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, "/api/v1/legacy/plans/contacts/")
+	path = strings.TrimSuffix(path, "/")
+	parts := strings.Split(path, "/")
+
+	if len(parts) < 1 || parts[0] == "" {
+		writeError(w, http.StatusBadRequest, "plan ID required")
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
+	planID := parts[0]
+	h.handleEmergencyContactsByPlan(w, r, planID, parts[1:])
+}
+
+// handleEmergencyContactsByPlan 处理计划紧急联系人
+func (h *Handlers) handleEmergencyContactsByPlan(w http.ResponseWriter, r *http.Request, planID string, subParts []string) {
+	switch r.Method {
+	case http.MethodGet:
+		contacts, err := h.manager.ListEmergencyContacts(planID)
+		if err != nil {
+			writeError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "success",
+			Data:    contacts,
+		})
+
+	case http.MethodPost:
+		var req EmergencyContactRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		contact, err := h.manager.AddEmergencyContact(planID, &req)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusCreated, response{
+			Code:    0,
+			Message: "emergency contact added",
+			Data:    contact,
+		})
+
+	case http.MethodDelete:
+		if len(subParts) < 1 || subParts[0] == "" {
+			writeError(w, http.StatusBadRequest, "contact ID required")
+			return
+		}
+
+		if err := h.manager.RemoveEmergencyContact(planID, subParts[0]); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "emergency contact removed",
+		})
+
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// handleDeathVerification 处理死亡验证
+func (h *Handlers) handleDeathVerification(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	planID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/plans/death-verify/")
+	if planID == "" {
+		writeError(w, http.StatusBadRequest, "plan ID required")
+		return
+	}
+
+	var req DeathVerificationRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+		return
+	}
+
+	dv, err := h.manager.StartDeathVerification(planID, &req)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, response{
+		Code:    0,
+		Message: "death verification started",
+		Data:    dv,
+	})
+}
+
+// handleDeathVerificationByPlan 处理计划死亡验证
+func (h *Handlers) handleDeathVerificationByPlan(w http.ResponseWriter, r *http.Request, planID string) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	var req DeathVerificationRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+		return
+	}
+
+	dv, err := h.manager.StartDeathVerification(planID, &req)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, response{
+		Code:    0,
+		Message: "death verification started",
+		Data:    dv,
+	})
+}
+
+// handleConfirmDeath 处理确认死亡
+func (h *Handlers) handleConfirmDeath(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	planID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/plans/confirm-death/")
+	if planID == "" {
+		writeError(w, http.StatusBadRequest, "plan ID required")
+		return
+	}
+
+	var req struct {
+		VerificationID    string            `json:"verification_id"`
+		VerificationLevel VerificationLevel `json:"verification_level"`
+		Evidence          string            `json:"evidence"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+		return
+	}
+
+	if err := h.manager.ConfirmDeath(planID, req.VerificationID, req.VerificationLevel, req.Evidence); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, response{
+		Code:    0,
+		Message: "death confirmed",
+	})
+}
+
+// handleConfirmDeathByPlan 处理计划确认死亡
+func (h *Handlers) handleConfirmDeathByPlan(w http.ResponseWriter, r *http.Request, planID string) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	var req struct {
+		VerificationID    string            `json:"verification_id"`
+		VerificationLevel VerificationLevel `json:"verification_level"`
+		Evidence          string            `json:"evidence"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+		return
+	}
+
+	if err := h.manager.ConfirmDeath(planID, req.VerificationID, req.VerificationLevel, req.Evidence); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, response{
+		Code:    0,
+		Message: "death confirmed",
+	})
+}
+
+// handleTimeLock 处理时间锁
+func (h *Handlers) handleTimeLock(w http.ResponseWriter, r *http.Request) {
+	planID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/plans/timelock/")
+	if planID == "" {
+		writeError(w, http.StatusBadRequest, "plan ID required")
+		return
+	}
+
+	h.handleTimeLockByPlan(w, r, planID)
+}
+
+// handleTimeLockByPlan 处理计划时间锁
+func (h *Handlers) handleTimeLockByPlan(w http.ResponseWriter, r *http.Request, planID string) {
+	switch r.Method {
+	case http.MethodGet:
+		unlocked, err := h.manager.CheckTimeLock(planID)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "success",
+			Data:    map[string]bool{"unlocked": unlocked},
+		})
+
+	case http.MethodPost:
+		var req TimeLockRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		tl, err := h.manager.SetTimeLock(planID, &req)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusCreated, response{
+			Code:    0,
+			Message: "time lock set",
+			Data:    tl,
+		})
+
+	case http.MethodPut:
+		var req struct {
+			VerificationLevel VerificationLevel `json:"verification_level"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		if err := h.manager.UnlockTimeLock(planID, req.VerificationLevel); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "time lock unlocked",
+		})
+
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// handleHeartbeat 处理心跳
+func (h *Handlers) handleHeartbeat(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	userID := getUserID(r)
+
+	var req struct {
+		Note string `json:"note,omitempty"`
+	}
+	json.NewDecoder(r.Body).Decode(&req)
+
+	record := h.manager.RecordHeartbeat(userID, req.Note)
+	writeJSON(w, http.StatusOK, response{
+		Code:    0,
+		Message: "heartbeat recorded",
+		Data:    record,
+	})
+}
+
+// handleHeartbeatStatus 处理心跳状态查询
+func (h *Handlers) handleHeartbeatStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	ownerID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/heartbeat/status/")
+	if ownerID == "" {
+		ownerID = getUserID(r)
+	}
+
+	status, err := h.manager.CheckHeartbeatStatus(ownerID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, response{
 		Code:    0,
 		Message: "success",
-		Data:    plan.EmergencyContacts,
+		Data:    map[string]string{"status": string(*status)},
 	})
 }
 
-// addEmergencyContact 添加紧急联系人
-func (h *Handlers) addEmergencyContact(c *gin.Context) {
-	planID := c.Param("id")
-	var req EmergencyContactRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
+// handleTrustContacts 处理信任联系人
+func (h *Handlers) handleTrustContacts(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		userID := getUserID(r)
+		contacts := h.manager.GetTrustContacts(userID)
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "success",
+			Data:    contacts,
 		})
-		return
-	}
 
-	contact, err := h.manager.AddEmergencyContact(planID, &req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: err.Error(),
+	case http.MethodPost:
+		var contact TrustContact
+		if err := json.NewDecoder(r.Body).Decode(&contact); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		userID := getUserID(r)
+		result, err := h.manager.AddTrustContact(userID, &contact)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusCreated, response{
+			Code:    0,
+			Message: "trust contact added",
+			Data:    result,
 		})
-		return
-	}
 
-	c.JSON(http.StatusCreated, response{
-		Code:    0,
-		Message: "emergency contact added",
-		Data:    contact,
-	})
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// removeEmergencyContact 移除紧急联系人
-func (h *Handlers) removeEmergencyContact(c *gin.Context) {
-	planID := c.Param("id")
-	contactID := c.Param("cid")
-	if err := h.manager.RemoveEmergencyContact(planID, contactID); err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
-		return
-	}
+// handleAccessGrants 处理访问授权
+func (h *Handlers) handleAccessGrants(w http.ResponseWriter, r *http.Request) {
+	// 解析 grant ID
+	grantID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/access-grants/")
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "emergency contact removed",
-	})
+	switch r.Method {
+	case http.MethodDelete:
+		if grantID == "" {
+			writeError(w, http.StatusBadRequest, "grant ID required")
+			return
+		}
+
+		if err := h.manager.RevokeAccessGrant(grantID); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "access grant revoked",
+		})
+
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// getWillDocument 获取遗嘱文档
-func (h *Handlers) getWillDocument(c *gin.Context) {
-	planID := c.Param("id")
-	decrypt := c.DefaultQuery("decrypt", "false") == "true"
-
-	doc, err := h.manager.GetWillDocument(planID, decrypt)
-	if err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
+// handleAccessGrantsByPlan 处理计划访问授权
+func (h *Handlers) handleAccessGrantsByPlan(w http.ResponseWriter, r *http.Request, planID string) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    doc,
-	})
-}
-
-// setWillDocument 设置遗嘱文档
-func (h *Handlers) setWillDocument(c *gin.Context) {
-	planID := c.Param("id")
-	var req WillDocumentRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
-		})
-		return
-	}
-
-	doc, err := h.manager.SetWillDocument(planID, &req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusCreated, response{
-		Code:    0,
-		Message: "will document set",
-		Data:    doc,
-	})
-}
-
-// listTrustContacts 列出信任联系人
-func (h *Handlers) listTrustContacts(c *gin.Context) {
-	userID := getUserID(c)
-	contacts := h.manager.GetTrustContacts(userID)
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    contacts,
-	})
-}
-
-// addTrustContact 添加信任联系人
-func (h *Handlers) addTrustContact(c *gin.Context) {
-	var req TrustContact
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
-		})
-		return
-	}
-
-	userID := getUserID(c)
-	contact, err := h.manager.AddTrustContact(userID, &req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusCreated, response{
-		Code:    0,
-		Message: "trust contact added",
-		Data:    contact,
-	})
-}
-
-// removeTrustContact 移除信任联系人
-func (h *Handlers) removeTrustContact(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.RemoveTrustContact(id); err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "trust contact removed",
-	})
-}
-
-// getAccessGrants 获取访问授权
-func (h *Handlers) getAccessGrants(c *gin.Context) {
-	planID := c.Param("id")
-	beneficiaryID := c.Query("beneficiary_id")
-
-	grants := h.manager.GetAccessGrants(planID, beneficiaryID)
-	c.JSON(http.StatusOK, response{
+	grants := h.manager.GetAllAccessGrants(planID)
+	writeJSON(w, http.StatusOK, response{
 		Code:    0,
 		Message: "success",
 		Data:    grants,
 	})
 }
 
-// revokeAccessGrant 撤销访问授权
-func (h *Handlers) revokeAccessGrant(c *gin.Context) {
-	id := c.Param("id")
-	if err := h.manager.RevokeAccessGrant(id); err != nil {
-		c.JSON(http.StatusNotFound, response{
-			Code:    1,
-			Message: err.Error(),
-		})
+// handleAuditLogs 处理审计日志
+func (h *Handlers) handleAuditLogs(w http.ResponseWriter, r *http.Request) {
+	planID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/audit-logs/")
+	h.handleAuditLogsByPlan(w, r, planID)
+}
+
+// handleAuditLogsByPlan 处理计划审计日志
+func (h *Handlers) handleAuditLogsByPlan(w http.ResponseWriter, r *http.Request, planID string) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "access grant revoked",
-	})
-}
-
-// getAuditLogs 获取审计日志
-func (h *Handlers) getAuditLogs(c *gin.Context) {
-	planID := c.Param("id")
-	limitStr := c.DefaultQuery("limit", "50")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit <= 0 {
-		limit = 50
+	limit := 100
+	if l := r.URL.Query().Get("limit"); l != "" {
+		fmt.Sscanf(l, "%d", &limit)
 	}
 
 	logs := h.manager.GetAuditLogs(planID, limit)
-	c.JSON(http.StatusOK, response{
+	writeJSON(w, http.StatusOK, response{
 		Code:    0,
 		Message: "success",
 		Data:    logs,
 	})
 }
 
-// checkInactivity 检查不活跃状态
-func (h *Handlers) checkInactivity(c *gin.Context) {
-	checks := h.manager.CheckInactivity(c.Request.Context())
-	c.JSON(http.StatusOK, response{
+// handleCheckInactivity 处理不活跃检查
+func (h *Handlers) handleCheckInactivity(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	checks := h.manager.CheckInactivity()
+	writeJSON(w, http.StatusOK, response{
 		Code:    0,
 		Message: "success",
 		Data:    checks,
 	})
 }
 
-// getConfig 获取配置
-func (h *Handlers) getConfig(c *gin.Context) {
-	cfg := h.manager.GetConfig()
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data:    cfg,
-	})
+// handleConfig 处理配置
+func (h *Handlers) handleConfig(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		cfg := h.manager.GetConfig()
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "success",
+			Data:    cfg,
+		})
+
+	case http.MethodPut:
+		var cfg DefaultLegacyConfig
+		if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		h.manager.UpdateConfig(&cfg)
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "config updated",
+		})
+
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
 
-// updateConfig 更新配置
-func (h *Handlers) updateConfig(c *gin.Context) {
-	var cfg DefaultLegacyConfig
-	if err := c.ShouldBindJSON(&cfg); err != nil {
-		c.JSON(http.StatusBadRequest, response{
-			Code:    1,
-			Message: "invalid request: " + err.Error(),
+// handleWillByPlan 处理遗嘱文档
+func (h *Handlers) handleWillByPlan(w http.ResponseWriter, r *http.Request, planID string) {
+	switch r.Method {
+	case http.MethodGet:
+		doc, err := h.manager.GetWillDocument(planID, true)
+		if err != nil {
+			writeError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusOK, response{
+			Code:    0,
+			Message: "success",
+			Data:    doc,
 		})
-		return
-	}
 
-	h.manager.UpdateConfig(&cfg)
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "config updated",
-	})
+	case http.MethodPost:
+		var req WillDocumentRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
+			return
+		}
+
+		doc, err := h.manager.SetWillDocument(planID, &req)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		writeJSON(w, http.StatusCreated, response{
+			Code:    0,
+			Message: "will document set",
+			Data:    doc,
+		})
+
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
 }
