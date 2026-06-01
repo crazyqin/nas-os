@@ -1,6 +1,7 @@
 package storageml
 
 import (
+	"math"
 	"sort"
 	"time"
 )
@@ -227,7 +228,7 @@ func meanStddevRaw(values []float64) (float64, float64) {
 		sumSq += diff * diff
 	}
 	variance := sumSq / float64(len(values))
-	return mean, variance
+	return mean, math.Sqrt(variance)
 }
 
 func generateAnomalyDescription(dp DataPoint, expected, deviation float64) string {

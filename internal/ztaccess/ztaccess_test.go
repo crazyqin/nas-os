@@ -231,6 +231,7 @@ func TestDeviceFingerprint(t *testing.T) {
 		t.Fatal("Expected non-empty fingerprint")
 	}
 
+	device.Fingerprint = fp
 	if !am.ValidateDeviceFingerprint(device) {
 		t.Fatal("Expected fingerprint to be valid")
 	}

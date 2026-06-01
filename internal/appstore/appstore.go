@@ -3,6 +3,7 @@ package appstore
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 )
@@ -210,5 +211,5 @@ func (s *AppStore) SearchApps(ctx context.Context, query string) []*App {
 }
 
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(s) > 0 && len(substr) > 0)
+	return len(s) >= len(substr) && (s == substr || (len(s) > 0 && len(substr) > 0 && strings.Contains(strings.ToLower(s), strings.ToLower(substr))))
 }
