@@ -207,7 +207,7 @@ func matchSearch(entry *CatalogEntry, query string) bool {
 	if query == "" {
 		return true
 	}
-	if containsIgnoreCase(entry.Name, query) || containsIgnoreCase(entry.Description, query) {
+	if containsIgnoreCase(entry.Name, query) || containsIgnoreCase(entry.Description, query) || containsIgnoreCase(entry.Category, query) || containsIgnoreCase(entry.Owner, query) {
 		return true
 	}
 	for _, v := range entry.Tags {
