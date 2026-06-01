@@ -2,6 +2,7 @@ package edgecompute
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -97,7 +98,16 @@ func (h *Handler) handleInvoke(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	invocation, err := h.manager.InvokeFunction(r.Context(), req.FunctionID, req.Input)
+	var params map[string]string
+	if req.Input != nil {
+		if p, ok := req.Input.(map[string]interface{}); ok {
+			params = make(map[string]string)
+			for k, v := range p {
+				params[k] = fmt.Sprintf("%v", v)
+			}
+		}
+	}
+	invocation, err := h.manager.InvokeFunction(r.Context(), req.FunctionID, params)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -149,7 +159,7 @@ func (h *Handler) handleNodes(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	h.manager.mu.RLock()
-	nodes := make([]*Node, 0, len(h.manager.nodes))
+	nodes := make([]*LocalNode, 0, len(h.manager.nodes))
 	for _, n := range h.manager.nodes {
 		nodes = append(nodes, n)
 	}

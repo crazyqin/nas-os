@@ -40,7 +40,8 @@ const (
 	RuntimeJava   FunctionRuntime = "java"
 	RuntimeDotNet FunctionRuntime = "dotnet"
 	RuntimeWasm   FunctionRuntime = "wasm"
-	RuntimeCustom FunctionRuntime = "custom"
+	RuntimeCustom    FunctionRuntime = "custom"
+	RuntimeContainer FunctionRuntime = "container"
 )
 
 // AIModelType AI 模型类型
@@ -111,6 +112,7 @@ type Workload struct {
 	Description   string            `json:"description"`
 	Type          WorkloadType      `json:"type"`
 	Status        WorkloadStatus    `json:"status"`
+	Priority      int               `json:"priority"`
 	NodeID        string            `json:"node_id"`
 	Image         string            `json:"image,omitempty"`
 	Version       string            `json:"version"`
@@ -182,7 +184,9 @@ type Trigger struct {
 // ResourceRequest 资源请求
 type ResourceRequest struct {
 	CPUCores    float64 `json:"cpu_cores"`
+	CPU         float64 `json:"cpu"`
 	MemoryMB    int     `json:"memory_mb"`
+	Memory      int     `json:"memory"`
 	GPUCount    int     `json:"gpu_count"`
 	StorageGB   int     `json:"storage_gb"`
 	BandwidthMB int     `json:"bandwidth_mb"`
@@ -252,6 +256,35 @@ type WeightedPodTerm struct {
 	Preference PodSelectorTerm `json:"preference"`
 }
 
+// FunctionState 函数状态
+// FunctionState 函数状态
+type FunctionState string
+
+const (
+	StateActive   FunctionState = "active"
+	StateInactive FunctionState = "inactive"
+	StateError    FunctionState = "error"
+	StateDeploying FunctionState = "deploying"
+)
+
+// FunctionConfig 函数配置
+type FunctionConfig struct {
+	Timeout    int `json:"timeout"`
+	Memory     int `json:"memory"`
+	MaxRetries int `json:"max_retries"`
+}
+
+// Config 边缘计算配置
+type Config struct {
+	Enabled        bool `json:"enabled"`
+	MaxFunctions   int  `json:"max_functions"`
+	MaxWorkloads   int  `json:"max_workloads"`
+	DefaultTimeout int  `json:"default_timeout"`
+	WasmEnabled    bool `json:"wasm_enabled"`
+	GPUEnabled     bool `json:"gpu_enabled"`
+	AutoScaling    bool `json:"auto_scaling"`
+}
+
 // Function 函数计算
 type Function struct {
 	ID          string          `json:"id"`
@@ -261,6 +294,8 @@ type Function struct {
 	Handler     string          `json:"handler"`
 	Code        string          `json:"code"`
 	CodePath    string          `json:"code_path"`
+	State       FunctionState   `json:"state"`
+	Config      FunctionConfig  `json:"config"`
 	MemoryMB    int             `json:"memory_mb"`
 	TimeoutSec  int             `json:"timeout_sec"`
 	EnvVars     map[string]string `json:"env_vars,omitempty"`

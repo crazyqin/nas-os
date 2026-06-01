@@ -20,7 +20,7 @@ const (
 	GameGarryMod     GameType = "gmod"
 	GameTeamFortress GameType = "tf2"
 	GameLeft4Dead    GameType = "l4d2"
-	GameDon'tStarve  GameType = "dst"
+	GameDontStarve   GameType = "dst"
 	GameProjectZomboid GameType = "pz"
 	GameUnturned     GameType = "unturned"
 	GameSevenDays    GameType = "7d2d"
