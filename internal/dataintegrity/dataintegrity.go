@@ -1,12 +1,15 @@
 // Package dataintegrity 提供数据完整性校验功能
+// 参考 TrueNAS Self-Healing Checksums 设计，提供文件校验和计算、损坏检测、
+// 自动修复建议、完整性报告等功能。
 package dataintegrity
 
 import (
 	"context"
-	"golang.org/x/crypto/blake2b"
+	"crypto/md5"
 	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"hash/crc32"
 	"io"
@@ -16,7 +19,307 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"golang.org/x/crypto/blake2b"
 )
+
+// ========== 错误定义 ==========
+
+var (
+	// ErrFileNotFound 文件不存在.
+	ErrFileNotFound = errors.New("文件不存在")
+	// ErrChecksumNotFound 未找到存储的校验和记录.
+	ErrChecksumNotFound = errors.New("未找到校验和记录")
+	// ErrIntegrityJobNotFound 完整性检查任务不存在.
+	ErrIntegrityJobNotFound = errors.New("完整性检查任务不存在")
+	// ErrJobAlreadyRunning 已有任务正在运行.
+	ErrJobAlreadyRunning = errors.New("已有任务正在运行")
+	// ErrJobNotRunning 当前没有运行中的任务.
+	ErrJobNotRunning = errors.New("当前没有运行中的任务")
+	// ErrInvalidAlgorithm 不支持的校验算法.
+	ErrInvalidAlgorithm = errors.New("不支持的校验算法")
+	// ErrCorruptionDetected 检测到数据损坏.
+	ErrCorruptionDetected = errors.New("检测到数据损坏")
+	// ErrRepairFailed 修复失败.
+	ErrRepairFailed = errors.New("修复失败")
+	// ErrPoolNotFound 存储池不存在.
+	ErrPoolNotFound = errors.New("存储池不存在")
+	// ErrPathRequired 必须指定路径.
+	ErrPathRequired = errors.New("必须指定路径")
+)
+
+// ========== 校验算法类型 ==========
+
+// Algorithm 校验算法.
+type Algorithm string
+
+const (
+	// AlgorithmMD5 MD5 算法（快速，适合非安全场景）.
+	AlgorithmMD5 Algorithm = "md5"
+	// AlgorithmSHA256 SHA-256 算法（默认）.
+	AlgorithmSHA256 Algorithm = "sha256"
+	// AlgorithmSHA512 SHA-512 算法.
+	AlgorithmSHA512 Algorithm = "sha512"
+	// AlgorithmBLAKE2b BLAKE2b-256 算法.
+	AlgorithmBLAKE2b Algorithm = "blake2b"
+	// AlgorithmCRC32 CRC-32 算法（快速但不防篡改）.
+	AlgorithmCRC32 Algorithm = "crc32"
+)
+
+// supportedAlgorithms 支持的算法集合.
+var supportedAlgorithms = map[Algorithm]bool{
+	AlgorithmMD5:     true,
+	AlgorithmSHA256:  true,
+	AlgorithmSHA512:  true,
+	AlgorithmBLAKE2b: true,
+	AlgorithmCRC32:   true,
+}
+
+// IsSupportedAlgorithm 检查算法是否受支持.
+func IsSupportedAlgorithm(algo Algorithm) bool {
+	return supportedAlgorithms[algo]
+}
+
+// ========== 完整性状态类型 ==========
+
+// IntegrityStatus 完整性状态.
+type IntegrityStatus string
+
+const (
+	// StatusIntact 完整.
+	StatusIntact IntegrityStatus = "intact"
+	// StatusCorrupted 损坏.
+	StatusCorrupted IntegrityStatus = "corrupted"
+	// StatusUnknown 未知（未校验过）.
+	StatusUnknown IntegrityStatus = "unknown"
+	// StatusRepaired 已修复.
+	StatusRepaired IntegrityStatus = "repaired"
+	// StatusRepairFailed 修复失败.
+	StatusRepairFailed IntegrityStatus = "repair_failed"
+)
+
+// ========== 任务状态类型 ==========
+
+// JobState 完整性检查任务状态.
+type JobState string
+
+const (
+	// JobStatePending 等待执行.
+	JobStatePending JobState = "pending"
+	// JobStateRunning 运行中.
+	JobStateRunning JobState = "running"
+	// JobStateCompleted 已完成.
+	JobStateCompleted JobState = "completed"
+	// JobStateFailed 失败.
+	JobStateFailed JobState = "failed"
+	// JobStateCancelled 已取消.
+	JobStateCancelled JobState = "cancelled"
+)
+
+// ========== 核心数据结构 ==========
+
+// FileChecksum 文件校验和记录.
+type FileChecksum struct {
+	ID        int64     `json:"id"`
+	FilePath  string    `json:"file_path"`
+	Algorithm Algorithm `json:"algorithm"`
+	Checksum  string    `json:"checksum"`
+	FileSize  int64     `json:"file_size"`
+	ModTime   time.Time `json:"mod_time"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// IntegrityCheck 完整性检查记录.
+type IntegrityCheck struct {
+	ID           int64           `json:"id"`
+	FilePath     string          `json:"file_path"`
+	Algorithm    Algorithm       `json:"algorithm"`
+	ExpectedHash string          `json:"expected_hash"`
+	ActualHash   string          `json:"actual_hash"`
+	Status       IntegrityStatus `json:"status"`
+	Message      string          `json:"message"`
+	CheckedAt    time.Time       `json:"checked_at"`
+}
+
+// RepairSuggestion 修复建议.
+type RepairSuggestion struct {
+	FilePath    string          `json:"file_path"`
+	Status      IntegrityStatus `json:"status"`
+	Strategy    RepairStrategy  `json:"strategy"`
+	Description string          `json:"description"`
+	Sources     []RepairSource  `json:"sources,omitempty"`
+}
+
+// RepairStrategy 修复策略.
+type RepairStrategy string
+
+const (
+	// StrategySnapshotRestore 从快照恢复.
+	StrategySnapshotRestore RepairStrategy = "snapshot_restore"
+	// StrategyReplicaRestore 从副本恢复.
+	StrategyReplicaRestore RepairStrategy = "replica_restore"
+	// StrategyBackupRestore 从备份恢复.
+	StrategyBackupRestore RepairStrategy = "backup_restore"
+	// StrategyScrubRepair 通过ZFS Scrub修复.
+	StrategyScrubRepair RepairStrategy = "scrub_repair"
+	// StrategyManual 人工处理.
+	StrategyManual RepairStrategy = "manual"
+)
+
+// RepairSource 修复来源.
+type RepairSource struct {
+	Type    string `json:"type"`
+	Source  string `json:"source"`
+	ModTime string `json:"mod_time"`
+	Size    int64  `json:"size"`
+}
+
+// IntegrityJob 完整性检查任务.
+type IntegrityJob struct {
+	ID         int64     `json:"id"`
+	Name       string    `json:"name"`
+	Path       string    `json:"path"`
+	Algorithm  Algorithm `json:"algorithm"`
+	Recursive  bool      `json:"recursive"`
+	State      JobState  `json:"state"`
+	Progress   float64   `json:"progress"`
+	TotalFiles int       `json:"total_files"`
+	Scanned    int       `json:"scanned"`
+	Intact     int       `json:"intact"`
+	Corrupted  int       `json:"corrupted"`
+	Unknown    int       `json:"unknown"`
+	ErrorMsg   string    `json:"error_msg,omitempty"`
+	StartedAt  time.Time `json:"started_at"`
+	EndedAt    time.Time `json:"ended_at,omitempty"`
+}
+
+// IntegrityReport 完整性报告.
+type IntegrityReport struct {
+	GeneratedAt  time.Time            `json:"generated_at"`
+	Summary      ReportSummary        `json:"summary"`
+	Files        []FileIntegrityEntry `json:"files"`
+	RepairNeeded []RepairSuggestion   `json:"repair_needed,omitempty"`
+}
+
+// ReportSummary 报告摘要.
+type ReportSummary struct {
+	TotalFiles   int       `json:"total_files"`
+	Intact       int       `json:"intact"`
+	Corrupted    int       `json:"corrupted"`
+	Unknown      int       `json:"unknown"`
+	Repaired     int       `json:"repaired"`
+	TotalSize    int64     `json:"total_size"`
+	LastScanTime time.Time `json:"last_scan_time"`
+}
+
+// FileIntegrityEntry 文件完整性条目.
+type FileIntegrityEntry struct {
+	FilePath  string          `json:"file_path"`
+	FileSize  int64           `json:"file_size"`
+	Algorithm Algorithm       `json:"algorithm"`
+	Checksum  string          `json:"checksum"`
+	Status    IntegrityStatus `json:"status"`
+	LastCheck time.Time       `json:"last_check"`
+}
+
+// ========== 请求/响应结构 ==========
+
+// CalculateChecksumRequest 计算校验和请求.
+type CalculateChecksumRequest struct {
+	FilePath  string    `json:"file_path" binding:"required"`
+	Algorithm Algorithm `json:"algorithm"`
+}
+
+// VerifyFileRequest 校验文件请求.
+type VerifyFileRequest struct {
+	FilePath string `json:"file_path" binding:"required"`
+}
+
+// CreateJobRequest 创建完整性检查任务请求.
+type CreateJobRequest struct {
+	Name      string    `json:"name" binding:"required"`
+	Path      string    `json:"path" binding:"required"`
+	Algorithm Algorithm `json:"algorithm"`
+	Recursive bool      `json:"recursive"`
+}
+
+// RepairRequest 修复请求.
+type RepairRequest struct {
+	FilePath string         `json:"file_path" binding:"required"`
+	Strategy RepairStrategy `json:"strategy" binding:"required"`
+	Source   string         `json:"source"`
+}
+
+// ReportRequest 报告请求.
+type ReportRequest struct {
+	Path      string    `json:"path"`
+	Algorithm Algorithm `json:"algorithm"`
+}
+
+// ========== 接口定义 ==========
+
+// ChecksumStore 校验和存储接口.
+type ChecksumStore interface {
+	SaveChecksum(cs *FileChecksum) error
+	GetChecksum(filePath string, algo Algorithm) (*FileChecksum, error)
+	ListChecksums(pathPrefix string, algo Algorithm) ([]*FileChecksum, error)
+	DeleteChecksum(filePath string, algo Algorithm) error
+	SaveIntegrityCheck(check *IntegrityCheck) error
+	GetIntegrityHistory(filePath string, limit int) ([]*IntegrityCheck, error)
+	SaveJob(job *IntegrityJob) error
+	GetJob(jobID int64) (*IntegrityJob, error)
+	ListJobs(limit int) ([]*IntegrityJob, error)
+}
+
+// FileSystemProvider 文件系统接口.
+type FileSystemProvider interface {
+	Stat(path string) (*FileInfo, error)
+	ListDir(path string) ([]*FileInfo, error)
+	ReadFile(path string, offset int64, size int) ([]byte, error)
+	GetFileSize(path string) (int64, error)
+}
+
+// SnapshotProvider 快照提供者接口.
+type SnapshotProvider interface {
+	ListSnapshots(path string) ([]*SnapshotInfo, error)
+	RestoreFromSnapshot(snapshotID string, filePath string) error
+}
+
+// SnapshotInfo 快照信息.
+type SnapshotInfo struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Path      string    `json:"path"`
+	CreatedAt time.Time `json:"created_at"`
+	Size      int64     `json:"size"`
+}
+
+// ReplicationProvider 副本提供者接口.
+type ReplicationProvider interface {
+	ListReplicas(filePath string) ([]*ReplicaInfo, error)
+	RestoreFromReplica(replicaID string, targetPath string) error
+}
+
+// ReplicaInfo 副本信息.
+type ReplicaInfo struct {
+	ID      string    `json:"id"`
+	Source  string    `json:"source"`
+	Target  string    `json:"target"`
+	Status  string    `json:"status"`
+	ModTime time.Time `json:"mod_time"`
+	Size    int64     `json:"size"`
+}
+
+// FileInfo 文件信息.
+type FileInfo struct {
+	Name    string    `json:"name"`
+	Path    string    `json:"path"`
+	Size    int64     `json:"size"`
+	ModTime time.Time `json:"mod_time"`
+	IsDir   bool      `json:"is_dir"`
+}
+
+// ========== Manager ==========
 
 // Manager 数据完整性校验管理器.
 type Manager struct {
@@ -81,6 +384,13 @@ func (m *Manager) SetDefaultAlgorithm(algo Algorithm) error {
 	return nil
 }
 
+// GetDefaultAlgorithm 获取默认校验算法.
+func (m *Manager) GetDefaultAlgorithm() Algorithm {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.defaultAlgo
+}
+
 // Start 启动管理器.
 func (m *Manager) Start() {
 	m.mu.Lock()
@@ -90,7 +400,6 @@ func (m *Manager) Start() {
 	}
 	m.running = true
 	m.mu.Unlock()
-
 	m.logger.Info("data integrity manager started")
 }
 
@@ -98,20 +407,23 @@ func (m *Manager) Start() {
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-
 	if !m.running {
 		return
 	}
 	m.running = false
 	close(m.stopCh)
-
-	// 取消所有运行中的任务
 	for id, cancel := range m.jobCancel {
 		cancel()
 		delete(m.jobCancel, id)
 	}
-
 	m.logger.Info("data integrity manager stopped")
+}
+
+// IsRunning 返回管理器是否正在运行.
+func (m *Manager) IsRunning() bool {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.running
 }
 
 // ========== 校验和计算 ==========
@@ -130,7 +442,6 @@ func (m *Manager) CalculateChecksum(ctx context.Context, filePath string, algo A
 		return nil, ErrInvalidAlgorithm
 	}
 
-	// 获取文件信息
 	info, err := m.getFileInfo(filePath)
 	if err != nil {
 		return nil, err
@@ -139,13 +450,11 @@ func (m *Manager) CalculateChecksum(ctx context.Context, filePath string, algo A
 		return nil, fmt.Errorf("路径是目录而非文件: %s", filePath)
 	}
 
-	// 计算校验和
 	checksum, err := m.computeHash(ctx, filePath, algo)
 	if err != nil {
 		return nil, fmt.Errorf("计算校验和失败: %w", err)
 	}
 
-	// 构建记录
 	now := time.Now()
 	cs := &FileChecksum{
 		FilePath:  filePath,
@@ -157,7 +466,6 @@ func (m *Manager) CalculateChecksum(ctx context.Context, filePath string, algo A
 		UpdatedAt: now,
 	}
 
-	// 尝试更新已有记录
 	existing, err := m.store.GetChecksum(filePath, algo)
 	if err == nil && existing != nil {
 		cs.ID = existing.ID
@@ -173,7 +481,6 @@ func (m *Manager) CalculateChecksum(ctx context.Context, filePath string, algo A
 		zap.String("algorithm", string(algo)),
 		zap.String("checksum", checksum),
 	)
-
 	return cs, nil
 }
 
@@ -194,8 +501,6 @@ func (m *Manager) CalculateChecksumBatch(ctx context.Context, dirPath string, al
 	}
 
 	var results []*FileChecksum
-	var errs []error
-
 	for _, fi := range files {
 		if fi.IsDir {
 			continue
@@ -205,27 +510,13 @@ func (m *Manager) CalculateChecksumBatch(ctx context.Context, dirPath string, al
 			return results, ctx.Err()
 		default:
 		}
-
 		cs, err := m.CalculateChecksum(ctx, fi.Path, algo)
 		if err != nil {
-			m.logger.Warn("failed to calculate checksum",
-				zap.String("file", fi.Path),
-				zap.Error(err),
-			)
-			errs = append(errs, err)
+			m.logger.Warn("failed to calculate checksum", zap.String("file", fi.Path), zap.Error(err))
 			continue
 		}
 		results = append(results, cs)
 	}
-
-	if len(errs) > 0 {
-		m.logger.Warn("batch checksum completed with errors",
-			zap.Int("total", len(files)),
-			zap.Int("success", len(results)),
-			zap.Int("errors", len(errs)),
-		)
-	}
-
 	return results, nil
 }
 
@@ -241,7 +532,6 @@ func (m *Manager) VerifyFile(ctx context.Context, filePath string) (*IntegrityCh
 	algo := m.defaultAlgo
 	m.mu.RUnlock()
 
-	// 获取已存储的校验和
 	stored, err := m.store.GetChecksum(filePath, algo)
 	if err != nil {
 		check := &IntegrityCheck{
@@ -254,13 +544,11 @@ func (m *Manager) VerifyFile(ctx context.Context, filePath string) (*IntegrityCh
 		return check, ErrChecksumNotFound
 	}
 
-	// 计算当前校验和
 	actualChecksum, err := m.computeHash(ctx, filePath, algo)
 	if err != nil {
 		return nil, fmt.Errorf("计算校验和失败: %w", err)
 	}
 
-	// 对比
 	now := time.Now()
 	check := &IntegrityCheck{
 		FilePath:     filePath,
@@ -283,9 +571,7 @@ func (m *Manager) VerifyFile(ctx context.Context, filePath string) (*IntegrityCh
 		)
 	}
 
-	// 保存检查记录
 	_ = m.store.SaveIntegrityCheck(check)
-
 	return check, nil
 }
 
@@ -310,19 +596,14 @@ func (m *Manager) VerifyDirectory(ctx context.Context, dirPath string, recursive
 			return results, ctx.Err()
 		default:
 		}
-
 		check, err := m.VerifyFile(ctx, fi.Path)
 		if check != nil {
 			results = append(results, check)
 		}
 		if err != nil {
-			m.logger.Debug("verify skipped",
-				zap.String("file", fi.Path),
-				zap.Error(err),
-			)
+			m.logger.Debug("verify skipped", zap.String("file", fi.Path), zap.Error(err))
 		}
 	}
-
 	return results, nil
 }
 
@@ -346,7 +627,6 @@ func (m *Manager) CreateJob(req CreateJobRequest) (*IntegrityJob, error) {
 	}
 
 	m.mu.Lock()
-	// 检查是否有运行中的任务
 	for _, j := range m.jobs {
 		if j.State == JobStateRunning {
 			m.mu.Unlock()
@@ -367,7 +647,6 @@ func (m *Manager) CreateJob(req CreateJobRequest) (*IntegrityJob, error) {
 	m.jobs[job.ID] = job
 	m.mu.Unlock()
 
-	// 持久化
 	if m.store != nil {
 		_ = m.store.SaveJob(job)
 	}
@@ -377,7 +656,6 @@ func (m *Manager) CreateJob(req CreateJobRequest) (*IntegrityJob, error) {
 		zap.String("path", req.Path),
 		zap.String("algorithm", string(req.Algorithm)),
 	)
-
 	return job, nil
 }
 
@@ -400,14 +678,11 @@ func (m *Manager) StartJob(jobID int64) error {
 	job.StartedAt = time.Now()
 	m.mu.Unlock()
 
-	// 保存状态
 	if m.store != nil {
 		_ = m.store.SaveJob(job)
 	}
 
-	// 异步执行
 	go m.runJob(ctx, job, cancel)
-
 	return nil
 }
 
@@ -432,7 +707,6 @@ func (m *Manager) CancelJob(jobID int64) error {
 			_ = m.store.SaveJob(job)
 		}
 	}
-
 	return nil
 }
 
@@ -440,7 +714,6 @@ func (m *Manager) CancelJob(jobID int64) error {
 func (m *Manager) GetJob(jobID int64) (*IntegrityJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-
 	job, ok := m.jobs[jobID]
 	if !ok {
 		return nil, ErrIntegrityJobNotFound
@@ -452,7 +725,6 @@ func (m *Manager) GetJob(jobID int64) (*IntegrityJob, error) {
 func (m *Manager) ListJobs() []*IntegrityJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-
 	jobs := make([]*IntegrityJob, 0, len(m.jobs))
 	for _, j := range m.jobs {
 		jobs = append(jobs, j)
@@ -468,14 +740,12 @@ func (m *Manager) runJob(ctx context.Context, job *IntegrityJob, cancel context.
 		m.mu.Unlock()
 	}()
 
-	// 列出文件
 	files, err := m.listFiles(job.Path, job.Recursive)
 	if err != nil {
 		m.failJob(job, fmt.Sprintf("列出文件失败: %v", err))
 		return
 	}
 
-	// 过滤非文件
 	var regularFiles []*FileInfo
 	for _, fi := range files {
 		if !fi.IsDir {
@@ -503,10 +773,12 @@ func (m *Manager) runJob(ctx context.Context, job *IntegrityJob, cancel context.
 		default:
 		}
 
-		check, err := m.VerifyFile(ctx, fi.Path)
+		check, _ := m.VerifyFile(ctx, fi.Path)
 		m.mu.Lock()
 		job.Scanned = i + 1
-		job.Progress = float64(job.Scanned) / float64(job.TotalFiles)
+		if job.TotalFiles > 0 {
+			job.Progress = float64(job.Scanned) / float64(job.TotalFiles)
+		}
 		if check != nil {
 			switch check.Status {
 			case StatusIntact:
@@ -521,20 +793,11 @@ func (m *Manager) runJob(ctx context.Context, job *IntegrityJob, cancel context.
 		}
 		m.mu.Unlock()
 
-		if err != nil && err != ErrChecksumNotFound {
-			m.logger.Debug("verify error in job",
-				zap.String("file", fi.Path),
-				zap.Error(err),
-			)
-		}
-
-		// 定期保存进度
 		if i%100 == 0 && m.store != nil {
 			_ = m.store.SaveJob(job)
 		}
 	}
 
-	// 完成
 	m.mu.Lock()
 	job.State = JobStateCompleted
 	job.Progress = 1.0
@@ -557,19 +820,13 @@ func (m *Manager) runJob(ctx context.Context, job *IntegrityJob, cancel context.
 func (m *Manager) failJob(job *IntegrityJob, msg string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-
 	job.State = JobStateFailed
 	job.ErrorMsg = msg
 	job.EndedAt = time.Now()
-
 	if m.store != nil {
 		_ = m.store.SaveJob(job)
 	}
-
-	m.logger.Error("integrity job failed",
-		zap.Int64("job_id", job.ID),
-		zap.String("error", msg),
-	)
+	m.logger.Error("integrity job failed", zap.Int64("job_id", job.ID), zap.String("error", msg))
 }
 
 // ========== 修复建议 ==========
@@ -580,15 +837,12 @@ func (m *Manager) GetRepairSuggestions(ctx context.Context, filePath string) (*R
 		return nil, ErrPathRequired
 	}
 
-	// 先验证文件
 	check, err := m.VerifyFile(ctx, filePath)
 	if err != nil && err != ErrChecksumNotFound {
 		return nil, err
 	}
 
-	suggestion := &RepairSuggestion{
-		FilePath: filePath,
-	}
+	suggestion := &RepairSuggestion{FilePath: filePath}
 
 	if check == nil || check.Status != StatusCorrupted {
 		suggestion.Status = StatusIntact
@@ -598,11 +852,8 @@ func (m *Manager) GetRepairSuggestions(ctx context.Context, filePath string) (*R
 	}
 
 	suggestion.Status = StatusCorrupted
-
-	// 查找可用修复来源
 	var sources []RepairSource
 
-	// 1. 检查快照
 	m.mu.RLock()
 	snapProv := m.snapProvider
 	repProv := m.repProvider
@@ -613,10 +864,8 @@ func (m *Manager) GetRepairSuggestions(ctx context.Context, filePath string) (*R
 		if err == nil && len(snapshots) > 0 {
 			for _, snap := range snapshots {
 				sources = append(sources, RepairSource{
-					Type:    "snapshot",
-					Source:  snap.ID,
-					ModTime: snap.CreatedAt.Format(time.RFC3339),
-					Size:    snap.Size,
+					Type: "snapshot", Source: snap.ID,
+					ModTime: snap.CreatedAt.Format(time.RFC3339), Size: snap.Size,
 				})
 			}
 			suggestion.Strategy = StrategySnapshotRestore
@@ -624,17 +873,14 @@ func (m *Manager) GetRepairSuggestions(ctx context.Context, filePath string) (*R
 		}
 	}
 
-	// 2. 检查副本
 	if repProv != nil && suggestion.Strategy == "" {
 		replicas, err := repProv.ListReplicas(filePath)
 		if err == nil && len(replicas) > 0 {
 			for _, rep := range replicas {
 				if rep.Status == "healthy" || rep.Status == "ok" {
 					sources = append(sources, RepairSource{
-						Type:    "replica",
-						Source:  rep.ID,
-						ModTime: rep.ModTime.Format(time.RFC3339),
-						Size:    rep.Size,
+						Type: "replica", Source: rep.ID,
+						ModTime: rep.ModTime.Format(time.RFC3339), Size: rep.Size,
 					})
 				}
 			}
@@ -645,7 +891,6 @@ func (m *Manager) GetRepairSuggestions(ctx context.Context, filePath string) (*R
 		}
 	}
 
-	// 3. 无可用来源时建议 Scrub 或人工处理
 	if suggestion.Strategy == "" {
 		suggestion.Strategy = StrategyScrubRepair
 		suggestion.Description = "未找到可用的快照或副本，建议运行 ZFS Scrub 尝试自动修复"
@@ -659,11 +904,8 @@ func (m *Manager) GetRepairSuggestions(ctx context.Context, filePath string) (*R
 
 // GenerateReport 生成完整性报告.
 func (m *Manager) GenerateReport(ctx context.Context, req ReportRequest) (*IntegrityReport, error) {
-	report := &IntegrityReport{
-		GeneratedAt: time.Now(),
-	}
+	report := &IntegrityReport{GeneratedAt: time.Now()}
 
-	// 获取所有校验和记录
 	var algo Algorithm
 	if req.Algorithm != "" {
 		algo = req.Algorithm
@@ -684,14 +926,10 @@ func (m *Manager) GenerateReport(ctx context.Context, req ReportRequest) (*Integ
 
 	for _, cs := range checksums {
 		entry := FileIntegrityEntry{
-			FilePath:  cs.FilePath,
-			FileSize:  cs.FileSize,
-			Algorithm: cs.Algorithm,
-			Checksum:  cs.Checksum,
-			LastCheck: cs.UpdatedAt,
+			FilePath: cs.FilePath, FileSize: cs.FileSize,
+			Algorithm: cs.Algorithm, Checksum: cs.Checksum, LastCheck: cs.UpdatedAt,
 		}
 
-		// 验证当前文件
 		select {
 		case <-ctx.Done():
 			return report, ctx.Err()
@@ -710,7 +948,6 @@ func (m *Manager) GenerateReport(ctx context.Context, req ReportRequest) (*Integ
 				summary.Intact++
 			case StatusCorrupted:
 				summary.Corrupted++
-				// 获取修复建议
 				suggestion, sugErr := m.GetRepairSuggestions(ctx, cs.FilePath)
 				if sugErr == nil {
 					corrupted = append(corrupted, *suggestion)
@@ -731,7 +968,6 @@ func (m *Manager) GenerateReport(ctx context.Context, req ReportRequest) (*Integ
 	report.Summary = summary
 	report.Files = entries
 	report.RepairNeeded = corrupted
-
 	return report, nil
 }
 
@@ -784,13 +1020,14 @@ func (m *Manager) computeHash(ctx context.Context, filePath string, algo Algorit
 	}
 	defer f.Close()
 
-	// 创建 hash writer
 	var hashWriter interface {
 		io.Writer
 		Sum(b []byte) []byte
 	}
 
 	switch algo {
+	case AlgorithmMD5:
+		hashWriter = md5.New()
 	case AlgorithmSHA256:
 		hashWriter = sha256.New()
 	case AlgorithmSHA512:
@@ -807,15 +1044,13 @@ func (m *Manager) computeHash(ctx context.Context, filePath string, algo Algorit
 		return "", ErrInvalidAlgorithm
 	}
 
-	// 支持 context 取消的读取
-	buf := make([]byte, 64*1024) // 64KB buffer
+	buf := make([]byte, 64*1024)
 	for {
 		select {
 		case <-ctx.Done():
 			return "", ctx.Err()
 		default:
 		}
-
 		n, readErr := f.Read(buf)
 		if n > 0 {
 			if _, err := hashWriter.Write(buf[:n]); err != nil {
@@ -842,7 +1077,6 @@ func (m *Manager) getFileInfo(path string) (*FileInfo, error) {
 		return fs.Stat(path)
 	}
 
-	// 默认使用 os
 	info, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -870,11 +1104,10 @@ func (m *Manager) listFiles(dirPath string, recursive bool) ([]*FileInfo, error)
 		return fs.ListDir(dirPath)
 	}
 
-	// 默认使用 filepath.Walk
 	var files []*FileInfo
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return nil // 跳过错误
+			return nil
 		}
 		files = append(files, &FileInfo{
 			Name:    info.Name(),
