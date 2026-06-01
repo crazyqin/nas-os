@@ -122,6 +122,12 @@ import (
 	"nas-os/internal/photoai"
 	"nas-os/internal/syslogserver"
 	"nas-os/internal/digitallegacy"
+	"nas-os/internal/containerimagecache"
+	"nas-os/internal/custombranding"
+	"nas-os/internal/multiclusterfed"
+	"nas-os/internal/smbdirect"
+	"nas-os/internal/storagecostforecast"
+	"nas-os/internal/smartnasrouter"
 
 	_ "nas-os/docs/swagger" // Swagger 文档
 
@@ -210,7 +216,7 @@ type Server struct {
 	smartMigrateMgr *smartmigrate.SmartMigrateManager
 	// v2.481.0 竞品对标新增模块
 	diskbenchMgr    *diskbench.BenchmarkManager
-	healthscoreMgr  *healthscore.Manager
+	healthscoreMgr  *healthscore.HealthScore
 	fastTransferMgr *fasttransfer.TransferManager
 	// v2.485.0 新增模块
 	thermalMgr     *thermal.Manager
@@ -266,6 +272,12 @@ type Server struct {
 	photoAIMgr         *photoai.Manager
 	syslogServerMgr    *syslogserver.Manager
 	digitalLegacyMgr   *digitallegacy.Manager
+	containerImageCacheMgr *containerimagecache.ImageCacheManager
+	customBrandingMgr  *custombranding.BrandingEngine
+	multiClusterFedMgr *multiclusterfed.ClusterFederationManager
+	smbDirectMgr       *smbdirect.SMBDirectManager
+	storageCostForecastMgr *storagecostforecast.CostForecastEngine
+	smartNASRouterMgr     *smartnasrouter.Manager
 }
 
 // NewServer 创建 Web 服务器.
@@ -704,11 +716,10 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 磁盘性能测试模块就绪")
 
 	// 初始化系统健康评分管理器（对标 TrueNAS Dashboard）
-	healthscoreMgr := healthscore.NewManager(&healthscore.Config{CheckIntervalSec: 300})
-	healthscoreMgr.RegisterChecker(&healthscore.DiskUsageChecker{MountPoint: "/", WarningPct: 80, CriticalPct: 95})
-	healthscoreMgr.RegisterChecker(&healthscore.MemoryChecker{})
-	healthscoreMgr.RegisterChecker(&healthscore.ServiceChecker{Services: []string{"smb", "nfs", "docker"}})
-	healthscoreMgr.RegisterChecker(&healthscore.TemperatureChecker{WarningC: 70, CriticalC: 85})
+	healthscoreMgr := healthscore.NewHealthScoreManager()
+	healthscoreMgr.SetWeights(healthscore.DefaultWeights)
+	dc := healthscore.NewDefaultCollectors(healthscoreMgr)
+	dc.RegisterDefaultCollectors()
 	log.Println("✅ 系统健康评分模块就绪")
 
 	// 初始化高速传输管理器（对标群晖 Presto File Server）
@@ -856,8 +867,17 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	musicServerMgr := musicserver.NewManager()
 	photoAIMgr := photoai.NewManager(nil)
 	syslogServerMgr := syslogserver.NewManager()
-	digitalLegacyMgr := digitallegacy.NewManager(logger, nil, []byte("nas-os-legacy-key"))
+	digitalLegacyMgr := digitallegacy.NewLegacyService([]byte("nas-os-legacy-key"))
 	log.Println("✅ Spotlight 索引就绪")
+
+	// v2.548.0 新增模块初始化
+	containerImageCacheMgr := containerimagecache.New(containerimagecache.DefaultCacheConfig())
+	customBrandingMgr := custombranding.New()
+	multiClusterFedMgr := multiclusterfed.New(multiclusterfed.FederationConfig{})
+	smbDirectMgr := smbdirect.New(smbdirect.DefaultConfig())
+	storageCostForecastMgr := storagecostforecast.New()
+	smartNASRouterMgr := smartnasrouter.NewManager(nil)
+	log.Println("✅ v2.548.0 新增模块就绪")
 
 	s := &Server{
 		engine:        engine,
@@ -1027,6 +1047,12 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		photoAIMgr:         photoAIMgr,
 		syslogServerMgr:    syslogServerMgr,
 		digitalLegacyMgr:   digitalLegacyMgr,
+		containerImageCacheMgr: containerImageCacheMgr,
+		customBrandingMgr:  customBrandingMgr,
+		multiClusterFedMgr: multiClusterFedMgr,
+		smbDirectMgr:       smbDirectMgr,
+		storageCostForecastMgr: storageCostForecastMgr,
+		smartNASRouterMgr:     smartNASRouterMgr,
 	}
 
 	// 设置 WebDAV 认证函数
@@ -1570,6 +1596,9 @@ func (s *Server) setupRoutes() {
 		if s.photoAIMgr != nil {
 			photoai.NewHandler(s.photoAIMgr).RegisterRoutes(newMux)
 		}
+		if s.healthscoreMgr != nil {
+			healthscore.NewHandlers(s.healthscoreMgr).RegisterRoutes(newMux)
+		}
 
 		// v2.513.0 新增模块路由
 		if s.airRecommendMgr != nil {
@@ -1623,7 +1652,25 @@ func (s *Server) setupRoutes() {
 			syslogserver.NewHandlers(s.syslogServerMgr).RegisterRoutes(api)
 		}
 		if s.digitalLegacyMgr != nil {
-			digitallegacy.NewHandlers(s.digitalLegacyMgr).RegisterRoutes(api)
+			digitallegacy.NewHandlers(s.digitalLegacyMgr).RegisterRoutes(newMux, "/api/v1/legacy")
+		}
+		if s.containerImageCacheMgr != nil {
+			containerimagecache.NewHandler(s.containerImageCacheMgr).RegisterRoutes(newMux)
+		}
+		if s.customBrandingMgr != nil {
+			custombranding.NewHandler(s.customBrandingMgr).RegisterRoutes(newMux)
+		}
+		if s.multiClusterFedMgr != nil {
+			multiclusterfed.NewHandler(s.multiClusterFedMgr).RegisterRoutes(newMux)
+		}
+		if s.smbDirectMgr != nil {
+			smbdirect.NewHandler(s.smbDirectMgr).RegisterRoutes(newMux)
+		}
+		if s.storageCostForecastMgr != nil {
+			storagecostforecast.NewHandler(s.storageCostForecastMgr).RegisterRoutes(newMux)
+		}
+		if s.smartNASRouterMgr != nil {
+			smartnasrouter.NewHandlers(s.smartNASRouterMgr).RegisterRoutes(api)
 		}
 		s.engine.NoRoute(gin.WrapH(newMux))
 
