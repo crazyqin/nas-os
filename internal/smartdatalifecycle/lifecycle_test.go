@@ -520,6 +520,7 @@ func TestPatternMatching(t *testing.T) {
 
 func TestDeduplicator(t *testing.T) {
 	config := DefaultConfig()
+	config.Dedup.MinFileSizeBytes = 0 // 不跳过小文件
 	manager := NewManager(config, nil)
 
 	ctx := context.Background()
