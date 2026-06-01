@@ -1,3 +1,18 @@
+## v2.552.0 (2026-06-02)
+
+### 新增功能
+- **CXL内存池化** (cxlmempool): CXL 1.1/2.0/3.0/3.1设备管理、NUMA感知内存分层、多策略分配、设备发现与监控
+- **向量数据库** (vectordb): 嵌入式向量数据库，支持余弦/欧氏/内积/曼哈顿距离、元数据过滤、批量插入、TopK搜索
+- **气隙备份** (airgapbackup): 物理隔离备份管理、WORM合规/治理模式、链式校验、定时断连、灾难恢复
+- **DPDK高性能网络加速** (dpdkaccel): 用户态网络栈、RSS多队列、流表规则、流量分类QoS、零拷贝收发包
+- **SmartNIC/DPU网络卸载** (smartnicoffload): SmartNIC设备发现、OVS/IPsec/TLS/压缩/RDMA卸载、性能监控
+- **GPU推理服务** (gpuinference): 多模型并发推理、模型热加载、显存管理、推理队列调度、多精度支持
+
+### 竞品学习
+- 学习 TrueNAS 25.10: CXL内存池化、DPDK网络加速、SmartNIC卸载、GPU推理
+- 学习 Synology DSM: 气隙备份、WORM保护、链式校验
+- 创新方向: 向量数据库(RAG/AI)、GPU推理服务、CXL内存分层
+
 ## v2.550.0 (2026-06-02)
 
 ### 新功能
