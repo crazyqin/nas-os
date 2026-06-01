@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.527.0 Stable (2026-05-30)
+> **最新版本**: v2.550.0 Stable (2026-06-01)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -71,6 +71,12 @@
 | 📈 预测分析 | 磁盘健康预测/容量趋势 | ✅ 完成 |
 | 🔗 LDAP/AD | 企业目录集成/统一认证 | ✅ 完成 |
 | 📋 自动化引擎 | 工作流/定时任务/触发器 | ✅ 完成 |
+| 🧠 CXL内存池化 | CXL 1.1/2.0/3.0设备管理、NUMA感知分层、多策略分配 | ✅ 完成 |
+| 🔢 向量数据库 | 嵌入式向量DB、HNSW/IVF索引、余弦/欧氏/内积相似度、RAG支持 | ✅ 完成 |
+| 🛡️ 气隙备份 | 物理隔离备份、WORM保护、链式校验、定时断连、灾难恢复演练 | ✅ 完成 |
+| ⚡ DPDK网络加速 | 用户态网络栈、RSS多队列、流表规则、QoS流量分类、零拷贝 | ✅ 完成 |
+| 🔌 SmartNIC/DPU卸载 | OVS/IPsec/TLS/压缩/RDMA卸载、SmartNIC设备管理与监控 | ✅ 完成 |
+| 🎮 GPU推理服务 | 多模型并发、模型热加载、显存管理、推理队列、多精度(FP16/INT8/INT4) | ✅ 完成 |
 | 📰 下载器 | Transmission/qBittorrent 集成 | ✅ 完成 |
 | 🎬 媒体服务 | HLS/DASH 流媒体/转码/字幕 | ✅ 完成 |
 | 🖼️ 照片管理 | 相册/AI 分析/缩略图 | ✅ 完成 |
