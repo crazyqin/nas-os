@@ -612,6 +612,10 @@ func (co *ClusterOrch) SelectNode(key string) (*Node, error) {
 	if len(onlineNodes) == 0 {
 		return nil, ErrNoAvailableNode
 	}
+	// 按 ID 排序保证 map 迭代顺序不影响哈希策略
+	sort.Slice(onlineNodes, func(i, j int) bool {
+		return onlineNodes[i].ID < onlineNodes[j].ID
+	})
 	switch co.lbStrategy {
 	case LBStrategyRoundRobin:
 		return co.selectRoundRobinLocked(onlineNodes), nil

@@ -61,7 +61,7 @@ func (h *Handler) handleConfig(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		writeJSON(w, h.manager.GetConfig())
 	case http.MethodPut:
-		var cfg Config
+		var cfg ComplianceConfig
 		if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
 			http.Error(w, "invalid request body", http.StatusBadRequest)
 			return

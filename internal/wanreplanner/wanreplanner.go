@@ -2,6 +2,7 @@ package wanreplanner
 
 import (
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -220,6 +221,7 @@ func calculateScore(latency time.Duration, packetLoss, jitterMs float64) float64
 }
 
 // activeLinks 返回所有状态为 UP 的链路（调用者需持锁）
+// 结果按 ID 排序以保证一致性
 func (p *WANPlanner) activeLinks() []*WANLink {
 	result := make([]*WANLink, 0)
 	for _, l := range p.links {
@@ -227,6 +229,9 @@ func (p *WANPlanner) activeLinks() []*WANLink {
 			result = append(result, l)
 		}
 	}
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].ID < result[j].ID
+	})
 	return result
 }
 
