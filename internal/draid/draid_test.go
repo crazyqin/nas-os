@@ -109,7 +109,11 @@ func TestCreateArray(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := m.CreateArray(tt.name, tt.level, tt.devices, tt.spares, tt.groupSize, tt.dataDisks, tt.chunkSize)
+			arrName := tt.name
+			if tt.name == "empty-name" {
+				arrName = ""
+			}
+			err := m.CreateArray(arrName, tt.level, tt.devices, tt.spares, tt.groupSize, tt.dataDisks, tt.chunkSize)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreateArray() error = %v, wantErr %v", err, tt.wantErr)
 				return

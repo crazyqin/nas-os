@@ -5,361 +5,137 @@ import (
 	"time"
 )
 
-func TestNewManager(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:           true,
-		MaxSnapshots:      10,
-		MaxTwins:          5,
-		SnapshotRetention: 30,
-		AutoSnapshot:      true,
-		SnapshotInterval:  24,
-		Dr演练Enabled:     true,
+func TestNew(t *testing.T) {
+	dt := New(Config{})
+	if dt == nil {
+		t.Fatal("New 返回 nil")
 	}
-	
-	manager := NewManager(config)
-	if manager == nil {
-		t.Fatal("NewManager returned nil")
-	}
-	
-	if !manager.config.AutoSnapshot {
-		t.Error("Expected AutoSnapshot to be true")
+	if dt.state != StateIdle {
+		t.Fatalf("期望状态=idle, got %s", dt.state)
 	}
 }
 
-func TestManagerStartStop(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:       true,
-		MaxSnapshots:  10,
-		MaxTwins:      5,
-		AutoSnapshot:  false,
+func TestRegisterComponent(t *testing.T) {
+	dt := New(Config{})
+	comp := &Component{
+		ID:       "cpu1",
+		Type:     ComponentCPU,
+		Name:     "CPU",
+		Capacity: 100,
 	}
-	
-	manager := NewManager(config)
-	
-	if err := manager.Start(); err != nil {
-		t.Fatalf("Start failed: %v", err)
-	}
-	
-	manager.Stop()
-}
 
-func TestCreateSnapshot(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
-	}
-	
-	manager := NewManager(config)
-	
-	snapshot, err := manager.CreateSnapshot("test-snapshot", "Test snapshot", SnapshotTypeConfig, nil)
+	err := dt.RegisterComponent(comp)
 	if err != nil {
-		t.Fatalf("CreateSnapshot failed: %v", err)
-	}
-	
-	if snapshot.ID == "" {
-		t.Error("Snapshot ID not generated")
-	}
-	
-	if snapshot.Name != "test-snapshot" {
-		t.Errorf("Expected name test-snapshot, got %s", snapshot.Name)
-	}
-	
-	if snapshot.Version != "2.527.0" {
-		t.Errorf("Expected version 2.527.0, got %s", snapshot.Version)
+		t.Fatalf("注册组件失败: %v", err)
 	}
 }
 
-func TestGetSnapshot(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
-	}
-	
-	manager := NewManager(config)
-	
-	snapshot, _ := manager.CreateSnapshot("test-snapshot", "Test", SnapshotTypeConfig, nil)
-	
-	got, err := manager.GetSnapshot(snapshot.ID)
-	if err != nil {
-		t.Fatalf("GetSnapshot failed: %v", err)
-	}
-	
-	if got.ID != snapshot.ID {
-		t.Errorf("Expected snapshot ID %s, got %s", snapshot.ID, got.ID)
-	}
-}
-
-func TestListSnapshots(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
-	}
-	
-	manager := NewManager(config)
-	
-	manager.CreateSnapshot("snap-1", "Snapshot 1", SnapshotTypeConfig, nil)
-	manager.CreateSnapshot("snap-2", "Snapshot 2", SnapshotTypeFull, nil)
-	
-	snapshots := manager.ListSnapshots()
-	
-	if len(snapshots) != 2 {
-		t.Errorf("Expected 2 snapshots, got %d", len(snapshots))
-	}
-}
-
-func TestDeleteSnapshot(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
-	}
-	
-	manager := NewManager(config)
-	
-	snapshot, _ := manager.CreateSnapshot("test-snapshot", "Test", SnapshotTypeConfig, nil)
-	
-	if err := manager.DeleteSnapshot(snapshot.ID); err != nil {
-		t.Fatalf("DeleteSnapshot failed: %v", err)
-	}
-	
-	_, err := manager.GetSnapshot(snapshot.ID)
+func TestRegisterComponentEmptyID(t *testing.T) {
+	dt := New(Config{})
+	err := dt.RegisterComponent(&Component{Name: "test"})
 	if err == nil {
-		t.Error("Expected error for deleted snapshot")
+		t.Fatal("期望返回错误")
 	}
 }
 
-func TestCreateVirtualTwin(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
-		MaxTwins:     5,
-	}
-	
-	manager := NewManager(config)
-	
-	snapshot, _ := manager.CreateSnapshot("test-snapshot", "Test", SnapshotTypeConfig, nil)
-	
-	resources := TwinResources{
-		CPU:     2,
-		Memory:  4096,
-		Storage: 100 * 1024 * 1024 * 1024,
-	}
-	
-	twin, err := manager.CreateVirtualTwin("test-twin", "Test twin", snapshot.ID, resources)
+func TestUpdateComponentUsage(t *testing.T) {
+	dt := New(Config{})
+	dt.RegisterComponent(&Component{ID: "cpu1", Type: ComponentCPU, Capacity: 100})
+
+	err := dt.UpdateComponentUsage("cpu1", 75)
 	if err != nil {
-		t.Fatalf("CreateVirtualTwin failed: %v", err)
-	}
-	
-	if twin.ID == "" {
-		t.Error("Twin ID not generated")
-	}
-	
-	if twin.Status != TwinStatusCreating {
-		t.Errorf("Expected status creating, got %s", twin.Status)
+		t.Fatalf("更新使用率失败: %v", err)
 	}
 }
 
-func TestGetVirtualTwin(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
-		MaxTwins:     5,
-	}
-	
-	manager := NewManager(config)
-	
-	snapshot, _ := manager.CreateSnapshot("test-snapshot", "Test", SnapshotTypeConfig, nil)
-	
-	twin, _ := manager.CreateVirtualTwin("test-twin", "Test", snapshot.ID, TwinResources{CPU: 2, Memory: 4096})
-	
-	got, err := manager.GetVirtualTwin(twin.ID)
-	if err != nil {
-		t.Fatalf("GetVirtualTwin failed: %v", err)
-	}
-	
-	if got.ID != twin.ID {
-		t.Errorf("Expected twin ID %s, got %s", twin.ID, got.ID)
-	}
-}
-
-func TestListVirtualTwins(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
-		MaxTwins:     5,
-	}
-	
-	manager := NewManager(config)
-	
-	snapshot, _ := manager.CreateSnapshot("test-snapshot", "Test", SnapshotTypeConfig, nil)
-	
-	manager.CreateVirtualTwin("twin-1", "Twin 1", snapshot.ID, TwinResources{CPU: 2, Memory: 4096})
-	manager.CreateVirtualTwin("twin-2", "Twin 2", snapshot.ID, TwinResources{CPU: 4, Memory: 8192})
-	
-	twins := manager.ListVirtualTwins()
-	
-	if len(twins) != 2 {
-		t.Errorf("Expected 2 twins, got %d", len(twins))
-	}
-}
-
-func TestStartStopVirtualTwin(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
-		MaxTwins:     5,
-	}
-	
-	manager := NewManager(config)
-	
-	snapshot, _ := manager.CreateSnapshot("test-snapshot", "Test", SnapshotTypeConfig, nil)
-	
-	twin, _ := manager.CreateVirtualTwin("test-twin", "Test", snapshot.ID, TwinResources{CPU: 2, Memory: 4096})
-	
-	// 等待创建完成
-	time.Sleep(3 * time.Second)
-	
-	if err := manager.StartVirtualTwin(twin.ID); err != nil {
-		t.Fatalf("StartVirtualTwin failed: %v", err)
-	}
-	
-	if twin.Status != TwinStatusRunning {
-		t.Errorf("Expected status running, got %s", twin.Status)
-	}
-	
-	if err := manager.StopVirtualTwin(twin.ID); err != nil {
-		t.Fatalf("StopVirtualTwin failed: %v", err)
-	}
-	
-	if twin.Status != TwinStatusStopped {
-		t.Errorf("Expected status stopped, got %s", twin.Status)
-	}
-}
-
-func TestDestroyVirtualTwin(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
-		MaxTwins:     5,
-	}
-	
-	manager := NewManager(config)
-	
-	snapshot, _ := manager.CreateSnapshot("test-snapshot", "Test", SnapshotTypeConfig, nil)
-	
-	twin, _ := manager.CreateVirtualTwin("test-twin", "Test", snapshot.ID, TwinResources{CPU: 2, Memory: 4096})
-	
-	if err := manager.DestroyVirtualTwin(twin.ID); err != nil {
-		t.Fatalf("DestroyVirtualTwin failed: %v", err)
-	}
-	
-	_, err := manager.GetVirtualTwin(twin.ID)
+func TestUpdateComponentUsageNotFound(t *testing.T) {
+	dt := New(Config{})
+	err := dt.UpdateComponentUsage("nonexistent", 50)
 	if err == nil {
-		t.Error("Expected error for destroyed twin")
+		t.Fatal("期望返回错误")
 	}
 }
 
-func TestCompareSnapshots(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
+func TestCreateScenario(t *testing.T) {
+	dt := New(Config{})
+	scenario := &SimulationScenario{
+		ID:       "sc1",
+		Name:     "负载测试",
+		Duration: time.Hour,
 	}
-	
-	manager := NewManager(config)
-	
-	data1 := map[string]interface{}{
-		"hostname": "nas-old",
-		"version":  "2.526.0",
-	}
-	
-	data2 := map[string]interface{}{
-		"hostname": "nas-new",
-		"version":  "2.527.0",
-		"new_key":  "new_value",
-	}
-	
-	snapshot1, _ := manager.CreateSnapshot("snap-1", "Snapshot 1", SnapshotTypeConfig, data1)
-	snapshot2, _ := manager.CreateSnapshot("snap-2", "Snapshot 2", SnapshotTypeConfig, data2)
-	
-	result, err := manager.CompareSnapshots(snapshot1.ID, snapshot2.ID)
+
+	err := dt.CreateScenario(scenario)
 	if err != nil {
-		t.Fatalf("CompareSnapshots failed: %v", err)
-	}
-	
-	if result.TotalDiffs == 0 {
-		t.Error("Expected differences, got 0")
+		t.Fatalf("创建场景失败: %v", err)
 	}
 }
 
-func TestGenerateTopology(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:      true,
-		MaxSnapshots: 10,
+func TestRunSimulation(t *testing.T) {
+	dt := New(Config{})
+	dt.RegisterComponent(&Component{ID: "cpu1", Type: ComponentCPU, Capacity: 100, Usage: 50})
+	dt.CreateScenario(&SimulationScenario{ID: "sc1", Duration: time.Hour})
+
+	result, err := dt.RunSimulation("sc1")
+	if err != nil {
+		t.Fatalf("运行模拟失败: %v", err)
 	}
-	
-	manager := NewManager(config)
-	
-	topology := manager.GenerateTopology()
-	
-	if topology == nil {
-		t.Fatal("GenerateTopology returned nil")
-	}
-	
-	if len(topology.Nodes) == 0 {
-		t.Error("Expected nodes in topology")
+	if !result.Success {
+		t.Fatal("模拟应该成功")
 	}
 }
 
-func TestGetDashboard(t *testing.T) {
-	config := &DigitalTwinConfig{
-		Enabled:       true,
-		MaxSnapshots:  10,
-		MaxTwins:      5,
-		AutoSnapshot:  true,
-		Dr演练Enabled: true,
-	}
-	
-	manager := NewManager(config)
-	
-	dashboard := manager.GetDashboard()
-	
-	if dashboard["snapshots_count"] != 0 {
-		t.Errorf("Expected 0 snapshots_count, got %v", dashboard["snapshots_count"])
-	}
-	
-	if dashboard["auto_snapshot"] != true {
-		t.Error("Expected auto_snapshot to be true")
+func TestRunSimulationNotFound(t *testing.T) {
+	dt := New(Config{})
+	_, err := dt.RunSimulation("nonexistent")
+	if err == nil {
+		t.Fatal("期望返回错误")
 	}
 }
 
-func TestSnapshotTypes(t *testing.T) {
-	types := []SnapshotType{
-		SnapshotTypeFull,
-		SnapshotTypeConfig,
-		SnapshotTypeStorage,
-		SnapshotTypeNetwork,
-		SnapshotTypeService,
+func TestPredictMetric(t *testing.T) {
+	dt := New(Config{})
+	dt.RegisterComponent(&Component{ID: "cpu1", Type: ComponentCPU, Capacity: 100, Usage: 50})
+
+	pred, err := dt.PredictMetric("cpu1", "utilization", 24*time.Hour)
+	if err != nil {
+		t.Fatalf("预测失败: %v", err)
 	}
-	
-	for _, st := range types {
-		if string(st) == "" {
-			t.Errorf("Empty snapshot type: %v", st)
-		}
+	if pred.Confidence < 0 || pred.Confidence > 1 {
+		t.Fatalf("置信度超出范围: %f", pred.Confidence)
 	}
 }
 
-func TestTwinStatuses(t *testing.T) {
-	statuses := []TwinStatus{
-		TwinStatusCreating,
-		TwinStatusReady,
-		TwinStatusRunning,
-		TwinStatusStopped,
-		TwinStatusError,
-		TwinStatusDestroyed,
+func TestGetBottlenecks(t *testing.T) {
+	dt := New(Config{})
+	dt.RegisterComponent(&Component{ID: "cpu1", Type: ComponentCPU, Capacity: 100, Usage: 90})
+
+	bottlenecks := dt.GetBottlenecks()
+	if len(bottlenecks) != 1 {
+		t.Fatalf("期望 1 个瓶颈, got %d", len(bottlenecks))
 	}
-	
-	for _, s := range statuses {
-		if string(s) == "" {
-			t.Errorf("Empty twin status: %v", s)
-		}
+}
+
+func TestGetState(t *testing.T) {
+	dt := New(Config{})
+	if dt.GetState() != StateIdle {
+		t.Fatal("初始状态应为 idle")
+	}
+}
+
+func TestGetStats(t *testing.T) {
+	dt := New(Config{})
+	dt.RegisterComponent(&Component{ID: "cpu1", Type: ComponentCPU, Capacity: 100})
+
+	stats := dt.GetStats()
+	if stats["components"] != 1 {
+		t.Fatalf("期望 components=1, got %v", stats["components"])
+	}
+}
+
+func TestSync(t *testing.T) {
+	dt := New(Config{})
+	dt.Sync()
+	if dt.lastSync.IsZero() {
+		t.Fatal("lastSync 未更新")
 	}
 }

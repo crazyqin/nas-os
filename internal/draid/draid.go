@@ -349,13 +349,12 @@ func (m *Manager) ReportDeviceFailure(name, device string) error {
 		arr.Status = StatusDegraded
 	}
 
-	// 自动分配热备进行重建
+	// 自动分配热备（保持 degraded 状态，等待显式调用 RebuildArray 触发重建）
 	if spare != nil {
-		spare.Status = "replacing"
+		spare.Status = "assigned"
 		spare.AssignedTo = device
 		spare.ActivatedAt = time.Now()
-		arr.Status = StatusRebuilding
-		log.Printf("DRAID 阵列 %s: 分配热备 %s 替换故障设备 %s", name, spare.Device, device)
+		log.Printf("DRAID 阵列 %s: 分配热备 %s 替换故障设备 %s（等待重建）", name, spare.Device, device)
 	}
 
 	return nil
@@ -374,11 +373,12 @@ func (m *Manager) RebuildArray(name string) error {
 		return fmt.Errorf("只有降级或失败的阵列才能重建，当前状态: %s", arr.Status)
 	}
 
-	// 检查是否有可用热备
+	// 检查是否有可用热备（active 或已分配的）
 	hasActiveSpare := false
 	for _, sp := range arr.DistributedSpares {
-		if sp.Status == "active" {
+		if sp.Status == "active" || sp.Status == "assigned" {
 			hasActiveSpare = true
+			sp.Status = "rebuilding"
 			break
 		}
 	}

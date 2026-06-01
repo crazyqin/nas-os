@@ -59,6 +59,10 @@ func NewManager(logger *zap.Logger, config *CacheConfig) *Manager {
 	if config == nil {
 		config = DefaultCacheConfig()
 	}
+	// 防止 CleanupInterval 为 0 导致 NewTicker panic
+	if config.CleanupInterval <= 0 {
+		config.CleanupInterval = 10 * time.Minute
+	}
 
 	// 保护 CleanupInterval 为零值的情况
 	if config.CleanupInterval <= 0 {

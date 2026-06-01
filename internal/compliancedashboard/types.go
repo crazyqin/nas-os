@@ -35,6 +35,10 @@ const (
 	FrameworkMLPS2 ComplianceFramework = "MLPS2.0"
 	// FrameworkISO27001 ISO27001信息安全管理.
 	FrameworkISO27001 ComplianceFramework = "ISO27001"
+	// FrameworkSOC2 SOC2服务组织控制报告.
+	FrameworkSOC2 ComplianceFramework = "SOC2"
+	// FrameworkHIPAA HIPAA健康保险可携性和责任法案.
+	FrameworkHIPAA ComplianceFramework = "HIPAA"
 )
 
 // ========== 合规状态 ==========
@@ -431,95 +435,7 @@ type AccessAuditSummary struct {
 	RiskScore float64 `json:"riskScore"`
 }
 
-// ========== 合规报告 ==========
-
-// ComplianceReport 合规报告.
-type ComplianceReport struct {
-	// ID 报告ID.
-	ID string `json:"id"`
-	// Title 标题.
-	Title string `json:"title"`
-	// Framework 合规框架.
-	Framework ComplianceFramework `json:"framework"`
-	// Format 格式.
-	Format ReportFormat `json:"format"`
-	// OverallScore 总分.
-	OverallScore float64 `json:"overallScore"`
-	// MaxScore 满分.
-	MaxScore float64 `json:"maxScore"`
-	// Status 总体状态.
-	Status ComplianceStatus `json:"status"`
-	// TotalChecks 检查项总数.
-	TotalChecks int `json:"totalChecks"`
-	// PassedChecks 通过数.
-	PassedChecks int `json:"passedChecks"`
-	// FailedChecks 失败数.
-	FailedChecks int `json:"failedChecks"`
-	// PartialChecks 部分通过数.
-	PartialChecks int `json:"partialChecks"`
-	// Categories 分类评分.
-	Categories []CategoryScore `json:"categories"`
-	// Findings 发现项.
-	Findings []Finding `json:"findings"`
-	// Remediations 整改建议.
-	Remediations []Remediation `json:"remediations"`
-	// SecurityScore 安全评分.
-	SecurityScore *SecurityScore `json:"securityScore,omitempty"`
-	// VulnReport 漏洞报告.
-	VulnReport *VulnReport `json:"vulnReport,omitempty"`
-	// DataScanResult 数据扫描结果.
-	DataScanResult *DataScanResult `json:"dataScanResult,omitempty"`
-	// AccessAudit 访问审计结果.
-	AccessAudit *AccessAuditResult `json:"accessAudit,omitempty"`
-	// GeneratedAt 生成时间.
-	GeneratedAt time.Time `json:"generatedAt"`
-	// ValidUntil 有效期至.
-	ValidUntil time.Time `json:"validUntil"`
-	// GeneratedBy 生成者.
-	GeneratedBy string `json:"generatedBy"`
-	// Content 报告内容（HTML/PDF base64）.
-	Content string `json:"content,omitempty"`
-}
-
-// CategoryScore 分类评分.
-type CategoryScore struct {
-	// Name 分类名.
-	Name string `json:"name"`
-	// Score 分数.
-	Score float64 `json:"score"`
-	// MaxScore 满分.
-	MaxScore float64 `json:"maxScore"`
-	// Checks 检查项数.
-	Checks int `json:"checks"`
-	// Passed 通过数.
-	Passed int `json:"passed"`
-}
-
-// Finding 发现项.
-type Finding struct {
-	// ID 发现ID.
-	ID string `json:"id"`
-	// Framework 框架.
-	Framework ComplianceFramework `json:"framework"`
-	// CheckID 关联检查项ID.
-	CheckID string `json:"checkId"`
-	// Severity 严重程度.
-	Severity string `json:"severity"`
-	// Title 标题.
-	Title string `json:"title"`
-	// Description 描述.
-	Description string `json:"description"`
-	// Impact 影响.
-	Impact string `json:"impact"`
-	// Remediation 整改建议.
-	Remediation string `json:"remediation"`
-	// Status 状态 (open/remediated/accepted).
-	Status string `json:"status"`
-	// DetectedAt 检测时间.
-	DetectedAt time.Time `json:"detectedAt"`
-	// ResolvedAt 解决时间.
-	ResolvedAt *time.Time `json:"resolvedAt,omitempty"`
-}
+// ========== 整改建议引擎 ==========
 
 // ========== 整改建议引擎 ==========
 
@@ -582,45 +498,3 @@ type ScheduledTask struct {
 }
 
 // ========== 仪表板统计 ==========
-
-// DashboardStats 仪表板统计.
-type DashboardStats struct {
-	// OverallScore 总体合规分.
-	OverallScore float64 `json:"overallScore"`
-	// FrameworkScores 各框架分数.
-	FrameworkScores map[ComplianceFramework]float64 `json:"frameworkScores"`
-	// SecurityScore 安全评分.
-	SecurityScore *SecurityScore `json:"securityScore"`
-	// TotalChecks 总检查数.
-	TotalChecks int `json:"totalChecks"`
-	// PassedChecks 通过数.
-	PassedChecks int `json:"passedChecks"`
-	// FailedChecks 失败数.
-	FailedChecks int `json:"failedChecks"`
-	// OpenFindings 未解决发现.
-	OpenFindings int `json:"openFindings"`
-	// CriticalFindings 严重发现.
-	CriticalFindings int `json:"criticalFindings"`
-	// TotalVulns 总漏洞数.
-	TotalVulns int `json:"totalVulns"`
-	// SensitiveFiles 敏感文件数.
-	SensitiveFiles int `json:"sensitiveFiles"`
-	// AnomalyLogins 异常登录数.
-	AnomalyLogins int `json:"anomalyLogins"`
-	// PendingRemediations 待整改数.
-	PendingRemediations int `json:"pendingRemediations"`
-	// LastScanTime 上次扫描时间.
-	LastScanTime time.Time `json:"lastScanTime"`
-	// NextScanTime 下次扫描时间.
-	NextScanTime time.Time `json:"nextScanTime"`
-	// TrendLast30Days 30天趋势.
-	TrendLast30Days []ScorePoint `json:"trendLast30Days"`
-}
-
-// ScorePoint 分数趋势点.
-type ScorePoint struct {
-	// Date 日期.
-	Date time.Time `json:"date"`
-	// Score 分数.
-	Score float64 `json:"score"`
-}
