@@ -1,114 +1,157 @@
-// Package containerscanpro 提供容器安全扫描增强功能，包括 CVE 漏洞检测、
-// 合规策略检查、运行时异常检测、自动修复建议、扫描报告生成等。
 package containerscanpro
 
 import (
+	"sync"
 	"time"
 )
 
-// ============================================================
-// 常量和枚举
-// ============================================================
+// Severity 漏洞严重程度
+type Severity = string
 
-// 严重级别
 const (
-	SeverityCritical = "CRITICAL"
-	SeverityHigh     = "HIGH"
-	SeverityMedium   = "MEDIUM"
-	SeverityLow      = "LOW"
-	SeverityInfo     = "INFO"
+	SeverityCritical Severity = "critical"
+	SeverityHigh     Severity = "high"
+	SeverityMedium   Severity = "medium"
+	SeverityLow      Severity = "low"
+	SeverityInfo     Severity = "info"
 )
 
-// 扫描状态
-type ScanStatus string
+// ScanStatus 扫描状态
+type ScanStatus = string
 
 const (
-	StatusQueued    ScanStatus = "queued"
+	StatusPending   ScanStatus = "pending"
 	StatusScanning  ScanStatus = "scanning"
+	StatusRunning   ScanStatus = "running"
 	StatusCompleted ScanStatus = "completed"
 	StatusFailed    ScanStatus = "failed"
+	StatusCancelled ScanStatus = "cancelled"
 )
 
-// 修复方式
-type FixAction string
+// RuntimeAnomalyType 运行时异常类型
+type RuntimeAnomalyType = string
 
 const (
-	FixActionUpgrade FixAction = "upgrade"  // 升级依赖
-	FixActionReplace FixAction = "replace"  // 替换镜像
-	FixActionIgnore  FixAction = "ignore"   // 忽略
+	AnomalySuspiciousProcess   RuntimeAnomalyType = "suspicious_process"
+	AnomalyFileModification    RuntimeAnomalyType = "file_modification"
+	AnomalyNetworkConnection   RuntimeAnomalyType = "network_connection"
+	AnomalyPrivilegeEscalation RuntimeAnomalyType = "privilege_escalation"
+	AnomalyResourceAbuse       RuntimeAnomalyType = "resource_abuse"
 )
 
-// 合规标准
-type ComplianceStandard string
+// AnomalyType 运行时异常检测类型
+type AnomalyType = string
 
 const (
-	StandardCIS      ComplianceStandard = "CIS"      // CIS Benchmark
-	StandardCustom   ComplianceStandard = "CUSTOM"   // 自定义规则
-	StandardNIST     ComplianceStandard = "NIST"     // NIST 800-190
-	StandardOWASP    ComplianceStandard = "OWASP"    // OWASP
+	AnomalyAbnormalProcess  AnomalyType = "abnormal_process"
+	AnomalyAbnormalNetwork  AnomalyType = "abnormal_network"
+	AnomalyPrivilegedContainer AnomalyType = "privileged_container"
 )
 
-// 运行时异常类型
-type AnomalyType string
+// AlertLevel 告警级别
+type AlertLevel = string
 
 const (
-	AnomalyPrivilegedContainer AnomalyType = "privileged_container" // 特权容器
-	AnomalyAbnormalProcess     AnomalyType = "abnormal_process"     // 异常进程
-	AnomalyAbnormalNetwork     AnomalyType = "abnormal_network"     // 异常网络
-	AnomalyResourceAbuse       AnomalyType = "resource_abuse"       // 资源异常
-	AnomalySensitiveMount      AnomalyType = "sensitive_mount"      // 敏感挂载
+	AlertLevelCritical AlertLevel = "critical"
+	AlertLevelWarning  AlertLevel = "warning"
+	AlertLevelInfo     AlertLevel = "info"
 )
 
-// ============================================================
-// 核心数据结构
-// ============================================================
+// ComplianceStandard 合规标准
+type ComplianceStandard = string
 
-// ScanPolicy 扫描策略配置
-type ScanPolicy struct {
-	ID              string    `json:"id"`                          // 策略 ID
-	Name            string    `json:"name"`                        // 策略名称
-	Description     string    `json:"description"`                 // 描述
-	SeverityThreshold string  `json:"severity_threshold"`          // 严重级别阈值（低于此级别的忽略）
-	AutoFixEnabled  bool      `json:"autofix_enabled"`             // 是否启用自动修复
-	ComplianceStandards []ComplianceStandard `json:"compliance_standards"` // 合规标准列表
-	ExcludePackages []string  `json:"exclude_packages,omitempty"`  // 排除的包
-	ScheduleCron    string    `json:"schedule_cron,omitempty"`     // 定时扫描 cron 表达式
-	Enabled         bool      `json:"enabled"`                     // 是否启用
-	CreatedAt       time.Time `json:"created_at"`                  // 创建时间
-	UpdatedAt       time.Time `json:"updated_at"`                  // 更新时间
+const (
+	StandardCIS    ComplianceStandard = "CIS"
+	StandardNIST   ComplianceStandard = "NIST"
+	StandardOWASP  ComplianceStandard = "OWASP"
+	StandardCustom ComplianceStandard = "CUSTOM"
+)
+
+// FixAction 修复动作类型
+type FixAction = string
+
+const (
+	FixActionUpgrade FixAction = "upgrade"
+	FixActionPatch   FixAction = "patch"
+	FixActionIgnore  FixAction = "ignore"
+	FixActionRemove  FixAction = "remove"
+)
+
+// CVEInfo CVE 漏洞信息
+type CVEInfo struct {
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Severity    Severity  `json:"severity"`
+	Score       float64   `json:"score"`
+	PublishedAt time.Time `json:"published_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	References  []string  `json:"references,omitempty"`
+	FixVersions []string  `json:"fix_versions,omitempty"`
 }
 
-// VulnerabilityCVE CVE 漏洞条目
+// VulnerabilityCVE CVE 漏洞详细信息
 type VulnerabilityCVE struct {
-	CVEID       string    `json:"cve_id"`       // CVE ID，如 CVE-2024-1234
-	Severity    string    `json:"severity"`     // 严重级别
-	Title       string    `json:"title"`        // 标题
-	Description string    `json:"description"`  // 描述
-	Package     string    `json:"package"`      // 影响的包名
-	Version     string    `json:"version"`      // 当前版本
-	FixVersion  string    `json:"fix_version"`  // 修复版本
-	CVSS        float64   `json:"cvss"`         // CVSS 评分
-	PublishedAt time.Time `json:"published_at"` // 发布时间
-	References  []string  `json:"references,omitempty"` // 参考链接
+	CVEID       string    `json:"cve_id"`
+	Severity    Severity  `json:"severity"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Package     string    `json:"package"`
+	Version     string    `json:"version"`
+	FixVersion  string    `json:"fix_version,omitempty"`
+	CVSS        float64   `json:"cvss"`
+	PublishedAt time.Time `json:"published_at"`
+	ContainerID string    `json:"container_id,omitempty"`
+	ImageName   string    `json:"image_name,omitempty"`
 }
 
-// ScanResult 扫描结果
-type ScanResult struct {
-	ID              string             `json:"id"`               // 扫描 ID
-	ImageID         string             `json:"image_id"`         // 镜像 ID
-	ImageName       string             `json:"image_name"`       // 镜像名称
-	ScanTime        time.Time          `json:"scan_time"`        // 扫描时间
-	Duration        time.Duration      `json:"duration"`         // 扫描耗时
-	Status          ScanStatus         `json:"status"`           // 扫描状态
-	Vulnerabilities []VulnerabilityCVE `json:"vulnerabilities"`  // 漏洞列表
-	ComplianceStatus []ComplianceResult `json:"compliance_status"` // 合规状态
-	VulnSummary     VulnSummary        `json:"vuln_summary"`     // 漏洞统计
-	Compliant       bool               `json:"compliant"`        // 是否合规
-	FixSuggestions  []AutoFixAction    `json:"fix_suggestions"`  // 修复建议
-	PolicyID        string             `json:"policy_id"`        // 使用的策略 ID
+// PackageInfo 受影响的软件包信息
+type PackageInfo struct {
+	Name             string `json:"name"`
+	InstalledVersion string `json:"installed_version"`
+	FixedVersion     string `json:"fixed_version,omitempty"`
+	Source           string `json:"source,omitempty"`
 }
 
-// VulnSummary 漏洞统计
+// ContainerVulnerability 容器漏洞
+type ContainerVulnerability struct {
+	CVE         CVEInfo     `json:"cve"`
+	Package     PackageInfo `json:"package"`
+	ContainerID string      `json:"container_id"`
+	ImageName   string      `json:"image_name"`
+	Layer       string      `json:"layer,omitempty"`
+}
+
+// RuntimeAnomaly 运行时异常
+type RuntimeAnomaly struct {
+	Type        RuntimeAnomalyType `json:"type"`
+	ContainerID string             `json:"container_id"`
+	Timestamp   time.Time          `json:"timestamp"`
+	Description string             `json:"description"`
+	Details     map[string]string  `json:"details,omitempty"`
+	Severity    Severity           `json:"severity"`
+}
+
+// Anomaly 运行时异常检测结果
+type Anomaly struct {
+	Type       AnomalyType `json:"type"`
+	Message    string      `json:"message"`
+	Severity   Severity    `json:"severity"`
+	DetectedAt time.Time   `json:"detected_at"`
+	Details    string      `json:"details,omitempty"`
+}
+
+// SecurityScore 安全评分
+type SecurityScore struct {
+	Overall      float64            `json:"overall"`
+	VulnScore    float64            `json:"vuln_score"`
+	RuntimeScore float64            `json:"runtime_score"`
+	ConfigScore  float64            `json:"config_score"`
+	Breakdown    map[string]float64 `json:"breakdown"`
+	Grade        string             `json:"grade"`
+}
+
+// VulnSummary 漏洞统计摘要
 type VulnSummary struct {
 	Total    int `json:"total"`
 	Critical int `json:"critical"`
@@ -118,99 +161,239 @@ type VulnSummary struct {
 	Info     int `json:"info"`
 }
 
-// ComplianceRule 合规规则
-type ComplianceRule struct {
-	ID          string            `json:"id"`           // 规则 ID
-	Name        string            `json:"name"`         // 规则名称
-	Description string            `json:"description"`  // 描述
-	Standard    ComplianceStandard `json:"standard"`     // 所属标准
-	CheckLogic  string            `json:"check_logic"`  // 检查逻辑描述
-	Severity    string            `json:"severity"`     // 违反时的严重级别
-	Enabled     bool              `json:"enabled"`      // 是否启用
-}
-
 // ComplianceResult 合规检查结果
 type ComplianceResult struct {
-	RuleID    string `json:"rule_id"`    // 规则 ID
-	RuleName  string `json:"rule_name"`  // 规则名称
-	Passed    bool   `json:"passed"`     // 是否通过
-	Message   string `json:"message"`    // 检查结果消息
-	Severity  string `json:"severity"`   // 严重级别
-}
-
-// RuntimeMonitor 运行时监控状态
-type RuntimeMonitor struct {
-	ContainerID   string        `json:"container_id"`   // 容器 ID
-	ContainerName string        `json:"container_name"` // 容器名称
-	ImageName     string        `json:"image_name"`     // 镜像名称
-	IsPrivileged  bool          `json:"is_privileged"`  // 是否特权容器
-	Anomalies     []Anomaly     `json:"anomalies"`      // 异常列表
-	LastCheckTime time.Time     `json:"last_check_time"` // 最后检查时间
-	Status        string        `json:"status"`         // 状态：normal/warning/critical
-}
-
-// Anomaly 异常行为
-type Anomaly struct {
-	Type      AnomalyType `json:"type"`       // 异常类型
-	Message   string      `json:"message"`    // 描述
-	Severity  string      `json:"severity"`   // 严重级别
-	DetectedAt time.Time  `json:"detected_at"` // 检测时间
-	Details   string      `json:"details"`    // 详细信息
+	RuleID   string   `json:"rule_id"`
+	RuleName string   `json:"rule_name"`
+	Passed   bool     `json:"passed"`
+	Message  string   `json:"message"`
+	Severity Severity `json:"severity"`
 }
 
 // AutoFixAction 自动修复动作
 type AutoFixAction struct {
-	VulnID      string   `json:"vuln_id"`      // 漏洞 ID
-	Package     string   `json:"package"`      // 包名
-	CurrentVer  string   `json:"current_ver"`  // 当前版本
-	FixVer      string   `json:"fix_ver"`      // 修复版本
-	Action      FixAction `json:"action"`      // 修复方式
-	Command     string   `json:"command"`      // 修复命令
-	Description string   `json:"description"`  // 描述
-	Applied     bool     `json:"applied"`      // 是否已执行
+	VulnID      string    `json:"vuln_id"`
+	Package     string    `json:"package"`
+	CurrentVer  string    `json:"current_ver"`
+	FixVer      string    `json:"fix_ver"`
+	Action      FixAction `json:"action"`
+	Command     string    `json:"command,omitempty"`
+	Description string    `json:"description"`
+	Applied     bool      `json:"applied"`
 }
 
-// ListEntry 黑名单/白名单条目
+// ScanResult 扫描结果
+type ScanResult struct {
+	ID                string              `json:"id"`
+	ScanID            string              `json:"scan_id,omitempty"`
+	ContainerID       string              `json:"container_id,omitempty"`
+	ContainerName     string              `json:"container_name,omitempty"`
+	ImageName         string              `json:"image_name"`
+	ImageID           string              `json:"image_id"`
+	Status            ScanStatus          `json:"status"`
+	ScanTime          time.Time           `json:"scan_time"`
+	StartTime         time.Time           `json:"start_time,omitempty"`
+	EndTime           *time.Time          `json:"end_time,omitempty"`
+	Duration          time.Duration       `json:"duration,omitempty"`
+	PolicyID          string              `json:"policy_id,omitempty"`
+	Vulnerabilities   []VulnerabilityCVE  `json:"vulnerabilities,omitempty"`
+	VulnSummary       VulnSummary         `json:"vuln_summary"`
+	Anomalies         []RuntimeAnomaly    `json:"anomalies,omitempty"`
+	Score             *SecurityScore      `json:"score,omitempty"`
+	Recommendations   []string            `json:"recommendations,omitempty"`
+	ComplianceStatus  []ComplianceResult  `json:"compliance_status,omitempty"`
+	Compliant         bool                `json:"compliant"`
+	FixSuggestions    []AutoFixAction     `json:"fix_suggestions,omitempty"`
+	Error             string              `json:"error,omitempty"`
+}
+
+// ScanConfig 扫描配置
+type ScanConfig struct {
+	EnableCVEScan        bool          `json:"enable_cve_scan"`
+	EnableRuntimeMonitor bool          `json:"enable_runtime_monitor"`
+	ScanInterval         time.Duration `json:"scan_interval"`
+	AlertThreshold       Severity      `json:"alert_threshold"`
+	MaxConcurrent        int           `json:"max_concurrent"`
+	Timeout              time.Duration `json:"timeout"`
+	ExcludedContainers   []string      `json:"excluded_containers,omitempty"`
+	ExcludedImages       []string      `json:"excluded_images,omitempty"`
+}
+
+// AlertConfig 告警配置
+type AlertConfig struct {
+	Enabled     bool       `json:"enabled"`
+	WebhookURL  string     `json:"webhook_url,omitempty"`
+	EmailTo     []string   `json:"email_to,omitempty"`
+	MinLevel    AlertLevel `json:"min_level"`
+	CooldownSec int        `json:"cooldown_sec"`
+}
+
+// Alert 告警消息
+type Alert struct {
+	ID        string            `json:"id"`
+	Level     AlertLevel        `json:"level"`
+	Title     string            `json:"title"`
+	Message   string            `json:"message"`
+	Source    string            `json:"source"`
+	Timestamp time.Time         `json:"timestamp"`
+	Details   map[string]string `json:"details,omitempty"`
+}
+
+// ScanPolicy 扫描策略
+type ScanPolicy struct {
+	ID                  string   `json:"id"`
+	Name                string   `json:"name"`
+	Description         string   `json:"description,omitempty"`
+	SeverityThreshold   Severity `json:"severity_threshold"`
+	AutoFixEnabled      bool     `json:"auto_fix_enabled"`
+	ComplianceStandards []string `json:"compliance_standards,omitempty"`
+	ExcludePackages     []string `json:"exclude_packages,omitempty"`
+	ScheduleCron        string   `json:"schedule_cron,omitempty"`
+	Enabled             bool     `json:"enabled"`
+	CreatedAt           time.Time `json:"created_at"`
+	UpdatedAt           time.Time `json:"updated_at"`
+}
+
+// ComplianceRule 合规规则
+type ComplianceRule struct {
+	ID          string              `json:"id"`
+	Name        string              `json:"name"`
+	Description string              `json:"description,omitempty"`
+	Standard    ComplianceStandard  `json:"standard"`
+	CheckLogic  string              `json:"check_logic"`
+	Severity    Severity            `json:"severity"`
+	Enabled     bool                `json:"enabled"`
+}
+
+// ListEntry 黑白名单条目
 type ListEntry struct {
-	ImageName string    `json:"image_name"` // 镜像名称
-	Reason    string    `json:"reason"`     // 原因
-	AddedAt   time.Time `json:"added_at"`   // 添加时间
-	AddedBy   string    `json:"added_by"`   // 添加者
+	ImageName string    `json:"image_name"`
+	Reason    string    `json:"reason,omitempty"`
+	AddedAt   time.Time `json:"added_at"`
+	AddedBy   string    `json:"added_by,omitempty"`
 }
 
-// ============================================================
-// API 请求/响应结构
-// ============================================================
+// RuntimeMonitor 运行时监控状态
+type RuntimeMonitor struct {
+	ContainerID   string     `json:"container_id"`
+	ContainerName string     `json:"container_name"`
+	ImageName     string     `json:"image_name"`
+	IsPrivileged  bool       `json:"is_privileged"`
+	LastCheckTime time.Time  `json:"last_check_time"`
+	Status        string     `json:"status"`
+	Anomalies     []Anomaly  `json:"anomalies,omitempty"`
+}
 
-// ScanRequest 扫描请求
+// ScanRequest API 扫描请求
 type ScanRequest struct {
-	ImageName string `json:"image_name" binding:"required"` // 镜像名称
-	PolicyID  string `json:"policy_id"`                     // 策略 ID（可选）
-	ForceRescan bool `json:"force_rescan"`                  // 强制重新扫描
+	ImageName string `json:"image_name" binding:"required"`
+	PolicyID  string `json:"policy_id,omitempty"`
 }
 
-// PolicyRequest 策略创建请求
+// PolicyRequest API 策略请求
 type PolicyRequest struct {
-	Name               string             `json:"name" binding:"required"`
-	Description        string             `json:"description"`
-	SeverityThreshold  string             `json:"severity_threshold"`
-	AutoFixEnabled     bool               `json:"autofix_enabled"`
-	ComplianceStandards []ComplianceStandard `json:"compliance_standards"`
-	ExcludePackages    []string           `json:"exclude_packages"`
-	ScheduleCron       string             `json:"schedule_cron"`
-	Enabled            *bool              `json:"enabled"`
+	Name                string   `json:"name" binding:"required"`
+	Description         string   `json:"description,omitempty"`
+	SeverityThreshold   Severity `json:"severity_threshold,omitempty"`
+	AutoFixEnabled      bool     `json:"auto_fix_enabled"`
+	ComplianceStandards []string `json:"compliance_standards,omitempty"`
+	ExcludePackages     []string `json:"exclude_packages,omitempty"`
+	ScheduleCron        string   `json:"schedule_cron,omitempty"`
+	Enabled             *bool    `json:"enabled,omitempty"`
 }
 
-// AutoFixRequest 自动修复请求
+// AutoFixRequest API 自动修复请求
 type AutoFixRequest struct {
-	ScanID    string   `json:"scan_id" binding:"required"`    // 扫描 ID
-	VulnIDs   []string `json:"vuln_ids"`                      // 指定漏洞 ID 列表（空则修复全部）
-	FixAction FixAction `json:"fix_action"`                   // 修复方式
+	ScanID     string     `json:"scan_id" binding:"required"`
+	VulnIDs    []string   `json:"vuln_ids,omitempty"`
+	FixAction  FixAction  `json:"fix_action,omitempty"`
 }
 
-// APIResponse 统一 API 响应
+// APIResponse API 响应格式
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
+}
+
+// ScanStats 扫描统计
+type ScanStats struct {
+	mu                  sync.RWMutex
+	TotalScans          int64         `json:"total_scans"`
+	CompletedScans      int64         `json:"completed_scans"`
+	FailedScans         int64         `json:"failed_scans"`
+	TotalVulns          int64         `json:"total_vulns"`
+	CriticalVulns       int64         `json:"critical_vulns"`
+	HighVulns           int64         `json:"high_vulns"`
+	MediumVulns         int64         `json:"medium_vulns"`
+	LowVulns            int64         `json:"low_vulns"`
+	TotalAnomalies      int64         `json:"total_anomalies"`
+	LastScanTime        *time.Time    `json:"last_scan_time,omitempty"`
+	AverageScanDuration time.Duration `json:"avg_scan_duration"`
+}
+
+// IncrementScans 增加扫描计数
+func (s *ScanStats) IncrementScans() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.TotalScans++
+}
+
+// IncrementCompleted 增加完成计数
+func (s *ScanStats) IncrementCompleted() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.CompletedScans++
+}
+
+// IncrementFailed 增加失败计数
+func (s *ScanStats) IncrementFailed() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.FailedScans++
+}
+
+// AddVulns 增加漏洞计数
+func (s *ScanStats) AddVulns(critical, high, medium, low int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.CriticalVulns += int64(critical)
+	s.HighVulns += int64(high)
+	s.MediumVulns += int64(medium)
+	s.LowVulns += int64(low)
+	s.TotalVulns += int64(critical + high + medium + low)
+}
+
+// AddAnomalies 增加异常计数
+func (s *ScanStats) AddAnomalies(count int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.TotalAnomalies += int64(count)
+}
+
+// UpdateLastScan 更新最后扫描时间
+func (s *ScanStats) UpdateLastScan() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	now := time.Now()
+	s.LastScanTime = &now
+}
+
+// GetStats 获取统计信息副本
+func (s *ScanStats) GetStats() ScanStats {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return ScanStats{
+		TotalScans:          s.TotalScans,
+		CompletedScans:      s.CompletedScans,
+		FailedScans:         s.FailedScans,
+		TotalVulns:          s.TotalVulns,
+		CriticalVulns:       s.CriticalVulns,
+		HighVulns:           s.HighVulns,
+		MediumVulns:         s.MediumVulns,
+		LowVulns:            s.LowVulns,
+		TotalAnomalies:      s.TotalAnomalies,
+		LastScanTime:        s.LastScanTime,
+		AverageScanDuration: s.AverageScanDuration,
+	}
 }
