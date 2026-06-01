@@ -260,8 +260,8 @@ func TestDeviceFailure(t *testing.T) {
 	}
 
 	arr, _ := m.GetArray("test-draid")
-	if arr.Status != StatusRebuilding {
-		t.Errorf("状态 = %v, 期望 %v", arr.Status, StatusRebuilding)
+	if arr.Status != StatusDegraded {
+		t.Errorf("状态 = %v, 期望 %v", arr.Status, StatusDegraded)
 	}
 	if len(arr.FailedDevices) != 1 {
 		t.Errorf("故障设备数 = %v, 期望 1", len(arr.FailedDevices))

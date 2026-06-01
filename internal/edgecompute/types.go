@@ -1,495 +1,389 @@
-// Package edgecompute provides edge computing framework for NAS-OS
-// Features: Serverless functions, container orchestration, workload scheduling
-// Competitor benchmark: 对标TrueNAS SCALE Kubernetes, 超越群晖Docker
 package edgecompute
 
-import (
-	"context"
-	"fmt"
-	"sync"
-	"time"
+import "time"
+
+// WorkloadType 工作负载类型
+type WorkloadType string
+
+const (
+	WorkloadContainer WorkloadType = "container"
+	WorkloadFunction  WorkloadType = "function"
+	WorkloadAI        WorkloadType = "ai_inference"
+	WorkloadStream    WorkloadType = "stream_processing"
+	WorkloadBatch     WorkloadType = "batch"
+	WorkloadDaemon    WorkloadType = "daemon"
+	WorkloadCron      WorkloadType = "cron"
 )
 
-// FunctionRuntime represents the runtime for serverless functions
+// WorkloadStatus 工作负载状态
+type WorkloadStatus string
+
+const (
+	StatusPending   WorkloadStatus = "pending"
+	StatusDeploying WorkloadStatus = "deploying"
+	StatusRunning   WorkloadStatus = "running"
+	StatusStopping  WorkloadStatus = "stopping"
+	StatusStopped   WorkloadStatus = "stopped"
+	StatusFailed    WorkloadStatus = "failed"
+	StatusScaling   WorkloadStatus = "scaling"
+	StatusUpdating  WorkloadStatus = "updating"
+)
+
+// FunctionRuntime 函数运行时
 type FunctionRuntime string
 
 const (
-	RuntimeGo         FunctionRuntime = "go"
-	RuntimePython     FunctionRuntime = "python"
-	RuntimeNode       FunctionRuntime = "node"
-	RuntimeWasm       FunctionRuntime = "wasm"
-	RuntimeContainer  FunctionRuntime = "container"
+	RuntimePython FunctionRuntime = "python"
+	RuntimeNode   FunctionRuntime = "nodejs"
+	RuntimeGo     FunctionRuntime = "go"
+	RuntimeRust   FunctionRuntime = "rust"
+	RuntimeJava   FunctionRuntime = "java"
+	RuntimeDotNet FunctionRuntime = "dotnet"
+	RuntimeWasm   FunctionRuntime = "wasm"
+	RuntimeCustom FunctionRuntime = "custom"
 )
 
-// FunctionState represents the state of a function
-type FunctionState string
+// AIModelType AI 模型类型
+type AIModelType string
 
 const (
-	StateActive    FunctionState = "active"
-	StateInactive  FunctionState = "inactive"
-	StateDeploying FunctionState = "deploying"
-	StateError     FunctionState = "error"
+	ModelLLM       AIModelType = "llm"
+	ModelVision    AIModelType = "vision"
+	ModelSpeech    AIModelType = "speech"
+	ModelEmbedding AIModelType = "embedding"
+	ModelDiffusion AIModelType = "diffusion"
+	ModelCustom    AIModelType = "custom"
 )
 
-// TriggerType represents the type of function trigger
-type TriggerType string
+// NodeStatus 节点状态
+type NodeStatus string
 
 const (
-	TriggerHTTP    TriggerType = "http"
-	TriggerCron    TriggerType = "cron"
-	TriggerEvent   TriggerType = "event"
-	TriggerQueue   TriggerType = "queue"
-	TriggerStorage TriggerType = "storage"
+	NodeReady    NodeStatus = "ready"
+	NodeNotReady NodeStatus = "not_ready"
+	NodeDraining NodeStatus = "draining"
+	NodeOffline  NodeStatus = "offline"
+	NodeUnknown  NodeStatus = "unknown"
 )
 
-// Function represents a serverless function
-type Function struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Runtime     FunctionRuntime   `json:"runtime"`
-	Code        string            `json:"code"`
-	Handler     string            `json:"handler"`
-	State       FunctionState     `json:"state"`
-	Triggers    []Trigger         `json:"triggers"`
-	Config      FunctionConfig    `json:"config"`
-	Env         map[string]string `json:"env"`
-	Version     int               `json:"version"`
-	Invocations int64             `json:"invocations"`
-	LastInvoked time.Time         `json:"last_invoked"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+// EdgeNode 边缘节点
+type EdgeNode struct {
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Description   string            `json:"description"`
+	Location      string            `json:"location"`
+	IPAddress     string            `json:"ip_address"`
+	MACAddress    string            `json:"mac_address"`
+	Status        NodeStatus        `json:"status"`
+	CPUCores      int               `json:"cpu_cores"`
+	MemoryMB      int               `json:"memory_mb"`
+	DiskGB        int               `json:"disk_gb"`
+	GPUCount      int               `json:"gpu_count"`
+	GPUModel      string            `json:"gpu_model,omitempty"`
+	Architecture  string            `json:"architecture"`
+	OS            string            `json:"os"`
+	Labels        map[string]string `json:"labels"`
+	Taints        []string          `json:"taints,omitempty"`
+	Resources     NodeResources     `json:"resources"`
+	LastHeartbeat time.Time         `json:"last_heartbeat"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
 }
 
-// Trigger represents a function trigger
-type Trigger struct {
-	Type   TriggerType          `json:"type"`
-	Config map[string]interface{} `json:"config"`
-}
-
-// FunctionConfig represents function configuration
-type FunctionConfig struct {
-	Timeout     int    `json:"timeout"`      // seconds
-	Memory      int    `json:"memory"`       // MB
-	CPU         float64 `json:"cpu"`         // CPU cores
-	MaxRetries  int    `json:"max_retries"`
-	Concurrency int    `json:"concurrency"`
-	GPUEnabled  bool   `json:"gpu_enabled"`
-}
-
-// FunctionInvocation represents a function invocation
-type FunctionInvocation struct {
-	ID         string        `json:"id"`
-	FunctionID string        `json:"function_id"`
-	Status     string        `json:"status"` // success, error, timeout
-	Duration   time.Duration `json:"duration"`
-	Input      interface{}   `json:"input"`
-	Output     interface{}   `json:"output"`
-	Error      string        `json:"error,omitempty"`
-	StartedAt  time.Time     `json:"started_at"`
-	EndedAt    time.Time     `json:"ended_at"`
-}
-
-// Workload represents a computing workload
-type Workload struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        string            `json:"type"` // function, container, batch
-	FunctionID  string            `json:"function_id,omitempty"`
-	Status      string            `json:"status"`
-	Priority    int               `json:"priority"`
-	Resources   ResourceRequest   `json:"resources"`
-	NodeID      string            `json:"node_id"`
-	CreatedAt   time.Time         `json:"created_at"`
-	StartedAt   time.Time         `json:"started_at"`
-	CompletedAt time.Time         `json:"completed_at"`
-}
-
-// ResourceRequest represents resource requirements
-type ResourceRequest struct {
-	CPU     float64 `json:"cpu"`
-	Memory  int     `json:"memory"`  // MB
-	GPU     int     `json:"gpu"`     // GPU count
-	Storage int     `json:"storage"` // MB
-}
-
-// Node represents a compute node
-type Node struct {
-	ID         string          `json:"id"`
-	Name       string          `json:"name"`
-	Host       string          `json:"host"`
-	Status     string          `json:"status"` // online, offline, maintenance
-	Resources  NodeResources   `json:"resources"`
-	Workloads  int             `json:"workloads"`
-	Labels     map[string]string `json:"labels"`
-	LastSeen   time.Time       `json:"last_seen"`
-}
-
-// NodeResources represents node resources
+// NodeResources 节点资源
 type NodeResources struct {
-	CPU     ResourceInfo `json:"cpu"`
-	Memory  ResourceInfo `json:"memory"`
-	GPU     ResourceInfo `json:"gpu"`
-	Storage ResourceInfo `json:"storage"`
+	CPUUsed       float64 `json:"cpu_used"`
+	CPUTotal      float64 `json:"cpu_total"`
+	MemoryUsedMB  int     `json:"memory_used_mb"`
+	MemoryTotalMB int     `json:"memory_total_mb"`
+	DiskUsedGB    int     `json:"disk_used_gb"`
+	DiskTotalGB   int     `json:"disk_total_gb"`
+	GPUUsed       float64 `json:"gpu_used"`
+	GPUTotal      float64 `json:"gpu_total"`
+	PodCount      int     `json:"pod_count"`
+	MaxPods       int     `json:"max_pods"`
 }
 
-// ResourceInfo represents resource information
-type ResourceInfo struct {
-	Total     float64 `json:"total"`
-	Used      float64 `json:"used"`
-	Available float64 `json:"available"`
+// Workload 工作负载
+type Workload struct {
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Description   string            `json:"description"`
+	Type          WorkloadType      `json:"type"`
+	Status        WorkloadStatus    `json:"status"`
+	NodeID        string            `json:"node_id"`
+	Image         string            `json:"image,omitempty"`
+	Version       string            `json:"version"`
+	Replicas      int               `json:"replicas"`
+	ReadyReplicas int               `json:"ready_replicas"`
+	CPUCores      float64           `json:"cpu_cores"`
+	MemoryMB      int               `json:"memory_mb"`
+	GPUCount      int               `json:"gpu_count"`
+	Ports         []PortMapping     `json:"ports,omitempty"`
+	EnvVars       map[string]string `json:"env_vars,omitempty"`
+	Volumes       []VolumeMount     `json:"volumes,omitempty"`
+	Command       []string          `json:"command,omitempty"`
+	Args          []string          `json:"args,omitempty"`
+	HealthCheck   *HealthCheck      `json:"health_check,omitempty"`
+	RestartPolicy string            `json:"restart_policy"`
+	MaxRetries    int               `json:"max_retries"`
+	Labels        map[string]string `json:"labels,omitempty"`
+	Annotations   map[string]string `json:"annotations,omitempty"`
+	Triggers      []Trigger         `json:"triggers,omitempty"`
+	Resources     ResourceRequest   `json:"resources"`
+	NodeSelector  map[string]string `json:"node_selector,omitempty"`
+	Tolerations   []Toleration      `json:"tolerations,omitempty"`
+	Affinity      *Affinity         `json:"affinity,omitempty"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
+	LastDeployed  *time.Time        `json:"last_deployed,omitempty"`
+	DeploymentID  string            `json:"deployment_id"`
 }
 
-// Config represents edge compute configuration
-type Config struct {
-	Enabled         bool   `json:"enabled"`
-	MaxFunctions    int    `json:"max_functions"`
-	MaxWorkloads    int    `json:"max_workloads"`
-	DefaultTimeout  int    `json:"default_timeout"`
-	WasmEnabled     bool   `json:"wasm_enabled"`
-	GPUEnabled      bool   `json:"gpu_enabled"`
-	AutoScaling     bool   `json:"auto_scaling"`
-	MinNodes        int    `json:"min_nodes"`
-	MaxNodes        int    `json:"max_nodes"`
+// PortMapping 端口映射
+type PortMapping struct {
+	Name          string `json:"name"`
+	ContainerPort int    `json:"container_port"`
+	HostPort      int    `json:"host_port,omitempty"`
+	Protocol      string `json:"protocol"`
 }
 
-// Manager manages edge computing workloads
-type Manager struct {
-	config      *Config
-	functions   map[string]*Function
-	workloads   map[string]*Workload
-	nodes       map[string]*Node
-	invocations []*FunctionInvocation
-	mu          sync.RWMutex
-	ctx         context.Context
-	cancel      context.CancelFunc
+// VolumeMount 卷挂载
+type VolumeMount struct {
+	Name      string `json:"name"`
+	MountPath string `json:"mount_path"`
+	ReadOnly  bool   `json:"read_only"`
+	HostPath  string `json:"host_path,omitempty"`
+	Type      string `json:"type"`
 }
 
-// NewManager creates a new edge compute manager
-func NewManager(config *Config) *Manager {
-	ctx, cancel := context.WithCancel(context.Background())
-	return &Manager{
-		config:    config,
-		functions: make(map[string]*Function),
-		workloads: make(map[string]*Workload),
-		nodes:     make(map[string]*Node),
-		ctx:       ctx,
-		cancel:    cancel,
-	}
+// HealthCheck 健康检查
+type HealthCheck struct {
+	Type               string `json:"type"`
+	Path               string `json:"path,omitempty"`
+	Port               int    `json:"port,omitempty"`
+	Command            string `json:"command,omitempty"`
+	IntervalSeconds    int    `json:"interval_seconds"`
+	TimeoutSeconds     int    `json:"timeout_seconds"`
+	FailureThreshold   int    `json:"failure_threshold"`
+	SuccessThreshold   int    `json:"success_threshold"`
+	InitialDelaySeconds int  `json:"initial_delay_seconds"`
 }
 
-// Start starts the edge compute manager
-func (m *Manager) Start() error {
-	if !m.config.Enabled {
-		return nil
-	}
-	
-	// Register local node
-	m.registerLocalNode()
-	
-	// Start workload scheduler
-	go m.scheduleWorkloads()
-	
-	// Start metrics collector
-	go m.collectMetrics()
-	
-	return nil
+// Trigger 触发器
+type Trigger struct {
+	Type       string            `json:"type"`
+	Cron       string            `json:"cron,omitempty"`
+	Webhook    string            `json:"webhook,omitempty"`
+	Event      string            `json:"event,omitempty"`
+	Conditions map[string]string `json:"conditions,omitempty"`
 }
 
-// Stop stops the edge compute manager
-func (m *Manager) Stop() {
-	m.cancel()
+// ResourceRequest 资源请求
+type ResourceRequest struct {
+	CPUCores    float64 `json:"cpu_cores"`
+	MemoryMB    int     `json:"memory_mb"`
+	GPUCount    int     `json:"gpu_count"`
+	StorageGB   int     `json:"storage_gb"`
+	BandwidthMB int     `json:"bandwidth_mb"`
 }
 
-// registerLocalNode registers the local NAS as a compute node
-func (m *Manager) registerLocalNode() {
-	node := &Node{
-		ID:     "local",
-		Name:   "NAS-OS Local",
-		Host:   "localhost",
-		Status: "online",
-		Resources: NodeResources{
-			CPU:     ResourceInfo{Total: 8, Available: 6},
-			Memory:  ResourceInfo{Total: 8192, Available: 6144},
-			GPU:     ResourceInfo{Total: 1, Available: 1},
-			Storage: ResourceInfo{Total: 1000000, Available: 500000},
-		},
-		Labels:   map[string]string{"type": "nas", "arch": "arm64"},
-		LastSeen: time.Now(),
-	}
-	
-	m.nodes[node.ID] = node
+// Toleration 容忍
+type Toleration struct {
+	Key      string `json:"key"`
+	Operator string `json:"operator"`
+	Value    string `json:"value,omitempty"`
+	Effect   string `json:"effect"`
 }
 
-// scheduleWorkloads schedules workloads across nodes
-func (m *Manager) scheduleWorkloads() {
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
-	
-	for {
-		select {
-		case <-m.ctx.Done():
-			return
-		case <-ticker.C:
-			m.schedulePendingWorkloads()
-		}
-	}
+// Affinity 亲和性
+type Affinity struct {
+	NodeAffinity    *NodeAffinity    `json:"node_affinity,omitempty"`
+	PodAffinity     *PodAffinity     `json:"pod_affinity,omitempty"`
+	PodAntiAffinity *PodAntiAffinity `json:"pod_anti_affinity,omitempty"`
 }
 
-// schedulePendingWorkloads schedules pending workloads
-func (m *Manager) schedulePendingWorkloads() {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	
-	for _, wl := range m.workloads {
-		if wl.Status == "pending" {
-			node := m.findBestNode(wl.Resources)
-			if node != nil {
-				wl.NodeID = node.ID
-				wl.Status = "running"
-				wl.StartedAt = time.Now()
-				node.Workloads++
-			}
-		}
-	}
+// NodeAffinity 节点亲和性
+type NodeAffinity struct {
+	Required  []NodeSelector `json:"required,omitempty"`
+	Preferred []PreferredTerm `json:"preferred,omitempty"`
 }
 
-// findBestNode finds the best node for a workload
-func (m *Manager) findBestNode(resources ResourceRequest) *Node {
-	var bestNode *Node
-	bestScore := -1.0
-	
-	for _, node := range m.nodes {
-		if node.Status != "online" {
-			continue
-		}
-		
-		if node.Resources.CPU.Available < resources.CPU ||
-			node.Resources.Memory.Available < float64(resources.Memory) {
-			continue
-		}
-		
-		// Score based on available resources
-		score := node.Resources.CPU.Available + node.Resources.Memory.Available/1024
-		if score > bestScore {
-			bestScore = score
-			bestNode = node
-		}
-	}
-	
-	return bestNode
+// PodAffinity Pod 亲和性
+type PodAffinity struct {
+	Required  []PodSelectorTerm `json:"required,omitempty"`
+	Preferred []WeightedPodTerm `json:"preferred,omitempty"`
 }
 
-// collectMetrics collects compute metrics
-func (m *Manager) collectMetrics() {
-	ticker := time.NewTicker(10 * time.Second)
-	defer ticker.Stop()
-	
-	for {
-		select {
-		case <-m.ctx.Done():
-			return
-		case <-ticker.C:
-			m.updateNodeMetrics()
-		}
-	}
+// PodAntiAffinity Pod 反亲和性
+type PodAntiAffinity struct {
+	Required  []PodSelectorTerm `json:"required,omitempty"`
+	Preferred []WeightedPodTerm `json:"preferred,omitempty"`
 }
 
-// updateNodeMetrics updates node resource metrics
-func (m *Manager) updateNodeMetrics() {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	
-	// Update local node metrics
-	if node, ok := m.nodes["local"]; ok {
-		node.LastSeen = time.Now()
-	}
+// NodeSelector 节点选择器
+type NodeSelector struct {
+	MatchLabels      map[string]string `json:"match_labels,omitempty"`
+	MatchExpressions []SelectorExpr    `json:"match_expressions,omitempty"`
 }
 
-// DeployFunction deploys a serverless function
-func (m *Manager) DeployFunction(fn *Function) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	
-	if fn.ID == "" {
-		fn.ID = fmt.Sprintf("fn_%d", time.Now().UnixNano())
-	}
-	fn.State = StateActive
-	fn.Version = 1
-	fn.CreatedAt = time.Now()
-	fn.UpdatedAt = time.Now()
-	
-	m.functions[fn.ID] = fn
-	return nil
+// SelectorExpr 选择器表达式
+type SelectorExpr struct {
+	Key      string   `json:"key"`
+	Operator string   `json:"operator"`
+	Values   []string `json:"values,omitempty"`
 }
 
-// InvokeFunction invokes a serverless function
-func (m *Manager) InvokeFunction(ctx context.Context, functionID string, input interface{}) (*FunctionInvocation, error) {
-	m.mu.RLock()
-	fn, ok := m.functions[functionID]
-	m.mu.RUnlock()
-	
-	if !ok {
-		return nil, fmt.Errorf("function not found: %s", functionID)
-	}
-	
-	if fn.State != StateActive {
-		return nil, fmt.Errorf("function is not active: %s", fn.State)
-	}
-	
-	startTime := time.Now()
-	
-	invocation := &FunctionInvocation{
-		ID:         fmt.Sprintf("inv_%d", time.Now().UnixNano()),
-		FunctionID: functionID,
-		Input:      input,
-		StartedAt:  startTime,
-	}
-	
-	// Execute function based on runtime
-	output, err := m.executeFunction(ctx, fn, input)
-	
-	invocation.EndedAt = time.Now()
-	invocation.Duration = invocation.EndedAt.Sub(startTime)
-	
-	if err != nil {
-		invocation.Status = "error"
-		invocation.Error = err.Error()
-	} else {
-		invocation.Status = "success"
-		invocation.Output = output
-	}
-	
-	// Update function stats
-	m.mu.Lock()
-	fn.Invocations++
-	fn.LastInvoked = time.Now()
-	m.invocations = append(m.invocations, invocation)
-	m.mu.Unlock()
-	
-	return invocation, nil
+// PreferredTerm 首选项
+type PreferredTerm struct {
+	Weight     int           `json:"weight"`
+	Preference NodeSelector  `json:"preference"`
 }
 
-// executeFunction executes a function
-func (m *Manager) executeFunction(ctx context.Context, fn *Function, input interface{}) (interface{}, error) {
-	switch fn.Runtime {
-	case RuntimeGo:
-		return m.executeGoFunction(ctx, fn, input)
-	case RuntimePython:
-		return m.executePythonFunction(ctx, fn, input)
-	case RuntimeNode:
-		return m.executeNodeFunction(ctx, fn, input)
-	case RuntimeWasm:
-		return m.executeWasmFunction(ctx, fn, input)
-	case RuntimeContainer:
-		return m.executeContainerFunction(ctx, fn, input)
-	default:
-		return nil, fmt.Errorf("unsupported runtime: %s", fn.Runtime)
-	}
+// PodSelectorTerm Pod 选择器项
+type PodSelectorTerm struct {
+	MatchLabels      map[string]string `json:"match_labels,omitempty"`
+	MatchExpressions []SelectorExpr    `json:"match_expressions,omitempty"`
 }
 
-// executeGoFunction executes a Go function
-func (m *Manager) executeGoFunction(ctx context.Context, fn *Function, input interface{}) (interface{}, error) {
-	// Go plugin execution
-	return map[string]string{"status": "ok"}, nil
+// WeightedPodTerm 加权 Pod 项
+type WeightedPodTerm struct {
+	Weight     int             `json:"weight"`
+	Preference PodSelectorTerm `json:"preference"`
 }
 
-// executePythonFunction executes a Python function
-func (m *Manager) executePythonFunction(ctx context.Context, fn *Function, input interface{}) (interface{}, error) {
-	// Python subprocess execution
-	return map[string]string{"status": "ok"}, nil
+// Function 函数计算
+type Function struct {
+	ID          string          `json:"id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Runtime     FunctionRuntime `json:"runtime"`
+	Handler     string          `json:"handler"`
+	Code        string          `json:"code"`
+	CodePath    string          `json:"code_path"`
+	MemoryMB    int             `json:"memory_mb"`
+	TimeoutSec  int             `json:"timeout_sec"`
+	EnvVars     map[string]string `json:"env_vars,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty"`
+	Trigger     Trigger         `json:"trigger"`
+	Status      string          `json:"status"`
+	InvokeCount int64           `json:"invoke_count"`
+	LastError   string          `json:"last_error,omitempty"`
+	LastInvoked *time.Time      `json:"last_invoked,omitempty"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
-// executeNodeFunction executes a Node.js function
-func (m *Manager) executeNodeFunction(ctx context.Context, fn *Function, input interface{}) (interface{}, error) {
-	// Node.js subprocess execution
-	return map[string]string{"status": "ok"}, nil
+// AIInferenceTask AI 推理任务
+type AIInferenceTask struct {
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	ModelType   AIModelType `json:"model_type"`
+	ModelName   string      `json:"model_name"`
+	ModelPath   string      `json:"model_path"`
+	GPURequired bool        `json:"gpu_required"`
+	GPUCount    int         `json:"gpu_count"`
+	MaxBatch    int         `json:"max_batch"`
+	MaxTokens   int         `json:"max_tokens"`
+	Status      string      `json:"status"`
+	NodeID      string      `json:"node_id"`
+	InvokeCount int64       `json:"invoke_count"`
+	AvgLatency  float64     `json:"avg_latency"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// executeWasmFunction executes a WebAssembly function
-func (m *Manager) executeWasmFunction(ctx context.Context, fn *Function, input interface{}) (interface{}, error) {
-	// WASM runtime execution
-	return map[string]string{"status": "ok"}, nil
+// DeploymentRecord 部署记录
+type DeploymentRecord struct {
+	ID          string       `json:"id"`
+	WorkloadID  string       `json:"workload_id"`
+	WorkloadName string      `json:"workload_name"`
+	Version     string       `json:"version"`
+	Status      string       `json:"status"`
+	NodeID      string       `json:"node_id"`
+	StartedAt   time.Time    `json:"started_at"`
+	CompletedAt *time.Time   `json:"completed_at,omitempty"`
+	Duration    int64        `json:"duration"`
+	Message     string       `json:"message,omitempty"`
+	RollbackID  string       `json:"rollback_id,omitempty"`
 }
 
-// executeContainerFunction executes a container function
-func (m *Manager) executeContainerFunction(ctx context.Context, fn *Function, input interface{}) (interface{}, error) {
-	// Container execution via Docker
-	return map[string]string{"status": "ok"}, nil
+// EdgeCluster 边缘集群
+type EdgeCluster struct {
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	Nodes       []EdgeNode   `json:"nodes"`
+	Workloads   []Workload   `json:"workloads"`
+	Status      string       `json:"status"`
+	Version     string       `json:"version"`
+	Network     NetworkConfig `json:"network"`
+	Storage     StorageConfig `json:"storage"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// DeleteFunction deletes a function
-func (m *Manager) DeleteFunction(functionID string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	
-	if _, ok := m.functions[functionID]; !ok {
-		return fmt.Errorf("function not found: %s", functionID)
-	}
-	
-	delete(m.functions, functionID)
-	return nil
+// NetworkConfig 网络配置
+type NetworkConfig struct {
+	PodCIDR     string `json:"pod_cidr"`
+	ServiceCIDR string `json:"service_cidr"`
+	DNS         string `json:"dns"`
+	Proxy       string `json:"proxy,omitempty"`
+	MTU         int    `json:"mtu"`
 }
 
-// GetFunction returns a function by ID
-func (m *Manager) GetFunction(functionID string) (*Function, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	
-	fn, ok := m.functions[functionID]
-	if !ok {
-		return nil, fmt.Errorf("function not found: %s", functionID)
-	}
-	return fn, nil
+// StorageConfig 存储配置
+type StorageConfig struct {
+	DefaultClass string `json:"default_class"`
+	Classes      []StorageClass `json:"classes"`
 }
 
-// ListFunctions returns all functions
-func (m *Manager) ListFunctions() []*Function {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	
-	functions := make([]*Function, 0, len(m.functions))
-	for _, fn := range m.functions {
-		functions = append(functions, fn)
-	}
-	return functions
+// StorageClass 存储类
+type StorageClass struct {
+	Name        string            `json:"name"`
+	Provisioner string            `json:"provisioner"`
+	Parameters  map[string]string `json:"parameters,omitempty"`
+	ReclaimPolicy string          `json:"reclaim_policy"`
 }
 
-// SubmitWorkload submits a workload
-func (m *Manager) SubmitWorkload(wl *Workload) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	
-	if wl.ID == "" {
-		wl.ID = fmt.Sprintf("wl_%d", time.Now().UnixNano())
-	}
-	wl.Status = "pending"
-	wl.CreatedAt = time.Now()
-	
-	m.workloads[wl.ID] = wl
-	return nil
+// WorkloadMetrics 工作负载指标
+type WorkloadMetrics struct {
+	WorkloadID  string    `json:"workload_id"`
+	Timestamp   time.Time `json:"timestamp"`
+	CPUUsage    float64   `json:"cpu_usage"`
+	MemoryUsage int       `json:"memory_usage"`
+	NetworkIn   int64     `json:"network_in"`
+	NetworkOut  int64     `json:"network_out"`
+	DiskRead    int64     `json:"disk_read"`
+	DiskWrite   int64     `json:"disk_write"`
+	Replicas    int       `json:"replicas"`
+	Restarts    int       `json:"restarts"`
 }
 
-// GetStats returns compute statistics
-func (m *Manager) GetStats() map[string]interface{} {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	
-	runningWorkloads := 0
-	for _, wl := range m.workloads {
-		if wl.Status == "running" {
-			runningWorkloads++
-		}
-	}
-	
-	return map[string]interface{}{
-		"total_functions":    len(m.functions),
-		"total_workloads":    len(m.workloads),
-		"running_workloads":  runningWorkloads,
-		"total_nodes":        len(m.nodes),
-		"total_invocations":  len(m.invocations),
-		"wasm_enabled":       m.config.WasmEnabled,
-		"gpu_enabled":        m.config.GPUEnabled,
-		"auto_scaling":       m.config.AutoScaling,
-	}
+// ClusterStats 集群统计
+type ClusterStats struct {
+	TotalNodes      int     `json:"total_nodes"`
+	ReadyNodes      int     `json:"ready_nodes"`
+	TotalWorkloads  int     `json:"total_workloads"`
+	RunningWorkloads int   `json:"running_workloads"`
+	TotalFunctions  int     `json:"total_functions"`
+	TotalAITasks    int     `json:"total_ai_tasks"`
+	TotalCPU        float64 `json:"total_cpu"`
+	UsedCPU         float64 `json:"used_cpu"`
+	TotalMemoryMB   int     `json:"total_memory_mb"`
+	UsedMemoryMB    int     `json:"used_memory_mb"`
+	TotalGPU        int     `json:"total_gpu"`
+	UsedGPU         int     `json:"used_gpu"`
+	Deployments     int     `json:"deployments"`
+}
+
+// EdgeEvent 边缘事件
+type EdgeEvent struct {
+	ID        string    `json:"id"`
+	Type      string    `json:"type"`
+	NodeID    string    `json:"node_id"`
+	WorkloadID string   `json:"workload_id,omitempty"`
+	Message   string    `json:"message"`
+	Severity  string    `json:"severity"`
+	Timestamp time.Time `json:"timestamp"`
 }
