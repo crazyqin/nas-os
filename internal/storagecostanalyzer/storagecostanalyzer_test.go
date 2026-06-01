@@ -1,6 +1,7 @@
 package storagecostanalyzer
 
 import (
+	"math"
 	"testing"
 	"time"
 )
@@ -446,5 +447,427 @@ func TestGetOptimizationSuggestions(t *testing.T) {
 	}
 	if !foundTiering {
 		t.Error("expected tiering suggestion for low utilization SSD")
+	}
+}
+
+func TestCalculateTCO(t *testing.T) {
+	m := newTestManager()
+	registerTestTiers(t, m)
+
+	// 计算SSD层级的TCO（12个月）
+	tco, err := m.CalculateTCO(TierSSD, 12)
+	if err != nil {
+		t.Fatalf("CalculateTCO failed: %v", err)
+	}
+	if tco == nil {
+		t.Fatal("tco is nil")
+	}
+
+	// 验证基本字段
+	if tco.Tier != TierSSD {
+		t.Errorf("expected tier SSD, got %s", tco.Tier)
+	}
+	if tco.TierName != "SSD高速层" {
+		t.Errorf("expected tier name SSD高速层, got %s", tco.TierName)
+	}
+	if tco.AnalysisPeriodMonths != 12 {
+		t.Errorf("expected 12 months, got %d", tco.AnalysisPeriodMonths)
+	}
+
+	// 验证成本为正
+	if tco.TotalTCO <= 0 {
+		t.Errorf("expected positive TCO, got %f", tco.TotalTCO)
+	}
+	if tco.HardwareCost <= 0 {
+		t.Errorf("expected positive hardware cost, got %f", tco.HardwareCost)
+	}
+	if tco.PowerCost <= 0 {
+		t.Errorf("expected positive power cost, got %f", tco.PowerCost)
+	}
+	if tco.SubscriptionCost <= 0 {
+		t.Errorf("expected positive subscription cost, got %f", tco.SubscriptionCost)
+	}
+
+	// 验证每TB成本
+	if tco.CostPerTBPerMonth <= 0 {
+		t.Errorf("expected positive cost per TB per month, got %f", tco.CostPerTBPerMonth)
+	}
+	if tco.CostPerTBPerYear <= 0 {
+		t.Errorf("expected positive cost per TB per year, got %f", tco.CostPerTBPerYear)
+	}
+
+	// 验证成本明细
+	if len(tco.CostBreakdown) == 0 {
+		t.Error("expected cost breakdown")
+	}
+	totalBreakdown := 0.0
+	for _, item := range tco.CostBreakdown {
+		totalBreakdown += item.Amount
+		if item.Percentage < 0 || item.Percentage > 100 {
+			t.Errorf("invalid percentage: %f", item.Percentage)
+		}
+	}
+	// 成本明细总和应近似等于总TCO
+	if math.Abs(totalBreakdown-tco.TotalTCO)/tco.TotalTCO > 0.01 {
+		t.Errorf("breakdown sum %f differs from TCO %f by more than 1%%", totalBreakdown, tco.TotalTCO)
+	}
+
+	// 验证年度预测
+	if len(tco.YearlyProjection) == 0 {
+		t.Error("expected yearly projection")
+	}
+	for _, yp := range tco.YearlyProjection {
+		if yp.TotalCost <= 0 {
+			t.Errorf("expected positive yearly cost for year %d", yp.Year)
+		}
+		if yp.CumulativeCost <= 0 {
+			t.Errorf("expected positive cumulative cost for year %d", yp.Year)
+		}
+	}
+
+	// 测试默认月数
+	tcoDefault, err := m.CalculateTCO(TierSSD, 0)
+	if err != nil {
+		t.Fatalf("CalculateTCO(0) failed: %v", err)
+	}
+	if tcoDefault.AnalysisPeriodMonths != 12 {
+		t.Errorf("expected default 12 months, got %d", tcoDefault.AnalysisPeriodMonths)
+	}
+
+	// 测试不存在的层级
+	_, err = m.CalculateTCO("nonexistent", 12)
+	if err != ErrTierNotFound {
+		t.Errorf("expected ErrTierNotFound, got %v", err)
+	}
+}
+
+func TestCompareStorageOptions(t *testing.T) {
+	m := newTestManager()
+
+	options := []StorageOption{
+		{
+			Name:           "SSD方案",
+			Tier:           TierSSD,
+			CostPerTBMonth: 500,
+			SetupCost:      5000,
+			Performance:    "high",
+			Durability:     "99.999999999%",
+			Scalability:    "medium",
+			Pros:           []string{"高性能", "低延迟"},
+			Cons:           []string{"成本高", "容量有限"},
+		},
+		{
+			Name:           "HDD方案",
+			Tier:           TierHDD,
+			CostPerTBMonth: 100,
+			SetupCost:      2000,
+			Performance:    "medium",
+			Durability:     "99.999999999%",
+			Scalability:    "high",
+			Pros:           []string{"成本低", "容量大"},
+			Cons:           []string{"性能一般", "延迟较高"},
+		},
+		{
+			Name:           "云存储方案",
+			Tier:           TierCloud,
+			CostPerTBMonth: 250,
+			SetupCost:      0,
+			Performance:    "medium",
+			Durability:     "99.999999999%",
+			Scalability:    "high",
+			Pros:           []string{"弹性扩展", "无需维护"},
+			Cons:           []string{"长期成本高", "依赖网络"},
+		},
+	}
+
+	// 正常对比
+	comparison, err := m.CompareStorageOptions(10, options)
+	if err != nil {
+		t.Fatalf("CompareStorageOptions failed: %v", err)
+	}
+	if comparison == nil {
+		t.Fatal("comparison is nil")
+	}
+
+	// 验证方案数
+	if len(comparison.Options) != 3 {
+		t.Errorf("expected 3 options, got %d", len(comparison.Options))
+	}
+
+	// 验证成本对比点
+	if len(comparison.CostComparison) != 12 {
+		t.Errorf("expected 12 comparison points, got %d", len(comparison.CostComparison))
+	}
+	for _, cp := range comparison.CostComparison {
+		if len(cp.OptionCosts) != 3 {
+			t.Errorf("expected 3 option costs, got %d", len(cp.OptionCosts))
+		}
+	}
+
+	// 验证最优方案索引有效
+	if comparison.BestForCost < 0 || comparison.BestForCost >= len(options) {
+		t.Errorf("invalid best for cost index: %d", comparison.BestForCost)
+	}
+	if comparison.BestForPerformance < 0 || comparison.BestForPerformance >= len(options) {
+		t.Errorf("invalid best for performance index: %d", comparison.BestForPerformance)
+	}
+	if comparison.Recommendation < 0 || comparison.Recommendation >= len(options) {
+		t.Errorf("invalid recommendation index: %d", comparison.Recommendation)
+	}
+
+	// 验证分析说明
+	if comparison.Analysis == "" {
+		t.Error("expected non-empty analysis")
+	}
+
+	// 测试无效输入
+	_, err = m.CompareStorageOptions(10, options[:1])
+	if err != ErrComparisonFailed {
+		t.Errorf("expected ErrComparisonFailed for single option, got %v", err)
+	}
+
+	_, err = m.CompareStorageOptions(0, options)
+	if err == nil {
+		t.Error("expected error for zero capacity")
+	}
+}
+
+func TestCalculateROI(t *testing.T) {
+	m := newTestManager()
+	registerTestTiers(t, m)
+
+	// 计算SSD层级的ROI
+	investmentCost := 10000.0
+	roi, err := m.CalculateROI(TierSSD, investmentCost, 12)
+	if err != nil {
+		t.Fatalf("CalculateROI failed: %v", err)
+	}
+	if roi == nil {
+		t.Fatal("roi is nil")
+	}
+
+	// 验证基本字段
+	if roi.Tier != TierSSD {
+		t.Errorf("expected tier SSD, got %s", roi.Tier)
+	}
+	if roi.TotalInvestment != investmentCost {
+		t.Errorf("expected investment %f, got %f", investmentCost, roi.TotalInvestment)
+	}
+
+	// 验证收益为正
+	if roi.TotalBenefits <= 0 {
+		t.Errorf("expected positive benefits, got %f", roi.TotalBenefits)
+	}
+	if roi.CostSavings <= 0 {
+		t.Errorf("expected positive cost savings, got %f", roi.CostSavings)
+	}
+	if roi.EfficiencyGain <= 0 {
+		t.Errorf("expected positive efficiency gain, got %f", roi.EfficiencyGain)
+	}
+
+	// 验证ROI计算
+	if roi.ROIPercent == 0 {
+		t.Error("expected non-zero ROI percent")
+	}
+	if roi.PaybackPeriodMonths <= 0 {
+		t.Errorf("expected positive payback months, got %d", roi.PaybackPeriodMonths)
+	}
+
+	// 验证收益明细
+	if len(roi.BenefitBreakdown) != 3 {
+		t.Errorf("expected 3 benefit items, got %d", len(roi.BenefitBreakdown))
+	}
+	totalBenefitsBreakdown := 0.0
+	for _, item := range roi.BenefitBreakdown {
+		totalBenefitsBreakdown += item.Amount
+		if item.Percentage < 0 || item.Percentage > 100 {
+			t.Errorf("invalid percentage: %f", item.Percentage)
+		}
+	}
+	if math.Abs(totalBenefitsBreakdown-roi.TotalBenefits)/roi.TotalBenefits > 0.01 {
+		t.Errorf("benefits breakdown sum %f differs from total %f", totalBenefitsBreakdown, roi.TotalBenefits)
+	}
+
+	// 测试无效输入
+	_, err = m.CalculateROI(TierSSD, 0, 12)
+	if err == nil {
+		t.Error("expected error for zero investment")
+	}
+
+	_, err = m.CalculateROI("nonexistent", 10000, 12)
+	if err != ErrTierNotFound {
+		t.Errorf("expected ErrTierNotFound, got %v", err)
+	}
+}
+
+func TestEstimateDataOptimization(t *testing.T) {
+	m := newTestManager()
+	registerTestTiers(t, m)
+
+	// 测试去重压缩估算
+	dedupRatio := 0.3   // 30%去重率
+	compressionRatio := 0.4 // 40%压缩率
+	estimate, err := m.EstimateDataOptimization(TierSSD, dedupRatio, compressionRatio)
+	if err != nil {
+		t.Fatalf("EstimateDataOptimization failed: %v", err)
+	}
+	if estimate == nil {
+		t.Fatal("estimate is nil")
+	}
+
+	// 验证基本字段
+	if estimate.Tier != TierSSD {
+		t.Errorf("expected tier SSD, got %s", estimate.Tier)
+	}
+	if estimate.OriginalDataTB != 7 { // SSD used 7TB
+		t.Errorf("expected original 7 TB, got %f", estimate.OriginalDataTB)
+	}
+
+	// 验证去重节省
+	if estimate.DeduplicationSavingsTB <= 0 {
+		t.Errorf("expected positive dedup savings, got %f", estimate.DeduplicationSavingsTB)
+	}
+	expectedDedupSavings := 7.0 * dedupRatio
+	if math.Abs(estimate.DeduplicationSavingsTB-expectedDedupSavings) > 0.01 {
+		t.Errorf("expected dedup savings %f, got %f", expectedDedupSavings, estimate.DeduplicationSavingsTB)
+	}
+
+	// 验证压缩节省
+	if estimate.CompressionSavingsTB <= 0 {
+		t.Errorf("expected positive compression savings, got %f", estimate.CompressionSavingsTB)
+	}
+
+	// 验证总节省
+	if estimate.TotalSavingsTB <= 0 {
+		t.Errorf("expected positive total savings, got %f", estimate.TotalSavingsTB)
+	}
+	if estimate.TotalSavingsTB != estimate.DeduplicationSavingsTB+estimate.CompressionSavingsTB {
+		t.Error("total savings should equal dedup + compression savings")
+	}
+
+	// 验证优化后数据量
+	if estimate.OptimizedDataTB >= estimate.OriginalDataTB {
+		t.Error("optimized data should be less than original")
+	}
+
+	// 验证空间缩减率
+	if estimate.SpaceReductionPercent <= 0 || estimate.SpaceReductionPercent >= 100 {
+		t.Errorf("invalid space reduction: %f", estimate.SpaceReductionPercent)
+	}
+
+	// 验证成本节省
+	if estimate.MonthlyCostSaving <= 0 {
+		t.Errorf("expected positive monthly saving, got %f", estimate.MonthlyCostSaving)
+	}
+	if estimate.AnnualCostSaving <= 0 {
+		t.Errorf("expected positive annual saving, got %f", estimate.AnnualCostSaving)
+	}
+	if estimate.AnnualCostSaving != estimate.MonthlyCostSaving*12 {
+		t.Error("annual saving should be 12x monthly")
+	}
+
+	// 验证回收期
+	if estimate.PaybackMonths < 0 {
+		t.Errorf("invalid payback months: %d", estimate.PaybackMonths)
+	}
+
+	// 测试无效输入
+	_, err = m.EstimateDataOptimization(TierSSD, 1.5, 0.4)
+	if err == nil {
+		t.Error("expected error for invalid dedup ratio")
+	}
+
+	_, err = m.EstimateDataOptimization(TierSSD, 0.3, -0.1)
+	if err == nil {
+		t.Error("expected error for invalid compression ratio")
+	}
+
+	_, err = m.EstimateDataOptimization("nonexistent", 0.3, 0.4)
+	if err != ErrTierNotFound {
+		t.Errorf("expected ErrTierNotFound, got %v", err)
+	}
+}
+
+func TestForecastCost(t *testing.T) {
+	m := newTestManager()
+	baseTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+	m.nowFunc = func() time.Time { return baseTime }
+
+	registerTestTiers(t, m)
+
+	// 添加历史记录用于增长估算
+	m.RecordCost(TierSSD, CategoryHardware, 3000)
+	m.RecordCost(TierSSD, CategoryHardware, 3500)
+	m.RecordCost(TierHDD, CategoryHardware, 2000)
+
+	// 预测12个月
+	forecast, err := m.ForecastCost(12)
+	if err != nil {
+		t.Fatalf("ForecastCost failed: %v", err)
+	}
+	if forecast == nil {
+		t.Fatal("forecast is nil")
+	}
+
+	// 验证基本字段
+	if forecast.ForecastMonths != 12 {
+		t.Errorf("expected 12 months, got %d", forecast.ForecastMonths)
+	}
+	if forecast.CurrentMonthlyCost <= 0 {
+		t.Errorf("expected positive current cost, got %f", forecast.CurrentMonthlyCost)
+	}
+	if forecast.TotalForecastCost <= 0 {
+		t.Errorf("expected positive total forecast, got %f", forecast.TotalForecastCost)
+	}
+	if forecast.CostGrowthRate <= 0 {
+		t.Errorf("expected positive growth rate, got %f", forecast.CostGrowthRate)
+	}
+
+	// 验证预测点
+	if len(forecast.ProjectedMonthlyCosts) != 12 {
+		t.Errorf("expected 12 forecast points, got %d", len(forecast.ProjectedMonthlyCosts))
+	}
+	for i, point := range forecast.ProjectedMonthlyCosts {
+		if point.Month != i+1 {
+			t.Errorf("expected month %d, got %d", i+1, point.Month)
+		}
+		if point.ProjectedCost <= 0 {
+			t.Errorf("expected positive cost for month %d", point.Month)
+		}
+		if point.LowerBound > point.ProjectedCost {
+			t.Errorf("lower bound should be <= projected cost for month %d", point.Month)
+		}
+		if point.UpperBound < point.ProjectedCost {
+			t.Errorf("upper bound should be >= projected cost for month %d", point.Month)
+		}
+		if point.CumulativeCost <= 0 {
+			t.Errorf("expected positive cumulative cost for month %d", point.Month)
+		}
+	}
+
+	// 验证建议
+	if len(forecast.Recommendations) == 0 {
+		t.Error("expected recommendations")
+	}
+
+	// 验证置信水平
+	if forecast.ConfidenceLevel != 95 {
+		t.Errorf("expected 95 confidence level, got %f", forecast.ConfidenceLevel)
+	}
+
+	// 测试默认月数
+	forecastDefault, err := m.ForecastCost(0)
+	if err != nil {
+		t.Fatalf("ForecastCost(0) failed: %v", err)
+	}
+	if forecastDefault.ForecastMonths != m.config.ForecastMonths {
+		t.Errorf("expected default months %d, got %d", m.config.ForecastMonths, forecastDefault.ForecastMonths)
+	}
+
+	// 测试空管理器
+	m2 := newTestManager()
+	_, err = m2.ForecastCost(6)
+	if err != ErrInsufficientData {
+		t.Errorf("expected ErrInsufficientData, got %v", err)
 	}
 }

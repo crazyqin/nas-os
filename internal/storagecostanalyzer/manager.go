@@ -507,6 +507,471 @@ func (m *Manager) GetOptimizationSuggestions() []*OptimizationSuggestion {
 	return suggestions
 }
 
+// ========== TCO 分析 ==========
+
+// CalculateTCO 计算总拥有成本.
+func (m *Manager) CalculateTCO(tier StorageTier, months int) (*TCOAnalysis, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	ts, ok := m.tiers[tier]
+	if !ok {
+		return nil, ErrTierNotFound
+	}
+
+	if months <= 0 {
+		months = 12 // 默认1年
+	}
+
+	cfg := ts.config
+	usedTB := cfg.UsedTB
+
+	// 成本构成（基于典型行业比例）
+	hardwareCost := usedTB * 500 // 硬件成本（一次性，按使用量估算）
+	powerCost := usedTB * 50 * float64(months) // 电力成本
+	coolingCost := powerCost * 0.3 // 散热成本（电力的30%）
+	maintenanceCost := hardwareCost * 0.15 * float64(months) / 12 // 年维护成本15%
+	subscriptionCost := usedTB * cfg.CostPerTBMonth * float64(months)
+	bandwidthCost := usedTB * 10 * float64(months) // 带宽成本
+	laborCost := 100 * float64(months) // 人力成本（每月100）
+	depreciationCost := hardwareCost / 36 * float64(months) // 3年折旧
+
+	totalTCO := hardwareCost + powerCost + coolingCost + maintenanceCost +
+		subscriptionCost + bandwidthCost + laborCost + depreciationCost
+
+	costPerTBPerMonth := 0.0
+	if usedTB > 0 && months > 0 {
+		costPerTBPerMonth = totalTCO / usedTB / float64(months)
+	}
+
+	costPerTBPerYear := costPerTBPerMonth * 12
+
+	// 成本明细
+	breakdown := []TCOCostItem{
+		{Category: CategoryHardware, Amount: hardwareCost, Description: "硬件采购成本"},
+		{Category: CategoryPower, Amount: powerCost, Description: "电力成本"},
+		{Category: CategoryCooling, Amount: coolingCost, Description: "散热成本"},
+		{Category: CategoryMaintenance, Amount: maintenanceCost, Description: "维护成本"},
+		{Category: CategorySubscription, Amount: subscriptionCost, Description: "订阅/服务费用"},
+		{Category: CategoryBandwidth, Amount: bandwidthCost, Description: "带宽成本"},
+		{Category: CategoryLabor, Amount: laborCost, Description: "人力成本"},
+		{Category: CategoryDepreciation, Amount: depreciationCost, Description: "折旧成本"},
+	}
+
+	// 计算占比
+	for i := range breakdown {
+		if totalTCO > 0 {
+			breakdown[i].Percentage = (breakdown[i].Amount / totalTCO) * 100
+		}
+	}
+
+	// 年度成本预测
+	yearlyProjection := make([]YearlyCost, 0)
+	cumulativeCost := 0.0
+	years := months / 12
+	if months%12 > 0 {
+		years++
+	}
+	for y := 1; y <= years; y++ {
+		yearHardware := 0.0
+		if y == 1 {
+			yearHardware = hardwareCost
+		} else {
+			yearHardware = hardwareCost * 0.1 // 后续年份硬件维护
+		}
+		yearOperating := powerCost/float64(years) + coolingCost/float64(years) +
+			maintenanceCost/float64(years) + bandwidthCost/float64(years) + laborCost/float64(years)
+		if y <= months/12 || (y == years && months%12 > 0) {
+			yearOperating = subscriptionCost / float64(years)
+		}
+		yearTotal := yearHardware + yearOperating
+		cumulativeCost += yearTotal
+		yearlyProjection = append(yearlyProjection, YearlyCost{
+			Year:           y,
+			HardwareCost:   yearHardware,
+			OperatingCost:  yearOperating,
+			TotalCost:      yearTotal,
+			CumulativeCost: cumulativeCost,
+		})
+	}
+
+	return &TCOAnalysis{
+		GeneratedAt:          m.nowFunc(),
+		Tier:                 tier,
+		TierName:             cfg.Name,
+		AnalysisPeriodMonths: months,
+		InitialCost:          hardwareCost,
+		RecurringCost:        totalTCO - hardwareCost,
+		HardwareCost:         hardwareCost,
+		PowerCost:            powerCost,
+		CoolingCost:          coolingCost,
+		MaintenanceCost:      maintenanceCost,
+		SubscriptionCost:     subscriptionCost,
+		BandwidthCost:        bandwidthCost,
+		LaborCost:            laborCost,
+		DepreciationCost:     depreciationCost,
+		TotalTCO:             totalTCO,
+		CostPerTBPerMonth:    costPerTBPerMonth,
+		CostPerTBPerYear:     costPerTBPerYear,
+		CostBreakdown:        breakdown,
+		YearlyProjection:     yearlyProjection,
+	}, nil
+}
+
+// ========== 多存储方案对比 ==========
+
+// CompareStorageOptions 对比多个存储方案.
+func (m *Manager) CompareStorageOptions(requiredTB float64, options []StorageOption) (*StorageComparison, error) {
+	if len(options) < 2 {
+		return nil, ErrComparisonFailed
+	}
+	if requiredTB <= 0 {
+		return nil, fmt.Errorf("%w: required capacity must be positive", ErrInvalidConfig)
+	}
+
+	// 计算12个月成本对比
+	comparisonPoints := make([]CostComparisonPoint, 0, 12)
+	for month := 1; month <= 12; month++ {
+		costs := make([]float64, len(options))
+		for i, opt := range options {
+			if month == 1 {
+				costs[i] = opt.SetupCost + requiredTB*opt.CostPerTBMonth
+			} else {
+				costs[i] = requiredTB * opt.CostPerTBMonth
+			}
+		}
+		comparisonPoints = append(comparisonPoints, CostComparisonPoint{
+			Month:       month,
+			OptionCosts: costs,
+		})
+	}
+
+	// 找出最优方案
+	bestForCost := 0
+	bestForPerformance := 0
+	bestForCapacity := 0
+	minCost := math.MaxFloat64
+	perfRank := map[string]int{"high": 3, "medium": 2, "low": 1}
+	bestPerf := 0
+	scaleRank := map[string]int{"high": 3, "medium": 2, "low": 1}
+	bestScale := 0
+
+	for i, opt := range options {
+		totalCost := opt.SetupCost + requiredTB*opt.CostPerTBMonth*12
+		if totalCost < minCost {
+			minCost = totalCost
+			bestForCost = i
+		}
+		perf := perfRank[opt.Performance]
+		if perf > bestPerf {
+			bestPerf = perf
+			bestForPerformance = i
+		}
+		scale := scaleRank[opt.Scalability]
+		if scale > bestScale {
+			bestScale = scale
+			bestForCapacity = i
+		}
+	}
+
+	// 综合推荐（加权评分：成本40%、性能30%、可扩展性20%、耐久性10%）
+	recommendation := 0
+	bestScore := 0.0
+	for i, opt := range options {
+		totalCost := opt.SetupCost + requiredTB*opt.CostPerTBMonth*12
+		// 成本分（越低越好，标准化到0-100）
+		costScore := 100 - (totalCost/minCost-1)*50
+		if costScore < 0 {
+			costScore = 0
+		}
+		perfScore := float64(perfRank[opt.Performance]) / 3 * 100
+		scaleScore := float64(scaleRank[opt.Scalability]) / 3 * 100
+		durScore := 100.0
+		if opt.Durability != "99.999999999%" {
+			durScore = 80.0
+		}
+		score := costScore*0.4 + perfScore*0.3 + scaleScore*0.2 + durScore*0.1
+		if score > bestScore {
+			bestScore = score
+			recommendation = i
+		}
+	}
+
+	analysis := fmt.Sprintf("基于 %v TB 存储需求的12个月成本对比。成本最优: %s, 性能最优: %s, 可扩展性最优: %s",
+		requiredTB, options[bestForCost].Name, options[bestForPerformance].Name, options[bestForCapacity].Name)
+
+	return &StorageComparison{
+		GeneratedAt:         m.nowFunc(),
+		Options:             options,
+		CostComparison:      comparisonPoints,
+		BestForPerformance:  bestForPerformance,
+		BestForCost:         bestForCost,
+		BestForCapacity:     bestForCapacity,
+		Recommendation:      recommendation,
+		Analysis:            analysis,
+	}, nil
+}
+
+// ========== ROI分析 ==========
+
+// CalculateROI 计算投资回报率.
+func (m *Manager) CalculateROI(tier StorageTier, investmentCost float64, months int) (*ROIAnalysis, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	ts, ok := m.tiers[tier]
+	if !ok {
+		return nil, ErrTierNotFound
+	}
+
+	if months <= 0 {
+		months = 12
+	}
+	if investmentCost <= 0 {
+		return nil, fmt.Errorf("%w: investment cost must be positive", ErrInvalidConfig)
+	}
+
+	cfg := ts.config
+	usedTB := cfg.UsedTB
+
+	// 计算收益
+	// 1. 成本节约（相比原有方案，假设优化后成本降低20%）
+	originalMonthlyCost := usedTB * cfg.CostPerTBMonth
+	optimizedMonthlyCost := originalMonthlyCost * 0.8
+	costSavings := (originalMonthlyCost - optimizedMonthlyCost) * float64(months)
+
+	// 2. 效率提升收益（假设性能提升30%，带来业务价值）
+	efficiencyGain := usedTB * 100 * float64(months) // 每TB每月100效率价值
+
+	// 3. 宕机减少收益（假设SLA提升带来的减少损失）
+	downtimeReduction := usedTB * 50 * float64(months) // 每TB每月50宕机损失减少
+
+	totalBenefits := costSavings + efficiencyGain + downtimeReduction
+	netBenefit := totalBenefits - investmentCost
+
+	roiPercent := 0.0
+	if investmentCost > 0 {
+		roiPercent = (netBenefit / investmentCost) * 100
+	}
+
+	// 计算回收期
+	paybackMonths := 0
+	if totalBenefits > 0 {
+		monthlyBenefit := totalBenefits / float64(months)
+		if monthlyBenefit > 0 {
+			paybackMonths = int(math.Ceil(investmentCost / monthlyBenefit))
+		}
+	}
+
+	annualROI := roiPercent
+	if months < 12 {
+		annualROI = roiPercent * 12 / float64(months)
+	}
+
+	// 收益明细
+	breakdown := []ROIBenefitItem{
+		{Type: "cost_savings", Amount: costSavings, Description: "运营成本节约"},
+		{Type: "efficiency", Amount: efficiencyGain, Description: "效率提升收益"},
+		{Type: "downtime", Amount: downtimeReduction, Description: "宕机减少收益"},
+	}
+	for i := range breakdown {
+		if totalBenefits > 0 {
+			breakdown[i].Percentage = (breakdown[i].Amount / totalBenefits) * 100
+		}
+	}
+
+	return &ROIAnalysis{
+		GeneratedAt:          m.nowFunc(),
+		Tier:                 tier,
+		TierName:             cfg.Name,
+		AnalysisPeriodMonths: months,
+		TotalInvestment:      investmentCost,
+		TotalBenefits:        totalBenefits,
+		NetBenefit:           netBenefit,
+		ROIPercent:           roiPercent,
+		PaybackPeriodMonths:  paybackMonths,
+		AnnualROI:            annualROI,
+		CostSavings:          costSavings,
+		EfficiencyGain:       efficiencyGain,
+		DowntimeReduction:    downtimeReduction,
+		BenefitBreakdown:     breakdown,
+	}, nil
+}
+
+// ========== 数据优化收益估算 ==========
+
+// EstimateDataOptimization 估算去重压缩收益.
+func (m *Manager) EstimateDataOptimization(tier StorageTier, dedupRatio, compressionRatio float64) (*DataOptimizationEstimate, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	ts, ok := m.tiers[tier]
+	if !ok {
+		return nil, ErrTierNotFound
+	}
+
+	if dedupRatio < 0 || dedupRatio > 1 {
+		return nil, fmt.Errorf("%w: dedup ratio must be between 0 and 1", ErrInvalidConfig)
+	}
+	if compressionRatio < 0 || compressionRatio > 1 {
+		return nil, fmt.Errorf("%w: compression ratio must be between 0 and 1", ErrInvalidConfig)
+	}
+
+	cfg := ts.config
+	originalTB := cfg.UsedTB
+
+	// 去重后数据量
+	dedupSavings := originalTB * dedupRatio
+	afterDedup := originalTB - dedupSavings
+
+	// 压缩后数据量（在去重基础上压缩）
+	compressionSavings := afterDedup * compressionRatio
+	afterCompression := afterDedup - compressionSavings
+
+	totalSavings := dedupSavings + compressionSavings
+	spaceReduction := 0.0
+	if originalTB > 0 {
+		spaceReduction = (totalSavings / originalTB) * 100
+	}
+
+	monthlySaving := totalSavings * cfg.CostPerTBMonth
+	annualSaving := monthlySaving * 12
+
+	// 实施成本估算（假设每TB优化需要一定人力和工具成本）
+	implementationCost := totalSavings * 100 // 每TB优化100成本
+
+	paybackMonths := 0
+	if monthlySaving > 0 {
+		paybackMonths = int(math.Ceil(implementationCost / monthlySaving))
+	}
+
+	return &DataOptimizationEstimate{
+		GeneratedAt:           m.nowFunc(),
+		Tier:                  tier,
+		TierName:              cfg.Name,
+		OriginalDataTB:        originalTB,
+		DeduplicationRatio:    dedupRatio,
+		DeduplicationSavingsTB: dedupSavings,
+		CompressionRatio:      compressionRatio,
+		CompressionSavingsTB:  compressionSavings,
+		TotalSavingsTB:        totalSavings,
+		OptimizedDataTB:       afterCompression,
+		SpaceReductionPercent: spaceReduction,
+		MonthlyCostSaving:     monthlySaving,
+		AnnualCostSaving:      annualSaving,
+		ImplementationCost:    implementationCost,
+		PaybackMonths:         paybackMonths,
+	}, nil
+}
+
+// ========== 增强成本预测 ==========
+
+// ForecastCost 增强的成本预测.
+func (m *Manager) ForecastCost(months int) (*EnhancedCostForecast, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	if months <= 0 {
+		months = m.config.ForecastMonths
+	}
+
+	// 计算当前月成本
+	currentMonthlyCost := 0.0
+	for _, ts := range m.tiers {
+		currentMonthlyCost += ts.config.UsedTB * ts.config.CostPerTBMonth
+	}
+
+	if currentMonthlyCost <= 0 {
+		return nil, ErrInsufficientData
+	}
+
+	// 计算增长率（基于历史数据或默认5%月增长）
+	growthRate := 0.05 // 默认5%月增长
+	totalRecords := 0
+	for _, ts := range m.tiers {
+		totalRecords += len(ts.records)
+	}
+	if totalRecords >= 2 {
+		// 尝试从历史数据计算增长
+		firstCost := 0.0
+		lastCost := 0.0
+		var firstTime, lastTime time.Time
+		for _, ts := range m.tiers {
+			if len(ts.records) > 0 {
+				first := ts.records[0]
+				last := ts.records[len(ts.records)-1]
+				firstCost += first.Amount
+				lastCost += last.Amount
+				if firstTime.IsZero() || first.Timestamp.Before(firstTime) {
+					firstTime = first.Timestamp
+				}
+				if lastTime.IsZero() || last.Timestamp.After(lastTime) {
+					lastTime = last.Timestamp
+				}
+			}
+		}
+		if firstCost > 0 && lastTime.After(firstTime) {
+			monthsDiff := lastTime.Sub(firstTime).Hours() / (24 * 30)
+			if monthsDiff > 0 {
+				growthRate = (lastCost/firstCost - 1) / monthsDiff
+				if growthRate < 0 {
+					growthRate = 0.02 // 最低2%
+				}
+			}
+		}
+	}
+
+	// 生成预测点
+	now := m.nowFunc()
+	projectedPoints := make([]CostForecastPoint, 0, months)
+	totalForecastCost := 0.0
+	cumulativeCost := 0.0
+	confidenceLevel := 95.0
+
+	for i := 1; i <= months; i++ {
+		date := now.AddDate(0, i, 0)
+		projectedCost := currentMonthlyCost * math.Pow(1+growthRate, float64(i))
+		cumulativeCost += projectedCost
+		totalForecastCost += projectedCost
+
+		// 置信区间（随时间扩大）
+		confidenceWidth := float64(i) * 0.05 // 每月增加5%不确定性
+		lowerBound := projectedCost * (1 - confidenceWidth)
+		upperBound := projectedCost * (1 + confidenceWidth)
+
+		projectedPoints = append(projectedPoints, CostForecastPoint{
+			Month:         i,
+			Date:          date,
+			ProjectedCost: projectedCost,
+			LowerBound:    lowerBound,
+			UpperBound:    upperBound,
+			CumulativeCost: cumulativeCost,
+		})
+	}
+
+	// 生成建议
+	recommendations := make([]string, 0)
+	if growthRate > 0.1 {
+		recommendations = append(recommendations, "成本增长率较高，建议评估存储优化策略")
+	}
+	if totalForecastCost > currentMonthlyCost*float64(months)*2 {
+		recommendations = append(recommendations, "预测成本显著增长，建议考虑冷热数据分层")
+	}
+	recommendations = append(recommendations, "定期审查存储利用率，避免闲置浪费")
+
+	return &EnhancedCostForecast{
+		GeneratedAt:          now,
+		ForecastMonths:       months,
+		GrowthModel:          "exponential",
+		ConfidenceLevel:      confidenceLevel,
+		CurrentMonthlyCost:   currentMonthlyCost,
+		ProjectedMonthlyCosts: projectedPoints,
+		TotalForecastCost:    totalForecastCost,
+		CostGrowthRate:       growthRate * 100,
+		Recommendations:      recommendations,
+	}, nil
+}
+
 // GetDashboard 获取仪表板统计数据.
 func (m *Manager) GetDashboard() *DashboardStats {
 	m.mu.RLock()
