@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -362,11 +361,13 @@ func applyMaskStrategy(value, strategy string, config map[string]interface{}) st
 
 	case "tokenize":
 		// 简单的token化
-		return fmt.Sprintf("TOKEN_%x", sha256.Sum256([]byte(value))[:4])
+		tokenHash := sha256.Sum256([]byte(value))
+		return fmt.Sprintf("TOKEN_%x", tokenHash[:4])
 
 	case "pseudonymize":
 		// 伪匿名化
-		return fmt.Sprintf("PSEUDO_%x", sha256.Sum256([]byte(value))[:4])
+		pseudoHash := sha256.Sum256([]byte(value))
+		return fmt.Sprintf("PSEUDO_%x", pseudoHash[:4])
 
 	default:
 		return value
