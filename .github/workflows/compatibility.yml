@@ -2,12 +2,14 @@
 # 验证代码在不同 Go 版本和平台上的兼容性
 #
 # 功能:
-# - 多 Go 版本测试 (1.26)
+# - Go 版本兼容性检查 (1.26)
 # - 多平台构建验证 (linux/amd64, linux/arm64)
-# - API 向后兼容性检查
+# - Docker Compose 配置验证
+# - API 破坏性变更检测
+# - 数据库迁移兼容性检查
 # - 依赖版本兼容性
 #
-# 当前版本: v1.0.0（工部维护）
+# 当前版本: v1.1.0（工部维护）
 
 name: Compatibility Check
 
@@ -22,17 +24,17 @@ on:
   workflow_dispatch:
 
 env:
-  # Node.js 24 支持
+  GO_VERSION: '1.26.1'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  # GOPROXY 加速
   GOPROXY: 'https://proxy.golang.org,direct'
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
   group: compatibility-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # ========== Go 版本兼容性 ==========
@@ -53,7 +55,6 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go-version }}
-          # 关闭 setup-go 内置缓存，避免跨 Go 版本矩阵复用同一缓存导致 tar 覆盖错误
           cache: false
 
       - name: 恢复 Go 模块与编译缓存
@@ -63,13 +64,13 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: compatibility-${{ runner.os }}-${{ runner.arch }}-go${{ matrix.go-version }}-${{ hashFiles('go.sum') }}
+
       - name: 验证 go.mod 版本
         run: |
           MOD_VERSION=$(grep -E '^go [0-9]' go.mod | awk '{print $2}')
           echo "go.mod 指定版本: $MOD_VERSION"
           echo "当前测试版本: ${{ matrix.go-version }}"
           
-          # 1.26 是当前 go.mod 版本，兼容所有模块
           if [[ "${{ matrix.go-version }}" == "1.26" ]]; then
             echo "✅ Go 1.26 兼容当前模块版本"
           fi
@@ -107,8 +108,83 @@ jobs:
           echo "| 测试 | ${{ job.status == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| vet | ${{ job.status == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
 
+  # ========== Docker Compose 配置验证 ==========
+  compose-check:
+    name: Docker Compose 验证
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v5
+
+      - name: 验证 docker-compose.yml
+        run: |
+          echo "## 🐳 Docker Compose 配置验证" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          shopt -s nullglob
+          compose_files=(docker-compose*.yml)
+          
+          if [ ${#compose_files[@]} -eq 0 ]; then
+            echo "⚠️ 未找到 docker-compose*.yml 文件" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          FAILED=0
+          for compose_file in "${compose_files[@]}"; do
+            echo "检查 $compose_file..."
+            if docker compose -f "$compose_file" config --quiet 2>/dev/null; then
+              echo "✅ $compose_file 配置有效" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ $compose_file 配置无效" >> $GITHUB_STEP_SUMMARY
+              docker compose -f "$compose_file" config 2>&1 || true
+              FAILED=1
+            fi
+          done
+          
+          if [ $FAILED -eq 1 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ 部分 compose 文件验证失败" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 检查服务健康检查配置
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 健康检查配置" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          shopt -s nullglob
+          compose_files=(docker-compose*.yml)
+          
+          for compose_file in "${compose_files[@]}"; do
+            if grep -q "healthcheck:" "$compose_file"; then
+              echo "✅ $compose_file 包含健康检查" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ $compose_file 缺少健康检查" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+      - name: 验证 Dockerfile 语法
+        run: |
+          echo "=== 验证 Dockerfile 语法 ==="
+          
+          shopt -s nullglob
+          dockerfiles=(Dockerfile*)
+          
+          if [ ${#dockerfiles[@]} -eq 0 ]; then
+            echo "⚠️ 未找到 Dockerfile"
+            exit 0
+          fi
+          
+          for dockerfile in "${dockerfiles[@]}"; do
+            echo "检查: $dockerfile"
+            if [ -f "$dockerfile" ]; then
+              echo "✅ $dockerfile 文件存在"
+            fi
+          done
+
   # ========== API 兼容性检查 ==========
-  api-compatibility:
+  api-check:
     name: API 兼容性检查
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -121,43 +197,117 @@ jobs:
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.26'
+          go-version: ${{ env.GO_VERSION }}
           cache: true
 
-      - name: 检查 API 路由变更
+      - name: 检测 API 变更
+        id: api-changes
         run: |
-          echo "=== 检查 API 路由定义 ==="
+          echo "## 📡 API 兼容性检查" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           
-          # 提取当前 API 路由
-          grep -r "router\.\|Route\|Handle\|HandleFunc" api/ internal/api/ --include="*.go" | \
-            grep -v "_test.go" | \
-            sort > /tmp/current_routes.txt || true
+          CHANGED_API_FILES=$(git diff --name-only origin/master...HEAD -- 'api/*.go' 'internal/api/*.go' 2>/dev/null || echo "")
           
-          # 与 master 分支比较（仅在 PR 时）
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            git fetch origin master --depth=1
-            git show origin/master:api/ 2>/dev/null || true
-            
-            # 简单检查：新增的公开 API 端点
+          if [ -z "$CHANGED_API_FILES" ]; then
+            echo "✅ 无 API 文件变更" >> $GITHUB_STEP_SUMMARY
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "⚠️ 检测到 API 文件变更:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$CHANGED_API_FILES" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: 检测破坏性变更
+        if: steps.api-changes.outputs.has_changes == 'true'
+        run: |
+          DELETED=$(git diff origin/master...HEAD -- 'api/*.go' 'internal/api/*.go' 2>/dev/null | grep -E "^-func |^-type " | grep -v "^---" || echo "")
+          
+          if [ -n "$DELETED" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### 📡 API 变更检测" >> $GITHUB_STEP_SUMMARY
+            echo "### ⚠️ 潜在破坏性变更" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "当前路由数量: $(wc -l < /tmp/current_routes.txt)" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`diff" >> $GITHUB_STEP_SUMMARY
+            echo "$DELETED" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ 请确认这些变更不会破坏现有客户端" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ 未检测到明显的破坏性变更" >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: 验证 OpenAPI 规范
+  # ========== 数据库迁移检查 ==========
+  migration-check:
+    name: 数据库迁移检查
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: 检测迁移文件变更
+        id: migration-changes
         run: |
-          if [ -f "docs/swagger/swagger.json" ] || [ -f "docs/swagger.yaml" ]; then
-            echo "✅ 发现 OpenAPI 规范文件"
-            
-            # 检查是否有未文档化的路由
-            echo "建议: 确保 API 文档与代码同步"
-          else
-            echo "⚠️ 未发现 OpenAPI 规范文件，建议添加"
+          echo "## 🗄️ 数据库迁移检查" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          MIGRATION_DIR=""
+          for dir in migrations migrations/sql db/migrations; do
+            if [ -d "$dir" ]; then
+              MIGRATION_DIR="$dir"
+              break
+            fi
+          done
+          
+          if [ -z "$MIGRATION_DIR" ]; then
+            echo "✅ 未发现迁移目录，跳过检查" >> $GITHUB_STEP_SUMMARY
+            echo "has_migrations=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
+          
+          CHANGED_MIGRATIONS=$(git diff --name-only origin/master...HEAD -- "${MIGRATION_DIR}/*" 2>/dev/null || echo "")
+          
+          if [ -z "$CHANGED_MIGRATIONS" ]; then
+            echo "✅ 无迁移文件变更" >> $GITHUB_STEP_SUMMARY
+            echo "has_migrations=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "has_migrations=true" >> $GITHUB_OUTPUT
+          echo "⚠️ 检测到迁移文件变更:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$CHANGED_MIGRATIONS" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: 检查迁移文件命名
+        if: steps.migration-changes.outputs.has_migrations == 'true'
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 迁移文件检查" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          for file in $(git diff --name-only origin/master...HEAD -- "migrations/*" "db/migrations/*" 2>/dev/null); do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              if [[ "$filename" == *".up."* ]]; then
+                down_file="${filename/.up./.down.}"
+                dir=$(dirname "$file")
+                if [ ! -f "$dir/$down_file" ]; then
+                  echo "⚠️ $filename 缺少对应的 down 迁移" >> $GITHUB_STEP_SUMMARY
+                else
+                  echo "✅ $filename 有对应的 down 迁移" >> $GITHUB_STEP_SUMMARY
+                fi
+              fi
+            fi
+          done
 
   # ========== 依赖兼容性检查 ==========
-  dependency-compatibility:
+  dependency-check:
     name: 依赖兼容性检查
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -168,7 +318,7 @@ jobs:
       - name: 设置 Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.26'
+          go-version: ${{ env.GO_VERSION }}
           cache: true
 
       - name: 检查依赖更新
@@ -182,7 +332,6 @@ jobs:
       - name: 验证依赖安全
         run: |
           go install golang.org/x/vuln/cmd/govulncheck@latest
-          # govulncheck 返回非零表示发现漏洞，但不应该导致 workflow 失败
           if govulncheck ./... 2>&1; then
             echo "✅ 未发现已知漏洞"
           else
@@ -192,115 +341,15 @@ jobs:
       - name: 检查间接依赖
         run: |
           echo "=== 间接依赖统计 ==="
-          go list -m all | grep -c "indirect" || echo "0"
-          
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- 直接依赖: $(go list -m all | grep -v "indirect" | wc -l)" >> $GITHUB_STEP_SUMMARY
           echo "- 间接依赖: $(go list -m all | grep "indirect" | wc -l)" >> $GITHUB_STEP_SUMMARY
 
-  # ========== Docker Compose 验证 ==========
-  docker-compose-verify:
-    name: Docker Compose 验证
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v5
-
-      - name: 验证所有 compose 文件语法
-        run: |
-          echo "=== 验证 Docker Compose 文件语法 ==="
-          
-          # 使用 nullglob 避免无匹配时的错误
-          shopt -s nullglob
-          compose_files=(docker-compose*.yml)
-          
-          if [ ${#compose_files[@]} -eq 0 ]; then
-            echo "⚠️ 未找到 docker-compose*.yml 文件"
-            exit 0
-          fi
-          
-          for compose_file in "${compose_files[@]}"; do
-            echo "检查: $compose_file"
-            if docker compose -f "$compose_file" config --quiet 2>/dev/null; then
-              echo "✅ $compose_file 语法正确"
-            else
-              echo "❌ $compose_file 语法错误"
-              docker compose -f "$compose_file" config 2>&1 || true
-            fi
-          done
-
-      - name: 验证 Dockerfile 语法
-        run: |
-          echo "=== 验证 Dockerfile 语法 ==="
-          
-          # 检查是否有 Dockerfile
-          shopt -s nullglob
-          dockerfiles=(Dockerfile*)
-          
-          if [ ${#dockerfiles[@]} -eq 0 ]; then
-            echo "⚠️ 未找到 Dockerfile"
-            echo "未找到 Dockerfile 文件" >> $GITHUB_STEP_SUMMARY
-            exit 0
-          fi
-          
-          for dockerfile in "${dockerfiles[@]}"; do
-            echo "检查: $dockerfile"
-            # 使用 hadolint 或 docker build 检查语法
-            # 注意：docker build 没有 --dry-run 选项，改用 --target=placeholder 提前失败
-            if docker build -f "$dockerfile" --target placeholder . 2>&1 | grep -q "target placeholder"; then
-              echo "⚠️ $dockerfile 语法检查跳过（无 dry-run 支持）"
-            else
-              echo "✅ $dockerfile 文件存在"
-            fi
-          done
-          echo "Dockerfile 检查完成"
-
-      - name: 生成验证报告
-        run: |
-          echo "## 🐳 Docker 配置验证" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # 使用 nullglob 处理空匹配
-          shopt -s nullglob
-          compose_files=(docker-compose*.yml)
-          dockerfiles=(Dockerfile*)
-          
-          if [ ${#compose_files[@]} -gt 0 ]; then
-            echo "### Docker Compose 文件" >> $GITHUB_STEP_SUMMARY
-            echo "| 文件 | 状态 |" >> $GITHUB_STEP_SUMMARY
-            echo "|------|------|" >> $GITHUB_STEP_SUMMARY
-            
-            for compose_file in "${compose_files[@]}"; do
-              if docker compose -f "$compose_file" config --quiet 2>/dev/null; then
-                echo "| $compose_file | ✅ |" >> $GITHUB_STEP_SUMMARY
-              else
-                echo "| $compose_file | ❌ |" >> $GITHUB_STEP_SUMMARY
-              fi
-            done
-          else
-            echo "⚠️ 未找到 docker-compose*.yml 文件" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          if [ ${#dockerfiles[@]} -gt 0 ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Dockerfile 文件" >> $GITHUB_STEP_SUMMARY
-            echo "| Dockerfile | 状态 |" >> $GITHUB_STEP_SUMMARY
-            echo "|------------|------|" >> $GITHUB_STEP_SUMMARY
-            
-            for dockerfile in "${dockerfiles[@]}"; do
-              echo "| $dockerfile | ✅ 存在 |" >> $GITHUB_STEP_SUMMARY
-            done
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ 未找到 Dockerfile 文件" >> $GITHUB_STEP_SUMMARY
-          fi
-
-  # ========== 汇总报告 ==========
+  # ========== 兼容性汇总 ==========
   compatibility-summary:
     name: 兼容性汇总
     runs-on: ubuntu-latest
-    needs: [go-version-matrix, api-compatibility, dependency-compatibility, docker-compose-verify]
+    needs: [go-version-matrix, compose-check, api-check, migration-check, dependency-check]
     if: always()
     timeout-minutes: 5
     steps:
@@ -310,10 +359,11 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 检查项 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Go 版本矩阵 | ${{ needs.go-version-matrix.result == 'success' && '✅ 通过' || '⚠️ 有警告' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| API 兼容性 | ${{ needs.api-compatibility.result == 'success' && '✅ 通过' || '⚠️ 有警告' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 依赖兼容性 | ${{ needs.dependency-compatibility.result == 'success' && '✅ 通过' || '⚠️ 有警告' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Docker 配置 | ${{ needs.docker-compose-verify.result == 'success' && '✅ 通过' || '⚠️ 有警告' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Go 版本矩阵 | ${{ needs.go-version-matrix.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Compose | ${{ needs.compose-check.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| API 兼容性 | ${{ needs.api-check.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 数据库迁移 | ${{ needs.migration-check.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 依赖兼容性 | ${{ needs.dependency-check.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**触发方式:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "**提交:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
