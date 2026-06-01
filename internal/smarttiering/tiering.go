@@ -21,6 +21,8 @@ type Manager struct {
 	costOptimizer *CostOptimizer
 	monitor      *Monitor
 
+	policies map[string]*TierPolicy
+
 	running bool
 	stopCh  chan struct{}
 	wg      sync.WaitGroup
@@ -44,6 +46,7 @@ func NewManager(config Config, logger *zap.Logger) *Manager {
 		migrator:      migrator,
 		costOptimizer: costOptimizer,
 		monitor:       monitor,
+		policies:      make(map[string]*TierPolicy),
 		stopCh:        make(chan struct{}),
 	}
 }
@@ -236,4 +239,231 @@ func (m *Manager) UpdateConfig(config Config) {
 	m.migrator.UpdateConfig(config.Migrator)
 	m.costOptimizer.UpdateConfig(config.CostOptimizer)
 	m.monitor.UpdateConfig(config.Monitor)
+}
+
+// ============================================================
+// 分层策略管理
+// ============================================================
+
+// ListPolicies 列出所有分层策略
+func (m *Manager) ListPolicies() []*TierPolicy {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	result := make([]*TierPolicy, 0, len(m.policies))
+	for _, p := range m.policies {
+		cp := *p
+		result = append(result, &cp)
+	}
+	return result
+}
+
+// CreatePolicy 创建分层策略
+func (m *Manager) CreatePolicy(req TierPolicy) (*TierPolicy, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if req.Name == "" {
+		return nil, fmt.Errorf("策略名称不能为空")
+	}
+
+	if req.ID == "" {
+		req.ID = fmt.Sprintf("policy-%d", time.Now().UnixNano())
+	}
+
+	// 为规则生成 ID
+	for i := range req.Rules {
+		if req.Rules[i].ID == "" {
+			req.Rules[i].ID = fmt.Sprintf("rule-%d-%d", time.Now().UnixNano(), i)
+		}
+	}
+
+	now := time.Now()
+	req.CreatedAt = now
+	req.UpdatedAt = now
+	if req.Priority == 0 {
+		req.Priority = 100
+	}
+
+	m.policies[req.ID] = &req
+	m.logger.Info("tier policy created", zap.String("id", req.ID), zap.String("name", req.Name))
+	return &req, nil
+}
+
+// DeletePolicy 删除分层策略
+func (m *Manager) DeletePolicy(id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, ok := m.policies[id]; !ok {
+		return fmt.Errorf("策略 %s 不存在", id)
+	}
+	delete(m.policies, id)
+	m.logger.Info("tier policy deleted", zap.String("id", id))
+	return nil
+}
+
+// GetPolicy 获取单个策略
+func (m *Manager) GetPolicy(id string) (*TierPolicy, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	p, ok := m.policies[id]
+	if !ok {
+		return nil, fmt.Errorf("策略 %s 不存在", id)
+	}
+	cp := *p
+	return &cp, nil
+}
+
+// ============================================================
+// 数据放置
+// ============================================================
+
+// GetPlacement 获取文件推荐放置层级
+func (m *Manager) GetPlacement(filePath string) (*DataPlacement, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	files := m.predictor.GetAllFiles()
+	meta, exists := files[filePath]
+	if !exists {
+		return nil, fmt.Errorf("文件 %s 未注册", filePath)
+	}
+
+	predictedTier, _ := m.predictor.PredictTier(filePath, m.config.Migrator)
+
+	placement := &DataPlacement{
+		FilePath:        filePath,
+		CurrentTier:     meta.CurrentTier,
+		RecommendedTier: predictedTier,
+		HeatScore:       meta.HeatScore,
+		FileSize:        meta.Size,
+		LastAccess:      meta.AccessedAt,
+		AccessCount:     meta.AccessCount,
+		Confidence:      0.85,
+	}
+
+	if meta.CurrentTier == predictedTier {
+		placement.Reason = "当前层级已最优"
+	} else {
+		placement.Reason = fmt.Sprintf("热度评分 %.1f 建议从 %s 迁移到 %s", meta.HeatScore, meta.CurrentTier, predictedTier)
+	}
+
+	return placement, nil
+}
+
+// GetPlacements 批量获取文件放置推荐
+func (m *Manager) GetPlacements() []DataPlacement {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	files := m.predictor.GetAllFiles()
+	result := make([]DataPlacement, 0, len(files))
+	for path, meta := range files {
+		predictedTier, _ := m.predictor.PredictTier(path, m.config.Migrator)
+		placement := DataPlacement{
+			FilePath:        path,
+			CurrentTier:     meta.CurrentTier,
+			RecommendedTier: predictedTier,
+			HeatScore:       meta.HeatScore,
+			FileSize:        meta.Size,
+			LastAccess:      meta.AccessedAt,
+			AccessCount:     meta.AccessCount,
+			Confidence:      0.85,
+		}
+		if meta.CurrentTier == predictedTier {
+			placement.Reason = "当前层级已最优"
+		} else {
+			placement.Reason = fmt.Sprintf("建议迁移到 %s", predictedTier)
+		}
+		result = append(result, placement)
+	}
+	return result
+}
+
+// ============================================================
+// 统计
+// ============================================================
+
+// GetStats 获取分层统计
+func (m *Manager) GetStats() *TierStats {
+	metrics := m.monitor.GetLatestMetrics()
+	if metrics == nil {
+		return &TierStats{
+			GeneratedAt:      time.Now(),
+			TierDistribution: make(map[string]int64),
+			TierSizesGB:      make(map[string]float64),
+			AvgHeatScores:    make(map[string]float64),
+			HitRates:         make(map[string]float64),
+		}
+	}
+
+	policies := m.ListPolicies()
+	activeMigrations := len(m.migrator.GetMigrationEvents(1000))
+
+	stats := &TierStats{
+		GeneratedAt:      metrics.Timestamp,
+		TotalFiles:       metrics.TotalFiles,
+		TotalSizeGB:      metrics.TotalSizeGB,
+		TierDistribution: make(map[string]int64),
+		TierSizesGB:      make(map[string]float64),
+		AvgHeatScores:    make(map[string]float64),
+		HitRates:         make(map[string]float64),
+		MigrationCount:   metrics.MigrationCount,
+		MigrationBytesGB: metrics.MigrationBytesGB,
+		PolicyCount:      len(policies),
+		ActiveMigrations: activeMigrations,
+	}
+
+	for tier, count := range metrics.TierDistribution {
+		stats.TierDistribution[tier.String()] = count
+	}
+	for tier, size := range metrics.TierSizesGB {
+		stats.TierSizesGB[tier.String()] = size
+	}
+	for tier, score := range metrics.AvgHeatScores {
+		stats.AvgHeatScores[tier.String()] = score
+	}
+	for tier, rate := range metrics.HitRates {
+		stats.HitRates[tier.String()] = rate
+	}
+
+	return stats
+}
+
+// GetAccessPattern 获取文件访问模式
+func (m *Manager) GetAccessPattern(filePath string) (*AccessPattern, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	files := m.predictor.GetAllFiles()
+	meta, exists := files[filePath]
+	if !exists {
+		return nil, fmt.Errorf("文件 %s 未注册", filePath)
+	}
+
+	var pattern string
+	switch {
+	case meta.HeatScore >= 70:
+		pattern = "steady"
+	case meta.HeatScore >= 40:
+		pattern = "periodic"
+	case meta.HeatScore >= 15:
+		pattern = "burst"
+	default:
+		pattern = "cold"
+	}
+
+	predictedTier, _ := m.predictor.PredictTier(filePath, m.config.Migrator)
+
+	return &AccessPattern{
+		FilePath:        filePath,
+		TotalAccesses:   meta.AccessCount,
+		ReadCount:       meta.ReadCount,
+		WriteCount:      meta.WriteCount,
+		LastAccess:      meta.AccessedAt,
+		Pattern:         pattern,
+		HeatScore:       meta.HeatScore,
+		PredictedTier:   predictedTier,
+	}, nil
 }

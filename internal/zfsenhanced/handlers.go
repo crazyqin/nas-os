@@ -51,6 +51,23 @@ func RegisterRoutes(r *gin.RouterGroup, mgr *Manager) {
 	r.POST("/repair/detect/:pool", h.DetectAndRepair)
 	r.GET("/repair/tasks", h.GetRepairTasks)
 
+	// 快照管理
+	r.GET("/snapshots/:pool", h.ListSnapshots)
+	r.POST("/snapshots", h.CreateSnapshot)
+	r.DELETE("/snapshots", h.DeleteSnapshot)
+	r.POST("/snapshots/clone", h.CloneSnapshot)
+	r.POST("/snapshots/rollback", h.RollbackSnapshot)
+
+	// 数据集管理
+	r.GET("/datasets/:pool", h.ListDatasets)
+	r.GET("/datasets/detail/:name", h.GetDataset)
+
+	// 数据完整性
+	r.GET("/integrity/:pool", h.GetIntegrityReport)
+
+	// RAID-Z扩展
+	r.POST("/raidz/expand", h.ExpandRAIDZ)
+
 	// 性能监控
 	r.GET("/metrics/realtime/:pool", h.GetRealtimeMetrics)
 	r.GET("/metrics/history/:pool", h.GetMetricsHistory)
@@ -374,4 +391,130 @@ func (h *Handler) UpdateAlertConfig(c *gin.Context) {
 	}
 	h.mgr.UpdateAlertConfig(config)
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "告警配置已更新"})
+}
+
+// ========== 快照管理 ==========
+
+func (h *Handler) ListSnapshots(c *gin.Context) {
+	pool := c.Param("pool")
+	snapshots, err := h.mgr.GetSnapshots(c.Request.Context(), pool)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIResponse{Code: -1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "ok", Data: snapshots})
+}
+
+func (h *Handler) CreateSnapshot(c *gin.Context) {
+	var req struct {
+		Dataset      string `json:"dataset" binding:"required"`
+		SnapshotName string `json:"snapshot_name" binding:"required"`
+		Recursive    bool   `json:"recursive"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, APIResponse{Code: -1, Message: "请求参数错误: " + err.Error()})
+		return
+	}
+	if err := h.mgr.CreateSnapshot(c.Request.Context(), req.Dataset, req.SnapshotName, req.Recursive); err != nil {
+		c.JSON(http.StatusInternalServerError, APIResponse{Code: -1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "快照已创建"})
+}
+
+func (h *Handler) DeleteSnapshot(c *gin.Context) {
+	var req struct {
+		Dataset      string `json:"dataset" binding:"required"`
+		SnapshotName string `json:"snapshot_name" binding:"required"`
+		Recursive    bool   `json:"recursive"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, APIResponse{Code: -1, Message: "请求参数错误: " + err.Error()})
+		return
+	}
+	if err := h.mgr.DeleteSnapshot(c.Request.Context(), req.Dataset, req.SnapshotName, req.Recursive); err != nil {
+		c.JSON(http.StatusInternalServerError, APIResponse{Code: -1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "快照已删除"})
+}
+
+func (h *Handler) CloneSnapshot(c *gin.Context) {
+	var req SnapshotCloneRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, APIResponse{Code: -1, Message: "请求参数错误: " + err.Error()})
+		return
+	}
+	if err := h.mgr.CloneSnapshot(c.Request.Context(), req.Dataset, req.SnapshotName, req.TargetDataset); err != nil {
+		c.JSON(http.StatusInternalServerError, APIResponse{Code: -1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "快照克隆成功"})
+}
+
+func (h *Handler) RollbackSnapshot(c *gin.Context) {
+	var req struct {
+		Dataset      string `json:"dataset" binding:"required"`
+		SnapshotName string `json:"snapshot_name" binding:"required"`
+		Force        bool   `json:"force"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, APIResponse{Code: -1, Message: "请求参数错误: " + err.Error()})
+		return
+	}
+	if err := h.mgr.RollbackSnapshot(c.Request.Context(), req.Dataset, req.SnapshotName, req.Force); err != nil {
+		c.JSON(http.StatusInternalServerError, APIResponse{Code: -1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "快照回滚成功"})
+}
+
+// ========== 数据集管理 ==========
+
+func (h *Handler) ListDatasets(c *gin.Context) {
+	pool := c.Param("pool")
+	datasets, err := h.mgr.GetDatasets(c.Request.Context(), pool)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIResponse{Code: -1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "ok", Data: datasets})
+}
+
+func (h *Handler) GetDataset(c *gin.Context) {
+	name := c.Param("name")
+	dataset, err := h.mgr.GetDataset(c.Request.Context(), name)
+	if err != nil {
+		c.JSON(http.StatusNotFound, APIResponse{Code: -1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "ok", Data: dataset})
+}
+
+// ========== 数据完整性 ==========
+
+func (h *Handler) GetIntegrityReport(c *gin.Context) {
+	pool := c.Param("pool")
+	report, err := h.mgr.GetIntegrityReport(c.Request.Context(), pool)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIResponse{Code: -1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "ok", Data: report})
+}
+
+// ========== RAID-Z扩展 ==========
+
+func (h *Handler) ExpandRAIDZ(c *gin.Context) {
+	var req ExpandRAIDZRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, APIResponse{Code: -1, Message: "请求参数错误: " + err.Error()})
+		return
+	}
+	result, err := h.mgr.ExpandRAIDZ(c.Request.Context(), req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIResponse{Code: -1, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "RAID-Z 扩展完成", Data: result})
 }

@@ -741,4 +741,7 @@ func TestGetFileHistory(t *testing.T) {
 	if err != nil {
 		t.Fatalf("获取历史失败: %v", err)
 	}
-	if len(history)
+	if len(history) == 0 {
+		t.Fatal("期望有历史记录")
+	}
+}

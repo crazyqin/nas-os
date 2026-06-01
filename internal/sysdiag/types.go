@@ -146,3 +146,138 @@ type ServiceStatus struct {
 	Uptime    string    `json:"uptime"`
 	Since     time.Time `json:"since"`
 }
+
+// ========== 系统诊断增强类型 ==========
+
+// NetworkDiag 网络诊断结果
+type NetworkDiag struct {
+	Interfaces     []NetworkInterface `json:"interfaces"`
+	Connectivity   ConnectivityTest   `json:"connectivity"`
+	DNSResolution  DNSDiagResult      `json:"dns_resolution"`
+	Bandwidth      BandwidthTest      `json:"bandwidth"`
+	Latency        []LatencyTest      `json:"latency"`
+	Issues         []DiagIssue        `json:"issues,omitempty"`
+}
+
+// NetworkInterface 网络接口信息
+type NetworkInterface struct {
+	Name      string `json:"name"`
+	Status    string `json:"status"` // up, down
+	IP        string `json:"ip"`
+	MAC       string `json:"mac"`
+	Speed     string `json:"speed"`
+	MTU       int    `json:"mtu"`
+}
+
+// ConnectivityTest 连通性测试
+type ConnectivityTest struct {
+	GatewayReachable bool          `json:"gateway_reachable"`
+	InternetReachable bool         `json:"internet_reachable"`
+	GatewayLatency   time.Duration `json:"gateway_latency"`
+	InternetLatency  time.Duration `json:"internet_latency"`
+}
+
+// DNSDiagResult DNS 诊断结果
+type DNSDiagResult struct {
+	Resolver   string        `json:"resolver"`
+	Working    bool          `json:"working"`
+	Latency    time.Duration `json:"latency"`
+}
+
+// BandwidthTest 带宽测试
+type BandwidthTest struct {
+	UploadMbps   float64 `json:"upload_mbps"`
+	DownloadMbps float64 `json:"download_mbps"`
+}
+
+// LatencyTest 延迟测试
+type LatencyTest struct {
+	Target  string        `json:"target"`
+	Avg     time.Duration `json:"avg"`
+	Min     time.Duration `json:"min"`
+	Max     time.Duration `json:"max"`
+	Loss    float64       `json:"loss_percent"`
+}
+
+// StorageDiag 存储诊断结果
+type StorageDiag struct {
+	Arrays      []StorageArrayDiag  `json:"arrays"`
+	Disks       []DiskDiag          `json:"disks"`
+	Filesystems []FilesystemDiag    `json:"filesystems"`
+	SMART       []SMARTDiag         `json:"smart"`
+	Issues      []DiagIssue         `json:"issues,omitempty"`
+}
+
+// StorageArrayDiag 存储阵列诊断
+type StorageArrayDiag struct {
+	Name     string `json:"name"`
+	Level    string `json:"level"`
+	State    string `json:"state"`
+	Healthy  bool   `json:"healthy"`
+	Degraded bool   `json:"degraded"`
+}
+
+// DiskDiag 磁盘诊断
+type DiskDiag struct {
+	Device   string  `json:"device"`
+	Model    string  `json:"model"`
+	SizeGB   float64 `json:"size_gb"`
+	Temp     float64 `json:"temp_celsius"`
+	Healthy  bool    `json:"healthy"`
+	Warnings []string `json:"warnings,omitempty"`
+}
+
+// FilesystemDiag 文件系统诊断
+type FilesystemDiag struct {
+	Mount    string  `json:"mount"`
+	Type     string  `json:"type"`
+	SizeGB   float64 `json:"size_gb"`
+	UsedGB   float64 `json:"used_gb"`
+	UsagePct float64 `json:"usage_pct"`
+	Clean    bool    `json:"clean"`
+}
+
+// SMARTDiag SMART 诊断
+type SMARTDiag struct {
+	Device    string `json:"device"`
+	Health    string `json:"health"`
+	Temp      int    `json:"temp"`
+	PowerOn   int    `json:"power_on_hours"`
+	Reallocated int  `json:"reallocated_sectors"`
+}
+
+// PerfBottleneck 性能瓶颈分析
+type PerfBottleneck struct {
+	Component   string  `json:"component"` // cpu, memory, disk, network
+	Severity    string  `json:"severity"`  // low, medium, high, critical
+	Current     float64 `json:"current_value"`
+	Threshold   float64 `json:"threshold"`
+	Unit        string  `json:"unit"`
+	Description string  `json:"description"`
+	Recommendation string `json:"recommendation"`
+}
+
+// AutoFix 自动修复
+type AutoFix struct {
+	ID          string    `json:"id"`
+	IssueType   string    `json:"issue_type"`
+	Component   string    `json:"component"`
+	Action      string    `json:"action"`
+	Status      string    `json:"status"` // pending, running, success, failed
+	StartedAt   time.Time `json:"started_at"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	Result      string    `json:"result,omitempty"`
+}
+
+// DiagIssue 诊断问题
+type DiagIssue struct {
+	Component string `json:"component"`
+	Severity  string `json:"severity"`
+	Message   string `json:"message"`
+}
+
+// AutoFixRequest 自动修复请求
+type AutoFixRequest struct {
+	IssueType string `json:"issue_type" binding:"required"`
+	Component string `json:"component" binding:"required"`
+}

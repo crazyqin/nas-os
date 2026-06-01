@@ -1,3 +1,4 @@
+// Package onboarding 提供新手引导 REST API 处理器
 package onboarding
 
 import (
@@ -6,276 +7,130 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 引导系统HTTP处理器
+// Handler 新手引导 API 处理器
 type Handler struct {
-	ob     *Onboarding
-	wizard *WizardEngine
+	manager *Manager
 }
 
 // NewHandler 创建处理器
-func NewHandler(ob *Onboarding) *Handler {
-	return &Handler{ob: ob}
-}
-
-// NewHandlerWithWizard 创建带向导引擎的处理器
-func NewHandlerWithWizard(ob *Onboarding, wizard *WizardEngine) *Handler {
-	return &Handler{ob: ob, wizard: wizard}
+func NewHandler(manager *Manager) *Handler {
+	return &Handler{manager: manager}
 }
 
 // RegisterRoutes 注册路由
-func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
-	onboarding := rg.Group("/onboarding")
+func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
+	onboarding := r.Group("/onboarding")
 	{
-		// ---- 原有路由 ----
-		onboarding.GET("/status", h.GetStatus)
-		onboarding.POST("/start", h.Start)
-		onboarding.POST("/complete/:step", h.CompleteStep)
-		onboarding.POST("/skip", h.Skip)
-		onboarding.POST("/reset", h.Reset)
-		onboarding.GET("/steps", h.GetSteps)
-		onboarding.GET("/quickstart", h.GetQuickStartCards)
-		onboarding.GET("/tutorials", h.GetTutorials)
-		onboarding.GET("/tutorials/:id", h.GetTutorial)
+		// 向导管理
+		onboarding.GET("/wizard", h.listWizards)
+		onboarding.GET("/wizard/:id", h.getWizard)
 
-		// ---- 向导 2.0 路由 ----
-		onboarding.GET("/wizard/status", h.GetWizardStatus)
-		onboarding.POST("/wizard/start", h.StartWizard)
-		onboarding.POST("/wizard/complete-step", h.CompleteWizardStep)
-		onboarding.POST("/wizard/skip-step", h.SkipWizardStep)
-		onboarding.POST("/wizard/reset", h.ResetWizard)
-		onboarding.POST("/wizard/hardware", h.SetHardware)
-		onboarding.GET("/wizard/recommendation", h.GetRAIDRecommendation)
-		onboarding.POST("/wizard/detect", h.DetectAutoSkip)
+		// 步骤管理
+		onboarding.POST("/step", h.completeStep)
+
+		// 功能引导
+		onboarding.GET("/guides", h.getGuides)
+		onboarding.GET("/guides/:id", h.getGuide)
+
+		// 最佳实践推荐
+		onboarding.GET("/practices", h.recommendPractice)
+
+		// 进度追踪
+		onboarding.GET("/progress", h.getProgress)
+		onboarding.DELETE("/progress", h.resetProgress)
 	}
 }
 
-// ============================================================
-// 原有 handler（不变）
-// ============================================================
-
-// GetStatus 获取引导状态
-func (h *Handler) GetStatus(c *gin.Context) {
-	state := h.ob.GetState()
-	total, completed, inProgress, notStarted := h.ob.GetProgress()
-	stats := h.ob.GetCompletionStats()
-	c.JSON(http.StatusOK, gin.H{
-		"state":          state,
-		"totalSteps":     total,
-		"completed":      completed,
-		"inProgress":     inProgress,
-		"notStarted":     notStarted,
-		"completionRate": safeRate(completed, total),
-		"stats":          stats,
-	})
+type response struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
-// Start 开始引导
-func (h *Handler) Start(c *gin.Context) {
-	if err := h.ob.Start(); err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "onboarding started"})
+func (h *Handler) listWizards(c *gin.Context) {
+	wizards := h.manager.ListWizards()
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: wizards})
 }
 
-// CompleteStep 完成某步骤
-func (h *Handler) CompleteStep(c *gin.Context) {
-	stepID := c.Param("step")
-	if stepID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "step parameter is required"})
-		return
-	}
-	if err := h.ob.CompleteStep(stepID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "step " + stepID + " completed"})
-}
-
-// Skip 跳过引导
-func (h *Handler) Skip(c *gin.Context) {
-	if err := h.ob.Skip(); err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "onboarding skipped"})
-}
-
-// Reset 重置引导
-func (h *Handler) Reset(c *gin.Context) {
-	h.ob.Reset()
-	c.JSON(http.StatusOK, gin.H{"message": "onboarding reset"})
-}
-
-// GetSteps 获取步骤列表
-func (h *Handler) GetSteps(c *gin.Context) {
-	steps := h.ob.GetSteps()
-	c.JSON(http.StatusOK, steps)
-}
-
-// GetQuickStartCards 获取快速入门卡片
-func (h *Handler) GetQuickStartCards(c *gin.Context) {
-	cards := h.ob.GetQuickStartCards()
-	c.JSON(http.StatusOK, cards)
-}
-
-// GetTutorials 获取教程列表
-func (h *Handler) GetTutorials(c *gin.Context) {
-	tutorials := h.ob.GetTutorials()
-	c.JSON(http.StatusOK, tutorials)
-}
-
-// GetTutorial 获取教程详情
-func (h *Handler) GetTutorial(c *gin.Context) {
+func (h *Handler) getWizard(c *gin.Context) {
 	id := c.Param("id")
-	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "tutorial id is required"})
-		return
-	}
-	tutorial, err := h.ob.GetTutorial(id)
+	wizard, err := h.manager.GetWizard(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, tutorial)
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: wizard})
 }
 
-// ============================================================
-// 向导 2.0 handler
-// ============================================================
-
-// GetWizardStatus 获取向导状态
-func (h *Handler) GetWizardStatus(c *gin.Context) {
-	if h.wizard == nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "wizard not initialized"})
-		return
-	}
-	state := h.wizard.GetState()
-	c.JSON(http.StatusOK, state)
-}
-
-// StartWizard 启动向导
-func (h *Handler) StartWizard(c *gin.Context) {
-	if h.wizard == nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "wizard not initialized"})
-		return
-	}
-	if err := h.wizard.Start(); err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "wizard started"})
-}
-
-// CompleteWizardStepReq 完成向导步骤请求体
-type CompleteWizardStepReq struct {
-	StepID string `json:"stepId" binding:"required"`
-}
-
-// CompleteWizardStep 完成向导步骤
-func (h *Handler) CompleteWizardStep(c *gin.Context) {
-	if h.wizard == nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "wizard not initialized"})
-		return
-	}
-	var req CompleteWizardStepReq
+func (h *Handler) completeStep(c *gin.Context) {
+	var req CompleteStepRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "stepId is required"})
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
 		return
 	}
-	if err := h.wizard.CompleteStep(req.StepID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+	progress, err := h.manager.CompleteStep(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "step " + req.StepID + " completed"})
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "step completed", Data: progress})
 }
 
-// SkipWizardStepReq 跳过向导步骤请求体
-type SkipWizardStepReq struct {
-	StepID string `json:"stepId" binding:"required"`
+func (h *Handler) getGuides(c *gin.Context) {
+	category := c.Query("category")
+	guides := h.manager.GetGuides(category)
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: guides})
 }
 
-// SkipWizardStep 跳过向导步骤
-func (h *Handler) SkipWizardStep(c *gin.Context) {
-	if h.wizard == nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "wizard not initialized"})
+func (h *Handler) getGuide(c *gin.Context) {
+	id := c.Param("id")
+	guide, err := h.manager.GetGuide(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
 		return
 	}
-	var req SkipWizardStepReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "stepId is required"})
-		return
-	}
-	if err := h.wizard.SkipStep(req.StepID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "step " + req.StepID + " skipped"})
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: guide})
 }
 
-// ResetWizard 重置向导
-func (h *Handler) ResetWizard(c *gin.Context) {
-	if h.wizard == nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "wizard not initialized"})
-		return
-	}
-	h.wizard.Reset()
-	c.JSON(http.StatusOK, gin.H{"message": "wizard reset"})
+func (h *Handler) recommendPractice(c *gin.Context) {
+	category := c.Query("category")
+	practices := h.manager.RecommendPractice(category)
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: practices})
 }
 
-// SetHardware 设置硬件配置
-func (h *Handler) SetHardware(c *gin.Context) {
-	if h.wizard == nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "wizard not initialized"})
+func (h *Handler) getProgress(c *gin.Context) {
+	userID := c.Query("user_id")
+	wizardID := c.DefaultQuery("wizard_id", "wizard-default")
+
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "user_id is required"})
 		return
 	}
-	var hw HardwareConfig
-	if err := c.ShouldBindJSON(&hw); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+	progress, err := h.manager.GetProgress(userID, wizardID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
 		return
 	}
-	h.wizard.SetHardwareConfig(hw)
-	c.JSON(http.StatusOK, gin.H{
-		"message":      "hardware config set",
-		"recommendation": h.wizard.GetRecommendation(),
-	})
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: progress})
 }
 
-// GetRAIDRecommendation 获取 RAID 推荐
-func (h *Handler) GetRAIDRecommendation(c *gin.Context) {
-	if h.wizard == nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "wizard not initialized"})
+func (h *Handler) resetProgress(c *gin.Context) {
+	userID := c.Query("user_id")
+	wizardID := c.DefaultQuery("wizard_id", "wizard-default")
+
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "user_id is required"})
 		return
 	}
-	rec := h.wizard.GetRecommendation()
-	if rec == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "no recommendation available, set hardware config first"})
+
+	if err := h.manager.ResetProgress(userID, wizardID); err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, rec)
-}
 
-// DetectAutoSkip 执行自动检测并跳过已完成步骤
-func (h *Handler) DetectAutoSkip(c *gin.Context) {
-	if h.wizard == nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "wizard not initialized"})
-		return
-	}
-	h.wizard.DetectAndAutoSkip()
-	state := h.wizard.GetState()
-	c.JSON(http.StatusOK, gin.H{
-		"message": "auto detection complete",
-		"state":   state,
-	})
-}
-
-// ============================================================
-// 辅助函数
-// ============================================================
-
-func safeRate(completed, total int) float64 {
-	if total == 0 {
-		return 0
-	}
-	return float64(completed) / float64(total) * 100
+	c.JSON(http.StatusOK, response{Code: 0, Message: "progress reset"})
 }

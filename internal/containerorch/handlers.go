@@ -68,6 +68,17 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		// 统计
 		co.GET("/projects/:id/stats", h.getProjectStats)
 	}
+
+	// 容器编排增强路由
+	container := r.Group("/container")
+	{
+		container.GET("/stacks", h.listStacks)
+		container.POST("/stacks", h.deployStack)
+		container.GET("/stacks/:id/health", h.getContainerHealth)
+		container.POST("/stacks/:id/autoscale", h.setAutoScale)
+		container.POST("/image-cache", h.cacheImage)
+		container.POST("/stacks/:id/recovery", h.setRecovery)
+	}
 }
 
 // ========== 项目 Handlers ==========
@@ -532,4 +543,99 @@ func (h *Handlers) getProjectStats(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: stats})
+}
+
+// ========== 容器编排增强 Handlers ==========
+
+func (h *Handlers) listStacks(c *gin.Context) {
+	stacks := h.manager.ListStacks()
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"total":  len(stacks),
+			"stacks": stacks,
+		},
+	})
+}
+
+func (h *Handlers) deployStack(c *gin.Context) {
+	var req DeployStackRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	stack, err := h.manager.DeployStack(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, response{Code: 0, Message: "deployed", Data: stack})
+}
+
+func (h *Handlers) getContainerHealth(c *gin.Context) {
+	id := c.Param("id")
+	health, err := h.manager.GetContainerHealth(id)
+	if err != nil {
+		if _, ok := err.(*NotFoundError); ok {
+			c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: health})
+}
+
+func (h *Handlers) setAutoScale(c *gin.Context) {
+	stackID := c.Param("id")
+	var req SetAutoScaleRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	rule, err := h.manager.SetAutoScale(stackID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "configured", Data: rule})
+}
+
+func (h *Handlers) cacheImage(c *gin.Context) {
+	var req CacheImageRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	cache, err := h.manager.CacheImage(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "cached", Data: cache})
+}
+
+func (h *Handlers) setRecovery(c *gin.Context) {
+	stackID := c.Param("id")
+	var req SetRecoveryRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	policy, err := h.manager.SetRecovery(stackID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Code: 0, Message: "configured", Data: policy})
 }

@@ -1,564 +1,384 @@
-// Package kanban provides Kanban board management functionality.
+// Package kanban 提供看板核心管理逻辑
 package kanban
 
 import (
-	"encoding/json"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
-	"log"
-	"os"
-	"path/filepath"
 	"sort"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
 )
 
-// Manager manages Kanban boards.
+// Manager 看板管理器
 type Manager struct {
-	mu          sync.RWMutex
-	boards      map[string]*Board
-	templates   map[string]*BoardTemplate
-	configPath  string
+	mu       sync.RWMutex
+	boards   map[string]*Board
+	activity []*Activity
 }
 
-// NewManager creates a new Kanban manager.
-func NewManager(configPath string) *Manager {
-	m := &Manager{
-		boards:     make(map[string]*Board),
-		templates:  make(map[string]*BoardTemplate),
-		configPath: configPath,
+// NewManager 创建看板管理器
+func NewManager() *Manager {
+	return &Manager{
+		boards:   make(map[string]*Board),
+		activity: make([]*Activity, 0),
 	}
-
-	// Load existing config
-	if err := m.loadConfig(); err != nil && !os.IsNotExist(err) {
-		log.Printf("Failed to load kanban config: %v", err)
-	}
-
-	// Initialize default templates if empty
-	if len(m.templates) == 0 {
-		m.initDefaultTemplates()
-	}
-
-	return m
 }
 
-// initDefaultTemplates initializes default board templates.
-func (m *Manager) initDefaultTemplates() {
-	m.templates["basic"] = &BoardTemplate{
-		ID:          "basic",
-		Name:        "基础看板",
-		Description: "基础的三列看板模板",
-		Columns:     []string{"待办", "进行中", "已完成"},
-		IsDefault:   true,
-		CreatedAt:   time.Now(),
-	}
-
-	m.templates["scrum"] = &BoardTemplate{
-		ID:          "scrum",
-		Name:        "Scrum看板",
-		Description: "Scrum敏捷开发看板模板",
-		Columns:     []string{"待办", "开发中", "测试中", "已完成"},
-		CreatedAt:   time.Now(),
-	}
-
-	m.templates["bug"] = &BoardTemplate{
-		ID:          "bug",
-		Name:        "Bug追踪",
-		Description: "Bug追踪看板模板",
-		Columns:     []string{"新Bug", "确认中", "修复中", "验证中", "已关闭"},
-		CreatedAt:   time.Now(),
-	}
-
-	log.Printf("Initialized %d default kanban templates", len(m.templates))
+func generateID() string {
+	b := make([]byte, 16)
+	rand.Read(b)
+	return hex.EncodeToString(b)
 }
 
-// CreateBoard creates a new Kanban board.
-func (m *Manager) CreateBoard(req CreateBoardRequest, ownerID string) (*Board, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	boardID := uuid.New().String()
-	now := time.Now()
-
-	board := &Board{
-		ID:          boardID,
-		Name:        req.Name,
-		Description: req.Description,
-		Columns:     make([]*Column, 0),
-		Tags:        make([]*Tag, 0),
-		Members:     make([]*Member, 0),
-		OwnerID:     ownerID,
-		IsPublic:    req.IsPublic,
-		CreatedAt:   now,
-		UpdatedAt:   now,
-	}
-
-	// Add owner as member
-	board.Members = append(board.Members, &Member{
-		UserID:   ownerID,
-		Role:     "owner",
-		JoinedAt: now,
+func (m *Manager) addActivity(boardID, cardID, userID, action, detail string) {
+	m.activity = append(m.activity, &Activity{
+		ID:        generateID(),
+		BoardID:   boardID,
+		CardID:    cardID,
+		UserID:    userID,
+		Action:    action,
+		Detail:    detail,
+		CreatedAt: time.Now(),
 	})
-
-	// Create columns from template or default
-	if req.TemplateID != "" {
-		template, exists := m.templates[req.TemplateID]
-		if !exists {
-			return nil, fmt.Errorf("template %s not found", req.TemplateID)
-		}
-		for i, colName := range template.Columns {
-			board.Columns = append(board.Columns, &Column{
-				ID:        uuid.New().String(),
-				BoardID:   boardID,
-				Name:      colName,
-				Position:  i,
-				Cards:     make([]*Card, 0),
-				CreatedAt: now,
-			})
-		}
-		// Copy template tags
-		for _, tag := range template.Tags {
-			board.Tags = append(board.Tags, &Tag{
-				ID:      uuid.New().String(),
-				BoardID: boardID,
-				Name:    tag.Name,
-				Color:   tag.Color,
-			})
-		}
-	} else {
-		// Default columns: 待办, 进行中, 已完成
-		defaultColumns := []string{"待办", "进行中", "已完成"}
-		for i, colName := range defaultColumns {
-			board.Columns = append(board.Columns, &Column{
-				ID:        uuid.New().String(),
-				BoardID:   boardID,
-				Name:      colName,
-				Position:  i,
-				Cards:     make([]*Card, 0),
-				CreatedAt: now,
-			})
-		}
-	}
-
-	m.boards[boardID] = board
-
-	log.Printf("Created kanban board: %s (%s)", board.Name, boardID)
-
-	if err := m.saveConfig(); err != nil {
-		log.Printf("Failed to save kanban config: %v", err)
-	}
-
-	return board, nil
 }
 
-// GetBoard returns a board by ID.
-func (m *Manager) GetBoard(boardID string) (*Board, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	board, exists := m.boards[boardID]
-	if !exists {
-		return nil, fmt.Errorf("board %s not found", boardID)
-	}
-
-	return board, nil
-}
-
-// ListBoards returns all boards.
+// ListBoards 列出所有看板
 func (m *Manager) ListBoards() []*Board {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	boards := make([]*Board, 0, len(m.boards))
-	for _, board := range m.boards {
-		boards = append(boards, board)
+	for _, b := range m.boards {
+		boards = append(boards, b)
 	}
-
-	// Sort by creation time
 	sort.Slice(boards, func(i, j int) bool {
 		return boards[i].CreatedAt.After(boards[j].CreatedAt)
 	})
-
 	return boards
 }
 
-// UpdateBoard updates a board.
-func (m *Manager) UpdateBoard(boardID string, req UpdateBoardRequest) (*Board, error) {
+// CreateBoard 创建看板
+func (m *Manager) CreateBoard(req *CreateBoardRequest) (*Board, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-
-	board, exists := m.boards[boardID]
-	if !exists {
-		return nil, fmt.Errorf("board %s not found", boardID)
-	}
-
-	if req.Name != nil {
-		board.Name = *req.Name
-	}
-	if req.Description != nil {
-		board.Description = *req.Description
-	}
-	if req.IsPublic != nil {
-		board.IsPublic = *req.IsPublic
-	}
-
-	board.UpdatedAt = time.Now()
-
-	log.Printf("Updated kanban board: %s", boardID)
-
-	if err := m.saveConfig(); err != nil {
-		log.Printf("Failed to save kanban config: %v", err)
-	}
-
-	return board, nil
-}
-
-// DeleteBoard deletes a board.
-func (m *Manager) DeleteBoard(boardID string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.boards[boardID]; !exists {
-		return fmt.Errorf("board %s not found", boardID)
-	}
-
-	delete(m.boards, boardID)
-
-	log.Printf("Deleted kanban board: %s", boardID)
-
-	return m.saveConfig()
-}
-
-// CreateCard creates a new card in a board.
-func (m *Manager) CreateCard(boardID string, req CreateCardRequest, createdBy string) (*Card, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	board, exists := m.boards[boardID]
-	if !exists {
-		return nil, fmt.Errorf("board %s not found", boardID)
-	}
-
-	// Find target column
-	var targetColumn *Column
-	for _, col := range board.Columns {
-		if col.ID == req.ColumnID {
-			targetColumn = col
-			break
-		}
-	}
-
-	if targetColumn == nil {
-		return nil, fmt.Errorf("column %s not found in board %s", req.ColumnID, boardID)
-	}
-
-	// Check WIP limit
-	if targetColumn.WIPLimit > 0 && len(targetColumn.Cards) >= targetColumn.WIPLimit {
-		return nil, fmt.Errorf("column %s has reached WIP limit (%d)", targetColumn.Name, targetColumn.WIPLimit)
-	}
 
 	now := time.Now()
-	card := &Card{
-		ID:          uuid.New().String(),
-		ColumnID:    req.ColumnID,
-		BoardID:     boardID,
-		Title:       req.Title,
+	board := &Board{
+		ID:          generateID(),
+		Name:        req.Name,
 		Description: req.Description,
-		Position:    len(targetColumn.Cards),
-		Priority:    req.Priority,
-		AssigneeID:  req.AssigneeID,
-		Tags:        req.Tags,
-		Comments:    make([]*Comment, 0),
-		Attachments: make([]*Attachment, 0),
-		DueDate:     req.DueDate,
-		CreatedBy:   createdBy,
-		CreatedAt:   now,
-		UpdatedAt:   now,
-	}
-
-	if card.Priority == "" {
-		card.Priority = "medium"
-	}
-
-	targetColumn.Cards = append(targetColumn.Cards, card)
-	board.UpdatedAt = now
-
-	log.Printf("Created card %s in board %s, column %s", card.ID, boardID, req.ColumnID)
-
-	if err := m.saveConfig(); err != nil {
-		log.Printf("Failed to save kanban config: %v", err)
-	}
-
-	return card, nil
-}
-
-// MoveCard moves a card to another column or position.
-func (m *Manager) MoveCard(boardID, cardID string, req MoveCardRequest) (*Card, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	board, exists := m.boards[boardID]
-	if !exists {
-		return nil, fmt.Errorf("board %s not found", boardID)
-	}
-
-	// Find and remove card from source column
-	var card *Card
-	var sourceColumn *Column
-	for _, col := range board.Columns {
-		for i, c := range col.Cards {
-			if c.ID == cardID {
-				card = c
-				sourceColumn = col
-				// Remove from source
-				col.Cards = append(col.Cards[:i], col.Cards[i+1:]...)
-				break
-			}
-		}
-		if card != nil {
-			break
-		}
-	}
-
-	if card == nil {
-		return nil, fmt.Errorf("card %s not found in board %s", cardID, boardID)
-	}
-
-	// Find target column
-	var targetColumn *Column
-	for _, col := range board.Columns {
-		if col.ID == req.TargetColumnID {
-			targetColumn = col
-			break
-		}
-	}
-
-	if targetColumn == nil {
-		return nil, fmt.Errorf("target column %s not found", req.TargetColumnID)
-	}
-
-	// Check WIP limit
-	if targetColumn.WIPLimit > 0 && len(targetColumn.Cards) >= targetColumn.WIPLimit {
-		// Put card back in source column
-		sourceColumn.Cards = append(sourceColumn.Cards, card)
-		return nil, fmt.Errorf("target column %s has reached WIP limit (%d)", targetColumn.Name, targetColumn.WIPLimit)
-	}
-
-	// Update card
-	card.ColumnID = req.TargetColumnID
-	card.UpdatedAt = time.Now()
-
-	// Insert at position
-	position := req.Position
-	if position < 0 || position > len(targetColumn.Cards) {
-		position = len(targetColumn.Cards)
-	}
-
-	// Insert card at position
-	targetColumn.Cards = append(targetColumn.Cards, nil)
-	copy(targetColumn.Cards[position+1:], targetColumn.Cards[position:])
-	targetColumn.Cards[position] = card
-
-	// Update positions
-	for i, c := range targetColumn.Cards {
-		c.Position = i
-	}
-
-	board.UpdatedAt = time.Now()
-
-	log.Printf("Moved card %s to column %s at position %d", cardID, req.TargetColumnID, position)
-
-	if err := m.saveConfig(); err != nil {
-		log.Printf("Failed to save kanban config: %v", err)
-	}
-
-	return card, nil
-}
-
-// AddComment adds a comment to a card.
-func (m *Manager) AddComment(boardID, cardID, userID, username, content string) (*Comment, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	board, exists := m.boards[boardID]
-	if !exists {
-		return nil, fmt.Errorf("board %s not found", boardID)
-	}
-
-	// Find card
-	var card *Card
-	for _, col := range board.Columns {
-		for _, c := range col.Cards {
-			if c.ID == cardID {
-				card = c
-				break
-			}
-		}
-		if card != nil {
-			break
-		}
-	}
-
-	if card == nil {
-		return nil, fmt.Errorf("card %s not found", cardID)
-	}
-
-	now := time.Now()
-	comment := &Comment{
-		ID:        uuid.New().String(),
-		CardID:    cardID,
-		UserID:    userID,
-		Username:  username,
-		Content:   content,
+		Columns: []*Column{
+			{ID: generateID(), Name: "待办", Position: 0, Cards: make([]*Card, 0), CreatedAt: now},
+			{ID: generateID(), Name: "进行中", Position: 1, Cards: make([]*Card, 0), CreatedAt: now},
+			{ID: generateID(), Name: "已完成", Position: 2, Cards: make([]*Card, 0), CreatedAt: now},
+		},
+		Labels:    make([]*Label, 0),
+		Members: []*Member{{
+			UserID:   req.OwnerID,
+			Role:     "owner",
+			JoinedAt: now,
+		}},
+		OwnerID:   req.OwnerID,
+		IsArchived: false,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
 
-	card.Comments = append(card.Comments, comment)
-	card.UpdatedAt = now
-	board.UpdatedAt = now
-
-	log.Printf("Added comment to card %s", cardID)
-
-	if err := m.saveConfig(); err != nil {
-		log.Printf("Failed to save kanban config: %v", err)
+	// 回填 boardID
+	for _, col := range board.Columns {
+		col.BoardID = board.ID
 	}
 
-	return comment, nil
+	m.boards[board.ID] = board
+	m.addActivity(board.ID, "", req.OwnerID, "board_created", fmt.Sprintf("创建看板: %s", req.Name))
+
+	return board, nil
 }
 
-// AddTag adds a tag to a board.
-func (m *Manager) AddTag(boardID, name, color string) (*Tag, error) {
+// GetBoard 获取看板
+func (m *Manager) GetBoard(id string) (*Board, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	board, ok := m.boards[id]
+	if !ok {
+		return nil, fmt.Errorf("board not found: %s", id)
+	}
+	return board, nil
+}
+
+// DeleteBoard 删除看板
+func (m *Manager) DeleteBoard(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	board, exists := m.boards[boardID]
-	if !exists {
-		return nil, fmt.Errorf("board %s not found", boardID)
+	if _, ok := m.boards[id]; !ok {
+		return fmt.Errorf("board not found: %s", id)
+	}
+	delete(m.boards, id)
+	return nil
+}
+
+// AddCard 添加卡片
+func (m *Manager) AddCard(boardID string, req *AddCardRequest) (*Card, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	board, ok := m.boards[boardID]
+	if !ok {
+		return nil, fmt.Errorf("board not found: %s", boardID)
 	}
 
-	// Check for duplicate tag name
-	for _, tag := range board.Tags {
-		if tag.Name == name {
-			return nil, fmt.Errorf("tag %s already exists", name)
+	var targetCol *Column
+	for _, col := range board.Columns {
+		if col.ID == req.ColumnID {
+			targetCol = col
+			break
 		}
 	}
-
-	tag := &Tag{
-		ID:      uuid.New().String(),
-		BoardID: boardID,
-		Name:    name,
-		Color:   color,
+	if targetCol == nil {
+		return nil, fmt.Errorf("column not found: %s", req.ColumnID)
 	}
 
-	board.Tags = append(board.Tags, tag)
-	board.UpdatedAt = time.Now()
-
-	log.Printf("Added tag %s to board %s", name, boardID)
-
-	if err := m.saveConfig(); err != nil {
-		log.Printf("Failed to save kanban config: %v", err)
+	priority := req.Priority
+	if priority == "" {
+		priority = "medium"
 	}
 
-	return tag, nil
+	now := time.Now()
+	card := &Card{
+		ID:          generateID(),
+		ColumnID:    req.ColumnID,
+		BoardID:     boardID,
+		Title:       req.Title,
+		Description: req.Description,
+		Position:    len(targetCol.Cards),
+		Priority:    priority,
+		AssigneeID:  req.AssigneeID,
+		LabelIDs:    req.LabelIDs,
+		DueDate:     req.DueDate,
+		CreatedBy:   req.CreatedBy,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}
+
+	targetCol.Cards = append(targetCol.Cards, card)
+	board.UpdatedAt = now
+
+	m.addActivity(boardID, card.ID, req.CreatedBy, "card_created", fmt.Sprintf("添加卡片: %s", req.Title))
+
+	return card, nil
 }
 
-// AddMember adds a member to a board.
-func (m *Manager) AddMember(boardID, userID, username, role string) (*Member, error) {
+// MoveCard 移动卡片（拖拽）
+func (m *Manager) MoveCard(boardID, cardID string, req *MoveCardRequest) (*Card, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	board, exists := m.boards[boardID]
-	if !exists {
-		return nil, fmt.Errorf("board %s not found", boardID)
+	board, ok := m.boards[boardID]
+	if !ok {
+		return nil, fmt.Errorf("board not found: %s", boardID)
 	}
 
-	// Check if already a member
-	for _, member := range board.Members {
-		if member.UserID == userID {
-			return nil, fmt.Errorf("user %s is already a member", userID)
+	// 查找卡片所在列
+	var card *Card
+	var srcCol *Column
+	for _, col := range board.Columns {
+		for i, c := range col.Cards {
+			if c.ID == cardID {
+				card = c
+				srcCol = col
+				// 从源列移除
+				srcCol.Cards = append(srcCol.Cards[:i], srcCol.Cards[i+1:]...)
+				break
+			}
+		}
+		if card != nil {
+			break
+		}
+	}
+	if card == nil {
+		return nil, fmt.Errorf("card not found: %s", cardID)
+	}
+
+	// 找目标列
+	var dstCol *Column
+	for _, col := range board.Columns {
+		if col.ID == req.TargetColumnID {
+			dstCol = col
+			break
+		}
+	}
+	if dstCol == nil {
+		return nil, fmt.Errorf("target column not found: %s", req.TargetColumnID)
+	}
+
+	// 插入到目标列
+	pos := req.Position
+	if pos < 0 || pos > len(dstCol.Cards) {
+		pos = len(dstCol.Cards)
+	}
+	dstCol.Cards = append(dstCol.Cards[:pos], append([]*Card{card}, dstCol.Cards[pos:]...)...)
+
+	// 更新卡片信息
+	card.ColumnID = req.TargetColumnID
+	card.Position = pos
+	card.UpdatedAt = time.Now()
+
+	// 重排位置
+	for i, c := range dstCol.Cards {
+		c.Position = i
+	}
+	for i, c := range srcCol.Cards {
+		c.Position = i
+	}
+
+	board.UpdatedAt = time.Now()
+	m.addActivity(boardID, cardID, "", "card_moved",
+		fmt.Sprintf("卡片 %s 从 %s 移动到 %s", card.Title, srcCol.Name, dstCol.Name))
+
+	return card, nil
+}
+
+// AddLabel 添加标签
+func (m *Manager) AddLabel(boardID string, req *AddLabelRequest) (*Label, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	board, ok := m.boards[boardID]
+	if !ok {
+		return nil, fmt.Errorf("board not found: %s", boardID)
+	}
+
+	label := &Label{
+		ID:      generateID(),
+		BoardID: boardID,
+		Name:    req.Name,
+		Color:   req.Color,
+	}
+
+	board.Labels = append(board.Labels, label)
+	board.UpdatedAt = time.Now()
+
+	m.addActivity(boardID, "", "", "label_added", fmt.Sprintf("添加标签: %s", req.Name))
+
+	return label, nil
+}
+
+// DeleteLabel 删除标签
+func (m *Manager) DeleteLabel(boardID, labelID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	board, ok := m.boards[boardID]
+	if !ok {
+		return fmt.Errorf("board not found: %s", boardID)
+	}
+
+	for i, l := range board.Labels {
+		if l.ID == labelID {
+			board.Labels = append(board.Labels[:i], board.Labels[i+1:]...)
+			board.UpdatedAt = time.Now()
+			return nil
+		}
+	}
+	return fmt.Errorf("label not found: %s", labelID)
+}
+
+// AssignMember 分配成员
+func (m *Manager) AssignMember(boardID string, req *AssignMemberRequest) (*Member, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	board, ok := m.boards[boardID]
+	if !ok {
+		return nil, fmt.Errorf("board not found: %s", boardID)
+	}
+
+	// 检查是否已存在
+	for _, mem := range board.Members {
+		if mem.UserID == req.UserID {
+			mem.Role = req.Role
+			board.UpdatedAt = time.Now()
+			m.addActivity(boardID, "", req.UserID, "member_updated",
+				fmt.Sprintf("更新成员 %s 角色为 %s", req.Username, req.Role))
+			return mem, nil
 		}
 	}
 
 	member := &Member{
-		UserID:   userID,
-		Username: username,
-		Role:     role,
+		UserID:   req.UserID,
+		Username: req.Username,
+		Role:     req.Role,
 		JoinedAt: time.Now(),
 	}
 
 	board.Members = append(board.Members, member)
 	board.UpdatedAt = time.Now()
 
-	log.Printf("Added member %s to board %s with role %s", userID, boardID, role)
-
-	if err := m.saveConfig(); err != nil {
-		log.Printf("Failed to save kanban config: %v", err)
-	}
+	m.addActivity(boardID, "", req.UserID, "member_assigned",
+		fmt.Sprintf("添加成员: %s (%s)", req.Username, req.Role))
 
 	return member, nil
 }
 
-// GetTemplates returns all board templates.
-func (m *Manager) GetTemplates() []*BoardTemplate {
+// RemoveMember 移除成员
+func (m *Manager) RemoveMember(boardID, userID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	board, ok := m.boards[boardID]
+	if !ok {
+		return fmt.Errorf("board not found: %s", boardID)
+	}
+
+	for i, mem := range board.Members {
+		if mem.UserID == userID {
+			board.Members = append(board.Members[:i], board.Members[i+1:]...)
+			board.UpdatedAt = time.Now()
+			return nil
+		}
+	}
+	return fmt.Errorf("member not found: %s", userID)
+}
+
+// GetActivity 获取活动记录
+func (m *Manager) GetActivity(boardID string, limit int) []*Activity {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	templates := make([]*BoardTemplate, 0, len(m.templates))
-	for _, t := range m.templates {
-		templates = append(templates, t)
+	if limit <= 0 {
+		limit = 50
 	}
 
-	return templates
+	result := make([]*Activity, 0)
+	for i := len(m.activity) - 1; i >= 0 && len(result) < limit; i-- {
+		if boardID == "" || m.activity[i].BoardID == boardID {
+			result = append(result, m.activity[i])
+		}
+	}
+	return result
 }
 
-// saveConfig saves configuration to disk.
-func (m *Manager) saveConfig() error {
-	cfg := struct {
-		Boards    map[string]*Board         `json:"boards"`
-		Templates map[string]*BoardTemplate `json:"templates"`
-	}{
-		Boards:    m.boards,
-		Templates: m.templates,
+// GetBoardProgress 获取看板进度
+func (m *Manager) GetBoardProgress(boardID string) (map[string]int, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	board, ok := m.boards[boardID]
+	if !ok {
+		return nil, fmt.Errorf("board not found: %s", boardID)
 	}
 
-	data, err := json.MarshalIndent(cfg, "", "  ")
-	if err != nil {
-		return fmt.Errorf("failed to marshal config: %w", err)
+	progress := make(map[string]int)
+	total := 0
+	for _, col := range board.Columns {
+		count := len(col.Cards)
+		progress[col.Name] = count
+		total += count
 	}
+	progress["total"] = total
 
-	// Ensure directory exists
-	dir := filepath.Dir(m.configPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("failed to create config dir: %w", err)
-	}
-
-	return os.WriteFile(m.configPath, data, 0644)
-}
-
-// loadConfig loads configuration from disk.
-func (m *Manager) loadConfig() error {
-	data, err := os.ReadFile(m.configPath)
-	if err != nil {
-		return err
-	}
-
-	var cfg struct {
-		Boards    map[string]*Board         `json:"boards"`
-		Templates map[string]*BoardTemplate `json:"templates"`
-	}
-
-	if err := json.Unmarshal(data, &cfg); err != nil {
-		return fmt.Errorf("failed to parse config: %w", err)
-	}
-
-	if cfg.Boards != nil {
-		m.boards = cfg.Boards
-	}
-	if cfg.Templates != nil {
-		m.templates = cfg.Templates
-	}
-
-	return nil
+	return progress, nil
 }

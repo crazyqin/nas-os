@@ -26,40 +26,40 @@ const (
 // PoolTier 存储池层级配置
 type PoolTier struct {
 	Level       TierLevel `json:"level"`
-	DevicePaths []string  `json:"devicePaths"` // 设备路径
-	Capacity    int64     `json:"capacity"`     // 总容量(字节)
-	Used        int64     `json:"used"`         // 已用(字节)
-	IOPS        int64     `json:"iops"`         // 当前IOPS
-	Bandwidth   int64     `json:"bandwidth"`    // 当前带宽(bytes/s)
-	Role        string    `json:"role"`         // data/slog/zil/l2arc
+	DevicePaths []string  `json:"devicePaths"`
+	Capacity    int64     `json:"capacity"`
+	Used        int64     `json:"used"`
+	IOPS        int64     `json:"iops"`
+	Bandwidth   int64     `json:"bandwidth"`
+	Role        string    `json:"role"`
 }
 
 // HybridPoolConfig 混合存储池配置
 type HybridPoolConfig struct {
 	Name              string        `json:"name"`
 	Tiers             []PoolTier    `json:"tiers"`
-	PromoteThreshold  float64       `json:"promoteThreshold"`  // 提升到SSD的访问频率阈值(次/小时)
-	DemoteThreshold   float64       `json:"demoteThreshold"`   // 降级到HDD的访问频率阈值(次/小时)
-	TieringInterval   time.Duration `json:"tieringInterval"`   // 分层扫描间隔
-	MinFileSize       int64         `json:"minFileSize"`       // 最小参与分层的文件大小
-	MaxFileSize       int64         `json:"maxFileSize"`       // 最大参与分层的文件大小
-	EnableAutoTiering bool          `json:"enableAutoTiering"` // 启用自动分层
-	EnableSLOG        bool          `json:"enableSLOG"`        // 启用SSD作为SLOG
-	EnableL2ARC       bool          `json:"enableL2ARC"`       // 启用SSD作为L2ARC
-	ScrubOnTierChange bool          `json:"scrubOnTierChange"` // 分层变更后触发Scrub
+	PromoteThreshold  float64       `json:"promoteThreshold"`
+	DemoteThreshold   float64       `json:"demoteThreshold"`
+	TieringInterval   time.Duration `json:"tieringInterval"`
+	MinFileSize       int64         `json:"minFileSize"`
+	MaxFileSize       int64         `json:"maxFileSize"`
+	EnableAutoTiering bool          `json:"enableAutoTiering"`
+	EnableSLOG        bool          `json:"enableSLOG"`
+	EnableL2ARC       bool          `json:"enableL2ARC"`
+	ScrubOnTierChange bool          `json:"scrubOnTierChange"`
 }
 
 // FileHeatMap 文件热度信息
 type FileHeatMap struct {
-	FilePath     string    `json:"filePath"`
-	AccessCount  int64     `json:"accessCount"`  // 访问次数
-	LastAccess   time.Time `json:"lastAccess"`   // 最后访问时间
-	ReadBytes    int64     `json:"readBytes"`    // 读取字节数
-	WriteBytes   int64     `json:"writeBytes"`   // 写入字节数
-	HeatScore    float64   `json:"heatScore"`    // 热度评分(0-100)
-	CurrentTier  TierLevel `json:"currentTier"`  // 当前所在层级
-	TargetTier   TierLevel `json:"targetTier"`   // 目标层级
-	Size         int64     `json:"size"`         // 文件大小
+	FilePath    string    `json:"filePath"`
+	AccessCount int64     `json:"accessCount"`
+	LastAccess  time.Time `json:"lastAccess"`
+	ReadBytes   int64     `json:"readBytes"`
+	WriteBytes  int64     `json:"writeBytes"`
+	HeatScore   float64   `json:"heatScore"`
+	CurrentTier TierLevel `json:"currentTier"`
+	TargetTier  TierLevel `json:"targetTier"`
+	Size        int64     `json:"size"`
 }
 
 // TieringStats 分层统计
@@ -68,17 +68,17 @@ type TieringStats struct {
 	HotFiles       int64   `json:"hotFiles"`
 	WarmFiles      int64   `json:"warmFiles"`
 	ColdFiles      int64   `json:"coldFiles"`
-	PromotedToday  int64   `json:"promotedToday"`  // 今日提升文件数
-	DemotedToday   int64   `json:"demotedToday"`   // 今日降级文件数
-	TotalPromoted  int64   `json:"totalPromoted"`  // 累计提升
-	TotalDemoted   int64   `json:"totalDemoted"`   // 累计降级
-	HitRate        float64 `json:"hitRate"`        // SSD命中率
-	AvgLatencyHot  float64 `json:"avgLatencyHot"`  // 热数据平均延迟(ms)
-	AvgLatencyCold float64 `json:"avgLatencyCold"` // 冷数据平均延迟(ms)
+	PromotedToday  int64   `json:"promotedToday"`
+	DemotedToday   int64   `json:"demotedToday"`
+	TotalPromoted  int64   `json:"totalPromoted"`
+	TotalDemoted   int64   `json:"totalDemoted"`
+	HitRate        float64 `json:"hitRate"`
+	AvgLatencyHot  float64 `json:"avgLatencyHot"`
+	AvgLatencyCold float64 `json:"avgLatencyCold"`
 }
 
-// HybridPool 混合闪存池管理器
-type HybridPool struct {
+// FlashTierManager 混合闪存池管理器
+type FlashTierManager struct {
 	config    HybridPoolConfig
 	heatMap   map[string]*FileHeatMap
 	stats     TieringStats
@@ -87,14 +87,14 @@ type HybridPool struct {
 	ctx       context.Context
 	cancel    context.CancelFunc
 	running   bool
-	onPromote func(filePath string, from, to TierLevel) // 提升回调
-	onDemote  func(filePath string, from, to TierLevel) // 降级回调
+	onPromote func(filePath string, from, to TierLevel)
+	onDemote  func(filePath string, from, to TierLevel)
 }
 
-// NewHybridPool 创建混合闪存池
-func NewHybridPool(config HybridPoolConfig) *HybridPool {
+// NewFlashTierManager 创建混合闪存池
+func NewFlashTierManager(config HybridPoolConfig) *FlashTierManager {
 	ctx, cancel := context.WithCancel(context.Background())
-	hp := &HybridPool{
+	ftm := &FlashTierManager{
 		config:  config,
 		heatMap: make(map[string]*FileHeatMap),
 		tiers:   make(map[TierLevel]*PoolTier),
@@ -103,65 +103,65 @@ func NewHybridPool(config HybridPoolConfig) *HybridPool {
 	}
 	for i := range config.Tiers {
 		tier := &config.Tiers[i]
-		hp.tiers[tier.Level] = tier
+		ftm.tiers[tier.Level] = tier
 	}
-	return hp
+	return ftm
 }
 
 // Start 启动自动分层
-func (hp *HybridPool) Start() error {
-	hp.mu.Lock()
-	defer hp.mu.Unlock()
-	if hp.running {
-		return fmt.Errorf("hybrid pool %s already running", hp.config.Name)
+func (ftm *FlashTierManager) Start() error {
+	ftm.mu.Lock()
+	defer ftm.mu.Unlock()
+	if ftm.running {
+		return fmt.Errorf("hybrid pool %s already running", ftm.config.Name)
 	}
-	if !hp.config.EnableAutoTiering {
+	if !ftm.config.EnableAutoTiering {
 		return nil
 	}
-	hp.running = true
-	go hp.tieringLoop()
-	log.Printf("[HybridPool] %s started, tiers: %d, interval: %v", hp.config.Name, len(hp.tiers), hp.config.TieringInterval)
+	ftm.running = true
+	go ftm.tieringLoop()
+	log.Printf("[FlashTierManager] %s started, tiers: %d, interval: %v", ftm.config.Name, len(ftm.tiers), ftm.config.TieringInterval)
 	return nil
 }
 
 // Stop 停止自动分层
-func (hp *HybridPool) Stop() {
-	hp.mu.Lock()
-	defer hp.mu.Unlock()
-	if !hp.running {
+func (ftm *FlashTierManager) Stop() {
+	ftm.mu.Lock()
+	defer ftm.mu.Unlock()
+	if !ftm.running {
 		return
 	}
-	hp.cancel()
-	hp.running = false
-	log.Printf("[HybridPool] %s stopped", hp.config.Name)
+	ftm.cancel()
+	ftm.running = false
+	log.Printf("[FlashTierManager] %s stopped", ftm.config.Name)
 }
 
 // RecordAccess 记录文件访问
-func (hp *HybridPool) RecordAccess(filePath string, readBytes, writeBytes int64) {
-	hp.mu.Lock()
-	defer hp.mu.Unlock()
-	heat, exists := hp.heatMap[filePath]
+func (ftm *FlashTierManager) RecordAccess(filePath string, readBytes, writeBytes int64) {
+	ftm.mu.Lock()
+	defer ftm.mu.Unlock()
+	heat, exists := ftm.heatMap[filePath]
 	if !exists {
 		heat = &FileHeatMap{
 			FilePath:    filePath,
-			CurrentTier: TierCold, // 默认冷数据
+			CurrentTier: TierCold,
 		}
-		hp.heatMap[filePath] = heat
+		ftm.heatMap[filePath] = heat
 	}
 	heat.AccessCount++
 	heat.LastAccess = time.Now()
 	heat.ReadBytes += readBytes
 	heat.WriteBytes += writeBytes
-	heat.HeatScore = hp.calculateHeatScore(heat)
-	heat.TargetTier = hp.determineTier(heat)
+	heat.HeatScore = ftm.calculateHeatScore(heat)
+	heat.TargetTier = ftm.determineTier(heat)
 }
 
 // GetStats 获取分层统计
-func (hp *HybridPool) GetStats() TieringStats {
-	hp.mu.RLock()
-	defer hp.mu.RUnlock()
-	stats := hp.stats
-	for _, heat := range hp.heatMap {
+func (ftm *FlashTierManager) GetStats() TieringStats {
+	ftm.mu.RLock()
+	defer ftm.mu.RUnlock()
+	stats := ftm.stats
+	for _, heat := range ftm.heatMap {
 		switch heat.CurrentTier {
 		case TierHot:
 			stats.HotFiles++
@@ -179,11 +179,11 @@ func (hp *HybridPool) GetStats() TieringStats {
 }
 
 // GetHeatMap 获取文件热度图
-func (hp *HybridPool) GetHeatMap() map[string]*FileHeatMap {
-	hp.mu.RLock()
-	defer hp.mu.RUnlock()
-	result := make(map[string]*FileHeatMap, len(hp.heatMap))
-	for k, v := range hp.heatMap {
+func (ftm *FlashTierManager) GetHeatMap() map[string]*FileHeatMap {
+	ftm.mu.RLock()
+	defer ftm.mu.RUnlock()
+	result := make(map[string]*FileHeatMap, len(ftm.heatMap))
+	for k, v := range ftm.heatMap {
 		cp := *v
 		result[k] = &cp
 	}
@@ -191,11 +191,11 @@ func (hp *HybridPool) GetHeatMap() map[string]*FileHeatMap {
 }
 
 // GetTierStatus 获取层级状态
-func (hp *HybridPool) GetTierStatus() map[TierLevel]*PoolTier {
-	hp.mu.RLock()
-	defer hp.mu.RUnlock()
+func (ftm *FlashTierManager) GetTierStatus() map[TierLevel]*PoolTier {
+	ftm.mu.RLock()
+	defer ftm.mu.RUnlock()
 	result := make(map[TierLevel]*PoolTier)
-	for level, tier := range hp.tiers {
+	for level, tier := range ftm.tiers {
 		cp := *tier
 		result[level] = &cp
 	}
@@ -203,15 +203,12 @@ func (hp *HybridPool) GetTierStatus() map[TierLevel]*PoolTier {
 }
 
 // calculateHeatScore 计算热度评分 (0-100)
-// 加权算法：访问频率40% + 最近访问时间30% + 读写量30%
-func (hp *HybridPool) calculateHeatScore(heat *FileHeatMap) float64 {
-	// 访问频率评分 (基于对数衰减)
+func (ftm *FlashTierManager) calculateHeatScore(heat *FileHeatMap) float64 {
 	freqScore := float64(0)
 	if heat.AccessCount > 0 {
-		freqScore = min(100, float64(heat.AccessCount)*10)
+		freqScore = minFloat(100, float64(heat.AccessCount)*10)
 	}
 
-	// 最近访问评分 (时间衰减)
 	recencyScore := float64(0)
 	if !heat.LastAccess.IsZero() {
 		hoursSince := time.Since(heat.LastAccess).Hours()
@@ -220,20 +217,18 @@ func (hp *HybridPool) calculateHeatScore(heat *FileHeatMap) float64 {
 			recencyScore = 100
 		case hoursSince < 24:
 			recencyScore = 80
-		case hoursSince < 168: // 1周
+		case hoursSince < 168:
 			recencyScore = 50
-		case hoursSince < 720: // 1月
+		case hoursSince < 720:
 			recencyScore = 20
 		default:
 			recencyScore = 5
 		}
 	}
 
-	// 读写量评分
 	totalBytes := heat.ReadBytes + heat.WriteBytes
-	volumeScore := min(100, float64(totalBytes)/(1024*1024)*5) // 每MB 5分
+	volumeScore := minFloat(100, float64(totalBytes)/(1024*1024)*5)
 
-	// 加权计算: 访问频率40% + 最近访问30% + 读写量30%
 	score := freqScore*0.4 + recencyScore*0.3 + volumeScore*0.3
 	if score > 100 {
 		score = 100
@@ -242,87 +237,81 @@ func (hp *HybridPool) calculateHeatScore(heat *FileHeatMap) float64 {
 }
 
 // determineTier 根据热度评分确定目标层级
-func (hp *HybridPool) determineTier(heat *FileHeatMap) TierLevel {
-	if heat.HeatScore >= hp.config.PromoteThreshold {
+func (ftm *FlashTierManager) determineTier(heat *FileHeatMap) TierLevel {
+	if heat.HeatScore >= ftm.config.PromoteThreshold {
 		return TierHot
 	}
-	if heat.HeatScore >= hp.config.DemoteThreshold {
+	if heat.HeatScore >= ftm.config.DemoteThreshold {
 		return TierWarm
 	}
 	return TierCold
 }
 
 // tieringLoop 自动分层循环
-func (hp *HybridPool) tieringLoop() {
-	ticker := time.NewTicker(hp.config.TieringInterval)
+func (ftm *FlashTierManager) tieringLoop() {
+	ticker := time.NewTicker(ftm.config.TieringInterval)
 	defer ticker.Stop()
 	for {
 		select {
-		case <-hp.ctx.Done():
+		case <-ftm.ctx.Done():
 			return
 		case <-ticker.C:
-			hp.runTiering()
+			ftm.runTiering()
 		}
 	}
 }
 
 // runTiering 执行一轮分层
-func (hp *HybridPool) runTiering() {
-	hp.mu.Lock()
-	defer hp.mu.Unlock()
+func (ftm *FlashTierManager) runTiering() {
+	ftm.mu.Lock()
+	defer ftm.mu.Unlock()
 	var promoted, demoted int64
-	for _, heat := range hp.heatMap {
-		// 文件大小过滤
-		if heat.Size < hp.config.MinFileSize || (hp.config.MaxFileSize > 0 && heat.Size > hp.config.MaxFileSize) {
+	for _, heat := range ftm.heatMap {
+		if heat.Size < ftm.config.MinFileSize || (ftm.config.MaxFileSize > 0 && heat.Size > ftm.config.MaxFileSize) {
 			continue
 		}
 		if heat.TargetTier == heat.CurrentTier {
 			continue
 		}
-		// 执行迁移
 		switch {
 		case heat.TargetTier == TierHot && heat.CurrentTier != TierHot:
-			// 提升到SSD
-			if err := hp.migrateFile(heat, heat.CurrentTier, TierHot); err != nil {
-				log.Printf("[HybridPool] promote %s failed: %v", heat.FilePath, err)
+			if err := ftm.migrateFile(heat, heat.CurrentTier, TierHot); err != nil {
+				log.Printf("[FlashTierManager] promote %s failed: %v", heat.FilePath, err)
 				continue
 			}
 			heat.CurrentTier = TierHot
 			promoted++
-			if hp.onPromote != nil {
-				hp.onPromote(heat.FilePath, TierCold, TierHot)
+			if ftm.onPromote != nil {
+				ftm.onPromote(heat.FilePath, TierCold, TierHot)
 			}
 		case heat.TargetTier == TierCold && heat.CurrentTier != TierCold:
-			// 降级到HDD
-			if err := hp.migrateFile(heat, heat.CurrentTier, TierCold); err != nil {
-				log.Printf("[HybridPool] demote %s failed: %v", heat.FilePath, err)
+			if err := ftm.migrateFile(heat, heat.CurrentTier, TierCold); err != nil {
+				log.Printf("[FlashTierManager] demote %s failed: %v", heat.FilePath, err)
 				continue
 			}
 			heat.CurrentTier = TierCold
 			demoted++
-			if hp.onDemote != nil {
-				hp.onDemote(heat.FilePath, TierHot, TierCold)
+			if ftm.onDemote != nil {
+				ftm.onDemote(heat.FilePath, TierHot, TierCold)
 			}
 		}
 	}
-	hp.stats.PromotedToday += promoted
-	hp.stats.DemotedToday += demoted
-	hp.stats.TotalPromoted += promoted
-	hp.stats.TotalDemoted += demoted
+	ftm.stats.PromotedToday += promoted
+	ftm.stats.DemotedToday += demoted
+	ftm.stats.TotalPromoted += promoted
+	ftm.stats.TotalDemoted += demoted
 	if promoted+demoted > 0 {
-		log.Printf("[HybridPool] tiering complete: promoted=%d, demoted=%d", promoted, demoted)
+		log.Printf("[FlashTierManager] tiering complete: promoted=%d, demoted=%d", promoted, demoted)
 	}
 }
 
 // migrateFile 迁移文件到目标层级
-func (hp *HybridPool) migrateFile(heat *FileHeatMap, from, to TierLevel) error {
-	// 实际迁移逻辑：移动文件到目标设备
-	// 这里是框架实现，实际需要与文件系统交互
-	log.Printf("[HybridPool] migrating %s: %s -> %s", heat.FilePath, from, to)
+func (ftm *FlashTierManager) migrateFile(heat *FileHeatMap, from, to TierLevel) error {
+	log.Printf("[FlashTierManager] migrating %s: %s -> %s", heat.FilePath, from, to)
 	return nil
 }
 
-func min(a, b float64) float64 {
+func minFloat(a, b float64) float64 {
 	if a < b {
 		return a
 	}

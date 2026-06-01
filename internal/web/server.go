@@ -781,7 +781,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 数据分类模块就绪")
 
 	// 初始化数字健康（竞品独有功能）
-	wellbeingMgr := digitalwellbeing.NewManager(&digitalwellbeing.Config{Enabled: true, TrackingEnabled: true, BreakReminder: 60})
+	wellbeingMgr := digitalwellbeing.NewManager(logger)
 	log.Println("✅ 数字健康模块就绪")
 
 	// 初始化数据防泄漏 DLP（竞品独有功能）
@@ -841,7 +841,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ AI 推荐引擎就绪")
 	alertGuidedMgr := alertguided.NewManager(logger)
 	log.Println("✅ 智能告警引导就绪")
-	auditTrailMgr := audittrail.NewManager()
+	auditTrailMgr := audittrail.NewManager(logger)
 	log.Println("✅ 审计追踪就绪")
 	dataWarehouseMgr := datawarehouse.NewWarehouse(10000)
 	log.Println("✅ 数据仓库就绪")
@@ -1556,7 +1556,7 @@ func (s *Server) setupRoutes() {
 			dataclassify.NewHandler(s.dataClassifyMgr).RegisterRoutes(newMux)
 		}
 		if s.wellbeingMgr != nil {
-			digitalwellbeing.NewHandler(s.wellbeingMgr).RegisterRoutes(newMux)
+			digitalwellbeing.NewHandlers(s.wellbeingMgr).RegisterRoutes(api)
 		}
 		if s.dlpMgr != nil {
 			dlp.NewHandler(s.dlpMgr).RegisterRoutes(newMux)
@@ -1608,7 +1608,7 @@ func (s *Server) setupRoutes() {
 			alertguided.NewHandlers(s.logger, s.alertGuidedMgr).RegisterRoutes(api)
 		}
 		if s.auditTrailMgr != nil {
-			audittrail.NewHandler(s.auditTrailMgr).RegisterRoutes(api)
+			audittrail.NewHandlers(s.auditTrailMgr).RegisterRoutes(api)
 		}
 		if s.dataWarehouseMgr != nil {
 			datawarehouse.NewHandler(s.dataWarehouseMgr).RegisterRoutes(api)

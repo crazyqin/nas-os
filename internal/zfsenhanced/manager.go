@@ -4,9 +4,13 @@ package zfsenhanced
 import (
 	"context"
 	"fmt"
+	"os/exec"
 	"sort"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -423,4 +427,282 @@ func (m *Manager) generatePoolRecommendations(pool *PoolInfo, analysis *PoolAnal
 	if totalErrors > 0 { recs = append(recs, fmt.Sprintf("池 %s 存在 %d 个错误，建议执行 scrub 检查", pool.Name, totalErrors)) }
 	if analysis.DailyGrowthBytes > 0 && analysis.PredictedFullDate != nil { daysLeft := int(time.Until(*analysis.PredictedFullDate).Hours() / 24); if daysLeft < 30 { recs = append(recs, fmt.Sprintf("按当前增速，池 %s 预计 %d 天后满，建议尽快扩容", pool.Name, daysLeft)) } }
 	if len(recs) == 0 { recs = append(recs, "池运行状况良好，无需特别操作") }; return recs
+}
+
+// ========== 快照管理（Manager级别代理） ==========
+
+// CreateSnapshot 创建快照（Manager级别代理）
+func (m *Manager) CreateSnapshot(ctx context.Context, dataset, snapshotName string, recursive bool) error {
+	return m.poolMgr.CreateSnapshot(ctx, dataset, snapshotName, recursive)
+}
+
+// DeleteSnapshot 删除快照（Manager级别代理）
+func (m *Manager) DeleteSnapshot(ctx context.Context, dataset, snapshotName string, recursive bool) error {
+	return m.poolMgr.DeleteSnapshot(ctx, dataset, snapshotName, recursive)
+}
+
+// CloneSnapshot 克隆快照
+func (m *Manager) CloneSnapshot(ctx context.Context, dataset, snapshotName, targetDataset string) error {
+	return m.poolMgr.CloneSnapshot(ctx, dataset, snapshotName, targetDataset)
+}
+
+// GetSnapshots 获取指定池的快照列表
+func (m *Manager) GetSnapshots(ctx context.Context, poolName string) ([]SnapshotInfo, error) {
+	return m.poolMgr.ListSnapshots(ctx, poolName)
+}
+
+// RollbackSnapshot 回滚到快照
+func (m *Manager) RollbackSnapshot(ctx context.Context, dataset, snapshotName string, force bool) error {
+	return m.poolMgr.RollbackSnapshot(ctx, dataset, snapshotName, force)
+}
+
+// ========== 数据集管理 ==========
+
+// GetDatasets 获取指定池的数据集列表
+func (m *Manager) GetDatasets(ctx context.Context, poolName string) ([]ZFSDataset, error) {
+	cmd := exec.CommandContext(ctx, "zfs", "list", "-t", "filesystem,volume", "-o",
+		"name,type,used,avail,refer,mountpoint,compression,dedup,recordsize", "-H", "-p", "-r", poolName)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("获取数据集列表失败: %w", err)
+	}
+
+	var datasets []ZFSDataset
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) < 7 {
+			continue
+		}
+		ds := ZFSDataset{
+			Name:       fields[0],
+			PoolName:   poolName,
+			Type:       fields[1],
+			UsedBytes:  parseSize(fields[2]),
+			AvailBytes: parseSize(fields[3]),
+			ReferBytes: parseSize(fields[4]),
+			MountPoint: fields[5],
+			Compression: CompressionType(fields[6]),
+		}
+		if len(fields) > 7 {
+			ds.Dedup = DedupMode(fields[7])
+		}
+		if len(fields) > 8 {
+			if rs, err := strconv.Atoi(fields[8]); err == nil {
+				ds.RecordSize = rs
+			}
+		}
+		if ds.AvailBytes > 0 {
+			ds.UsedPercent = float64(ds.UsedBytes) / float64(ds.UsedBytes+ds.AvailBytes) * 100
+		}
+		datasets = append(datasets, ds)
+	}
+	return datasets, nil
+}
+
+// GetDataset 获取单个数据集信息
+func (m *Manager) GetDataset(ctx context.Context, name string) (*ZFSDataset, error) {
+	cmd := exec.CommandContext(ctx, "zfs", "get", "-H", "-p", "all", name)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("获取数据集 %s 失败: %w", name, err)
+	}
+
+	ds := &ZFSDataset{
+		Name:       name,
+		Properties: make(map[string]string),
+	}
+	// 解析池名
+	if parts := strings.SplitN(name, "/", 2); len(parts) > 0 {
+		ds.PoolName = parts[0]
+	}
+
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) < 3 {
+			continue
+		}
+		prop, value := fields[1], fields[2]
+		ds.Properties[prop] = value
+		switch prop {
+		case "type":
+			ds.Type = value
+		case "used":
+			ds.UsedBytes = parseSize(value)
+		case "available":
+			ds.AvailBytes = parseSize(value)
+		case "referenced":
+			ds.ReferBytes = parseSize(value)
+		case "mountpoint":
+			ds.MountPoint = value
+		case "compression":
+			ds.Compression = CompressionType(value)
+		case "dedup":
+			ds.Dedup = DedupMode(value)
+		case "recordsize":
+			if rs, err := strconv.Atoi(value); err == nil {
+				ds.RecordSize = rs
+			}
+		case "quota":
+			ds.QuotaBytes = parseSize(value)
+		case "reservation":
+			ds.ReserveBytes = parseSize(value)
+		case "creation":
+			if ts, err := strconv.ParseInt(value, 10, 64); err == nil {
+				ds.CreatedAt = time.Unix(ts, 0)
+			}
+		}
+	}
+	if ds.AvailBytes > 0 {
+		ds.UsedPercent = float64(ds.UsedBytes) / float64(ds.UsedBytes+ds.AvailBytes) * 100
+	}
+	return ds, nil
+}
+
+// ========== RAID-Z 扩展 ==========
+
+// ExpandRAIDZ 执行 RAID-Z 扩展
+func (m *Manager) ExpandRAIDZ(ctx context.Context, req ExpandRAIDZRequest) (*RAIDZExpansion, error) {
+	// 验证池存在
+	if _, err := m.poolMgr.GetPoolStatus(ctx, req.PoolName); err != nil {
+		return nil, fmt.Errorf("池 %s 不存在: %w", req.PoolName, err)
+	}
+
+	expansion := &RAIDZExpansion{
+		ID:        uuid.New().String(),
+		PoolName:  req.PoolName,
+		Status:    "running",
+		NewDisks:  req.NewDisks,
+		StartTime: time.Now(),
+	}
+
+	// 使用 zpool attach 扩展（OpenZFS 2.2+ RAID-Z expansion）
+	for _, disk := range req.NewDisks {
+		cmd := exec.CommandContext(ctx, "zpool", "attach", req.PoolName, disk)
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			expansion.Status = "failed"
+			expansion.ErrorMsg = fmt.Sprintf("扩展磁盘 %s 失败: %s", disk, string(output))
+			expansion.EndTime = time.Now()
+			return expansion, fmt.Errorf("RAID-Z 扩展失败: %w", err)
+		}
+	}
+
+	expansion.Status = "completed"
+	expansion.Progress = 100
+	expansion.EndTime = time.Now()
+	return expansion, nil
+}
+
+// GetRAIDZExpansions 获取 RAID-Z 扩展任务列表
+func (m *Manager) GetRAIDZExpansions() []*RAIDZExpansion {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	// 简化实现：返回内存中的记录
+	return nil
+}
+
+// ========== 数据完整性报告 ==========
+
+// GetIntegrityReport 生成数据完整性报告
+func (m *Manager) GetIntegrityReport(ctx context.Context, poolName string) (*IntegrityReport, error) {
+	pool, err := m.poolMgr.GetPoolStatus(ctx, poolName)
+	if err != nil {
+		return nil, fmt.Errorf("获取池状态失败: %w", err)
+	}
+
+	report := &IntegrityReport{
+		ID:             uuid.New().String(),
+		PoolName:       poolName,
+		GeneratedAt:    time.Now(),
+		ReadErrors:     pool.ReadErrors,
+		WriteErrors:    pool.WriteErrors,
+		ChecksumErrors: pool.ChecksumErrors,
+		TotalDisks:     len(pool.Disks),
+		DiskDetails:    make([]DiskIntegrityDetail, 0),
+		Recommendations: make([]string, 0),
+	}
+
+	// 统计磁盘健康
+	healthyCount, degradedCount, failedCount := 0, 0, 0
+	for _, disk := range pool.Disks {
+		detail := DiskIntegrityDetail{
+			Name:           disk.Name,
+			Path:           disk.Path,
+			Status:         string(disk.Status),
+			ReadErrors:     disk.ReadErrors,
+			WriteErrors:    disk.WriteErrors,
+			ChecksumErrors: disk.ChecksumErrors,
+		}
+		if disk.SMART != nil {
+			detail.SMARTHealth = disk.SMART.HealthStatus
+			detail.Temperature = disk.SMART.Temperature
+			detail.PowerOnHours = disk.SMART.PowerOnHours
+			detail.ReallocatedSectors = disk.SMART.ReallocatedSectors
+		}
+		switch disk.Status {
+		case PoolStatusOnline:
+			healthyCount++
+		case PoolStatusDegraded:
+			degradedCount++
+		default:
+			failedCount++
+		}
+		report.DiskDetails = append(report.DiskDetails, detail)
+	}
+	report.HealthyDisks = healthyCount
+	report.DegradedDisks = degradedCount
+	report.FailedDisks = failedCount
+
+	// 计算健康分
+	report.HealthScore = m.calculateHealthScore(pool)
+
+	// 确定整体状态
+	switch {
+	case failedCount > 0 || pool.Status == PoolStatusFaulted:
+		report.OverallStatus = "critical"
+	case degradedCount > 0 || pool.Status == PoolStatusDegraded:
+		report.OverallStatus = "degraded"
+	default:
+		report.OverallStatus = "healthy"
+	}
+
+	// 获取检查历史
+	checkHistory := m.integrityChecker.GetCheckHistory()
+	if len(checkHistory) > 0 {
+		report.CheckResults = checkHistory
+		for _, ch := range checkHistory {
+			if ch.CheckType == "scrub" && ch.EndTime.After(report.LastScrubTime) {
+				report.LastScrubTime = ch.EndTime
+				report.ScrubErrors = ch.ErrorsFound
+				report.ScrubRepaired = ch.RepairsMade
+			}
+		}
+	}
+
+	// 生成建议
+	if report.OverallStatus == "critical" {
+		report.Recommendations = append(report.Recommendations, "池存在严重问题，建议立即检查并替换故障磁盘")
+	}
+	if report.FailedDisks > 0 {
+		report.Recommendations = append(report.Recommendations, fmt.Sprintf("%d 个磁盘故障，建议尽快替换", report.FailedDisks))
+	}
+	if report.ChecksumErrors > 0 {
+		report.Recommendations = append(report.Recommendations, fmt.Sprintf("存在 %d 个校验和错误，建议执行 scrub", report.ChecksumErrors))
+	}
+	if report.ScrubErrors > 0 && report.ScrubRepaired < report.ScrubErrors {
+		report.Recommendations = append(report.Recommendations, "上一次 scrub 有未修复的错误，建议重新执行")
+	}
+	if pool.UsedPercent > 90 {
+		report.Recommendations = append(report.Recommendations, fmt.Sprintf("池使用率 %.1f%%，建议扩容", pool.UsedPercent))
+	}
+	if len(report.Recommendations) == 0 {
+		report.Recommendations = append(report.Recommendations, "数据完整性良好")
+	}
+
+	return report, nil
 }

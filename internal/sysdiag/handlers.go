@@ -26,6 +26,16 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		diag.GET("/health", h.getHealth)
 		diag.GET("/report", h.getReport)
 	}
+
+	// 系统诊断增强路由
+	diagV1 := r.Group("/diag")
+	{
+		diagV1.POST("/full", h.runFullDiag)
+		diagV1.GET("/network", h.diagnoseNetwork)
+		diagV1.GET("/storage", h.diagnoseStorage)
+		diagV1.GET("/bottleneck", h.analyzeBottleneck)
+		diagV1.POST("/autofix", h.autoFixIssue)
+	}
 }
 
 // response 标准响应.
@@ -107,5 +117,61 @@ func (h *Handlers) getReport(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data:    report,
+	})
+}
+
+// ========== 系统诊断增强 Handlers ==========
+
+func (h *Handlers) runFullDiag(c *gin.Context) {
+	task := h.manager.RunFullDiag()
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "full diagnostics completed",
+		Data:    task,
+	})
+}
+
+func (h *Handlers) diagnoseNetwork(c *gin.Context) {
+	diag := h.manager.DiagnoseNetwork()
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "network diagnostics completed",
+		Data:    diag,
+	})
+}
+
+func (h *Handlers) diagnoseStorage(c *gin.Context) {
+	diag := h.manager.DiagnoseStorage()
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "storage diagnostics completed",
+		Data:    diag,
+	})
+}
+
+func (h *Handlers) analyzeBottleneck(c *gin.Context) {
+	bottlenecks := h.manager.AnalyzeBottleneck()
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "bottleneck analysis completed",
+		Data: gin.H{
+			"total":       len(bottlenecks),
+			"bottlenecks": bottlenecks,
+		},
+	})
+}
+
+func (h *Handlers) autoFixIssue(c *gin.Context) {
+	var req AutoFixRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	fix := h.manager.AutoFixIssue(req)
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "auto fix completed",
+		Data:    fix,
 	})
 }

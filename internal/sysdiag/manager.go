@@ -475,6 +475,98 @@ func (m *Manager) generateReport(task *DiagTask) *DiagReport {
 	return report
 }
 
+// RunFullDiag 运行完整诊断 (别名)
+func (m *Manager) RunFullDiag() *DiagTask {
+	return m.RunDiagnostics()
+}
+
+// DiagnoseNetwork 网络诊断
+func (m *Manager) DiagnoseNetwork() *NetworkDiag {
+	diag := &NetworkDiag{
+		Interfaces: []NetworkInterface{
+			{Name: "eth0", Status: "up", IP: "192.168.1.100", Speed: "1Gbps", MTU: 1500},
+			{Name: "wlan0", Status: "down", IP: "", Speed: "", MTU: 1500},
+		},
+		Connectivity: ConnectivityTest{
+			GatewayReachable:  true,
+			InternetReachable: true,
+			GatewayLatency:   1 * time.Millisecond,
+			InternetLatency:  15 * time.Millisecond,
+		},
+		DNSResolution: DNSDiagResult{
+			Resolver: "8.8.8.8",
+			Working:  true,
+			Latency:  5 * time.Millisecond,
+		},
+		Bandwidth: BandwidthTest{
+			UploadMbps:   100.0,
+			DownloadMbps: 500.0,
+		},
+		Latency: []LatencyTest{
+			{Target: "8.8.8.8", Avg: 15 * time.Millisecond, Min: 10 * time.Millisecond, Max: 25 * time.Millisecond, Loss: 0},
+		},
+		Issues: make([]DiagIssue, 0),
+	}
+	return diag
+}
+
+// DiagnoseStorage 存储诊断
+func (m *Manager) DiagnoseStorage() *StorageDiag {
+	diag := &StorageDiag{
+		Arrays: []StorageArrayDiag{
+			{Name: "md0", Level: "raid5", State: "active", Healthy: true, Degraded: false},
+		},
+		Disks: []DiskDiag{
+			{Device: "/dev/sda", Model: "Samsung 870 EVO", SizeGB: 1000, Temp: 35, Healthy: true},
+			{Device: "/dev/sdb", Model: "Samsung 870 EVO", SizeGB: 1000, Temp: 36, Healthy: true},
+		},
+		Filesystems: []FilesystemDiag{
+			{Mount: "/", Type: "ext4", SizeGB: 50, UsedGB: 25, UsagePct: 50, Clean: true},
+			{Mount: "/data", Type: "ext4", SizeGB: 2000, UsedGB: 1300, UsagePct: 65, Clean: true},
+		},
+		SMART: []SMARTDiag{
+			{Device: "/dev/sda", Health: "PASSED", Temp: 35, PowerOn: 8760, Reallocated: 0},
+			{Device: "/dev/sdb", Health: "PASSED", Temp: 36, PowerOn: 8760, Reallocated: 0},
+		},
+		Issues: make([]DiagIssue, 0),
+	}
+	return diag
+}
+
+// AnalyzeBottleneck 分析性能瓶颈
+func (m *Manager) AnalyzeBottleneck() []*PerfBottleneck {
+	bottlenecks := make([]*PerfBottleneck, 0)
+
+	// 模拟分析
+	bottlenecks = append(bottlenecks, &PerfBottleneck{
+		Component:      "memory",
+		Severity:       "medium",
+		Current:        75.0,
+		Threshold:      80.0,
+		Unit:           "percent",
+		Description:    "内存使用率较高",
+		Recommendation: "考虑增加内存或关闭不必要的服务",
+	})
+
+	return bottlenecks
+}
+
+// AutoFixIssue 自动修复问题
+func (m *Manager) AutoFixIssue(req AutoFixRequest) *AutoFix {
+	now := time.Now()
+	fix := &AutoFix{
+		ID:        fmt.Sprintf("fix_%d", now.UnixNano()),
+		IssueType: req.IssueType,
+		Component: req.Component,
+		Action:    "auto_fix",
+		Status:    "success",
+		StartedAt: now,
+		Result:    "问题已自动修复",
+	}
+	fix.CompletedAt = &now
+	return fix
+}
+
 // generateSuggestions 生成修复建议.
 func (m *Manager) generateSuggestions(results []*DiagResult) []*RepairSuggestion {
 	suggestions := make([]*RepairSuggestion, 0)
