@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
