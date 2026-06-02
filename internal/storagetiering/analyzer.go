@@ -1,308 +1,163 @@
+// Package storagetiering 数据热度分析器
 package storagetiering
 
 import (
 	"context"
-	"path/filepath"
-	"strings"
+	"math"
 	"sync"
 	"time"
 
 	"go.uber.org/zap"
 )
 
-// Analyzer 访问频率分析器
-// 基于访问频率、文件大小、文件类型智能判定数据温度
+// Analyzer 数据热度分析器
 type Analyzer struct {
-	mu     sync.RWMutex
-	config AnalyzerConfig
-	policy PolicyConfig
-	logger *zap.Logger
+	mu           sync.RWMutex
+	config       *StorageTieringConfig
+	analyzerCfg  AnalyzerConfig
+	policyCfg    PolicyConfig
+	logger       *zap.Logger
 
-	// 访问记录
-	accessHistory map[string][]AccessRecord // path -> records
-	files         map[string]*FileEntry     // path -> metadata
-
-	// 统计
-	lastAnalysis *time.Time
+	// 内部状态
+	files        map[string]*FileEntry
 	hitCount     int64
 	missCount    int64
+	lastAnalysis time.Time
 }
 
-// NewAnalyzer 创建访问频率分析器
-func NewAnalyzer(config AnalyzerConfig, policy PolicyConfig, logger *zap.Logger) *Analyzer {
+// NewAnalyzer 创建热度分析器
+func NewAnalyzer(config *StorageTieringConfig) *Analyzer {
+	if config == nil {
+		config = DefaultStorageTieringConfig()
+	}
+	return &Analyzer{
+		config: config,
+		logger: zap.NewNop(),
+		files:  make(map[string]*FileEntry),
+	}
+}
+
+// NewAnalyzerWithConfig 创建带完整配置的分析器
+func NewAnalyzerWithConfig(analyzerCfg AnalyzerConfig, policyCfg PolicyConfig, logger *zap.Logger) *Analyzer {
 	if logger == nil {
 		logger = zap.NewNop()
 	}
 	return &Analyzer{
-		config:        config,
-		policy:        policy,
-		logger:        logger,
-		accessHistory: make(map[string][]AccessRecord),
-		files:         make(map[string]*FileEntry),
+		config:      DefaultStorageTieringConfig(),
+		analyzerCfg: analyzerCfg,
+		policyCfg:   policyCfg,
+		logger:      logger,
+		files:       make(map[string]*FileEntry),
 	}
 }
 
-// RegisterFile 注册文件
+// RegisterFile 注册文件到分析器
 func (a *Analyzer) RegisterFile(entry FileEntry) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
+
 	a.files[entry.Path] = &entry
+	a.logger.Debug("file registered in analyzer",
+		zap.String("path", entry.Path),
+		zap.Int64("size", entry.Size))
 }
 
-// RecordAccess 记录访问事件
+// RecordAccess 记录文件访问
 func (a *Analyzer) RecordAccess(record AccessRecord) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
-	a.accessHistory[record.Path] = append(a.accessHistory[record.Path], record)
-
-	// 更新文件元数据
-	entry, exists := a.files[record.Path]
-	if !exists {
-		entry = &FileEntry{
-			Path:        record.Path,
-			Size:        record.Size,
-			ContentType: inferContentType(record.Path),
-			CurrentTier: TierHDD,
-		}
-		a.files[record.Path] = entry
-	}
-	entry.AccessedAt = record.Timestamp
-	entry.AccessCount++
-	switch record.OpType {
-	case "read":
-		entry.ReadCount++
-	case "write":
-		entry.WriteCount++
-		entry.ModifiedAt = record.Timestamp
-	}
-
-	// 裁剪历史
-	a.trimHistory(record.Path)
-}
-
-// trimHistory 裁剪过期访问记录
-func (a *Analyzer) trimHistory(path string) {
-	cutoff := time.Now().AddDate(0, 0, -a.config.HistoryWindowDays)
-	records := a.accessHistory[path]
-	start := 0
-	for i, r := range records {
-		if r.Timestamp.After(cutoff) {
-			start = i
-			break
-		}
-		if i == len(records)-1 {
-			start = len(records)
-		}
-	}
-	if start > 0 {
-		a.accessHistory[path] = records[start:]
+	if entry, ok := a.files[record.FilePath]; ok {
+		entry.AccessCount++
+		entry.LastAccess = record.Timestamp
+		a.hitCount++
+	} else {
+		a.missCount++
 	}
 }
 
-// Analyze 执行全量分析，返回需要迁移的任务列表
+// Analyze 分析所有文件，返回需要迁移的任务
 func (a *Analyzer) Analyze(ctx context.Context) ([]*MigrationTask, error) {
-	// 先检查 context
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	default:
-	}
-
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
 	now := time.Now()
-	a.lastAnalysis = &now
-
 	var tasks []*MigrationTask
-	for path, entry := range a.files {
-		// 检查 context
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-		}
 
-		// 计算热度评分
-		heatScore := a.calculateHeatScore(entry)
-		entry.HeatScore = heatScore
+	for _, entry := range a.files {
+		// 计算热度分数
+		entry.HeatScore = a.CalculateHeatScoreForEntry(entry, now)
 
-		// 判定温度
-		temperature := a.classifyTemperature(heatScore)
-		entry.Temperature = temperature
-
-		// 确定目标层级
-		targetTier := a.temperatureToTier(temperature)
-
-		// 如果当前层级与目标不同，生成迁移任务
-		if entry.CurrentTier != targetTier {
-			// 大文件 (>1GB) 额外惩罚热度
-			if entry.Size > 1024*1024*1024 {
-				// 大文件额外惩罚热度
-				adjustedScore := heatScore * (1.0 - a.policy.LargeFilePenalty)
-				adjustedTemp := a.classifyTemperature(adjustedScore)
-				targetTier = a.temperatureToTier(adjustedTemp)
-				if entry.CurrentTier == targetTier {
-					continue
-				}
-			}
-
-			task := &MigrationTask{
-				ID:       generateTaskID(path, entry.CurrentTier, targetTier),
-				FilePath: path,
-				FromTier: entry.CurrentTier,
-				ToTier:   targetTier,
-				FileSize: entry.Size,
-				State:    StatePending,
-				Reason:   a.buildReason(entry, heatScore, temperature),
-			}
+		// 检查是否需要迁移
+		if task := a.checkMigration(entry, now); task != nil {
 			tasks = append(tasks, task)
-
-			a.logger.Info("migration candidate",
-				zap.String("path", path),
-				zap.Float64("heat", heatScore),
-				zap.String("temperature", temperature.String()),
-				zap.String("from", entry.CurrentTier.String()),
-				zap.String("to", targetTier.String()))
 		}
 	}
 
-	a.logger.Info("analysis completed",
-		zap.Int("files", len(a.files)),
-		zap.Int("migration_candidates", len(tasks)))
-
+	a.lastAnalysis = now
 	return tasks, nil
 }
 
-// calculateHeatScore 计算热度评分 (0-100)
-// 综合因素：访问频率、最近访问时间、读写比、文件类型
-func (a *Analyzer) calculateHeatScore(entry *FileEntry) float64 {
-	if entry.AccessCount == 0 {
+// CalculateHeatScoreForEntry 计算文件条目的热度分数
+func (a *Analyzer) CalculateHeatScoreForEntry(entry *FileEntry, now time.Time) float64 {
+	if entry == nil {
 		return 0
 	}
 
-	now := time.Now()
+	// 访问频率分数 (0-40分)
+	freqScore := a.calculateFrequencyScore(entry.AccessCount)
 
-	// 1. 访问频率分数 (0-40)
-	// 30天内访问次数 → 归一化
-	freqScore := float64(entry.AccessCount) / float64(a.config.HistoryWindowDays*24) * 40
-	if freqScore > 40 {
-		freqScore = 40
-	}
+	// 最近访问时间分数 (0-40分)
+	recencyScore := a.calculateRecencyScore(entry.LastAccess, now)
 
-	// 2. 最近访问时间分数 (0-30)
-	// 越近越高，指数衰减
-	hoursSinceAccess := now.Sub(entry.AccessedAt).Hours()
-	recencyScore := 30.0
-	if hoursSinceAccess > 0 {
-		recencyScore = 30.0 * (1.0 / (1.0 + hoursSinceAccess/24.0))
-	}
+	// 基础分数 (0-20分)
+	baseScore := 20.0
 
-	// 3. 读写活跃度 (0-15)
-	var rwScore float64
-	if entry.ReadCount+entry.WriteCount > 0 {
-		// 读写混合操作加分
-		ratio := float64(entry.ReadCount) / float64(entry.ReadCount+entry.WriteCount)
-		rwScore = 15.0 * (1.0 - 2.0*abs(ratio-0.5))
-	}
+	totalScore := freqScore + recencyScore + baseScore
 
-	// 4. 文件类型加成 (0-15)
-	ext := strings.ToLower(filepath.Ext(entry.Path))
-	boost := a.policy.FileTypeBoosts[ext]
-	typeScore := 7.5 + boost // 中心值 7.5，加成可 ±15
-	if typeScore < 0 {
-		typeScore = 0
-	}
-	if typeScore > 15 {
-		typeScore = 15
-	}
-
-	total := freqScore + recencyScore + rwScore + typeScore
-	if total > 100 {
-		total = 100
-	}
-	if total < 0 {
-		total = 0
-	}
-
-	return total
+	// 归一化到 0-100
+	return math.Min(100, math.Max(0, totalScore))
 }
 
-// classifyTemperature 根据热度评分判定温度
-func (a *Analyzer) classifyTemperature(score float64) DataTemperature {
-	if score >= a.policy.Thresholds.HotMinScore {
-		return TempHot
+// checkMigration 检查文件是否需要迁移
+func (a *Analyzer) checkMigration(entry *FileEntry, now time.Time) *MigrationTask {
+	// 根据热度分数推荐目标层级
+	var targetTier Tier
+	if entry.HeatScore >= a.config.HeatThresholdHot {
+		targetTier = TierSSD
+	} else if entry.HeatScore >= a.config.HeatThresholdWarm {
+		targetTier = TierHDD
+	} else {
+		targetTier = TierCold
 	}
-	if score >= a.policy.Thresholds.WarmMinScore {
-		return TempWarm
-	}
-	return TempCold
-}
 
-// temperatureToTier 温度映射到存储层级
-func (a *Analyzer) temperatureToTier(dt DataTemperature) Tier {
-	switch dt {
-	case TempHot:
-		return TierSSD
-	case TempWarm:
-		return TierHDD
-	case TempCold:
-		return TierCold
-	default:
-		return TierHDD
+	// 如果目标层级与当前层级相同，不需要迁移
+	if targetTier == entry.CurrentTier {
+		return nil
+	}
+
+	// 如果文件被固定，不迁移
+	if entry.IsPinned {
+		return nil
+	}
+
+	return &MigrationTask{
+		ID:       generateID(),
+		FilePath: entry.Path,
+		FileSize: entry.Size,
+		FromTier: entry.CurrentTier,
+		ToTier:   targetTier,
+		State:    StatePending,
+		Reason:   "auto-tiering",
+		CreatedAt: now,
 	}
 }
 
-// buildReason 构建迁移原因描述
-func (a *Analyzer) buildReason(entry *FileEntry, heatScore float64, temp DataTemperature) string {
-	return "auto-tier: heat=" + formatFloat(heatScore, 1) +
-		", temp=" + temp.String() +
-		", access_count=" + formatInt(entry.AccessCount)
-}
-
-// GetFileHeat 获取文件热度
-func (a *Analyzer) GetFileHeat(path string) (float64, bool) {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	entry, ok := a.files[path]
-	if !ok {
-		return 0, false
-	}
-	return entry.HeatScore, true
-}
-
-// GetFileEntry 获取文件条目
-func (a *Analyzer) GetFileEntry(path string) (*FileEntry, bool) {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	entry, ok := a.files[path]
-	if !ok {
-		return nil, false
-	}
-	// 返回副本
-	cp := *entry
-	return &cp, true
-}
-
-// RecordHit 记录命中
-func (a *Analyzer) RecordHit() {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	a.hitCount++
-}
-
-// RecordMiss 记录未命中
-func (a *Analyzer) RecordMiss() {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	a.missCount++
-}
-
-// HitRate 返回命中率
+// HitRate 返回缓存命中率
 func (a *Analyzer) HitRate() float64 {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
+
 	total := a.hitCount + a.missCount
 	if total == 0 {
 		return 0
@@ -310,113 +165,144 @@ func (a *Analyzer) HitRate() float64 {
 	return float64(a.hitCount) / float64(total)
 }
 
-// FileCount 返回文件数量
-func (a *Analyzer) FileCount() int {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	return len(a.files)
-}
-
 // LastAnalysis 返回最后分析时间
-func (a *Analyzer) LastAnalysis() *time.Time {
+func (a *Analyzer) LastAnalysis() time.Time {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return a.lastAnalysis
 }
 
-// ============================================================
-// 辅助函数
-// ============================================================
+// CalculateHeatScore 计算文件热度分数（兼容旧接口）
+func (a *Analyzer) CalculateHeatScore(file *FileMetadata, now time.Time) float64 {
+	if file == nil {
+		return 0
+	}
 
-// inferContentType 根据扩展名推断 MIME 类型
-func inferContentType(path string) string {
-	ext := strings.ToLower(filepath.Ext(path))
-	switch ext {
-	case ".txt", ".log":
-		return "text/plain"
-	case ".json":
-		return "application/json"
-	case ".xml":
-		return "application/xml"
-	case ".html", ".htm":
-		return "text/html"
-	case ".pdf":
-		return "application/pdf"
-	case ".zip", ".tar", ".gz", ".bz2", ".xz":
-		return "application/octet-stream"
-	case ".mp4", ".mkv", ".avi":
-		return "video/mp4"
-	case ".mp3", ".flac", ".wav":
-		return "audio/mpeg"
-	case ".jpg", ".jpeg":
-		return "image/jpeg"
-	case ".png":
-		return "image/png"
-	case ".db", ".sqlite":
-		return "application/x-sqlite3"
+	// 访问频率分数 (0-40分)
+	freqScore := a.calculateFrequencyScore(file.AccessCount)
+
+	// 最近访问时间分数 (0-40分)
+	recencyScore := a.calculateRecencyScore(file.LastAccessAt, now)
+
+	// 修改时间分数 (0-20分)
+	modificationScore := a.calculateModificationScore(file.LastModifiedAt, now)
+
+	totalScore := freqScore + recencyScore + modificationScore
+
+	// 归一化到 0-100
+	return math.Min(100, math.Max(0, totalScore))
+}
+
+// calculateFrequencyScore 计算访问频率分数
+func (a *Analyzer) calculateFrequencyScore(accessCount int64) float64 {
+	if accessCount <= 0 {
+		return 0
+	}
+	logCount := math.Log10(float64(accessCount))
+	return math.Min(40, logCount*10)
+}
+
+// calculateRecencyScore 计算最近访问时间分数
+func (a *Analyzer) calculateRecencyScore(lastAccess time.Time, now time.Time) float64 {
+	if lastAccess.IsZero() {
+		return 0
+	}
+
+	daysSinceAccess := now.Sub(lastAccess).Hours() / 24
+
+	decayDays := float64(a.config.HeatDecayDays)
+	if decayDays <= 0 {
+		decayDays = 30
+	}
+
+	score := 40 * math.Exp(-daysSinceAccess/decayDays)
+	return math.Max(0, score)
+}
+
+// calculateModificationScore 计算修改时间分数
+func (a *Analyzer) calculateModificationScore(lastModified time.Time, now time.Time) float64 {
+	if lastModified.IsZero() {
+		return 0
+	}
+
+	daysSinceModified := now.Sub(lastModified).Hours() / 24
+
+	score := 20 * math.Exp(-daysSinceModified/60)
+	return math.Max(0, score)
+}
+
+// ClassifyHeatLevel 根据热度分数分类热度等级
+func (a *Analyzer) ClassifyHeatLevel(score float64) HeatLevel {
+	if score >= a.config.HeatThresholdHot {
+		return HeatLevelHot
+	} else if score >= a.config.HeatThresholdWarm {
+		return HeatLevelWarm
+	} else if score >= a.config.HeatThresholdCold {
+		return HeatLevelCold
+	}
+	return HeatLevelFrozen
+}
+
+// AnalyzeFile 分析单个文件，更新热度信息
+func (a *Analyzer) AnalyzeFile(file *FileMetadata, now time.Time) *FileMetadata {
+	if file == nil {
+		return nil
+	}
+
+	file.HeatScore = a.CalculateHeatScore(file, now)
+	file.HeatLevel = a.ClassifyHeatLevel(file.HeatScore)
+	return file
+}
+
+// AnalyzeFiles 批量分析文件
+func (a *Analyzer) AnalyzeFiles(files []*FileMetadata, now time.Time) []*FileMetadata {
+	for _, file := range files {
+		a.AnalyzeFile(file, now)
+	}
+	return files
+}
+
+// CalculateTierFromHeat 根据热度等级推荐存储层级
+func (a *Analyzer) CalculateTierFromHeat(heatLevel HeatLevel) TierLevel {
+	switch heatLevel {
+	case HeatLevelHot:
+		return TierLevelHot
+	case HeatLevelWarm:
+		return TierLevelWarm
+	case HeatLevelCold:
+		return TierLevelCold
+	case HeatLevelFrozen:
+		return TierLevelCold
 	default:
-		return "application/octet-stream"
+		return TierLevelWarm
 	}
 }
 
-func abs(x float64) float64 {
-	if x < 0 {
-		return -x
+// GetHeatDistribution 获取热度分布统计
+func (a *Analyzer) GetHeatDistribution(files []*FileMetadata) map[HeatLevel]int64 {
+	dist := map[HeatLevel]int64{
+		HeatLevelHot:    0,
+		HeatLevelWarm:   0,
+		HeatLevelCold:   0,
+		HeatLevelFrozen: 0,
 	}
-	return x
+
+	for _, file := range files {
+		dist[file.HeatLevel]++
+	}
+
+	return dist
 }
 
-func formatFloat(f float64, prec int) string {
-	// 简单格式化，避免引入 fmt
-	s := ""
-	val := int(f * float64(pow10(prec)))
-	if val < 0 {
-		s = "-"
-		val = -val
+// CalculateAverageHeatScore 计算平均热度分数
+func (a *Analyzer) CalculateAverageHeatScore(files []*FileMetadata) float64 {
+	if len(files) == 0 {
+		return 0
 	}
-	intPart := val / pow10(prec)
-	fracPart := val % pow10(prec)
-	s += formatInt(int64(intPart))
-	if prec > 0 {
-		s += "."
-		fStr := formatInt(int64(fracPart))
-		for len(fStr) < prec {
-			fStr = "0" + fStr
-		}
-		s += fStr
-	}
-	return s
-}
 
-func pow10(n int) int {
-	r := 1
-	for i := 0; i < n; i++ {
-		r *= 10
+	total := 0.0
+	for _, file := range files {
+		total += file.HeatScore
 	}
-	return r
-}
-
-func formatInt(n int64) string {
-	if n == 0 {
-		return "0"
-	}
-	s := ""
-	neg := false
-	if n < 0 {
-		neg = true
-		n = -n
-	}
-	for n > 0 {
-		s = string(rune('0'+n%10)) + s
-		n /= 10
-	}
-	if neg {
-		s = "-" + s
-	}
-	return s
-}
-
-// generateTaskID 生成任务 ID
-func generateTaskID(path string, from, to Tier) string {
-	return filepath.Base(path) + ":" + from.String() + "->" + to.String() + ":" + formatInt(time.Now().UnixNano())
+	return total / float64(len(files))
 }

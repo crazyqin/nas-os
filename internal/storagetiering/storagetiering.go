@@ -34,7 +34,7 @@ func NewEngine(config Config, backend StorageBackend, logger *zap.Logger) (*Engi
 		logger = zap.NewNop()
 	}
 
-	analyzer := NewAnalyzer(config.Analyzer, config.Policy, logger)
+	analyzer := NewAnalyzerWithConfig(config.Analyzer, config.Policy, logger)
 	policy := NewPolicy(config.Policy, config.Tiers, logger)
 	migrator := NewMigrator(config.Migrator, backend, logger)
 
