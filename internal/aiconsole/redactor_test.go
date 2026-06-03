@@ -388,7 +388,14 @@ func TestRedactStrategyConstants(t *testing.T) {
 }
 
 func TestModelProviderConstants(t *testing.T) {
-	assert.Equal(t, ModelProvider("openai_compat"), ProviderOpenAI)
+	assert.Equal(t, ModelProvider("openai"), ProviderOpenAI)
+	assert.Equal(t, ModelProvider("azure_openai"), ProviderAzureOpenAI)
+	assert.Equal(t, ModelProvider("aws_bedrock"), ProviderAWSBedrock)
+	assert.Equal(t, ModelProvider("google_gemini"), ProviderGoogleGemini)
+	assert.Equal(t, ModelProvider("deepseek"), ProviderDeepSeek)
+	assert.Equal(t, ModelProvider("doubao"), ProviderDoubao)
+	assert.Equal(t, ModelProvider("kimi"), ProviderKimi)
+	assert.Equal(t, ModelProvider("hunyuan"), ProviderHunyuan)
 	assert.Equal(t, ModelProvider("local"), ProviderLocal)
 	assert.Equal(t, ModelProvider("custom"), ProviderCustom)
 }

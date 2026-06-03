@@ -119,6 +119,17 @@ func (s *Service) DeleteModel(id string) error {
 	return s.store.DeleteModel(id)
 }
 
+// UpdateModelStatus 更新模型状态.
+func (s *Service) UpdateModelStatus(id string, status ModelStatus) error {
+	m, err := s.store.GetModel(id)
+	if err != nil {
+		return fmt.Errorf("获取模型失败: %w", err)
+	}
+	m.Status = status
+	m.UpdatedAt = time.Now()
+	return s.store.UpdateModel(m)
+}
+
 // ==================== 脱敏规则 CRUD ====================
 
 // CreateRule 创建脱敏规则.

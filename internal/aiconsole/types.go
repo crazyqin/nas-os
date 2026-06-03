@@ -13,7 +13,21 @@ type ModelProvider string
 
 const (
 	// ProviderOpenAI OpenAI 兼容 API.
-	ProviderOpenAI ModelProvider = "openai_compat"
+	ProviderOpenAI ModelProvider = "openai"
+	// ProviderAzureOpenAI Azure OpenAI.
+	ProviderAzureOpenAI ModelProvider = "azure_openai"
+	// ProviderAWSBedrock AWS Bedrock.
+	ProviderAWSBedrock ModelProvider = "aws_bedrock"
+	// ProviderGoogleGemini Google Gemini.
+	ProviderGoogleGemini ModelProvider = "google_gemini"
+	// ProviderDeepSeek DeepSeek.
+	ProviderDeepSeek ModelProvider = "deepseek"
+	// ProviderDoubao 豆包（字节跳动）.
+	ProviderDoubao ModelProvider = "doubao"
+	// ProviderKimi Kimi（月之暗面）.
+	ProviderKimi ModelProvider = "kimi"
+	// ProviderHunyuan 混元（腾讯）.
+	ProviderHunyuan ModelProvider = "hunyuan"
 	// ProviderLocal 本地 LLM（Ollama 等）.
 	ProviderLocal ModelProvider = "local"
 	// ProviderCustom 自定义提供者.
