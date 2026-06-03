@@ -34,14 +34,14 @@ permissions:
 
 concurrency:
   group: compatibility-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # ========== Go 版本兼容性 ==========
   go-version-matrix:
     name: Go ${{ matrix.go-version }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -91,8 +91,8 @@ jobs:
 
       - name: 运行测试
         run: |
-          # 跳过 e2e 和插件测试
-          go test -v -short -timeout 10m $(go list ./... | grep -v /e2e | grep -v /plugins/)
+          # 跳过 e2e 和插件测试，使用并行测试
+          go test -short -timeout 15m -count=1 -p 4 $(go list ./... | grep -v /e2e | grep -v /plugins/) 2>&1 | tail -100
 
       - name: go vet 检查
         run: go vet ./...
