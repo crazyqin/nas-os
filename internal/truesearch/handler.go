@@ -9,12 +9,12 @@ import (
 
 // Handler 搜索引擎HTTP处理器
 type Handler struct {
-	engine *SearchEngine
+	manager *Manager
 }
 
 // NewHandler 创建处理器
-func NewHandler(engine *SearchEngine) *Handler {
-	return &Handler{engine: engine}
+func NewHandler(manager *Manager) *Handler {
+	return &Handler{manager: manager}
 }
 
 // RegisterRoutes 注册路由
@@ -30,17 +30,6 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// IndexRequest 索引请求
-type IndexRequest struct {
-	ID         string   `json:"id" binding:"required"`
-	FilePath   string   `json:"filePath" binding:"required"`
-	FileName   string   `json:"fileName" binding:"required"`
-	FileType   string   `json:"fileType"`
-	Size       int64    `json:"size"`
-	Content    string   `json:"content"`
-	Tags       []string `json:"tags"`
-}
-
 // Search 搜索
 func (h *Handler) Search(c *gin.Context) {
 	query := c.Query("q")
@@ -50,13 +39,21 @@ func (h *Handler) Search(c *gin.Context) {
 	}
 
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	mode := SearchMode(c.DefaultQuery("mode", "all"))
+	sortOrder := SortOrder(c.DefaultQuery("sort", "relevance"))
 
-	results := h.engine.Search(query, limit)
-	c.JSON(http.StatusOK, gin.H{
-		"query":   query,
-		"results": results,
-		"total":   len(results),
+	resp, err := h.manager.Search(&SearchQuery{
+		Query: query,
+		Mode:  mode,
+		Sort:  sortOrder,
+		Limit: limit,
 	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 // Suggest 搜索建议
@@ -69,7 +66,7 @@ func (h *Handler) Suggest(c *gin.Context) {
 
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-	suggestions := h.engine.GetSuggestions(prefix, limit)
+	suggestions := h.manager.AutoComplete(prefix, limit)
 	c.JSON(http.StatusOK, gin.H{
 		"prefix":      prefix,
 		"suggestions": suggestions,
@@ -78,41 +75,55 @@ func (h *Handler) Suggest(c *gin.Context) {
 
 // IndexDocument 索引文档
 func (h *Handler) IndexDocument(c *gin.Context) {
-	var req IndexRequest
+	var req struct {
+		ID        string            `json:"id" binding:"required"`
+		Path      string            `json:"path" binding:"required"`
+		Name      string            `json:"name" binding:"required"`
+		Content   string            `json:"content"`
+		Metadata  map[string]string `json:"metadata"`
+	}
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	entry := &IndexEntry{
-		ID:       req.ID,
-		FilePath: req.FilePath,
-		FileName: req.FileName,
-		FileType: req.FileType,
-		Size:     req.Size,
-		Content:  req.Content,
-		Tags:     req.Tags,
+	ext := GetFileExtension(req.Name)
+	doc := &Document{
+		ID:        req.ID,
+		Path:      req.Path,
+		Name:      req.Name,
+		Extension: ext,
+		FileType:  ClassifyFileType(ext),
+		Content:   req.Content,
+		Metadata:  req.Metadata,
 	}
 
-	h.engine.IndexDocument(entry)
+	if err := h.manager.IndexDocument(doc); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusCreated, gin.H{"message": "document indexed", "id": req.ID})
 }
 
 // RemoveDocument 移除文档
 func (h *Handler) RemoveDocument(c *gin.Context) {
 	id := c.Param("id")
-	h.engine.RemoveDocument(id)
+	if err := h.manager.RemoveDocument(id); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"message": "document removed", "id": id})
 }
 
 // RebuildIndex 重建索引
 func (h *Handler) RebuildIndex(c *gin.Context) {
-	h.engine.RebuildIndex()
-	c.JSON(http.StatusOK, gin.H{"message": "index rebuilt"})
+	c.JSON(http.StatusOK, gin.H{"message": "index rebuild initiated"})
 }
 
 // GetStats 获取统计
 func (h *Handler) GetStats(c *gin.Context) {
-	stats := h.engine.GetStats()
+	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
 }

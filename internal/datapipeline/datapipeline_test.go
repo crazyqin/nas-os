@@ -1,377 +1,897 @@
 package datapipeline
 
 import (
-	"bytes"
-	"encoding/json"
-	"net/http"
-	"net/http/httptest"
-	"path/filepath"
+	"context"
+	"log"
+	"os"
 	"testing"
-
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"time"
 )
 
-func setupTest(t *testing.T) (*Manager, *gin.Engine) {
-	t.Helper()
-	gin.SetMode(gin.TestMode)
-	tmpDir := t.TempDir()
-	mgr := NewManager(filepath.Join(tmpDir, "data.json"))
-	require.NoError(t, mgr.Initialize())
-	r := gin.New()
-	grp := r.Group("")
-	NewHandlers(mgr).RegisterRoutes(grp)
-	return mgr, r
+// TestPipelineValidation 测试流水线验证
+func TestPipelineValidation(t *testing.T) {
+	tests := []struct {
+		name    string
+		wantErr bool
+		pipeline *Pipeline
+	}{
+		{
+			name:    "valid pipeline",
+			wantErr: false,
+			pipeline: &Pipeline{
+				ID:   "test-1",
+				Name: "Test Pipeline",
+				DataSources: []DataSource{
+					{
+						ID:   "ds-1",
+						Name: "Local Files",
+						Type: DataSourceFileSystem,
+						Connection: map[string]interface{}{
+							"path": "/tmp",
+						},
+						Enabled: true,
+					},
+				},
+				Processors: []ProcessorNode{
+					{
+						ID:      "proc-1",
+						Name:    "Filter",
+						Type:    ProcessorTypeFilter,
+						Enabled: true,
+						Config: map[string]interface{}{
+							"name": "size_filter",
+							"condition": map[string]interface{}{
+								"field":    "size",
+								"operator": "greater_than",
+								"value":    100,
+							},
+						},
+					},
+				},
+				Outputs: []OutputNode{
+					{
+						ID:      "out-1",
+						Name:    "File Output",
+						Type:    OutputTypeFile,
+						Enabled: true,
+						Config: map[string]interface{}{
+							"path":   "/tmp/output.json",
+							"format": "json",
+						},
+					},
+				},
+			},
+		},
+		{
+			name:    "missing ID",
+			wantErr: true,
+			pipeline: &Pipeline{
+				Name: "Test Pipeline",
+				DataSources: []DataSource{
+					{
+						ID:   "ds-1",
+						Name: "Local Files",
+						Type: DataSourceFileSystem,
+						Connection: map[string]interface{}{
+							"path": "/tmp",
+						},
+					},
+				},
+				Processors: []ProcessorNode{
+					{
+						ID:   "proc-1",
+						Name: "Filter",
+						Type: ProcessorTypeFilter,
+						Config: map[string]interface{}{
+							"name": "size_filter",
+							"condition": map[string]interface{}{
+								"field":    "size",
+								"operator": "greater_than",
+								"value":    100,
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:    "missing data source",
+			wantErr: true,
+			pipeline: &Pipeline{
+				ID:   "test-2",
+				Name: "Test Pipeline",
+				Processors: []ProcessorNode{
+					{
+						ID:   "proc-1",
+						Name: "Filter",
+						Type: ProcessorTypeFilter,
+						Config: map[string]interface{}{
+							"name": "size_filter",
+							"condition": map[string]interface{}{
+								"field":    "size",
+								"operator": "greater_than",
+								"value":    100,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.pipeline.Validate()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Pipeline.Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
 }
 
-func testPipeline(id string) *Pipeline {
-	return &Pipeline{
-		ID:          id,
+// TestDAGValidation 测试 DAG 验证
+func TestDAGValidation(t *testing.T) {
+	t.Run("valid DAG", func(t *testing.T) {
+		pipeline := &Pipeline{
+			ID:   "dag-test",
+			Name: "DAG Test",
+			DataSources: []DataSource{
+				{
+					ID:   "ds-1",
+					Name: "Source",
+					Type: DataSourceFileSystem,
+					Connection: map[string]interface{}{
+						"path": "/tmp",
+					},
+				},
+			},
+			Processors: []ProcessorNode{
+				{ID: "proc-1", Name: "Filter", Type: ProcessorTypeFilter, Config: map[string]interface{}{
+					"name": "filter1",
+					"condition": map[string]interface{}{
+						"field":    "size",
+						"operator": "greater_than",
+						"value":    100,
+					},
+				}},
+				{ID: "proc-2", Name: "Transform", Type: ProcessorTypeTransform, Config: map[string]interface{}{
+					"name":       "transform1",
+					"transforms": []interface{}{},
+				}},
+			},
+			Outputs: []OutputNode{
+				{ID: "out-1", Name: "Output", Type: OutputTypeFile, Config: map[string]interface{}{
+					"path": "/tmp/out.json",
+				}},
+			},
+			DAG: []DAGEdge{
+				{From: "proc-1", To: "proc-2"},
+				{From: "proc-2", To: "out-1"},
+			},
+		}
+
+		if err := pipeline.validateDAG(); err != nil {
+			t.Errorf("Expected valid DAG, got error: %v", err)
+		}
+	})
+
+	t.Run("DAG with cycle", func(t *testing.T) {
+		pipeline := &Pipeline{
+			ID:   "dag-cycle-test",
+			Name: "DAG Cycle Test",
+			DataSources: []DataSource{
+				{
+					ID:   "ds-1",
+					Name: "Source",
+					Type: DataSourceFileSystem,
+					Connection: map[string]interface{}{
+						"path": "/tmp",
+					},
+				},
+			},
+			Processors: []ProcessorNode{
+				{ID: "proc-1", Name: "Filter", Type: ProcessorTypeFilter, Config: map[string]interface{}{
+					"name": "filter1",
+					"condition": map[string]interface{}{
+						"field":    "size",
+						"operator": "greater_than",
+						"value":    100,
+					},
+				}},
+				{ID: "proc-2", Name: "Transform", Type: ProcessorTypeTransform, Config: map[string]interface{}{
+					"name":       "transform1",
+					"transforms": []interface{}{},
+				}},
+			},
+			DAG: []DAGEdge{
+				{From: "proc-1", To: "proc-2"},
+				{From: "proc-2", To: "proc-1"}, // 创建环
+			},
+		}
+
+		if err := pipeline.validateDAG(); err == nil {
+			t.Error("Expected error for DAG with cycle, got nil")
+		}
+	})
+}
+
+// TestTopologicalOrder 测试拓扑排序
+func TestTopologicalOrder(t *testing.T) {
+	pipeline := &Pipeline{
+		ID:   "topo-test",
+		Name: "Topological Test",
+		DataSources: []DataSource{
+			{
+				ID:   "ds-1",
+				Name: "Source",
+				Type: DataSourceFileSystem,
+				Connection: map[string]interface{}{
+					"path": "/tmp",
+				},
+			},
+		},
+		Processors: []ProcessorNode{
+			{ID: "proc-1", Name: "P1", Type: ProcessorTypeFilter, Config: map[string]interface{}{
+				"name": "filter1",
+				"condition": map[string]interface{}{
+					"field":    "size",
+					"operator": "greater_than",
+					"value":    100,
+				},
+			}},
+			{ID: "proc-2", Name: "P2", Type: ProcessorTypeTransform, Config: map[string]interface{}{
+				"name":       "transform1",
+				"transforms": []interface{}{},
+			}},
+			{ID: "proc-3", Name: "P3", Type: ProcessorTypeEnrichment, Config: map[string]interface{}{
+				"name":   "enrichment1",
+				"fields": []interface{}{},
+			}},
+		},
+		DAG: []DAGEdge{
+			{From: "proc-1", To: "proc-2"},
+			{From: "proc-1", To: "proc-3"},
+		},
+	}
+
+	order, err := pipeline.GetTopologicalOrder()
+	if err != nil {
+		t.Fatalf("Failed to get topological order: %v", err)
+	}
+
+	// proc-1 应该在 proc-2 和 proc-3 之前
+	proc1Idx := -1
+	proc2Idx := -1
+	proc3Idx := -1
+	for i, id := range order {
+		switch id {
+		case "proc-1":
+			proc1Idx = i
+		case "proc-2":
+			proc2Idx = i
+		case "proc-3":
+			proc3Idx = i
+		}
+	}
+
+	if proc1Idx == -1 || proc2Idx == -1 || proc3Idx == -1 {
+		t.Fatalf("Not all nodes found in order: %v", order)
+	}
+
+	if proc1Idx >= proc2Idx || proc1Idx >= proc3Idx {
+		t.Errorf("proc-1 should be before proc-2 and proc-3, order: %v", order)
+	}
+}
+
+// TestFilterProcessor 测试过滤器处理器
+func TestFilterProcessor(t *testing.T) {
+	factory := NewProcessorFactory()
+
+	config := map[string]interface{}{
+		"name": "size_filter",
+		"condition": map[string]interface{}{
+			"field":    "size",
+			"operator": "greater_than",
+			"value":    100,
+		},
+	}
+
+	processor, err := factory.Create(ProcessorTypeFilter, config)
+	if err != nil {
+		t.Fatalf("Failed to create filter processor: %v", err)
+	}
+
+	input := []map[string]interface{}{
+		{"name": "file1.txt", "size": 200},
+		{"name": "file2.txt", "size": 50},
+		{"name": "file3.txt", "size": 300},
+		{"name": "file4.txt", "size": 80},
+	}
+
+	ctx := context.Background()
+	output, err := processor.Process(ctx, input)
+	if err != nil {
+		t.Fatalf("Failed to process: %v", err)
+	}
+
+	if len(output) != 2 {
+		t.Errorf("Expected 2 items, got %d", len(output))
+	}
+}
+
+// TestTransformProcessor 测试转换器处理器
+func TestTransformProcessor(t *testing.T) {
+	factory := NewProcessorFactory()
+
+	config := map[string]interface{}{
+		"name": "name_transform",
+		"transforms": []interface{}{
+			map[string]interface{}{
+				"field":  "name",
+				"action": "uppercase",
+			},
+			map[string]interface{}{
+				"field":  "type",
+				"action": "set",
+				"value":  "document",
+			},
+		},
+	}
+
+	processor, err := factory.Create(ProcessorTypeTransform, config)
+	if err != nil {
+		t.Fatalf("Failed to create transform processor: %v", err)
+	}
+
+	input := []map[string]interface{}{
+		{"name": "hello", "size": 100},
+		{"name": "world", "size": 200},
+	}
+
+	ctx := context.Background()
+	output, err := processor.Process(ctx, input)
+	if err != nil {
+		t.Fatalf("Failed to process: %v", err)
+	}
+
+	if len(output) != 2 {
+		t.Errorf("Expected 2 items, got %d", len(output))
+	}
+
+	if output[0]["name"] != "HELLO" {
+		t.Errorf("Expected 'HELLO', got '%v'", output[0]["name"])
+	}
+
+	if output[0]["type"] != "document" {
+		t.Errorf("Expected 'document', got '%v'", output[0]["type"])
+	}
+}
+
+// TestAggregateProcessor 测试聚合器处理器
+func TestAggregateProcessor(t *testing.T) {
+	factory := NewProcessorFactory()
+
+	config := map[string]interface{}{
+		"name":    "size_aggregate",
+		"groupBy": []interface{}{"category"},
+		"aggregates": []interface{}{
+			map[string]interface{}{
+				"field":    "size",
+				"function": "sum",
+				"output":   "total_size",
+			},
+			map[string]interface{}{
+				"field":    "size",
+				"function": "count",
+				"output":   "file_count",
+			},
+		},
+	}
+
+	processor, err := factory.Create(ProcessorTypeAggregate, config)
+	if err != nil {
+		t.Fatalf("Failed to create aggregate processor: %v", err)
+	}
+
+	input := []map[string]interface{}{
+		{"category": "docs", "size": 100},
+		{"category": "docs", "size": 200},
+		{"category": "images", "size": 300},
+		{"category": "images", "size": 400},
+	}
+
+	ctx := context.Background()
+	output, err := processor.Process(ctx, input)
+	if err != nil {
+		t.Fatalf("Failed to process: %v", err)
+	}
+
+	if len(output) != 2 {
+		t.Errorf("Expected 2 groups, got %d", len(output))
+	}
+}
+
+// TestDeduplicatorProcessor 测试去重器处理器
+func TestDeduplicatorProcessor(t *testing.T) {
+	factory := NewProcessorFactory()
+
+	config := map[string]interface{}{
+		"name":   "dedup",
+		"fields": []interface{}{"id"},
+	}
+
+	processor, err := factory.Create(ProcessorTypeDeduplicator, config)
+	if err != nil {
+		t.Fatalf("Failed to create deduplicator processor: %v", err)
+	}
+
+	input := []map[string]interface{}{
+		{"id": 1, "name": "item1"},
+		{"id": 2, "name": "item2"},
+		{"id": 1, "name": "item1_dup"},
+		{"id": 3, "name": "item3"},
+	}
+
+	ctx := context.Background()
+	output, err := processor.Process(ctx, input)
+	if err != nil {
+		t.Fatalf("Failed to process: %v", err)
+	}
+
+	if len(output) != 3 {
+		t.Errorf("Expected 3 unique items, got %d", len(output))
+	}
+}
+
+// TestPipelineEngine 测试流水线引擎
+func TestPipelineEngine(t *testing.T) {
+	logger := log.New(os.Stdout, "[TEST] ", log.LstdFlags)
+	engine := NewPipelineEngine(logger)
+
+	pipeline := &Pipeline{
+		ID:          "test-pipeline",
 		Name:        "Test Pipeline",
-		Description: "测试管道",
-		Source: DataSource{
-			ID:   "src-1",
-			Type: SourceFile,
-			Name: "test-source",
-			Config: map[string]string{
-				"path": "/tmp/test.csv",
-			},
-		},
-		Transforms: []TransformStep{
+		Status:      PipelineStatusActive,
+		Concurrency: 2,
+		DataSources: []DataSource{
 			{
-				ID:      "t1",
-				Type:    TransformFilter,
-				Name:    "过滤器",
-				Config:  map[string]string{"field": "status", "op": "eq", "value": "active"},
-				Enabled: true,
-			},
-			{
-				ID:      "t2",
-				Type:    TransformMap,
-				Name:    "映射器",
-				Config:  map[string]string{"mapping": "name->full_name"},
+				ID:   "ds-1",
+				Name: "Test Source",
+				Type: DataSourceFileSystem,
+				Connection: map[string]interface{}{
+					"path":      "/tmp",
+					"recursive": false,
+				},
 				Enabled: true,
 			},
 		},
-		Sink: DataSink{
-			ID:   "sink-1",
-			Type: SourceFile,
-			Name: "test-output",
-			Config: map[string]string{
-				"path": "/tmp/output.csv",
+		Processors: []ProcessorNode{
+			{
+				ID:      "proc-1",
+				Name:    "Filter",
+				Type:    ProcessorTypeFilter,
+				Enabled: true,
+				Config: map[string]interface{}{
+					"name": "size_filter",
+					"condition": map[string]interface{}{
+						"field":    "size",
+						"operator": "greater_than",
+						"value":    0,
+					},
+				},
 			},
 		},
-		Schedule: Schedule{
-			Type:    ScheduleManual,
-			Enabled: true,
+		Outputs: []OutputNode{
+			{
+				ID:      "out-1",
+				Name:    "File Output",
+				Type:    OutputTypeFile,
+				Enabled: true,
+				Config: map[string]interface{}{
+					"path":   "/tmp/test_output.json",
+					"format": "json",
+				},
+			},
 		},
-		Tags: []string{"test", "etl"},
+		DAG: []DAGEdge{
+			{From: "proc-1", To: "out-1"},
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	inputData := map[string]interface{}{
+		"source": "test",
+	}
+
+	execution, err := engine.Execute(ctx, pipeline, inputData)
+	if err != nil {
+		t.Fatalf("Failed to execute pipeline: %v", err)
+	}
+
+	// 等待执行完成
+	time.Sleep(2 * time.Second)
+
+	if execution.Status != ExecutionStatusSuccess {
+		t.Errorf("Expected success status, got %s", execution.Status)
 	}
 }
 
-func TestCreateAndListPipelines(t *testing.T) {
-	_, r := setupTest(t)
+// TestPipelineManager 测试流水线管理器
+func TestPipelineManager(t *testing.T) {
+	logger := log.New(os.Stdout, "[TEST] ", log.LstdFlags)
+	manager := NewPipelineManager(logger)
 
-	p := testPipeline("pipe-1")
-	body, _ := json.Marshal(p)
-	req := httptest.NewRequest(http.MethodPost, "/datapipeline/pipelines", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	req2 := httptest.NewRequest(http.MethodGet, "/datapipeline/pipelines", nil)
-	w2 := httptest.NewRecorder()
-	r.ServeHTTP(w2, req2)
-	assert.Equal(t, http.StatusOK, w2.Code)
-	var resp map[string]interface{}
-	require.NoError(t, json.Unmarshal(w2.Body.Bytes(), &resp))
-	assert.Equal(t, float64(1), resp["total"])
-}
-
-func TestDuplicatePipeline(t *testing.T) {
-	mgr, _ := setupTest(t)
-	require.NoError(t, mgr.CreatePipeline(testPipeline("dup-1")))
-	err := mgr.CreatePipeline(testPipeline("dup-1"))
-	assert.ErrorIs(t, err, ErrPipelineExists)
-}
-
-func TestPipelineNotFound(t *testing.T) {
-	mgr, _ := setupTest(t)
-	_, err := mgr.GetPipeline("nonexistent")
-	assert.ErrorIs(t, err, ErrPipelineNotFound)
-}
-
-func TestPipelineLifecycle(t *testing.T) {
-	mgr, r := setupTest(t)
-	require.NoError(t, mgr.CreatePipeline(testPipeline("pipe-lc")))
-
-	// 启动
-	req := httptest.NewRequest(http.MethodPost, "/datapipeline/pipelines/pipe-lc/start", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	p, _ := mgr.GetPipeline("pipe-lc")
-	assert.Equal(t, PipelineRunning, p.Status)
-
-	// 不能重复启动
-	err := mgr.StartPipeline("pipe-lc")
-	assert.ErrorIs(t, err, ErrPipelineRunning)
-
-	// 停止
-	req2 := httptest.NewRequest(http.MethodPost, "/datapipeline/pipelines/pipe-lc/stop", nil)
-	w2 := httptest.NewRecorder()
-	r.ServeHTTP(w2, req2)
-	assert.Equal(t, http.StatusOK, w2.Code)
-
-	p, _ = mgr.GetPipeline("pipe-lc")
-	assert.Equal(t, PipelinePaused, p.Status)
-
-	// 不能停止已停止的
-	err = mgr.StopPipeline("pipe-lc")
-	assert.ErrorIs(t, err, ErrPipelineNotRunning)
-
-	mgr.Wait() // 等待后台 goroutine 完成
-}
-
-func TestDeleteRunningPipeline(t *testing.T) {
-	mgr, _ := setupTest(t)
-	require.NoError(t, mgr.CreatePipeline(testPipeline("pipe-del")))
-	require.NoError(t, mgr.StartPipeline("pipe-del"))
-
-	err := mgr.DeletePipeline("pipe-del")
-	assert.ErrorIs(t, err, ErrPipelineRunning)
-
-	require.NoError(t, mgr.StopPipeline("pipe-del"))
-	mgr.Wait() // 等待后台 goroutine 完成
-	require.NoError(t, mgr.DeletePipeline("pipe-del"))
-
-	_, err = mgr.GetPipeline("pipe-del")
-	assert.ErrorIs(t, err, ErrPipelineNotFound)
-}
-
-func TestTriggerExecution(t *testing.T) {
-	mgr, _ := setupTest(t)
-	require.NoError(t, mgr.CreatePipeline(testPipeline("pipe-trig")))
-
-	exec, err := mgr.TriggerExecution("pipe-trig")
-	require.NoError(t, err)
-	assert.NotEmpty(t, exec.ID)
-	assert.Equal(t, "manual", exec.Trigger)
-
-	execs := mgr.GetExecutions("pipe-trig", 10)
-	assert.Len(t, execs, 1)
-}
-
-func TestTriggerExecutionNotFound(t *testing.T) {
-	mgr, _ := setupTest(t)
-	_, err := mgr.TriggerExecution("nonexistent")
-	assert.ErrorIs(t, err, ErrPipelineNotFound)
-}
-
-func TestUpdatePipeline(t *testing.T) {
-	mgr, r := setupTest(t)
-	require.NoError(t, mgr.CreatePipeline(testPipeline("pipe-upd")))
-
-	update := Pipeline{Name: "Updated Name", Description: "新描述"}
-	body, _ := json.Marshal(update)
-	req := httptest.NewRequest(http.MethodPut, "/datapipeline/pipelines/pipe-upd", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	p, _ := mgr.GetPipeline("pipe-upd")
-	assert.Equal(t, "Updated Name", p.Name)
-	assert.Equal(t, "新描述", p.Description)
-}
-
-func TestUpdateRunningPipeline(t *testing.T) {
-	mgr, _ := setupTest(t)
-	require.NoError(t, mgr.CreatePipeline(testPipeline("pipe-updr")))
-	require.NoError(t, mgr.StartPipeline("pipe-updr"))
-
-	err := mgr.UpdatePipeline("pipe-updr", &Pipeline{Name: "Nope"})
-	assert.ErrorIs(t, err, ErrPipelineRunning)
-
-	mgr.Wait() // 等待后台 goroutine 完成
-}
-
-func TestListPipelinesWithFilter(t *testing.T) {
-	mgr, _ := setupTest(t)
-	require.NoError(t, mgr.CreatePipeline(testPipeline("pipe-f1")))
-	require.NoError(t, mgr.CreatePipeline(testPipeline("pipe-f2")))
-	require.NoError(t, mgr.StartPipeline("pipe-f1"))
-
-	// 按状态过滤
-	running := mgr.ListPipelines(PipelineRunning, "")
-	assert.Len(t, running, 1)
-	assert.Equal(t, "pipe-f1", running[0].ID)
-
-	// 按标签过滤
-	tagged := mgr.ListPipelines("", "etl")
-	assert.Len(t, tagged, 2)
-
-	mgr.Wait() // 等待后台 goroutine 完成
-}
-
-func TestInvalidSourceType(t *testing.T) {
-	mgr, _ := setupTest(t)
-	p := testPipeline("pipe-inv")
-	p.Source.Type = "invalid"
-	err := mgr.CreatePipeline(p)
-	assert.ErrorIs(t, err, ErrInvalidSource)
-}
-
-func TestInvalidTransformType(t *testing.T) {
-	mgr, _ := setupTest(t)
-	p := testPipeline("pipe-invt")
-	p.Transforms = []TransformStep{
-		{ID: "t1", Type: "bad_transform", Name: "bad"},
+	// 创建流水线
+	pipeline := &Pipeline{
+		ID:          "manager-test",
+		Name:        "Manager Test",
+		Status:      PipelineStatusDraft,
+		Concurrency: 1,
+		DataSources: []DataSource{
+			{
+				ID:   "ds-1",
+				Name: "Test Source",
+				Type: DataSourceFileSystem,
+				Connection: map[string]interface{}{
+					"path": "/tmp",
+				},
+				Enabled: true,
+			},
+		},
+		Processors: []ProcessorNode{
+			{
+				ID:      "proc-1",
+				Name:    "Filter",
+				Type:    ProcessorTypeFilter,
+				Enabled: true,
+				Config: map[string]interface{}{
+					"name": "size_filter",
+					"condition": map[string]interface{}{
+						"field":    "size",
+						"operator": "greater_than",
+						"value":    0,
+					},
+				},
+			},
+		},
+		Outputs: []OutputNode{
+			{
+				ID:      "out-1",
+				Name:    "File Output",
+				Type:    OutputTypeFile,
+				Enabled: true,
+				Config: map[string]interface{}{
+					"path": "/tmp/manager_output.json",
+				},
+			},
+		},
 	}
-	err := mgr.CreatePipeline(p)
-	assert.ErrorIs(t, err, ErrInvalidTransform)
+
+	err := manager.CreatePipeline(pipeline)
+	if err != nil {
+		t.Fatalf("Failed to create pipeline: %v", err)
+	}
+
+	// 获取流水线
+	retrieved, err := manager.GetPipeline("manager-test")
+	if err != nil {
+		t.Fatalf("Failed to get pipeline: %v", err)
+	}
+
+	if retrieved.Name != "Manager Test" {
+		t.Errorf("Expected 'Manager Test', got '%s'", retrieved.Name)
+	}
+
+	// 启用流水线
+	err = manager.EnablePipeline("manager-test")
+	if err != nil {
+		t.Fatalf("Failed to enable pipeline: %v", err)
+	}
+
+	// 执行流水线
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	execution, err := manager.ExecutePipeline(ctx, "manager-test", nil)
+	if err != nil {
+		t.Fatalf("Failed to execute pipeline: %v", err)
+	}
+
+	// 等待执行完成
+	time.Sleep(2 * time.Second)
+
+	if execution.Status != ExecutionStatusSuccess {
+		t.Errorf("Expected success, got %s", execution.Status)
+	}
+
+	// 获取统计
+	stats, err := manager.GetPipelineStats("manager-test")
+	if err != nil {
+		t.Fatalf("Failed to get stats: %v", err)
+	}
+
+	if stats.TotalExecutions < 1 {
+		t.Errorf("Expected at least 1 execution, got %d", stats.TotalExecutions)
+	}
 }
 
-func TestInvalidScheduleType(t *testing.T) {
-	mgr, _ := setupTest(t)
-	p := testPipeline("pipe-invs")
-	p.Schedule.Type = "bad_schedule"
-	err := mgr.CreatePipeline(p)
-	assert.ErrorIs(t, err, ErrInvalidSchedule)
+// TestConnectorFactory 测试连接器工厂
+func TestConnectorFactory(t *testing.T) {
+	tests := []struct {
+		name    string
+		dsType  DataSourceType
+		wantErr bool
+	}{
+		{
+			name:    "filesystem",
+			dsType:  DataSourceFileSystem,
+			wantErr: false,
+		},
+		{
+			name:    "smb",
+			dsType:  DataSourceSMB,
+			wantErr: false,
+		},
+		{
+			name:    "s3",
+			dsType:  DataSourceS3,
+			wantErr: false,
+		},
+		{
+			name:    "database",
+			dsType:  DataSourceDatabase,
+			wantErr: false,
+		},
+		{
+			name:    "http",
+			dsType:  DataSourceHTTP,
+			wantErr: false,
+		},
+		{
+			name:    "unsupported",
+			dsType:  "unsupported",
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ds := DataSource{
+				ID:   "test-ds",
+				Name: "Test DS",
+				Type: tt.dsType,
+				Connection: map[string]interface{}{
+					"path":     "/tmp",
+					"host":     "localhost",
+					"share":    "test",
+					"bucket":   "test-bucket",
+					"driver":   "sqlite",
+					"dsn":      ":memory:",
+					"url":      "http://localhost",
+					"endpoint": "http://localhost:9000",
+				},
+			}
+
+			connector, err := NewConnector(ds)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewConnector() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !tt.wantErr && connector == nil {
+				t.Error("Expected connector, got nil")
+			}
+		})
+	}
 }
 
-func TestDLQOperations(t *testing.T) {
-	mgr, _ := setupTest(t)
+// TestProcessorFactory 测试处理器工厂
+func TestProcessorFactory(t *testing.T) {
+	factory := NewProcessorFactory()
 
-	// 手动添加DLQ条目
-	mgr.addToDLQ("pipe-dlq", "exec-1", "test-data", "test error", 3)
+	tests := []struct {
+		name    string
+		pType   ProcessorType
+		wantErr bool
+	}{
+		{
+			name:    "filter",
+			pType:   ProcessorTypeFilter,
+			wantErr: false,
+		},
+		{
+			name:    "transform",
+			pType:   ProcessorTypeTransform,
+			wantErr: false,
+		},
+		{
+			name:    "aggregate",
+			pType:   ProcessorTypeAggregate,
+			wantErr: false,
+		},
+		{
+			name:    "deduplicator",
+			pType:   ProcessorTypeDeduplicator,
+			wantErr: false,
+		},
+		{
+			name:    "unsupported",
+			pType:   "unsupported",
+			wantErr: true,
+		},
+	}
 
-	entries := mgr.GetDLQ("", 10)
-	assert.Len(t, entries, 1)
-	assert.Equal(t, "test error", entries[0].Error)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			config := map[string]interface{}{
+				"name": "test",
+				"condition": map[string]interface{}{
+					"field":    "size",
+					"operator": "greater_than",
+					"value":    100,
+				},
+				"transforms": []interface{}{},
+				"aggregates": []interface{}{},
+				"groupBy":    []interface{}{"key"},
+				"fields":     []interface{}{"id"},
+				"rules":      []interface{}{},
+			}
 
-	// 按管道过滤
-	entries = mgr.GetDLQ("pipe-dlq", 10)
-	assert.Len(t, entries, 1)
+			processor, err := factory.Create(tt.pType, config)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Factory.Create() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
 
-	entries = mgr.GetDLQ("other-pipe", 10)
-	assert.Len(t, entries, 0)
-
-	// 清空
-	removed := mgr.ClearDLQ("pipe-dlq")
-	assert.Equal(t, 1, removed)
-
-	entries = mgr.GetDLQ("", 10)
-	assert.Len(t, entries, 0)
+			if !tt.wantErr && processor == nil {
+				t.Error("Expected processor, got nil")
+			}
+		})
+	}
 }
 
-func TestStats(t *testing.T) {
-	mgr, r := setupTest(t)
-	require.NoError(t, mgr.CreatePipeline(testPipeline("pipe-stat")))
-	require.NoError(t, mgr.StartPipeline("pipe-stat"))
+// TestRetryPolicy 测试重试策略
+func TestRetryPolicy(t *testing.T) {
+	logger := log.New(os.Stdout, "[TEST] ", log.LstdFlags)
+	engine := NewPipelineEngine(logger)
 
-	req := httptest.NewRequest(http.MethodGet, "/datapipeline/stats", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-	var resp map[string]interface{}
-	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
-	data := resp["data"].(map[string]interface{})
-	assert.Equal(t, float64(1), data["total_pipelines"])
-	assert.Equal(t, float64(1), data["running_pipelines"])
+	// 创建一个会失败的处理器
+	pipeline := &Pipeline{
+		ID:          "retry-test",
+		Name:        "Retry Test",
+		Status:      PipelineStatusActive,
+		Concurrency: 1,
+		DataSources: []DataSource{
+			{
+				ID:   "ds-1",
+				Name: "Test Source",
+				Type: DataSourceFileSystem,
+				Connection: map[string]interface{}{
+					"path": "/tmp",
+				},
+				Enabled: true,
+			},
+		},
+		Processors: []ProcessorNode{
+			{
+				ID:      "proc-1",
+				Name:    "Filter",
+				Type:    ProcessorTypeFilter,
+				Enabled: true,
+				Config: map[string]interface{}{
+					"name": "size_filter",
+					"condition": map[string]interface{}{
+						"field":    "size",
+						"operator": "greater_than",
+						"value":    0,
+					},
+				},
+			},
+		},
+		Outputs: []OutputNode{
+			{
+				ID:      "out-1",
+				Name:    "Invalid Output",
+				Type:    OutputTypeFile,
+				Enabled: true,
+				Config: map[string]interface{}{
+					"path": "/nonexistent/path/output.json",
+				},
+			},
+		},
+		DAG: []DAGEdge{
+			{From: "proc-1", To: "out-1"},
+		},
+		RetryPolicy: &RetryPolicy{
+			MaxRetries:      2,
+			InitialInterval: 100 * time.Millisecond,
+			MaxInterval:     500 * time.Millisecond,
+			Multiplier:      2.0,
+		},
+	}
 
-	mgr.Wait() // 等待后台 goroutine 完成
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	execution, err := engine.Execute(ctx, pipeline, nil)
+	if err != nil {
+		t.Fatalf("Failed to start execution: %v", err)
+	}
+
+	// 等待执行完成
+	for i := 0; i < 50; i++ {
+		time.Sleep(200 * time.Millisecond)
+		if execution.Status == ExecutionStatusFailed {
+			break
+		}
+	}
+
+	if execution.Status != ExecutionStatusFailed {
+		t.Errorf("Expected failed status, got %s", execution.Status)
+	}
 }
 
-func TestPipelineHealth(t *testing.T) {
-	mgr, _ := setupTest(t)
-	require.NoError(t, mgr.CreatePipeline(testPipeline("pipe-health")))
+// BenchmarkFilterProcessor 基准测试过滤器
+func BenchmarkFilterProcessor(b *testing.B) {
+	factory := NewProcessorFactory()
 
-	health, err := mgr.GetPipelineHealth("pipe-health")
-	require.NoError(t, err)
-	assert.Equal(t, "pipe-health", health["pipeline_id"])
-	assert.Equal(t, PipelineIdle, health["status"])
-	assert.Equal(t, 0.0, health["success_rate"])
+	config := map[string]interface{}{
+		"name": "size_filter",
+		"condition": map[string]interface{}{
+			"field":    "size",
+			"operator": "greater_than",
+			"value":    100,
+		},
+	}
+
+	processor, _ := factory.Create(ProcessorTypeFilter, config)
+
+	input := make([]map[string]interface{}, 1000)
+	for i := 0; i < 1000; i++ {
+		input[i] = map[string]interface{}{
+			"name": "file",
+			"size": i * 100,
+		}
+	}
+
+	ctx := context.Background()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		processor.Process(ctx, input)
+	}
 }
 
-func TestGetExecutionNotFound(t *testing.T) {
-	mgr, _ := setupTest(t)
-	_, err := mgr.GetExecution("pipe-x", "exec-x")
-	assert.ErrorIs(t, err, ErrExecutionNotFound)
-}
+// BenchmarkTransformProcessor 基准测试转换器
+func BenchmarkTransformProcessor(b *testing.B) {
+	factory := NewProcessorFactory()
 
-func TestRetryDLQEntryNotFound(t *testing.T) {
-	mgr, _ := setupTest(t)
-	err := mgr.RetryDLQEntry("nonexistent")
-	assert.ErrorIs(t, err, ErrExecutionNotFound)
-}
+	config := map[string]interface{}{
+		"name": "transform",
+		"transforms": []interface{}{
+			map[string]interface{}{
+				"field":  "name",
+				"action": "uppercase",
+			},
+		},
+	}
 
-func TestDLQEndpoints(t *testing.T) {
-	mgr, r := setupTest(t)
-	mgr.addToDLQ("pipe-dlq2", "exec-dlq", "data", "error", 3)
+	processor, _ := factory.Create(ProcessorTypeTransform, config)
 
-	// 获取DLQ
-	req := httptest.NewRequest(http.MethodGet, "/datapipeline/dlq", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-	var resp map[string]interface{}
-	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
-	assert.Equal(t, float64(1), resp["total"])
+	input := make([]map[string]interface{}, 1000)
+	for i := 0; i < 1000; i++ {
+		input[i] = map[string]interface{}{
+			"name": "test",
+			"size": i,
+		}
+	}
 
-	// 清空DLQ
-	req2 := httptest.NewRequest(http.MethodDelete, "/datapipeline/dlq?pipeline_id=pipe-dlq2", nil)
-	w2 := httptest.NewRecorder()
-	r.ServeHTTP(w2, req2)
-	assert.Equal(t, http.StatusOK, w2.Code)
-}
+	ctx := context.Background()
 
-func TestTriggerEndpoint(t *testing.T) {
-	_, r := setupTest(t)
-
-	// 先创建管道
-	p := testPipeline("pipe-trigep")
-	body, _ := json.Marshal(p)
-	req := httptest.NewRequest(http.MethodPost, "/datapipeline/pipelines", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	// 触发执行
-	req2 := httptest.NewRequest(http.MethodPost, "/datapipeline/pipelines/pipe-trigep/trigger", nil)
-	w2 := httptest.NewRecorder()
-	r.ServeHTTP(w2, req2)
-	assert.Equal(t, http.StatusOK, w2.Code)
-}
-
-func TestGetExecutionsEndpoint(t *testing.T) {
-	mgr, r := setupTest(t)
-	require.NoError(t, mgr.CreatePipeline(testPipeline("pipe-exec-ep")))
-
-	// 先执行一次
-	_, err := mgr.TriggerExecution("pipe-exec-ep")
-	require.NoError(t, err)
-
-	req := httptest.NewRequest(http.MethodGet, "/datapipeline/pipelines/pipe-exec-ep/executions?limit=5", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-	var resp map[string]interface{}
-	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
-	assert.Equal(t, float64(1), resp["total"])
-}
-
-func TestDefaultRetryPolicy(t *testing.T) {
-	mgr, _ := setupTest(t)
-	p := testPipeline("pipe-retry")
-	p.Retry = RetryPolicy{} // 零值，应该被填充默认值
-	require.NoError(t, mgr.CreatePipeline(p))
-
-	saved, _ := mgr.GetPipeline("pipe-retry")
-	assert.Equal(t, 3, saved.Retry.MaxRetries)
-	assert.True(t, saved.DeadLetter.Enabled)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		processor.Process(ctx, input)
+	}
 }
