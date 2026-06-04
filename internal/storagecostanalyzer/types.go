@@ -596,7 +596,257 @@ type CostForecastPoint struct {
 	CumulativeCost float64 `json:"cumulativeCost"`
 }
 
-// ========== 仪表板统计 ==========
+// ========== 能耗分析 ==========
+
+// DiskType 硬盘类型.
+type DiskType string
+
+const (
+	// DiskTypeSSD SSD固态硬盘.
+	DiskTypeSSD DiskType = "ssd"
+	// DiskTypeHDD7200 7200转HDD.
+	DiskTypeHDD7200 DiskType = "hdd_7200"
+	// DiskTypeHDD5400 5400转HDD.
+	DiskTypeHDD5400 DiskType = "hdd_5400"
+	// DiskTypeNVMe NVMe SSD.
+	DiskTypeNVMe DiskType = "nvme"
+)
+
+// EnergyConfig 能耗配置.
+type EnergyConfig struct {
+	// ElectricityPrice 电价（元/kWh）.
+	ElectricityPrice float64 `json:"electricityPrice"`
+	// CoolingPUE 散热PUE系数.
+	CoolingPUE float64 `json:"coolingPUE"`
+	// DiskPower 硬盘功耗配置.
+	DiskPower map[DiskType]DiskPowerSpec `json:"diskPower"`
+}
+
+// DiskPowerSpec 硬盘功耗规格.
+type DiskPowerSpec struct {
+	// IdlePowerW 空闲功耗（W）.
+	IdlePowerW float64 `json:"idlePowerW"`
+	// ActivePowerW 活跃功耗（W）.
+	ActivePowerW float64 `json:"activePowerW"`
+	// MaxPowerW 最大功耗（W）.
+	MaxPowerW float64 `json:"maxPowerW"`
+	// TypicalPowerW 典型功耗（W）.
+TypicalPowerW float64 `json:"typicalPowerW"`
+}
+
+// EnergyConsumption 能耗分析结果.
+type EnergyConsumption struct {
+	// GeneratedAt 生成时间.
+	GeneratedAt time.Time `json:"generatedAt"`
+	// Tier 存储层级.
+	Tier StorageTier `json:"tier"`
+	// TierName 层级名称.
+	TierName string `json:"tierName"`
+	// DiskType 硬盘类型.
+	DiskType DiskType `json:"diskType"`
+	// DiskCount 硬盘数量.
+	DiskCount int `json:"diskCount"`
+	// CapacityPerDiskTB 单盘容量（TB）.
+	CapacityPerDiskTB float64 `json:"capacityPerDiskTB"`
+	// TotalCapacityTB 总容量（TB）.
+	TotalCapacityTB float64 `json:"totalCapacityTB"`
+	// Utilization 利用率（%）.
+	Utilization float64 `json:"utilization"`
+	// IdlePowerW 空闲功耗（W）.
+	IdlePowerW float64 `json:"idlePowerW"`
+	// ActivePowerW 活跃功耗（W）.
+	ActivePowerW float64 `json:"activePowerW"`
+	// CurrentPowerW 当前功耗（W）.
+	CurrentPowerW float64 `json:"currentPowerW"`
+	// DailyKWh 日耗电量（kWh）.
+	DailyKWh float64 `json:"dailyKWh"`
+	// MonthlyKWh 月耗电量（kWh）.
+	MonthlyKWh float64 `json:"monthlyKWh"`
+	// AnnualKWh 年耗电量（kWh）.
+	AnnualKWh float64 `json:"annualKWh"`
+	// DailyCost 日电力成本.
+	DailyCost float64 `json:"dailyCost"`
+	// MonthlyCost 月电力成本.
+	MonthlyCost float64 `json:"monthlyCost"`
+	// AnnualCost 年电力成本.
+	AnnualCost float64 `json:"annualCost"`
+	// CoolingMonthlyCost 月散热成本.
+	CoolingMonthlyCost float64 `json:"coolingMonthlyCost"`
+	// TotalMonthlyCost 总月度能源成本（电力+散热）.
+	TotalMonthlyCost float64 `json:"totalMonthlyCost"`
+	// CO2KgPerYear 年碳排放（kg）.
+	CO2KgPerYear float64 `json:"co2KgPerYear"`
+}
+
+// EnergyForecast 能耗预测.
+type EnergyForecast struct {
+	// GeneratedAt 生成时间.
+	GeneratedAt time.Time `json:"generatedAt"`
+	// ForecastMonths 预测月数.
+	ForecastMonths int `json:"forecastMonths"`
+	// CurrentMonthlyKWh 当前月耗电（kWh）.
+	CurrentMonthlyKWh float64 `json:"currentMonthlyKWh"`
+	// GrowthRate 月增长率（%）.
+	GrowthRate float64 `json:"growthRate"`
+	// MonthlyForecasts 月度预测.
+	MonthlyForecasts []EnergyForecastPoint `json:"monthlyForecasts"`
+	// TotalForecastKWh 总预测耗电（kWh）.
+	TotalForecastKWh float64 `json:"totalForecastKWh"`
+	// TotalForecastCost 总预测成本.
+	TotalForecastCost float64 `json:"totalForecastCost"`
+}
+
+// EnergyForecastPoint 能耗预测数据点.
+type EnergyForecastPoint struct {
+	// Month 月份（从1开始）.
+	Month int `json:"month"`
+	// Date 预测日期.
+	Date time.Time `json:"date"`
+	// ProjectedKWh 预测耗电（kWh）.
+	ProjectedKWh float64 `json:"projectedKWh"`
+	// ProjectedCost 预测成本.
+	ProjectedCost float64 `json:"projectedCost"`
+	// CumulativeKWh 累计耗电（kWh）.
+	CumulativeKWh float64 `json:"cumulativeKWh"`
+	// CumulativeCost 累计成本.
+	CumulativeCost float64 `json:"cumulativeCost"`
+}
+
+// ========== 容量规划建议 ==========
+
+// CapacityPlan 容量规划建议.
+type CapacityPlan struct {
+	// GeneratedAt 生成时间.
+	GeneratedAt time.Time `json:"generatedAt"`
+	// Tier 存储层级.
+	Tier StorageTier `json:"tier"`
+	// TierName 层级名称.
+	TierName string `json:"tierName"`
+	// CurrentCapacityTB 当前容量（TB）.
+	CurrentCapacityTB float64 `json:"currentCapacityTB"`
+	// CurrentUsedTB 当前已用（TB）.
+	CurrentUsedTB float64 `json:"currentUsedTB"`
+	// CurrentUtilization 当前利用率（%）.
+	CurrentUtilization float64 `json:"currentUtilization"`
+	// GrowthRateMonthly 月增长率（%）.
+	GrowthRateMonthly float64 `json:"growthRateMonthly"`
+	// MonthsUntilFull 预计满容量月数.
+	MonthsUntilFull int `json:"monthsUntilFull"`
+	// FullDate 预计满容量日期.
+	FullDate *time.Time `json:"fullDate,omitempty"`
+	// RecommendedAction 建议操作（expand/migrate/optimize）.
+	RecommendedAction string `json:"recommendedAction"`
+	// RecommendedCapacityTB 建议目标容量（TB）.
+	RecommendedCapacityTB float64 `json:"recommendedCapacityTB"`
+	// ExpansionCostTB 扩容每TB成本.
+	ExpansionCostTB float64 `json:"expansionCostTB"`
+	// TotalExpansionCost 总扩容成本.
+	TotalExpansionCost float64 `json:"totalExpansionCost"`
+	// Urgency 紧急程度（low/medium/high/critical）.
+	Urgency string `json:"urgency"`
+	// Rationale 理由说明.
+	Rationale string `json:"rationale"`
+	// Timeline 建议时间线.
+	Timeline string `json:"timeline"`
+	// Steps 操作步骤.
+	Steps []string `json:"steps"`
+}
+
+// ========== 多维度成本报表 ==========
+
+// MultiDimensionReport 多维度成本报表.
+type MultiDimensionReport struct {
+	// ID 报表ID.
+	ID string `json:"id"`
+	// Title 标题.
+	Title string `json:"title"`
+	// GeneratedAt 生成时间.
+	GeneratedAt time.Time `json:"generatedAt"`
+	// PeriodStart 周期开始.
+	PeriodStart time.Time `json:"periodStart"`
+	// PeriodEnd 周期结束.
+	PeriodEnd time.Time `json:"periodEnd"`
+	// Summary 摘要.
+	Summary ReportSummary `json:"summary"`
+	// TierBreakdown 按层级分类.
+	TierBreakdown []TierCostBreakdown `json:"tierBreakdown"`
+	// CategoryBreakdown 按成本类别分类.
+	CategoryBreakdown []CategoryCostBreakdown `json:"categoryBreakdown"`
+	// ProviderBreakdown 按供应商分类.
+	ProviderBreakdown []ProviderCostBreakdown `json:"providerBreakdown"`
+	// TimeSeries 时间序列数据.
+	TimeSeries []TimeSeriesPoint `json:"timeSeries"`
+	// OptimizationImpact 优化影响分析.
+	OptimizationImpact OptimizationImpact `json:"optimizationImpact"`
+}
+
+// ReportSummary 报表摘要.
+type ReportSummary struct {
+	// TotalCost 总成本.
+	TotalCost float64 `json:"totalCost"`
+	// AvgMonthlyCost 平均月成本.
+	AvgMonthlyCost float64 `json:"avgMonthlyCost"`
+	// TotalCapacityTB 总容量（TB）.
+	TotalCapacityTB float64 `json:"totalCapacityTB"`
+	// TotalUsedTB 总已用（TB）.
+	TotalUsedTB float64 `json:"totalUsedTB"`
+	// OverallUtilization 总体利用率（%）.
+	OverallUtilization float64 `json:"overallUtilization"`
+	// AvgCostPerTB 平均每TB成本.
+	AvgCostPerTB float64 `json:"avgCostPerTB"`
+	// CostChangePercent 成本环比变化（%）.
+	CostChangePercent float64 `json:"costChangePercent"`
+}
+
+// CategoryCostBreakdown 按成本类别分类.
+type CategoryCostBreakdown struct {
+	// Category 成本类别.
+	Category CostCategory `json:"category"`
+	// Amount 金额.
+	Amount float64 `json:"amount"`
+	// Percentage 占比（%）.
+	Percentage float64 `json:"percentage"`
+	// Description 描述.
+	Description string `json:"description"`
+}
+
+// ProviderCostBreakdown 按供应商分类.
+type ProviderCostBreakdown struct {
+	// Provider 供应商.
+	Provider string `json:"provider"`
+	// Amount 金额.
+	Amount float64 `json:"amount"`
+	// Percentage 占比（%）.
+	Percentage float64 `json:"percentage"`
+	// Tier 存储层级.
+	Tier StorageTier `json:"tier"`
+}
+
+// TimeSeriesPoint 时间序列数据点.
+type TimeSeriesPoint struct {
+	// Date 日期.
+	Date time.Time `json:"date"`
+	// Cost 成本.
+	Cost float64 `json:"cost"`
+	// CapacityTB 容量（TB）.
+	CapacityTB float64 `json:"capacityTB"`
+	// UsedTB 已用（TB）.
+	UsedTB float64 `json:"usedTB"`
+	// CostPerTB 每TB成本.
+	CostPerTB float64 `json:"costPerTB"`
+}
+
+// OptimizationImpact 优化影响分析.
+type OptimizationImpact struct {
+	// ImplementedSavings 已实施节省.
+	ImplementedSavings float64 `json:"implementedSavings"`
+	// PotentialSavings 潜在节省.
+	PotentialSavings float64 `json:"potentialSavings"`
+	// TotalPotentialSavings 总潜在节省.
+	TotalPotentialSavings float64 `json:"totalPotentialSavings"`
+	// ImplementationRate 实施率（%）.
+	ImplementationRate float64 `json:"implementationRate"`
+}
 
 // DashboardStats 仪表板统计.
 type DashboardStats struct {
