@@ -242,13 +242,28 @@ func (e *BatchExecutor) GetTask(taskID string) (*BatchTask, error) {
 		return nil, fmt.Errorf("task not found: %s", taskID)
 	}
 
-	// 返回副本
-	taskCopy := *task
-	taskCopy.Operations = make([]*BatchOperation, len(task.Operations))
+	// 返回副本（不拷贝锁）
+	taskCopy := BatchTask{
+		ID:           task.ID,
+		Operations:   make([]*BatchOperation, len(task.Operations)),
+		Status:       task.Status,
+		TotalOps:     task.TotalOps,
+		CompletedOps: task.CompletedOps,
+		FailedOps:    task.FailedOps,
+		SkippedOps:   task.SkippedOps,
+		Progress:     task.Progress,
+		StartTime:    task.StartTime,
+		EndTime:      task.EndTime,
+		ElapsedTime:  task.ElapsedTime,
+		EstRemaining: task.EstRemaining,
+		Errors:       make([]BatchError, len(task.Errors)),
+		Results:      make([]BatchResult, len(task.Results)),
+		Concurrency:  task.Concurrency,
+		Author:       task.Author,
+		CreatedAt:    task.CreatedAt,
+	}
 	copy(taskCopy.Operations, task.Operations)
-	taskCopy.Results = make([]BatchResult, len(task.Results))
 	copy(taskCopy.Results, task.Results)
-	taskCopy.Errors = make([]BatchError, len(task.Errors))
 	copy(taskCopy.Errors, task.Errors)
 
 	return &taskCopy, nil
@@ -261,7 +276,25 @@ func (e *BatchExecutor) ListTasks() []*BatchTask {
 
 	tasks := make([]*BatchTask, 0, len(e.tasks))
 	for _, task := range e.tasks {
-		taskCopy := *task
+		taskCopy := BatchTask{
+			ID:           task.ID,
+			Operations:   task.Operations,
+			Status:       task.Status,
+			TotalOps:     task.TotalOps,
+			CompletedOps: task.CompletedOps,
+			FailedOps:    task.FailedOps,
+			SkippedOps:   task.SkippedOps,
+			Progress:     task.Progress,
+			StartTime:    task.StartTime,
+			EndTime:      task.EndTime,
+			ElapsedTime:  task.ElapsedTime,
+			EstRemaining: task.EstRemaining,
+			Errors:       task.Errors,
+			Results:      task.Results,
+			Concurrency:  task.Concurrency,
+			Author:       task.Author,
+			CreatedAt:    task.CreatedAt,
+		}
 		tasks = append(tasks, &taskCopy)
 	}
 	return tasks
