@@ -126,11 +126,15 @@ type OptimizationSuggestion struct {
 type StorageCostConfig struct {
 	Enabled         bool                    `json:"enabled"`
 	DefaultCurrency string                  `json:"default_currency"`
+	Currency        string                  `json:"currency"`        // 测试兼容字段
 	TierPricing     map[StorageTier]float64 `json:"tier_pricing"`
 	TransferRate    float64                 `json:"transfer_rate"`
 	RequestRate     float64                 `json:"request_rate"`
 	AlertThreshold  float64                 `json:"alert_threshold"`
 	ForecastMonths  int                     `json:"forecast_months"`
+	BudgetLimit     float64                 `json:"budget_limit"`    // 测试兼容字段
+	DefaultPriceSSD float64                 `json:"default_price_ssd"` // 测试兼容字段
+	DefaultPriceHDD float64                 `json:"default_price_hdd"` // 测试兼容字段
 }
 
 // DefaultStorageCostConfig 默认配置
