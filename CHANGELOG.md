@@ -1,3 +1,21 @@
+## v2.556.0 (2026-06-06)
+
+### 新增功能
+- SSD磨损均衡智能管理（SmartWearLeveling）
+- ZFS配额智能管理（ZFSQuotaManager）
+- 容器热迁移（ContainerMigrator）
+- 多级缓存智能管理（SmartCacheTier）
+- 远程支持隧道（RemoteSupport）
+- 备份智能验证（SmartBackupVerify）
+- 智能风扇控制（SmartFanControl）
+- NVMe-oF存储池（NVMeTempPool）
+- 功耗智能封顶（SmartPowerCap）
+
+### 修复
+- 修复go vet错误（IPv6格式/锁拷贝/测试参数）
+
+---
+
 ## v2.555.0 (2026-06-03)
 
 ### 新增功能
