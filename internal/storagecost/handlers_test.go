@@ -8,13 +8,15 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func setupTestHandler(t *testing.T) (*Handlers, *Manager, *gin.Engine) {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
 
-	mgr := NewManager()
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger, nil)
 	handler := NewHandlers(mgr)
 
 	router := gin.New()

@@ -6,12 +6,14 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func setupTest(t *testing.T) (*Manager, *gin.Engine) {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
-	mgr := NewManager()
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger, nil)
 	r := gin.New()
 	rg := r.Group("/api/v1")
 	h := NewHandler(mgr)
@@ -20,7 +22,8 @@ func setupTest(t *testing.T) (*Manager, *gin.Engine) {
 }
 
 func TestNewManager(t *testing.T) {
-	mgr := NewManager()
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger, nil)
 	if mgr == nil {
 		t.Fatal("NewManager returned nil")
 	}
@@ -33,7 +36,8 @@ func TestNewManager(t *testing.T) {
 }
 
 func TestRunManualCheck(t *testing.T) {
-	mgr := NewManager()
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger, nil)
 	health := mgr.RunManualCheck()
 	if health == nil {
 		t.Fatal("RunManualCheck returned nil")
@@ -50,7 +54,8 @@ func TestRunManualCheck(t *testing.T) {
 }
 
 func TestGetTrends(t *testing.T) {
-	mgr := NewManager()
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger, nil)
 	mgr.RunManualCheck()
 	trends := mgr.GetTrends(24)
 	if len(trends) == 0 {
@@ -59,7 +64,8 @@ func TestGetTrends(t *testing.T) {
 }
 
 func TestAlerts(t *testing.T) {
-	mgr := NewManager()
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger, nil)
 	// 设置低阈值以触发告警
 	mgr.UpdateConfig(&PatrolConfig{
 		Enabled:       true,
@@ -88,7 +94,8 @@ func TestAlerts(t *testing.T) {
 }
 
 func TestUpdateConfig(t *testing.T) {
-	mgr := NewManager()
+	logger, _ := zap.NewDevelopment()
+	mgr := NewManager(logger, nil)
 	newConfig := &PatrolConfig{
 		Enabled:       true,
 		Interval:      10,
