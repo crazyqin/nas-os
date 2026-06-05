@@ -707,7 +707,7 @@ func (m *ClusterFederationManager) discoverClusters() {
 		}
 	}
 
-	addr := fmt.Sprintf("%s:%d", m.config.Discovery.MulticastAddress, m.config.Discovery.MulticastPort)
+	addr := net.JoinHostPort(m.config.Discovery.MulticastAddress, strconv.Itoa(m.config.Discovery.MulticastPort))
 	conn, err := net.DialTimeout("udp", addr, m.config.Discovery.DiscoveryTimeout)
 	if err != nil {
 		if subnet != nil {
@@ -736,7 +736,7 @@ func (m *ClusterFederationManager) scanSubnet(subnet *net.IPNet) {
 	ports := []int{9999, 10000, 10001}
 	for ip := cloneIP(subnet.IP); subnet.Contains(ip); incIP(ip) {
 		for _, port := range ports {
-			addr := fmt.Sprintf("%s:%d", ip.String(), port)
+			addr := net.JoinHostPort(ip.String(), strconv.Itoa(port))
 			conn, err := net.DialTimeout("tcp", addr, 100*time.Millisecond)
 			if err != nil {
 				continue
