@@ -243,8 +243,9 @@ func (e *Engine) IsScanning() bool {
 }
 
 // Stats 返回统计信息。
-func (e *Engine) Stats() DedupStats {
-	return e.stats.Snapshot()
+func (e *Engine) Stats() *DedupStats {
+	stats := e.stats.Snapshot()
+	return &stats
 }
 
 // Config 返回当前配置。

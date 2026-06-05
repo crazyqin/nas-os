@@ -57,6 +57,7 @@ type TierInfo struct {
 	TotalBytes  uint64      `json:"total_bytes"`  // 总容量（字节）
 	UsedBytes   uint64      `json:"used_bytes"`   // 已用容量（字节）
 	EntryCount  int         `json:"entry_count"`  // 条目数量
+	HitCount    int64       `json:"hit_count"`    // 命中次数
 	Policy      CachePolicy `json:"policy"`       // 淘汰策略
 	MaxEntries  int         `json:"max_entries"`  // 最大条目数
 	CreatedAt   time.Time   `json:"created_at"`   // 创建时间
