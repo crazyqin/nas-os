@@ -392,8 +392,8 @@ func TestGetTrends(t *testing.T) {
 	m := NewManager()
 
 	trends := m.GetTrends(1 * time.Hour)
-	if trends == nil {
-		t.Error("expected empty trends, got nil")
+	if len(trends) != 0 {
+		t.Errorf("expected 0 trends, got %d", len(trends))
 	}
 }
 
