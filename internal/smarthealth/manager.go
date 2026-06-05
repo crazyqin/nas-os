@@ -40,6 +40,12 @@ type ManagerConfig struct {
 	ReallocatedWarn int64         `json:"reallocatedWarn"` // 重分配扇区告警阈值
 	PendingWarn     int64         `json:"pendingWarn"`     // 待映射扇区告警阈值
 	RetentionDays   int           `json:"retentionDays"`   // 历史数据保留天数
+	CPUThreshold    float64       `json:"cpuThreshold"`    // CPU阈值
+	MemThreshold    float64       `json:"memThreshold"`    // 内存阈值
+	DiskThreshold   float64       `json:"diskThreshold"`   // 磁盘阈值
+	TempThreshold   float64       `json:"tempThreshold"`   // 温度阈值
+	Enabled         bool          `json:"enabled"`         // 是否启用
+	Interval        int           `json:"interval"`        // 检查间隔
 }
 
 // DefaultManagerConfig 默认配置.
@@ -51,6 +57,12 @@ func DefaultManagerConfig() *ManagerConfig {
 		ReallocatedWarn: 10,
 		PendingWarn:     5,
 		RetentionDays:   90,
+		CPUThreshold:    90,
+		MemThreshold:    90,
+		DiskThreshold:   90,
+		TempThreshold:   70,
+		Enabled:         true,
+		Interval:        3600,
 	}
 }
 

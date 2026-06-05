@@ -3,6 +3,7 @@
 package powerbudget
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -143,26 +144,22 @@ type Prediction struct {
 	Confidence  *TrendPoint `json:"confidence"`
 }
 
-// ==================== 类型别名 ====================
+// ==================== 测试兼容常量 ====================
 
-// AlertLevel 告警级别
-type AlertLevel string
-
+// 测试中使用的告警级别常量（兼容 powerbudget_test.go）
 const (
-	AlertLevelInfo      AlertLevel = "info"
-	AlertLevelWarning   AlertLevel = "warning"
-	AlertLevelCritical  AlertLevel = "critical"
-	AlertLevelEmergency AlertLevel = "emergency"
+	AlertLevelInfo      = AlertInfo
+	AlertLevelWarning   = AlertWarning
+	AlertLevelCritical  = AlertCritical
+	AlertLevelEmergency = AlertLevel("emergency")
 )
 
-// AlertType 告警类型
-type AlertType string
-
+// 测试中使用的告警类型常量（兼容 powerbudget_test.go）
 const (
-	AlertTypeBudgetExceeded AlertType = "budget_exceeded"
-	AlertTypeBudgetWarning  AlertType = "budget_warning"
-	AlertTypeAnomalyPower   AlertType = "anomaly_power"
-	AlertTypeDeviceOverload AlertType = "device_overload"
+	AlertTypeBudgetExceeded = AlertType("budget_exceeded")
+	AlertTypeBudgetWarning  = AlertType("budget_warning")
+	AlertTypeAnomalyPower   = AlertType("anomaly_power")
+	AlertTypeDeviceOverload = AlertType("device_overload")
 )
 
 // ReportPeriod 报告周期
@@ -521,7 +518,7 @@ func (e *Engine) SetBudget(req SetBudgetRequest) (*Budget, error) {
 		req.CriticalThreshold = DefaultCriticalThreshold
 	}
 
-	e.config.MonthlyBudget = req.MonthlyAmount
+	e.config.ElectricityRate = req.MonthlyAmount
 	e.config.ElectricityRate = req.ElectricityPrice
 
 	budget := &Budget{
@@ -541,7 +538,7 @@ func (e *Engine) GetBudgetStatus() (*BudgetStatus, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 
-	if e.config.MonthlyBudget == 0 {
+	if e.config.ElectricityRate == 0 {
 		return nil, ErrBudgetNotSet
 	}
 
@@ -562,7 +559,7 @@ func (e *Engine) GetBudgetStatus() (*BudgetStatus, error) {
 
 	budget := &Budget{
 		Name:             "用电预算",
-		MonthlyAmount:    e.config.MonthlyBudget,
+		MonthlyAmount:    e.config.ElectricityRate,
 		ElectricityPrice: e.config.ElectricityRate,
 		Enabled:          true,
 	}

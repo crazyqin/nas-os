@@ -16,7 +16,7 @@ func setupTest(t *testing.T) (*Manager, *gin.Engine) {
 	mgr := NewManager(logger, nil)
 	r := gin.New()
 	rg := r.Group("/api/v1")
-	h := NewHandler(mgr)
+	h := NewHandler(mgr, logger)
 	h.RegisterRoutes(rg)
 	return mgr, r
 }
