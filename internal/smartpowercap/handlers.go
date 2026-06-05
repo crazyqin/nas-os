@@ -2,6 +2,7 @@
 package smartpowercap
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
