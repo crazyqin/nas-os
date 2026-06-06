@@ -12,20 +12,27 @@ import (
 // Scanner 文件扫描器。
 // 扫描指定目录，收集文件信息并按哈希分组。
 type Scanner struct {
-	config    *Config
-	hasher    *Hasher
-	mu        sync.Mutex
-	errors    []ScanError
-	files     []*FileInfo
-	fileChan  chan *FileInfo
-	errChan   chan ScanError
+	config     *Config
+	hasher     *Hasher
+	mu         sync.Mutex
+	errors     []ScanError
+	files      []*FileInfo
+	fileChan   chan *FileInfo
+	errChan    chan ScanError
+	index      *incrementIndex // 增量扫描索引
+	lastScanAt time.Time       // 上次扫描时间
 }
 
 // NewScanner 创建新的文件扫描器。
 func NewScanner(config *Config) *Scanner {
+	algo := config.HashAlgorithm
+	if !algo.IsValid() {
+		algo = HashSHA256
+	}
 	return &Scanner{
 		config: config,
-		hasher: NewHasher(0),
+		hasher: NewHasherWithAlgorithm(0, algo),
+		index:  newIncrementIndex(),
 	}
 }
 
@@ -41,6 +48,12 @@ func (s *Scanner) Scan() (*ScanResult, error) {
 	s.files = make([]*FileInfo, 0)
 	s.mu.Unlock()
 
+	// 确定扫描模式
+	scanMode := ScanModeFull
+	if s.config.IncrementalMode && !s.lastScanAt.IsZero() {
+		scanMode = ScanModeIncremental
+	}
+
 	// 收集所有文件
 	allFiles := make([]string, 0)
 	for _, scanPath := range s.config.ScanPaths {
@@ -49,25 +62,79 @@ func (s *Scanner) Scan() (*ScanResult, error) {
 		}
 	}
 
+	// 增量模式下过滤需要重新扫描的文件
+	skippedCount := 0
+	if scanMode == ScanModeIncremental {
+		filtered := make([]string, 0, len(allFiles))
+		for _, path := range allFiles {
+			info, err := os.Lstat(path)
+			if err != nil {
+				filtered = append(filtered, path)
+				continue
+			}
+			entry := &indexEntry{
+				Size:    info.Size(),
+				ModTime: info.ModTime(),
+			}
+			if s.index.needsRescan(path, entry) {
+				filtered = append(filtered, path)
+			} else {
+				skippedCount++
+			}
+		}
+		allFiles = filtered
+	}
+
 	// 并发计算哈希
 	results := s.computeHashes(allFiles)
 
+	// 更新增量索引
+	if s.config.IncrementalMode {
+		for _, fi := range results {
+			s.index.set(fi.Path, &indexEntry{
+				ContentHash: fi.ContentHash,
+				Size:        fi.Size,
+				ModTime:     fi.ModTime,
+				ScanTime:    time.Now(),
+			})
+		}
+	}
+
 	endTime := time.Now()
+	s.lastScanAt = endTime
 
 	// 构建结果
 	result := &ScanResult{
-		StartTime:  startTime,
-		EndTime:    endTime,
-		Duration:   endTime.Sub(startTime),
-		TotalFiles: len(results),
-		Errors:     s.getErrors(),
+		StartTime:    startTime,
+		EndTime:      endTime,
+		Duration:     endTime.Sub(startTime),
+		ScanMode:     scanMode,
+		TotalFiles:   len(results),
+		SkippedFiles: skippedCount,
+		Errors:       s.getErrors(),
 	}
 
-	// 按内容哈希分组
+	// 按内容哈希分组，处理硬链接
 	hashGroups := make(map[string][]*FileInfo)
+	inodeSeen := make(map[uint64]bool) // 记录已见 inode
+
 	for _, fi := range results {
-		hashGroups[fi.ContentHash] = append(hashGroups[fi.ContentHash], fi)
 		result.TotalSize += fi.Size
+
+		// 硬链接去重：相同 inode 的文件视为同一文件
+		if s.config.HandleHardLinks && fi.IsHardLink && fi.Inode > 0 {
+			if inodeSeen[fi.Inode] {
+				result.HardLinkCount++
+				continue // 跳过已见过的硬链接
+			}
+			inodeSeen[fi.Inode] = true
+		}
+
+		if fi.IsSymLink {
+			result.SymLinkCount++
+		}
+
+		hashGroups[fi.ContentHash] = append(hashGroups[fi.ContentHash], fi)
 	}
 
 	// 构建重复组
@@ -87,7 +154,7 @@ func (s *Scanner) Scan() (*ScanResult, error) {
 		result.DuplicateSize += dg.SavedSize
 	}
 
-	// 按感知哈希分组（相似文件检测）
+	// 按感知哈希分组
 	if s.config.PerceptualEnabled {
 		result.SimilarGroups = s.findSimilarGroups(results)
 	}
@@ -100,10 +167,9 @@ func (s *Scanner) walkDir(dir string, files *[]string) error {
 	return filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			s.addError(path, err.Error())
-			return nil // 跳过错误文件，继续扫描
+			return nil
 		}
 
-		// 跳过目录
 		if info.IsDir() {
 			if s.shouldExcludeDir(path) {
 				return filepath.SkipDir
@@ -111,12 +177,10 @@ func (s *Scanner) walkDir(dir string, files *[]string) error {
 			return nil
 		}
 
-		// 检查是否应排除
 		if s.shouldExclude(path) {
 			return nil
 		}
 
-		// 检查文件大小范围
 		if !s.checkFileSize(info.Size()) {
 			return nil
 		}
@@ -185,23 +249,30 @@ func (s *Scanner) computeHashes(files []string) []*FileInfo {
 	errChan := make(chan ScanError, len(files))
 	var wg sync.WaitGroup
 
-	// 启动 worker
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			for path := range fileChan {
-				fi, err := s.hasher.ComputeFileInfo(path)
+				var fi *FileInfo
+				var err error
+
+				if s.config.HandleHardLinks || s.config.HandleSymLinks {
+					fi, err = s.hasher.ComputeFileInfoWithLinks(path)
+				} else {
+					fi, err = s.hasher.ComputeFileInfo(path)
+				}
+
 				if err != nil {
 					errChan <- ScanError{Path: path, Error: err.Error()}
 					continue
 				}
+				fi.HashAlgorithm = string(s.hasher.Algorithm())
 				resultChan <- fi
 			}
 		}()
 	}
 
-	// 分发任务
 	go func() {
 		for _, path := range files {
 			fileChan <- path
@@ -209,14 +280,12 @@ func (s *Scanner) computeHashes(files []string) []*FileInfo {
 		close(fileChan)
 	}()
 
-	// 等待完成
 	go func() {
 		wg.Wait()
 		close(resultChan)
 		close(errChan)
 	}()
 
-	// 收集结果
 	results := make([]*FileInfo, 0, len(files))
 	for fi := range resultChan {
 		results = append(results, fi)
@@ -230,7 +299,6 @@ func (s *Scanner) computeHashes(files []string) []*FileInfo {
 
 // findSimilarGroups 查找相似文件组。
 func (s *Scanner) findSimilarGroups(files []*FileInfo) []*SimilarGroup {
-	// 按感知哈希分组
 	hashGroups := make(map[string][]*FileInfo)
 	for _, fi := range files {
 		if fi.PerceptHash == "" {
@@ -251,7 +319,7 @@ func (s *Scanner) findSimilarGroups(files []*FileInfo) []*SimilarGroup {
 			HashValue:  hash,
 			Files:      group,
 			Threshold:  s.config.PerceptThreshold,
-			Similarity: 1.0, // 同哈希视为完全相似
+			Similarity: 1.0,
 		})
 	}
 
@@ -279,5 +347,10 @@ func (s *Scanner) getErrors() []ScanError {
 
 // ScanSingle 扫描单个文件。
 func (s *Scanner) ScanSingle(filePath string) (*FileInfo, error) {
-	return s.hasher.ComputeFileInfo(filePath)
+	fi, err := s.hasher.ComputeFileInfoWithLinks(filePath)
+	if err != nil {
+		return nil, err
+	}
+	fi.HashAlgorithm = string(s.hasher.Algorithm())
+	return fi, nil
 }
