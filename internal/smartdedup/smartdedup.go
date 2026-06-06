@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 	"time"
 )
@@ -11,13 +12,13 @@ import (
 // Engine 智能去重引擎。
 // 协调扫描器、哈希器和策略器完成文件去重工作。
 type Engine struct {
-	config    *Config
-	scanner   *Scanner
-	hasher    *Hasher
-	strategy  *Strategy
-	stats     *DedupStats
-	mu        sync.RWMutex
-	scanning  bool
+	config   *Config
+	scanner  *Scanner
+	hasher   *Hasher
+	strategy *Strategy
+	stats    *DedupStats
+	mu       sync.RWMutex
+	scanning bool
 }
 
 // NewEngine 创建新的智能去重引擎。
@@ -25,10 +26,14 @@ func NewEngine(config *Config) *Engine {
 	if config == nil {
 		config = DefaultConfig()
 	}
+	algo := config.HashAlgorithm
+	if !algo.IsValid() {
+		algo = HashSHA256
+	}
 	return &Engine{
 		config:   config,
 		scanner:  NewScanner(config),
-		hasher:   NewHasher(0),
+		hasher:   NewHasherWithAlgorithm(0, algo),
 		strategy: NewStrategy(config.RetentionPolicy),
 		stats:    &DedupStats{},
 	}
@@ -64,7 +69,6 @@ func (e *Engine) Scan() (*ScanResult, error) {
 }
 
 // Dedup 执行去重。
-// 先扫描，再按策略选择保留文件，最后删除重复文件。
 func (e *Engine) Dedup() (*DedupResult, error) {
 	e.mu.Lock()
 	if e.scanning {
@@ -86,14 +90,12 @@ func (e *Engine) Dedup() (*DedupResult, error) {
 
 	startTime := time.Now()
 
-	// 扫描
 	scanResult, err := e.scanner.Scan()
 	if err != nil {
 		return nil, fmt.Errorf("scan failed: %w", err)
 	}
 	e.stats.AddScan(scanResult)
 
-	// 选择并删除
 	dedupResult := &DedupResult{
 		StartTime: startTime,
 	}
@@ -106,11 +108,21 @@ func (e *Engine) Dedup() (*DedupResult, error) {
 
 		for _, fi := range selection.Remove {
 			dedupResult.Processed++
+
 			if e.config.DryRun {
-				// DryRun 模式只计数不删除
 				dedupResult.Deleted++
 				dedupResult.SavedBytes += fi.Size
 				continue
+			}
+
+			// 尝试转为硬链接（节省空间且保留文件路径）
+			if e.config.ConvertToHardLink && selection.Keep != nil {
+				if err := e.convertToHardLink(selection.Keep.Path, fi.Path); err == nil {
+					dedupResult.HardLinked++
+					dedupResult.SavedBytes += fi.Size
+					continue
+				}
+				// 硬链接失败，回退到删除
 			}
 
 			if err := e.removeFile(fi); err != nil {
@@ -138,8 +150,28 @@ func (e *Engine) Dedup() (*DedupResult, error) {
 	return dedupResult, nil
 }
 
+// convertToHardLink 将文件转换为硬链接。
+// 先删除重复文件，再创建指向原始文件的硬链接。
+func (e *Engine) convertToHardLink(originalPath, duplicatePath string) error {
+	// 确保源文件存在
+	if _, err := os.Stat(originalPath); err != nil {
+		return fmt.Errorf("original file not found: %w", err)
+	}
+
+	// 删除重复文件
+	if err := os.Remove(duplicatePath); err != nil {
+		return fmt.Errorf("remove duplicate: %w", err)
+	}
+
+	// 创建硬链接
+	if err := os.Link(originalPath, duplicatePath); err != nil {
+		return fmt.Errorf("create hardlink: %w", err)
+	}
+
+	return nil
+}
+
 // removeFile 删除文件。
-// 如果启用了安全删除，先移到回收站。
 func (e *Engine) removeFile(fi *FileInfo) error {
 	if e.config.SafeDelete {
 		return e.moveToTrash(fi.Path)
@@ -154,25 +186,20 @@ func (e *Engine) moveToTrash(filePath string) error {
 		trashDir = "/tmp/smartdedup-trash"
 	}
 
-	// 确保回收站目录存在
 	if err := os.MkdirAll(trashDir, 0755); err != nil {
 		return fmt.Errorf("create trash dir: %w", err)
 	}
 
-	// 生成回收站中的文件名（避免冲突）
 	baseName := filepath.Base(filePath)
 	trashPath := filepath.Join(trashDir, baseName)
 
-	// 如果已存在同名文件，添加时间戳
 	if _, err := os.Stat(trashPath); err == nil {
 		ext := filepath.Ext(baseName)
 		name := baseName[:len(baseName)-len(ext)]
 		trashPath = filepath.Join(trashDir, fmt.Sprintf("%s_%d%s", name, time.Now().UnixNano(), ext))
 	}
 
-	// 尝试 rename（同文件系统），否则 copy + delete
 	if err := os.Rename(filePath, trashPath); err != nil {
-		// 跨文件系统，使用 copy + delete
 		return e.copyAndDelete(filePath, trashPath)
 	}
 	return nil
@@ -262,11 +289,73 @@ func (e *Engine) UpdateConfig(config *Config) {
 	e.config = config
 	e.scanner = NewScanner(config)
 	e.strategy = NewStrategy(config.RetentionPolicy)
+	algo := config.HashAlgorithm
+	if !algo.IsValid() {
+		algo = HashSHA256
+	}
+	e.hasher = NewHasherWithAlgorithm(0, algo)
 }
 
 // ScanSingle 扫描单个文件。
 func (e *Engine) ScanSingle(filePath string) (*FileInfo, error) {
-	return e.hasher.ComputeFileInfo(filePath)
+	fi, err := e.hasher.ComputeFileInfoWithLinks(filePath)
+	if err != nil {
+		return nil, err
+	}
+	fi.HashAlgorithm = string(e.hasher.Algorithm())
+	return fi, nil
+}
+
+// GenerateReport 生成去重报告。
+func (e *Engine) GenerateReport() *DedupReport {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+
+	stats := e.stats.Snapshot()
+	report := &DedupReport{
+		GeneratedAt:    time.Now(),
+		TotalScans:     int(stats.TotalScans),
+		TotalFiles:     int(stats.TotalFilesScanned),
+		TotalSize:      stats.TotalSizeScanned,
+		DuplicateCount: int(stats.TotalDuplicates),
+		DuplicateSize:  stats.TotalSavedBytes,
+		SavedBytes:     stats.TotalSavedBytes,
+		TrashedCount:   int(stats.TotalTrashed),
+		DeletedCount:   int(stats.TotalDeleted),
+		HardLinkedCount: int(stats.TotalHardLinked),
+		SpaceReclaimed: stats.TotalSavedBytes,
+		RecoveryRatio:  stats.RecoveryRatio,
+		GroupsByType:   make(map[string]int),
+	}
+
+	// 获取最新扫描结果以填充详细信息
+	lastScan, err := e.scanner.Scan()
+	if err == nil && lastScan != nil {
+		// 按文件类型统计
+		for _, dg := range lastScan.DuplicateGroups {
+			if len(dg.Files) > 0 {
+				ct := dg.Files[0].ContentType.String()
+				report.GroupsByType[ct]++
+			}
+		}
+
+		// 获取 Top N 重复组
+		topN := e.config.ReportTopN
+		if topN <= 0 {
+			topN = 10
+		}
+		sorted := make([]*DuplicateGroup, len(lastScan.DuplicateGroups))
+		copy(sorted, lastScan.DuplicateGroups)
+		sort.Slice(sorted, func(i, j int) bool {
+			return sorted[i].SavedSize > sorted[j].SavedSize
+		})
+		if len(sorted) > topN {
+			sorted = sorted[:topN]
+		}
+		report.TopDuplicates = sorted
+	}
+
+	return report
 }
 
 // CleanTrash 清理回收站中超过指定天数的文件。
@@ -299,4 +388,13 @@ func (e *Engine) CleanTrash(olderThanDays int) (int, error) {
 	})
 
 	return removed, err
+}
+
+// EstimateSaving 估算去重可节省的空间（不执行删除）。
+func (e *Engine) EstimateSaving() (int64, error) {
+	result, err := e.scanner.Scan()
+	if err != nil {
+		return 0, err
+	}
+	return e.strategy.EstimateSaving(result.DuplicateGroups), nil
 }

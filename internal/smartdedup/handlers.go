@@ -23,6 +23,9 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/smartdedup/stats", h.handleStats)
 	mux.HandleFunc("/api/smartdedup/config", h.handleConfig)
 	mux.HandleFunc("/api/smartdedup/status", h.handleStatus)
+	mux.HandleFunc("/api/smartdedup/report", h.handleReport)
+	mux.HandleFunc("/api/smartdedup/estimate", h.handleEstimate)
+	mux.HandleFunc("/api/smartdedup/scan-single", h.handleScanSingle)
 }
 
 // handleScan 处理扫描请求。
@@ -103,12 +106,70 @@ func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, status)
 }
 
+// handleReport 处理去重报告请求。
+func (h *Handler) handleReport(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	report := h.engine.GenerateReport()
+	writeJSON(w, http.StatusOK, report)
+}
+
+// handleEstimate 处理空间估算请求。
+func (h *Handler) handleEstimate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	saved, err := h.engine.EstimateSaving()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"estimatedSaving": saved,
+		"humanReadable":   FormatSize(saved),
+	})
+}
+
+// handleScanSingle 处理单文件扫描请求。
+func (h *Handler) handleScanSingle(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	var req struct {
+		Path string `json:"path"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid request: %v", err))
+		return
+	}
+
+	if req.Path == "" {
+		writeError(w, http.StatusBadRequest, "path is required")
+		return
+	}
+
+	fi, err := h.engine.ScanSingle(req.Path)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, fi)
+}
+
 // writeJSON 写入 JSON 响应。
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		// 日志记录但不改变响应状态码
 		_ = err
 	}
 }
