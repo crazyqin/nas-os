@@ -46,6 +46,7 @@ const (
 	DocTypeHTML     DocumentType = "html"
 	DocTypeImage    DocumentType = "image"
 	DocTypeEPUB     DocumentType = "epub"
+	DocTypeCode    DocumentType = "code"
 	DocTypeUnknown  DocumentType = "unknown"
 )
 
